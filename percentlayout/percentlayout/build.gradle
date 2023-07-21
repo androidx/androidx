@@ -24,7 +24,7 @@ android {
 }
 
 androidx {
-    name = "Android Percent Support Library"
+    name = "Percent"
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2015"
     description = "Android Percent Support Library"

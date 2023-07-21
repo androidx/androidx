@@ -28,7 +28,12 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.wear.protolayout.proto.DimensionProto;
 
-/** Builders for dimensions for layout elements. */
+/**
+ * Builders for dimensions for layout elements.
+ *
+ * @deprecated Use {@link androidx.wear.protolayout.DimensionBuilders} instead.
+ */
+@Deprecated
 public final class DimensionBuilders {
     private DimensionBuilders() {}
 
@@ -486,10 +491,7 @@ public final class DimensionBuilders {
 
     /** Interface defining a dimension that can be applied to a container. */
     public interface ContainerDimension {
-        /**
-         * Get the protocol buffer representation of this object.
-         *
-         */
+        /** Get the protocol buffer representation of this object. */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         DimensionProto.ContainerDimension toContainerDimensionProto();
@@ -497,7 +499,6 @@ public final class DimensionBuilders {
         /**
          * Return an instance of one of this object's subtypes, from the protocol buffer
          * representation.
-         *
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -528,10 +529,7 @@ public final class DimensionBuilders {
 
     /** Interface defining a dimension that can be applied to an image. */
     public interface ImageDimension {
-        /**
-         * Get the protocol buffer representation of this object.
-         *
-         */
+        /** Get the protocol buffer representation of this object. */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         DimensionProto.ImageDimension toImageDimensionProto();
@@ -539,7 +537,6 @@ public final class DimensionBuilders {
         /**
          * Return an instance of one of this object's subtypes, from the protocol buffer
          * representation.
-         *
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -570,10 +567,7 @@ public final class DimensionBuilders {
 
     /** Interface defining a dimension that can be applied to a spacer. */
     public interface SpacerDimension {
-        /**
-         * Get the protocol buffer representation of this object.
-         *
-         */
+        /** Get the protocol buffer representation of this object. */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         DimensionProto.SpacerDimension toSpacerDimensionProto();
@@ -581,7 +575,6 @@ public final class DimensionBuilders {
         /**
          * Return an instance of one of this object's subtypes, from the protocol buffer
          * representation.
-         *
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull

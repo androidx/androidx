@@ -58,7 +58,6 @@ actual sealed interface Paragraph {
     actual fun getBoundingBox(offset: Int): Rect
     actual fun getWordBoundary(offset: Int): TextRange
     actual fun paint(canvas: Canvas, color: Color, shadow: Shadow?, textDecoration: TextDecoration?)
-    @ExperimentalTextApi
     actual fun paint(
         canvas: Canvas,
         color: Color,
@@ -67,7 +66,6 @@ actual sealed interface Paragraph {
         drawStyle: DrawStyle?,
         blendMode: BlendMode
     )
-    @ExperimentalTextApi
     actual fun paint(
         canvas: Canvas,
         brush: Brush,

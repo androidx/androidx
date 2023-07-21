@@ -4,7 +4,9 @@
    <configuration>
       <verify-metadata>true</verify-metadata>
       <verify-signatures>true</verify-signatures>
-      <key-servers enabled="false"/>
+      <key-servers enabled="false">
+          <key-server uri="https://keyserver.ubuntu.com"/>
+      </key-servers>
       <trusted-artifacts>
          <trust group="ch.qos.logback" name="logback-classic" version="1.2.11" reason="b/234161459"/>
          <trust group="ch.qos.logback" name="logback-core" version="1.2.11" reason="b/234161459"/>
@@ -31,6 +33,7 @@
       </trusted-artifacts>
       <ignored-keys>
          <ignored-key id="3d12ca2ac19f3181" reason="Key couldn't be downloaded from any key server"/>
+         <ignored-key id="5a68a2249128e2c6" reason="Key couldn't be downloaded from any key server"/>
       </ignored-keys>
       <trusted-keys>
          <trusted-key id="00089ee8c3afa95a854d0f1df800dd0933ecf7f7" group="com.google.guava"/>
@@ -111,6 +114,7 @@
             <trusting group="xml-apis"/>
          </trusted-key>
          <trusted-key id="2e3a1affe42b5f53af19f780bcf4173966770193" group="org.jetbrains"/>
+         <trusted-key id="2e5b73c6efd2eb453104c2eae6ec76b4c6d3ae8e" group="com.google.protobuf"/>
          <trusted-key id="2e92113263fc31c74ccbaab20e91c2de43b72bb1" group="org.ec4j.core"/>
          <trusted-key id="3051d45031e13516a6e8faff280d66a55f5316c5" group="org.bitbucket.b_c"/>
          <trusted-key id="314fe82e5a4c5377bca2edec5208812e1e4a6db0" group="com.gradle"/>
@@ -131,6 +135,7 @@
          <trusted-key id="41cd49b4ef5876f9e9f691dabac30622339994c4">
             <trusting group="com.google.testing.compile"/>
             <trusting group="com.google.truth"/>
+            <trusting group="com.google.truth.extensions"/>
          </trusted-key>
          <trusted-key id="44fbdbbc1a00fe414f1c1873586654072ead6677" group="org.sonatype.oss"/>
          <trusted-key id="47504b76cf89c15c0512d9afe16ab52d79fd224f">
@@ -227,6 +232,7 @@
             <trusting group="^com[.]sun($|([.].*))" regex="true"/>
          </trusted-key>
          <trusted-key id="720746177725a89207a7075bfd5dea07fcb690a8" group="org.codehaus.mojo"/>
+         <trusted-key id="73976c9c39c1479b84e2641a5a68a2249128e2c6" group="com.google.crypto.tink" name="tink-android" version="1.8.0"/>
          <trusted-key id="748f15b2cf9ba8f024155e6ed7c92b70fa1c814d" group="org.apache.logging.log4j"/>
          <trusted-key id="7615ad56144df2376f49d98b1669c4bb543e0445" group="com.google.errorprone"/>
          <trusted-key id="7616eb882daf57a11477aaf559a252fb1199d873" group="com.google.code.findbugs"/>
@@ -311,7 +317,10 @@
          <trusted-key id="ae9e53fc28ff2ab1012273d0bf1518e0160788a2" group="org.apache" name="apache"/>
          <trusted-key id="afa2b1823fc021bfd08c211fd5f4c07a434ab3da" group="com.squareup"/>
          <trusted-key id="afcc4c7594d09e2182c60e0f7a01b0f236e5430f" group="com.google.code.gson"/>
-         <trusted-key id="b02335aa54ccf21e52bbf9abd9c565aa72ba2fdd" group="io.grpc"/>
+         <trusted-key id="b02335aa54ccf21e52bbf9abd9c565aa72ba2fdd">
+            <trusting group="com.google.protobuf"/>
+            <trusting group="io.grpc"/>
+         </trusted-key>
          <trusted-key id="b252e5789636134a311e4463971b04f56669b805" group="com.google.jsilver"/>
          <trusted-key id="b41089a2da79b0fa5810252872385ff0af338d52" group="org.threeten"/>
          <trusted-key id="b46dc71e03feeb7f89d1f2491f7a8f87b9d8f501" group="org.jetbrains.trove4j"/>
@@ -422,19 +431,19 @@
       </trusted-keys>
    </configuration>
    <components>
-      <component group="" name="kotlin-native-prebuilt-linux-x86_64" version="1.8.10">
-         <artifact name="kotlin-native-prebuilt-linux-x86_64-1.8.10.tar.gz">
-            <sha256 value="7c031ecc225cacc96c9479be28249d57226ff10a1d9ad78340ed6efffd06bdf5" origin="Hand-built using sha256sum kotlin-native-prebuilt-linux-x86_64-1.8.10.tar.gz" reason="Artifact is not signed"/>
+      <component group="" name="kotlin-native-prebuilt-linux-x86_64" version="1.8.21">
+         <artifact name="kotlin-native-prebuilt-linux-x86_64-1.8.21.tar.gz">
+            <sha256 value="a4ad0664076b44a80d182f3a3f40ca35a7b4ca4c13c84ad90c2e32fb3a829fd3" origin="Hand-built using sha256sum kotlin-native-prebuilt-linux-x86_64-1.8.21.tar.gz" reason="Artifact is not signed"/>
          </artifact>
       </component>
-      <component group="" name="kotlin-native-prebuilt-macos-aarch64" version="1.8.10">
-         <artifact name="kotlin-native-prebuilt-macos-aarch64-1.8.10.tar.gz">
-            <sha256 value="b15d176c8b88ee6d4bc8017e17462222081dca2e97347fd9eecd554c5839a819" origin="Hand-built using sha256sum kotlin-native-prebuilt-macos-aarch64-1.8.10.tar.gz"/>
+      <component group="" name="kotlin-native-prebuilt-macos-aarch64" version="1.8.21">
+         <artifact name="kotlin-native-prebuilt-macos-aarch64-1.8.21.tar.gz">
+            <sha256 value="f6ae002832b6727fb6da8701429d9d9ad7f4b9ac410aca446d9a1880293882aa" origin="Hand-built using sha256sum kotlin-native-prebuilt-macos-aarch64-1.8.21.tar.gz"/>
          </artifact>
       </component>
-      <component group="" name="kotlin-native-prebuilt-macos-x86_64" version="1.8.10">
-         <artifact name="kotlin-native-prebuilt-macos-x86_64-1.8.10.tar.gz">
-            <sha256 value="8a31a27a776ba55974936b897be76edca1cf871d9ae75537e593a7f1b83380e9" origin="Hand-built using sha256sum kotlin-native-prebuilt-macos-x86_64-1.8.10.tar.gz"/>
+      <component group="" name="kotlin-native-prebuilt-macos-x86_64" version="1.8.21">
+         <artifact name="kotlin-native-prebuilt-macos-x86_64-1.8.21.tar.gz">
+            <sha256 value="a4fefa2fd40d16fcdf1b0095cfaf3c1b2857a79290972b436c797fbb20df9b63" origin="Hand-built using sha256sum kotlin-native-prebuilt-macos-x86_64-1.8.21.tar.gz"/>
          </artifact>
       </component>
       <component group="com.fasterxml.jackson.core" name="jackson-databind" version="2.12.7.1">
@@ -475,6 +484,14 @@
             <sha256 value="d46777ad3ea8bca73491b2e02fc85b3664486abf5314cc4dc6740908bd855330" origin="Generated by Gradle" reason="Artifact is not signed"/>
          </artifact>
       </component>
+      <component group="com.google.android.apps.common.testing.accessibility.framework" name="accessibility-test-framework" version="3.1">
+         <artifact name="accessibility-test-framework-3.1.aar">
+            <sha256 value="e641e2a2c7287afd41b85310dd8f1344a8668034bbbfc4b02f58a48fd9c05ec7" origin="Generated by Gradle" reason="Artifact is not signed"/>
+         </artifact>
+         <artifact name="accessibility-test-framework-3.1.pom">
+            <sha256 value="80567228cdbd44d61e5320cd090883de7232dbc1ed7ebf5ab5c9810c11cd67e0" origin="Generated by Gradle" reason="Artifact is not signed"/>
+         </artifact>
+      </component>
       <component group="com.google.android.apps.common.testing.accessibility.framework" name="accessibility-test-framework" version="3.1.2">
          <artifact name="accessibility-test-framework-3.1.2.aar">
             <sha256 value="9b586dc8eeeb4f601038e23ef8ffd6a1deeca1163276d02797b0d2b8f9764b62" origin="Generated by Gradle" reason="Artifact is not signed"/>
@@ -489,6 +506,14 @@
          </artifact>
          <artifact name="googleid-0.0.2.pom">
             <sha256 value="100a2c6db1ec4aab9545ead93be094c9728ecc671fba8353648d04ef405f30c8" origin="Generated by Gradle" reason="Artifact is not signed"/>
+         </artifact>
+      </component>
+      <component group="com.google.android.libraries.identity.googleid" name="googleid" version="1.0.0">
+         <artifact name="googleid-1.0.0.aar">
+            <sha256 value="7c6c910a751e32951afafd79be22f9d5222229ec59a92961515a8b0b6f8ecdcb" origin="Generated by Gradle" reason="Artifact is not signed"/>
+         </artifact>
+         <artifact name="googleid-1.0.0.pom">
+            <sha256 value="663aed69db1623331032fe4dedee4f2b1c9decbdad0ab06a4fc0be14b3e52c7f" origin="Generated by Gradle" reason="Artifact is not signed"/>
          </artifact>
       </component>
       <component group="com.google.android.odml" name="image" version="1.0.0-beta1">
@@ -547,6 +572,14 @@
             <sha256 value="02c12c3c2ae12dd475219ff691c82a4d9ea21f44bc594a181295bf6d43dcfbb0" origin="Generated by Gradle" reason="Artifact is not signed"/>
          </artifact>
       </component>
+      <component group="com.google.crypto.tink" name="tink-android" version="1.8.0">
+         <artifact name="tink-android-1.8.0.jar">
+            <sha256 value="5efe8f1cb6e75814ae06793d5ff8d9b01e6f88ef97ecc062d14ebc27027dbf78" origin="Generated by Gradle" reason="A key couldn't be downloaded"/>
+         </artifact>
+         <artifact name="tink-android-1.8.0.pom">
+            <sha256 value="83e3b5cdd1fee04f3fad72c4ce584a54d0a637b93d2bb2bd85da4ae67a673e3e" origin="Generated by Gradle" reason="A key couldn't be downloaded"/>
+         </artifact>
+      </component>
       <component group="com.google.prefab" name="cli" version="2.0.0">
          <artifact name="cli-2.0.0-all.jar">
             <sha256 value="d9bd89f68446b82be038aae774771ad85922d0b375209b17625a2734b5317e29" origin="Generated by Gradle" reason="Artifact is not signed"/>
@@ -561,16 +594,6 @@
          </artifact>
          <artifact name="json-simple-1.1.pom">
             <sha256 value="47a89be0fa0fedd476db5fd2c83487654d2a119c391f83a142be876667cf7dab" origin="Generated by Gradle" reason="Artifact is not signed"/>
-         </artifact>
-      </component>
-      <component group="com.gradle" name="common-custom-user-data-gradle-plugin" version="1.7.2">
-         <artifact name="common-custom-user-data-gradle-plugin-1.7.2.pom">
-            <sha256 value="c70db912c8b127b1b9a6c0cccac1a9353e9fc3b063a3be0114a5208f43c09c31" origin="Generated by Gradle" reason="Artifact is not signed"/>
-         </artifact>
-      </component>
-      <component group="com.gradle" name="gradle-enterprise-gradle-plugin" version="3.10.2">
-         <artifact name="gradle-enterprise-gradle-plugin-3.10.2.pom">
-            <sha256 value="57603c9a75a9ef86ce30b1cb2db728d3cd9caf1be967343f1fc2316c85df5653" origin="Generated by Gradle"/>
          </artifact>
       </component>
       <component group="de.undercouch" name="gradle-download-task" version="4.1.1">
@@ -597,14 +620,6 @@
          </artifact>
          <artifact name="shadow-7.1.1.pom">
             <sha256 value="683be0cd32af9c80a6d4a143b9a6ac2eb45ebc3ccd16db4ca11b94e55fc5e52f" origin="Generated by Gradle" reason="Artifact is not signed"/>
-         </artifact>
-      </component>
-      <component group="gradle.plugin.com.google.protobuf" name="protobuf-gradle-plugin" version="0.8.13">
-         <artifact name="protobuf-gradle-plugin-0.8.13.jar">
-            <sha256 value="8a04b6eee4eab68c73b6e61cc8e00206753691b781d042afbae746f97e8c6f2d" origin="Generated by Gradle" reason="Artifact is not signed"/>
-         </artifact>
-         <artifact name="protobuf-gradle-plugin-0.8.13.pom">
-            <sha256 value="d8c46016037cda6360561b9c6a21a6c2a4847cad15c3c63903e15328fbcccc45" origin="Generated by Gradle" reason="Artifact is not signed"/>
          </artifact>
       </component>
       <component group="javax.annotation" name="jsr250-api" version="1.0">

@@ -43,9 +43,9 @@ internal class StreamGraphImplTest {
     fun testPrecomputedTestData() {
         val streamGraph = StreamGraphImpl(config.fakeMetadata, config.graphConfig)
 
-        assertThat(streamGraph.streams).hasSize(9)
-        assertThat(streamGraph.streams).hasSize(9)
-        assertThat(streamGraph.outputConfigs).hasSize(8)
+        assertThat(streamGraph.streams).hasSize(10)
+        assertThat(streamGraph.streams).hasSize(10)
+        assertThat(streamGraph.outputConfigs).hasSize(9)
 
         val stream1 = streamGraph[config.streamConfig1]!!
         val outputStream1 = stream1.outputs.single()
@@ -56,6 +56,7 @@ internal class StreamGraphImplTest {
         assertThat(outputStream1.timestampBase).isNull()
         assertThat(outputStream1.dynamicRangeProfile).isNull()
         assertThat(outputStream1.streamUseCase).isNull()
+        assertThat(outputStream1.streamUseHint).isNull()
 
         val stream2 = streamGraph[config.streamConfig2]!!
         val outputStream2 = stream2.outputs.single()
@@ -67,6 +68,7 @@ internal class StreamGraphImplTest {
         assertThat(outputStream2.timestampBase).isNull()
         assertThat(outputStream2.dynamicRangeProfile).isNull()
         assertThat(outputStream2.streamUseCase).isNull()
+        assertThat(outputStream2.streamUseHint).isNull()
     }
 
     @Test
@@ -131,10 +133,10 @@ internal class StreamGraphImplTest {
         assertThat(stream1.streamUseCase).isEqualTo(OutputStream.StreamUseCase.PREVIEW)
 
         val stream2 = streamGraph.outputs[1]
-        assertThat(stream2.streamUseCase).isEqualTo(OutputStream.StreamUseCase.VIDEO_RECORD)
+        assertThat(stream2.streamUseCase).isEqualTo(OutputStream.StreamUseCase.DEFAULT)
 
         val stream3 = streamGraph.outputs[2]
-        assertThat(stream3.streamUseCase).isEqualTo(OutputStream.StreamUseCase.DEFAULT)
+        assertThat(stream3.streamUseCase).isEqualTo(OutputStream.StreamUseCase.VIDEO_RECORD)
     }
 
     @Test
@@ -364,13 +366,51 @@ internal class StreamGraphImplTest {
         val streamGraph = StreamGraphImpl(config.fakeMetadata, graphConfig)
 
         val stream1 = streamGraph.outputs[0]
-        assertThat(stream1.streamUseCase).isEqualTo(OutputStream.StreamUseCase.VIDEO_RECORD)
+        assertThat(stream1.streamUseCase).isEqualTo(OutputStream.StreamUseCase.VIDEO_CALL)
 
         val stream2 = streamGraph.outputs[1]
-        assertThat(stream2.streamUseCase).isEqualTo(OutputStream.StreamUseCase.VIDEO_CALL)
+        assertThat(stream2.streamUseCase).isEqualTo(OutputStream.StreamUseCase.STILL_CAPTURE)
 
         val stream3 = streamGraph.outputs[2]
-        assertThat(stream3.streamUseCase).isEqualTo(OutputStream.StreamUseCase.STILL_CAPTURE)
+        assertThat(stream3.streamUseCase).isEqualTo(OutputStream.StreamUseCase.VIDEO_RECORD)
+    }
+
+    @Test
+    fun testOutputSortingWithStreamUseHint() {
+
+        val streamConfig =
+            CameraStream.Config.create(
+                listOf(
+                    OutputStream.Config.create(
+                        Size(800, 600), StreamFormat.UNKNOWN,
+                        streamUseCase = OutputStream.StreamUseCase.DEFAULT,
+                        streamUseHint = OutputStream.StreamUseHint.VIDEO_RECORD
+                    ),
+                    OutputStream.Config.create(
+                        Size(1600, 1200), StreamFormat.UNKNOWN,
+                        streamUseCase = OutputStream.StreamUseCase.PREVIEW
+                    ),
+                    OutputStream.Config.create(
+                        Size(800, 600), StreamFormat.UNKNOWN,
+                        streamUseCase = OutputStream.StreamUseCase.STILL_CAPTURE
+                    ),
+                )
+            )
+        val graphConfig =
+            CameraGraph.Config(
+                camera = CameraId("0"),
+                streams = listOf(streamConfig),
+            )
+        val streamGraph = StreamGraphImpl(config.fakeMetadata, graphConfig)
+
+        val stream1 = streamGraph.outputs[0]
+        assertThat(stream1.streamUseCase).isEqualTo(OutputStream.StreamUseCase.PREVIEW)
+
+        val stream2 = streamGraph.outputs[1]
+        assertThat(stream2.streamUseCase).isEqualTo(OutputStream.StreamUseCase.STILL_CAPTURE)
+
+        val stream3 = streamGraph.outputs[2]
+        assertThat(stream3.streamUseCase).isEqualTo(OutputStream.StreamUseCase.DEFAULT)
     }
 
     @Test
@@ -495,6 +535,17 @@ internal class StreamGraphImplTest {
         val stream2 = streamGraph[config.streamConfig7]!!
         assertThat(stream2.outputs.single().streamUseCase)
             .isEqualTo(OutputStream.StreamUseCase.VIDEO_RECORD)
+    }
+
+    @Test
+    fun testDefaultAndPropagatedStreamUseHints() {
+        val streamGraph = StreamGraphImpl(config.fakeMetadata, config.graphConfig)
+        val stream1 = streamGraph[config.streamConfig1]!!
+        assertThat(stream1.outputs.single().streamUseCase).isNull()
+
+        val stream2 = streamGraph[config.streamConfig8]!!
+        assertThat(stream2.outputs.single().streamUseHint)
+            .isEqualTo(OutputStream.StreamUseHint.VIDEO_RECORD)
     }
 
     private fun deferredStreamsAreSupported(

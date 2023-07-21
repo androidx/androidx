@@ -32,7 +32,7 @@ dependencies {
 }
 
 androidx {
-    name = "Android Support Animation"
+    name = "Animation"
     publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.CORE_ANIMATION
     inceptionYear = "2018"

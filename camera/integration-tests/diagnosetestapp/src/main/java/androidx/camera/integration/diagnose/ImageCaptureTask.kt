@@ -25,12 +25,12 @@ import androidx.camera.core.impl.utils.Threads
 import androidx.camera.view.CameraController.IMAGE_CAPTURE
 import androidx.camera.view.LifecycleCameraController
 import androidx.core.content.ContextCompat
-import kotlinx.coroutines.withContext
 import java.io.File
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withContext
 
 /**
  * Diagnosis task that utilizes ImageCapture use case

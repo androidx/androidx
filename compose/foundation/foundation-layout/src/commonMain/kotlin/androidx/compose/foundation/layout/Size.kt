@@ -38,7 +38,6 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.constrain
 import androidx.compose.ui.unit.constrainHeight
 import androidx.compose.ui.unit.constrainWidth
-import androidx.compose.ui.unit.dp
 import kotlin.math.roundToInt
 
 /**
@@ -615,9 +614,9 @@ private class FillElement(
 ) : ModifierNodeElement<FillNode>() {
     override fun create(): FillNode = FillNode(direction = direction, fraction = fraction)
 
-    override fun update(node: FillNode): FillNode = node.also {
-        it.direction = direction
-        it.fraction = fraction
+    override fun update(node: FillNode) {
+        node.direction = direction
+        node.fraction = fraction
     }
 
     override fun InspectorInfo.inspectableProperties() {
@@ -723,12 +722,12 @@ private class SizeElement(
             enforceIncoming = enforceIncoming
         )
 
-    override fun update(node: SizeNode): SizeNode = node.also {
-        it.minWidth = minWidth
-        it.minHeight = minHeight
-        it.maxWidth = maxWidth
-        it.maxHeight = maxHeight
-        it.enforceIncoming = enforceIncoming
+    override fun update(node: SizeNode) {
+        node.minWidth = minWidth
+        node.minHeight = minHeight
+        node.maxWidth = maxWidth
+        node.maxHeight = maxHeight
+        node.enforceIncoming = enforceIncoming
     }
 
     override fun InspectorInfo.inspectableProperties() {
@@ -768,12 +767,12 @@ private class SizeNode(
     private val Density.targetConstraints: Constraints
         get() {
             val maxWidth = if (maxWidth != Dp.Unspecified) {
-                maxWidth.coerceAtLeast(0.dp).roundToPx()
+                maxWidth.roundToPx().coerceAtLeast(0)
             } else {
                 Constraints.Infinity
             }
             val maxHeight = if (maxHeight != Dp.Unspecified) {
-                maxHeight.coerceAtLeast(0.dp).roundToPx()
+                maxHeight.roundToPx().coerceAtLeast(0)
             } else {
                 Constraints.Infinity
             }
@@ -903,10 +902,10 @@ private class WrapContentElement(
         alignmentCallback
     )
 
-    override fun update(node: WrapContentNode): WrapContentNode = node.also {
-        it.direction = direction
-        it.unbounded = unbounded
-        it.alignmentCallback = alignmentCallback
+    override fun update(node: WrapContentNode) {
+        node.direction = direction
+        node.unbounded = unbounded
+        node.alignmentCallback = alignmentCallback
     }
 
     override fun InspectorInfo.inspectableProperties() {
@@ -1029,9 +1028,9 @@ private class UnspecifiedConstraintsElement(
         minHeight = minHeight
     )
 
-    override fun update(node: UnspecifiedConstraintsNode) = node.also {
-        it.minWidth = minWidth
-        it.minHeight = minHeight
+    override fun update(node: UnspecifiedConstraintsNode) {
+        node.minWidth = minWidth
+        node.minHeight = minHeight
     }
 
     override fun InspectorInfo.inspectableProperties() {

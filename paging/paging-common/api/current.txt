@@ -46,7 +46,7 @@ package androidx.paging {
     method @AnyThread public void onInvalidated();
   }
 
-  public final class InvalidatingPagingSourceFactory<Key, Value> implements kotlin.jvm.functions.Function0<androidx.paging.PagingSource<Key,Value>> {
+  public final class InvalidatingPagingSourceFactory<Key, Value> implements androidx.paging.PagingSourceFactory<Key,Value> {
     ctor public InvalidatingPagingSourceFactory(kotlin.jvm.functions.Function0<? extends androidx.paging.PagingSource<Key,Value>> pagingSourceFactory);
     method public void invalidate();
     method public androidx.paging.PagingSource<Key,Value> invoke();
@@ -409,6 +409,10 @@ package androidx.paging {
   }
 
   public static final class PagingSource.LoadResult.Page.Companion {
+  }
+
+  public fun interface PagingSourceFactory<Key, Value> extends kotlin.jvm.functions.Function0<androidx.paging.PagingSource<Key,Value>> {
+    method public operator androidx.paging.PagingSource<Key,Value> invoke();
   }
 
   public final class PagingState<Key, Value> {

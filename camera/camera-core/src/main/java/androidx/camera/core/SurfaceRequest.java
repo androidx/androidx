@@ -38,6 +38,7 @@ import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.DeferrableSurface;
 import androidx.camera.core.impl.ImageFormatConstants;
 import androidx.camera.core.impl.ImageOutputConfig;
+import androidx.camera.core.impl.StreamSpec;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.Futures;
@@ -86,11 +87,23 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class SurfaceRequest {
+
+    /**
+     * A frame rate range with no specified lower or upper bound.
+     *
+     * @see SurfaceRequest#getExpectedFrameRate()
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final Range<Integer> FRAME_RATE_RANGE_UNSPECIFIED =
+            StreamSpec.FRAME_RATE_RANGE_UNSPECIFIED;
+
     private final Object mLock = new Object();
 
     private final Size mResolution;
 
-    @Nullable
+    @NonNull
+    private final DynamicRange mDynamicRange;
+
     private final Range<Integer> mExpectedFrameRate;
     private final CameraInternal mCamera;
 
@@ -133,11 +146,11 @@ public final class SurfaceRequest {
             @NonNull Size resolution,
             @NonNull CameraInternal camera,
             @NonNull Runnable onInvalidated) {
-        this(resolution, camera, /*expectedFrameRate=*/null, onInvalidated);
+        this(resolution, camera, DynamicRange.SDR, FRAME_RATE_RANGE_UNSPECIFIED, onInvalidated);
     }
 
     /**
-     * Creates a new surface request with the given resolution, {@link Camera}, and an optional
+     * Creates a new surface request with the given resolution, {@link Camera}, dynamic range, and
      * expected frame rate.
      *
      */
@@ -145,11 +158,13 @@ public final class SurfaceRequest {
     public SurfaceRequest(
             @NonNull Size resolution,
             @NonNull CameraInternal camera,
-            @Nullable Range<Integer> expectedFrameRate,
+            @NonNull DynamicRange dynamicRange,
+            @NonNull Range<Integer> expectedFrameRate,
             @NonNull Runnable onInvalidated) {
         super();
         mResolution = resolution;
         mCamera = camera;
+        mDynamicRange = dynamicRange;
         mExpectedFrameRate = expectedFrameRate;
 
         // To ensure concurrency and ordering, operations are chained. Completion can only be
@@ -312,6 +327,23 @@ public final class SurfaceRequest {
     }
 
     /**
+     * Returns the dynamic range expected to be used with the requested surface.
+     *
+     * <p>The dynamic range may have implications for which surface type is returned. Special
+     * care should be taken to ensure the provided surface can support the requested dynamic
+     * range. For example, if the returned dynamic range has {@link DynamicRange#getBitDepth()}
+     * equal to {@link DynamicRange#BIT_DEPTH_10_BIT}, then the surface provided to
+     * {@link #provideSurface(Surface, Executor, Consumer)} should use a format that can support
+     * ten bits of dynamic range, such as {@link android.graphics.ImageFormat#PRIVATE} or
+     * {@link android.graphics.ImageFormat#YCBCR_P010}.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @NonNull
+    public DynamicRange getDynamicRange() {
+        return mDynamicRange;
+    }
+
+    /**
      * Returns the expected rate at which frames will be produced into the provided {@link Surface}.
      *
      * <p>This information can be used to configure components that can be optimized by knowing
@@ -324,15 +356,15 @@ public final class SurfaceRequest {
      * conditions. The frame rate may also be fixed, in which case {@link Range#getUpper()} will
      * be equivalent to {@link Range#getLower()}.
      *
-     * <p>This method may also return {@code null} if no information about the frame rate can be
-     * determined. In this case, no assumptions should be made about what the actual frame rate
-     * will be.
+     * <p>This method may also return {@link #FRAME_RATE_RANGE_UNSPECIFIED} if no information about
+     * the frame rate can be determined. In this case, no assumptions should be made about what
+     * the actual frame rate will be.
      *
-     * @return The expected frame rate range or {@code null} if no frame rate information is
-     * available.
+     * @return The expected frame rate range or {@link #FRAME_RATE_RANGE_UNSPECIFIED} if no frame
+     * rate information is available.
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @Nullable
+    @NonNull
     public Range<Integer> getExpectedFrameRate() {
         return mExpectedFrameRate;
     }

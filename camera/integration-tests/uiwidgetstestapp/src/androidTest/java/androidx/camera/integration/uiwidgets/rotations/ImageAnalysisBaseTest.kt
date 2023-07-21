@@ -33,6 +33,9 @@ import androidx.test.uiautomator.UiDevice
 import androidx.testutils.withActivity
 import com.google.common.truth.Truth.assertWithMessage
 import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import org.junit.Assume
 import org.junit.BeforeClass
 import org.junit.Rule
@@ -87,10 +90,12 @@ abstract class ImageAnalysisBaseTest<A : CameraActivity>(
         CoreAppTestUtil.prepareDeviceUI(InstrumentationRegistry.getInstrumentation())
     }
 
-    protected fun tearDown() {
-        val context = ApplicationProvider.getApplicationContext<Context>()
-        val cameraProvider = ProcessCameraProvider.getInstance(context)[10, TimeUnit.SECONDS]
-        cameraProvider.shutdown()[10, TimeUnit.SECONDS]
+    protected fun tearDown(): Unit = runBlocking {
+        withContext(Dispatchers.Main) {
+            val context = ApplicationProvider.getApplicationContext<Context>()
+            val cameraProvider = ProcessCameraProvider.getInstance(context)[10, TimeUnit.SECONDS]
+            cameraProvider.shutdown()[10, TimeUnit.SECONDS]
+        }
         mDevice.unfreezeRotation()
     }
 

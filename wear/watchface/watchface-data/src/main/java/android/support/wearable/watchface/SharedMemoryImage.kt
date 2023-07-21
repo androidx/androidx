@@ -27,7 +27,6 @@ import java.nio.ByteBuffer
 /**
  * This class requires API level 27 and is only intended for use in conjunction with
  * wear-watchface-client which also requires API level 27.
- *
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class SharedMemoryImage {

@@ -24,11 +24,13 @@ import androidx.annotation.Dimension;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.wear.protolayout.TypeBuilders.FloatProp;
 import androidx.wear.protolayout.expression.DynamicBuilders;
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat;
+import androidx.wear.protolayout.expression.ExperimentalProtoLayoutExtensionApi;
 import androidx.wear.protolayout.expression.Fingerprint;
 import androidx.wear.protolayout.proto.DimensionProto;
 
@@ -103,13 +105,9 @@ public final class DimensionBuilders {
         return WRAP;
     }
 
-    /**
-     * A type for linear dimensions, measured in dp.
-     *
-     * @since 1.0
-     */
+    @OptIn(markerClass = ExperimentalProtoLayoutExtensionApi.class)
     public static final class DpProp
-            implements ContainerDimension, ImageDimension, SpacerDimension {
+            implements ContainerDimension, ImageDimension, SpacerDimension, ExtensionDimension {
         private final DimensionProto.DpProp mImpl;
         @Nullable private final Fingerprint mFingerprint;
 
@@ -191,6 +189,14 @@ public final class DimensionBuilders {
         }
 
         @Override
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        @ExperimentalProtoLayoutExtensionApi
+        public DimensionProto.ExtensionDimension toExtensionDimensionProto() {
+            return DimensionProto.ExtensionDimension.newBuilder().setLinearDimension(mImpl).build();
+        }
+
+        @Override
         @NonNull
         public String toString() {
             return "DpProp{" + "value=" + getValue() + ", dynamicValue=" + getDynamicValue() + "}";
@@ -200,7 +206,8 @@ public final class DimensionBuilders {
         public static final class Builder
                 implements ContainerDimension.Builder,
                         ImageDimension.Builder,
-                        SpacerDimension.Builder {
+                        SpacerDimension.Builder,
+                        ExtensionDimension.Builder {
             private final DimensionProto.DpProp.Builder mImpl = DimensionProto.DpProp.newBuilder();
             private final Fingerprint mFingerprint = new Fingerprint(756413087);
 
@@ -254,6 +261,201 @@ public final class DimensionBuilders {
                     throw new IllegalStateException("Static value is missing.");
                 }
                 return new DpProp(mImpl.build(), mFingerprint);
+            }
+        }
+    }
+
+    private static class DpPropLayoutConstraint {
+        protected final DimensionProto.DpProp mImpl;
+        @Nullable protected final Fingerprint mFingerprint;
+
+        protected DpPropLayoutConstraint(
+                DimensionProto.DpProp impl, @Nullable Fingerprint fingerprint) {
+            this.mImpl = impl;
+            this.mFingerprint = fingerprint;
+        }
+
+        /**
+         * Gets the value to use when laying out components which can have a dynamic value.
+         * Constrains the layout so that components are not changing size or location regardless of
+         * the dynamic value that is being provided.
+         *
+         * @since 1.2
+         */
+        @SuppressWarnings("Unused")
+        @Dimension(unit = DP)
+        public float getValue() {
+            return mImpl.getValueForLayout();
+        }
+
+        @SuppressWarnings("Unused")
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Nullable
+        public Fingerprint getFingerprint() {
+            return mFingerprint;
+        }
+
+        @SuppressWarnings("Unused")
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public DimensionProto.SpacerDimension toSpacerDimensionProto() {
+            return DimensionProto.SpacerDimension.newBuilder().setLinearDimension(mImpl).build();
+        }
+
+        /** Builder for {@link DpPropLayoutConstraint}. */
+        protected static class Builder {
+            protected final DimensionProto.DpProp.Builder mImpl =
+                    DimensionProto.DpProp.newBuilder();
+            protected final Fingerprint mFingerprint = new Fingerprint(756413088);
+
+            /**
+             * Creates a new builder for {@link DpPropLayoutConstraint}.
+             *
+             * @param value Sets the value to use when laying out components which can have a
+             *     dynamic value. Constrains the layout so that components are not changing size or
+             *     location regardless of the dynamic value that is being provided.
+             * @since 1.2
+             */
+            protected Builder(@Dimension(unit = DP) float value) {
+                setValue(value);
+            }
+
+            /**
+             * Sets the value to use when laying out components which can have a dynamic value.
+             * Constrains the layout so that components are not changing size or location regardless
+             * of the dynamic value that is being provided.
+             *
+             * @since 1.2
+             */
+            @NonNull
+            private Builder setValue(@Dimension(unit = DP) float value) {
+                mImpl.setValueForLayout(value);
+                mFingerprint.recordPropertyUpdate(3, Float.floatToIntBits(value));
+                return this;
+            }
+        }
+    }
+
+    /**
+     * A type for specifying horizontal layout constraints when using {@link DpProp} on a data
+     * bindable layout element.
+     *
+     * @since 1.2
+     */
+    public static final class HorizontalLayoutConstraint extends DpPropLayoutConstraint {
+        HorizontalLayoutConstraint(DimensionProto.DpProp impl, @Nullable Fingerprint fingerprint) {
+            super(impl, fingerprint);
+        }
+
+        /**
+         * Gets the horizontal alignment of the actual content within the space reserved by value.
+         *
+         * @since 1.2
+         */
+        @LayoutElementBuilders.HorizontalAlignment
+        public int getHorizontalAlignment() {
+            return mImpl.getHorizontalAlignmentForLayoutValue();
+        }
+
+        @NonNull
+        static HorizontalLayoutConstraint fromProto(@NonNull DimensionProto.DpProp proto) {
+            return new HorizontalLayoutConstraint(proto, null);
+        }
+
+        /** Builder for {@link HorizontalLayoutConstraint}. */
+        public static final class Builder extends DpPropLayoutConstraint.Builder {
+            /**
+             * Creates a new builder for {@link HorizontalLayoutConstraint}.
+             *
+             * @param value Sets the value to use when laying out components which can have a
+             *     dynamic value. Constrains the layout so that components are not changing size or
+             *     location regardless of the dynamic value that is being provided.
+             * @since 1.2
+             */
+            public Builder(@Dimension(unit = DP) float value) {
+                super(value);
+            }
+
+            /**
+             * Sets the horizontal alignment of the actual content within the space reserved by
+             * value. If not specified, defaults to center alignment.
+             *
+             * @since 1.2
+             */
+            @NonNull
+            public Builder setHorizontalAlignment(
+                    @LayoutElementBuilders.HorizontalAlignment int horizontalAlignment) {
+                mImpl.setHorizontalAlignmentForLayoutValue(horizontalAlignment);
+                mFingerprint.recordPropertyUpdate(5, horizontalAlignment);
+                return this;
+            }
+
+            /** Builds an instance of {@link HorizontalLayoutConstraint}. */
+            @NonNull
+            public HorizontalLayoutConstraint build() {
+                return new HorizontalLayoutConstraint(mImpl.build(), mFingerprint);
+            }
+        }
+    }
+
+    /**
+     * A type for specifying vertical layout constraints when using {@link DpProp} on a data
+     * bindable layout element.
+     *
+     * @since 1.2
+     */
+    public static final class VerticalLayoutConstraint extends DpPropLayoutConstraint {
+        VerticalLayoutConstraint(DimensionProto.DpProp impl, @Nullable Fingerprint fingerprint) {
+            super(impl, fingerprint);
+        }
+
+        /**
+         * Gets the vertical alignment of the actual content within the space reserved by value.
+         *
+         * @since 1.2
+         */
+        @LayoutElementBuilders.VerticalAlignment
+        public int getVerticalAlignment() {
+            return mImpl.getVerticalAlignmentForLayoutValue();
+        }
+
+        @NonNull
+        static VerticalLayoutConstraint fromProto(@NonNull DimensionProto.DpProp proto) {
+            return new VerticalLayoutConstraint(proto, null);
+        }
+
+        /** Builder for {@link VerticalLayoutConstraint}. */
+        public static final class Builder extends DpPropLayoutConstraint.Builder {
+            /**
+             * Creates a new builder for {@link VerticalLayoutConstraint}.
+             *
+             * @param value Sets the value to use when laying out components which can have a
+             *     dynamic value. Constrains the layout so that components are not changing size or
+             *     location regardless of the dynamic value that is being provided.
+             * @since 1.2
+             */
+            public Builder(@Dimension(unit = DP) float value) {
+                super(value);
+            }
+
+            /**
+             * Sets the vertical alignment of the actual content within the space reserved by value.
+             * If not specified, defaults to center alignment.
+             *
+             * @since 1.2
+             */
+            @NonNull
+            public Builder setVerticalAlignment(
+                    @LayoutElementBuilders.VerticalAlignment int verticalAlignment) {
+                mImpl.setVerticalAlignmentForLayoutValue(verticalAlignment);
+                mFingerprint.recordPropertyUpdate(4, verticalAlignment);
+                return this;
+            }
+
+            /** Builds an instance of {@link VerticalLayoutConstraint}. */
+            @NonNull
+            public VerticalLayoutConstraint build() {
+                return new VerticalLayoutConstraint(mImpl.build(), mFingerprint);
             }
         }
     }
@@ -558,6 +760,111 @@ public final class DimensionBuilders {
                     throw new IllegalStateException("Static value is missing.");
                 }
                 return new DegreesProp(mImpl.build(), mFingerprint);
+            }
+        }
+    }
+
+    /**
+     * A type for specifying layout constraints when using {@link DegreesProp} on a data bindable
+     * layout element.
+     *
+     * @since 1.2
+     */
+    public static final class AngularLayoutConstraint {
+        private final DimensionProto.DegreesProp mImpl;
+        @Nullable private final Fingerprint mFingerprint;
+
+        AngularLayoutConstraint(
+                DimensionProto.DegreesProp impl, @Nullable Fingerprint fingerprint) {
+            this.mImpl = impl;
+            this.mFingerprint = fingerprint;
+        }
+
+        /**
+         * Gets the fixed value to reserve the space when used on a layout-changing data bind. If
+         * not set defaults to the static value of the associated {@link DegreesProp} field.
+         *
+         * @since 1.2
+         */
+        @Dimension(unit = DP)
+        public float getValue() {
+            return mImpl.getValueForLayout();
+        }
+
+        /**
+         * Gets angular alignment of the actual content within the space reserved by value.
+         *
+         * @since 1.2
+         */
+        @LayoutElementBuilders.AngularAlignment
+        public int getAngularAlignment() {
+            return mImpl.getAngularAlignmentForLayoutValue();
+        }
+
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Nullable
+        public Fingerprint getFingerprint() {
+            return mFingerprint;
+        }
+
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public DimensionProto.DegreesProp toProto() {
+            return mImpl;
+        }
+
+        @NonNull
+        static AngularLayoutConstraint fromProto(@NonNull DimensionProto.DegreesProp proto) {
+            return new AngularLayoutConstraint(proto, null);
+        }
+
+        /** Builder for {@link AngularLayoutConstraint}. */
+        public static final class Builder {
+            private final DimensionProto.DegreesProp.Builder mImpl =
+                    DimensionProto.DegreesProp.newBuilder();
+            private final Fingerprint mFingerprint = new Fingerprint(-1927567664);
+
+            /**
+             * Creates a new builder for {@link AngularLayoutConstraint}.
+             *
+             * @param value Sets the fixed value to reserve the space when used on a layout-changing
+             *     data bind.
+             * @since 1.2
+             */
+            public Builder(@Dimension(unit = DP) float value) {
+                setValue(value);
+            }
+
+            /**
+             * Sets the fixed value to reserve the space when used on a layout-changing data bind.
+             *
+             * @since 1.2
+             */
+            @NonNull
+            private Builder setValue(@Dimension(unit = DP) float value) {
+                mImpl.setValueForLayout(value);
+                mFingerprint.recordPropertyUpdate(3, Float.floatToIntBits(value));
+                return this;
+            }
+
+            /**
+             * Sets angular alignment of the actual content within the space reserved by value. If
+             * not specified, defaults to center alignment.
+             *
+             * @since 1.2
+             */
+            @NonNull
+            public Builder setAngularAlignment(
+                    @LayoutElementBuilders.AngularAlignment int angularAlignment) {
+                mImpl.setAngularAlignmentForLayoutValue(angularAlignment);
+                mFingerprint.recordPropertyUpdate(4, angularAlignment);
+                return this;
+            }
+
+            /** Builds an instance of {@link AngularLayoutConstraint}. */
+            @NonNull
+            public AngularLayoutConstraint build() {
+                return new AngularLayoutConstraint(mImpl.build(), mFingerprint);
             }
         }
     }
@@ -1056,5 +1363,51 @@ public final class DimensionBuilders {
     @NonNull
     static SpacerDimension spacerDimensionFromProto(@NonNull DimensionProto.SpacerDimension proto) {
         return spacerDimensionFromProto(proto, null);
+    }
+
+    /**
+     * Interface defining a dimension that can be applied to a {@link
+     * androidx.wear.protolayout.LayoutElementBuilders.ExtensionLayoutElement} element.
+     *
+     * @since 1.0
+     */
+    @ExperimentalProtoLayoutExtensionApi
+    public interface ExtensionDimension {
+        /** Get the protocol buffer representation of this object. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        DimensionProto.ExtensionDimension toExtensionDimensionProto();
+
+        /** Get the fingerprint for this object or null if unknown. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Nullable
+        Fingerprint getFingerprint();
+
+        /** Builder to create {@link ExtensionDimension} objects. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        interface Builder {
+
+            /** Builds an instance with values accumulated in this Builder. */
+            @NonNull
+            ExtensionDimension build();
+        }
+    }
+
+    /** Creates a new wrapper instance from the proto. */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @NonNull
+    public static ExtensionDimension extensionDimensionFromProto(
+            @NonNull DimensionProto.ExtensionDimension proto, @Nullable Fingerprint fingerprint) {
+        if (proto.hasLinearDimension()) {
+            return DpProp.fromProto(proto.getLinearDimension(), fingerprint);
+        }
+        throw new IllegalStateException(
+                "Proto was not a recognised instance of ExtensionDimension");
+    }
+
+    @NonNull
+    static ExtensionDimension extensionDimensionFromProto(
+            @NonNull DimensionProto.ExtensionDimension proto) {
+        return extensionDimensionFromProto(proto, null);
     }
 }

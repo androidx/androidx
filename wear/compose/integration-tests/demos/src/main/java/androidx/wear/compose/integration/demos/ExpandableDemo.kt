@@ -25,26 +25,25 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.wear.compose.foundation.ExpandableItemsDefaults
-import androidx.wear.compose.foundation.ExpandableItemsState
+import androidx.wear.compose.foundation.ExpandableState
+import androidx.wear.compose.foundation.expandableButton
 import androidx.wear.compose.foundation.expandableItem
 import androidx.wear.compose.foundation.expandableItems
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.foundation.lazy.ScalingLazyListScope
-import androidx.wear.compose.foundation.rememberExpandableItemsState
+import androidx.wear.compose.foundation.rememberExpandableState
 import androidx.wear.compose.material.Chip
 import androidx.wear.compose.material.ChipDefaults
+import androidx.wear.compose.material.CompactChip
 import androidx.wear.compose.material.MaterialTheme
-import androidx.wear.compose.material.OutlinedChip
 import androidx.wear.compose.material.Text
 
 @Composable
 fun ExpandableListItems() {
-    val state = rememberExpandableItemsState()
+    val state = rememberExpandableState()
 
     val items = List(10) { "Item $it" }
     val top = items.take(3)
@@ -57,13 +56,13 @@ fun ExpandableListItems() {
         expandableItems(state, rest.size) {
             DemoItem(rest[it], color = color)
         }
-        item { ExpandButton(state) }
+        expandButton(state, outline = true)
     }
 }
 
 @Composable
 fun ExpandableText() {
-    val state = rememberExpandableItemsState()
+    val state = rememberExpandableState()
 
     ContainingScalingLazyColumn {
         expandableItem(state) { expanded ->
@@ -78,8 +77,8 @@ fun ExpandableText() {
                 modifier = Modifier.padding(horizontal = 10.dp)
             )
         }
-        item { ExpandButton(state) }
-   }
+        expandButton(state, outline = false)
+    }
 }
 
 @Composable
@@ -104,21 +103,25 @@ private fun ContainingScalingLazyColumn(content: ScalingLazyListScope.() -> Unit
     }
 }
 
-@Composable
-private fun ExpandButton(expandableItemsState: ExpandableItemsState) = OutlinedChip(
-    label = {
-        Text(if (expandableItemsState.expanded) "Show Less" else "Show More")
-        Spacer(Modifier.size(10.dp))
-        ExpandableItemsDefaults.Chevron(
-            expandableItemsState.expandProgress,
-            color = MaterialTheme.colors.primary,
-            modifier = Modifier
-                .size(15.dp, 11.dp)
-                .align(CenterVertically)
+private fun ScalingLazyListScope.expandButton(
+    state: ExpandableState,
+    outline: Boolean = true
+) {
+    expandableButton(state) {
+        CompactChip(
+            label = {
+                Text("Show More")
+                Spacer(Modifier.size(6.dp))
+                DemoIcon(
+                    resourceId = R.drawable.ic_expand_more_24,
+                    contentDescription = "Expand"
+                )
+            },
+            onClick = { state.expanded = true },
+            border = if (outline) ChipDefaults.outlinedChipBorder() else ChipDefaults.chipBorder()
         )
-    },
-    onClick = { expandableItemsState.toggle() }
-)
+    }
+}
 
 private fun ScalingLazyListScope.demoSeparator() = item {
     Box(

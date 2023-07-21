@@ -19,11 +19,12 @@ package androidx.compose.ui.graphics.vector
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.RoundRect
+import androidx.compose.ui.graphics.Matrix
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathFillType
 import androidx.compose.ui.graphics.PathOperation
-import kotlin.test.assertEquals
 import kotlin.test.Test
+import kotlin.test.assertEquals
 
 class PathParserTest {
     @Test
@@ -179,7 +180,15 @@ class PathParserTest {
             // NO-OP
         }
 
+        override fun rewind() {
+            // NO-OP
+        }
+
         override fun translate(offset: Offset) {
+            // NO-OP
+        }
+
+        override fun transform(matrix: Matrix) {
             // NO-OP
         }
 

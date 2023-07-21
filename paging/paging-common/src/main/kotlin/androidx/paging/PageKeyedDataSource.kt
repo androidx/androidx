@@ -18,9 +18,9 @@ package androidx.paging
 
 import androidx.arch.core.util.Function
 import androidx.paging.DataSource.KeyType.PAGE_KEYED
+import kotlin.coroutines.resume
 import kotlinx.coroutines.CancellableContinuation
 import kotlinx.coroutines.suspendCancellableCoroutine
-import kotlin.coroutines.resume
 
 /**
  * Incremental data loader for page-keyed content, where requests return keys for next/previous

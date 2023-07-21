@@ -26,10 +26,10 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.Until
-import org.hamcrest.core.IsNull
-import org.hamcrest.MatcherAssert.assertThat
-import org.junit.Assert
 import kotlin.reflect.KClass
+import org.hamcrest.MatcherAssert.assertThat
+import org.hamcrest.core.IsNull
+import org.junit.Assert
 
 private const val SPLASH_SCREEN_STYLE_ICON = 1
 private const val KEY_SPLASH_SCREEN_STYLE: String = "android.activity.splashScreenStyle"

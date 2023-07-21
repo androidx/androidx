@@ -30,7 +30,6 @@ data class FieldGetter(
     val jvmName: String,
     val type: XType,
     val callType: CallType,
-    val isMutableField: Boolean
 ) {
     fun writeGet(ownerVar: String, outVar: String, builder: XCodeBlock.Builder) {
         builder.addLocalVariable(
@@ -48,14 +47,11 @@ data class FieldGetter(
         scope: CodeGenScope
     ) {
         val varExpr = getterExpression(ownerVar, scope.language)
-        // A temporary local val is needed in Kotlin if the field or property is mutable (var)
-        // and is nullable since otherwise smart cast will fail indicating that the property
-        // might have changed when binding to statement.
-        val needTempVal = scope.language == CodeLanguage.KOTLIN &&
-            (callType == CallType.FIELD || callType == CallType.SYNTHETIC_METHOD) &&
-            type.nullability != XNullability.NONNULL &&
-            isMutableField
-        if (needTempVal) {
+        // A temporary local val is needed in Kotlin whenever the getter method returns nullable or
+        // the field / property is nullable such that a smart cast can be properly performed. Even
+        // if the field / property are immutable (val), we still use a local val in case the
+        // property is declared in another module, which would make the smart cast impossible.
+        if (scope.language == CodeLanguage.KOTLIN && type.nullability != XNullability.NONNULL) {
             val tmpField = scope.getTmpVar("_tmp${fieldName.capitalize(Locale.US)}")
             scope.builder.addLocalVariable(
                 name = tmpField,
@@ -81,7 +77,7 @@ data class FieldGetter(
                 CallType.FIELD, CallType.SYNTHETIC_METHOD ->
                     XCodeBlock.of(codeLanguage, "%L.%L", ownerVar, fieldName)
                 CallType.METHOD ->
-                    XCodeBlock.of(codeLanguage, "%L.%L", ownerVar, jvmName)
+                    XCodeBlock.of(codeLanguage, "%L.%L()", ownerVar, jvmName)
                 CallType.CONSTRUCTOR -> error("Getters should never be of type 'constructor'!")
             }
         }

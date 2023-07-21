@@ -26,9 +26,6 @@ import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.isActive
-import org.junit.Test
 import java.io.FileInputStream
 import java.nio.charset.StandardCharsets
 import java.time.Duration
@@ -37,6 +34,9 @@ import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicReference
 import kotlin.math.min
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.isActive
+import org.junit.Test
 
 @SdkSuppress(minSdkVersion = 26)
 class CoroutineBroadcastReceiverTest {

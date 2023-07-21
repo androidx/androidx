@@ -42,6 +42,7 @@ class EncoderProfilesProviderAdapter @Inject constructor(
 ) : EncoderProfilesProvider {
     private val hasValidCameraId: Boolean
     private val cameraId: Int
+    private val mEncoderProfilesCache: MutableMap<Int, EncoderProfilesProxy?> = mutableMapOf()
 
     init {
         var hasValidCameraId = false
@@ -77,7 +78,15 @@ class EncoderProfilesProviderAdapter @Inject constructor(
         if (!CamcorderProfile.hasProfile(cameraId, quality)) {
             return null
         }
-        return getProfilesInternal(quality)
+
+        // Cache the value on first query, and reuse the result in subsequent queries.
+        return if (mEncoderProfilesCache.containsKey(quality)) {
+            mEncoderProfilesCache[quality]
+        } else {
+            val profiles = getProfilesInternal(quality)
+            mEncoderProfilesCache[quality] = profiles
+            profiles
+        }
     }
 
     @Nullable

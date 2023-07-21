@@ -24,7 +24,7 @@ import androidx.camera.core.impl.ImageFormatConstants
 
 @RequiresApi(21)
 internal open class StreamConfigurationMapCompatBaseImpl(
-    val streamConfigurationMap: StreamConfigurationMap
+    val streamConfigurationMap: StreamConfigurationMap?
 ) :
     StreamConfigurationMapCompat.StreamConfigurationMapCompatImpl {
     override fun getOutputSizes(format: Int): Array<Size>? {
@@ -35,22 +35,22 @@ internal open class StreamConfigurationMapCompatBaseImpl(
                 // after Android level 23 but not public in Android L. Use {@link SurfaceTexture}
                 // or {@link MediaCodec} will finally mapped to 0x22 in StreamConfigurationMap to
                 // retrieve the output sizes information.
-                streamConfigurationMap.getOutputSizes(SurfaceTexture::class.java)
+                streamConfigurationMap?.getOutputSizes(SurfaceTexture::class.java) ?: emptyArray()
             } else {
-                streamConfigurationMap.getOutputSizes(format)
+                streamConfigurationMap?.getOutputSizes(format) ?: emptyArray()
             }
         return sizes
     }
 
     override fun <T> getOutputSizes(klass: Class<T>): Array<Size>? {
-        return streamConfigurationMap.getOutputSizes(klass)
+        return streamConfigurationMap?.getOutputSizes(klass) ?: emptyArray()
     }
 
     override fun getHighResolutionOutputSizes(format: Int): Array<Size>? {
         return null
     }
 
-    override fun unwrap(): StreamConfigurationMap {
+    override fun unwrap(): StreamConfigurationMap? {
         return streamConfigurationMap
     }
 }

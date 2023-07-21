@@ -31,6 +31,21 @@ package androidx.benchmark.perfetto {
   @kotlin.RequiresOptIn @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.CLASS, kotlin.annotation.AnnotationTarget.FUNCTION}) public @interface ExperimentalPerfettoCaptureApi {
   }
 
+  @androidx.benchmark.perfetto.ExperimentalPerfettoCaptureApi public abstract sealed class PerfettoConfig {
+  }
+
+  public static final class PerfettoConfig.Binary extends androidx.benchmark.perfetto.PerfettoConfig {
+    ctor public PerfettoConfig.Binary(byte[] bytes);
+    method public byte[] getBytes();
+    property public final byte[] bytes;
+  }
+
+  public static final class PerfettoConfig.Text extends androidx.benchmark.perfetto.PerfettoConfig {
+    ctor public PerfettoConfig.Text(String text);
+    method public String getText();
+    property public final String text;
+  }
+
   @RequiresApi(23) @androidx.benchmark.perfetto.ExperimentalPerfettoCaptureApi public final class PerfettoTrace {
     ctor public PerfettoTrace(String path);
     method public String getPath();
@@ -38,6 +53,10 @@ package androidx.benchmark.perfetto {
     method public static void record(String fileLabel, optional java.util.List<java.lang.String> appTagPackages, optional String? userspaceTracingPackage, kotlin.jvm.functions.Function0<kotlin.Unit> block);
     method public static void record(String fileLabel, optional java.util.List<java.lang.String> appTagPackages, kotlin.jvm.functions.Function0<kotlin.Unit> block);
     method public static void record(String fileLabel, kotlin.jvm.functions.Function0<kotlin.Unit> block);
+    method public static void record(String fileLabel, androidx.benchmark.perfetto.PerfettoConfig config, optional String highlightPackage, optional String? userspaceTracingPackage, optional kotlin.jvm.functions.Function1<? super androidx.benchmark.perfetto.PerfettoTrace,kotlin.Unit>? traceCallback, kotlin.jvm.functions.Function0<kotlin.Unit> block);
+    method public static void record(String fileLabel, androidx.benchmark.perfetto.PerfettoConfig config, optional String highlightPackage, optional String? userspaceTracingPackage, kotlin.jvm.functions.Function0<kotlin.Unit> block);
+    method public static void record(String fileLabel, androidx.benchmark.perfetto.PerfettoConfig config, optional String highlightPackage, kotlin.jvm.functions.Function0<kotlin.Unit> block);
+    method public static void record(String fileLabel, androidx.benchmark.perfetto.PerfettoConfig config, kotlin.jvm.functions.Function0<kotlin.Unit> block);
     property public final String path;
     field public static final androidx.benchmark.perfetto.PerfettoTrace.Companion Companion;
   }
@@ -47,6 +66,10 @@ package androidx.benchmark.perfetto {
     method public void record(String fileLabel, optional java.util.List<java.lang.String> appTagPackages, optional String? userspaceTracingPackage, kotlin.jvm.functions.Function0<kotlin.Unit> block);
     method public void record(String fileLabel, optional java.util.List<java.lang.String> appTagPackages, kotlin.jvm.functions.Function0<kotlin.Unit> block);
     method public void record(String fileLabel, kotlin.jvm.functions.Function0<kotlin.Unit> block);
+    method public void record(String fileLabel, androidx.benchmark.perfetto.PerfettoConfig config, optional String highlightPackage, optional String? userspaceTracingPackage, optional kotlin.jvm.functions.Function1<? super androidx.benchmark.perfetto.PerfettoTrace,kotlin.Unit>? traceCallback, kotlin.jvm.functions.Function0<kotlin.Unit> block);
+    method public void record(String fileLabel, androidx.benchmark.perfetto.PerfettoConfig config, optional String highlightPackage, optional String? userspaceTracingPackage, kotlin.jvm.functions.Function0<kotlin.Unit> block);
+    method public void record(String fileLabel, androidx.benchmark.perfetto.PerfettoConfig config, optional String highlightPackage, kotlin.jvm.functions.Function0<kotlin.Unit> block);
+    method public void record(String fileLabel, androidx.benchmark.perfetto.PerfettoConfig config, kotlin.jvm.functions.Function0<kotlin.Unit> block);
   }
 
 }

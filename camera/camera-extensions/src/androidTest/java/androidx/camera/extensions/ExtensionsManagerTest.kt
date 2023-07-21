@@ -41,6 +41,7 @@ import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
+import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
@@ -51,7 +52,6 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
-import java.util.concurrent.TimeUnit
 
 @SmallTest
 @RunWith(Parameterized::class)

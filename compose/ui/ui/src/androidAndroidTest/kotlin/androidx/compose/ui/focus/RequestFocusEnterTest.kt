@@ -36,9 +36,9 @@ class RequestFocusEnterTest {
     @get:Rule
     val rule = createComposeRule()
 
-    val focusRequester = FocusRequester()
-    var enterTriggered = false
-    lateinit var focusState: FocusState
+    private val focusRequester = FocusRequester()
+    private var enterTriggered = false
+    private lateinit var focusState: FocusState
 
     @Test
     fun gainingFocus_doesNotTriggersEnter() {
@@ -422,5 +422,61 @@ class RequestFocusEnterTest {
             assertThat(focusState.isFocused).isFalse()
             assertThat(destinationFocusState.isFocused).isTrue()
         }
+    }
+
+    @Test
+    fun redirectingFocusRequestOnChild1ToChild2_focusEnterIsCalled() {
+        // Arrange.
+        val (initialFocus, child1, child2) = FocusRequester.createRefs()
+        var enterCount = 0
+        rule.setFocusableContent {
+            Box(Modifier.focusTarget()) {
+                Box(
+                    Modifier
+                        .focusRequester(initialFocus)
+                        .focusTarget()
+                )
+                Box(
+                    Modifier
+                        .focusProperties {
+                            enter = {
+                                enterCount++
+                                child2
+                            }
+                        }
+                        .focusTarget()
+                ) {
+                    Box(
+                        Modifier
+                            .focusRequester(child1)
+                            .focusTarget()
+                    )
+                    Box(
+                        Modifier
+                            .focusRequester(child2)
+                            .focusTarget()
+                    )
+                }
+            }
+        }
+        rule.runOnIdle { initialFocus.requestFocus() }
+
+        // Act.
+        rule.runOnIdle { child1.requestFocus() }
+
+        // Assert.
+        rule.runOnIdle { assertThat(enterCount).isEqualTo(1) }
+
+        // Reset - To ensure that focus enter is called every time we enter.
+        rule.runOnIdle {
+            initialFocus.requestFocus()
+            enterCount = 0
+        }
+
+        // Act.
+        rule.runOnIdle { child1.requestFocus() }
+
+        // Assert.
+        rule.runOnIdle { assertThat(enterCount).isEqualTo(1) }
     }
 }

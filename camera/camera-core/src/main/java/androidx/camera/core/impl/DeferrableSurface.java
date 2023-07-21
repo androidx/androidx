@@ -27,6 +27,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
+import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.Logger;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.Futures;
@@ -331,7 +332,7 @@ public abstract class DeferrableSurface {
         return mPrescribedStreamFormat;
     }
 
-    @RestrictTo(Scope.TESTS)
+    @VisibleForTesting
     public int getUseCount() {
         synchronized (mLock) {
             return mUseCount;

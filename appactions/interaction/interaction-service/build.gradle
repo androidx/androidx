@@ -44,10 +44,15 @@ dependencies {
     implementation(libs.grpcAndroid)
     implementation(libs.grpcBinder)
     implementation(libs.grpcStub)
+    implementation(libs.kotlinCoroutinesCore)
     implementation(libs.kotlinStdlib)
     implementation(libs.jsr250)
 
+    // Force upgrade since 1.2.0 is not compatible with latest lint.
+    implementation("androidx.annotation:annotation-experimental:1.3.0")
+
     testImplementation(project(":appactions:interaction:interaction-capabilities-core"))
+    testImplementation(project(":appactions:interaction:interaction-capabilities-testing"))
     testImplementation(project(":appactions:interaction:interaction-service-proto"))
     testImplementation(libs.grpcTesting)
     testImplementation(libs.junit)
@@ -70,7 +75,7 @@ android {
     defaultConfig {
         // TODO(b/266649259): Temporary bump to 33 to support capabilities-core. Lower back to 25 to
         // support wear:tiles
-        minSdkVersion 33
+        minSdkVersion 26
     }
     defaultConfig {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"

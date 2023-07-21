@@ -25,8 +25,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.staticCompositionLocalOf
-import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.dp
 
 /**
@@ -150,6 +150,11 @@ internal fun CornerBasedShape.top(): CornerBasedShape {
  */
 internal fun CornerBasedShape.bottom(): CornerBasedShape {
     return copy(topStart = CornerSize(0.0.dp), topEnd = CornerSize(0.0.dp))
+}
+
+/** Helper function for component shape tokens. Used to grab the start values of a shape parameter. */
+internal fun CornerBasedShape.start(): CornerBasedShape {
+    return copy(topEnd = CornerSize(0.0.dp), bottomEnd = CornerSize(0.0.dp))
 }
 
 /** Helper function for component shape tokens. Used to grab the end values of a shape parameter. */

@@ -32,7 +32,7 @@ import androidx.compose.ui.util.fastAny
  * @see SemanticsProperties.Disabled
  */
 fun isEnabled(): SemanticsMatcher =
-    !hasKey(SemanticsProperties.Disabled)
+    SemanticsMatcher("is enabled") { SemanticsProperties.Disabled !in it.config }
 
 /**
  * Returns whether the node is not enabled.
@@ -40,7 +40,7 @@ fun isEnabled(): SemanticsMatcher =
  * @see SemanticsProperties.Disabled
  */
 fun isNotEnabled(): SemanticsMatcher =
-    hasKey(SemanticsProperties.Disabled)
+    SemanticsMatcher("is not enabled") { SemanticsProperties.Disabled in it.config }
 
 /**
  * Return whether the node is checkable.
@@ -384,12 +384,29 @@ fun hasSetTextAction() =
     hasKey(SemanticsActions.SetText)
 
 /**
+ * Returns whether the node defines a semantics action to insert text on it.
+ *
+ * This can be used to, for instance, filter out text fields.
+ *
+ * @see SemanticsActions.InsertTextAtCursor
+ */
+fun hasInsertTextAtCursorAction() =
+    hasKey(SemanticsActions.InsertTextAtCursor)
+
+/**
  * Returns whether the node defines a semantics action to perform the
  * [IME action][SemanticsProperties.ImeAction] on it.
  *
  * @see SemanticsActions.PerformImeAction
  */
 fun hasPerformImeAction() = hasKey(SemanticsActions.PerformImeAction)
+
+/**
+ * Returns whether the node defines a semantics action to request focus.
+ *
+ * @see SemanticsActions.RequestFocus
+ */
+fun hasRequestFocusAction() = hasKey(SemanticsActions.RequestFocus)
 
 /**
  * Returns whether the node defines the ability to scroll to an item index.

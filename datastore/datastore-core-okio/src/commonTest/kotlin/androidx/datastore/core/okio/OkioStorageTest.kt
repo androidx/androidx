@@ -17,6 +17,8 @@
 package androidx.datastore.core.okio
 
 import androidx.datastore.OkioTestIO
+import androidx.datastore.TestingOkioSerializer
+import androidx.datastore.TestingSerializerConfig
 import androidx.datastore.core.ReadScope
 import androidx.datastore.core.Storage
 import androidx.datastore.core.StorageConnection
@@ -24,19 +26,17 @@ import androidx.datastore.core.WriteScope
 import androidx.datastore.core.readData
 import androidx.datastore.core.use
 import androidx.datastore.core.writeData
-import androidx.datastore.TestingOkioSerializer
-import androidx.datastore.TestingSerializerConfig
 import androidx.kruth.assertThat
 import androidx.kruth.assertThrows
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlin.test.Test
 import kotlin.test.BeforeTest
+import kotlin.test.Test
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.yield
 import okio.FileSystem
 import okio.IOException
@@ -316,7 +316,7 @@ class OkioStorageTest {
             }
             FileSystem.SYSTEM_TEMPORARY_DIRECTORY / "new-temp-file.tmp"
         }
-        val storage = OkioStorage(fileSystem, testingSerializer, fileProducer)
+        val storage = OkioStorage(fileSystem, testingSerializer, producePath = fileProducer)
 
         assertThrows<IOException> { storage.createConnection().use {
             it.readData()

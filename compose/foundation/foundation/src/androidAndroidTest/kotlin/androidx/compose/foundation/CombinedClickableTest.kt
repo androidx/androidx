@@ -35,6 +35,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.testutils.first
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
@@ -1777,7 +1778,7 @@ class CombinedClickableTest {
                 onClick = onClick,
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null
-            ) as InspectableValue
+            ).first() as InspectableValue
             assertThat(modifier.nameFallback).isEqualTo("combinedClickable")
             assertThat(modifier.valueOverride).isNull()
             assertThat(modifier.inspectableElements.map { it.name }.asIterable()).containsExactly(

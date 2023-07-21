@@ -36,7 +36,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -53,14 +53,16 @@ data class ComposeDemo(val title: String, val content: @Composable () -> Unit)
 val AllComposeConstraintLayoutDemos: List<ComposeDemo> =
     listOf(
         ComposeDemo("CustomColorInKeyAttributes") { CustomColorInKeyAttributesDemo() },
-        ComposeDemo("SimpleOnSwipe") { SimpleOnSwipe() },
+        ComposeDemo("Simple OnSwipe") { SimpleOnSwipe() },
+        ComposeDemo("Multiple OnSwipe") { MultiSwipeDsl() },
         ComposeDemo("AnimatedChainOrientation") { ChainsAnimatedOrientationDemo() },
         ComposeDemo("CollapsibleToolbar w/ Column") { ToolBarDslDemo() },
         ComposeDemo("CollapsibleToolbar w/ LazyColumn") { ToolBarLazyDslDemo() },
         ComposeDemo("MotionLayout in LazyList") { MotionInLazyColumnDslDemo() },
         ComposeDemo("Animated Graphs") { AnimateGraphsOnRevealDemo() },
         ComposeDemo("Animated Reactions Selector") { ReactionSelectorDemo() },
-        ComposeDemo("Animated Puzzle Pieces") { AnimatedPuzzlePiecesDemo() }
+        ComposeDemo("Animated Puzzle Pieces") { AnimatedPuzzlePiecesDemo() },
+        ComposeDemo("Simple Staggered") { SimpleStaggeredDemo() }
     )
 
 /**
@@ -69,7 +71,7 @@ val AllComposeConstraintLayoutDemos: List<ComposeDemo> =
 @Preview
 @Composable
 fun ComposeConstraintLayoutDemos() {
-    var displayedDemoIndex by remember { mutableStateOf(-1) }
+    var displayedDemoIndex by remember { mutableIntStateOf(-1) }
     val maxIndex = AllComposeConstraintLayoutDemos.size - 1
     Column {
         Column {

@@ -271,6 +271,15 @@ public class NavBackStackEntry private constructor(
         return result
     }
 
+    override fun toString(): String {
+        val sb = StringBuilder()
+        sb.append(javaClass.simpleName)
+        sb.append("($id)")
+        sb.append(" destination=")
+        sb.append(destination)
+        return sb.toString()
+    }
+
     /**
      * Used to create the {SavedStateViewModel}
      */

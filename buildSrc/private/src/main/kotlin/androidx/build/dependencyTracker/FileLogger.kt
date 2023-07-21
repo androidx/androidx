@@ -16,13 +16,12 @@
 
 package androidx.build.dependencyTracker
 
+import java.io.File
+import java.io.Serializable
 import org.gradle.api.logging.LogLevel
 import org.gradle.internal.logging.slf4j.OutputEventListenerBackedLogger
 import org.gradle.internal.logging.slf4j.OutputEventListenerBackedLoggerContext
 import org.gradle.internal.time.Clock
-
-import java.io.File
-import java.io.Serializable
 
 /**
  * Gradle logger that logs to a file

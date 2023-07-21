@@ -26,6 +26,7 @@ import android.text.style.AlignmentSpan
 import android.text.style.StrikethroughSpan
 import android.text.style.StyleSpan
 import android.text.style.TextAppearanceSpan
+import android.text.style.TypefaceSpan
 import android.text.style.UnderlineSpan
 import android.util.Log
 import android.util.TypedValue
@@ -115,6 +116,9 @@ internal fun RemoteViews.setText(
         }
         spans.add(TextAppearanceSpan(translationContext.context, textAppearance))
     }
+    style.fontFamily?.let { family ->
+        spans.add(TypefaceSpan(family.family))
+    }
     style.textAlign?.let { align ->
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             TextTranslatorApi31Impl.setTextViewGravity(
@@ -140,6 +144,7 @@ internal fun RemoteViews.setText(
                 setTextColor(resId, colorProvider.getColor(translationContext.context).toArgb())
             }
         }
+
         is DayNightColorProvider -> {
             if (Build.VERSION.SDK_INT >= 31) {
                 setTextViewTextColor(
@@ -151,6 +156,7 @@ internal fun RemoteViews.setText(
                 setTextColor(resId, colorProvider.getColor(translationContext.context).toArgb())
             }
         }
+
         else -> Log.w(GlanceAppWidgetTag, "Unexpected text color: $colorProvider")
     }
 }

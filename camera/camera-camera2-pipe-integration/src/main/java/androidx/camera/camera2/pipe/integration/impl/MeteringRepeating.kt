@@ -78,7 +78,7 @@ class MeteringRepeating(
     override fun onSuggestedStreamSpecUpdated(suggestedStreamSpec: StreamSpec): StreamSpec {
         updateSessionConfig(createPipeline(meteringSurfaceSize).build())
         notifyActive()
-        return StreamSpec.builder(meteringSurfaceSize).build()
+        return suggestedStreamSpec.toBuilder().setResolution(meteringSurfaceSize).build()
     }
 
     override fun onUnbind() {
@@ -166,7 +166,7 @@ class MeteringRepeating(
 
         // Find maximum supported resolution that is <= min(VGA, display resolution)
         // Using minimum supported size could cause some issue on certain devices.
-        val previewSize = displayInfoManager.previewSize
+        val previewSize = displayInfoManager.getPreviewSize()
         val maxSizeProduct =
             min(640L * 480L, previewSize.width.toLong() * previewSize.height.toLong())
 
@@ -229,6 +229,7 @@ class MeteringRepeating(
         override fun setZslDisabled(disabled: Boolean) = this
 
         override fun setHighResolutionDisabled(disabled: Boolean) = this
+        override fun setCaptureType(captureType: UseCaseConfigFactory.CaptureType) = this
 
         override fun build(): MeteringRepeating {
             return MeteringRepeating(cameraProperties, useCaseConfig, displayInfoManager)

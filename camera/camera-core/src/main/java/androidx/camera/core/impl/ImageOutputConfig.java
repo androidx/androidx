@@ -29,7 +29,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.AspectRatio;
 import androidx.camera.core.MirrorMode;
-import androidx.camera.core.ResolutionSelector;
+import androidx.camera.core.resolutionselector.ResolutionSelector;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -414,7 +414,7 @@ public interface ImageOutputConfig extends ReadableConfig {
          * Sets the mirror mode of the intended target for images from this configuration.
          *
          * <p>Valid values include: {@link MirrorMode#MIRROR_MODE_OFF},
-         * {@link MirrorMode#MIRROR_MODE_ON} and {@link MirrorMode#MIRROR_MODE_FRONT_ON}.
+         * {@link MirrorMode#MIRROR_MODE_ON} and {@link MirrorMode#MIRROR_MODE_ON_FRONT_ONLY}.
          *
          * @param mirrorMode The mirror mode of the intended target.
          * @return The current Builder.

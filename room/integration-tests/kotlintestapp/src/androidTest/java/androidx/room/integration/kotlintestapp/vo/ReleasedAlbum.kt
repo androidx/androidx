@@ -15,4 +15,4 @@
  */
 package androidx.room.integration.kotlintestapp.vo
 
-data class ReleasedAlbum(val releaseYear: Int, val albumName: String?)
+data class ReleasedAlbum(val mReleaseYear: Int, val mAlbumName: String?)

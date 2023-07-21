@@ -35,7 +35,7 @@ dependencies {
 
     implementation("androidx.core:core:1.1.0")
 
-    api(project(":compose:runtime:runtime"))
+    api("androidx.compose.runtime:runtime:1.2.1")
     api(project(":glance:glance"))
     api(project(":glance:glance-appwidget"))
 
@@ -52,8 +52,9 @@ android {
 }
 
 androidx {
-    name = "Android Glance AppWidget Preview"
+    name = "Glance AppWidget Preview"
     type = LibraryType.PUBLISHED_LIBRARY
+    mavenVersion = LibraryVersions.GLANCE_PREVIEW
     inceptionYear = "2022"
     description = "Glance tooling library. This library provides the API required for the " +
             "GlanceAppWidget components and its Glance @Composable to be previewable in the IDE."

@@ -40,8 +40,6 @@ import androidx.constraintlayout.core.state.Transition
 import androidx.constraintlayout.core.state.WidgetFrame
 import androidx.constraintlayout.core.widgets.Optimizer
 
-@ExperimentalMotionApi
-@PublishedApi
 internal class MotionMeasurer(density: Density) : Measurer(density) {
     private val DEBUG = false
     private var lastProgressInInterpolation = 0f
@@ -175,7 +173,7 @@ internal class MotionMeasurer(density: Density) : Measurer(density) {
             )
             // Build constraint set and apply it to the state.
             state.rootIncomingConstraints = constraints
-            state.isLtr = layoutDirection == LayoutDirection.Ltr
+            state.isRtl = layoutDirection == LayoutDirection.Rtl
 
             measureConstraintSet(
                 optimizationLevel, constraintSetStart, measurables, constraints
@@ -529,7 +527,7 @@ internal class MotionMeasurer(density: Density) : Measurer(density) {
     ) {
         clearConstraintSets()
 
-        state.isLtr = layoutDirection == LayoutDirection.Ltr
+        state.isRtl = layoutDirection == LayoutDirection.Rtl
         start.applyTo(state, emptyList())
         start.applyTo(this.transition, Transition.START)
         state.apply(root)

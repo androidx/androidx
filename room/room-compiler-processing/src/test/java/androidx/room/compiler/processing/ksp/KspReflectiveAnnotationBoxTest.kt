@@ -20,8 +20,8 @@ import androidx.room.compiler.processing.util.runKspTest
 import com.google.common.truth.Truth.assertThat
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.TypeName
-import org.junit.Test
 import kotlin.reflect.KClass
+import org.junit.Test
 
 class KspReflectiveAnnotationBoxTest {
     enum class TestEnum {

@@ -38,6 +38,7 @@ import androidx.wear.watchface.WatchState
 import androidx.wear.watchface.complications.ComplicationSlotBounds
 import androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy
 import androidx.wear.watchface.complications.SystemDataSources
+import androidx.wear.watchface.complications.data.ComplicationExperimental
 import androidx.wear.watchface.complications.data.ComplicationType
 import androidx.wear.watchface.complications.permission.dialogs.sample.ComplicationDeniedActivity
 import androidx.wear.watchface.complications.permission.dialogs.sample.ComplicationRationalActivity
@@ -94,6 +95,7 @@ open class ExampleOpenGLWatchFaceService : WatchFaceService() {
         )
     }
 
+    @OptIn(ComplicationExperimental::class)
     private val complication =
         ComplicationSlot.createRoundRectComplicationSlotBuilder(
                 EXAMPLE_OPENGL_COMPLICATION_ID,

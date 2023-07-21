@@ -556,6 +556,9 @@ class FragmentStateManager {
         mFragment.mContainer = container;
         mFragment.performCreateView(layoutInflater, container, savedInstanceState);
         if (mFragment.mView != null) {
+            if (FragmentManager.isLoggingEnabled(Log.DEBUG)) {
+                Log.d(TAG, "moveto VIEW_CREATED: " + mFragment);
+            }
             mFragment.mView.setSaveFromParentEnabled(false);
             mFragment.mView.setTag(R.id.fragment_container_view_tag, mFragment);
             if (container != null) {

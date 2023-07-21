@@ -397,10 +397,7 @@ public class ComplicationDataSourceInfo(
         return result
     }
 
-    /**
-     * Converts this value to [WireComplicationProviderInfo] object used for serialization.
-     *
-     */
+    /** Converts this value to [WireComplicationProviderInfo] object used for serialization. */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun toWireComplicationProviderInfo(): WireComplicationProviderInfo =
         WireComplicationProviderInfo(

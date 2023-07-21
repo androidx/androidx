@@ -28,8 +28,8 @@ interface SchemaFileResolver {
 
     /**
      * Resolves the given path to a file. The path will be a either a sibling of Room's schema
-     * location or the folder itself as provided via the annotation processor option
-     * 'room.schemaLocation'.
+     * location or the folder itself as provided via the annotation processor options
+     * 'room.schemaLocation' or 'roomSchemaInput.
      */
     fun getFile(path: Path): File
 

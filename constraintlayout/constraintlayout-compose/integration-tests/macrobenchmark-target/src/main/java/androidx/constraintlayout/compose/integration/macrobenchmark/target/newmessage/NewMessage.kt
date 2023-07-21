@@ -16,7 +16,7 @@
 
 @file:OptIn(ExperimentalMotionApi::class)
 
-package androidx.compose.integration.macrobenchmark.target.motionlayout.newmessage
+package androidx.constraintlayout.compose.integration.macrobenchmark.target.newmessage
 
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Arrangement
@@ -29,7 +29,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.constraintlayout.compose.integration.macrobenchmark.target.common.components.TestableButton
 import androidx.compose.material.Button
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
@@ -69,6 +68,7 @@ import androidx.constraintlayout.compose.MotionLayout
 import androidx.constraintlayout.compose.MotionLayoutScope
 import androidx.constraintlayout.compose.MotionScene
 import androidx.constraintlayout.compose.Visibility
+import androidx.constraintlayout.compose.integration.macrobenchmark.target.common.components.TestableButton
 
 // Copied from ComposeMail project
 

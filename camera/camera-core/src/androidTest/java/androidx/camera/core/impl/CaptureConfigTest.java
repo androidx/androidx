@@ -23,6 +23,7 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.Mockito.mock;
 
 import android.hardware.camera2.CameraDevice;
+import android.util.Range;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
@@ -274,6 +275,50 @@ public class CaptureConfigTest {
         CaptureConfig configuration = builder.build();
 
         configuration.getCameraCaptureCallbacks().add(mock(CameraCaptureCallback.class));
+    }
+
+    @Test
+    public void builderChange_doNotChangeEarlierBuiltInstance() {
+        // 1. Arrange
+        CameraCaptureCallback callback1 = mock(CameraCaptureCallback.class);
+        CameraCaptureCallback callback2 = mock(CameraCaptureCallback.class);
+        DeferrableSurface deferrableSurface1 = mock(DeferrableSurface.class);
+        DeferrableSurface deferrableSurface2 = mock(DeferrableSurface.class);
+        Range<Integer> fpsRange1 = new Range<>(30, 30);
+        Range<Integer> fpsRange2 = new Range<>(15, 30);
+        int optionValue1 = 1;
+        int optionValue2 = 2;
+        int tagValue1 = 1;
+        int tagValue2 = 2;
+        int template1 = CameraDevice.TEMPLATE_PREVIEW;
+        int template2 = CameraDevice.TEMPLATE_RECORD;
+
+        CaptureConfig.Builder builder = new CaptureConfig.Builder();
+        builder.addSurface(deferrableSurface1);
+        builder.setExpectedFrameRateRange(fpsRange1);
+        builder.addCameraCaptureCallback(callback1);
+        builder.setTemplateType(template1);
+        builder.addTag("KEY", tagValue1);
+        builder.addImplementationOption(OPTION, optionValue1);
+        CaptureConfig captureConfig = builder.build();
+
+        // 2. Act
+        // builder change should not affect the instance built earlier.
+        builder.addSurface(deferrableSurface2);
+        builder.setExpectedFrameRateRange(fpsRange2);
+        builder.addCameraCaptureCallback(callback2);
+        builder.setTemplateType(template2);
+        builder.addTag("KEY", tagValue2);
+        builder.addImplementationOption(OPTION, optionValue2);
+
+        // 3. Verify
+        assertThat(captureConfig.getSurfaces()).containsExactly(deferrableSurface1);
+        assertThat(captureConfig.getExpectedFrameRateRange()).isEqualTo(fpsRange1);
+        assertThat(captureConfig.getCameraCaptureCallbacks()).containsExactly(callback1);
+        assertThat(captureConfig.getTemplateType()).isEqualTo(template1);
+        assertThat(captureConfig.getTagBundle().getTag("KEY")).isEqualTo(tagValue1);
+        assertThat(captureConfig.getImplementationOptions().retrieveOption(OPTION))
+                .isEqualTo(optionValue1);
     }
 
     /**

@@ -58,7 +58,7 @@ gradlePlugin {
 }
 
 androidx {
-    name = "Android Benchmark Gradle Plugin"
+    name = "Benchmark Gradle Plugin"
     type = LibraryType.GRADLE_PLUGIN
     inceptionYear = "2019"
     description = "Android Benchmark Gradle Plugin"

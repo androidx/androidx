@@ -18,8 +18,14 @@ package androidx.camera.camera2.internal;
 
 import static android.os.Build.VERSION.SDK_INT;
 
+import static androidx.camera.camera2.internal.StreamUseCaseUtil.STREAM_USE_CASE_STREAM_SPEC_OPTION;
+import static androidx.camera.core.ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY;
+import static androidx.camera.core.ImageCapture.CAPTURE_MODE_ZERO_SHUTTER_LAG;
+
+import static junit.framework.TestCase.assertFalse;
 import static junit.framework.TestCase.assertTrue;
 
+import android.graphics.ImageFormat;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CameraMetadata;
@@ -30,14 +36,25 @@ import android.view.Surface;
 import androidx.annotation.NonNull;
 import androidx.camera.camera2.impl.Camera2ImplConfig;
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
+import androidx.camera.core.DynamicRange;
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.Preview;
+import androidx.camera.core.impl.AttachedSurfaceInfo;
+import androidx.camera.core.impl.CameraMode;
 import androidx.camera.core.impl.DeferrableSurface;
+import androidx.camera.core.impl.ImageCaptureConfig;
+import androidx.camera.core.impl.MutableConfig;
 import androidx.camera.core.impl.MutableOptionsBundle;
 import androidx.camera.core.impl.SessionConfig;
+import androidx.camera.core.impl.StreamSpec;
+import androidx.camera.core.impl.SurfaceConfig;
+import androidx.camera.core.impl.UseCaseConfig;
+import androidx.camera.core.impl.UseCaseConfigFactory;
+import androidx.camera.core.internal.utils.SizeUtil;
 import androidx.camera.core.streamsharing.StreamSharing;
 import androidx.camera.testing.fakes.FakeUseCase;
+import androidx.camera.testing.fakes.FakeUseCaseConfig;
 import androidx.concurrent.futures.ResolvableFuture;
 import androidx.test.filters.SdkSuppress;
 
@@ -54,6 +71,7 @@ import org.robolectric.shadows.ShadowCameraCharacteristics;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RunWith(RobolectricTestRunner.class)
@@ -62,6 +80,10 @@ public class StreamUseCaseTest {
 
     private CameraCharacteristics mCameraCharacteristics;
     private static final String CAMERA_ID_0 = "0";
+    private static final Long TEST_STREAM_USE_CASE_OPTION_VALUE = Long.valueOf(
+            CameraMetadata.SCALER_AVAILABLE_STREAM_USE_CASES_PREVIEW);
+    private static final @ImageCapture.CaptureMode int TEST_OPTION_IMAGE_CAPTURE_MODE_VALUE =
+            CAPTURE_MODE_MAXIMIZE_QUALITY;
 
     DeferrableSurface mMockSurface = new DeferrableSurface() {
         private final ListenableFuture<Surface> mSurfaceFuture = ResolvableFuture.create();
@@ -283,9 +305,272 @@ public class StreamUseCaseTest {
                 == CameraMetadata.SCALER_AVAILABLE_STREAM_USE_CASES_PREVIEW);
     }
 
+    @SdkSuppress(minSdkVersion = 33)
+    @Test
+    public void getStreamSpecImplementationOptions() {
+        Camera2ImplConfig result =
+                StreamUseCaseUtil.getStreamSpecImplementationOptions(
+                        getFakeUseCaseConfigWithOptions(true, false, false,
+                                UseCaseConfigFactory.CaptureType.PREVIEW, ImageFormat.PRIVATE));
+        assertTrue(result.retrieveOption(Camera2ImplConfig.STREAM_USE_CASE_OPTION)
+                == TEST_STREAM_USE_CASE_OPTION_VALUE);
+        assertFalse(result.retrieveOption(UseCaseConfig.OPTION_ZSL_DISABLED));
+        assertTrue(result.retrieveOption(ImageCaptureConfig.OPTION_IMAGE_CAPTURE_MODE)
+                == TEST_OPTION_IMAGE_CAPTURE_MODE_VALUE);
+        assertTrue(result.retrieveOption(UseCaseConfig.OPTION_INPUT_FORMAT)
+                == ImageFormat.PRIVATE);
+    }
+
+    @SdkSuppress(minSdkVersion = 33)
+    @Test
+    public void populateStreamUseCaseStreamSpecOption_streamUseCaseNotAvailable() {
+        Map<UseCaseConfig<?>, StreamSpec> suggestedStreamSpecMap = new HashMap<>();
+        UseCaseConfig<?> useCaseConfig = getFakeUseCaseConfigWithOptions(true, false, false,
+                UseCaseConfigFactory.CaptureType.PREVIEW, ImageFormat.PRIVATE);
+        suggestedStreamSpecMap.put(useCaseConfig,
+                getFakeStreamSpecFromFakeUseCaseConfig(useCaseConfig));
+        StreamUseCaseUtil.populateStreamUseCaseStreamSpecOption(
+                getCameraCharacteristicsCompat(true),
+                SupportedSurfaceCombination.FeatureSettings.of(CameraMode.DEFAULT,
+                        DynamicRange.BIT_DEPTH_8_BIT), new ArrayList<>(), suggestedStreamSpecMap,
+                new HashMap<>());
+        assertFalse(suggestedStreamSpecMap.get(useCaseConfig)
+                .getImplementationOptions().containsOption(
+                        STREAM_USE_CASE_STREAM_SPEC_OPTION));
+    }
+
+    @SdkSuppress(minSdkVersion = 33)
+    @Test
+    public void populateStreamUseCaseStreamSpecOption_cameraModeNotSupported() {
+        Map<UseCaseConfig<?>, StreamSpec> suggestedStreamSpecMap = new HashMap<>();
+        UseCaseConfig<?> useCaseConfig = getFakeUseCaseConfigWithOptions(true, false, false,
+                UseCaseConfigFactory.CaptureType.PREVIEW, ImageFormat.PRIVATE);
+        suggestedStreamSpecMap.put(useCaseConfig,
+                getFakeStreamSpecFromFakeUseCaseConfig(useCaseConfig));
+        StreamUseCaseUtil.populateStreamUseCaseStreamSpecOption(
+                getCameraCharacteristicsCompat(),
+                SupportedSurfaceCombination.FeatureSettings.of(CameraMode.CONCURRENT_CAMERA,
+                        DynamicRange.BIT_DEPTH_8_BIT), new ArrayList<>(), suggestedStreamSpecMap,
+                new HashMap<>());
+        assertFalse(suggestedStreamSpecMap.get(useCaseConfig)
+                .getImplementationOptions().containsOption(
+                        STREAM_USE_CASE_STREAM_SPEC_OPTION));
+    }
+
+    @SdkSuppress(minSdkVersion = 33)
+    @Test
+    public void populateStreamUseCaseStreamSpecOption_bitDepthNotSupported() {
+        Map<UseCaseConfig<?>, StreamSpec> suggestedStreamSpecMap = new HashMap<>();
+        UseCaseConfig<?> useCaseConfig = getFakeUseCaseConfigWithOptions(true, false, false,
+                UseCaseConfigFactory.CaptureType.PREVIEW, ImageFormat.PRIVATE);
+        suggestedStreamSpecMap.put(useCaseConfig,
+                getFakeStreamSpecFromFakeUseCaseConfig(useCaseConfig));
+        StreamUseCaseUtil.populateStreamUseCaseStreamSpecOption(
+                getCameraCharacteristicsCompat(),
+                SupportedSurfaceCombination.FeatureSettings.of(CameraMode.DEFAULT,
+                        DynamicRange.BIT_DEPTH_10_BIT), new ArrayList<>(), suggestedStreamSpecMap,
+                new HashMap<>());
+        assertFalse(suggestedStreamSpecMap.get(useCaseConfig)
+                .getImplementationOptions().containsOption(
+                        STREAM_USE_CASE_STREAM_SPEC_OPTION));
+    }
+
+    @SdkSuppress(minSdkVersion = 33)
+    @Test
+    public void populateStreamUseCaseStreamSpecOption_isZslUseCase() {
+        Map<UseCaseConfig<?>, StreamSpec> suggestedStreamSpecMap = new HashMap<>();
+        UseCaseConfig<?> useCaseConfig = getFakeUseCaseConfigWithOptions(true, false, true,
+                UseCaseConfigFactory.CaptureType.IMAGE_CAPTURE, ImageFormat.JPEG);
+        suggestedStreamSpecMap.put(useCaseConfig,
+                getFakeStreamSpecFromFakeUseCaseConfig(useCaseConfig));
+        StreamUseCaseUtil.populateStreamUseCaseStreamSpecOption(getCameraCharacteristicsCompat(),
+                SupportedSurfaceCombination.FeatureSettings.of(CameraMode.DEFAULT,
+                        DynamicRange.BIT_DEPTH_8_BIT), new ArrayList<>(), suggestedStreamSpecMap,
+                new HashMap<>());
+        assertFalse(suggestedStreamSpecMap.get(useCaseConfig)
+                .getImplementationOptions().containsOption(
+                        STREAM_USE_CASE_STREAM_SPEC_OPTION));
+    }
+
+    @SdkSuppress(minSdkVersion = 33)
+    @Test
+    public void populateStreamUseCaseStreamSpecOption_isZslUseCase_ZslDisabled() {
+        Map<UseCaseConfig<?>, StreamSpec> suggestedStreamSpecMap = new HashMap<>();
+        UseCaseConfig<?> useCaseConfig = getFakeUseCaseConfigWithOptions(true, true, true,
+                UseCaseConfigFactory.CaptureType.IMAGE_CAPTURE, ImageFormat.JPEG);
+        suggestedStreamSpecMap.put(useCaseConfig,
+                getFakeStreamSpecFromFakeUseCaseConfig(useCaseConfig));
+        StreamUseCaseUtil.populateStreamUseCaseStreamSpecOption(getCameraCharacteristicsCompat(),
+                SupportedSurfaceCombination.FeatureSettings.of(CameraMode.DEFAULT,
+                        DynamicRange.BIT_DEPTH_8_BIT), new ArrayList<>(), suggestedStreamSpecMap,
+                new HashMap<>());
+        assertTrue(suggestedStreamSpecMap.get(
+                useCaseConfig).getImplementationOptions().retrieveOption(
+                STREAM_USE_CASE_STREAM_SPEC_OPTION) == TEST_STREAM_USE_CASE_OPTION_VALUE);
+    }
+
+    @SdkSuppress(minSdkVersion = 33)
+    @Test
+    public void populateStreamUseCaseStreamSpecOption_isZslSurface() {
+        List<AttachedSurfaceInfo> attachedSurfaces = new ArrayList<>();
+        attachedSurfaces.add(getFakeAttachedSurfaceInfo(true, false, true,
+                UseCaseConfigFactory.CaptureType.IMAGE_CAPTURE, ImageFormat.JPEG));
+        Map<AttachedSurfaceInfo, StreamSpec> attachedSurfaceStreamSpecMap = new HashMap<>();
+        StreamUseCaseUtil.populateStreamUseCaseStreamSpecOption(getCameraCharacteristicsCompat(),
+                SupportedSurfaceCombination.FeatureSettings.of(CameraMode.DEFAULT,
+                        DynamicRange.BIT_DEPTH_8_BIT), attachedSurfaces, new HashMap<>(),
+                attachedSurfaceStreamSpecMap
+        );
+        assertFalse(attachedSurfaceStreamSpecMap.containsKey(attachedSurfaces.get(0)));
+    }
+
+    @SdkSuppress(minSdkVersion = 33)
+    @Test
+    public void populateStreamUseCaseStreamSpecOption_isZslSurface_ZslDisabled() {
+        List<AttachedSurfaceInfo> attachedSurfaces = new ArrayList<>();
+        attachedSurfaces.add(getFakeAttachedSurfaceInfo(true, true, true,
+                UseCaseConfigFactory.CaptureType.IMAGE_CAPTURE, ImageFormat.JPEG));
+        Map<AttachedSurfaceInfo, StreamSpec> attachedSurfaceStreamSpecMap = new HashMap<>();
+        StreamUseCaseUtil.populateStreamUseCaseStreamSpecOption(getCameraCharacteristicsCompat(),
+                SupportedSurfaceCombination.FeatureSettings.of(CameraMode.DEFAULT,
+                        DynamicRange.BIT_DEPTH_8_BIT), attachedSurfaces, new HashMap<>(),
+                attachedSurfaceStreamSpecMap
+        );
+        assertTrue(attachedSurfaceStreamSpecMap.get(
+                attachedSurfaces.get(0)).getImplementationOptions().retrieveOption(
+                STREAM_USE_CASE_STREAM_SPEC_OPTION) == TEST_STREAM_USE_CASE_OPTION_VALUE);
+    }
+
+    @SdkSuppress(minSdkVersion = 33)
+    @Test
+    public void populateStreamUseCaseStreamSpecOption_camera2InteropOverride_singleNewUseCase() {
+        Map<UseCaseConfig<?>, StreamSpec> suggestedStreamSpecMap = new HashMap<>();
+        UseCaseConfig<?> useCaseConfig = getFakeUseCaseConfigWithOptions(true, false, false,
+                UseCaseConfigFactory.CaptureType.PREVIEW, ImageFormat.PRIVATE);
+        suggestedStreamSpecMap.put(useCaseConfig,
+                getFakeStreamSpecFromFakeUseCaseConfig(useCaseConfig));
+        StreamUseCaseUtil.populateStreamUseCaseStreamSpecOption(getCameraCharacteristicsCompat(),
+                SupportedSurfaceCombination.FeatureSettings.of(CameraMode.DEFAULT,
+                        DynamicRange.BIT_DEPTH_8_BIT), new ArrayList<>(), suggestedStreamSpecMap,
+                new HashMap<>());
+        assertTrue(suggestedStreamSpecMap.get(
+                useCaseConfig).getImplementationOptions().retrieveOption(
+                STREAM_USE_CASE_STREAM_SPEC_OPTION) == TEST_STREAM_USE_CASE_OPTION_VALUE);
+    }
+
+    @SdkSuppress(minSdkVersion = 33)
+    @Test
+    public void populateStreamUseCaseStreamSpecOption_camera2InteropOverride_singleSurface() {
+        List<AttachedSurfaceInfo> attachedSurfaces = new ArrayList<>();
+        attachedSurfaces.add(getFakeAttachedSurfaceInfo(true, false, false,
+                UseCaseConfigFactory.CaptureType.PREVIEW, ImageFormat.PRIVATE));
+        Map<AttachedSurfaceInfo, StreamSpec> attachedSurfaceStreamSpecMap = new HashMap<>();
+        StreamUseCaseUtil.populateStreamUseCaseStreamSpecOption(getCameraCharacteristicsCompat(),
+                SupportedSurfaceCombination.FeatureSettings.of(CameraMode.DEFAULT,
+                        DynamicRange.BIT_DEPTH_8_BIT), attachedSurfaces, new HashMap<>(),
+                attachedSurfaceStreamSpecMap
+        );
+        assertTrue(attachedSurfaceStreamSpecMap.get(
+                attachedSurfaces.get(0)).getImplementationOptions().retrieveOption(
+                STREAM_USE_CASE_STREAM_SPEC_OPTION) == TEST_STREAM_USE_CASE_OPTION_VALUE);
+    }
+
+    @SdkSuppress(minSdkVersion = 33)
+    @Test
+    public void populateStreamUseCaseStreamSpecOption_camera2InteropOverride_useCaseAndSurface() {
+        Map<UseCaseConfig<?>, StreamSpec> suggestedStreamSpecMap = new HashMap<>();
+        UseCaseConfig<?> useCaseConfig = getFakeUseCaseConfigWithOptions(true, false, false,
+                UseCaseConfigFactory.CaptureType.PREVIEW, ImageFormat.PRIVATE);
+        suggestedStreamSpecMap.put(useCaseConfig,
+                getFakeStreamSpecFromFakeUseCaseConfig(useCaseConfig));
+        List<AttachedSurfaceInfo> attachedSurfaces = new ArrayList<>();
+        attachedSurfaces.add(getFakeAttachedSurfaceInfo(true, false, false,
+                UseCaseConfigFactory.CaptureType.PREVIEW, ImageFormat.PRIVATE));
+        Map<AttachedSurfaceInfo, StreamSpec> attachedSurfaceStreamSpecMap = new HashMap<>();
+        StreamUseCaseUtil.populateStreamUseCaseStreamSpecOption(getCameraCharacteristicsCompat(),
+                SupportedSurfaceCombination.FeatureSettings.of(CameraMode.DEFAULT,
+                        DynamicRange.BIT_DEPTH_8_BIT), attachedSurfaces, suggestedStreamSpecMap,
+                attachedSurfaceStreamSpecMap
+        );
+        assertTrue(suggestedStreamSpecMap.get(
+                useCaseConfig).getImplementationOptions().retrieveOption(
+                STREAM_USE_CASE_STREAM_SPEC_OPTION) == TEST_STREAM_USE_CASE_OPTION_VALUE);
+        assertTrue(attachedSurfaceStreamSpecMap.get(
+                attachedSurfaces.get(0)).getImplementationOptions().retrieveOption(
+                STREAM_USE_CASE_STREAM_SPEC_OPTION) == TEST_STREAM_USE_CASE_OPTION_VALUE);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void populateStreamUseCaseStreamSpecOption_camera2InteropOverride_missingOverride() {
+        Map<UseCaseConfig<?>, StreamSpec> suggestedStreamSpecMap = new HashMap<>();
+        UseCaseConfig<?> useCaseConfig = getFakeUseCaseConfigWithOptions(false, false, false,
+                UseCaseConfigFactory.CaptureType.PREVIEW, ImageFormat.PRIVATE);
+        suggestedStreamSpecMap.put(useCaseConfig,
+                getFakeStreamSpecFromFakeUseCaseConfig(useCaseConfig));
+        List<AttachedSurfaceInfo> attachedSurfaces = new ArrayList<>();
+        attachedSurfaces.add(getFakeAttachedSurfaceInfo(true, false, false,
+                UseCaseConfigFactory.CaptureType.PREVIEW, ImageFormat.PRIVATE));
+        Map<AttachedSurfaceInfo, StreamSpec> attachedSurfaceStreamSpecMap = new HashMap<>();
+        StreamUseCaseUtil.populateStreamUseCaseStreamSpecOption(getCameraCharacteristicsCompat(),
+                SupportedSurfaceCombination.FeatureSettings.of(CameraMode.DEFAULT,
+                        DynamicRange.BIT_DEPTH_8_BIT), attachedSurfaces, suggestedStreamSpecMap,
+                attachedSurfaceStreamSpecMap
+        );
+    }
+
+    private UseCaseConfig<?> getFakeUseCaseConfigWithOptions(boolean camera2InteropOverride,
+            boolean isZslDisabled, boolean isZslCaptureMode,
+            UseCaseConfigFactory.CaptureType captureType, int imageFormat) {
+        FakeUseCaseConfig.Builder fakeUseCaseConfigBuilder = new FakeUseCaseConfig.Builder(
+                captureType);
+        MutableConfig fakeConfig = fakeUseCaseConfigBuilder.getMutableConfig();
+        if (camera2InteropOverride) {
+            fakeConfig.insertOption(Camera2ImplConfig.STREAM_USE_CASE_OPTION,
+                    TEST_STREAM_USE_CASE_OPTION_VALUE);
+        }
+        fakeConfig.insertOption(UseCaseConfig.OPTION_ZSL_DISABLED, isZslDisabled);
+        fakeConfig.insertOption(ImageCaptureConfig.OPTION_IMAGE_CAPTURE_MODE,
+                isZslCaptureMode ? CAPTURE_MODE_ZERO_SHUTTER_LAG
+                        : TEST_OPTION_IMAGE_CAPTURE_MODE_VALUE);
+        fakeConfig.insertOption(ImageCaptureConfig.OPTION_INPUT_FORMAT, imageFormat);
+        return fakeUseCaseConfigBuilder.getUseCaseConfig();
+    }
+
+    private AttachedSurfaceInfo getFakeAttachedSurfaceInfo(boolean camera2InteropOverride,
+            boolean isZslDisabled, boolean isZslCaptureMode,
+            UseCaseConfigFactory.CaptureType captureType, int imageFormat) {
+        UseCaseConfig<?> useCaseConfig = getFakeUseCaseConfigWithOptions(camera2InteropOverride,
+                isZslDisabled, isZslCaptureMode, captureType, imageFormat);
+        List<UseCaseConfigFactory.CaptureType> captureTypes = new ArrayList<>();
+        captureTypes.add(useCaseConfig.getCaptureType());
+        return AttachedSurfaceInfo.create(SurfaceConfig.create(
+                        SurfaceConfig.ConfigType.PRIV,
+                        SurfaceConfig.ConfigSize.PREVIEW
+                ),
+                useCaseConfig.getInputFormat(),
+                SizeUtil.RESOLUTION_720P,
+                DynamicRange.SDR,
+                captureTypes,
+                StreamUseCaseUtil.getStreamSpecImplementationOptions(useCaseConfig),
+                /*targetFrameRate=*/null);
+    }
+
+    private StreamSpec getFakeStreamSpecFromFakeUseCaseConfig(UseCaseConfig<?> fakeUseCaseConfig) {
+        return StreamSpec.builder(SizeUtil.RESOLUTION_720P)
+                .setDynamicRange(DynamicRange.UNSPECIFIED)
+                .setImplementationOptions(
+                        StreamUseCaseUtil.getStreamSpecImplementationOptions(fakeUseCaseConfig)
+                ).build();
+    }
+
     private CameraCharacteristicsCompat getCameraCharacteristicsCompat() {
+        return getCameraCharacteristicsCompat(false);
+    }
+
+    private CameraCharacteristicsCompat getCameraCharacteristicsCompat(
+            boolean noAvailableStreamUseCase) {
         ShadowCameraCharacteristics shadowCharacteristics0 = Shadow.extract(mCameraCharacteristics);
-        if (SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        if (SDK_INT >= Build.VERSION_CODES.TIRAMISU && !noAvailableStreamUseCase) {
             long[] uc = new long[]{CameraCharacteristics.SCALER_AVAILABLE_STREAM_USE_CASES_DEFAULT,
                     CameraCharacteristics.SCALER_AVAILABLE_STREAM_USE_CASES_PREVIEW,
                     CameraCharacteristics.SCALER_AVAILABLE_STREAM_USE_CASES_PREVIEW_VIDEO_STILL,

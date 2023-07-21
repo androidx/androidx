@@ -82,22 +82,22 @@ import androidx.test.filters.LargeTest
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
-import com.nhaarman.mockitokotlin2.any
-import com.nhaarman.mockitokotlin2.atLeastOnce
-import com.nhaarman.mockitokotlin2.eq
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.verify
 import kotlin.math.roundToInt
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.kotlin.any
+import org.mockito.kotlin.atLeastOnce
+import org.mockito.kotlin.eq
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.verify
 
 @OptIn(ExperimentalMaterial3Api::class)
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class OutlinedTextFieldTest {
-    private val ExpectedMinimumTextFieldHeight = TextFieldDefaults.MinHeight
-    private val ExpectedDefaultTextFieldWidth = TextFieldDefaults.MinWidth
+    private val ExpectedMinimumTextFieldHeight = OutlinedTextFieldDefaults.MinHeight
+    private val ExpectedDefaultTextFieldWidth = OutlinedTextFieldDefaults.MinWidth
     private val ExpectedPadding = TextFieldPadding
     private val IconPadding = HorizontalIconPadding
     private val TextFieldTag = "textField"
@@ -205,7 +205,7 @@ class OutlinedTextFieldTest {
                     OutlinedTextField(
                         value = "",
                         onValueChange = {},
-                        colors = TextFieldDefaults.outlinedTextFieldColors(
+                        colors = OutlinedTextFieldDefaults.colors(
                             unfocusedTextColor = Color.White,
                             unfocusedBorderColor = Color.White
                         ),
@@ -391,6 +391,28 @@ class OutlinedTextFieldTest {
             assertThat(labelPosition.value?.y).isWithin(1f).of(
                 getLabelPosition(labelSize.value!!.height).toFloat()
             )
+        }
+    }
+
+    @Test
+    fun testOutlinedTextField_labelHeight_contributesToTextFieldMeasurements_whenUnfocused() {
+        val tfSize = Ref<IntSize>()
+        val labelHeight = 200.dp
+        rule.setMaterialContent(lightColorScheme()) {
+            OutlinedTextField(
+                value = "",
+                onValueChange = {},
+                modifier = Modifier.testTag(TextFieldTag).onGloballyPositioned {
+                    tfSize.value = it.size
+                },
+                label = {
+                    Box(Modifier.size(width = 50.dp, height = labelHeight))
+                },
+            )
+        }
+
+        rule.runOnIdleWithDensity {
+            assertThat(tfSize.value!!.height).isAtLeast(labelHeight.roundToPx())
         }
     }
 
@@ -1135,6 +1157,34 @@ class OutlinedTextFieldTest {
     }
 
     @Test
+    fun testOutlinedTextField_supportingText_widthIsNotWiderThanTextField() {
+        val tfSize = Ref<IntSize>()
+        val supportingSize = Ref<IntSize>()
+        rule.setMaterialContent(lightColorScheme()) {
+            OutlinedTextField(
+                value = "",
+                onValueChange = {},
+                modifier = Modifier.onGloballyPositioned {
+                    tfSize.value = it.size
+                },
+                supportingText = {
+                    Text(
+                        text = "Long long long long long long long long long long long long " +
+                            "long long long long long long long long long long long long",
+                        modifier = Modifier.onGloballyPositioned {
+                            supportingSize.value = it.size
+                        }
+                    )
+                }
+            )
+        }
+
+        rule.runOnIdleWithDensity {
+            assertThat(supportingSize.value!!.width).isAtMost(tfSize.value!!.width)
+        }
+    }
+
+    @Test
     fun testOutlinedTextField_supportingText_contributesToTextFieldMeasurements() {
         val tfSize = Ref<IntSize>()
         rule.setMaterialContent(lightColorScheme()) {
@@ -1153,6 +1203,24 @@ class OutlinedTextFieldTest {
                 ExpectedMinimumTextFieldHeight.roundToPx()
             )
         }
+    }
+
+    @Test
+    fun testOutlinedTextField_supportingText_remainsVisibleWithTallInput() {
+        rule.setMaterialContent(lightColorScheme()) {
+            OutlinedTextField(
+                value = buildString {
+                    repeat(200) {
+                        append("line $it\n")
+                    }
+                },
+                onValueChange = {},
+                modifier = Modifier.size(width = ExpectedDefaultTextFieldWidth, height = 150.dp),
+                supportingText = { Text("Supporting", modifier = Modifier.testTag("Supporting")) }
+            )
+        }
+
+        rule.onNodeWithTag("Supporting", useUnmergedTree = true).assertIsDisplayed()
     }
 
     @Test
@@ -1347,8 +1415,8 @@ class OutlinedTextFieldTest {
                 value = "",
                 onValueChange = {},
                 modifier = Modifier.testTag(TextFieldTag),
-                colors = TextFieldDefaults.outlinedTextFieldColors(
-                    containerColor = Color.Red,
+                colors = OutlinedTextFieldDefaults.colors(
+                    unfocusedContainerColor = Color.Red,
                     unfocusedBorderColor = Color.Red
                 ),
                 shape = RectangleShape
@@ -1409,7 +1477,7 @@ class OutlinedTextFieldTest {
                     contentColor = LocalContentColor.current
                 },
                 modifier = Modifier.focusRequester(focusRequester),
-                colors = TextFieldDefaults.textFieldColors(
+                colors = OutlinedTextFieldDefaults.colors(
                     unfocusedLabelColor = unfocusedLabelColor,
                     focusedLabelColor = focusedLabelColor
                 )
@@ -1452,7 +1520,7 @@ class OutlinedTextFieldTest {
                         contentColor = LocalContentColor.current
                     },
                     modifier = Modifier.focusRequester(focusRequester),
-                    colors = TextFieldDefaults.textFieldColors(
+                    colors = OutlinedTextFieldDefaults.colors(
                         unfocusedLabelColor = unfocusedLabelColor,
                         focusedLabelColor = focusedLabelColor
                     )
@@ -1495,7 +1563,7 @@ class OutlinedTextFieldTest {
                         contentColor = LocalContentColor.current
                     },
                     modifier = Modifier.focusRequester(focusRequester),
-                    colors = TextFieldDefaults.textFieldColors(
+                    colors = OutlinedTextFieldDefaults.colors(
                         unfocusedLabelColor = expectedLabelColor,
                         focusedLabelColor = focusedLabelColor
                     )
@@ -1541,7 +1609,7 @@ class OutlinedTextFieldTest {
                         contentColor = LocalContentColor.current
                     },
                     modifier = Modifier.focusRequester(focusRequester),
-                    colors = TextFieldDefaults.textFieldColors(
+                    colors = OutlinedTextFieldDefaults.colors(
                         unfocusedLabelColor = unfocusedLabelColor,
                         focusedLabelColor = focusedLabelColor
                     )
@@ -1606,7 +1674,7 @@ class OutlinedTextFieldTest {
         }
 
         with(rule.density) {
-            assertThat(height).isEqualTo((TextFieldDefaults.MinHeight).roundToPx())
+            assertThat(height).isEqualTo((OutlinedTextFieldDefaults.MinHeight).roundToPx())
         }
     }
 
@@ -1631,7 +1699,7 @@ class OutlinedTextFieldTest {
         }
 
         with(rule.density) {
-            assertThat(height).isEqualTo((TextFieldDefaults.MinHeight).roundToPx())
+            assertThat(height).isEqualTo((OutlinedTextFieldDefaults.MinHeight).roundToPx())
         }
     }
 
@@ -1656,7 +1724,7 @@ class OutlinedTextFieldTest {
         }
 
         with(rule.density) {
-            assertThat(height).isEqualTo((TextFieldDefaults.MinHeight).roundToPx())
+            assertThat(height).isEqualTo((OutlinedTextFieldDefaults.MinHeight).roundToPx())
         }
     }
 

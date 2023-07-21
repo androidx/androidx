@@ -36,11 +36,11 @@ fun Modifier.onFocusChanged(
 
 private data class FocusChangedElement(
     val onFocusChanged: (FocusState) -> Unit
-) : ModifierNodeElement<FocusChangedModifierNode>() {
-    override fun create() = FocusChangedModifierNode(onFocusChanged)
+) : ModifierNodeElement<FocusChangedNode>() {
+    override fun create() = FocusChangedNode(onFocusChanged)
 
-    override fun update(node: FocusChangedModifierNode) = node.apply {
-        onFocusChanged = this@FocusChangedElement.onFocusChanged
+    override fun update(node: FocusChangedNode) {
+        node.onFocusChanged = onFocusChanged
     }
 
     override fun InspectorInfo.inspectableProperties() {
@@ -49,7 +49,7 @@ private data class FocusChangedElement(
     }
 }
 
-private class FocusChangedModifierNode(
+private class FocusChangedNode(
     var onFocusChanged: (FocusState) -> Unit
 ) : FocusEventModifierNode, Modifier.Node() {
     private var focusState: FocusState? = null

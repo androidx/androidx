@@ -28,6 +28,7 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -47,7 +48,7 @@ import androidx.constraintlayout.compose.MotionScene
 @Preview
 @Composable
 fun ReactionSelectorDemo() {
-    var selected by remember { mutableStateOf(3) }
+    var selected by remember { mutableIntStateOf(3) }
     val transitionName = remember { mutableStateOf("transition1") }
     val emojis = remember { "😀 🙂 🤨 😐 😒 😬".split(' ') }
     val emojiNames = remember {

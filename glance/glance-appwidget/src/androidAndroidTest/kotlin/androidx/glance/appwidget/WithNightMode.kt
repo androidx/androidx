@@ -18,11 +18,11 @@ package androidx.glance.appwidget
 
 import android.content.res.Configuration
 import android.os.Build
+import java.lang.reflect.AnnotatedElement
+import java.lang.reflect.Method
 import org.junit.rules.TestRule
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
-import java.lang.reflect.AnnotatedElement
-import java.lang.reflect.Method
 
 /**
  * Annotation for specifying a per-test or per-method override of the device night mode

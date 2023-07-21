@@ -71,6 +71,7 @@ internal class TestWatchFaceService(
     /** The ids of the [ComplicationSlot]s that have been tapped. */
     val tappedComplicationSlotIds: List<Int>
         get() = mutableTappedComplicationIds
+
     var complicationSelected: Int? = null
     var mockZoneId: ZoneId = ZoneId.of("UTC")
     var renderer: Renderer? = null

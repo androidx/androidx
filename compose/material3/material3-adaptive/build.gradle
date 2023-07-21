@@ -1,0 +1,100 @@
+/*
+ * Copyright (C) 2023 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import androidx.build.AndroidXComposePlugin
+import androidx.build.KmpPlatformsKt
+import androidx.build.LibraryType
+import androidx.build.PlatformIdentifier
+import androidx.build.Publish
+
+plugins {
+    id("AndroidXPlugin")
+    id("com.android.library")
+    id("AndroidXComposePlugin")
+}
+
+def desktopEnabled = KmpPlatformsKt.enableDesktop(project)
+
+androidXMultiplatform {
+    android()
+    if (desktopEnabled) desktop()
+
+    defaultPlatform(PlatformIdentifier.ANDROID)
+
+    sourceSets {
+        commonMain {
+            dependencies {
+                implementation(libs.kotlinStdlibCommon)
+                api(project(":compose:foundation:foundation"))
+            }
+        }
+
+        commonTest {
+            dependencies {
+            }
+        }
+
+        jvmMain {
+            dependsOn(commonMain)
+            dependencies {
+                implementation(libs.kotlinStdlib)
+            }
+        }
+
+        androidMain {
+            dependsOn(jvmMain)
+            dependencies {
+                api("androidx.annotation:annotation:1.1.0")
+            }
+        }
+
+        if (desktopEnabled) {
+            desktopMain {
+                dependsOn(jvmMain)
+                dependencies {
+                }
+            }
+        }
+
+        jvmTest {
+            dependencies {
+            }
+        }
+
+        if (desktopEnabled) {
+            desktopTest {
+                dependsOn(jvmTest)
+            }
+        }
+
+        androidTest {
+            dependsOn(jvmTest)
+        }
+    }
+}
+
+android {
+    namespace "androidx.compose.material3.adaptive"
+}
+
+androidx {
+    name = "Material Adaptive"
+    mavenVersion = LibraryVersions.COMPOSE_MATERIAL3_ADAPTIVE
+    type = LibraryType.PUBLISHED_LIBRARY
+    publish = Publish.NONE
+    inceptionYear = "2023"
+    description = "Compose Material Design Adaptive Library"
+}

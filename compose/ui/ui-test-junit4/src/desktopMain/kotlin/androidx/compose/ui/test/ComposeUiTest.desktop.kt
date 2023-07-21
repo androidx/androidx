@@ -22,12 +22,9 @@ import androidx.compose.ui.ComposeScene
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.node.RootForTest
 import androidx.compose.ui.platform.InfiniteAnimationPolicy
-import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.test.junit4.MainTestClockImpl
 import androidx.compose.ui.test.junit4.UncaughtExceptionHandler
 import androidx.compose.ui.test.junit4.isOnUiThread
-import androidx.compose.ui.text.ExperimentalTextApi
-import androidx.compose.ui.text.input.TextInputForTests
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import kotlin.coroutines.CoroutineContext
@@ -185,6 +182,10 @@ class DesktopComposeUiTest(
         }
     }
 
+    /**
+     * @param matcher
+     * @param useUnmergedTree
+     */
     override fun onNode(
         matcher: SemanticsMatcher,
         useUnmergedTree: Boolean
@@ -192,6 +193,10 @@ class DesktopComposeUiTest(
         return SemanticsNodeInteraction(testContext, useUnmergedTree, matcher)
     }
 
+    /**
+     * @param matcher
+     * @param useUnmergedTree
+     */
     override fun onAllNodes(
         matcher: SemanticsMatcher,
         useUnmergedTree: Boolean
@@ -200,11 +205,6 @@ class DesktopComposeUiTest(
     }
 
     private inner class DesktopTestOwner : TestOwner {
-        @OptIn(ExperimentalTextApi::class)
-        override fun performTextInput(node: SemanticsNode, action: TextInputForTests.() -> Unit) {
-            TODO()
-        }
-
         override fun <T> runOnUiThread(action: () -> T): T {
             return this@DesktopComposeUiTest.runOnUiThread(action)
         }

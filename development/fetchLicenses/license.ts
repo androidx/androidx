@@ -72,14 +72,18 @@ function isValidProtocol(requestUrl: string): boolean {
   }
 }
 
-async function handleLicenseRequest(url: string): Promise<ContentNode[]> {
-  const browser = await puppeteer.launch({ args: CHROME_LAUNCH_ARGS });
+async function handleLicenseRequest(url: string, enableLocalDebugging: boolean = false): Promise<ContentNode[]> {
+  const browser = await puppeteer.launch({ args: CHROME_LAUNCH_ARGS, devtools: enableLocalDebugging });
   const page = await browser.newPage();
+  if (enableLocalDebugging) {
+    page.on('console', (message) => {
+      log(`Puppeteer: ${message.text()}`);
+    });
+  }
   await page.goto(url, { waitUntil: 'domcontentloaded' });
   const content = await page.evaluate(() => {
     // A map of banned nodes
     const BANNED_LOCAL_NAMES: BannedNames = {
-      'a': true,
       'button': true,
       'canvas': true,
       'footer': true,
@@ -135,6 +139,15 @@ async function handleLicenseRequest(url: string): Promise<ContentNode[]> {
       // of the node, and not the child nodes.
       const cloned = node.cloneNode();
       const localName = name;
+      // Handle elements of different types
+      if (cloned instanceof HTMLAnchorElement) {
+        // anchor element
+        // Ensure that it has reasonable href content
+        const href = cloned.href;
+        if (href.length <= 0 || href === '#') {
+          return null;
+        }
+      }
       const textContent = cloned.textContent;
       const children = contentForNodeList(node.childNodes);
       return {

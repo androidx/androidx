@@ -19,6 +19,7 @@ import androidx.build.LibraryType
 plugins {
     id("AndroidXPlugin")
 }
+
 androidXMultiplatform {
     jvm {}
     mac()
@@ -33,6 +34,7 @@ androidXMultiplatform {
                 api(libs.kotlinStdlibCommon)
                 api(libs.kotlinTestCommon)
                 api(libs.kotlinCoroutinesCore)
+                api(libs.kotlinCoroutinesTest)
                 api(libs.okio)
             }
         }

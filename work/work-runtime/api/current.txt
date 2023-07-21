@@ -336,6 +336,9 @@ package androidx.work {
   }
 
   public final class WorkInfo {
+    ctor public WorkInfo(java.util.UUID id, androidx.work.WorkInfo.State state, java.util.Set<java.lang.String> tags, optional androidx.work.Data outputData, optional androidx.work.Data progress, optional int runAttemptCount, optional int generation, optional androidx.work.Constraints constraints, optional long initialDelayMillis, optional androidx.work.WorkInfo.PeriodicityInfo? periodicityInfo, optional long nextScheduleTimeMillis);
+    ctor public WorkInfo(java.util.UUID id, androidx.work.WorkInfo.State state, java.util.Set<java.lang.String> tags, optional androidx.work.Data outputData, optional androidx.work.Data progress, optional int runAttemptCount, optional int generation, optional androidx.work.Constraints constraints, optional long initialDelayMillis, optional androidx.work.WorkInfo.PeriodicityInfo? periodicityInfo);
+    ctor public WorkInfo(java.util.UUID id, androidx.work.WorkInfo.State state, java.util.Set<java.lang.String> tags, optional androidx.work.Data outputData, optional androidx.work.Data progress, optional int runAttemptCount, optional int generation, optional androidx.work.Constraints constraints, optional long initialDelayMillis);
     ctor public WorkInfo(java.util.UUID id, androidx.work.WorkInfo.State state, java.util.Set<java.lang.String> tags, optional androidx.work.Data outputData, optional androidx.work.Data progress, optional int runAttemptCount, optional int generation, optional androidx.work.Constraints constraints);
     ctor public WorkInfo(java.util.UUID id, androidx.work.WorkInfo.State state, java.util.Set<java.lang.String> tags, optional androidx.work.Data outputData, optional androidx.work.Data progress, optional int runAttemptCount, optional int generation);
     ctor public WorkInfo(java.util.UUID id, androidx.work.WorkInfo.State state, java.util.Set<java.lang.String> tags, optional androidx.work.Data outputData, optional androidx.work.Data progress, optional int runAttemptCount);
@@ -345,7 +348,10 @@ package androidx.work {
     method public androidx.work.Constraints getConstraints();
     method public int getGeneration();
     method public java.util.UUID getId();
+    method public long getInitialDelayMillis();
+    method public long getNextScheduleTimeMillis();
     method public androidx.work.Data getOutputData();
+    method public androidx.work.WorkInfo.PeriodicityInfo? getPeriodicityInfo();
     method public androidx.work.Data getProgress();
     method @IntRange(from=0L) public int getRunAttemptCount();
     method public androidx.work.WorkInfo.State getState();
@@ -353,11 +359,22 @@ package androidx.work {
     property public final androidx.work.Constraints constraints;
     property public final int generation;
     property public final java.util.UUID id;
+    property public final long initialDelayMillis;
+    property public final long nextScheduleTimeMillis;
     property public final androidx.work.Data outputData;
+    property public final androidx.work.WorkInfo.PeriodicityInfo? periodicityInfo;
     property public final androidx.work.Data progress;
     property @IntRange(from=0L) public final int runAttemptCount;
     property public final androidx.work.WorkInfo.State state;
     property public final java.util.Set<java.lang.String> tags;
+  }
+
+  public static final class WorkInfo.PeriodicityInfo {
+    ctor public WorkInfo.PeriodicityInfo(long repeatIntervalMillis, long flexIntervalMillis);
+    method public long getFlexIntervalMillis();
+    method public long getRepeatIntervalMillis();
+    property public final long flexIntervalMillis;
+    property public final long repeatIntervalMillis;
   }
 
   public enum WorkInfo.State {

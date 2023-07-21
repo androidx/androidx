@@ -21,10 +21,10 @@ import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.text.font.createFontFamilyResolver
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.font.createFontFamilyResolver
 import androidx.compose.ui.text.platform.Font
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.unit.Constraints

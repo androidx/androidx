@@ -15,7 +15,6 @@
  */
 
 import androidx.build.LibraryType
-import androidx.build.RunApiTasks
 import androidx.build.SdkHelperKt
 import androidx.build.SupportConfig
 
@@ -41,6 +40,8 @@ dependencies {
     testImplementation(project(":room:room-compiler-processing-testing"))
     testImplementationAarAsJar(project(":privacysandbox:ui:ui-core"))
     testImplementationAarAsJar(project(":privacysandbox:ui:ui-client"))
+    testImplementationAarAsJar(project(":privacysandbox:sdkruntime:sdkruntime-client"))
+    testImplementationAarAsJar(project(":privacysandbox:sdkruntime:sdkruntime-core"))
     testImplementation(libs.kotlinCoroutinesCore)
     testImplementation(libs.junit)
     testImplementation(libs.truth)
@@ -50,20 +51,24 @@ dependencies {
             dir: "${SdkHelperKt.getSdkPath(project)}/platforms/$SupportConfig.COMPILE_SDK_VERSION/",
             include: "android.jar"
     ))
-    // Get AIDL compiler path and framework.aidl path and pass to tests for code generation.
-    def aidlCompilerPath = "${SdkHelperKt.getSdkPath(project)}/build-tools/${SupportConfig.BUILD_TOOLS_VERSION}/aidl"
-    def frameworkAidlPath = "${SdkHelperKt.getSdkPath(project)}/platforms/${SupportConfig.COMPILE_SDK_VERSION}/framework.aidl"
-    test {
-        inputs.files(aidlCompilerPath)
-                .withPropertyName("aidl_compiler_path")
-                .withPathSensitivity(PathSensitivity.NAME_ONLY)
-        inputs.files(frameworkAidlPath)
-                .withPropertyName("framework_aidl_path")
-                .withPathSensitivity(PathSensitivity.NAME_ONLY)
-        doFirst {
-            systemProperty "aidl_compiler_path", aidlCompilerPath
-            systemProperty "framework_aidl_path", frameworkAidlPath
-        }
+}
+
+// Get AIDL compiler path and framework.aidl path and pass to tests for code generation.
+def aidlCompilerPath = "${SdkHelperKt.getSdkPath(project)}/build-tools/${SupportConfig.buildToolsVersion(project)}/aidl"
+def frameworkAidlPath = "${SdkHelperKt.getSdkPath(project)}/platforms/${SupportConfig.COMPILE_SDK_VERSION}/framework.aidl"
+def testGeneratedSourcesPath = "${project.buildDir}/testGeneratedSources"
+test {
+    inputs.files(aidlCompilerPath)
+            .withPropertyName("aidl_compiler_path")
+            .withPathSensitivity(PathSensitivity.NAME_ONLY)
+    inputs.files(frameworkAidlPath)
+            .withPropertyName("framework_aidl_path")
+            .withPathSensitivity(PathSensitivity.NAME_ONLY)
+    inputs.dir("src/test/test-data").withPathSensitivity(PathSensitivity.RELATIVE)
+    doFirst {
+        systemProperty "aidl_compiler_path", aidlCompilerPath
+        systemProperty "framework_aidl_path", frameworkAidlPath
+        systemProperty "test_output_dir", testGeneratedSourcesPath
     }
 }
 
@@ -72,5 +77,4 @@ androidx {
     type = LibraryType.OTHER_CODE_PROCESSOR
     inceptionYear = "2022"
     description = "Generate sources for communication with SDKs in the Privacy Sandbox."
-    runApiTasks = new RunApiTasks.No("API still under active development.")
 }

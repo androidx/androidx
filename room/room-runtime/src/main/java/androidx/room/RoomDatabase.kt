@@ -671,8 +671,9 @@ abstract class RoomDatabase {
                 return this
             }
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                val manager = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
-                if (!isLowRamDevice(manager)) {
+                val manager =
+                    context.getSystemService(Context.ACTIVITY_SERVICE) as? ActivityManager
+                if (manager != null && !isLowRamDevice(manager)) {
                     return WRITE_AHEAD_LOGGING
                 }
             }

@@ -21,7 +21,7 @@ plugins {
     id("com.android.library")
 }
 dependencies {
-    api(project(":enterprise:enterprise-feedback:"))
+    api(project(":enterprise:enterprise-feedback"))
     testImplementation(libs.truth)
 }
 android {

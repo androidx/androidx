@@ -1,4 +1,20 @@
 // Baseline format: 1.0
+ChangedType: androidx.wear.watchface.complications.data.LongTextComplicationData.Builder#setDataSource(android.content.ComponentName):
+    Method androidx.wear.watchface.complications.data.LongTextComplicationData.Builder.setDataSource has changed return type from androidx.wear.watchface.complications.data.LongTextComplicationData.Builder to BuilderT
+ChangedType: androidx.wear.watchface.complications.data.MonochromaticImageComplicationData.Builder#setDataSource(android.content.ComponentName):
+    Method androidx.wear.watchface.complications.data.MonochromaticImageComplicationData.Builder.setDataSource has changed return type from androidx.wear.watchface.complications.data.MonochromaticImageComplicationData.Builder to BuilderT
+ChangedType: androidx.wear.watchface.complications.data.NoPermissionComplicationData.Builder#setDataSource(android.content.ComponentName):
+    Method androidx.wear.watchface.complications.data.NoPermissionComplicationData.Builder.setDataSource has changed return type from androidx.wear.watchface.complications.data.NoPermissionComplicationData.Builder to BuilderT
+ChangedType: androidx.wear.watchface.complications.data.PhotoImageComplicationData.Builder#setDataSource(android.content.ComponentName):
+    Method androidx.wear.watchface.complications.data.PhotoImageComplicationData.Builder.setDataSource has changed return type from androidx.wear.watchface.complications.data.PhotoImageComplicationData.Builder to BuilderT
+ChangedType: androidx.wear.watchface.complications.data.RangedValueComplicationData.Builder#setDataSource(android.content.ComponentName):
+    Method androidx.wear.watchface.complications.data.RangedValueComplicationData.Builder.setDataSource has changed return type from androidx.wear.watchface.complications.data.RangedValueComplicationData.Builder to BuilderT
+ChangedType: androidx.wear.watchface.complications.data.ShortTextComplicationData.Builder#setDataSource(android.content.ComponentName):
+    Method androidx.wear.watchface.complications.data.ShortTextComplicationData.Builder.setDataSource has changed return type from androidx.wear.watchface.complications.data.ShortTextComplicationData.Builder to BuilderT
+ChangedType: androidx.wear.watchface.complications.data.SmallImageComplicationData.Builder#setDataSource(android.content.ComponentName):
+    Method androidx.wear.watchface.complications.data.SmallImageComplicationData.Builder.setDataSource has changed return type from androidx.wear.watchface.complications.data.SmallImageComplicationData.Builder to BuilderT
+
+
 RemovedClass: androidx.wear.watchface.complications.data.DataKt:
     Removed class androidx.wear.watchface.complications.data.DataKt
 RemovedClass: androidx.wear.watchface.complications.data.DefaultComplicationDataSourcePolicyWireFormat:

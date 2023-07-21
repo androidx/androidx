@@ -107,6 +107,9 @@
         errorLine2="                           ~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/TintContextWrapper.java"/>
+        <location
+            file="src/main/java/androidx/appcompat/widget/TintContextWrapper.java"
+            message="Setter here"/>
     </issue>
 
     <issue

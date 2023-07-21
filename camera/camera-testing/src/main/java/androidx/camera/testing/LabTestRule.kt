@@ -18,6 +18,7 @@ package androidx.camera.testing
 
 import android.util.Log
 import androidx.annotation.RequiresApi
+import androidx.camera.core.CameraSelector
 import androidx.camera.testing.LabTestRule.LabTestFrontCamera
 import androidx.camera.testing.LabTestRule.LabTestOnly
 import androidx.camera.testing.LabTestRule.LabTestRearCamera
@@ -142,5 +143,23 @@ class LabTestRule : TestRule {
         fun isInLabTest(): Boolean {
             return Log.isLoggable("MH", Log.DEBUG)
         }
+
+        /**
+         * Checks if it is CameraX lab environment where the enabled camera uses the specified
+         * [lensFacing] direction.
+         *
+         * For example, if [lensFacing] is [CameraSelector.LENS_FACING_BACK], this method will
+         * return true if the rear camera is enabled on a device in CameraX lab environment.
+         *
+         * @param lensFacing the required camera direction relative to the device screen.
+         * @return if enabled camera is in same direction as [lensFacing] in CameraX lab environment
+         */
+        @JvmStatic
+        fun isLensFacingEnabledInLabTest(@CameraSelector.LensFacing lensFacing: Int) =
+            when (lensFacing) {
+                CameraSelector.LENS_FACING_BACK -> Log.isLoggable("rearCameraE2E", Log.DEBUG)
+                CameraSelector.LENS_FACING_FRONT -> Log.isLoggable("frontCameraE2E", Log.DEBUG)
+                else -> false
+            }
     }
 }

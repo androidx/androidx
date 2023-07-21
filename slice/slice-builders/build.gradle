@@ -31,14 +31,18 @@ dependencies {
 }
 
 androidx {
-    name = "Slice builders"
+    name = "Slice Builders"
     publish = Publish.SNAPSHOT_ONLY // Library is deprecated pending removal.
-    disableDeviceTests = true // Pending removal, don't run tests.
     runApiTasks = new RunApiTasks.Yes() // Pending removal, but keep API files for now.
     mavenVersion = LibraryVersions.SLICE
     inceptionYear = "2017"
     description = "A set of builders to create templates using SliceProvider APIs"
     failOnDeprecationWarnings = false
+
+    deviceTests {
+        // Pending removal, don't run tests.
+        enabled = false
+    }
 }
 
 android {

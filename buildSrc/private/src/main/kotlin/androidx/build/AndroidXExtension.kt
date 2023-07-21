@@ -23,13 +23,16 @@ import groovy.lang.Closure
 import java.io.File
 import org.gradle.api.GradleException
 import org.gradle.api.Project
+import org.gradle.api.plugins.ExtensionAware
+import org.gradle.api.plugins.ExtensionContainer
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
 
 /**
  * Extension for [AndroidXImplPlugin] that's responsible for holding configuration options.
  */
-open class AndroidXExtension(val project: Project) {
+abstract class AndroidXExtension(val project: Project) : ExtensionAware {
+
     @JvmField
     val LibraryVersions: Map<String, Version>
 
@@ -44,6 +47,8 @@ open class AndroidXExtension(val project: Project) {
     val listProjectsService: Provider<ListProjectsService>
 
     private val versionService: LibraryVersionsService
+
+    val deviceTests = DeviceTests.register(project.extensions)
 
     init {
         val tomlFileName = "libraryversions.toml"
@@ -372,15 +377,19 @@ open class AndroidXExtension(val project: Project) {
 
     var legacyDisableKotlinStrictApiMode = false
 
-    var benchmarkRunAlsoInterpreted = false
-
     var bypassCoordinateValidation = false
 
     var metalavaK2UastEnabled = false
 
-    var disableDeviceTests = false
-
     val additionalDeviceTestApkKeys = mutableListOf<String>()
+
+    val additionalDeviceTestTags: MutableList<String> by lazy {
+        when {
+            project.path.startsWith(":privacysandbox:") -> mutableListOf("privacysandbox")
+            project.path.startsWith(":wear:") -> mutableListOf("wear")
+            else -> mutableListOf()
+        }
+    }
 
     fun shouldEnforceKotlinStrictApiMode(): Boolean {
         return !legacyDisableKotlinStrictApiMode &&
@@ -415,4 +424,19 @@ open class AndroidXExtension(val project: Project) {
 class License {
     var name: String? = null
     var url: String? = null
+}
+
+abstract class DeviceTests {
+
+    companion object {
+        private const val EXTENSION_NAME = "deviceTests"
+        internal fun register(extensions: ExtensionContainer): DeviceTests {
+            return extensions.findByType(DeviceTests::class.java)
+                ?: extensions.create(EXTENSION_NAME, DeviceTests::class.java)
+        }
+    }
+
+    var enabled = true
+    var targetAppProject: Project? = null
+    var targetAppVariant = "debug"
 }

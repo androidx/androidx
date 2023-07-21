@@ -21,8 +21,8 @@ import android.os.Handler
 import android.os.Looper
 import androidx.benchmark.junit4.measureRepeated
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.runtime.snapshots.SnapshotStateObserver
 import androidx.test.ext.junit.runners.AndroidJUnit4

@@ -44,12 +44,12 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SmallTest
+import kotlin.math.roundToInt
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
 import org.junit.Test
 import org.junit.runner.RunWith
-import kotlin.math.roundToInt
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)

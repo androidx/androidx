@@ -19,11 +19,27 @@ package androidx.benchmark.integration.baselineprofile.consumer
 import android.app.Activity
 import android.os.Bundle
 import android.widget.TextView
+import androidx.profileinstaller.ProfileVerifier
+import java.util.concurrent.Executors
 
 class EmptyActivity : Activity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        findViewById<TextView>(R.id.txtNotice).setText(R.string.app_notice)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        Executors.newSingleThreadExecutor().submit {
+            val result = ProfileVerifier.getCompilationStatusAsync().get()
+            runOnUiThread {
+                findViewById<TextView>(R.id.txtNotice).text = """
+                    Profile installed: ${result.profileInstallResultCode}
+                    Has reference profile: ${result.isCompiledWithProfile}
+                    Has current profile: ${result.hasProfileEnqueuedForCompilation()}
+                """.trimIndent()
+            }
+        }
     }
 }

@@ -18,12 +18,12 @@ package androidx.compose.material.icons.generator.tasks
 
 import androidx.compose.material.icons.generator.CoreIcons
 import androidx.compose.material.icons.generator.IconWriter
+import java.io.File
 import org.gradle.api.Project
 import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.TaskProvider
 import org.gradle.api.tasks.bundling.Jar
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
-import java.io.File
 
 /**
  * Task responsible for converting core icons from xml to a programmatic representation.

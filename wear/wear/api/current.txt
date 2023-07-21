@@ -17,28 +17,28 @@ package androidx.wear.activity {
 
 package androidx.wear.ambient {
 
-  public final class AmbientLifecycleObserver implements androidx.wear.ambient.AmbientLifecycleObserverInterface {
-    ctor public AmbientLifecycleObserver(android.app.Activity activity, java.util.concurrent.Executor callbackExecutor, androidx.wear.ambient.AmbientLifecycleObserverInterface.AmbientLifecycleCallback callbacks);
-    ctor public AmbientLifecycleObserver(android.app.Activity activity, androidx.wear.ambient.AmbientLifecycleObserverInterface.AmbientLifecycleCallback callbacks);
+  public interface AmbientLifecycleObserver extends androidx.lifecycle.DefaultLifecycleObserver {
     method public boolean isAmbient();
+    property public abstract boolean isAmbient;
   }
 
-  public interface AmbientLifecycleObserverInterface extends androidx.lifecycle.DefaultLifecycleObserver {
-    method public boolean isAmbient();
-  }
-
-  public static final class AmbientLifecycleObserverInterface.AmbientDetails {
-    ctor public AmbientLifecycleObserverInterface.AmbientDetails(boolean burnInProtectionRequired, boolean deviceHasLowBitAmbient);
+  public static final class AmbientLifecycleObserver.AmbientDetails {
+    ctor public AmbientLifecycleObserver.AmbientDetails(boolean burnInProtectionRequired, boolean deviceHasLowBitAmbient);
     method public boolean getBurnInProtectionRequired();
     method public boolean getDeviceHasLowBitAmbient();
     property public final boolean burnInProtectionRequired;
     property public final boolean deviceHasLowBitAmbient;
   }
 
-  public static interface AmbientLifecycleObserverInterface.AmbientLifecycleCallback {
-    method public default void onEnterAmbient(androidx.wear.ambient.AmbientLifecycleObserverInterface.AmbientDetails ambientDetails);
+  public static interface AmbientLifecycleObserver.AmbientLifecycleCallback {
+    method public default void onEnterAmbient(androidx.wear.ambient.AmbientLifecycleObserver.AmbientDetails ambientDetails);
     method public default void onExitAmbient();
     method public default void onUpdateAmbient();
+  }
+
+  public final class AmbientLifecycleObserverKt {
+    method public static androidx.wear.ambient.AmbientLifecycleObserver AmbientLifecycleObserver(android.app.Activity activity, java.util.concurrent.Executor callbackExecutor, androidx.wear.ambient.AmbientLifecycleObserver.AmbientLifecycleCallback callbacks);
+    method public static androidx.wear.ambient.AmbientLifecycleObserver AmbientLifecycleObserver(android.app.Activity activity, androidx.wear.ambient.AmbientLifecycleObserver.AmbientLifecycleCallback callbacks);
   }
 
   @Deprecated public final class AmbientMode extends android.app.Fragment {

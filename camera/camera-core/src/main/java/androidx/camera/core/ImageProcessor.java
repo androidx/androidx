@@ -20,7 +20,6 @@ import android.graphics.PixelFormat;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 
 import java.lang.annotation.Retention;
@@ -92,7 +91,6 @@ public interface ImageProcessor {
      * Valid output formats.
      *
      * <p>{@link Request#getOutputFormat()} can only return the formats defined by this annotation.
-     *
      */
     @Retention(RetentionPolicy.SOURCE)
     @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -162,7 +160,7 @@ public interface ImageProcessor {
          *
          * @return the output image.
          */
-        @Nullable
+        @NonNull
         ImageProxy getOutputImage();
     }
 }

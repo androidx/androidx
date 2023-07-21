@@ -33,6 +33,7 @@ import androidx.benchmark.UserspaceTracing
 import androidx.benchmark.checkAndGetSuppressionState
 import androidx.benchmark.conditionalError
 import androidx.benchmark.perfetto.PerfettoCaptureWrapper
+import androidx.benchmark.perfetto.PerfettoConfig
 import androidx.benchmark.perfetto.PerfettoTrace
 import androidx.benchmark.perfetto.PerfettoTraceProcessor
 import androidx.benchmark.perfetto.UiState
@@ -214,22 +215,23 @@ private fun macrobenchmark(
                 val iterString = iteration.toString().padStart(3, '0')
                 val tracePath = perfettoCollector.record(
                     fileLabel = "${uniqueName}_iter$iterString",
-
-                    /**
-                     * Prior to API 24, every package name was joined into a single setprop which
-                     * can overflow, and disable *ALL* app level tracing.
-                     *
-                     * For safety here, we only trace the macrobench package on newer platforms,
-                     * and use reflection in the macrobench test process to trace important
-                     * sections
-                     *
-                     * @see androidx.benchmark.macro.perfetto.ForceTracing
-                     */
-                    appTagPackages = if (Build.VERSION.SDK_INT >= 24) {
-                        listOf(packageName, macrobenchPackageName)
-                    } else {
-                        listOf(packageName)
-                    },
+                    config = PerfettoConfig.Benchmark(
+                        /**
+                         * Prior to API 24, every package name was joined into a single setprop
+                         * which can overflow, and disable *ALL* app level tracing.
+                         *
+                         * For safety here, we only trace the macrobench package on newer platforms,
+                         * and use reflection in the macrobench test process to trace important
+                         * sections
+                         *
+                         * @see androidx.benchmark.macro.perfetto.ForceTracing
+                         */
+                        appTagPackages = if (Build.VERSION.SDK_INT >= 24) {
+                            listOf(packageName, macrobenchPackageName)
+                        } else {
+                            listOf(packageName)
+                        },
+                    ),
                     userspaceTracingPackage = userspaceTracingPackage
                 ) {
                     try {
@@ -252,13 +254,13 @@ private fun macrobenchmark(
 
                 tracePaths.add(tracePath)
 
-                val iterationResult = loadTrace(PerfettoTrace(tracePath)) {
+                val measurementList = loadTrace(PerfettoTrace(tracePath)) {
                     // Extracts the metrics using the perfetto trace processor
                     userspaceTrace("extract metrics") {
                         metrics
-                            // capture list of Map<String,Long> per metric
+                            // capture list of Measurements
                             .map {
-                                it.getMetrics(
+                                it.getResult(
                                     Metric.CaptureInfo(
                                         targetPackageName = packageName,
                                         testPackageName = macrobenchPackageName,
@@ -268,15 +270,13 @@ private fun macrobenchmark(
                                     this
                                 )
                             }
-                            // merge into one map
-                            .reduce { sum, element -> sum + element }
+                            // merge together
+                            .reduce { sum, element -> sum.merge(element) }
                     }
                 }
 
                 // append UI state to trace, so tools opening trace will highlight relevant part in UI
                 val uiState = UiState(
-                    timelineStart = iterationResult.timelineRangeNs?.first,
-                    timelineEnd = iterationResult.timelineRangeNs?.last,
                     highlightPackage = packageName
                 )
                 File(tracePath).apply {
@@ -289,8 +289,8 @@ private fun macrobenchmark(
                 Log.d(TAG, "Iteration $iteration captured $uiState")
 
                 // report just the metrics
-                iterationResult
-            }.mergeIterationMeasurements()
+                measurementList
+            }.mergeMultiIterResults()
         }
 
         require(measurements.isNotEmpty()) {

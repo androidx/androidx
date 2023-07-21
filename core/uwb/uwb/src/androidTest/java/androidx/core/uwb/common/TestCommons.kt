@@ -29,7 +29,8 @@ internal class TestCommons {
             .setChannel(10)
             .build()
         val LOCAL_ADDRESS = UwbAddress(byteArrayOf(0xB0.toByte()))
-        val RANGING_CAPABILITIES = RangingCapabilities(true, false, false, 200)
+        val RANGING_CAPABILITIES = RangingCapabilities(true, false, false,
+            200, listOf(9), listOf(1, 2, 3), 2F)
         val NEIGHBOR_1 = byteArrayOf(0xA1.toByte())
         val NEIGHBOR_2 = byteArrayOf(0xA5.toByte())
         val UWB_DEVICE = UwbDevice.createForAddress(NEIGHBOR_1)

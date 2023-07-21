@@ -17,6 +17,10 @@
 package androidx.benchmark.gradle
 
 import androidx.testutils.gradle.ProjectSetupRule
+import java.io.File
+import kotlin.test.assertFailsWith
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.UnexpectedBuildFailure
 import org.junit.Before
@@ -24,10 +28,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import java.io.File
-import kotlin.test.assertFailsWith
-import kotlin.test.assertFalse
-import kotlin.test.assertTrue
 
 private val PLUGINS_HEADER = """
     plugins {

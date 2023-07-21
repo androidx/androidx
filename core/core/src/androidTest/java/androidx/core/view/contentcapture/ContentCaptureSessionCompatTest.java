@@ -99,7 +99,8 @@ public class ContentCaptureSessionCompatTest extends
     }
 
     @Test
-    public void testNotifyViewsAppeared_throwsNPEAboveSDK29() {
+    @SdkSuppress(minSdkVersion = 29, maxSdkVersion = 33)
+    public void testNotifyViewsAppeared_throwsNPEBetweenSDK29And33() {
         ContentCaptureSession mockContentCaptureSession = mock(ContentCaptureSession.class);
         ViewStructure mockViewStructure = mock(ViewStructure.class);
         List<ViewStructure> viewStructures = new ArrayList<>();

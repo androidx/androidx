@@ -21,6 +21,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.Snapshot
+import java.awt.GraphicsEnvironment
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -33,7 +34,6 @@ import kotlinx.coroutines.swing.Swing
 import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.yield
 import org.junit.Assume.assumeFalse
-import java.awt.GraphicsEnvironment
 import org.junit.Assume.assumeTrue
 
 @OptIn(ExperimentalCoroutinesApi::class)

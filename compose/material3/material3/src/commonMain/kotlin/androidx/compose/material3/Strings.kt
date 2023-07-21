@@ -74,7 +74,7 @@ internal value class Strings private constructor(
         val DateRangeInputTitle = Strings()
         val DateRangeInputInvalidRangeInput = Strings()
         val BottomSheetDragHandleDescription = Strings()
-        val BottomSheetCollapseDescription = Strings()
+        val BottomSheetPartialExpandDescription = Strings()
         val BottomSheetDismissDescription = Strings()
         val BottomSheetExpandDescription = Strings()
         val TooltipLongPressLabel = Strings()
@@ -88,6 +88,8 @@ internal value class Strings private constructor(
         val TimePickerMinuteSuffix = Strings()
         val TimePickerHour = Strings()
         val TimePickerMinute = Strings()
+        val TimePickerHourTextField = Strings()
+        val TimePickerMinuteTextField = Strings()
         val TooltipPaneDescription = Strings()
     }
 }

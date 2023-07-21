@@ -36,8 +36,12 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.testutils.withActivity
-import org.hamcrest.Matchers.`is`
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicReference
+import kotlin.concurrent.thread
 import org.hamcrest.Matchers.equalTo
+import org.hamcrest.Matchers.`is`
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.fail
@@ -46,10 +50,6 @@ import org.junit.Before
 import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
-import java.util.concurrent.atomic.AtomicReference
-import kotlin.concurrent.thread
 
 @Suppress("DEPRECATION")
 @SdkSuppress(minSdkVersion = 23)

@@ -30,15 +30,16 @@ import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.isSpecified
 import androidx.core.widget.RemoteViewsCompat.setLinearLayoutGravity
 import androidx.glance.Emittable
 import androidx.glance.EmittableButton
 import androidx.glance.EmittableImage
-import androidx.glance.GlanceModifier
 import androidx.glance.appwidget.lazy.EmittableLazyColumn
 import androidx.glance.appwidget.lazy.EmittableLazyListItem
 import androidx.glance.appwidget.lazy.EmittableLazyVerticalGrid
 import androidx.glance.appwidget.lazy.EmittableLazyVerticalGridListItem
+import androidx.glance.appwidget.translators.setText
 import androidx.glance.appwidget.translators.translateEmittableCheckBox
 import androidx.glance.appwidget.translators.translateEmittableCircularProgressIndicator
 import androidx.glance.appwidget.translators.translateEmittableImage
@@ -50,12 +51,13 @@ import androidx.glance.appwidget.translators.translateEmittableLinearProgressInd
 import androidx.glance.appwidget.translators.translateEmittableRadioButton
 import androidx.glance.appwidget.translators.translateEmittableSwitch
 import androidx.glance.appwidget.translators.translateEmittableText
+import androidx.glance.findModifier
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.EmittableBox
 import androidx.glance.layout.EmittableColumn
 import androidx.glance.layout.EmittableRow
 import androidx.glance.layout.EmittableSpacer
-import androidx.glance.layout.fillMaxSize
+import androidx.glance.layout.PaddingModifier
 import androidx.glance.layout.padding
 import androidx.glance.text.EmittableText
 import java.util.concurrent.atomic.AtomicBoolean
@@ -113,7 +115,10 @@ internal fun translateComposition(
             val size = (child as EmittableSizeBox).size
             val remoteViewsInfo = createRootView(translationContext, child.modifier, rootViewIndex)
             val rv = remoteViewsInfo.remoteViews.apply {
-                translateChild(translationContext.forRoot(root = remoteViewsInfo), child)
+                translateChild(
+                    translationContext.forRootAndSize(root = remoteViewsInfo, size),
+                    child
+                )
             }
             size.toSizeF() to rv
         }
@@ -145,6 +150,8 @@ private fun combineLandscapeAndPortrait(views: List<RemoteViews>): RemoteViews =
         else -> throw IllegalArgumentException("There must be between 1 and 2 views.")
     }
 
+private const val LAST_INVALID_VIEW_ID = 1
+
 internal data class TranslationContext(
     val context: Context,
     val appWidgetId: Int,
@@ -152,7 +159,7 @@ internal data class TranslationContext(
     val layoutConfiguration: LayoutConfiguration?,
     val itemPosition: Int,
     val isLazyCollectionDescendant: Boolean = false,
-    val lastViewId: AtomicInteger = AtomicInteger(0),
+    val lastViewId: AtomicInteger = AtomicInteger(LAST_INVALID_VIEW_ID),
     val parentContext: InsertedViewInfo = InsertedViewInfo(),
     val isBackgroundSpecified: AtomicBoolean = AtomicBoolean(false),
     val layoutSize: DpSize = DpSize.Zero,
@@ -171,7 +178,15 @@ internal data class TranslationContext(
         forChild(pos = 0, parent = root.view)
             .copy(
                 isBackgroundSpecified = AtomicBoolean(false),
-                lastViewId = AtomicInteger(0),
+                lastViewId = AtomicInteger(LAST_INVALID_VIEW_ID),
+            )
+
+    fun forRootAndSize(root: RemoteViewsInfo, layoutSize: DpSize): TranslationContext =
+        forChild(pos = 0, parent = root.view)
+            .copy(
+                isBackgroundSpecified = AtomicBoolean(false),
+                lastViewId = AtomicInteger(LAST_INVALID_VIEW_ID),
+                layoutSize = layoutSize
             )
 
     fun resetViewId(newViewId: Int = 0) = copy(lastViewId = AtomicInteger(newViewId))
@@ -185,6 +200,14 @@ internal data class TranslationContext(
     fun canUseSelectableGroup() = copy(canUseSelectableGroup = true)
 
     fun forActionTargetId(viewId: Int) = copy(actionTargetId = viewId)
+}
+
+internal fun DpSize.toSizeString(): String {
+    return if (isSpecified) {
+        "${width}x$height"
+    } else {
+        "Unspecified"
+    }
 }
 
 internal fun RemoteViews.translateChild(
@@ -405,21 +428,28 @@ private fun RemoteViews.translateEmittableButton(
     translationContext: TranslationContext,
     element: EmittableButton
 ) {
-    // Separate the button into a wrapper and the text, this allows us to set the color of the text
-    // background, while maintaining the ripple for the click indicator.
-    // TODO: add Image button
-    val content = EmittableText().apply {
-        text = element.text
-        style = element.style
-        maxLines = element.maxLines
-        modifier =
-            GlanceModifier
-                .fillMaxSize()
-                .padding(horizontal = 16.dp, vertical = 8.dp)
+    check(Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+        "Buttons in Android R and below are emulated using a EmittableBox containing the text."
     }
-    translateEmittableText(translationContext, content)
-}
+    val viewDef = insertView(translationContext, LayoutType.Button, element.modifier)
+    setText(
+        translationContext,
+        viewDef.mainViewId,
+        element.text,
+        element.style,
+        maxLines = element.maxLines,
+        verticalTextGravity = Gravity.CENTER_VERTICAL,
+    )
 
+    // Adjust appWidget specific modifiers.
+    element.modifier = element.modifier
+        .enabled(element.enabled)
+        .cornerRadius(16.dp)
+    if (element.modifier.findModifier<PaddingModifier>() == null) {
+        element.modifier = element.modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+    }
+    applyModifiers(translationContext, this, element.modifier, viewDef)
+}
 private fun RemoteViews.translateEmittableSpacer(
     translationContext: TranslationContext,
     element: EmittableSpacer

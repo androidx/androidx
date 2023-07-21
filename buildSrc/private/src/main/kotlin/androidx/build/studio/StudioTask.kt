@@ -16,7 +16,10 @@
 
 package androidx.build.studio
 
+import androidx.build.OperatingSystem
 import androidx.build.ProjectLayoutType
+import androidx.build.getOperatingSystem
+import androidx.build.getSdkPath
 import androidx.build.getSupportRootFolder
 import androidx.build.getVersionByName
 import com.android.Version.ANDROID_GRADLE_PLUGIN_VERSION
@@ -120,6 +123,12 @@ abstract class StudioTask : DefaultTask() {
     open val vmOptions = File(project.getSupportRootFolder(), "development/studio/studio.vmoptions")
 
     /**
+     * The path to the SDK directory used by Studio.
+     */
+    @get:Internal
+    open val localSdkPath = project.getSdkPath()
+
+    /**
      * List of additional environment variables to pass into the Studio application.
      */
     @get:Internal
@@ -170,20 +179,66 @@ abstract class StudioTask : DefaultTask() {
     }
 
     /**
+     * Attempts to symlink the system-images and emulator SDK directories to a canonical SDK.
+     */
+    private fun setupSymlinksIfNeeded() {
+        val paths = listOf("system-images", "emulator")
+        if (!localSdkPath.exists()) {
+            // We probably got the support root folder wrong. Fail gracefully.
+            return
+        }
+
+        val relativeSdkPath = when (val osType = getOperatingSystem()) {
+            OperatingSystem.MAC -> "Library/Android/sdk"
+            OperatingSystem.LINUX -> "Android/Sdk"
+            else -> {
+                println("Failed to locate canonical SDK, unsupported operating system: $osType")
+                return
+            }
+        }
+
+        val canonicalSdkPath = File(File(System.getProperty("user.home")).parent, relativeSdkPath)
+        if (!canonicalSdkPath.exists()) {
+            // In the future, we might want to try a little harder to locate a canonical SDK path.
+            println("Failed to locate canonical SDK, not found at: $canonicalSdkPath")
+            return
+        }
+
+        paths.forEach { path ->
+            val link = File(localSdkPath, path)
+            val target = File(canonicalSdkPath, path)
+            if (!target.exists()) {
+                println("Skipping canonical SDK symlink creation, not found at: $target")
+            } else if (!link.exists()) {
+                println("Creating canonical SDK symlink for $target...")
+                Files.createSymbolicLink(link.toPath(), target.toPath())
+            }
+        }
+    }
+
+    /**
      * Launches Studio if the user accepts / has accepted the license agreement.
      */
     private fun launch() {
         if (checkLicenseAgreement(services)) {
-            if (requiresProjectList && !System.getenv().containsKey("ANDROIDX_PROJECTS")) {
+            if (requiresProjectList &&
+                !System.getenv().containsKey("ANDROIDX_PROJECTS") &&
+                !System.getenv().containsKey("PROJECT_PREFIX")
+                ) {
                 throw GradleException(
                     """
                     Please specify which set of projects you'd like to open in studio
                     with ANDROIDX_PROJECTS=MAIN ./gradlew studio
+                    or PROJECT_PREFIX=:room: ./gradlew studio
 
                     For possible options see settings.gradle
                     """.trimIndent()
                 )
             }
+
+            // This seems like as good a time as any to set up SDK symlinks...
+            setupSymlinksIfNeeded()
+
             println("Launching studio...")
             launchStudio()
         } else {

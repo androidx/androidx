@@ -25,11 +25,14 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.launch
 
 /**
  * Defines an object that has an Android Lifecycle. [Fragment][androidx.fragment.app.Fragment]
@@ -94,6 +97,22 @@ public abstract class Lifecycle {
      */
     @get:MainThread
     public abstract val currentState: State
+
+    /**
+     * Returns a [StateFlow] where the [StateFlow.value] represents
+     * the current [State] of this Lifecycle.
+     *
+     * @return [StateFlow] where the [StateFlow.value] represents
+     * the current [State] of this Lifecycle.
+     */
+    public open val currentStateFlow: StateFlow<Lifecycle.State>
+        get() {
+            val mutableStateFlow = MutableStateFlow(currentState)
+            LifecycleEventObserver { _, event ->
+                mutableStateFlow.value = event.targetState
+            }.also { addObserver(it) }
+            return mutableStateFlow.asStateFlow()
+        }
 
     public enum class Event {
         /**

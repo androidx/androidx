@@ -19,14 +19,12 @@ package androidx.glance.appwidget.preview
 import android.appwidget.AppWidgetHostView
 import android.content.Context
 import android.util.AttributeSet
-
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.currentComposer
 import androidx.compose.ui.unit.DpSize
 import androidx.glance.appwidget.ExperimentalGlanceRemoteViewsApi
 import androidx.glance.appwidget.GlanceRemoteViews
 import androidx.glance.appwidget.preview.ComposableInvoker.invokeComposable
-
 import kotlinx.coroutines.runBlocking
 
 private const val TOOLS_NS_URI = "http://schemas.android.com/tools"

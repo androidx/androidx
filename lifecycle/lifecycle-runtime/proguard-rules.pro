@@ -7,9 +7,6 @@
     <fields>;
 }
 
--keep !interface * implements androidx.lifecycle.LifecycleObserver {
-}
-
 -keep class * implements androidx.lifecycle.GeneratedAdapter {
     <init>(...);
 }

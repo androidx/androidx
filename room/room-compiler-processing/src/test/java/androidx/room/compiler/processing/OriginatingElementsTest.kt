@@ -24,11 +24,11 @@ import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.runProcessorTest
 import com.google.common.truth.Truth.assertThat
 import com.squareup.javapoet.TypeSpec
+import javax.lang.model.element.ExecutableElement
+import javax.lang.model.element.TypeElement
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import javax.lang.model.element.ExecutableElement
-import javax.lang.model.element.TypeElement
 
 @RunWith(JUnit4::class)
 class OriginatingElementsTest {

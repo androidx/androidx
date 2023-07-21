@@ -19,7 +19,6 @@ package androidx.collection
 import androidx.collection.internal.binarySearch
 import androidx.collection.internal.idealIntArraySize
 import kotlin.jvm.JvmField
-import kotlin.jvm.JvmOverloads
 import kotlin.jvm.JvmSynthetic
 import kotlin.math.min
 
@@ -62,7 +61,7 @@ private val DELETED = Any()
  * 0, the sparse array will be initialized with a light-weight representation not requiring any
  * additional array allocations. Default initialCapacity is 10.
  */
-public expect open class SparseArrayCompat<E> @JvmOverloads public constructor(
+public expect open class SparseArrayCompat<E> public constructor(
     initialCapacity: Int = 10
 ) {
     @JvmSynthetic // Hide from Java callers.

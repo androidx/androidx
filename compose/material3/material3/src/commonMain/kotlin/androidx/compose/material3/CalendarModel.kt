@@ -41,7 +41,7 @@ internal expect fun CalendarModel(): CalendarModel
  * @param locale the [Locale] to use when formatting the given timestamp
  */
 @ExperimentalMaterial3Api
-internal expect fun formatWithSkeleton(
+expect fun formatWithSkeleton(
     utcTimeMillis: Long,
     skeleton: String,
     locale: Locale = Locale.getDefault()
@@ -205,6 +205,14 @@ internal interface CalendarModel {
      * @return a [CalendarDate], or a `null` in case the parsing failed
      */
     fun parse(date: String, pattern: String): CalendarDate?
+
+    companion object {
+
+        /**
+         * Returns a default [CalendarModel] for this environment.
+         */
+        val Default by lazy { CalendarModel() }
+    }
 }
 
 /**

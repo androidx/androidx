@@ -73,7 +73,10 @@ class AfRegionFlipHorizontallyQuirkTest(
             cameraMetadata,
             StreamConfigurationMapCompat(
                 StreamConfigurationMapBuilder.newBuilder().build(),
-                OutputSizesCorrector(cameraMetadata)
+                OutputSizesCorrector(
+                    cameraMetadata,
+                    StreamConfigurationMapBuilder.newBuilder().build()
+                )
             )
         ).quirks
     }

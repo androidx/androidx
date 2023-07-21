@@ -253,7 +253,7 @@ class FlowTest {
             )
 
             constrain(flow) {
-                width = flowWidth.toDp().asDimension
+                width = flowWidth.toDp().asDimension()
 
                 top.linkTo(parent.top)
                 start.linkTo(parent.start)
@@ -262,8 +262,8 @@ class FlowTest {
                 constrain(itemRef) {
                     val widthPx =
                         if (index == indexOfBigItem) baseBoxSizePx.times(2) else baseBoxSizePx
-                    width = widthPx.toDp().asDimension
-                    height = baseBoxSizePx.toDp().asDimension
+                    width = widthPx.toDp().asDimension()
+                    height = baseBoxSizePx.toDp().asDimension()
                 }
             }
         }
@@ -341,7 +341,7 @@ class FlowTest {
             )
 
             constrain(flow) {
-                height = flowHeight.toDp().asDimension
+                height = flowHeight.toDp().asDimension()
 
                 top.linkTo(parent.top)
                 start.linkTo(parent.start)
@@ -350,8 +350,8 @@ class FlowTest {
                 constrain(itemRef) {
                     val widthPx =
                         if (index == indexOfBigItem) baseBoxSizePx.times(2) else baseBoxSizePx
-                    height = widthPx.toDp().asDimension
-                    width = baseBoxSizePx.toDp().asDimension
+                    height = widthPx.toDp().asDimension()
+                    width = baseBoxSizePx.toDp().asDimension()
                 }
             }
         }

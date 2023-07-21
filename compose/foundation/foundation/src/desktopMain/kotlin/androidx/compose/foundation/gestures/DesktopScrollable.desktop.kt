@@ -16,14 +16,14 @@
 
 package androidx.compose.foundation.gestures
 
-import androidx.compose.runtime.Composable
-import androidx.compose.foundation.fastFold
 import androidx.compose.foundation.DesktopPlatform
+import androidx.compose.foundation.fastFold
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.compositionLocalOf
-import androidx.compose.ui.unit.Density
-import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.PointerEvent
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import java.awt.event.MouseWheelEvent
 import kotlin.math.sqrt

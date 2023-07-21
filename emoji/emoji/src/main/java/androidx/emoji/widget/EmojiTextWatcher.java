@@ -15,8 +15,10 @@
  */
 package androidx.emoji.widget;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
+import android.os.Handler;
 import android.text.Editable;
 import android.text.Selection;
 import android.text.Spannable;
@@ -99,14 +101,16 @@ final class EmojiTextWatcher implements android.text.TextWatcher {
         // do nothing
     }
 
-    private InitCallback getInitCallback() {
+    @RestrictTo(LIBRARY)
+    InitCallback getInitCallback() {
         if (mInitCallback == null) {
             mInitCallback = new InitCallbackImpl(mEditText);
         }
         return mInitCallback;
     }
 
-    private static class InitCallbackImpl extends InitCallback {
+    @RestrictTo(LIBRARY)
+    static class InitCallbackImpl extends InitCallback implements Runnable {
         private final Reference<EditText> mViewRef;
 
         InitCallbackImpl(EditText editText) {
@@ -116,6 +120,19 @@ final class EmojiTextWatcher implements android.text.TextWatcher {
         @Override
         public void onInitialized() {
             super.onInitialized();
+            final EditText editText = mViewRef.get();
+            if (editText == null) {
+                return;
+            }
+            Handler handler = editText.getHandler();
+            if (handler == null) {
+                return;
+            }
+            handler.post(this);
+        }
+
+        @Override
+        public void run() {
             final EditText editText = mViewRef.get();
             if (editText != null && editText.isAttachedToWindow()) {
                 final Editable text = editText.getEditableText();

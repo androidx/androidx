@@ -36,6 +36,7 @@ import dagger.Module
 import javax.inject.Inject
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
@@ -70,6 +71,8 @@ interface UseCaseCamera {
         values: Map<CaptureRequest.Key<*>, Any>,
         priority: Config.OptionPriority = defaultOptionPriority,
     ): Deferred<Unit>
+
+    fun setActiveResumeMode(enabled: Boolean) {}
 
     // Lifecycle
     fun close(): Job
@@ -134,7 +137,7 @@ class UseCaseCameraImpl @Inject constructor(
 
     override fun close(): Job {
         return if (closed.compareAndSet(expect = false, update = true)) {
-            threads.scope.launch {
+            threads.scope.launch(start = CoroutineStart.UNDISPATCHED) {
                 debug { "Closing $this" }
                 useCaseGraphConfig.graph.close()
                 useCaseSurfaceManager.stopAsync().await()
@@ -157,6 +160,10 @@ class UseCaseCameraImpl @Inject constructor(
         values = values,
         optionPriority = priority
     )
+
+    override fun setActiveResumeMode(enabled: Boolean) {
+        useCaseGraphConfig.graph.isForeground = enabled
+    }
 
     private fun UseCaseCameraRequestControl.setSessionConfigAsync(
         sessionConfig: SessionConfig

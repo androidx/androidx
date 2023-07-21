@@ -36,10 +36,11 @@ public class MyDao_Impl(
                 val _tmp: Int = if (entity.valueBoolean) 1 else 0
                 statement.bindLong(2, _tmp.toLong())
                 statement.bindString(3, entity.valueString)
-                if (entity.valueNullableString == null) {
+                val _tmpValueNullableString: String? = entity.valueNullableString
+                if (_tmpValueNullableString == null) {
                     statement.bindNull(4)
                 } else {
-                    statement.bindString(4, entity.valueNullableString)
+                    statement.bindString(4, _tmpValueNullableString)
                 }
                 statement.bindLong(5, entity.variablePrimitive)
                 val _tmpVariableNullableBoolean: Boolean? = entity.variableNullableBoolean

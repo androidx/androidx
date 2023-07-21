@@ -28,12 +28,13 @@ dependencies {
     api(libs.kotlinCoroutinesCore)
 
     testImplementation(libs.junit)
+    testImplementation(libs.truth)
     testImplementation(libs.kotlinTest)
     testImplementation(libs.kotlinCoroutinesTest)
 }
 
 androidx {
-    name = "AndroidX Futures Kotlin Extensions"
+    name = "Futures Kotlin Extensions"
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2019"
     description = "Kotlin Extensions for Androidx implementation of Guava's ListenableFuture"

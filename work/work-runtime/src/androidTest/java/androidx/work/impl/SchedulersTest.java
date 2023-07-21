@@ -45,8 +45,8 @@ public class SchedulersTest {
 
     private final Context mAppContext = ApplicationProvider.getApplicationContext();
     private final Configuration mConfiguration = new Configuration.Builder().build();
-    private final WorkDatabase mWorkDatabase = WorkDatabase.create(mAppContext,
-            mConfiguration.getExecutor(), false);
+    private final WorkDatabase mWorkDatabase = WorkDatabase.create(
+            mAppContext, mConfiguration.getExecutor(), mConfiguration.getClock(), false);
 
     @FlakyTest(bugId = 206647994)
     @Test

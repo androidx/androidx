@@ -188,7 +188,7 @@ public class EnqueueRunnable implements Runnable {
 
         boolean needsScheduling = false;
 
-        long currentTimeMillis = System.currentTimeMillis();
+        long currentTimeMillis = workManagerImpl.getConfiguration().getClock().currentTimeMillis();
         WorkDatabase workDatabase = workManagerImpl.getWorkDatabase();
 
         boolean hasPrerequisite = (prerequisiteIds != null && prerequisiteIds.length > 0);

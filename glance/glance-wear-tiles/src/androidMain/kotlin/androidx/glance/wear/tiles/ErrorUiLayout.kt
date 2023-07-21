@@ -18,62 +18,53 @@ package androidx.glance.wear.tiles
 
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
-import androidx.wear.tiles.ColorBuilders.argb
-import androidx.wear.tiles.DimensionBuilders.expand
-import androidx.wear.tiles.DimensionBuilders.sp
-import androidx.wear.tiles.LayoutElementBuilders.LayoutElement
-import androidx.wear.tiles.LayoutElementBuilders.Box
-import androidx.wear.tiles.LayoutElementBuilders.Column
-import androidx.wear.tiles.LayoutElementBuilders.FONT_WEIGHT_BOLD
-import androidx.wear.tiles.LayoutElementBuilders.FontStyle
-import androidx.wear.tiles.LayoutElementBuilders.HORIZONTAL_ALIGN_CENTER
-import androidx.wear.tiles.LayoutElementBuilders.VERTICAL_ALIGN_CENTER
-import androidx.wear.tiles.LayoutElementBuilders.TEXT_ALIGN_CENTER
-import androidx.wear.tiles.LayoutElementBuilders.Text
-import androidx.wear.tiles.ModifiersBuilders.Background
-import androidx.wear.tiles.ModifiersBuilders.Modifiers
 
-internal fun errorUiLayout(): LayoutElement =
-    Box.Builder()
-        .setWidth(expand())
-        .setHeight(expand())
-        .setHorizontalAlignment(HORIZONTAL_ALIGN_CENTER)
-        .setVerticalAlignment(VERTICAL_ALIGN_CENTER)
+@Suppress("deprecation") // For backwards compatibility.
+internal fun errorUiLayout(): androidx.wear.tiles.LayoutElementBuilders.LayoutElement =
+    androidx.wear.tiles.LayoutElementBuilders.Box.Builder()
+        .setWidth(androidx.wear.tiles.DimensionBuilders.expand())
+        .setHeight(androidx.wear.tiles.DimensionBuilders.expand())
+        .setHorizontalAlignment(androidx.wear.tiles.LayoutElementBuilders.HORIZONTAL_ALIGN_CENTER)
+        .setVerticalAlignment(androidx.wear.tiles.LayoutElementBuilders.VERTICAL_ALIGN_CENTER)
         .addContent(
-            Column.Builder()
-                .setWidth(expand())
-                .setHorizontalAlignment(HORIZONTAL_ALIGN_CENTER)
+            androidx.wear.tiles.LayoutElementBuilders.Column.Builder()
+                .setWidth(androidx.wear.tiles.DimensionBuilders.expand())
+                .setHorizontalAlignment(
+                    androidx.wear.tiles.LayoutElementBuilders.HORIZONTAL_ALIGN_CENTER)
                 .setModifiers(
-                    Modifiers.Builder()
+                    androidx.wear.tiles.ModifiersBuilders.Modifiers.Builder()
                         .setBackground(
-                            Background.Builder()
-                                .setColor(argb(Color.DarkGray.toArgb()))
+                            androidx.wear.tiles.ModifiersBuilders.Background.Builder()
+                                .setColor(
+                                    androidx.wear.tiles.ColorBuilders.argb(Color.DarkGray.toArgb()))
                                 .build()
                         )
                         .build()
                 )
                 .addContent(
-                    Text.Builder()
+                    androidx.wear.tiles.LayoutElementBuilders.Text.Builder()
                         .setText("Glance Wear Tile Error")
                         .setFontStyle(
-                            FontStyle.Builder()
-                                .setSize(sp(18.toFloat()))
-                                .setWeight(FONT_WEIGHT_BOLD)
+                            androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder()
+                                .setSize(androidx.wear.tiles.DimensionBuilders.sp(18.toFloat()))
+                                .setWeight(
+                                    androidx.wear.tiles.LayoutElementBuilders.FONT_WEIGHT_BOLD)
                                 .build()
                         )
                         .build()
                 )
                 .addContent(
-                    Text.Builder()
+                    androidx.wear.tiles.LayoutElementBuilders.Text.Builder()
                         .setText(
                             "Check the exact error using \"adb logcat\"," +
                                 " searching for $GlanceWearTileTag"
                         )
                         .setMaxLines(6)
-                        .setMultilineAlignment(TEXT_ALIGN_CENTER)
+                        .setMultilineAlignment(
+                            androidx.wear.tiles.LayoutElementBuilders.TEXT_ALIGN_CENTER)
                         .setFontStyle(
-                            FontStyle.Builder()
-                                .setSize(sp(14.toFloat()))
+                            androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder()
+                                .setSize(androidx.wear.tiles.DimensionBuilders.sp(14.toFloat()))
                                 .build()
                         )
                         .build()

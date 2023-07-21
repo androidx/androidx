@@ -39,7 +39,7 @@ dependencies {
 }
 
 androidx {
-    name = "AndroidX Compose UI Navigation Integration Samples"
+    name = "Compose UI Navigation Integration Samples"
     type = LibraryType.SAMPLES
     inceptionYear = "2020"
     description = "Samples for Compose integration with Navigation"

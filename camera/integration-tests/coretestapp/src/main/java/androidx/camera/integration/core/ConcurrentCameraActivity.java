@@ -21,6 +21,8 @@ import static android.view.View.VISIBLE;
 
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.view.MotionEvent;
+import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
@@ -31,16 +33,21 @@ import android.widget.ToggleButton;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.camera.core.Camera;
+import androidx.camera.core.CameraControl;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraSelector;
+import androidx.camera.core.ConcurrentCamera;
+import androidx.camera.core.ConcurrentCamera.SingleCameraConfig;
+import androidx.camera.core.FocusMeteringAction;
+import androidx.camera.core.MeteringPoint;
 import androidx.camera.core.Preview;
 import androidx.camera.core.UseCaseGroup;
-import androidx.camera.core.concurrent.ConcurrentCameraConfig;
-import androidx.camera.core.concurrent.SingleCameraConfig;
 import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.view.PreviewView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.math.MathUtils;
 import androidx.lifecycle.LifecycleOwner;
 
 import com.google.common.collect.ImmutableList;
@@ -178,8 +185,9 @@ public class ConcurrentCameraActivity extends AppCompatActivity {
                         ? CameraSelector.LENS_FACING_FRONT : CameraSelector.LENS_FACING_BACK)
                 .build();
         previewFront.setSurfaceProvider(mSinglePreviewView.getSurfaceProvider());
-        cameraProvider.bindToLifecycle(
+        Camera camera = cameraProvider.bindToLifecycle(
                 this, cameraSelectorFront, previewFront);
+        setupZoomAndTapToFocus(camera, mSinglePreviewView);
     }
     void bindPreviewForPiP(@NonNull ProcessCameraProvider cameraProvider) {
         mSideBySideLayout.setVisibility(GONE);
@@ -232,7 +240,7 @@ public class ConcurrentCameraActivity extends AppCompatActivity {
                 mFrontPreviewView,
                 mBackPreviewView);
     }
-    private static void bindToLifecycleForConcurrentCamera(
+    private void bindToLifecycleForConcurrentCamera(
             @NonNull ProcessCameraProvider cameraProvider,
             @NonNull LifecycleOwner lifecycleOwner,
             @NonNull PreviewView frontPreviewView,
@@ -254,28 +262,63 @@ public class ConcurrentCameraActivity extends AppCompatActivity {
             return;
         }
         previewFront.setSurfaceProvider(frontPreviewView.getSurfaceProvider());
-        SingleCameraConfig primary = new SingleCameraConfig.Builder()
-                .setLifecycleOwner(lifecycleOwner)
-                .setUseCaseGroup(new UseCaseGroup.Builder()
+        SingleCameraConfig primary = new SingleCameraConfig(
+                cameraSelectorPrimary,
+                new UseCaseGroup.Builder()
                         .addUseCase(previewFront)
-                        .build())
-                .setCameraSelector(cameraSelectorPrimary)
-                .build();
+                        .build(),
+                lifecycleOwner);
         Preview previewBack = new Preview.Builder()
                 .build();
         previewBack.setSurfaceProvider(backPreviewView.getSurfaceProvider());
-        SingleCameraConfig secondary = new SingleCameraConfig.Builder()
-                .setLifecycleOwner(lifecycleOwner)
-                .setUseCaseGroup(new UseCaseGroup.Builder()
+        SingleCameraConfig secondary = new SingleCameraConfig(
+                cameraSelectorSecondary,
+                new UseCaseGroup.Builder()
                         .addUseCase(previewBack)
-                        .build())
-                .setCameraSelector(cameraSelectorSecondary)
-                .build();
-        ConcurrentCameraConfig concurrentCameraConfig =
-                new ConcurrentCameraConfig.Builder()
-                        .setCameraConfigs(ImmutableList.of(primary, secondary))
-                        .build();
-        cameraProvider.bindToLifecycle(concurrentCameraConfig);
+                        .build(),
+                lifecycleOwner);
+        ConcurrentCamera concurrentCamera =
+                cameraProvider.bindToLifecycle(ImmutableList.of(primary, secondary));
+
+        setupZoomAndTapToFocus(concurrentCamera.getCameras().get(0), frontPreviewView);
+        setupZoomAndTapToFocus(concurrentCamera.getCameras().get(1), backPreviewView);
+    }
+
+
+    private void setupZoomAndTapToFocus(Camera camera, PreviewView previewView) {
+        ScaleGestureDetector scaleDetector = new ScaleGestureDetector(this,
+                new ScaleGestureDetector.SimpleOnScaleGestureListener() {
+                    @Override
+                    public boolean onScale(@NonNull ScaleGestureDetector detector) {
+                        CameraInfo cameraInfo = camera.getCameraInfo();
+                        CameraControl cameraControl = camera.getCameraControl();
+                        float newZoom =
+                                cameraInfo.getZoomState().getValue().getZoomRatio()
+                                        * detector.getScaleFactor();
+                        float clampedNewZoom = MathUtils.clamp(newZoom,
+                                cameraInfo.getZoomState().getValue().getMinZoomRatio(),
+                                cameraInfo.getZoomState().getValue().getMaxZoomRatio());
+                        cameraControl.setZoomRatio(clampedNewZoom)
+                                .addListener(() -> {}, cmd -> cmd.run());
+                        return true;
+                    }
+                });
+
+
+        previewView.setOnTouchListener((view, motionEvent) -> {
+            scaleDetector.onTouchEvent(motionEvent);
+
+            if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
+                MeteringPoint point =
+                        previewView.getMeteringPointFactory().createPoint(
+                                motionEvent.getX(), motionEvent.getY());
+
+                camera.getCameraControl().startFocusAndMetering(
+                        new FocusMeteringAction.Builder(point).build()).addListener(() -> {},
+                        ContextCompat.getMainExecutor(ConcurrentCameraActivity.this));
+            }
+            return true;
+        });
     }
     private static void updateFrontAndBackView(
             boolean isFrontPrimary,

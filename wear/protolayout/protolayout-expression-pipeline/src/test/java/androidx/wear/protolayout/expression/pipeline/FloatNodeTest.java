@@ -18,13 +18,15 @@ package androidx.wear.protolayout.expression.pipeline;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import static java.lang.Integer.MAX_VALUE;
-
 import static org.robolectric.Shadows.shadowOf;
+
+import static java.lang.Integer.MAX_VALUE;
 
 import android.os.Looper;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat;
+import androidx.wear.protolayout.expression.AppDataKey;
 import androidx.wear.protolayout.expression.pipeline.FloatNodes.AnimatableFixedFloatNode;
 import androidx.wear.protolayout.expression.pipeline.FloatNodes.ArithmeticFloatNode;
 import androidx.wear.protolayout.expression.pipeline.FloatNodes.DynamicAnimatedFloatNode;
@@ -40,19 +42,21 @@ import androidx.wear.protolayout.expression.proto.DynamicProto.StateFloatSource;
 import androidx.wear.protolayout.expression.proto.DynamicProto.StateInt32Source;
 import androidx.wear.protolayout.expression.proto.FixedProto.FixedFloat;
 import androidx.wear.protolayout.expression.proto.FixedProto.FixedInt32;
-import androidx.wear.protolayout.expression.proto.StateEntryProto.StateEntryValue;
+import androidx.wear.protolayout.expression.proto.DynamicDataProto.DynamicDataValue;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @RunWith(AndroidJUnit4.class)
 public class FloatNodeTest {
+
+    private static final AppDataKey<DynamicFloat> KEY_FOO = new AppDataKey<>("foo");
 
     @Test
     public void fixedFloatNodesTest() {
@@ -72,11 +76,11 @@ public class FloatNodeTest {
     public void stateFloatSourceNodeTest() {
         List<Float> results = new ArrayList<>();
         float testValue = 6.6f;
-        ObservableStateStore oss =
-                new ObservableStateStore(
+        StateStore oss =
+                new StateStore(
                         ImmutableMap.of(
-                                "foo",
-                                StateEntryValue.newBuilder()
+                                KEY_FOO,
+                                DynamicDataValue.newBuilder()
                                         .setFloatVal(FixedFloat.newBuilder().setValue(testValue))
                                         .build()));
 
@@ -96,11 +100,11 @@ public class FloatNodeTest {
         float oldValue = 6.5f;
         float newValue = 7.8f;
 
-        ObservableStateStore oss =
-                new ObservableStateStore(
+        StateStore oss =
+                new StateStore(
                         ImmutableMap.of(
-                                "foo",
-                                StateEntryValue.newBuilder()
+                                KEY_FOO,
+                                DynamicDataValue.newBuilder()
                                         .setFloatVal(FixedFloat.newBuilder().setValue(oldValue))
                                         .build()));
 
@@ -112,10 +116,10 @@ public class FloatNodeTest {
         node.init();
         assertThat(results).containsExactly(oldValue);
 
-        oss.setStateEntryValuesProto(
+        oss.setAppStateEntryValuesProto(
                 ImmutableMap.of(
-                        "foo",
-                        StateEntryValue.newBuilder()
+                        KEY_FOO,
+                        DynamicDataValue.newBuilder()
                                 .setFloatVal(FixedFloat.newBuilder().setValue(newValue))
                                 .build()));
 
@@ -128,11 +132,11 @@ public class FloatNodeTest {
         float oldValue = 6.5f;
         float newValue = 7.8f;
 
-        ObservableStateStore oss =
-                new ObservableStateStore(
+        StateStore oss =
+                new StateStore(
                         ImmutableMap.of(
-                                "foo",
-                                StateEntryValue.newBuilder()
+                                KEY_FOO,
+                                DynamicDataValue.newBuilder()
                                         .setFloatVal(FixedFloat.newBuilder().setValue(oldValue))
                                         .build()));
 
@@ -147,10 +151,10 @@ public class FloatNodeTest {
         results.clear();
         node.destroy();
 
-        oss.setStateEntryValuesProto(
+        oss.setAppStateEntryValuesProto(
                 ImmutableMap.of(
-                        "foo",
-                        StateEntryValue.newBuilder()
+                        KEY_FOO,
+                        DynamicDataValue.newBuilder()
                                 .setFloatVal(FixedFloat.newBuilder().setValue(newValue))
                                 .build()));
 
@@ -165,8 +169,8 @@ public class FloatNodeTest {
                         .setOperationType(ArithmeticOpType.ARITHMETIC_OP_TYPE_ADD)
                         .build();
 
-        ArithmeticFloatNode node = new ArithmeticFloatNode(protoNode,
-                new AddToListCallback<>(results));
+        ArithmeticFloatNode node =
+                new ArithmeticFloatNode(protoNode, new AddToListCallback<>(results));
 
         float lhsValue = 6.6f;
         FixedFloat lhsProtoNode = FixedFloat.newBuilder().setValue(lhsValue).build();
@@ -174,11 +178,11 @@ public class FloatNodeTest {
         lhsNode.init();
 
         float oldRhsValue = 6.5f;
-        ObservableStateStore oss =
-                new ObservableStateStore(
+        StateStore oss =
+                new StateStore(
                         ImmutableMap.of(
-                                "foo",
-                                StateEntryValue.newBuilder()
+                                KEY_FOO,
+                                DynamicDataValue.newBuilder()
                                         .setFloatVal(FixedFloat.newBuilder().setValue(oldRhsValue))
                                         .build()));
         StateFloatSource rhsProtoNode = StateFloatSource.newBuilder().setSourceKey("foo").build();
@@ -191,14 +195,15 @@ public class FloatNodeTest {
         assertThat(results).containsExactly(lhsValue + oldRhsValue);
 
         float newRhsValue = 7.8f;
-        oss.setStateEntryValuesProto(
+        oss.setAppStateEntryValuesProto(
                 ImmutableMap.of(
-                        "foo",
-                        StateEntryValue.newBuilder()
+                        KEY_FOO,
+                        DynamicDataValue.newBuilder()
                                 .setFloatVal(FixedFloat.newBuilder().setValue(newRhsValue))
                                 .build()));
-        assertThat(results).containsExactly(lhsValue + oldRhsValue,
-                lhsValue + newRhsValue).inOrder();
+        assertThat(results)
+                .containsExactly(lhsValue + oldRhsValue, lhsValue + newRhsValue)
+                .inOrder();
     }
 
     @Test
@@ -207,11 +212,11 @@ public class FloatNodeTest {
         Int32ToFloatNode node = new Int32ToFloatNode(new AddToListCallback<>(results));
 
         int oldIntValue = 65;
-        ObservableStateStore oss =
-                new ObservableStateStore(
+        StateStore oss =
+                new StateStore(
                         ImmutableMap.of(
-                                "foo",
-                                StateEntryValue.newBuilder()
+                                KEY_FOO,
+                                DynamicDataValue.newBuilder()
                                         .setInt32Val(FixedInt32.newBuilder().setValue(oldIntValue))
                                         .build()));
 
@@ -225,10 +230,10 @@ public class FloatNodeTest {
         assertThat(results).containsExactly((float) oldIntValue);
 
         int newIntValue = 12;
-        oss.setStateEntryValuesProto(
+        oss.setAppStateEntryValuesProto(
                 ImmutableMap.of(
-                        "foo",
-                        StateEntryValue.newBuilder()
+                        KEY_FOO,
+                        DynamicDataValue.newBuilder()
                                 .setInt32Val(FixedInt32.newBuilder().setValue(newIntValue))
                                 .build()));
 
@@ -242,11 +247,13 @@ public class FloatNodeTest {
         List<Float> results = new ArrayList<>();
         QuotaManager quotaManager = new FixedQuotaManagerImpl(MAX_VALUE);
         AnimatableFixedFloat protoNode =
-                AnimatableFixedFloat.newBuilder().setFromValue(startValue).setToValue(
-                        endValue).build();
+                AnimatableFixedFloat.newBuilder()
+                        .setFromValue(startValue)
+                        .setToValue(endValue)
+                        .build();
         AnimatableFixedFloatNode node =
-                new AnimatableFixedFloatNode(protoNode, new AddToListCallback<>(results),
-                        quotaManager);
+                new AnimatableFixedFloatNode(
+                        protoNode, new AddToListCallback<>(results), quotaManager);
         node.setVisibility(true);
 
         node.preInit();
@@ -265,11 +272,13 @@ public class FloatNodeTest {
         List<Float> results = new ArrayList<>();
         QuotaManager quotaManager = new FixedQuotaManagerImpl(MAX_VALUE);
         AnimatableFixedFloat protoNode =
-                AnimatableFixedFloat.newBuilder().setFromValue(startValue).setToValue(
-                        endValue).build();
+                AnimatableFixedFloat.newBuilder()
+                        .setFromValue(startValue)
+                        .setToValue(endValue)
+                        .build();
         AnimatableFixedFloatNode node =
-                new AnimatableFixedFloatNode(protoNode, new AddToListCallback<>(results),
-                        quotaManager);
+                new AnimatableFixedFloatNode(
+                        protoNode, new AddToListCallback<>(results), quotaManager);
         node.setVisibility(false);
 
         node.preInit();
@@ -287,11 +296,13 @@ public class FloatNodeTest {
         List<Float> results = new ArrayList<>();
         QuotaManager quotaManager = new FixedQuotaManagerImpl(0);
         AnimatableFixedFloat protoNode =
-                AnimatableFixedFloat.newBuilder().setFromValue(startValue).setToValue(
-                        endValue).build();
+                AnimatableFixedFloat.newBuilder()
+                        .setFromValue(startValue)
+                        .setToValue(endValue)
+                        .build();
         AnimatableFixedFloatNode node =
-                new AnimatableFixedFloatNode(protoNode, new AddToListCallback<>(results),
-                        quotaManager);
+                new AnimatableFixedFloatNode(
+                        protoNode, new AddToListCallback<>(results), quotaManager);
         node.setVisibility(true);
 
         node.preInit();
@@ -309,17 +320,18 @@ public class FloatNodeTest {
         float value3 = 17.0f;
         List<Float> results = new ArrayList<>();
         QuotaManager quotaManager = new FixedQuotaManagerImpl(MAX_VALUE);
-        ObservableStateStore oss =
-                new ObservableStateStore(
+        StateStore oss =
+                new StateStore(
                         ImmutableMap.of(
-                                "foo",
-                                StateEntryValue.newBuilder()
+                                KEY_FOO,
+                                DynamicDataValue.newBuilder()
                                         .setFloatVal(
                                                 FixedFloat.newBuilder().setValue(value1).build())
                                         .build()));
         DynamicAnimatedFloatNode floatNode =
                 new DynamicAnimatedFloatNode(
-                        new AddToListCallback<>(results), AnimationSpec.getDefaultInstance(),
+                        new AddToListCallback<>(results),
+                        AnimationSpec.getDefaultInstance(),
                         quotaManager);
         floatNode.setVisibility(false);
         StateFloatSourceNode stateNode =
@@ -332,10 +344,10 @@ public class FloatNodeTest {
         stateNode.init();
 
         results.clear();
-        oss.setStateEntryValuesProto(
+        oss.setAppStateEntryValuesProto(
                 ImmutableMap.of(
-                        "foo",
-                        StateEntryValue.newBuilder()
+                        KEY_FOO,
+                        DynamicDataValue.newBuilder()
                                 .setFloatVal(FixedFloat.newBuilder().setValue(value2))
                                 .build()));
         shadowOf(Looper.getMainLooper()).idle();
@@ -346,10 +358,10 @@ public class FloatNodeTest {
 
         floatNode.setVisibility(true);
         results.clear();
-        oss.setStateEntryValuesProto(
+        oss.setAppStateEntryValuesProto(
                 ImmutableMap.of(
-                        "foo",
-                        StateEntryValue.newBuilder()
+                        KEY_FOO,
+                        DynamicDataValue.newBuilder()
                                 .setFloatVal(FixedFloat.newBuilder().setValue(value3))
                                 .build()));
         shadowOf(Looper.getMainLooper()).idle();

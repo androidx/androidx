@@ -26,7 +26,7 @@ import androidx.compose.ui.text.android.InternalPlatformTextApi
  * @suppress
  */
 @InternalPlatformTextApi
-open class SkewXSpan(val skewX: Float) : MetricAffectingSpan() {
+internal open class SkewXSpan(val skewX: Float) : MetricAffectingSpan() {
     override fun updateDrawState(textPaint: TextPaint) {
         textPaint.textSkewX = skewX + textPaint.textSkewX
     }

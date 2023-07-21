@@ -16,6 +16,8 @@
 // @exportToFramework:skipFile()
 package androidx.appsearch.cts.app;
 
+import static android.os.Build.VERSION.SDK_INT;
+
 import static androidx.appsearch.testutil.AppSearchTestUtils.checkIsBatchResultSuccess;
 import static androidx.appsearch.testutil.AppSearchTestUtils.convertSearchResultsToDocuments;
 import static androidx.appsearch.testutil.AppSearchTestUtils.doGet;
@@ -23,6 +25,7 @@ import static androidx.appsearch.testutil.AppSearchTestUtils.doGet;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.content.Context;
+import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.appsearch.app.AppSearchBatchResult;
@@ -48,6 +51,7 @@ import androidx.test.core.app.ApplicationProvider;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
+import org.junit.Assume;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -486,9 +490,15 @@ public class AppSearchSessionLocalCtsTest extends AppSearchSessionCtsTestBase {
                 .isEqualTo(SchemaMigrationStats.SECOND_CALL_APPLY_NEW_SCHEMA);
     }
 
+    private void maybeSkipLargeDocumentTest() {
+        // Skip running this test on emulators API 26 - 28 b/269806908
+        Assume.assumeTrue(!(Build.MODEL.contains("SDK") && SDK_INT >= 26 && SDK_INT < 29));
+    }
+
     // Framework has max Document size which is 512KiB, this test should only exists in Jetpack.
     @Test
     public void testPutLargeDocumentToIcing() throws Exception {
+        maybeSkipLargeDocumentTest();
         Context context = ApplicationProvider.getApplicationContext();
         AppSearchSession db2 = LocalStorage.createSearchSessionAsync(
                 new LocalStorage.SearchContext.Builder(context, DB_NAME_2).build()).get();
@@ -524,6 +534,7 @@ public class AppSearchSessionLocalCtsTest extends AppSearchSessionCtsTestBase {
     // Framework has max Document size which is 512KiB, this test should only exists in Jetpack.
     @Test
     public void testPutLargeDocumentToIcing_exceedLimit() throws Exception {
+        maybeSkipLargeDocumentTest();
         Context context = ApplicationProvider.getApplicationContext();
         AppSearchSession db2 = LocalStorage.createSearchSessionAsync(
                 new LocalStorage.SearchContext.Builder(context, DB_NAME_2).build()).get();

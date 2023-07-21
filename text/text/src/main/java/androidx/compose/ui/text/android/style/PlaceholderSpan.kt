@@ -43,7 +43,7 @@ import kotlin.math.min
  * @suppress
  */
 @InternalPlatformTextApi
-class PlaceholderSpan(
+internal class PlaceholderSpan(
     private val width: Float,
     @Unit
     private val widthUnit: Int,

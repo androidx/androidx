@@ -97,4 +97,25 @@ class NodeCoordinatorInitializationTest {
             assertThat(pointerInputModifier.pointerInputFilter.layoutCoordinates).isNotNull()
         }
     }
+
+    @Test
+    fun delegatedNodeGetsCoordinator() {
+        val node = object : DelegatingNode() {
+            val inner = delegate(
+                object : Modifier.Node() { }
+            )
+        }
+
+        rule.setContent {
+            Box(modifier = Modifier.elementOf(node))
+        }
+
+        rule.runOnIdle {
+            assertThat(node.isAttached).isTrue()
+            assertThat(node.coordinator).isNotNull()
+            assertThat(node.inner.isAttached).isTrue()
+            assertThat(node.inner.coordinator).isNotNull()
+            assertThat(node.inner.coordinator).isEqualTo(node.coordinator)
+        }
+    }
 }

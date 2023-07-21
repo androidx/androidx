@@ -17,7 +17,6 @@
 package androidx.compose.ui.text.font
 
 import android.graphics.Typeface
-import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.font.testutils.AsyncFauxFont
 import androidx.compose.ui.text.font.testutils.AsyncTestTypefaceLoader
 import androidx.compose.ui.text.font.testutils.BlockingFauxFont
@@ -26,13 +25,12 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
-import com.nhaarman.mockitokotlin2.mock
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.kotlin.mock
 
 @RunWith(AndroidJUnit4::class)
 @SmallTest
-@OptIn(ExperimentalTextApi::class)
 class DelegatingFontLoaderForDeprecatedUsageTest {
 
     private val context = InstrumentationRegistry.getInstrumentation().context

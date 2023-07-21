@@ -175,6 +175,7 @@ public class XmlDefinedUserStyleSchemaAndComplicationSlotsTest {
 
     @After
     public fun tearDown() {
+        InteractiveInstanceManager.setParameterlessEngine(null)
         if (this::interactiveWatchFaceInstance.isInitialized) {
             interactiveWatchFaceInstance.release()
         }

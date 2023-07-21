@@ -24,7 +24,7 @@ import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.structuralEqualityPolicy
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.takeOrElse
+import androidx.compose.ui.graphics.isSpecified
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.Paragraph
 import androidx.compose.ui.text.TextLayoutResult
@@ -106,20 +106,40 @@ fun Text(
     softWrap: Boolean = true,
     maxLines: Int = Int.MAX_VALUE,
     minLines: Int = 1,
-    onTextLayout: (TextLayoutResult) -> Unit = {},
+    onTextLayout: ((TextLayoutResult) -> Unit)? = null,
     style: TextStyle = LocalTextStyle.current
 ) {
-
-    val textColor = color.takeOrElse {
-        style.color.takeOrElse {
-            LocalContentColor.current.copy(alpha = LocalContentAlpha.current)
-        }
+    // TL:DR: profile before you change any line of code in this method
+    //
+    // The call to LocalContentAlpha.current looks like it can be avoided by only calling it in the
+    // last else block but, in 1.5, this causes a control flow group to be created because it would
+    // be a conditional call to a composable function. The call is currently made unconditionally
+    // since the call to LocalContentAlpha.current does not create a group (it is a read-only
+    // composable) and looking up the value in the composition locals map is currently faster than
+    // creating a group to avoid it.
+    //
+    // Similar notes regarding lambda allocations. It appears there's a path to optimize for
+    // zero-allocations in the style-provided color route, but this either introduces a group or a
+    // box depending on how it's coded. It's also possible that allocating a final ColorProducer
+    // subclass with no capture may be a successful optimization, but it appeared slower in initial
+    // profiling.
+    //
+    // If changing ANY LINE OF CODE, please confirm that it's faster or the same speed using
+    // profilers and benchmarks.
+    val localContentColor = LocalContentColor.current
+    val localContentAlpha = LocalContentAlpha.current
+    val overrideColorOrUnspecified: Color = if (color.isSpecified) {
+        color
+    } else if (style.color.isSpecified) {
+        style.color
+    } else {
+        localContentColor.copy(localContentAlpha)
     }
-    // NOTE(text-perf-review): It might be worthwhile writing a bespoke merge implementation that
-    // will avoid reallocating if all of the options here are the defaults
-    val mergedStyle = style.merge(
-        TextStyle(
-            color = textColor,
+
+    BasicText(
+        text = text,
+        modifier = modifier,
+        style = style.merge(
             fontSize = fontSize,
             fontWeight = fontWeight,
             textAlign = textAlign,
@@ -128,17 +148,13 @@ fun Text(
             textDecoration = textDecoration,
             fontStyle = fontStyle,
             letterSpacing = letterSpacing
-        )
-    )
-    BasicText(
-        text = text,
-        modifier = modifier,
-        style = mergedStyle,
+        ),
         onTextLayout = onTextLayout,
         overflow = overflow,
         softWrap = softWrap,
         maxLines = maxLines,
-        minLines = minLines
+        minLines = minLines,
+        color = { overrideColorOrUnspecified }
     )
 }
 
@@ -261,16 +277,37 @@ fun Text(
     onTextLayout: (TextLayoutResult) -> Unit = {},
     style: TextStyle = LocalTextStyle.current
 ) {
-    val textColor = color.takeOrElse {
-        style.color.takeOrElse {
-            LocalContentColor.current.copy(alpha = LocalContentAlpha.current)
-        }
+    // TL:DR: profile before you change any line of code in this method
+    //
+    // The call to LocalContentAlpha.current looks like it can be avoided by only calling it in the
+    // last else block but, in 1.5, this causes a control flow group to be created because it would
+    // be a conditional call to a composable function. The call is currently made unconditionally
+    // since the call to LocalContentAlpha.current does not create a group (it is a read-only
+    // composable) and looking up the value in the composition locals map is currently faster than
+    // creating a group to avoid it.
+    //
+    // Similar notes regarding lambda allocations. It appears there's a path to optimize for
+    // zero-allocations in the style-provided color route, but this either introduces a group or a
+    // box depending on how it's coded. It's also possible that allocating a final ColorProducer
+    // subclass with no capture may be a successful optimization, but it appeared slower in initial
+    // profiling.
+    //
+    // If changing ANY LINE OF CODE, please confirm that it's faster or the same speed using
+    // profilers and benchmarks.
+    val localContentColor = LocalContentColor.current
+    val localContentAlpha = LocalContentAlpha.current
+    val overrideColorOrUnspecified = if (color.isSpecified) {
+        color
+    } else if (style.color.isSpecified) {
+        style.color
+    } else {
+        localContentColor.copy(localContentAlpha)
     }
-    // NOTE(text-perf-review): It might be worthwhile writing a bespoke merge implementation that
-    // will avoid reallocating if all of the options here are the defaults
-    val mergedStyle = style.merge(
-        TextStyle(
-            color = textColor,
+
+    BasicText(
+        text = text,
+        modifier = modifier,
+        style = style.merge(
             fontSize = fontSize,
             fontWeight = fontWeight,
             textAlign = textAlign,
@@ -279,18 +316,14 @@ fun Text(
             textDecoration = textDecoration,
             fontStyle = fontStyle,
             letterSpacing = letterSpacing
-        )
-    )
-    BasicText(
-        text = text,
-        modifier = modifier,
-        style = mergedStyle,
+        ),
         onTextLayout = onTextLayout,
         overflow = overflow,
         softWrap = softWrap,
         maxLines = maxLines,
         minLines = minLines,
-        inlineContent = inlineContent
+        inlineContent = inlineContent,
+        color = { overrideColorOrUnspecified }
     )
 }
 

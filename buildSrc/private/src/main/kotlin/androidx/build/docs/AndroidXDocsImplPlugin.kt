@@ -18,7 +18,6 @@ package androidx.build.docs
 
 import androidx.build.PROJECT_STRUCTURE_METADATA_FILENAME
 import androidx.build.SupportConfig
-import androidx.build.multiplatformUsage
 import androidx.build.dackka.DackkaTask
 import androidx.build.dackka.GenerateMetadataTask
 import androidx.build.dependencies.KOTLIN_VERSION
@@ -29,6 +28,7 @@ import androidx.build.getCheckoutRoot
 import androidx.build.getDistributionDirectory
 import androidx.build.getKeystore
 import androidx.build.getLibraryByName
+import androidx.build.multiplatformUsage
 import com.android.build.api.attributes.BuildTypeAttr
 import com.android.build.gradle.LibraryExtension
 import com.android.build.gradle.LibraryPlugin
@@ -61,10 +61,10 @@ import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.Classpath
-import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.InputFiles
-import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.Internal
+import org.gradle.api.tasks.OutputDirectory
+import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.Sync
@@ -98,7 +98,7 @@ abstract class AndroidXDocsImplPlugin : Plugin<Project> {
                 is LibraryPlugin -> {
                     val libraryExtension = project.extensions.getByType<LibraryExtension>()
                     libraryExtension.compileSdkVersion = SupportConfig.COMPILE_SDK_VERSION
-                    libraryExtension.buildToolsVersion = SupportConfig.BUILD_TOOLS_VERSION
+                    libraryExtension.buildToolsVersion = SupportConfig.buildToolsVersion(project)
 
                     // Use a local debug keystore to avoid build server issues.
                     val debugSigningConfig = libraryExtension.signingConfigs.getByName("debug")
@@ -752,6 +752,9 @@ abstract class MergeMultiplatformMetadataTask() : DefaultTask() {
 private fun Project.getPrebuiltsExternalPath() =
     File(project.getCheckoutRoot(), "prebuilts/androidx/external/")
 
+private val PLATFORMS =
+    listOf("linuxx64", "macosarm64", "macosx64", "iosx64", "iossimulatorarm64", "iosarm64")
+
 private fun Project.getExtraCommonDependencies(): FileCollection = files(
     arrayOf(
         File(
@@ -763,8 +766,13 @@ private fun Project.getExtraCommonDependencies(): FileCollection = files(
             "org/jetbrains/kotlinx/atomicfu/0.17.0/atomicfu-0.17.0.jar"
         ),
         File(
-           getPrebuiltsExternalPath(),
+            getPrebuiltsExternalPath(),
             "com/squareup/okio/okio-jvm/3.1.0/okio-jvm-3.1.0.jar"
         )
-    )
+    ) + PLATFORMS.map {
+        File(
+            getPrebuiltsExternalPath(),
+            "com/squareup/okio/okio-$it/3.1.0/okio-$it-3.1.0.klib"
+        )
+    }
 )

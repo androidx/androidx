@@ -133,6 +133,8 @@ class TextMeasurer constructor(
      * @param fontFamilyResolver to be used to load the font given in [SpanStyle]s. If not
      * specified, defaults to the value that was given during initialization of this [TextMeasurer].
      * @param skipCache Disables cache optimization if it is passed as true.
+     *
+     * @sample androidx.compose.ui.text.samples.measureTextAnnotatedString
      */
     @Stable
     fun measure(
@@ -221,6 +223,8 @@ class TextMeasurer constructor(
      * @param fontFamilyResolver to be used to load the font given in [SpanStyle]s. If not
      * specified, defaults to the value that was given during initialization of this [TextMeasurer].
      * @param skipCache Disables cache optimization if it is passed as true.
+     *
+     * @sample androidx.compose.ui.text.samples.measureTextStringWithConstraints
      */
     @Stable
     fun measure(

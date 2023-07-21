@@ -17,13 +17,13 @@
 package androidx.compose.foundation.layout
 
 import androidx.compose.runtime.Stable
-import androidx.compose.ui.layout.LayoutModifier
-import androidx.compose.ui.layout.Measurable
-import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.IntrinsicMeasurable
 import androidx.compose.ui.layout.IntrinsicMeasureScope
+import androidx.compose.ui.layout.LayoutModifier
+import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasureResult
+import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.constrain

@@ -59,7 +59,8 @@ internal class ContentInViewModifier(
     private val orientation: Orientation,
     private val scrollState: ScrollableState,
     private val reverseDirection: Boolean,
-    private val pivotOffsets: PivotOffsets
+    private val pivotOffsets: PivotOffsets,
+    private val userScrollEnabled: Boolean
 ) : BringIntoViewResponder,
     OnRemeasuredModifier,
     OnPlacedModifier {
@@ -352,6 +353,8 @@ internal class ContentInViewModifier(
         trailingEdgeOfItemRequestingFocus: Float,
         containerSize: Float
     ): Float {
+        if (!userScrollEnabled) return 0f
+
         val sizeOfItemRequestingFocus =
             abs(trailingEdgeOfItemRequestingFocus - leadingEdgeOfItemRequestingFocus)
         val childSmallerThanParent = sizeOfItemRequestingFocus <= containerSize

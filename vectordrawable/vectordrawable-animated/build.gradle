@@ -34,7 +34,7 @@ android {
 }
 
 androidx {
-    name = "Android Support AnimatedVectorDrawable"
+    name = "AnimatedVectorDrawable"
     publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.VECTORDRAWABLE_ANIMATED
     inceptionYear = "2015"

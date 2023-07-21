@@ -168,7 +168,7 @@ class CameraControllerDeviceTest(
         assertThat(controller!!.mPreview.effect).isNotNull()
 
         // Act: clear the effects
-        instrumentation.runOnMainSync { controller!!.setEffects(null) }
+        instrumentation.runOnMainSync { controller!!.clearEffects() }
 
         // Assert: preview no longer has the effect.
         assertThat(controller!!.mPreview.effect).isNull()

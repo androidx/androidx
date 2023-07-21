@@ -90,7 +90,7 @@ class InkSurfaceView(context: Context) : SurfaceView(context) {
             }
         }
 
-        override fun onDrawDoubleBufferedLayer(
+        override fun onDrawMultiBufferedLayer(
             eglManager: EGLManager,
             bufferInfo: BufferInfo,
             transform: FloatArray,

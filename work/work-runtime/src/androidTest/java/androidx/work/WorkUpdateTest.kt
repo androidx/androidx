@@ -29,8 +29,8 @@ import androidx.work.WorkManager.UpdateResult.APPLIED_IMMEDIATELY
 import androidx.work.WorkManager.UpdateResult.NOT_APPLIED
 import androidx.work.impl.Processor
 import androidx.work.impl.WorkDatabase
-import androidx.work.impl.WorkManagerImpl
 import androidx.work.impl.WorkLauncherImpl
+import androidx.work.impl.WorkManagerImpl
 import androidx.work.impl.background.greedy.GreedyScheduler
 import androidx.work.impl.constraints.trackers.Trackers
 import androidx.work.impl.testutils.TestConstraintTracker
@@ -65,7 +65,7 @@ class WorkUpdateTest {
         taskExecutor = taskExecutor,
         batteryChargingTracker = fakeChargingTracker
     )
-    val db = WorkDatabase.create(context, executor, true)
+    val db = WorkDatabase.create(context, executor, configuration.clock, true)
 
     val processor = Processor(context, configuration, taskExecutor, db)
     val launcher = WorkLauncherImpl(processor, taskExecutor)
@@ -438,7 +438,7 @@ class WorkUpdateTest {
         val spec = workManager.workDatabase.workSpecDao().getWorkSpec(request.stringId)!!
         val delta = spec.calculateNextRunTime() - System.currentTimeMillis()
         assertThat(delta).isGreaterThan(0)
-        workManager.workDatabase.workSpecDao().setLastEnqueuedTime(
+        workManager.workDatabase.workSpecDao().setLastEnqueueTime(
             request.stringId,
             spec.lastEnqueueTime - delta
         )
@@ -458,7 +458,7 @@ class WorkUpdateTest {
             .setInitialDelay(10, TimeUnit.MINUTES).build()
         val enqueueTime = System.currentTimeMillis()
         workManager.enqueue(request).result.get()
-        workManager.workDatabase.workSpecDao().setLastEnqueuedTime(
+        workManager.workDatabase.workSpecDao().setLastEnqueueTime(
             request.stringId,
             enqueueTime - TimeUnit.MINUTES.toMillis(5)
         )

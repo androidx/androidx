@@ -37,11 +37,11 @@ import androidx.compose.ui.test.util.isMonotonicBetween
 import androidx.compose.ui.test.util.recordedDurationMillis
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
+import kotlin.math.max
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
-import kotlin.math.max
 
 /**
  * Tests if we can generate gestures that end with a specific velocity

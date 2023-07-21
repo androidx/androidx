@@ -21,7 +21,7 @@ dependencies {
 }
 
 androidx {
-    name = "Android Emoji Compat"
+    name = "Emoji Bundled"
     publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.EMOJI
     inceptionYear = "2017"

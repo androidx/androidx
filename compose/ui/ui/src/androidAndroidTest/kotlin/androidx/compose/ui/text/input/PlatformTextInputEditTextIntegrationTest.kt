@@ -27,7 +27,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalPlatformTextInputPluginRegistry
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.insertTextAtCursor
 import androidx.compose.ui.semantics.performImeAction
+import androidx.compose.ui.semantics.requestFocus
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.setSelection
 import androidx.compose.ui.semantics.setText
@@ -58,7 +60,7 @@ private const val ExpectedActionCode = 42
  * This test exercises the use case of an [EditText] embedded in a composition using the text input
  * plugin system to wire into Compose's testing framework.
  */
-@OptIn(ExperimentalTextApi::class, ExperimentalTestApi::class)
+@OptIn(ExperimentalTestApi::class, ExperimentalTextApi::class)
 @SmallTest
 @RunWith(AndroidJUnit4::class)
 class PlatformTextInputEditTextIntegrationTest {
@@ -167,12 +169,24 @@ class PlatformTextInputEditTextIntegrationTest {
         AndroidView(
             modifier = modifier.semantics {
                 // Required for the semantics actions to recognize this node as a text editor.
+                requestFocus {
+                    adapter.editText?.requestFocus()
+                    return@requestFocus false
+                }
                 setText { text ->
                     adapter.editText?.also {
                         it.setText(text.text)
                         return@setText true
                     }
                     return@setText false
+                }
+                insertTextAtCursor { text ->
+                    adapter.editText?.also {
+                        // TODO(aosp/2485435) Actually insert at cursor when focus doesn't happen
+                        //  via click.
+                        it.text.append(text)
+                    }
+                    return@insertTextAtCursor false
                 }
                 setSelection { start, end, _ ->
                     adapter.editText?.also {
@@ -196,7 +210,7 @@ class PlatformTextInputEditTextIntegrationTest {
     private class EditTextWrapper(
         context: Context,
         private val adapter: TestAdapter
-    ) : EditText(context), TextInputForTests {
+    ) : EditText(context) {
 
         override fun onFocusChanged(
             focused: Boolean,
@@ -215,10 +229,6 @@ class PlatformTextInputEditTextIntegrationTest {
                 adapter.editText = null
             }
         }
-
-        override fun inputTextForTest(text: String) {
-            this.text.append(text)
-        }
     }
 
     private object TestPlugin : PlatformTextInputPlugin<TestAdapter> {
@@ -232,7 +242,6 @@ class PlatformTextInputEditTextIntegrationTest {
         val context: PlatformTextInput,
     ) : PlatformTextInputAdapter {
         var editText: EditTextWrapper? = null
-        override val inputForTests: TextInputForTests? get() = editText
         override fun createInputConnection(outAttrs: EditorInfo): InputConnection? = null
     }
 }

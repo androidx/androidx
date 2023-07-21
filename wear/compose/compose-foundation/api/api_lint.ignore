@@ -1,0 +1,9 @@
+// Baseline format: 1.0
+GetterSetterNames: androidx.wear.compose.foundation.lazy.ScalingLazyListState#getCanScrollBackward():
+    Getter for boolean property `canScrollBackward` is named `getCanScrollBackward` but should match the property name. Use `@get:JvmName` to rename.
+GetterSetterNames: androidx.wear.compose.foundation.lazy.ScalingLazyListState#getCanScrollForward():
+    Getter for boolean property `canScrollForward` is named `getCanScrollForward` but should match the property name. Use `@get:JvmName` to rename.
+GetterSetterNames: field ExpandableState.expanded:
+    Invalid name for boolean property `expanded`. Should start with one of `has`, `can`, `should`, `is`.
+GetterSetterNames: field ScalingLazyListLayoutInfo.reverseLayout:
+    Invalid name for boolean property `reverseLayout`. Should start with one of `has`, `can`, `should`, `is`.

@@ -109,9 +109,11 @@ public abstract class TileService extends Service {
      *
      * @param requestParams Parameters about the request. See {@link ResourcesRequest} for more
      *     info.
+     * @deprecated Use {@link #onTileResourcesRequest} instead.
      */
     @MainThread
     @NonNull
+    @Deprecated
     protected ListenableFuture<androidx.wear.tiles.ResourceBuilders.Resources> onResourcesRequest(
             @NonNull ResourcesRequest requestParams) {
         return createFailedFuture(
@@ -119,9 +121,12 @@ public abstract class TileService extends Service {
     }
 
     /**
-     * Called when the system is requesting a resource bundle from this Tile Provider. The returned
-     * future must complete after at most 10 seconds from the moment this method is called (exact
-     * timeout length subject to change).
+     * Called when the system is requesting a resource bundle from this Tile Provider. This can
+     * happen on the first time a Tile is being loaded or whenever the resource version requested by
+     * a Tile (in {@link #onTileRequest}) changes.
+     *
+     * <p>The returned future must complete after at most 10 seconds from the moment this method is
+     * called (exact timeout length subject to change).
      *
      * <p>Note that this is called from your app's main thread, which is usually also the UI thread.
      * If {@link #onTileResourcesRequest} is not implemented, the {@link TileService} will fallback
@@ -306,6 +311,7 @@ public abstract class TileService extends Service {
         }
 
         @Override
+        @SuppressWarnings("deprecation") // for backward compatibility
         public void onResourcesRequest(
                 int tileId, ResourcesRequestData requestParams, ResourcesCallback callback) {
             mHandler.post(

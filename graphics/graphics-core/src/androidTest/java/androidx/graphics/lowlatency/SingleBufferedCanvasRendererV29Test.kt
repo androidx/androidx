@@ -36,6 +36,8 @@ import androidx.test.filters.SmallTest
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicInteger
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
@@ -226,14 +228,14 @@ class SingleBufferedCanvasRendererV29Test {
                     bufferReadyLatch.countDown()
                     drawCancelledRequestLatch?.countDown()
                 }
-            })
+            }).apply {
+                // See: b/236394768 Workaround for ANGLE issue where FBOs with HardwareBuffer
+                // attachments are not executed until a glReadPixels call is made
+                forceFlush.set(true)
+            }
         try {
             renderer.render(Color.RED)
             assertTrue(initialDrawLatch.await(3000, TimeUnit.MILLISECONDS))
-
-            executor.execute {
-                waitForRequestLatch.await()
-            }
 
             drawCancelledRequestLatch = CountDownLatch(2)
             renderer.render(Color.GREEN)
@@ -281,7 +283,11 @@ class SingleBufferedCanvasRendererV29Test {
                 ) {
                     // NO-OP
                 }
-            })
+            }).apply {
+                // See: b/236394768 Workaround for ANGLE issue where FBOs with HardwareBuffer
+                // attachments are not executed until a glReadPixels call is made
+                forceFlush.set(true)
+            }
         try {
             val latch = CountDownLatch(1)
             renderer.release(true) {
@@ -331,7 +337,11 @@ class SingleBufferedCanvasRendererV29Test {
                     syncFenceCompat?.awaitForever()
                     drawLatch?.countDown()
                 }
-            })
+            }).apply {
+                // See: b/236394768 Workaround for ANGLE issue where FBOs with HardwareBuffer
+                // attachments are not executed until a glReadPixels call is made
+                forceFlush.set(true)
+            }
         try {
             renderer.isVisible = false
             drawLatch = CountDownLatch(1)
@@ -351,6 +361,50 @@ class SingleBufferedCanvasRendererV29Test {
                 latch.countDown()
             }
             assertTrue(latch.await(3000, TimeUnit.MILLISECONDS))
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
+    @Test
+    fun testBatchedRenders() {
+        val transformer = BufferTransformer()
+        transformer.computeTransform(TEST_WIDTH, TEST_HEIGHT, BUFFER_TRANSFORM_IDENTITY)
+        val executor = Executors.newSingleThreadExecutor()
+        val renderCount = AtomicInteger(0)
+        val renderer = SingleBufferedCanvasRendererV29(
+            TEST_WIDTH,
+            TEST_HEIGHT,
+            transformer,
+            executor,
+            object : SingleBufferedCanvasRenderer.RenderCallbacks<Int> {
+                override fun render(canvas: Canvas, width: Int, height: Int, param: Int) {
+                    canvas.drawColor(param)
+                    renderCount.incrementAndGet()
+                }
+
+                override fun onBufferReady(
+                    hardwareBuffer: HardwareBuffer,
+                    syncFenceCompat: SyncFenceCompat?
+                ) {
+                    // NO-OP
+                }
+            }).apply {
+                // See: b/236394768 Workaround for ANGLE issue where FBOs with HardwareBuffer
+                // attachments are not executed until a glReadPixels call is made
+                forceFlush.set(true)
+            }
+        try {
+            renderer.render(Color.RED)
+            renderer.render(Color.BLUE)
+            renderer.render(Color.YELLOW)
+        } finally {
+            val latch = CountDownLatch(1)
+            renderer.release(false) {
+                executor.shutdownNow()
+                latch.countDown()
+            }
+            assertTrue(latch.await(3000, TimeUnit.MILLISECONDS))
+            assertEquals(3, renderCount.get())
         }
     }
 
@@ -391,7 +445,11 @@ class SingleBufferedCanvasRendererV29Test {
                     buffer = hardwareBuffer
                     renderLatch.countDown()
                 }
-            })
+            }).apply {
+                // See: b/236394768 Workaround for ANGLE issue where FBOs with HardwareBuffer
+                // attachments are not executed until a glReadPixels call is made
+                forceFlush.set(true)
+            }
         try {
             renderer.render(0)
             assertTrue(renderLatch.await(3000, TimeUnit.MILLISECONDS))

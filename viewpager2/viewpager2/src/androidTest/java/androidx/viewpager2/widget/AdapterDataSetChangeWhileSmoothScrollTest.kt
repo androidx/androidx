@@ -33,16 +33,16 @@ import androidx.viewpager2.widget.ViewPager2.ORIENTATION_HORIZONTAL
 import androidx.viewpager2.widget.ViewPager2.ORIENTATION_VERTICAL
 import androidx.viewpager2.widget.ViewPager2.SCROLL_STATE_IDLE
 import androidx.viewpager2.widget.ViewPager2.SCROLL_STATE_SETTLING
+import java.util.concurrent.TimeUnit.SECONDS
+import kotlin.math.roundToInt
+import kotlin.math.sign
 import org.hamcrest.CoreMatchers.equalTo
-import org.hamcrest.Matchers.greaterThan
 import org.hamcrest.MatcherAssert.assertThat
+import org.hamcrest.Matchers.greaterThan
 import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
-import java.util.concurrent.TimeUnit.SECONDS
-import kotlin.math.roundToInt
-import kotlin.math.sign
 
 /** Number of pages */
 private const val pageCount = 25

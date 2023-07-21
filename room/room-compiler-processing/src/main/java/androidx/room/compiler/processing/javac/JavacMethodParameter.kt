@@ -30,6 +30,19 @@ internal class JavacMethodParameter(
     kotlinMetadataFactory: () -> KmValueParameterContainer?,
     val argIndex: Int
 ) : JavacVariableElement(env, element), XExecutableParameterElement {
+    override fun isContinuationParam() =
+        enclosingElement is JavacMethodElement &&
+        enclosingElement.isSuspendFunction() &&
+        enclosingElement.parameters.last() == this
+
+    override fun isReceiverParam() =
+        enclosingElement is JavacMethodElement &&
+        enclosingElement.isExtensionFunction() &&
+        enclosingElement.parameters.first() == this
+
+    override fun isKotlinPropertyParam() =
+        enclosingElement is JavacMethodElement &&
+        enclosingElement.isKotlinPropertyMethod()
 
     override val kotlinMetadata by lazy { kotlinMetadataFactory() }
 

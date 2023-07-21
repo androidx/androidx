@@ -20,6 +20,9 @@
 package androidx.compose.integration.docs.testing
 
 import android.os.Build
+import android.view.KeyEvent as AndroidKeyEvent
+import android.view.KeyEvent.ACTION_DOWN as ActionDown
+import android.view.KeyEvent.KEYCODE_A as KeyCodeA
 import androidx.activity.ComponentActivity
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
@@ -143,9 +146,6 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import android.view.KeyEvent as AndroidKeyEvent
-import android.view.KeyEvent.ACTION_DOWN as ActionDown
-import android.view.KeyEvent.KEYCODE_A as KeyCodeA
 
 /**
  * This file lets DevRel track changes to snippets present in

@@ -21,7 +21,6 @@ import android.os.Build
 import android.text.TextPaint
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
@@ -44,7 +43,6 @@ import androidx.compose.ui.unit.TextUnitType
  * regular platform spans such as background, baselineShift. This function also returns a new
  * SpanStyle that consists of attributes that were not applied to the TextPaint.
  */
-@OptIn(ExperimentalTextApi::class)
 internal fun AndroidTextPaint.applySpanStyle(
     style: SpanStyle,
     resolveTypeface: (FontFamily?, FontWeight, FontStyle, FontSynthesis) -> Typeface,
@@ -154,7 +152,6 @@ private fun generateFallbackSpanStyle(
     }
 }
 
-@OptIn(ExperimentalTextApi::class)
 internal fun AndroidTextPaint.setTextMotion(textMotion: TextMotion?) {
     val finalTextMotion = textMotion ?: TextMotion.Static
     flags = if (finalTextMotion.subpixelTextPositioning) {

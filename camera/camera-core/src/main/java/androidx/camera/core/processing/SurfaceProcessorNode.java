@@ -34,7 +34,6 @@ import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
-import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.CameraEffect;
 import androidx.camera.core.Logger;
 import androidx.camera.core.ProcessingException;
@@ -143,9 +142,9 @@ public class SurfaceProcessorNode implements
         Size rotatedCropSize = getRotatedSize(cropRect, rotationDegrees);
         checkArgument(isAspectRatioMatchingWithRoundingError(rotatedCropSize, outConfig.getSize()));
 
-        StreamSpec streamSpec = StreamSpec.builder(outConfig.getSize())
-                .setExpectedFrameRateRange(input.getStreamSpec().getExpectedFrameRateRange())
-                .build();
+        // Copy the stream spec from the input to the output, except for the resolution.
+        StreamSpec streamSpec = input.getStreamSpec().toBuilder().setResolution(
+                outConfig.getSize()).build();
 
         outputSurface = new SurfaceEdge(
                 outConfig.getTargets(),
@@ -200,7 +199,7 @@ public class SurfaceProcessorNode implements
                 output.getKey().getCropRect(),
                 output.getKey().getRotationDegrees(),
                 output.getKey().getMirroring(),
-                mCameraInternal);
+                input.hasCameraTransform() ? mCameraInternal : null);
         Futures.addCallback(future, new FutureCallback<SurfaceOutput>() {
             @Override
             public void onSuccess(@Nullable SurfaceOutput output) {
@@ -269,7 +268,9 @@ public class SurfaceProcessorNode implements
         });
     }
 
-    @VisibleForTesting
+    /**
+     * Gets the {@link SurfaceProcessorInternal} used by this node.
+     */
     @NonNull
     public SurfaceProcessorInternal getSurfaceProcessor() {
         return mSurfaceProcessor;
@@ -366,7 +367,7 @@ public class SurfaceProcessorNode implements
         /**
          * How the input should be rotated clockwise.
          */
-        abstract int getRotationDegrees();
+        public abstract int getRotationDegrees();
 
         /**
          * The whether the stream should be mirrored.

@@ -21,7 +21,6 @@ import android.view.MotionEvent
 import android.view.MotionEvent.ACTION_SCROLL
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.util.fastForEach
-import androidx.compose.ui.util.fastMap
 
 internal actual typealias NativePointerButtons = Int
 internal actual typealias NativePointerKeyboardModifiers = Int
@@ -92,22 +91,22 @@ actual class PointerEvent internal actual constructor(
         null -> PointerEvent(changes, null)
         this.motionEvent -> PointerEvent(changes, internalPointerEvent)
         else -> {
-            val map = mutableMapOf<PointerId, PointerInputChange>()
+            val map = LinkedHashMap<PointerId, PointerInputChange>(changes.size)
+            val pointerEventData = ArrayList<PointerInputEventData>(changes.size)
             changes.fastForEach { change ->
                 map[change.id] = change
-            }
-            val pointerEventData = changes.fastMap {
-                PointerInputEventData(
-                    it.id,
-                    it.uptimeMillis,
-                    it.position,
-                    it.position,
-                    it.pressed,
-                    it.pressure,
-                    it.type,
-                    this.internalPointerEvent?.issuesEnterExitEvent(it.id) == true
+                pointerEventData += PointerInputEventData(
+                    change.id,
+                    change.uptimeMillis,
+                    change.position,
+                    change.position,
+                    change.pressed,
+                    change.pressure,
+                    change.type,
+                    this.internalPointerEvent?.issuesEnterExitEvent(change.id) == true
                 )
             }
+
             val pointerInputEvent =
                 PointerInputEvent(motionEvent.eventTime, pointerEventData, motionEvent)
             val event = InternalPointerEvent(map, pointerInputEvent)

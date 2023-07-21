@@ -18,7 +18,6 @@ package androidx.compose.ui.text
 
 import androidx.compose.ui.text.AnnotatedString.Range
 import androidx.compose.ui.util.fastMap
-
 import java.util.SortedSet
 
 /**

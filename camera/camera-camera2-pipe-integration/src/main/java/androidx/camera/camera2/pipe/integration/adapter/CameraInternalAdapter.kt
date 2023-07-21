@@ -69,8 +69,11 @@ class CameraInternalAdapter @Inject constructor(
         debug { "$this#close" }
     }
 
+    override fun setActiveResumingMode(enabled: Boolean) {
+        useCaseManager.setActiveResumeMode(enabled)
+    }
+
     override fun release(): ListenableFuture<Void> {
-        // TODO(b/185207100): Implement when CameraState is ready.
         return threads.scope.launch { useCaseManager.close() }.asListenableFuture()
     }
 

@@ -16,6 +16,7 @@
 
 package androidx.camera.video;
 
+import static androidx.camera.video.AudioStats.AUDIO_AMPLITUDE_NONE;
 import static androidx.camera.video.VideoRecordEvent.Finalize.ERROR_DURATION_LIMIT_REACHED;
 import static androidx.camera.video.VideoRecordEvent.Finalize.ERROR_ENCODING_FAILED;
 import static androidx.camera.video.VideoRecordEvent.Finalize.ERROR_FILE_SIZE_LIMIT_REACHED;
@@ -57,6 +58,8 @@ import androidx.annotation.RequiresPermission;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.AspectRatio;
+import androidx.camera.core.CameraInfo;
+import androidx.camera.core.DynamicRange;
 import androidx.camera.core.Logger;
 import androidx.camera.core.SurfaceRequest;
 import androidx.camera.core.impl.MutableStateObservable;
@@ -226,9 +229,9 @@ public final class Recorder implements VideoOutput {
          */
         DISABLED,
         /**
-         * The recording is being recorded with audio.
+         * Audio recording is enabled for the running recording.
          */
-        ACTIVE,
+        ENABLED,
         /**
          * The audio encoder encountered errors.
          */
@@ -434,6 +437,7 @@ public final class Recorder implements VideoOutput {
     @Nullable
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     VideoEncoderSession mVideoEncoderSessionToRelease = null;
+    double mAudioAmplitude = 0;
     //--------------------------------------------------------------------------------------------//
 
     Recorder(@Nullable Executor executor, @NonNull MediaSpec mediaSpec,
@@ -488,6 +492,13 @@ public final class Recorder implements VideoOutput {
     @Override
     public void onSourceStateChanged(@NonNull SourceState newState) {
         mSequentialExecutor.execute(() -> onSourceStateChangedInternal(newState));
+    }
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @Override
+    @NonNull
+    public VideoCapabilities getMediaCapabilities(@NonNull CameraInfo cameraInfo) {
+        return getVideoCapabilities(cameraInfo);
     }
 
     /**
@@ -846,7 +857,8 @@ public final class Recorder implements VideoOutput {
         }
     }
 
-    void stop(@NonNull Recording activeRecording) {
+    void stop(@NonNull Recording activeRecording, @VideoRecordError int error,
+            @Nullable Throwable errorCause) {
         RecordingRecord pendingRecordingToFinalize = null;
         synchronized (mLock) {
             if (!isSameRecording(activeRecording, mPendingRecordingRecord) && !isSameRecording(
@@ -891,7 +903,7 @@ public final class Recorder implements VideoOutput {
                     long explicitlyStopTimeUs = TimeUnit.NANOSECONDS.toMicros(System.nanoTime());
                     RecordingRecord finalActiveRecordingRecord = mActiveRecordingRecord;
                     mSequentialExecutor.execute(() -> stopInternal(finalActiveRecordingRecord,
-                            explicitlyStopTimeUs, ERROR_NONE, null));
+                            explicitlyStopTimeUs, error, errorCause));
                     break;
                 case ERROR:
                     // In an error state, the recording will already be finalized. Treat as a
@@ -901,9 +913,31 @@ public final class Recorder implements VideoOutput {
         }
 
         if (pendingRecordingToFinalize != null) {
+            if (error == VideoRecordEvent.Finalize.ERROR_RECORDING_GARBAGE_COLLECTED) {
+                Logger.e(TAG, "Recording was stopped due to recording being garbage collected "
+                        + "before any valid data has been produced.");
+            }
             finalizePendingRecording(pendingRecordingToFinalize, ERROR_NO_VALID_DATA,
                     new RuntimeException("Recording was stopped before any data could be "
-                            + "produced."));
+                            + "produced.", errorCause));
+        }
+    }
+
+    void mute(@NonNull Recording activeRecording, boolean muted) {
+        synchronized (mLock) {
+            if (!isSameRecording(activeRecording, mPendingRecordingRecord) && !isSameRecording(
+                    activeRecording, mActiveRecordingRecord)) {
+                // If this Recording is no longer active, log and treat as a no-op.
+                // This is not technically an error since the recording can be finalized
+                // asynchronously.
+                Logger.d(TAG,
+                        "mute() called on a recording that is no longer active: "
+                                + activeRecording.getOutputOptions());
+                return;
+            }
+            RecordingRecord finalRecordingRecord = isSameRecording(activeRecording,
+                    mPendingRecordingRecord) ? mPendingRecordingRecord : mActiveRecordingRecord;
+            mSequentialExecutor.execute(() -> muteInternal(finalRecordingRecord, muted));
         }
     }
 
@@ -915,7 +949,8 @@ public final class Recorder implements VideoOutput {
                         recordingToFinalize.getOutputOptions(),
                         RecordingStats.of(/*duration=*/0L,
                                 /*bytes=*/0L,
-                                AudioStats.of(AudioStats.AUDIO_STATE_DISABLED, mAudioErrorCause)),
+                                AudioStats.of(AudioStats.AUDIO_STATE_DISABLED, mAudioErrorCause,
+                                        AUDIO_AMPLITUDE_NONE)),
                         OutputResults.of(Uri.EMPTY),
                         error,
                         cause));
@@ -1039,13 +1074,16 @@ public final class Recorder implements VideoOutput {
                 (transformationInfo) -> mSurfaceTransformationInfo = transformationInfo);
         Size surfaceSize = surfaceRequest.getResolution();
         // Fetch and cache nearest encoder profiles, if one exists.
-        VideoCapabilities capabilities =
-                VideoCapabilities.from(surfaceRequest.getCamera().getCameraInfo());
-        Quality highestSupportedQuality = capabilities.findHighestSupportedQualityFor(surfaceSize);
+        DynamicRange dynamicRange = surfaceRequest.getDynamicRange();
+        VideoCapabilities capabilities = getVideoCapabilities(
+                surfaceRequest.getCamera().getCameraInfo());
+        Quality highestSupportedQuality = capabilities.findHighestSupportedQualityFor(surfaceSize,
+                dynamicRange);
         Logger.d(TAG, "Using supported quality of " + highestSupportedQuality
                 + " for surface size " + surfaceSize);
         if (highestSupportedQuality != Quality.NONE) {
-            mResolvedEncoderProfiles = capabilities.getProfiles(highestSupportedQuality);
+            mResolvedEncoderProfiles = capabilities.getProfiles(highestSupportedQuality,
+                    dynamicRange);
             if (mResolvedEncoderProfiles == null) {
                 throw new AssertionError("Camera advertised available quality but did not "
                         + "produce EncoderProfiles  for advertised quality.");
@@ -1473,13 +1511,13 @@ public final class Recorder implements VideoOutput {
                 // Fall-through
             case ERROR_SOURCE:
                 // Fall-through
-            case ACTIVE:
+            case ENABLED:
                 // Fall-through
             case DISABLED:
                 throw new AssertionError(
                         "Incorrectly invoke startInternal in audio state " + mAudioState);
             case IDLING:
-                setAudioState(recordingToStart.hasAudioEnabled() ? AudioState.ACTIVE
+                setAudioState(recordingToStart.hasAudioEnabled() ? AudioState.ENABLED
                         : AudioState.DISABLED);
                 break;
             case INITIALIZING:
@@ -1490,7 +1528,7 @@ public final class Recorder implements VideoOutput {
                     }
                     try {
                         setupAudio(recordingToStart);
-                        setAudioState(AudioState.ACTIVE);
+                        setAudioState(AudioState.ENABLED);
                     } catch (AudioSourceAccessException | InvalidConfigException e) {
                         Logger.e(TAG, "Unable to create audio resource with error: ", e);
                         AudioState audioState;
@@ -1508,7 +1546,7 @@ public final class Recorder implements VideoOutput {
 
         initEncoderAndAudioSourceCallbacks(recordingToStart);
         if (isAudioEnabled()) {
-            mAudioSource.start();
+            mAudioSource.start(recordingToStart.isMuted());
             mAudioEncoder.start();
         }
         mVideoEncoder.start();
@@ -1640,8 +1678,6 @@ public final class Recorder implements VideoOutput {
                                     public void onSilenceStateChanged(boolean silenced) {
                                         if (mIsAudioSourceSilenced != silenced) {
                                             mIsAudioSourceSilenced = silenced;
-                                            mAudioErrorCause = silenced ? new IllegalStateException(
-                                                    "The audio source has been silenced.") : null;
                                             updateInProgressStatusEvent();
                                         } else {
                                             Logger.w(TAG, "Audio source silenced transitions"
@@ -1656,6 +1692,11 @@ public final class Recorder implements VideoOutput {
                                         if (throwable instanceof AudioSourceAccessException) {
                                             audioErrorConsumer.accept(throwable);
                                         }
+                                    }
+
+                                    @Override
+                                    public void onAmplitudeValue(double maxAmplitude) {
+                                        mAudioAmplitude = maxAmplitude;
                                     }
                                 });
 
@@ -1684,9 +1725,9 @@ public final class Recorder implements VideoOutput {
                             @Override
                             public void onEncodedData(@NonNull EncodedData encodedData) {
                                 if (mAudioState == AudioState.DISABLED) {
-                                    throw new AssertionError(
-                                            "Audio is not enabled but audio encoded data is "
-                                                    + "produced.");
+                                    encodedData.close();
+                                    throw new AssertionError("Audio is not enabled but audio "
+                                            + "encoded data is being produced.");
                                 }
 
                                 // If the media muxer doesn't yet exist, we may need to create and
@@ -1952,6 +1993,19 @@ public final class Recorder implements VideoOutput {
         }
     }
 
+    @ExecutedBy("mSequentialExecutor")
+    private void muteInternal(@NonNull RecordingRecord recordingToMute, boolean muted) {
+        if (recordingToMute.isMuted() == muted) {
+            return;
+        }
+        recordingToMute.mute(muted);
+        // Only mute/unmute audio source if recording is in-progress and it is not already stopping.
+        if (mInProgressRecording == recordingToMute && !mInProgressRecordingStopping
+                && mAudioSource != null) {
+            mAudioSource.mute(muted);
+        }
+    }
+
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     static void notifyEncoderSourceStopped(@NonNull Encoder encoder) {
         if (encoder instanceof EncoderImpl) {
@@ -2046,8 +2100,10 @@ public final class Recorder implements VideoOutput {
                 // Audio will not be initialized until the first recording with audio enabled is
                 // started. So if the audio state is INITIALIZING, consider the audio is disabled.
                 return AudioStats.AUDIO_STATE_DISABLED;
-            case ACTIVE:
-                if (mIsAudioSourceSilenced) {
+            case ENABLED:
+                if (mInProgressRecording != null && mInProgressRecording.isMuted()) {
+                    return AudioStats.AUDIO_STATE_MUTED;
+                } else if (mIsAudioSourceSilenced) {
                     return AudioStats.AUDIO_STATE_SOURCE_SILENCED;
                 } else {
                     return AudioStats.AUDIO_STATE_ACTIVE;
@@ -2076,7 +2132,7 @@ public final class Recorder implements VideoOutput {
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     @ExecutedBy("mSequentialExecutor")
     boolean isAudioEnabled() {
-        return mAudioState == AudioState.ACTIVE;
+        return mAudioState == AudioState.ENABLED;
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
@@ -2137,6 +2193,7 @@ public final class Recorder implements VideoOutput {
         mRecordingStopError = ERROR_UNKNOWN;
         mRecordingStopErrorCause = null;
         mAudioErrorCause = null;
+        mAudioAmplitude = AUDIO_AMPLITUDE_NONE;
         clearPendingAudioRingBuffer();
 
         switch (mAudioState) {
@@ -2148,7 +2205,7 @@ public final class Recorder implements VideoOutput {
                 break;
             case DISABLED:
                 // Fall-through
-            case ACTIVE:
+            case ENABLED:
                 setAudioState(AudioState.IDLING);
                 mAudioSource.stop();
                 break;
@@ -2435,7 +2492,8 @@ public final class Recorder implements VideoOutput {
     @NonNull
     RecordingStats getInProgressRecordingStats() {
         return RecordingStats.of(mRecordingDurationNs, mRecordingBytes,
-                AudioStats.of(internalAudioStateToAudioStatsState(mAudioState), mAudioErrorCause));
+                AudioStats.of(internalAudioStateToAudioStatsState(mAudioState), mAudioErrorCause,
+                        mAudioAmplitude));
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
@@ -2583,6 +2641,15 @@ public final class Recorder implements VideoOutput {
         return defaultMuxerFormat;
     }
 
+    /**
+     * Gets the {@link VideoCapabilities} of Recorder.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @NonNull
+    public static VideoCapabilities getVideoCapabilities(@NonNull CameraInfo cameraInfo) {
+        return RecorderVideoCapabilities.from(cameraInfo);
+    }
+
     @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     @AutoValue
     abstract static class RecordingRecord implements AutoCloseable {
@@ -2601,6 +2668,8 @@ public final class Recorder implements VideoOutput {
                 new AtomicReference<>(ignored -> {
                     /* no-op by default */
                 });
+
+        private final AtomicBoolean mMuted = new AtomicBoolean(false);
 
         @NonNull
         static RecordingRecord from(@NonNull PendingRecording pendingRecording, long recordingId) {
@@ -2928,6 +2997,14 @@ public final class Recorder implements VideoOutput {
                 return;
             }
             finalizeRecordingInternal(mRecordingFinalizer.getAndSet(null), uri);
+        }
+
+        void mute(boolean muted) {
+            mMuted.set(muted);
+        }
+
+        boolean isMuted() {
+            return mMuted.get();
         }
 
         /**

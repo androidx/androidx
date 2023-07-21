@@ -52,5 +52,5 @@ public interface ImageProcessorImpl {
             long timestampNs,
             ImageReferenceImpl imageReference,
             String physicalCameraId
-            );
+    );
 }

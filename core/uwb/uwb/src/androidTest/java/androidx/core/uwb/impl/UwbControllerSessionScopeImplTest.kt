@@ -48,7 +48,10 @@ class UwbControllerSessionScopeImplTest {
         androidx.core.uwb.RangingCapabilities(
             RANGING_CAPABILITIES.supportsDistance(),
             RANGING_CAPABILITIES.supportsAzimuthalAngle(),
-            RANGING_CAPABILITIES.supportsElevationAngle()
+            RANGING_CAPABILITIES.supportsElevationAngle(),
+            RANGING_CAPABILITIES.getMinRangingInterval(),
+            RANGING_CAPABILITIES.getSupportedChannels().toSet(),
+            RANGING_CAPABILITIES.getSupportedConfigIds().toSet()
         ),
         UwbAddress(LOCAL_ADDRESS.address)
     )
@@ -57,7 +60,10 @@ class UwbControllerSessionScopeImplTest {
         androidx.core.uwb.RangingCapabilities(
             RANGING_CAPABILITIES.supportsDistance(),
             RANGING_CAPABILITIES.supportsAzimuthalAngle(),
-            RANGING_CAPABILITIES.supportsElevationAngle()
+            RANGING_CAPABILITIES.supportsElevationAngle(),
+            RANGING_CAPABILITIES.getMinRangingInterval(),
+            RANGING_CAPABILITIES.getSupportedChannels().toSet(),
+            RANGING_CAPABILITIES.getSupportedConfigIds().toSet()
         ),
         UwbAddress(LOCAL_ADDRESS.address),
         androidx.core.uwb.UwbComplexChannel(

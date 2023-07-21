@@ -149,15 +149,17 @@ class DateRangePickerScreenshotTest(private val scheme: ColorSchemeWrapper) {
                 val monthInUtcMillis = dayInUtcMilliseconds(year = 2000, month = 6, dayOfMonth = 1)
                 DateRangePicker(
                     state = rememberDateRangePickerState(
-                        initialDisplayedMonthMillis = monthInUtcMillis
+                        initialDisplayedMonthMillis = monthInUtcMillis,
+                        selectableDates = object : SelectableDates {
+                            override fun isSelectableDate(utcTimeMillis: Long): Boolean {
+                                val localDate =
+                                    Instant.ofEpochMilli(utcTimeMillis).atZone(ZoneId.of("UTC"))
+                                        .toLocalDate()
+                                val dayOfWeek = localDate.dayOfWeek
+                                return dayOfWeek != DayOfWeek.SUNDAY
+                            }
+                        }
                     ),
-                    dateValidator = { utcDateInMills ->
-                        val localDate =
-                            Instant.ofEpochMilli(utcDateInMills).atZone(ZoneId.of("UTC"))
-                                .toLocalDate()
-                        val dayOfWeek = localDate.dayOfWeek
-                        dayOfWeek != DayOfWeek.SUNDAY
-                    },
                     showModeToggle = false
                 )
             }

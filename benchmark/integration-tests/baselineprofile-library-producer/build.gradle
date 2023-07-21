@@ -56,5 +56,7 @@ baselineProfile {
 }
 
 androidx {
-    disableDeviceTests = true
+    deviceTests {
+        enabled = false
+    }
 }

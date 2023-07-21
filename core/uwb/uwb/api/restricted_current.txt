@@ -2,13 +2,19 @@
 package androidx.core.uwb {
 
   public final class RangingCapabilities {
-    ctor public RangingCapabilities(boolean isDistanceSupported, boolean isAzimuthalAngleSupported, boolean isElevationAngleSupported);
+    ctor public RangingCapabilities(boolean isDistanceSupported, boolean isAzimuthalAngleSupported, boolean isElevationAngleSupported, int minRangingInterval, java.util.Set<java.lang.Integer> supportedChannels, java.util.Set<java.lang.Integer> supportedConfigIds);
+    method public int getMinRangingInterval();
+    method public java.util.Set<java.lang.Integer> getSupportedChannels();
+    method public java.util.Set<java.lang.Integer> getSupportedConfigIds();
     method public boolean isAzimuthalAngleSupported();
     method public boolean isDistanceSupported();
     method public boolean isElevationAngleSupported();
     property public final boolean isAzimuthalAngleSupported;
     property public final boolean isDistanceSupported;
     property public final boolean isElevationAngleSupported;
+    property public final int minRangingInterval;
+    property public final java.util.Set<java.lang.Integer> supportedChannels;
+    property public final java.util.Set<java.lang.Integer> supportedConfigIds;
   }
 
   public final class RangingMeasurement {

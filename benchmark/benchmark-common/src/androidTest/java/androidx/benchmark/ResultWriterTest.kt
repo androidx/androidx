@@ -19,12 +19,12 @@ package androidx.benchmark
 import android.os.Build
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
+import kotlin.test.assertTrue
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
 import org.junit.runner.RunWith
-import kotlin.test.assertTrue
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)

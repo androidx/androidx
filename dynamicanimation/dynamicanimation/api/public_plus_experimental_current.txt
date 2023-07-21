@@ -1,10 +1,16 @@
 // Signature format: 4.0
 package androidx.dynamicanimation.animation {
 
+  public class AnimationHandler {
+    ctor public AnimationHandler(androidx.dynamicanimation.animation.FrameCallbackScheduler);
+    method @VisibleForTesting public float getDurationScale();
+  }
+
   public abstract class DynamicAnimation<T extends androidx.dynamicanimation.animation.DynamicAnimation<T>> {
     method public T! addEndListener(androidx.dynamicanimation.animation.DynamicAnimation.OnAnimationEndListener!);
     method public T! addUpdateListener(androidx.dynamicanimation.animation.DynamicAnimation.OnAnimationUpdateListener!);
     method @MainThread public void cancel();
+    method @VisibleForTesting public androidx.dynamicanimation.animation.AnimationHandler getAnimationHandler();
     method public float getMinimumVisibleChange();
     method public androidx.dynamicanimation.animation.FrameCallbackScheduler getScheduler();
     method public boolean isRunning();

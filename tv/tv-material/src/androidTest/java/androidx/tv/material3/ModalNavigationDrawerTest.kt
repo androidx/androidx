@@ -16,20 +16,26 @@
 
 package androidx.tv.material3
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.Key
@@ -41,6 +47,8 @@ import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.SemanticsNodeInteractionCollection
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEqualTo
+import androidx.compose.ui.test.assertIsFocused
+import androidx.compose.ui.test.assertIsNotFocused
 import androidx.compose.ui.test.assertWidthIsEqualTo
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -101,8 +109,8 @@ class ModalNavigationDrawerTest {
                 drawerState = navigationDrawerValue,
                 drawerContent = {
                     BasicText(
-                        text =
-                        if (it == DrawerValue.Open) "Opened" else "Closed"
+                        modifier = Modifier.focusable(),
+                        text = if (it == DrawerValue.Open) "Opened" else "Closed"
                     )
                 }) { BasicText("other content") }
         }
@@ -125,10 +133,15 @@ class ModalNavigationDrawerTest {
             val navigationDrawerValue = remember { DrawerState(DrawerValue.Closed) }
             Row {
                 ModalNavigationDrawer(
-                    modifier = Modifier.focusRequester(drawerFocusRequester).focusable(false),
+                    modifier = Modifier
+                        .focusRequester(drawerFocusRequester)
+                        .focusable(false),
                     drawerState = navigationDrawerValue,
                     drawerContent = {
-                        BasicText(text = if (it == DrawerValue.Open) "Opened" else "Closed")
+                        BasicText(
+                            modifier = Modifier.focusable(),
+                            text = if (it == DrawerValue.Open) "Opened" else "Closed"
+                        )
                     }) {
                     Box(modifier = Modifier.focusable()) {
                         BasicText("Button")
@@ -144,7 +157,7 @@ class ModalNavigationDrawerTest {
         rule.onAllNodesWithText("Closed").assertAnyAreDisplayed()
     }
 
-    @OptIn(ExperimentalComposeUiApi::class, ExperimentalTestApi::class)
+    @OptIn(ExperimentalTestApi::class)
     @Test
     fun modalNavigationDrawer_focusMovesIntoDrawer_openStateComposableDisplayed() {
         InstrumentationRegistry.getInstrumentation().setInTouchMode(false)
@@ -155,7 +168,17 @@ class ModalNavigationDrawerTest {
                 ModalNavigationDrawer(
                     drawerState = navigationDrawerValue,
                     drawerContent = {
-                        BasicText(text = if (it == DrawerValue.Open) "Opened" else "Closed")
+                        var isFocused by remember { mutableStateOf(false) }
+                        BasicText(
+                            text = if (it == DrawerValue.Open) "Opened" else "Closed",
+                            modifier = Modifier
+                                .onFocusChanged { focusState ->
+                                    isFocused = focusState.isFocused
+                                }
+                                .background(if (isFocused) Color.Green else Color.Yellow)
+                                .focusable()
+                                .testTag("drawerItem")
+                        )
                     }) {
                     Box(
                         modifier = Modifier
@@ -172,7 +195,9 @@ class ModalNavigationDrawerTest {
         }
         rule.onAllNodesWithText("Closed").assertAnyAreDisplayed()
         rule.onRoot().performKeyInput { pressKey(Key.DirectionLeft) }
+        rule.waitForIdle()
         rule.onAllNodesWithText("Opened").assertAnyAreDisplayed()
+        rule.onNodeWithTag("drawerItem").assertIsFocused()
     }
 
     @Test
@@ -191,7 +216,10 @@ class ModalNavigationDrawerTest {
                             Box(Modifier.width(closedDrawerContentWidth * 10))
                         }
                     }
-                ) { Box(Modifier.fillMaxWidth().testTag(contentWidthBoxTag)) }
+                ) { Box(
+                    Modifier
+                        .fillMaxWidth()
+                        .testTag(contentWidthBoxTag)) }
             }
         }
 
@@ -213,7 +241,10 @@ class ModalNavigationDrawerTest {
                             Box(Modifier.width(openDrawerContentWidth * 10))
                         }
                     }
-                ) { Box(Modifier.fillMaxWidth().testTag(contentWidthBoxTag)) }
+                ) { Box(
+                    Modifier
+                        .fillMaxWidth()
+                        .testTag(contentWidthBoxTag)) }
             }
         }
 
@@ -229,11 +260,17 @@ class ModalNavigationDrawerTest {
                 ModalNavigationDrawer(
                     drawerState = remember { DrawerState(DrawerValue.Closed) },
                     drawerContent = {
-                        Box(Modifier.testTag(drawerContentBoxTag).border(2.dp, Color.Red)) {
+                        Box(
+                            Modifier
+                                .testTag(drawerContentBoxTag)
+                                .border(2.dp, Color.Red)) {
                             BasicText(text = if (it == DrawerValue.Open) "Opened" else "Closed")
                         }
                     }
-                ) { Box(Modifier.fillMaxWidth().testTag(contentWidthBoxTag)) }
+                ) { Box(
+                    Modifier
+                        .fillMaxWidth()
+                        .testTag(contentWidthBoxTag)) }
             }
         }
 
@@ -252,11 +289,17 @@ class ModalNavigationDrawerTest {
                 ModalNavigationDrawer(
                     drawerState = drawerState!!,
                     drawerContent = {
-                        Box(Modifier.testTag(drawerContentBoxTag).border(2.dp, Color.Red)) {
+                        Box(
+                            Modifier
+                                .testTag(drawerContentBoxTag)
+                                .border(2.dp, Color.Red)) {
                             BasicText(text = if (it == DrawerValue.Open) "Opened" else "Closed")
                         }
                     }
-                ) { Box(Modifier.fillMaxWidth().testTag(contentWidthBoxTag)) }
+                ) { Box(
+                    Modifier
+                        .fillMaxWidth()
+                        .testTag(contentWidthBoxTag)) }
             }
         }
 
@@ -268,6 +311,49 @@ class ModalNavigationDrawerTest {
             rule.onNodeWithTag(drawerContentBoxTag).getUnclippedBoundsInRoot().left
 
         assert(endPositionInClosedState.value > endPositionInOpenState.value)
+    }
+
+    @OptIn(ExperimentalTestApi::class, ExperimentalComposeUiApi::class)
+    @Test
+    fun modalNavigationDrawer_parentContainerGainsFocus_onBackPress() {
+        val drawerFocusRequester = FocusRequester()
+        rule.setContent {
+            Box(
+                modifier = Modifier
+                    .testTag("box-container")
+                    .fillMaxSize()
+                    .focusable()
+            ) {
+                ModalNavigationDrawer(
+                    modifier = Modifier.focusRequester(drawerFocusRequester),
+                    drawerState = remember { DrawerState(DrawerValue.Closed) },
+                    drawerContent = {
+                        BasicText(
+                            text = if (it == DrawerValue.Open) "Opened" else "Closed",
+                            modifier = Modifier.focusable()
+                        )
+                    }
+                ) {
+                    BasicText("other content")
+                }
+            }
+        }
+
+        rule.onAllNodesWithText("Closed").assertAnyAreDisplayed()
+
+        rule.runOnIdle {
+            drawerFocusRequester.requestFocus()
+        }
+
+        rule.onAllNodesWithText("Opened").assertAnyAreDisplayed()
+        rule.onNodeWithTag("box-container").assertIsNotFocused()
+
+        // Trigger back press
+        rule.onRoot().performKeyInput { pressKey(Key.Back) }
+        rule.waitForIdle()
+
+        // Check if the parent container gains focus
+        rule.onNodeWithTag("box-container").assertIsFocused()
     }
 
     private fun SemanticsNodeInteractionCollection.assertAnyAreDisplayed() {

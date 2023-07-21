@@ -349,6 +349,53 @@ public final class OutputConfigurationCompat {
     }
 
     /**
+     * Return current dynamic range profile.
+     *
+     * <p>On API level 32 and lower, this value will return what is set by
+     * {@link #setDynamicRangeProfile(long)}, but when the output configuration is used in a
+     * {@link SessionConfigurationCompat} that is used to
+     * {@link androidx.camera.camera2.internal.compat.CameraDeviceCompat#createCaptureSession(
+     * SessionConfigurationCompat) create a capture session}, the value will be ignored and
+     * camera will run the output as {@code STANDARD} dynamic range.
+     */
+    public long getDynamicRangeProfile() {
+        return mImpl.getDynamicRangeProfile();
+    }
+
+    /**
+     * Set a specific device supported dynamic range profile.
+     *
+     * <p>Clients can choose from any profile advertised as supported in
+     * {@link
+     * android.hardware.camera2.CameraCharacteristics#REQUEST_AVAILABLE_DYNAMIC_RANGE_PROFILES}
+     * queried using
+     * {@link android.hardware.camera2.params.DynamicRangeProfiles#getSupportedProfiles()}. If this
+     * is not explicitly set, then the default profile will be
+     * {@link android.hardware.camera2.params.DynamicRangeProfiles#STANDARD}.
+     *
+     * <p>Do note that invalid combinations between the registered output surface pixel format and
+     * the configured dynamic range profile will cause capture session initialization failure.
+     * Invalid combinations include any 10-bit dynamic range profile advertised in
+     * {@link android.hardware.camera2.params.DynamicRangeProfiles#getSupportedProfiles()}
+     * combined with an output Surface pixel format
+     * different from {@link android.graphics.ImageFormat#PRIVATE} (the default for Surfaces
+     * initialized by {@link android.view.SurfaceView}, {@link android.view.TextureView},
+     * {@link android.media.MediaRecorder}, {@link android.media.MediaCodec} etc.) or
+     * {@link android.graphics.ImageFormat#YCBCR_P010}.
+     *
+     * <p>On API level 32 and lower, the only supported dynamic range is
+     * {@link android.hardware.camera2.params.DynamicRangeProfiles#STANDARD}. On those API
+     * levels, any other values will be ignored when the output configuring is used in a
+     * {@link SessionConfigurationCompat} that is used to
+     * {@link androidx.camera.camera2.internal.compat.CameraDeviceCompat#createCaptureSession(
+     * SessionConfigurationCompat) create a capture session}, and the
+     * dynamic range used by the camera will remain {@code STANDARD} dynamic range.
+     */
+    public void setDynamicRangeProfile(long profile) {
+        mImpl.setDynamicRangeProfile(profile);
+    }
+
+    /**
      * Set the stream use case associated with this {@link OutputConfigurationCompat}.
      *
      * Stream use case is used to describe the purpose of the stream, whether it's for live
@@ -451,6 +498,10 @@ public final class OutputConfigurationCompat {
         void removeSurface(@NonNull Surface surface);
 
         int getMaxSharedSurfaceCount();
+
+        long getDynamicRangeProfile();
+
+        void setDynamicRangeProfile(long profile);
 
         void setStreamUseCase(long streamUseCase);
 

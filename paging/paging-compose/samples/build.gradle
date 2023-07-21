@@ -27,13 +27,14 @@ dependencies {
     implementation(libs.kotlinStdlib)
 
     compileOnly(projectOrArtifact(":annotation:annotation-sampled"))
-    implementation("androidx.compose.foundation:foundation:1.0.1")
-    implementation("androidx.compose.material:material:1.0.1")
-    implementation(projectOrArtifact(":paging:paging-compose"))
+    implementation(projectOrArtifact(":compose:foundation:foundation"))
+    implementation(projectOrArtifact(":compose:material:material"))
+    implementation projectOrArtifact(":compose:ui:ui-tooling")
+    implementation(project(":paging:paging-compose"))
 }
 
 androidx {
-    name = "AndroidX Paging Compose Samples"
+    name = "Paging Compose Samples"
     type = LibraryType.SAMPLES
     mavenVersion = LibraryVersions.PAGING_COMPOSE
     inceptionYear = "2020"

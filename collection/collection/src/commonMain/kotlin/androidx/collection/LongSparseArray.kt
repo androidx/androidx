@@ -20,7 +20,6 @@ import androidx.collection.internal.binarySearch
 import androidx.collection.internal.idealLongArraySize
 import kotlin.DeprecationLevel.HIDDEN
 import kotlin.jvm.JvmField
-import kotlin.jvm.JvmOverloads
 import kotlin.jvm.JvmSynthetic
 
 private val DELETED = Any()
@@ -54,7 +53,7 @@ private val DELETED = Any()
  * requiring any additional array allocations.
  */
 public expect open class LongSparseArray<E>
-@JvmOverloads public constructor(initialCapacity: Int = 10) {
+public constructor(initialCapacity: Int = 10) {
     @JvmSynthetic // Hide from Java callers.
     @JvmField
     internal var garbage: Boolean

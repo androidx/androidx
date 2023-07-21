@@ -21,13 +21,13 @@ import static java.util.Objects.requireNonNull;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.annotations.CarProtocol;
-import androidx.car.app.model.constraints.CarTextConstraints;
 import androidx.car.app.annotations.KeepFields;
+import androidx.car.app.model.constraints.CarTextConstraints;
 
 import java.util.Objects;
 
 /**
- * Represents an {@link ItemList} that is contained inside a section, for internal use only.
+ * Represents an {@link ItemList} that is contained inside a section.
  */
 @CarProtocol
 @KeepFields

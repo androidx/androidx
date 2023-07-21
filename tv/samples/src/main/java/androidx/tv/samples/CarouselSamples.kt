@@ -18,6 +18,12 @@ package androidx.tv.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
@@ -56,20 +62,20 @@ fun SimpleCarousel() {
     )
 
     Carousel(
-        slideCount = backgrounds.size,
+        itemCount = backgrounds.size,
         modifier = Modifier
             .height(300.dp)
             .fillMaxWidth(),
+        contentTransformEndToStart =
+        fadeIn(tween(1000)).togetherWith(fadeOut(tween(1000))),
+        contentTransformStartToEnd =
+        fadeIn(tween(1000)).togetherWith(fadeOut(tween(1000)))
     ) { itemIndex ->
-        CarouselSlide(
-            background = {
-                Box(
-                    modifier = Modifier
-                        .background(backgrounds[itemIndex])
-                        .border(2.dp, Color.White.copy(alpha = 0.5f))
-                        .fillMaxSize()
-                )
-            }
+        Box(
+            modifier = Modifier
+                .background(backgrounds[itemIndex])
+                .border(2.dp, Color.White.copy(alpha = 0.5f))
+                .fillMaxSize()
         ) {
             var isFocused by remember { mutableStateOf(false) }
 
@@ -82,6 +88,13 @@ fun SimpleCarousel() {
                         width = 2.dp,
                         color = if (isFocused) Color.Red else Color.Transparent,
                         shape = RoundedCornerShape(50)
+                    )
+                    // Duration of animation here should be less than or equal to carousel's
+                    // contentTransform duration to ensure the item below does not disappear
+                    // abruptly.
+                    .animateEnterExit(
+                        enter = slideInHorizontally(animationSpec = tween(1000)) { it / 2 },
+                        exit = slideOutHorizontally(animationSpec = tween(1000))
                     )
                     .padding(vertical = 2.dp, horizontal = 5.dp)
             ) {
@@ -103,15 +116,15 @@ fun CarouselIndicatorWithRectangleShape() {
     val carouselState = remember { CarouselState() }
 
     Carousel(
-        slideCount = backgrounds.size,
+        itemCount = backgrounds.size,
         modifier = Modifier
             .height(300.dp)
             .fillMaxWidth(),
         carouselState = carouselState,
         carouselIndicator = {
             CarouselDefaults.IndicatorRow(
-                slideCount = backgrounds.size,
-                activeSlideIndex = carouselState.activeSlideIndex,
+                itemCount = backgrounds.size,
+                activeItemIndex = carouselState.activeItemIndex,
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
                     .padding(16.dp),
@@ -128,24 +141,30 @@ fun CarouselIndicatorWithRectangleShape() {
                     )
                 }
             )
-        }
+        },
+        contentTransformEndToStart =
+        fadeIn(tween(1000)).togetherWith(fadeOut(tween(1000))),
+        contentTransformStartToEnd =
+        fadeIn(tween(1000)).togetherWith(fadeOut(tween(1000)))
     ) { itemIndex ->
-        CarouselSlide(
-            background = {
-                Box(
-                    modifier = Modifier
-                        .background(backgrounds[itemIndex])
-                        .border(2.dp, Color.White.copy(alpha = 0.5f))
-                        .fillMaxSize()
-                )
-            }
+        Box(
+            modifier = Modifier
+                .background(backgrounds[itemIndex])
+                .border(2.dp, Color.White.copy(alpha = 0.5f))
+                .fillMaxSize()
         ) {
             var isFocused by remember { mutableStateOf(false) }
-
             Button(
                 onClick = { },
                 modifier = Modifier
                     .onFocusChanged { isFocused = it.isFocused }
+                    // Duration of animation here should be less than or equal to carousel's
+                    // contentTransform duration to ensure the item below does not disappear
+                    // abruptly.
+                    .animateEnterExit(
+                        enter = slideInHorizontally(animationSpec = tween(1000)) { it / 2 },
+                        exit = slideOutHorizontally(animationSpec = tween(1000))
+                    )
                     .padding(40.dp)
                     .border(
                         width = 2.dp,

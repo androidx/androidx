@@ -30,7 +30,7 @@
     <string name="mcv2_music_title_unknown_text" msgid="6037645626002038645">"ଗୀତର ଟାଇଟେଲ୍ ଅଜଣା ଅଟେ"</string>
     <string name="mcv2_music_artist_unknown_text" msgid="5393558204040775454">"କଳାକାର ଅଜଣା ଅଟନ୍ତି"</string>
     <string name="mcv2_playback_error_text" msgid="6061787693725630293">"ଆପଣ ଅନୁରୋଧ କରିଥିବା ଆଇଟମ୍ ଚଲାଯାଇପାରିଲା ନାହିଁ"</string>
-    <string name="mcv2_error_dialog_button" msgid="5940167897992933850">"ଠିକ୍ ଅଛି"</string>
+    <string name="mcv2_error_dialog_button" msgid="5940167897992933850">"ଠିକ ଅଛି"</string>
     <string name="mcv2_back_button_desc" msgid="1540894858499118373">"ପଛକୁ ଫେରନ୍ତୁ"</string>
     <string name="mcv2_overflow_left_button_desc" msgid="2749567167276435888">"ପୂର୍ବବର୍ତ୍ତୀ ବଟନ୍ ତାଲିକାକୁ ଫେରନ୍ତୁ"</string>
     <string name="mcv2_overflow_right_button_desc" msgid="7388732945289831383">"ଅଧିକ ବଟନ୍ ଦେଖନ୍ତୁ"</string>

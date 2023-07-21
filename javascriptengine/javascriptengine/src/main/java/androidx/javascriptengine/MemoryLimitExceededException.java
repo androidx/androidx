@@ -20,11 +20,11 @@ import androidx.annotation.NonNull;
 
 /**
  * Indicates that a JavaScriptIsolate's evaluation failed due to exceeding its heap size limit.
- *
- * This exception is thrown when exceeding the heap size limit configured for the isolate via
- * {@link IsolateStartupParameters}, or the default limit. It is not guaranteed to be thrown if the
- * Android system as a whole has run out of memory before the JavaScript environment has reached its
- * configured heap limit.
+ * <p>
+ * This exception may be thrown when exceeding the heap size limit configured for the isolate via
+ * {@link IsolateStartupParameters}, or the default limit. Beware that it will not be thrown if the
+ * Android system as a whole has run out of memory before the JavaScript environment has reached
+ * its configured heap limit.
  * <p>
  * The isolate may not continue to be used after this exception has been thrown, and other pending
  * evalutions for the isolate will fail. The isolate may continue to hold onto resources (even if
@@ -32,6 +32,10 @@ import androidx.annotation.NonNull;
  * sandbox be restarted at the earliest opportunity in order to reclaim these resources.
  * <p>
  * Other isolates within the same sandbox may continue to be used, created, and closed as normal.
+ * <p>
+ * Beware that not all JavaScript sandbox service implementations (particularly older ones)
+ * handle memory exhaustion equally gracefully, and may instead crash the entire sandbox (see
+ * {@link SandboxDeadException}).
  */
 public final class MemoryLimitExceededException extends JavaScriptException {
     public MemoryLimitExceededException(@NonNull String error) {

@@ -17,6 +17,8 @@
 package androidx.appactions.interaction.capabilities.core.impl.concurrent
 
 import com.google.common.truth.Truth.assertThat
+import kotlin.coroutines.cancellation.CancellationException
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.channels.SendChannel
@@ -25,8 +27,6 @@ import kotlinx.coroutines.withTimeout
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import kotlin.coroutines.cancellation.CancellationException
-import kotlin.time.Duration.Companion.seconds
 
 @RunWith(JUnit4::class)
 class ListenableFutureHelperTest {

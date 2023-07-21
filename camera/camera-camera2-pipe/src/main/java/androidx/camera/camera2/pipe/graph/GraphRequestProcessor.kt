@@ -106,7 +106,7 @@ private constructor(
     }
 
     internal fun close() {
-        Log.warn { "Closing $this" }
+        Log.debug { "Closing $this" }
         if (closed.compareAndSet(expect = false, update = true)) {
             captureSequenceProcessor.close()
         }
@@ -179,7 +179,7 @@ private constructor(
                         Log.warn { "Did not submit $captureSequence, $this was closed!" }
                         return false
                     }
-                    val sequenceNumber = captureSequenceProcessor.submit(captureSequence)
+                    val sequenceNumber = captureSequenceProcessor.submit(captureSequence) ?: -1
                     captureSequence.sequenceNumber = sequenceNumber
                     sequenceNumber
                 }

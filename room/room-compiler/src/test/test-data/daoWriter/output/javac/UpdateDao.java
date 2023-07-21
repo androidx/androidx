@@ -363,12 +363,15 @@ public final class UpdateDao_Impl implements UpdateDao {
         } else {
             _stmt.bindString(_argIndex, uid);
         }
-        __db.beginTransaction();
         try {
-            _stmt.executeUpdateDelete();
-            __db.setTransactionSuccessful();
+            __db.beginTransaction();
+            try {
+                _stmt.executeUpdateDelete();
+                __db.setTransactionSuccessful();
+            } finally {
+                __db.endTransaction();
+            }
         } finally {
-            __db.endTransaction();
             __preparedStmtOfAgeUserByUid.release(_stmt);
         }
     }
@@ -377,12 +380,15 @@ public final class UpdateDao_Impl implements UpdateDao {
     public void ageUserAll() {
         __db.assertNotSuspendingTransaction();
         final SupportSQLiteStatement _stmt = __preparedStmtOfAgeUserAll.acquire();
-        __db.beginTransaction();
         try {
-            _stmt.executeUpdateDelete();
-            __db.setTransactionSuccessful();
+            __db.beginTransaction();
+            try {
+                _stmt.executeUpdateDelete();
+                __db.setTransactionSuccessful();
+            } finally {
+                __db.endTransaction();
+            }
         } finally {
-            __db.endTransaction();
             __preparedStmtOfAgeUserAll.release(_stmt);
         }
     }
@@ -394,13 +400,16 @@ public final class UpdateDao_Impl implements UpdateDao {
             @Nullable
             public Void call() throws Exception {
                 final SupportSQLiteStatement _stmt = __preparedStmtOfAgeUserAll.acquire();
-                __db.beginTransaction();
                 try {
-                    _stmt.executeUpdateDelete();
-                    __db.setTransactionSuccessful();
-                    return null;
+                    __db.beginTransaction();
+                    try {
+                        _stmt.executeUpdateDelete();
+                        __db.setTransactionSuccessful();
+                        return null;
+                    } finally {
+                        __db.endTransaction();
+                    }
                 } finally {
-                    __db.endTransaction();
                     __preparedStmtOfAgeUserAll.release(_stmt);
                 }
             }
@@ -414,13 +423,16 @@ public final class UpdateDao_Impl implements UpdateDao {
             @Nullable
             public Integer call() throws Exception {
                 final SupportSQLiteStatement _stmt = __preparedStmtOfAgeUserAll.acquire();
-                __db.beginTransaction();
                 try {
-                    final Integer _result = _stmt.executeUpdateDelete();
-                    __db.setTransactionSuccessful();
-                    return _result;
+                    __db.beginTransaction();
+                    try {
+                        final Integer _result = _stmt.executeUpdateDelete();
+                        __db.setTransactionSuccessful();
+                        return _result;
+                    } finally {
+                        __db.endTransaction();
+                    }
                 } finally {
-                    __db.endTransaction();
                     __preparedStmtOfAgeUserAll.release(_stmt);
                 }
             }
@@ -434,13 +446,16 @@ public final class UpdateDao_Impl implements UpdateDao {
             @Nullable
             public Integer call() throws Exception {
                 final SupportSQLiteStatement _stmt = __preparedStmtOfAgeUserAll.acquire();
-                __db.beginTransaction();
                 try {
-                    final Integer _result = _stmt.executeUpdateDelete();
-                    __db.setTransactionSuccessful();
-                    return _result;
+                    __db.beginTransaction();
+                    try {
+                        final Integer _result = _stmt.executeUpdateDelete();
+                        __db.setTransactionSuccessful();
+                        return _result;
+                    } finally {
+                        __db.endTransaction();
+                    }
                 } finally {
-                    __db.endTransaction();
                     __preparedStmtOfAgeUserAll.release(_stmt);
                 }
             }

@@ -17,8 +17,8 @@
 package androidx.room
 
 import android.database.sqlite.SQLiteConstraintException
-import androidx.annotation.RestrictTo
 import android.os.Build
+import androidx.annotation.RestrictTo
 
 /**
  * The ErrorCode defined by SQLite Library for SQLITE_CONSTRAINT_PRIMARYKEY error

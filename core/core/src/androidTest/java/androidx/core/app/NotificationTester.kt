@@ -18,8 +18,8 @@ package androidx.core.app
 import android.app.Notification
 import android.os.Build
 import android.os.Bundle
-import org.junit.Assert.assertEquals
 import java.util.TreeSet
+import org.junit.Assert.assertEquals
 
 internal object NotificationTester {
     @JvmStatic

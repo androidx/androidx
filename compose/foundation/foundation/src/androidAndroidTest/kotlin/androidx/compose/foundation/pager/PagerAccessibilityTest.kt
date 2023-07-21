@@ -38,7 +38,7 @@ import org.junit.runners.Parameterized
 @OptIn(ExperimentalFoundationApi::class)
 @LargeTest
 @RunWith(Parameterized::class)
-internal class PagerAccessibilityTest(config: ParamConfig) : BasePagerTest(config = config) {
+class PagerAccessibilityTest(config: ParamConfig) : BasePagerTest(config = config) {
 
     private val accessibilityNodeProvider: AccessibilityNodeProvider
         get() = checkNotNull(composeView) {
@@ -52,26 +52,24 @@ internal class PagerAccessibilityTest(config: ParamConfig) : BasePagerTest(confi
 
     @Test
     fun accessibilityScroll_scrollToPage() {
-        val state = PagerState()
-        createPager(state, offscreenPageLimit = 1)
+        createPager(offscreenPageLimit = 1)
 
-        rule.runOnIdle { assertThat(state.currentPage).isEqualTo(0) }
+        rule.runOnIdle { assertThat(pagerState.currentPage).isEqualTo(0) }
 
         rule.onNodeWithTag("1").assertExists()
         rule.onNodeWithTag("1").performScrollTo()
 
-        rule.runOnIdle { assertThat(state.currentPage).isEqualTo(1) }
-        rule.runOnIdle { assertThat(state.currentPageOffsetFraction).isEqualTo(0.0f) }
+        rule.runOnIdle { assertThat(pagerState.currentPage).isEqualTo(1) }
+        rule.runOnIdle { assertThat(pagerState.currentPageOffsetFraction).isEqualTo(0.0f) }
     }
 
     @Test
     fun accessibilityPaging_animateScrollToPage() {
-        val state = PagerState(initialPage = 5)
-        createPager(state)
+        createPager(initialPage = 5, pageCount = { DefaultPageCount })
 
-        rule.runOnIdle { assertThat(state.currentPage).isEqualTo(5) }
+        rule.runOnIdle { assertThat(pagerState.currentPage).isEqualTo(5) }
 
-        val actionBackward = if (isVertical) {
+        val actionBackward = if (vertical) {
             android.R.id.accessibilityActionPageUp
         } else {
             android.R.id.accessibilityActionPageLeft
@@ -86,10 +84,10 @@ internal class PagerAccessibilityTest(config: ParamConfig) : BasePagerTest(confi
         }
 
         // Go to the previous page
-        rule.runOnIdle { assertThat(state.currentPage).isEqualTo(4) }
-        rule.runOnIdle { assertThat(state.currentPageOffsetFraction).isEqualTo(0.0f) }
+        rule.runOnIdle { assertThat(pagerState.currentPage).isEqualTo(4) }
+        rule.runOnIdle { assertThat(pagerState.currentPageOffsetFraction).isEqualTo(0.0f) }
 
-        val actionForward = if (isVertical) {
+        val actionForward = if (vertical) {
             android.R.id.accessibilityActionPageDown
         } else {
             android.R.id.accessibilityActionPageRight
@@ -104,16 +102,15 @@ internal class PagerAccessibilityTest(config: ParamConfig) : BasePagerTest(confi
         }
 
         // Go to the next page
-        rule.runOnIdle { assertThat(state.currentPage).isEqualTo(5) }
-        rule.runOnIdle { assertThat(state.currentPageOffsetFraction).isEqualTo(0.0f) }
+        rule.runOnIdle { assertThat(pagerState.currentPage).isEqualTo(5) }
+        rule.runOnIdle { assertThat(pagerState.currentPageOffsetFraction).isEqualTo(0.0f) }
     }
 
     @Test
     fun userScrollEnabledIsOff_shouldNotAllowPageAccessibilityActions() {
         // Arrange
-        val state = PagerState()
         createPager(
-            state = state,
+            pageCount = { DefaultPageCount },
             userScrollEnabled = false,
             modifier = Modifier.fillMaxSize()
         )
@@ -129,23 +126,22 @@ internal class PagerAccessibilityTest(config: ParamConfig) : BasePagerTest(confi
     @Test
     fun focusScroll_forwardAndBackward_shouldGoToPage_pageShouldBeCorrectlyPlaced() {
         // Arrange
-        val state = PagerState()
-        createPager(state)
+        createPager(pageCount = { DefaultPageCount })
         rule.runOnIdle { firstItemFocusRequester.requestFocus() }
 
         // Act: move forward
         rule.runOnIdle { focusManager.moveFocus(FocusDirection.Next) }
 
         // Assert
-        rule.runOnIdle { assertThat(state.currentPage).isEqualTo(1) }
-        rule.runOnIdle { assertThat(state.currentPageOffsetFraction).isEqualTo(0.0f) }
+        rule.runOnIdle { assertThat(pagerState.currentPage).isEqualTo(1) }
+        rule.runOnIdle { assertThat(pagerState.currentPageOffsetFraction).isEqualTo(0.0f) }
 
         // Act: move backward
         rule.runOnIdle { focusManager.moveFocus(FocusDirection.Previous) }
 
         // Assert
-        rule.runOnIdle { assertThat(state.currentPage).isEqualTo(0) }
-        rule.runOnIdle { assertThat(state.currentPageOffsetFraction).isEqualTo(0.0f) }
+        rule.runOnIdle { assertThat(pagerState.currentPage).isEqualTo(0) }
+        rule.runOnIdle { assertThat(pagerState.currentPageOffsetFraction).isEqualTo(0.0f) }
     }
 
     private fun <T> SemanticsNodeInteraction.withSemanticsNode(block: SemanticsNode.() -> T): T {
@@ -155,10 +151,6 @@ internal class PagerAccessibilityTest(config: ParamConfig) : BasePagerTest(confi
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
-        fun params() = mutableListOf<ParamConfig>().apply {
-            for (orientation in TestOrientation) {
-                add(ParamConfig(orientation = orientation))
-            }
-        }
+        fun params() = AllOrientationsParams
     }
 }

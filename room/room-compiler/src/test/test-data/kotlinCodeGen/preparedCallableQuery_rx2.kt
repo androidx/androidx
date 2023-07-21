@@ -41,13 +41,16 @@ public class MyDao_Impl(
                 _stmt.bindString(_argIndex, id)
                 _argIndex = 2
                 _stmt.bindString(_argIndex, name)
-                __db.beginTransaction()
                 try {
-                    val _result: Long? = _stmt.executeInsert()
-                    __db.setTransactionSuccessful()
-                    return _result
+                    __db.beginTransaction()
+                    try {
+                        val _result: Long? = _stmt.executeInsert()
+                        __db.setTransactionSuccessful()
+                        return _result
+                    } finally {
+                        __db.endTransaction()
+                    }
                 } finally {
-                    __db.endTransaction()
                     __preparedStmtOfInsertPublisherSingle.release(_stmt)
                 }
             }
@@ -61,13 +64,16 @@ public class MyDao_Impl(
                 _stmt.bindString(_argIndex, id)
                 _argIndex = 2
                 _stmt.bindString(_argIndex, name)
-                __db.beginTransaction()
                 try {
-                    val _result: Long? = _stmt.executeInsert()
-                    __db.setTransactionSuccessful()
-                    return _result
+                    __db.beginTransaction()
+                    try {
+                        val _result: Long? = _stmt.executeInsert()
+                        __db.setTransactionSuccessful()
+                        return _result
+                    } finally {
+                        __db.endTransaction()
+                    }
                 } finally {
-                    __db.endTransaction()
                     __preparedStmtOfInsertPublisherSingle.release(_stmt)
                 }
             }
@@ -81,13 +87,16 @@ public class MyDao_Impl(
                 _stmt.bindString(_argIndex, id)
                 _argIndex = 2
                 _stmt.bindString(_argIndex, name)
-                __db.beginTransaction()
                 try {
-                    _stmt.executeInsert()
-                    __db.setTransactionSuccessful()
-                    return null
+                    __db.beginTransaction()
+                    try {
+                        _stmt.executeInsert()
+                        __db.setTransactionSuccessful()
+                        return null
+                    } finally {
+                        __db.endTransaction()
+                    }
                 } finally {
-                    __db.endTransaction()
                     __preparedStmtOfInsertPublisherSingle.release(_stmt)
                 }
             }

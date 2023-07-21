@@ -25,8 +25,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
@@ -133,10 +133,10 @@ fun TabRow(
     contentColor: Color = contentColorFor(backgroundColor),
     indicator: @Composable @UiComposable
         (tabPositions: List<TabPosition>) -> Unit = @Composable { tabPositions ->
-            TabRowDefaults.Indicator(
-                Modifier.tabIndicatorOffset(tabPositions[selectedTabIndex])
-            )
-        },
+        TabRowDefaults.Indicator(
+            Modifier.tabIndicatorOffset(tabPositions[selectedTabIndex])
+        )
+    },
     divider: @Composable @UiComposable () -> Unit =
         @Composable {
             TabRowDefaults.Divider()
@@ -228,10 +228,10 @@ fun ScrollableTabRow(
     edgePadding: Dp = TabRowDefaults.ScrollableTabRowPadding,
     indicator: @Composable @UiComposable
         (tabPositions: List<TabPosition>) -> Unit = @Composable { tabPositions ->
-            TabRowDefaults.Indicator(
-                Modifier.tabIndicatorOffset(tabPositions[selectedTabIndex])
-            )
-        },
+        TabRowDefaults.Indicator(
+            Modifier.tabIndicatorOffset(tabPositions[selectedTabIndex])
+        )
+    },
     divider: @Composable @UiComposable () -> Unit =
         @Composable {
             TabRowDefaults.Divider()

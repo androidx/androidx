@@ -17,20 +17,21 @@
 package androidx.benchmark
 
 import androidx.benchmark.perfetto.PerfettoCapture
+import androidx.benchmark.perfetto.PerfettoConfig
 import androidx.benchmark.perfetto.PerfettoHelper
 import androidx.benchmark.perfetto.PerfettoHelper.Companion.LOWEST_BUNDLED_VERSION_SUPPORTED
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
+import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertNotEquals
+import kotlin.test.assertTrue
 import org.junit.After
 import org.junit.Assume
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import kotlin.test.assertEquals
-import kotlin.test.assertFalse
-import kotlin.test.assertNotEquals
-import kotlin.test.assertTrue
 
 @LargeTest
 @SdkSuppress(minSdkVersion = 23)
@@ -52,7 +53,7 @@ class PerfettoHelperTest {
 
         // start perfetto
         val capture = PerfettoCapture(unbundled)
-        capture.start(listOf(Packages.TEST))
+        capture.start(PerfettoConfig.Benchmark(listOf(Packages.TEST)))
 
         // should be at least one perfetto process
         assertNotEquals(illegal = listOf(), actual = getPerfettoPids())

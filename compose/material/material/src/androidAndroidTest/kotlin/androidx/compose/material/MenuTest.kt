@@ -19,8 +19,10 @@ package androidx.compose.material
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.requiredSize
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -29,6 +31,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.hasAnyDescendant
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.isPopup
@@ -36,11 +40,11 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.unit.Density
-import androidx.compose.ui.unit.IntRect
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
-import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -125,6 +129,42 @@ class MenuTest {
             assertThat(node.size.height)
                 .isEqualTo(DropdownMenuVerticalPadding.roundToPx() * 2 + 200)
         }
+    }
+
+    @Test
+    fun menu_scrolledContent() {
+        rule.setContent {
+            with(LocalDensity.current) {
+                Box(
+                    Modifier
+                        .requiredSize(20.toDp())
+                        .background(color = Color.Blue)
+                ) {
+                    val scrollState = rememberScrollState()
+                    DropdownMenu(
+                        expanded = true,
+                        onDismissRequest = {},
+                        scrollState = scrollState
+                    ) {
+                        repeat(100) {
+                            Box(
+                                Modifier
+                                    .testTag("MenuContent ${it + 1}")
+                                    .size(70.toDp())
+                            )
+                        }
+                    }
+                    LaunchedEffect(Unit) {
+                        scrollState.scrollTo(scrollState.maxValue)
+                    }
+                }
+            }
+        }
+
+        rule.waitForIdle()
+
+        rule.onNodeWithTag("MenuContent 1").assertIsNotDisplayed()
+        rule.onNodeWithTag("MenuContent 100").assertIsDisplayed()
     }
 
     @Test

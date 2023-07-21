@@ -16,15 +16,15 @@
 
 package androidx.privacysandbox.ads.adservices.java.topics
 
-import androidx.privacysandbox.ads.adservices.java.internal.asListenableFuture
-import androidx.privacysandbox.ads.adservices.topics.TopicsManager
-import androidx.privacysandbox.ads.adservices.topics.TopicsManager.Companion.obtain
-import androidx.privacysandbox.ads.adservices.topics.GetTopicsRequest
-import androidx.privacysandbox.ads.adservices.topics.GetTopicsResponse
 import android.adservices.common.AdServicesPermissions
 import android.content.Context
 import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresPermission
+import androidx.privacysandbox.ads.adservices.java.internal.asListenableFuture
+import androidx.privacysandbox.ads.adservices.topics.GetTopicsRequest
+import androidx.privacysandbox.ads.adservices.topics.GetTopicsResponse
+import androidx.privacysandbox.ads.adservices.topics.TopicsManager
+import androidx.privacysandbox.ads.adservices.topics.TopicsManager.Companion.obtain
 import com.google.common.util.concurrent.ListenableFuture
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

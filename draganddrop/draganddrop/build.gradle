@@ -44,7 +44,7 @@ android {
 }
 
 androidx {
-    name = "AndroidX Drag and Drop Library"
+    name = "Drag and Drop"
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2021"
     description = "This library makes it easy for developers to accept data dragged-and-dropped from another app, and show a consistent affordance."

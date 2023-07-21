@@ -31,7 +31,7 @@ dependencies {
 
     implementation(project(path: ":wear:protolayout:protolayout-proto", configuration: "shadow"))
     implementation(project(":wear:protolayout:protolayout-expression"))
-    implementation(project(":wear:protolayout:protolayout-expression-pipeline"))
+    api(project(":wear:protolayout:protolayout-expression-pipeline"))
     implementation "androidx.concurrent:concurrent-futures:1.1.0"
     implementation("androidx.core:core:1.7.0")
     implementation("androidx.vectordrawable:vectordrawable-seekable:1.0.0-beta01")

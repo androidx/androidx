@@ -58,17 +58,18 @@ import androidx.compose.ui.unit.sp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
-import com.google.common.truth.Truth
+import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@OptIn(InternalTextApi::class)
+@OptIn(InternalTextApi::class, ExperimentalTextApi::class)
 @RunWith(AndroidJUnit4::class)
 @SmallTest
 class AndroidAccessibilitySpannableStringTest {
     private val context = InstrumentationRegistry.getInstrumentation().context
     private val density = Density(context)
-    private val resourceLoader = UncachedFontFamilyResolver(context)
+    private val fontFamilyResolver = UncachedFontFamilyResolver(context)
+    private val urlSpanCache = URLSpanCache()
 
     @Test
     fun toAccessibilitySpannableString_with_locale() {
@@ -80,8 +81,11 @@ class AndroidAccessibilitySpannableStringTest {
             }
         }
 
-        val spannableString =
-            annotatedString.toAccessibilitySpannableString(density, resourceLoader)
+        val spannableString = annotatedString.toAccessibilitySpannableString(
+            density,
+            fontFamilyResolver,
+            urlSpanCache
+        )
 
         assertThat(spannableString).isInstanceOf(SpannableString::class.java)
         assertThat(spannableString).hasSpan(
@@ -102,8 +106,11 @@ class AndroidAccessibilitySpannableStringTest {
             }
         }
 
-        val spannableString =
-            annotatedString.toAccessibilitySpannableString(density, resourceLoader)
+        val spannableString = annotatedString.toAccessibilitySpannableString(
+            density,
+            fontFamilyResolver,
+            urlSpanCache
+        )
 
         assertThat(spannableString).isInstanceOf(SpannableString::class.java)
         assertThat(spannableString).hasSpan(
@@ -123,8 +130,11 @@ class AndroidAccessibilitySpannableStringTest {
             }
         }
 
-        val spannableString =
-            annotatedString.toAccessibilitySpannableString(density, resourceLoader)
+        val spannableString = annotatedString.toAccessibilitySpannableString(
+            density,
+            fontFamilyResolver,
+            urlSpanCache
+        )
 
         assertThat(spannableString).isInstanceOf(SpannableString::class.java)
         assertThat(spannableString).hasSpan(
@@ -144,8 +154,11 @@ class AndroidAccessibilitySpannableStringTest {
             }
         }
 
-        val spannableString =
-            annotatedString.toAccessibilitySpannableString(density, resourceLoader)
+        val spannableString = annotatedString.toAccessibilitySpannableString(
+            density,
+            fontFamilyResolver,
+            urlSpanCache
+        )
 
         assertThat(spannableString).isInstanceOf(SpannableString::class.java)
         assertThat(spannableString).hasSpan(
@@ -164,8 +177,11 @@ class AndroidAccessibilitySpannableStringTest {
             }
         }
 
-        val spannableString =
-            annotatedString.toAccessibilitySpannableString(density, resourceLoader)
+        val spannableString = annotatedString.toAccessibilitySpannableString(
+            density,
+            fontFamilyResolver,
+            urlSpanCache
+        )
 
         assertThat(spannableString).isInstanceOf(SpannableString::class.java)
         assertThat(spannableString).hasSpan(
@@ -184,8 +200,11 @@ class AndroidAccessibilitySpannableStringTest {
             }
         }
 
-        val spannableString =
-            annotatedString.toAccessibilitySpannableString(density, resourceLoader)
+        val spannableString = annotatedString.toAccessibilitySpannableString(
+            density,
+            fontFamilyResolver,
+            urlSpanCache
+        )
 
         assertThat(spannableString).isInstanceOf(SpannableString::class.java)
         assertThat(spannableString).hasSpan(
@@ -205,11 +224,14 @@ class AndroidAccessibilitySpannableStringTest {
             }
         }
 
-        val spannableString =
-            annotatedString.toAccessibilitySpannableString(density, resourceLoader)
+        val spannableString = annotatedString.toAccessibilitySpannableString(
+            density,
+            fontFamilyResolver,
+            urlSpanCache
+        )
 
         assertThat(spannableString).isInstanceOf(SpannableString::class.java)
-        Truth.assertThat(
+        assertThat(
             spannableString.getSpans(
                 0,
                 spannableString.length,
@@ -227,8 +249,11 @@ class AndroidAccessibilitySpannableStringTest {
             }
         }
 
-        val spannableString =
-            annotatedString.toAccessibilitySpannableString(density, resourceLoader)
+        val spannableString = annotatedString.toAccessibilitySpannableString(
+            density,
+            fontFamilyResolver,
+            urlSpanCache
+        )
 
         assertThat(spannableString).isInstanceOf(SpannableString::class.java)
         assertThat(spannableString).hasSpan(
@@ -245,8 +270,11 @@ class AndroidAccessibilitySpannableStringTest {
             }
         }
 
-        val spannableString =
-            annotatedString.toAccessibilitySpannableString(density, resourceLoader)
+        val spannableString = annotatedString.toAccessibilitySpannableString(
+            density,
+            fontFamilyResolver,
+            urlSpanCache
+        )
 
         assertThat(spannableString).isInstanceOf(SpannableString::class.java)
         assertThat(spannableString).hasSpan(
@@ -266,8 +294,11 @@ class AndroidAccessibilitySpannableStringTest {
             }
         }
 
-        val spannableString =
-            annotatedString.toAccessibilitySpannableString(density, resourceLoader)
+        val spannableString = annotatedString.toAccessibilitySpannableString(
+            density,
+            fontFamilyResolver,
+            urlSpanCache
+        )
 
         assertThat(spannableString).isInstanceOf(SpannableString::class.java)
         assertThat(spannableString).hasSpan(
@@ -287,8 +318,11 @@ class AndroidAccessibilitySpannableStringTest {
             }
         }
 
-        val spannableString =
-            annotatedString.toAccessibilitySpannableString(density, resourceLoader)
+        val spannableString = annotatedString.toAccessibilitySpannableString(
+            density,
+            fontFamilyResolver,
+            urlSpanCache
+        )
 
         assertThat(spannableString).isInstanceOf(SpannableString::class.java)
         assertThat(spannableString).hasSpan(
@@ -298,7 +332,6 @@ class AndroidAccessibilitySpannableStringTest {
         }
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun toAccessibilitySpannableString_with_verbatimTtsAnnotation() {
         val annotatedString = buildAnnotatedString {
@@ -308,8 +341,11 @@ class AndroidAccessibilitySpannableStringTest {
             }
         }
 
-        val spannableString =
-            annotatedString.toAccessibilitySpannableString(density, resourceLoader)
+        val spannableString = annotatedString.toAccessibilitySpannableString(
+            density,
+            fontFamilyResolver,
+            urlSpanCache
+        )
 
         assertThat(spannableString).isInstanceOf(SpannableString::class.java)
         assertThat(spannableString).hasSpan(
@@ -320,7 +356,6 @@ class AndroidAccessibilitySpannableStringTest {
         }
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun toAccessibilitySpannableString_with_urlAnnotation() {
         val annotatedString = buildAnnotatedString {
@@ -330,8 +365,11 @@ class AndroidAccessibilitySpannableStringTest {
             }
         }
 
-        val spannableString =
-            annotatedString.toAccessibilitySpannableString(density, resourceLoader)
+        val spannableString = annotatedString.toAccessibilitySpannableString(
+            density,
+            fontFamilyResolver,
+            urlSpanCache
+        )
 
         assertThat(spannableString).isInstanceOf(SpannableString::class.java)
         assertThat(spannableString).hasSpan(
@@ -341,7 +379,6 @@ class AndroidAccessibilitySpannableStringTest {
         }
     }
 
-    @OptIn(InternalTextApi::class)
     @Test
     fun fontsInSpanStyles_areIgnored() {
         // b/232238615
@@ -356,9 +393,32 @@ class AndroidAccessibilitySpannableStringTest {
         val fontFamilyResolver = createFontFamilyResolver(context)
 
         // see if font span is added
-        string.toAccessibilitySpannableString(density, fontFamilyResolver)
+        string.toAccessibilitySpannableString(density, fontFamilyResolver, URLSpanCache())
 
         // toAccessibilitySpannableString should _not_ make any font requests
-        Truth.assertThat(loader.blockingRequests).isEmpty()
+        assertThat(loader.blockingRequests).isEmpty()
+    }
+
+    /**
+     * A11y services rely on ClickableSpans being the same instance for the same source spans across
+     * multiple calls of [toAccessibilitySpannableString] for the same source string. If this is not
+     * the case, their onClick handler will not be invoked. See b/253292081.
+     */
+    @Test
+    fun urlSpansAreSameInstanceForSameAnnotatedString() {
+        val string = buildAnnotatedString {
+            pushUrlAnnotation(UrlAnnotation("google.com"))
+            append("link")
+        }
+
+        val spannable1 =
+            string.toAccessibilitySpannableString(density, fontFamilyResolver, urlSpanCache)
+        val spannable2 =
+            string.toAccessibilitySpannableString(density, fontFamilyResolver, urlSpanCache)
+        val urlSpan1 = spannable1.getSpans(0, string.length, URLSpan::class.java).single()
+        val urlSpan2 = spannable2.getSpans(0, string.length, URLSpan::class.java).single()
+
+        assertThat(spannable1).isNotSameInstanceAs(spannable2)
+        assertThat(urlSpan1).isSameInstanceAs(urlSpan2)
     }
 }

@@ -42,6 +42,7 @@ import androidx.camera.integration.extensions.utils.CameraIdExtensionModePair
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.LabTestRule
 import androidx.camera.testing.SurfaceTextureProvider
+import androidx.concurrent.futures.await
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.Executors
 import kotlinx.coroutines.CompletableDeferred
@@ -100,15 +101,14 @@ object Camera2ExtensionsTestUtil {
         val executorForGL = Executors.newSingleThreadExecutor()
         // Some OEM requires frames drain (updateTexImage being invoked) in SurfaceTexture,
         // otherwise it might cause still capture to fail.
-        val surfaceTextureHolder = SurfaceTextureProvider.createAutoDrainingSurfaceTexture(
+        val surfaceTextureHolder = SurfaceTextureProvider.createAutoDrainingSurfaceTextureAsync(
             executorForGL,
             previewSize.width,
-            previewSize.height
-        ) {
-            if (!deferredPreviewFrame.isCompleted) {
-                deferredPreviewFrame.complete(it)
-            }
-        }
+            previewSize.height, {
+                if (!deferredPreviewFrame.isCompleted) {
+                    deferredPreviewFrame.complete(it)
+                }
+            }) { executorForGL.shutdown() }.await()
         val previewSurface = Surface(surfaceTextureHolder.surfaceTexture)
 
         // Still capture surface
@@ -182,7 +182,6 @@ object Camera2ExtensionsTestUtil {
         previewSurface.release()
         captureSurface.release()
         surfaceTextureHolder.close()
-        executorForGL.shutdown()
     }
 
     /**

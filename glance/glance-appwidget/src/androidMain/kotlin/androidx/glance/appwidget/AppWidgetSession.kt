@@ -42,6 +42,7 @@ import androidx.glance.session.Session
 import androidx.glance.state.ConfigManager
 import androidx.glance.state.GlanceState
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.channels.Channel
 
 /**
  * A session that composes UI for a single app widget.
@@ -73,6 +74,7 @@ internal class AppWidgetSession(
     private val glanceState = mutableStateOf<Any?>(null, neverEqualPolicy())
     private val options = mutableStateOf(Bundle(), neverEqualPolicy())
     private var lambdas = mapOf<String, List<LambdaAction>>()
+
     @VisibleForTesting
     internal var lastRemoteViews: RemoteViews? = null
         private set
@@ -184,6 +186,7 @@ internal class AppWidgetSession(
                     lambdas[event.key]?.forEach { it.block() }
                 } ?: Log.w(TAG, "Triggering Action(${event.key}) for session($key) failed")
             }
+            is WaitForReady -> event.resume.send(Unit)
             else -> {
                 throw IllegalArgumentException(
                     "Sent unrecognized event type ${event.javaClass} to AppWidgetSession"
@@ -204,6 +207,13 @@ internal class AppWidgetSession(
         sendEvent(RunLambda(key))
     }
 
+    suspend fun waitForReady() {
+        WaitForReady().let {
+            sendEvent(it)
+            it.resume.receive()
+        }
+    }
+
     // Event types that this session supports.
     @VisibleForTesting
     internal object UpdateGlanceState
@@ -211,4 +221,8 @@ internal class AppWidgetSession(
     internal class UpdateAppWidgetOptions(val newOptions: Bundle)
     @VisibleForTesting
     internal class RunLambda(val key: String)
+    @VisibleForTesting
+    internal class WaitForReady(
+        val resume: Channel<Unit> = Channel(Channel.CONFLATED)
+    )
 }

@@ -44,6 +44,7 @@ import androidx.work.Constraints;
 import androidx.work.NetworkType;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.PeriodicWorkRequest;
+import androidx.work.SystemClock;
 import androidx.work.WorkManagerTest;
 import androidx.work.impl.WorkManagerImpl;
 import androidx.work.impl.model.WorkSpec;
@@ -70,7 +71,7 @@ public class SystemJobInfoConverterTest extends WorkManagerTest {
     @Before
     public void setUp() {
         mConverter = new SystemJobInfoConverter(
-                ApplicationProvider.getApplicationContext());
+                ApplicationProvider.getApplicationContext(), new SystemClock());
     }
 
     @Test

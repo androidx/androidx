@@ -20,9 +20,16 @@ import android.app.Activity
 import android.os.Build
 import android.view.Gravity
 import android.view.View
+import android.view.ViewTreeObserver
+import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.ListView
 import android.widget.TextView
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.glance.Button
@@ -39,17 +46,24 @@ import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertIs
+import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
-import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.buffer
+import kotlinx.coroutines.flow.channelFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import org.junit.Ignore
+import kotlinx.coroutines.test.runTest
 import org.junit.Rule
 import org.junit.Test
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @SdkSuppress(minSdkVersion = 29)
 @MediumTest
 class LazyColumnTest {
@@ -206,7 +220,6 @@ class LazyColumnTest {
         }
     }
 
-    @Ignore // b/270621933
     @Test
     fun itemContent_defaultAlignment_doesNotWrapItem() {
         TestGlanceAppWidget.uiDefinition = {
@@ -281,7 +294,6 @@ class LazyColumnTest {
         }
     }
 
-    @Ignore("b/273482357")
     @Test
     fun itemContent_multipleViews() {
         TestGlanceAppWidget.uiDefinition = {
@@ -323,6 +335,49 @@ class LazyColumnTest {
     }
 
     @Test
+    fun adapter_emptyList() {
+        TestGlanceAppWidget.uiDefinition = {
+            LazyColumn { }
+        }
+
+        mHostRule.startHost()
+
+        mHostRule.waitForListView { list ->
+            assertThat(list.childCount).isEqualTo(0)
+            assertThat(list.adapter.count).isEqualTo(0)
+            assertThat(list.adapter.viewTypeCount).isAtLeast(1)
+            assertThat(list.adapter.hasStableIds()).isFalse()
+        }
+    }
+
+    @Test
+    fun adapter_itemContentChangesOnClick_appliedCorrectly() {
+        TestGlanceAppWidget.uiDefinition = {
+            var count by remember { mutableStateOf(1) }
+            LazyColumn {
+                item {
+                    Text(
+                        text = "Row item 0, count $count",
+                        modifier = GlanceModifier.clickable {
+                            count++
+                        })
+                }
+            }
+        }
+
+        mHostRule.startHost()
+
+        mHostRule.waitForListViewChildren { list ->
+            val row = list.getUnboxedListItem<FrameLayout>(0)
+            val rowItem0 = row.notGoneChildren.first()
+            rowItem0.performClick()
+        }
+
+        mHostRule.waitForListViewChildWithText(text = "Row item 0, count 1") {}
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 31)
     fun clickable_addsClickHandlers() {
         TestGlanceAppWidget.uiDefinition = {
             LazyColumn {
@@ -344,17 +399,84 @@ class LazyColumnTest {
         mHostRule.waitForListViewChildren { list ->
             val row = list.getUnboxedListItem<FrameLayout>(0)
             val (rowItem0, rowItem1) = row.notGoneChildren.toList()
-            // All items with actions are wrapped in FrameLayout
+            // Clickable text items are wrapped in a FrameLayout.
             assertIs<FrameLayout>(rowItem0)
+            assertIs<Button>(rowItem1)
+            assertThat(rowItem0.hasOnClickListeners()).isTrue()
+            assertThat(rowItem1.hasOnClickListeners()).isTrue()
+        }
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 29, maxSdkVersion = 30)
+    fun clickable_backportButton_addsClickHandlers() {
+        TestGlanceAppWidget.uiDefinition = {
+            LazyColumn {
+                item {
+                    Text(
+                        "Text",
+                        modifier = GlanceModifier.clickable(actionStartActivity<Activity>())
+                    )
+                    Button(
+                        "Button",
+                        onClick = actionStartActivity<Activity>()
+                    )
+                }
+            }
+        }
+
+        mHostRule.startHost()
+
+        mHostRule.waitForListViewChildren { list ->
+            val row = list.getUnboxedListItem<FrameLayout>(0)
+            val (rowItem0, rowItem1) = row.notGoneChildren.toList()
+            // Clickable text items are wrapped in a FrameLayout.
+            assertIs<FrameLayout>(rowItem0)
+            // backport buttons are implemented using FrameLayout.
             assertIs<FrameLayout>(rowItem1)
             assertThat(rowItem0.hasOnClickListeners()).isTrue()
             assertThat(rowItem1.hasOnClickListeners()).isTrue()
         }
     }
 
-    @OptIn(FlowPreview::class)
     @Test
+    @SdkSuppress(minSdkVersion = 31)
     fun clickTriggersOnlyOneLambda() = runBlocking {
+        val received = MutableStateFlow(-1)
+        TestGlanceAppWidget.uiDefinition = {
+            LazyColumn {
+                items((0..4).toList()) {
+                    Button(
+                        "$it",
+                        onClick = {
+                            launch { received.emit(it) }
+                        }
+                    )
+                }
+            }
+        }
+
+        mHostRule.startHost()
+
+        val buttons = arrayOfNulls<Button>(5)
+        mHostRule.waitForListViewChildren { list ->
+            for (it in 0..4) {
+                val button = list.getUnboxedListItem<Button>(it)
+                buttons[it] = button
+            }
+        }
+        (0..4).shuffled().forEach { index ->
+            mHostRule.onHostActivity {
+                buttons[index]!!.performClick()
+            }
+            val lastClicked = received.debounce(500.milliseconds).first()
+            assertThat(lastClicked).isEqualTo(index)
+        }
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 29, maxSdkVersion = 30)
+    fun clickTriggersOnlyOneLambda_backportButton() = runBlocking {
         val received = MutableStateFlow(-1)
         TestGlanceAppWidget.uiDefinition = {
             LazyColumn {
@@ -386,6 +508,61 @@ class LazyColumnTest {
             assertThat(lastClicked).isEqualTo(index)
         }
     }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 29, maxSdkVersion = 31)
+    fun listCanBeUpdated_RemoteViewsService() = runTest {
+        val countFlow = MutableStateFlow(0)
+        TestGlanceAppWidget.uiDefinition = {
+            val count by countFlow.collectAsState()
+            LazyColumn {
+                items(count) { Text("$it") }
+            }
+        }
+
+        mHostRule.startHost()
+        mHostRule.waitForListViewChildCount(countFlow.value)
+        (1..10).forEach { next ->
+            countFlow.emit(next)
+            mHostRule.waitForListViewChildCount(next)
+        }
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 32)
+    fun listCanBeUpdated_RemoteCollectionItems() = runTest {
+        val countFlow = MutableStateFlow(0)
+        TestGlanceAppWidget.uiDefinition = {
+            val count by countFlow.collectAsState()
+            LazyColumn {
+                items(count) { Text("$it") }
+            }
+        }
+
+        mHostRule.startHost()
+        mHostRule.waitForListViewChildCount(countFlow.value)
+        (1..10).forEach { next ->
+            countFlow.emit(next)
+            mHostRule.waitForListViewChildCount(next)
+        }
+    }
+}
+
+/**
+ * Wait until the ListView is loaded and has an adapter (irrespective of whether it has children or
+ * not). Use waitForListViewChildren if the list is expected to have children.
+ */
+internal fun AppWidgetHostRule.waitForListView(action: (list: ListView) -> Unit = {}) {
+    onHostView { }
+
+    runAndObserveUntilDraw(condition = "ListView did not load in time") {
+        mHostView.let { host ->
+            val list = host.findChildByType<ListView>()
+            host.childCount > 0 && list != null && list.adapter != null
+        }
+    }
+
+    onUnboxedHostView(action)
 }
 
 internal fun AppWidgetHostRule.waitForListViewChildren(action: (list: ListView) -> Unit = {}) {
@@ -394,13 +571,65 @@ internal fun AppWidgetHostRule.waitForListViewChildren(action: (list: ListView) 
     runAndObserveUntilDraw(condition = "ListView did not load in time") {
         mHostView.let { host ->
             val list = host.findChildByType<ListView>()
-            host.childCount > 0 &&
-                list?.let { it.childCount > 0 && it.adapter != null } ?: false
+            host.childCount > 0 && list?.areItemsFullyLoaded() ?: false
         }
     }
 
     onUnboxedHostView(action)
 }
+
+internal fun AppWidgetHostRule.waitForListViewChildWithText(
+    text: String,
+    action: (list: ListView) -> Unit = {}
+) {
+    onHostView { }
+
+    runAndObserveUntilDraw(condition = "List child with text '$text' not load in time") {
+        mHostView.let { host ->
+            val list = host.findChildByType<ListView>()
+            host.childCount > 0 && list?.isItemLoaded(text) ?: false
+        }
+    }
+
+    onUnboxedHostView(action)
+}
+
+/**
+ * Wait until the first ListView child under the root AppWidgetHostView has [count] children.
+ *
+ * Suspending version that does not timeout, instead relies on the `runTest` timeout.
+ */
+internal suspend fun AppWidgetHostRule.waitForListViewChildCount(count: Int) {
+    val resume = Channel<Unit>(Channel.CONFLATED)
+    fun test() = mHostView.findChildByType<ListView>()?.childCount == count
+    val onDrawListener = ViewTreeObserver.OnDrawListener {
+        if (test()) resume.trySend(Unit)
+    }
+
+    onHostActivity {
+        // If test is already true, do not wait for the next draw to resume
+        if (test()) resume.trySend(Unit)
+        mHostView.viewTreeObserver.addOnDrawListener(onDrawListener)
+    }
+    try {
+        resume.receive()
+    } finally {
+        onHostActivity {
+            mHostView.viewTreeObserver.removeOnDrawListener(onDrawListener)
+        }
+    }
+}
+
+/**
+ * Returns a flow that mirrors the original flow, but filters out values that are followed by the
+ * newer values within the given timeout.
+ */
+fun <T> Flow<T>.debounce(timeout: Duration): Flow<T> = channelFlow {
+    collectLatest {
+        delay(timeout)
+        send(it)
+    }
+}.buffer(0)
 
 internal inline fun <reified T : View> ListView.getUnboxedListItem(position: Int): T {
     val remoteViewFrame = assertIs<FrameLayout>(getChildAt(position))

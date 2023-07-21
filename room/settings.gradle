@@ -33,6 +33,7 @@ playground {
         if (name == ":annotation:annotation-experimental-lint") return true
         if (name == ":annotation:annotation-experimental-lint-integration-tests") return true
         if (name == ":internal-testutils-truth") return true
+        if (name == ":internal-testutils-kmp") return true
         return false
     })
 }

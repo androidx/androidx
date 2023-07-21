@@ -223,40 +223,4 @@ internal constructor(
         )
         return result
     }
-
-    override suspend fun registerForDataNotifications(
-        notificationIntentAction: String,
-        recordTypes: Iterable<KClass<out Record>>,
-    ) {
-        delegate
-            .registerForDataNotifications(
-                request =
-                    RequestProto.RegisterForDataNotificationsRequest.newBuilder()
-                        .setNotificationIntentAction(notificationIntentAction)
-                        .addAllDataTypes(recordTypes.map { it.toDataType() })
-                        .build(),
-            )
-            .await()
-
-        Logger.debug(
-            HEALTH_CONNECT_CLIENT_TAG,
-            "Registered for data notifications for action: $notificationIntentAction",
-        )
-    }
-
-    override suspend fun unregisterFromDataNotifications(notificationIntentAction: String) {
-        delegate
-            .unregisterFromDataNotifications(
-                request =
-                    RequestProto.UnregisterFromDataNotificationsRequest.newBuilder()
-                        .setNotificationIntentAction(notificationIntentAction)
-                        .build(),
-            )
-            .await()
-
-        Logger.debug(
-            HEALTH_CONNECT_CLIENT_TAG,
-            "Unregistered from data notifications for action: $notificationIntentAction",
-        )
-    }
 }

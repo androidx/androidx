@@ -16,7 +16,6 @@
 
 package androidx.window.testing.embedding
 
-import androidx.window.testing.layout.FoldingFeature as testFoldingFeature
 import android.content.res.Configuration
 import android.graphics.Rect
 import androidx.window.core.ExperimentalWindowApi
@@ -27,6 +26,7 @@ import androidx.window.embedding.SplitAttributesCalculatorParams
 import androidx.window.layout.FoldingFeature
 import androidx.window.layout.WindowLayoutInfo
 import androidx.window.layout.WindowMetrics
+import androidx.window.testing.layout.FoldingFeature as testFoldingFeature
 import androidx.window.testing.layout.TestWindowLayoutInfo
 import java.util.Collections
 import org.junit.Assert.assertEquals

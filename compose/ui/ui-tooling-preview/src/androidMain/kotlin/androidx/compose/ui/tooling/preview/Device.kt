@@ -53,9 +53,11 @@ object Devices {
 
     // Reference devices
     const val PHONE = "spec:id=reference_phone,shape=Normal,width=411,height=891,unit=dp,dpi=420"
-    const val FOLDABLE = "spec:shape=Normal,width=673,height=841,unit=dp,dpi=480"
-    const val TABLET = "spec:shape=Normal,width=1280,height=800,unit=dp,dpi=420"
-    const val DESKTOP = "spec:shape=Normal,width=1920,height=1080,unit=dp,dpi=420"
+    const val FOLDABLE =
+        "spec:id=reference_foldable,shape=Normal,width=673,height=841,unit=dp,dpi=420"
+    const val TABLET = "spec:id=reference_tablet,shape=Normal,width=1280,height=800,unit=dp,dpi=240"
+    const val DESKTOP =
+        "spec:id=reference_desktop,shape=Normal,width=1920,height=1080,unit=dp,dpi=160"
 
     // TV devices (not adding 4K since it will be very heavy for preview)
     const val TV_720p = "spec:shape=Normal,width=1280,height=720,unit=dp,dpi=420"

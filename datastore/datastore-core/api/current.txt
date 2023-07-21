@@ -6,7 +6,7 @@ package androidx.datastore.core {
   }
 
   public final class CloseableKt {
-    method public static inline <T extends androidx.datastore.core.Closeable, R> R! use(T, kotlin.jvm.functions.Function1<? super T,? extends R> block);
+    method public static inline <T extends androidx.datastore.core.Closeable, R> R use(T, kotlin.jvm.functions.Function1<? super T,? extends R> block);
   }
 
   public final class CorruptionException extends java.io.IOException {
@@ -15,8 +15,8 @@ package androidx.datastore.core {
 
   public interface DataMigration<T> {
     method public suspend Object? cleanUp(kotlin.coroutines.Continuation<? super kotlin.Unit>);
-    method public suspend Object? migrate(T? currentData, kotlin.coroutines.Continuation<? super T>);
-    method public suspend Object? shouldMigrate(T? currentData, kotlin.coroutines.Continuation<? super java.lang.Boolean>);
+    method public suspend Object? migrate(T currentData, kotlin.coroutines.Continuation<? super T>);
+    method public suspend Object? shouldMigrate(T currentData, kotlin.coroutines.Continuation<? super java.lang.Boolean>);
   }
 
   public interface DataStore<T> {
@@ -60,10 +60,10 @@ package androidx.datastore.core {
   }
 
   public interface Serializer<T> {
-    method public T! getDefaultValue();
+    method public T getDefaultValue();
     method public suspend Object? readFrom(java.io.InputStream input, kotlin.coroutines.Continuation<? super T>);
-    method public suspend Object? writeTo(T? t, java.io.OutputStream output, kotlin.coroutines.Continuation<? super kotlin.Unit>);
-    property public abstract T! defaultValue;
+    method public suspend Object? writeTo(T t, java.io.OutputStream output, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    property public abstract T defaultValue;
   }
 
   public interface Storage<T> {
@@ -79,11 +79,11 @@ package androidx.datastore.core {
 
   public final class StorageConnectionKt {
     method public static suspend <T> Object? readData(androidx.datastore.core.StorageConnection<T>, kotlin.coroutines.Continuation<? super T>);
-    method public static suspend <T> Object? writeData(androidx.datastore.core.StorageConnection<T>, T? value, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public static suspend <T> Object? writeData(androidx.datastore.core.StorageConnection<T>, T value, kotlin.coroutines.Continuation<? super kotlin.Unit>);
   }
 
   public interface WriteScope<T> extends androidx.datastore.core.ReadScope<T> {
-    method public suspend Object? writeData(T? value, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public suspend Object? writeData(T value, kotlin.coroutines.Continuation<? super kotlin.Unit>);
   }
 
 }

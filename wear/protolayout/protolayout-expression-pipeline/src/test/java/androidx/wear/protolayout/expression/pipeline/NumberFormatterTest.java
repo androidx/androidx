@@ -81,6 +81,50 @@ public class NumberFormatterTest {
     }
 
     @Test
+    public void formatFloat_largeMinFractionDigits_useMaxFractionPartLength() {
+        FloatFormatOp formatOp =
+                FloatFormatOp.newBuilder()
+                        .setMinFractionDigits(NumberFormatter.MAX_FRACTION_PART_LENGTH + 1)
+                        .build();
+        NumberFormatter numberFormatter = new NumberFormatter(formatOp, ULocale.UK);
+        assertThat(numberFormatter.format(1))
+                .isEqualTo("1." + concatZeros(NumberFormatter.MAX_FRACTION_PART_LENGTH));
+    }
+
+    @Test
+    public void formatFloat_largeMaxFractionDigits_useMaxFractionPartLength() {
+        FloatFormatOp formatOp =
+                FloatFormatOp.newBuilder()
+                        .setMaxFractionDigits(NumberFormatter.MAX_FRACTION_PART_LENGTH + 1)
+                        .build();
+        NumberFormatter numberFormatter = new NumberFormatter(formatOp, ULocale.UK);
+        // Only 15 fraction digits should appear.
+        assertThat(numberFormatter.format((float) Math.PI)).isEqualTo("3.141592741012573");
+    }
+
+    @Test
+    public void formatFloat_largeMinIntegerDigits_useMaxIntegerPartLength() {
+        FloatFormatOp formatOp =
+                FloatFormatOp.newBuilder()
+                        .setMinIntegerDigits(NumberFormatter.MAX_INTEGER_PART_LENGTH + 1)
+                        .build();
+        NumberFormatter numberFormatter = new NumberFormatter(formatOp, ULocale.UK);
+        assertThat(numberFormatter.format(0))
+                .isEqualTo(concatZeros(NumberFormatter.MAX_INTEGER_PART_LENGTH));
+    }
+
+    @Test
+    public void formatInt_largeMinIntegerDigits_useMaxIntegerPartLength() {
+        Int32FormatOp formatOp =
+                Int32FormatOp.newBuilder()
+                        .setMinIntegerDigits(NumberFormatter.MAX_INTEGER_PART_LENGTH + 1)
+                        .build();
+        NumberFormatter numberFormatter = new NumberFormatter(formatOp, ULocale.UK);
+        assertThat(numberFormatter.format(0))
+                .isEqualTo(concatZeros(NumberFormatter.MAX_INTEGER_PART_LENGTH));
+    }
+
+    @Test
     public void formatFloat_noGrouping() {
         FloatFormatOp formatOp = FloatFormatOp.newBuilder().setMinIntegerDigits(5).build();
         NumberFormatter numberFormatter = new NumberFormatter(formatOp, ULocale.UK);
@@ -158,5 +202,13 @@ public class NumberFormatterTest {
                 .isEqualTo("00,012.34500");
         assertThat(new NumberFormatter(formatOp, ULocale.ITALY).format(12.345f))
                 .isEqualTo("00.012,34500");
+    }
+
+    private static String concatZeros(int count) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < count; i++) {
+            sb.append('0');
+        }
+        return sb.toString();
     }
 }

@@ -20,12 +20,12 @@ import androidx.inspection.Connection
 import androidx.inspection.Inspector
 import androidx.inspection.InspectorEnvironment
 import androidx.inspection.InspectorFactory
+import java.util.concurrent.Executor
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
-import java.util.concurrent.Executor
 
 /**
  * An inspector for test purposes, it echoes on commands and sends events once

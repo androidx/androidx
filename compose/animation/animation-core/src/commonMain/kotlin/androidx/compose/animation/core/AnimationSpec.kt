@@ -554,8 +554,14 @@ fun <T> spring(
 /**
  * Creates a [KeyframesSpec] animation, initialized with [init]. For example:
  *
+ * @sample androidx.compose.animation.core.samples.FloatKeyframesBuilderInline
+ *
+ * Keyframes can also be associated with a particular [Easing] function:
+ *
+ * @sample androidx.compose.animation.core.samples.KeyframesBuilderWithEasing
+ *
  * @param init Initialization function for the [KeyframesSpec] animation
- * @See KeyframesSpec.KeyframesSpecConfig
+ * @see KeyframesSpec.KeyframesSpecConfig
  */
 @Stable
 fun <T> keyframes(

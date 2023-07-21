@@ -16,23 +16,12 @@
 
 package androidx.window.embedding
 
-import android.util.Pair as AndroidPair
-import androidx.window.extensions.embedding.ActivityRule as OEMActivityRule
-import androidx.window.extensions.embedding.ActivityRule.Builder as ActivityRuleBuilder
-import androidx.window.extensions.embedding.EmbeddingRule as OEMEmbeddingRule
-import androidx.window.extensions.embedding.SplitAttributes as OEMSplitAttributes
-import androidx.window.extensions.embedding.SplitAttributes.SplitType as OEMSplitType
-import androidx.window.extensions.embedding.SplitAttributesCalculatorParams as OEMSplitAttributesCalculatorParams
-import androidx.window.extensions.embedding.SplitInfo as OEMSplitInfo
-import androidx.window.extensions.embedding.SplitPairRule as OEMSplitPairRule
-import androidx.window.extensions.embedding.SplitPairRule.Builder as SplitPairRuleBuilder
-import androidx.window.extensions.embedding.SplitPlaceholderRule as OEMSplitPlaceholderRule
-import androidx.window.extensions.embedding.SplitPlaceholderRule.Builder as SplitPlaceholderRuleBuilder
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.util.LayoutDirection
+import android.util.Pair as AndroidPair
 import android.view.WindowMetrics
 import androidx.window.core.ExperimentalWindowApi
 import androidx.window.core.ExtensionsUtil
@@ -43,17 +32,28 @@ import androidx.window.embedding.SplitAttributes.LayoutDirection.Companion.LOCAL
 import androidx.window.embedding.SplitAttributes.LayoutDirection.Companion.RIGHT_TO_LEFT
 import androidx.window.embedding.SplitAttributes.LayoutDirection.Companion.TOP_TO_BOTTOM
 import androidx.window.embedding.SplitAttributes.SplitType
-import androidx.window.embedding.SplitAttributes.SplitType.Companion.SPLIT_TYPE_HINGE
 import androidx.window.embedding.SplitAttributes.SplitType.Companion.SPLIT_TYPE_EQUAL
 import androidx.window.embedding.SplitAttributes.SplitType.Companion.SPLIT_TYPE_EXPAND
+import androidx.window.embedding.SplitAttributes.SplitType.Companion.SPLIT_TYPE_HINGE
 import androidx.window.embedding.SplitAttributes.SplitType.Companion.ratio
 import androidx.window.extensions.WindowExtensions
 import androidx.window.extensions.core.util.function.Function
 import androidx.window.extensions.core.util.function.Predicate
+import androidx.window.extensions.embedding.ActivityRule as OEMActivityRule
+import androidx.window.extensions.embedding.ActivityRule.Builder as ActivityRuleBuilder
+import androidx.window.extensions.embedding.EmbeddingRule as OEMEmbeddingRule
+import androidx.window.extensions.embedding.SplitAttributes as OEMSplitAttributes
+import androidx.window.extensions.embedding.SplitAttributes.SplitType as OEMSplitType
 import androidx.window.extensions.embedding.SplitAttributes.SplitType.RatioSplitType
+import androidx.window.extensions.embedding.SplitAttributesCalculatorParams as OEMSplitAttributesCalculatorParams
+import androidx.window.extensions.embedding.SplitInfo as OEMSplitInfo
+import androidx.window.extensions.embedding.SplitPairRule as OEMSplitPairRule
+import androidx.window.extensions.embedding.SplitPairRule.Builder as SplitPairRuleBuilder
 import androidx.window.extensions.embedding.SplitPairRule.FINISH_ADJACENT
 import androidx.window.extensions.embedding.SplitPairRule.FINISH_ALWAYS
 import androidx.window.extensions.embedding.SplitPairRule.FINISH_NEVER
+import androidx.window.extensions.embedding.SplitPlaceholderRule as OEMSplitPlaceholderRule
+import androidx.window.extensions.embedding.SplitPlaceholderRule.Builder as SplitPlaceholderRuleBuilder
 import androidx.window.layout.WindowMetricsCalculator
 import androidx.window.layout.adapter.extensions.ExtensionsWindowLayoutInfoAdapter
 import kotlin.Pair

@@ -28,11 +28,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
+import androidx.compose.ui.focus.focusRequester as modifierNodeFocusRequester
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.focus.focusRequester as modifierNodeFocusRequester
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule

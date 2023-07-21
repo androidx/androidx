@@ -16,8 +16,6 @@
 
 package androidx.work.impl.background.systemjob;
 
-import static androidx.annotation.VisibleForTesting.PACKAGE_PRIVATE;
-
 import android.annotation.SuppressLint;
 import android.app.job.JobInfo;
 import android.content.ComponentName;
@@ -30,8 +28,8 @@ import android.os.PersistableBundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
-import androidx.annotation.VisibleForTesting;
 import androidx.work.BackoffPolicy;
+import androidx.work.Clock;
 import androidx.work.Constraints;
 import androidx.work.Logger;
 import androidx.work.NetworkType;
@@ -53,9 +51,10 @@ class SystemJobInfoConverter {
     static final String EXTRA_WORK_SPEC_GENERATION = "EXTRA_WORK_SPEC_GENERATION";
 
     private final ComponentName mWorkServiceComponent;
+    private final Clock mClock;
 
-    @VisibleForTesting(otherwise = PACKAGE_PRIVATE)
-    SystemJobInfoConverter(@NonNull Context context) {
+    SystemJobInfoConverter(@NonNull Context context, Clock clock) {
+        mClock = clock;
         Context appContext = context.getApplicationContext();
         mWorkServiceComponent = new ComponentName(appContext, SystemJobService.class);
     }
@@ -90,7 +89,7 @@ class SystemJobInfoConverter {
         }
 
         long nextRunTime = workSpec.calculateNextRunTime();
-        long now = System.currentTimeMillis();
+        long now = mClock.currentTimeMillis();
         long offset = Math.max(nextRunTime - now, 0);
 
         if (Build.VERSION.SDK_INT <= 28) {

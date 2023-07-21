@@ -1507,9 +1507,9 @@ public class ConstraintSet {
             sMapToConstant.append(R.styleable.Layout_layout_constraintHeight,
                     LAYOUT_CONSTRAINT_HEIGHT);
             sMapToConstant.append(R.styleable.Layout_layout_constrainedWidth,
-                    LAYOUT_CONSTRAINT_WIDTH);
+                    CONSTRAINED_WIDTH);
             sMapToConstant.append(R.styleable.Layout_layout_constrainedHeight,
-                    LAYOUT_CONSTRAINT_HEIGHT);
+                    CONSTRAINED_HEIGHT);
             sMapToConstant.append(R.styleable.Layout_layout_wrapBehaviorInParent,
                     LAYOUT_WRAP_BEHAVIOR);
 

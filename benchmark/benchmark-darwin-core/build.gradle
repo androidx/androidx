@@ -39,7 +39,7 @@ androidXMultiplatform {
 }
 
 androidx {
-    name = "AndroidX Benchmarks - Darwin Core"
+    name = "Benchmarks - Darwin Core"
     inceptionYear = "2022"
     description = "AndroidX Benchmarks - Darwin Core"
 }

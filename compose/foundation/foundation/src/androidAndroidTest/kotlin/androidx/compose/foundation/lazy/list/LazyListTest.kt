@@ -1898,7 +1898,7 @@ class LazyListTest(orientation: Orientation) : BaseLazyListTestWithOrientation(o
     }
 
     @Test
-    fun scrollingALotDoesntCauseLazyLayoutRecomposition() {
+    fun scrollingToItemDoesntCauseLazyLayoutRecomposition() {
         var recomposeCount = 0
         lateinit var state: LazyListState
 
@@ -1959,10 +1959,8 @@ class LazyListTest(orientation: Orientation) : BaseLazyListTestWithOrientation(o
             }
         }
 
-        repeat(5) {
-            rule.onNodeWithTag(LazyListTag)
-                .scrollMainAxisBy(50.dp) // 10 items, half a screen
-        }
+        rule.onNodeWithTag(LazyListTag)
+            .scrollMainAxisBy(250.dp) // 10 items, half a screen
 
         rule.runOnIdle {
             assertThat(composedMoreThanOnce).isZero()

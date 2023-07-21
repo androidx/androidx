@@ -18,11 +18,10 @@ package androidx.appactions.interaction.capabilities.core
 
 import android.content.Context
 import androidx.annotation.RestrictTo
-
-import java.util.regex.Pattern
 import java.util.Objects.requireNonNull
+import java.util.regex.Pattern
 
-/** @hide */
+/** @suppress */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 data class LibInfo(val context: Context) {
     fun getVersion(): Version {

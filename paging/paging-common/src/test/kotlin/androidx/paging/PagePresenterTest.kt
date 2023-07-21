@@ -22,12 +22,12 @@ import androidx.paging.LoadType.PREPEND
 import androidx.paging.PagePresenter.ProcessPageEventCallback
 import androidx.paging.PagingSource.LoadResult.Page.Companion.COUNT_UNDEFINED
 import com.google.common.truth.Truth.assertThat
-import org.junit.Test
-import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
+import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.fail
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
 
 @Suppress("TestFunctionName")
 internal fun <T : Any> PagePresenter(

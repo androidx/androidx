@@ -62,7 +62,7 @@ class WorkInfoFlowsTest {
         taskExecutor = taskExecutor,
         batteryChargingTracker = fakeChargingTracker
     )
-    val db = WorkDatabase.create(context, executor, true)
+    val db = WorkDatabase.create(context, executor, configuration.clock, true)
 
     // ugly, ugly hack because of circular dependency:
     // Schedulers need WorkManager, WorkManager needs schedulers

@@ -28,11 +28,11 @@ dependencies {
     testImplementation(libs.junit)
     testImplementation(libs.mockitoCore4)
     testImplementation(libs.guava)
-    testImplementation(libs.truth)
+    testImplementation(project(":internal-testutils-kmp"))
 }
 
 androidx {
-    name = "Android Room-Common"
+    name = "Room-Common"
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2017"
     description = "Android Room-Common"

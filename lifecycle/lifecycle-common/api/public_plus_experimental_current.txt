@@ -14,8 +14,10 @@ package androidx.lifecycle {
     ctor public Lifecycle();
     method @MainThread public abstract void addObserver(androidx.lifecycle.LifecycleObserver observer);
     method @MainThread public abstract androidx.lifecycle.Lifecycle.State getCurrentState();
+    method public kotlinx.coroutines.flow.StateFlow<androidx.lifecycle.Lifecycle.State> getCurrentStateFlow();
     method @MainThread public abstract void removeObserver(androidx.lifecycle.LifecycleObserver observer);
     property @MainThread public abstract androidx.lifecycle.Lifecycle.State currentState;
+    property public kotlinx.coroutines.flow.StateFlow<androidx.lifecycle.Lifecycle.State> currentStateFlow;
   }
 
   public enum Lifecycle.Event {

@@ -16,18 +16,14 @@
 
 package androidx.graphics.lowlatency
 
-import android.graphics.RenderNode
+import android.graphics.Canvas
 import android.graphics.SurfaceTexture
 import android.hardware.HardwareBuffer
 import android.opengl.GLES20
 import android.opengl.Matrix
 import android.os.Build
-import android.os.Handler
-import android.os.Looper
 import android.util.Log
 import androidx.annotation.RequiresApi
-import androidx.annotation.WorkerThread
-import androidx.graphics.SurfaceTextureRenderer
 import androidx.graphics.lowlatency.FrontBufferUtils.Companion.obtainHardwareBufferUsageFlags
 import androidx.graphics.opengl.FrameBuffer
 import androidx.graphics.opengl.FrameBufferRenderer
@@ -39,7 +35,6 @@ import androidx.hardware.SyncFenceCompat
 import java.nio.IntBuffer
 import java.util.concurrent.Executor
 import java.util.concurrent.atomic.AtomicBoolean
-import java.util.concurrent.atomic.AtomicInteger
 
 @RequiresApi(Build.VERSION_CODES.Q)
 internal class SingleBufferedCanvasRendererV29<T>(
@@ -50,74 +45,19 @@ internal class SingleBufferedCanvasRendererV29<T>(
     private val callbacks: SingleBufferedCanvasRenderer.RenderCallbacks<T>,
 ) : SingleBufferedCanvasRenderer<T> {
 
-    private val mMainHandler = Handler(Looper.myLooper() ?: Looper.getMainLooper())
+    private val mProducer = TextureProducer<T>(
+        width,
+        height,
+        object : TextureProducer.Callbacks<T> {
+            override fun onTextureAvailable(texture: SurfaceTexture) {
+                mSurfaceTexture = texture
+                mFrameBufferTarget.requestRender()
+            }
 
-    private val mRenderNode = RenderNode("renderNode").apply {
-        setPosition(
-            0,
-            0,
-            this@SingleBufferedCanvasRendererV29.width,
-            this@SingleBufferedCanvasRendererV29.height
-        )
-    }
-
-    /**
-     * Runnable used to execute the request to render batched parameters
-     */
-    private val mRenderPendingRunnable = Runnable { renderPendingParameters() }
-
-    /**
-     * Runnable used to execute the request to clear buffer content on screen
-     */
-    private val mClearContentsRunnable = Runnable {
-        mFrameBufferRenderer.clear()
-        obtainFrameBufferTarget().requestRender()
-    }
-
-    /**
-     * SurfaceTextureRenderer used to render contents of a RenderNode into a SurfaceTexture
-     * that is then rendered into a HardwareBuffer for consumption
-     */
-    private val mSurfaceTextureRenderer = SurfaceTextureRenderer(
-            mRenderNode,
-            width,
-            height,
-            mMainHandler
-        ) { texture ->
-            mSurfaceTexture = texture
-            obtainFrameBufferTarget().requestRender()
-        }
-
-    /**
-     * Helper method to request the provided RenderNode content to be drawn on the texture
-     * rendering thread
-     */
-    internal fun dispatchRenderTextureRequest() {
-        executor.execute(mRenderPendingRunnable)
-    }
-
-    /**
-     * Helper method to request clearing the contents of the destination HardwareBuffer
-     */
-    private fun dispatchClearRequest() {
-        executor.execute(mClearContentsRunnable)
-    }
-
-    /**
-     * Maximum number of pending renders to the SurfaceTexture before we queue up parameters
-     * and wait for the consumer to catch up. Some devices have very fast input sampling rates
-     * which make the producing side much faster than the consuming side. We batch the pending
-     * parameters and when the consuming side catches up, we batch and render all the pending
-     * parameters into the SurfaceTexture that then gets drawn into the destination HardwareBuffer.
-     * This ensures we don't drop any attempts to render.
-     */
-    private val mMaxPendingBuffers = 2
-
-    /**
-     * Keep track of the number of pending renders of the source SurfaceTexture to the destination
-     * HardwareBuffer
-     */
-    private val mPendingBuffers = AtomicInteger(0)
+            override fun render(canvas: Canvas, width: Int, height: Int, param: T) {
+                callbacks.render(canvas, width, height, param)
+            }
+        })
 
     /**
      * Source SurfaceTexture that the destination of content to be rendered from the provided
@@ -206,6 +146,7 @@ internal class SingleBufferedCanvasRendererV29<T>(
                     // texture.updateTexImage is called within QuadTextureRenderer#draw
                     obtainQuadRenderer().draw(mProjection, width.toFloat(), height.toFloat())
                     texture.releaseTexImage()
+                    mProducer.markTextureConsumed()
                 }
             }
 
@@ -222,21 +163,8 @@ internal class SingleBufferedCanvasRendererV29<T>(
                         IntBuffer.wrap(IntArray(1)))
                 }
 
-                val state = mState.get()
-                if (state != RELEASED) {
-                    executor.execute {
-                        callbacks.onBufferReady(frameBuffer.hardwareBuffer, syncFenceCompat)
-                    }
-                }
-                val pending = mPendingBuffers.decrementAndGet()
-                if (state == PENDING_RELEASE && pending <= 0) {
-                    mMainHandler.post(::tearDown)
-                } else {
-                    // After rendering see if there are additional queued content to render
-                    // If all images within the SurfaceTexture are pending being drawn into the
-                    // destination HardwareBuffer, they are queued up to be batch rendered after
-                    // texture image has been released
-                    dispatchRenderTextureRequest()
+                mProducer.execute {
+                    callbacks.onBufferReady(frameBuffer.hardwareBuffer, syncFenceCompat)
                 }
             }
         },
@@ -248,52 +176,18 @@ internal class SingleBufferedCanvasRendererV29<T>(
      */
     private val mGLRenderer = GLRenderer().apply { start() }
 
-    /**
-     * Thread safe queue of parameters to be consumed in on the texture render thread that are
-     * provided in [SingleBufferedCanvasRenderer.render]
-     */
-    private val mParams = ParamQueue<T>()
-
-    /**
-     * State to determine if [release] has been called on this [SingleBufferedCanvasRendererV29]
-     * instance. If true, all subsequent operations are a no-op
-     */
-    private val mState = AtomicInteger(ACTIVE)
-
-    /**
-     * Pending release callback to be invoked when the renderer is torn down
-     */
-    private var mReleaseComplete: (() -> Unit)? = null
+    private var mFrameBufferTarget: GLRenderer.RenderTarget =
+        mGLRenderer.createRenderTarget(width, height, mFrameBufferRenderer)
 
     /**
      * Flag to maintain visibility state on the main thread
      */
     private var mIsVisible = false
 
-    private fun isReleased(): Boolean {
-        val state = mState.get()
-        return state == RELEASED || state == PENDING_RELEASE
-    }
-
-    @WorkerThread
-    internal fun renderPendingParameters() {
-        val pending = mPendingBuffers.get()
-        // If there are pending requests to draw and we are not waiting on the consuming side
-        // to catch up, then render content in the RenderNode and issue a request to draw into
-        // the SurfaceTexture
-        if (pending < mMaxPendingBuffers) {
-            val params = mParams.release()
-            if (params.isNotEmpty()) {
-                val canvas = mRenderNode.beginRecording()
-                for (p in params) {
-                    callbacks.render(canvas, width, height, p)
-                }
-                mRenderNode.endRecording()
-                mPendingBuffers.incrementAndGet()
-                mSurfaceTextureRenderer.renderFrame()
-            }
-        }
-    }
+    /**
+     * Flag to determine if the SingleBufferedCanvasRenderer instance has been released
+     */
+    private var mIsReleased = false
 
     override var isVisible: Boolean
         set(value) {
@@ -306,77 +200,62 @@ internal class SingleBufferedCanvasRendererV29<T>(
 
     private var mFrontBufferLayer: FrameBuffer? = null
 
-    private fun obtainFrameBufferTarget(): GLRenderer.RenderTarget =
-        mFrameBufferTarget ?: mGLRenderer.createRenderTarget(width, height, mFrameBufferRenderer)
-            .also { mFrameBufferTarget = it }
-
-    private var mFrameBufferTarget: GLRenderer.RenderTarget? = null
-
     override fun render(param: T) {
-        ifNotReleased {
-            mParams.add(param)
-            if (mPendingBuffers.get() < mMaxPendingBuffers) {
-                dispatchRenderTextureRequest()
-            }
+        if (!mIsReleased) {
+            mProducer.requestRender(param)
+        } else {
+            Log.w(TAG, "Attempt to render with CanvasRenderer that has already been released")
         }
     }
 
     override fun release(cancelPending: Boolean, onReleaseComplete: (() -> Unit)?) {
-        ifNotReleased {
-            mReleaseComplete = onReleaseComplete
-            if (cancelPending || !isPendingRendering()) {
-                mState.set(RELEASED)
-                cancelPending()
-                tearDown()
-            } else {
-                mState.set(PENDING_RELEASE)
+        if (!mIsReleased) {
+            if (cancelPending) {
+                mProducer.cancelPending()
             }
+            mProducer.release(cancelPending) {
+                // If the producer is torn down after all pending requests are completed
+                // then there is nothing left for the render target to consume so
+                // detach immediately
+                mFrameBufferTarget.detach(true) {
+                    // GL Thread
+                    mQuadRenderer?.release()
+                    if (mTextureId != -1) {
+                        buffer[0] = mTextureId
+                        GLES20.glDeleteTextures(1, buffer, 0)
+                        mTextureId = -1
+                    }
+                }
+                mGLRenderer.stop(true)
+                onReleaseComplete?.invoke()
+           }
+
+            mIsReleased = true
+        } else {
+            Log.w(TAG, "Attempt to release CanvasRenderer that has already been released")
         }
     }
 
-    private fun isPendingRendering() = mParams.isEmpty() || mPendingBuffers.get() > 0
-
-    internal fun tearDown() {
-        mFrameBufferTarget?.detach(true) {
-            // GL Thread
-            mQuadRenderer?.release()
-            if (mTextureId != -1) {
-                buffer[0] = mTextureId
-                GLES20.glDeleteTextures(1, buffer, 0)
-                mTextureId = -1
-            }
-        }
-        mGLRenderer.stop(false)
-        mSurfaceTexture?.let { texture ->
-            if (!texture.isReleased) {
-                texture.release()
-            }
-        }
-        mRenderNode.discardDisplayList()
-        mSurfaceTextureRenderer.release()
-
-        mReleaseComplete?.let { callback ->
-            mMainHandler.post(callback)
-        }
+    private val mClearRunnable = Runnable {
+        mFrameBufferRenderer.clear()
+        mFrameBufferTarget.requestRender()
     }
 
     override fun cancelPending() {
-        ifNotReleased {
-            mParams.clear()
+        if (!mIsReleased) {
+            mProducer.cancelPending()
+        } else {
+            Log.w(TAG, "Attempt to cancel pending requests when the CanvasRender has " +
+                "already been released")
         }
     }
 
     override fun clear() {
-        ifNotReleased {
-            dispatchClearRequest()
-        }
-    }
-
-    private inline fun ifNotReleased(block: () -> Unit) {
-        if (!isReleased()) {
-            block()
+        if (!mIsReleased) {
+            mProducer.execute(mClearRunnable)
         } else {
-            Log.w(TAG, "Attempt to use already released renderer")
+            Log.w(TAG, "Attempt to clear contents when the CanvasRenderer has already " +
+                "been released")
         }
     }
 
@@ -385,22 +264,6 @@ internal class SingleBufferedCanvasRendererV29<T>(
     internal val forceFlush = AtomicBoolean(false)
 
     private companion object {
-
-        /**
-         * Indicates the renderer is an in active state and can render content
-         */
-        const val ACTIVE = 0
-
-        /**
-         * Indicates the renderer is released and is no longer in a valid state to render content
-         */
-        const val RELEASED = 1
-
-        /**
-         * Indicates the renderer is completing rendering of current pending frames but not accepting
-         * new requests to render
-         */
-        const val PENDING_RELEASE = 2
 
         const val TAG = "SingleBufferedCanvasV29"
     }

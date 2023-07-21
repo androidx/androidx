@@ -81,6 +81,10 @@ internal fun AtomicInt.postIncrement(): Int = add(1) - 1
 
 internal expect fun ensureMutable(it: Any)
 
+internal expect class WeakReference<T : Any>(reference: T) {
+    fun get(): T?
+}
+
 @MustBeDocumented
 @Retention(AnnotationRetention.SOURCE)
 @Target(

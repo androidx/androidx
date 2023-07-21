@@ -42,6 +42,7 @@ import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
 
 import org.junit.After;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Rule;
 
@@ -71,6 +72,15 @@ abstract class MediaPlayerTestBase extends MediaTestBase {
 
     List<AssetFileDescriptor> mFdsToClose = new ArrayList<>();
 
+    private void isBuggyDeviceForPlayback() {
+        if (Build.MODEL.contains("Android SDK built for arm64")) {
+            Assume.assumeTrue(
+                    "Emulators API 26 and 28 have a bug for playback b/272341857",
+                    Build.VERSION.SDK_INT != 26 && Build.VERSION.SDK_INT != 28
+            );
+        }
+    }
+
     @Before
     @CallSuper
     public void setUp() throws Throwable {
@@ -91,6 +101,7 @@ abstract class MediaPlayerTestBase extends MediaTestBase {
         mContext = mActivityRule.getActivity();
         mResources = mContext.getResources();
         mExecutor = Executors.newFixedThreadPool(1);
+        isBuggyDeviceForPlayback();
     }
 
     @After

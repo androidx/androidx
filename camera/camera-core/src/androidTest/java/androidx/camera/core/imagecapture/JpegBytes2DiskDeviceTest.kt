@@ -19,22 +19,20 @@ package androidx.camera.core.imagecapture
 import android.graphics.BitmapFactory
 import android.graphics.ImageFormat
 import android.graphics.Matrix
-import androidx.camera.core.imagecapture.Utils.CAMERA_CAPTURE_RESULT
-import androidx.camera.core.imagecapture.Utils.HEIGHT
-import androidx.camera.core.imagecapture.Utils.ROTATION_DEGREES
-import androidx.camera.core.imagecapture.Utils.WIDTH
-import androidx.camera.core.imagecapture.Utils.TEMP_FILE
-
 import android.graphics.Rect
 import android.util.Size
 import androidx.camera.core.ImageCapture
+import androidx.camera.core.imagecapture.Utils.CAMERA_CAPTURE_RESULT
+import androidx.camera.core.imagecapture.Utils.HEIGHT
+import androidx.camera.core.imagecapture.Utils.ROTATION_DEGREES
+import androidx.camera.core.imagecapture.Utils.TEMP_FILE
+import androidx.camera.core.imagecapture.Utils.WIDTH
 import androidx.camera.core.impl.utils.Exif
 import androidx.camera.core.processing.Packet
 import androidx.camera.testing.ExifUtil
+import androidx.camera.testing.TestImageUtil.createBitmap
 import androidx.camera.testing.TestImageUtil.createJpegBytes
 import androidx.camera.testing.TestImageUtil.getAverageDiff
-import androidx.camera.testing.TestImageUtil.createBitmap
-
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest

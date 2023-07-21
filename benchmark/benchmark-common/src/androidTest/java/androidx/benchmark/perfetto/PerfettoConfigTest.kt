@@ -20,16 +20,16 @@ import androidx.benchmark.Packages
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
+import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
+import kotlin.test.assertFalse
+import kotlin.test.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import perfetto.protos.DataSourceConfig
 import perfetto.protos.FtraceConfig
 import perfetto.protos.TraceConfig
-import kotlin.test.assertEquals
-import kotlin.test.assertFailsWith
-import kotlin.test.assertFalse
-import kotlin.test.assertNotNull
 
 @RunWith(AndroidJUnit4::class)
 @SmallTest

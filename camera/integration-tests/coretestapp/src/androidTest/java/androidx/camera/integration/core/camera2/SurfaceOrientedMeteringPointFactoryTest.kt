@@ -133,6 +133,7 @@ class SurfaceOrientedMeteringPointFactoryTest(
             }
     }
 
+    @Suppress("DEPRECATION") // test for legacy resolution API
     @Test(expected = IllegalStateException::class)
     fun createPointWithFoVUseCase_FailedNotBound() {
         Assume.assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_BACK))

@@ -106,6 +106,7 @@ object Debug {
             when (graphConfig.sessionMode) {
                 CameraGraph.OperatingMode.HIGH_SPEED -> "High Speed"
                 CameraGraph.OperatingMode.NORMAL -> "Normal"
+                CameraGraph.OperatingMode.EXTENSION -> "Extension"
             }
 
         val capabilities = metadata[REQUEST_AVAILABLE_CAPABILITIES]
@@ -136,6 +137,7 @@ object Debug {
                         output.timestampBase?.let { append(" [$it]") }
                         output.dynamicRangeProfile?.let { append(" [$it]") }
                         output.streamUseCase?.let { append(" [$it]") }
+                        output.streamUseHint?.let { append(" [$it]") }
                         if (output.camera != graphConfig.camera) {
                             append(" [")
                             append(output.camera)

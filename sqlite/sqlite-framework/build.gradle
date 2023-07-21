@@ -37,7 +37,7 @@ dependencies {
 }
 
 androidx {
-    name = "Android Support SQLite - Framework Implementation"
+    name = "SQLite Framework Integration"
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2017"
     description = "The implementation of Support SQLite library using the framework code."

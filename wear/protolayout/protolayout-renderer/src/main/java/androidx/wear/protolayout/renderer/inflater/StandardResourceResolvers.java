@@ -16,6 +16,7 @@
 
 package androidx.wear.protolayout.renderer.inflater;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.Resources;
 
@@ -37,6 +38,7 @@ public class StandardResourceResolvers {
      * @param appContext Context for the app that both owns the resources and displays the layout.
      * @param asyncLoadExecutor The executor to use to load any async resources (e.g. Content URI).
      */
+    @SuppressLint("CheckResult")
     @NonNull
     public static ResourceResolvers.Builder forLocalApp(
             @NonNull ResourceProto.Resources protoResources,
@@ -88,7 +90,8 @@ public class StandardResourceResolvers {
     }
 
     /**
-     * Get a builder pre-populated with resolvers resources hosted within another app on the device.
+     * Get a builder pre-populated with resolvers for the resources of a {@link TileService}, hosted
+     * within another app on the device.
      *
      * <p>Use {@code setFooAccessor} calls to change the pre-populated ones or add others.
      *
@@ -100,6 +103,7 @@ public class StandardResourceResolvers {
      * @param animationEnabled Whether animation is enabled, which decides whether to load AVD
      *     resources.
      */
+    @SuppressLint("CheckResult")
     @NonNull
     public static ResourceResolvers.Builder forRemoteService(
             @NonNull ResourceProto.Resources protoResources,

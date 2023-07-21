@@ -19,12 +19,15 @@ package androidx.graphics
 import android.graphics.Color
 import android.graphics.RenderNode
 import android.graphics.SurfaceTexture
+import android.opengl.GLES20
 import android.os.Build
 import android.os.Handler
 import android.os.HandlerThread
 import android.os.Looper
 import androidx.annotation.RequiresApi
 import androidx.graphics.SurfaceTextureRendererTest.TestHelpers.Companion.createSurfaceTextureRenderer
+import androidx.graphics.opengl.GLRenderer
+import androidx.graphics.opengl.egl.EGLManager
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
@@ -81,6 +84,67 @@ class SurfaceTextureRendererTest {
                 // NO-OP
             }
             renderer.release()
+            renderer.release()
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
+    @Test
+    fun testMultipleRenderFramesRequests() {
+        withHandlerThread { handler ->
+            var renderLatch = CountDownLatch(1)
+            val glRenderer = GLRenderer().apply { start() }
+            val node = RenderNode("node").apply {
+                setPosition(0, 0, TEST_WIDTH, TEST_HEIGHT)
+            }
+            var attached = false
+            var texture: SurfaceTexture? = null
+            val target = glRenderer.createRenderTarget(
+                TEST_WIDTH,
+                TEST_HEIGHT,
+                object : GLRenderer.RenderCallback {
+                    override fun onDrawFrame(eglManager: EGLManager) {
+                        if (!attached) {
+                            val tex = IntArray(1)
+                            GLES20.glGenTextures(1, tex, 0)
+                            texture!!.attachToGLContext(tex[0])
+                            attached = true
+                        }
+
+                        texture!!.updateTexImage()
+                        renderLatch.countDown()
+                    }
+                })
+            val renderer = createSurfaceTextureRenderer(renderNode = node, handler = handler) {
+                    surfaceTexture ->
+                texture = surfaceTexture
+                target.requestRender()
+            }
+
+            var canvas = node.beginRecording()
+            canvas.drawColor(Color.RED)
+            node.endRecording()
+
+            renderer.renderFrame() // 1
+
+            canvas = node.beginRecording()
+            canvas.drawColor(Color.YELLOW)
+            node.endRecording()
+
+            renderer.renderFrame() // 2
+
+            assertTrue(renderLatch.await(3000, TimeUnit.MILLISECONDS))
+
+            canvas = node.beginRecording()
+            canvas.drawColor(Color.BLUE)
+            node.endRecording()
+
+            renderLatch = CountDownLatch(1)
+
+            renderer.renderFrame() // 3
+
+            assertTrue(renderLatch.await(3000, TimeUnit.MILLISECONDS))
+
             renderer.release()
         }
     }

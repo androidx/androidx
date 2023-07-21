@@ -27,9 +27,11 @@ import org.gradle.api.GradleException
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.Directory
 import org.gradle.api.file.DirectoryProperty
+import org.gradle.api.file.FileSystemLocation
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
+import org.gradle.api.provider.SetProperty
 import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputDirectory
@@ -60,6 +62,13 @@ abstract class StableAidlCheckApi : DefaultTask() {
     @get:InputFiles
     @get:PathSensitive(PathSensitivity.RELATIVE)
     abstract val importDirs: ListProperty<Directory>
+
+    /**
+     * List of file system locations containing AIDL sources available as imports from dependencies.
+     */
+    @get:InputFiles
+    @get:PathSensitive(PathSensitivity.RELATIVE)
+    abstract val dependencyImportDirs: SetProperty<FileSystemLocation>
 
     @get:InputFile
     @get:PathSensitive(PathSensitivity.NONE)
@@ -116,7 +125,8 @@ abstract class StableAidlCheckApi : DefaultTask() {
             aidlExecutable.get().asFile,
             aidlFrameworkProvider.get().asFile,
             extraArgs,
-            importDirs.get()
+            importDirs.get(),
+            dependencyImportDirs.get().map { it.asFile }
         )
     }
 
@@ -161,12 +171,13 @@ abstract class StableAidlCheckApi : DefaultTask() {
             aidlExecutable: File,
             frameworkLocation: File,
             extraArgs: List<String>,
-            fullImportList: Collection<Directory>,
+            projectImportList: Collection<Directory>,
+            dependencyImportList: Collection<File>
         ) {
             workerExecutor.noIsolation().submit(StableAidlCheckApiRunnable::class.java) {
                 it.aidlExecutable.set(aidlExecutable)
                 it.frameworkLocation.set(frameworkLocation)
-                it.importFolders.from(fullImportList)
+                it.importFolders.from(projectImportList, dependencyImportList)
                 it.extraArgs.set(extraArgs)
             }
         }

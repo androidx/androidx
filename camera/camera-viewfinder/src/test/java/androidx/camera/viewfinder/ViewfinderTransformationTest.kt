@@ -23,9 +23,9 @@ import android.util.Size
 import android.view.Surface
 import android.view.View
 import androidx.camera.viewfinder.CameraViewfinder.ScaleType
-import androidx.camera.viewfinder.internal.utils.TransformUtils.sizeToVertices
 import androidx.camera.viewfinder.internal.transform.Rotation.RotationValue
 import androidx.camera.viewfinder.internal.transform.TransformationInfo
+import androidx.camera.viewfinder.internal.utils.TransformUtils.sizeToVertices
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import kotlin.math.roundToInt

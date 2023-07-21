@@ -86,7 +86,7 @@ class GlobalSearchSessionImpl implements GlobalSearchSession {
     public ListenableFuture<AppSearchBatchResult<String, GenericDocument>> getByDocumentIdAsync(
             @NonNull String packageName, @NonNull String databaseName,
             @NonNull GetByDocumentIdRequest request) {
-        if (!BuildCompat.isAtLeastT()) {
+        if (Build.VERSION.SDK_INT < 33) {
             throw new UnsupportedOperationException(Features.GLOBAL_SEARCH_SESSION_GET_BY_ID
                     + " is not supported on this AppSearch implementation.");
         }
@@ -138,7 +138,7 @@ class GlobalSearchSessionImpl implements GlobalSearchSession {
             @NonNull String databaseName) {
         // Superclass is annotated with @RequiresFeature, so we shouldn't get here on an
         // unsupported build.
-        if (!BuildCompat.isAtLeastT()) {
+        if (Build.VERSION.SDK_INT < 33) {
             throw new UnsupportedOperationException(
                     Features.GLOBAL_SEARCH_SESSION_GET_SCHEMA
                             + " is not supported on this AppSearch implementation.");
@@ -176,7 +176,7 @@ class GlobalSearchSessionImpl implements GlobalSearchSession {
         Preconditions.checkNotNull(observer);
         // Superclass is annotated with @RequiresFeature, so we shouldn't get here on an
         // unsupported build.
-        if (!BuildCompat.isAtLeastT()) {
+        if (Build.VERSION.SDK_INT < 33) {
             throw new UnsupportedOperationException(
                     Features.GLOBAL_SEARCH_SESSION_REGISTER_OBSERVER_CALLBACK
                             + " is not supported on this AppSearch implementation");
@@ -239,7 +239,7 @@ class GlobalSearchSessionImpl implements GlobalSearchSession {
         Preconditions.checkNotNull(observer);
         // Superclass is annotated with @RequiresFeature, so we shouldn't get here on an
         // unsupported build.
-        if (!BuildCompat.isAtLeastT()) {
+        if (Build.VERSION.SDK_INT < 33) {
             throw new UnsupportedOperationException(
                     Features.GLOBAL_SEARCH_SESSION_REGISTER_OBSERVER_CALLBACK
                             + " is not supported on this AppSearch implementation");

@@ -167,7 +167,8 @@ internal class LazyLayoutPrefetcher(
                     // a next frame callback in which we will post the message in the handler again.
                     if (enoughTimeLeft(beforeTimeNs, nextFrameNs, averagePrecomposeTimeNs)) {
                         val key = itemProvider.getKey(request.index)
-                        val content = itemContentFactory.getContent(request.index, key)
+                        val contentType = itemProvider.getContentType(request.index)
+                        val content = itemContentFactory.getContent(request.index, key, contentType)
                         request.precomposeHandle = subcomposeLayoutState.precompose(key, content)
                         averagePrecomposeTimeNs = calculateAverageTime(
                             System.nanoTime() - beforeTimeNs,

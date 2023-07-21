@@ -94,6 +94,8 @@ import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
+import kotlin.math.max
+import kotlin.math.roundToInt
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Before
@@ -101,8 +103,6 @@ import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import kotlin.math.max
-import kotlin.math.roundToInt
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)

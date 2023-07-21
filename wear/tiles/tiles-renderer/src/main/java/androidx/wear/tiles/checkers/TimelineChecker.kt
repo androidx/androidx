@@ -17,8 +17,6 @@
 package androidx.wear.tiles.checkers
 
 import android.util.Log
-import androidx.wear.tiles.TimelineBuilders.Timeline
-import androidx.wear.tiles.TimelineBuilders.TimelineEntry
 import kotlin.jvm.Throws
 
 /**
@@ -41,7 +39,8 @@ internal interface TimelineEntryChecker {
      * @throws CheckerException if there was an issue while checking the [TimelineEntry]
      */
     @Throws(CheckerException::class)
-    fun check(entry: TimelineEntry)
+    @Suppress("deprecation") // TODO(b/276343540): Use protolayout types
+    fun check(entry: androidx.wear.tiles.TimelineBuilders.TimelineEntry)
 }
 
 /**
@@ -58,7 +57,8 @@ internal class TimelineChecker(
     }
 
     /** Check a given [Timeline] against all registered [TimelineEntryChecker]s. */
-    public fun doCheck(timeline: Timeline) {
+    @Suppress("deprecation") // TODO(b/276343540): Use protolayout types
+    public fun doCheck(timeline: androidx.wear.tiles.TimelineBuilders.Timeline) {
         timeline.timelineEntries.forEach { entry ->
             entryCheckers.forEach {
                 try {

@@ -155,7 +155,25 @@ public final class EncoderProfilesUtil {
             int videoFrameWidth,
             int videoFrameHeight
     ) {
-        VideoProfileProxy videoProfile = VideoProfileProxy.create(
+        VideoProfileProxy videoProfile = createFakeVideoProfileProxy(videoFrameWidth,
+                videoFrameHeight);
+        AudioProfileProxy audioProfile = createFakeAudioProfileProxy();
+
+        return ImmutableEncoderProfilesProxy.create(
+                DEFAULT_DURATION,
+                DEFAULT_OUTPUT_FORMAT,
+                Collections.singletonList(audioProfile),
+                Collections.singletonList(videoProfile)
+        );
+    }
+
+    /** A utility method to create a VideoProfileProxy with some default values. */
+    @NonNull
+    public static VideoProfileProxy createFakeVideoProfileProxy(
+            int videoFrameWidth,
+            int videoFrameHeight
+    ) {
+        return VideoProfileProxy.create(
                 DEFAULT_VIDEO_CODEC,
                 DEFAULT_VIDEO_MEDIA_TYPE,
                 DEFAULT_VIDEO_BITRATE,
@@ -167,20 +185,18 @@ public final class EncoderProfilesUtil {
                 DEFAULT_VIDEO_CHROMA_SUBSAMPLING,
                 DEFAULT_VIDEO_HDR_FORMAT
         );
-        AudioProfileProxy audioProfile = AudioProfileProxy.create(
+    }
+
+    /** A utility method to create an AudioProfileProxy with some default values. */
+    @NonNull
+    public static AudioProfileProxy createFakeAudioProfileProxy() {
+        return AudioProfileProxy.create(
                 DEFAULT_AUDIO_CODEC,
                 DEFAULT_AUDIO_MEDIA_TYPE,
                 DEFAULT_AUDIO_BITRATE,
                 DEFAULT_AUDIO_SAMPLE_RATE,
                 DEFAULT_AUDIO_CHANNELS,
                 DEFAULT_AUDIO_PROFILE
-        );
-
-        return ImmutableEncoderProfilesProxy.create(
-                DEFAULT_DURATION,
-                DEFAULT_OUTPUT_FORMAT,
-                Collections.singletonList(audioProfile),
-                Collections.singletonList(videoProfile)
         );
     }
 

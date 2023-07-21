@@ -1068,6 +1068,10 @@ public class MenuBuilder implements SupportMenu {
         }
     }
 
+    public boolean isDispatchingItemsChanged() {
+        return !mPreventDispatchingItemsChanged;
+    }
+
     /**
      * Stop dispatching item changed events to presenters until
      * {@link #startDispatchingItemsChanged()} is called. Useful when

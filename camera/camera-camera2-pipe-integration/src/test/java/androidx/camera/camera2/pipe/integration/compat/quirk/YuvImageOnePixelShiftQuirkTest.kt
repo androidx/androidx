@@ -46,7 +46,10 @@ class YuvImageOnePixelShiftQuirkTest(
             FakeCameraMetadata(),
             StreamConfigurationMapCompat(
                 StreamConfigurationMapBuilder.newBuilder().build(),
-                OutputSizesCorrector(FakeCameraMetadata())
+                OutputSizesCorrector(
+                    FakeCameraMetadata(),
+                    StreamConfigurationMapBuilder.newBuilder().build()
+                )
             )
         ).quirks
 

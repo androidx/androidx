@@ -37,7 +37,7 @@ dependencies {
 }
 
 androidx {
-    name = "Android Lifecycle WorkManager Hilt Extension"
+    name = "WorkManager Hilt Extension"
     publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.HILT
     inceptionYear = "2020"

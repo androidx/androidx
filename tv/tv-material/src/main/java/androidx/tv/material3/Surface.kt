@@ -28,6 +28,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.NonRestartableComposable
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -56,6 +57,48 @@ import androidx.tv.material3.tokens.Elevation
 import kotlinx.coroutines.launch
 
 /**
+ * The [Surface] is a building block component that will be used for any element on TV such as
+ * buttons, cards, navigation, or a simple background etc. This non-interactive Surface is similar
+ * to Compose Material's Surface composable
+ *
+ * @param modifier Modifier to be applied to the layout corresponding to the surface
+ * @param tonalElevation When [color] is [ColorScheme.surface], a higher the elevation will result
+ * in a darker color in light theme and lighter color in dark theme.
+ * @param shape Defines the surface's shape.
+ * @param colors Defines the background & content color to be used in this Surface.
+ * See [NonInteractiveSurfaceDefaults.colors].
+ * @param border Defines a border around the Surface.
+ * @param glow Diffused shadow to be shown behind the Surface.
+ * @param content defines the [Composable] content inside the surface
+ */
+@ExperimentalTvMaterial3Api
+@NonRestartableComposable
+@Composable
+fun Surface(
+    modifier: Modifier = Modifier,
+    tonalElevation: Dp = 0.dp,
+    shape: Shape = NonInteractiveSurfaceDefaults.shape,
+    colors: NonInteractiveSurfaceColors = NonInteractiveSurfaceDefaults.colors(),
+    border: Border = NonInteractiveSurfaceDefaults.border,
+    glow: Glow = NonInteractiveSurfaceDefaults.glow,
+    content: @Composable (BoxScope.() -> Unit)
+) {
+    SurfaceImpl(
+        modifier = modifier,
+        checked = false,
+        enabled = true,
+        tonalElevation = tonalElevation,
+        shape = shape,
+        color = colors.containerColor,
+        contentColor = colors.contentColor,
+        scale = 1.0f,
+        border = border,
+        glow = glow,
+        content = content
+    )
+}
+
+/**
  * The [Surface] is a building block component that will be used for any focusable
  * element on TV such as buttons, cards, navigation, etc. This clickable Surface is similar to
  * Compose Material's Surface composable but will have more functionality that will make focus
@@ -70,8 +113,8 @@ import kotlinx.coroutines.launch
  * @param tonalElevation When [color] is [ColorScheme.surface], a higher the elevation will result
  * in a darker color in light theme and lighter color in dark theme.
  * @param shape Defines the surface's shape.
- * @param color Color to be used on background of the Surface
- * @param contentColor The preferred content color provided by this Surface to its children.
+ * @param colors Defines the background & content colors to be used in this surface for different
+ * interaction states. See [ClickableSurfaceDefaults.colors].
  * @param scale Defines size of the Surface relative to its original size.
  * @param border Defines a border around the Surface.
  * @param glow Diffused shadow to be shown behind the Surface.
@@ -89,8 +132,7 @@ fun Surface(
     enabled: Boolean = true,
     tonalElevation: Dp = 0.dp,
     shape: ClickableSurfaceShape = ClickableSurfaceDefaults.shape(),
-    color: ClickableSurfaceColor = ClickableSurfaceDefaults.color(),
-    contentColor: ClickableSurfaceColor = ClickableSurfaceDefaults.contentColor(),
+    colors: ClickableSurfaceColors = ClickableSurfaceDefaults.colors(),
     scale: ClickableSurfaceScale = ClickableSurfaceDefaults.scale(),
     border: ClickableSurfaceBorder = ClickableSurfaceDefaults.border(),
     glow: ClickableSurfaceGlow = ClickableSurfaceDefaults.glow(),
@@ -114,17 +156,17 @@ fun Surface(
             pressed = pressed,
             shape = shape
         ),
-        color = ClickableSurfaceDefaults.color(
+        color = ClickableSurfaceDefaults.containerColor(
             enabled = enabled,
             focused = focused,
             pressed = pressed,
-            color = color
+            colors = colors
         ),
-        contentColor = ClickableSurfaceDefaults.color(
+        contentColor = ClickableSurfaceDefaults.contentColor(
             enabled = enabled,
             focused = focused,
             pressed = pressed,
-            color = contentColor
+            colors = colors
         ),
         scale = ClickableSurfaceDefaults.scale(
             enabled = enabled,
@@ -171,8 +213,8 @@ fun Surface(
  * @param tonalElevation When [color] is [ColorScheme.surface], a higher the elevation will result
  * in a darker color in light theme and lighter color in dark theme.
  * @param shape Defines the surface's shape.
- * @param color Color to be used on background of the Surface
- * @param contentColor The preferred content color provided by this Surface to its children.
+ * @param colors  Defines the background & content colors to be used in this surface for different
+ * interaction states. See [ToggleableSurfaceDefaults.colors].
  * @param scale Defines size of the Surface relative to its original size.
  * @param border Defines a border around the Surface.
  * @param glow Diffused shadow to be shown behind the Surface.
@@ -191,8 +233,7 @@ fun Surface(
     enabled: Boolean = true,
     tonalElevation: Dp = Elevation.Level0,
     shape: ToggleableSurfaceShape = ToggleableSurfaceDefaults.shape(),
-    color: ToggleableSurfaceColor = ToggleableSurfaceDefaults.color(),
-    contentColor: ToggleableSurfaceColor = ToggleableSurfaceDefaults.contentColor(),
+    colors: ToggleableSurfaceColors = ToggleableSurfaceDefaults.colors(),
     scale: ToggleableSurfaceScale = ToggleableSurfaceDefaults.scale(),
     border: ToggleableSurfaceBorder = ToggleableSurfaceDefaults.border(),
     glow: ToggleableSurfaceGlow = ToggleableSurfaceDefaults.glow(),
@@ -219,19 +260,19 @@ fun Surface(
             selected = checked,
             shape = shape
         ),
-        color = ToggleableSurfaceDefaults.color(
+        color = ToggleableSurfaceDefaults.containerColor(
             enabled = enabled,
             focused = focused,
             pressed = pressed,
             selected = checked,
-            color = color
+            colors = colors
         ),
-        contentColor = ToggleableSurfaceDefaults.color(
+        contentColor = ToggleableSurfaceDefaults.contentColor(
             enabled = enabled,
             focused = focused,
             pressed = pressed,
             selected = checked,
-            color = contentColor
+            colors = colors
         ),
         scale = ToggleableSurfaceDefaults.scale(
             enabled = enabled,
@@ -272,7 +313,7 @@ private fun SurfaceImpl(
     border: Border,
     glow: Glow,
     tonalElevation: Dp,
-    interactionSource: MutableInteractionSource,
+    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     content: @Composable (BoxScope.() -> Unit)
 ) {
     val focused by interactionSource.collectIsFocusedAsState()

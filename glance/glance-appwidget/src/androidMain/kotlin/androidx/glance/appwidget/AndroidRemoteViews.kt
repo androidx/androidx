@@ -29,10 +29,14 @@ import androidx.glance.GlanceNode
  * Add [RemoteViews] into a glance composition.
  *
  * @param remoteViews the views to add to the composition.
+ * @param modifier modifier used to adjust the layout algorithm or draw decoration content.
  */
 @Composable
-fun AndroidRemoteViews(remoteViews: RemoteViews) {
-    AndroidRemoteViews(remoteViews, View.NO_ID) { }
+fun AndroidRemoteViews(
+    remoteViews: RemoteViews,
+    modifier: GlanceModifier = GlanceModifier
+) {
+    AndroidRemoteViews(remoteViews, View.NO_ID, modifier) { }
 }
 
 /**
@@ -43,11 +47,14 @@ fun AndroidRemoteViews(remoteViews: RemoteViews) {
  * pre-existing children of that view will be removed with [RemoteViews.removeAllViews], and
  * any children defined in the [content] block will be added with [RemoteViews.addView] (or
  * [RemoteViews.addStableView] if available on the system).
+ * @param modifier modifier used to adjust the layout algorithm or draw decoration content.
+ * @param content the content that will be added to the provided container.
  */
 @Composable
 fun AndroidRemoteViews(
     remoteViews: RemoteViews,
     @IdRes containerViewId: Int,
+    modifier: GlanceModifier = GlanceModifier,
     content: @Composable () -> Unit,
 ) {
     GlanceNode(
@@ -55,6 +62,7 @@ fun AndroidRemoteViews(
         update = {
             this.set(remoteViews) { this.remoteViews = it }
             this.set(containerViewId) { this.containerViewId = it }
+            this.set(modifier) { this.modifier = it }
         },
         content = content
     )

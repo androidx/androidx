@@ -22,12 +22,11 @@ import android.app.Service
 import android.content.ComponentName
 import android.content.Intent
 import android.os.Build
+import android.os.Bundle
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
 import android.os.RemoteException
-import android.support.wearable.complications.ComplicationData as WireComplicationData
-import android.os.Bundle
 import android.support.wearable.complications.ComplicationProviderInfo
 import android.support.wearable.complications.IComplicationManager
 import android.support.wearable.complications.IComplicationProvider
@@ -35,22 +34,22 @@ import androidx.annotation.IntDef
 import androidx.annotation.MainThread
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
-import androidx.annotation.VisibleForTesting
 import androidx.wear.watchface.complications.data.ComplicationData
-import androidx.wear.watchface.complications.data.ComplicationDataExpressionEvaluator
-import androidx.wear.watchface.complications.data.ComplicationDataExpressionEvaluator.Companion.hasExpression
 import androidx.wear.watchface.complications.data.ComplicationType
 import androidx.wear.watchface.complications.data.ComplicationType.Companion.fromWireType
+import androidx.wear.watchface.complications.data.GoalProgressComplicationData
+import androidx.wear.watchface.complications.data.LongTextComplicationData
+import androidx.wear.watchface.complications.data.MonochromaticImageComplicationData
 import androidx.wear.watchface.complications.data.NoDataComplicationData
+import androidx.wear.watchface.complications.data.PhotoImageComplicationData
+import androidx.wear.watchface.complications.data.RangedValueComplicationData
+import androidx.wear.watchface.complications.data.ShortTextComplicationData
+import androidx.wear.watchface.complications.data.SmallImageComplicationData
 import androidx.wear.watchface.complications.data.TimeRange
+import androidx.wear.watchface.complications.data.WeightedElementsComplicationData
 import androidx.wear.watchface.complications.datasource.ComplicationDataSourceService.Companion.METADATA_KEY_IMMEDIATE_UPDATE_PERIOD_MILLISECONDS
 import androidx.wear.watchface.complications.datasource.ComplicationDataSourceService.ComplicationRequestListener
 import java.util.concurrent.CountDownLatch
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.android.asCoroutineDispatcher
-import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.launch
 
 /**
  * Data associated with complication request in
@@ -185,9 +184,13 @@ public annotation class IsForSafeWatchFace
  *   android.support.wearable.complications.ACTION_COMPLICATION_UPDATE_REQUEST.
  * - A ComplicationDataSourceService must include a `meta-data` tag with
  *   android.support.wearable.complications.SUPPORTED_TYPES in its manifest entry. The value of this
- *   tag should be a comma separated list of types supported by the data source. Types should be
- *   given as named as per the type fields in the [ComplicationData], but omitting the "TYPE_"
- *   prefix, e.g. `SHORT_TEXT`, `LONG_TEXT`, `RANGED_VALUE`.
+ *   tag should be a comma separated list of types supported by the data source, from this table: |
+ *   Androidx class | Tag name | |--------------------------------------|-------------------| |
+ *   [GoalProgressComplicationData] | GOAL_PROGRESS | | [LongTextComplicationData] | LONG_TEXT | |
+ *   [MonochromaticImageComplicationData] | ICON | | [PhotoImageComplicationData] | LARGE_IMAGE | |
+ *   [RangedValueComplicationData] | RANGED_TEXT | | [ShortTextComplicationData] | SHORT_TEXT | |
+ *   [SmallImageComplicationData] | SMALL_IMAGE | | [WeightedElementsComplicationData] |
+ *   WEIGHTED_ELEMENTS |
  *
  * The order in which types are listed has no significance. In the case where a watch face supports
  * multiple types in a single complication slot, the watch face will determine which types it
@@ -199,6 +202,31 @@ public annotation class IsForSafeWatchFace
  * <meta-data android:name="android.support.wearable.complications.SUPPORTED_TYPES"
  * android:value="RANGED_VALUE,SHORT_TEXT,ICON"/>
  * ```
+ *
+ * From android T onwards, it is recommended for Complication DataSourceServices to be direct boot
+ * aware because the system is able to fetch complications before the lock screen has been removed.
+ * To do this add android:directBootAware="true" to your service tag.
+ * - A provider can choose to trust one or more watch faces by including the following in its
+ *   manifest entry:
+ * ```
+ * <meta-data android:name="android.support.wearable.complications.SAFE_WATCH_FACES
+ * android:value="com.pkg1/com.trusted.wf1,com.pkg2/com.trusted.wf2"/>
+ * ```
+ *
+ * The listed watch faces will not need
+ * 'com.google.android.wearable.permission.RECEIVE_COMPLICATION_DATA' in order to receive
+ * complications from this provider. Also the provider may choose to serve different types to safe
+ * watch faces by including the following in its manifest:
+ * ```
+ * <meta-data android:name=
+ *     "androidx.wear.watchface.complications.datasource.SAFE_WATCH_FACE_SUPPORTED_TYPES"
+ *      android:value="ICON"/>
+ * ```
+ *
+ * In addition the provider can learn if a request is for a safe watchface by examining
+ * [ComplicationRequest.isForSafeWatchFace]. Note SAFE_WATCH_FACE_SUPPORTED_TYPES and
+ * isForSafeWatchFace are gated behind the privileged permission
+ * `com.google.wear.permission.GET_IS_FOR_SAFE_WATCH_FACE`.
  * - A ComplicationDataSourceService should include a `meta-data` tag with
  *   android.support.wearable.complications.UPDATE_PERIOD_SECONDS its manifest entry. The value of
  *   this tag is the number of seconds the complication data source would like to elapse between
@@ -274,22 +302,7 @@ public annotation class IsForSafeWatchFace
  */
 public abstract class ComplicationDataSourceService : Service() {
     private var wrapper: IComplicationProviderWrapper? = null
-    private var lastExpressionEvaluator: ComplicationDataExpressionEvaluator? = null
     internal val mainThreadHandler by lazy { createMainThreadHandler() }
-    internal val mainThreadCoroutineScope by lazy {
-        CoroutineScope(mainThreadHandler.asCoroutineDispatcher())
-    }
-
-    /**
-     * Equivalent to [Build.VERSION.SDK_INT], but allows override for any platform-independent
-     * versioning.
-     *
-     * This is meant to only be used in androidTest, which only support testing on one SDK. In
-     * Robolectric tests use `@Config(sdk = [Build.VERSION_CODES.*])`.
-     *
-     * Note that this cannot override platform-dependent versioning, which means inconsistency.
-     */
-    @VisibleForTesting internal open val wearPlatformVersion = Build.VERSION.SDK_INT
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     open fun createMainThreadHandler() = Handler(Looper.getMainLooper())
@@ -303,11 +316,6 @@ public abstract class ComplicationDataSourceService : Service() {
             return wrapper
         }
         return null
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        lastExpressionEvaluator?.close()
     }
 
     /**
@@ -441,12 +449,7 @@ public abstract class ComplicationDataSourceService : Service() {
     private inner class IComplicationProviderWrapper : IComplicationProvider.Stub() {
         @SuppressLint("SyntheticAccessor")
         override fun onUpdate(complicationInstanceId: Int, type: Int, manager: IBinder) {
-            onUpdate2(
-                complicationInstanceId,
-                type,
-                manager,
-                bundle = null
-            )
+            onUpdate2(complicationInstanceId, type, manager, bundle = null)
         }
 
         @SuppressLint("SyntheticAccessor")
@@ -456,10 +459,12 @@ public abstract class ComplicationDataSourceService : Service() {
             manager: IBinder,
             bundle: Bundle?
         ) {
-            val isForSafeWatchFace = bundle?.getInt(
-                IComplicationProvider.BUNDLE_KEY_IS_SAFE_FOR_WATCHFACE,
-                TargetWatchFaceSafety.UNKNOWN
-            ) ?: TargetWatchFaceSafety.UNKNOWN
+            val isForSafeWatchFace =
+                bundle?.getInt(
+                    IComplicationProvider.BUNDLE_KEY_IS_SAFE_FOR_WATCHFACE,
+                    TargetWatchFaceSafety.UNKNOWN
+                )
+                    ?: TargetWatchFaceSafety.UNKNOWN
             val expectedDataType = fromWireType(type)
             val iComplicationManager = IComplicationManager.Stub.asInterface(manager)
             mainThreadHandler.post {
@@ -496,8 +501,11 @@ public abstract class ComplicationDataSourceService : Service() {
                                     }
                                 }
                             }
-
-                            complicationData?.asWireComplicationData().evaluateAndUpdateManager()
+                            // When no update is needed, the complicationData is going to be null.
+                            iComplicationManager.updateComplicationData(
+                                complicationInstanceId,
+                                complicationData?.asWireComplicationData()
+                            )
                         }
 
                         override fun onComplicationDataTimeline(
@@ -551,51 +559,14 @@ public abstract class ComplicationDataSourceService : Service() {
                                     }
                                 }
                             }
-                            complicationDataTimeline
-                                ?.asWireComplicationData()
-                                .evaluateAndUpdateManager()
-                        }
-
-                        private fun WireComplicationData?.evaluateAndUpdateManager() {
-                            lastExpressionEvaluator?.close() // Cancelling any previous evaluation.
-                            if (
-                                // Will be evaluated by the platform.
-                                // TODO(b/257422920): Set this to the exact platform version.
-                                wearPlatformVersion >= Build.VERSION_CODES.TIRAMISU + 1 ||
-                                    // When no update is needed, the data is going to be null.
-                                    this == null
-                            ) {
-                                iComplicationManager.updateComplicationData(
-                                    complicationInstanceId,
-                                    this
-                                )
-                                return
-                            }
-                            lastExpressionEvaluator =
-                                ComplicationDataExpressionEvaluator(this).apply {
-                                    init()
-                                    listenAndUpdateManager(
-                                        iComplicationManager,
-                                        complicationInstanceId,
-                                    )
-                                }
+                            // When no update is needed, the complicationData is going to be null.
+                            iComplicationManager.updateComplicationData(
+                                complicationInstanceId,
+                                complicationDataTimeline?.asWireComplicationData()
+                            )
                         }
                     }
                 )
-            }
-        }
-
-        private fun ComplicationDataExpressionEvaluator.listenAndUpdateManager(
-            iComplicationManager: IComplicationManager,
-            complicationInstanceId: Int,
-        ) {
-            mainThreadCoroutineScope.launch {
-                // Doing one-off evaluation, the service will be re-invoked.
-                iComplicationManager.updateComplicationData(
-                    complicationInstanceId,
-                    data.filterNotNull().first()
-                )
-                close()
             }
         }
 
@@ -640,7 +611,7 @@ public abstract class ComplicationDataSourceService : Service() {
                 require(complicationData.validTimeRange == TimeRange.ALWAYS) {
                     "Preview data should have time range set to ALWAYS."
                 }
-                require(!hasExpression(complicationData.asWireComplicationData())) {
+                require(!complicationData.asWireComplicationData().hasExpression()) {
                     "Preview data must not have expressions."
                 }
             }
@@ -664,21 +635,19 @@ public abstract class ComplicationDataSourceService : Service() {
         }
 
         override fun onSynchronousComplicationRequest(complicationInstanceId: Int, type: Int) =
-            onSynchronousComplicationRequest2(
-                complicationInstanceId,
-                type,
-                bundle = null
-            )
+            onSynchronousComplicationRequest2(complicationInstanceId, type, bundle = null)
 
         override fun onSynchronousComplicationRequest2(
             complicationInstanceId: Int,
             type: Int,
             bundle: Bundle?
         ): android.support.wearable.complications.ComplicationData? {
-            val isForSafeWatchFace = bundle?.getInt(
-                IComplicationProvider.BUNDLE_KEY_IS_SAFE_FOR_WATCHFACE,
-                TargetWatchFaceSafety.UNKNOWN
-            ) ?: TargetWatchFaceSafety.UNKNOWN
+            val isForSafeWatchFace =
+                bundle?.getInt(
+                    IComplicationProvider.BUNDLE_KEY_IS_SAFE_FOR_WATCHFACE,
+                    TargetWatchFaceSafety.UNKNOWN
+                )
+                    ?: TargetWatchFaceSafety.UNKNOWN
             val expectedDataType = fromWireType(type)
             val complicationType = fromWireType(type)
             val latch = CountDownLatch(1)
@@ -784,6 +753,20 @@ public abstract class ComplicationDataSourceService : Service() {
         // TODO(b/192233205): Migrate value to androidx.
         public const val METADATA_KEY_SUPPORTED_TYPES: String =
             "android.support.wearable.complications.SUPPORTED_TYPES"
+
+        /**
+         * Metadata key used to declare supported complication types for safe watch faces.
+         *
+         * Gated behind the privileged permission
+         * `com.google.wear.permission.GET_IS_FOR_SAFE_WATCH_FACE', this overrides the
+         * [METADATA_KEY_SUPPORTED_TYPES] list for 'safe' watch faces. I.e. watch faces in the
+         * [METADATA_KEY_SAFE_WATCH_FACES] metadata list.
+         *
+         * This means for example trusted watch faces could receive [ComplicationType.SHORT_TEXT]
+         * and untrusted ones [ComplicationType.MONOCHROMATIC_IMAGE].
+         */
+        public const val METADATA_KEY_SAFE_WATCH_FACE_SUPPORTED_TYPES: String =
+            "androidx.wear.watchface.complications.datasource.SAFE_WATCH_FACE_SUPPORTED_TYPES"
 
         /**
          * Metadata key used to declare the requested frequency of update requests.

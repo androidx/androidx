@@ -287,13 +287,16 @@ public final class DeletionDao_Impl implements DeletionDao {
         final SupportSQLiteStatement _stmt = __preparedStmtOfDeleteByUid.acquire();
         int _argIndex = 1;
         _stmt.bindLong(_argIndex, uid);
-        __db.beginTransaction();
         try {
-            final int _result = _stmt.executeUpdateDelete();
-            __db.setTransactionSuccessful();
-            return _result;
+            __db.beginTransaction();
+            try {
+                final int _result = _stmt.executeUpdateDelete();
+                __db.setTransactionSuccessful();
+                return _result;
+            } finally {
+                __db.endTransaction();
+            }
         } finally {
-            __db.endTransaction();
             __preparedStmtOfDeleteByUid.release(_stmt);
         }
     }
@@ -307,13 +310,16 @@ public final class DeletionDao_Impl implements DeletionDao {
                 final SupportSQLiteStatement _stmt = __preparedStmtOfDeleteByUid.acquire();
                 int _argIndex = 1;
                 _stmt.bindLong(_argIndex, uid);
-                __db.beginTransaction();
                 try {
-                    _stmt.executeUpdateDelete();
-                    __db.setTransactionSuccessful();
-                    return null;
+                    __db.beginTransaction();
+                    try {
+                        _stmt.executeUpdateDelete();
+                        __db.setTransactionSuccessful();
+                        return null;
+                    } finally {
+                        __db.endTransaction();
+                    }
                 } finally {
-                    __db.endTransaction();
                     __preparedStmtOfDeleteByUid.release(_stmt);
                 }
             }
@@ -329,13 +335,16 @@ public final class DeletionDao_Impl implements DeletionDao {
                 final SupportSQLiteStatement _stmt = __preparedStmtOfDeleteByUid.acquire();
                 int _argIndex = 1;
                 _stmt.bindLong(_argIndex, uid);
-                __db.beginTransaction();
                 try {
-                    final Integer _result = _stmt.executeUpdateDelete();
-                    __db.setTransactionSuccessful();
-                    return _result;
+                    __db.beginTransaction();
+                    try {
+                        final Integer _result = _stmt.executeUpdateDelete();
+                        __db.setTransactionSuccessful();
+                        return _result;
+                    } finally {
+                        __db.endTransaction();
+                    }
                 } finally {
-                    __db.endTransaction();
                     __preparedStmtOfDeleteByUid.release(_stmt);
                 }
             }
@@ -351,13 +360,16 @@ public final class DeletionDao_Impl implements DeletionDao {
                 final SupportSQLiteStatement _stmt = __preparedStmtOfDeleteByUid.acquire();
                 int _argIndex = 1;
                 _stmt.bindLong(_argIndex, uid);
-                __db.beginTransaction();
                 try {
-                    final Integer _result = _stmt.executeUpdateDelete();
-                    __db.setTransactionSuccessful();
-                    return _result;
+                    __db.beginTransaction();
+                    try {
+                        final Integer _result = _stmt.executeUpdateDelete();
+                        __db.setTransactionSuccessful();
+                        return _result;
+                    } finally {
+                        __db.endTransaction();
+                    }
                 } finally {
-                    __db.endTransaction();
                     __preparedStmtOfDeleteByUid.release(_stmt);
                 }
             }
@@ -368,13 +380,16 @@ public final class DeletionDao_Impl implements DeletionDao {
     public int deleteEverything() {
         __db.assertNotSuspendingTransaction();
         final SupportSQLiteStatement _stmt = __preparedStmtOfDeleteEverything.acquire();
-        __db.beginTransaction();
         try {
-            final int _result = _stmt.executeUpdateDelete();
-            __db.setTransactionSuccessful();
-            return _result;
+            __db.beginTransaction();
+            try {
+                final int _result = _stmt.executeUpdateDelete();
+                __db.setTransactionSuccessful();
+                return _result;
+            } finally {
+                __db.endTransaction();
+            }
         } finally {
-            __db.endTransaction();
             __preparedStmtOfDeleteEverything.release(_stmt);
         }
     }

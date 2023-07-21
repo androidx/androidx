@@ -38,14 +38,18 @@ dependencies {
 }
 
 androidx {
-    name = "Slice test code"
+    name = "Slice Test Extensions"
     type = LibraryType.INTERNAL_TEST_LIBRARY
     publish = Publish.NONE // Library is deprecated pending removal.
-    disableDeviceTests = true
     mavenVersion = LibraryVersions.SLICE
     inceptionYear = "2017"
     description = "A library that holds common code for testing slices"
     failOnDeprecationWarnings = false
+
+    deviceTests {
+        // Pending removal, don't run tests.
+        enabled = false
+    }
 }
 
 android {

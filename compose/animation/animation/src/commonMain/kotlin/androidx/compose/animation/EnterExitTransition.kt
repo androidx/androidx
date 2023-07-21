@@ -36,6 +36,7 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
@@ -938,7 +939,7 @@ private val TransformOriginVectorConverter =
         convertFromVector = { TransformOrigin(it.v1, it.v2) }
     )
 
-private val DefaultAlpha = mutableStateOf(1f)
+private val DefaultAlpha = mutableFloatStateOf(1f)
 private val DefaultAlphaAndScaleSpring = spring<Float>(stiffness = Spring.StiffnessMediumLow)
 
 private fun Modifier.slideInOut(

@@ -16,10 +16,10 @@
 
 package androidx.health.services.client.data
 
-import androidx.health.services.client.proto.DataProto.PassiveGoal as PassiveGoalProto
 import androidx.annotation.IntDef
 import androidx.annotation.RestrictTo
 import androidx.health.services.client.data.PassiveGoal.TriggerFrequency.Companion.toProto
+import androidx.health.services.client.proto.DataProto.PassiveGoal as PassiveGoalProto
 
 /**
  * Defines a passive goal that will be triggered when the specified condition is met which will

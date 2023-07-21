@@ -62,7 +62,10 @@ public class AdvancedSessionProcessor extends SessionProcessorBase {
     private final SessionProcessorImpl mImpl;
     private final Context mContext;
 
-    public AdvancedSessionProcessor(@NonNull SessionProcessorImpl impl, @NonNull Context context) {
+    public AdvancedSessionProcessor(@NonNull SessionProcessorImpl impl,
+            @NonNull List<CaptureRequest.Key> supportedKeys,
+            @NonNull Context context) {
+        super(supportedKeys);
         mImpl = impl;
         mContext = context;
     }
@@ -488,6 +491,10 @@ public class AdvancedSessionProcessor extends SessionProcessorBase {
         public void onCaptureCompleted(long timestamp, int captureSequenceId,
                 Map<CaptureResult.Key, Object> result) {
             mCaptureCallback.onCaptureCompleted(timestamp, captureSequenceId, result);
+        }
+
+        @Override
+        public void onCaptureProcessProgressed(int progress) {
         }
     }
 }

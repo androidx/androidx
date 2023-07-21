@@ -18,6 +18,7 @@
 import androidx.build.BundleInsideHelper
 import androidx.build.KmpPlatformsKt
 import androidx.build.LibraryType
+import androidx.build.PlatformIdentifier
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 
@@ -35,6 +36,8 @@ androidXMultiplatform {
     mac()
     linux()
     ios()
+
+    defaultPlatform(PlatformIdentifier.JVM)
 
     sourceSets {
         all {
@@ -115,14 +118,11 @@ BundleInsideHelper.forInsideJarKmp(
 )
 
 dependencies {
-    bundleInside(project(
-            path: ":datastore:datastore-preferences-proto",
-            configuration: "export"
-    ))
+    bundleInside(project(path: ":datastore:datastore-preferences-proto", configuration: "export"))
 }
 
 androidx {
-    name = "Android Preferences DataStore Core"
+    name = "Preferences DataStore Core"
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2020"
     description = "Android Preferences DataStore without the Android Dependencies"

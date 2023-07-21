@@ -80,6 +80,7 @@ class StableAidlCompileTest {
             null,
             listOf("-x"),
             listOf(sourceFolder),
+            listOf(),
             listOf()
         )
 

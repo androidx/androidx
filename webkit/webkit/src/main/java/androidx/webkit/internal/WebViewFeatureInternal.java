@@ -46,6 +46,7 @@ import androidx.webkit.WebViewFeature;
 
 import org.chromium.support_lib_boundary.util.Features;
 
+import java.io.File;
 import java.io.OutputStream;
 import java.util.Collection;
 import java.util.HashSet;
@@ -381,7 +382,7 @@ public class WebViewFeatureInternal {
 
     /**
      * This feature covers
-     * {@link androidx.webkit.ProcessGlobalConfig#setDataDirectorySuffix(String)}.
+     * {@link androidx.webkit.ProcessGlobalConfig#setDataDirectorySuffix(Context, String)}
      */
     public static final StartupApiFeature.P STARTUP_FEATURE_SET_DATA_DIRECTORY_SUFFIX =
             new StartupApiFeature.P(WebViewFeature.STARTUP_FEATURE_SET_DATA_DIRECTORY_SUFFIX,
@@ -389,11 +390,11 @@ public class WebViewFeatureInternal {
 
     /**
      * This feature covers
-     * {@link androidx.webkit.ProcessGlobalConfig#setDirectoryBasePath(String, String)}.
+     * {@link androidx.webkit.ProcessGlobalConfig#setDirectoryBasePaths(Context, File, File)}.
      */
     public static final StartupApiFeature.NoFramework STARTUP_FEATURE_SET_DIRECTORY_BASE_PATH =
             new StartupApiFeature.NoFramework(
-                    WebViewFeature.STARTUP_FEATURE_SET_DIRECTORY_BASE_PATH,
+                    WebViewFeature.STARTUP_FEATURE_SET_DIRECTORY_BASE_PATHS,
                     StartupFeatures.STARTUP_FEATURE_SET_DIRECTORY_BASE_PATH);
 
     /**

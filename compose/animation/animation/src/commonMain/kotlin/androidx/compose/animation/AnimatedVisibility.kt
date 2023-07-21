@@ -25,6 +25,7 @@ import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.Transition
 import androidx.compose.animation.core.createChildTransition
 import androidx.compose.animation.core.updateTransition
+import androidx.compose.animation.internal.JvmDefaultWithCompatibility
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
@@ -50,7 +51,6 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastMaxBy
 import kotlinx.coroutines.flow.collect
-import androidx.compose.animation.internal.JvmDefaultWithCompatibility
 
 /**
  * [AnimatedVisibility] composable animates the appearance and disappearance of its content, as

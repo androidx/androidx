@@ -894,6 +894,7 @@ package androidx.appcompat.view.menu {
     method public androidx.appcompat.view.menu.MenuBuilder! getRootMenu();
     method public java.util.ArrayList<androidx.appcompat.view.menu.MenuItemImpl!> getVisibleItems();
     method public boolean hasVisibleItems();
+    method public boolean isDispatchingItemsChanged();
     method public boolean isGroupDividerEnabled();
     method public boolean isShortcutKey(int, android.view.KeyEvent!);
     method public boolean isShortcutsVisible();

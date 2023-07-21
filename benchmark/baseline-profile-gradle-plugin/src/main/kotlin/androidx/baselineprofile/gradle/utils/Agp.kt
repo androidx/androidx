@@ -35,3 +35,10 @@ internal fun Project.agpVersion(): AndroidPluginVersion {
             """.trimIndent()
         )
 }
+
+internal enum class AgpFeature(internal val version: AndroidPluginVersion) {
+
+    TEST_MODULE_SUPPORTS_MULTIPLE_BUILD_TYPES(
+        AndroidPluginVersion(8, 1, 0).alpha(7)
+    );
+}

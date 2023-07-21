@@ -16,8 +16,8 @@
 
 package androidx.wear.compose.integration.macrobenchmark.target
 
-import androidx.activity.ComponentActivity
 import android.os.Bundle
+import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.wear.compose.material.Text
 

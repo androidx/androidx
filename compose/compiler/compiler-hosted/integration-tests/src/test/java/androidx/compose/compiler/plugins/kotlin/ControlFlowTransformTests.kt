@@ -309,7 +309,7 @@ class ControlFlowTransformTests : AbstractControlFlowTransformTests() {
                     if (isTraceInProgress()) {
                       traceEventEnd()
                     }
-                    %composer.endRestartGroup()?.updateScope { %composer: Composer?, %force: Int ->
+                    %composer@Test.endRestartGroup()?.updateScope { %composer: Composer?, %force: Int ->
                       Test(condition, %composer, updateChangedFlags(%changed or 0b0001))
                     }
                     return
@@ -381,7 +381,7 @@ class ControlFlowTransformTests : AbstractControlFlowTransformTests() {
                     if (isTraceInProgress()) {
                       traceEventEnd()
                     }
-                    %composer.endRestartGroup()?.updateScope { %composer: Composer?, %force: Int ->
+                    %composer@Test.endRestartGroup()?.updateScope { %composer: Composer?, %force: Int ->
                       Test(a, b, %composer, updateChangedFlags(%changed or 0b0001))
                     }
                     return
@@ -397,7 +397,7 @@ class ControlFlowTransformTests : AbstractControlFlowTransformTests() {
                     if (isTraceInProgress()) {
                       traceEventEnd()
                     }
-                    %composer.endRestartGroup()?.updateScope { %composer: Composer?, %force: Int ->
+                    %composer@Test.endRestartGroup()?.updateScope { %composer: Composer?, %force: Int ->
                       Test(a, b, %composer, updateChangedFlags(%changed or 0b0001))
                     }
                     return
@@ -455,7 +455,7 @@ class ControlFlowTransformTests : AbstractControlFlowTransformTests() {
                   A(%composer, 0)
                   if (condition) {
                     sourceInformationMarkerEnd(%composer)
-                    return
+                    return@M3
                   }
                   A(%composer, 0)
                   sourceInformationMarkerEnd(%composer)
@@ -504,7 +504,7 @@ class ControlFlowTransformTests : AbstractControlFlowTransformTests() {
                         if (isTraceInProgress()) {
                           traceEventEnd()
                         }
-                        return
+                        return@composableLambdaInstance
                       }
                       sourceInformationMarkerEnd(%composer)
                     }, %composer, 0)
@@ -575,7 +575,7 @@ class ControlFlowTransformTests : AbstractControlFlowTransformTests() {
                     sourceInformationMarkerStart(%composer, <>, "C:Test.kt")
                     if (condition) {
                       sourceInformationMarkerEnd(%composer)
-                      return
+                      return@M1
                     }
                     sourceInformationMarkerEnd(%composer)
                   }, %composer, 0)
@@ -636,7 +636,7 @@ class ControlFlowTransformTests : AbstractControlFlowTransformTests() {
                     sourceInformationMarkerStart(%composer, <>, "C:Test.kt")
                     if (condition) {
                       %composer.endToMarker(tmp0_marker)
-                      return
+                      return@M3
                     }
                     sourceInformationMarkerEnd(%composer)
                   }, %composer, 0)
@@ -705,7 +705,7 @@ class ControlFlowTransformTests : AbstractControlFlowTransformTests() {
                       if (isTraceInProgress()) {
                         traceEventEnd()
                       }
-                      %composer.endRestartGroup()?.updateScope { %composer: Composer?, %force: Int ->
+                      %composer@testInline_M1_W_Return_Func.endRestartGroup()?.updateScope { %composer: Composer?, %force: Int ->
                         testInline_M1_W_Return_Func(condition, %composer, updateChangedFlags(%changed or 0b0001))
                       }
                       return
@@ -773,7 +773,7 @@ class ControlFlowTransformTests : AbstractControlFlowTransformTests() {
                   A(%composer, 0)
                   if (condition) {
                     sourceInformationMarkerEnd(%composer)
-                    return
+                    return@M3
                   }
                   A(%composer, 0)
                   sourceInformationMarkerEnd(%composer)
@@ -783,7 +783,7 @@ class ControlFlowTransformTests : AbstractControlFlowTransformTests() {
                   A(%composer, 0)
                   if (condition) {
                     sourceInformationMarkerEnd(%composer)
-                    return
+                    return@M3
                   }
                   A(%composer, 0)
                   sourceInformationMarkerEnd(%composer)
@@ -852,7 +852,7 @@ class ControlFlowTransformTests : AbstractControlFlowTransformTests() {
                       if (isTraceInProgress()) {
                         traceEventEnd()
                       }
-                      %composer.endRestartGroup()?.updateScope { %composer: Composer?, %force: Int ->
+                      %composer@test_CM1_CCM1_RetFun.endRestartGroup()?.updateScope { %composer: Composer?, %force: Int ->
                         test_CM1_CCM1_RetFun(condition, %composer, updateChangedFlags(%changed or 0b0001))
                       }
                       return
@@ -908,7 +908,7 @@ class ControlFlowTransformTests : AbstractControlFlowTransformTests() {
                 sourceInformationMarkerStart(%composer, <>, "C<A()>:Test.kt")
                 if (condition) {
                   sourceInformationMarkerEnd(%composer)
-                  return
+                  return@FakeBox
                 }
                 A(%composer, 0)
                 sourceInformationMarkerEnd(%composer)
@@ -1081,7 +1081,7 @@ class ControlFlowTransformTests : AbstractControlFlowTransformTests() {
                   sourceInformationMarkerStart(%composer, <>, "C<A()>:Test.kt")
                   if (condition) {
                     sourceInformationMarkerEnd(%composer)
-                    return
+                    return@IW
                   }
                   A(%composer, 0)
                   sourceInformationMarkerEnd(%composer)
@@ -1242,7 +1242,7 @@ class ControlFlowTransformTests : AbstractControlFlowTransformTests() {
                   Identity {
                     if (condition) {
                       sourceInformationMarkerEnd(%composer)
-                      return
+                      return@M1
                     }
                   }
                   sourceInformationMarkerEnd(%composer)
@@ -1330,7 +1330,7 @@ class ControlFlowTransformTests : AbstractControlFlowTransformTests() {
                     if (isTraceInProgress()) {
                       traceEventEnd()
                     }
-                    %composer.endRestartGroup()?.updateScope { %composer: Composer?, %force: Int ->
+                    %composer@test_CM1_RetFun.endRestartGroup()?.updateScope { %composer: Composer?, %force: Int ->
                       test_CM1_RetFun(condition, %composer, updateChangedFlags(%changed or 0b0001))
                     }
                     return
@@ -5488,7 +5488,7 @@ class ControlFlowTransformTests : AbstractControlFlowTransformTests() {
                 if (isTraceInProgress()) {
                   traceEventStart(<>, %changed, -1, "Test (Test.kt:16)")
                 }
-                val c = current
+                val c = <get-current>(%composer, 0)
                 val cl = calculateSometing(%composer, 0)
                 Layout({ %composer: Composer?, %changed: Int ->
                   sourceInformationMarkerStart(%composer, <>, "C<Text("...>:Test.kt")
@@ -5579,7 +5579,7 @@ class ControlFlowTransformTests : AbstractControlFlowTransformTests() {
                   if (isTraceInProgress()) {
                     traceEventStart(<>, %changed, -1, "HolderHolder.<get-current> (Test.kt:16)")
                   }
-                  val tmp0 = _currentHolder.current
+                  val tmp0 = _currentHolder.<get-current>(%composer, 0)
                   if (isTraceInProgress()) {
                     traceEventEnd()
                   }
@@ -5611,7 +5611,7 @@ class ControlFlowTransformTests : AbstractControlFlowTransformTests() {
                 if (isTraceInProgress()) {
                   traceEventStart(<>, %changed, -1, "Test (Test.kt:28)")
                 }
-                val c = holderHolder.current
+                val c = holderHolder.<get-current>(%composer, 0b0110)
                 val cl = calculateSomething(%composer, 0)
                 Layout({ %composer: Composer?, %changed: Int ->
                   sourceInformationMarkerStart(%composer, <>, "C<Text("...>:Test.kt")
@@ -6175,7 +6175,7 @@ class ControlFlowTransformTests : AbstractControlFlowTransformTests() {
                     sourceInformationMarkerStart(%composer, <>, "C:Test.kt")
                     if (true) {
                       %composer.endToMarker(tmp0_marker)
-                      return
+                      return@Inline1
                     }
                     sourceInformationMarkerEnd(%composer)
                   }, %composer, 0)
@@ -6286,5 +6286,60 @@ class ControlFlowTransformTests : AbstractControlFlowTransformTests() {
           }
         }
         """
+    )
+
+    @Test
+    fun testEarlyReturnFromCrossInlinedLambda() = verifyComposeIrTransform(
+        source = """
+            import androidx.compose.runtime.*
+
+            @Composable
+            private fun Test(param: String?) {
+                Dialog {
+                    if (false) Test(param)
+                }
+            }
+        """,
+        extra = """
+            import androidx.compose.runtime.*
+
+            @Composable
+            internal inline fun Dialog(crossinline block: @Composable () -> Unit) {}
+        """.trimIndent(),
+        expectedTransformed = """
+           @Composable
+           private fun Test(param: String?, %composer: Composer?, %changed: Int) {
+             %composer = %composer.startRestartGroup(<>)
+             sourceInformation(%composer, "C(Test)<Dialog>:Test.kt")
+             val %dirty = %changed
+             if (%changed and 0b1110 === 0) {
+               %dirty = %dirty or if (%composer.changed(param)) 0b0100 else 0b0010
+             }
+             if (%dirty and 0b1011 !== 0b0010 || !%composer.skipping) {
+               if (isTraceInProgress()) {
+                 traceEventStart(<>, %dirty, -1, <>)
+               }
+               Dialog({ %composer: Composer?, %changed: Int ->
+                 sourceInformationMarkerStart(%composer, <>, "C:Test.kt")
+                 %composer.startReplaceableGroup(<>)
+                 sourceInformation(%composer, "<Test(p...>")
+                 if (false) {
+                   Test(param, %composer, 0b1110 and %dirty)
+                 }
+                 %composer.endReplaceableGroup()
+                 sourceInformationMarkerEnd(%composer)
+               }, %composer, 0)
+               if (isTraceInProgress()) {
+                 traceEventEnd()
+               }
+             } else {
+               %composer.skipToGroupEnd()
+             }
+             %composer.endRestartGroup()?.updateScope { %composer: Composer?, %force: Int ->
+               Test(param, %composer, updateChangedFlags(%changed or 0b0001))
+             }
+           }
+        """.trimIndent(),
+        dumpTree = true
     )
 }

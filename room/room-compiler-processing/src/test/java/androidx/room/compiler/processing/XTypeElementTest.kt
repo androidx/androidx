@@ -408,11 +408,7 @@ class XTypeElementTest(
             assertThat(getModifiers("DataClass"))
                 .containsExactly("public", "final", "class", "data")
             assertThat(getModifiers("InlineClass")).apply {
-                if (isPreCompiled && invocation.isKsp) {
-                    containsExactly("public", "final", "class")
-                } else {
-                    containsExactly("public", "final", "class", "value")
-                }
+                containsExactly("public", "final", "class", "value")
             }
             assertThat(getModifiers("FunInterface"))
                 .containsExactly("public", "abstract", "interface", "fun")
@@ -430,7 +426,7 @@ class XTypeElementTest(
             """.trimIndent()
         )
         val javaSrc = Source.java(
-            "Bar.java",
+            "Bar",
             """
             class JavaClass {}
             interface JavaInterface {}
@@ -732,7 +728,7 @@ class XTypeElementTest(
         runTest(
             listOf(
                 Source.java(
-                    "JavaSubject.java",
+                    "JavaSubject",
                     """
                     class JavaSubject {
                         int myField;
@@ -756,7 +752,7 @@ class XTypeElementTest(
                 )
             ),
         ) { invocation ->
-            listOf("JavaSubject", "KotlinSubject",).map {
+            listOf("JavaSubject", "KotlinSubject").map {
                 invocation.processingEnv.requireTypeElement(it)
             }.forEach { subject ->
                 val methods = subject.getDeclaredMethods()
@@ -895,6 +891,8 @@ class XTypeElementTest(
             interface Base<T> {
                 suspend fun get(): T
                 suspend fun getAll(): List<T>
+                @JvmSuppressWildcards
+                suspend fun getAllSuppressWildcards(): List<T>
                 suspend fun putAll(input: List<T>)
                 suspend fun getAllWithDefault(): List<T>
             }
@@ -902,6 +900,8 @@ class XTypeElementTest(
             interface DerivedInterface : Base<String> {
                 override suspend fun get(): String
                 override suspend fun getAll(): List<String>
+                @JvmSuppressWildcards
+                override suspend fun getAllSuppressWildcards(): List<String>
                 override suspend fun putAll(input: List<String>)
                 override suspend fun getAllWithDefault(): List<String> {
                     return emptyList()
@@ -913,7 +913,7 @@ class XTypeElementTest(
             val base = invocation.processingEnv.requireTypeElement("DerivedInterface")
             val methodNames = base.getAllMethods().toList().jvmNames()
             assertThat(methodNames).containsExactly(
-                "get", "getAll", "putAll", "getAllWithDefault"
+                "get", "getAll", "getAllSuppressWildcards", "putAll", "getAllWithDefault"
             )
         }
     }
@@ -944,6 +944,31 @@ class XTypeElementTest(
             assertThat(methodNamesCount["get"]).isEqualTo(1)
             assertThat(methodNamesCount["getAll"]).isEqualTo(1)
             assertThat(methodNamesCount["putAll"]).isEqualTo(1)
+        }
+    }
+
+    // b/274328611
+    @Test
+    fun suspendOverride_distinct() {
+        val src = Source.kotlin(
+            "Foo.kt",
+            """
+            data class Foo(val txt: String)
+
+            interface Base {
+                suspend fun getAll(): List<Foo>
+            }
+
+            abstract class DerivedClass : Base {
+                abstract suspend fun getAll(param: String): List<Foo>
+            }
+            """.trimIndent()
+        )
+        runTest(sources = listOf(src)) { invocation ->
+            val base = invocation.processingEnv.requireTypeElement("DerivedClass")
+            val methodNamesCount =
+                base.getAllMethods().toList().jvmNames().groupingBy { it }.eachCount()
+            assertThat(methodNamesCount["getAll"]).isEqualTo(2)
         }
     }
 

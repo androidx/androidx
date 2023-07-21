@@ -19,22 +19,20 @@ import android.content.Context
 import android.os.Build
 import android.os.ParcelFileDescriptor
 import androidx.annotation.RequiresApi
-import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.font.FontLoadingStrategy.Companion.Blocking
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
+import java.io.File
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.io.File
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-@OptIn(ExperimentalTextApi::class)
 class AndroidFontTest {
     private var tempFile: File? = null
     private val context = InstrumentationRegistry.getInstrumentation().context

@@ -23,6 +23,7 @@ import android.view.View
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ComposeNode
 import androidx.compose.runtime.CompositionContext
+import androidx.compose.runtime.CompositionLocalMap
 import androidx.compose.runtime.ReusableComposeNode
 import androidx.compose.runtime.ReusableContentHost
 import androidx.compose.runtime.Updater
@@ -31,10 +32,14 @@ import androidx.compose.runtime.currentCompositeKeyHash
 import androidx.compose.runtime.rememberCompositionContext
 import androidx.compose.runtime.saveable.LocalSaveableStateRegistry
 import androidx.compose.runtime.saveable.SaveableStateRegistry
+import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.UiComposable
 import androidx.compose.ui.input.nestedscroll.NestedScrollDispatcher
 import androidx.compose.ui.materialize
+import androidx.compose.ui.node.ComposeUiNode.Companion.SetCompositeKeyHash
+import androidx.compose.ui.node.ComposeUiNode.Companion.SetResolvedCompositionLocals
 import androidx.compose.ui.node.LayoutNode
 import androidx.compose.ui.node.UiApplier
 import androidx.compose.ui.platform.LocalContext
@@ -49,11 +54,48 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.findViewTreeLifecycleOwner
 import androidx.savedstate.SavedStateRegistryOwner
 
-@Deprecated(
-    message = "AndroidView now has arguments for onReset and onRelease callbacks. This original " +
-        "overload is retained for binary compatibility only.",
-    level = DeprecationLevel.HIDDEN
-)
+/**
+ * Composes an Android [View] obtained from [factory]. The [factory] block will be called exactly
+ * once to obtain the [View] being composed, and it is also guaranteed to be invoked on the UI
+ * thread. Therefore, in addition to creating the [View], the [factory] block can also be used to
+ * perform one-off initializations and [View] constant properties' setting. The [update] block can
+ * run multiple times (on the UI thread as well) due to recomposition, and it is the right place to
+ * set the new properties. Note that the block will also run once right after the [factory] block
+ * completes.
+ *
+ * [AndroidView] is commonly needed for using Views that are infeasible to be reimplemented in
+ * Compose and there is no corresponding Compose API. Common examples for the moment are
+ * WebView, SurfaceView, AdView, etc.
+ *
+ * This overload of [AndroidView] does not automatically pool or reuse Views. If placed inside of a
+ * reusable container (including inside a [LazyRow][androidx.compose.foundation.lazy.LazyRow] or
+ * [LazyColumn][androidx.compose.foundation.lazy.LazyColumn]), the View instances will always be
+ * discarded and recreated if the composition hierarchy containing the AndroidView changes, even
+ * if its group structure did not change and the View could have conceivably been reused.
+ *
+ * To opt-in for View reuse, call the overload of [AndroidView] that accepts an `onReset` callback,
+ * and provide a non-null implementation for this callback. Since it is expensive to discard and
+ * recreate View instances, reusing Views can lead to noticeable performance improvements —
+ * especially when building a scrolling list of [AndroidViews][AndroidView]. It is highly
+ * recommended to opt-in to View reuse when possible.
+ *
+ * [AndroidView] will not clip its content to the layout bounds. Use [View.setClipToOutline] on
+ * the child View to clip the contents, if desired. Developers will likely want to do this with
+ * all subclasses of SurfaceView to keep its contents contained.
+ *
+ * [AndroidView] has nested scroll interop capabilities if the containing view has nested scroll
+ * enabled. This means this Composable can dispatch scroll deltas if it is placed inside a
+ * container that participates in nested scroll. For more information on how to enable
+ * nested scroll interop:
+ * @sample androidx.compose.ui.samples.ViewInComposeNestedScrollInteropSample
+ *
+ * @sample androidx.compose.ui.samples.AndroidViewSample
+ *
+ * @param factory The block creating the [View] to be composed.
+ * @param modifier The modifier to be applied to the layout.
+ * @param update A callback to be invoked after the layout is inflated and upon recomposition to
+ * update the information and state of the view.
+ */
 @Composable
 @UiComposable
 fun <T : View> AndroidView(
@@ -141,13 +183,15 @@ fun <T : View> AndroidView(
  *
  * @sample androidx.compose.ui.samples.ReusableAndroidViewInLazyColumnSample
  *
+ * @sample androidx.compose.ui.samples.AndroidViewWithReleaseSample
+ *
  * @param factory The block creating the [View] to be composed.
+ * @param modifier The modifier to be applied to the layout.
  * @param onReset A callback invoked as a signal that the view is about to be attached to the
  * composition hierarchy in a different context than its original creation. This callback is invoked
  * before [update] and should prepare the view for general reuse. If `null` or not specified, the
  * `AndroidView` instance will not support reuse, and the View instance will always be discarded
  * whenever the AndroidView is moved or removed from the composition hierarchy.
- * @param modifier The modifier to be applied to the layout.
  * @param onRelease A callback invoked as a signal that this view instance has exited the
  * composition hierarchy entirely and will not be reused again. Any additional resources used by the
  * View should be freed at this time.
@@ -163,9 +207,11 @@ fun <T : View> AndroidView(
     onRelease: (T) -> Unit = NoOpUpdate,
     update: (T) -> Unit = NoOpUpdate
 ) {
+    val compositeKeyHash = currentCompositeKeyHash
     val materializedModifier = currentComposer.materialize(modifier)
     val density = LocalDensity.current
     val layoutDirection = LocalLayoutDirection.current
+    val compositionLocalMap = currentComposer.currentCompositionLocalMap
 
     // These locals are initialized from the view tree at the AndroidComposeView hosting this
     // composition, but they need to be passed to this Android View so that the ViewTree*Owner
@@ -180,10 +226,12 @@ fun <T : View> AndroidView(
             update = {
                 updateViewHolderParams<T>(
                     modifier = materializedModifier,
+                    compositeKeyHash = compositeKeyHash,
                     density = density,
                     lifecycleOwner = lifecycleOwner,
                     savedStateRegistryOwner = savedStateRegistryOwner,
-                    layoutDirection = layoutDirection
+                    layoutDirection = layoutDirection,
+                    compositionLocalMap = compositionLocalMap
                 )
                 set(onReset) { requireViewFactoryHolder<T>().resetBlock = it }
                 set(update) { requireViewFactoryHolder<T>().updateBlock = it }
@@ -196,10 +244,12 @@ fun <T : View> AndroidView(
             update = {
                 updateViewHolderParams<T>(
                     modifier = materializedModifier,
+                    compositeKeyHash = compositeKeyHash,
                     density = density,
                     lifecycleOwner = lifecycleOwner,
                     savedStateRegistryOwner = savedStateRegistryOwner,
-                    layoutDirection = layoutDirection
+                    layoutDirection = layoutDirection,
+                    compositionLocalMap = compositionLocalMap
                 )
                 set(update) { requireViewFactoryHolder<T>().updateBlock = it }
                 set(onRelease) { requireViewFactoryHolder<T>().releaseBlock = it }
@@ -212,29 +262,32 @@ fun <T : View> AndroidView(
 private fun <T : View> createAndroidViewNodeFactory(
     factory: (Context) -> T
 ): () -> LayoutNode {
+    val compositeKeyHash = currentCompositeKeyHash
     val context = LocalContext.current
     val parentReference = rememberCompositionContext()
     val stateRegistry = LocalSaveableStateRegistry.current
-    val stateKey = currentCompositeKeyHash.toString()
 
     return {
-        ViewFactoryHolder<T>(
+        ViewFactoryHolder(
             context = context,
             factory = factory,
             parentContext = parentReference,
             saveStateRegistry = stateRegistry,
-            saveStateKey = stateKey
+            compositeKeyHash = compositeKeyHash
         ).layoutNode
     }
 }
 
 private fun <T : View> Updater<LayoutNode>.updateViewHolderParams(
     modifier: Modifier,
+    compositeKeyHash: Int,
     density: Density,
     lifecycleOwner: LifecycleOwner,
     savedStateRegistryOwner: SavedStateRegistryOwner,
     layoutDirection: LayoutDirection,
+    compositionLocalMap: CompositionLocalMap
 ) {
+    set(compositionLocalMap, SetResolvedCompositionLocals)
     set(modifier) { requireViewFactoryHolder<T>().modifier = it }
     set(density) { requireViewFactoryHolder<T>().density = it }
     set(lifecycleOwner) { requireViewFactoryHolder<T>().lifecycleOwner = it }
@@ -247,10 +300,13 @@ private fun <T : View> Updater<LayoutNode>.updateViewHolderParams(
             LayoutDirection.Rtl -> android.util.LayoutDirection.RTL
         }
     }
+    @OptIn(ExperimentalComposeUiApi::class)
+    set(compositeKeyHash, SetCompositeKeyHash)
 }
 
 @Suppress("UNCHECKED_CAST")
 private fun <T : View> LayoutNode.requireViewFactoryHolder(): ViewFactoryHolder<T> {
+    @OptIn(InternalComposeUiApi::class)
     return checkNotNull(interopViewFactoryHolder) as ViewFactoryHolder<T>
 }
 
@@ -262,30 +318,33 @@ val NoOpUpdate: View.() -> Unit = {}
 internal class ViewFactoryHolder<T : View> private constructor(
     context: Context,
     parentContext: CompositionContext? = null,
-    val typedView: T,
+    private val typedView: T,
     // NestedScrollDispatcher that will be passed/used for nested scroll interop
     val dispatcher: NestedScrollDispatcher = NestedScrollDispatcher(),
     private val saveStateRegistry: SaveableStateRegistry?,
-    private val saveStateKey: String
-) : AndroidViewHolder(context, parentContext, dispatcher, typedView), ViewRootForInspector {
+    private val compositeKeyHash: Int,
+) : AndroidViewHolder(context, parentContext, compositeKeyHash, dispatcher, typedView),
+    ViewRootForInspector {
 
     constructor(
         context: Context,
         factory: (Context) -> T,
         parentContext: CompositionContext? = null,
         saveStateRegistry: SaveableStateRegistry?,
-        saveStateKey: String
+        compositeKeyHash: Int
     ) : this(
         context = context,
         typedView = factory(context),
         parentContext = parentContext,
         saveStateRegistry = saveStateRegistry,
-        saveStateKey = saveStateKey,
+        compositeKeyHash = compositeKeyHash,
     )
 
     override val viewRoot: View get() = this
 
-    private var saveableRegistryEntry: SaveableStateRegistry.Entry? = null
+    private val saveStateKey: String
+
+    private var savableRegistryEntry: SaveableStateRegistry.Entry? = null
         set(value) {
             field?.unregister()
             field = value
@@ -293,6 +352,7 @@ internal class ViewFactoryHolder<T : View> private constructor(
 
     init {
         clipChildren = false
+        saveStateKey = compositeKeyHash.toString()
 
         @Suppress("UNCHECKED_CAST")
         val savedState = saveStateRegistry
@@ -324,7 +384,7 @@ internal class ViewFactoryHolder<T : View> private constructor(
 
     private fun registerSaveStateProvider() {
         if (saveStateRegistry != null) {
-            saveableRegistryEntry = saveStateRegistry.registerProvider(saveStateKey) {
+            savableRegistryEntry = saveStateRegistry.registerProvider(saveStateKey) {
                 SparseArray<Parcelable>().apply {
                     typedView.saveHierarchyState(this)
                 }
@@ -333,6 +393,6 @@ internal class ViewFactoryHolder<T : View> private constructor(
     }
 
     private fun unregisterSaveStateProvider() {
-        saveableRegistryEntry = null
+        savableRegistryEntry = null
     }
 }

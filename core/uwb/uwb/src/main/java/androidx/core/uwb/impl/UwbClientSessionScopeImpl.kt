@@ -20,10 +20,11 @@ import android.util.Log
 import androidx.core.uwb.RangingCapabilities
 import androidx.core.uwb.RangingMeasurement
 import androidx.core.uwb.RangingParameters
-import androidx.core.uwb.RangingResult.RangingResultPosition
 import androidx.core.uwb.RangingResult.RangingResultPeerDisconnected
+import androidx.core.uwb.RangingResult.RangingResultPosition
 import androidx.core.uwb.UwbAddress
 import androidx.core.uwb.UwbControleeSessionScope
+import androidx.core.uwb.helper.handleApiException
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.nearby.uwb.RangingPosition
 import com.google.android.gms.nearby.uwb.RangingSessionCallback
@@ -32,11 +33,10 @@ import com.google.android.gms.nearby.uwb.UwbComplexChannel
 import com.google.android.gms.nearby.uwb.UwbDevice
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
-import androidx.core.uwb.helper.handleApiException
-import kotlinx.coroutines.channels.awaitClose
 
 internal class UwbClientSessionScopeImpl(
     private val uwbClient: UwbClient,
@@ -79,7 +79,6 @@ internal class UwbClientSessionScopeImpl(
             .setSessionId(parameters.sessionId)
             .setUwbConfigId(configId)
             .setRangingUpdateRate(updateRate)
-            .setSessionKeyInfo(parameters.sessionKeyInfo)
             .setComplexChannel(
                 parameters.complexChannel?.let {
                     UwbComplexChannel.Builder()
@@ -87,6 +86,9 @@ internal class UwbClientSessionScopeImpl(
                         .setPreambleIndex(it.preambleIndex)
                         .build()
                 })
+        if (parameters.sessionKeyInfo != null) {
+            parametersBuilder.setSessionKeyInfo(parameters.sessionKeyInfo)
+        }
         for (peer in parameters.peerDevices) {
             parametersBuilder.addPeerDevice(UwbDevice.createForAddress(peer.address.address))
         }

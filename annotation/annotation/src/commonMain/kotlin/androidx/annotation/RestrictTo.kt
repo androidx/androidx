@@ -19,20 +19,21 @@ package androidx.annotation
 import androidx.annotation.RestrictTo.Scope
 
 /**
- * Denotes that the annotated element should only be accessed from within a
- * specific scope (as defined by [Scope]).
+ * Denotes that the annotated element should only be accessed from within a specific scope (as
+ * defined by [Scope]).
  *
- *
- * Example of restricting usage within a library (based on gradle group ID):
+ * Example of restricting usage within a library (based on Gradle group ID):
  * ```
  * @RestrictTo(GROUP_ID)
  * public void resetPaddingToInitialValues() { ...
  * ```
+ *
  * Example of restricting usage to tests:
  * ```
  * @RestrictTo(Scope.TESTS)
  * public abstract int getUserId();
  * ```
+ *
  * Example of restricting usage to subclasses:
  * ```
  * @RestrictTo(Scope.SUBCLASSES)
@@ -53,56 +54,62 @@ import androidx.annotation.RestrictTo.Scope
 )
 public expect annotation class RestrictTo(
     /**
-     * The scope to which usage should be restricted.
+     * The scope(s) to which usage should be restricted.
      */
     vararg val value: Scope
 ) {
     public enum class Scope {
         /**
-         * Restrict usage to code within the same library (e.g. the same
-         * gradle group ID and artifact ID).
+         * Restrict usage to code within the same library (e.g. the same Gradle group ID and
+         * artifact ID).
          */
         LIBRARY,
 
         /**
          * Restrict usage to code within the same group of libraries.
-         * This corresponds to the gradle group ID.
+         *
+         * This corresponds to the Gradle group ID.
          */
         LIBRARY_GROUP,
 
         /**
-         * Restrict usage to code within packages whose groups share
-         * the same library group prefix up to the last ".", so for
-         * example libraries foo.bar:lib1 and foo.baz:lib2 share
-         * the prefix "foo." and so they can use each other's
-         * apis that are restricted to this scope. Similarly for
-         * com.foo.bar:lib1 and com.foo.baz:lib2 where they share
-         * "com.foo.". Library com.bar.qux:lib3 however will not
-         * be able to use the restricted api because it only
-         * shares the prefix "com." and not all the way until the
-         * last ".".
+         * Restrict usage to code within packages whose Gradle group IDs share the same prefix up to
+         * the last `.` separator.
+         *
+         * For example, libraries `foo.bar:lib1` and `foo.baz:lib2` share the `foo.` prefix and can
+         * therefore use each other's APIs that are restricted to this scope. Similar applies to
+         * libraries `com.foo.bar:lib1` and `com.foo.baz:lib2`, which share the `com.foo.` prefix.
+         *
+         * Library `com.bar.qux:lib3`, however, will not be able to use the restricted API because
+         * it only shares the prefix `com.` and not all the way until the last `.` separator.
          */
         LIBRARY_GROUP_PREFIX,
 
         /**
-         * Restrict usage to code within the same group ID (based on gradle
-         * group ID). This is an alias for [LIBRARY_GROUP_PREFIX].
+         * Restrict usage to code within the same group ID (based on Gradle group ID).
          *
-         * @deprecated Use [LIBRARY_GROUP_PREFIX] instead
+         * This is an alias for [LIBRARY_GROUP_PREFIX].
          */
-        @Deprecated("Use LIBRARY_GROUP_PREFIX instead.")
+        @Deprecated(
+            message = "Use @RestrictTo(LIBRARY_GROUP_PREFIX) instead",
+            replaceWith = ReplaceWith(
+                "LIBRARY_GROUP_PREFIX",
+                "androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX"
+            )
+        )
         GROUP_ID,
 
         /**
-         * Restrict usage to tests.
+         * Restrict usage to test source sets or code annotated with the [TESTS] restriction scope.
+         *
+         * This is equivalent to `@VisibleForTesting(NONE)`.
          */
         TESTS,
 
         /**
          * Restrict usage to subclasses of the enclosing class.
          *
-         * **Note:** This scope should not be used to annotate
-         * packages.
+         * **Note:** This scope should not be used to annotate packages.
          */
         SUBCLASSES,
     }

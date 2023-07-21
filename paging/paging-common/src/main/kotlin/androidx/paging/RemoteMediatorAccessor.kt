@@ -20,12 +20,12 @@ import androidx.paging.AccessorState.BlockState.COMPLETED
 import androidx.paging.AccessorState.BlockState.REQUIRES_REFRESH
 import androidx.paging.AccessorState.BlockState.UNBLOCKED
 import androidx.paging.RemoteMediator.MediatorResult
+import java.util.concurrent.locks.ReentrantLock
+import kotlin.concurrent.withLock
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import java.util.concurrent.locks.ReentrantLock
-import kotlin.concurrent.withLock
 
 /**
  * Interface provided to the snapshot to trigger load events.

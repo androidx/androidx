@@ -93,7 +93,8 @@ private class FakeOwner(
     override fun onRequestMeasure(
         layoutNode: LayoutNode,
         affectsLookahead: Boolean,
-        forceRequest: Boolean
+        forceRequest: Boolean,
+        scheduleMeasureAndLayout: Boolean
     ) {
         if (affectsLookahead) {
             delegate.requestLookaheadRemeasure(layoutNode)
@@ -110,8 +111,8 @@ private class FakeOwner(
         delegate.measureAndLayout(layoutNode, constraints)
     }
 
-    override fun forceMeasureTheSubtree(layoutNode: LayoutNode) {
-        delegate.forceMeasureTheSubtree(layoutNode)
+    override fun forceMeasureTheSubtree(layoutNode: LayoutNode, affectsLookahead: Boolean) {
+        delegate.forceMeasureTheSubtree(layoutNode, affectsLookahead)
     }
 
     override val snapshotObserver: OwnerSnapshotObserver = OwnerSnapshotObserver { it.invoke() }
@@ -294,7 +295,7 @@ internal fun node(block: LayoutNode.() -> Unit = {}): LayoutNode {
     }
 }
 
-internal fun LayoutNode.add(child: LayoutNode) = insertAt(children.count(), child)
+internal fun LayoutNode.add(child: LayoutNode) = insertAt(foldedChildren.count(), child)
 
 internal fun LayoutNode.measureInLayoutBlock() {
     measurePolicy = MeasureInLayoutBlock()

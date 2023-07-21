@@ -31,12 +31,12 @@ dependencies {
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)
-    androidTestImplementation("androidx.arch.core:core-testing:2.0.1")
+    androidTestImplementation("androidx.arch.core:core-testing:2.2.0")
     androidTestImplementation(libs.espressoCore)
 }
 
 androidx {
-    name = "Android Paging RxJava2 Kotlin Extensions"
+    name = "Paging RxJava2 Kotlin Extensions"
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2018"
     description = "Kotlin extensions for 'paging-rxjava2' artifact"

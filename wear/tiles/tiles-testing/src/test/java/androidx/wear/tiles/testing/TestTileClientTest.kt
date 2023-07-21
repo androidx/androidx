@@ -18,9 +18,9 @@ package androidx.wear.tiles.testing
 
 import android.os.Looper
 import androidx.concurrent.futures.ResolvableFuture
+import androidx.wear.protolayout.ResourceBuilders
 import androidx.wear.tiles.EventBuilders
 import androidx.wear.tiles.RequestBuilders
-import androidx.wear.tiles.ResourceBuilders
 import androidx.wear.tiles.TileBuilders
 import androidx.wear.tiles.TileProvider
 import androidx.wear.tiles.TileService
@@ -145,7 +145,7 @@ public class TestTileClientTest {
             return f
         }
 
-        override fun onResourcesRequest(
+        override fun onTileResourcesRequest(
             requestParams: RequestBuilders.ResourcesRequest
         ): ListenableFuture<ResourceBuilders.Resources> {
             val f = ResolvableFuture.create<ResourceBuilders.Resources>()

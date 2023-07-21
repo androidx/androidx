@@ -19,7 +19,6 @@ package androidx.tv.material3
 import android.os.Build
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.interaction.FocusInteraction
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -44,8 +43,6 @@ import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.input.key.Key
-import androidx.compose.ui.input.pointer.PointerEventPass
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
@@ -115,8 +112,8 @@ class SurfaceTest {
                     shape = ClickableSurfaceDefaults.shape(
                         shape = RectangleShape
                     ),
-                    color = ClickableSurfaceDefaults.color(
-                        color = Color.Yellow
+                    colors = ClickableSurfaceDefaults.colors(
+                        containerColor = Color.Yellow
                     )
                 ) {
                     Box(Modifier.fillMaxSize())
@@ -126,8 +123,8 @@ class SurfaceTest {
                     shape = ClickableSurfaceDefaults.shape(
                         shape = RectangleShape
                     ),
-                    color = ClickableSurfaceDefaults.color(
-                        color = Color.Green
+                    colors = ClickableSurfaceDefaults.colors(
+                        containerColor = Color.Green
                     )
                 ) {
                     Box(Modifier.fillMaxSize())
@@ -183,7 +180,7 @@ class SurfaceTest {
                     },
                     onClick = {},
                     tonalElevation = 2.toDp(),
-                    contentColor = ClickableSurfaceDefaults.color(color = expectedColor)
+                    colors = ClickableSurfaceDefaults.colors(contentColor = expectedColor)
                 ) {}
             }
         }
@@ -346,41 +343,6 @@ class SurfaceTest {
     }
 
     @Test
-    fun clickableSurface_allowsFinalPassChildren() {
-        val hitTested = mutableStateOf(false)
-
-        rule.setContent {
-            Box(Modifier.fillMaxSize()) {
-                Surface(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .testTag("surface"),
-                    onClick = {}
-                ) {
-                    Box(
-                        Modifier
-                            .fillMaxSize()
-                            .testTag("pressable")
-                            .pointerInput(Unit) {
-                                awaitEachGesture {
-                                    hitTested.value = true
-                                    val event = awaitPointerEvent(PointerEventPass.Final)
-                                    Truth
-                                        .assertThat(event.changes[0].isConsumed)
-                                        .isFalse()
-                                }
-                            }
-                    )
-                }
-            }
-        }
-        rule.onNodeWithTag("surface").performSemanticsAction(SemanticsActions.RequestFocus)
-        rule.onNodeWithTag("pressable", true)
-            .performKeyInput { pressKey(Key.DirectionCenter) }
-        Truth.assertThat(hitTested.value).isTrue()
-    }
-
-    @Test
     fun clickableSurface_reactsToStateChange() {
         val interactionSource = MutableInteractionSource()
         var isPressed by mutableStateOf(false)
@@ -417,9 +379,9 @@ class SurfaceTest {
                     .testTag("surface")
                     .size(100.toDp()),
                 onClick = {},
-                color = ClickableSurfaceDefaults.color(
-                    color = Color.Transparent,
-                    focusedColor = Color.Transparent
+                colors = ClickableSurfaceDefaults.colors(
+                    containerColor = Color.Transparent,
+                    focusedContainerColor = Color.Transparent
                 ),
                 glow = ClickableSurfaceDefaults.glow(
                     glow = Glow(
@@ -485,9 +447,9 @@ class SurfaceTest {
                         border = BorderStroke(width = 5.toDp(), color = Color.Magenta)
                     )
                 ),
-                color = ClickableSurfaceDefaults.color(
-                    color = Color.Transparent,
-                    focusedColor = Color.Transparent
+                colors = ClickableSurfaceDefaults.colors(
+                    containerColor = Color.Transparent,
+                    focusedContainerColor = Color.Transparent
                 )
             ) {}
         }
@@ -658,42 +620,6 @@ class SurfaceTest {
     }
 
     @Test
-    fun toggleableSurface_allowsFinalPassChildren() {
-        val hitTested = mutableStateOf(false)
-
-        rule.setContent {
-            Box(Modifier.fillMaxSize()) {
-                Surface(
-                    checked = false,
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .testTag("surface"),
-                    onCheckedChange = {}
-                ) {
-                    Box(
-                        Modifier
-                            .fillMaxSize()
-                            .testTag("pressable")
-                            .pointerInput(Unit) {
-                                awaitEachGesture {
-                                    hitTested.value = true
-                                    val event = awaitPointerEvent(PointerEventPass.Final)
-                                    Truth
-                                        .assertThat(event.changes[0].isConsumed)
-                                        .isFalse()
-                                }
-                            }
-                    )
-                }
-            }
-        }
-        rule.onNodeWithTag("surface").performSemanticsAction(SemanticsActions.RequestFocus)
-        rule.onNodeWithTag("pressable", true)
-            .performKeyInput { pressKey(Key.DirectionCenter) }
-        Truth.assertThat(hitTested.value).isTrue()
-    }
-
-    @Test
     fun toggleableSurface_reactsToStateChange() {
         val interactionSource = MutableInteractionSource()
         var isPressed by mutableStateOf(false)
@@ -735,9 +661,9 @@ class SurfaceTest {
                     .testTag("surface")
                     .size(100.toDp()),
                 onCheckedChange = { isChecked = it },
-                color = ToggleableSurfaceDefaults.color(
-                    color = Color.Transparent,
-                    selectedColor = Color.Transparent
+                colors = ToggleableSurfaceDefaults.colors(
+                    containerColor = Color.Transparent,
+                    selectedContainerColor = Color.Transparent
                 ),
                 glow = ToggleableSurfaceDefaults.glow(
                     glow = Glow(
@@ -820,9 +746,9 @@ class SurfaceTest {
                         border = BorderStroke(width = 5.toDp(), color = Color.Magenta)
                     )
                 ),
-                color = ToggleableSurfaceDefaults.color(
-                    color = Color.Transparent,
-                    selectedColor = Color.Transparent
+                colors = ToggleableSurfaceDefaults.colors(
+                    containerColor = Color.Transparent,
+                    selectedContainerColor = Color.Transparent
                 )
             ) {}
         }
@@ -853,9 +779,9 @@ class SurfaceTest {
                     .testTag("surface"),
                 onClick = {},
                 enabled = surfaceEnabled,
-                color = ClickableSurfaceDefaults.color(
-                    color = Color.Green,
-                    disabledColor = Color.Red
+                colors = ClickableSurfaceDefaults.colors(
+                    containerColor = Color.Green,
+                    disabledContainerColor = Color.Red
                 )
             ) {}
         }

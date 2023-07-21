@@ -81,7 +81,7 @@ class OutputSizesCorrectorTest {
                 Size(3088, 3088),
             ),
             ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE
-        )!!.toList()
+        ).toList()
 
         Truth.assertThat(resultList).containsExactlyElementsIn(
             listOf(
@@ -118,7 +118,7 @@ class OutputSizesCorrectorTest {
                 Size(3088, 3088),
             ),
             SurfaceTexture::class.java
-        )!!.toList()
+        ).toList()
 
         Truth.assertThat(resultList).containsExactlyElementsIn(
             listOf(
@@ -150,7 +150,7 @@ class OutputSizesCorrectorTest {
         )
 
         val sizesWithQuirks: Array<Size> =
-            outputSizesCorrector.applyQuirks(outputSizes, ImageFormat.YUV_420_888)!!
+            outputSizesCorrector.applyQuirks(outputSizes, ImageFormat.YUV_420_888)
         val resultList = mutableListOf<Size>().apply {
             sizesWithQuirks.forEach { size ->
                 add(size)
@@ -190,7 +190,7 @@ class OutputSizesCorrectorTest {
         val resultList: List<Size> = outputSizesCorrector.applyQuirks(
             outputSizes,
             SurfaceTexture::class.java
-        )!!.toList()
+        ).toList()
 
         Truth.assertThat(resultList).containsExactlyElementsIn(
             listOf(
@@ -222,20 +222,22 @@ class OutputSizesCorrectorTest {
             ReflectionHelpers.setStaticField(Build::class.java, "MODEL", it)
         }
 
+        val map = StreamConfigurationMapBuilder.newBuilder()
+            .apply {
+                outputSizes.forEach { outputSize ->
+                    addOutputSize(outputSize)
+                }
+            }.build()
+
         return OutputSizesCorrector(
             FakeCameraMetadata(
                 cameraId = CameraId(cameraId), characteristics = mapOf(
                     CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL to hardwareLevel,
                     CameraCharacteristics.LENS_FACING to lensFacing,
-                    CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP to
-                        StreamConfigurationMapBuilder.newBuilder()
-                            .apply {
-                                outputSizes.forEach { outputSize ->
-                                    addOutputSize(outputSize)
-                                }
-                            }.build()
+                    CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP to map
                 )
-            )
+            ),
+            map
         )
     }
 }

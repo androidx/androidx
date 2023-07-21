@@ -100,4 +100,9 @@ public final class BokehPreviewExtenderImpl implements PreviewExtenderImpl {
     public List<Pair<Integer, Size[]>> getSupportedResolutions() {
         throw new RuntimeException("Stub, replace with implementation.");
     }
+
+    @Override
+    public int onSessionType() {
+        throw new RuntimeException("Stub, replace with implementation.");
+    }
 }

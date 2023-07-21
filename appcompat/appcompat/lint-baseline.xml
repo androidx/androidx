@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.0.0-beta03" type="baseline" client="gradle" dependencies="false" name="AGP (8.0.0-beta03)" variant="all" version="8.0.0-beta03">
+<issues format="6" by="lint 8.1.0-beta01" type="baseline" client="gradle" dependencies="false" name="AGP (8.1.0-beta01)" variant="all" version="8.1.0-beta01">
 
     <issue
         id="NewApi"
@@ -44,24 +44,6 @@
         errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/androidTest/java/androidx/appcompat/widget/AppCompatRadioButtonTest.java"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 24 (current min is 14): `onDropForTextView`"
-        errorLine1="                    ? OnDropApi24Impl.onDropForTextView(event, (TextView) view, activity)"
-        errorLine2="                                      ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatReceiveContentHelper.java"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 24 (current min is 14): `onDropForView`"
-        errorLine1="                    : OnDropApi24Impl.onDropForView(event, view, activity);"
-        errorLine2="                                      ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatReceiveContentHelper.java"/>
     </issue>
 
     <issue
@@ -452,12 +434,33 @@
     </issue>
 
     <issue
+        id="PrereleaseSdkCoreDependency"
+        message="Prelease SDK check isAtLeastT cannot be called as this project has a versioned dependency on androidx.core:core"
+        errorLine1="        if (BuildCompat.isAtLeastT()) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/widget/DropDownListView.java"/>
+    </issue>
+
+    <issue
+        id="PrereleaseSdkCoreDependency"
+        message="Prelease SDK check isAtLeastT cannot be called as this project has a versioned dependency on androidx.core:core"
+        errorLine1="        if (BuildCompat.isAtLeastT()) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/widget/DropDownListView.java"/>
+    </issue>
+
+    <issue
         id="KotlinPropertyAccess"
         message="The getter return type (`View`) and setter parameter type (`ScrollingTabContainerView`) getter and setter methods for property `tabContainer` should have exactly the same type to allow be accessed as a property from Kotlin; see https://android.github.io/kotlin-guides/interop.html#property-prefixes"
         errorLine1="    public View getTabContainer() {"
         errorLine2="                ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ActionBarContainer.java"/>
+        <location
+            file="src/main/java/androidx/appcompat/widget/ActionBarContainer.java"
+            message="Setter here"/>
     </issue>
 
     <issue
@@ -476,6 +479,9 @@
         errorLine2="                     ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatActivity.java"/>
+        <location
+            file="src/main/java/androidx/appcompat/app/AppCompatActivity.java"
+            message="Setter here"/>
     </issue>
 
     <issue
@@ -485,6 +491,9 @@
         errorLine2="                              ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatDelegate.java"/>
+        <location
+            file="src/main/java/androidx/appcompat/app/AppCompatDelegate.java"
+            message="Setter here"/>
     </issue>
 
     <issue
@@ -494,6 +503,9 @@
         errorLine2="                           ~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/view/ContextThemeWrapper.java"/>
+        <location
+            file="src/main/java/androidx/appcompat/view/ContextThemeWrapper.java"
+            message="Setter here"/>
     </issue>
 
     <issue
@@ -539,6 +551,9 @@
         errorLine2="                   ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/view/menu/MenuItemImpl.java"/>
+        <location
+            file="src/main/java/androidx/appcompat/view/menu/MenuItemImpl.java"
+            message="Setter here"/>
     </issue>
 
     <issue
@@ -3428,15 +3443,6 @@
         errorLine2="                                  ~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatRadioButton.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected synchronized void onDraw(Canvas canvas) {"
-        errorLine2="                                       ~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatSeekBar.java"/>
     </issue>
 
     <issue
@@ -7105,15 +7111,6 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected void onDraw(Canvas canvas) {"
-        errorLine2="                          ~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/SwitchCompat.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public static TintTypedArray obtainStyledAttributes(Context context, AttributeSet set,"
         errorLine2="                  ~~~~~~~~~~~~~~">
         <location
@@ -7962,15 +7959,6 @@
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public LayoutInflater getLayoutInflater() {"
         errorLine2="           ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/ViewStubCompat.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected void dispatchDraw(Canvas canvas) {"
-        errorLine2="                                ~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ViewStubCompat.java"/>
     </issue>

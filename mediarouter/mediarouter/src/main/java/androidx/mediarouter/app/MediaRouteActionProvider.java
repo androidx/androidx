@@ -30,8 +30,6 @@ import androidx.mediarouter.media.MediaRouteSelector;
 import androidx.mediarouter.media.MediaRouter;
 import androidx.mediarouter.media.MediaRouterParams;
 
-import java.lang.ref.WeakReference;
-
 /**
  * The media route action provider displays a {@link MediaRouteButton media route button}
  * in the application's {@link ActionBar} to allow the user to select routes and
@@ -42,11 +40,7 @@ import java.lang.ref.WeakReference;
  * {@link #setRouteSelector} method.
  * </p><p>
  * Refer to {@link MediaRouteButton} for a description of the button that will
- * appear in the action bar menu.  Note that instead of disabling the button
- * when no routes are available, the action provider will instead make the
- * menu item invisible.  In this way, the button will only be visible when it
- * is possible for the user to discover and select a matching route.
- * You can call {@link #setAlwaysVisible} to override this behavior.
+ * appear in the action bar menu.
  * </p>
  *
  * <h3>Prerequisites</h3>
@@ -142,12 +136,9 @@ public class MediaRouteActionProvider extends ActionProvider {
     private static final String TAG = "MRActionProvider";
 
     private final MediaRouter mRouter;
-    private final MediaRouterCallback mCallback;
-
     private MediaRouteSelector mSelector = MediaRouteSelector.EMPTY;
     private MediaRouteDialogFactory mDialogFactory = MediaRouteDialogFactory.getDefault();
     private MediaRouteButton mButton;
-    private boolean mAlwaysVisible;
 
     /**
      * Creates the action provider.
@@ -158,7 +149,6 @@ public class MediaRouteActionProvider extends ActionProvider {
         super(context);
 
         mRouter = MediaRouter.getInstance(context);
-        mCallback = new MediaRouterCallback(this);
     }
 
     /**
@@ -184,21 +174,7 @@ public class MediaRouteActionProvider extends ActionProvider {
         }
 
         if (!mSelector.equals(selector)) {
-            // FIXME: We currently have no way of knowing whether the action provider
-            // is still needed by the UI.  Unfortunately this means the action provider
-            // may leak callbacks until garbage collection occurs.  This may result in
-            // media route providers doing more work than necessary in the short term
-            // while trying to discover routes that are no longer of interest to the
-            // application.  To solve this problem, the action provider will need some
-            // indication from the framework that it is being destroyed.
-            if (!mSelector.isEmpty()) {
-                mRouter.removeCallback(mCallback);
-            }
-            if (!selector.isEmpty()) {
-                mRouter.addCallback(selector, mCallback);
-            }
             mSelector = selector;
-            refreshRoute();
 
             if (mButton != null) {
                 mButton.setRouteSelector(selector);
@@ -230,22 +206,13 @@ public class MediaRouteActionProvider extends ActionProvider {
     }
 
     /**
-     * Sets whether {@link MediaRouteButton} is visible when no routes are available.
-     * When true, the button is visible even when there are no routes to connect.
-     * The default is false.
+     * Does nothing. You should not call this method.
      *
-     * @param alwaysVisible true to show MediaRouteButton even when no routes are available.
-     *
-     * @see MediaRouteButton#setAlwaysVisible(boolean)
+     * @deprecated The visibility of the button is no longer controlled from {@link ActionProvider}.
      */
+    @Deprecated
     public void setAlwaysVisible(boolean alwaysVisible) {
-        if (mAlwaysVisible != alwaysVisible) {
-            mAlwaysVisible = alwaysVisible;
-            refreshVisibility();
-            if (mButton != null) {
-                mButton.setAlwaysVisible(mAlwaysVisible);
-            }
-        }
+        // No-op.
     }
 
     /**
@@ -310,7 +277,6 @@ public class MediaRouteActionProvider extends ActionProvider {
         mButton = onCreateMediaRouteButton();
         mButton.setCheatSheetEnabled(true);
         mButton.setRouteSelector(mSelector);
-        mButton.setAlwaysVisible(mAlwaysVisible);
         mButton.setDialogFactory(mDialogFactory);
         mButton.setLayoutParams(new ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT,
@@ -324,72 +290,5 @@ public class MediaRouteActionProvider extends ActionProvider {
             return mButton.showDialog();
         }
         return false;
-    }
-
-    @Override
-    public boolean overridesItemVisibility() {
-        return true;
-    }
-
-    @Override
-    public boolean isVisible() {
-        return mAlwaysVisible || mRouter.isRouteAvailable(mSelector,
-                MediaRouter.AVAILABILITY_FLAG_IGNORE_DEFAULT_ROUTE);
-    }
-
-    void refreshRoute() {
-        refreshVisibility();
-    }
-
-    private static final class MediaRouterCallback extends MediaRouter.Callback {
-        private final WeakReference<MediaRouteActionProvider> mProviderWeak;
-
-        public MediaRouterCallback(MediaRouteActionProvider provider) {
-            mProviderWeak = new WeakReference<MediaRouteActionProvider>(provider);
-        }
-
-        @Override
-        public void onRouteAdded(@NonNull MediaRouter router, @NonNull MediaRouter.RouteInfo info) {
-            refreshRoute(router);
-        }
-
-        @Override
-        public void onRouteRemoved(@NonNull MediaRouter router,
-                @NonNull MediaRouter.RouteInfo info) {
-            refreshRoute(router);
-        }
-
-        @Override
-        public void onRouteChanged(@NonNull MediaRouter router,
-                @NonNull MediaRouter.RouteInfo info) {
-            refreshRoute(router);
-        }
-
-        @Override
-        public void onProviderAdded(@NonNull MediaRouter router,
-                @NonNull MediaRouter.ProviderInfo provider) {
-            refreshRoute(router);
-        }
-
-        @Override
-        public void onProviderRemoved(@NonNull MediaRouter router,
-                @NonNull MediaRouter.ProviderInfo provider) {
-            refreshRoute(router);
-        }
-
-        @Override
-        public void onProviderChanged(@NonNull MediaRouter router,
-                @NonNull MediaRouter.ProviderInfo provider) {
-            refreshRoute(router);
-        }
-
-        private void refreshRoute(MediaRouter router) {
-            MediaRouteActionProvider provider = mProviderWeak.get();
-            if (provider != null) {
-                provider.refreshRoute();
-            } else {
-                router.removeCallback(this);
-            }
-        }
     }
 }

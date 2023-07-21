@@ -17,7 +17,6 @@
 package androidx.wear.protolayout.expression.pipeline;
 
 import static com.google.common.truth.Truth.assertThat;
-
 import static org.robolectric.Shadows.shadowOf;
 
 import android.animation.TypeEvaluator;
@@ -26,17 +25,20 @@ import android.os.Looper;
 
 import androidx.annotation.NonNull;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.wear.protolayout.expression.proto.AnimationParameterProto;
+import androidx.wear.protolayout.expression.proto.AnimationParameterProto.AnimationParameters;
 import androidx.wear.protolayout.expression.proto.AnimationParameterProto.AnimationSpec;
+import androidx.wear.protolayout.expression.proto.AnimationParameterProto.Repeatable;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Range;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 @RunWith(AndroidJUnit4.class)
 public class AnimatableNodeTest {
@@ -255,10 +257,103 @@ public class AnimatableNodeTest {
         assertThat(mUpdateValues).containsExactly(15.0f);
     }
 
+    @Test
+    public void animationWithCustomReverseDuration_animatorWithAux() {
+        QuotaManager quotaManager = new FixedQuotaManagerImpl(1);
+        TestAnimatableNode animNode =
+                new TestAnimatableNode(quotaManager, createAnimationSpec(4, 100, 200, 0, 0));
+        QuotaAwareAnimator animator = animNode.getQuotaAwareAnimator();
+
+        assertThat(animator).isInstanceOf(QuotaAwareAnimatorWithAux.class);
+    }
+
+    @Test
+    public void animationWithCustomReverseDuration_consumeOneQuota() {
+        QuotaManager quotaManager = new FixedQuotaManagerImpl(2);
+        TestAnimatableNode animNode =
+                new TestAnimatableNode(quotaManager, createAnimationSpec(2, 100, 200, 0, 0));
+        animNode.setVisibility(true);
+        QuotaAwareAnimator animator = animNode.getQuotaAwareAnimator();
+        animator.setIntValues(0, 10);
+
+        animNode.startOrSkipAnimator();
+        assertThat(animator.isRunning()).isTrue();
+
+        assertThat(quotaManager.tryAcquireQuota(1)).isTrue();
+        assertThat(quotaManager.tryAcquireQuota(1)).isFalse();
+
+        shadowOf(Looper.getMainLooper()).idle();
+        assertThat(quotaManager.tryAcquireQuota(1)).isTrue();
+    }
+
+    @Test
+    public void animationWithCustomReverseDuration_releaseQuotaWhenInvisible() {
+        QuotaManager quotaManager = new FixedQuotaManagerImpl(1);
+        TestAnimatableNode animNode =
+                new TestAnimatableNode(quotaManager, createAnimationSpec(2, 100, 200, 0, 0));
+        animNode.setVisibility(true);
+        QuotaAwareAnimator animator = animNode.getQuotaAwareAnimator();
+        animator.setIntValues(0, 10);
+
+        animNode.startOrSkipAnimator();
+        assertThat(animator.isRunning()).isTrue();
+        assertThat(quotaManager.tryAcquireQuota(1)).isFalse();
+
+        animNode.setVisibility(false);
+        assertThat(quotaManager.tryAcquireQuota(1)).isTrue();
+    }
+
+    @Test
+    public void animationWithCustomReverseDuration_checkAnimationValues() {
+        mUpdateValues.clear();
+        QuotaManager quotaManager = new FixedQuotaManagerImpl(1);
+        TestAnimatableNode animNode =
+                new TestAnimatableNode(quotaManager, createAnimationSpec(2, 100, 200, 0, 0));
+        animNode.setVisibility(true);
+        QuotaAwareAnimator animator = animNode.getQuotaAwareAnimator();
+
+        float start = 1.0f;
+        float end = 10.0f;
+        animator.setFloatValues(start, end);
+        animator.addUpdateCallback(a -> mUpdateValues.add((float) a));
+        animNode.startOrSkipAnimator();
+        shadowOf(Looper.getMainLooper()).idle();
+
+        for (Float value : mUpdateValues) {
+            assertThat(value).isIn(Range.closed(start, end));
+        }
+        assertThat(mUpdateValues.size()).isGreaterThan(3);
+        assertThat(mUpdateValues.get(0)).isEqualTo(start);
+        assertThat(Iterables.getLast(mUpdateValues)).isEqualTo(start);
+
+        int increasingValueCount = 0;
+        int decreasingValueCount = 0;
+        for (int i = 0; i < mUpdateValues.size() - 2; i++) {
+            if (mUpdateValues.get(i) < mUpdateValues.get(i + 1)) {
+                increasingValueCount++;
+            } else {
+                decreasingValueCount++;
+            }
+        }
+        // reverse duration is double length of forward duration, expecting decreasing value
+        // count about
+        // double of the increasing value count.
+        assertThat(decreasingValueCount).isAtLeast((increasingValueCount - 1) * 2);
+        assertThat(decreasingValueCount).isAtMost((increasingValueCount + 1) * 2);
+    }
+
     static class TestAnimatableNode extends AnimatableNode {
 
         TestAnimatableNode(QuotaAwareAnimator quotaAwareAnimator) {
             super(quotaAwareAnimator);
+        }
+
+        TestAnimatableNode(@NonNull QuotaManager quotaManager, @NonNull AnimationSpec spec) {
+            super(quotaManager, spec);
+        }
+
+        QuotaAwareAnimator getQuotaAwareAnimator() {
+            return mQuotaAwareAnimator;
         }
     }
 
@@ -270,8 +365,8 @@ public class AnimatableNodeTest {
         }
 
         @SuppressWarnings("rawtypes")
-        TestQuotaAwareAnimator(
-                @NonNull QuotaManager mQuotaManager, @NonNull TypeEvaluator evaluator) {
+        TestQuotaAwareAnimator(@NonNull QuotaManager mQuotaManager,
+                @NonNull TypeEvaluator evaluator) {
             super(mQuotaManager, AnimationSpec.getDefaultInstance(), evaluator);
         }
 
@@ -279,5 +374,36 @@ public class AnimatableNodeTest {
         protected boolean isInfiniteAnimator() {
             return isInfiniteAnimator;
         }
+    }
+
+    @NonNull
+    AnimationSpec createAnimationSpec(
+            int iterations,
+            int forwardDuration,
+            int reverseDuration,
+            int forwardRepeatDelay,
+            int reverseRepeatDelay) {
+        return AnimationSpec.newBuilder()
+                .setAnimationParameters(
+                        AnimationParameters.newBuilder()
+                                .setDurationMillis(forwardDuration)
+                                .build())
+                .setRepeatable(
+                        Repeatable.newBuilder()
+                                .setRepeatMode(
+                                        AnimationParameterProto.RepeatMode.REPEAT_MODE_REVERSE)
+                                .setForwardRepeatOverride(
+                                        AnimationParameters.newBuilder()
+                                                .setDelayMillis(forwardRepeatDelay)
+                                                .build())
+                                .setReverseRepeatOverride(
+                                        AnimationParameters.newBuilder()
+                                                .setDurationMillis(reverseDuration)
+                                                .setDelayMillis(reverseRepeatDelay)
+                                                .build()
+                                )
+                                .setIterations(iterations)
+                                .build())
+                .build();
     }
 }

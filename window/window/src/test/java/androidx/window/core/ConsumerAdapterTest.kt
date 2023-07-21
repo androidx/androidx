@@ -20,11 +20,11 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.os.Build
-import org.mockito.kotlin.mock
 import java.util.function.Consumer
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import org.mockito.kotlin.mock
 
 /**
  * Tests for [ConsumerAdapter] ensuring that the reflection calls work as expected.

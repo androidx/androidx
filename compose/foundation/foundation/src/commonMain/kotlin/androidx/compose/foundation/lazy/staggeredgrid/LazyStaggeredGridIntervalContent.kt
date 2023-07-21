@@ -69,9 +69,6 @@ internal class LazyStaggeredGridIntervalContent(
 }
 
 @OptIn(ExperimentalFoundationApi::class)
-internal object LazyStaggeredGridItemScopeImpl : LazyStaggeredGridItemScope
-
-@OptIn(ExperimentalFoundationApi::class)
 internal class LazyStaggeredGridInterval(
     override val key: ((index: Int) -> Any)?,
     override val type: ((index: Int) -> Any?),

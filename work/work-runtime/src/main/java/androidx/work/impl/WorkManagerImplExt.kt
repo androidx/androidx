@@ -33,6 +33,7 @@ fun WorkManagerImpl(
     workDatabase: WorkDatabase =
         WorkDatabase.create(
             context.applicationContext, workTaskExecutor.serialTaskExecutor,
+            configuration.clock,
             context.resources.getBoolean(R.bool.workmanager_test_configuration)
         ),
     trackers: Trackers = Trackers(context.applicationContext, workTaskExecutor),
@@ -58,7 +59,7 @@ fun TestWorkManagerImpl(
     workTaskExecutor: TaskExecutor,
 ) = WorkManagerImpl(
     context, configuration, workTaskExecutor,
-    WorkDatabase.create(context, workTaskExecutor.serialTaskExecutor, true)
+    WorkDatabase.create(context, workTaskExecutor.serialTaskExecutor, configuration.clock, true)
 )
 
 internal typealias SchedulersCreator = (

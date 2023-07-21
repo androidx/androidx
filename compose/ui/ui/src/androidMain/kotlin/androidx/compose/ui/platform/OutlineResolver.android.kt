@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.platform
 
+import android.graphics.Outline as AndroidOutline
 import android.os.Build
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
@@ -32,7 +33,6 @@ import androidx.compose.ui.graphics.asAndroidPath
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import kotlin.math.roundToInt
-import android.graphics.Outline as AndroidOutline
 
 /**
  * Resolves the [AndroidOutline] from the [Shape] of an [OwnedLayer].

@@ -23,11 +23,11 @@ import android.graphics.Matrix
 import android.graphics.Paint
 import android.graphics.RectF
 import android.view.View
-import androidx.graphics.shapes.Polygon
+import androidx.graphics.shapes.RoundedPolygon
 import androidx.graphics.shapes.drawPolygon
 import kotlin.math.min
 
-class ShapeView(context: Context, var shape: Polygon) : View(context) {
+class ShapeView(context: Context, var shape: RoundedPolygon) : View(context) {
 
     val paint = Paint()
 
@@ -41,6 +41,7 @@ class ShapeView(context: Context, var shape: Polygon) : View(context) {
         val scaleFactor = min(scaleX, scaleY)
         return scaleFactor
     }
+
     private fun calculateMatrix(bounds: RectF): Matrix {
         val scale = calculateScale(bounds)
         val scaledLeft = scale * bounds.left

@@ -27,10 +27,19 @@ actual fun Paint(): Paint = AndroidPaint()
 /**
  * Convert an [android.graphics.Paint] instance into a Compose-compatible Paint
  */
-fun android.graphics.Paint.toComposePaint(): Paint = AndroidPaint(this)
+fun android.graphics.Paint.asComposePaint(): Paint = AndroidPaint(this)
 
+/**
+ * Create a Compose [Paint] instance backed by an [android.graphics.Paint] object to be
+ * consumed by Compose applications running on the Android platform
+ *
+ * @param internalPaint [android.graphics.Paint] to be wrapped by the [AndroidPaint] instance
+ */
 class AndroidPaint(private var internalPaint: android.graphics.Paint) : Paint {
 
+    /**
+     * Create a new [AndroidPaint] instance backed by a newly created [android.graphics.Paint]
+     */
     constructor() : this(makeNativePaint())
 
     private var _blendMode = BlendMode.SrcOver
