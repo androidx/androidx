@@ -27,7 +27,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.IntentSender;
-import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Build;
@@ -2636,9 +2635,6 @@ public final class MediaRouter {
         private int mCallbackCount;
         OnPrepareTransferListener mOnPrepareTransferListener;
         PrepareTransferNotifier mTransferNotifier;
-        RouteInfo mTransferredRoute;
-        RouteController mTransferredRouteController;
-
         private MediaSessionRecord mMediaSession;
         MediaSessionCompat mRccMediaSession;
         private MediaSessionCompat mCompatSession;
@@ -2749,18 +2745,6 @@ public final class MediaRouter {
 
         public ContentResolver getContentResolver() {
             return mApplicationContext.getContentResolver();
-        }
-
-        public Context getProviderContext(String packageName) {
-            if (packageName.equals(SystemMediaRouteProvider.PACKAGE_NAME)) {
-                return mApplicationContext;
-            }
-            try {
-                return mApplicationContext.createPackageContext(
-                        packageName, Context.CONTEXT_RESTRICTED);
-            } catch (NameNotFoundException ex) {
-                return null;
-            }
         }
 
         public Display getDisplay(int displayId) {
