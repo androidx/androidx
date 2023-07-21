@@ -220,6 +220,155 @@ class MapSubjectTest {
     }
 
     @Test
+    fun containsAtLeastWithNullKey() {
+        val actual =
+            mapOf(
+                null to "value",
+                "unexpectedKey" to "unexpectedValue",
+            )
+
+        val expected = mapOf<String?, String>(null to "value")
+
+        assertThat(actual).containsAtLeast(null to "value")
+        assertThat(actual).containsAtLeast(null to "value").inOrder()
+        assertThat(actual).containsAtLeastEntriesIn(expected)
+        assertThat(actual).containsAtLeastEntriesIn(expected).inOrder()
+    }
+
+    @Test
+    fun containsAtLeastWithNullValue() {
+        val actual =
+            mapOf(
+                "key" to null,
+                "unexpectedKey" to "unexpectedValue",
+            )
+
+        val expected = mapOf<String, String?>("key" to null)
+
+        assertThat(actual).containsAtLeast("key" to null)
+        assertThat(actual).containsAtLeast("key" to null).inOrder()
+        assertThat(actual).containsAtLeastEntriesIn(expected)
+        assertThat(actual).containsAtLeastEntriesIn(expected).inOrder()
+    }
+
+    @Test
+    fun containsAtLeastEmpty() {
+        val actual = mapOf("key" to 1)
+        assertThat(actual).containsAtLeastEntriesIn(emptyMap())
+        assertThat(actual).containsAtLeastEntriesIn(emptyMap()).inOrder()
+    }
+
+    @Test
+    fun containsAtLeastOneEntry() {
+        val actual = mapOf("jan" to 1)
+        assertThat(actual).containsAtLeast("jan" to 1)
+        assertThat(actual).containsAtLeast("jan" to 1).inOrder()
+        assertThat(actual).containsAtLeastEntriesIn(actual)
+        assertThat(actual).containsAtLeastEntriesIn(actual).inOrder()
+    }
+
+    @Test
+    fun containsAtLeastMultipleEntries() {
+        val actual = mapOf("jan" to 1, "feb" to 2, "mar" to 3, "apr" to 4)
+        assertThat(actual).containsAtLeast("apr" to 4, "jan" to 1, "feb" to 2)
+        assertThat(actual).containsAtLeast("jan" to 1, "feb" to 2, "apr" to 4).inOrder()
+        assertThat(actual).containsAtLeastEntriesIn(mapOf("apr" to 4, "jan" to 1, "feb" to 2))
+        assertThat(actual).containsAtLeastEntriesIn(actual).inOrder()
+    }
+
+    @Test
+    fun containsAtLeastDuplicateKeys() {
+        val actual = mapOf("jan" to 1, "feb" to 2, "march" to 3)
+        try {
+            assertThat(actual).containsAtLeast("jan" to 1, "jan" to 2, "jan" to 3)
+            fail("Expected IllegalArgumentException")
+        } catch (expected: IllegalArgumentException) {
+            assertThat(expected)
+                .hasMessageThat()
+                .isEqualTo("Duplicate keys ([jan x 3]) cannot be passed to containsAtLeast().")
+        }
+    }
+
+    @Test
+    fun containsAtLeastMultipleDuplicateKeys() {
+        val actual = mapOf("jan" to 1, "feb" to 2, "march" to 3)
+        try {
+            assertThat(actual).containsAtLeast("jan" to 1, "jan" to 1, "feb" to 2, "feb" to 2)
+            fail("Expected IllegalArgumentException")
+        } catch (expected: IllegalArgumentException) {
+            assertThat(expected)
+                .hasMessageThat()
+                .isEqualTo(
+                    "Duplicate keys ([jan x 2, feb x 2]) cannot be passed to containsAtLeast()."
+                )
+        }
+    }
+
+    @Test
+    fun containsAtLeastMissingKey() {
+        val actual = mapOf("jan" to 1, "feb" to 2)
+        assertFailsWith<AssertionError> {
+            assertThat(actual).containsAtLeast("jan" to 1, "march" to 3)
+        }
+    }
+
+    @Test
+    fun containsAtLeastWrongValue() {
+        val actual = mapOf("jan" to 1, "feb" to 2, "march" to 3)
+        assertFailsWith<AssertionError> {
+            assertThat(actual).containsAtLeast("jan" to 1, "march" to 33)
+        }
+    }
+
+    @Test
+    fun containsAtLeastWrongValueWithNull() {
+        // Test for https://github.com/google/truth/issues/468
+        val actual = mapOf<String, Int?>("jan" to 1, "feb" to 2, "march" to 3)
+        assertFailsWith<AssertionError> {
+            assertThat(actual).containsAtLeast("jan" to 1, "march" to null)
+        }
+    }
+
+    @Test
+    fun containsAtLeastExtraKeyAndMissingKeyAndWrongValue() {
+        val actual = mapOf("jan" to 1, "march" to 3)
+        assertFailsWith<AssertionError> {
+            assertThat(actual).containsAtLeast("march" to 33, "feb" to 2)
+        }
+    }
+
+    @Test
+    fun containsAtLeastNotInOrder() {
+        val actual = mapOf("jan" to 1, "feb" to 2, "march" to 3)
+        assertThat(actual).containsAtLeast("march" to 3, "feb" to 2)
+        assertFailsWith<AssertionError> {
+            assertThat(actual).containsAtLeast("march" to 3, "feb" to 2).inOrder()
+        }
+    }
+
+    @Test
+    fun containsAtLeastWrongValue_sameToStringForValues() {
+        assertFailsWith<AssertionError> {
+            assertThat(mapOf<String, Any>("jan" to 1L, "feb" to 2L, "mar" to 3L))
+                .containsAtLeast("jan" to 1, "feb" to 2)
+        }
+    }
+
+    @Test
+    fun containsAtLeastWrongValue_sameToStringForKeys() {
+        assertFailsWith<AssertionError> {
+            assertThat(mapOf(1L to "jan", 1 to "feb")).containsAtLeast(1 to "jan", 1L to "feb")
+        }
+    }
+
+    @Test
+    fun containsAtLeastExtraKeyAndMissingKey_failsWithSameToStringForKeys() {
+        assertFailsWith<AssertionError> {
+            assertThat(mapOf(1L to "jan", 2 to "feb")).containsAtLeast(1 to "jan", 2 to "feb")
+        }
+    }
+
+    @Test
     fun isEmpty() {
         assertThat(mapOf<Any, Any>()).isEmpty()
     }

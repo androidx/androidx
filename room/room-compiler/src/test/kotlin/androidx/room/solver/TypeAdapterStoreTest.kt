@@ -17,6 +17,7 @@
 package androidx.room.solver
 
 import COMMON
+import androidx.kruth.assertThat
 import androidx.paging.DataSource
 import androidx.paging.PagingSource
 import androidx.room.Dao
@@ -76,7 +77,6 @@ import androidx.room.solver.types.ValueClassConverterWrapper
 import androidx.room.testing.context
 import androidx.room.vo.BuiltInConverterFlags
 import androidx.room.vo.ReadQueryMethod
-import com.google.common.truth.Truth.assertThat
 import org.hamcrest.CoreMatchers.instanceOf
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.CoreMatchers.notNullValue
@@ -351,7 +351,7 @@ class TypeAdapterStoreTest {
             )
 
             assertThat(adapter).isNotNull()
-            assertThat(adapter).isInstanceOf(UuidColumnTypeAdapter::class.java)
+            assertThat(adapter).isInstanceOf<UuidColumnTypeAdapter>()
         }
     }
 
@@ -1556,7 +1556,7 @@ class TypeAdapterStoreTest {
                     isMultipleParameter = true
                 )
                 assertThat(adapter).isNotNull()
-                assertThat(adapter).isInstanceOf(CollectionQueryParameterAdapter::class.java)
+                assertThat(adapter).isInstanceOf<CollectionQueryParameterAdapter>()
             }
         }
     }

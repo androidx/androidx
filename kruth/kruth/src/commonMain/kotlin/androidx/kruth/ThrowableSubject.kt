@@ -19,7 +19,7 @@ package androidx.kruth
 /**
  * Propositions for [Throwable] subjects.
  */
-class ThrowableSubject<T : Throwable> internal constructor(
+class ThrowableSubject<out T : Throwable> internal constructor(
     actual: T?,
     private val metadata: FailureMetadata = FailureMetadata(),
 ) : Subject<T>(actual = actual, metadata = metadata) {
@@ -29,5 +29,18 @@ class ThrowableSubject<T : Throwable> internal constructor(
      */
     fun hasMessageThat(): StringSubject {
         return StringSubject(actual = actual?.message, metadata = metadata)
+    }
+
+    /**
+     * Returns a new [ThrowableSubject] that supports assertions on this [Throwable]'s direct
+     * cause. This method can be invoked repeatedly (e.g.
+     * `assertThat(e).hasCauseThat().hasCauseThat()....` to assert on a particular indirect cause.
+     */
+    fun hasCauseThat(): ThrowableSubject<Throwable> {
+        if (actual == null) {
+            asserter.fail("Causal chain is not deep enough - add a .isNotNull() check?")
+        }
+
+        return ThrowableSubject(actual = actual.cause, metadata = metadata)
     }
 }

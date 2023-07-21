@@ -16,6 +16,8 @@
 
 package androidx.room.compiler.processing
 
+import androidx.kruth.assertThat
+import androidx.kruth.assertWithMessage
 import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.codegen.asClassName
 import androidx.room.compiler.processing.testcode.JavaAnnotationWithDefaults
@@ -37,8 +39,7 @@ import androidx.room.compiler.processing.util.getParameter
 import androidx.room.compiler.processing.util.runProcessorTest
 import androidx.room.compiler.processing.util.runProcessorTestWithoutKsp
 import androidx.room.compiler.processing.util.typeName
-import com.google.common.truth.Truth.assertThat
-import com.google.common.truth.Truth.assertWithMessage
+import com.google.common.truth.Truth
 import com.squareup.javapoet.ClassName
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -171,7 +172,8 @@ class XAnnotationBoxTest(
                     }
                 annotation.getAsAnnotationBoxArray<OtherAnnotation>("otherAnnotationArray")
                     .let { boxArray ->
-                        assertThat(boxArray).hasLength(2)
+                        // Kruth doesn't support arrays yet
+                        Truth.assertThat(boxArray).hasLength(2)
                         assertThat(boxArray[0].value.value).isEqualTo("other list 1")
                         assertThat(boxArray[1].value.value).isEqualTo("other list 2")
                     }
@@ -270,7 +272,8 @@ class XAnnotationBoxTest(
                     }
                 annotation.getAsAnnotationBoxArray<OtherAnnotation>("otherAnnotationArray")
                     .let { boxArray ->
-                        assertThat(boxArray).hasLength(2)
+                        // Kruth doesn't support arrays yet
+                        Truth.assertThat(boxArray).hasLength(2)
                         assertThat(boxArray[0].value.value).isEqualTo("other list 1")
                         assertThat(boxArray[1].value.value).isEqualTo("other list 2")
                     }

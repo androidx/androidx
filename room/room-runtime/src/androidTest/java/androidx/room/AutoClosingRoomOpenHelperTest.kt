@@ -29,7 +29,6 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.FlakyTest
 import androidx.test.filters.SdkSuppress
 import androidx.testutils.assertThrows
-import com.google.common.truth.Truth
 import java.io.IOException
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
@@ -238,7 +237,7 @@ class AutoClosingRoomOpenHelperTest {
         db.query("select * from users").useCursor {
             assertThat(it.moveToFirst()).isTrue()
             assertThat(it.getInt(0)).isEqualTo(123)
-            Truth.assertThat(it.getDouble(1)).isWithin(.01).of(1.23)
+            assertThat(it.getDouble(1)).isWithin(.01).of(1.23)
 
             assertThat(it.getBlob(2)).isEqualTo(byteArrayOf(1, 2, 3))
             assertThat(it.isNull(3)).isTrue()
