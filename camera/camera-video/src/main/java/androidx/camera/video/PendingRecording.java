@@ -24,8 +24,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RequiresPermission;
-import androidx.annotation.RestrictTo;
-import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.impl.utils.ContextUtil;
 import androidx.core.content.PermissionChecker;
 import androidx.core.util.Consumer;
@@ -151,13 +149,55 @@ public final class PendingRecording {
      * normally cause recording to stop, such as lifecycle events or explicit unbinding of a
      * {@link VideoCapture} use case that the recording's {@link Recorder} is attached to.
      *
+     * <p>Even though lifecycle events or explicit unbinding use cases won't stop a persistent
+     * recording, it will still stop the camera from producing data, resulting in the in-progress
+     * persistent recording stopping getting data until the camera stream is activated again. For
+     * example, when the activity goes into background, the recording will keep waiting for new
+     * data to be recorded until the activity is back to foreground.
+     *
      * <p>A {@link Recorder} instance is recommended to be associated with a single
      * {@link VideoCapture} instance, especially when using persistent recording. Otherwise, there
      * might be unexpected behavior. Any in-progress persistent recording created from the same
      * {@link Recorder} should be stopped before starting a new recording, even if the
      * {@link Recorder} is associated with a different {@link VideoCapture}.
+     *
+     * <p>To switch to a different camera stream while a recording is in progress, first create
+     * the recording as persistent recording, then rebind the {@link VideoCapture} it's
+     * associated with to a different camera. The implementation may be like:
+     * <pre>{@code
+     * // Prepare the Recorder and VideoCapture, then bind the VideoCapture to the back camera.
+     * Recorder recorder = Recorder.Builder().build();
+     * VideoCapture videoCapture = VideoCapture.withOutput(recorder);
+     * cameraProvider.bindToLifecycle(
+     *         lifecycleOwner, CameraSelector.DEFAULT_BACK_CAMERA, videoCapture);
+     *
+     * // Prepare the persistent recording and start it.
+     * Recording recording = recorder
+     *         .prepareRecording(context, outputOptions)
+     *         .asPersistentRecording()
+     *         .start(eventExecutor, eventListener);
+     *
+     * // Record from the back camera for a period of time.
+     *
+     * // Rebind the VideoCapture to the front camera.
+     * cameraProvider.unbindAll();
+     * cameraProvider.bindToLifecycle(
+     *         lifecycleOwner, CameraSelector.DEFAULT_FRONT_CAMERA, videoCapture);
+     *
+     * // Record from the front camera for a period of time.
+     *
+     * // Stop the recording explicitly.
+     * recording.stop();
+     * }</pre>
+     *
+     * <p>The audio data will still be recorded after the {@link VideoCapture} is unbound.
+     * {@link Recording#pause() Pause} the recording first and {@link Recording#resume() resume} it
+     * later to stop recording audio while rebinding use cases.
+     *
+     * <p>If the recording is unable to receive data from the new camera, possibly because of
+     * incompatible surface combination, an exception will be thrown when binding to lifecycle.
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
+    @ExperimentalPersistentRecording
     @NonNull
     public PendingRecording asPersistentRecording() {
         mIsPersistent = true;
@@ -187,6 +227,10 @@ public final class PendingRecording {
      * the recording needs to be active. If the recording is garbage collected, the
      * {@link VideoRecordEvent.Finalize} event will contain error
      * {@link VideoRecordEvent.Finalize#ERROR_RECORDING_GARBAGE_COLLECTED}.
+     *
+     * <p>The {@link Recording} will be stopped automatically if the {@link VideoCapture} its
+     * {@link Recorder} is attached to is unbound unless it's created
+     * {@link #asPersistentRecording() as a persistent recording}.
      *
      * @throws IllegalStateException if the associated Recorder currently has an unfinished
      * active recording.
