@@ -58,6 +58,19 @@ class ExerciseCapabilitiesTest {
     }
 
     @Test
+    fun supportedExerciseEventForGolfExercise() {
+        assertThat(
+            EXERCISE_CAPABILITIES.getExerciseTypeCapabilities(
+                ExerciseType.GOLF).supportedExerciseEvents
+        ).isEqualTo(
+            EXERCISE_CAPABILITIES.typeToCapabilities.get(ExerciseType.GOLF)?.supportedExerciseEvents
+        )
+        assertThat(EXERCISE_CAPABILITIES.typeToCapabilities[ExerciseType.GOLF]
+                        ?.getExerciseEventCapabilityDetails(ExerciseEventType.GOLF_SHOT_EVENT)
+                        ?.isSwingTypeClassificationSupported).isTrue()
+    }
+
+    @Test
     fun exercisesSupportingAutoResumeAndPause_returnCorrectSet() {
         val supportsAutoPauseAndResume = ExerciseTypeCapabilities(
             supportedDataTypes = ImmutableSet.of(),
@@ -151,11 +164,25 @@ class ExerciseCapabilitiesTest {
             supportsAutoPauseAndResume = true,
         )
 
+        private val GOLF_SHOT_EVENT_CAPABILITIES: GolfShotEventCapabilities =
+            GolfShotEventCapabilities(isSupported = true, isSwingTypeClassificationSupported = true)
+
+        private val GOLF_CAPABILITIES = ExerciseTypeCapabilities(
+            supportedDataTypes = emptySet(),
+            supportedGoals = emptyMap(),
+            supportedMilestones = emptyMap(),
+            supportsAutoPauseAndResume = true,
+            supportedExerciseEvents = setOf(ExerciseEventType.GOLF_SHOT_EVENT),
+            exerciseEventCapabilities =
+            ImmutableMap.of(ExerciseEventType.GOLF_SHOT_EVENT, GOLF_SHOT_EVENT_CAPABILITIES),
+        )
+
         private val EXERCISE_TYPE_TO_EXERCISE_CAPABILITIES_MAPPING =
             ImmutableMap.of(
                 ExerciseType.WALKING, WALKING_CAPABILITIES,
                 ExerciseType.RUNNING, RUNNING_CAPABILITIES,
-                ExerciseType.SWIMMING_POOL, SWIMMING_CAPABILITIES
+                ExerciseType.SWIMMING_POOL, SWIMMING_CAPABILITIES,
+                ExerciseType.GOLF, GOLF_CAPABILITIES,
             )
 
         private val EXERCISE_CAPABILITIES: ExerciseCapabilities =
