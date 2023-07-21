@@ -172,6 +172,7 @@ public class Thing {
     }
 
     /** Builder for {@link Thing}. */
+    @Document.BuilderProducer
     public static final class Builder extends BuilderImpl<Builder> {
         /** Constructs {@link Thing.Builder} with given {@code namespace} and {@code id} */
         public Builder(@NonNull String namespace, @NonNull String id) {
@@ -295,6 +296,18 @@ public class Thing {
             return (T) this;
         }
 
+        /** Sets a list of aliases for the item. */
+        @NonNull
+        public T setAlternateNames(@Nullable List<String> alternateNames) {
+            resetIfBuilt();
+            if (alternateNames != null) {
+                mAlternateNames = new ArrayList<>(alternateNames);
+            } else {
+                clearAlternateNames();
+            }
+            return (T) this;
+        }
+
         /** Clears the aliases, if any, for the item. */
         @NonNull
         public T clearAlternateNames() {
@@ -347,6 +360,18 @@ public class Thing {
             resetIfBuilt();
             Preconditions.checkNotNull(newPotentialAction);
             mPotentialActions.add(newPotentialAction);
+            return (T) this;
+        }
+
+        /** Sets a list of potential actions for this document. */
+        @NonNull
+        public T setPotentialActions(@Nullable List<PotentialAction> newPotentialActions) {
+            resetIfBuilt();
+            if (newPotentialActions != null) {
+                mPotentialActions = new ArrayList<>(newPotentialActions);
+            } else {
+                clearPotentialActions();
+            }
             return (T) this;
         }
 
