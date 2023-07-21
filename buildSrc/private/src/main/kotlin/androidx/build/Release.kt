@@ -259,7 +259,9 @@ object Release {
                 onConfigure = { archiveTask: VerifyVersionFilesTask ->
                     archiveTask.group = "Distribution"
                     archiveTask.description = "Builds all archives for publishing"
-                    archiveTask.repositoryDirectory = project.rootProject.getRepositoryDirectory()
+                    archiveTask.repositoryDirectory.set(
+                        project.rootProject.getRepositoryDirectory()
+                    )
                 },
                 onRegister = {}
             )

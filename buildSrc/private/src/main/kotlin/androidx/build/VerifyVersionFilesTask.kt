@@ -16,11 +16,11 @@
 
 package androidx.build
 
-import java.io.File
 import java.io.FileInputStream
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 import org.gradle.api.DefaultTask
+import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.PathSensitive
@@ -29,13 +29,13 @@ import org.gradle.api.tasks.TaskAction
 
 /** Task for verifying version files in Androidx artifacts */
 @CacheableTask
-open class VerifyVersionFilesTask : DefaultTask() {
-
-    @InputDirectory @PathSensitive(PathSensitivity.RELATIVE) lateinit var repositoryDirectory: File
+abstract class VerifyVersionFilesTask : DefaultTask() {
+    @get:[InputDirectory PathSensitive(PathSensitivity.RELATIVE)]
+    abstract val repositoryDirectory: DirectoryProperty
 
     @TaskAction
     fun verifyVersionFilesPresent() {
-        repositoryDirectory.walk().forEach { file ->
+        repositoryDirectory.asFile.get().walk().forEach { file ->
             var expectedPrefix = "androidx"
             if (file.path.contains("/libyuv/"))
                 expectedPrefix = "libyuv_libyuv" // external library that we don't publish
