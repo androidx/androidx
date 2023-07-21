@@ -280,20 +280,24 @@ class ParametersTest {
         var column = composables.filter("Column").first()
         var text = column.childrenList.single { strings[it.name] == "Text" }
 
-        var paramsById = rule.inspectorTester.sendCommand(
-            GetParametersByIdCommand(rule.rootId, text.id)
-        ).getParametersResponse
-        // We are using delayed parameter extractions so the cache does not have parameters
-        // (The code should look for an anchor but the anchor is not specified.)
-        assertThat(paramsById.parameterGroup.parameterList).isEmpty()
-
-        // But looking up by anchor will find the parameters
+        // Lookup by anchor will find the parameters
         var paramsByAnchor = rule.inspectorTester.sendCommand(
             GetParametersByAnchorIdCommand(rule.rootId, text.anchorHash, text.id)
         ).getParametersResponse
         strings = paramsByAnchor.stringsList.toMap()
         assertThat(paramsByAnchor.parameterGroup.parameterList).isNotEmpty()
         var textValue = paramsByAnchor.find("text")
+        assertThat(strings[textValue.int32Value]).isEqualTo("four")
+
+        // Lookup parameters without anchor should fallback to the older approach and return
+        // the same parameters:
+        var paramsById = rule.inspectorTester.sendCommand(
+            GetParametersByIdCommand(rule.rootId, text.id)
+        ).getParametersResponse
+        // We are using delayed parameter extractions so the cache does not have parameters
+        // (The code should look for an anchor but the anchor is not specified.)
+        assertThat(paramsById.parameterGroup.parameterList).isNotEmpty()
+        textValue = paramsById.find("text")
         assertThat(strings[textValue.int32Value]).isEqualTo("four")
 
         val snapshot = rule.inspectorTester.sendCommand(
