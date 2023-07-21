@@ -1546,9 +1546,8 @@ public final class MediaRouter {
             }
             checkCallingThread();
 
-            int count = mControlFilters.size();
-            for (int i = 0; i < count; i++) {
-                if (mControlFilters.get(i).hasCategory(category)) {
+            for (IntentFilter intentFilter: mControlFilters) {
+                if (intentFilter.hasCategory(category)) {
                     return true;
                 }
             }
@@ -1587,10 +1586,8 @@ public final class MediaRouter {
             }
             checkCallingThread();
 
-            int count = mControlFilters.size();
-            for (int i = 0; i < count; i++) {
-                IntentFilter filter = mControlFilters.get(i);
-                if (filter.hasCategory(category) && filter.hasAction(action)) {
+            for (IntentFilter intentFilter: mControlFilters) {
+                if (intentFilter.hasCategory(category) && intentFilter.hasAction(action)) {
                     return true;
                 }
             }
@@ -1621,9 +1618,8 @@ public final class MediaRouter {
             checkCallingThread();
 
             ContentResolver contentResolver = getGlobalRouter().getContentResolver();
-            int count = mControlFilters.size();
-            for (int i = 0; i < count; i++) {
-                if (mControlFilters.get(i).match(contentResolver, intent, true, TAG) >= 0) {
+            for (IntentFilter intentFilter: mControlFilters) {
+                if (intentFilter.match(contentResolver, intent, true, TAG) >= 0) {
                     return true;
                 }
             }
@@ -2294,10 +2290,9 @@ public final class MediaRouter {
         }
 
         RouteInfo findRouteByDescriptorId(String id) {
-            final int count = mRoutes.size();
-            for (int i = 0; i < count; i++) {
-                if (mRoutes.get(i).mDescriptorId.equals(id)) {
-                    return mRoutes.get(i);
+            for (RouteInfo route: mRoutes) {
+                if (route.mDescriptorId.equals(id)) {
+                    return route;
                 }
             }
             return null;
@@ -3092,9 +3087,8 @@ public final class MediaRouter {
             }
 
             // Notify providers.
-            final int providerCount = mProviders.size();
-            for (int i = 0; i < providerCount; i++) {
-                MediaRouteProvider provider = mProviders.get(i).mProviderInstance;
+            for (ProviderInfo providerInfo: mProviders) {
+                MediaRouteProvider provider = providerInfo.mProviderInstance;
                 if (provider == mMr2Provider) {
                     // MediaRoute2Provider is handled by updateMr2ProviderDiscoveryRequest().
                     continue;
@@ -3224,10 +3218,9 @@ public final class MediaRouter {
         }
 
         private ProviderInfo findProviderInfo(MediaRouteProvider providerInstance) {
-            final int count = mProviders.size();
-            for (int i = 0; i < count; i++) {
-                if (mProviders.get(i).mProviderInstance == providerInstance) {
-                    return mProviders.get(i);
+            for (ProviderInfo providerInfo: mProviders) {
+                if (providerInfo.mProviderInstance == providerInstance) {
+                    return providerInfo;
                 }
             }
             return null;
@@ -3767,10 +3760,8 @@ public final class MediaRouter {
                     mPlaybackInfo.volumeControlId = null;
                 }
 
-                final int count = mRemoteControlClients.size();
-                for (int i = 0; i < count; i++) {
-                    RemoteControlClientRecord record = mRemoteControlClients.get(i);
-                    record.updatePlaybackInfo();
+                for (RemoteControlClientRecord remoteControlClientRecord: mRemoteControlClients) {
+                    remoteControlClientRecord.updatePlaybackInfo();
                 }
                 if (mMediaSession != null) {
                     if (mSelectedRoute == getDefaultRoute()
