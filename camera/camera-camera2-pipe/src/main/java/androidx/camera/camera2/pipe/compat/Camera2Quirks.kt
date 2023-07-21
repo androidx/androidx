@@ -85,4 +85,26 @@ internal class Camera2Quirks @Inject constructor(
             CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL]
         return level == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY
     }
+
+    companion object {
+        private val SHOULD_WAIT_FOR_REPEATING_DEVICE_MAP =
+            mapOf(
+                "Google" to setOf("oriole", "raven", "bluejay", "panther", "cheetah", "lynx"),
+            )
+
+        /**
+         * A quirk that waits for a certain number of repeating requests to complete before allowing
+         * (single) capture requests to be issued. This is needed on some devices where issuing a
+         * capture request too early might cause it to fail prematurely.
+         *
+         * - Bug(s): b/287020251, b/289284907
+         * - Device(s): See [SHOULD_WAIT_FOR_REPEATING_DEVICE_MAP]
+         * - API levels: Before 34 (U)
+         */
+        internal fun shouldWaitForRepeatingBeforeCapture(): Boolean {
+            return SHOULD_WAIT_FOR_REPEATING_DEVICE_MAP[
+                Build.MANUFACTURER]?.contains(Build.DEVICE) == true &&
+                Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE
+        }
+    }
 }
