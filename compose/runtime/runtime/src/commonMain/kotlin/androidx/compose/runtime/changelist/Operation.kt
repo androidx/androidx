@@ -48,7 +48,7 @@ internal sealed class Operation(
 ) {
 
     val name: String
-        get() = javaClass.simpleName
+        get() = this::class.simpleName.orEmpty()
 
     abstract fun OperationArgContainer.execute(
         applier: Applier<*>,
