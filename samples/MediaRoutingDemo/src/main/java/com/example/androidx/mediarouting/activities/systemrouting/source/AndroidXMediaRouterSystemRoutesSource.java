@@ -19,6 +19,8 @@ package com.example.androidx.mediarouting.activities.systemrouting.source;
 import android.content.Context;
 
 import androidx.annotation.NonNull;
+import androidx.mediarouter.media.MediaControlIntent;
+import androidx.mediarouter.media.MediaRouteSelector;
 import androidx.mediarouter.media.MediaRouter;
 
 import com.example.androidx.mediarouting.activities.systemrouting.SystemRouteItem;
@@ -28,10 +30,25 @@ import java.util.ArrayList;
 import java.util.List;
 
 /** Implements {@link SystemRoutesSource} using {@link MediaRouter}. */
-public final class AndroidXMediaRouterSystemRoutesSource implements SystemRoutesSource {
+public final class AndroidXMediaRouterSystemRoutesSource extends SystemRoutesSource {
 
     @NonNull
     private final MediaRouter mMediaRouter;
+
+    @NonNull
+    private final MediaRouter.Callback mMediaRouterCallback = new MediaRouter.Callback() {
+        @Override
+        public void onRouteAdded(@NonNull MediaRouter router,
+                @NonNull MediaRouter.RouteInfo route) {
+            mOnRoutesChangedListener.onRouteAdded(createRouteItemFor(route));
+        }
+
+        @Override
+        public void onRouteRemoved(@NonNull MediaRouter router,
+                @NonNull MediaRouter.RouteInfo route) {
+            mOnRoutesChangedListener.onRouteRemoved(createRouteItemFor(route));
+        }
+    };
 
     /** Returns a new instance. */
     @NonNull
@@ -42,6 +59,21 @@ public final class AndroidXMediaRouterSystemRoutesSource implements SystemRoutes
 
     AndroidXMediaRouterSystemRoutesSource(@NonNull MediaRouter mediaRouter) {
         mMediaRouter = mediaRouter;
+    }
+
+    @Override
+    public void start() {
+        MediaRouteSelector selector = new MediaRouteSelector.Builder()
+                .addControlCategory(MediaControlIntent.CATEGORY_REMOTE_PLAYBACK)
+                .addControlCategory(MediaControlIntent.CATEGORY_LIVE_AUDIO)
+                .build();
+
+        mMediaRouter.addCallback(selector, mMediaRouterCallback);
+    }
+
+    @Override
+    public void stop() {
+        mMediaRouter.removeCallback(mMediaRouterCallback);
     }
 
     @NonNull
@@ -62,17 +94,22 @@ public final class AndroidXMediaRouterSystemRoutesSource implements SystemRoutes
                 continue;
             }
 
-            SystemRouteItem.Builder builder = new SystemRouteItem.Builder(routeInfo.getId())
-                    .setName(routeInfo.getName());
-
-            String description = routeInfo.getDescription();
-            if (description != null) {
-                builder.setDescription(description);
-            }
-
-            out.add(builder.build());
+            out.add(createRouteItemFor(routeInfo));
         }
 
         return out;
+    }
+
+    @NonNull
+    private static SystemRouteItem createRouteItemFor(@NonNull MediaRouter.RouteInfo routeInfo) {
+        SystemRouteItem.Builder builder = new SystemRouteItem.Builder(routeInfo.getId())
+                .setName(routeInfo.getName());
+
+        String description = routeInfo.getDescription();
+        if (description != null) {
+            builder.setDescription(description);
+        }
+
+        return builder.build();
     }
 }
