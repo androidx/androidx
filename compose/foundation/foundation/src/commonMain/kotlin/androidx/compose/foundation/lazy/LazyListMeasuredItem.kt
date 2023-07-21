@@ -17,8 +17,8 @@
 package androidx.compose.foundation.lazy
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.lazy.layout.LazyLayoutAnimateItemModifierNode
-import androidx.compose.foundation.lazy.layout.LazyLayoutAnimateItemModifierNode.Companion.NotInitialized
+import androidx.compose.foundation.lazy.layout.DefaultLayerBlock
+import androidx.compose.foundation.lazy.layout.LazyLayoutAnimation.Companion.NotInitialized
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.GraphicsLayerScope
 import androidx.compose.ui.layout.Placeable
@@ -52,7 +52,8 @@ internal class LazyListMeasuredItem @ExperimentalFoundationApi constructor(
      */
     private val visualOffset: IntOffset,
     override val key: Any,
-    override val contentType: Any?
+    override val contentType: Any?,
+    private val animator: LazyListItemAnimator
 ) : LazyListItemInfo {
     override var offset: Int = 0
         private set
@@ -144,30 +145,30 @@ internal class LazyListMeasuredItem @ExperimentalFoundationApi constructor(
             val minOffset = minMainAxisOffset - placeable.mainAxisSize
             val maxOffset = maxMainAxisOffset
             var offset = getOffset(index)
-            val animateNode = getParentData(index) as? LazyLayoutAnimateItemModifierNode
+            val animation = animator.getAnimation(key, index)
             val layerBlock: GraphicsLayerScope.() -> Unit
-            if (animateNode != null) {
+            if (animation != null) {
                 if (isLookingAhead) {
                     // Skip animation in lookahead pass
-                    animateNode.lookaheadOffset = offset
+                    animation.lookaheadOffset = offset
                 } else {
-                    val targetOffset = if (animateNode.lookaheadOffset != NotInitialized) {
-                        animateNode.lookaheadOffset
+                    val targetOffset = if (animation.lookaheadOffset != NotInitialized) {
+                        animation.lookaheadOffset
                     } else {
                         offset
                     }
-                    val animatedOffset = targetOffset + animateNode.placementDelta
+                    val animatedOffset = targetOffset + animation.placementDelta
                     // cancel the animation if current and target offsets are both out of the bounds
                     if ((targetOffset.mainAxis <= minOffset &&
                             animatedOffset.mainAxis <= minOffset) ||
                         (targetOffset.mainAxis >= maxOffset &&
                             animatedOffset.mainAxis >= maxOffset)
                     ) {
-                        animateNode.cancelPlacementAnimation()
+                        animation.cancelPlacementAnimation()
                     }
                     offset = animatedOffset
                 }
-                layerBlock = animateNode
+                layerBlock = animation
             } else {
                 layerBlock = DefaultLayerBlock
             }
@@ -192,8 +193,3 @@ internal class LazyListMeasuredItem @ExperimentalFoundationApi constructor(
 }
 
 private const val Unset = Int.MIN_VALUE
-
-/**
- * Block on [GraphicsLayerScope] which applies the default layer parameters.
- */
-private val DefaultLayerBlock: GraphicsLayerScope.() -> Unit = {}
