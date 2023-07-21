@@ -16,8 +16,11 @@
 package androidx.compose.material3
 
 import android.os.Build
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.testutils.assertAgainstGolden
 import androidx.compose.ui.Alignment
@@ -25,6 +28,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.InputMode
 import androidx.compose.ui.input.InputModeManager
 import androidx.compose.ui.platform.LocalInputModeManager
@@ -37,6 +41,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performMouseInput
 import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.unit.dp
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.screenshot.AndroidXScreenshotTestRule
@@ -187,7 +192,7 @@ class CheckboxScreenshotTest(private val scheme: ColorSchemeWrapper) {
 
         rule.mainClock.advanceTimeByFrame()
         rule.waitForIdle() // Wait for measure
-        rule.mainClock.advanceTimeBy(milliseconds = 80)
+        rule.mainClock.advanceTimeBy(milliseconds = 100)
 
         assertToggeableAgainstGolden("checkBox_${scheme.name}_unchecked_animateToChecked")
     }
@@ -216,7 +221,7 @@ class CheckboxScreenshotTest(private val scheme: ColorSchemeWrapper) {
 
         rule.mainClock.advanceTimeByFrame()
         rule.waitForIdle() // Wait for measure
-        rule.mainClock.advanceTimeBy(milliseconds = 80)
+        rule.mainClock.advanceTimeBy(milliseconds = 100)
 
         assertToggeableAgainstGolden("checkBox_${scheme.name}_checked_animateToUnchecked")
     }
@@ -267,6 +272,107 @@ class CheckboxScreenshotTest(private val scheme: ColorSchemeWrapper) {
         rule.waitForIdle()
 
         assertToggeableAgainstGolden("checkBox_${scheme.name}_focus")
+    }
+
+    @Test
+    fun checkBox_customColors() {
+        rule.setMaterialContent(scheme.colorScheme) {
+            Column(wrap.testTag(wrapperTestTag), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                val colors = CheckboxDefaults.colors(
+                    checkedColor = Color.Red,
+                    uncheckedColor = Color.Gray,
+                    checkmarkColor = Color.Green,
+                    disabledCheckedColor = Color.Red.copy(alpha = 0.38f),
+                    disabledUncheckedColor = Color.Gray.copy(alpha = 0.38f),
+                    disabledIndeterminateColor = Color.Magenta.copy(alpha = 0.38f)
+                )
+                Checkboxes(colors = colors)
+            }
+        }
+
+        rule.waitForIdle()
+
+        assertToggeableAgainstGolden("checkBox_${scheme.name}_customColors")
+    }
+
+    @Test
+    fun checkBox_customCheckboxColorsConstruct() {
+        rule.setMaterialContent(scheme.colorScheme) {
+            Column(wrap.testTag(wrapperTestTag), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                val colors = CheckboxColors(
+                    checkedCheckmarkColor = Color.Black,
+                    // Irrelevant for the test, as this color only appears when the check mark
+                    // transitions from checked to unchecked.
+                    uncheckedCheckmarkColor = Color.Transparent,
+                    checkedBoxColor = Color.Green,
+                    uncheckedBoxColor = Color.Yellow,
+                    disabledCheckedBoxColor = Color.Green.copy(alpha = 0.38f),
+                    disabledUncheckedBoxColor = Color.Yellow.copy(alpha = 0.38f),
+                    disabledIndeterminateBoxColor = Color.Magenta.copy(alpha = 0.38f),
+                    checkedBorderColor = Color.Red,
+                    uncheckedBorderColor = Color.Black,
+                    disabledBorderColor = Color.Red.copy(alpha = 0.38f),
+                    disabledUncheckedBorderColor = Color.Blue,
+                    disabledIndeterminateBorderColor = Color.LightGray
+                )
+                Checkboxes(colors = colors)
+            }
+        }
+
+        rule.waitForIdle()
+
+        assertToggeableAgainstGolden("checkBox_${scheme.name}_customCheckboxColorsConstruct")
+    }
+
+    @Composable
+    private fun Checkboxes(colors: CheckboxColors) {
+        TriStateCheckbox(state = ToggleableState.Off, onClick = { }, colors = colors)
+        TriStateCheckbox(
+            state = ToggleableState.Off,
+            onClick = { },
+            enabled = false,
+            colors = colors
+        )
+        TriStateCheckbox(state = ToggleableState.On, onClick = { }, colors = colors)
+        TriStateCheckbox(
+            state = ToggleableState.On,
+            onClick = { },
+            enabled = false,
+            colors = colors
+        )
+        TriStateCheckbox(
+            state = ToggleableState.Indeterminate,
+            onClick = { },
+            colors = colors
+        )
+        TriStateCheckbox(
+            state = ToggleableState.Indeterminate,
+            onClick = { },
+            enabled = false,
+            colors = colors
+        )
+        Checkbox(
+            checked = false,
+            onCheckedChange = { },
+            colors = colors
+        )
+        Checkbox(
+            checked = false,
+            onCheckedChange = { },
+            enabled = false,
+            colors = colors
+        )
+        Checkbox(
+            checked = true,
+            onCheckedChange = { },
+            colors = colors
+        )
+        Checkbox(
+            checked = true,
+            onCheckedChange = { },
+            enabled = false,
+            colors = colors
+        )
     }
 
     private fun assertToggeableAgainstGolden(goldenName: String) {

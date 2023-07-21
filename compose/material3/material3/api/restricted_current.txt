@@ -225,7 +225,7 @@ package androidx.compose.material3 {
   }
 
   @androidx.compose.runtime.Immutable public final class CheckboxColors {
-    ctor public CheckboxColors(long checkedCheckmarkColor, long uncheckedCheckmarkColor, long checkedBoxColor, long uncheckedBoxColor, long disabledCheckedBoxColor, long disabledUncheckedBoxColor, long disabledIndeterminateBoxColor, long checkedBorderColor, long uncheckedBorderColor, long disabledBorderColor, long disabledIndeterminateBorderColor);
+    ctor public CheckboxColors(long checkedCheckmarkColor, long uncheckedCheckmarkColor, long checkedBoxColor, long uncheckedBoxColor, long disabledCheckedBoxColor, long disabledUncheckedBoxColor, long disabledIndeterminateBoxColor, long checkedBorderColor, long uncheckedBorderColor, long disabledBorderColor, long disabledUncheckedBorderColor, long disabledIndeterminateBorderColor);
     method public long getCheckedBorderColor();
     method public long getCheckedBoxColor();
     method public long getCheckedCheckmarkColor();
@@ -233,6 +233,7 @@ package androidx.compose.material3 {
     method public long getDisabledCheckedBoxColor();
     method public long getDisabledIndeterminateBorderColor();
     method public long getDisabledIndeterminateBoxColor();
+    method public long getDisabledUncheckedBorderColor();
     method public long getDisabledUncheckedBoxColor();
     method public long getUncheckedBorderColor();
     method public long getUncheckedBoxColor();
@@ -244,6 +245,7 @@ package androidx.compose.material3 {
     property public final long disabledCheckedBoxColor;
     property public final long disabledIndeterminateBorderColor;
     property public final long disabledIndeterminateBoxColor;
+    property public final long disabledUncheckedBorderColor;
     property public final long disabledUncheckedBoxColor;
     property public final long uncheckedBorderColor;
     property public final long uncheckedBoxColor;
