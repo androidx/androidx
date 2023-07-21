@@ -291,12 +291,12 @@ internal class Camera2CaptureSequenceProcessor(
     }
 
     override fun abortCaptures(): Unit = synchronized(lock) {
-        if (closed) return
+        Log.debug { "$this#abortCaptures" }
         session.abortCaptures()
     }
 
     override fun stopRepeating(): Unit = synchronized(lock) {
-        if (closed) return
+        Log.debug { "$this#stopRepeating" }
         session.stopRepeating()
     }
 
