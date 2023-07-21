@@ -349,6 +349,43 @@ class GridTest {
     }
 
     @Test
+    fun testMultipleSpans() {
+        val rootSize = 200.dp
+        val boxesCount = 2
+        val rows = 2
+        val columns = 2
+        rule.setContent {
+            gridComposableTest(
+                modifier = Modifier.size(rootSize),
+                width = "'parent'",
+                height = "'parent'",
+                boxesCount = boxesCount,
+                orientation = 0,
+                rows = rows,
+                columns = columns,
+                hGap = 0,
+                vGap = 0,
+                spans = "'2:1x2,0:1x2'",
+                skips = "''",
+                rowWeights = "''",
+                columnWeights = "''",
+                flags = "'SpansRespectWidgetOrder'"
+            )
+        }
+        var topY = 0.dp
+        var bottomY: Dp
+
+        // 10.dp is the size of a singular box
+        var spanLeft = (rootSize - 10.dp) / 2f
+        val gapSize = (rootSize - (10.dp * 2f)) / (columns * 2f)
+        rule.waitForIdle()
+        topY += gapSize
+        rule.onNodeWithTag("box0").assertPositionInRootIsEqualTo(spanLeft, topY)
+        bottomY = topY + 10.dp + gapSize + gapSize
+        rule.onNodeWithTag("box1").assertPositionInRootIsEqualTo(spanLeft, bottomY)
+    }
+
+    @Test
     fun testOrderFirstSpans() {
         val rootSize = 200.dp
         val boxesCount = 3

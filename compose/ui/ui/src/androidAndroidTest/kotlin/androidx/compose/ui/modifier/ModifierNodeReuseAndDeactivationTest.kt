@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-@file:OptIn(ExperimentalComposeUiApi::class)
-
 package androidx.compose.ui.modifier
 
+import androidx.compose.runtime.Applier
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ReusableComposeNode
 import androidx.compose.runtime.ReusableContent
 import androidx.compose.runtime.ReusableContentHost
 import androidx.compose.runtime.getValue
@@ -35,11 +35,13 @@ import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasurePolicy
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.MeasureScope
+import androidx.compose.ui.node.ComposeUiNode
 import androidx.compose.ui.node.DelegatingNode
 import androidx.compose.ui.node.DrawModifierNode
 import androidx.compose.ui.node.LayoutModifierNode
+import androidx.compose.ui.node.LayoutNode
 import androidx.compose.ui.node.ModifierNodeElement
-import androidx.compose.ui.node.ObserverNode
+import androidx.compose.ui.node.ObserverModifierNode
 import androidx.compose.ui.node.observeReads
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.assertLeftPositionInRootIsEqualTo
@@ -49,6 +51,7 @@ import androidx.compose.ui.unit.Constraints
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -233,6 +236,54 @@ class ModifierNodeReuseAndDeactivationTest {
         }
     }
 
+    // Regression test for b/275919849
+    @Test
+    fun unchangedNodesAreDetachedAndReattachedWhenReused() {
+        val nodeInstance = object : Modifier.Node() {}
+        val element = object : ModifierNodeElement<Modifier.Node>() {
+            override fun create(): Modifier.Node = nodeInstance
+            override fun hashCode(): Int = System.identityHashCode(this)
+            override fun equals(other: Any?) = (other === this)
+            override fun update(node: Modifier.Node) { }
+        }
+
+        var active by mutableStateOf(true)
+        rule.setContent {
+            ReusableContentHost(active) {
+                // Custom Layout that measures to 1x1 pixels and only assigns the modifiers once
+                // when the node is created. Even if the modifiers aren't reassigned, they should
+                // still undergo the same lifecycle.
+                ReusableComposeNode<ComposeUiNode, Applier<Any>>(
+                    factory = {
+                        LayoutNode().apply {
+                            measurePolicy = MeasurePolicy { _, _ -> layout(1, 1) {} }
+                            modifier = element
+                        }
+                    },
+                    update = { },
+                    content = { }
+                )
+            }
+        }
+
+        rule.runOnIdle {
+            assertWithMessage("Modifier Node was not attached when being initially created")
+                .that(nodeInstance.isAttached).isTrue()
+        }
+
+        active = false
+        rule.runOnIdle {
+            assertWithMessage("Modifier Node should be detached when its LayoutNode is deactivated")
+                .that(nodeInstance.isAttached).isFalse()
+        }
+
+        active = true
+        rule.runOnIdle {
+            assertWithMessage("Modifier Node was not attached after being reactivated")
+                .that(nodeInstance.isAttached).isTrue()
+        }
+    }
+
     @Test
     fun nodesAreDetachedAndAttachedWhenDeactivatedAndReactivated() {
         var active by mutableStateOf(true)
@@ -286,7 +337,7 @@ class ModifierNodeReuseAndDeactivationTest {
             ReusableContentHost(active) {
                 ReusableContent(reuseKey) {
                     Layout(
-                        modifier = StatelessModifierElement(onInvalidate),
+                        modifier = StatelessElement(onInvalidate),
                         measurePolicy = MeasurePolicy
                     )
                 }
@@ -323,7 +374,7 @@ class ModifierNodeReuseAndDeactivationTest {
             ReusableContentHost(active) {
                 ReusableContent(reuseKey) {
                     Layout(
-                        modifier = StatelessModifierElement(onInvalidate, size),
+                        modifier = StatelessElement(onInvalidate, size),
                         measurePolicy = MeasurePolicy
                     )
                 }
@@ -358,7 +409,7 @@ class ModifierNodeReuseAndDeactivationTest {
         rule.setContent {
             ReusableContent(reuseKey) {
                 Layout(
-                    modifier = DelegatingModifierElement(onReset),
+                    modifier = DelegatingElement(onReset),
                     measurePolicy = MeasurePolicy
                 )
             }
@@ -390,7 +441,7 @@ class ModifierNodeReuseAndDeactivationTest {
             ReusableContentHost(active) {
                 ReusableContent(0) {
                     Layout(
-                        modifier = LayerModifierElement(layerBlock),
+                        modifier = LayerElement(layerBlock),
                         measurePolicy = MeasurePolicy
                     )
                 }
@@ -437,7 +488,7 @@ class ModifierNodeReuseAndDeactivationTest {
             ReusableContentHost(active) {
                 ReusableContent(0) {
                     Layout(
-                        modifier = LayoutModifierElement(measureBlock),
+                        modifier = LayoutElement(measureBlock),
                         measurePolicy = MeasurePolicy
                     )
                 }
@@ -567,7 +618,7 @@ class ModifierNodeReuseAndDeactivationTest {
             ReusableContentHost(active) {
                 ReusableContent(0) {
                     Layout(
-                        modifier = DrawModifierElement(drawBlock),
+                        modifier = DrawElement(drawBlock),
                         measurePolicy = MeasurePolicy
                     )
                 }
@@ -697,7 +748,7 @@ class ModifierNodeReuseAndDeactivationTest {
             ReusableContentHost(active) {
                 ReusableContent(0) {
                     Layout(
-                        modifier = ObserverModifierElement(observedBlock),
+                        modifier = ObserverElement(observedBlock),
                         measurePolicy = MeasurePolicy
                     )
                 }
@@ -739,6 +790,7 @@ class ModifierNodeReuseAndDeactivationTest {
         rule.setContent {
             ReusableContentHost(active) {
                 ReusableContent(0) {
+                    @OptIn(ExperimentalComposeUiApi::class)
                     Layout(
                         modifier = Modifier
                             .modifierLocalProvider(key) { providedValue }
@@ -856,7 +908,7 @@ private fun createModifier(
             }
         }
 
-        override fun update(node: Modifier.Node) = node.apply { onUpdate() }
+        override fun update(node: Modifier.Node) { onUpdate() }
 
         override fun hashCode(): Int = "ModifierNodeReuseAndDeactivationTest".hashCode()
 
@@ -870,15 +922,15 @@ private val MeasurePolicy = MeasurePolicy { _, _ ->
     layout(100, 100) { }
 }
 
-private data class StatelessModifierElement(
+private data class StatelessElement(
     private val onInvalidate: () -> Unit,
     private val size: Int = 10
-) : ModifierNodeElement<StatelessModifierElement.Node>() {
+) : ModifierNodeElement<StatelessElement.Node>() {
     override fun create() = Node(size, onInvalidate)
 
-    override fun update(node: Node) = node.also {
-        it.size = size
-        it.onMeasure = onInvalidate
+    override fun update(node: Node) {
+        node.size = size
+        node.onMeasure = onInvalidate
     }
 
     class Node(var size: Int, var onMeasure: () -> Unit) : Modifier.Node(), LayoutModifierNode {
@@ -895,33 +947,33 @@ private data class StatelessModifierElement(
     }
 }
 
-private data class DelegatingModifierElement(
+private data class DelegatingElement(
     private val onDelegatedNodeReset: () -> Unit,
-) : ModifierNodeElement<DelegatingModifierElement.Node>() {
+) : ModifierNodeElement<DelegatingElement.Node>() {
     override fun create() = Node(onDelegatedNodeReset)
 
-    override fun update(node: Node) = node.also {
-        it.onReset = onDelegatedNodeReset
+    override fun update(node: Node) {
+        node.onReset = onDelegatedNodeReset
     }
 
     class Node(var onReset: () -> Unit) : DelegatingNode() {
-        private val inner = delegated {
+        private val inner = delegate(
             object : Modifier.Node() {
                 override fun onReset() {
                     this@Node.onReset.invoke()
                 }
             }
-        }
+        )
     }
 }
 
-private data class LayerModifierElement(
+private data class LayerElement(
     private val layerBlock: () -> Unit,
-) : ModifierNodeElement<LayerModifierElement.Node>() {
+) : ModifierNodeElement<LayerElement.Node>() {
     override fun create() = Node(layerBlock)
 
-    override fun update(node: Node) = node.also {
-        it.layerBlock = layerBlock
+    override fun update(node: Node) {
+        node.layerBlock = layerBlock
     }
 
     class Node(var layerBlock: () -> Unit) : Modifier.Node(), LayoutModifierNode {
@@ -939,16 +991,16 @@ private data class LayerModifierElement(
     }
 }
 
-private data class ObserverModifierElement(
+private data class ObserverElement(
     private val observedBlock: () -> Unit,
-) : ModifierNodeElement<ObserverModifierElement.Node>() {
+) : ModifierNodeElement<ObserverElement.Node>() {
     override fun create() = Node(observedBlock)
 
-    override fun update(node: Node) = node.also {
-        it.observedBlock = observedBlock
+    override fun update(node: Node) {
+        node.observedBlock = observedBlock
     }
 
-    class Node(var observedBlock: () -> Unit) : Modifier.Node(), ObserverNode {
+    class Node(var observedBlock: () -> Unit) : Modifier.Node(), ObserverModifierNode {
 
         override fun onAttach() {
             observe()
@@ -966,13 +1018,13 @@ private data class ObserverModifierElement(
     }
 }
 
-private data class LayoutModifierElement(
+private data class LayoutElement(
     private val measureBlock: () -> Unit,
-) : ModifierNodeElement<LayoutModifierElement.Node>() {
+) : ModifierNodeElement<LayoutElement.Node>() {
     override fun create() = Node(measureBlock)
 
-    override fun update(node: Node) = node.also {
-        it.measureBlock = measureBlock
+    override fun update(node: Node) {
+        node.measureBlock = measureBlock
     }
 
     class Node(var measureBlock: () -> Unit) : Modifier.Node(), LayoutModifierNode {
@@ -1004,13 +1056,13 @@ private data class OldLayoutModifier(
     }
 }
 
-private data class DrawModifierElement(
+private data class DrawElement(
     private val drawBlock: () -> Unit,
-) : ModifierNodeElement<DrawModifierElement.Node>() {
+) : ModifierNodeElement<DrawElement.Node>() {
     override fun create() = Node(drawBlock)
 
-    override fun update(node: Node) = node.also {
-        it.drawBlock = drawBlock
+    override fun update(node: Node) {
+        node.drawBlock = drawBlock
     }
 
     class Node(var drawBlock: () -> Unit) : Modifier.Node(), DrawModifierNode {
@@ -1031,7 +1083,7 @@ private data class OldDrawModifier(
 
 private object StatelessLayoutElement1 : ModifierNodeElement<StatelessLayoutModifier1>() {
     override fun create() = StatelessLayoutModifier1()
-    override fun update(node: StatelessLayoutModifier1) = node
+    override fun update(node: StatelessLayoutModifier1) {}
     override fun hashCode(): Int = 241
     override fun equals(other: Any?) = other === this
 }
@@ -1050,7 +1102,7 @@ private class StatelessLayoutModifier1 : Modifier.Node(), LayoutModifierNode {
 
 private object StatelessLayoutElement2 : ModifierNodeElement<StatelessLayoutModifier2>() {
     override fun create() = StatelessLayoutModifier2()
-    override fun update(node: StatelessLayoutModifier2) = node
+    override fun update(node: StatelessLayoutModifier2) {}
     override fun hashCode(): Int = 242
     override fun equals(other: Any?) = other === this
 }

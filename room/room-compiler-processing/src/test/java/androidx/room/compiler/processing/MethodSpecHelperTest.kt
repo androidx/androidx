@@ -21,22 +21,22 @@ import androidx.room.compiler.processing.javac.JavacTypeElement
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
 import androidx.room.compiler.processing.util.compileFiles
-import androidx.testutils.generateAllEnumerations
 import androidx.room.compiler.processing.util.javaTypeUtils
 import androidx.room.compiler.processing.util.runKaptTest
 import androidx.room.compiler.processing.util.runProcessorTest
+import androidx.testutils.generateAllEnumerations
 import com.google.auto.common.MoreTypes
 import com.google.common.truth.Truth.assertThat
 import com.squareup.javapoet.MethodSpec
 import com.squareup.javapoet.ParameterSpec
-import org.junit.Test
-import org.junit.runner.RunWith
-import org.junit.runners.Parameterized
 import java.io.File
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.Modifier
 import javax.lang.model.type.DeclaredType
 import javax.lang.model.util.Types
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.Parameterized
 
 @RunWith(Parameterized::class)
 class MethodSpecHelperTest(

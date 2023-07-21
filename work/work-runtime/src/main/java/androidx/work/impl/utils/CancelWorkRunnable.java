@@ -222,7 +222,9 @@ public abstract class CancelWorkRunnable implements Runnable {
                     }
                     // Update the last cancelled time in Preference.
                     new PreferenceUtils(workManagerImpl.getWorkDatabase())
-                            .setLastCancelAllTimeMillis(System.currentTimeMillis());
+                            .setLastCancelAllTimeMillis(
+                                    workManagerImpl.getConfiguration().getClock()
+                                            .currentTimeMillis());
                     workDatabase.setTransactionSuccessful();
                 } finally {
                     workDatabase.endTransaction();

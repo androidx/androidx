@@ -18,7 +18,6 @@ package androidx.room.migration.bundle
 
 import androidx.annotation.RestrictTo
 import androidx.room.Index
-
 import com.google.gson.annotations.SerializedName
 
 /**

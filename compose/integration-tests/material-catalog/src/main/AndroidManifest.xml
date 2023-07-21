@@ -21,6 +21,7 @@
     <application
         android:label="@string/compose_material_catalog"
         android:icon="@mipmap/ic_launcher"
+        android:supportsRtl="true"
         android:theme="@style/Theme.Catalog">
         <activity android:name=".CatalogActivity" android:exported="true">
             <intent-filter>

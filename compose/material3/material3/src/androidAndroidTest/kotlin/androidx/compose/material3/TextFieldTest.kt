@@ -69,6 +69,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertHeightIsEqualTo
+import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertWidthIsEqualTo
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.click
@@ -98,17 +99,17 @@ import androidx.test.filters.LargeTest
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
-import com.nhaarman.mockitokotlin2.any
-import com.nhaarman.mockitokotlin2.atLeastOnce
-import com.nhaarman.mockitokotlin2.eq
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.verify
 import kotlin.math.roundToInt
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.kotlin.any
+import org.mockito.kotlin.atLeastOnce
+import org.mockito.kotlin.eq
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.verify
 
 @OptIn(ExperimentalMaterial3Api::class)
 @MediumTest
@@ -1121,6 +1122,34 @@ class TextFieldTest {
     }
 
     @Test
+    fun testTextField_supportingText_widthIsNotWiderThanTextField() {
+        val tfSize = Ref<IntSize>()
+        val supportingSize = Ref<IntSize>()
+        rule.setMaterialContent(lightColorScheme()) {
+            TextField(
+                value = "",
+                onValueChange = {},
+                modifier = Modifier.onGloballyPositioned {
+                    tfSize.value = it.size
+                },
+                supportingText = {
+                    Text(
+                        text = "Long long long long long long long long long long long long " +
+                            "long long long long long long long long long long long long",
+                        modifier = Modifier.onGloballyPositioned {
+                            supportingSize.value = it.size
+                        }
+                    )
+                }
+            )
+        }
+
+        rule.runOnIdleWithDensity {
+            assertThat(supportingSize.value!!.width).isAtMost(tfSize.value!!.width)
+        }
+    }
+
+    @Test
     fun testTextField_supportingText_contributesToTextFieldMeasurements() {
         val tfSize = Ref<IntSize>()
         rule.setMaterialContent(lightColorScheme()) {
@@ -1139,6 +1168,24 @@ class TextFieldTest {
                 ExpectedDefaultTextFieldHeight.roundToPx()
             )
         }
+    }
+
+    @Test
+    fun testTextField_supportingText_remainsVisibleWithTallInput() {
+        rule.setMaterialContent(lightColorScheme()) {
+            TextField(
+                value = buildString {
+                    repeat(200) {
+                        append("line $it\n")
+                    }
+                },
+                onValueChange = {},
+                modifier = Modifier.size(width = ExpectedDefaultTextFieldWidth, height = 150.dp),
+                supportingText = { Text("Supporting", modifier = Modifier.testTag("Supporting")) }
+            )
+        }
+
+        rule.onNodeWithTag("Supporting", useUnmergedTree = true).assertIsDisplayed()
     }
 
     @Test
@@ -1242,7 +1289,7 @@ class TextFieldTest {
                 onValueChange = {},
                 visualTransformation = PasswordVisualTransformation('\u0020'),
                 shape = RectangleShape,
-                colors = TextFieldDefaults.textFieldColors(containerColor = Color.White)
+                colors = TextFieldDefaults.colors(unfocusedContainerColor = Color.White)
             )
         }
 
@@ -1277,8 +1324,9 @@ class TextFieldTest {
                     trailingIcon = {
                         Icon(Icons.Default.Favorite, null, tint = Color.Transparent)
                     },
-                    colors = TextFieldDefaults.textFieldColors(
-                        containerColor = Color.Blue,
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = Color.Blue,
+                        unfocusedContainerColor = Color.Blue,
                         focusedIndicatorColor = Color.Transparent,
                         unfocusedIndicatorColor = Color.Transparent,
                         focusedTextColor = Color.Transparent,
@@ -1344,7 +1392,7 @@ class TextFieldTest {
                     Text("label", color = Color.Red, modifier = Modifier.background(Color.Red))
                 },
                 textStyle = TextStyle(color = Color.Blue),
-                colors = TextFieldDefaults.textFieldColors(containerColor = Color.White)
+                colors = TextFieldDefaults.colors(unfocusedContainerColor = Color.White)
             )
         }
         rule.onNode(SemanticsMatcher.keyIsDefined(SemanticsProperties.Text), true)
@@ -1385,8 +1433,8 @@ class TextFieldTest {
                     )
                 },
                 textStyle = TextStyle(color = Color.White),
-                colors = TextFieldDefaults.textFieldColors(
-                    containerColor = Color.White,
+                colors = TextFieldDefaults.colors(
+                    unfocusedContainerColor = Color.White,
                     unfocusedIndicatorColor = Color.Transparent
                 )
             )
@@ -1511,7 +1559,7 @@ class TextFieldTest {
                     contentColor = LocalContentColor.current
                 },
                 modifier = Modifier.focusRequester(focusRequester),
-                colors = TextFieldDefaults.textFieldColors(
+                colors = TextFieldDefaults.colors(
                     unfocusedLabelColor = unfocusedLabelColor, focusedLabelColor = focusedLabelColor
                 )
             )
@@ -1553,7 +1601,7 @@ class TextFieldTest {
                         contentColor = LocalContentColor.current
                     },
                     modifier = Modifier.focusRequester(focusRequester),
-                    colors = TextFieldDefaults.textFieldColors(
+                    colors = TextFieldDefaults.colors(
                         unfocusedLabelColor = unfocusedLabelColor,
                         focusedLabelColor = focusedLabelColor
                     )
@@ -1596,7 +1644,7 @@ class TextFieldTest {
                         contentColor = LocalContentColor.current
                     },
                     modifier = Modifier.focusRequester(focusRequester),
-                    colors = TextFieldDefaults.textFieldColors(
+                    colors = TextFieldDefaults.colors(
                         unfocusedLabelColor = expectedLabelColor,
                         focusedLabelColor = focusedLabelColor
                     )
@@ -1642,7 +1690,7 @@ class TextFieldTest {
                         contentColor = LocalContentColor.current
                     },
                     modifier = Modifier.focusRequester(focusRequester),
-                    colors = TextFieldDefaults.textFieldColors(
+                    colors = TextFieldDefaults.colors(
                         unfocusedLabelColor = unfocusedLabelColor,
                         focusedLabelColor = focusedLabelColor
                     )

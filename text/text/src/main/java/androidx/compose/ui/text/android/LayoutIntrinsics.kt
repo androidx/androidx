@@ -32,7 +32,7 @@ import kotlin.math.ceil
  * @suppress
  */
 @InternalPlatformTextApi
-class LayoutIntrinsics(
+internal class LayoutIntrinsics(
     private val charSequence: CharSequence,
     private val textPaint: TextPaint,
     @LayoutCompat.TextDirection private val textDirectionHeuristic: Int

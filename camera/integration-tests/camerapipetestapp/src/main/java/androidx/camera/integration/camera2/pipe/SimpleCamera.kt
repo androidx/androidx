@@ -332,6 +332,14 @@ class SimpleCamera(
         cameraGraph.start()
     }
 
+    fun resume() {
+        cameraGraph.isForeground = true
+    }
+
+    fun pause() {
+        cameraGraph.isForeground = false
+    }
+
     fun stop() {
         Log.i("CXCP-App", "Stopping $cameraGraph")
         cameraGraph.stop()

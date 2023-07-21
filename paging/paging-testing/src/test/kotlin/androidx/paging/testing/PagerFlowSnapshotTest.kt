@@ -20,6 +20,7 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingSource
 import androidx.paging.PagingSource.LoadParams
+import androidx.paging.PagingSourceFactory
 import androidx.paging.PagingState
 import androidx.paging.cachedIn
 import androidx.paging.insertSeparators
@@ -62,6 +63,11 @@ class PagerFlowSnapshotTest(
         loadDelay
     )
 
+    private fun createSingleGenFactory(data: List<Int>) = WrappedPagingSourceFactory(
+        data.asPagingSourceFactory(),
+        loadDelay
+    )
+
     @Before
     fun init() {
         Dispatchers.setMain(UnconfinedTestDispatcher())
@@ -69,6 +75,32 @@ class PagerFlowSnapshotTest(
 
     @Test
     fun initialRefresh() {
+        val dataFlow = flowOf(List(30) { it })
+        val pager = createPager(dataFlow)
+        testScope.runTest {
+            val snapshot = pager.asSnapshot(this)
+            // first page + prefetched page
+            assertThat(snapshot).containsExactlyElementsIn(
+                listOf(0, 1, 2, 3, 4, 5, 6, 7)
+            )
+        }
+    }
+
+    @Test
+    fun initialRefreshSingleGen() {
+        val data = List(30) { it }
+        val pager = createPager(data)
+        testScope.runTest {
+            val snapshot = pager.asSnapshot(this)
+            // first page + prefetched page
+            assertThat(snapshot).containsExactlyElementsIn(
+                listOf(0, 1, 2, 3, 4, 5, 6, 7)
+            )
+        }
+    }
+
+    @Test
+    fun initialRefresh_emptyOperations() {
         val dataFlow = flowOf(List(30) { it })
         val pager = createPager(dataFlow)
         testScope.runTest {
@@ -89,7 +121,7 @@ class PagerFlowSnapshotTest(
             }
         }
         testScope.runTest {
-            val snapshot = pager.asSnapshot(this) {}
+            val snapshot = pager.asSnapshot(this)
             // loads 8[initial 5 + prefetch 3] items total, including separators
             assertThat(snapshot).containsExactlyElementsIn(
                 listOf(0, "sep", 1, "sep", 2, "sep", 3, "sep", 4)
@@ -102,7 +134,7 @@ class PagerFlowSnapshotTest(
         val dataFlow = flowOf(List(30) { it })
         val pager = createPagerNoPrefetch(dataFlow)
         testScope.runTest {
-            val snapshot = pager.asSnapshot(this) {}
+            val snapshot = pager.asSnapshot(this)
 
             assertThat(snapshot).containsExactlyElementsIn(
                 listOf(0, 1, 2, 3, 4)
@@ -115,7 +147,7 @@ class PagerFlowSnapshotTest(
         val dataFlow = flowOf(List(30) { it })
         val pager = createPager(dataFlow, 10)
         testScope.runTest {
-            val snapshot = pager.asSnapshot(this) {}
+            val snapshot = pager.asSnapshot(this)
 
             assertThat(snapshot).containsExactlyElementsIn(
                 listOf(7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17)
@@ -128,7 +160,7 @@ class PagerFlowSnapshotTest(
         val dataFlow = flowOf(List(30) { it })
         val pager = createPagerNoPrefetch(dataFlow, 10)
         testScope.runTest {
-            val snapshot = pager.asSnapshot(this) {}
+            val snapshot = pager.asSnapshot(this)
 
             assertThat(snapshot).containsExactlyElementsIn(
                 listOf(10, 11, 12, 13, 14)
@@ -141,7 +173,33 @@ class PagerFlowSnapshotTest(
         val dataFlow = emptyFlow<List<Int>>()
         val pager = createPager(dataFlow)
         testScope.runTest {
-            val snapshot = pager.asSnapshot(this) {}
+            val snapshot = pager.asSnapshot(this)
+
+            assertThat(snapshot).containsExactlyElementsIn(
+                emptyList<Int>()
+            )
+        }
+    }
+
+    @Test
+    fun emptyInitialRefreshSingleGen() {
+        val data = emptyList<Int>()
+        val pager = createPager(data)
+        testScope.runTest {
+            val snapshot = pager.asSnapshot(this)
+
+            assertThat(snapshot).containsExactlyElementsIn(
+                emptyList<Int>()
+            )
+        }
+    }
+
+    @Test
+    fun emptyInitialRefresh_emptyOperations() {
+        val dataFlow = emptyFlow<List<Int>>()
+        val pager = createPager(dataFlow)
+        testScope.runTest {
+            val snapshot = pager.asSnapshot(this)
 
             assertThat(snapshot).containsExactlyElementsIn(
                 emptyList<Int>()
@@ -160,6 +218,37 @@ class PagerFlowSnapshotTest(
             assertThat(snapshot).containsExactlyElementsIn(
                 listOf(0, 1, 2, 3, 4),
             )
+        }
+    }
+
+    @Test
+    fun manualRefreshSingleGen() {
+        val data = List(30) { it }
+        val pager = createPager(data)
+        testScope.runTest {
+            val snapshot = pager.asSnapshot(this) {
+                refresh()
+            }
+            assertThat(snapshot).containsExactlyElementsIn(
+                listOf(0, 1, 2, 3, 4, 5, 6, 7),
+            )
+        }
+    }
+
+    @Test
+    fun manualRefreshSingleGen_pagingSourceInvalidated() {
+        val data = List(30) { it }
+        val sources = mutableListOf<PagingSource<Int, Int>>()
+        val factory = data.asPagingSourceFactory()
+        val pager = Pager(
+            config = PagingConfig(pageSize = 3, initialLoadSize = 5),
+            pagingSourceFactory = { factory().also { sources.add(it) } },
+        ).flow
+        testScope.runTest {
+            pager.asSnapshot(this) {
+                refresh()
+            }
+            assertThat(sources.first().invalid).isTrue()
         }
     }
 
@@ -651,21 +740,21 @@ class PagerFlowSnapshotTest(
         }
         val pager = createPagerNoPrefetch(dataFlow).cachedIn(testScope.backgroundScope)
         testScope.runTest {
-            val snapshot1 = pager.asSnapshot(this) { }
+            val snapshot1 = pager.asSnapshot(this)
             assertThat(snapshot1).containsExactlyElementsIn(
                 emptyList<Int>()
             )
 
             delay(500)
 
-            val snapshot2 = pager.asSnapshot(this) { }
+            val snapshot2 = pager.asSnapshot(this)
             assertThat(snapshot2).containsExactlyElementsIn(
                 listOf(0, 1, 2, 3, 4)
             )
 
             delay(500)
 
-            val snapshot3 = pager.asSnapshot(this) { }
+            val snapshot3 = pager.asSnapshot(this)
             assertThat(snapshot3).containsExactlyElementsIn(
                 listOf(30, 31, 32, 33, 34)
             )
@@ -677,7 +766,7 @@ class PagerFlowSnapshotTest(
         val dataFlow = MutableSharedFlow<List<Int>>()
         val pager = createPagerNoPrefetch(dataFlow).cachedIn(testScope.backgroundScope)
         testScope.runTest {
-            val snapshot1 = pager.asSnapshot(this) { }
+            val snapshot1 = pager.asSnapshot(this)
             assertThat(snapshot1).containsExactlyElementsIn(
                 emptyList<Int>()
             )
@@ -704,19 +793,19 @@ class PagerFlowSnapshotTest(
         val pager = createPagerNoPrefetch(dataFlow).cachedIn(testScope.backgroundScope)
         testScope.runTest {
             dataFlow.emit(emptyList())
-            val snapshot1 = pager.asSnapshot(this) { }
+            val snapshot1 = pager.asSnapshot(this)
             assertThat(snapshot1).containsExactlyElementsIn(
                 emptyList<Int>()
             )
 
             dataFlow.emit(List(30) { it })
-            val snapshot2 = pager.asSnapshot(this) { }
+            val snapshot2 = pager.asSnapshot(this)
             assertThat(snapshot2).containsExactlyElementsIn(
                 listOf(0, 1, 2, 3, 4)
             )
 
             dataFlow.emit(List(30) { it + 30 })
-            val snapshot3 = pager.asSnapshot(this) { }
+            val snapshot3 = pager.asSnapshot(this)
             assertThat(snapshot3).containsExactlyElementsIn(
                 listOf(30, 31, 32, 33, 34)
             )
@@ -747,7 +836,7 @@ class PagerFlowSnapshotTest(
             )
 
             delay(1000)
-            val snapshot2 = pager.asSnapshot(this) { }
+            val snapshot2 = pager.asSnapshot(this)
             // anchorPos = 5, refreshKey = 3
             assertThat(snapshot2).containsExactlyElementsIn(
                 listOf(3, 4, 5, 6, 7)
@@ -768,13 +857,13 @@ class PagerFlowSnapshotTest(
         }
         val pager = createPagerNoPrefetch(dataFlow, 10).cachedIn(testScope.backgroundScope)
         testScope.runTest {
-            val snapshot1 = pager.asSnapshot(this) { }
+            val snapshot1 = pager.asSnapshot(this)
             assertThat(snapshot1).containsExactlyElementsIn(
                 listOf(10, 11, 12, 13, 14)
             )
 
             delay(500)
-            val snapshot2 = pager.asSnapshot(this) { }
+            val snapshot2 = pager.asSnapshot(this)
             assertThat(snapshot2).containsExactlyElementsIn(
                 listOf(0, 1, 2, 3, 4)
             )
@@ -805,7 +894,7 @@ class PagerFlowSnapshotTest(
             )
 
             delay(1000)
-            val snapshot2 = pager.asSnapshot(this) { }
+            val snapshot2 = pager.asSnapshot(this)
             // anchorPos = 15, refreshKey = 13
             assertThat(snapshot2).containsExactlyElementsIn(
                 listOf(13, 14, 15, 16, 17)
@@ -2285,6 +2374,13 @@ class PagerFlowSnapshotTest(
             initialKey
         )
 
+    private fun createPager(data: List<Int>, initialKey: Int = 0) =
+        Pager(
+            PagingConfig(pageSize = 3, initialLoadSize = 5),
+            initialKey,
+            createSingleGenFactory(data),
+        ).flow
+
     private fun createPagerNoPlaceholders(dataFlow: Flow<List<Int>>, initialKey: Int = 0) =
         createPager(
             dataFlow,
@@ -2329,9 +2425,9 @@ class PagerFlowSnapshotTest(
 }
 
 private class WrappedPagingSourceFactory(
-    private val factory: () -> PagingSource<Int, Int>,
+    private val factory: PagingSourceFactory<Int, Int>,
     private val loadDelay: Long,
-) : () -> PagingSource<Int, Int> {
+) : PagingSourceFactory<Int, Int> {
     override fun invoke(): PagingSource<Int, Int> = TestPagingSource(factory(), loadDelay)
 }
 

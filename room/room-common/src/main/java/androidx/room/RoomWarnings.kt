@@ -205,8 +205,8 @@ public open class RoomWarnings {
          * Room will return an empty Collection, Array or Optional respectively if no results are
          * returned by such a query, hence using a nullable return type is unnecessary in this case.
          */
-        public const val ROOM_UNNECESSARY_NULLABILITY_IN_DAO_RETURN_TYPE: String =
-            "UNNECESSARY_NULLABILITY_IN_DAO_RETURN_TYPE"
+        public const val UNNECESSARY_NULLABILITY_IN_DAO_RETURN_TYPE: String =
+            "ROOM_UNNECESSARY_NULLABILITY_IN_DAO_RETURN_TYPE"
     }
 
     @Deprecated("This type should not be instantiated as it contains only static methods. ")

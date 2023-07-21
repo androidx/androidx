@@ -16,6 +16,7 @@
 
 package androidx.camera.testing;
 
+import static org.junit.Assume.assumeFalse;
 import static org.junit.Assume.assumeTrue;
 
 import android.annotation.SuppressLint;
@@ -72,6 +73,10 @@ public final class CoreAppTestUtil {
                 && Build.MODEL.contains("Nexus 5")) {
             throw new AssumptionViolatedException("Known issue, b/134894604.");
         }
+
+        assumeFalse("See b/152082918, Wembley Api30 has a libjpeg issue which causes"
+                        + " the test failure.",
+                Build.MODEL.equalsIgnoreCase("wembley") && Build.VERSION.SDK_INT <= 30);
     }
 
     /**

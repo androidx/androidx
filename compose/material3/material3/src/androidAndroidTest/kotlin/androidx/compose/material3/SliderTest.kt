@@ -39,6 +39,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.testutils.expectAssertionError
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
@@ -675,7 +676,7 @@ class SliderTest {
                 modifier = Modifier.testTag(tag),
                 value = state.value,
                 onValueChange = { state.value = it },
-                thumb = { sliderPositions -> recompositionCounter.OuterContent(sliderPositions) }
+                thumb = { sliderState -> recompositionCounter.OuterContent(sliderState) }
             )
         }
 
@@ -703,7 +704,7 @@ class SliderTest {
                 modifier = Modifier.testTag(tag),
                 value = state.value,
                 onValueChange = { state.value = it },
-                track = { sliderPositions -> recompositionCounter.OuterContent(sliderPositions) }
+                track = { sliderState -> recompositionCounter.OuterContent(sliderState) }
             )
         }
 
@@ -717,6 +718,32 @@ class SliderTest {
         rule.runOnIdle {
             Truth.assertThat(recompositionCounter.outerRecomposition).isEqualTo(1)
             Truth.assertThat(recompositionCounter.innerRecomposition).isEqualTo(4)
+        }
+    }
+
+    @Test
+    fun slider_parentWithInfiniteWidth_minWidth() {
+        val state = mutableStateOf(0f)
+        rule.setMaterialContentForSizeAssertions {
+            Box(modifier = Modifier.requiredWidth(Int.MAX_VALUE.dp)) {
+                Slider(value = state.value, onValueChange = { state.value = it })
+            }
+        }.assertWidthIsEqualTo(48.dp)
+    }
+
+    @Test
+    fun slider_rowWithInfiniteWidth() {
+        val state = mutableStateOf(0f)
+        expectAssertionError(false) {
+            rule.setContent {
+                Row(modifier = Modifier.requiredWidth(Int.MAX_VALUE.dp)) {
+                    Slider(
+                        modifier = Modifier.weight(1f),
+                        value = state.value,
+                        onValueChange = { state.value = it }
+                    )
+                }
+            }
         }
     }
 
@@ -932,7 +959,6 @@ class SliderTest {
         }
     }
 
-    @OptIn(ExperimentalMaterial3Api::class)
     @Test
     fun rangeSlider_drag_out_of_bounds_rtl() {
         val state = mutableStateOf(0f..1f)
@@ -1181,8 +1207,8 @@ class SliderTest {
     @Test
     fun rangeSlider_thumb_recomposition() {
         val state = mutableStateOf(0f..100f)
-        val startRecompositionCounter = SliderRecompositionCounter()
-        val endRecompositionCounter = SliderRecompositionCounter()
+        val startRecompositionCounter = RangeSliderRecompositionCounter()
+        val endRecompositionCounter = RangeSliderRecompositionCounter()
 
         rule.setContent {
             RangeSlider(
@@ -1219,7 +1245,7 @@ class SliderTest {
     @Test
     fun rangeSlider_track_recomposition() {
         val state = mutableStateOf(0f..100f)
-        val recompositionCounter = SliderRecompositionCounter()
+        val recompositionCounter = RangeSliderRecompositionCounter()
 
         rule.setContent {
             RangeSlider(
@@ -1246,10 +1272,36 @@ class SliderTest {
             Truth.assertThat(recompositionCounter.innerRecomposition).isEqualTo(4)
         }
     }
+
+    @Test
+    fun rangeSlider_parentWithInfiniteWidth_minWidth() {
+        val state = mutableStateOf(0f..1f)
+        rule.setMaterialContentForSizeAssertions {
+            Box(modifier = Modifier.requiredWidth(Int.MAX_VALUE.dp)) {
+                RangeSlider(value = state.value, onValueChange = { state.value = it })
+            }
+        }.assertWidthIsEqualTo(48.dp)
+    }
+
+    @Test
+    fun rangeSlider_rowWithInfiniteWidth() {
+        val state = mutableStateOf(0f..1f)
+        expectAssertionError(false) {
+            rule.setContent {
+                Row(modifier = Modifier.requiredWidth(Int.MAX_VALUE.dp)) {
+                    RangeSlider(
+                        modifier = Modifier.weight(1f),
+                        value = state.value,
+                        onValueChange = { state.value = it }
+                    )
+                }
+            }
+        }
+    }
 }
 
 @Stable
-class SliderRecompositionCounter {
+class RangeSliderRecompositionCounter {
     var innerRecomposition = 0
     var outerRecomposition = 0
 
@@ -1268,5 +1320,27 @@ class SliderRecompositionCounter {
     private fun InnerContent(sliderPositions: SliderPositions) {
         SideEffect { ++innerRecomposition }
         Text("InnerContent: ${sliderPositions.activeRange}")
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Stable
+class SliderRecompositionCounter {
+    var innerRecomposition = 0
+    var outerRecomposition = 0
+
+    @Composable
+    fun OuterContent(state: SliderState) {
+        SideEffect { ++outerRecomposition }
+        Column {
+            Text("OuterContent")
+            InnerContent(state)
+        }
+    }
+
+    @Composable
+    private fun InnerContent(state: SliderState) {
+        SideEffect { ++innerRecomposition }
+        Text("InnerContent: ${state.value}")
     }
 }

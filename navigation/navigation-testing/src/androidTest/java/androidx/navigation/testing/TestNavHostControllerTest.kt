@@ -17,7 +17,6 @@
 package androidx.navigation.testing
 
 import android.os.Bundle
-import androidx.test.annotation.UiThreadTest
 import androidx.navigation.ActivityNavigator
 import androidx.navigation.NavOptions
 import androidx.navigation.Navigator
@@ -25,6 +24,7 @@ import androidx.navigation.activity
 import androidx.navigation.createGraph
 import androidx.navigation.plusAssign
 import androidx.navigation.testing.test.R
+import androidx.test.annotation.UiThreadTest
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.ext.truth.os.BundleSubject.assertThat

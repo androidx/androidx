@@ -193,7 +193,7 @@ public class UiDevice implements Searchable {
                     action, condition, timeout);
         } catch (TimeoutException e) {
             // Ignore
-            Log.w(TAG, String.format("Timed out waiting %dms on the condition.", timeout));
+            Log.w(TAG, String.format("Timed out waiting %dms on the condition.", timeout), e);
         }
 
         if (event != null) {
@@ -993,7 +993,7 @@ public class UiDevice implements Searchable {
         try {
             getUiAutomation().executeAndWaitForEvent(emptyRunnable, checkWindowUpdate, timeout);
         } catch (TimeoutException e) {
-            Log.w(TAG, String.format("Timed out waiting %dms on window update.", timeout));
+            Log.w(TAG, String.format("Timed out waiting %dms on window update.", timeout), e);
             return false;
         } catch (Exception e) {
             Log.e(TAG, "Failed to wait for window update.", e);

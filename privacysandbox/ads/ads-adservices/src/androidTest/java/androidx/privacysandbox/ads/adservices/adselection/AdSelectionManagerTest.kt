@@ -22,10 +22,10 @@ import android.net.Uri
 import android.os.OutcomeReceiver
 import android.os.ext.SdkExtensions
 import androidx.annotation.RequiresExtension
-import androidx.test.core.app.ApplicationProvider
 import androidx.privacysandbox.ads.adservices.adselection.AdSelectionManager.Companion.obtain
 import androidx.privacysandbox.ads.adservices.common.AdSelectionSignals
 import androidx.privacysandbox.ads.adservices.common.AdTechIdentifier
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest

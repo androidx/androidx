@@ -20,20 +20,25 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.layout.LayoutIdModifier
 import androidx.compose.ui.layout.LayoutIdParentData
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.layout.layoutId
+import androidx.compose.ui.node.DelegatingNode
 import androidx.compose.ui.node.LayoutModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.ParentDataModifierNode
 import androidx.compose.ui.node.Ref
+import androidx.compose.ui.semantics.elementFor
 import androidx.compose.ui.test.TestActivity
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
@@ -41,8 +46,6 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
@@ -161,6 +164,27 @@ class ParentDataModifierTest {
     }
 
     @Test
+    fun delegatedParentData() {
+        val node = object : DelegatingNode() {
+            val pd = delegate(LayoutIdModifier("data"))
+        }
+        runOnUiThread {
+            activity.setContent {
+                Layout({
+                    Layout(
+                        modifier = Modifier.elementFor(node),
+                        content = {}
+                    ) { _, _ -> layout(0, 0) {} }
+                }) { measurables, constraints ->
+                    val placeable = measurables[0].measure(constraints)
+                    assertEquals("data", (placeable.parentData as? LayoutIdParentData)?.layoutId)
+                    layout(0, 0) { }
+                }
+            }
+        }
+    }
+
+    @Test
     fun implementingBothParentDataAndLayoutModifier() {
         val parentData = "data"
         runOnUiThread {
@@ -203,7 +227,9 @@ fun SimpleDrawChild(drawLatch: CountDownLatch) {
 private data class ParentDataAndLayoutElement(val data: String) :
     ModifierNodeElement<ParentDataAndLayoutNode>() {
     override fun create() = ParentDataAndLayoutNode(data)
-    override fun update(node: ParentDataAndLayoutNode) = node.also { it.data = data }
+    override fun update(node: ParentDataAndLayoutNode) {
+        node.data = data
+    }
 }
 
 class ParentDataAndLayoutNode(var data: String) : Modifier.Node(), LayoutModifierNode,

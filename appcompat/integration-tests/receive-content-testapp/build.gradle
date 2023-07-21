@@ -34,7 +34,7 @@ dependencies {
     implementation(projectOrArtifact(":recyclerview:recyclerview"))
     implementation(libs.material)
 
-    androidTestImplementation(projectOrArtifact(":lifecycle:lifecycle-common"))
+    androidTestImplementation("androidx.lifecycle:lifecycle-common:2.6.1")
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testRules)

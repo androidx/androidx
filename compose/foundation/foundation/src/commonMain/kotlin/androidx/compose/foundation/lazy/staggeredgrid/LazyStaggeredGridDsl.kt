@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.lazy.staggeredgrid
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.FlingBehavior
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.ScrollableDefaults
@@ -36,6 +35,12 @@ import androidx.compose.ui.unit.dp
 /**
  * Vertical staggered grid layout that composes and lays out only items currently visible on screen.
  *
+ * Sample:
+ * @sample androidx.compose.foundation.samples.LazyVerticalStaggeredGridSample
+ *
+ * Sample with custom item spans:
+ * @sample androidx.compose.foundation.samples.LazyVerticalStaggeredGridSpanSample
+ *
  * @param columns description of the size and number of staggered grid columns.
  * @param modifier modifier to apply to the layout.
  * @param state state object that can be used to control and observe staggered grid state.
@@ -53,8 +58,6 @@ import androidx.compose.ui.unit.dp
  *  [LazyStaggeredGridScope.items] to present list of items or [LazyStaggeredGridScope.item] for a
  *  single one.
  */
-// todo(b/182882362): Reverse layout and arrangement support
-@ExperimentalFoundationApi
 @Composable
 fun LazyVerticalStaggeredGrid(
     columns: StaggeredGridCells,
@@ -78,24 +81,23 @@ fun LazyVerticalStaggeredGrid(
         crossAxisSpacing = horizontalArrangement.spacing,
         flingBehavior = flingBehavior,
         userScrollEnabled = userScrollEnabled,
-        slotSizesSums = rememberColumnWidthSums(columns, horizontalArrangement, contentPadding),
+        slots = rememberColumnSlots(columns, horizontalArrangement, contentPadding),
         content = content
     )
 }
 
-/** calculates prefix sums for columns used in staggered grid measure */
-@OptIn(ExperimentalFoundationApi::class)
+/** calculates sizes for columns used in staggered grid measure */
 @Composable
-private fun rememberColumnWidthSums(
+private fun rememberColumnSlots(
     columns: StaggeredGridCells,
     horizontalArrangement: Arrangement.Horizontal,
     contentPadding: PaddingValues
-) = remember<Density.(Constraints) -> IntArray>(
+) = remember<Density.(Constraints) -> LazyStaggeredGridSlots>(
     columns,
     horizontalArrangement,
     contentPadding,
 ) {
-    { constraints ->
+    LazyStaggeredGridSlotCache { constraints ->
         require(constraints.maxWidth != Constraints.Infinity) {
             "LazyVerticalStaggeredGrid's width should be bound by parent."
         }
@@ -107,12 +109,13 @@ private fun rememberColumnWidthSums(
             calculateCrossAxisCellSizes(
                 gridWidth,
                 horizontalArrangement.spacing.roundToPx()
-            ).run {
-                val result = IntArray(size) { this[it] }
-                for (i in 1 until size) {
-                    result[i] += result[i - 1]
+            ).let { sizes ->
+                val positions = IntArray(sizes.size)
+                with(horizontalArrangement) {
+                    // Arrange with Ltr here, as placement will reverse positions if needed
+                    arrange(gridWidth, sizes, LayoutDirection.Ltr, positions)
                 }
-                result
+                LazyStaggeredGridSlots(positions, sizes)
             }
         }
     }
@@ -121,6 +124,12 @@ private fun rememberColumnWidthSums(
 /**
  * Horizontal staggered grid layout that composes and lays out only items currently
  * visible on screen.
+ *
+ * Sample:
+ * @sample androidx.compose.foundation.samples.LazyHorizontalStaggeredGridSample
+ *
+ * Sample with custom item spans:
+ * @sample androidx.compose.foundation.samples.LazyHorizontalStaggeredGridSpanSample
  *
  * @param rows description of the size and number of staggered grid columns.
  * @param modifier modifier to apply to the layout.
@@ -139,7 +148,6 @@ private fun rememberColumnWidthSums(
  *  [LazyStaggeredGridScope.items] to present list of items or [LazyStaggeredGridScope.item] for a
  *  single one.
  */
-@ExperimentalFoundationApi
 @Composable
 fun LazyHorizontalStaggeredGrid(
     rows: StaggeredGridCells,
@@ -163,24 +171,23 @@ fun LazyHorizontalStaggeredGrid(
         crossAxisSpacing = verticalArrangement.spacing,
         flingBehavior = flingBehavior,
         userScrollEnabled = userScrollEnabled,
-        slotSizesSums = rememberRowHeightSums(rows, verticalArrangement, contentPadding),
+        slots = rememberRowSlots(rows, verticalArrangement, contentPadding),
         content = content
     )
 }
 
-/** calculates prefix sums for rows used in staggered grid measure */
-@OptIn(ExperimentalFoundationApi::class)
+/** calculates sizes for rows used in staggered grid measure */
 @Composable
-private fun rememberRowHeightSums(
+private fun rememberRowSlots(
     rows: StaggeredGridCells,
     verticalArrangement: Arrangement.Vertical,
     contentPadding: PaddingValues
-) = remember<Density.(Constraints) -> IntArray>(
+) = remember<Density.(Constraints) -> LazyStaggeredGridSlots>(
     rows,
     verticalArrangement,
     contentPadding,
 ) {
-    { constraints ->
+    LazyStaggeredGridSlotCache { constraints ->
         require(constraints.maxHeight != Constraints.Infinity) {
             "LazyHorizontalStaggeredGrid's height should be bound by parent."
         }
@@ -191,12 +198,39 @@ private fun rememberRowHeightSums(
             calculateCrossAxisCellSizes(
                 gridHeight,
                 verticalArrangement.spacing.roundToPx()
-            ).run {
-                val result = IntArray(size) { this[it] }
-                for (i in 1 until size) {
-                    result[i] += result[i - 1]
+            ).let { sizes ->
+                val positions = IntArray(sizes.size)
+                with(verticalArrangement) {
+                    arrange(gridHeight, sizes, positions)
                 }
-                result
+                LazyStaggeredGridSlots(positions, sizes)
+            }
+        }
+    }
+}
+
+/** measurement cache to avoid recalculating row/column sizes on each scroll. */
+private class LazyStaggeredGridSlotCache(
+    private val calculation: Density.(Constraints) -> LazyStaggeredGridSlots
+) : (Density, Constraints) -> LazyStaggeredGridSlots {
+    private var cachedConstraints = Constraints()
+    private var cachedDensity: Float = 0f
+    private var cachedSizes: LazyStaggeredGridSlots? = null
+
+    override fun invoke(density: Density, constraints: Constraints): LazyStaggeredGridSlots {
+        with(density) {
+            if (
+                cachedSizes != null &&
+                cachedConstraints == constraints &&
+                cachedDensity == this.density
+            ) {
+                return cachedSizes!!
+            }
+
+            cachedConstraints = constraints
+            cachedDensity = this.density
+            return calculation(constraints).also {
+                cachedSizes = it
             }
         }
     }
@@ -207,15 +241,8 @@ private fun rememberRowHeightSums(
 internal annotation class LazyStaggeredGridScopeMarker
 
 /**
- * Receiver scope for itemContent in [LazyStaggeredGridScope.item]
- */
-@ExperimentalFoundationApi
-sealed interface LazyStaggeredGridItemScope
-
-/**
  * Receiver scope for [LazyVerticalStaggeredGrid] and [LazyHorizontalStaggeredGrid]
  */
-@ExperimentalFoundationApi
 @LazyStaggeredGridScopeMarker
 sealed interface LazyStaggeredGridScope {
 
@@ -237,7 +264,6 @@ sealed interface LazyStaggeredGridScope {
      *  [StaggeredGridCells] the item will occupy. By default each item will take one lane.
      * @param content composable content displayed by current item
      */
-    @ExperimentalFoundationApi
     fun item(
         key: Any? = null,
         contentType: Any? = null,
@@ -292,7 +318,6 @@ sealed interface LazyStaggeredGridScope {
  *  by [StaggeredGridCells] the item will occupy. By default each item will take one lane.
  * @param itemContent composable content displayed by the provided item
  */
-@ExperimentalFoundationApi
 inline fun <T> LazyStaggeredGridScope.items(
     items: List<T>,
     noinline key: ((item: T) -> Any)? = null,
@@ -332,7 +357,6 @@ inline fun <T> LazyStaggeredGridScope.items(
  *  by [StaggeredGridCells] the item will occupy. By default each item will take one lane.
  * @param itemContent composable content displayed given item and index
  */
-@ExperimentalFoundationApi
 inline fun <T> LazyStaggeredGridScope.itemsIndexed(
     items: List<T>,
     noinline key: ((index: Int, item: T) -> Any)? = null,
@@ -372,7 +396,6 @@ inline fun <T> LazyStaggeredGridScope.itemsIndexed(
  *  by [StaggeredGridCells] the item will occupy. By default each item will take one lane.
  * @param itemContent composable content displayed by the provided item
  */
-@ExperimentalFoundationApi
 inline fun <T> LazyStaggeredGridScope.items(
     items: Array<T>,
     noinline key: ((item: T) -> Any)? = null,
@@ -412,7 +435,6 @@ inline fun <T> LazyStaggeredGridScope.items(
  *  by [StaggeredGridCells] the item will occupy. By default each item will take one lane.
  * @param itemContent composable content displayed given item and index
  */
-@ExperimentalFoundationApi
 inline fun <T> LazyStaggeredGridScope.itemsIndexed(
     items: Array<T>,
     noinline key: ((index: Int, item: T) -> Any)? = null,

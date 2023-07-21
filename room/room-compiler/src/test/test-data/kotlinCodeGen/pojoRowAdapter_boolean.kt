@@ -34,7 +34,8 @@ public class MyDao_Impl(
                 statement.bindLong(1, entity.pk.toLong())
                 val _tmp: Int = if (entity.boolean) 1 else 0
                 statement.bindLong(2, _tmp.toLong())
-                val _tmp_1: Int? = entity.nullableBoolean?.let { if (it) 1 else 0 }
+                val _tmpNullableBoolean: Boolean? = entity.nullableBoolean
+                val _tmp_1: Int? = _tmpNullableBoolean?.let { if (it) 1 else 0 }
                 if (_tmp_1 == null) {
                     statement.bindNull(3)
                 } else {

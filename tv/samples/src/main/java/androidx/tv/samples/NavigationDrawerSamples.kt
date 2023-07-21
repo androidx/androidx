@@ -16,6 +16,7 @@
 
 package androidx.tv.samples
 
+import androidx.annotation.Sampled
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.focusable
@@ -41,53 +42,73 @@ import androidx.tv.material3.NavigationDrawer
 import androidx.tv.material3.Text
 
 @OptIn(ExperimentalTvMaterial3Api::class)
+@Sampled
 @Composable
 fun SampleNavigationDrawer() {
-    NavigationDrawer(drawerContent = drawerContent()) {
-        NonDrawerContent()
-    }
-}
+    val navigationRow: @Composable (drawerValue: DrawerValue, color: Color, text: String) -> Unit =
+        { drawerValue, color, text ->
+            Row(Modifier.padding(10.dp).focusable()) {
+                Box(Modifier.size(50.dp).background(color).padding(end = 20.dp))
+                AnimatedVisibility(visible = drawerValue == DrawerValue.Open) {
+                    Text(
+                        text = text,
+                        softWrap = false,
+                        modifier = Modifier.padding(15.dp).width(50.dp),
+                        textAlign = TextAlign.Center
+                    )
+                }
+            }
+        }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
-@Composable
-fun SampleModalNavigationDrawer() {
-    ModalNavigationDrawer(drawerContent = drawerContent()) {
-        NonDrawerContent()
-    }
-}
-
-@Composable
-private fun NonDrawerContent() {
-    Button(modifier = Modifier
-        .height(100.dp)
-        .fillMaxWidth(), onClick = {}) {
-        Text("BUTTON")
-    }
-}
-
-@Composable
-@OptIn(ExperimentalTvMaterial3Api::class)
-private fun drawerContent(): @Composable (DrawerValue) -> Unit =
-    {
-        Column(Modifier.background(Color.Gray).fillMaxHeight()) {
-            NavigationRow(it, Color.Red, "Red")
-            NavigationRow(it, Color.Blue, "Blue")
-            NavigationRow(it, Color.Yellow, "Yellow")
+    NavigationDrawer(
+        drawerContent = {
+            Column(Modifier.background(Color.Gray).fillMaxHeight()) {
+                navigationRow(it, Color.Red, "Red")
+                navigationRow(it, Color.Blue, "Blue")
+                navigationRow(it, Color.Yellow, "Yellow")
+            }
+        }
+    ) {
+        Button(modifier = Modifier
+            .height(100.dp)
+            .fillMaxWidth(), onClick = {}) {
+            Text("BUTTON")
         }
     }
+}
 
 @OptIn(ExperimentalTvMaterial3Api::class)
+@Sampled
 @Composable
-private fun NavigationRow(drawerValue: DrawerValue, color: Color, text: String) {
-    Row(Modifier.padding(10.dp).focusable()) {
-        Box(Modifier.size(50.dp).background(color).padding(end = 20.dp))
-        AnimatedVisibility(visible = drawerValue == DrawerValue.Open) {
-            Text(
-                text = text,
-                softWrap = false,
-                modifier = Modifier.padding(15.dp).width(50.dp),
-                textAlign = TextAlign.Center
-            )
+fun SampleModalNavigationDrawer() {
+    val navigationRow: @Composable (drawerValue: DrawerValue, color: Color, text: String) -> Unit =
+        { drawerValue, color, text ->
+            Row(Modifier.padding(10.dp).focusable()) {
+                Box(Modifier.size(50.dp).background(color).padding(end = 20.dp))
+                AnimatedVisibility(visible = drawerValue == DrawerValue.Open) {
+                    Text(
+                        text = text,
+                        softWrap = false,
+                        modifier = Modifier.padding(15.dp).width(50.dp),
+                        textAlign = TextAlign.Center
+                    )
+                }
+            }
+        }
+
+    ModalNavigationDrawer(
+        drawerContent = {
+            Column(Modifier.background(Color.Gray).fillMaxHeight()) {
+                navigationRow(it, Color.Red, "Red")
+                navigationRow(it, Color.Blue, "Blue")
+                navigationRow(it, Color.Yellow, "Yellow")
+            }
+        }
+    ) {
+        Button(modifier = Modifier
+            .height(100.dp)
+            .fillMaxWidth(), onClick = {}) {
+            Text("BUTTON")
         }
     }
 }

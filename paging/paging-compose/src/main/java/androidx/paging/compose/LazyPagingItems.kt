@@ -16,9 +16,6 @@
 
 package androidx.paging.compose
 
-import android.annotation.SuppressLint
-import android.os.Parcel
-import android.os.Parcelable
 import android.util.Log
 import androidx.compose.foundation.lazy.LazyItemScope
 import androidx.compose.foundation.lazy.LazyListScope
@@ -43,7 +40,7 @@ import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.withContext
@@ -52,8 +49,13 @@ import kotlinx.coroutines.withContext
  * The class responsible for accessing the data from a [Flow] of [PagingData].
  * In order to obtain an instance of [LazyPagingItems] use the [collectAsLazyPagingItems] extension
  * method of [Flow] with [PagingData].
- * This instance can be used by the [items] and [itemsIndexed] methods inside [LazyListScope] to
- * display data received from the [Flow] of [PagingData].
+ * This instance can be used for Lazy foundations such as [LazyListScope.items] to display data
+ * received from the [Flow] of [PagingData].
+ *
+ * Previewing [LazyPagingItems] is supported on a list of mock data. See sample for how to preview
+ * mock data.
+ *
+ * @sample androidx.paging.compose.samples.PagingPreview
  *
  * @param T the type of value used by [PagingData].
  */
@@ -64,22 +66,6 @@ public class LazyPagingItems<T : Any> internal constructor(
     private val flow: Flow<PagingData<T>>
 ) {
     private val mainDispatcher = Dispatchers.Main
-
-    /**
-     * Contains the immutable [ItemSnapshotList] of currently presented items, including any
-     * placeholders if they are enabled.
-     * Note that similarly to [peek] accessing the items in a list will not trigger any loads.
-     * Use [get] to achieve such behavior.
-     */
-    var itemSnapshotList by mutableStateOf(
-        ItemSnapshotList<T>(0, 0, emptyList())
-    )
-        private set
-
-    /**
-     * The number of items which can be accessed.
-     */
-    val itemCount: Int get() = itemSnapshotList.size
 
     private val differCallback: DifferCallback = object : DifferCallback {
         override fun onChanged(position: Int, count: Int) {
@@ -101,9 +87,17 @@ public class LazyPagingItems<T : Any> internal constructor(
         }
     }
 
+    /**
+     * If the [flow] is a SharedFlow, it is expected to be the flow returned by from
+     * pager.flow.cachedIn(scope) which could contain a cached PagingData. We pass the cached
+     * PagingData to the differ so that if the PagingData contains cached data, the differ can be
+     * initialized with the data prior to collection on pager.
+     */
     private val pagingDataDiffer = object : PagingDataDiffer<T>(
         differCallback = differCallback,
-        mainContext = mainDispatcher
+        mainContext = mainDispatcher,
+        cachedPagingData =
+            if (flow is SharedFlow<PagingData<T>>) flow.replayCache.firstOrNull() else null
     ) {
         override suspend fun presentNewList(
             previousList: NullPaddedList<T>,
@@ -116,6 +110,22 @@ public class LazyPagingItems<T : Any> internal constructor(
             return null
         }
     }
+
+    /**
+     * Contains the immutable [ItemSnapshotList] of currently presented items, including any
+     * placeholders if they are enabled.
+     * Note that similarly to [peek] accessing the items in a list will not trigger any loads.
+     * Use [get] to achieve such behavior.
+     */
+    var itemSnapshotList by mutableStateOf(
+        pagingDataDiffer.snapshot()
+    )
+        private set
+
+    /**
+     * The number of items which can be accessed.
+     */
+    val itemCount: Int get() = itemSnapshotList.size
 
     private fun updateItemSnapshotList() {
         itemSnapshotList = pagingDataDiffer.snapshot()
@@ -244,8 +254,8 @@ private val InitialLoadStates = LoadStates(
 
 /**
  * Collects values from this [Flow] of [PagingData] and represents them inside a [LazyPagingItems]
- * instance. The [LazyPagingItems] instance can be used by the [items] and [itemsIndexed] methods
- * from [LazyListScope] in order to display the data obtained from a [Flow] of [PagingData].
+ * instance. The [LazyPagingItems] instance can be used for lazy foundations such as
+ * [LazyListScope.items] in order to display the data obtained from a [Flow] of [PagingData].
  *
  * @sample androidx.paging.compose.samples.PagingBackendSample
  *
@@ -302,7 +312,26 @@ public fun <T : Any> Flow<PagingData<T>>.collectAsLazyPagingItems(
  * @param itemContent the content displayed by a single item. In case the item is `null`, the
  * [itemContent] method should handle the logic of displaying a placeholder instead of the main
  * content displayed by an item which is not `null`.
+ *
+ * @deprecated Call [LazyListScope.items] directly with LazyPagingItems [itemKey] and
+ * [itemContentType] helper functions.
  */
+@Deprecated(
+    message = "Call LazyListScope.items directly with LazyPagingItems #itemKey and " +
+        "#itemContentType helper functions.",
+    replaceWith = ReplaceWith(
+        expression = """items(
+           count = items.itemCount,
+           key = items.itemKey(key),
+           contentType = items.itemContentType(
+                contentType
+           )
+        ) { index ->
+            val item = items[index]
+            itemContent(item)
+        }""",
+    )
+)
 public fun <T : Any> LazyListScope.items(
     items: LazyPagingItems<T>,
     key: ((item: T) -> Any)? = null,
@@ -311,20 +340,8 @@ public fun <T : Any> LazyListScope.items(
 ) {
     items(
         count = items.itemCount,
-        key = if (key == null) null else { index ->
-            val item = items.peek(index)
-            if (item == null) {
-                PagingPlaceholderKey(index)
-            } else {
-                key(item)
-            }
-        },
-        contentType = { index ->
-            if (contentType == null) null else {
-                val item = items.peek(index)
-                if (item == null) null else contentType(item)
-            }
-        }
+        key = items.itemKey(key),
+        contentType = items.itemContentType(contentType)
     ) { index ->
         itemContent(items[index])
     }
@@ -351,7 +368,28 @@ public fun <T : Any> LazyListScope.items(
  * @param itemContent the content displayed by a single item. In case the item is `null`, the
  * [itemContent] method should handle the logic of displaying a placeholder instead of the main
  * content displayed by an item which is not `null`.
+ *
+ * @deprecated Deprecating support for indexed keys on non-null items as it is susceptible to
+ * errors when items indices shift due to prepends. Call LazyListScope.items directly
+ * with LazyPagingItems #itemKey and #itemContentType helper functions.
  */
+@Deprecated(
+    message = "Deprecating support for indexed keys on non-null items as it is susceptible to " +
+        "errors when items indices shift due to prepends. Call LazyListScope.items directly " +
+        "with LazyPagingItems #itemKey and #itemContentType helper functions.",
+    replaceWith = ReplaceWith(
+        expression = """items(
+           count = items.itemCount,
+           key = items.itemKey(key),
+           contentType = items.itemContentType(
+                contentType
+           )
+        ) { index ->
+            val item = items[index]
+            itemContent(item)
+        }""",
+    )
+)
 public fun <T : Any> LazyListScope.itemsIndexed(
     items: LazyPagingItems<T>,
     key: ((index: Int, item: T) -> Any)? = null,
@@ -376,28 +414,5 @@ public fun <T : Any> LazyListScope.itemsIndexed(
         }
     ) { index ->
         itemContent(index, items[index])
-    }
-}
-
-@SuppressLint("BanParcelableUsage")
-private data class PagingPlaceholderKey(private val index: Int) : Parcelable {
-    override fun writeToParcel(parcel: Parcel, flags: Int) {
-        parcel.writeInt(index)
-    }
-
-    override fun describeContents(): Int {
-        return 0
-    }
-
-    companion object {
-        @Suppress("unused")
-        @JvmField
-        val CREATOR: Parcelable.Creator<PagingPlaceholderKey> =
-            object : Parcelable.Creator<PagingPlaceholderKey> {
-                override fun createFromParcel(parcel: Parcel) =
-                    PagingPlaceholderKey(parcel.readInt())
-
-                override fun newArray(size: Int) = arrayOfNulls<PagingPlaceholderKey?>(size)
-            }
     }
 }

@@ -18,7 +18,6 @@ package androidx.compose.ui.text.font.testutils
 
 import android.content.Context
 import android.graphics.Typeface
-import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.font.AndroidFont
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontLoadingStrategy.Companion.Async
@@ -133,7 +132,6 @@ class AsyncTestTypefaceLoader : AndroidFont.TypefaceLoader {
     }
 }
 
-@OptIn(ExperimentalTextApi::class)
 class AsyncFauxFont(
     typefaceLoader: AsyncTestTypefaceLoader,
     override val weight: FontWeight = FontWeight.Normal,
@@ -145,7 +143,6 @@ class AsyncFauxFont(
     }
 }
 
-@OptIn(ExperimentalTextApi::class)
 class OptionalFauxFont(
     typefaceLoader: AsyncTestTypefaceLoader,
     internal val typeface: Typeface?,
@@ -158,7 +155,6 @@ class OptionalFauxFont(
     }
 }
 
-@OptIn(ExperimentalTextApi::class)
 class BlockingFauxFont(
     typefaceLoader: AsyncTestTypefaceLoader,
     internal val typeface: Typeface,

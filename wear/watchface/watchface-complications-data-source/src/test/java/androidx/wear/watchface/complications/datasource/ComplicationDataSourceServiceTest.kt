@@ -17,7 +17,6 @@ package androidx.wear.watchface.complications.datasource
 
 import android.content.Intent
 import android.content.res.Resources
-import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.HandlerThread
@@ -48,7 +47,6 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.ArgumentMatchers.argThat
 import org.mockito.ArgumentMatchers.eq
 import org.mockito.Mockito.verify
 import org.mockito.kotlin.argumentCaptor
@@ -74,8 +72,11 @@ class ComplicationDataSourceServiceTest {
                 complicationSlotId: Int,
                 data: WireComplicationData?
             ) {
-                mRemoteManager.updateComplicationData(complicationSlotId, data)
-                mUpdateComplicationDataLatch.countDown()
+                try {
+                    mRemoteManager.updateComplicationData(complicationSlotId, data)
+                } finally {
+                    mUpdateComplicationDataLatch.countDown()
+                }
             }
         }
     private lateinit var mProvider: IComplicationProvider.Stub
@@ -109,7 +110,7 @@ class ComplicationDataSourceServiceTest {
         /** Last type provided to [previewData]. */
         var lastPreviewType: ComplicationType? = null
 
-        override var wearPlatformVersion = Build.VERSION.SDK_INT
+        val lastPreviewOrErrorLatch = CountDownLatch(1)
 
         override fun createMainThreadHandler(): Handler = mPretendMainThreadHandler
 
@@ -131,6 +132,7 @@ class ComplicationDataSourceServiceTest {
 
         override fun getPreviewData(type: ComplicationType): ComplicationData? {
             lastPreviewType = type
+            lastPreviewOrErrorLatch.countDown()
             return previewData
         }
     }
@@ -225,74 +227,6 @@ class ComplicationDataSourceServiceTest {
         @Suppress("NewApi") // isForSafeWatchFace
         assertThat(mService.lastRequest!!.isForSafeWatchFace)
             .isEqualTo(TargetWatchFaceSafety.UNKNOWN)
-    }
-
-    @Test
-    fun testOnComplicationRequestWithExpression_doesNotEvaluateExpression() {
-        // TODO(b/257422920): Set this to the exact platform version.
-        mService.wearPlatformVersion = Build.VERSION_CODES.TIRAMISU + 1
-        mService.responseData =
-            LongTextComplicationData.Builder(
-                    ComplicationTextExpression(
-                        DynamicString.constant("hello").concat(DynamicString.constant(" world"))
-                    ),
-                    ComplicationText.EMPTY
-                )
-                .build()
-        mProvider.onUpdate(
-            /* complicationInstanceId = */ 123,
-            ComplicationType.LONG_TEXT.toWireComplicationType(),
-            mLocalManager
-        )
-
-        runUiThreadTasksWhileAwaitingDataLatch(1000)
-        verify(mRemoteManager)
-            .updateComplicationData(
-                eq(123),
-                eq(
-                    LongTextComplicationData.Builder(
-                            ComplicationTextExpression(
-                                DynamicString.constant("hello")
-                                    .concat(DynamicString.constant(" world"))
-                            ),
-                            ComplicationText.EMPTY
-                        )
-                        .build()
-                        .asWireComplicationData()
-                )
-            )
-    }
-
-    @Test
-    fun testOnComplicationRequestWithExpressionBeforePlatformSupport_evaluatesExpression() {
-        // TODO(b/257422920): Set this to the exact platform version.
-        mService.wearPlatformVersion = Build.VERSION_CODES.TIRAMISU
-        mService.responseData =
-            LongTextComplicationData.Builder(
-                    ComplicationTextExpression(
-                        DynamicString.constant("hello").concat(DynamicString.constant(" world"))
-                    ),
-                    ComplicationText.EMPTY
-                )
-                .build()
-
-        mProvider.onUpdate(
-            /* complicationInstanceId = */ 123,
-            ComplicationType.LONG_TEXT.toWireComplicationType(),
-            mLocalManager
-        )
-
-        runUiThreadTasksWhileAwaitingDataLatch(1000)
-        verify(mRemoteManager)
-            .updateComplicationData(
-                eq(123),
-                argThat { data ->
-                    data.longText ==
-                        PlainComplicationText.Builder("hello world")
-                            .build()
-                            .toWireComplicationText()
-                }
-            )
     }
 
     @Test

@@ -149,7 +149,7 @@ class Camera2OutputConfigConverterTest {
         assertThat(outputConfig.surfaceSharingOutputConfigs.size)
             .isEqualTo(outputConfigImpl.surfaceSharingOutputConfigs?.size ?: 0)
         outputConfig.surfaceSharingOutputConfigs.forEachIndexed { index, sharingConfig ->
-            val sharedConfigImpl = outputConfigImpl.surfaceSharingOutputConfigs[index]
+            val sharedConfigImpl = outputConfigImpl.surfaceSharingOutputConfigs!![index]
             assertOutputConfigElements(sharingConfig, sharedConfigImpl)
         }
 

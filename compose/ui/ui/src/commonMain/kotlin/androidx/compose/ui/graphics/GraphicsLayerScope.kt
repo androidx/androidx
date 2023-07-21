@@ -17,8 +17,8 @@
 package androidx.compose.ui.graphics
 
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.unit.Density
 import androidx.compose.ui.internal.JvmDefaultWithCompatibility
+import androidx.compose.ui.unit.Density
 
 /**
  * Default camera distance for all layers

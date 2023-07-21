@@ -47,4 +47,10 @@
   <string name="no_action_toast_msg">No button pressed!</string>
   <string name="alert_timeout_toast_msg">Alert is timed out!</string>
   <string name="alert_not_supported">Alert is not supported, use HUN instead</string>
+
+  <!-- Suggestion card -->
+  <string name="suggestion_card_home_title">Home</string>
+  <string name="suggestion_card_home_subtitle">3 km &#11825; 10th street</string>
+  <string name="suggestion_card_work_title">Work</string>
+  <string name="suggestion_card_work_subtitle">5 km &#11825; 3rd street</string>
 </resources>

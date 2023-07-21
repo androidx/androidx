@@ -58,7 +58,7 @@ class ProcessingNodeTest {
 
     @Before
     fun setUp() {
-        processingNodeIn = ProcessingNode.In.of(ImageFormat.JPEG)
+        processingNodeIn = ProcessingNode.In.of(ImageFormat.JPEG, ImageFormat.JPEG)
         node.transform(processingNodeIn)
     }
 

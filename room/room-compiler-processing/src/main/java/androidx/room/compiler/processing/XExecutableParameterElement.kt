@@ -20,6 +20,21 @@ package androidx.room.compiler.processing
  * Parameter of a method.
  */
 interface XExecutableParameterElement : XVariableElement {
+    /**
+     * Returns `true` if this parameter is a synthetic Continuation parameter of a suspend function.
+     */
+    fun isContinuationParam(): Boolean
+
+    /**
+     * Returns `true` if this parameter represents the receiver of an extension function.
+     */
+    fun isReceiverParam(): Boolean
+
+    /**
+     * Returns `true` if this parameter represents the single parameter of a Kotlin property setter
+     * method.
+     */
+    fun isKotlinPropertyParam(): Boolean
 
     /**
      * The enclosing [XExecutableElement] this parameter belongs to.

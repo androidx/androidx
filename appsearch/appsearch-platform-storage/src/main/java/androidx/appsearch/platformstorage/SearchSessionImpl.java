@@ -209,7 +209,7 @@ class SearchSessionImpl implements AppSearchSession {
                     + "JoinSpec was provided.");
         }
 
-        if (!BuildCompat.isAtLeastT() && !searchSpec.getFilterNamespaces().isEmpty()) {
+        if (Build.VERSION.SDK_INT < 33 && !searchSpec.getFilterNamespaces().isEmpty()) {
             // This is a patch for b/197361770, framework-appsearch in Android S will
             // disable the given namespace filter if it is not empty and none of given namespaces
             // exist.

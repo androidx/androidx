@@ -1,10 +1,10 @@
 // Baseline format: 1.0
-DocumentExceptions: androidx.health.services.client.ExerciseClient#updateExerciseTypeConfigAsync(androidx.health.services.client.data.ExerciseTypeConfig):
-    Method ExerciseClient.updateExerciseTypeConfigAsync appears to be throwing kotlin.NotImplementedError; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
-
-
 ExecutorRegistration: androidx.health.services.client.ExerciseClient#clearUpdateCallbackAsync(androidx.health.services.client.ExerciseUpdateCallback):
     Registration methods should have overload that accepts delivery Executor: `clearUpdateCallbackAsync`
+
+
+GetterSetterNames: field ExerciseTypeCapabilities.supportsAutoPauseAndResume:
+    Invalid name for boolean property `supportsAutoPauseAndResume`. Should start with one of `has`, `can`, `should`, `is`.
 
 
 InvalidNullabilityOverride: androidx.health.services.client.PassiveListenerService#onBind(android.content.Intent):

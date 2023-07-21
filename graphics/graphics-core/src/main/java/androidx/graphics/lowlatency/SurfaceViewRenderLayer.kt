@@ -48,36 +48,38 @@ internal class SurfaceViewRenderLayer<T>(
 
     private val mTransformResolver = BufferTransformHintResolver()
 
-    private var transformHint = BufferTransformHintResolver.UNKNOWN_TRANSFORM
-    private var inverse = BufferTransformHintResolver.UNKNOWN_TRANSFORM
-    init {
-        surfaceView.holder.addCallback(object : SurfaceHolder.Callback {
+    private var mTransformHint = BufferTransformHintResolver.UNKNOWN_TRANSFORM
+    private var mInverse = BufferTransformHintResolver.UNKNOWN_TRANSFORM
+    private val mHolderCallback = object : SurfaceHolder.Callback {
 
-            override fun surfaceCreated(holder: SurfaceHolder) {
-                // NO-OP wait on surfaceChanged callback
-            }
+        override fun surfaceCreated(holder: SurfaceHolder) {
+            // NO-OP wait on surfaceChanged callback
+        }
 
-            override fun surfaceChanged(
-                holder: SurfaceHolder,
-                format: Int,
-                width: Int,
-                height: Int
-            ) {
-                transformHint = mTransformResolver.getBufferTransformHint(surfaceView)
-                inverse = mBufferTransform.invertBufferTransform(transformHint)
-                mBufferTransform.computeTransform(width, height, inverse)
-                mParentSurfaceControl?.release()
-                mParentSurfaceControl = createDoubleBufferedSurfaceControl()
-                mLayerCallback?.onSizeChanged(width, height)
-            }
+        override fun surfaceChanged(
+            holder: SurfaceHolder,
+            format: Int,
+            width: Int,
+            height: Int
+        ) {
+            mTransformHint = mTransformResolver.getBufferTransformHint(surfaceView)
+            mInverse = mBufferTransform.invertBufferTransform(mTransformHint)
+            mBufferTransform.computeTransform(width, height, mInverse)
+            mParentSurfaceControl?.release()
+            mParentSurfaceControl = createDoubleBufferedSurfaceControl()
+            mLayerCallback?.onSizeChanged(width, height)
+        }
 
-            override fun surfaceDestroyed(p0: SurfaceHolder) {
-                mLayerCallback?.onLayerDestroyed()
-            }
-        })
+        override fun surfaceDestroyed(p0: SurfaceHolder) {
+            mLayerCallback?.onLayerDestroyed()
+        }
     }
 
-    override fun getInverseBufferTransform(): Int = inverse
+    init {
+        surfaceView.holder.addCallback(mHolderCallback)
+    }
+
+    override fun getInverseBufferTransform(): Int = mInverse
 
     override fun getBufferWidth(): Int = mBufferTransform.glWidth
 
@@ -120,7 +122,7 @@ internal class SurfaceViewRenderLayer<T>(
                         this.width = mBufferTransform.glWidth
                         this.height = mBufferTransform.glHeight
                     }
-                    renderLayerCallback.onDrawDoubleBufferedLayer(
+                    renderLayerCallback.onDrawMultiBufferedLayer(
                         eglManager,
                         bufferInfo,
                         mBufferTransform.transform,
@@ -151,11 +153,11 @@ internal class SurfaceViewRenderLayer<T>(
                             .setBuffer(sc, frameBuffer.hardwareBuffer, syncFenceCompat) {
                                 mLayerCallback?.getFrameBufferPool()?.release(frameBuffer)
                             }
-                        if (transformHint != BufferTransformHintResolver.UNKNOWN_TRANSFORM) {
-                            transaction.setBufferTransform(sc, inverse)
+                        if (mTransformHint != BufferTransformHintResolver.UNKNOWN_TRANSFORM) {
+                            transaction.setBufferTransform(sc, mInverse)
                         }
 
-                        renderLayerCallback.onDoubleBufferedLayerRenderComplete(
+                        renderLayerCallback.onMultiBufferedLayerRenderComplete(
                             frontBufferedLayerSurfaceControl,
                             transaction
                         )
@@ -169,7 +171,7 @@ internal class SurfaceViewRenderLayer<T>(
                 }
             })
         val parentFrameBufferRenderer = WrapperFrameBufferRenderer<T>(frameBufferRenderer) {
-            params = mLayerCallback?.obtainDoubleBufferedLayerParams()
+            params = mLayerCallback?.obtainMultiBufferedLayerParams()
             params != null
         }
         val renderTarget = renderer.attach(surfaceView, parentFrameBufferRenderer)
@@ -197,8 +199,8 @@ internal class SurfaceViewRenderLayer<T>(
         mRenderTarget?.requestRender()
     }
 
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun release(transaction: SurfaceControlCompat.Transaction) {
+        surfaceView.holder.removeCallback(mHolderCallback)
         mParentSurfaceControl?.let {
             transaction.reparent(it, null)
             it.release()

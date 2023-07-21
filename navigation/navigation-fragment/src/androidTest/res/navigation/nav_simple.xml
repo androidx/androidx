@@ -26,11 +26,17 @@
         android:id="@+id/empty_fragment"
         android:name="androidx.navigation.fragment.test.EmptyFragment"/>
     <fragment
+        android:id="@+id/animator_fragment"
+        android:name="androidx.navigation.fragment.AnimatorFragment"/>
+    <fragment
         android:id="@+id/empty_fragment_2"
         android:name="androidx.navigation.fragment.test.EmptyFragment"/>
     <fragment
         android:id="@+id/child_back_stack_fragment"
         android:name="androidx.navigation.fragment.ChildBackStackFragment"/>
+    <fragment
+        android:id="@+id/null_view_fragment"
+        android:name="androidx.navigation.fragment.NullViewFragment"/>
     <dialog
         android:id="@+id/dialog_fragment"
         android:name="androidx.navigation.fragment.EmptyDialogFragment"/>

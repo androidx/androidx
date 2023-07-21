@@ -18,6 +18,7 @@ package androidx.navigation.testapp
 
 import android.graphics.Color
 import android.os.Bundle
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -27,6 +28,7 @@ import androidx.core.view.ViewCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.navigation.fragment.findNavController
+import androidx.transition.Slide
 
 /**
  * Fragment used to show how to navigate to another destination
@@ -38,6 +40,8 @@ class MainFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        enterTransition = Slide(Gravity.RIGHT)
+        exitTransition = Slide(Gravity.LEFT)
         return inflater.inflate(R.layout.main_fragment, container, false)
     }
 

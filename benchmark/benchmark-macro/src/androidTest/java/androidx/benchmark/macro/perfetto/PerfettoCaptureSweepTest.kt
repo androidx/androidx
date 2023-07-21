@@ -16,10 +16,12 @@
 
 package androidx.benchmark.macro.perfetto
 
+import android.annotation.SuppressLint
 import android.os.Build
 import androidx.benchmark.macro.FileLinkingRule
 import androidx.benchmark.macro.Packages
 import androidx.benchmark.perfetto.PerfettoCapture
+import androidx.benchmark.perfetto.PerfettoConfig
 import androidx.benchmark.perfetto.PerfettoHelper
 import androidx.benchmark.perfetto.PerfettoHelper.Companion.LOWEST_BUNDLED_VERSION_SUPPORTED
 import androidx.benchmark.perfetto.PerfettoHelper.Companion.isAbiSupported
@@ -85,6 +87,7 @@ class PerfettoCaptureSweepTest(
         captureAndValidateTrace(unbundled = true)
     }
 
+    @SuppressLint("BanThreadSleep")
     private fun captureAndValidateTrace(unbundled: Boolean) {
         assumeTrue(isAbiSupported())
 
@@ -93,7 +96,7 @@ class PerfettoCaptureSweepTest(
 
         verifyTraceEnable(false)
 
-        perfettoCapture.start(listOf(Packages.TEST))
+        perfettoCapture.start(PerfettoConfig.Benchmark(listOf(Packages.TEST)))
 
         if (!Trace.isEnabled()) {
             // Should be available immediately, but let's wait a while to see if it works slowly.

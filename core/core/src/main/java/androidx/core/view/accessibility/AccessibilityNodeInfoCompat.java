@@ -814,13 +814,55 @@ public class AccessibilityNodeInfoCompat {
     /**
      * Class with information if a node is a collection.
      * <p>
-     * A collection of items has rows and columns and may be hierarchical.
-     * For example, a horizontal list is a collection with one column, as
-     * many rows as the list items, and is not hierarchical; A table is a
-     * collection with several rows, several columns, and is not hierarchical;
-     * A vertical tree is a hierarchical collection with one column and
-     * as many rows as the first level children.
-     * </p>
+     * A collection of items has rows and columns and may be marked as hierarchical.
+     *
+     * <p>
+     * For example, a list where the items are placed in a vertical layout is a collection with one
+     * column and as many rows as the list items. This collection has 3 rows and 1 column and should
+     * not be marked as hierarchical since items do not exist at different levels/ranks and there
+     * are no nested collections.
+     * <ul>
+     *     <li>Item 1</li>
+     *     <li>Item 2</li>
+     *     <li>Item 3</li>
+     * </ul>
+     *
+     * <p>
+     * A table is a collection with several rows and several columns. This collection has 2 rows and
+     * 3 columns and is not marked as hierarchical:
+     *<table>
+     *   <tr>
+     *     <td>Item 1</td>
+     *     <td>Item 2</td>
+     *     <td>Item 3</td>
+     *   </tr>
+     *   <tr>
+     *     <td>Item 4</td>
+     *     <td>Item 5</td>
+     *     <td>Item 6</td>
+     *   </tr>
+     * </table>
+     *
+     * <p>
+     * Nested collections could be marked as hierarchical. To add outer and inner collections to the
+     * same hierarchy, mark them both as hierarchical.
+     *
+     * <p> For example, if you have a collection with two lists - this collection has an outer
+     * list with 3 rows and 1 column and an inner list within "Item 2" with 2 rows and 1 -
+     * you can mark both the outer list and the inner list as hierarchical to make them part of
+     * the same hierarchy. If a collection does not have any ancestor or descendant hierarchical
+     * collections, it does not need to be marked as hierarchical.
+     *  <ul>
+     *      <li>Item 1</li>
+     *      <li> Item 2
+     *          <ul>
+     *              <li>Item 2A</li>
+     *              <li>Item 2B</li>
+     *          </ul>
+     *      </li>
+     *      <li>Item 3</li>
+     *  </ul>
+     *
      * <p>
      * To be a valid list, a collection has 1 row and any number of columns or 1 column and any
      * number of rows.

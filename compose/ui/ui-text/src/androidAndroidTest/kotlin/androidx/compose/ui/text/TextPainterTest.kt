@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-@file:OptIn(ExperimentalTextApi::class)
-
 package androidx.compose.ui.text
 
 import android.graphics.Bitmap
@@ -475,7 +473,7 @@ class TextPainterTest {
     @Test
     fun textMeasurerDraw_isConstrainedTo_canvasSizeByDefault() {
         val measurer = textMeasurer()
-        // constrain the width, height is ignored
+        // coerceIn the width, height is ignored
         val textLayoutResult = measurer.measure(
             text = longText,
             style = TextStyle(
@@ -501,7 +499,7 @@ class TextPainterTest {
     @Test
     fun textMeasurerDraw_usesCanvasDensity_ByDefault() {
         val measurer = textMeasurer()
-        // constrain the width, height is ignored
+        // coerceIn the width, height is ignored
         val textLayoutResult = measurer.measure(
             text = longText,
             style = TextStyle(
@@ -530,7 +528,7 @@ class TextPainterTest {
     @Test
     fun drawTextClipsTheContent_ifOverflowIsClip() {
         val measurer = textMeasurer()
-        // constrain the width, height is ignored
+        // coerceIn the width, height is ignored
         val textLayoutResult = measurer.measure(
             text = longText,
             style = TextStyle(
@@ -590,7 +588,7 @@ class TextPainterTest {
     @Test
     fun drawTextDoesNotClipTheContent_ifOverflowIsVisible() {
         val measurer = textMeasurer()
-        // constrain the width, height is ignored
+        // coerceIn the width, height is ignored
         val textLayoutResult = measurer.measure(
             text = longText,
             style = TextStyle(

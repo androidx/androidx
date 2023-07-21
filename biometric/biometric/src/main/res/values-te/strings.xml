@@ -23,7 +23,7 @@
     <string name="fingerprint_error_no_fingerprints" msgid="7520712796891883488">"వేలిముద్రలు నమోదు చేయబడలేదు."</string>
     <string name="fingerprint_error_hw_not_present" msgid="6306988885793029438">"ఈ పరికరంలో వేలిముద్ర సెన్సార్ లేదు"</string>
     <string name="fingerprint_error_user_canceled" msgid="7627716295344353987">"వేలిముద్ర చర్యని వినియోగదారు రద్దు చేశారు."</string>
-    <string name="fingerprint_error_lockout" msgid="7291787166416782245">"చాలా ఎక్కువ ప్రయత్నాలు చేశారు. దయచేసి తర్వాత మళ్లీ ప్రయత్నించండి."</string>
+    <string name="fingerprint_error_lockout" msgid="7291787166416782245">"చాలా ఎక్కువ ప్రయత్నాలు చేశారు. దయచేసి తర్వాత మళ్లీ ట్రై చేయండి."</string>
     <string name="default_error_msg" msgid="4776854077120974966">"తెలియని ఎర్రర్"</string>
     <string name="generic_error_user_canceled" msgid="7309881387583143581">"వినియోగదారు ద్వారా ప్రామాణీకరణ రద్దు చేయబడింది"</string>
     <string name="confirm_device_credential_password" msgid="5912733858573823945">"పాస్‌వర్డ్‌ను ఉపయోగించండి"</string>

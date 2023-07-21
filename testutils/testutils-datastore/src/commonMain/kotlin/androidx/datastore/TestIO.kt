@@ -17,11 +17,14 @@
 package androidx.datastore
 
 import androidx.datastore.core.DataStore
-import androidx.datastore.core.Storage
 import androidx.datastore.core.DataStoreFactory.create
+import androidx.datastore.core.InterProcessCoordinator
+import androidx.datastore.core.Storage
 import kotlin.reflect.KClass
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 
+@OptIn(ExperimentalCoroutinesApi::class)
 abstract class TestIO<F : TestFile, IOE : Throwable>(
     protected val dirName: String = "datastore-test-dir"
 ) {
@@ -29,17 +32,24 @@ abstract class TestIO<F : TestFile, IOE : Throwable>(
     fun getStore(
         serializerConfig: TestingSerializerConfig,
         scope: CoroutineScope,
+        coordinatorProducer: () -> InterProcessCoordinator,
         futureFile: () -> TestFile
     ): DataStore<Byte> {
-        return create(getStorage(serializerConfig, futureFile), scope = scope)
+        return create(getStorage(serializerConfig, coordinatorProducer, futureFile), scope = scope)
     }
 
     abstract fun getStorage(
         serializerConfig: TestingSerializerConfig,
+        coordinatorProducer: () -> InterProcessCoordinator,
         futureFile: () -> TestFile = { newTempFile() }
     ): Storage<Byte>
 
-    abstract fun tempDir(directoryPath: String? = null, makeDirs: Boolean = true): F
+    abstract fun tempDir(
+        directoryPath: String? = null,
+        makeDirs: Boolean = true,
+        parentDir: F? = null
+    ): F
+
     abstract fun newTempFile(tempFolder: F = tempDir()): F
 
     abstract fun ioException(message: String): IOE
@@ -50,5 +60,27 @@ abstract class TestIO<F : TestFile, IOE : Throwable>(
 
 abstract class TestFile {
     abstract fun getAbsolutePath(): String
+
+    /**
+     * Deletes the file if it exists.
+     * Will return `false` if the file does not exist or cannot be deleted. (similar to File.delete)
+     */
     abstract fun delete(): Boolean
+
+    /**
+     * Returns true if this file/directory exists.
+     */
+    abstract fun exists(): Boolean
+
+    /**
+     * Creates the file if it doesn't exist.
+     * @return `true` if file didn't exist and gets created and false otherwise.
+     */
+    abstract fun createIfNotExists(): Boolean
+
+    fun deleteIfExists() {
+        if (exists()) {
+            delete()
+        }
+    }
 }

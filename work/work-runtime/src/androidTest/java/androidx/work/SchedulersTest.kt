@@ -24,8 +24,8 @@ import androidx.work.impl.Processor
 import androidx.work.impl.Scheduler
 import androidx.work.impl.StartStopTokens
 import androidx.work.impl.WorkDatabase
-import androidx.work.impl.WorkManagerImpl
 import androidx.work.impl.WorkLauncherImpl
+import androidx.work.impl.WorkManagerImpl
 import androidx.work.impl.background.greedy.GreedyScheduler
 import androidx.work.impl.constraints.trackers.Trackers
 import androidx.work.impl.model.WorkSpec
@@ -49,7 +49,8 @@ class SchedulersTest {
     val factory = TrackingWorkerFactory()
     val configuration = Configuration.Builder().setWorkerFactory(factory).build()
     val taskExecutor = WorkManagerTaskExecutor(configuration.taskExecutor)
-    val db = WorkDatabase.create(context, taskExecutor.serialTaskExecutor, true)
+    val db = WorkDatabase.create(
+        context, taskExecutor.serialTaskExecutor, configuration.clock, true)
     val processor = Processor(context, configuration, taskExecutor, db)
     val launcher = WorkLauncherImpl(processor, taskExecutor)
     val trackers = Trackers(context, taskExecutor)

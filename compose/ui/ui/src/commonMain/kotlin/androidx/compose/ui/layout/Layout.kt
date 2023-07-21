@@ -23,15 +23,21 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReusableComposeNode
 import androidx.compose.runtime.SkippableUpdater
 import androidx.compose.runtime.currentComposer
+import androidx.compose.runtime.currentCompositeKeyHash
 import androidx.compose.runtime.remember
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.UiComposable
 import androidx.compose.ui.graphics.GraphicsLayerScope
 import androidx.compose.ui.materialize
+import androidx.compose.ui.materializeWithCompositionLocalInjectionInternal
 import androidx.compose.ui.node.ComposeUiNode
+import androidx.compose.ui.node.ComposeUiNode.Companion.SetCompositeKeyHash
+import androidx.compose.ui.node.ComposeUiNode.Companion.SetMeasurePolicy
+import androidx.compose.ui.node.ComposeUiNode.Companion.SetModifier
+import androidx.compose.ui.node.ComposeUiNode.Companion.SetResolvedCompositionLocals
 import androidx.compose.ui.node.LayoutNode
 import androidx.compose.ui.unit.Constraints
-import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
@@ -63,17 +69,21 @@ import androidx.compose.ui.util.fastForEach
  */
 @Suppress("ComposableLambdaParameterPosition")
 @UiComposable
-@Composable inline fun Layout(
+@Composable
+inline fun Layout(
     content: @Composable @UiComposable () -> Unit,
     modifier: Modifier = Modifier,
     measurePolicy: MeasurePolicy
 ) {
+    val compositeKeyHash = currentCompositeKeyHash
     val localMap = currentComposer.currentCompositionLocalMap
     ReusableComposeNode<ComposeUiNode, Applier<Any>>(
         factory = ComposeUiNode.Constructor,
         update = {
-            set(measurePolicy, ComposeUiNode.SetMeasurePolicy)
-            set(localMap, ComposeUiNode.SetResolvedCompositionLocals)
+            set(measurePolicy, SetMeasurePolicy)
+            set(localMap, SetResolvedCompositionLocals)
+            @OptIn(ExperimentalComposeUiApi::class)
+            set(compositeKeyHash, SetCompositeKeyHash)
         },
         skippableUpdate = materializerOf(modifier),
         content = content
@@ -110,14 +120,17 @@ inline fun Layout(
     modifier: Modifier = Modifier,
     measurePolicy: MeasurePolicy
 ) {
+    val compositeKeyHash = currentCompositeKeyHash
     val materialized = currentComposer.materialize(modifier)
     val localMap = currentComposer.currentCompositionLocalMap
     ReusableComposeNode<ComposeUiNode, Applier<Any>>(
         factory = ComposeUiNode.Constructor,
         update = {
-            set(measurePolicy, ComposeUiNode.SetMeasurePolicy)
-            set(localMap, ComposeUiNode.SetResolvedCompositionLocals)
-            set(materialized, ComposeUiNode.SetModifier)
+            set(measurePolicy, SetMeasurePolicy)
+            set(localMap, SetResolvedCompositionLocals)
+            set(materialized, SetModifier)
+            @OptIn(ExperimentalComposeUiApi::class)
+            set(compositeKeyHash, SetCompositeKeyHash)
         },
     )
 }
@@ -165,21 +178,57 @@ internal fun combineAsVirtualLayouts(
     contents: List<@Composable @UiComposable () -> Unit>
 ): @Composable @UiComposable () -> Unit = {
     contents.fastForEach { content ->
+        val compositeKeyHash = currentCompositeKeyHash
         ReusableComposeNode<ComposeUiNode, Applier<Any>>(
             factory = ComposeUiNode.VirtualConstructor,
-            update = {},
+            update = {
+                @OptIn(ExperimentalComposeUiApi::class)
+                set(compositeKeyHash, SetCompositeKeyHash)
+            },
             content = content
         )
     }
 }
 
+/**
+ * This function uses a JVM-Name because the original name now has a different implementation for
+ * backwards compatibility [materializerOfWithCompositionLocalInjection].
+ * More details can be found at https://issuetracker.google.com/275067189
+ */
 @PublishedApi
+@JvmName("modifierMaterializerOf")
 internal fun materializerOf(
     modifier: Modifier
 ): @Composable SkippableUpdater<ComposeUiNode>.() -> Unit = {
+    val compositeKeyHash = currentCompositeKeyHash
     val materialized = currentComposer.materialize(modifier)
     update {
-        set(materialized, ComposeUiNode.SetModifier)
+        set(materialized, SetModifier)
+        @OptIn(ExperimentalComposeUiApi::class)
+        set(compositeKeyHash, SetCompositeKeyHash)
+    }
+}
+
+/**
+ * This function exists solely for solving a backwards-incompatibility with older compilations
+ * that used an older version of the `Layout` composable. New code paths should not call this.
+ * More details can be found at https://issuetracker.google.com/275067189
+ */
+@JvmName("materializerOf")
+@Deprecated(
+    "Needed only for backwards compatibility. Do not use.",
+    level = DeprecationLevel.WARNING
+)
+@PublishedApi
+internal fun materializerOfWithCompositionLocalInjection(
+    modifier: Modifier
+): @Composable SkippableUpdater<ComposeUiNode>.() -> Unit = {
+    val compositeKeyHash = currentCompositeKeyHash
+    val materialized = currentComposer.materializeWithCompositionLocalInjectionInternal(modifier)
+    update {
+        set(materialized, SetModifier)
+        @OptIn(ExperimentalComposeUiApi::class)
+        set(compositeKeyHash, SetCompositeKeyHash)
     }
 }
 
@@ -195,17 +244,20 @@ fun MultiMeasureLayout(
     content: @Composable @UiComposable () -> Unit,
     measurePolicy: MeasurePolicy
 ) {
+    val compositeKeyHash = currentCompositeKeyHash
     val materialized = currentComposer.materialize(modifier)
     val localMap = currentComposer.currentCompositionLocalMap
 
     ReusableComposeNode<LayoutNode, Applier<Any>>(
         factory = LayoutNode.Constructor,
         update = {
-            set(measurePolicy, ComposeUiNode.SetMeasurePolicy)
-            set(localMap, ComposeUiNode.SetResolvedCompositionLocals)
+            set(measurePolicy, SetMeasurePolicy)
+            set(localMap, SetResolvedCompositionLocals)
             @Suppress("DEPRECATION")
             init { this.canMultiMeasure = true }
-            set(materialized, ComposeUiNode.SetModifier)
+            set(materialized, SetModifier)
+            @OptIn(ExperimentalComposeUiApi::class)
+            set(compositeKeyHash, SetCompositeKeyHash)
         },
         content = content
     )
@@ -250,8 +302,8 @@ internal enum class IntrinsicWidthHeight {
  */
 internal class DefaultIntrinsicMeasurable(
     val measurable: IntrinsicMeasurable,
-    val minMax: IntrinsicMinMax,
-    val widthHeight: IntrinsicWidthHeight
+    private val minMax: IntrinsicMinMax,
+    private val widthHeight: IntrinsicWidthHeight
 ) : Measurable {
     override val parentData: Any?
         get() = measurable.parentData
@@ -295,6 +347,6 @@ internal class DefaultIntrinsicMeasurable(
  * call.
  */
 internal class IntrinsicsMeasureScope(
-    density: Density,
-    override val layoutDirection: LayoutDirection
-) : MeasureScope, Density by density
+    intrinsicMeasureScope: IntrinsicMeasureScope,
+    override val layoutDirection: LayoutDirection,
+) : MeasureScope, IntrinsicMeasureScope by intrinsicMeasureScope

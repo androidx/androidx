@@ -30,8 +30,10 @@ import androidx.work.impl.utils.WorkForegroundRunnable
 import androidx.work.impl.utils.taskexecutor.InstantWorkTaskExecutor
 import androidx.work.impl.utils.taskexecutor.TaskExecutor
 import androidx.work.worker.TestWorker
-import org.hamcrest.CoreMatchers.`is`
+import java.util.UUID
+import java.util.concurrent.Executor
 import org.hamcrest.CoreMatchers.equalTo
+import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Assert.fail
 import org.junit.Before
@@ -42,8 +44,6 @@ import org.mockito.Mockito.mock
 import org.mockito.Mockito.spy
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.verifyNoMoreInteractions
-import java.util.UUID
-import java.util.concurrent.Executor
 
 @RunWith(AndroidJUnit4::class)
 public class WorkForegroundRunnableTest : DatabaseTest() {

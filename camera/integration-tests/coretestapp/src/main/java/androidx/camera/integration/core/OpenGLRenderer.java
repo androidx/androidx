@@ -16,6 +16,8 @@
 
 package androidx.camera.integration.core;
 
+import static androidx.camera.core.impl.utils.TransformUtils.within360;
+
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.SurfaceTexture;
@@ -61,6 +63,8 @@ final class OpenGLRenderer {
     private boolean mIsPreviewCropRectPrecalculated = false;
     private Size mPreviewSize;
     private int mTextureRotationDegrees;
+    private int mSurfaceRequestRotationDegrees;
+    private boolean mHasCameraTransform;
     // Transform retrieved by SurfaceTexture.getTransformMatrix
     private final float[] mTextureTransform = new float[16];
 
@@ -128,6 +132,9 @@ final class OpenGLRenderer {
                                 mExecutor,
                                 transformationInfo -> {
                                     mMvpDirty = true;
+                                    mHasCameraTransform = transformationInfo.hasCameraTransform();
+                                    mSurfaceRequestRotationDegrees =
+                                            transformationInfo.getRotationDegrees();
                                     if (!isCropRectFullTexture(transformationInfo.getCropRect())) {
                                         // Crop rect is pre-calculated. Use it directly.
                                         mPreviewCropRect = new RectF(
@@ -495,7 +502,15 @@ final class OpenGLRenderer {
         // device is rotated in a counter-clockwise direction and our world-space coordinates
         // define positive angles in the clockwise direction, we add the two together to get the
         // total angle required.
-        return (mTextureRotationDegrees + mSurfaceRotationDegrees) % 360;
+        if (mHasCameraTransform) {
+            // If the Surface is connected to the camera, there is surface rotation encoded in
+            // the SurfaceTexture.
+            return within360((180 - mTextureRotationDegrees) + mSurfaceRotationDegrees);
+        } else {
+            // When the Surface is connected to an internal OpenGl renderer, the texture rotation
+            // is always 0. Use the rotation provided by SurfaceRequest instead.
+            return mSurfaceRequestRotationDegrees;
+        }
     }
 
     /**
@@ -540,7 +555,7 @@ final class OpenGLRenderer {
     private void updateModelTransform() {
         // Remove the rotation to the device 'natural' orientation so our world space will be in
         // sensor coordinates.
-        Matrix.setRotateM(mTempMatrix, 0, -mTextureRotationDegrees, 0.0f, 0.0f, 1.0f);
+        Matrix.setRotateM(mTempMatrix, 0, -(180 - mTextureRotationDegrees), 0.0f, 0.0f, 1.0f);
 
         Matrix.setIdentityM(mTempMatrix, 16);
         // Translate to the upper left corner of the quad so we are in buffer space

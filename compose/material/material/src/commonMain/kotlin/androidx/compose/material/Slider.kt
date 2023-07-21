@@ -27,10 +27,10 @@ import androidx.compose.foundation.gestures.DragScope
 import androidx.compose.foundation.gestures.DraggableState
 import androidx.compose.foundation.gestures.GestureCancellationException
 import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.draggable
-import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.horizontalDrag
 import androidx.compose.foundation.hoverable
 import androidx.compose.foundation.indication
@@ -59,6 +59,7 @@ import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -190,14 +191,14 @@ fun Slider(
             scale(valueRange.start, valueRange.endInclusive, userValue, minPx, maxPx)
 
         val scope = rememberCoroutineScope()
-        val rawOffset = remember { mutableStateOf(scaleToOffset(value)) }
-        val pressOffset = remember { mutableStateOf(0f) }
+        val rawOffset = remember { mutableFloatStateOf(scaleToOffset(value)) }
+        val pressOffset = remember { mutableFloatStateOf(0f) }
 
         val draggableState = remember(minPx, maxPx, valueRange) {
             SliderDraggableState {
-                rawOffset.value = (rawOffset.value + it + pressOffset.value)
-                pressOffset.value = 0f
-                val offsetInTrack = rawOffset.value.coerceIn(minPx, maxPx)
+                rawOffset.floatValue = (rawOffset.floatValue + it + pressOffset.floatValue)
+                pressOffset.floatValue = 0f
+                val offsetInTrack = rawOffset.floatValue.coerceIn(minPx, maxPx)
                 onValueChangeState.value.invoke(scaleToUserValue(offsetInTrack))
             }
         }
@@ -205,7 +206,7 @@ fun Slider(
         CorrectValueSideEffect(::scaleToOffset, valueRange, minPx..maxPx, rawOffset, value)
 
         val gestureEndAction = rememberUpdatedState<(Float) -> Unit> { velocity: Float ->
-            val current = rawOffset.value
+            val current = rawOffset.floatValue
             val target = snapValueToTick(current, tickFractions, minPx, maxPx)
             if (current != target) {
                 scope.launch {
@@ -328,8 +329,8 @@ fun RangeSlider(
         fun scaleToOffset(userValue: Float) =
             scale(valueRange.start, valueRange.endInclusive, userValue, minPx, maxPx)
 
-        val rawOffsetStart = remember { mutableStateOf(scaleToOffset(value.start)) }
-        val rawOffsetEnd = remember { mutableStateOf(scaleToOffset(value.endInclusive)) }
+        val rawOffsetStart = remember { mutableFloatStateOf(scaleToOffset(value.start)) }
+        val rawOffsetEnd = remember { mutableFloatStateOf(scaleToOffset(value.endInclusive)) }
 
         CorrectValueSideEffect(
             ::scaleToOffset,
@@ -348,7 +349,7 @@ fun RangeSlider(
 
         val scope = rememberCoroutineScope()
         val gestureEndAction = rememberUpdatedState<(Boolean) -> Unit> { isStart ->
-            val current = (if (isStart) rawOffsetStart else rawOffsetEnd).value
+            val current = (if (isStart) rawOffsetStart else rawOffsetEnd).floatValue
             // target is a closest anchor to the `current`, if exists
             val target = snapValueToTick(current, tickFractions, minPx, maxPx)
             if (current == target) {
@@ -361,9 +362,9 @@ fun RangeSlider(
                     target, SliderToTickAnimation,
                     0f
                 ) {
-                    (if (isStart) rawOffsetStart else rawOffsetEnd).value = this.value
+                    (if (isStart) rawOffsetStart else rawOffsetEnd).floatValue = this.value
                     onValueChangeState.value.invoke(
-                        scaleToUserValue(rawOffsetStart.value..rawOffsetEnd.value)
+                        scaleToUserValue(rawOffsetStart.floatValue..rawOffsetEnd.floatValue)
                     )
                 }
 
@@ -373,16 +374,16 @@ fun RangeSlider(
 
         val onDrag = rememberUpdatedState<(Boolean, Float) -> Unit> { isStart, offset ->
             val offsetRange = if (isStart) {
-                rawOffsetStart.value = (rawOffsetStart.value + offset)
-                rawOffsetEnd.value = scaleToOffset(value.endInclusive)
-                val offsetEnd = rawOffsetEnd.value
-                val offsetStart = rawOffsetStart.value.coerceIn(minPx, offsetEnd)
+                rawOffsetStart.floatValue = (rawOffsetStart.floatValue + offset)
+                rawOffsetEnd.floatValue = scaleToOffset(value.endInclusive)
+                val offsetEnd = rawOffsetEnd.floatValue
+                val offsetStart = rawOffsetStart.floatValue.coerceIn(minPx, offsetEnd)
                 offsetStart..offsetEnd
             } else {
-                rawOffsetEnd.value = (rawOffsetEnd.value + offset)
-                rawOffsetStart.value = scaleToOffset(value.start)
-                val offsetStart = rawOffsetStart.value
-                val offsetEnd = rawOffsetEnd.value.coerceIn(offsetStart, maxPx)
+                rawOffsetEnd.floatValue = (rawOffsetEnd.floatValue + offset)
+                rawOffsetStart.floatValue = scaleToOffset(value.start)
+                val offsetStart = rawOffsetStart.floatValue
+                val offsetEnd = rawOffsetEnd.floatValue.coerceIn(offsetStart, maxPx)
                 offsetStart..offsetEnd
             }
 

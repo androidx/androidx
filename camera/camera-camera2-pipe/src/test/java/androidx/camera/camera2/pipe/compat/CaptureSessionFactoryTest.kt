@@ -23,6 +23,7 @@ import android.os.Looper
 import android.util.Size
 import android.view.Surface
 import androidx.camera.camera2.pipe.CameraGraph
+import androidx.camera.camera2.pipe.CameraGraph.Flags.FinalizeSessionOnCloseBehavior
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.CameraPipe
@@ -39,6 +40,7 @@ import androidx.camera.camera2.pipe.config.SharedCameraGraphModules
 import androidx.camera.camera2.pipe.config.ThreadConfigModule
 import androidx.camera.camera2.pipe.core.SystemTimeSource
 import androidx.camera.camera2.pipe.graph.StreamGraphImpl
+import androidx.camera.camera2.pipe.internal.CameraErrorListener
 import androidx.camera.camera2.pipe.testing.FakeCaptureSequence
 import androidx.camera.camera2.pipe.testing.FakeCaptureSequenceProcessor
 import androidx.camera.camera2.pipe.testing.FakeGraphProcessor
@@ -55,6 +57,7 @@ import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.kotlin.mock
 import org.robolectric.Shadows
 import org.robolectric.annotation.Config
 
@@ -66,6 +69,7 @@ internal class CaptureSessionFactoryTest {
     private val mainLooper = Shadows.shadowOf(Looper.getMainLooper())
     private val cameraId = RobolectricCameras.create()
     private val testCamera = RobolectricCameras.open(cameraId)
+    private val cameraErrorListener: CameraErrorListener = mock()
 
     @After
     fun teardown() {
@@ -106,7 +110,10 @@ internal class CaptureSessionFactoryTest {
         val pendingOutputs =
             sessionFactory.create(
                 AndroidCameraDevice(
-                    testCamera.metadata, testCamera.cameraDevice, testCamera.cameraId
+                    testCamera.metadata,
+                    testCamera.cameraDevice,
+                    testCamera.cameraId,
+                    cameraErrorListener
                 ),
                 mapOf(stream1.id to surface),
                 captureSessionState =
@@ -122,6 +129,10 @@ internal class CaptureSessionFactoryTest {
                     },
                     CameraSurfaceManager(),
                     SystemTimeSource(),
+                    CameraGraph.Flags(
+                        quirkFinalizeSessionOnCloseBehavior = FinalizeSessionOnCloseBehavior.OFF,
+                        quirkCloseCaptureSessionOnDisconnect = false,
+                    ),
                     this
                 )
             )

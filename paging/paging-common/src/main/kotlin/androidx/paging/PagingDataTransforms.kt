@@ -20,10 +20,10 @@ package androidx.paging
 
 import androidx.annotation.CheckResult
 import androidx.paging.TerminalSeparatorType.FULLY_COMPLETE
+import java.util.concurrent.Executor
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
-import java.util.concurrent.Executor
 
 private inline fun <T : Any, R : Any> PagingData<T>.transform(
     crossinline transform: suspend (PageEvent<T>) -> PageEvent<R>

@@ -22,6 +22,7 @@ import android.util.Size
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.integration.compat.workaround.OutputSizesCorrector
 import androidx.camera.camera2.pipe.integration.config.CameraScope
+import androidx.camera.core.Logger
 import javax.inject.Inject
 
 /**
@@ -34,9 +35,13 @@ import javax.inject.Inject
 @CameraScope
 @RequiresApi(21)
 class StreamConfigurationMapCompat @Inject constructor(
-    map: StreamConfigurationMap,
+    map: StreamConfigurationMap?,
     private val outputSizesCorrector: OutputSizesCorrector
 ) {
+    private val tag = "StreamConfigurationMapCompat"
+    private val cachedFormatOutputSizes = mutableMapOf<Int, Array<Size>>()
+    private val cachedFormatHighResolutionOutputSizes = mutableMapOf<Int, Array<Size>?>()
+    private val cachedClassOutputSizes = mutableMapOf<Class<*>, Array<Size>>()
     private var impl: StreamConfigurationMapCompatImpl
 
     init {
@@ -58,7 +63,21 @@ class StreamConfigurationMapCompat @Inject constructor(
      * supported output
      */
     fun getOutputSizes(format: Int): Array<Size>? {
-        return outputSizesCorrector.applyQuirks(impl.getOutputSizes(format), format)
+        if (cachedFormatOutputSizes.contains(format)) {
+            return cachedFormatOutputSizes[format]?.clone()
+        }
+
+        val outputSizes = impl.getOutputSizes(format)
+
+        if (outputSizes.isNullOrEmpty()) {
+            Logger.w(tag, "Retrieved output sizes array is null or empty for format $format")
+            return outputSizes
+        }
+
+        outputSizesCorrector.applyQuirks(outputSizes, format).let {
+            cachedFormatOutputSizes[format] = it
+            return it.clone()
+        }
     }
 
     /**
@@ -68,17 +87,31 @@ class StreamConfigurationMapCompat @Inject constructor(
      * Output sizes related quirks will be applied onto the returned sizes list.
      *
      * @param klass a non-`null` [Class] object reference
-     * @return an array of supported sizes for [ImageFormat.PRIVATE] format,
+     * @return an array of supported sizes for [ImageFormat#PRIVATE] format,
      * or `null` if the `klass` is not a supported output.
      * @throws NullPointerException if `klass` was `null`
      */
     fun <T> getOutputSizes(klass: Class<T>): Array<Size>? {
-        return outputSizesCorrector.applyQuirks<T>(impl.getOutputSizes<T>(klass), klass)
+        if (cachedClassOutputSizes.contains(klass)) {
+            return cachedClassOutputSizes[klass]?.clone()
+        }
+
+        val outputSizes = impl.getOutputSizes(klass)
+
+        if (outputSizes.isNullOrEmpty()) {
+            Logger.w(tag, "Retrieved output sizes array is null or empty for class $klass")
+            return outputSizes
+        }
+
+        outputSizesCorrector.applyQuirks(outputSizes, klass).let {
+            cachedClassOutputSizes[klass] = it
+            return it.clone()
+        }
     }
 
     /**
      * Get a list of supported high resolution sizes, which cannot operate at full
-     * [CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_BURST_CAPTURE] rate.
+     * [CameraMetadata#REQUEST_AVAILABLE_CAPABILITIES_BURST_CAPTURE] rate.
      *
      *
      * Output sizes related quirks will be applied onto the returned sizes list.
@@ -88,13 +121,25 @@ class StreamConfigurationMapCompat @Inject constructor(
      * supported output
      */
     fun getHighResolutionOutputSizes(format: Int): Array<Size>? {
-        return outputSizesCorrector.applyQuirks(impl.getHighResolutionOutputSizes(format), format)
+        if (cachedFormatHighResolutionOutputSizes.contains(format)) {
+            return cachedFormatHighResolutionOutputSizes[format]?.clone()
+        }
+
+        var outputSizes = impl.getHighResolutionOutputSizes(format)
+
+        // High resolution output sizes can be null.
+        if (!outputSizes.isNullOrEmpty()) {
+            outputSizes = outputSizesCorrector.applyQuirks(outputSizes, format)
+        }
+
+        cachedFormatHighResolutionOutputSizes[format] = outputSizes
+        return outputSizes?.clone()
     }
 
     /**
      * Returns the [StreamConfigurationMap] represented by this object.
      */
-    fun toStreamConfigurationMap(): StreamConfigurationMap {
+    fun toStreamConfigurationMap(): StreamConfigurationMap? {
         return impl.unwrap()
     }
 
@@ -102,9 +147,10 @@ class StreamConfigurationMapCompat @Inject constructor(
         fun getOutputSizes(format: Int): Array<Size>?
         fun <T> getOutputSizes(klass: Class<T>): Array<Size>?
         fun getHighResolutionOutputSizes(format: Int): Array<Size>?
+
         /**
          * Returns the underlying [StreamConfigurationMap] instance.
          */
-        fun unwrap(): StreamConfigurationMap
+        fun unwrap(): StreamConfigurationMap?
     }
 }

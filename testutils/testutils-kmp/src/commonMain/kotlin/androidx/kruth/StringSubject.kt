@@ -101,4 +101,93 @@ class StringSubject(actual: String?) : ComparableSubject<String>(actual) {
             )
         }
     }
+
+    /**
+     * Returns a [StringSubject]-like instance that will ignore the case of the characters.
+     *
+     * Character equality ignoring case is defined as follows: Characters must be equal either
+     * after calling [Character.toLowerCase] or after calling [Character.toUpperCase].
+     * Note that this is independent of any locale.
+     */
+    fun ignoringCase(): CaseInsensitiveStringComparison =
+        CaseInsensitiveStringComparison()
+
+    inner class CaseInsensitiveStringComparison internal constructor() {
+        /**
+         * Fails if the subject is not equal to the given sequence (while ignoring case). For the
+         * purposes of this comparison, two strings are equal if any of the following is true:
+         *
+         *  * they are equal according to [String.equals] with `ignoreCase = true`
+         *  * they are both null
+         *
+         * Example: "abc" is equal to "ABC", but not to "abcd".
+         */
+        fun isEqualTo(expected: String?) {
+            when {
+                (actual == null) && (expected != null) ->
+                    fail("Expected a string equal to \"$expected\" (case is ignored), but was null")
+
+                (expected == null) && (actual != null) ->
+                    fail("Expected a string that is null (null reference), but was \"$actual\"")
+
+                !actual.equals(expected, ignoreCase = true) ->
+                    fail(
+                        "Expected a string equal to \"$expected\" (case is ignored), " +
+                            "but was \"$actual\""
+                    )
+            }
+        }
+
+        /**
+         * Fails if the subject is equal to the given string (while ignoring case). The meaning of
+         * equality is the same as for the [isEqualTo] method.
+         */
+        fun isNotEqualTo(unexpected: String?) {
+            when {
+                (actual == null) && (unexpected == null) ->
+                    fail("Expected a string not equal to null (null reference), but it was null")
+
+                actual.equals(unexpected, ignoreCase = true) ->
+                    fail(
+                        "Expected a string not equal to \"$unexpected\" (case is ignored), " +
+                            "but it was equal. Actual string: \"$actual\"."
+                    )
+            }
+        }
+
+        /** Fails if the string does not contain the given sequence (while ignoring case).  */
+        fun contains(expected: CharSequence?) {
+            requireNonNull(expected)
+
+            when {
+                actual == null ->
+                    fail(
+                        "Expected a string that contains \"$expected\" (case is ignored), " +
+                            "but was null"
+                    )
+
+                !actual.contains(expected, ignoreCase = true) ->
+                    fail("Expected to contain \"$expected\" (case is ignored), but was \"$actual\"")
+            }
+        }
+
+        /** Fails if the string contains the given sequence (while ignoring case).  */
+        fun doesNotContain(expected: CharSequence?) {
+            checkNotNull(expected)
+
+            when {
+                actual == null ->
+                    fail(
+                        "Expected a string that does not contain \"$expected\" " +
+                            "(case is ignored), but was null"
+                    )
+
+                actual.contains(expected, ignoreCase = true) ->
+                    fail(
+                        "Expected a string that does not contain \"$expected\" " +
+                            "(case is ignored), but it was. Actual string: \"$actual\"."
+                    )
+            }
+        }
+    }
 }

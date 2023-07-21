@@ -8,9 +8,10 @@ plugins {
 }
 
 dependencies {
-    // Atomic group
+    // Atomically versioned.
     constraints {
         implementation(project(":core:core-ktx"))
+        implementation(project(":core:core-testing"))
     }
 
     api("androidx.annotation:annotation:1.6.0")
@@ -34,6 +35,7 @@ dependencies {
     androidTestImplementation(libs.espressoCore, excludes.espresso)
     androidTestImplementation(libs.mockitoCore, excludes.bytebuddy) // DexMaker has it"s own MockMaker
     androidTestImplementation(libs.multidex)
+    androidTestImplementation(libs.testUiautomator)
 
     androidTestImplementation("androidx.lifecycle:lifecycle-runtime-testing:2.3.1")
 
@@ -88,10 +90,11 @@ android {
 }
 
 androidx {
-    name = "Android Support Library compat"
+    name = "Core"
     publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.CORE
     inceptionYear = "2015"
-    description = "The Support Library is a static library that you can add to your Android application in order to use APIs that are either not available for older platform versions or utility APIs that aren\'t a part of the framework APIs. Compatible on devices running API 14 or later."
+    description = "Provides backward-compatible implementations of Android platform APIs and " +
+            "features."
     failOnDeprecationWarnings = false
 }

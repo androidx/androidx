@@ -34,11 +34,11 @@ private const val GENERATE_TASK_NAME = "generate"
 internal inline fun <reified T : Task> maybeCreateGenerateTask(
     project: Project,
     variantName: String,
-    childGenerationTaskProvider: TaskProvider<*>? = null
+    lastTaskProvider: TaskProvider<*>? = null
 ) = project.tasks.maybeRegister<T>(GENERATE_TASK_NAME, variantName, TASK_NAME_SUFFIX) {
     it.group = "Baseline Profile"
     it.description = "Generates a baseline profile for the specified variants or dimensions."
-    if (childGenerationTaskProvider != null) it.dependsOn(childGenerationTaskProvider)
+    if (lastTaskProvider != null) it.dependsOn(lastTaskProvider)
 }
 
 @DisableCachingByDefault(because = "Not worth caching.")

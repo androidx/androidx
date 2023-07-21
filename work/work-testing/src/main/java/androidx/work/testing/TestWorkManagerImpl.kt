@@ -17,7 +17,6 @@
 package androidx.work.testing
 
 import android.content.Context
-
 import androidx.work.Configuration
 import androidx.work.impl.Processor
 import androidx.work.impl.Scheduler
@@ -44,7 +43,8 @@ internal fun createTestWorkManagerImpl(
         context = context,
         configuration = configuration,
         workTaskExecutor = taskExecutor,
-        workDatabase = WorkDatabase.create(context, taskExecutor.serialTaskExecutor, true),
+        workDatabase = WorkDatabase.create(
+            context, taskExecutor.serialTaskExecutor, configuration.clock, true),
         schedulersCreator = ::createTestSchedulers
     )
 }
@@ -58,7 +58,8 @@ internal fun createTestWorkManagerImpl(
         context = context,
         configuration = configuration,
         workTaskExecutor = taskExecutor,
-        workDatabase = WorkDatabase.create(context, taskExecutor.serialTaskExecutor, true),
+        workDatabase = WorkDatabase.create(
+            context, taskExecutor.serialTaskExecutor, configuration.clock, true),
         schedulersCreator = ::createTestSchedulers
     )
 }
@@ -82,5 +83,5 @@ private fun createTestSchedulers(
     processor: Processor,
 ): List<Scheduler> {
     val launcher = WorkLauncherImpl(processor, workTaskExecutor)
-    return listOf<Scheduler>(TestScheduler(workDatabase, launcher))
+    return listOf<Scheduler>(TestScheduler(workDatabase, launcher, configuration.clock))
 }

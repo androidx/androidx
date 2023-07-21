@@ -296,4 +296,113 @@ class FragmentManagerTest {
             assertThat(popped).isTrue()
         }
     }
+
+    @Test
+    fun navigatePopNavigateRestore() {
+        withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+            val fm = withActivity { supportFragmentManager }
+            val fragment2 = StrictViewFragment()
+
+            fm.beginTransaction()
+                .setCustomAnimations(
+                    androidx.fragment.R.animator.fragment_fade_enter,
+                    androidx.fragment.R.animator.fragment_fade_exit,
+                    androidx.fragment.R.animator.fragment_fade_enter,
+                    androidx.fragment.R.animator.fragment_fade_exit
+                )
+                .replace(R.id.content, fragment2, "fragment2")
+                .setReorderingAllowed(true)
+                .addToBackStack("stack2")
+                .commit()
+            executePendingTransactions()
+
+            val fragment3 = StrictViewFragment()
+
+            fm.saveBackStack("stack2")
+            fm.beginTransaction()
+                .setCustomAnimations(
+                    androidx.fragment.R.animator.fragment_fade_enter,
+                    androidx.fragment.R.animator.fragment_fade_exit,
+                    androidx.fragment.R.animator.fragment_fade_enter,
+                    androidx.fragment.R.animator.fragment_fade_exit
+                )
+                .replace(R.id.content, fragment3, "fragment3")
+                .setReorderingAllowed(true)
+                .addToBackStack("stack3")
+                .commit()
+
+            fm.saveBackStack("stack3")
+            fm.restoreBackStack("stack2")
+            executePendingTransactions()
+
+            recreate()
+
+            val restoredFragmentManager = withActivity { supportFragmentManager }
+
+            assertThat(restoredFragmentManager.findFragmentByTag("fragment2"))
+                .isNotNull()
+        }
+    }
+
+    @Test
+    fun replacePopReplaceWithRestored() {
+        withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+            val fm = withActivity { supportFragmentManager }
+            val fragment2 = StrictViewFragment()
+
+            fm.beginTransaction()
+                .setCustomAnimations(
+                    androidx.fragment.R.animator.fragment_fade_enter,
+                    androidx.fragment.R.animator.fragment_fade_exit,
+                    androidx.fragment.R.animator.fragment_fade_enter,
+                    androidx.fragment.R.animator.fragment_fade_exit
+                )
+                .replace(R.id.content, fragment2, "fragment2")
+                .setReorderingAllowed(true)
+                .addToBackStack("stack2")
+                .commit()
+            executePendingTransactions()
+
+            val fragment3 = StrictViewFragment()
+
+            fm.popBackStack("stack2", 0)
+            fm.beginTransaction()
+                .setCustomAnimations(
+                    androidx.fragment.R.animator.fragment_fade_enter,
+                    androidx.fragment.R.animator.fragment_fade_exit,
+                    androidx.fragment.R.animator.fragment_fade_enter,
+                    androidx.fragment.R.animator.fragment_fade_exit
+                )
+                .replace(R.id.content, fragment3, "fragment3")
+                .setReorderingAllowed(true)
+                .addToBackStack("stack3")
+                .commit()
+
+            fm.popBackStack("stack3", 0)
+
+            val restoreFragment2 = StrictViewFragment()
+            withActivity {
+                restoreFragment2.setInitialSavedState(fm.saveFragmentInstanceState(fragment2))
+            }
+            fm.beginTransaction()
+                .setCustomAnimations(
+                    androidx.fragment.R.animator.fragment_fade_enter,
+                    androidx.fragment.R.animator.fragment_fade_exit,
+                    androidx.fragment.R.animator.fragment_fade_enter,
+                    androidx.fragment.R.animator.fragment_fade_exit
+                )
+                .replace(R.id.content, restoreFragment2, "fragment2")
+                .setReorderingAllowed(true)
+                .addToBackStack("stack2")
+                .commit()
+            executePendingTransactions()
+
+            recreate()
+
+            val restoredFragmentManager = withActivity { supportFragmentManager }
+
+            assertThat(restoredFragmentManager.findFragmentByTag("fragment2"))
+                .isNotNull()
+        }
+    }
 }

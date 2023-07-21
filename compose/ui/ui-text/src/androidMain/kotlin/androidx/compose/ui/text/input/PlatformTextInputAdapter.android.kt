@@ -20,6 +20,7 @@ import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputConnection
 import androidx.compose.runtime.Immutable
+import androidx.compose.ui.text.ExperimentalTextApi
 
 /**
  * Defines a plugin to the Compose text input system. Instances of this interface should be
@@ -35,6 +36,7 @@ import androidx.compose.runtime.Immutable
  * Implementations are intended to be used only by your text editor implementation, and probably not
  * exposed as public API.
  */
+@ExperimentalTextApi
 @Immutable
 actual fun interface PlatformTextInputPlugin<T : PlatformTextInputAdapter> {
     /**
@@ -61,8 +63,6 @@ actual fun interface PlatformTextInputPlugin<T : PlatformTextInputAdapter> {
  *  [PlatformTextInputPlugin] when they are ready to begin processing text input. Platform APIs will
  *  not be delegated to an adapter unless it holds input focus.
  * - Implement [createInputConnection] to create an [InputConnection] that talks to the IME.
- * - Return a [TextInputForTests] instance from [inputForTests] that implements text operations
- *  defined by the Compose UI testing framework.
  * - Optionally implement [onDisposed] to clean up any resources when the adapter is no longer used
  *  in the composition and will be removed from the [PlatformTextInputPluginRegistry]'s cache.
  *
@@ -70,15 +70,10 @@ actual fun interface PlatformTextInputPlugin<T : PlatformTextInputAdapter> {
  * exposed as public API. Your adapter can define whatever internal API it needs to communicate with
  * the rest of your text editor code.
  */
+@ExperimentalTextApi
 actual interface PlatformTextInputAdapter {
     // TODO(b/267235947) When fleshing out the desktop actual, we might want to pull some of these
     //  members up into the expect interface (e.g. maybe inputForTests).
-
-    /**
-     * The [TextInputForTests] used to inject text editing commands by the testing framework.
-     * This should only be called from tests, never in production.
-     */
-    val inputForTests: TextInputForTests?
 
     /** Delegate for [View.onCreateInputConnection]. */
     fun createInputConnection(outAttrs: EditorInfo): InputConnection?
@@ -90,6 +85,7 @@ actual interface PlatformTextInputAdapter {
     fun onDisposed() {}
 }
 
+@OptIn(ExperimentalTextApi::class)
 internal actual fun PlatformTextInputAdapter.dispose() {
     onDisposed()
 }

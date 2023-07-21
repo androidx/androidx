@@ -55,7 +55,10 @@ class JpegHalCorruptImageQuirkTest(
             FakeCameraMetadata(),
             StreamConfigurationMapCompat(
                 StreamConfigurationMapBuilder.newBuilder().build(),
-                OutputSizesCorrector(FakeCameraMetadata())
+                OutputSizesCorrector(
+                    FakeCameraMetadata(),
+                    StreamConfigurationMapBuilder.newBuilder().build()
+                )
             )
         ).quirks
 

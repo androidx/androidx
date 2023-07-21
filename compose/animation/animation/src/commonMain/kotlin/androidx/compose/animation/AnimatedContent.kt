@@ -27,6 +27,7 @@ import androidx.compose.animation.AnimatedContentTransitionScope.SlideDirection.
 import androidx.compose.animation.core.AnimationVector2D
 import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.InternalAnimationApi
+import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.Transition
 import androidx.compose.animation.core.VectorConverter
 import androidx.compose.animation.core.VisibilityThreshold
@@ -40,6 +41,7 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -84,8 +86,14 @@ import androidx.compose.ui.util.fastForEachIndexed
  * [SizeTransform] is set to `null`. Once the [ContentTransform] is finished, the
  * outgoing content will be disposed.
  *
+ * If [targetState] is expected to mutate frequently and not all mutations should be treated as
+ * target state change, consider defining a mapping between [targetState] and a key in [contentKey].
+ * As a result, transitions will be triggered when the resulting key changes. In other words,
+ * there will be no animation when switching between [targetState]s that share the same same key.
+ * By default, the key will be the same as the targetState object.
+ *
  * By default, the [ContentTransform] will be a delayed [fadeIn] of the target content and a delayed
- * [scaleIn] [with] a [fadeOut] of the initial content, using a [SizeTransform] to
+ * [scaleIn] [togetherWith] a [fadeOut] of the initial content, using a [SizeTransform] to
  * animate any size change of the content. This behavior can be customized using [transitionSpec].
  * If desired, different [ContentTransform]s can be defined for different pairs of initial content
  * and target content.
@@ -100,8 +108,8 @@ import androidx.compose.ui.util.fastForEachIndexed
  * on top of all the other content unless zIndex is specified.
  *
  * Different content in [AnimatedContent] will have access to their own
- * [AnimatedVisibilityScope]. This allows content to define more local enter/exit transitions
- * via [AnimatedVisibilityScope.animateEnterExit] and [AnimatedVisibilityScope.transition]. These
+ * [AnimatedContentScope]. This allows content to define more local enter/exit transitions
+ * via [AnimatedContentScope.animateEnterExit] and [AnimatedContentScope.transition]. These
  * custom enter/exit animations will be triggered as the content enters/leaves the container.
  *
  * [label] is an optional parameter to differentiate from other animations in Android Studio.
@@ -114,37 +122,31 @@ import androidx.compose.ui.util.fastForEachIndexed
  * @sample androidx.compose.animation.samples.AnimateIncrementDecrementSample
  *
  * @see ContentTransform
- * @see AnimatedVisibilityScope
+ * @see AnimatedContentScope
  */
 @Composable
 fun <S> AnimatedContent(
     targetState: S,
     modifier: Modifier = Modifier,
     transitionSpec: AnimatedContentTransitionScope<S>.() -> ContentTransform = {
-        fadeIn(animationSpec = tween(220, delayMillis = 90)) +
-            scaleIn(initialScale = 0.92f, animationSpec = tween(220, delayMillis = 90)) with
-            fadeOut(animationSpec = tween(90))
+        (fadeIn(animationSpec = tween(220, delayMillis = 90)) +
+            scaleIn(initialScale = 0.92f, animationSpec = tween(220, delayMillis = 90)))
+            .togetherWith(fadeOut(animationSpec = tween(90)))
     },
     contentAlignment: Alignment = Alignment.TopStart,
     label: String = "AnimatedContent",
-    content: @Composable() AnimatedVisibilityScope.(targetState: S) -> Unit
+    contentKey: (targetState: S) -> Any? = { it },
+    content: @Composable() AnimatedContentScope.(targetState: S) -> Unit
 ) {
     val transition = updateTransition(targetState = targetState, label = label)
     transition.AnimatedContent(
         modifier,
         transitionSpec,
         contentAlignment,
+        contentKey,
         content = content
     )
 }
-
-// TODO: Remove this before M7 stable. This is only intended for helping devs quick fix the
-// name change.
-@Deprecated(
-    "AnimatedContentScope has been renamed to AnimatedContentTransitionScope",
-    replaceWith = ReplaceWith("AnimatedContentTransitionScope<S>")
-)
-typealias AnimatedContentScope<S> = AnimatedContentTransitionScope<S>
 
 /**
  * [ContentTransform] defines how the target content (i.e. content associated with target state)
@@ -195,7 +197,7 @@ class ContentTransform(
      * to 0f. Content with higher zIndex will be drawn over lower `zIndex`ed content. Among
      * content with the same index, the target content will be placed on top.
      */
-    var targetContentZIndex by mutableStateOf(targetContentZIndex)
+    var targetContentZIndex by mutableFloatStateOf(targetContentZIndex)
 
     /**
      * [sizeTransform] manages the expanding and shrinking of the container if there is any size
@@ -218,7 +220,12 @@ class ContentTransform(
 fun SizeTransform(
     clip: Boolean = true,
     sizeAnimationSpec: (initialSize: IntSize, targetSize: IntSize) -> FiniteAnimationSpec<IntSize> =
-        { _, _ -> spring(visibilityThreshold = IntSize.VisibilityThreshold) }
+        { _, _ ->
+            spring(
+                stiffness = Spring.StiffnessMediumLow,
+                visibilityThreshold = IntSize.VisibilityThreshold
+            )
+        }
 ): SizeTransform = SizeTransformImpl(clip, sizeAnimationSpec)
 
 /**
@@ -263,6 +270,13 @@ private class SizeTransformImpl(
  *
  * @sample androidx.compose.animation.samples.AnimatedContentTransitionSpecSample
  */
+infix fun EnterTransition.togetherWith(exit: ExitTransition) = ContentTransform(this, exit)
+
+@ExperimentalAnimationApi
+@Deprecated(
+    "Infix fun EnterTransition.with(ExitTransition) has been renamed to" +
+        " togetherWith", ReplaceWith("togetherWith(exit)")
+)
 infix fun EnterTransition.with(exit: ExitTransition) = ContentTransform(this, exit)
 
 /**
@@ -604,6 +618,17 @@ internal class AnimatedContentTransitionScopeImpl<S> internal constructor(
 }
 
 /**
+ * Receiver scope for content lambda for AnimatedContent. In this scope,
+ * [transition][AnimatedVisibilityScope.transition] can be used to observe the state of the
+ * transition, or to add more enter/exit transition for the content.
+ */
+sealed interface AnimatedContentScope : AnimatedVisibilityScope
+
+private class AnimatedContentScopeImpl internal constructor(
+    animatedVisibilityScope: AnimatedVisibilityScope
+) : AnimatedContentScope, AnimatedVisibilityScope by animatedVisibilityScope
+
+/**
  * [AnimatedContent] is a container that automatically animates its content when
  * [Transition.targetState] changes. Its [content] for different target states is defined in a
  * mapping between a target state and a composable function.
@@ -620,8 +645,15 @@ internal class AnimatedContentTransitionScopeImpl<S> internal constructor(
  * [SizeTransform] is set to `null`. Once the [ContentTransform] is finished, the
  * outgoing content will be disposed.
  *
+ * If [Transition.targetState] is expected to mutate frequently and not all mutations should be
+ * treated as target state change, consider defining a mapping between [Transition.targetState]
+ * and a key in [contentKey]. As a result, transitions will be triggered when the resulting key
+ * changes. In other words, there will be no animation when switching between
+ * [Transition.targetState]s that share the same same key. By default, the key will be the same as
+ * the targetState object.
+ *
  * By default, the [ContentTransform] will be a delayed [fadeIn] of the target content and a delayed
- * [scaleIn] [with] a [fadeOut] of the initial content, using a [SizeTransform] to
+ * [scaleIn] [togetherWith] a [fadeOut] of the initial content, using a [SizeTransform] to
  * animate any size change of the content. This behavior can be customized using [transitionSpec].
  * If desired, different [ContentTransform]s can be defined for different pairs of initial content
  * and target content.
@@ -636,33 +668,27 @@ internal class AnimatedContentTransitionScopeImpl<S> internal constructor(
  * on top of all the other content unless zIndex is specified.
  *
  * Different content in [AnimatedContent] will have access to their own
- * [AnimatedVisibilityScope]. This allows content to define more local enter/exit transitions
- * via [AnimatedVisibilityScope.animateEnterExit] and [AnimatedVisibilityScope.transition]. These
+ * [AnimatedContentScope]. This allows content to define more local enter/exit transitions
+ * via [AnimatedContentScope.animateEnterExit] and [AnimatedContentScope.transition]. These
  * custom enter/exit animations will be triggered as the content enters/leaves the container.
- *
- * [contentKey] can be used to specify a key for each targetState. There will be no animation
- * when switching between target states that share the same same key. By default,
- * the key will be the same as the targetState object. [contentKey] can be particularly useful if
- * target state object gets recreated across save & restore while a more persistent key is needed
- * to properly restore the internal states of the content.
  *
  * @sample androidx.compose.animation.samples.TransitionExtensionAnimatedContentSample
  *
  * @see ContentTransform
- * @see AnimatedVisibilityScope
+ * @see AnimatedContentScope
  */
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun <S> Transition<S>.AnimatedContent(
     modifier: Modifier = Modifier,
     transitionSpec: AnimatedContentTransitionScope<S>.() -> ContentTransform = {
-        fadeIn(animationSpec = tween(220, delayMillis = 90)) +
-            scaleIn(initialScale = 0.92f, animationSpec = tween(220, delayMillis = 90)) with
-            fadeOut(animationSpec = tween(90))
+        (fadeIn(animationSpec = tween(220, delayMillis = 90)) +
+            scaleIn(initialScale = 0.92f, animationSpec = tween(220, delayMillis = 90)))
+            .togetherWith(fadeOut(animationSpec = tween(90)))
     },
     contentAlignment: Alignment = Alignment.TopStart,
     contentKey: (targetState: S) -> Any? = { it },
-    content: @Composable() AnimatedVisibilityScope.(targetState: S) -> Unit
+    content: @Composable() AnimatedContentScope.(targetState: S) -> Unit
 ) {
     val layoutDirection = LocalLayoutDirection.current
     val rootScope = remember(this) {
@@ -750,7 +776,9 @@ fun <S> Transition<S>.AnimatedContent(
                     }
                     rootScope.targetSizeMap[stateForContent] =
                         (this as AnimatedVisibilityScopeImpl).targetSize
-                    content(stateForContent)
+                    with(remember { AnimatedContentScopeImpl(this) }) {
+                        content(stateForContent)
+                    }
                 }
             }
         }

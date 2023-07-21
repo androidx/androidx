@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 The Android Open Source Project
+ * Copyright (C) 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -72,8 +72,8 @@ class GridDslTest {
                 numColumns = columns,
                 hGap = 0,
                 vGap = 0,
-                gridSpans = "",
-                gridSkips = "",
+                gridSpans = arrayOf(),
+                gridSkips = arrayOf(),
                 gridRowWeights = intArrayOf(),
                 gridColumnWeights = intArrayOf(),
                 gridFlags = arrayOf(),
@@ -112,8 +112,8 @@ class GridDslTest {
                 numColumns = columns,
                 hGap = 0,
                 vGap = 0,
-                gridSpans = "",
-                gridSkips = "",
+                gridSpans = arrayOf(),
+                gridSkips = arrayOf(),
                 gridRowWeights = intArrayOf(),
                 gridColumnWeights = intArrayOf(),
                 gridFlags = arrayOf(),
@@ -152,8 +152,8 @@ class GridDslTest {
                 numColumns = columns,
                 hGap = 0,
                 vGap = 0,
-                gridSpans = "",
-                gridSkips = "",
+                gridSpans = arrayOf(),
+                gridSkips = arrayOf(),
                 gridRowWeights = intArrayOf(),
                 gridColumnWeights = intArrayOf(),
                 gridFlags = arrayOf(),
@@ -192,8 +192,8 @@ class GridDslTest {
                 numColumns = columns,
                 hGap = 0,
                 vGap = 0,
-                gridSpans = "",
-                gridSkips = "",
+                gridSpans = arrayOf(),
+                gridSkips = arrayOf(),
                 gridRowWeights = intArrayOf(),
                 gridColumnWeights = intArrayOf(),
                 gridFlags = arrayOf(),
@@ -232,8 +232,8 @@ class GridDslTest {
                 numColumns = columns,
                 hGap = 0,
                 vGap = 0,
-                gridSpans = "",
-                gridSkips = "0:1x1",
+                gridSpans = arrayOf(),
+                gridSkips = arrayOf(Skip(0, 1, 1)),
                 gridRowWeights = intArrayOf(),
                 gridColumnWeights = intArrayOf(),
                 gridFlags = arrayOf(),
@@ -271,8 +271,8 @@ class GridDslTest {
                 numColumns = columns,
                 hGap = 0,
                 vGap = 0,
-                gridSpans = "",
-                gridSkips = "0:2x1",
+                gridSpans = arrayOf(),
+                gridSkips = arrayOf(Skip(0, 2, 1)),
                 gridRowWeights = intArrayOf(),
                 gridColumnWeights = intArrayOf(),
                 gridFlags = arrayOf(GridFlag.SpansRespectWidgetOrder, GridFlag.SubGridByColRow)
@@ -309,8 +309,8 @@ class GridDslTest {
                 numColumns = columns,
                 hGap = 0,
                 vGap = 0,
-                gridSpans = "0:1x2",
-                gridSkips = "",
+                gridSpans = arrayOf(Span(0, 1, 2)),
+                gridSkips = arrayOf(),
                 gridRowWeights = intArrayOf(),
                 gridColumnWeights = intArrayOf(),
                 gridFlags = arrayOf(),
@@ -335,6 +335,41 @@ class GridDslTest {
     }
 
     @Test
+    fun testMultipleSpans() {
+        val rootSize = 200.dp
+        val boxesCount = 2
+        val rows = 2
+        val columns = 2
+        rule.setContent {
+            gridComposableTest(
+                modifier = Modifier.size(rootSize),
+                boxesCount = boxesCount,
+                gridOrientation = 0,
+                numRows = rows,
+                numColumns = columns,
+                hGap = 0,
+                vGap = 0,
+                gridSpans = arrayOf(Span(2, 1, 2), Span(0, 1, 2)),
+                gridSkips = arrayOf(),
+                gridRowWeights = intArrayOf(),
+                gridColumnWeights = intArrayOf(),
+                gridFlags = arrayOf(GridFlag.SpansRespectWidgetOrder),
+            )
+        }
+        var topY = 0.dp
+        var bottomY: Dp
+
+        // 10.dp is the size of a singular box
+        var spanLeft = (rootSize - 10.dp) / 2f
+        val gapSize = (rootSize - (10.dp * 2f)) / (columns * 2f)
+        rule.waitForIdle()
+        topY += gapSize
+        rule.onNodeWithTag("box0").assertPositionInRootIsEqualTo(spanLeft, topY)
+        bottomY = topY + 10.dp + gapSize + gapSize
+        rule.onNodeWithTag("box1").assertPositionInRootIsEqualTo(spanLeft, bottomY)
+    }
+
+    @Test
     fun testOrderFirstSpans() {
         val rootSize = 200.dp
         val boxesCount = 3
@@ -349,8 +384,8 @@ class GridDslTest {
                 numColumns = columns,
                 hGap = 0,
                 vGap = 0,
-                gridSpans = "1:2x1",
-                gridSkips = "",
+                gridSpans = arrayOf(Span(1, 2, 1)),
+                gridSkips = arrayOf(),
                 gridRowWeights = intArrayOf(),
                 gridColumnWeights = intArrayOf(),
                 gridFlags = arrayOf(GridFlag.SpansRespectWidgetOrder),
@@ -389,8 +424,8 @@ class GridDslTest {
                 numColumns = columns,
                 hGap = 0,
                 vGap = 0,
-                gridSpans = "0:2x1",
-                gridSkips = "",
+                gridSpans = arrayOf(Span(0, 2, 1)),
+                gridSkips = arrayOf(),
                 gridRowWeights = intArrayOf(),
                 gridColumnWeights = intArrayOf(),
                 gridFlags = arrayOf(GridFlag.SubGridByColRow),
@@ -430,8 +465,8 @@ class GridDslTest {
                 numColumns = columns,
                 hGap = 0,
                 vGap = 0,
-                gridSpans = "",
-                gridSkips = "",
+                gridSpans = arrayOf(),
+                gridSkips = arrayOf(),
                 gridRowWeights = weights,
                 gridColumnWeights = intArrayOf(),
                 gridFlags = arrayOf(),
@@ -468,8 +503,8 @@ class GridDslTest {
                 numColumns = columns,
                 hGap = 0,
                 vGap = 0,
-                gridSpans = "",
-                gridSkips = "",
+                gridSpans = arrayOf(),
+                gridSkips = arrayOf(),
                 gridRowWeights = intArrayOf(),
                 gridColumnWeights = weights,
                 gridFlags = arrayOf(),
@@ -523,8 +558,8 @@ class GridDslTest {
         modifier: Modifier = Modifier,
         numRows: Int,
         numColumns: Int,
-        gridSpans: String,
-        gridSkips: String,
+        gridSpans: Array<Span>,
+        gridSkips: Array<Skip>,
         gridRowWeights: IntArray,
         gridColumnWeights: IntArray,
         boxesCount: Int,

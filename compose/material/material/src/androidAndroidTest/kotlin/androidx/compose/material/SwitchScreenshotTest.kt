@@ -29,10 +29,10 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.InputMode
 import androidx.compose.ui.input.InputModeManager
 import androidx.compose.ui.platform.LocalInputModeManager
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.ExperimentalTestApi
@@ -40,6 +40,7 @@ import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.isToggleable
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performMouseInput
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.unit.LayoutDirection
@@ -193,10 +194,7 @@ class SwitchScreenshotTest {
 
         rule.mainClock.autoAdvance = false
 
-        rule.onNode(isToggleable())
-            // split click into (down) and (move, up) to enforce a composition in between
-            .performTouchInput { down(center) }
-            .performTouchInput { move(); up() }
+        rule.onNode(isToggleable()).performClick()
 
         rule.waitForIdle()
         rule.mainClock.advanceTimeBy(milliseconds = 96)
@@ -222,10 +220,7 @@ class SwitchScreenshotTest {
 
         rule.mainClock.autoAdvance = false
 
-        rule.onNode(isToggleable())
-            // split click into (down) and (move, up) to enforce a composition in between
-            .performTouchInput { down(center) }
-            .performTouchInput { move(); up() }
+        rule.onNode(isToggleable()).performClick()
 
         rule.waitForIdle()
         rule.mainClock.advanceTimeBy(milliseconds = 96)

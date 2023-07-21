@@ -28,7 +28,6 @@ import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan.Comp
  *   - item all lanes in line ([FullLine]).
  * By default, staggered grid uses [SingleLane] for all items.
  */
-@ExperimentalFoundationApi
 class StaggeredGridItemSpan private constructor(internal val value: Int) {
     companion object {
         /**

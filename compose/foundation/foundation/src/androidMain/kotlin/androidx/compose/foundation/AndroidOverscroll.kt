@@ -24,8 +24,8 @@ import androidx.compose.foundation.EdgeEffectCompat.distanceCompat
 import androidx.compose.foundation.EdgeEffectCompat.onAbsorbCompat
 import androidx.compose.foundation.EdgeEffectCompat.onPullDistanceCompat
 import androidx.compose.foundation.EdgeEffectCompat.onReleaseWithOppositeDelta
-import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.neverEqualPolicy

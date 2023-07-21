@@ -23,6 +23,7 @@ plugins {
     id("com.android.library")
     id("kotlin-android")
     id("com.google.devtools.ksp")
+    id("androidx.stableaidl")
 }
 
 android {
@@ -31,6 +32,10 @@ android {
     }
     buildTypes.all {
         consumerProguardFiles "proguard-rules.pro"
+
+        stableAidl {
+            version 1
+        }
     }
     defaultConfig {
         multiDexEnabled = true
@@ -71,7 +76,7 @@ dependencies {
     androidTestImplementation(libs.truth)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
-    androidTestImplementation("androidx.arch.core:core-testing:2.1.0")
+    androidTestImplementation("androidx.arch.core:core-testing:2.2.0")
     androidTestImplementation(projectOrArtifact(":lifecycle:lifecycle-runtime-testing"))
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.espressoCore)
@@ -91,7 +96,7 @@ ksp {
 }
 
 androidx {
-    name = "Android WorkManager Runtime"
+    name = "WorkManager Runtime"
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2018"
     description = "Android WorkManager runtime library"

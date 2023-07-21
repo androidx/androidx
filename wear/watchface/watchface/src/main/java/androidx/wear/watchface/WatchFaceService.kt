@@ -362,6 +362,9 @@ public abstract class WatchFaceService : WallpaperService() {
             waitDeferred: suspend (engine: EngineWrapper) -> V
         ): R? =
             TraceEvent(traceName).use {
+                if (Build.TYPE.equals("userdebug")) {
+                    Log.d(TAG, "awaitDeferredThenRunTaskOnThread task $traceName")
+                }
                 if (engine == null) {
                     Log.w(TAG, "Task $traceName posted after close(), ignoring.")
                     return null
@@ -426,17 +429,13 @@ public abstract class WatchFaceService : WallpaperService() {
             }
     }
 
-    /**
-     * The context used to resolve resources. Unlocks future work.
-     *
-     */
+    /** The context used to resolve resources. Unlocks future work. */
     protected open val resourcesContext: Context
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) get() = this
 
     /**
      * Returns the id of the XmlSchemaAndComplicationSlotsDefinition XML resource or 0 if it can't
      * be found.
-     *
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @Suppress("DEPRECATION")
@@ -615,7 +614,6 @@ public abstract class WatchFaceService : WallpaperService() {
     /**
      * Override to force the watchface to be regarded as being visible. This must not be used in
      * production code or significant battery life regressions may occur.
-     *
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) open fun forceIsVisibleForTesting() = false
 
@@ -650,10 +648,7 @@ public abstract class WatchFaceService : WallpaperService() {
 
     internal var backgroundThread: HandlerThread? = null
 
-    /**
-     * Interface for getting the current system time.
-     *
-     */
+    /** Interface for getting the current system time. */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public interface SystemTimeProvider {
         /** Returns the current system time in milliseconds. */
@@ -716,6 +711,7 @@ public abstract class WatchFaceService : WallpaperService() {
     /** [Choreographer] isn't supposed to be mocked, so we use a thin wrapper. */
     internal interface ChoreographerWrapper {
         fun postFrameCallback(callback: Choreographer.FrameCallback)
+
         fun removeFrameCallback(callback: Choreographer.FrameCallback)
     }
 
@@ -741,10 +737,7 @@ public abstract class WatchFaceService : WallpaperService() {
 
     internal open fun cancelCoroutineScopesInOnDestroy() = true
 
-    /**
-     * This is open for use by tests, it allows them to inject a custom [SurfaceHolder].
-     *
-     */
+    /** This is open for use by tests, it allows them to inject a custom [SurfaceHolder]. */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public open fun getWallpaperSurfaceHolderOverride(): SurfaceHolder? = null
 
@@ -1078,6 +1071,9 @@ public abstract class WatchFaceService : WallpaperService() {
 
             iWatchFaceService = IWatchFaceService.Stub.asInterface(binder)
 
+            // A ParameterlessEngine doesn't exist in WSL flow.
+            InteractiveInstanceManager.setParameterlessEngine(null)
+
             try {
                 // Note if the implementation doesn't support getVersion this will return zero
                 // rather than throwing an exception.
@@ -1346,7 +1342,7 @@ public abstract class WatchFaceService : WallpaperService() {
                     return
                 }
 
-                val pendingWallpaperInstance =
+                var pendingWallpaperInstance =
                     InteractiveInstanceManager.takePendingWallpaperInteractiveWatchFaceInstance()
 
                 // In a direct boot scenario attempt to load the previously serialized parameters.
@@ -1376,14 +1372,31 @@ public abstract class WatchFaceService : WallpaperService() {
                                 ?.let {
                                     Log.e(
                                         TAG,
-                                        "takePendingWallpaperInteractiveWatchFaceInstance failed"
+                                        "takePendingWallpaperInteractiveWatchFaceInstance failed",
+                                        e
                                     )
                                     it.callback.onInteractiveWatchFaceCrashed(CrashInfoParcel(e))
                                 }
                         } finally {
                             asyncTraceEvent.close()
                         }
+
+                        return
                     }
+                }
+
+                if (pendingWallpaperInstance == null) {
+                    // In this case we don't have any watchface parameters, probably because a WSL
+                    // watchface has been upgraded to an AndroidX one. The system has either just
+                    // racily attempted to connect (in which case we should carry on normally) or it
+                    // probably will connect at a later time. In the latter case we should
+                    // register a parameterless engine to allow the subsequent connection to
+                    // succeed.
+                    pendingWallpaperInstance =
+                        InteractiveInstanceManager
+                            .setParameterlessEngineOrTakePendingWallpaperInteractiveWatchFaceInstance( // ktlint-disable max-line-length
+                                this
+                            )
                 }
 
                 // If there's a pending WallpaperInteractiveWatchFaceInstance then create it.
@@ -1402,7 +1415,7 @@ public abstract class WatchFaceService : WallpaperService() {
                             )
                             instance
                         } catch (e: Exception) {
-                            Log.e(TAG, "createInteractiveInstance failed")
+                            Log.e(TAG, "createInteractiveInstance failed", e)
                             pendingWallpaperInstance.callback.onInteractiveWatchFaceCrashed(
                                 CrashInfoParcel(e)
                             )
@@ -1433,6 +1446,29 @@ public abstract class WatchFaceService : WallpaperService() {
                     }
                 }
             }
+
+        /** Attaches to a parameterlessEngine if we're completely uninitialized. */
+        @SuppressWarnings("NewApi")
+        internal fun attachToParameterlessEngine(
+            pendingWallpaperInstance:
+                InteractiveInstanceManager.PendingWallpaperInteractiveWatchFaceInstance
+        ) {
+            uiThreadCoroutineScope.launch {
+                try {
+                    pendingWallpaperInstance.callback.onInteractiveWatchFaceCreated(
+                        createInteractiveInstance(
+                            pendingWallpaperInstance.params,
+                            "attachToParameterlessEngine"
+                        )
+                    )
+                } catch (e: Exception) {
+                    Log.e(TAG, "attachToParameterlessEngine failed", e)
+                    pendingWallpaperInstance.callback.onInteractiveWatchFaceCrashed(
+                        CrashInfoParcel(e)
+                    )
+                }
+            }
+        }
 
         @UiThread
         internal fun ambientTickUpdate(): Unit =
@@ -1528,7 +1564,11 @@ public abstract class WatchFaceService : WallpaperService() {
         @UiThread
         internal suspend fun addWatchfaceReadyListener(listener: IWatchfaceReadyListener) {
             deferredWatchFaceImpl.await()
-            listener.onWatchfaceReady()
+            try {
+                listener.onWatchfaceReady()
+            } catch (e: Exception) {
+                Log.e(TAG, "listener.onWatchfaceReady failed", e)
+            }
         }
 
         @UiThread
@@ -2192,14 +2232,7 @@ public abstract class WatchFaceService : WallpaperService() {
             watchState: WatchState
         ) {
             val broadcastsObserver =
-                BroadcastsObserver(
-                    watchState,
-                    this,
-                    deferredWatchFaceImpl,
-                    uiThreadCoroutineScope,
-                    _context.contentResolver,
-                    wearSdkVersion >= Build.VERSION_CODES.R
-                )
+                BroadcastsObserver(watchState, this, deferredWatchFaceImpl, uiThreadCoroutineScope)
 
             // There's no point creating BroadcastsReceiver or listening for Accessibility state
             // changes if this is a headless instance.
@@ -2680,7 +2713,11 @@ public abstract class WatchFaceService : WallpaperService() {
 
             uiThreadCoroutineScope.launch {
                 deferredWatchFaceImpl.await()
-                listener.onWatchfaceReady()
+                try {
+                    listener.onWatchfaceReady()
+                } catch (e: Exception) {
+                    Log.e(TAG, "listener.onWatchfaceReady failed", e)
+                }
             }
         }
 
@@ -2830,7 +2867,6 @@ internal fun <R> CoroutineScope.runBlockingWithTracing(
 /**
  * If the instance ID for [MutableWatchState.watchFaceInstanceId] begin with this prefix, then the
  * system sends consistent IDs for interactive, headless and editor sessions.
- *
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 const val SYSTEM_SUPPORTS_CONSISTENT_IDS_PREFIX = "wfId-"
@@ -2838,14 +2874,12 @@ const val SYSTEM_SUPPORTS_CONSISTENT_IDS_PREFIX = "wfId-"
 /**
  * Instance ID to use when either there's no system id or it doesn't start with
  * [SYSTEM_SUPPORTS_CONSISTENT_IDS_PREFIX].
- *
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) const val DEFAULT_INSTANCE_ID = "defaultInstance"
 
 /**
  * This is needed to make the instance id consistent between Interactive, Headless and EditorSession
  * for old versions of the system.
- *
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 fun sanitizeWatchFaceId(instanceId: String?) =

@@ -16,16 +16,15 @@
 
 package androidx.testutils
 
-import android.app.Activity
 import android.animation.ValueAnimator
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.os.Build
 import androidx.test.runner.intercepting.SingleActivityFactory
-
-import org.junit.runner.Description
-import org.junit.runners.model.Statement
 import java.lang.RuntimeException
 import java.lang.reflect.Method
+import org.junit.runner.Description
+import org.junit.runners.model.Statement
 
 /**
  * To solve the issue that androidx changes system settings to make animation duration to 0:

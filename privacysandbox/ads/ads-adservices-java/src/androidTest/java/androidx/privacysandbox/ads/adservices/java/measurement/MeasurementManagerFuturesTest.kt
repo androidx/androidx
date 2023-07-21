@@ -19,6 +19,7 @@ package androidx.privacysandbox.ads.adservices.java.measurement
 import android.adservices.measurement.MeasurementManager
 import android.content.Context
 import android.net.Uri
+import android.os.Looper
 import android.os.OutcomeReceiver
 import android.os.ext.SdkExtensions
 import android.view.InputEvent
@@ -35,6 +36,7 @@ import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import java.time.Instant
+import kotlin.test.assertNotEquals
 import org.junit.Assume
 import org.junit.Before
 import org.junit.Test
@@ -81,6 +83,7 @@ class MeasurementManagerFuturesTest {
         val answer = { args: InvocationOnMock ->
             val receiver = args.getArgument<OutcomeReceiver<Any, Exception>>(2)
             receiver.onResult(Object())
+            assertNotEquals(Looper.myLooper(), Looper.getMainLooper())
             null
         }
         doAnswer(answer).`when`(measurementManager).deleteRegistrations(any(), any(), any())
@@ -116,6 +119,7 @@ class MeasurementManagerFuturesTest {
         val measurementManager = mockMeasurementManager(mContext)
         val managerCompat = from(mContext)
         val answer = { args: InvocationOnMock ->
+            assertNotEquals(Looper.myLooper(), Looper.getMainLooper())
             val receiver = args.getArgument<OutcomeReceiver<Any, Exception>>(3)
             receiver.onResult(Object())
             null
@@ -148,6 +152,7 @@ class MeasurementManagerFuturesTest {
         val measurementManager = mockMeasurementManager(mContext)
         val managerCompat = from(mContext)
         val answer = { args: InvocationOnMock ->
+            assertNotEquals(Looper.myLooper(), Looper.getMainLooper())
             val receiver = args.getArgument<OutcomeReceiver<Any, Exception>>(2)
             receiver.onResult(Object())
             null
@@ -177,6 +182,7 @@ class MeasurementManagerFuturesTest {
         val measurementManager = mockMeasurementManager(mContext)
         val managerCompat = from(mContext)
         val answer = { args: InvocationOnMock ->
+            assertNotEquals(Looper.myLooper(), Looper.getMainLooper())
             val receiver = args.getArgument<OutcomeReceiver<Any, Exception>>(2)
             receiver.onResult(Object())
             null
@@ -216,6 +222,7 @@ class MeasurementManagerFuturesTest {
         val measurementManager = mockMeasurementManager(mContext)
         val managerCompat = from(mContext)
         val answer = { args: InvocationOnMock ->
+            assertNotEquals(Looper.myLooper(), Looper.getMainLooper())
             val receiver = args.getArgument<OutcomeReceiver<Any, Exception>>(2)
             receiver.onResult(Object())
             null
@@ -253,6 +260,7 @@ class MeasurementManagerFuturesTest {
         val managerCompat = from(mContext)
         val state = MeasurementManager.MEASUREMENT_API_STATE_DISABLED
         val answer = { args: InvocationOnMock ->
+            assertNotEquals(Looper.myLooper(), Looper.getMainLooper())
             val receiver = args.getArgument<OutcomeReceiver<Int, Exception>>(1)
             receiver.onResult(state)
             null

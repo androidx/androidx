@@ -21,12 +21,12 @@ import android.media.AudioFormat
 import android.media.MediaRecorder
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.ioExecutor
 import androidx.camera.testing.AudioUtil
+import androidx.camera.testing.RequiresDevice
 import androidx.camera.testing.mocks.MockConsumer
 import androidx.camera.testing.mocks.helpers.ArgumentCaptor
 import androidx.camera.testing.mocks.helpers.CallTimes
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
-import androidx.test.filters.RequiresDevice
 import androidx.test.filters.SdkSuppress
 import androidx.test.rule.GrantPermissionRule
 import androidx.testutils.assertThrows

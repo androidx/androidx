@@ -17,17 +17,24 @@
 package androidx.compose.ui.platform
 
 import android.view.Choreographer
-import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.ContinuationInterceptor
 import kotlin.coroutines.coroutineContext
+import kotlinx.coroutines.suspendCancellableCoroutine
 
-class AndroidUiFrameClock(
-    val choreographer: Choreographer
+class AndroidUiFrameClock internal constructor(
+    val choreographer: Choreographer,
+    private val dispatcher: AndroidUiDispatcher?
 ) : androidx.compose.runtime.MonotonicFrameClock {
+
+    constructor(
+        choreographer: Choreographer
+    ) : this(choreographer, null)
+
     override suspend fun <R> withFrameNanos(
         onFrame: (Long) -> R
     ): R {
-        val uiDispatcher = coroutineContext[ContinuationInterceptor] as? AndroidUiDispatcher
+        val uiDispatcher = dispatcher
+            ?: coroutineContext[ContinuationInterceptor] as? AndroidUiDispatcher
         return suspendCancellableCoroutine { co ->
             // Important: this callback won't throw, and AndroidUiDispatcher counts on it.
             val callback = Choreographer.FrameCallback { frameTimeNanos ->

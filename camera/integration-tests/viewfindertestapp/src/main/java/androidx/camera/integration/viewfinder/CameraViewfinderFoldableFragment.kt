@@ -16,13 +16,11 @@
 
 package androidx.camera.integration.viewfinder
 
-import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.Dialog
 import android.content.ContentValues
 import android.content.Context
-import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.ImageFormat
 import android.graphics.Rect
@@ -63,8 +61,6 @@ import androidx.camera.viewfinder.CameraViewfinder.ScaleType
 import androidx.camera.viewfinder.CameraViewfinderExt.requestSurface
 import androidx.camera.viewfinder.ViewfinderSurfaceRequest
 import androidx.camera.viewfinder.populateFromCharacteristics
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
@@ -96,8 +92,7 @@ import kotlinx.coroutines.withContext
 /**
  * Fold aware fragment for {@link CameraViewfinder}.
  */
-class CameraViewfinderFoldableFragment : Fragment(), View.OnClickListener,
-    ActivityCompat.OnRequestPermissionsResultCallback {
+class CameraViewfinderFoldableFragment : Fragment(), View.OnClickListener {
 
     private val cameraOpenCloseLock = Mutex()
 
@@ -224,27 +219,6 @@ class CameraViewfinderFoldableFragment : Fragment(), View.OnClickListener,
             "image reader thread cannot be null"
         }.looper)
 
-        // Request Permission
-        val cameraPermission = activity?.let {
-            ContextCompat.checkSelfPermission(it, Manifest.permission.CAMERA)
-        }
-        if (cameraPermission != PackageManager.PERMISSION_GRANTED) {
-            requestCameraPermission()
-            return
-        }
-
-        // From Android T, skips the permission check of WRITE_EXTERNAL_STORAGE since it won't be
-        // granted any more.
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
-            val storagePermission = activity?.let {
-                ContextCompat.checkSelfPermission(it, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-            }
-            if (storagePermission != PackageManager.PERMISSION_GRANTED) {
-                requestStoragePermission()
-                return
-            }
-        }
-
         layoutChangedListener = ViewTreeObserver.OnGlobalLayoutListener {
             cameraViewfinder.viewTreeObserver.removeOnGlobalLayoutListener(layoutChangedListener)
             layoutChangedListener = null
@@ -282,41 +256,6 @@ class CameraViewfinderFoldableFragment : Fragment(), View.OnClickListener,
                 isViewfinderInLeftTop = !isViewfinderInLeftTop
                 adjustPreviewByFoldingState()
             }
-        }
-    }
-
-    @Suppress("DEPRECATION")
-    private fun requestCameraPermission() {
-        if (shouldShowRequestPermissionRationale(Manifest.permission.CAMERA)) {
-            ConfirmationDialog().show(childFragmentManager, FRAGMENT_DIALOG)
-        } else {
-            requestPermissions(arrayOf(Manifest.permission.CAMERA), REQUEST_CAMERA_PERMISSION)
-        }
-    }
-
-    @Suppress("DEPRECATION")
-    private fun requestStoragePermission() {
-        if (shouldShowRequestPermissionRationale(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-            ConfirmationDialog().show(childFragmentManager, FRAGMENT_DIALOG)
-        } else {
-            requestPermissions(arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
-                REQUEST_CAMERA_PERMISSION)
-        }
-    }
-
-    @Suppress("DEPRECATION")
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<String>,
-        grantResults: IntArray
-    ) {
-        if (requestCode == REQUEST_CAMERA_PERMISSION) {
-            if (grantResults.size != 1 || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
-                ErrorDialog.newInstance(getString(R.string.request_permission))
-                    .show(childFragmentManager, FRAGMENT_DIALOG)
-            }
-        } else {
-            super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         }
     }
 
@@ -914,11 +853,10 @@ class CameraViewfinderFoldableFragment : Fragment(), View.OnClickListener,
         rotationDegrees == 0 && mirrored -> ExifInterface.ORIENTATION_FLIP_HORIZONTAL
         rotationDegrees == 180 && !mirrored -> ExifInterface.ORIENTATION_ROTATE_180
         rotationDegrees == 180 && mirrored -> ExifInterface.ORIENTATION_FLIP_VERTICAL
-        rotationDegrees == 270 && mirrored -> ExifInterface.ORIENTATION_TRANSVERSE
         rotationDegrees == 90 && !mirrored -> ExifInterface.ORIENTATION_ROTATE_90
         rotationDegrees == 90 && mirrored -> ExifInterface.ORIENTATION_TRANSPOSE
-        rotationDegrees == 270 && mirrored -> ExifInterface.ORIENTATION_ROTATE_270
-        rotationDegrees == 270 && !mirrored -> ExifInterface.ORIENTATION_TRANSVERSE
+        rotationDegrees == 270 && !mirrored -> ExifInterface.ORIENTATION_ROTATE_270
+        rotationDegrees == 270 && mirrored -> ExifInterface.ORIENTATION_TRANSVERSE
         else -> ExifInterface.ORIENTATION_UNDEFINED
     }
 
@@ -935,21 +873,6 @@ class CameraViewfinderFoldableFragment : Fragment(), View.OnClickListener,
                 arguments = Bundle().apply { putString(ARG_MESSAGE, message) }
             }
         }
-    }
-
-    class ConfirmationDialog : DialogFragment() {
-        @Suppress("DEPRECATION")
-        override fun onCreateDialog(savedInstanceState: Bundle?): Dialog =
-            AlertDialog.Builder(requireActivity())
-                .setMessage(R.string.request_permission)
-                .setPositiveButton(android.R.string.ok) { _, _ ->
-                    requireParentFragment().requestPermissions(arrayOf(Manifest.permission.CAMERA),
-                        REQUEST_CAMERA_PERMISSION)
-                }
-                .setNegativeButton(android.R.string.cancel) { _, _ ->
-                    requireParentFragment().activity?.finish()
-                }
-                .create()
     }
 
     companion object {

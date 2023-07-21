@@ -248,7 +248,8 @@ public class ForceStopRunnable implements Runnable {
             Logger.get().debug(TAG, "Application was force-stopped, rescheduling.");
             mWorkManager.rescheduleEligibleWork();
             // Update the last known force-stop event timestamp.
-            mPreferenceUtils.setLastForceStopEventMillis(System.currentTimeMillis());
+            mPreferenceUtils.setLastForceStopEventMillis(
+                    mWorkManager.getConfiguration().getClock().currentTimeMillis());
         } else if (needsScheduling) {
             Logger.get().debug(TAG, "Found unfinished work, scheduling it.");
             Schedulers.schedule(
@@ -379,6 +380,8 @@ public class ForceStopRunnable implements Runnable {
             flags |= FLAG_MUTABLE;
         }
         PendingIntent pendingIntent = getPendingIntent(context, flags);
+        // OK to use System.currentTimeMillis() since this is intended only to keep the alarm
+        // scheduled ~forever and shouldn't need WorkManager to be initialized to reschedule.
         long triggerAt = System.currentTimeMillis() + TEN_YEARS;
         if (alarmManager != null) {
             if (Build.VERSION.SDK_INT >= 19) {

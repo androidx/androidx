@@ -31,15 +31,14 @@ import org.junit.runners.Parameterized
 @OptIn(ExperimentalFoundationApi::class)
 @LargeTest
 @RunWith(Parameterized::class)
-internal class PagerSwipeEdgeTest(
+class PagerSwipeEdgeTest(
     val config: ParamConfig
 ) : BasePagerTest(config) {
 
     @Test
     fun swipePageTowardsEdge_shouldNotMove() {
         // Arrange
-        val state = PagerState()
-        createPager(state = state, modifier = Modifier.fillMaxSize())
+        createPager(modifier = Modifier.fillMaxSize())
         val delta = pagerSize * 0.4f * scrollForwardSign
 
         // Act - backward

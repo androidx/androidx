@@ -21,8 +21,6 @@ package androidx.compose.ui.text.input
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputConnection
-import androidx.compose.ui.InternalComposeUiApi
-import androidx.compose.ui.platform.textInputServiceFactory
 import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.input.AndroidTextInputServicePlugin.Adapter
 
@@ -42,24 +40,15 @@ import androidx.compose.ui.text.input.AndroidTextInputServicePlugin.Adapter
  */
 internal object AndroidTextInputServicePlugin : PlatformTextInputPlugin<Adapter> {
 
-    @OptIn(InternalComposeUiApi::class)
     override fun createAdapter(platformTextInput: PlatformTextInput, view: View): Adapter {
         val platformService = TextInputServiceAndroid(view, platformTextInput)
-        // This indirection is used for tests (see testInput above). This could be cleaned up now
-        // that both halves live in the same class, but not worth the refactoring given the text
-        // field api rewrite.
-        val service = textInputServiceFactory(platformService)
-        return Adapter(service, platformService)
+        return Adapter(TextInputService(platformService), platformService)
     }
 
     class Adapter(
         val service: TextInputService,
         private val androidService: TextInputServiceAndroid
     ) : PlatformTextInputAdapter {
-
-        override val inputForTests: TextInputForTests
-            get() = service as? TextInputForTests
-                ?: error("Text input service wrapper not set up! Did you use ComposeTestRule?")
 
         override fun createInputConnection(outAttrs: EditorInfo): InputConnection =
             androidService.createInputConnection(outAttrs)

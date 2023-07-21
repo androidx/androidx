@@ -54,19 +54,30 @@ abstract class BaselineProfileConsumerExtension @Inject constructor(
         // These are the default global settings.
         it.mergeIntoMain = null
         it.baselineProfileOutputDir = "generated/baselineProfiles"
-        it.enableR8BaselineProfileRewrite = false
+        it.baselineProfileRulesRewrite = null
+        it.dexLayoutOptimization = null
         it.saveInSrc = true
         it.automaticGenerationDuringBuild = false
     }
 
     /**
-     * Controls the global [BaselineProfileVariantConfiguration.enableR8BaselineProfileRewrite].
+     * Controls the global [BaselineProfileVariantConfiguration.baselineProfileRulesRewrite].
      * Note that this value is overridden by per variant configurations.
      */
-    override var enableR8BaselineProfileRewrite: Boolean?
-        get() = main.enableR8BaselineProfileRewrite
+    override var baselineProfileRulesRewrite: Boolean?
+        get() = main.baselineProfileRulesRewrite
         set(value) {
-            main.enableR8BaselineProfileRewrite = value
+            main.baselineProfileRulesRewrite = value
+        }
+
+    /**
+     * Controls the global [BaselineProfileVariantConfiguration.dexLayoutOptimization].
+     * Note that this value is overridden by per variant configurations.
+     */
+    override var dexLayoutOptimization: Boolean?
+        get() = main.dexLayoutOptimization
+        set(value) {
+            main.dexLayoutOptimization = value
         }
 
     /**
@@ -182,7 +193,13 @@ interface BaselineProfileVariantConfiguration {
      * TODO: This feature is experimental and currently not working properly.
      *  https://issuetracker.google.com/issue?id=271172067.
      */
-    var enableR8BaselineProfileRewrite: Boolean?
+    var baselineProfileRulesRewrite: Boolean?
+
+    /**
+     * Enables R8 to optimize the primary dex file used to contain only classes utilized for
+     * startup.
+     */
+    var dexLayoutOptimization: Boolean?
 
     /**
      * Specifies whether generated baseline profiles should be stored in the src folder.

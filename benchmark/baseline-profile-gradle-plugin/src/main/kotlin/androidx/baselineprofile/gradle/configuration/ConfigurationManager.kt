@@ -16,6 +16,7 @@
 
 package androidx.baselineprofile.gradle.configuration
 
+import androidx.baselineprofile.gradle.configuration.attribute.BaselineProfilePluginAgpVersionAttr
 import androidx.baselineprofile.gradle.configuration.attribute.BaselineProfilePluginVersionAttr
 import androidx.baselineprofile.gradle.utils.ATTRIBUTE_BASELINE_PROFILE_PLUGIN_VERSION
 import androidx.baselineprofile.gradle.utils.ATTRIBUTE_TARGET_JVM_ENVIRONMENT
@@ -23,7 +24,6 @@ import androidx.baselineprofile.gradle.utils.ATTRIBUTE_USAGE_BASELINE_PROFILE
 import androidx.baselineprofile.gradle.utils.agpVersion
 import androidx.baselineprofile.gradle.utils.camelCase
 import com.android.build.api.AndroidPluginVersion
-import com.android.build.api.attributes.AgpVersionAttr
 import com.android.build.api.attributes.BuildTypeAttr
 import com.android.build.api.attributes.ProductFlavorAttr
 import org.gradle.api.Project
@@ -61,8 +61,8 @@ internal class ConfigurationManager(private val project: Project) {
 
     private fun AttributeContainer.agpVersion(value: String) {
         attribute(
-            AgpVersionAttr.ATTRIBUTE,
-            project.objects.named(AgpVersionAttr::class.java, value)
+            BaselineProfilePluginAgpVersionAttr.ATTRIBUTE,
+            project.objects.named(BaselineProfilePluginAgpVersionAttr::class.java, value)
         )
     }
 

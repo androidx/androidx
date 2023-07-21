@@ -24,9 +24,9 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.requiredHeightIn
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.material3.SheetValue.PartiallyExpanded
 import androidx.compose.material3.SheetValue.Expanded
 import androidx.compose.material3.SheetValue.Hidden
+import androidx.compose.material3.SheetValue.PartiallyExpanded
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
@@ -39,6 +39,7 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.collapse
+import androidx.compose.ui.semantics.dismiss
 import androidx.compose.ui.semantics.expand
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
@@ -111,33 +112,34 @@ fun BottomSheetScaffold(
     contentColor: Color = contentColorFor(containerColor),
     content: @Composable (PaddingValues) -> Unit
 ) {
-    Surface(modifier = modifier, color = containerColor, contentColor = contentColor) {
-        BottomSheetScaffoldLayout(
-            topBar = topBar,
-            body = content,
-            snackbarHost = {
-                snackbarHost(scaffoldState.snackbarHostState)
-            },
-            sheetPeekHeight = sheetPeekHeight,
-            sheetOffset = { scaffoldState.bottomSheetState.requireOffset() },
-            sheetState = scaffoldState.bottomSheetState,
-            bottomSheet = { layoutHeight ->
-                StandardBottomSheet(
-                    state = scaffoldState.bottomSheetState,
-                    peekHeight = sheetPeekHeight,
-                    sheetSwipeEnabled = sheetSwipeEnabled,
-                    layoutHeight = layoutHeight.toFloat(),
-                    shape = sheetShape,
-                    containerColor = sheetContainerColor,
-                    contentColor = sheetContentColor,
-                    tonalElevation = sheetTonalElevation,
-                    shadowElevation = sheetShadowElevation,
-                    dragHandle = sheetDragHandle,
-                    content = sheetContent
-                )
-            }
-        )
-    }
+    BottomSheetScaffoldLayout(
+        modifier = modifier,
+        topBar = topBar,
+        body = content,
+        snackbarHost = {
+            snackbarHost(scaffoldState.snackbarHostState)
+        },
+        sheetPeekHeight = sheetPeekHeight,
+        sheetOffset = { scaffoldState.bottomSheetState.requireOffset() },
+        sheetState = scaffoldState.bottomSheetState,
+        containerColor = containerColor,
+        contentColor = contentColor,
+        bottomSheet = { layoutHeight ->
+            StandardBottomSheet(
+                state = scaffoldState.bottomSheetState,
+                peekHeight = sheetPeekHeight,
+                sheetSwipeEnabled = sheetSwipeEnabled,
+                layoutHeight = layoutHeight.toFloat(),
+                shape = sheetShape,
+                containerColor = sheetContainerColor,
+                contentColor = sheetContentColor,
+                tonalElevation = sheetTonalElevation,
+                shadowElevation = sheetShadowElevation,
+                dragHandle = sheetDragHandle,
+                content = sheetContent
+            )
+        }
+    )
 }
 
 /**
@@ -178,15 +180,17 @@ fun rememberBottomSheetScaffoldState(
  * Create and [remember] a [SheetState] for [BottomSheetScaffold].
  *
  * @param initialValue the initial value of the state. Should be either [PartiallyExpanded] or
- * [Expanded]
+ * [Expanded] if [skipHiddenState] is true
  * @param confirmValueChange optional callback invoked to confirm or veto a pending state change
+ * @param [skipHiddenState] whether Hidden state is skipped for [BottomSheetScaffold]
  */
 @Composable
 @ExperimentalMaterial3Api
 fun rememberStandardBottomSheetState(
     initialValue: SheetValue = PartiallyExpanded,
     confirmValueChange: (SheetValue) -> Boolean = { true },
-) = rememberSheetState(false, confirmValueChange, initialValue)
+    skipHiddenState: Boolean = true,
+) = rememberSheetState(false, confirmValueChange, initialValue, skipHiddenState)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -233,7 +237,7 @@ private fun StandardBottomSheet(
                     ConsumeSwipeWithinBottomSheetBoundsNestedScrollConnection(
                         sheetState = state,
                         orientation = orientation,
-                        onFling = {}
+                        onFling = { scope.launch { state.settle(it) } }
                     )
                 }
             )
@@ -248,14 +252,14 @@ private fun StandardBottomSheet(
                 anchorChangeHandler = anchorChangeHandler
             ) { value, sheetSize ->
                 when (value) {
-                    PartiallyExpanded -> layoutHeight - peekHeightPx
+                    PartiallyExpanded -> if (state.skipPartiallyExpanded)
+                        null else layoutHeight - peekHeightPx
                     Expanded -> if (sheetSize.height == peekHeightPx.roundToInt()) {
                         null
                     } else {
                         max(0f, layoutHeight - sheetSize.height)
                     }
-
-                    Hidden -> null
+                    Hidden -> if (state.skipHiddenState) null else layoutHeight
                 }
             },
         shape = shape,
@@ -266,11 +270,13 @@ private fun StandardBottomSheet(
     ) {
         Column(Modifier.fillMaxWidth()) {
             if (dragHandle != null) {
-                val collapseActionLabel = getString(Strings.BottomSheetCollapseDescription)
+                val partialExpandActionLabel =
+                    getString(Strings.BottomSheetPartialExpandDescription)
+                val dismissActionLabel = getString(Strings.BottomSheetDismissDescription)
                 val expandActionLabel = getString(Strings.BottomSheetExpandDescription)
                 Box(Modifier
                     .align(CenterHorizontally)
-                    .semantics {
+                    .semantics(mergeDescendants = true) {
                         with(state) {
                             // Provides semantics to interact with the bottomsheet if there is more
                             // than one anchor to swipe to and swiping is enabled.
@@ -283,9 +289,15 @@ private fun StandardBottomSheet(
                                     }
                                 } else {
                                     if (swipeableState.confirmValueChange(PartiallyExpanded)) {
-                                        collapse(collapseActionLabel) {
+                                        collapse(partialExpandActionLabel) {
                                             scope.launch { partialExpand() }; true
                                         }
+                                    }
+                                }
+                                if (!state.skipHiddenState) {
+                                    dismiss(dismissActionLabel) {
+                                        scope.launch { hide() }
+                                        true
                                     }
                                 }
                             }
@@ -303,6 +315,7 @@ private fun StandardBottomSheet(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun BottomSheetScaffoldLayout(
+    modifier: Modifier,
     topBar: @Composable (() -> Unit)?,
     body: @Composable (innerPadding: PaddingValues) -> Unit,
     bottomSheet: @Composable (layoutHeight: Int) -> Unit,
@@ -310,6 +323,8 @@ private fun BottomSheetScaffoldLayout(
     sheetPeekHeight: Dp,
     sheetOffset: () -> Float,
     sheetState: SheetState,
+    containerColor: Color,
+    contentColor: Color,
 ) {
     SubcomposeLayout { constraints ->
         val layoutWidth = constraints.maxWidth
@@ -330,7 +345,11 @@ private fun BottomSheetScaffoldLayout(
 
         val bodyConstraints = looseConstraints.copy(maxHeight = layoutHeight - topBarHeight)
         val bodyPlaceable = subcompose(BottomSheetScaffoldLayoutSlot.Body) {
-            body(PaddingValues(bottom = sheetPeekHeight))
+            Surface(
+                modifier = modifier,
+                color = containerColor,
+                contentColor = contentColor,
+            ) { body(PaddingValues(bottom = sheetPeekHeight)) }
         }[0].measure(bodyConstraints)
 
         val snackbarPlaceable = subcompose(BottomSheetScaffoldLayoutSlot.Snackbar, snackbarHost)[0]

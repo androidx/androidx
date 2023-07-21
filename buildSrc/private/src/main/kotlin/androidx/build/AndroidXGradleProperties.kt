@@ -19,6 +19,7 @@ package androidx.build
 import androidx.build.dependencyTracker.AffectedModuleDetector
 import org.gradle.api.GradleException
 import org.gradle.api.Project
+import org.gradle.api.provider.Provider
 
 /**
  * Whether to enable constraints for projects in same-version groups
@@ -77,12 +78,6 @@ const val ENABLE_COMPOSE_COMPILER_REPORTS = "androidx.enableComposeCompilerRepor
  * Returns whether the project should generate documentation.
  */
 const val ENABLE_DOCUMENTATION = "androidx.enableDocumentation"
-
-/**
- * Adjusts the set of projects participating in this build.
- * See settings.gradle for more information
- */
-const val PROJECT_SUBSET = "androidx.projects"
 
 /**
  * Setting this property puts a summary of the relevant failure messages into standard error
@@ -151,6 +146,11 @@ const val XCODEGEN_DOWNLOAD_URI = "androidx.benchmark.darwin.xcodeGenDownloadUri
  */
 const val ALLOW_CUSTOM_COMPILE_SDK = "androidx.allowCustomCompileSdk"
 
+/**
+ * Whether to update gradle signature verification metadata
+ */
+const val UPDATE_SIGNATURES = "androidx.update.signatures"
+
 val ALL_ANDROIDX_PROPERTIES = setOf(
     ADD_GROUP_CONSTRAINTS,
     ALTERNATIVE_PROJECT_URL,
@@ -161,7 +161,6 @@ val ALL_ANDROIDX_PROPERTIES = setOf(
     ENABLE_COMPOSE_COMPILER_REPORTS,
     DISPLAY_TEST_OUTPUT,
     ENABLE_DOCUMENTATION,
-    PROJECT_SUBSET,
     STUDIO_TYPE,
     SUMMARIZE_STANDARD_ERROR,
     USE_MAX_DEP_VERSIONS,
@@ -178,15 +177,15 @@ val ALL_ANDROIDX_PROPERTIES = setOf(
     ENABLED_KMP_TARGET_PLATFORMS,
     ALLOW_MISSING_LINT_CHECKS_PROJECT,
     XCODEGEN_DOWNLOAD_URI,
-    ALLOW_CUSTOM_COMPILE_SDK
+    ALLOW_CUSTOM_COMPILE_SDK,
+    UPDATE_SIGNATURES
 )
 
 /**
  * Whether to enable constraints for projects in same-version groups
  * See the property definition for more details
  */
-fun Project.shouldAddGroupConstraints(): Boolean =
-    findBooleanProperty(ADD_GROUP_CONSTRAINTS) ?: false
+fun Project.shouldAddGroupConstraints() = booleanPropertyProvider(ADD_GROUP_CONSTRAINTS)
 
 /**
  * Returns alternative project url that will be used as "url" property
@@ -280,3 +279,9 @@ fun Project.isCustomCompileSdkAllowed(): Boolean =
     findBooleanProperty(ALLOW_CUSTOM_COMPILE_SDK) ?: true
 
 fun Project.findBooleanProperty(propName: String) = (findProperty(propName) as? String)?.toBoolean()
+
+fun Project.booleanPropertyProvider(propName: String): Provider<Boolean> {
+    return project.providers.gradleProperty(propName).map { s ->
+        s.toBoolean()
+    }.orElse(false)
+}

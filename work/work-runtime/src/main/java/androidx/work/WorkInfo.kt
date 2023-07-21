@@ -72,6 +72,39 @@ class WorkInfo @JvmOverloads constructor(
      * [Constraints] of this worker.
      */
     val constraints: Constraints = Constraints.NONE,
+
+    /** The initial delay for this work set in the [WorkRequest] */
+    val initialDelayMillis: Long = 0,
+
+    /**
+     * For periodic work, the period and flex duration set in the [PeriodicWorkRequest].
+     *
+     * Null if this is onetime work.
+     */
+    val periodicityInfo: PeriodicityInfo? = null,
+
+    /**
+     * The earliest time this work is eligible to run next, if this work is [State.ENQUEUED].
+     *
+     * This is the earliest [System.currentTimeMillis] time that WorkManager would consider running
+     * this work, regardless of any other system. It only represents the time that the
+     * initialDelay, periodic configuration, and backoff criteria are considered to be met.
+     *
+     * Work will almost never run at this time in the real world. This method is intended for use
+     * in scheduling tests or to check set schedules in app. Work run times are dependent on
+     * many factors like the underlying system scheduler, doze and power saving modes of the OS, and
+     * meeting any configured constraints. This is expected and is not considered a bug.
+     *
+     * The returned value may be in the past if the work was not able to run at that time. It will
+     * be eligible to run any time after that time.
+     *
+     * Defaults to [Long.MAX_VALUE] for all other states, including if the work is currently
+     * [State.RUNNING] or [State.BLOCKED] on prerequisite work.
+     *
+     * Even if this value is set, the work may not be registered with the system scheduler if
+     * there are limited scheduling slots or other factors.
+     */
+    val nextScheduleTimeMillis: Long = Long.MAX_VALUE,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -83,6 +116,9 @@ class WorkInfo @JvmOverloads constructor(
         if (state != workInfo.state) return false
         if (outputData != workInfo.outputData) return false
         if (constraints != workInfo.constraints) return false
+        if (initialDelayMillis != workInfo.initialDelayMillis) return false
+        if (periodicityInfo != workInfo.periodicityInfo) return false
+        if (nextScheduleTimeMillis != workInfo.nextScheduleTimeMillis) return false
         return if (tags != workInfo.tags) false else progress == workInfo.progress
     }
 
@@ -95,13 +131,19 @@ class WorkInfo @JvmOverloads constructor(
         result = 31 * result + runAttemptCount
         result = 31 * result + generation
         result = 31 * result + constraints.hashCode()
+        result = 31 * result + initialDelayMillis.hashCode()
+        result = 31 * result + periodicityInfo.hashCode()
+        result = 31 * result + nextScheduleTimeMillis.hashCode()
         return result
     }
 
     override fun toString(): String {
         return ("WorkInfo{id='$id', state=$state, " +
             "outputData=$outputData, tags=$tags, progress=$progress, " +
-            "runAttemptCount=$runAttemptCount, generation=$generation, constraints=$constraints}")
+            "runAttemptCount=$runAttemptCount, generation=$generation, " +
+            "constraints=$constraints}, initialDelayMillis=$initialDelayMillis, " +
+            "periodicityInfo=$periodicityInfo, " +
+            "nextScheduleTimeMillis=$nextScheduleTimeMillis")
     }
 
     /**
@@ -150,5 +192,36 @@ class WorkInfo @JvmOverloads constructor(
          */
         val isFinished: Boolean
             get() = this == SUCCEEDED || this == FAILED || this == CANCELLED
+    }
+
+    /** A periodic work's interval and flex duration */
+    class PeriodicityInfo(
+        /**
+         * The periodic work's configured repeat interval in millis, as configured in
+         * [PeriodicWorkRequest.Builder]
+         */
+        val repeatIntervalMillis: Long,
+        /**
+         * The duration in millis in which this work repeats from the end of the `repeatInterval`,
+         * as configured in [PeriodicWorkRequest.Builder].
+         */
+        val flexIntervalMillis: Long
+    ) {
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other == null || javaClass != other.javaClass) return false
+            val period = other as PeriodicityInfo
+            return period.repeatIntervalMillis == repeatIntervalMillis &&
+                period.flexIntervalMillis == flexIntervalMillis
+        }
+
+        override fun hashCode(): Int {
+            return 31 * repeatIntervalMillis.hashCode() + flexIntervalMillis.hashCode()
+        }
+
+        override fun toString(): String {
+            return "PeriodicityInfo{repeatIntervalMillis=$repeatIntervalMillis, " +
+                "flexIntervalMillis=$flexIntervalMillis}"
+        }
     }
 }

@@ -16,10 +16,7 @@
 
 package androidx.compose.ui.text.font
 
-import androidx.compose.ui.text.ExperimentalTextApi
-
 class FontTestData {
-    @OptIn(ExperimentalTextApi::class)
     companion object {
         private val resourceId = 1
 

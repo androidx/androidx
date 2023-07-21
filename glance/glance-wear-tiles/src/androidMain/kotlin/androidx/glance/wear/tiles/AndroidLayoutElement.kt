@@ -20,7 +20,6 @@ import androidx.compose.runtime.Composable
 import androidx.glance.Emittable
 import androidx.glance.GlanceModifier
 import androidx.glance.GlanceNode
-import androidx.wear.tiles.LayoutElementBuilders
 
 /**
  * Add [LayoutElementBuilders.LayoutElement] into the glance composition.
@@ -28,7 +27,8 @@ import androidx.wear.tiles.LayoutElementBuilders
  * @param layoutElement the layout element to add to the composition
  */
 @Composable
-fun AndroidLayoutElement(layoutElement: LayoutElementBuilders.LayoutElement) {
+@Suppress("deprecation") // For backwards compatibility.
+fun AndroidLayoutElement(layoutElement: androidx.wear.tiles.LayoutElementBuilders.LayoutElement) {
     GlanceNode(
         factory = ::EmittableAndroidLayoutElement,
         update = {
@@ -37,9 +37,10 @@ fun AndroidLayoutElement(layoutElement: LayoutElementBuilders.LayoutElement) {
     )
 }
 
+@Suppress("deprecation") // For backwards compatibility.
 internal class EmittableAndroidLayoutElement : Emittable {
     override var modifier: GlanceModifier = GlanceModifier
-    lateinit var layoutElement: LayoutElementBuilders.LayoutElement
+    lateinit var layoutElement: androidx.wear.tiles.LayoutElementBuilders.LayoutElement
 
     override fun copy(): Emittable = EmittableAndroidLayoutElement().also {
         it.modifier = modifier

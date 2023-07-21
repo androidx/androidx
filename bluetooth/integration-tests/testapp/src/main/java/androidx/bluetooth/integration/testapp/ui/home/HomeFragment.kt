@@ -17,6 +17,8 @@
 package androidx.bluetooth.integration.testapp.ui.home
 
 import android.annotation.SuppressLint
+import android.bluetooth.BluetoothGattCharacteristic.PROPERTY_NOTIFY
+import android.bluetooth.BluetoothGattCharacteristic.PROPERTY_READ
 import android.bluetooth.le.AdvertiseData
 import android.bluetooth.le.AdvertiseSettings
 import android.bluetooth.le.ScanResult
@@ -27,9 +29,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-
 import androidx.bluetooth.integration.testapp.R
-import androidx.bluetooth.integration.testapp.data.SampleAdvertiseData
 import androidx.bluetooth.integration.testapp.databinding.FragmentHomeBinding
 import androidx.bluetooth.integration.testapp.experimental.AdvertiseResult
 import androidx.bluetooth.integration.testapp.experimental.BluetoothLe
@@ -37,16 +37,17 @@ import androidx.bluetooth.integration.testapp.experimental.GattServerCallback
 import androidx.bluetooth.integration.testapp.ui.common.ScanResultAdapter
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 
 class HomeFragment : Fragment() {
 
     companion object {
-        const val TAG = "HomeFragment"
+        private const val TAG = "HomeFragment"
     }
 
     private var scanResultAdapter: ScanResultAdapter? = null
@@ -65,11 +66,7 @@ class HomeFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        Log.d(
-            TAG, "onCreateView() called with: inflater = $inflater, " +
-                "container = $container, savedInstanceState = $savedInstanceState"
-        )
-        mHomeViewModel = ViewModelProvider(this).get(HomeViewModel::class.java)
+        mHomeViewModel = ViewModelProvider(this)[HomeViewModel::class.java]
 
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
         return binding.root
@@ -80,7 +77,7 @@ class HomeFragment : Fragment() {
 
         bluetoothLe = BluetoothLe(requireContext())
 
-        scanResultAdapter = ScanResultAdapter { scanResult -> scanResultOnClick(scanResult) }
+        scanResultAdapter = ScanResultAdapter { scanResult -> onClickScanResult(scanResult) }
         binding.recyclerView.adapter = scanResultAdapter
 
         binding.buttonScan.setOnClickListener {
@@ -114,6 +111,9 @@ class HomeFragment : Fragment() {
     private val scanScope = CoroutineScope(Dispatchers.Main + Job())
     private var scanJob: Job? = null
 
+    private val connectScope = CoroutineScope(Dispatchers.Default + Job())
+    private var connectJob: Job? = null
+
     private fun startScan() {
         Log.d(TAG, "startScan() called")
 
@@ -131,15 +131,46 @@ class HomeFragment : Fragment() {
                 .collect {
                     Log.d(TAG, "ScanResult collected: $it")
 
-                    mHomeViewModel.scanResults[it.device.address] = it
+                    if (it.scanRecord?.serviceUuids?.isEmpty() == false)
+                        mHomeViewModel.scanResults[it.device.address] = it
                     scanResultAdapter?.submitList(mHomeViewModel.scanResults.values.toMutableList())
                     scanResultAdapter?.notifyItemInserted(mHomeViewModel.scanResults.size)
                 }
         }
     }
 
-    private fun scanResultOnClick(scanResult: ScanResult) {
-        Log.d(TAG, "scanResultOnClick() called with: scanResult = $scanResult")
+    private fun onClickScanResult(scanResult: ScanResult) {
+        scanJob?.cancel()
+        connectJob?.cancel()
+        connectJob = connectScope.launch {
+            bluetoothLe.connectGatt(requireContext(), scanResult.device) {
+                launch {
+                    val jobs = ArrayList<Job>()
+                    for (srv in getServices()) {
+                        for (char in srv.characteristics) {
+                            if (char.properties.and(PROPERTY_READ) == 0) continue
+                            jobs.add(launch {
+                                val value = readCharacteristic(char).getOrNull()
+                                if (value != null) {
+                                    Log.d(TAG, "Successfully read characteristic value=$value")
+                                }
+                            })
+                            if (char.properties.and(PROPERTY_NOTIFY) != 0) {
+                                jobs.add(launch {
+                                    val value = subscribeToCharacteristic(char).first()
+                                    Log.d(TAG, "Successfully get characteristic value=$value")
+                                })
+                            }
+                        }
+                    }
+                    jobs.joinAll()
+                    awaitClose {
+                        Log.d(TAG, "GATT client is closed")
+                        connectJob = null
+                    }
+                }
+            }
+        }
     }
 
     private val advertiseScope = CoroutineScope(Dispatchers.Main + Job())
@@ -156,7 +187,6 @@ class HomeFragment : Fragment() {
             .build()
 
         val advertiseData = AdvertiseData.Builder()
-            .addServiceUuid(SampleAdvertiseData.testUUID)
             .setIncludeDeviceName(true)
             .build()
 

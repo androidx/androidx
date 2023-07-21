@@ -15,6 +15,9 @@
  */
 package androidx.emoji2.viewsintegration;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
+
+import android.os.Handler;
 import android.text.Editable;
 import android.text.Selection;
 import android.text.Spannable;
@@ -34,7 +37,7 @@ import java.lang.ref.WeakReference;
  * TextWatcher used for an EditText.
  *
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
+@RestrictTo(LIBRARY)
 @RequiresApi(19)
 final class EmojiTextWatcher implements android.text.TextWatcher {
     private final EditText mEditText;
@@ -107,7 +110,11 @@ final class EmojiTextWatcher implements android.text.TextWatcher {
         // do nothing
     }
 
-    private InitCallback getInitCallback() {
+    /**
+     * @return
+     */
+    @RestrictTo(LIBRARY)
+    InitCallback getInitCallback() {
         if (mInitCallback == null) {
             mInitCallback = new InitCallbackImpl(mEditText);
         }
@@ -130,8 +137,9 @@ final class EmojiTextWatcher implements android.text.TextWatcher {
         }
     }
 
+    @RestrictTo(LIBRARY)
     @RequiresApi(19)
-    private static class InitCallbackImpl extends InitCallback {
+    static class InitCallbackImpl extends InitCallback implements Runnable {
         private final Reference<EditText> mViewRef;
 
         InitCallbackImpl(EditText editText) {
@@ -141,6 +149,19 @@ final class EmojiTextWatcher implements android.text.TextWatcher {
         @Override
         public void onInitialized() {
             super.onInitialized();
+            final EditText editText = mViewRef.get();
+            if (editText == null) {
+                return;
+            }
+            Handler handler = editText.getHandler();
+            if (handler == null) {
+                return;
+            }
+            handler.post(this);
+        }
+
+        @Override
+        public void run() {
             final EditText editText = mViewRef.get();
             processTextOnEnablingEvent(editText, EmojiCompat.LOAD_STATE_SUCCEEDED);
         }

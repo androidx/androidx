@@ -151,6 +151,10 @@ internal class LegacyCalendarModelImpl : CalendarModel {
         }
     }
 
+    override fun toString(): String {
+        return "LegacyCalendarModel"
+    }
+
     companion object {
 
         /**

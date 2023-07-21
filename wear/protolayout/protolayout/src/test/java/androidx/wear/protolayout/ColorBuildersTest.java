@@ -23,6 +23,7 @@ import static org.junit.Assert.assertThrows;
 import android.graphics.Color;
 
 import androidx.wear.protolayout.expression.DynamicBuilders;
+import androidx.wear.protolayout.expression.AppDataKey;
 import androidx.wear.protolayout.proto.ColorProto;
 
 import org.junit.Test;
@@ -34,13 +35,17 @@ public class ColorBuildersTest {
     private static final String STATE_KEY = "state-key";
     private static final ColorBuilders.ColorProp COLOR =
             new ColorBuilders.ColorProp.Builder(Color.RED)
-                    .setDynamicValue(DynamicBuilders.DynamicColor.fromState(STATE_KEY))
+                    .setDynamicValue(
+                            DynamicBuilders.DynamicColor.from(
+                                    new AppDataKey<>(STATE_KEY)))
                     .build();
 
     @SuppressWarnings("deprecation")
     private static final ColorBuilders.ColorProp.Builder COLOR_BUILDER_WITHOUT_STATIC_VALUE =
             new ColorBuilders.ColorProp.Builder()
-                    .setDynamicValue(DynamicBuilders.DynamicColor.fromState(STATE_KEY));
+                    .setDynamicValue(
+                            DynamicBuilders.DynamicColor.from(
+                                    new AppDataKey<>(STATE_KEY)));
 
     @Test
     public void colorPropSupportsDynamicColor() {

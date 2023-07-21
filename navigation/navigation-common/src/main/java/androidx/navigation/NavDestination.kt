@@ -351,10 +351,9 @@ public open class NavDestination(
      * @see NavController.navigate
      */
     public fun addDeepLink(navDeepLink: NavDeepLink) {
-        val missingRequiredArguments =
-            arguments.filterValues { !it.isNullable && !it.isDefaultValuePresent }
-                .keys
-                .filter { it !in navDeepLink.argumentsNames }
+        val missingRequiredArguments = arguments.missingRequiredArguments { key ->
+            key !in navDeepLink.argumentsNames
+        }
         require(missingRequiredArguments.isEmpty()) {
             "Deep link ${navDeepLink.uriPattern} can't be used to open destination $this.\n" +
                 "Following required arguments are missing: $missingRequiredArguments"
@@ -406,7 +405,9 @@ public open class NavDestination(
             val mimeType = navDeepLinkRequest.mimeType
             val mimeTypeMatchLevel =
                 if (mimeType != null) deepLink.getMimeTypeMatchRating(mimeType) else -1
-            if (matchingArguments != null || matchingAction || mimeTypeMatchLevel > -1) {
+            if (matchingArguments != null || ((matchingAction || mimeTypeMatchLevel > -1) &&
+                    hasRequiredArguments(deepLink, uri, arguments))
+            ) {
                 val newMatch = DeepLinkMatch(
                     this, matchingArguments,
                     deepLink.isExactDeepLink, matchingPathSegments, matchingAction,
@@ -418,6 +419,18 @@ public open class NavDestination(
             }
         }
         return bestMatch
+    }
+
+    private fun hasRequiredArguments(
+        deepLink: NavDeepLink,
+        uri: Uri?,
+        arguments: Map<String, NavArgument>
+    ): Boolean {
+        val matchingArgs = deepLink.getMatchingPathAndQueryArgs(uri, arguments)
+        val missingRequiredArguments = arguments.missingRequiredArguments { key ->
+            !matchingArgs.containsKey(key)
+        }
+        return missingRequiredArguments.isEmpty()
     }
 
     /**

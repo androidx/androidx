@@ -28,8 +28,8 @@ package androidx.datastore.rxjava3 {
   }
 
   @kotlin.jvm.JvmDefaultWithCompatibility public interface RxSharedPreferencesMigration<T> {
-    method public io.reactivex.rxjava3.core.Single<T> migrate(androidx.datastore.migrations.SharedPreferencesView sharedPreferencesView, T? currentData);
-    method public default io.reactivex.rxjava3.core.Single<java.lang.Boolean> shouldMigrate(T? currentData);
+    method public io.reactivex.rxjava3.core.Single<T> migrate(androidx.datastore.migrations.SharedPreferencesView sharedPreferencesView, T currentData);
+    method public default io.reactivex.rxjava3.core.Single<java.lang.Boolean> shouldMigrate(T currentData);
   }
 
   public final class RxSharedPreferencesMigrationBuilder<T> {

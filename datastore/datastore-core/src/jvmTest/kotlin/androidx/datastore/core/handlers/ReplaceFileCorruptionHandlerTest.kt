@@ -17,11 +17,11 @@
 package androidx.datastore.core.handlers
 
 import androidx.datastore.TestingSerializerConfig
-import androidx.datastore.core.FileStorage
 import androidx.datastore.core.DataStoreImpl
+import androidx.datastore.core.FileStorage
 import androidx.datastore.core.TestingSerializer
-import androidx.kruth.assertThrows
 import androidx.kruth.assertThat
+import androidx.kruth.assertThrows
 import java.io.File
 import java.io.IOException
 import java.util.concurrent.TimeUnit

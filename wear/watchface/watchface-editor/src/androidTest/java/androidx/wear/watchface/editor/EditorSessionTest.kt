@@ -75,6 +75,7 @@ import androidx.wear.watchface.complications.ComplicationSlotBounds
 import androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy
 import androidx.wear.watchface.complications.SystemDataSources
 import androidx.wear.watchface.complications.data.ComplicationData
+import androidx.wear.watchface.complications.data.ComplicationExperimental
 import androidx.wear.watchface.complications.data.ComplicationText
 import androidx.wear.watchface.complications.data.ComplicationType
 import androidx.wear.watchface.complications.data.EmptyComplicationData
@@ -197,6 +198,7 @@ private val mockBackgroundCanvasComplication =
         placeholderWatchState,
         mockInvalidateCallback
     )
+@OptIn(ComplicationExperimental::class)
 private val backgroundComplication =
     ComplicationSlot.createBackgroundComplicationSlotBuilder(
             BACKGROUND_COMPLICATION_ID,
@@ -508,6 +510,7 @@ public class EditorSessionTest {
     internal val complicationDeniedDialogIntent = Intent("ComplicationDeniedDialog")
     internal val complicationRationaleDialogIntent = Intent("ComplicationRationaleDialog")
 
+    @OptIn(ComplicationExperimental::class)
     private val leftComplication =
         ComplicationSlot.createRoundRectComplicationSlotBuilder(
                 LEFT_COMPLICATION_ID,
@@ -538,6 +541,7 @@ public class EditorSessionTest {
             )
             .build()
 
+    @OptIn(ComplicationExperimental::class)
     private val rightComplication =
         ComplicationSlot.createRoundRectComplicationSlotBuilder(
                 RIGHT_COMPLICATION_ID,
@@ -547,7 +551,8 @@ public class EditorSessionTest {
                     ComplicationType.LONG_TEXT,
                     ComplicationType.SHORT_TEXT,
                     ComplicationType.MONOCHROMATIC_IMAGE,
-                    ComplicationType.SMALL_IMAGE
+                    ComplicationType.SMALL_IMAGE,
+                    ComplicationType.PHOTO_IMAGE
                 ),
                 DefaultComplicationDataSourcePolicy(
                     ComponentName("com.primary.package", "com.primary.app"),
@@ -595,24 +600,24 @@ public class EditorSessionTest {
         val mockSurfaceHolder = `mock`(SurfaceHolder::class.java)
         `when`(mockSurfaceHolder.surfaceFrame).thenReturn(screenBounds)
         @Suppress("Deprecation")
-        val fakeRenderer = object : Renderer.CanvasRenderer(
-            mockSurfaceHolder,
-            userStyleRepository,
-            MutableWatchState().asWatchState(),
-            CanvasType.HARDWARE,
-            interactiveDrawModeUpdateDelayMillis = 16,
-            clearWithBackgroundTintBeforeRenderingHighlightLayer = false
-        ) {
-            override fun render(canvas: Canvas, bounds: Rect, zonedDateTime: ZonedDateTime) {
-            }
+        val fakeRenderer =
+            object :
+                Renderer.CanvasRenderer(
+                    mockSurfaceHolder,
+                    userStyleRepository,
+                    MutableWatchState().asWatchState(),
+                    CanvasType.HARDWARE,
+                    interactiveDrawModeUpdateDelayMillis = 16,
+                    clearWithBackgroundTintBeforeRenderingHighlightLayer = false
+                ) {
+                override fun render(canvas: Canvas, bounds: Rect, zonedDateTime: ZonedDateTime) {}
 
-            override fun renderHighlightLayer(
-                canvas: Canvas,
-                bounds: Rect,
-                zonedDateTime: ZonedDateTime
-            ) {
+                override fun renderHighlightLayer(
+                    canvas: Canvas,
+                    bounds: Rect,
+                    zonedDateTime: ZonedDateTime
+                ) {}
             }
-        }
 
         val complicationSlotsManager =
             ComplicationSlotsManager(complicationSlots, userStyleRepository, fakeRenderer)
@@ -887,6 +892,7 @@ public class EditorSessionTest {
         }
     }
 
+    @OptIn(ComplicationExperimental::class)
     @Suppress("DEPRECATION") // Old DefaultComplicationDataSourcePolicy constructor
     @Test
     public fun fixedComplicationDataSource() {
@@ -2435,9 +2441,7 @@ public class EditorSessionTest {
                     watchState,
                     mockWatchFaceHostApi,
                     CompletableDeferred(),
-                    CoroutineScope(handler.asCoroutineDispatcher()),
-                    ApplicationProvider.getApplicationContext<Context>().contentResolver,
-                    ambientSettingAvailable = false
+                    CoroutineScope(handler.asCoroutineDispatcher())
                 ),
                 null
             )

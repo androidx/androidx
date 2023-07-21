@@ -41,6 +41,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -56,6 +57,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -116,6 +118,8 @@ fun ModalBottomSheetSample() {
                     Text("Hide Bottom Sheet")
                 }
             }
+            var text by remember { mutableStateOf("") }
+            OutlinedTextField(value = text, onValueChange = { text = it })
             LazyColumn {
                 items(50) {
                     ListItem(
@@ -192,6 +196,7 @@ fun BottomSheetScaffoldNestedScrollSample() {
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
 
     BottomSheetScaffold(
+        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         sheetContent = {
             LazyColumn {
                 items(50) {

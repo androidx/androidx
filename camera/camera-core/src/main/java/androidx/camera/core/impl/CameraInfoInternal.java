@@ -18,23 +18,28 @@ package androidx.camera.core.impl;
 
 import android.graphics.ImageFormat;
 import android.graphics.PixelFormat;
-import android.util.Range;
 import android.util.Size;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraSelector;
+import androidx.camera.core.DynamicRange;
 import androidx.core.util.Preconditions;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Executor;
 
 /**
  * An interface for retrieving camera information.
  *
  * <p>Contains methods for retrieving characteristics for a specific camera.
+ *
+ * <p>{@link #getImplementation()} returns a {@link CameraInfoInternal} instance
+ * that contains the actual implementation and can be cast to an implementation specific class.
+ * If the instance itself is the implementation instance, then it should return <code>this</code>.
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public interface CameraInfoInternal extends CameraInfo {
@@ -66,17 +71,6 @@ public interface CameraInfoInternal extends CameraInfo {
     @NonNull
     Quirks getCameraQuirks();
 
-    /**
-     * Returns a list of the FPS ranges supported by this device's AE algorithm.
-     *
-     * <p>These are the FPS ranges that the AE algorithm on the device can support. There is no
-     * guarantee that these ranges will work for every size surface or combination of use cases.
-     *
-     * @return The list of FPS ranges supported by the device's AE algorithm
-     */
-    @NonNull
-    List<Range<Integer>> getSupportedFpsRanges();
-
     /** Returns the {@link EncoderProfilesProvider} associated with this camera. */
     @NonNull
     EncoderProfilesProvider getEncoderProfilesProvider();
@@ -102,6 +96,25 @@ public interface CameraInfoInternal extends CameraInfo {
      */
     @NonNull
     List<Size> getSupportedHighResolutions(int format);
+
+    /**
+     * Returns the supported dynamic ranges of this camera.
+     *
+     * @return a set of supported dynamic range, or an empty set if no dynamic range is supported.
+     */
+    @NonNull
+    Set<DynamicRange> getSupportedDynamicRanges();
+
+    /**
+     * Gets the underlying implementation instance which could be cast into an implementation
+     * specific class for further use in implementation module. Returns <code>this</code> if this
+     * instance is the implementation instance.
+     */
+    @NonNull
+    default CameraInfoInternal getImplementation() {
+        return this;
+    }
+
 
     /** {@inheritDoc} */
     @NonNull

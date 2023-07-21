@@ -22,8 +22,8 @@ import androidx.compose.ui.inspection.testdata.ParametersTestActivity
 import androidx.compose.ui.inspection.util.GetComposablesCommand
 import androidx.compose.ui.inspection.util.GetParameterDetailsCommand
 import androidx.compose.ui.inspection.util.GetParametersByAnchorIdCommand
-import androidx.compose.ui.inspection.util.GetParametersCommand
 import androidx.compose.ui.inspection.util.GetParametersByIdCommand
+import androidx.compose.ui.inspection.util.GetParametersCommand
 import androidx.compose.ui.inspection.util.GetUpdateSettingsCommand
 import androidx.compose.ui.inspection.util.flatten
 import androidx.compose.ui.inspection.util.toMap

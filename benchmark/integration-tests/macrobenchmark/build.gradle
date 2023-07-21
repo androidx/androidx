@@ -19,7 +19,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
-    id("com.android.library")
+    id("com.android.test")
     id("kotlin-android")
 }
 
@@ -28,34 +28,31 @@ android {
         minSdkVersion 23
     }
     sourceSets {
-        androidTest.assets.srcDirs += new File(
+        main.assets.srcDirs += new File(
                 SupportConfigKt.getPrebuiltsRoot(project),
                 "androidx/traceprocessor/testdata"
         )
     }
     namespace "androidx.benchmark.integration.macrobenchmark"
+    targetProjectPath = ":benchmark:integration-tests:macrobenchmark-target"
+    experimentalProperties["android.experimental.self-instrumenting"] = true
 }
+
+// Create a release build type and make sure it's the only one enabled.
+// This is needed because we benchmark the release build type only.
+android.buildTypes { release {} }
+androidComponents { beforeVariants(selector().all()) { enabled = buildType == 'release' } }
 
 dependencies {
-    androidTestImplementation(project(":benchmark:benchmark-junit4"))
-    androidTestImplementation(project(":benchmark:benchmark-macro-junit4"))
-    androidTestImplementation(project(":internal-testutils-macrobenchmark"))
-    androidTestImplementation(project(":tracing:tracing-ktx"))
-    androidTestImplementation(libs.kotlinTest)
-    androidTestImplementation(libs.testRules)
-    androidTestImplementation(libs.testExtJunit)
-    androidTestImplementation(libs.testCore)
-    androidTestImplementation(libs.testRunner)
-    androidTestImplementation(libs.testUiautomator)
-    androidTestImplementation(libs.testExtTruth)
-}
-
-// Define a task dependency so the app is installed before we run macro benchmarks.
-afterEvaluate {
-    tasks.getByPath(":benchmark:integration-tests:macrobenchmark:connectedDebugAndroidTest")
-            .dependsOn(
-                    tasks.getByPath(
-                            ":benchmark:integration-tests:macrobenchmark-target:installRelease"
-                    )
-            )
+    implementation(project(":benchmark:benchmark-junit4"))
+    implementation(project(":benchmark:benchmark-macro-junit4"))
+    implementation(project(":internal-testutils-macrobenchmark"))
+    implementation(project(":tracing:tracing-ktx"))
+    implementation(libs.kotlinTest)
+    implementation(libs.testRules)
+    implementation(libs.testExtJunit)
+    implementation(libs.testCore)
+    implementation(libs.testRunner)
+    implementation(libs.testUiautomator)
+    implementation(libs.testExtTruth)
 }

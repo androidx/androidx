@@ -25,3 +25,9 @@ buildscript {
 apply from: "buildSrc/dependencies.gradle"
 
 apply plugin: AndroidXRootPlugin
+
+// workaround for https://github.com/gradle/gradle/issues/24822
+if (project.hasProperty("androidx.update.signatures")) {
+    apply plugin: "java-library"
+    apply from: "buildSrc/shared-dependencies.gradle"
+}

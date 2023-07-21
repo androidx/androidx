@@ -47,8 +47,7 @@ public class TimeGatewayImplTest {
     private final Executor mImmediateExecutor = Runnable::run;
     @Mock private TimeCallback mCallback;
 
-    private final TimeGatewayImpl mGatewayUnderTest =
-            new TimeGatewayImpl(mTestHandler, /* updatesEnabled= */ false);
+    private final TimeGatewayImpl mGatewayUnderTest = new TimeGatewayImpl(mTestHandler);
 
     @Test
     public void registerForUpdates_callsCallbackEverySecondWhenEnabled() {

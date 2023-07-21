@@ -16,6 +16,9 @@
 
 package androidx.test.uiautomator;
 
+import static java.util.Objects.requireNonNull;
+
+import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 
 import java.util.LinkedList;
@@ -50,6 +53,10 @@ public class BySelector {
     Integer mMinDepth;
     Integer mMaxDepth;
 
+    // Ancestor selector
+    BySelector mAncestorSelector;
+    Integer mMaxAncestorDistance;
+
     // Child selectors
     final List<BySelector> mChildSelectors = new LinkedList<>();
 
@@ -82,6 +89,10 @@ public class BySelector {
         mMinDepth = original.mMinDepth;
         mMaxDepth = original.mMaxDepth;
 
+        mAncestorSelector = original.mAncestorSelector == null ? null :
+                new BySelector(original.mAncestorSelector);
+        mMaxAncestorDistance = original.mMaxAncestorDistance;
+
         for (BySelector childSelector : original.mChildSelectors) {
             mChildSelectors.add(new BySelector(childSelector));
         }
@@ -97,8 +108,7 @@ public class BySelector {
      * @return A reference to this {@link BySelector}.
      */
     public @NonNull BySelector clazz(@NonNull String className) {
-        checkNotNull(className, "className cannot be null");
-
+        requireNonNull(className, "className cannot be null");
         // If className starts with a period, assume the package is 'android.widget'
         if (className.charAt(0) == '.') {
             return clazz("android.widget", className.substring(1));
@@ -117,9 +127,8 @@ public class BySelector {
      * @return A reference to this {@link BySelector}.
      */
     public @NonNull BySelector clazz(@NonNull String packageName, @NonNull String className) {
-        checkNotNull(packageName, "packageName cannot be null");
-        checkNotNull(className, "className cannot be null");
-
+        requireNonNull(packageName, "packageName cannot be null");
+        requireNonNull(className, "className cannot be null");
         return clazz(Pattern.compile(Pattern.quote(
                 String.format("%s.%s", packageName, className))));
     }
@@ -132,8 +141,7 @@ public class BySelector {
      * @return A reference to this {@link BySelector}
      */
     public @NonNull BySelector clazz(@NonNull Class clazz) {
-        checkNotNull(clazz, "clazz cannot be null");
-
+        requireNonNull(clazz, "clazz cannot be null");
         return clazz(Pattern.compile(Pattern.quote(clazz.getName())));
     }
 
@@ -146,8 +154,7 @@ public class BySelector {
      * @return A reference to this {@link BySelector}.
      */
     public @NonNull BySelector clazz(@NonNull Pattern className) {
-        checkNotNull(className, "className cannot be null");
-
+        requireNonNull(className, "className cannot be null");
         if (mClazz != null) {
             throw new IllegalStateException("Class selector is already defined");
         }
@@ -164,8 +171,7 @@ public class BySelector {
      * @return A reference to this {@link BySelector}.
      */
     public @NonNull BySelector desc(@NonNull String contentDescription) {
-        checkNotNull(contentDescription, "contentDescription cannot be null");
-
+        requireNonNull(contentDescription, "contentDescription cannot be null");
         return desc(Pattern.compile(Pattern.quote(contentDescription)));
     }
 
@@ -178,8 +184,7 @@ public class BySelector {
      * @return A reference to this {@link BySelector}.
      */
     public @NonNull BySelector descContains(@NonNull String substring) {
-        checkNotNull(substring, "substring cannot be null");
-
+        requireNonNull(substring, "substring cannot be null");
         return desc(RegexHelper.getPatternContains(substring));
     }
 
@@ -192,8 +197,7 @@ public class BySelector {
      * @return A reference to this {@link BySelector}.
      */
     public @NonNull BySelector descStartsWith(@NonNull String substring) {
-        checkNotNull(substring, "substring cannot be null");
-
+        requireNonNull(substring, "substring cannot be null");
         return desc(RegexHelper.getPatternStartsWith(substring));
     }
 
@@ -206,8 +210,7 @@ public class BySelector {
      * @return A reference to this {@link BySelector}.
      */
     public @NonNull BySelector descEndsWith(@NonNull String substring) {
-        checkNotNull(substring, "substring cannot be null");
-
+        requireNonNull(substring, "substring cannot be null");
         return desc(RegexHelper.getPatternEndsWith(substring));
     }
 
@@ -220,8 +223,7 @@ public class BySelector {
      * @return A reference to this {@link BySelector}.
      */
     public @NonNull BySelector desc(@NonNull Pattern contentDescription) {
-        checkNotNull(contentDescription, "contentDescription cannot be null");
-
+        requireNonNull(contentDescription, "contentDescription cannot be null");
         if (mDesc != null) {
             throw new IllegalStateException("Description selector is already defined");
         }
@@ -238,8 +240,7 @@ public class BySelector {
      * @return A reference to this {@link BySelector}.
      */
     public @NonNull BySelector pkg(@NonNull String applicationPackage) {
-        checkNotNull(applicationPackage, "applicationPackage cannot be null");
-
+        requireNonNull(applicationPackage, "applicationPackage cannot be null");
         return pkg(Pattern.compile(Pattern.quote(applicationPackage)));
     }
 
@@ -252,8 +253,7 @@ public class BySelector {
      * @return A reference to this {@link BySelector}.
      */
     public @NonNull BySelector pkg(@NonNull Pattern applicationPackage) {
-        checkNotNull(applicationPackage, "applicationPackage cannot be null");
-
+        requireNonNull(applicationPackage, "applicationPackage cannot be null");
         if (mPkg != null) {
             throw new IllegalStateException("Package selector is already defined");
         }
@@ -270,8 +270,7 @@ public class BySelector {
      * @return A reference to this {@link BySelector}.
      */
     public @NonNull BySelector res(@NonNull String resourceName) {
-        checkNotNull(resourceName, "resourceName cannot be null");
-
+        requireNonNull(resourceName, "resourceName cannot be null");
         return res(Pattern.compile(Pattern.quote(resourceName)));
     }
 
@@ -285,9 +284,8 @@ public class BySelector {
      * @return A reference to this {@link BySelector}.
      */
     public @NonNull BySelector res(@NonNull String resourcePackage, @NonNull String resourceId) {
-        checkNotNull(resourcePackage, "resourcePackage cannot be null");
-        checkNotNull(resourceId, "resourceId cannot be null");
-
+        requireNonNull(resourcePackage, "resourcePackage cannot be null");
+        requireNonNull(resourceId, "resourceId cannot be null");
         return res(Pattern.compile(Pattern.quote(
                 String.format("%s:id/%s", resourcePackage, resourceId))));
     }
@@ -301,8 +299,7 @@ public class BySelector {
      * @return A reference to this {@link BySelector}.
      */
     public @NonNull BySelector res(@NonNull Pattern resourceName) {
-        checkNotNull(resourceName, "resourceName cannot be null");
-
+        requireNonNull(resourceName, "resourceName cannot be null");
         if (mRes != null) {
             throw new IllegalStateException("Resource name selector is already defined");
         }
@@ -319,8 +316,7 @@ public class BySelector {
      * @return A reference to this {@link BySelector}.
      */
     public @NonNull BySelector text(@NonNull String textValue) {
-        checkNotNull(textValue, "textValue cannot be null");
-
+        requireNonNull(textValue, "textValue cannot be null");
         return text(Pattern.compile(Pattern.quote(textValue)));
     }
 
@@ -333,8 +329,7 @@ public class BySelector {
      * @return A reference to this {@link BySelector}.
      */
     public @NonNull BySelector textContains(@NonNull String substring) {
-        checkNotNull(substring, "substring cannot be null");
-
+        requireNonNull(substring, "substring cannot be null");
         return text(RegexHelper.getPatternContains(substring));
     }
 
@@ -347,8 +342,7 @@ public class BySelector {
      * @return A reference to this {@link BySelector}.
      */
     public @NonNull BySelector textStartsWith(@NonNull String substring) {
-        checkNotNull(substring, "substring cannot be null");
-
+        requireNonNull(substring, "substring cannot be null");
         return text(RegexHelper.getPatternStartsWith(substring));
     }
 
@@ -361,8 +355,7 @@ public class BySelector {
      * @return A reference to this {@link BySelector}.
      */
     public @NonNull BySelector textEndsWith(@NonNull String substring) {
-        checkNotNull(substring, "substring cannot be null");
-
+        requireNonNull(substring, "substring cannot be null");
         return text(RegexHelper.getPatternEndsWith(substring));
     }
 
@@ -374,8 +367,7 @@ public class BySelector {
      * @return A reference to this {@link BySelector}.
      */
     public @NonNull BySelector text(@NonNull Pattern textValue) {
-        checkNotNull(textValue, "textValue cannot be null");
-
+        requireNonNull(textValue, "textValue cannot be null");
         if (mText != null) {
             throw new IllegalStateException("Text selector is already defined");
         }
@@ -564,6 +556,54 @@ public class BySelector {
     }
 
     /**
+     * Adds a parent selector criteria for matching. A UI element will be considered a match if it
+     * has a parent element (direct ancestor) which matches the {@code parentSelector} and all
+     * other criteria for this selector are met.
+     *
+     * @param parentSelector The selector used to find a matching parent element.
+     * @return A reference to this {@link BySelector}.
+     */
+    public @NonNull BySelector hasParent(@NonNull BySelector parentSelector) {
+        requireNonNull(parentSelector, "parentSelector cannot be null");
+        return hasAncestor(parentSelector, 1);
+    }
+
+    /**
+     * Adds an ancestor selector criteria for matching. A UI element will be considered a match if
+     * it has an ancestor element which matches the {@code ancestorSelector} and all other
+     * criteria for this selector are met.
+     *
+     * @param ancestorSelector The selector used to find a matching ancestor element.
+     * @return A reference to this {@link BySelector}.
+     */
+    public @NonNull BySelector hasAncestor(@NonNull BySelector ancestorSelector) {
+        requireNonNull(ancestorSelector, "ancestorSelector cannot be null");
+        if (mAncestorSelector != null) {
+            throw new IllegalStateException("Parent/ancestor selector is already defined");
+        }
+        mAncestorSelector = ancestorSelector;
+        return this;
+    }
+
+    /**
+     * Adds an ancestor selector criteria for matching. A UI element will be considered a match if
+     * it has an ancestor element which matches the {@code ancestorSelector} and all other
+     * criteria for this selector are met.
+     *
+     * @param ancestorSelector    The selector used to find a matching ancestor element.
+     * @param maxAncestorDistance The maximum distance between the element and its relevant
+     *                            ancestor in the view hierarchy, e.g. 1 only matches the parent
+     *                            element, 2 matches parent or grandparent.
+     * @return A reference to this {@link BySelector}.
+     */
+    public @NonNull BySelector hasAncestor(@NonNull BySelector ancestorSelector,
+            @IntRange(from = 1) int maxAncestorDistance) {
+        hasAncestor(ancestorSelector);
+        mMaxAncestorDistance = maxAncestorDistance;
+        return this;
+    }
+
+    /**
      * Adds a child selector criteria for matching. A UI element will be considered a match if it
      * has a child element (direct descendant) which matches the {@code childSelector} and all
      * other criteria for this selector are met. If specified more than once, matches must be found
@@ -571,10 +611,10 @@ public class BySelector {
      *
      * @param childSelector The selector used to find a matching child element.
      * @return A reference to this {@link BySelector}.
+     * @throws IllegalArgumentException if the selector has a parent/ancestor selector
      */
     public @NonNull BySelector hasChild(@NonNull BySelector childSelector) {
-        checkNotNull(childSelector, "childSelector cannot be null");
-
+        requireNonNull(childSelector, "childSelector cannot be null");
         return hasDescendant(childSelector, 1);
     }
 
@@ -586,10 +626,15 @@ public class BySelector {
      *
      * @param descendantSelector The selector used to find a matching descendant element.
      * @return A reference to this {@link BySelector}.
+     * @throws IllegalArgumentException if the selector has a parent/ancestor selector
      */
     public @NonNull BySelector hasDescendant(@NonNull BySelector descendantSelector) {
-        checkNotNull(descendantSelector, "descendantSelector cannot be null");
-
+        requireNonNull(descendantSelector, "descendantSelector cannot be null");
+        if (descendantSelector.mAncestorSelector != null) {
+            // Search root is ambiguous with nested parent selectors.
+            throw new IllegalArgumentException(
+                    "Nested parent/ancestor selectors are not supported");
+        }
         mChildSelectors.add(descendantSelector);
         return this;
     }
@@ -603,12 +648,11 @@ public class BySelector {
      * @param descendantSelector The selector used to find a matching descendant element.
      * @param maxDepth The maximum depth under the element to search the descendant.
      * @return A reference to this {@link BySelector}.
+     * @throws IllegalArgumentException if the selector has a parent/ancestor selector
      */
     public @NonNull BySelector hasDescendant(@NonNull BySelector descendantSelector, int maxDepth) {
-        checkNotNull(descendantSelector, "descendantSelector cannot be null");
-
+        hasDescendant(descendantSelector);
         descendantSelector.mMaxDepth = maxDepth;
-        mChildSelectors.add(descendantSelector);
         return this;
     }
 
@@ -662,6 +706,11 @@ public class BySelector {
         if (mSelected != null) {
             builder.append("SELECTED='").append(mSelected).append("', ");
         }
+        if (mAncestorSelector != null) {
+            builder.append("ANCESTOR='")
+                    .append(mAncestorSelector.toString().substring(11))
+                    .append("', ");
+        }
         for (BySelector childSelector : mChildSelectors) {
             builder.append("CHILD='").append(childSelector.toString().substring(11)).append("', ");
         }
@@ -669,12 +718,4 @@ public class BySelector {
         builder.append("]");
         return builder.toString();
     }
-
-    private static <T> T checkNotNull(T value, @NonNull String message) {
-        if (value == null) {
-            throw new NullPointerException(message);
-        }
-        return value;
-    }
 }
-

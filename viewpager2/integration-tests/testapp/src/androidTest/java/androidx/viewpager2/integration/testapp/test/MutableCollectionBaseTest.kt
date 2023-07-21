@@ -27,6 +27,7 @@ import androidx.viewpager2.integration.testapp.MutableCollectionBaseActivity
 import androidx.viewpager2.integration.testapp.R
 import org.hamcrest.CoreMatchers.allOf
 import org.hamcrest.CoreMatchers.equalTo
+import org.junit.Ignore
 import org.junit.Test
 
 /**
@@ -40,6 +41,7 @@ abstract class MutableCollectionBaseTest<T : MutableCollectionBaseActivity>(claz
     BaseTest<T>(clazz) {
     override val layoutId get() = R.id.viewPager
 
+    @Ignore("b/276935528")
     @Test
     fun testKeepsState() {
         // increase count of page 1 to 1
@@ -75,6 +77,7 @@ abstract class MutableCollectionBaseTest<T : MutableCollectionBaseActivity>(claz
         verifyCount(0)
     }
 
+    @Ignore("b/276935528")
     @Test
     fun testKeepCurrentItemVisibleWithoutDiffUtil() {
         // disable DiffUtil

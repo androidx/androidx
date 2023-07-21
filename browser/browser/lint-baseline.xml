@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.1.0-alpha11" type="baseline" client="gradle" dependencies="false" name="AGP (8.1.0-alpha11)" variant="all" version="8.1.0-alpha11">
+
+    <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="interface ICustomTabsCallback {"
+        errorLine2="^">
+        <location
+            file="src/main/aidl/android/support/customtabs/ICustomTabsCallback.aidl"/>
+    </issue>
+
+    <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="interface ICustomTabsService {"
+        errorLine2="^">
+        <location
+            file="src/main/aidl/android/support/customtabs/ICustomTabsService.aidl"/>
+    </issue>
+
+    <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="interface IEngagementSignalsCallback {"
+        errorLine2="^">
+        <location
+            file="src/main/aidl/android/support/customtabs/IEngagementSignalsCallback.aidl"/>
+    </issue>
+
+    <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="interface IPostMessageService {"
+        errorLine2="^">
+        <location
+            file="src/main/aidl/android/support/customtabs/IPostMessageService.aidl"/>
+    </issue>
+
+    <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="interface ITrustedWebActivityCallback {"
+        errorLine2="^">
+        <location
+            file="src/main/aidl/android/support/customtabs/trusted/ITrustedWebActivityCallback.aidl"/>
+    </issue>
+
+    <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="interface ITrustedWebActivityService {"
+        errorLine2="^">
+        <location
+            file="src/main/aidl/android/support/customtabs/trusted/ITrustedWebActivityService.aidl"/>
+    </issue>
+
+</issues>

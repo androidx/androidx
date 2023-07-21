@@ -23,18 +23,19 @@ import androidx.test.filters.FlakyTest
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.rule.GrantPermissionRule
+import java.util.concurrent.TimeUnit
+import kotlin.test.assertFailsWith
+import kotlin.test.assertTrue
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
 import org.junit.Assume.assumeTrue
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.util.concurrent.TimeUnit
-import kotlin.test.assertFailsWith
-import kotlin.test.assertTrue
 
 @LargeTest
 @RunWith(AndroidJUnit4::class)
@@ -189,7 +190,7 @@ class BenchmarkStateTest {
         assumeTrue(
             CpuInfo.locked ||
                 IsolationActivity.sustainedPerformanceModeInUse ||
-                Errors.isEmulator
+                DeviceInfo.isEmulator
         )
         iterationCheck(checkingForThermalThrottling = false)
     }
@@ -380,6 +381,7 @@ class BenchmarkStateTest {
     }
 
     @Test
+    @Ignore("b/278737712")
     fun experimentalIters() {
         validateIters(
             warmupCount = 1,

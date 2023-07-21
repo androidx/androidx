@@ -24,7 +24,7 @@ import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults.buttonColors
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
@@ -88,12 +88,12 @@ private object PreviewSnippet5 {
     @Preview
     @Composable
     fun PreviewCounter() {
-        val counterState = remember { mutableStateOf(0) }
+        val counterState = remember { mutableIntStateOf(0) }
 
         Counter(
-            count = counterState.value,
+            count = counterState.intValue,
             updateCount = { newCount ->
-                counterState.value = newCount
+                counterState.intValue = newCount
             }
         )
     }

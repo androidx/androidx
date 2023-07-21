@@ -36,7 +36,7 @@ import androidx.camera.core.impl.Quirk
  */
 @SuppressLint("CameraXQuirksClassDetector")
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-class ExtraSupportedOutputSizeQuirk() : Quirk {
+class ExtraSupportedOutputSizeQuirk : Quirk {
     /**
      * Returns the extra supported resolutions on the device.
      */
@@ -76,7 +76,7 @@ class ExtraSupportedOutputSizeQuirk() : Quirk {
         )
 
     companion object {
-        fun load(): Boolean {
+        fun isEnabled(): Boolean {
             return isMotoE5Play
         }
 

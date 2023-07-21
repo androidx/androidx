@@ -43,6 +43,7 @@ import androidx.wear.watchface.complications.ComplicationDataSourceInfo
 import androidx.wear.watchface.complications.ComplicationSlotBounds
 import androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy
 import androidx.wear.watchface.complications.SystemDataSources
+import androidx.wear.watchface.complications.data.ComplicationExperimental
 import androidx.wear.watchface.complications.data.ComplicationType
 import androidx.wear.watchface.complications.data.LongTextComplicationData
 import androidx.wear.watchface.complications.rendering.CanvasComplicationDrawable
@@ -56,6 +57,7 @@ import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.CompletableDeferred
 import org.junit.After
 import org.junit.Assert
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mockito
@@ -80,6 +82,7 @@ public class EditorSessionGuavaTest {
             placeholderWatchState,
             mockInvalidateCallback
         )
+    @OptIn(ComplicationExperimental::class)
     private val leftComplication =
         @Suppress("DEPRECATION")
         ComplicationSlot.createRoundRectComplicationSlotBuilder(
@@ -107,6 +110,7 @@ public class EditorSessionGuavaTest {
             placeholderWatchState,
             mockInvalidateCallback
         )
+    @OptIn(ComplicationExperimental::class)
     private val rightComplication =
         @Suppress("DEPRECATION")
         ComplicationSlot.createRoundRectComplicationSlotBuilder(
@@ -188,6 +192,7 @@ public class EditorSessionGuavaTest {
     }
 
     @Test
+    @Ignore("b/281083901")
     public fun listenableOpenComplicationDataSourceChooser() {
         ComplicationDataSourceChooserContract.useTestComplicationHelperActivity = true
         val chosenComplicationDataSourceInfo =

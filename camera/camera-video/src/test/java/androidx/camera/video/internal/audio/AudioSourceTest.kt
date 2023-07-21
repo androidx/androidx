@@ -299,6 +299,36 @@ class AudioSourceTest {
     }
 
     @Test
+    fun start_canStartMuted() {
+        // Arrange.
+        val bufferProvider = createBufferProvider()
+        val audioSourceCallback = createAudioSourceCallback()
+        val audioSource = createAudioSource(
+            bufferProvider = bufferProvider,
+            audioSourceCallback = audioSourceCallback,
+        )
+
+        // Act.
+        audioSource.start(true)
+
+        // Assert.
+        audioSourceCallback.verifyOnSilenceStateChanged(CallTimes(1), COMMON_TIMEOUT_MS) {
+            assertThat(it.single()).isTrue()
+        }
+        // Assert: Ensure the content is silence.
+        val verifyCount = 3
+        bufferProvider.verifySubmittedBufferCall(
+            CallTimesAtLeast(verifyCount),
+            COMMON_TIMEOUT_MS
+        ) { submittedBuffers ->
+            // Assert: Ensure buffers are written correctly.
+            for (i in 0 until verifyCount) {
+                verifyBufferIsSilence(submittedBuffers[i].byteBuffer)
+            }
+        }
+    }
+
+    @Test
     fun canSwitchBetweenMuteAndUnMute() {
         // Arrange.
         val bufferProvider = createBufferProvider()

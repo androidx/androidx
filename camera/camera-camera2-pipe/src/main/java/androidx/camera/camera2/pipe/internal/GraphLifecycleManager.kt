@@ -87,10 +87,14 @@ internal class GraphLifecycleManager @Inject constructor(val threads: Threads) {
             cameraBackend.cameraStatus.collect { cameraStatus ->
                 when (cameraStatus) {
                     is CameraStatus.CameraPrioritiesChanged ->
-                        tryRestartCameraController(cameraBackend)
+                        tryRestartCameraController(cameraBackend, cameraStatus)
 
                     is CameraStatus.CameraAvailable ->
-                        tryRestartCameraController(cameraBackend, cameraStatus.cameraId)
+                        tryRestartCameraController(
+                            cameraBackend,
+                            cameraStatus,
+                            cameraStatus.cameraId
+                        )
                 }
             }
         }
@@ -111,6 +115,7 @@ internal class GraphLifecycleManager @Inject constructor(val threads: Threads) {
 
     private fun tryRestartCameraController(
         cameraBackend: CameraBackend,
+        cameraStatus: CameraStatus,
         cameraId: CameraId? = null,
     ) = synchronized(lock) {
         // Restart the last CameraController being tracked in each backend. The last
@@ -122,6 +127,6 @@ internal class GraphLifecycleManager @Inject constructor(val threads: Threads) {
             } else {
                 true
             }
-        }?.tryRestart()
+        }?.tryRestart(cameraStatus)
     }
 }

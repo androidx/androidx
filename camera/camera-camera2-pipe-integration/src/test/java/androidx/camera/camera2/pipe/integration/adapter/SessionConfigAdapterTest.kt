@@ -136,6 +136,12 @@ class SessionConfigAdapterTest {
     }
 
     @Test
+    fun populateSurfaceToStreamUseHintMappingEmptyUseCase() {
+        val mapping = sessionConfigAdapter.getSurfaceToStreamUseHintMapping(listOf())
+        TestCase.assertTrue(mapping.isEmpty())
+    }
+
+    @Test
     fun populateSurfaceToStreamUseCaseMappingNoAppropriateContainerClass() {
         Mockito.`when`(mockSurface.containerClass).thenReturn(FakeUseCase::class.java)
         Mockito.`when`(mockSessionConfig.surfaces).thenReturn(listOf(mockSurface))

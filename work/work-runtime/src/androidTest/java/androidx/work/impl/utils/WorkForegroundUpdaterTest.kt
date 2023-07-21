@@ -32,15 +32,15 @@ import androidx.work.impl.model.WorkSpecDao
 import androidx.work.impl.utils.taskexecutor.InstantWorkTaskExecutor
 import androidx.work.impl.utils.taskexecutor.TaskExecutor
 import androidx.work.worker.TestWorker
+import java.util.UUID
 import org.junit.Assert.assertNotNull
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.ArgumentMatchers
-import org.mockito.Mockito.`when`
 import org.mockito.Mockito.anyString
 import org.mockito.Mockito.mock
-import java.util.UUID
+import org.mockito.Mockito.`when`
 
 @RunWith(AndroidJUnit4::class)
 

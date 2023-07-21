@@ -19,7 +19,6 @@
 package androidx.datastore.preferences.core
 
 import androidx.annotation.RestrictTo
-
 import java.util.Collections
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlinx.coroutines.CoroutineDispatcher

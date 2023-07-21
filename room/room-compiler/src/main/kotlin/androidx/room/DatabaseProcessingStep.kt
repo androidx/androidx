@@ -23,6 +23,7 @@ import androidx.room.compiler.processing.XProcessingStep
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.log.RLog
 import androidx.room.processor.Context
+import androidx.room.processor.Context.BooleanProcessorOptions.GENERATE_KOTLIN
 import androidx.room.processor.DatabaseProcessor
 import androidx.room.processor.ProcessorErrors
 import androidx.room.util.SchemaFileResolver
@@ -45,9 +46,10 @@ class DatabaseProcessingStep : XProcessingStep {
         elementsByAnnotation: Map<String, Set<XElement>>,
         isLastRound: Boolean
     ): Set<XTypeElement> {
-        check(env.config == ENV_CONFIG) {
-            "Room Processor expected $ENV_CONFIG but was invoked with a different configuration:" +
-                "${env.config}"
+        check(env.config == getEnvConfig(env.options)) {
+            "Room Processor expected ${getEnvConfig(env.options)} " +
+                "but was invoked with a different " +
+                "configuration: ${env.config}"
         }
         val context = Context(env)
 
@@ -105,6 +107,7 @@ class DatabaseProcessingStep : XProcessingStep {
                 val filename = "${db.version}.json"
                 val exportToResources =
                     Context.BooleanProcessorOptions.EXPORT_SCHEMA_RESOURCE.getValue(env)
+                val schemaInFolderPath = context.schemaInFolderPath
                 val schemaOutFolderPath = context.schemaOutFolderPath
                 if (exportToResources) {
                     context.logger.w(ProcessorErrors.EXPORTING_SCHEMA_TO_RESOURCES)
@@ -113,19 +116,24 @@ class DatabaseProcessingStep : XProcessingStep {
                         originatingElements = listOf(db.element)
                     )
                     db.exportSchema(schemaFileOutputStream)
-                } else if (schemaOutFolderPath != null) {
+                } else if (schemaInFolderPath != null && schemaOutFolderPath != null) {
+                    val schemaInFolder = SchemaFileResolver.RESOLVER.getFile(
+                        Path.of(schemaInFolderPath)
+                    )
                     val schemaOutFolder = SchemaFileResolver.RESOLVER.getFile(
                         Path.of(schemaOutFolderPath)
                     )
                     if (!schemaOutFolder.exists()) {
                         schemaOutFolder.mkdirs()
                     }
-                    val dbSchemaFolder = File(schemaOutFolder, qName)
-                    if (!dbSchemaFolder.exists()) {
-                        dbSchemaFolder.mkdirs()
+                    val dbSchemaInFolder = File(schemaInFolder, qName)
+                    val dbSchemaOutFolder = File(schemaOutFolder, qName)
+                    if (!dbSchemaOutFolder.exists()) {
+                        dbSchemaOutFolder.mkdirs()
                     }
                     db.exportSchema(
-                        File(dbSchemaFolder, "${db.version}.json")
+                        inputFile = File(dbSchemaInFolder, "${db.version}.json"),
+                        outputFile = File(dbSchemaOutFolder, "${db.version}.json")
                     )
                 } else {
                     context.logger.w(
@@ -175,8 +183,9 @@ class DatabaseProcessingStep : XProcessingStep {
     }
 
     companion object {
-        internal val ENV_CONFIG = XProcessingEnvConfig.DEFAULT.copy(
-            excludeMethodsWithInvalidJvmSourceNames = true
-        )
+        internal fun getEnvConfig(options: Map<String, String>) =
+            XProcessingEnvConfig.DEFAULT.copy(
+                excludeMethodsWithInvalidJvmSourceNames = !GENERATE_KOTLIN.getValue(options)
+            )
     }
 }

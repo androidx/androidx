@@ -39,7 +39,7 @@ import com.google.common.util.concurrent.ListenableFuture;
  * common resolver implementations.
  */
 public class ResourceResolvers {
-    private final ResourceProto.Resources mProtoResources;
+    @NonNull private final ResourceProto.Resources mProtoResources;
 
     @Nullable
     private final AndroidImageResourceByResIdResolver mAndroidImageResourceByResIdResolver;
@@ -206,16 +206,18 @@ public class ResourceResolvers {
                 mProtoResources.getIdToImageMap().get(protoResourceId);
 
         if (imageResource == null) {
-            return Futures.immediateFailedFuture(new IllegalArgumentException(
-                                "Resource " + protoResourceId + " is not defined in resources bundle"));
+            return Futures.immediateFailedFuture(
+                    new IllegalArgumentException(
+                            "Resource " + protoResourceId + " is not defined in resources bundle"));
         }
 
         @Nullable
         ListenableFuture<Drawable> drawableFutureOrNull =
                 getDrawableForImageResource(imageResource);
         if (drawableFutureOrNull == null) {
-            return Futures.immediateFailedFuture(new ResourceAccessException(
-                                "Can't find resolver for image resource " + protoResourceId));
+            return Futures.immediateFailedFuture(
+                    new ResourceAccessException(
+                            "Can't find resolver for image resource " + protoResourceId));
         }
         return drawableFutureOrNull;
     }

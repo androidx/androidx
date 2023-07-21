@@ -416,7 +416,7 @@ public final class CaptureConfig {
                     OptionsBundle.from(mImplementationOptions),
                     mTemplateType,
                     mExpectedFrameRateRange,
-                    mCameraCaptureCallbacks,
+                    new ArrayList<>(mCameraCaptureCallbacks),
                     mUseRepeatingSurface,
                     TagBundle.from(mMutableTagBundle),
                     mCameraCaptureResult);

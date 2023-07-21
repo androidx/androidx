@@ -21,6 +21,7 @@ import android.view.ViewTreeObserver
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.waitForUpOrCancellation
@@ -30,6 +31,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.internal.ExposedDropdownMenuPopup
@@ -39,6 +41,7 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
@@ -93,8 +96,8 @@ fun ExposedDropdownMenuBox(
 ) {
     val density = LocalDensity.current
     val view = LocalView.current
-    var width by remember { mutableStateOf(0) }
-    var menuHeight by remember { mutableStateOf(0) }
+    var width by remember { mutableIntStateOf(0) }
+    var menuHeight by remember { mutableIntStateOf(0) }
     val verticalMarginInPx = with(density) { MenuVerticalMargin.roundToPx() }
     val coordinates = remember { Ref<LayoutCoordinates>() }
 
@@ -223,6 +226,7 @@ interface ExposedDropdownMenuBoxScope {
      * @param onDismissRequest Called when the user requests to dismiss the menu, such as by
      * tapping outside the menu's bounds
      * @param modifier The modifier to apply to this layout
+     * @param scrollState a [ScrollState] to used by the menu's content for items vertical scrolling
      * @param content The content of the [ExposedDropdownMenu]
      */
     @Composable
@@ -230,6 +234,7 @@ interface ExposedDropdownMenuBoxScope {
         expanded: Boolean,
         onDismissRequest: () -> Unit,
         modifier: Modifier = Modifier,
+        scrollState: ScrollState = rememberScrollState(),
         content: @Composable ColumnScope.() -> Unit
     ) {
         // TODO(b/202810604): use DropdownMenu when PopupProperties constructor is stable
@@ -261,6 +266,7 @@ interface ExposedDropdownMenuBoxScope {
                 DropdownMenuContent(
                     expandedStates = expandedStates,
                     transformOriginState = transformOriginState,
+                    scrollState = scrollState,
                     modifier = modifier.exposedDropdownSize(),
                     content = content
                 )

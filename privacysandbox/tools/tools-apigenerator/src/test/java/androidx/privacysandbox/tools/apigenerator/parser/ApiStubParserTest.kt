@@ -27,7 +27,6 @@ import androidx.privacysandbox.tools.core.model.Types
 import androidx.privacysandbox.tools.core.model.Types.asNullable
 import androidx.privacysandbox.tools.core.model.ValueProperty
 import androidx.privacysandbox.tools.testing.CompilationTestHelper.assertCompiles
-import androidx.privacysandbox.tools.testing.allTestLibraryStubs
 import androidx.room.compiler.processing.util.Source
 import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
@@ -226,7 +225,7 @@ class ApiStubParserTest {
                     class NonAnnotatedClass
                 """
             ), Source.java(
-                "com/mysdk/NonAnnotatedJavaClass.java", """
+                "com/mysdk/NonAnnotatedJavaClass", """
                     package com.mysdk;
                     class NonAnnotatedJavaClass {}
                 """
@@ -266,7 +265,7 @@ class ApiStubParserTest {
     @Test
     fun nonKotlinAnnotatedInterface_throws() {
         val source = Source.java(
-            "com/mysdk/MySdk.java", """
+            "com/mysdk/MySdk", """
                     package com.mysdk;
                     import androidx.privacysandbox.tools.PrivacySandboxService;
                     @PrivacySandboxService
@@ -404,7 +403,7 @@ class ApiStubParserTest {
     }
 
     private fun compileAndParseApi(vararg sources: Source): ParsedApi {
-        val classpath = mergedClasspath(assertCompiles(sources.toList() + allTestLibraryStubs))
+        val classpath = mergedClasspath(assertCompiles(sources.toList()))
         return ApiStubParser.parse(classpath)
     }
 }

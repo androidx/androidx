@@ -10,11 +10,37 @@ package androidx.privacysandbox.ui.client {
 
 package androidx.privacysandbox.ui.client.view {
 
+  public abstract sealed class SandboxedSdkUiSessionState {
+  }
+
+  public static final class SandboxedSdkUiSessionState.Active extends androidx.privacysandbox.ui.client.view.SandboxedSdkUiSessionState {
+    field public static final androidx.privacysandbox.ui.client.view.SandboxedSdkUiSessionState.Active INSTANCE;
+  }
+
+  public static final class SandboxedSdkUiSessionState.Error extends androidx.privacysandbox.ui.client.view.SandboxedSdkUiSessionState {
+    ctor public SandboxedSdkUiSessionState.Error(Throwable throwable);
+    method public Throwable getThrowable();
+    property public final Throwable throwable;
+  }
+
+  public static final class SandboxedSdkUiSessionState.Idle extends androidx.privacysandbox.ui.client.view.SandboxedSdkUiSessionState {
+    field public static final androidx.privacysandbox.ui.client.view.SandboxedSdkUiSessionState.Idle INSTANCE;
+  }
+
+  public static final class SandboxedSdkUiSessionState.Loading extends androidx.privacysandbox.ui.client.view.SandboxedSdkUiSessionState {
+    field public static final androidx.privacysandbox.ui.client.view.SandboxedSdkUiSessionState.Loading INSTANCE;
+  }
+
+  public fun interface SandboxedSdkUiSessionStateChangedListener {
+    method public void onStateChanged(androidx.privacysandbox.ui.client.view.SandboxedSdkUiSessionState state);
+  }
+
   @RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU) public final class SandboxedSdkView extends android.view.ViewGroup {
     ctor public SandboxedSdkView(android.content.Context context, optional android.util.AttributeSet? attrs);
     ctor public SandboxedSdkView(android.content.Context context);
+    method public void addStateChangedListener(androidx.privacysandbox.ui.client.view.SandboxedSdkUiSessionStateChangedListener stateChangedListener);
+    method public void removeStateChangedListener(androidx.privacysandbox.ui.client.view.SandboxedSdkUiSessionStateChangedListener stateChangedListener);
     method public void setAdapter(androidx.privacysandbox.ui.core.SandboxedUiAdapter sandboxedUiAdapter);
-    method public void setSdkErrorConsumer(java.util.function.Consumer<java.lang.Throwable>? errorConsumer);
     method public void setZOrderOnTopAndEnableUserInteraction(boolean setOnTop);
   }
 

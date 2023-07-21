@@ -16,13 +16,13 @@
 
 package androidx.glance.appwidget.demos
 
-import androidx.compose.material.Text as ComposeText
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.material.Text as ComposeText
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -84,14 +84,15 @@ class ScrollableAppWidget : GlanceAppWidget() {
             modifier = GlanceModifier.fillMaxSize()
                 .background(R.color.default_widget_background)
         ) {
+            val localSize = LocalSize.current
             Text(
-                text = "Fix header",
+                text = "Fix header, LocalSize: ${localSize.width}x${localSize.height}",
                 modifier = GlanceModifier
                     .fillMaxWidth()
                     .padding(16.dp)
                     .background(Color(0x0a000000))
             )
-            val width = LocalSize.current.width
+            val width = localSize.width
             when {
                 width <= singleColumn.width -> ScrollColumn(GlanceModifier.fillMaxSize())
                 width <= doubleColumn.width -> Row {
@@ -107,7 +108,20 @@ class ScrollableAppWidget : GlanceAppWidget() {
 
 @Composable
 private fun ScrollColumn(modifier: GlanceModifier) {
+    val localSize = LocalSize.current
     LazyColumn(modifier) {
+        item {
+            SectionHeading(
+                title = "LocalSize",
+                description = "inside lazyColumn"
+            )
+        }
+        item {
+            Text(
+                text = "${localSize.width}x${localSize.height}",
+                modifier = GlanceModifier.padding(10.dp)
+            )
+        }
         item {
             SectionHeading(
                 title = "Activities",

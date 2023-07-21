@@ -871,6 +871,9 @@ public class GridCore extends VirtualLayout {
             int extraRows = 0;
             int extraColumns = 0;
             String[] spans = str.split(",");
+            // Sort the spans by the position
+            Arrays.sort(spans, (span1, span2) -> Integer.parseInt(span1.split(":")[0])
+                    - Integer.parseInt(span2.split(":")[0]));
             int[][] spanMatrix = new int[spans.length][3];
             String[] indexAndSpan;
             if (mRows == 1 || mColumns == 1) {

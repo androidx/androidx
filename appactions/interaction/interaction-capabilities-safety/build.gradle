@@ -35,7 +35,7 @@ android {
     namespace "androidx.appactions.interaction.capabilities.safety"
     defaultConfig {
         // TODO(b/266649259): lower minSdk version once Optional is removed.
-        minSdkVersion 33
+        minSdkVersion 26
     }
 }
 

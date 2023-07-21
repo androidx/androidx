@@ -22,6 +22,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
+import androidx.camera.core.CameraInfo;
 import androidx.camera.core.SurfaceRequest;
 import androidx.camera.core.impl.ConstantObservable;
 import androidx.camera.core.impl.Observable;
@@ -46,7 +47,6 @@ public interface VideoOutput {
     /**
      * A state which represents whether the video frame producer is producing frames to the
      * provided {@link Surface}.
-     *
      */
     @RestrictTo(Scope.LIBRARY)
     enum SourceState {
@@ -103,7 +103,6 @@ public interface VideoOutput {
     /**
      * Returns an observable {@link StreamInfo} which contains the information of the
      * {@link VideoOutput}.
-     *
      */
     @NonNull
     @RestrictTo(Scope.LIBRARY)
@@ -134,10 +133,20 @@ public interface VideoOutput {
 
     /**
      * Called when the state of the video frame producer is changed.
-     *
      */
     @RestrictTo(Scope.LIBRARY)
     default void onSourceStateChanged(@NonNull SourceState sourceState) {
 
+    }
+
+    // TODO(b/278170231): wraps getMediaSpec and getMediaCapabilities for increased scalability and
+    //  easier retrieval of initial specs and capabilities.
+    /**
+     * Returns the {@link VideoCapabilities} information of the {@link VideoOutput}.
+     */
+    @RestrictTo(Scope.LIBRARY)
+    @NonNull
+    default VideoCapabilities getMediaCapabilities(@NonNull CameraInfo cameraInfo) {
+        return VideoCapabilities.EMPTY;
     }
 }

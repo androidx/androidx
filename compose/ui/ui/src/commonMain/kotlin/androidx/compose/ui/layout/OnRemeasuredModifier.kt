@@ -19,11 +19,11 @@ package androidx.compose.ui.layout
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.internal.JvmDefaultWithCompatibility
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.InspectorValueInfo
 import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.internal.JvmDefaultWithCompatibility
 
 /**
  * Invoked with the size of the modified Compose UI element when the element is first measured or

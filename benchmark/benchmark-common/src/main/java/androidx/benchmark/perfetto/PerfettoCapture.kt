@@ -53,31 +53,24 @@ public class PerfettoCapture(
 
     private val helper: PerfettoHelper = PerfettoHelper(unbundled)
 
-    public fun isRunning() = helper.isRunning()
+    fun isRunning() = helper.isRunning()
 
     /**
      * Start collecting perfetto trace.
-     *
-     * TODO: provide configuration options
      */
-    public fun start(packages: List<String>) = userspaceTrace("start perfetto") {
-        // Write binary proto to dir that shell can read
-        // TODO: cache on disk
+    fun start(config: PerfettoConfig) = userspaceTrace("start perfetto") {
+        // Write config proto to dir that shell can read
+        //     We use `.pb` even with textproto so we'll only ever have one file
         val configProtoFile = File(Outputs.dirUsableByAppAndShell, "trace_config.pb")
         try {
             userspaceTrace("write config") {
-                val atraceApps = if (Build.VERSION.SDK_INT <= 28 || packages.isEmpty()) {
-                    packages
-                } else {
-                    listOf("*")
-                }
-                configProtoFile.writeBytes(perfettoConfig(atraceApps).validateAndEncode())
+                config.writeTo(configProtoFile)
                 if (Outputs.forceFilesForShellAccessible) {
                     configProtoFile.setReadable(true, /* ownerOnly = */ false)
                 }
             }
             userspaceTrace("start perfetto process") {
-                helper.startCollecting(configProtoFile.absolutePath, false)
+                helper.startCollecting(configProtoFile.absolutePath, config.isTextProto)
             }
         } finally {
             configProtoFile.delete()

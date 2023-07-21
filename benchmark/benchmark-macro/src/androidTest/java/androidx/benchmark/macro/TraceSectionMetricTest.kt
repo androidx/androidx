@@ -19,7 +19,6 @@ package androidx.benchmark.macro
 import androidx.benchmark.perfetto.PerfettoHelper
 import androidx.benchmark.perfetto.PerfettoTraceProcessor
 import androidx.test.filters.MediumTest
-import kotlin.test.assertEquals
 import org.junit.Assume.assumeTrue
 import org.junit.Test
 
@@ -103,18 +102,20 @@ class TraceSectionMetricTest {
             assumeTrue(PerfettoHelper.isAbiSupported())
 
             val metric = TraceSectionMetric(sectionName, mode)
-            val expectedKey = sectionName + "Ms"
             metric.configure(packageName = packageName)
 
-            val iterationResult = PerfettoTraceProcessor.runSingleSessionServer(tracePath) {
-                metric.getMetrics(
+            val result = PerfettoTraceProcessor.runSingleSessionServer(tracePath) {
+                metric.getResult(
                     captureInfo = captureInfo,
-                    session = this
+                    traceSession = this
                 )
             }
 
-            assertEquals(setOf(expectedKey), iterationResult.singleMetrics.keys)
-            assertEquals(expectedMs, iterationResult.singleMetrics[expectedKey]!!, 0.001)
+            assertEqualMeasurements(
+                expected = listOf(Metric.Measurement(sectionName + "Ms", expectedMs)),
+                observed = result,
+                threshold = 0.001
+            )
         }
 
         private fun verifyFirstSum(

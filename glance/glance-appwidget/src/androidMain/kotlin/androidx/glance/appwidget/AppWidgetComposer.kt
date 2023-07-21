@@ -105,7 +105,7 @@ internal suspend fun compose(
  *
  * This runs the composition one time and translates it to [RemoteViews].
  */
-internal suspend fun GlanceAppWidget.compose(
+suspend fun GlanceAppWidget.compose(
     @Suppress("ContextFirst") context: Context,
     id: GlanceId,
     options: Bundle? = null,

@@ -104,11 +104,12 @@ public class SystemJobServiceTest extends WorkManagerTest {
         });
 
         Context context = ApplicationProvider.getApplicationContext();
-        mDatabase = WorkDatabase.create(context, Executors.newCachedThreadPool(), true);
-        InstantWorkTaskExecutor taskExecutor = new InstantWorkTaskExecutor();
         Configuration configuration = new Configuration.Builder()
                 .setExecutor(Executors.newSingleThreadExecutor())
                 .build();
+        mDatabase = WorkDatabase.create(
+                context, Executors.newCachedThreadPool(), configuration.getClock(), true);
+        InstantWorkTaskExecutor taskExecutor = new InstantWorkTaskExecutor();
         mScheduler = mock(Scheduler.class);
         mProcessor = new Processor(
                 context,

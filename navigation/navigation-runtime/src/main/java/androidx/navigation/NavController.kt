@@ -42,6 +42,8 @@ import androidx.lifecycle.ViewModelStoreOwner
 import androidx.navigation.NavDestination.Companion.createRoute
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
+import java.util.concurrent.CopyOnWriteArrayList
+import java.util.concurrent.atomic.AtomicInteger
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -49,8 +51,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
-import java.util.concurrent.CopyOnWriteArrayList
-import java.util.concurrent.atomic.AtomicInteger
 
 /**
  * NavController manages app navigation within a [NavHost].
@@ -1185,17 +1185,30 @@ public open class NavController(
             _graph = graph
             onGraphCreated(startDestinationArgs)
         } else {
+            // first we update _graph with new instances from graph
             for (i in 0 until graph.nodes.size()) {
                 val newDestination = graph.nodes.valueAt(i)
-                _graph!!.nodes.replace(i, newDestination)
-                backQueue.filter { currentEntry ->
-                    // Necessary since CI builds against ToT, can be removed once
-                    // androidx.collection is updated to >= 1.3.*
-                    @Suppress("UNNECESSARY_SAFE_CALL", "SAFE_CALL_WILL_CHANGE_NULLABILITY")
-                    currentEntry.destination.id == newDestination?.id
-                }.forEach { entry ->
-                    entry.destination = newDestination
+                val key = _graph!!.nodes.keyAt(i)
+                _graph!!.nodes.replace(key, newDestination)
+            }
+            // then we update backstack with the new instances
+            backQueue.forEach { entry ->
+                // we will trace this hierarchy in new graph to get new destination instance
+                val hierarchy = entry.destination.hierarchy.toList().asReversed()
+                val newDestination = hierarchy.fold(_graph!!) {
+                        newDest: NavDestination, oldDest: NavDestination ->
+                    if (oldDest == _graph && newDest == graph) {
+                        // if root graph, it is already the node that matches with oldDest
+                        newDest
+                    } else if (newDest is NavGraph) {
+                        // otherwise we walk down the hierarchy to the next child
+                        newDest.findNode(oldDest.id)!!
+                    } else {
+                        // final leaf node found
+                        newDest
+                    }
                 }
+                entry.destination = newDestination
             }
         }
     }
@@ -1592,7 +1605,7 @@ public open class NavController(
      * @param navOptions special options for this navigation operation
      * @param navigatorExtras extras to pass to the Navigator
      *
-     * @throws IllegalStateException if there is no current navigation node
+     * @throws IllegalStateException if navigation graph has not been set for this NavController
      * @throws IllegalArgumentException if the desired destination cannot be found from the
      *                                  current destination
      */
@@ -1609,7 +1622,10 @@ public open class NavController(
                 _graph
             else
                 backQueue.last().destination
-            ) ?: throw IllegalStateException("no current navigation node")
+            ) ?: throw IllegalStateException(
+                "No current destination found. Ensure a navigation graph has been set for " +
+                    "NavController $this."
+            )
 
         @IdRes
         var destId = resId
@@ -1759,6 +1775,10 @@ public open class NavController(
         navOptions: NavOptions?,
         navigatorExtras: Navigator.Extras?
     ) {
+        requireNotNull(_graph) {
+            "Cannot navigate to $request. Navigation graph has not been set for " +
+                "NavController $this."
+        }
         val deepLinkMatch = _graph!!.matchDeepLink(request)
         if (deepLinkMatch != null) {
             val destination = deepLinkMatch.destination
@@ -2045,10 +2065,11 @@ public open class NavController(
         while (destination != null && findDestination(destination.id) !== destination) {
             val parent = destination.parent
             if (parent != null) {
+                val args = if (finalArgs?.isEmpty == true) null else finalArgs
                 val entry = restoredEntries.lastOrNull { restoredEntry ->
                     restoredEntry.destination == parent
                 } ?: NavBackStackEntry.create(
-                    context, parent, parent.addInDefaultArgs(finalArgs), hostLifecycleState,
+                    context, parent, parent.addInDefaultArgs(args), hostLifecycleState,
                     viewModel
                 )
                 hierarchy.addFirst(entry)

@@ -18,7 +18,8 @@ package androidx.tv.material3
 
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.focusable
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.focusGroup
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -34,21 +35,16 @@ import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusDirection
-import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusProperties
+import androidx.compose.ui.focus.FocusState
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.LayoutDirection.Ltr
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 
@@ -70,7 +66,6 @@ import androidx.compose.ui.zIndex
  * Drawer-entries can be animated when the drawer moves from Closed to Open state and vice-versa.
  * For, e.g., the entry could show only an icon in the Closed state and slide in text to form
  * (icon + text) when in the Open state.
- * @sample androidx.tv.samples.NavigationRow
  *
  * To limit the width of the drawer in the open or closed state, wrap the content in a box with the
  * required width.
@@ -89,25 +84,18 @@ fun ModalNavigationDrawer(
     scrimColor: Color = LocalColorScheme.current.scrim.copy(alpha = 0.5f),
     content: @Composable () -> Unit
 ) {
-    val layoutDirection = LocalLayoutDirection.current
-    val exitDirection =
-        if (layoutDirection == Ltr) FocusDirection.Right else FocusDirection.Left
-    val drawerFocusRequester = remember { FocusRequester() }
+    val localDensity = LocalDensity.current
     val closedDrawerWidth: MutableState<Dp?> = remember { mutableStateOf(null) }
     val internalDrawerModifier =
         Modifier
-            .modalDrawerNavigation(
-                drawerFocusRequester = drawerFocusRequester,
-                exitDirection = exitDirection,
-                drawerState = drawerState,
-                focusManager = LocalFocusManager.current
-            )
             .zIndex(Float.MAX_VALUE)
             .onSizeChanged {
                 if (closedDrawerWidth.value == null &&
                     drawerState.currentValue == DrawerValue.Closed
                 ) {
-                    closedDrawerWidth.value = it.width.dp
+                    with(localDensity) {
+                        closedDrawerWidth.value = it.width.toDp()
+                    }
                 }
             }
 
@@ -117,7 +105,9 @@ fun ModalNavigationDrawer(
             drawerState = drawerState,
             sizeAnimationFinishedListener = { _, targetSize ->
                 if (drawerState.currentValue == DrawerValue.Closed) {
-                    closedDrawerWidth.value = targetSize.width.dp
+                    with(localDensity) {
+                        closedDrawerWidth.value = targetSize.width.toDp()
+                    }
                 }
             },
             content = drawerContent
@@ -153,7 +143,6 @@ fun ModalNavigationDrawer(
  * Drawer-entries can be animated when the drawer moves from Closed to Open state and vice-versa.
  * For, e.g., the entry could show only an icon in the Closed state and slide in text to form
  * (icon + text) when in the Open state.
- * @sample androidx.tv.samples.NavigationRow
  *
  * To limit the width of the drawer in the open or closed state, wrap the content in a box with the
  * required width.
@@ -241,31 +230,7 @@ fun rememberDrawerState(initialValue: DrawerValue): DrawerState {
 }
 
 @Suppress("IllegalExperimentalApiUsage") // TODO (b/233188423): Address before moving to beta
-@OptIn(ExperimentalComposeUiApi::class, ExperimentalTvMaterial3Api::class)
-private fun Modifier.modalDrawerNavigation(
-    drawerFocusRequester: FocusRequester,
-    exitDirection: FocusDirection,
-    drawerState: DrawerState,
-    focusManager: FocusManager
-): Modifier {
-    return this
-        .focusRequester(drawerFocusRequester)
-        .focusProperties {
-            exit = {
-                if (it == exitDirection || it == FocusDirection.Exit) {
-                    drawerFocusRequester.requestFocus()
-                    drawerState.setValue(DrawerValue.Closed)
-                    focusManager.moveFocus(it)
-                    FocusRequester.Cancel
-                } else {
-                    FocusRequester.Default
-                }
-            }
-        }
-}
-
-@Suppress("IllegalExperimentalApiUsage") // TODO (b/233188423): Address before moving to beta
-@OptIn(ExperimentalComposeUiApi::class, ExperimentalTvMaterial3Api::class)
+@OptIn(ExperimentalTvMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 private fun DrawerSheet(
     modifier: Modifier = Modifier,
@@ -275,18 +240,17 @@ private fun DrawerSheet(
 ) {
     // indicates that the drawer has been set to its initial state and has grabbed focus if
     // necessary. Controls whether focus is used to decide the state of the drawer going forward.
-    var initializationComplete: Boolean = remember { false }
-
+    var initializationComplete: Boolean by remember { mutableStateOf(false) }
+    var focusState by remember { mutableStateOf<FocusState?>(null) }
     val focusRequester = remember { FocusRequester() }
     LaunchedEffect(key1 = drawerState.currentValue) {
-        if (drawerState.currentValue == DrawerValue.Open) {
+        if (drawerState.currentValue == DrawerValue.Open && focusState?.hasFocus == false) {
             // used to grab focus if the drawer state is set to Open on start.
             focusRequester.requestFocus()
         }
         initializationComplete = true
     }
 
-    val focusManager = LocalFocusManager.current
     val internalModifier =
         Modifier
             .focusRequester(focusRequester)
@@ -296,19 +260,13 @@ private fun DrawerSheet(
             // size based modifiers.
             .then(modifier)
             .onFocusChanged {
-                when {
-                    it.isFocused && drawerState.currentValue == DrawerValue.Closed -> {
-                        drawerState.setValue(DrawerValue.Open)
-                        focusManager.moveFocus(FocusDirection.Enter)
-                    }
+                focusState = it
 
-                    !it.hasFocus && drawerState.currentValue == DrawerValue.Open &&
-                        initializationComplete -> {
-                        drawerState.setValue(DrawerValue.Closed)
-                    }
+                if (initializationComplete) {
+                    drawerState.setValue(if (it.hasFocus) DrawerValue.Open else DrawerValue.Closed)
                 }
             }
-            .focusable()
+            .focusGroup()
 
     Box(modifier = internalModifier) { content.invoke(drawerState.currentValue) }
 }

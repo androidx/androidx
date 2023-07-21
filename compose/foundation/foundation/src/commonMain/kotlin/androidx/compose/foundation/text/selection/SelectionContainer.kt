@@ -137,7 +137,8 @@ internal fun SelectionContainer(
 
     DisposableEffect(manager) {
         onDispose {
-            manager.hideSelectionToolbar()
+            manager.onRelease()
+            manager.hasFocus = false
         }
     }
 }

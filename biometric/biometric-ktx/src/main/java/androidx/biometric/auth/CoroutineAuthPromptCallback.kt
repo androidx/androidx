@@ -18,8 +18,8 @@ package androidx.biometric.auth
 
 import androidx.biometric.BiometricPrompt.AuthenticationResult
 import androidx.fragment.app.FragmentActivity
-import kotlinx.coroutines.CancellableContinuation
 import kotlin.coroutines.resumeWithException
+import kotlinx.coroutines.CancellableContinuation
 
 /**
  * Implementation of [AuthPromptCallback] used to transform callback results for coroutine APIs.

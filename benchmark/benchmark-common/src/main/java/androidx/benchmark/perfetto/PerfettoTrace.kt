@@ -83,15 +83,79 @@ class PerfettoTrace(
              * Block to be traced.
              */
             block: () -> Unit
+        ) = record(
+            fileLabel = fileLabel,
+            config = PerfettoConfig.Benchmark(appTagPackages),
+            userspaceTracingPackage = userspaceTracingPackage,
+            traceCallback = traceCallback,
+            block = block
+        )
+
+        /**
+         * Record a Perfetto System Trace for the specified [block], with a fully custom Perfetto
+         * config, either text or binary.
+         *
+         * ```
+         * PerfettoTrace.record("myTrace", config = """...""") {
+         *     // content in here is traced to myTrace_<timestamp>.perfetto_trace
+         * }
+         * ```
+         *
+         * Reentrant Perfetto trace capture is not supported, so this API may not be combined with
+         * `BenchmarkRule`, `MacrobenchmarkRule`, or `PerfettoTraceRule`.
+         *
+         * If the block throws, the trace is still captured and passed to [traceCallback].
+         */
+        @JvmStatic
+        @JvmOverloads
+        fun record(
+            /**
+             * Output trace file names are labelled `<fileLabel>_<timestamp>.perfetto_trace`
+             *
+             * This timestamp is used for uniqueness when trace files are pulled automatically to
+             * Studio.
+             */
+            fileLabel: String,
+            /**
+             * Trace recording configuration.
+             */
+            config: PerfettoConfig,
+            /**
+             * Process to emphasize in the tracing UI.
+             *
+             * Used to emphasize the target process, e.g. by pre-populating Studio trace viewer
+             * process selection.
+             *
+             * Defaults to the test's target process. Note that for self-instrumenting tests that
+             * measure another app, you must pass that target app package.
+             */
+            highlightPackage: String =
+                InstrumentationRegistry.getInstrumentation().targetContext.packageName,
+            /**
+             * Process to trace with userspace tracing, i.e. `androidx.tracing:tracing-perfetto`,
+             * ignored below API 30.
+             *
+             * This tracing is lower overhead than standard `android.os.Trace` tracepoints, but is
+             * currently experimental.
+             */
+            userspaceTracingPackage: String? = null,
+            /**
+             * Callback for trace capture.
+             *
+             * This callback allows you to process the trace even if the block throws, e.g. during
+             * a test failure.
+             */
+            traceCallback: ((PerfettoTrace) -> Unit)? = null,
+            /**
+             * Block to be traced.
+             */
+            block: () -> Unit
         ) {
             PerfettoCaptureWrapper().record(
                 fileLabel = fileLabel,
-                appTagPackages = appTagPackages,
-                userspaceTracingPackage = userspaceTracingPackage,
+                config,
+                userspaceTracingPackage,
                 traceCallback = { path ->
-                    // emphasize the first package in the package list, or target package otherwise
-                    val highlightPackage = appTagPackages.firstOrNull()
-                        ?: InstrumentationRegistry.getInstrumentation().targetContext.packageName
                     File(path).appendUiState(
                         UiState(
                             timelineStart = null,

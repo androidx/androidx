@@ -20,9 +20,9 @@ package androidx.compose.animation.demos.lookahead
 
 import androidx.compose.animation.core.VectorConverter
 import androidx.compose.animation.core.spring
+import androidx.compose.animation.demos.fancy.AnimatedDotsDemo
 import androidx.compose.animation.demos.statetransition.InfiniteProgress
 import androidx.compose.animation.demos.statetransition.InfinitePulsingHeart
-import androidx.compose.animation.demos.fancy.AnimatedDotsDemo
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box

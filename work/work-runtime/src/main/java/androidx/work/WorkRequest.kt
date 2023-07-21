@@ -20,8 +20,8 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
-import androidx.work.impl.utils.toMillisCompat
 import androidx.work.impl.model.WorkSpec
+import androidx.work.impl.utils.toMillisCompat
 import java.time.Duration
 import java.util.UUID
 import java.util.concurrent.TimeUnit
@@ -224,7 +224,7 @@ abstract class WorkRequest internal constructor(
          * Sets an initial delay for the [WorkRequest].
          *
          * @param duration The length of the delay
-         * @return The current [Builder]         *
+         * @return The current [Builder]
          * @throws IllegalArgumentException if the given initial delay will push the execution time
          * past `Long.MAX_VALUE` and cause an overflow
          */
@@ -306,16 +306,16 @@ abstract class WorkRequest internal constructor(
         }
 
         /**
-         * Sets the period start time for this work. Used in testing only.
+         * Sets the enqueue time for this work. Used in testing only.
          *
-         * @param periodStartTime the period start time in `timeUnit` units
+         * @param lastEnqueueTime The enqueue time in `timeUnit` units
          * @param timeUnit The [TimeUnit] for `periodStartTime`
          * @return The current [Builder]
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @VisibleForTesting
-        fun setLastEnqueueTime(periodStartTime: Long, timeUnit: TimeUnit): B {
-            workSpec.lastEnqueueTime = timeUnit.toMillis(periodStartTime)
+        fun setLastEnqueueTime(lastEnqueueTime: Long, timeUnit: TimeUnit): B {
+            workSpec.lastEnqueueTime = timeUnit.toMillis(lastEnqueueTime)
             return thisObject
         }
 

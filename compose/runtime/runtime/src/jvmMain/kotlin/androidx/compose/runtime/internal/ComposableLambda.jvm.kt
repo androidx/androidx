@@ -23,6 +23,7 @@ import androidx.compose.runtime.Composer
 import androidx.compose.runtime.InternalComposeApi
 import androidx.compose.runtime.RecomposeScope
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.updateChangedFlags
 
 /**
  * A Restart is created to hold composable lambdas to track when they are invoked allowing
@@ -124,7 +125,9 @@ internal actual class ComposableLambdaImpl actual constructor(
             c,
             dirty
         )
-        c.endRestartGroup()?.updateScope { nc, _ -> this(p1, nc, changed or 0b1) }
+        c.endRestartGroup()?.updateScope { nc, _ ->
+            this(p1, nc, updateChangedFlags(changed) or 0b1)
+        }
         return result
     }
 
@@ -138,7 +141,9 @@ internal actual class ComposableLambdaImpl actual constructor(
             c,
             dirty
         )
-        c.endRestartGroup()?.updateScope { nc, _ -> this(p1, p2, nc, changed or 0b1) }
+        c.endRestartGroup()?.updateScope { nc, _ ->
+            this(p1, p2, nc, updateChangedFlags(changed) or 0b1)
+        }
         return result
     }
 
@@ -161,7 +166,9 @@ internal actual class ComposableLambdaImpl actual constructor(
             c,
             dirty
         )
-        c.endRestartGroup()?.updateScope { nc, _ -> this(p1, p2, p3, nc, changed or 0b1) }
+        c.endRestartGroup()?.updateScope { nc, _ ->
+            this(p1, p2, p3, nc, updateChangedFlags(changed) or 0b1)
+        }
         return result
     }
 
@@ -194,7 +201,7 @@ internal actual class ComposableLambdaImpl actual constructor(
             dirty
         )
         c.endRestartGroup()?.updateScope { nc, _ ->
-            this(p1, p2, p3, p4, nc, changed or 0b1)
+            this(p1, p2, p3, p4, nc, updateChangedFlags(changed) or 0b1)
         }
         return result
     }
@@ -231,7 +238,7 @@ internal actual class ComposableLambdaImpl actual constructor(
             dirty
         )
         c.endRestartGroup()?.updateScope { nc, _ ->
-            this(p1, p2, p3, p4, p5, nc, changed or 0b1)
+            this(p1, p2, p3, p4, p5, nc, updateChangedFlags(changed) or 0b1)
         }
         return result
     }
@@ -271,7 +278,7 @@ internal actual class ComposableLambdaImpl actual constructor(
             dirty
         )
         c.endRestartGroup()?.updateScope { nc, _ ->
-            this(p1, p2, p3, p4, p5, p6, nc, changed or 0b1)
+            this(p1, p2, p3, p4, p5, p6, nc, updateChangedFlags(changed) or 0b1)
         }
         return result
     }
@@ -283,7 +290,7 @@ internal actual class ComposableLambdaImpl actual constructor(
         p4: Any?,
         p5: Any?,
         p6: Any?,
-        p7: Any?,
+        param7: Any?,
         c: Composer,
         changed: Int
     ): Any? {
@@ -298,7 +305,7 @@ internal actual class ComposableLambdaImpl actual constructor(
                 p4: Any?,
                 p5: Any?,
                 p6: Any?,
-                p7: Any?,
+                param7: Any?,
                 c: Composer,
                 changed: Int
             ) -> Any?
@@ -309,12 +316,12 @@ internal actual class ComposableLambdaImpl actual constructor(
             p4,
             p5,
             p6,
-            p7,
+            param7,
             c,
             dirty
         )
         c.endRestartGroup()?.updateScope { nc, _ ->
-            this(p1, p2, p3, p4, p5, p6, p7, nc, changed or 0b1)
+            this(p1, p2, p3, p4, p5, p6, param7, nc, updateChangedFlags(changed) or 0b1)
         }
         return result
     }
@@ -326,7 +333,7 @@ internal actual class ComposableLambdaImpl actual constructor(
         p4: Any?,
         p5: Any?,
         p6: Any?,
-        p7: Any?,
+        param7: Any?,
         p8: Any?,
         c: Composer,
         changed: Int
@@ -342,7 +349,7 @@ internal actual class ComposableLambdaImpl actual constructor(
                 p4: Any?,
                 p5: Any?,
                 p6: Any?,
-                p7: Any?,
+                param7: Any?,
                 p8: Any?,
                 c: Composer,
                 changed: Int
@@ -354,13 +361,13 @@ internal actual class ComposableLambdaImpl actual constructor(
             p4,
             p5,
             p6,
-            p7,
+            param7,
             p8,
             c,
             dirty
         )
         c.endRestartGroup()?.updateScope { nc, _ ->
-            this(p1, p2, p3, p4, p5, p6, p7, p8, nc, changed or 0b1)
+            this(p1, p2, p3, p4, p5, p6, param7, p8, nc, updateChangedFlags(changed) or 0b1)
         }
         return result
     }
@@ -372,7 +379,7 @@ internal actual class ComposableLambdaImpl actual constructor(
         p4: Any?,
         p5: Any?,
         p6: Any?,
-        p7: Any?,
+        param7: Any?,
         p8: Any?,
         p9: Any?,
         c: Composer,
@@ -389,7 +396,7 @@ internal actual class ComposableLambdaImpl actual constructor(
                 p4: Any?,
                 p5: Any?,
                 p6: Any?,
-                p7: Any?,
+                param7: Any?,
                 p8: Any?,
                 p9: Any?,
                 c: Composer,
@@ -402,14 +409,14 @@ internal actual class ComposableLambdaImpl actual constructor(
             p4,
             p5,
             p6,
-            p7,
+            param7,
             p8,
             p9,
             c,
             dirty
         )
         c.endRestartGroup()?.updateScope { nc, _ ->
-            this(p1, p2, p3, p4, p5, p6, p7, p8, p9, nc, changed or 0b1)
+            this(p1, p2, p3, p4, p5, p6, param7, p8, p9, nc, updateChangedFlags(changed) or 0b1)
         }
         return result
     }
@@ -421,7 +428,7 @@ internal actual class ComposableLambdaImpl actual constructor(
         p4: Any?,
         p5: Any?,
         p6: Any?,
-        p7: Any?,
+        param7: Any?,
         p8: Any?,
         p9: Any?,
         p10: Any?,
@@ -440,7 +447,7 @@ internal actual class ComposableLambdaImpl actual constructor(
                 p4: Any?,
                 p5: Any?,
                 p6: Any?,
-                p7: Any?,
+                param7: Any?,
                 p8: Any?,
                 p9: Any?,
                 p10: Any?,
@@ -455,7 +462,7 @@ internal actual class ComposableLambdaImpl actual constructor(
             p4,
             p5,
             p6,
-            p7,
+            param7,
             p8,
             p9,
             p10,
@@ -464,7 +471,7 @@ internal actual class ComposableLambdaImpl actual constructor(
             dirty
         )
         c.endRestartGroup()?.updateScope { nc, _ ->
-            this(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, nc, changed or 0b1, changed)
+            this(p1, p2, p3, p4, p5, p6, param7, p8, p9, p10, nc, changed or 0b1, changed)
         }
         return result
     }
@@ -476,7 +483,7 @@ internal actual class ComposableLambdaImpl actual constructor(
         p4: Any?,
         p5: Any?,
         p6: Any?,
-        p7: Any?,
+        param7: Any?,
         p8: Any?,
         p9: Any?,
         p10: Any?,
@@ -496,7 +503,7 @@ internal actual class ComposableLambdaImpl actual constructor(
                 p4: Any?,
                 p5: Any?,
                 p6: Any?,
-                p7: Any?,
+                param7: Any?,
                 p8: Any?,
                 p9: Any?,
                 p10: Any?,
@@ -512,7 +519,7 @@ internal actual class ComposableLambdaImpl actual constructor(
             p4,
             p5,
             p6,
-            p7,
+            param7,
             p8,
             p9,
             p10,
@@ -522,7 +529,20 @@ internal actual class ComposableLambdaImpl actual constructor(
             dirty
         )
         c.endRestartGroup()?.updateScope { nc, _ ->
-            this(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, nc, changed or 0b1, changed1)
+            this(
+                p1,
+                p2,
+                p3,
+                p4,
+                p5,
+                p6,
+                param7,
+                p8,
+                p9,
+                p10,
+                p11,
+                nc,
+                updateChangedFlags(changed) or 0b1, updateChangedFlags(changed1))
         }
         return result
     }
@@ -534,7 +554,7 @@ internal actual class ComposableLambdaImpl actual constructor(
         p4: Any?,
         p5: Any?,
         p6: Any?,
-        p7: Any?,
+        param7: Any?,
         p8: Any?,
         p9: Any?,
         p10: Any?,
@@ -555,7 +575,7 @@ internal actual class ComposableLambdaImpl actual constructor(
                 p4: Any?,
                 p5: Any?,
                 p6: Any?,
-                p7: Any?,
+                param7: Any?,
                 p8: Any?,
                 p9: Any?,
                 p10: Any?,
@@ -572,7 +592,7 @@ internal actual class ComposableLambdaImpl actual constructor(
             p4,
             p5,
             p6,
-            p7,
+            param7,
             p8,
             p9,
             p10,
@@ -583,7 +603,23 @@ internal actual class ComposableLambdaImpl actual constructor(
             dirty
         )
         c.endRestartGroup()?.updateScope { nc, _ ->
-            this(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, nc, changed or 0b1, changed1)
+            this(
+                p1,
+                p2,
+                p3,
+                p4,
+                p5,
+                p6,
+                param7,
+                p8,
+                p9,
+                p10,
+                p11,
+                p12,
+                nc,
+                updateChangedFlags(changed) or 0b1,
+                updateChangedFlags(changed1)
+            )
         }
         return result
     }
@@ -595,7 +631,7 @@ internal actual class ComposableLambdaImpl actual constructor(
         p4: Any?,
         p5: Any?,
         p6: Any?,
-        p7: Any?,
+        param7: Any?,
         p8: Any?,
         p9: Any?,
         p10: Any?,
@@ -617,7 +653,7 @@ internal actual class ComposableLambdaImpl actual constructor(
                 p4: Any?,
                 p5: Any?,
                 p6: Any?,
-                p7: Any?,
+                param7: Any?,
                 p8: Any?,
                 p9: Any?,
                 p10: Any?,
@@ -635,7 +671,7 @@ internal actual class ComposableLambdaImpl actual constructor(
             p4,
             p5,
             p6,
-            p7,
+            param7,
             p8,
             p9,
             p10,
@@ -654,7 +690,7 @@ internal actual class ComposableLambdaImpl actual constructor(
                 p4,
                 p5,
                 p6,
-                p7,
+                param7,
                 p8,
                 p9,
                 p10,
@@ -662,8 +698,8 @@ internal actual class ComposableLambdaImpl actual constructor(
                 p12,
                 p13,
                 nc,
-                changed or 0b1,
-                changed1
+                updateChangedFlags(changed) or 0b1,
+                updateChangedFlags(changed1)
             )
         }
         return result
@@ -676,7 +712,7 @@ internal actual class ComposableLambdaImpl actual constructor(
         p4: Any?,
         p5: Any?,
         p6: Any?,
-        p7: Any?,
+        param7: Any?,
         p8: Any?,
         p9: Any?,
         p10: Any?,
@@ -699,7 +735,7 @@ internal actual class ComposableLambdaImpl actual constructor(
                 p4: Any?,
                 p5: Any?,
                 p6: Any?,
-                p7: Any?,
+                param7: Any?,
                 p8: Any?,
                 p9: Any?,
                 p10: Any?,
@@ -718,7 +754,7 @@ internal actual class ComposableLambdaImpl actual constructor(
             p4,
             p5,
             p6,
-            p7,
+            param7,
             p8,
             p9,
             p10,
@@ -738,7 +774,7 @@ internal actual class ComposableLambdaImpl actual constructor(
                 p4,
                 p5,
                 p6,
-                p7,
+                param7,
                 p8,
                 p9,
                 p10,
@@ -747,8 +783,8 @@ internal actual class ComposableLambdaImpl actual constructor(
                 p13,
                 p14,
                 nc,
-                changed or 0b1,
-                changed1
+                updateChangedFlags(changed) or 0b1,
+                updateChangedFlags(changed1)
             )
         }
         return result
@@ -761,7 +797,7 @@ internal actual class ComposableLambdaImpl actual constructor(
         p4: Any?,
         p5: Any?,
         p6: Any?,
-        p7: Any?,
+        param7: Any?,
         p8: Any?,
         p9: Any?,
         p10: Any?,
@@ -785,7 +821,7 @@ internal actual class ComposableLambdaImpl actual constructor(
                 p4: Any?,
                 p5: Any?,
                 p6: Any?,
-                p7: Any?,
+                param7: Any?,
                 p8: Any?,
                 p9: Any?,
                 p10: Any?,
@@ -805,7 +841,7 @@ internal actual class ComposableLambdaImpl actual constructor(
             p4,
             p5,
             p6,
-            p7,
+            param7,
             p8,
             p9,
             p10,
@@ -826,7 +862,7 @@ internal actual class ComposableLambdaImpl actual constructor(
                 p4,
                 p5,
                 p6,
-                p7,
+                param7,
                 p8,
                 p9,
                 p10,
@@ -836,8 +872,8 @@ internal actual class ComposableLambdaImpl actual constructor(
                 p14,
                 p15,
                 nc,
-                changed or 0b1,
-                changed1
+                updateChangedFlags(changed) or 0b1,
+                updateChangedFlags(changed1)
             )
         }
         return result
@@ -850,7 +886,7 @@ internal actual class ComposableLambdaImpl actual constructor(
         p4: Any?,
         p5: Any?,
         p6: Any?,
-        p7: Any?,
+        param7: Any?,
         p8: Any?,
         p9: Any?,
         p10: Any?,
@@ -875,7 +911,7 @@ internal actual class ComposableLambdaImpl actual constructor(
                 p4: Any?,
                 p5: Any?,
                 p6: Any?,
-                p7: Any?,
+                param7: Any?,
                 p8: Any?,
                 p9: Any?,
                 p10: Any?,
@@ -896,7 +932,7 @@ internal actual class ComposableLambdaImpl actual constructor(
             p4,
             p5,
             p6,
-            p7,
+            param7,
             p8,
             p9,
             p10,
@@ -918,7 +954,7 @@ internal actual class ComposableLambdaImpl actual constructor(
                 p4,
                 p5,
                 p6,
-                p7,
+                param7,
                 p8,
                 p9,
                 p10,
@@ -929,8 +965,8 @@ internal actual class ComposableLambdaImpl actual constructor(
                 p15,
                 p16,
                 nc,
-                changed or 0b1,
-                changed1
+                updateChangedFlags(changed) or 0b1,
+                updateChangedFlags(changed1)
             )
         }
         return result
@@ -943,7 +979,7 @@ internal actual class ComposableLambdaImpl actual constructor(
         p4: Any?,
         p5: Any?,
         p6: Any?,
-        p7: Any?,
+        param7: Any?,
         p8: Any?,
         p9: Any?,
         p10: Any?,
@@ -969,7 +1005,7 @@ internal actual class ComposableLambdaImpl actual constructor(
                 p4: Any?,
                 p5: Any?,
                 p6: Any?,
-                p7: Any?,
+                param7: Any?,
                 p8: Any?,
                 p9: Any?,
                 p10: Any?,
@@ -991,7 +1027,7 @@ internal actual class ComposableLambdaImpl actual constructor(
             p4,
             p5,
             p6,
-            p7,
+            param7,
             p8,
             p9,
             p10,
@@ -1014,7 +1050,7 @@ internal actual class ComposableLambdaImpl actual constructor(
                 p4,
                 p5,
                 p6,
-                p7,
+                param7,
                 p8,
                 p9,
                 p10,
@@ -1026,8 +1062,8 @@ internal actual class ComposableLambdaImpl actual constructor(
                 p16,
                 p17,
                 nc,
-                changed or 0b1,
-                changed1
+                updateChangedFlags(changed) or 0b1,
+                updateChangedFlags(changed1)
             )
         }
         return result
@@ -1040,7 +1076,7 @@ internal actual class ComposableLambdaImpl actual constructor(
         p4: Any?,
         p5: Any?,
         p6: Any?,
-        p7: Any?,
+        param7: Any?,
         p8: Any?,
         p9: Any?,
         p10: Any?,
@@ -1067,7 +1103,7 @@ internal actual class ComposableLambdaImpl actual constructor(
                 p4: Any?,
                 p5: Any?,
                 p6: Any?,
-                p7: Any?,
+                param7: Any?,
                 p8: Any?,
                 p9: Any?,
                 p10: Any?,
@@ -1090,7 +1126,7 @@ internal actual class ComposableLambdaImpl actual constructor(
             p4,
             p5,
             p6,
-            p7,
+            param7,
             p8,
             p9,
             p10,
@@ -1114,7 +1150,7 @@ internal actual class ComposableLambdaImpl actual constructor(
                 p4,
                 p5,
                 p6,
-                p7,
+                param7,
                 p8,
                 p9,
                 p10,
@@ -1127,8 +1163,8 @@ internal actual class ComposableLambdaImpl actual constructor(
                 p17,
                 p18,
                 nc,
-                changed or 0b1,
-                changed1
+                updateChangedFlags(changed) or 0b1,
+                updateChangedFlags(changed1)
             )
         }
         return result

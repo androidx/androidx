@@ -26,6 +26,7 @@ import android.view.Surface
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraGraph.Constants3A.DEFAULT_FRAME_LIMIT
 import androidx.camera.camera2.pipe.CameraGraph.Constants3A.DEFAULT_TIME_LIMIT_NS
+import androidx.camera.camera2.pipe.CameraGraph.Flags.FinalizeSessionOnCloseBehavior.Companion.OFF
 import androidx.camera.camera2.pipe.GraphState.GraphStateStarting
 import androidx.camera.camera2.pipe.GraphState.GraphStateStopped
 import androidx.camera.camera2.pipe.GraphState.GraphStateStopping
@@ -42,6 +43,13 @@ interface CameraGraph : AutoCloseable {
      * including when a [CameraGraph] is stopped, starting or started.
      */
     val graphState: StateFlow<GraphState>
+
+    /**
+     * This is a hint an app can give to a camera graph to indicate whether the camera is being used
+     * in a foreground setting, for example whether the user could see the app itself. This would
+     * inform the underlying implementation to open cameras more actively (e.g., longer timeout).
+     */
+    var isForeground: Boolean
 
     /**
      * This will cause the [CameraGraph] to start opening the [CameraDevice] and configuring a
@@ -135,12 +143,80 @@ interface CameraGraph : AutoCloseable {
     data class Flags(
         val configureBlankSessionOnStop: Boolean = false,
         val abortCapturesOnStop: Boolean = false,
-        val allowMultipleActiveCameras: Boolean = false
-    )
+        val allowMultipleActiveCameras: Boolean = false,
+
+        /**
+         * A quirk that waits for the last repeating capture request to start before stopping the
+         * current capture session. Please refer to the bugs linked here, or
+         * [androidx.camera.camera2.pipe.compat.Camera2Quirks.shouldWaitForRepeatingRequest] for
+         * more information.
+         *
+         * This flag provides the overrides for you to override the default behavior (CameraPipe
+         * would turn on/off the quirk automatically based on device information).
+         *
+         * - Bug(s): b/146773463, b/267557892
+         * - Device(s): Camera devices on hardware level LEGACY
+         * - API levels: All
+         */
+        val quirkWaitForRepeatingRequestOnDisconnect: Boolean? = null,
+
+        /**
+         * A quirk that finalizes [androidx.camera.camera2.pipe.compat.CaptureSessionState] when
+         * the CameraGraph is stopped or closed. When a CameraGraph is started, the app might
+         * wait for the Surfaces to be released before setting the new Surfaces. This creates a
+         * potential deadlock, and this quirk is aimed to mitigate such behavior by releasing the
+         * Surfaces (finalizing the session) when the graph is stopped or closed.
+         *
+         * - Bug(s): b/277310425
+         * - Device(s): All (but behaviors might differ across devices)
+         * - API levels: All
+         */
+        val quirkFinalizeSessionOnCloseBehavior: FinalizeSessionOnCloseBehavior = OFF,
+
+        /**
+         * A quirk that closes the camera capture session when the CameraGraph is stopped or closed.
+         * This is needed in cases where the app that do not wish to receive further frames, or
+         * in cases where not closing the capture session before closing the camera device might
+         * cause the camera close call itself to hang indefinitely.
+         *
+         * - Bug(s): b/277310425, b/277310425
+         * - Device(s): Depends on the situation and the use case.
+         * - API levels: All
+         */
+        val quirkCloseCaptureSessionOnDisconnect: Boolean = false,
+    ) {
+
+        @JvmInline
+        value class FinalizeSessionOnCloseBehavior private constructor(val value: Int) {
+            companion object {
+                /**
+                 * OFF indicates that the CameraGraph only finalizes capture session under regular
+                 *  conditions, i.e., when the camera device is closed, or when a new capture
+                 *  session is created.
+                 */
+                val OFF = FinalizeSessionOnCloseBehavior(0)
+
+                /**
+                 * IMMEDIATE indicates that the CameraGraph will finalize the current session
+                 *  immediately when the CameraGraph is stopped or closed. This should be the
+                 *  default behavior for devices that allows for immediate Surface reuse.
+                 */
+                val IMMEDIATE = FinalizeSessionOnCloseBehavior(1)
+
+                /**
+                 * TIMEOUT indicates that the CameraGraph will finalize the current session on a 2s
+                 *  timeout when the CameraGraph is stopped or closed. This should only be enabled
+                 *  for devices that require waiting for Surfaces to be released.
+                 */
+                val TIMEOUT = FinalizeSessionOnCloseBehavior(2)
+            }
+        }
+    }
 
     enum class OperatingMode {
         NORMAL,
         HIGH_SPEED,
+        EXTENSION,
     }
 
     @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
@@ -297,13 +373,20 @@ interface CameraGraph : AutoCloseable {
          * that component, i.e. if it was locked earlier it will stay locked and if it was already
          * unlocked, it will stay unlocked.
          *
+         * @param frameLimit the maximum number of frames to wait before we give up waiting for this
+         *   operation to complete.
+         * @param timeLimitNs the maximum time limit in ms we wait before we give up waiting for
+         *   this operation to complete.
+         *
          * @return [Result3A], which will contain the latest frame number at which the auto-focus,
          *   auto-exposure, auto-white balance were unlocked as per the method arguments.
          */
         suspend fun unlock3A(
             ae: Boolean? = null,
             af: Boolean? = null,
-            awb: Boolean? = null
+            awb: Boolean? = null,
+            frameLimit: Int = DEFAULT_FRAME_LIMIT,
+            timeLimitNs: Long = DEFAULT_TIME_LIMIT_NS
         ): Deferred<Result3A>
 
         /**
@@ -373,5 +456,8 @@ abstract class GraphState internal constructor() {
      * will retry opening the camera (and creating a capture session).
      */
     class GraphStateError(val cameraError: CameraError, val willAttemptRetry: Boolean) :
-        GraphState()
+        GraphState() {
+        override fun toString(): String =
+            super.toString() + "(cameraError = $cameraError, willAttemptRetry = $willAttemptRetry)"
+    }
 }

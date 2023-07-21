@@ -116,6 +116,36 @@ class SurfaceProcessorNodeTest {
     }
 
     @Test
+    fun inputHasNoCameraTransform_surfaceOutputReceivesNullCamera() {
+        // Arrange: configure node to produce JPEG output.
+        createSurfaceProcessorNode()
+        createInputEdge(
+            inputEdge = SurfaceEdge(
+                PREVIEW,
+                INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE,
+                StreamSpec.builder(INPUT_SIZE).build(),
+                Matrix.IDENTITY_MATRIX,
+                false,
+                PREVIEW_CROP_RECT,
+                0,
+                false
+            )
+        )
+
+        // Act.
+        val nodeOutput = node.transform(nodeInput)
+        provideSurfaces(nodeOutput)
+        shadowOf(getMainLooper()).idle()
+
+        val previewSurfaceOutput =
+            surfaceProcessorInternal.surfaceOutputs[PREVIEW]!! as SurfaceOutputImpl
+        assertThat(previewSurfaceOutput.camera).isNull()
+        val videoSurfaceOutput =
+            surfaceProcessorInternal.surfaceOutputs[VIDEO_CAPTURE]!! as SurfaceOutputImpl
+        assertThat(videoSurfaceOutput.camera).isNull()
+    }
+
+    @Test
     fun configureJpegOutput_returnsJpegFormat() {
         // Arrange: configure node to produce JPEG output.
         createSurfaceProcessorNode()
@@ -288,6 +318,7 @@ class SurfaceProcessorNodeTest {
         assertThat(previewTransformInfo.rotationDegrees).isEqualTo(0)
         assertThat(previewSurfaceOutput.inputSize).isEqualTo(INPUT_SIZE)
         assertThat(previewSurfaceOutput.mirroring).isFalse()
+        assertThat(previewSurfaceOutput.camera).isNotNull()
 
         val videoSurfaceOutput =
             surfaceProcessorInternal.surfaceOutputs[VIDEO_CAPTURE]!! as SurfaceOutputImpl
@@ -298,6 +329,7 @@ class SurfaceProcessorNodeTest {
         assertThat(videoTransformInfo.rotationDegrees).isEqualTo(270)
         assertThat(videoSurfaceOutput.inputSize).isEqualTo(INPUT_SIZE)
         assertThat(videoSurfaceOutput.mirroring).isTrue()
+        assertThat(videoSurfaceOutput.camera).isNotNull()
     }
 
     @Test
@@ -421,9 +453,8 @@ class SurfaceProcessorNodeTest {
         inputRotationDegrees: Int = INPUT_ROTATION_DEGREES,
         mirroring: Boolean = MIRRORING,
         videoOutputSize: Size = VIDEO_SIZE,
-        frameRateRange: Range<Int> = StreamSpec.FRAME_RATE_RANGE_UNSPECIFIED
-    ) {
-        val inputEdge = SurfaceEdge(
+        frameRateRange: Range<Int> = StreamSpec.FRAME_RATE_RANGE_UNSPECIFIED,
+        inputEdge: SurfaceEdge = SurfaceEdge(
             previewTarget,
             INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE,
             StreamSpec.builder(previewSize).setExpectedFrameRateRange(frameRateRange).build(),
@@ -432,7 +463,8 @@ class SurfaceProcessorNodeTest {
             previewCropRect,
             inputRotationDegrees,
             mirroring,
-        )
+        ),
+    ) {
         videoOutConfig = OutConfig.of(
             VIDEO_CAPTURE,
             INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE,

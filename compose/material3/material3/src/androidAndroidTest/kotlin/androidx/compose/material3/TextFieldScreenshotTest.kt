@@ -185,7 +185,7 @@ class TextFieldScreenshotTest {
                 value = TextFieldValue(text = text, selection = TextRange(text.length)),
                 onValueChange = {},
                 modifier = Modifier.requiredWidth(280.dp).testTag(TextFieldTag),
-                colors = TextFieldDefaults.textFieldColors(unfocusedTextColor = Color.Green)
+                colors = TextFieldDefaults.colors(unfocusedTextColor = Color.Green)
             )
         }
 
@@ -200,7 +200,7 @@ class TextFieldScreenshotTest {
                 value = TextFieldValue(text = text, selection = TextRange(0, text.length)),
                 onValueChange = {},
                 modifier = Modifier.requiredWidth(280.dp).testTag(TextFieldTag),
-                colors = TextFieldDefaults.textFieldColors(
+                colors = TextFieldDefaults.colors(
                     // We can only test the background color because popups, which includes the
                     // selection handles, do not appear in screenshots
                     selectionColors = TextSelectionColors(

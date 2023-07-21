@@ -15,6 +15,7 @@
  */
 package androidx.paging.multicast
 
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.Channel
@@ -22,7 +23,6 @@ import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onEach
-import java.util.concurrent.atomic.AtomicBoolean
 
 /**
  * Simple actor implementation abstracting away Coroutine.actor since it is deprecated.

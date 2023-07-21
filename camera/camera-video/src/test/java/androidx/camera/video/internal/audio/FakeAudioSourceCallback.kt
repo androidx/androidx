@@ -25,6 +25,7 @@ class FakeAudioSourceCallback : AudioSource.AudioSourceCallback {
     private val onSuspendedCallbacks = MockConsumer<Boolean>()
     private val onSilencedCallbacks = MockConsumer<Boolean>()
     private val onErrorCallbacks = MockConsumer<Throwable>()
+    private val onAmplitudeCallbacks = MockConsumer<Double>()
 
     override fun onSuspendStateChanged(suspended: Boolean) {
         onSuspendedCallbacks.accept(suspended)
@@ -36,6 +37,10 @@ class FakeAudioSourceCallback : AudioSource.AudioSourceCallback {
 
     override fun onError(error: Throwable) {
         onErrorCallbacks.accept(error)
+    }
+
+    override fun onAmplitudeValue(maxAmplitude: Double) {
+        onAmplitudeCallbacks.accept(maxAmplitude)
     }
 
     fun verifyOnSuspendStateChanged(

@@ -589,16 +589,15 @@ private class OutlinedTextFieldMeasurePolicy(
         )
 
         // measure label
-        val isLabelInMiddleSection = animationProgress < 1f
         val labelHorizontalPaddingOffset =
             paddingValues.calculateLeftPadding(layoutDirection).roundToPx() +
                 paddingValues.calculateRightPadding(layoutDirection).roundToPx()
         val labelConstraints = relaxedConstraints.offset(
-            horizontal = if (isLabelInMiddleSection) {
-                -occupiedSpaceHorizontally - labelHorizontalPaddingOffset
-            } else {
-                -labelHorizontalPaddingOffset
-            },
+            horizontal = lerp(
+                -occupiedSpaceHorizontally - labelHorizontalPaddingOffset,
+                -labelHorizontalPaddingOffset,
+                animationProgress,
+            ),
             vertical = -bottomPadding
         )
         val labelPlaceable =
@@ -633,21 +632,22 @@ private class OutlinedTextFieldMeasurePolicy(
                 textFieldPlaceableWidth = textFieldPlaceable.width,
                 labelPlaceableWidth = widthOrZero(labelPlaceable),
                 placeholderPlaceableWidth = widthOrZero(placeholderPlaceable),
-                isLabelInMiddleSection = isLabelInMiddleSection,
+                animationProgress = animationProgress,
                 constraints = constraints,
                 density = density,
                 paddingValues = paddingValues,
             )
         val height =
             calculateHeight(
-                heightOrZero(leadingPlaceable),
-                heightOrZero(trailingPlaceable),
-                textFieldPlaceable.height,
-                heightOrZero(labelPlaceable),
-                heightOrZero(placeholderPlaceable),
-                constraints,
-                density,
-                paddingValues
+                leadingPlaceableHeight = heightOrZero(leadingPlaceable),
+                trailingPlaceableHeight = heightOrZero(trailingPlaceable),
+                textFieldPlaceableHeight = textFieldPlaceable.height,
+                labelPlaceableHeight = heightOrZero(labelPlaceable),
+                placeholderPlaceableHeight = heightOrZero(placeholderPlaceable),
+                animationProgress = animationProgress,
+                constraints = constraints,
+                density = density,
+                paddingValues = paddingValues,
             )
 
         val borderPlaceable = measurables.first { it.layoutId == BorderId }.measure(
@@ -738,7 +738,7 @@ private class OutlinedTextFieldMeasurePolicy(
             textFieldPlaceableWidth = textFieldWidth,
             labelPlaceableWidth = labelWidth,
             placeholderPlaceableWidth = placeholderWidth,
-            isLabelInMiddleSection = animationProgress < 1f,
+            animationProgress = animationProgress,
             constraints = ZeroConstraints,
             density = density,
             paddingValues = paddingValues,
@@ -770,6 +770,7 @@ private class OutlinedTextFieldMeasurePolicy(
             textFieldPlaceableHeight = textFieldHeight,
             labelPlaceableHeight = labelHeight,
             placeholderPlaceableHeight = placeholderHeight,
+            animationProgress = animationProgress,
             constraints = ZeroConstraints,
             density = density,
             paddingValues = paddingValues
@@ -787,27 +788,25 @@ private fun calculateWidth(
     textFieldPlaceableWidth: Int,
     labelPlaceableWidth: Int,
     placeholderPlaceableWidth: Int,
-    isLabelInMiddleSection: Boolean,
+    animationProgress: Float,
     constraints: Constraints,
     density: Float,
     paddingValues: PaddingValues,
 ): Int {
     val middleSection = maxOf(
         textFieldPlaceableWidth,
-        if (isLabelInMiddleSection) labelPlaceableWidth else 0,
+        lerp(labelPlaceableWidth, 0, animationProgress),
         placeholderPlaceableWidth
     )
     val wrappedWidth =
         leadingPlaceableWidth + middleSection + trailingPlaceableWidth
+
+    // Actual LayoutDirection doesn't matter; we only need the sum
+    val labelHorizontalPadding = (paddingValues.calculateLeftPadding(LayoutDirection.Ltr) +
+        paddingValues.calculateRightPadding(LayoutDirection.Ltr)).value * density
     val focusedLabelWidth =
-        if (!isLabelInMiddleSection) {
-            // Actual LayoutDirection doesn't matter; we only need the sum
-            val labelHorizontalPadding = (paddingValues.calculateLeftPadding(LayoutDirection.Ltr) +
-                paddingValues.calculateRightPadding(LayoutDirection.Ltr)).value * density
-            labelPlaceableWidth + labelHorizontalPadding.roundToInt()
-        } else {
-            0
-        }
+        ((labelPlaceableWidth + labelHorizontalPadding) * animationProgress).roundToInt()
+
     return maxOf(wrappedWidth, focusedLabelWidth, constraints.minWidth)
 }
 
@@ -821,23 +820,25 @@ private fun calculateHeight(
     textFieldPlaceableHeight: Int,
     labelPlaceableHeight: Int,
     placeholderPlaceableHeight: Int,
+    animationProgress: Float,
     constraints: Constraints,
     density: Float,
     paddingValues: PaddingValues
 ): Int {
-    // middle section is defined as a height of the text field or placeholder ( whichever is
-    // taller) plus 16.dp or half height of the label if it is taller, given that the label
-    // is vertically centered to the top edge of the resulting text field's container
-    val inputFieldHeight = max(
+    val inputFieldHeight = maxOf(
         textFieldPlaceableHeight,
-        placeholderPlaceableHeight
+        placeholderPlaceableHeight,
+        lerp(labelPlaceableHeight, 0, animationProgress),
     )
     val topPadding = paddingValues.calculateTopPadding().value * density
-    val bottomPadding = paddingValues.calculateBottomPadding().value * density
-    val middleSectionHeight = inputFieldHeight + bottomPadding + max(
+    val actualTopPadding = lerp(
         topPadding,
-        labelPlaceableHeight / 2f
+        max(topPadding, labelPlaceableHeight / 2f),
+        animationProgress,
     )
+    val bottomPadding = paddingValues.calculateBottomPadding().value * density
+    val middleSectionHeight = actualTopPadding + inputFieldHeight + bottomPadding
+
     return max(
         constraints.minHeight,
         maxOf(

@@ -28,6 +28,7 @@ import com.android.tools.lint.detector.api.Scope
 import com.android.tools.lint.detector.api.Severity
 import com.android.tools.lint.detector.api.SourceCodeScanner
 import com.intellij.psi.PsiMethod
+import java.util.EnumSet
 import org.jetbrains.uast.UBlockExpression
 import org.jetbrains.uast.UCallExpression
 import org.jetbrains.uast.UQualifiedReferenceExpression
@@ -35,7 +36,6 @@ import org.jetbrains.uast.USimpleNameReferenceExpression
 import org.jetbrains.uast.getParentOfType
 import org.jetbrains.uast.toUElement
 import org.jetbrains.uast.visitor.AbstractUastVisitor
-import java.util.EnumSet
 
 /**
  * Warns when a developer uses both idle + battery charging constraints in WorkManager.

@@ -51,6 +51,7 @@ import androidx.wear.watchface.complications.data.ComplicationData
 import androidx.wear.watchface.complications.data.toApiComplicationData
 import androidx.wear.watchface.control.HeadlessWatchFaceImpl
 import androidx.wear.watchface.control.RemoteWatchFaceView
+import androidx.wear.watchface.control.WatchFaceControlService
 import androidx.wear.watchface.control.data.ComplicationRenderParams
 import androidx.wear.watchface.control.data.HeadlessWatchFaceInstanceParams
 import androidx.wear.watchface.control.data.WatchFaceRenderParams
@@ -83,7 +84,6 @@ private const val SYSTEM_DECIDES_FRAME_RATE = 0f
 /**
  * The type of watch face, whether it's digital or analog. This influences the time displayed for
  * remote previews.
- *
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @IntDef(value = [WatchFaceType.DIGITAL, WatchFaceType.ANALOG])
@@ -157,10 +157,7 @@ public class WatchFace(
             componentNameToEditorDelegate.clear()
         }
 
-        /**
-         * For use by on watch face editors.
-         *
-         */
+        /** For use by on watch face editors. */
         @JvmStatic
         @UiThread
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -178,10 +175,57 @@ public class WatchFace(
             return pendingEditorDelegateCB!!
         }
 
-        /**
-         * For use by on watch face editors.
-         *
-         */
+        @UiThread
+        internal fun createWatchFaceServiceOld(componentName: ComponentName): WatchFaceService {
+            // Attempt to construct the class for the specified watchFaceName, failing if it either
+            // doesn't exist or isn't a [WatchFaceService].
+            val watchFaceServiceClass =
+                Class.forName(componentName.className)
+                    ?: throw IllegalArgumentException("Can't create ${componentName.className}")
+            if (!WatchFaceService::class.java.isAssignableFrom(watchFaceServiceClass)) {
+                throw IllegalArgumentException(
+                    "${componentName.className} is not a WatchFaceService"
+                )
+            } else {
+                return watchFaceServiceClass.getConstructor().newInstance() as WatchFaceService
+            }
+        }
+
+        @SuppressLint("NewApi")
+        @Suppress("DEPRECATION") // queryIntentServices
+        @UiThread
+        internal fun createWatchFaceService(
+            componentName: ComponentName,
+            context: Context
+        ): WatchFaceService {
+            // Resolve the WatchFaceControlService and construct WatchFaceService using its API
+            val services =
+                context.packageManager.queryIntentServices(
+                    Intent(WatchFaceControlService.ACTION_WATCHFACE_CONTROL_SERVICE).apply {
+                        setPackage(context.packageName)
+                    },
+                    0
+                )
+
+            if (services.size != 1)
+                throw IllegalArgumentException(
+                    "WatchFaceControlService cannot be uniquely resolved (${services.size}) for " +
+                        context.packageName
+                )
+
+            val watchFaceControlServiceClass =
+                Class.forName(services[0].serviceInfo.name)
+                    ?: throw IllegalArgumentException("Can't find ${services[0].serviceInfo.name}")
+
+            val watchFaceControlService =
+                watchFaceControlServiceClass.getConstructor().newInstance()
+                    as WatchFaceControlService
+
+            return watchFaceControlService.createWatchFaceService(componentName)
+                ?: throw IllegalArgumentException("Can't create ${componentName.className}")
+        }
+
+        /** For use by on watch face editors. */
         @SuppressLint("NewApi")
         @JvmStatic
         @UiThread
@@ -191,31 +235,21 @@ public class WatchFace(
             params: HeadlessWatchFaceInstanceParams,
             context: Context
         ): EditorDelegate {
-            // Attempt to construct the class for the specified watchFaceName, failing if it either
-            // doesn't exist or isn't a [WatchFaceService].
-            val watchFaceServiceClass =
-                Class.forName(componentName.className)
-                    ?: throw IllegalArgumentException("Can't create ${componentName.className}")
-            if (!WatchFaceService::class.java.isAssignableFrom(WatchFaceService::class.java)) {
-                throw IllegalArgumentException(
-                    "${componentName.className} is not a WatchFaceService"
-                )
-            } else {
-                val watchFaceService =
-                    watchFaceServiceClass.getConstructor().newInstance() as WatchFaceService
-                watchFaceService.setContext(context)
-                val engine =
-                    watchFaceService.createHeadlessEngine() as WatchFaceService.EngineWrapper
-                val headlessWatchFaceImpl = engine.createHeadlessInstance(params)
-                return engine.deferredWatchFaceImpl.await().WFEditorDelegate(headlessWatchFaceImpl)
-            }
+            val watchFaceService =
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                        createWatchFaceService(componentName, context)
+                    } else {
+                        createWatchFaceServiceOld(componentName)
+                    }
+                    .apply { setContext(context) }
+
+            val engine = watchFaceService.createHeadlessEngine() as WatchFaceService.EngineWrapper
+            val headlessWatchFaceImpl = engine.createHeadlessInstance(params)
+            return engine.deferredWatchFaceImpl.await().WFEditorDelegate(headlessWatchFaceImpl)
         }
     }
 
-    /**
-     * Delegate used by on watch face editors.
-     *
-     */
+    /** Delegate used by on watch face editors. */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public interface EditorDelegate {
         /** The [WatchFace]'s [UserStyleSchema]. */
@@ -260,10 +294,7 @@ public class WatchFace(
         )
     }
 
-    /**
-     * Used to inform EditorSession about changes to [ComplicationSlot.configExtras].
-     *
-     */
+    /** Used to inform EditorSession about changes to [ComplicationSlot.configExtras]. */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public interface ComplicationSlotConfigExtrasChangeCallback {
         public fun onComplicationSlotConfigExtrasChanged()
@@ -511,8 +542,7 @@ constructor(
     private val watchFaceHostApi: WatchFaceHostApi,
     private val watchState: WatchState,
     internal val currentUserStyleRepository: CurrentUserStyleRepository,
-    @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    public var complicationSlotsManager: ComplicationSlotsManager,
+    @get:VisibleForTesting public var complicationSlotsManager: ComplicationSlotsManager,
     internal val broadcastsObserver: BroadcastsObserver,
     internal var broadcastsReceiver: BroadcastsReceiver?
 ) {
@@ -1130,19 +1160,20 @@ constructor(
         hostToken: IBinder,
         width: Int,
         height: Int
-    ): RemoteWatchFaceView? = TraceEvent("WatchFaceImpl.createRemoteWatchFaceView").use {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            return CreateRemoteWatchFaceViewHelper.createRemoteWatchFaceView(
-                watchFaceHostApi,
-                this,
-                hostToken,
-                width,
-                height
-            )
-        } else {
-            return null
+    ): RemoteWatchFaceView? =
+        TraceEvent("WatchFaceImpl.createRemoteWatchFaceView").use {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                return CreateRemoteWatchFaceViewHelper.createRemoteWatchFaceView(
+                    watchFaceHostApi,
+                    this,
+                    hostToken,
+                    width,
+                    height
+                )
+            } else {
+                return null
+            }
         }
-    }
 
     @UiThread
     @RequiresApi(27)
@@ -1224,6 +1255,7 @@ constructor(
         watchState.dump(writer)
         complicationSlotsManager.dump(writer)
         renderer.dumpInternal(writer)
+        broadcastsObserver.dump(writer)
         writer.decreaseIndent()
     }
 }
@@ -1239,27 +1271,26 @@ internal object CreateRemoteWatchFaceViewHelper {
         height: Int
     ): RemoteWatchFaceView {
         val context = watchFaceHostApi.getContext()
-        val host = SurfaceControlViewHost(
-            context,
-            context.getSystemService(WindowManager::class.java).defaultDisplay,
-            hostToken
-        )
+        val host =
+            SurfaceControlViewHost(
+                context,
+                context.getSystemService(WindowManager::class.java).defaultDisplay,
+                hostToken
+            )
         val view = SurfaceView(context)
-        view.layoutParams = WindowManager.LayoutParams(
-            WindowManager.LayoutParams.WRAP_CONTENT,
-            WindowManager.LayoutParams.WRAP_CONTENT,
-            WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
-            WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED,
-            PixelFormat.TRANSLUCENT
-        ).apply {
-            title = "RemoteWatchFaceView"
-        }
+        view.layoutParams =
+            WindowManager.LayoutParams(
+                    WindowManager.LayoutParams.WRAP_CONTENT,
+                    WindowManager.LayoutParams.WRAP_CONTENT,
+                    WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
+                    WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED,
+                    PixelFormat.TRANSLUCENT
+                )
+                .apply { title = "RemoteWatchFaceView" }
         host.setView(view, width, height)
-        return RemoteWatchFaceView(
-            view,
-            host,
-            watchFaceHostApi.getUiThreadCoroutineScope()
-        ) { surfaceHolder, params ->
+        return RemoteWatchFaceView(view, host, watchFaceHostApi.getUiThreadCoroutineScope()) {
+            surfaceHolder,
+            params ->
             val oldStyle = watchFaceImpl.currentUserStyleRepository.userStyle.value
             val instant = Instant.ofEpochMilli(params.calendarTimeMillis)
 

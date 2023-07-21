@@ -60,7 +60,7 @@ public final class LauncherActivity extends FragmentActivity {
     static Intent getDefaultIntent(Context context) {
         Intent intent =
                 new Intent(Intent.ACTION_MAIN).addCategory(
-                        Intent.CATEGORY_DEFAULT);
+                        Intent.CATEGORY_DEFAULT).setPackage(context.getPackageName());
         ResolveInfo resolveInfoList = context.getPackageManager().resolveActivity(intent,
                 PackageManager.MATCH_DEFAULT_ONLY);
 

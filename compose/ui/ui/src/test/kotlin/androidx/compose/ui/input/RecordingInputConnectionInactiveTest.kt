@@ -21,11 +21,11 @@ import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.RecordingInputConnection
 import androidx.compose.ui.text.input.TextFieldValue
 import com.google.common.truth.Truth.assertThat
-import org.mockito.kotlin.mock
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import org.mockito.kotlin.mock
 
 @RunWith(JUnit4::class)
 class RecordingInputConnectionInactiveTest {

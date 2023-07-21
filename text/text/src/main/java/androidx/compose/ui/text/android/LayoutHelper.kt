@@ -31,7 +31,7 @@ private const val LINE_FEED = '\n'
  * @suppress
  */
 @InternalPlatformTextApi
-class LayoutHelper(val layout: Layout) {
+internal class LayoutHelper(val layout: Layout) {
 
     private val paragraphEnds: List<Int>
 

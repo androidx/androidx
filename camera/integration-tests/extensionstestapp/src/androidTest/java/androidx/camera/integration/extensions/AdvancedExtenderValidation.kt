@@ -204,8 +204,8 @@ class AdvancedExtenderValidation(
     private fun createAnalysisOutput(
         impl: AdvancedExtenderImpl,
         sizeCategory: SizeCategory
-    ): OutputSurfaceImpl {
-        val analysisSizes = impl.getSupportedYuvAnalysisResolutions(cameraId)
+    ): OutputSurfaceImpl? {
+        val analysisSizes = impl.getSupportedYuvAnalysisResolutions(cameraId) ?: return null
         assertThat(analysisSizes).isNotEmpty()
 
         var analysisSize = getSizeByClass(analysisSizes, sizeCategory)
@@ -338,8 +338,8 @@ class AdvancedExtenderValidation(
             outputConfiguration.setPhysicalCameraId(outputConfigImpl.physicalCameraId)
         }
 
-        if (outputConfigImpl.surfaceSharingOutputConfigs != null) {
-            for (surfaceSharingOutputConfig in outputConfigImpl.surfaceSharingOutputConfigs) {
+        outputConfigImpl.surfaceSharingOutputConfigs?.let {
+            for (surfaceSharingOutputConfig in it) {
                 val sharingOutputConfiguration = getOutputConfiguration(surfaceSharingOutputConfig)
                 outputConfiguration.addSurface(sharingOutputConfiguration.surface!!)
                 outputConfiguration.enableSurfaceSharing()

@@ -218,6 +218,7 @@ class VideoRecordingFrameDropTest(
         }
     }
 
+    @Suppress("DEPRECATION") // legacy resolution API
     private suspend fun runRecordingRoutineAndReturnNumDroppedFrames(): Int = coroutineScope {
         cameraProvider = ProcessCameraProvider.getInstance(context).await()
         needsShutdown = true

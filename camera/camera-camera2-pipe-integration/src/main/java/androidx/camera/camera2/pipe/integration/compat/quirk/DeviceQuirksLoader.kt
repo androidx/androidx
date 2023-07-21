@@ -38,6 +38,10 @@ object DeviceQuirksLoader {
             quirks.add(CrashWhenTakingPhotoWithAutoFlashAEModeQuirk())
         }
 
+        if (ControlZoomRatioRangeAssertionErrorQuirk.isEnabled()) {
+            quirks.add(ControlZoomRatioRangeAssertionErrorQuirk())
+        }
+
         if (FlashAvailabilityBufferUnderflowQuirk.isEnabled()) {
             quirks.add(FlashAvailabilityBufferUnderflowQuirk())
         }
@@ -48,11 +52,20 @@ object DeviceQuirksLoader {
         if (InvalidVideoProfilesQuirk.isEnabled()) {
             quirks.add(InvalidVideoProfilesQuirk())
         }
-        if (ExcludedSupportedSizesQuirk.load()) {
+        if (ExcludedSupportedSizesQuirk.isEnabled()) {
             quirks.add(ExcludedSupportedSizesQuirk())
         }
-        if (ExtraSupportedOutputSizeQuirk.load()) {
+        if (ExtraCroppingQuirk.isEnabled()) {
+            quirks.add(ExtraCroppingQuirk())
+        }
+        if (ExtraSupportedOutputSizeQuirk.isEnabled()) {
             quirks.add(ExtraSupportedOutputSizeQuirk())
+        }
+        if (ExtraSupportedSurfaceCombinationsQuirk.isEnabled()) {
+            quirks.add(ExtraSupportedSurfaceCombinationsQuirk())
+        }
+        if (Nexus4AndroidLTargetAspectRatioQuirk.isEnabled()) {
+            quirks.add(Nexus4AndroidLTargetAspectRatioQuirk())
         }
         if (PreviewPixelHDRnetQuirk.isEnabled()) {
             quirks.add(PreviewPixelHDRnetQuirk())
@@ -63,7 +76,15 @@ object DeviceQuirksLoader {
         if (StillCaptureFlashStopRepeatingQuirk.isEnabled()) {
             quirks.add(StillCaptureFlashStopRepeatingQuirk())
         }
-
+        if (TorchIsClosedAfterImageCapturingQuirk.isEnabled()) {
+            quirks.add(TorchIsClosedAfterImageCapturingQuirk())
+        }
+        if (SurfaceOrderQuirk.isEnabled()) {
+            quirks.add(SurfaceOrderQuirk())
+        }
+        if (CaptureSessionOnClosedNotCalledQuirk.isEnabled()) {
+            quirks.add(CaptureSessionOnClosedNotCalledQuirk())
+        }
         return quirks
     }
 }

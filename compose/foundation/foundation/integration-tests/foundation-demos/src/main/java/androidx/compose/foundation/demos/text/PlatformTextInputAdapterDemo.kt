@@ -60,7 +60,6 @@ import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.PlatformTextInput
 import androidx.compose.ui.text.input.PlatformTextInputAdapter
 import androidx.compose.ui.text.input.PlatformTextInputPlugin
-import androidx.compose.ui.text.input.TextInputForTests
 import androidx.compose.ui.unit.dp
 import androidx.core.view.inputmethod.EditorInfoCompat
 import kotlinx.coroutines.launch
@@ -174,9 +173,6 @@ private class WackyTextInputService(
     private var currentSession: WackyTextState? = null
     private var currentConnection: WackyInputConnection? = null
 
-    override val inputForTests: TextInputForTests
-        get() = currentConnection ?: error("WackyTextInputService is not active")
-
     fun startInput(state: WackyTextState) {
         Log.d(TAG, "starting input for $state")
         platformTextInput.requestInputFocus()
@@ -220,7 +216,7 @@ private class WackyTextInputService(
      */
     private inner class WackyInputConnection(
         private val state: WackyTextState
-    ) : BaseInputConnection(view, false), TextInputForTests {
+    ) : BaseInputConnection(view, false) {
         private var selection: TextRange = TextRange(state.buffer.length)
         private var composition: TextRange? = null
 
@@ -336,15 +332,6 @@ private class WackyTextInputService(
             // This calls finishComposingText, so don't clear the batch until after.
             super.closeConnection()
             batch.clear()
-        }
-
-        // endregion
-        // region TextInputForTests
-
-        override fun inputTextForTest(text: String) {
-            beginBatchEdit()
-            commitText(text, 0)
-            endBatchEdit()
         }
 
         // endregion

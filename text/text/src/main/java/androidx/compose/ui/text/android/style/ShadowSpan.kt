@@ -25,7 +25,7 @@ import androidx.compose.ui.text.android.InternalPlatformTextApi
  * @suppress
  */
 @InternalPlatformTextApi
-class ShadowSpan(
+internal class ShadowSpan(
     val color: Int,
     val offsetX: Float,
     val offsetY: Float,

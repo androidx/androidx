@@ -26,6 +26,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.impl.Camera2ImplConfig;
+import androidx.camera.camera2.internal.compat.params.DynamicRangesCompat;
 import androidx.camera.camera2.interop.CaptureRequestOptions;
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
 import androidx.camera.core.ImageAnalysis;
@@ -123,9 +124,10 @@ final class ProcessingCaptureSession implements CaptureSessionInterface {
     private int mInstanceId = 0;
 
     ProcessingCaptureSession(@NonNull SessionProcessor sessionProcessor,
-            @NonNull Camera2CameraInfoImpl camera2CameraInfoImpl, @NonNull Executor executor,
+            @NonNull Camera2CameraInfoImpl camera2CameraInfoImpl,
+            @NonNull DynamicRangesCompat dynamicRangesCompat, @NonNull Executor executor,
             @NonNull ScheduledExecutorService scheduledExecutorService) {
-        mCaptureSession = new CaptureSession();
+        mCaptureSession = new CaptureSession(dynamicRangesCompat);
         mSessionProcessor = sessionProcessor;
         mCamera2CameraInfoImpl = camera2CameraInfoImpl;
         mExecutor = executor;

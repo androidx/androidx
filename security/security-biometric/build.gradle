@@ -43,7 +43,7 @@ android {
 }
 
 androidx {
-    name = "AndroidX Security Biometric"
+    name = "Security Biometric"
     publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.SECURITY_BIOMETRIC
     inceptionYear = "2020"

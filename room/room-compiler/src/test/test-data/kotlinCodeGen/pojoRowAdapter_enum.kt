@@ -33,10 +33,11 @@ public class MyDao_Impl(
             public override fun bind(statement: SupportSQLiteStatement, entity: MyEntity): Unit {
                 statement.bindLong(1, entity.pk.toLong())
                 statement.bindString(2, __Fruit_enumToString(entity.enum))
-                if (entity.nullableEnum == null) {
+                val _tmpNullableEnum: Fruit? = entity.nullableEnum
+                if (_tmpNullableEnum == null) {
                     statement.bindNull(3)
                 } else {
-                    statement.bindString(3, __Fruit_enumToString(entity.nullableEnum))
+                    statement.bindString(3, __Fruit_enumToString(_tmpNullableEnum))
                 }
             }
         }

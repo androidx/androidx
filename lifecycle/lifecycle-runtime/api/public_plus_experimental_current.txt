@@ -12,6 +12,7 @@ package androidx.lifecycle {
     method public void removeObserver(androidx.lifecycle.LifecycleObserver observer);
     method public void setCurrentState(androidx.lifecycle.Lifecycle.State);
     property public androidx.lifecycle.Lifecycle.State currentState;
+    property public kotlinx.coroutines.flow.StateFlow<androidx.lifecycle.Lifecycle.State> currentStateFlow;
     property public int observerCount;
     field public static final androidx.lifecycle.LifecycleRegistry.Companion Companion;
   }

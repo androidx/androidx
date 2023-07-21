@@ -21,10 +21,6 @@ import android.view.View
 import androidx.core.os.HandlerCompat
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
-import org.junit.Assert.assertEquals
-import org.junit.Rule
-import org.junit.Test
-import org.junit.runner.RunWith
 import java.lang.ref.PhantomReference
 import java.lang.ref.ReferenceQueue
 import java.util.concurrent.CountDownLatch
@@ -32,6 +28,10 @@ import java.util.concurrent.TimeUnit
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
+import org.junit.Assert.assertEquals
+import org.junit.Rule
+import org.junit.Test
+import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class ComposeIntoTests : BaseComposeTest() {

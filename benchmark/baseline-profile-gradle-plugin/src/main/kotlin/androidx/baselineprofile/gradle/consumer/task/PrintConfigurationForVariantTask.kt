@@ -49,7 +49,8 @@ abstract class PrintConfigurationForVariantTask : DefaultTask() {
                         """
                     mergeIntoMain=`${variantConfig.mergeIntoMain}`
                     baselineProfileOutputDir=`${variantConfig.baselineProfileOutputDir}`
-                    enableR8BaselineProfileRewrite=`${variantConfig.enableR8BaselineProfileRewrite}`
+                    baselineProfileRulesRewrite=`${variantConfig.baselineProfileRulesRewrite}`
+                    dexLayoutOptimization=`${variantConfig.dexLayoutOptimization}`
                     saveInSrc=`${variantConfig.saveInSrc}`
                     automaticGenerationDuringBuild=`${variantConfig.automaticGenerationDuringBuild}`
                     """.trimIndent()

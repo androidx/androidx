@@ -72,11 +72,10 @@ val PagerDemos = listOf(
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun VerticalPagerDemo() {
-    val pagerState = rememberPagerState()
+    val pagerState = rememberPagerState { PagesCount }
     VerticalPager(
         modifier = Modifier.fillMaxSize(),
         state = pagerState,
-        pageCount = PagesCount
     ) {
         PagerItem(it)
     }
@@ -85,12 +84,11 @@ private fun VerticalPagerDemo() {
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 internal fun HorizontalPagerDemo() {
-    val pagerState = rememberPagerState()
+    val pagerState = rememberPagerState { PagesCount }
 
     HorizontalPager(
         modifier = Modifier.fillMaxSize(),
         state = pagerState,
-        pageCount = PagesCount
     ) {
         PagerItem(it)
     }

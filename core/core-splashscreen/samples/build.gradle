@@ -42,7 +42,7 @@ dependencies {
 }
 
 androidx {
-    name = "AndroidX Splashscreen Samples"
+    name = "Splashscreen Samples"
     type = LibraryType.SAMPLES
     mavenVersion = LibraryVersions.CORE_SPLASHSCREEN
     inceptionYear = "2021"

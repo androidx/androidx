@@ -30,12 +30,12 @@ import androidx.glance.text.Text
 import androidx.glance.unit.ColorProvider
 import androidx.glance.wear.tiles.runTestingComposition
 import com.google.common.truth.Truth.assertThat
+import kotlin.test.assertIs
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
-import kotlin.test.assertIs
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class CurvedRowTest {

@@ -16,11 +16,11 @@
 
 package androidx.compose.animation.core
 
+import java.lang.Long.max
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import java.lang.Long.max
 
 @RunWith(JUnit4::class)
 class AnimationTest {

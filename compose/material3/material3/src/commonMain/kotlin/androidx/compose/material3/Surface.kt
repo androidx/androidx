@@ -124,6 +124,7 @@ fun Surface(
                     shadowElevation = shadowElevation
                 )
                 .semantics(mergeDescendants = false) {
+                    @Suppress("DEPRECATION")
                     isContainer = true
                 }
                 .pointerInput(Unit) {},

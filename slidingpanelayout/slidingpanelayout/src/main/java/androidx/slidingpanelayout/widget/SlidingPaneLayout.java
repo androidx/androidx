@@ -178,6 +178,9 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
     private float mInitialMotionX;
     private float mInitialMotionY;
 
+    private final List<SlideableStateListener> mSlideableStateListeners =
+            new CopyOnWriteArrayList<>();
+
     private final List<PanelSlideListener> mPanelSlideListeners = new CopyOnWriteArrayList<>();
     private @Nullable PanelSlideListener mPanelSlideListener;
 
@@ -246,6 +249,20 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
     @LockMode
     public final int getLockMode() {
         return mLockMode;
+    }
+
+    /**
+     * Listener to whether the SlidingPaneLayout is slideable or is a fixed width.
+     */
+    public interface SlideableStateListener {
+
+        /**
+         * Called when onMeasure has measured out the total width of the added layouts
+         * within SlidingPaneLayout
+         * @param isSlideable  Returns true if the current SlidingPaneLayout has the ability to
+         *                     slide, returns false if the SlidingPaneLayout is a fixed width.
+         */
+        void onSlideableStateChanged(boolean isSlideable);
     }
 
     /**
@@ -433,6 +450,25 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
         // Update the deprecated field so that we can remove the passed listener the next
         // time we're called
         mPanelSlideListener = listener;
+    }
+
+    /**
+     * Adds the specified listener to the list of listeners that will be notified of sliding
+     * state events.
+     * @param listener  Listener to notify when sliding state events occur.
+     * @see #removeSlideableStateListener(SlideableStateListener)
+     */
+    public void addSlideableStateListener(@NonNull SlideableStateListener listener) {
+        mSlideableStateListeners.add(listener);
+    }
+
+    /**
+     * Removes the specified listener from the list of listeners that will be notified of sliding
+     * state events.
+     * @param listener Listener to notify when sliding state events occur
+     */
+    public void removeSlideableStateListener(@NonNull SlideableStateListener listener) {
+        mSlideableStateListeners.remove(listener);
     }
 
     /**
@@ -777,7 +813,12 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
         final int measuredHeight = layoutHeight + getPaddingTop() + getPaddingBottom();
 
         setMeasuredDimension(measuredWidth, measuredHeight);
-        mCanSlide = canSlide;
+        if (canSlide != mCanSlide) {
+            mCanSlide = canSlide;
+            for (SlideableStateListener listener : mSlideableStateListeners) {
+                listener.onSlideableStateChanged(mCanSlide);
+            }
+        }
 
         if (mDragHelper.getViewDragState() != ViewDragHelper.STATE_IDLE && !canSlide) {
             // Cancel scrolling in progress, it's no longer relevant.
@@ -1056,6 +1097,15 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
     }
 
     /**
+     * @return true if content in this layout can be slid open and closed
+     * @deprecated Renamed to {@link #isSlideable()} - this method is going away soon!
+     */
+    @Deprecated
+    public boolean canSlide() {
+        return mCanSlide;
+    }
+
+    /**
      * @deprecated Renamed to {@link #closePane()} - this method is going away soon!
      */
     @Deprecated
@@ -1091,15 +1141,6 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
     @Override
     public boolean isOpen() {
         return !mCanSlide || mSlideOffset == 0;
-    }
-
-    /**
-     * @return true if content in this layout can be slid open and closed
-     * @deprecated Renamed to {@link #isSlideable()} - this method is going away soon!
-     */
-    @Deprecated
-    public boolean canSlide() {
-        return mCanSlide;
     }
 
     /**

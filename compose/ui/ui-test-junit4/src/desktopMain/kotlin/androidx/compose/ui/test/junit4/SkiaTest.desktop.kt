@@ -15,15 +15,15 @@
  */
 package androidx.compose.ui.test.junit4
 
-import org.jetbrains.skia.Image
 import androidx.compose.ui.test.InternalTestApi
+import java.io.File
+import java.security.MessageDigest
+import java.util.LinkedList
+import org.jetbrains.skia.Image
 import org.jetbrains.skia.Surface
 import org.junit.rules.TestRule
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
-import java.io.File
-import java.security.MessageDigest
-import java.util.LinkedList
 
 // TODO(https://github.com/JetBrains/compose-jb/issues/1041): refactor API
 

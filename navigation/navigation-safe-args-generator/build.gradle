@@ -60,7 +60,7 @@ tasks.withType(Test).configureEach {
 
 
 androidx {
-    name = "Android Navigation TypeSafe Arguments Generator"
+    name = "Navigation TypeSafe Arguments Generator"
     type = LibraryType.OTHER_CODE_PROCESSOR
     inceptionYear = "2017"
     description = "Android Navigation TypeSafe Arguments Generator"

@@ -17,26 +17,22 @@
 package androidx.compose.ui.awt
 
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.ComposeScene
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.input.pointer.PointerEventType
-import androidx.compose.ui.input.pointer.PointerType
-import androidx.compose.ui.platform.PlatformComponent
-import androidx.compose.ui.ComposeScene
+import androidx.compose.ui.input.key.KeyEvent as ComposeKeyEvent
 import androidx.compose.ui.input.pointer.PointerButtons
+import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.PointerKeyboardModifiers
-import androidx.compose.ui.platform.DesktopPlatform
+import androidx.compose.ui.input.pointer.PointerType
 import androidx.compose.ui.platform.AccessibilityControllerImpl
+import androidx.compose.ui.platform.DesktopPlatform
+import androidx.compose.ui.platform.PlatformComponent
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.window.density
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.swing.Swing
-import org.jetbrains.skia.Canvas
-import org.jetbrains.skiko.SkiaLayer
-import org.jetbrains.skiko.SkikoView
-import java.awt.Cursor
 import java.awt.Component
+import java.awt.Cursor
 import java.awt.Dimension
 import java.awt.Graphics
 import java.awt.Point
@@ -54,7 +50,11 @@ import java.awt.event.MouseWheelEvent
 import java.awt.im.InputMethodRequests
 import javax.accessibility.Accessible
 import javax.accessibility.AccessibleContext
-import androidx.compose.ui.input.key.KeyEvent as ComposeKeyEvent
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.swing.Swing
+import org.jetbrains.skia.Canvas
+import org.jetbrains.skiko.SkiaLayer
+import org.jetbrains.skiko.SkikoView
 
 internal class ComposeLayer {
     private var isDisposed = false

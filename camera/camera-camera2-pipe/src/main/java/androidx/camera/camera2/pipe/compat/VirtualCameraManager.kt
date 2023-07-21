@@ -42,7 +42,8 @@ internal sealed class CameraRequest
 internal data class RequestOpen(
     val virtualCamera: VirtualCameraState,
     val share: Boolean = false,
-    val graphListener: GraphListener
+    val graphListener: GraphListener,
+    val isForegroundObserver: (Unit) -> Boolean,
 ) : CameraRequest()
 
 internal data class RequestClose(val activeCamera: VirtualCameraManager.ActiveCamera) :
@@ -50,7 +51,10 @@ internal data class RequestClose(val activeCamera: VirtualCameraManager.ActiveCa
 
 internal object RequestCloseAll : CameraRequest()
 
-private const val requestQueueDepth = 8
+// A queue depth of 32 was deemed necessary in b/276051078 where a flood of requests can cause the
+// queue depth to go over 8. In the long run, we can perhaps look into refactoring and
+// reimplementing the request queue in a more robust way.
+private const val requestQueueDepth = 32
 
 @Suppress("EXPERIMENTAL_API_USAGE")
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
@@ -60,6 +64,7 @@ internal class VirtualCameraManager
 constructor(
     private val permissions: Permissions,
     private val retryingCameraStateOpener: RetryingCameraStateOpener,
+    private val camera2ErrorProcessor: Camera2ErrorProcessor,
     private val threads: Threads
 ) {
     // TODO: Consider rewriting this as a MutableSharedFlow
@@ -73,10 +78,11 @@ constructor(
     internal fun open(
         cameraId: CameraId,
         share: Boolean = false,
-        graphListener: GraphListener
+        graphListener: GraphListener,
+        isForegroundObserver: (Unit) -> Boolean,
     ): VirtualCamera {
-        val result = VirtualCameraState(cameraId)
-        offerChecked(RequestOpen(result, share, graphListener))
+        val result = VirtualCameraState(cameraId, graphListener)
+        offerChecked(RequestOpen(result, share, graphListener, isForegroundObserver))
         return result
     }
 
@@ -178,10 +184,15 @@ constructor(
             }
 
             // Stage 3: Open or select an active camera device.
+            camera2ErrorProcessor.setActiveVirtualCamera(cameraIdToOpen, request.virtualCamera)
             var realCamera = activeCameras.firstOrNull { it.cameraId == cameraIdToOpen }
             if (realCamera == null) {
                 val openResult =
-                    openCameraWithRetry(cameraIdToOpen, request.graphListener, scope = this)
+                    openCameraWithRetry(
+                        cameraIdToOpen,
+                        request.isForegroundObserver,
+                        scope = this
+                    )
                 if (openResult.activeCamera != null) {
                     realCamera = openResult.activeCamera
                     activeCameras.add(realCamera)
@@ -200,7 +211,7 @@ constructor(
 
     private suspend fun openCameraWithRetry(
         cameraId: CameraId,
-        graphListener: GraphListener,
+        isForegroundObserver: (Unit) -> Boolean,
         scope: CoroutineScope
     ): OpenVirtualCameraResult {
         // TODO: Figure out how 1-time permissions work, and see if they can be reset without
@@ -208,14 +219,15 @@ constructor(
         check(permissions.hasCameraPermission) { "Missing camera permissions!" }
 
         Log.debug { "Opening $cameraId with retries..." }
-        val result = retryingCameraStateOpener.openCameraWithRetry(cameraId, graphListener)
+        val result = retryingCameraStateOpener.openCameraWithRetry(cameraId, isForegroundObserver)
         if (result.cameraState == null) {
             return OpenVirtualCameraResult(lastCameraError = result.errorCode)
         }
         return OpenVirtualCameraResult(
             activeCamera =
             ActiveCamera(
-                androidCameraState = result.cameraState, scope = scope, channel = requestQueue
+                androidCameraState = result.cameraState,
+                scope = scope, channel = requestQueue
             )
         )
     }

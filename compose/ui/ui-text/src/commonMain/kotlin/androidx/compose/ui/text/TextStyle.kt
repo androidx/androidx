@@ -78,7 +78,6 @@ class TextStyle internal constructor(
             "constructor.",
         level = DeprecationLevel.HIDDEN
     )
-    @OptIn(ExperimentalTextApi::class)
     constructor(
         color: Color = Color.Unspecified,
         fontSize: TextUnit = TextUnit.Unspecified,
@@ -137,7 +136,6 @@ class TextStyle internal constructor(
             "constructor.",
         level = DeprecationLevel.HIDDEN
     )
-    @OptIn(ExperimentalTextApi::class)
     constructor(
         color: Color = Color.Unspecified,
         fontSize: TextUnit = TextUnit.Unspecified,
@@ -229,6 +227,12 @@ class TextStyle internal constructor(
      * @param lineBreak The line breaking configuration for the text.
      * @param hyphens The configuration of hyphenation.
      */
+    @Deprecated(
+        "TextStyle constructors that do not take new stable parameters " +
+            "like TextMotion are deprecated. Please use the new stable " +
+            "constructor.",
+        level = DeprecationLevel.HIDDEN
+    )
     constructor(
         color: Color = Color.Unspecified,
         fontSize: TextUnit = TextUnit.Unspecified,
@@ -323,7 +327,6 @@ class TextStyle internal constructor(
      * @param hyphens The configuration of hyphenation.
      * @param textMotion Text character placement, whether to optimize for animated or static text.
      */
-    @ExperimentalTextApi
     constructor(
         color: Color = Color.Unspecified,
         fontSize: TextUnit = TextUnit.Unspecified,
@@ -425,7 +428,6 @@ class TextStyle internal constructor(
      * @param hyphens The configuration of hyphenation.
      * @param textMotion Text character placement, whether to optimize for animated or static text.
      */
-    @ExperimentalTextApi
     constructor(
         brush: Brush?,
         alpha: Float = Float.NaN,
@@ -511,6 +513,103 @@ class TextStyle internal constructor(
     }
 
     /**
+     * Fast merge non-default values and parameters.
+     *
+     * This is the same algorithm as [merge] but does not require allocating it's parameter and may
+     * return this instead of allocating a result when all values are default.
+     *
+     * This is a similar algorithm to [copy] but when either this or a parameter are set to a
+     * default value, the other value will take precedent.
+     *
+     * To explain better, consider the following examples:
+     *
+     * Example 1:
+     * - this.color = [Color.Unspecified]
+     * - [color] = [Color.Red]
+     * - result => [Color.Red]
+     *
+     * Example 2:
+     * - this.color = [Color.Red]
+     * - [color] = [Color.Unspecified]
+     * - result => [Color.Red]
+     *
+     * Example 3:
+     * - this.color = [Color.Red]
+     * - [color] = [Color.Blue]
+     * - result => [Color.Blue]
+     *
+     * You should _always_ use this method over the [merge]([TextStyle]) overload when you do not
+     * already have a TextStyle allocated. You should chose this over [copy] when building a theming
+     * system and applying styling information to a specific usage.
+     *
+     * @return this or a new TextLayoutResult with all parameters chosen to the non-default option
+     * provided.
+     *
+     * @see merge
+     */
+    @Stable
+    fun merge(
+        color: Color = Color.Unspecified,
+        fontSize: TextUnit = TextUnit.Unspecified,
+        fontWeight: FontWeight? = null,
+        fontStyle: FontStyle? = null,
+        fontSynthesis: FontSynthesis? = null,
+        fontFamily: FontFamily? = null,
+        fontFeatureSettings: String? = null,
+        letterSpacing: TextUnit = TextUnit.Unspecified,
+        baselineShift: BaselineShift? = null,
+        textGeometricTransform: TextGeometricTransform? = null,
+        localeList: LocaleList? = null,
+        background: Color = Color.Unspecified,
+        textDecoration: TextDecoration? = null,
+        shadow: Shadow? = null,
+        drawStyle: DrawStyle? = null,
+        textAlign: TextAlign? = null,
+        textDirection: TextDirection? = null,
+        lineHeight: TextUnit = TextUnit.Unspecified,
+        textIndent: TextIndent? = null,
+        lineHeightStyle: LineHeightStyle? = null,
+        lineBreak: LineBreak? = null,
+        hyphens: Hyphens? = null,
+        platformStyle: PlatformTextStyle? = null,
+        textMotion: TextMotion? = null
+    ): TextStyle {
+        val mergedSpanStyle: SpanStyle = spanStyle.fastMerge(
+            color = color,
+            brush = null,
+            alpha = Float.NaN,
+            fontSize = fontSize,
+            fontWeight = fontWeight,
+            fontStyle = fontStyle,
+            fontSynthesis = fontSynthesis,
+            fontFamily = fontFamily,
+            fontFeatureSettings = fontFeatureSettings,
+            letterSpacing = letterSpacing,
+            baselineShift = baselineShift,
+            textGeometricTransform = textGeometricTransform,
+            localeList = localeList,
+            background = background,
+            textDecoration = textDecoration,
+            shadow = shadow,
+            platformStyle = platformStyle?.spanStyle,
+            drawStyle = drawStyle
+        )
+        val mergedParagraphStyle: ParagraphStyle = paragraphStyle.fastMerge(
+            textAlign = textAlign,
+            textDirection = textDirection,
+            lineHeight = lineHeight,
+            textIndent = textIndent,
+            platformStyle = platformStyle?.paragraphStyle,
+            lineHeightStyle = lineHeightStyle,
+            lineBreak = lineBreak,
+            hyphens = hyphens,
+            textMotion = textMotion
+        )
+        if (spanStyle === mergedSpanStyle && paragraphStyle === mergedParagraphStyle) return this
+        return TextStyle(mergedSpanStyle, mergedParagraphStyle)
+    }
+
+    /**
      * Returns a new text style that is a combination of this style and the given [other] style.
      *
      * @see merge
@@ -560,7 +659,6 @@ class TextStyle internal constructor(
             "copy constructor.",
         level = DeprecationLevel.HIDDEN
     )
-    @OptIn(ExperimentalTextApi::class)
     fun copy(
         color: Color = this.spanStyle.color,
         fontSize: TextUnit = this.spanStyle.fontSize,
@@ -625,7 +723,6 @@ class TextStyle internal constructor(
             "copy constructor.",
         level = DeprecationLevel.HIDDEN
     )
-    @OptIn(ExperimentalTextApi::class)
     fun copy(
         color: Color = this.spanStyle.color,
         fontSize: TextUnit = this.spanStyle.fontSize,
@@ -686,7 +783,12 @@ class TextStyle internal constructor(
         )
     }
 
-    @OptIn(ExperimentalTextApi::class)
+    @Deprecated(
+        "TextStyle copy constructors that do not take new stable parameters " +
+            "like LineBreak, Hyphens, and TextMotion are deprecated. Please use the new stable " +
+            "copy constructor.",
+        level = DeprecationLevel.HIDDEN
+    )
     fun copy(
         color: Color = this.spanStyle.color,
         fontSize: TextUnit = this.spanStyle.fontSize,
@@ -749,7 +851,6 @@ class TextStyle internal constructor(
         )
     }
 
-    @ExperimentalTextApi
     fun copy(
         color: Color = this.spanStyle.color,
         fontSize: TextUnit = this.spanStyle.fontSize,
@@ -814,7 +915,6 @@ class TextStyle internal constructor(
         )
     }
 
-    @ExperimentalTextApi
     fun copy(
         brush: Brush?,
         alpha: Float = this.spanStyle.alpha,
@@ -880,9 +980,6 @@ class TextStyle internal constructor(
     /**
      * The brush to use when drawing text. If not null, overrides [color].
      */
-    @ExperimentalTextApi
-    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-    @get:ExperimentalTextApi
     val brush: Brush? get() = this.spanStyle.brush
 
     /**
@@ -894,9 +991,6 @@ class TextStyle internal constructor(
      * Opacity of text. This value is either provided along side Brush, or via alpha channel in
      * color.
      */
-    @ExperimentalTextApi
-    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-    @get:ExperimentalTextApi
     val alpha: Float get() = this.spanStyle.alpha
 
     /**
@@ -972,9 +1066,6 @@ class TextStyle internal constructor(
     /**
      * Drawing style of text, whether fill in the text while drawing or stroke around the edges.
      */
-    @ExperimentalTextApi
-    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-    @get:ExperimentalTextApi
     val drawStyle: DrawStyle? get() = this.spanStyle.drawStyle
 
     /**
@@ -1022,9 +1113,6 @@ class TextStyle internal constructor(
     /**
      * Text character placement configuration, whether to optimize for animated or static text.
      */
-    @ExperimentalTextApi
-    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-    @get:ExperimentalTextApi
     val textMotion: TextMotion? get() = this.paragraphStyle.textMotion
 
     override fun equals(other: Any?): Boolean {
@@ -1056,6 +1144,10 @@ class TextStyle internal constructor(
             spanStyle.hasSameLayoutAffectingAttributes(other.spanStyle))
     }
 
+    fun hasSameDrawAffectingAttributes(other: TextStyle): Boolean {
+        return (this === other) || (spanStyle.hasSameNonLayoutAttributes(other.spanStyle))
+    }
+
     override fun hashCode(): Int {
         var result = spanStyle.hashCode()
         result = 31 * result + paragraphStyle.hashCode()
@@ -1070,7 +1162,6 @@ class TextStyle internal constructor(
         return result
     }
 
-    @OptIn(ExperimentalTextApi::class)
     override fun toString(): String {
         return "TextStyle(" +
             "color=$color, " +

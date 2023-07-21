@@ -25,6 +25,7 @@ plugins {
 
 dependencies {
     api(libs.kotlinStdlib)
+    implementation("androidx.annotation:annotation:1.6.0")
 
     testImplementation(libs.kotlinTest)
     testImplementation(libs.kotlinTestAnnotationsCommon)
@@ -44,7 +45,7 @@ tasks.withType(KotlinCompile).configureEach {
 }
 
 androidx {
-    name = "Jetpack WindowManager library Core Extensions"
+    name = "WindowManager Core Extensions"
     type = LibraryType.PUBLISHED_LIBRARY
     publish = Publish.SNAPSHOT_AND_RELEASE // Only to generate per-project-zips
     inceptionYear = "2022"

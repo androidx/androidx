@@ -232,8 +232,7 @@ abstract class DackkaTask @Inject constructor(
 
     companion object {
         private val externalLinks = mapOf(
-            "coroutinesCore"
-                to "https://kotlin.github.io/kotlinx.coroutines/kotlinx-coroutines-core",
+            "coroutinesCore" to "https://kotlinlang.org/api/kotlinx.coroutines/",
             "android" to "https://developer.android.com/reference",
             "guava" to "https://guava.dev/releases/18.0/api/docs/",
             "kotlin" to "https://kotlinlang.org/api/latest/jvm/stdlib/",

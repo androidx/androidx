@@ -16,6 +16,8 @@
 
 package androidx.camera.core;
 
+import static androidx.camera.core.impl.ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE;
+
 import android.graphics.SurfaceTexture;
 import android.util.Size;
 import android.view.Surface;
@@ -27,6 +29,7 @@ import androidx.core.util.Consumer;
 
 import com.google.auto.value.AutoValue;
 
+import java.io.Closeable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.concurrent.Executor;
@@ -39,7 +42,7 @@ import java.util.concurrent.Executor;
  *
  * @see SurfaceProcessor#onOutputSurface(SurfaceOutput)
  */
-public interface SurfaceOutput {
+public interface SurfaceOutput extends Closeable {
 
     /**
      * Gets the {@link Surface} for drawing processed frames.
@@ -67,11 +70,12 @@ public interface SurfaceOutput {
 
     /**
      * This field indicates the format of the {@link Surface}.
-     *
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @CameraEffect.Formats
-    int getFormat();
+    default int getFormat() {
+        return INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE;
+    }
 
     /**
      * Gets the size of the {@link Surface}.
@@ -87,14 +91,8 @@ public interface SurfaceOutput {
      * {@link Surface}. Writing to the {@link Surface} after calling this method might cause
      * errors.
      */
+    @Override
     void close();
-
-    /**
-     * Asks the {@link SurfaceProcessor} implementation to stopping writing to the {@link Surface}.
-     *
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    void requestClose();
 
     /**
      * Applies an additional 4x4 transformation on the original matrix.
@@ -158,9 +156,11 @@ public interface SurfaceOutput {
     @AutoValue
     abstract class Event {
 
+        Event() {
+        }
+
         /**
          * Possible event codes.
-         *
          */
         @IntDef({EVENT_REQUEST_CLOSE})
         @Retention(RetentionPolicy.SOURCE)
@@ -195,7 +195,6 @@ public interface SurfaceOutput {
 
         /**
          * Creates a {@link Event} for sending to the implementation.
-         *
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @NonNull

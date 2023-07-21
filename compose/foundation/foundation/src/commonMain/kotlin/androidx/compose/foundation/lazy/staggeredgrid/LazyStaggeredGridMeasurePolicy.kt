@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.lazy.layout.LazyLayoutMeasureScope
+import androidx.compose.foundation.lazy.layout.calculateLazyLayoutPinnedIndices
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.unit.Constraints
@@ -33,42 +34,40 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.constrainHeight
 import androidx.compose.ui.unit.constrainWidth
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
-@ExperimentalFoundationApi
 internal fun rememberStaggeredGridMeasurePolicy(
     state: LazyStaggeredGridState,
-    itemProvider: LazyStaggeredGridItemProvider,
+    itemProviderLambda: () -> LazyStaggeredGridItemProvider,
     contentPadding: PaddingValues,
     reverseLayout: Boolean,
     orientation: Orientation,
     mainAxisSpacing: Dp,
     crossAxisSpacing: Dp,
-    slotSizesSums: Density.(Constraints) -> IntArray
+    slots: Density.(Constraints) -> LazyStaggeredGridSlots
 ): LazyLayoutMeasureScope.(Constraints) -> LazyStaggeredGridMeasureResult = remember(
     state,
-    itemProvider,
+    itemProviderLambda,
     contentPadding,
     reverseLayout,
     orientation,
     mainAxisSpacing,
     crossAxisSpacing,
-    slotSizesSums
+    slots
 ) {
     { constraints ->
         checkScrollableContainerConstraints(
             constraints,
             orientation
         )
-        val resolvedSlotSums = slotSizesSums(this, constraints)
+        val resolvedSlots = slots(this, constraints)
         val isVertical = orientation == Orientation.Vertical
+        val itemProvider = itemProviderLambda()
 
         // setup information for prefetch
-        state.laneWidthsPrefixSum = resolvedSlotSums
+        state.slots = resolvedSlots
         state.isVertical = isVertical
         state.spanProvider = itemProvider.spanProvider
-
-        // ensure scroll position is up to date
-        state.updateScrollPositionIfTheFirstItemWasMoved(itemProvider)
 
         // setup measure
         val beforeContentPadding = contentPadding.beforePadding(
@@ -96,16 +95,21 @@ internal fun rememberStaggeredGridMeasurePolicy(
             calculateTopPadding() + calculateBottomPadding()
         }.roundToPx()
 
+        val pinnedItems = itemProvider.calculateLazyLayoutPinnedIndices(
+            state.pinnedItems,
+            state.beyondBoundsInfo
+        )
+
         measureStaggeredGrid(
             state = state,
+            pinnedItems = pinnedItems,
             itemProvider = itemProvider,
-            resolvedSlotSums = resolvedSlotSums,
+            resolvedSlots = resolvedSlots,
             constraints = constraints.copy(
                 minWidth = constraints.constrainWidth(horizontalPadding),
                 minHeight = constraints.constrainHeight(verticalPadding)
             ),
             mainAxisSpacing = mainAxisSpacing.roundToPx(),
-            crossAxisSpacing = crossAxisSpacing.roundToPx(),
             contentOffset = contentOffset,
             mainAxisAvailableSize = mainAxisAvailableSize,
             isVertical = isVertical,

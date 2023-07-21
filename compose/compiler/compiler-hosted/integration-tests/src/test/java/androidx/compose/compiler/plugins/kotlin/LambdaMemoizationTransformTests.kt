@@ -358,7 +358,7 @@ class LambdaMemoizationTransformTests : AbstractIrTransformTest() {
             import androidx.compose.runtime.getValue
 
             @Composable fun A() {
-                val x by mutableStateOf(123)
+                val x by mutableStateOf("abc")
                 B {
                     print(x)
                 }
@@ -373,7 +373,14 @@ class LambdaMemoizationTransformTests : AbstractIrTransformTest() {
                 if (isTraceInProgress()) {
                   traceEventStart(<>, %changed, -1, <>)
                 }
-                <<LOCALDELPROP>>
+                val x by {
+                  val x%delegate = mutableStateOf(
+                    value = "abc"
+                  )
+                  get() {
+                    return x%delegate.getValue(null, ::x%delegate)
+                  }
+                }
                 B(composableLambda(%composer, <>, true) { %composer: Composer?, %changed: Int ->
                   sourceInformation(%composer, "C:Test.kt")
                   if (%changed and 0b1011 !== 0b0010 || !%composer.skipping) {

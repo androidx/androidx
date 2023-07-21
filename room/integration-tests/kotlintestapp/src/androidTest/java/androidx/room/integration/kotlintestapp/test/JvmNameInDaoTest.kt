@@ -16,6 +16,7 @@
 
 package androidx.room.integration.kotlintestapp.test
 
+import androidx.kruth.assertThat
 import androidx.room.Dao
 import androidx.room.Database
 import androidx.room.Delete
@@ -28,7 +29,6 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverter
 import androidx.room.TypeConverters
 import androidx.test.core.app.ApplicationProvider
-import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 
 /**

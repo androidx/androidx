@@ -26,13 +26,13 @@ import androidx.glance.semantics.SemanticsModifier
 import androidx.glance.semantics.SemanticsProperties
 import androidx.glance.unit.ColorProvider
 import com.google.common.truth.Truth.assertThat
+import kotlin.test.assertIs
+import kotlin.test.assertNotNull
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
-import kotlin.test.assertIs
-import kotlin.test.assertNotNull
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class ImageTest {

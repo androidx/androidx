@@ -19,10 +19,13 @@ package androidx.compose.material3
 import android.os.Build
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.testutils.assertAgainstGolden
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.isDialog
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
@@ -69,7 +72,7 @@ class AlertDialogScreenshotTest {
             )
         }
 
-        assertAppBarAgainstGolden(goldenIdentifier = "alertDialog_lightTheme")
+        assertAlertDialogAgainstGolden(goldenIdentifier = "alertDialog_lightTheme")
     }
 
     @Test
@@ -99,7 +102,7 @@ class AlertDialogScreenshotTest {
             )
         }
 
-        assertAppBarAgainstGolden(goldenIdentifier = "alertDialog_darkTheme")
+        assertAlertDialogAgainstGolden(goldenIdentifier = "alertDialog_darkTheme")
     }
 
     @Test
@@ -130,7 +133,7 @@ class AlertDialogScreenshotTest {
             )
         }
 
-        assertAppBarAgainstGolden(goldenIdentifier = "alertDialog_withIcon_lightTheme")
+        assertAlertDialogAgainstGolden(goldenIdentifier = "alertDialog_withIcon_lightTheme")
     }
 
     @Test
@@ -161,10 +164,41 @@ class AlertDialogScreenshotTest {
             )
         }
 
-        assertAppBarAgainstGolden(goldenIdentifier = "alertDialog_withIcon_darkTheme")
+        assertAlertDialogAgainstGolden(goldenIdentifier = "alertDialog_withIcon_darkTheme")
     }
 
-    private fun assertAppBarAgainstGolden(goldenIdentifier: String) {
+    @Test
+    fun alertDialog_rtl() {
+        composeTestRule.setContent {
+            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+                AlertDialog(
+                    onDismissRequest = {},
+                    title = {
+                        Text(text = "Title")
+                    },
+                    text = {
+                        Text(
+                            "This area typically contains the supportive text " +
+                                "which presents the details regarding the Dialog's purpose."
+                        )
+                    },
+                    confirmButton = {
+                        TextButton(onClick = { /* doSomething() */ }) {
+                            Text("Confirm")
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(onClick = { /* doSomething() */ }) {
+                            Text("Dismiss")
+                        }
+                    }
+                )
+            }
+        }
+        assertAlertDialogAgainstGolden(goldenIdentifier = "alertDialog_rtl")
+    }
+
+    private fun assertAlertDialogAgainstGolden(goldenIdentifier: String) {
         composeTestRule.onNode(isDialog())
             .captureToImage()
             .assertAgainstGolden(screenshotRule, goldenIdentifier)

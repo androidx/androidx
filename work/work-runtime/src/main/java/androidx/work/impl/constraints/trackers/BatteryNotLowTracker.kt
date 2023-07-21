@@ -16,8 +16,8 @@
 package androidx.work.impl.constraints.trackers
 
 import android.content.Context
-import android.content.IntentFilter
 import android.content.Intent
+import android.content.IntentFilter
 import android.os.BatteryManager
 import androidx.annotation.RestrictTo
 import androidx.work.Logger

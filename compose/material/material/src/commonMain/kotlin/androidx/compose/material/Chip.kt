@@ -66,8 +66,8 @@ import androidx.compose.ui.unit.dp
  * Action chips should appear in a set and can be horizontally scrollable
  * @sample androidx.compose.material.samples.ChipGroupSingleLineSample
  *
- * Alternatively, use Accompanist's [Flow Layouts](https://google.github.io/accompanist/flowlayout/)
- * to wrap chips to a new line.
+ * Alternatively, use [androidx.compose.foundation.layout.FlowRow] to wrap chips to a new line.
+ * @sample androidx.compose.material.samples.ChipGroupReflowSample
  *
  * @param onClick called when the chip is clicked.
  * @param modifier Modifier to be applied to the chip

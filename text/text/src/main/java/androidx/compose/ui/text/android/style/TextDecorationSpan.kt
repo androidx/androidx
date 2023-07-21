@@ -28,7 +28,7 @@ import androidx.compose.ui.text.android.InternalPlatformTextApi
  * @suppress
  */
 @InternalPlatformTextApi
-class TextDecorationSpan(
+internal class TextDecorationSpan(
     val isUnderlineText: Boolean,
     val isStrikethroughText: Boolean
 ) : CharacterStyle() {

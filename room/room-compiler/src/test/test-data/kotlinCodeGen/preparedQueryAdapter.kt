@@ -58,12 +58,15 @@ public class MyDao_Impl(
         val _stmt: SupportSQLiteStatement = __preparedStmtOfInsertEntity.acquire()
         var _argIndex: Int = 1
         _stmt.bindLong(_argIndex, id)
-        __db.beginTransaction()
         try {
-            _stmt.executeInsert()
-            __db.setTransactionSuccessful()
+            __db.beginTransaction()
+            try {
+                _stmt.executeInsert()
+                __db.setTransactionSuccessful()
+            } finally {
+                __db.endTransaction()
+            }
         } finally {
-            __db.endTransaction()
             __preparedStmtOfInsertEntity.release(_stmt)
         }
     }
@@ -73,13 +76,16 @@ public class MyDao_Impl(
         val _stmt: SupportSQLiteStatement = __preparedStmtOfInsertEntity.acquire()
         var _argIndex: Int = 1
         _stmt.bindLong(_argIndex, id)
-        __db.beginTransaction()
         try {
-            val _result: Long = _stmt.executeInsert()
-            __db.setTransactionSuccessful()
-            return _result
+            __db.beginTransaction()
+            try {
+                val _result: Long = _stmt.executeInsert()
+                __db.setTransactionSuccessful()
+                return _result
+            } finally {
+                __db.endTransaction()
+            }
         } finally {
-            __db.endTransaction()
             __preparedStmtOfInsertEntity.release(_stmt)
         }
     }
@@ -89,12 +95,15 @@ public class MyDao_Impl(
         val _stmt: SupportSQLiteStatement = __preparedStmtOfUpdateEntity.acquire()
         var _argIndex: Int = 1
         _stmt.bindString(_argIndex, text)
-        __db.beginTransaction()
         try {
-            _stmt.executeUpdateDelete()
-            __db.setTransactionSuccessful()
+            __db.beginTransaction()
+            try {
+                _stmt.executeUpdateDelete()
+                __db.setTransactionSuccessful()
+            } finally {
+                __db.endTransaction()
+            }
         } finally {
-            __db.endTransaction()
             __preparedStmtOfUpdateEntity.release(_stmt)
         }
     }
@@ -106,13 +115,16 @@ public class MyDao_Impl(
         _stmt.bindString(_argIndex, text)
         _argIndex = 2
         _stmt.bindLong(_argIndex, id)
-        __db.beginTransaction()
         try {
-            val _result: Int = _stmt.executeUpdateDelete()
-            __db.setTransactionSuccessful()
-            return _result
+            __db.beginTransaction()
+            try {
+                val _result: Int = _stmt.executeUpdateDelete()
+                __db.setTransactionSuccessful()
+                return _result
+            } finally {
+                __db.endTransaction()
+            }
         } finally {
-            __db.endTransaction()
             __preparedStmtOfUpdateEntityReturnInt.release(_stmt)
         }
     }
@@ -120,12 +132,15 @@ public class MyDao_Impl(
     public override fun deleteEntity(): Unit {
         __db.assertNotSuspendingTransaction()
         val _stmt: SupportSQLiteStatement = __preparedStmtOfDeleteEntity.acquire()
-        __db.beginTransaction()
         try {
-            _stmt.executeUpdateDelete()
-            __db.setTransactionSuccessful()
+            __db.beginTransaction()
+            try {
+                _stmt.executeUpdateDelete()
+                __db.setTransactionSuccessful()
+            } finally {
+                __db.endTransaction()
+            }
         } finally {
-            __db.endTransaction()
             __preparedStmtOfDeleteEntity.release(_stmt)
         }
     }
@@ -133,13 +148,16 @@ public class MyDao_Impl(
     public override fun deleteEntityReturnInt(): Int {
         __db.assertNotSuspendingTransaction()
         val _stmt: SupportSQLiteStatement = __preparedStmtOfDeleteEntity.acquire()
-        __db.beginTransaction()
         try {
-            val _result: Int = _stmt.executeUpdateDelete()
-            __db.setTransactionSuccessful()
-            return _result
+            __db.beginTransaction()
+            try {
+                val _result: Int = _stmt.executeUpdateDelete()
+                __db.setTransactionSuccessful()
+                return _result
+            } finally {
+                __db.endTransaction()
+            }
         } finally {
-            __db.endTransaction()
             __preparedStmtOfDeleteEntity.release(_stmt)
         }
     }

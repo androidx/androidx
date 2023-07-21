@@ -23,7 +23,6 @@ import androidx.benchmark.junit4.measureRepeated
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.Paragraph
 import androidx.compose.ui.text.ParagraphIntrinsics
 import androidx.compose.ui.text.SpanStyle
@@ -35,12 +34,12 @@ import androidx.compose.ui.unit.sp
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
 import kotlin.math.ceil
+import kotlin.math.roundToInt
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
-import kotlin.math.roundToInt
 
 @LargeTest
 @RunWith(Parameterized::class)
@@ -111,7 +110,6 @@ class ParagraphBenchmark(
         )
     }
 
-    @OptIn(ExperimentalTextApi::class)
     private fun paragraphIntrinsics(
         text: String,
         spanStyles: List<AnnotatedString.Range<SpanStyle>>

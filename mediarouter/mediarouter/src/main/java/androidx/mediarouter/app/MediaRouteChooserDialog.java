@@ -28,6 +28,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.os.SystemClock;
 import android.text.TextUtils;
+import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -35,11 +36,16 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatDialog;
@@ -50,6 +56,8 @@ import androidx.mediarouter.media.MediaRouter;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -69,7 +77,12 @@ public class MediaRouteChooserDialog extends AppCompatDialog {
 
     // Do not update the route list immediately to avoid unnatural dialog change.
     private static final long UPDATE_ROUTES_DELAY_MS = 300L;
-    static final int MSG_UPDATE_ROUTES = 1;
+    private static final int MSG_UPDATE_ROUTES = 1;
+    private static final int MSG_SHOW_WIFI_HINT = 2;
+    private static final int MSG_SHOW_NO_ROUTES = 3;
+
+    private static final int SHOW_WIFI_HINT_DELAY_MS = 5000;
+    private static final int SHOW_NO_ROUTES_DELAY_MS = 15000;
 
     private final MediaRouter mRouter;
     private final MediaRouterCallback mCallback;
@@ -79,6 +92,11 @@ public class MediaRouteChooserDialog extends AppCompatDialog {
     private ArrayList<MediaRouter.RouteInfo> mRoutes;
     private RouteAdapter mAdapter;
     private ListView mListView;
+    private RelativeLayout mEmptyView;
+    private LinearLayout mSearchingRoutesView;
+    private FrameLayout mNoRoutesView;
+    private FrameLayout mWifiWarningView;
+    private FrameLayout mFooterView;
     private boolean mAttachedToWindow;
     private long mLastUpdateTime;
     @SuppressWarnings({"unchecked", "deprecation"})
@@ -87,11 +105,27 @@ public class MediaRouteChooserDialog extends AppCompatDialog {
         public void handleMessage(Message message) {
             switch (message.what) {
                 case MSG_UPDATE_ROUTES:
-                    updateRoutes((List<MediaRouter.RouteInfo>) message.obj);
+                    handleUpdateRoutes((List<MediaRouter.RouteInfo>) message.obj);
+                    break;
+                case MSG_SHOW_WIFI_HINT:
+                    handleShowNoWifiWarning();
+                    break;
+                case MSG_SHOW_NO_ROUTES:
+                    handleShowNoRoutes();
                     break;
             }
         }
     };
+
+    private static final int FINDING_DEVICES = 0;
+    private static final int SHOWING_ROUTES = 1;
+    private static final int NO_DEVICES_NO_WIFI_HINT = 2;
+    private static final int NO_ROUTES = 3;
+
+
+    @Retention(RetentionPolicy.SOURCE)
+    @IntDef({FINDING_DEVICES, SHOWING_ROUTES, NO_DEVICES_NO_WIFI_HINT, NO_ROUTES})
+    private @interface MediaRouterChooserDialogState {}
 
     public MediaRouteChooserDialog(@NonNull Context context) {
         this(context, 0);
@@ -196,6 +230,20 @@ public class MediaRouteChooserDialog extends AppCompatDialog {
         mListView.setEmptyView(findViewById(android.R.id.empty));
         mTitleView = findViewById(R.id.mr_chooser_title);
 
+        mEmptyView = findViewById(R.id.mr_empty_view);
+        mSearchingRoutesView = findViewById(R.id.mr_chooser_searching);
+        mNoRoutesView = findViewById(R.id.mr_chooser_no_routes);
+        mWifiWarningView = findViewById(R.id.mr_chooser_wifi_warning);
+        mFooterView = findViewById(R.id.mr_chooser_footer);
+
+        TextView zeroRoutesDescription = findViewById(R.id.mr_chooser_zero_routes_description);
+        TextView wifiWarningDescription = findViewById(R.id.mr_chooser_wifi_warning_description);
+        Button doneButton = findViewById(R.id.mr_chooser_done_button);
+
+        zeroRoutesDescription.setMovementMethod(LinkMovementMethod.getInstance());
+        wifiWarningDescription.setMovementMethod(LinkMovementMethod.getInstance());
+        doneButton.setOnClickListener(view -> dismiss());
+
         updateLayout();
     }
 
@@ -210,17 +258,26 @@ public class MediaRouteChooserDialog extends AppCompatDialog {
     @Override
     public void onAttachedToWindow() {
         super.onAttachedToWindow();
-
         mAttachedToWindow = true;
         mRouter.addCallback(mSelector, mCallback, MediaRouter.CALLBACK_FLAG_PERFORM_ACTIVE_SCAN);
         refreshRoutes();
+
+        mHandler.removeMessages(MSG_SHOW_WIFI_HINT);
+        mHandler.removeMessages(MSG_SHOW_NO_ROUTES);
+        mHandler.removeMessages(MSG_UPDATE_ROUTES);
+
+        mHandler.sendMessageDelayed(
+                mHandler.obtainMessage(MSG_SHOW_WIFI_HINT), SHOW_WIFI_HINT_DELAY_MS);
     }
 
     @Override
     public void onDetachedFromWindow() {
         mAttachedToWindow = false;
+
         mRouter.removeCallback(mCallback);
         mHandler.removeMessages(MSG_UPDATE_ROUTES);
+        mHandler.removeMessages(MSG_SHOW_WIFI_HINT);
+        mHandler.removeMessages(MSG_SHOW_NO_ROUTES);
 
         super.onDetachedFromWindow();
     }
@@ -234,7 +291,7 @@ public class MediaRouteChooserDialog extends AppCompatDialog {
             onFilterRoutes(routes);
             Collections.sort(routes, RouteComparator.sInstance);
             if (SystemClock.uptimeMillis() - mLastUpdateTime >= UPDATE_ROUTES_DELAY_MS) {
-                updateRoutes(routes);
+                handleUpdateRoutes(routes);
             } else {
                 mHandler.removeMessages(MSG_UPDATE_ROUTES);
                 mHandler.sendMessageAtTime(mHandler.obtainMessage(MSG_UPDATE_ROUTES, routes),
@@ -243,11 +300,105 @@ public class MediaRouteChooserDialog extends AppCompatDialog {
         }
     }
 
-    void updateRoutes(List<MediaRouter.RouteInfo> routes) {
+    void handleUpdateRoutes(List<MediaRouter.RouteInfo> routes) {
         mLastUpdateTime = SystemClock.uptimeMillis();
         mRoutes.clear();
         mRoutes.addAll(routes);
         mAdapter.notifyDataSetChanged();
+
+        mHandler.removeMessages(MSG_SHOW_NO_ROUTES);
+        mHandler.removeMessages(MSG_SHOW_WIFI_HINT);
+
+        if (routes.isEmpty()) {
+            // When all routes are removed or disconnected
+            updateViewForState(FINDING_DEVICES);
+
+            mHandler.sendMessageDelayed(
+                    mHandler.obtainMessage(MSG_SHOW_WIFI_HINT), SHOW_WIFI_HINT_DELAY_MS);
+        } else {
+            updateViewForState(SHOWING_ROUTES);
+        }
+    }
+
+    void handleShowNoWifiWarning() {
+        if (mRoutes.isEmpty()) {
+            updateViewForState(NO_DEVICES_NO_WIFI_HINT);
+            mHandler.removeMessages(MSG_SHOW_WIFI_HINT);
+            mHandler.removeMessages(MSG_SHOW_NO_ROUTES);
+            mHandler.sendMessageDelayed(mHandler.obtainMessage(MSG_SHOW_NO_ROUTES),
+                    SHOW_NO_ROUTES_DELAY_MS);
+        }
+    }
+
+    void handleShowNoRoutes() {
+        if (mRoutes.isEmpty()) {
+            updateViewForState(NO_ROUTES);
+            mHandler.removeMessages(MSG_SHOW_WIFI_HINT);
+            mHandler.removeMessages(MSG_SHOW_NO_ROUTES);
+            mHandler.removeMessages(MSG_UPDATE_ROUTES);
+            mRouter.removeCallback(mCallback);
+        }
+    }
+
+    void updateViewForState(@MediaRouterChooserDialogState int state) {
+        switch (state) {
+            case NO_ROUTES:
+                updateViewForNoRoutes();
+                break;
+            case NO_DEVICES_NO_WIFI_HINT:
+                updateViewForNoDevicesNoWifiHint();
+                break;
+            case SHOWING_ROUTES:
+                updateViewForShowingRoutes();
+                break;
+            case FINDING_DEVICES:
+                updateViewForFindingDevices();
+                break;
+        }
+    }
+
+    private void updateViewForNoRoutes() {
+        setTitle(R.string.mr_chooser_zero_routes_found_title);
+        mTitleView.setVisibility(View.VISIBLE);
+        mListView.setVisibility(View.GONE);
+        mEmptyView.setVisibility(View.VISIBLE);
+        mFooterView.setVisibility(View.VISIBLE);
+        mNoRoutesView.setVisibility(View.VISIBLE);
+        mSearchingRoutesView.setVisibility(View.GONE);
+        mWifiWarningView.setVisibility(View.GONE);
+    }
+
+    private void updateViewForNoDevicesNoWifiHint() {
+        setTitle(R.string.mr_chooser_title);
+        mTitleView.setVisibility(View.VISIBLE);
+        mListView.setVisibility(View.GONE);
+        mEmptyView.setVisibility(View.VISIBLE);
+        mFooterView.setVisibility(View.GONE);
+        mNoRoutesView.setVisibility(View.GONE);
+        mSearchingRoutesView.setVisibility(View.VISIBLE);
+        mWifiWarningView.setVisibility(View.VISIBLE);
+    }
+
+    private void updateViewForShowingRoutes() {
+        setTitle(R.string.mr_chooser_title);
+        mTitleView.setVisibility(View.VISIBLE);
+        mListView.setVisibility(View.VISIBLE);
+        mEmptyView.setVisibility(View.GONE);
+        mFooterView.setVisibility(View.GONE);
+        mNoRoutesView.setVisibility(View.GONE);
+        mSearchingRoutesView.setVisibility(View.GONE);
+        mWifiWarningView.setVisibility(View.GONE);
+    }
+
+    private void updateViewForFindingDevices() {
+        setTitle(R.string.mr_chooser_title);
+        mTitleView.setVisibility(View.VISIBLE);
+        mListView.setVisibility(View.GONE);
+        mEmptyView.setVisibility(View.VISIBLE);
+        mFooterView.setVisibility(View.GONE);
+        mNoRoutesView.setVisibility(View.GONE);
+        mSearchingRoutesView.setVisibility(View.VISIBLE);
+        mWifiWarningView.setVisibility(View.GONE);
     }
 
     private static final class RouteAdapter extends ArrayAdapter<MediaRouter.RouteInfo>
@@ -288,8 +439,9 @@ public class MediaRouteChooserDialog extends AppCompatDialog {
             return getItem(position).isEnabled();
         }
 
+        @NonNull
         @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
+        public View getView(int position, View convertView, @NonNull ViewGroup parent) {
             View view = convertView;
             if (view == null) {
                 view = mInflater.inflate(R.layout.mr_chooser_list_item, parent, false);
@@ -356,7 +508,7 @@ public class MediaRouteChooserDialog extends AppCompatDialog {
         private Drawable getDefaultIconDrawable(MediaRouter.RouteInfo route) {
             // If the type of the receiver device is specified, use it.
             switch (route.getDeviceType()) {
-                case  MediaRouter.RouteInfo.DEVICE_TYPE_TV:
+                case MediaRouter.RouteInfo.DEVICE_TYPE_TV:
                     return mTvIcon;
                 case MediaRouter.RouteInfo.DEVICE_TYPE_SPEAKER:
                     return mSpeakerIcon;

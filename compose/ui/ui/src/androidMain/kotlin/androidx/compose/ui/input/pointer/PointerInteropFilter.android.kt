@@ -329,14 +329,13 @@ internal class PointerInteropFilter : PointerInputModifier {
  * [motionEventSpy] is active.
  *
  * This method can only be used to observe [MotionEvent]s and can not be used to capture an event
- * stream. Use [pointerInteropFilter] to handle [MotionEvent]s and consume the events.
+ * stream.
  *
  * [watcher] is called during the [PointerEventPass.Initial] pass.
  *
- * Developers should prefer to use [pointerInput] to handle pointer input processing within
- * Compose. [motionEventSpy] is only useful as part of Android View interoperability.
+ * Developers should use [pointerInput] to handle pointer input processing within Compose.
+ * [motionEventSpy] is only useful as part of Android View interoperability.
  */
-@ExperimentalComposeUiApi
 fun Modifier.motionEventSpy(watcher: (motionEvent: MotionEvent) -> Unit): Modifier =
     this.pointerInput(watcher) {
         interceptOutOfBoundsChildEvents = true

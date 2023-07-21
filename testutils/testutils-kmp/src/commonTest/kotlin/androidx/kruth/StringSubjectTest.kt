@@ -162,4 +162,143 @@ class StringSubjectTest {
         assertThat("a").startsWith("")
         assertThat("a").endsWith("")
     }
+
+    @Test
+    fun stringEqualityIgnoringCase() {
+        assertThat("café").ignoringCase().isEqualTo("CAFÉ")
+    }
+
+    @Test
+    fun stringEqualityIgnoringCaseWithNullSubject() {
+        assertThat(null as String?).ignoringCase().isEqualTo(null)
+    }
+
+    @Test
+    fun stringEqualityIgnoringCaseFail() {
+        assertFailsWith<AssertionError> {
+            assertThat("abc").ignoringCase().isEqualTo("abd")
+        }
+    }
+
+    @Test
+    fun stringEqualityIgnoringCaseFailWithNullSubject() {
+        assertFailsWith<AssertionError> {
+            assertThat(null as String?).ignoringCase().isEqualTo("abc")
+        }
+    }
+
+    @Test
+    fun stringEqualityIgnoringCaseFailWithNullExpectedString() {
+        assertFailsWith<AssertionError> {
+            assertThat("abc").ignoringCase().isEqualTo(null)
+        }
+    }
+
+    @Test
+    fun stringInequalityIgnoringCase() {
+        assertThat("café").ignoringCase().isNotEqualTo("AFÉ")
+    }
+
+    @Test
+    fun stringInequalityIgnoringCaseWithNullSubject() {
+        assertThat(null as String?).ignoringCase().isNotEqualTo("abc")
+    }
+
+    @Test
+    fun stringInequalityIgnoringCaseWithNullExpectedString() {
+        assertThat("abc").ignoringCase().isNotEqualTo(null)
+    }
+
+    @Test
+    fun stringInequalityIgnoringCaseFail() {
+        assertFailsWith<AssertionError> {
+            assertThat("café").ignoringCase().isNotEqualTo("CAFÉ")
+        }
+    }
+
+    @Test
+    fun stringInequalityIgnoringCaseFailWithNullSubject() {
+        assertFailsWith<AssertionError> {
+            assertThat(null as String?).ignoringCase().isNotEqualTo(null)
+        }
+    }
+
+    @Test
+    fun stringContainsIgnoringCase() {
+        assertThat("äbc").ignoringCase().contains("Ä")
+    }
+
+    @Test
+    fun stringContainsIgnoringCaseEmptyString() {
+        assertThat("abc").ignoringCase().contains("")
+    }
+
+    @Test
+    fun stringContainsIgnoringCaseWithWord() {
+        assertThat("abcdé").ignoringCase().contains("CdÉ")
+    }
+
+    @Test
+    fun stringContainsIgnoringCaseWholeWord() {
+        assertThat("abcde").ignoringCase().contains("ABCde")
+    }
+
+    @Test
+    fun stringContainsIgnoringCaseCharSeq() {
+        val charSeq: CharSequence = StringBuilder("C")
+        assertThat("abc").ignoringCase().contains(charSeq)
+    }
+
+    @Test
+    fun stringContainsIgnoringCaseFail() {
+        assertFailsWith<AssertionError> {
+            assertThat("abc").ignoringCase().contains("d")
+        }
+    }
+
+    @Test
+    fun stringContainsIgnoringCaseFailBecauseTooLarge() {
+        assertFailsWith<AssertionError> {
+            assertThat("abc").ignoringCase().contains("abcc")
+        }
+    }
+
+    @Test
+    fun stringContainsIgnoringCaseFailBecauseNullSubject() {
+        assertFailsWith<AssertionError> {
+            assertThat(null as String?).ignoringCase().contains("d")
+        }
+    }
+
+    @Test
+    fun stringDoesNotContainIgnoringCase() {
+        assertThat("äbc").ignoringCase().doesNotContain("Äc")
+    }
+
+    @Test
+    fun stringDoesNotContainIgnoringCaseCharSeq() {
+        val charSeq: CharSequence = StringBuilder("cb")
+        assertThat("abc").ignoringCase().doesNotContain(charSeq)
+    }
+
+    @Test
+    fun stringDoesNotContainIgnoringCaseFail() {
+        assertFailsWith<AssertionError> {
+            assertThat("äbc").ignoringCase().doesNotContain("Äb")
+        }
+    }
+
+    @Test
+    fun stringDoesNotContainIgnoringCaseFailWithEmptyString() {
+        assertFailsWith<AssertionError> {
+            assertThat("abc").ignoringCase().doesNotContain("")
+        }
+    }
+
+    @Test
+    fun stringDoesNotContainIgnoringCaseFailBecauseNullSubject() {
+        assertFailsWith<AssertionError> {
+            assertThat(null as String?).ignoringCase().doesNotContain("d")
+        }
+    }
 }

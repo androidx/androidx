@@ -16,19 +16,19 @@
 package androidx.baselineprofile.gradle.utils
 
 import com.android.build.api.dsl.BuildType
-import com.android.build.api.dsl.CommonExtension
 import org.gradle.api.GradleException
+import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Project
 
 internal inline fun <reified T : BuildType> createExtendedBuildTypes(
     project: Project,
-    extension: CommonExtension<*, T, *, *>,
+    extensionBuildTypes: NamedDomainObjectContainer<out T>,
     newBuildTypePrefix: String,
     crossinline filterBlock: (T) -> (Boolean),
     crossinline configureBlock: T.() -> (Unit),
     extendedBuildTypeToOriginalBuildTypeMapping: MutableMap<String, String> = mutableMapOf()
 ) {
-    extension.buildTypes.filter { buildType ->
+    extensionBuildTypes.filter { buildType ->
             if (buildType !is T) {
                 throw GradleException(
                     "Build type `${buildType.name}` is not of type ${T::class}"
@@ -40,14 +40,14 @@ internal inline fun <reified T : BuildType> createExtendedBuildTypes(
             val newBuildTypeName = camelCase(newBuildTypePrefix, buildType.name)
 
             // Check in case the build type was created manually (to allow full customization)
-            if (extension.buildTypes.findByName(newBuildTypeName) != null) {
+            if (extensionBuildTypes.findByName(newBuildTypeName) != null) {
                 project.logger.info(
                     "Build type $newBuildTypeName won't be created because already exists."
                 )
             } else {
                 // If the new build type doesn't exist, create it simply extending the configured
                 // one (by default release).
-                extension.buildTypes.create(newBuildTypeName).apply {
+                extensionBuildTypes.create(newBuildTypeName).apply {
                     initWith(buildType)
                     matchingFallbacks += listOf(buildType.name)
                     configureBlock(this as T)
@@ -60,12 +60,12 @@ internal inline fun <reified T : BuildType> createExtendedBuildTypes(
 
 internal inline fun <reified T : BuildType> createBuildTypeIfNotExists(
     project: Project,
-    extension: CommonExtension<*, T, *, *>,
+    extensionBuildTypes: NamedDomainObjectContainer<out T>,
     buildTypeName: String,
     crossinline configureBlock: T.() -> (Unit),
 ) {
     // Check in case the build type was created manually (to allow full customization)
-    if (extension.buildTypes.findByName(buildTypeName) != null) {
+    if (extensionBuildTypes.findByName(buildTypeName) != null) {
         project.logger.info(
             "Build type $buildTypeName won't be created because already exists."
         )
@@ -73,7 +73,7 @@ internal inline fun <reified T : BuildType> createBuildTypeIfNotExists(
     }
     // If the new build type doesn't exist, create it simply extending the configured
     // one (by default release).
-    extension.buildTypes.create(buildTypeName).apply {
+    extensionBuildTypes.create(buildTypeName).apply {
         configureBlock(this)
     }
 }

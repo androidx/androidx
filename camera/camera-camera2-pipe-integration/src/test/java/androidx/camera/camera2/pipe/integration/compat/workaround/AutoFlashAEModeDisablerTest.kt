@@ -113,7 +113,10 @@ class AutoFlashAEModeDisablerTest {
             CameraQuirks(
                 metadata, StreamConfigurationMapCompat(
                     StreamConfigurationMapBuilder.newBuilder().build(),
-                    OutputSizesCorrector(FakeCameraMetadata())
+                    OutputSizesCorrector(
+                        FakeCameraMetadata(),
+                        StreamConfigurationMapBuilder.newBuilder().build()
+                    )
                 )
             )
         )

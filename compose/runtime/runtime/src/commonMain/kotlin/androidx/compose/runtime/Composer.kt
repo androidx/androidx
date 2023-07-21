@@ -320,7 +320,7 @@ class MovableContentStateReference internal constructor(
     internal val composition: ControlledComposition,
     internal val slotTable: SlotTable,
     internal val anchor: Anchor,
-    internal val invalidations: List<Pair<RecomposeScopeImpl, IdentityArraySet<Any>?>>,
+    internal var invalidations: List<Pair<RecomposeScopeImpl, IdentityArraySet<Any>?>>,
     internal val locals: PersistentCompositionLocalMap
 )
 
@@ -1258,9 +1258,17 @@ internal class ComposerImpl(
     private var reusing = false
     private var reusingGroup = -1
     private var childrenComposing: Int = 0
-    private var snapshot = currentSnapshot()
     private var compositionToken: Int = 0
     private var sourceInformationEnabled = true
+    private val derivedStateObserver = object : DerivedStateObserver {
+        override fun start(derivedState: DerivedState<*>) {
+            childrenComposing++
+        }
+
+        override fun done(derivedState: DerivedState<*>) {
+            childrenComposing--
+        }
+    }
 
     private val invalidateStack = Stack<RecomposeScopeImpl>()
 
@@ -1468,6 +1476,7 @@ internal class ComposerImpl(
         if (!writer.closed) {
             writer.close()
         }
+        insertFixups.clear()
         createFreshInsertTable()
         compoundKeyHash = 0
         childrenComposing = 0
@@ -1476,9 +1485,11 @@ internal class ComposerImpl(
         reusing = false
         isComposing = false
         forciblyRecompose = false
+        reusingGroup = -1
     }
 
     internal fun changesApplied() {
+        createFreshInsertTable()
         providerUpdates.clear()
     }
 
@@ -1663,10 +1674,31 @@ internal class ComposerImpl(
 
     override fun endToMarker(marker: Int) {
         if (marker < 0) {
+            // If the marker is negative then the marker is for the writer
             val writerLocation = -marker
-            while (writer.parent > writerLocation) end(false)
+            val writer = writer
+            while (true) {
+                val parent = writer.parent
+                if (parent <= writerLocation) break
+                end(writer.isNode(parent))
+            }
         } else {
-            while (reader.parent > marker) end(false)
+            // If the marker is positive then the marker is for the reader. However, if we are
+            // inserting then we need to close the inserting groups first.
+            if (inserting) {
+                // We might be inserting, we need to close all the groups until we are no longer
+                // inserting.
+                val writer = writer
+                while (inserting) {
+                    end(writer.isNode(writer.parent))
+                }
+            }
+            val reader = reader
+            while (true) {
+                val parent = reader.parent
+                if (parent <= marker) break
+                end(reader.isNode(parent))
+            }
         }
     }
 
@@ -1864,13 +1896,7 @@ internal class ComposerImpl(
                 when (val previous = slots.set(groupSlotIndex, value)) {
                     is RememberObserver ->
                         rememberManager.forgetting(previous)
-                    is RecomposeScopeImpl -> {
-                        val composition = previous.composition
-                        if (composition != null) {
-                            previous.release()
-                            composition.pendingInvalidScopes = true
-                        }
-                    }
+                    is RecomposeScopeImpl -> previous.release()
                 }
             }
         }
@@ -2673,6 +2699,7 @@ internal class ComposerImpl(
 
     internal fun tryImminentInvalidation(scope: RecomposeScopeImpl, instance: Any?): Boolean {
         val anchor = scope.anchor ?: return false
+        val slotTable = reader.table
         val location = anchor.toIndexFor(slotTable)
         if (isComposing && location >= reader.currentGroup) {
             // if we are invalidating a scope that is going to be traversed during this
@@ -2760,7 +2787,7 @@ internal class ComposerImpl(
                         is RememberObserver -> {
                             reader.reposition(group)
                             recordSlotTableOperation { _, slots, rememberManager ->
-                                runtimeCheck(data == slots.slot(group, index)) {
+                                runtimeCheck(data == slots.slot(slots.currentGroup, index)) {
                                     "Slot table is out of sync"
                                 }
                                 rememberManager.forgetting(data)
@@ -2768,14 +2795,10 @@ internal class ComposerImpl(
                             }
                         }
                         is RecomposeScopeImpl -> {
-                            val composition = data.composition
-                            if (composition != null) {
-                                composition.pendingInvalidScopes = true
-                                data.release()
-                            }
+                            data.release()
                             reader.reposition(group)
                             recordSlotTableOperation { _, slots, _ ->
-                                runtimeCheck(data == slots.slot(group, index)) {
+                                runtimeCheck(data == slots.slot(slots.currentGroup, index)) {
                                     "Slot table is out of sync"
                                 }
                                 slots.set(index, Composer.Empty)
@@ -3107,15 +3130,11 @@ internal class ComposerImpl(
 
                         // For all the anchors that moved, if the anchor is tracking a recompose
                         // scope, update it to reference its new composer.
-                        if (anchors.isNotEmpty()) {
-                            val toComposition = to.composition as CompositionImpl
-                            anchors.fastForEach { anchor ->
-                                // The recompose scope is always at slot 0 of a restart group.
-                                val recomposeScope = slots.slot(anchor, 0) as? RecomposeScopeImpl
-                                // Check for null as the anchor might not be for a recompose scope
-                                recomposeScope?.adoptedBy(toComposition)
-                            }
-                        }
+                        RecomposeScopeImpl.adoptAnchoredScopes(
+                            slots = slots,
+                            anchors = anchors,
+                            newOwner = to.composition as RecomposeScopeOwner
+                        )
                     }
 
                     fromTable.read { reader ->
@@ -3293,8 +3312,7 @@ internal class ComposerImpl(
     ) {
         runtimeCheck(!isComposing) { "Reentrant composition is not supported" }
         trace("Compose:recompose") {
-            snapshot = currentSnapshot()
-            compositionToken = snapshot.id
+            compositionToken = currentSnapshot().id
             providerUpdates.clear()
             invalidationsRequested.forEach { scope, set ->
                 val location = scope.anchor?.location ?: return
@@ -3316,14 +3334,7 @@ internal class ComposerImpl(
                 // ^^ Experimental for forced
 
                 // Ignore reads of derivedStateOf recalculations
-                observeDerivedStateRecalculations(
-                    start = {
-                        childrenComposing++
-                    },
-                    done = {
-                        childrenComposing--
-                    },
-                ) {
+                observeDerivedStateRecalculations(derivedStateObserver) {
                     if (content != null) {
                         startGroup(invocationKey, invocation)
                         invokeComposable(this, content)
@@ -3516,7 +3527,11 @@ internal class ComposerImpl(
             val insertTable = insertTable
             recordSlotEditingOperation { _, slots, _ ->
                 slots.beginInsert()
-                slots.moveFrom(insertTable, anchor.toIndexFor(insertTable))
+                slots.moveFrom(
+                    table = insertTable,
+                    index = anchor.toIndexFor(insertTable),
+                    removeSourceGroup = false
+                )
                 slots.endInsert()
             }
         } else {
@@ -3532,7 +3547,11 @@ internal class ComposerImpl(
                     }
                 }
                 slots.beginInsert()
-                slots.moveFrom(insertTable, anchor.toIndexFor(insertTable))
+                slots.moveFrom(
+                    table = insertTable,
+                    index = anchor.toIndexFor(insertTable),
+                    removeSourceGroup = false
+                )
                 slots.endInsert()
             }
         }
@@ -3622,16 +3641,20 @@ internal class ComposerImpl(
                 } else if (key == referenceKey && objectKey == reference) {
                     // Group is a composition context reference. As this is being removed assume
                     // all movable groups in the composition that have this context will also be
-                    // released whe the compositions are disposed.
+                    // released when the compositions are disposed.
                     val contextHolder = reader.groupGet(group, 0) as? CompositionContextHolder
                     if (contextHolder != null) {
-                        // The contextHolder can be EMPTY in cases wher the content has been
+                        // The contextHolder can be EMPTY in cases where the content has been
                         // deactivated. Content is deactivated if the content is just being
                         // held onto for recycling and is not otherwise active. In this case
                         // the composers we are likely to find here have already been disposed.
                         val compositionContext = contextHolder.ref
                         compositionContext.composers.forEach { composer ->
                             composer.reportAllMovableContent()
+
+                            // Mark the composition as being removed so it will not be recomposed
+                            // this turn.
+                            parentContext.reportRemovedComposition(composer.composition)
                         }
                     }
                     reader.nodeCount(group)
@@ -3690,7 +3713,7 @@ internal class ComposerImpl(
         // composition before the new composition can be composed to receive it. When
         // the new composition receives the state it must recompose over the state by
         // calling invokeMovableContentLambda.
-        slotTable.write { writer ->
+        val anchors = slotTable.write { writer ->
             writer.beginInsert()
 
             // This is the prefix created by invokeMovableContentLambda
@@ -3699,7 +3722,7 @@ internal class ComposerImpl(
             writer.update(reference.parameter)
 
             // Move the content into current location
-            slots.moveTo(reference.anchor, 1, writer)
+            val anchors = slots.moveTo(reference.anchor, 1, writer)
 
             // skip the group that was just inserted.
             writer.skipGroup()
@@ -3708,8 +3731,63 @@ internal class ComposerImpl(
             writer.endGroup()
 
             writer.endInsert()
+
+            anchors
         }
+
         val state = MovableContentState(slotTable)
+        if (RecomposeScopeImpl.hasAnchoredRecomposeScopes(slotTable, anchors)) {
+            // Copy this into a local so the `movableContentRecomposeScopeOwner` captures
+            // only the value of `composition` not the composer not the composer's reference
+            // to the composition, which might change if we move to a composer per thread model
+            // instead of the current composer per composition, and the owner of the recompose
+            // scope is the composition, not the composer.
+            val composition = composition
+
+            // If any recompose scopes are invalidated while the movable content is outside
+            // a composition, ensure the reference is updated to contain the invalidation.
+            val movableContentRecomposeScopeOwner = object : RecomposeScopeOwner {
+                override fun invalidate(
+                    scope: RecomposeScopeImpl,
+                    instance: Any?
+                ): InvalidationResult {
+                    // Try sending this to the original owner first.
+                    val result = (composition as? RecomposeScopeOwner)?.invalidate(scope, instance)
+                        ?: InvalidationResult.IGNORED
+
+                    // If the original owner ignores this then we need to record it in the
+                    // reference
+                    if (result == InvalidationResult.IGNORED) {
+                        reference.invalidations += scope to instance?.let {
+                            IdentityArraySet<Any>().also { it.add(it) }
+                        }
+                        return InvalidationResult.SCHEDULED
+                    }
+                    return result
+                }
+
+                // The only reason [recomposeScopeReleased] is called is when the recompose scope is
+                // removed from the table. First, this never happens for content that is moving, and
+                // 2) even if it did the only reason we tell the composer is to clear tracking
+                // tables that contain this information which is not relevant here.
+                override fun recomposeScopeReleased(scope: RecomposeScopeImpl) {
+                    // Nothing to do
+                }
+
+                // [recordReadOf] this is also something that would happen only during active
+                // recomposition which doesn't happened to a slot table that is moving.
+                override fun recordReadOf(value: Any) {
+                    // Nothing to do
+                }
+            }
+            slotTable.write { writer ->
+                RecomposeScopeImpl.adoptAnchoredScopes(
+                    slots = writer,
+                    anchors = anchors,
+                    newOwner = movableContentRecomposeScopeOwner
+                )
+            }
+        }
         parentContext.movableContentStateReleased(reference, state)
     }
 
@@ -3996,6 +4074,10 @@ internal class ComposerImpl(
         ) {
             parentContext.movableContentStateReleased(reference, data)
         }
+
+        override fun reportRemovedComposition(composition: ControlledComposition) {
+            parentContext.reportRemovedComposition(composition)
+        }
     }
 
     private fun updateCompoundKeyWhenWeEnterGroup(groupKey: Int, dataKey: Any?, data: Any?) {
@@ -4193,11 +4275,7 @@ internal fun SlotWriter.removeCurrentGroup(rememberManager: RememberManager) {
             rememberManager.forgetting(slot)
         }
         if (slot is RecomposeScopeImpl) {
-            val composition = slot.composition
-            if (composition != null) {
-                composition.pendingInvalidScopes = true
-                slot.release()
-            }
+            slot.release()
         }
     }
 

@@ -136,6 +136,7 @@ constructor(
                         timestampBase = output.timestampBase,
                         dynamicRangeProfile = output.dynamicRangeProfile,
                         streamUseCase = output.streamUseCase,
+                        streamUseHint = output.streamUseHint,
                         externalOutputConfig =
                         (output as? OutputStream.Config.ExternalOutputConfig)?.output
                     )
@@ -163,7 +164,8 @@ constructor(
                             outputConfig.timestampBase,
                             outputConfig.dynamicRangeProfile,
                             outputConfig.streamUseCase,
-                            outputConfig.deferredOutputType
+                            outputConfig.deferredOutputType,
+                            outputConfig.streamUseHint
                         )
                     outputStream
                 }
@@ -185,7 +187,8 @@ constructor(
         outputConfigs = outputConfigListBuilder
 
         val unsortedOutputs = streams.flatMap { it.outputs }
-        outputs = sortOutputsByPreviewStream(unsortedOutputs)
+        val outputsSortedByPreview = sortOutputsByPreviewStream(unsortedOutputs)
+        outputs = sortOutputsByVideoStream(outputsSortedByPreview)
     }
 
     @Suppress("SyntheticAccessor") // StreamId generates a synthetic constructor
@@ -201,6 +204,7 @@ constructor(
         val timestampBase: OutputStream.TimestampBase?,
         val dynamicRangeProfile: OutputStream.DynamicRangeProfile?,
         val streamUseCase: OutputStream.StreamUseCase?,
+        val streamUseHint: OutputStream.StreamUseHint?
     ) {
         internal val streamBuilder = mutableListOf<CameraStream>()
         val streams: List<CameraStream>
@@ -221,7 +225,8 @@ constructor(
         override val timestampBase: OutputStream.TimestampBase?,
         override val dynamicRangeProfile: OutputStream.DynamicRangeProfile?,
         override val streamUseCase: OutputStream.StreamUseCase?,
-        override val outputType: OutputStream.OutputType?
+        override val outputType: OutputStream.OutputType?,
+        override val streamUseHint: OutputStream.StreamUseHint?
     ) : OutputStream {
         override lateinit var stream: CameraStream
         override fun toString(): String = id.toString()
@@ -323,6 +328,33 @@ constructor(
         }
 
         // Return outputs in original order if no preview streams found
+        return unsortedOutputs
+    }
+
+    private fun sortOutputsByVideoStream(
+        unsortedOutputs: List<OutputStream>
+    ): List<OutputStream> {
+
+        // Check if any streams have VIDEO StreamUseCase set
+        val (videoStreamPartition, nonVideoStreamPartition) = unsortedOutputs.partition {
+            it.streamUseCase == OutputStream.StreamUseCase.VIDEO_RECORD
+        }
+        // Move streams with VIDEO StreamUseCase to end of list
+        if (videoStreamPartition.isNotEmpty()) {
+            return nonVideoStreamPartition + videoStreamPartition
+        }
+
+        // Check if any streams have VIDEO StreamUseCaseHint set
+        val (videoStreamHintPartition, nonVideoStreamHintPartition) = unsortedOutputs.partition {
+            it.streamUseHint == OutputStream.StreamUseHint.VIDEO_RECORD
+        }
+
+        // Move streams with VIDEO StreamUseCaseHint to end of list
+        if (videoStreamHintPartition.isNotEmpty()) {
+            return nonVideoStreamHintPartition + videoStreamHintPartition
+        }
+
+        // Return outputs in original order if no video streams found
         return unsortedOutputs
     }
 }

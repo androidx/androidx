@@ -19,12 +19,12 @@ package androidx.compose.animation.core
 import android.os.Build
 import androidx.test.filters.SdkSuppress
 import junit.framework.TestCase.assertTrue
-import org.junit.Test
-import org.junit.runner.RunWith
-import org.junit.runners.Parameterized
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.sqrt
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.Parameterized
 
 @RunWith(Parameterized::class)
 class SpringEstimationTest(private val m: Double, private val k: Double) {

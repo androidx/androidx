@@ -18,6 +18,7 @@ package androidx.build.testConfiguration
 
 import androidx.build.getDistributionDirectory
 import com.google.gson.GsonBuilder
+import java.io.File
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
 import org.gradle.api.file.RegularFileProperty
@@ -27,7 +28,6 @@ import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.bundling.Zip
-import java.io.File
 
 @CacheableTask
 abstract class ModuleInfoGenerator : DefaultTask() {
@@ -52,7 +52,7 @@ abstract class ModuleInfoGenerator : DefaultTask() {
 }
 
 /**
- * Register two tasks need to generate information for Android test owners service.
+ * Register two tasks needed to generate information for Android test owners service.
  * One task zips all the OWNERS files in frameworks/support, and second task creates a
  * module-info.json that links test modules to paths.
  */
@@ -62,6 +62,7 @@ internal fun Project.registerOwnersServiceTasks() {
         task.destinationDirectory.set(getDistributionDirectory())
         task.from(layout.projectDirectory)
         task.include("**/OWNERS")
+        task.exclude("buildSrc/.gradle/**")
         task.includeEmptyDirs = false
     }
 

@@ -1,3 +1,12 @@
 -Xmx8g
 -Dappinspection.use.dev.jar=true
--Dlayout.inspector.rel.jar.location=../../../../../../out/androidx/compose/ui/ui-inspection/build/androidx_inspection/assembleInspectorJar/release
+-Dlayout.inspector.rel.jar.location=#studio/../../../../../../out/dist/inspection
+# b/279181712
+-Djdk.attach.allowAttachSelf=true
+# https://github.com/google/google-java-format#intellij-jre-config
+--add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED
+--add-exports=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED
+--add-exports=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED
+--add-exports=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED
+--add-exports=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED
+--add-exports=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED

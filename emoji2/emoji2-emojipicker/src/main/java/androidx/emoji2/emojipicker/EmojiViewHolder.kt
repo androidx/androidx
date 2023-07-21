@@ -112,7 +112,7 @@ internal class EmojiViewHolder(
                     .getDimensionPixelSize(R.dimen.emoji_picker_popup_view_elevation)
                     .toFloat()
             showAtLocation(
-                emojiView,
+                popupView,
                 Gravity.NO_GRAVITY,
                 x.roundToInt(),
                 y

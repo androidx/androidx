@@ -16,6 +16,8 @@
 
 package androidx.compose.material.pullrefresh
 
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
@@ -26,6 +28,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.PointerInputChange
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotDisplayed
@@ -33,8 +38,10 @@ import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onChild
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeDown
+import androidx.compose.ui.unit.IntSize
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
@@ -160,6 +167,50 @@ class PullRefreshIndicatorTest {
         rule.waitForIdle()
         indicatorNode.assertIsNotDisplayed()
         assertThat(indicatorNode.getUnclippedBoundsInRoot()).isEqualTo(restingBounds)
+    }
+
+    // Regression test for b/271777421
+    @Test
+    fun indicatorDoesNotCapturePointerEvents() {
+        var indicatorSize: IntSize? = null
+        lateinit var state: PullRefreshState
+        var downEvent: PointerInputChange? = null
+
+        rule.setContent {
+            state = rememberPullRefreshState(false, {})
+
+            Box {
+                Box(Modifier.fillMaxSize().pointerInput(Unit) {
+                    awaitEachGesture {
+                        downEvent = awaitFirstDown()
+                    }
+                })
+                PullRefreshIndicator(
+                    refreshing = false,
+                    state = state,
+                    modifier = Modifier.onSizeChanged {
+                        // The indicator starts as offset by its negative height in the y direction,
+                        // so work out its height so we can place it inside its normal layout
+                        // bounds
+                        indicatorSize = it
+                    }.testTag(IndicatorTag)
+                )
+            }
+        }
+
+        rule.runOnIdle {
+            // Pull by twice the indicator height (since pull delta is halved) - this will make the
+            // indicator fully visible in its layout bounds, so when we performClick() the indicator
+            // will be visibly inside those coordinates.
+            state.onPull(indicatorSize!!.height.toFloat() * 2)
+        }
+
+        rule.onNodeWithTag(IndicatorTag).performClick()
+        rule.runOnIdle {
+            // The indicator should not have blocked its sibling (placed first, so below) from
+            // seeing touch events.
+            assertThat(downEvent).isNotNull()
+        }
     }
 
     private val pullRefreshNode get() = rule.onNodeWithTag(PullRefreshTag)

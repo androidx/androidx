@@ -7,7 +7,7 @@ plugins {
 }
 
 dependencies {
-    // Atomic group
+    // Atomically versioned.
     constraints {
         implementation(project(":core:core"))
     }

@@ -23,10 +23,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
+import androidx.wear.protolayout.expression.DynamicDataBuilders;
 import androidx.wear.protolayout.expression.Fingerprint;
-import androidx.wear.protolayout.expression.StateEntryBuilders;
-import androidx.wear.protolayout.expression.StateEntryBuilders.StateEntryValue;
-import androidx.wear.protolayout.expression.proto.StateEntryProto;
+import androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue;
+import androidx.wear.protolayout.expression.AppDataKey;
+import androidx.wear.protolayout.expression.proto.DynamicDataProto;
 import androidx.wear.protolayout.proto.StateProto;
 import java.util.Collections;
 import java.util.HashMap;
@@ -67,11 +68,13 @@ public final class StateBuilders {
      * @since 1.2
      */
     @NonNull
-    public Map<String, StateEntryValue> getIdToValueMapping() {
-      Map<String, StateEntryValue> map = new HashMap<>();
-      for (Entry<String, StateEntryProto.StateEntryValue> entry :
+    public Map<String, DynamicDataValue> getIdToValueMapping() {
+      Map<String, DynamicDataValue> map = new HashMap<>();
+      for (Entry<String, DynamicDataProto.DynamicDataValue> entry :
           mImpl.getIdToValueMap().entrySet()) {
-        map.put(entry.getKey(), StateEntryBuilders.stateEntryValueFromProto(entry.getValue()));
+        map.put(
+                entry.getKey(),
+                DynamicDataBuilders.dynamicDataValueFromProto(entry.getValue()));
       }
       return Collections.unmodifiableMap(map);
     }
@@ -142,16 +145,27 @@ public final class StateBuilders {
        */
       @SuppressLint("MissingGetterMatchingBuilder")
       @NonNull
-      public Builder addIdToValueMapping(@NonNull String id, @NonNull StateEntryValue value) {
-        mImpl.putIdToValue(id, value.toStateEntryValueProto());
+      public Builder addKeyToValueMapping(
+              @NonNull AppDataKey<?> sourceKey,
+              @NonNull DynamicDataValue value) {
+        mImpl.putIdToValue(sourceKey.getKey(), value.toDynamicDataValueProto());
         mFingerprint.recordPropertyUpdate(
-            id.hashCode(), checkNotNull(value.getFingerprint()).aggregateValueAsInt());
+                sourceKey.getKey().hashCode(),
+                checkNotNull(value.getFingerprint()).aggregateValueAsInt());
         return this;
       }
+
+      private static final int MAX_STATE_SIZE = 30;
 
       /** Builds an instance from accumulated values. */
       @NonNull
       public State build() {
+        if (mImpl.getIdToValueMap().size() > MAX_STATE_SIZE) {
+          throw new IllegalStateException(
+                  String.format(
+                          "State size is too large: %d. Maximum " + "allowed state size is %d.",
+                          mImpl.getIdToValueMap().size(), MAX_STATE_SIZE));
+        }
         return new State(mImpl.build(), mFingerprint);
       }
     }

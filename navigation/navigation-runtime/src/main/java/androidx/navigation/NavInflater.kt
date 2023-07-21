@@ -29,9 +29,9 @@ import androidx.annotation.RestrictTo
 import androidx.core.content.res.use
 import androidx.core.content.withStyledAttributes
 import androidx.navigation.common.R
+import java.io.IOException
 import org.xmlpull.v1.XmlPullParser
 import org.xmlpull.v1.XmlPullParserException
-import java.io.IOException
 
 /**
  * Class which translates a navigation XML file into a [NavGraph]

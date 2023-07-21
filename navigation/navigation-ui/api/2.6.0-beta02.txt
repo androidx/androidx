@@ -1,0 +1,88 @@
+// Signature format: 4.0
+package androidx.navigation.ui {
+
+  public final class ActivityKt {
+    method public static void setupActionBarWithNavController(androidx.appcompat.app.AppCompatActivity, androidx.navigation.NavController navController, androidx.drawerlayout.widget.DrawerLayout? drawerLayout);
+    method public static void setupActionBarWithNavController(androidx.appcompat.app.AppCompatActivity, androidx.navigation.NavController navController, optional androidx.navigation.ui.AppBarConfiguration configuration);
+  }
+
+  public final class AppBarConfiguration {
+    method @Deprecated public androidx.drawerlayout.widget.DrawerLayout? getDrawerLayout();
+    method public androidx.navigation.ui.AppBarConfiguration.OnNavigateUpListener? getFallbackOnNavigateUpListener();
+    method public androidx.customview.widget.Openable? getOpenableLayout();
+    method public java.util.Set<java.lang.Integer> getTopLevelDestinations();
+    method public boolean isTopLevelDestination(androidx.navigation.NavDestination destination);
+    property @Deprecated public final androidx.drawerlayout.widget.DrawerLayout? drawerLayout;
+    property public final androidx.navigation.ui.AppBarConfiguration.OnNavigateUpListener? fallbackOnNavigateUpListener;
+    property public final androidx.customview.widget.Openable? openableLayout;
+    property public final java.util.Set<java.lang.Integer> topLevelDestinations;
+  }
+
+  public static final class AppBarConfiguration.Builder {
+    ctor public AppBarConfiguration.Builder(androidx.navigation.NavGraph navGraph);
+    ctor public AppBarConfiguration.Builder(android.view.Menu topLevelMenu);
+    ctor public AppBarConfiguration.Builder(int... topLevelDestinationIds);
+    ctor public AppBarConfiguration.Builder(java.util.Set<java.lang.Integer> topLevelDestinationIds);
+    method public androidx.navigation.ui.AppBarConfiguration build();
+    method @Deprecated public androidx.navigation.ui.AppBarConfiguration.Builder setDrawerLayout(androidx.drawerlayout.widget.DrawerLayout? drawerLayout);
+    method public androidx.navigation.ui.AppBarConfiguration.Builder setFallbackOnNavigateUpListener(androidx.navigation.ui.AppBarConfiguration.OnNavigateUpListener? fallbackOnNavigateUpListener);
+    method public androidx.navigation.ui.AppBarConfiguration.Builder setOpenableLayout(androidx.customview.widget.Openable? openableLayout);
+  }
+
+  public static fun interface AppBarConfiguration.OnNavigateUpListener {
+    method public boolean onNavigateUp();
+  }
+
+  public final class AppBarConfigurationKt {
+    method public static inline androidx.navigation.ui.AppBarConfiguration AppBarConfiguration(androidx.navigation.NavGraph navGraph, optional androidx.customview.widget.Openable? drawerLayout, optional kotlin.jvm.functions.Function0<java.lang.Boolean> fallbackOnNavigateUpListener);
+    method public static inline androidx.navigation.ui.AppBarConfiguration AppBarConfiguration(android.view.Menu topLevelMenu, optional androidx.customview.widget.Openable? drawerLayout, optional kotlin.jvm.functions.Function0<java.lang.Boolean> fallbackOnNavigateUpListener);
+    method public static inline androidx.navigation.ui.AppBarConfiguration AppBarConfiguration(java.util.Set<java.lang.Integer> topLevelDestinationIds, optional androidx.customview.widget.Openable? drawerLayout, optional kotlin.jvm.functions.Function0<java.lang.Boolean> fallbackOnNavigateUpListener);
+  }
+
+  public final class BottomNavigationViewKt {
+    method public static void setupWithNavController(com.google.android.material.navigation.NavigationBarView, androidx.navigation.NavController navController);
+  }
+
+  public final class CollapsingToolbarLayoutKt {
+    method public static void setupWithNavController(com.google.android.material.appbar.CollapsingToolbarLayout, androidx.appcompat.widget.Toolbar toolbar, androidx.navigation.NavController navController, androidx.drawerlayout.widget.DrawerLayout? drawerLayout);
+    method public static void setupWithNavController(com.google.android.material.appbar.CollapsingToolbarLayout, androidx.appcompat.widget.Toolbar toolbar, androidx.navigation.NavController navController, optional androidx.navigation.ui.AppBarConfiguration configuration);
+  }
+
+  public final class MenuItemKt {
+    method public static boolean onNavDestinationSelected(android.view.MenuItem, androidx.navigation.NavController navController);
+  }
+
+  public final class NavControllerKt {
+    method public static boolean navigateUp(androidx.navigation.NavController, androidx.customview.widget.Openable? drawerLayout);
+    method public static boolean navigateUp(androidx.navigation.NavController, androidx.navigation.ui.AppBarConfiguration appBarConfiguration);
+  }
+
+  public final class NavigationUI {
+    method public static boolean navigateUp(androidx.navigation.NavController navController, androidx.customview.widget.Openable? openableLayout);
+    method public static boolean navigateUp(androidx.navigation.NavController navController, androidx.navigation.ui.AppBarConfiguration configuration);
+    method public static boolean onNavDestinationSelected(android.view.MenuItem item, androidx.navigation.NavController navController);
+    method public static void setupActionBarWithNavController(androidx.appcompat.app.AppCompatActivity activity, androidx.navigation.NavController navController, androidx.customview.widget.Openable? openableLayout);
+    method public static void setupActionBarWithNavController(androidx.appcompat.app.AppCompatActivity activity, androidx.navigation.NavController navController, optional androidx.navigation.ui.AppBarConfiguration configuration);
+    method public static void setupActionBarWithNavController(androidx.appcompat.app.AppCompatActivity activity, androidx.navigation.NavController navController);
+    method public static void setupWithNavController(androidx.appcompat.widget.Toolbar toolbar, androidx.navigation.NavController navController, androidx.customview.widget.Openable? openableLayout);
+    method public static void setupWithNavController(androidx.appcompat.widget.Toolbar toolbar, androidx.navigation.NavController navController, optional androidx.navigation.ui.AppBarConfiguration configuration);
+    method public static void setupWithNavController(androidx.appcompat.widget.Toolbar toolbar, androidx.navigation.NavController navController);
+    method public static void setupWithNavController(com.google.android.material.appbar.CollapsingToolbarLayout collapsingToolbarLayout, androidx.appcompat.widget.Toolbar toolbar, androidx.navigation.NavController navController, androidx.customview.widget.Openable? openableLayout);
+    method public static void setupWithNavController(com.google.android.material.appbar.CollapsingToolbarLayout collapsingToolbarLayout, androidx.appcompat.widget.Toolbar toolbar, androidx.navigation.NavController navController, optional androidx.navigation.ui.AppBarConfiguration configuration);
+    method public static void setupWithNavController(com.google.android.material.appbar.CollapsingToolbarLayout collapsingToolbarLayout, androidx.appcompat.widget.Toolbar toolbar, androidx.navigation.NavController navController);
+    method public static void setupWithNavController(com.google.android.material.navigation.NavigationView navigationView, androidx.navigation.NavController navController);
+    method public static void setupWithNavController(com.google.android.material.navigation.NavigationBarView navigationBarView, androidx.navigation.NavController navController);
+    field public static final androidx.navigation.ui.NavigationUI INSTANCE;
+  }
+
+  public final class NavigationViewKt {
+    method public static void setupWithNavController(com.google.android.material.navigation.NavigationView, androidx.navigation.NavController navController);
+  }
+
+  public final class ToolbarKt {
+    method public static void setupWithNavController(androidx.appcompat.widget.Toolbar, androidx.navigation.NavController navController, androidx.drawerlayout.widget.DrawerLayout? drawerLayout);
+    method public static void setupWithNavController(androidx.appcompat.widget.Toolbar, androidx.navigation.NavController navController, optional androidx.navigation.ui.AppBarConfiguration configuration);
+  }
+
+}
+

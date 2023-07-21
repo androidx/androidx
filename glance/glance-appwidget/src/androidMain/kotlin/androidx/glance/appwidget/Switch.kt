@@ -44,57 +44,6 @@ internal data class SwitchColorsImpl(
 ) : SwitchColors()
 
 /**
- * SwitchColors to tint the thumb and track of the [Switch] according to the checked state.
- *
- * None of the [ColorProvider] parameters to this function can be created from resource ids.
- *
- * @param checkedThumbColor the tint to apply to the thumb of the switch when it is checked
- * @param uncheckedThumbColor the tint to apply to the thumb of the switch when it is not checked
- * @param checkedTrackColor the tint to apply to the track of the switch when it is checked
- * @param uncheckedTrackColor the tint to apply to the track of the switch when it is not checked
- */
-@Composable
-fun switchColors(
-    checkedThumbColor: ColorProvider,
-    uncheckedThumbColor: ColorProvider,
-    checkedTrackColor: ColorProvider,
-    uncheckedTrackColor: ColorProvider,
-): SwitchColors {
-    return SwitchColorsImpl(
-        thumb = createCheckableColorProvider(
-            source = "SwitchColors",
-            checked = checkedThumbColor,
-            unchecked = uncheckedThumbColor,
-        ),
-        track = createCheckableColorProvider(
-            source = "SwitchColors",
-            checked = checkedTrackColor,
-            unchecked = uncheckedTrackColor,
-        )
-    )
-}
-
-/**
- * Create a default set of SwitchColors.
- */
-@Composable
-fun switchColors(): SwitchColors {
-    return if (GlanceTheme.colors == DynamicThemeColorProviders) {
-        SwitchColorsImpl(
-            thumb = ResourceCheckableColorProvider(R.color.glance_default_switch_thumb),
-            track = ResourceCheckableColorProvider(R.color.glance_default_switch_track)
-        )
-    } else {
-        switchColors(
-            checkedThumbColor = GlanceTheme.colors.onPrimary,
-            uncheckedThumbColor = GlanceTheme.colors.outline,
-            checkedTrackColor = GlanceTheme.colors.primary,
-            uncheckedTrackColor = GlanceTheme.colors.surfaceVariant,
-        )
-    }
-}
-
-/**
  * Adds a switch view to the glance view.
  *
  * @param checked whether the switch is checked
@@ -116,7 +65,7 @@ fun Switch(
     modifier: GlanceModifier = GlanceModifier,
     text: String = "",
     style: TextStyle? = null,
-    colors: SwitchColors = switchColors(),
+    colors: SwitchColors = SwitchDefaults.colors(),
     maxLines: Int = Int.MAX_VALUE,
 ) = SwitchElement(checked, onCheckedChange, modifier, text, style, colors, maxLines)
 
@@ -139,7 +88,7 @@ fun Switch(
     modifier: GlanceModifier = GlanceModifier,
     text: String = "",
     style: TextStyle? = null,
-    colors: SwitchColors = switchColors(),
+    colors: SwitchColors = SwitchDefaults.colors(),
     maxLines: Int = Int.MAX_VALUE,
 ) = SwitchElement(
     checked,
@@ -151,6 +100,65 @@ fun Switch(
     maxLines
 )
 
+/**
+ * Contains the default values used by [Switch].
+ */
+object SwitchDefaults {
+
+    /**
+     * SwitchColors to tint the thumb and track of the [Switch] according to the checked state.
+     *
+     * @param checkedThumbColor the tint to apply to the thumb of the switch when it is checked
+     * @param uncheckedThumbColor the tint to apply to the thumb of the switch when it is not
+     * checked
+     * @param checkedTrackColor the tint to apply to the track of the switch when it is checked
+     * @param uncheckedTrackColor the tint to apply to the track of the switch when it is not
+     * checked
+     */
+    @Composable
+    fun colors(
+        checkedThumbColor: ColorProvider,
+        uncheckedThumbColor: ColorProvider,
+        checkedTrackColor: ColorProvider,
+        uncheckedTrackColor: ColorProvider,
+    ): SwitchColors {
+        return SwitchColorsImpl(
+            thumb = createCheckableColorProvider(
+                source = "SwitchColors",
+                checked = checkedThumbColor,
+                unchecked = uncheckedThumbColor,
+            ),
+            track = createCheckableColorProvider(
+                source = "SwitchColors",
+                checked = checkedTrackColor,
+                unchecked = uncheckedTrackColor,
+            )
+        )
+    }
+
+    /**
+     *
+     * SwitchColors to tint the thumb and track of the [Switch] according to the checked state.
+     * @return a default set of [SwitchColors].
+     */
+    @Composable
+    fun colors(): SwitchColors {
+        return if (GlanceTheme.colors == DynamicThemeColorProviders) {
+            SwitchColorsImpl(
+                thumb = ResourceCheckableColorProvider(R.color.glance_default_switch_thumb),
+                track = ResourceCheckableColorProvider(R.color.glance_default_switch_track)
+            )
+        } else {
+            colors(
+                checkedThumbColor = GlanceTheme.colors.onPrimary,
+                uncheckedThumbColor = GlanceTheme.colors.outline,
+                checkedTrackColor = GlanceTheme.colors.primary,
+                uncheckedTrackColor = GlanceTheme.colors.surfaceVariant,
+            )
+        }
+    }
+}
+
 @Composable
 private fun SwitchElement(
     checked: Boolean,
@@ -158,7 +166,7 @@ private fun SwitchElement(
     modifier: GlanceModifier = GlanceModifier,
     text: String = "",
     style: TextStyle? = null,
-    colors: SwitchColors = switchColors(),
+    colors: SwitchColors = SwitchDefaults.colors(),
     maxLines: Int = Int.MAX_VALUE,
 ) {
     val finalModifier = if (onCheckedChange != null) {

@@ -16,65 +16,57 @@
 
 package androidx.appactions.interaction.capabilities.productivity
 
-import androidx.appactions.interaction.capabilities.core.ActionCapability
-import androidx.appactions.interaction.capabilities.core.BaseSession
-import androidx.appactions.interaction.capabilities.core.CapabilityBuilderBase
+import androidx.appactions.builtintypes.experimental.types.GenericErrorStatus
+import androidx.appactions.builtintypes.experimental.types.SuccessStatus
+import androidx.appactions.interaction.capabilities.core.BaseExecutionSession
+import androidx.appactions.interaction.capabilities.core.Capability
+import androidx.appactions.interaction.capabilities.core.CapabilityFactory
 import androidx.appactions.interaction.capabilities.core.impl.BuilderOf
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
-import androidx.appactions.interaction.capabilities.core.properties.SimpleProperty
-import androidx.appactions.interaction.capabilities.core.task.impl.AbstractTaskUpdater
-import androidx.appactions.interaction.capabilities.core.values.GenericErrorStatus
-import androidx.appactions.interaction.capabilities.core.values.SuccessStatus
-import androidx.appactions.interaction.capabilities.core.values.Timer
+import androidx.appactions.interaction.capabilities.core.properties.Property
 import androidx.appactions.interaction.proto.ParamValue
 import androidx.appactions.interaction.protobuf.Struct
 import androidx.appactions.interaction.protobuf.Value
-import java.util.Optional
 
-/** ResumeTimer.kt in interaction-capabilities-productivity */
 private const val CAPABILITY_NAME = "actions.intent.RESUME_TIMER"
 
-private val ACTION_SPEC = ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
-    .setDescriptor(ResumeTimer.Property::class.java)
-    .setArgument(ResumeTimer.Argument::class.java, ResumeTimer.Argument::Builder)
-    .setOutput(ResumeTimer.Output::class.java).bindRepeatedStructParameter(
-        "timer",
-        { property -> Optional.ofNullable(property.timerList) },
-        ResumeTimer.Argument.Builder::setTimerList,
-        TypeConverters::toTimer
-    ).bindOptionalOutput(
-        "executionStatus",
-        { output -> Optional.ofNullable(output.executionStatus) },
-        ResumeTimer.ExecutionStatus::toParamValue
-    ).build()
-
-// TODO(b/267806701): Add capability factory annotation once the testing library is fully migrated.
+/** A capability corresponding to actions.intent.RESUME_TIMER */
+@CapabilityFactory(name = CAPABILITY_NAME)
 class ResumeTimer private constructor() {
+    internal enum class PropertyMapStrings(val key: String) {
+        TIMER_LIST("timer.timerList")
+    }
 
     class CapabilityBuilder :
-        CapabilityBuilderBase<
-            CapabilityBuilder, Property, Argument, Output, Confirmation, TaskUpdater, Session
+        Capability.Builder<
+            CapabilityBuilder,
+            Arguments,
+            Output,
+            Confirmation,
+            ExecutionSession
             >(ACTION_SPEC) {
-        override fun build(): ActionCapability {
-            super.setProperty(Property.Builder().build())
+        private var properties = mutableMapOf<String, Property<*>>()
+
+        fun setTimerList(timerList: Property<TimerValue>): CapabilityBuilder =
+            apply { properties[PropertyMapStrings.TIMER_LIST.key] = timerList }
+
+        override fun build(): Capability {
+            super.setProperty(properties)
             return super.build()
         }
     }
 
-    // TODO(b/268369632): Remove Property from public capability APIs.
-    class Property internal constructor(
-        val timerList: SimpleProperty?
-    ) {
+    class Arguments internal constructor(val timerList: List<TimerValue>?) {
         override fun toString(): String {
-            return "Property(timerList=$timerList}"
+            return "Arguments(timerList=$timerList)"
         }
 
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (javaClass != other?.javaClass) return false
 
-            other as Property
+            other as Arguments
 
             if (timerList != other.timerList) return false
 
@@ -85,44 +77,14 @@ class ResumeTimer private constructor() {
             return timerList.hashCode()
         }
 
-        class Builder {
-            private var timerList: SimpleProperty? = null
+        class Builder : BuilderOf<Arguments> {
+            private var timerList: List<TimerValue>? = null
 
-            fun setTimerList(timerList: SimpleProperty): Builder =
-                apply { this.timerList = timerList }
+            fun setTimerList(
+                timerList: List<TimerValue>
+            ): Builder = apply { this.timerList = timerList }
 
-            fun build(): Property = Property(timerList)
-        }
-    }
-
-    class Argument internal constructor(
-        val timerList: List<Timer>?
-    ) {
-        override fun toString(): String {
-            return "Argument(timerList=$timerList)"
-        }
-
-        override fun equals(other: Any?): Boolean {
-            if (this === other) return true
-            if (javaClass != other?.javaClass) return false
-
-            other as Argument
-
-            if (timerList != other.timerList) return false
-
-            return true
-        }
-
-        override fun hashCode(): Int {
-            return timerList.hashCode()
-        }
-
-        class Builder : BuilderOf<Argument> {
-            private var timerList: List<Timer>? = null
-
-            fun setTimerList(timerList: List<Timer>): Builder = apply { this.timerList = timerList }
-
-            override fun build(): Argument = Argument(timerList)
+            override fun build(): Arguments = Arguments(timerList)
         }
     }
 
@@ -149,8 +111,9 @@ class ResumeTimer private constructor() {
         class Builder {
             private var executionStatus: ExecutionStatus? = null
 
-            fun setExecutionStatus(executionStatus: ExecutionStatus): Builder =
-                apply { this.executionStatus = executionStatus }
+            fun setExecutionStatus(executionStatus: ExecutionStatus): Builder = apply {
+                this.executionStatus = executionStatus
+            }
 
             fun build(): Output = Output(executionStatus)
         }
@@ -177,15 +140,38 @@ class ResumeTimer private constructor() {
                 status = genericErrorStatus.toString()
             }
             val value: Value = Value.newBuilder().setStringValue(status).build()
-            return ParamValue.newBuilder().setStructValue(
-                Struct.newBuilder().putFields(TypeConverters.FIELD_NAME_TYPE, value).build(),
-            ).build()
+            return ParamValue.newBuilder()
+                .setStructValue(
+                    Struct.newBuilder().putFields(TypeConverters.FIELD_NAME_TYPE, value).build()
+                )
+                .build()
         }
     }
 
     class Confirmation internal constructor()
 
-    class TaskUpdater internal constructor() : AbstractTaskUpdater()
+    sealed interface ExecutionSession : BaseExecutionSession<Arguments, Output>
 
-    sealed interface Session : BaseSession<Argument, Output>
+    companion object {
+        @Suppress("UNCHECKED_CAST")
+        private val ACTION_SPEC =
+            ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
+                .setArguments(Arguments::class.java, Arguments::Builder)
+                .setOutput(Output::class.java)
+                .bindRepeatedParameter(
+                    "timer",
+                    { properties ->
+                        properties[PropertyMapStrings.TIMER_LIST.key] as? Property<TimerValue>
+                    },
+                    Arguments.Builder::setTimerList,
+                    TimerValue.PARAM_VALUE_CONVERTER,
+                    TimerValue.ENTITY_CONVERTER
+                )
+                .bindOutput(
+                    "executionStatus",
+                    Output::executionStatus,
+                    ExecutionStatus::toParamValue
+                )
+                .build()
+    }
 }

@@ -16,21 +16,28 @@
 
 package androidx.car.app.activity.renderer.surface;
 
+import static androidx.car.app.utils.LogTags.TAG;
+
 import static java.util.Objects.requireNonNull;
 
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.inputmethod.CompletionInfo;
 import android.view.inputmethod.CorrectionInfo;
 import android.view.inputmethod.ExtractedText;
 import android.view.inputmethod.ExtractedTextRequest;
 import android.view.inputmethod.InputConnectionWrapper;
+import android.view.inputmethod.SurroundingText;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.activity.ServiceDispatcher;
 import androidx.car.app.activity.renderer.IProxyInputConnection;
+import androidx.car.app.serialization.Bundleable;
+import androidx.car.app.serialization.BundlerException;
 
 /** Proxies input connection calls to the provided {@link IProxyInputConnection}. */
 final class RemoteProxyInputConnection extends InputConnectionWrapper {
@@ -77,7 +84,7 @@ final class RemoteProxyInputConnection extends InputConnectionWrapper {
     public ExtractedText getExtractedText(@NonNull ExtractedTextRequest request, int flags) {
         requireNonNull(request);
         return mServiceDispatcher.fetch("getExtractedText", null, () ->
-                        mProxyInputConnection.getExtractedText(request, flags));
+                mProxyInputConnection.getExtractedText(request, flags));
     }
 
     @Override
@@ -209,6 +216,24 @@ final class RemoteProxyInputConnection extends InputConnectionWrapper {
     @Override
     public void closeConnection() {
         mServiceDispatcher.dispatch("closeConnection", mProxyInputConnection::closeConnection);
+    }
+
+    @Nullable
+    @Override
+    public SurroundingText getSurroundingText(int beforeLength, int afterLength, int flags) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            return mServiceDispatcher.fetch("getSurroundingText", null, () -> {
+                try {
+                    Bundleable bundleable = mProxyInputConnection.getSurroundingText(beforeLength,
+                            afterLength, flags);
+                    return bundleable == null ? null : (SurroundingText) bundleable.get();
+                } catch (BundlerException e) {
+                    Log.e(TAG, "Cannot get surrounding text", e);
+                    return null;
+                }
+            });
+        }
+        return null;
     }
 
     @Nullable

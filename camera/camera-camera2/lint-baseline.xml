@@ -136,4 +136,13 @@
             file="src/main/java/androidx/camera/camera2/internal/ImageCaptureOptionUnpacker.java"/>
     </issue>
 
+    <issue
+        id="VisibleForTests"
+        message="This method should only be accessed from tests or within private scope"
+        errorLine1="                    characteristics = CameraCharacteristicsCompat.toCameraCharacteristicsCompat("
+        errorLine2="                                                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/camera2/internal/compat/CameraManagerCompat.java"/>
+    </issue>
+
 </issues>

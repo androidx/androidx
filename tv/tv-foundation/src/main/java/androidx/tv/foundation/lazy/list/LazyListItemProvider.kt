@@ -18,7 +18,7 @@ package androidx.tv.foundation.lazy.list
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.lazy.layout.LazyLayoutItemProvider
-import androidx.compose.foundation.lazy.layout.PinnableItem
+import androidx.compose.foundation.lazy.layout.LazyLayoutPinnableItem
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -67,9 +67,11 @@ private class LazyListItemProviderImpl constructor(
     override val itemCount: Int get() = listContent.itemCount
 
     @Composable
-    override fun Item(index: Int) {
-        listContent.PinnableItem(index, state.pinnedItems) { localIndex ->
-            with(itemScope) { item(localIndex) }
+    override fun Item(index: Int, key: Any) {
+        LazyLayoutPinnableItem(key, index, state.pinnedItems) {
+            listContent.withInterval(index) { localIndex, content ->
+                content.item(itemScope, localIndex)
+            }
         }
     }
 

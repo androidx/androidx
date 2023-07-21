@@ -27,6 +27,7 @@ import org.gradle.api.artifacts.Configuration
 import org.gradle.api.attributes.Attribute
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.FileTree
+import org.gradle.api.model.ObjectFactory
 import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.Classpath
 import org.gradle.api.tasks.Input
@@ -78,8 +79,6 @@ private fun Project.getKtlintConfiguration(): ConfigurableFileCollection {
 }
 
 private val DisabledRules = listOf(
-    // does not match IJ default ordering
-    "import-ordering",
     // not useful for our projects
     "final-newline",
     // TODO: reenable when https://github.com/pinterest/ktlint/issues/1221 is resolved
@@ -132,22 +131,23 @@ abstract class BaseKtlintTask : DefaultTask() {
     @get:Classpath
     abstract val ktlintClasspath: ConfigurableFileCollection
 
+    @get:Inject
+    abstract val objects: ObjectFactory
+
     @[InputFiles PathSensitive(PathSensitivity.RELATIVE)]
     fun getInputFiles(): FileTree? {
         val projectDirectory = overrideDirectory
         val subdirectories = overrideSubdirectories
-        if (projectDirectory == null || subdirectories == null || subdirectories.isEmpty()) {
+        if (projectDirectory == null || subdirectories.isNullOrEmpty()) {
             // If we have a valid override, use that as the default fileTree
-            return project.fileTree(
-                mutableMapOf(
-                    "dir" to InputDir, "include" to IncludedFiles,
-                    "exclude" to ExcludedDirectoryGlobs
-                )
-            )
+            return objects.fileTree().setDir(InputDir).apply {
+                include(IncludedFiles)
+                exclude(ExcludedDirectoryGlobs)
+            }
         }
-        return project.fileTree(projectDirectory) { tree ->
+        return objects.fileTree().setDir(projectDirectory).apply {
             subdirectories.forEach {
-                tree.include("$it/src/**/*.kt")
+                include("$it/src/**/*.kt")
             }
         }
     }
@@ -233,6 +233,7 @@ abstract class KtlintFormatTask : BaseKtlintTask() {
             javaExecSpec.mainClass.set(MainClass)
             javaExecSpec.classpath = ktlintClasspath
             javaExecSpec.args = getArgsList(shouldFormat = true)
+            javaExecSpec.jvmArgs("--add-opens=java.base/java.lang=ALL-UNNAMED")
             overrideDirectory?.let { javaExecSpec.workingDir = it }
         }
     }

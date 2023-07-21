@@ -25,7 +25,7 @@ import androidx.annotation.VisibleForTesting;
  * Helper class for determining whether the given Wear OS device is for China or rest of the world.
  */
 public final class WearTypeHelper {
-    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    @VisibleForTesting
     static final String CHINA_SYSTEM_FEATURE = "cn.google";
 
     /**

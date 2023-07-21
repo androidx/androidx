@@ -24,6 +24,7 @@ import android.content.Intent;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.WorkerThread;
+import androidx.work.Clock;
 import androidx.work.Logger;
 import androidx.work.impl.constraints.WorkConstraintsTrackerImpl;
 import androidx.work.impl.constraints.trackers.Trackers;
@@ -35,7 +36,6 @@ import java.util.List;
 /**
  * This is a command handler which handles the constraints changed event.
  * Typically this happens for WorkSpec's for which we have pending alarms.
- *
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class ConstraintsCommandHandler {
@@ -43,16 +43,18 @@ class ConstraintsCommandHandler {
     private static final String TAG = Logger.tagWithPrefix("ConstraintsCmdHandler");
 
     private final Context mContext;
+    private final Clock mClock;
     private final int mStartId;
     private final SystemAlarmDispatcher mDispatcher;
     private final WorkConstraintsTrackerImpl mWorkConstraintsTracker;
 
     ConstraintsCommandHandler(
             @NonNull Context context,
+            Clock clock,
             int startId,
             @NonNull SystemAlarmDispatcher dispatcher) {
-
         mContext = context;
+        mClock = clock;
         mStartId = startId;
         mDispatcher = dispatcher;
         Trackers trackers = mDispatcher.getWorkManager().getTrackers();
@@ -74,7 +76,7 @@ class ConstraintsCommandHandler {
 
         List<WorkSpec> eligibleWorkSpecs = new ArrayList<>(candidates.size());
         // Filter candidates should have already been scheduled.
-        long now = System.currentTimeMillis();
+        long now = mClock.currentTimeMillis();
         for (WorkSpec workSpec : candidates) {
             String workSpecId = workSpec.id;
             long triggerAt = workSpec.calculateNextRunTime();
@@ -87,7 +89,8 @@ class ConstraintsCommandHandler {
         for (WorkSpec workSpec : eligibleWorkSpecs) {
             String workSpecId = workSpec.id;
             Intent intent = CommandHandler.createDelayMetIntent(mContext, generationalId(workSpec));
-            Logger.get().debug(TAG, "Creating a delay_met command for workSpec with id (" + workSpecId + ")");
+            Logger.get().debug(TAG,
+                    "Creating a delay_met command for workSpec with id (" + workSpecId + ")");
             mDispatcher.getTaskExecutor().getMainThreadExecutor().execute(
                     new SystemAlarmDispatcher.AddRunnable(mDispatcher, intent, mStartId));
         }

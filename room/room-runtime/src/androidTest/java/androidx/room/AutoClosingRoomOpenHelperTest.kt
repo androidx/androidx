@@ -29,12 +29,12 @@ import androidx.test.filters.FlakyTest
 import androidx.test.filters.SdkSuppress
 import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
-import org.junit.Before
-import org.junit.Ignore
-import org.junit.Test
 import java.io.IOException
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
+import org.junit.Before
+import org.junit.Ignore
+import org.junit.Test
 
 class AutoClosingRoomOpenHelperTest {
 

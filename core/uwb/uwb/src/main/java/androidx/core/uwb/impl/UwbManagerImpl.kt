@@ -30,13 +30,13 @@ import androidx.core.uwb.UwbControleeSessionScope
 import androidx.core.uwb.UwbControllerSessionScope
 import androidx.core.uwb.UwbManager
 import androidx.core.uwb.backend.IUwb
-import com.google.android.gms.common.api.ApiException
-import com.google.android.gms.nearby.Nearby
-import kotlinx.coroutines.tasks.await
 import androidx.core.uwb.helper.checkSystemFeature
 import androidx.core.uwb.helper.handleApiException
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
+import com.google.android.gms.common.api.ApiException
+import com.google.android.gms.nearby.Nearby
+import kotlinx.coroutines.tasks.await
 
 internal class UwbManagerImpl(private val context: Context) : UwbManager {
     companion object {
@@ -90,7 +90,10 @@ internal class UwbManagerImpl(private val context: Context) : UwbManager {
             val rangingCapabilities = RangingCapabilities(
                 nearbyRangingCapabilities.supportsDistance(),
                 nearbyRangingCapabilities.supportsAzimuthalAngle(),
-                nearbyRangingCapabilities.supportsElevationAngle())
+                nearbyRangingCapabilities.supportsElevationAngle(),
+                nearbyRangingCapabilities.getMinRangingInterval(),
+                nearbyRangingCapabilities.getSupportedChannels().toSet(),
+                nearbyRangingCapabilities.getSupportedConfigIds().toSet())
             return if (isController) {
                 val uwbComplexChannel = uwbClient.complexChannel.await()
                 UwbControllerSessionScopeImpl(
@@ -128,7 +131,10 @@ internal class UwbManagerImpl(private val context: Context) : UwbManager {
                 RangingCapabilities(
                     it.supportsDistance,
                     it.supportsAzimuthalAngle,
-                    it.supportsElevationAngle)
+                    it.supportsElevationAngle,
+                    it.minRangingInterval,
+                    it.supportedChannels.toSet(),
+                    it.supportedConfigIds.toSet())
             }
             return if (isController) {
                 val uwbComplexChannel = uwbClient.complexChannel

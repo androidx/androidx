@@ -52,8 +52,11 @@ internal class PerVariantConsumerExtensionManager(
         val dependencies: List<Pair<Project, String?>>
             get() = getMergedListForVariant(variant) { dependencies }
 
-        val enableR8BaselineProfileRewrite: Boolean
-            get() = getOverriddenValueForVariant(variant) { enableR8BaselineProfileRewrite }
+        val baselineProfileRulesRewrite: Boolean?
+            get() = getOverriddenValueForVariantAllowNull(variant) { baselineProfileRulesRewrite }
+
+        val dexLayoutOptimization: Boolean?
+            get() = getOverriddenValueForVariantAllowNull(variant) { dexLayoutOptimization }
 
         val saveInSrc: Boolean
             get() = getOverriddenValueForVariant(variant) { saveInSrc }

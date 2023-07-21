@@ -56,7 +56,6 @@ import kotlin.math.abs
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
@@ -134,11 +133,6 @@ class ZoomControlDeviceTest(
                 cameraProvider.shutdown()[10, TimeUnit.SECONDS]
             }
         }
-
-        if (selectorName == "front" && implName == CameraPipeConfig::class.simpleName) {
-            // TODO(b/264332446): Replace this delay with some API like closeAll() once available
-            delay(5000)
-        }
     }
 
     @Test
@@ -186,7 +180,8 @@ class ZoomControlDeviceTest(
          */
         try {
             cameraControl.setZoomRatio(maxZoomRatio + 1.0f)[5, TimeUnit.SECONDS]
-        } catch (_: ExecutionException) {}
+        } catch (_: ExecutionException) {
+        }
 
         assertThat(cameraInfo.zoomState.value?.zoomRatio).isEqualTo(2.0f)
     }
@@ -213,7 +208,8 @@ class ZoomControlDeviceTest(
          */
         try {
             cameraControl.setZoomRatio(minZoomRatio - 1.0f)[5, TimeUnit.SECONDS]
-        } catch (_: ExecutionException) {}
+        } catch (_: ExecutionException) {
+        }
 
         assertThat(cameraInfo.zoomState.value?.zoomRatio).isEqualTo(2.0f)
     }
@@ -425,7 +421,8 @@ class ZoomControlDeviceTest(
          */
         try {
             cameraControl.setLinearZoom(1.1f)[5, TimeUnit.SECONDS]
-        } catch (_: ExecutionException) {}
+        } catch (_: ExecutionException) {
+        }
 
         assertThat(cameraInfo.zoomState.value?.linearZoom).isEqualTo(0.5f)
     }
@@ -448,7 +445,8 @@ class ZoomControlDeviceTest(
          */
         try {
             cameraControl.setLinearZoom(-0.1f)[5, TimeUnit.SECONDS]
-        } catch (_: ExecutionException) {}
+        } catch (_: ExecutionException) {
+        }
 
         assertThat(cameraInfo.zoomState.value?.linearZoom).isEqualTo(0.5f)
     }
@@ -761,8 +759,10 @@ class ZoomControlDeviceTest(
         private val failureException =
             TimeoutException("Test doesn't complete after waiting for $captureCount frames.")
 
-        @Volatile private var startReceiving = false
-        @Volatile private var _verifyBlock: (
+        @Volatile
+        private var startReceiving = false
+        @Volatile
+        private var _verifyBlock: (
             captureRequest: CaptureRequest,
             captureResult: TotalCaptureResult
         ) -> Boolean = { _, _ -> false }

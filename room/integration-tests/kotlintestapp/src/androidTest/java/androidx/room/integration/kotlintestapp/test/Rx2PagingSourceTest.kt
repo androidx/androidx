@@ -16,6 +16,7 @@
 
 package androidx.room.integration.kotlintestapp.test
 
+import androidx.kruth.assertThat
 import androidx.paging.Pager
 import androidx.paging.PagingState
 import androidx.paging.rxjava2.RxPagingSource
@@ -27,8 +28,7 @@ import androidx.room.integration.kotlintestapp.testutil.PagingEntity
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
-import com.google.common.truth.Truth
-import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import io.reactivex.Single
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
@@ -105,7 +105,7 @@ class Rx2PagingSourceTest {
                     baseSource.loadSingle(params)
                         // delay load for refresh so we have time to cancel load
                         .doOnSubscribe { Thread.sleep(500) }
-                        .doOnSuccess { Truth.assertWithMessage("Should not succeed").fail() }
+                        .doOnSuccess { assertWithMessage("Should not succeed").fail() }
                         .doOnDispose { isDisposed = true }
                 },
                 nonInitialLoadSingle = { params -> baseSource.loadSingle(params) },
@@ -147,7 +147,7 @@ class Rx2PagingSourceTest {
                     baseSource.loadSingle(params)
                         // delay load for append/prepend so we have time to cancel load
                         .doOnSubscribe { Thread.sleep(500) }
-                        .doOnSuccess { Truth.assertWithMessage("Should not succeed").fail() }
+                        .doOnSuccess { assertWithMessage("Should not succeed").fail() }
                         .doOnDispose { isDisposed = true }
                 },
             ).also { pagingSources.add(it) }
@@ -197,7 +197,7 @@ class Rx2PagingSourceTest {
                     baseSource.loadSingle(params)
                         // delay load for append/prepend so we have time to cancel load
                         .doOnSubscribe { Thread.sleep(500) }
-                        .doOnSuccess { Truth.assertWithMessage("Should not succeed").fail() }
+                        .doOnSuccess { assertWithMessage("Should not succeed").fail() }
                         .doOnDispose { isDisposed = true }
                 },
             ).also { pagingSources.add(it) }

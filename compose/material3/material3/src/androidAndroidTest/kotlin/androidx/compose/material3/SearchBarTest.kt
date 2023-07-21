@@ -33,6 +33,8 @@ import androidx.compose.ui.node.Ref
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.assertHeightIsEqualTo
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsFocused
+import androidx.compose.ui.test.assertIsNotFocused
 import androidx.compose.ui.test.assertWidthIsEqualTo
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
@@ -60,7 +62,7 @@ class SearchBarTest {
     private val BackTestTag = "Back"
 
     @Test
-    fun searchBar_becomesActiveOnClick_andInactiveOnBack() {
+    fun searchBar_becomesActiveAndFocusedOnClick_andInactiveAndUnfocusedOnBack() {
         rule.setMaterialContent(lightColorScheme()) {
             Box(Modifier.fillMaxSize()) {
                 val dispatcher = LocalOnBackPressedDispatcherOwner.current!!.onBackPressedDispatcher
@@ -88,9 +90,12 @@ class SearchBarTest {
 
         rule.onNodeWithTag(SearchBarTestTag).performClick()
         rule.onNodeWithTag(BackTestTag).assertIsDisplayed()
+        // onNodeWithText instead of onNodeWithTag to access the underlying text field
+        rule.onNodeWithText("Query").assertIsFocused()
 
         rule.onNodeWithTag(BackTestTag).performClick()
         rule.onNodeWithTag(BackTestTag).assertDoesNotExist()
+        rule.onNodeWithText("Query").assertIsNotFocused()
     }
 
     @Test
@@ -204,7 +209,7 @@ class SearchBarTest {
     }
 
     @Test
-    fun dockedSearchBar_becomesActiveOnClick_andInactiveOnBack() {
+    fun dockedSearchBar_becomesActiveAndFocusedOnClick_andInactiveAndUnfocusedOnBack() {
         rule.setMaterialContent(lightColorScheme()) {
             Column(Modifier.fillMaxSize()) {
                 val dispatcher = LocalOnBackPressedDispatcherOwner.current!!.onBackPressedDispatcher
@@ -232,9 +237,12 @@ class SearchBarTest {
 
         rule.onNodeWithTag(SearchBarTestTag).performClick()
         rule.onNodeWithTag(BackTestTag).assertIsDisplayed()
+        // onNodeWithText instead of onNodeWithTag to access the underlying text field
+        rule.onNodeWithText("Query").assertIsFocused()
 
         rule.onNodeWithTag(BackTestTag).performClick()
         rule.onNodeWithTag(BackTestTag).assertDoesNotExist()
+        rule.onNodeWithText("Query").assertIsNotFocused()
     }
 
     @Test

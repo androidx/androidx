@@ -36,40 +36,47 @@ public class MyDao_Impl(
                 "INSERT OR ABORT INTO `MyEntity` (`int`,`short`,`byte`,`long`,`char`,`float`,`double`) VALUES (?,?,?,?,?,?,?)"
 
             public override fun bind(statement: SupportSQLiteStatement, entity: MyEntity): Unit {
-                if (entity.int == null) {
+                val _tmpInt: Int? = entity.int
+                if (_tmpInt == null) {
                     statement.bindNull(1)
                 } else {
-                    statement.bindLong(1, entity.int.toLong())
+                    statement.bindLong(1, _tmpInt.toLong())
                 }
-                if (entity.short == null) {
+                val _tmpShort: Short? = entity.short
+                if (_tmpShort == null) {
                     statement.bindNull(2)
                 } else {
-                    statement.bindLong(2, entity.short.toLong())
+                    statement.bindLong(2, _tmpShort.toLong())
                 }
-                if (entity.byte == null) {
+                val _tmpByte: Byte? = entity.byte
+                if (_tmpByte == null) {
                     statement.bindNull(3)
                 } else {
-                    statement.bindLong(3, entity.byte.toLong())
+                    statement.bindLong(3, _tmpByte.toLong())
                 }
-                if (entity.long == null) {
+                val _tmpLong: Long? = entity.long
+                if (_tmpLong == null) {
                     statement.bindNull(4)
                 } else {
-                    statement.bindLong(4, entity.long)
+                    statement.bindLong(4, _tmpLong)
                 }
-                if (entity.char == null) {
+                val _tmpChar: Char? = entity.char
+                if (_tmpChar == null) {
                     statement.bindNull(5)
                 } else {
-                    statement.bindLong(5, entity.char.toLong())
+                    statement.bindLong(5, _tmpChar.toLong())
                 }
-                if (entity.float == null) {
+                val _tmpFloat: Float? = entity.float
+                if (_tmpFloat == null) {
                     statement.bindNull(6)
                 } else {
-                    statement.bindDouble(6, entity.float.toDouble())
+                    statement.bindDouble(6, _tmpFloat.toDouble())
                 }
-                if (entity.double == null) {
+                val _tmpDouble: Double? = entity.double
+                if (_tmpDouble == null) {
                     statement.bindNull(7)
                 } else {
-                    statement.bindDouble(7, entity.double)
+                    statement.bindDouble(7, _tmpDouble)
                 }
             }
         }

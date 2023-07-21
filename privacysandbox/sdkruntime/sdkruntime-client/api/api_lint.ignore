@@ -1,0 +1,5 @@
+// Baseline format: 1.0
+RegistrationName: androidx.privacysandbox.sdkruntime.client.SdkSandboxManagerCompat#addSdkSandboxProcessDeathCallback(java.util.concurrent.Executor, androidx.privacysandbox.sdkruntime.client.SdkSandboxProcessDeathCallbackCompat):
+    Callback methods should be named register/unregister; was addSdkSandboxProcessDeathCallback
+RegistrationName: androidx.privacysandbox.sdkruntime.client.SdkSandboxManagerCompat#removeSdkSandboxProcessDeathCallback(androidx.privacysandbox.sdkruntime.client.SdkSandboxProcessDeathCallbackCompat):
+    Callback methods should be named register/unregister; was removeSdkSandboxProcessDeathCallback
