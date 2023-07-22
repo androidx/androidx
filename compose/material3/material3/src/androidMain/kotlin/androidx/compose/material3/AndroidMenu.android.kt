@@ -156,10 +156,10 @@ fun DropdownMenu(
     properties: PopupProperties = PopupProperties(focusable = true),
     content: @Composable ColumnScope.() -> Unit
 ) {
-    val expandedStates = remember { MutableTransitionState(false) }
-    expandedStates.targetState = expanded
+    val expandedState = remember { MutableTransitionState(false) }
+    expandedState.targetState = expanded
 
-    if (expandedStates.currentState || expandedStates.targetState) {
+    if (expandedState.currentState || expandedState.targetState) {
         val transformOriginState = remember { mutableStateOf(TransformOrigin.Center) }
         val density = LocalDensity.current
         val popupPositionProvider = DropdownMenuPositionProvider(
@@ -175,7 +175,7 @@ fun DropdownMenu(
             properties = properties
         ) {
             DropdownMenuContent(
-                expandedStates = expandedStates,
+                expandedState = expandedState,
                 transformOriginState = transformOriginState,
                 scrollState = scrollState,
                 modifier = modifier,

@@ -63,14 +63,14 @@ import kotlin.math.min
 
 @Composable
 internal fun DropdownMenuContent(
-    expandedStates: MutableTransitionState<Boolean>,
+    expandedState: MutableTransitionState<Boolean>,
     transformOriginState: MutableState<TransformOrigin>,
     scrollState: ScrollState,
     modifier: Modifier = Modifier,
     content: @Composable ColumnScope.() -> Unit
 ) {
     // Menu open/close animation.
-    val transition = updateTransition(expandedStates, "DropDownMenu")
+    val transition = updateTransition(expandedState, "DropDownMenu")
 
     val scale by transition.animateFloat(
         transitionSpec = {
@@ -88,14 +88,8 @@ internal fun DropdownMenuContent(
                 )
             }
         }
-    ) {
-        if (it) {
-            // Menu is expanded.
-            1f
-        } else {
-            // Menu is dismissed.
-            0.8f
-        }
+    ) { expanded ->
+        if (expanded) 1f else 0.8f
     }
 
     val alpha by transition.animateFloat(
@@ -108,15 +102,10 @@ internal fun DropdownMenuContent(
                 tween(durationMillis = OutTransitionDuration)
             }
         }
-    ) {
-        if (it) {
-            // Menu is expanded.
-            1f
-        } else {
-            // Menu is dismissed.
-            0f
-        }
+    ) { expanded ->
+        if (expanded) 1f else 0f
     }
+
     Surface(
         modifier = Modifier.graphicsLayer {
             scaleX = scale
