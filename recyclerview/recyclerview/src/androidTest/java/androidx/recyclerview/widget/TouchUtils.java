@@ -173,7 +173,9 @@ class TouchUtils {
     /** Creates a {@link MotionEvent} with provided input and motion values. */
     static MotionEvent createMotionEvent(
             int inputDeviceId, int inputSource, int axis, int axisValue) {
-        MotionEvent.PointerProperties[] pointerProperties = {new MotionEvent.PointerProperties()};
+        MotionEvent.PointerProperties props = new MotionEvent.PointerProperties();
+        props.id = 0;
+        MotionEvent.PointerProperties[] pointerProperties = {props};
         MotionEvent.PointerCoords coords = new MotionEvent.PointerCoords();
         coords.setAxisValue(axis, axisValue);
         MotionEvent.PointerCoords[] pointerCoords = {coords};
