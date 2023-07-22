@@ -34,10 +34,25 @@ import java.util.List;
 
 /** Implements {@link SystemRoutesSource} using {@link MediaRouter}. */
 @RequiresApi(Build.VERSION_CODES.JELLY_BEAN)
-public final class MediaRouterSystemRoutesSource implements SystemRoutesSource {
+public final class MediaRouterSystemRoutesSource extends SystemRoutesSource {
 
     @NonNull
     private final MediaRouter mMediaRouter;
+
+    @NonNull
+    private final MediaRouter.Callback mCallback = new MediaRouter.SimpleCallback() {
+        @Override
+        public void onRouteAdded(MediaRouter router, MediaRouter.RouteInfo info) {
+            super.onRouteAdded(router, info);
+            mOnRoutesChangedListener.onRouteAdded(createRouteItemFor(info));
+        }
+
+        @Override
+        public void onRouteRemoved(MediaRouter router, MediaRouter.RouteInfo info) {
+            super.onRouteRemoved(router, info);
+            mOnRoutesChangedListener.onRouteRemoved(createRouteItemFor(info));
+        }
+    };
 
     /** Returns a new instance. */
     @NonNull
@@ -49,6 +64,16 @@ public final class MediaRouterSystemRoutesSource implements SystemRoutesSource {
 
     MediaRouterSystemRoutesSource(@NonNull MediaRouter mediaRouter) {
         mMediaRouter = mediaRouter;
+    }
+
+    @Override
+    public void start() {
+        mMediaRouter.addCallback(MediaRouter.ROUTE_TYPE_LIVE_AUDIO, mCallback);
+    }
+
+    @Override
+    public void stop() {
+        mMediaRouter.removeCallback(mCallback);
     }
 
     @NonNull
@@ -72,22 +97,27 @@ public final class MediaRouterSystemRoutesSource implements SystemRoutesSource {
                 continue;
             }
 
-            SystemRouteItem.Builder builder =
-                    new SystemRouteItem.Builder(/* id= */ info.getName().toString())
-                            .setName(info.getName().toString());
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
-                CharSequence description = Api18Impl.getDescription(info);
-
-                if (description != null) {
-                    builder.setDescription(String.valueOf(description));
-                }
-            }
-
-            out.add(builder.build());
+            out.add(createRouteItemFor(info));
         }
 
         return out;
+    }
+
+    @NonNull
+    private static SystemRouteItem createRouteItemFor(@NonNull MediaRouter.RouteInfo routeInfo) {
+        SystemRouteItem.Builder builder =
+                new SystemRouteItem.Builder(/* id= */ routeInfo.getName().toString())
+                        .setName(routeInfo.getName().toString());
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+            CharSequence description = Api18Impl.getDescription(routeInfo);
+
+            if (description != null) {
+                builder.setDescription(String.valueOf(description));
+            }
+        }
+
+        return builder.build();
     }
 
     @RequiresApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
