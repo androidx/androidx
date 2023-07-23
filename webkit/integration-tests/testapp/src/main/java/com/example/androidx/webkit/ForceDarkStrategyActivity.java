@@ -150,7 +150,7 @@ public class ForceDarkStrategyActivity extends AppCompatActivity {
                 }
                 WebSettingsCompat.setForceDarkStrategy(darkThemeWebView.getSettings(),
                         forceDarkStrategy);
-                WebSettingsCompat.setForceDarkStrategy(darkThemeWebView.getSettings(),
+                WebSettingsCompat.setForceDarkStrategy(noDarkThemeWebView.getSettings(),
                         forceDarkStrategy);
             }
 
