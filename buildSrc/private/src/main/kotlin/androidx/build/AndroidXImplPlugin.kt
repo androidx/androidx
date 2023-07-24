@@ -501,8 +501,11 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
                 }
             }
 
+        val libraryAndroidComponentsExtension =
+            project.extensions.getByType<LibraryAndroidComponentsExtension>()
+
         // Remove the android:targetSdkVersion element from the manifest used for AARs.
-        project.extensions.getByType<LibraryAndroidComponentsExtension>().onVariants { variant ->
+        libraryAndroidComponentsExtension.onVariants { variant ->
             project.tasks
                 .register(
                     variant.name + "AarManifestTransformer",
@@ -523,7 +526,7 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
             publishing { singleVariant(DEFAULT_PUBLISH_CONFIG) }
         }
 
-        project.extensions.getByType<LibraryAndroidComponentsExtension>().apply {
+        libraryAndroidComponentsExtension.apply {
             beforeVariants(selector().withBuildType("release")) { variant ->
                 variant.enableUnitTest = false
             }
@@ -535,7 +538,7 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
 
         project.configurePublicResourcesStub(libraryExtension)
         project.configureSourceJarForAndroid(libraryExtension)
-        project.configureVersionFileWriter(libraryExtension, androidXExtension)
+        project.configureVersionFileWriter(libraryAndroidComponentsExtension, androidXExtension)
         project.configureJavaCompilationWarnings(androidXExtension)
 
         project.configureDependencyVerification(androidXExtension) { taskProvider ->
