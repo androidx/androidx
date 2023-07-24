@@ -177,7 +177,7 @@ internal class LazyGridItemPlacementAnimator {
                 // check if we have any active placement animation on the item
                 var inProgress = false
                 repeat(item.placeablesCount) {
-                    if (item.getParentData(it).node?.isAnimationInProgress == true) {
+                    if (item.getParentData(it).node?.isPlacementAnimationInProgress == true) {
                         inProgress = true
                         return@repeat
                     }

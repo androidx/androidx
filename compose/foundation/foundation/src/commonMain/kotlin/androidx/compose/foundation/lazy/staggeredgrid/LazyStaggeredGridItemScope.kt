@@ -72,7 +72,7 @@ private class AnimateItemPlacementElement(
     override fun create(): AnimateItemPlacementNode = AnimateItemPlacementNode(animationSpec)
 
     override fun update(node: AnimateItemPlacementNode) {
-        node.delegatingNode.placementAnimationSpec = animationSpec
+        node.delegatingNode.placementSpec = animationSpec
     }
 
     override fun equals(other: Any?): Boolean {
@@ -95,7 +95,7 @@ private class AnimateItemPlacementNode(
     animationSpec: FiniteAnimationSpec<IntOffset>
 ) : DelegatingNode(), ParentDataModifierNode {
 
-    val delegatingNode = delegate(LazyLayoutAnimateItemModifierNode(animationSpec))
+    val delegatingNode = delegate(LazyLayoutAnimateItemModifierNode(null, animationSpec))
 
     override fun Density.modifyParentData(parentData: Any?): Any = delegatingNode
 }
