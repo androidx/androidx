@@ -1286,17 +1286,20 @@ class VideoCaptureTest {
         )
         setupCamera(sensorRotation = sourceRotationDegrees)
         createCameraUseCaseAdapter()
-        videoOutput.updateStreamInfo(StreamInfo.of(
-            StreamInfo.STREAM_ID_ANY,
-            StreamState.INACTIVE,
-            SurfaceRequest.TransformationInfo.of(
-                targetCropRect,
-                targetRotationDegrees,
-                0,
-                false,
-                Matrix()
+        videoOutput.updateStreamInfo(
+            StreamInfo.of(
+                StreamInfo.STREAM_ID_ANY,
+                StreamState.INACTIVE,
+                SurfaceRequest.TransformationInfo.of(
+                    targetCropRect,
+                    targetRotationDegrees,
+                    0,
+                    false,
+                    Matrix(),
+                    /*mirroring=*/false
+                )
             )
-        ))
+        )
         videoCapture.setViewPortCropRect(sourceCropRect)
 
         // Act.
