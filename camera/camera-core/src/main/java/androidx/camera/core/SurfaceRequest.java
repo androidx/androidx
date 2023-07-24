@@ -922,9 +922,21 @@ public final class SurfaceRequest {
          * detecting face with {@link ImageAnalysis}, and then highlighting the face in
          * {@link Preview}.
          */
+        // TODO(b/292286071): make this public in 1.4 alpha.
         @NonNull
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public abstract Matrix getSensorToBufferTransform();
+
+        /**
+         * Returns whether the buffer should be mirrored.
+         *
+         * <p>This flag indicates whether the buffer needs to be mirrored vertically. For
+         * example, for front camera preview, the buffer should usually be mirrored. The
+         * mirroring should be applied after the {@link #getRotationDegrees()} is applied.
+         */
+        // TODO(b/292286071): make this public in 1.4 alpha.
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public abstract boolean getMirroring();
 
         /**
          * Creates new {@link TransformationInfo}
@@ -936,9 +948,10 @@ public final class SurfaceRequest {
         public static TransformationInfo of(@NonNull Rect cropRect,
                 @ImageOutputConfig.RotationDegreesValue int rotationDegrees,
                 @ImageOutputConfig.OptionalRotationValue int targetRotation,
-                boolean hasCameraTransform, @NonNull Matrix sensorToBufferTransform) {
+                boolean hasCameraTransform, @NonNull Matrix sensorToBufferTransform,
+                boolean mirroring) {
             return new AutoValue_SurfaceRequest_TransformationInfo(cropRect, rotationDegrees,
-                    targetRotation, hasCameraTransform, sensorToBufferTransform);
+                    targetRotation, hasCameraTransform, sensorToBufferTransform, mirroring);
         }
 
         // Hides public constructor.

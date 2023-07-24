@@ -120,7 +120,8 @@ class PreviewTransformationTest {
             SurfaceRequest.TransformationInfo.of(
                 cropRect, 90, ARBITRARY_ROTATION,
                 /*hasCameraTransform=*/true,
-                /*sensorToBufferTransform=*/Matrix()
+                /*sensorToBufferTransform=*/Matrix(),
+                /*mirroring=*/false
             ),
             SURFACE_SIZE,
             BACK_CAMERA
@@ -154,7 +155,8 @@ class PreviewTransformationTest {
                 /*rotationDegrees*/0,
                 ROTATION_0,
                 /*hasCameraTransform=*/true,
-                sensorToBuffer
+                sensorToBuffer,
+                /*mirroring=*/false
             ),
             surfaceSize,
             isFrontCamera
@@ -186,7 +188,8 @@ class PreviewTransformationTest {
                 /*rotationDegrees*/0,
                 ROTATION_NOT_SPECIFIED,
                 /*hasCameraTransform=*/false,
-                /*sensorToBufferTransform=*/Matrix()
+                /*sensorToBufferTransform=*/Matrix(),
+                /*mirroring=*/false
             ),
             croppedSize,
             /*isFrontCamera=*/false
@@ -288,7 +291,8 @@ class PreviewTransformationTest {
                 90,
                 rotation,
                 /*hasCameraTransform=*/true,
-                /*sensorToBufferTransform=*/Matrix()
+                /*sensorToBufferTransform=*/Matrix(),
+                /*mirroring=*/false
             ),
             SURFACE_SIZE,
             isFrontCamera
@@ -319,7 +323,8 @@ class PreviewTransformationTest {
                 90,
                 ARBITRARY_ROTATION,
                 /*hasCameraTransform=*/true,
-                /*sensorToBufferTransform=*/Matrix()
+                /*sensorToBufferTransform=*/Matrix(),
+                /*mirroring=*/false
             ),
             SURFACE_SIZE, BACK_CAMERA
         )
@@ -452,7 +457,8 @@ class PreviewTransformationTest {
                 90,
                 ARBITRARY_ROTATION,
                 /*hasCameraTransform=*/true,
-                /*sensorToBufferTransform=*/Matrix()
+                /*sensorToBufferTransform=*/Matrix(),
+                /*mirroring=*/false
             ),
             FIT_SURFACE_SIZE,
             isFrontCamera
@@ -540,7 +546,8 @@ class PreviewTransformationTest {
                 rotationDegrees,
                 ARBITRARY_ROTATION,
                 /*hasCameraTransform=*/true,
-                /*sensorToBufferTransform=*/Matrix()
+                /*sensorToBufferTransform=*/Matrix(),
+                /*mirroring=*/false
             ),
             SURFACE_SIZE,
             isFrontCamera
