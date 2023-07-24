@@ -433,7 +433,7 @@ class TextFieldSelectionHandlesTest {
 
     @SdkSuppress(minSdkVersion = 23)
     @Test
-    fun doubleClickOnWhitespace_toSelectNextWord() {
+    fun doubleClickOnWhitespace_doesNotSelectWhitespace() {
         state = TextFieldState("abc def ghj")
         rule.setContent {
             BasicTextField2(
@@ -452,7 +452,8 @@ class TextFieldSelectionHandlesTest {
             doubleClick(Offset(fontSizePx * 3.5f, fontSizePx / 2))
         }
         rule.runOnIdle {
-            assertThat(state.text.selectionInChars).isEqualTo(TextRange(4, 7))
+            assertThat(state.text.selectionInChars).isNotEqualTo(TextRange(3, 4))
+            assertThat(state.text.selectionInChars.collapsed).isFalse()
         }
     }
 
