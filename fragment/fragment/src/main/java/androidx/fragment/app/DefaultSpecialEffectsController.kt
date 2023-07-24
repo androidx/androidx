@@ -100,6 +100,10 @@ internal class DefaultSpecialEffectsController(
         // Collect Animation and Animator Effects
         startAnimations(animations, startedAnyTransition, startedTransitions)
 
+        // Run the transition Effects
+        transitions.first().operation.transitionEffect?.onStart(container)
+        transitions.first().operation.transitionEffect?.onCommit(container)
+
         // Run all of the Animation, Animator, and NoOp Effects we have collected
         for (i in operations.indices) {
             val operation = operations[i]
@@ -232,6 +236,7 @@ internal class DefaultSpecialEffectsController(
         firstOut: Operation?,
         lastIn: Operation?
     ): Map<Operation, Boolean> {
+        // Start transition special effects
         val startedTransitions = mutableMapOf<Operation, Boolean>()
 
         // First verify that we can run all transitions together
@@ -554,14 +559,11 @@ internal class DefaultSpecialEffectsController(
             return startedTransitions
         }
 
-        val transitionEffect = TransitionEffect(
+        transitionInfos.first().operation.transitionEffect = TransitionEffect(
             transitionInfos, firstOut, lastIn, transitionImpl, mergedTransition,
             enteringViews, sharedElementTransition, sharedElementFirstOutViews,
             sharedElementLastInViews, sharedElementNameMapping
         )
-
-        transitionEffect.onStart(container)
-        transitionEffect.onCommit(container)
 
         return startedTransitions
     }
