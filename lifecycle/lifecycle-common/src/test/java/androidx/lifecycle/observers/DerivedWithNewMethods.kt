@@ -13,16 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.lifecycle.observers
 
-package androidx.lifecycle.observers;
+import androidx.lifecycle.Lifecycle
 
-import androidx.lifecycle.Lifecycle;
-
-@SuppressWarnings("deprecation")
-public class DerivedWithNewMethods extends Base {
-
+@Suppress("DEPRECATION")
+class DerivedWithNewMethods : Base() {
     @androidx.lifecycle.OnLifecycleEvent(Lifecycle.Event.ON_STOP)
-    void onStop() {
-
-    }
+    fun onStop() {}
 }
