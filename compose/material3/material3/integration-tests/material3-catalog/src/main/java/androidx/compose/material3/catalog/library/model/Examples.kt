@@ -57,6 +57,7 @@ import androidx.compose.material3.samples.ElevatedCardSample
 import androidx.compose.material3.samples.ElevatedFilterChipSample
 import androidx.compose.material3.samples.ElevatedSuggestionChipSample
 import androidx.compose.material3.samples.EnterAlwaysTopAppBar
+import androidx.compose.material3.samples.ExitAlwaysBottomAppBar
 import androidx.compose.material3.samples.ExitUntilCollapsedLargeTopAppBar
 import androidx.compose.material3.samples.ExitUntilCollapsedMediumTopAppBar
 import androidx.compose.material3.samples.ExposedDropdownMenuSample
@@ -465,7 +466,12 @@ val BottomAppBarsExamples = listOf(
         name = ::BottomAppBarWithFAB.name,
         description = BottomAppBarsExampleDescription,
         sourceUrl = BottomAppBarsExampleSourceUrl,
-    ) { BottomAppBarWithFAB() }
+    ) { BottomAppBarWithFAB() },
+    Example(
+        name = ::ExitAlwaysBottomAppBar.name,
+        description = BottomAppBarsExampleDescription,
+        sourceUrl = BottomAppBarsExampleSourceUrl,
+    ) { ExitAlwaysBottomAppBar() }
 )
 
 private const val TopAppBarExampleDescription = "Top app bar examples"

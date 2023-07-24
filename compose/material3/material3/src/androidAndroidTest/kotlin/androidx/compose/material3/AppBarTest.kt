@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
@@ -1183,6 +1184,105 @@ class AppBarTest {
             .assertTopPositionInRootIsEqualTo(12.dp)
     }
 
+    @Test
+    fun bottomAppBar_exitAlways_scaffoldWithFAB_default_positioning() {
+        rule.setMaterialContent(lightColorScheme()) {
+            val scrollBehavior = BottomAppBarDefaults.exitAlwaysScrollBehavior()
+            Scaffold(
+                modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+                bottomBar = {
+                    BottomAppBar(
+                        modifier = Modifier.testTag(BottomAppBarTestTag),
+                        scrollBehavior = scrollBehavior
+                    ) {}
+                },
+                floatingActionButton = {
+                    FloatingActionButton(
+                        modifier = Modifier
+                            .testTag("FAB")
+                            .offset(y = 4.dp),
+                        onClick = { /* do something */ },
+                    ) {}
+                },
+                floatingActionButtonPosition = FabPosition.EndOverlay
+            ) {}
+        }
+
+        val appBarBounds = rule.onNodeWithTag(BottomAppBarTestTag).getUnclippedBoundsInRoot()
+        val fabBounds = rule.onNodeWithTag("FAB").getUnclippedBoundsInRoot()
+        rule.onNodeWithTag("FAB")
+            // FAB should be 16.dp from the end
+            .assertLeftPositionInRootIsEqualTo(appBarBounds.width - 16.dp - fabBounds.width)
+            // FAB should be 12.dp from the bottom
+            .assertTopPositionInRootIsEqualTo(rule.rootHeight() - 12.dp - fabBounds.height)
+    }
+
+    @Test
+    fun bottomAppBar_exitAlways_scaffoldWithFAB_scrolled_positioning() {
+        lateinit var scrollBehavior: BottomAppBarScrollBehavior
+        val scrollHeightOffsetDp = 20.dp
+        var scrollHeightOffsetPx = 0f
+
+        rule.setMaterialContent(lightColorScheme()) {
+            scrollBehavior = BottomAppBarDefaults.exitAlwaysScrollBehavior()
+            scrollHeightOffsetPx = with(LocalDensity.current) { scrollHeightOffsetDp.toPx() }
+            Scaffold(
+                modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+                bottomBar = {
+                    BottomAppBar(
+                        modifier = Modifier.testTag(BottomAppBarTestTag),
+                        scrollBehavior = scrollBehavior
+                    ) {}
+                },
+                floatingActionButton = {
+                    FloatingActionButton(
+                        modifier = Modifier
+                            .testTag("FAB")
+                            .offset(y = 4.dp),
+                        onClick = { /* do something */ },
+                    ) {}
+                },
+                floatingActionButtonPosition = FabPosition.EndOverlay
+            ) {}
+        }
+
+        // Simulate scrolled content.
+        rule.runOnIdle {
+            scrollBehavior.state.heightOffset = -scrollHeightOffsetPx
+            scrollBehavior.state.contentOffset = -scrollHeightOffsetPx
+        }
+        rule.waitForIdle()
+        rule.onNodeWithTag(BottomAppBarTestTag)
+            .assertHeightIsEqualTo(BottomAppBarTokens.ContainerHeight - scrollHeightOffsetDp)
+
+        val appBarBounds = rule.onNodeWithTag(BottomAppBarTestTag).getUnclippedBoundsInRoot()
+        val fabBounds = rule.onNodeWithTag("FAB").getUnclippedBoundsInRoot()
+        rule.onNodeWithTag("FAB")
+            // FAB should be 16.dp from the end
+            .assertLeftPositionInRootIsEqualTo(appBarBounds.width - 16.dp - fabBounds.width)
+            // FAB should be 12.dp from the bottom
+            .assertTopPositionInRootIsEqualTo(rule.rootHeight() - 12.dp - fabBounds.height)
+    }
+
+    @Test
+    fun bottomAppBar_exitAlways_allowHorizontalScroll() {
+        lateinit var state: LazyListState
+        rule.setMaterialContent(lightColorScheme()) {
+            state = rememberLazyListState()
+            MultiPageContent(BottomAppBarDefaults.exitAlwaysScrollBehavior(), state)
+        }
+
+        rule.onNodeWithTag(LazyListTag).performTouchInput { swipeLeft() }
+        rule.runOnIdle {
+            assertThat(state.firstVisibleItemIndex).isEqualTo(1)
+        }
+
+        rule.onNodeWithTag(LazyListTag).performTouchInput { swipeRight() }
+        rule.runOnIdle {
+            assertThat(state.firstVisibleItemIndex).isEqualTo(0)
+        }
+    }
+
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     private fun MultiPageContent(scrollBehavior: TopAppBarScrollBehavior, state: LazyListState) {
@@ -1194,6 +1294,39 @@ class AppBarTest {
                     modifier = Modifier.testTag(TopAppBarTestTag),
                     scrollBehavior = scrollBehavior
                 )
+            }
+        ) { contentPadding ->
+            LazyRow(
+                Modifier
+                    .fillMaxSize()
+                    .testTag(LazyListTag), state
+            ) {
+                items(2) { page ->
+                    LazyColumn(
+                        modifier = Modifier.fillParentMaxSize(),
+                        contentPadding = contentPadding
+                    ) {
+                        items(50) {
+                            Text(
+                                modifier = Modifier.fillParentMaxWidth(),
+                                text = "Item #$page x $it"
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    @Composable
+    private fun MultiPageContent(scrollBehavior: BottomAppBarScrollBehavior, state: LazyListState) {
+        Scaffold(
+            modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+            bottomBar = {
+                BottomAppBar(
+                    modifier = Modifier.testTag(BottomAppBarTestTag),
+                    scrollBehavior = scrollBehavior
+                ) {}
             }
         ) { contentPadding ->
             LazyRow(
@@ -1583,7 +1716,8 @@ class AppBarTest {
         (TopAppBarSmallTokens.ContainerHeight - FakeIconSize) / 2
 
     private val LazyListTag = "lazyList"
-    private val TopAppBarTestTag = "bar"
+    private val TopAppBarTestTag = "topAppBar"
+    private val BottomAppBarTestTag = "bottomAppBar"
     private val NavigationIconTestTag = "navigationIcon"
     private val TitleTestTag = "title"
     private val ActionsTestTag = "actions"
