@@ -17,17 +17,25 @@
 package androidx.compose.material3
 
 import android.widget.FrameLayout
+import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -58,6 +66,8 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import org.junit.Assume.assumeNotNull
 import org.junit.Ignore
 import org.junit.Rule
@@ -304,6 +314,55 @@ class ExposedDropdownMenuTest {
             )
         }
         rule.onNodeWithTag(MenuItemTag).assertIsDisplayed()
+    }
+
+    @Test
+    fun edm_doesNotRecomposeOnScroll() {
+        var compositionCount = 0
+        lateinit var scrollState: ScrollState
+        lateinit var scope: CoroutineScope
+        rule.setMaterialContent(lightColorScheme()) {
+            scrollState = rememberScrollState()
+            scope = rememberCoroutineScope()
+            Column(Modifier.verticalScroll(scrollState)) {
+                Spacer(Modifier.height(300.dp))
+
+                val expanded = false
+                ExposedDropdownMenuBox(
+                    expanded = expanded,
+                    onExpandedChange = {},
+                ) {
+                    TextField(
+                        modifier = Modifier.menuAnchor(),
+                        readOnly = true,
+                        value = "",
+                        onValueChange = {},
+                        label = { Text("Label") },
+                    )
+                    ExposedDropdownMenu(
+                        expanded = expanded,
+                        onDismissRequest = {},
+                        content = {},
+                    )
+                    SideEffect {
+                        compositionCount++
+                    }
+                }
+
+                Spacer(Modifier.height(300.dp))
+            }
+        }
+
+        assertThat(compositionCount).isEqualTo(1)
+
+        rule.runOnIdle {
+            scope.launch {
+                scrollState.animateScrollBy(500f)
+            }
+        }
+        rule.waitForIdle()
+
+        assertThat(compositionCount).isEqualTo(1)
     }
 
     @Test
