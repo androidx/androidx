@@ -24,9 +24,11 @@ import androidx.camera.core.CameraEffect
 import androidx.camera.core.CameraEffect.IMAGE_CAPTURE
 import androidx.camera.core.CameraEffect.PREVIEW
 import androidx.camera.core.CameraEffect.VIDEO_CAPTURE
+import androidx.camera.core.CameraSelector.LENS_FACING_FRONT
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY
 import androidx.camera.core.ImageProxy
+import androidx.camera.core.SurfaceRequest
 import androidx.camera.core.impl.CameraCaptureCallback
 import androidx.camera.core.impl.CameraCaptureResult
 import androidx.camera.core.impl.MutableOptionsBundle
@@ -42,6 +44,7 @@ import androidx.camera.core.internal.TargetConfig.OPTION_TARGET_NAME
 import androidx.camera.core.processing.DefaultSurfaceProcessor
 import androidx.camera.testing.fakes.FakeCamera
 import androidx.camera.testing.fakes.FakeCameraCaptureResult
+import androidx.camera.testing.fakes.FakeCameraInfoInternal
 import androidx.camera.testing.fakes.FakeSurfaceEffect
 import androidx.camera.testing.fakes.FakeSurfaceProcessorInternal
 import androidx.camera.testing.fakes.FakeUseCase
@@ -68,6 +71,10 @@ import org.robolectric.annotation.internal.DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 class StreamSharingTest {
 
+    companion object {
+        private const val SENSOR_ROTATION = 270
+    }
+
     private val child1 = FakeUseCase(
         FakeUseCaseConfig.Builder().setSurfaceOccupancyPriority(1).useCaseConfig
     )
@@ -76,6 +83,8 @@ class StreamSharingTest {
     )
     private val useCaseConfigFactory = FakeUseCaseConfigFactory()
     private val camera = FakeCamera()
+    private val frontCamera =
+        FakeCamera(null, FakeCameraInfoInternal(SENSOR_ROTATION, LENS_FACING_FRONT))
     private lateinit var streamSharing: StreamSharing
     private val size = Size(800, 600)
     private lateinit var defaultConfig: UseCaseConfig<*>
@@ -153,7 +162,7 @@ class StreamSharingTest {
     @Test
     fun hasEffect_createEffectNode() {
         // Arrange: set an effect on StreamSharing.
-        streamSharing.bindToCamera(camera, null, defaultConfig)
+        streamSharing.bindToCamera(frontCamera, null, defaultConfig)
         streamSharing.effect = effect
         // Act: create pipeline
         streamSharing.onSuggestedStreamSpecUpdated(StreamSpec.builder(size).build())
@@ -162,8 +171,17 @@ class StreamSharingTest {
         assertThat(effectProcessor.surfaceRequest).isNotNull()
         assertThat(effectProcessor.surfaceOutputs).isNotEmpty()
         assertThat(sharingProcessor.surfaceRequest).isNotNull()
+        // Assert: effect implementation receives correct transformation.
+        var transformationInfo: SurfaceRequest.TransformationInfo? = null
+        effectProcessor.surfaceRequest!!.setTransformationInfoListener(mainThreadExecutor()) {
+            transformationInfo = it
+        }
+        shadowOf(getMainLooper()).idle()
+        assertThat(transformationInfo).isNotNull()
+        assertThat(transformationInfo!!.rotationDegrees).isEqualTo(SENSOR_ROTATION)
+        assertThat(transformationInfo!!.mirroring).isTrue()
         // Act: unbind StreamSharing.
-        streamSharing.unbindFromCamera(camera)
+        streamSharing.unbindFromCamera(frontCamera)
         shadowOf(getMainLooper()).idle()
         // Assert: the processors received signals to release the Surfaces.
         assertThat(effectProcessor.isInputSurfaceReleased).isTrue()

@@ -18,10 +18,13 @@ package androidx.camera.core.streamsharing;
 
 import static androidx.camera.core.CameraEffect.PREVIEW;
 import static androidx.camera.core.CameraEffect.VIDEO_CAPTURE;
+import static androidx.camera.core.MirrorMode.MIRROR_MODE_ON_FRONT_ONLY;
 import static androidx.camera.core.impl.ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE;
 import static androidx.camera.core.impl.ImageInputConfig.OPTION_INPUT_FORMAT;
+import static androidx.camera.core.impl.ImageOutputConfig.OPTION_MIRROR_MODE;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_CAPTURE_TYPE;
 import static androidx.camera.core.impl.utils.Threads.checkMainThread;
+import static androidx.camera.core.impl.utils.TransformUtils.getRotatedSize;
 import static androidx.core.util.Preconditions.checkNotNull;
 
 import static java.util.Collections.singletonList;
@@ -109,6 +112,7 @@ public class StreamSharing extends UseCase {
             }
         }
         mutableConfig.insertOption(StreamSharingConfig.OPTION_CAPTURE_TYPES, captureTypes);
+        mutableConfig.insertOption(OPTION_MIRROR_MODE, MIRROR_MODE_ON_FRONT_ONLY);
         return new StreamSharingConfig(OptionsBundle.from(mutableConfig));
     }
 
@@ -244,10 +248,10 @@ public class StreamSharing extends UseCase {
                 getSensorToBufferTransformMatrix(),
                 camera.getHasTransform(),
                 requireNonNull(getCropRect(streamSpec.getResolution())),
-                /*rotationDegrees=*/0, // Rotation are handled by each child.
+                getRelativeRotation(camera), // Rotation can be overridden by children.
                 // Once copied, the target rotation will no longer be useful.
                 ImageOutputConfig.ROTATION_NOT_SPECIFIED,
-                /*mirroring=*/false); // Mirroring will be decided by each child.
+                isMirroringRequired(camera)); // Mirroring can be overridden by children.
         mSharingInputEdge = getSharingInputEdge(mCameraEdge, camera);
 
         mSharingNode = new SurfaceProcessorNode(camera,
@@ -293,7 +297,15 @@ public class StreamSharing extends UseCase {
         // Transform the camera edge to get the input edge.
         mEffectNode = new SurfaceProcessorNode(camera,
                 getEffect().createSurfaceProcessorInternal());
-        SurfaceProcessorNode.OutConfig outConfig = SurfaceProcessorNode.OutConfig.of(cameraEdge);
+        // Effect does not apply rotation.
+        int rotationAppliedByEffect = 0;
+        SurfaceProcessorNode.OutConfig outConfig = SurfaceProcessorNode.OutConfig.of(
+                cameraEdge.getTargets(),
+                cameraEdge.getFormat(),
+                cameraEdge.getCropRect(),
+                getRotatedSize(cameraEdge.getCropRect(), rotationAppliedByEffect),
+                rotationAppliedByEffect,
+                /*mirroring=*/false); // Effects does not mirror.
         SurfaceProcessorNode.In in = SurfaceProcessorNode.In.of(cameraEdge,
                 singletonList(outConfig));
         SurfaceProcessorNode.Out out = mEffectNode.transform(in);
