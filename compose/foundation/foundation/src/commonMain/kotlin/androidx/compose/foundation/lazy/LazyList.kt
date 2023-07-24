@@ -335,7 +335,7 @@ private fun rememberLazyListMeasurePolicy(
             horizontalArrangement = horizontalArrangement,
             reverseLayout = reverseLayout,
             density = this,
-            placementAnimator = state.placementAnimator,
+            itemAnimator = state.itemAnimator,
             beyondBoundsItemCount = beyondBoundsItemCount,
             pinnedItems = pinnedItems,
             hasLookaheadPassOccurred = hasLookaheadPassOccurred,

@@ -140,7 +140,7 @@ internal class LazyGridMeasuredItem(
                 if ((offset.mainAxis <= minOffset && animatedOffset.mainAxis <= minOffset) ||
                     (offset.mainAxis >= maxOffset && animatedOffset.mainAxis >= maxOffset)
                 ) {
-                    animateNode.cancelAnimation()
+                    animateNode.cancelPlacementAnimation()
                 }
                 offset = animatedOffset
             }

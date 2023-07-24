@@ -24,22 +24,31 @@ import androidx.compose.animation.core.VectorConverter
 import androidx.compose.animation.core.VisibilityThreshold
 import androidx.compose.animation.core.spring
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.GraphicsLayerScope
 import androidx.compose.ui.unit.IntOffset
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 
 internal class LazyLayoutAnimateItemModifierNode(
-    var placementAnimationSpec: FiniteAnimationSpec<IntOffset>
-) : Modifier.Node() {
+    var appearanceSpec: FiniteAnimationSpec<Float>?,
+    var placementSpec: FiniteAnimationSpec<IntOffset>?
+) : Modifier.Node(), (GraphicsLayerScope) -> Unit {
 
     /**
      * Returns true when the placement animation is currently in progress so the parent
      * should continue composing this item.
      */
-    var isAnimationInProgress by mutableStateOf(false)
+    var isPlacementAnimationInProgress by mutableStateOf(false)
+        private set
+
+    /**
+     * Returns true when the appearance animation is currently in progress.
+     */
+    var isAppearanceAnimationInProgress by mutableStateOf(false)
         private set
 
     /**
@@ -53,6 +62,8 @@ internal class LazyLayoutAnimateItemModifierNode(
 
     private val placementDeltaAnimation = Animatable(IntOffset.Zero, IntOffset.VectorConverter)
 
+    private val visibilityAnimation = Animatable(1f, Float.VectorConverter)
+
     /**
      * Current delta to apply for a placement offset. Updates every animation frame.
      * The settled value is [IntOffset.Zero] so the animation is always targeting this value.
@@ -60,15 +71,18 @@ internal class LazyLayoutAnimateItemModifierNode(
     var placementDelta by mutableStateOf(IntOffset.Zero)
         private set
 
+    var visibility by mutableFloatStateOf(1f)
+        private set
+
     /**
-     * Cancels the ongoing animation if there is one.
+     * Cancels the ongoing placement animation if there is one.
      */
-    fun cancelAnimation() {
-        if (isAnimationInProgress) {
+    fun cancelPlacementAnimation() {
+        if (isPlacementAnimationInProgress) {
             coroutineScope.launch {
                 placementDeltaAnimation.snapTo(IntOffset.Zero)
                 placementDelta = IntOffset.Zero
-                isAnimationInProgress = false
+                isPlacementAnimationInProgress = false
             }
         }
     }
@@ -83,20 +97,21 @@ internal class LazyLayoutAnimateItemModifierNode(
      * Animate the placement by the given [delta] offset.
      */
     fun animatePlacementDelta(delta: IntOffset) {
+        val spec = placementSpec ?: return
         val totalDelta = placementDelta - delta
         placementDelta = totalDelta
-        isAnimationInProgress = true
+        isPlacementAnimationInProgress = true
         coroutineScope.launch {
             try {
-                val spec = if (placementDeltaAnimation.isRunning) {
+                val finalSpec = if (placementDeltaAnimation.isRunning) {
                     // when interrupted, use the default spring, unless the spec is a spring.
-                    if (placementAnimationSpec is SpringSpec<IntOffset>) {
-                        placementAnimationSpec
+                    if (spec is SpringSpec<IntOffset>) {
+                        spec
                     } else {
                         InterruptionSpec
                     }
                 } else {
-                    placementAnimationSpec
+                    spec
                 }
                 if (!placementDeltaAnimation.isRunning) {
                     // if not running we can snap to the initial value and animate to zero
@@ -106,12 +121,12 @@ internal class LazyLayoutAnimateItemModifierNode(
                 // we have to continue the animation from the current value, but keep the needed
                 // total delta for the new animation.
                 val animationTarget = placementDeltaAnimation.value - totalDelta
-                placementDeltaAnimation.animateTo(animationTarget, spec) {
+                placementDeltaAnimation.animateTo(animationTarget, finalSpec) {
                     // placementDelta is calculated as if we always animate to target equal to zero
                     placementDelta = value - animationTarget
                 }
 
-                isAnimationInProgress = false
+                isPlacementAnimationInProgress = false
             } catch (_: CancellationException) {
                 // we don't reset inProgress in case of cancellation as it means
                 // there is a new animation started which would reset it later
@@ -119,11 +134,36 @@ internal class LazyLayoutAnimateItemModifierNode(
         }
     }
 
+    fun animateAppearance() {
+        val spec = appearanceSpec
+        if (isAppearanceAnimationInProgress || spec == null) {
+            return
+        }
+        isAppearanceAnimationInProgress = true
+        visibility = 0f
+        coroutineScope.launch {
+            try {
+                visibilityAnimation.snapTo(0f)
+                visibilityAnimation.animateTo(1f, spec) {
+                    visibility = value
+                }
+            } finally {
+                isAppearanceAnimationInProgress = false
+            }
+        }
+    }
+
     override fun onDetach() {
         placementDelta = IntOffset.Zero
-        isAnimationInProgress = false
+        isPlacementAnimationInProgress = false
         rawOffset = NotInitialized
-        // placementDeltaAnimation will be canceled because coroutineScope will be canceled.
+        visibility = 1f
+        isAppearanceAnimationInProgress = false
+        // animations will be canceled because coroutineScope will be canceled.
+    }
+
+    override fun invoke(scope: GraphicsLayerScope) {
+        scope.alpha = visibility
     }
 
     companion object {

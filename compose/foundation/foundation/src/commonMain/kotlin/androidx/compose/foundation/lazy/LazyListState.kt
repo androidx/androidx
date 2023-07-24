@@ -229,7 +229,7 @@ class LazyListState constructor(
      */
     internal val awaitLayoutModifier = AwaitFirstLayoutModifier()
 
-    internal val placementAnimator = LazyListItemPlacementAnimator()
+    internal val itemAnimator = LazyListItemAnimator()
 
     internal val beyondBoundsInfo = LazyLayoutBeyondBoundsInfo()
 
@@ -267,7 +267,7 @@ class LazyListState constructor(
     internal fun snapToItemIndexInternal(index: Int, scrollOffset: Int) {
         scrollPosition.requestPosition(index, scrollOffset)
         // placement animation is not needed because we snap into a new position.
-        placementAnimator.reset()
+        itemAnimator.reset()
         remeasurement?.forceRemeasure()
     }
 
