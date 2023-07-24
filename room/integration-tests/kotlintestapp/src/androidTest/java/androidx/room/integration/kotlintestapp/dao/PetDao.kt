@@ -30,7 +30,6 @@ import com.google.common.base.Optional
 import com.google.common.util.concurrent.ListenableFuture
 import io.reactivex.Flowable
 
-@JvmDefaultWithCompatibility
 @Dao
 interface PetDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)

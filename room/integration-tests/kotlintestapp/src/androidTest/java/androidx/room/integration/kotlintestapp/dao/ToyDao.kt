@@ -22,7 +22,6 @@ import androidx.room.Query
 import androidx.room.Update
 import androidx.room.integration.kotlintestapp.vo.Toy
 
-@JvmDefaultWithCompatibility
 @Dao
 interface ToyDao {
     @Insert
