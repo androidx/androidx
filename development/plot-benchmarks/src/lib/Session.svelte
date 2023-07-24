@@ -1,17 +1,17 @@
 <script lang="ts">
   import { createEventDispatcher } from "svelte";
-  import type { FileMetadata } from "../types/files.js";
-  import { Session, type IndexedWrapper } from "../wrappers/session.js";
-  import Group from "./Group.svelte";
-  import type { FileMetadataEvent } from "../types/events.js";
   import { writable, type Writable } from "svelte/store";
   import { readBenchmarks } from "../files.js";
-  import type { Metrics } from "../types/data.js";
-  import { Transforms } from "../transforms/metric-transforms.js";
-  import type { Data, Series } from "../types/chart.js";
   import { ChartDataTransforms } from "../transforms/data-transforms.js";
+  import { Transforms } from "../transforms/metric-transforms.js";
   import { STANDARD_MAPPER } from "../transforms/standard-mappers.js";
+  import type { Data, Series } from "../types/chart.js";
+  import type { Metrics } from "../types/data.js";
+  import type { FileMetadataEvent, Selection } from "../types/events.js";
+  import type { FileMetadata } from "../types/files.js";
+  import { Session, type IndexedWrapper } from "../wrappers/session.js";
   import Chart from "./Chart.svelte";
+  import Group from "./Group.svelte";
 
   export let fileEntries: FileMetadata[];
 
@@ -26,10 +26,25 @@
 
   // Stores
   let activeDragDrop: Writable<boolean> = writable(false);
+  let suppressed: Writable<Set<string>> = writable(new Set());
+
+  // Events
+  let handler = function (event: CustomEvent<Selection[]>) {
+    const selections: Selection[] = event.detail;
+    for (let i = 0; i < selections.length; i += 1) {
+      const selection = selections[i];
+      if (!selection.enabled) {
+        $suppressed.add(selection.name);
+      } else {
+        $suppressed.delete(selection.name);
+      }
+    }
+    $suppressed = $suppressed;
+  };
 
   $: {
     session = new Session(fileEntries);
-    metrics = Transforms.buildMetrics(session);
+    metrics = Transforms.buildMetrics(session, $suppressed);
     series = ChartDataTransforms.mapToSeries(metrics, STANDARD_MAPPER);
     chartData = ChartDataTransforms.mapToDataset(series);
     classGroups = session.classGroups;
@@ -100,7 +115,7 @@
   >
     <h5>Benchmarks</h5>
     {#each Object.entries(classGroups) as [className, wrappers]}
-      <Group {className} datasetGroup={wrappers} />
+      <Group {className} datasetGroup={wrappers} on:selections={handler} />
     {/each}
   </article>
 

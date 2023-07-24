@@ -1,12 +1,29 @@
 <script lang="ts">
+  import { createEventDispatcher } from "svelte";
   import { Session, type IndexedWrapper } from "../wrappers/session.js";
+  import type { SelectionEvent, Selection } from "../types/events.js";
 
   export let name: string;
   export let datasetGroup: IndexedWrapper[];
 
+  // State
+  let dispatcher = createEventDispatcher<SelectionEvent>();
+  let selected: boolean = true;
   let sources: Set<string>;
   let sampledMetrics: Set<string>;
   let metrics: Set<string>;
+
+  // Events
+  let selection = function (event: Event) {
+    event.stopPropagation();
+    const target = event.target as HTMLInputElement;
+    selected = target.checked;
+    const selection: Selection = {
+      name: name,
+      enabled: selected,
+    };
+    dispatcher("selections", [selection]);
+  };
 
   $: {
     sources = Session.sources(datasetGroup);
@@ -26,7 +43,19 @@
 
 <div class="dataset">
   <hgroup>
-    <div>{name}</div>
+    <div class="section">
+      <span class="item">{name}</span>
+      <fieldset class="item">
+        <label for="switch">
+          <input
+            type="checkbox"
+            role="switch"
+            checked={selected}
+            on:change={selection}
+          />
+        </label>
+      </fieldset>
+    </div>
     <div class="details">
       <div class="sources">
         {#each sources as source (source)}
@@ -64,5 +93,14 @@
 
   .details > div {
     margin-top: 0.25rem;
+  }
+  .section {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+  }
+
+  .section .item {
+    margin: 0px 10px;
   }
 </style>
