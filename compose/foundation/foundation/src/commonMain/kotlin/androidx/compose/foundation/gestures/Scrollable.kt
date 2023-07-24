@@ -510,14 +510,32 @@ private fun scrollableNestedScrollConnection(
 
 internal class DefaultFlingBehavior(
     private val flingDecay: DecayAnimationSpec<Float>,
-    private val motionDurationScale: MotionDurationScale = DefaultScrollMotionDurationScale
+    private val motionDurationScale: MotionDurationScale = DefaultScrollMotionDurationScale,
+
+    /*
+     * Post-drag inertia with velocity below [velocityThreshold] value will be consumed entirely
+     * and not trigger any fling at all
+     */
+    private val velocityThreshold: Float? = null
 ) : FlingBehavior {
+    init {
+        if (velocityThreshold != null) {
+            require(velocityThreshold >= 0f)
+        }
+    }
 
     // For Testing
     var lastAnimationCycleCount = 0
 
     override suspend fun ScrollScope.performFling(initialVelocity: Float): Float {
         lastAnimationCycleCount = 0
+
+        if (velocityThreshold != null) {
+            if (abs(initialVelocity) < velocityThreshold) {
+                return 0f
+            }
+        }
+
         // come up with the better threshold, but we need it since spline curve gives us NaNs
         return withContext(motionDurationScale) {
             if (abs(initialVelocity) > 1f) {
