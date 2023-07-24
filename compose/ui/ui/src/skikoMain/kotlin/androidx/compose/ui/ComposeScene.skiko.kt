@@ -42,6 +42,7 @@ internal val LocalComposeScene = staticCompositionLocalOf<ComposeScene?> { null 
 /**
  * The local [ComposeScene] is typically not-null. This extension can be used in these cases.
  */
+@Composable
 internal fun CompositionLocal<ComposeScene?>.requireCurrent(): ComposeScene {
     return current ?: error("CompositionLocal LocalComposeScene not provided")
 }
