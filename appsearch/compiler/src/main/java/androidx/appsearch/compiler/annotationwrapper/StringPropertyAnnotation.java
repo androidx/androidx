@@ -38,7 +38,7 @@ public abstract class StringPropertyAnnotation extends DataPropertyAnnotation {
             APPSEARCH_SCHEMA_CLASS.nestedClass("StringPropertyConfig");
 
     public StringPropertyAnnotation() {
-        super(CLASS_NAME, CONFIG_CLASS);
+        super(CLASS_NAME, CONFIG_CLASS, /* genericDocSetterName= */"setPropertyString");
     }
 
     /**

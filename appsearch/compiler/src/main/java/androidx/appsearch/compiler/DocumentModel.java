@@ -19,7 +19,6 @@ import static androidx.appsearch.compiler.IntrospectionHelper.BUILDER_PRODUCER_C
 import static androidx.appsearch.compiler.IntrospectionHelper.DOCUMENT_ANNOTATION_CLASS;
 import static androidx.appsearch.compiler.IntrospectionHelper.generateClassHierarchy;
 import static androidx.appsearch.compiler.IntrospectionHelper.getDocumentAnnotation;
-import static androidx.appsearch.compiler.IntrospectionHelper.validateIsGetter;
 import static java.util.stream.Collectors.groupingBy;
 
 import androidx.annotation.NonNull;
@@ -31,6 +30,7 @@ import androidx.appsearch.compiler.annotationwrapper.MetadataPropertyAnnotation;
 import androidx.appsearch.compiler.annotationwrapper.PropertyAnnotation;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.HashMap;
@@ -40,7 +40,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
 
@@ -52,8 +51,6 @@ import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
-import javax.lang.model.type.TypeKind;
-import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
 
@@ -67,9 +64,6 @@ class DocumentModel {
 
     /** Enumeration of fields that must be handled specially (i.e. are not properties) */
     enum SpecialField {ID, NAMESPACE, CREATION_TIMESTAMP_MILLIS, TTL_MILLIS, SCORE}
-
-    /** Determines how the annotation processor has decided to read the value of a field. */
-    enum ReadKind {FIELD, GETTER}
 
     /** Determines how the annotation processor has decided to write the value of a field. */
     enum WriteKind {FIELD, SETTER, CREATION_METHOD}
@@ -88,12 +82,9 @@ class DocumentModel {
     // for AutoValue document.
     // Warning: if you change this to a HashSet, we may choose different getters or setters from
     // run to run, causing the generated code to bounce.
-    private final Set<ExecutableElement> mAllMethods = new LinkedHashSet<>();
+    private final LinkedHashSet<ExecutableElement> mAllMethods;
     // All methods in the builder class, if a builder producer is provided.
-    private final Set<ExecutableElement> mAllBuilderMethods = new LinkedHashSet<>();
-    // Key: Name of the element which is accessed through the getter method.
-    // Value: ExecutableElement of the getter method.
-    private final Map<String, ExecutableElement> mGetterMethods = new HashMap<>();
+    private final LinkedHashSet<ExecutableElement> mAllBuilderMethods;
     // Key: Name of the element whose value is set through the setter method.
     // Value: ExecutableElement of the setter method.
     private final Map<String, ExecutableElement> mSetterMethods = new HashMap<>();
@@ -108,7 +99,6 @@ class DocumentModel {
     // name
     private final Map<String, Element> mPropertyElements = new LinkedHashMap<>();
     private final Map<SpecialField, String> mSpecialFieldNames = new EnumMap<>(SpecialField.class);
-    private final Map<Element, ReadKind> mReadKinds = new HashMap<>();
     private final Map<Element, WriteKind> mWriteKinds = new HashMap<>();
     // Contains the reason why that element couldn't be written either by field or by setter.
     private final Map<Element, ProcessingException> mWriteWhyCreationMethod =
@@ -119,6 +109,15 @@ class DocumentModel {
     private Set<ExecutableElement> mBuilderProducers = new LinkedHashSet<>();
 
     private final List<AnnotatedGetterOrField> mAnnotatedGettersAndFields;
+
+    @NonNull
+    private final AnnotatedGetterOrField mIdAnnotatedGetterOrField;
+
+    @NonNull
+    private final AnnotatedGetterOrField mNamespaceAnnotatedGetterOrField;
+
+    @NonNull
+    private final Map<AnnotatedGetterOrField, PropertyAccessor> mAccessors;
 
     private DocumentModel(
             @NonNull ProcessingEnvironment env,
@@ -139,23 +138,24 @@ class DocumentModel {
         mAnnotatedGettersAndFields = scanAnnotatedGettersAndFields(clazz, env);
 
         requireNoDuplicateMetadataProperties();
-        requireGetterOrFieldMatchingPredicate(
+        mIdAnnotatedGetterOrField = requireGetterOrFieldMatchingPredicate(
                 getterOrField -> getterOrField.getAnnotation() == MetadataPropertyAnnotation.ID,
                 /* errorMessage= */"All @Document classes must have exactly one field annotated "
                         + "with @Id");
-        requireGetterOrFieldMatchingPredicate(
+        mNamespaceAnnotatedGetterOrField = requireGetterOrFieldMatchingPredicate(
                 getterOrField ->
                         getterOrField.getAnnotation() == MetadataPropertyAnnotation.NAMESPACE,
                 /* errorMessage= */"All @Document classes must have exactly one field annotated "
                         + "with @Namespace");
 
+        mAllMethods = mHelper.getAllMethods(clazz);
+        mAccessors = inferPropertyAccessors(mAnnotatedGettersAndFields, mAllMethods, mHelper);
+
         // Scan methods and constructors. We will need this info when processing fields to
         // make sure the fields can be get and set.
         Set<ExecutableElement> potentialCreationMethods = extractCreationMethods(clazz);
-        addAllMethods(mClass, mAllMethods);
-        if (mBuilderClass != null) {
-            addAllMethods(mBuilderClass, mAllBuilderMethods);
-        }
+        mAllBuilderMethods = mBuilderClass != null
+                ? mHelper.getAllMethods(mBuilderClass) : new LinkedHashSet<>();
         scanFields(mClass);
         chooseCreationMethod(potentialCreationMethods);
     }
@@ -266,16 +266,17 @@ class DocumentModel {
      * Makes sure {@link #mAnnotatedGettersAndFields} contains a getter/field that matches the
      * predicate.
      *
+     * @return The matched getter/field.
      * @throws ProcessingException with the error message if no match.
      */
-    private void requireGetterOrFieldMatchingPredicate(
+    @NonNull
+    private AnnotatedGetterOrField requireGetterOrFieldMatchingPredicate(
             @NonNull Predicate<AnnotatedGetterOrField> predicate,
             @NonNull String errorMessage) throws ProcessingException {
-        Optional<AnnotatedGetterOrField> annotatedGetterOrField =
-                mAnnotatedGettersAndFields.stream().filter(predicate).findFirst();
-        if (annotatedGetterOrField.isEmpty()) {
-            throw new ProcessingException(errorMessage, mClass);
-        }
+        return mAnnotatedGettersAndFields.stream()
+                .filter(predicate)
+                .findFirst()
+                .orElseThrow(() -> new ProcessingException(errorMessage, mClass));
     }
 
     private Set<ExecutableElement> extractCreationMethods(TypeElement typeElement)
@@ -299,24 +300,6 @@ class DocumentModel {
             }
         }
         return Collections.unmodifiableSet(creationMethods);
-    }
-
-    private void addAllMethods(TypeElement typeElement, Set<ExecutableElement> allMethods) {
-        for (Element child : typeElement.getEnclosedElements()) {
-            if (child.getKind() == ElementKind.METHOD) {
-                allMethods.add((ExecutableElement) child);
-            }
-        }
-
-        TypeMirror superClass = typeElement.getSuperclass();
-        if (superClass.getKind().equals(TypeKind.DECLARED)) {
-            addAllMethods((TypeElement) mTypeUtil.asElement(superClass), allMethods);
-        }
-        for (TypeMirror implementedInterface : typeElement.getInterfaces()) {
-            if (implementedInterface.getKind().equals(TypeKind.DECLARED)) {
-                addAllMethods((TypeElement) mTypeUtil.asElement(implementedInterface), allMethods);
-            }
-        }
     }
 
     /**
@@ -386,6 +369,35 @@ class DocumentModel {
     }
 
     /**
+     * Returns the getter/field annotated with {@code @Document.Id}.
+     */
+    @NonNull
+    public AnnotatedGetterOrField getIdAnnotatedGetterOrField() {
+        return mIdAnnotatedGetterOrField;
+    }
+
+    /**
+     * Returns the getter/field annotated with {@code @Document.Namespace}.
+     */
+    @NonNull
+    public AnnotatedGetterOrField getNamespaceAnnotatedGetterOrField() {
+        return mNamespaceAnnotatedGetterOrField;
+    }
+
+    /**
+     * Returns the public/package-private accessor for an annotated getter/field (may be private).
+     */
+    @NonNull
+    public PropertyAccessor getAccessor(@NonNull AnnotatedGetterOrField getterOrField) {
+        PropertyAccessor accessor = mAccessors.get(getterOrField);
+        if (accessor == null) {
+            throw new IllegalArgumentException(
+                    "No such getter/field belongs to this DocumentModel: " + getterOrField);
+        }
+        return accessor;
+    }
+
+    /**
      * @deprecated Use {@link #getAnnotatedGettersAndFields()} instead.
      */
     @Deprecated
@@ -400,20 +412,9 @@ class DocumentModel {
     }
 
     @Nullable
-    public ReadKind getElementReadKind(String elementName) {
-        Element element = mAllAppSearchElements.get(elementName);
-        return mReadKinds.get(element);
-    }
-
-    @Nullable
     public WriteKind getElementWriteKind(String elementName) {
         Element element = mAllAppSearchElements.get(elementName);
         return mWriteKinds.get(element);
-    }
-
-    @Nullable
-    public ExecutableElement getGetterForElement(String elementName) {
-        return mGetterMethods.get(elementName);
     }
 
     @Nullable
@@ -481,6 +482,26 @@ class DocumentModel {
     @Nullable
     public TypeElement getBuilderClass() {
         return mBuilderClass;
+    }
+
+    /**
+     * Infers the {@link PropertyAccessor} for each of the {@link AnnotatedGetterOrField}.
+     *
+     * <p>Each accessor may be the {@link AnnotatedGetterOrField} itself or some other non-private
+     * getter.
+     */
+    @NonNull
+    private static Map<AnnotatedGetterOrField, PropertyAccessor> inferPropertyAccessors(
+            @NonNull List<AnnotatedGetterOrField> annotatedGettersAndFields,
+            @NonNull Collection<ExecutableElement> allMethods,
+            @NonNull IntrospectionHelper helper) throws ProcessingException {
+        Map<AnnotatedGetterOrField, PropertyAccessor> accessors = new HashMap<>();
+        for (AnnotatedGetterOrField getterOrField : annotatedGettersAndFields) {
+            accessors.put(
+                    getterOrField,
+                    PropertyAccessor.infer(getterOrField, allMethods, helper));
+        }
+        return accessors;
     }
 
     private boolean isFactoryMethod(ExecutableElement method) {
@@ -648,7 +669,7 @@ class DocumentModel {
         mSchemaName = computeSchemaName(hierarchy);
 
         for (Element appSearchField : mAllAppSearchElements.values()) {
-            chooseAccessKinds(appSearchField);
+            chooseWriteKind(appSearchField);
         }
     }
 
@@ -721,27 +742,15 @@ class DocumentModel {
     }
 
     /**
-     * Chooses how to access the given field for read and write, subject to our requirements for all
-     * AppSearch-managed class fields:
+     * Chooses how to write a given field.
      *
-     * <p>For read: visible field, or visible getter
-     *
-     * <p>For write: visible mutable field, or visible setter, or visible creation method
-     * accepting at minimum all fields that aren't mutable and have no visible setter.
-     *
-     * @throws ProcessingException if no access type is possible for the given field
+     * <p>The writing strategy can be one of: visible mutable field, or visible setter, or visible
+     * creation method accepting at minimum all fields that aren't mutable and have no visible
+     * setter.
      */
-    private void chooseAccessKinds(@NonNull Element field)
-            throws ProcessingException {
-        // Choose get access
+    private void chooseWriteKind(@NonNull Element field) {
+        // TODO(b/300114568): Carve out better distinction b/w the different write strategies
         Set<Modifier> modifiers = field.getModifiers();
-        if (modifiers.contains(Modifier.PRIVATE) || field.getKind() == ElementKind.METHOD) {
-            findGetter(field);
-            mReadKinds.put(field, ReadKind.GETTER);
-        } else {
-            mReadKinds.put(field, ReadKind.FIELD);
-        }
-
         // Choose set access
         if (modifiers.contains(Modifier.PRIVATE) || modifiers.contains(Modifier.FINAL)
                 || modifiers.contains(Modifier.STATIC) || field.getKind() == ElementKind.METHOD
@@ -856,54 +865,6 @@ class DocumentModel {
             e.addWarning(warning);
         }
 
-        throw e;
-    }
-
-    /**
-     * Finds getter function for a private field, or for a property defined by a annotated getter
-     * method, in which case the annotated element itself should be the getter unless it's
-     * private or it takes parameters.
-     */
-    private void findGetter(@NonNull Element element) throws ProcessingException {
-        String elementName = element.getSimpleName().toString();
-        ProcessingException e;
-        if (element.getKind() == ElementKind.METHOD) {
-            e = new ProcessingException(
-                    "Failed to find a suitable getter for element \"" + elementName + "\"",
-                    mAllAppSearchElements.get(elementName));
-        } else {
-            e = new ProcessingException(
-                    "Field cannot be read: it is private and we failed to find a suitable getter "
-                            + "for field \"" + elementName + "\"",
-                    mAllAppSearchElements.get(elementName));
-        }
-
-        for (ExecutableElement method : mAllMethods) {
-            String methodName = method.getSimpleName().toString();
-            String normalizedElementName = getNormalizedElementName(element);
-            // normalizedElementName with first letter capitalized, to be paired with [is] or [get]
-            // prefix
-            String methodNameSuffix = normalizedElementName.substring(0, 1).toUpperCase()
-                    + normalizedElementName.substring(1);
-
-            if (methodName.equals(normalizedElementName)
-                    || methodName.equals("get" + methodNameSuffix)
-                    || (
-                    mHelper.isFieldOfBooleanType(element)
-                            && methodName.equals("is" + methodNameSuffix))
-            ) {
-                List<ProcessingException> errors = validateIsGetter(method);
-                if (!errors.isEmpty()) {
-                    e.addWarnings(errors);
-                    continue;
-                }
-                // Found one!
-                mGetterMethods.put(elementName, method);
-                return;
-            }
-        }
-
-        // Broke out of the loop without finding anything.
         throw e;
     }
 
@@ -1251,11 +1212,9 @@ class DocumentModel {
         }
 
         /**
-         * Returns the serialized name for the corresponding property in the database.
+         * Returns the serialized name that should be used for the property in the database.
          *
-         * <p>Assumes the getter/field is annotated with a {@link DataPropertyAnnotation} to pull
-         * the serialized name out of the annotation
-         * e.g. {@code @Document.StringProperty("serializedName")}.
+         * <p>Assumes the getter/field is annotated with a {@link DataPropertyAnnotation}.
          */
         @NonNull
         private static String getSerializedName(@NonNull AnnotatedGetterOrField getterOrField) {

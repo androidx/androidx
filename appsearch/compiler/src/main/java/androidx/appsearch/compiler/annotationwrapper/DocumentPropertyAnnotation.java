@@ -38,7 +38,7 @@ public abstract class DocumentPropertyAnnotation extends DataPropertyAnnotation 
             APPSEARCH_SCHEMA_CLASS.nestedClass("DocumentPropertyConfig");
 
     public DocumentPropertyAnnotation() {
-        super(CLASS_NAME, CONFIG_CLASS);
+        super(CLASS_NAME, CONFIG_CLASS, /* genericDocSetterName= */"setPropertyDocument");
     }
 
     /**

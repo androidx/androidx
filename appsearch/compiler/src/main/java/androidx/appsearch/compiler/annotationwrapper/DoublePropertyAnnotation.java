@@ -38,7 +38,7 @@ public abstract class DoublePropertyAnnotation extends DataPropertyAnnotation {
             APPSEARCH_SCHEMA_CLASS.nestedClass("DoublePropertyConfig");
 
     public DoublePropertyAnnotation() {
-        super(CLASS_NAME, CONFIG_CLASS);
+        super(CLASS_NAME, CONFIG_CLASS, /* genericDocSetterName= */"setPropertyDouble");
     }
 
     /**

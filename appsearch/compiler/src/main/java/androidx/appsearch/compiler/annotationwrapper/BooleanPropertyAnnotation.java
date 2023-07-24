@@ -38,7 +38,7 @@ public abstract class BooleanPropertyAnnotation extends DataPropertyAnnotation {
             APPSEARCH_SCHEMA_CLASS.nestedClass("BooleanPropertyConfig");
 
     public BooleanPropertyAnnotation() {
-        super(CLASS_NAME, CONFIG_CLASS);
+        super(CLASS_NAME, CONFIG_CLASS, /* genericDocSetterName= */"setPropertyBoolean");
     }
 
     /**
