@@ -14,25 +14,17 @@
  * limitations under the License.
  */
 
-package androidx.core.performance
+package androidx.core.performance.testing
 
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 
-/** Unit tests for [MediaPerformance]. */
-class MediaPerformanceTest {
+/** Unit test for [FakeDevicePerformance]. */
+class FakeDevicePerformanceTest {
 
     @Test
-    fun mediaPerformanceClassWithUnspecifiedRetriever() {
-        val mpc = MediaPerformance.getPerformanceClass()
-        assertThat(mpc).isEqualTo(0)
-    }
-
-    @Test
-    fun mediaPerformanceClassWithSpecifiedDefaultRetriever() {
-        val mpc = MediaPerformance.getPerformanceClass(
-            DefaultDevicePerformanceRetriever()
-        )
-        assertThat(mpc).isEqualTo(0)
+    fun mediaPerformanceClass_30() {
+        val mpc = FakeDevicePerformance(30).mediaPerformanceClass
+        assertThat(mpc).isEqualTo(30)
     }
 }
