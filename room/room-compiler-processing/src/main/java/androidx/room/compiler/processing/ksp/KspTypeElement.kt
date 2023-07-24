@@ -422,13 +422,6 @@ internal sealed class KspTypeElement(
         env.resolver.getDeclarationsInSourceOrder(it)
     } ?: emptySequence()
 
-    @OptIn(KspExperimental::class)
-    fun KSDeclarationContainer?.getDeclaredMethods(): Sequence<KSFunctionDeclaration> {
-        return this.getDeclarationsInSourceOrder()
-            .filterIsInstance(KSFunctionDeclaration::class.java)
-            .filterNot { it.isConstructor() }
-    }
-
     companion object {
         fun create(
             env: KspProcessingEnv,

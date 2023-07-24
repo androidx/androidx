@@ -98,7 +98,7 @@ internal sealed class KSTypeVarianceResolverScope(
         override fun declarationType(): KSType {
             // We return the declaration from the setter, not the field because the setter parameter
             // will have a different type in jvm (due to jvm wildcard resolution)
-            return (setterMethod.field.syntheticSetter!!.parameters.single().type as KspType).ksType
+            return (setterMethod.parameters.single().type as KspType).ksType
         }
 
         override fun isValOrReturnType() = false
@@ -115,7 +115,7 @@ internal sealed class KSTypeVarianceResolverScope(
         override fun declarationType(): KSType {
             // We return the declaration from the getter, not the field because the getter return
             // type will have a different type in jvm (due to jvm wildcard resolution)
-            return (getterMethod.field.syntheticAccessors.first().returnType as KspType).ksType
+            return (getterMethod.returnType as KspType).ksType
         }
 
         override fun isValOrReturnType() = true
