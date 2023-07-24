@@ -25,4 +25,8 @@
     <string name="is_front_primary">IsFrontPrimary</string>
     <string name="permission_warning">Permissions not granted by the user.</string>
     <string name="concurrent_not_supported_warning">Concurrent camera not supported</string>
+    <string name="record_button_idling">Start</string>
+    <string name="record_button_recording">Recording</string>
+    <string name="duration_label">Duration (ms)</string>
+    <string name="switch_time_label">Switch Time (ms)</string>
 </resources>
