@@ -798,7 +798,7 @@ package androidx.compose.foundation.lazy.grid {
   }
 
   public final class LazyGridSpanKt {
-    method public static long GridItemSpan(int currentLineSpan);
+    method public static long GridItemSpan(@IntRange(from=1L) int currentLineSpan);
   }
 
   @androidx.compose.runtime.Stable public final class LazyGridState implements androidx.compose.foundation.gestures.ScrollableState {
