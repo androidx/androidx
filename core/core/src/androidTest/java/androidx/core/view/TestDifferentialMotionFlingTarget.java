@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.recyclerview.widget;
+package androidx.core.view;
 
 /**
  * A test implementation for {@link DifferentialMotionFlingHelper.DifferentialMotionFlingTarget}.

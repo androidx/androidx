@@ -2461,6 +2461,17 @@ package androidx.core.view {
     method public androidx.core.view.ContentInfoCompat.Builder setSource(int);
   }
 
+  public class DifferentialMotionFlingHelper {
+    ctor public DifferentialMotionFlingHelper(android.content.Context, androidx.core.view.DifferentialMotionFlingHelper.DifferentialMotionFlingTarget);
+    method public void onMotionEvent(android.view.MotionEvent, int);
+  }
+
+  public static interface DifferentialMotionFlingHelper.DifferentialMotionFlingTarget {
+    method public float getScaledScrollFactor();
+    method public boolean startDifferentialMotionFling(float);
+    method public void stopDifferentialMotionFling();
+  }
+
   public final class DisplayCompat {
     method public static androidx.core.view.DisplayCompat.ModeCompat getMode(android.content.Context, android.view.Display);
     method public static androidx.core.view.DisplayCompat.ModeCompat![] getSupportedModes(android.content.Context, android.view.Display);

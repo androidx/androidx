@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.recyclerview.widget;
+package androidx.core.view;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -149,7 +149,7 @@ public class DifferentialMotionFlingHelperTest {
     }
 
     private MotionEvent createRotaryEncoderEvent() {
-        return TouchUtils.createMotionEvent(
+        return createMotionEvent(
                 /* inputDeviceId= */ 3,
                 InputDevice.SOURCE_ROTARY_ENCODER,
                 MotionEvent.AXIS_SCROLL,
@@ -157,7 +157,7 @@ public class DifferentialMotionFlingHelperTest {
     }
 
     private MotionEvent createPointerEvent() {
-        return TouchUtils.createMotionEvent(
+        return createMotionEvent(
                 /* inputDeviceId= */ 4,
                 InputDevice.SOURCE_CLASS_POINTER,
                 MotionEvent.AXIS_VSCROLL,
@@ -168,5 +168,29 @@ public class DifferentialMotionFlingHelperTest {
         mVelocity = velocity;
         mFlingHelper.onMotionEvent(ev, axis);
         ev.recycle();
+    }
+
+    private static MotionEvent createMotionEvent(
+            int inputDeviceId, int source, int axis, float value) {
+        MotionEvent.PointerProperties props = new MotionEvent.PointerProperties();
+        props.id = 0;
+
+        MotionEvent.PointerCoords coords = new MotionEvent.PointerCoords();
+        coords.setAxisValue(axis, value);
+
+        return MotionEvent.obtain(0 /* downTime */,
+                12,
+                MotionEvent.ACTION_SCROLL,
+                1 /* pointerCount */,
+                new MotionEvent.PointerProperties[] {props},
+                new MotionEvent.PointerCoords[] {coords},
+                0 /* metaState */,
+                0 /* buttonState */,
+                0 /* xPrecision */,
+                0 /* yPrecision */,
+                inputDeviceId,
+                0 /* edgeFlags */,
+                source,
+                0 /* flags */);
     }
 }
