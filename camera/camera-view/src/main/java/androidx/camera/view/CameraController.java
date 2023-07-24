@@ -1102,9 +1102,7 @@ public abstract class CameraController {
         if (mAnalysisAnalyzer == null) {
             return;
         }
-        if (matrix == null) {
-            mAnalysisAnalyzer.updateTransform(null);
-        } else if (mAnalysisAnalyzer.getTargetCoordinateSystem()
+        if (mAnalysisAnalyzer.getTargetCoordinateSystem()
                 == COORDINATE_SYSTEM_VIEW_REFERENCED) {
             mAnalysisAnalyzer.updateTransform(matrix);
         }
