@@ -38,6 +38,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.test.filters.LargeTest
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -54,6 +55,7 @@ class ExposedDropdownMenuBenchmark(private val expanded: Boolean) {
         benchmarkRule.benchmarkFirstCompose { ExposedDropdownMenuTestCase(expanded) }
     }
 
+    @Ignore("b/292591127")
     @Test
     fun edm_measure() {
         benchmarkRule.benchmarkMeasureUntilStable({
@@ -61,6 +63,7 @@ class ExposedDropdownMenuBenchmark(private val expanded: Boolean) {
         })
     }
 
+    @Ignore("b/292591127")
     @Test
     fun edm_layout() {
         benchmarkRule.benchmarkLayoutUntilStable({
@@ -68,6 +71,7 @@ class ExposedDropdownMenuBenchmark(private val expanded: Boolean) {
         })
     }
 
+    @Ignore("b/292591127")
     @Test
     fun edm_draw() {
         benchmarkRule.benchmarkDrawUntilStable({
