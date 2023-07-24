@@ -9,7 +9,7 @@ export class Transforms {
     // static helpers.
   }
 
-  static buildMetrics(session: Session): Metrics<number> {
+  static buildMetrics(session: Session, suppressed: Set<string>): Metrics<number> {
     const classGroups = Object.entries(session.classGroups);
     const standard: Metric<number>[] = [];
     const sampled: Metric<number[]>[] = [];
@@ -17,6 +17,11 @@ export class Transforms {
       const [className, wrappers] = classGroups[i];
       for (let j = 0; j < wrappers.length; j += 1) {
         const wrapper = wrappers[j];
+        const datasetName = wrappers[j].value.datasetName();
+        if (suppressed.has(datasetName)) {
+          console.log(`Skipping suppressed dataset name ${datasetName}`, session);
+          continue;
+        }
         const source = wrapper.source;
         const testName = wrapper.value.testName();
         // standard
