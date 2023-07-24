@@ -48,7 +48,8 @@ class BluetoothLe(private val context: Context) {
     private val bluetoothManager =
         context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager?
     private val bluetoothAdapter = bluetoothManager?.adapter
-    private val serverImpl = GattServerImpl(context)
+    private val server = GattServer(context)
+
     /**
      * Returns a _cold_ [Flow] to start Bluetooth LE Advertising. When the flow is successfully collected,
      * the operation status [AdvertiseResult] will be delivered via the
@@ -236,8 +237,8 @@ class BluetoothLe(private val context: Context) {
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     class GattServerConnectionRequest internal constructor(
         val device: BluetoothDevice,
-        private val serverImpl: GattServerImpl,
-        internal val session: GattServerImpl.Session,
+        private val server: GattServer,
+        internal val session: GattServer.Session,
     ) {
         /**
          * Accepts the connection request and handles incoming requests after that.
@@ -247,14 +248,14 @@ class BluetoothLe(private val context: Context) {
          * @see GattServerScope
          */
         suspend fun accept(block: GattServerScope.() -> Unit) {
-            return serverImpl.acceptConnection(this, block)
+            return server.acceptConnection(this, block)
         }
 
         /**
          * Rejects the connection request.
          */
         fun reject() {
-            return serverImpl.rejectConnection(this)
+            return server.rejectConnection(this)
         }
     }
 
@@ -297,10 +298,23 @@ class BluetoothLe(private val context: Context) {
      *
      * Only one server at a time can be opened.
      *
+     * @param services the services that will be exposed to the clients.
+     *
      * @see GattServerConnectionRequest
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     fun openGattServer(services: List<GattService>): Flow<GattServerConnectionRequest> {
-        return serverImpl.open(services)
+        return server.open(services)
+    }
+
+    /**
+     * Updates the services of the opened GATT server.
+     * It will be ignored if there is no opened server.
+     *
+     * @param services the new services that will be notified to the clients.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    fun updateServices(services: List<GattService>) {
+        server.updateServices(services)
     }
 }

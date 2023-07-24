@@ -25,14 +25,14 @@ import androidx.annotation.RestrictTo
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 interface GattServerRequest {
     class ReadCharacteristicRequest internal constructor(
-        private val serverImpl: GattServerImpl,
+        private val server: GattServer,
         internal val device: BluetoothDevice,
         private val requestId: Int,
         val offset: Int,
         val characteristic: GattCharacteristic
     ) : GattServerRequest {
         fun sendResponse(success: Boolean, value: ByteArray?) {
-            serverImpl.sendResponse(
+            server.sendResponse(
                 device,
                 requestId,
                 if (success) GATT_SUCCESS else GATT_READ_NOT_PERMITTED,
@@ -43,7 +43,7 @@ interface GattServerRequest {
     }
 
     class WriteCharacteristicRequest internal constructor(
-        private val serverImpl: GattServerImpl,
+        private val server: GattServer,
         internal val device: BluetoothDevice,
         private val requestId: Int,
         val characteristic: GattCharacteristic,
@@ -53,7 +53,7 @@ interface GattServerRequest {
         val value: ByteArray?
     ) : GattServerRequest {
         fun sendResponse(success: Boolean) {
-            serverImpl.sendResponse(
+            server.sendResponse(
                 device,
                 requestId,
                 if (success) GATT_SUCCESS else GATT_WRITE_NOT_PERMITTED,
