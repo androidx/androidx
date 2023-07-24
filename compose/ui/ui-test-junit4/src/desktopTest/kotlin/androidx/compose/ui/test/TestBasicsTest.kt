@@ -54,7 +54,7 @@ class TestBasicsTest {
         runSkikoComposeUiTest {
             var globalValue by atomic(0)
             setContent {
-                var localValue by remember{ mutableStateOf(0) }
+                var localValue by remember { mutableStateOf(0) }
 
                 remember(localValue) {
                     globalValue = localValue
@@ -94,7 +94,7 @@ class TestBasicsTest {
             var text by remember { mutableStateOf("1") }
             Text(text, modifier = Modifier.testTag("text"))
 
-            LaunchedEffect(Unit){
+            LaunchedEffect(Unit) {
                 delay(1_000)
                 text = "2"
             }
@@ -132,7 +132,7 @@ class TestBasicsTest {
         assertEquals(20, screenshot.width)
         assertEquals(20, screenshot.height)
 
-        IntArray(20*20).let { buffer ->
+        IntArray(20 * 20).let { buffer ->
             screenshot.readPixels(buffer)
             val expectedPixel = color.toArgb()
             for (pixel in buffer) {
@@ -152,7 +152,7 @@ class TestBasicsTest {
         }
 
         var isIdle = true
-        val idlingResource = object: IdlingResource {
+        val idlingResource = object : IdlingResource {
             override val isIdleNow: Boolean
                 get() = isIdle
         }

@@ -28,6 +28,8 @@ import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.type
+import androidx.compose.ui.semantics.dialog
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.IntOffset
 
 @Immutable
@@ -69,9 +71,13 @@ actual fun Dialog(
         popupPositionProvider = popupPositioner,
         focusable = true,
         if (properties.dismissOnClickOutside) onDismissRequest else null,
-        modifier = Modifier.drawBehind {
-            drawRect(Color.Black.copy(alpha = 0.4f))
-        },
+        modifier = Modifier
+            .drawBehind {
+                drawRect(Color.Black.copy(alpha = 0.4f))
+            }
+            .semantics {
+                dialog()
+            },
         onKeyEvent = {
             if (properties.dismissOnBackPress &&
                 it.type == KeyEventType.KeyDown && it.key == Key.Escape

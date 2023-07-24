@@ -21,7 +21,10 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.*
+import androidx.compose.ui.semantics.popup
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.IntOffset
 
 @Immutable
@@ -132,6 +135,7 @@ fun Popup(
     popupPositionProvider = popupPositionProvider,
     focusable = focusable,
     onClickOutside = if (focusable) onDismissRequest else null,
+    modifier = Modifier.semantics { popup() },
     onPreviewKeyEvent = onPreviewKeyEvent,
     onKeyEvent = onKeyEvent,
     content = content
@@ -201,9 +205,10 @@ actual fun Popup(
     content: @Composable () -> Unit
 ) {
     PopupLayout(
-        popupPositionProvider,
-        properties.focusable,
-        if (properties.dismissOnClickOutside) onDismissRequest else null,
+        popupPositionProvider = popupPositionProvider,
+        focusable = properties.focusable,
+        onClickOutside = if (properties.dismissOnClickOutside) onDismissRequest else null,
+        modifier = Modifier.semantics { popup() },
         onKeyEvent = {
             if (properties.dismissOnBackPress &&
                 it.type == KeyEventType.KeyDown && it.key == Key.Escape &&

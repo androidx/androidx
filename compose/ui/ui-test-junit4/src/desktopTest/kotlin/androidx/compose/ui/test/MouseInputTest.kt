@@ -376,7 +376,7 @@ class MouseInputTest {
                 Modifier
                     .testTag("tag")
                     .size(100.dp)
-                    .pointerInput(Unit){
+                    .pointerInput(Unit) {
                         detectDragGestures { _, dragAmount ->
                             dragOffset += dragAmount
                         }

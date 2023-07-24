@@ -50,7 +50,7 @@ class KeyInputTest {
     @Composable
     private fun FocusedBox(
         onKeyEvent: ((KeyEvent) -> Unit)? = null
-    ){
+    ) {
         val focusRequester = remember { FocusRequester() }
         Box(
             Modifier
@@ -58,13 +58,13 @@ class KeyInputTest {
                 .size(100.dp)
                 .focusRequester(focusRequester)
                 .focusable()
-                .onKeyEvent{
+                .onKeyEvent {
                     onKeyEvent?.invoke(it)
                     true
                 }
         )
 
-        LaunchedEffect(Unit){
+        LaunchedEffect(Unit) {
             focusRequester.requestFocus()
         }
     }
@@ -79,7 +79,7 @@ class KeyInputTest {
             }
         }
 
-        with(rule.onNodeWithTag("tag")){
+        with(rule.onNodeWithTag("tag")) {
             performKeyInput {
                 keyDown(Key.C)
             }
@@ -107,7 +107,7 @@ class KeyInputTest {
             FocusedBox()
         }
 
-        with(rule.onNodeWithTag("tag")){
+        with(rule.onNodeWithTag("tag")) {
             performKeyInput {
                 keyDown(Key.C)
                 assertTrue(isKeyDown(Key.C), "Key is not down")
@@ -128,7 +128,7 @@ class KeyInputTest {
             }
         }
 
-        with(rule.onNodeWithTag("tag")){
+        with(rule.onNodeWithTag("tag")) {
             performKeyInput {
                 pressKey(Key.C)
             }
@@ -154,9 +154,9 @@ class KeyInputTest {
             }
         }
 
-        with(rule.onNodeWithTag("tag")){
+        with(rule.onNodeWithTag("tag")) {
             performKeyInput {
-                withKeyDown(Key.ShiftLeft){
+                withKeyDown(Key.ShiftLeft) {
                     pressKey(Key.C)
                 }
             }
@@ -192,9 +192,9 @@ class KeyInputTest {
             }
         }
 
-        with(rule.onNodeWithTag("tag")){
+        with(rule.onNodeWithTag("tag")) {
             performKeyInput {
-                withKeyToggled(Key.CapsLock){
+                withKeyToggled(Key.CapsLock) {
                     assertTrue(isCapsLockOn)
                     pressKey(Key.C)
                 }

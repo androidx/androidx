@@ -137,6 +137,7 @@ internal class ComposeWindowDelegate(
     fun setContent(
         onPreviewKeyEvent: (KeyEvent) -> Boolean = { false },
         onKeyEvent: (KeyEvent) -> Boolean = { false },
+        modifier: Modifier = Modifier,
         content: @Composable () -> Unit
     ) {
         bridge.setContent(
@@ -147,13 +148,14 @@ internal class ComposeWindowDelegate(
                 LocalWindow provides window,
                 LocalLayerContainer provides _pane
             ) {
-                WindowContentLayout(content)
+                WindowContentLayout(modifier, content)
             }
         }
     }
 
     @Composable
     private fun WindowContentLayout(
+        modifier: Modifier = Modifier,
         content: @Composable () -> Unit
     ){
         Layout(
@@ -163,6 +165,7 @@ internal class ComposeWindowDelegate(
                     modifier = Modifier.layoutId("UndecoratedWindowResizer")
                 )
             },
+            modifier = modifier,
             measurePolicy = { measurables, constraints ->
                 val resizerMeasurable = measurables.lastOrNull()?.let {
                     if (it.layoutId == "UndecoratedWindowResizer") it else null

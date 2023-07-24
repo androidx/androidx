@@ -51,7 +51,7 @@ class TextActionsTest {
             TestTextField("hello")
         }
 
-        with(rule.onNodeWithTag("tag")){
+        with(rule.onNodeWithTag("tag")) {
             assertTextEquals("hello")
             performTextClearance()
             assertTextEquals("")
@@ -64,7 +64,7 @@ class TextActionsTest {
             TestTextField("hello")
         }
 
-        with(rule.onNodeWithTag("tag")){
+        with(rule.onNodeWithTag("tag")) {
             assertTextEquals("hello")
             performTextReplacement("compose")
             assertTextEquals("compose")
@@ -77,7 +77,7 @@ class TextActionsTest {
             TestTextField("compose")
         }
 
-        with(rule.onNodeWithTag("tag")){
+        with(rule.onNodeWithTag("tag")) {
             assertTextEquals("compose")
             performTextInput("hello ")
             assertTextEquals("hello compose")  // The caret is at 0 initially
@@ -90,7 +90,7 @@ class TextActionsTest {
             TestTextField("hello")
         }
 
-        with(rule.onNodeWithTag("tag")){
+        with(rule.onNodeWithTag("tag")) {
             assertTextEquals("hello")
             performTextInputSelection(TextRange(5))
             performTextInput(" compose")

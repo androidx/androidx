@@ -19,7 +19,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalContext
 import androidx.compose.ui.ComposeScene
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.KeyEvent
+import androidx.compose.ui.semantics.dialog
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.window.DialogWindowScope
 import androidx.compose.ui.window.WindowExceptionHandler
 import org.jetbrains.skiko.GraphicsApi
@@ -181,8 +184,9 @@ class ComposeDialog : JDialog {
             override val window: ComposeDialog get() = this@ComposeDialog
         }
         delegate.setContent(
-            onPreviewKeyEvent,
-            onKeyEvent,
+            onPreviewKeyEvent = onPreviewKeyEvent,
+            onKeyEvent = onKeyEvent,
+            modifier = Modifier.semantics { dialog() },
         ) {
             scope.content()
         }

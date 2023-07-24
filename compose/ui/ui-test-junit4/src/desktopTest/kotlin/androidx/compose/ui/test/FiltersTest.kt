@@ -26,9 +26,9 @@ import androidx.compose.material.TextField
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogWindow
 import androidx.compose.ui.window.Popup
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 
@@ -42,12 +42,11 @@ class FiltersTest {
     val rule = createComposeRule()
 
     @Test
-    @Ignore  // TODO: Fix Dialog to have the dialog() semantic property
-    fun testIsDialog() {
+    fun testIsDialogOnDialogWindow() {
         rule.setContent {
             DialogWindow(
                 onCloseRequest = {},
-            ){
+            ) {
                 Text(
                     text = "Text",
                     modifier = Modifier.testTag("tag")
@@ -60,15 +59,30 @@ class FiltersTest {
     }
 
     @Test
-    @Ignore  // TODO: Fix Popup to have the popup() semantic property
-    fun testIsPopup() {
+    fun testIsDialogOnDialog() {
         rule.setContent {
-            Popup{
+            Dialog(
+                onDismissRequest = {}
+            ) {
                 Text(
                     text = "Text",
                     modifier = Modifier.testTag("tag")
                 )
 
+            }
+        }
+
+        rule.onNodeWithTag("tag").assert(hasAnyAncestor(isDialog()))
+    }
+
+    @Test
+    fun testIsPopup() {
+        rule.setContent {
+            Popup {
+                Text(
+                    text = "Text",
+                    modifier = Modifier.testTag("tag")
+                )
             }
         }
 
@@ -78,7 +92,7 @@ class FiltersTest {
     @Test
     fun testHasAnyChild() {
         rule.setContent {
-            Box(Modifier.testTag("box")){
+            Box(Modifier.testTag("box")) {
                 Text(text = "text")
             }
         }
@@ -89,8 +103,8 @@ class FiltersTest {
     @Test
     fun testHasAnyAncestor() {
         rule.setContent {
-            Box(Modifier.testTag("ancestor1")){
-                Box(Modifier.testTag("ancestor2")){
+            Box(Modifier.testTag("ancestor1")) {
+                Box(Modifier.testTag("ancestor2")) {
                     Text(text = "text")
                 }
             }
@@ -103,7 +117,7 @@ class FiltersTest {
     @Test
     fun testHasAnyParent() {
         rule.setContent {
-            Box(Modifier.testTag("parent")){
+            Box(Modifier.testTag("parent")) {
                 Text(text = "text")
             }
         }
@@ -114,7 +128,7 @@ class FiltersTest {
     @Test
     fun testHasAnySibling() {
         rule.setContent {
-            Box{
+            Box {
                 Text(text = "text1")
                 Text(text = "text2")
             }
@@ -180,7 +194,7 @@ class FiltersTest {
             LazyColumn(
                 Modifier.testTag("tag")
             ) {
-                items(2){
+                items(2) {
                     Text("$it")
                 }
             }
@@ -195,7 +209,7 @@ class FiltersTest {
             LazyColumn(
                 Modifier.testTag("tag")
             ) {
-                items(2){
+                items(2) {
                     Text("$it")
                 }
             }
@@ -210,7 +224,7 @@ class FiltersTest {
             LazyColumn(
                 Modifier.testTag("tag")
             ) {
-                items(2){
+                items(2) {
                     Text("$it")
                 }
             }
