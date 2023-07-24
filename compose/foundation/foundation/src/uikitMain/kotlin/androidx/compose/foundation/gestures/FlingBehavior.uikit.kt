@@ -27,6 +27,6 @@ internal actual fun rememberFlingBehavior(): FlingBehavior {
     val density = LocalDensity.current.density
 
     return remember(density) {
-        DefaultFlingBehavior(CupertinoScrollDecayAnimationSpec().generateDecayAnimationSpec())
+        CupertinoFlingBehavior(CupertinoScrollDecayAnimationSpec().generateDecayAnimationSpec())
     }
 }
