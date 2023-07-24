@@ -19,6 +19,7 @@ package androidx.compose.ui.awt
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalContext
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.ComposeScene
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.KeyEvent
@@ -54,6 +55,8 @@ internal class ComposeWindowDelegate(
         get() = requireNotNull(_bridge) {
             "ComposeBridge is disposed"
         }
+    internal val scene: ComposeScene
+        get() = bridge.scene
     internal val windowAccessible: Accessible
         get() = bridge.sceneAccessible
     val undecoratedWindowResizer = UndecoratedWindowResizer(window)

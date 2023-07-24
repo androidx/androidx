@@ -17,6 +17,7 @@ package androidx.compose.ui.awt
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalContext
+import androidx.compose.ui.ComposeScene
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.window.FrameWindowScope
@@ -59,6 +60,9 @@ class ComposeWindow @ExperimentalComposeUiApi constructor(
     ) : this(graphicsConfiguration, SkiaLayerAnalytics.Empty)
 
     private val delegate = ComposeWindowDelegate(this, ::isUndecorated, skiaLayerAnalytics)
+
+    internal val scene: ComposeScene
+        get() = delegate.scene
 
     // Don't override the accessible context of JFrame, since accessibility work through HardwareLayer
     internal val windowAccessible: Accessible

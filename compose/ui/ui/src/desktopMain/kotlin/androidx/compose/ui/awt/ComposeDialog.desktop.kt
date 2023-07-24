@@ -17,6 +17,7 @@ package androidx.compose.ui.awt
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalContext
+import androidx.compose.ui.ComposeScene
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.window.DialogWindowScope
@@ -40,6 +41,9 @@ import org.jetbrains.skiko.SkiaLayerAnalytics
 class ComposeDialog : JDialog {
     private val skiaLayerAnalytics: SkiaLayerAnalytics
     private val delegate: ComposeWindowDelegate
+
+    internal val scene: ComposeScene
+        get() = delegate.scene
 
     constructor(
         owner: Window?,

@@ -20,7 +20,10 @@ import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -31,6 +34,8 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.DialogWindow
+import androidx.compose.ui.window.Window
 import kotlin.test.assertFails
 import org.junit.Rule
 import org.junit.Test
@@ -541,5 +546,49 @@ class AssertionsTest {
         assertFails {
             rule.onAllNodesWithTag("tag").assertAll(hasText("World", substring = true))
         }
+    }
+
+    @Test
+    fun testNodeInDialogWindow() {
+        var show by mutableStateOf(true)
+        rule.setContent {
+            if (show) {
+                DialogWindow(
+                    onCloseRequest = {},
+                ) {
+                    Text(
+                        text = "Text",
+                        modifier = Modifier.testTag("tag")
+                    )
+                }
+            }
+        }
+
+        rule.onNodeWithTag("tag").assertExists()
+
+        show = false
+        rule.onNodeWithTag("tag").assertDoesNotExist()
+    }
+
+    @Test
+    fun testNodeInWindow() {
+        var show by mutableStateOf(true)
+        rule.setContent {
+            if (show) {
+                Window(
+                    onCloseRequest = {},
+                ) {
+                    Text(
+                        text = "Text",
+                        modifier = Modifier.testTag("tag")
+                    )
+                }
+            }
+        }
+
+        rule.onNodeWithTag("tag").assertExists()
+
+        show = false
+        rule.onNodeWithTag("tag").assertDoesNotExist()
     }
 }

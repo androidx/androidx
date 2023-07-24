@@ -19,6 +19,7 @@ package androidx.compose.ui.window
 import androidx.compose.runtime.*
 import androidx.compose.ui.LocalComposeScene
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.requireCurrent
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.layout.Layout
@@ -41,7 +42,7 @@ internal fun PopupLayout(
     onKeyEvent: ((KeyEvent) -> Boolean) = { false },
     content: @Composable () -> Unit
 ) {
-    val scene = LocalComposeScene.current
+    val scene = LocalComposeScene.requireCurrent()
     val density = LocalDensity.current
     val layoutDirection = LocalLayoutDirection.current
 

@@ -17,12 +17,14 @@
 package androidx.compose.ui.window
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.currentCompositionLocalContext
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.LocalComposeScene
 import androidx.compose.ui.awt.ComposeDialog
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.input.key.KeyEvent
@@ -338,16 +340,21 @@ fun DialogWindow(
     val windowExceptionHandlerFactory by rememberUpdatedState(
         LocalWindowExceptionHandlerFactory.current
     )
+    val parentScene = LocalComposeScene.current
     AwtWindow(
         visible = visible,
         create = {
             create().apply {
+                parentScene?.addChildScene(scene)
                 this.compositionLocalContext = compositionLocalContext
                 this.exceptionHandler = windowExceptionHandlerFactory.exceptionHandler(this)
                 setContent(onPreviewKeyEvent, onKeyEvent, content)
             }
         },
-        dispose = dispose,
+        dispose = {
+            parentScene?.removeChildScene(it.scene)
+            dispose(it)
+        },
         update = {
             it.compositionLocalContext = compositionLocalContext
             it.exceptionHandler = windowExceptionHandlerFactory.exceptionHandler(it)
@@ -364,7 +371,7 @@ fun DialogWindow(
             if (!wasDisplayable && it.isDisplayable) {
                 it.contentPane.paint(it.contentPane.graphics)
             }
-        }
+        },
     )
 }
 

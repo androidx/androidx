@@ -25,6 +25,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCompositionContext
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.LocalComposeScene
 import androidx.compose.ui.awt.ComposeWindow
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.input.key.KeyEvent
@@ -397,16 +398,21 @@ fun Window(
     val windowExceptionHandlerFactory by rememberUpdatedState(
         LocalWindowExceptionHandlerFactory.current
     )
+    val parentScene = LocalComposeScene.current
     AwtWindow(
         visible = visible,
         create = {
             create().apply {
+                parentScene?.addChildScene(scene)
                 this.compositionLocalContext = compositionLocalContext
                 this.exceptionHandler = windowExceptionHandlerFactory.exceptionHandler(this)
                 setContent(onPreviewKeyEvent, onKeyEvent, content)
             }
         },
-        dispose = dispose,
+        dispose = {
+            parentScene?.removeChildScene(it.scene)
+            dispose(it)
+        },
         update = {
             it.compositionLocalContext = compositionLocalContext
             it.exceptionHandler = windowExceptionHandlerFactory.exceptionHandler(it)
@@ -423,7 +429,7 @@ fun Window(
             if (!wasDisplayable && it.isDisplayable) {
                 it.contentPane.paint(it.contentPane.graphics)
             }
-        }
+        },
     )
 }
 

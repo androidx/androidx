@@ -20,6 +20,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.LocalComposeScene
+import androidx.compose.ui.requireCurrent
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
@@ -37,7 +38,7 @@ import kotlin.math.roundToInt
  */
 @Composable
 private fun rememberCursorPosition(): Offset? {
-    val scene = LocalComposeScene.current
+    val scene = LocalComposeScene.requireCurrent()
     return remember { scene.pointerPositions.values.firstOrNull() }
 }
 

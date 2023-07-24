@@ -37,8 +37,13 @@ import org.jetbrains.skia.Canvas
 import org.jetbrains.skiko.SkiaLayer
 import org.jetbrains.skiko.currentNanoTime
 
-internal val LocalComposeScene = staticCompositionLocalOf<ComposeScene> {
-    error("CompositionLocal LocalComposeScene not provided")
+internal val LocalComposeScene = staticCompositionLocalOf<ComposeScene?> { null }
+
+/**
+ * The local [ComposeScene] is typically not-null. This extension can be used in these cases.
+ */
+internal fun CompositionLocal<ComposeScene?>.requireCurrent(): ComposeScene {
+    return current ?: error("CompositionLocal LocalComposeScene not provided")
 }
 
 /**
@@ -175,12 +180,43 @@ class ComposeScene internal constructor(
         }
     }
 
+    private val childScenes = mutableSetOf<ComposeScene>()
+
+    /**
+     * Adds a child [ComposeScene], so that nodes in it can be found in tests.
+     */
+    internal fun addChildScene(scene: ComposeScene) {
+        check(!isClosed) { "ComposeScene is closed" }
+        childScenes.add(scene)
+    }
+
+    /**
+     * Removes a child [ComposeScene].
+     */
+    internal fun removeChildScene(scene: ComposeScene) {
+        check(!isClosed) { "ComposeScene is closed" }
+        childScenes.remove(scene)
+    }
+
+    /**
+     * Adds this scene's [RootForTest]s, including any of its child scenes, into the given set.
+     */
+    private fun addRootsForTestTo(target: MutableSet<RootForTest>) {
+        target.addAll(owners)
+        for (child in childScenes) {
+            child.addRootsForTestTo(target)
+        }
+    }
+
     /**
      * All currently registered [RootForTest]s. After calling [setContent] the first root
      * will be added. If there is an any [Popup] is present in the content, it will be added as
      * another [RootForTest]
      */
-    val roots: Set<RootForTest> get() = owners.toSet()
+    val roots: Set<RootForTest>
+        get() = buildSet(owners.size) {
+            addRootsForTestTo(this)
+        }
 
     private val defaultPointerStateTracker = DefaultPointerStateTracker()
 
