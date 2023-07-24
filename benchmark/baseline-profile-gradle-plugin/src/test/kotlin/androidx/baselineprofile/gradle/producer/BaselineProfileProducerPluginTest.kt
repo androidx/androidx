@@ -150,6 +150,37 @@ class BaselineProfileProducerPluginTestWithAgp82 {
                 contains("androidx.benchmark.enabledRules=baselineprofile")
             }
     }
+
+    @Test
+    fun runWhenInstrumentationRunnerArgumentsAreSetManually() {
+        projectSetup.appTarget.setup()
+        projectSetup.producer.setup(
+            variantProfiles = listOf(emptyReleaseVariantProfile),
+            targetProject = projectSetup.appTarget
+        )
+
+        val enabledRuleProp =
+            "-Pandroid.testInstrumentationRunnerArguments.androidx.benchmark.enabledRules"
+        projectSetup
+            .producer
+            .gradleRunner
+            .build(
+                "connectedBenchmarkReleaseAndroidTest",
+                "$enabledRuleProp=Macrobenchmark"
+            ) {
+                // This should not fail.
+            }
+
+        projectSetup
+            .producer
+            .gradleRunner
+            .build(
+                "connectedNonMinifiedReleaseAndroidTest",
+                "$enabledRuleProp=BaselineProfile"
+            ) {
+                // This should not fail.
+            }
+    }
 }
 
 @RunWith(Parameterized::class)
