@@ -18,6 +18,7 @@ package androidx.camera.integration.view;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -44,10 +45,17 @@ import androidx.fragment.app.FragmentTransaction;
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
 
-    // Possible values for this intent key (case-insensitive): "PreviewView", "ComposeUi".
+    // Possible values for this intent key (case-insensitive): "Portrait", "Landscape".
+    private static final String INTENT_SCREEN_ORIENTATION = "orientation";
+    private static final String SCREEN_ORIENTATION_PORTRAIT = "Portrait";
+    private static final String SCREEN_ORIENTATION_LANDSCAPE = "Landscape";
+
+    // Possible values for this intent key (case-insensitive): "PreviewView", "ComposeUi",
+    // "StreamSharing".
     private static final String INTENT_FRAGMENT_TYPE = "fragment_type";
     private static final String PREVIEW_VIEW_FRAGMENT = "PreviewView";
     private static final String COMPOSE_UI_FRAGMENT = "ComposeUi";
+    private static final String STREAM_SHARING_FRAGMENT = "StreamSharing";
 
     private static final String[] REQUIRED_PERMISSIONS;
     static {
@@ -103,12 +111,8 @@ public class MainActivity extends AppCompatActivity {
         // Get extra option for checking whether it needs to be implemented with PreviewView
         Bundle bundle = getIntent().getExtras();
         if (bundle != null) {
-            final String viewTypeString = bundle.getString(INTENT_FRAGMENT_TYPE);
-            if (PREVIEW_VIEW_FRAGMENT.equalsIgnoreCase(viewTypeString)) {
-                mFragmentType = FragmentType.PREVIEW_VIEW;
-            } else if (COMPOSE_UI_FRAGMENT.equalsIgnoreCase(viewTypeString)) {
-                mFragmentType = FragmentType.COMPOSE_UI;
-            }
+            parseScreenOrientationAndSetValueIfNeed(bundle);
+            parseFragmentType(bundle);
             // Update the app UI according to the e2e test case.
             String testItem = bundle.getString(INTENT_EXTRA_E2E_TEST_CASE);
             if (testItem != null) {
@@ -193,6 +197,9 @@ public class MainActivity extends AppCompatActivity {
             case R.id.effects:
                 mFragmentType = FragmentType.EFFECTS;
                 break;
+            case R.id.stream_sharing:
+                mFragmentType = FragmentType.STREAM_SHARING;
+                break;
         }
         startFragment();
         return true;
@@ -206,6 +213,26 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         return true;
+    }
+
+    private void parseScreenOrientationAndSetValueIfNeed(@NonNull Bundle bundle) {
+        final String orientationString = bundle.getString(INTENT_SCREEN_ORIENTATION);
+        if (SCREEN_ORIENTATION_PORTRAIT.equalsIgnoreCase(orientationString)) {
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        } else if (SCREEN_ORIENTATION_LANDSCAPE.equalsIgnoreCase(orientationString)) {
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+        }
+    }
+
+    private void parseFragmentType(@NonNull Bundle bundle) {
+        final String viewTypeString = bundle.getString(INTENT_FRAGMENT_TYPE);
+        if (PREVIEW_VIEW_FRAGMENT.equalsIgnoreCase(viewTypeString)) {
+            mFragmentType = FragmentType.PREVIEW_VIEW;
+        } else if (COMPOSE_UI_FRAGMENT.equalsIgnoreCase(viewTypeString)) {
+            mFragmentType = FragmentType.COMPOSE_UI;
+        } else if (STREAM_SHARING_FRAGMENT.equalsIgnoreCase(viewTypeString)) {
+            mFragmentType = FragmentType.STREAM_SHARING;
+        }
     }
 
     private void startFragment() {
@@ -228,6 +255,9 @@ public class MainActivity extends AppCompatActivity {
             case EFFECTS:
                 startFragment(R.string.effects, new EffectsFragment());
                 break;
+            case STREAM_SHARING:
+                startFragment(R.string.stream_sharing, new StreamSharingFragment());
+                break;
         }
     }
 
@@ -249,6 +279,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private enum FragmentType {
-        PREVIEW_VIEW, CAMERA_CONTROLLER, TRANSFORM, COMPOSE_UI, MLKIT, EFFECTS
+        PREVIEW_VIEW, CAMERA_CONTROLLER, TRANSFORM, COMPOSE_UI, MLKIT, EFFECTS, STREAM_SHARING
     }
 }

@@ -17,6 +17,7 @@ limitations under the License.
 
     <string name="app_name">CameraX Views Demo</string>
     <string name="effects">Effects</string>
+    <string name="stream_sharing">StreamSharing</string>
     <string name="preview">Preview</string>
     <string name="preview_and_video">Preview &amp; Video</string>
     <string name="surface_effect">Surface effect</string>
@@ -62,5 +63,6 @@ limitations under the License.
     <string name="mirror_on">mirror on</string>
     <string name="mirror_off">mirror off</string>
     <string name="mlkit">MLKit</string>
+    <string name="text_stream_sharing_enabled">SteamSharing enabled</string>
 
 </resources>
