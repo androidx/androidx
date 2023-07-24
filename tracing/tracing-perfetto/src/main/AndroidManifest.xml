@@ -41,5 +41,12 @@
                 android:name="androidx.tracing.perfetto.StartupTracingInitializer"
                 android:value="androidx.startup" />
         </provider>
+        <receiver
+            android:name="androidx.tracing.perfetto.StartupTracingConfigStoreIsEnabledGate"
+            android:enabled="false"
+            android:exported="false"
+            android:directBootAware="false"
+            tools:targetApi="n">
+        </receiver>
     </application>
 </manifest>
