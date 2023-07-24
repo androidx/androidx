@@ -17,6 +17,7 @@
 package androidx.recyclerview.widget;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 import android.view.InputDevice;
 import android.view.MotionEvent;
@@ -36,9 +37,13 @@ public class DifferentialMotionFlingHelperTest {
     private int mMaxVelocity = Integer.MAX_VALUE;
     /** A fake velocity value that's going to be returned from the velocity provider. */
     private float mVelocity;
+    private boolean mVelocityCalculated;
 
     private final DifferentialMotionFlingHelper.DifferentialVelocityProvider mVelocityProvider =
-            (vt, event, axis) -> mVelocity;
+            (vt, event, axis) -> {
+                mVelocityCalculated = true;
+                return mVelocity;
+            };
 
     private final DifferentialMotionFlingHelper.FlingVelocityThresholdCalculator
             mVelocityThresholdCalculator =
@@ -59,6 +64,16 @@ public class DifferentialMotionFlingHelperTest {
                 mFlingTarget,
                 mVelocityThresholdCalculator,
                 mVelocityProvider);
+    }
+
+    @Test
+    public void deviceDoesNotSupportFling_noVelocityCalculated() {
+        mMinVelocity = Integer.MAX_VALUE;
+        mMaxVelocity = Integer.MIN_VALUE;
+
+        deliverEventWithVelocity(createPointerEvent(), MotionEvent.AXIS_VSCROLL, 60);
+
+        assertFalse(mVelocityCalculated);
     }
 
     @Test
