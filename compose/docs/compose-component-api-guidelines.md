@@ -1153,7 +1153,7 @@ class ButtonColors(
 object ButtonDefaults {
     // default factory for the class
     // can be @Composable to access the theme composition locals
-    fun buttonColors(
+    fun colors(
         backgroundColor: Color = ...,
         disabledBackgroundColor: Color = ...,
         contentColor: Color = ...,
@@ -1165,7 +1165,7 @@ object ButtonDefaults {
 fun Button(
     onClick: () -> Unit,
     enabled: Boolean = true,
-    colors: ButtonColors = ButtonDefaults.buttonColors(),
+    colors: ButtonColors = ButtonDefaults.colors(),
     content: @Composable RowScope.() -> Unit
 ) {
     val resolvedBackgroundColor = colors.backgroundColor(enabled)
@@ -1194,7 +1194,7 @@ Every component should have following documentation structure:
 
 1. One-liner paragraph summarizing the component and what it does.
 2. Paragraphs going more into the detail of components, outlining the capabilities, behavior and might include one or more of:
-    * `@sample` tag providing an example of the usage for this components and its states, default, etc. if you don't have access to `@sample` functionality, consider inline examples in the ktdoc.
+    * `@sample` tag providing an example of the usage for this components and its states, default, etc. If you don't have access to `@sample` functionality, consider inline examples in the ktdoc.
     * `@see` tags pointing to other related apis.
     * Links to design or other materials to help to use the components to its full potential.
 3. Description for each parameter of the component, starting with `@param paramname`.
@@ -1226,7 +1226,7 @@ Every component should have following documentation structure:
 fun BadgedBox(
     badge: @Composable BoxScope.() -> Unit,
     modifier: Modifier = Modifier,
-    content: @Composable BoxScope.() -> Unit,
+    content: @Composable BoxScope.() -> Unit
 )
 ```
 
