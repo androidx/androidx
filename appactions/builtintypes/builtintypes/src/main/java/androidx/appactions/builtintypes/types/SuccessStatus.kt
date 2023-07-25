@@ -28,6 +28,7 @@ import kotlin.collections.joinToString
 import kotlin.collections.map
 import kotlin.collections.mutableMapOf
 import kotlin.collections.plusAssign
+import kotlin.jvm.JvmOverloads
 import kotlin.jvm.JvmStatic
 
 /**
@@ -47,10 +48,16 @@ public interface SuccessStatus : CommonExecutionStatus {
   public override fun toBuilder(): Builder<*>
 
   public companion object {
-    /** Returns a default implementation of [Builder] with no properties set. */
+    /**
+     * Returns a default implementation of [Builder].
+     *
+     * Has the specified [identifier] and [namespace] and no other properties set.
+     */
     @JvmStatic
+    @JvmOverloads
     @Document.BuilderProducer
-    public fun Builder(): Builder<*> = SuccessStatusImpl.Builder()
+    public fun Builder(identifier: String = "", namespace: String = ""): Builder<*> =
+      SuccessStatusImpl.Builder().setIdentifier(identifier).setNamespace(namespace)
   }
 
   /**
@@ -105,9 +112,9 @@ public abstract class AbstractSuccessStatus<
   Self : AbstractSuccessStatus<Self, Builder>,
   Builder : AbstractSuccessStatus.Builder<Builder, Self>>
 internal constructor(
-  public final override val namespace: String?,
+  public final override val namespace: String,
   public final override val disambiguatingDescription: DisambiguatingDescription?,
-  public final override val identifier: String?,
+  public final override val identifier: String,
   public final override val name: Name?,
 ) : SuccessStatus {
   /**
@@ -163,16 +170,12 @@ internal constructor(
 
   public final override fun toString(): String {
     val attributes = mutableMapOf<String, String>()
-    if (namespace != null) {
-      attributes["namespace"] = namespace
-    }
+    attributes["namespace"] = namespace
     if (disambiguatingDescription != null) {
       attributes["disambiguatingDescription"] =
         disambiguatingDescription.toString(includeWrapperName = false)
     }
-    if (identifier != null) {
-      attributes["identifier"] = identifier
-    }
+    attributes["identifier"] = identifier
     if (name != null) {
       attributes["name"] = name.toString(includeWrapperName = false)
     }
@@ -250,11 +253,11 @@ internal constructor(
      */
     @get:Suppress("GetterOnBuilder") protected abstract val additionalProperties: Map<String, Any?>
 
-    private var namespace: String? = null
+    private var namespace: String = ""
 
     private var disambiguatingDescription: DisambiguatingDescription? = null
 
-    private var identifier: String? = null
+    private var identifier: String = ""
 
     private var name: Name? = null
 
@@ -274,7 +277,7 @@ internal constructor(
         SuccessStatusImpl(namespace, disambiguatingDescription, identifier, name)
       )
 
-    public final override fun setNamespace(namespace: String?): Self {
+    public final override fun setNamespace(namespace: String): Self {
       this.namespace = namespace
       return this as Self
     }
@@ -286,7 +289,7 @@ internal constructor(
       return this as Self
     }
 
-    public final override fun setIdentifier(text: String?): Self {
+    public final override fun setIdentifier(text: String): Self {
       this.identifier = text
       return this as Self
     }
@@ -316,16 +319,12 @@ internal constructor(
     @Suppress("BuilderSetStyle")
     public final override fun toString(): String {
       val attributes = mutableMapOf<String, String>()
-      if (namespace != null) {
-        attributes["namespace"] = namespace!!
-      }
+      attributes["namespace"] = namespace
       if (disambiguatingDescription != null) {
         attributes["disambiguatingDescription"] =
           disambiguatingDescription!!.toString(includeWrapperName = false)
       }
-      if (identifier != null) {
-        attributes["identifier"] = identifier!!
-      }
+      attributes["identifier"] = identifier
       if (name != null) {
         attributes["name"] = name!!.toString(includeWrapperName = false)
       }
@@ -346,9 +345,9 @@ private class SuccessStatusImpl :
     get() = emptyMap()
 
   public constructor(
-    namespace: String?,
+    namespace: String,
     disambiguatingDescription: DisambiguatingDescription?,
-    identifier: String?,
+    identifier: String,
     name: Name?,
   ) : super(namespace, disambiguatingDescription, identifier, name)
 

@@ -44,8 +44,8 @@ val TIMER_TYPE_SPEC: TypeSpec<Timer> = TypeSpecBuilder.newBuilder(
   NAME_TYPE_SPEC
 ).bindStringField(
   "identifier",
-  { it.identifier },
+  { it.identifier.ifEmpty { null } },
   Timer.Builder<*>::setIdentifier
 ).bindIdentifier {
-  it.identifier
+  it.identifier.ifEmpty { null }
 }.build()

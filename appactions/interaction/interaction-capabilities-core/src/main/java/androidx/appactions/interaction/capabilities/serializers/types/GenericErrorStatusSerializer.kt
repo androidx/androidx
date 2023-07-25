@@ -38,8 +38,8 @@ val GENERIC_ERROR_STATUS_TYPE_SPEC: TypeSpec<GenericErrorStatus> = TypeSpecBuild
   NAME_TYPE_SPEC
 ).bindStringField(
   "identifier",
-  { it.identifier },
+  { it.identifier.ifEmpty { null } },
   GenericErrorStatus.Builder<*>::setIdentifier
 ).bindIdentifier {
-  it.identifier
+  it.identifier.ifEmpty { null }
 }.build()
