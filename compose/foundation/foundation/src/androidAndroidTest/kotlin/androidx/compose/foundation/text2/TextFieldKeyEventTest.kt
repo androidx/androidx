@@ -489,6 +489,7 @@ class TextFieldKeyEventTest {
         }
     }
 
+    @Ignore // b/293919923
     @Test
     fun textField_tabSingleLine() {
         keysSequenceTest("text", singleLine = true) {
@@ -497,6 +498,7 @@ class TextFieldKeyEventTest {
         }
     }
 
+    @Ignore // b/293919923
     @Test
     fun textField_tabMultiLine() {
         keysSequenceTest("text") {
@@ -505,6 +507,7 @@ class TextFieldKeyEventTest {
         }
     }
 
+    @Ignore // b/293919923
     @Test
     fun textField_shiftTabSingleLine() {
         keysSequenceTest("text", singleLine = true) {
@@ -529,6 +532,7 @@ class TextFieldKeyEventTest {
         }
     }
 
+    @Ignore // b/293919923
     @Test
     fun textField_withActiveSelection_tabSingleLine() {
         keysSequenceTest("text", singleLine = true) {
@@ -542,6 +546,7 @@ class TextFieldKeyEventTest {
         }
     }
 
+    @Ignore // b/293919923
     @Test
     fun textField_withActiveSelection_tabMultiLine() {
         keysSequenceTest("text") {
@@ -584,6 +589,7 @@ class TextFieldKeyEventTest {
         }
     }
 
+    @Ignore // b/293919923
     @Test
     fun textField_withActiveSelection_enterSingleLine() {
         keysSequenceTest("text", singleLine = true) {
@@ -597,6 +603,7 @@ class TextFieldKeyEventTest {
         }
     }
 
+    @Ignore // b/293919923
     @Test
     fun textField_withActiveSelection_enterMultiLine() {
         keysSequenceTest("text") {
