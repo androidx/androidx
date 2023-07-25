@@ -48,7 +48,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.AbsoluteAlignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.geometry.lerp
@@ -70,10 +70,10 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import androidx.wear.compose.foundation.lazy.ScalingLazyColumn as ScalingLazyColumn
-import androidx.wear.compose.foundation.lazy.ScalingLazyListAnchorType as ScalingLazyListAnchorType
-import androidx.wear.compose.foundation.lazy.ScalingLazyListItemInfo as ScalingLazyListItemInfo
-import androidx.wear.compose.foundation.lazy.ScalingLazyListState as ScalingLazyListState
+import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
+import androidx.wear.compose.foundation.lazy.ScalingLazyListAnchorType
+import androidx.wear.compose.foundation.lazy.ScalingLazyListItemInfo
+import androidx.wear.compose.foundation.lazy.ScalingLazyListState
 import kotlin.math.PI
 import kotlin.math.asin
 import kotlin.math.max
@@ -442,9 +442,11 @@ public fun PositionIndicator(
         }
     }
 
-    val visibility by remember(state) { derivedStateOf {
-        state.visibility(containerSize.height.toFloat())
-    } }
+    val visibility by remember(state) {
+        derivedStateOf {
+            state.visibility(containerSize.height.toFloat())
+        }
+    }
     when (visibility) {
         PositionIndicatorVisibility.Show -> actuallyVisible.value = true
         PositionIndicatorVisibility.Hide -> actuallyVisible.value = false
@@ -477,7 +479,7 @@ public fun PositionIndicator(
                 r - sqrt((sqr(r) - sqr(indicatorHeight.toPx() / 2)).coerceAtLeast(0f))
             } else 0f) +
                 paddingHorizontal.toPx() + indicatorWidth.toPx()
-            ).roundToInt(),
+                ).roundToInt(),
             (indicatorHeight.toPx() + indicatorWidth.toPx()).roundToInt()
         )
     }
@@ -497,14 +499,14 @@ public fun PositionIndicator(
     )
 
     BoundsLimiter(boundsOffset, boundsSize, modifier, onSizeChanged = {
-            containerSize = it
-        }
+        containerSize = it
+    }
     ) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .alpha(positionIndicatorAlpha)
-                .drawWithContent {
+                .drawWithCache {
                     // We need to invert reverseDirection when the screen is round and we are on
                     // the left.
                     val actualReverseDirection =
@@ -531,34 +533,39 @@ public fun PositionIndicator(
 
                     val paddingHorizontalPx = paddingHorizontal.toPx()
 
-                    if (isScreenRound) {
-                        val usableHalf = diameter / 2f - paddingHorizontalPx
-                        val sweepDegrees =
-                            (2 * asin((indicatorHeight.toPx() / 2) / usableHalf)).toDegrees()
+                    onDrawWithContent {
+                        if (isScreenRound) {
+                            val usableHalf = diameter / 2f - paddingHorizontalPx
+                            val sweepDegrees =
+                                (2 * asin(
+                                    (indicatorHeight.toPx() / 2) /
+                                        usableHalf
+                                )).toDegrees()
 
-                        drawCurvedIndicator(
-                            color,
-                            background,
-                            paddingHorizontalPx,
-                            indicatorOnTheRight,
-                            sweepDegrees,
-                            indicatorWidthPx,
-                            indicatorStart,
-                            animatedDisplayState.value.size,
-                            highlightAlpha.value
-                        )
-                    } else {
-                        drawStraightIndicator(
-                            color,
-                            background,
-                            paddingHorizontalPx,
-                            indicatorOnTheRight,
-                            indicatorWidthPx,
-                            indicatorHeightPx = indicatorHeight.toPx(),
-                            indicatorStart,
-                            animatedDisplayState.value.size,
-                            highlightAlpha.value
-                        )
+                            drawCurvedIndicator(
+                                color,
+                                background,
+                                paddingHorizontalPx,
+                                indicatorOnTheRight,
+                                sweepDegrees,
+                                indicatorWidthPx,
+                                indicatorStart,
+                                animatedDisplayState.value.size,
+                                highlightAlpha.value
+                            )
+                        } else {
+                            drawStraightIndicator(
+                                color,
+                                background,
+                                paddingHorizontalPx,
+                                indicatorOnTheRight,
+                                indicatorWidthPx,
+                                indicatorHeightPx = indicatorHeight.toPx(),
+                                indicatorStart,
+                                animatedDisplayState.value.size,
+                                highlightAlpha.value
+                            )
+                        }
                     }
                 }
         )

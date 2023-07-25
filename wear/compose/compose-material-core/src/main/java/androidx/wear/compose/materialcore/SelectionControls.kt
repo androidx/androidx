@@ -25,10 +25,10 @@ import androidx.compose.animation.core.TweenSpec
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.updateTransition
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Indication
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.selection.selectable
@@ -38,6 +38,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
@@ -101,28 +102,39 @@ fun Checkbox(
     val boxColorState = boxColor(enabled, checked)
     val checkmarkColorState = checkmarkColor(enabled, checked)
 
-    Canvas(
-        modifier = modifier.maybeToggleable(
-            onCheckedChange,
-            enabled,
-            checked,
-            interactionSource,
-            rememberRipple(),
-            Role.Checkbox,
-            width,
-            height
-        )
-    ) {
-        drawBox(this, boxColorState.value, progress.value)
+    // Canvas internally uses Spacer.drawBehind.
+    // Using Spacer.drawWithCache to optimize the stroke allocations.
+    Spacer(
+        modifier = modifier
+            .maybeToggleable(
+                onCheckedChange,
+                enabled,
+                checked,
+                interactionSource,
+                rememberRipple(),
+                Role.Checkbox,
+                width,
+                height
+            )
+            .drawWithCache
+            {
+                onDrawWithContent {
+                    drawBox(this, boxColorState.value, progress.value)
 
-        if (targetState == SelectionStage.Checked) {
-            // Passing startXOffset as we want checkbox to be aligned to the end of the canvas.
-            drawTick(checkmarkColorState.value, progress.value, width - height, enabled)
-        } else {
-            // Passing startXOffset as we want checkbox to be aligned to the end of the canvas.
-            eraseTick(checkmarkColorState.value, progress.value, width - height, enabled)
-        }
-    }
+                    if (targetState == SelectionStage.Checked) {
+                        // Passing startXOffset as we want checkbox to be aligned to the end of the canvas.
+                        drawTick(checkmarkColorState.value, progress.value, width - height, enabled)
+                    } else {
+                        // Passing startXOffset as we want checkbox to be aligned to the end of the canvas.
+                        eraseTick(
+                            checkmarkColorState.value,
+                            progress.value,
+                            width - height,
+                            enabled
+                        )
+                    }
+                }
+            })
 }
 
 /**
@@ -185,30 +197,40 @@ fun Switch(
     val trackBackgroundFillColor = trackFillColor(enabled, checked)
     val trackBackgroundStrokeColor = trackStrokeColor(enabled, checked)
 
-    Canvas(
-        modifier = modifier.maybeToggleable(
-            onCheckedChange,
-            enabled,
-            checked,
-            interactionSource,
-            rememberRipple(),
-            Role.Switch,
-            width,
-            height
-        )
-    ) {
-        drawTrack(
-            fillColor = trackBackgroundFillColor.value,
-            strokeColor = trackBackgroundStrokeColor.value,
-            trackWidthPx = trackWidth.toPx(),
-            trackHeightPx = trackHeight.toPx()
-        )
+    // Canvas internally uses Spacer.drawBehind.
+    // Using Spacer.drawWithCache to optimize the stroke allocations.
+    Spacer(
+        modifier = modifier
+            .maybeToggleable(
+                onCheckedChange,
+                enabled,
+                checked,
+                interactionSource,
+                rememberRipple(),
+                Role.Switch,
+                width,
+                height
+            )
+            .drawWithCache
+            {
+                onDrawWithContent {
+                    drawTrack(
+                        fillColor = trackBackgroundFillColor.value,
+                        strokeColor = trackBackgroundStrokeColor.value,
+                        trackWidthPx = trackWidth.toPx(),
+                        trackHeightPx = trackHeight.toPx()
+                    )
 
-        // Draw the thumb of the switch.
-        drawThumb(
-            this, thumbBackgroundColor.value, thumbProgress.value, iconColor.value, isRtl
-        )
-    }
+                    // Draw the thumb of the switch.
+                    drawThumb(
+                        this,
+                        thumbBackgroundColor.value,
+                        thumbProgress.value,
+                        iconColor.value,
+                        isRtl
+                    )
+                }
+            })
 }
 
 /**
@@ -276,31 +298,37 @@ fun RadioButton(
         else
             null
 
-    Canvas(
-        modifier = modifier.maybeSelectable(
-            onClick, enabled, selected, interactionSource, rememberRipple(), width, height
-        )
-    ) {
-        // Aligning the radio to the right.
-        val startXOffsetPx = (width - height).toPx() / 2
-        // Outer circle has a constant radius.
-        val circleCenter = Offset(center.x + startXOffsetPx, center.y)
-        drawCircle(
-            radius = RADIO_CIRCLE_RADIUS.toPx(),
-            color = radioRingColor.value,
-            center = circleCenter,
-            style = Stroke(RADIO_CIRCLE_STROKE.toPx()),
-        )
-        // Inner dot radius expands/shrinks.
-        drawCircle(
-            radius = dotRadiusProgress.value * RADIO_DOT_RADIUS.toPx(),
-            color = radioDotColor.value.copy(
-                alpha = (dotAlphaProgress?.value ?: 1f) * radioDotColor.value.alpha
-            ),
-            center = circleCenter,
-            style = Fill,
-        )
-    }
+    // Canvas internally uses Spacer.drawBehind.
+    // Using Spacer.drawWithCache to optimize the stroke allocations.
+    Spacer(
+        modifier = modifier
+            .maybeSelectable(
+                onClick, enabled, selected, interactionSource, rememberRipple(), width, height
+            )
+            .drawWithCache
+            {
+                // Aligning the radio to the right.
+                val startXOffsetPx = (width - height).toPx() / 2
+                // Outer circle has a constant radius.
+                onDrawWithContent {
+                    val circleCenter = Offset(center.x + startXOffsetPx, center.y)
+                    drawCircle(
+                        radius = RADIO_CIRCLE_RADIUS.toPx(),
+                        color = radioRingColor.value,
+                        center = circleCenter,
+                        style = Stroke(RADIO_CIRCLE_STROKE.toPx()),
+                    )
+                    // Inner dot radius expands/shrinks.
+                    drawCircle(
+                        radius = dotRadiusProgress.value * RADIO_DOT_RADIUS.toPx(),
+                        color = radioDotColor.value.copy(
+                            alpha = (dotAlphaProgress?.value ?: 1f) * radioDotColor.value.alpha
+                        ),
+                        center = circleCenter,
+                        style = Fill,
+                    )
+                }
+            })
 }
 
 /**
