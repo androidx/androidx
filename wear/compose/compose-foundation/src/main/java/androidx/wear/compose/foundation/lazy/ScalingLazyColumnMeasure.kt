@@ -16,6 +16,7 @@
 
 package androidx.wear.compose.foundation.lazy
 
+import androidx.annotation.FloatRange
 import androidx.annotation.RestrictTo
 import androidx.compose.animation.core.Easing
 import androidx.compose.foundation.gestures.Orientation
@@ -100,9 +101,7 @@ public interface ScalingParams {
      * scaled, e.g. at the edge of the viewport. A value between [0f,1f], so a value of 0.2f
      * means to scale an item to 20% of its normal size.
      */
-//    @FloatRange(
-//        fromInclusive = true, from = 0.0, toInclusive = true, to = 1.0
-//    )
+    @get:FloatRange(from = 0.0, to = 1.0)
     val edgeScale: Float
 
     /**
@@ -110,9 +109,7 @@ public interface ScalingParams {
      * when closest to the edge of the screen. A value between [0f,1f], so a value of
      * 0.2f means to set the alpha of an item to 20% of its normal value.
      */
-//    @FloatRange(
-//        fromInclusive = true, from = 0.0, toInclusive = true, to = 1.0
-//    )
+    @get:FloatRange(from = 0.0, to = 1.0)
     val edgeAlpha: Float
 
     /**
@@ -122,9 +119,7 @@ public interface ScalingParams {
      * will be treated as if [maxElementHeight]. Must be greater than or equal to
      * [minElementHeight].
      */
-//    @FloatRange(
-//        fromInclusive = true, from = 0.0, toInclusive = true, to = 1.0
-//    )
+    @get:FloatRange(from = 0.0, to = 1.0)
     val minElementHeight: Float
 
     /**
@@ -134,9 +129,7 @@ public interface ScalingParams {
      * will be treated as if [maxElementHeight]. Must be greater than or equal to
      * [minElementHeight].
      */
-//    @FloatRange(
-//        fromInclusive = true, from = 0.0, toInclusive = true, to = 1.0
-//    )
+    @get:FloatRange(from = 0.0, to = 1.0)
     val maxElementHeight: Float
 
     /**
@@ -153,9 +146,7 @@ public interface ScalingParams {
      * list items exist. Depending on the size of the list item the specific point in the area is
      * calculated.
      */
-//    @FloatRange(
-//        fromInclusive = true, from = 0.0, toInclusive = true, to = 1.0
-//    )
+    @get:FloatRange(from = 0.0, to = 1.0)
     val minTransitionArea: Float
 
     /**
@@ -172,9 +163,7 @@ public interface ScalingParams {
      * list items exist. Depending on the size of the list item the specific point in the area is
      * calculated.
      */
-//    @FloatRange(
-//        fromInclusive = true, from = 0.0, toInclusive = true, to = 1.0
-//    )
+    @get:FloatRange(from = 0.0, to = 1.0)
     val maxTransitionArea: Float
 
     /**
