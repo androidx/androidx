@@ -48,6 +48,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.click
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performKeyInput
@@ -118,6 +119,20 @@ class TextFieldTextToolbarTest {
         rule.runOnIdle {
             assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Hidden)
         }
+    }
+
+    @Test
+    fun longClickOnEmptyTextField_showsToolbar_butNoHandle() {
+        val state = TextFieldState("")
+        val textToolbar = FakeTextToolbar({ _, _, _, _, _ -> }, {})
+        setupContent(state, textToolbar)
+
+        rule.onNodeWithTag(TAG).performTouchInput {
+            longClick(Offset(fontSize.toPx(), fontSize.toPx() / 2))
+        }
+
+        rule.onNode(isSelectionHandle(Handle.Cursor)).assertDoesNotExist()
+        assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Shown)
     }
 
     @Test
