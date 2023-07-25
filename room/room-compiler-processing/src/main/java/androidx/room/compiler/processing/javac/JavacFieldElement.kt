@@ -18,6 +18,7 @@ package androidx.room.compiler.processing.javac
 
 import androidx.room.compiler.processing.XAnnotation
 import androidx.room.compiler.processing.XFieldElement
+import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.javac.kotlin.KmPropertyContainer
 import androidx.room.compiler.processing.javac.kotlin.KmTypeContainer
 import androidx.room.compiler.processing.javac.kotlin.descriptor
@@ -68,4 +69,20 @@ internal class JavacFieldElement(
 
     override val jvmDescriptor: String
         get() = element.descriptor()
+
+    override val getter: XMethodElement? by lazy {
+        kotlinMetadata?.getter?.let { getterMetadata ->
+            enclosingElement.getDeclaredMethods()
+                .filter { it.isKotlinPropertyMethod() }
+                .firstOrNull { method -> method.jvmName == getterMetadata.jvmName }
+        }
+    }
+
+    override val setter: XMethodElement? by lazy {
+        kotlinMetadata?.setter?.let { setterMetadata ->
+            enclosingElement.getDeclaredMethods()
+                .filter { it.isKotlinPropertyMethod() }
+                .firstOrNull { method -> method.jvmName == setterMetadata.jvmName }
+        }
+    }
 }
