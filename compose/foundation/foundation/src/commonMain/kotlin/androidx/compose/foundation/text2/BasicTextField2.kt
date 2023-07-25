@@ -308,7 +308,7 @@ internal fun TextFieldSelectionHandles(
             direction = startHandleState.direction,
             handlesCrossed = startHandleState.handlesCrossed,
             modifier = Modifier.pointerInput(selectionState) {
-                with(selectionState) { detectSelectionHandleDrag(true) }
+                with(selectionState) { selectionHandleGestures(true) }
             },
             content = null
         )
@@ -322,7 +322,7 @@ internal fun TextFieldSelectionHandles(
             direction = endHandleState.direction,
             handlesCrossed = endHandleState.handlesCrossed,
             modifier = Modifier.pointerInput(selectionState) {
-                with(selectionState) { detectSelectionHandleDrag(false) }
+                with(selectionState) { selectionHandleGestures(false) }
             },
             content = null
         )
