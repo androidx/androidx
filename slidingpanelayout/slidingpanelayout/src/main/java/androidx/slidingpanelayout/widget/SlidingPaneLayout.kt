@@ -58,9 +58,10 @@ import androidx.transition.Transition
 import androidx.transition.TransitionManager
 import androidx.window.layout.FoldingFeature
 import androidx.window.layout.WindowInfoTracker
-import java.util.Arrays
 import java.util.concurrent.CopyOnWriteArrayList
 import kotlin.math.abs
+import kotlin.math.max
+import kotlin.math.min
 
 private const val TAG = "SlidingPaneLayout"
 
@@ -111,24 +112,82 @@ private fun measureChildHeight(child: View, spec: Int, padding: Int): Int {
     return childHeightSpec
 }
 
-private fun getFoldBoundsInView(foldingFeature: FoldingFeature, view: View): Rect? {
-    val viewLocationInWindow = IntArray(2)
-    view.getLocationInWindow(viewLocationInWindow)
-    val viewRect = Rect(
-        viewLocationInWindow[0], viewLocationInWindow[1],
-        viewLocationInWindow[0] + view.width,
-        viewLocationInWindow[1] + view.width
-    )
-    val foldRectInView = Rect(foldingFeature.bounds)
-    // Translate coordinate space of split from window coordinate space to current view
-    // position in window
-    val intersects = foldRectInView.intersect(viewRect)
-    // Check if the split is overlapped with the view
-    if (foldRectInView.width() == 0 && foldRectInView.height() == 0 || !intersects) {
-        return null
+/**
+ * Utility for calculating layout positioning of child views relative to a [FoldingFeature].
+ * This class is not thread-safe.
+ */
+private class FoldBoundsCalculator {
+
+    private val tmpIntArray = IntArray(2)
+    private val splitViewPositionsTmpRect = Rect()
+    private val getFoldBoundsInViewTmpRect = Rect()
+
+    /**
+     * Returns `true` if there is a split and [outLeftRect] and [outRightRect] contain the split
+     * positions; false if there is not a compatible split available, [outLeftRect] and
+     * [outRightRect] will remain unmodified.
+     */
+    fun splitViewPositions(
+        foldingFeature: FoldingFeature?,
+        parentView: View,
+        outLeftRect: Rect,
+        outRightRect: Rect,
+    ): Boolean {
+        if (foldingFeature == null) return false
+        if (!foldingFeature.isSeparating) return false
+
+        // Don't support horizontal fold in list-detail view layout
+        if (foldingFeature.bounds.left == 0) return false
+
+        // vertical split
+        val splitPosition = splitViewPositionsTmpRect
+        if (foldingFeature.bounds.top == 0 &&
+            getFoldBoundsInView(foldingFeature, parentView, splitPosition)
+        ) {
+            outLeftRect.set(
+                parentView.paddingLeft,
+                parentView.paddingTop,
+                max(parentView.paddingLeft, splitPosition.left),
+                parentView.height - parentView.paddingBottom
+            )
+            val rightBound = parentView.width - parentView.paddingRight
+            outRightRect.set(
+                min(rightBound, splitPosition.right),
+                parentView.paddingTop,
+                rightBound,
+                parentView.height - parentView.paddingBottom
+            )
+            return true
+        }
+        return false
     }
-    foldRectInView.offset(-viewLocationInWindow[0], -viewLocationInWindow[1])
-    return foldRectInView
+
+    /**
+     * Returns `true` if [foldingFeature] overlaps with [view] and writes the bounds to [outRect].
+     */
+    private fun getFoldBoundsInView(
+        foldingFeature: FoldingFeature,
+        view: View,
+        outRect: Rect
+    ): Boolean {
+        val viewLocationInWindow = tmpIntArray
+        view.getLocationInWindow(viewLocationInWindow)
+        val x = viewLocationInWindow[0]
+        val y = viewLocationInWindow[1]
+        val viewRect = getFoldBoundsInViewTmpRect.apply {
+            set(x, y, x + view.width, y + view.width)
+        }
+        val foldRectInView = outRect.apply { set(foldingFeature.bounds) }
+        // Translate coordinate space of split from window coordinate space to current view
+        // position in window
+        val intersects = foldRectInView.intersect(viewRect)
+        // Check if the split is overlapped with the view
+        if (foldRectInView.width() == 0 && foldRectInView.height() == 0 || !intersects) {
+            return false
+        }
+        foldRectInView.offset(-x, -y)
+        return true
+    }
 }
 
 private fun getActivityOrNull(context: Context): Activity? {
@@ -289,6 +348,8 @@ open class SlidingPaneLayout @JvmOverloads constructor(
     private var preservedOpenState = false
     private var awaitingFirstLayout = true
     private val tmpRect = Rect()
+    private val tmpRect2 = Rect()
+    private val foldBoundsCalculator = FoldBoundsCalculator()
 
     /**
      * The lock mode that controls how the user can swipe between the panes.
@@ -675,14 +736,25 @@ open class SlidingPaneLayout @JvmOverloads constructor(
 
         // At this point, all child views have been measured. Calculate the device fold position
         // in the view. Update the split position to where the fold when it exists.
-        val splitViews = splitViewPositions()
-        if (splitViews != null && !canSlide) {
+        val leftSplitBounds = tmpRect
+        val rightSplitBounds = tmpRect2
+        val splitViews = foldBoundsCalculator.splitViewPositions(
+            foldingFeature,
+            this,
+            leftSplitBounds,
+            rightSplitBounds
+        )
+        if (splitViews && !canSlide) {
             for (i in 0 until childCount) {
                 val child = getChildAt(i)
                 if (child.visibility == GONE) {
                     continue
                 }
-                val splitView = splitViews[i]
+                val splitView = when (i) {
+                    0 -> leftSplitBounds
+                    1 -> rightSplitBounds
+                    else -> error("too many children to split")
+                }
                 val lp = child.layoutParams as LayoutParams
 
                 // If child view cannot fit in the separating view, expand the child view to fill
@@ -1050,9 +1122,9 @@ open class SlidingPaneLayout @JvmOverloads constructor(
             // Clip against the slider; no sense drawing what will immediately be covered.
             canvas.getClipBounds(tmpRect)
             if (isLayoutRtlSupport) {
-                tmpRect.left = Math.max(tmpRect.left, slideableView!!.right)
+                tmpRect.left = max(tmpRect.left, slideableView!!.right)
             } else {
-                tmpRect.right = Math.min(tmpRect.right, slideableView!!.left)
+                tmpRect.right = min(tmpRect.right, slideableView!!.left)
             }
             canvas.clipRect(tmpRect)
         }
@@ -1474,7 +1546,7 @@ open class SlidingPaneLayout @JvmOverloads constructor(
     }
 
     internal inner class AccessibilityDelegate : AccessibilityDelegateCompat() {
-        private val mTmpRect = Rect()
+        private val tmpRect = Rect()
         override fun onInitializeAccessibilityNodeInfo(
             host: View,
             info: AccessibilityNodeInfoCompat
@@ -1536,7 +1608,7 @@ open class SlidingPaneLayout @JvmOverloads constructor(
             dest: AccessibilityNodeInfoCompat,
             src: AccessibilityNodeInfoCompat
         ) {
-            val rect = mTmpRect
+            val rect = tmpRect
             src.getBoundsInScreen(rect)
             dest.setBoundsInScreen(rect)
             dest.isVisibleToUser = src.isVisibleToUser
@@ -1554,40 +1626,6 @@ open class SlidingPaneLayout @JvmOverloads constructor(
             dest.addAction(src.actions)
             dest.movementGranularities = src.movementGranularities
         }
-    }
-
-    /**
-     * @return A pair of rects define the position of the split, or {@null} if there is no split
-     */
-    private fun splitViewPositions(): ArrayList<Rect>? {
-        if (foldingFeature == null || !foldingFeature!!.isSeparating) {
-            return null
-        }
-
-        // Don't support horizontal fold in list-detail view layout
-        if (foldingFeature!!.bounds.left == 0) {
-            return null
-        }
-        // vertical split
-        if (foldingFeature!!.bounds.top == 0) {
-            val splitPosition = getFoldBoundsInView(
-                foldingFeature!!, this
-            ) ?: return null
-            val leftRect = Rect(
-                paddingLeft, paddingTop,
-                Math.max(paddingLeft, splitPosition.left),
-                height - paddingBottom
-            )
-            val rightBound = width - paddingRight
-            val rightRect = Rect(
-                Math.min(rightBound, splitPosition.right),
-                paddingTop,
-                rightBound,
-                height - paddingBottom
-            )
-            return ArrayList(Arrays.asList(leftRect, rightRect))
-        }
-        return null
     }
 
     /**
