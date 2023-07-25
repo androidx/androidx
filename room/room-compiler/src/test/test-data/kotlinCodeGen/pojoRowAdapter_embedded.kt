@@ -91,7 +91,7 @@ public class MyDao_Impl(
                 }
                 _result = MyEntity(_tmpPk,_tmpFoo,_tmpNullableFoo)
             } else {
-                error("Cursor was empty, but expected a single item.")
+                error("The query result was empty, but expected a single row to return a NON-NULL object of type <MyEntity>.")
             }
             return _result
         } finally {

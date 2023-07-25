@@ -373,10 +373,10 @@ class FieldReadWriteWriter(fieldWithIndex: FieldWithIndex) {
                         typeName.nullability == XNullability.NONNULL &&
                         defaultValue == "null"
                     ) {
-                        // TODO(b/249984504): Generate / output a better message.
                         addStatement(
                             "error(%S)",
-                            "Missing column '${field.columnName}' for a non null value."
+                            "Missing value for a NON-NULL column '${field.columnName}', " +
+                                "found NULL value instead."
                         )
                     } else {
                         addStatement("%L = %L", tmpField, defaultValue)
