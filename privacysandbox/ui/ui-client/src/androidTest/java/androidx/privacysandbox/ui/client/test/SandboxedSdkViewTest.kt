@@ -20,6 +20,7 @@ import android.app.Activity
 import android.content.Context
 import android.content.pm.ActivityInfo
 import android.content.res.Configuration
+import android.graphics.Rect
 import android.os.Build
 import android.os.IBinder
 import android.view.SurfaceView
@@ -27,11 +28,16 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import android.widget.LinearLayout
+import android.widget.ScrollView
 import androidx.annotation.RequiresApi
 import androidx.privacysandbox.ui.client.view.SandboxedSdkUiSessionState
 import androidx.privacysandbox.ui.client.view.SandboxedSdkUiSessionStateChangedListener
 import androidx.privacysandbox.ui.client.view.SandboxedSdkView
 import androidx.privacysandbox.ui.core.SandboxedUiAdapter
+import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.assertion.ViewAssertions.matches
+import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
+import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -183,7 +189,7 @@ class SandboxedSdkViewTest {
         Assume.assumeTrue(Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
         context = InstrumentationRegistry.getInstrumentation().targetContext
         activity = activityScenarioRule.withActivity { this }
-        view = SandboxedSdkView(context)
+        view = SandboxedSdkView(activity)
         stateChangedListener = StateChangedListener()
         view.addStateChangedListener(stateChangedListener)
 
@@ -460,6 +466,33 @@ class SandboxedSdkViewTest {
         addViewToLayout()
         assertThat(openSessionLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
         assertThat(testSandboxedUiAdapter.inputToken).isEqualTo(token)
+    }
+
+    @Test
+    fun getBoundingParent_withoutScrollParent() {
+        addViewToLayout()
+        onView(withId(R.id.mainlayout)).check(matches(isDisplayed()))
+        val boundingRect = Rect()
+        assertThat(view.getBoundingParent(boundingRect)).isTrue()
+        val rootView: ViewGroup = activity.findViewById(android.R.id.content)
+        val rootRect = Rect()
+        rootView.getGlobalVisibleRect(rootRect)
+        assertThat(boundingRect).isEqualTo(rootRect)
+    }
+
+    @Test
+    fun getBoundingParent_withScrollParent() {
+        val scrollViewRect = Rect()
+        val scrollView = activity.findViewById<ScrollView>(R.id.scroll_view)
+        activity.runOnUiThread {
+            scrollView.visibility = View.VISIBLE
+            scrollView.addView(view)
+        }
+        onView(withId(R.id.scroll_view)).check(matches(isDisplayed()))
+        assertThat(scrollView.getGlobalVisibleRect(scrollViewRect)).isTrue()
+        val boundingRect = Rect()
+        assertThat(view.getBoundingParent(boundingRect)).isTrue()
+        assertThat(scrollViewRect).isEqualTo(boundingRect)
     }
 
     /**
