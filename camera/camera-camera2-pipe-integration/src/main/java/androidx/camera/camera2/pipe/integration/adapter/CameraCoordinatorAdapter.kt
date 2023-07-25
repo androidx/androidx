@@ -116,9 +116,9 @@ class CameraCoordinatorAdapter(
         concurrentModeOn = cameraOperatingMode == CameraCoordinator.CAMERA_OPERATING_MODE_CONCURRENT
         cameraGraphCreator.setConcurrentModeOn(concurrentModeOn)
         for (cameraInternalAdapter in cameraInternalMap.values) {
-            if (concurrentModeOn) {
+            if (cameraOperatingMode == CameraCoordinator.CAMERA_OPERATING_MODE_CONCURRENT) {
                 cameraInternalAdapter.pauseRefresh()
-            } else {
+            } else if (cameraOperatingMode == CameraCoordinator.CAMERA_OPERATING_MODE_SINGLE) {
                 cameraInternalAdapter.resumeRefresh()
             }
         }
