@@ -40,9 +40,17 @@ import org.gradle.api.tasks.StopExecutionException
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.options.Option
 import org.gradle.process.ExecOperations
+import org.gradle.process.JavaExecSpec
 
 val bundlingAttribute: Attribute<String> =
     Attribute.of("org.gradle.dependency.bundling", String::class.java)
+
+/**
+ * JVM Args needed to run it on JVM 17+
+ */
+private fun JavaExecSpec.addKtlintJvmArgs() {
+    this.jvmArgs("--add-opens=java.base/java.lang=ALL-UNNAMED")
+}
 
 private fun Project.getKtlintConfiguration(): ConfigurableFileCollection {
     return files(
@@ -227,7 +235,7 @@ abstract class KtlintFormatTask : BaseKtlintTask() {
             javaExecSpec.mainClass.set(MainClass)
             javaExecSpec.classpath = ktlintClasspath
             javaExecSpec.args = getArgsList(shouldFormat = true)
-            javaExecSpec.jvmArgs("--add-opens=java.base/java.lang=ALL-UNNAMED")
+            javaExecSpec.addKtlintJvmArgs()
             overrideDirectory?.let { javaExecSpec.workingDir = it }
         }
     }
@@ -285,6 +293,7 @@ abstract class KtlintCheckFileTask : DefaultTask() {
                 if (format) args.add("-F")
 
                 javaExecSpec.args = args
+                javaExecSpec.addKtlintJvmArgs()
                 javaExecSpec.isIgnoreExitValue = true
             }
         if (result.exitValue != 0) {
