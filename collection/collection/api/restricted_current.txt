@@ -94,6 +94,51 @@ package androidx.collection {
     property public final int last;
   }
 
+  public abstract sealed class FloatList {
+    method public final boolean any();
+    method public final inline boolean any(kotlin.jvm.functions.Function1<? super java.lang.Float,java.lang.Boolean> predicate);
+    method public final operator boolean contains(float element);
+    method public final boolean containsAll(androidx.collection.FloatList elements);
+    method public final int count();
+    method public final inline int count(kotlin.jvm.functions.Function1<? super java.lang.Float,java.lang.Boolean> predicate);
+    method public final float elementAt(int index);
+    method public final float elementAtOrElse(int index, float defaultValue);
+    method public final float first();
+    method public final inline float first(kotlin.jvm.functions.Function1<? super java.lang.Float,java.lang.Boolean> predicate);
+    method public final inline <R> R fold(R initial, kotlin.jvm.functions.Function2<? super R,? super java.lang.Float,? extends R> operation);
+    method public final inline <R> R foldIndexed(R initial, kotlin.jvm.functions.Function3<? super java.lang.Integer,? super R,? super java.lang.Float,? extends R> operation);
+    method public final inline <R> R foldRight(R initial, kotlin.jvm.functions.Function2<? super java.lang.Float,? super R,? extends R> operation);
+    method public final inline <R> R foldRightIndexed(R initial, kotlin.jvm.functions.Function3<? super java.lang.Integer,? super java.lang.Float,? super R,? extends R> operation);
+    method public final inline void forEach(kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit> block);
+    method public final inline void forEachIndexed(kotlin.jvm.functions.Function2<? super java.lang.Integer,? super java.lang.Float,kotlin.Unit> block);
+    method public final inline void forEachReversed(kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit> block);
+    method public final inline void forEachReversedIndexed(kotlin.jvm.functions.Function2<? super java.lang.Integer,? super java.lang.Float,kotlin.Unit> block);
+    method public final operator float get(int index);
+    method public final inline kotlin.ranges.IntRange getIndices();
+    method public final inline int getLastIndex();
+    method public final int getSize();
+    method public final int indexOf(float element);
+    method public final inline int indexOfFirst(kotlin.jvm.functions.Function1<? super java.lang.Float,java.lang.Boolean> predicate);
+    method public final inline int indexOfLast(kotlin.jvm.functions.Function1<? super java.lang.Float,java.lang.Boolean> predicate);
+    method public final boolean isEmpty();
+    method public final boolean isNotEmpty();
+    method public final float last();
+    method public final inline float last(kotlin.jvm.functions.Function1<? super java.lang.Float,java.lang.Boolean> predicate);
+    method public final int lastIndexOf(float element);
+    method public final boolean none();
+    method public final inline boolean reversedAny(kotlin.jvm.functions.Function1<? super java.lang.Float,java.lang.Boolean> predicate);
+    property public final inline kotlin.ranges.IntRange indices;
+    property public final inline int lastIndex;
+    property public final int size;
+    field @kotlin.PublishedApi internal int _size;
+    field @kotlin.PublishedApi internal float[] content;
+  }
+
+  public final class FloatListKt {
+    method public static inline androidx.collection.MutableFloatList mutableFloatListOf();
+    method public static inline androidx.collection.MutableFloatList mutableFloatListOf(float... elements);
+  }
+
   public class LongSparseArray<E> implements java.lang.Cloneable {
     ctor public LongSparseArray();
     ctor public LongSparseArray(optional int initialCapacity);
@@ -159,6 +204,37 @@ package androidx.collection {
 
   public final class LruCacheKt {
     method public static inline <K, V> androidx.collection.LruCache<K,V> lruCache(int maxSize, optional kotlin.jvm.functions.Function2<? super K,? super V,java.lang.Integer> sizeOf, optional kotlin.jvm.functions.Function1<? super K,? extends V> create, optional kotlin.jvm.functions.Function4<? super java.lang.Boolean,? super K,? super V,? super V,kotlin.Unit> onEntryRemoved);
+  }
+
+  public final class MutableFloatList extends androidx.collection.FloatList {
+    ctor public MutableFloatList(optional int initialCapacity);
+    method public boolean add(float element);
+    method public void add(int index, float element);
+    method public boolean addAll(androidx.collection.FloatList elements);
+    method public boolean addAll(float[] elements);
+    method public boolean addAll(int index, androidx.collection.FloatList elements);
+    method public boolean addAll(int index, float[] elements);
+    method public void clear();
+    method public void ensureCapacity(int capacity);
+    method public inline int getCapacity();
+    method public operator void minusAssign(androidx.collection.FloatList elements);
+    method public inline operator void minusAssign(float element);
+    method public operator void minusAssign(float[] elements);
+    method public operator void plusAssign(androidx.collection.FloatList elements);
+    method public inline operator void plusAssign(float element);
+    method public operator void plusAssign(float[] elements);
+    method public boolean remove(float element);
+    method public boolean removeAll(androidx.collection.FloatList elements);
+    method public boolean removeAll(float[] elements);
+    method public float removeAt(int index);
+    method public void removeRange(int start, int end);
+    method public boolean retainAll(androidx.collection.FloatList elements);
+    method public boolean retainAll(float[] elements);
+    method public operator float set(int index, float element);
+    method public void sort();
+    method public void sortDescending();
+    method public void trim(optional int minCapacity);
+    property public final inline int capacity;
   }
 
   public final class MutableScatterMap<K, V> extends androidx.collection.ScatterMap<K,V> {
