@@ -869,14 +869,14 @@ class XTypeElementTest(
                 "extFun"
             ).inOrder()
             declaredMethods.forEach { method ->
-              assertWithMessage("Enclosing element of method ${method.jvmName}")
-                .that(method.enclosingElement.name)
-                .isEqualTo("Base")
+                assertWithMessage("Enclosing element of method ${method.jvmName}")
+                    .that(method.enclosingElement.name)
+                    .isEqualTo("Base")
             }
             baseCompanion.getDeclaredMethods().forEach { method ->
-              assertWithMessage("Enclosing element of method ${method.jvmName}")
-                .that(method.enclosingElement.name)
-                .isEqualTo("Companion")
+                assertWithMessage("Enclosing element of method ${method.jvmName}")
+                    .that(method.enclosingElement.name)
+                    .isEqualTo("Companion")
             }
 
             val sub = invocation.processingEnv.requireTypeElement("SubClass")
@@ -2301,6 +2301,64 @@ class XTypeElementTest(
         ) { invocation ->
             val subject = invocation.processingEnv.requireTypeElement("test.MyClass\$Foo")
             assertThat(subject.asClassName().canonicalName).isEqualTo("test.MyClass\$Foo")
+        }
+    }
+
+    @Test
+    fun propertyAccessors() {
+        runTest(
+            sources = listOf(
+                Source.kotlin(
+                    "Subject.kt",
+                    """
+                    class Subject {
+                        val val1: String = TODO()
+                        @get:JvmName("getVal2JvmName")
+                        val val2: String = TODO()
+                        var var1: String = TODO()
+                        @get:JvmName("getVar2JvmName")
+                        var var2: String = TODO()
+                        @set:JvmName("setVar3JvmName")
+                        var var3: String = TODO()
+                        @get:JvmName("getVar4JvmName")
+                        @set:JvmName("setVar4JvmName")
+                        var var4: String = TODO()
+                        @set:JvmName("setVar5JvmName")
+                        @get:JvmName("getVar5JvmName")
+                        var var5: String = TODO()
+                    }
+                    """.trimIndent()
+                )
+            )
+        ) { invocation ->
+            val subject = invocation.processingEnv.requireTypeElement("Subject")
+
+            // Check method names
+            assertThat(subject.getDeclaredMethods().map { it.name })
+                .containsExactly(
+                    "getVal1", // val1 accessors
+                    "getVal2", // val2 accessors
+                    "getVar1", "setVar1", // var1 accessors
+                    "getVar2", "setVar2", // var2 accessors
+                    "getVar3", "setVar3", // var3 accessors
+                    "getVar4", "setVar4", // var4 accessors
+                    "getVar5", "setVar5", // var5 accessors
+                ).inOrder()
+
+            // Check property names and corresponding accessors
+            assertThat(
+                subject.getDeclaredFields().map {
+                    it.name to listOf(it.getter?.name, it.setter?.name)
+                }
+            ).containsExactly(
+                "val1" to listOf("getVal1", null),
+                "val2" to listOf("getVal2", null),
+                "var1" to listOf("getVar1", "setVar1"),
+                "var2" to listOf("getVar2", "setVar2"),
+                "var3" to listOf("getVar3", "setVar3"),
+                "var4" to listOf("getVar4", "setVar4"),
+                "var5" to listOf("getVar5", "setVar5"),
+            )
         }
     }
 
