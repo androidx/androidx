@@ -315,7 +315,7 @@ fun IconToggleButton(
         shape = shape,
         content = provideScopeContent(
             colors.contentColor(enabled = enabled, checked = checked),
-            MaterialTheme.typography.buttonMedium,
+            MaterialTheme.typography.labelMedium,
             content
         )
     )

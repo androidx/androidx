@@ -250,7 +250,7 @@ class TextButtonTest {
         var expectedTextStyle = TextStyle.Default
 
         rule.setContentWithTheme {
-            expectedTextStyle = MaterialTheme.typography.buttonMedium
+            expectedTextStyle = MaterialTheme.typography.labelMedium
             TextButton(
                 onClick = {},
             ) {

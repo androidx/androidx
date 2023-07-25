@@ -83,7 +83,7 @@ class ListHeaderTest {
         var expectedTextStyle = TextStyle.Default
 
         rule.setContentWithTheme {
-            expectedTextStyle = MaterialTheme.typography.buttonMedium
+            expectedTextStyle = MaterialTheme.typography.labelMedium
             ListHeader {
                 actualTextStyle = LocalTextStyle.current
             }
@@ -98,7 +98,7 @@ class ListHeaderTest {
         var expectedTextStyle = TextStyle.Default
 
         rule.setContentWithTheme {
-            expectedTextStyle = MaterialTheme.typography.captionLarge
+            expectedTextStyle = MaterialTheme.typography.labelSmall
             ListSubheader {
                 actualTextStyle = LocalTextStyle.current
             }

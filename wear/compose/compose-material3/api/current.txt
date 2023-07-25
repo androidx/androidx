@@ -513,33 +513,31 @@ package androidx.wear.compose.material3 {
   }
 
   @androidx.compose.runtime.Immutable public final class Typography {
-    ctor public Typography(optional androidx.compose.ui.text.font.FontFamily defaultFontFamily, optional androidx.compose.ui.text.TextStyle displayExtraLarge, optional androidx.compose.ui.text.TextStyle displayLarge, optional androidx.compose.ui.text.TextStyle displayMedium, optional androidx.compose.ui.text.TextStyle displaySmall, optional androidx.compose.ui.text.TextStyle titleLarge, optional androidx.compose.ui.text.TextStyle titleMedium, optional androidx.compose.ui.text.TextStyle titleSmall, optional androidx.compose.ui.text.TextStyle bodyLarge, optional androidx.compose.ui.text.TextStyle bodyMedium, optional androidx.compose.ui.text.TextStyle bodySmall, optional androidx.compose.ui.text.TextStyle buttonMedium, optional androidx.compose.ui.text.TextStyle captionLarge, optional androidx.compose.ui.text.TextStyle captionMedium, optional androidx.compose.ui.text.TextStyle captionSmall);
-    method public androidx.wear.compose.material3.Typography copy(optional androidx.compose.ui.text.TextStyle displayExtraLarge, optional androidx.compose.ui.text.TextStyle displayLarge, optional androidx.compose.ui.text.TextStyle displayMedium, optional androidx.compose.ui.text.TextStyle displaySmall, optional androidx.compose.ui.text.TextStyle titleLarge, optional androidx.compose.ui.text.TextStyle titleMedium, optional androidx.compose.ui.text.TextStyle titleSmall, optional androidx.compose.ui.text.TextStyle bodyLarge, optional androidx.compose.ui.text.TextStyle bodyMedium, optional androidx.compose.ui.text.TextStyle bodySmall, optional androidx.compose.ui.text.TextStyle buttonMedium, optional androidx.compose.ui.text.TextStyle captionLarge, optional androidx.compose.ui.text.TextStyle captionMedium, optional androidx.compose.ui.text.TextStyle captionSmall);
+    ctor public Typography(optional androidx.compose.ui.text.font.FontFamily defaultFontFamily, optional androidx.compose.ui.text.TextStyle displayLarge, optional androidx.compose.ui.text.TextStyle displayMedium, optional androidx.compose.ui.text.TextStyle displaySmall, optional androidx.compose.ui.text.TextStyle titleLarge, optional androidx.compose.ui.text.TextStyle titleMedium, optional androidx.compose.ui.text.TextStyle titleSmall, optional androidx.compose.ui.text.TextStyle labelLarge, optional androidx.compose.ui.text.TextStyle labelMedium, optional androidx.compose.ui.text.TextStyle labelSmall, optional androidx.compose.ui.text.TextStyle bodyLarge, optional androidx.compose.ui.text.TextStyle bodyMedium, optional androidx.compose.ui.text.TextStyle bodySmall, optional androidx.compose.ui.text.TextStyle bodyExtraSmall);
+    method public androidx.wear.compose.material3.Typography copy(optional androidx.compose.ui.text.TextStyle displayLarge, optional androidx.compose.ui.text.TextStyle displayMedium, optional androidx.compose.ui.text.TextStyle displaySmall, optional androidx.compose.ui.text.TextStyle titleLarge, optional androidx.compose.ui.text.TextStyle titleMedium, optional androidx.compose.ui.text.TextStyle titleSmall, optional androidx.compose.ui.text.TextStyle labelLarge, optional androidx.compose.ui.text.TextStyle labelMedium, optional androidx.compose.ui.text.TextStyle labelSmall, optional androidx.compose.ui.text.TextStyle bodyLarge, optional androidx.compose.ui.text.TextStyle bodyMedium, optional androidx.compose.ui.text.TextStyle bodySmall, optional androidx.compose.ui.text.TextStyle bodyExtraSmall);
+    method public androidx.compose.ui.text.TextStyle getBodyExtraSmall();
     method public androidx.compose.ui.text.TextStyle getBodyLarge();
     method public androidx.compose.ui.text.TextStyle getBodyMedium();
     method public androidx.compose.ui.text.TextStyle getBodySmall();
-    method public androidx.compose.ui.text.TextStyle getButtonMedium();
-    method public androidx.compose.ui.text.TextStyle getCaptionLarge();
-    method public androidx.compose.ui.text.TextStyle getCaptionMedium();
-    method public androidx.compose.ui.text.TextStyle getCaptionSmall();
-    method public androidx.compose.ui.text.TextStyle getDisplayExtraLarge();
     method public androidx.compose.ui.text.TextStyle getDisplayLarge();
     method public androidx.compose.ui.text.TextStyle getDisplayMedium();
     method public androidx.compose.ui.text.TextStyle getDisplaySmall();
+    method public androidx.compose.ui.text.TextStyle getLabelLarge();
+    method public androidx.compose.ui.text.TextStyle getLabelMedium();
+    method public androidx.compose.ui.text.TextStyle getLabelSmall();
     method public androidx.compose.ui.text.TextStyle getTitleLarge();
     method public androidx.compose.ui.text.TextStyle getTitleMedium();
     method public androidx.compose.ui.text.TextStyle getTitleSmall();
+    property public final androidx.compose.ui.text.TextStyle bodyExtraSmall;
     property public final androidx.compose.ui.text.TextStyle bodyLarge;
     property public final androidx.compose.ui.text.TextStyle bodyMedium;
     property public final androidx.compose.ui.text.TextStyle bodySmall;
-    property public final androidx.compose.ui.text.TextStyle buttonMedium;
-    property public final androidx.compose.ui.text.TextStyle captionLarge;
-    property public final androidx.compose.ui.text.TextStyle captionMedium;
-    property public final androidx.compose.ui.text.TextStyle captionSmall;
-    property public final androidx.compose.ui.text.TextStyle displayExtraLarge;
     property public final androidx.compose.ui.text.TextStyle displayLarge;
     property public final androidx.compose.ui.text.TextStyle displayMedium;
     property public final androidx.compose.ui.text.TextStyle displaySmall;
+    property public final androidx.compose.ui.text.TextStyle labelLarge;
+    property public final androidx.compose.ui.text.TextStyle labelMedium;
+    property public final androidx.compose.ui.text.TextStyle labelSmall;
     property public final androidx.compose.ui.text.TextStyle titleLarge;
     property public final androidx.compose.ui.text.TextStyle titleMedium;
     property public final androidx.compose.ui.text.TextStyle titleSmall;
