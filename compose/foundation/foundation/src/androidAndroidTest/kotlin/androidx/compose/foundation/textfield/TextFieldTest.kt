@@ -97,6 +97,7 @@ import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performTextClearance
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTextInputSelection
+import androidx.compose.ui.test.performTextReplacement
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.requestFocus
 import androidx.compose.ui.text.AnnotatedString
@@ -585,6 +586,78 @@ class TextFieldTest {
         rule.onNodeWithTag(Tag)
             .performSemanticsAction(SemanticsActions.GetTextLayoutResult) { it(textLayoutResults) }
         assert(textLayoutResults.size == 1) { "TextLayoutResult is null" }
+    }
+
+    @Test
+    fun semantics_setTextAction_doesNothingWhenReadOnly() {
+        rule.setContent {
+            var value by remember { mutableStateOf("") }
+            BasicTextField(
+                modifier = Modifier.testTag(Tag),
+                value = value,
+                onValueChange = { value = it },
+                readOnly = true
+            )
+        }
+
+        rule.onNodeWithTag(Tag)
+            .performTextReplacement("hello")
+        rule.onNodeWithTag(Tag)
+            .assertEditableTextEquals("")
+    }
+
+    @Test
+    fun semantics_setTextAction_throwsWhenDisabled() {
+        rule.setContent {
+            var value by remember { mutableStateOf("") }
+            BasicTextField(
+                modifier = Modifier.testTag(Tag),
+                value = value,
+                onValueChange = { value = it },
+                enabled = false
+            )
+        }
+
+        assertFailsWith<AssertionError> {
+            rule.onNodeWithTag(Tag)
+                .performTextReplacement("hello")
+        }
+    }
+
+    @Test
+    fun semantics_insertTextAction_doesNothingWhenReadOnly() {
+        rule.setContent {
+            var value by remember { mutableStateOf("") }
+            BasicTextField(
+                modifier = Modifier.testTag(Tag),
+                value = value,
+                onValueChange = { value = it },
+                readOnly = true
+            )
+        }
+
+        rule.onNodeWithTag(Tag)
+            .performTextInput("hello")
+        rule.onNodeWithTag(Tag)
+            .assertEditableTextEquals("")
+    }
+
+    @Test
+    fun semantics_insertTextAction_throwsWhenDisabled() {
+        rule.setContent {
+            var value by remember { mutableStateOf("") }
+            BasicTextField(
+                modifier = Modifier.testTag(Tag),
+                value = value,
+                onValueChange = { value = it },
+                enabled = false
+            )
+        }
+
+        assertFailsWith<AssertionError> {
+            rule.onNodeWithTag(Tag)
+                .performTextInput("hello")
+        }
     }
 
     @Test
@@ -1427,7 +1500,9 @@ class TextFieldTest {
                 BasicTextField(
                     value = value,
                     onValueChange = { value = it },
-                    modifier = Modifier.fillMaxWidth().testTag(Tag),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .testTag(Tag),
                     decorationBox = {
                         // the core text field is at the very bottom
                         if (value.isEmpty()) {

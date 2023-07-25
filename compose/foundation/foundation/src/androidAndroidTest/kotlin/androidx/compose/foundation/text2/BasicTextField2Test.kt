@@ -81,6 +81,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
+import kotlin.test.assertFails
 import org.junit.After
 import org.junit.Ignore
 import org.junit.Rule
@@ -270,7 +271,6 @@ internal class BasicTextField2Test {
         }
     }
 
-    @Ignore // b/273412941
     @Test
     fun textField_focus_doesNotShowSoftwareKeyboard_ifDisabled() {
         val state = TextFieldState()
@@ -288,9 +288,40 @@ internal class BasicTextField2Test {
 
         rule.onNodeWithTag(Tag).assertIsNotEnabled()
         rule.onNodeWithTag(Tag).performClick()
-        rule.onNodeWithTag(Tag).assertIsNotFocused()
 
-        keyboardHelper.waitForKeyboardVisibility(false)
+        // Give the keyboard a chance to be shown, which will fail the test.
+        assertFails {
+            keyboardHelper.waitForKeyboardVisibility(true, timeout = 1_000)
+        }
+
+        rule.runOnIdle {
+            assertThat(keyboardHelper.isSoftwareKeyboardShown()).isFalse()
+        }
+    }
+
+    @Test
+    fun textField_focus_doesNotShowSoftwareKeyboard_ifReadOnly() {
+        val state = TextFieldState()
+        val keyboardHelper = KeyboardHelper(rule)
+        rule.setContent {
+            keyboardHelper.initialize()
+            BasicTextField2(
+                state = state,
+                readOnly = true,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .testTag(Tag)
+            )
+        }
+        keyboardHelper.hideKeyboardIfShown()
+
+        rule.onNodeWithTag(Tag).performClick()
+        rule.onNodeWithTag(Tag).assertIsFocused()
+
+        // Give the keyboard a chance to be shown, which will fail the test.
+        assertFails {
+            keyboardHelper.waitForKeyboardVisibility(true, timeout = 1_000)
+        }
 
         rule.runOnIdle {
             assertThat(keyboardHelper.isSoftwareKeyboardShown()).isFalse()

@@ -143,6 +143,23 @@ class BasicTextField2SemanticsTest {
     }
 
     @Test
+    fun semantics_performSetTextAction_whenReadOnly() {
+        val state = TextFieldState("", initialSelectionInChars = TextRange(1))
+        rule.setContent {
+            BasicTextField2(
+                state = state,
+                modifier = Modifier.testTag(Tag),
+                readOnly = true
+            )
+        }
+
+        rule.onNodeWithTag(Tag)
+            .performTextReplacement("hello")
+
+        assertThat(state.text.toString()).isEqualTo("")
+    }
+
+    @Test
     fun semantics_setTextAction_appliesFilter() {
         val state = TextFieldState()
         rule.setContent {
@@ -186,6 +203,23 @@ class BasicTextField2SemanticsTest {
             .assertTextEquals("Haello")
 
         assertThat(state.text.toString()).isEqualTo("Haello")
+    }
+
+    @Test
+    fun semantics_performTextInputAction_whenReadOnly() {
+        val state = TextFieldState("", initialSelectionInChars = TextRange(1))
+        rule.setContent {
+            BasicTextField2(
+                state = state,
+                modifier = Modifier.testTag(Tag),
+                readOnly = true
+            )
+        }
+
+        rule.onNodeWithTag(Tag)
+            .performTextInput("hello")
+
+        assertThat(state.text.toString()).isEqualTo("")
     }
 
     @Test
