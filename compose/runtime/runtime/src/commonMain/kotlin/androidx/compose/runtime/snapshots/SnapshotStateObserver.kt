@@ -229,6 +229,12 @@ class SnapshotStateObserver(private val onChangedExecutor: (callback: () -> Unit
 
             scopeMap.observe(scope, readObserver, block)
         } finally {
+            require(currentMap === scopeMap) {
+                "Inconsistent modification of observation scopes in SnapshotStateObserver. " +
+                    "Note that observation on multiple threads in layout/draw is not supported. " +
+                    "Make sure your measure/layout/draw for each Owner (AndroidComposeView) " +
+                    "is executed on the same thread."
+            }
             currentMap = oldMap
             isPaused = oldPaused
         }
