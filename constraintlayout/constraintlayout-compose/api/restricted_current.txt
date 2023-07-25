@@ -548,7 +548,7 @@ package androidx.constraintlayout.compose {
     method public boolean fixedWidthRate(long oldConstraints, long newConstraints, int skipCount, int threshold);
   }
 
-  public final class KeyAttributeScope extends androidx.constraintlayout.compose.BaseKeyFrameScope {
+  @androidx.compose.foundation.layout.LayoutScopeMarker public final class KeyAttributeScope extends androidx.constraintlayout.compose.BaseKeyFrameScope {
     method public float getAlpha();
     method public float getRotationX();
     method public float getRotationY();
@@ -578,11 +578,11 @@ package androidx.constraintlayout.compose {
     property public final float translationZ;
   }
 
-  public final class KeyAttributesScope extends androidx.constraintlayout.compose.BaseKeyFramesScope {
+  @androidx.compose.foundation.layout.LayoutScopeMarker public final class KeyAttributesScope extends androidx.constraintlayout.compose.BaseKeyFramesScope {
     method public void frame(@IntRange(from=0L, to=100L) int frame, kotlin.jvm.functions.Function1<? super androidx.constraintlayout.compose.KeyAttributeScope,kotlin.Unit> keyFrameContent);
   }
 
-  public final class KeyCycleScope extends androidx.constraintlayout.compose.BaseKeyFrameScope {
+  @androidx.compose.foundation.layout.LayoutScopeMarker public final class KeyCycleScope extends androidx.constraintlayout.compose.BaseKeyFrameScope {
     method public float getAlpha();
     method public float getOffset();
     method public float getPeriod();
@@ -621,11 +621,11 @@ package androidx.constraintlayout.compose {
     property public final float translationZ;
   }
 
-  public final class KeyCyclesScope extends androidx.constraintlayout.compose.BaseKeyFramesScope {
+  @androidx.compose.foundation.layout.LayoutScopeMarker public final class KeyCyclesScope extends androidx.constraintlayout.compose.BaseKeyFramesScope {
     method public void frame(@IntRange(from=0L, to=100L) int frame, kotlin.jvm.functions.Function1<? super androidx.constraintlayout.compose.KeyCycleScope,kotlin.Unit> keyFrameContent);
   }
 
-  public final class KeyPositionScope extends androidx.constraintlayout.compose.BaseKeyFrameScope {
+  @androidx.compose.foundation.layout.LayoutScopeMarker public final class KeyPositionScope extends androidx.constraintlayout.compose.BaseKeyFrameScope {
     method public androidx.constraintlayout.compose.CurveFit? getCurveFit();
     method public float getPercentHeight();
     method public float getPercentWidth();
@@ -643,7 +643,7 @@ package androidx.constraintlayout.compose {
     property public final float percentY;
   }
 
-  public final class KeyPositionsScope extends androidx.constraintlayout.compose.BaseKeyFramesScope {
+  @androidx.compose.foundation.layout.LayoutScopeMarker public final class KeyPositionsScope extends androidx.constraintlayout.compose.BaseKeyFramesScope {
     method public void frame(@IntRange(from=0L, to=100L) int frame, kotlin.jvm.functions.Function1<? super androidx.constraintlayout.compose.KeyPositionScope,kotlin.Unit> keyFrameContent);
     method public androidx.constraintlayout.compose.RelativePosition getType();
     method public void setType(androidx.constraintlayout.compose.RelativePosition);
@@ -1030,7 +1030,7 @@ package androidx.constraintlayout.compose {
     method public static androidx.constraintlayout.compose.Transition Transition(@org.intellij.lang.annotations.Language("json5") String content);
   }
 
-  public final class TransitionScope {
+  @androidx.compose.foundation.layout.LayoutScopeMarker public final class TransitionScope {
     method public androidx.constraintlayout.compose.ConstrainedLayoutReference createRefFor(Object id);
     method public float getMaxStaggerDelay();
     method public androidx.constraintlayout.compose.Arc getMotionArc();
