@@ -30,6 +30,8 @@ import androidx.compose.ui.platform.*
 import androidx.compose.ui.text.input.PlatformTextInputService
 import androidx.compose.ui.unit.*
 import androidx.compose.ui.util.fastAny
+import androidx.compose.ui.util.fastForEach
+import androidx.compose.ui.util.fastForEachReversed
 import kotlin.coroutines.CoroutineContext
 import kotlin.jvm.Volatile
 import kotlinx.coroutines.*
@@ -166,16 +168,16 @@ class ComposeScene internal constructor(
     private inline fun forEachOwner(action: (SkiaBasedOwner) -> Unit) {
         listCopy.addAll(owners)
         try {
-            listCopy.forEach(action)
+            listCopy.fastForEach(action)
         } finally {
             listCopy.clear()
         }
     }
 
-    private inline fun <T> reversedOwners(action: (List<SkiaBasedOwner>) -> T): T {
+    private inline fun forEachOwnerReversed(action: (SkiaBasedOwner) -> Unit) {
         listCopy.addAll(owners)
         try {
-            return action(listCopy.asReversed())
+            listCopy.fastForEachReversed(action)
         } finally {
             listCopy.clear()
         }
@@ -323,8 +325,8 @@ class ComposeScene internal constructor(
         if (owner == focusedOwner) {
             focusedOwner = owners.lastOrNull { it.focusable }
         }
-        if (owner == lastMoveOwner) {
-            lastMoveOwner = null
+        if (owner == lastHoverOwner) {
+            lastHoverOwner = null
         }
         if (owner == pressOwner) {
             pressOwner = null
@@ -455,7 +457,7 @@ class ComposeScene internal constructor(
 
     private var focusedOwner: SkiaBasedOwner? = null
     private var pressOwner: SkiaBasedOwner? = null
-    private var lastMoveOwner: SkiaBasedOwner? = null
+    private var lastHoverOwner: SkiaBasedOwner? = null
     private fun hoveredOwner(event: PointerInputEvent): SkiaBasedOwner? =
         owners.lastOrNull { it.isHovered(event) }
 
@@ -600,22 +602,24 @@ class ComposeScene internal constructor(
     }
 
     private fun processPress(event: PointerInputEvent) {
-        val owner = reversedOwners {
-            for (owner in it) {
-                if (owner.isHovered(event)) {
-                    // Stop once the position of in bounds of the owner
-                    return@reversedOwners owner
-                }
-                owner.onClickOutside?.invoke()
-                if (owner == focusedOwner) {
-                    // Stop if it's in focus, do not pass the event to hovered owner
-                    return@processPress
-                }
-            }
-            return@reversedOwners null
+        val previousPressOwner = pressOwner
+        if (previousPressOwner != null) {
+            previousPressOwner.processPointerInput(event)
+            return
         }
-        owner?.processPointerInput(event)
-        pressOwner = owner
+        forEachOwnerReversed { owner ->
+            if (owner.isHovered(event)) {
+                // Stop once the position of in bounds of the owner
+                owner.processPointerInput(event)
+                pressOwner = owner
+                return@processPress
+            }
+            owner.onClickOutside?.invoke()
+            if (owner == focusedOwner) {
+                // Stop if it's in focus, do not pass the event to hovered owner
+                return@processPress
+            }
+        }
     }
 
     private fun processRelease(event: PointerInputEvent) {
@@ -633,28 +637,43 @@ class ComposeScene internal constructor(
             // If pressOwner is under focusedOwner, hover state must be updated
             owner = null
         }
+        if (processHover(event, owner)) {
+            return
+        }
+        owner?.processPointerInput(
+            event.copy(eventType = PointerEventType.Move)
+        )
+    }
 
+    /**
+     * Updates hover state and generates [PointerEventType.Enter] and [PointerEventType.Exit]
+     * events. Returns true if [event] is consumed.
+     */
+    private fun processHover(event: PointerInputEvent, owner: SkiaBasedOwner?): Boolean {
+        if (event.pointers.fastAny { it.type != PointerType.Mouse }) {
+            // Track hover only for mouse
+            return false
+        }
         // Cases:
         // - move from outside to the window (owner != null, lastMoveOwner == null): Enter
         // - move from the window to outside (owner == null, lastMoveOwner != null): Exit
         // - move from one point of the window to another (owner == lastMoveOwner): Move
         // - move from one popup to another (owner != lastMoveOwner): [Popup 1] Exit, [Popup 2] Enter
-
-        if (owner != lastMoveOwner && event.pointers.fastAny { it.type == PointerType.Mouse }) {
-            lastMoveOwner?.processPointerInput(
-                event.copy(eventType = PointerEventType.Exit),
-                isInBounds = false
-            )
-            owner?.processPointerInput(
-                event.copy(eventType = PointerEventType.Enter)
-            )
-        } else {
-            owner?.processPointerInput(
-                event.copy(eventType = PointerEventType.Move)
-            )
+        if (owner == lastHoverOwner) {
+            // Owner wasn't changed
+            return false
         }
+        lastHoverOwner?.processPointerInput(
+            event.copy(eventType = PointerEventType.Exit),
+            isInBounds = false
+        )
+        owner?.processPointerInput(
+            event.copy(eventType = PointerEventType.Enter)
+        )
+        lastHoverOwner = owner
 
-        lastMoveOwner = owner
+        // Changing hovering state replaces Move event, so treat it as consumed
+        return true
     }
 
     private fun processScroll(event: PointerInputEvent) {

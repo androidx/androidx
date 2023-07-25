@@ -16,25 +16,31 @@
 
 package androidx.compose.ui.window
 
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.runtime.*
-import androidx.compose.ui.*
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.ui.FillBox
+import androidx.compose.ui.PopupState
+import androidx.compose.ui.assertReceived
+import androidx.compose.ui.assertReceivedLast
+import androidx.compose.ui.assertReceivedNoEvents
+import androidx.compose.ui.assertThat
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.input.pointer.PointerButton
 import androidx.compose.ui.input.pointer.PointerButtons
 import androidx.compose.ui.input.pointer.PointerEventType
+import androidx.compose.ui.isEqualTo
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.onNodeWithTag
-import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.runSkikoComposeUiTest
+import androidx.compose.ui.touch
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.LayoutDirection
@@ -452,5 +458,49 @@ class PopupTest {
         scene.sendPointerEvent(PointerEventType.Move, Offset(11f, 11f), buttons = buttons)
         scene.sendPointerEvent(PointerEventType.Release, Offset(11f, 11f), button = PointerButton.Primary)
         background.events.assertReceivedNoEvents()
+    }
+
+    @Test
+    fun secondClickDoesNotDismissPopup() = runSkikoComposeUiTest(
+        size = Size(100f, 100f)
+    ) {
+        val background = FillBox()
+        val popup = PopupState(
+            IntRect(20, 20, 60, 60),
+            dismissOnClickOutside = true,
+            onDismissRequest = { fail() }
+        )
+
+        setContent {
+            background.Content()
+            popup.Content()
+        }
+
+        scene.sendPointerEvent(
+            PointerEventType.Press,
+            pointers = listOf(
+                touch(50f, 50f, pressed = true, id = 1),
+            )
+        )
+        scene.sendPointerEvent(
+            PointerEventType.Press,
+            pointers = listOf(
+                touch(50f, 50f, pressed = true, id = 1),
+                touch(10f, 10f, pressed = true, id = 2),
+            )
+        )
+        scene.sendPointerEvent(
+            PointerEventType.Release,
+            pointers = listOf(
+                touch(50f, 50f, pressed = false, id = 1),
+                touch(10f, 10f, pressed = true, id = 2),
+            )
+        )
+        scene.sendPointerEvent(
+            PointerEventType.Release,
+            pointers = listOf(
+                touch(10f, 10f, pressed = false, id = 2),
+            )
+        )
     }
 }
