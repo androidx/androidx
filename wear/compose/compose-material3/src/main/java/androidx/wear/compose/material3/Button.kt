@@ -110,7 +110,7 @@ fun Button(
         role = Role.Button,
         content = provideScopeContent(
             colors.contentColor(enabled = enabled),
-            MaterialTheme.typography.buttonMedium,
+            MaterialTheme.typography.labelMedium,
             content
         )
     )
@@ -384,12 +384,12 @@ fun Button(
         contentPadding = contentPadding,
         label = provideScopeContent(
             colors.contentColor(enabled),
-            MaterialTheme.typography.buttonMedium,
+            MaterialTheme.typography.labelMedium,
             label
         ),
         secondaryLabel = secondaryLabel?.let { provideScopeContent(
             colors.secondaryContentColor(enabled),
-            MaterialTheme.typography.captionLarge,
+            MaterialTheme.typography.labelSmall,
             secondaryLabel
         ) },
         icon = icon?.let {

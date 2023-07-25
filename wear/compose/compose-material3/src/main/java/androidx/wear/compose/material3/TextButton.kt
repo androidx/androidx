@@ -95,7 +95,7 @@ fun TextButton(
         buttonSize = TextButtonDefaults.DefaultButtonSize,
         content = provideScopeContent(
             colors.contentColor(enabled = enabled),
-            MaterialTheme.typography.buttonMedium,
+            MaterialTheme.typography.labelMedium,
             content
         )
     )
@@ -160,7 +160,7 @@ fun TextToggleButton(
         shape = shape,
         content = provideScopeContent(
             colors.contentColor(enabled = enabled, checked = checked),
-            MaterialTheme.typography.buttonMedium,
+            MaterialTheme.typography.labelMedium,
             content
         )
     )
