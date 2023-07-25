@@ -39,10 +39,12 @@ import androidx.compose.runtime.State
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.DrawScope.Companion.DefaultBlendMode
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.semantics.Role
@@ -115,10 +117,10 @@ fun Checkbox(
 
         if (targetState == SelectionStage.Checked) {
             // Passing startXOffset as we want checkbox to be aligned to the end of the canvas.
-            drawTick(checkmarkColorState.value, progress.value, width - height)
+            drawTick(checkmarkColorState.value, progress.value, width - height, enabled)
         } else {
             // Passing startXOffset as we want checkbox to be aligned to the end of the canvas.
-            eraseTick(checkmarkColorState.value, progress.value, width - height)
+            eraseTick(checkmarkColorState.value, progress.value, width - height, enabled)
         }
     }
 }
@@ -432,7 +434,12 @@ private fun Modifier.maybeSelectable(
     }
 }
 
-private fun DrawScope.drawTick(tickColor: Color, tickProgress: Float, startXOffset: Dp) {
+private fun DrawScope.drawTick(
+    tickColor: Color,
+    tickProgress: Float,
+    startXOffset: Dp,
+    enabled: Boolean
+) {
     // Using tickProgress animating from zero to TICK_TOTAL_LENGTH,
     // rotate the tick as we draw from 15 degrees to zero.
     val tickBaseLength = TICK_BASE_LENGTH.toPx()
@@ -467,7 +474,10 @@ private fun DrawScope.drawTick(tickColor: Color, tickProgress: Float, startXOffs
         )
     }
     // Use StrokeCap.Butt because Square adds an extension on the end of each line.
-    drawPath(path, tickColor, style = Stroke(width = 2.dp.toPx(), cap = StrokeCap.Butt))
+    drawPath(
+        path, tickColor, style = Stroke(width = 2.dp.toPx(), cap = StrokeCap.Butt), blendMode =
+        if (enabled) DefaultBlendMode else BlendMode.Hardlight
+    )
 }
 
 private fun DrawScope.drawTrack(
@@ -501,7 +511,12 @@ private fun DrawScope.drawTrack(
     }
 }
 
-private fun DrawScope.eraseTick(tickColor: Color, tickProgress: Float, startXOffset: Dp) {
+private fun DrawScope.eraseTick(
+    tickColor: Color,
+    tickProgress: Float,
+    startXOffset: Dp,
+    enabled: Boolean
+) {
     val tickBaseLength = TICK_BASE_LENGTH.toPx()
     val tickStickLength = TICK_STICK_LENGTH.toPx()
     val tickTotalLength = tickBaseLength + tickStickLength
@@ -526,7 +541,10 @@ private fun DrawScope.eraseTick(tickColor: Color, tickProgress: Float, startXOff
         path.lineTo(baseStartX - tickBaseProgress, baseStartY - tickBaseProgress)
     }
 
-    drawPath(path, tickColor, style = Stroke(width = 2.dp.toPx(), cap = StrokeCap.Butt))
+    drawPath(
+        path, tickColor, style = Stroke(width = 2.dp.toPx(), cap = StrokeCap.Butt), blendMode =
+        if (enabled) DefaultBlendMode else BlendMode.Hardlight
+    )
 }
 
 private fun Path.moveTo(offset: Offset) {

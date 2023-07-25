@@ -312,7 +312,12 @@ class SelectionControlsTest {
 
         val checkboxImage = rule.onNodeWithTag(TEST_TAG).captureToImage()
         checkboxImage.assertContainsColor(boxColorDisabledChecked)
-        checkboxImage.assertContainsColor(checkmarkColorDisabledChecked)
+        checkboxImage.assertContainsColor(
+            hardLightBlend(
+                boxColorDisabledChecked,
+                boxColorDisabledChecked
+            )
+        )
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -998,7 +1003,7 @@ class SelectionControlsTest {
                         disabledUncheckedColor = checkmarkColorDisabledUnchecked
                     )
                 },
-                drawBox = FunctionDrawBox { drawScope, color, _ ->
+                drawBox = { drawScope, color, _ ->
                     drawScope.drawRoundRect(color)
                 })
         }
@@ -1050,7 +1055,7 @@ class SelectionControlsTest {
                         disabledUncheckedColor = thumbIconColorDisabledUnchecked
                     )
                 },
-                drawThumb = FunctionDrawThumb { drawScope, thumbColor, _, thumbIconColor, _ ->
+                drawThumb = { drawScope, thumbColor, _, thumbIconColor, _ ->
                     // drawing
                     drawScope.drawCircle(
                         color = thumbColor,
@@ -1094,6 +1099,23 @@ class SelectionControlsTest {
                 }
             )
         }
+    }
+
+    // Formula taken from https://en.wikipedia.org/wiki/Blend_modes#Hard_Light
+    private fun hardLightBlend(colorA: Color, colorB: Color): Color {
+        fun blendChannel(a: Float, b: Float): Float {
+            return if (b < 0.5f) {
+                2 * a * b
+            } else {
+                1 - 2 * (1 - a) * (1 - b)
+            }
+        }
+
+        val blendedRed = blendChannel(colorA.red, colorB.red)
+        val blendedGreen = blendChannel(colorA.green, colorB.green)
+        val blendedBlue = blendChannel(colorA.blue, colorB.blue)
+
+        return Color(red = blendedRed, green = blendedGreen, blue = blendedBlue)
     }
 
     @Composable
