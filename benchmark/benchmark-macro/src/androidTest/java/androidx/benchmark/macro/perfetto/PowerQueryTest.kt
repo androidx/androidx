@@ -43,7 +43,7 @@ class PowerQueryTest {
         val actualMetrics = PerfettoTraceProcessor.runSingleSessionServer(traceFile.absolutePath) {
             PowerQuery.getPowerMetrics(
                 this,
-                querySlices(MEASURE_BLOCK_SECTION_NAME).first()
+                querySlices(MEASURE_BLOCK_SECTION_NAME, packageName = null).first()
             )
         }
 
@@ -182,7 +182,10 @@ class PowerQueryTest {
         val traceFile = createTempFileFromAsset("api31_odpm_rails_empty", ".perfetto-trace")
 
         val actualMetrics = PerfettoTraceProcessor.runSingleSessionServer(traceFile.absolutePath) {
-            PowerQuery.getPowerMetrics(this, querySlices(MEASURE_BLOCK_SECTION_NAME).first())
+            PowerQuery.getPowerMetrics(
+                this,
+                querySlices(MEASURE_BLOCK_SECTION_NAME, packageName = null).first()
+            )
         }
 
         assertEquals(emptyMap(), actualMetrics)

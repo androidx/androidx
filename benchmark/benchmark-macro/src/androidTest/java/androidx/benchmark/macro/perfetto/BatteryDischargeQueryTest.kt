@@ -42,7 +42,8 @@ class BatteryDischargeQueryTest {
         val traceFile = createTempFileFromAsset("api31_battery_discharge", ".perfetto-trace")
 
         val actualMetrics = PerfettoTraceProcessor.runSingleSessionServer(traceFile.absolutePath) {
-            val slice = querySlices(PowerMetric.MEASURE_BLOCK_SECTION_NAME).first()
+            val slice =
+                querySlices(PowerMetric.MEASURE_BLOCK_SECTION_NAME, packageName = null).first()
             BatteryDischargeQuery.getBatteryDischargeMetrics(this, slice)
         }
 
