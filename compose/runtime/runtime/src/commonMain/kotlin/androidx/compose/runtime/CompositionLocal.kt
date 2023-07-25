@@ -244,9 +244,10 @@ fun CompositionLocalProvider(vararg values: ProvidedValue<*>, content: @Composab
 @Composable
 @OptIn(InternalComposeApi::class)
 fun CompositionLocalProvider(value: ProvidedValue<*>, content: @Composable () -> Unit) {
-    currentComposer.startProvider(value)
+    // TODO(b/292224893): Switch this to the higher-performance startProvider()
+    currentComposer.startProviders(arrayOf(value))
     content()
-    currentComposer.endProvider()
+    currentComposer.endProviders()
 }
 
 /**
