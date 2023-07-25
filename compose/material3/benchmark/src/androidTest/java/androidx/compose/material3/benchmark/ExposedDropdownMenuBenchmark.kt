@@ -33,12 +33,14 @@ import androidx.compose.testutils.LayeredComposeTestCase
 import androidx.compose.testutils.ToggleableTestCase
 import androidx.compose.testutils.benchmark.ComposeBenchmarkRule
 import androidx.compose.testutils.benchmark.benchmarkFirstCompose
+import androidx.compose.testutils.benchmark.benchmarkFirstDraw
+import androidx.compose.testutils.benchmark.benchmarkFirstLayout
+import androidx.compose.testutils.benchmark.benchmarkFirstMeasure
 import androidx.compose.testutils.benchmark.toggleStateBenchmarkComposeMeasureLayout
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.test.filters.LargeTest
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -55,28 +57,19 @@ class ExposedDropdownMenuBenchmark(private val expanded: Boolean) {
         benchmarkRule.benchmarkFirstCompose { ExposedDropdownMenuTestCase(expanded) }
     }
 
-    @Ignore("b/292591127")
     @Test
     fun edm_measure() {
-        benchmarkRule.benchmarkMeasureUntilStable({
-            ExposedDropdownMenuTestCase(expanded)
-        })
+        benchmarkRule.benchmarkFirstMeasure { ExposedDropdownMenuTestCase(expanded) }
     }
 
-    @Ignore("b/292591127")
     @Test
     fun edm_layout() {
-        benchmarkRule.benchmarkLayoutUntilStable({
-            ExposedDropdownMenuTestCase(expanded)
-        })
+        benchmarkRule.benchmarkFirstLayout { ExposedDropdownMenuTestCase(expanded) }
     }
 
-    @Ignore("b/292591127")
     @Test
     fun edm_draw() {
-        benchmarkRule.benchmarkDrawUntilStable({
-            ExposedDropdownMenuTestCase(expanded)
-        })
+        benchmarkRule.benchmarkFirstDraw { ExposedDropdownMenuTestCase(expanded) }
     }
 
     @Test
