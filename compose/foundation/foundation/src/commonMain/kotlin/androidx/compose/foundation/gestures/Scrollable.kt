@@ -680,34 +680,39 @@ private class ScrollingLogic(
     /**
      * @return the amount of scroll that was consumed
      */
-    fun ScrollScope.dispatchScroll(availableDelta: Offset, source: NestedScrollSource): Offset {
-        val scrollDelta = availableDelta.singleAxisOffset()
-
+    fun ScrollScope.dispatchScroll(
+        initialAvailableDelta: Offset,
+        source: NestedScrollSource
+    ): Offset {
         val performScroll: (Offset) -> Offset = { delta ->
-            val preConsumedByParent = nestedScrollDispatcher.dispatchPreScroll(delta, source)
+            val consumedByPreScroll = nestedScrollDispatcher.dispatchPreScroll(delta, source)
 
-            val scrollAvailable = delta - preConsumedByParent
+            val scrollAvailableAfterPreScroll = delta - consumedByPreScroll
+
+            val singleAxisDeltaForSelfScroll =
+                scrollAvailableAfterPreScroll.singleAxisOffset().reverseIfNeeded().toFloat()
+
             // Consume on a single axis
-            val axisConsumed =
-                scrollBy(scrollAvailable.reverseIfNeeded().toFloat()).toOffset().reverseIfNeeded()
+            val consumedBySelfScroll =
+                scrollBy(singleAxisDeltaForSelfScroll).toOffset().reverseIfNeeded()
 
-            val leftForParent = scrollAvailable - axisConsumed
-            val parentConsumed = nestedScrollDispatcher.dispatchPostScroll(
-                axisConsumed,
-                leftForParent,
+            val deltaAvailableAfterScroll = scrollAvailableAfterPreScroll - consumedBySelfScroll
+            val consumedByPostScroll = nestedScrollDispatcher.dispatchPostScroll(
+                consumedBySelfScroll,
+                deltaAvailableAfterScroll,
                 source
             )
-            preConsumedByParent + axisConsumed + parentConsumed
+            consumedByPreScroll + consumedBySelfScroll + consumedByPostScroll
         }
 
         val overscroll = overscrollEffect
 
         return if (source == Wheel) {
-            performScroll(scrollDelta)
+            performScroll(initialAvailableDelta)
         } else if (overscroll != null && shouldDispatchOverscroll) {
-            overscroll.applyToScroll(scrollDelta, source, performScroll)
+            overscroll.applyToScroll(initialAvailableDelta, source, performScroll)
         } else {
-            performScroll(scrollDelta)
+            performScroll(initialAvailableDelta)
         }
     }
 
