@@ -319,15 +319,10 @@ internal class TextFieldSelectionState(
                         previousHandleOffset = previousDragOffset,
                         adjustment = SelectionAdjustment.CharacterWithWordAccelerate,
                     )
-                    // selection drag should never reverse the selection. It can only collapse the
-                    // selection as the handles are about to pass each other.
-                    if (newSelection.reversed != prevSelection.reversed) {
-                        // the common offset should be the one that is not being dragged
-                        val offset = if (isStartHandle) prevSelection.end else prevSelection.start
-                        newSelection = TextRange(offset)
-                    }
-                    editWithFilter {
-                        selectCharsIn(newSelection)
+                    if (prevSelection.collapsed || !newSelection.collapsed) {
+                        editWithFilter {
+                            selectCharsIn(newSelection)
+                        }
                     }
                     previousDragOffset = if (isStartHandle) startOffset else endOffset
                 }

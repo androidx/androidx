@@ -657,7 +657,7 @@ class TextFieldSelectionHandlesTest {
     }
 
     @Test
-    fun dragStartSelectionHandle_cannotExtendSelectionPastEndHandle() {
+    fun dragStartSelectionHandlePastEndHandle_reversesTheSelection() {
         state = TextFieldState("abc def ghj", initialSelectionInChars = TextRange(4, 7))
         rule.setContent {
             BasicTextField2(
@@ -673,12 +673,12 @@ class TextFieldSelectionHandlesTest {
 
         swipeToRight(Handle.SelectionStart, fontSizePx * 7)
         rule.runOnIdle {
-            assertThat(state.text.selectionInChars).isEqualTo(TextRange(7))
+            assertThat(state.text.selectionInChars).isEqualTo(TextRange(11, 7))
         }
     }
 
     @Test
-    fun dragEndSelectionHandle_cannotExtendSelectionPastStartHandle() {
+    fun dragEndSelectionHandlePastStartHandle_canReverseSelection() {
         state = TextFieldState("abc def ghj", initialSelectionInChars = TextRange(4, 7))
         rule.setContent {
             BasicTextField2(
@@ -694,7 +694,7 @@ class TextFieldSelectionHandlesTest {
 
         swipeToLeft(Handle.SelectionEnd, fontSizePx * 7)
         rule.runOnIdle {
-            assertThat(state.text.selectionInChars).isEqualTo(TextRange(4))
+            assertThat(state.text.selectionInChars).isEqualTo(TextRange(4, 0))
         }
     }
 
