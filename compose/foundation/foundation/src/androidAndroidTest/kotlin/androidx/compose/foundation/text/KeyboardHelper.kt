@@ -78,7 +78,7 @@ class KeyboardHelper(
      * Blocks until the [timeout] or the keyboard's visibility matches [visible].
      * May be called from the test thread or the main thread.
      */
-    fun waitForKeyboardVisibility(visible: Boolean) {
+    fun waitForKeyboardVisibility(visible: Boolean, timeout: Long = this.timeout) {
         waitUntil(timeout) {
             isSoftwareKeyboardShown() == visible
         }

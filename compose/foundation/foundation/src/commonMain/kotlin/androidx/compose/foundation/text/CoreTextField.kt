@@ -38,6 +38,7 @@ import androidx.compose.foundation.text.selection.textFieldMagnifier
 import androidx.compose.foundation.text.selection.updateSelectionTouchMode
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.RecomposeScope
 import androidx.compose.runtime.currentRecomposeScope
@@ -45,8 +46,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
@@ -295,13 +298,17 @@ internal fun CoreTextField(
         state.hasFocus = it.isFocused
 
         if (textInputService != null) {
-            notifyTextInputServiceOnFocusChange(
-                textInputService,
-                state,
-                value,
-                imeOptions,
-                offsetMapping
-            )
+            if (state.hasFocus && enabled && !readOnly) {
+                startInputSession(
+                    textInputService,
+                    state,
+                    value,
+                    imeOptions,
+                    offsetMapping
+                )
+            } else {
+                endInputSession(state)
+            }
 
             // The focusable modifier itself will request the entire focusable be brought into view
             // when it gains focus – in this case, that's the decoration box. However, since text
@@ -327,14 +334,29 @@ internal fun CoreTextField(
     }
 
     // Hide the keyboard if made disabled or read-only while focused (b/237308379).
-    if (enabled && !readOnly) {
-        // TODO(b/230536793) This is a workaround since we don't get an explicit focus blur event
-        //  when the text field is removed from the composition entirely.
-        DisposableEffect(state) {
-            onDispose {
-                if (state.hasFocus) {
-                    onBlur(state)
+    if (textInputService != null) {
+        val writeable by rememberUpdatedState(enabled && !readOnly)
+        LaunchedEffect(Unit) {
+            try {
+                snapshotFlow { writeable }.collect { writeable ->
+                    // When hasFocus changes, the session will be stopped/started in the focus
+                    // handler so we don't need to handle its changes here.
+                    if (writeable && state.hasFocus) {
+                        startInputSession(
+                            textInputService,
+                            state,
+                            value,
+                            imeOptions,
+                            offsetMapping
+                        )
+                    } else {
+                        endInputSession(state)
+                    }
                 }
+            } finally {
+                // TODO(b/230536793) This is a workaround since we don't get an explicit focus blur
+                //  event when the text field is removed from the composition entirely.
+                endInputSession(state)
             }
         }
     }
@@ -434,6 +456,8 @@ internal fun CoreTextField(
             }
         }
         setText { text ->
+            if (readOnly || !enabled) return@setText false
+
             // If the action is performed while in an active text editing session, treat this like
             // an IME command and update the text by going through the buffer. This keeps the buffer
             // state consistent if other IME commands are performed before the next recomposition,
@@ -451,6 +475,8 @@ internal fun CoreTextField(
             true
         }
         insertTextAtCursor { text ->
+            if (readOnly || !enabled) return@insertTextAtCursor false
+
             // If the action is performed while in an active text editing session, treat this like
             // an IME command and update the text by going through the buffer. This keeps the buffer
             // state consistent if other IME commands are performed before the next recomposition,
@@ -960,29 +986,25 @@ private fun tapToFocus(
     }
 }
 
-private fun notifyTextInputServiceOnFocusChange(
+private fun startInputSession(
     textInputService: TextInputService,
     state: TextFieldState,
     value: TextFieldValue,
     imeOptions: ImeOptions,
     offsetMapping: OffsetMapping
 ) {
-    if (state.hasFocus) {
-        state.inputSession = TextFieldDelegate.onFocus(
-            textInputService,
-            value,
-            state.processor,
-            imeOptions,
-            state.onValueChange,
-            state.onImeActionPerformed
-        )
-        notifyFocusedRect(state, value, offsetMapping)
-    } else {
-        onBlur(state)
-    }
+    state.inputSession = TextFieldDelegate.onFocus(
+        textInputService,
+        value,
+        state.processor,
+        imeOptions,
+        state.onValueChange,
+        state.onImeActionPerformed
+    )
+    notifyFocusedRect(state, value, offsetMapping)
 }
 
-private fun onBlur(state: TextFieldState) {
+private fun endInputSession(state: TextFieldState) {
     state.inputSession?.let { session ->
         TextFieldDelegate.onBlur(session, state.processor, state.onValueChange)
     }
