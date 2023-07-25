@@ -20,7 +20,6 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.text.KeyboardActionScope
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.text.cancelsTextSelection
 import androidx.compose.foundation.text2.BasicTextField2
 import androidx.compose.foundation.text2.input.TextEditFilter
 import androidx.compose.foundation.text2.input.TextFieldState
@@ -414,13 +413,8 @@ internal class TextFieldDecoratorModifierNode(
     }
 
     override fun onPreKeyEvent(event: KeyEvent): Boolean {
-        val selection = textFieldState.text.selectionInChars
-        return if (!selection.collapsed && event.cancelsTextSelection()) {
-            textFieldSelectionState.deselect()
-            true
-        } else {
-            false
-        }
+        // TextField does not handle pre key events.
+        return false
     }
 
     override fun onKeyEvent(event: KeyEvent): Boolean {
