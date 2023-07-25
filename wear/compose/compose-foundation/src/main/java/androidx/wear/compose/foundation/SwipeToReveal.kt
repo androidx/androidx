@@ -322,38 +322,41 @@ public fun SwipeToReveal(
             label = "AdditionalActionAnimationSpec"
         )
 
-        Row(
-            modifier = Modifier.matchParentSize(),
-            horizontalArrangement = Arrangement.Absolute.Right
-        ) {
-            Crossfade(
-                targetState = swipeCompleted && undoAction != null,
-                animationSpec = tween(durationMillis = STANDARD_ANIMATION),
-                label = "CrossFadeS2R"
-            ) { displayUndo ->
-                if (displayUndo) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.Center
-                    ) {
-                        ActionSlot(revealScope, content = undoAction!!)
-                    }
-                } else {
-                    Row(
-                        modifier = Modifier.width(availableWidth),
-                        horizontalArrangement = Arrangement.Absolute.Right
-                    ) {
-                        // weight cannot be 0 so remove the composable when weight becomes 0
-                        if (additionalAction != null && additionalActionWeight.value > 0) {
-                            Spacer(Modifier.size(SwipeToRevealDefaults.padding))
-                            ActionSlot(
-                                revealScope,
-                                content = additionalAction,
-                                weight = additionalActionWeight.value
-                            )
+        // Draw the buttons only when offset is greater than zero.
+        if (abs(state.offset) > 0) {
+            Row(
+                modifier = Modifier.matchParentSize(),
+                horizontalArrangement = Arrangement.Absolute.Right
+            ) {
+                Crossfade(
+                    targetState = swipeCompleted && undoAction != null,
+                    animationSpec = tween(durationMillis = STANDARD_ANIMATION),
+                    label = "CrossFadeS2R"
+                ) { displayUndo ->
+                    if (displayUndo) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            ActionSlot(revealScope, content = undoAction!!)
                         }
-                        Spacer(Modifier.size(SwipeToRevealDefaults.padding))
-                        ActionSlot(revealScope, content = action)
+                    } else {
+                        Row(
+                            modifier = Modifier.width(availableWidth),
+                            horizontalArrangement = Arrangement.Absolute.Right
+                        ) {
+                            // weight cannot be 0 so remove the composable when weight becomes 0
+                            if (additionalAction != null && additionalActionWeight.value > 0) {
+                                Spacer(Modifier.size(SwipeToRevealDefaults.padding))
+                                ActionSlot(
+                                    revealScope,
+                                    content = additionalAction,
+                                    weight = additionalActionWeight.value
+                                )
+                            }
+                            Spacer(Modifier.size(SwipeToRevealDefaults.padding))
+                            ActionSlot(revealScope, content = action)
+                        }
                     }
                 }
             }
