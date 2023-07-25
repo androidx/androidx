@@ -462,7 +462,7 @@ internal class MeasureAndLayoutDelegate(private val root: LayoutNode) {
             ) {
                 layoutNode.lookaheadReplace()
             }
-            if (layoutNode.layoutPending && layoutNode.isPlaced) {
+            if (layoutNode.layoutPending && (layoutNode.isPlacedByParent || layoutNode === root)) {
                 if (layoutNode === root) {
                     layoutNode.place(0, 0)
                 } else {
