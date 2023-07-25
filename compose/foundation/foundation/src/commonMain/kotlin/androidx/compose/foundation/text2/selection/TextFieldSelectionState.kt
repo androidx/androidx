@@ -710,7 +710,7 @@ internal class TextFieldSelectionState(
      * And the new cursor offset should be between the text before the selection, and the text
      * after the selection.
      */
-    fun cut() {
+    internal fun cut() {
         val text = textFieldState.text
         if (text.selectionInChars.collapsed) return
 
@@ -815,18 +815,6 @@ internal class TextFieldSelectionState(
             onCutRequested = cut,
             onSelectAllRequested = selectAll
         )
-    }
-
-    fun deselect() {
-        val selection = textFieldState.text.selectionInChars
-        if (!selection.collapsed) {
-            editWithFilter {
-                selectCharsIn(TextRange(selection.end))
-            }
-        }
-
-        cursorHandleShowToolbar = false
-        showCursorHandle = false
     }
 
     /**
