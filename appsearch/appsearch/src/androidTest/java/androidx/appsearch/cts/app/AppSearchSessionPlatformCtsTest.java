@@ -24,6 +24,9 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assume.assumeTrue;
 
 import android.content.Context;
+import android.content.pm.ModuleInfo;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
@@ -49,6 +52,8 @@ import java.util.concurrent.ExecutorService;
 
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
 public class AppSearchSessionPlatformCtsTest extends AppSearchSessionCtsTestBase {
+    static final String APPSEARCH_MAINLINE_MODULE_NAME = "com.google.android.appsearch";
+
     @Override
     protected ListenableFuture<AppSearchSession> createSearchSessionAsync(@NonNull String dbName) {
         Context context = ApplicationProvider.getApplicationContext();
@@ -133,6 +138,25 @@ public class AppSearchSessionPlatformCtsTest extends AppSearchSessionCtsTestBase
             assertThat(outDocument.getPropertyBytesArray("bytes")).isEmpty();
             assertThat(outDocument.getPropertyDocumentArray("document")).isEmpty();
         }
+    }
+
+    @Override
+    @Test
+    public void testSetSchema_addIndexedNestedDocumentProperty() throws Exception {
+        long appsearchVersionCode = 0;
+        PackageManager pm = ApplicationProvider.getApplicationContext().getPackageManager();
+        List<ModuleInfo> modules = pm.getInstalledModules(0);
+        for (int i = 0; i < modules.size(); ++i) {
+            String packageName = modules.get(i).getPackageName();
+            if (packageName.equals(APPSEARCH_MAINLINE_MODULE_NAME)) {
+                PackageInfo pInfo = pm.getPackageInfo(packageName, PackageManager.MATCH_APEX);
+                appsearchVersionCode = pInfo.getLongVersionCode();
+            }
+        }
+        // This is a test for b/291019114. The bug was only fixed in mainline module
+        // 'aml_ase_340913000', so this test will fail on any versions below that.
+        assumeTrue(appsearchVersionCode >= 340913000);
+        super.testSetSchema_addIndexedNestedDocumentProperty();
     }
 
     @Override
