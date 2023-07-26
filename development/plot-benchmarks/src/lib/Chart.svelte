@@ -10,6 +10,7 @@
 
   export let data: Data;
   export let chartType: ChartType = "line";
+  export let isExperimental: boolean = false;
 
   $: {
     if ($chart) {
@@ -27,7 +28,9 @@
   onMount(() => {
     const onUpdate = (chart: Chart) => {
       $chart = chart;
-      $items = chart.options.plugins.legend.labels.generateLabels(chart);
+      // Bad typings.
+      const legend = chart.options.plugins.legend as any;
+      $items = legend.labels.generateLabels(chart);
     };
     const plugins = {
       legend: {
@@ -65,7 +68,14 @@
       ⎘
     </button>
   </div>
-  <canvas id="chart" class="chart" bind:this={element} />
+  <canvas class="chart" bind:this={element} />
+  {#if isExperimental}
+    <footer class="slim">
+      <section class="experimental">
+        <kbd>Experimental</kbd>
+      </section>
+    </footer>
+  {/if}
 </article>
 
 {#if $items}
@@ -88,5 +98,18 @@
     height: auto;
     border: none;
     padding: 5px;
+  }
+
+  .slim {
+    margin-bottom: 0px;
+    padding: 0;
+  }
+
+  .experimental {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: center;
+    margin-bottom: 0px;
   }
 </style>

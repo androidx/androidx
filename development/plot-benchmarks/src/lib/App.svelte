@@ -3,9 +3,17 @@
   import { writable } from "svelte/store";
   import type { FileMetadata } from "../types/files.js";
   import Session from "./Session.svelte";
+  import { wrap } from "comlink";
+  import { StatService } from "../workers/service.js";
 
   // Stores
   let entries: Writable<FileMetadata[]> = writable([]);
+  const url = new URL("../workers/worker.ts", import.meta.url);
+  const service = wrap<StatService>(
+    new Worker(url, {
+      type: "module",
+    })
+  );
 
   function onFilesChanged(event) {
     const detail: FileMetadata[] = event.detail;
@@ -22,5 +30,5 @@
 </details>
 
 <div class="container">
-  <Session fileEntries={$entries} on:entries={onFilesChanged} />
+  <Session fileEntries={$entries} {service} on:entries={onFilesChanged} />
 </div>
