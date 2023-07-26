@@ -67,12 +67,6 @@ internal fun checkErrors(packageName: String): ConfigurationError.SuppressionSta
 
     val applicationInfo = getInstalledPackageInfo(packageName)
 
-    val errorNotProfileable = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-        applicationInfo.isNotProfileableByShell()
-    } else {
-        false
-    }
-
     val instrumentation = InstrumentationRegistry.getInstrumentation()
     val errors = DeviceInfo.errors +
         // TODO: Merge this debuggable check / definition with Errors.kt in benchmark-common
@@ -82,23 +76,27 @@ internal fun checkErrors(packageName: String): ConfigurationError.SuppressionSta
                 id = "DEBUGGABLE",
                 summary = "Benchmark Target is Debuggable",
                 message = """
-                    Target package $packageName
-                    is running with debuggable=true, which drastically reduces
-                    runtime performance in order to support debugging features. Run
-                    benchmarks with debuggable=false. Debuggable affects execution speed
-                    in ways that mean benchmark improvements might not carry over to a
+                    Target package $packageName is running with debuggable=true in its manifest,
+                    which drastically reduces runtime performance in order to support debugging
+                    features. Run benchmarks with debuggable=false. Debuggable affects execution
+                    speed in ways that mean benchmark improvements might not carry over to a
                     real user's experience (or even regress release performance).
                 """.trimIndent()
             ),
             conditionalError(
-                hasError = errorNotProfileable,
+                // Profileable is currently only needed on API 29+30, since app trace tag no longer
+                // requires profileable on API 31, and macrobench doesn't currently offer other
+                // means of profiling (like simpleperf) that need the flag.
+                hasError = DeviceInfo.profileableEnforced &&
+                    Build.VERSION.SDK_INT in 29..30 &&
+                    applicationInfo.isNotProfileableByShell(),
                 id = "NOT-PROFILEABLE",
                 summary = "Benchmark Target is NOT profileable",
                 message = """
-                    Target package $packageName
-                    is running without profileable. Profileable is required to enable
-                    macrobenchmark to capture detailed trace information from the target process,
-                    such as System tracing sections defined in the app, or libraries.
+                    Target package $packageName is running without <profileable shell=true>.
+                    Profileable is required on Android 10 & 11 to enable macrobenchmark to capture
+                    detailed trace information from the target process, such as System tracing
+                    sections defined in the app, or libraries.
 
                     To make the target profileable, add the following in your target app's
                     main AndroidManifest.xml, within the application tag:
