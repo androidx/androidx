@@ -108,6 +108,8 @@ internal sealed class JavacTypeElement(
                     element = it,
                 )
             }
+            // To be consistent with KSP consider delegates to not have a backing field.
+            .filterNot { it.kotlinMetadata?.isDelegated() == true }
     }
 
     private val allMethods = MemoizedSequence {

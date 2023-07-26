@@ -425,9 +425,9 @@ class JvmDescriptorUtilsTest {
                         roundEnv.getElementsAnnotatedWith(annotations.first()).map { element ->
                             when (element.kind) {
                                 FIELD ->
-                                    MoreElements.asVariable(element).descriptor()
+                                    MoreElements.asVariable(element).descriptor(processingEnv)
                                 METHOD, CONSTRUCTOR ->
-                                    MoreElements.asExecutable(element).descriptor()
+                                    MoreElements.asExecutable(element).descriptor(processingEnv)
                                 else -> error("Unsupported element to describe.")
                             }
                         }.toSet().let(handler)

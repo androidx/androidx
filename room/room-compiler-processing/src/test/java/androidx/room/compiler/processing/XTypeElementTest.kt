@@ -29,6 +29,7 @@ import androidx.room.compiler.processing.util.asMutableKClassName
 import androidx.room.compiler.processing.util.compileFiles
 import androidx.room.compiler.processing.util.getAllFieldNames
 import androidx.room.compiler.processing.util.getDeclaredField
+import androidx.room.compiler.processing.util.getDeclaredMethodByJvmName
 import androidx.room.compiler.processing.util.getField
 import androidx.room.compiler.processing.util.getMethodByJvmName
 import androidx.room.compiler.processing.util.runProcessorTest
@@ -818,6 +819,26 @@ class XTypeElementTest(
                         }
                 }
             }
+        }
+    }
+
+    @Test
+    fun lazyProperty() {
+        val src = Source.kotlin(
+            "Subject.kt",
+            """
+            class Subject {
+              val myLazy by lazy { "wow" }
+            }
+            """.trimIndent()
+        )
+        runTest(sources = listOf(src)) {
+            val subject = it.processingEnv.requireTypeElement("Subject")
+            val fields = subject.getDeclaredFields()
+            assertThat(fields).isEmpty()
+            val method = subject.getDeclaredMethodByJvmName("getMyLazy")
+            assertThat(method).isNotNull()
+            assertThat(method.isKotlinPropertyMethod()).isTrue()
         }
     }
 

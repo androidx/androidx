@@ -27,6 +27,7 @@ import androidx.room.compiler.processing.util.sanitizeAsJavaParameterName
 import javax.lang.model.element.Element
 import javax.lang.model.element.ElementKind
 import javax.lang.model.element.ExecutableElement
+import javax.lang.model.element.VariableElement
 import javax.tools.Diagnostic
 import kotlinx.metadata.Flag
 import kotlinx.metadata.Flags
@@ -42,6 +43,7 @@ import kotlinx.metadata.KmTypeParameter
 import kotlinx.metadata.KmValueParameter
 import kotlinx.metadata.jvm.KotlinClassMetadata
 import kotlinx.metadata.jvm.annotations
+import kotlinx.metadata.jvm.fieldSignature
 import kotlinx.metadata.jvm.getterSignature
 import kotlinx.metadata.jvm.setterSignature
 import kotlinx.metadata.jvm.signature
@@ -52,6 +54,7 @@ internal interface KmFlags {
 }
 
 internal class KmClassContainer(
+    private val env: JavacProcessingEnv,
     private val kmClass: KmClass
 ) : KmFlags {
     override val flags: Flags
@@ -116,7 +119,7 @@ internal class KmClassContainer(
         check(method.kind == ElementKind.METHOD) {
             "must pass an element type of method"
         }
-        return functionByDescriptor[method.descriptor()]
+        return functionByDescriptor[method.descriptor(env.delegate)]
     }
 
     private val functionByDescriptor: Map<String, KmFunctionContainer> by lazy {
@@ -136,12 +139,17 @@ internal class KmClassContainer(
         check(method.kind == ElementKind.CONSTRUCTOR) {
             "must pass an element type of constructor"
         }
-        val methodSignature = method.descriptor()
+        val methodSignature = method.descriptor(env.delegate)
         return constructorList.firstOrNull { it.descriptor == methodSignature }
     }
 
-    fun getPropertyMetadata(propertyName: String): KmPropertyContainer? =
-        propertyList.firstOrNull { it.name == propertyName }
+    fun getPropertyMetadata(field: VariableElement): KmPropertyContainer? {
+        check(field.kind == ElementKind.FIELD) {
+            "must pass an element type of field"
+        }
+        val fieldName = field.simpleName.toString()
+        return propertyList.firstOrNull { it.backingFieldName == fieldName || it.name == fieldName }
+    }
 
     companion object {
         /**
@@ -162,7 +170,7 @@ internal class KmClassContainer(
                 )
             }
             return when (classMetadata) {
-                is KotlinClassMetadata.Class -> KmClassContainer(classMetadata.toKmClass())
+                is KotlinClassMetadata.Class -> KmClassContainer(env, classMetadata.toKmClass())
                 // Synthetic classes generated for various Kotlin features ($DefaultImpls,
                 // $WhenMappings, etc) are ignored because the data contained does not affect
                 // the metadata derived APIs. These classes are never referenced by user code but
@@ -268,6 +276,7 @@ internal class KmConstructorContainer(
 internal class KmPropertyContainer(
     private val kmProperty: KmProperty,
     val type: KmTypeContainer,
+    val backingFieldName: String?,
     val getter: KmFunctionContainer?,
     val setter: KmFunctionContainer?,
     val syntheticMethodForAnnotations: KmFunctionContainer?,
@@ -279,6 +288,7 @@ internal class KmPropertyContainer(
     val typeParameters: List<KmTypeContainer>
         get() = type.typeArguments
     fun isNullable() = type.isNullable()
+    fun isDelegated() = Flag.Property.IS_DELEGATED(flags)
 }
 
 internal class KmTypeContainer(
@@ -408,6 +418,7 @@ private fun KmProperty.asContainer(): KmPropertyContainer =
     KmPropertyContainer(
         kmProperty = this,
         type = this.returnType.asContainer(),
+        backingFieldName = fieldSignature?.name,
         getter = getterSignature?.let {
             KmPropertyFunctionContainerImpl(
                 flags = this.getterFlags,
