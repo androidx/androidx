@@ -23,8 +23,8 @@ import androidx.camera.core.ImageCapture.ERROR_CAMERA_CLOSED
 import androidx.camera.core.ImageCapture.ERROR_CAPTURE_FAILED
 import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.ImageProxy
-import androidx.camera.testing.fakes.FakeImageInfo
-import androidx.camera.testing.fakes.FakeImageProxy
+import androidx.camera.testing.impl.fakes.FakeImageInfo
+import androidx.camera.testing.impl.fakes.FakeImageProxy
 import androidx.concurrent.futures.CallbackToFutureAdapter
 import com.google.common.truth.Truth.assertThat
 import com.google.common.util.concurrent.ListenableFuture
@@ -56,7 +56,8 @@ class RequestWithCallbackTest {
     fun setUp() {
         abortError = ImageCaptureException(ERROR_CAMERA_CLOSED, "", null)
         otherError = ImageCaptureException(ERROR_CAPTURE_FAILED, "", null)
-        imageResult = FakeImageProxy(FakeImageInfo())
+        imageResult =
+            FakeImageProxy(FakeImageInfo())
         fileResult = ImageCapture.OutputFileResults(null)
         retryControl = FakeRetryControl()
         captureRequestFuture = CallbackToFutureAdapter.getFuture { "captureRequestFuture" }

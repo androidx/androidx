@@ -33,9 +33,9 @@ import androidx.camera.extensions.internal.VendorExtender
 import androidx.camera.extensions.internal.Version
 import androidx.camera.extensions.util.ExtensionsTestUtil
 import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.camera.testing.CameraUtil
-import androidx.camera.testing.fakes.FakeLifecycleOwner
-import androidx.camera.testing.fakes.FakeUseCase
+import androidx.camera.testing.impl.CameraUtil
+import androidx.camera.testing.impl.fakes.FakeLifecycleOwner
+import androidx.camera.testing.impl.fakes.FakeUseCase
 import androidx.camera.video.MediaSpec
 import androidx.camera.video.VideoCapture
 import androidx.camera.video.VideoOutput

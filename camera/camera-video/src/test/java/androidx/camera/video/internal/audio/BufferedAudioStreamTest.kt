@@ -20,8 +20,8 @@ import android.media.AudioFormat
 import android.media.MediaRecorder
 import android.os.Build
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
-import androidx.camera.testing.mocks.helpers.CallTimes
-import androidx.camera.testing.mocks.helpers.CallTimesAtLeast
+import androidx.camera.testing.impl.mocks.helpers.CallTimes
+import androidx.camera.testing.impl.mocks.helpers.CallTimesAtLeast
 import com.google.common.truth.Truth.assertThat
 import java.nio.ByteBuffer
 import org.junit.After

@@ -22,8 +22,8 @@ import android.util.Size
 import android.view.Surface
 import androidx.camera.core.impl.DeferrableSurface
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
-import androidx.camera.testing.GarbageCollectionUtil
 import androidx.camera.testing.fakes.FakeCamera
+import androidx.camera.testing.impl.GarbageCollectionUtil
 import androidx.core.content.ContextCompat
 import androidx.core.util.Consumer
 import androidx.test.core.app.ApplicationProvider

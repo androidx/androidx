@@ -22,7 +22,7 @@ import static android.graphics.PixelFormat.RGBA_8888;
 import static androidx.camera.core.ImageAnalysis.OUTPUT_IMAGE_FORMAT_RGBA_8888;
 import static androidx.camera.core.ImageAnalysis.OUTPUT_IMAGE_FORMAT_YUV_420_888;
 import static androidx.camera.core.ImageAnalysisAbstractAnalyzer.getAdditionalTransformMatrixAppliedByProcessor;
-import static androidx.camera.testing.ImageProxyUtil.createYUV420ImagePlanes;
+import static androidx.camera.testing.impl.ImageProxyUtil.createYUV420ImagePlanes;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -37,8 +37,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.camera.core.impl.ImageReaderProxy;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
-import androidx.camera.testing.fakes.FakeImageInfo;
-import androidx.camera.testing.fakes.FakeImageProxy;
+import androidx.camera.testing.impl.fakes.FakeImageInfo;
+import androidx.camera.testing.impl.fakes.FakeImageProxy;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;

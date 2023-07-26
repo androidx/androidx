@@ -24,7 +24,7 @@ import androidx.camera.core.impl.Config;
 import androidx.camera.core.impl.StreamSpec;
 import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.UseCaseConfigFactory;
-import androidx.camera.testing.fakes.FakeUseCase;
+import androidx.camera.testing.impl.fakes.FakeUseCase;
 
 /**
  * A second fake {@link UseCase}.

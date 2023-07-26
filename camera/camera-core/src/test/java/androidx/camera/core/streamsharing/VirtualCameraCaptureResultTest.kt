@@ -20,7 +20,7 @@ import android.os.Build
 import android.util.Pair
 import androidx.camera.core.impl.CameraCaptureMetaData
 import androidx.camera.core.impl.TagBundle
-import androidx.camera.testing.fakes.FakeCameraCaptureResult
+import androidx.camera.testing.impl.fakes.FakeCameraCaptureResult
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -59,7 +59,8 @@ class VirtualCameraCaptureResultTest {
     @Test
     fun metadataWithBaseValue_returnBaseValue() {
         // Arrange.
-        val baseCameraCaptureResult = FakeCameraCaptureResult().apply {
+        val baseCameraCaptureResult = FakeCameraCaptureResult()
+            .apply {
             timestamp = 2L
             aeState = CameraCaptureMetaData.AeState.CONVERGED
             afState = CameraCaptureMetaData.AfState.LOCKED_FOCUSED

@@ -35,7 +35,7 @@ import androidx.camera.extensions.internal.ExtensionVersion;
 import androidx.camera.extensions.internal.VendorExtender;
 import androidx.camera.extensions.internal.Version;
 import androidx.camera.extensions.internal.compat.workaround.ExtensionDisabledValidator;
-import androidx.camera.testing.CameraUtil;
+import androidx.camera.testing.impl.CameraUtil;
 
 import java.util.Arrays;
 import java.util.Collection;

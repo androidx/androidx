@@ -35,8 +35,8 @@ import androidx.camera.core.imagecapture.Utils.WIDTH
 import androidx.camera.core.impl.utils.Exif
 import androidx.camera.core.impl.utils.Exif.createFromFileString
 import androidx.camera.core.processing.Packet
-import androidx.camera.testing.ExifUtil.createExif
-import androidx.camera.testing.TestImageUtil.createJpegBytes
+import androidx.camera.testing.impl.ExifUtil.createExif
+import androidx.camera.testing.impl.TestImageUtil.createJpegBytes
 import com.google.common.truth.Truth.assertThat
 import java.io.File
 import java.util.UUID
