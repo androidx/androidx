@@ -76,6 +76,7 @@ public class StopwatchLap extends Thing {
     }
 
     /** Builder for {@link StopwatchLap}. */
+    @Document.BuilderProducer
     public static final class Builder extends BuilderImpl<Builder> {
         /**
          * Constructor for {@link StopwatchLap.Builder}.

@@ -109,7 +109,7 @@ class DocumentModel {
     private ExecutableElement mChosenCreationMethod = null;
     private List<String> mChosenCreationMethodParams = null;
     private TypeElement mBuilderClass = null;
-    private ExecutableElement mBuilderProducer = null;
+    private Set<ExecutableElement> mBuilderProducers = new LinkedHashSet<>();
 
     private DocumentModel(
             @NonNull ProcessingEnvironment env,
@@ -141,17 +141,13 @@ class DocumentModel {
 
     /**
      * Scans all the elements in typeElement to find a builder producer. If found, set
-     * mBuilderProducer and mBuilderClass to the builder producer and the return type
+     * mBuilderProducers and mBuilderClass to the builder producer candidates and the builder class
      * respectively.
      *
      * @throws ProcessingException if there are more than one elements annotated with
      * {@code @Document.BuilderProducer}, or if the builder producer element is not a visible static
-     * method.
+     * method or a class.
      */
-    // TODO(b/285149515): Other than using a static method, we should support builder constructor
-    //  as well to create builder instances, as this is the right pattern compliant with Android
-    //  API guidelines.
-    //  go/android-api-guidelines#builder-constructor
     private void extractBuilderProducer(TypeElement typeElement)
             throws ProcessingException {
         for (Element child : typeElement.getEnclosedElements()) {
@@ -166,25 +162,36 @@ class DocumentModel {
             if (!isAnnotated) {
                 continue;
             }
-            if (child.getKind() != ElementKind.METHOD) {
-                // Since @Document.BuilderProducer is configured with @Target(ElementType.METHOD),
-                // it's not possible to reach here.
-                throw new ProcessingException("Builder producer must be a method", child);
+            if (child.getKind() != ElementKind.METHOD && child.getKind() != ElementKind.CLASS) {
+                // Since @Document.BuilderProducer is configured with
+                // @Target({ElementType.METHOD, ElementType.TYPE}), it's not possible to reach here.
+                throw new ProcessingException("Builder producer must be a method or a class",
+                        child);
             }
-            ExecutableElement method = (ExecutableElement) child;
-            Set<Modifier> methodModifiers = method.getModifiers();
+            if (mBuilderClass != null) {
+                throw new ProcessingException("Found duplicated builder producer", typeElement);
+            }
+            Set<Modifier> methodModifiers = child.getModifiers();
             if (!methodModifiers.contains(Modifier.STATIC)) {
-                throw new ProcessingException("Builder producer must be static", method);
+                throw new ProcessingException("Builder producer must be static", child);
             }
             if (methodModifiers.contains(Modifier.PRIVATE)) {
-                throw new ProcessingException("Builder producer cannot be private", method);
+                throw new ProcessingException("Builder producer cannot be private", child);
             }
-
-            if (mBuilderProducer == null) {
-                mBuilderProducer = method;
-                mBuilderClass = (TypeElement) mTypeUtil.asElement(mBuilderProducer.getReturnType());
+            if (child.getKind() == ElementKind.METHOD) {
+                ExecutableElement method = (ExecutableElement) child;
+                mBuilderProducers.add(method);
+                mBuilderClass = (TypeElement) mTypeUtil.asElement(method.getReturnType());
             } else {
-                throw new ProcessingException("Found duplicated builder producer", method);
+                // child is a class, so extract all of its constructors as builder producer
+                // candidates. The validity of the constructor will be checked later when we
+                // choose the right creation method.
+                mBuilderClass = (TypeElement) child;
+                for (Element builderProducer : mBuilderClass.getEnclosedElements()) {
+                    if (builderProducer.getKind() == ElementKind.CONSTRUCTOR) {
+                        mBuilderProducers.add((ExecutableElement) builderProducer);
+                    }
+                }
             }
         }
     }
@@ -194,8 +201,8 @@ class DocumentModel {
         extractBuilderProducer(typeElement);
         // If a builder producer is provided, then only the builder can be used as a creation
         // method.
-        if (mBuilderProducer != null) {
-            return Collections.singleton(mBuilderProducer);
+        if (mBuilderClass != null) {
+            return Collections.unmodifiableSet(mBuilderProducers);
         }
 
         Set<ExecutableElement> creationMethods = new LinkedHashSet<>();

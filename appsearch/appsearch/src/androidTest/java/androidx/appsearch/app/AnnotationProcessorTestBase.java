@@ -1130,6 +1130,112 @@ public abstract class AnnotationProcessorTestBase {
         assertThat(newOrganization.getOrganizationDescription()).isEqualTo("organization_dec");
     }
 
+    @Document(name = "Person", parent = InterfaceRoot.class)
+    interface Person extends InterfaceRoot {
+        @Document.StringProperty
+        String getFirstName();
+
+        @Document.StringProperty
+        String getLastName();
+
+        @Document.BuilderProducer
+        class Builder {
+            String mId;
+            String mNamespace;
+            long mCreationTimestamp;
+            String mFirstName;
+            String mLastName;
+
+            Builder(String id, String namespace) {
+                mId = id;
+                mNamespace = namespace;
+            }
+
+            public Person build() {
+                return new PersonImpl(mId, mNamespace, mCreationTimestamp, mFirstName, mLastName);
+            }
+
+            public Builder setCreationTimestamp(long creationTimestamp) {
+                mCreationTimestamp = creationTimestamp;
+                return this;
+            }
+
+            public Builder setFirstName(String firstName) {
+                mFirstName = firstName;
+                return this;
+            }
+
+            // Void return type should work.
+            public void setLastName(String lastName) {
+                mLastName = lastName;
+            }
+        }
+    }
+
+    static class PersonImpl implements Person {
+        String mId;
+        String mNamespace;
+        long mCreationTimestamp;
+        String mFirstName;
+        String mLastName;
+
+        PersonImpl(String id, String namespace, long creationTimestamp, String firstName,
+                String lastName) {
+            mId = id;
+            mNamespace = namespace;
+            mCreationTimestamp = creationTimestamp;
+            mFirstName = firstName;
+            mLastName = lastName;
+        }
+
+        public String getId() {
+            return mId;
+        }
+
+        public String getNamespace() {
+            return mNamespace;
+        }
+
+        public long getCreationTimestamp() {
+            return mCreationTimestamp;
+        }
+
+        public String getFirstName() {
+            return mFirstName;
+        }
+
+        public String getLastName() {
+            return mLastName;
+        }
+    }
+
+    @Test
+    public void testGenericDocumentConversion_BuilderConstructor() throws Exception {
+        // Create Person document
+        Person.Builder personBuilder = new Person.Builder("id", "namespace")
+                .setCreationTimestamp(3000)
+                .setFirstName("first");
+        personBuilder.setLastName("last");
+        Person person = personBuilder.build();
+
+        // Test the conversion from person to GenericDocument
+        GenericDocument genericDocument = GenericDocument.fromDocumentClass(person);
+        assertThat(genericDocument.getId()).isEqualTo("id");
+        assertThat(genericDocument.getNamespace()).isEqualTo("namespace");
+        assertThat(genericDocument.getCreationTimestampMillis()).isEqualTo(3000);
+        assertThat(genericDocument.getSchemaType()).isEqualTo("Person");
+        assertThat(genericDocument.getPropertyString("firstName")).isEqualTo("first");
+        assertThat(genericDocument.getPropertyString("lastName")).isEqualTo("last");
+
+        // Test the conversion from GenericDocument to person
+        Person newPerson = genericDocument.toDocumentClass(Person.class);
+        assertThat(newPerson.getId()).isEqualTo("id");
+        assertThat(newPerson.getNamespace()).isEqualTo("namespace");
+        assertThat(newPerson.getCreationTimestamp()).isEqualTo(3000);
+        assertThat(newPerson.getFirstName()).isEqualTo("first");
+        assertThat(newPerson.getLastName()).isEqualTo("last");
+    }
+
     @Test
     public void testPolymorphismForInterface() throws Exception {
         assumeTrue(mSession.getFeatures().isFeatureSupported(Features.SCHEMA_ADD_PARENT_TYPE));

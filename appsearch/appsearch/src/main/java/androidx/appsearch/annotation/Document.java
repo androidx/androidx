@@ -539,15 +539,24 @@ public @interface Document {
     }
 
     /**
-     * Marks a method as a builder producer.
+     * Marks a static method or a builder class directly as a builder producer. A builder class
+     * should contain a "build()" method to construct the AppSearch document object and setter
+     * methods to set field values.
      *
-     * <p>A builder producer is a static method that returns a builder, which contains a "build()"
-     * method to construct the AppSearch document object and setter methods to set field values.
-     * Once a builder producer is specified, AppSearch will be forced to use the builder pattern to
-     * construct the document object.
+     * <p>When a static method is marked as a builder producer, the method should return a
+     * builder instance for AppSearch to construct the document object. When a builder class is
+     * marked as a builder producer directly, AppSearch will use the constructor of the builder
+     * class to create a builder instance.
+     *
+     * <p>The annotated static method or the constructor of the annotated builder class is allowed
+     * to accept parameters to set a part of field values. In this case, AppSearch will only use
+     * setters to set values for the remaining fields.
+     *
+     * <p>Once a builder producer is specified, AppSearch will be forced to use the builder
+     * pattern to construct the document object.
      */
     @Documented
     @Retention(RetentionPolicy.CLASS)
-    @Target(ElementType.METHOD)
+    @Target({ElementType.METHOD, ElementType.TYPE})
     @interface BuilderProducer {}
 }
