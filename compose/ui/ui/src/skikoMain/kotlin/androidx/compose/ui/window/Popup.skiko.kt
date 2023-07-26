@@ -23,6 +23,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.*
+import androidx.compose.ui.input.pointer.PointerButton
+import androidx.compose.ui.input.pointer.PointerEventType.Companion.Press
+import androidx.compose.ui.input.pointer.PointerInputEvent
 import androidx.compose.ui.semantics.popup
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.IntOffset
@@ -131,15 +134,26 @@ fun Popup(
     onKeyEvent: ((KeyEvent) -> Boolean) = { false },
     focusable: Boolean = false,
     content: @Composable () -> Unit
-) = PopupLayout(
-    popupPositionProvider = popupPositionProvider,
-    focusable = focusable,
-    onClickOutside = if (focusable) onDismissRequest else null,
-    modifier = Modifier.semantics { popup() },
-    onPreviewKeyEvent = onPreviewKeyEvent,
-    onKeyEvent = onKeyEvent,
-    content = content
-)
+) {
+    val onOutsidePointerEvent = if (focusable) {
+        { _: PointerInputEvent ->
+            if (onDismissRequest != null) {
+                onDismissRequest()
+            }
+        }
+    } else {
+        null
+    }
+    PopupLayout(
+        popupPositionProvider = popupPositionProvider,
+        focusable = focusable,
+        modifier = Modifier.semantics { popup() },
+        onOutsidePointerEvent = onOutsidePointerEvent,
+        onPreviewKeyEvent = onPreviewKeyEvent,
+        onKeyEvent = onKeyEvent,
+        content = content
+    )
+}
 
 /**
  * Opens a popup with the given content.
@@ -204,11 +218,20 @@ actual fun Popup(
     properties: PopupProperties,
     content: @Composable () -> Unit
 ) {
+    val onOutsidePointerEvent = if (properties.dismissOnClickOutside) {
+        { _: PointerInputEvent ->
+            if (onDismissRequest != null) {
+                onDismissRequest()
+            }
+        }
+    } else {
+        null
+    }
     PopupLayout(
         popupPositionProvider = popupPositionProvider,
         focusable = properties.focusable,
-        onClickOutside = if (properties.dismissOnClickOutside) onDismissRequest else null,
         modifier = Modifier.semantics { popup() },
+        onOutsidePointerEvent = onOutsidePointerEvent,
         onKeyEvent = {
             if (properties.dismissOnBackPress &&
                 it.type == KeyEventType.KeyDown && it.key == Key.Escape &&

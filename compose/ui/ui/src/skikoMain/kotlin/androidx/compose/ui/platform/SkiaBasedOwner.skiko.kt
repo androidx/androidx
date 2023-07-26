@@ -75,16 +75,13 @@ internal class SkiaBasedOwner(
     initLayoutDirection: LayoutDirection = platform.layoutDirection,
     bounds: IntRect = IntRect.Zero,
     val focusable: Boolean = true,
-    val onClickOutside: (() -> Unit)? = null,
+    val onOutsidePointerEvent: ((PointerInputEvent) -> Unit)? = null,
     private val onPreviewKeyEvent: (KeyEvent) -> Boolean = { false },
     private val onKeyEvent: (KeyEvent) -> Boolean = { false },
 ) : Owner, RootForTest, SkiaRootForTest, PositionCalculator {
     override val windowInfo: WindowInfo get() = platform.windowInfo
 
-    fun isHovered(event: PointerInputEvent) =
-        isHovered(event.pointers.first().position)
-
-    private fun isHovered(point: Offset): Boolean {
+    fun isInBounds(point: Offset): Boolean {
         val intOffset = IntOffset(point.x.toInt(), point.y.toInt())
         return bounds.contains(intOffset)
     }

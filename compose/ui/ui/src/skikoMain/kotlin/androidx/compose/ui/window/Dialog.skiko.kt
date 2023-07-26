@@ -18,7 +18,6 @@ package androidx.compose.ui.window
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
@@ -26,6 +25,9 @@ import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.type
+import androidx.compose.ui.input.pointer.PointerButton
+import androidx.compose.ui.input.pointer.PointerEventType
+import androidx.compose.ui.input.pointer.PointerInputEvent
 import androidx.compose.ui.semantics.dialog
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.IntOffset
@@ -62,17 +64,24 @@ actual fun Dialog(
     properties: DialogProperties,
     content: @Composable () -> Unit
 ) {
+    val onOutsidePointerEvent = if (properties.dismissOnClickOutside) {
+        { event: PointerInputEvent ->
+            if (event.isDismissRequest()) {
+                onDismissRequest()
+            }
+        }
+    } else {
+        null
+    }
     PopupLayout(
         popupPositionProvider = WindowCenterPositionProvider,
         focusable = true,
-        if (properties.dismissOnClickOutside) onDismissRequest else null,
         modifier = Modifier
             .drawBehind {
                 drawRect(Color.Black.copy(alpha = 0.4f))
             }
-            .semantics {
-                dialog()
-            },
+            .semantics { dialog() },
+        onOutsidePointerEvent = onOutsidePointerEvent,
         onKeyEvent = {
             if (properties.dismissOnBackPress &&
                 it.type == KeyEventType.KeyDown && it.key == Key.Escape
@@ -95,3 +104,10 @@ private object WindowCenterPositionProvider : PopupPositionProvider {
         popupContentSize: IntSize
     ): IntOffset = windowSize.center - popupContentSize.center
 }
+
+private fun PointerInputEvent.isMainAction() =
+    button == PointerButton.Primary ||
+        button == null && pointers.size == 1
+
+private fun PointerInputEvent.isDismissRequest() =
+    eventType == PointerEventType.Release && isMainAction()
