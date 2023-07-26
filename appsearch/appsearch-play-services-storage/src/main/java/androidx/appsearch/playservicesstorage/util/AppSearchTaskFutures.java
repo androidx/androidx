@@ -30,12 +30,12 @@ import androidx.core.util.Function;
 import com.google.android.gms.tasks.Task;
 import com.google.common.util.concurrent.ListenableFuture;
 
+import java.util.concurrent.Executor;
+
 /** Utilities for converting {@link Task} to {@link ListenableFuture}. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class AppSearchTaskFutures {
-
     private static final String TAG = "AppSearchTaskFutures";
-
     private AppSearchTaskFutures() {}
 
     /**
@@ -43,13 +43,19 @@ public class AppSearchTaskFutures {
      * androidx apis.
      * <p>Note: Calling {@link java.util.concurrent.Future#cancel(boolean)} on the returned result
      * is a no-op since {@link Task} has no equivalent method.
+     *
+     * @param task The {@link Task} that needs to be converted to {@link ListenableFuture}.
+     * @param valueMapper The transformation function to apply to the task's result.
+     * @param executor The {@link Executor} to execute task's onCompleteListener logic.
      */
     @NonNull
     public static <GmsType, JetpackType> ListenableFuture<JetpackType> toListenableFuture(
             @NonNull Task<GmsType> task,
-            @NonNull Function<GmsType, JetpackType> valueMapper) {
+            @NonNull Function<GmsType, JetpackType> valueMapper,
+            @NonNull Executor executor) {
         return CallbackToFutureAdapter.getFuture(
                 completer -> task.addOnCompleteListener(
+                        executor,
                         completedTask -> {
                             if (completedTask.isCanceled()) {
                                 completer.setCancelled();
