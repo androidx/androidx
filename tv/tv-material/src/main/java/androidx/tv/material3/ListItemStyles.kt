@@ -17,25 +17,36 @@
 package androidx.tv.material3
 
 import androidx.annotation.FloatRange
-import androidx.compose.foundation.Indication
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 
 /**
- * Defines [Shape] for all TV [Indication] states of a ListItem.
+ * Represents the [Shape] of ListItem in different interaction states.
+ *
+ * @constructor create an instance with arbitrary shapes.
+ * See [ListItemDefaults.shape] for the default shapes used in a [ListItem].
+ *
+ * @param shape the shape used when the ListItem is enabled.
+ * @param focusedShape the shape used when the ListItem is enabled and focused.
+ * @param pressedShape the shape used when the ListItem is enabled and pressed.
+ * @param selectedShape the shape used when the ListItem is enabled and selected.
+ * @param disabledShape the shape used when the ListItem is not enabled.
+ * @param focusedSelectedShape the shape used when the ListItem is enabled, focused and selected.
+ * @param focusedDisabledShape the shape used when the ListItem is not enabled and focused.
+ * @param pressedSelectedShape the shape used when the ListItem is enabled, pressed and selected.
  */
 @ExperimentalTvMaterial3Api
 @Immutable
-class ListItemShape internal constructor(
-    internal val shape: Shape,
-    internal val focusedShape: Shape,
-    internal val pressedShape: Shape,
-    internal val selectedShape: Shape,
-    internal val disabledShape: Shape,
-    internal val focusedSelectedShape: Shape,
-    internal val focusedDisabledShape: Shape,
-    internal val pressedSelectedShape: Shape
+class ListItemShape constructor(
+    val shape: Shape,
+    val focusedShape: Shape,
+    val pressedShape: Shape,
+    val selectedShape: Shape,
+    val disabledShape: Shape,
+    val focusedSelectedShape: Shape,
+    val focusedDisabledShape: Shape,
+    val pressedSelectedShape: Shape
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -81,25 +92,48 @@ class ListItemShape internal constructor(
 }
 
 /**
- * Defines container & content color [Color] for all TV [Indication] states of a ListItem.
+ * Represents the container & content color [Color] of ListItem in different interaction states.
+ *
+ * @constructor create an instance with arbitrary colors.
+ * See [ListItemDefaults.colors] for the default colors used in a [ListItem].
+ *
+ * @param containerColor the container color used when the ListItem is enabled.
+ * @param contentColor the content color used when the ListItem is enabled.
+ * @param focusedContainerColor the container color used when the ListItem is enabled and focused.
+ * @param focusedContentColor the content color used when the ListItem is enabled and focused.
+ * @param pressedContainerColor the container color used when the ListItem is enabled and pressed.
+ * @param pressedContentColor the content color used when the ListItem is enabled and pressed.
+ * @param selectedContainerColor the container color used when the ListItem is enabled and
+ * selected.
+ * @param selectedContentColor the content color used when the ListItem is enabled and selected.
+ * @param disabledContainerColor the container color used when the ListItem is not enabled.
+ * @param disabledContentColor the content color used when the ListItem is not enabled.
+ * @param focusedSelectedContainerColor the container color used when the ListItem is enabled,
+ * focused and selected.
+ * @param focusedSelectedContentColor the content color used when the ListItem is enabled,
+ * focused and selected.
+ * @param pressedSelectedContainerColor the container color used when the ListItem is enabled,
+ * pressed and selected.
+ * @param pressedSelectedContentColor the content color used when the ListItem is enabled,
+ * pressed and selected.
  */
 @ExperimentalTvMaterial3Api
 @Immutable
-class ListItemColors internal constructor(
-    internal val containerColor: Color,
-    internal val contentColor: Color,
-    internal val focusedContainerColor: Color,
-    internal val focusedContentColor: Color,
-    internal val pressedContainerColor: Color,
-    internal val pressedContentColor: Color,
-    internal val selectedContainerColor: Color,
-    internal val selectedContentColor: Color,
-    internal val disabledContainerColor: Color,
-    internal val disabledContentColor: Color,
-    internal val focusedSelectedContainerColor: Color,
-    internal val focusedSelectedContentColor: Color,
-    internal val pressedSelectedContainerColor: Color,
-    internal val pressedSelectedContentColor: Color
+class ListItemColors constructor(
+    val containerColor: Color,
+    val contentColor: Color,
+    val focusedContainerColor: Color,
+    val focusedContentColor: Color,
+    val pressedContainerColor: Color,
+    val pressedContentColor: Color,
+    val selectedContainerColor: Color,
+    val selectedContentColor: Color,
+    val disabledContainerColor: Color,
+    val disabledContentColor: Color,
+    val focusedSelectedContainerColor: Color,
+    val focusedSelectedContentColor: Color,
+    val pressedSelectedContainerColor: Color,
+    val pressedSelectedContentColor: Color
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -162,20 +196,35 @@ class ListItemColors internal constructor(
 }
 
 /**
- * Defines the scale for all TV [Indication] states of a ListItem.
+ * Represents the scale [Float] of ListItem for different interaction states.
  * Note: This scale must always be a non-negative float.
+ *
+ * @constructor create an instance with arbitrary scale factors.
+ * See [ListItemDefaults.scale] for the default scale factors used in a [ListItem].
+ *
+ * @param scale the scale used when the ListItem is enabled.
+ * @param focusedScale the scale used when the ListItem is enabled and focused.
+ * @param pressedScale the scale used when the ListItem is enabled and pressed.
+ * @param selectedScale the scale used when the ListItem is enabled and selected.
+ * @param disabledScale the scale used when the ListItem is not enabled.
+ * @param focusedSelectedScale the scale used when the ListItem is enabled, focused and
+ * selected.
+ * @param focusedDisabledScale the scale used when the ListItem is not enabled and
+ * focused.
+ * @param pressedSelectedScale the scale used when the ListItem is enabled, pressed and
+ * selected.
  */
 @ExperimentalTvMaterial3Api
 @Immutable
-class ListItemScale internal constructor(
-    @FloatRange(from = 0.0) internal val scale: Float,
-    @FloatRange(from = 0.0) internal val focusedScale: Float,
-    @FloatRange(from = 0.0) internal val pressedScale: Float,
-    @FloatRange(from = 0.0) internal val selectedScale: Float,
-    @FloatRange(from = 0.0) internal val disabledScale: Float,
-    @FloatRange(from = 0.0) internal val focusedSelectedScale: Float,
-    @FloatRange(from = 0.0) internal val focusedDisabledScale: Float,
-    @FloatRange(from = 0.0) internal val pressedSelectedScale: Float
+class ListItemScale constructor(
+    @FloatRange(from = 0.0) val scale: Float,
+    @FloatRange(from = 0.0) val focusedScale: Float,
+    @FloatRange(from = 0.0) val pressedScale: Float,
+    @FloatRange(from = 0.0) val selectedScale: Float,
+    @FloatRange(from = 0.0) val disabledScale: Float,
+    @FloatRange(from = 0.0) val focusedSelectedScale: Float,
+    @FloatRange(from = 0.0) val focusedDisabledScale: Float,
+    @FloatRange(from = 0.0) val pressedSelectedScale: Float
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -237,19 +286,33 @@ class ListItemScale internal constructor(
 }
 
 /**
- * Defines [Border] for all TV [Indication] states of a ListItem.
+ * Represents the [Border] of ListItem for different interaction states.
+ *
+ * @constructor create an instance with arbitrary borders.
+ * See [ListItemDefaults.border] for the default borders used in a [ListItem].
+ *
+ * @param border the [Border] used when the ListItem is enabled.
+ * @param focusedBorder the [Border] used when the ListItem is enabled and focused.
+ * @param pressedBorder the [Border] used when the ListItem is enabled and pressed.
+ * @param selectedBorder the [Border] used when the ListItem is enabled and selected.
+ * @param disabledBorder the [Border] used when the ListItem is not enabled.
+ * @param focusedSelectedBorder the [Border] used when the ListItem is enabled, focused and
+ * selected.
+ * @param focusedDisabledBorder the [Border] used when the ListItem is not enabled and focused.
+ * @param pressedSelectedBorder the [Border] used when the ListItem is enabled, pressed and
+ * selected.
  */
 @ExperimentalTvMaterial3Api
 @Immutable
-class ListItemBorder internal constructor(
-    internal val border: Border,
-    internal val focusedBorder: Border,
-    internal val pressedBorder: Border,
-    internal val selectedBorder: Border,
-    internal val disabledBorder: Border,
-    internal val focusedSelectedBorder: Border,
-    internal val focusedDisabledBorder: Border,
-    internal val pressedSelectedBorder: Border
+class ListItemBorder constructor(
+    val border: Border,
+    val focusedBorder: Border,
+    val pressedBorder: Border,
+    val selectedBorder: Border,
+    val disabledBorder: Border,
+    val focusedSelectedBorder: Border,
+    val focusedDisabledBorder: Border,
+    val pressedSelectedBorder: Border
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -295,17 +358,27 @@ class ListItemBorder internal constructor(
 }
 
 /**
- * Defines [Glow] for all TV [Indication] states of a ListItem.
+ * Represents the [Glow] of ListItem for different interaction states.
+ *
+ * @constructor create an instance with arbitrary glows.
+ * See [ListItemDefaults.glow] for the default glows used in a [ListItem].
+ *
+ * @param glow the [Glow] used when the ListItem is enabled.
+ * @param focusedGlow the [Glow] used when the ListItem is enabled and focused.
+ * @param pressedGlow the [Glow] used when the ListItem is enabled and pressed.
+ * @param selectedGlow the [Glow] used when the ListItem is enabled and selected.
+ * @param focusedSelectedGlow the [Glow] used when the ListItem is enabled, focused and selected.
+ * @param pressedSelectedGlow the [Glow] used when the ListItem is enabled, pressed and selected.
  */
 @ExperimentalTvMaterial3Api
 @Immutable
-class ListItemGlow internal constructor(
-    internal val glow: Glow,
-    internal val focusedGlow: Glow,
-    internal val pressedGlow: Glow,
-    internal val selectedGlow: Glow,
-    internal val focusedSelectedGlow: Glow,
-    internal val pressedSelectedGlow: Glow
+class ListItemGlow constructor(
+    val glow: Glow,
+    val focusedGlow: Glow,
+    val pressedGlow: Glow,
+    val selectedGlow: Glow,
+    val focusedSelectedGlow: Glow,
+    val pressedSelectedGlow: Glow
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

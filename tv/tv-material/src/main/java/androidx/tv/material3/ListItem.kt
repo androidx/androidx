@@ -50,7 +50,6 @@ import androidx.compose.ui.unit.Dp
  *
  * @param selected defines whether this ListItem is selected or not
  * @param onClick called when this ListItem is clicked
- * @param headlineContent the [Composable] headline content of the list item
  * @param modifier [Modifier] to be applied to the list item
  * @param enabled controls the enabled state of this list item. When `false`, this component will
  * not respond to user input, and it will appear visually disabled and disabled to accessibility
@@ -75,13 +74,13 @@ import androidx.compose.ui.unit.Dp
  * [Interaction]s for this component. You can create and pass in your own [remember]ed instance
  * to observe [Interaction]s and customize the appearance / behavior of this list item in different
  * states.
+ * @param headlineContent the [Composable] headline content of the list item
  */
 @ExperimentalTvMaterial3Api
 @Composable
 fun ListItem(
     selected: Boolean,
     onClick: () -> Unit,
-    headlineContent: @Composable () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     onLongClick: (() -> Unit)? = null,
@@ -95,7 +94,8 @@ fun ListItem(
     scale: ListItemScale = ListItemDefaults.scale(),
     border: ListItemBorder = ListItemDefaults.border(),
     glow: ListItemGlow = ListItemDefaults.glow(),
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() }
+    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    headlineContent: @Composable () -> Unit
 ) {
     BaseListItem(
         selected = selected,
@@ -142,7 +142,6 @@ fun ListItem(
  *
  * @param selected defines whether this ListItem is selected or not
  * @param onClick called when this ListItem is clicked
- * @param headlineContent the [Composable] headline content of the list item
  * @param modifier [Modifier] to be applied to the list item
  * @param enabled controls the enabled state of this list item. When `false`, this component will
  * not respond to user input, and it will appear visually disabled and disabled to accessibility
@@ -167,13 +166,13 @@ fun ListItem(
  * [Interaction]s for this component. You can create and pass in your own [remember]ed instance
  * to observe [Interaction]s and customize the appearance / behavior of this list item in different
  * states.
+ * @param headlineContent the [Composable] headline content of the list item
  */
 @ExperimentalTvMaterial3Api
 @Composable
 fun DenseListItem(
     selected: Boolean,
     onClick: () -> Unit,
-    headlineContent: @Composable () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     onLongClick: (() -> Unit)? = null,
@@ -187,7 +186,8 @@ fun DenseListItem(
     scale: ListItemScale = ListItemDefaults.scale(),
     border: ListItemBorder = ListItemDefaults.border(),
     glow: ListItemGlow = ListItemDefaults.glow(),
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() }
+    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    headlineContent: @Composable () -> Unit
 ) {
     BaseListItem(
         selected = selected,
