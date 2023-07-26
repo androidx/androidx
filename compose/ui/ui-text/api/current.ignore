@@ -9,3 +9,9 @@ ParameterNameChange: androidx.compose.ui.text.TextMeasurer#TextMeasurer(androidx
     Attempted to change parameter name from fallbackDensity to defaultDensity in constructor androidx.compose.ui.text.TextMeasurer
 ParameterNameChange: androidx.compose.ui.text.TextMeasurer#TextMeasurer(androidx.compose.ui.text.font.FontFamily.Resolver, androidx.compose.ui.unit.Density, androidx.compose.ui.unit.LayoutDirection, int) parameter #2:
     Attempted to change parameter name from fallbackLayoutDirection to defaultLayoutDirection in constructor androidx.compose.ui.text.TextMeasurer
+
+
+RemovedMethod: androidx.compose.ui.text.input.ImeOptions#ImeOptions(boolean, int, boolean, int, int):
+    Removed constructor androidx.compose.ui.text.input.ImeOptions(boolean,int,boolean,int,int)
+RemovedMethod: androidx.compose.ui.text.input.ImeOptions#copy(boolean, int, boolean, int, int):
+    Removed method androidx.compose.ui.text.input.ImeOptions.copy(boolean,int,boolean,int,int)

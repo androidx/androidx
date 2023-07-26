@@ -1,0 +1,5 @@
+// Baseline format: 1.0
+RemovedMethod: androidx.compose.foundation.text.KeyboardOptions#KeyboardOptions(int, boolean, int, int):
+    Removed constructor androidx.compose.foundation.text.KeyboardOptions(int,boolean,int,int)
+RemovedMethod: androidx.compose.foundation.text.KeyboardOptions#copy(int, boolean, int, int):
+    Removed method androidx.compose.foundation.text.KeyboardOptions.copy(int,boolean,int,int)

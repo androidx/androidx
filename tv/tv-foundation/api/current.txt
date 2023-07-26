@@ -242,3 +242,23 @@ package androidx.tv.foundation.lazy.list {
 
 }
 
+package androidx.tv.foundation.text {
+
+  public final class TvImeOptionsKt {
+    method @SuppressCompatibility @androidx.tv.foundation.ExperimentalTvFoundationApi public static androidx.compose.ui.text.input.AndroidImeOptions AndroidImeOptions(androidx.tv.foundation.text.TvKeyboardAlignment horizontalAlignment);
+    method @SuppressCompatibility @androidx.tv.foundation.ExperimentalTvFoundationApi public static androidx.compose.ui.text.input.AndroidImeOptions keyboardAlignment(androidx.compose.ui.text.input.AndroidImeOptions, androidx.tv.foundation.text.TvKeyboardAlignment horizontalAlignment);
+  }
+
+  @SuppressCompatibility @androidx.tv.foundation.ExperimentalTvFoundationApi public enum TvKeyboardAlignment {
+    method public final String! getOption();
+    method public static androidx.tv.foundation.text.TvKeyboardAlignment valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
+    method public static androidx.tv.foundation.text.TvKeyboardAlignment[] values();
+    property public final String! option;
+    enum_constant public static final androidx.tv.foundation.text.TvKeyboardAlignment Center;
+    enum_constant public static final androidx.tv.foundation.text.TvKeyboardAlignment Fullscreen;
+    enum_constant public static final androidx.tv.foundation.text.TvKeyboardAlignment Left;
+    enum_constant public static final androidx.tv.foundation.text.TvKeyboardAlignment Right;
+  }
+
+}
+
