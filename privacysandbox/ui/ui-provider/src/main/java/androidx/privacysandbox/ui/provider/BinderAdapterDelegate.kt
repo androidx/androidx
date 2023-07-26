@@ -150,8 +150,11 @@ private class BinderAdapterDelegate(
             }
 
             override fun notifyResized(width: Int, height: Int) {
-                surfaceControlViewHost.relayout(width, height)
-                session.notifyResized(width, height)
+                val mHandler = Handler(Looper.getMainLooper())
+                mHandler.post {
+                    surfaceControlViewHost.relayout(width, height)
+                    session.notifyResized(width, height)
+                }
             }
 
             override fun close() {
