@@ -19,8 +19,6 @@ package androidx.compose.ui.window
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
@@ -31,6 +29,10 @@ import androidx.compose.ui.input.key.type
 import androidx.compose.ui.semantics.dialog
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntRect
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.center
 
 @Immutable
 actual class DialogProperties actual constructor(
@@ -54,21 +56,14 @@ actual class DialogProperties actual constructor(
     }
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 actual fun Dialog(
     onDismissRequest: () -> Unit,
     properties: DialogProperties,
     content: @Composable () -> Unit
 ) {
-    val popupPositioner = remember {
-        AlignmentOffsetPositionProvider(
-            alignment = Alignment.Center,
-            offset = IntOffset(0, 0)
-        )
-    }
     PopupLayout(
-        popupPositionProvider = popupPositioner,
+        popupPositionProvider = WindowCenterPositionProvider,
         focusable = true,
         if (properties.dismissOnClickOutside) onDismissRequest else null,
         modifier = Modifier
@@ -90,4 +85,13 @@ actual fun Dialog(
         },
         content = content
     )
+}
+
+private object WindowCenterPositionProvider : PopupPositionProvider {
+    override fun calculatePosition(
+        anchorBounds: IntRect,
+        windowSize: IntSize,
+        layoutDirection: LayoutDirection,
+        popupContentSize: IntSize
+    ): IntOffset = windowSize.center - popupContentSize.center
 }

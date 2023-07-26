@@ -36,6 +36,8 @@ import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.toOffset
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupPositionProvider
 import androidx.compose.ui.window.PopupProperties
@@ -157,6 +159,34 @@ class PopupState(
                 Box(
                     Modifier
                         .requiredSize(bounds.width.toDp(), bounds.height.toDp())
+                        .collectEvents(events)
+                        .testTag(tag)
+                )
+            }
+        }
+    }
+}
+
+class DialogState(
+    val size: IntSize,
+    private val dismissOnClickOutside: Boolean = true,
+    private val onDismissRequest: () -> Unit = {}
+) {
+    val events = Events()
+    val tag = "dialog"
+
+    @Composable
+    fun Content() {
+        Dialog(
+            onDismissRequest = onDismissRequest,
+            properties = DialogProperties(
+                dismissOnClickOutside = dismissOnClickOutside
+            )
+        ) {
+            with(LocalDensity.current) {
+                Box(
+                    Modifier
+                        .requiredSize(size.width.toDp(), size.height.toDp())
                         .collectEvents(events)
                         .testTag(tag)
                 )
