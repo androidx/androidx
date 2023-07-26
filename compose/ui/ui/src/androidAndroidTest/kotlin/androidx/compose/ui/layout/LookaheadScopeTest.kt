@@ -19,6 +19,7 @@
 package androidx.compose.ui.layout
 
 import androidx.activity.ComponentActivity
+import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationVector2D
 import androidx.compose.animation.core.VectorConverter
@@ -28,6 +29,9 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Arrangement.Absolute.SpaceAround
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowColumn
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -36,6 +40,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredHeight
@@ -46,6 +51,7 @@ import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -91,6 +97,7 @@ import junit.framework.TestCase.assertFalse
 import junit.framework.TestCase.assertTrue
 import kotlin.math.roundToInt
 import kotlin.random.Random
+import kotlin.test.assertNotNull
 import kotlinx.coroutines.launch
 import org.junit.Ignore
 import org.junit.Rule
@@ -1261,6 +1268,83 @@ class LookaheadScopeTest {
                     )
                 }
             }
+        }
+    }
+
+    @OptIn(ExperimentalLayoutApi::class)
+    @Test
+    fun testNestedLookaheadPlacement() {
+        var expanded by mutableStateOf(true)
+        var actualOffset: Offset? = null
+        var lookaheadOffset: Offset? = null
+        rule.setContent {
+            LookaheadScope {
+                FlowRow(
+                    modifier = Modifier.fillMaxSize(),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalArrangement = Arrangement.Center,
+                    maxItemsInEachRow = 3
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .animateContentSize()
+                            .widthIn(max = 600.dp)
+                            .background(Color.Red)
+                    ) {
+                        val height = if (expanded) 500.dp else 300.dp
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(height)
+                        )
+                    }
+
+                    FlowColumn {
+                        Box(
+                            modifier = Modifier
+                                .size(200.dp)
+                                .layout { measurable, constraints ->
+                                    val placeable = measurable.measure(constraints)
+                                    layout(placeable.width, placeable.height) {
+                                        val coords = coordinates
+                                        if (coords != null) {
+                                            if (isLookingAhead) {
+                                                lookaheadOffset = coords
+                                                    .findRootCoordinates()
+                                                    .localLookaheadPositionOf(coords)
+                                            } else {
+                                                actualOffset = coords
+                                                    .findRootCoordinates()
+                                                    .localPositionOf(coords, Offset.Zero)
+                                            }
+                                        }
+                                        placeable.place(0, 0)
+                                    }
+                                }
+                                .wrapContentWidth()
+                                .heightIn(min = 156.dp)
+                                .background(Color.Blue)
+                        ) {
+                            Box(modifier = Modifier.size(200.dp))
+                        }
+                    }
+                }
+            }
+        }
+        rule.runOnIdle {
+            expanded = !expanded
+        }
+        rule.runOnIdle {
+            assertNotNull(actualOffset)
+            assertEquals(actualOffset, lookaheadOffset)
+            actualOffset = null
+            lookaheadOffset = null
+
+            expanded = !expanded
+        }
+        rule.runOnIdle {
+            assertNotNull(actualOffset)
+            assertEquals(actualOffset, lookaheadOffset)
         }
     }
 

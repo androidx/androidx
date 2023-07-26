@@ -154,12 +154,16 @@ internal class MeasureAndLayoutDelegate(private val root: LayoutNode) {
                 } else {
                     layoutNode.markLookaheadMeasurePending()
                     layoutNode.markMeasurePending()
-                    if (layoutNode.isPlacedInLookahead == true ||
-                        layoutNode.canAffectParentInLookahead
+                    if ((layoutNode.isPlacedInLookahead == true ||
+                            layoutNode.canAffectParentInLookahead) &&
+                        layoutNode.parent?.lookaheadMeasurePending != true
                     ) {
-                        if (layoutNode.parent?.lookaheadMeasurePending != true) {
-                            relayoutNodes.add(layoutNode, true)
-                        }
+                        relayoutNodes.add(layoutNode, true)
+                    } else if (
+                        (layoutNode.isPlaced || layoutNode.canAffectParent) &&
+                        layoutNode.parent?.measurePending != true
+                    ) {
+                        relayoutNodes.add(layoutNode, false)
                     }
                     !duringMeasureLayout
                 }
@@ -238,13 +242,17 @@ internal class MeasureAndLayoutDelegate(private val root: LayoutNode) {
                     // dependency on lookahead layout.
                     layoutNode.markLookaheadLayoutPending()
                     layoutNode.markLayoutPending()
-                    if (layoutNode.isPlacedInLookahead == true) {
-                        val parent = layoutNode.parent
-                        if (parent?.lookaheadMeasurePending != true &&
-                            parent?.lookaheadLayoutPending != true
-                        ) {
-                            relayoutNodes.add(layoutNode, true)
-                        }
+
+                    val parent = layoutNode.parent
+                    if (layoutNode.isPlacedInLookahead == true &&
+                        parent?.lookaheadMeasurePending != true &&
+                        parent?.lookaheadLayoutPending != true
+                    ) {
+                        relayoutNodes.add(layoutNode, true)
+                    } else if (layoutNode.isPlaced &&
+                        parent?.layoutPending != true && parent?.measurePending != true
+                    ) {
+                        relayoutNodes.add(layoutNode, false)
                     }
                     !duringMeasureLayout
                 }

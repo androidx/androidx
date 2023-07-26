@@ -1254,6 +1254,7 @@ internal class LayoutNodeLayoutDelegate(
             val owner = layoutNode.requireOwner()
 
             if (!lookaheadLayoutPending && isPlaced) {
+                outerCoordinator.lookaheadDelegate!!.placeSelfApparentToRealOffset(position)
                 onNodePlaced()
             } else {
                 coordinatesAccessedDuringModifierPlacement = false
