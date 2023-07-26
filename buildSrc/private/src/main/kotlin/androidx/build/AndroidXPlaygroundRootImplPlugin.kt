@@ -77,6 +77,7 @@ class AndroidXPlaygroundRootImplPlugin : Plugin<Project> {
      * access the network.
      */
     private fun findSnapshotVersion(group: String, module: String): String {
+        @Suppress("DEPRECATION")
         val snapshotVersionCache =
             rootProject.buildDir.resolve("snapshot-version-cache/${config.snapshotBuildId}")
         val groupPath = group.replace('.', '/')

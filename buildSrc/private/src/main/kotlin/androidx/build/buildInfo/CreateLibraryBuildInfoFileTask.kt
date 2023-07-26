@@ -95,9 +95,11 @@ abstract class CreateLibraryBuildInfoFileTask : DefaultTask() {
 
     @get:Input abstract val projectZipPath: Property<String>
 
-    @get:Input abstract val dependencyList: ListProperty<LibraryBuildInfoFile.Dependency>
+    @get:[Input Optional]
+    abstract val dependencyList: ListProperty<LibraryBuildInfoFile.Dependency>
 
-    @get:Input abstract val dependencyConstraintList: ListProperty<LibraryBuildInfoFile.Dependency>
+    @get:[Input Optional]
+    abstract val dependencyConstraintList: ListProperty<LibraryBuildInfoFile.Dependency>
 
     /** the local project directory without the full framework/support root directory path */
     @get:Input abstract val projectSpecificDirectory: Property<String>
@@ -134,8 +136,11 @@ abstract class CreateLibraryBuildInfoFileTask : DefaultTask() {
         libraryBuildInfoFile.projectZipPath = projectZipPath.get()
         libraryBuildInfoFile.kotlinVersion = kotlinVersion.orNull
         libraryBuildInfoFile.checks = ArrayList()
-        libraryBuildInfoFile.dependencies = ArrayList(dependencyList.get())
-        libraryBuildInfoFile.dependencyConstraints = ArrayList(dependencyConstraintList.get())
+        libraryBuildInfoFile.dependencies =
+            if (dependencyList.isPresent) ArrayList(dependencyList.get()) else ArrayList()
+        libraryBuildInfoFile.dependencyConstraints =
+            if (dependencyConstraintList.isPresent) ArrayList(dependencyConstraintList.get())
+            else ArrayList()
         return libraryBuildInfoFile
     }
 
@@ -296,22 +301,14 @@ private fun Project.createBuildInfoTask(
                 artifactId = artifactId,
                 taskSuffix = computeTaskSuffix(artifactId),
                 dependencies =
-                    project.provider {
-                        pub.component
-                            ?.let { component ->
-                                val usageDependencies =
-                                    component.usages.orEmpty().flatMap { it.dependencies }
-                                usageDependencies + dependenciesOnKmpVariants(component)
-                            }
-                            .orEmpty()
+                    pub.component.map { component ->
+                        val usageDependencies =
+                            component.usages.orEmpty().flatMap { it.dependencies }
+                        usageDependencies + dependenciesOnKmpVariants(component)
                     },
                 dependencyConstraints =
-                    project.provider {
-                        pub.component
-                            ?.let { component ->
-                                component.usages.orEmpty().flatMap { it.dependencyConstraints }
-                            }
-                            .orEmpty()
+                    pub.component.map { component ->
+                        component.usages.orEmpty().flatMap { it.dependencyConstraints }
                     }
             ),
         shaProvider = shaProvider

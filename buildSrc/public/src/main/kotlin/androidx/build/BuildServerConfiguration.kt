@@ -108,7 +108,7 @@ fun Project.getRepositoryDirectory(): File {
             // For snapshot builds we put artifacts directly where downstream users can find them.
             File(actualRootProject.getDistributionDirectory(), "repository")
         } else {
-            File(actualRootProject.buildDir, "support_repo")
+            @Suppress("DEPRECATION") File(actualRootProject.buildDir, "support_repo")
         }
     directory.mkdirs()
     return directory

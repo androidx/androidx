@@ -416,10 +416,7 @@ internal class ImportToml : BaseImportMavenCommand(
         val file = tomlFile.orFromSupportRepoFolder(
             "gradle/libs.versions.toml"
         )
-        return ImportVersionCatalog.load(
-            fileSystem = FileSystem.SYSTEM,
-            file = file
-        )
+        return ImportVersionCatalog.load(file)
     }
 }
 
