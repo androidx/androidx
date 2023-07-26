@@ -296,7 +296,6 @@ internal open class AndroidCameraExtensionSession(
             request: CaptureRequest,
             result: TotalCaptureResult
         ) {
-            Log.info { "Extension session listener's onComplete requires Android T or higher." }
             val frameNumber = frameQueue.remove()
             captureCallback.onCaptureCompleted(request, result, FrameNumber(frameNumber))
         }
