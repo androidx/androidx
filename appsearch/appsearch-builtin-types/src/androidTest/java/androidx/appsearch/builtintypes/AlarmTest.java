@@ -214,6 +214,11 @@ public class AlarmTest {
                 .isEqualTo(GenericDocument.fromDocumentClass(alarmInstance2));
         assertThat(genericDocument.getPropertyLong("computingDevice"))
                 .isEqualTo(Alarm.COMPUTING_DEVICE_SMART_WATCH);
+
+        // Test that toDocumentClass doesn't lose information.
+        GenericDocument newGenericDocument = GenericDocument.fromDocumentClass(
+                genericDocument.toDocumentClass(Alarm.class));
+        assertThat(newGenericDocument).isEqualTo(genericDocument);
     }
 
     @Test
@@ -245,5 +250,10 @@ public class AlarmTest {
 
         assertThat(alarm.getDaysOfWeek()).isNull();
         assertThat(alarmGenericDocument.getPropertyLongArray("daysOfWeek")).isNull();
+
+        // Test that toDocumentClass doesn't lose information.
+        GenericDocument newGenericDocument = GenericDocument.fromDocumentClass(
+                alarmGenericDocument.toDocumentClass(Alarm.class));
+        assertThat(newGenericDocument).isEqualTo(alarmGenericDocument);
     }
 }

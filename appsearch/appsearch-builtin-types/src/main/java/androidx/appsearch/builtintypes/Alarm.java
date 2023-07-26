@@ -224,6 +224,7 @@ public class Alarm extends Thing {
     }
 
     /** Builder for {@link Alarm}. */
+    @Document.BuilderProducer
     public static final class Builder extends BuilderImpl<Builder> {
         /**
          * Constructor for {@link Alarm.Builder}.

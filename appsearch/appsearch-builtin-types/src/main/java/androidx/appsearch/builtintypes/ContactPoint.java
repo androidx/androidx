@@ -102,6 +102,7 @@ public class ContactPoint extends Thing {
     }
 
     /** Builder for {@link ContactPoint}. */
+    @Document.BuilderProducer
     public static final class Builder extends BuilderImpl<Builder> {
         /**
          * Constructor for {@link ContactPoint.Builder}.
