@@ -38,6 +38,7 @@ import androidx.compose.runtime.Immutable
  * @param imeAction The IME action. This IME action is honored by IME and may show specific icons
  * on the keyboard. For example, search icon may be shown if [ImeAction.Search] is specified.
  * When [singleLine] is false, the IME might show return key rather than the action requested here.
+ * @param platformImeOptions defines the platform specific IME options.
  */
 @Immutable
 class ImeOptions(
@@ -45,7 +46,8 @@ class ImeOptions(
     val capitalization: KeyboardCapitalization = KeyboardCapitalization.None,
     val autoCorrect: Boolean = true,
     val keyboardType: KeyboardType = KeyboardType.Text,
-    val imeAction: ImeAction = ImeAction.Default
+    val imeAction: ImeAction = ImeAction.Default,
+    val platformImeOptions: PlatformImeOptions? = null
 ) {
     companion object {
         /**
@@ -59,14 +61,16 @@ class ImeOptions(
         capitalization: KeyboardCapitalization = this.capitalization,
         autoCorrect: Boolean = this.autoCorrect,
         keyboardType: KeyboardType = this.keyboardType,
-        imeAction: ImeAction = this.imeAction
+        imeAction: ImeAction = this.imeAction,
+        platformImeOptions: PlatformImeOptions? = this.platformImeOptions
     ): ImeOptions {
         return ImeOptions(
             singleLine = singleLine,
             capitalization = capitalization,
             autoCorrect = autoCorrect,
             keyboardType = keyboardType,
-            imeAction = imeAction
+            imeAction = imeAction,
+            platformImeOptions = platformImeOptions
         )
     }
 
@@ -79,6 +83,7 @@ class ImeOptions(
         if (autoCorrect != other.autoCorrect) return false
         if (keyboardType != other.keyboardType) return false
         if (imeAction != other.imeAction) return false
+        if (platformImeOptions != other.platformImeOptions) return false
 
         return true
     }
@@ -89,11 +94,13 @@ class ImeOptions(
         result = 31 * result + autoCorrect.hashCode()
         result = 31 * result + keyboardType.hashCode()
         result = 31 * result + imeAction.hashCode()
+        result = 31 * result + platformImeOptions.hashCode()
         return result
     }
 
     override fun toString(): String {
         return "ImeOptions(singleLine=$singleLine, capitalization=$capitalization, " +
-            "autoCorrect=$autoCorrect, keyboardType=$keyboardType, imeAction=$imeAction)"
+            "autoCorrect=$autoCorrect, keyboardType=$keyboardType, imeAction=$imeAction, " +
+            "platformImeOptions=$platformImeOptions)"
     }
 }

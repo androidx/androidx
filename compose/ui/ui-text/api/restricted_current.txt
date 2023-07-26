@@ -911,6 +911,12 @@ package androidx.compose.ui.text.font {
 
 package androidx.compose.ui.text.input {
 
+  public final class AndroidImeOptions implements androidx.compose.ui.text.input.PlatformImeOptions {
+    ctor public AndroidImeOptions(optional String? privateImeOptions);
+    method public String? getPrivateImeOptions();
+    property public final String? privateImeOptions;
+  }
+
   public final class BackspaceCommand implements androidx.compose.ui.text.input.EditCommand {
     ctor public BackspaceCommand();
     method public void applyTo(androidx.compose.ui.text.input.EditingBuffer buffer);
@@ -995,17 +1001,19 @@ package androidx.compose.ui.text.input {
   }
 
   @androidx.compose.runtime.Immutable public final class ImeOptions {
-    ctor public ImeOptions(optional boolean singleLine, optional int capitalization, optional boolean autoCorrect, optional int keyboardType, optional int imeAction);
-    method public androidx.compose.ui.text.input.ImeOptions copy(optional boolean singleLine, optional int capitalization, optional boolean autoCorrect, optional int keyboardType, optional int imeAction);
+    ctor public ImeOptions(optional boolean singleLine, optional int capitalization, optional boolean autoCorrect, optional int keyboardType, optional int imeAction, optional androidx.compose.ui.text.input.PlatformImeOptions? platformImeOptions);
+    method public androidx.compose.ui.text.input.ImeOptions copy(optional boolean singleLine, optional int capitalization, optional boolean autoCorrect, optional int keyboardType, optional int imeAction, optional androidx.compose.ui.text.input.PlatformImeOptions? platformImeOptions);
     method public boolean getAutoCorrect();
     method public int getCapitalization();
     method public int getImeAction();
     method public int getKeyboardType();
+    method public androidx.compose.ui.text.input.PlatformImeOptions? getPlatformImeOptions();
     method public boolean getSingleLine();
     property public final boolean autoCorrect;
     property public final int capitalization;
     property public final int imeAction;
     property public final int keyboardType;
+    property public final androidx.compose.ui.text.input.PlatformImeOptions? platformImeOptions;
     property public final boolean singleLine;
     field public static final androidx.compose.ui.text.input.ImeOptions.Companion Companion;
   }
@@ -1083,6 +1091,9 @@ package androidx.compose.ui.text.input {
     method public androidx.compose.ui.text.input.TransformedText filter(androidx.compose.ui.text.AnnotatedString text);
     method public char getMask();
     property public final char mask;
+  }
+
+  public sealed interface PlatformImeOptions {
   }
 
   public fun interface PlatformTextInputMethodRequest {
