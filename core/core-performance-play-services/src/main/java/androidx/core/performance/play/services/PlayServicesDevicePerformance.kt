@@ -27,7 +27,7 @@ import kotlinx.coroutines.tasks.await
  *
  * @param context The application context value to use.
  */
-class PlayServicesDevicePerformance(val context: Context) : DevicePerformance {
+class PlayServicesDevicePerformance(private val context: Context) : DevicePerformance {
     // TODO(b/292643991): Add caching mechanism to play service androidx
     override val mediaPerformanceClass: Int = getPerformanceClass(context)
 

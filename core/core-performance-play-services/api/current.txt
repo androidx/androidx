@@ -3,16 +3,8 @@ package androidx.core.performance.play.services {
 
   public final class PlayServicesDevicePerformance implements androidx.core.performance.DevicePerformance {
     ctor public PlayServicesDevicePerformance(android.content.Context context);
-    method public android.content.Context getContext();
     method public int getMediaPerformanceClass();
-    method public static int getPerformanceClass(android.content.Context context);
-    property public final android.content.Context context;
     property public int mediaPerformanceClass;
-    field public static final androidx.core.performance.play.services.PlayServicesDevicePerformance.Companion Companion;
-  }
-
-  public static final class PlayServicesDevicePerformance.Companion {
-    method public int getPerformanceClass(android.content.Context context);
   }
 
   @Deprecated public final class PlayServicesDevicePerformanceSupplier implements androidx.core.performance.DevicePerformanceSupplier {
