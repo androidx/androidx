@@ -54,13 +54,15 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 
 /**
- * The basic implementation of {@link SynchronizedCaptureSession} to forward the feature calls
- * into the {@link CameraCaptureSession}. It will not synchronize methods with the other
- * SynchronizedCaptureSessions.
+ * The implementation of {@link SynchronizedCaptureSession} to forward the feature calls
+ * into the {@link CameraCaptureSession}.
  *
- * The {@link StateCallback} to receives the state callbacks from the
- * {@link CameraCaptureSession.StateCallback} and convert the {@link CameraCaptureSession} to the
- * SynchronizedCaptureSession object.
+ * The implementation of {@link SynchronizedCaptureSession.StateCallback} and
+ * {@link SynchronizedCaptureSession.Opener} will be able to track the creation and close of the
+ * SynchronizedCaptureSession in {@link CaptureSessionRepository}.
+ * Some Quirks may be required to take some action before opening/closing other sessions, with the
+ * SynchronizedCaptureSessionBaseImpl, it would be useful when implementing the workaround of
+ * Quirks.
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class SynchronizedCaptureSessionBaseImpl extends SynchronizedCaptureSession.StateCallback implements
