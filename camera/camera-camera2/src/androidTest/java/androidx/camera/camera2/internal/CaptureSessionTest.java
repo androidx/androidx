@@ -1110,6 +1110,8 @@ public final class CaptureSessionTest {
     public void cameraDisconnected_whenOpeningCaptureSessions_onClosedShouldBeCalled()
             throws CameraAccessException, InterruptedException, ExecutionException,
             TimeoutException {
+        assumeFalse("Known device issue, b/255461164", "cph1931".equalsIgnoreCase(Build.MODEL));
+
         List<OutputConfigurationCompat> outputConfigList = new LinkedList<>();
         outputConfigList.add(
                 new OutputConfigurationCompat(mTestParameters0.mImageReader.getSurface()));
@@ -1179,6 +1181,8 @@ public final class CaptureSessionTest {
     public void cameraDisconnected_captureSessionsOnClosedShouldBeCalled_repeatingStarted()
             throws ExecutionException, InterruptedException, TimeoutException,
             CameraAccessException {
+        assumeFalse("Known device issue, b/255461164", "cph1931".equalsIgnoreCase(Build.MODEL));
+
         CaptureSession captureSession = createCaptureSession();
         captureSession.setSessionConfig(mTestParameters0.mSessionConfig);
         captureSession.open(mTestParameters0.mSessionConfig, mCameraDeviceHolder.get(),
@@ -1229,6 +1233,8 @@ public final class CaptureSessionTest {
     public void cameraDisconnected_captureSessionsOnClosedShouldBeCalled_withoutRepeating()
             throws CameraAccessException, InterruptedException, ExecutionException,
             TimeoutException {
+        assumeFalse("Known device issue, b/255461164", "cph1931".equalsIgnoreCase(Build.MODEL));
+
         // The CameraCaptureSession will call close() automatically when CameraDevice is
         // disconnected, and the CameraCaptureSession should receive the onClosed() callback if
         // the CameraDevice status is idling.
