@@ -17,9 +17,12 @@
 package androidx.compose.ui.input.pointer
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.ComposeScene
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.ImageComposeScene
@@ -282,6 +285,36 @@ class PointerIconTest {
             frameDispatcher.cancel()
         }
     }
+
+    @Test
+    fun resetsToDefault() = ImageComposeScene(
+        width = 100, height = 100
+    ).use { scene ->
+        var show by mutableStateOf(true)
+        scene.setContent {
+            CompositionLocalProvider(LocalPointerIconService provides iconService) {
+                Box(Modifier.fillMaxSize()) {
+                    if (show) {
+                        Box(
+                            modifier = Modifier
+                                .pointerHoverIcon(PointerIcon.Text)
+                                .size(10.dp, 10.dp)
+                        )
+                    }
+                }
+            }
+        }
+
+        assertThat(iconService.getIcon()).isEqualTo(PointerIcon.Default)
+
+        scene.sendPointerEvent(PointerEventType.Move, Offset(5f, 5f))
+        assertThat(iconService.getIcon()).isEqualTo(PointerIcon.Text)
+
+        show = false
+        scene.render()
+        assertThat(iconService.getIcon()).isEqualTo(PointerIcon.Default)
+    }
+
 
     private class IconPlatform : Platform by Platform.Empty {
         @Suppress("PropertyName")

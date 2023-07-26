@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.input.pointer
 
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
@@ -104,6 +105,15 @@ fun Modifier.pointerHoverIcon(icon: PointerIcon, overrideDescendants: Boolean = 
                     overrideDescendants = overrideDescendants,
                     onSetIcon = onSetIcon
                 )
+            }
+            // Temporary fix for b/293219235
+            // TODO: Replace it with the fix from upstream
+            DisposableEffect(Unit) {
+                onDispose {
+                    if (pointerIconModifierLocal.isHovered) {
+                        pointerIconModifierLocal.exit()
+                    }
+                }
             }
             val pointerInputModifier = if (pointerIconModifierLocal.shouldUpdatePointerIcon()) {
                 pointerInput(pointerIconModifierLocal) {
