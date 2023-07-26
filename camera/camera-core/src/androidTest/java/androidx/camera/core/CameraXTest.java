@@ -26,7 +26,7 @@ import android.util.Log;
 import androidx.camera.core.impl.CameraFactory;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.testing.fakes.FakeAppConfig;
-import androidx.camera.testing.fakes.FakeCameraFactory;
+import androidx.camera.testing.impl.fakes.FakeCameraFactory;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;

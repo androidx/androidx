@@ -24,12 +24,12 @@ import android.os.Build
 import androidx.camera.core.DynamicRange
 import androidx.camera.core.DynamicRange.HLG_10_BIT
 import androidx.camera.core.DynamicRange.SDR
-import androidx.camera.testing.EncoderProfilesUtil.PROFILES_2160P
-import androidx.camera.testing.EncoderProfilesUtil.PROFILES_720P
-import androidx.camera.testing.EncoderProfilesUtil.RESOLUTION_2160P
-import androidx.camera.testing.EncoderProfilesUtil.RESOLUTION_720P
 import androidx.camera.testing.fakes.FakeCameraInfoInternal
-import androidx.camera.testing.fakes.FakeEncoderProfilesProvider
+import androidx.camera.testing.impl.EncoderProfilesUtil.PROFILES_2160P
+import androidx.camera.testing.impl.EncoderProfilesUtil.PROFILES_720P
+import androidx.camera.testing.impl.EncoderProfilesUtil.RESOLUTION_2160P
+import androidx.camera.testing.impl.EncoderProfilesUtil.RESOLUTION_720P
+import androidx.camera.testing.impl.fakes.FakeEncoderProfilesProvider
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.assertThrows
 import org.junit.Test

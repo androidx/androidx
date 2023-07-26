@@ -50,14 +50,14 @@ import androidx.camera.core.impl.utils.TransformUtils.rectToSize
 import androidx.camera.core.impl.utils.TransformUtils.rotateSize
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.camera.testing.AndroidUtil.skipVideoRecordingTestIfNotSupportedByEmulator
-import androidx.camera.testing.CameraPipeConfigTestRule
-import androidx.camera.testing.CameraUtil
-import androidx.camera.testing.SurfaceTextureProvider
-import androidx.camera.testing.fakes.FakeLifecycleOwner
-import androidx.camera.testing.mocks.MockConsumer
-import androidx.camera.testing.mocks.helpers.ArgumentCaptor as ArgumentCaptorCameraX
-import androidx.camera.testing.mocks.helpers.CallTimesAtLeast
+import androidx.camera.testing.impl.AndroidUtil.skipVideoRecordingTestIfNotSupportedByEmulator
+import androidx.camera.testing.impl.CameraPipeConfigTestRule
+import androidx.camera.testing.impl.CameraUtil
+import androidx.camera.testing.impl.SurfaceTextureProvider
+import androidx.camera.testing.impl.fakes.FakeLifecycleOwner
+import androidx.camera.testing.impl.mocks.MockConsumer
+import androidx.camera.testing.impl.mocks.helpers.ArgumentCaptor as ArgumentCaptorCameraX
+import androidx.camera.testing.impl.mocks.helpers.CallTimesAtLeast
 import androidx.camera.video.VideoRecordEvent.Finalize.ERROR_NONE
 import androidx.camera.video.VideoRecordEvent.Finalize.ERROR_SOURCE_INACTIVE
 import androidx.core.util.Consumer

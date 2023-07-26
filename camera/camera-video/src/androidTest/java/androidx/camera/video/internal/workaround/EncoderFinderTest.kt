@@ -29,10 +29,10 @@ import androidx.camera.core.CameraXConfig
 import androidx.camera.core.SurfaceRequest
 import androidx.camera.core.impl.CameraInfoInternal
 import androidx.camera.core.impl.Timebase
-import androidx.camera.testing.CameraPipeConfigTestRule
-import androidx.camera.testing.CameraUtil
-import androidx.camera.testing.CameraXUtil
-import androidx.camera.testing.LabTestRule
+import androidx.camera.testing.impl.CameraPipeConfigTestRule
+import androidx.camera.testing.impl.CameraUtil
+import androidx.camera.testing.impl.CameraXUtil
+import androidx.camera.testing.impl.LabTestRule
 import androidx.camera.video.Quality
 import androidx.camera.video.QualitySelector
 import androidx.camera.video.Recorder

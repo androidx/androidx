@@ -16,7 +16,7 @@
 
 package androidx.camera.core;
 
-import static androidx.camera.testing.AndroidUtil.isEmulatorAndAPI21;
+import static androidx.camera.testing.impl.AndroidUtil.isEmulatorAndAPI21;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -50,15 +50,15 @@ import androidx.camera.core.impl.UseCaseConfigFactory;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.internal.CameraUseCaseAdapter;
 import androidx.camera.core.internal.compat.workaround.CaptureFailedRetryEnabler;
-import androidx.camera.testing.CoreAppTestUtil;
 import androidx.camera.testing.fakes.FakeCamera;
-import androidx.camera.testing.fakes.FakeCameraCaptureResult;
 import androidx.camera.testing.fakes.FakeCameraControl;
-import androidx.camera.testing.fakes.FakeCameraCoordinator;
-import androidx.camera.testing.fakes.FakeCameraDeviceSurfaceManager;
-import androidx.camera.testing.fakes.FakeImageInfo;
-import androidx.camera.testing.fakes.FakeImageProxy;
-import androidx.camera.testing.fakes.FakeUseCaseConfigFactory;
+import androidx.camera.testing.impl.CoreAppTestUtil;
+import androidx.camera.testing.impl.fakes.FakeCameraCaptureResult;
+import androidx.camera.testing.impl.fakes.FakeCameraCoordinator;
+import androidx.camera.testing.impl.fakes.FakeCameraDeviceSurfaceManager;
+import androidx.camera.testing.impl.fakes.FakeImageInfo;
+import androidx.camera.testing.impl.fakes.FakeImageProxy;
+import androidx.camera.testing.impl.fakes.FakeUseCaseConfigFactory;
 import androidx.exifinterface.media.ExifInterface;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;

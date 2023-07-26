@@ -52,9 +52,9 @@ import androidx.camera.core.impl.UseCaseConfigFactory;
 import androidx.camera.core.internal.utils.SizeUtil;
 import androidx.camera.core.streamsharing.StreamSharing;
 import androidx.camera.testing.fakes.FakeCamera;
-import androidx.camera.testing.fakes.FakeUseCase;
-import androidx.camera.testing.fakes.FakeUseCaseConfig;
-import androidx.camera.testing.fakes.FakeUseCaseConfigFactory;
+import androidx.camera.testing.impl.fakes.FakeUseCase;
+import androidx.camera.testing.impl.fakes.FakeUseCaseConfig;
+import androidx.camera.testing.impl.fakes.FakeUseCaseConfigFactory;
 import androidx.concurrent.futures.ResolvableFuture;
 
 import com.google.common.util.concurrent.ListenableFuture;

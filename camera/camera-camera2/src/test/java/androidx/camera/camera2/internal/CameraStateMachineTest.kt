@@ -26,7 +26,7 @@ import androidx.camera.core.impl.CameraInternal
 import androidx.camera.core.impl.CameraStateRegistry
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.testing.fakes.FakeCamera
-import androidx.camera.testing.fakes.FakeCameraCoordinator
+import androidx.camera.testing.impl.fakes.FakeCameraCoordinator
 import androidx.lifecycle.Observer
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule

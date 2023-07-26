@@ -26,9 +26,9 @@ import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.ioExecutor
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.mlkit.vision.MlKitAnalyzer
-import androidx.camera.testing.CameraUtil
-import androidx.camera.testing.LabTestRule
-import androidx.camera.testing.fakes.FakeLifecycleOwner
+import androidx.camera.testing.impl.CameraUtil
+import androidx.camera.testing.impl.LabTestRule
+import androidx.camera.testing.impl.fakes.FakeLifecycleOwner
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertWithMessage

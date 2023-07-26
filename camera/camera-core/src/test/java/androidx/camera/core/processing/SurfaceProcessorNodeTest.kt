@@ -43,8 +43,8 @@ import androidx.camera.core.impl.utils.TransformUtils.sizeToRect
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor
 import androidx.camera.core.processing.SurfaceProcessorNode.OutConfig
 import androidx.camera.testing.fakes.FakeCamera
-import androidx.camera.testing.fakes.FakeImageReaderProxy
-import androidx.camera.testing.fakes.FakeSurfaceProcessorInternal
+import androidx.camera.testing.impl.fakes.FakeImageReaderProxy
+import androidx.camera.testing.impl.fakes.FakeSurfaceProcessorInternal
 import com.google.common.truth.Truth.assertThat
 import org.junit.After
 import org.junit.Before

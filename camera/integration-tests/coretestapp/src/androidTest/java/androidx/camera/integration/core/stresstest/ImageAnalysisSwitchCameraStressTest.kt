@@ -24,7 +24,7 @@ import androidx.camera.integration.core.CameraXActivity.BIND_VIDEO_CAPTURE
 import androidx.camera.integration.core.util.StressTestUtil.LARGE_STRESS_TEST_REPEAT_COUNT
 import androidx.camera.integration.core.util.StressTestUtil.VERIFICATION_TARGET_IMAGE_ANALYSIS
 import androidx.camera.integration.core.util.StressTestUtil.assumeCameraSupportUseCaseCombination
-import androidx.camera.testing.LabTestRule
+import androidx.camera.testing.impl.LabTestRule
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.testutils.RepeatRule

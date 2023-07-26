@@ -25,9 +25,9 @@ import androidx.camera.core.ImageAnalysis.OUTPUT_IMAGE_FORMAT_RGBA_8888
 import androidx.camera.core.Logger
 import androidx.camera.core.internal.CameraUseCaseAdapter
 import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.camera.testing.CameraUtil
-import androidx.camera.testing.LabTestRule
-import androidx.camera.testing.fakes.FakeLifecycleOwner
+import androidx.camera.testing.impl.CameraUtil
+import androidx.camera.testing.impl.LabTestRule
+import androidx.camera.testing.impl.fakes.FakeLifecycleOwner
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
 import java.util.concurrent.CountDownLatch

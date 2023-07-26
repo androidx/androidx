@@ -47,10 +47,10 @@ import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.core.processing.DefaultSurfaceProcessor
 import androidx.camera.core.processing.SurfaceProcessorInternal
 import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.camera.testing.CameraPipeConfigTestRule
-import androidx.camera.testing.CameraUtil
-import androidx.camera.testing.fakes.FakeLifecycleOwner
-import androidx.camera.testing.fakes.FakeSurfaceEffect
+import androidx.camera.testing.impl.CameraPipeConfigTestRule
+import androidx.camera.testing.impl.CameraUtil
+import androidx.camera.testing.impl.fakes.FakeLifecycleOwner
+import androidx.camera.testing.impl.fakes.FakeSurfaceEffect
 import androidx.core.util.Consumer
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
