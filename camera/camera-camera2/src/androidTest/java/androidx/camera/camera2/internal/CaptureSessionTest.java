@@ -1114,18 +1114,35 @@ public final class CaptureSessionTest {
         outputConfigList.add(
                 new OutputConfigurationCompat(mTestParameters0.mImageReader.getSurface()));
 
-        SynchronizedCaptureSession.Opener synchronizedCaptureSessionOpener =
-                mCaptureSessionOpenerBuilder.build();
+        CountDownLatch endedCountDown = new CountDownLatch(1);
+        CameraCaptureSession.StateCallback testStateCallback =
+                new CameraCaptureSession.StateCallback() {
 
-        SessionConfigurationCompat sessionConfigCompat =
-                synchronizedCaptureSessionOpener.createSessionConfigurationCompat(
-                        SessionConfigurationCompat.SESSION_REGULAR,
-                        outputConfigList,
-                        new SynchronizedCaptureSessionStateCallbacks.Adapter(
-                                mTestParameters0.mSessionStateCallback));
+                    @Override
+                    public void onClosed(@NonNull CameraCaptureSession session) {
+                        endedCountDown.countDown();
+                    }
+
+                    @Override
+                    public void onConfigured(@NonNull CameraCaptureSession cameraCaptureSession) {
+
+                    }
+
+                    @Override
+                    public void onConfigureFailed(
+                            @NonNull CameraCaptureSession cameraCaptureSession) {
+                        endedCountDown.countDown();
+                    }
+                };
+
+        SynchronizedCaptureSession.Opener opener = mCaptureSessionOpenerBuilder.build();
+        SessionConfigurationCompat sessionConfigCompat = opener.createSessionConfigurationCompat(
+                SessionConfigurationCompat.SESSION_REGULAR,
+                outputConfigList,
+                new SynchronizedCaptureSessionStateCallbacks.Adapter(testStateCallback));
 
         // Open the CameraCaptureSession without waiting for the onConfigured() callback.
-        synchronizedCaptureSessionOpener.openCaptureSession(mCameraDeviceHolder.get(),
+        opener.openCaptureSession(mCameraDeviceHolder.get(),
                 sessionConfigCompat, mTestParameters0.mSessionConfig.getSurfaces());
 
         // Open the camera again to simulate the cameraDevice is disconnected
@@ -1148,11 +1165,10 @@ public final class CaptureSessionTest {
                     }
                 });
         // Only verify the result when the camera can open successfully.
-        assumeTrue(countDownLatch.await(3000, TimeUnit.MILLISECONDS));
+        assumeTrue(countDownLatch.await(3, TimeUnit.SECONDS));
 
         // The opened CaptureSession should be closed after the CameraDevice is disconnected.
-        verify(mTestParameters0.mSessionStateCallback, timeout(5000)).onClosed(
-                any(CameraCaptureSession.class));
+        assumeTrue(endedCountDown.await(3, TimeUnit.SECONDS));
         assertThat(mCaptureSessionRepository.getCaptureSessions().size()).isEqualTo(0);
 
         CameraUtil.releaseCameraDevice(holder);

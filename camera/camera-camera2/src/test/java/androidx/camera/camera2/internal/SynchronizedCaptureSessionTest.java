@@ -36,6 +36,7 @@ import androidx.camera.camera2.internal.compat.quirk.TextureViewIsClosedQuirk;
 import androidx.camera.core.impl.DeferrableSurface;
 import androidx.camera.core.impl.ImmediateSurface;
 import androidx.camera.core.impl.Quirks;
+import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -84,7 +85,7 @@ public class SynchronizedCaptureSessionTest {
         mFakeDeferrableSurfaces.add(mDeferrableSurface2);
 
         mCaptureSessionOpenerBuilder = new SynchronizedCaptureSession.OpenerBuilder(
-                android.os.AsyncTask.SERIAL_EXECUTOR, mScheduledExecutorService,
+                CameraXExecutors.directExecutor(), mScheduledExecutorService,
                 mock(Handler.class), mCaptureSessionRepository,
                 new Quirks(Arrays.asList(new PreviewOrientationIncorrectQuirk(),
                         new ConfigureSurfaceToSecondarySessionFailQuirk())),

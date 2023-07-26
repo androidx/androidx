@@ -550,8 +550,15 @@ class SynchronizedCaptureSessionBaseImpl extends SynchronizedCaptureSession.Stat
                 // the onClosed callback, we can treat this session is already in closed state.
                 onSessionFinished(session);
 
-                Objects.requireNonNull(mCaptureSessionStateCallback);
-                mCaptureSessionStateCallback.onClosed(session);
+                if (mCameraCaptureSessionCompat != null) {
+                    // Only call onClosed() if we have the instance of CameraCaptureSession.
+                    Objects.requireNonNull(mCaptureSessionStateCallback);
+                    mCaptureSessionStateCallback.onClosed(session);
+                } else {
+                    Logger.w(TAG, "[" + SynchronizedCaptureSessionBaseImpl.this + "] Cannot call "
+                            + "onClosed() when the CameraCaptureSession is not correctly "
+                            + "configured.");
+                }
             }, CameraXExecutors.directExecutor());
         }
     }
