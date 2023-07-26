@@ -30,10 +30,10 @@ import androidx.camera.core.imagecapture.Utils.createProcessingRequest
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.isSequentialExecutor
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor
 import androidx.camera.core.impl.utils.futures.Futures
-import androidx.camera.testing.TestImageUtil.createJpegBytes
-import androidx.camera.testing.TestImageUtil.createJpegFakeImageProxy
-import androidx.camera.testing.fakes.FakeImageInfo
-import androidx.camera.testing.fakes.FakeImageProxy
+import androidx.camera.testing.impl.TestImageUtil.createJpegBytes
+import androidx.camera.testing.impl.TestImageUtil.createJpegFakeImageProxy
+import androidx.camera.testing.impl.fakes.FakeImageInfo
+import androidx.camera.testing.impl.fakes.FakeImageProxy
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before
 import org.junit.Test
@@ -92,7 +92,8 @@ class ProcessingNodeTest {
     fun saveIncorrectImage_getsErrorCallback() {
         // Arrange: create an invalid ImageProxy.
         val takePictureCallback = FakeTakePictureCallback()
-        val image = FakeImageProxy(FakeImageInfo())
+        val image =
+            FakeImageProxy(FakeImageInfo())
         val processingRequest = createProcessingRequest(takePictureCallback)
         val input = ProcessingNode.InputPacket.of(processingRequest, image)
 

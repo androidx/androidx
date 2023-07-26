@@ -28,7 +28,7 @@ import android.view.Surface;
 
 import androidx.annotation.NonNull;
 import androidx.camera.core.impl.Config.Option;
-import androidx.camera.testing.DeferrableSurfacesUtil;
+import androidx.camera.testing.impl.DeferrableSurfacesUtil;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;

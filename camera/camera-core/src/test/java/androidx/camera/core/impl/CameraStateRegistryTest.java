@@ -31,7 +31,7 @@ import androidx.camera.core.Camera;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.concurrent.CameraCoordinator;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
-import androidx.camera.testing.fakes.FakeCameraCoordinator;
+import androidx.camera.testing.impl.fakes.FakeCameraCoordinator;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

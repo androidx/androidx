@@ -41,7 +41,7 @@ import androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecu
 import androidx.camera.core.impl.utils.futures.FutureCallback
 import androidx.camera.core.impl.utils.futures.Futures
 import androidx.camera.testing.fakes.FakeCamera
-import androidx.camera.testing.fakes.FakeDeferrableSurface
+import androidx.camera.testing.impl.fakes.FakeDeferrableSurface
 import androidx.concurrent.futures.CallbackToFutureAdapter
 import com.google.common.truth.Truth.assertThat
 import com.google.common.util.concurrent.ListenableFuture

@@ -23,7 +23,7 @@ import androidx.camera.core.impl.ImageReaderProxy
 import androidx.camera.core.impl.TagBundle
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.directExecutor
 import androidx.camera.core.internal.CameraCaptureResultImageInfo
-import androidx.camera.testing.fakes.FakeImageReaderProxy
+import androidx.camera.testing.impl.fakes.FakeImageReaderProxy
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith

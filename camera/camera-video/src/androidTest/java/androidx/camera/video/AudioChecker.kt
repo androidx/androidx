@@ -21,7 +21,7 @@ import androidx.annotation.RequiresApi
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.DynamicRange
 import androidx.camera.core.Logger
-import androidx.camera.testing.CameraUtil
+import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.video.internal.audio.AudioStreamImpl
 import androidx.camera.video.internal.config.AudioSettingsAudioProfileResolver
 import kotlinx.coroutines.runBlocking

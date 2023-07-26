@@ -37,7 +37,7 @@ import androidx.camera.core.resolutionselector.ResolutionStrategy.FALLBACK_RULE_
 import androidx.camera.core.resolutionselector.ResolutionStrategy.FALLBACK_RULE_CLOSEST_LOWER
 import androidx.camera.core.resolutionselector.ResolutionStrategy.FALLBACK_RULE_CLOSEST_LOWER_THEN_HIGHER
 import androidx.camera.testing.fakes.FakeCameraInfoInternal
-import androidx.camera.testing.fakes.FakeUseCaseConfig
+import androidx.camera.testing.impl.fakes.FakeUseCaseConfig
 import com.google.common.truth.Truth.assertThat
 import java.util.Collections
 import java.util.Collections.unmodifiableList

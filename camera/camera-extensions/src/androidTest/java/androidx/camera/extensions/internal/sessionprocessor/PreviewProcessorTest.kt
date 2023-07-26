@@ -36,8 +36,8 @@ import androidx.camera.extensions.impl.PreviewImageProcessorImpl
 import androidx.camera.extensions.impl.ProcessResultImpl
 import androidx.camera.extensions.util.Api21Impl
 import androidx.camera.extensions.util.Api21Impl.toCameraDeviceWrapper
-import androidx.camera.testing.Camera2Util
-import androidx.camera.testing.CameraUtil
+import androidx.camera.testing.impl.Camera2Util
+import androidx.camera.testing.impl.CameraUtil
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
