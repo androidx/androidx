@@ -37,7 +37,6 @@ import kotlinx.coroutines.flow.callbackFlow
 /**
  * Entry point for BLE related operations. This class provides a way to perform Bluetooth LE
  * operations such as scanning, advertising, and connection with a respective [BluetoothDevice].
- *
  */
 class BluetoothLe(private val context: Context) {
 
@@ -59,22 +58,23 @@ class BluetoothLe(private val context: Context) {
      * @return A _cold_ [Flow] with [AdvertiseResult] status in the data stream.
      */
     @RequiresPermission("android.permission.BLUETOOTH_ADVERTISE")
-    fun advertise(advertiseParams: AdvertiseParams): Flow<Int> = callbackFlow {
+    fun advertise(advertiseParams: AdvertiseParams): Flow<@AdvertiseResult.ResultType Int> =
+        callbackFlow {
         val callback = object : AdvertiseCallback() {
             override fun onStartFailure(errorCode: Int) {
                 Log.d(TAG, "onStartFailure() called with: errorCode = $errorCode")
 
                 when (errorCode) {
-                    AdvertiseCallback.ADVERTISE_FAILED_DATA_TOO_LARGE ->
+                    ADVERTISE_FAILED_DATA_TOO_LARGE ->
                         trySend(AdvertiseResult.ADVERTISE_FAILED_DATA_TOO_LARGE)
 
-                    AdvertiseCallback.ADVERTISE_FAILED_FEATURE_UNSUPPORTED ->
+                    ADVERTISE_FAILED_FEATURE_UNSUPPORTED ->
                         trySend(AdvertiseResult.ADVERTISE_FAILED_FEATURE_UNSUPPORTED)
 
-                    AdvertiseCallback.ADVERTISE_FAILED_INTERNAL_ERROR ->
+                    ADVERTISE_FAILED_INTERNAL_ERROR ->
                         trySend(AdvertiseResult.ADVERTISE_FAILED_INTERNAL_ERROR)
 
-                    AdvertiseCallback.ADVERTISE_FAILED_TOO_MANY_ADVERTISERS ->
+                    ADVERTISE_FAILED_TOO_MANY_ADVERTISERS ->
                         trySend(AdvertiseResult.ADVERTISE_FAILED_TOO_MANY_ADVERTISERS)
                 }
             }
