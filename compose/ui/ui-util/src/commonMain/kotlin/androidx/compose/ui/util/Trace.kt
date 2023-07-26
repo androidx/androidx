@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,17 +16,4 @@
 
 package androidx.compose.ui.util
 
-import android.os.Trace
-
-/**
- * Wrap the specified [block] in calls to [Trace.beginSection] (with the supplied [sectionName])
- * and [Trace.endSection].
- */
-actual inline fun <T> trace(sectionName: String, block: () -> T): T {
-    Trace.beginSection(sectionName)
-    try {
-        return block()
-    } finally {
-        Trace.endSection()
-    }
-}
+expect inline fun <T> trace(sectionName: String, block: () -> T): T
