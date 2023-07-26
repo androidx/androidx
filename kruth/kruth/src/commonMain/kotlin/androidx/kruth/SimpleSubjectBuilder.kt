@@ -29,9 +29,9 @@ package androidx.kruth
  * [our doc on extensions](https://truth.dev/extension). It explains where [Subject.Factory] fits
  * into the process.
  */
-class SimpleSubjectBuilder<T, out S : Subject<T>> internal constructor(
+class SimpleSubjectBuilder<out S : Subject<T>, T> internal constructor(
     private val metadata: FailureMetadata = FailureMetadata(),
-    private val subjectFactory: Subject.Factory<T, S>,
+    private val subjectFactory: Subject.Factory<S, T>,
 ) {
 
     fun that(actual: T): S =
