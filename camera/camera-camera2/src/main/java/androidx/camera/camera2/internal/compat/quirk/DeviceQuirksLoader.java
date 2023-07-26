@@ -89,6 +89,9 @@ public class DeviceQuirksLoader {
         if (InvalidVideoProfilesQuirk.load()) {
             quirks.add(new InvalidVideoProfilesQuirk());
         }
+        if (Preview3AThreadCrash.load()) {
+            quirks.add(new Preview3AThreadCrash());
+        }
         if (SmallDisplaySizeQuirk.load()) {
             quirks.add(new SmallDisplaySizeQuirk());
         }
