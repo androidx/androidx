@@ -141,17 +141,6 @@ data class Request(
         ) {
         }
 
-        @Deprecated(
-            message = "Migrating to using RequestFailure instead of CaptureFailure",
-            level = DeprecationLevel.WARNING
-        )
-        fun onFailed(
-            requestMetadata: RequestMetadata,
-            frameNumber: FrameNumber,
-            captureFailure: CaptureFailure
-        ) {
-        }
-
         /**
          * onFailed occurs when a CaptureRequest failed in some way and the frame will not receive
          * the [onTotalCaptureResult] callback.
