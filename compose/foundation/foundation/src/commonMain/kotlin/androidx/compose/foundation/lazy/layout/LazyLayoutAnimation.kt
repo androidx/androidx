@@ -29,14 +29,19 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.GraphicsLayerScope
+import androidx.compose.ui.node.ParentDataModifierNode
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
-internal class LazyLayoutAnimateItemModifierNode(
-    var appearanceSpec: FiniteAnimationSpec<Float>?,
-    var placementSpec: FiniteAnimationSpec<IntOffset>?
-) : Modifier.Node(), (GraphicsLayerScope) -> Unit {
+internal class LazyLayoutAnimation(
+    val coroutineScope: CoroutineScope
+) : (GraphicsLayerScope) -> Unit {
+
+    var appearanceSpec: FiniteAnimationSpec<Float>? = null
+    var placementSpec: FiniteAnimationSpec<IntOffset>? = null
 
     /**
      * Returns true when the placement animation is currently in progress so the parent
@@ -153,13 +158,22 @@ internal class LazyLayoutAnimateItemModifierNode(
         }
     }
 
-    override fun onDetach() {
+    fun stopAnimations() {
+        if (isPlacementAnimationInProgress) {
+            isPlacementAnimationInProgress = false
+            coroutineScope.launch {
+                placementDeltaAnimation.stop()
+            }
+        }
+        if (isAppearanceAnimationInProgress) {
+            isAppearanceAnimationInProgress = false
+            coroutineScope.launch {
+                visibilityAnimation.stop()
+            }
+        }
         placementDelta = IntOffset.Zero
-        isPlacementAnimationInProgress = false
         rawOffset = NotInitialized
         visibility = 1f
-        isAppearanceAnimationInProgress = false
-        // animations will be canceled because coroutineScope will be canceled.
     }
 
     override fun invoke(scope: GraphicsLayerScope) {
@@ -171,6 +185,13 @@ internal class LazyLayoutAnimateItemModifierNode(
     }
 }
 
+internal class LazyLayoutAnimationSpecsNode(
+    var appearanceSpec: FiniteAnimationSpec<Float>?,
+    var placementSpec: FiniteAnimationSpec<IntOffset>?
+) : Modifier.Node(), ParentDataModifierNode {
+    override fun Density.modifyParentData(parentData: Any?): Any = this@LazyLayoutAnimationSpecsNode
+}
+
 /**
  * We switch to this spec when a duration based animation is being interrupted.
  */
@@ -178,3 +199,8 @@ private val InterruptionSpec = spring(
     stiffness = Spring.StiffnessMediumLow,
     visibilityThreshold = IntOffset.VisibilityThreshold
 )
+
+/**
+ * Block on [GraphicsLayerScope] which applies the default layer parameters.
+ */
+internal val DefaultLayerBlock: GraphicsLayerScope.() -> Unit = {}

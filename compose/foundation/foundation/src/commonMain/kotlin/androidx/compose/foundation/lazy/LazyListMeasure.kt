@@ -33,6 +33,7 @@ import androidx.compose.ui.util.fastForEach
 import kotlin.math.abs
 import kotlin.math.roundToInt
 import kotlin.math.sign
+import kotlinx.coroutines.CoroutineScope
 
 /**
  * Measures and calculates the positions for the requested items. The result is produced
@@ -62,6 +63,7 @@ internal fun measureLazyList(
     hasLookaheadPassOccurred: Boolean,
     isLookingAhead: Boolean,
     postLookaheadLayoutInfo: LazyListLayoutInfo?,
+    coroutineScope: CoroutineScope,
     @Suppress("PrimitiveInLambda")
     layout: (Int, Int, Placeable.PlacementScope.() -> Unit) -> MeasureResult
 ): LazyListMeasureResult {
@@ -79,7 +81,8 @@ internal fun measureLazyList(
             itemProvider = measuredItemProvider,
             isVertical = isVertical,
             isLookingAhead = isLookingAhead,
-            hasLookaheadOccurred = hasLookaheadPassOccurred
+            hasLookaheadOccurred = hasLookaheadPassOccurred,
+            coroutineScope = coroutineScope
         )
         return LazyListMeasureResult(
             firstVisibleItem = null,
@@ -321,7 +324,8 @@ internal fun measureLazyList(
             itemProvider = measuredItemProvider,
             isVertical = isVertical,
             isLookingAhead = isLookingAhead,
-            hasLookaheadOccurred = hasLookaheadPassOccurred
+            hasLookaheadOccurred = hasLookaheadPassOccurred,
+            coroutineScope = coroutineScope
         )
 
         val headerItem = if (headerIndexes.isNotEmpty()) {
