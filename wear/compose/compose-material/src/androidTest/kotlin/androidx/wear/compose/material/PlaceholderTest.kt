@@ -46,7 +46,7 @@ class PlaceholderTest {
     @RequiresApi(Build.VERSION_CODES.O)
     @OptIn(ExperimentalWearMaterialApi::class)
     @Test
-    fun placeholder_initially_show_content() {
+    fun placeholder_initially_show_content_when_contentready_true() {
         lateinit var contentReady: MutableState<Boolean>
         lateinit var placeholderState: PlaceholderState
         rule.setContentWithTheme {
@@ -55,9 +55,7 @@ class PlaceholderTest {
                 contentReady.value
             }
             Chip(
-                modifier = Modifier
-                    .testTag("test-item")
-                    .fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth(),
                 content = {},
                 onClick = {},
                 colors = ChipDefaults.secondaryChipColors(),
@@ -70,13 +68,6 @@ class PlaceholderTest {
 
         // Advance placeholder clock without changing the content ready and confirm still in
         // ShowPlaceholder
-        placeholderState.advanceToNextPlaceholderAnimationLoopAndCheckStage(
-            PlaceholderStage.ShowContent
-        )
-
-        contentReady.value = false
-
-        // Check that the state does not go to ShowPlaceholder
         placeholderState.advanceToNextPlaceholderAnimationLoopAndCheckStage(
             PlaceholderStage.ShowContent
         )
@@ -93,9 +84,7 @@ class PlaceholderTest {
                 contentReady
             }
             Chip(
-                modifier = Modifier
-                    .testTag("test-item")
-                    .fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth(),
                 content = {},
                 onClick = {},
                 colors = ChipDefaults.secondaryChipColors(),
@@ -123,6 +112,44 @@ class PlaceholderTest {
         placeholderState.advanceFrameMillisAndCheckState(
             PLACEHOLDER_WIPE_OFF_PROGRESSION_DURATION_MS,
             PlaceholderStage.ShowContent
+        )
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    @OptIn(ExperimentalWearMaterialApi::class)
+    @Test
+    fun placeholder_resets_content_after_show_content_when_contentready_false() {
+        lateinit var contentReady: MutableState<Boolean>
+        lateinit var placeholderState: PlaceholderState
+        rule.setContentWithTheme {
+            contentReady = remember { mutableStateOf(true) }
+            placeholderState = rememberPlaceholderState {
+                contentReady.value
+            }
+            Chip(
+                modifier = Modifier.fillMaxWidth(),
+                content = {},
+                onClick = {},
+                colors = ChipDefaults.secondaryChipColors(),
+                border = ChipDefaults.chipBorder()
+            )
+        }
+
+        // For testing we need to manually manage the frame clock for the placeholder animation
+        placeholderState.initializeTestFrameMillis(PlaceholderStage.ShowContent)
+
+        // Advance placeholder clock without changing the content ready and confirm still in
+        // ShowPlaceholder
+        placeholderState.advanceToNextPlaceholderAnimationLoopAndCheckStage(
+            PlaceholderStage.ShowContent
+        )
+
+        contentReady.value = false
+
+        // Check that the state is set to ResetContent
+        placeholderState.advanceFrameMillisAndCheckState(
+            (PLACEHOLDER_RESET_ANIMATION_DURATION * 0.5f).toLong(),
+            PlaceholderStage.ResetContent
         )
     }
 
@@ -186,7 +213,10 @@ class PlaceholderTest {
 
         // Advance the clock to the next placeholder animation loop and check for wipe-off mode
         placeholderState
-            .advanceToNextPlaceholderAnimationLoopAndCheckStage(PlaceholderStage.WipeOff)
+            .advanceFrameMillisAndCheckState(
+                (PLACEHOLDER_WIPE_OFF_PROGRESSION_DURATION_MS * 0.5f).toLong(),
+                PlaceholderStage.WipeOff
+            )
 
         // Advance the clock to the next placeholder animation loop and check for show content mode
         placeholderState
