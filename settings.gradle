@@ -26,9 +26,11 @@ buildscript {
     repos.addMavenRepositories(repositories)
 
     dependencies {
-        classpath("com.gradle:gradle-enterprise-gradle-plugin:3.13")
-        classpath("com.gradle:common-custom-user-data-gradle-plugin:1.10")
-        classpath("androidx.build.gradle.gcpbuildcache:gcpbuildcache:1.0.0-beta01")
+        // upgrade okio for gcpbuildcache that is compatible with the wire plugin used by androidx
+        classpath("com.squareup.okio:okio:3.3.0")
+        classpath("com.gradle:gradle-enterprise-gradle-plugin:3.14.1")
+        classpath("com.gradle:common-custom-user-data-gradle-plugin:1.11.1")
+        classpath("androidx.build.gradle.gcpbuildcache:gcpbuildcache:1.0.0-beta04")
     }
 }
 
@@ -115,6 +117,9 @@ switch (cacheSetting) {
             remote(GcpBuildCache) {
                 projectId = "androidx-ge"
                 bucketName = "androidx-gradle-remote-cache"
+                messageOnAuthenticationFailure = "Your GCP Credentials have expired.\n" +
+                        "Please regenerate credentials following the steps below and try again:\n" +
+                        "gcloud auth application-default login --project androidx-ge"
                 push = (BUILD_NUMBER != null && !BUILD_NUMBER.startsWith("P"))
             }
         }
