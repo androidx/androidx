@@ -76,7 +76,7 @@ package androidx.kruth {
   }
 
   public final class KruthKt {
-    method public static <T, S extends androidx.kruth.Subject<? extends T>> androidx.kruth.SimpleSubjectBuilder<T,S> assertAbout(androidx.kruth.Subject.Factory<T,? extends S> subjectFactory);
+    method public static <S extends androidx.kruth.Subject<? extends T>, T> androidx.kruth.SimpleSubjectBuilder<S,T> assertAbout(androidx.kruth.Subject.Factory<? extends S,T> subjectFactory);
     method public static androidx.kruth.BooleanSubject assertThat(Boolean? actual);
     method public static androidx.kruth.DoubleSubject assertThat(Double? actual);
     method public static <T> androidx.kruth.IterableSubject<T> assertThat(Iterable<? extends T>? actual);
@@ -103,12 +103,12 @@ package androidx.kruth {
     method public void inOrder();
   }
 
-  public final class SimpleSubjectBuilder<T, S extends androidx.kruth.Subject<? extends T>> {
+  public final class SimpleSubjectBuilder<S extends androidx.kruth.Subject<? extends T>, T> {
     method public S that(T actual);
   }
 
   public final class StandardSubjectBuilder {
-    method public <T, S extends androidx.kruth.Subject<? extends T>> androidx.kruth.SimpleSubjectBuilder<T,S> about(androidx.kruth.Subject.Factory<T,? extends S> subjectFactory);
+    method public <T, S extends androidx.kruth.Subject<? extends T>> androidx.kruth.SimpleSubjectBuilder<S,T> about(androidx.kruth.Subject.Factory<? extends S,T> subjectFactory);
     method public Void fail();
     method public androidx.kruth.BooleanSubject that(Boolean? actual);
     method public androidx.kruth.DoubleSubject that(Double? actual);
@@ -141,6 +141,7 @@ package androidx.kruth {
 
   public class Subject<T> {
     ctor public Subject(T? actual, optional androidx.kruth.FailureMetadata metadata);
+    method protected final androidx.kruth.StandardSubjectBuilder check();
     method @kotlin.PublishedApi internal final void doFail(String message);
     method protected final Void failWithActual(java.lang.String... messages);
     method public final T? getActual();
@@ -159,8 +160,8 @@ package androidx.kruth {
     property public final T? actual;
   }
 
-  public static fun interface Subject.Factory<T, S extends androidx.kruth.Subject<? extends T>> {
-    method public S createSubject(androidx.kruth.FailureMetadata metadata, T actual);
+  public static fun interface Subject.Factory<SubjectT extends androidx.kruth.Subject<? extends ActualT>, ActualT> {
+    method public SubjectT createSubject(androidx.kruth.FailureMetadata metadata, ActualT actual);
   }
 
   public final class ThrowableSubject<T extends java.lang.Throwable> extends androidx.kruth.Subject<T> {
