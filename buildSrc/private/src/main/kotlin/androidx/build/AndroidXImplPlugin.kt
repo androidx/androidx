@@ -758,6 +758,7 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
         // AGP warns if we use project.buildDir (or subdirs) for CMake's generated
         // build files (ninja build files, CMakeCache.txt, etc.). Use a staging directory that
         // lives alongside the project's buildDir.
+        @Suppress("DEPRECATION")
         externalNativeBuild.cmake.buildStagingDirectory =
             File(project.buildDir, "../nativeBuildStaging")
     }
