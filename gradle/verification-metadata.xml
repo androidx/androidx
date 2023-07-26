@@ -293,6 +293,7 @@
          <trusted-key id="90ee19787a7bcf6fd37a1e9180c08b1c29100955">
             <trusting group="com.jakewharton.android.repackaged"/>
             <trusting group="com.squareup" name="javawriter"/>
+            <trusting group="com.squareup.retrofit2"/>
          </trusted-key>
          <trusted-key id="95115197c5227c0887299d000f9fe62f88e938d8" group="com.google.dagger"/>
          <trusted-key id="98465301a4939c0279f2e847d89d05374952262b" group="org.jetbrains.dokka"/>
