@@ -24,6 +24,7 @@ import android.util.AttributeSet
 import android.view.SurfaceView
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewTreeObserver
 import androidx.annotation.RequiresApi
 import androidx.privacysandbox.ui.core.SandboxedUiAdapter
 import java.util.concurrent.CopyOnWriteArrayList
@@ -61,7 +62,7 @@ sealed class SandboxedSdkUiSessionState private constructor() {
 
     /**
      * There is an open session with the supplied [SandboxedUiAdapter] and its UI is currently
-     * being displayed.
+     * being displayed. This state is set after the first draw event of the [SandboxedSdkView].
      */
     object Active : SandboxedSdkUiSessionState()
 
@@ -211,7 +212,25 @@ class SandboxedSdkView @JvmOverloads constructor(context: Context, attrs: Attrib
         } else {
             super.addView(contentView, 0, contentView.layoutParams)
         }
-        stateListenerManager.currentUiSessionState = SandboxedSdkUiSessionState.Active
+        // Listen for first draw event before sending an ACTIVE state change to listeners. Removes
+        // the listener afterwards so that we don't handle multiple draw events.
+        viewTreeObserver.addOnDrawListener(
+            object : ViewTreeObserver.OnDrawListener {
+                var handledDraw = false
+
+                override fun onDraw() {
+                    if (!handledDraw) {
+                        stateListenerManager.currentUiSessionState =
+                            SandboxedSdkUiSessionState.Active
+                        post {
+                            // Posted to handler as this can't be directly called from onDraw
+                            viewTreeObserver.removeOnDrawListener(this)
+                        }
+                        handledDraw = true
+                    }
+                }
+            }
+        )
     }
 
     internal fun onClientClosedSession(error: Throwable? = null) {
