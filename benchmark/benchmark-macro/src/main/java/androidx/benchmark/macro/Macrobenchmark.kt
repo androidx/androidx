@@ -30,9 +30,9 @@ import androidx.benchmark.InstrumentationResults
 import androidx.benchmark.Profiler
 import androidx.benchmark.ResultWriter
 import androidx.benchmark.Shell
-import androidx.benchmark.UserspaceTracing
 import androidx.benchmark.checkAndGetSuppressionState
 import androidx.benchmark.conditionalError
+import androidx.benchmark.inMemoryTrace
 import androidx.benchmark.perfetto.PerfettoCapture.PerfettoSdkConfig
 import androidx.benchmark.perfetto.PerfettoCapture.PerfettoSdkConfig.InitialProcessState
 import androidx.benchmark.perfetto.PerfettoCaptureWrapper
@@ -41,7 +41,6 @@ import androidx.benchmark.perfetto.PerfettoTrace
 import androidx.benchmark.perfetto.PerfettoTraceProcessor
 import androidx.benchmark.perfetto.UiState
 import androidx.benchmark.perfetto.appendUiState
-import androidx.benchmark.userspaceTrace
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.tracing.trace
 import java.io.File
@@ -220,7 +219,7 @@ private fun macrobenchmark(
     // Always kill the process at beginning of test
     scope.killProcess()
 
-    userspaceTrace("compile $packageName") {
+    inMemoryTrace("compile $packageName") {
         compilationMode.resetAndCompile(packageName, killProcessBlock = scope::killProcess) {
             setupBlock(scope)
             measureBlock(scope)
@@ -243,12 +242,12 @@ private fun macrobenchmark(
             val runIterations = if (Arguments.dryRunMode) 1 else iterations
             List(runIterations) { iteration ->
                 // Wake the device to ensure it stays awake with large iteration count
-                userspaceTrace("wake device") {
+                inMemoryTrace("wake device") {
                     scope.device.wakeUp()
                 }
 
                 scope.iteration = iteration
-                userspaceTrace("setupBlock") {
+                inMemoryTrace("setupBlock") {
                     setupBlock(scope)
                 }
 
@@ -274,7 +273,8 @@ private fun macrobenchmark(
                         },
                         useStackSamplingConfig = true
                     ),
-                    perfettoSdkConfig = perfettoSdkConfig
+                    perfettoSdkConfig = perfettoSdkConfig,
+                    inMemoryTracingLabel = "Macrobenchmark"
                 ) {
                     try {
                         trace("start metrics") {
@@ -306,7 +306,7 @@ private fun macrobenchmark(
 
                 val measurementList = loadTrace(PerfettoTrace(tracePath)) {
                     // Extracts the metrics using the perfetto trace processor
-                    userspaceTrace("extract metrics") {
+                    inMemoryTrace("extract metrics") {
                         metrics
                             // capture list of Measurements
                             .map {
@@ -330,10 +330,6 @@ private fun macrobenchmark(
                     highlightPackage = packageName
                 )
                 File(tracePath).apply {
-                    // Disabled currently, see b/194424816 and b/174007010
-                    // appendBytes(UserspaceTracing.commitToTrace().encode())
-                    UserspaceTracing.commitToTrace() // clear buffer
-
                     appendUiState(uiState)
                 }
                 Log.d(TAG, "Iteration $iteration captured $uiState")

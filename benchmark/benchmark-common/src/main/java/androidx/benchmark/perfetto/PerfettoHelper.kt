@@ -23,8 +23,8 @@ import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.benchmark.DeviceInfo.deviceSummaryString
 import androidx.benchmark.Shell
+import androidx.benchmark.inMemoryTrace
 import androidx.benchmark.perfetto.PerfettoHelper.Companion.MIN_SDK_VERSION
-import androidx.benchmark.userspaceTrace
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.tracing.trace
 import java.io.File
@@ -165,7 +165,7 @@ public class PerfettoHelper(
      * This is a good indicator that tracing is actually enabled (including the app atrace tag), and
      * that content will be captured in the trace buffer
      */
-    private fun checkTracingOn(): Unit = userspaceTrace("poll tracing_on") {
+    private fun checkTracingOn(): Unit = inMemoryTrace("poll tracing_on") {
         val path: String = when {
             Shell.pathExists(TRACING_ON_PATH) -> {
                 TRACING_ON_PATH
@@ -187,7 +187,7 @@ public class PerfettoHelper(
         repeat(pollTracingOnMaxCount) {
             when (val output = Shell.executeScriptCaptureStdout("cat $path").trim()) {
                 "0" -> {
-                    userspaceTrace("wait for trace to start (tracing_on == 1)") {
+                    inMemoryTrace("wait for trace to start (tracing_on == 1)") {
                         SystemClock.sleep(pollTracingOnMs)
                     }
                 }
@@ -232,12 +232,12 @@ public class PerfettoHelper(
         // Stop the perfetto and copy the output file.
         Log.i(LOG_TAG, "Stopping perfetto.")
 
-        userspaceTrace("stop perfetto process") {
+        inMemoryTrace("stop perfetto process") {
             stopPerfetto()
         }
 
         Log.i(LOG_TAG, "Writing to $destinationFile.")
-        userspaceTrace("copy trace to output dir") {
+        inMemoryTrace("copy trace to output dir") {
             copyFileOutput(destinationFile)
         }
     }
@@ -410,7 +410,7 @@ public class PerfettoHelper(
         }
 
         fun createExecutable(tool: String): String {
-            userspaceTrace("create executable: $tool") {
+            inMemoryTrace("create executable: $tool") {
                 if (!isAbiSupported()) {
                     throw IllegalStateException(
                         "Unsupported ABI (${Build.SUPPORTED_ABIS.joinToString()})"
