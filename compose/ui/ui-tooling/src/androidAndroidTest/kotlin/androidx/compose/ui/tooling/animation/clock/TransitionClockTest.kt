@@ -599,7 +599,8 @@ class TransitionClockTest {
             clock.setStateParameters(10.dp, 10.dp)
         }
         rule.runOnIdle {
-            assertEquals(2, clock.getAnimatedProperties().size)
+            // When initial == target state, no animation is active.
+            assertEquals(0, clock.getAnimatedProperties().size)
             clock.setStateParameters(20.dp, 40.dp)
         }
         rule.runOnIdle {
@@ -619,19 +620,8 @@ class TransitionClockTest {
         rule.runOnIdle {
             // Default clock state.
             clock.getTransitions(100).let {
-                assertEquals(2, it.size)
-                it[0].let { info ->
-                    assertEquals(0, info.startTimeMillis)
-                    assertEquals(0, info.endTimeMillis)
-                    assertEquals(1, info.values.size)
-                    assertNotNull(info.specType)
-                }
-                it[1].let { info ->
-                    assertEquals(0, info.startTimeMillis)
-                    assertEquals(0, info.endTimeMillis)
-                    assertEquals(1, info.values.size)
-                    assertNotNull(info.specType)
-                }
+                // When initial == target state, no animation is active.
+                assertEquals(0, it.size)
             }
             // Change state
             clock.setStateParameters(20.dp, 40.dp)
