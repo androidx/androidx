@@ -108,10 +108,18 @@ object XConverters {
     fun XVariableElement.toJavac(): VariableElement = (this as JavacVariableElement).element
 
     @JvmStatic
-    fun XAnnotation.toJavac(): AnnotationMirror = (this as JavacAnnotation).mirror
+    fun XAnnotation.toJavac(): AnnotationMirror = when (this) {
+        is JavacAnnotation -> this.mirror
+        // TODO(kuanyingchou: Try to support JavacKmAnnotation
+        else -> error("Don't know how to convert element of type '${this::class}' to Java")
+    }
 
     @JvmStatic
-    fun XAnnotationValue.toJavac(): AnnotationValue = (this as JavacAnnotationValue).annotationValue
+    fun XAnnotationValue.toJavac(): AnnotationValue = when (this) {
+        is JavacAnnotationValue -> this.annotationValue
+        // TODO(kuanyingchou: Try to support JavacKmAnnotationValue
+        else -> error("Don't know how to convert element of type '${this::class}' to Java")
+    }
 
     @JvmStatic
     fun XType.toJavac(): TypeMirror = (this as JavacType).typeMirror
