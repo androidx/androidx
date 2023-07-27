@@ -22,7 +22,9 @@ import java.util.Objects
 
 /** An [ExerciseEvent] that contains information about Golf Shot events for the current exercise. */
 public class GolfShotEvent(
+  /** [Duration] since device boot when the golf shot was detected. */
   val durationSinceBoot: Duration,
+  /** The type of golf swing that was detected. */
   val swingType: GolfShotSwingType
 ) : ExerciseEvent() {
 

@@ -64,6 +64,10 @@ public interface ExerciseUpdateCallback {
     /**
      * Called when an [ExerciseEvent] is emitted. May be called during any exercise state
      * except for PREPARING or ENDED.
+     *
+     * @param event the latest [ExerciseEvent] received during an active exercise. To access the
+     * data for each received [ExerciseEvent], clients can use conditional `when` on [ExerciseEvent]
+     * for a specific event type to access the event-specific data.
      */
     public fun onExerciseEventReceived(event: ExerciseEvent) {}
 }
