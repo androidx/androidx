@@ -124,7 +124,7 @@ fun DropdownMenu(
             onDismissRequest = onDismissRequest,
             popupPositionProvider = popupPositionProvider,
             onKeyEvent = {
-                handlePopupOnKeyEvent(it, onDismissRequest, focusManager!!, inputModeManager!!)
+                handlePopupOnKeyEvent(it, focusManager!!, inputModeManager!!)
             },
         ) {
             focusManager = LocalFocusManager.current
@@ -195,21 +195,17 @@ fun DropdownMenuItem(
 @ExperimentalComposeUiApi
 private fun handlePopupOnKeyEvent(
     keyEvent: KeyEvent,
-    onDismissRequest: () -> Unit,
     focusManager: FocusManager,
     inputModeManager: InputModeManager
 ): Boolean {
-    return if (keyEvent.type == KeyEventType.KeyDown && keyEvent.key == Key.Escape) {
-        onDismissRequest()
-        true
-    } else if (keyEvent.type == KeyEventType.KeyDown) {
-        when {
-            keyEvent.key == Key.DirectionDown -> {
+    return if (keyEvent.type == KeyEventType.KeyDown) {
+        when (keyEvent.key) {
+            Key.DirectionDown -> {
                 inputModeManager.requestInputMode(InputMode.Keyboard)
                 focusManager.moveFocus(FocusDirection.Next)
                 true
             }
-            keyEvent.key == Key.DirectionUp -> {
+            Key.DirectionUp -> {
                 inputModeManager.requestInputMode(InputMode.Keyboard)
                 focusManager.moveFocus(FocusDirection.Previous)
                 true

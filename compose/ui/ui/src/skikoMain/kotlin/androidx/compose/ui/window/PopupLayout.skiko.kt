@@ -21,7 +21,6 @@ import androidx.compose.ui.LocalComposeScene
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.requireCurrent
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.pointer.PointerInputEvent
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.onGloballyPositioned
@@ -39,8 +38,6 @@ internal fun PopupLayout(
     focusable: Boolean,
     modifier: Modifier = Modifier,
     onOutsidePointerEvent: ((PointerInputEvent) -> Unit)? = null,
-    onPreviewKeyEvent: ((KeyEvent) -> Boolean) = { false },
-    onKeyEvent: ((KeyEvent) -> Boolean) = { false },
     content: @Composable () -> Unit
 ) {
     val scene = LocalComposeScene.requireCurrent()
@@ -75,15 +72,13 @@ internal fun PopupLayout(
             initLayoutDirection = layoutDirection,
             focusable = focusable,
             onOutsidePointerEvent = onOutsidePointerEvent,
-            onPreviewKeyEvent = onPreviewKeyEvent,
-            onKeyEvent = onKeyEvent
+            modifier = modifier
         )
         scene.attach(owner)
 
         val composition = owner.setContent(parent = parentComposition) {
             Layout(
                 content = content,
-                modifier = modifier,
                 measurePolicy = { measurables, constraints ->
                     val width = constraints.maxWidth
                     val height = constraints.maxHeight

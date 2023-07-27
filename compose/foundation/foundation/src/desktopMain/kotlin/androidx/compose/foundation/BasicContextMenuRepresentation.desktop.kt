@@ -115,10 +115,6 @@ class DefaultContextMenuRepresentation(
                 onKeyEvent = {
                     if (it.type == KeyEventType.KeyDown) {
                         when (it.key.nativeKeyCode) {
-                            java.awt.event.KeyEvent.VK_ESCAPE -> {
-                                state.status = ContextMenuState.Status.Closed
-                                true
-                            }
                             java.awt.event.KeyEvent.VK_DOWN  -> {
                                 inputModeManager!!.requestInputMode(InputMode.Keyboard)
                                 focusManager!!.moveFocus(FocusDirection.Next)

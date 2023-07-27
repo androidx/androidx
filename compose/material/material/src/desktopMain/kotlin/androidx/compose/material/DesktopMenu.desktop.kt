@@ -309,7 +309,7 @@ private fun OpenDropdownMenu(
         onDismissRequest = onDismissRequest,
         popupPositionProvider = popupPositionProvider,
         onKeyEvent = {
-            handlePopupOnKeyEvent(it, onDismissRequest, focusManager!!, inputModeManager!!)
+            handlePopupOnKeyEvent(it, focusManager!!, inputModeManager!!)
         },
     ) {
         focusManager = LocalFocusManager.current
@@ -363,14 +363,10 @@ fun DropdownMenuItem(
 @OptIn(ExperimentalComposeUiApi::class)
 private fun handlePopupOnKeyEvent(
     keyEvent: androidx.compose.ui.input.key.KeyEvent,
-    onDismissRequest: () -> Unit,
     focusManager: FocusManager,
     inputModeManager: InputModeManager
 ): Boolean {
-    return if (keyEvent.type == KeyEventType.KeyDown && keyEvent.awtEventOrNull?.keyCode == KeyEvent.VK_ESCAPE) {
-        onDismissRequest()
-        true
-    } else if (keyEvent.type == KeyEventType.KeyDown) {
+    return if (keyEvent.type == KeyEventType.KeyDown) {
         when {
             keyEvent.isDirectionDown -> {
                 inputModeManager.requestInputMode(InputMode.Keyboard)

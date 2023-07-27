@@ -368,14 +368,6 @@ object PopupAlertDialogProvider : AlertDialogProvider {
             },
             focusable = true,
             onDismissRequest = onDismissRequest,
-            onKeyEvent = {
-                if (it.type == KeyEventType.KeyDown && it.awtEventOrNull?.keyCode == KeyEvent.VK_ESCAPE) {
-                    onDismissRequest()
-                    true
-                } else {
-                    false
-                }
-            },
         ) {
             val scrimColor = Color.Black.copy(alpha = 0.32f) //todo configure scrim color in function arguments
             Box(
