@@ -44,7 +44,6 @@ import kotlinx.coroutines.CoroutineScope
  *
  * @param content The child composable to be laid out.
  */
-@ExperimentalComposeUiApi
 @UiComposable
 @Composable
 fun LookaheadScope(content: @Composable @UiComposable LookaheadScope.() -> Unit) {
@@ -145,18 +144,19 @@ sealed interface IntermediateMeasureScope : LookaheadScope, CoroutineScope, Meas
  *
  * @sample androidx.compose.ui.samples.LookaheadLayoutCoordinatesSample
  */
-@ExperimentalComposeUiApi
 interface LookaheadScope {
     /**
      * Converts a [LayoutCoordinates] into a [LayoutCoordinates] in the Lookahead coordinates space.
      * This is only applicable to child layouts within [LookaheadScope].
      */
+    @ExperimentalComposeUiApi
     fun LayoutCoordinates.toLookaheadCoordinates(): LayoutCoordinates
 
     /**
      * Returns the [LayoutCoordinates] of the [LookaheadScope]. This is
      * only accessible from [Placeable.PlacementScope] (i.e. during placement time).
      */
+    @ExperimentalComposeUiApi
     val Placeable.PlacementScope.lookaheadScopeCoordinates: LayoutCoordinates
 
     /**
@@ -165,6 +165,7 @@ interface LookaheadScope {
      * [toLookaheadCoordinates], and 2) invoking [LayoutCoordinates.localPositionOf] with the
      * converted coordinates.
      */
+    @ExperimentalComposeUiApi
     fun LayoutCoordinates.localLookaheadPositionOf(coordinates: LayoutCoordinates) =
         this.toLookaheadCoordinates().localPositionOf(
             coordinates.toLookaheadCoordinates(),

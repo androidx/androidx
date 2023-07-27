@@ -49,6 +49,7 @@ import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasurePolicy
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.MeasureScope
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntSize
@@ -129,7 +130,7 @@ fun AnimatedVisibility(
     content: @Composable() AnimatedVisibilityScope.() -> Unit
 ) {
     val transition = updateTransition(visible, label)
-    AnimatedEnterExitImpl(transition, { it }, modifier, enter, exit, content = content)
+    AnimatedVisibilityImpl(transition, { it }, modifier, enter, exit, content = content)
 }
 
 /**
@@ -204,7 +205,7 @@ fun RowScope.AnimatedVisibility(
     content: @Composable() AnimatedVisibilityScope.() -> Unit
 ) {
     val transition = updateTransition(visible, label)
-    AnimatedEnterExitImpl(transition, { it }, modifier, enter, exit, content = content)
+    AnimatedVisibilityImpl(transition, { it }, modifier, enter, exit, content = content)
 }
 
 /**
@@ -277,7 +278,7 @@ fun ColumnScope.AnimatedVisibility(
     content: @Composable AnimatedVisibilityScope.() -> Unit
 ) {
     val transition = updateTransition(visible, label)
-    AnimatedEnterExitImpl(transition, { it }, modifier, enter, exit, content = content)
+    AnimatedVisibilityImpl(transition, { it }, modifier, enter, exit, content = content)
 }
 
 /**
@@ -383,7 +384,7 @@ fun AnimatedVisibility(
     content: @Composable() AnimatedVisibilityScope.() -> Unit
 ) {
     val transition = updateTransition(visibleState, label)
-    AnimatedEnterExitImpl(transition, { it }, modifier, enter, exit, content = content)
+    AnimatedVisibilityImpl(transition, { it }, modifier, enter, exit, content = content)
 }
 
 /**
@@ -458,7 +459,7 @@ fun RowScope.AnimatedVisibility(
     content: @Composable() AnimatedVisibilityScope.() -> Unit
 ) {
     val transition = updateTransition(visibleState, label)
-    AnimatedEnterExitImpl(transition, { it }, modifier, enter, exit, content = content)
+    AnimatedVisibilityImpl(transition, { it }, modifier, enter, exit, content = content)
 }
 
 /**
@@ -534,7 +535,7 @@ fun ColumnScope.AnimatedVisibility(
     content: @Composable() AnimatedVisibilityScope.() -> Unit
 ) {
     val transition = updateTransition(visibleState, label)
-    AnimatedEnterExitImpl(transition, { it }, modifier, enter, exit, content = content)
+    AnimatedVisibilityImpl(transition, { it }, modifier, enter, exit, content = content)
 }
 
 /**
@@ -607,7 +608,7 @@ fun <T> Transition<T>.AnimatedVisibility(
     enter: EnterTransition = fadeIn() + expandIn(),
     exit: ExitTransition = shrinkOut() + fadeOut(),
     content: @Composable() AnimatedVisibilityScope.() -> Unit
-) = AnimatedEnterExitImpl(this, visible, modifier, enter, exit, content = content)
+) = AnimatedVisibilityImpl(this, visible, modifier, enter, exit, content = content)
 
 /**
  * This is the scope for the content of [AnimatedVisibility]. In this scope, direct and
@@ -719,8 +720,51 @@ fun AnimatedVisibility(
     content()
 }
 
-// RowScope and ColumnScope AnimatedEnterExit extensions and AnimatedEnterExit without a receiver
-// converge here.
+/**
+ * RowScope and ColumnScope AnimatedVisibility extensions and AnimatedVisibility without a receiver
+ * converge here.
+ * AnimatedVisibilityImpl sets up 2 things: 1) It adds a modifier to report 0 size in lookahead
+ * when animating out. 2) It sets up a criteria for when content should be disposed.
+ */
+@OptIn(ExperimentalAnimationApi::class)
+@Composable
+internal fun <T> AnimatedVisibilityImpl(
+    transition: Transition<T>,
+    visible: (T) -> Boolean,
+    modifier: Modifier,
+    enter: EnterTransition,
+    exit: ExitTransition,
+    content: @Composable() AnimatedVisibilityScope.() -> Unit
+) {
+    AnimatedEnterExitImpl(
+        transition = transition,
+        visible = visible,
+        modifier = modifier.layout { measurable, constraints ->
+            val placeable = measurable.measure(constraints)
+            val (w, h) =
+                if (isLookingAhead && !visible(transition.targetState)) {
+                    IntSize.Zero
+                } else {
+                    IntSize(placeable.width, placeable.height)
+                }
+            layout(w, h) {
+                placeable.place(0, 0)
+            }
+        },
+        enter = enter,
+        exit = exit,
+        shouldDisposeBlock = { current, target -> current == target && target == PostExit },
+        content = content
+    )
+}
+
+/**
+ * Observes lookahead size.
+ */
+internal fun interface OnLookaheadMeasured {
+    fun invoke(size: IntSize)
+}
+
 @OptIn(
     ExperimentalTransitionApi::class,
     InternalAnimationApi::class,
@@ -733,9 +777,8 @@ internal fun <T> AnimatedEnterExitImpl(
     modifier: Modifier,
     enter: EnterTransition,
     exit: ExitTransition,
-    shouldDisposeBlock: (EnterExitState, EnterExitState) -> Boolean = { current, target ->
-        current == target && target == PostExit
-    },
+    shouldDisposeBlock: (EnterExitState, EnterExitState) -> Boolean,
+    onLookaheadMeasured: OnLookaheadMeasured? = null,
     content: @Composable() AnimatedVisibilityScope.() -> Unit
 ) {
     if (visible(transition.targetState) || visible(transition.currentState) ||
@@ -771,7 +814,21 @@ internal fun <T> AnimatedEnterExitImpl(
             val scope = remember(transition) { AnimatedVisibilityScopeImpl(childTransition) }
             Layout(
                 content = { scope.content() },
-                modifier = modifier.then(childTransition.createModifier(enter, exit, "Built-in")),
+                modifier = modifier
+                    .then(childTransition.createModifier(enter, exit, "Built-in")
+                        .then(if (onLookaheadMeasured != null) {
+                            Modifier.layout { measurable, constraints ->
+                                measurable.measure(constraints).run {
+                                    if (isLookingAhead) {
+                                        onLookaheadMeasured.invoke(IntSize(width, height))
+                                    }
+                                    layout(width, height) {
+                                        place(0, 0)
+                                    }
+                                }
+                            }
+                        } else Modifier)
+                    ),
                 measurePolicy = remember { AnimatedEnterExitMeasurePolicy(scope) }
             )
         }
