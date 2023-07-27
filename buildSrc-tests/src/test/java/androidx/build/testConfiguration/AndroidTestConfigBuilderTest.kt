@@ -358,6 +358,7 @@ private val goldenDefaultConfigBenchmark = """
     </target_preparer>
     <target_preparer class="com.android.tradefed.targetprep.RunCommandTargetPreparer">
     <option name="run-command" value="cmd package compile -f -m speed com.androidx.placeholder.Placeholder" />
+    <option name="run-command-timeout" value="240000" />
     </target_preparer>
     <test class="com.android.tradefed.testtype.AndroidJUnitTest">
     <option name="runner" value="com.example.Runner"/>
