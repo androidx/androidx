@@ -1,7 +1,7 @@
 import type { FileMetadata } from "./files.js";
 
 export interface FileMetadataEvent {
-  entries: Array<FileMetadata>;
+  entries: FileMetadata[];
 }
 
 export interface Selection {
@@ -9,5 +9,16 @@ export interface Selection {
   enabled: boolean;
 }
 export interface SelectionEvent {
-  selections: Array<Selection>;
+  selections: Selection[];
+}
+
+export type StatType = 'p';
+export interface StatInfo {
+  name: string;
+  type: StatType;
+  enabled: boolean;
+}
+
+export interface StatEvent {
+  info: StatInfo[];
 }
