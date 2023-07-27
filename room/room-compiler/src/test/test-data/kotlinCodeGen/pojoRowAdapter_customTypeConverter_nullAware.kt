@@ -80,7 +80,7 @@ public class MyDao_Impl(
                 }
                 val _tmp_1: Foo? = FooBarConverter.fromString(_tmp)
                 if (_tmp_1 == null) {
-                    error("Expected non-null Foo, but it was null.")
+                    error("Expected NON-NULL 'Foo', but it was NULL.")
                 } else {
                     _tmpFoo = _tmp_1
                 }
@@ -99,13 +99,13 @@ public class MyDao_Impl(
                     _tmp_4 = FooBarConverter.fromFoo(_tmp_3)
                 }
                 if (_tmp_4 == null) {
-                    error("Expected non-null Bar, but it was null.")
+                    error("Expected NON-NULL 'Bar', but it was NULL.")
                 } else {
                     _tmpBar = _tmp_4
                 }
                 _result = MyEntity(_tmpPk,_tmpFoo,_tmpBar)
             } else {
-                error("Cursor was empty, but expected a single item.")
+                error("The query result was empty, but expected a single row to return a NON-NULL object of type <MyEntity>.")
             }
             return _result
         } finally {

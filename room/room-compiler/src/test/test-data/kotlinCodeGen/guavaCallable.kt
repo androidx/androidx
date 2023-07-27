@@ -181,7 +181,7 @@ public class MyDao_Impl(
                         _tmpOther = _cursor.getString(_cursorIndexOfOther)
                         _result = MyEntity(_tmpPk,_tmpOther)
                     } else {
-                        error("Cursor was empty, but expected a single item.")
+                        error("The query result was empty, but expected a single row to return a NON-NULL object of type <MyEntity>.")
                     }
                     return _result
                 } finally {

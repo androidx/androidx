@@ -82,7 +82,7 @@ public class MyDao_Impl(
                 _tmpNullableBoolean = _tmp_1?.let { it != 0 }
                 _result = MyEntity(_tmpPk,_tmpBoolean,_tmpNullableBoolean)
             } else {
-                error("Cursor was empty, but expected a single item.")
+                error("The query result was empty, but expected a single row to return a NON-NULL object of type <MyEntity>.")
             }
             return _result
         } finally {

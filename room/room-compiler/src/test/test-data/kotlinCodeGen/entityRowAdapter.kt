@@ -81,7 +81,7 @@ public class MyDao_Impl(
             if (_cursor.moveToFirst()) {
                 _result = __entityCursorConverter_MyEntity(_cursor)
             } else {
-                error("Cursor was empty, but expected a single item.")
+                error("The query result was empty, but expected a single row to return a NON-NULL object of type <MyEntity>.")
             }
             return _result
         } finally {
@@ -117,7 +117,7 @@ public class MyDao_Impl(
         }
         val _tmpValueString: String
         if (_cursorIndexOfValueString == -1) {
-            error("Missing column 'valueString' for a non null value.")
+            error("Missing value for a NON-NULL column 'valueString', found NULL value instead.")
         } else {
             _tmpValueString = cursor.getString(_cursorIndexOfValueString)
         }

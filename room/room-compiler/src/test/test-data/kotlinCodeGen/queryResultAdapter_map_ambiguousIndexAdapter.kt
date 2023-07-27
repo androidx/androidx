@@ -174,7 +174,7 @@ public class MyDao_Impl(
         }
         val _tmpName: String
         if (_cursorIndexOfName == -1) {
-            error("Missing column 'name' for a non null value.")
+            error("Missing value for a NON-NULL column 'name', found NULL value instead.")
         } else {
             _tmpName = cursor.getString(_cursorIndexOfName)
         }
@@ -201,7 +201,7 @@ public class MyDao_Impl(
         }
         val _tmpText: String
         if (_cursorIndexOfText == -1) {
-            error("Missing column 'text' for a non null value.")
+            error("Missing value for a NON-NULL column 'text', found NULL value instead.")
         } else {
             _tmpText = cursor.getString(_cursorIndexOfText)
         }
