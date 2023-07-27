@@ -151,14 +151,22 @@ internal abstract class LookaheadDelegate(
         zIndex: Float,
         layerBlock: (GraphicsLayerScope.() -> Unit)?
     ) {
+        placeSelf(position)
+        if (isShallowPlacing) return
+        placeChildren()
+    }
+
+    private fun placeSelf(position: IntOffset) {
         if (this.position != position) {
             this.position = position
             layoutNode.layoutDelegate.lookaheadPassDelegate
                 ?.notifyChildrenUsingCoordinatesWhilePlacing()
             coordinator.invalidateAlignmentLinesFromPositionChange()
         }
-        if (isShallowPlacing) return
-        placeChildren()
+    }
+
+    internal fun placeSelfApparentToRealOffset(position: IntOffset) {
+        placeSelf(position + apparentToRealOffset)
     }
 
     protected open fun placeChildren() {
