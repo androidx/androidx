@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
+import kotlin.properties.Delegates
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -36,11 +37,13 @@ class ListDetailPaneScaffoldStateTest {
     @Test
     fun singlePaneLayout_navigateTo_makeFocusPaneExpanded() {
         lateinit var layoutState: ListDetailPaneScaffoldState
+        var canNavigateBack by Delegates.notNull<Boolean>()
 
         composeRule.setContent {
             layoutState = rememberListDetailPaneScaffoldState(
                 layoutDirectives = MockSinglePaneLayoutDirective
             )
+            canNavigateBack = layoutState.canNavigateBack()
         }
 
         composeRule.runOnIdle {
@@ -50,17 +53,20 @@ class ListDetailPaneScaffoldStateTest {
 
         composeRule.runOnIdle {
             assertThat(layoutState.layoutValue.secondary).isEqualTo(PaneAdaptedValue.Expanded)
+            assertThat(canNavigateBack).isTrue()
         }
     }
 
     @Test
     fun dualPaneLayout_navigateTo_keepFocusPaneExpanded() {
         lateinit var layoutState: ListDetailPaneScaffoldState
+        var canNavigateBack by Delegates.notNull<Boolean>()
 
         composeRule.setContent {
             layoutState = rememberListDetailPaneScaffoldState(
                 layoutDirectives = MockDualPaneLayoutDirective
             )
+            canNavigateBack = layoutState.canNavigateBack()
         }
 
         composeRule.runOnIdle {
@@ -70,28 +76,35 @@ class ListDetailPaneScaffoldStateTest {
 
         composeRule.runOnIdle {
             assertThat(layoutState.layoutValue.secondary).isEqualTo(PaneAdaptedValue.Expanded)
+            assertThat(canNavigateBack).isFalse()
         }
     }
 
     @Test
     fun singlePaneLayout_navigateBack_makeFocusPaneHidden() {
         lateinit var layoutState: ListDetailPaneScaffoldState
+        var canNavigateBack by Delegates.notNull<Boolean>()
 
         composeRule.setContent {
             layoutState = rememberListDetailPaneScaffoldState(
                 layoutDirectives = MockSinglePaneLayoutDirective
             )
+            canNavigateBack = layoutState.canNavigateBack()
+        }
+
+        composeRule.runOnIdle {
             layoutState.navigateTo(ListDetailPaneScaffoldRole.List)
         }
 
         composeRule.runOnIdle {
             assertThat(layoutState.layoutValue.secondary).isEqualTo(PaneAdaptedValue.Expanded)
-            assertThat(layoutState.canNavigateBack()).isTrue()
+            assertThat(canNavigateBack).isTrue()
             layoutState.navigateBack()
         }
 
         composeRule.runOnIdle {
             assertThat(layoutState.layoutValue.secondary).isEqualTo(PaneAdaptedValue.Hidden)
+            assertThat(canNavigateBack).isFalse()
         }
     }
 
@@ -142,6 +155,9 @@ class ListDetailPaneScaffoldStateTest {
             layoutState = rememberListDetailPaneScaffoldState(
                 layoutDirectives = mockCurrentLayoutDirective.value
             )
+        }
+
+        composeRule.runOnIdle {
             layoutState.navigateTo(ListDetailPaneScaffoldRole.List)
         }
 

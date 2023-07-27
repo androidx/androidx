@@ -18,11 +18,14 @@ package androidx.compose.material3.adaptive
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.Saver
+import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 
 /**
@@ -124,20 +127,27 @@ interface ListDetailPaneScaffoldState {
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 private class DefaultListDetailPaneScaffoldState(
-    override val layoutDirective: AdaptiveLayoutDirective,
-    val adaptStrategies: ThreePaneScaffoldAdaptStrategies,
-    val focusHistory: MutableList<ListDetailPaneScaffoldRole>
+    initialFocusHistory: List<ListDetailPaneScaffoldRole>,
+    initialLayoutDirective: AdaptiveLayoutDirective,
+    initialAdaptStrategies: ThreePaneScaffoldAdaptStrategies,
 ) : ListDetailPaneScaffoldState {
-    val currentFocus: ListDetailPaneScaffoldRole? get() = focusHistory.lastOrNull()
-    val currentValueState: MutableState<ThreePaneScaffoldValue> =
-        mutableStateOf(calculateCurrentScaffoldValue())
+
+    private val focusHistory = mutableStateListOf<ListDetailPaneScaffoldRole>().apply {
+        addAll(initialFocusHistory)
+    }
+
+    override var layoutDirective by mutableStateOf(initialLayoutDirective)
+
+    var adaptStrategies by mutableStateOf(initialAdaptStrategies)
+
+    val currentFocus: ListDetailPaneScaffoldRole?
+        get() = focusHistory.lastOrNull()
 
     override val layoutValue: ThreePaneScaffoldValue
-        get() = currentValueState.value
+        get() = calculateScaffoldValue(currentFocus)
 
     override fun navigateTo(pane: ListDetailPaneScaffoldRole) {
         focusHistory.add(pane)
-        currentValueState.value = calculateCurrentScaffoldValue()
     }
 
     override fun canNavigateBack(layoutValueMustChange: Boolean): Boolean =
@@ -153,7 +163,6 @@ private class DefaultListDetailPaneScaffoldState(
         while (focusHistory.size > targetSize) {
             focusHistory.removeLast()
         }
-        currentValueState.value = calculateCurrentScaffoldValue()
         return true
     }
 
@@ -167,22 +176,42 @@ private class DefaultListDetailPaneScaffoldState(
         }
         for (previousFocusIndex in focusHistory.lastIndex - 1 downTo 0) {
             val newValue = calculateScaffoldValue(focusHistory[previousFocusIndex])
-            if (newValue != currentValueState.value) {
+            if (newValue != layoutValue) {
                 return previousFocusIndex
             }
         }
         return -1
     }
 
-    private fun calculateScaffoldValue(focus: ListDetailPaneScaffoldRole?): ThreePaneScaffoldValue =
+    private fun calculateScaffoldValue(
+        focus: ListDetailPaneScaffoldRole?
+    ): ThreePaneScaffoldValue =
         calculateThreePaneScaffoldValue(
             layoutDirective.maxHorizontalPartitions,
             adaptStrategies,
             focus?.threePaneScaffoldRole
         )
 
-    private fun calculateCurrentScaffoldValue(): ThreePaneScaffoldValue =
-        calculateScaffoldValue(currentFocus)
+    companion object {
+        /**
+         * To keep focus history saved
+         */
+        fun saver(
+            initialLayoutDirective: AdaptiveLayoutDirective,
+            initialAdaptStrategies: ThreePaneScaffoldAdaptStrategies,
+        ): Saver<DefaultListDetailPaneScaffoldState, *> = listSaver(
+            save = {
+                it.focusHistory.toList()
+            },
+            restore = {
+                DefaultListDetailPaneScaffoldState(
+                    initialFocusHistory = it,
+                    initialLayoutDirective = initialLayoutDirective,
+                    initialAdaptStrategies = initialAdaptStrategies,
+                )
+            }
+        )
+    }
 }
 
 /**
@@ -205,12 +234,22 @@ fun rememberListDetailPaneScaffoldState(
     adaptStrategies: ThreePaneScaffoldAdaptStrategies =
         ListDetailPaneScaffoldDefaults.adaptStrategies(),
     initialFocus: ListDetailPaneScaffoldRole = ListDetailPaneScaffoldRole.Detail
-): ListDetailPaneScaffoldState {
-    val focusHistory = rememberSaveable { mutableListOf(initialFocus) }
-    return remember(layoutDirectives, adaptStrategies) {
-        DefaultListDetailPaneScaffoldState(layoutDirectives, adaptStrategies, focusHistory)
+): ListDetailPaneScaffoldState =
+    rememberSaveable(
+        saver = DefaultListDetailPaneScaffoldState.saver(
+            layoutDirectives,
+            adaptStrategies,
+        )
+    ) {
+        DefaultListDetailPaneScaffoldState(
+            initialFocusHistory = listOf(initialFocus),
+            initialLayoutDirective = layoutDirectives,
+            initialAdaptStrategies = adaptStrategies,
+        )
+    }.apply {
+        this.layoutDirective = layoutDirectives
+        this.adaptStrategies = adaptStrategies
     }
-}
 
 /**
  * The set of the available pane roles of [ListDetailPaneScaffold].
