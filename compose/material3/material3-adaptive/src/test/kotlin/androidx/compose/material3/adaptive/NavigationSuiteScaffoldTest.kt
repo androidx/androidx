@@ -27,9 +27,7 @@ import org.junit.runners.JUnit4
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class, ExperimentalMaterial3WindowSizeClassApi::class)
 @RunWith(JUnit4::class)
-class NavigationSuiteTest {
-
-    private val layoutTypeProvider = NavigationSuiteDefaults.layoutTypeProvider
+class NavigationSuiteScaffoldTest {
 
     @Test
     fun navigationLayoutTypeTest_compactWidth_compactHeight() {
@@ -38,8 +36,8 @@ class NavigationSuiteTest {
                 windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(400.dp, 400.dp))
             )
 
-        assertThat(layoutTypeProvider.calculateFromAdaptiveInfo(mockAdaptiveInfo))
-            .isEqualTo(NavigationLayoutType.NavigationBar)
+        assertThat(NavigationSuiteDefaults.calculateFromAdaptiveInfo(mockAdaptiveInfo))
+            .isEqualTo(NavigationSuiteType.NavigationBar)
     }
 
     @Test
@@ -49,8 +47,8 @@ class NavigationSuiteTest {
                 windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(400.dp, 800.dp))
             )
 
-        assertThat(layoutTypeProvider.calculateFromAdaptiveInfo(mockAdaptiveInfo))
-            .isEqualTo(NavigationLayoutType.NavigationBar)
+        assertThat(NavigationSuiteDefaults.calculateFromAdaptiveInfo(mockAdaptiveInfo))
+            .isEqualTo(NavigationSuiteType.NavigationBar)
     }
 
     @Test
@@ -60,8 +58,8 @@ class NavigationSuiteTest {
                 windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(400.dp, 1000.dp))
             )
 
-        assertThat(layoutTypeProvider.calculateFromAdaptiveInfo(mockAdaptiveInfo))
-            .isEqualTo(NavigationLayoutType.NavigationBar)
+        assertThat(NavigationSuiteDefaults.calculateFromAdaptiveInfo(mockAdaptiveInfo))
+            .isEqualTo(NavigationSuiteType.NavigationBar)
     }
 
     @Test
@@ -71,8 +69,8 @@ class NavigationSuiteTest {
                 windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(800.dp, 400.dp))
             )
 
-        assertThat(layoutTypeProvider.calculateFromAdaptiveInfo(mockAdaptiveInfo))
-            .isEqualTo(NavigationLayoutType.NavigationBar)
+        assertThat(NavigationSuiteDefaults.calculateFromAdaptiveInfo(mockAdaptiveInfo))
+            .isEqualTo(NavigationSuiteType.NavigationBar)
     }
 
     @Test
@@ -82,8 +80,8 @@ class NavigationSuiteTest {
                 windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(800.dp, 800.dp))
             )
 
-        assertThat(layoutTypeProvider.calculateFromAdaptiveInfo(mockAdaptiveInfo))
-            .isEqualTo(NavigationLayoutType.NavigationBar)
+        assertThat(NavigationSuiteDefaults.calculateFromAdaptiveInfo(mockAdaptiveInfo))
+            .isEqualTo(NavigationSuiteType.NavigationBar)
     }
 
     @Test
@@ -93,8 +91,8 @@ class NavigationSuiteTest {
                 windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(800.dp, 1000.dp))
             )
 
-        assertThat(layoutTypeProvider.calculateFromAdaptiveInfo(mockAdaptiveInfo))
-            .isEqualTo(NavigationLayoutType.NavigationBar)
+        assertThat(NavigationSuiteDefaults.calculateFromAdaptiveInfo(mockAdaptiveInfo))
+            .isEqualTo(NavigationSuiteType.NavigationBar)
     }
 
     @Test
@@ -104,8 +102,8 @@ class NavigationSuiteTest {
                 windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(1000.dp, 400.dp))
             )
 
-        assertThat(layoutTypeProvider.calculateFromAdaptiveInfo(mockAdaptiveInfo))
-            .isEqualTo(NavigationLayoutType.NavigationBar)
+        assertThat(NavigationSuiteDefaults.calculateFromAdaptiveInfo(mockAdaptiveInfo))
+            .isEqualTo(NavigationSuiteType.NavigationBar)
     }
 
     @Test
@@ -115,8 +113,8 @@ class NavigationSuiteTest {
                 windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(1000.dp, 800.dp))
             )
 
-        assertThat(layoutTypeProvider.calculateFromAdaptiveInfo(mockAdaptiveInfo))
-            .isEqualTo(NavigationLayoutType.NavigationRail)
+        assertThat(NavigationSuiteDefaults.calculateFromAdaptiveInfo(mockAdaptiveInfo))
+            .isEqualTo(NavigationSuiteType.NavigationRail)
     }
 
     @Test
@@ -126,8 +124,8 @@ class NavigationSuiteTest {
                 windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(1000.dp, 1000.dp))
             )
 
-        assertThat(layoutTypeProvider.calculateFromAdaptiveInfo(mockAdaptiveInfo))
-            .isEqualTo(NavigationLayoutType.NavigationRail)
+        assertThat(NavigationSuiteDefaults.calculateFromAdaptiveInfo(mockAdaptiveInfo))
+            .isEqualTo(NavigationSuiteType.NavigationRail)
     }
 
     @Test
@@ -138,8 +136,8 @@ class NavigationSuiteTest {
                 isTableTop = true
             )
 
-        assertThat(layoutTypeProvider.calculateFromAdaptiveInfo(mockAdaptiveInfo))
-            .isEqualTo(NavigationLayoutType.NavigationBar)
+        assertThat(NavigationSuiteDefaults.calculateFromAdaptiveInfo(mockAdaptiveInfo))
+            .isEqualTo(NavigationSuiteType.NavigationBar)
     }
 
     @Test
@@ -150,8 +148,8 @@ class NavigationSuiteTest {
                 isTableTop = true
             )
 
-        assertThat(layoutTypeProvider.calculateFromAdaptiveInfo(mockAdaptiveInfo))
-            .isEqualTo(NavigationLayoutType.NavigationBar)
+        assertThat(NavigationSuiteDefaults.calculateFromAdaptiveInfo(mockAdaptiveInfo))
+            .isEqualTo(NavigationSuiteType.NavigationBar)
     }
 
     private fun createMockAdaptiveInfo(
