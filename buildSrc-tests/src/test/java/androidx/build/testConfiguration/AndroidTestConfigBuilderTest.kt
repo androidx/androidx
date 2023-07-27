@@ -350,6 +350,7 @@ private val goldenDefaultConfigBenchmark = """
     <option name="wifi:disable" value="true" />
     <option name="instrumentation-arg" key="notAnnotation" value="androidx.test.filters.FlakyTest" />
     <option name="instrumentation-arg" key="listener" value="androidx.benchmark.junit4.InstrumentationResultsRunListener" />
+    <option name="instrumentation-arg" key="listener" value="androidx.benchmark.junit4.SideEffectRunListener" />
     <include name="google/unbundled/common/setup" />
     <target_preparer class="com.android.tradefed.targetprep.suite.SuiteApkInstaller">
     <option name="cleanup-apks" value="true" />
