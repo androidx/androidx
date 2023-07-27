@@ -17,6 +17,7 @@
 package androidx.compose.material
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -115,6 +116,59 @@ class AppBarTest {
             // Action should be 4.dp from the bottom
             .assertTopPositionInRootIsEqualTo(
                 appBarBottomEdgeY - AppBarStartAndEndPadding - FakeIconSize
+            )
+    }
+
+    @Test
+    fun topAppBar_default_positioning_respectsWindowInsets() {
+        val fakeInset = 10.dp
+        rule.setMaterialContent {
+            Box(Modifier.testTag("bar")) {
+                TopAppBar(
+                    windowInsets = WindowInsets(fakeInset, fakeInset, fakeInset, fakeInset),
+                    navigationIcon = {
+                        FakeIcon(Modifier.testTag("navigationIcon"))
+                    },
+                    title = {
+                        Text("title", Modifier.testTag("title"))
+                    },
+                    actions = {
+                        FakeIcon(Modifier.testTag("action"))
+                    }
+                )
+            }
+        }
+
+        val appBarBounds = rule.onNodeWithTag("bar").getUnclippedBoundsInRoot()
+        val titleBounds = rule.onNodeWithTag("title").getUnclippedBoundsInRoot()
+        val appBarBottomEdgeY = appBarBounds.top + appBarBounds.height
+
+        rule.onNodeWithTag("navigationIcon")
+            // Navigation icon should be 4.dp from the start
+            .assertLeftPositionInRootIsEqualTo(AppBarStartAndEndPadding + fakeInset)
+            // Navigation icon should be 4.dp from the bottom
+            .assertTopPositionInRootIsEqualTo(
+                appBarBottomEdgeY - AppBarStartAndEndPadding - FakeIconSize - fakeInset
+            )
+
+        rule.onNodeWithTag("title")
+            // Title should be 72.dp from the start
+            // 4.dp padding for the whole app bar + 68.dp inset
+            .assertLeftPositionInRootIsEqualTo(4.dp + 68.dp + fakeInset)
+            // Title should be vertically centered
+            .assertTopPositionInRootIsEqualTo(
+                // no need to check for fake insets since we check the center-ness
+                (appBarBounds.height - titleBounds.height) / 2
+            )
+
+        rule.onNodeWithTag("action")
+            // Action should be placed at the end
+            .assertLeftPositionInRootIsEqualTo(
+                expectedActionPosition(appBarBounds.width) - fakeInset
+            )
+            // Action should be 4.dp from the bottom
+            .assertTopPositionInRootIsEqualTo(
+                appBarBottomEdgeY - AppBarStartAndEndPadding - FakeIconSize - fakeInset
             )
     }
 
@@ -238,6 +292,30 @@ class AppBarTest {
             // Child icon should be 4.dp from the bottom
             .assertTopPositionInRootIsEqualTo(
                 appBarBottomEdgeY - AppBarStartAndEndPadding - FakeIconSize
+            )
+    }
+
+    @Test
+    fun bottomAppBar_default_positioning_respectsWindowInsets() {
+        val fakeInsets = 8.dp
+        rule.setMaterialContent {
+            BottomAppBar(
+                WindowInsets(fakeInsets, fakeInsets, fakeInsets, fakeInsets),
+                Modifier.testTag("bar")
+            ) {
+                FakeIcon(Modifier.testTag("icon"))
+            }
+        }
+
+        val appBarBounds = rule.onNodeWithTag("bar").getUnclippedBoundsInRoot()
+        val appBarBottomEdgeY = appBarBounds.top + appBarBounds.height
+
+        rule.onNodeWithTag("icon")
+            // Child icon should be 4.dp from the start
+            .assertLeftPositionInRootIsEqualTo(AppBarStartAndEndPadding + fakeInsets)
+            // Child icon should be 4.dp from the bottom
+            .assertTopPositionInRootIsEqualTo(
+                appBarBottomEdgeY - AppBarStartAndEndPadding - FakeIconSize - fakeInsets
             )
     }
 

@@ -17,6 +17,7 @@
 package androidx.compose.material
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
@@ -167,6 +168,34 @@ class NavigationRailTest {
     }
 
     @Test
+    fun navigationRailItem_sizeAndPositions_withInsets() {
+        val itemCoords = mutableMapOf<Int, LayoutCoordinates>()
+        val fakeInset = 6.dp
+        val wi = WindowInsets(fakeInset, fakeInset, fakeInset, fakeInset)
+        rule.setMaterialContent {
+            Box {
+                NavigationRail(
+                    windowInsets = wi
+                ) {
+                    repeat(4) { index ->
+                        NavigationRailItem(
+                            icon = { Icon(Icons.Filled.Favorite, null) },
+                            label = { Text("Item $index") },
+                            selected = index == 0,
+                            onClick = {},
+                            modifier = Modifier.onGloballyPositioned { coords ->
+                                itemCoords[index] = coords
+                            }
+                        )
+                    }
+                }
+            }
+        }
+
+        assertDimension(itemCoords, 72.dp, 72.dp, fakeInset)
+    }
+
+    @Test
     fun navigationRailItem_compactSizeAndPositions() {
         val itemCoords = mutableMapOf<Int, LayoutCoordinates>()
         rule.setMaterialContent {
@@ -202,7 +231,8 @@ class NavigationRailTest {
                             label = { Text("Item $index") },
                             selected = index == 0,
                             onClick = {},
-                            modifier = Modifier.width(96.dp)
+                            modifier = Modifier
+                                .width(96.dp)
                                 .onGloballyPositioned { coords ->
                                     itemCoords[index] = coords
                                 }
@@ -215,10 +245,39 @@ class NavigationRailTest {
         assertDimension(itemCoords, 96.dp, 72.dp)
     }
 
+    @Test
+    fun navigationRailItem_customSizeAndPositions_withInsets() {
+        val itemCoords = mutableMapOf<Int, LayoutCoordinates>()
+        val fakeInset = 14.dp
+        val wi = WindowInsets(fakeInset, fakeInset, fakeInset, fakeInset)
+        rule.setMaterialContent {
+            Box {
+                NavigationRail(windowInsets = wi) {
+                    repeat(4) { index ->
+                        NavigationRailItem(
+                            icon = { Icon(Icons.Filled.Favorite, null) },
+                            label = { Text("Item $index") },
+                            selected = index == 0,
+                            onClick = {},
+                            modifier = Modifier
+                                .width(96.dp)
+                                .onGloballyPositioned { coords ->
+                                    itemCoords[index] = coords
+                                }
+                        )
+                    }
+                }
+            }
+        }
+
+        assertDimension(itemCoords, 96.dp, 72.dp, fakeInset)
+    }
+
     private fun assertDimension(
         itemCoords: MutableMap<Int, LayoutCoordinates>,
         expectedItemWidth: Dp,
-        expectedItemHeight: Dp
+        expectedItemHeight: Dp,
+        inset: Dp = 0.dp
     ) {
         rule.runOnIdleWithDensity {
             val expectedItemWidthPx = expectedItemWidth.roundToPx()
@@ -231,7 +290,12 @@ class NavigationRailTest {
                 Truth.assertThat(coord.size.width).isEqualTo(expectedItemWidthPx)
                 Truth.assertThat(coord.size.height).isEqualTo(expectedItemHeightPx)
                 Truth.assertThat(coord.positionInWindow().y)
-                    .isEqualTo((expectedItemHeightPx * index + navigationRailPadding).toFloat())
+                    .isEqualTo(
+                        (expectedItemHeightPx * index +
+                            navigationRailPadding + inset.roundToPx()).toFloat()
+                    )
+                Truth.assertThat(coord.positionInWindow().x)
+                    .isEqualTo(inset.roundToPx().toFloat())
             }
         }
     }
