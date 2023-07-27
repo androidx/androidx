@@ -88,6 +88,7 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 import org.jetbrains.kotlin.gradle.plugin.KotlinBasePluginWrapper
 import org.jetbrains.kotlin.gradle.plugin.KotlinMultiplatformPluginWrapper
+import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTargetWithSimulatorTests
 import org.jetbrains.kotlin.gradle.tasks.CInteropProcess
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
@@ -879,11 +880,18 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
                     .trimIndent()
             }
         kmpExtension.testableTargets.all { kotlinTarget ->
-            if (kotlinTarget is KotlinNativeTargetWithSimulatorTests) {
+            if (kotlinTarget is KotlinNativeTarget) {
+                val withSimulatorTests = kotlinTarget is KotlinNativeTargetWithSimulatorTests
                 kotlinTarget.binaries.all {
-                    // Use std allocator to avoid the following warning:
-                    // w: Mimalloc allocator isn't supported on target <target>. Used standard mode.
-                    it.freeCompilerArgs += "-Xallocator=std"
+                    // TODO(KT-60839) Workaround for a bug that would pass ENABLE instead of enable if unset.
+                    it.freeCompilerArgs += "-Xpartial-linkage=enable"
+
+                    if (withSimulatorTests) {
+                         // TODO(b/294257745): Remove this in Kotlin 1.9.20 when custom malloc becomes the new default.
+                         // Use std allocator to avoid the following warning:
+                         // w: Mimalloc allocator isn't supported on target <target>. Used standard mode.
+                         it.freeCompilerArgs += "-Xallocator=std"
+                    }
                 }
             }
         }
