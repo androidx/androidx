@@ -1070,28 +1070,18 @@ class XAnnotationValueTest(
 
             val annotation = getAnnotation(invocation)
             // Compare the AnnotationSpec string ignoring whitespace
-            if (sourceKind == SourceKind.KOTLIN && !invocation.isKsp && isTypeAnnotation) {
-              assertThat(annotation.toAnnotationSpec().toString().removeWhiteSpace())
-                .isEqualTo("""
-                    @test.MyAnnotation(
-                        stringParam = "1",
-                        stringArrayParam = {"3", "5", "7"},
-                        stringVarArgsParam = {"9", "11", "13"}
-                    )
-                    """.removeWhiteSpace())
-            } else {
-              assertThat(annotation.toAnnotationSpec().toString().removeWhiteSpace())
-                .isEqualTo("""
-                    @test.MyAnnotation(
-                        stringParam = "1",
-                        stringParam2 = "2",
-                        stringArrayParam = {"3", "5", "7"},
-                        stringVarArgsParam = {"9", "11", "13"}
-                    )
-                    """.removeWhiteSpace())
-              val stringParam2 = annotation.getAnnotationValue("stringParam2")
-              checkSingleValue(stringParam2, "2")
-            }
+            assertThat(annotation.toAnnotationSpec().toString().removeWhiteSpace())
+              .isEqualTo("""
+                  @test.MyAnnotation(
+                      stringParam = "1",
+                      stringParam2 = "2",
+                      stringArrayParam = {"3", "5", "7"},
+                      stringVarArgsParam = {"9", "11", "13"}
+                  )
+                  """.removeWhiteSpace())
+            val stringParam2 = annotation.getAnnotationValue("stringParam2")
+            checkSingleValue(stringParam2, "2")
+
             val stringParam = annotation.getAnnotationValue("stringParam")
             checkSingleValue(stringParam, "1")
 
@@ -1378,7 +1368,8 @@ class XAnnotationValueTest(
                     String[] stringArrayParam() default {"3", "5", "7"};
                 }
                 interface MyInterface {}
-                @MyAnnotation(stringParam = "1") class MyClass implements @MyAnnotation MyInterface {}
+                @MyAnnotation(stringParam = "2") class MyClass implements
+                        @MyAnnotation(stringParam = "2") MyInterface {}
                 """.trimIndent()
             ) as Source.JavaSource,
             kotlinSource = Source.kotlin(
@@ -1392,7 +1383,8 @@ class XAnnotationValueTest(
                     val stringArrayParam: Array<String> = ["3", "5", "7"]
                 )
                 interface MyInterface
-                @MyAnnotation(stringParam = "1") class MyClass : @MyAnnotation MyInterface
+                @MyAnnotation(stringParam = "2") class MyClass :
+                        @MyAnnotation(stringParam = "2") MyInterface
                 """.trimIndent()
             ) as Source.KotlinSource
         ) { invocation ->
@@ -1400,52 +1392,32 @@ class XAnnotationValueTest(
             if (sourceKind == SourceKind.JAVA && invocation.isKsp && !isPreCompiled) {
                 // TODO(https://github.com/google/ksp/issues/1392) Remove the condition
                 // when bugs are fixed in ksp/kapt.
-                assertThat(annotation.getAnnotationValue("stringParam").value).isEqualTo("1")
+                assertThat(annotation.getAnnotationValue("stringParam").value)
+                    .isEqualTo("2")
                 assertThat(annotation.getAnnotationValue("stringParam2").value).isEqualTo("1")
                 assertThat(
                     annotation.getAnnotationValue("stringArrayParam")
                         .asAnnotationValueList().firstOrNull()?.value).isNull()
-            } else if (sourceKind == SourceKind.KOTLIN && !invocation.isKsp && isTypeAnnotation) {
-                // TODO(b/285040492) Remove the condition when bugs are fixed in ksp/kapt.
-                assertThat(annotation.toAnnotationSpec().toString().removeWhiteSpace())
-                    .isEqualTo("""
-                        @test.MyAnnotation
-                        """.removeWhiteSpace())
-
-                assertThat(
-                    annotation.toAnnotationSpec(
-                        includeDefaultValues = false).toString().removeWhiteSpace())
-                    .isEqualTo("""
-                        @test.MyAnnotation
-                        """.removeWhiteSpace())
             } else {
                 // Compare the AnnotationSpec string ignoring whitespace
                 assertThat(annotation.toAnnotationSpec().toString().removeWhiteSpace())
                     .isEqualTo("""
                         @test.MyAnnotation(
-                            stringParam = "1",
+                            stringParam = "2",
                             stringParam2 = "1",
                             stringArrayParam = {"3", "5", "7"}
                         )
                         """.removeWhiteSpace())
-                if (!isTypeAnnotation) {
-                    assertThat(
-                        annotation.toAnnotationSpec(
-                            includeDefaultValues = false).toString().removeWhiteSpace())
-                    .isEqualTo("""
-                        @test.MyAnnotation(
-                        stringParam = "1"
-                        )
-                        """.removeWhiteSpace())
-                 } else {
-                    assertThat(
-                        annotation.toAnnotationSpec(
-                            includeDefaultValues = false).toString().removeWhiteSpace())
-                    .isEqualTo("""
-                        @test.MyAnnotation
-                         """.removeWhiteSpace())
-                 }
-                 if (!invocation.isKsp) {
+                assertThat(
+                    annotation.toAnnotationSpec(
+                        includeDefaultValues = false).toString().removeWhiteSpace())
+                .isEqualTo("""
+                    @test.MyAnnotation(
+                    stringParam = "2"
+                    )
+                    """.removeWhiteSpace())
+
+                 if (!invocation.isKsp && !isTypeAnnotation) {
                     // Check that "XAnnotation#toAnnotationSpec()" matches JavaPoet's
                     // "AnnotationSpec.get(AnnotationMirror)"
                     assertThat(annotation.toAnnotationSpec(includeDefaultValues = false))
