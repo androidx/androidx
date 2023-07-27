@@ -611,6 +611,34 @@ object Shell {
     }
 
     @RequiresApi(21)
+    fun disablePackages(appPackages: List<String>) {
+        val command = appPackages.joinToString(separator = "\n") { appPackage ->
+            "pm disable-user $appPackage"
+        }
+        executeScriptCaptureStdoutStderr(command)
+    }
+
+    @RequiresApi(21)
+    fun enablePackages(appPackages: List<String>) {
+        val command = appPackages.joinToString(separator = "\n") { appPackage ->
+            "pm enable $appPackage"
+        }
+        executeScriptCaptureStdoutStderr(command)
+    }
+
+    @RequiresApi(24)
+    fun disableBackgroundDexOpt() {
+        // Cancels the active job if any
+        ShellImpl.executeCommandUnsafe("cmd package bg-dexopt-job --cancel")
+        ShellImpl.executeCommandUnsafe("cmd package bg-dexopt-job --disable")
+    }
+
+    @RequiresApi(24)
+    fun enableBackgroundDexOpt() {
+        ShellImpl.executeCommandUnsafe("cmd package bg-dexopt-job --enable")
+    }
+
+    @RequiresApi(21)
     fun isSELinuxEnforced(): Boolean {
         return when (val value = executeScriptCaptureStdout("getenforce").trim()) {
             "Permissive" -> false
