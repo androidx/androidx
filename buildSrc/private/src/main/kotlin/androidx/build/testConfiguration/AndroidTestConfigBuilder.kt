@@ -242,6 +242,7 @@ private fun benchmarkPostInstallCommandOption(packageName: String) =
     """
     <target_preparer class="com.android.tradefed.targetprep.RunCommandTargetPreparer">
     <option name="run-command" value="${benchmarkPostInstallCommand(packageName)}" />
+    <option name="run-command-timeout" value="240000" />
     </target_preparer>
 
 """.trimIndent()
