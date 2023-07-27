@@ -16,17 +16,24 @@
 
 package androidx.bluetooth.testing
 
+import android.bluetooth.le.ScanResult
+import android.bluetooth.le.ScanSettings.CALLBACK_TYPE_ALL_MATCHES
 import android.content.Context
 import androidx.bluetooth.BluetoothLe
 import androidx.bluetooth.ScanFilter
-import junit.framework.TestCase.fail
-import kotlinx.coroutines.TimeoutCancellationException
+import java.util.concurrent.atomic.AtomicReference
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.collectIndexed
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
-import kotlinx.coroutines.withTimeout
+import org.junit.Assert
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
+import org.robolectric.Shadows.shadowOf
+import org.robolectric.shadows.ShadowBluetoothDevice
+import org.robolectric.shadows.ShadowBluetoothLeScanner
 
 @RunWith(RobolectricTestRunner::class)
 @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
@@ -38,17 +45,47 @@ class RobolectricScanTest {
     }
 
     @Test
-    fun scan() = runTest {
-        try {
-            withTimeout(TIMEOUT_MS) {
-                bluetoothLe.scan(listOf(ScanFilter())).collect {
-                    // Should not find any device
-                    fail()
+    fun scanTest() = runTest {
+        val scanResults = listOf(
+            createScanResult("00:00:00:00:00:01"),
+            createScanResult("00:00:00:00:00:02"),
+            createScanResult("00:00:00:00:00:03"),
+        )
+
+        val scannerRef = AtomicReference<ShadowBluetoothLeScanner>(null)
+        bluetoothLe.onStartScanListener = BluetoothLe.OnStartScanListener { scanner ->
+            val shadowScanner = shadowOf(scanner)
+            scannerRef.set(shadowScanner)
+
+            // Check if the scan is started
+            Assert.assertEquals(1, shadowScanner.activeScans.size)
+
+            shadowScanner.scanCallbacks.forEach { callback ->
+                scanResults.forEach { res ->
+                    callback.onScanResult(CALLBACK_TYPE_ALL_MATCHES, res)
                 }
             }
-            fail()
-        } catch (e: TimeoutCancellationException) {
-            // expected
         }
+
+        launch {
+            bluetoothLe.scan(listOf(ScanFilter())).collectIndexed { index, value ->
+                Assert.assertEquals(scanResults[index].device.address, value.deviceAddress.address)
+                if (index == scanResults.size - 1) {
+                    this.cancel()
+                }
+            }
+        }.join()
+
+        // Check if the scan is stopped
+        Assert.assertEquals(0, scannerRef.get().activeScans.size)
+    }
+
+    @Suppress("DEPRECATION")
+    private fun createScanResult(
+        address: String,
+        rssi: Int = 0,
+        timestampNanos: Long = 0
+    ): ScanResult {
+        return ScanResult(ShadowBluetoothDevice.newInstance(address), null, rssi, timestampNanos)
     }
 }
