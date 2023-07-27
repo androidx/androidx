@@ -16,8 +16,10 @@
 
 package androidx.work.datatransfer
 
+import android.content.Intent
 import android.net.NetworkCapabilities
 import android.net.NetworkRequest
+import android.os.IBinder
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
@@ -34,7 +36,7 @@ class UserInitiatedTaskRequestTest {
 
     @Test
     fun testDefaultNetworkConstraints() {
-        val request = UserInitiatedTaskRequest(MyTask::class.java)
+        val request = UserInitiatedTaskRequest(MyTask::class.java, MyFgs::class.java)
         val networkRequest = NetworkRequest.Builder()
                                 .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
                                 .build()
@@ -48,8 +50,8 @@ class UserInitiatedTaskRequestTest {
 
     @Test
     fun testCustomNetworkConstraints() {
-        val request = UserInitiatedTaskRequest(MyTask::class.java,
-            Constraints(NetworkRequest.Builder()
+        val request = UserInitiatedTaskRequest(MyTask::class.java, MyFgs::class.java,
+            _constraints = Constraints(NetworkRequest.Builder()
                 .addCapability(NetworkCapabilities.NET_CAPABILITY_NOT_METERED)
                 .build()
             )
@@ -68,15 +70,16 @@ class UserInitiatedTaskRequestTest {
     @Test
     fun testTags() {
         val taskClassName = "androidx.work.datatransfer.UserInitiatedTaskRequestTest\$MyTask"
-        var request = UserInitiatedTaskRequest(MyTask::class.java)
+        var request = UserInitiatedTaskRequest(MyTask::class.java, MyFgs::class.java)
         assertEquals(1, request.tags.size)
         assertEquals(taskClassName, request.tags.get(0))
 
-        request = UserInitiatedTaskRequest(MyTask::class.java, _tags = mutableListOf("test"))
+        request = UserInitiatedTaskRequest(MyTask::class.java, MyFgs::class.java,
+                                           _tags = mutableListOf("test"))
         assertEquals(2, request.tags.size)
         assertTrue(request.tags.contains("test"))
 
-        request = UserInitiatedTaskRequest(MyTask::class.java,
+        request = UserInitiatedTaskRequest(MyTask::class.java, MyFgs::class.java,
                                            _tags = mutableListOf("test", "test2"))
         assertEquals(3, request.tags.size)
         assertTrue(request.tags.contains(taskClassName))
@@ -86,24 +89,24 @@ class UserInitiatedTaskRequestTest {
 
     @Test
     fun testDefaultTransferInfo() {
-        val request = UserInitiatedTaskRequest(MyTask::class.java)
+        val request = UserInitiatedTaskRequest(MyTask::class.java, MyFgs::class.java)
         assertNull(request.transferInfo)
     }
 
     @Test
     fun testCustomTransferInfo() {
-        var request = UserInitiatedTaskRequest(MyTask::class.java,
+        var request = UserInitiatedTaskRequest(MyTask::class.java, MyFgs::class.java,
             _transferInfo = TransferInfo(estimatedDownloadBytes = 1000L))
         val transferInfo = TransferInfo(0L, 1000L)
         assertEquals(request.transferInfo, transferInfo)
 
-        request = UserInitiatedTaskRequest(MyTask::class.java,
+        request = UserInitiatedTaskRequest(MyTask::class.java, MyFgs::class.java,
             _transferInfo = TransferInfo(estimatedUploadBytes = 1000L))
         val transferInfo2 = TransferInfo(1000L, 0L)
         assertEquals(request.transferInfo, transferInfo2)
         assertNotEquals(request.transferInfo, transferInfo)
 
-        request = UserInitiatedTaskRequest(MyTask::class.java,
+        request = UserInitiatedTaskRequest(MyTask::class.java, MyFgs::class.java,
             _transferInfo = TransferInfo(2000L, 20L))
         val transferInfo3 = TransferInfo(2000L, 20L)
         assertEquals(request.transferInfo, transferInfo3)
@@ -115,6 +118,26 @@ class UserInitiatedTaskRequestTest {
     ) {
         override suspend fun performTask() {
             // test stub
+        }
+
+        override suspend fun createForegroundInfo(): UitForegroundInfo {
+            // test stub
+            TODO()
+        }
+    }
+
+    private class MyFgs : AbstractUitService() {
+        override fun handleOnStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+            // test stub
+            return START_STICKY
+        }
+
+        override fun handleOnDestroyCommand() {
+            // test stub
+        }
+
+        override fun onBind(p0: Intent?): IBinder? {
+            return null
         }
     }
 }
