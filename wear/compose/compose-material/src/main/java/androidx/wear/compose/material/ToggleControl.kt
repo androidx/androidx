@@ -84,7 +84,7 @@ public fun Checkbox(
     enabled = enabled,
     onCheckedChange = onCheckedChange,
     interactionSource = interactionSource,
-    drawBox = { drawScope, color, _ -> drawScope.drawBox(color) },
+    drawBox = { drawScope, color, _, _ -> drawScope.drawBox(color) },
     progressAnimationSpec = PROGRESS_ANIMATION_SPEC,
     width = WIDTH,
     height = HEIGHT

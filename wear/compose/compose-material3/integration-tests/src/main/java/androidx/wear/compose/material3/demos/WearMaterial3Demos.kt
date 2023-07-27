@@ -106,6 +106,10 @@ val WearMaterial3Demos = DemoCategory(
             selectionControlsDemos
         ),
         DemoCategory(
+            title = "Toggle Button",
+            toggleButtonDemos
+        ),
+        DemoCategory(
             title = "Swipe To Dismiss",
             listOf(
                 ComposableDemo("Simple") { SimpleSwipeToDismissBox(it.navigateBack) },

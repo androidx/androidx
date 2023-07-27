@@ -96,6 +96,8 @@ fun Checkbox(
     val progress = animateProgress(
         transition = transition, label = "Checkbox", animationSpec = progressAnimationSpec
     )
+    val isRtl = isLayoutDirectionRtl()
+    val startXOffset = if (isRtl) 0.dp else width - height
 
     // For Checkbox, the color and alpha animations have the same duration and easing,
     // so we don't need to explicitly animate alpha.
@@ -119,17 +121,17 @@ fun Checkbox(
             .drawWithCache
             {
                 onDrawWithContent {
-                    drawBox(this, boxColorState.value, progress.value)
+                    drawBox(this, boxColorState.value, progress.value, isRtl)
 
                     if (targetState == SelectionStage.Checked) {
                         // Passing startXOffset as we want checkbox to be aligned to the end of the canvas.
-                        drawTick(checkmarkColorState.value, progress.value, width - height, enabled)
+                        drawTick(checkmarkColorState.value, progress.value, startXOffset, enabled)
                     } else {
                         // Passing startXOffset as we want checkbox to be aligned to the end of the canvas.
                         eraseTick(
                             checkmarkColorState.value,
                             progress.value,
-                            width - height,
+                            startXOffset,
                             enabled
                         )
                     }
@@ -274,6 +276,7 @@ fun RadioButton(
 ) {
     val targetState = if (selected) SelectionStage.Checked else SelectionStage.Unchecked
     val transition = updateTransition(targetState)
+    val isRtl = isLayoutDirectionRtl()
 
     val radioRingColor = ringColor(enabled, selected)
     val radioDotColor = dotColor(enabled, selected)
@@ -307,8 +310,9 @@ fun RadioButton(
             )
             .drawWithCache
             {
-                // Aligning the radio to the right.
-                val startXOffsetPx = (width - height).toPx() / 2
+                // Aligning the radio to the end.
+                val startXOffsetPx = if (isRtl) -(width - height).toPx() / 2 else
+                    (width - height).toPx() / 2
                 // Outer circle has a constant radius.
                 onDrawWithContent {
                     val circleCenter = Offset(center.x + startXOffsetPx, center.y)
@@ -368,7 +372,7 @@ enum class SelectionStage {
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 fun interface FunctionDrawBox {
-    operator fun invoke(drawScope: DrawScope, color: Color, progress: Float)
+    operator fun invoke(drawScope: DrawScope, color: Color, progress: Float, isRtl: Boolean)
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -466,7 +470,7 @@ private fun DrawScope.drawTick(
     tickColor: Color,
     tickProgress: Float,
     startXOffset: Dp,
-    enabled: Boolean
+    enabled: Boolean,
 ) {
     // Using tickProgress animating from zero to TICK_TOTAL_LENGTH,
     // rotate the tick as we draw from 15 degrees to zero.

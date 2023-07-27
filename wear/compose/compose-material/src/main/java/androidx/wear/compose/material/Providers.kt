@@ -25,6 +25,19 @@ import androidx.compose.ui.text.TextStyle
 
 internal fun <T> provideScopeContent(
     contentColor: State<Color>,
+    content: (@Composable T.() -> Unit)
+): (@Composable T.() -> Unit) = {
+    val color = contentColor.value
+    CompositionLocalProvider(
+        LocalContentColor provides color,
+        LocalContentAlpha provides color.alpha,
+    ) {
+        content()
+    }
+}
+
+internal fun <T> provideScopeContent(
+    contentColor: State<Color>,
     textStyle: TextStyle,
     content: (@Composable T.() -> Unit)
 ): (@Composable T.() -> Unit) = {
@@ -38,6 +51,18 @@ internal fun <T> provideScopeContent(
     }
 }
 
+internal fun provideContent(
+    contentColor: State<Color>,
+    content: (@Composable () -> Unit)
+): (@Composable () -> Unit) = {
+    val color = contentColor.value
+    CompositionLocalProvider(
+        LocalContentColor provides color,
+        LocalContentAlpha provides color.alpha,
+        content = content
+    )
+}
+
 internal fun provideIcon(
     iconColor: State<Color>,
     content: (@Composable BoxScope.() -> Unit)
@@ -48,5 +73,37 @@ internal fun provideIcon(
         LocalContentAlpha provides color.alpha,
     ) {
         content()
+    }
+}
+
+internal fun <T> provideNullableScopeContent(
+    contentColor: State<Color>,
+    content: (@Composable T.() -> Unit)?
+): (@Composable T.() -> Unit)? = content?.let {
+    {
+        val color = contentColor.value
+        CompositionLocalProvider(
+            LocalContentColor provides color,
+            LocalContentAlpha provides color.alpha
+        ) {
+            content()
+        }
+    }
+}
+
+internal fun <T> provideNullableScopeContent(
+    contentColor: State<Color>,
+    textStyle: TextStyle,
+    content: (@Composable T.() -> Unit)?
+): (@Composable T.() -> Unit)? = content?.let {
+    {
+        val color = contentColor.value
+        CompositionLocalProvider(
+            LocalContentColor provides color,
+            LocalContentAlpha provides color.alpha,
+            LocalTextStyle provides textStyle
+        ) {
+            content()
+        }
     }
 }
