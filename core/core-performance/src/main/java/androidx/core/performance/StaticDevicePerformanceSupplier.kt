@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package androidx.core.performance
 
 import android.os.Build
@@ -24,6 +26,10 @@ import kotlinx.coroutines.flow.flow
  * Reports the media performance class of the device. Contains statically specified values
  * and can be used as a fallback alternative to suppliers with dynamic values.
  */
+@Deprecated(
+    message = "Replaced by DevicePerformance related implementations.",
+    level = DeprecationLevel.WARNING
+)
 class StaticDevicePerformanceSupplier : DevicePerformanceSupplier {
 
     companion object {

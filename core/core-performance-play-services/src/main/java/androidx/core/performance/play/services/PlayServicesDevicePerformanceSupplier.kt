@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package androidx.core.performance.play.services
 
 import android.content.Context
@@ -23,6 +25,10 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
 /** Uses Google Play Services to supply media performance class data. */
+@Deprecated(
+    message = "Replaced by DevicePerformance related implementations.",
+    level = DeprecationLevel.WARNING
+)
 class PlayServicesDevicePerformanceSupplier : DevicePerformanceSupplier {
 
     companion object {

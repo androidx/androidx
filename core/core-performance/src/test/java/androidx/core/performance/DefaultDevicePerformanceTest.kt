@@ -14,15 +14,17 @@
  * limitations under the License.
  */
 
-package androidx.core.performance.testing
+package androidx.core.performance
 
-import androidx.core.performance.DevicePerformanceRetriever
+import com.google.common.truth.Truth.assertThat
+import org.junit.Test
 
-/**
- * A DevicePerformanceRetriever that immediately returns the `mediaPerformanceClass`.
- *
- * @param mediaPerformanceClass The media performance class value to return.
- */
-class FakeDevicePerformanceRetriever(val mediaPerformanceClass: Int) : DevicePerformanceRetriever {
-    override fun getPerformanceClass(): Int = mediaPerformanceClass
+/** Unit tests for [DefaultDevicePerformance]. */
+class DefaultDevicePerformanceTest {
+
+    @Test
+    fun mediaPerformanceClass() {
+        val mpc = DefaultDevicePerformance().mediaPerformanceClass
+        assertThat(mpc).isEqualTo(0)
+    }
 }

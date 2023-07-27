@@ -1,29 +1,35 @@
 // Signature format: 4.0
 package androidx.core.performance {
 
+  public final class DefaultDevicePerformance implements androidx.core.performance.DevicePerformance {
+    ctor public DefaultDevicePerformance();
+    method public int getMediaPerformanceClass();
+    property public int mediaPerformanceClass;
+  }
+
   public final class DefaultDevicePerformanceRetriever implements androidx.core.performance.DevicePerformanceRetriever {
     ctor public DefaultDevicePerformanceRetriever();
     method public int getPerformanceClass();
   }
 
   @kotlin.jvm.JvmDefaultWithCompatibility public interface DevicePerformance {
-    method public static androidx.core.performance.DevicePerformance create(androidx.core.performance.DevicePerformanceSupplier devicePerformanceSupplier);
+    method @Deprecated public static androidx.core.performance.DevicePerformance create(androidx.core.performance.DevicePerformanceSupplier devicePerformanceSupplier);
     method public int getMediaPerformanceClass();
     property public abstract int mediaPerformanceClass;
-    field public static final androidx.core.performance.DevicePerformance.Companion Companion;
+    field @Deprecated public static final androidx.core.performance.DevicePerformance.Companion Companion;
   }
 
-  public static final class DevicePerformance.Companion {
-    method public androidx.core.performance.DevicePerformance create(androidx.core.performance.DevicePerformanceSupplier devicePerformanceSupplier);
+  @Deprecated public static final class DevicePerformance.Companion {
+    method @Deprecated public androidx.core.performance.DevicePerformance create(androidx.core.performance.DevicePerformanceSupplier devicePerformanceSupplier);
   }
 
   public interface DevicePerformanceRetriever {
     method public int getPerformanceClass();
   }
 
-  public interface DevicePerformanceSupplier {
-    method public kotlinx.coroutines.flow.Flow<java.lang.Integer> getMediaPerformanceClassFlow();
-    property public abstract kotlinx.coroutines.flow.Flow<java.lang.Integer> mediaPerformanceClassFlow;
+  @Deprecated public interface DevicePerformanceSupplier {
+    method @Deprecated public kotlinx.coroutines.flow.Flow<java.lang.Integer> getMediaPerformanceClassFlow();
+    property @Deprecated public abstract kotlinx.coroutines.flow.Flow<java.lang.Integer> mediaPerformanceClassFlow;
   }
 
   public interface MediaPerformance {
@@ -35,16 +41,16 @@ package androidx.core.performance {
     method public int getPerformanceClass(optional androidx.core.performance.DevicePerformanceRetriever retriever);
   }
 
-  public final class StaticDevicePerformanceSupplier implements androidx.core.performance.DevicePerformanceSupplier {
-    ctor public StaticDevicePerformanceSupplier();
-    method public static androidx.core.performance.DevicePerformance createDevicePerformance();
-    method public kotlinx.coroutines.flow.Flow<java.lang.Integer> getMediaPerformanceClassFlow();
-    property public kotlinx.coroutines.flow.Flow<java.lang.Integer> mediaPerformanceClassFlow;
-    field public static final androidx.core.performance.StaticDevicePerformanceSupplier.Companion Companion;
+  @Deprecated public final class StaticDevicePerformanceSupplier implements androidx.core.performance.DevicePerformanceSupplier {
+    ctor @Deprecated public StaticDevicePerformanceSupplier();
+    method @Deprecated public static androidx.core.performance.DevicePerformance createDevicePerformance();
+    method @Deprecated public kotlinx.coroutines.flow.Flow<java.lang.Integer> getMediaPerformanceClassFlow();
+    property @Deprecated public kotlinx.coroutines.flow.Flow<java.lang.Integer> mediaPerformanceClassFlow;
+    field @Deprecated public static final androidx.core.performance.StaticDevicePerformanceSupplier.Companion Companion;
   }
 
-  public static final class StaticDevicePerformanceSupplier.Companion {
-    method public androidx.core.performance.DevicePerformance createDevicePerformance();
+  @Deprecated public static final class StaticDevicePerformanceSupplier.Companion {
+    method @Deprecated public androidx.core.performance.DevicePerformance createDevicePerformance();
   }
 
 }
