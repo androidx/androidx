@@ -1,19 +1,31 @@
 <script lang="ts">
   import { createEventDispatcher } from "svelte";
-  import { writable, type Writable } from "svelte/store";
+  import {
+    writable,
+    type Readable,
+    type Writable,
+    derived,
+  } from "svelte/store";
   import { readBenchmarks } from "../files.js";
   import { ChartDataTransforms } from "../transforms/data-transforms.js";
   import { Transforms } from "../transforms/metric-transforms.js";
   import { STANDARD_MAPPER } from "../transforms/standard-mappers.js";
   import type { Data, Series } from "../types/chart.js";
   import type { Metrics } from "../types/data.js";
-  import type { FileMetadataEvent, Selection } from "../types/events.js";
+  import type {
+    FileMetadataEvent,
+    Selection,
+    StatInfo,
+  } from "../types/events.js";
   import type { FileMetadata } from "../types/files.js";
   import { Session, type IndexedWrapper } from "../wrappers/session.js";
   import Chart from "./Chart.svelte";
   import Group from "./Group.svelte";
+  import type { StatService } from "../workers/service.js";
+  import type { Remote } from "comlink";
 
   export let fileEntries: FileMetadata[];
+  export let service: Remote<StatService>;
 
   // State
   let eventDispatcher = createEventDispatcher<FileMetadataEvent>();
@@ -23,13 +35,23 @@
   let chartData: Data;
   let classGroups: Record<string, IndexedWrapper[]>;
   let size: number;
+  let activeSeries: Promise<Series[]>;
 
   // Stores
   let activeDragDrop: Writable<boolean> = writable(false);
   let suppressed: Writable<Set<string>> = writable(new Set());
+  let activeStats: Writable<StatInfo[]> = writable([]);
+  let active: Readable<Set<string>> = derived(activeStats, ($activeStats) => {
+    const datasets = [];
+    for (let i = 0; i < $activeStats.length; i += 1) {
+      const activeStat = $activeStats[i];
+      datasets.push(activeStat.name);
+    }
+    return new Set(datasets);
+  });
 
   // Events
-  let handler = function (event: CustomEvent<Selection[]>) {
+  let selectionHandler = function (event: CustomEvent<Selection[]>) {
     const selections: Selection[] = event.detail;
     for (let i = 0; i < selections.length; i += 1) {
       const selection = selections[i];
@@ -42,9 +64,28 @@
     $suppressed = $suppressed;
   };
 
+  let statHandler = function (event: CustomEvent<StatInfo[]>) {
+    const statistics = event.detail;
+    for (let i = 0; i < statistics.length; i += 1) {
+      const statInfo = statistics[i];
+      if (!statInfo.enabled) {
+        const index = $activeStats.findIndex(
+          (entry) => entry.name == statInfo.name && entry.type == statInfo.type
+        );
+        if (index >= 0) {
+          $activeStats.splice(index, 1);
+        }
+      } else {
+        $activeStats.push(statInfo);
+      }
+      $activeStats = $activeStats;
+    }
+  };
+
   $: {
     session = new Session(fileEntries);
     metrics = Transforms.buildMetrics(session, $suppressed);
+    activeSeries = service.pSeries(metrics, $active);
     series = ChartDataTransforms.mapToSeries(metrics, STANDARD_MAPPER);
     chartData = ChartDataTransforms.mapToDataset(series);
     classGroups = session.classGroups;
@@ -115,13 +156,26 @@
   >
     <h5>Benchmarks</h5>
     {#each Object.entries(classGroups) as [className, wrappers]}
-      <Group {className} datasetGroup={wrappers} on:selections={handler} />
+      <Group
+        {className}
+        datasetGroup={wrappers}
+        on:selections={selectionHandler}
+        on:info={statHandler}
+      />
     {/each}
   </article>
 
   {#if series.length > 0}
     <Chart data={chartData} />
   {/if}
+
+  {#await activeSeries}
+    <article aria-busy="true" />
+  {:then chartData}
+    {#if chartData.length > 0}
+      <Chart data={ChartDataTransforms.mapToDataset(chartData)} isExperimental={true} />
+    {/if}
+  {/await}
 {/if}
 
 <style>

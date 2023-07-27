@@ -19,7 +19,6 @@ export class Transforms {
         const wrapper = wrappers[j];
         const datasetName = wrappers[j].value.datasetName();
         if (suppressed.has(datasetName)) {
-          console.log(`Skipping suppressed dataset name ${datasetName}`, session);
           continue;
         }
         const source = wrapper.source;

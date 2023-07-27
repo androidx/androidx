@@ -1,14 +1,23 @@
 <script lang="ts">
   import { createEventDispatcher } from "svelte";
   import { Session, type IndexedWrapper } from "../wrappers/session.js";
-  import type { SelectionEvent, Selection } from "../types/events.js";
+  import type {
+    SelectionEvent,
+    Selection,
+    StatEvent,
+    StatInfo,
+    StatType,
+  } from "../types/events.js";
 
   export let name: string;
   export let datasetGroup: IndexedWrapper[];
 
+  // Dispatchers
+  let selectionDispatcher = createEventDispatcher<SelectionEvent>();
+  let statDispatcher = createEventDispatcher<StatEvent>();
   // State
-  let dispatcher = createEventDispatcher<SelectionEvent>();
   let selected: boolean = true;
+  let compute: boolean = false;
   let sources: Set<string>;
   let sampledMetrics: Set<string>;
   let metrics: Set<string>;
@@ -22,7 +31,21 @@
       name: name,
       enabled: selected,
     };
-    dispatcher("selections", [selection]);
+    selectionDispatcher("selections", [selection]);
+  };
+
+  let stat = function (type: StatType) {
+    return function (event: Event) {
+      event.stopPropagation();
+      const target = event.target as HTMLInputElement;
+      compute = target.checked;
+      const stat: StatInfo = {
+        name: name,
+        type: type,
+        enabled: compute
+      };
+      statDispatcher("info", [stat]);
+    };
   };
 
   $: {
@@ -45,16 +68,32 @@
   <hgroup>
     <div class="section">
       <span class="item">{name}</span>
-      <fieldset class="item">
-        <label for="switch">
-          <input
-            type="checkbox"
-            role="switch"
-            checked={selected}
-            on:change={selection}
-          />
-        </label>
-      </fieldset>
+      <div class="item actions">
+        <fieldset>
+          <label for="switch">
+            Show
+            <input
+              type="checkbox"
+              role="switch"
+              checked={selected}
+              on:change={selection}
+            />
+          </label>
+        </fieldset>
+        {#if sources.size > 1}
+          <fieldset>
+            <label for="switch">
+              P
+              <input
+                type="checkbox"
+                role="switch"
+                checked={compute}
+                on:change={stat("p")}
+              />
+            </label>
+          </fieldset>
+        {/if}
+      </div>
     </div>
     <div class="details">
       <div class="sources">
@@ -102,5 +141,15 @@
 
   .section .item {
     margin: 0px 10px;
+  }
+
+  .actions {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+  }
+
+  .actions fieldset {
+    margin-left: 5px;
   }
 </style>
