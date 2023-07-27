@@ -16,16 +16,11 @@
 
 package androidx.core.performance.testing
 
-import com.google.common.truth.Truth.assertThat
-import org.junit.Test
+import androidx.core.performance.DevicePerformance
 
-/** Unit test for [FakeDevicePerformanceRetriever]. */
-class FakeDevicePerformanceRetrieverTest {
-
-    @Test
-    fun mediaPerformanceClass_30() {
-        val retriever = FakeDevicePerformanceRetriever(30)
-        val mpc = retriever.getPerformanceClass()
-        assertThat(mpc).isEqualTo(30)
-    }
-}
+/**
+ * A DevicePerformance that immediately returns the `mediaPerformanceClass`.
+ *
+ * @param mediaPerformanceClass The media performance class value to return.
+ */
+class FakeDevicePerformance(override val mediaPerformanceClass: Int) : DevicePerformance

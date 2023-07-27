@@ -17,28 +17,23 @@
 package androidx.core.performance.play.services
 
 import android.content.Context
-import androidx.core.performance.DevicePerformanceRetriever
+import androidx.core.performance.DevicePerformance
 import com.google.android.gms.deviceperformance.DevicePerformanceClient
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.tasks.await
 
 /**
- * A DevicePerformanceRetriever that uses Google Play Services to retrieve media performance class data.
+ * A DevicePerformance that uses Google Play Services to retrieve media performance class data.
  *
  * @param context The application context value to use.
  */
-class PlayServicesDevicePerformanceRetriever(val context: Context) : DevicePerformanceRetriever {
-        override fun getPerformanceClass(): Int =
-            PlayServicesDevicePerformanceRetriever.getPerformanceClass(
-                context
-            );
+class PlayServicesDevicePerformance(private val context: Context) : DevicePerformance {
+    // TODO(b/292643991): Add caching mechanism to play service androidx
+    override val mediaPerformanceClass: Int = getPerformanceClass(context)
 
-        companion object {
-            @JvmStatic
-            fun getPerformanceClass(context: Context): Int {
-                val client: DevicePerformanceClient =
-                    com.google.android.gms.deviceperformance.DevicePerformance.getClient(context)
-                return runBlocking { client.mediaPerformanceClass().await() }
-            }
-        }
+    private fun getPerformanceClass(context: Context): Int {
+        val client: DevicePerformanceClient =
+            com.google.android.gms.deviceperformance.DevicePerformance.getClient(context)
+        return runBlocking { client.mediaPerformanceClass().await() }
+    }
 }

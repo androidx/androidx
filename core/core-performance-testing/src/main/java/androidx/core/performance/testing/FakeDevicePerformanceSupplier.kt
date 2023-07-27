@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package androidx.core.performance.testing
 
 import androidx.core.performance.DevicePerformanceSupplier
@@ -26,6 +28,10 @@ import kotlinx.coroutines.flow.flow
  *
  * @param mediaPerformanceClass The media performance class value to emit.
  */
+@Deprecated(
+    message = "Replaced by DevicePerformance related implementations.",
+    level = DeprecationLevel.WARNING
+)
 class FakeDevicePerformanceSupplier(private val mediaPerformanceClass: Int) :
     DevicePerformanceSupplier {
     override val mediaPerformanceClassFlow: Flow<Int> = flow {
