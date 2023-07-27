@@ -19,9 +19,7 @@ package androidx.slidingpanelayout.widget
 
 import android.R
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.content.Context
-import android.content.ContextWrapper
 import android.graphics.Canvas
 import android.graphics.PixelFormat
 import android.graphics.Rect
@@ -45,6 +43,7 @@ import androidx.annotation.IntDef
 import androidx.annotation.Px
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.Insets
+import androidx.core.os.HandlerCompat
 import androidx.core.view.AccessibilityDelegateCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat
@@ -62,6 +61,13 @@ import java.util.concurrent.CopyOnWriteArrayList
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.android.asCoroutineDispatcher
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.mapNotNull
+import kotlinx.coroutines.launch
 
 private const val TAG = "SlidingPaneLayout"
 
@@ -188,17 +194,6 @@ private class FoldBoundsCalculator {
         foldRectInView.offset(-x, -y)
         return true
     }
-}
-
-private fun getActivityOrNull(context: Context): Activity? {
-    var iterator: Context? = context
-    while (iterator is ContextWrapper) {
-        if (iterator is Activity) {
-            return iterator
-        }
-        iterator = iterator.baseContext
-    }
-    return null
 }
 
 private class TouchBlocker(view: View) : FrameLayout(view.context) {
@@ -364,25 +359,12 @@ open class SlidingPaneLayout @JvmOverloads constructor(
 
     private var foldingFeature: FoldingFeature? = null
 
-    private val mOnFoldingFeatureChangeListener =
-        object : FoldingFeatureObserver.OnFoldingFeatureChangeListener {
-            override fun onFoldingFeatureChange(foldingFeature: FoldingFeature) {
-                this@SlidingPaneLayout.foldingFeature = foldingFeature
-                // Start transition animation when folding feature changed
-                val changeBounds: Transition = ChangeBounds()
-                changeBounds.duration = 300L
-                changeBounds.interpolator = PathInterpolatorCompat.create(0.2f, 0f, 0f, 1f)
-                TransitionManager.beginDelayedTransition(this@SlidingPaneLayout, changeBounds)
-                requestLayout()
-            }
-        }
-
-    private var foldingFeatureObserver: FoldingFeatureObserver? = null
-
-    private fun setFoldingFeatureObserver(foldingFeatureObserver: FoldingFeatureObserver) {
-        this.foldingFeatureObserver = foldingFeatureObserver
-        foldingFeatureObserver.setOnFoldingFeatureChangeListener(mOnFoldingFeatureChangeListener)
-    }
+    /**
+     * [Job] that tracks the last launched coroutine running [whileAttachedToVisibleWindow].
+     * This is never set to `null`; the last job is always [joined][Job.join] prior to invoking
+     * [whileAttachedToVisibleWindow].
+     */
+    private var whileAttachedToVisibleWindowJob: Job? = null
 
     /**
      * Distance to parallax the lower pane by when the upper pane is in its
@@ -415,18 +397,16 @@ open class SlidingPaneLayout @JvmOverloads constructor(
 
     private val isLayoutRtlSupport: Boolean
         get() = ViewCompat.getLayoutDirection(this) == ViewCompat.LAYOUT_DIRECTION_RTL
+
+    private val windowInfoTracker = WindowInfoTracker.getOrCreate(context)
+
     init {
         val density = context.resources.displayMetrics.density
         setWillNotDraw(false)
         ViewCompat.setAccessibilityDelegate(this, AccessibilityDelegate())
         ViewCompat.setImportantForAccessibility(this, ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_YES)
         dragHelper = ViewDragHelper.create(this, 0.5f, DragHelperCallback())
-        dragHelper.minVelocity =
-            MIN_FLING_VELOCITY * density
-        val repo: WindowInfoTracker = WindowInfoTracker.getOrCreate(context)
-        val mainExecutor = ContextCompat.getMainExecutor(context)
-        val foldingFeatureObserver = FoldingFeatureObserver(repo, mainExecutor)
-        setFoldingFeatureObserver(foldingFeatureObserver)
+        dragHelper.minVelocity = MIN_FLING_VELOCITY * density
     }
 
     /**
@@ -583,20 +563,44 @@ open class SlidingPaneLayout @JvmOverloads constructor(
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
         awaitingFirstLayout = true
-        if (foldingFeatureObserver != null) {
-            val activity = getActivityOrNull(context)
-            if (activity != null) {
-                foldingFeatureObserver!!.registerLayoutStateChangeCallback(activity)
+        whileAttachedToVisibleWindowJob?.cancel()
+    }
+
+    override fun onWindowVisibilityChanged(visibility: Int) {
+        super.onWindowVisibilityChanged(visibility)
+        val toJoin = whileAttachedToVisibleWindowJob?.apply { cancel() }
+        whileAttachedToVisibleWindowJob = if (visibility != VISIBLE) null else {
+            CoroutineScope(
+                HandlerCompat.createAsync(handler.looper).asCoroutineDispatcher()
+            ).launch(start = CoroutineStart.UNDISPATCHED) {
+                // Don't let two copies of this run concurrently
+                toJoin?.join()
+                whileAttachedToVisibleWindow()
             }
         }
     }
 
+    private suspend fun whileAttachedToVisibleWindow() {
+        windowInfoTracker.windowLayoutInfo(context)
+            .mapNotNull { info ->
+                info.displayFeatures.firstOrNull { it is FoldingFeature } as? FoldingFeature
+            }
+            .distinctUntilChanged()
+            .collect { nextFeature ->
+                foldingFeature = nextFeature
+                // Start transition animation when folding feature changed
+                val changeBounds: Transition = ChangeBounds()
+                changeBounds.duration = 300L
+                changeBounds.interpolator = PathInterpolatorCompat.create(0.2f, 0f, 0f, 1f)
+                TransitionManager.beginDelayedTransition(this@SlidingPaneLayout, changeBounds)
+                requestLayout()
+            }
+    }
+
     override fun onDetachedFromWindow() {
-        super.onDetachedFromWindow()
+        whileAttachedToVisibleWindowJob?.cancel()
         awaitingFirstLayout = true
-        if (foldingFeatureObserver != null) {
-            foldingFeatureObserver!!.unregisterLayoutStateChangeCallback()
-        }
+        super.onDetachedFromWindow()
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
