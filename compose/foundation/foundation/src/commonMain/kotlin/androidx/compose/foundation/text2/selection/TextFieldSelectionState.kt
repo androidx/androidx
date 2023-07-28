@@ -778,12 +778,6 @@ internal class TextFieldSelectionState(
      */
     private fun getContentRect(): Rect {
         val text = textFieldState.text
-        // TODO(halilibo): better stale layout result check
-        // this is basically testing whether current layoutResult was created for the current
-        // text in TextFieldState. This is a temporary check that should be improved.
-        if (textLayoutState.layoutResult?.layoutInput?.text?.length != text.length) {
-            return Rect.Zero
-        }
         // accept cursor position as content rect when selection is collapsed
         // contentRect is defined in innerTextField coordinates, so it needs to be realigned to
         // root container.
