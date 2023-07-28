@@ -32,7 +32,7 @@ import org.junit.runners.Parameterized
 
 @LargeTest
 @RunWith(Parameterized::class)
-class TrivialStartupTracingOverheadBenchmark(
+class TrivialStartupPerfettoSdkOverheadBenchmark(
     private val startupMode: StartupMode,
     private val compilationMode: CompilationMode,
     private val isFullTracingEnabled: Boolean

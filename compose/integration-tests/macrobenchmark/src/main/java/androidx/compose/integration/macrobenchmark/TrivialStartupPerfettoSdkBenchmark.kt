@@ -34,7 +34,7 @@ import org.junit.runners.Parameterized
 @OptIn(ExperimentalMetricApi::class)
 @LargeTest
 @RunWith(Parameterized::class)
-class TrivialStartupTracingBenchmark(
+class TrivialStartupPerfettoSdkBenchmark(
     private val startupMode: StartupMode,
     private val compilationMode: CompilationMode,
     private val isFullTracingEnabled: Boolean
