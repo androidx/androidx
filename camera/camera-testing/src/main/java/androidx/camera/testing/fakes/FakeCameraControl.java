@@ -193,8 +193,8 @@ public final class FakeCameraControl implements CameraControlInternal {
 
     @NonNull
     @Override
-    public ListenableFuture<Integer> setExposureCompensationIndex(int exposure) {
-        mExposureCompensation = exposure;
+    public ListenableFuture<Integer> setExposureCompensationIndex(int value) {
+        mExposureCompensation = value;
         return Futures.immediateFuture(null);
     }
 
