@@ -38,7 +38,7 @@ class RobolectricScanTest {
     }
 
     @Test
-    fun scanTest() = runTest {
+    fun scan() = runTest {
         try {
             withTimeout(TIMEOUT_MS) {
                 bluetoothLe.scan(listOf(ScanFilter())).collect {

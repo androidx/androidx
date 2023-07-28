@@ -28,6 +28,7 @@ import android.os.ParcelUuid
 import android.util.Log
 import androidx.annotation.RequiresPermission
 import androidx.annotation.RestrictTo
+import androidx.annotation.VisibleForTesting
 import java.util.UUID
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.awaitClose
@@ -39,7 +40,7 @@ import kotlinx.coroutines.flow.callbackFlow
  * operations such as scanning, advertising, and connection with a respective [BluetoothDevice].
  *
  */
-class BluetoothLe(private val context: Context) {
+class BluetoothLe constructor(private val context: Context) {
 
     private companion object {
         private const val TAG = "BluetoothLe"
@@ -48,6 +49,10 @@ class BluetoothLe(private val context: Context) {
     private val bluetoothManager =
         context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager?
     private val bluetoothAdapter = bluetoothManager?.adapter
+
+    @VisibleForTesting
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY)
+    val client = GattClient(context)
     private val server = GattServer(context)
 
     /**
@@ -226,7 +231,7 @@ class BluetoothLe(private val context: Context) {
         device: BluetoothDevice,
         block: suspend GattClientScope.() -> R
     ): Result<R> {
-        return GattClient().connect(context, device, block)
+        return client.connect(device, block)
     }
 
     /**
