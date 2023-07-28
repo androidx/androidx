@@ -260,10 +260,10 @@ public fun rememberRevealState(
  *
  * @param action The mandatory action that needs to be added to the component.
  * @param modifier Optional [Modifier] for this component.
- * @param state The [RevealState] of this component. It can be used to customise the anchors
- * and threshold config of the swipeable modifier which is applied.
  * @param onFullSwipe An optional lambda which will be triggered when a full swipe from either of
  * the anchors is performed.
+ * @param state The [RevealState] of this component. It can be used to customise the anchors
+ * and threshold config of the swipeable modifier which is applied.
  * @param additionalAction The optional action that can be added to the component.
  * @param undoAction The optional undo action that will be applied to the component once the
  * mandatory action has been performed.
@@ -388,12 +388,13 @@ public interface RevealScope {
      * anchor for [RevealValue.Revealing].
      * If there is no such anchor defined for [RevealValue.Revealing], it returns 0.0f.
      */
+    /* @FloatRange(from = 0.0) */
     public val revealOffset: Float
 }
 
 @OptIn(ExperimentalWearFoundationApi::class)
 private class RevealScopeImpl constructor(
-    private val revealState: RevealState
+    val revealState: RevealState,
 ) : RevealScope {
 
     /**
@@ -430,7 +431,9 @@ private fun RowScope.ActionSlot(
     content: @Composable RevealScope.() -> Unit
 ) {
     Box(
-        modifier = modifier.fillMaxHeight().weight(weight),
+        modifier = modifier
+            .fillMaxHeight()
+            .weight(weight),
         contentAlignment = Alignment.Center
     ) {
         with(revealScope) {
