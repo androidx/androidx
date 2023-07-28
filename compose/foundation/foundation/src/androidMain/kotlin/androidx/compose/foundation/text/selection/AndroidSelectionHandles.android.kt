@@ -302,7 +302,7 @@ internal class HandlePositionProvider(
 /**
  * Computes whether the handle's appearance should be left-pointing or right-pointing.
  */
-private fun isLeft(
+internal fun isLeft(
     isStartHandle: Boolean,
     direction: ResolvedTextDirection,
     handlesCrossed: Boolean
