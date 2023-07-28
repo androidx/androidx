@@ -365,6 +365,7 @@ public class TilesTimelineManagerTest {
                 .build();
     }
 
+    @SuppressWarnings("deprecation") // ScheduledAlarm usage, see b/284981234
     private void seekToTime(long timeMillis) {
         ShadowAlarmManager shadowAlarmManager = shadowOf(mAlarmManager);
 
