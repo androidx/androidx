@@ -324,6 +324,7 @@ private val MICROBENCHMARK_PRESUBMIT_OPTION =
 private val MICROBENCHMARK_POSTSUBMIT_OPTIONS =
     """
     <option name="instrumentation-arg" key="listener" value="androidx.benchmark.junit4.InstrumentationResultsRunListener" />
+    <option name="instrumentation-arg" key="listener" value="androidx.benchmark.junit4.SideEffectRunListener" />
 
 """
         .trimIndent()
