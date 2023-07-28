@@ -16,25 +16,32 @@
 
 package androidx.benchmark
 
+import android.os.Process
 import androidx.annotation.RestrictTo
+import androidx.benchmark.InMemoryTracing.commitToTrace
+import perfetto.protos.ThreadDescriptor
 import perfetto.protos.Trace
 import perfetto.protos.TracePacket
 import perfetto.protos.TrackDescriptor
 import perfetto.protos.TrackEvent
 
 /**
- * Userspace-buffer-based tracing api, that provides implementation for [userspaceTrace].
+ * Tracing api that writes events directly into memory.
  *
- * This records while atrace isn't capturing by storing trace events manually in a list of
- * in-userspace-memory perfetto protos.
+ * This has a few advantages over typical atrace:
+ * - can record while atrace isn't captured either due to platform limitations (old platforms may
+ *   only allow one process to be traced at a time), or when debugging benchmark performance, it can
+ *   capture when atrace isn't active (e.g. tracing the start/stop of perfetto)
+ * - can create events asynchronously, deferring record cost (e.g. micro creating events after all
+ *   measurements, using existing timestamps)
+ * - can customize presentation of events in trace
  *
  * After trace processing, the extra events (before _and_ after the measureBlock section of a
  * benchmark) can be added to the trace by calling [commitToTrace], and appending that to the
  * trace on-disk.
- *
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-object UserspaceTracing {
+object InMemoryTracing {
     /**
      * All events emitted by the benchmark annotation should have the same value.
      * the value needs to not conflict with any sequence id emitted in the trace.
@@ -58,39 +65,44 @@ object UserspaceTracing {
     private const val CLOCK_ID = 3
 
     /**
-     * Name of track in for userspace tracing events
-     */
-    private const val TRACK_DESCRIPTOR_NAME = "Macrobenchmark"
-
-    /**
      * Tag to enable post-filtering of events in the trace.
      */
     private val TRACK_EVENT_CATEGORIES = listOf("benchmark")
-
-    private fun createInitialTracePacket() = TracePacket(
-        timestamp = System.nanoTime(),
-        timestamp_clock_id = CLOCK_ID,
-        incremental_state_cleared = true,
-        track_descriptor = TrackDescriptor(
-            uuid = UUID,
-            name = TRACK_DESCRIPTOR_NAME
-        )
-    )
 
     /**
      * For perf/simplicity, this isn't protected by a lock - it should only every be
      * accessed by the test thread, and dumped/reset between tests.
      */
-    val events = mutableListOf(createInitialTracePacket())
+    val events = mutableListOf<TracePacket>()
+
+    fun clearEvents() {
+        events.clear()
+    }
 
     /**
      * Capture trace state, and return as a Trace(), which can be appended to a trace file.
      */
-    fun commitToTrace(): Trace {
+    fun commitToTrace(
+        label: String
+    ): Trace {
         val capturedEvents = events.toList()
-        events.clear()
-        events.add(createInitialTracePacket())
-        return Trace(capturedEvents)
+        clearEvents()
+        return Trace(
+            listOf(
+                TracePacket(
+                    timestamp_clock_id = CLOCK_ID,
+                    incremental_state_cleared = true,
+                    track_descriptor = TrackDescriptor(
+                        uuid = UUID,
+                        name = label,
+                        thread = ThreadDescriptor(pid = Process.myPid(), tid = Process.myTid()),
+                        // currently separate for clarity, to allow InMemoryTrace events to have a visible
+                        // track name, but not override the thread name
+                        disallow_merging_with_system_tracks = true
+                    )
+                )
+            ) + capturedEvents
+        )
     }
 
     fun beginSection(label: String, nanoTime: Long = System.nanoTime()) {
@@ -125,11 +137,11 @@ object UserspaceTracing {
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-inline fun <T> userspaceTrace(label: String, block: () -> T): T {
-    UserspaceTracing.beginSection(label)
+inline fun <T> inMemoryTrace(label: String, block: () -> T): T {
+    InMemoryTracing.beginSection(label)
     return try {
         block()
     } finally {
-        UserspaceTracing.endSection()
+        InMemoryTracing.endSection()
     }
 }

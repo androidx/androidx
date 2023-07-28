@@ -53,7 +53,7 @@ internal class MicrobenchmarkPhase(
                 "THERMAL THROTTLE DETECTED, SLEEPING FOR $THROTTLE_BACKOFF_S SECONDS"
             )
             val startTimeNs = System.nanoTime()
-            userspaceTrace("Sleep due to Thermal Throttle") {
+            inMemoryTrace("Sleep due to Thermal Throttle") {
                 Thread.sleep(TimeUnit.SECONDS.toMillis(THROTTLE_BACKOFF_S))
             }
             val sleepTimeNs = System.nanoTime() - startTimeNs

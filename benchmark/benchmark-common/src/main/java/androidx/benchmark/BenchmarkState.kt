@@ -250,7 +250,7 @@ class BenchmarkState internal constructor(
 
         if (phaseIndex >= 0) {
             currentPhase.profiler?.stop()
-            UserspaceTracing.endSection()
+            InMemoryTracing.endSection()
             thermalThrottleSleepSeconds += currentPhase.thermalThrottleSleepSeconds
             if (currentPhase.loopMode.warmupManager == null && currentPhase.profiler == null) {
                 // Always save metrics, except during warmup / profiling
@@ -282,7 +282,7 @@ class BenchmarkState internal constructor(
 
         iterationsPerRepeat = iterationsPerRepeat.coerceAtLeast(currentLoopsPerMeasurement)
 
-        UserspaceTracing.beginSection(currentPhase.label)
+        InMemoryTracing.beginSection(currentPhase.label)
         val phaseProfilerResult = currentPhase.profiler?.start(traceUniqueName)
         if (phaseProfilerResult != null) {
             require(profilerResult == null) {
@@ -385,7 +385,7 @@ class BenchmarkState internal constructor(
         if (!value) {
             ThreadPriority.resetBumpedThread()
             if (phaseIndex >= 0 && phaseIndex <= phases.size) {
-                UserspaceTracing.endSection() // current phase cancelled, complete trace event
+                InMemoryTracing.endSection() // current phase cancelled, complete trace event
             }
             throw IllegalStateException(lazyMessage())
         }
