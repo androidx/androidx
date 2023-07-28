@@ -2006,18 +2006,14 @@ internal class ComposerImpl(
         if (inserting) {
             providers = parentScope.putValue(local, state)
             invalid = false
+            writerHasAProvider = true
         } else {
             val oldScope = reader.groupAux(reader.currentGroup) as PersistentCompositionLocalMap
             providers =
                 if ((!skipping || change) && (value.canOverride || !parentScope.contains(local)))
                     parentScope.putValue(local, state)
                 else oldScope
-            if (oldScope !== providers) {
-                invalid = true
-                writerHasAProvider = true
-            } else {
-                invalid = false
-            }
+            invalid = reusing || oldScope !== providers
         }
         if (invalid && !inserting) {
             providerUpdates[reader.currentGroup] = providers
