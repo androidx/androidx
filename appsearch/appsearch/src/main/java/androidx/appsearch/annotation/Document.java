@@ -18,6 +18,8 @@ package androidx.appsearch.annotation;
 
 import androidx.annotation.NonNull;
 import androidx.appsearch.app.AppSearchSchema;
+import androidx.appsearch.app.LongSerializer;
+import androidx.appsearch.app.StringSerializer;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -259,18 +261,7 @@ public @interface Document {
          * <p>Useful for representing properties using rich types that boil down to simple string
          * values in the database.
          *
-         * <p>The referenced class must satisfy the following:
-         *
-         * <ol>
-         *     <li>
-         *         Have a static method called {@code serialize} that converts the property's Java
-         *         type to a {@link String}.
-         *     </li>
-         *     <li>
-         *         Have a static method called {@code deserialize} that converts a {@link String} to
-         *         the property's Java type or returns null if deserialization failed.
-         *     </li>
-         * </ol>
+         * <p>The referenced class must have a public zero params constructor.
          *
          * <p>For example:
          *
@@ -282,17 +273,21 @@ public @interface Document {
          *     @Document.StringProperty(serializer = SomeRichTypeSerializer.class)
          *     public SomeRichType getMyProperty();
          *
-         *     public final class SomeRichTypeSerializer {
-         *       public static String serialize(SomeRichType instance) {...}
+         *     public final class SomeRichTypeSerializer implements StringSerializer<SomeRichType> {
          *
+         *       @Override
+         *       @NonNull
+         *       public String serialize(@NonNull SomeRichType instance) {...}
+         *
+         *       @Override
          *       @Nullable
-         *       public static SomeRichType deserialize(String string) {...}
+         *       public SomeRichType deserialize(@NonNull String string) {...}
          *     }
          * }
          * }
          * </pre>
          */
-        Class<?> serializer() default DefaultSerializer.class;
+        Class<? extends StringSerializer<?>> serializer() default DefaultSerializer.class;
 
         /**
          * Configures whether this property must be specified for the document to be valid.
@@ -305,16 +300,16 @@ public @interface Document {
          */
         boolean required() default false;
 
-        final class DefaultSerializer {
-            private DefaultSerializer() {}
-
+        final class DefaultSerializer implements StringSerializer<String> {
+            @Override
             @NonNull
-            public static String serialize(@NonNull String value) {
-                return value;
+            public String serialize(@NonNull String instance) {
+                return instance;
             }
 
+            @Override
             @NonNull
-            public static String deserialize(@NonNull String string) {
+            public String deserialize(@NonNull String string) {
                 return string;
             }
         }
@@ -387,22 +382,11 @@ public @interface Document {
          * <p>Useful for representing properties using rich types that boil down to simple 64-bit
          * integer values in the database.
          *
-         * <p>The referenced class must satisfy the following:
-         *
-         * <ol>
-         *     <li>
-         *         Have a static method called {@code serialize} that converts the property's Java
-         *         type to a {@link Long}.
-         *     </li>
-         *     <li>
-         *         Have a static method called {@code deserialize} that converts a {@link Long} to
-         *         the property's Java type or returns null if deserialization failed.
-         *     </li>
-         * </ol>
+         * <p>The referenced class must have a public zero params constructor.
          *
          * <p>See {@link StringProperty#serializer()} for an example of a serializer.
          */
-        Class<?> serializer() default DefaultSerializer.class;
+        Class<? extends LongSerializer<?>> serializer() default DefaultSerializer.class;
 
         /**
          * Configures whether this property must be specified for the document to be valid.
@@ -415,15 +399,17 @@ public @interface Document {
          */
         boolean required() default false;
 
-        final class DefaultSerializer {
-            private DefaultSerializer() {}
-
-            public static long serialize(long value) {
+        final class DefaultSerializer implements LongSerializer<Long> {
+            @Override
+            public long serialize(@NonNull @SuppressWarnings("AutoBoxing") Long value) {
                 return value;
             }
 
-            public static long deserialize(long l) {
-                return l;
+            @Override
+            @NonNull
+            @SuppressWarnings("AutoBoxing")
+            public Long deserialize(long value) {
+                return value;
             }
         }
     }
@@ -444,29 +430,6 @@ public @interface Document {
         String name() default "";
 
         /**
-         * Configures how a property should be converted to and from a {@link Double}.
-         *
-         * <p>Useful for representing properties using rich types that boil down to simple
-         * double-precision decimal values in the database.
-         *
-         * <p>The referenced class must satisfy the following:
-         *
-         * <ol>
-         *     <li>
-         *         Have a static method called {@code serialize} that converts the property's Java
-         *         type to a {@link Double}.
-         *     </li>
-         *     <li>
-         *         Have a static method called {@code deserialize} that converts a {@link Double} to
-         *         the property's Java type or returns null if deserialization failed.
-         *     </li>
-         * </ol>
-         *
-         * <p>See {@link StringProperty#serializer()} for an example of a serializer.
-         */
-        Class<?> serializer() default DefaultSerializer.class;
-
-        /**
          * Configures whether this property must be specified for the document to be valid.
          *
          * <p>This attribute does not apply to properties of a repeated type (e.g. a list).
@@ -476,18 +439,6 @@ public @interface Document {
          * this attribute to {@code true}.
          */
         boolean required() default false;
-
-        final class DefaultSerializer {
-            private DefaultSerializer() {}
-
-            public static double serialize(double value) {
-                return value;
-            }
-
-            public static double deserialize(double d) {
-                return d;
-            }
-        }
     }
 
     /** Configures a boolean member field of a class as a property known to AppSearch. */
