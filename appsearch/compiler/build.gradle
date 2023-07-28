@@ -29,6 +29,7 @@ dependencies {
     implementation(libs.autoCommon)
     implementation(libs.autoValue)
     implementation(libs.autoValueAnnotations)
+    implementation(libs.guava)
     implementation(libs.javapoet)
 
     annotationProcessor(libs.autoValue)
