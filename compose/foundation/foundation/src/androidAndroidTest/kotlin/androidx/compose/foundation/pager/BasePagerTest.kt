@@ -114,7 +114,7 @@ open class BasePagerTest(private val config: ParamConfig) :
         initialPageOffsetFraction: Float = 0f,
         pageCount: () -> Int = { DefaultPageCount },
         modifier: Modifier = Modifier,
-        offscreenPageLimit: Int = config.beyondBoundsPageCount,
+        beyondBoundsPageCount: Int = config.beyondBoundsPageCount,
         pageSize: () -> PageSize = { PageSize.Fill },
         userScrollEnabled: Boolean = true,
         snappingPage: PagerSnapDistance = PagerSnapDistance.atMost(1),
@@ -154,7 +154,7 @@ open class BasePagerTest(private val config: ParamConfig) :
                 ) {
                     HorizontalOrVerticalPager(
                         state = state,
-                        beyondBoundsPageCount = offscreenPageLimit,
+                        beyondBoundsPageCount = beyondBoundsPageCount,
                         modifier = modifier
                             .testTag(PagerTestTag)
                             .onSizeChanged { pagerSize = if (vertical) it.height else it.width },

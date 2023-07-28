@@ -75,8 +75,8 @@ internal fun Pager(
     flingBehavior: SnapFlingBehavior,
     /** Whether scrolling via the user gestures is allowed. */
     userScrollEnabled: Boolean,
-    /** Number of pages to layout before and after the visible pages */
-    beyondBoundsPageCount: Int = 0,
+    /** Number of pages to compose and layout before and after the visible pages */
+    beyondBoundsPageCount: Int = PagerDefaults.BeyondBoundsPageCount,
     /** Space between pages */
     pageSpacing: Dp = 0.dp,
     /** Allows to change how to calculate the Page size */
