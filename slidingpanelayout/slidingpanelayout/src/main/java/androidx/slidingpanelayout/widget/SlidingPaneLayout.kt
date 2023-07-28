@@ -13,453 +13,391 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:SuppressLint("SyntheticAccessor")
 
-package androidx.slidingpanelayout.widget;
+package androidx.slidingpanelayout.widget
 
-import android.app.Activity;
-import android.content.Context;
-import android.content.ContextWrapper;
-import android.content.res.TypedArray;
-import android.graphics.Canvas;
-import android.graphics.Paint;
-import android.graphics.PixelFormat;
-import android.graphics.Rect;
-import android.graphics.drawable.Drawable;
-import android.os.Build;
-import android.os.Parcel;
-import android.os.Parcelable;
-import android.util.AttributeSet;
-import android.util.Log;
-import android.view.MotionEvent;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.ViewParent;
-import android.view.accessibility.AccessibilityEvent;
-import android.widget.FrameLayout;
+import android.R
+import android.annotation.SuppressLint
+import android.app.Activity
+import android.content.Context
+import android.content.ContextWrapper
+import android.graphics.Canvas
+import android.graphics.PixelFormat
+import android.graphics.Rect
+import android.graphics.drawable.Drawable
+import android.os.Build
+import android.os.Parcel
+import android.os.Parcelable
+import android.os.Parcelable.ClassLoaderCreator
+import android.util.AttributeSet
+import android.util.Log
+import android.view.MotionEvent
+import android.view.View
+import android.view.ViewGroup
+import android.view.ViewGroup.LayoutParams
+import android.view.ViewGroup.getChildMeasureSpec
+import android.view.accessibility.AccessibilityEvent
+import android.widget.FrameLayout
+import androidx.annotation.ColorInt
+import androidx.annotation.DrawableRes
+import androidx.annotation.IntDef
+import androidx.annotation.Px
+import androidx.core.content.ContextCompat
+import androidx.core.graphics.Insets
+import androidx.core.view.AccessibilityDelegateCompat
+import androidx.core.view.ViewCompat
+import androidx.core.view.accessibility.AccessibilityNodeInfoCompat
+import androidx.core.view.animation.PathInterpolatorCompat
+import androidx.core.view.forEach
+import androidx.customview.view.AbsSavedState
+import androidx.customview.widget.Openable
+import androidx.customview.widget.ViewDragHelper
+import androidx.transition.ChangeBounds
+import androidx.transition.Transition
+import androidx.transition.TransitionManager
+import androidx.window.layout.FoldingFeature
+import androidx.window.layout.WindowInfoTracker
+import java.util.Arrays
+import java.util.concurrent.CopyOnWriteArrayList
+import kotlin.math.abs
 
-import androidx.annotation.ColorInt;
-import androidx.annotation.DrawableRes;
-import androidx.annotation.IntDef;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.annotation.Px;
-import androidx.core.content.ContextCompat;
-import androidx.core.graphics.Insets;
-import androidx.core.view.AccessibilityDelegateCompat;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
-import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
-import androidx.core.view.animation.PathInterpolatorCompat;
-import androidx.customview.view.AbsSavedState;
-import androidx.customview.widget.Openable;
-import androidx.customview.widget.ViewDragHelper;
-import androidx.transition.ChangeBounds;
-import androidx.transition.Transition;
-import androidx.transition.TransitionManager;
-import androidx.window.layout.FoldingFeature;
-import androidx.window.layout.WindowInfoTracker;
+private const val TAG = "SlidingPaneLayout"
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.Executor;
+/**
+ * Minimum velocity that will be detected as a fling
+ */
+private const val MIN_FLING_VELOCITY = 400 // dips per second
+
+/** Class name may be obfuscated by Proguard. Hardcode the string for accessibility usage.  */
+private const val ACCESSIBILITY_CLASS_NAME =
+    "androidx.slidingpanelayout.widget.SlidingPaneLayout"
+
+private val edgeSizeUsingSystemGestureInsets = Build.VERSION.SDK_INT >= 29
+
+@Suppress("deprecation") // Remove suppression once b/120984816 is addressed.
+private fun viewIsOpaque(v: View): Boolean {
+    if (v.isOpaque) return true
+
+    // View#isOpaque didn't take all valid opaque scrollbar modes into account
+    // before API 18 (JB-MR2). On newer devices rely solely on isOpaque above and return false
+    // here. On older devices, check the view's background drawable directly as a fallback.
+    if (Build.VERSION.SDK_INT >= 18) return false
+
+    val bg = v.background
+    return if (bg != null) {
+        bg.opacity == PixelFormat.OPAQUE
+    } else false
+}
+
+private fun getMinimumWidth(child: View): Int {
+    return if (child is TouchBlocker) {
+        ViewCompat.getMinimumWidth(child.getChildAt(0))
+    } else ViewCompat.getMinimumWidth(child)
+}
+
+private fun measureChildHeight(child: View, spec: Int, padding: Int): Int {
+    val lp = child.layoutParams as SlidingPaneLayout.LayoutParams
+    val childHeightSpec: Int
+    val skippedFirstPass = lp.width == 0 && lp.weight > 0
+    childHeightSpec = if (skippedFirstPass) {
+        // This was skipped the first time; figure out a real height spec.
+        getChildMeasureSpec(spec, padding, lp.height)
+    } else {
+        View.MeasureSpec.makeMeasureSpec(
+            child.measuredHeight, View.MeasureSpec.EXACTLY
+        )
+    }
+    return childHeightSpec
+}
+
+private fun getFoldBoundsInView(foldingFeature: FoldingFeature, view: View): Rect? {
+    val viewLocationInWindow = IntArray(2)
+    view.getLocationInWindow(viewLocationInWindow)
+    val viewRect = Rect(
+        viewLocationInWindow[0], viewLocationInWindow[1],
+        viewLocationInWindow[0] + view.width,
+        viewLocationInWindow[1] + view.width
+    )
+    val foldRectInView = Rect(foldingFeature.bounds)
+    // Translate coordinate space of split from window coordinate space to current view
+    // position in window
+    val intersects = foldRectInView.intersect(viewRect)
+    // Check if the split is overlapped with the view
+    if (foldRectInView.width() == 0 && foldRectInView.height() == 0 || !intersects) {
+        return null
+    }
+    foldRectInView.offset(-viewLocationInWindow[0], -viewLocationInWindow[1])
+    return foldRectInView
+}
+
+private fun getActivityOrNull(context: Context): Activity? {
+    var iterator: Context? = context
+    while (iterator is ContextWrapper) {
+        if (iterator is Activity) {
+            return iterator
+        }
+        iterator = iterator.baseContext
+    }
+    return null
+}
+
+private class TouchBlocker(view: View) : FrameLayout(view.context) {
+    init {
+        addView(view)
+    }
+
+    override fun onTouchEvent(event: MotionEvent): Boolean {
+        return true
+    }
+
+    override fun onGenericMotionEvent(event: MotionEvent): Boolean {
+        return true
+    }
+}
 
 /**
  * SlidingPaneLayout provides a horizontal, multi-pane layout for use at the top level
  * of a UI. A left (or start) pane is treated as a content list or browser, subordinate to a
  * primary detail view for displaying content.
  *
- * <p>Child views overlap if their combined width exceeds the available width
+ *
+ * Child views overlap if their combined width exceeds the available width
  * in the SlidingPaneLayout. Each of child views is expand out to fill the available width in
  * the SlidingPaneLayout. When this occurs, the user may slide the topmost view out of the way
- * by dragging it, and dragging back it from the very edge.</p>
+ * by dragging it, and dragging back it from the very edge.
  *
- * <p>Thanks to this sliding behavior, SlidingPaneLayout may be suitable for creating layouts
+ *
+ * Thanks to this sliding behavior, SlidingPaneLayout may be suitable for creating layouts
  * that can smoothly adapt across many different screen sizes, expanding out fully on larger
- * screens and collapsing on smaller screens.</p>
+ * screens and collapsing on smaller screens.
  *
- * <p>SlidingPaneLayout is distinct from a navigation drawer as described in the design
+ *
+ * SlidingPaneLayout is distinct from a navigation drawer as described in the design
  * guide and should not be used in the same scenarios. SlidingPaneLayout should be thought
  * of only as a way to allow a two-pane layout normally used on larger screens to adapt to smaller
  * screens in a natural way. The interaction patterns expressed by SlidingPaneLayout imply
  * a physicality and direct information hierarchy between panes that does not necessarily exist
- * in a scenario where a navigation drawer should be used instead.</p>
+ * in a scenario where a navigation drawer should be used instead.
  *
- * <p>Appropriate uses of SlidingPaneLayout include pairings of panes such as a contact list and
+ *
+ * Appropriate uses of SlidingPaneLayout include pairings of panes such as a contact list and
  * subordinate interactions with those contacts, or an email thread list with the content pane
  * displaying the contents of the selected thread. Inappropriate uses of SlidingPaneLayout include
  * switching between disparate functions of your app, such as jumping from a social stream view
  * to a view of your personal profile - cases such as this should use the navigation drawer
- * pattern instead. ({@link androidx.drawerlayout.widget.DrawerLayout DrawerLayout} implements
- * this pattern.)</p>
+ * pattern instead. ([DrawerLayout][androidx.drawerlayout.widget.DrawerLayout] implements
+ * this pattern.)
  *
- * <p>Like {@link android.widget.LinearLayout LinearLayout}, SlidingPaneLayout supports
- * the use of the layout parameter <code>layout_weight</code> on child views to determine
+ *
+ * Like [LinearLayout][android.widget.LinearLayout], SlidingPaneLayout supports
+ * the use of the layout parameter `layout_weight` on child views to determine
  * how to divide leftover space after measurement is complete. It is only relevant for width.
- * When views do not overlap weight behaves as it does in a LinearLayout.</p>
+ * When views do not overlap weight behaves as it does in a LinearLayout.
  */
-public class SlidingPaneLayout extends ViewGroup implements Openable {
-    private static final String TAG = "SlidingPaneLayout";
+open class SlidingPaneLayout @JvmOverloads constructor(
+    context: Context,
+    attrs: AttributeSet? = null,
+    defStyle: Int = 0
+) : ViewGroup(context, attrs, defStyle), Openable {
 
     /**
-     * Minimum velocity that will be detected as a fling
+     * The ARGB-packed color value used to fade the sliding pane. This property is no longer used.
      */
-    private static final int MIN_FLING_VELOCITY = 400; // dips per second
-
-    /** Class name may be obfuscated by Proguard. Hardcode the string for accessibility usage. */
-    private static final String ACCESSIBILITY_CLASS_NAME =
-            "androidx.slidingpanelayout.widget.SlidingPaneLayout";
-
-    /**
-     * This field is only used to support the setter and getter. It is not used by
-     * SlidingPaneLayout.
-     */
-    private int mSliderFadeColor = 0;
+    @get:Deprecated("This field is no longer populated by SlidingPaneLayout.")
+    @get:ColorInt
+    @set:Deprecated("SlidingPaneLayout no longer uses this field.")
+    open var sliderFadeColor: Int
+        get() = 0
+        set(@Suppress("UNUSED_PARAMETER") value) {}
 
     /**
-     * This field is only used to support the setter and getter. It is not used by
-     * SlidingPaneLayout.
+     * Set the color used to fade the pane covered by the sliding pane out when the pane
+     * will become fully covered in the closed state. This value is no longer used.
      */
-    private int mCoveredFadeColor;
+    @get:Deprecated("This field is no longer populated by SlidingPaneLayout")
+    @get:ColorInt
+    @set:Deprecated("SlidingPaneLayout no longer uses this field.")
+    open var coveredFadeColor: Int
+        get() = 0
+        set(@Suppress("UNUSED_PARAMETER") value) {}
 
     /**
      * Drawable used to draw the shadow between panes by default.
      */
-    private Drawable mShadowDrawableLeft;
+    private var shadowDrawableLeft: Drawable? = null
 
     /**
      * Drawable used to draw the shadow between panes to support RTL (right to left language).
      */
-    private Drawable mShadowDrawableRight;
+    private var shadowDrawableRight: Drawable? = null
 
     /**
-     * True if a panel can slide with the current measurements
+     * Check if both the list and detail view panes in this layout can fully fit side-by-side. If
+     * not, the content pane has the capability to slide back and forth. Note that the lock mode
+     * is not taken into account in this method. This method is typically used to determine
+     * whether the layout is showing two-pane or single-pane.
      */
-    private boolean mCanSlide;
+    open val isSlideable: Boolean
+        get() = _isSlideable
+
+    // When converting from java, isSlideable() was open and had no setter;
+    // kotlin doesn't allow `open var` with a `private set`.
+    private var _isSlideable = false
 
     /**
      * The child view that can slide, if any.
      */
-    View mSlideableView;
+    private var slideableView: View? = null
 
     /**
      * How far the panel is offset from its usual position.
      * range [0, 1] where 0 = open, 1 = closed.
      */
-    float mSlideOffset = 1.f;
+    private var currentSlideOffset = 1f
 
     /**
      * How far the non-sliding panel is parallaxed from its usual position when open.
      * range [0, 1]
      */
-    private float mParallaxOffset;
+    private var currentParallaxOffset = 0f
 
     /**
      * How far in pixels the slideable panel may move.
      */
-    int mSlideRange;
+    private var slideRange = 0
 
     /**
      * A panel view is locked into internal scrolling or another condition that
      * is preventing a drag.
      */
-    boolean mIsUnableToDrag;
+    private var isUnableToDrag = false
 
-    /**
-     * Distance in pixels to parallax the fixed pane by when fully closed
-     */
-    private int mParallaxBy;
-
-    private float mInitialMotionX;
-    private float mInitialMotionY;
-
-    private final List<SlideableStateListener> mSlideableStateListeners =
-            new CopyOnWriteArrayList<>();
-
-    private final List<PanelSlideListener> mPanelSlideListeners = new CopyOnWriteArrayList<>();
-    private @Nullable PanelSlideListener mPanelSlideListener;
-
-    final ViewDragHelper mDragHelper;
+    private var initialMotionX = 0f
+    private var initialMotionY = 0f
+    private val slideableStateListeners: MutableList<SlideableStateListener> =
+        CopyOnWriteArrayList()
+    private val panelSlideListeners: MutableList<PanelSlideListener> = CopyOnWriteArrayList()
+    private var singlePanelSlideListener: PanelSlideListener? = null
+    private val dragHelper: ViewDragHelper
 
     /**
      * Stores whether or not the pane was open the last time it was slideable.
      * If open/close operations are invoked this state is modified. Used by
      * instance state save/restore.
      */
-    boolean mPreservedOpenState;
-    private boolean mFirstLayout = true;
+    private var preservedOpenState = false
+    private var awaitingFirstLayout = true
+    private val tmpRect = Rect()
 
-    private final Rect mTmpRect = new Rect();
-
+    /**
+     * The lock mode that controls how the user can swipe between the panes.
+     */
+    @get:LockMode
     @LockMode
-    private int mLockMode;
+    var lockMode = 0
 
-    /**
-     * User can freely swipe between list and detail panes.
-     */
-    public static final int LOCK_MODE_UNLOCKED = 0;
+    @Retention(AnnotationRetention.SOURCE)
+    @IntDef(LOCK_MODE_UNLOCKED, LOCK_MODE_LOCKED_OPEN, LOCK_MODE_LOCKED_CLOSED, LOCK_MODE_LOCKED)
+    internal annotation class LockMode
 
-    /**
-     * The detail pane is locked in an open position. The user cannot swipe to close the detail
-     * pane, but the app can close the detail pane programmatically.
-     */
-    public static final int LOCK_MODE_LOCKED_OPEN = 1;
+    private var foldingFeature: FoldingFeature? = null
 
-    /**
-     * The detail pane is locked in a closed position. The user cannot swipe to open the detail
-     * pane, but the app can open the detail pane programmatically.
-     */
-    public static final int LOCK_MODE_LOCKED_CLOSED = 2;
-
-    /**
-     * The user cannot swipe between list and detail panes, though the app can open or close the
-     * detail pane programmatically.
-     */
-    public static final int LOCK_MODE_LOCKED = 3;
-
-    @Retention(RetentionPolicy.SOURCE)
-    @IntDef({LOCK_MODE_UNLOCKED, LOCK_MODE_LOCKED_OPEN, LOCK_MODE_LOCKED_CLOSED,
-            LOCK_MODE_LOCKED})
-    @interface LockMode {
-    }
-
-    FoldingFeature mFoldingFeature;
-
-    private static boolean sEdgeSizeUsingSystemGestureInsets = Build.VERSION.SDK_INT >= 29;
-
-    /**
-     * Set the lock mode that controls how the user can swipe between the panes.
-     *
-     * @param lockMode The new lock mode for the detail pane.
-     */
-    public final void setLockMode(@LockMode int lockMode) {
-        mLockMode = lockMode;
-    }
-
-    /**
-     * Get the lock mode used to control over the swipe behavior.
-     *
-     * @see #setLockMode(int)
-     */
-    @LockMode
-    public final int getLockMode() {
-        return mLockMode;
-    }
-
-    /**
-     * Listener to whether the SlidingPaneLayout is slideable or is a fixed width.
-     */
-    public interface SlideableStateListener {
-
-        /**
-         * Called when onMeasure has measured out the total width of the added layouts
-         * within SlidingPaneLayout
-         * @param isSlideable  Returns true if the current SlidingPaneLayout has the ability to
-         *                     slide, returns false if the SlidingPaneLayout is a fixed width.
-         */
-        void onSlideableStateChanged(boolean isSlideable);
-    }
-
-    /**
-     * Listener for monitoring events about sliding panes.
-     */
-    public interface PanelSlideListener {
-        /**
-         * Called when a detail view's position changes.
-         *
-         * @param panel       The child view that was moved
-         * @param slideOffset The new offset of this sliding pane within its range, from 0-1
-         */
-        void onPanelSlide(@NonNull View panel, float slideOffset);
-
-        /**
-         * Called when a detail view becomes slid completely open.
-         *
-         * @param panel The detail view that was slid to an open position
-         */
-        void onPanelOpened(@NonNull View panel);
-
-        /**
-         * Called when a detail view becomes slid completely closed.
-         *
-         * @param panel The detail view that was slid to a closed position
-         */
-        void onPanelClosed(@NonNull View panel);
-    }
-
-    /**
-     * No-op stubs for {@link PanelSlideListener}. If you only want to implement a subset
-     * of the listener methods you can extend this instead of implement the full interface.
-     */
-    public static class SimplePanelSlideListener implements PanelSlideListener {
-        @Override
-        public void onPanelSlide(@NonNull View panel, float slideOffset) {
+    private val mOnFoldingFeatureChangeListener =
+        object : FoldingFeatureObserver.OnFoldingFeatureChangeListener {
+            override fun onFoldingFeatureChange(foldingFeature: FoldingFeature) {
+                this@SlidingPaneLayout.foldingFeature = foldingFeature
+                // Start transition animation when folding feature changed
+                val changeBounds: Transition = ChangeBounds()
+                changeBounds.duration = 300L
+                changeBounds.interpolator = PathInterpolatorCompat.create(0.2f, 0f, 0f, 1f)
+                TransitionManager.beginDelayedTransition(this@SlidingPaneLayout, changeBounds)
+                requestLayout()
+            }
         }
 
-        @Override
-        public void onPanelOpened(@NonNull View panel) {
-        }
+    private var foldingFeatureObserver: FoldingFeatureObserver? = null
 
-        @Override
-        public void onPanelClosed(@NonNull View panel) {
-        }
-    }
-
-    private FoldingFeatureObserver.OnFoldingFeatureChangeListener mOnFoldingFeatureChangeListener =
-            new FoldingFeatureObserver.OnFoldingFeatureChangeListener() {
-                @Override
-                public void onFoldingFeatureChange(@NonNull FoldingFeature foldingFeature) {
-                    mFoldingFeature = foldingFeature;
-                    // Start transition animation when folding feature changed
-                    Transition changeBounds = new ChangeBounds();
-                    changeBounds.setDuration(300L);
-                    changeBounds.setInterpolator(PathInterpolatorCompat.create(0.2f, 0, 0, 1));
-                    TransitionManager.beginDelayedTransition(SlidingPaneLayout.this, changeBounds);
-                    requestLayout();
-                }
-            };
-
-    private FoldingFeatureObserver mFoldingFeatureObserver;
-
-    public SlidingPaneLayout(@NonNull Context context) {
-        this(context, null);
-    }
-
-    public SlidingPaneLayout(@NonNull Context context, @Nullable AttributeSet attrs) {
-        this(context, attrs, 0);
-    }
-
-    public SlidingPaneLayout(@NonNull Context context, @Nullable AttributeSet attrs,
-            int defStyle) {
-        super(context, attrs, defStyle);
-
-        final float density = context.getResources().getDisplayMetrics().density;
-
-        setWillNotDraw(false);
-
-        ViewCompat.setAccessibilityDelegate(this, new AccessibilityDelegate());
-        ViewCompat.setImportantForAccessibility(this, ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_YES);
-
-        mDragHelper = ViewDragHelper.create(this, 0.5f, new DragHelperCallback());
-        mDragHelper.setMinVelocity(MIN_FLING_VELOCITY * density);
-
-        WindowInfoTracker repo = WindowInfoTracker.getOrCreate(context);
-        Executor mainExecutor = ContextCompat.getMainExecutor(context);
-        FoldingFeatureObserver foldingFeatureObserver =
-                new FoldingFeatureObserver(repo, mainExecutor);
-        setFoldingFeatureObserver(foldingFeatureObserver);
-    }
-
-    private void setFoldingFeatureObserver(
-            FoldingFeatureObserver foldingFeatureObserver) {
-        mFoldingFeatureObserver = foldingFeatureObserver;
-        mFoldingFeatureObserver.setOnFoldingFeatureChangeListener(
-                mOnFoldingFeatureChangeListener);
+    private fun setFoldingFeatureObserver(foldingFeatureObserver: FoldingFeatureObserver) {
+        this.foldingFeatureObserver = foldingFeatureObserver
+        foldingFeatureObserver.setOnFoldingFeatureChangeListener(mOnFoldingFeatureChangeListener)
     }
 
     /**
-     * Set a distance to parallax the lower pane by when the upper pane is in its
-     * fully closed state. The lower pane will scroll between this position and
+     * Distance to parallax the lower pane by when the upper pane is in its
+     * fully closed state, in pixels. The lower pane will scroll between this position and
      * its fully open state.
-     *
-     * @param parallaxBy Distance to parallax by in pixels
      */
-    public void setParallaxDistance(@Px int parallaxBy) {
-        mParallaxBy = parallaxBy;
-        requestLayout();
-    }
+    @get:Px
+    open var parallaxDistance: Int = 0
+        /**
+         * The distance the lower pane will parallax by when the upper pane is fully closed.
+         */
+        set(@Px parallaxBy) {
+            field = parallaxBy
+            requestLayout()
+        }
 
-    /**
-     * @return The distance the lower pane will parallax by when the upper pane is fully closed.
-     * @see #setParallaxDistance(int)
-     */
-    @Px
-    public int getParallaxDistance() {
-        return mParallaxBy;
-    }
+    private val systemGestureInsets: Insets?
+        // Get system gesture insets when SDK version is larger than 29. Otherwise, return null.
+        get() {
+            var gestureInsets: Insets? = null
+            if (edgeSizeUsingSystemGestureInsets) {
+                val rootInsetsCompat = ViewCompat.getRootWindowInsets(this)
+                if (rootInsetsCompat != null) {
+                    @Suppress("DEPRECATION")
+                    gestureInsets = rootInsetsCompat.systemGestureInsets
+                }
+            }
+            return gestureInsets
+        }
 
-    /**
-     * Set the color used to fade the sliding pane out when it is slid most of the way offscreen.
-     *
-     * @param color An ARGB-packed color value
-     * @deprecated SlidingPaneLayout no longer uses this field.
-     */
-    @Deprecated
-    public void setSliderFadeColor(@ColorInt int color) {
-        mSliderFadeColor = color;
-    }
-
-    /**
-     * @return The ARGB-packed color value used to fade the sliding pane
-     * @deprecated This field is no longer populated by SlidingPaneLayout.
-     */
-    @Deprecated
-    @ColorInt
-    public int getSliderFadeColor() {
-        return mSliderFadeColor;
-    }
-
-    /**
-     * Set the color used to fade the pane covered by the sliding pane out when the pane
-     * will become fully covered in the closed state.
-     *
-     * @param color An ARGB-packed color value
-     * @deprecated SlidingPaneLayout no longer uses this field.
-     */
-    @Deprecated
-    public void setCoveredFadeColor(@ColorInt int color) {
-        mCoveredFadeColor = color;
-    }
-
-    /**
-     * @return The ARGB-packed color value used to fade the fixed pane
-     * @deprecated This field is no longer populated by SlidingPaneLayout
-     */
-    @Deprecated
-    @ColorInt
-    public int getCoveredFadeColor() {
-        return mCoveredFadeColor;
+    private val isLayoutRtlSupport: Boolean
+        get() = ViewCompat.getLayoutDirection(this) == ViewCompat.LAYOUT_DIRECTION_RTL
+    init {
+        val density = context.resources.displayMetrics.density
+        setWillNotDraw(false)
+        ViewCompat.setAccessibilityDelegate(this, AccessibilityDelegate())
+        ViewCompat.setImportantForAccessibility(this, ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_YES)
+        dragHelper = ViewDragHelper.create(this, 0.5f, DragHelperCallback())
+        dragHelper.minVelocity =
+            MIN_FLING_VELOCITY * density
+        val repo: WindowInfoTracker = WindowInfoTracker.getOrCreate(context)
+        val mainExecutor = ContextCompat.getMainExecutor(context)
+        val foldingFeatureObserver = FoldingFeatureObserver(repo, mainExecutor)
+        setFoldingFeatureObserver(foldingFeatureObserver)
     }
 
     /**
      * Set a listener to be notified of panel slide events. Note that this method is deprecated
-     * and you should use {@link #addPanelSlideListener(PanelSlideListener)} to add a listener and
-     * {@link #removePanelSlideListener(PanelSlideListener)} to remove a registered listener.
+     * and you should use [addPanelSlideListener] to add a listener and
+     * [removePanelSlideListener] to remove a registered listener.
      *
      * @param listener Listener to notify when drawer events occur
      * @see PanelSlideListener
-     * @see #addPanelSlideListener(PanelSlideListener)
-     * @see #removePanelSlideListener(PanelSlideListener)
-     * @deprecated Use {@link #addPanelSlideListener(PanelSlideListener)}
+     *
+     * @see addPanelSlideListener
+     * @see removePanelSlideListener
      */
-    @Deprecated
-    public void setPanelSlideListener(@Nullable PanelSlideListener listener) {
+    @Deprecated("Use {@link #addPanelSlideListener(PanelSlideListener)}")
+    open fun setPanelSlideListener(listener: PanelSlideListener?) {
         // The logic in this method emulates what we had before support for multiple
         // registered listeners.
-        if (mPanelSlideListener != null) {
-            removePanelSlideListener(mPanelSlideListener);
-        }
-        if (listener != null) {
-            addPanelSlideListener(listener);
-        }
+        singlePanelSlideListener?.let { removePanelSlideListener(it) }
+        listener?.let { addPanelSlideListener(it) }
         // Update the deprecated field so that we can remove the passed listener the next
         // time we're called
-        mPanelSlideListener = listener;
+        singlePanelSlideListener = listener
     }
 
     /**
      * Adds the specified listener to the list of listeners that will be notified of sliding
      * state events.
      * @param listener  Listener to notify when sliding state events occur.
-     * @see #removeSlideableStateListener(SlideableStateListener)
+     * @see removeSlideableStateListener
      */
-    public void addSlideableStateListener(@NonNull SlideableStateListener listener) {
-        mSlideableStateListeners.add(listener);
+    open fun addSlideableStateListener(listener: SlideableStateListener) {
+        slideableStateListeners.add(listener)
     }
 
     /**
@@ -467,8 +405,8 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
      * state events.
      * @param listener Listener to notify when sliding state events occur
      */
-    public void removeSlideableStateListener(@NonNull SlideableStateListener listener) {
-        mSlideableStateListeners.remove(listener);
+    open fun removeSlideableStateListener(listener: SlideableStateListener) {
+        slideableStateListeners.remove(listener)
     }
 
     /**
@@ -476,10 +414,10 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
      * panel slide events.
      *
      * @param listener Listener to notify when panel slide events occur.
-     * @see #removePanelSlideListener(PanelSlideListener)
+     * @see removePanelSlideListener
      */
-    public void addPanelSlideListener(@NonNull PanelSlideListener listener) {
-        mPanelSlideListeners.add(listener);
+    open fun addPanelSlideListener(listener: PanelSlideListener) {
+        panelSlideListeners.add(listener)
     }
 
     /**
@@ -487,236 +425,204 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
      * panel slide events.
      *
      * @param listener Listener to remove from being notified of panel slide events
-     * @see #addPanelSlideListener(PanelSlideListener)
+     * @see addPanelSlideListener
      */
-    public void removePanelSlideListener(@NonNull PanelSlideListener listener) {
-        mPanelSlideListeners.remove(listener);
+    open fun removePanelSlideListener(listener: PanelSlideListener) {
+        panelSlideListeners.remove(listener)
     }
 
-    void dispatchOnPanelSlide(@NonNull View panel) {
-        for (PanelSlideListener listener : mPanelSlideListeners) {
-            listener.onPanelSlide(panel, mSlideOffset);
+    private fun dispatchOnPanelSlide(panel: View) {
+        for (listener in panelSlideListeners) {
+            listener.onPanelSlide(panel, currentSlideOffset)
         }
     }
 
-    void dispatchOnPanelOpened(@NonNull View panel) {
-        for (PanelSlideListener listener : mPanelSlideListeners) {
-            listener.onPanelOpened(panel);
+    private fun dispatchOnPanelOpened(panel: View) {
+        for (listener in panelSlideListeners) {
+            listener.onPanelOpened(panel)
+        }
+        sendAccessibilityEvent(AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED)
+    }
+
+    private fun dispatchOnPanelClosed(panel: View) {
+        for (listener in panelSlideListeners) {
+            listener.onPanelClosed(panel)
         }
         sendAccessibilityEvent(AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED);
     }
 
-    void dispatchOnPanelClosed(@NonNull View panel) {
-        for (PanelSlideListener listener : mPanelSlideListeners) {
-            listener.onPanelClosed(panel);
-        }
-        sendAccessibilityEvent(AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED);
-    }
-
-    void updateObscuredViewsVisibility(View panel) {
-        final boolean isLayoutRtl = isLayoutRtlSupport();
-        final int startBound = isLayoutRtl ? (getWidth() - getPaddingRight()) : getPaddingLeft();
-        final int endBound = isLayoutRtl ? getPaddingLeft() : (getWidth() - getPaddingRight());
-        final int topBound = getPaddingTop();
-        final int bottomBound = getHeight() - getPaddingBottom();
-        final int left;
-        final int right;
-        final int top;
-        final int bottom;
+    private fun updateObscuredViewsVisibility(panel: View?) {
+        val isLayoutRtl = isLayoutRtlSupport
+        val startBound = if (isLayoutRtl) width - paddingRight else paddingLeft
+        val endBound = if (isLayoutRtl) paddingLeft else width - paddingRight
+        val topBound = paddingTop
+        val bottomBound = height - paddingBottom
+        val left: Int
+        val right: Int
+        val top: Int
+        val bottom: Int
         if (panel != null && viewIsOpaque(panel)) {
-            left = panel.getLeft();
-            right = panel.getRight();
-            top = panel.getTop();
-            bottom = panel.getBottom();
+            left = panel.left
+            right = panel.right
+            top = panel.top
+            bottom = panel.bottom
         } else {
-            left = right = top = bottom = 0;
+            left = 0
+            top = 0
+            right = 0
+            bottom = 0
         }
-
-        for (int i = 0, childCount = getChildCount(); i < childCount; i++) {
-            final View child = getChildAt(i);
-
-            if (child == panel) {
+        forEach { child ->
+            if (child === panel) {
                 // There are still more children above the panel but they won't be affected.
-                break;
-            } else if (child.getVisibility() == GONE) {
-                continue;
+                return
             }
-
-            final int clampedChildLeft = Math.max(
-                    (isLayoutRtl ? endBound : startBound), child.getLeft());
-            final int clampedChildTop = Math.max(topBound, child.getTop());
-            final int clampedChildRight = Math.min(
-                    (isLayoutRtl ? startBound : endBound), child.getRight());
-            final int clampedChildBottom = Math.min(bottomBound, child.getBottom());
-            final int vis;
-            if (clampedChildLeft >= left && clampedChildTop >= top
-                    && clampedChildRight <= right && clampedChildBottom <= bottom) {
-                vis = INVISIBLE;
-            } else {
-                vis = VISIBLE;
-            }
-            child.setVisibility(vis);
-        }
-    }
-
-    void setAllChildrenVisible() {
-        for (int i = 0, childCount = getChildCount(); i < childCount; i++) {
-            final View child = getChildAt(i);
-            if (child.getVisibility() == INVISIBLE) {
-                child.setVisibility(VISIBLE);
+            if (child.visibility != GONE) {
+                val clampedChildLeft =
+                    (if (isLayoutRtl) endBound else startBound).coerceAtLeast(child.left)
+                val clampedChildTop = topBound.coerceAtLeast(child.top)
+                val clampedChildRight =
+                    (if (isLayoutRtl) startBound else endBound).coerceAtMost(child.right)
+                val clampedChildBottom = bottomBound.coerceAtMost(child.bottom)
+                child.visibility = if (clampedChildLeft >= left &&
+                    clampedChildTop >= top &&
+                    clampedChildRight <= right &&
+                    clampedChildBottom <= bottom
+                ) INVISIBLE else VISIBLE
             }
         }
     }
 
-    @SuppressWarnings("deprecation")
-    // Remove suppression once b/120984816 is addressed.
-    private static boolean viewIsOpaque(View v) {
-        if (v.isOpaque()) {
-            return true;
+    private fun setAllChildrenVisible() {
+        forEach { child ->
+            if (child.visibility == INVISIBLE) {
+                child.visibility = VISIBLE
+            }
         }
-
-        // View#isOpaque didn't take all valid opaque scrollbar modes into account
-        // before API 18 (JB-MR2). On newer devices rely solely on isOpaque above and return false
-        // here. On older devices, check the view's background drawable directly as a fallback.
-        if (Build.VERSION.SDK_INT >= 18) {
-            return false;
-        }
-
-        final Drawable bg = v.getBackground();
-        if (bg != null) {
-            return bg.getOpacity() == PixelFormat.OPAQUE;
-        }
-        return false;
     }
 
-    @Override
-    public void addView(@NonNull View child, int index, @Nullable ViewGroup.LayoutParams params) {
-        if (getChildCount() == 1) {
+    override fun addView(child: View, index: Int, params: ViewGroup.LayoutParams?) {
+        if (childCount == 1) {
             // Wrap detail view inside a touch blocker container
-            View detailView = new TouchBlocker(child);
-            super.addView(detailView, index, params);
-            return;
+            val detailView: View = TouchBlocker(child)
+            super.addView(detailView, index, params)
+            return
         }
-        super.addView(child, index, params);
+        super.addView(child, index, params)
     }
 
-    @Override
-    public void removeView(@NonNull View view) {
-        if (view.getParent() instanceof TouchBlocker) {
-            super.removeView((View) view.getParent());
-            return;
+    override fun removeView(view: View) {
+        if (view.parent is TouchBlocker) {
+            super.removeView(view.parent as View)
+            return
         }
-        super.removeView(view);
+        super.removeView(view)
     }
 
-    @Override
-    protected void onAttachedToWindow() {
-        super.onAttachedToWindow();
-        mFirstLayout = true;
-        if (mFoldingFeatureObserver != null) {
-            Activity activity = getActivityOrNull(getContext());
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
+        awaitingFirstLayout = true
+        if (foldingFeatureObserver != null) {
+            val activity = getActivityOrNull(context)
             if (activity != null) {
-                mFoldingFeatureObserver.registerLayoutStateChangeCallback(activity);
+                foldingFeatureObserver!!.registerLayoutStateChangeCallback(activity)
             }
         }
     }
 
-    @Override
-    protected void onDetachedFromWindow() {
-        super.onDetachedFromWindow();
-        mFirstLayout = true;
-        if (mFoldingFeatureObserver != null) {
-            mFoldingFeatureObserver.unregisterLayoutStateChangeCallback();
+    override fun onDetachedFromWindow() {
+        super.onDetachedFromWindow()
+        awaitingFirstLayout = true
+        if (foldingFeatureObserver != null) {
+            foldingFeatureObserver!!.unregisterLayoutStateChangeCallback()
         }
     }
 
-    @Override
-    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        int widthMode = MeasureSpec.getMode(widthMeasureSpec);
-        int widthSize = MeasureSpec.getSize(widthMeasureSpec);
-        int heightMode = MeasureSpec.getMode(heightMeasureSpec);
-        int heightSize = MeasureSpec.getSize(heightMeasureSpec);
+    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+        val widthMode = MeasureSpec.getMode(widthMeasureSpec)
+        val widthSize = MeasureSpec.getSize(widthMeasureSpec)
+        val heightMode = MeasureSpec.getMode(heightMeasureSpec)
+        val heightSize = MeasureSpec.getSize(heightMeasureSpec)
+        var layoutHeight = 0
+        var maxLayoutHeight = 0
+        when (heightMode) {
+            MeasureSpec.EXACTLY -> {
+                maxLayoutHeight = heightSize - paddingTop - paddingBottom
+                layoutHeight = maxLayoutHeight
+            }
 
-        int layoutHeight = 0;
-        int maxLayoutHeight = 0;
-        switch (heightMode) {
-            case MeasureSpec.EXACTLY:
-                layoutHeight = maxLayoutHeight = heightSize - getPaddingTop() - getPaddingBottom();
-                break;
-            case MeasureSpec.AT_MOST:
-                maxLayoutHeight = heightSize - getPaddingTop() - getPaddingBottom();
-                break;
+            MeasureSpec.AT_MOST -> maxLayoutHeight = heightSize - paddingTop - paddingBottom
         }
-
-        float weightSum = 0;
-        boolean canSlide = false;
-        final int widthAvailable = Math.max(widthSize - getPaddingLeft() - getPaddingRight(), 0);
-        int widthRemaining = widthAvailable;
-        final int childCount = getChildCount();
-
+        var weightSum = 0f
+        var canSlide = false
+        val widthAvailable = (widthSize - paddingLeft - paddingRight).coerceAtLeast(0)
+        var widthRemaining = widthAvailable
+        val childCount = childCount
         if (childCount > 2) {
-            Log.e(TAG, "onMeasure: More than two child views are not supported.");
+            Log.e(TAG, "onMeasure: More than two child views are not supported.")
         }
 
         // We'll find the current one below.
-        mSlideableView = null;
+        slideableView = null
 
         // First pass. Measure based on child LayoutParams width/height.
         // Weight will incur a second pass.
-        for (int i = 0; i < childCount; i++) {
-            final View child = getChildAt(i);
-            final LayoutParams lp = (LayoutParams) child.getLayoutParams();
-
-            if (child.getVisibility() == GONE) {
-                lp.dimWhenOffset = false;
-                continue;
+        for (i in 0 until childCount) {
+            val child = getChildAt(i)
+            val lp = child.layoutParams as LayoutParams
+            if (child.visibility == GONE) {
+                lp.dimWhenOffset = false
+                continue
             }
-
             if (lp.weight > 0) {
-                weightSum += lp.weight;
+                weightSum += lp.weight
 
                 // If we have no width, weight is the only contributor to the final size.
                 // Measure this view on the weight pass only.
-                if (lp.width == 0) continue;
+                if (lp.width == 0) continue
             }
-
-            int childWidthSpec;
-            final int horizontalMargin = lp.leftMargin + lp.rightMargin;
-
-            int childWidthSize = Math.max(widthAvailable - horizontalMargin, 0);
+            var childWidthSpec: Int
+            val horizontalMargin = lp.leftMargin + lp.rightMargin
+            val childWidthSize = (widthAvailable - horizontalMargin).coerceAtLeast(0)
             // When the parent width spec is UNSPECIFIED, measure each of child to get its
             // desired width.
-            if (lp.width == LayoutParams.WRAP_CONTENT) {
-                childWidthSpec = MeasureSpec.makeMeasureSpec(childWidthSize,
-                        widthMode == MeasureSpec.UNSPECIFIED ? widthMode : MeasureSpec.AT_MOST);
-            } else if (lp.width == LayoutParams.MATCH_PARENT) {
-                childWidthSpec = MeasureSpec.makeMeasureSpec(childWidthSize, widthMode);
-            } else {
-                childWidthSpec = MeasureSpec.makeMeasureSpec(lp.width, MeasureSpec.EXACTLY);
-            }
-
-            int childHeightSpec = getChildMeasureSpec(heightMeasureSpec,
-                    getPaddingTop() + getPaddingBottom(), lp.height);
-            child.measure(childWidthSpec, childHeightSpec);
-            final int childWidth = child.getMeasuredWidth();
-            final int childHeight = child.getMeasuredHeight();
-
-            if (childHeight > layoutHeight) {
-                if (heightMode == MeasureSpec.AT_MOST) {
-                    layoutHeight = Math.min(childHeight, maxLayoutHeight);
-                } else if (heightMode == MeasureSpec.UNSPECIFIED) {
-                    layoutHeight = childHeight;
+            childWidthSpec = when (lp.width) {
+                ViewGroup.LayoutParams.WRAP_CONTENT -> {
+                    MeasureSpec.makeMeasureSpec(
+                        childWidthSize,
+                        if (widthMode == MeasureSpec.UNSPECIFIED) widthMode else MeasureSpec.AT_MOST
+                    )
+                }
+                ViewGroup.LayoutParams.MATCH_PARENT -> {
+                    MeasureSpec.makeMeasureSpec(childWidthSize, widthMode)
+                }
+                else -> {
+                    MeasureSpec.makeMeasureSpec(lp.width, MeasureSpec.EXACTLY)
                 }
             }
-
-            widthRemaining -= childWidth;
+            val childHeightSpec = getChildMeasureSpec(
+                heightMeasureSpec,
+                paddingTop + paddingBottom, lp.height
+            )
+            child.measure(childWidthSpec, childHeightSpec)
+            val childWidth = child.measuredWidth
+            val childHeight = child.measuredHeight
+            if (childHeight > layoutHeight) {
+                if (heightMode == MeasureSpec.AT_MOST) {
+                    layoutHeight = childHeight.coerceAtMost(maxLayoutHeight)
+                } else if (heightMode == MeasureSpec.UNSPECIFIED) {
+                    layoutHeight = childHeight
+                }
+            }
+            widthRemaining -= childWidth
             // Skip first child (list pane), the list pane is always a non-sliding pane.
             if (i == 0) {
-                continue;
+                continue
             }
-            canSlide |= lp.slideable = widthRemaining < 0;
+            lp.slideable = widthRemaining < 0
+            canSlide = canSlide or lp.slideable
             if (lp.slideable) {
-                mSlideableView = child;
+                slideableView = child
             }
         }
         // Second pass. Resolve weight.
@@ -724,42 +630,43 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
         // available width. Each of child views is sized to fill all available space. If there is
         // no overlap, distribute the extra width proportionally to weight.
         if (canSlide || weightSum > 0) {
-            for (int i = 0; i < childCount; i++) {
-                final View child = getChildAt(i);
-                if (child.getVisibility() == GONE) {
-                    continue;
+            for (i in 0 until childCount) {
+                val child = getChildAt(i)
+                if (child.visibility == GONE) {
+                    continue
                 }
-
-                final LayoutParams lp = (LayoutParams) child.getLayoutParams();
-                final boolean skippedFirstPass = lp.width == 0 && lp.weight > 0;
-                final int measuredWidth = skippedFirstPass ? 0 : child.getMeasuredWidth();
-                int newWidth = measuredWidth;
-                int childWidthSpec = 0;
+                val lp = child.layoutParams as LayoutParams
+                val skippedFirstPass = lp.width == 0 && lp.weight > 0
+                val measuredWidth = if (skippedFirstPass) 0 else child.measuredWidth
+                var newWidth = measuredWidth
+                var childWidthSpec = 0
                 if (canSlide) {
                     // Child view consumes available space if the combined width cannot fit into
                     // the layout available width.
-                    final int horizontalMargin = lp.leftMargin + lp.rightMargin;
-                    newWidth = widthAvailable - horizontalMargin;
+                    val horizontalMargin = lp.leftMargin + lp.rightMargin
+                    newWidth = widthAvailable - horizontalMargin
                     childWidthSpec = MeasureSpec.makeMeasureSpec(
-                            newWidth, MeasureSpec.EXACTLY);
-
+                        newWidth, MeasureSpec.EXACTLY
+                    )
                 } else if (lp.weight > 0) {
                     // Distribute the extra width proportionally similar to LinearLayout
-                    final int widthToDistribute = Math.max(0, widthRemaining);
-                    final int addedWidth = (int) (lp.weight * widthToDistribute / weightSum);
-                    newWidth = measuredWidth + addedWidth;
-                    childWidthSpec = MeasureSpec.makeMeasureSpec(newWidth, MeasureSpec.EXACTLY);
+                    val widthToDistribute = widthRemaining.coerceAtLeast(0)
+                    val addedWidth = (lp.weight * widthToDistribute / weightSum).toInt()
+                    newWidth = measuredWidth + addedWidth
+                    childWidthSpec = MeasureSpec.makeMeasureSpec(newWidth, MeasureSpec.EXACTLY)
                 }
-                final int childHeightSpec = measureChildHeight(child, heightMeasureSpec,
-                        getPaddingTop() + getPaddingBottom());
+                val childHeightSpec = measureChildHeight(
+                    child, heightMeasureSpec,
+                    paddingTop + paddingBottom
+                )
                 if (measuredWidth != newWidth) {
-                    child.measure(childWidthSpec, childHeightSpec);
-                    final int childHeight = child.getMeasuredHeight();
+                    child.measure(childWidthSpec, childHeightSpec)
+                    val childHeight = child.measuredHeight
                     if (childHeight > layoutHeight) {
                         if (heightMode == MeasureSpec.AT_MOST) {
-                            layoutHeight = Math.min(childHeight, maxLayoutHeight);
+                            layoutHeight = childHeight.coerceAtMost(maxLayoutHeight)
                         } else if (heightMode == MeasureSpec.UNSPECIFIED) {
-                            layoutHeight = childHeight;
+                            layoutHeight = childHeight
                         }
                     }
                 }
@@ -768,322 +675,275 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
 
         // At this point, all child views have been measured. Calculate the device fold position
         // in the view. Update the split position to where the fold when it exists.
-        ArrayList<Rect> splitViews = splitViewPositions();
-
+        val splitViews = splitViewPositions()
         if (splitViews != null && !canSlide) {
-            for (int i = 0; i < childCount; i++) {
-                final View child = getChildAt(i);
-
-                if (child.getVisibility() == GONE) {
-                    continue;
+            for (i in 0 until childCount) {
+                val child = getChildAt(i)
+                if (child.visibility == GONE) {
+                    continue
                 }
-
-                final Rect splitView = splitViews.get(i);
-                final LayoutParams lp = (LayoutParams) child.getLayoutParams();
+                val splitView = splitViews[i]
+                val lp = child.layoutParams as LayoutParams
 
                 // If child view cannot fit in the separating view, expand the child view to fill
                 // available space.
-                final int horizontalMargin = lp.leftMargin + lp.rightMargin;
-                final int childHeightSpec = MeasureSpec.makeMeasureSpec(child.getMeasuredHeight(),
-                        MeasureSpec.EXACTLY);
-                int childWidthSpec = MeasureSpec.makeMeasureSpec(splitView.width(),
-                        MeasureSpec.AT_MOST);
-                child.measure(childWidthSpec, childHeightSpec);
-                if ((child.getMeasuredWidthAndState() & MEASURED_STATE_TOO_SMALL) == 1 || (
-                        getMinimumWidth(child) != 0
-                                && splitView.width() < getMinimumWidth(child))) {
-                    childWidthSpec = MeasureSpec.makeMeasureSpec(widthAvailable - horizontalMargin,
-                            MeasureSpec.EXACTLY);
-                    child.measure(childWidthSpec, childHeightSpec);
+                val horizontalMargin = lp.leftMargin + lp.rightMargin
+                val childHeightSpec = MeasureSpec.makeMeasureSpec(
+                    child.measuredHeight,
+                    MeasureSpec.EXACTLY
+                )
+                var childWidthSpec = MeasureSpec.makeMeasureSpec(
+                    splitView.width(),
+                    MeasureSpec.AT_MOST
+                )
+                child.measure(childWidthSpec, childHeightSpec)
+                if (child.measuredWidthAndState and MEASURED_STATE_TOO_SMALL == 1 ||
+                    (getMinimumWidth(child) != 0 && splitView.width() < getMinimumWidth(child))
+                ) {
+                    childWidthSpec = MeasureSpec.makeMeasureSpec(
+                        widthAvailable - horizontalMargin,
+                        MeasureSpec.EXACTLY
+                    )
+                    child.measure(childWidthSpec, childHeightSpec)
                     // Skip first child (list pane), the list pane is always a non-sliding pane.
                     if (i == 0) {
-                        continue;
+                        continue
                     }
-                    canSlide = lp.slideable = true;
-                    mSlideableView = child;
+                    lp.slideable = true
+                    canSlide = true
+                    slideableView = child
                 } else {
-                    childWidthSpec = MeasureSpec.makeMeasureSpec(splitView.width(),
-                            MeasureSpec.EXACTLY);
-                    child.measure(childWidthSpec, childHeightSpec);
+                    childWidthSpec = MeasureSpec.makeMeasureSpec(
+                        splitView.width(),
+                        MeasureSpec.EXACTLY
+                    )
+                    child.measure(childWidthSpec, childHeightSpec)
                 }
             }
         }
-
-        final int measuredWidth = widthSize;
-        final int measuredHeight = layoutHeight + getPaddingTop() + getPaddingBottom();
-
-        setMeasuredDimension(measuredWidth, measuredHeight);
-        if (canSlide != mCanSlide) {
-            mCanSlide = canSlide;
-            for (SlideableStateListener listener : mSlideableStateListeners) {
-                listener.onSlideableStateChanged(mCanSlide);
+        val measuredHeight = layoutHeight + paddingTop + paddingBottom
+        setMeasuredDimension(widthSize, measuredHeight)
+        if (canSlide != isSlideable) {
+            _isSlideable = canSlide
+            for (listener in slideableStateListeners) {
+                listener.onSlideableStateChanged(isSlideable)
             }
         }
-
-        if (mDragHelper.getViewDragState() != ViewDragHelper.STATE_IDLE && !canSlide) {
+        if (dragHelper.viewDragState != ViewDragHelper.STATE_IDLE && !canSlide) {
             // Cancel scrolling in progress, it's no longer relevant.
-            mDragHelper.abort();
+            dragHelper.abort()
         }
     }
 
-    private static int getMinimumWidth(View child) {
-        if (child instanceof TouchBlocker) {
-            return ViewCompat.getMinimumWidth(((TouchBlocker) child).getChildAt(0));
+    override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
+        val isLayoutRtl = isLayoutRtlSupport
+        val width = r - l
+        val paddingStart = if (isLayoutRtl) paddingRight else paddingLeft
+        val paddingEnd = if (isLayoutRtl) paddingLeft else paddingRight
+        val paddingTop = paddingTop
+        val childCount = childCount
+        var xStart = paddingStart
+        var nextXStart = xStart
+        if (awaitingFirstLayout) {
+            currentSlideOffset = if (isSlideable && preservedOpenState) 0f else 1f
         }
-        return ViewCompat.getMinimumWidth(child);
-    }
-
-    private static int measureChildHeight(@NonNull View child,
-            int spec, int padding) {
-        final LayoutParams lp = (LayoutParams) child.getLayoutParams();
-        final int childHeightSpec;
-        final boolean skippedFirstPass = lp.width == 0 && lp.weight > 0;
-        if (skippedFirstPass) {
-            // This was skipped the first time; figure out a real height spec.
-            childHeightSpec = getChildMeasureSpec(spec, padding, lp.height);
-
-        } else {
-            childHeightSpec = MeasureSpec.makeMeasureSpec(
-                    child.getMeasuredHeight(), MeasureSpec.EXACTLY);
-        }
-        return childHeightSpec;
-    }
-
-    @Override
-    protected void onLayout(boolean changed, int l, int t, int r, int b) {
-        final boolean isLayoutRtl = isLayoutRtlSupport();
-        final int width = r - l;
-        final int paddingStart = isLayoutRtl ? getPaddingRight() : getPaddingLeft();
-        final int paddingEnd = isLayoutRtl ? getPaddingLeft() : getPaddingRight();
-        final int paddingTop = getPaddingTop();
-
-        final int childCount = getChildCount();
-        int xStart = paddingStart;
-        int nextXStart = xStart;
-
-        if (mFirstLayout) {
-            mSlideOffset = mCanSlide && mPreservedOpenState ? 0.f : 1.f;
-        }
-
-        for (int i = 0; i < childCount; i++) {
-            final View child = getChildAt(i);
-
-            if (child.getVisibility() == GONE) {
-                continue;
+        for (i in 0 until childCount) {
+            val child = getChildAt(i)
+            if (child.visibility == GONE) {
+                continue
             }
-
-            final LayoutParams lp = (LayoutParams) child.getLayoutParams();
-
-            final int childWidth = child.getMeasuredWidth();
-            int offset = 0;
-
+            val lp =
+                child.layoutParams as LayoutParams
+            val childWidth = child.measuredWidth
+            var offset = 0
             if (lp.slideable) {
-                final int margin = lp.leftMargin + lp.rightMargin;
-                final int range = Math.min(nextXStart, width - paddingEnd) - xStart - margin;
-                mSlideRange = range;
-                final int lpMargin = isLayoutRtl ? lp.rightMargin : lp.leftMargin;
-                lp.dimWhenOffset = xStart + lpMargin + range + childWidth / 2 > width - paddingEnd;
-                final int pos = (int) (range * mSlideOffset);
-                xStart += pos + lpMargin;
-                mSlideOffset = (float) pos / mSlideRange;
-            } else if (mCanSlide && mParallaxBy != 0) {
-                offset = (int) ((1 - mSlideOffset) * mParallaxBy);
-                xStart = nextXStart;
+                val margin = lp.leftMargin + lp.rightMargin
+                val range = nextXStart.coerceAtMost(width - paddingEnd) - xStart - margin
+                slideRange = range
+                val lpMargin = if (isLayoutRtl) lp.rightMargin else lp.leftMargin
+                lp.dimWhenOffset = xStart + lpMargin + range + childWidth / 2 > width - paddingEnd
+                val pos = (range * currentSlideOffset).toInt()
+                xStart += pos + lpMargin
+                currentSlideOffset = pos.toFloat() / slideRange
+            } else if (isSlideable && parallaxDistance != 0) {
+                offset = ((1 - currentSlideOffset) * parallaxDistance).toInt()
+                xStart = nextXStart
             } else {
-                xStart = nextXStart;
+                xStart = nextXStart
             }
-
-            final int childRight;
-            final int childLeft;
+            val childRight: Int
+            val childLeft: Int
             if (isLayoutRtl) {
-                childRight = width - xStart + offset;
-                childLeft = childRight - childWidth;
+                childRight = width - xStart + offset
+                childLeft = childRight - childWidth
             } else {
-                childLeft = xStart - offset;
-                childRight = childLeft + childWidth;
+                childLeft = xStart - offset
+                childRight = childLeft + childWidth
             }
-
-            final int childTop = paddingTop;
-            final int childBottom = childTop + child.getMeasuredHeight();
-            child.layout(childLeft, paddingTop, childRight, childBottom);
+            val childBottom = paddingTop + child.measuredHeight
+            child.layout(childLeft, paddingTop, childRight, childBottom)
 
             // If a folding feature separates the content, we use its width as the extra
             // offset for the next child, in order to avoid rendering the content under it.
-            int nextXOffset = 0;
-            if (mFoldingFeature != null
-                    && mFoldingFeature.getOrientation() == FoldingFeature.Orientation.VERTICAL
-                    && mFoldingFeature.isSeparating()) {
-                nextXOffset = mFoldingFeature.getBounds().width();
+            var nextXOffset = 0
+            if (foldingFeature != null &&
+                foldingFeature!!.orientation == FoldingFeature.Orientation.VERTICAL &&
+                foldingFeature!!.isSeparating
+            ) {
+                nextXOffset = foldingFeature!!.bounds.width()
             }
-            nextXStart += child.getWidth() + Math.abs(nextXOffset);
+            nextXStart += child.width + abs(nextXOffset)
         }
-
-        if (mFirstLayout) {
-            if (mCanSlide) {
-                if (mParallaxBy != 0) {
-                    parallaxOtherViews(mSlideOffset);
+        if (awaitingFirstLayout) {
+            if (isSlideable) {
+                if (parallaxDistance != 0) {
+                    parallaxOtherViews(currentSlideOffset)
                 }
             }
-            updateObscuredViewsVisibility(mSlideableView);
+            updateObscuredViewsVisibility(slideableView)
         }
-
-        mFirstLayout = false;
+        awaitingFirstLayout = false
     }
 
-    @Override
-    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-        super.onSizeChanged(w, h, oldw, oldh);
+    override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
+        super.onSizeChanged(w, h, oldw, oldh)
         // Recalculate sliding panes and their details
         if (w != oldw) {
-            mFirstLayout = true;
+            awaitingFirstLayout = true
         }
     }
 
-    @Override
-    public void requestChildFocus(View child, View focused) {
-        super.requestChildFocus(child, focused);
-        if (!isInTouchMode() && !mCanSlide) {
-            mPreservedOpenState = child == mSlideableView;
+    override fun requestChildFocus(child: View?, focused: View?) {
+        super.requestChildFocus(child, focused)
+        if (!isInTouchMode && !isSlideable) {
+            preservedOpenState = child === slideableView
         }
     }
 
-    @Override
-    public boolean onInterceptTouchEvent(MotionEvent ev) {
-        final int action = ev.getActionMasked();
+    override fun onInterceptTouchEvent(
+        @Suppress("InvalidNullabilityOverride") ev: MotionEvent
+    ): Boolean {
+        val action = ev.actionMasked
 
         // Preserve the open state based on the last view that was touched.
-        if (!mCanSlide && action == MotionEvent.ACTION_DOWN && getChildCount() > 1) {
+        if (!isSlideable && action == MotionEvent.ACTION_DOWN && childCount > 1) {
             // After the first things will be slideable.
-            final View secondChild = getChildAt(1);
+            val secondChild = getChildAt(1)
             if (secondChild != null) {
-                mPreservedOpenState = mDragHelper.isViewUnder(secondChild,
-                        (int) ev.getX(), (int) ev.getY());
+                preservedOpenState =
+                    dragHelper.isViewUnder(secondChild, ev.x.toInt(), ev.y.toInt())
             }
         }
-
-        if (!mCanSlide || (mIsUnableToDrag && action != MotionEvent.ACTION_DOWN)) {
-            mDragHelper.cancel();
-            return super.onInterceptTouchEvent(ev);
+        if (!isSlideable || isUnableToDrag && action != MotionEvent.ACTION_DOWN) {
+            dragHelper.cancel()
+            return super.onInterceptTouchEvent(ev)
         }
-
         if (action == MotionEvent.ACTION_CANCEL || action == MotionEvent.ACTION_UP) {
-            mDragHelper.cancel();
-            return false;
+            dragHelper.cancel()
+            return false
         }
-
-        boolean interceptTap = false;
-
-        switch (action) {
-            case MotionEvent.ACTION_DOWN: {
-                mIsUnableToDrag = false;
-                final float x = ev.getX();
-                final float y = ev.getY();
-                mInitialMotionX = x;
-                mInitialMotionY = y;
-
-                if (mDragHelper.isViewUnder(mSlideableView, (int) x, (int) y)
-                        && isDimmed(mSlideableView)) {
-                    interceptTap = true;
+        var interceptTap = false
+        when (action) {
+            MotionEvent.ACTION_DOWN -> {
+                isUnableToDrag = false
+                val x = ev.x
+                val y = ev.y
+                initialMotionX = x
+                initialMotionY = y
+                if (dragHelper.isViewUnder(slideableView, x.toInt(), y.toInt()) &&
+                    isDimmed(slideableView)
+                ) {
+                    interceptTap = true
                 }
-                break;
             }
 
-            case MotionEvent.ACTION_MOVE: {
-                final float x = ev.getX();
-                final float y = ev.getY();
-                final float adx = Math.abs(x - mInitialMotionX);
-                final float ady = Math.abs(y - mInitialMotionY);
-                final int slop = mDragHelper.getTouchSlop();
+            MotionEvent.ACTION_MOVE -> {
+                val x = ev.x
+                val y = ev.y
+                val adx = abs(x - initialMotionX)
+                val ady = abs(y - initialMotionY)
+                val slop = dragHelper.touchSlop
                 if (adx > slop && ady > adx) {
-                    mDragHelper.cancel();
-                    mIsUnableToDrag = true;
-                    return false;
+                    dragHelper.cancel()
+                    isUnableToDrag = true
+                    return false
                 }
             }
         }
-
-        final boolean interceptForDrag = mDragHelper.shouldInterceptTouchEvent(ev);
-
-        return interceptForDrag || interceptTap;
+        val interceptForDrag = dragHelper.shouldInterceptTouchEvent(ev)
+        return interceptForDrag || interceptTap
     }
 
-    @Override
-    public boolean onTouchEvent(MotionEvent ev) {
-        if (!mCanSlide) {
-            return super.onTouchEvent(ev);
+    override fun onTouchEvent(
+        @Suppress("InvalidNullabilityOverride") ev: MotionEvent
+    ): Boolean {
+        if (!isSlideable) {
+            return super.onTouchEvent(ev)
         }
-
-        mDragHelper.processTouchEvent(ev);
-
-        boolean wantTouchEvents = true;
-
-        switch (ev.getActionMasked()) {
-            case MotionEvent.ACTION_DOWN: {
-                final float x = ev.getX();
-                final float y = ev.getY();
-                mInitialMotionX = x;
-                mInitialMotionY = y;
-                break;
+        dragHelper.processTouchEvent(ev)
+        val wantTouchEvents = true
+        when (ev.actionMasked) {
+            MotionEvent.ACTION_DOWN -> {
+                val x = ev.x
+                val y = ev.y
+                initialMotionX = x
+                initialMotionY = y
             }
 
-            case MotionEvent.ACTION_UP: {
-                if (isDimmed(mSlideableView)) {
-                    final float x = ev.getX();
-                    final float y = ev.getY();
-                    final float dx = x - mInitialMotionX;
-                    final float dy = y - mInitialMotionY;
-                    final int slop = mDragHelper.getTouchSlop();
-                    if (dx * dx + dy * dy < slop * slop
-                            && mDragHelper.isViewUnder(mSlideableView, (int) x, (int) y)) {
+            MotionEvent.ACTION_UP -> {
+                if (isDimmed(slideableView)) {
+                    val x = ev.x
+                    val y = ev.y
+                    val dx = x - initialMotionX
+                    val dy = y - initialMotionY
+                    val slop = dragHelper.touchSlop
+                    if (dx * dx + dy * dy < slop * slop &&
+                        dragHelper.isViewUnder(slideableView, x.toInt(), y.toInt())
+                    ) {
                         // Taps close a dimmed open pane.
-                        closePane(0);
-                        break;
+                        closePane(0)
                     }
                 }
-                break;
             }
         }
-
-        return wantTouchEvents;
+        return wantTouchEvents
     }
 
-    private boolean closePane(int initialVelocity) {
-        if (!mCanSlide) {
-            mPreservedOpenState = false;
+    private fun closePane(initialVelocity: Int): Boolean {
+        if (!isSlideable) {
+            preservedOpenState = false
         }
-        if (mFirstLayout || smoothSlideTo(1.f, initialVelocity)) {
-            mPreservedOpenState = false;
-            return true;
+        if (awaitingFirstLayout || smoothSlideTo(1f, initialVelocity)) {
+            preservedOpenState = false
+            return true
         }
-        return false;
+        return false
     }
 
-    private boolean openPane(int initialVelocity) {
-        if (!mCanSlide) {
-            mPreservedOpenState = true;
+    private fun openPane(initialVelocity: Int): Boolean {
+        if (!isSlideable) {
+            preservedOpenState = true
         }
-        if (mFirstLayout || smoothSlideTo(0.f, initialVelocity)) {
-            mPreservedOpenState = true;
-            return true;
+        if (awaitingFirstLayout || smoothSlideTo(0f, initialVelocity)) {
+            preservedOpenState = true
+            return true
         }
-        return false;
+        return false
     }
 
-    /**
-     * @deprecated Renamed to {@link #openPane()} - this method is going away soon!
-     */
-    @Deprecated
-    public void smoothSlideOpen() {
-        openPane();
+    @Deprecated("Renamed to {@link #openPane()} - this method is going away soon!",
+        ReplaceWith("openPane()")
+    )
+    open fun smoothSlideOpen() {
+        openPane()
     }
 
     /**
      * Open the detail view if it is currently slideable. If first layout
      * has already completed this will animate.
      */
-    @Override
-    public void open() {
-        openPane();
+    override fun open() {
+        openPane()
     }
 
     /**
@@ -1092,34 +952,33 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
      *
      * @return true if the pane was slideable and is now open/in the process of opening
      */
-    public boolean openPane() {
-        return openPane(0);
+    open fun openPane(): Boolean {
+        return openPane(0)
     }
 
     /**
      * @return true if content in this layout can be slid open and closed
-     * @deprecated Renamed to {@link #isSlideable()} - this method is going away soon!
      */
-    @Deprecated
-    public boolean canSlide() {
-        return mCanSlide;
+    @Deprecated("Renamed to {@link #isSlideable()} - this method is going away soon!",
+        ReplaceWith("isSlideable")
+    )
+    open fun canSlide(): Boolean {
+        return isSlideable
     }
 
-    /**
-     * @deprecated Renamed to {@link #closePane()} - this method is going away soon!
-     */
-    @Deprecated
-    public void smoothSlideClosed() {
-        closePane();
+    @Deprecated("Renamed to {@link #closePane()} - this method is going away soon!",
+        ReplaceWith("closePane()")
+    )
+    open fun smoothSlideClosed() {
+        closePane()
     }
 
     /**
      * Close the detail view if it is currently slideable. If first layout
      * has already completed this will animate.
      */
-    @Override
-    public void close() {
-        closePane();
+    override fun close() {
+        closePane()
     }
 
     /**
@@ -1128,8 +987,8 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
      *
      * @return true if the pane was slideable and is now closed/in the process of closing
      */
-    public boolean closePane() {
-        return closePane(0);
+    open fun closePane(): Boolean {
+        return closePane(0)
     }
 
     /**
@@ -1138,154 +997,68 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
      *
      * @return true if the detail view is completely open
      */
-    @Override
-    public boolean isOpen() {
-        return !mCanSlide || mSlideOffset == 0;
+    override fun isOpen(): Boolean {
+        return !isSlideable || currentSlideOffset == 0f
     }
 
-    /**
-     * Check if both the list and detail view panes in this layout can fully fit side-by-side. If
-     * not, the content pane has the capability to slide back and forth. Note that the lock mode
-     * is not taken into account in this method. This method is typically used to determine
-     * whether the layout is showing two-pane or single-pane.
-     *
-     * @return true if both panes cannot fit side-by-side, and detail pane in this layout has
-     * the capability to slide back and forth.
-     */
-    public boolean isSlideable() {
-        return mCanSlide;
-    }
-
-    void onPanelDragged(int newLeft) {
-        if (mSlideableView == null) {
+    private fun onPanelDragged(newLeft: Int) {
+        if (slideableView == null) {
             // This can happen if we're aborting motion during layout because everything now fits.
-            mSlideOffset = 0;
-            return;
+            currentSlideOffset = 0f
+            return
         }
-        final boolean isLayoutRtl = isLayoutRtlSupport();
-        final LayoutParams lp = (LayoutParams) mSlideableView.getLayoutParams();
-
-        int childWidth = mSlideableView.getWidth();
-        final int newStart = isLayoutRtl ? getWidth() - newLeft - childWidth : newLeft;
-
-        final int paddingStart = isLayoutRtl ? getPaddingRight() : getPaddingLeft();
-        final int lpMargin = isLayoutRtl ? lp.rightMargin : lp.leftMargin;
-        final int startBound = paddingStart + lpMargin;
-
-        mSlideOffset = (float) (newStart - startBound) / mSlideRange;
-
-        if (mParallaxBy != 0) {
-            parallaxOtherViews(mSlideOffset);
+        val isLayoutRtl = isLayoutRtlSupport
+        val lp = slideableView!!.layoutParams as LayoutParams
+        val childWidth = slideableView!!.width
+        val newStart = if (isLayoutRtl) width - newLeft - childWidth else newLeft
+        val paddingStart = if (isLayoutRtl) paddingRight else paddingLeft
+        val lpMargin = if (isLayoutRtl) lp.rightMargin else lp.leftMargin
+        val startBound = paddingStart + lpMargin
+        currentSlideOffset = (newStart - startBound).toFloat() / slideRange
+        if (parallaxDistance != 0) {
+            parallaxOtherViews(currentSlideOffset)
         }
-
-        dispatchOnPanelSlide(mSlideableView);
+        dispatchOnPanelSlide(slideableView!!)
     }
 
-    @Override
-    protected boolean drawChild(@NonNull Canvas canvas, View child, long drawingTime) {
-        final boolean isLayoutRtl = isLayoutRtlSupport();
-        final boolean enableEdgeLeftTracking = isLayoutRtl ^ isOpen();
+    override fun drawChild(
+        @Suppress("InvalidNullabilityOverride") canvas: Canvas,
+        @Suppress("InvalidNullabilityOverride") child: View,
+        drawingTime: Long
+    ): Boolean {
+        val isLayoutRtl = isLayoutRtlSupport
+        val enableEdgeLeftTracking = isLayoutRtl xor isOpen
         if (enableEdgeLeftTracking) {
-            mDragHelper.setEdgeTrackingEnabled(ViewDragHelper.EDGE_LEFT);
-            Insets gestureInsets = getSystemGestureInsets();
+            dragHelper.setEdgeTrackingEnabled(ViewDragHelper.EDGE_LEFT)
+            val gestureInsets = systemGestureInsets
             if (gestureInsets != null) {
                 // Gesture insets will be 0 if the device doesn't have gesture navigation enabled.
-                mDragHelper.setEdgeSize(Math.max(mDragHelper.getDefaultEdgeSize(),
-                        gestureInsets.left));
+                dragHelper.edgeSize = gestureInsets.left.coerceAtLeast(dragHelper.defaultEdgeSize)
             }
         } else {
-            mDragHelper.setEdgeTrackingEnabled(ViewDragHelper.EDGE_RIGHT);
-            Insets gestureInsets = getSystemGestureInsets();
+            dragHelper.setEdgeTrackingEnabled(ViewDragHelper.EDGE_RIGHT)
+            val gestureInsets = systemGestureInsets
             if (gestureInsets != null) {
                 // Gesture insets will be 0 if the device doesn't have gesture navigation enabled.
-                mDragHelper.setEdgeSize(Math.max(mDragHelper.getDefaultEdgeSize(),
-                        gestureInsets.right));
+                dragHelper.edgeSize =
+                    gestureInsets.right.coerceAtLeast(dragHelper.defaultEdgeSize)
             }
         }
-        final LayoutParams lp = (LayoutParams) child.getLayoutParams();
-        boolean result;
-        final int save = canvas.save();
-
-        if (mCanSlide && !lp.slideable && mSlideableView != null) {
+        val lp = child.layoutParams as LayoutParams
+        val save = canvas.save()
+        if (isSlideable && !lp.slideable && slideableView != null) {
             // Clip against the slider; no sense drawing what will immediately be covered.
-            canvas.getClipBounds(mTmpRect);
-            if (isLayoutRtlSupport()) {
-                mTmpRect.left = Math.max(mTmpRect.left, mSlideableView.getRight());
+            canvas.getClipBounds(tmpRect)
+            if (isLayoutRtlSupport) {
+                tmpRect.left = Math.max(tmpRect.left, slideableView!!.right)
             } else {
-                mTmpRect.right = Math.min(mTmpRect.right, mSlideableView.getLeft());
+                tmpRect.right = Math.min(tmpRect.right, slideableView!!.left)
             }
-            canvas.clipRect(mTmpRect);
+            canvas.clipRect(tmpRect)
         }
-
-        result = super.drawChild(canvas, child, drawingTime);
-
-        canvas.restoreToCount(save);
-
-        return result;
-    }
-
-    // Get system gesture insets when SDK version is larger than 29. Otherwise, return null.
-    private Insets getSystemGestureInsets() {
-        Insets gestureInsets = null;
-        if (sEdgeSizeUsingSystemGestureInsets) {
-            WindowInsetsCompat rootInsetsCompat = ViewCompat.getRootWindowInsets(this);
-            if (rootInsetsCompat != null) {
-                gestureInsets = rootInsetsCompat.getSystemGestureInsets();
-            }
+        return super.drawChild(canvas, child, drawingTime).also {
+            canvas.restoreToCount(save)
         }
-        return gestureInsets;
-    }
-
-    private Method mGetDisplayList;
-    private Field mRecreateDisplayList;
-    private boolean mDisplayListReflectionLoaded;
-
-    void invalidateChildRegion(View v) {
-        if (Build.VERSION.SDK_INT >= 17) {
-            ViewCompat.setLayerPaint(v, ((LayoutParams) v.getLayoutParams()).dimPaint);
-            return;
-        }
-
-        if (Build.VERSION.SDK_INT >= 16) {
-            // Private API hacks! Nasty! Bad!
-            //
-            // In Jellybean, some optimizations in the hardware UI renderer
-            // prevent a changed Paint on a View using a hardware layer from having
-            // the intended effect. This twiddles some internal bits on the view to force
-            // it to recreate the display list.
-            if (!mDisplayListReflectionLoaded) {
-                try {
-                    mGetDisplayList = View.class.getDeclaredMethod("getDisplayList",
-                            (Class<?>[]) null);
-                } catch (NoSuchMethodException e) {
-                    Log.e(TAG, "Couldn't fetch getDisplayList method; dimming won't work right.",
-                            e);
-                }
-                try {
-                    mRecreateDisplayList = View.class.getDeclaredField("mRecreateDisplayList");
-                    mRecreateDisplayList.setAccessible(true);
-                } catch (NoSuchFieldException e) {
-                    Log.e(TAG, "Couldn't fetch mRecreateDisplayList field; dimming will be slow.",
-                            e);
-                }
-                mDisplayListReflectionLoaded = true;
-            }
-            if (mGetDisplayList == null || mRecreateDisplayList == null) {
-                // Slow path. REALLY slow path. Let's hope we don't get here.
-                v.invalidate();
-                return;
-            }
-
-            try {
-                mRecreateDisplayList.setBoolean(v, true);
-                mGetDisplayList.invoke(v, (Object[]) null);
-            } catch (Exception e) {
-                Log.e(TAG, "Error refreshing display list state", e);
-            }
-        }
-
-        ViewCompat.postInvalidateOnAnimation(this, v.getLeft(), v.getTop(), v.getRight(),
-                v.getBottom());
     }
 
     /**
@@ -1294,158 +1067,143 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
      * @param slideOffset position to animate to
      * @param velocity    initial velocity in case of fling, or 0.
      */
-    boolean smoothSlideTo(float slideOffset, int velocity) {
-        if (!mCanSlide) {
+    @Suppress("UNUSED_PARAMETER")
+    private fun smoothSlideTo(slideOffset: Float, velocity: Int): Boolean {
+        if (!isSlideable) {
             // Nothing to do.
-            return false;
+            return false
         }
-
-        final boolean isLayoutRtl = isLayoutRtlSupport();
-        final LayoutParams lp = (LayoutParams) mSlideableView.getLayoutParams();
-
-        int x;
-        if (isLayoutRtl) {
-            int startBound = getPaddingRight() + lp.rightMargin;
-            int childWidth = mSlideableView.getWidth();
-            x = (int) (getWidth() - (startBound + slideOffset * mSlideRange + childWidth));
+        val isLayoutRtl = isLayoutRtlSupport
+        val lp = slideableView!!.layoutParams as LayoutParams
+        val x: Int = if (isLayoutRtl) {
+            val startBound = paddingRight + lp.rightMargin
+            val childWidth = slideableView!!.width
+            (width - (startBound + slideOffset * slideRange + childWidth)).toInt()
         } else {
-            int startBound = getPaddingLeft() + lp.leftMargin;
-            x = (int) (startBound + slideOffset * mSlideRange);
+            val startBound = paddingLeft + lp.leftMargin
+            (startBound + slideOffset * slideRange).toInt()
         }
-
-        if (mDragHelper.smoothSlideViewTo(mSlideableView, x, mSlideableView.getTop())) {
-            setAllChildrenVisible();
-            ViewCompat.postInvalidateOnAnimation(this);
-            return true;
+        if (dragHelper.smoothSlideViewTo(slideableView!!, x, slideableView!!.top)) {
+            setAllChildrenVisible()
+            ViewCompat.postInvalidateOnAnimation(this)
+            return true
         }
-        return false;
+        return false
     }
 
-    @Override
-    public void computeScroll() {
-        if (mDragHelper.continueSettling(true)) {
-            if (!mCanSlide) {
-                mDragHelper.abort();
-                return;
+    override fun computeScroll() {
+        if (dragHelper.continueSettling(true)) {
+            if (!isSlideable) {
+                dragHelper.abort()
+                return
             }
-
-            ViewCompat.postInvalidateOnAnimation(this);
+            ViewCompat.postInvalidateOnAnimation(this)
         }
     }
 
     /**
-     * @param d drawable to use as a shadow
-     * @deprecated Renamed to {@link #setShadowDrawableLeft(Drawable d)} to support LTR (left to
-     * right language) and {@link #setShadowDrawableRight(Drawable d)} to support RTL (right to left
-     * language) during opening/closing.
+     * Set a drawable to use as a shadow.
      */
-    @Deprecated
-    public void setShadowDrawable(Drawable d) {
-        setShadowDrawableLeft(d);
+    @Deprecated(
+        """Renamed to {@link #setShadowDrawableLeft(Drawable d)} to support LTR (left to
+      right language) and {@link #setShadowDrawableRight(Drawable d)} to support RTL (right to left
+      language) during opening/closing.""", ReplaceWith("setShadowDrawableLeft(d)")
+    )
+    open fun setShadowDrawable(drawable: Drawable?) {
+        setShadowDrawableLeft(drawable)
+    }
+
+    /**
+     * Set a drawable to use as a shadow cast by the right pane onto the left pane
+     * during opening/closing.
+     */
+    open fun setShadowDrawableLeft(drawable: Drawable?) {
+        shadowDrawableLeft = drawable
+    }
+
+    /**
+     * Set a drawable to use as a shadow cast by the left pane onto the right pane
+     * during opening/closing to support right to left language.
+     */
+    open fun setShadowDrawableRight(drawable: Drawable?) {
+        shadowDrawableRight = drawable
     }
 
     /**
      * Set a drawable to use as a shadow cast by the right pane onto the left pane
      * during opening/closing.
      *
-     * @param d drawable to use as a shadow
+     * @param resId Resource ID of a drawable to use
      */
-    public void setShadowDrawableLeft(@Nullable Drawable d) {
-        mShadowDrawableLeft = d;
+    @Deprecated(
+        """Renamed to {@link #setShadowResourceLeft(int)} to support LTR (left to
+      right language) and {@link #setShadowResourceRight(int)} to support RTL (right to left
+      language) during opening/closing.""", ReplaceWith("setShadowResourceLeft(resId)")
+    )
+    open fun setShadowResource(@DrawableRes resId: Int) {
+        setShadowResourceLeft(resId)
+    }
+
+    /**
+     * Set a drawable to use as a shadow cast by the right pane onto the left pane
+     * during opening/closing.
+     *
+     * @param resId Resource ID of a drawable to use
+     */
+    open fun setShadowResourceLeft(@DrawableRes resId: Int) {
+        setShadowDrawableLeft(ContextCompat.getDrawable(context, resId))
     }
 
     /**
      * Set a drawable to use as a shadow cast by the left pane onto the right pane
      * during opening/closing to support right to left language.
      *
-     * @param d drawable to use as a shadow
-     */
-    public void setShadowDrawableRight(@Nullable Drawable d) {
-        mShadowDrawableRight = d;
-    }
-
-    /**
-     * Set a drawable to use as a shadow cast by the right pane onto the left pane
-     * during opening/closing.
-     *
-     * @param resId Resource ID of a drawable to use
-     * @deprecated Renamed to {@link #setShadowResourceLeft(int)} to support LTR (left to
-     * right language) and {@link #setShadowResourceRight(int)} to support RTL (right to left
-     * language) during opening/closing.
-     */
-    @Deprecated
-    public void setShadowResource(@DrawableRes int resId) {
-        setShadowDrawableLeft(getResources().getDrawable(resId));
-    }
-
-    /**
-     * Set a drawable to use as a shadow cast by the right pane onto the left pane
-     * during opening/closing.
-     *
      * @param resId Resource ID of a drawable to use
      */
-    public void setShadowResourceLeft(int resId) {
-        setShadowDrawableLeft(ContextCompat.getDrawable(getContext(), resId));
+    open fun setShadowResourceRight(@DrawableRes resId: Int) {
+        setShadowDrawableRight(ContextCompat.getDrawable(context, resId))
     }
 
-    /**
-     * Set a drawable to use as a shadow cast by the left pane onto the right pane
-     * during opening/closing to support right to left language.
-     *
-     * @param resId Resource ID of a drawable to use
-     */
-    public void setShadowResourceRight(int resId) {
-        setShadowDrawableRight(ContextCompat.getDrawable(getContext(), resId));
-    }
-
-    @Override
-    public void draw(@NonNull Canvas c) {
-        super.draw(c);
-        final boolean isLayoutRtl = isLayoutRtlSupport();
-        Drawable shadowDrawable;
-        if (isLayoutRtl) {
-            shadowDrawable = mShadowDrawableRight;
+    override fun draw(c: Canvas) {
+        super.draw(c)
+        val isLayoutRtl = isLayoutRtlSupport
+        val shadowDrawable: Drawable? = if (isLayoutRtl) {
+            shadowDrawableRight
         } else {
-            shadowDrawable = mShadowDrawableLeft;
+            shadowDrawableLeft
         }
-
-        final View shadowView = getChildCount() > 1 ? getChildAt(1) : null;
+        val shadowView = if (childCount > 1) getChildAt(1) else null
         if (shadowView == null || shadowDrawable == null) {
             // No need to draw a shadow if we don't have one.
-            return;
+            return
         }
-
-        final int top = shadowView.getTop();
-        final int bottom = shadowView.getBottom();
-
-        final int shadowWidth = shadowDrawable.getIntrinsicWidth();
-        final int left;
-        final int right;
-        if (isLayoutRtlSupport()) {
-            left = shadowView.getRight();
-            right = left + shadowWidth;
+        val top = shadowView.top
+        val bottom = shadowView.bottom
+        val shadowWidth = shadowDrawable.intrinsicWidth
+        val left: Int
+        val right: Int
+        if (isLayoutRtlSupport) {
+            left = shadowView.right
+            right = left + shadowWidth
         } else {
-            right = shadowView.getLeft();
-            left = right - shadowWidth;
+            right = shadowView.left
+            left = right - shadowWidth
         }
-
-        shadowDrawable.setBounds(left, top, right, bottom);
-        shadowDrawable.draw(c);
+        shadowDrawable.setBounds(left, top, right, bottom)
+        shadowDrawable.draw(c)
     }
 
-    private void parallaxOtherViews(float slideOffset) {
-        final boolean isLayoutRtl = isLayoutRtlSupport();
-        final int childCount = getChildCount();
-        for (int i = 0; i < childCount; i++) {
-            final View v = getChildAt(i);
-            if (v == mSlideableView) continue;
-
-            final int oldOffset = (int) ((1 - mParallaxOffset) * mParallaxBy);
-            mParallaxOffset = slideOffset;
-            final int newOffset = (int) ((1 - slideOffset) * mParallaxBy);
-            final int dx = oldOffset - newOffset;
-
-            v.offsetLeftAndRight(isLayoutRtl ? -dx : dx);
+    private fun parallaxOtherViews(slideOffset: Float) {
+        val isLayoutRtl = isLayoutRtlSupport
+        val childCount = childCount
+        for (i in 0 until childCount) {
+            val v = getChildAt(i)
+            if (v === slideableView) continue
+            val oldOffset = ((1 - currentParallaxOffset) * parallaxDistance).toInt()
+            currentParallaxOffset = slideOffset
+            val newOffset = ((1 - slideOffset) * parallaxDistance).toInt()
+            val dx = oldOffset - newOffset
+            v.offsetLeftAndRight(if (isLayoutRtl) -dx else dx)
         }
     }
 
@@ -1454,367 +1212,319 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
      *
      * @param v      View to test for horizontal scrollability
      * @param checkV Whether the view v passed should itself be checked for scrollability (true),
-     *               or just its children (false).
+     * or just its children (false).
      * @param dx     Delta scrolled in pixels
      * @param x      X coordinate of the active touch point
      * @param y      Y coordinate of the active touch point
      * @return true if child views of v can be scrolled by delta of dx.
      */
-    protected boolean canScroll(@NonNull View v, boolean checkV, int dx, int x, int y) {
-        if (v instanceof ViewGroup) {
-            final ViewGroup group = (ViewGroup) v;
-            final int scrollX = v.getScrollX();
-            final int scrollY = v.getScrollY();
-            final int count = group.getChildCount();
+    protected open fun canScroll(v: View, checkV: Boolean, dx: Int, x: Int, y: Int): Boolean {
+        if (v is ViewGroup) {
+            val group = v
+            val scrollX = v.getScrollX()
+            val scrollY = v.getScrollY()
+            val count = group.childCount
             // Count backwards - let topmost views consume scroll distance first.
-            for (int i = count - 1; i >= 0; i--) {
+            for (i in count - 1 downTo 0) {
                 // TODO: Add versioned support here for transformed views.
                 // This will not work for transformed views in Honeycomb+
-                final View child = group.getChildAt(i);
-                if (x + scrollX >= child.getLeft() && x + scrollX < child.getRight()
-                        && y + scrollY >= child.getTop() && y + scrollY < child.getBottom()
-                        && canScroll(child, true, dx, x + scrollX - child.getLeft(),
-                        y + scrollY - child.getTop())) {
-                    return true;
+                val child = group.getChildAt(i)
+                if (x + scrollX >= child.left &&
+                    x + scrollX < child.right &&
+                    y + scrollY >= child.top &&
+                    y + scrollY < child.bottom &&
+                    canScroll(child, true, dx, x + scrollX - child.left, y + scrollY - child.top)
+                ) {
+                    return true
                 }
             }
         }
-
-        return checkV && v.canScrollHorizontally((isLayoutRtlSupport() ? dx : -dx));
+        return checkV && v.canScrollHorizontally(if (isLayoutRtlSupport) dx else -dx)
     }
 
-    boolean isDimmed(View child) {
+    private fun isDimmed(child: View?): Boolean {
         if (child == null) {
-            return false;
+            return false
         }
-        final LayoutParams lp = (LayoutParams) child.getLayoutParams();
-        return mCanSlide && lp.dimWhenOffset && mSlideOffset > 0;
+        val lp = child.layoutParams as LayoutParams
+        return isSlideable && lp.dimWhenOffset && currentSlideOffset > 0
     }
 
-    @Override
-    protected ViewGroup.LayoutParams generateDefaultLayoutParams() {
-        return new LayoutParams();
+    override fun generateDefaultLayoutParams(): ViewGroup.LayoutParams {
+        return LayoutParams()
     }
 
-    @Override
-    protected ViewGroup.LayoutParams generateLayoutParams(ViewGroup.LayoutParams p) {
-        return p instanceof MarginLayoutParams
-                ? new LayoutParams((MarginLayoutParams) p)
-                : new LayoutParams(p);
+    override fun generateLayoutParams(p: ViewGroup.LayoutParams?): ViewGroup.LayoutParams {
+        return if (p is MarginLayoutParams) LayoutParams(
+            p
+        ) else LayoutParams(p)
     }
 
-    @Override
-    protected boolean checkLayoutParams(ViewGroup.LayoutParams p) {
-        return p instanceof LayoutParams && super.checkLayoutParams(p);
+    override fun checkLayoutParams(p: ViewGroup.LayoutParams?): Boolean {
+        return p is LayoutParams && super.checkLayoutParams(p)
     }
 
-    @Override
-    public ViewGroup.LayoutParams generateLayoutParams(AttributeSet attrs) {
-        return new LayoutParams(getContext(), attrs);
+    override fun generateLayoutParams(attrs: AttributeSet?): ViewGroup.LayoutParams {
+        return LayoutParams(context, attrs)
     }
 
-    @NonNull
-    @Override
-    protected Parcelable onSaveInstanceState() {
-        Parcelable superState = super.onSaveInstanceState();
-
-        SavedState ss = new SavedState(superState);
-        ss.isOpen = isSlideable() ? isOpen() : mPreservedOpenState;
-        ss.mLockMode = mLockMode;
-
-        return ss;
+    override fun onSaveInstanceState(): Parcelable {
+        val superState = super.onSaveInstanceState()
+        val ss = SavedState(superState)
+        ss.isOpen = if (isSlideable) isOpen else preservedOpenState
+        ss.mLockMode = lockMode
+        return ss
     }
 
-    @Override
-    protected void onRestoreInstanceState(Parcelable state) {
-        if (!(state instanceof SavedState)) {
-            super.onRestoreInstanceState(state);
-            return;
+    override fun onRestoreInstanceState(state: Parcelable?) {
+        if (state !is SavedState) {
+            super.onRestoreInstanceState(state)
+            return
         }
-
-        SavedState ss = (SavedState) state;
-        super.onRestoreInstanceState(ss.getSuperState());
-
-        if (ss.isOpen) {
-            openPane();
+        super.onRestoreInstanceState(state.superState)
+        if (state.isOpen) {
+            openPane()
         } else {
-            closePane();
+            closePane()
         }
-        mPreservedOpenState = ss.isOpen;
-
-        setLockMode(ss.mLockMode);
+        preservedOpenState = state.isOpen
+        lockMode = state.mLockMode
     }
 
-    private class DragHelperCallback extends ViewDragHelper.Callback {
-
-        DragHelperCallback() {
+    private inner class DragHelperCallback() : ViewDragHelper.Callback() {
+        override fun tryCaptureView(child: View, pointerId: Int): Boolean {
+            return if (!isDraggable) {
+                false
+            } else (child.layoutParams as LayoutParams).slideable
         }
 
-        @Override
-        public boolean tryCaptureView(View child, int pointerId) {
-            if (!isDraggable()) {
-                return false;
-            }
-
-            return ((LayoutParams) child.getLayoutParams()).slideable;
-        }
-
-        @Override
-        public void onViewDragStateChanged(int state) {
-            if (mDragHelper.getViewDragState() == ViewDragHelper.STATE_IDLE) {
-                if (mSlideOffset == 1) {
-                    updateObscuredViewsVisibility(mSlideableView);
-                    dispatchOnPanelClosed(mSlideableView);
-                    mPreservedOpenState = false;
+        override fun onViewDragStateChanged(state: Int) {
+            if (dragHelper.viewDragState == ViewDragHelper.STATE_IDLE) {
+                preservedOpenState = if (currentSlideOffset == 1f) {
+                    updateObscuredViewsVisibility(slideableView)
+                    dispatchOnPanelClosed(slideableView!!)
+                    false
                 } else {
-                    dispatchOnPanelOpened(mSlideableView);
-                    mPreservedOpenState = true;
+                    dispatchOnPanelOpened(slideableView!!)
+                    true
                 }
             }
         }
 
-        @Override
-        public void onViewCaptured(View capturedChild, int activePointerId) {
+        override fun onViewCaptured(capturedChild: View, activePointerId: Int) {
             // Make all child views visible in preparation for sliding things around
-            setAllChildrenVisible();
+            setAllChildrenVisible()
         }
 
-        @Override
-        public void onViewPositionChanged(View changedView, int left, int top, int dx, int dy) {
-            onPanelDragged(left);
-            invalidate();
+        override fun onViewPositionChanged(
+            changedView: View,
+            left: Int,
+            top: Int,
+            dx: Int,
+            dy: Int
+        ) {
+            onPanelDragged(left)
+            invalidate()
         }
 
-        @Override
-        public void onViewReleased(View releasedChild, float xvel, float yvel) {
-            final LayoutParams lp = (LayoutParams) releasedChild.getLayoutParams();
-
-            int left;
-            if (isLayoutRtlSupport()) {
-                int startToRight = getPaddingRight() + lp.rightMargin;
-                if (xvel < 0 || (xvel == 0 && mSlideOffset > 0.5f)) {
-                    startToRight += mSlideRange;
+        override fun onViewReleased(releasedChild: View, xvel: Float, yvel: Float) {
+            val lp = releasedChild.layoutParams as LayoutParams
+            var left: Int
+            if (isLayoutRtlSupport) {
+                var startToRight = paddingRight + lp.rightMargin
+                if (xvel < 0 || xvel == 0f && currentSlideOffset > 0.5f) {
+                    startToRight += slideRange
                 }
-                int childWidth = mSlideableView.getWidth();
-                left = getWidth() - startToRight - childWidth;
+                val childWidth = slideableView!!.width
+                left = width - startToRight - childWidth
             } else {
-                left = getPaddingLeft() + lp.leftMargin;
-                if (xvel > 0 || (xvel == 0 && mSlideOffset > 0.5f)) {
-                    left += mSlideRange;
+                left = paddingLeft + lp.leftMargin
+                if (xvel > 0 || xvel == 0f && currentSlideOffset > 0.5f) {
+                    left += slideRange
                 }
             }
-            mDragHelper.settleCapturedViewAt(left, releasedChild.getTop());
-            invalidate();
+            dragHelper.settleCapturedViewAt(left, releasedChild.top)
+            invalidate()
         }
 
-        @Override
-        public int getViewHorizontalDragRange(View child) {
-            return mSlideRange;
+        override fun getViewHorizontalDragRange(child: View): Int {
+            return slideRange
         }
 
-        @Override
-        public int clampViewPositionHorizontal(View child, int left, int dx) {
-            int newLeft = left;
-            final LayoutParams lp = (LayoutParams) mSlideableView.getLayoutParams();
-
-            if (isLayoutRtlSupport()) {
-                int startBound = getWidth()
-                        - (getPaddingRight() + lp.rightMargin + mSlideableView.getWidth());
-                int endBound = startBound - mSlideRange;
-                newLeft = Math.max(Math.min(newLeft, startBound), endBound);
+        override fun clampViewPositionHorizontal(child: View, left: Int, dx: Int): Int {
+            var newLeft = left
+            val lp = slideableView!!.layoutParams as LayoutParams
+            newLeft = if (isLayoutRtlSupport) {
+                val startBound = (width - (paddingRight + lp.rightMargin + slideableView!!.width))
+                val endBound = startBound - slideRange
+                newLeft.coerceIn(endBound, startBound)
             } else {
-                int startBound = getPaddingLeft() + lp.leftMargin;
-                int endBound = startBound + mSlideRange;
-                newLeft = Math.min(Math.max(newLeft, startBound), endBound);
+                val startBound = paddingLeft + lp.leftMargin
+                val endBound = startBound + slideRange
+                newLeft.coerceIn(startBound, endBound)
             }
-            return newLeft;
+            return newLeft
         }
 
-        @Override
-        public int clampViewPositionVertical(View child, int top, int dy) {
+        override fun clampViewPositionVertical(child: View, top: Int, dy: Int): Int {
             // Make sure we never move views vertically.
             // This could happen if the child has less height than its parent.
-            return child.getTop();
+            return child.top
         }
 
-        @Override
-        public void onEdgeTouched(int edgeFlags, int pointerId) {
-            if (!isDraggable()) {
-                return;
+        override fun onEdgeTouched(edgeFlags: Int, pointerId: Int) {
+            if (!isDraggable) {
+                return
             }
-            mDragHelper.captureChildView(mSlideableView, pointerId);
+            dragHelper.captureChildView(slideableView!!, pointerId)
         }
 
-        @Override
-        public void onEdgeDragStarted(int edgeFlags, int pointerId) {
-            if (!isDraggable()) {
-                return;
+        override fun onEdgeDragStarted(edgeFlags: Int, pointerId: Int) {
+            if (!isDraggable) {
+                return
             }
-            mDragHelper.captureChildView(mSlideableView, pointerId);
+            dragHelper.captureChildView(slideableView!!, pointerId)
         }
 
-        private boolean isDraggable() {
-            if (mIsUnableToDrag) {
-                return false;
+        private val isDraggable: Boolean
+            get() {
+                if (isUnableToDrag) return false
+                if (lockMode == LOCK_MODE_LOCKED) return false
+                if (isOpen && lockMode == LOCK_MODE_LOCKED_OPEN) return false
+                return !(!isOpen && lockMode == LOCK_MODE_LOCKED_CLOSED)
             }
-            if (getLockMode() == LOCK_MODE_LOCKED) {
-                return false;
-            }
-            if (isOpen() && getLockMode() == LOCK_MODE_LOCKED_OPEN) {
-                return false;
-            }
-            if (!isOpen() && getLockMode() == LOCK_MODE_LOCKED_CLOSED) {
-                return false;
-            }
-            return true;
-        }
     }
 
-    public static class LayoutParams extends ViewGroup.MarginLayoutParams {
-        private static final int[] ATTRS = new int[]{
-                android.R.attr.layout_weight
-        };
-
+    open class LayoutParams : MarginLayoutParams {
         /**
          * The weighted proportion of how much of the leftover space
          * this child should consume after measurement.
          */
-        public float weight = 0;
+        @JvmField
+        var weight = 0f
 
         /**
          * True if this pane is the slideable pane in the layout.
          */
-        boolean slideable;
+        @JvmField
+        internal var slideable = false
 
         /**
          * True if this view should be drawn dimmed
          * when it's been offset from its default position.
          */
-        boolean dimWhenOffset;
+        @JvmField
+        internal var dimWhenOffset = false
 
-        Paint dimPaint;
-
-        public LayoutParams() {
-            super(MATCH_PARENT, MATCH_PARENT);
+        constructor() : super(MATCH_PARENT, MATCH_PARENT)
+        constructor(width: Int, height: Int) : super(width, height)
+        constructor(source: ViewGroup.LayoutParams) : super(source)
+        constructor(source: MarginLayoutParams) : super(source)
+        constructor(source: LayoutParams) : super(source) {
+            weight = source.weight
         }
 
-        public LayoutParams(int width, int height) {
-            super(width, height);
+        constructor(context: Context, attrs: AttributeSet?) : super(context, attrs) {
+            val a = context.obtainStyledAttributes(attrs, ATTRS)
+            weight = a.getFloat(0, 0f)
+            a.recycle()
         }
 
-        public LayoutParams(@NonNull android.view.ViewGroup.LayoutParams source) {
-            super(source);
+        companion object {
+            private val ATTRS = intArrayOf(
+                R.attr.layout_weight
+            )
         }
-
-        public LayoutParams(@NonNull MarginLayoutParams source) {
-            super(source);
-        }
-
-        public LayoutParams(@NonNull LayoutParams source) {
-            super(source);
-            this.weight = source.weight;
-        }
-
-        public LayoutParams(@NonNull Context c, @Nullable AttributeSet attrs) {
-            super(c, attrs);
-
-            final TypedArray a = c.obtainStyledAttributes(attrs, ATTRS);
-            this.weight = a.getFloat(0, 0);
-            a.recycle();
-        }
-
     }
 
-    static class SavedState extends AbsSavedState {
-        boolean isOpen;
+    internal class SavedState : AbsSavedState {
+        var isOpen = false
+
         @LockMode
-        int mLockMode;
+        var mLockMode = 0
 
-        SavedState(Parcelable superState) {
-            super(superState);
+        constructor(superState: Parcelable?) : super(superState!!)
+        constructor(`in`: Parcel, loader: ClassLoader?) : super(`in`, loader) {
+            isOpen = `in`.readInt() != 0
+            mLockMode = `in`.readInt()
         }
 
-        SavedState(Parcel in, ClassLoader loader) {
-            super(in, loader);
-            isOpen = in.readInt() != 0;
-            mLockMode = in.readInt();
+        override fun writeToParcel(out: Parcel, flags: Int) {
+            super.writeToParcel(out, flags)
+            out.writeInt(if (isOpen) 1 else 0)
+            out.writeInt(mLockMode)
         }
 
-        @Override
-        public void writeToParcel(Parcel out, int flags) {
-            super.writeToParcel(out, flags);
-            out.writeInt(isOpen ? 1 : 0);
-            out.writeInt(mLockMode);
+        companion object {
+            @JvmField
+            val CREATOR: Parcelable.Creator<SavedState> = object : ClassLoaderCreator<SavedState> {
+                override fun createFromParcel(parcel: Parcel, loader: ClassLoader): SavedState {
+                    return SavedState(parcel, null)
+                }
+
+                override fun createFromParcel(parcel: Parcel): SavedState {
+                    return SavedState(parcel, null)
+                }
+
+                override fun newArray(size: Int): Array<SavedState?> {
+                    return arrayOfNulls(size)
+                }
+            }
         }
-
-        public static final Creator<SavedState> CREATOR = new ClassLoaderCreator<SavedState>() {
-            @Override
-            public SavedState createFromParcel(Parcel in, ClassLoader loader) {
-                return new SavedState(in, null);
-            }
-
-            @Override
-            public SavedState createFromParcel(Parcel in) {
-                return new SavedState(in, null);
-            }
-
-            @Override
-            public SavedState[] newArray(int size) {
-                return new SavedState[size];
-            }
-        };
     }
 
-    class AccessibilityDelegate extends AccessibilityDelegateCompat {
-        private final Rect mTmpRect = new Rect();
-
-        @Override
-        public void onInitializeAccessibilityNodeInfo(View host, AccessibilityNodeInfoCompat info) {
-            final AccessibilityNodeInfoCompat superNode = AccessibilityNodeInfoCompat.obtain(info);
-            super.onInitializeAccessibilityNodeInfo(host, superNode);
-            copyNodeInfoNoChildren(info, superNode);
-            superNode.recycle();
-
-            info.setClassName(ACCESSIBILITY_CLASS_NAME);
-            info.setSource(host);
-
-            final ViewParent parent = ViewCompat.getParentForAccessibility(host);
-            if (parent instanceof View) {
-                info.setParent((View) parent);
+    internal inner class AccessibilityDelegate : AccessibilityDelegateCompat() {
+        private val mTmpRect = Rect()
+        override fun onInitializeAccessibilityNodeInfo(
+            host: View,
+            info: AccessibilityNodeInfoCompat
+        ) {
+            val superNode = AccessibilityNodeInfoCompat.obtain(info)
+            super.onInitializeAccessibilityNodeInfo(host, superNode)
+            copyNodeInfoNoChildren(info, superNode)
+            @Suppress("Deprecation")
+            superNode.recycle()
+            info.className =
+                ACCESSIBILITY_CLASS_NAME
+            info.setSource(host)
+            val parent = ViewCompat.getParentForAccessibility(host)
+            if (parent is View) {
+                info.setParent(parent as View)
             }
 
             // This is a best-approximation of addChildrenForAccessibility()
             // that accounts for filtering.
-            final int childCount = getChildCount();
-            for (int i = 0; i < childCount; i++) {
-                final View child = getChildAt(i);
-                if (!filter(child) && (child.getVisibility() == View.VISIBLE)) {
+            val childCount = childCount
+            for (i in 0 until childCount) {
+                val child = getChildAt(i)
+                if (!filter(child) && child.visibility == VISIBLE) {
                     // Force importance to "yes" since we can't read the value.
                     ViewCompat.setImportantForAccessibility(
-                            child, ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_YES);
-                    info.addChild(child);
+                        child, ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_YES
+                    )
+                    info.addChild(child)
                 }
             }
         }
 
-        @Override
-        public void onInitializeAccessibilityEvent(View host, AccessibilityEvent event) {
-            super.onInitializeAccessibilityEvent(host, event);
-
-            event.setClassName(ACCESSIBILITY_CLASS_NAME);
+        override fun onInitializeAccessibilityEvent(host: View, event: AccessibilityEvent) {
+            super.onInitializeAccessibilityEvent(host, event)
+            event.className =
+                ACCESSIBILITY_CLASS_NAME
         }
 
-        @Override
-        public boolean onRequestSendAccessibilityEvent(ViewGroup host, View child,
-                AccessibilityEvent event) {
-            if (!filter(child)) {
-                return super.onRequestSendAccessibilityEvent(host, child, event);
-            }
-            return false;
+        override fun onRequestSendAccessibilityEvent(
+            host: ViewGroup,
+            child: View,
+            event: AccessibilityEvent
+        ): Boolean {
+            return if (!filter(child)) {
+                super.onRequestSendAccessibilityEvent(host, child, event)
+            } else false
         }
 
-        public boolean filter(View child) {
-            return isDimmed(child);
+        fun filter(child: View?): Boolean {
+            return isDimmed(child)
         }
 
         /**
@@ -1822,110 +1532,136 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
          * seem to be a few elements that are not easily cloneable using the underlying API.
          * Leave it private here as it's not general-purpose useful.
          */
-        private void copyNodeInfoNoChildren(AccessibilityNodeInfoCompat dest,
-                AccessibilityNodeInfoCompat src) {
-            final Rect rect = mTmpRect;
-
-            src.getBoundsInScreen(rect);
-            dest.setBoundsInScreen(rect);
-
-            dest.setVisibleToUser(src.isVisibleToUser());
-            dest.setPackageName(src.getPackageName());
-            dest.setClassName(src.getClassName());
-            dest.setContentDescription(src.getContentDescription());
-
-            dest.setEnabled(src.isEnabled());
-            dest.setClickable(src.isClickable());
-            dest.setFocusable(src.isFocusable());
-            dest.setFocused(src.isFocused());
-            dest.setAccessibilityFocused(src.isAccessibilityFocused());
-            dest.setSelected(src.isSelected());
-            dest.setLongClickable(src.isLongClickable());
-
-            dest.addAction(src.getActions());
-
-            dest.setMovementGranularities(src.getMovementGranularities());
+        private fun copyNodeInfoNoChildren(
+            dest: AccessibilityNodeInfoCompat,
+            src: AccessibilityNodeInfoCompat
+        ) {
+            val rect = mTmpRect
+            src.getBoundsInScreen(rect)
+            dest.setBoundsInScreen(rect)
+            dest.isVisibleToUser = src.isVisibleToUser
+            dest.packageName = src.packageName
+            dest.className = src.className
+            dest.contentDescription = src.contentDescription
+            dest.isEnabled = src.isEnabled
+            dest.isClickable = src.isClickable
+            dest.isFocusable = src.isFocusable
+            dest.isFocused = src.isFocused
+            dest.isAccessibilityFocused = src.isAccessibilityFocused
+            dest.isSelected = src.isSelected
+            dest.isLongClickable = src.isLongClickable
+            @Suppress("Deprecation")
+            dest.addAction(src.actions)
+            dest.movementGranularities = src.movementGranularities
         }
-    }
-
-    private static class TouchBlocker extends FrameLayout {
-        TouchBlocker(View view) {
-            super(view.getContext());
-            addView(view);
-        }
-
-        @Override
-        public boolean onTouchEvent(MotionEvent event) {
-            return true;
-        }
-
-        @Override
-        public boolean onGenericMotionEvent(MotionEvent event) {
-            return true;
-        }
-    }
-
-    boolean isLayoutRtlSupport() {
-        return ViewCompat.getLayoutDirection(this) == ViewCompat.LAYOUT_DIRECTION_RTL;
     }
 
     /**
      * @return A pair of rects define the position of the split, or {@null} if there is no split
      */
-    private ArrayList<Rect> splitViewPositions() {
-        if (mFoldingFeature == null || !mFoldingFeature.isSeparating()) {
-            return null;
+    private fun splitViewPositions(): ArrayList<Rect>? {
+        if (foldingFeature == null || !foldingFeature!!.isSeparating) {
+            return null
         }
 
         // Don't support horizontal fold in list-detail view layout
-        if (mFoldingFeature.getBounds().left == 0) {
-            return null;
+        if (foldingFeature!!.bounds.left == 0) {
+            return null
         }
         // vertical split
-        if (mFoldingFeature.getBounds().top == 0) {
-            Rect splitPosition = getFoldBoundsInView(mFoldingFeature, this);
-            if (splitPosition == null) {
-                return null;
-            }
-            Rect leftRect = new Rect(getPaddingLeft(), getPaddingTop(),
-                    Math.max(getPaddingLeft(), splitPosition.left),
-                    getHeight() - getPaddingBottom());
-            int rightBound = getWidth() - getPaddingRight();
-            Rect rightRect = new Rect(Math.min(rightBound, splitPosition.right),
-                    getPaddingTop(), rightBound, getHeight() - getPaddingBottom());
-            return new ArrayList<>(Arrays.asList(leftRect, rightRect));
+        if (foldingFeature!!.bounds.top == 0) {
+            val splitPosition = getFoldBoundsInView(
+                foldingFeature!!, this
+            ) ?: return null
+            val leftRect = Rect(
+                paddingLeft, paddingTop,
+                Math.max(paddingLeft, splitPosition.left),
+                height - paddingBottom
+            )
+            val rightBound = width - paddingRight
+            val rightRect = Rect(
+                Math.min(rightBound, splitPosition.right),
+                paddingTop,
+                rightBound,
+                height - paddingBottom
+            )
+            return ArrayList(Arrays.asList(leftRect, rightRect))
         }
-        return null;
+        return null
     }
 
-    private static Rect getFoldBoundsInView(@NonNull FoldingFeature foldingFeature, View view) {
-        int[] viewLocationInWindow = new int[2];
-        view.getLocationInWindow(viewLocationInWindow);
-
-        Rect viewRect = new Rect(viewLocationInWindow[0], viewLocationInWindow[1],
-                viewLocationInWindow[0] + view.getWidth(),
-                viewLocationInWindow[1] + view.getWidth());
-        Rect foldRectInView = new Rect(foldingFeature.getBounds());
-        // Translate coordinate space of split from window coordinate space to current view
-        // position in window
-        boolean intersects = foldRectInView.intersect(viewRect);
-        // Check if the split is overlapped with the view
-        if ((foldRectInView.width() == 0 && foldRectInView.height() == 0) || !intersects) {
-            return null;
-        }
-        foldRectInView.offset(-viewLocationInWindow[0], -viewLocationInWindow[1]);
-        return foldRectInView;
+    /**
+     * Listener to whether the SlidingPaneLayout is slideable or is a fixed width.
+     */
+    fun interface SlideableStateListener {
+        /**
+         * Called when onMeasure has measured out the total width of the added layouts
+         * within SlidingPaneLayout
+         * @param isSlideable  Returns true if the current SlidingPaneLayout has the ability to
+         * slide, returns false if the SlidingPaneLayout is a fixed width.
+         */
+        fun onSlideableStateChanged(isSlideable: Boolean)
     }
 
-    @Nullable
-    private static Activity getActivityOrNull(Context context) {
-        Context iterator = context;
-        while (iterator instanceof ContextWrapper) {
-            if (iterator instanceof Activity) {
-                return (Activity) iterator;
-            }
-            iterator = ((ContextWrapper) iterator).getBaseContext();
-        }
-        return null;
+    /**
+     * Listener for monitoring events about sliding panes.
+     */
+    interface PanelSlideListener {
+        /**
+         * Called when a detail view's position changes.
+         *
+         * @param panel       The child view that was moved
+         * @param slideOffset The new offset of this sliding pane within its range, from 0-1
+         */
+        fun onPanelSlide(panel: View, slideOffset: Float)
+
+        /**
+         * Called when a detail view becomes slid completely open.
+         *
+         * @param panel The detail view that was slid to an open position
+         */
+        fun onPanelOpened(panel: View)
+
+        /**
+         * Called when a detail view becomes slid completely closed.
+         *
+         * @param panel The detail view that was slid to a closed position
+         */
+        fun onPanelClosed(panel: View)
+    }
+
+    /**
+     * No-op stubs for [PanelSlideListener]. If you only want to implement a subset
+     * of the listener methods you can extend this instead of implement the full interface.
+     */
+    open class SimplePanelSlideListener : PanelSlideListener {
+        override fun onPanelSlide(panel: View, slideOffset: Float) {}
+        override fun onPanelOpened(panel: View) {}
+        override fun onPanelClosed(panel: View) {}
+    }
+
+    companion object {
+        /**
+         * User can freely swipe between list and detail panes.
+         */
+        const val LOCK_MODE_UNLOCKED = 0
+
+        /**
+         * The detail pane is locked in an open position. The user cannot swipe to close the detail
+         * pane, but the app can close the detail pane programmatically.
+         */
+        const val LOCK_MODE_LOCKED_OPEN = 1
+
+        /**
+         * The detail pane is locked in a closed position. The user cannot swipe to open the detail
+         * pane, but the app can open the detail pane programmatically.
+         */
+        const val LOCK_MODE_LOCKED_CLOSED = 2
+
+        /**
+         * The user cannot swipe between list and detail panes, though the app can open or close the
+         * detail pane programmatically.
+         */
+        const val LOCK_MODE_LOCKED = 3
     }
 }
