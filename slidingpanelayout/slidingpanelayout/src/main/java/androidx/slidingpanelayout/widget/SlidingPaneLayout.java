@@ -503,58 +503,14 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
         for (PanelSlideListener listener : mPanelSlideListeners) {
             listener.onPanelOpened(panel);
         }
-        sendAccessibilityPaneTitleEvent(panel);
-        sendChangedFocusAccessibilityEvents(panel,
-                AccessibilityEvent.CONTENT_CHANGE_TYPE_PANE_APPEARED);
+        sendAccessibilityEvent(AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED);
     }
 
     void dispatchOnPanelClosed(@NonNull View panel) {
         for (PanelSlideListener listener : mPanelSlideListeners) {
             listener.onPanelClosed(panel);
         }
-        View parentPanel = getChildAt(0);
-        sendAccessibilityPaneTitleEvent(parentPanel);
-        sendChangedFocusAccessibilityEvents(parentPanel,
-                AccessibilityEvent.CONTENT_CHANGE_TYPE_PANE_DISAPPEARED);
-    }
-
-    /**
-     * Sets the Accessibility title when the API is above API 28. This logic is required due to the
-     * opening and closing drawer logic and the title must be updated for each open and close.
-     * @param panel Panel with the current fovus
-     */
-    private void sendAccessibilityPaneTitleEvent(final View panel) {
-        if (panel == null) return;
-
-        if (Build.VERSION.SDK_INT >= 28) {
-            if (panel.getAccessibilityPaneTitle() != null) {
-                ViewCompat.setAccessibilityPaneTitle(panel,
-                        panel.getAccessibilityPaneTitle().toString());
-            }
-        }
-    }
-
-    @SuppressWarnings("deprecation")
-    private void sendChangedFocusAccessibilityEvents(final View panel, int contentType) {
-        if (panel == null) return;
-
-        if (Build.VERSION.SDK_INT >= 19) {
-            AccessibilityEvent event = AccessibilityEvent.obtain(
-                    AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED);
-            event.setContentChangeTypes(contentType);
-            sendAccessibilityEventUnchecked(event);
-        } else {
-            sendAccessibilityEvent(AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED);
-        }
-
-        // If a view can slide, the previous view will be completely hidden
-        // This sets the focus for the root view of the child when shown.
-        // TODO(224450896): We should not force accessibility focus. Remove when screen reader
-        //  behavior around panes is defined.
-        if (mCanSlide && Build.VERSION.SDK_INT >= 16) {
-            panel.performAccessibilityAction(
-                    AccessibilityNodeInfoCompat.ACTION_ACCESSIBILITY_FOCUS, null);
-        }
+        sendAccessibilityEvent(AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED);
     }
 
     void updateObscuredViewsVisibility(View panel) {
