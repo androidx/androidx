@@ -279,13 +279,13 @@ public class MediaRouterTest {
     @UiThreadTest
     public void testReset() {
         assertNotNull(mRouter);
-        assertNotNull(MediaRouter.getGlobalRouter());
+        assertNotNull(MediaRouter.sGlobal);
 
         MediaRouterTestHelper.resetMediaRouter();
-        assertNull(MediaRouter.getGlobalRouter());
+        assertNull(MediaRouter.sGlobal);
 
         MediaRouter newInstance = MediaRouter.getInstance(mContext);
-        assertNotNull(MediaRouter.getGlobalRouter());
+        assertNotNull(MediaRouter.sGlobal);
         assertFalse(newInstance.getRoutes().isEmpty());
     }
 
