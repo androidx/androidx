@@ -16,9 +16,13 @@
 
 package androidx.compose.ui.platform
 
+import androidx.compose.ui.input.key.KeyEvent
+import androidx.compose.ui.input.key.NativeKeyEvent
 import androidx.compose.ui.text.input.*
 import kotlin.math.min
 import org.jetbrains.skiko.SkikoInput
+import org.jetbrains.skiko.SkikoKey
+import org.jetbrains.skiko.SkikoKeyboardEventKind
 import org.jetbrains.skiko.ios.SkikoUITextInputTraits
 
 import platform.UIKit.*
@@ -42,6 +46,21 @@ internal class UIKitTextInputService(
     private val _hideSoftwareKeyboard: () -> Unit = hideSoftwareKeyboard
     private var currentInput: CurrentInput? = null
     private var currentImeOptions: ImeOptions? = null
+    private var currentImeActionHandler: ((ImeAction) -> Unit)? = null
+
+    /**
+     * Workaround to prevent IME action from being called multiple times with hardware keyboards.
+     * When the hardware return key is held down, iOS sends multiple newline characters to the application,
+     * which makes UIKitTextInputService call the current IME action multiple times without an additional
+     * debouncing logic.
+     *
+     * @see _tempHardwareReturnKeyPressed is set to true when the return key is pressed with a
+     * hardware keyboard.
+     * @see _tempImeActionIsCalledWithHardwareReturnKey is set to true when the
+     * current IME action has been called within the current hardware return key press.
+     */
+    private var _tempHardwareReturnKeyPressed: Boolean = false
+    private var _tempImeActionIsCalledWithHardwareReturnKey: Boolean = false
 
     /**
      * Workaround to fix voice dictation.
@@ -61,12 +80,14 @@ internal class UIKitTextInputService(
     ) {
         currentInput = CurrentInput(value, onEditCommand)
         currentImeOptions = imeOptions
+        currentImeActionHandler = onImeActionPerformed
         showSoftwareKeyboard()
     }
 
     override fun stopInput() {
         currentInput = null
         currentImeOptions = null
+        currentImeActionHandler = null
         hideSoftwareKeyboard()
     }
 
@@ -80,7 +101,8 @@ internal class UIKitTextInputService(
 
     override fun updateState(oldValue: TextFieldValue?, newValue: TextFieldValue) {
         val textChanged = oldValue == null || oldValue.text != newValue.text
-        val selectionChanged = textChanged || oldValue == null || oldValue.selection != newValue.selection
+        val selectionChanged =
+            textChanged || oldValue == null || oldValue.selection != newValue.selection
         if (textChanged) {
             textWillChange()
         }
@@ -115,6 +137,11 @@ internal class UIKitTextInputService(
          * @param text A string object representing the character typed on the system keyboard.
          */
         override fun insertText(text: String) {
+            if (text == "\n") {
+                if (runImeActionIfRequired()) {
+                    return
+                }
+            }
             getCursorPos()?.let {
                 _tempCursorPos = it + text.length
             }
@@ -318,6 +345,38 @@ internal class UIKitTextInputService(
 
     }
 
+    fun onPreviewKeyEvent(event: KeyEvent): Boolean {
+        val nativeKeyEvent = event.nativeKeyEvent
+        return when (nativeKeyEvent.key) {
+            SkikoKey.KEY_ENTER -> handleEnterKey(nativeKeyEvent)
+            SkikoKey.KEY_BACKSPACE -> handleBackspace(nativeKeyEvent)
+            else -> false
+        }
+    }
+
+    private fun handleEnterKey(event: NativeKeyEvent): Boolean {
+        _tempImeActionIsCalledWithHardwareReturnKey = false
+        return when (event.kind) {
+            SkikoKeyboardEventKind.UP -> {
+                _tempHardwareReturnKeyPressed = false
+                false
+            }
+
+            SkikoKeyboardEventKind.DOWN -> {
+                _tempHardwareReturnKeyPressed = true
+                // This prevents two new line characters from being added for one hardware return key press.
+                true
+            }
+
+            else -> false
+        }
+    }
+
+    private fun handleBackspace(event: NativeKeyEvent): Boolean {
+        // This prevents two characters from being removed for one hardware backspace key press.
+        return event.kind == SkikoKeyboardEventKind.DOWN
+    }
+
     private fun sendEditCommand(vararg commands: EditCommand) {
         currentInput?.let { input ->
             input.onEditCommand(commands.toList())
@@ -333,6 +392,34 @@ internal class UIKitTextInputService(
             return selection.start
         }
         return null
+    }
+
+    private fun imeActionRequired(): Boolean =
+        currentImeOptions?.run {
+            singleLine || (
+                imeAction != ImeAction.None
+                    && imeAction != ImeAction.Default
+                    && !(imeAction == ImeAction.Search && _tempHardwareReturnKeyPressed)
+                )
+        } ?: false
+
+    private fun runImeActionIfRequired(): Boolean {
+        val imeAction = currentImeOptions?.imeAction ?: return false
+        val imeActionHandler = currentImeActionHandler ?: return false
+        if (!imeActionRequired()) {
+            return false
+        }
+        if (!_tempImeActionIsCalledWithHardwareReturnKey) {
+            if (imeAction == ImeAction.Default) {
+                imeActionHandler(ImeAction.Done)
+            } else {
+                imeActionHandler(imeAction)
+            }
+        }
+        if (_tempHardwareReturnKeyPressed) {
+            _tempImeActionIsCalledWithHardwareReturnKey = true
+        }
+        return true
     }
 
     private fun getState(): TextFieldValue? = currentInput?.value
