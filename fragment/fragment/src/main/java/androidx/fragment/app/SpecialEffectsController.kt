@@ -240,10 +240,10 @@ internal abstract class SpecialEffectsController(val container: ViewGroup) {
                         "SpecialEffectsController: Executing pending operations"
                     )
                 }
+                collectEffects(newPendingOperations, operationDirectionIsPop)
                 for (operation in newPendingOperations) {
                     operation.onStart()
                 }
-                collectEffects(newPendingOperations, operationDirectionIsPop)
                 commitEffects(newPendingOperations)
                 operationDirectionIsPop = false
                 if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
@@ -650,7 +650,6 @@ internal abstract class SpecialEffectsController(val container: ViewGroup) {
          * @param signal A CancellationSignal that can be used to cancel this special effect.
          */
         fun markStartedSpecialEffect(signal: CancellationSignal) {
-            onStart()
             specialEffectsSignals.add(signal)
         }
 

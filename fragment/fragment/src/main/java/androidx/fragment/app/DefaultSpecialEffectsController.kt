@@ -177,11 +177,6 @@ internal class DefaultSpecialEffectsController(
         for (animatorInfo: AnimationInfo in animationInfos) {
             val context = container.context
             val operation: Operation = animatorInfo.operation
-            if (animatorInfo.isVisibilityUnchanged) {
-                // No change in visibility, so we can immediately complete the animation
-                operation.effects.add(NoOpEffect(animatorInfo))
-                continue
-            }
             val anim = animatorInfo.getAnimation(context)
             if (anim == null) {
                 // No Animator or Animation, so we can immediately complete the animation
@@ -768,6 +763,11 @@ internal class DefaultSpecialEffectsController(
 
     private class AnimationEffect(val animationInfo: AnimationInfo) : Effect() {
         override fun onCommit(container: ViewGroup) {
+            if (animationInfo.isVisibilityUnchanged) {
+                // No change in visibility, so we can immediately complete the animation
+                animationInfo.completeSpecialEffect()
+                return
+            }
             val context = container.context
             val operation: Operation = animationInfo.operation
             val fragment = operation.fragment
@@ -834,9 +834,14 @@ internal class DefaultSpecialEffectsController(
     }
 
     private class AnimatorEffect(val animatorInfo: AnimationInfo) : Effect() {
+        var animator: AnimatorSet? = null
         override fun onStart(container: ViewGroup) {
+            if (animatorInfo.isVisibilityUnchanged) {
+                // No change in visibility, so we can avoid starting the animator
+                return
+            }
             val context = container.context
-            val animator = animatorInfo.getAnimation(context)?.animator
+            animator = animatorInfo.getAnimation(context)?.animator
             val operation: Operation = animatorInfo.operation
             val fragment = operation.fragment
 
@@ -868,10 +873,14 @@ internal class DefaultSpecialEffectsController(
 
         override fun onCommit(container: ViewGroup) {
             val operation = animatorInfo.operation
-            val animatorSet = animatorInfo.getAnimation(container.context)?.animator
-            if (animatorSet != null &&
-                Build.VERSION.SDK_INT >= 34 && operation.fragment.mTransitioning
-                ) {
+            val animatorSet = animator
+            if (animatorSet == null) {
+                // No change in visibility, so we can go ahead and complete the effect
+                animatorInfo.completeSpecialEffect()
+                return
+            }
+
+            if (Build.VERSION.SDK_INT >= 34 && operation.fragment.mTransitioning) {
                 if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
                     Log.v(
                         FragmentManager.TAG,
@@ -907,7 +916,7 @@ internal class DefaultSpecialEffectsController(
                     animatorSet.start()
                 }
             } else {
-                animatorSet?.start()
+                animatorSet.start()
             }
             if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
                 Log.v(FragmentManager.TAG,
@@ -916,8 +925,11 @@ internal class DefaultSpecialEffectsController(
         }
 
         override fun onCancel(container: ViewGroup) {
-            val animator = animatorInfo.getAnimation(container.context)?.animator
-            if (animator != null) {
+            val animator = animator
+            if (animator == null) {
+                // No change in visibility, so we can go ahead and complete the effect
+                animatorInfo.completeSpecialEffect()
+            } else {
                 val operation = animatorInfo.operation
                 if (operation.isSeeking) {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
