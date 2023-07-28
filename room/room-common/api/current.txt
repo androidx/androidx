@@ -263,15 +263,22 @@ package androidx.room {
     property public abstract kotlin.reflect.KClass<?> value;
   }
 
-  @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.FUNCTION) public @interface MapInfo {
-    method public abstract String keyColumn() default "";
-    method public abstract String keyTable() default "";
-    method public abstract String valueColumn() default "";
-    method public abstract String valueTable() default "";
-    property public abstract String keyColumn;
-    property public abstract String keyTable;
-    property public abstract String valueColumn;
-    property public abstract String valueTable;
+  @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.TYPE) public @interface MapColumn {
+    method public abstract String columnName();
+    method public abstract String tableName() default "";
+    property public abstract String columnName;
+    property public abstract String tableName;
+  }
+
+  @Deprecated @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.FUNCTION) public @interface MapInfo {
+    method @Deprecated public abstract String keyColumn() default "";
+    method @Deprecated public abstract String keyTable() default "";
+    method @Deprecated public abstract String valueColumn() default "";
+    method @Deprecated public abstract String valueTable() default "";
+    property @Deprecated public abstract String keyColumn;
+    property @Deprecated public abstract String keyTable;
+    property @Deprecated public abstract String valueColumn;
+    property @Deprecated public abstract String valueTable;
   }
 
   @IntDef({androidx.room.OnConflictStrategy.Companion.NONE, androidx.room.OnConflictStrategy.Companion.REPLACE, androidx.room.OnConflictStrategy.Companion.ROLLBACK, androidx.room.OnConflictStrategy.Companion.ABORT, androidx.room.OnConflictStrategy.Companion.FAIL, androidx.room.OnConflictStrategy.Companion.IGNORE}) @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface OnConflictStrategy {
