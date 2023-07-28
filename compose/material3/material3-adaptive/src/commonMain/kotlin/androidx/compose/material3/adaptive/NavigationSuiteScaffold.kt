@@ -65,22 +65,20 @@ import androidx.compose.ui.util.fastMap
  * The Navigation Suite Scaffold wraps the provided content and places the adequate provided
  * navigation component on the screen according to the current [NavigationSuiteType].
  *
- * @param modifier the [Modifier] to be applied to the navigation suite scaffold
  * @param navigationSuite the navigation component to be displayed, typically [NavigationSuite]
+ * @param modifier the [Modifier] to be applied to the navigation suite scaffold
  * @param containerColor the color used for the background of the navigation suite scaffold. Use
  * [Color.Transparent] to have no color
  * @param contentColor the preferred color for content inside the navigation suite scaffold.
  * Defaults to either the matching content color for [containerColor], or to the current
  * [LocalContentColor] if [containerColor] is not a color from the theme
  * @param content the content of your screen
- *
- * TODO: Remove "internal".
  */
 @ExperimentalMaterial3AdaptiveApi
 @Composable
-internal fun NavigationSuiteScaffold(
-    modifier: Modifier = Modifier,
+fun NavigationSuiteScaffold(
     navigationSuite: @Composable NavigationSuiteScaffoldScope.() -> Unit,
+    modifier: Modifier = Modifier,
     containerColor: Color = MaterialTheme.colorScheme.background,
     contentColor: Color = contentColorFor(containerColor),
     content: @Composable () -> Unit = {},
@@ -201,17 +199,15 @@ private fun NavigationSuiteScaffoldLayout(
  * @param modifier the [Modifier] to be applied to the navigation component
  * @param layoutType the current [NavigationSuiteType] of the [NavigationSuiteScaffold]. Defaults to
  * [NavigationSuiteDefaults.calculateFromAdaptiveInfo]
- * @params colors [NavigationSuiteColors] that will be used to determine the container (background)
+ * @param colors [NavigationSuiteColors] that will be used to determine the container (background)
  * color of the navigation component and the preferred color for content inside the navigation
  * component
  * @param content the content inside the current navigation component, typically
  * [NavigationSuiteScope.item]s
- *
- * TODO: Remove "internal".
  */
 @ExperimentalMaterial3AdaptiveApi
 @Composable
-internal fun NavigationSuiteScaffoldScope.NavigationSuite(
+fun NavigationSuiteScaffoldScope.NavigationSuite(
     modifier: Modifier = Modifier,
     layoutType: NavigationSuiteType =
         NavigationSuiteDefaults.calculateFromAdaptiveInfo(WindowAdaptiveInfoDefault),
@@ -291,13 +287,9 @@ internal fun NavigationSuiteScaffoldScope.NavigationSuite(
     }
 }
 
-/**
- * The scope associated with the [NavigationSuiteScaffold].
- *
- * TODO: Remove "internal".
- */
+/** The scope associated with the [NavigationSuiteScaffold]. */
 @ExperimentalMaterial3AdaptiveApi
-internal interface NavigationSuiteScaffoldScope {
+interface NavigationSuiteScaffoldScope {
     /**
      * [Modifier] that should be applied to the [NavigationSuite] of the [NavigationSuiteScaffold]
      * in order to determine its alignment on the screen.
@@ -312,11 +304,9 @@ internal interface NavigationSuiteScaffoldScope {
  *
  * The alignment informs the Navigation Suite Scaffold how to properly place the expected navigation
  * component on the screen in relation to the Navigation Suite Scaffold's content.
- *
- * TODO: Remove "internal".
  */
 @ExperimentalMaterial3AdaptiveApi
-internal enum class NavigationSuiteAlignment {
+enum class NavigationSuiteAlignment {
     /** The navigation component is vertical and positioned at the start of the screen. */
     StartVertical,
     /** The navigation component is vertical and positioned at the end of the screen. */
@@ -327,13 +317,9 @@ internal enum class NavigationSuiteAlignment {
     BottomHorizontal
 }
 
-/**
- * The scope associated with the [NavigationSuite].
- *
- * TODO: Remove "internal".
- */
+/** The scope associated with the [NavigationSuite]. */
 @ExperimentalMaterial3AdaptiveApi
-internal interface NavigationSuiteScope {
+interface NavigationSuiteScope {
 
     /**
      * This function sets the parameters of the default Material navigation item to be used with the
@@ -377,16 +363,11 @@ internal interface NavigationSuiteScope {
 /**
  * Class that describes the different navigation suite types of the [NavigationSuiteScaffold].
  *
- * The [NavigationSuiteType] informs the [NavigationSuite] of what navigation component to
- * expect.
- *
- * @param description the description of the [NavigationSuiteType]
- *
- * TODO: remove "internal"
+ * The [NavigationSuiteType] informs the [NavigationSuite] of what navigation component to expect.
  */
 @JvmInline
 @ExperimentalMaterial3AdaptiveApi
-internal value class NavigationSuiteType private constructor(private val description: String) {
+value class NavigationSuiteType private constructor(private val description: String) {
     override fun toString(): String {
         return description
     }
@@ -417,13 +398,9 @@ internal value class NavigationSuiteType private constructor(private val descrip
     }
 }
 
-/**
- * Contains the default values used by the [NavigationSuite].
- *
- * TODO: Remove "internal".
- */
+/** Contains the default values used by the [NavigationSuite]. */
 @ExperimentalMaterial3AdaptiveApi
-internal object NavigationSuiteDefaults {
+object NavigationSuiteDefaults {
     /**
      * Returns the expected [NavigationSuiteType] according to the provided [WindowAdaptiveInfo].
      * Usually used with the [NavigationSuite].
@@ -506,11 +483,9 @@ internal object NavigationSuiteDefaults {
  * [NavigationSuite]
  * @param navigationDrawerContentColor the content color for the [PermanentDrawerSheet] of the
  * [NavigationSuite]
- *
- * TODO: Remove "internal".
  */
 @ExperimentalMaterial3AdaptiveApi
-internal class NavigationSuiteColors
+class NavigationSuiteColors
 internal constructor(
     val navigationBarContainerColor: Color,
     val navigationBarContentColor: Color,
@@ -532,11 +507,9 @@ internal constructor(
  * [NavigationRailItem] of the [NavigationSuiteScope.item]
  * @param navigationDrawerItemColors the [NavigationDrawerItemColors] associated with the
  * [NavigationDrawerItem] of the [NavigationSuiteScope.item]
- *
- * TODO: Remove "internal".
  */
 @ExperimentalMaterial3AdaptiveApi
-internal class NavigationSuiteItemColors
+class NavigationSuiteItemColors
 internal constructor(
     val navigationBarItemColors: NavigationBarItemColors,
     val navigationRailItemColors: NavigationRailItemColors,
