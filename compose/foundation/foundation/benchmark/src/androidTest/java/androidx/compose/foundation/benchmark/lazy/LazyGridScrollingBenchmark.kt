@@ -22,9 +22,11 @@ import android.view.View
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.requiredSize
+import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
@@ -184,7 +186,7 @@ private val Horizontal = LazyGridScrollingTestCase(
     LazyHorizontalGrid(
         rows = GridCells.Fixed(2),
         state = state,
-        modifier = Modifier.requiredHeight(400.dp).fillMaxWidth(),
+        modifier = Modifier.requiredWidth(400.dp).fillMaxHeight(),
         flingBehavior = NoFlingBehavior
     ) {
         items(2) {
