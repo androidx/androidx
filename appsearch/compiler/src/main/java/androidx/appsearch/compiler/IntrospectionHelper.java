@@ -20,7 +20,6 @@ import static com.google.auto.common.MoreTypes.asTypeElement;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
-import androidx.annotation.VisibleForTesting;
 
 import com.google.auto.value.AutoValue;
 import com.squareup.javapoet.ClassName;
@@ -57,18 +56,18 @@ import javax.lang.model.util.Types;
  * @exportToFramework:hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-class IntrospectionHelper {
-    @VisibleForTesting
+public class IntrospectionHelper {
     static final String GEN_CLASS_PREFIX = "$$__AppSearch__";
     static final String APPSEARCH_PKG = "androidx.appsearch.app";
     static final String APPSEARCH_EXCEPTION_PKG = "androidx.appsearch.exceptions";
     static final String APPSEARCH_EXCEPTION_SIMPLE_NAME = "AppSearchException";
-    static final String DOCUMENT_ANNOTATION_CLASS = "androidx.appsearch.annotation.Document";
+    public static final String DOCUMENT_ANNOTATION_CLASS = "androidx.appsearch.annotation.Document";
     static final String ID_CLASS = "androidx.appsearch.annotation.Document.Id";
     static final String NAMESPACE_CLASS = "androidx.appsearch.annotation.Document.Namespace";
     static final String CREATION_TIMESTAMP_MILLIS_CLASS =
             "androidx.appsearch.annotation.Document.CreationTimestampMillis";
-    static final String TTL_MILLIS_CLASS = "androidx.appsearch.annotation.Document.TtlMillis";
+    static final String TTL_MILLIS_CLASS = "androidx.appsearch.annotation.Document"
+            + ".TtlMillis";
     static final String SCORE_CLASS = "androidx.appsearch.annotation.Document.Score";
     static final String BUILDER_PRODUCER_CLASS =
             "androidx.appsearch.annotation.Document.BuilderProducer";
