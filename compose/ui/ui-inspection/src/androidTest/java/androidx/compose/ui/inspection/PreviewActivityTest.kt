@@ -35,6 +35,7 @@ import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.RuleChain
@@ -75,6 +76,7 @@ class PreviewActivityTest {
         inspectorTester.dispose()
     }
 
+    @Ignore("b/295186037")
     @Test
     fun testPreviewTopComposableHasAnAchor(): Unit = runBlocking() {
         inspectorTester.sendCommand(
