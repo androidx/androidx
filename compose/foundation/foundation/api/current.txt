@@ -209,6 +209,7 @@ package androidx.compose.foundation {
     method public androidx.compose.foundation.interaction.InteractionSource getInteractionSource();
     method public int getMaxValue();
     method public int getValue();
+    method public int getViewportSize();
     method public boolean isScrollInProgress();
     method public suspend Object? scroll(androidx.compose.foundation.MutatePriority scrollPriority, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.gestures.ScrollScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?> block, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public suspend Object? scrollTo(int value, kotlin.coroutines.Continuation<? super java.lang.Float>);
@@ -218,6 +219,7 @@ package androidx.compose.foundation {
     property public boolean isScrollInProgress;
     property public final int maxValue;
     property public final int value;
+    property public final int viewportSize;
     field public static final androidx.compose.foundation.ScrollState.Companion Companion;
   }
 
