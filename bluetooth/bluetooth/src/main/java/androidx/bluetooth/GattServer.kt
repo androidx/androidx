@@ -99,7 +99,7 @@ internal class GattServer(private val context: Context) {
                     BluetoothProfile.STATE_CONNECTED -> {
                         trySend(
                             BluetoothLe.GattServerConnectionRequest(
-                                BluetoothDevice.of(device),
+                                BluetoothDevice(device),
                                 this@GattServer,
                                 addSession(device)
                             )

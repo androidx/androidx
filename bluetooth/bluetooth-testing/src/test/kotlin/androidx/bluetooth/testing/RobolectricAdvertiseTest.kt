@@ -50,7 +50,7 @@ class RobolectricAdvertiseTest {
      * the legacy advertise limit (31 bytes)
      */
     @Test
-    fun advertiseTooLargeDataO() = runTest {
+    fun advertiseTooLargeData() = runTest {
         val parcelUuid = UUID.randomUUID()
         val serviceData = "sampleAdvertiseDataTooLargeToAdvertise".toByteArray(Charsets.UTF_8)
 
