@@ -14,7 +14,6 @@ dependencies {
     implementation("androidx.transition:transition:1.4.1")
 
     androidTestImplementation(libs.testExtJunit)
-    androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.espressoCore, excludes.espresso)
     androidTestImplementation(libs.kotlinStdlib)
