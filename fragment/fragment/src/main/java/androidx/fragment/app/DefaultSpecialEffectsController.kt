@@ -767,6 +767,14 @@ internal class DefaultSpecialEffectsController(
     }
 
     private class AnimationEffect(val animationInfo: AnimationInfo) : Effect() {
+        override fun onStart(container: ViewGroup) {
+            val operation: Operation = animationInfo.operation
+
+            val finalState = operation.finalState
+            if (finalState !== Operation.State.REMOVED) {
+                operation.effects.add(NoOpEffect(animationInfo))
+            }
+        }
         override fun onCommit(container: ViewGroup) {
             val context = container.context
             val operation: Operation = animationInfo.operation
@@ -780,10 +788,6 @@ internal class DefaultSpecialEffectsController(
                 // If the operation does not remove the view, we can't use a
                 // AnimationSet due that causing the introduction of visual artifacts (b/163084315).
                 viewToAnimate.startAnimation(anim)
-                // This means we can't use setAnimationListener() without overriding
-                // any listener that the Fragment has set themselves, so we
-                // just mark the special effect as complete immediately.
-                operation.effects.add(NoOpEffect(animationInfo))
             } else {
                 container.startViewTransition(viewToAnimate)
                 val animation: Animation = FragmentAnim.EndViewTransitionAnimation(anim,
@@ -968,7 +972,7 @@ internal class DefaultSpecialEffectsController(
                                 "SpecialEffectsController: Container $container has not been " +
                                     "laid out. Completing operation $operation")
                         }
-                        operation.effects.add(NoOpEffect(transitionInfo))
+                        transitionInfo.completeSpecialEffect()
                     } else {
                         transitionImpl.setListenerForTransitionEnd(
                             transitionInfo.operation.fragment,
