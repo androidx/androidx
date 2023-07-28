@@ -55,7 +55,9 @@ fun Component(
     theme: Theme,
     onThemeChange: (theme: Theme) -> Unit,
     onExampleClick: (example: Example) -> Unit,
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    favorite: Boolean = false,
+    onFavoriteClick: () -> Unit,
 ) {
     val ltr = LocalLayoutDirection.current
     CatalogScaffold(
@@ -66,7 +68,9 @@ fun Component(
         docsUrl = component.docsUrl,
         sourceUrl = component.sourceUrl,
         onThemeChange = onThemeChange,
-        onBackClick = onBackClick
+        onBackClick = onBackClick,
+        favorite = favorite,
+        onFavoriteClick = onFavoriteClick
     ) { paddingValues ->
         LazyColumn(
             modifier = Modifier.consumeWindowInsets(paddingValues),
