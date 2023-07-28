@@ -32,7 +32,6 @@ import androidx.compose.foundation.text.Handle
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.heightInLines
-import androidx.compose.foundation.text.selection.SelectionHandle
 import androidx.compose.foundation.text.selection.SelectionHandleAnchor
 import androidx.compose.foundation.text.selection.SelectionHandleInfo
 import androidx.compose.foundation.text.selection.SelectionHandleInfoKey
@@ -47,6 +46,7 @@ import androidx.compose.foundation.text2.input.internal.TextFieldCoreModifier
 import androidx.compose.foundation.text2.input.internal.TextFieldDecoratorModifier
 import androidx.compose.foundation.text2.input.internal.TextFieldTextLayoutModifier
 import androidx.compose.foundation.text2.input.internal.TextLayoutState
+import androidx.compose.foundation.text2.selection.TextFieldSelectionHandle2
 import androidx.compose.foundation.text2.selection.TextFieldSelectionState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -302,29 +302,27 @@ internal fun TextFieldSelectionHandles(
 ) {
     val startHandleState = selectionState.startSelectionHandle
     if (startHandleState.visible) {
-        SelectionHandle(
-            position = startHandleState.position,
+        TextFieldSelectionHandle2(
+            positionProvider = { selectionState.startSelectionHandle.position },
             isStartHandle = true,
             direction = startHandleState.direction,
             handlesCrossed = startHandleState.handlesCrossed,
             modifier = Modifier.pointerInput(selectionState) {
                 with(selectionState) { selectionHandleGestures(true) }
-            },
-            content = null
+            }
         )
     }
 
     val endHandleState = selectionState.endSelectionHandle
     if (endHandleState.visible) {
-        SelectionHandle(
-            position = endHandleState.position,
+        TextFieldSelectionHandle2(
+            positionProvider = { selectionState.endSelectionHandle.position },
             isStartHandle = false,
             direction = endHandleState.direction,
             handlesCrossed = endHandleState.handlesCrossed,
             modifier = Modifier.pointerInput(selectionState) {
                 with(selectionState) { selectionHandleGestures(false) }
-            },
-            content = null
+            }
         )
     }
 }
