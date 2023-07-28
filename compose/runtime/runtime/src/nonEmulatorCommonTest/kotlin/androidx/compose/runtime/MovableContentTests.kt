@@ -16,6 +16,7 @@
 
 package androidx.compose.runtime
 
+import androidx.compose.runtime.mock.Linear
 import androidx.compose.runtime.mock.MockViewValidator
 import androidx.compose.runtime.mock.View
 import androidx.compose.runtime.mock.ViewApplier
@@ -1540,6 +1541,50 @@ class MovableContentTests {
         advance()
 
         assertEquals(state, lastSeen)
+    }
+
+    @Test
+    fun movableContent_moveRow() = compositionTest {
+        var condition by mutableStateOf(true)
+
+        val movableContent1 = movableContentOf {
+            Text("First")
+        }
+        val movableContent2 = movableContentOf {
+            Text("Second")
+        }
+
+        compose {
+            if (condition) {
+                Linear {
+                    Linear {
+                        movableContent1()
+                    }
+                    movableContent2()
+                }
+            } else {
+                Linear {
+                    Linear {
+                        movableContent1()
+                    }
+                    movableContent2()
+                }
+            }
+        }
+
+        validate {
+            Linear {
+                Linear {
+                    Text("First")
+                }
+                Text("Second")
+            }
+        }
+
+        condition = false
+        expectChanges()
+
+        revalidate()
     }
 }
 
