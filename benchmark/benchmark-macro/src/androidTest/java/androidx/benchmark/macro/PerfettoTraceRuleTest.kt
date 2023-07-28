@@ -58,7 +58,7 @@ class PerfettoTraceRuleTest {
                     val sliceNameInstances = PerfettoTraceProcessor.runSingleSessionServer(
                         trace!!.path
                     ) {
-                        querySlices(UNIQUE_SLICE_NAME)
+                        querySlices(UNIQUE_SLICE_NAME, packageName = null)
                             .map { slice -> slice.name }
                     }
                     assertEquals(listOf(UNIQUE_SLICE_NAME), sliceNameInstances)

@@ -238,21 +238,43 @@ class PerfettoTraceProcessor {
          * Note that sliceNames may include wildcard matches, such as `foo%`
          */
         @RestrictTo(LIBRARY_GROUP) // Slice API not currently exposed, since it doesn't track table
-        fun querySlices(vararg sliceNames: String): List<Slice> {
+        fun querySlices(
+            vararg sliceNames: String,
+            packageName: String?,
+        ): List<Slice> {
             require(traceProcessor.perfettoHttpServer.isRunning()) {
                 "Perfetto trace_shell_process is not running."
             }
 
             val whereClause = sliceNames
-                .joinToString(separator = " OR ") {
+                .joinToString(
+                    separator = " OR ",
+                    prefix = if (packageName == null) {
+                        "("
+                    } else {
+                        processNameLikePkg(packageName) + " AND ("
+                    },
+                    postfix = ")"
+                ) {
                     "slice.name LIKE \"$it\""
                 }
+            val innerJoins = if (packageName != null) {
+                """
+                INNER JOIN thread_track on slice.track_id = thread_track.id
+                INNER JOIN thread USING(utid)
+                INNER JOIN process USING(upid)
+                """.trimMargin()
+            } else {
+                ""
+            }
 
             return query(
                 query = """
                     SELECT slice.name,ts,dur
                     FROM slice
+                    $innerJoins
                     WHERE $whereClause
+                    ORDER BY ts
                     """.trimMargin()
             ).toSlices()
         }
