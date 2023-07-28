@@ -139,7 +139,7 @@ package androidx.wear.compose.foundation {
 
   public final class CurvedParentDataKt {
     method public static androidx.wear.compose.foundation.CurvedModifier parentDataModifier(androidx.wear.compose.foundation.CurvedModifier, kotlin.jvm.functions.Function1<java.lang.Object,?> modifyParentData);
-    method public static androidx.wear.compose.foundation.CurvedModifier weight(androidx.wear.compose.foundation.CurvedModifier, float weight);
+    method public static androidx.wear.compose.foundation.CurvedModifier weight(androidx.wear.compose.foundation.CurvedModifier, @FloatRange(from=0.0, fromInclusive=false) float weight);
   }
 
   public final class CurvedRowKt {
@@ -153,8 +153,8 @@ package androidx.wear.compose.foundation {
     method public static androidx.wear.compose.foundation.CurvedModifier angularSize(androidx.wear.compose.foundation.CurvedModifier, float sweepDegrees);
     method public static androidx.wear.compose.foundation.CurvedModifier angularSizeDp(androidx.wear.compose.foundation.CurvedModifier, float angularWidth);
     method public static androidx.wear.compose.foundation.CurvedModifier radialSize(androidx.wear.compose.foundation.CurvedModifier, float thickness);
-    method public static androidx.wear.compose.foundation.CurvedModifier size(androidx.wear.compose.foundation.CurvedModifier, float sweepDegrees, float thickness);
-    method public static androidx.wear.compose.foundation.CurvedModifier sizeIn(androidx.wear.compose.foundation.CurvedModifier, optional float minSweepDegrees, optional float maxSweepDegrees, optional float minThickness, optional float maxThickness);
+    method public static androidx.wear.compose.foundation.CurvedModifier size(androidx.wear.compose.foundation.CurvedModifier, @FloatRange(from=0.0, to=360.0) float sweepDegrees, float thickness);
+    method public static androidx.wear.compose.foundation.CurvedModifier sizeIn(androidx.wear.compose.foundation.CurvedModifier, optional @FloatRange(from=0.0, to=360.0) float minSweepDegrees, optional @FloatRange(from=0.0, to=360.0) float maxSweepDegrees, optional float minThickness, optional float maxThickness);
   }
 
   public final class CurvedTextStyle {
@@ -357,9 +357,9 @@ package androidx.wear.compose.foundation.lazy {
   }
 
   @androidx.compose.runtime.Stable @androidx.wear.compose.foundation.lazy.ScalingLazyScopeMarker public sealed interface ScalingLazyListItemScope {
-    method public androidx.compose.ui.Modifier fillParentMaxHeight(androidx.compose.ui.Modifier, optional float fraction);
-    method public androidx.compose.ui.Modifier fillParentMaxSize(androidx.compose.ui.Modifier, optional float fraction);
-    method public androidx.compose.ui.Modifier fillParentMaxWidth(androidx.compose.ui.Modifier, optional float fraction);
+    method public androidx.compose.ui.Modifier fillParentMaxHeight(androidx.compose.ui.Modifier, optional @FloatRange(from=0.0, to=1.0) float fraction);
+    method public androidx.compose.ui.Modifier fillParentMaxSize(androidx.compose.ui.Modifier, optional @FloatRange(from=0.0, to=1.0) float fraction);
+    method public androidx.compose.ui.Modifier fillParentMaxWidth(androidx.compose.ui.Modifier, optional @FloatRange(from=0.0, to=1.0) float fraction);
   }
 
   public sealed interface ScalingLazyListLayoutInfo {
@@ -426,20 +426,20 @@ package androidx.wear.compose.foundation.lazy {
   }
 
   @androidx.compose.runtime.Stable public interface ScalingParams {
-    method public float getEdgeAlpha();
-    method public float getEdgeScale();
-    method public float getMaxElementHeight();
-    method public float getMaxTransitionArea();
-    method public float getMinElementHeight();
-    method public float getMinTransitionArea();
+    method @FloatRange(from=0.0, to=1.0) public float getEdgeAlpha();
+    method @FloatRange(from=0.0, to=1.0) public float getEdgeScale();
+    method @FloatRange(from=0.0, to=1.0) public float getMaxElementHeight();
+    method @FloatRange(from=0.0, to=1.0) public float getMaxTransitionArea();
+    method @FloatRange(from=0.0, to=1.0) public float getMinElementHeight();
+    method @FloatRange(from=0.0, to=1.0) public float getMinTransitionArea();
     method public androidx.compose.animation.core.Easing getScaleInterpolator();
     method public int resolveViewportVerticalOffset(long viewportConstraints);
-    property public abstract float edgeAlpha;
-    property public abstract float edgeScale;
-    property public abstract float maxElementHeight;
-    property public abstract float maxTransitionArea;
-    property public abstract float minElementHeight;
-    property public abstract float minTransitionArea;
+    property @FloatRange(from=0.0, to=1.0) public abstract float edgeAlpha;
+    property @FloatRange(from=0.0, to=1.0) public abstract float edgeScale;
+    property @FloatRange(from=0.0, to=1.0) public abstract float maxElementHeight;
+    property @FloatRange(from=0.0, to=1.0) public abstract float maxTransitionArea;
+    property @FloatRange(from=0.0, to=1.0) public abstract float minElementHeight;
+    property @FloatRange(from=0.0, to=1.0) public abstract float minTransitionArea;
     property public abstract androidx.compose.animation.core.Easing scaleInterpolator;
   }
 

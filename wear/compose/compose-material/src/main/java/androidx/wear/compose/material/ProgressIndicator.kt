@@ -1,5 +1,6 @@
 package androidx.wear.compose.material
 
+import androidx.annotation.FloatRange
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.LinearEasing
@@ -78,7 +79,7 @@ import kotlin.math.min
  */
 @Composable
 public fun CircularProgressIndicator(
-    /* @FloatRange(fromInclusive = true, from = 0.0, toInclusive = true, to = 1.0) */
+    @FloatRange(from = 0.0, to = 1.0)
     progress: Float,
     modifier: Modifier = Modifier,
     startAngle: Float = 270f,

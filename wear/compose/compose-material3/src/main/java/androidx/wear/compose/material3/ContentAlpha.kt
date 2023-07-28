@@ -15,6 +15,7 @@
  */
 package androidx.wear.compose.material3
 
+import androidx.annotation.FloatRange
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.compositionLocalOf
@@ -83,9 +84,9 @@ object ContentAlpha {
      */
     @Composable
     private fun contentAlpha(
-        /*@FloatRange(from = 0.0, to = 1.0)*/
+        @FloatRange(from = 0.0, to = 1.0)
         highContrastAlpha: Float,
-        /*@FloatRange(from = 0.0, to = 1.0)*/
+        @FloatRange(from = 0.0, to = 1.0)
         lowContrastAlpha: Float
     ): Float {
         val contentColor = LocalContentColor.current

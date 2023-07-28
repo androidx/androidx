@@ -16,6 +16,7 @@
 
 package androidx.wear.compose.material
 
+import androidx.annotation.FloatRange
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.AnimationVector
@@ -127,9 +128,7 @@ interface PositionIndicatorState {
      * Position of the indicator in the range [0f,1f]. 0f means it is at the top|start, 1f means
      * it is positioned at the bottom|end.
      */
-//    @FloatRange(
-//        fromInclusive = true, from = 0.0, toInclusive = true, to = 1.0
-//    )
+    @get:FloatRange(from = 0.0, to = 1.0)
     val positionFraction: Float
 
     /**
@@ -139,10 +138,11 @@ interface PositionIndicatorState {
      * in pixels depending on orientation of the indicator, (height for vertical, width for
      * horizontal)
      */
-//    @FloatRange(
-//        fromInclusive = true, from = 0.0, toInclusive = true, to = 1.0
-//    )
-    fun sizeFraction(scrollableContainerSizePx: Float): Float
+    @FloatRange(from = 0.0, to = 1.0)
+    fun sizeFraction(
+        @FloatRange(from = 0.0)
+        scrollableContainerSizePx: Float
+    ): Float
 
     /**
      * Should we show the Position Indicator
@@ -151,7 +151,10 @@ interface PositionIndicatorState {
      * in pixels depending on orientation of the indicator, (height for vertical, width for
      * horizontal)
      */
-    fun visibility(scrollableContainerSizePx: Float): PositionIndicatorVisibility
+    fun visibility(
+        @FloatRange(from = 0.0)
+        scrollableContainerSizePx: Float
+    ): PositionIndicatorVisibility
 }
 
 /**
@@ -223,9 +226,11 @@ public fun PositionIndicator(
  * @param reverseDirection Reverses direction of PositionIndicator if true
  */
 @Suppress("DEPRECATION")
-@Deprecated("This overload is provided for backwards compatibility with Compose for Wear OS 1.1." +
+@Deprecated(
+    "This overload is provided for backwards compatibility with Compose for Wear OS 1.1." +
         "A newer overload is available which uses ScalingLazyListState from " +
-        "androidx.wear.compose.foundation.lazy package", level = DeprecationLevel.WARNING)
+        "androidx.wear.compose.foundation.lazy package", level = DeprecationLevel.WARNING
+)
 @Composable
 public fun PositionIndicator(
     scalingLazyListState: androidx.wear.compose.material.ScalingLazyListState,
@@ -782,7 +787,7 @@ internal class ScalingLazyColumnStateAdapter(
         if (state.layoutInfo.visibleItemsInfo.isEmpty()) return 0f
         val firstItem = state.layoutInfo.visibleItemsInfo.first()
         val firstItemStartOffset = firstItem.startOffset(state.layoutInfo.anchorType)
-        val viewportStartOffset = - (state.layoutInfo.viewportSize.height / 2f)
+        val viewportStartOffset = -(state.layoutInfo.viewportSize.height / 2f)
         // Coerce item size to at least 1 to avoid divide by zero for zero height items
         val firstItemInvisibleFraction =
             ((viewportStartOffset - firstItemStartOffset) /
@@ -866,7 +871,7 @@ internal class MaterialScalingLazyColumnStateAdapter(
         if (state.layoutInfo.visibleItemsInfo.isEmpty()) return 0f
         val firstItem = state.layoutInfo.visibleItemsInfo.first()
         val firstItemStartOffset = firstItem.startOffset(state.anchorType.value!!)
-        val viewportStartOffset = - (state.viewportHeightPx.value!! / 2f)
+        val viewportStartOffset = -(state.viewportHeightPx.value!! / 2f)
         // Coerce item size to at least 1 to avoid divide by zero for zero height items
         val firstItemInvisibleFraction =
             ((viewportStartOffset - firstItemStartOffset) /
@@ -1122,7 +1127,8 @@ private fun BoundsLimiter(
         modifier
             .transparentSizeModifier(size)
             .absoluteOffset { -offset() }, content = content,
-        contentAlignment = AbsoluteAlignment.TopLeft)
+        contentAlignment = AbsoluteAlignment.TopLeft
+    )
 }
 
 // Sets the size of this element, but lets the child measure using the constraints
