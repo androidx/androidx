@@ -261,8 +261,8 @@ public class MockConsumer<T> implements Consumer<T> {
     }
 
     @Override
-    public void accept(T event) {
-        mEventList.add(event);
+    public void accept(T t) {
+        mEventList.add(t);
 
         synchronized (mLock) {
             if (mLatch != null && isVerified(mEventList)) {
