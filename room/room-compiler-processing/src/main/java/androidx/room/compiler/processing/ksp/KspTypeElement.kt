@@ -174,7 +174,7 @@ internal sealed class KspTypeElement(
 
     private val _declaredFields by lazy {
         _declaredProperties.filter {
-            it.declaration.hasBackingFieldFixed
+            it.declaration.hasBackingField
         }
     }
 
@@ -409,13 +409,6 @@ internal sealed class KspTypeElement(
                 }
         }
     }
-
-    /**
-     * Workaround for https://github.com/google/ksp/issues/529 where KSP returns false for
-     * backing field when the property has a lateinit modifier.
-     */
-    private val KSPropertyDeclaration.hasBackingFieldFixed
-        get() = hasBackingField || modifiers.contains(Modifier.LATEINIT)
 
     @OptIn(KspExperimental::class)
     fun KSDeclarationContainer?.getDeclarationsInSourceOrder() = this?.let {
