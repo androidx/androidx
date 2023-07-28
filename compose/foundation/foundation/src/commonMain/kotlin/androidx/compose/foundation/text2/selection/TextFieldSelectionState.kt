@@ -35,6 +35,7 @@ import androidx.compose.foundation.text2.input.TextFieldCharSequence
 import androidx.compose.foundation.text2.input.TextFieldState
 import androidx.compose.foundation.text2.input.getSelectedText
 import androidx.compose.foundation.text2.input.internal.TextLayoutState
+import androidx.compose.foundation.text2.input.internal.coerceIn
 import androidx.compose.foundation.text2.input.selectAll
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -726,7 +727,19 @@ internal class TextFieldSelectionState(
         val directionOffset = if (isStartHandle) selection.start else max(selection.end - 1, 0)
         val direction = layoutResult.getBidiRunDirection(directionOffset)
         val handlesCrossed = selection.reversed
-        return TextFieldHandleState(true, position, direction, handlesCrossed)
+
+        // Handle normally is visible when it's out of bounds but when the handle is being dragged,
+        // we let it stay on the screen to maintain gesture continuation. However, we still want
+        // to coerce handle's position to visible bounds to not let it jitter while scrolling the
+        // TextField as the selection is expanding.
+        val coercedPosition = innerCoordinates?.visibleBounds()?.let { position.coerceIn(it) }
+            ?: position
+        return TextFieldHandleState(
+            visible = true,
+            position = coercedPosition,
+            direction = direction,
+            handlesCrossed = handlesCrossed
+        )
     }
 
     private fun getHandlePosition(isStartHandle: Boolean): Offset {
