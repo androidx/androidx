@@ -16,6 +16,7 @@
 
 package androidx.wear.compose.foundation
 
+import androidx.annotation.FloatRange
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.unit.Dp
@@ -30,9 +31,9 @@ import androidx.compose.ui.unit.dp
  * @param maxThickness the maximum thickness (radial size) for the content.
  */
 public fun CurvedModifier.sizeIn(
-    /* @FloatRange(from = 0f, to = 360f) */
+    @FloatRange(from = 0.0, to = 360.0)
     minSweepDegrees: Float = 0f,
-    /* @FloatRange(from = 0f, to = 360f) */
+    @FloatRange(from = 0.0, to = 360.0)
     maxSweepDegrees: Float = 360f,
     minThickness: Dp = 0.dp,
     maxThickness: Dp = Dp.Infinity,
@@ -54,10 +55,12 @@ public fun CurvedModifier.sizeIn(
  * @param sweepDegrees Indicates the sweep (angular size) of the content.
  * @param thickness Indicates the thickness (radial size) of the content.
  */
-public fun CurvedModifier.size(sweepDegrees: Float, thickness: Dp) = sizeIn(
-    /* @FloatRange(from = 0f, to = 360f) */
+public fun CurvedModifier.size(
+    @FloatRange(from = 0.0, to = 360.0)
+    sweepDegrees: Float,
+    thickness: Dp
+) = sizeIn(
     minSweepDegrees = sweepDegrees,
-    /* @FloatRange(from = 0f, to = 360f) */
     maxSweepDegrees = sweepDegrees,
     minThickness = thickness,
     maxThickness = thickness

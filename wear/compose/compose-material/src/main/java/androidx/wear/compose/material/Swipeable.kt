@@ -16,6 +16,7 @@
 
 package androidx.wear.compose.material
 
+import androidx.annotation.FloatRange
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.SpringSpec
@@ -442,7 +443,7 @@ open class SwipeableState<T>(
 class SwipeProgress<T>(
     val from: T,
     val to: T,
-    /*@FloatRange(from = 0.0, to = 1.0)*/
+    @FloatRange(from = 0.0, to = 1.0)
     val fraction: Float
 ) {
     override fun equals(other: Any?): Boolean {
@@ -660,7 +661,7 @@ data class FixedThreshold(private val offset: Dp) : ThresholdConfig {
 @Immutable
 @ExperimentalWearMaterialApi
 data class FractionalThreshold(
-    /*@FloatRange(from = 0.0, to = 1.0)*/
+    @FloatRange(from = 0.0, to = 1.0)
     private val fraction: Float
 ) : ThresholdConfig {
     override fun Density.computeThreshold(fromValue: Float, toValue: Float): Float {
@@ -693,11 +694,11 @@ data class FractionalThreshold(
 @Immutable
 @ExperimentalWearMaterialApi
 class ResistanceConfig(
-    /*@FloatRange(from = 0.0, fromInclusive = false)*/
+    @FloatRange(from = 0.0, fromInclusive = false)
     val basis: Float,
-    /*@FloatRange(from = 0.0)*/
+    @FloatRange(from = 0.0)
     val factorAtMin: Float = StandardResistanceFactor,
-    /*@FloatRange(from = 0.0)*/
+    @FloatRange(from = 0.0)
     val factorAtMax: Float = StandardResistanceFactor
 ) {
     fun computeResistance(overflow: Float): Float {
