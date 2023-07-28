@@ -24,8 +24,8 @@ import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.benchmark.Shell
 import androidx.benchmark.ShellScript
+import androidx.benchmark.inMemoryTrace
 import androidx.benchmark.perfetto.PerfettoTraceProcessor
-import androidx.benchmark.userspaceTrace
 import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
@@ -101,10 +101,10 @@ internal class PerfettoHttpServer {
      * @throws IllegalStateException if the server is not running by the end of the timeout.
      */
     @SuppressLint("BanThreadSleep")
-    fun startServer() = userspaceTrace("PerfettoHttpServer#startServer") {
+    fun startServer() = inMemoryTrace("PerfettoHttpServer#startServer") {
         if (processId != null) {
             Log.w(TAG, "Tried to start a trace shell processor that is already running.")
-            return@userspaceTrace
+            return@inMemoryTrace
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N &&
@@ -168,10 +168,10 @@ internal class PerfettoHttpServer {
     /**
      * Stops the server killing the associated process
      */
-    fun stopServer() = userspaceTrace("PerfettoHttpServer#stopServer") {
+    fun stopServer() = inMemoryTrace("PerfettoHttpServer#stopServer") {
         if (processId == null) {
             Log.w(TAG, "Tried to stop trace shell processor http server without starting it.")
-            return@userspaceTrace
+            return@inMemoryTrace
         }
         Shell.executeScriptSilent("kill -TERM $processId")
         Log.i(TAG, "Perfetto trace processor shell server stopped (pid=$processId).")
@@ -180,10 +180,10 @@ internal class PerfettoHttpServer {
     /**
      * Returns true whether the server is running, false otherwise.
      */
-    fun isRunning(): Boolean = userspaceTrace("PerfettoHttpServer#isRunning") {
-        return@userspaceTrace try {
+    fun isRunning(): Boolean = inMemoryTrace("PerfettoHttpServer#isRunning") {
+        return@inMemoryTrace try {
             val statusResult = status()
-            return@userspaceTrace statusResult.api_version != null && statusResult.api_version > 0
+            return@inMemoryTrace statusResult.api_version != null && statusResult.api_version > 0
         } catch (e: ConnectException) {
             false
         }

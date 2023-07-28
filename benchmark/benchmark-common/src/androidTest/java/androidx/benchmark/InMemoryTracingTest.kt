@@ -16,6 +16,7 @@
 
 package androidx.benchmark
 
+import android.os.Process
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
@@ -23,35 +24,29 @@ import java.io.File
 import kotlin.test.assertNotNull
 import org.junit.After
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import perfetto.protos.ThreadDescriptor
 import perfetto.protos.TracePacket
 import perfetto.protos.TrackDescriptor
 import perfetto.protos.TrackEvent
 
 @RunWith(AndroidJUnit4::class)
 @SmallTest
-class UserspaceTracingTest {
+class InMemoryTracingTest {
     @Before
     @After
     fun setup() {
-        UserspaceTracing.commitToTrace() // reset
+        InMemoryTracing.clearEvents() // reset
     }
 
     @Test
     fun emptyTrace() {
-        val beforeTime = System.nanoTime()
-        UserspaceTracing.commitToTrace() // reset, and trigger first event in next trace
-        val afterTime = System.nanoTime()
-
-        val trace = UserspaceTracing.commitToTrace() // capture trace
+        val trace = InMemoryTracing.commitToTrace("testLabel") // capture trace
 
         assertEquals(1, trace.packet.size)
         val packet = trace.packet.first()
-
-        assertTrue(packet.timestamp in beforeTime..afterTime)
         assertEquals(
             packet,
             TracePacket(
@@ -60,7 +55,9 @@ class UserspaceTracingTest {
                 incremental_state_cleared = true,
                 track_descriptor = TrackDescriptor(
                     uuid = packet.track_descriptor?.uuid,
-                    name = "Macrobenchmark"
+                    name = "testLabel",
+                    thread = ThreadDescriptor(pid = Process.myPid(), tid = Process.myTid()),
+                    disallow_merging_with_system_tracks = true
                 )
             )
         )
@@ -69,16 +66,19 @@ class UserspaceTracingTest {
     @Test
     fun minimalTrace() {
         val beforeTime = System.nanoTime()
-        userspaceTrace("test trace section") {}
+        inMemoryTrace("test trace section") {}
         val afterTime = System.nanoTime()
 
-        val trace = UserspaceTracing.commitToTrace()
+        val trace = InMemoryTracing.commitToTrace("testLabel")
 
         assertEquals(3, trace.packet.size)
 
+        // verify track
         val descriptor = trace.packet.first().track_descriptor
-        assertNotNull(descriptor) // verify track
+        assertNotNull(descriptor)
+        assertEquals("testLabel", descriptor.name)
 
+        // verify events
         trace.packet[1].apply {
             assert(timestamp in beforeTime..afterTime)
             assertEquals(

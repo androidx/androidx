@@ -25,7 +25,6 @@ import androidx.benchmark.BenchmarkState
 import androidx.benchmark.DeviceInfo
 import androidx.benchmark.ExperimentalBenchmarkConfigApi
 import androidx.benchmark.MicrobenchmarkConfig
-import androidx.benchmark.UserspaceTracing
 import androidx.benchmark.perfetto.PerfettoCapture
 import androidx.benchmark.perfetto.PerfettoCaptureWrapper
 import androidx.benchmark.perfetto.PerfettoConfig
@@ -217,8 +216,6 @@ public class BenchmarkRule private constructor(
             val uniqueName = description.testClass.simpleName + "_" + invokeMethodName
             internalState.traceUniqueName = uniqueName
 
-            var userspaceTrace: perfetto.protos.Trace? = null
-
             val tracePath = PerfettoCaptureWrapper().record(
                 fileLabel = uniqueName,
                 config = PerfettoConfig.Benchmark(
@@ -245,19 +242,13 @@ public class BenchmarkRule private constructor(
                 // Optimize throughput in dryRunMode, since trace isn't useful, and extremely
                 //   expensive on some emulators. Could alternately use UserspaceTracing if desired
                 // Additionally, skip on misconfigured devices to still enable benchmarking.
-                enableTracing = !Arguments.dryRunMode && !DeviceInfo.misconfiguredForTracing
+                enableTracing = !Arguments.dryRunMode && !DeviceInfo.misconfiguredForTracing,
+                inMemoryTracingLabel = "Microbenchmark"
             ) {
-                UserspaceTracing.commitToTrace() // clear buffer
-
                 trace(description.displayName) { base.evaluate() }
-
-                // To avoid b/174007010, userspace tracing is cleared and saved *during* trace, so
-                // that events won't lie outside the bounds of the trace content.
-                userspaceTrace = UserspaceTracing.commitToTrace()
             }?.apply {
                 // trace completed, and copied into shell writeable dir
                 val file = File(this)
-                file.appendBytes(userspaceTrace!!.encode())
                 file.appendUiState(
                     UiState(
                         timelineStart = null,

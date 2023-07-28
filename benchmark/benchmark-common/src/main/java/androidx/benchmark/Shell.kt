@@ -588,7 +588,7 @@ object Shell {
             if (runningProcesses.isEmpty()) {
                 return
             }
-            userspaceTrace("wait for $runningProcesses to die") {
+            inMemoryTrace("wait for $runningProcesses to die") {
                 SystemClock.sleep(waitPollPeriodMs)
             }
             Log.d(BenchmarkState.TAG, "Waiting $waitPollPeriodMs ms for $runningProcesses to die")

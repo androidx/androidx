@@ -24,11 +24,11 @@ import androidx.annotation.RestrictTo
 import androidx.benchmark.Arguments
 import androidx.benchmark.DeviceInfo
 import androidx.benchmark.Shell
+import androidx.benchmark.inMemoryTrace
 import androidx.benchmark.macro.CompilationMode.Full
 import androidx.benchmark.macro.CompilationMode.Ignore
 import androidx.benchmark.macro.CompilationMode.None
 import androidx.benchmark.macro.CompilationMode.Partial
-import androidx.benchmark.userspaceTrace
 import androidx.profileinstaller.ProfileInstallReceiver
 import org.junit.AssumptionViolatedException
 
@@ -123,7 +123,7 @@ sealed class CompilationMode {
      * does work on older APIs without root
      */
     private fun reinstallPackage(packageName: String) {
-        userspaceTrace("reinstallPackage") {
+        inMemoryTrace("reinstallPackage") {
 
             // Copy APKs to /data/local/temp
             val apkPaths = Shell.pmPath(packageName)
