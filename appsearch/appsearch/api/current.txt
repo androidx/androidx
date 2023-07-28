@@ -31,12 +31,6 @@ package androidx.appsearch.annotation {
   @java.lang.annotation.Documented @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.FIELD, java.lang.annotation.ElementType.METHOD}) public static @interface Document.DoubleProperty {
     method public abstract String name() default "";
     method public abstract boolean required() default false;
-    method public abstract Class<?> serializer() default androidx.appsearch.annotation.Document.DoubleProperty.DefaultSerializer.class;
-  }
-
-  public static final class Document.DoubleProperty.DefaultSerializer {
-    method public static double deserialize(double);
-    method public static double serialize(double);
   }
 
   @java.lang.annotation.Documented @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.FIELD, java.lang.annotation.ElementType.METHOD}) public static @interface Document.Id {
@@ -46,12 +40,13 @@ package androidx.appsearch.annotation {
     method public abstract int indexingType() default androidx.appsearch.app.AppSearchSchema.LongPropertyConfig.INDEXING_TYPE_NONE;
     method public abstract String name() default "";
     method public abstract boolean required() default false;
-    method public abstract Class<?> serializer() default androidx.appsearch.annotation.Document.LongProperty.DefaultSerializer.class;
+    method public abstract Class<? extends androidx.appsearch.app.LongSerializer<?>> serializer() default androidx.appsearch.annotation.Document.LongProperty.DefaultSerializer.class;
   }
 
-  public static final class Document.LongProperty.DefaultSerializer {
-    method public static long deserialize(long);
-    method public static long serialize(long);
+  public static final class Document.LongProperty.DefaultSerializer implements androidx.appsearch.app.LongSerializer<java.lang.Long> {
+    ctor public Document.LongProperty.DefaultSerializer();
+    method public Long deserialize(long);
+    method public long serialize(Long);
   }
 
   @java.lang.annotation.Documented @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.FIELD, java.lang.annotation.ElementType.METHOD}) public static @interface Document.Namespace {
@@ -65,13 +60,14 @@ package androidx.appsearch.annotation {
     method public abstract int joinableValueType() default androidx.appsearch.app.AppSearchSchema.StringPropertyConfig.JOINABLE_VALUE_TYPE_NONE;
     method public abstract String name() default "";
     method public abstract boolean required() default false;
-    method public abstract Class<?> serializer() default androidx.appsearch.annotation.Document.StringProperty.DefaultSerializer.class;
+    method public abstract Class<? extends androidx.appsearch.app.StringSerializer<?>> serializer() default androidx.appsearch.annotation.Document.StringProperty.DefaultSerializer.class;
     method public abstract int tokenizerType() default androidx.appsearch.app.AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_PLAIN;
   }
 
-  public static final class Document.StringProperty.DefaultSerializer {
-    method public static String deserialize(String);
-    method public static String serialize(String);
+  public static final class Document.StringProperty.DefaultSerializer implements androidx.appsearch.app.StringSerializer<java.lang.String> {
+    ctor public Document.StringProperty.DefaultSerializer();
+    method public String deserialize(String);
+    method public String serialize(String);
   }
 
   @java.lang.annotation.Documented @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.FIELD, java.lang.annotation.ElementType.METHOD}) public static @interface Document.TtlMillis {
@@ -378,6 +374,11 @@ package androidx.appsearch.app {
     method public androidx.appsearch.app.JoinSpec.Builder setAggregationScoringStrategy(int);
     method public androidx.appsearch.app.JoinSpec.Builder setMaxJoinedResultCount(int);
     method public androidx.appsearch.app.JoinSpec.Builder setNestedSearch(String, androidx.appsearch.app.SearchSpec);
+  }
+
+  public interface LongSerializer<T> {
+    method public T? deserialize(long);
+    method public long serialize(T);
   }
 
   public abstract class Migrator {
@@ -699,6 +700,11 @@ package androidx.appsearch.app {
     method public androidx.appsearch.app.StorageInfo.Builder setAliveDocumentsCount(int);
     method public androidx.appsearch.app.StorageInfo.Builder setAliveNamespacesCount(int);
     method public androidx.appsearch.app.StorageInfo.Builder setSizeBytes(long);
+  }
+
+  public interface StringSerializer<T> {
+    method public T? deserialize(String);
+    method public String serialize(T);
   }
 
 }
