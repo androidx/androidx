@@ -61,6 +61,23 @@ class KeyboardOptions constructor(
         val Default = KeyboardOptions()
     }
 
+    @Deprecated(
+        "Please use the new constructor that takes optional platformImeOptions parameter.",
+        level = DeprecationLevel.HIDDEN
+    )
+    constructor(
+        capitalization: KeyboardCapitalization = KeyboardCapitalization.None,
+        autoCorrect: Boolean = true,
+        keyboardType: KeyboardType = KeyboardType.Text,
+        imeAction: ImeAction = ImeAction.Default
+    ) : this(
+        capitalization = capitalization,
+        autoCorrect = autoCorrect,
+        keyboardType = keyboardType,
+        imeAction = imeAction,
+        platformImeOptions = null
+    )
+
     /**
      * Returns a new [ImeOptions] with the values that are in this [KeyboardOptions] and provided
      * params.
@@ -89,6 +106,25 @@ class KeyboardOptions constructor(
             keyboardType = keyboardType,
             imeAction = imeAction,
             platformImeOptions = platformImeOptions
+        )
+    }
+
+    @Deprecated(
+        "Please use the new copy function that takes optional platformImeOptions parameter.",
+        level = DeprecationLevel.HIDDEN
+    )
+    fun copy(
+        capitalization: KeyboardCapitalization = this.capitalization,
+        autoCorrect: Boolean = this.autoCorrect,
+        keyboardType: KeyboardType = this.keyboardType,
+        imeAction: ImeAction = this.imeAction
+    ): KeyboardOptions {
+        return KeyboardOptions(
+            capitalization = capitalization,
+            autoCorrect = autoCorrect,
+            keyboardType = keyboardType,
+            imeAction = imeAction,
+            platformImeOptions = this.platformImeOptions
         )
     }
 

@@ -1001,7 +1001,9 @@ package androidx.compose.ui.text.input {
   }
 
   @androidx.compose.runtime.Immutable public final class ImeOptions {
+    ctor @Deprecated public ImeOptions(optional boolean singleLine, optional int capitalization, optional boolean autoCorrect, optional int keyboardType, optional int imeAction);
     ctor public ImeOptions(optional boolean singleLine, optional int capitalization, optional boolean autoCorrect, optional int keyboardType, optional int imeAction, optional androidx.compose.ui.text.input.PlatformImeOptions? platformImeOptions);
+    method @Deprecated public androidx.compose.ui.text.input.ImeOptions copy(optional boolean singleLine, optional int capitalization, optional boolean autoCorrect, optional int keyboardType, optional int imeAction);
     method public androidx.compose.ui.text.input.ImeOptions copy(optional boolean singleLine, optional int capitalization, optional boolean autoCorrect, optional int keyboardType, optional int imeAction, optional androidx.compose.ui.text.input.PlatformImeOptions? platformImeOptions);
     method public boolean getAutoCorrect();
     method public int getCapitalization();
