@@ -28,6 +28,10 @@ internal class JavacFieldElement(
     env: JavacProcessingEnv,
     element: VariableElement
 ) : JavacVariableElement(env, element), XFieldElement {
+
+    override val name: String
+        get() = (kotlinMetadata?.name ?: super.name)
+
     override fun getAllAnnotations(): List<XAnnotation> {
         return buildList {
             addAll(super.getAllAnnotations())
@@ -48,7 +52,7 @@ internal class JavacFieldElement(
     }
 
     override val kotlinMetadata: KmPropertyContainer? by lazy {
-        (enclosingElement as? JavacTypeElement)?.kotlinMetadata?.getPropertyMetadata(name)
+        (enclosingElement as? JavacTypeElement)?.kotlinMetadata?.getPropertyMetadata(element)
     }
 
     private val syntheticMethodForAnnotations: JavacMethodElement? by lazy {
@@ -68,7 +72,7 @@ internal class JavacFieldElement(
         get() = enclosingElement
 
     override val jvmDescriptor: String
-        get() = element.descriptor()
+        get() = element.descriptor(env.delegate)
 
     override val getter: XMethodElement? by lazy {
         kotlinMetadata?.getter?.let { getterMetadata ->
