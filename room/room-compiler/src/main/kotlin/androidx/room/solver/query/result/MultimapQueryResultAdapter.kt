@@ -16,9 +16,11 @@
 
 package androidx.room.solver.query.result
 
+import androidx.room.MapColumn
 import androidx.room.compiler.codegen.CodeLanguage
 import androidx.room.compiler.codegen.XClassName
 import androidx.room.compiler.codegen.XCodeBlock
+import androidx.room.compiler.codegen.asClassName
 import androidx.room.compiler.processing.XType
 import androidx.room.ext.CollectionTypeNames
 import androidx.room.ext.CommonTypeNames
@@ -30,8 +32,8 @@ import androidx.room.processor.ProcessorErrors.AmbiguousColumnLocation.ENTITY
 import androidx.room.processor.ProcessorErrors.AmbiguousColumnLocation.MAP_INFO
 import androidx.room.processor.ProcessorErrors.AmbiguousColumnLocation.POJO
 import androidx.room.solver.types.CursorValueReader
+import androidx.room.verifier.ColumnInfo
 import androidx.room.vo.ColumnIndexVar
-import androidx.room.vo.MapInfo
 import androidx.room.vo.Warning
 
 /**
@@ -118,14 +120,14 @@ abstract class MultimapQueryResultAdapter(
     companion object {
 
         /**
-         * Checks if the @MapInfo annotation is needed for clarification regarding the key type
+         * Checks if the @MapColumn annotation is needed for clarification regarding the key type
          * arg of a Map return type.
          */
         fun validateMapKeyTypeArg(
             context: Context,
             keyTypeArg: XType,
             keyReader: CursorValueReader?,
-            mapInfo: MapInfo?,
+            keyColumnName: String?,
         ) {
             if (!keyTypeArg.implementsEqualsAndHashcode()) {
                 context.logger.w(
@@ -136,10 +138,10 @@ abstract class MultimapQueryResultAdapter(
                 )
             }
 
-            val hasKeyColumnName = mapInfo?.keyColumnName?.isNotEmpty() ?: false
+            val hasKeyColumnName = keyColumnName?.isNotEmpty() ?: false
             if (!hasKeyColumnName && keyReader != null) {
                 context.logger.e(
-                    ProcessorErrors.keyMayNeedMapInfo(
+                    ProcessorErrors.mayNeedMapColumn(
                         keyTypeArg.asTypeName().toString(context.codeLanguage)
                     )
                 )
@@ -147,23 +149,67 @@ abstract class MultimapQueryResultAdapter(
         }
 
         /**
-         * Checks if the @MapInfo annotation is needed for clarification regarding the value type
+         * Checks if the @MapColumn annotation is needed for clarification regarding the value type
          * arg of a Map return type.
          */
         fun validateMapValueTypeArg(
             context: Context,
             valueTypeArg: XType,
             valueReader: CursorValueReader?,
-            mapInfo: MapInfo?,
+            valueColumnName: String?,
         ) {
-            val hasValueColumnName = mapInfo?.valueColumnName?.isNotEmpty() ?: false
+            val hasValueColumnName = valueColumnName?.isNotEmpty() ?: false
             if (!hasValueColumnName && valueReader != null) {
                 context.logger.e(
-                    ProcessorErrors.valueMayNeedMapInfo(
+                    ProcessorErrors.mayNeedMapColumn(
                         valueTypeArg.asTypeName().toString(context.codeLanguage)
                     )
                 )
             }
+        }
+
+        /**
+         * Retrieves the `columnName` value from a @MapColumn annotation.
+         */
+        fun getMapColumnName(context: Context, query: ParsedQuery, type: XType): String? {
+            val resultColumns = query.resultInfo?.columns
+            val resultTableAliases = query.tables.associate { it.name to it.alias }
+            val annotation = type.getAnnotation(MapColumn::class.asClassName()) ?: return null
+
+            val mapColumnName = annotation.getAsString("columnName")
+            val mapColumnTableName = annotation.getAsString("tableName")
+
+            fun List<ColumnInfo>.contains(
+                columnName: String,
+                tableName: String?
+            ) = any { resultColumn ->
+                val resultTableAlias = resultColumn.originTable?.let {
+                    resultTableAliases[it] ?: it
+                }
+                resultColumn.name == columnName && (
+                    if (!tableName.isNullOrEmpty()) {
+                        resultTableAlias == tableName || resultColumn.originTable == tableName
+                    } else true)
+            }
+
+            if (resultColumns != null) {
+                // Disambiguation check for MapColumn
+                if (!resultColumns.contains(mapColumnName, mapColumnTableName)) {
+                    val errorColumn = if (mapColumnTableName.isNotEmpty()) {
+                        "$mapColumnTableName."
+                    } else {
+                        ""
+                    } + mapColumnName
+                    context.logger.e(
+                        ProcessorErrors.cannotMapSpecifiedColumn(
+                            errorColumn,
+                            resultColumns.map { it.name },
+                            MapColumn::class.java.simpleName
+                        )
+                    )
+                }
+            }
+            return mapColumnName
         }
     }
 
