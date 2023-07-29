@@ -78,7 +78,7 @@ class InCallAudioTest : BaseTelecomTest() {
      */
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @LargeTest
-    @Test
+    @Test(timeout = 10000)
     fun testAddCallAssertModeInCommunication() {
         setUpV2Test()
         runBlocking_addCall_assertAudioModeInCommunication()
@@ -95,7 +95,7 @@ class InCallAudioTest : BaseTelecomTest() {
      */
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @LargeTest
-    @Test
+    @Test(timeout = 10000)
     fun testAddCallAssertModeInCommunication_BackwardsCompat() {
         setUpBackwardsCompatTest()
         runBlocking_addCall_assertAudioModeInCommunication()
