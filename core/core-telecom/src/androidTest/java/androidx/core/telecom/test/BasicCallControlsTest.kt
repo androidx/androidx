@@ -81,7 +81,7 @@ class BasicCallControlsTest : BaseTelecomTest() {
      */
     @SdkSuppress(minSdkVersion = VERSION_CODES.UPSIDE_DOWN_CAKE)
     @LargeTest
-    @Test
+    @Test(timeout = 10000)
     fun testBasicOutgoingCall() {
         setUpV2Test()
         runBlocking_addCallAndSetActive(TestUtils.OUTGOING_CALL_ATTRIBUTES)
@@ -93,7 +93,7 @@ class BasicCallControlsTest : BaseTelecomTest() {
      */
     @SdkSuppress(minSdkVersion = VERSION_CODES.UPSIDE_DOWN_CAKE)
     @LargeTest
-    @Test
+    @Test(timeout = 10000)
     fun testBasicIncomingCall() {
         setUpV2Test()
         runBlocking_addCallAndSetActive(TestUtils.INCOMING_CALL_ATTRIBUTES)
@@ -105,7 +105,7 @@ class BasicCallControlsTest : BaseTelecomTest() {
      */
     @SdkSuppress(minSdkVersion = VERSION_CODES.UPSIDE_DOWN_CAKE)
     @LargeTest
-    @Test
+    @Test(timeout = 10000)
     fun testTogglingHoldOnActiveCall() {
         setUpV2Test()
         runBlocking_ToggleCallAsserts(TestUtils.OUTGOING_CALL_ATTRIBUTES)
@@ -118,7 +118,7 @@ class BasicCallControlsTest : BaseTelecomTest() {
      */
     @SdkSuppress(minSdkVersion = VERSION_CODES.UPSIDE_DOWN_CAKE)
     @LargeTest
-    @Test
+    @Test(timeout = 10000)
     fun testTogglingHoldOnActiveCall_NoHoldCapabilities() {
         setUpV2Test()
         assertFalse(TestUtils.OUTGOING_NO_HOLD_CAP_CALL_ATTRIBUTES
@@ -133,7 +133,7 @@ class BasicCallControlsTest : BaseTelecomTest() {
      */
     @SdkSuppress(minSdkVersion = VERSION_CODES.UPSIDE_DOWN_CAKE)
     @LargeTest
-    @Test
+    @Test(timeout = 10000)
     fun testRequestEndpointChange() {
         setUpV2Test()
         runBlocking_RequestEndpointChangeAsserts()
@@ -146,7 +146,7 @@ class BasicCallControlsTest : BaseTelecomTest() {
      */
     @SdkSuppress(minSdkVersion = VERSION_CODES.UPSIDE_DOWN_CAKE)
     @LargeTest
-    @Test
+    @Test(timeout = 10000)
     fun testIsMuted() {
         setUpV2Test()
         verifyMuteStateChange()
@@ -158,7 +158,7 @@ class BasicCallControlsTest : BaseTelecomTest() {
      */
     @SdkSuppress(minSdkVersion = VERSION_CODES.UPSIDE_DOWN_CAKE)
     @LargeTest
-    @Test
+    @Test(timeout = 10000)
     fun testBasicCallControlCallbackOperations_CallbackNotSet() {
         setUpV2Test()
         verifyAnswerCallFails_CallbackNotSet()
@@ -175,7 +175,7 @@ class BasicCallControlsTest : BaseTelecomTest() {
      */
     @SdkSuppress(minSdkVersion = VERSION_CODES.O)
     @LargeTest
-    @Test
+    @Test(timeout = 10000)
     fun testBasicOutgoingCall_BackwardsCompat() {
         setUpBackwardsCompatTest()
         runBlocking_addCallAndSetActive(TestUtils.OUTGOING_CALL_ATTRIBUTES)
@@ -188,7 +188,7 @@ class BasicCallControlsTest : BaseTelecomTest() {
      */
     @SdkSuppress(minSdkVersion = VERSION_CODES.O)
     @LargeTest
-    @Test
+    @Test(timeout = 10000)
     fun testBasicIncomingCall_BackwardsCompat() {
         setUpBackwardsCompatTest()
         runBlocking_addCallAndSetActive(TestUtils.INCOMING_CALL_ATTRIBUTES)
@@ -201,7 +201,7 @@ class BasicCallControlsTest : BaseTelecomTest() {
      */
     @SdkSuppress(minSdkVersion = VERSION_CODES.O)
     @LargeTest
-    @Test
+    @Test(timeout = 10000)
     fun testTogglingHoldOnActiveCall_BackwardsCompat() {
         setUpBackwardsCompatTest()
         runBlocking_ToggleCallAsserts(TestUtils.OUTGOING_CALL_ATTRIBUTES)
@@ -215,7 +215,7 @@ class BasicCallControlsTest : BaseTelecomTest() {
      */
     @SdkSuppress(minSdkVersion = VERSION_CODES.O)
     @LargeTest
-    @Test
+    @Test(timeout = 10000)
     fun testTogglingHoldOnActiveCall_NoHoldCapabilities_BackwardsCompat() {
         setUpBackwardsCompatTest()
         assertFalse(TestUtils.OUTGOING_NO_HOLD_CAP_CALL_ATTRIBUTES
@@ -231,7 +231,7 @@ class BasicCallControlsTest : BaseTelecomTest() {
      */
     @SdkSuppress(minSdkVersion = VERSION_CODES.O)
     @LargeTest
-    @Test
+    @Test(timeout = 10000)
     fun testRequestEndpointChange_BackwardsCompat() {
         setUpBackwardsCompatTest()
         runBlocking_RequestEndpointChangeAsserts()
@@ -246,7 +246,7 @@ class BasicCallControlsTest : BaseTelecomTest() {
      */
     @SdkSuppress(minSdkVersion = VERSION_CODES.O)
     @LargeTest
-    @Test
+    @Test(timeout = 10000)
     fun testIsMuted_BackwardsCompat() {
         setUpBackwardsCompatTest()
         verifyMuteStateChange()
@@ -259,7 +259,7 @@ class BasicCallControlsTest : BaseTelecomTest() {
      */
     @SdkSuppress(minSdkVersion = VERSION_CODES.O)
     @LargeTest
-    @Test
+    @Test(timeout = 10000)
     fun testBasicCallControlCallbackOperations_BackwardsCompat_CallbackNotSet() {
         setUpBackwardsCompatTest()
         verifyAnswerCallFails_CallbackNotSet()

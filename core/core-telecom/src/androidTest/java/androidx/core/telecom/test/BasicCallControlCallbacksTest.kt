@@ -70,7 +70,7 @@ class BasicCallControlCallbacksTest : BaseTelecomTest() {
      */
     @SdkSuppress(minSdkVersion = VERSION_CODES.UPSIDE_DOWN_CAKE)
     @LargeTest
-    @Test
+    @Test(timeout = 10000)
     fun testBasicCallControlCallbackAnswerCall() {
         setUpV2Test()
         verifyAnswerCall()
@@ -84,7 +84,7 @@ class BasicCallControlCallbacksTest : BaseTelecomTest() {
      */
     @SdkSuppress(minSdkVersion = VERSION_CODES.UPSIDE_DOWN_CAKE)
     @LargeTest
-    @Test
+    @Test(timeout = 10000)
     fun testRejectCallControlCallbackAnswerCall() {
         setUpV2Test()
         verifyRejectAnswerCall(Call.STATE_ACTIVE)
@@ -96,7 +96,7 @@ class BasicCallControlCallbacksTest : BaseTelecomTest() {
      */
     @SdkSuppress(minSdkVersion = VERSION_CODES.UPSIDE_DOWN_CAKE)
     @LargeTest
-    @Test
+    @Test(timeout = 10000)
     fun testRejectCallControlCallbackHoldCall() {
         setUpV2Test()
         verifyRejectHoldCall()
@@ -108,7 +108,7 @@ class BasicCallControlCallbacksTest : BaseTelecomTest() {
      */
     @SdkSuppress(minSdkVersion = VERSION_CODES.UPSIDE_DOWN_CAKE)
     @LargeTest
-    @Test
+    @Test(timeout = 10000)
     fun testRejectCallControlCallbackUnholdCall() {
         setUpV2Test()
         verifyRejectUnholdCall()
@@ -120,7 +120,7 @@ class BasicCallControlCallbacksTest : BaseTelecomTest() {
      */
     @SdkSuppress(minSdkVersion = VERSION_CODES.UPSIDE_DOWN_CAKE)
     @LargeTest
-    @Test
+    @Test(timeout = 10000)
     fun testRejectCallControlCallbackDisconnectCall() {
         setUpV2Test()
         verifyRejectDisconnectCall(true)
@@ -132,7 +132,7 @@ class BasicCallControlCallbacksTest : BaseTelecomTest() {
      */
     @SdkSuppress(minSdkVersion = VERSION_CODES.UPSIDE_DOWN_CAKE)
     @LargeTest
-    @Test
+    @Test(timeout = 10000)
     fun testRejectCallControlCallbackRejectCall() {
         setUpV2Test()
         verifyRejectDisconnectCall(false)
@@ -145,7 +145,7 @@ class BasicCallControlCallbacksTest : BaseTelecomTest() {
      */
     @SdkSuppress(minSdkVersion = VERSION_CODES.UPSIDE_DOWN_CAKE)
     @LargeTest
-    @Test
+    @Test(timeout = 10000)
     fun testBasicCallControlCallbackDisconnectCall() {
         setUpV2Test()
         verifyDisconnectCall()
@@ -158,7 +158,7 @@ class BasicCallControlCallbacksTest : BaseTelecomTest() {
      */
     @SdkSuppress(minSdkVersion = VERSION_CODES.UPSIDE_DOWN_CAKE)
     @LargeTest
-    @Test
+    @Test(timeout = 10000)
     fun testBasicCallControlCallbackHoldCall() {
         setUpV2Test()
         verifyHoldCall()
@@ -171,7 +171,7 @@ class BasicCallControlCallbacksTest : BaseTelecomTest() {
      */
     @SdkSuppress(minSdkVersion = VERSION_CODES.UPSIDE_DOWN_CAKE)
     @LargeTest
-    @Test
+    @Test(timeout = 10000)
     fun testBasicCallControlCallbackUnholdCall() {
         setUpV2Test()
         verifyUnholdCall()
@@ -189,7 +189,7 @@ class BasicCallControlCallbacksTest : BaseTelecomTest() {
      */
     @SdkSuppress(minSdkVersion = VERSION_CODES.O)
     @LargeTest
-    @Test
+    @Test(timeout = 10000)
     fun testBasicCallControlCallbackAnswerCall_BackwardsCompat() {
         setUpBackwardsCompatTest()
         verifyAnswerCall()
@@ -204,7 +204,7 @@ class BasicCallControlCallbacksTest : BaseTelecomTest() {
      */
     @SdkSuppress(minSdkVersion = VERSION_CODES.O)
     @LargeTest
-    @Test
+    @Test(timeout = 10000)
     fun testRejectCallControlCallbackAnswerCall_BackwardsCompat() {
         setUpBackwardsCompatTest()
         verifyRejectAnswerCall(Call.STATE_DISCONNECTED)
@@ -217,7 +217,7 @@ class BasicCallControlCallbacksTest : BaseTelecomTest() {
      */
     @SdkSuppress(minSdkVersion = VERSION_CODES.O)
     @LargeTest
-    @Test
+    @Test(timeout = 10000)
     fun testRejectCallControlCallbackHoldCall_BackwardsCompat() {
         setUpBackwardsCompatTest()
         verifyRejectHoldCall()
@@ -230,7 +230,7 @@ class BasicCallControlCallbacksTest : BaseTelecomTest() {
      */
     @SdkSuppress(minSdkVersion = VERSION_CODES.O)
     @LargeTest
-    @Test
+    @Test(timeout = 10000)
     fun testRejectCallControlCallbackUnholdCall_BackwardsCompat() {
         setUpBackwardsCompatTest()
         verifyRejectUnholdCall()
@@ -243,7 +243,7 @@ class BasicCallControlCallbacksTest : BaseTelecomTest() {
      */
     @SdkSuppress(minSdkVersion = VERSION_CODES.O)
     @LargeTest
-    @Test
+    @Test(timeout = 10000)
     fun testRejectCallControlCallbackDisconnectCall_BackwardsCompat() {
         setUpBackwardsCompatTest()
         verifyRejectDisconnectCall(true)
@@ -256,7 +256,7 @@ class BasicCallControlCallbacksTest : BaseTelecomTest() {
      */
     @SdkSuppress(minSdkVersion = VERSION_CODES.O)
     @LargeTest
-    @Test
+    @Test(timeout = 10000)
     fun testRejectCallControlCallbackRejectCall_BackwardsCompat() {
         setUpBackwardsCompatTest()
         verifyRejectDisconnectCall(false)
@@ -270,7 +270,7 @@ class BasicCallControlCallbacksTest : BaseTelecomTest() {
      */
     @SdkSuppress(minSdkVersion = VERSION_CODES.O)
     @LargeTest
-    @Test
+    @Test(timeout = 10000)
     fun testBasicCallControlCallbackDisconnectCall_BackwardsCompat() {
         setUpBackwardsCompatTest()
         verifyDisconnectCall()
@@ -284,7 +284,7 @@ class BasicCallControlCallbacksTest : BaseTelecomTest() {
      */
     @SdkSuppress(minSdkVersion = VERSION_CODES.O)
     @LargeTest
-    @Test
+    @Test(timeout = 10000)
     fun testBasicCallControlCallbackHoldCall_BackwardsCompat() {
         setUpBackwardsCompatTest()
         verifyHoldCall()
@@ -298,7 +298,7 @@ class BasicCallControlCallbacksTest : BaseTelecomTest() {
      */
     @SdkSuppress(minSdkVersion = VERSION_CODES.O)
     @LargeTest
-    @Test
+    @Test(timeout = 10000)
     fun testBasicCallControlCallbackUnholdCall_BackwardsCompat() {
         setUpBackwardsCompatTest()
         verifyUnholdCall()
