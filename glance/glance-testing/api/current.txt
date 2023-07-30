@@ -8,9 +8,26 @@ package androidx.glance.testing {
     property public final T value;
   }
 
+  public final class GlanceNodeAssertion<R, T extends androidx.glance.testing.GlanceNode<R>> {
+    method public androidx.glance.testing.GlanceNodeAssertion<R,T> assert(androidx.glance.testing.GlanceNodeMatcher<R> matcher, optional kotlin.jvm.functions.Function0<java.lang.String>? messagePrefixOnError);
+    method public androidx.glance.testing.GlanceNodeAssertion<R,T> assertDoesNotExist();
+    method public androidx.glance.testing.GlanceNodeAssertion<R,T> assertExists();
+  }
+
+  public final class GlanceNodeMatcher<R> {
+    ctor public GlanceNodeMatcher(String description, kotlin.jvm.functions.Function1<? super androidx.glance.testing.GlanceNode<R>,java.lang.Boolean> matcher);
+    method public boolean matches(androidx.glance.testing.GlanceNode<R> node);
+    method public boolean matchesAny(Iterable<? extends androidx.glance.testing.GlanceNode<R>> nodes);
+  }
+
 }
 
 package androidx.glance.testing.unit {
+
+  public final class FiltersKt {
+    method public static androidx.glance.testing.GlanceNodeMatcher<androidx.glance.testing.unit.MappedNode> hasTestTag(String testTag);
+    method public static androidx.glance.testing.GlanceNodeMatcher<androidx.glance.testing.unit.MappedNode> hasText(String text, optional boolean substring, optional boolean ignoreCase);
+  }
 
   public final class MappedNode {
   }
