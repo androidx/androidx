@@ -163,7 +163,7 @@ class LazyLayoutTest {
             LazyLayout(itemProvider) {
                 val constraints = Constraints.fixed(100, 100)
                 val items = mutableListOf<Placeable>()
-                repeat(itemProvider.itemCount) { index ->
+                repeat(itemProvider().itemCount) { index ->
                     items.addAll(measure(index, constraints))
                 }
                 layout(100, 100) {
@@ -204,7 +204,7 @@ class LazyLayoutTest {
             LazyLayout(itemProvider) {
                 val constraints = Constraints.fixed(100, 100)
                 val items = mutableListOf<Placeable>()
-                repeat(itemProvider.itemCount) { index ->
+                repeat(itemProvider().itemCount) { index ->
                     items.addAll(measure(index, constraints))
                 }
                 layout(100, 100) {
@@ -463,7 +463,7 @@ class LazyLayoutTest {
             override fun getKey(index: Int) = stateList[index]
         }
         rule.setContent {
-            LazyLayout(itemProvider) { constraint ->
+            LazyLayout({ itemProvider }) { constraint ->
                 measure(0, constraint)
                 layout(100, 100) {}
             }
@@ -483,8 +483,8 @@ class LazyLayoutTest {
     private fun itemProvider(
         itemCount: () -> Int,
         itemContent: @Composable (Int) -> Unit
-    ): LazyLayoutItemProvider {
-        return object : LazyLayoutItemProvider {
+    ): () -> LazyLayoutItemProvider {
+        val provider = object : LazyLayoutItemProvider {
             @Composable
             override fun Item(index: Int, key: Any) {
                 itemContent(index)
@@ -492,5 +492,6 @@ class LazyLayoutTest {
 
             override val itemCount: Int get() = itemCount()
         }
+        return { provider }
     }
 }

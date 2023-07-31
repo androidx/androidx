@@ -299,20 +299,19 @@ class LazyLayoutStateRestorationTest {
         indexToKey: (Int) -> Any = { getDefaultLazyLayoutKey(it) },
         content: @Composable (Int) -> Unit
     ) {
-        LazyLayout(
-            itemProvider = remember(itemCount, indexToKey, content as Any) {
-                object : LazyLayoutItemProvider {
-                    override val itemCount: Int = itemCount()
+        val provider = remember(itemCount, indexToKey, content as Any) {
+            object : LazyLayoutItemProvider {
+                override val itemCount: Int = itemCount()
 
-                    @Composable
-                    override fun Item(index: Int, key: Any) {
-                        content(index)
-                    }
-
-                    override fun getKey(index: Int) = indexToKey(index)
+                @Composable
+                override fun Item(index: Int, key: Any) {
+                    content(index)
                 }
+
+                override fun getKey(index: Int) = indexToKey(index)
             }
-        ) { constraints ->
+        }
+        LazyLayout(itemProvider = { provider }) { constraints ->
             val placeables = mutableListOf<Placeable>()
             repeat(itemCount()) { index ->
                 if (itemIsVisible(index)) {
