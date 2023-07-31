@@ -43,12 +43,12 @@ public final class DeletionDao_Impl implements DeletionDao {
         this.__deletionAdapterOfUser = new EntityDeletionOrUpdateAdapter<User>(__db) {
             @Override
             @NonNull
-            public String createQuery() {
+            protected String createQuery() {
                 return "DELETE FROM `User` WHERE `uid` = ?";
             }
 
             @Override
-            public void bind(@NonNull final SupportSQLiteStatement statement,
+            protected void bind(@NonNull final SupportSQLiteStatement statement,
                     @NonNull final User entity) {
                 statement.bindLong(1, entity.uid);
             }
@@ -56,12 +56,12 @@ public final class DeletionDao_Impl implements DeletionDao {
         this.__deletionAdapterOfMultiPKeyEntity = new EntityDeletionOrUpdateAdapter<MultiPKeyEntity>(__db) {
             @Override
             @NonNull
-            public String createQuery() {
+            protected String createQuery() {
                 return "DELETE FROM `MultiPKeyEntity` WHERE `name` = ? AND `lastName` = ?";
             }
 
             @Override
-            public void bind(@NonNull final SupportSQLiteStatement statement,
+            protected void bind(@NonNull final SupportSQLiteStatement statement,
                     @NonNull final MultiPKeyEntity entity) {
                 statement.bindString(1, entity.name);
                 statement.bindString(2, entity.lastName);
@@ -70,12 +70,12 @@ public final class DeletionDao_Impl implements DeletionDao {
         this.__deletionAdapterOfBook = new EntityDeletionOrUpdateAdapter<Book>(__db) {
             @Override
             @NonNull
-            public String createQuery() {
+            protected String createQuery() {
                 return "DELETE FROM `Book` WHERE `bookId` = ?";
             }
 
             @Override
-            public void bind(@NonNull final SupportSQLiteStatement statement,
+            protected void bind(@NonNull final SupportSQLiteStatement statement,
                     @NonNull final Book entity) {
                 statement.bindLong(1, entity.bookId);
             }

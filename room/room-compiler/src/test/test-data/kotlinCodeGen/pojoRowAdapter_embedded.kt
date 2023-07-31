@@ -26,10 +26,10 @@ public class MyDao_Impl(
     init {
         this.__db = __db
         this.__insertionAdapterOfMyEntity = object : EntityInsertionAdapter<MyEntity>(__db) {
-            public override fun createQuery(): String =
+            protected override fun createQuery(): String =
                 "INSERT OR ABORT INTO `MyEntity` (`pk`,`numberData`,`stringData`,`nullablenumberData`,`nullablestringData`) VALUES (?,?,?,?,?)"
 
-            public override fun bind(statement: SupportSQLiteStatement, entity: MyEntity) {
+            protected override fun bind(statement: SupportSQLiteStatement, entity: MyEntity) {
                 statement.bindLong(1, entity.pk.toLong())
                 val _tmpFoo: Foo = entity.foo
                 statement.bindLong(2, _tmpFoo.numberData)
