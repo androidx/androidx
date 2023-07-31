@@ -56,6 +56,25 @@ class ImeOptions(
         val Default = ImeOptions()
     }
 
+    @Deprecated(
+        "Please use the new constructor that takes optional platformImeOptions parameter.",
+        level = DeprecationLevel.HIDDEN
+    )
+    constructor(
+        singleLine: Boolean = false,
+        capitalization: KeyboardCapitalization = KeyboardCapitalization.None,
+        autoCorrect: Boolean = true,
+        keyboardType: KeyboardType = KeyboardType.Text,
+        imeAction: ImeAction = ImeAction.Default,
+    ) : this(
+        singleLine = singleLine,
+        capitalization = capitalization,
+        autoCorrect = autoCorrect,
+        keyboardType = keyboardType,
+        imeAction = imeAction,
+        platformImeOptions = null
+    )
+
     fun copy(
         singleLine: Boolean = this.singleLine,
         capitalization: KeyboardCapitalization = this.capitalization,
@@ -71,6 +90,27 @@ class ImeOptions(
             keyboardType = keyboardType,
             imeAction = imeAction,
             platformImeOptions = platformImeOptions
+        )
+    }
+
+    @Deprecated(
+        "Please use the new copy function that takes optional platformImeOptions parameter.",
+        level = DeprecationLevel.HIDDEN
+    )
+    fun copy(
+        singleLine: Boolean = this.singleLine,
+        capitalization: KeyboardCapitalization = this.capitalization,
+        autoCorrect: Boolean = this.autoCorrect,
+        keyboardType: KeyboardType = this.keyboardType,
+        imeAction: ImeAction = this.imeAction
+    ): ImeOptions {
+        return ImeOptions(
+            singleLine = singleLine,
+            capitalization = capitalization,
+            autoCorrect = autoCorrect,
+            keyboardType = keyboardType,
+            imeAction = imeAction,
+            platformImeOptions = this.platformImeOptions
         )
     }
 

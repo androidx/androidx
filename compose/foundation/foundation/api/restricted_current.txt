@@ -1383,7 +1383,9 @@ package androidx.compose.foundation.text {
   }
 
   @androidx.compose.runtime.Immutable public final class KeyboardOptions {
+    ctor @Deprecated public KeyboardOptions(optional int capitalization, optional boolean autoCorrect, optional int keyboardType, optional int imeAction);
     ctor public KeyboardOptions(optional int capitalization, optional boolean autoCorrect, optional int keyboardType, optional int imeAction, optional androidx.compose.ui.text.input.PlatformImeOptions? platformImeOptions);
+    method @Deprecated public androidx.compose.foundation.text.KeyboardOptions copy(optional int capitalization, optional boolean autoCorrect, optional int keyboardType, optional int imeAction);
     method public androidx.compose.foundation.text.KeyboardOptions copy(optional int capitalization, optional boolean autoCorrect, optional int keyboardType, optional int imeAction, optional androidx.compose.ui.text.input.PlatformImeOptions? platformImeOptions);
     method public boolean getAutoCorrect();
     method public int getCapitalization();
