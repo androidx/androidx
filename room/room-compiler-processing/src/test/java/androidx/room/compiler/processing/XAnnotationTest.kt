@@ -708,6 +708,20 @@ class XAnnotationTest(
                 }.forEach { typeElement ->
                     val annotation = typeElement.requireAnnotation<JavaAnnotationWithDefaults>()
 
+                    assertThat(annotation.defaultValues.map { it.name })
+                        .containsExactly(
+                            "stringVal",
+                            "stringArrayVal",
+                            "typeVal",
+                            "typeArrayVal",
+                            "intVal",
+                            "intArrayVal",
+                            "enumVal",
+                            "enumArrayVal",
+                            "otherAnnotationVal",
+                            "otherAnnotationArrayVal"
+                        ).inOrder()
+
                     assertThat(annotation.get<Int>("intVal"))
                         .isEqualTo(3)
                     assertThat(annotation.get<List<Int>>("intArrayVal"))
