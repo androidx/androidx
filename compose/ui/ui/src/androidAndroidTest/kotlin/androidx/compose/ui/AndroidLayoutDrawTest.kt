@@ -1953,11 +1953,12 @@ class AndroidLayoutDrawTest {
                     // This simulates a child that recomposes, for example due to a transition.
                     content(offset.value)
                 }
-                val assumeLayoutBeforeDraw = @Composable { _: Int ->
+                val assumeLayoutBeforeDraw = @Composable { value: Int ->
                     // This assumes a layout was done before the draw pass.
                     Layout(
                         content = {},
                         modifier = Modifier.drawBehind {
+                            assertEquals(offset.value, value)
                             assertTrue(laidOut)
                             latch.countDown()
                         }
