@@ -18,11 +18,6 @@
 
 package androidx.graphics.shapes
 
-import android.graphics.PointF
-import android.util.Log
-import androidx.core.graphics.div
-import androidx.core.graphics.plus
-import androidx.core.graphics.times
 import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.sin
@@ -32,40 +27,24 @@ import kotlin.math.sqrt
  * This class has all internal methods, used by Polygon, Morph, etc.
  */
 
-internal fun interpolate(start: Float, stop: Float, fraction: Float) =
-    (start * (1 - fraction) + stop * fraction)
-
-internal fun PointF.getDistance() = sqrt(x * x + y * y)
-
-internal fun PointF.dotProduct(other: PointF) = x * other.x + y * other.y
-internal fun PointF.dotProduct(otherX: Float, otherY: Float) = x * otherX + y * otherY
-
-/**
- * Compute the Z coordinate of the cross product of two vectors, to check if the second vector is
- * going clockwise ( > 0 ) or counterclockwise (< 0) compared with the first one.
- * It could also be 0, if the vectors are co-linear.
- */
-internal fun PointF.clockwise(other: PointF) = x * other.y - y * other.x > 0
-
-/**
- * Returns unit vector representing the direction to this point from (0, 0)
- */
-internal fun PointF.getDirection() = run {
-    val d = this.getDistance()
-    require(d > 0f)
-    this / d
-}
-
 internal fun distance(x: Float, y: Float) = sqrt(x * x + y * y)
 
 /**
  * Returns unit vector representing the direction to this point from (0, 0)
  */
-internal fun directionVector(x: Float, y: Float): PointF {
+internal fun directionVector(x: Float, y: Float): Point {
     val d = distance(x, y)
     require(d > 0f)
-    return PointF(x / d, y / d)
+    return Point(x / d, y / d)
 }
+
+internal fun directionVector(angleRadians: Float) = Point(cos(angleRadians), sin(angleRadians))
+
+internal fun angle(x: Float, y: Float) = ((atan2(y, x) + TwoPi) % TwoPi)
+
+internal fun radialToCartesian(radius: Float, angleRadians: Float, center: Point = Zero) =
+    directionVector(angleRadians) * radius + center
+
 /**
  * These epsilon values are used internally to determine when two points are the same, within
  * some reasonable roundoff error. The distance epsilon is smaller, with the intention that the
@@ -74,27 +53,22 @@ internal fun directionVector(x: Float, y: Float): PointF {
 internal const val DistanceEpsilon = 1e-4f
 internal const val AngleEpsilon = 1e-6f
 
-internal fun PointF.rotate90() = PointF(-y, x)
+internal fun Point.rotate90() = Point(-y, x)
 
-internal val Zero = PointF(0f, 0f)
+internal val Zero = Point(0f, 0f)
 
 internal val FloatPi = Math.PI.toFloat()
 
 internal val TwoPi: Float = 2 * Math.PI.toFloat()
 
-internal fun directionVector(angleRadians: Float) = PointF(cos(angleRadians), sin(angleRadians))
-
 internal fun square(x: Float) = x * x
 
-internal fun PointF.copy(x: Float = Float.NaN, y: Float = Float.NaN) =
-    PointF(if (x.isNaN()) this.x else x, if (y.isNaN()) this.y else y)
-
-internal fun PointF.angle() = ((atan2(y, x) + TwoPi) % TwoPi)
-
-internal fun angle(x: Float, y: Float) = ((atan2(y, x) + TwoPi) % TwoPi)
-
-internal fun radialToCartesian(radius: Float, angleRadians: Float, center: PointF = Zero) =
-    directionVector(angleRadians) * radius + center
+/**
+ * Linearly interpolate between [start] and [stop] with [fraction] fraction between them.
+ */
+internal fun interpolate(start: Float, stop: Float, fraction: Float): Float {
+    return (1 - fraction) * start + fraction * stop
+}
 
 internal fun positiveModulo(num: Float, mod: Float) = (num % mod + mod) % mod
 
@@ -135,7 +109,7 @@ internal fun verticesFromNumVerts(
     var arrayIndex = 0
     for (i in 0 until numVertices) {
         val vertex = radialToCartesian(radius, (FloatPi / numVertices * 2 * i)) +
-            PointF(centerX, centerY)
+            Point(centerX, centerY)
         result[arrayIndex++] = vertex.x
         result[arrayIndex++] = vertex.y
     }
@@ -153,20 +127,22 @@ internal fun starVerticesFromNumVerts(
     var arrayIndex = 0
     for (i in 0 until numVerticesPerRadius) {
         var vertex = radialToCartesian(radius, (FloatPi / numVerticesPerRadius * 2 * i)) +
-            PointF(centerX, centerY)
+            Point(centerX, centerY)
         result[arrayIndex++] = vertex.x
         result[arrayIndex++] = vertex.y
         vertex = radialToCartesian(innerRadius, (FloatPi / numVerticesPerRadius * (2 * i + 1))) +
-            PointF(centerX, centerY)
+            Point(centerX, centerY)
         result[arrayIndex++] = vertex.x
         result[arrayIndex++] = vertex.y
     }
     return result
 }
 
-// Used to enable debug logging in the library
-internal val DEBUG = false
+internal const val DEBUG = false
 
 internal inline fun debugLog(tag: String, messageFactory: () -> String) {
-    if (DEBUG) messageFactory().split("\n").forEach { Log.d(tag, it) }
+    // TODO: Re-implement properly when the library goes KMP using expect/actual
+    if (DEBUG) {
+        println("$tag: ${messageFactory()}")
+    }
 }

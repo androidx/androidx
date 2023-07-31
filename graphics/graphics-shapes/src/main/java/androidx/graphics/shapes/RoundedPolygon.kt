@@ -16,18 +16,9 @@
 
 package androidx.graphics.shapes
 
-import android.graphics.Canvas
-import android.graphics.Matrix
-import android.graphics.Paint
-import android.graphics.Path
-import android.graphics.PointF
-import android.graphics.RectF
 import androidx.annotation.IntRange
-import androidx.core.graphics.div
-import androidx.core.graphics.minus
-import androidx.core.graphics.plus
-import androidx.core.graphics.times
 import kotlin.math.abs
+import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.sqrt
 
@@ -35,436 +26,341 @@ import kotlin.math.sqrt
  * The RoundedPolygon class allows simple construction of polygonal shapes with optional rounding
  * at the vertices. Polygons can be constructed with either the number of vertices
  * desired or an ordered list of vertices.
+ *
  */
-class RoundedPolygon {
+class RoundedPolygon internal constructor(
+    internal val features: List<Feature>,
+    val centerX: Float,
+    val centerY: Float
+) {
+    /**
+     * A flattened version of the [Feature]s, as a List<Cubic>.
+     */
+    val cubics = features.flatMap { it.cubics }
+
+    init {
+        var prevCubic = cubics[cubics.size - 1]
+        debugLog("RoundedPolygon") { "Cubic-1 = $prevCubic" }
+        cubics.forEachIndexed { index, cubic ->
+            if (abs(cubic.anchor0X - prevCubic.anchor1X) > DistanceEpsilon ||
+                abs(cubic.anchor0Y - prevCubic.anchor1Y) > DistanceEpsilon) {
+                debugLog("RoundedPolygon") { "Cubic = $cubic" }
+                debugLog("RoundedPolygon") {
+                    "Ix: $index | (${cubic.anchor0X},${cubic.anchor0Y}) vs " +
+                        "$prevCubic"
+                }
+                throw IllegalArgumentException("RoundedPolygon must be contiguous, with the " +
+                    "anchor points of all curves matching the anchor points of the preceding " +
+                    "and succeeding cubics")
+            }
+            prevCubic = cubic
+        }
+    }
 
     /**
-     * A RoundedPolygon is essentially a CubicShape, which handles all of the functionality around
-     * cubic Beziers that are used to create and render the geometry. But subclassing from
-     * CubicShape causes a bit of naming confusion, since an actual polygon, in geometry,
-     * is a shape with straight edges and hard corners, whereas CubicShape obviously allows for
-     * more general, curved shapes. Therefore, we delegate to CubicShape as an internal
-     * implementation detail, and RoundedPolygon has no superclass.
+     * Transforms (scales/translates/etc.) this [RoundedPolygon] with the given [PointTransformer]
+     * and returns a new [RoundedPolygon].
+     * This is a low level API and there should be more platform idiomatic ways to transform
+     * a [RoundedPolygon] provided by the platform specific wrapper.
+     *
+     * @param f The [PointTransformer] used to transform this [RoundedPolygon]
      */
-    private val cubicShape = CubicShape()
+    fun transformed(f: PointTransformer): RoundedPolygon {
+        val center = Point(centerX, centerY).transformed(f)
+        return RoundedPolygon(features.map { it.transformed(f) }, center.x, center.y)
+    }
 
     /**
-     * Features are the corners (rounded or not) and edges of a polygon. Retaining the list of
-     * per-vertex corner (and the edges between them) allows manipulation of a RoundedPolygon with
-     * more context for the structure of that polygon, rather than just the list of cubic beziers
-     * which are calculated for rendering purposes.
+     * Creates a new RoundedPolygon, moving and resizing this one, so it's completely inside the
+     * (0, 0) -> (1, 1) square, centered if there extra space in one direction
      */
-    internal lateinit var features: List<Feature>
-        private set
+    fun normalized(): RoundedPolygon {
+        val bounds = calculateBounds()
+        val width = bounds[2] - bounds[0]
+        val height = bounds[3] - bounds[1]
+        val side = max(width, height)
+        // Center the shape if bounds are not a square
+        val offsetX = (side - width) / 2 - bounds[0] /* left */
+        val offsetY = (side - height) / 2 - bounds[1] /* top */
+        return transformed {
+            x = (x + offsetX) / side
+            y = (y + offsetY) / side
+        }
+    }
 
-    // TODO center point should not be mutable
-    /**
-     * The X coordinated of the center of this polygon.
-     * The center is determined at construction time, either calculated
-     * to be an average of all of the vertices of the polygon, or passed in as a parameter. This
-     * center may be used in later operations, to help determine (for example) the relative
-     * placement of points along the perimeter of the polygon.
-     */
-    var centerX: Float
-        private set
-
-    /**
-     * The Y coordinated of the center of this polygon.
-     * The center is determined at construction time, either calculated
-     * to be an average of all of the vertices of the polygon, or passed in as a parameter. This
-     * center may be used in later operations, to help determine (for example) the relative
-     * placement of points along the perimeter of the polygon.
-     */
-    var centerY: Float
-        private set
+    override fun toString(): String = "[RoundedPolygon." +
+        " Cubics = " + cubics.joinToString() +
+        " || Features = " + features.joinToString() +
+        " || Center = ($centerX, $centerY)]"
 
     /**
-     * The bounds of a shape are a simple min/max bounding box of the points in all of
-     * the [Cubic] objects. Note that this is not the same as the bounds of the resulting
-     * shape, but is a reasonable (and cheap) way to estimate the bounds. These bounds
-     * can be used to, for example, determine the size to scale the object when drawing it.
+     * Calculates estimated bounds of the object, using the min/max bounding box of
+     * all points in the cubics that make up the shape.
+     * This is a library-internal API, prefer the appropriate wrapper in your platform.
      */
-    var bounds: RectF by cubicShape::bounds
+    fun calculateBounds(bounds: FloatArray = FloatArray(4)): FloatArray {
+        require(bounds.size >= 4)
+        var minX = Float.MAX_VALUE
+        var minY = Float.MAX_VALUE
+        var maxX = Float.MIN_VALUE
+        var maxY = Float.MIN_VALUE
+        for (bezier in cubics) {
+            if (bezier.anchor0X < minX) minX = bezier.anchor0X
+            if (bezier.anchor0Y < minY) minY = bezier.anchor0Y
+            if (bezier.anchor0X > maxX) maxX = bezier.anchor0X
+            if (bezier.anchor0Y > maxY) maxY = bezier.anchor0Y
+
+            if (bezier.control0X < minX) minX = bezier.control0X
+            if (bezier.control0Y < minY) minY = bezier.control0Y
+            if (bezier.control0X > maxX) maxX = bezier.control0X
+            if (bezier.control0Y > maxY) maxY = bezier.control0Y
+
+            if (bezier.control1X < minX) minX = bezier.control1X
+            if (bezier.control1Y < minY) minY = bezier.control1Y
+            if (bezier.control1X > maxX) maxX = bezier.control1X
+            if (bezier.control1Y > maxY) maxY = bezier.control1Y
+            // No need to use x3/y3, since it is already taken into account in the next
+            // curve's x0/y0 point.
+        }
+        bounds[0] = minX
+        bounds[1] = minY
+        bounds[2] = maxX
+        bounds[3] = maxY
+        return bounds
+    }
 
     companion object {}
-
-    /**
-     * Constructs a RoundedPolygon object from a given list of vertices, with optional
-     * corner-rounding parameters for all corners or per-corner.
-     *
-     * A RoundedPolygon without any rounding parameters is equivalent to a [RoundedPolygon]
-     * constructed with the same [vertices] and ([centerX], [centerY]) values.
-     *
-     * @param vertices The list of vertices in this polygon. This should be an ordered list
-     * (with the outline of the shape going from each vertex to the next in order of this
-     * list), otherwise the results will be undefined.
-     * @param rounding The [CornerRounding] properties of every vertex. If some vertices should
-     * have different rounding properties, then use [perVertexRounding] instead. The default
-     * rounding value is [CornerRounding.Unrounded], meaning that the polygon will use the vertices
-     * themselves in the final shape and not curves rounded around the vertices.
-     * @param perVertexRounding The [CornerRounding] properties of every vertex. If this
-     * parameter is not null, then it must have the same size as [vertices]. If this parameter
-     * is null, then the polygon will use the [rounding] parameter for every vertex instead. The
-     * default value is null.
-     * @param centerX The X coordinate of an optionally declared center of the polygon. If either
-     * [centerX] or [centerY] is not supplied, both will be calculated based on the supplied
-     * vertices.
-     * @param centerY The Y coordinate of an optionally declared center of the polygon. If either
-     * [centerX] or [centerY] is not supplied, both will be calculated based on the supplied
-     * vertices.
-     *
-     * @throws IllegalArgumentException If [perVertexRounding] is not null, it must be
-     * the same size as the [vertices] list.
-     * @throws IllegalArgumentException [vertices] must have a size of at least three.
-     */
-    constructor(
-        vertices: FloatArray,
-        rounding: CornerRounding = CornerRounding.Unrounded,
-        perVertexRounding: List<CornerRounding>? = null,
-        centerX: Float = Float.MIN_VALUE,
-        centerY: Float = Float.MIN_VALUE
-    ) {
-        if (centerX == Float.MIN_VALUE || centerY == Float.MIN_VALUE) {
-            val center = PointF()
-            calculateCenter(vertices, center)
-            this.centerX = center.x
-            this.centerY = center.y
-        } else {
-            this.centerX = centerX
-            this.centerY = centerY
-        }
-        setupPolygon(vertices, rounding, perVertexRounding)
-    }
-
-    /**
-     * This constructor takes the number of vertices in the resulting polygon. These vertices are
-     * positioned on a virtual circle around a given center with each vertex positioned [radius]
-     * distance from that center, equally spaced (with equal angles between them). If no radius
-     * is supplied, the shape will be created with a default radius of 1, resulting in a shape
-     * whose vertices lie on a unit circle, with width/height of 2. That default polygon will
-     * probably need to be rescaled using [transform] into the appropriate size for the UI in
-     * which it will be drawn.
-     *
-     * The [rounding] and [perVertexRounding] parameters are optional. If not supplied, the result
-     * will be a regular polygon with straight edges and unrounded corners.
-     *
-     * @param numVertices The number of vertices in this polygon.
-     * @param radius The radius of the polygon, in pixels. This radius determines the
-     * initial size of the object, but it can be transformed later by setting
-     * a matrix on it.
-     * @param centerX The X coordinate of the center of the polygon, around which all vertices
-     * will be placed. The default center is at (0,0).
-     * @param centerY The Y coordinate of the center of the polygon, around which all vertices
-     * will be placed. The default center is at (0,0).
-     * @param rounding The [CornerRounding] properties of every vertex. If some vertices should
-     * have different rounding properties, then use [perVertexRounding] instead. The default
-     * rounding value is [CornerRounding.Unrounded], meaning that the polygon will use the vertices
-     * themselves in the final shape and not curves rounded around the vertices.
-     * @param perVertexRounding The [CornerRounding] properties of every vertex. If this
-     * parameter is not null, then it must have [numVertices] elements. If this parameter
-     * is null, then the polygon will use the [rounding] parameter for every vertex instead. The
-     * default value is null.
-     *
-     * @throws IllegalArgumentException If [perVertexRounding] is not null, it must have
-     * [numVertices] elements.
-     * @throws IllegalArgumentException [numVertices] must be at least 3.
-     */
-    constructor(
-        @IntRange(from = 3) numVertices: Int,
-        radius: Float = 1f,
-        centerX: Float = 0f,
-        centerY: Float = 0f,
-        rounding: CornerRounding = CornerRounding.Unrounded,
-        perVertexRounding: List<CornerRounding>? = null
-    ) : this(
-        verticesFromNumVerts(numVertices, radius, centerX, centerY),
-        rounding = rounding,
-        perVertexRounding = perVertexRounding,
-        centerX = centerX,
-        centerY = centerY)
-
-    constructor(source: RoundedPolygon) {
-        val newCubics = mutableListOf<Cubic>()
-        for (cubic in source.cubicShape.cubics) {
-            newCubics.add(Cubic(cubic))
-        }
-        val tempFeatures = mutableListOf<Feature>()
-        for (feature in source.features) {
-            if (feature is Edge) {
-                tempFeatures.add(Edge(feature))
-            } else {
-                tempFeatures.add(Corner(feature as Corner))
-            }
-        }
-        features = tempFeatures
-        centerX = source.centerX
-        centerY = source.centerY
-        cubicShape.updateCubics(newCubics)
-    }
-
-    /**
-     * This function takes the vertices (either supplied or calculated, depending on the
-     * constructor called), plus [CornerRounding] parameters, and creates the actual
-     * [RoundedPolygon] shape, rounding around the vertices (or not) as specified. The result
-     * is a list of [Cubic] curves which represent the geometry of the final shape.
-     *
-     * @param vertices The list of vertices in this polygon. This should be an ordered list
-     * (with the outline of the shape going from each vertex to the next in order of this
-     * list), otherwise the results will be undefined.
-     * @param rounding The [CornerRounding] properties of every vertex. If some vertices should
-     * have different rounding properties, then use [perVertexRounding] instead. The default
-     * rounding value is [CornerRounding.Unrounded], meaning that the polygon will use the vertices
-     * themselves in the final shape and not curves rounded around the vertices.
-     * @param perVertexRounding The [CornerRounding] properties of every vertex. If this
-     * parameter is not null, then it must have the same size as [vertices]. If this parameter
-     * is null, then the polygon will use the [rounding] parameter for every vertex instead. The
-     * default value is null.
-     */
-    private fun setupPolygon(
-        vertices: FloatArray,
-        rounding: CornerRounding = CornerRounding.Unrounded,
-        perVertexRounding: List<CornerRounding>? = null
-    ) {
-        if (vertices.size < 6) {
-            throw IllegalArgumentException("Polygons must have at least 3 vertices")
-        }
-        if (perVertexRounding != null && perVertexRounding.size != vertices.size / 2) {
-            throw IllegalArgumentException("perVertexRounding list should be either null or " +
-                    "the same size as the number of vertices (2 * vertices.size)")
-        }
-        val cubics = mutableListOf<Cubic>()
-        val corners = mutableListOf<List<Cubic>>()
-        val n = vertices.size / 2
-        val roundedCorners = mutableListOf<RoundedCorner>()
-        for (i in 0 until n) {
-            val vtxRounding = perVertexRounding?.get(i) ?: rounding
-            val prevIndex = ((i + n - 1) % n) * 2
-            val nextIndex = ((i + 1) % n) * 2
-            roundedCorners.add(
-                RoundedCorner(
-                    PointF(vertices[prevIndex], vertices[prevIndex + 1]),
-                    PointF(vertices[i * 2], vertices[i * 2 + 1]),
-                    PointF(vertices[nextIndex], vertices[nextIndex + 1]),
-                    vtxRounding
-                )
-            )
-        }
-
-        // For each side, check if we have enough space to do the cuts needed, and if not split
-        // the available space, first for round cuts, then for smoothing if there is space left.
-        // Each element in this list is a pair, that represent how much we can do of the cut for
-        // the given side (side i goes from corner i to corner i+1), the elements of the pair are:
-        // first is how much we can use of expectedRoundCut, second how much of expectedCut
-        val cutAdjusts = (0 until n).map { ix ->
-            val expectedRoundCut = roundedCorners[ix].expectedRoundCut +
-                roundedCorners[(ix + 1) % n].expectedRoundCut
-            val expectedCut = roundedCorners[ix].expectedCut +
-                    roundedCorners[(ix + 1) % n].expectedCut
-            val vtxX = vertices[ix * 2]
-            val vtxY = vertices[ix * 2 + 1]
-            val nextVtxX = vertices[((ix + 1) % n) * 2]
-            val nextVtxY = vertices[((ix + 1) % n) * 2 + 1]
-            val sideSize = distance(vtxX - nextVtxX, vtxY - nextVtxY)
-
-            // Check expectedRoundCut first, and ensure we fulfill rounding needs first for
-            // both corners before using space for smoothing
-            if (expectedRoundCut > sideSize) {
-                // Not enough room for fully rounding, see how much we can actually do.
-                sideSize / expectedRoundCut to 0f
-            } else if (expectedCut > sideSize) {
-                // We can do full rounding, but not full smoothing.
-                1f to (sideSize - expectedRoundCut) / (expectedCut - expectedRoundCut)
-            } else {
-                // There is enough room for rounding & smoothing.
-                1f to 1f
-            }
-        }
-        // Create and store list of beziers for each [potentially] rounded corner
-        for (i in 0 until n) {
-            // allowedCuts[0] is for the side from the previous corner to this one,
-            // allowedCuts[1] is for the side from this corner to the next one.
-            val allowedCuts = (0..1).map { delta ->
-                val (roundCutRatio, cutRatio) = cutAdjusts[(i + n - 1 + delta) % n]
-                roundedCorners[i].expectedRoundCut * roundCutRatio +
-                    (roundedCorners[i].expectedCut - roundedCorners[i].expectedRoundCut) * cutRatio
-            }
-            corners.add(
-                roundedCorners[i].getCubics(
-                    allowedCut0 = allowedCuts[0],
-                    allowedCut1 = allowedCuts[1]
-                )
-            )
-        }
-        // Finally, store the calculated cubics. This includes all of the rounded corners
-        // from above, along with new cubics representing the edges between those corners.
-        val tempFeatures = mutableListOf<Feature>()
-        for (i in 0 until n) {
-            val cornerIndices = mutableListOf<Int>()
-            for (cubic in corners[i]) {
-                cornerIndices.add(cubics.size)
-                cubics.add(cubic)
-            }
-            // Determine whether corner at this vertex is concave or convex, based on the
-            // relationship of the prev->curr/curr->next vectors
-            // Note that these indices are for pairs of values (points), they need to be
-            // doubled to access the xy values in the vertices float array
-            val prevVtxIndex = (i + n - 1) % n
-            val nextVtxIndex = (i + 1) % n
-            val currVertex = PointF(vertices[i * 2], vertices[i * 2 + 1])
-            val prevVertex = PointF(vertices[prevVtxIndex * 2], vertices[prevVtxIndex * 2 + 1])
-            val nextVertex = PointF(vertices[nextVtxIndex * 2], vertices[nextVtxIndex * 2 + 1])
-            val convex = (currVertex - prevVertex).clockwise(nextVertex - currVertex)
-            tempFeatures.add(Corner(cornerIndices, currVertex, roundedCorners[i].center,
-                convex))
-            tempFeatures.add(Edge(listOf(cubics.size)))
-            cubics.add(Cubic.straightLine(corners[i].last().anchor1X, corners[i].last().anchor1Y,
-                corners[(i + 1) % n].first().anchor0X, corners[(i + 1) % n].first().anchor0Y))
-        }
-        features = tempFeatures
-        cubicShape.updateCubics(cubics)
-    }
-
-    /**
-     * Transforms (scales, rotates, and translates) the polygon by the given matrix.
-     * Note that this operation alters the points in the polygon directly; the original
-     * points are not retained, nor is the matrix itself. Thus calling this function
-     * twice with the same matrix will composite the effect. For example, a matrix which
-     * scales by 2 will scale the polygon by 2. Calling transform twice with that matrix
-     * will have the effect os scaling the shape size by 4.
-     *
-     * Note that [RoundedPolygon] objects created with default radius and center values will
-     * probably need to be scaled and repositioned using [transform] to be displayed correctly
-     * in the UI. Polygons are created by default on the unit circle around a center
-     * of (0, 0), so the resulting geometry has a bounding box width and height of 2x2; It should
-     * be resized to fit where it will be displayed appropriately.
-     *
-     * @param matrix The matrix used to transform the polygon
-     */
-    fun transform(matrix: Matrix) {
-        cubicShape.transform(matrix)
-        val point = scratchTransformPoint
-        point[0] = centerX
-        point[1] = centerY
-        matrix.mapPoints(point)
-        centerX = point[0]
-        centerY = point[1]
-        for (feature in features) {
-            feature.transform(matrix)
-        }
-    }
-
-    /**
-     * Internally, the Polygon is stored as a [CubicShape] object. This function returns a copy
-     * of that object.
-     */
-    fun toCubicShape(): CubicShape {
-        return CubicShape(cubicShape)
-    }
-
-    /**
-     * A Polygon is rendered as a [Path]. A copy of the underlying [Path] object can be
-     * retrieved for use outside of this class. Note that this function returns a copy of
-     * the internal [Path] to maintain immutability, thus there is some overhead in retrieving
-     * and using the path with this function.
-     */
-    fun toPath(): Path {
-        return cubicShape.toPath()
-    }
-
-    internal fun draw(canvas: Canvas, paint: Paint) {
-        cubicShape.draw(canvas, paint)
-    }
-
-    /**
-     * Calculates an estimated center position for the polygon, storing it in the [centerX]
-     * and [centerY] properties.
-     * This function should only be called if the center is not already calculated or provided.
-     * The Polygon constructor which takes `numVertices` calculates its own center, since it
-     * knows exactly where it is centered, at (0, 0).
-     *
-     * Note that this center will be transformed whenever the shape itself is transformed.
-     * Any transforms that occur before the center is calculated will be taken into account
-     * automatically since the center calculation is an average of the current location of
-     * all cubic anchor points.
-     */
-    private fun calculateCenter(vertices: FloatArray, result: PointF) {
-        var cumulativeX = 0f
-        var cumulativeY = 0f
-        var index = 0
-        while (index < vertices.size) {
-            cumulativeX += vertices[index++]
-            cumulativeY += vertices[index++]
-        }
-        result.x = cumulativeX / vertices.size / 2
-        result.y = cumulativeY / vertices.size / 2
-    }
-
-    /**
-     * This class holds information about a corner (rounded or not) or an edge of a given
-     * polygon. The features of a Polygon can be used to manipulate the shape with more context
-     * of what the shape actually is, rather than simply manipulating the raw curves and lines
-     * which describe it.
-     */
-    internal open inner class Feature(protected val cubicIndices: List<Int>) {
-        val cubics: List<Cubic>
-            get() = cubicIndices.map { toCubicShape().cubics[it] }
-
-        open fun transform(matrix: Matrix) {}
-    }
-    /**
-     * Edges have only a list of the cubic curves which make up the edge. Edges lie between
-     * corners and have no vertex or concavity; the curves are simply straight lines (represented
-     * by Cubic curves).
-     */
-    internal inner class Edge(indices: List<Int>) : Feature(indices) {
-        constructor(source: Edge) : this(source.cubicIndices)
-    }
-
-    /**
-     * Corners contain the list of cubic curves which describe how the corner is rounded (or
-     * not), plus the vertex at the corner (which the cubics may or may not pass through, depending
-     * on whether the corner is rounded) and a flag indicating whether the corner is convex.
-     * A regular polygon has all convex corners, while a star polygon generally (but not
-     * necessarily) has both convex (outer) and concave (inner) corners.
-     */
-    internal inner class Corner(
-        cubicIndices: List<Int>,
-        // TODO: parameters here should be immutable
-        val vertex: PointF,
-        val roundedCenter: PointF,
-        val convex: Boolean = true
-    ) : Feature(cubicIndices) {
-        constructor(source: Corner) : this(
-            source.cubicIndices,
-            source.vertex,
-            source.roundedCenter,
-            source.convex
-        )
-
-        override fun transform(matrix: Matrix) {
-            val tempPoints = floatArrayOf(vertex.x, vertex.y, roundedCenter.x, roundedCenter.y)
-            matrix.mapPoints(tempPoints)
-            vertex.set(tempPoints[0], tempPoints[1])
-            roundedCenter.set(tempPoints[2], tempPoints[3])
-        }
-
-        override fun toString(): String {
-            return "Corner: vtx, center, convex = $vertex, $roundedCenter, $convex"
-        }
-    }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is RoundedPolygon) return false
 
-        if (cubicShape != other.cubicShape) return false
-
-        return true
+        return features == other.features
     }
 
     override fun hashCode(): Int {
-        return cubicShape.hashCode()
+        return features.hashCode()
     }
+}
+
+/**
+ * This constructor takes the number of vertices in the resulting polygon. These vertices are
+ * positioned on a virtual circle around a given center with each vertex positioned [radius]
+ * distance from that center, equally spaced (with equal angles between them). If no radius
+ * is supplied, the shape will be created with a default radius of 1, resulting in a shape
+ * whose vertices lie on a unit circle, with width/height of 2. That default polygon will
+ * probably need to be rescaled using [transformed] into the appropriate size for the UI in
+ * which it will be drawn.
+ *
+ * The [rounding] and [perVertexRounding] parameters are optional. If not supplied, the result
+ * will be a regular polygon with straight edges and unrounded corners.
+ *
+ * @param numVertices The number of vertices in this polygon.
+ * @param radius The radius of the polygon, in pixels. This radius determines the
+ * initial size of the object, but it can be transformed later by using the [transformed] function.
+ * @param centerX The X coordinate of the center of the polygon, around which all vertices
+ * will be placed. The default center is at (0,0).
+ * @param centerY The Y coordinate of the center of the polygon, around which all vertices
+ * will be placed. The default center is at (0,0).
+ * @param rounding The [CornerRounding] properties of all vertices. If some vertices should
+ * have different rounding properties, then use [perVertexRounding] instead. The default
+ * rounding value is [CornerRounding.Unrounded], meaning that the polygon will use the vertices
+ * themselves in the final shape and not curves rounded around the vertices.
+ * @param perVertexRounding The [CornerRounding] properties of every vertex. If this
+ * parameter is not null, then it must have [numVertices] elements. If this parameter
+ * is null, then the polygon will use the [rounding] parameter for every vertex instead. The
+ * default value is null.
+ *
+ * @throws IllegalArgumentException If [perVertexRounding] is not null and its size is not
+ * equal to [numVertices].
+ * @throws IllegalArgumentException [numVertices] must be at least 3.
+ */
+@JvmOverloads
+fun RoundedPolygon(
+    @IntRange(from = 3) numVertices: Int,
+    radius: Float = 1f,
+    centerX: Float = 0f,
+    centerY: Float = 0f,
+    rounding: CornerRounding = CornerRounding.Unrounded,
+    perVertexRounding: List<CornerRounding>? = null
+) = RoundedPolygon(
+    verticesFromNumVerts(numVertices, radius, centerX, centerY),
+    rounding = rounding,
+    perVertexRounding = perVertexRounding,
+    centerX = centerX,
+    centerY = centerY)
+
+/**
+ * Creates a copy of the given [RoundedPolygon]
+ */
+fun RoundedPolygon(source: RoundedPolygon) =
+    RoundedPolygon(source.features, source.centerX, source.centerY)
+
+/**
+ * This function takes the vertices (either supplied or calculated, depending on the
+ * constructor called), plus [CornerRounding] parameters, and creates the actual
+ * [RoundedPolygon] shape, rounding around the vertices (or not) as specified. The result
+ * is a list of [Cubic] curves which represent the geometry of the final shape.
+ *
+ * @param vertices The list of vertices in this polygon specified as pairs of x/y coordinates in
+ * this FloatArray. This should be an ordered list (with the outline of the shape going from each
+ * vertex to the next in order of this list), otherwise the results will be undefined.
+ * @param rounding The [CornerRounding] properties of all vertices. If some vertices should
+ * have different rounding properties, then use [perVertexRounding] instead. The default
+ * rounding value is [CornerRounding.Unrounded], meaning that the polygon will use the vertices
+ * themselves in the final shape and not curves rounded around the vertices.
+ * @param perVertexRounding The [CornerRounding] properties of all vertices. If this
+ * parameter is not null, then it must have the same size as [vertices]. If this parameter
+ * is null, then the polygon will use the [rounding] parameter for every vertex instead. The
+ * default value is null.
+ * @param centerX The X coordinate of the center of the polygon, around which all vertices
+ * will be placed. The default center is at (0,0).
+ * @param centerY The Y coordinate of the center of the polygon, around which all vertices
+ * will be placed. The default center is at (0,0).
+ * @throws IllegalArgumentException if the number of vertices is less than 3 (the [vertices]
+ * parameter has less than 6 Floats). Or if the [perVertexRounding] parameter is not null and the
+ * size doesn't match the number vertices.
+ */
+@JvmOverloads
+fun RoundedPolygon(
+    vertices: FloatArray,
+    rounding: CornerRounding = CornerRounding.Unrounded,
+    perVertexRounding: List<CornerRounding>? = null,
+    centerX: Float = Float.MIN_VALUE,
+    centerY: Float = Float.MIN_VALUE
+): RoundedPolygon {
+    if (vertices.size < 6) {
+        throw IllegalArgumentException("Polygons must have at least 3 vertices")
+    }
+    if (vertices.size % 2 == 1) {
+        throw IllegalArgumentException("The vertices array should have even size")
+    }
+    if (perVertexRounding != null && perVertexRounding.size * 2 != vertices.size) {
+        throw IllegalArgumentException("perVertexRounding list should be either null or " +
+            "the same size as the number of vertices (vertices.size / 2)")
+    }
+    val corners = mutableListOf<List<Cubic>>()
+    val n = vertices.size / 2
+    val roundedCorners = mutableListOf<RoundedCorner>()
+    for (i in 0 until n) {
+        val vtxRounding = perVertexRounding?.get(i) ?: rounding
+        val prevIndex = ((i + n - 1) % n) * 2
+        val nextIndex = ((i + 1) % n) * 2
+        roundedCorners.add(
+            RoundedCorner(
+                Point(vertices[prevIndex], vertices[prevIndex + 1]),
+                Point(vertices[i * 2], vertices[i * 2 + 1]),
+                Point(vertices[nextIndex], vertices[nextIndex + 1]),
+                vtxRounding
+            )
+        )
+    }
+
+    // For each side, check if we have enough space to do the cuts needed, and if not split
+    // the available space, first for round cuts, then for smoothing if there is space left.
+    // Each element in this list is a pair, that represent how much we can do of the cut for
+    // the given side (side i goes from corner i to corner i+1), the elements of the pair are:
+    // first is how much we can use of expectedRoundCut, second how much of expectedCut
+    val cutAdjusts = (0 until n).map { ix ->
+        val expectedRoundCut = roundedCorners[ix].expectedRoundCut +
+            roundedCorners[(ix + 1) % n].expectedRoundCut
+        val expectedCut = roundedCorners[ix].expectedCut +
+            roundedCorners[(ix + 1) % n].expectedCut
+        val vtxX = vertices[ix * 2]
+        val vtxY = vertices[ix * 2 + 1]
+        val nextVtxX = vertices[((ix + 1) % n) * 2]
+        val nextVtxY = vertices[((ix + 1) % n) * 2 + 1]
+        val sideSize = distance(vtxX - nextVtxX, vtxY - nextVtxY)
+
+        // Check expectedRoundCut first, and ensure we fulfill rounding needs first for
+        // both corners before using space for smoothing
+        if (expectedRoundCut > sideSize) {
+            // Not enough room for fully rounding, see how much we can actually do.
+            sideSize / expectedRoundCut to 0f
+        } else if (expectedCut > sideSize) {
+            // We can do full rounding, but not full smoothing.
+            1f to (sideSize - expectedRoundCut) / (expectedCut - expectedRoundCut)
+        } else {
+            // There is enough room for rounding & smoothing.
+            1f to 1f
+        }
+    }
+    // Create and store list of beziers for each [potentially] rounded corner
+    for (i in 0 until n) {
+        // allowedCuts[0] is for the side from the previous corner to this one,
+        // allowedCuts[1] is for the side from this corner to the next one.
+        val allowedCuts = (0..1).map { delta ->
+            val (roundCutRatio, cutRatio) = cutAdjusts[(i + n - 1 + delta) % n]
+            roundedCorners[i].expectedRoundCut * roundCutRatio +
+                (roundedCorners[i].expectedCut - roundedCorners[i].expectedRoundCut) * cutRatio
+        }
+        corners.add(
+            roundedCorners[i].getCubics(
+                allowedCut0 = allowedCuts[0],
+                allowedCut1 = allowedCuts[1]
+            )
+        )
+    }
+    // Finally, store the calculated cubics. This includes all of the rounded corners
+    // from above, along with new cubics representing the edges between those corners.
+    val tempFeatures = mutableListOf<Feature>()
+    for (i in 0 until n) {
+        // Determine whether corner at this vertex is concave or convex, based on the
+        // relationship of the prev->curr/curr->next vectors
+        // Note that these indices are for pairs of values (points), they need to be
+        // doubled to access the xy values in the vertices float array
+        val prevVtxIndex = (i + n - 1) % n
+        val nextVtxIndex = (i + 1) % n
+        val currVertex = Point(vertices[i * 2], vertices[i * 2 + 1])
+        val prevVertex = Point(vertices[prevVtxIndex * 2], vertices[prevVtxIndex * 2 + 1])
+        val nextVertex = Point(vertices[nextVtxIndex * 2], vertices[nextVtxIndex * 2 + 1])
+        val convex = (currVertex - prevVertex).clockwise(nextVertex - currVertex)
+        tempFeatures.add(
+            Feature.Corner(
+                corners[i], currVertex, roundedCorners[i].center,
+                convex
+            )
+        )
+        tempFeatures.add(
+            Feature.Edge(
+                listOf(
+                    Cubic.straightLine(
+                        corners[i].last().anchor1X, corners[i].last().anchor1Y,
+                        corners[(i + 1) % n].first().anchor0X, corners[(i + 1) % n].first().anchor0Y
+                    )
+                )
+            )
+        )
+    }
+
+    val (cx, cy) = if (centerX == Float.MIN_VALUE || centerY == Float.MIN_VALUE) {
+        calculateCenter(vertices)
+    } else {
+        Point(centerX, centerY)
+    }
+    return RoundedPolygon(tempFeatures, cx, cy)
+}
+
+/**
+ * Calculates an estimated center position for the polygon, returning it.
+ * This function should only be called if the center is not already calculated or provided.
+ * The Polygon constructor which takes `numVertices` calculates its own center, since it
+ * knows exactly where it is centered, at (0, 0).
+ *
+ * Note that this center will be transformed whenever the shape itself is transformed.
+ * Any transforms that occur before the center is calculated will be taken into account
+ * automatically since the center calculation is an average of the current location of
+ * all cubic anchor points.
+ */
+private fun calculateCenter(vertices: FloatArray): Point {
+    var cumulativeX = 0f
+    var cumulativeY = 0f
+    var index = 0
+    while (index < vertices.size) {
+        cumulativeX += vertices[index++]
+        cumulativeY += vertices[index++]
+    }
+    return Point(cumulativeX / vertices.size / 2, cumulativeY / vertices.size / 2)
 }
 
 /**
@@ -492,9 +388,9 @@ class RoundedPolygon {
  * @param rounding the optional parameters specifying how this corner should be rounded
  */
 private class RoundedCorner(
-    val p0: PointF,
-    val p1: PointF,
-    val p2: PointF,
+    val p0: Point,
+    val p1: Point,
+    val p2: Point,
     val rounding: CornerRounding? = null
 ) {
     val d1 = (p0 - p1).getDirection()
@@ -517,7 +413,7 @@ private class RoundedCorner(
         get() = ((1 + smoothing) * expectedRoundCut)
     // the center of the circle approximated by the rounding curve (or the middle of the three
     // curves if smoothing is requested). The center is the same as p0 if there is no rounding.
-    lateinit var center: PointF
+    var center: Point = Point()
 
     @JvmOverloads
     fun getCubics(allowedCut0: Float, allowedCut1: Float = allowedCut0):
@@ -603,11 +499,11 @@ private class RoundedCorner(
     private fun computeFlankingCurve(
         actualRoundCut: Float,
         actualSmoothingValues: Float,
-        corner: PointF,
-        sideStart: PointF,
-        circleSegmentIntersection: PointF,
-        otherCircleSegmentIntersection: PointF,
-        circleCenter: PointF,
+        corner: Point,
+        sideStart: Point,
+        circleSegmentIntersection: Point,
+        otherCircleSegmentIntersection: Point,
+        circleCenter: Point,
         actualR: Float
     ): Cubic {
         // sideStart is the anchor, 'anchor' is actual control point
@@ -615,16 +511,13 @@ private class RoundedCorner(
         val curveStart = corner + sideDirection * actualRoundCut * (1 + actualSmoothingValues)
         // We use an approximation to cut a part of the circle section proportional to 1 - smooth,
         // When smooth = 0, we take the full section, when smooth = 1, we take nothing.
-        // TODO: revisit this, it can be problematic as it approaches 19- degrees
-        val px = interpolate(circleSegmentIntersection.x,
-            (circleSegmentIntersection.x + otherCircleSegmentIntersection.x) / 2f,
-            actualSmoothingValues)
-        val py = interpolate(circleSegmentIntersection.y,
-            (circleSegmentIntersection.y + otherCircleSegmentIntersection.y) / 2f,
+        // TODO: revisit this, it can be problematic as it approaches 180 degrees
+        val p = interpolate(circleSegmentIntersection,
+            (circleSegmentIntersection + otherCircleSegmentIntersection) / 2f,
             actualSmoothingValues)
         // The flanking curve ends on the circle
         val curveEnd = circleCenter +
-            directionVector(px - circleCenter.x, py - circleCenter.y) * actualR
+            directionVector(p.x - circleCenter.x, p.y - circleCenter.y) * actualR
         // The anchor on the circle segment side is in the intersection between the tangent to the
         // circle in the circle/flanking curve boundary and the linear segment.
         val circleTangent = (curveEnd - circleCenter).rotate90()
@@ -640,7 +533,7 @@ private class RoundedCorner(
      * Returns the intersection point of the two lines d0->d1 and p0->p1, or null if the
      * lines do not intersect
      */
-    private fun lineIntersection(p0: PointF, d0: PointF, p1: PointF, d1: PointF): PointF? {
+    private fun lineIntersection(p0: Point, d0: Point, p1: Point, d1: Point): Point? {
         val rotatedD1 = d1.rotate90()
         val den = d0.dotProduct(rotatedD1)
         if (abs(den) < AngleEpsilon) return null
@@ -648,20 +541,3 @@ private class RoundedCorner(
         return p0 + d0 * k
     }
 }
-
-/**
- * Extension function which draws the given [RoundedPolygon] object into this [Canvas]. Rendering
- * occurs by drawing the underlying path for the object; callers can optionally retrieve the
- * path and draw it directly via [RoundedPolygon.toPath] (though that function copies the underlying
- * path. This extension function avoids that overhead when rendering).
- *
- * @param polygon The object to be drawn
- * @param paint The attributes
- */
-fun Canvas.drawPolygon(polygon: RoundedPolygon, paint: Paint) {
-    polygon.draw(this, paint)
-}
-
-private val scratchTransformPoint = floatArrayOf(0f, 0f)
-
-private val LOG_TAG = "Polygon"
