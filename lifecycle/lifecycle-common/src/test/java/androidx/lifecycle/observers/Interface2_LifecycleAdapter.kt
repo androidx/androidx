@@ -13,23 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.lifecycle.observers
 
-package androidx.lifecycle.observers;
+import androidx.lifecycle.GeneratedAdapter
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.MethodCallsLogger
 
-import androidx.annotation.NonNull;
-import androidx.lifecycle.GeneratedAdapter;
-import androidx.lifecycle.Lifecycle;
-import androidx.lifecycle.LifecycleOwner;
-import androidx.lifecycle.MethodCallsLogger;
-
-public class Interface2_LifecycleAdapter implements GeneratedAdapter {
-
-    public Interface2_LifecycleAdapter(Interface2 base) {
-    }
-
-    @Override
-    public void callMethods(@NonNull LifecycleOwner source, @NonNull Lifecycle.Event event,
-            boolean onAny, MethodCallsLogger logger) {
-
-    }
+@Suppress("UNUSED_PARAMETER")
+class Interface2_LifecycleAdapter(base: Interface2) : GeneratedAdapter {
+    override fun callMethods(
+        source: LifecycleOwner,
+        event: Lifecycle.Event,
+        onAny: Boolean,
+        logger: MethodCallsLogger?
+    ) {}
 }
