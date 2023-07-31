@@ -67,4 +67,8 @@ internal class JavacKmAnnotation(
             }
         }
     }
+
+    override val defaultValues: List<XAnnotationValue> by lazy {
+        typeElement.getDeclaredMethods().mapNotNull { it.defaultValue }
+    }
 }
