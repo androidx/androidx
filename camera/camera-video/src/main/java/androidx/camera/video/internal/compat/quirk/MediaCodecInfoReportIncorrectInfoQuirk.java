@@ -84,12 +84,12 @@ import java.util.Set;
  *                  {@link MediaCodecInfo} searched by {@link MediaCodecList#getCodecInfos()}
  *                  shows the maximum supported resolution of the AVC encoder is 1920x1072.
  *                  However, the 1920x1080 option can be successfully configured properly.
- *                  See b/216583006, b/278843124, b/278855948.
+ *                  See b/216583006, b/278843124, b/278855948, b/293827733.
  *                  </li>
  *                  </ul>
  *     Device(s): Nokia 1, Motc C, X650, LG-X230, Positivo Twist 2 Pro, Huawei Mate9,
- *                Redmi Note 8 Pro, Redmi Note 4, LG K10 LTE K430, Samsung Galaxy A03 Core,
- *                Vivo Y75, Realme C11 2021
+ *                Redmi Note 8 Pro, Redmi Note 4, Redmi Note 9, LG K10 LTE K430,
+ *                Samsung Galaxy A03 Core, Vivo Y75, Realme C11 2021
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class MediaCodecInfoReportIncorrectInfoQuirk implements Quirk {
@@ -133,6 +133,7 @@ public class MediaCodecInfoReportIncorrectInfoQuirk implements Quirk {
     public static final List<String> INCORRECT_FHD_PROFILE_MODEL_LIST = Arrays.asList(
             "lg-k430",
             "redmi note 4",
+            "m2003j15sc", // Redmi Note 9
             "rmx3231",
             "v2117",
             "sm-a032f",
