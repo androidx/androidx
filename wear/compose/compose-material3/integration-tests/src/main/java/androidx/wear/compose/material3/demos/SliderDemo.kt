@@ -38,6 +38,7 @@ import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.integration.demos.common.Centralize
 import androidx.wear.compose.integration.demos.common.ComposableDemo
 import androidx.wear.compose.integration.demos.common.DemoCategory
+import androidx.wear.compose.material3.ExperimentalWearMaterial3Api
 import androidx.wear.compose.material3.Icon
 import androidx.wear.compose.material3.InlineSlider
 import androidx.wear.compose.material3.InlineSliderColors
@@ -83,6 +84,7 @@ val SliderDemos =
         )
     )
 
+@OptIn(ExperimentalWearMaterial3Api::class)
 @Composable
 fun InlineSliderDemo(segmented: Boolean = false) {
     var enabledValue by remember { mutableFloatStateOf(5f) }
@@ -126,6 +128,7 @@ fun InlineSliderDemo(segmented: Boolean = false) {
     }
 }
 
+@OptIn(ExperimentalWearMaterial3Api::class)
 @Composable
 fun InlineSliderWithIntegersDemo() {
     var valueWithoutSegments by remember { mutableIntStateOf(5) }
@@ -171,6 +174,7 @@ fun InlineSliderRTLDemo() {
     }
 }
 
+@OptIn(ExperimentalWearMaterial3Api::class)
 @Composable
 fun InlineSliderCustomColorsDemo() {
     var value by remember { mutableFloatStateOf(4.5f) }
@@ -202,6 +206,7 @@ fun InlineSliderCustomColorsDemo() {
     }
 }
 
+@OptIn(ExperimentalWearMaterial3Api::class)
 @Composable
 fun DefaultInlineSlider(
     value: Float,
@@ -230,6 +235,7 @@ fun DefaultInlineSlider(
     )
 }
 
+@OptIn(ExperimentalWearMaterial3Api::class)
 @Composable
 fun DefaultInlineSlider(
     value: Int,

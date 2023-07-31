@@ -22,11 +22,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.wear.compose.material3.ExperimentalWearMaterial3Api
 import androidx.wear.compose.material3.Icon
 import androidx.wear.compose.material3.InlineSlider
 import androidx.wear.compose.material3.InlineSliderDefaults
 
 @Sampled
+@OptIn(ExperimentalWearMaterial3Api::class)
 @Composable
 fun InlineSliderSample() {
     var value by remember { mutableStateOf(4.5f) }
@@ -42,6 +44,7 @@ fun InlineSliderSample() {
 }
 
 @Sampled
+@OptIn(ExperimentalWearMaterial3Api::class)
 @Composable
 fun InlineSliderSegmentedSample() {
     var value by remember { mutableStateOf(2f) }
@@ -57,6 +60,7 @@ fun InlineSliderSegmentedSample() {
 }
 
 @Sampled
+@OptIn(ExperimentalWearMaterial3Api::class)
 @Composable
 fun InlineSliderWithIntegerSample() {
     var value by remember { mutableStateOf(4) }

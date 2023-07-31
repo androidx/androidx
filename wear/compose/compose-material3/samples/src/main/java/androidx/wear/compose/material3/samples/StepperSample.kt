@@ -23,6 +23,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.wear.compose.material3.ExperimentalWearMaterial3Api
 import androidx.wear.compose.material3.Icon
 import androidx.wear.compose.material3.Stepper
 import androidx.wear.compose.material3.StepperDefaults
@@ -30,6 +31,7 @@ import androidx.wear.compose.material3.Text
 import androidx.wear.compose.material3.rangeSemantics
 
 @Sampled
+@OptIn(ExperimentalWearMaterial3Api::class)
 @Composable
 fun StepperSample() {
     var value by remember { mutableStateOf(2f) }
@@ -44,6 +46,7 @@ fun StepperSample() {
 }
 
 @Sampled
+@OptIn(ExperimentalWearMaterial3Api::class)
 @Composable
 fun StepperWithIntegerSample() {
     var value by remember { mutableStateOf(2) }
@@ -57,6 +60,7 @@ fun StepperWithIntegerSample() {
 }
 
 @Sampled
+@OptIn(ExperimentalWearMaterial3Api::class)
 @Composable
 fun StepperWithRangeSemanticsSample() {
     var value by remember { mutableStateOf(2f) }
