@@ -26,7 +26,6 @@ import androidx.test.filters.LargeTest
 import androidx.testutils.measureStartup
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -35,7 +34,7 @@ import org.junit.runners.Parameterized
 @OptIn(ExperimentalMetricApi::class)
 @LargeTest
 @RunWith(Parameterized::class)
-class TrivialStartupTracingBenchmark(
+class TrivialStartupPerfettoSdkBenchmark(
     private val startupMode: StartupMode,
     private val compilationMode: CompilationMode,
     private val isFullTracingEnabled: Boolean
@@ -43,8 +42,6 @@ class TrivialStartupTracingBenchmark(
     @get:Rule
     val benchmarkRule = MacrobenchmarkRule()
 
-    // TODO(283953019): enable alongside StartupTracingInitializer (pending performance testing)
-    @Ignore
     @Test
     fun startup() = try {
         Arguments.fullTracingEnableOverride = isFullTracingEnabled
@@ -52,9 +49,8 @@ class TrivialStartupTracingBenchmark(
 
         try {
             val perfettoSdkTraceSection = TraceSectionMetric(
-                "androidx.compose.integration.macrobenchmark.target." +
-                    "TrivialStartupTracingActivity.onCreate.<anonymous>" +
-                    " (TrivialStartupTracingActivity.kt:33)"
+                "%TrivialStartupTracingActivity.onCreate%" +
+                    " (TrivialStartupTracingActivity.kt:%)"
             )
             benchmarkRule.measureStartup(
                 compilationMode = compilationMode,
@@ -70,8 +66,11 @@ class TrivialStartupTracingBenchmark(
             if (!isFullTracingEnabled &&
                 e.message?.contains("Unable to read any metrics during benchmark") == true
             ) {
-                // this is expected, we don't expect Perfetto SDK Tracing section present
-                // when full tracing is disabled
+                // We are relying on the fact that Macrobenchmark will throw an exception when it
+                // cannot find any metrics, and given we are looking for one specific metric
+                // (a Composable function emitted by Compose Tracing), we are able to tell if
+                // Compose Tracing is working (enabled) or not, both of which we want to verify in
+                // this test.
             } else throw e // this is a legitimate failure
         }
     } finally {

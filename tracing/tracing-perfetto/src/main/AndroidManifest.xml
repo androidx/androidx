@@ -32,8 +32,6 @@
             </intent-filter>
         </receiver>
 
-        <!-- TODO(283953019): enable when feature complete (i.e. after measuring perf impact) -->
-        <!--
         <provider
             android:name="androidx.startup.InitializationProvider"
             android:authorities="${applicationId}.androidx-startup"
@@ -43,6 +41,12 @@
                 android:name="androidx.tracing.perfetto.StartupTracingInitializer"
                 android:value="androidx.startup" />
         </provider>
-        -->
+        <receiver
+            android:name="androidx.tracing.perfetto.StartupTracingConfigStoreIsEnabledGate"
+            android:enabled="false"
+            android:exported="false"
+            android:directBootAware="false"
+            tools:targetApi="n">
+        </receiver>
     </application>
 </manifest>
