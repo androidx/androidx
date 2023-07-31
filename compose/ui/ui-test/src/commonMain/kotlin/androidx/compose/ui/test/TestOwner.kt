@@ -93,8 +93,10 @@ class TestContext internal constructor(internal val testOwner: TestOwner) {
             }
         }
 
-        return roots.flatMap {
-            it.semanticsOwner.getAllSemanticsNodes(mergingEnabled = !useUnmergedTree)
+        return testOwner.runOnUiThread {
+            roots.flatMap {
+                it.semanticsOwner.getAllSemanticsNodes(mergingEnabled = !useUnmergedTree)
+            }
         }
     }
 }
