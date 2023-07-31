@@ -1,0 +1,32 @@
+// Signature format: 4.0
+package androidx.window.java.area {
+
+  @SuppressCompatibility @androidx.window.core.ExperimentalWindowApi public final class WindowAreaControllerCallbackAdapter implements androidx.window.area.WindowAreaController {
+    ctor public WindowAreaControllerCallbackAdapter(androidx.window.area.WindowAreaController controller);
+    method public void addWindowAreaInfoListListener(java.util.concurrent.Executor executor, androidx.core.util.Consumer<java.util.List<androidx.window.area.WindowAreaInfo>> listener);
+    method public void removeWindowAreaInfoListListener(androidx.core.util.Consumer<java.util.List<androidx.window.area.WindowAreaInfo>> listener);
+  }
+
+}
+
+package androidx.window.java.embedding {
+
+  @SuppressCompatibility @androidx.window.core.ExperimentalWindowApi public final class SplitControllerCallbackAdapter {
+    ctor public SplitControllerCallbackAdapter(androidx.window.embedding.SplitController controller);
+    method public void addSplitListener(android.app.Activity activity, java.util.concurrent.Executor executor, androidx.core.util.Consumer<java.util.List<androidx.window.embedding.SplitInfo>> consumer);
+    method public void removeSplitListener(androidx.core.util.Consumer<java.util.List<androidx.window.embedding.SplitInfo>> consumer);
+  }
+
+}
+
+package androidx.window.java.layout {
+
+  public final class WindowInfoTrackerCallbackAdapter implements androidx.window.layout.WindowInfoTracker {
+    ctor public WindowInfoTrackerCallbackAdapter(androidx.window.layout.WindowInfoTracker tracker);
+    method public void addWindowLayoutInfoListener(android.app.Activity activity, java.util.concurrent.Executor executor, androidx.core.util.Consumer<androidx.window.layout.WindowLayoutInfo> consumer);
+    method public void addWindowLayoutInfoListener(@UiContext android.content.Context context, java.util.concurrent.Executor executor, androidx.core.util.Consumer<androidx.window.layout.WindowLayoutInfo> consumer);
+    method public void removeWindowLayoutInfoListener(androidx.core.util.Consumer<androidx.window.layout.WindowLayoutInfo> consumer);
+  }
+
+}
+
