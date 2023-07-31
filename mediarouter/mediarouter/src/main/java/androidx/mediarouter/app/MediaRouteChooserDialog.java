@@ -19,7 +19,10 @@ package androidx.mediarouter.app;
 import static androidx.mediarouter.media.MediaRouter.RouteInfo.CONNECTION_STATE_CONNECTED;
 import static androidx.mediarouter.media.MediaRouter.RouteInfo.CONNECTION_STATE_CONNECTING;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -98,6 +101,7 @@ public class MediaRouteChooserDialog extends AppCompatDialog {
     private ProgressBar mSearchingProgressBar;
     private ListView mListView;
     private RouteAdapter mAdapter;
+    private ScreenOnOffReceiver mScreenOnOffReceiver;
 
     private boolean mAttachedToWindow;
     private long mLastUpdateTime;
@@ -140,6 +144,7 @@ public class MediaRouteChooserDialog extends AppCompatDialog {
 
         mRouter = MediaRouter.getInstance(context);
         mCallback = new MediaRouterCallback();
+        mScreenOnOffReceiver = new ScreenOnOffReceiver();
     }
 
     /**
@@ -249,6 +254,27 @@ public class MediaRouteChooserDialog extends AppCompatDialog {
         mListView.setEmptyView(findViewById(android.R.id.empty));
 
         updateLayout();
+
+        registerBroadcastReceiver();
+    }
+
+    private void registerBroadcastReceiver() {
+        IntentFilter filter = new IntentFilter(Intent.ACTION_SCREEN_OFF);
+        getContext().registerReceiver(mScreenOnOffReceiver, filter);
+    }
+
+    @Override
+    public void dismiss() {
+        unregisterBroadcastReceiver();
+        super.dismiss();
+    }
+
+    private void unregisterBroadcastReceiver() {
+        try {
+            getContext().unregisterReceiver(mScreenOnOffReceiver);
+        } catch (IllegalArgumentException e) {
+            // May already be unregistered; ignore.
+        }
     }
 
     /**
@@ -561,6 +587,15 @@ public class MediaRouteChooserDialog extends AppCompatDialog {
         @Override
         public int compare(MediaRouter.RouteInfo lhs, MediaRouter.RouteInfo rhs) {
             return lhs.getName().compareToIgnoreCase(rhs.getName());
+        }
+    }
+
+    final class ScreenOnOffReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (Intent.ACTION_SCREEN_OFF.equals(intent.getAction())) {
+                dismiss();
+            }
         }
     }
 }
