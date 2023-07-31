@@ -155,7 +155,7 @@ internal class TextLayoutState {
      * field coordinates. This relative position is then used to determine symbol position in
      * text using TextLayoutResult object.
      */
-    private fun Offset.relativeToInputText(): Offset {
+    fun Offset.relativeToInputText(): Offset {
         // Translates touch to the inner text field coordinates
         return innerTextFieldCoordinates?.let { innerTextFieldCoordinates ->
             decorationBoxCoordinates?.let { decorationBoxCoordinates ->

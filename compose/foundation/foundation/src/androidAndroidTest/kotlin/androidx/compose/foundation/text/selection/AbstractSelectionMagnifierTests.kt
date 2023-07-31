@@ -113,17 +113,17 @@ internal abstract class AbstractSelectionMagnifierTests {
     }
 
     @Test
-    open fun magnifier_appears_duringInitialLongPressDrag_expandingForwards() {
+    fun magnifier_appears_duringInitialLongPressDrag_expandingForwards() {
         checkMagnifierShowsDuringInitialLongPressDrag(expandForwards = true)
     }
 
     @Test
-    open fun magnifier_appears_duringInitialLongPressDrag_expandingBackwards() {
+    fun magnifier_appears_duringInitialLongPressDrag_expandingBackwards() {
         checkMagnifierShowsDuringInitialLongPressDrag(expandForwards = false)
     }
 
     @Test
-    open fun magnifier_appears_duringInitialLongPressDrag_expandingForwards_rtl() {
+    fun magnifier_appears_duringInitialLongPressDrag_expandingForwards_rtl() {
         checkMagnifierShowsDuringInitialLongPressDrag(
             expandForwards = true,
             layoutDirection = LayoutDirection.Rtl
@@ -131,7 +131,7 @@ internal abstract class AbstractSelectionMagnifierTests {
     }
 
     @Test
-    open fun magnifier_appears_duringInitialLongPressDrag_expandingBackwards_rtl() {
+    fun magnifier_appears_duringInitialLongPressDrag_expandingBackwards_rtl() {
         checkMagnifierShowsDuringInitialLongPressDrag(
             expandForwards = false,
             layoutDirection = LayoutDirection.Rtl
