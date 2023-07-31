@@ -30,7 +30,7 @@ dependencies {
 }
 
 androidx {
-    name = "cSamples"
+    name = "Core Performance Samples"
     type = LibraryType.SAMPLES
     mavenVersion = LibraryVersions.CORE_PERFORMANCE
     inceptionYear = "2021"
