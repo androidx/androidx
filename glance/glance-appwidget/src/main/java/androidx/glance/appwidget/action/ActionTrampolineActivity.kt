@@ -29,5 +29,6 @@ internal class ActionTrampolineActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         launchTrampolineAction(intent)
+        finish()
     }
 }
