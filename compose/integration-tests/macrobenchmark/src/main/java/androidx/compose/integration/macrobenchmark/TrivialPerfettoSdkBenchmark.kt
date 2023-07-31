@@ -41,7 +41,7 @@ import org.junit.runners.Parameterized.Parameters
  */
 @OptIn(ExperimentalMetricApi::class)
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.R) // TODO(234351579): Support API < 30
-class TrivialTracingBenchmark(private val composableName: String) {
+class TrivialPerfettoSdkBenchmark(private val composableName: String) {
     @get:Rule
     val benchmarkRule = MacrobenchmarkRule()
 
