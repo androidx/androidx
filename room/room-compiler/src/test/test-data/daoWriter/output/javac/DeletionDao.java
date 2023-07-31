@@ -43,24 +43,24 @@ public final class DeletionDao_Impl implements DeletionDao {
         this.__deletionAdapterOfUser = new EntityDeletionOrUpdateAdapter<User>(__db) {
             @Override
             @NonNull
-            public String createQuery() {
+            protected String createQuery() {
                 return "DELETE FROM `User` WHERE `uid` = ?";
             }
 
             @Override
-            public void bind(@NonNull final SupportSQLiteStatement statement, final User entity) {
+            protected void bind(@NonNull final SupportSQLiteStatement statement, final User entity) {
                 statement.bindLong(1, entity.uid);
             }
         };
         this.__deletionAdapterOfMultiPKeyEntity = new EntityDeletionOrUpdateAdapter<MultiPKeyEntity>(__db) {
             @Override
             @NonNull
-            public String createQuery() {
+            protected String createQuery() {
                 return "DELETE FROM `MultiPKeyEntity` WHERE `name` = ? AND `lastName` = ?";
             }
 
             @Override
-            public void bind(@NonNull final SupportSQLiteStatement statement,
+            protected void bind(@NonNull final SupportSQLiteStatement statement,
                     final MultiPKeyEntity entity) {
                 if (entity.name == null) {
                     statement.bindNull(1);
@@ -77,12 +77,12 @@ public final class DeletionDao_Impl implements DeletionDao {
         this.__deletionAdapterOfBook = new EntityDeletionOrUpdateAdapter<Book>(__db) {
             @Override
             @NonNull
-            public String createQuery() {
+            protected String createQuery() {
                 return "DELETE FROM `Book` WHERE `bookId` = ?";
             }
 
             @Override
-            public void bind(@NonNull final SupportSQLiteStatement statement, final Book entity) {
+            protected void bind(@NonNull final SupportSQLiteStatement statement, final Book entity) {
                 statement.bindLong(1, entity.bookId);
             }
         };
