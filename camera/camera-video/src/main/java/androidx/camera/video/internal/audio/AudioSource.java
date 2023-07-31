@@ -469,7 +469,7 @@ public final class AudioSource {
                                 NANOSECONDS.toMicros(packetInfo.getTimestampNs()));
                         inputBuffer.submit();
                     } else {
-                        Logger.w(TAG, "Unable to read data from AudioRecord.");
+                        Logger.w(TAG, "Unable to read data from AudioStream.");
                         inputBuffer.cancel();
                     }
                     sendNextAudio();
