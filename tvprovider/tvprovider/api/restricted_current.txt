@@ -224,7 +224,7 @@ package androidx.tvprovider.media.tv {
     method public boolean isTransient();
     method public android.content.ContentValues! toContentValues();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.content.ContentValues! toContentValues(boolean);
-    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static final String![]! PROJECTION;
+    field public static final String![] PROJECTION;
   }
 
   public static final class PreviewProgram.Builder {
@@ -517,7 +517,7 @@ package androidx.tvprovider.media.tv {
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @StringDef({androidx.tvprovider.media.tv.TvContractCompat.Channels.VIDEO_RESOLUTION_SD, androidx.tvprovider.media.tv.TvContractCompat.Channels.VIDEO_RESOLUTION_ED, androidx.tvprovider.media.tv.TvContractCompat.Channels.VIDEO_RESOLUTION_HD, androidx.tvprovider.media.tv.TvContractCompat.Channels.VIDEO_RESOLUTION_FHD, androidx.tvprovider.media.tv.TvContractCompat.Channels.VIDEO_RESOLUTION_UHD}) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface TvContractCompat.Channels.VideoResolution {
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static interface TvContractCompat.PreviewProgramColumns {
+  public static interface TvContractCompat.PreviewProgramColumns {
     field public static final int ASPECT_RATIO_16_9 = 0; // 0x0
     field public static final int ASPECT_RATIO_1_1 = 3; // 0x3
     field public static final int ASPECT_RATIO_2_3 = 4; // 0x4
@@ -829,7 +829,7 @@ package androidx.tvprovider.media.tv {
     method public boolean isTransient();
     method public android.content.ContentValues! toContentValues();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.content.ContentValues! toContentValues(boolean);
-    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static final String![]! PROJECTION;
+    field public static final String![] PROJECTION;
     field public static final int WATCH_NEXT_TYPE_UNKNOWN = -1; // 0xffffffff
   }
 
