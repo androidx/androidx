@@ -224,6 +224,9 @@ internal class SandboxedSdkContextCompat(
 
         val targetBaseDataDir = Api24.dataDir(baseContext)
         val targetSharedPreferencesDir = File(targetBaseDataDir, "shared_prefs")
+        if (!targetSharedPreferencesDir.exists()) {
+            targetSharedPreferencesDir.mkdir()
+        }
 
         if (sourceSharedPreferencesDir == targetSharedPreferencesDir) {
             return true
