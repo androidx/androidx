@@ -1,8 +1,10 @@
 <script lang="ts">
   import { createEventDispatcher } from "svelte";
   import type {
-    Selection,
-    SelectionEvent,
+    DatasetSelection,
+    DatasetSelectionEvent,
+    MetricSelection,
+    MetricSelectionEvent,
     StatEvent,
     StatInfo,
   } from "../types/events.js";
@@ -11,17 +13,24 @@
 
   export let className: string;
   export let datasetGroup: IndexedWrapper[];
+  export let suppressedMetrics: Set<string>;
 
-  let selectionDispatcher = createEventDispatcher<SelectionEvent>();
+  let datasetDispatcher = createEventDispatcher<DatasetSelectionEvent>();
+  let metricsDispatcher = createEventDispatcher<MetricSelectionEvent>();
   let statDispatcher = createEventDispatcher<StatEvent>();
   let datasetNames: Set<string>;
 
   // Forward events.
-  let selection = function (event: CustomEvent<Selection[]>) {
-    selectionDispatcher("selections", event.detail);
+  let datasetSelection = function (event: CustomEvent<DatasetSelection[]>) {
+    datasetDispatcher("datasetSelections", event.detail);
   };
+
   let stat = function (event: CustomEvent<StatInfo[]>) {
     statDispatcher("info", event.detail);
+  };
+
+  let metricSelection = function (event: CustomEvent<MetricSelection[]>) {
+    metricsDispatcher("metricSelections", event.detail);
   };
 
   $: {
@@ -33,7 +42,14 @@
   <summary>{className}</summary>
   <div class="details">
     {#each datasetNames as name (name)}
-      <Dataset {datasetGroup} {name} on:selections={selection} on:info={stat} />
+      <Dataset
+        {datasetGroup}
+        {suppressedMetrics}
+        {name}
+        on:datasetSelections={datasetSelection}
+        on:metricSelections={metricSelection}
+        on:info={stat}
+      />
     {/each}
   </div>
 </details>

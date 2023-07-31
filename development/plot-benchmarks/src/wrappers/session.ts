@@ -68,5 +68,4 @@ export class Session {
     }
     return sources;
   }
-
 }

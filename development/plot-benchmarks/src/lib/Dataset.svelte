@@ -1,19 +1,23 @@
 <script lang="ts">
   import { createEventDispatcher } from "svelte";
-  import { Session, type IndexedWrapper } from "../wrappers/session.js";
-  import type {
-    SelectionEvent,
-    Selection,
-    StatEvent,
-    StatInfo,
-    StatType,
+  import {
+    type DatasetSelection,
+    type DatasetSelectionEvent,
+    type MetricSelection,
+    type MetricSelectionEvent,
+    type StatEvent,
+    type StatInfo,
+    type StatType,
   } from "../types/events.js";
+  import { Session, type IndexedWrapper } from "../wrappers/session.js";
 
   export let name: string;
   export let datasetGroup: IndexedWrapper[];
+  export let suppressedMetrics: Set<string>;
 
   // Dispatchers
-  let selectionDispatcher = createEventDispatcher<SelectionEvent>();
+  let datasetDispatcher = createEventDispatcher<DatasetSelectionEvent>();
+  let metricsDispatcher = createEventDispatcher<MetricSelectionEvent>();
   let statDispatcher = createEventDispatcher<StatEvent>();
   // State
   let selected: boolean = true;
@@ -27,11 +31,11 @@
     event.stopPropagation();
     const target = event.target as HTMLInputElement;
     selected = target.checked;
-    const selection: Selection = {
+    const selection: DatasetSelection = {
       name: name,
       enabled: selected,
     };
-    selectionDispatcher("selections", [selection]);
+    datasetDispatcher("datasetSelections", [selection]);
   };
 
   let stat = function (type: StatType) {
@@ -42,15 +46,27 @@
       const stat: StatInfo = {
         name: name,
         type: type,
-        enabled: compute
+        enabled: compute,
       };
       statDispatcher("info", [stat]);
     };
   };
 
+  let metricSelection = function (metric: string) {
+    return function (event: Event) {
+      event.stopPropagation();
+      const target = event.target as HTMLInputElement;
+      const checked = target.checked;
+      const selection: MetricSelection = {
+        name: metric,
+        enabled: checked,
+      };
+      metricsDispatcher("metricSelections", [selection]);
+    };
+  };
+
   $: {
     sources = Session.sources(datasetGroup);
-
     let labels = datasetGroup
       .map((indexed) => indexed.value.metricLabels())
       .flat();
@@ -103,15 +119,37 @@
       </div>
       {#if metrics.size > 0}
         <div class="metrics">
-          {#each metrics as metric}
-            <div>📏 <small>{metric}</small></div>
+          {#each metrics as metric (metric)}
+            <fieldset class="metric">
+              <label for={metric}>
+                <input
+                  type="checkbox"
+                  name={metric}
+                  id={metric}
+                  checked={!suppressedMetrics.has(metric)}
+                  on:change={metricSelection(metric)}
+                />
+                📏 {metric}
+              </label>
+            </fieldset>
           {/each}
         </div>
       {/if}
       {#if sampledMetrics.size > 0}
         <div class="sampled">
-          {#each sampledMetrics as metric}
-            <div>📏 <small>{metric}</small></div>
+          {#each sampledMetrics as metric (metric)}
+            <fieldset class="metric">
+              <label for={metric}>
+                <input
+                  type="checkbox"
+                  name={metric}
+                  id={metric}
+                  checked={!suppressedMetrics.has(metric)}
+                  on:change={metricSelection(metric)}
+                />
+                📏 {metric}
+              </label>
+            </fieldset>
           {/each}
         </div>
       {/if}
@@ -142,14 +180,18 @@
   .section .item {
     margin: 0px 10px;
   }
-
   .actions {
     display: flex;
     flex-direction: row;
     justify-content: flex-end;
   }
-
   .actions fieldset {
     margin-left: 5px;
+  }
+  .metric {
+    margin-bottom: 0;
+  }
+  .metric label {
+    font-size: 0.875em;
   }
 </style>
