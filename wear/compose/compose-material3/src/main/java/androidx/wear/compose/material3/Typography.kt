@@ -15,13 +15,15 @@
  */
 package androidx.wear.compose.material3
 
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.sp
+import androidx.wear.compose.material3.tokens.TypographyKeyTokens
+import androidx.wear.compose.material3.tokens.TypographyTokens
 
 /**
  * Class holding typography definitions as defined by the Wear Material typography specification.
@@ -95,84 +97,19 @@ public class Typography internal constructor(
 ) {
     public constructor (
         defaultFontFamily: FontFamily = FontFamily.Default,
-        displayLarge: TextStyle = DefaultTextStyle.copy(
-            fontWeight = FontWeight.Normal,
-            fontSize = 40.sp,
-            lineHeight = 44.sp,
-            letterSpacing = 0.sp
-        ),
-        displayMedium: TextStyle = DefaultTextStyle.copy(
-            fontWeight = FontWeight.Normal,
-            fontSize = 30.sp,
-            lineHeight = 34.sp,
-            letterSpacing = 0.sp
-        ),
-        displaySmall: TextStyle = DefaultTextStyle.copy(
-            fontWeight = FontWeight.Medium,
-            fontSize = 24.sp,
-            lineHeight = 28.sp,
-            letterSpacing = 0.sp,
-        ),
-        titleLarge: TextStyle = DefaultTextStyle.copy(
-            fontWeight = FontWeight.Medium,
-            fontSize = 20.sp,
-            lineHeight = 22.sp,
-            letterSpacing = 0.2.sp
-        ),
-        titleMedium: TextStyle = DefaultTextStyle.copy(
-            fontWeight = FontWeight.Medium,
-            fontSize = 16.sp,
-            lineHeight = 18.sp,
-            letterSpacing = 0.3.sp
-        ),
-        titleSmall: TextStyle = DefaultTextStyle.copy(
-            fontWeight = FontWeight.Medium,
-            fontSize = 14.sp,
-            lineHeight = 16.sp,
-            letterSpacing = 0.3.sp
-        ),
-        labelLarge: TextStyle = DefaultTextStyle.copy(
-            fontWeight = FontWeight.Medium,
-            fontSize = 20.sp,
-            lineHeight = 22.sp,
-            letterSpacing = 0.2.sp
-        ),
-        labelMedium: TextStyle = DefaultTextStyle.copy(
-            fontWeight = FontWeight.Medium,
-            fontSize = 15.sp,
-            lineHeight = 16.sp,
-            letterSpacing = 0.2.sp
-        ),
-        labelSmall: TextStyle = DefaultTextStyle.copy(
-            fontWeight = FontWeight.Medium,
-            fontSize = 13.sp,
-            lineHeight = 14.sp,
-            letterSpacing = 0.3.sp
-        ),
-        bodyLarge: TextStyle = DefaultTextStyle.copy(
-            fontWeight = FontWeight.Normal,
-            fontSize = 16.sp,
-            lineHeight = 18.sp,
-            letterSpacing = 0.3.sp,
-        ),
-        bodyMedium: TextStyle = DefaultTextStyle.copy(
-            fontWeight = FontWeight.Normal,
-            fontSize = 14.sp,
-            lineHeight = 18.sp,
-            letterSpacing = 0.2.sp
-        ),
-        bodySmall: TextStyle = DefaultTextStyle.copy(
-            fontWeight = FontWeight.Medium,
-            fontSize = 12.sp,
-            lineHeight = 16.sp,
-            letterSpacing = 0.4.sp
-        ),
-        bodyExtraSmall: TextStyle = DefaultTextStyle.copy(
-            fontWeight = FontWeight.Normal,
-            fontSize = 11.sp,
-            lineHeight = 14.sp,
-            letterSpacing = 0.4.sp
-        )
+        displayLarge: TextStyle = TypographyTokens.DisplayLarge,
+        displayMedium: TextStyle = TypographyTokens.DisplayMedium,
+        displaySmall: TextStyle = TypographyTokens.DisplaySmall,
+        titleLarge: TextStyle = TypographyTokens.TitleLarge,
+        titleMedium: TextStyle = TypographyTokens.TitleMedium,
+        titleSmall: TextStyle = TypographyTokens.TitleSmall,
+        labelLarge: TextStyle = TypographyTokens.LabelLarge,
+        labelMedium: TextStyle = TypographyTokens.LabelMedium,
+        labelSmall: TextStyle = TypographyTokens.LabelSmall,
+        bodyLarge: TextStyle = TypographyTokens.BodyLarge,
+        bodyMedium: TextStyle = TypographyTokens.BodyMedium,
+        bodySmall: TextStyle = TypographyTokens.BodySmall,
+        bodyExtraSmall: TextStyle = TypographyTokens.BodyExtraSmall
     ) : this(
         displayLarge = displayLarge.withDefaultFontFamily(defaultFontFamily),
         displayMedium = displayMedium.withDefaultFontFamily(defaultFontFamily),
@@ -287,6 +224,36 @@ internal val DefaultTextStyle = TextStyle.Default.copy(
         includeFontPadding = DefaultIncludeFontPadding
     )
 )
+
+/**
+ * Helper function for typography tokens.
+ */
+internal fun Typography.fromToken(value: TypographyKeyTokens): TextStyle {
+    return when (value) {
+        TypographyKeyTokens.DisplayLarge -> displayLarge
+        TypographyKeyTokens.DisplayMedium -> displayMedium
+        TypographyKeyTokens.DisplaySmall -> displaySmall
+        TypographyKeyTokens.TitleLarge -> titleLarge
+        TypographyKeyTokens.TitleMedium -> titleMedium
+        TypographyKeyTokens.TitleSmall -> titleSmall
+        TypographyKeyTokens.LabelLarge -> labelLarge
+        TypographyKeyTokens.LabelMedium -> labelMedium
+        TypographyKeyTokens.LabelSmall -> labelSmall
+        TypographyKeyTokens.BodyLarge -> bodyLarge
+        TypographyKeyTokens.BodyMedium -> bodyMedium
+        TypographyKeyTokens.BodySmall -> bodySmall
+        TypographyKeyTokens.BodyExtraSmall -> bodyExtraSmall
+    }
+}
+
+/**
+ * Helper function to convert [TypographyKeyTokens] to [TextStyle].
+ */
+@Composable
+@ReadOnlyComposable
+internal fun TypographyKeyTokens.toTextStyle(): TextStyle {
+    return MaterialTheme.typography.fromToken(this)
+}
 
 /**
  * This Ambient holds on to the current definition of typography for this application as described
