@@ -13,18 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.lifecycle.observers
 
-package androidx.lifecycle.observers;
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleObserver
 
-import androidx.lifecycle.Lifecycle;
-import androidx.lifecycle.LifecycleObserver;
-
-@SuppressWarnings("deprecation")
-public interface Interface2 extends LifecycleObserver {
-
+@Suppress("DEPRECATION")
+interface Interface2 : LifecycleObserver {
     @androidx.lifecycle.OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
-    void onCreate();
+    fun onCreate()
 
     @androidx.lifecycle.OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
-    void onDestroy();
+    fun onDestroy()
 }
