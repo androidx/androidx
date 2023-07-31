@@ -13,17 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.lifecycle.observers
 
-package androidx.lifecycle.observers;
+import androidx.lifecycle.Lifecycle
 
-import androidx.lifecycle.Lifecycle;
-
-@SuppressWarnings("deprecation")
-public class DerivedWithOverriddenMethodsWithLfAnnotation extends Base {
-
+@Suppress("DEPRECATION")
+class DerivedWithOverriddenMethodsWithLfAnnotation : Base() {
     @androidx.lifecycle.OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
-    @Override
-    public void onCreate() {
-        super.onCreate();
+    override fun onCreate() {
+        super.onCreate()
     }
 }
