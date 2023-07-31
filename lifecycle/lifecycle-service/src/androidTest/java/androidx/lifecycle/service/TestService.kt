@@ -13,40 +13,37 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.lifecycle.service
 
-package androidx.lifecycle.service;
+import android.content.Context
+import android.content.Intent
+import android.os.Binder
+import android.os.IBinder
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.LifecycleService
+import androidx.localbroadcastmanager.content.LocalBroadcastManager.getInstance
 
-import android.content.Context;
-import android.content.Intent;
-import android.os.Binder;
-import android.os.IBinder;
+class TestService : LifecycleService() {
+    private val binder = Binder()
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.lifecycle.LifecycleEventObserver;
-import androidx.lifecycle.LifecycleService;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
-
-public class TestService extends LifecycleService {
-
-    public static final String ACTION_LOG_EVENT = "ACTION_LOG_EVENT";
-    public static final String EXTRA_KEY_EVENT = "EXTRA_KEY_EVENT";
-
-    private final IBinder mBinder = new Binder();
-
-    public TestService() {
-        getLifecycle().addObserver((LifecycleEventObserver) (source, event) -> {
-            Context context = (TestService) source;
-            Intent intent = new Intent(ACTION_LOG_EVENT);
-            intent.putExtra(EXTRA_KEY_EVENT, event);
-            LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
-        });
+    init {
+        lifecycle.addObserver(
+            LifecycleEventObserver { source, event ->
+                val context: Context = source as TestService
+                val intent = Intent(ACTION_LOG_EVENT)
+                intent.putExtra(EXTRA_KEY_EVENT, event)
+                getInstance(context).sendBroadcast(intent)
+            }
+        )
     }
 
-    @Nullable
-    @Override
-    public IBinder onBind(@NonNull Intent intent) {
-        super.onBind(intent);
-        return mBinder;
+    override fun onBind(intent: Intent): IBinder {
+        super.onBind(intent)
+        return binder
+    }
+
+    companion object {
+        const val ACTION_LOG_EVENT = "ACTION_LOG_EVENT"
+        const val EXTRA_KEY_EVENT = "EXTRA_KEY_EVENT"
     }
 }
