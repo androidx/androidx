@@ -4,12 +4,21 @@ export interface FileMetadataEvent {
   entries: FileMetadata[];
 }
 
-export interface Selection {
+export interface DatasetSelection {
   name: string;
   enabled: boolean;
 }
-export interface SelectionEvent {
-  selections: Selection[];
+export interface DatasetSelectionEvent {
+  datasetSelections: DatasetSelection[];
+}
+
+export interface MetricSelectionEvent {
+  metricSelections: MetricSelection[];
+}
+
+export interface MetricSelection {
+  name: string;
+  enabled: boolean;
 }
 
 export type StatType = 'p';
