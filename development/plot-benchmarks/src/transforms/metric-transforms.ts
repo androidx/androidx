@@ -9,7 +9,7 @@ export class Transforms {
     // static helpers.
   }
 
-  static buildMetrics(session: Session, suppressed: Set<string>): Metrics<number> {
+  static buildMetrics(session: Session, suppressed: Set<string>, suppressedMetrics: Set<string>): Metrics<number> {
     const classGroups = Object.entries(session.classGroups);
     const standard: Metric<number>[] = [];
     const sampled: Metric<number[]>[] = [];
@@ -27,6 +27,9 @@ export class Transforms {
         let labels = wrapper.value.metricLabels();
         for (let k = 0; k < labels.length; k += 1) {
           const label = labels[k];
+          if (suppressedMetrics.has(label)) {
+            continue;
+          }
           const metric = wrapper.value.metric(label);
           const charData: ChartData<number> = {
             values: metric.runs
@@ -44,6 +47,9 @@ export class Transforms {
         labels = wrapper.value.sampledLabels();
         for (let k = 0; k < labels.length; k += 1) {
           const label = labels[k];
+          if (suppressedMetrics.has(label)) {
+            continue;
+          }
           const metric = wrapper.value.sampled(label);
           const charData: ChartData<number[]> = {
             values: metric.runs

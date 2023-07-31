@@ -14,8 +14,9 @@
   import type { Metrics } from "../types/data.js";
   import type {
     FileMetadataEvent,
-    Selection,
+    DatasetSelection,
     StatInfo,
+    MetricSelection,
   } from "../types/events.js";
   import type { FileMetadata } from "../types/files.js";
   import { Session, type IndexedWrapper } from "../wrappers/session.js";
@@ -40,6 +41,7 @@
   // Stores
   let activeDragDrop: Writable<boolean> = writable(false);
   let suppressed: Writable<Set<string>> = writable(new Set());
+  let suppressedMetrics: Writable<Set<string>> = writable(new Set());
   let activeStats: Writable<StatInfo[]> = writable([]);
   let active: Readable<Set<string>> = derived(activeStats, ($activeStats) => {
     const datasets = [];
@@ -51,8 +53,8 @@
   });
 
   // Events
-  let selectionHandler = function (event: CustomEvent<Selection[]>) {
-    const selections: Selection[] = event.detail;
+  let datasetHandler = function (event: CustomEvent<DatasetSelection[]>) {
+    const selections: DatasetSelection[] = event.detail;
     for (let i = 0; i < selections.length; i += 1) {
       const selection = selections[i];
       if (!selection.enabled) {
@@ -62,6 +64,19 @@
       }
     }
     $suppressed = $suppressed;
+  };
+
+  let metricsHandler = function (event: CustomEvent<MetricSelection[]>) {
+    const selections: MetricSelection[] = event.detail;
+    for (let i = 0; i < selections.length; i += 1) {
+      const selection = selections[i];
+      if (!selection.enabled) {
+        $suppressedMetrics.add(selection.name);
+      } else {
+        $suppressedMetrics.delete(selection.name);
+      }
+    }
+    $suppressedMetrics = $suppressedMetrics;
   };
 
   let statHandler = function (event: CustomEvent<StatInfo[]>) {
@@ -84,7 +99,7 @@
 
   $: {
     session = new Session(fileEntries);
-    metrics = Transforms.buildMetrics(session, $suppressed);
+    metrics = Transforms.buildMetrics(session, $suppressed, $suppressedMetrics);
     activeSeries = service.pSeries(metrics, $active);
     series = ChartDataTransforms.mapToSeries(metrics, STANDARD_MAPPER);
     chartData = ChartDataTransforms.mapToDataset(series);
@@ -159,7 +174,9 @@
       <Group
         {className}
         datasetGroup={wrappers}
-        on:selections={selectionHandler}
+        suppressedMetrics={$suppressedMetrics}
+        on:datasetSelections={datasetHandler}
+        on:metricSelections={metricsHandler}
         on:info={statHandler}
       />
     {/each}
@@ -173,7 +190,10 @@
     <article aria-busy="true" />
   {:then chartData}
     {#if chartData.length > 0}
-      <Chart data={ChartDataTransforms.mapToDataset(chartData)} isExperimental={true} />
+      <Chart
+        data={ChartDataTransforms.mapToDataset(chartData)}
+        isExperimental={true}
+      />
     {/if}
   {/await}
 {/if}
