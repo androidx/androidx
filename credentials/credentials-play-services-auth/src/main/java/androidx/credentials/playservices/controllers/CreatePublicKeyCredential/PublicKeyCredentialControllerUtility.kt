@@ -74,7 +74,7 @@ internal class PublicKeyCredentialControllerUtility {
 
         private val JSON_KEY_CLIENT_DATA = "clientDataJSON"
         private val JSON_KEY_ATTESTATION_OBJ = "attestationObject"
-        private val JSON_KEY_AUTH_DATA = "authenticationData"
+        private val JSON_KEY_AUTH_DATA = "authenticatorData"
         private val JSON_KEY_SIGNATURE = "signature"
         private val JSON_KEY_USER_HANDLE = "userHandle"
         private val JSON_KEY_RESPONSE = "response"
