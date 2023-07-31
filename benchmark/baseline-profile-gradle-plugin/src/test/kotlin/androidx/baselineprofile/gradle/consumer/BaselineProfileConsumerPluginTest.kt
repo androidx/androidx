@@ -111,6 +111,10 @@ class BaselineProfileConsumerPluginTest(private val agpVersion: String?) {
                 Fixtures.CLASS_1_METHOD_1,
                 Fixtures.CLASS_2,
                 Fixtures.CLASS_2_METHOD_1,
+                Fixtures.CLASS_3_METHOD_1,
+                Fixtures.CLASS_3,
+                Fixtures.CLASS_4_METHOD_1,
+                Fixtures.CLASS_4
             )
 
         assertThat(startupProfileFile("main").exists()).isFalse()
@@ -152,6 +156,10 @@ class BaselineProfileConsumerPluginTest(private val agpVersion: String?) {
                 Fixtures.CLASS_1_METHOD_1,
                 Fixtures.CLASS_2,
                 Fixtures.CLASS_2_METHOD_1,
+                Fixtures.CLASS_3,
+                Fixtures.CLASS_3_METHOD_1,
+                Fixtures.CLASS_4,
+                Fixtures.CLASS_4_METHOD_1,
             )
 
         assertThat(readStartupProfileFileContent("release"))
@@ -239,12 +247,16 @@ class BaselineProfileConsumerPluginTest(private val agpVersion: String?) {
             .containsExactly(
                 Fixtures.CLASS_1,
                 Fixtures.CLASS_1_METHOD_1,
+                Fixtures.CLASS_3,
+                Fixtures.CLASS_3_METHOD_1,
             )
 
         assertThat(readBaselineProfileFileContent("paidRelease"))
             .containsExactly(
                 Fixtures.CLASS_2,
                 Fixtures.CLASS_2_METHOD_1,
+                Fixtures.CLASS_4,
+                Fixtures.CLASS_4_METHOD_1,
             )
     }
 
