@@ -1429,4 +1429,52 @@ class XExecutableElementTest {
                 )
         }
     }
+
+    @Test
+    fun receiverParameterNames(@TestParameter isPrecompiled: Boolean) {
+        val kotlinSource = Source.kotlin(
+            "foo.bar.Subject.kt",
+            """
+            package foo.bar
+            abstract class Subject {
+                fun Bar.method(): Unit = TODO()
+                fun Bar.methodWithParam(name: String): Unit = TODO()
+                abstract fun Bar.abstractMethod()
+                abstract fun Bar.abstractMethodWithParam(name: String)
+                @JvmName("newMethodWithJvmName")
+                fun Bar.methodWithJvmName(): Unit = TODO()
+                @JvmName("newMethodWithJvmNameAndParam")
+                fun Bar.methodWithJvmNameAndParam(name: String): Unit = TODO()
+            }
+            class Bar
+            """.trimIndent())
+        runProcessorTest(
+            sources = if (isPrecompiled) {
+                emptyList()
+            } else {
+                listOf(kotlinSource)
+            },
+            classpath = if (isPrecompiled) {
+                compileFiles(listOf(kotlinSource))
+            } else {
+                emptyList()
+            }
+        ) { invocation ->
+            val subject = invocation.processingEnv.requireTypeElement("foo.bar.Subject")
+
+            // Assert on the method and parameter names of each declared method.
+            assertThat(
+                subject.getDeclaredMethods().map { method ->
+                    "${method.name}(${method.parameters.joinToString(", ") { it.name }})"
+                }
+            ).containsExactly(
+                "method(\$this\$method)",
+                "methodWithParam(\$this\$methodWithParam, name)",
+                "abstractMethod(\$this\$abstractMethod)",
+                "abstractMethodWithParam(\$this\$abstractMethodWithParam, name)",
+                "methodWithJvmName(\$this\$methodWithJvmName)",
+                "methodWithJvmNameAndParam(\$this\$methodWithJvmNameAndParam, name)",
+            ).inOrder()
+        }
+    }
 }
