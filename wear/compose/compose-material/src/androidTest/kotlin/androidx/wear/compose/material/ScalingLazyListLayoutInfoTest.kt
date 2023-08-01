@@ -134,6 +134,7 @@ public class ScalingLazyListLayoutInfoTest {
         scope!!.launch {
             state.animateScrollBy(scrollDistance.toFloat())
         }
+
         rule.runOnIdle {
             assertThat(state.centerItemIndex).isEqualTo(1)
             assertThat(state.centerItemScrollOffset).isEqualTo(scrollDistance)
@@ -419,6 +420,7 @@ public class ScalingLazyListLayoutInfoTest {
                 }
             }
         }
+        rule.mainClock.autoAdvance = false
 
         // TODO(b/210654937): Remove the waitUntil once we no longer need 2 stage initialization
         rule.waitUntil { state.initialized.value }
@@ -426,7 +428,8 @@ public class ScalingLazyListLayoutInfoTest {
             state.animateScrollBy(localItemSizePx.toFloat() * 10)
         }
 
-        rule.waitUntil { !state.isScrollInProgress }
+        rule.mainClock.advanceTimeBy(milliseconds = 1000)
+        assert(!state.isScrollInProgress)
         assertThat(state.centerItemIndex).isEqualTo(4)
         assertThat(state.centerItemScrollOffset).isEqualTo(0)
 
@@ -434,7 +437,8 @@ public class ScalingLazyListLayoutInfoTest {
             state.animateScrollBy(- localItemSizePx.toFloat() * 10)
         }
 
-        rule.waitUntil { !state.isScrollInProgress }
+        rule.mainClock.advanceTimeBy(milliseconds = 1000)
+        assert(!state.isScrollInProgress)
         assertThat(state.centerItemIndex).isEqualTo(autoCenterItem)
         assertThat(state.centerItemScrollOffset).isEqualTo(0)
     }
