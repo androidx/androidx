@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastSumBy
 import kotlin.math.absoluteValue
+import kotlin.math.floor
 import kotlin.math.sign
 
 /**
@@ -56,7 +57,13 @@ fun SnapLayoutInfoProvider(
         val decayAnimationSpec: DecayAnimationSpec<Float> = splineBasedDecay(this)
         val offset =
             decayAnimationSpec.calculateTargetValue(NoDistance, initialVelocity).absoluteValue
-        val finalDecayOffset = (offset - calculateSnapStepSize()).coerceAtLeast(0f)
+
+        val estimatedNumberOfItemsInDecay = floor(offset.absoluteValue / averageItemSize())
+
+        // Decay to exactly half an item before the item where this decay would let us finish.
+        // The rest of the animation will be a snapping animation.
+        val approachOffset = estimatedNumberOfItemsInDecay * averageItemSize() - averageItemSize()
+        val finalDecayOffset = approachOffset.coerceAtLeast(0f)
         return if (finalDecayOffset == 0f) {
             finalDecayOffset
         } else {
@@ -94,7 +101,7 @@ fun SnapLayoutInfoProvider(
         return calculateFinalOffset(currentVelocity, lowerBoundOffset, upperBoundOffset)
     }
 
-    override fun Density.calculateSnapStepSize(): Float = with(layoutInfo) {
+    fun averageItemSize(): Float = with(layoutInfo) {
         if (visibleItemsInfo.isNotEmpty()) {
             visibleItemsInfo.fastSumBy { it.size } / visibleItemsInfo.size.toFloat()
         } else {

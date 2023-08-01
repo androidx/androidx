@@ -569,8 +569,6 @@ private fun SnapLayoutInfoProvider(
             }
         }
 
-        override fun Density.calculateSnapStepSize(): Float = layoutInfo.pageSize.toFloat()
-
         override fun Density.calculateApproachOffset(initialVelocity: Float): Float {
             debugLog { "Approach Velocity=$initialVelocity" }
             val effectivePageSizePx = pagerState.pageSize + pagerState.pageSpacing
