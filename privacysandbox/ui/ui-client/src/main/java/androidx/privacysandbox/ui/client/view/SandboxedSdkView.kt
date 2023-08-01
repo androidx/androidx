@@ -133,6 +133,10 @@ class SandboxedSdkView @JvmOverloads constructor(context: Context, attrs: Attrib
 
     /**
      * Sets the Z-ordering of the [SandboxedSdkView]'s surface, relative to its window.
+     *
+     * When [setOnTop] is true, every [android.view.MotionEvent] on the [SandboxedSdkView] will be
+     * sent to the UI provider. When [setOnTop] is false, every [android.view.MotionEvent] will be
+     * sent to the client. By default, motion events are sent to the UI provider.
      */
     fun setZOrderOnTopAndEnableUserInteraction(setOnTop: Boolean) {
         if (setOnTop == isZOrderOnTop) return
