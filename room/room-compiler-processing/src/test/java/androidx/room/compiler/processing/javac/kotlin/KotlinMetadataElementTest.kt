@@ -696,10 +696,10 @@ class KotlinMetadataElementTest(
             val (_, withUpperBounds) = getMetadataElement(env, "WithUpperBounds")
             assertThat(withUpperBounds.type.typeArguments).hasSize(2)
             assertThat(withUpperBounds.type.typeArguments[0].upperBounds).hasSize(1)
-            assertThat(withUpperBounds.type.typeArguments[0].upperBounds!![0].isNullable())
+            assertThat(withUpperBounds.type.typeArguments[0].upperBounds[0].isNullable())
                 .isFalse()
             assertThat(withUpperBounds.type.typeArguments[1].upperBounds).hasSize(1)
-            assertThat(withUpperBounds.type.typeArguments[1].upperBounds!![0].isNullable())
+            assertThat(withUpperBounds.type.typeArguments[1].upperBounds[0].isNullable())
                 .isTrue()
 
             val (_, withSuperType) = getMetadataElement(env, "WithSuperType")

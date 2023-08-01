@@ -19,6 +19,7 @@ package androidx.room.compiler.processing.ksp
 import androidx.room.compiler.processing.XMethodType
 import androidx.room.compiler.processing.XSuspendMethodType
 import androidx.room.compiler.processing.XType
+import androidx.room.compiler.processing.XTypeVariableType
 import com.squareup.javapoet.TypeVariableName
 
 internal sealed class KspMethodType(
@@ -26,16 +27,22 @@ internal sealed class KspMethodType(
     override val origin: KspMethodElement,
     containing: KspType?
 ) : KspExecutableType(env, origin, containing), XMethodType {
-    override val typeVariableNames: List<TypeVariableName> by lazy {
+
+    override val typeVariables: List<XTypeVariableType> by lazy {
         origin.declaration.typeParameters.map {
-            val typeParameterBounds = it.bounds.map {
-                it.asJTypeName(env.resolver)
-            }.toList().toTypedArray()
-            TypeVariableName.get(
-                it.name.asString(),
-                *typeParameterBounds
-            )
+            KspMethodTypeVariableType(env, it)
         }
+    }
+
+    @Deprecated(
+        "Use typeVariables property and convert to JavaPoet names.",
+        replaceWith = ReplaceWith(
+            "typeVariables.map { it.asTypeName().toJavaPoet() }",
+            "androidx.room.compiler.codegen.toJavaPoet"
+        )
+    )
+    override val typeVariableNames: List<TypeVariableName> by lazy {
+        typeVariables.map { it.asTypeName().java as TypeVariableName }
     }
 
     private class KspNormalMethodType(
