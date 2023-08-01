@@ -19,6 +19,8 @@ package androidx.compose.ui.graphics.vector
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.geometry.Size.Companion.Unspecified
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
@@ -32,6 +34,7 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.scale
 import androidx.compose.ui.graphics.drawscope.withTransform
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.util.fastForEach
@@ -88,18 +91,12 @@ sealed class VNode {
 
 internal class VectorComponent : VNode() {
     val root = GroupComponent().apply {
-        pivotX = 0.0f
-        pivotY = 0.0f
         invalidateListener = {
             doInvalidate()
         }
     }
 
-    var name: String
-        get() = root.name
-        set(value) {
-            root.name = value
-        }
+    var name: String = DefaultGroupName
 
     private fun doInvalidate() {
         isDirty = true
@@ -114,29 +111,22 @@ internal class VectorComponent : VNode() {
 
     internal var intrinsicColorFilter: ColorFilter? by mutableStateOf(null)
 
-    var viewportWidth = 0f
-        set(value) {
-            if (field != value) {
-                field = value
-                doInvalidate()
-            }
-        }
-
-    var viewportHeight = 0f
-        set(value) {
-            if (field != value) {
-                field = value
-                doInvalidate()
-            }
-        }
+    internal var viewportSize by mutableStateOf(Size.Zero)
 
     private var previousDrawSize = Unspecified
+
+    private var rootScaleX = 1f
+    private var rootScaleY = 1f
 
     /**
      * Cached lambda used to avoid allocating the lambda on each draw invocation
      */
     private val drawVectorBlock: DrawScope.() -> Unit = {
-        with(root) { draw() }
+        with(root) {
+            scale(rootScaleX, rootScaleY, pivot = Offset.Zero) {
+                draw()
+            }
+        }
     }
 
     fun DrawScope.draw(alpha: Float, colorFilter: ColorFilter?) {
@@ -144,8 +134,8 @@ internal class VectorComponent : VNode() {
         // If the content of the vector has changed, or we are drawing a different size
         // update the cached image to ensure we are scaling the vector appropriately
         if (isDirty || previousDrawSize != size) {
-            root.scaleX = size.width / viewportWidth
-            root.scaleY = size.height / viewportHeight
+            rootScaleX = size.width / viewportSize.width
+            rootScaleY = size.height / viewportSize.height
             cacheDrawScope.drawCachedImage(
                 IntSize(ceil(size.width).toInt(), ceil(size.height).toInt()),
                 this@draw,
@@ -166,8 +156,8 @@ internal class VectorComponent : VNode() {
         return buildString {
             append("Params: ")
             append("\tname: ").append(name).append("\n")
-            append("\tviewportWidth: ").append(viewportWidth).append("\n")
-            append("\tviewportHeight: ").append(viewportHeight).append("\n")
+            append("\tviewportWidth: ").append(viewportSize.width).append("\n")
+            append("\tviewportHeight: ").append(viewportSize.height).append("\n")
         }
     }
 }
@@ -247,29 +237,23 @@ internal class PathComponent : VNode() {
 
     var trimPathStart = DefaultTrimPathStart
         set(value) {
-            if (field != value) {
-                field = value
-                isTrimPathDirty = true
-                invalidate()
-            }
+            field = value
+            isTrimPathDirty = true
+            invalidate()
         }
 
     var trimPathEnd = DefaultTrimPathEnd
         set(value) {
-            if (field != value) {
-                field = value
-                isTrimPathDirty = true
-                invalidate()
-            }
+            field = value
+            isTrimPathDirty = true
+            invalidate()
         }
 
     var trimPathOffset = DefaultTrimPathOffset
         set(value) {
-            if (field != value) {
-                field = value
-                isTrimPathDirty = true
-                invalidate()
-            }
+            field = value
+            isTrimPathDirty = true
+            invalidate()
         }
 
     private var isPathDirty = true
