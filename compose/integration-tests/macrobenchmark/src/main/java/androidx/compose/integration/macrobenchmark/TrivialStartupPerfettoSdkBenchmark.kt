@@ -37,15 +37,15 @@ import org.junit.runners.Parameterized
 class TrivialStartupPerfettoSdkBenchmark(
     private val startupMode: StartupMode,
     private val compilationMode: CompilationMode,
-    private val isFullTracingEnabled: Boolean
+    private val isPerfettoSdkEnabled: Boolean
 ) {
     @get:Rule
     val benchmarkRule = MacrobenchmarkRule()
 
     @Test
     fun startup() = try {
-        Arguments.fullTracingEnableOverride = isFullTracingEnabled
-        assertThat(Arguments.fullTracingEnable, `is`(isFullTracingEnabled))
+        Arguments.perfettoSdkTracingEnableOverride = isPerfettoSdkEnabled
+        assertThat(Arguments.perfettoSdkTracingEnable, `is`(isPerfettoSdkEnabled))
 
         try {
             val perfettoSdkTraceSection = TraceSectionMetric(
@@ -63,7 +63,7 @@ class TrivialStartupPerfettoSdkBenchmark(
                     "TRIVIAL_STARTUP_TRACING_ACTIVITY"
             }
         } catch (e: IllegalArgumentException) {
-            if (!isFullTracingEnabled &&
+            if (!isPerfettoSdkEnabled &&
                 e.message?.contains("Unable to read any metrics during benchmark") == true
             ) {
                 // We are relying on the fact that Macrobenchmark will throw an exception when it
@@ -74,17 +74,17 @@ class TrivialStartupPerfettoSdkBenchmark(
             } else throw e // this is a legitimate failure
         }
     } finally {
-        Arguments.fullTracingEnableOverride = null
+        Arguments.perfettoSdkTracingEnableOverride = null
     }
 
     companion object {
-        @Parameterized.Parameters(name = "startup={0},compilation={1},fullTracing={2}")
+        @Parameterized.Parameters(name = "startup={0},compilation={1},perfettoSdk={2}")
         @JvmStatic
         fun parameters() = listOf(
-            arrayOf(StartupMode.COLD, CompilationMode.DEFAULT, /* fullTracing = */ true),
-            arrayOf(StartupMode.COLD, CompilationMode.DEFAULT, /* fullTracing = */ false),
-            arrayOf(StartupMode.WARM, CompilationMode.DEFAULT, /* fullTracing = */ true),
-            arrayOf(StartupMode.WARM, CompilationMode.DEFAULT, /* fullTracing = */ false),
+            arrayOf(StartupMode.COLD, CompilationMode.DEFAULT, /* perfettoSdk = */ true),
+            arrayOf(StartupMode.COLD, CompilationMode.DEFAULT, /* perfettoSdk = */ false),
+            arrayOf(StartupMode.WARM, CompilationMode.DEFAULT, /* perfettoSdk = */ true),
+            arrayOf(StartupMode.WARM, CompilationMode.DEFAULT, /* perfettoSdk = */ false),
         )
     }
 }

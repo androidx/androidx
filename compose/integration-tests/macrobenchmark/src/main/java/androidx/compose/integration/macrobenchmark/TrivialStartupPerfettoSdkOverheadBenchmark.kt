@@ -35,15 +35,15 @@ import org.junit.runners.Parameterized
 class TrivialStartupPerfettoSdkOverheadBenchmark(
     private val startupMode: StartupMode,
     private val compilationMode: CompilationMode,
-    private val isFullTracingEnabled: Boolean
+    private val isPerfettoSdkEnabled: Boolean
 ) {
     @get:Rule
     val benchmarkRule = MacrobenchmarkRule()
 
     @Test
     fun startup() = try {
-        Arguments.fullTracingEnableOverride = isFullTracingEnabled
-        assertThat(Arguments.fullTracingEnable, `is`(isFullTracingEnabled))
+        Arguments.perfettoSdkTracingEnableOverride = isPerfettoSdkEnabled
+        assertThat(Arguments.perfettoSdkTracingEnable, `is`(isPerfettoSdkEnabled))
 
         benchmarkRule.measureStartup(
             compilationMode = compilationMode,
@@ -54,21 +54,21 @@ class TrivialStartupPerfettoSdkOverheadBenchmark(
                 "TRIVIAL_STARTUP_TRACING_ACTIVITY"
         }
     } finally {
-        Arguments.fullTracingEnableOverride = null
+        Arguments.perfettoSdkTracingEnableOverride = null
     }
 
     companion object {
         // intended for local testing of all possible configurations
         private const val exhaustiveMode = false
 
-        @Parameterized.Parameters(name = "startup={0},compilation={1},fullTracing={2}")
+        @Parameterized.Parameters(name = "startup={0},compilation={1},perfettoSdk={2}")
         @JvmStatic
         fun parameters() =
             when {
                 exhaustiveMode ->
                     // complete set for testing locally
                     createStartupCompilationParams()
-                        .flatMap { listOf(it + true, it + false) } /* full tracing enabled */
+                        .flatMap { listOf(it + true, it + false) } /* perfetto sdk enabled */
                 else ->
                     // subset for testing in CI:
                     // compilation isn't expected to affect this, so we just look at startup time
@@ -76,7 +76,7 @@ class TrivialStartupPerfettoSdkOverheadBenchmark(
                     createStartupCompilationParams(
                         listOf(StartupMode.COLD, StartupMode.WARM),
                         listOf(CompilationMode.DEFAULT)
-                    ).map { it + true } /* full tracing enabled */
+                    ).map { it + true } /* perfetto sdk enabled */
             }
     }
 }

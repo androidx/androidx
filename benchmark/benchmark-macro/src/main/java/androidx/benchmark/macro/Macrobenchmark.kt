@@ -402,7 +402,7 @@ fun macrobenchmarkWithStartupMode(
     measureBlock: MacrobenchmarkScope.() -> Unit
 ) {
     val perfettoSdkConfig =
-        if (Arguments.fullTracingEnable && Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+        if (Arguments.perfettoSdkTracingEnable && Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             PerfettoSdkConfig(
                 packageName,
                 when (startupMode) {
