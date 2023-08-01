@@ -33,7 +33,7 @@ import androidx.compose.ui.graphics.ReusableGraphicsLayerScope
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.layout.AlignmentLine
 import androidx.compose.ui.layout.LayoutCoordinates
-import androidx.compose.ui.layout.LookaheadLayoutCoordinatesImpl
+import androidx.compose.ui.layout.LookaheadLayoutCoordinates
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.Placeable
@@ -750,13 +750,13 @@ internal abstract class NodeCoordinator(
     }
 
     private fun LayoutCoordinates.toCoordinator() =
-        (this as? LookaheadLayoutCoordinatesImpl)?.coordinator ?: this as NodeCoordinator
+        (this as? LookaheadLayoutCoordinates)?.coordinator ?: this as NodeCoordinator
 
     override fun localPositionOf(
         sourceCoordinates: LayoutCoordinates,
         relativeToSource: Offset
     ): Offset {
-        if (sourceCoordinates is LookaheadLayoutCoordinatesImpl) {
+        if (sourceCoordinates is LookaheadLayoutCoordinates) {
             return -sourceCoordinates.localPositionOf(this, -relativeToSource)
         }
 
