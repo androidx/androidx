@@ -17,14 +17,18 @@
 package androidx.room
 
 import android.database.sqlite.SQLiteConstraintException
-import android.os.Build
 import androidx.annotation.RestrictTo
 
 /**
- * The ErrorCode defined by SQLite Library for SQLITE_CONSTRAINT_PRIMARYKEY error
- * Only used by android of version newer than 19
+ * The error code defined by SQLite Library for SQLITE_CONSTRAINT_PRIMARYKEY error
+ * Only used by android of version newer than 19.
  */
-private const val ErrorCode = "1555"
+private const val SQLITE_CONSTRAINT_PRIMARYKEY = "1555"
+
+/**
+ * The error code defined by SQLite Library for SQLITE_CONSTRAINT_UNIQUE error.
+ */
+private const val SQLITE_CONSTRAINT_UNIQUE = "2067"
 
 /**
  * For android of version below and including 19, use error message instead of
@@ -207,18 +211,13 @@ class EntityUpsertionAdapter<T>(
      */
     private fun checkUniquenessException(ex: SQLiteConstraintException) {
         val message = ex.message ?: throw ex
-        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT) {
-            if (!message.contains(ErrorMsg, ignoreCase = true) && !message.contains(
-                    ErrorCode,
-                    ignoreCase = true
-                )
-            ) {
-                throw ex
-            }
-        } else {
-            if (!message.contains(ErrorCode, ignoreCase = true)) {
-                throw ex
-            }
+        val hasUniqueConstraintEx =
+            message.contains(ErrorMsg, ignoreCase = true) ||
+                message.contains(SQLITE_CONSTRAINT_UNIQUE) ||
+                message.contains(SQLITE_CONSTRAINT_PRIMARYKEY)
+
+        if (!hasUniqueConstraintEx) {
+            throw ex
         }
     }
 }
