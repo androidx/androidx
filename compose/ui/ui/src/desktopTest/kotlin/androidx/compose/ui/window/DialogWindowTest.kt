@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.compose.ui.window.dialog
+package androidx.compose.ui.window
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -29,7 +29,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.awt.ComposeDialog
 import androidx.compose.ui.focus.FocusRequester
@@ -44,11 +43,6 @@ import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.sendKeyEvent
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.DialogWindow
-import androidx.compose.ui.window.DialogState
-import androidx.compose.ui.window.DialogWindowScope
-import androidx.compose.ui.window.rememberDialogState
-import androidx.compose.ui.window.runApplicationTest
 import androidx.compose.ui.window.window.toSize
 import com.google.common.truth.Truth.assertThat
 import java.awt.Dimension
@@ -58,8 +52,7 @@ import java.awt.event.WindowEvent
 import kotlin.test.assertEquals
 import org.junit.Test
 
-@OptIn(ExperimentalComposeUiApi::class)
-class DialogTest {
+class DialogWindowTest {
     @Test
     fun `open and close custom dialog`() = runApplicationTest {
         var window: ComposeDialog? = null

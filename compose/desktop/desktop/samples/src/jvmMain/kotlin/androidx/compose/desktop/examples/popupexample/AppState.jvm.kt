@@ -73,21 +73,15 @@ object AppState {
     val amount = mutableStateOf(0)
 
     val undecorated = mutableStateOf(false)
-    val alertDialog = mutableStateOf(false)
 
-    val notify = mutableStateOf(true)
-    val warn = mutableStateOf(false)
-    val error = mutableStateOf(false)
+    val dialogType = mutableStateOf(DialogType.Common)
+    val notificationType = mutableStateOf(NotificationType.Notify)
+}
 
-    fun diselectOthers(state: MutableState<Boolean>) {
-        if (notify != state) {
-            notify.value = false
-        }
-        if (warn != state) {
-            warn.value = false
-        }
-        if (error != state) {
-            error.value = false
-        }
-    }
+enum class DialogType {
+    Common, Window, Alert
+}
+
+enum class NotificationType {
+    Notify, Warn, Error
 }

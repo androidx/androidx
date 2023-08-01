@@ -20,6 +20,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEvent
@@ -37,6 +38,14 @@ import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.center
+
+/**
+ * The default scrim opacity.
+ * See generated [androidx.compose.material3.tokens.ScrimTokens.ContainerOpacity] as reference.
+ *
+ * TODO: Provide a way to configure dialog shim color (maybe inside DialogProperties?)
+ */
+private const val DefaultScrimOpacity = 0.32f
 
 @Immutable
 actual class DialogProperties actual constructor(
@@ -69,7 +78,10 @@ actual fun Dialog(
     var modifier = Modifier
         .semantics { dialog() }
         .drawBehind {
-            drawRect(Color.Black.copy(alpha = 0.4f))
+            drawRect(
+                color = Color.Black.copy(alpha = DefaultScrimOpacity),
+                blendMode = BlendMode.SrcAtop
+            )
         }
     if (properties.dismissOnBackPress) {
         modifier = modifier.onKeyEvent { event: KeyEvent ->

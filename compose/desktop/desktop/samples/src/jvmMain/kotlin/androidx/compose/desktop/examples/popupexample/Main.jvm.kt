@@ -48,6 +48,8 @@ fun main() = application {
             title = AppState.wndTitle.value,
             state = windowState,
             icon = AppState.image().toPainter(),
+            undecorated = true,
+            transparent = true,
         ) {
             MainMenuBar(windowState, trayState)
 
