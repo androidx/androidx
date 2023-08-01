@@ -31,6 +31,7 @@ import androidx.health.services.client.proto.DataProto.ExerciseEventType.EXERCIS
  */
 public class ExerciseEventType<C : ExerciseEventCapabilities> @RestrictTo(RestrictTo.Scope.LIBRARY)
 public constructor(
+  /** Unique identifier for the [ExerciseEventType], as an `int`. */
   private val id: Int
 ) {
   internal fun toProto(): DataProto.ExerciseEventType =
