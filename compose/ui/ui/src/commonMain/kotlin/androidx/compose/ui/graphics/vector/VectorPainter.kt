@@ -19,8 +19,6 @@ package androidx.compose.ui.graphics.vector
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ComposableOpenTarget
 import androidx.compose.runtime.Composition
-import androidx.compose.runtime.CompositionContext
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -145,7 +143,25 @@ fun rememberVectorPainter(
         size = Size(widthPx, heightPx)
         this.autoMirror = autoMirror
         this.intrinsicColorFilter = intrinsicColorFilter
-        RenderVector(name, vpWidth, vpHeight, content)
+        this.viewportSize = Size(vpWidth, vpHeight)
+        this.name = name
+
+        val compositionContext = rememberCompositionContext()
+        this.composition = remember(viewportWidth, viewportHeight, content) {
+            val curComp = this.composition
+            val next = if (curComp == null || curComp.isDisposed) {
+                Composition(
+                    VectorApplier(this.vector.root),
+                    compositionContext
+                )
+            } else {
+                curComp
+            }
+            next.setContent {
+                content(vpWidth, vpHeight)
+            }
+            next
+        }
     }
 }
 
@@ -170,6 +186,15 @@ fun rememberVectorPainter(image: ImageVector) =
     )
 
 /**
+ * Functional interface to avoid "PrimitiveInLambda" lint errors
+ */
+internal fun interface ComposeVector {
+
+    @Composable
+    fun Content(viewportWidth: Float, viewportHeight: Float)
+}
+
+/**
  * [Painter] implementation that abstracts the drawing of a Vector graphic.
  * This can be represented by either a [ImageVector] or a programmatic
  * composition of a vector
@@ -189,7 +214,19 @@ class VectorPainter internal constructor() : Painter() {
             vector.intrinsicColorFilter = value
         }
 
-    private val vector = VectorComponent().apply {
+    internal var viewportSize: Size
+        get() = vector.viewportSize
+        set(value) {
+            vector.viewportSize = value
+        }
+
+    internal var name: String
+        get() = vector.name
+        set(value) {
+            vector.name = value
+        }
+
+    internal val vector = VectorComponent().apply {
         invalidateCallback = {
             if (drawCount == invalidateCount) {
                 invalidateCount++
@@ -197,54 +234,10 @@ class VectorPainter internal constructor() : Painter() {
         }
     }
 
-    private var composition: Composition? = null
-
-    private fun composeVector(
-        parent: CompositionContext,
-        composable: @Composable (viewportWidth: Float, viewportHeight: Float) -> Unit
-    ): Composition {
-        val existing = composition
-        val next = if (existing == null || existing.isDisposed) {
-            Composition(
-                VectorApplier(vector.root),
-                parent
-            )
-        } else {
-            existing
-        }
-        composition = next
-        next.setContent {
-            composable(vector.viewportWidth, vector.viewportHeight)
-        }
-        return next
-    }
+    internal var composition: Composition? = null
 
     // TODO replace with mutableStateOf(Unit, neverEqualPolicy()) after b/291647821 is addressed
     private var invalidateCount by mutableIntStateOf(0)
-
-    @Composable
-    internal fun RenderVector(
-        name: String,
-        viewportWidth: Float,
-        viewportHeight: Float,
-        content: @Composable (viewportWidth: Float, viewportHeight: Float) -> Unit
-    ) {
-        vector.apply {
-            this.name = name
-            this.viewportWidth = viewportWidth
-            this.viewportHeight = viewportHeight
-        }
-        val composition = composeVector(
-            rememberCompositionContext(),
-            content
-        )
-
-        DisposableEffect(composition) {
-            onDispose {
-                composition.dispose()
-            }
-        }
-    }
 
     private var currentAlpha: Float = 1.0f
     private var currentColorFilter: ColorFilter? = null
