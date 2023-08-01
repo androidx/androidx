@@ -13,36 +13,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package test.library
 
-package test.library;
+import androidx.lifecycle.GeneratedAdapter
+import androidx.lifecycle.Lifecycle.Event
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.MethodCallsLogger
+import javax.annotation.Generated
 
-import androidx.lifecycle.GeneratedAdapter;
-import androidx.lifecycle.Lifecycle;
-import androidx.lifecycle.LifecycleOwner;
-import androidx.lifecycle.MethodCallsLogger;
-import java.lang.Override;
-import javax.annotation.Generated;
+@Generated(value = ["androidx.lifecycle.LifecycleProcessor"])
+class ObserverNoAdapter_LifecycleAdapter internal constructor(receiver: ObserverNoAdapter) :
+    GeneratedAdapter {
+    val receiver: ObserverNoAdapter = receiver
 
-@Generated("androidx.lifecycle.LifecycleProcessor")
-public class ObserverNoAdapter_LifecycleAdapter implements GeneratedAdapter {
-    final ObserverNoAdapter mReceiver;
-
-    ObserverNoAdapter_LifecycleAdapter(ObserverNoAdapter receiver) {
-        this.mReceiver = receiver;
-    }
-
-    @Override
-    public void callMethods(LifecycleOwner owner, Lifecycle.Event event, boolean onAny,
-            MethodCallsLogger logger) {
-        boolean hasLogger = logger != null;
+    override fun callMethods(
+        owner: LifecycleOwner,
+        event: Event,
+        onAny: Boolean,
+        logger: MethodCallsLogger
+    ) {
+        val hasLogger = logger != null
         if (onAny) {
-            return;
+            return
         }
-        if (event == Lifecycle.Event.ON_STOP) {
+        if (event === Event.ON_STOP) {
             if (!hasLogger || logger.approveCall("doOnStop", 1)) {
-                mReceiver.doOnStop();
+                receiver.doOnStop()
             }
-            return;
+            return
         }
     }
 }
