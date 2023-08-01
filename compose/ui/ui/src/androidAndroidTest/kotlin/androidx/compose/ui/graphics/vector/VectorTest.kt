@@ -34,9 +34,11 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.testutils.assertPixels
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.AtLeastSize
@@ -45,10 +47,12 @@ import androidx.compose.ui.background
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.paint
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.ImageBitmapConfig
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.drawscope.CanvasDrawScope
@@ -123,8 +127,9 @@ class VectorTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun testVectorIntrinsicTintFirstFrame() {
+        var vector: VectorPainter? = null
         rule.setContent {
-            val vector = createTestVectorPainter(200, Color.Magenta)
+            vector = createTestVectorPainter(200, Color.Magenta)
 
             val bitmap = remember {
                 val bitmap = ImageBitmap(200, 200)
@@ -136,7 +141,7 @@ class VectorTest {
                     canvas,
                     bitmapSize
                 ) {
-                    with(vector) {
+                    with(vector!!) {
                         draw(bitmapSize)
                     }
                 }
@@ -151,6 +156,7 @@ class VectorTest {
         takeScreenShot(200).apply {
             assertEquals(getPixel(100, 100), Color.Magenta.toArgb())
         }
+        assertEquals(ImageBitmapConfig.Alpha8, vector!!.bitmapConfig!!)
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
@@ -374,11 +380,11 @@ class VectorTest {
             captureToImage().asAndroidBitmap().apply {
                 assertEquals(Color.Red.toArgb(), getPixel(width - 2, 0))
                 assertEquals(Color.Red.toArgb(), getPixel(2, 0))
-                assertEquals(Color.Red.toArgb(), getPixel(width - 1, height - 2))
+                assertEquals(Color.Red.toArgb(), getPixel(width - 1, height - 4))
 
                 assertEquals(Color.Black.toArgb(), getPixel(0, 2))
-                assertEquals(Color.Black.toArgb(), getPixel(0, height - 1))
-                assertEquals(Color.Black.toArgb(), getPixel(width - 2, height - 1))
+                assertEquals(Color.Black.toArgb(), getPixel(0, height - 2))
+                assertEquals(Color.Black.toArgb(), getPixel(width - 4, height - 2))
             }
             performClick()
         }
@@ -388,12 +394,100 @@ class VectorTest {
         rule.onNodeWithTag(testTag).captureToImage().asAndroidBitmap().apply {
             assertEquals(Color.Black.toArgb(), getPixel(width - 2, 0))
             assertEquals(Color.Black.toArgb(), getPixel(2, 0))
-            assertEquals(Color.Black.toArgb(), getPixel(width - 1, height - 2))
+            assertEquals(Color.Black.toArgb(), getPixel(width - 1, height - 4))
 
             assertEquals(Color.Red.toArgb(), getPixel(0, 2))
             assertEquals(Color.Red.toArgb(), getPixel(0, height - 2))
-            assertEquals(Color.Red.toArgb(), getPixel(width - 2, height - 1))
+            assertEquals(Color.Red.toArgb(), getPixel(width - 4, height - 2))
         }
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun testPathColorChangeUpdatesBitmapConfig() {
+        val defaultWidth = 24.dp
+        val defaultHeight = 24.dp
+        val testTag = "testTag"
+        var vectorPainter: VectorPainter? = null
+        var brush: Brush by mutableStateOf(SolidColor(Color.Blue))
+        rule.setContent {
+            vectorPainter = rememberVectorPainter(
+                defaultWidth = defaultWidth,
+                defaultHeight = defaultHeight,
+                autoMirror = false
+            ) { viewportWidth, viewportHeight ->
+                Path(
+                    fill = brush,
+                    pathData = PathData {
+                        lineTo(viewportWidth, 0f)
+                        lineTo(viewportWidth, viewportHeight)
+                        lineTo(0f, viewportHeight)
+                        close()
+                    }
+                )
+            }
+            Image(
+                painter = vectorPainter!!,
+                contentDescription = null,
+                modifier = Modifier
+                    .testTag(testTag)
+                    .size(defaultWidth * 8, defaultHeight * 2)
+                    .background(Color.Red),
+                contentScale = ContentScale.FillBounds
+            )
+        }
+
+        rule.onNodeWithTag(testTag).captureToImage().assertPixels { Color.Blue }
+        assertEquals(ImageBitmapConfig.Alpha8, vectorPainter!!.bitmapConfig!!)
+
+        brush = Brush.horizontalGradient(listOf(Color.Blue, Color.Blue))
+        rule.onNodeWithTag(testTag).captureToImage().assertPixels { Color.Blue }
+        assertEquals(ImageBitmapConfig.Argb8888, vectorPainter!!.bitmapConfig!!)
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun testGroupPathColorChangeUpdatesBitmapConfig() {
+        val defaultWidth = 24.dp
+        val defaultHeight = 24.dp
+        val testTag = "testTag"
+        var vectorPainter: VectorPainter? = null
+        var brush: Brush by mutableStateOf(SolidColor(Color.Blue))
+        rule.setContent {
+            vectorPainter = rememberVectorPainter(
+                defaultWidth = defaultWidth,
+                defaultHeight = defaultHeight,
+                autoMirror = false
+            ) { viewportWidth, viewportHeight ->
+                Group {
+                    Path(
+                        fill = brush,
+                        pathData = PathData {
+                            lineTo(viewportWidth, 0f)
+                            lineTo(viewportWidth, viewportHeight)
+                            lineTo(0f, viewportHeight)
+                            close()
+                        }
+                    )
+                }
+            }
+            Image(
+                painter = vectorPainter!!,
+                contentDescription = null,
+                modifier = Modifier
+                    .testTag(testTag)
+                    .size(defaultWidth * 8, defaultHeight * 2)
+                    .background(Color.Red),
+                contentScale = ContentScale.FillBounds
+            )
+        }
+
+        rule.onNodeWithTag(testTag).captureToImage().assertPixels { Color.Blue }
+        assertEquals(ImageBitmapConfig.Alpha8, vectorPainter!!.bitmapConfig!!)
+
+        brush = Brush.horizontalGradient(listOf(Color.Blue, Color.Blue))
+        rule.onNodeWithTag(testTag).captureToImage().assertPixels { Color.Blue }
+        assertEquals(ImageBitmapConfig.Argb8888, vectorPainter!!.bitmapConfig!!)
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
@@ -402,8 +496,9 @@ class VectorTest {
         val defaultWidth = 24.dp
         val defaultHeight = 24.dp
         val testTag = "testTag"
+        var vectorPainter: VectorPainter? = null
         rule.setContent {
-            val vectorPainter = rememberVectorPainter(
+            vectorPainter = rememberVectorPainter(
                 defaultWidth = defaultWidth,
                 defaultHeight = defaultHeight,
                 autoMirror = false
@@ -419,17 +514,18 @@ class VectorTest {
                 )
             }
             Image(
-                painter = vectorPainter,
+                painter = vectorPainter!!,
                 contentDescription = null,
                 modifier = Modifier
                     .testTag(testTag)
-                    .size(defaultWidth * 7, defaultHeight * 3)
+                    .size(defaultWidth * 8, defaultHeight * 2)
                     .background(Color.Red),
                 contentScale = ContentScale.FillBounds
             )
         }
 
         rule.onNodeWithTag(testTag).captureToImage().assertPixels { Color.Blue }
+        assertEquals(ImageBitmapConfig.Alpha8, vectorPainter!!.bitmapConfig!!)
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)

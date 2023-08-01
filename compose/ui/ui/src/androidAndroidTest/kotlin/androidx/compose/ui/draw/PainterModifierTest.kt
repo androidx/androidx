@@ -743,12 +743,12 @@ class PainterModifierTest {
             assertEquals(Color.Gray.toArgb(), getPixel(boxWidth / 2 - vectorWidth - 5, 0))
             assertEquals(
                 Color.Gray.toArgb(),
-                getPixel(boxWidth / 2 + vectorWidth + 5, boxHeight - 1)
+                getPixel(boxWidth / 2 + vectorWidth + 5, boxHeight - 2)
             )
             assertEquals(Color.Red.toArgb(), getPixel(boxWidth / 2 - vectorWidth + 5, 0))
             assertEquals(
                 Color.Red.toArgb(),
-                getPixel(boxWidth / 2 + vectorWidth - 5, boxHeight - 1)
+                getPixel(boxWidth / 2 + vectorWidth - 5, boxHeight - 2)
             )
         }
     }
