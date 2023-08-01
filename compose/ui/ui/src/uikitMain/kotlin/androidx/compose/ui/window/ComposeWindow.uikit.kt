@@ -44,19 +44,22 @@ import platform.UIKit.*
 import platform.darwin.NSObject
 
 private val uiContentSizeCategoryToFontScaleMap = mapOf(
-    UIContentSizeCategoryExtraSmall to 0.9f,
-    UIContentSizeCategorySmall to 0.95f,
-    UIContentSizeCategoryMedium to 1.0f,
-    UIContentSizeCategoryLarge to 1.05f,
+    UIContentSizeCategoryExtraSmall to 0.8f,
+    UIContentSizeCategorySmall to 0.85f,
+    UIContentSizeCategoryMedium to 0.9f,
+    UIContentSizeCategoryLarge to 1f, // default preference
     UIContentSizeCategoryExtraLarge to 1.1f,
-    UIContentSizeCategoryExtraExtraLarge to 1.15f,
-    UIContentSizeCategoryExtraExtraExtraLarge to 1.2f,
+    UIContentSizeCategoryExtraExtraLarge to 1.2f,
+    UIContentSizeCategoryExtraExtraExtraLarge to 1.3f,
 
-    UIContentSizeCategoryAccessibilityMedium to 1.3f,
-    UIContentSizeCategoryAccessibilityLarge to 1.4f,
-    UIContentSizeCategoryAccessibilityExtraLarge to 1.5f,
-    UIContentSizeCategoryAccessibilityExtraExtraLarge to 1.6f,
-    UIContentSizeCategoryAccessibilityExtraExtraExtraLarge to 1.7f,
+    // These values don't work well if they match scale shown by
+    // Text Size control hint, because iOS uses non-linear scaling
+    // calculated by UIFontMetrics, while Compose uses linear.
+    UIContentSizeCategoryAccessibilityMedium to 1.4f, // 160% native
+    UIContentSizeCategoryAccessibilityLarge to 1.5f, // 190% native
+    UIContentSizeCategoryAccessibilityExtraLarge to 1.6f, // 235% native
+    UIContentSizeCategoryAccessibilityExtraExtraLarge to 1.7f, // 275% native
+    UIContentSizeCategoryAccessibilityExtraExtraExtraLarge to 1.8f, // 310% native
 
     // UIContentSizeCategoryUnspecified
 )
@@ -167,7 +170,7 @@ internal actual class ComposeWindow : UIViewController {
 
         @Suppress("unused")
         @ObjCAction
-        fun keyboardDidHide(arg: NSNotification) {
+        fun keyboardWillHide(arg: NSNotification) {
             keyboardOverlapHeightState.value = 0f
             if (configuration.onFocusBehavior == OnFocusBehavior.FocusableAboveKeyboard) {
                 updateViewBounds(offsetY = 0.0)
@@ -346,21 +349,6 @@ internal actual class ComposeWindow : UIViewController {
         )
     }
 
-    override fun traitCollectionDidChange(previousTraitCollection: UITraitCollection?) {
-        super.traitCollectionDidChange(previousTraitCollection)
-
-        val newSizeCategory = traitCollection.preferredContentSizeCategory
-
-        if (newSizeCategory != null && previousTraitCollection?.preferredContentSizeCategory != newSizeCategory) {
-            // will force a view to do layout on a next main runloop tick
-            // which will cause viewWillLayoutSubviews
-            // which will assign new density to layer (which takes new fontScale into consideration)
-            // and will force recomposition, because it will change
-
-            view.setNeedsLayout()
-        }
-    }
-
     override fun viewWillLayoutSubviews() {
         super.viewWillLayoutSubviews()
 
@@ -385,29 +373,24 @@ internal actual class ComposeWindow : UIViewController {
         )
         NSNotificationCenter.defaultCenter.addObserver(
             observer = keyboardVisibilityListener,
-            selector = NSSelectorFromString(keyboardVisibilityListener::keyboardDidHide.name + ":"),
-            name = UIKeyboardDidHideNotification,
+            selector = NSSelectorFromString(keyboardVisibilityListener::keyboardWillHide.name + ":"),
+            name = UIKeyboardWillHideNotification,
             `object` = null
         )
     }
 
     // viewDidUnload() is deprecated and not called.
-    override fun viewDidDisappear(animated: Boolean) {
+    override fun viewWillDisappear(animated: Boolean) {
         // TODO call dispose() function, but check how it will works with SwiftUI interop between different screens.
-        super.viewDidDisappear(animated)
+        super.viewWillDisappear(animated)
         NSNotificationCenter.defaultCenter.removeObserver(
             observer = keyboardVisibilityListener,
-            name = UIKeyboardWillShowNotification,
+            name = UIKeyboardDidShowNotification,
             `object` = null
         )
         NSNotificationCenter.defaultCenter.removeObserver(
             observer = keyboardVisibilityListener,
             name = UIKeyboardWillHideNotification,
-            `object` = null
-        )
-        NSNotificationCenter.defaultCenter.removeObserver(
-            observer = keyboardVisibilityListener,
-            name = UIKeyboardDidHideNotification,
             `object` = null
         )
     }
