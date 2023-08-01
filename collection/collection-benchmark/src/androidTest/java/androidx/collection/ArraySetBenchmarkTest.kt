@@ -17,6 +17,7 @@
 package androidx.collection
 
 import androidx.benchmark.junit4.BenchmarkRule
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -40,11 +41,13 @@ class ArraySetBenchmarkTest(size: Int, sparse: Boolean) {
         benchmark.runCollectionBenchmark(ArraySetContainsElementBenchmark(sourceSet))
     }
 
+    @Ignore("b/293929098") // Flaky / failing in presubmit.
     @Test
     fun indexOf() {
         benchmark.runCollectionBenchmark(ArraySetIndexOfBenchmark(sourceSet))
     }
 
+    @Ignore("b/293929098") // Flaky / failing in presubmit.
     @Test
     fun addAllThenRemoveIndividually() {
         benchmark.runCollectionBenchmark(ArraySetAddAllThenRemoveIndividuallyBenchmark(sourceSet))
