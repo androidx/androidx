@@ -77,13 +77,6 @@ interface DevicePerformance {
 }
 
 /**
- * Default DevicePerformance implementation that always provides 0.
- */
-class DefaultDevicePerformance() : DevicePerformance {
-    override val mediaPerformanceClass = 0
-}
-
-/**
  * Supplies a flow of mediaPerformanceClass
  */
 @Deprecated(

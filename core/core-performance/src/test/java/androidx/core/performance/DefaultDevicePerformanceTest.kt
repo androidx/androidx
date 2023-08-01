@@ -16,15 +16,61 @@
 
 package androidx.core.performance
 
+import android.os.Build.VERSION_CODES.R
+import android.os.Build.VERSION_CODES.S
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.test.runTest
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
+import org.robolectric.shadows.ShadowBuild
+import org.robolectric.shadows.ShadowSystemProperties
 
 /** Unit tests for [DefaultDevicePerformance]. */
+@RunWith(RobolectricTestRunner::class)
 class DefaultDevicePerformanceTest {
 
     @Test
-    fun mediaPerformanceClass() {
+    @Config(maxSdk = R, minSdk = R)
+    fun mediaPerformanceClass_SdkR_DeclaredMpc() = runTest {
+        ShadowSystemProperties.override("ro.odm.build.media_performance_class", "30")
+        ShadowBuild.reset()
         val mpc = DefaultDevicePerformance().mediaPerformanceClass
         assertThat(mpc).isEqualTo(0)
+    }
+
+    @Test
+    @Config(minSdk = S)
+    fun mediaPerformanceClass_SdkS_DeclaredMpc() = runTest {
+        ShadowSystemProperties.override("ro.odm.build.media_performance_class", "30")
+        ShadowBuild.reset()
+        val mpc = DefaultDevicePerformance().mediaPerformanceClass
+        assertThat(mpc).isEqualTo(30)
+    }
+
+    @Test
+    @Config(minSdk = S)
+    fun mediaPerformanceClass_SdkS_BuildFingerprintMatch() = runTest {
+        ShadowBuild.reset()
+        ShadowBuild.setBrand("robolectric-BrandX")
+        ShadowBuild.setProduct("ProductX")
+        ShadowBuild.setDevice("Device31")
+        ShadowBuild.setVersionRelease("12")
+        val mpc = DefaultDevicePerformance().mediaPerformanceClass
+        assertThat(mpc).isEqualTo(31)
+    }
+
+    @Test
+    @Config(minSdk = S)
+    fun mediaPerformanceClass_SdkS_DeclaredMpc_BuildFingerprintMatch() = runTest {
+        ShadowSystemProperties.override("ro.odm.build.media_performance_class", "30")
+        ShadowBuild.reset()
+        ShadowBuild.setBrand("robolectric-BrandX")
+        ShadowBuild.setProduct("ProductX")
+        ShadowBuild.setDevice("Device31")
+        ShadowBuild.setVersionRelease("12")
+        val mpc = DefaultDevicePerformance().mediaPerformanceClass
+        assertThat(mpc).isEqualTo(30)
     }
 }
