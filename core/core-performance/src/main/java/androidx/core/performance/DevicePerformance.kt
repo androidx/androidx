@@ -14,13 +14,7 @@
  * limitations under the License.
  */
 
-@file:Suppress("DEPRECATION")
-
 package androidx.core.performance
-
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.last
-import kotlinx.coroutines.runBlocking
 
 @JvmDefaultWithCompatibility
 /**
@@ -49,64 +43,4 @@ interface DevicePerformance {
      *
      */
     val mediaPerformanceClass: Int
-
-    @Deprecated(
-        message = "Replaced by DevicePerformance related implementations.",
-        level = DeprecationLevel.WARNING
-    )
-    companion object {
-        /**
-         * Create PerformanceClass from the context.
-         *
-         * This should be done in [android.app.Application.onCreate].
-         *
-         * Developers should call the createDevicePerformance companion method of
-         * the desired DevicePerformanceSupplier implementation.
-         *
-         * @param devicePerformanceSupplier Supplies device performance.
-         */
-        @JvmStatic
-        @Deprecated(
-            message = "Replaced by DevicePerformance related implementations.",
-            level = DeprecationLevel.WARNING
-        )
-        fun create(
-            devicePerformanceSupplier: DevicePerformanceSupplier
-        ): DevicePerformance = DefaultDevicePerformanceImpl(devicePerformanceSupplier)
-    }
-}
-
-/**
- * Supplies a flow of mediaPerformanceClass
- */
-@Deprecated(
-    message = "Replaced by DevicePerformance related implementations.",
-    level = DeprecationLevel.WARNING
-)
-interface DevicePerformanceSupplier {
-
-    val mediaPerformanceClassFlow: Flow<Int>
-}
-
-/**
- * Lazy caches the mediaPerformanceClass
- */
-@Deprecated(
-    message = "Replaced by DevicePerformance related implementations.",
-    level = DeprecationLevel.WARNING
-)
-private class DefaultDevicePerformanceImpl(
-    val devicePerformanceSupplier: DevicePerformanceSupplier
-) : DevicePerformance {
-    private val logTag = "DefaultDevicePerformanceImpl"
-
-    @Deprecated(
-        message = "Replaced by DevicePerformance related implementations.",
-        level = DeprecationLevel.WARNING
-    )
-    override val mediaPerformanceClass by lazy(mode = LazyThreadSafetyMode.PUBLICATION) {
-        runBlocking {
-            devicePerformanceSupplier.mediaPerformanceClassFlow.last()
-        }
-    }
 }

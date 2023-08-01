@@ -7,50 +7,9 @@ package androidx.core.performance {
     property public int mediaPerformanceClass;
   }
 
-  public final class DefaultDevicePerformanceRetriever implements androidx.core.performance.DevicePerformanceRetriever {
-    ctor public DefaultDevicePerformanceRetriever();
-    method public int getPerformanceClass();
-  }
-
   @kotlin.jvm.JvmDefaultWithCompatibility public interface DevicePerformance {
-    method @Deprecated public static androidx.core.performance.DevicePerformance create(androidx.core.performance.DevicePerformanceSupplier devicePerformanceSupplier);
     method public int getMediaPerformanceClass();
     property public abstract int mediaPerformanceClass;
-    field @Deprecated public static final androidx.core.performance.DevicePerformance.Companion Companion;
-  }
-
-  @Deprecated public static final class DevicePerformance.Companion {
-    method @Deprecated public androidx.core.performance.DevicePerformance create(androidx.core.performance.DevicePerformanceSupplier devicePerformanceSupplier);
-  }
-
-  public interface DevicePerformanceRetriever {
-    method public int getPerformanceClass();
-  }
-
-  @Deprecated public interface DevicePerformanceSupplier {
-    method @Deprecated public kotlinx.coroutines.flow.Flow<java.lang.Integer> getMediaPerformanceClassFlow();
-    property @Deprecated public abstract kotlinx.coroutines.flow.Flow<java.lang.Integer> mediaPerformanceClassFlow;
-  }
-
-  public interface MediaPerformance {
-    method public static int getPerformanceClass(optional androidx.core.performance.DevicePerformanceRetriever retriever);
-    field public static final androidx.core.performance.MediaPerformance.Companion Companion;
-  }
-
-  public static final class MediaPerformance.Companion {
-    method public int getPerformanceClass(optional androidx.core.performance.DevicePerformanceRetriever retriever);
-  }
-
-  @Deprecated public final class StaticDevicePerformanceSupplier implements androidx.core.performance.DevicePerformanceSupplier {
-    ctor @Deprecated public StaticDevicePerformanceSupplier();
-    method @Deprecated public static androidx.core.performance.DevicePerformance createDevicePerformance();
-    method @Deprecated public kotlinx.coroutines.flow.Flow<java.lang.Integer> getMediaPerformanceClassFlow();
-    property @Deprecated public kotlinx.coroutines.flow.Flow<java.lang.Integer> mediaPerformanceClassFlow;
-    field @Deprecated public static final androidx.core.performance.StaticDevicePerformanceSupplier.Companion Companion;
-  }
-
-  @Deprecated public static final class StaticDevicePerformanceSupplier.Companion {
-    method @Deprecated public androidx.core.performance.DevicePerformance createDevicePerformance();
   }
 
 }
