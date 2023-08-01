@@ -16,68 +16,44 @@
 
 package androidx.compose.ui.unit
 
-import androidx.annotation.RestrictTo
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
+import androidx.compose.ui.unit.fontscaling.FontScaleConverterFactory
 import androidx.compose.ui.unit.internal.JvmDefaultWithCompatibility
 
 /**
  * Converts [TextUnit] to [Dp] and vice-versa.
  *
- * If you are implementing this interface yourself on Android, please check the docs for important
- * optimization tips about caching.
+ * Note that the converter can't be cached in the interface itself. FontScaleConverterFactory
+ * already caches the tables, but it still does a a map lookup for each conversion. If you are
+ * implementing this interface, you should cache your own converter for additional speed.
  */
 @Immutable
 @JvmDefaultWithCompatibility
-expect interface FontScalable {
+actual interface FontScalable {
     /**
      * Current user preference for the scaling factor for fonts.
      */
     @Stable
-    val fontScale: Float
+    actual val fontScale: Float
 
     /**
      * Convert [Dp] to Sp. Sp is used for font size, etc.
      */
     @Stable
-    open fun Dp.toSp(): TextUnit
+    actual fun Dp.toSp(): TextUnit {
+        val converter = FontScaleConverterFactory.forScale(fontScale)
+        return (converter?.convertDpToSp(value) ?: (value / fontScale)).sp
+    }
 
     /**
      * Convert Sp to [Dp].
      * @throws IllegalStateException if TextUnit other than SP unit is specified.
      */
     @Stable
-    open fun TextUnit.toDp(): Dp
-}
-
-/**
- * Converts [TextUnit] to [Dp] and vice-versa, using a linear conversion.
- *
- * This will be the default for most platforms except Android.
- */
-@Immutable
-@JvmDefaultWithCompatibility
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-interface FontScalableLinear {
-    /**
-     * Current user preference for the scaling factor for fonts.
-     */
-    @Stable
-    val fontScale: Float
-
-    /**
-     * Convert [Dp] to Sp. Sp is used for font size, etc.
-     */
-    @Stable
-    fun Dp.toSp(): TextUnit = (value / fontScale).sp
-
-    /**
-     * Convert Sp to [Dp].
-     * @throws IllegalStateException if TextUnit other than SP unit is specified.
-     */
-    @Stable
-    fun TextUnit.toDp(): Dp {
+    actual fun TextUnit.toDp(): Dp {
         check(type == TextUnitType.Sp) { "Only Sp can convert to Px" }
-        return Dp(value * fontScale)
+        val converter = FontScaleConverterFactory.forScale(fontScale)
+        return if (converter == null) Dp(value * fontScale) else Dp(converter.convertSpToDp(value))
     }
 }
