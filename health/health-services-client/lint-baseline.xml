@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.1.0-beta02" type="baseline" client="gradle" dependencies="false" name="AGP (8.1.0-beta02)" variant="all" version="8.1.0-beta02">
+<issues format="6" by="lint 8.1.0" type="baseline" client="gradle" dependencies="false" name="AGP (8.1.0)" variant="all" version="8.1.0">
 
     <issue
         id="BanParcelableUsage"
@@ -35,78 +35,6 @@
         errorLine2="    ^">
         <location
             file="src/main/java/androidx/health/services/client/impl/ipc/internal/ServiceConnection.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mCurrentVersion` of class `Client` requires synthetic accessor"
-        errorLine1="                        mCurrentVersion ="
-        errorLine2="                        ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/health/services/client/impl/ipc/Client.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mConnectionConfiguration` of class `Client` requires synthetic accessor"
-        errorLine1="                        return mConnectionConfiguration;"
-        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/health/services/client/impl/ipc/Client.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mConnectionManager` of class `Client` requires synthetic accessor"
-        errorLine1="                            mConnectionManager.scheduleForExecution("
-        errorLine2="                            ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/health/services/client/impl/ipc/Client.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mConnectionConfiguration` of class `Client` requires synthetic accessor"
-        errorLine1="                                    new BaseQueueOperation(mConnectionConfiguration));"
-        errorLine2="                                                           ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/health/services/client/impl/ipc/Client.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mConnectionManager` of class `Client` requires synthetic accessor"
-        errorLine1="                            mConnectionManager.scheduleForExecution("
-        errorLine2="                            ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/health/services/client/impl/ipc/Client.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `createQueueOperation` of class `Client` requires synthetic accessor"
-        errorLine1="                                    createQueueOperation(operation, settableFuture));"
-        errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/health/services/client/impl/ipc/Client.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `getService` of class `Client` requires synthetic accessor"
-        errorLine1="                operation.execute(getService(binder), settableFuture);"
-        errorLine2="                                  ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/health/services/client/impl/ipc/Client.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` constructor of class `MeasureCallbackStub` requires synthetic accessor"
-        errorLine1="                measureCallbackStub = MeasureCallbackStub(callbackKey, measureCallback)"
-        errorLine2="                                      ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/health/services/client/impl/MeasureCallbackStub.kt"/>
     </issue>
 
     <issue

@@ -84,10 +84,6 @@ class AndroidXComposeImplPlugin : Plugin<Project> {
                 val isPublished = androidXExtension.shouldPublish()
 
                 it.lint {
-                    // Too many Kotlin features require synthetic accessors - we want to rely on R8
-                    // to
-                    // remove these accessors
-                    disable.add("SyntheticAccessor")
                     // These lint checks are normally a warning (or lower), but we ignore (in
                     // AndroidX)
                     // warnings in Lint, so we make it an error here so it will fail the build.

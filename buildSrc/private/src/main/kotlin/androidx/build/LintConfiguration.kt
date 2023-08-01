@@ -397,15 +397,9 @@ private fun Project.configureLint(lint: Lint, isLibrary: Boolean) {
             fatal.add("LambdaLast")
             fatal.add("UnknownNullness")
 
-            // Only override if not set explicitly.
-            // Some Kotlin projects may wish to disable this.
-            if (
-                isLibrary &&
-                    !disable.contains("SyntheticAccessor") &&
-                    extension.type != LibraryType.SAMPLES
-            ) {
-                fatal.add("SyntheticAccessor")
-            }
+            // Too many Kotlin features require synthetic accessors - we want to rely on R8 to
+            // remove these accessors
+            disable.add("SyntheticAccessor")
 
             // Only check for missing translations in finalized (beta and later) modules.
             if (extension.mavenVersion?.isFinalApi() == true) {
