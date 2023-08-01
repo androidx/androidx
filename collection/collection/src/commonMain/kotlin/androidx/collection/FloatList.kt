@@ -453,7 +453,7 @@ public sealed class FloatList constructor(initialCapacity: Int) {
  * @constructor Creates a [MutableFloatList] with a [capacity] of `initialCapacity`.
  */
 public class MutableFloatList(
-    initialCapacity: Int = DefaultCapacity
+    initialCapacity: Int = 16
 ) : FloatList(initialCapacity) {
     /**
      * Returns the total number of elements that can be held before the [MutableFloatList] must
@@ -765,9 +765,6 @@ public class MutableFloatList(
         content.sortDescending(fromIndex = 0, toIndex = _size)
     }
 }
-
-@Suppress("ConstPropertyName")
-private const val DefaultCapacity = 16
 
 // Empty array used when nothing is allocated
 @Suppress("PrivatePropertyName")
