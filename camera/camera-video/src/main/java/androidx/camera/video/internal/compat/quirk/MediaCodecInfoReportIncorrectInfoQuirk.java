@@ -42,6 +42,8 @@ import java.util.Set;
  *     Bug Id: 192431846, 199582287, 218841498, 203481899, 216583006, 278843124, 278855948
  *     Description: Quirk which denotes {@link MediaCodecInfo} queried by {@link MediaCodecList}
  *                  returns incorrect info.
+ *                  <ul>
+ *                  <li>
  *                  On Nokia 1, {@link CamcorderProfile} indicates it can support resolutions
  *                  1280x720 and 640x480 for video codec type
  *                  {@link android.media.MediaRecorder.VideoEncoder#MPEG_4_SP}, which maps to
@@ -54,8 +56,14 @@ import java.util.Set;
  *                  "video/mp4v-es" with 1280x720 or 640x480 can be used to record video. So the
  *                  maximum supported resolution 174x174 is probably incorrect for
  *                  "video/mp4v-es" and doesn't make sense. See b/192431846#comment3.
+ *                  </li>
+ *                  <li>
  *                  Motc C, X650 and LG-X230 have the same problem as Nokia 1. See b/199582287
+ *                  </li>
+ *                  <li>
  *                  Positivo Twist 2 Pro have the same problem as Nokia 1. See b/218841498
+ *                  </li>
+ *                  <li>
  *                  On Huawei Mate9, {@link CamcorderProfile} indicates it can support
  *                  resolutions 3840x2160 for video codec type
  *                  {@link android.media.MediaRecorder.VideoEncoder#HEVC}, but the current video
@@ -65,19 +73,30 @@ import java.util.Set;
  *                  unsupported resolution for 3840x2160, it only support 3840x2112. By
  *                  experimental result, H.264 + 3840x2160 can be used to record video on this
  *                  device. Hence use quirk to workaround this case. See b/203481899#comment2.
- *                  @link MediaCodecInfo} searched by {@link MediaCodecList#getCodecInfos()}
+ *                  </li>
+ *                  <li>
+ *                  On Redmi Note 8 Pro, {@link CamcorderProfile} indicates it can support
+ *                  3840x2160, but {@link MediaCodecInfo.VideoCapabilities#isSizeSupported}
+ *                  returns {@code false} for 3840x2160. By experimental result, 3840x2160 can be
+ *                  used to record video on this device. See b/293827733.
+ *                  </li>
+ *                  <li>
+ *                  {@link MediaCodecInfo} searched by {@link MediaCodecList#getCodecInfos()}
  *                  shows the maximum supported resolution of the AVC encoder is 1920x1072.
  *                  However, the 1920x1080 option can be successfully configured properly.
- *                  See b/216583006, b/278843124, b/278855948.
- *     Device(s): Nokia 1, Motc C, X650, LG-X230, Positivo Twist 2 Pro, Huawei Mate9, Redmi note 4
- *                , LG K10 LTE K430, Samsung Galaxy A03 Core, Vivo Y75, Realme C11 2021
+ *                  See b/216583006, b/278843124, b/278855948, b/293827733.
+ *                  </li>
+ *                  </ul>
+ *     Device(s): Nokia 1, Motc C, X650, LG-X230, Positivo Twist 2 Pro, Huawei Mate9,
+ *                Redmi Note 8 Pro, Redmi Note 4, Redmi Note 9, LG K10 LTE K430,
+ *                Samsung Galaxy A03 Core, Vivo Y75, Realme C11 2021
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class MediaCodecInfoReportIncorrectInfoQuirk implements Quirk {
 
     static boolean load() {
         return isNokia1() || isMotoC() || isX650() || isX230() || isHuaweiMate9()
-                || isPositivoTwist2Pro() || isFHDProblematicDevice();
+                || isRedmiNote8Pro() || isPositivoTwist2Pro() || isFHDProblematicDevice();
     }
 
     private static boolean isNokia1() {
@@ -101,6 +120,11 @@ public class MediaCodecInfoReportIncorrectInfoQuirk implements Quirk {
         return "Huawei".equalsIgnoreCase(Build.BRAND) && "mha-l29".equalsIgnoreCase(Build.MODEL);
     }
 
+    private static boolean isRedmiNote8Pro() {
+        return "Redmi".equalsIgnoreCase(Build.BRAND) && "Redmi Note 8 Pro".equalsIgnoreCase(
+                Build.MODEL);
+    }
+
     private static boolean isPositivoTwist2Pro() {
         return "positivo".equalsIgnoreCase(Build.BRAND) && "twist 2 pro".equalsIgnoreCase(
                 Build.MODEL);
@@ -109,6 +133,7 @@ public class MediaCodecInfoReportIncorrectInfoQuirk implements Quirk {
     public static final List<String> INCORRECT_FHD_PROFILE_MODEL_LIST = Arrays.asList(
             "lg-k430",
             "redmi note 4",
+            "m2003j15sc", // Redmi Note 9
             "rmx3231",
             "v2117",
             "sm-a032f",
@@ -121,7 +146,7 @@ public class MediaCodecInfoReportIncorrectInfoQuirk implements Quirk {
         MediaFormatResolver formatResolver = new MediaFormatResolver(mediaFormat);
         if (isNokia1() || isMotoC() || isX650() || isX230() || isPositivoTwist2Pro()) {
             return formatResolver.isMpeg4();
-        } else if (isHuaweiMate9()) {
+        } else if (isHuaweiMate9() || isRedmiNote8Pro()) {
             return formatResolver.isVideo() && formatResolver.isSize(3840, 2160);
         } else if (isFHDProblematicDevice()) {
             return formatResolver.isAvc() && formatResolver.isSize(1920, 1080);
