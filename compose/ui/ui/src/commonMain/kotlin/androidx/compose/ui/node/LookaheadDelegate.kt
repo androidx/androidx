@@ -20,7 +20,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.graphics.GraphicsLayerScope
 import androidx.compose.ui.layout.AlignmentLine
 import androidx.compose.ui.layout.LayoutCoordinates
-import androidx.compose.ui.layout.LookaheadLayoutCoordinatesImpl
+import androidx.compose.ui.layout.LookaheadLayoutCoordinates
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.Placeable
@@ -111,7 +111,7 @@ internal abstract class LookaheadDelegate(
     override val coordinates: LayoutCoordinates
         get() = lookaheadLayoutCoordinates
 
-    val lookaheadLayoutCoordinates = LookaheadLayoutCoordinatesImpl(this)
+    val lookaheadLayoutCoordinates = LookaheadLayoutCoordinates(this)
     override val alignmentLinesOwner: AlignmentLinesOwner
         get() = coordinator.layoutNode.layoutDelegate.lookaheadAlignmentLinesOwner!!
 
