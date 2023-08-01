@@ -26,7 +26,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.OptIn;
@@ -35,7 +34,6 @@ import androidx.camera.core.Camera;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.Logger;
 import androidx.camera.core.Preview;
-import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.video.ExperimentalPersistentRecording;
 import androidx.camera.video.FileOutputOptions;
@@ -98,6 +96,7 @@ public class VideoCameraSwitchingActivity extends AppCompatActivity {
     private Camera mCamera;
     @Nullable
     private Recording mRecording;
+    private boolean mNotYetSwitched = true;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -197,9 +196,9 @@ public class VideoCameraSwitchingActivity extends AppCompatActivity {
     @OptIn(markerClass = ExperimentalPersistentRecording.class)
     private void startRecording() {
         Preconditions.checkNotNull(mVideoCapture, "The video capture use case should not be null.");
-        final long durationMillis = Long.parseLong(mDurationText.getText().toString());
-        final long switchTimeMillis = Long.parseLong(mSwitchTimeText.getText().toString());
-        if (switchTimeMillis >= durationMillis) {
+        final long expectedDurationMillis = Long.parseLong(mDurationText.getText().toString());
+        final long expectedSwitchTimeMillis = Long.parseLong(mSwitchTimeText.getText().toString());
+        if (expectedSwitchTimeMillis >= expectedDurationMillis) {
             String msg = "The switch time should be less than the duration.";
             Logger.d(TAG, msg);
             Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
@@ -214,23 +213,35 @@ public class VideoCameraSwitchingActivity extends AppCompatActivity {
         if (DeviceQuirks.get(MediaStoreVideoCannotWrite.class) != null) {
             // Use FileOutputOption for devices in MediaStoreVideoCannotWrite Quirk.
             pendingRecording = mVideoCapture.getOutput().prepareRecording(
-                    this, generateFileOutputOptions(durationMillis));
+                    this, generateFileOutputOptions());
         } else {
             // Use MediaStoreOutputOptions for public share media storage.
             pendingRecording = mVideoCapture.getOutput().prepareRecording(
-                    this, generateMediaStoreOutputOptions(durationMillis));
+                    this, generateMediaStoreOutputOptions());
         }
         mRecording = pendingRecording
                 .asPersistentRecording() // Perform the recording as a persistent recording.
                 .start(ContextCompat.getMainExecutor(this),
                         videoRecordEvent -> {
-                            if (videoRecordEvent instanceof VideoRecordEvent.Start) {
-                                // Switch camera after the specified time.
-                                CameraXExecutors.mainThreadExecutor().schedule(this::switchCamera,
-                                        switchTimeMillis, TimeUnit.MILLISECONDS);
+                            if (videoRecordEvent instanceof VideoRecordEvent.Status) {
+                                long currentDurationMillis = TimeUnit.NANOSECONDS.toMillis(
+                                        videoRecordEvent.getRecordingStats()
+                                                .getRecordedDurationNanos());
+                                if (currentDurationMillis >= expectedSwitchTimeMillis) {
+                                    if (mNotYetSwitched) {
+                                        switchCamera();
+                                        mNotYetSwitched = false;
+                                    }
+                                    if (currentDurationMillis >= expectedDurationMillis) {
+                                        Preconditions.checkNotNull(mRecording, "The in-progress "
+                                                + "recording should not be null.");
+                                        mRecording.stop();
+                                    }
+                                }
                             }
                             if (videoRecordEvent instanceof VideoRecordEvent.Finalize) {
                                 mRecording = null;
+                                mNotYetSwitched = true;
                                 mStartButton.setClickable(true);
                                 mStartButton.setText(R.string.record_button_idling);
                                 mDurationText.setClickable(true);
@@ -240,21 +251,18 @@ public class VideoCameraSwitchingActivity extends AppCompatActivity {
     }
 
     @NonNull
-    private FileOutputOptions generateFileOutputOptions(@IntRange(from = 0) long durationMillis) {
+    private FileOutputOptions generateFileOutputOptions() {
         String videoFileName = "video_" + System.currentTimeMillis() + ".mp4";
         File videoFolder = Environment.getExternalStoragePublicDirectory(
                 Environment.DIRECTORY_MOVIES);
         if (!videoFolder.exists() && !videoFolder.mkdirs()) {
             Logger.e(TAG, "Failed to create directory: " + videoFolder);
         }
-        return new FileOutputOptions.Builder(
-                new File(videoFolder, videoFileName)).setDurationLimitMillis(
-                durationMillis).build();
+        return new FileOutputOptions.Builder(new File(videoFolder, videoFileName)).build();
     }
 
     @NonNull
-    private MediaStoreOutputOptions generateMediaStoreOutputOptions(
-            @IntRange(from = 0) long durationMillis) {
+    private MediaStoreOutputOptions generateMediaStoreOutputOptions() {
         String videoFileName = "video_" + System.currentTimeMillis();
         ContentValues contentValues = new ContentValues();
         contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "video/mp4");
@@ -265,7 +273,6 @@ public class VideoCameraSwitchingActivity extends AppCompatActivity {
         return new MediaStoreOutputOptions.Builder(getContentResolver(),
                 MediaStore.Video.Media.EXTERNAL_CONTENT_URI)
                 .setContentValues(contentValues)
-                .setDurationLimitMillis(durationMillis)
                 .build();
     }
 
