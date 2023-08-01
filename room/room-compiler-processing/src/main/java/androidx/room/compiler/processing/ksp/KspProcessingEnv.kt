@@ -269,7 +269,7 @@ internal class KspProcessingEnv(
         }
         val qName = ksType.declaration.qualifiedName?.asString()
         if (declaration is KSTypeParameter) {
-            return KspTypeVariableType(this, ksType, originalAnnotations)
+            return KspTypeVariableType(this, declaration, ksType, originalAnnotations)
         }
         if (allowPrimitives && qName != null && ksType.nullability == Nullability.NOT_NULL) {
             // check for primitives

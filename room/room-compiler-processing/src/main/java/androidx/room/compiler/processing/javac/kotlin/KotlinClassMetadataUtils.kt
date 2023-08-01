@@ -53,6 +53,12 @@ internal interface KmFlags {
     val flags: Flags
 }
 
+internal interface KmBaseTypeContainer : KmFlags {
+    val upperBounds: List<KmTypeContainer>
+    val nullability: XNullability
+    fun isNullable() = Flag.Type.IS_NULLABLE(flags)
+}
+
 internal class KmClassContainer(
     private val env: JavacProcessingEnv,
     private val kmClass: KmClass
@@ -296,9 +302,9 @@ internal class KmTypeContainer(
     val typeArguments: List<KmTypeContainer>,
     /** The extends bounds are only non-null for wildcard (i.e. in/out variant) types. */
     val extendsBound: KmTypeContainer? = null,
-    /** The upper bounds are only non-null for type variable types with upper bounds. */
-    val upperBounds: List<KmTypeContainer>? = null
-) : KmFlags {
+    /** The upper bounds are only non-empty for type variable types with upper bounds. */
+    override val upperBounds: List<KmTypeContainer> = emptyList()
+) : KmBaseTypeContainer {
     override val flags: Flags
         get() = kmType.flags
 
@@ -313,15 +319,17 @@ internal class KmTypeContainer(
 
     fun isExtensionType() =
         kmType.annotations.any { it.className == "kotlin/ExtensionFunctionType" }
-    fun isNullable() = Flag.Type.IS_NULLABLE(flags)
 
     fun erasure(): KmTypeContainer = KmTypeContainer(
         kmType = kmType,
         typeArguments = emptyList(),
         extendsBound = extendsBound?.erasure(),
         // The erasure of a type variable is equal to the erasure of the first upper bound.
-        upperBounds = upperBounds?.firstOrNull()?.erasure()?.let { listOf(it) },
+        upperBounds = upperBounds.firstOrNull()?.erasure()?.let { listOf(it) } ?: emptyList(),
     )
+
+    override val nullability: XNullability
+        get() = computeTypeNullability(this.isNullable(), this.upperBounds, this.extendsBound)
 }
 
 internal class KmAnnotationContainer(private val kmAnnotation: KmAnnotation) {
@@ -367,26 +375,17 @@ internal class KmAnnotationArgumentContainer(
     }
 }
 
-internal val KmTypeContainer.nullability: XNullability
-    get() = if (isNullable()) {
-        XNullability.NULLABLE
-    } else {
-        // if there is an upper bound information, use its nullability (e.g. it might be T : Foo?)
-        if (upperBounds?.all { it.nullability == XNullability.NULLABLE } == true) {
-            XNullability.NULLABLE
-        } else {
-            extendsBound?.nullability ?: XNullability.NONNULL
-        }
-    }
-
 internal class KmTypeParameterContainer(
     private val kmTypeParameter: KmTypeParameter,
-    val upperBounds: List<KmTypeContainer>
-) : KmFlags {
+    override val upperBounds: List<KmTypeContainer>
+) : KmBaseTypeContainer {
     override val flags: Flags
         get() = kmTypeParameter.flags
     val name: String
         get() = kmTypeParameter.name
+
+    override val nullability: XNullability
+        get() = computeTypeNullability(this.isNullable(), this.upperBounds, null)
 }
 
 internal class KmValueParameterContainer(
@@ -400,6 +399,21 @@ internal class KmValueParameterContainer(
     fun isVarArgs() = kmValueParameter.varargElementType != null
     fun isNullable() = type.isNullable()
     fun hasDefault() = Flag.ValueParameter.DECLARES_DEFAULT_VALUE(flags)
+}
+
+private fun computeTypeNullability(
+    isNullable: Boolean,
+    upperBounds: List<KmTypeContainer>,
+    extendsBound: KmTypeContainer?
+): XNullability {
+    if (isNullable) {
+        return XNullability.NULLABLE
+    }
+    // if there is an upper bound information, use its nullability (e.g. it might be T : Foo?)
+    if (upperBounds.isNotEmpty() && upperBounds.all { it.nullability == XNullability.NULLABLE }) {
+        return XNullability.NULLABLE
+    }
+    return extendsBound?.nullability ?: XNullability.NONNULL
 }
 
 private fun KmFunction.asContainer(): KmFunctionContainer =

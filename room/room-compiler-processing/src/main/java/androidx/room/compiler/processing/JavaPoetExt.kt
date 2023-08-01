@@ -22,6 +22,7 @@ import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeSpec
 import com.squareup.kotlinpoet.javapoet.JClassName
+import com.squareup.kotlinpoet.javapoet.JTypeVariableName
 import java.lang.Character.isISOControl
 import javax.lang.model.SourceVersion
 import javax.lang.model.element.Modifier
@@ -183,7 +184,7 @@ object MethodSpecHelper {
     ): MethodSpec.Builder {
         return MethodSpec.methodBuilder(executableElement.jvmName).apply {
             addTypeVariables(
-                resolvedType.typeVariableNames
+                resolvedType.typeVariables.map { it.asTypeName().java as JTypeVariableName }
             )
             resolvedType.parameterTypes.forEachIndexed { index, paramType ->
                 addParameter(
