@@ -107,6 +107,69 @@ class ParagraphLayoutCacheTest {
     }
 
     @Test
+    fun TextLayoutInput_reLayout_withDifferentDensity() {
+        var backingDensity = 1f
+        val density = object : Density {
+            override val density: Float
+                get() = backingDensity
+            override val fontScale: Float
+                get() = 1f
+        }
+        val textDelegate = ParagraphLayoutCache(
+            text = "Hello World",
+            style = TextStyle.Default.copy(fontFamily = fontFamily),
+            fontFamilyResolver = fontFamilyResolver,
+        ).also {
+            it.density = density
+        }
+
+        textDelegate.layoutWithConstraints(Constraints(), LayoutDirection.Ltr)
+        val resultFirstLayout = textDelegate.layoutSize
+
+        backingDensity = 2f
+        // Compose makes sure to notify us that density has changed but using the same object
+        textDelegate.density = density
+
+        textDelegate.layoutWithConstraints(Constraints(), LayoutDirection.Ltr)
+        val resultSecondLayout = textDelegate.layoutSize
+
+        assertThat(resultFirstLayout.width).isLessThan(resultSecondLayout.width)
+        assertThat(resultFirstLayout.height).isLessThan(resultSecondLayout.height)
+    }
+
+    @Test
+    fun TextLayoutInput_reLayout_withDifferentFontScale() {
+        var backingFontScale = 1f
+        val density = object : Density {
+            override val density: Float
+                get() = 1f
+            override val fontScale: Float
+                get() = backingFontScale
+        }
+        val textDelegate = ParagraphLayoutCache(
+            text = "Hello World",
+            style = TextStyle.Default.copy(fontFamily = fontFamily),
+            fontFamilyResolver = fontFamilyResolver,
+        ).also {
+            it.density = density
+        }
+
+        textDelegate.layoutWithConstraints(Constraints(), LayoutDirection.Ltr)
+        val resultFirstLayout = textDelegate.layoutSize
+
+        backingFontScale = 2f
+        // Compose makes sure to notify us that density has changed but using the same object
+        textDelegate.density = density
+
+        textDelegate.layoutWithConstraints(Constraints(), LayoutDirection.Ltr)
+        val resultSecondLayout = textDelegate.layoutSize
+
+        assertThat(resultFirstLayout.width).isLessThan(resultSecondLayout.width)
+        assertThat(resultFirstLayout.height).isLessThan(resultSecondLayout.height)
+    }
+
+    @OptIn(ExperimentalTextApi::class)
+    @Test
     fun TextLayoutResult_reLayout_withDifferentHeight() {
         val textDelegate = ParagraphLayoutCache(
             text = "Hello World",
