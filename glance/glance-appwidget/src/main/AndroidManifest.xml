@@ -19,6 +19,7 @@
         <activity
             android:name=".action.ActionTrampolineActivity"
             android:excludeFromRecents="true"
+            android:theme="@android:style/Theme.NoDisplay"
             android:exported="false"
             android:enabled="true" />
         <activity
