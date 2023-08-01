@@ -7,17 +7,5 @@ package androidx.core.performance.play.services {
     property public int mediaPerformanceClass;
   }
 
-  @Deprecated public final class PlayServicesDevicePerformanceSupplier implements androidx.core.performance.DevicePerformanceSupplier {
-    ctor @Deprecated public PlayServicesDevicePerformanceSupplier();
-    method @Deprecated public static androidx.core.performance.DevicePerformance createDevicePerformance(android.content.Context context);
-    method @Deprecated public kotlinx.coroutines.flow.Flow<java.lang.Integer> getMediaPerformanceClassFlow();
-    property @Deprecated public kotlinx.coroutines.flow.Flow<java.lang.Integer> mediaPerformanceClassFlow;
-    field @Deprecated public static final androidx.core.performance.play.services.PlayServicesDevicePerformanceSupplier.Companion Companion;
-  }
-
-  @Deprecated public static final class PlayServicesDevicePerformanceSupplier.Companion {
-    method @Deprecated public androidx.core.performance.DevicePerformance createDevicePerformance(android.content.Context context);
-  }
-
 }
 
