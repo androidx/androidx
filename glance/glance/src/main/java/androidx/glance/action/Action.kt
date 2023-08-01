@@ -54,7 +54,7 @@ fun GlanceModifier.clickable(
  *
  * @param rippleOverride A drawable resource to use as the onClick ripple. Use [NoRippleOverride]
  * if no custom behavior is needed.
- * @param block The action to run.v
+ * @param block The action to run.
  */
 @Composable
 fun GlanceModifier.clickable(

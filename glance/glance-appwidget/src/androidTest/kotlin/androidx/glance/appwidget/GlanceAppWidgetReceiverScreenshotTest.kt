@@ -35,6 +35,7 @@ import androidx.glance.appwidget.component.CircleIconButton
 import androidx.glance.appwidget.component.FilledButton
 import androidx.glance.appwidget.component.OutlineButton
 import androidx.glance.appwidget.component.SquareIconButton
+import androidx.glance.appwidget.component.TitleBar
 import androidx.glance.appwidget.lazy.LazyColumn
 import androidx.glance.appwidget.test.R
 import androidx.glance.background
@@ -631,6 +632,61 @@ class GlanceAppWidgetReceiverScreenshotTest {
         }
         mHostRule.startHost()
         mScreenshotRule.checkScreenshot(mHostRule.mHostView, "buttonTests_buttonDefaultColors")
+    }
+
+    @Test
+    fun topbarTests_createBarWithIconTextTwoActions() {
+        TestGlanceAppWidget.uiDefinition = {
+            TopBarUi()
+        }
+        mHostRule.startHost()
+        mScreenshotRule.checkScreenshot(
+            mHostRule.mHostView,
+            "topbarTests_createBarWithIconTextTwoActions"
+        )
+    }
+
+    @WithRtl
+    @Test
+    fun topbarTests_createBarWithIconTextTwoActions_rtl() {
+        TestGlanceAppWidget.uiDefinition = {
+            TopBarUi()
+        }
+        mHostRule.startHost()
+        mScreenshotRule.checkScreenshot(
+            mHostRule.mHostView,
+            "topbarTests_createBarWithIconTextTwoActions_rtl"
+        )
+    }
+
+    @Composable
+    private fun TopBarUi() {
+        val fg = ColorProvider(Color.Magenta)
+        val bg = ColorProvider(Color.Cyan)
+
+        val actionButton = @Composable {
+            CircleIconButton(
+                imageProvider = ImageProvider(R.drawable.filled_oval),
+                contentDescription = null,
+                backgroundColor = null,
+                contentColor = fg,
+                onClick = {})
+        }
+
+        Box(
+            GlanceModifier.padding(4.dp).background(Color.Black)
+        ) {
+            TitleBar(
+                modifier = GlanceModifier.background(bg).fillMaxWidth(),
+                startIcon = ImageProvider(R.drawable.filled_oval),
+                title = "Lead icon; title; 2 btns",
+                contentColor = fg,
+                actions = {
+                    actionButton()
+                    Spacer(GlanceModifier.size(8.dp))
+                    actionButton()
+                })
+        }
     }
 }
 
