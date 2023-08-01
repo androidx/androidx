@@ -62,6 +62,10 @@ class ExerciseCapabilitiesTest {
         assertThat(
             EXERCISE_CAPABILITIES.getExerciseTypeCapabilities(
                 ExerciseType.GOLF).supportedExerciseEvents
+        ).isEqualTo(setOf(ExerciseEventType.GOLF_SHOT_EVENT))
+        assertThat(
+            EXERCISE_CAPABILITIES.getExerciseTypeCapabilities(
+                ExerciseType.GOLF).supportedExerciseEvents
         ).isEqualTo(
             EXERCISE_CAPABILITIES.typeToCapabilities.get(ExerciseType.GOLF)?.supportedExerciseEvents
         )
@@ -172,7 +176,6 @@ class ExerciseCapabilitiesTest {
             supportedGoals = emptyMap(),
             supportedMilestones = emptyMap(),
             supportsAutoPauseAndResume = true,
-            supportedExerciseEvents = setOf(ExerciseEventType.GOLF_SHOT_EVENT),
             exerciseEventCapabilities =
             ImmutableMap.of(ExerciseEventType.GOLF_SHOT_EVENT, GOLF_SHOT_EVENT_CAPABILITIES),
         )
