@@ -93,7 +93,7 @@ public class RouteListingPreferenceTest {
                 new RouteListingPreference.Builder()
                         .setItems(Collections.singletonList(fakeRlpItem))
                         .setLinkedItemComponentName(FAKE_COMPONENT_NAME)
-                        .setUseSystemOrdering(false)
+                        .setSystemOrderingEnabled(false)
                         .build();
         android.media.RouteListingPreference platformRlp =
                 fakeRouteListingPreference.toPlatformRouteListingPreference();

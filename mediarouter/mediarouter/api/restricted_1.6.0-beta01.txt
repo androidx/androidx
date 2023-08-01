@@ -572,7 +572,7 @@ package androidx.mediarouter.media {
   public final class RouteListingPreference {
     method public java.util.List<androidx.mediarouter.media.RouteListingPreference.Item!> getItems();
     method public android.content.ComponentName? getLinkedItemComponentName();
-    method public boolean getUseSystemOrdering();
+    method public boolean isSystemOrderingEnabled();
     field public static final String ACTION_TRANSFER_MEDIA = "android.media.action.TRANSFER_MEDIA";
     field public static final String EXTRA_ROUTE_ID = "android.media.extra.ROUTE_ID";
   }
@@ -582,7 +582,7 @@ package androidx.mediarouter.media {
     method public androidx.mediarouter.media.RouteListingPreference build();
     method public androidx.mediarouter.media.RouteListingPreference.Builder setItems(java.util.List<androidx.mediarouter.media.RouteListingPreference.Item!>);
     method public androidx.mediarouter.media.RouteListingPreference.Builder setLinkedItemComponentName(android.content.ComponentName?);
-    method public androidx.mediarouter.media.RouteListingPreference.Builder setUseSystemOrdering(boolean);
+    method public androidx.mediarouter.media.RouteListingPreference.Builder setSystemOrderingEnabled(boolean);
   }
 
   public static final class RouteListingPreference.Item {
