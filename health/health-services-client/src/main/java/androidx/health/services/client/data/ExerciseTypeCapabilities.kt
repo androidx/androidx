@@ -71,14 +71,14 @@ constructor(
         supportsAutoPauseAndResume = proto.isAutoPauseAndResumeSupported,
         supportedExerciseEvents =
             proto.supportedExerciseEventsList
+                .filter { ExerciseEventCapabilities.fromProto(it) != null }
                 .map { ExerciseEventType.fromProto(it.exerciseEventType) }
                 .toSet(),
-            proto.supportedExerciseEventsList
-                .map { entry ->
-                    ExerciseEventType.fromProto(entry.exerciseEventType) to
-                      ExerciseEventCapabilities.fromProto(entry)
-                }
-                .toMap(),
+        exerciseEventCapabilities = proto.supportedExerciseEventsList
+            .filter { ExerciseEventCapabilities.fromProto(it) != null }.associate { entry ->
+                ExerciseEventType.fromProto(entry.exerciseEventType) to
+                    ExerciseEventCapabilities.fromProto(entry)!!
+            },
     )
 
     internal val proto: DataProto.ExerciseTypeCapabilities =

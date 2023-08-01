@@ -31,11 +31,11 @@ public abstract class ExerciseEventCapabilities @RestrictTo(Scope.LIBRARY_GROUP)
 
   public companion object {
     @JvmStatic
-    internal fun fromProto(proto: DataProto.ExerciseEventCapabilities): ExerciseEventCapabilities =
+    internal fun fromProto(proto: DataProto.ExerciseEventCapabilities): ExerciseEventCapabilities? =
       when (proto.exerciseEventCapabilitiesCase) {
         ExerciseEventCapabilitiesCase.GOLF_SHOT_CAPABILITIES ->
           GolfShotEventCapabilities(proto.golfShotCapabilities)
-        else -> throw IllegalStateException("Exercise event capabilities not set on $proto")
+        else -> null
       }
   }
 }
