@@ -43,9 +43,8 @@ class WatchFaceServiceAndroidTest {
         val context: Context = ApplicationProvider.getApplicationContext()
         val serviceSpy =
             object : SimpleWatchFaceTestService() {
-                override val resourcesContext: Context
-                    get() =
-                        this.createPackageContext(context.packageName, Context.CONTEXT_RESTRICTED)
+                override fun getResourcesContext(runtimePackage: String): Context =
+                    this.createPackageContext(context.packageName, Context.CONTEXT_RESTRICTED)
             }
         val engine = serviceSpy.onCreateEngine() as WatchFaceService.EngineWrapper
 
