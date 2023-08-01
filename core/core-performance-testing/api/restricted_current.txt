@@ -7,11 +7,5 @@ package androidx.core.performance.testing {
     property public int mediaPerformanceClass;
   }
 
-  @Deprecated public final class FakeDevicePerformanceSupplier implements androidx.core.performance.DevicePerformanceSupplier {
-    ctor @Deprecated public FakeDevicePerformanceSupplier(int mediaPerformanceClass);
-    method @Deprecated public kotlinx.coroutines.flow.Flow<java.lang.Integer> getMediaPerformanceClassFlow();
-    property @Deprecated public kotlinx.coroutines.flow.Flow<java.lang.Integer> mediaPerformanceClassFlow;
-  }
-
 }
 
