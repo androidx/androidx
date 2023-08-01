@@ -195,6 +195,68 @@ class MultiParagraphLayoutCacheTest {
     }
 
     @Test
+    fun TextLayoutResult_reLayout_withDifferentDensity() {
+        var backingDensity = 1f
+        val density = object : Density {
+            override val density: Float
+                get() = backingDensity
+            override val fontScale: Float
+                get() = 1f
+        }
+        val textDelegate = MultiParagraphLayoutCache(
+            text = AnnotatedString("Hello World"),
+            style = TextStyle.Default,
+            fontFamilyResolver = fontFamilyResolver,
+        ).also {
+            it.density = density
+        }
+
+        textDelegate.layoutWithConstraints(Constraints(), LayoutDirection.Ltr)
+        val resultFirstLayout = textDelegate.textLayoutResult.size
+
+        backingDensity = 2f
+        // Compose makes sure to notify us that density has changed but using the same object
+        textDelegate.density = density
+
+        textDelegate.layoutWithConstraints(Constraints(), LayoutDirection.Ltr)
+        val resultSecondLayout = textDelegate.textLayoutResult.size
+
+        assertThat(resultFirstLayout.width).isLessThan(resultSecondLayout.width)
+        assertThat(resultFirstLayout.height).isLessThan(resultSecondLayout.height)
+    }
+
+    @Test
+    fun TextLayoutResult_reLayout_withDifferentFontScale() {
+        var backingFontScale = 1f
+        val density = object : Density {
+            override val density: Float
+                get() = 1f
+            override val fontScale: Float
+                get() = backingFontScale
+        }
+        val textDelegate = MultiParagraphLayoutCache(
+            text = AnnotatedString("Hello World"),
+            style = TextStyle.Default,
+            fontFamilyResolver = fontFamilyResolver,
+        ).also {
+            it.density = density
+        }
+
+        textDelegate.layoutWithConstraints(Constraints(), LayoutDirection.Ltr)
+        val resultFirstLayout = textDelegate.textLayoutResult.size
+
+        backingFontScale = 2f
+        // Compose makes sure to notify us that density has changed but using the same object
+        textDelegate.density = density
+
+        textDelegate.layoutWithConstraints(Constraints(), LayoutDirection.Ltr)
+        val resultSecondLayout = textDelegate.textLayoutResult.size
+
+        assertThat(resultFirstLayout.width).isLessThan(resultSecondLayout.width)
+        assertThat(resultFirstLayout.height).isLessThan(resultSecondLayout.height)
+    }
+
+    @Test
     fun TextLayoutResult_sameWidth_inRtlAndLtr_withLetterSpacing() {
         val fontSize = 20f
         val text = AnnotatedString(text = "Hello World")
