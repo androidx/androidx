@@ -16,33 +16,20 @@
 
 package androidx.credentials.webauthn
 
-import android.annotation.SuppressLint
-import android.os.Build
-import android.util.Base64
+import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.credentials.provider.CallingAppInfo
 import java.security.MessageDigest
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-internal class WebAuthnUtils {
+@RequiresApi(28)
+internal class WebAuthnUtilsApi28 {
   companion object {
-    fun b64Decode(str: String): ByteArray {
-      return Base64.decode(str, Base64.NO_PADDING or Base64.NO_WRAP or Base64.URL_SAFE)
-    }
-
-    fun b64Encode(data: ByteArray): String {
-      return Base64.encodeToString(data, Base64.NO_PADDING or Base64.NO_WRAP or Base64.URL_SAFE)
-    }
-
-    @SuppressLint("ClassVerificationFailure")
     fun appInfoToOrigin(info: CallingAppInfo): String {
-      if (Build.VERSION.SDK_INT >= 28) {
-        val cert = info.signingInfo.apkContentsSigners[0].toByteArray()
-        val md = MessageDigest.getInstance("SHA-256")
-        val certHash = md.digest(cert)
-        return "android:apk-key-hash:${b64Encode(certHash)}"
-      }
-      return ""
+      val cert = info.signingInfo.apkContentsSigners[0].toByteArray()
+      val md = MessageDigest.getInstance("SHA-256")
+      val certHash = md.digest(cert)
+      return "android:apk-key-hash:${WebAuthnUtils.b64Encode(certHash)}"
     }
   }
 }
