@@ -17,26 +17,46 @@
 package androidx.core.performance.testapp
 
 import android.app.Activity
+import android.os.Build.VERSION_CODES
 import android.os.Bundle
 import android.view.View
 import android.widget.TextView
+import androidx.core.performance.DevicePerformance
 
-/** Sample Media Performance Class activity. */
 class MpcActivity : Activity() {
 
     private lateinit var resultTextView: TextView
+    private lateinit var devicePerformance: DevicePerformance
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_mpc)
         resultTextView = findViewById(R.id.resultTextView)
+        devicePerformance = (application as MpcApp).devicePerformance
     }
 
-    fun doSomething(view: View) {
+    fun onClickDoSomething(view: View) {
         resultTextView.text = view.context.getString(getExperienceStringId())
     }
 
     private fun getExperienceStringId(): Int {
-        return R.string.mpc_0_experience_string
+        when {
+            devicePerformance.mediaPerformanceClass >= VERSION_CODES.TIRAMISU -> {
+                return R.string.mpc_33_experience_string
+            }
+            devicePerformance.mediaPerformanceClass == VERSION_CODES.S -> {
+                return R.string.mpc_31_experience_string
+            }
+            devicePerformance.mediaPerformanceClass == VERSION_CODES.R -> {
+                return R.string.mpc_30_experience_string
+            }
+            devicePerformance.mediaPerformanceClass == VERSION_CODES.Q
+            -> {
+                return R.string.mpc_29_experience_string
+            }
+            else -> {
+                return R.string.mpc_0_experience_string
+            }
+        }
     }
 }
