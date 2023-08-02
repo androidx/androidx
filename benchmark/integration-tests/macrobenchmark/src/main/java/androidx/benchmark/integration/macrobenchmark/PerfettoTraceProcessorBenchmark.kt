@@ -55,10 +55,10 @@ class PerfettoTraceProcessorBenchmark {
     @Test
     fun loadServer() = benchmarkRule.measureRepeated(
         packageName = PACKAGE_NAME,
-        metrics = listOf(TraceSectionMetric("PerfettoTraceProcessorBenchmark")),
+        metrics = measureBlockMetric,
         iterations = 5,
     ) {
-        trace("PerfettoTraceProcessorBenchmark") {
+        measureBlock {
             PerfettoTraceProcessor.runServer {}
         }
     }
@@ -66,10 +66,10 @@ class PerfettoTraceProcessorBenchmark {
     @Test
     fun singleTrace() = benchmarkRule.measureRepeated(
         packageName = PACKAGE_NAME,
-        metrics = listOf(TraceSectionMetric("PerfettoTraceProcessorBenchmark")),
+        metrics = measureBlockMetric,
         iterations = 5,
     ) {
-        trace("PerfettoTraceProcessorBenchmark") {
+        measureBlock {
             PerfettoTraceProcessor.runServer {
                 loadTrace(PerfettoTrace(traceFile.absolutePath)) {}
             }
@@ -79,10 +79,10 @@ class PerfettoTraceProcessorBenchmark {
     @Test
     fun doubleTrace() = benchmarkRule.measureRepeated(
         packageName = PACKAGE_NAME,
-        metrics = listOf(TraceSectionMetric("PerfettoTraceProcessorBenchmark")),
+        metrics = measureBlockMetric,
         iterations = 5,
     ) {
-        trace("PerfettoTraceProcessorBenchmark") {
+        measureBlock {
             PerfettoTraceProcessor.runServer {
                 loadTrace(PerfettoTrace(traceFile.absolutePath)) {}
                 loadTrace(PerfettoTrace(traceFile.absolutePath)) {}
@@ -118,10 +118,10 @@ class PerfettoTraceProcessorBenchmark {
     private fun benchmarkWithTrace(block: PerfettoTraceProcessor.Session.() -> Unit) =
         benchmarkRule.measureRepeated(
             packageName = PACKAGE_NAME,
-            metrics = listOf(TraceSectionMetric("PerfettoTraceProcessorBenchmark")),
+            metrics = measureBlockMetric,
             iterations = 5,
         ) {
-            trace("PerfettoTraceProcessorBenchmark") {
+            measureBlock {
                 // This will run perfetto trace processor http server on the specified port 10555.
                 // Note that this is an arbitrary number and the default cannot be used because
                 // the macrobenchmark instance of the server is running at the same time.
@@ -182,5 +182,21 @@ class PerfettoTraceProcessorBenchmark {
 
     companion object {
         private const val PACKAGE_NAME = "androidx.benchmark.integration.macrobenchmark.target"
+        private const val SECTION_NAME = "PerfettoTraceProcessorBenchmark"
+
+        /**
+         * Measures single call to [measureBlock] function
+         */
+        private val measureBlockMetric = listOf(
+            TraceSectionMetric(
+                sectionName = SECTION_NAME,
+                targetPackageOnly = false // tracing in test process, not target app
+            )
+        )
+
+        /**
+         * This block is measured by [measureBlockMetric]
+         */
+        internal inline fun <T> measureBlock(block: () -> T): T = trace(SECTION_NAME) { block() }
     }
 }
