@@ -31,8 +31,10 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.testutils.assertPixels
@@ -40,6 +42,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.AtLeastSize
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.background
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.paint
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Canvas
@@ -48,10 +51,10 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.asAndroidBitmap
-import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.graphics.drawscope.CanvasDrawScope
 import androidx.compose.ui.graphics.painter.BitmapPainter
+import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
@@ -59,20 +62,21 @@ import androidx.compose.ui.platform.LocalImageVectorCache
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.ImageVectorCache
-import androidx.compose.ui.unit.Density
-import androidx.compose.ui.unit.LayoutDirection
-
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.test.captureToImage
+import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.R
-import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.tests.R
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 import org.junit.Assert
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -80,8 +84,6 @@ import org.junit.Assert.fail
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
@@ -163,6 +165,50 @@ class VectorTest {
         }
     }
 
+    @Test
+    fun testVectorSkipsRecompositionOnNoChange() {
+        val state = mutableIntStateOf(0)
+        var composeCount = 0
+        var vectorComposeCount = 0
+
+        val composeVector: @Composable @VectorComposable (Float, Float) -> Unit = {
+                viewportWidth, viewportHeight ->
+
+            vectorComposeCount++
+            Path(
+                fill = SolidColor(Color.Blue),
+                pathData = PathData {
+                    lineTo(viewportWidth, 0f)
+                    lineTo(viewportWidth, viewportHeight)
+                    lineTo(0f, viewportHeight)
+                    close()
+                }
+            )
+        }
+
+        rule.setContent {
+            composeCount++
+            // Arbitrary read to force composition here and verify the subcomposition below skips
+            state.value
+            val vectorPainter = rememberVectorPainter(
+                defaultWidth = 10.dp,
+                defaultHeight = 10.dp,
+                autoMirror = false,
+                content = composeVector
+            )
+            Image(
+                vectorPainter,
+                null,
+                modifier = Modifier.size(20.dp)
+            )
+        }
+
+        state.value = 1
+        rule.waitForIdle()
+        assertEquals(2, composeCount) // Arbitrary state read should compose twice
+        assertEquals(1, vectorComposeCount) // Vector is identical so should compose once
+    }
+
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun testVectorInvalidation() {
@@ -188,6 +234,26 @@ class VectorTest {
         takeScreenShot(size).apply {
             assertEquals(Color.White.toArgb(), getPixel(5, size - 5))
             assertEquals(Color.Red.toArgb(), getPixel(size - 5, 5))
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun testVectorRendersOnceOnFirstFrame() {
+        var drawCount = 0
+        val testTag = "TestTag"
+        rule.setContent {
+            Box(modifier = Modifier
+                .wrapContentSize()
+                .drawBehind {
+                    drawCount++
+                }
+                .paint(painterResource(R.drawable.ic_triangle2))
+                .testTag(testTag))
+        }
+
+        rule.onNodeWithTag(testTag).captureToImage().toPixelMap().apply {
+            assertEquals(1, drawCount)
         }
     }
 
@@ -409,6 +475,7 @@ class VectorTest {
         var vectorInCache = false
         rule.setContent {
             val theme = LocalContext.current.theme
+            val density = LocalDensity.current
             val imageVectorCache = LocalImageVectorCache.current
             imageVectorCache.clear()
             Image(
@@ -416,8 +483,21 @@ class VectorTest {
                 contentDescription = null
             )
 
-            vectorInCache =
-                imageVectorCache[ImageVectorCache.Key(theme, R.drawable.ic_triangle)] != null
+            val key = ImageVectorCache.Key(theme, R.drawable.ic_triangle, density)
+            vectorInCache = imageVectorCache[key] != null
+        }
+
+        assertTrue(vectorInCache)
+    }
+
+    @Test
+    fun testVectorPainterCacheHit() {
+        var vectorInCache = false
+        rule.setContent {
+            // obtaining the same painter resource should return the same instance
+            val painter1 = painterResource(R.drawable.ic_triangle)
+            val painter2 = painterResource(R.drawable.ic_triangle)
+            vectorInCache = painter1 === painter2
         }
 
         assertTrue(vectorInCache)
@@ -429,8 +509,10 @@ class VectorTest {
         var application: Application? = null
         var theme: Resources.Theme? = null
         var vectorCache: ImageVectorCache? = null
+        var density: Density? = null
         rule.setContent {
             application = LocalContext.current.applicationContext as Application
+            density = LocalDensity.current
             theme = LocalContext.current.theme
             val imageVectorCache = LocalImageVectorCache.current
             imageVectorCache.clear()
@@ -439,8 +521,8 @@ class VectorTest {
                 contentDescription = null
             )
 
-            vectorInCache =
-                imageVectorCache[ImageVectorCache.Key(theme!!, R.drawable.ic_triangle)] != null
+            val key = ImageVectorCache.Key(theme!!, R.drawable.ic_triangle, density!!)
+            vectorInCache = imageVectorCache[key] != null
 
             vectorCache = imageVectorCache
         }
@@ -448,7 +530,7 @@ class VectorTest {
         application?.onTrimMemory(0)
 
         val cacheCleared = vectorCache?.let {
-            it[ImageVectorCache.Key(theme!!, R.drawable.ic_triangle)] == null
+            it[ImageVectorCache.Key(theme!!, R.drawable.ic_triangle, density!!)] == null
         } ?: false
 
         assertTrue("Vector was not inserted in cache after initial creation", vectorInCache)
@@ -519,6 +601,25 @@ class VectorTest {
             assertEquals(Color.Red, this[width - 3, height - 3])
             assertEquals(Color.Red, this[width / 2 + 3, 2])
             assertEquals(Color.Red, this[width / 2 + 3, height - 3])
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun testVectorStrokeWidth() {
+        val strokeWidth = mutableStateOf(100)
+        rule.setContent {
+            VectorStroke(strokeWidth = strokeWidth.value)
+        }
+        takeScreenShot(200).apply {
+            assertEquals(Color.Yellow.toArgb(), getPixel(100, 25))
+            assertEquals(Color.Blue.toArgb(), getPixel(100, 75))
+        }
+        rule.runOnUiThread { strokeWidth.value = 200 }
+        rule.waitForIdle()
+        takeScreenShot(200).apply {
+            assertEquals(Color.Yellow.toArgb(), getPixel(100, 25))
+            assertEquals(Color.Yellow.toArgb(), getPixel(100, 75))
         }
     }
 
@@ -651,6 +752,47 @@ class VectorTest {
                     trimPathStart = 0.25f,
                     trimPathEnd = 0.75f,
                     trimPathOffset = 0.5f
+                )
+            },
+            alignment = alignment
+        )
+        AtLeastSize(size = minimumSize, modifier = background) {
+        }
+    }
+
+    @Composable
+    private fun VectorStroke(
+        size: Int = 200,
+        strokeWidth: Int = 100,
+        minimumSize: Int = size,
+        alignment: Alignment = Alignment.Center
+    ) {
+        val sizePx = size.toFloat()
+        val sizeDp = (size / LocalDensity.current.density).dp
+        val strokeWidthPx = strokeWidth.toFloat()
+        val background = Modifier.paint(
+            rememberVectorPainter(
+                defaultWidth = sizeDp,
+                defaultHeight = sizeDp,
+                autoMirror = false
+            ) { _, _ ->
+                Path(
+                    pathData = PathData {
+                        lineTo(sizePx, 0.0f)
+                        lineTo(sizePx, sizePx)
+                        lineTo(0.0f, sizePx)
+                        close()
+                    },
+                    fill = SolidColor(Color.Blue)
+                )
+                // A thick stroke
+                Path(
+                    pathData = PathData {
+                        moveTo(0.0f, 0.0f)
+                        lineTo(sizePx, 0.0f)
+                    },
+                    stroke = SolidColor(Color.Yellow),
+                    strokeLineWidth = strokeWidthPx,
                 )
             },
             alignment = alignment

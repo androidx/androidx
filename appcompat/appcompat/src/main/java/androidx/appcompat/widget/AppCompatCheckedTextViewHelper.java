@@ -34,7 +34,6 @@ import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.core.view.ViewCompat;
 import androidx.core.widget.CheckedTextViewCompat;
 
-/** @hide */
 @RestrictTo(LIBRARY)
 class AppCompatCheckedTextViewHelper {
     @NonNull

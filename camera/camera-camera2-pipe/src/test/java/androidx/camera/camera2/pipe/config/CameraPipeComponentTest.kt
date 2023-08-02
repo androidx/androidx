@@ -50,16 +50,18 @@ internal class CameraPipeComponentTest {
     @Test
     fun createCameraGraphComponent() {
         val context = ApplicationProvider.getApplicationContext() as Context
-        val component = DaggerCameraPipeComponent.builder()
-            .cameraPipeConfigModule(CameraPipeConfigModule(CameraPipe.Config(context)))
-            .threadConfigModule(ThreadConfigModule(CameraPipe.ThreadConfig()))
-            .build()
+        val component =
+            DaggerCameraPipeComponent.builder()
+                .cameraPipeConfigModule(CameraPipeConfigModule(CameraPipe.Config(context)))
+                .threadConfigModule(ThreadConfigModule(CameraPipe.ThreadConfig()))
+                .build()
 
         val cameraId = fakeCameraId
-        val config = CameraGraph.Config(
-            camera = cameraId,
-            streams = listOf(),
-        )
+        val config =
+            CameraGraph.Config(
+                camera = cameraId,
+                streams = listOf(),
+            )
         val module = CameraGraphConfigModule(config)
         val builder = component.cameraGraphComponentBuilder()
         builder.cameraGraphConfigModule(module)
@@ -70,21 +72,24 @@ internal class CameraPipeComponentTest {
     @Test
     fun createCameraGraph() {
         val context = ApplicationProvider.getApplicationContext() as Context
-        val component = DaggerCameraPipeComponent.builder()
-            .cameraPipeConfigModule(CameraPipeConfigModule(CameraPipe.Config(context)))
-            .threadConfigModule(ThreadConfigModule(CameraPipe.ThreadConfig()))
-            .build()
+        val component =
+            DaggerCameraPipeComponent.builder()
+                .cameraPipeConfigModule(CameraPipeConfigModule(CameraPipe.Config(context)))
+                .threadConfigModule(ThreadConfigModule(CameraPipe.ThreadConfig()))
+                .build()
 
-        val graphComponent = component.cameraGraphComponentBuilder()
-            .cameraGraphConfigModule(
-                CameraGraphConfigModule(
-                    CameraGraph.Config(
-                        camera = fakeCameraId,
-                        streams = listOf(),
+        val graphComponent =
+            component
+                .cameraGraphComponentBuilder()
+                .cameraGraphConfigModule(
+                    CameraGraphConfigModule(
+                        CameraGraph.Config(
+                            camera = fakeCameraId,
+                            streams = listOf(),
+                        )
                     )
                 )
-            )
-            .build()
+                .build()
 
         val graph = graphComponent.cameraGraph()
         assertThat(graph).isNotNull()

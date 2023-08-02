@@ -22,6 +22,7 @@ import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 public class SwipeTestActivity extends Activity {
@@ -31,23 +32,20 @@ public class SwipeTestActivity extends Activity {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.swipe_test_activity);
 
         TextView swipeRegion = findViewById(R.id.swipe_region);
 
         mGestureDetector = new GestureDetector(this, new GestureDetector.SimpleOnGestureListener() {
             @Override
-            public boolean onFling(MotionEvent e1, MotionEvent e2, float vX, float vY) {
-                // Swipe is using the same logic as fling, except that their directions are
-                // opposite under the same finger movement.
-                boolean horizontal = Math.abs(vX) > Math.abs(vY);
+            public boolean onScroll(@Nullable MotionEvent e1, @NonNull MotionEvent e2,
+                    float distanceX, float distanceY) {
+                boolean horizontal = Math.abs(distanceX) > Math.abs(distanceY);
                 if (horizontal) {
-                    swipeRegion.setText(vX < 0 ? "swipe_left" : "swipe_right");
+                    swipeRegion.setText(distanceX > 0 ? "swipe_left" : "swipe_right");
                 } else {
-                    swipeRegion.setText(vY < 0 ? "swipe_up" : "swipe_down");
+                    swipeRegion.setText(distanceY > 0 ? "swipe_up" : "swipe_down");
                 }
-
                 return true;
             }
         });

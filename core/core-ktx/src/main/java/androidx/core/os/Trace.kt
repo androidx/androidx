@@ -25,7 +25,7 @@ import android.os.Trace
 @Deprecated(
     "Use androidx.tracing.Trace instead",
     replaceWith = ReplaceWith(
-        "trace(sectionName)",
+        "trace(sectionName, block)",
         imports = arrayOf("androidx.tracing.trace")
     )
 )

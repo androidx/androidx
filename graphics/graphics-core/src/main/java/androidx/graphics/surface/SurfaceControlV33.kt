@@ -16,16 +16,19 @@
 
 package androidx.graphics.surface
 
+import android.graphics.Rect
 import android.graphics.Region
 import android.hardware.HardwareBuffer
 import android.hardware.SyncFence
 import android.os.Build
 import android.view.AttachedSurfaceControl
 import android.view.SurfaceControl
+import android.view.SurfaceControl.Transaction
 import android.view.SurfaceView
 import androidx.annotation.RequiresApi
-import androidx.graphics.lowlatency.SyncFenceImpl
-import androidx.graphics.lowlatency.SyncFenceV33
+import androidx.hardware.SyncFenceCompat
+import androidx.hardware.SyncFenceImpl
+import androidx.hardware.SyncFenceV33
 import java.util.concurrent.Executor
 
 /**
@@ -60,6 +63,14 @@ internal class SurfaceControlV33 internal constructor(
          */
         override fun setParent(surfaceView: SurfaceView): SurfaceControlImpl.Builder {
             builder.setParent(surfaceView.surfaceControl)
+            return this
+        }
+
+        /**
+         * See [SurfaceControlImpl.Builder.setParent]
+         */
+        override fun setParent(surfaceControl: SurfaceControlCompat): SurfaceControlImpl.Builder {
+            builder.setParent(surfaceControl.scImpl.asFrameworkSurfaceControl())
             return this
         }
 
@@ -111,16 +122,16 @@ internal class SurfaceControlV33 internal constructor(
          */
         override fun setBuffer(
             surfaceControl: SurfaceControlImpl,
-            buffer: HardwareBuffer,
+            buffer: HardwareBuffer?,
             fence: SyncFenceImpl?,
-            releaseCallback: (() -> Unit)?
+            releaseCallback: ((SyncFenceCompat) -> Unit)?
         ): Transaction {
             mTransaction.setBuffer(
                 surfaceControl.asFrameworkSurfaceControl(),
                 buffer,
                 fence?.asSyncFence()
-            ) {
-                releaseCallback?.invoke()
+            ) { syncFence ->
+                releaseCallback?.invoke(SyncFenceCompat(syncFence))
             }
             return this
         }
@@ -146,20 +157,6 @@ internal class SurfaceControlV33 internal constructor(
             mTransaction.reparent(
                 surfaceControl.asFrameworkSurfaceControl(),
                 newParent?.asFrameworkSurfaceControl()
-            )
-            return this
-        }
-
-        /**
-         * See [SurfaceControlImpl.Transaction.reparent]
-         */
-        override fun reparent(
-            surfaceControl: SurfaceControlImpl,
-            surfaceView: SurfaceView
-        ): SurfaceControlImpl.Transaction {
-            mTransaction.reparent(
-                surfaceControl.asFrameworkSurfaceControl(),
-                surfaceView.surfaceControl
             )
             return this
         }
@@ -215,6 +212,101 @@ internal class SurfaceControlV33 internal constructor(
         }
 
         /**
+         * See [SurfaceControlImpl.Transaction.setCrop]
+         */
+        override fun setCrop(
+            surfaceControl: SurfaceControlImpl,
+            crop: Rect?
+        ): SurfaceControlImpl.Transaction {
+            mTransaction.setCrop(surfaceControl.asFrameworkSurfaceControl(), crop)
+            return this
+        }
+
+        /**
+         * See [SurfaceControlImpl.Transaction.setPosition]
+         */
+        override fun setPosition(
+            surfaceControl: SurfaceControlImpl,
+            x: Float,
+            y: Float
+        ): SurfaceControlImpl.Transaction {
+            mTransaction.setPosition(surfaceControl.asFrameworkSurfaceControl(), x, y)
+            return this
+        }
+
+        /**
+         * See [SurfaceControlImpl.Transaction.setScale]
+         */
+        override fun setScale(
+            surfaceControl: SurfaceControlImpl,
+            scaleX: Float,
+            scaleY: Float
+        ): SurfaceControlImpl.Transaction {
+            mTransaction.setScale(surfaceControl.asFrameworkSurfaceControl(), scaleX, scaleY)
+            return this
+        }
+
+        /**
+         * See [SurfaceControlImpl.Transaction.setBufferTransform]
+         */
+        override fun setBufferTransform(
+            surfaceControl: SurfaceControlImpl,
+            @SurfaceControlCompat.Companion.BufferTransform transformation: Int
+        ): SurfaceControlImpl.Transaction {
+            mTransaction.setBufferTransform(
+                surfaceControl.asFrameworkSurfaceControl(),
+                transformation
+            )
+            return this
+        }
+
+        /**
+         * See [SurfaceControlCompat.Transaction.setExtendedRangeBrightness]
+         */
+        @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+        override fun setExtendedRangeBrightness(
+            surfaceControl: SurfaceControlImpl,
+            currentBufferRatio: Float,
+            desiredRatio: Float
+        ): SurfaceControlImpl.Transaction {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                SurfaceControlTransactionVerificationHelperV34.setExtendedRangeBrightness(
+                    mTransaction,
+                    surfaceControl.asFrameworkSurfaceControl(),
+                    currentBufferRatio,
+                    desiredRatio
+                )
+                return this
+            } else {
+                throw UnsupportedOperationException(
+                    "Configuring the extended range brightness is only available on Android U+"
+                )
+            }
+        }
+
+        /**
+         * See [SurfaceControlCompat.Transaction.setDataSpace]
+         */
+        @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+        override fun setDataSpace(
+            surfaceControl: SurfaceControlImpl,
+            dataSpace: Int
+        ): SurfaceControlImpl.Transaction {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                SurfaceControlTransactionVerificationHelperV33.setDataSpace(
+                    mTransaction,
+                    surfaceControl.asFrameworkSurfaceControl(),
+                    dataSpace
+                )
+            } else {
+                throw UnsupportedOperationException(
+                    "Configuring the data space is only available on Android T+"
+                )
+            }
+            return this
+        }
+
+        /**
          * See [SurfaceControlImpl.Transaction.commit]
          */
         override fun commit() {
@@ -235,13 +327,6 @@ internal class SurfaceControlV33 internal constructor(
             attachedSurfaceControl.applyTransactionOnDraw(mTransaction)
         }
 
-        private fun SurfaceControlImpl.asFrameworkSurfaceControl(): SurfaceControl =
-            if (this is SurfaceControlV33) {
-                surfaceControl
-            } else {
-                throw IllegalArgumentException("Parent implementation is not for Android T")
-            }
-
         private fun SyncFenceImpl.asSyncFence(): SyncFence =
             if (this is SyncFenceV33) {
                 mSyncFence
@@ -249,5 +334,37 @@ internal class SurfaceControlV33 internal constructor(
                 throw
                 IllegalArgumentException("Expected SyncFenceCompat implementation for API level 33")
             }
+    }
+
+    private companion object {
+        fun SurfaceControlImpl.asFrameworkSurfaceControl(): SurfaceControl =
+            if (this is SurfaceControlV33) {
+                surfaceControl
+            } else {
+                throw IllegalArgumentException("Parent implementation is not for Android T")
+            }
+    }
+}
+
+@RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+private object SurfaceControlTransactionVerificationHelperV34 {
+
+    @androidx.annotation.DoNotInline
+    fun setExtendedRangeBrightness(
+        transaction: Transaction,
+        surfaceControl: SurfaceControl,
+        currentBufferRatio: Float,
+        desiredRatio: Float
+    ) {
+        transaction.setExtendedRangeBrightness(surfaceControl, currentBufferRatio, desiredRatio)
+    }
+}
+
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
+private object SurfaceControlTransactionVerificationHelperV33 {
+
+    @androidx.annotation.DoNotInline
+    fun setDataSpace(transaction: Transaction, surfaceControl: SurfaceControl, dataspace: Int) {
+        transaction.setDataSpace(surfaceControl, dataspace)
     }
 }

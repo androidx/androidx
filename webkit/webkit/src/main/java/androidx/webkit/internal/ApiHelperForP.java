@@ -100,4 +100,13 @@ public class ApiHelperForP {
     public static Looper getWebViewLooper(@NonNull WebView webView) {
         return webView.getWebViewLooper();
     }
+
+
+    /**
+     * @see WebView#setDataDirectorySuffix(String)
+     */
+    @DoNotInline
+    public static void setDataDirectorySuffix(@NonNull String suffix) {
+        WebView.setDataDirectorySuffix(suffix);
+    }
 }

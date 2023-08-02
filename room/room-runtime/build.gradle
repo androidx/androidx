@@ -20,6 +20,7 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("kotlin-android")
+    id("androidx.stableaidl")
 }
 
 android {
@@ -28,32 +29,34 @@ android {
     }
     buildTypes.all {
         consumerProguardFiles "proguard-rules.pro"
+
+        stableAidl {
+            version 1
+        }
     }
     namespace "androidx.room"
-    kotlinOptions {
-        freeCompilerArgs += ["-Xjvm-default=all"]
-    }
 }
 
 dependencies {
     api(project(":room:room-common"))
     api(project(":sqlite:sqlite-framework"))
     api(project(":sqlite:sqlite"))
-    implementation("androidx.arch.core:core-runtime:2.0.1")
+    implementation("androidx.arch.core:core-runtime:2.2.0")
+    compileOnly("androidx.collection:collection:1.2.0")
     compileOnly("androidx.paging:paging-common:2.0.0")
     compileOnly("androidx.lifecycle:lifecycle-livedata-core:2.0.0")
     implementation("androidx.annotation:annotation-experimental:1.1.0-rc01")
     compileOnly libs.kotlinStdlib // Due to :annotation-experimental
     lintChecks(project(":room:room-runtime-lint"))
 
-    testImplementation("androidx.arch.core:core-testing:2.0.1")
+    testImplementation("androidx.arch.core:core-testing:2.2.0")
     testImplementation(libs.junit)
-    testImplementation(libs.mockitoCore)
+    testImplementation(libs.mockitoCore4)
     testImplementation(libs.mockitoKotlin4)
     testImplementation("androidx.lifecycle:lifecycle-livedata-core:2.0.0")
     testImplementation(libs.kotlinStdlib)
     testImplementation(libs.kotlinTest)
-    testImplementation(libs.truth)
+    testImplementation(project(":kruth:kruth"))
     testImplementation(libs.testRunner) // Needed for @FlakyTest and @Ignore
 
     androidTestImplementation(libs.junit)
@@ -65,26 +68,14 @@ dependencies {
     androidTestImplementation(libs.mockitoCore, excludes.bytebuddy) // DexMaker has it"s own MockMaker
     androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy) // DexMaker has it"s own MockMaker
     androidTestImplementation(project(":internal-testutils-truth")) // for assertThrows
-    androidTestImplementation("androidx.arch.core:core-testing:2.0.1")
+    androidTestImplementation(project(":kruth:kruth"))
+    androidTestImplementation("androidx.arch.core:core-testing:2.2.0")
 
-}
-
-android.libraryVariants.all { variant ->
-    def name = variant.name
-    def suffix = name.capitalize()
-
-    // Create jar<variant> task for testImplementation in room-compiler.
-    project.tasks.create(name: "jar${suffix}", type: Jar){
-        dependsOn(variant.javaCompileProvider.get())
-        from(variant.javaCompileProvider.get().destinationDir)
-        destinationDirectory.fileValue(new File(project.buildDir, "libJar"))
-    }
 }
 
 androidx {
-    name = "Android Room-Runtime"
+    name = "Room-Runtime"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.ROOM
     inceptionYear = "2017"
     description = "Android Room-Runtime"
 }

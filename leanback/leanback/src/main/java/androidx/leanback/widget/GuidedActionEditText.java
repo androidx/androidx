@@ -52,7 +52,7 @@ public class GuidedActionEditText extends EditText implements ImeKeyMonitor,
         }
 
         @Override
-        public void draw(Canvas canvas) {
+        public void draw(@NonNull Canvas canvas) {
         }
 
         @Override

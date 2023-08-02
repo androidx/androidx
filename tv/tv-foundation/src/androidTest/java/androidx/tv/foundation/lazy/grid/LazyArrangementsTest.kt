@@ -531,6 +531,142 @@ class LazyArrangementsTest {
         assertArrangementForTwoItems(Arrangement.End, LayoutDirection.Ltr)
     }
 
+    @Test
+    fun vetical_negativeSpacing_itemsVisible() {
+        val state = TvLazyGridState()
+        val halfItemSize = itemSize / 2
+        rule.setContent {
+            TvLazyVerticalGrid(
+                columns = TvGridCells.Fixed(1),
+                modifier = Modifier.requiredSize(itemSize),
+                verticalArrangement = Arrangement.spacedBy(-halfItemSize),
+                state = state
+            ) {
+                items(100) { index ->
+                    Box(Modifier.size(itemSize).testTag(index.toString()))
+                }
+            }
+        }
+
+        rule.onNodeWithTag("0")
+            .assertTopPositionInRootIsEqualTo(0.dp)
+        rule.onNodeWithTag("1")
+            .assertTopPositionInRootIsEqualTo(halfItemSize)
+
+        rule.runOnIdle {
+            assertThat(state.firstVisibleItemIndex).isEqualTo(0)
+            assertThat(state.firstVisibleItemScrollOffset).isEqualTo(0)
+
+            runBlocking {
+                state.scrollBy(with(rule.density) { halfItemSize.toPx() })
+            }
+
+            assertThat(state.firstVisibleItemIndex).isEqualTo(1)
+            assertThat(state.firstVisibleItemScrollOffset).isEqualTo(0)
+        }
+
+        rule.onNodeWithTag("0")
+            .assertTopPositionInRootIsEqualTo(-halfItemSize)
+        rule.onNodeWithTag("1")
+            .assertTopPositionInRootIsEqualTo(0.dp)
+    }
+
+    @Test
+    fun horizontal_negativeSpacing_itemsVisible() {
+        val state = TvLazyGridState()
+        val halfItemSize = itemSize / 2
+        rule.setContent {
+            TvLazyHorizontalGrid(
+                rows = TvGridCells.Fixed(1),
+                modifier = Modifier.requiredSize(itemSize),
+                horizontalArrangement = Arrangement.spacedBy(-halfItemSize),
+                state = state
+            ) {
+                items(100) { index ->
+                    Box(Modifier.size(itemSize).testTag(index.toString()))
+                }
+            }
+        }
+
+        rule.onNodeWithTag("0")
+            .assertLeftPositionInRootIsEqualTo(0.dp)
+        rule.onNodeWithTag("1")
+            .assertLeftPositionInRootIsEqualTo(halfItemSize)
+
+        rule.runOnIdle {
+            assertThat(state.firstVisibleItemIndex).isEqualTo(0)
+            assertThat(state.firstVisibleItemScrollOffset).isEqualTo(0)
+
+            runBlocking {
+                state.scrollBy(with(rule.density) { halfItemSize.toPx() })
+            }
+
+            assertThat(state.firstVisibleItemIndex).isEqualTo(1)
+            assertThat(state.firstVisibleItemScrollOffset).isEqualTo(0)
+        }
+
+        rule.onNodeWithTag("0")
+            .assertLeftPositionInRootIsEqualTo(-halfItemSize)
+        rule.onNodeWithTag("1")
+            .assertLeftPositionInRootIsEqualTo(0.dp)
+    }
+
+    @Test
+    fun vertical_negativeSpacingLargerThanItem_itemsVisible() {
+        val state = TvLazyGridState(firstVisibleItemIndex = 2)
+        val largerThanItemSize = itemSize * 1.5f
+        rule.setContent {
+            TvLazyVerticalGrid(
+                columns = TvGridCells.Fixed(2),
+                modifier = Modifier.requiredSize(width = itemSize * 2, height = itemSize),
+                verticalArrangement = Arrangement.spacedBy(-largerThanItemSize),
+                state = state
+            ) {
+                items(8) { index ->
+                    Box(Modifier.size(itemSize).testTag(index.toString()))
+                }
+            }
+        }
+
+        repeat(8) {
+            rule.onNodeWithTag("$it")
+                .assertTopPositionInRootIsEqualTo(0.dp)
+        }
+
+        rule.runOnIdle {
+            assertThat(state.firstVisibleItemIndex).isEqualTo(0)
+            assertThat(state.firstVisibleItemScrollOffset).isEqualTo(0)
+        }
+    }
+
+    @Test
+    fun horizontal_negativeSpacingLargerThanItem_itemsVisible() {
+        val state = TvLazyGridState(firstVisibleItemIndex = 2)
+        val largerThanItemSize = itemSize * 1.5f
+        rule.setContent {
+            TvLazyHorizontalGrid(
+                rows = TvGridCells.Fixed(2),
+                modifier = Modifier.requiredSize(width = itemSize, height = itemSize * 2),
+                horizontalArrangement = Arrangement.spacedBy(-largerThanItemSize),
+                state = state
+            ) {
+                items(8) { index ->
+                    Box(Modifier.size(itemSize).testTag(index.toString()))
+                }
+            }
+        }
+
+        repeat(8) {
+            rule.onNodeWithTag("$it")
+                .assertLeftPositionInRootIsEqualTo(0.dp)
+        }
+
+        rule.runOnIdle {
+            assertThat(state.firstVisibleItemIndex).isEqualTo(0)
+            assertThat(state.firstVisibleItemScrollOffset).isEqualTo(0)
+        }
+    }
+
     fun composeVerticalGridWith(arrangement: Arrangement.Vertical) {
         rule.setContent {
             TvLazyVerticalGrid(

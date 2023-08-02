@@ -16,7 +16,9 @@
 
 package androidx.room.solver
 
+import androidx.kruth.assertThat
 import androidx.room.RoomKspProcessor
+import androidx.room.compiler.codegen.CodeLanguage
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
@@ -32,13 +34,12 @@ import androidx.room.solver.types.TypeConverter
 import androidx.room.testing.context
 import androidx.room.vo.BuiltInConverterFlags
 import androidx.room.writer.DaoWriter
-import com.google.common.truth.Truth.assertThat
+import javax.tools.Diagnostic
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import javax.tools.Diagnostic
 
 @RunWith(JUnit4::class)
 class NullabilityAwareTypeConverterStoreTest {
@@ -401,13 +402,13 @@ class NullabilityAwareTypeConverterStoreTest {
                 dao = daoProcessor.process(),
                 dbElement = invocation.processingEnv
                     .requireTypeElement("androidx.room.RoomDatabase"),
-                processingEnv = invocation.processingEnv
+                codeLanguage = CodeLanguage.JAVA
             ).write(invocation.processingEnv)
             invocation.assertCompilationResult {
                 generatedSourceFileWithPath("MyDao_Impl.java").let {
                     // make sure it bounded w/o upcasting to Boolean
-                    it.contains("final int _tmp = TestConverters.composeDays(value.mWorkDays);")
-                    it.contains("stmt.bindLong(2, _tmp);")
+                    it.contains("final int _tmp = TestConverters.composeDays(entity.mWorkDays);")
+                    it.contains("statement.bindLong(2, _tmp);")
                 }
             }
         }
@@ -799,7 +800,7 @@ class NullabilityAwareTypeConverterStoreTest {
             )
         ) { invocation ->
             val store = invocation.createStore(*selectedConverters)
-            assertThat(store).isInstanceOf(NullAwareTypeConverterStore::class.java)
+            assertThat(store).isInstanceOf<NullAwareTypeConverterStore>()
             val myClassTypeElement = invocation.processingEnv.requireTypeElement(
                 "MyClass"
             )
@@ -859,7 +860,7 @@ class NullabilityAwareTypeConverterStoreTest {
             )
         ) { invocation ->
             val store = invocation.createStore(*selectedConverters)
-            assertThat(store).isInstanceOf(NullAwareTypeConverterStore::class.java)
+            assertThat(store).isInstanceOf<NullAwareTypeConverterStore>()
             val myClassTypeElement = invocation.processingEnv.requireTypeElement(
                 "MyClass"
             )

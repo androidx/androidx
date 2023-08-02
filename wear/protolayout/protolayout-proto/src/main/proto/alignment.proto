@@ -1,0 +1,150 @@
+// Alignment messages and enumerations, for use in other elements.
+syntax = "proto3";
+
+package androidx.wear.protolayout.proto;
+
+option java_package = "androidx.wear.protolayout.proto";
+option java_outer_classname = "AlignmentProto";
+
+// The horizontal alignment of an element within its container.
+enum HorizontalAlignment {
+  // Horizontal alignment is undefined.
+  HORIZONTAL_ALIGN_UNDEFINED = 0;
+
+  // Horizontally align to the left.
+  HORIZONTAL_ALIGN_LEFT = 1;
+
+  // Horizontally align to center.
+  HORIZONTAL_ALIGN_CENTER = 2;
+
+  // Horizontally align to the right.
+  HORIZONTAL_ALIGN_RIGHT = 3;
+
+  // Horizontally align to the content start (left in LTR layouts, right in RTL
+  // layouts).
+  HORIZONTAL_ALIGN_START = 4;
+
+  // Horizontally align to the content end (right in LTR layouts, left in RTL
+  // layouts).
+  HORIZONTAL_ALIGN_END = 5;
+}
+
+// An extensible HorizontalAlignment property.
+message HorizontalAlignmentProp {
+  // The value
+  HorizontalAlignment value = 1;
+}
+
+// The vertical alignment of an element within its container.
+enum VerticalAlignment {
+  // Vertical alignment is undefined.
+  VERTICAL_ALIGN_UNDEFINED = 0;
+
+  // Vertically align to the top.
+  VERTICAL_ALIGN_TOP = 1;
+
+  // Vertically align to center.
+  VERTICAL_ALIGN_CENTER = 2;
+
+  // Vertically align to the bottom.
+  VERTICAL_ALIGN_BOTTOM = 3;
+}
+
+// An extensible VerticalAlignment property.
+message VerticalAlignmentProp {
+  // The value.
+  VerticalAlignment value = 1;
+}
+
+// Alignment of a text element.
+enum TextAlignment {
+  // Alignment is undefined.
+  TEXT_ALIGN_UNDEFINED = 0;
+
+  // Align to the "start" of the Text element (left in LTR layouts, right in
+  // RTL layouts).
+  TEXT_ALIGN_START = 1;
+
+  // Align to the center of the Text element.
+  TEXT_ALIGN_CENTER = 2;
+
+  // Align to the "end" of the Text element (right in LTR layouts, left in RTL
+  // layouts).
+  TEXT_ALIGN_END = 3;
+}
+
+// An extensible TextAlignment property.
+message TextAlignmentProp {
+  // The value.
+  TextAlignment value = 1;
+}
+
+// The anchor position of an Arc's elements. This is used to specify how
+// elements added to an Arc should be laid out with respect to anchor_angle.
+//
+// As an example, assume that the following diagrams are wrapped to an arc, and
+// each represents an Arc element containing a single Text element. The Text
+// element's anchor_angle is "0" for all cases.
+//
+// ```
+// ARC_ANCHOR_START:
+// -180                                0                                    180
+//                                     Hello World!
+//
+//
+// ARC_ANCHOR_CENTER:
+// -180                                0                                    180
+//                                Hello World!
+//
+// ARC_ANCHOR_END:
+// -180                                0                                    180
+//                          Hello World!
+// ```
+enum ArcAnchorType {
+  // Anchor position is undefined.
+  ARC_ANCHOR_UNDEFINED = 0;
+
+  // Anchor at the start of the elements. This will cause elements added to an
+  // arc to begin at the given anchor_angle, and sweep around to the right.
+  ARC_ANCHOR_START = 1;
+
+  // Anchor at the center of the elements. This will cause the center of the
+  // whole set of elements added to an arc to be pinned at the given
+  // anchor_angle.
+  ARC_ANCHOR_CENTER = 2;
+
+  // Anchor at the end of the elements. This will cause the set of elements
+  // inside the arc to end at the specified anchor_angle, i.e. all elements
+  // should be to the left of anchor_angle.
+  ARC_ANCHOR_END = 3;
+}
+
+// An extensible ArcAnchorType property.
+message ArcAnchorTypeProp {
+  // The value.
+  ArcAnchorType value = 1;
+}
+
+// How to lay out components in a Arc context when they are smaller than their
+// container. This would be similar to HorizontalAlignment in a Box or Column.
+enum AngularAlignment {
+  // Angular alignment is undefined.
+  ANGULAR_ALIGNMENT_UNDEFINED = 0;
+
+  // Align to the start of the container. As an example, if the container
+  // starts at 90 degrees and has 180 degrees of sweep, the element within
+  // would draw from 90 degrees, clockwise.
+  ANGULAR_ALIGNMENT_START = 1;
+
+  // Align to the center of the container. As an example, if the container
+  // starts at 90 degrees, and has 180 degrees of sweep, and the contained
+  // element has 90 degrees of sweep, the element would draw between 135 and
+  // 225 degrees.
+  ANGULAR_ALIGNMENT_CENTER = 2;
+
+  // Align to the end of the container. As an example, if the container
+  // starts at 90 degrees and has 180 degrees of sweep, and the contained
+  // element has 90 degrees of sweep, the element would draw between 180 and 270
+  // degrees.
+  ANGULAR_ALIGNMENT_END = 3;
+}

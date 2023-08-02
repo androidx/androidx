@@ -28,13 +28,16 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresPermission;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.CarContext;
+import androidx.car.app.annotations.CarProtocol;
+import androidx.car.app.annotations.KeepFields;
 
 /**
  * A {@link CarAudioRecord} for automotive OS.
  *
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP)
+@KeepFields
+@CarProtocol
 public class AutomotiveCarAudioRecord extends CarAudioRecord {
     /**
      * Only used for Automotive, as the car microphone is the device microphone.

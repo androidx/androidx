@@ -30,7 +30,6 @@ import java.util.List;
  * Wire format for {@link
  * androidx.wear.watchface.style.ComplicationsUserStyleSetting.ComplicationsOption}.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @VersionedParcelize
@@ -46,9 +45,8 @@ public class ComplicationsOptionWireFormat extends OptionWireFormat {
     // WARNING: This class is held in a list and can't change due to flaws in VersionedParcelable.
 
     /**
-     * Great care should be taken to ensure backwards compatibility of the versioned parcelable
-     * if {@link ComplicationOverlayWireFormat} is ever
-     * extended.
+     * Great care should be taken to ensure backwards compatibility of the versioned parcelable if
+     * {@link ComplicationOverlayWireFormat} is ever extended.
      */
     @ParcelField(100)
     @NonNull
@@ -59,32 +57,42 @@ public class ComplicationsOptionWireFormat extends OptionWireFormat {
     @Nullable
     public List<PerComplicationTypeMargins> mComplicationOverlaysMargins;
 
-    ComplicationsOptionWireFormat() {
-    }
+    @ParcelField(value = 102, defaultValue = "null")
+    @Nullable
+    public List<Integer> mComplicationNameResourceIds;
+
+    @ParcelField(value = 103, defaultValue = "null")
+    @Nullable
+    public List<Integer> mComplicationScreenReaderNameResourceIds;
+
+    ComplicationsOptionWireFormat() {}
 
     public ComplicationsOptionWireFormat(
             @NonNull byte[] id,
             @NonNull CharSequence displayName,
             @Nullable Icon icon,
             @NonNull ComplicationOverlayWireFormat[] complicationOverlays,
-            @Nullable List<PerComplicationTypeMargins> complicationOverlaysMargins
-    ) {
+            @Nullable List<PerComplicationTypeMargins> complicationOverlaysMargins,
+            @Nullable List<Integer> complicationNameResourceIds,
+            @Nullable List<Integer> complicationScreenReaderNameResourceIds) {
         super(id);
         mDisplayName = displayName;
         mIcon = icon;
         mComplicationOverlays = complicationOverlays;
         mComplicationOverlaysMargins = complicationOverlaysMargins;
+        mComplicationNameResourceIds = complicationNameResourceIds;
+        mComplicationScreenReaderNameResourceIds = complicationScreenReaderNameResourceIds;
     }
 
-    /** @deprecated Use a constructor with perComplicationTypeMargins instead. */
+    /**
+     * @deprecated Use a constructor with perComplicationTypeMargins instead.
+     */
     @Deprecated
     public ComplicationsOptionWireFormat(
             @NonNull byte[] id,
             @NonNull CharSequence displayName,
             @Nullable Icon icon,
-            @NonNull ComplicationOverlayWireFormat[]
-                    complicationOverlays
-    ) {
+            @NonNull ComplicationOverlayWireFormat[] complicationOverlays) {
         super(id);
         mDisplayName = displayName;
         mIcon = icon;

@@ -30,7 +30,6 @@ import androidx.versionedparcelable.VersionedParcelize;
 /**
  * Wire format to encode a pair of id to {@link ComplicationStateWireFormat}.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @VersionedParcelize
@@ -46,8 +45,7 @@ public final class IdAndComplicationStateWireFormat implements VersionedParcelab
     ComplicationStateWireFormat mComplicationState;
 
     /** Used by VersionedParcelable. */
-    IdAndComplicationStateWireFormat() {
-    }
+    IdAndComplicationStateWireFormat() {}
 
     public IdAndComplicationStateWireFormat(
             int id, @NonNull ComplicationStateWireFormat complicationState) {

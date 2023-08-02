@@ -15,6 +15,12 @@
 -->
 <head>
   <script type="text/javascript">
+    window.onload = () => {
+        document.getElementById('type_select').style.display =
+            nativeFeatures.isArrayBufferSupported() ? 'block' : 'none';
+    }
+    let shouldUseArrayBuffer = false;
+
     let timestamp = 0;
     replyObject.onmessage = function(event) {
         document.getElementById("result").innerHTML = event.data;
@@ -28,11 +34,29 @@
     };
     replyWithMessagePortObject.postMessage("send port", [channel.port1]);
 
+    function buildMessage(index) {
+        if (shouldUseArrayBuffer) {
+            const buffer = new ArrayBuffer(4);
+            new DataView(buffer).setInt32(0, index, false);
+            return buffer;
+        } else {
+            return index.toString();
+        }
+    }
     let messageCounter = 0;
     multipleMessagesObject.addEventListener("message", function(event) {
-        const i = parseInt(event.data);
+        const data = event.data;
+        let i = 0;
+        if (typeof data === 'string') {
+            i = parseInt(event.data);
+        } else if (data instanceof ArrayBuffer) {
+            i = new DataView(event.data).getInt32(0, false);
+        } else {
+            // Invalid type
+            console.error(`Invalid type: ${typeof data}`);
+        }
         if (i < 4999) {
-            multipleMessagesObject.postMessage((i + 1).toString());
+            multipleMessagesObject.postMessage(buildMessage(i + 1));
             if (i % 100 === 0) {
                 const counterInfo = (messageCounter + i)+ " messages sent.";
                 document.getElementById("multiple_messages").innerHTML = counterInfo;
@@ -48,8 +72,11 @@
     function startPostMessage(e) {
         e.preventDefault();
         document.getElementById("multiple_button").disabled = true;
+        // Get type of message to send, based on HTML type_select.
+        const type = document.getElementById('type_select').value;
+        shouldUseArrayBuffer = type === 'ArrayBuffer';
         timestamp = performance.now();
-        multipleMessagesObject.postMessage("0");
+        multipleMessagesObject.postMessage(buildMessage(0));
     }
 
     function showToast(e) {
@@ -72,6 +99,12 @@
   <div>
     <input value="toast!" id="toast_message">
     <button type="button" onclick="showToast(event)">Show Toast</button>
+  </div>
+  <div>
+    <select id="type_select">
+      <option>String</option>
+      <option>ArrayBuffer</option>
+    </select>
   </div>
   <div>
     <button id="multiple_button" type="button" onclick="startPostMessage(event)">

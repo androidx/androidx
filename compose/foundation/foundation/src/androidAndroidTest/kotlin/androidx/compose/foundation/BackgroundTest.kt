@@ -21,9 +21,12 @@ import android.os.Build
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.testutils.assertShape
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -171,6 +174,42 @@ class BackgroundTest {
         }
         val bitmap = rule.onNodeWithTag(contentTag).captureToImage()
         bitmap.assertShape(
+            density = rule.density,
+            backgroundColor = Color.Magenta,
+            shape = CircleShape,
+            shapeColor = Color.White,
+            shapeOverlapPixelCount = 2.0f
+        )
+    }
+
+    @Test
+    fun background_changeShape() {
+        var shape by mutableStateOf(RoundedCornerShape(10f))
+
+        rule.setContent {
+            SemanticParent {
+                Box(
+                    Modifier.size(40f.toDp())
+                        .background(Color.Magenta)
+                        .background(color = Color.White, shape = shape)
+                )
+            }
+        }
+
+        val bitmap = rule.onNodeWithTag(contentTag).captureToImage()
+        bitmap.assertShape(
+            density = rule.density,
+            backgroundColor = Color.Magenta,
+            shape = RoundedCornerShape(10f),
+            shapeColor = Color.White,
+            shapeOverlapPixelCount = 2.0f
+        )
+
+        shape = CircleShape
+        rule.waitForIdle()
+
+        val bitmap2 = rule.onNodeWithTag(contentTag).captureToImage()
+        bitmap2.assertShape(
             density = rule.density,
             backgroundColor = Color.Magenta,
             shape = CircleShape,

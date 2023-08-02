@@ -18,9 +18,12 @@ if ! impl/check_translations.sh; then
   EXIT_VALUE=1
 else
   # Run Gradle
-  if ! impl/build.sh buildOnServer checkExternalLicenses listTaskOutputs validateProperties \
+  # If/when we enable desktop, enable VerifyDependencyVersionsTask.kt/shouldVerifyConfiguration
+  if ! impl/build.sh buildOnServer createAllArchives checkExternalLicenses listTaskOutputs \
       -Pandroidx.enableComposeCompilerMetrics=true \
       -Pandroidx.enableComposeCompilerReports=true \
+      -Pandroidx.constraints=true \
+      -Pandroidx.enabled.kmp.target.platforms=-desktop \
       --no-daemon \
       --profile "$@"; then
     EXIT_VALUE=1
@@ -28,7 +31,7 @@ else
 
   # Parse performance profile reports (generated with the --profile option above) and re-export
   # the metrics in an easily machine-readable format for tracking
-  impl/parse_profile_htmls.sh
+  impl/parse_profile_data.sh
 fi
 
 echo "Completing $0 at $(date) with exit value $EXIT_VALUE"

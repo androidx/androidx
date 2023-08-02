@@ -34,7 +34,6 @@ import androidx.slice.Slice;
 import androidx.slice.SliceSpec;
 
 /**
- * @hide
  */
 @RestrictTo(LIBRARY)
 @RequiresApi(19)

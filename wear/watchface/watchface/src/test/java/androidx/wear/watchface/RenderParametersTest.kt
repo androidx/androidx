@@ -17,8 +17,8 @@
 package androidx.wear.watchface
 
 import android.graphics.Color
-import androidx.wear.watchface.style.WatchFaceLayer
 import androidx.wear.watchface.style.UserStyleSetting
+import androidx.wear.watchface.style.WatchFaceLayer
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -27,9 +27,10 @@ import org.junit.runner.RunWith
 public class RenderParametersTest {
     @Test
     public fun interactive_base_toWireFormatRoundTrip() {
-        val renderParameters = RenderParameters(
-            RenderParameters(DrawMode.INTERACTIVE, setOf(WatchFaceLayer.BASE)).toWireFormat()
-        )
+        val renderParameters =
+            RenderParameters(
+                RenderParameters(DrawMode.INTERACTIVE, setOf(WatchFaceLayer.BASE)).toWireFormat()
+            )
         assertThat(renderParameters.drawMode).isEqualTo(DrawMode.INTERACTIVE)
         assertThat(renderParameters.watchFaceLayers).containsExactly(WatchFaceLayer.BASE)
         assertThat(renderParameters.highlightLayer).isNull()
@@ -37,83 +38,124 @@ public class RenderParametersTest {
 
     @Test
     public fun ambient_twoLayers_toWireFormatRoundTrip() {
-        val renderParameters = RenderParameters(
+        val renderParameters =
             RenderParameters(
-                DrawMode.AMBIENT,
-                setOf(
-                    WatchFaceLayer.COMPLICATIONS,
-                    WatchFaceLayer.COMPLICATIONS_OVERLAY
-                )
-            ).toWireFormat()
-        )
+                RenderParameters(
+                        DrawMode.AMBIENT,
+                        setOf(WatchFaceLayer.COMPLICATIONS, WatchFaceLayer.COMPLICATIONS_OVERLAY)
+                    )
+                    .toWireFormat()
+            )
         assertThat(renderParameters.drawMode).isEqualTo(DrawMode.AMBIENT)
-        assertThat(renderParameters.watchFaceLayers).containsExactly(
-            WatchFaceLayer.COMPLICATIONS,
-            WatchFaceLayer.COMPLICATIONS_OVERLAY
-        )
+        assertThat(renderParameters.watchFaceLayers)
+            .containsExactly(WatchFaceLayer.COMPLICATIONS, WatchFaceLayer.COMPLICATIONS_OVERLAY)
         assertThat(renderParameters.highlightLayer).isNull()
     }
 
     @Test
     public fun highlightLayer_AllComplications_toWireFormatRoundTrip() {
-        val renderParameters = RenderParameters(
+        val renderParameters =
             RenderParameters(
-                DrawMode.INTERACTIVE,
-                WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
-                RenderParameters.HighlightLayer(
-                    RenderParameters.HighlightedElement.AllComplicationSlots,
-                    Color.RED,
-                    Color.BLACK
-                )
-            ).toWireFormat()
-        )
+                RenderParameters(
+                        DrawMode.INTERACTIVE,
+                        WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
+                        RenderParameters.HighlightLayer(
+                            RenderParameters.HighlightedElement.AllComplicationSlots,
+                            Color.RED,
+                            Color.BLACK
+                        )
+                    )
+                    .toWireFormat()
+            )
         assertThat(renderParameters.drawMode).isEqualTo(DrawMode.INTERACTIVE)
-        assertThat(renderParameters.watchFaceLayers).containsExactly(
-            WatchFaceLayer.BASE,
-            WatchFaceLayer.COMPLICATIONS,
-            WatchFaceLayer.COMPLICATIONS_OVERLAY
-        )
+        assertThat(renderParameters.watchFaceLayers)
+            .containsExactly(
+                WatchFaceLayer.BASE,
+                WatchFaceLayer.COMPLICATIONS,
+                WatchFaceLayer.COMPLICATIONS_OVERLAY
+            )
         val highlightLayer = renderParameters.highlightLayer
         assertThat(highlightLayer!!.highlightTint).isEqualTo(Color.RED)
         assertThat(highlightLayer.backgroundTint).isEqualTo(Color.BLACK)
-        assertThat(highlightLayer.highlightedElement).isInstanceOf(
-            RenderParameters.HighlightedElement.AllComplicationSlots::class.java
-        )
+        assertThat(highlightLayer.highlightedElement)
+            .isInstanceOf(RenderParameters.HighlightedElement.AllComplicationSlots::class.java)
     }
 
     @Test
     public fun highlightLayer_Complication_toWireFormatRoundTrip() {
-        val renderParameters = RenderParameters(
+        val renderParameters =
             RenderParameters(
-                DrawMode.INTERACTIVE,
-                WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
-                RenderParameters.HighlightLayer(
-                    RenderParameters.HighlightedElement.ComplicationSlot(123),
-                    Color.RED,
-                    Color.BLACK
-                )
-            ).toWireFormat()
-        )
+                RenderParameters(
+                        DrawMode.INTERACTIVE,
+                        WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
+                        RenderParameters.HighlightLayer(
+                            RenderParameters.HighlightedElement.ComplicationSlot(123),
+                            Color.RED,
+                            Color.BLACK
+                        )
+                    )
+                    .toWireFormat()
+            )
         assertThat(renderParameters.drawMode).isEqualTo(DrawMode.INTERACTIVE)
-        assertThat(renderParameters.watchFaceLayers).containsExactly(
-            WatchFaceLayer.BASE,
-            WatchFaceLayer.COMPLICATIONS,
-            WatchFaceLayer.COMPLICATIONS_OVERLAY
-        )
+        assertThat(renderParameters.watchFaceLayers)
+            .containsExactly(
+                WatchFaceLayer.BASE,
+                WatchFaceLayer.COMPLICATIONS,
+                WatchFaceLayer.COMPLICATIONS_OVERLAY
+            )
         val highlightLayer = renderParameters.highlightLayer
         assertThat(highlightLayer!!.highlightTint).isEqualTo(Color.RED)
         assertThat(highlightLayer.backgroundTint).isEqualTo(Color.BLACK)
-        assertThat(highlightLayer.highlightedElement).isInstanceOf(
-            RenderParameters.HighlightedElement.ComplicationSlot::class.java
-        )
-        val complication = highlightLayer.highlightedElement as
-            RenderParameters.HighlightedElement.ComplicationSlot
+        assertThat(highlightLayer.highlightedElement)
+            .isInstanceOf(RenderParameters.HighlightedElement.ComplicationSlot::class.java)
+        val complication =
+            highlightLayer.highlightedElement
+                as RenderParameters.HighlightedElement.ComplicationSlot
         assertThat(complication.id).isEqualTo(123)
     }
 
     @Test
     public fun highlightLayer_UserStyle_toWireFormatRoundTrip() {
-        val renderParameters = RenderParameters(
+        val renderParameters =
+            RenderParameters(
+                RenderParameters(
+                        DrawMode.INTERACTIVE,
+                        WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
+                        RenderParameters.HighlightLayer(
+                            RenderParameters.HighlightedElement.UserStyle(
+                                UserStyleSetting.Id("id-1")
+                            ),
+                            Color.RED,
+                            Color.BLACK
+                        )
+                    )
+                    .toWireFormat()
+            )
+        assertThat(renderParameters.drawMode).isEqualTo(DrawMode.INTERACTIVE)
+        assertThat(renderParameters.watchFaceLayers)
+            .containsExactly(
+                WatchFaceLayer.BASE,
+                WatchFaceLayer.COMPLICATIONS,
+                WatchFaceLayer.COMPLICATIONS_OVERLAY
+            )
+        val highlightLayer = renderParameters.highlightLayer
+        assertThat(highlightLayer!!.highlightTint).isEqualTo(Color.RED)
+        assertThat(highlightLayer.backgroundTint).isEqualTo(Color.BLACK)
+        assertThat(highlightLayer.highlightedElement)
+            .isInstanceOf(RenderParameters.HighlightedElement.UserStyle::class.java)
+        val userStyle =
+            highlightLayer.highlightedElement as RenderParameters.HighlightedElement.UserStyle
+        assertThat(userStyle.id.value).isEqualTo("id-1")
+    }
+
+    @Test
+    public fun equality() {
+        val renderParameters1a =
+            RenderParameters(DrawMode.INTERACTIVE, WatchFaceLayer.ALL_WATCH_FACE_LAYERS, null)
+        val renderParameters1b =
+            RenderParameters(DrawMode.INTERACTIVE, WatchFaceLayer.ALL_WATCH_FACE_LAYERS, null)
+
+        val renderParameters2a =
             RenderParameters(
                 DrawMode.INTERACTIVE,
                 WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
@@ -122,112 +164,79 @@ public class RenderParametersTest {
                     Color.RED,
                     Color.BLACK
                 )
-            ).toWireFormat()
-        )
-        assertThat(renderParameters.drawMode).isEqualTo(DrawMode.INTERACTIVE)
-        assertThat(renderParameters.watchFaceLayers).containsExactly(
-            WatchFaceLayer.BASE,
-            WatchFaceLayer.COMPLICATIONS,
-            WatchFaceLayer.COMPLICATIONS_OVERLAY
-        )
-        val highlightLayer = renderParameters.highlightLayer
-        assertThat(highlightLayer!!.highlightTint).isEqualTo(Color.RED)
-        assertThat(highlightLayer.backgroundTint).isEqualTo(Color.BLACK)
-        assertThat(highlightLayer.highlightedElement).isInstanceOf(
-            RenderParameters.HighlightedElement.UserStyle::class.java
-        )
-        val userStyle = highlightLayer.highlightedElement as
-            RenderParameters.HighlightedElement.UserStyle
-        assertThat(userStyle.id.value).isEqualTo("id-1")
-    }
+            )
+        val renderParameters2b =
+            RenderParameters(
+                DrawMode.INTERACTIVE,
+                WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
+                RenderParameters.HighlightLayer(
+                    RenderParameters.HighlightedElement.UserStyle(UserStyleSetting.Id("id-1")),
+                    Color.RED,
+                    Color.BLACK
+                )
+            )
+        val renderParameters2c =
+            RenderParameters(
+                DrawMode.INTERACTIVE,
+                WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
+                RenderParameters.HighlightLayer(
+                    RenderParameters.HighlightedElement.UserStyle(UserStyleSetting.Id("id-2")),
+                    Color.RED,
+                    Color.BLACK
+                )
+            )
 
-    @Test
-    public fun equality() {
-        val renderParameters1a = RenderParameters(
-            DrawMode.INTERACTIVE,
-            WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
-            null
-        )
-        val renderParameters1b = RenderParameters(
-            DrawMode.INTERACTIVE,
-            WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
-            null
-        )
+        val renderParameters3a =
+            RenderParameters(
+                DrawMode.INTERACTIVE,
+                WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
+                RenderParameters.HighlightLayer(
+                    RenderParameters.HighlightedElement.ComplicationSlot(1),
+                    Color.RED,
+                    Color.BLUE
+                )
+            )
+        val renderParameters3b =
+            RenderParameters(
+                DrawMode.INTERACTIVE,
+                WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
+                RenderParameters.HighlightLayer(
+                    RenderParameters.HighlightedElement.ComplicationSlot(1),
+                    Color.RED,
+                    Color.BLUE
+                )
+            )
+        val renderParameters3c =
+            RenderParameters(
+                DrawMode.INTERACTIVE,
+                WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
+                RenderParameters.HighlightLayer(
+                    RenderParameters.HighlightedElement.ComplicationSlot(2),
+                    Color.RED,
+                    Color.BLUE
+                )
+            )
 
-        val renderParameters2a = RenderParameters(
-            DrawMode.INTERACTIVE,
-            WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
-            RenderParameters.HighlightLayer(
-                RenderParameters.HighlightedElement.UserStyle(UserStyleSetting.Id("id-1")),
-                Color.RED,
-                Color.BLACK
+        val renderParameters4a =
+            RenderParameters(
+                DrawMode.INTERACTIVE,
+                WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
+                RenderParameters.HighlightLayer(
+                    RenderParameters.HighlightedElement.AllComplicationSlots,
+                    Color.RED,
+                    Color.BLUE
+                )
             )
-        )
-        val renderParameters2b = RenderParameters(
-            DrawMode.INTERACTIVE,
-            WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
-            RenderParameters.HighlightLayer(
-                RenderParameters.HighlightedElement.UserStyle(UserStyleSetting.Id("id-1")),
-                Color.RED,
-                Color.BLACK
+        val renderParameters4b =
+            RenderParameters(
+                DrawMode.INTERACTIVE,
+                WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
+                RenderParameters.HighlightLayer(
+                    RenderParameters.HighlightedElement.AllComplicationSlots,
+                    Color.RED,
+                    Color.BLUE
+                )
             )
-        )
-        val renderParameters2c = RenderParameters(
-            DrawMode.INTERACTIVE,
-            WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
-            RenderParameters.HighlightLayer(
-                RenderParameters.HighlightedElement.UserStyle(UserStyleSetting.Id("id-2")),
-                Color.RED,
-                Color.BLACK
-            )
-        )
-
-        val renderParameters3a = RenderParameters(
-            DrawMode.INTERACTIVE,
-            WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
-            RenderParameters.HighlightLayer(
-                RenderParameters.HighlightedElement.ComplicationSlot(1),
-                Color.RED,
-                Color.BLUE
-            )
-        )
-        val renderParameters3b = RenderParameters(
-            DrawMode.INTERACTIVE,
-            WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
-            RenderParameters.HighlightLayer(
-                RenderParameters.HighlightedElement.ComplicationSlot(1),
-                Color.RED,
-                Color.BLUE
-            )
-        )
-        val renderParameters3c = RenderParameters(
-            DrawMode.INTERACTIVE,
-            WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
-            RenderParameters.HighlightLayer(
-                RenderParameters.HighlightedElement.ComplicationSlot(2),
-                Color.RED,
-                Color.BLUE
-            )
-        )
-
-        val renderParameters4a = RenderParameters(
-            DrawMode.INTERACTIVE,
-            WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
-            RenderParameters.HighlightLayer(
-                RenderParameters.HighlightedElement.AllComplicationSlots,
-                Color.RED,
-                Color.BLUE
-            )
-        )
-        val renderParameters4b = RenderParameters(
-            DrawMode.INTERACTIVE,
-            WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
-            RenderParameters.HighlightLayer(
-                RenderParameters.HighlightedElement.AllComplicationSlots,
-                Color.RED,
-                Color.BLUE
-            )
-        )
 
         assertThat(renderParameters1a).isEqualTo(renderParameters1a)
         assertThat(renderParameters1a).isEqualTo(renderParameters1b)

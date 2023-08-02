@@ -24,9 +24,10 @@ import androidx.datastore.migrations.SharedPreferencesView
 import io.reactivex.Single
 import kotlinx.coroutines.rx2.await
 
+@JvmDefaultWithCompatibility
 /**
  * Client implemented migration interface.
- **/
+ */
 public interface RxSharedPreferencesMigration<T> {
     /**
      * Whether or not the migration should be run. This can be used to skip a read from the

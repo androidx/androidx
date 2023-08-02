@@ -16,7 +16,8 @@
 
 package androidx.compose.ui.tooling
 
-import android.util.Log
+import androidx.compose.ui.tooling.data.Group
+import androidx.compose.ui.tooling.data.UiToolingDataApi
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 
 /**
@@ -27,7 +28,7 @@ internal fun String.asPreviewProviderClass(): Class<out PreviewParameterProvider
         @Suppress("UNCHECKED_CAST")
         return Class.forName(this) as? Class<out PreviewParameterProvider<*>>
     } catch (e: ClassNotFoundException) {
-        Log.e("PreviewProvider", "Unable to find provider '$this'", e)
+        PreviewLogger.logError("Unable to find PreviewProvider '$this'", e)
         return null
     }
 }
@@ -58,7 +59,9 @@ internal fun getPreviewProviderParameters(
             if (parameterProviderIndex < 0) {
                 return params.values.toArray(params.count)
             }
-            return arrayOf(params.values.elementAt(parameterProviderIndex))
+            return listOf(params.values.elementAt(parameterProviderIndex))
+                .map { unwrapIfInline(it) }
+                .toTypedArray()
         } catch (e: KotlinReflectionNotSupportedError) {
             // kotlin-reflect runtime dependency not found. Suggest adding it.
             throw IllegalStateException(
@@ -72,6 +75,64 @@ internal fun getPreviewProviderParameters(
     } else {
         return emptyArray()
     }
+}
+
+/**
+ * Checks if the object is of inlined value type.
+ * If yes, unwraps and returns the packed value
+ * If not, returns the object as it is
+ */
+private fun unwrapIfInline(classToCheck: Any?): Any? {
+    // At the moment is not possible to use classToCheck::class.isValue, even if it works when
+    // running tests, is not working once trying to run the Preview instead.
+    // it would be possible in the future.
+    // see also https://kotlinlang.org/docs/inline-classes.html
+    if (classToCheck != null && classToCheck::class.java.annotations.any { it is JvmInline }) {
+        // The first primitive declared field in the class is the value wrapped
+        val fieldName: String = classToCheck::class.java.declaredFields
+            .first { it.type.isPrimitive }
+            .name
+        return classToCheck::class.java.getDeclaredField(fieldName)
+            .also { it.isAccessible = true }
+            .get(classToCheck)
+    }
+    return classToCheck
+}
+
+@OptIn(UiToolingDataApi::class)
+internal fun Group.firstOrNull(predicate: (Group) -> Boolean): Group? {
+    return findGroupsThatMatchPredicate(this, predicate, true).firstOrNull()
+}
+
+@OptIn(UiToolingDataApi::class)
+internal fun Group.findAll(predicate: (Group) -> Boolean): List<Group> {
+    return findGroupsThatMatchPredicate(this, predicate)
+}
+
+/**
+ * Search [Group]s that match a given [predicate], starting from a given [root]. An optional
+ * boolean parameter can be set if we're interested in a single occurrence. If it's set, we
+ * return early after finding the first matching [Group].
+ */
+@OptIn(UiToolingDataApi::class)
+private fun findGroupsThatMatchPredicate(
+    root: Group,
+    predicate: (Group) -> Boolean,
+    findOnlyFirst: Boolean = false
+): List<Group> {
+    val result = mutableListOf<Group>()
+    val stack = mutableListOf(root)
+    while (stack.isNotEmpty()) {
+        val current = stack.removeLast()
+        if (predicate(current)) {
+            if (findOnlyFirst) {
+                return listOf(current)
+            }
+            result.add(current)
+        }
+        stack.addAll(current.children)
+    }
+    return result
 }
 
 private fun Sequence<Any?>.toArray(size: Int): Array<Any?> {

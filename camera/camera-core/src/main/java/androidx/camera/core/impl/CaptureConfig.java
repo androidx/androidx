@@ -19,6 +19,7 @@ package androidx.camera.core.impl;
 import android.hardware.camera2.CameraCaptureSession;
 import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CaptureRequest;
+import android.util.Range;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
@@ -75,6 +76,8 @@ public final class CaptureConfig {
      */
     final int mTemplateType;
 
+    final Range<Integer> mExpectedFrameRateRange;
+
     /** The camera capture callback for a {@link CameraCaptureSession}. */
     final List<CameraCaptureCallback> mCameraCaptureCallbacks;
 
@@ -110,6 +113,7 @@ public final class CaptureConfig {
             List<DeferrableSurface> surfaces,
             Config implementationOptions,
             int templateType,
+            @NonNull Range<Integer> expectedFrameRateRange,
             List<CameraCaptureCallback> cameraCaptureCallbacks,
             boolean useRepeatingSurface,
             @NonNull TagBundle tagBundle,
@@ -117,6 +121,7 @@ public final class CaptureConfig {
         mSurfaces = surfaces;
         mImplementationOptions = implementationOptions;
         mTemplateType = templateType;
+        mExpectedFrameRateRange = expectedFrameRateRange;
         mCameraCaptureCallbacks = Collections.unmodifiableList(cameraCaptureCallbacks);
         mUseRepeatingSurface = useRepeatingSurface;
         mTagBundle = tagBundle;
@@ -159,6 +164,11 @@ public final class CaptureConfig {
         return mTemplateType;
     }
 
+    @NonNull
+    public Range<Integer> getExpectedFrameRateRange() {
+        return mExpectedFrameRateRange;
+    }
+
     public boolean isUseRepeatingSurface() {
         return mUseRepeatingSurface;
     }
@@ -195,6 +205,7 @@ public final class CaptureConfig {
         private final Set<DeferrableSurface> mSurfaces = new HashSet<>();
         private MutableConfig mImplementationOptions = MutableOptionsBundle.create();
         private int mTemplateType = TEMPLATE_TYPE_NONE;
+        private Range<Integer> mExpectedFrameRateRange = StreamSpec.FRAME_RATE_RANGE_UNSPECIFIED;
         private List<CameraCaptureCallback> mCameraCaptureCallbacks = new ArrayList<>();
         private boolean mUseRepeatingSurface = false;
         private MutableTagBundle mMutableTagBundle = MutableTagBundle.create();
@@ -208,6 +219,7 @@ public final class CaptureConfig {
             mSurfaces.addAll(base.mSurfaces);
             mImplementationOptions = MutableOptionsBundle.from(base.mImplementationOptions);
             mTemplateType = base.mTemplateType;
+            mExpectedFrameRateRange = base.mExpectedFrameRateRange;
             mCameraCaptureCallbacks.addAll(base.getCameraCaptureCallbacks());
             mUseRepeatingSurface = base.isUseRepeatingSurface();
             mMutableTagBundle = MutableTagBundle.from(base.getTagBundle());
@@ -253,6 +265,11 @@ public final class CaptureConfig {
             return mTemplateType;
         }
 
+        @Nullable
+        public Range<Integer> getExpectedFrameRateRange() {
+            return mExpectedFrameRateRange;
+        }
+
         /**
          * Set the template characteristics of the CaptureConfig.
          *
@@ -261,6 +278,15 @@ public final class CaptureConfig {
          */
         public void setTemplateType(int templateType) {
             mTemplateType = templateType;
+        }
+
+        /**
+         * Set the expected frame rate range of the CaptureConfig.
+         * @param expectedFrameRateRange The frame rate range calculated from the UseCases for
+         * {@link CameraDevice}
+         */
+        public void setExpectedFrameRateRange(@NonNull Range<Integer> expectedFrameRateRange) {
+            mExpectedFrameRateRange = expectedFrameRateRange;
         }
 
         /**
@@ -389,7 +415,8 @@ public final class CaptureConfig {
                     new ArrayList<>(mSurfaces),
                     OptionsBundle.from(mImplementationOptions),
                     mTemplateType,
-                    mCameraCaptureCallbacks,
+                    mExpectedFrameRateRange,
+                    new ArrayList<>(mCameraCaptureCallbacks),
                     mUseRepeatingSurface,
                     TagBundle.from(mMutableTagBundle),
                     mCameraCaptureResult);

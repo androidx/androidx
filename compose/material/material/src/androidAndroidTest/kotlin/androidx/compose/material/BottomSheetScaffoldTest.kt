@@ -33,26 +33,31 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asAndroidBitmap
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollDispatcher
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
+import androidx.compose.ui.test.assertLeftPositionInRootIsEqualTo
 import androidx.compose.ui.test.assertTopPositionInRootIsEqualTo
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onParent
-import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.performSemanticsAction
+import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeDown
 import androidx.compose.ui.test.swipeUp
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -60,7 +65,6 @@ import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth
 import kotlinx.coroutines.runBlocking
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -74,6 +78,8 @@ class BottomSheetScaffoldTest {
     val rule = createComposeRule()
 
     private val peekHeight = 75.dp
+
+    private val fabSpacing = 16.dp
 
     private val sheetContent = "frontLayerTag"
 
@@ -352,45 +358,51 @@ class BottomSheetScaffoldTest {
     }
 
     @Test
-    @Ignore("unignore once animation sync is ready (b/147291885)")
-    fun bottomSheetScaffold_drawer_manualControl() = runBlocking {
-        var drawerChildPosition: Offset = Offset.Zero
-        lateinit var scaffoldState: BottomSheetScaffoldState
-        rule.setContent {
-            scaffoldState = rememberBottomSheetScaffoldState()
-            Box {
+    fun bottomSheetScaffold_gesturesDisabled_doesNotParticipateInNestedScroll() =
+        runBlocking(AutoTestFrameClock()) {
+            lateinit var bottomSheetState: BottomSheetState
+            val scrollConnection = object : NestedScrollConnection {}
+            val scrollDispatcher = NestedScrollDispatcher()
+            val sheetHeight = 300.dp
+            val sheetHeightPx = with(rule.density) { sheetHeight.toPx() }
+
+            rule.setContent {
+                bottomSheetState = rememberBottomSheetState(BottomSheetValue.Expanded)
                 BottomSheetScaffold(
-                    scaffoldState = scaffoldState,
+                    scaffoldState = rememberBottomSheetScaffoldState(
+                        bottomSheetState = bottomSheetState
+                    ),
                     sheetContent = {
-                        Box(Modifier.fillMaxWidth().requiredHeight(100.dp))
-                    },
-                    drawerContent = {
                         Box(
                             Modifier
                                 .fillMaxWidth()
-                                .height(50.dp)
-                                .background(color = Color.Blue)
-                                .onGloballyPositioned { positioned: LayoutCoordinates ->
-                                    drawerChildPosition = positioned.positionInParent()
-                                }
+                                .requiredHeight(sheetHeight)
+                                .nestedScroll(scrollConnection, scrollDispatcher)
+                                .testTag(sheetContent)
                         )
-                    }
-                ) {
-                    Box(
-                        Modifier
-                            .fillMaxWidth()
-                            .height(50.dp)
-                            .background(color = Color.Blue)
-                    )
-                }
+                    },
+                    sheetGesturesEnabled = false,
+                    sheetPeekHeight = peekHeight,
+                    content = { Box(Modifier.fillMaxSize()) { Text("Content") } }
+                )
             }
+
+            Truth.assertThat(bottomSheetState.currentValue).isEqualTo(BottomSheetValue.Expanded)
+
+            val offsetBeforeScroll = bottomSheetState.requireOffset()
+            scrollDispatcher.dispatchPreScroll(
+                Offset(x = 0f, y = -sheetHeightPx),
+                NestedScrollSource.Drag
+            )
+            rule.waitForIdle()
+            Truth.assertWithMessage("Offset after scroll is equal to offset before scroll")
+                .that(bottomSheetState.requireOffset()).isEqualTo(offsetBeforeScroll)
+
+            val highFlingVelocity = Velocity(x = 0f, y = with(rule.density) { 500.dp.toPx() })
+            scrollDispatcher.dispatchPreFling(highFlingVelocity)
+            rule.waitForIdle()
+            Truth.assertThat(bottomSheetState.currentValue).isEqualTo(BottomSheetValue.Expanded)
         }
-        Truth.assertThat(drawerChildPosition.x).isLessThan(0f)
-        scaffoldState.drawerState.open()
-        Truth.assertThat(drawerChildPosition.x).isLessThan(0f)
-        scaffoldState.drawerState.close()
-        Truth.assertThat(drawerChildPosition.x).isLessThan(0f)
-    }
 
     @Test
     fun bottomSheetScaffold_AppbarAndContent_inColumn() {
@@ -429,7 +441,7 @@ class BottomSheetScaffoldTest {
     }
 
     @Test
-    fun bottomSheetScaffold_fab_position(): Unit = runBlocking(AutoTestFrameClock()) {
+    fun bottomSheetScaffold_fab_startPosition(): Unit = runBlocking(AutoTestFrameClock()) {
         val fabTag = "fab"
         var fabSize: IntSize = IntSize.Zero
         lateinit var scaffoldState: BottomSheetScaffoldState
@@ -453,11 +465,14 @@ class BottomSheetScaffoldTest {
                         Icon(Icons.Filled.Favorite, null)
                     }
                 },
-                content = { Text("Content") }
+                floatingActionButtonPosition = FabPosition.Start,
+                content = { Text("Content") },
             )
         }
         with(rule.density) {
-            rule.onNodeWithTag(fabTag).assertTopPositionInRootIsEqualTo(
+            rule.onNodeWithTag(fabTag).assertLeftPositionInRootIsEqualTo(
+                fabSpacing
+            ).assertTopPositionInRootIsEqualTo(
                 rule.rootHeight() - peekHeight - fabSize.height.toDp() / 2
             )
         }
@@ -465,7 +480,57 @@ class BottomSheetScaffoldTest {
         advanceClock()
 
         with(rule.density) {
-            rule.onNodeWithTag(fabTag).assertTopPositionInRootIsEqualTo(
+            rule.onNodeWithTag(fabTag).assertLeftPositionInRootIsEqualTo(
+                fabSpacing
+            ).assertTopPositionInRootIsEqualTo(
+                rule.rootHeight() - 300.dp - fabSize.height.toDp() / 2
+            )
+        }
+    }
+
+    @Test
+    fun bottomSheetScaffold_fab_endPosition(): Unit = runBlocking(AutoTestFrameClock()) {
+        val fabTag = "fab"
+        var fabSize: IntSize = IntSize.Zero
+        lateinit var scaffoldState: BottomSheetScaffoldState
+        rule.setContent {
+            scaffoldState = rememberBottomSheetScaffoldState()
+            BottomSheetScaffold(
+                scaffoldState = scaffoldState,
+                sheetContent = {
+                    Box(Modifier.fillMaxWidth().requiredHeight(300.dp).testTag(sheetContent))
+                },
+                sheetGesturesEnabled = false,
+                sheetPeekHeight = peekHeight,
+                floatingActionButton = {
+                    FloatingActionButton(
+                        modifier = Modifier
+                            .onGloballyPositioned { positioned ->
+                                fabSize = positioned.size
+                            }.testTag(fabTag),
+                        onClick = {}
+                    ) {
+                        Icon(Icons.Filled.Favorite, null)
+                    }
+                },
+                floatingActionButtonPosition = FabPosition.End,
+                content = { Text("Content") }
+            )
+        }
+        with(rule.density) {
+            rule.onNodeWithTag(fabTag).assertLeftPositionInRootIsEqualTo(
+                rule.rootWidth() - fabSize.width.toDp() - fabSpacing
+            ).assertTopPositionInRootIsEqualTo(
+                rule.rootHeight() - peekHeight - fabSize.height.toDp() / 2
+            )
+        }
+        scaffoldState.bottomSheetState.expand()
+        advanceClock()
+
+        with(rule.density) {
+            rule.onNodeWithTag(fabTag).assertLeftPositionInRootIsEqualTo(
+                rule.rootWidth() - fabSize.width.toDp() - fabSpacing
+            ).assertTopPositionInRootIsEqualTo(
                 rule.rootHeight() - 300.dp - fabSize.height.toDp() / 2
             )
         }
@@ -529,6 +594,23 @@ class BottomSheetScaffoldTest {
         }
         rule.runOnIdle {
             Truth.assertThat(innerPadding.calculateBottomPadding()).isEqualTo(peekHeight)
+        }
+    }
+
+    /*
+     * This is a validity check for b/235588730. We can not verify actual placement behavior in this
+     * test as it would require child composables.
+     */
+    @Test
+    fun bottomSheetScaffold_emptySlots_doesNotCrash() {
+        rule.setMaterialContent {
+            BottomSheetScaffold(
+                sheetContent = { },
+                topBar = { },
+                snackbarHost = { },
+                floatingActionButton = { },
+                content = { }
+            )
         }
     }
 }

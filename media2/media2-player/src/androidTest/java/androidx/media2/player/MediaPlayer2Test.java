@@ -1271,6 +1271,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
         return cp;
     }
 
+    @FlakyTest(bugId = 264905014)
     @Test
     @LargeTest
     public void getTimestamp() throws Exception {

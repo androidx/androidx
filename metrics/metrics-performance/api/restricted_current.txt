@@ -21,8 +21,10 @@ package androidx.metrics.performance {
   }
 
   public final class FrameDataApi31 extends androidx.metrics.performance.FrameDataApi24 {
-    ctor public FrameDataApi31(long frameStartNanos, long frameDurationUiNanos, long frameDurationCpuNanos, long frameOverrunNanos, boolean isJank, java.util.List<androidx.metrics.performance.StateInfo> states);
+    ctor public FrameDataApi31(long frameStartNanos, long frameDurationUiNanos, long frameDurationCpuNanos, long frameDurationTotalNanos, long frameOverrunNanos, boolean isJank, java.util.List<androidx.metrics.performance.StateInfo> states);
+    method public long getFrameDurationTotalNanos();
     method public long getFrameOverrunNanos();
+    property public final long frameDurationTotalNanos;
     property public final long frameOverrunNanos;
   }
 

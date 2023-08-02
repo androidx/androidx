@@ -26,4 +26,5 @@ import androidx.annotation.RequiresOptIn
 )
 @Suppress("UnsafeOptInUsageError")
 @RequiresOptIn
+@Retention(AnnotationRetention.BINARY)
 annotation class ExperimentalRoomApi

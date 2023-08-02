@@ -39,7 +39,7 @@ import com.google.android.icing.proto.SetSchemaResultProto;
  *
  * <p>E.g. we need to have helper functions to copy numbers from IcingLib to stats classes.
  *
- * @hide
+ * @exportToFramework:hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class AppSearchLoggerHelper {
@@ -124,7 +124,16 @@ public final class AppSearchLoggerHelper {
                 .setRankingLatencyMillis(fromNativeStats.getRankingLatencyMs())
                 .setResultWithSnippetsCount(fromNativeStats.getNumResultsWithSnippets())
                 .setDocumentRetrievingLatencyMillis(
-                        fromNativeStats.getDocumentRetrievalLatencyMs());
+                        fromNativeStats.getDocumentRetrievalLatencyMs())
+                .setNativeLockAcquisitionLatencyMillis(
+                        fromNativeStats.getLockAcquisitionLatencyMs())
+                .setJavaToNativeJniLatencyMillis(
+                        fromNativeStats.getJavaToNativeJniLatencyMs())
+                .setNativeToJavaJniLatencyMillis(
+                        fromNativeStats.getNativeToJavaJniLatencyMs())
+                .setNativeNumJoinedResultsCurrentPage(
+                        fromNativeStats.getNumJoinedResultsReturnedCurrentPage())
+                .setNativeJoinLatencyMillis(fromNativeStats.getJoinLatencyMs());
     }
 
     /**

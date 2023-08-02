@@ -17,10 +17,16 @@
 package androidx.wear.compose.foundation
 
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontSynthesis
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.isUnspecified
 import androidx.compose.ui.unit.sp
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -32,8 +38,12 @@ class CurvedTextStyleTest {
         val style = CurvedTextStyle()
 
         assertEquals(style.color, Color.Unspecified)
-        assert(style.fontSize.isUnspecified)
+        assertTrue(style.fontSize.isUnspecified)
         assertEquals(style.background, Color.Unspecified)
+        assertNull(style.fontWeight)
+        assertNull(style.fontFamily)
+        assertNull(style.fontStyle)
+        assertNull(style.fontSynthesis)
     }
 
     @Test
@@ -61,6 +71,42 @@ class CurvedTextStyleTest {
         val style = CurvedTextStyle(background = color)
 
         assertEquals(style.background, color)
+    }
+
+    @Test
+    fun `constructor with customized font weight`() {
+        val fontWeight = FontWeight.Bold
+
+        val style = CurvedTextStyle(fontWeight = fontWeight)
+
+        assertEquals(style.fontWeight, fontWeight)
+    }
+
+    @Test
+    fun `constructor with customized font family`() {
+        val fontFamily = FontFamily.Cursive
+
+        val style = CurvedTextStyle(fontFamily = fontFamily)
+
+        assertEquals(style.fontFamily, fontFamily)
+    }
+
+    @Test
+    fun `constructor with customized font style`() {
+        val fontStyle = FontStyle.Italic
+
+        val style = CurvedTextStyle(fontStyle = fontStyle)
+
+        assertEquals(style.fontStyle, fontStyle)
+    }
+
+    @Test
+    fun `constructor with customized font synthesis`() {
+        val fontSynthesis = FontSynthesis.Style
+
+        val style = CurvedTextStyle(fontSynthesis = fontSynthesis)
+
+        assertEquals(style.fontSynthesis, fontSynthesis)
     }
 
     @Test
@@ -127,5 +173,81 @@ class CurvedTextStyleTest {
         val newStyle = style.merge(otherStyle)
 
         assertEquals(newStyle.background, otherStyle.background)
+    }
+
+    @Test
+    fun `merge with other's font weight is unspecified should use this' font weight`() {
+        val style = CurvedTextStyle(fontWeight = FontWeight.ExtraBold)
+
+        val newStyle = style.merge(CurvedTextStyle(fontWeight = null))
+
+        assertEquals(newStyle.fontWeight, style.fontWeight)
+    }
+
+    @Test
+    fun `merge with other's font weight is set should use other's font weight`() {
+        val style = CurvedTextStyle(fontWeight = FontWeight.ExtraBold)
+        val otherStyle = CurvedTextStyle(fontWeight = FontWeight.Light)
+
+        val newStyle = style.merge(otherStyle)
+
+        assertEquals(newStyle.fontWeight, otherStyle.fontWeight)
+    }
+
+    @Test
+    fun `merge with other's font family is unspecified should use this' font family`() {
+        val style = CurvedTextStyle(fontFamily = FontFamily.SansSerif)
+
+        val newStyle = style.merge(CurvedTextStyle(fontFamily = null))
+
+        assertEquals(newStyle.fontFamily, style.fontFamily)
+    }
+
+    @Test
+    fun `merge with other's font family is set should use other's font family`() {
+        val style = CurvedTextStyle(fontFamily = FontFamily.Serif)
+        val otherStyle = CurvedTextStyle(fontFamily = FontFamily.SansSerif)
+
+        val newStyle = style.merge(otherStyle)
+
+        assertEquals(newStyle.fontFamily, otherStyle.fontFamily)
+    }
+
+    @Test
+    fun `merge with other's font style is unspecified should use this' font style`() {
+        val style = CurvedTextStyle(fontStyle = FontStyle.Italic)
+
+        val newStyle = style.merge(CurvedTextStyle(fontStyle = null))
+
+        assertEquals(newStyle.fontStyle, style.fontStyle)
+    }
+
+    @Test
+    fun `merge with other's font style is set should use other's font style`() {
+        val style = CurvedTextStyle(fontStyle = FontStyle.Normal)
+        val otherStyle = CurvedTextStyle(fontStyle = FontStyle.Italic)
+
+        val newStyle = style.merge(otherStyle)
+
+        assertEquals(newStyle.fontStyle, otherStyle.fontStyle)
+    }
+
+    @Test
+    fun `merge with other's font synthesis is unspecified should use this' font synthesis`() {
+        val style = CurvedTextStyle(fontSynthesis = FontSynthesis.Weight)
+
+        val newStyle = style.merge(CurvedTextStyle(fontSynthesis = null))
+
+        assertEquals(newStyle.fontSynthesis, style.fontSynthesis)
+    }
+
+    @Test
+    fun `merge with other's font synthesis is set should use other's font synthesis`() {
+        val style = CurvedTextStyle(fontSynthesis = FontSynthesis.Style)
+        val otherStyle = CurvedTextStyle(fontSynthesis = FontSynthesis.Weight)
+
+        val newStyle = style.merge(otherStyle)
+
+        assertEquals(newStyle.fontSynthesis, otherStyle.fontSynthesis)
     }
 }

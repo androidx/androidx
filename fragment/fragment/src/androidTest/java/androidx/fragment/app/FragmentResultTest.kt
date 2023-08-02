@@ -22,11 +22,16 @@ import android.os.Parcelable
 import androidx.activity.result.ActivityResult
 import androidx.fragment.app.test.FragmentTestActivity
 import androidx.fragment.test.R
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.testutils.withActivity
+import androidx.testutils.withUse
 import com.google.common.truth.Truth.assertWithMessage
+import leakcanary.DetectLeaksAfterTestSuccess
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -34,9 +39,12 @@ import org.junit.runner.RunWith
 @LargeTest
 class FragmentResultTest {
 
+    @get:Rule
+    val rule = DetectLeaksAfterTestSuccess()
+
     @Test
     fun testReplaceResult() {
-        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+       withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             val fm = withActivity {
                 setContentView(R.layout.simple_container)
                 supportFragmentManager
@@ -78,7 +86,7 @@ class FragmentResultTest {
 
     @Test
     fun testClearResult() {
-        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+       withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             val fm = withActivity {
                 setContentView(R.layout.simple_container)
                 supportFragmentManager
@@ -121,7 +129,7 @@ class FragmentResultTest {
 
     @Test
     fun testClearResultListener() {
-        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+       withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             val fm = withActivity {
                 setContentView(R.layout.simple_container)
                 supportFragmentManager
@@ -150,7 +158,7 @@ class FragmentResultTest {
 
     @Test
     fun testClearResultListenerInCallback() {
-        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+       withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             val fm = withActivity {
                 setContentView(R.layout.simple_container)
                 supportFragmentManager
@@ -194,8 +202,38 @@ class FragmentResultTest {
     }
 
     @Test
+    fun testClearResultListenerInCallbackWhenStarted() {
+        withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+            val fm = withActivity {
+                setContentView(R.layout.simple_container)
+                supportFragmentManager
+            }
+
+            val fragment1 = ClearResultFragment(Lifecycle.State.RESUMED)
+
+            // set a result while no listener is available so it is stored in the fragment manager
+            fm.setFragmentResult("requestKey", Bundle())
+
+            // adding the fragment is going to execute and clear its listener.
+            withActivity {
+                fm.beginTransaction()
+                    .add(R.id.fragmentContainer, fragment1)
+                    .commitNow()
+            }
+
+            withActivity {
+                // Send a second result, which should not be received by fragment1
+                fm.setFragmentResult("requestKey", Bundle())
+            }
+
+            assertWithMessage("the listener should only be executed once")
+                .that(fragment1.callbackCount).isEqualTo(1)
+        }
+    }
+
+    @Test
     fun testResetResultListener() {
-        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+       withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             val fm = withActivity {
                 setContentView(R.layout.simple_container)
                 supportFragmentManager
@@ -243,7 +281,7 @@ class FragmentResultTest {
 
     @Test
     fun testSetResultWhileResumed() {
-        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+       withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             val fm = withActivity {
                 setContentView(R.layout.simple_container)
                 supportFragmentManager
@@ -276,7 +314,7 @@ class FragmentResultTest {
 
     @Test
     fun testStoredSetResultWhileResumed() {
-        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+       withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             val fm = withActivity {
                 setContentView(R.layout.simple_container)
                 supportFragmentManager
@@ -311,7 +349,7 @@ class FragmentResultTest {
 
     @Test
     fun testReplaceResultSavedRestore() {
-        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+       withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             var fm = withActivity {
                 setContentView(R.layout.simple_container)
                 supportFragmentManager
@@ -359,7 +397,7 @@ class FragmentResultTest {
 
     @Test
     fun testChildFragmentResult() {
-        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+       withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             val fm = withActivity {
                 setContentView(R.layout.simple_container)
                 supportFragmentManager
@@ -386,7 +424,7 @@ class FragmentResultTest {
 
     @Test
     fun testReplaceResultWithParcelableOnRecreation() {
-        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+       withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             var fm = withActivity {
                 setContentView(R.layout.simple_container)
                 supportFragmentManager
@@ -447,19 +485,24 @@ class ResultFragment : StrictFragment() {
     }
 }
 
-class ClearResultFragment : StrictFragment() {
+class ClearResultFragment(
+    private val setLifecycleInState: Lifecycle.State = Lifecycle.State.CREATED
+) : StrictFragment() {
     var callbackCount = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        parentFragmentManager.setFragmentResultListener(
-            "requestKey", this,
-            FragmentResultListener { _, _ ->
-                callbackCount++
-                parentFragmentManager.clearFragmentResultListener("requestKey")
+        lifecycle.addObserver(LifecycleEventObserver { _, event ->
+            if (Lifecycle.Event.upTo(setLifecycleInState) == event) {
+                parentFragmentManager.setFragmentResultListener(
+                    "requestKey", this,
+                    FragmentResultListener { _, _ ->
+                        callbackCount++
+                        parentFragmentManager.clearFragmentResultListener("requestKey")
+                    }
+                )
             }
-        )
+        })
     }
 }
 

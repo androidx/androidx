@@ -72,26 +72,20 @@ public class MediaRouterTest {
     @Before
     public void setUp() throws Exception {
         resetActiveAndPassiveScanCountDownLatches();
-        getInstrumentation().runOnMainSync(new Runnable() {
-            @Override
-            public void run() {
-                mContext = getApplicationContext();
-                mRouter = MediaRouter.getInstance(mContext);
-                mSession = new MediaSessionCompat(mContext, SESSION_TAG);
-                mProvider = new MediaRouteProviderImpl(mContext);
-            }
-        });
+        getInstrumentation()
+                .runOnMainSync(
+                        () -> {
+                            mContext = getApplicationContext();
+                            mRouter = MediaRouter.getInstance(mContext);
+                            mSession = new MediaSessionCompat(mContext, SESSION_TAG);
+                            mProvider = new MediaRouteProviderImpl(mContext);
+                        });
     }
 
     @After
     public void tearDown() throws Exception {
         mSession.release();
-        getInstrumentation().runOnMainSync(new Runnable() {
-            @Override
-            public void run() {
-                MediaRouterTestHelper.resetMediaRouter();
-            }
-        });
+        getInstrumentation().runOnMainSync(() -> MediaRouterTestHelper.resetMediaRouter());
     }
 
     /**
@@ -101,13 +95,12 @@ public class MediaRouterTest {
     @Test
     @SmallTest
     public void setMediaSessionCompat_receivesCallbacks() throws Exception {
-        getInstrumentation().runOnMainSync(new Runnable() {
-            @Override
-            public void run() {
-                mSession.setCallback(mSessionCallback);
-                mRouter.setMediaSessionCompat(mSession);
-            }
-        });
+        getInstrumentation()
+                .runOnMainSync(
+                        () -> {
+                            mSession.setCallback(mSessionCallback);
+                            mRouter.setMediaSessionCompat(mSession);
+                        });
 
         MediaControllerCompat controller = mSession.getController();
         MediaControllerCompat.TransportControls controls = controller.getTransportControls();
@@ -205,14 +198,15 @@ public class MediaRouterTest {
 
         // Add the provider and callback.
         resetActiveAndPassiveScanCountDownLatches();
-        getInstrumentation().runOnMainSync(new Runnable() {
-            @Override
-            public void run() {
-                mRouter.addProvider(mProvider);
-                mRouter.addCallback(selector, callback,
-                        MediaRouter.CALLBACK_FLAG_PERFORM_ACTIVE_SCAN);
-            }
-        });
+        getInstrumentation()
+                .runOnMainSync(
+                        () -> {
+                            mRouter.addProvider(mProvider);
+                            mRouter.addCallback(
+                                    selector,
+                                    callback,
+                                    MediaRouter.CALLBACK_FLAG_PERFORM_ACTIVE_SCAN);
+                        });
 
         // Active scan should be true.
         assertTrue(mActiveScanCountDownLatch.await(TIME_OUT_MS, TimeUnit.MILLISECONDS));
@@ -224,13 +218,13 @@ public class MediaRouterTest {
 
         // Add the same callback again.
         resetActiveAndPassiveScanCountDownLatches();
-        getInstrumentation().runOnMainSync(new Runnable() {
-            @Override
-            public void run() {
-                mRouter.addCallback(selector, callback,
-                        MediaRouter.CALLBACK_FLAG_PERFORM_ACTIVE_SCAN);
-            }
-        });
+        getInstrumentation()
+                .runOnMainSync(
+                        () ->
+                                mRouter.addCallback(
+                                        selector,
+                                        callback,
+                                        MediaRouter.CALLBACK_FLAG_PERFORM_ACTIVE_SCAN));
 
         // Active scan should be true.
         assertTrue(mActiveScanCountDownLatch.await(TIME_OUT_MS, TimeUnit.MILLISECONDS));
@@ -252,24 +246,25 @@ public class MediaRouterTest {
         MediaRouterCallbackImpl callback2 = new MediaRouterCallbackImpl();
 
         // Add the provider and the first callback.
-        getInstrumentation().runOnMainSync(new Runnable() {
-            @Override
-            public void run() {
-                mRouter.addProvider(mProvider);
-                mRouter.addCallback(selector, callback1,
-                        MediaRouter.CALLBACK_FLAG_PERFORM_ACTIVE_SCAN);
-            }
-        });
+        getInstrumentation()
+                .runOnMainSync(
+                        () -> {
+                            mRouter.addProvider(mProvider);
+                            mRouter.addCallback(
+                                    selector,
+                                    callback1,
+                                    MediaRouter.CALLBACK_FLAG_PERFORM_ACTIVE_SCAN);
+                        });
 
         // Wait for 5 seconds, add the second callback.
         Thread.sleep(5000);
-        getInstrumentation().runOnMainSync(new Runnable() {
-            @Override
-            public void run() {
-                mRouter.addCallback(selector, callback2,
-                        MediaRouter.CALLBACK_FLAG_PERFORM_ACTIVE_SCAN);
-            }
-        });
+        getInstrumentation()
+                .runOnMainSync(
+                        () ->
+                                mRouter.addCallback(
+                                        selector,
+                                        callback2,
+                                        MediaRouter.CALLBACK_FLAG_PERFORM_ACTIVE_SCAN));
 
         resetActiveAndPassiveScanCountDownLatches();
         // Wait for active scan duration to nearly end, active scan flag should be true.
@@ -284,13 +279,13 @@ public class MediaRouterTest {
     @UiThreadTest
     public void testReset() {
         assertNotNull(mRouter);
-        assertNotNull(MediaRouter.getGlobalRouter());
+        assertNotNull(MediaRouter.sGlobal);
 
         MediaRouterTestHelper.resetMediaRouter();
-        assertNull(MediaRouter.getGlobalRouter());
+        assertNull(MediaRouter.sGlobal);
 
         MediaRouter newInstance = MediaRouter.getInstance(mContext);
-        assertNotNull(MediaRouter.getGlobalRouter());
+        assertNotNull(MediaRouter.sGlobal);
         assertFalse(newInstance.getRoutes().isEmpty());
     }
 

@@ -19,7 +19,6 @@ package android.support.v4.media.session;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -63,8 +62,11 @@ import androidx.versionedparcelable.VersionedParcelable;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Allows an app to interact with an ongoing media session. Media buttons and
@@ -102,44 +104,37 @@ public final class MediaControllerCompat {
     static final String TAG = "MediaControllerCompat";
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public static final String COMMAND_GET_EXTRA_BINDER =
             "android.support.v4.media.session.command.GET_EXTRA_BINDER";
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public static final String COMMAND_ADD_QUEUE_ITEM =
             "android.support.v4.media.session.command.ADD_QUEUE_ITEM";
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public static final String COMMAND_ADD_QUEUE_ITEM_AT =
             "android.support.v4.media.session.command.ADD_QUEUE_ITEM_AT";
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public static final String COMMAND_REMOVE_QUEUE_ITEM =
             "android.support.v4.media.session.command.REMOVE_QUEUE_ITEM";
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public static final String COMMAND_REMOVE_QUEUE_ITEM_AT =
             "android.support.v4.media.session.command.REMOVE_QUEUE_ITEM_AT";
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public static final String COMMAND_ARGUMENT_MEDIA_DESCRIPTION =
             "android.support.v4.media.session.command.ARGUMENT_MEDIA_DESCRIPTION";
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public static final String COMMAND_ARGUMENT_INDEX =
@@ -211,10 +206,7 @@ public final class MediaControllerCompat {
     private final MediaSessionCompat.Token mToken;
     // This set is used to keep references to registered callbacks to prevent them being GCed,
     // since we only keep weak references for callbacks in this class and its inner classes.
-    // It is actually a map not a set. Ignore the values and treat the keys as a set.
-    @SuppressLint("BanConcurrentHashMap")
-    private final java.util.concurrent.ConcurrentHashMap<Callback, Boolean> mRegisteredCallbacks =
-            new java.util.concurrent.ConcurrentHashMap<>();
+    private final Set<Callback> mRegisteredCallbacks;
 
     /**
      * Creates a media controller from a session.
@@ -222,18 +214,7 @@ public final class MediaControllerCompat {
      * @param session The session to be controlled.
      */
     public MediaControllerCompat(Context context, @NonNull MediaSessionCompat session) {
-        if (session == null) {
-            throw new IllegalArgumentException("session must not be null");
-        }
-        mToken = session.getSessionToken();
-
-        if (Build.VERSION.SDK_INT >= 29) {
-            mImpl = new MediaControllerImplApi29(context, mToken);
-        } else if (Build.VERSION.SDK_INT >= 21) {
-            mImpl = new MediaControllerImplApi21(context, mToken);
-        } else {
-            mImpl = new MediaControllerImplBase(mToken);
-        }
+        this(context, session.getSessionToken());
     }
 
     /**
@@ -246,9 +227,12 @@ public final class MediaControllerCompat {
         if (sessionToken == null) {
             throw new IllegalArgumentException("sessionToken must not be null");
         }
+        mRegisteredCallbacks = Collections.synchronizedSet(new HashSet<>());
         mToken = sessionToken;
 
-        if (android.os.Build.VERSION.SDK_INT >= 21) {
+        if (Build.VERSION.SDK_INT >= 29) {
+            mImpl = new MediaControllerImplApi29(context, sessionToken);
+        } else if (Build.VERSION.SDK_INT >= 21) {
             mImpl = new MediaControllerImplApi21(context, sessionToken);
         } else {
             mImpl = new MediaControllerImplBase(sessionToken);
@@ -505,7 +489,6 @@ public final class MediaControllerCompat {
      * is connected to.
      *
      * @return The session's token as VersionedParcelable.
-     * @hide
      */
     @RestrictTo(LIBRARY)
     @Nullable
@@ -568,7 +551,7 @@ public final class MediaControllerCompat {
         if (callback == null) {
             throw new IllegalArgumentException("callback must not be null");
         }
-        if (mRegisteredCallbacks.putIfAbsent(callback, true) != null) {
+        if(!mRegisteredCallbacks.add(callback)) {
             Log.w(TAG, "the callback has already been registered");
             return;
         }
@@ -589,7 +572,7 @@ public final class MediaControllerCompat {
         if (callback == null) {
             throw new IllegalArgumentException("callback must not be null");
         }
-        if (mRegisteredCallbacks.remove(callback) == null) {
+        if (!mRegisteredCallbacks.remove(callback)) {
             Log.w(TAG, "the callback has never been registered");
             return;
         }
@@ -807,7 +790,6 @@ public final class MediaControllerCompat {
         }
 
         /**
-         * @hide
          */
         @SuppressWarnings({"HiddenTypeParameter", "UnavailableSymbol"})
         @RestrictTo(LIBRARY_GROUP_PREFIX) // accessed by media2-session

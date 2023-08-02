@@ -27,12 +27,12 @@ import androidx.wear.watchface.RenderParameters
 import androidx.wear.watchface.TapEvent
 import androidx.wear.watchface.style.WatchFaceLayer
 import com.google.common.truth.Truth.assertThat
-import org.junit.Test
-import org.junit.runner.RunWith
-import org.mockito.Mockito
 import java.time.Instant
 import java.time.ZoneId
 import java.time.ZonedDateTime
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.mockito.Mockito
 
 @RunWith(ComplicationsTestRunner::class)
 public class CanvasComplicationDrawableTest {
@@ -45,11 +45,12 @@ public class CanvasComplicationDrawableTest {
     private val canvas = Canvas(bitmap)
     private val zonedDateTime =
         ZonedDateTime.ofInstant(Instant.ofEpochMilli(1234), ZoneId.of("UTC"))
-    private val canvasComplicationDrawable = CanvasComplicationDrawable(
-        complicationDrawable,
-        watchState.asWatchState(),
-        invalidateCallback
-    )
+    private val canvasComplicationDrawable =
+        CanvasComplicationDrawable(
+            complicationDrawable,
+            watchState.asWatchState(),
+            invalidateCallback
+        )
     private val slotId = 100
 
     @Test
@@ -119,12 +120,13 @@ public class CanvasComplicationDrawableTest {
 
     @Test
     public fun render_highlight() {
-        val renderParameters = RenderParameters(
-            DrawMode.INTERACTIVE,
-            setOf(WatchFaceLayer.BASE, WatchFaceLayer.COMPLICATIONS),
-            null,
-            mapOf(slotId to TapEvent(50, 50, Instant.ofEpochMilli(1100)))
-        )
+        val renderParameters =
+            RenderParameters(
+                DrawMode.INTERACTIVE,
+                setOf(WatchFaceLayer.BASE, WatchFaceLayer.COMPLICATIONS),
+                null,
+                mapOf(slotId to TapEvent(50, 50, Instant.ofEpochMilli(1100)))
+            )
 
         val t1099 = ZonedDateTime.ofInstant(Instant.ofEpochMilli(1099), ZoneId.of("UTC"))
         canvasComplicationDrawable.render(canvas, bounds, t1099, renderParameters, slotId)
@@ -134,22 +136,24 @@ public class CanvasComplicationDrawableTest {
         canvasComplicationDrawable.render(canvas, bounds, t1100, renderParameters, slotId)
         assertThat(complicationDrawable.isHighlighted).isTrue()
 
-        val t1099_plus = ZonedDateTime.ofInstant(
-            Instant.ofEpochMilli(
-                1099 + CanvasComplicationDrawable.COMPLICATION_HIGHLIGHT_DURATION_MS
-            ),
-            ZoneId.of("UTC")
-        )
+        val t1099_plus =
+            ZonedDateTime.ofInstant(
+                Instant.ofEpochMilli(
+                    1099 + CanvasComplicationDrawable.COMPLICATION_HIGHLIGHT_DURATION_MS
+                ),
+                ZoneId.of("UTC")
+            )
 
         canvasComplicationDrawable.render(canvas, bounds, t1099_plus, renderParameters, slotId)
         assertThat(complicationDrawable.isHighlighted).isTrue()
 
-        val t1100_plus = ZonedDateTime.ofInstant(
-            Instant.ofEpochMilli(
-                1100 + CanvasComplicationDrawable.COMPLICATION_HIGHLIGHT_DURATION_MS
-            ),
-            ZoneId.of("UTC")
-        )
+        val t1100_plus =
+            ZonedDateTime.ofInstant(
+                Instant.ofEpochMilli(
+                    1100 + CanvasComplicationDrawable.COMPLICATION_HIGHLIGHT_DURATION_MS
+                ),
+                ZoneId.of("UTC")
+            )
         canvasComplicationDrawable.render(canvas, bounds, t1100_plus, renderParameters, slotId)
         assertThat(complicationDrawable.isHighlighted).isFalse()
     }

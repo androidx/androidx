@@ -16,9 +16,9 @@
 
 package androidx.compose.runtime
 
-import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.Continuation
 import kotlin.coroutines.resume
+import kotlinx.coroutines.suspendCancellableCoroutine
 
 /**
  * A boolean open or closed latch for awaiting a single repeating event, like pending

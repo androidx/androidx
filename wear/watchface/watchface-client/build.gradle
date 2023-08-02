@@ -41,8 +41,8 @@ dependencies {
     androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy) // DexMaker has it"s own MockMaker
     androidTestImplementation(libs.truth)
 
-    testImplementation(libs.mockitoCore)
-    testImplementation(libs.mockitoKotlin)
+    testImplementation(libs.mockitoCore4)
+    testImplementation(libs.mockitoKotlin4)
     testImplementation(libs.robolectric)
     testImplementation(libs.testCore)
     testImplementation(libs.testExtJunit)
@@ -50,13 +50,6 @@ dependencies {
     testImplementation(libs.truth)
 
     implementation("androidx.core:core:1.1.0")
-}
-
-// Allow usage of Kotlin's @OptIn.
-tasks.withType(KotlinCompile).configureEach {
-    kotlinOptions {
-        freeCompilerArgs += ["-opt-in=kotlin.RequiresOptIn"]
-    }
 }
 
 android {
@@ -74,14 +67,6 @@ android {
 androidx {
     name = "Android Wear Watchface Client"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.WEAR_WATCHFACE
     inceptionYear = "2020"
     description = "Client library for controlling androidx watchfaces"
-}
-
-// Allow usage of Kotlin's @OptIn.
-tasks.withType(KotlinCompile).configureEach {
-    kotlinOptions {
-        freeCompilerArgs += ["-opt-in=kotlin.RequiresOptIn"]
-    }
 }

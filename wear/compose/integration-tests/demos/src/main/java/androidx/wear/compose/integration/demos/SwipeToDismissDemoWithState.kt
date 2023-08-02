@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -30,13 +31,13 @@ import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.wear.compose.foundation.SwipeToDismissBox
+import androidx.wear.compose.foundation.SwipeToDismissValue
+import androidx.wear.compose.foundation.rememberSwipeToDismissBoxState
 import androidx.wear.compose.material.Button
 import androidx.wear.compose.material.MaterialTheme
-import androidx.wear.compose.material.SwipeToDismissValue
-import androidx.wear.compose.material.SwipeToDismissBox
 import androidx.wear.compose.material.Text
 import androidx.wear.compose.material.ToggleButton
-import androidx.wear.compose.material.rememberSwipeToDismissBoxState
 
 @Composable
 fun SwipeToDismissBoxWithState(
@@ -66,7 +67,7 @@ fun SwipeToDismissBoxWithState(
         content = { isBackground ->
             if (showCounterForContent.value xor isBackground)
                 saveableStateHolder.SaveableStateProvider(counterKey) {
-                    var counter by rememberSaveable { mutableStateOf(0) }
+                    var counter by rememberSaveable { mutableIntStateOf(0) }
                     Column(
                         modifier = Modifier.fillMaxSize().background(MaterialTheme.colors.primary),
                         horizontalAlignment = Alignment.CenterHorizontally,

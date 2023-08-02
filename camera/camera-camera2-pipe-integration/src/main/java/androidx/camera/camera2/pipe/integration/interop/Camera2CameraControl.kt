@@ -22,19 +22,15 @@ import androidx.annotation.VisibleForTesting
 import androidx.camera.camera2.pipe.integration.adapter.CameraControlAdapter
 import androidx.camera.camera2.pipe.integration.adapter.asListenableFuture
 import androidx.camera.camera2.pipe.integration.compat.Camera2CameraControlCompat
-import androidx.camera.camera2.pipe.integration.config.CameraScope
 import androidx.camera.camera2.pipe.integration.impl.ComboRequestListener
 import androidx.camera.camera2.pipe.integration.impl.UseCaseCamera
 import androidx.camera.camera2.pipe.integration.impl.UseCaseCameraControl
 import androidx.camera.camera2.pipe.integration.impl.UseCaseThreads
 import androidx.camera.core.CameraControl
+import androidx.camera.core.impl.CameraControlInternal
 import androidx.camera.core.impl.utils.futures.Futures
 import androidx.core.util.Preconditions
 import com.google.common.util.concurrent.ListenableFuture
-import dagger.Binds
-import dagger.Module
-import dagger.multibindings.IntoSet
-import javax.inject.Inject
 
 /**
  * An class that provides ability to interoperate with the [android.hardware.camera2] APIs.
@@ -48,38 +44,30 @@ import javax.inject.Inject
  * unexpected behavior depends on the options being applied.
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-@CameraScope
+@SuppressWarnings("HiddenSuperclass")
 @ExperimentalCamera2Interop
-class Camera2CameraControl @Inject constructor(
+class Camera2CameraControl
+private constructor(
     private val compat: Camera2CameraControlCompat,
     private val threads: UseCaseThreads,
-    @VisibleForTesting
-    internal val requestListener: ComboRequestListener,
+    @VisibleForTesting internal val requestListener:
+    ComboRequestListener,
 ) : UseCaseCameraControl {
 
     private var _useCaseCamera: UseCaseCamera? = null
     override var useCaseCamera
-        /**
-         * @hide
-         */
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         get() = _useCaseCamera
-        /**
-         * @hide
-         */
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         set(value) {
             _useCaseCamera = value
             _useCaseCamera?.also {
                 requestListener.removeListener(compat)
                 requestListener.addListener(compat, threads.sequentialExecutor)
-                compat.applyAsync(it)
+                compat.applyAsync(it, false)
             }
         }
 
-    /**
-     * @hide
-     */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     override fun reset() {
         // Clear the current task, but don't clear the CaptureRequestOptions. Camera2CameraControl
@@ -105,6 +93,7 @@ class Camera2CameraControl @Inject constructor(
      * options are set or camera is closed before the current request completes.
      * Cancelling the ListenableFuture is a no-op.
      */
+    @SuppressWarnings("AsyncSuffixFuture")
     fun setCaptureRequestOptions(bundle: CaptureRequestOptions): ListenableFuture<Void?> {
         compat.clearRequestOption()
         compat.addRequestOption(bundle)
@@ -128,6 +117,7 @@ class Camera2CameraControl @Inject constructor(
      * completely. The future fails with [CameraControl.OperationCanceledException] if newer
      * options are set or camera is closed before the current request completes.
      */
+    @SuppressWarnings("AsyncSuffixFuture")
     fun addCaptureRequestOptions(
         bundle: CaptureRequestOptions
     ): ListenableFuture<Void?> {
@@ -146,15 +136,14 @@ class Camera2CameraControl @Inject constructor(
     fun getCaptureRequestOptions(): CaptureRequestOptions = compat.getRequestOption()
 
     /**
-     * Clears all capture request options.
+     * Clears all capture request options that is currently applied by the [Camera2CameraControl].
      *
      * @return a [ListenableFuture] which completes when the repeating
      * [android.hardware.camera2.CaptureResult] shows the options have be submitted
      * completely. The future fails with [CameraControl.OperationCanceledException] if newer
      * options are set or camera is closed before the current request completes.
-     * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @SuppressWarnings("AsyncSuffixFuture")
     fun clearCaptureRequestOptions(): ListenableFuture<Void?> {
         compat.clearRequestOption()
         return updateAsync("clearCaptureRequestOptions")
@@ -164,17 +153,6 @@ class Camera2CameraControl @Inject constructor(
         Futures.nonCancellationPropagating(
             compat.applyAsync(useCaseCamera).asListenableFuture(tag)
         )
-
-    /**
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    @Module
-    abstract class Bindings {
-        @Binds
-        @IntoSet
-        abstract fun provideControls(control: Camera2CameraControl): UseCaseCameraControl
-    }
 
     companion object {
 
@@ -197,11 +175,29 @@ class Camera2CameraControl @Inject constructor(
          */
         @JvmStatic
         fun from(cameraControl: CameraControl): Camera2CameraControl {
+            var cameraControlImpl = (cameraControl as CameraControlInternal).implementation
             Preconditions.checkArgument(
-                cameraControl is CameraControlAdapter,
+                cameraControlImpl is CameraControlAdapter,
                 "CameraControl doesn't contain Camera2 implementation."
             )
-            return (cameraControl as CameraControlAdapter).camera2cameraControl
+            return (cameraControlImpl as CameraControlAdapter).camera2cameraControl
+        }
+
+        /**
+         * This is the workaround to prevent constructor from being added to public API.
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        @JvmStatic
+        fun create(
+            compat: Camera2CameraControlCompat,
+            threads: UseCaseThreads,
+            requestListener: ComboRequestListener,
+        ): Camera2CameraControl {
+            return Camera2CameraControl(
+                compat,
+                threads,
+                requestListener
+            )
         }
     }
 }

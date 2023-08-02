@@ -31,12 +31,12 @@ import android.widget.RemoteViews
 import android.widget.RemoteViewsService
 import androidx.annotation.RestrictTo
 import androidx.core.content.pm.PackageInfoCompat
+import androidx.core.remoteviews.R
 import androidx.core.widget.RemoteViewsCompat.RemoteCollectionItems
 
 /**
  * [RemoteViewsService] to provide [RemoteViews] set using [RemoteViewsCompat.setRemoteAdapter].
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class RemoteViewsCompatService : RemoteViewsService() {
@@ -69,14 +69,22 @@ public class RemoteViewsCompatService : RemoteViewsService() {
 
         override fun getCount() = mItems.itemCount
 
-        override fun getViewAt(position: Int) = mItems.getItemView(position)
+        override fun getViewAt(position: Int) = try {
+            mItems.getItemView(position)
+        } catch (e: ArrayIndexOutOfBoundsException) {
+            // RemoteViewsAdapter may sometimes request an index that is out of bounds. Return an
+            // error view in this case. See b/242730601 for more details.
+            RemoteViews(mContext.packageName, R.layout.invalid_list_item)
+        }
 
         override fun getLoadingView() = null
 
         override fun getViewTypeCount() = mItems.viewTypeCount
 
-        override fun getItemId(position: Int): Long {
-            return mItems.getItemId(position)
+        override fun getItemId(position: Int) = try {
+            mItems.getItemId(position)
+        } catch (e: ArrayIndexOutOfBoundsException) {
+            -1
         }
 
         override fun hasStableIds() = mItems.hasStableIds()

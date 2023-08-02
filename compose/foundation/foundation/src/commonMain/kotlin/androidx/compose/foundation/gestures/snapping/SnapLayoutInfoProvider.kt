@@ -29,9 +29,9 @@ import androidx.compose.ui.unit.Density
 @ExperimentalFoundationApi
 interface SnapLayoutInfoProvider {
     /**
-     * The minimum offset that snapping will use to animate. (e.g. an item size)
+     * The minimum offset that snapping will use to animate.(e.g. an item size)
      */
-    fun Density.snapStepSize(): Float
+    fun Density.calculateSnapStepSize(): Float
 
     /**
      * Calculate the distance to navigate before settling into the next snapping bound.
@@ -42,12 +42,13 @@ interface SnapLayoutInfoProvider {
     fun Density.calculateApproachOffset(initialVelocity: Float): Float
 
     /**
-     * Given a target placement in a layout, the snapping bounds should be the closest offset we
-     * could snap to BEFORE and AFTER that placement. (e.g if the placement is the center of the
-     * viewport and we're snapping in a list this could be the distance to the center of the item
-     * before and after the center of the viewport)
+     * Given a target placement in a layout, the snapping offset is the next snapping position
+     * this layout can be placed in. If this is a short snapping, [currentVelocity] is guaranteed
+     * to be 0.If it is a long snapping, this method  will be called
+     * after [calculateApproachOffset].
      *
-     * Bounds are *always* a negative (lower bound) and a positive (upper bound) value.
+     * @param currentVelocity The current fling movement velocity. This may change throughout the
+     * fling animation.
      */
-    fun Density.calculateSnappingOffsetBounds(): ClosedFloatingPointRange<Float>
+    fun Density.calculateSnappingOffset(currentVelocity: Float): Float
 }

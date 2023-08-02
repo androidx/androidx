@@ -19,7 +19,9 @@ import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.annotation.CanIgnoreReturnValue;
 import androidx.appsearch.app.AppSearchResult;
+import androidx.appsearch.app.AppSearchSchema.StringPropertyConfig.JoinableValueType;
 import androidx.appsearch.app.SearchSpec;
 import androidx.core.util.Preconditions;
 
@@ -30,7 +32,7 @@ import java.lang.annotation.RetentionPolicy;
  * Class holds detailed stats for
  * {@link androidx.appsearch.app.AppSearchSession#search(String, SearchSpec)}
  *
- * @hide
+ * @exportToFramework:hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class SearchStats {
@@ -72,7 +74,14 @@ public final class SearchStats {
     private final int mRewriteSearchSpecLatencyMillis;
     /** Time used to rewrite the search results. */
     private final int mRewriteSearchResultLatencyMillis;
-    /** Defines the scope the query is searching over */
+    /** Time passed while waiting to acquire the lock during Java function calls. */
+    private final int mJavaLockAcquisitionLatencyMillis;
+    /**
+     * Time spent on ACL checking. This is the time spent filtering namespaces based on package
+     * permissions and Android permission access.
+     */
+    private final int mAclCheckLatencyMillis;
+    /** Defines the scope the query is searching over. */
     @VisibilityScope
     private final int mVisibilityScope;
     /** Overall time used for the native function call. */
@@ -116,6 +125,18 @@ public final class SearchStats {
     private final int mNativeDocumentRetrievingLatencyMillis;
     /** How many snippets are calculated. */
     private final int mNativeNumResultsWithSnippets;
+    /** Time passed while waiting to acquire the lock during native function calls. */
+    private final int mNativeLockAcquisitionLatencyMillis;
+    /** Time used to send data across the JNI boundary from java to native side. */
+    private final int mJavaToNativeJniLatencyMillis;
+    /** Time used to send data across the JNI boundary from native to java side. */
+    private final int mNativeToJavaJniLatencyMillis;
+    /** The type of join performed. Zero if no join is performed */
+    @JoinableValueType private final int mJoinType;
+    /** The total number of joined documents in the current page. */
+    private final int mNativeNumJoinedResultsCurrentPage;
+    /** Time taken to join documents together. */
+    private final int mNativeJoinLatencyMillis;
 
     SearchStats(@NonNull Builder builder) {
         Preconditions.checkNotNull(builder);
@@ -125,6 +146,8 @@ public final class SearchStats {
         mTotalLatencyMillis = builder.mTotalLatencyMillis;
         mRewriteSearchSpecLatencyMillis = builder.mRewriteSearchSpecLatencyMillis;
         mRewriteSearchResultLatencyMillis = builder.mRewriteSearchResultLatencyMillis;
+        mJavaLockAcquisitionLatencyMillis = builder.mJavaLockAcquisitionLatencyMillis;
+        mAclCheckLatencyMillis = builder.mAclCheckLatencyMillis;
         mVisibilityScope = builder.mVisibilityScope;
         mNativeLatencyMillis = builder.mNativeLatencyMillis;
         mNativeNumTerms = builder.mNativeNumTerms;
@@ -141,6 +164,12 @@ public final class SearchStats {
         mNativeRankingLatencyMillis = builder.mNativeRankingLatencyMillis;
         mNativeNumResultsWithSnippets = builder.mNativeNumResultsWithSnippets;
         mNativeDocumentRetrievingLatencyMillis = builder.mNativeDocumentRetrievingLatencyMillis;
+        mNativeLockAcquisitionLatencyMillis = builder.mNativeLockAcquisitionLatencyMillis;
+        mJavaToNativeJniLatencyMillis = builder.mJavaToNativeJniLatencyMillis;
+        mNativeToJavaJniLatencyMillis = builder.mNativeToJavaJniLatencyMillis;
+        mJoinType = builder.mJoinType;
+        mNativeNumJoinedResultsCurrentPage = builder.mNativeNumJoinedResultsCurrentPage;
+        mNativeJoinLatencyMillis = builder.mNativeJoinLatencyMillis;
     }
 
     /** Returns the package name of the session. */
@@ -179,6 +208,19 @@ public final class SearchStats {
     /** Returns how much time spent on rewriting the {@link androidx.appsearch.app.SearchResult}. */
     public int getRewriteSearchResultLatencyMillis() {
         return mRewriteSearchResultLatencyMillis;
+    }
+
+    /** Returns time passed while waiting to acquire the lock during Java function calls */
+    public int getJavaLockAcquisitionLatencyMillis() {
+        return mJavaLockAcquisitionLatencyMillis;
+    }
+
+    /**
+     * Returns time spent on ACL checking, which is the time spent filtering namespaces based on
+     * package permissions and Android permission access.
+     */
+    public int getAclCheckLatencyMillis() {
+        return mAclCheckLatencyMillis;
     }
 
     /** Returns the visibility scope of the search. */
@@ -270,6 +312,36 @@ public final class SearchStats {
         return mNativeNumResultsWithSnippets;
     }
 
+    /** Returns time passed while waiting to acquire the lock during native function calls. */
+    public int getNativeLockAcquisitionLatencyMillis() {
+        return mNativeLockAcquisitionLatencyMillis;
+    }
+
+    /** Returns time used to send data across the JNI boundary from java to native side. */
+    public int getJavaToNativeJniLatencyMillis() {
+        return mJavaToNativeJniLatencyMillis;
+    }
+
+    /** Returns time used to send data across the JNI boundary from native to java side. */
+    public int getNativeToJavaJniLatencyMillis() {
+        return mNativeToJavaJniLatencyMillis;
+    }
+
+    /** Returns the type of join performed. Blank if no join is performed */
+    public @JoinableValueType int getJoinType() {
+        return mJoinType;
+    }
+
+    /** Returns the total number of joined documents in the current page. */
+    public int getNumJoinedResultsCurrentPage() {
+        return mNativeNumJoinedResultsCurrentPage;
+    }
+
+    /** Returns the time taken to join documents together. */
+    public int getJoinLatencyMillis() {
+        return mNativeJoinLatencyMillis;
+    }
+
     /** Builder for {@link SearchStats} */
     public static class Builder {
         @NonNull
@@ -281,6 +353,8 @@ public final class SearchStats {
         int mTotalLatencyMillis;
         int mRewriteSearchSpecLatencyMillis;
         int mRewriteSearchResultLatencyMillis;
+        int mJavaLockAcquisitionLatencyMillis;
+        int mAclCheckLatencyMillis;
         int mVisibilityScope;
         int mNativeLatencyMillis;
         int mNativeNumTerms;
@@ -297,6 +371,12 @@ public final class SearchStats {
         int mNativeRankingLatencyMillis;
         int mNativeNumResultsWithSnippets;
         int mNativeDocumentRetrievingLatencyMillis;
+        int mNativeLockAcquisitionLatencyMillis;
+        int mJavaToNativeJniLatencyMillis;
+        int mNativeToJavaJniLatencyMillis;
+        @JoinableValueType int mJoinType;
+        int mNativeNumJoinedResultsCurrentPage;
+        int mNativeJoinLatencyMillis;
 
         /**
          * Constructor
@@ -310,13 +390,15 @@ public final class SearchStats {
         }
 
         /** Sets the database used by the session. */
+        @CanIgnoreReturnValue
         @NonNull
-        public Builder setDatabase(@NonNull String database) {
-            mDatabase = Preconditions.checkNotNull(database);
+        public Builder setDatabase(@Nullable String database) {
+            mDatabase = database;
             return this;
         }
 
         /** Sets the status of the search. */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder setStatusCode(@AppSearchResult.ResultCode int statusCode) {
             mStatusCode = statusCode;
@@ -324,6 +406,7 @@ public final class SearchStats {
         }
 
         /** Sets total latency for the search. */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder setTotalLatencyMillis(int totalLatencyMillis) {
             mTotalLatencyMillis = totalLatencyMillis;
@@ -331,6 +414,7 @@ public final class SearchStats {
         }
 
         /** Sets time used to rewrite the search spec. */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder setRewriteSearchSpecLatencyMillis(int rewriteSearchSpecLatencyMillis) {
             mRewriteSearchSpecLatencyMillis = rewriteSearchSpecLatencyMillis;
@@ -338,13 +422,34 @@ public final class SearchStats {
         }
 
         /** Sets time used to rewrite the search results. */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder setRewriteSearchResultLatencyMillis(int rewriteSearchResultLatencyMillis) {
             mRewriteSearchResultLatencyMillis = rewriteSearchResultLatencyMillis;
             return this;
         }
 
+        /** Sets time passed while waiting to acquire the lock during Java function calls. */
+        @CanIgnoreReturnValue
+        @NonNull
+        public Builder setJavaLockAcquisitionLatencyMillis(int javaLockAcquisitionLatencyMillis) {
+            mJavaLockAcquisitionLatencyMillis = javaLockAcquisitionLatencyMillis;
+            return this;
+        }
+
+        /**
+         * Sets time spent on ACL checking, which is the time spent filtering namespaces based on
+         * package permissions and Android permission access.
+         */
+        @CanIgnoreReturnValue
+        @NonNull
+        public Builder setAclCheckLatencyMillis(int aclCheckLatencyMillis) {
+            mAclCheckLatencyMillis = aclCheckLatencyMillis;
+            return this;
+        }
+
         /** Sets overall time used for the native function calls. */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder setNativeLatencyMillis(int nativeLatencyMillis) {
             mNativeLatencyMillis = nativeLatencyMillis;
@@ -352,6 +457,7 @@ public final class SearchStats {
         }
 
         /** Sets number of terms in the search string. */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder setTermCount(int termCount) {
             mNativeNumTerms = termCount;
@@ -359,6 +465,7 @@ public final class SearchStats {
         }
 
         /** Sets length of the search string. */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder setQueryLength(int queryLength) {
             mNativeQueryLength = queryLength;
@@ -366,6 +473,7 @@ public final class SearchStats {
         }
 
         /** Sets number of namespaces filtered. */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder setFilteredNamespaceCount(int filteredNamespaceCount) {
             mNativeNumNamespacesFiltered = filteredNamespaceCount;
@@ -373,6 +481,7 @@ public final class SearchStats {
         }
 
         /** Sets number of schema types filtered. */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder setFilteredSchemaTypeCount(int filteredSchemaTypeCount) {
             mNativeNumSchemaTypesFiltered = filteredSchemaTypeCount;
@@ -380,6 +489,7 @@ public final class SearchStats {
         }
 
         /** Sets the requested number of results in one page. */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder setRequestedPageSize(int requestedPageSize) {
             mNativeRequestedPageSize = requestedPageSize;
@@ -387,6 +497,7 @@ public final class SearchStats {
         }
 
         /** Sets the actual number of results returned in the current page. */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder setCurrentPageReturnedResultCount(
                 int currentPageReturnedResultCount) {
@@ -399,6 +510,7 @@ public final class SearchStats {
          * not, Icing will fetch the results from cache so that some steps
          * may be skipped.
          */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder setIsFirstPage(boolean nativeIsFirstPage) {
             mNativeIsFirstPage = nativeIsFirstPage;
@@ -409,6 +521,7 @@ public final class SearchStats {
          * Sets time used to parse the query, including 2 parts: tokenizing and
          * transforming tokens into an iterator tree.
          */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder setParseQueryLatencyMillis(int parseQueryLatencyMillis) {
             mNativeParseQueryLatencyMillis = parseQueryLatencyMillis;
@@ -416,6 +529,7 @@ public final class SearchStats {
         }
 
         /** Sets strategy of scoring and ranking. */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder setRankingStrategy(
                 @SearchSpec.RankingStrategy int rankingStrategy) {
@@ -424,6 +538,7 @@ public final class SearchStats {
         }
 
         /** Sets number of documents scored. */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder setScoredDocumentCount(int scoredDocumentCount) {
             mNativeNumDocumentsScored = scoredDocumentCount;
@@ -431,6 +546,7 @@ public final class SearchStats {
         }
 
         /** Sets time used to score the raw results. */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder setScoringLatencyMillis(int scoringLatencyMillis) {
             mNativeScoringLatencyMillis = scoringLatencyMillis;
@@ -438,6 +554,7 @@ public final class SearchStats {
         }
 
         /** Sets time used to rank the scored results. */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder setRankingLatencyMillis(int rankingLatencyMillis) {
             mNativeRankingLatencyMillis = rankingLatencyMillis;
@@ -445,6 +562,7 @@ public final class SearchStats {
         }
 
         /** Sets time used to fetch the document protos. */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder setDocumentRetrievingLatencyMillis(
                 int documentRetrievingLatencyMillis) {
@@ -453,9 +571,56 @@ public final class SearchStats {
         }
 
         /** Sets how many snippets are calculated. */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder setResultWithSnippetsCount(int resultWithSnippetsCount) {
             mNativeNumResultsWithSnippets = resultWithSnippetsCount;
+            return this;
+        }
+
+        /** Sets time passed while waiting to acquire the lock during native function calls. */
+        @CanIgnoreReturnValue
+        @NonNull
+        public Builder setNativeLockAcquisitionLatencyMillis(
+                int nativeLockAcquisitionLatencyMillis) {
+            mNativeLockAcquisitionLatencyMillis = nativeLockAcquisitionLatencyMillis;
+            return this;
+        }
+
+        /** Sets time used to send data across the JNI boundary from java to native side. */
+        @CanIgnoreReturnValue
+        @NonNull
+        public Builder setJavaToNativeJniLatencyMillis(int javaToNativeJniLatencyMillis) {
+            mJavaToNativeJniLatencyMillis = javaToNativeJniLatencyMillis;
+            return this;
+        }
+
+        /** Sets time used to send data across the JNI boundary from native to java side. */
+        @CanIgnoreReturnValue
+        @NonNull
+        public Builder setNativeToJavaJniLatencyMillis(int nativeToJavaJniLatencyMillis) {
+            mNativeToJavaJniLatencyMillis = nativeToJavaJniLatencyMillis;
+            return this;
+        }
+
+        /** Sets whether or not this is a join query */
+        @NonNull
+        public Builder setJoinType(@JoinableValueType int joinType) {
+            mJoinType = joinType;
+            return this;
+        }
+
+        /** Set the total number of joined documents in a page. */
+        @NonNull
+        public Builder setNativeNumJoinedResultsCurrentPage(int nativeNumJoinedResultsCurrentPage) {
+            mNativeNumJoinedResultsCurrentPage = nativeNumJoinedResultsCurrentPage;
+            return this;
+        }
+
+        /** Sets time it takes to join documents together in icing. */
+        @NonNull
+        public Builder setNativeJoinLatencyMillis(int nativeJoinLatencyMillis) {
+            mNativeJoinLatencyMillis = nativeJoinLatencyMillis;
             return this;
         }
 

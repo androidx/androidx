@@ -93,7 +93,6 @@ public final class Camera2Interop {
          *
          * @param templateType The template type to set.
          * @return The current Extender.
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY)
         @NonNull
@@ -103,18 +102,25 @@ public final class Camera2Interop {
         }
 
         /**
-         * Sets a CameraDevice template on the given configuration. Requires API 33 or above.
+         * Sets a stream use case flag on the given extendable builder.
          *
-         * <p>See {@link android.hardware.camera2.CameraMetadata} for valid stream use cases.
-         * See {@link android.hardware.camera2.params.OutputConfiguration} to see how
-         * Camera2 framework uses this.
+         * <p>Requires API 33 or above.
+         *
+         * <p>Calling this method will set the stream use case for all CameraX outputs for the
+         * same stream session. Valid use cases available on devices can be found in
+         * {@link android.hardware.camera2.CameraCharacteristics#SCALER_AVAILABLE_STREAM_USE_CASES}
+         *
+         * <p>No app should call this without double-checking the supported list first, or at least
+         * {@link android.hardware.camera2.CameraMetadata#REQUEST_AVAILABLE_CAPABILITIES_STREAM_USE_CASE}
+         * capability which guarantees quite a few use cases.
+         *
+         * <p>See {@link android.hardware.camera2.params.OutputConfiguration#setStreamUseCase}
+         * to see how Camera2 framework uses this.
          *
          * @param streamUseCase The stream use case to set.
          * @return The current Extender.
-         * @hide
          */
         @RequiresApi(33)
-        @RestrictTo(Scope.LIBRARY)
         @NonNull
         public Extender<T> setStreamUseCase(long streamUseCase) {
             mBaseBuilder.getMutableConfig().insertOption(STREAM_USE_CASE_OPTION, streamUseCase);
@@ -227,5 +233,6 @@ public final class Camera2Interop {
     }
 
     // Ensure this class isn't instantiated
-    private Camera2Interop() {}
+    private Camera2Interop() {
+    }
 }

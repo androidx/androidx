@@ -100,7 +100,7 @@
     <string name="example_2_text" msgid="718820705318661440">"Это зеленый текст"</string>
     <string name="example_3_text" msgid="977269832109695627">"Это синий текст"</string>
     <string name="example_4_text" msgid="2043547015979437373">"Это желтый текст"</string>
-    <string name="example_5_text" msgid="4387859825054561488">"Это текст основного цвета"</string>
+    <string name="example_5_text" msgid="8828804968749423500">"Это текст основного цвета"</string>
     <string name="example_6_text" msgid="7991523168517599600">"Это текст дополнительного цвета"</string>
     <string name="color_demo" msgid="1822427636476178993">"Демонстрация цвета"</string>
     <string name="list_limit" msgid="3023536401535417286">"Ограничения для списка"</string>
@@ -113,6 +113,8 @@
     <string name="finish_app_msg" msgid="8354334557053141891">"Работа приложения будет завершена. Когда вы откроете его снова, на экране разрешений уже будут заполнены значения."</string>
     <string name="finish_app_title" msgid="9013328479438745074">"Демонстрация завершения работы приложения"</string>
     <string name="finish_app_demo_title" msgid="8223819062053448384">"Демонстрация преднастроенной установки экрана разрешений при следующем запуске"</string>
+    <string name="preseed_permission_app_title" msgid="182847662545676962">"Демонстрация приложения с предварительно заданными разрешениями"</string>
+    <string name="preseed_permission_demo_title" msgid="5476541421753978071">"Демонстрация преднастроенной установки экрана разрешений при следующем запуске"</string>
     <string name="loading_demo_title" msgid="1086529475809143517">"Демонстрация загрузки"</string>
     <string name="loading_demo_row_title" msgid="8933049915126088142">"Загрузка завершена"</string>
     <string name="pop_to_root" msgid="2078277386355064198">"Перейти к корневому каталогу"</string>
@@ -220,6 +222,7 @@
     <string name="clicked_row_prefix" msgid="9068303427922069941">"Выбрана строка"</string>
     <string name="first_line_text" msgid="6648055806656590336">"Первая строка текста"</string>
     <string name="second_line_text" msgid="38664490158836864">"Вторая строка текста"</string>
+    <string name="long_line_text" msgid="8082962600953333087">"В режиме без ограничений, в частности в парковочном или низкоскоростном, сообщение будет показано полностью. В ограниченном режиме, например режиме вождения, будут показаны только две строки текста. В целях тестирования это сообщение будет очень длинным."</string>
     <string name="title_prefix" msgid="3991742709199357049">"Название"</string>
     <string name="list_template_demo_title" msgid="1740208242737246151">"Демонстрация шаблона списка"</string>
     <string name="long_msg_template_demo_title" msgid="1793748562161438131">"Демонстрация шаблона длинного сообщения"</string>
@@ -227,6 +230,7 @@
     <string name="long_msg_template_not_supported_title" msgid="8600719470226274925">"Несовместимый хост"</string>
     <string name="msg_template_demo_title" msgid="3895210951340409473">"Демонстрация шаблона сообщения"</string>
     <string name="msg_template_demo_text" msgid="2275291617716161409">"Здесь указывается сообщение.\nНа второй строке есть ещё текст."</string>
+    <string name="short_msg_template_demo_title" msgid="6798738013668580714">"Шаблоны коротких сообщений (режим демонстрации)"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"Демонстрация шаблона панели"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"Демонстрация шаблона списка мест"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"Просмотр мест"</string>
@@ -253,6 +257,15 @@
     <string name="sign_in_complete_text" msgid="8423984266325680606">"Вы вошли в аккаунт."</string>
     <string name="sign_in_complete_title" msgid="8919868148773983428">"Вход выполнен"</string>
     <string name="sign_in_template_demo_title" msgid="6052035424941410249">"Демонстрация шаблона входа"</string>
+    <string name="tab_template_layouts_demo_title" msgid="6529681462424538165">"Демонстрации шаблонов вкладок"</string>
+    <string name="tab_template_demo_title" msgid="7587839101813629975">"Демонстрация шаблона вкладок"</string>
+    <string name="tab_title_message" msgid="5266710951630087246">"Вкладка сообщения"</string>
+    <string name="tab_title_pane" msgid="2520606145526537263">"Вкладка панели"</string>
+    <string name="tab_title_list" msgid="5104962518489668123">"Вкладка списка"</string>
+    <string name="tab_title_grid" msgid="5268168907976325154">"Вкладка сетки с длинным названием"</string>
+    <string name="tab_title_search" msgid="1892925693146631173">"Вкладка поиска"</string>
+    <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"Демонстрация загрузки шаблона вкладок"</string>
+    <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"Демонстрация шаблона без вкладок"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"Нельзя показывать изображения для неизвестного хоста."</string>
     <string name="icon_title_prefix" msgid="8487026131229541244">"Значок"</string>
     <string name="content_provider_icons_demo_title" msgid="5708602618664311097">"Демонстрация значков поставщика контента"</string>
@@ -262,7 +275,7 @@
     <string name="vector_with_tint_title" msgid="1022346419829696827">"Класс VectorDrawable с оттенком"</string>
     <string name="vector_with_app_theme_attr_title" msgid="4890094482708376219">"Класс VectorDrawable с атрибутом темы приложения в качестве цвета"</string>
     <string name="png_res_title" msgid="7437083018336747544">"Изображение PNG, отправленное в виде ресурса"</string>
-    <string name="png_bitmap_title" msgid="120790220238335267">"Изображение PNG, отправленное в виде ресурса"</string>
+    <string name="png_bitmap_title" msgid="3385912074130977032">"Файл PNG, отправленный в виде битовой карты"</string>
     <string name="just_row_title" msgid="965700021568970725">"Только заголовок"</string>
     <string name="title_with_app_icon_row_title" msgid="6294250714820740520">"Название со значком приложения"</string>
     <string name="title_with_res_id_image_row_title" msgid="3813134904602875778">"Название с изображением идентификатора ресурса"</string>
@@ -274,6 +287,7 @@
     <string name="rows_demo_title" msgid="3198566660454251007">"Демонстрация строк"</string>
     <string name="text_icons_demo_title" msgid="8732943920672143201">"Демонстрации текста и значков"</string>
     <string name="row_text_icons_demo_title" msgid="135167694047524905">"Демонстрация строк с текстом и значками"</string>
+    <string name="radio_button_list_demo_title" msgid="9082264324855338774">"Списки переключателей (режим демонстрации)"</string>
     <string name="selectable_lists_demo_title" msgid="5492658731113129386">"Демонстрация списков с возможностью выбора"</string>
     <string name="option_1_title" msgid="7221252541651471199">"Вариант 1"</string>
     <string name="option_2_title" msgid="1905146448697963818">"Вариант 2"</string>
@@ -284,9 +298,11 @@
     <string name="some_additional_text" msgid="4009872495806318260">"Дополнительный текст"</string>
     <string name="sample_additional_list" msgid="5085372891301576306">"Пример списка с возможностью выбора"</string>
     <string name="task_restriction_demo_title" msgid="2212084350718766941">"Демонстрация ограничения для задач"</string>
-    <string name="task_limit_reached_msg" msgid="6038763366777119364">"Достигнут предел по числу задач.\nЕсли продолжить, работа приложения будет остановлена."</string>
+    <string name="task_limit_reached_msg" msgid="7162842196382260992">"Лимит шагов будет превышен, и откроется новый экран."</string>
     <string name="task_step_of_title" msgid="2791717962535723839">"Шаг задачи: %1$d из %2$d"</string>
     <string name="task_step_of_text" msgid="4646729781462227219">"Нажмите, чтобы продолжить"</string>
+    <string name="task_content_allowed" msgid="545061986612431190">"Посмотрите разные шаблоны и убедитесь, что автомобиль находится в режиме вождения"</string>
+    <string name="toggle_button_demo_title" msgid="3179103600967398928">"Переключатель вида \"включено/отключено\" (режим демонстрации)"</string>
     <string name="toggle_test_title" msgid="924485265152862631">"Проверка переключения"</string>
     <string name="toggle_test_text" msgid="8107217216013312857">"Изменения с отслеживанием состояния разрешены"</string>
     <string name="toggle_test_first_toggle_title" msgid="3635022201072117680">"Включить проверку переключения"</string>
@@ -299,11 +315,53 @@
     <string name="additional_data_text" msgid="2846223398214158872">"Обновления разрешены для обратных операций."</string>
     <string name="toggle_test_enabled" msgid="982370904182034076">"Проверка переключения включена"</string>
     <string name="toggle_test_disabled" msgid="8366040658408451664">"Проверка переключения отключена"</string>
+    <string name="secondary_actions_decoration_button_demo_title" msgid="3710817648501132309">"Демонстрация второстепенного действия и оформления"</string>
+    <string name="secondary_actions_test_title" msgid="3664453747553733613">"Тест второстепенного действия"</string>
+    <string name="secondary_actions_test_subtitle" msgid="6985282813402073703">"Можно выбрать только второстепенное действие"</string>
+    <string name="decoration_test_title" msgid="8450127046762442244">"Тест оформления"</string>
+    <string name="secondary_actions_decoration_test_title" msgid="6282873404859209490">"Второстепенные действия и оформление"</string>
+    <string name="secondary_actions_decoration_test_subtitle" msgid="155884606592724532">"Можно также выбрать строку"</string>
+    <string name="secondary_action_toast" msgid="5076434693504006565">"Выбрано второстепенное действие."</string>
+    <string name="row_primary_action_toast" msgid="756516694751965204">"Выбрано главное действие для строки."</string>
+    <string name="sectioned_item_list_demo_title" msgid="1236735461225007729">"Демонстрация списка объектов с разделами"</string>
+    <string name="sectioned_item_list_one_title" msgid="6594204350307263338">"Список 1"</string>
+    <string name="sectioned_item_list_two_title" msgid="4941545381743022833">"Список 2"</string>
+    <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"Описание под каждым списком"</string>
+    <string name="empty_list_demo_title" msgid="5989013634820902455">"Демонстрация пустого списка"</string>
+    <string name="empty_list_message" msgid="5331395517560728138">"Список пуст."</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"Демонстрации прочих шаблонов"</string>
     <string name="showcase_demos_title" msgid="1542092687878113304">"Демонстрации Showcase"</string>
+    <string name="template_layouts_demo_title" msgid="788249269446087847">"Макет шаблона (режим демонстрации)"</string>
+    <string name="grid_template_menu_demo_title" msgid="7096285873490705119">"Шаблоны меню в виде сетки (режим демонстрации)"</string>
+    <string name="voice_access_demo_title" msgid="3825223890895361496">"Экран демонстрации Voice Access"</string>
+    <string name="user_interactions_demo_title" msgid="1356952319161314986">"Взаимодействие пользователя"</string>
+    <string name="request_permission_menu_demo_title" msgid="4796486779527427017">"Демонстрации запроса разрешений"</string>
+    <string name="application_overflow_title" msgid="396427940886169325">"Проверка дополнительного меню приложения"</string>
+    <string name="application_overflow_subtitle1" msgid="7429415605726615529">"Протестируйте следующие шаблоны при переходе"</string>
+    <string name="application_overflow_subtitle2" msgid="4385123036846369714">"транспортного средства из режима парковки в режим вождения"</string>
+    <string name="perm_group" msgid="3834918337351876270">"Группа разрешений"</string>
+    <string name="perm_group_description" msgid="7348847631139139024">"Группа разрешений для приложения \"Витрина\""</string>
+    <string name="perm_fine_location" msgid="5438874642600304118">"Доступ к данным о точном местоположении"</string>
+    <string name="perm_fine_location_desc" msgid="3549183883787912516">"Разрешение на доступ к данным о точном местоположении"</string>
+    <string name="perm_coarse_location" msgid="6140337431619481015">"Доступ к данным о приблизительном местоположении"</string>
+    <string name="perm_coarse_location_desc" msgid="6074759942301565943">"Разрешение на доступ к данным о приблизительном местоположении"</string>
+    <string name="perm_record_audio" msgid="2758340693260523493">"Запись аудио"</string>
+    <string name="perm_record_audio_desc" msgid="8038648467605928912">"Разрешение на запись аудио"</string>
     <string name="location_1_description" msgid="4801052291684791371">"Цветное векторное изображение"</string>
     <string name="location_2_description" msgid="3331356135359047166">"Растровое изображение"</string>
     <string name="location_3_description" msgid="3982142774088944850">"Цветной текстовый маркер"</string>
     <string name="location_4_description" msgid="6560365445044381911">"Изображение (растровое)"</string>
     <string name="location_description_text_label" msgid="2779911545316756419">"Текстовая метка"</string>
+    <string name="parking_vs_driving_demo_title" msgid="3367862800135053111">"Демонстрация режимов парковки и вождения"</string>
+    <string name="latest_feature_details" msgid="6843008350392721502">"Автомобильные приборные панели"</string>
+    <string name="latest_feature_title" msgid="7929405790070777460">"Новые возможности"</string>
+    <string name="loading_toggle_enabled" msgid="8828072732804454994">"Загрузка включена"</string>
+    <string name="loading_toggle_disabled" msgid="7689738885077382673">"Загрузка отключена"</string>
+    <string name="loading_screen" msgid="4771507490730308794">"Экран загрузки"</string>
+    <string name="vector_toggle_details" msgid="1301305340033556819">"Нажмите, чтобы добавить или удалить цвет"</string>
+    <string name="map_template_toggle_demo_title" msgid="6510798293640092611">"Шаблон карты с переключателями"</string>
+    <string name="avoid_tolls_row_title" msgid="5194057244144831024">"Избегать платных дорог"</string>
+    <string name="route_options_demo_title" msgid="4599699012716426514">"Варианты маршрута"</string>
+    <string name="avoid_highways_row_title" msgid="4711913426200490304">"Избегать шоссе"</string>
+    <string name="avoid_ferries_row_title" msgid="8232883866013711974">"Избегать паромов"</string>
 </resources>

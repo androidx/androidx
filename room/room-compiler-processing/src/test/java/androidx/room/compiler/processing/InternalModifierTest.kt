@@ -16,12 +16,12 @@
 
 package androidx.room.compiler.processing
 
+import androidx.kruth.assertThat
 import androidx.room.compiler.processing.util.CompilationTestCapabilities
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.compileFiles
 import androidx.room.compiler.processing.util.runKaptTest
 import androidx.room.compiler.processing.util.runKspTest
-import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 
 class InternalModifierTest {
@@ -75,7 +75,7 @@ class InternalModifierTest {
         fun buildSource(pkg: String) = Source.kotlin(
             "Subject.kt",
             """
-            package $pkg;
+            package $pkg
             internal class InternalClass(val value: String)
             inline class InlineClass(val value:String)
             abstract class Subject {
@@ -101,9 +101,9 @@ class InternalModifierTest {
             """.trimIndent()
         )
 
-        fun XType.toSignature() = this.typeName.toString()
+        fun XType.toSignature() = this.asTypeName().java.toString()
 
-        fun XMemberContainer.toSignature() = className.toString()
+        fun XMemberContainer.toSignature() = asClassName().java.toString()
 
         fun XFieldElement.toSignature() =
             "${closestMemberContainer.toSignature()}.$name : ${type.toSignature()}"

@@ -27,8 +27,6 @@ MissingNullability: androidx.viewpager.widget.ViewPager#addView(android.view.Vie
     Missing nullability on parameter `child` in method `addView`
 MissingNullability: androidx.viewpager.widget.ViewPager#addView(android.view.View, int, android.view.ViewGroup.LayoutParams) parameter #2:
     Missing nullability on parameter `params` in method `addView`
-MissingNullability: androidx.viewpager.widget.ViewPager#canScroll(android.view.View, boolean, int, int, int) parameter #0:
-    Missing nullability on parameter `v` in method `canScroll`
 MissingNullability: androidx.viewpager.widget.ViewPager#checkLayoutParams(android.view.ViewGroup.LayoutParams) parameter #0:
     Missing nullability on parameter `p` in method `checkLayoutParams`
 MissingNullability: androidx.viewpager.widget.ViewPager#dispatchKeyEvent(android.view.KeyEvent) parameter #0:
@@ -55,18 +53,10 @@ MissingNullability: androidx.viewpager.widget.ViewPager#onRequestFocusInDescenda
     Missing nullability on parameter `previouslyFocusedRect` in method `onRequestFocusInDescendants`
 MissingNullability: androidx.viewpager.widget.ViewPager#onRestoreInstanceState(android.os.Parcelable) parameter #0:
     Missing nullability on parameter `state` in method `onRestoreInstanceState`
-MissingNullability: androidx.viewpager.widget.ViewPager#onSaveInstanceState():
-    Missing nullability on method `onSaveInstanceState` return
 MissingNullability: androidx.viewpager.widget.ViewPager#onTouchEvent(android.view.MotionEvent) parameter #0:
     Missing nullability on parameter `ev` in method `onTouchEvent`
 MissingNullability: androidx.viewpager.widget.ViewPager#removeView(android.view.View) parameter #0:
     Missing nullability on parameter `view` in method `removeView`
-MissingNullability: androidx.viewpager.widget.ViewPager#verifyDrawable(android.graphics.drawable.Drawable) parameter #0:
-    Missing nullability on parameter `who` in method `verifyDrawable`
-MissingNullability: androidx.viewpager.widget.ViewPager.LayoutParams#LayoutParams(android.content.Context, android.util.AttributeSet) parameter #0:
-    Missing nullability on parameter `context` in method `LayoutParams`
-MissingNullability: androidx.viewpager.widget.ViewPager.LayoutParams#LayoutParams(android.content.Context, android.util.AttributeSet) parameter #1:
-    Missing nullability on parameter `attrs` in method `LayoutParams`
 MissingNullability: androidx.viewpager.widget.ViewPager.SavedState#CREATOR:
     Missing nullability on field `CREATOR` in class `class androidx.viewpager.widget.ViewPager.SavedState`
 MissingNullability: androidx.viewpager.widget.ViewPager.SavedState#writeToParcel(android.os.Parcel, int) parameter #0:

@@ -32,7 +32,6 @@ import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.work.Logger;
 import androidx.work.impl.WorkDatabase;
-import androidx.work.impl.WorkManagerImpl;
 import androidx.work.impl.model.SystemIdInfo;
 import androidx.work.impl.model.SystemIdInfoDao;
 import androidx.work.impl.model.WorkGenerationalId;
@@ -42,7 +41,6 @@ import androidx.work.impl.utils.IdGenerator;
 /**
  * A common class for managing Alarms.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class Alarms {
@@ -53,17 +51,15 @@ class Alarms {
      * Sets an exact alarm after cancelling any existing alarms for the given id.
      *
      * @param context         The application {@link Context}.
-     * @param workManager     The instance of {@link WorkManagerImpl}.
+     * @param workDatabase The instance of {@link WorkDatabase}.
      * @param id      The {@link WorkGenerationalId} identifier.
      * @param triggerAtMillis Determines when to trigger the Alarm.
      */
     public static void setAlarm(
             @NonNull Context context,
-            @NonNull WorkManagerImpl workManager,
+            @NonNull WorkDatabase workDatabase,
             @NonNull WorkGenerationalId id,
             long triggerAtMillis) {
-
-        WorkDatabase workDatabase = workManager.getWorkDatabase();
         SystemIdInfoDao systemIdInfoDao = workDatabase.systemIdInfoDao();
         SystemIdInfo systemIdInfo = systemIdInfoDao.getSystemIdInfo(id);
         if (systemIdInfo != null) {
@@ -82,14 +78,13 @@ class Alarms {
      * Cancels an existing alarm and removes the {@link SystemIdInfo}.
      *
      * @param context     The application {@link Context}.
-     * @param workManager The instance of {@link WorkManagerImpl}.
+     * @param workDatabase The instance of {@link WorkDatabase}.
      * @param id  The {@link WorkSpec} identifier.
      */
     public static void cancelAlarm(
             @NonNull Context context,
-            @NonNull WorkManagerImpl workManager,
+            @NonNull WorkDatabase workDatabase,
             @NonNull WorkGenerationalId id) {
-        WorkDatabase workDatabase = workManager.getWorkDatabase();
         SystemIdInfoDao systemIdInfoDao = workDatabase.systemIdInfoDao();
         SystemIdInfo systemIdInfo = systemIdInfoDao.getSystemIdInfo(id);
         if (systemIdInfo != null) {

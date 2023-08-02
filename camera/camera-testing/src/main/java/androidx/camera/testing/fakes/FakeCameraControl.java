@@ -17,12 +17,13 @@
 package androidx.camera.testing.fakes;
 
 import static androidx.camera.core.ImageCapture.FLASH_MODE_OFF;
-import static androidx.camera.testing.fakes.FakeCameraDeviceSurfaceManager.MAX_OUTPUT_SIZE;
+import static androidx.camera.testing.impl.fakes.FakeCameraDeviceSurfaceManager.MAX_OUTPUT_SIZE;
 
 import android.graphics.Rect;
 import android.util.Size;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.FocusMeteringResult;
@@ -52,6 +53,19 @@ import java.util.List;
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class FakeCameraControl implements CameraControlInternal {
     private static final String TAG = "FakeCameraControl";
+    private static final ControlUpdateCallback NO_OP_CALLBACK = new ControlUpdateCallback() {
+        @Override
+        public void onCameraControlUpdateSessionConfig() {
+            // No-op
+        }
+
+        @Override
+        public void onCameraControlCaptureRequests(
+                @NonNull List<CaptureConfig> captureConfigs) {
+            // No-op
+        }
+    };
+
     private final ControlUpdateCallback mControlUpdateCallback;
     private final SessionConfig.Builder mSessionConfigBuilder = new SessionConfig.Builder();
     @ImageCapture.FlashMode
@@ -64,6 +78,17 @@ public final class FakeCameraControl implements CameraControlInternal {
 
     private boolean mIsZslDisabledByUseCaseConfig = false;
     private boolean mIsZslConfigAdded = false;
+    private float mZoomRatio = -1;
+    private float mLinearZoom = -1;
+    private boolean mTorchEnabled = false;
+    private int mExposureCompensation = -1;
+
+    @Nullable
+    private FocusMeteringAction mLastSubmittedFocusMeteringAction = null;
+
+    public FakeCameraControl() {
+        this(NO_OP_CALLBACK);
+    }
 
     public FakeCameraControl(@NonNull ControlUpdateCallback controlUpdateCallback) {
         mControlUpdateCallback = controlUpdateCallback;
@@ -149,7 +174,6 @@ public final class FakeCameraControl implements CameraControlInternal {
     /**
      * Checks if {@link FakeCameraControl#addZslConfig(Size, SessionConfig.Builder)} is
      * triggered. Only for testing purpose.
-     * @return
      */
     public boolean isZslConfigAdded() {
         return mIsZslConfigAdded;
@@ -159,13 +183,23 @@ public final class FakeCameraControl implements CameraControlInternal {
     @NonNull
     public ListenableFuture<Void> enableTorch(boolean torch) {
         Logger.d(TAG, "enableTorch(" + torch + ")");
+        mTorchEnabled = torch;
         return Futures.immediateFuture(null);
+    }
+
+    public boolean getTorchEnabled() {
+        return mTorchEnabled;
     }
 
     @NonNull
     @Override
-    public ListenableFuture<Integer> setExposureCompensationIndex(int exposure) {
+    public ListenableFuture<Integer> setExposureCompensationIndex(int value) {
+        mExposureCompensation = value;
         return Futures.immediateFuture(null);
+    }
+
+    public int getExposureCompensationIndex() {
+        return mExposureCompensation;
     }
 
     @NonNull
@@ -205,6 +239,7 @@ public final class FakeCameraControl implements CameraControlInternal {
     @Override
     public ListenableFuture<FocusMeteringResult> startFocusAndMetering(
             @NonNull FocusMeteringAction action) {
+        mLastSubmittedFocusMeteringAction = action;
         return Futures.immediateFuture(FocusMeteringResult.emptyInstance());
     }
 
@@ -222,13 +257,28 @@ public final class FakeCameraControl implements CameraControlInternal {
     @NonNull
     @Override
     public ListenableFuture<Void> setZoomRatio(float ratio) {
+        mZoomRatio = ratio;
         return Futures.immediateFuture(null);
+    }
+
+    public float getZoomRatio() {
+        return mZoomRatio;
     }
 
     @NonNull
     @Override
     public ListenableFuture<Void> setLinearZoom(float linearZoom) {
+        mLinearZoom = linearZoom;
         return Futures.immediateFuture(null);
+    }
+
+    public float getLinearZoom() {
+        return mLinearZoom;
+    }
+
+    @Nullable
+    public FocusMeteringAction getLastSubmittedFocusMeteringAction() {
+        return mLastSubmittedFocusMeteringAction;
     }
 
     @Override

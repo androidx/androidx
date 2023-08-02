@@ -22,20 +22,20 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.layout.IntrinsicMeasurable
 import androidx.compose.ui.layout.IntrinsicMeasureScope
+import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasurePolicy
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.MeasureScope
-import androidx.compose.ui.node.Ref
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.layout.positionInRoot
+import androidx.compose.ui.node.Ref
 import androidx.compose.ui.platform.InspectableValue
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.ValueElement
@@ -48,20 +48,21 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.constrain
 import androidx.compose.ui.unit.dp
-import com.google.common.truth.Truth.assertThat
-import org.junit.After
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
-import org.junit.Before
-import org.junit.Test
-import org.junit.runner.RunWith
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.FlakyTest
 import androidx.test.filters.MediumTest
-import org.junit.Assert.assertNotEquals
+import androidx.test.filters.SdkSuppress
+import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import kotlin.math.roundToInt
+import org.junit.After
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotEquals
+import org.junit.Assert.assertTrue
+import org.junit.Before
+import org.junit.Ignore
+import org.junit.Test
+import org.junit.runner.RunWith
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
@@ -1486,6 +1487,7 @@ class SizeTest : LayoutTest() {
         assertEquals(Offset(root.width - size.toFloat(), 0f), childPosition.value)
     }
 
+    @SdkSuppress(maxSdkVersion = 32) // b/267699626
     @Test
     fun testWrapContentSize_rtl() = with(density) {
         val sizeDp = 200.toDp()
@@ -1835,8 +1837,8 @@ class SizeTest : LayoutTest() {
         )
     }
 
+    @Ignore // b/281171119
     @Test
-    @FlakyTest(bugId = 183713100)
     fun testModifiers_doNotCauseUnnecessaryRemeasure() {
         var first by mutableStateOf(true)
         var totalMeasures = 0

@@ -39,10 +39,13 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.testutils.withActivity
+import androidx.testutils.withUse
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import leakcanary.DetectLeaksAfterTestSuccess
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -52,9 +55,12 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class ComponentActivityMenuTest {
 
+    @get:Rule
+    val rule = DetectLeaksAfterTestSuccess()
+
     @Test
     fun inflatesMenu() {
-        with(ActivityScenario.launch(ComponentActivity::class.java)) {
+       withUse(ActivityScenario.launch(ComponentActivity::class.java)) {
 
             val menuHost: ComponentActivity = withActivity { this }
 
@@ -87,7 +93,7 @@ class ComponentActivityMenuTest {
 
     @Test
     fun onPrepareMenu() {
-        with(ActivityScenario.launch(ComponentActivity::class.java)) {
+       withUse(ActivityScenario.launch(ComponentActivity::class.java)) {
             val menuHost: ComponentActivity = withActivity { this }
             var menuPrepared: Boolean
 
@@ -114,7 +120,7 @@ class ComponentActivityMenuTest {
 
     @Test
     fun menuItemSelected() {
-        with(ActivityScenario.launch(ComponentActivity::class.java)) {
+       withUse(ActivityScenario.launch(ComponentActivity::class.java)) {
 
             val menuHost: ComponentActivity = withActivity { this }
             var itemSelectedId: Int? = null
@@ -163,7 +169,7 @@ class ComponentActivityMenuTest {
 
     @Test
     fun onMenuClosed() {
-        with(ActivityScenario.launch(ComponentActivity::class.java)) {
+       withUse(ActivityScenario.launch(ComponentActivity::class.java)) {
             val menuHost: ComponentActivity = withActivity { this }
             var menuClosed = false
 
@@ -189,7 +195,7 @@ class ComponentActivityMenuTest {
 
     @Test
     fun onPanelClosed() {
-        with(ActivityScenario.launch(ContextMenuComponentActivity::class.java)) {
+       withUse(ActivityScenario.launch(ContextMenuComponentActivity::class.java)) {
             onView(withText("Context Menu")).perform(longClick())
             onView(withText("Item1")).check(matches(isDisplayed()))
             onView(withText("Item2")).check(matches(isDisplayed()))
@@ -204,7 +210,7 @@ class ComponentActivityMenuTest {
 
     @Test
     fun menuAPIsCalledWithoutCallingSuper() {
-        with(ActivityScenario.launch(OptionMenuNoSuperActivity::class.java)) {
+       withUse(ActivityScenario.launch(OptionMenuNoSuperActivity::class.java)) {
             val menuHost: ComponentActivity = withActivity { this }
             var itemSelectedId: Int? = null
             var menuPrepared = false

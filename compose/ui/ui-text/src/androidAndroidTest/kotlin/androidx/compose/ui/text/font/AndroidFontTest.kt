@@ -19,22 +19,20 @@ import android.content.Context
 import android.os.Build
 import android.os.ParcelFileDescriptor
 import androidx.annotation.RequiresApi
-import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.font.FontLoadingStrategy.Companion.Blocking
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
+import java.io.File
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.io.File
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-@OptIn(ExperimentalTextApi::class)
 class AndroidFontTest {
     private var tempFile: File? = null
     private val context = InstrumentationRegistry.getInstrumentation().context
@@ -69,9 +67,6 @@ class AndroidFontTest {
 
     private fun makeAssetFont() = Font(assetFontPath, context.assets) as AndroidFont
 
-    @Suppress("DEPRECATION")
-    private fun makeAssetFontDeprecated() = Font(context.assets, assetFontPath) as AndroidFont
-
     @Test
     fun test_load_from_assets() {
         val font = makeAssetFont()
@@ -95,27 +90,6 @@ class AndroidFontTest {
     @Test
     fun assetFont_doesntThrowForAsync() {
         val font = makeAssetFont()
-        // don't care about result, but it's not supposed to throw
-        font.typefaceLoader.loadBlocking(context, font)
-    }
-
-    @Test
-    fun assetFont_isBlocking_Deprecated() {
-        val font = makeAssetFontDeprecated()
-        assertThat(font.loadingStrategy).isEqualTo(Blocking)
-    }
-
-    @Test
-    fun assetFont_returnsSameInstance_Deprecated() {
-        val font = makeAssetFontDeprecated()
-        val typeface1 = font.typefaceLoader.loadBlocking(context, font)
-        val typeface2 = font.typefaceLoader.loadBlocking(context, font)
-        assertThat(typeface1).isSameInstanceAs(typeface2)
-    }
-
-    @Test
-    fun assetFont_doesntThrowForAsync_Deprecated() {
-        val font = makeAssetFontDeprecated()
         // don't care about result, but it's not supposed to throw
         font.typefaceLoader.loadBlocking(context, font)
     }

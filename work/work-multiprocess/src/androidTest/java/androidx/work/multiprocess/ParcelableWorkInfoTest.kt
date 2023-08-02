@@ -24,10 +24,10 @@ import androidx.work.WorkInfo
 import androidx.work.multiprocess.parcelable.ParcelConverters
 import androidx.work.multiprocess.parcelable.ParcelableWorkInfo
 import androidx.work.multiprocess.parcelable.ParcelableWorkInfos
+import java.util.UUID
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.util.UUID
 
 @RunWith(AndroidJUnit4::class)
 public class ParcelableWorkInfoTest {
@@ -45,8 +45,8 @@ public class ParcelableWorkInfoTest {
         val workInfo = WorkInfo(
             UUID.randomUUID(),
             WorkInfo.State.ENQUEUED,
+            setOf("tag1", "tag2"),
             Data.EMPTY,
-            listOf("tag1", "tag2"),
             Data.EMPTY,
             1,
             1,
@@ -70,8 +70,8 @@ public class ParcelableWorkInfoTest {
         val workInfo = WorkInfo(
             UUID.randomUUID(),
             WorkInfo.State.ENQUEUED,
+            setOf("tag1", "tag2"),
             data,
-            listOf("tag1", "tag2"),
             Data.EMPTY,
             1,
             3,
@@ -95,8 +95,8 @@ public class ParcelableWorkInfoTest {
         val workInfo = WorkInfo(
             UUID.randomUUID(),
             WorkInfo.State.ENQUEUED,
+            setOf("tag1", "tag2"),
             data,
-            listOf("tag1", "tag2"),
             Data.EMPTY,
             1,
             0,

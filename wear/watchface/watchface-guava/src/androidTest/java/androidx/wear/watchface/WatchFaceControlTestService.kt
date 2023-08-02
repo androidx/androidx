@@ -16,7 +16,6 @@
 
 package androidx.wear.watchface
 
-import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
@@ -34,17 +33,17 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.wear.watchface.client.WatchFaceControlClient
 import androidx.wear.watchface.control.IWatchFaceInstanceServiceStub
 import androidx.wear.watchface.control.WatchFaceControlService
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.TimeoutException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.android.asCoroutineDispatcher
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.mockito.Mockito
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
-import java.util.concurrent.TimeoutException
-import kotlinx.coroutines.MainScope
 
 internal const val TIMEOUT_MILLIS = 1000L
 
@@ -53,7 +52,7 @@ internal const val TIMEOUT_MILLIS = 1000L
  * override the reported API version.
  */
 @RequiresApi(Build.VERSION_CODES.O_MR1)
-public class WatchFaceControlTestService : Service() {
+public class WatchFaceControlTestService : WatchFaceControlService() {
     public companion object {
         /**
          * If non-null this overrides the API version reported by [IWatchFaceInstanceServiceStub].
@@ -62,14 +61,10 @@ public class WatchFaceControlTestService : Service() {
     }
 
     private val realService =
-        @RequiresApi(Build.VERSION_CODES.O_MR1)
         object : WatchFaceControlService() {
             override fun createServiceStub(): IWatchFaceInstanceServiceStub =
-                @RequiresApi(Build.VERSION_CODES.O_MR1)
-                object : IWatchFaceInstanceServiceStub(
-                    this@WatchFaceControlTestService,
-                    MainScope()
-                ) {
+                object :
+                    IWatchFaceInstanceServiceStub(this@WatchFaceControlTestService, MainScope()) {
                     override fun getApiVersion(): Int = apiVersionOverride ?: super.getApiVersion()
                 }
 
@@ -78,7 +73,6 @@ public class WatchFaceControlTestService : Service() {
             }
         }
 
-    @RequiresApi(Build.VERSION_CODES.O_MR1)
     override fun onBind(intent: Intent?): IBinder? = realService.onBind(intent)
 }
 
@@ -97,14 +91,27 @@ public open class WatchFaceControlClientServiceTest {
     val glSurface = Surface(surfaceTexture)
     val glSurfaceHolder = Mockito.mock(SurfaceHolder::class.java)
 
-    val watchFaceControlClientService = runBlocking {
-        WatchFaceControlClient.createWatchFaceControlClientImpl(
-            context,
-            Intent(context, WatchFaceControlTestService::class.java).apply {
-                action = WatchFaceControlService.ACTION_WATCHFACE_CONTROL_SERVICE
-            }
-        )
-    }
+    fun createWatchFaceControlClientService() =
+        runBlocking {
+            WatchFaceControlClient.createWatchFaceControlClientImpl(
+                context,
+                Intent(context, WatchFaceControlTestService::class.java).apply {
+                    action = WatchFaceControlService.ACTION_WATCHFACE_CONTROL_SERVICE
+                },
+                resourceOnlyWatchFacePackageName = null
+            )
+        }
+
+    fun createWatchFaceRuntimeControlClientService(resourceOnlyWatchFacePackageName: String) =
+        runBlocking {
+            WatchFaceControlClient.createWatchFaceControlClientImpl(
+                context,
+                Intent(context, WatchFaceControlTestService::class.java).apply {
+                    action = WatchFaceControlService.ACTION_WATCHFACE_CONTROL_SERVICE
+                },
+                resourceOnlyWatchFacePackageName
+            )
+        }
 
     @Before
     fun setUp() {
@@ -115,20 +122,14 @@ public open class WatchFaceControlClientServiceTest {
         val canvas = Canvas(bitmap)
         Mockito.`when`(surfaceHolder.lockHardwareCanvas()).thenReturn(canvas)
 
-        Mockito.`when`(surfaceHolder.unlockCanvasAndPost(canvas)).then {
-            renderLatch.countDown()
-        }
+        Mockito.`when`(surfaceHolder.unlockCanvasAndPost(canvas)).then { renderLatch.countDown() }
 
         surfaceTexture.setDefaultBufferSize(10, 10)
         Mockito.`when`(glSurfaceHolder.surface).thenReturn(glSurface)
-        Mockito.`when`(glSurfaceHolder.surfaceFrame)
-            .thenReturn(Rect(0, 0, 10, 10))
+        Mockito.`when`(glSurfaceHolder.surfaceFrame).thenReturn(Rect(0, 0, 10, 10))
     }
 
-    fun <X> awaitWithTimeout(
-        thing: Deferred<X>,
-        timeoutMillis: Long = TIMEOUT_MILLIS
-    ): X {
+    fun <X> awaitWithTimeout(thing: Deferred<X>, timeoutMillis: Long = TIMEOUT_MILLIS): X {
         var value: X? = null
         val latch = CountDownLatch(1)
         handlerCoroutineScope.launch {

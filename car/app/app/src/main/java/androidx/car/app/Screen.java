@@ -138,7 +138,6 @@ public abstract class Screen implements LifecycleOwner {
     /**
      * Returns the result set via {@link #setResult}, or {@code null} if none is set.
      *
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
     @Nullable
@@ -322,7 +321,6 @@ public abstract class Screen implements LifecycleOwner {
     /**
      * Dispatches lifecycle event for {@code event} on the main thread.
      *
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
     // Restrict to testing library
@@ -361,11 +359,10 @@ public abstract class Screen implements LifecycleOwner {
         Template template = onGetTemplate();
 
         TemplateWrapper wrapper;
-        if (mUseLastTemplateId) {
+        if (mUseLastTemplateId && mTemplateWrapper != null) {
             wrapper =
                     TemplateWrapper.wrap(
-                            template, getLastTemplateInfo(
-                                    requireNonNull(mTemplateWrapper)).getTemplateId());
+                            template, getLastTemplateInfo(mTemplateWrapper).getTemplateId());
         } else {
             wrapper = TemplateWrapper.wrap(template);
         }

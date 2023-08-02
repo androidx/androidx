@@ -24,15 +24,13 @@ import androidx.work.impl.utils.taskexecutor.TaskExecutor
 
 /**
  * Tracks whether or not the device's storage is low.
- * @hide
  */
 @Suppress("DEPRECATION")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class StorageNotLowTracker(context: Context, taskExecutor: TaskExecutor) :
     BroadcastReceiverConstraintTracker<Boolean>(context, taskExecutor) {
 
-    override val initialState: Boolean
-        get() {
+    override fun readSystemState(): Boolean {
             val intent = appContext.registerReceiver(null, intentFilter)
             return if (intent == null || intent.action == null) {
                 // ACTION_DEVICE_STORAGE_LOW is a sticky broadcast that is removed when sufficient

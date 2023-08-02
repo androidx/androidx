@@ -16,20 +16,26 @@
 
 package androidx.window.layout
 
-import android.app.Activity
+import android.content.Context
+import android.os.Build
 import androidx.core.util.Consumer
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.window.TestActivity
 import androidx.window.TestConsumer
+import androidx.window.WindowTestUtils
+import androidx.window.WindowTestUtils.Companion.assumeAtLeastVendorApiLevel
+import androidx.window.layout.adapter.WindowBackend
+import java.util.concurrent.Executor
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
-import kotlinx.coroutines.Job
+import kotlinx.coroutines.test.setMain
 import org.junit.Rule
 import org.junit.Test
-import java.util.concurrent.Executor
 
 @OptIn(ExperimentalCoroutinesApi::class)
 public class WindowInfoTrackerImplTest {
@@ -39,6 +45,10 @@ public class WindowInfoTrackerImplTest {
         ActivityScenarioRule(TestActivity::class.java)
 
     private val testScope = TestScope(UnconfinedTestDispatcher())
+
+    init {
+        Dispatchers.setMain(UnconfinedTestDispatcher())
+    }
 
     @Test
     public fun testWindowLayoutFeatures(): Unit = testScope.runTest {
@@ -59,6 +69,25 @@ public class WindowInfoTrackerImplTest {
     }
 
     @Test
+    public fun testWindowLayoutFeatures_contextAsListener(): Unit = testScope.runTest {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+            return@runTest
+        }
+        assumeAtLeastVendorApiLevel(2)
+        val fakeBackend = FakeWindowBackend()
+        val repo = WindowInfoTrackerImpl(WindowMetricsCalculatorCompat, fakeBackend)
+        val collector = TestConsumer<WindowLayoutInfo>()
+
+        val windowContext =
+            WindowTestUtils.createOverlayWindowContext()
+        testScope.launch(Job()) {
+            repo.windowLayoutInfo(windowContext).collect(collector::accept)
+        }
+        fakeBackend.triggerSignal(WindowLayoutInfo(emptyList()))
+        collector.assertValue(WindowLayoutInfo(emptyList()))
+    }
+
+    @Test
     public fun testWindowLayoutFeatures_multicasting(): Unit = testScope.runTest {
         activityScenario.scenario.onActivity { testActivity ->
             val windowMetricsCalculator = WindowMetricsCalculatorCompat
@@ -76,8 +105,42 @@ public class WindowInfoTrackerImplTest {
                 repo.windowLayoutInfo(testActivity).collect(collector::accept)
             }
             fakeBackend.triggerSignal(WindowLayoutInfo(emptyList()))
-            collector.assertValues(WindowLayoutInfo(emptyList()), WindowLayoutInfo(emptyList()))
+            collector.assertValues(
+                WindowLayoutInfo(emptyList()),
+                WindowLayoutInfo(emptyList())
+            )
         }
+    }
+
+    @Test
+    public fun testWindowLayoutFeatures_multicastingWithContext(): Unit = testScope.runTest {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+            return@runTest
+        }
+        assumeAtLeastVendorApiLevel(2)
+        val windowMetricsCalculator = WindowMetricsCalculatorCompat
+        val fakeBackend = FakeWindowBackend()
+        val repo = WindowInfoTrackerImpl(
+            windowMetricsCalculator,
+            fakeBackend
+        )
+        val collector = TestConsumer<WindowLayoutInfo>()
+        val job = Job()
+
+        val windowContext = WindowTestUtils.createOverlayWindowContext()
+
+        launch(job) {
+            repo.windowLayoutInfo(windowContext).collect(collector::accept)
+        }
+        launch(job) {
+            repo.windowLayoutInfo(windowContext).collect(collector::accept)
+        }
+
+        fakeBackend.triggerSignal(WindowLayoutInfo(emptyList()))
+        collector.assertValues(
+            WindowLayoutInfo(emptyList()),
+            WindowLayoutInfo(emptyList())
+        )
     }
 
     private class FakeWindowBackend : WindowBackend {
@@ -99,7 +162,7 @@ public class WindowInfoTrackerImplTest {
         }
 
         override fun registerLayoutChangeCallback(
-            activity: Activity,
+            context: Context,
             executor: Executor,
             callback: Consumer<WindowLayoutInfo>
         ) {

@@ -16,8 +16,8 @@
 
 package androidx.compose.ui.graphics.drawscope
 
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.geometry.center
 import androidx.compose.ui.graphics.BlendMode
@@ -35,12 +35,12 @@ import androidx.compose.ui.graphics.PointMode
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.degrees
+import androidx.compose.ui.graphics.internal.JvmDefaultWithCompatibility
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.center
-import androidx.compose.ui.graphics.internal.JvmDefaultWithCompatibility
 
 /**
  * Simultaneously translate the [DrawScope] coordinate space by [left] and [top] as well as modify
@@ -268,6 +268,52 @@ inline fun DrawScope.withTransform(
     drawBlock()
     canvas.restore()
     size = previousSize
+}
+
+/**
+ * Draws into the provided [Canvas] with the commands specified in the lambda with this
+ * [DrawScope] as a receiver
+ *
+ * @sample androidx.compose.ui.graphics.samples.DrawScopeRetargetingSample
+ *
+ * @param density [Density] used to assist in conversions of density independent pixels to raw
+ * pixels to draw
+ * @param layoutDirection [LayoutDirection] of the layout being drawn in.
+ * @param canvas target canvas to render into
+ * @param size bounds relative to the current canvas translation in which the [DrawScope]
+ * should draw within
+ * @param block lambda that is called to issue drawing commands on this [DrawScope]
+ */
+inline fun DrawScope.draw(
+    density: Density,
+    layoutDirection: LayoutDirection,
+    canvas: Canvas,
+    size: Size,
+    block: DrawScope.() -> Unit
+) {
+    // Remember the previous drawing parameters in case we are temporarily re-directing our
+    // drawing to a separate Layer/RenderNode only to draw that content back into the original
+    // Canvas. If there is no previous canvas that was being drawing into, this ends up
+    // resetting these parameters back to defaults defensively
+    val prevDensity = drawContext.density
+    val prevLayoutDirection = drawContext.layoutDirection
+    val prevCanvas = drawContext.canvas
+    val prevSize = drawContext.size
+    drawContext.apply {
+        this.density = density
+        this.layoutDirection = layoutDirection
+        this.canvas = canvas
+        this.size = size
+    }
+    canvas.save()
+    this.block()
+    canvas.restore()
+    drawContext.apply {
+        this.density = prevDensity
+        this.layoutDirection = prevLayoutDirection
+        this.canvas = prevCanvas
+        this.size = prevSize
+    }
 }
 
 /**
@@ -902,34 +948,22 @@ object Fill : DrawStyle()
 
 /**
  * [DrawStyle] that provides information for drawing content with a stroke
+ *
+ * @param width Configure the width of the stroke in pixels
+ * @param miter Set the stroke miter value. This is used to control the behavior of miter joins when
+ * the joins angle is sharp. This value must be >= 0
+ * @param cap Return the paint's Cap, controlling how the start and end of stroked lines and paths
+ * are treated. The default is [StrokeCap.Butt]
+ * @param join Set's the treatment where lines and curve segments join on a stroked path. The
+ * default is [StrokeJoin.Miter]
+ * @param pathEffect Effect to apply to the stroke, null indicates a solid stroke line is to be
+ * drawn
  */
 class Stroke(
-    /**
-     * Configure the width of the stroke in pixels
-     */
     val width: Float = 0.0f,
-
-    /**
-     * Set the stroke miter value. This is used to control the behavior of miter
-     * joins when the joins angle is sharp. This value must be >= 0.
-     */
     val miter: Float = DefaultMiter,
-
-    /**
-     * Return the paint's Cap, controlling how the start and end of stroked
-     * lines and paths are treated. The default is [StrokeCap.Butt]
-     */
-    val cap: StrokeCap = StrokeCap.Butt,
-
-    /**
-     * Set's the treatment where lines and curve segments join on a stroked path.
-     * The default is [StrokeJoin.Miter]
-     */
-    val join: StrokeJoin = StrokeJoin.Miter,
-
-    /**
-     * Effect to apply to the stroke, null indicates a solid stroke line is to be drawn
-     */
+    val cap: StrokeCap = DefaultCap,
+    val join: StrokeJoin = DefaultJoin,
     val pathEffect: PathEffect? = null
 ) : DrawStyle() {
     companion object {

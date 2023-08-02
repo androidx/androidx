@@ -16,16 +16,22 @@
 
 package android.support.wearable.complications;
 
+import android.annotation.SuppressLint;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.Icon;
 import android.os.Build;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
+import java.lang.reflect.Method;
 
 @RequiresApi(api = Build.VERSION_CODES.P)
 class IconSerializableHelper implements Serializable {
@@ -33,6 +39,9 @@ class IconSerializableHelper implements Serializable {
     String mResourcePackage;
     int mResourceId;
     String mUri;
+    byte[] mBitmap;
+
+    private static final String TAG = "IconSerializableHelper";
 
     @Nullable
     static IconSerializableHelper create(@Nullable Icon icon) {
@@ -61,21 +70,43 @@ class IconSerializableHelper implements Serializable {
                 break;
 
             case Icon.TYPE_URI:
+            case Icon.TYPE_URI_ADAPTIVE_BITMAP:
                 mUri = icon.getUri().toString();
                 break;
-        }
 
-        // We currently don't attempt to serialize any other type of icon. We could render to a
-        // bitmap, but the above covers the majority of complication icons.
+            case Icon.TYPE_BITMAP:
+            case Icon.TYPE_ADAPTIVE_BITMAP:
+                try {
+                    Method getBitmap = icon.getClass().getDeclaredMethod("getBitmap");
+                    @SuppressLint("BanUncheckedReflection")
+                    Bitmap bitmap = (Bitmap) getBitmap.invoke(icon);
+                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, baos);
+                    mBitmap = baos.toByteArray();
+                } catch (Exception e) {
+                    Log.e(TAG, "Failed to serialize bitmap", e);
+                }
+                break;
+
+            default:
+                Log.e(TAG, "Failed to serialize icon of type " + mType);
+        }
     }
 
-    @Nullable Icon toIcon() {
+    @Nullable
+    Icon toIcon() {
         switch (mType) {
             case Icon.TYPE_RESOURCE:
                 return Icon.createWithResource(mResourcePackage, mResourceId);
 
             case Icon.TYPE_URI:
+            case Icon.TYPE_URI_ADAPTIVE_BITMAP:
                 return Icon.createWithContentUri(mUri);
+
+            case Icon.TYPE_BITMAP:
+            case Icon.TYPE_ADAPTIVE_BITMAP:
+                return Icon.createWithBitmap(
+                        BitmapFactory.decodeByteArray(mBitmap, 0, mBitmap.length));
 
             default:
                 return null;

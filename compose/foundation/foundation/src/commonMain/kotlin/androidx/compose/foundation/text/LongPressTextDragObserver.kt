@@ -16,13 +16,14 @@
 
 package androidx.compose.foundation.text
 
+import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
-import androidx.compose.foundation.gestures.forEachGesture
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.PointerInputScope
 import androidx.compose.ui.util.fastAny
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
@@ -78,10 +79,10 @@ internal suspend fun PointerInputScope.detectDownAndDragGesturesWithObserver(
     observer: TextDragObserver
 ) {
     coroutineScope {
-        launch {
+        launch(start = CoroutineStart.UNDISPATCHED) {
             detectPreDragGesturesWithObserver(observer)
         }
-        launch {
+        launch(start = CoroutineStart.UNDISPATCHED) {
             detectDragGesturesWithObserver(observer)
         }
     }
@@ -94,16 +95,14 @@ internal suspend fun PointerInputScope.detectDownAndDragGesturesWithObserver(
 private suspend fun PointerInputScope.detectPreDragGesturesWithObserver(
     observer: TextDragObserver
 ) {
-    forEachGesture {
-        awaitPointerEventScope {
-            val down = awaitFirstDown()
-            observer.onDown(down.position)
-            // Wait for that pointer to come up.
-            do {
-                val event = awaitPointerEvent()
-            } while (event.changes.fastAny { it.id == down.id && it.pressed })
-            observer.onUp()
-        }
+    awaitEachGesture {
+        val down = awaitFirstDown()
+        observer.onDown(down.position)
+        // Wait for that pointer to come up.
+        do {
+            val event = awaitPointerEvent()
+        } while (event.changes.fastAny { it.id == down.id && it.pressed })
+        observer.onUp()
     }
 }
 

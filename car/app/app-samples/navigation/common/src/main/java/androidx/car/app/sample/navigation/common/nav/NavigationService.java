@@ -18,6 +18,9 @@ package androidx.car.app.sample.navigation.common.nav;
 
 import static android.media.AudioManager.AUDIOFOCUS_REQUEST_GRANTED;
 
+import static androidx.car.app.model.Action.FLAG_DEFAULT;
+import static androidx.car.app.model.Action.FLAG_PRIMARY;
+
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -40,9 +43,14 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RawRes;
+import androidx.car.app.AppManager;
 import androidx.car.app.CarContext;
 import androidx.car.app.CarToast;
+import androidx.car.app.model.Action;
+import androidx.car.app.model.Alert;
+import androidx.car.app.model.AlertCallback;
 import androidx.car.app.model.CarIcon;
+import androidx.car.app.model.CarText;
 import androidx.car.app.model.Distance;
 import androidx.car.app.navigation.NavigationManager;
 import androidx.car.app.navigation.NavigationManagerCallback;
@@ -59,6 +67,7 @@ import androidx.car.app.sample.navigation.common.model.Instruction;
 import androidx.car.app.sample.navigation.common.model.Script;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
+import androidx.core.graphics.drawable.IconCompat;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -254,6 +263,14 @@ public class NavigationService extends Service {
                                             mNotificationManager.notify(
                                                     NOTIFICATION_ID,
                                                     getTrafficAccidentWarningNotification());
+                                        }
+
+                                        // Send the alert every 7-step updates. This number is
+                                        // randomly chosen to distinguish from the HUN experience
+                                        // that is triggered every 10-step updates.
+                                        if (++mStepsSent % 7 == 0) {
+                                            mCarContext.getCarService(AppManager.class)
+                                                    .showAlert(createAlert());
                                         }
 
                                         update(
@@ -580,5 +597,62 @@ public class NavigationService extends Service {
         Intent intent = new Intent(this, MainActivity.class);
         intent.putExtra(EXTRA_STARTED_FROM_NOTIFICATION, true);
         return PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE);
+    }
+
+    @NonNull
+    private Alert createAlert() {
+        CarText title =
+                CarText.create(getString(R.string.navigation_alert_title));
+        CarIcon icon = new CarIcon.Builder(
+                IconCompat.createWithResource(this, R.drawable.ic_police)).build();
+
+        CarText yesTitle = CarText.create(getString(R.string.yes_action_title));
+        Action yesAction = new Action.Builder().setTitle(yesTitle).setOnClickListener(
+                () -> CarToast.makeText(
+                                mCarContext,
+                                getString(
+                                        R.string.yes_action_toast_msg),
+                                CarToast.LENGTH_SHORT)
+                        .show()).setFlags(FLAG_PRIMARY).build();
+
+        CarText noTitle = CarText.create(getString(R.string.no_action_title));
+        Action noAction = new Action.Builder().setTitle(noTitle).setOnClickListener(
+                () -> CarToast.makeText(
+                                mCarContext,
+                                getString(
+                                        R.string.no_action_toast_msg),
+                                CarToast.LENGTH_SHORT)
+                        .show()).setFlags(FLAG_DEFAULT).build();
+
+        return new Alert.Builder(/* alertId: */ 0, title, /* durationMillis: */ 10000)
+                .setIcon(icon)
+                .addAction(yesAction)
+                .addAction(noAction)
+                .setCallback(new AlertCallback() {
+                    @Override
+                    public void onCancel(int reason) {
+                        if (reason == AlertCallback.REASON_NOT_SUPPORTED) {
+                            mNotificationManager.notify(
+                                    NOTIFICATION_ID,
+                                    getPoliceReportNotification());
+                        }
+                    }
+
+                    @Override
+                    public void onDismiss() {
+                    }
+                }).build();
+    }
+
+    private Notification getPoliceReportNotification() {
+        return new NotificationCompat.Builder(this, CHANNEL_ID)
+                .setContentTitle(getString(R.string.navigation_alert_title))
+                .setSmallIcon(R.drawable.ic_police)
+                .setLargeIcon(BitmapFactory.decodeResource(getResources(), R.drawable.ic_police))
+                .extend(
+                        new CarAppExtender.Builder()
+                                .setImportance(NotificationManagerCompat.IMPORTANCE_HIGH)
+                                .build())
+                .build();
     }
 }

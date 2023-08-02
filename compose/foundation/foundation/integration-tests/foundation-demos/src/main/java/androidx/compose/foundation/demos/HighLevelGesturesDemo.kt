@@ -17,17 +17,15 @@
 package androidx.compose.foundation.demos
 
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.samples.DraggableSample
 import androidx.compose.foundation.samples.FocusableSample
 import androidx.compose.foundation.samples.HoverableSample
-import androidx.compose.foundation.samples.OverscrollSample
 import androidx.compose.foundation.samples.ScrollableSample
 import androidx.compose.foundation.samples.TransformableSample
+import androidx.compose.foundation.samples.TransformableSampleInsideScroll
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -40,13 +38,11 @@ fun HighLevelGesturesDemo() {
     Column(Modifier.verticalScroll(rememberScrollState())) {
         DraggableSample()
         Spacer(Modifier.height(50.dp))
-        Row {
-            ScrollableSample()
-            Spacer(Modifier.width(30.dp))
-            OverscrollSample()
-        }
+        ScrollableSample()
         Spacer(Modifier.height(50.dp))
         TransformableSample()
+        Spacer(Modifier.height(50.dp))
+        TransformableSampleInsideScroll()
         Spacer(Modifier.height(50.dp))
         FocusableSample()
         Spacer(Modifier.height(50.dp))

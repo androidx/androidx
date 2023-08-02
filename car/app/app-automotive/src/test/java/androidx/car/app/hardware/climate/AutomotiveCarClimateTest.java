@@ -33,7 +33,7 @@ import static android.car.VehiclePropertyIds.HVAC_STEERING_WHEEL_HEAT;
 import static android.car.VehiclePropertyIds.HVAC_TEMPERATURE_SET;
 
 import static androidx.car.app.hardware.climate.AutomotiveCarClimate.DEFAULT_SAMPLE_RATE_HZ;
-import static androidx.car.app.hardware.climate.AutomotiveCarClimate.HVAC_ELECTRIC_DEFROSTER;
+import static androidx.car.app.hardware.climate.AutomotiveCarClimate.HVAC_ELECTRIC_DEFROSTER_ON_PROPERTY_ID;
 import static androidx.car.app.hardware.climate.ClimateProfileRequest.FEATURE_CABIN_TEMPERATURE;
 import static androidx.car.app.hardware.climate.ClimateProfileRequest.FEATURE_FAN_DIRECTION;
 import static androidx.car.app.hardware.climate.ClimateProfileRequest.FEATURE_FAN_SPEED;
@@ -55,6 +55,7 @@ import static androidx.car.app.hardware.common.CarValue.STATUS_SUCCESS;
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.util.concurrent.MoreExecutors.directExecutor;
 
+import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
@@ -85,7 +86,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
@@ -110,6 +112,10 @@ public class AutomotiveCarClimateTest {
     private static final CarZone FRONT_RIGHT_ZONE = new CarZone.Builder()
             .setRow(CarZone.CAR_ZONE_ROW_FIRST)
             .setColumn(CarZone.CAR_ZONE_COLUMN_RIGHT).build();
+
+    @Rule
+    public final MockitoRule mockito = MockitoJUnit.rule();
+
     @Rule
     public GrantPermissionRule mPermissionsRule = GrantPermissionRule.grant(
             "android.car.permission.CONTROL_CAR_CLIMATE");
@@ -128,7 +134,6 @@ public class AutomotiveCarClimateTest {
 
     @Before
     public void setUp() {
-        MockitoAnnotations.initMocks(this);
         ShadowCar.setCar(mCarMock);
         when(mCarMock.getCarManager(anyString())).thenReturn(mCarPropertyManagerMock);
         mAutomotiveCarClimate = new AutomotiveCarClimate(mPropertyManager);
@@ -204,17 +209,20 @@ public class AutomotiveCarClimateTest {
         mAutomotiveCarClimate.registerClimateStateCallback(mExecutor, builder.build(), listener);
 
         Map<Integer, List<CarZone>> propertyIdsWithCarZones =
-                ImmutableMap.<Integer, List<CarZone>>builder().put(HVAC_ELECTRIC_DEFROSTER,
-                        Collections.singletonList(mCarZone)).buildKeepingLast();
+                ImmutableMap.<Integer, List<CarZone>>builder()
+                        .put(HVAC_ELECTRIC_DEFROSTER_ON_PROPERTY_ID,
+                                Collections.singletonList(mCarZone))
+                        .buildKeepingLast();
 
         ArgumentCaptor<OnCarPropertyResponseListener> captor = ArgumentCaptor.forClass(
                 OnCarPropertyResponseListener.class);
         verify(mPropertyManager).submitRegisterListenerRequest(eq(propertyIdsWithCarZones),
                 eq(DEFAULT_SAMPLE_RATE_HZ), captor.capture(), eq(mExecutor));
 
-        mResponse.add(CarPropertyResponse.builder().setPropertyId(HVAC_ELECTRIC_DEFROSTER)
+        mResponse.add(CarPropertyResponse.builder().setPropertyId(
+                        HVAC_ELECTRIC_DEFROSTER_ON_PROPERTY_ID)
                 .setCarZones(Collections.singletonList(mCarZone)).setValue(true).setStatus(
-                STATUS_SUCCESS).build());
+                        STATUS_SUCCESS).build());
 
         captor.getValue().onCarPropertyResponses(mResponse);
         mCountDownLatch.await();
@@ -267,15 +275,19 @@ public class AutomotiveCarClimateTest {
     }
 
     @Test
-    public void fetchCabinTemperature_verifyResponse() throws InterruptedException {
+    public void fetchCabinConfigArrayTemperature_verifyResponse() throws InterruptedException {
         List<Set<CarZone>> carZones = new ArrayList<>();
         carZones.add(Collections.singleton(FRONT_LEFT_ZONE));
         carZones.add(Collections.singleton(FRONT_RIGHT_ZONE));
         List<Integer> propertyIds = Collections.singletonList(HVAC_TEMPERATURE_SET);
         mCarPropertyProfiles.add(CarPropertyProfile.builder().setPropertyId(HVAC_TEMPERATURE_SET)
+                .setCelsiusIncrement(1f)
                 .setCelsiusRange(new Pair<>(16.0f, 18.0f))
-                .setFahrenheitRange(new Pair<>(60.5f, 64.5f)).setCelsiusIncrement(0.5f)
-                .setFahrenheitIncrement(1.0f).setCarZones(carZones).setStatus(STATUS_SUCCESS)
+                .setFahrenheitRange(new Pair<>(60.5f, 64.5f))
+                .setFahrenheitIncrement(0.5f)
+                .setCarZoneSetsToMinMaxRange(null)
+                .setCarZones(carZones)
+                .setStatus(STATUS_SUCCESS)
                 .build());
         ListenableFuture<List<CarPropertyProfile<?>>> listenableCarPropertyProfiles =
                 Futures.immediateFuture(mCarPropertyProfiles);
@@ -289,6 +301,7 @@ public class AutomotiveCarClimateTest {
             public void onCabinTemperatureProfileAvailable(@NonNull CabinTemperatureProfile
                     cabinTemperatureProfile) {
                 loadedResult.set(cabinTemperatureProfile);
+                CabinTemperatureProfile response = loadedResult.get();
                 mCountDownLatch.countDown();
             }
         };
@@ -314,9 +327,79 @@ public class AutomotiveCarClimateTest {
         assertThat(cabinTemperatureProfile.getSupportedMinMaxFahrenheitRange())
                 .isEqualTo(new Pair<>(60.5f, 64.5f));
         assertThat(cabinTemperatureProfile.getCelsiusSupportedIncrement())
-                .isEqualTo(0.5f);
+                .isEqualTo(1f);
         assertThat(cabinTemperatureProfile.getFahrenheitSupportedIncrement())
-                .isEqualTo(1.0f);
+                .isEqualTo(0.5f);
+        assertThrows(IllegalStateException.class,
+                cabinTemperatureProfile::getCarZoneSetsToCabinCelsiusTemperatureRanges);
+    }
+
+    @Test
+    public void fetchMinMaxCabinTemperature_verifyResponse() throws InterruptedException {
+        List<Set<CarZone>> carZones = new ArrayList<>();
+        carZones.add(Collections.singleton(FRONT_LEFT_ZONE));
+        carZones.add(Collections.singleton(FRONT_RIGHT_ZONE));
+        List<Integer> propertyIds = Collections.singletonList(HVAC_TEMPERATURE_SET);
+        Map<Set<CarZone>, Pair<Object, Object>> requestMinMaxValueMap = new HashMap<>();
+        requestMinMaxValueMap.put(Collections.singleton(FRONT_LEFT_ZONE), new Pair<>(16f, 32f));
+        requestMinMaxValueMap.put(Collections.singleton(FRONT_RIGHT_ZONE), new Pair<>(16f, 32f));
+        mCarPropertyProfiles.add(CarPropertyProfile.builder().setPropertyId(HVAC_TEMPERATURE_SET)
+                .setCelsiusRange(null)
+                .setFahrenheitRange(null)
+                .setCelsiusIncrement(-1f)
+                .setFahrenheitIncrement(-1f)
+                .setCarZoneSetsToMinMaxRange(requestMinMaxValueMap)
+                .setCarZones(carZones)
+                .setStatus(STATUS_SUCCESS)
+                .build());
+        ListenableFuture<List<CarPropertyProfile<?>>> listenableCarPropertyProfiles =
+                Futures.immediateFuture(mCarPropertyProfiles);
+        when(mPropertyManager.fetchSupportedZonesResponse(
+                eq(propertyIds), eq(mExecutor))).thenReturn(
+                listenableCarPropertyProfiles);
+
+        AtomicReference<CabinTemperatureProfile> loadedResult = new AtomicReference<>();
+        CarClimateProfileCallback listener = new CarClimateProfileCallback() {
+            @Override
+            public void onCabinTemperatureProfileAvailable(@NonNull CabinTemperatureProfile
+                    cabinTemperatureProfile) {
+                loadedResult.set(cabinTemperatureProfile);
+                CabinTemperatureProfile response = loadedResult.get();
+                mCountDownLatch.countDown();
+            }
+        };
+
+        CarClimateFeature.Builder mCarClimateBuilder = new CarClimateFeature.Builder(
+                FEATURE_CABIN_TEMPERATURE);
+        mCarClimateBuilder.addCarZones(FRONT_LEFT_ZONE);
+        mCarClimateBuilder.addCarZones(FRONT_RIGHT_ZONE);
+
+        CarClimateFeature mCarClimateFeature = new CarClimateFeature(mCarClimateBuilder);
+        ClimateProfileRequest.Builder builder =
+                new ClimateProfileRequest.Builder();
+        builder.addClimateProfileFeatures(mCarClimateFeature);
+        mAutomotiveCarClimate.fetchClimateProfile(mExecutor, builder.build(), listener);
+        verify(mPropertyManager, times(1)).fetchSupportedZonesResponse(
+                eq(propertyIds),
+                eq(mExecutor));
+        mCountDownLatch.await();
+
+        CabinTemperatureProfile cabinTemperatureProfile = loadedResult.get();
+        Map<Set<CarZone>, Pair<Object, Object>> responseMinMaxValueMap = new HashMap<>();
+        responseMinMaxValueMap.put(Collections.singleton(FRONT_LEFT_ZONE),
+                new Pair<>(16.0f, 32.0f));
+        responseMinMaxValueMap.put(Collections.singleton(FRONT_RIGHT_ZONE),
+                new Pair<>(16.0f, 32.0f));
+        assertThat(cabinTemperatureProfile.getCarZoneSetsToCabinCelsiusTemperatureRanges())
+                .isEqualTo(responseMinMaxValueMap);
+        assertThrows(IllegalStateException.class,
+                cabinTemperatureProfile::getSupportedMinMaxCelsiusRange);
+        assertThrows(IllegalStateException.class,
+                cabinTemperatureProfile::getSupportedMinMaxFahrenheitRange);
+        assertThrows(IllegalStateException.class,
+                cabinTemperatureProfile::getCelsiusSupportedIncrement);
+        assertThrows(IllegalStateException.class,
+                cabinTemperatureProfile::getFahrenheitSupportedIncrement);
     }
 
     @Test
@@ -367,14 +450,14 @@ public class AutomotiveCarClimateTest {
 
     @Test
     public void fetchFanDirection_verifyResponse() throws InterruptedException {
-        Map<Set<CarZone>, Pair<Object, Object>> minMaxValueMap = new HashMap<>();
-        minMaxValueMap.put(Collections.singleton(FRONT_LEFT_ZONE), new Pair<>(1, 7));
-        minMaxValueMap.put(Collections.singleton(FRONT_RIGHT_ZONE), new Pair<>(2, 6));
+        Map<Set<CarZone>, Set<Integer>> fanDirectionValues = new HashMap<>();
+        fanDirectionValues.put(Collections.singleton(FRONT_LEFT_ZONE), Collections.singleton(1));
+        fanDirectionValues.put(Collections.singleton(FRONT_RIGHT_ZONE), Collections.singleton(6));
         List<Set<CarZone>> carZones = new ArrayList<>();
         carZones.add(Collections.singleton(FRONT_LEFT_ZONE));
         carZones.add(Collections.singleton(FRONT_RIGHT_ZONE));
         mCarPropertyProfiles.add(CarPropertyProfile.builder().setPropertyId(HVAC_FAN_DIRECTION)
-                .setCarZones(carZones).setCarZoneSetsToMinMaxRange(minMaxValueMap)
+                .setCarZones(carZones).setHvacFanDirection(fanDirectionValues)
                 .setStatus(STATUS_SUCCESS).build());
         ListenableFuture<List<CarPropertyProfile<?>>> listenableCarPropertyProfile =
                 Futures.immediateFuture(mCarPropertyProfiles);
@@ -409,7 +492,7 @@ public class AutomotiveCarClimateTest {
         mCountDownLatch.await();
 
         assertThat(loadedResult.get().getCarZoneSetsToFanDirectionValues()).isEqualTo(
-                minMaxValueMap);
+                fanDirectionValues);
     }
 
     @Test
@@ -515,7 +598,7 @@ public class AutomotiveCarClimateTest {
         carZones.add(Collections.singleton(FRONT_LEFT_ZONE));
         carZones.add(Collections.singleton(FRONT_RIGHT_ZONE));
         mCarPropertyProfiles.add(CarPropertyProfile.builder().setPropertyId(
-                HVAC_STEERING_WHEEL_HEAT)
+                        HVAC_STEERING_WHEEL_HEAT)
                 .setCarZones(carZones).setCarZoneSetsToMinMaxRange(minMaxValueMap)
                 .setStatus(STATUS_SUCCESS).build());
         ListenableFuture<List<CarPropertyProfile<?>>> listenableCarPropertyProfile =
@@ -613,8 +696,8 @@ public class AutomotiveCarClimateTest {
         AtomicReference<HvacAutoRecirculationProfile> loadedResult = new AtomicReference<>();
         CarClimateProfileCallback listener = new CarClimateProfileCallback() {
             @Override
-            public void onHvacAutoRecirculationProfileAvailable(@NonNull
-                    HvacAutoRecirculationProfile hvacAutoRecirculationProfile) {
+            public void onHvacAutoRecirculationProfileAvailable(
+                    @NonNull HvacAutoRecirculationProfile hvacAutoRecirculationProfile) {
                 loadedResult.set(hvacAutoRecirculationProfile);
                 mCountDownLatch.countDown();
             }
@@ -810,8 +893,10 @@ public class AutomotiveCarClimateTest {
         List<Set<CarZone>> carZones = new ArrayList<>();
         carZones.add(Collections.singleton(FRONT_LEFT_ZONE));
         carZones.add(Collections.singleton(FRONT_RIGHT_ZONE));
-        List<Integer> propertyIds = Collections.singletonList(HVAC_ELECTRIC_DEFROSTER);
-        mCarPropertyProfiles.add(CarPropertyProfile.builder().setPropertyId(HVAC_ELECTRIC_DEFROSTER)
+        List<Integer> propertyIds = Collections.singletonList(
+                HVAC_ELECTRIC_DEFROSTER_ON_PROPERTY_ID);
+        mCarPropertyProfiles.add(CarPropertyProfile.builder().setPropertyId(
+                        HVAC_ELECTRIC_DEFROSTER_ON_PROPERTY_ID)
                 .setCarZones(carZones).setStatus(STATUS_SUCCESS).build());
         ListenableFuture<List<CarPropertyProfile<?>>> listenableCarPropertyProfile =
                 Futures.immediateFuture(mCarPropertyProfiles);

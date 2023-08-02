@@ -16,7 +16,12 @@ package androidx.autofill {
     field public static final String AUTOFILL_HINT_CREDIT_CARD_SECURITY_CODE = "creditCardSecurityCode";
     field public static final String AUTOFILL_HINT_EMAIL_ADDRESS = "emailAddress";
     field public static final String AUTOFILL_HINT_EMAIL_OTP = "emailOTPCode";
+    field public static final String AUTOFILL_HINT_FLIGHT_CONFIRMATION_CODE = "flightConfirmationCode";
+    field public static final String AUTOFILL_HINT_FLIGHT_NUMBER = "flightNumber";
     field public static final String AUTOFILL_HINT_GENDER = "gender";
+    field public static final String AUTOFILL_HINT_GIFT_CARD_NUMBER = "giftCardNumber";
+    field public static final String AUTOFILL_HINT_GIFT_CARD_PIN = "giftCardPIN";
+    field public static final String AUTOFILL_HINT_LOYALTY_ACCOUNT_NUMBER = "loyaltyAccountNumber";
     field @Deprecated public static final String AUTOFILL_HINT_NAME = "name";
     field public static final String AUTOFILL_HINT_NEW_PASSWORD = "newPassword";
     field public static final String AUTOFILL_HINT_NEW_USERNAME = "newUsername";

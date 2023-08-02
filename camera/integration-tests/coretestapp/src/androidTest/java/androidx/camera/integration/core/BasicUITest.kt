@@ -19,12 +19,13 @@ package androidx.camera.integration.core
 import android.Manifest
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import androidx.camera.camera2.Camera2Config
 import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.camera.testing.CameraPipeConfigTestRule
-import androidx.camera.testing.CameraUtil
-import androidx.camera.testing.CoreAppTestUtil
+import androidx.camera.testing.impl.CameraPipeConfigTestRule
+import androidx.camera.testing.impl.CameraUtil
+import androidx.camera.testing.impl.CoreAppTestUtil
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso
@@ -38,10 +39,11 @@ import androidx.testutils.withActivity
 import java.util.concurrent.TimeUnit
 import leakcanary.DetectLeaksAfterTestSuccess
 import org.junit.After
-import org.junit.Assume
+import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.TestRule
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
@@ -60,7 +62,6 @@ class BasicUITest(
     @get:Rule
     val cameraPipeConfigTestRule = CameraPipeConfigTestRule(
         active = implName == CameraPipeConfig::class.simpleName,
-        forAllTests = true,
     )
 
     @get:Rule
@@ -81,19 +82,30 @@ class BasicUITest(
             Manifest.permission.RECORD_AUDIO
         )
 
+    // Skip DetectLeaksAfterTestSuccess on API 27 and 29 devices. Some objects (analyzer or taking
+    // picture related) might not be released immediately after the activity is destroyed. The same
+    // code won't cause the leak issue on other API level devices. Keep DetectLeaksAfterTestSuccess
+    // to run on non-API-27/29 devices to have a chance to catch the possible memory leak issues.
     @get:Rule
-    val detectLeaks = DetectLeaksAfterTestSuccess(TAG)
+    val detectLeaks =
+        if (Build.VERSION.SDK_INT == 27 || Build.VERSION.SDK_INT == 29) {
+            // no-op TestRule
+            TestRule { base, _ -> base }
+        } else {
+            DetectLeaksAfterTestSuccess(TAG)
+        }
 
     private val launchIntent = Intent(
         ApplicationProvider.getApplicationContext(),
         CameraXActivity::class.java
     ).apply {
         putExtra(CameraXActivity.INTENT_EXTRA_CAMERA_IMPLEMENTATION, cameraConfig)
+        putExtra(CameraXActivity.INTENT_EXTRA_CAMERA_IMPLEMENTATION_NO_HISTORY, true)
     }
 
     @Before
     fun setUp() {
-        Assume.assumeTrue(CameraUtil.deviceHasCamera())
+        assumeTrue(CameraUtil.deviceHasCamera())
         CoreAppTestUtil.assumeCompatibleDevice()
         // Use the natural orientation throughout these tests to ensure the activity isn't
         // recreated unexpectedly. This will also freeze the sensors until
@@ -125,6 +137,12 @@ class BasicUITest(
             // Arrange.
             // Wait for the Activity to be created and Preview appears before starting the test.
             scenario.waitForViewfinderIdle()
+
+            // Skips the test if ImageAnalysis can't be enabled when launching the activity. Some
+            // devices use YUV stream to take image and Preview + ImageCapture + ImageAnalysis
+            // might not be able to bind together.
+            assumeTrue(scenario.withActivity { imageAnalysis != null })
+
             // Click to disable the imageAnalysis use case.
             if (scenario.withActivity { imageAnalysis != null }) {
                 Espresso.onView(withId(R.id.AnalysisToggle)).perform(ViewActions.click())

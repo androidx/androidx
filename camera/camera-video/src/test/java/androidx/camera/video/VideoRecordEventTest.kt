@@ -14,25 +14,28 @@
  * limitations under the License.
  */
 
+@file:RequiresApi(21)
+
 package androidx.camera.video
 
 import android.net.Uri
 import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.camera.video.VideoRecordEvent.Finalize.ERROR_NONE
 import androidx.camera.video.VideoRecordEvent.Finalize.ERROR_UNKNOWN
 import com.google.common.truth.Truth.assertThat
+import java.io.File
 import org.junit.Assert
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
-import java.io.File
 
 private const val INVALID_FILE_PATH = "/invalid/file/path"
 private val TEST_OUTPUT_OPTION = FileOutputOptions.Builder(File(INVALID_FILE_PATH)).build()
 private val TEST_RECORDING_STATE =
-    RecordingStats.of(0, 0, AudioStats.of(AudioStats.AUDIO_STATE_ACTIVE, null))
+    RecordingStats.of(0, 0, AudioStats.of(AudioStats.AUDIO_STATE_ACTIVE, null, 0.0))
 private val TEST_OUTPUT_RESULT = OutputResults.of(Uri.EMPTY)
 
 @RunWith(RobolectricTestRunner::class)

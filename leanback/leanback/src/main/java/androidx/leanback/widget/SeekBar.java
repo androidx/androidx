@@ -28,6 +28,7 @@ import android.os.Bundle;
 import android.util.AttributeSet;
 import android.view.View;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
 import androidx.leanback.R;
@@ -35,13 +36,11 @@ import androidx.leanback.R;
 /**
  * Replacement of SeekBar, has two bar heights and two thumb size when focused/not_focused.
  * The widget does not deal with KeyEvent, it's client's responsibility to set a key listener.
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 public final class SeekBar extends View {
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public abstract static class AccessibilitySeekListener {
@@ -127,7 +126,7 @@ public final class SeekBar extends View {
     }
 
     @Override
-    protected void onDraw(Canvas canvas) {
+    protected void onDraw(@NonNull Canvas canvas) {
         super.onDraw(canvas);
         final int radius = isFocused() ? mActiveRadius : mBarHeight / 2;
         canvas.drawRoundRect(mBackgroundRect, radius, radius, mBackgroundPaint);

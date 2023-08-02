@@ -49,7 +49,7 @@ sealed interface IntervalList<out T> {
     operator fun get(index: Int): Interval<T>
 
     /**
-     * Allows to iterate through all the intervals starting from the one containing [fromIndex]
+     * Iterates through all the intervals starting from the one containing [fromIndex]
      * until the one containing [toIndex].
      *
      * @param fromIndex we will start iterating from the interval containing this index.

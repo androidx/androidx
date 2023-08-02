@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   Copyright 2019 The Android Open Source Project
 
   Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,33 +21,21 @@
     <uses-permission android:name="android.permission.CAMERA" />
     <application>
         <activity
-            android:name="androidx.camera.testing.activity.ForegroundTestActivity"
-            android:exported="true"
+            android:name="androidx.camera.testing.impl.activity.ForegroundTestActivity"
             android:configChanges="orientation|screenSize"
-            android:label="ForegroundTestActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
-        <activity
-            android:name="androidx.camera.testing.activity.CameraXTestActivity"
             android:exported="true"
-            android:label="CameraX TestActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
+            android:label="ForegroundTestActivity" />
         <activity
-            android:name="androidx.camera.testing.activity.Camera2TestActivity"
+            android:name="androidx.camera.testing.impl.activity.CameraXTestActivity"
             android:exported="true"
-            android:label="Camera2 TestActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
+            android:label="CameraX TestActivity" />
+        <activity
+            android:name="androidx.camera.testing.impl.activity.Camera2TestActivity"
+            android:exported="true"
+            android:label="Camera2 TestActivity" />
+        <activity
+            android:name="androidx.camera.testing.impl.activity.EmptyActivity"
+            android:exported="true"
+            android:label="EmptyActivity" />
     </application>
 </manifest>
-

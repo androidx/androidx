@@ -17,13 +17,20 @@
 package androidx.window.layout
 
 import android.app.Activity
+import android.content.Context
+import android.inputmethodservice.InputMethodService
 import android.os.Build
+import android.util.DisplayMetrics
 import android.view.Display
+import android.view.WindowMetrics as AndroidWindowMetrics
+import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
-import androidx.window.core.ExperimentalWindowApi
+import androidx.annotation.UiContext
+import androidx.core.view.WindowInsetsCompat
+import androidx.window.core.Bounds
 
 /**
- * An interface to calculate the [WindowMetrics] for an [Activity].
+ * An interface to calculate the [WindowMetrics] for an [Activity] or a [UiContext].
  */
 interface WindowMetricsCalculator {
 
@@ -65,6 +72,24 @@ interface WindowMetricsCalculator {
     fun computeCurrentWindowMetrics(activity: Activity): WindowMetrics
 
     /**
+     * Computes the size and position of the area the window would occupy with
+     * [MATCH_PARENT][android.view.WindowManager.LayoutParams.MATCH_PARENT] width and height
+     * and any combination of flags that would allow the window to extend behind display cutouts.
+     *
+     * On [Build.VERSION_CODES.Q] and older, a [UiContext] is either an [Activity] or an
+     * [InputMethodService]. On [Build.VERSION_CODES.R] and newer, a [UiContext] can also be one
+     * created via the [Context.createWindowContext] APIs.
+     *
+     * @see [computeCurrentWindowMetrics]
+     * @throws NotImplementedError if not implemented. The default implementation from [getOrCreate]
+     * is guaranteed to implement this method.
+     */
+    fun computeCurrentWindowMetrics(@UiContext context: Context): WindowMetrics {
+        throw NotImplementedError("Must override computeCurrentWindowMetrics(context) and" +
+            " provide an implementation.")
+    }
+
+    /**
      * Computes the maximum size and position of the area the window can expect with
      * [MATCH_PARENT][android.view.WindowManager.LayoutParams.MATCH_PARENT] width and height
      * and any combination of flags that would allow the window to extend behind display cutouts.
@@ -76,6 +101,27 @@ interface WindowMetricsCalculator {
      */
     fun computeMaximumWindowMetrics(activity: Activity): WindowMetrics
 
+    /**
+     * Computes the maximum size and position of the area the window can expect with
+     * [MATCH_PARENT][android.view.WindowManager.LayoutParams.MATCH_PARENT] width and height
+     * and any combination of flags that would allow the window to extend behind display cutouts.
+     *
+     * The value returned from this method will always match [Display.getRealSize] on
+     * [Android 10][Build.VERSION_CODES.Q] and below.
+     *
+     * On [Build.VERSION_CODES.Q] and older, a [UiContext] is either an [Activity] or an
+     * [InputMethodService]. On [Build.VERSION_CODES.R] and newer, a [UiContext] can also be one
+     * created via the [Context.createWindowContext] APIs.
+     *
+     * @see [computeMaximumWindowMetrics]
+     * @throws NotImplementedError if not implemented. The default implementation from [getOrCreate]
+     * is guaranteed to implement this method.
+     */
+    fun computeMaximumWindowMetrics(@UiContext context: Context): WindowMetrics {
+        throw NotImplementedError("Must override computeMaximumWindowMetrics(context) and" +
+            " provide an implementation.")
+    }
+
     companion object {
 
         private var decorator: (WindowMetricsCalculator) -> WindowMetricsCalculator =
@@ -86,30 +132,44 @@ interface WindowMetricsCalculator {
             return decorator(WindowMetricsCalculatorCompat)
         }
 
-        @ExperimentalWindowApi
         @JvmStatic
-        @RestrictTo(RestrictTo.Scope.TESTS)
-        public fun overrideDecorator(overridingDecorator: WindowMetricsCalculatorDecorator) {
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        fun overrideDecorator(overridingDecorator: WindowMetricsCalculatorDecorator) {
             decorator = overridingDecorator::decorate
         }
 
-        @ExperimentalWindowApi
         @JvmStatic
-        @RestrictTo(RestrictTo.Scope.TESTS)
-        public fun reset() {
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        fun reset() {
             decorator = { it }
+        }
+
+        /**
+         * Converts [Android API WindowMetrics][AndroidWindowMetrics] to
+         * [Jetpack version WindowMetrics][WindowMetrics]
+         */
+        @Suppress("ClassVerificationFailure")
+        @RequiresApi(Build.VERSION_CODES.R)
+        internal fun translateWindowMetrics(windowMetrics: AndroidWindowMetrics): WindowMetrics =
+            WindowMetrics(
+                windowMetrics.bounds,
+                WindowInsetsCompat.toWindowInsetsCompat(windowMetrics.windowInsets)
+            )
+
+        internal fun fromDisplayMetrics(displayMetrics: DisplayMetrics): WindowMetrics {
+            return WindowMetrics(
+                    Bounds(0, 0, displayMetrics.widthPixels, displayMetrics.heightPixels),
+                    WindowInsetsCompat.Builder().build()
+                )
         }
     }
 }
 
-@ExperimentalWindowApi
-@RestrictTo(RestrictTo.Scope.TESTS)
-public interface WindowMetricsCalculatorDecorator {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+interface WindowMetricsCalculatorDecorator {
 
-    @ExperimentalWindowApi
     /**
      * Returns an instance of [WindowMetricsCalculator]
      */
-    @RestrictTo(RestrictTo.Scope.TESTS)
-    public fun decorate(calculator: WindowMetricsCalculator): WindowMetricsCalculator
+    fun decorate(calculator: WindowMetricsCalculator): WindowMetricsCalculator
 }

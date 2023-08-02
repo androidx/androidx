@@ -31,6 +31,7 @@ import androidx.media2.test.service.MockPlayer;
 import androidx.media2.test.service.RemoteMediaBrowser;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
+import androidx.test.filters.SdkSuppress;
 
 import org.junit.After;
 import org.junit.Before;
@@ -46,6 +47,7 @@ import java.util.concurrent.TimeUnit;
  * TODO: Make this class extend MediaSessionCallbackTest.
  * TODO: Create MediaLibrarySessionTest which extends MediaSessionTest.
  */
+@SdkSuppress(maxSdkVersion = 32) // b/244312419
 @RunWith(AndroidJUnit4.class)
 @MediumTest
 public class MediaLibrarySessionCallbackTest extends MediaSessionTestBase {

@@ -26,16 +26,15 @@ plugins {
 dependencies {
     api(libs.kotlinStdlib)
     api("androidx.annotation:annotation:1.1.0")
-    api("androidx.navigation:navigation-runtime:2.3.2")
+    api("androidx.navigation:navigation-runtime:2.5.1")
     api(libs.hiltAndroid)
     kapt(libs.hiltCompiler)
 }
 
 androidx {
-    name = "Android Navigation Hilt Extension"
+    name = "Navigation Hilt Extension"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenVersion = LibraryVersions.HILT
-    mavenGroup = LibraryGroups.HILT
+    mavenVersion = LibraryVersions.HILT_NAVIGATION
     inceptionYear = "2021"
     description = "Android Navigation Hilt Extension"
 }

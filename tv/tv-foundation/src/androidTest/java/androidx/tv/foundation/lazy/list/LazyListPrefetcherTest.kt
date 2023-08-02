@@ -16,7 +16,6 @@
 
 package androidx.tv.foundation.lazy.list
 
-import androidx.tv.foundation.lazy.AutoTestFrameClock
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.layout.PaddingValues
@@ -32,6 +31,8 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.dp
 import androidx.test.filters.LargeTest
+import androidx.tv.foundation.lazy.AutoTestFrameClock
+import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -324,6 +325,40 @@ class LazyListPrefetcherTest(
         }
 
         rule.runOnIdle { }
+    }
+
+    @Test
+    fun scrollingByListSizeCancelsPreviousPrefetch() {
+        composeList()
+
+        // now we have items 0-1 visible
+        rule.runOnIdle {
+            runBlocking(AutoTestFrameClock()) {
+                // this will move the viewport so items 1-2 are visible
+                // and schedule a prefetching for 3
+                state.scrollBy(itemsSizePx.toFloat())
+
+                // move viewport by screen size to items 4-5, so item 3 is just behind
+                // the first visible item
+                state.scrollBy(itemsSizePx * 3f)
+
+                // move scroll further to items 5-6, so item 3 is reused
+                state.scrollBy(itemsSizePx.toFloat())
+            }
+        }
+
+        waitForPrefetch(7)
+
+        rule.runOnIdle {
+            runBlocking(AutoTestFrameClock()) {
+                // scroll again to ensure item 3 was dropped
+                state.scrollBy(itemsSizePx * 100f)
+            }
+        }
+
+        rule.runOnIdle {
+            assertThat(activeNodes).doesNotContain(3)
+        }
     }
 
     private fun waitForPrefetch(index: Int) {

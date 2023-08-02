@@ -28,39 +28,22 @@ dependencies {
     api(project(":lifecycle:lifecycle-livedata-core"))
     api(libs.kotlinStdlib)
     testImplementation(project(":lifecycle:lifecycle-runtime"))
-    testImplementation("androidx.arch.core:core-testing:2.1.0")
+    testImplementation("androidx.arch.core:core-testing:2.2.0")
     testImplementation(project(":lifecycle:lifecycle-runtime-testing"))
     testImplementation(libs.kotlinCoroutinesTest)
     testImplementation(libs.junit)
     testImplementation(libs.truth)
 
     lintPublish(project(":lifecycle:lifecycle-livedata-core-ktx-lint"))
-
-    constraints {
-        // this syntax mirrors the temporary workaround in lifecycle-livedata-core
-        // dependency constraints which allows lifecycle-livedata-core-ktx to have
-        // a project constraint on compose and wear, even though they are not within
-        // the 'MAIN' project-set.
-        // update syntax when b/239979823 is fixed.
-        implementation("androidx.lifecycle:lifecycle-livedata-core:{androidx.LibraryVersions.LIFECYCLE}")
-    }
 }
 
 androidx {
     name = "LiveData Core Kotlin Extensions"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.LIFECYCLE
     inceptionYear = "2018"
     description = "Kotlin extensions for 'livedata-core' artifact"
 }
 
 android {
     namespace "androidx.lifecycle.livedata.core.ktx"
-}
-
-// Allow usage of Kotlin's @OptIn.
-tasks.withType(KotlinCompile).configureEach {
-    kotlinOptions {
-        freeCompilerArgs += ["-opt-in=kotlin.RequiresOptIn"]
-    }
 }

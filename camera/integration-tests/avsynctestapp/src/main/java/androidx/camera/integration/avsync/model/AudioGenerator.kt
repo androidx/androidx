@@ -25,10 +25,10 @@ import androidx.annotation.VisibleForTesting
 import androidx.camera.core.Logger
 import androidx.core.util.Preconditions.checkArgument
 import androidx.core.util.Preconditions.checkArgumentNonnegative
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import kotlin.math.pow
 import kotlin.math.sin
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 private const val TAG = "AudioGenerator"
 private const val DEFAULT_SAMPLE_RATE: Int = 44100
@@ -37,22 +37,41 @@ private const val MAGNITUDE = 0.5
 private const val ENCODING: Int = AudioFormat.ENCODING_PCM_16BIT
 private const val CHANNEL = AudioFormat.CHANNEL_OUT_MONO
 
-class AudioGenerator {
+class AudioGenerator(private val isEnabled: Boolean = true) {
 
     @VisibleForTesting
     var audioTrack: AudioTrack? = null
 
     fun start() {
+        if (isEnabled) {
+            startInternal()
+        } else {
+            Logger.i(TAG, "Will not start audio generation, since AudioGenerator is disabled.")
+        }
+    }
+
+    private fun startInternal() {
+        Logger.i(TAG, "start audio generation")
         audioTrack!!.play()
     }
 
     fun stop() {
+        if (isEnabled) {
+            stopInternal()
+        } else {
+            Logger.i(TAG, "Will not stop audio generation, since AudioGenerator is disabled.")
+        }
+    }
+
+    private fun stopInternal() {
+        Logger.i(TAG, "stop audio generation")
         Logger.i(TAG, "playState before stopped: ${audioTrack!!.playState}")
         Logger.i(TAG, "playbackHeadPosition before stopped: ${audioTrack!!.playbackHeadPosition}")
         audioTrack!!.stop()
+        audioTrack!!.reloadStaticData()
     }
 
-    suspend fun initAudioTrack(
+    suspend fun initial(
         context: Context,
         frequency: Int,
         beepLengthInSec: Double,
@@ -60,6 +79,19 @@ class AudioGenerator {
         checkArgumentNonnegative(frequency, "The input frequency should not be negative.")
         checkArgument(beepLengthInSec >= 0, "The beep length should not be negative.")
 
+        return if (isEnabled) {
+            initAudioTrackInternal(context, frequency, beepLengthInSec)
+        } else {
+            Logger.i(TAG, "Will not initial audio track, since AudioGenerator is disabled.")
+            true
+        }
+    }
+
+    private suspend fun initAudioTrackInternal(
+        context: Context,
+        frequency: Int,
+        beepLengthInSec: Double,
+    ): Boolean {
         val sampleRate = getOutputSampleRate(context)
         val samples = generateSineSamples(frequency, beepLengthInSec, SAMPLE_WIDTH, sampleRate)
         val bufferSize = samples.size

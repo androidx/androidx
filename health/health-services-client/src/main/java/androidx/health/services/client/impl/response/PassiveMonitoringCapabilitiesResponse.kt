@@ -25,7 +25,6 @@ import androidx.health.services.client.proto.ResponsesProto
 /**
  * Response containing the [PassiveMonitoringCapabilities] of the device.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class PassiveMonitoringCapabilitiesResponse(
@@ -33,11 +32,10 @@ public class PassiveMonitoringCapabilitiesResponse(
     public val passiveMonitoringCapabilities: PassiveMonitoringCapabilities,
 ) : ProtoParcelable<ResponsesProto.PassiveMonitoringCapabilitiesResponse>() {
 
-    override val proto: ResponsesProto.PassiveMonitoringCapabilitiesResponse by lazy {
+    override val proto: ResponsesProto.PassiveMonitoringCapabilitiesResponse =
         ResponsesProto.PassiveMonitoringCapabilitiesResponse.newBuilder()
             .setCapabilities(passiveMonitoringCapabilities.proto)
             .build()
-    }
 
     public companion object {
         @JvmField

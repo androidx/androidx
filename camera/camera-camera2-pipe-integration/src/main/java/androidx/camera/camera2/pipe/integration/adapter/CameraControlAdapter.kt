@@ -19,7 +19,6 @@ package androidx.camera.camera2.pipe.integration.adapter
 import android.annotation.SuppressLint
 import android.graphics.Rect
 import android.hardware.camera2.CameraCharacteristics
-import android.util.Rational
 import androidx.annotation.RequiresApi
 import androidx.arch.core.util.Function
 import androidx.camera.camera2.pipe.CameraPipe
@@ -29,9 +28,9 @@ import androidx.camera.camera2.pipe.integration.impl.CameraProperties
 import androidx.camera.camera2.pipe.integration.impl.EvCompControl
 import androidx.camera.camera2.pipe.integration.impl.FlashControl
 import androidx.camera.camera2.pipe.integration.impl.FocusMeteringControl
+import androidx.camera.camera2.pipe.integration.impl.StillCaptureRequestControl
 import androidx.camera.camera2.pipe.integration.impl.TorchControl
 import androidx.camera.camera2.pipe.integration.impl.UseCaseCamera
-import androidx.camera.camera2.pipe.integration.impl.UseCaseManager
 import androidx.camera.camera2.pipe.integration.impl.UseCaseThreads
 import androidx.camera.camera2.pipe.integration.impl.ZoomControl
 import androidx.camera.camera2.pipe.integration.interop.Camera2CameraControl
@@ -48,11 +47,8 @@ import androidx.camera.core.impl.utils.futures.FutureChain
 import androidx.camera.core.impl.utils.futures.Futures
 import com.google.common.util.concurrent.ListenableFuture
 import javax.inject.Inject
-import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.launch
 
 /**
  * Adapt the [CameraControlInternal] interface to [CameraPipe].
@@ -67,21 +63,15 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalCoroutinesApi::class, ExperimentalCamera2Interop::class)
 class CameraControlAdapter @Inject constructor(
     private val cameraProperties: CameraProperties,
-    private val cameraStateAdapter: CameraStateAdapter,
     private val evCompControl: EvCompControl,
     private val flashControl: FlashControl,
+    private val focusMeteringControl: FocusMeteringControl,
+    private val stillCaptureRequestControl: StillCaptureRequestControl,
     private val torchControl: TorchControl,
     private val threads: UseCaseThreads,
-    private val useCaseManager: UseCaseManager,
     private val zoomControl: ZoomControl,
     val camera2cameraControl: Camera2CameraControl,
 ) : CameraControlInternal {
-    private val focusMeteringControl = FocusMeteringControl(
-        cameraProperties,
-        useCaseManager,
-        threads
-    )
-
     override fun getSensorRect(): Rect {
         return cameraProperties.metadata[CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE]!!
     }
@@ -111,35 +101,24 @@ class CameraControlAdapter @Inject constructor(
 
     override fun startFocusAndMetering(
         action: FocusMeteringAction
-    ): ListenableFuture<FocusMeteringResult> {
-        // TODO(sushilnath@): use preview aspect ratio instead of sensor active array aspect ratio.
-        val sensorAspectRatio = Rational(sensorRect.width(), sensorRect.height())
-        return focusMeteringControl.startFocusAndMetering(action, sensorAspectRatio)
-    }
+    ): ListenableFuture<FocusMeteringResult> =
+        Futures.nonCancellationPropagating(focusMeteringControl.startFocusAndMetering(action))
 
     override fun cancelFocusAndMetering(): ListenableFuture<Void> {
-        warn { "TODO: cancelFocusAndMetering is not yet supported" }
-        return Futures.immediateFuture(null)
+        return Futures.nonCancellationPropagating(
+            threads.sequentialScope.async {
+                focusMeteringControl.cancelFocusAndMeteringAsync().join()
+                // Convert to null once the task is done, ignore the results.
+                return@async null
+            }.asListenableFuture()
+        )
     }
 
-    override fun setZoomRatio(ratio: Float): ListenableFuture<Void> {
-        return threads.scope.launch(start = CoroutineStart.UNDISPATCHED) {
-            useCaseManager.camera?.let {
-                zoomControl.zoomRatio = ratio
-                val zoomValue = ZoomValue(
-                    ratio,
-                    zoomControl.minZoom,
-                    zoomControl.maxZoom
-                )
-                cameraStateAdapter.setZoomState(zoomValue)
-            }
-        }.asListenableFuture()
-    }
+    override fun setZoomRatio(ratio: Float): ListenableFuture<Void> =
+        zoomControl.setZoomRatio(ratio)
 
-    override fun setLinearZoom(linearZoom: Float): ListenableFuture<Void> {
-        val ratio = zoomControl.toZoomRatio(linearZoom)
-        return setZoomRatio(ratio)
-    }
+    override fun setLinearZoom(linearZoom: Float): ListenableFuture<Void> =
+        zoomControl.setLinearZoom(linearZoom)
 
     override fun getFlashMode(): Int {
         return flashControl.flashMode
@@ -171,26 +150,11 @@ class CameraControlAdapter @Inject constructor(
         captureConfigs: List<CaptureConfig>,
         captureMode: Int,
         flashType: Int,
-    ): ListenableFuture<List<Void?>> {
-        val camera = useCaseManager.camera
-        checkNotNull(camera) { "Attempted to issue capture requests while the camera isn't ready." }
-
-        val flashMode = flashMode
-        // Prior to submitStillCaptures, wait until the pending flash mode session change is
-        // completed. On some devices, AE preCapture triggered in submitStillCaptures may not
-        // work properly if the repeating request to change the flash mode is not completed.
-        return Futures.nonCancellationPropagating(
-            threads.sequentialScope.async {
-                flashControl.updateSignal.join()
-                camera.requestControl.issueSingleCaptureAsync(
-                    captureConfigs,
-                    captureMode,
-                    flashType,
-                    flashMode,
-                ).awaitAll()
-            }.asListenableFuture()
-        )
-    }
+    ) = stillCaptureRequestControl.issueCaptureRequests(
+        captureConfigs,
+        captureMode,
+        flashType
+    )
 
     override fun getSessionConfig(): SessionConfig {
         warn { "TODO: getSessionConfig is not yet supported" }

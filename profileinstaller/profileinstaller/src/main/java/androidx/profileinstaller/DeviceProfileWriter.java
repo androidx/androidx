@@ -35,7 +35,8 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
+import java.nio.channels.FileChannel;
+import java.nio.channels.FileLock;
 import java.util.concurrent.Executor;
 
 /**
@@ -55,7 +56,6 @@ import java.util.concurrent.Executor;
  *     .writeIfNeeded(skipStrategy);
  * </pre>
  *
- * @hide
  */
 @RequiresApi(19)
 @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -88,7 +88,6 @@ public class DeviceProfileWriter {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public DeviceProfileWriter(
@@ -111,7 +110,6 @@ public class DeviceProfileWriter {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public boolean deviceAllowsProfileInstallerAotWrites() {
@@ -120,12 +118,29 @@ public class DeviceProfileWriter {
             return false;
         }
 
-        if (!mCurProfile.canWrite()) {
-            // It's possible that some OEMs might not allow writing to this directory. If this is
-            // the case, there's not really anything we can do, so we should quit before doing
-            // any unnecessary work.
-            result(ProfileInstaller.RESULT_NOT_WRITABLE, null);
-            return false;
+        // Check if the current profile file can be written. In Android U the current profile is
+        // no more created empty at app startup, so we need to deal with both file already existing
+        // and not existing. When the file exists, we just want to make sure that it's writeable.
+        // When the file does not exist, we want to make sure that it can be created.
+        // If this is not possible on the device, there is nothing we can do. This behavior might
+        // also be customized by OEM, that could prevent writing this file.
+        if (mCurProfile.exists()) {
+            if (!mCurProfile.canWrite()) {
+                result(ProfileInstaller.RESULT_NOT_WRITABLE, null);
+                return false;
+            }
+        } else {
+            try {
+                if (!mCurProfile.createNewFile()) {
+                    result(ProfileInstaller.RESULT_NOT_WRITABLE, null);
+                    return false;
+                }
+            } catch (IOException e) {
+                // If the file cannot be created it's the same of the profile file not being
+                // writeable
+                result(ProfileInstaller.RESULT_NOT_WRITABLE, null);
+                return false;
+            }
         }
 
         mDeviceSupportsAotProfile = true;
@@ -150,7 +165,6 @@ public class DeviceProfileWriter {
      *         .write()
      * </pre>
      *
-     * @hide
      * @return this to chain call to transcodeIfNeeded
      */
     @NonNull
@@ -160,44 +174,117 @@ public class DeviceProfileWriter {
         if (mDesiredVersion == null) {
             return this;
         }
-        try (AssetFileDescriptor fd = mAssetManager.openFd(mProfileSourceLocation)) {
-            try (InputStream is = fd.createInputStream()) {
-                byte[] baselineVersion = ProfileTranscoder.readHeader(is, MAGIC_PROF);
-                mProfile = ProfileTranscoder.readProfile(is, baselineVersion, mApkName);
+
+        InputStream profileStream = getProfileInputStream(mAssetManager);
+        if (profileStream != null) {
+            mProfile = readProfileInternal(profileStream);
+        }
+        if (mProfile != null) {
+            DexProfileData[] profile = mProfile;
+            if (requiresMetadata()) {
+                DeviceProfileWriter profileWriter = addMetadata(profile, mDesiredVersion);
+                if (profileWriter != null) return profileWriter;
             }
-        }  catch (FileNotFoundException e) {
+        }
+        return this;
+    }
+
+    /**
+     * Loads an {@link InputStream} from assets whether the underlying file is compressed or not.
+     *
+     * @param assetManager The {@link AssetManager} to use.
+     * @param location The source file's location.
+     * @return An InputStream in case the profile was successfully read.
+     * @throws IOException If anything goes wrong while opening or reading the file.
+     */
+    private @Nullable InputStream openStreamFromAssets(AssetManager assetManager, String location)
+            throws IOException {
+        InputStream profileStream = null;
+        try {
+            AssetFileDescriptor descriptor = assetManager.openFd(location);
+            profileStream = descriptor.createInputStream();
+        } catch (FileNotFoundException e) {
+            String message = e.getMessage();
+            if (message != null && message.contains("compressed")) {
+                mDiagnostics.onDiagnosticReceived(
+                        ProfileInstaller.DIAGNOSTIC_PROFILE_IS_COMPRESSED, null);
+            }
+        }
+        return profileStream;
+    }
+
+    /**
+     * Load the baseline profile file from assets.
+     * @param assetManager The {@link AssetManager} to use.
+     * @return The opened stream or null if the stream was unable to be opened.
+     */
+    private @Nullable InputStream getProfileInputStream(AssetManager assetManager) {
+        InputStream profileStream = null;
+        try {
+            profileStream = openStreamFromAssets(assetManager, mProfileSourceLocation);
+        } catch (FileNotFoundException e) {
             mDiagnostics.onResultReceived(ProfileInstaller.RESULT_BASELINE_PROFILE_NOT_FOUND, e);
+        } catch (IOException e) {
+            mDiagnostics.onResultReceived(ProfileInstaller.RESULT_IO_EXCEPTION, e);
+        }
+        return profileStream;
+    }
+
+    /**
+     * Reads a baseline profile from a given {@link InputStream} and transcodes it along the way
+     * if needed.
+     *
+     * @param profileStream The {@link InputStream} containing the baseline profile data.
+     */
+    private @Nullable DexProfileData[] readProfileInternal(InputStream profileStream) {
+        DexProfileData[] profile = null;
+        try {
+            byte[] baselineVersion = ProfileTranscoder.readHeader(profileStream, MAGIC_PROF);
+            profile = ProfileTranscoder.readProfile(profileStream, baselineVersion, mApkName);
         } catch (IOException e) {
             mDiagnostics.onResultReceived(ProfileInstaller.RESULT_IO_EXCEPTION, e);
         } catch (IllegalStateException e) {
             mDiagnostics.onResultReceived(ProfileInstaller.RESULT_PARSE_EXCEPTION, e);
-        }
-        DexProfileData[] profile = mProfile;
-        if (profile != null && requiresMetadata()) {
-            try (AssetFileDescriptor fd = mAssetManager.openFd(mProfileMetaSourceLocation)) {
-                try (InputStream is = fd.createInputStream()) {
-                    byte[] metaVersion = ProfileTranscoder.readHeader(is, MAGIC_PROFM);
-                    mProfile = ProfileTranscoder.readMeta(
-                            is,
-                            metaVersion,
-                            mDesiredVersion,
-                            profile
-                    );
-                    return this;
-                }
-            } catch (FileNotFoundException e) {
-                mDiagnostics.onResultReceived(
-                        ProfileInstaller.RESULT_META_FILE_REQUIRED_BUT_NOT_FOUND,
-                        e
-                );
+        } finally {
+            try {
+                profileStream.close();
             } catch (IOException e) {
                 mDiagnostics.onResultReceived(ProfileInstaller.RESULT_IO_EXCEPTION, e);
-            } catch (IllegalStateException e) {
-                mProfile = null;
-                mDiagnostics.onResultReceived(ProfileInstaller.RESULT_PARSE_EXCEPTION, e);
             }
         }
-        return this;
+        return profile;
+    }
+
+    /**
+     * Add Metadata from an existing baseline profile metadata file.
+     * @param profile The profile which needs adding of metadata.
+     *
+     * @return Baseline profile with metaadata.
+     */
+    @Nullable
+    private DeviceProfileWriter addMetadata(DexProfileData[] profile, byte[] desiredVersion) {
+
+        try (InputStream is = openStreamFromAssets(mAssetManager, mProfileMetaSourceLocation)) {
+            if (is != null) {
+                byte[] metaVersion = ProfileTranscoder.readHeader(is, MAGIC_PROFM);
+                mProfile = ProfileTranscoder.readMeta(
+                        is,
+                        metaVersion,
+                        desiredVersion,
+                        profile
+                );
+                return this;
+            }
+        } catch (FileNotFoundException e) {
+            mDiagnostics.onResultReceived(
+                    ProfileInstaller.RESULT_META_FILE_REQUIRED_BUT_NOT_FOUND, e);
+        } catch (IOException e) {
+            mDiagnostics.onResultReceived(ProfileInstaller.RESULT_IO_EXCEPTION, e);
+        } catch (IllegalStateException e) {
+            mProfile = null;
+            mDiagnostics.onResultReceived(ProfileInstaller.RESULT_PARSE_EXCEPTION, e);
+        }
+        return null;
     }
 
     /**
@@ -214,7 +301,6 @@ public class DeviceProfileWriter {
      * This method will always clear the profile read by copyProfileOrRead and may only be called
      * once.
      *
-     * @hide
      * @return this to chain call call writeIfNeeded()
      */
     @NonNull
@@ -257,8 +343,6 @@ public class DeviceProfileWriter {
      * Write the transcoded profile generated by transcodeIfNeeded()
      *
      * This method will always clear the profile, and may only be called once.
-     *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public boolean write() {
@@ -269,9 +353,17 @@ public class DeviceProfileWriter {
         assertDeviceAllowsProfileInstallerAotWritesCalled();
         try (
             InputStream bis = new ByteArrayInputStream(transcodedProfile);
-            OutputStream os = new FileOutputStream(mCurProfile)
+            FileOutputStream os = new FileOutputStream(mCurProfile);
+            FileChannel channel = os.getChannel();
+            // Acquire a lock to avoid racing with the Android Runtime
+            // when saving the contents of the profile.
+
+            // The documentation suggests that these locks are VM wide, however, the underlying
+            // implementation in libcore (https://cs.android.com/android/platform/superproject/+/main:libcore/ojluni/src/main/native/FileDispatcherImpl.c;l=217;drc=e9cc931d70205df4e7dcc601729707bc7367c081)
+            // ensures that this is OS wide.
+            FileLock lock = channel.tryLock()
         ) {
-            Encoding.writeAll(bis, os);
+            Encoding.writeAll(bis, os, lock);
             result(ProfileInstaller.RESULT_INSTALL_SUCCESS, null);
             return true;
         } catch (FileNotFoundException e) {
@@ -286,8 +378,9 @@ public class DeviceProfileWriter {
     }
 
     private static @Nullable byte[] desiredVersion() {
-        // If SDK is pre-N, we don't want to do anything, so return null.
-        if (Build.VERSION.SDK_INT < ProfileVersion.MIN_SUPPORTED_SDK) {
+        // If SDK is pre or post supported version, we don't want to do anything, so return null.
+        if (Build.VERSION.SDK_INT < ProfileVersion.MIN_SUPPORTED_SDK
+                || Build.VERSION.SDK_INT > ProfileVersion.MAX_SUPPORTED_SDK) {
             return null;
         }
 
@@ -309,6 +402,7 @@ public class DeviceProfileWriter {
             case Build.VERSION_CODES.S:
             case Build.VERSION_CODES.S_V2:
             case Build.VERSION_CODES.TIRAMISU:
+            case 34:
                 return ProfileVersion.V015_S;
 
             default:
@@ -318,7 +412,8 @@ public class DeviceProfileWriter {
 
     private static boolean requiresMetadata() {
         // If SDK is pre-N, we don't want to do anything, so return null.
-        if (Build.VERSION.SDK_INT < ProfileVersion.MIN_SUPPORTED_SDK) {
+        if (Build.VERSION.SDK_INT < ProfileVersion.MIN_SUPPORTED_SDK
+                || Build.VERSION.SDK_INT > ProfileVersion.MAX_SUPPORTED_SDK) {
             return false;
         }
 
@@ -343,6 +438,7 @@ public class DeviceProfileWriter {
             case Build.VERSION_CODES.S:
             case Build.VERSION_CODES.S_V2:
             case Build.VERSION_CODES.TIRAMISU:
+            case 34:
                 return true;
 
             default:

@@ -33,10 +33,12 @@ import android.graphics.drawable.BitmapDrawable;
 import androidx.test.core.app.ApplicationProvider;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
 /** Tests for {@link RoundedDrawable} */
@@ -50,11 +52,12 @@ public class RoundedDrawableTest {
     private RoundedDrawable mRoundedDrawable;
     private BitmapDrawable mBitmapDrawable;
 
+    @Rule public final MockitoRule mocks = MockitoJUnit.rule();
+
     @Mock Canvas mMockCanvas;
 
     @Before
     public void setUp() {
-        MockitoAnnotations.initMocks(this);
         mRoundedDrawable = new RoundedDrawable();
         mBitmapDrawable =
                 new BitmapDrawable(

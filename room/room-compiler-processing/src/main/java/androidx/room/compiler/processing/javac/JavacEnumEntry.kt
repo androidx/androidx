@@ -25,6 +25,7 @@ internal class JavacEnumEntry(
     entryElement: Element,
     override val enclosingElement: XEnumTypeElement
 ) : JavacElement(env, entryElement), XEnumEntry {
+    override val kotlinMetadata = null
 
     override val name: String
         get() = element.simpleName.toString()

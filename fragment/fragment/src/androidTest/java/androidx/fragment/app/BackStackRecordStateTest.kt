@@ -24,19 +24,26 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.testutils.withActivity
 import com.google.common.truth.Truth.assertThat
+import leakcanary.DetectLeaksAfterTestSuccess
 import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.RuleChain
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 @LargeTest
 class BackStackRecordStateTest {
 
-    @get:Rule
+    @Suppress("DEPRECATION")
     val activityRule = ActivityScenarioRule(EmptyFragmentTestActivity::class.java)
     private val fragmentManager get() = activityRule.withActivity {
         supportFragmentManager
     }
+
+    // Detect leaks BEFORE and AFTER activity is destroyed
+    @get:Rule
+    val ruleChain: RuleChain = RuleChain.outerRule(DetectLeaksAfterTestSuccess())
+        .around(activityRule)
 
     @Test
     fun testParcel() {

@@ -17,7 +17,6 @@
 package androidx.compose.ui.text.font
 
 import android.graphics.Typeface
-import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.FontTestData
 import androidx.compose.ui.text.matchers.assertThat
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -31,7 +30,6 @@ import org.junit.runner.RunWith
 // see: (b/154330441)
 @RunWith(AndroidJUnit4::class)
 @MediumTest
-@OptIn(ExperimentalTextApi::class)
 class PlatformFontFamilyTypefaceAdapterTest {
 
     private val context = InstrumentationRegistry.getInstrumentation().context

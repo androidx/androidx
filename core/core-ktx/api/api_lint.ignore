@@ -23,6 +23,10 @@ DocumentExceptions: androidx.core.view.ViewGroupKt#iterator(android.view.ViewGro
     Method ViewGroupKt.iterator appears to be throwing java.lang.IndexOutOfBoundsException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
 
 
+KotlinDefaultParameterOrder: androidx.core.content.ContextKt#withStyledAttributes(android.content.Context, android.util.AttributeSet, int[], int, int, kotlin.jvm.functions.Function1<? super android.content.res.TypedArray,kotlin.Unit>) parameter #1:
+    Parameter `set` has a default value and should come after all parameters without default values (except for a trailing lambda parameter)
+
+
 NoByteOrShort: androidx.core.util.HalfKt#toHalf(short) parameter #0:
     Should avoid odd sized primitives; use `int` instead of `short` in parameter $this$toHalf in androidx.core.util.HalfKt.toHalf(short $this$toHalf)
 

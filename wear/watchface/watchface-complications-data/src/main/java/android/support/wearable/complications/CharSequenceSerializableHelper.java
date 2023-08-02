@@ -30,17 +30,19 @@ class CharSequenceSerializableHelper {
     private CharSequenceSerializableHelper() {}
 
     @SuppressWarnings("ParameterNotNullable") // Error prone is wrong about charSequence.length()
-    public static void writeToStream(@Nullable CharSequence charSequence,
-            @NonNull ObjectOutputStream stream) throws IOException {
+    public static void writeToStream(
+            @Nullable CharSequence charSequence, @NonNull ObjectOutputStream stream)
+            throws IOException {
         Boolean isNull = charSequence == null;
         stream.writeBoolean(isNull);
         if (!isNull) {
             Boolean isSpannable = charSequence instanceof SpannableString;
             stream.writeBoolean(isSpannable);
             if (isSpannable) {
-                stream.writeUTF(HtmlCompat.toHtml(
-                        (SpannableString) charSequence,
-                        HtmlCompat.TO_HTML_PARAGRAPH_LINES_CONSECUTIVE));
+                stream.writeUTF(
+                        HtmlCompat.toHtml(
+                                (SpannableString) charSequence,
+                                HtmlCompat.TO_HTML_PARAGRAPH_LINES_CONSECUTIVE));
             } else {
                 // We don't rely on CharSequence having implemented toString().
                 StringBuilder builder = new StringBuilder(charSequence.length());

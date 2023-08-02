@@ -16,7 +16,12 @@
 
 package androidx.benchmark.macro.perfetto
 
+import androidx.benchmark.perfetto.PerfettoTraceProcessor
+import androidx.benchmark.perfetto.Slice
+import org.intellij.lang.annotations.Language
+
 internal object BatteryDischargeQuery {
+    @Language("sql")
     private fun getFullQuery(slice: Slice) = """
         SELECT
             max(c.value)/1000 AS startMah,
@@ -33,43 +38,35 @@ internal object BatteryDischargeQuery {
         var chargeMah: Double
     )
 
-    public fun getBatteryDischargeMetrics(
-        absoluteTracePath: String,
+    fun getBatteryDischargeMetrics(
+    session: PerfettoTraceProcessor.Session,
         slice: Slice
     ): List<BatteryDischargeMeasurement> {
-        val queryResult = PerfettoTraceProcessor.rawQuery(
-            absoluteTracePath = absoluteTracePath,
+        val queryResult = session.query(
             query = getFullQuery(slice)
-        )
+        ).toList()
 
-        val resultLines = queryResult.split("\n")
-
-        if (resultLines.first() != """"startMah","endMah","diffMah"""") {
-            throw IllegalStateException("query failed!\n${getFullQuery(slice)}")
-        }
-
-        // results are in CSV with a header row, with 1 row of results
-        val columns = resultLines
-            .filter { it.isNotBlank() } // drop blank lines
-            .drop(1) // drop the header row
-            .joinToString().split(",")
-
-        if (columns.isEmpty()) {
+        if (queryResult.isEmpty()) {
             return emptyList()
         }
 
+        if (queryResult.size != 1) {
+            throw IllegalStateException("Unexpected query result size for battery discharge.")
+        }
+
+        val row = queryResult.single()
         return listOf(
             BatteryDischargeMeasurement(
                 name = "Start",
-                chargeMah = columns[0].toDouble(),
+                chargeMah = row["startMah"] as Double,
             ),
             BatteryDischargeMeasurement(
                 name = "End",
-                chargeMah = columns[1].toDouble()
+                chargeMah = row["endMah"] as Double
             ),
             BatteryDischargeMeasurement(
                 name = "Diff",
-                chargeMah = columns[2].toDouble()
+                chargeMah = row["diffMah"] as Double
             )
         )
     }

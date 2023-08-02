@@ -18,6 +18,7 @@ package androidx.tv.foundation.lazy.grid
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.ui.unit.Constraints
+import androidx.tv.foundation.lazy.layout.LazyLayoutKeyIndexMap
 
 /**
  * Abstracts away subcomposition and span calculation from the measuring logic of entire lines.
@@ -25,8 +26,8 @@ import androidx.compose.ui.unit.Constraints
 @OptIn(ExperimentalFoundationApi::class)
 internal class LazyMeasuredLineProvider(
     private val isVertical: Boolean,
-    slotSizesSums: List<Int>,
-    crossAxisSpacing: Int,
+    private val slotSizesSums: List<Int>,
+    private val crossAxisSpacing: Int,
     private val gridItemsCount: Int,
     private val spaceBetweenLines: Int,
     private val measuredItemProvider: LazyMeasuredItemProvider,
@@ -34,16 +35,24 @@ internal class LazyMeasuredLineProvider(
     private val measuredLineFactory: MeasuredLineFactory
 ) {
     // The constraints for cross axis size. The main axis is not restricted.
-    internal val childConstraints: (startSlot: Int, span: Int) -> Constraints = { startSlot, span ->
+    internal fun childConstraints(startSlot: Int, span: Int): Constraints {
         val lastSlotSum = slotSizesSums[startSlot + span - 1]
         val prevSlotSum = if (startSlot == 0) 0 else slotSizesSums[startSlot - 1]
         val slotsSize = lastSlotSum - prevSlotSum
-        val crossAxisSize = slotsSize + crossAxisSpacing * (span - 1)
-        if (isVertical) {
+        val crossAxisSize = (slotsSize + crossAxisSpacing * (span - 1)).coerceAtLeast(0)
+        return if (isVertical) {
             Constraints.fixedWidth(crossAxisSize)
         } else {
             Constraints.fixedHeight(crossAxisSize)
         }
+    }
+
+    fun itemConstraints(itemIndex: ItemIndex): Constraints {
+        val span = spanLayoutProvider.spanOf(
+            itemIndex.value,
+            spanLayoutProvider.slotsPerLine
+        )
+        return childConstraints(0, span)
     }
 
     /**
@@ -84,12 +93,11 @@ internal class LazyMeasuredLineProvider(
     /**
      * Contains the mapping between the key and the index. It could contain not all the items of
      * the list as an optimization.
-     **/
-    val keyToIndexMap: Map<Any, Int> get() = measuredItemProvider.keyToIndexMap
+     */
+    val keyToIndexMap: LazyLayoutKeyIndexMap get() = measuredItemProvider.keyToIndexMap
 }
 
 // This interface allows to avoid autoboxing on index param
-@OptIn(ExperimentalFoundationApi::class)
 internal fun interface MeasuredLineFactory {
     fun createLine(
         index: LineIndex,

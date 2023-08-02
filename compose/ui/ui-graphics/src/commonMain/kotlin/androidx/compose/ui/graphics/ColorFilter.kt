@@ -59,9 +59,8 @@ class ColorFilter internal constructor(internal val nativeColorFilter: NativeCol
          * A lighting ColorFilter is defined by two parameters, one used to multiply the source
          * color and one used to add to the source color
          *
-         * @param multiply Color that will be added to the source color when the color
-         *          filter is applied
-         * @param add Color used to multiply the source color when the color filter is applied.
+         * @param multiply Color used to multiply the source color when the color filter is applied.
+         * @param add Color that will be added to the source color when the color filter is applied.
          */
         @Stable
         fun lighting(multiply: Color, add: Color): ColorFilter =

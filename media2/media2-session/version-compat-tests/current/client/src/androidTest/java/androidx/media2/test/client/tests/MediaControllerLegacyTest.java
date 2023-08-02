@@ -66,6 +66,7 @@ import androidx.media2.test.common.PollingCheck;
 import androidx.media2.test.common.TestUtils;
 import androidx.test.filters.FlakyTest;
 import androidx.test.filters.MediumTest;
+import androidx.test.filters.SdkSuppress;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -85,6 +86,7 @@ import java.util.concurrent.atomic.AtomicReference;
  *
  * TODO: Pull out callback tests to a separate file (i.e. MediaControllerLegacyCallbackTest).
  */
+@SdkSuppress(maxSdkVersion = 32) // b/244312419
 @FlakyTest(bugId = 202942942)
 @MediumTest
 public class MediaControllerLegacyTest extends MediaSessionTestBase {

@@ -26,24 +26,25 @@ import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.glance.Button
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
-import androidx.glance.wear.tiles.action.ActionCallback
-import androidx.glance.wear.tiles.action.actionRunCallback
 import androidx.glance.background
 import androidx.glance.currentState
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.Column
 import androidx.glance.layout.Row
 import androidx.glance.layout.Spacer
-import androidx.glance.layout.padding
 import androidx.glance.layout.height
+import androidx.glance.layout.padding
 import androidx.glance.layout.width
 import androidx.glance.semantics.contentDescription
 import androidx.glance.semantics.semantics
 import androidx.glance.state.PreferencesGlanceStateDefinition
-import androidx.glance.wear.tiles.GlanceTileService
 import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
+import androidx.glance.unit.ColorProvider
+import androidx.glance.wear.tiles.GlanceTileService
+import androidx.glance.wear.tiles.action.ActionCallback
+import androidx.glance.wear.tiles.action.actionRunCallback
 import androidx.glance.wear.tiles.state.updateWearTileState
 
 private val prefsCountKey = intPreferencesKey("count")
@@ -64,6 +65,7 @@ class CountTileService : GlanceTileService() {
             Text(
                 text = currentCount.toString(),
                 style = TextStyle(
+                    color = ColorProvider(Color.Gray),
                     fontWeight = FontWeight.Bold,
                     fontSize = 20.sp
                 )

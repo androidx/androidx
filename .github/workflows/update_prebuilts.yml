@@ -23,6 +23,8 @@ jobs:
         uses: actions/checkout@v2
       - name: "Run update prebuilt snapshot ids script"
         shell: bash
+        # this does not update metalava because it needs to match the
+        # metalava buildId used by androidx
         run: development/update_playground.sh
       - name: "Check if anything changed"
         shell: bash

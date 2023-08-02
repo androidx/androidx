@@ -63,7 +63,10 @@ import kotlin.math.roundToInt
  *
  * @param maxLines An optional maximum number of lines for the text to span, wrapping if
  * necessary. If the text exceeds the given number of lines, it is truncated such that subsequent
- * lines are dropped.
+ * lines are dropped. It is required that 1 <= [minLines] <= [maxLines].
+ *
+ * @param minLines The minimum height in terms of minimum number of visible lines. It is required
+ * that 1 <= [minLines] <= [maxLines].
  *
  * @param softWrap Whether the text should break at soft line breaks. If false, the glyphs in the
  * text will be positioned as if there was unlimited horizontal space. If [softWrap] is false,
@@ -86,6 +89,7 @@ class TextDelegate(
     val text: AnnotatedString,
     val style: TextStyle,
     val maxLines: Int = Int.MAX_VALUE,
+    val minLines: Int = DefaultMinLines,
     val softWrap: Boolean = true,
     val overflow: TextOverflow = TextOverflow.Clip,
     val density: Density,
@@ -117,7 +121,9 @@ class TextDelegate(
     val maxIntrinsicWidth: Int get() = nonNullIntrinsics.maxIntrinsicWidth.ceilToIntPx()
 
     init {
-        check(maxLines > 0)
+        require(maxLines > 0) { "no maxLines" }
+        require(minLines > 0) { "no minLines" }
+        require(minLines <= maxLines) { "minLines greater than maxLines" }
     }
 
     fun layoutIntrinsics(layoutDirection: LayoutDirection) {
@@ -294,3 +300,48 @@ class TextDelegate(
 }
 
 internal fun Float.ceilToIntPx(): Int = ceil(this).roundToInt()
+
+/**
+ * Returns the [TextDelegate] passed as a [current] param if the input didn't change
+ * otherwise creates a new [TextDelegate].
+ */
+@OptIn(InternalFoundationTextApi::class)
+internal fun updateTextDelegate(
+    current: TextDelegate,
+    text: AnnotatedString,
+    style: TextStyle,
+    density: Density,
+    fontFamilyResolver: FontFamily.Resolver,
+    softWrap: Boolean = true,
+    overflow: TextOverflow = TextOverflow.Clip,
+    maxLines: Int = Int.MAX_VALUE,
+    minLines: Int = DefaultMinLines,
+    placeholders: List<AnnotatedString.Range<Placeholder>>
+): TextDelegate {
+    // NOTE(text-perf-review): whenever we have remember intrinsic implemented, this might be a
+    // lot slower than the equivalent `remember(a, b, c, ...) { ... }` call.
+    return if (current.text != text ||
+        current.style != style ||
+        current.softWrap != softWrap ||
+        current.overflow != overflow ||
+        current.maxLines != maxLines ||
+        current.minLines != minLines ||
+        current.density != density ||
+        current.placeholders != placeholders ||
+        current.fontFamilyResolver !== fontFamilyResolver
+    ) {
+        TextDelegate(
+            text = text,
+            style = style,
+            softWrap = softWrap,
+            overflow = overflow,
+            maxLines = maxLines,
+            minLines = minLines,
+            density = density,
+            fontFamilyResolver = fontFamilyResolver,
+            placeholders = placeholders,
+        )
+    } else {
+        current
+    }
+}

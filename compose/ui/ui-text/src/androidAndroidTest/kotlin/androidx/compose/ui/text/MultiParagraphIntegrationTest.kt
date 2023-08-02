@@ -15,12 +15,14 @@
  */
 package androidx.compose.ui.text
 
+import android.graphics.Paint
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathOperation
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.AnnotatedString.Range
 import androidx.compose.ui.text.FontTestData.Companion.BASIC_MEASURE_FONT
 import androidx.compose.ui.text.font.toFontFamily
@@ -29,6 +31,7 @@ import androidx.compose.ui.text.matchers.assertThat
 import androidx.compose.ui.text.matchers.isZero
 import androidx.compose.ui.text.style.ResolvedTextDirection
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.text.style.TextIndent
 import androidx.compose.ui.unit.Constraints
@@ -239,6 +242,141 @@ class MultiParagraphIntegrationTest {
                     .that(actualOffset).isEqualTo(i)
             }
         }
+    }
+
+    @Test
+    fun getOffsetForPosition_emptyLine() = with(defaultDensity) {
+        val lineLength = 2
+        val text = createAnnotatedString(mutableListOf("a".repeat(lineLength), ""))
+
+        val fontSize = 50.sp
+        val fontSizeInPx = fontSize.roundToPx()
+        // each line contains max 2 character
+        val width = lineLength * fontSizeInPx
+
+        val paragraph = simpleMultiParagraph(
+            text = text,
+            fontSize = fontSize,
+            width = width.toFloat()
+        )
+
+        // The text should be rendered as:
+        //     aa
+        //     <blank line>
+
+        val position = Offset(
+            x = (lineLength * fontSizeInPx) / 2f, // center of lines horizontally
+            y = fontSizeInPx * 1.5f // center of second line vertically
+        )
+
+        assertThat(paragraph.getOffsetForPosition(position)).isEqualTo(2)
+    }
+
+    @Test
+    fun getOffsetForPosition_emptyLines() = with(defaultDensity) {
+        val lineLength = 2
+        val text = createAnnotatedString(mutableListOf("a".repeat(lineLength), "", ""))
+
+        val fontSize = 50.sp
+        val fontSizeInPx = fontSize.roundToPx()
+        val width = lineLength * fontSizeInPx
+
+        val paragraph = simpleMultiParagraph(
+            text = text,
+            fontSize = fontSize,
+            width = width.toFloat()
+        )
+
+        // The text should be rendered as:
+        //     aa
+        //     <blank line>
+        //     <blank line>
+
+        val position = Offset(
+            x = (lineLength * fontSizeInPx) / 2f, // center of lines horizontally
+            y = fontSizeInPx * 1.5f // center of second line vertically
+        )
+
+        assertThat(paragraph.getOffsetForPosition(position)).isEqualTo(2)
+    }
+
+    @Test
+    fun getLineForVerticalPosition() = with(defaultDensity) {
+        val lineLength = 4
+        val text = createAnnotatedString(List(2) { "a".repeat(lineLength) })
+
+        val fontSize = 50.sp
+        val fontSizeInPx = fontSize.roundToPx()
+        val width = lineLength * fontSizeInPx
+
+        val paragraph = simpleMultiParagraph(
+            text = text,
+            fontSize = fontSize,
+            width = width.toFloat()
+        )
+
+        // The text should be rendered as:
+        //     aaaa
+        //     aaaa
+
+        val lineHeight = fontSizeInPx.toFloat()
+        generateSequence(-0.5f) { it + 0.5f }
+            .takeWhile { it <= 3f }
+            .forEach {
+                val expected = it.toInt().coerceIn(0..1)
+                val actual = paragraph.getLineForVerticalPosition(lineHeight * it)
+                assertWithMessage("paragraph.getLineForVerticalPosition(lineHeight * $it) failed")
+                    .that(actual).isEqualTo(expected)
+            }
+    }
+
+    @Test
+    fun getLineForVerticalPosition_emptyLine() = with(defaultDensity) {
+        val lineLength = 4
+        val text = createAnnotatedString(mutableListOf("a".repeat(lineLength), ""))
+
+        val fontSize = 50.sp
+        val fontSizeInPx = fontSize.roundToPx()
+        val width = lineLength * fontSizeInPx
+
+        val paragraph = simpleMultiParagraph(
+            text = text,
+            fontSize = fontSize,
+            width = width.toFloat()
+        )
+
+        // The text should be rendered as:
+        //     aaaa
+        //     <blank line>
+
+        val y = fontSizeInPx * 1.5f // center of second line vertically
+        val actual = paragraph.getLineForVerticalPosition(y)
+        assertThat(actual).isEqualTo(1)
+    }
+
+    @Test
+    fun getLineForVerticalPosition_emptyLines() = with(defaultDensity) {
+        val lineLength = 4
+        val text = createAnnotatedString(mutableListOf("a".repeat(lineLength), "", ""))
+
+        val fontSize = 50.sp
+        val fontSizeInPx = fontSize.roundToPx()
+        val width = lineLength * fontSizeInPx
+
+        val paragraph = simpleMultiParagraph(
+            text = text,
+            fontSize = fontSize,
+            width = width.toFloat()
+        )
+
+        // The text should be rendered as:
+        //     aaaa
+        //     <blank line>
+        //     <blank line>
+
+        val y = fontSizeInPx * 1.5f // center of second line vertically
+        val actual = paragraph.getLineForVerticalPosition(y)
+        assertThat(actual).isEqualTo(1)
     }
 
     @Test
@@ -1153,6 +1291,39 @@ class MultiParagraphIntegrationTest {
     }
 
     @Test
+    fun drawText_withUnderlineStyle_equalToUnderlinePaint() = with(defaultDensity) {
+        val fontSize = 30.sp
+        val fontSizeInPx = fontSize.toPx()
+        val multiParagraph = simpleMultiParagraph(
+            text = buildAnnotatedString {
+                withStyle(SpanStyle(textDecoration = TextDecoration.Underline)) {
+                    append("レンズ(単焦点)")
+                }
+            },
+            style = TextStyle(fontSize = fontSize),
+            width = fontSizeInPx * 20
+        )
+
+        val multiParagraph2 = simpleMultiParagraph(
+            text = AnnotatedString("レンズ(単焦点)"),
+            style = TextStyle(
+                fontSize = fontSize,
+                textDecoration = TextDecoration.Underline
+            ),
+            width = fontSizeInPx * 20
+        )
+
+        val bitmapWithSpan = multiParagraph.bitmap()
+        // Our text rendering stack relies on the fact that given textstyle is also passed to draw
+        // functions of TextLayoutResult, MultiParagraph, Paragraph. If Underline is not specified
+        // here, it would be removed while drawing the MultiParagraph. We are simply mimicking
+        // what TextPainter does.
+        val bitmapNoSpan = multiParagraph2.bitmap(textDecoration = TextDecoration.Underline)
+
+        assertThat(bitmapWithSpan).isEqualToBitmap(bitmapNoSpan)
+    }
+
+    @Test
     fun textIndent_onFirstLine() {
         with(defaultDensity) {
             val text = createAnnotatedString("aaa", "\u05D0\u05D0\u05D0")
@@ -1476,7 +1647,6 @@ class MultiParagraphIntegrationTest {
         }
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun multiParagraph_appliesBrush_toTheWholeText() = with(defaultDensity) {
         val fontSize = 20.sp
@@ -1514,7 +1684,6 @@ class MultiParagraphIntegrationTest {
             .isEqualToBitmap(multiParagraph2.bitmap(brush))
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun multiParagraph_overridesAlphaDuringDraw() = with(defaultDensity) {
         val fontSize = 20.sp
@@ -1551,6 +1720,84 @@ class MultiParagraphIntegrationTest {
 
         assertThat(multiParagraph.bitmap(brush))
             .isEqualToBitmap(multiParagraph2.bitmap(brush, 0.5f))
+    }
+
+    @Test
+    fun multiParagraph_appliesDrawStyle_toAllParagraphs() = with(defaultDensity) {
+        val fontSize = 20.sp
+        val fontSizeInPx = fontSize.toPx()
+        val multiParagraph = simpleMultiParagraph(
+            text = buildAnnotatedString {
+                withStyle(ParagraphStyle(textAlign = TextAlign.Right)) {
+                    append("Lorem")
+                }
+                withStyle(ParagraphStyle()) {
+                    append("Ipsum")
+                }
+            },
+            style = TextStyle(fontSize = fontSize),
+            width = fontSizeInPx * 5
+        )
+
+        multiParagraph.bitmap(drawStyle = Stroke())
+
+        multiParagraph.paragraphInfoList.map { it.paragraph }.forEach {
+            assertThat((it as AndroidParagraph).textPaint.style).isEqualTo(Paint.Style.STROKE)
+        }
+    }
+
+    @Test
+    fun minInstrinsicWidth_includes_white_space() {
+        with(defaultDensity) {
+            val fontSize = 12.sp
+            val text = "b "
+            val paragraph = simpleMultiParagraph(
+                text = text,
+                style = TextStyle(fontSize = fontSize)
+            )
+
+            val expectedWidth = text.length * fontSize.toPx()
+            assertThat(paragraph.minIntrinsicWidth).isEqualTo(expectedWidth)
+        }
+    }
+
+    @Test
+    fun minInstrinsicWidth_returns_longest_word_width() {
+        with(defaultDensity) {
+            // create words with length 1, 2, 3... 50; and append all with space.
+            val maxWordLength = 50
+            val text = (1..maxWordLength).fold("") { string, next ->
+                string + "a".repeat(next) + " "
+            }
+            val fontSize = 12.sp
+            val paragraph = simpleMultiParagraph(
+                text = text,
+                style = TextStyle(fontSize = fontSize)
+            )
+
+            // +1 is for the white space
+            val expectedWidth = (maxWordLength + 1) * fontSize.toPx()
+            assertThat(paragraph.minIntrinsicWidth).isEqualTo(expectedWidth)
+        }
+    }
+
+    @Test
+    fun minInstrinsicWidth_withStyledText() {
+        with(defaultDensity) {
+            val text = "a bb ccc"
+            val fontSize = 12.sp
+            val styledFontSize = fontSize * 2
+            val paragraph = simpleMultiParagraph(
+                text = buildAnnotatedString {
+                    append(text)
+                    addStyle(SpanStyle(fontSize = styledFontSize), "a".length, "a bb ".length)
+                },
+                style = TextStyle(fontSize = fontSize),
+            )
+
+            val expectedWidth = "bb ".length * styledFontSize.toPx()
+            assertThat(paragraph.minIntrinsicWidth).isEqualTo(expectedWidth)
+        }
     }
 
     private fun MultiParagraph.disableAntialias() {

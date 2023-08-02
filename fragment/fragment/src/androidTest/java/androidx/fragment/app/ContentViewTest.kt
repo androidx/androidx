@@ -21,7 +21,10 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.testutils.withActivity
+import androidx.testutils.withUse
 import com.google.common.truth.Truth.assertWithMessage
+import leakcanary.DetectLeaksAfterTestSuccess
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -29,10 +32,13 @@ import org.junit.runner.RunWith
 @MediumTest
 class ContentViewTest {
 
+    @get:Rule
+    val rule = DetectLeaksAfterTestSuccess()
+
     @Test
     fun testContentViewWithInflatedFragment() {
         // Test basic lifecycle when the fragment view is inflated with <fragment> tag
-        with(ActivityScenario.launch(ContentViewActivity::class.java)) {
+       withUse(ActivityScenario.launch(ContentViewActivity::class.java)) {
             val fm = withActivity {
                 supportFragmentManager
             }

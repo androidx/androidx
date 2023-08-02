@@ -24,6 +24,7 @@ import androidx.annotation.RestrictTo;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.RequiresCarApi;
+import androidx.car.app.annotations.KeepFields;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -44,11 +45,11 @@ import java.util.Objects;
 @CarProtocol
 @RequiresCarApi(5)
 @ExperimentalCarApi
+@KeepFields
 public final class CarZone {
     /**
      * Possible row values.
      *
-     * @hide
      */
     @IntDef({
             CAR_ZONE_ROW_ALL,
@@ -85,7 +86,6 @@ public final class CarZone {
     /**
      * Possible column values.
      *
-     * @hide
      */
     @IntDef({
             CAR_ZONE_COLUMN_ALL,

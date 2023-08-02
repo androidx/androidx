@@ -16,7 +16,6 @@
 
 package androidx.build.importMaven
 
-import okio.FileSystem
 import okio.Path
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.internal.catalog.parser.TomlCatalogFileParser
@@ -32,7 +31,7 @@ object ImportVersionCatalog {
     /**
      * Loads a gradle version file and returns all artifacts declared in it.
      */
-    fun load(fileSystem: FileSystem, file: Path): List<String> {
+    fun load(file: Path): List<String> {
         val project = ProjectService.createProject()
         val configurations = project.configurations.create(
             GRADLE_PLATFORM_DEPENDENCIES
@@ -46,16 +45,13 @@ object ImportVersionCatalog {
             Interners.newStrongInterner(),
             Interners.newStrongInterner(),
             project.objects,
-            project.providers,
             { error("Not supported") },
             configurations
         )
-        fileSystem.read(file) {
-            TomlCatalogFileParser.parse(
-                this.inputStream(),
-                catalogBuilder
-            )
-        }
+        TomlCatalogFileParser.parse(
+            file.toNioPath(),
+            catalogBuilder
+        )
         val built = catalogBuilder.build()
         return built.libraryAliases.map { alias ->
             val dep = built.getDependencyData(alias)

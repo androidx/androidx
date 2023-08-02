@@ -18,12 +18,16 @@ package androidx.camera.core.imagecapture
 
 import android.graphics.Matrix
 import android.graphics.Rect
+import androidx.annotation.RequiresApi
 import androidx.camera.core.ImageCapture
+import androidx.camera.core.imagecapture.Utils.CROP_RECT
 import androidx.camera.core.impl.CaptureBundle
+import com.google.common.util.concurrent.ListenableFuture
 
 /**
  * Fake [ProcessingRequest].
  */
+@RequiresApi(21)
 internal class FakeProcessingRequest(
     outputFileOptions: ImageCapture.OutputFileOptions?,
     captureBundle: CaptureBundle,
@@ -31,7 +35,8 @@ internal class FakeProcessingRequest(
     rotationDegrees: Int,
     jpegQuality: Int,
     sensorToBufferTransform: Matrix,
-    callback: TakePictureCallback
+    callback: TakePictureCallback,
+    captureFuture: ListenableFuture<Void>
 ) : ProcessingRequest(
     captureBundle,
     outputFileOptions,
@@ -39,14 +44,21 @@ internal class FakeProcessingRequest(
     rotationDegrees,
     jpegQuality,
     sensorToBufferTransform,
-    callback
+    callback,
+    captureFuture
 ) {
-    constructor(captureBundle: CaptureBundle, callback: TakePictureCallback) : this(
+    constructor(
+        captureBundle: CaptureBundle,
+        callback: TakePictureCallback,
+        captureFuture: ListenableFuture<Void>
+    ) : this(
         null,
         captureBundle,
-        Rect(0, 0, 0, 0),
+        CROP_RECT,
         0,
         100,
-        Matrix(), callback
+        Matrix(),
+        callback,
+        captureFuture
     )
 }

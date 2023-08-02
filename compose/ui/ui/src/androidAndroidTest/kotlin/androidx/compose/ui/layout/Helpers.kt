@@ -19,9 +19,16 @@ package androidx.compose.ui.layout
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.autofill.Autofill
 import androidx.compose.ui.autofill.AutofillTree
-import androidx.compose.ui.focus.FocusManager
+import androidx.compose.ui.focus.FocusOwner
+import androidx.compose.ui.geometry.MutableRect
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Canvas
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.CompositingStrategy
+import androidx.compose.ui.graphics.Matrix
+import androidx.compose.ui.graphics.RenderEffect
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.hapticfeedback.HapticFeedback
 import androidx.compose.ui.input.InputModeManager
 import androidx.compose.ui.input.key.KeyEvent
@@ -31,11 +38,13 @@ import androidx.compose.ui.node.InternalCoreApi
 import androidx.compose.ui.node.LayoutNode
 import androidx.compose.ui.node.LayoutNodeDrawScope
 import androidx.compose.ui.node.MeasureAndLayoutDelegate
+import androidx.compose.ui.node.OwnedLayer
 import androidx.compose.ui.node.Owner
 import androidx.compose.ui.node.OwnerSnapshotObserver
 import androidx.compose.ui.node.RootForTest
 import androidx.compose.ui.platform.AccessibilityManager
 import androidx.compose.ui.platform.ClipboardManager
+import androidx.compose.ui.platform.PlatformTextInputSessionScope
 import androidx.compose.ui.platform.TextToolbar
 import androidx.compose.ui.platform.ViewConfiguration
 import androidx.compose.ui.platform.WindowInfo
@@ -44,18 +53,23 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.TextInputService
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import com.google.common.truth.Truth
+import java.util.concurrent.Executors
+import kotlin.coroutines.CoroutineContext
 import kotlin.math.max
 import kotlin.math.min
+import kotlinx.coroutines.asCoroutineDispatcher
 
-@Suppress("UNCHECKED_CAST")
 internal fun createDelegate(
     root: LayoutNode,
-    firstMeasureCompleted: Boolean = true
+    firstMeasureCompleted: Boolean = true,
+    createLayer: () -> OwnedLayer = { TODO() }
 ): MeasureAndLayoutDelegate {
     val delegate = MeasureAndLayoutDelegate(root)
-    root.attach(FakeOwner(delegate))
+    root.attach(FakeOwner(delegate, createLayer))
     if (firstMeasureCompleted) {
         delegate.updateRootConstraints(
             defaultRootConstraints()
@@ -67,7 +81,10 @@ internal fun createDelegate(
 
 @OptIn(ExperimentalComposeUiApi::class)
 private class FakeOwner(
-    val delegate: MeasureAndLayoutDelegate
+    val delegate: MeasureAndLayoutDelegate,
+    val createLayer: () -> OwnedLayer,
+    override val coroutineContext: CoroutineContext =
+        Executors.newFixedThreadPool(3).asCoroutineDispatcher()
 ) : Owner {
     override val measureIteration: Long
         get() = delegate.measureIteration
@@ -75,7 +92,8 @@ private class FakeOwner(
     override fun onRequestMeasure(
         layoutNode: LayoutNode,
         affectsLookahead: Boolean,
-        forceRequest: Boolean
+        forceRequest: Boolean,
+        scheduleMeasureAndLayout: Boolean
     ) {
         if (affectsLookahead) {
             delegate.requestLookaheadRemeasure(layoutNode)
@@ -92,8 +110,8 @@ private class FakeOwner(
         delegate.measureAndLayout(layoutNode, constraints)
     }
 
-    override fun forceMeasureTheSubtree(layoutNode: LayoutNode) {
-        delegate.forceMeasureTheSubtree(layoutNode)
+    override fun forceMeasureTheSubtree(layoutNode: LayoutNode, affectsLookahead: Boolean) {
+        delegate.forceMeasureTheSubtree(layoutNode, affectsLookahead)
     }
 
     override val snapshotObserver: OwnerSnapshotObserver = OwnerSnapshotObserver { it.invoke() }
@@ -140,9 +158,16 @@ private class FakeOwner(
         get() = TODO("Not yet implemented")
     override val textInputService: TextInputService
         get() = TODO("Not yet implemented")
+
+    override suspend fun textInputSession(
+        session: suspend PlatformTextInputSessionScope.() -> Nothing
+    ): Nothing {
+        TODO("Not yet implemented")
+    }
+
     override val pointerIconService: PointerIconService
         get() = TODO("Not yet implemented")
-    override val focusManager: FocusManager
+    override val focusOwner: FocusOwner
         get() = TODO("Not yet implemented")
     override val windowInfo: WindowInfo
         get() = TODO("Not yet implemented")
@@ -166,7 +191,7 @@ private class FakeOwner(
         get() = TODO("Not yet implemented")
 
     override fun createLayer(drawBlock: (Canvas) -> Unit, invalidateParentLayer: () -> Unit) =
-        TODO("Not yet implemented")
+        createLayer()
 
     override fun onRequestRelayout(
         layoutNode: LayoutNode,
@@ -273,7 +298,7 @@ internal fun node(block: LayoutNode.() -> Unit = {}): LayoutNode {
     }
 }
 
-internal fun LayoutNode.add(child: LayoutNode) = insertAt(children.count(), child)
+internal fun LayoutNode.add(child: LayoutNode) = insertAt(foldedChildren.count(), child)
 
 internal fun LayoutNode.measureInLayoutBlock() {
     measurePolicy = MeasureInLayoutBlock()
@@ -323,6 +348,11 @@ internal var LayoutNode.shouldPlaceChildren: Boolean
     set(value) {
         (measurePolicy as SmartMeasurePolicy).shouldPlaceChildren = value
     }
+internal var LayoutNode.placeWithLayer: Boolean
+    get() = (measurePolicy as SmartMeasurePolicy).placeWithLayer
+    set(value) {
+        (measurePolicy as SmartMeasurePolicy).placeWithLayer = value
+    }
 
 internal val TestAlignmentLine = HorizontalAlignmentLine(::min)
 
@@ -342,6 +372,7 @@ internal abstract class SmartMeasurePolicy : LayoutNode.NoIntrinsicsMeasurePolic
     // child size is used when null
     var size: Int? = null
     var shouldPlaceChildren = true
+    var placeWithLayer = false
 }
 
 internal class MeasureInMeasureBlock : SmartMeasurePolicy() {
@@ -381,7 +412,11 @@ internal class MeasureInMeasureBlock : SmartMeasurePolicy() {
             preLayoutCallback = null
             if (shouldPlaceChildren) {
                 placeables.forEach { placeable ->
-                    placeable.placeRelative(0, 0)
+                    if (placeWithLayer) {
+                        placeable.placeRelativeWithLayer(0, 0)
+                    } else {
+                        placeable.placeRelative(0, 0)
+                    }
                 }
             }
         }
@@ -429,7 +464,11 @@ internal class MeasureInLayoutBlock : SmartMeasurePolicy() {
             measurables.forEach {
                 val placeable = it.measure(childConstraints)
                 if (shouldPlaceChildren) {
-                    placeable.placeRelative(0, 0)
+                    if (placeWithLayer) {
+                        placeable.placeRelativeWithLayer(0, 0)
+                    } else {
+                        placeable.placeRelative(0, 0)
+                    }
                 }
             }
         }
@@ -481,4 +520,67 @@ internal class SpyLayoutModifier : LayoutModifier {
             measurable.measure(constraints).placeRelative(0, 0)
         }
     }
+}
+
+internal open class MockLayer() : OwnedLayer {
+
+    override fun updateLayerProperties(
+        scaleX: Float,
+        scaleY: Float,
+        alpha: Float,
+        translationX: Float,
+        translationY: Float,
+        shadowElevation: Float,
+        rotationX: Float,
+        rotationY: Float,
+        rotationZ: Float,
+        cameraDistance: Float,
+        transformOrigin: TransformOrigin,
+        shape: Shape,
+        clip: Boolean,
+        renderEffect: RenderEffect?,
+        ambientShadowColor: Color,
+        spotShadowColor: Color,
+        compositingStrategy: CompositingStrategy,
+        layoutDirection: LayoutDirection,
+        density: Density
+    ) {
+    }
+
+    override fun isInLayer(position: Offset) = true
+
+    override fun move(position: IntOffset) {
+    }
+
+    override fun resize(size: IntSize) {
+    }
+
+    override fun drawLayer(canvas: Canvas) {
+    }
+
+    override fun updateDisplayList() {
+    }
+
+    override fun invalidate() {
+    }
+
+    override fun destroy() {
+    }
+
+    override fun mapBounds(rect: MutableRect, inverse: Boolean) {
+    }
+
+    override fun reuseLayer(
+        drawBlock: (Canvas) -> Unit,
+        invalidateParentLayer: () -> Unit
+    ) {
+    }
+
+    override fun transform(matrix: Matrix) {
+    }
+
+    override fun inverseTransform(matrix: Matrix) {
+    }
+
+    override fun mapOffset(point: Offset, inverse: Boolean) = point
 }

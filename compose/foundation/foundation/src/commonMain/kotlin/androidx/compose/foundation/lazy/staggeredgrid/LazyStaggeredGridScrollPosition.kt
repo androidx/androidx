@@ -18,30 +18,49 @@ package androidx.compose.foundation.lazy.staggeredgrid
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.lazy.layout.LazyLayoutItemProvider
+import androidx.compose.foundation.lazy.layout.LazyLayoutNearestRangeState
 import androidx.compose.foundation.lazy.layout.findIndexByKey
+import androidx.compose.runtime.SnapshotMutationPolicy
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.Snapshot
+import androidx.compose.ui.util.fastFirstOrNull
 
+@ExperimentalFoundationApi
 internal class LazyStaggeredGridScrollPosition(
     initialIndices: IntArray,
     initialOffsets: IntArray,
     private val fillIndices: (targetIndex: Int, laneCount: Int) -> IntArray
-) {
-    var indices by mutableStateOf(initialIndices)
-    var offsets by mutableStateOf(initialOffsets)
+) : SnapshotMutationPolicy<IntArray> {
+    var indices by mutableStateOf(initialIndices, this)
+        private set
+    var offsets by mutableStateOf(initialOffsets, this)
+        private set
 
     private var hadFirstNotEmptyLayout = false
 
     /** The last know key of the item at lowest of [indices] position. */
     private var lastKnownFirstItemKey: Any? = null
 
+    val nearestRangeState = LazyLayoutNearestRangeState(
+        initialIndices.minOrNull() ?: 0,
+        NearestItemsSlidingWindowSize,
+        NearestItemsExtraItemCount
+    )
+
     /**
      * Updates the current scroll position based on the results of the last measurement.
      */
     fun updateFromMeasureResult(measureResult: LazyStaggeredGridMeasureResult) {
-        lastKnownFirstItemKey = measureResult.visibleItemsInfo.firstOrNull()?.key
+        val firstVisibleIndex = measureResult.firstVisibleItemIndices
+            .minBy { if (it == -1) Int.MAX_VALUE else it }
+            .let { if (it == Int.MAX_VALUE) 0 else it }
+
+        lastKnownFirstItemKey = measureResult.visibleItemsInfo
+            .fastFirstOrNull { it.index == firstVisibleIndex }
+            ?.key
+        nearestRangeState.update(firstVisibleIndex)
         // we ignore the index and offset from measureResult until we get at least one
         // measurement with real items. otherwise the initial index and scroll passed to the
         // state would be lost and overridden with zeros.
@@ -71,6 +90,7 @@ internal class LazyStaggeredGridScrollPosition(
         val newIndices = fillIndices(index, indices.size)
         val newOffsets = IntArray(newIndices.size) { scrollOffset }
         update(newIndices, newOffsets)
+        nearestRangeState.update(index)
         // clear the stored key as we have a direct request to scroll to [index] position and the
         // next [updateScrollPositionIfTheFirstItemWasMoved] shouldn't override this.
         lastKnownFirstItemKey = null
@@ -83,27 +103,40 @@ internal class LazyStaggeredGridScrollPosition(
      * as the first visible one even given that its index has been changed.
      */
     @ExperimentalFoundationApi
-    fun updateScrollPositionIfTheFirstItemWasMoved(itemProvider: LazyLayoutItemProvider) {
-        Snapshot.withoutReadObservation {
-            val lastIndex = itemProvider.findIndexByKey(
-                key = lastKnownFirstItemKey,
-                lastKnownIndex = indices.getOrNull(0) ?: 0
-            )
-            if (lastIndex !in indices) {
-                update(
-                    fillIndices(lastIndex, indices.size),
-                    offsets
-                )
-            }
+    fun updateScrollPositionIfTheFirstItemWasMoved(
+        itemProvider: LazyLayoutItemProvider,
+        indices: IntArray
+    ): IntArray {
+        val newIndex = itemProvider.findIndexByKey(
+            key = lastKnownFirstItemKey,
+            lastKnownIndex = indices.getOrNull(0) ?: 0
+        )
+        return if (newIndex !in indices) {
+            nearestRangeState.update(newIndex)
+            val newIndices = fillIndices(newIndex, indices.size)
+            this.indices = newIndices
+            newIndices
+        } else {
+            indices
         }
     }
 
     private fun update(indices: IntArray, offsets: IntArray) {
-        if (!indices.contentEquals(this.indices)) {
-            this.indices = indices
-        }
-        if (!offsets.contentEquals(this.offsets)) {
-            this.offsets = offsets
-        }
+        this.indices = indices
+        this.offsets = offsets
     }
+
+    // mutation policy for int arrays
+    override fun equivalent(a: IntArray, b: IntArray) = a.contentEquals(b)
 }
+
+/**
+ * We use the idea of sliding window as an optimization, so user can scroll up to this number of
+ * items until we have to regenerate the key to index map.
+ */
+private const val NearestItemsSlidingWindowSize = 90
+
+/**
+ * The minimum amount of items near the current first visible item we want to have mapping for.
+ */
+private const val NearestItemsExtraItemCount = 200

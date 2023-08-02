@@ -55,6 +55,11 @@ interface XBasicAnnotationProcessor {
     fun initialize(env: XProcessingEnv) { }
 
     /**
+     * Called at the beginning of a processing round before all [processingSteps] execute.
+     */
+    fun preRound(env: XProcessingEnv, round: XRoundEnv) { }
+
+    /**
      * The list of processing steps to execute.
      */
     fun processingSteps(): Iterable<XProcessingStep>
@@ -118,8 +123,10 @@ internal class CommonProcessorDelegate(
                     (it.closestMemberContainer as? XTypeElement)?.qualifiedName
                 }
             )
-            // Only process the step if there are annotated elements found for this step.
-            return@associateWith if (elementsByAnnotation.isNotEmpty()) {
+            // Only process the step if there are annotated elements found for this step, or the
+            // step supports processing all annotations "*".
+            val supportsAllAnnotations = step.annotations().any { it == "*" }
+            return@associateWith if (supportsAllAnnotations || elementsByAnnotation.isNotEmpty()) {
                 step.process(env, elementsByAnnotation, false)
                     .mapNotNull { (it.closestMemberContainer as? XTypeElement)?.qualifiedName }
                     .toSet()

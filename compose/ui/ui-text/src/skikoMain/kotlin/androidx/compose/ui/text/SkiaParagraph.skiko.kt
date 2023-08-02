@@ -16,15 +16,16 @@
 
 package androidx.compose.ui.text
 
-import org.jetbrains.skia.Rect as SkRect
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.asSkiaPath
+import androidx.compose.ui.graphics.drawscope.DrawStyle
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toComposeRect
 import androidx.compose.ui.text.platform.SkiaParagraphIntrinsics
@@ -33,6 +34,7 @@ import androidx.compose.ui.text.style.ResolvedTextDirection
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.Constraints
 import kotlin.math.floor
+import org.jetbrains.skia.Rect as SkRect
 import org.jetbrains.skia.paragraph.LineMetrics
 import org.jetbrains.skia.paragraph.RectHeightMode
 import org.jetbrains.skia.paragraph.RectWidthMode
@@ -277,6 +279,14 @@ internal class SkiaParagraph(
         return box.rect.toComposeRect()
     }
 
+    override fun fillBoundingBoxes(
+        range: TextRange,
+        array: FloatArray,
+        arrayStart: Int
+    ) {
+        // TODO(siyamed) needs fillBoundingBoxes
+    }
+
     override fun getWordBoundary(offset: Int): TextRange {
         return when {
             (text[offset].isLetterOrDigit()) -> para.getWordBoundary(offset).let {
@@ -290,7 +300,6 @@ internal class SkiaParagraph(
         }
     }
 
-    // TODO(b/229518449): Implement an alternative to paint function that takes a brush.
     override fun paint(
         canvas: Canvas,
         color: Color,
@@ -309,13 +318,35 @@ internal class SkiaParagraph(
         para.paint(canvas.nativeCanvas, 0.0f, 0.0f)
     }
 
-    @ExperimentalTextApi
+    override fun paint(
+        canvas: Canvas,
+        color: Color,
+        shadow: Shadow?,
+        textDecoration: TextDecoration?,
+        drawStyle: DrawStyle?,
+        blendMode: BlendMode
+    ) {
+        para = layouter.layoutParagraph(
+            width = width,
+            maxLines = maxLines,
+            ellipsis = ellipsisChar,
+            color = color,
+            shadow = shadow,
+            textDecoration = textDecoration
+        )
+
+        para.paint(canvas.nativeCanvas, 0.0f, 0.0f)
+    }
+
+    // TODO(b/229518449): Implement this paint function that draws text with a Brush.
     override fun paint(
         canvas: Canvas,
         brush: Brush,
         alpha: Float,
         shadow: Shadow?,
-        textDecoration: TextDecoration?
+        textDecoration: TextDecoration?,
+        drawStyle: DrawStyle?,
+        blendMode: BlendMode
     ) {
         throw UnsupportedOperationException(
             "Using brush for painting the paragraph is a separate functionality that " +

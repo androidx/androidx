@@ -89,7 +89,6 @@ public class CameraAccessExceptionCompat extends Exception {
     /**
      * A deprecated HAL version is in use.
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public static final int CAMERA_DEPRECATED_HAL = 1000;
@@ -136,7 +135,6 @@ public class CameraAccessExceptionCompat extends Exception {
 
     private final CameraAccessException mCameraAccessException;
 
-    /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Retention(RetentionPolicy.SOURCE)
     @IntDef(value = {

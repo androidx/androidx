@@ -17,16 +17,20 @@ package androidx.compose.ui.text
 
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.ImageBitmapConfig
+import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathOperation
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.asAndroidBitmap
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.FontTestData.Companion.BASIC_KERN_FONT
 import androidx.compose.ui.text.FontTestData.Companion.BASIC_MEASURE_FONT
 import androidx.compose.ui.text.FontTestData.Companion.FONT_100_REGULAR
@@ -455,6 +459,78 @@ class ParagraphIntegrationTest {
     }
 
     @Test
+    fun getLineForVerticalPosition_ltr_lineTopCenterBottom_paddingFalse() {
+        val text = "ab\ncde\n\nfg"
+        // default density for the pixel 2 XL where test fails.
+        val density = Density(3.5f, 1.0f)
+        // font size where test fails
+        val fontSize = 14.sp
+
+        @Suppress("DEPRECATION") val paragraph = simpleParagraph(
+            text = text,
+            style = TextStyle(
+                fontSize = fontSize,
+                platformStyle = PlatformTextStyle(includeFontPadding = false)
+            ),
+            density = density
+        )
+
+        assertThat(paragraph.lineCount).isEqualTo(4)
+
+        for (index in 0 until paragraph.lineCount) {
+            assertThat(
+                paragraph.getLineForVerticalPosition(paragraph.getLineTop(index))
+            ).isEqualTo(index)
+
+            assertThat(
+                paragraph.getLineForVerticalPosition(
+                    (paragraph.getLineTop(index) + paragraph.getLineBottom(index)) / 2f
+                )
+            ).isEqualTo(index)
+
+            assertThat(
+                paragraph.getLineForVerticalPosition(paragraph.getLineBottom(index) - 1f)
+            ).isEqualTo(index)
+        }
+    }
+
+    @Test
+    fun getLineForVerticalPosition_ltr_lineTopCenterBottom_paddingTrue() {
+        val text = "ab\ncde\n\nfg"
+        // default density for the pixel 2 XL where test fails.
+        val density = Density(3.5f, 1.0f)
+        // font size where test fails
+        val fontSize = 14.sp
+
+        @Suppress("DEPRECATION") val paragraph = simpleParagraph(
+            text = text,
+            style = TextStyle(
+                fontSize = fontSize,
+                platformStyle = PlatformTextStyle(includeFontPadding = true)
+            ),
+            density = density
+        )
+
+        assertThat(paragraph.lineCount).isEqualTo(4)
+
+        for (index in 0 until paragraph.lineCount) {
+            assertThat(
+                paragraph.getLineForVerticalPosition(paragraph.getLineTop(index))
+            ).isEqualTo(index)
+
+            assertThat(
+                paragraph.getLineForVerticalPosition(
+                    (paragraph.getLineTop(index) + paragraph.getLineBottom(index)) / 2f
+                )
+            ).isEqualTo(index)
+
+            assertThat(
+                paragraph.getLineForVerticalPosition(paragraph.getLineBottom(index) - 1f)
+            ).isEqualTo(index)
+        }
+    }
+
+    @Test
     fun getBoundingBox_ltr_singleLine() {
         with(defaultDensity) {
             val text = "abc"
@@ -601,7 +677,139 @@ class ParagraphIntegrationTest {
     }
 
     @Test
-    fun getBoundingBox_ltr_textPosition_negative() {
+    fun getBoundingBox_ltr_multiLines_lineFeedEllipsized_maxLines() {
+        with(defaultDensity) {
+            val text = "abc def\ndef"
+            val fontSize = 50.sp
+            val fontSizeInPx = fontSize.toPx()
+            val paragraph = simpleParagraph(
+                text = text,
+                style = TextStyle(fontSize = fontSize),
+                width = 3 * fontSizeInPx,
+                ellipsis = true,
+                maxLines = 1
+            )
+
+            val box = paragraph.getBoundingBox(9)
+            assertThat(box.left).isEqualTo(3 * fontSizeInPx)
+            assertThat(box.right).isEqualTo(3 * fontSizeInPx)
+            assertThat(box.top).isEqualTo(0)
+            assertThat(box.bottom).isEqualTo(fontSizeInPx)
+        }
+    }
+
+    @Test
+    fun getBoundingBox_bidi_singleLineHeight_softWrap_ellipsized() {
+        with(defaultDensity) {
+            val text = "abc \u05D0\u05D1\u05D2"
+            val fontSize = 50.sp
+            val fontSizeInPx = fontSize.toPx()
+            val paragraph = simpleParagraph(
+                text = text,
+                style = TextStyle(fontSize = fontSize),
+                width = 3 * fontSizeInPx,
+                height = fontSizeInPx,
+                ellipsis = true
+            )
+
+            val box = paragraph.getBoundingBox(5)
+            assertThat(box.left).isEqualTo(3 * fontSizeInPx)
+            assertThat(box.right).isEqualTo(3 * fontSizeInPx)
+            assertThat(box.top).isEqualTo(0)
+            assertThat(box.bottom).isEqualTo(fontSizeInPx)
+        }
+    }
+
+    @Test
+    fun getBoundingBox_bidi_singleLineHeight_softWrap_ellipsized_beforeLineFeed() {
+        with(defaultDensity) {
+            val text = "abc \u05D0\n\u05D1\u05D2"
+            val fontSize = 50.sp
+            val fontSizeInPx = fontSize.toPx()
+            val paragraph = simpleParagraph(
+                text = text,
+                style = TextStyle(fontSize = fontSize),
+                width = 3 * fontSizeInPx,
+                height = fontSizeInPx,
+                ellipsis = true
+            )
+
+            val box = paragraph.getBoundingBox(4)
+            assertThat(box.left).isEqualTo(3 * fontSizeInPx)
+            assertThat(box.right).isEqualTo(3 * fontSizeInPx)
+            assertThat(box.top).isEqualTo(0)
+            assertThat(box.bottom).isEqualTo(fontSizeInPx)
+        }
+    }
+
+    @Test
+    fun getBoundingBox_rtl_multiLines_lineFeedEllipsized_maxLines() {
+        with(defaultDensity) {
+            val text = "\u05D0\u05D1\u05D2 \u05D3\u05D4\u05D5\n\u05D0\u05D1\u05D2"
+            val fontSize = 50.sp
+            val fontSizeInPx = fontSize.toPx()
+            val paragraph = simpleParagraph(
+                text = text,
+                style = TextStyle(fontSize = fontSize),
+                width = 3 * fontSizeInPx,
+                ellipsis = true,
+                maxLines = 1
+            )
+
+            val box = paragraph.getBoundingBox(9)
+            assertThat(box.left).isEqualTo(0)
+            assertThat(box.right).isEqualTo(0)
+            assertThat(box.top).isEqualTo(0)
+            assertThat(box.bottom).isEqualTo(fontSizeInPx)
+        }
+    }
+
+    @Test
+    fun getBoundingBox_ltr_multiLines_lineFeedEllipsized_maxHeight() {
+        with(defaultDensity) {
+            val text = "abc def\ndef"
+            val fontSize = 50.sp
+            val fontSizeInPx = fontSize.toPx()
+            val paragraph = simpleParagraph(
+                text = text,
+                style = TextStyle(fontSize = fontSize),
+                width = 3 * fontSizeInPx,
+                ellipsis = true,
+                height = fontSizeInPx
+            )
+
+            val box = paragraph.getBoundingBox(9)
+            assertThat(box.left).isEqualTo(3 * fontSizeInPx)
+            assertThat(box.right).isEqualTo(3 * fontSizeInPx)
+            assertThat(box.top).isEqualTo(0)
+            assertThat(box.bottom).isEqualTo(fontSizeInPx)
+        }
+    }
+
+    @Test
+    fun getBoundingBox_rtl_multiLines_lineFeedEllipsized_maxHeight() {
+        with(defaultDensity) {
+            val text = "\u05D0\u05D1\u05D2 \u05D3\u05D4\u05D5\n\u05D0\u05D1\u05D2"
+            val fontSize = 50.sp
+            val fontSizeInPx = fontSize.toPx()
+            val paragraph = simpleParagraph(
+                text = text,
+                style = TextStyle(fontSize = fontSize),
+                width = 3 * fontSizeInPx,
+                ellipsis = true,
+                height = fontSizeInPx
+            )
+
+            val box = paragraph.getBoundingBox(9)
+            assertThat(box.left).isEqualTo(0)
+            assertThat(box.right).isEqualTo(0)
+            assertThat(box.top).isEqualTo(0)
+            assertThat(box.bottom).isEqualTo(fontSizeInPx)
+        }
+    }
+
+    @Test(expected = java.lang.IllegalArgumentException::class)
+    fun getBoundingBox_ltr_textPosition_negative_throws_exception() {
         with(defaultDensity) {
             val text = "abc"
             val fontSize = 50.sp
@@ -621,8 +829,7 @@ class ParagraphIntegrationTest {
         }
     }
 
-    @Test(expected = java.lang.IndexOutOfBoundsException::class)
-    @SdkSuppress(minSdkVersion = 26)
+    @Test(expected = java.lang.IllegalArgumentException::class)
     fun getBoundingBox_ltr_textPosition_larger_than_length_throw_exception() {
         with(defaultDensity) {
             val text = "abc"
@@ -639,7 +846,7 @@ class ParagraphIntegrationTest {
         }
     }
 
-    @Test(expected = java.lang.AssertionError::class)
+    @Test(expected = java.lang.IllegalArgumentException::class)
     fun getCursorRect_larger_than_length_throw_exception() {
         with(defaultDensity) {
             val text = "abc"
@@ -655,7 +862,7 @@ class ParagraphIntegrationTest {
         }
     }
 
-    @Test(expected = java.lang.AssertionError::class)
+    @Test(expected = java.lang.IllegalArgumentException::class)
     fun getCursorRect_negative_throw_exception() {
         with(defaultDensity) {
             val text = "abc"
@@ -2829,7 +3036,6 @@ class ParagraphIntegrationTest {
         }
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun lineHeight_InEm_when_includeFontPadding_is_false() {
         val text = "abcdefgh"
@@ -2863,7 +3069,6 @@ class ParagraphIntegrationTest {
     }
 
     @Suppress("DEPRECATION")
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun lineHeight_IsAppliedToFirstLine_when_includeFontPadding_is_true() {
         // values such as text or TextStyle attributes are from the b/227095468
@@ -3666,7 +3871,6 @@ class ParagraphIntegrationTest {
         }
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun testDefaultSpanStyle_setBrush() {
         with(defaultDensity) {
@@ -3696,7 +3900,6 @@ class ParagraphIntegrationTest {
         }
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun testDefaultSpanStyle_setBrushAlpha() {
         with(defaultDensity) {
@@ -3728,7 +3931,6 @@ class ParagraphIntegrationTest {
         }
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun testDefaultSpanStyle_overrideAlphaDuringDraw() {
         with(defaultDensity) {
@@ -3755,8 +3957,10 @@ class ParagraphIntegrationTest {
                 width = paragraphWidth
             )
 
-            assertThat(paragraphWithoutAlpha.bitmap(brush, 0.5f))
-                .isEqualToBitmap(paragraphWithAlpha.bitmap())
+            val firstBitmap = paragraphWithoutAlpha.bitmap(brush, 0.5f)
+            val secondBitmap = paragraphWithAlpha.bitmap()
+
+            assertThat(firstBitmap).isEqualToBitmap(secondBitmap)
         }
     }
 
@@ -4215,7 +4419,7 @@ class ParagraphIntegrationTest {
         }
     }
 
-    @Test(expected = AssertionError::class)
+    @Test(expected = IllegalArgumentException::class)
     fun getPathForRange_throws_exception_if_start_larger_than_end() {
         val text = "ab"
         val textStart = 0
@@ -4225,7 +4429,7 @@ class ParagraphIntegrationTest {
         paragraph.getPathForRange(textEnd, textStart)
     }
 
-    @Test(expected = AssertionError::class)
+    @Test(expected = IllegalArgumentException::class)
     fun getPathForRange_throws_exception_if_start_is_smaller_than_zero() {
         val text = "ab"
         val textStart = 0
@@ -4235,7 +4439,7 @@ class ParagraphIntegrationTest {
         paragraph.getPathForRange(textStart - 2, textEnd - 1)
     }
 
-    @Test(expected = AssertionError::class)
+    @Test(expected = IllegalArgumentException::class)
     fun getPathForRange_throws_exception_if_end_is_larger_than_text_length() {
         val text = "ab"
         val textStart = 0
@@ -4290,7 +4494,6 @@ class ParagraphIntegrationTest {
         )
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun testSolidBrushColorIsSameAsColor() {
         with(defaultDensity) {
@@ -4317,7 +4520,6 @@ class ParagraphIntegrationTest {
         }
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun testSpanBrush_overridesDefaultBrush() {
         with(defaultDensity) {
@@ -4359,7 +4561,6 @@ class ParagraphIntegrationTest {
         }
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun testBrush_notEffectedBy_TextDirection() {
         with(defaultDensity) {
@@ -4397,6 +4598,121 @@ class ParagraphIntegrationTest {
         }
     }
 
+    @Test
+    fun paint_withDrawStyle_changesVisual() {
+        with(defaultDensity) {
+            val text = "aaa"
+            // FontSize doesn't matter here, but it should be big enough for bitmap comparison.
+            val fontSize = 100.sp
+            val fontSizeInPx = fontSize.toPx()
+            val paragraphWidth = fontSizeInPx * text.length
+
+            val baseParagraph = simpleParagraph(
+                text = text,
+                style = TextStyle(fontSize = fontSize, color = Color.Red),
+                width = paragraphWidth
+            )
+
+            assertThat(baseParagraph.bitmap())
+                .isNotEqualToBitmap(baseParagraph.bitmap(drawStyle = Stroke()))
+        }
+    }
+
+    @Test
+    fun paint_withDrawStyle_doesNotResetWithNull() {
+        with(defaultDensity) {
+            val text = "aaa"
+            // FontSize doesn't matter here, but it should be big enough for bitmap comparison.
+            val fontSize = 100.sp
+            val fontSizeInPx = fontSize.toPx()
+            val paragraphWidth = fontSizeInPx * text.length
+
+            val baseParagraph = simpleParagraph(
+                text = text,
+                style = TextStyle(
+                    fontSize = fontSize,
+                    color = Color.Red
+                ),
+                width = paragraphWidth
+            )
+
+            val firstBitmap = baseParagraph.bitmap(drawStyle = Stroke(4f))
+            val secondBitmap = baseParagraph.bitmap(drawStyle = null)
+
+            assertThat(firstBitmap).isEqualToBitmap(secondBitmap)
+        }
+    }
+
+    @Test
+    fun paint_withBlendMode_changesVisual() {
+        with(defaultDensity) {
+            val text = "aaa"
+            // FontSize doesn't matter here, but it should be big enough for bitmap comparison.
+            val fontSize = 100.sp
+            val fontSizeInPx = fontSize.toPx()
+            val paragraphWidth = fontSizeInPx * text.length
+
+            val baseParagraph = simpleParagraph(
+                text = text,
+                style = TextStyle(fontSize = fontSize, color = Color.Green),
+                width = paragraphWidth
+            )
+
+            val bitmapDefault = baseParagraph.onCanvas { canvas ->
+                // first draw a Red background
+                val paint = Paint().apply { color = Color.Red }
+                canvas.drawRect(Rect(Offset.Zero, Size(width, height)), paint)
+                // draw the paragraph as usual
+                baseParagraph.paint(canvas)
+            }
+
+            val bitmapPlus = baseParagraph.onCanvas { canvas ->
+                // first draw a Red background
+                val paint = Paint().apply { color = Color.Red }
+                canvas.drawRect(Rect(Offset.Zero, Size(width, height)), paint)
+                // draw the paragraph as usual
+                this.paint(canvas, blendMode = BlendMode.Plus)
+            }
+
+            assertThat(bitmapDefault).isNotEqualToBitmap(bitmapPlus)
+        }
+    }
+
+    @Test
+    fun paint_withBlendMode_sameResult() {
+        with(defaultDensity) {
+            val text = "aaa"
+            // FontSize doesn't matter here, but it should be big enough for bitmap comparison.
+            val fontSize = 100.sp
+            val fontSizeInPx = fontSize.toPx()
+            val paragraphWidth = fontSizeInPx * text.length
+
+            val baseParagraph = simpleParagraph(
+                text = text,
+                style = TextStyle(fontSize = fontSize),
+                width = paragraphWidth
+            )
+
+            val bitmapSrc = baseParagraph.onCanvas { canvas ->
+                // first draw a Red background
+                val paint = Paint().apply { color = Color.Red }
+                canvas.drawRect(Rect(Offset.Zero, Size(width, height)), paint)
+                // draw the paragraph as usual
+                baseParagraph.paint(canvas, blendMode = BlendMode.Src)
+            }
+
+            val bitmapSrcOver = baseParagraph.onCanvas { canvas ->
+                // first draw a Red background
+                val paint = Paint().apply { color = Color.Red }
+                canvas.drawRect(Rect(Offset.Zero, Size(width, height)), paint)
+                // draw the paragraph as usual
+                this.paint(canvas, blendMode = BlendMode.SrcOver)
+            }
+
+            assertThat(bitmapSrc).isEqualToBitmap(bitmapSrcOver)
+        }
+    }
+
     private fun simpleParagraph(
         text: String = "",
         style: TextStyle? = null,
@@ -4404,7 +4720,8 @@ class ParagraphIntegrationTest {
         ellipsis: Boolean = false,
         spanStyles: List<AnnotatedString.Range<SpanStyle>> = listOf(),
         density: Density? = null,
-        width: Float = Float.MAX_VALUE
+        width: Float = Float.MAX_VALUE,
+        height: Float = Float.MAX_VALUE
     ): Paragraph {
         return Paragraph(
             text = text,
@@ -4414,7 +4731,7 @@ class ParagraphIntegrationTest {
             ).merge(style),
             maxLines = maxLines,
             ellipsis = ellipsis,
-            constraints = Constraints(maxWidth = width.ceilToInt()),
+            constraints = Constraints(maxWidth = width.ceilToInt(), maxHeight = height.ceilToInt()),
             density = density ?: defaultDensity,
             fontFamilyResolver = UncachedFontFamilyResolver(context)
         )

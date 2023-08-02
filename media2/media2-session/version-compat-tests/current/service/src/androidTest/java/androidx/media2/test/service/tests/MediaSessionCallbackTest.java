@@ -45,6 +45,7 @@ import androidx.media2.test.service.MockPlayer;
 import androidx.media2.test.service.RemoteMediaController;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
+import androidx.test.filters.SdkSuppress;
 
 import org.junit.After;
 import org.junit.Before;
@@ -61,6 +62,7 @@ import java.util.concurrent.atomic.AtomicReference;
 /**
  * Tests {@link MediaSession.SessionCallback}.
  */
+@SdkSuppress(maxSdkVersion = 32) // b/244312419
 @RunWith(AndroidJUnit4.class)
 @LargeTest
 public class MediaSessionCallbackTest extends MediaSessionTestBase {

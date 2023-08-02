@@ -52,6 +52,10 @@ class ArgumentInjectingApplication : Application() {
                 "ACTIVITY-MISSING,CODE-COVERAGE,DEBUGGABLE,EMULATOR,LOW-BATTERY,UNLOCKED," +
                     "UNSUSTAINED-ACTIVITY-MISSING,ENG-BUILD"
             )
+            putString(
+                "androidx.benchmark.thermalThrottle.sleepDurationSeconds",
+                "0"
+            )
             // TODO: consider moving default directory to files dir.
             putString(
                 "additionalTestOutputDir",

@@ -23,6 +23,7 @@ plugins {
     id("com.android.library")
     id("kotlin-android")
     id("com.google.devtools.ksp")
+    id("androidx.stableaidl")
 }
 
 android {
@@ -31,6 +32,10 @@ android {
     }
     buildTypes.all {
         consumerProguardFiles "proguard-rules.pro"
+
+        stableAidl {
+            version 1
+        }
     }
     defaultConfig {
         multiDexEnabled = true
@@ -56,30 +61,31 @@ android {
 }
 
 dependencies {
-    implementation("androidx.core:core:1.6.0")
-    ksp("androidx.room:room-compiler:2.4.0-rc01")
-    implementation("androidx.room:room-runtime:2.4.0-rc01")
-    androidTestImplementation("androidx.room:room-testing:2.4.0-rc01")
-    implementation("androidx.sqlite:sqlite-framework:2.3.0-alpha05")
+    ksp("androidx.room:room-compiler:2.5.0")
+    implementation("androidx.core:core:1.9.0")
+    implementation("androidx.room:room-ktx:2.5.0")
+    implementation("androidx.sqlite:sqlite-framework:2.3.0")
     api("androidx.annotation:annotation-experimental:1.0.0")
     api(libs.guavaListenableFuture)
-    api("androidx.lifecycle:lifecycle-livedata:2.1.0")
-    api("androidx.startup:startup-runtime:1.0.0")
-    implementation("androidx.core:core:1.1.0")
-    implementation("androidx.lifecycle:lifecycle-service:2.1.0")
+    api("androidx.lifecycle:lifecycle-livedata:2.5.1")
+    api("androidx.startup:startup-runtime:1.1.1")
+    implementation("androidx.lifecycle:lifecycle-service:2.5.1")
     api(libs.kotlinStdlib)
+    api(libs.kotlinCoroutinesAndroid)
     androidTestImplementation(libs.multidex)
     androidTestImplementation(libs.truth)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
-    androidTestImplementation("androidx.arch.core:core-testing:2.1.0")
+    androidTestImplementation("androidx.arch.core:core-testing:2.2.0")
     androidTestImplementation(projectOrArtifact(":lifecycle:lifecycle-runtime-testing"))
+    androidTestImplementation("androidx.room:room-testing:2.5.0")
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.espressoCore)
     androidTestImplementation(libs.mockitoCore, excludes.bytebuddy) // DexMaker has its own MockMaker
     androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy) // DexMaker has its own MockMaker
     androidTestImplementation(project(":internal-testutils-runtime"))
     testImplementation(libs.junit)
+    testImplementation(libs.truth)
     lintPublish(project(":work:work-runtime-lint"))
 }
 
@@ -91,9 +97,8 @@ ksp {
 }
 
 androidx {
-    name = "Android WorkManager Runtime"
+    name = "WorkManager Runtime"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.WORK
     inceptionYear = "2018"
     description = "Android WorkManager runtime library"
     failOnDeprecationWarnings = false

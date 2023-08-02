@@ -70,16 +70,18 @@ public final class CameraEventCallbacks extends MultiValueSet<CameraEventCallbac
         }
 
         /**
-         * To Invoke {@link CameraEventCallback#onPresetSession()} on the set of list and
-         * aggregated the results to a set list.
+         * Invokes {@link CameraEventCallback#onInitSession()} on all registered callbacks and
+         * returns a {@link CaptureConfig} list that aggregates all the results for setting the
+         * session parameters.
          *
-         * @return List<CaptureConfig> The request information to customize the session.
+         * @return a {@link List<CaptureConfig>} that contains session parameters to be configured
+         * upon creating {@link android.hardware.camera2.CameraCaptureSession}
          */
         @NonNull
-        public List<CaptureConfig> onPresetSession() {
+        public List<CaptureConfig> onInitSession() {
             List<CaptureConfig> ret = new ArrayList<>();
             for (CameraEventCallback callback : mCallbacks) {
-                CaptureConfig presetCaptureStage = callback.onPresetSession();
+                CaptureConfig presetCaptureStage = callback.onInitSession();
                 if (presetCaptureStage != null) {
                     ret.add(presetCaptureStage);
                 }
@@ -88,10 +90,15 @@ public final class CameraEventCallbacks extends MultiValueSet<CameraEventCallbac
         }
 
         /**
-         * To Invoke {@link CameraEventCallback#onEnableSession()} on the set of list and
-         * aggregated the results to a set list.
+         * Invokes {@link CameraEventCallback#onEnableSession()} on all registered callbacks and
+         * returns a {@link CaptureConfig} list that aggregates all the results. The returned
+         * list contains capture request parameters to be set on a single request that will be
+         * triggered right after {@link android.hardware.camera2.CameraCaptureSession} is
+         * configured.
          *
-         * @return List<CaptureConfig> The request information to customize the session.
+         * @return a {@link List<CaptureConfig>} that contains capture request parameters to be
+         * set on a single request that will be triggered after
+         * {@link android.hardware.camera2.CameraCaptureSession} is configured.
          */
         @NonNull
         public List<CaptureConfig> onEnableSession() {
@@ -106,10 +113,12 @@ public final class CameraEventCallbacks extends MultiValueSet<CameraEventCallbac
         }
 
         /**
-         * To Invoke {@link CameraEventCallback#onRepeating()} on the set of list and
-         * aggregated the results to a set list.
+         * Invokes {@link CameraEventCallback#onRepeating()} on all registered callbacks and
+         * returns a {@link CaptureConfig} list that aggregates all the results. The returned
+         * list contains capture request parameters to be set on the repeating request.
          *
-         * @return List<CaptureConfig> The request information to customize the session.
+         * @return a {@link List<CaptureConfig>} that contains capture request parameters to be
+         * set on the repeating request.
          */
         @NonNull
         public List<CaptureConfig> onRepeating() {
@@ -124,10 +133,14 @@ public final class CameraEventCallbacks extends MultiValueSet<CameraEventCallbac
         }
 
         /**
-         * To Invoke {@link CameraEventCallback#onDisableSession()} on the set of list and
-         * aggregated the results to a set list.
+         * Invokes {@link CameraEventCallback#onDisableSession()} on all registered callbacks and
+         * returns a {@link CaptureConfig} list that aggregates all the results. The returned
+         * list contains capture request parameters to be set on a single request that will be
+         * triggered right before {@link android.hardware.camera2.CameraCaptureSession} is closed.
          *
-         * @return List<CaptureConfig> The request information to customize the session.
+         * @return a {@link List<CaptureConfig>} that contains capture request parameters to be
+         * set on a single request that will be triggered right before
+         * {@link android.hardware.camera2.CameraCaptureSession} is closed.
          */
         @NonNull
         public List<CaptureConfig> onDisableSession() {
@@ -139,6 +152,15 @@ public final class CameraEventCallbacks extends MultiValueSet<CameraEventCallbac
                 }
             }
             return ret;
+        }
+
+        /**
+         * Invokes {@link CameraEventCallback#onDeInitSession()} on all registered callbacks.
+         */
+        public void onDeInitSession() {
+            for (CameraEventCallback callback : mCallbacks) {
+                callback.onDeInitSession();
+            }
         }
 
         @NonNull

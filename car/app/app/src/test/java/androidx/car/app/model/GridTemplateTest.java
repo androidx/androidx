@@ -23,6 +23,7 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
 
 import androidx.car.app.TestUtils;
+import androidx.test.core.app.ApplicationProvider;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -121,6 +122,141 @@ public class GridTemplateTest {
     }
 
     @Test
+    public void createInstance_addAction() {
+        CarIcon icon = TestUtils.getTestCarIcon(ApplicationProvider.getApplicationContext(),
+                "ic_test_1");
+        Action customAction = TestUtils.createAction(icon, CarColor.BLUE);
+        GridTemplate template =
+                new GridTemplate.Builder()
+                        .setSingleList(TestUtils.getGridItemList(2))
+                        .setHeaderAction(Action.BACK)
+                        .addAction(customAction)
+                        .build();
+        assertThat(template.getActions()).containsExactly(customAction);
+    }
+
+    @Test
+    public void createInstance_addAction_appIconInvalid_throws() {
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new GridTemplate.Builder()
+                        .setSingleList(TestUtils.getGridItemList(2))
+                        .addAction(Action.APP_ICON).build());
+    }
+
+    @Test
+    public void createInstance_addAction_backInvalid_throws() {
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new GridTemplate.Builder()
+                        .setSingleList(TestUtils.getGridItemList(2))
+                        .addAction(Action.BACK).build());
+    }
+
+    @Test
+    public void createInstance_addAction_panInvalid_throws() {
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new GridTemplate.Builder()
+                        .setSingleList(TestUtils.getGridItemList(2))
+                        .addAction(Action.PAN).build());
+    }
+
+    @Test
+    public void createInstance_addAction_manyActions_throws() {
+        CarIcon icon = TestUtils.getTestCarIcon(ApplicationProvider.getApplicationContext(),
+                "ic_test_1");
+        Action customAction = TestUtils.createAction(icon, CarColor.BLUE);
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new GridTemplate.Builder()
+                        .setSingleList(TestUtils.getGridItemList(2))
+                        .addAction(customAction)
+                        .addAction(customAction)
+                        .build());
+    }
+
+    @Test
+    public void createInstance_addAction_invalidActionNullBackgroundColor_throws() {
+        CarIcon icon = TestUtils.getTestCarIcon(ApplicationProvider.getApplicationContext(),
+                "ic_test_1");
+        Action customAction = TestUtils.createAction(icon, null);
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new GridTemplate.Builder()
+                        .setSingleList(TestUtils.getGridItemList(2))
+                        .addAction(customAction)
+                        .build());
+    }
+
+    @Test
+    public void createInstance_addAction_invalidActionDefaultBackgroundColor_throws() {
+        CarIcon icon = TestUtils.getTestCarIcon(ApplicationProvider.getApplicationContext(),
+                "ic_test_1");
+        Action customAction = TestUtils.createAction(icon, CarColor.DEFAULT);
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new GridTemplate.Builder()
+                        .setSingleList(TestUtils.getGridItemList(2))
+                        .addAction(customAction)
+                        .build());
+    }
+
+    @Test
+    public void createInstance_addAction_invalidActionNullIcon_throws() {
+        Action customAction = TestUtils.createAction("title", null);
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new GridTemplate.Builder()
+                        .setSingleList(TestUtils.getGridItemList(2))
+                        .addAction(customAction)
+                        .build());
+    }
+
+    @Test
+    public void createInstance_setItemSize() {
+        ItemList list = TestUtils.getGridItemList(2);
+        GridTemplate template = new GridTemplate.Builder()
+                .setTitle("Title")
+                .setSingleList(list)
+                .setItemSize(GridTemplate.ITEM_SIZE_LARGE)
+                .build();
+
+        assertThat(template.getItemSize()).isEqualTo(GridTemplate.ITEM_SIZE_LARGE);
+    }
+
+    @Test
+    public void createInstance_defaultItemSizeIsSmall() {
+        GridTemplate template = new GridTemplate.Builder()
+                .setTitle("Title")
+                .setLoading(true)
+                .build();
+
+        assertThat(template.getItemSize()).isEqualTo(GridTemplate.ITEM_SIZE_SMALL);
+    }
+
+    @Test
+    public void createInstance_defaultItemImageShape() {
+        ItemList list = TestUtils.getGridItemList(2);
+        GridTemplate template = new GridTemplate.Builder().setSingleList(list).build();
+        assertThat(template.getItemImageShape()).isEqualTo(GridTemplate.ITEM_IMAGE_SHAPE_UNSET);
+    }
+
+    @Test
+    public void createInstance_setItemImageShape() {
+        ItemList list = TestUtils.getGridItemList(2);
+        GridTemplate template =
+                new GridTemplate.Builder()
+                        .setSingleList(list)
+                        .setItemImageShape(GridTemplate.ITEM_IMAGE_SHAPE_CIRCLE).build();
+        assertThat(template.getItemImageShape()).isEqualTo(GridTemplate.ITEM_IMAGE_SHAPE_CIRCLE);
+    }
+
+    @Test
     public void equals() {
         ItemList itemList = new ItemList.Builder().build();
         String title = "title";
@@ -132,6 +268,7 @@ public class GridTemplateTest {
                         .setHeaderAction(Action.BACK)
                         .setActionStrip(actionStrip)
                         .setTitle(title)
+                        .setItemSize(GridTemplate.ITEM_SIZE_MEDIUM)
                         .build();
 
         assertThat(template)
@@ -141,6 +278,7 @@ public class GridTemplateTest {
                                 .setHeaderAction(Action.BACK)
                                 .setActionStrip(actionStrip)
                                 .setTitle(title)
+                                .setItemSize(GridTemplate.ITEM_SIZE_MEDIUM)
                                 .build());
     }
 
@@ -212,5 +350,56 @@ public class GridTemplateTest {
                                         new ActionStrip.Builder().addAction(
                                                 Action.APP_ICON).build())
                                 .build());
+    }
+
+    @Test
+    public void notEquals_differentAction() {
+        ItemList itemList = new ItemList.Builder().build();
+        CarIcon icon1 = TestUtils.getTestCarIcon(ApplicationProvider.getApplicationContext(),
+                "ic_test_1");
+        CarIcon icon2 = TestUtils.getTestCarIcon(ApplicationProvider.getApplicationContext(),
+                "ic_test_2");
+
+        GridTemplate template =
+                new GridTemplate.Builder()
+                        .setSingleList(itemList)
+                        .addAction(TestUtils.createAction(icon1, CarColor.BLUE))
+                        .build();
+
+        assertThat(template)
+                .isNotEqualTo(new GridTemplate.Builder().setSingleList(itemList).addAction(
+                        TestUtils.createAction(icon2, CarColor.RED)).build());
+    }
+
+    @Test
+    public void notEquals_differentSize() {
+        GridTemplate template1 =
+                new GridTemplate.Builder()
+                        .setLoading(true)
+                        .setItemSize(GridTemplate.ITEM_SIZE_MEDIUM)
+                        .build();
+        GridTemplate template2 =
+                new GridTemplate.Builder()
+                        .setLoading(true)
+                        .setItemSize(GridTemplate.ITEM_SIZE_SMALL)
+                        .build();
+        assertThat(template1).isNotEqualTo(template2);
+    }
+
+    @Test
+    public void notEquals_differentItemImageShape() {
+        ItemList itemList = new ItemList.Builder().build();
+
+        GridTemplate template1 =
+                new GridTemplate.Builder()
+                        .setSingleList(itemList)
+                        .setItemImageShape(GridTemplate.ITEM_IMAGE_SHAPE_CIRCLE)
+                        .build();
+        GridTemplate template2 =
+                new GridTemplate.Builder()
+                        .setSingleList(itemList)
+                        .setItemImageShape(GridTemplate.ITEM_IMAGE_SHAPE_UNSET)
+                        .build();
+        assertThat(template1).isNotEqualTo(template2);
     }
 }

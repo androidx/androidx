@@ -27,6 +27,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
@@ -39,8 +40,11 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.FocusRequester.Companion.Cancel
+import androidx.compose.ui.focus.FocusRequester.Companion.Default
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.focusRestorer
 import androidx.compose.ui.focus.focusTarget
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color.Companion.Black
@@ -96,6 +100,38 @@ fun CaptureFocusSample() {
             .focusRequester(focusRequester)
             .onFocusChanged { borderColor = if (it.isCaptured) Red else Transparent }
     )
+}
+
+@OptIn(ExperimentalComposeUiApi::class)
+@Sampled
+@Composable
+fun RestoreFocusSample() {
+    val focusRequester = remember { FocusRequester() }
+    LazyRow(
+        Modifier
+            .focusRequester(focusRequester)
+            .focusProperties {
+                exit = { focusRequester.saveFocusedChild(); Default }
+                enter = { if (focusRequester.restoreFocusedChild()) Cancel else Default }
+            }
+    ) {
+        item { Button(onClick = {}) { Text("1") } }
+        item { Button(onClick = {}) { Text("2") } }
+        item { Button(onClick = {}) { Text("3") } }
+        item { Button(onClick = {}) { Text("4") } }
+    }
+}
+
+@OptIn(ExperimentalComposeUiApi::class)
+@Sampled
+@Composable
+fun FocusRestorerSample() {
+    LazyRow(Modifier.focusRestorer()) {
+        item { Button(onClick = {}) { Text("1") } }
+        item { Button(onClick = {}) { Text("2") } }
+        item { Button(onClick = {}) { Text("3") } }
+        item { Button(onClick = {}) { Text("4") } }
+    }
 }
 
 @Sampled
@@ -229,5 +265,57 @@ fun FocusPropertiesSample() {
             .focusProperties { canFocus = inputModeManager.inputMode != Touch }
             .focusTarget()
         )
+    }
+}
+
+@OptIn(ExperimentalComposeUiApi::class)
+@Sampled
+@Composable
+fun CancelFocusMoveSample() {
+    // If Box 2 is focused, pressing Up will not take focus to Box 1,
+    // But pressing Down will move focus to Box 3.
+    Column {
+        // Box 1.
+        Box(Modifier.focusTarget())
+        // Box 2.
+        Box(modifier = Modifier
+            .focusProperties { up = Cancel }
+            .focusTarget()
+        )
+        // Box 3.
+        Box(Modifier.focusTarget())
+    }
+}
+
+@ExperimentalComposeUiApi
+@Sampled
+@Composable
+fun CustomFocusEnterSample() {
+    // If the row is focused, performing a moveFocus(Enter) will move focus to item2.
+    val item2 = remember { FocusRequester() }
+    Row(Modifier.focusProperties { enter = { item2 } }.focusable()) {
+        Box(Modifier.focusable())
+        Box(Modifier.focusRequester(item2).focusable())
+        Box(Modifier.focusable())
+    }
+}
+
+@ExperimentalComposeUiApi
+@Sampled
+@Composable
+fun CustomFocusExitSample() {
+    // If one of the boxes in Row1 is focused, performing a moveFocus(Exit)
+    // will move focus to the specified next item instead of moving focus to row1.
+    val nextItem = remember { FocusRequester() }
+    Column {
+        Row(Modifier.focusProperties { exit = { nextItem } }.focusable()) {
+            Box(Modifier.focusable())
+            Box(Modifier.focusable())
+            Box(Modifier.focusable())
+        }
+        Row(Modifier.focusable()) {
+            Box(Modifier.focusable())
+            Box(Modifier.focusRequester(nextItem).focusable())
+        }
     }
 }

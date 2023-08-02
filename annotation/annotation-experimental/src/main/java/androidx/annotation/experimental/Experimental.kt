@@ -26,39 +26,6 @@ import kotlin.annotation.Target
  * call sites should accept the experimental aspect of it either by using [UseExperimental],
  * or by being annotated with that marker themselves, effectively causing further propagation of
  * that experimental aspect.
- *
- * Example:
- * <pre>`
- * // Library code
- * &#64;Retention(CLASS)
- * &#64;Target({TYPE, METHOD, CONSTRUCTOR, FIELD, PACKAGE})
- * &#64;Experimental(level = Level.ERROR)
- * public @interface ExperimentalDateTime {}
- *
- * &#64;ExperimentalDateTime
- * public class DateProvider {
- * // ...
- * }
-`</pre> *
- *
- * <pre>`
- * // Client code
- * int getYear() {
- * DateProvider provider; // Error: DateProvider is experimental
- * // ...
- * }
- *
- * &#64;ExperimentalDateTime
- * Date getDate() {
- * DateProvider provider; // OK: the function is marked as experimental
- * // ...
- * }
- *
- * void displayDate() {
- * System.out.println(getDate()); // Error: getDate() is experimental, acceptance is required
- * }
-`</pre> *
- *
  */
 @Deprecated(
     "This annotation has been replaced by `@RequiresOptIn`",

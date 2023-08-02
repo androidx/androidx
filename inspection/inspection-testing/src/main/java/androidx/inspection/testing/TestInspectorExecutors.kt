@@ -19,10 +19,10 @@ package androidx.inspection.testing
 import android.os.Handler
 import android.os.HandlerThread
 import androidx.inspection.InspectorExecutors
-import kotlinx.coroutines.Job
 import java.util.concurrent.Executor
 import java.util.concurrent.Executors
 import java.util.concurrent.RejectedExecutionException
+import kotlinx.coroutines.Job
 
 /**
  * Test Inspector Executors.

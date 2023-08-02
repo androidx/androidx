@@ -40,12 +40,10 @@ import androidx.wear.watchface.style.UserStyleSetting;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 
-import org.jetbrains.annotations.NotNull;
+import kotlin.Unit;
 
 import java.time.ZonedDateTime;
 import java.util.concurrent.TimeUnit;
-
-import kotlin.Unit;
 
 /**
  * Minimal rendered for the watch face, using canvas to render hours, minutes, and a blinking
@@ -66,11 +64,15 @@ public class WatchFaceRenderer extends ListenableCanvasRenderer {
     private TimeRenderer mTimeRenderer;
 
     public WatchFaceRenderer(
-            @NotNull SurfaceHolder surfaceHolder,
-            @NotNull CurrentUserStyleRepository currentUserStyleRepository,
-            @NotNull WatchState watchState,
-            @NotNull Resources resources) {
-        super(surfaceHolder, currentUserStyleRepository, watchState, CanvasType.HARDWARE,
+            @NonNull SurfaceHolder surfaceHolder,
+            @NonNull CurrentUserStyleRepository currentUserStyleRepository,
+            @NonNull WatchState watchState,
+            @NonNull Resources resources) {
+        super(
+                surfaceHolder,
+                currentUserStyleRepository,
+                watchState,
+                CanvasType.HARDWARE,
                 UPDATE_DELAY_MILLIS);
         mMinimalRenderer = new MinimalRenderer(watchState);
         mSecondsRenderer = new SecondsRenderer(watchState);
@@ -92,14 +94,14 @@ public class WatchFaceRenderer extends ListenableCanvasRenderer {
     }
 
     @Override
-    public void render(@NotNull Canvas canvas, @NotNull Rect rect,
-            @NotNull ZonedDateTime zonedDateTime) {
+    public void render(
+            @NonNull Canvas canvas, @NonNull Rect rect, @NonNull ZonedDateTime zonedDateTime) {
         mTimeRenderer.render(canvas, rect, zonedDateTime, getRenderParameters());
     }
 
     @Override
-    public void renderHighlightLayer(@NonNull Canvas canvas, @NonNull Rect bounds,
-            @NonNull ZonedDateTime zonedDateTime) {
+    public void renderHighlightLayer(
+            @NonNull Canvas canvas, @NonNull Rect bounds, @NonNull ZonedDateTime zonedDateTime) {
         RenderParameters.HighlightLayer highlightLayer = getRenderParameters().getHighlightLayer();
         canvas.drawColor(highlightLayer.getBackgroundTint());
         mHighlightPaint.setColor(highlightLayer.getHighlightTint());
@@ -119,7 +121,9 @@ public class WatchFaceRenderer extends ListenableCanvasRenderer {
 
     private interface TimeRenderer {
         void render(
-                @NotNull Canvas canvas, @NotNull Rect rect, @NotNull ZonedDateTime zonedDateTime,
+                @NonNull Canvas canvas,
+                @NonNull Rect rect,
+                @NonNull ZonedDateTime zonedDateTime,
                 RenderParameters renderParameters);
     }
 
@@ -137,12 +141,17 @@ public class WatchFaceRenderer extends ListenableCanvasRenderer {
 
         @Override
         public void render(
-                @NotNull Canvas canvas, @NotNull Rect rect, @NotNull ZonedDateTime zonedDateTime,
+                @NonNull Canvas canvas,
+                @NonNull Rect rect,
+                @NonNull ZonedDateTime zonedDateTime,
                 RenderParameters renderParameters) {
             mPaint.setColor(Color.BLACK);
             canvas.drawRect(rect, mPaint);
             mPaint.setColor(Color.WHITE);
-            int hour = zonedDateTime.getHour() % 12;
+            int hour = zonedDateTime.getHour();
+            if (hour != 12) {
+                hour %= 12;
+            }
             int minute = zonedDateTime.getMinute();
             int second = zonedDateTime.getSecond();
             mTimeText[0] = DIGITS[hour / 10];
@@ -150,7 +159,8 @@ public class WatchFaceRenderer extends ListenableCanvasRenderer {
             mTimeText[2] = second % 2 == 0 ? ':' : ' ';
             mTimeText[3] = DIGITS[minute / 10];
             mTimeText[4] = DIGITS[minute % 10];
-            canvas.drawText(mTimeText,
+            canvas.drawText(
+                    mTimeText,
                     0,
                     5,
                     rect.centerX(),
@@ -160,25 +170,18 @@ public class WatchFaceRenderer extends ListenableCanvasRenderer {
     }
 
     private static class SecondsRenderer implements TimeRenderer {
-        @Px
-        public static final float SECONDS_TEXT_HEIGHT = 256f;
-        @Px
-        public static final float TIME_TEXT_ACTIVE_HEIGHT = 64f;
-        @Px
-        public static final float TIME_TEXT_AMBIENT_HEIGHT = 96f;
-        @Px
-        private static final int TEXT_PADDING = 12;
+        @Px public static final float SECONDS_TEXT_HEIGHT = 256f;
+        @Px public static final float TIME_TEXT_ACTIVE_HEIGHT = 64f;
+        @Px public static final float TIME_TEXT_AMBIENT_HEIGHT = 96f;
+        @Px private static final int TEXT_PADDING = 12;
 
         private final WatchState mWatchState;
         private final Paint mPaint;
-        private final char[] mTimeText = new char[]{'1', '0', ':', '0', '9'};
-        private final char[] mSecondsText = new char[]{'3', '0'};
-        @Px
-        private final int mTimeActiveOffset;
-        @Px
-        private final int mTimeAmbientOffset;
-        @Px
-        private final int mSecondsActiveOffset;
+        private final char[] mTimeText = new char[] {'1', '0', ':', '0', '9'};
+        private final char[] mSecondsText = new char[] {'3', '0'};
+        @Px private final int mTimeActiveOffset;
+        @Px private final int mTimeAmbientOffset;
+        @Px private final int mSecondsActiveOffset;
 
         private SecondsRenderer(WatchState watchState) {
             mWatchState = watchState;
@@ -208,10 +211,15 @@ public class WatchFaceRenderer extends ListenableCanvasRenderer {
 
         @Override
         public void render(
-                @NotNull Canvas canvas, @NotNull Rect rect, @NotNull ZonedDateTime zonedDateTime,
+                @NonNull Canvas canvas,
+                @NonNull Rect rect,
+                @NonNull ZonedDateTime zonedDateTime,
                 RenderParameters renderParameters) {
             boolean isActive = renderParameters.getDrawMode() != DrawMode.AMBIENT;
-            int hour = zonedDateTime.getHour() % 12;
+            int hour = zonedDateTime.getHour();
+            if (hour != 12) {
+                hour %= 12;
+            }
             int minute = zonedDateTime.getMinute();
             int second = zonedDateTime.getSecond();
 
@@ -229,7 +237,8 @@ public class WatchFaceRenderer extends ListenableCanvasRenderer {
             mTimeText[4] = DIGITS[minute % 10];
             mPaint.setTextSize(isActive ? TIME_TEXT_ACTIVE_HEIGHT : TIME_TEXT_AMBIENT_HEIGHT);
             @Px int timeOffset = isActive ? mTimeActiveOffset : mTimeAmbientOffset;
-            canvas.drawText(mTimeText,
+            canvas.drawText(
+                    mTimeText,
                     0,
                     mTimeText.length,
                     rect.centerX(),
@@ -239,7 +248,8 @@ public class WatchFaceRenderer extends ListenableCanvasRenderer {
             if (isActive) {
                 mSecondsText[0] = DIGITS[second / 10];
                 mSecondsText[1] = DIGITS[second % 10];
-                canvas.drawText(mSecondsText,
+                canvas.drawText(
+                        mSecondsText,
                         0,
                         mSecondsText.length,
                         rect.centerX(),

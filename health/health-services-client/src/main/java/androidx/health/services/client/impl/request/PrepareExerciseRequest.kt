@@ -25,7 +25,6 @@ import androidx.health.services.client.proto.RequestsProto
 /**
  * Request for preparing for an exercise.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class PrepareExerciseRequest(
@@ -33,12 +32,11 @@ public class PrepareExerciseRequest(
     public val warmUpConfig: WarmUpConfig,
 ) : ProtoParcelable<RequestsProto.PrepareExerciseRequest>() {
 
-    override val proto: RequestsProto.PrepareExerciseRequest by lazy {
+    override val proto: RequestsProto.PrepareExerciseRequest =
         RequestsProto.PrepareExerciseRequest.newBuilder()
             .setPackageName(packageName)
             .setConfig(warmUpConfig.proto)
             .build()
-    }
 
     public companion object {
         @JvmField

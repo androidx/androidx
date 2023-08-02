@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.4.0-alpha08" type="baseline" client="gradle" dependencies="false" name="AGP (7.4.0-alpha08)" variant="all" version="7.4.0-alpha08">
+<issues format="6" by="lint 8.1.0-beta02" type="baseline" client="gradle" dependencies="false" name="AGP (8.1.0-beta02)" variant="all" version="8.1.0-beta02">
 
     <issue
         id="NewApi"
@@ -188,6 +188,123 @@
         errorLine2="    ^">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatSeekBar.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(1000);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/appcompat/app/AlertDialogTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(1000);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/appcompat/app/AlertDialogTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(1000);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/appcompat/app/AlertDialogTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(1000);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/appcompat/app/AlertDialogTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(1000);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/appcompat/app/AlertDialogTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(1000);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/appcompat/app/AlertDialogTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="                Thread.sleep(50)"
+        errorLine2="                       ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/appcompat/widget/AppCompatAttributeTest.kt"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(200);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/appcompat/widget/AppCompatTextViewTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(/* millis = */ 2000)"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/appcompat/app/LocalesConfigChangedUsingInvalidTopLocale.kt"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(/* millis = */ 2000)"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/appcompat/app/LocalesConfigChangedUsingInvalidTopLocale.kt"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(/* timeout= */ 1000)"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/appcompat/app/LocalesSyncToFrameworkTestCase.kt"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(1000);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/appcompat/widget/PopupMenuTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(1000);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/appcompat/widget/PopupMenuTest.java"/>
     </issue>
 
     <issue
@@ -696,15 +813,6 @@
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public void setSplitBackground(Drawable bg) {"
         errorLine2="                                   ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/ActionBarContainer.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected boolean verifyDrawable(Drawable who) {"
-        errorLine2="                                     ~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ActionBarContainer.java"/>
     </issue>
@@ -3322,6 +3430,15 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected synchronized void onDraw(Canvas canvas) {"
+        errorLine2="                                       ~~~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/widget/AppCompatSeekBar.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="            int defStyleAttr, int mode, Resources.Theme popupTheme) {"
         errorLine2="                                        ~~~~~~~~~~~~~~~">
         <location
@@ -4332,15 +4449,6 @@
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public DrawerArrowDrawable(Context context) {"
         errorLine2="                               ~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/graphics/drawable/DrawerArrowDrawable.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public void draw(Canvas canvas) {"
-        errorLine2="                     ~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/graphics/drawable/DrawerArrowDrawable.java"/>
     </issue>
@@ -6994,8 +7102,8 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected boolean verifyDrawable(Drawable who) {"
-        errorLine2="                                     ~~~~~~~~">
+        errorLine1="    protected void onDraw(Canvas canvas) {"
+        errorLine2="                          ~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/SwitchCompat.java"/>
     </issue>
@@ -7851,6 +7959,15 @@
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public LayoutInflater getLayoutInflater() {"
         errorLine2="           ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/widget/ViewStubCompat.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected void dispatchDraw(Canvas canvas) {"
+        errorLine2="                                ~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ViewStubCompat.java"/>
     </issue>

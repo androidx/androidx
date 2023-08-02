@@ -17,86 +17,125 @@
 package androidx.compose.ui.focus
 
 import androidx.compose.runtime.collection.MutableVector
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.focus.FocusDirection.Companion.Down
+import androidx.compose.ui.focus.FocusDirection.Companion.Enter
 import androidx.compose.ui.focus.FocusDirection.Companion.Left
 import androidx.compose.ui.focus.FocusDirection.Companion.Right
 import androidx.compose.ui.focus.FocusDirection.Companion.Up
 import androidx.compose.ui.focus.FocusStateImpl.Active
 import androidx.compose.ui.focus.FocusStateImpl.ActiveParent
 import androidx.compose.ui.focus.FocusStateImpl.Captured
-import androidx.compose.ui.focus.FocusStateImpl.Deactivated
-import androidx.compose.ui.focus.FocusStateImpl.DeactivatedParent
 import androidx.compose.ui.focus.FocusStateImpl.Inactive
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.node.DelegatableNode
+import androidx.compose.ui.node.Nodes
+import androidx.compose.ui.node.visitChildren
 import kotlin.math.absoluteValue
 import kotlin.math.max
 
+@Suppress("ConstPropertyName")
 private const val InvalidFocusDirection = "This function should only be used for 2-D focus search"
+@Suppress("ConstPropertyName")
 private const val NoActiveChild = "ActiveParent must have a focusedChild"
 
 /**
- *  Perform a search among the immediate children of this [node][FocusModifier] in the
+ *  Perform a search among the immediate children of this [node][FocusTargetNode] in the
  *  specified [direction][FocusDirection] and return the node that is to be focused next. If one
  *  of the children is currently focused, we start from that point and search in the specified
  *  [direction][FocusDirection]. If none of the children are currently focused, we pick the
  *  top-left or bottom right based on the specified [direction][FocusDirection].
+ *
+ *  @return The value of [onFound] if a [focusTarget] was found, false if no [focusTarget] was
+ *  found, and null if focus search was cancelled using [FocusRequester.Cancel] or if a custom
+ *  focus search destination didn't point to any [focusTarget].
  */
-internal fun FocusModifier.twoDimensionalFocusSearch(
+internal fun FocusTargetNode.twoDimensionalFocusSearch(
     direction: FocusDirection,
-    onFound: (FocusModifier) -> Boolean
-): Boolean {
+    onFound: (FocusTargetNode) -> Boolean
+): Boolean? {
     when (focusState) {
-        Inactive -> return onFound.invoke(this)
-        Deactivated -> return false
-        ActiveParent, DeactivatedParent -> {
-            val focusedChild = focusedChild ?: error(NoActiveChild)
+        Inactive -> return if (fetchFocusProperties().canFocus) onFound.invoke(this) else false
+        ActiveParent -> {
+            val focusedChild = activeChild ?: error(NoActiveChild)
             // For 2D focus search we only search among siblings. You have to use DPad Center or
             // call moveFocus(In) to move focus to a child. So twoDimensionalFocus Search delegates
             // search to a child only if it "has focus". If this node "is focused", we just skip the
             // children and search among the siblings of the focused item by calling
             // "searchChildren" on this node.
             when (focusedChild.focusState) {
-                // If the focusedChild is an intermediate parent, we continue searching among its
-                // children. If we don't find a match, we search among the siblings of the parent.
-                ActiveParent, DeactivatedParent ->
-                  return focusedChild.twoDimensionalFocusSearch(direction, onFound) ||
-                      generateAndSearchChildren(focusedChild.activeNode(), direction, onFound)
+
+                ActiveParent -> {
+                    // If the focusedChild is an intermediate parent, we search among its children.
+                    val found = focusedChild.twoDimensionalFocusSearch(direction, onFound)
+                    if (found != false) return found
+
+                    // We search among the siblings of the parent.
+                    return generateAndSearchChildren(focusedChild.activeNode(), direction, onFound)
+                }
                 // Search for the next eligible sibling.
                 Active, Captured ->
                     return generateAndSearchChildren(focusedChild, direction, onFound)
-                Deactivated, Inactive -> error(NoActiveChild)
+                Inactive -> error(NoActiveChild)
             }
         }
         Active, Captured -> {
-            // The 2-D focus search starts form the root. If we reached here, it means that there
+            // The 2-D focus search starts from the root. If we reached here, it means that there
             // was no intermediate node that was ActiveParent. This is an initial focus scenario.
             // We need to search among this node's children to find the best focus candidate.
-            val activated = activatedChildren()
-
-            // If there are aren't multiple children to choose from, return the first child.
-            if (activated.size <= 1) {
-                return activated.firstOrNull()?.let { onFound.invoke(it) } ?: false
-            }
-
-            // To start the search, we pick one of the four corners of this node as the initially
-            // focused rectangle.
-            val initialFocusRect = when (direction) {
-                Right, Down -> focusRect().topLeft()
-                Left, Up -> focusRect().bottomRight()
-                else -> error(InvalidFocusDirection)
-            }
-            val nextCandidate = activated.findBestCandidate(initialFocusRect, direction)
-            return nextCandidate?.let { onFound.invoke(it) } ?: false
+            return findChildCorrespondingToFocusEnter(direction, onFound)
         }
     }
 }
 
+/**
+ * Search through the children and find a child that corresponds to a moveFocus(Enter).
+ * An enter can be triggered explicitly by using the DPadCenter or can be triggered
+ * implicitly when we encounter a focus group during focus search.
+ * @param direction The [direction][FocusDirection] that triggered Focus Enter.
+ * @param onFound the callback that is run when the child is found.
+ * @return true if we find a suitable child, false otherwise.
+ */
+internal fun FocusTargetNode.findChildCorrespondingToFocusEnter(
+    direction: FocusDirection,
+    onFound: (FocusTargetNode) -> Boolean
+): Boolean {
+
+    val focusableChildren = MutableVector<FocusTargetNode>()
+    collectAccessibleChildren(focusableChildren)
+
+    // If there are aren't multiple children to choose from, return the first child.
+    if (focusableChildren.size <= 1) {
+        return focusableChildren.firstOrNull()?.let { onFound.invoke(it) } ?: false
+    }
+
+    // For the purpose of choosing an appropriate child, we convert moveFocus(Enter)
+    // to Left or Right based on LayoutDirection. If this was an implicit enter, we use the
+    // direction that triggered the implicit enter.
+    val requestedDirection = when (direction) {
+        // TODO(b/244528858) choose different items for moveFocus(Enter) based on LayoutDirection.
+        @OptIn(ExperimentalComposeUiApi::class)
+        Enter -> Right
+        else -> direction
+    }
+
+    // To start the search, we pick one of the four corners of this node as the initially
+    // focused rectangle.
+    val initialFocusRect = when (requestedDirection) {
+        Right, Down -> focusRect().topLeft()
+        Left, Up -> focusRect().bottomRight()
+        else -> error(InvalidFocusDirection)
+    }
+    val nextCandidate = focusableChildren.findBestCandidate(initialFocusRect, requestedDirection)
+    return nextCandidate?.let { onFound.invoke(it) } ?: false
+}
+
 // Search among your children for the next child.
 // If the next child is not found, generate more children by requesting a beyondBoundsLayout.
-private fun FocusModifier.generateAndSearchChildren(
-    focusedItem: FocusModifier,
+private fun FocusTargetNode.generateAndSearchChildren(
+    focusedItem: FocusTargetNode,
     direction: FocusDirection,
-    onFound: (FocusModifier) -> Boolean
+    onFound: (FocusTargetNode) -> Boolean
 ): Boolean {
     // Search among the currently available children.
     if (searchChildren(focusedItem, direction, onFound)) {
@@ -113,28 +152,51 @@ private fun FocusModifier.generateAndSearchChildren(
     } ?: false
 }
 
-private fun FocusModifier.searchChildren(
-    focusedItem: FocusModifier,
+private fun FocusTargetNode.searchChildren(
+    focusedItem: FocusTargetNode,
     direction: FocusDirection,
-    onFound: (FocusModifier) -> Boolean
+    onFound: (FocusTargetNode) -> Boolean
 ): Boolean {
-    val childrenCopy = MutableVector<FocusModifier>(children.size)
-    childrenCopy.addAll(children)
-    while (childrenCopy.isNotEmpty()) {
-        val nextItem = childrenCopy.findBestCandidate(focusedItem.focusRect(), direction)
+    val children = MutableVector<FocusTargetNode>().apply {
+        visitChildren(Nodes.FocusTarget) {
+            this.add(it)
+        }
+    }
+    while (children.isNotEmpty()) {
+        val nextItem = children.findBestCandidate(focusedItem.focusRect(), direction)
             ?: return false
 
         // If the result is not deactivated, this is a valid next item.
-        if (!nextItem.focusState.isDeactivated) return onFound.invoke(nextItem)
+        if (nextItem.fetchFocusProperties().canFocus) return onFound.invoke(nextItem)
 
         // If the result is deactivated, we search among its children.
         if (nextItem.generateAndSearchChildren(focusedItem, direction, onFound)) return true
 
         // If there are no results among the children of the deactivated node,
         // repeat the search by excluding this deactivated node.
-        childrenCopy.remove(nextItem)
+        children.remove(nextItem)
     }
     return false
+}
+
+/**
+ * Returns all [FocusTargetNode] children that are not Deactivated. Any
+ * child that is deactivated will add activated children instead, unless the deactivated
+ * node has a custom Enter specified.
+ */
+private fun DelegatableNode.collectAccessibleChildren(
+    accessibleChildren: MutableVector<FocusTargetNode>
+) {
+    visitChildren(Nodes.FocusTarget) {
+        // TODO(b/278765590): Find the root issue why visitChildren returns unattached nodes.
+        if (!it.isAttached) return@visitChildren
+
+        if (it.fetchFocusProperties().canFocus) {
+            accessibleChildren.add(it)
+        } else {
+            it.collectAccessibleChildren(accessibleChildren)
+        }
+    }
 }
 
 // Iterate through this list of focus nodes and find best candidate in the specified direction.
@@ -142,10 +204,10 @@ private fun FocusModifier.searchChildren(
 //  and then only comparing candidates in the beam. If nothing is in the beam, then consider all
 //  valid candidates.
 @Suppress("ModifierFactoryExtensionFunction", "ModifierFactoryReturnType")
-private fun MutableVector<FocusModifier>.findBestCandidate(
+private fun MutableVector<FocusTargetNode>.findBestCandidate(
     focusRect: Rect,
     direction: FocusDirection
-): FocusModifier? {
+): FocusTargetNode? {
     // Pick an impossible rectangle as the initial best candidate Rect.
     var bestCandidate = when (direction) {
         Left -> focusRect.translate(focusRect.width + 1, 0f)
@@ -155,7 +217,7 @@ private fun MutableVector<FocusModifier>.findBestCandidate(
         else -> error(InvalidFocusDirection)
     }
 
-    var searchResult: FocusModifier? = null
+    var searchResult: FocusTargetNode? = null
     forEach { candidateNode ->
         if (candidateNode.isEligibleForFocusSearch) {
             val candidateRect = candidateNode.focusRect()
@@ -317,7 +379,7 @@ private fun Rect.bottomRight() = Rect(right, bottom, right, bottom)
 
 // Find the active descendant.
 @Suppress("ModifierFactoryExtensionFunction", "ModifierFactoryReturnType")
-private fun FocusModifier.activeNode(): FocusModifier {
-    check(focusState == ActiveParent || focusState == DeactivatedParent)
+private fun FocusTargetNode.activeNode(): FocusTargetNode {
+    check(focusState == ActiveParent) { "Searching for active node in inactive hierarchy" }
     return findActiveFocusNode() ?: error(NoActiveChild)
 }

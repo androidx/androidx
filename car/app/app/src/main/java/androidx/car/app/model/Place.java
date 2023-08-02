@@ -18,20 +18,19 @@ package androidx.car.app.model;
 
 import static java.util.Objects.requireNonNull;
 
-import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.annotations.CarProtocol;
+import androidx.car.app.annotations.KeepFields;
 
 import java.util.Objects;
 
 /** Represents a geographical location and additional information on how to display it. */
 @CarProtocol
+@KeepFields
 public final class Place {
-    @Keep
     @Nullable
     private final CarLocation mLocation;
-    @Keep
     @Nullable
     private final PlaceMarker mMarker;
 

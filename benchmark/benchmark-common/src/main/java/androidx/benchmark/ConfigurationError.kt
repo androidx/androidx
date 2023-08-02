@@ -20,8 +20,6 @@ import androidx.annotation.RestrictTo
 
 /**
  * Represents an error in configuration of a benchmark.
- *
- * @suppress
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 data class ConfigurationError(
@@ -79,7 +77,6 @@ data class ConfigurationError(
     )
 }
 
-/** @suppress */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 fun conditionalError(
     hasError: Boolean,
@@ -103,24 +100,26 @@ internal fun List<ConfigurationError>.prettyPrint(prefix: String): String {
 /**
  * Throw an AssertionError if the list contains an unsuppressed error, and return either a
  * SuppressionState if errors are suppressed, or null otherwise.
- *
- * @suppress
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 fun List<ConfigurationError>.checkAndGetSuppressionState(
     suppressedErrorIds: Set<String>,
 ): ConfigurationError.SuppressionState? {
+    if (isEmpty()) {
+        return null
+    }
+
     val (suppressed, unsuppressed) = partition {
         suppressedErrorIds.contains(it.id)
     }
 
-    val prefix = suppressed.joinToString("_") { it.id } + "_"
+    val prefix = this.joinToString("_") { it.id } + "_"
 
-    val unsuppressedString = unsuppressed.joinToString(" ") { it.id }
-    val suppressedString = suppressed.joinToString(" ") { it.id }
-    val howToSuppressString = this.joinToString(",") { it.id }
-
-    if (unsuppressed.isNotEmpty()) {
+    // either fail and report all unsuppressed errors ...
+    if (unsuppressed.isNotEmpty() && !Arguments.dryRunMode) {
+        val unsuppressedString = unsuppressed.joinToString(" ") { it.id }
+        val suppressedString = suppressed.joinToString(" ") { it.id }
+        val howToSuppressString = this.joinToString(",") { it.id }
         throw AssertionError(
             """
                 |ERRORS (not suppressed): $unsuppressedString
@@ -140,9 +139,6 @@ fun List<ConfigurationError>.checkAndGetSuppressionState(
         )
     }
 
-    if (suppressed.isEmpty()) {
-        return null
-    }
-
-    return ConfigurationError.SuppressionState(prefix, suppressed.prettyPrint("WARNING: "))
+    // ... or report all errors as suppressed
+    return ConfigurationError.SuppressionState(prefix, prettyPrint("WARNING: "))
 }

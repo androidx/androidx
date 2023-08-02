@@ -22,6 +22,7 @@ import androidx.health.services.client.data.DataPointContainer
 import androidx.health.services.client.data.DataType
 import androidx.health.services.client.data.DeltaDataType
 
+@JvmDefaultWithCompatibility
 /** Callback for [MeasureClient.registerMeasureCallback]. */
 public interface MeasureCallback {
 

@@ -15,15 +15,19 @@
  */
 package androidx.compose.ui.window
 
+import android.os.Build
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.compositionLocalOf
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.test.TestActivity
@@ -34,20 +38,22 @@ import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.height
 import androidx.test.espresso.Espresso
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.FlakyTest
 import androidx.test.filters.MediumTest
+import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry.getInstrumentation
 import androidx.test.uiautomator.UiDevice
 import com.google.common.truth.Truth
+import kotlin.math.roundToInt
 import org.junit.Assert.assertEquals
 import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import kotlin.math.roundToInt
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
@@ -264,6 +270,38 @@ class DialogTest {
         rule.onNodeWithText(defaultText).assertIsDisplayed()
     }
 
+    @Ignore // b/266613263
+    @Test
+    @SdkSuppress(maxSdkVersion = 33) // b/262909049: Failing on SDK 34
+    fun dialogTest_backHandler_isCalled_backButtonPressed() {
+        if (Build.VERSION.SDK_INT == 33 && Build.VERSION.CODENAME != "REL") {
+            return // b/262909049: Do not run this test on pre-release Android U.
+        }
+
+        val clickCountPrefix = "Click: "
+
+        rule.setContent {
+            val showDialog = remember { mutableStateOf(true) }
+
+            if (showDialog.value) {
+                Dialog(onDismissRequest = {}) {
+                    val clickCount = remember { mutableStateOf(0) }
+                    BasicText(clickCountPrefix + clickCount.value)
+                    BackHandler {
+                        clickCount.value++
+                    }
+                }
+            }
+        }
+
+        rule.onNodeWithText(clickCountPrefix + "0").assertIsDisplayed()
+
+        // Click the back button to trigger the BackHandler
+        Espresso.pressBack()
+
+        rule.onNodeWithText(clickCountPrefix + "1").assertIsDisplayed()
+    }
+
     @Test
     fun dialog_preservesCompositionLocals() {
         val compositionLocal = compositionLocalOf<Float> { error("unset") }
@@ -280,7 +318,6 @@ class DialogTest {
         }
     }
 
-    @OptIn(ExperimentalComposeUiApi::class)
     @Test
     fun canFillScreenWidth_dependingOnProperty() {
         var box1Width = 0
@@ -302,6 +339,40 @@ class DialogTest {
                     .roundToInt()
             )
             Truth.assertThat(box2Width).isLessThan(box1Width)
+        }
+    }
+
+    @Test
+    fun canChangeSize() {
+        var width by mutableStateOf(10.dp)
+        var usePlatformDefaultWidth by mutableStateOf(false)
+        var actualWidth = 0
+
+        rule.setContent {
+            Dialog(
+                onDismissRequest = {},
+                properties = DialogProperties(usePlatformDefaultWidth = usePlatformDefaultWidth)
+            ) {
+                Box(Modifier.size(width, 150.dp).onSizeChanged { actualWidth = it.width })
+            }
+        }
+        rule.runOnIdle {
+            Truth.assertThat(actualWidth).isEqualTo((10 * rule.density.density).roundToInt())
+        }
+        width = 20.dp
+        rule.runOnIdle {
+            Truth.assertThat(actualWidth).isEqualTo((20 * rule.density.density).roundToInt())
+        }
+
+        usePlatformDefaultWidth = true
+
+        width = 30.dp
+        rule.runOnIdle {
+            Truth.assertThat(actualWidth).isEqualTo((30 * rule.density.density).roundToInt())
+        }
+        width = 40.dp
+        rule.runOnIdle {
+            Truth.assertThat(actualWidth).isEqualTo((40 * rule.density.density).roundToInt())
         }
     }
 }

@@ -106,6 +106,9 @@
             android:name=".JsJavaInteractionActivity"
             android:exported="true" />
         <activity
+            android:name=".WebMessageCompatActivity"
+            android:exported="true" />
+        <activity
             android:name=".WebMessageListenerActivity"
             android:exported="true" />
         <activity
@@ -120,7 +123,31 @@
         <activity
             android:name=".GetVariationsHeaderActivity"
             android:exported="true" />
-        <activity android:name=".RequestedWithHeaderActivity"
+        <activity
+            android:name=".ProcessGlobalConfigActivity"
             android:exported="true" />
+        <activity
+            android:name=".DataDirectorySuffixActivity"
+            android:process=":dataDirectorySuffixActivity"
+            android:exported="true" />
+        <activity
+            android:name=".DirectoryBasePathsActivity"
+            android:process=":directoryBasePathActivity"
+            android:exported="true" />
+        <activity
+            android:name=".RequestedWithHeaderActivity"
+            android:exported="true" />
+        <activity android:name=".CookieManagerActivity"
+            android:exported="true" />
+        <activity
+            android:name=".ImageDragActivity"
+            android:exported="false" />
+
+        <provider
+            android:authorities="com.example.androidx.webkit.DropDataProvider"
+            android:name="androidx.webkit.DropDataContentProvider"
+            android:exported="false"
+            android:grantUriPermissions="true"/>
+
     </application>
 </manifest>

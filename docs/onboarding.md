@@ -6,9 +6,11 @@ This page describes how to set up your workstation to check out source code,
 make simple changes in Android Studio, and upload commits to Gerrit for review.
 
 This page does **not** cover best practices for the content of changes. Please
-see [Life of a Jetpack Feature](loaf.md) for details on developing and releasing
-a library, [API Guidelines](api_guidelines.md) for best practices regarding
-public APIs and an overview of the constraints placed on changes.
+see [Life of a Jetpack Feature](/company/teams/androidx/loaf.md) for details on
+developing and releasing a library,
+[API Guidelines](/company/teams/androidx/api_guidelines/index.md) for best
+practices regarding public APIs and an overview of the constraints placed on
+changes.
 
 ## Workstation setup {#setup}
 
@@ -95,7 +97,7 @@ much as possible. All feature development occurs in the public
 [androidx-main](https://android.googlesource.com/platform/frameworks/support/+/androidx-main)
 branch of the Android Open Source Project.
 
-As of 2020/03/20, you will need about 38 GB for a fully-built checkout.
+As of 2023/03/30, you will need about 42 GB for a fully-built checkout.
 
 ### Synchronize the branch {#source-checkout}
 
@@ -110,7 +112,7 @@ The following command will check out the public main development branch:
 
 ```shell
 mkdir androidx-main && cd androidx-main
-repo init -u sso://android/platform/manifest \
+repo init -u https://android.googlesource.com/platform/manifest \
     -b androidx-main --partial-clone --clone-filter=blob:limit=10M
 repo sync -c -j8
 ```
@@ -184,10 +186,10 @@ time, and it can be
 allows you to explore all of the source code in the repository. Links to this
 URL may be shared on the public issue tracked and other external sites.
 
+### Custom search engine for `androidx-main` {#custom-search-engine}
+
 We recommend setting up a custom search engine in Chrome as a faster (and
 publicly-accessible) alternative to `cs/`.
-
-### Custom search engine for `androidx-main` {#custom-search-engine}
 
 1.  Open `chrome://settings/searchEngines`
 1.  Click the `Add` button
@@ -220,49 +222,55 @@ projects may take a while, but once that finishes you can use Studio as you
 normally would for application or library development -- right-click on a test
 or sample to run or debug it, search through classes, and so on.
 
-If you get a “Unregistered VCS root detected” message, click “Add root” to
-enable the Git/VCS integration for Android Studio.
-
-If you see any errors (red underlines), click Gradle's elephant button in the
-toolbar ("Sync Project with Gradle Files") and they should resolve once the
-build completes.
-
 > NOTE: You should choose "Use project SDK" when prompted by Studio. If you
 > picked "Android Studio SDK" by mistake, don't panic! You can fix this by
 > opening `File > Project Structure > Platform Settings > SDKs` and manually
 > setting the Android SDK home path to
 > `<project-root>/prebuilts/fullsdk-<platform>`.
 
-> NOTE: If Android Studio's UI looks scaled up, ex. twice the size it should be,
-> you may need to add the following line to your `studio64.vmoptions` file using
-> `Help -> Edit Custom VM Options`:
->
-> ```
-> -Dsun.java2d.uiScale.enabled=false
-> ```
+### Troubleshooting {#studio-troubleshooting}
 
-> NOTE: We are aware of a bug where running `./studiow` does not result in
-> Android Studio application being launched.
+*   If you've updated to macOS Ventura and receive a "App is damaged and cannot
+    be opened" message when running Studio, *do not* move the app to the Trash.
+    Cancel out of the dialog and open macOS `System Settings > Gatekeeper`, look
+    for `"Android Studio" was blocked`, and click `Open Anyway` to grant an
+    exception. Alternatively, you can navigate to the Studio `.app` file under
+    `frameworks/support/studio` and run it once using `Control+Click` and `Open`
+    to automatically grant an exception.
+*   If you've updated to macOS Ventura and receive a "xcrun: error: invalid
+    active developer path" message when running Studio, reinstall Xcode using
+    `xcode-select --install`. If that does not work, you will need to download
+    Xcode.
+*   If you get a “Unregistered VCS root detected” message, click “Add root” to
+    enable the Git/VCS integration for Android Studio.
+*   If you see any errors (red underlines), click Gradle's elephant button in
+    the toolbar (or `File > Sync Project with Gradle Files`) and they should
+    resolve once the build completes.
+*   If you run `./studiow` with a new project set but you're still seeing the
+    old project set in `Project`, use `File > Sync Project with Gradle Files` to
+    force a re-sync.
+*   If Android Studio's UI looks scaled up, ex. twice the size it should be, you
+    may need to add the following line to your `studio64.vmoptions` file using
+    `Help > Edit Custom VM Options`: `-Dsun.java2d.uiScale.enabled=false`
+*   If you don't see a specific Gradle task listed in Studio's Gradle pane,
+    check the following:
+    *   Studio might be running a different project subset than the one
+        intended. For example, `./studiow main` only loads the `main` set of
+        androidx projects; run `./studiow compose` to load the tasks specific to
+        Compose.
+    *   Gradle tasks aren't being loaded. Under Studio's settings =>
+        Experimental, make sure that "Do not build Gradle task list during
+        Gradle sync" is unchecked. Note that unchecking this can reduce Studio's
+        performance.
 
 If in the future you encounter unexpected errors in Studio and you want to check
 for the possibility it is due to some incorrect settings or other generated
 files, you can run `./studiow --clean main <project subset>` or `./studiow
 --reinstall <project subset>` to clean generated files or reinstall Studio.
 
-> Tip: If you don't see a specific Gradle task listed in Studio's Gradle pane,
-> check the following:
->
-> *   Studio might be running a different project subset than the one intended.
->     For example, `./studiow main` only loads the `main` set of androidx
->     projects; run `./studiow compose` to load the tasks specific to Compose.
->
-> *   Gradle tasks aren't being loaded. Under Studio's settings => Experimental,
->     make sure that "Do not build Gradle task list during Gradle sync" is
->     unchecked. (Note that unchecking this can reduce Studio's performance)
+### Enabling Compose `@Preview` annotation previews
 
-### Enabling Compose @Preview annotation previews
-
-Add the following dependencies to your project's `build.gradle`
+Add the following dependencies to your project's `build.gradle`:
 
 ```groovy
 dependencies {
@@ -271,7 +279,7 @@ dependencies {
 }
 ```
 
-then
+Then,
 [use it like you would on an external project](https://developer.android.com/jetpack/compose/tooling).
 
 ## Making changes {#changes}
@@ -366,15 +374,14 @@ example, if you are working on `core` module use:
 
 To make warnings fail your build (same as presubmit), use the `--strict` flag,
 which our gradlew expands into a few correctness-related flags including
-`-Pandroidx.allWarningsAsErrors`:
+`-Pandroidx.validateNoUnrecognizedMessages`:
 
 ```shell
 ./gradlew core:core:assemble --strict
 ```
 
-To build every module, run the Lint verifier, verify the public API surface, and
-generate the local Maven repository artifact, use the `createArchive` Gradle
-task:
+To build every module and generate the local Maven repository artifact, use the
+`createArchive` Gradle task:
 
 ```shell
 ./gradlew createArchive
@@ -468,45 +475,20 @@ locally.
 NOTE `./gradlew tasks` always has the canonical task information! When in doubt,
 run `./gradlew tasks`
 
-#### Javadocs
-
-To build API reference docs for tip-of-tree Java source code, run the Gradle
-task:
-
-```
-./gradlew doclavaDocs
-```
-
-Places the documentation in
-`{androidx-main}/out/androidx/docs-tip-of-tree/build/javadoc`
-
-#### KotlinDocs
-
-To build API reference docs for tip-of-tree Kotlin source code, run the Gradle
-task:
-
-```
-./gradlew dokkaKotlinDocs
-```
-
-Places the documentation in
-`{androidx-main}/out/androidx/docs-tip-of-tree/build/dokkaKotlinDocs`
-
-#### Dackka docs
+#### Generate Docs
 
 To build API reference docs for both Java and Kotlin source code using Dackka,
 run the Gradle task:
 
 ```
-./gradlew dackkaDocs
+./gradlew docs
 ```
 
 Location of generated refdocs:
 
 *   docs-public (what is published to DAC):
-    `{androidx-main}/out/androidx/docs-public/build/dackkaDocs`
-*   docs-tip-of-tree:
-    `{androidx-main}/out/androidx/docs-tip-of-tree/build/dackkaDocs`
+    `{androidx-main}/out/androidx/docs-public/build/docs`
+*   docs-tip-of-tree: `{androidx-main}/out/androidx/docs-tip-of-tree/build/docs`
 
 The generated docs are plain HTML pages with links that do not work locally.
 These issues are fixed when the docs are published to DAC, but to preview a
@@ -532,39 +514,20 @@ To build API reference docs for published artifacts formatted for use on
 [d.android.com](http://d.android.com), run the Gradle command:
 
 ```
-./gradlew zipDoclavaDocs
+./gradlew zipDocs
 ```
 
-This will create the artifact
-`{androidx-main}/out/dist/doclava-public-docs-0.zip`. This command builds docs
-based on the version specified in
+This will create the artifact `{androidx-main}/out/dist/docs-public-0.zip`. This
+command builds docs based on the version specified in
 `{androidx-main-checkout}/frameworks/support/docs-public/build.gradle` and uses
 the prebuilt checked into
 `{androidx-main-checkout}/prebuilts/androidx/internal/androidx/`. We
 colloquially refer to this two step process of (1) updating `docs-public` and
 (2) checking in a prebuilt artifact into the prebuilts directory as
-[The Prebuilts Dance](releasing_detailed.md#the-prebuilts-dance™). So, to build
-javadocs that will be published to
+[The Prebuilts Dance](/company/teams/androidx/releasing_prebuilts_dance.md#the-prebuilts-dance™).
+So, to build javadocs that will be published to
 https://developer.android.com/reference/androidx/packages, both of these steps
 need to be completed.
-
-Once you done the above steps, Kotlin docs will also be generated, with the only
-difference being that we use the Gradle command:
-
-```
-./gradlew zipDokkaDocs
-```
-
-This will create the artifact `{androidx-main}/out/dist/dokka-public-docs-0.zip`
-
-To generate a zip artifact for both Java and Kotlin source code using Dackka:
-
-```
-./gradlew zipDackkaDocs
-```
-
-This will create the artifact
-`{androidx-main}/out/dist/dackka-public-docs-0.zip`
 
 ### Updating public APIs {#updating-public-apis}
 
@@ -595,6 +558,10 @@ This is handled automatically by the `updateApi` Gradle task:
 If you change the public APIs without updating the API file, your module will
 still build **but** your CL will fail Treehugger presubmit checks.
 
+NOTE The `updateApi` task does not generate versioned API files (e.g.
+`1.0.0-beta01.txt`) during a library's `alpha`, `rc` or stable cycles. The task
+will always generate `current.txt` API files.
+
 #### What are all these files in `api/`? {#updating-public-apis-glossary}
 
 Historical API surfaces are tracked for compatibility and docs generation
@@ -604,10 +571,11 @@ version -- we record three different types of API surfaces.
 *   `<version>.txt`: Public API surface, tracked for compatibility
 *   `restricted_<version>.txt`: `@RestrictTo` API surface, tracked for
     compatibility where necessary (see
-    [Restricted APIs](api_guidelines.md#restricted-api))
+    [Restricted APIs](/company/teams/androidx/api_guidelines/index.md#restricted-api))
 *   `public_plus_experimental_<version>.txt`: Public API surface plus
     `@RequiresOptIn` experimental API surfaces used for documentation (see
-    [Experimental APIs](api_guidelines.md#experimental-api)) and API review
+    [Experimental APIs](/company/teams/androidx/api_guidelines/index.md#experimental-api))
+    and API review
 
 ### Release notes & the `Relnote:` tag {#relnote}
 
@@ -708,14 +676,17 @@ the latest API changes.
 
 #### Missing external dependency
 
-If Gradle cannot resolve a dependency listed in your `build.gradle`, you may
-need to import the corresponding artifact into one of the prebuilts
-repositories. These repositories are located under `prebuilts/androidx`. Our
-workflow does not automatically download artifacts from the internet to
-facilitate reproducible builds even if remote artifacts are changed.
+If Gradle cannot resolve a dependency listed in your `build.gradle`:
 
-We use a script to download dependencies, you can learn more about it
-[here](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:development/importMaven/README.md).
+*   You will probably want to import the missing artifact via
+    [importMaven.sh](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:development/importMaven/README.md)
+
+    *   We store artifacts in the prebuilts repositories under
+        `prebuilts/androidx` to facilitate reproducible builds even if remote
+        artifacts are changed.
+
+*   You may need to [establish trust for](#dependency-verification) the new
+    artifact
 
 ##### Importing dependencies in `libs.versions.toml`
 
@@ -765,12 +736,10 @@ Please remember to commit changes in the `prebuilts/androidx/konan` repository.
 
 #### Dependency verification
 
-If the new dependency you are importing is unsigned, or is signed with a new,
+If you import a new dependency that is either unsigned or is signed with a new,
 unrecognized key, then you will need to add new dependency verification metadata
-to indicate to Gradle that this new dependency is trusted. Instructions for how
-to do this are currently in the
-[README](https://android.googlesource.com/platform/frameworks/support/+/androidx-main/gradle/README.md)
-in the development subfolder
+to indicate to Gradle that this new dependency is trusted. See the instructions
+[here](https://android.googlesource.com/platform/frameworks/support/+/androidx-main/gradle/README.md)
 
 #### Updating an existing dependency
 
@@ -793,16 +762,20 @@ You probably need to update the prebuilt SDK used by the gradle build. If you
 are referencing new framework APIs, you will need to wait for the framework
 changes to land in an SDK build (or build it yourself) and then land in both
 prebuilts/fullsdk and prebuilts/sdk. See
-[Updating SDK prebuilts](playbook.md#prebuilts-fullsdk) for more information.
+[Updating SDK prebuilts](/company/teams/androidx/playbook.md#prebuilts-fullsdk)
+for more information.
 
 #### How do I handle refactoring a framework API referenced from a library?
 
 Because AndroidX must compile against both the current framework and the latest
 SDK prebuilt, and because compiling the SDK prebuilt depends on AndroidX, you
-will need to refactor in stages: Remove references to the target APIs from
-AndroidX Perform the refactoring in the framework Update the framework prebuilt
-SDK to incorporate changes in (2) Add references to the refactored APIs in
-AndroidX Update AndroidX prebuilts to incorporate changes in (4)
+will need to refactor in stages:
+
+1.  Remove references to the target APIs from AndroidX
+2.  Perform the refactoring in the framework
+3.  Update the framework prebuilt SDK to incorporate changes in (2)
+4.  Add references to the refactored APIs in AndroidX
+5.  Update AndroidX prebuilts to incorporate changes in (4)
 
 ## Testing {#testing}
 
@@ -812,20 +785,26 @@ stanza indicating which tests were used to verify correctness. Any CLs
 implementing bug fixes are expected to include new regression tests specific to
 the issue being fixed.
 
-### Running Tests
+### Running tests {#run-tests}
 
-#### Single Test Class or Method
+Generally, tests in the AndroidX repository should be run through the Android
+Studio UI. You can also run tests from the command line or via remote devices on
+FTL, see
+[Running unit and integration tests](/company/teams/androidx/testing.md#running)
+for details.
 
-1.  Open the desired test file in Android Studio.
-2.  Right-click on a test class or @Test method name and select `Run FooBarTest`
+#### Single test class or method
 
-#### Full Test Package
+1.  Open the desired test file in Android Studio
+2.  Right-click on a test class or `@Test` method name and select `Run <name>`
 
-1.  In the project side panel open the desired module.
-2.  Find the directory with the tests
-3.  Right-click on the directory and select `Run androidx.foobar`
+#### Full test package
 
-### Running Sample Apps
+1.  In the `Project` side panel, open the desired module
+2.  Find the package directory with the tests
+3.  Right-click on the directory and select `Run <package>`
+
+### Running sample apps {#run-samples}
 
 The AndroidX repository has a set of Android applications that exercise AndroidX
 code. These applications can be useful when you want to debug a real running
@@ -835,8 +814,8 @@ These applications are named either `<libraryname>-integration-tests-testapp`,
 or `support-\*-demos` (e.g. `support-v4-demos` or `support-leanback-demos`). You
 can run them by clicking `Run > Run ...` and choosing the desired application.
 
-See the [Testing](testing.md) page for more resources on writing, running, and
-monitoring tests.
+See the [Testing](/company/teams/androidx/testing.md) page for more resources on
+writing, running, and monitoring tests.
 
 ### AVD Manager
 
@@ -936,7 +915,7 @@ button to load and then click it to follow it to the build artifact URL.
 
 ### Using in a Gradle build
 
-To make these artifacts visible to Gradle, you need to add it as a respository:
+To make these artifacts visible to Gradle, you need to add it as a repository:
 
 ```groovy
 allprojects {
@@ -959,7 +938,7 @@ All artifacts in the snapshot repository are versioned as `x.y.z-SNAPSHOT`. So
 to use a snapshot artifact, the version in your `build.gradle` will need to be
 updated to `androidx.<groupId>:<artifactId>:X.Y.Z-SNAPSHOT`
 
-For example, to use the `core:core:1.2.0-SHAPSHOT` snapshot, you would add the
+For example, to use the `core:core:1.2.0-SNAPSHOT` snapshot, you would add the
 following to your `build.gradle`:
 
 ```
@@ -1031,7 +1010,7 @@ module. We recommend only replacing the module you are modifying instead of the
 full m2repository to avoid version issues of other modules. You can either take
 the unzipped directory from
 `<path-to-checkout>/out/dist/top-of-tree-m2repository-##.zip`, or from
-`<path-to-checkout>/out/androidx/build/support_repo/` after buiding `androidx`.
+`<path-to-checkout>/out/androidx/build/support_repo/` after building `androidx`.
 Here is an example of replacing the RecyclerView module:
 
 ```shell
@@ -1046,7 +1025,8 @@ you can build the Android platform code with the new `androidx` code.
 ### How do I measure library size? {#library-size}
 
 Method count and bytecode size are tracked in CI
-[alongside benchmarks](benchmarking.md#monitoring) to detect regressions.
+[alongside benchmarks](/company/teams/androidx/benchmarking.md#monitoring) to
+detect regressions.
 
 For local measurements, use the `:reportLibraryMetrics` task. For example:
 
@@ -1071,3 +1051,21 @@ For example, the `androidx.compose.runtime`
 [Overview page](https://developer.android.com/reference/kotlin/androidx/compose/runtime/package-summary)
 includes content from
 [compose-runtime-documentation.md](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:compose/runtime/runtime/src/commonMain/kotlin/androidx/compose/runtime/compose-runtime-documentation.md).
+
+### How do I enable MultiDex for my library?
+
+Go to your project/app level build.gradle file, and add
+
+```
+android {
+    defaultConfig {
+        multiDexEnabled = true
+    }
+}
+```
+
+as well as `androidTestImplementation(libs.multidex)` to the dependenices block.
+
+If you want it enabled for the application and not test apk, add
+`implementation(libs.multidex)` to the dependencies block instead. Any prior
+failures may not re-occur now that the software is multi-dexed. Rerun the build.

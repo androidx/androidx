@@ -19,11 +19,12 @@ package androidx.navigation
 import android.os.Bundle
 import androidx.annotation.CallSuper
 import androidx.annotation.RestrictTo
+import androidx.lifecycle.Lifecycle
+import java.util.concurrent.locks.ReentrantLock
+import kotlin.concurrent.withLock
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import java.util.concurrent.locks.ReentrantLock
-import kotlin.concurrent.withLock
 
 /**
  * The NavigatorState encapsulates the state shared between the [Navigator] and the
@@ -35,10 +36,8 @@ public abstract class NavigatorState {
     private val _transitionsInProgress: MutableStateFlow<Set<NavBackStackEntry>> =
         MutableStateFlow(setOf())
 
-    /**
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public var isNavigating = false
 
     /**
@@ -78,6 +77,14 @@ public abstract class NavigatorState {
      * @see popWithTransition
      */
     public open fun pushWithTransition(backStackEntry: NavBackStackEntry) {
+        // When passed an entry that is already transitioning via a call to push, ignore the call
+        // since we are already moving to the proper state.
+        if (
+            _transitionsInProgress.value.any { it === backStackEntry } &&
+            backStack.value.any { it === backStackEntry }
+        ) {
+            return
+        }
         val previousEntry = backStack.value.lastOrNull()
         // When navigating, we need to mark the outgoing entry as transitioning until it
         // finishes its outgoing animation.
@@ -121,6 +128,14 @@ public abstract class NavigatorState {
      * @see pushWithTransition
      */
     public open fun popWithTransition(popUpTo: NavBackStackEntry, saveState: Boolean) {
+        // When passed an entry that is already transitioning via a call to pop, ignore the call
+        // since we are already moving to the proper state.
+        if (
+            _transitionsInProgress.value.any { it === popUpTo } &&
+            backStack.value.none { it === popUpTo }
+        ) {
+            return
+        }
         _transitionsInProgress.value = _transitionsInProgress.value + popUpTo
         val incomingEntry = backStack.value.lastOrNull { entry ->
             entry != popUpTo &&
@@ -137,12 +152,46 @@ public abstract class NavigatorState {
     /**
      * Informational callback indicating that the given [backStackEntry] has been
      * affected by a [NavOptions.shouldLaunchSingleTop] operation.
+     *
+     * Replaces the topmost entry with same id with the new [backStackEntry][NavBackStackEntry]
+     *
+     * @param [backStackEntry] the [NavBackStackEntry] to replace the old Entry
+     * within the [backStack]
      */
     @CallSuper
     public open fun onLaunchSingleTop(backStackEntry: NavBackStackEntry) {
         // We update the back stack here because we don't want to leave it to the navigator since
         // it might be using transitions.
-        _backStack.value = _backStack.value - _backStack.value.last() + backStackEntry
+        backStackLock.withLock {
+            val tempStack = backStack.value.toMutableList()
+            tempStack.indexOfLast { it.id == backStackEntry.id }.let { idx ->
+                tempStack[idx] = backStackEntry
+            }
+            _backStack.value = tempStack
+        }
+    }
+
+    /**
+     * Informational callback indicating that the given [backStackEntry] has been
+     * affected by a [NavOptions.shouldLaunchSingleTop] operation. This also adds the given and
+     * previous entry to the [set of in progress transitions][transitionsInProgress].
+     * Added entries have their [Lifecycle] capped at [Lifecycle.State.STARTED] until an entry is
+     * passed into the [markTransitionComplete] callback, when they are allowed to go to
+     * [Lifecycle.State.RESUMED] while previous entries have their [Lifecycle] held at
+     * [Lifecycle.State.CREATED] until an entry is passed into the [markTransitionComplete]
+     * callback, when they are allowed to go to  [Lifecycle.State.DESTROYED] and have their state
+     * cleared.
+     *
+     * Replaces the topmost entry with same id with the new [backStackEntry][NavBackStackEntry]
+     *
+     * @param [backStackEntry] the [NavBackStackEntry] to replace the old Entry
+     * within the [backStack]
+     */
+    @CallSuper
+    public open fun onLaunchSingleTopWithTransition(backStackEntry: NavBackStackEntry) {
+        val oldEntry = backStack.value.last { it.id == backStackEntry.id }
+        _transitionsInProgress.value = _transitionsInProgress.value + oldEntry + backStackEntry
+        onLaunchSingleTop(backStackEntry)
     }
 
     /**
@@ -150,6 +199,9 @@ public abstract class NavigatorState {
      * progress][transitionsInProgress]. This should be called in conjunction with
      * [pushWithTransition] and [popWithTransition] as those call are responsible for adding
      * entries to [transitionsInProgress].
+     *
+     * This should also always be called in conjunction with [prepareForTransition] to ensure all
+     * [NavBackStackEntries][NavBackStackEntry] settle into the proper state.
      *
      * Failing to call this method could result in entries being prevented from reaching their
      * final [Lifecycle.State]}.
@@ -159,5 +211,17 @@ public abstract class NavigatorState {
      */
     public open fun markTransitionComplete(entry: NavBackStackEntry) {
         _transitionsInProgress.value = _transitionsInProgress.value - entry
+    }
+
+    /**
+     * This prepares the given [NavBackStackEntry] for transition. This should be called in
+     * conjunction with [markTransitionComplete] as that is responsible for settling the
+     * [NavBackStackEntry] into its final state.
+     *
+     * @see markTransitionComplete
+     */
+    @CallSuper
+    public open fun prepareForTransition(entry: NavBackStackEntry) {
+        _transitionsInProgress.value = _transitionsInProgress.value + entry
     }
 }

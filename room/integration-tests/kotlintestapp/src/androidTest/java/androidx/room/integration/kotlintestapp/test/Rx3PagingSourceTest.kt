@@ -16,19 +16,19 @@
 
 package androidx.room.integration.kotlintestapp.test
 
+import androidx.kruth.assertThat
+import androidx.kruth.assertWithMessage
 import androidx.paging.Pager
 import androidx.paging.PagingState
 import androidx.paging.rxjava3.RxPagingSource
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import androidx.room.androidx.room.integration.kotlintestapp.testutil.ItemStore
-import androidx.room.androidx.room.integration.kotlintestapp.testutil.PagingDb
-import androidx.room.androidx.room.integration.kotlintestapp.testutil.PagingEntity
+import androidx.room.integration.kotlintestapp.testutil.ItemStore
+import androidx.room.integration.kotlintestapp.testutil.PagingDb
+import androidx.room.integration.kotlintestapp.testutil.PagingEntity
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
-import com.google.common.truth.Truth.assertThat
-import com.google.common.truth.Truth.assertWithMessage
 import io.reactivex.rxjava3.core.Single
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
@@ -94,11 +94,11 @@ class Rx3PagingSourceTest {
     @Test
     fun refresh_canceledCoroutine_disposesSingle() {
         val items = createItems(startId = 0, count = 90)
-        db.dao.insert(items)
+        db.getDao().insert(items)
 
         var isDisposed = false
         val pager = Pager(CONFIG) {
-            val baseSource = db.dao.loadItemsRx3()
+            val baseSource = db.getDao().loadItemsRx3()
             RxPagingSourceImpl(
                 baseSource = baseSource,
                 initialLoadSingle = { params ->
@@ -135,11 +135,11 @@ class Rx3PagingSourceTest {
     @Test
     fun append_canceledCoroutine_disposesSingle() {
         val items = createItems(startId = 0, count = 90)
-        db.dao.insert(items)
+        db.getDao().insert(items)
 
         var isDisposed = false
         val pager = Pager(CONFIG) {
-            val baseSource = db.dao.loadItemsRx3()
+            val baseSource = db.getDao().loadItemsRx3()
             RxPagingSourceImpl(
                 baseSource = baseSource,
                 initialLoadSingle = { params -> baseSource.loadSingle(params) },
@@ -185,11 +185,11 @@ class Rx3PagingSourceTest {
     @Test
     fun prepend_canceledCoroutine_disposesSingle() {
         val items = createItems(startId = 0, count = 90)
-        db.dao.insert(items)
+        db.getDao().insert(items)
 
         var isDisposed = false
         val pager = Pager(config = CONFIG, initialKey = 50) {
-            val baseSource = db.dao.loadItemsRx3()
+            val baseSource = db.getDao().loadItemsRx3()
             RxPagingSourceImpl(
                 baseSource = baseSource,
                 initialLoadSingle = { params -> baseSource.loadSingle(params) },
@@ -245,25 +245,27 @@ class Rx3PagingSourceTest {
             block(collection)
         }
     }
-}
 
-private class RxPagingSourceImpl(
-    private val baseSource: RxPagingSource<Int, PagingEntity>,
-    private val initialLoadSingle: (LoadParams<Int>) -> Single<LoadResult<Int, PagingEntity>>,
-    private val nonInitialLoadSingle: (LoadParams<Int>) -> Single<LoadResult<Int, PagingEntity>>,
-) : RxPagingSource<Int, PagingEntity>() {
+    private class RxPagingSourceImpl(
+        private val baseSource: RxPagingSource<Int, PagingEntity>,
+        private val initialLoadSingle:
+            (LoadParams<Int>) -> Single<LoadResult<Int, PagingEntity>>,
+        private val nonInitialLoadSingle:
+            (LoadParams<Int>) -> Single<LoadResult<Int, PagingEntity>>,
+    ) : RxPagingSource<Int, PagingEntity>() {
 
-    val singles = mutableListOf<Single<LoadResult<Int, PagingEntity>>>()
+        val singles = mutableListOf<Single<LoadResult<Int, PagingEntity>>>()
 
-    override fun getRefreshKey(state: PagingState<Int, PagingEntity>): Int? {
-        return baseSource.getRefreshKey(state)
-    }
+        override fun getRefreshKey(state: PagingState<Int, PagingEntity>): Int? {
+            return baseSource.getRefreshKey(state)
+        }
 
-    override fun loadSingle(params: LoadParams<Int>): Single<LoadResult<Int, PagingEntity>> {
-        return if (singles.isEmpty()) {
-            initialLoadSingle(params)
-        } else {
-            nonInitialLoadSingle(params)
-        }.also { singles.add(it) }
+        override fun loadSingle(params: LoadParams<Int>): Single<LoadResult<Int, PagingEntity>> {
+            return if (singles.isEmpty()) {
+                initialLoadSingle(params)
+            } else {
+                nonInitialLoadSingle(params)
+            }.also { singles.add(it) }
+        }
     }
 }

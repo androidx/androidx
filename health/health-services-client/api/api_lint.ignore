@@ -1,35 +1,19 @@
 // Baseline format: 1.0
-AutoBoxing: androidx.health.services.client.data.LocationAccuracy#LocationAccuracy(double, Double) parameter #1:
-    Must avoid boxed primitives (`java.lang.Double`)
-AutoBoxing: androidx.health.services.client.data.LocationAccuracy#getVerticalPositionErrorMeters():
-    Must avoid boxed primitives (`java.lang.Double`)
-AutoBoxing: androidx.health.services.client.data.LocationData#LocationData(double, double, Double, Double) parameter #2:
-    Must avoid boxed primitives (`java.lang.Double`)
-AutoBoxing: androidx.health.services.client.data.LocationData#LocationData(double, double, Double, Double) parameter #3:
-    Must avoid boxed primitives (`java.lang.Double`)
-AutoBoxing: androidx.health.services.client.data.LocationData#getAltitude():
-    Must avoid boxed primitives (`java.lang.Double`)
-AutoBoxing: androidx.health.services.client.data.LocationData#getBearing():
-    Must avoid boxed primitives (`java.lang.Double`)
-
-
 ExecutorRegistration: androidx.health.services.client.ExerciseClient#clearUpdateCallbackAsync(androidx.health.services.client.ExerciseUpdateCallback):
     Registration methods should have overload that accepts delivery Executor: `clearUpdateCallbackAsync`
+
+
+GetterSetterNames: field ExerciseTypeCapabilities.supportsAutoPauseAndResume:
+    Invalid name for boolean property `supportsAutoPauseAndResume`. Should start with one of `has`, `can`, `should`, `is`.
 
 
 InvalidNullabilityOverride: androidx.health.services.client.PassiveListenerService#onBind(android.content.Intent):
     Invalid nullability on method `onBind` return. Overrides of unannotated super method cannot be Nullable.
 InvalidNullabilityOverride: androidx.health.services.client.PassiveListenerService#onBind(android.content.Intent) parameter #0:
     Invalid nullability on parameter `intent` in method `onBind`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
-InvalidNullabilityOverride: androidx.health.services.client.VersionApiService#onBind(android.content.Intent):
-    Invalid nullability on method `onBind` return. Overrides of unannotated super method cannot be Nullable.
 
 
 PairedRegistration: androidx.health.services.client.MeasureClient#registerMeasureCallback(androidx.health.services.client.data.DeltaDataType<?,?>, androidx.health.services.client.MeasureCallback):
     Found registerMeasureCallback but not unregisterMeasureCallback in androidx.health.services.client.MeasureClient
 PairedRegistration: androidx.health.services.client.MeasureClient#registerMeasureCallback(androidx.health.services.client.data.DeltaDataType<?,?>, java.util.concurrent.Executor, androidx.health.services.client.MeasureCallback):
     Found registerMeasureCallback but not unregisterMeasureCallback in androidx.health.services.client.MeasureClient
-
-
-ParcelCreator: androidx.health.services.client.data.ExerciseGoal:
-    Parcelable requires `void writeToParcel(Parcel, int)`; missing in androidx.health.services.client.data.ExerciseGoal

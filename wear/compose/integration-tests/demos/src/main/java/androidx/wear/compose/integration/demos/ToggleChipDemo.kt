@@ -25,22 +25,30 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import androidx.wear.compose.material.Icon
+import androidx.wear.compose.foundation.lazy.ScalingLazyListState
+import androidx.wear.compose.foundation.lazy.rememberScalingLazyListState
+import androidx.wear.compose.material.Checkbox
+import androidx.wear.compose.material.CheckboxDefaults
 import androidx.wear.compose.material.ListHeader
 import androidx.wear.compose.material.MaterialTheme
-import androidx.wear.compose.material.ScalingLazyListState
+import androidx.wear.compose.material.RadioButton
+import androidx.wear.compose.material.RadioButtonDefaults
 import androidx.wear.compose.material.SplitToggleChip
+import androidx.wear.compose.material.Switch
+import androidx.wear.compose.material.SwitchDefaults
 import androidx.wear.compose.material.Text
 import androidx.wear.compose.material.ToggleChip
 import androidx.wear.compose.material.ToggleChipDefaults
-import androidx.wear.compose.material.rememberScalingLazyListState
 
 @Composable
 fun ToggleChips(
@@ -52,7 +60,9 @@ fun ToggleChips(
     var enabled by remember { mutableStateOf(true) }
 
     var checkBoxIconChecked by remember { mutableStateOf(true) }
+    var checkBoxIconCustomColorChecked by remember { mutableStateOf(true) }
     var switchIconChecked by remember { mutableStateOf(true) }
+    var switchIconCustomColorChecked by remember { mutableStateOf(true) }
     var radioIconChecked by remember { mutableStateOf(true) }
     var radioIconWithSecondaryChecked by remember { mutableStateOf(true) }
     var splitWithCheckboxIconChecked by remember { mutableStateOf(true) }
@@ -84,11 +94,13 @@ fun ToggleChips(
                     label = { Text("CheckboxIcon") },
                     checked = checkBoxIconChecked,
                     toggleControl = {
-                        Icon(
-                            imageVector = ToggleChipDefaults.checkboxIcon(
-                                checked = checkBoxIconChecked
-                            ),
-                            contentDescription = if (checkBoxIconChecked) "Checked" else "Unchecked"
+                        Checkbox(
+                            checked = checkBoxIconChecked,
+                            enabled = enabled,
+                            modifier = Modifier.semantics {
+                                this.contentDescription =
+                                    if (checkBoxIconChecked) "Checked" else "Unchecked"
+                            }
                         )
                     },
                     onCheckedChange = { checkBoxIconChecked = it },
@@ -99,24 +111,72 @@ fun ToggleChips(
         item {
             CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
                 ToggleChip(
+                    label = { Text("CheckboxIcon") },
+                    secondaryLabel = { Text("Custom color") },
+                    checked = checkBoxIconCustomColorChecked,
+                    toggleControl = {
+                        Checkbox(
+                            colors = CheckboxDefaults.colors(
+                                checkedBoxColor = MaterialTheme.colors.primary,
+                                checkedCheckmarkColor = Color.Green,
+                                uncheckedBoxColor = Color.Magenta,
+                                uncheckedCheckmarkColor = Color.Red,
+                            ),
+                            checked = checkBoxIconCustomColorChecked,
+                            enabled = enabled,
+                            modifier = Modifier.semantics {
+                                this.contentDescription =
+                                    if (checkBoxIconCustomColorChecked) "Checked" else "Unchecked"
+                            }
+                        )
+                    },
+                    onCheckedChange = { checkBoxIconCustomColorChecked = it },
+                    enabled = enabled,
+                )
+            }
+        }
+        item {
+            CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
+                ToggleChip(
                     label = { Text("SwitchIcon") },
                     checked = switchIconChecked,
-                    // For Switch  toggle controls the Wear Material UX guidance is to set the
-                    // unselected toggle control color to
-                    // ToggleChipDefaults.switchUncheckedIconColor() rather than the default.
-                    colors = ToggleChipDefaults.toggleChipColors(
-                        uncheckedToggleControlColor = ToggleChipDefaults
-                            .SwitchUncheckedIconColor
-                    ),
                     toggleControl = {
-                        Icon(
-                            imageVector = ToggleChipDefaults.switchIcon(
-                                checked = switchIconChecked
-                            ),
-                            contentDescription = if (switchIconChecked) "On" else "Off"
+                        Switch(
+                            checked = switchIconChecked,
+                            enabled = enabled,
+                            modifier = Modifier.semantics {
+                                this.contentDescription = if (switchIconChecked) "On" else "Off"
+                            }
                         )
                     },
                     onCheckedChange = { switchIconChecked = it },
+                    enabled = enabled,
+                )
+            }
+        }
+        item {
+            CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
+                ToggleChip(
+                    label = { Text("SwitchIcon") },
+                    secondaryLabel = { Text("Custom color") },
+                    checked = switchIconCustomColorChecked,
+                    toggleControl = {
+                        Switch(
+                            colors = SwitchDefaults.colors(
+                                checkedThumbColor = MaterialTheme.colors.primary,
+                                checkedTrackColor = Color.Green,
+                                uncheckedThumbColor = Color.Red,
+                                uncheckedTrackColor = Color.Magenta,
+                            ),
+                            checked = switchIconCustomColorChecked,
+                            enabled = enabled,
+                            modifier = Modifier.semantics {
+                                this.contentDescription =
+                                    if (switchIconCustomColorChecked) "On" else "Off"
+                            }
+                        )
+                    },
+                    onCheckedChange = { switchIconCustomColorChecked = it },
                     enabled = enabled,
                 )
             }
@@ -129,9 +189,13 @@ fun ToggleChips(
                     },
                     checked = radioIconChecked,
                     toggleControl = {
-                        Icon(
-                            imageVector = ToggleChipDefaults.radioIcon(checked = radioIconChecked),
-                            contentDescription = if (radioIconChecked) "Selected" else "Unselected"
+                        RadioButton(
+                            selected = radioIconChecked,
+                            enabled = enabled,
+                            modifier = Modifier.semantics {
+                                this.contentDescription =
+                                    if (radioIconChecked) "Selected" else "Unselected"
+                            }
                         )
                     },
                     onCheckedChange = { radioIconChecked = it },
@@ -150,16 +214,23 @@ fun ToggleChips(
                         )
                     },
                     secondaryLabel = {
-                        Text("Custom Color", maxLines = 1, overflow = TextOverflow.Ellipsis)
+                        Text("CustomColor", maxLines = 1, overflow = TextOverflow.Ellipsis)
                     },
                     checked = radioIconWithSecondaryChecked,
                     toggleControl = {
-                        Icon(
-                            imageVector = ToggleChipDefaults.radioIcon(
-                                checked = radioIconWithSecondaryChecked
+                        RadioButton(
+                            selected = radioIconWithSecondaryChecked,
+                            enabled = enabled,
+                            colors = RadioButtonDefaults.colors(
+                                selectedRingColor = MaterialTheme.colors.primary,
+                                selectedDotColor = Color.Green,
+                                unselectedRingColor = Color.Magenta,
+                                unselectedDotColor = Color.Red,
                             ),
-                            contentDescription = if (radioIconWithSecondaryChecked) "Selected"
-                            else "Unselected"
+                            modifier = Modifier.semantics {
+                                this.contentDescription =
+                                    if (radioIconWithSecondaryChecked) "Selected" else "Unselected"
+                            }
                         )
                     },
                     onCheckedChange = { radioIconWithSecondaryChecked = it },
@@ -189,11 +260,13 @@ fun ToggleChips(
                             .SwitchUncheckedIconColor
                     ),
                     toggleControl = {
-                        Icon(
-                            imageVector = ToggleChipDefaults.switchIcon(
-                                checked = switchIconWithSecondaryChecked
-                            ),
-                            contentDescription = if (switchIconWithSecondaryChecked) "On" else "Off"
+                        Switch(
+                            checked = switchIconWithSecondaryChecked,
+                            enabled = enabled,
+                            modifier = Modifier.semantics {
+                                this.contentDescription =
+                                    if (switchIconWithSecondaryChecked) "On" else "Off"
+                            }
                         )
                      },
                     onCheckedChange = { switchIconWithSecondaryChecked = it },
@@ -218,11 +291,13 @@ fun ToggleChips(
                             .SwitchUncheckedIconColor
                     ),
                     toggleControl = {
-                        Icon(
-                            imageVector = ToggleChipDefaults.switchIcon(
-                                checked = switchIconWithIconChecked
-                            ),
-                            contentDescription = if (switchIconWithIconChecked) "On" else "Off"
+                        Switch(
+                            checked = switchIconWithIconChecked,
+                            enabled = enabled,
+                            modifier = Modifier.semantics {
+                                this.contentDescription =
+                                    if (switchIconWithIconChecked) "On" else "Off"
+                            }
                         )
                     },
                     onCheckedChange = { switchIconWithIconChecked = it },
@@ -250,12 +325,13 @@ fun ToggleChips(
                     label = { Text("Split with CheckboxIcon") },
                     checked = splitWithCheckboxIconChecked,
                     toggleControl = {
-                        Icon(
-                            imageVector = ToggleChipDefaults.checkboxIcon(
-                                checked = splitWithCheckboxIconChecked
-                            ),
-                            contentDescription = if (splitWithCheckboxIconChecked) "Checked"
-                            else "Unchecked"
+                        Checkbox(
+                            checked = splitWithCheckboxIconChecked,
+                            enabled = enabled,
+                            modifier = Modifier.semantics {
+                                this.contentDescription =
+                                    if (splitWithCheckboxIconChecked) "Checked" else "Unchecked"
+                            }
                         )
                     },
                     onCheckedChange = { splitWithCheckboxIconChecked = it },
@@ -282,11 +358,13 @@ fun ToggleChips(
                             .SwitchUncheckedIconColor
                     ),
                     toggleControl = {
-                        Icon(
-                            imageVector = ToggleChipDefaults.switchIcon(
-                                checked = splitWithSwitchIconChecked
-                            ),
-                            contentDescription = if (splitWithSwitchIconChecked) "On" else "Off"
+                        Switch(
+                            checked = splitWithSwitchIconChecked,
+                            enabled = enabled,
+                            modifier = Modifier.semantics {
+                                this.contentDescription =
+                                    if (splitWithSwitchIconChecked) "On" else "Off"
+                            }
                         )
                     },
                     onCheckedChange = { splitWithSwitchIconChecked = it },
@@ -306,12 +384,13 @@ fun ToggleChips(
                     label = { Text("Split with RadioIcon") },
                     checked = splitWithRadioIconChecked,
                     toggleControl = {
-                        Icon(
-                            imageVector = ToggleChipDefaults.radioIcon(
-                                checked = splitWithRadioIconChecked
-                            ),
-                            contentDescription = if (splitWithRadioIconChecked) "Selected"
-                            else "Unselected"
+                        RadioButton(
+                            selected = splitWithRadioIconChecked,
+                            enabled = enabled,
+                            modifier = Modifier.semantics {
+                                this.contentDescription =
+                                    if (splitWithRadioIconChecked) "Selected" else "Unselected"
+                            }
                         )
                     },
                     onCheckedChange = { splitWithRadioIconChecked = it },
@@ -342,11 +421,13 @@ fun ToggleChips(
                     },
                     checked = splitWithCustomColorChecked,
                     toggleControl = {
-                        Icon(
-                            imageVector = ToggleChipDefaults.switchIcon(
-                                checked = splitWithCustomColorChecked
-                            ),
-                            contentDescription = if (splitWithCustomColorChecked) "On" else "Off"
+                        Switch(
+                            checked = splitWithCustomColorChecked,
+                            enabled = enabled,
+                            modifier = Modifier.semantics {
+                                this.contentDescription =
+                                    if (splitWithCustomColorChecked) "On" else "Off"
+                            }
                         )
                     },
                     onCheckedChange = { splitWithCustomColorChecked = it },
@@ -384,11 +465,12 @@ fun ToggleChips(
                             .SwitchUncheckedIconColor
                     ),
                     toggleControl = {
-                        Icon(
-                            imageVector = ToggleChipDefaults.switchIcon(
-                                checked = enabled
-                            ),
-                            contentDescription = if (enabled) "On" else "Off"
+                        Switch(
+                            checked = enabled,
+                            modifier = Modifier.semantics {
+                                this.contentDescription =
+                                    if (enabled) "On" else "Off"
+                            }
                         )
                     },
                 )

@@ -35,18 +35,18 @@ import android.util.Size;
 
 import androidx.annotation.NonNull;
 import androidx.camera.camera2.Camera2Config;
+import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
 import androidx.camera.camera2.internal.compat.CameraManagerCompat;
+import androidx.camera.camera2.internal.compat.StreamConfigurationMapCompat;
 import androidx.camera.camera2.internal.compat.workaround.ExcludedSupportedSizesContainer;
 import androidx.camera.core.CameraUnavailableException;
 import androidx.camera.core.CameraXConfig;
 import androidx.camera.core.InitializationException;
 import androidx.camera.core.impl.CameraDeviceSurfaceManager;
-import androidx.camera.testing.CameraUtil;
-import androidx.camera.testing.CameraXUtil;
 import androidx.camera.testing.fakes.FakeCamera;
-import androidx.camera.testing.fakes.FakeCameraFactory;
-import androidx.camera.testing.fakes.FakeUseCase;
-import androidx.camera.testing.fakes.FakeUseCaseConfig;
+import androidx.camera.testing.impl.CameraUtil;
+import androidx.camera.testing.impl.CameraXUtil;
+import androidx.camera.testing.impl.fakes.FakeCameraFactory;
 import androidx.test.core.app.ApplicationProvider;
 
 import org.codehaus.plexus.util.ReflectionUtils;
@@ -152,12 +152,13 @@ public class SupportedSizeConstraintsTest {
         // mSupportedSizes modified unexpectedly.
         assertThat(Arrays.asList(mSupportedSizes)).containsAtLeastElementsIn(excludedSizes);
 
-        // Make the fake use case have JPEG format since those sizes are excluded for JPEG format.
-        final FakeUseCase useCase = new FakeUseCaseConfig.Builder()
-                .setBufferFormat(ImageFormat.JPEG)
-                .build();
-        final List<Size> resultList = supportedSurfaceCombination.getSupportedOutputSizes(
-                useCase.getCurrentConfig());
+        // These sizes should be excluded when retrieving output sizes via
+        // StreamConfigurationMapCompat#getOutputSizes()
+        CameraCharacteristicsCompat characteristicsCompat =
+                mCameraManagerCompat.getCameraCharacteristicsCompat(BACK_CAMERA_ID);
+        StreamConfigurationMapCompat mapCompat =
+                characteristicsCompat.getStreamConfigurationMapCompat();
+        final List<Size> resultList = Arrays.asList(mapCompat.getOutputSizes(ImageFormat.JPEG));
         assertThat(resultList).containsNoneIn(excludedSizes);
     }
 

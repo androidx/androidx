@@ -26,30 +26,12 @@ import org.robolectric.RobolectricTestRunner
 class LocationAccuracyTest {
 
     @Test
-    fun rangeValidationForLocationAccuracy_throwsException() {
-        val invalidHorizontalPositionErrorMeters =
-            Assert.assertThrows(IllegalArgumentException::class.java) {
-                LocationAccuracy(
-                    /* negative horizontalPositionErrorMeters*/
-                    -1.0,
-                    /* positive verticalPositionErrorMeters*/
-                    1.0,
-                )
-            }
-        val invalidVerticalPositionErrorMeters =
-            Assert.assertThrows(IllegalArgumentException::class.java) {
-                LocationAccuracy(
-                    /* positive horizontalPositionErrorMeters*/
-                    1.0,
-                    /* negative verticalPositionErrorMeters*/
-                    -1.0,
-                )
-            }
+    fun rangeValidationForInvalidLocationAccuracy_throwsNoException() {
+        val invalidHorizontalPositionErrorMeters = LocationAccuracy(-1.0, 1.0,)
+        val invalidVerticalPositionErrorMeters = LocationAccuracy(1.0, -1.0,)
 
-        Truth.assertThat(invalidHorizontalPositionErrorMeters).hasMessageThat()
-            .contains("horizontalPositionErrorMeters value -1.0 is out of range")
-        Truth.assertThat(invalidVerticalPositionErrorMeters).hasMessageThat()
-            .contains("verticalPositionErrorMeters value -1.0 is out of range")
+        Truth.assertThat(invalidHorizontalPositionErrorMeters).isNotNull()
+        Truth.assertThat(invalidVerticalPositionErrorMeters).isNotNull()
     }
 
     @Test

@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 #
 # Copyright (C) 2020 The Android Open Source Project
 #
@@ -18,12 +18,17 @@ import sys
 import os
 import argparse
 from datetime import date
+import glob
+import pathlib
+import re
+import shutil
 import subprocess
 import toml
 
 # Import the JetpadClient from the parent directory
 sys.path.append("..")
 from JetpadClient import *
+from update_tracing_perfetto import update_tracing_perfetto
 
 # cd into directory of script
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
@@ -35,6 +40,10 @@ COMPOSE_VERSION_REL = './compose/runtime/runtime/src/commonMain/kotlin/androidx/
 COMPOSE_VERSION_FP = os.path.join(FRAMEWORKS_SUPPORT_FP, COMPOSE_VERSION_REL)
 VERSION_CHECKER_REL = './compose/compiler/compiler-hosted/src/main/java/androidx/compose/compiler/plugins/kotlin/VersionChecker.kt'
 VERSION_CHECKER_FP = os.path.join(FRAMEWORKS_SUPPORT_FP, VERSION_CHECKER_REL)
+VERSION_UPDATER_REL = './development/auto-version-updater'
+VERSION_UPDATER_FP = os.path.join(FRAMEWORKS_SUPPORT_FP, VERSION_UPDATER_REL)
+PREBUILTS_ANDROIDX_INTERNAL_REL = '../../prebuilts/androidx/internal'
+PREBUILTS_ANDROIDX_INTERNAL_FP = os.path.join(FRAMEWORKS_SUPPORT_FP, PREBUILTS_ANDROIDX_INTERNAL_REL)
 
 # Set up input arguments
 parser = argparse.ArgumentParser(
@@ -42,7 +51,8 @@ parser = argparse.ArgumentParser(
         This script takes in a the release date as millisecond since the epoch,
         which is the unique id for the release in Jetpad.  It queries the
         Jetpad db, then creates an output json file with the release information.
-        Finally, updates LibraryVersions.kt and runs updateApi."""))
+        Finally, updates LibraryVersions.kt, runs updateApi, and runs 
+        ignoreApiChanges."""))
 parser.add_argument(
     'date',
     help='Milliseconds since epoch')
@@ -72,13 +82,13 @@ def ask_yes_or_no(question):
 
 
 def run_update_api():
-    """Runs updateApi from the frameworks/support root.
+    """Runs updateApi ignoreApiChanges from the frameworks/support root.
     """
-    gradle_cmd = "cd " + FRAMEWORKS_SUPPORT_FP + " && ./gradlew updateApi"
+    gradle_cmd = "cd " + FRAMEWORKS_SUPPORT_FP + " && ./gradlew updateApi ignoreApiChanges"
     try:
         subprocess.check_output(gradle_cmd, stderr=subprocess.STDOUT, shell=True)
     except subprocess.CalledProcessError:
-        print_e('FAIL: Unable run updateApi with command: %s' % gradle_cmd)
+        print_e('FAIL: Unable run `updateApi ignoreApiChanges` with command: %s' % gradle_cmd)
         return None
     return True
 
@@ -192,7 +202,7 @@ def should_update_artifact_version_in_library_versions_toml(old_version, new_ver
         True if should update version, false otherwise.
     """
     # If we hit a artifact ID we should not update, just return.
-    artifact_ids_to_not_update = ["tracing-perfetto", "tracing-perfetto-binary", "tracing-perfetto-common"]
+    artifact_ids_to_not_update = [] # empty list as of now
     if artifact_id in artifact_ids_to_not_update: return False
     return new_version == get_higher_version(old_version, new_version)
 
@@ -240,6 +250,29 @@ def increment_version_within_minor_version(version):
     return new_version
 
 
+def get_library_constants_in_library_versions_toml(group_id, artifact_id):
+    """Gets the constants for a library in libraryversions.toml.
+
+    Args:
+        group_id: group_id of the existing library
+        artifact_id: artifact_id of the existing library
+
+    Returns:
+        A touple of the group_id constant and the artifact_id constant
+    """
+    group_id_variable_name = group_id.replace("androidx.","").replace(".","_").upper()
+    artifact_id_variable_name = artifact_id.replace("androidx.","").replace("-","_").upper()
+    # Special case Compose because it uses the same version variable.
+    if (group_id_variable_name.startswith("COMPOSE") and
+        group_id_variable_name != "COMPOSE_MATERIAL3"):
+            group_id_variable_name = "COMPOSE"
+    # Special case Compose runtime tracing
+    if group_id == "androidx.compose.runtime" and artifact_id == "runtime-tracing":
+        group_id_variable_name = "COMPOSE_RUNTIME_TRACING"
+        artifact_id_variable_name = "COMPOSE_RUNTIME_TRACING"
+    return (group_id_variable_name, artifact_id_variable_name)
+
+
 def update_versions_in_library_versions_toml(group_id, artifact_id, old_version):
     """Updates the versions in the libraryversions.toml file.
 
@@ -254,13 +287,9 @@ def update_versions_in_library_versions_toml(group_id, artifact_id, old_version)
     Returns:
         True if the version was updated, false otherwise.
     """
-    group_id_variable_name = group_id.replace("androidx.","").replace(".","_").upper()
-    artifact_id_variable_name = artifact_id.replace("androidx.","").replace("-","_").upper()
+    (group_id_variable_name, artifact_id_variable_name
+    ) = get_library_constants_in_library_versions_toml(group_id, artifact_id)
     new_version = increment_version(old_version)
-    # Special case Compose because it uses the same version variable.
-    if (group_id_variable_name.startswith("COMPOSE") and
-        group_id_variable_name != "COMPOSE_MATERIAL3"):
-            group_id_variable_name = "COMPOSE"
 
     # Open toml file
     library_versions = toml.load(LIBRARY_VERSIONS_FP)
@@ -286,7 +315,10 @@ def update_versions_in_library_versions_toml(group_id, artifact_id, old_version)
 
     # Open file for writing and write toml back
     with open(LIBRARY_VERSIONS_FP, 'w') as f:
-        toml.dump(library_versions, f, encoder=toml.TomlPreserveInlineDictEncoder())
+        versions_toml_file_string = toml.dumps(library_versions, encoder=toml.TomlPreserveInlineDictEncoder())
+        versions_toml_file_string_new = re.sub(",]", " ]", versions_toml_file_string)
+        f.write(versions_toml_file_string_new)
+
     return updated_version
 
 
@@ -376,17 +408,6 @@ def update_compose_runtime_version(group_id, artifact_id, old_version):
         version_checker_lines = f.readlines()
     num_lines = len(version_checker_lines)
 
-    for i in range(num_lines):
-        cur_line = version_checker_lines[i]
-        # Skip any line that doesn't declare the compiler/compose version
-        if 'const val compilerVersion: String = ' not in cur_line: continue
-        current_version = cur_line.split('const val compilerVersion: String = ')[1].strip('"\n')
-        # Only update if we have a higher version.
-        version_to_keep = get_higher_version(current_version, updated_compose_version)
-        new_version_line = '        const val compilerVersion: String = "%s"\n' % version_to_keep
-        version_checker_lines[i] = new_version_line
-        break
-
     old_runtime_version = compose_to_runtime_version_map[old_version]["runtime_version"]
     if "alpha" in updated_compose_version or "beta" in updated_compose_version:
         new_compose_runtime_version = old_runtime_version + 100
@@ -433,14 +454,17 @@ def update_compose_runtime_version(group_id, artifact_id, old_version):
 
 
 def commit_updates(release_date):
-    subprocess.check_call(['git', 'add', FRAMEWORKS_SUPPORT_FP])
-    # ensure that we've actually made a change:
-    staged_changes = subprocess.check_output('git diff --cached', stderr=subprocess.STDOUT, shell=True)
-    if not staged_changes:
-        return
-    msg = "'Update versions for release id %s\n\nThis commit was generated from the command:\n%s\n\n%s'" % (release_date, " ".join(sys.argv), "Test: ./gradlew checkApi")
-    subprocess.check_call(['git', 'commit', '-m', msg])
-    subprocess.check_output('yes | repo upload . --current-branch --no-verify --label Presubmit-Ready+1', stderr=subprocess.STDOUT, shell=True)
+    for dir in [FRAMEWORKS_SUPPORT_FP, PREBUILTS_ANDROIDX_INTERNAL_FP]:
+        subprocess.check_call(["git", "add", "."], cwd=dir, stderr=subprocess.STDOUT)
+        # ensure that we've actually made a change:
+        staged_changes = subprocess.check_output(["git", "diff", "--cached"], cwd=dir, stderr=subprocess.STDOUT)
+        if not staged_changes:
+            continue
+        msg = "Update versions for release id %s\n\nThis commit was generated from the command:\n%s\n\n%s" % (
+            release_date, " ".join(sys.argv), "Test: ./gradlew checkApi")
+        subprocess.check_call(["git", "commit", "-m", msg], cwd=dir, stderr=subprocess.STDOUT)
+        subprocess.check_call(["repo", "upload", ".", "--cbr", "-t", "-y", "-o", "banned-words~skip", "--label", "Presubmit-Ready+1"], cwd=dir,
+                              stderr=subprocess.STDOUT)
 
 def main(args):
     # Parse arguments and check for existence of build ID or file
@@ -450,6 +474,7 @@ def main(args):
         sys.exit(1)
     release_json_object = getJetpadRelease(args.date, False)
     non_updated_libraries = []
+    tracing_perfetto_updated = False
     for group_id in release_json_object["modules"]:
         for artifact in release_json_object["modules"][group_id]:
             updated = False
@@ -464,6 +489,16 @@ def main(args):
                 update_compose_runtime_version(group_id,
                                                artifact["artifactId"],
                                                artifact["version"])
+            if (group_id == "androidx.tracing" and
+                    artifact["artifactId"].startswith("tracing-perfetto")):
+                if tracing_perfetto_updated:
+                    updated = True
+                else:
+                    current_version = artifact["version"]
+                    target_version = increment_version(current_version)
+                    update_tracing_perfetto(current_version, target_version, FRAMEWORKS_SUPPORT_FP)
+                    tracing_perfetto_updated = True
+
             if not updated:
                 non_updated_libraries.append("%s:%s:%s" % (group_id,
                                              artifact["artifactId"],
@@ -472,8 +507,8 @@ def main(args):
         print("The following libraries were not updated:")
         for library in non_updated_libraries:
             print("\t", library)
-    print("Updated library versions. \nRunning updateApi for the new "
-          "versions, this may take a minute...", end='')
+    print("Updated library versions. \nRunning `updateApi ignoreApiChanges` "
+          "for the new versions, this may take a minute...", end='')
     if run_update_api():
         print("done.")
     else:
@@ -484,3 +519,4 @@ def main(args):
 
 if __name__ == '__main__':
     main(sys.argv)
+

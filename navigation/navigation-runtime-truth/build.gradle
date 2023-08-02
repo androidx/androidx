@@ -38,9 +38,8 @@ dependencies {
 }
 
 androidx {
-    name = "Android Navigation Runtime Truth"
+    name = "Navigation Runtime Truth"
     publish = Publish.NONE
-    mavenGroup = LibraryGroups.NAVIGATION
     inceptionYear = "2019"
     description = "Android Navigation-Runtime-Truth"
 }

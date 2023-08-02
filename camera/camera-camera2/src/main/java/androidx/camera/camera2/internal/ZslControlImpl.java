@@ -38,6 +38,8 @@ import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
+import androidx.camera.camera2.internal.compat.quirk.DeviceQuirks;
+import androidx.camera.camera2.internal.compat.quirk.ZslDisablerQuirk;
 import androidx.camera.core.ExperimentalGetImage;
 import androidx.camera.core.ImageProxy;
 import androidx.camera.core.Logger;
@@ -72,9 +74,6 @@ final class ZslControlImpl implements ZslControl {
     static final int MAX_IMAGES = RING_BUFFER_CAPACITY * 3;
 
     @NonNull
-    private final Map<Integer, Size> mReprocessingInputSizeMap;
-
-    @NonNull
     private final CameraCharacteristicsCompat mCameraCharacteristicsCompat;
 
     @VisibleForTesting
@@ -85,6 +84,8 @@ final class ZslControlImpl implements ZslControl {
     private boolean mIsZslDisabledByUseCaseConfig = false;
     private boolean mIsZslDisabledByFlashMode = false;
     private boolean mIsPrivateReprocessingSupported = false;
+
+    private boolean mShouldZslDisabledByQuirks = false;
 
     @SuppressWarnings("WeakerAccess")
     SafeCloseImageReaderProxy mReprocessingImageReader;
@@ -100,7 +101,7 @@ final class ZslControlImpl implements ZslControl {
                 isCapabilitySupported(mCameraCharacteristicsCompat,
                         REQUEST_AVAILABLE_CAPABILITIES_PRIVATE_REPROCESSING);
 
-        mReprocessingInputSizeMap = createReprocessingInputSizeMap(mCameraCharacteristicsCompat);
+        mShouldZslDisabledByQuirks = DeviceQuirks.get(ZslDisablerQuirk.class) != null;
 
         mImageRingBuffer = new ZslRingBuffer(
                 RING_BUFFER_CAPACITY,
@@ -138,6 +139,13 @@ final class ZslControlImpl implements ZslControl {
         if (mIsZslDisabledByUseCaseConfig) {
             return;
         }
+
+        if (mShouldZslDisabledByQuirks) {
+            return;
+        }
+
+        Map<Integer, Size> mReprocessingInputSizeMap =
+                createReprocessingInputSizeMap(mCameraCharacteristicsCompat);
 
         // Due to b/232268355 and feedback from pixel team that private format will have better
         // performance, we will use private only for zsl.
@@ -273,9 +281,15 @@ final class ZslControlImpl implements ZslControl {
     @NonNull
     private Map<Integer, Size> createReprocessingInputSizeMap(
             @NonNull CameraCharacteristicsCompat cameraCharacteristicsCompat) {
-        StreamConfigurationMap map =
-                cameraCharacteristicsCompat.get(
-                        CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
+        StreamConfigurationMap map = null;
+        try {
+            map = cameraCharacteristicsCompat.get(
+                    CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
+        } catch (AssertionError e) {
+            // Some devices may throw AssertionError when retrieving the stream configuration map.
+            Logger.e(TAG, "Failed to retrieve StreamConfigurationMap, error = "
+                    + e.getMessage());
+        }
 
         if (map == null || map.getInputFormats() == null) {
             return new HashMap<>();

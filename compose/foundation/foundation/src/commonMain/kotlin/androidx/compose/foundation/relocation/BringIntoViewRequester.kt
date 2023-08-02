@@ -17,28 +17,26 @@
 package androidx.compose.foundation.relocation
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collection.mutableVectorOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.composed
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.toRect
-import androidx.compose.ui.platform.debugInspectorInfo
+import androidx.compose.ui.node.ModifierNodeElement
+import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.unit.toSize
 
 /**
  * Can be used to send [bringIntoView] requests. Pass it as a parameter to
- * [Modifier.bringIntoView()][bringIntoView].
+ * [Modifier.bringIntoViewRequester()][bringIntoViewRequester].
  *
- * For instance, you can call [BringIntoViewRequester.bringIntoView][bringIntoView] to
- * make all the scrollable parents scroll so that the specified item is brought into parent
- * bounds. This sample demonstrates this use case:
+ * For instance, you can call [bringIntoView()][bringIntoView] to make all the
+ * scrollable parents scroll so that the specified item is brought into the
+ * parent bounds.
  *
  * Here is a sample where a composable is brought into view:
  * @sample androidx.compose.foundation.samples.BringIntoViewSample
  *
- * Here is a sample where a part of a composable is brought into view:
+ * Here is a sample where part of a composable is brought into view:
  * @sample androidx.compose.foundation.samples.BringPartOfComposableIntoViewSample
  */
 @ExperimentalFoundationApi
@@ -82,39 +80,30 @@ fun BringIntoViewRequester(): BringIntoViewRequester {
 }
 
 /**
- * This is a modifier that can be used to send bringIntoView requests.
+ * Modifier that can be used to send
+ * [bringIntoView][BringIntoViewRequester.bringIntoView] requests.
  *
- * Here is an example where the a [bringIntoViewRequester] can be used to bring an item into parent
- * bounds. It demonstrates how a composable can ask its parents to scroll so that the component
- * using this modifier is brought into the bounds of all its parents.
+ * The following example uses a `bringIntoViewRequester` to bring an item into
+ * the parent bounds. The example demonstrates how a composable can ask its
+ * parents to scroll so that the component using this modifier is brought into
+ * the bounds of all its parents.
+ *
  * @sample androidx.compose.foundation.samples.BringIntoViewSample
  *
- * @param bringIntoViewRequester an instance of [BringIntoViewRequester]. This hoisted object can be
- * used to send bringIntoView requests to parents of the current composable.
+ * @param bringIntoViewRequester An instance of [BringIntoViewRequester]. This
+ *     hoisted object can be used to send
+ *     [bringIntoView][BringIntoViewRequester.bringIntoView] requests to parents
+ *     of the current composable.
  */
+@Suppress("ModifierInspectorInfo")
 @ExperimentalFoundationApi
 fun Modifier.bringIntoViewRequester(
     bringIntoViewRequester: BringIntoViewRequester
-): Modifier = composed(debugInspectorInfo {
-    name = "bringIntoViewRequester"
-    properties["bringIntoViewRequester"] = bringIntoViewRequester
-}) {
-    val defaultResponder = rememberDefaultBringIntoViewParent()
-    val modifier = remember(defaultResponder) {
-        BringIntoViewRequesterModifier(defaultResponder)
-    }
-    if (bringIntoViewRequester is BringIntoViewRequesterImpl) {
-        DisposableEffect(bringIntoViewRequester) {
-            bringIntoViewRequester.modifiers += modifier
-            onDispose { bringIntoViewRequester.modifiers -= modifier }
-        }
-    }
-    return@composed modifier
-}
+): Modifier = this.then(BringIntoViewRequesterElement(bringIntoViewRequester))
 
 @ExperimentalFoundationApi
 private class BringIntoViewRequesterImpl : BringIntoViewRequester {
-    val modifiers = mutableVectorOf<BringIntoViewRequesterModifier>()
+    val modifiers = mutableVectorOf<BringIntoViewRequesterNode>()
 
     override suspend fun bringIntoView(rect: Rect?) {
         modifiers.forEach {
@@ -123,27 +112,76 @@ private class BringIntoViewRequesterImpl : BringIntoViewRequester {
     }
 }
 
+@ExperimentalFoundationApi
+private class BringIntoViewRequesterElement(
+    private val requester: BringIntoViewRequester
+) : ModifierNodeElement<BringIntoViewRequesterNode>() {
+    override fun create(): BringIntoViewRequesterNode {
+        return BringIntoViewRequesterNode(requester)
+    }
+
+    override fun update(node: BringIntoViewRequesterNode) {
+        node.updateRequester(requester)
+    }
+
+    override fun InspectorInfo.inspectableProperties() {
+        name = "bringIntoViewRequester"
+        properties["bringIntoViewRequester"] = requester
+    }
+
+    override fun equals(other: Any?): Boolean {
+        return (this === other) ||
+            (other is BringIntoViewRequesterElement) && (requester == other.requester)
+    }
+
+    override fun hashCode(): Int {
+        return requester.hashCode()
+    }
+}
+
 /**
  * A modifier that holds state and modifier implementations for [bringIntoViewRequester]. It has
- * access to the next [BringIntoViewParent] via [BringIntoViewChildModifier], and uses that parent
+ * access to the next [BringIntoViewParent] via [BringIntoViewChildNode], and uses that parent
  * to respond to requests to [bringIntoView].
  */
 @ExperimentalFoundationApi
-private class BringIntoViewRequesterModifier(
-    defaultParent: BringIntoViewParent
-) : BringIntoViewChildModifier(defaultParent) {
+internal class BringIntoViewRequesterNode(
+    private var requester: BringIntoViewRequester
+) : BringIntoViewChildNode() {
+
+    override fun onAttach() {
+        updateRequester(requester)
+    }
+
+    fun updateRequester(requester: BringIntoViewRequester) {
+        disposeRequester()
+        if (requester is BringIntoViewRequesterImpl) {
+            requester.modifiers += this
+        }
+        this.requester = requester
+    }
+
+    private fun disposeRequester() {
+        if (requester is BringIntoViewRequesterImpl) {
+            (requester as BringIntoViewRequesterImpl).modifiers -= this
+        }
+    }
+
+    override fun onDetach() {
+        disposeRequester()
+    }
 
     /**
      * Requests that [rect] (if non-null) or the entire bounds of this modifier's node (if [rect]
      * is null) be brought into view by the [parent]&nbsp;[BringIntoViewParent].
      */
     suspend fun bringIntoView(rect: Rect?) {
-        val layoutCoordinates = layoutCoordinates ?: return
-
-        // If the rect is not specified, use a rectangle representing the entire composable.
-        val sourceRect = rect ?: layoutCoordinates.size.toSize().toRect()
-
-        // Convert the rect into parent coordinates.
-        parent.bringChildIntoView(sourceRect, layoutCoordinates)
+        parent.bringChildIntoView(layoutCoordinates ?: return) {
+            // If the rect is not specified, use a rectangle representing the entire composable.
+            // If the coordinates are detached when this call is made, we don't bother even
+            // submitting the request, but if the coordinates become detached while the request
+            // is being handled we just return a null Rect.
+            rect ?: layoutCoordinates?.size?.toSize()?.toRect()
+        }
     }
 }

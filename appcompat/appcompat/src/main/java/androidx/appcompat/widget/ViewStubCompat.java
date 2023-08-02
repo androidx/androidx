@@ -39,7 +39,6 @@ import java.lang.ref.WeakReference;
  * Backport of {@link android.view.ViewStub} so that we can set the
  * {@link android.view.LayoutInflater} on devices before Jelly Bean.
  *
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 public final class ViewStubCompat extends View {
@@ -153,7 +152,7 @@ public final class ViewStubCompat extends View {
 
     @SuppressLint("MissingSuperCall") // Intentionally not calling super method.
     @Override
-    public void draw(Canvas canvas) {
+    public void draw(@NonNull Canvas canvas) {
     }
 
     @Override

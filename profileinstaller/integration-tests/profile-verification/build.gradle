@@ -1,0 +1,116 @@
+import com.google.common.io.Files
+import org.apache.commons.compress.utils.IOUtils
+
+import java.util.zip.ZipEntry
+import java.util.zip.ZipFile
+
+/*
+ * Copyright (C) 2022 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+plugins {
+    id("AndroidXPlugin")
+    id("com.android.library")
+    id("kotlin-android")
+}
+
+// This task copies the apks provided by the `apkAssets` configuration and places them in the
+// assets folder. It also extracts the profiles to make them available to the test app.
+// This allows a build time generation of the sample apps.
+abstract class PrepareAssetsTask extends DefaultTask {
+
+    @InputFiles
+    @PathSensitive(PathSensitivity.NONE)
+    abstract ConfigurableFileCollection getApkAssetsFolders()
+
+    @OutputDirectory
+    abstract DirectoryProperty getOutputDir()
+
+    @TaskAction
+    void exec() {
+        for (File folder : apkAssetsFolders.files) {
+            for (File file : folder.listFiles()) {
+
+                // Consider only apk files (skip json metadata)
+                if (!file.name.endsWith(".apk")) {
+                    continue
+                }
+
+                // Copies the apk in the output dir
+                Files.copy(file, outputDir.file(file.name).get().asFile)
+
+                // Extract the profile in the apk and places it in the assets
+                ZipFile zipFile = new ZipFile(file)
+                extractZipEntry(zipFile, "assets/dexopt/baseline.prof", "${file.name}_baseline.prof")
+                extractZipEntry(zipFile, "assets/dexopt/baseline.profm", "${file.name}_baseline.profm")
+            }
+        }
+    }
+
+    private void extractZipEntry(ZipFile zipFile, String zipEntryName, String outputFileName) {
+        ZipEntry entry = zipFile.entries().find { it.name == zipEntryName }
+        File outputFile = outputDir.file(outputFileName).get().asFile
+        try (FileOutputStream os = new FileOutputStream(outputFile)) {
+            IOUtils.copy(zipFile.getInputStream(entry), os)
+        }
+    }
+}
+
+def prepareAssetsTaskProvider = tasks.register("prepareAssets", PrepareAssetsTask) {
+    description = "Copies the apks and profiles provided by profile-verification-sample projects into the assets."
+    apkAssetsFolders.from(configurations.getByName("apkAssets").incoming.artifactView {}.files)
+    outputDir.set(layout.buildDirectory.dir("intermediates/profile-verification-assets"))
+}
+
+android {
+    defaultConfig {
+        minSdkVersion 23
+    }
+    sourceSets.androidTest.assets.srcDir(prepareAssetsTaskProvider.map { it.outputDir })
+    namespace "androidx.profileinstaller.integration.profileverification"
+}
+
+// Define a configuration that can be resolved. This project is the consumer of test apks, i.e. it
+// contains the integration tests.
+configurations {
+    apkAssets {
+        canBeConsumed = false
+        canBeResolved = true
+        attributes {
+            attribute(
+                    LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE,
+                    objects.named(LibraryElements, 'profileverification-apkAssets')
+            )
+        }
+    }
+}
+
+dependencies {
+    androidTestImplementation(project(":profileinstaller:profileinstaller"))
+    androidTestImplementation(libs.testRules)
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.testUiautomator)
+    androidTestImplementation(libs.testExtTruth)
+    androidTestImplementation(project(":core:core"))
+    apkAssets(project(":profileinstaller:integration-tests:profile-verification-sample"))
+    apkAssets(project(":profileinstaller:integration-tests:profile-verification-sample-no-initializer"))
+    apkAssets(project(":benchmark:integration-tests:baselineprofile-consumer"))
+}
+
+// It makes sure that the apks are generated before the assets are packed.
+afterEvaluate {
+    tasks.named("generateDebugAndroidTestAssets").configure { it.dependsOn(prepareAssetsTaskProvider) }
+}

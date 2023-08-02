@@ -29,7 +29,9 @@ import com.google.common.truth.Subject
 import com.google.common.truth.Subject.Factory
 import com.google.common.truth.Truth
 import com.google.testing.compile.Compilation
+import java.util.regex.Pattern
 import javax.tools.Diagnostic
+import org.junit.AssumptionViolatedException
 
 /**
  * Holds the information about a test compilation result.
@@ -82,10 +84,15 @@ abstract class CompilationResult internal constructor(
                 }
                 appendLine()
             }
-            appendLine("Generated files:")
-            generatedSources.forEach {
-                appendLine(it.relativePath)
+            if (generatedSources.isEmpty()) {
+                appendLine("Generated files: NONE")
+            } else {
+                appendLine("Generated files:")
+                generatedSources.forEach {
+                    appendLine(it.relativePath)
+                }
             }
+            appendLine()
             appendLine("RAW OUTPUT:")
             appendLine(rawOutput())
         }
@@ -203,6 +210,22 @@ class CompilationResultSubject internal constructor(
         }
 
     /**
+     * Asserts that compilation has a warning containing text that matches the given pattern.
+     *
+     * @see hasErrorContainingMatch
+     * @see hasNoteContainingMatch
+     */
+    fun hasWarningContainingMatch(expectedPattern: String): DiagnosticMessagesSubject {
+        return hasDiagnosticWithPattern(
+            kind = Diagnostic.Kind.WARNING,
+            expectedPattern = expectedPattern,
+            acceptPartialMatch = true
+        ) {
+            "expected warning containing pattern: $expectedPattern"
+        }
+    }
+
+    /**
      * Asserts that compilation has a note with the given text.
      *
      * @see hasError
@@ -231,6 +254,22 @@ class CompilationResultSubject internal constructor(
         ) {
             "expected note: $expected"
         }
+
+    /**
+     * Asserts that compilation has a note containing text that matches the given pattern.
+     *
+     * @see hasErrorContainingMatch
+     * @see hasWarningContainingMatch
+     */
+    fun hasNoteContainingMatch(expectedPattern: String): DiagnosticMessagesSubject {
+        return hasDiagnosticWithPattern(
+            kind = Diagnostic.Kind.NOTE,
+            expectedPattern = expectedPattern,
+            acceptPartialMatch = true
+        ) {
+            "expected note containing pattern: $expectedPattern"
+        }
+    }
 
     /**
      * Asserts that compilation has an error with the given text.
@@ -263,6 +302,23 @@ class CompilationResultSubject internal constructor(
             acceptPartialMatch = true
         ) {
             "expected error: $expected"
+        }
+    }
+
+    /**
+     * Asserts that compilation has an error containing text that matches the given pattern.
+     *
+     * @see hasWarningContainingMatch
+     * @see hasNoteContainingMatch
+     */
+    fun hasErrorContainingMatch(expectedPattern: String): DiagnosticMessagesSubject {
+        shouldSucceed = false
+        return hasDiagnosticWithPattern(
+            kind = Diagnostic.Kind.ERROR,
+            expectedPattern = expectedPattern,
+            acceptPartialMatch = true
+        ) {
+            "expected error containing pattern: $expectedPattern"
         }
     }
 
@@ -360,9 +416,14 @@ class CompilationResultSubject internal constructor(
     internal fun assertNoProcessorAssertionErrors() {
         val processingException = compilationResult.processor.getProcessingException()
         if (processingException != null) {
+            // processor has an assumption violation, re-throw so test case does not generate
+            // a failure
+            if (processingException is AssumptionViolatedException) {
+                throw processingException
+            }
             // processor has an error which we want to throw but we also want the subject, hence
             // we wrap it
-            throw createProcessorAssertionError(
+            throw CompilationAssertionError(
                 compilationResult = compilationResult,
                 realError = processingException
             )
@@ -375,12 +436,36 @@ class CompilationResultSubject internal constructor(
         acceptPartialMatch: Boolean,
         buildErrorMessage: () -> String
     ): DiagnosticMessagesSubject {
+        fun String.trimLines() = lines().joinToString(System.lineSeparator()) { it.trim() }
+        val expectedTrimmed = expected.trimLines()
         val diagnostics = compilationResult.diagnosticsOfKind(kind)
         val matches = diagnostics.filter {
             if (acceptPartialMatch) {
-                it.msg.contains(expected)
+                it.msg.trimLines().contains(expectedTrimmed)
             } else {
-                it.msg == expected
+                it.msg.trimLines() == expectedTrimmed
+            }
+        }
+        if (matches.isEmpty()) {
+            failWithActual(simpleFact(buildErrorMessage()))
+        }
+        return DiagnosticMessagesSubject.assertThat(matches)
+    }
+
+    private fun hasDiagnosticWithPattern(
+        kind: Diagnostic.Kind,
+        expectedPattern: String,
+        acceptPartialMatch: Boolean,
+        buildErrorMessage: () -> String
+    ): DiagnosticMessagesSubject {
+        val diagnostics = compilationResult.diagnosticsOfKind(kind)
+        val pattern = Pattern.compile(expectedPattern)
+        val matches = diagnostics.filter {
+            val matcher = pattern.matcher(it.msg)
+            if (acceptPartialMatch) {
+                matcher.find()
+            } else {
+                matcher.matches()
             }
         }
         if (matches.isEmpty()) {
@@ -390,13 +475,15 @@ class CompilationResultSubject internal constructor(
     }
 
     /**
-     * Helper method to create an exception that does not include the stack trace from the test
-     * infra, instead, it just reports the stack trace of the actual error with added log.
+     * Helper error that does not include the stack trace from the test infra, instead, it just
+     * reports the stack trace of the actual error with added log.
      */
-    private fun createProcessorAssertionError(
-        compilationResult: CompilationResult,
-        realError: Throwable
-    ) = object : AssertionError("processor did throw an error\n$compilationResult", realError) {
+    private class CompilationAssertionError(
+        val compilationResult: CompilationResult,
+        val realError: Throwable
+    ) : AssertionError(
+        "Processor did throw an error.\n$compilationResult", realError
+    ) {
         override fun fillInStackTrace(): Throwable {
             return realError
         }
@@ -433,7 +520,7 @@ internal class JavaCompileTestingCompilationResult(
     diagnostics = diagnostics
 ) {
     override fun rawOutput(): String {
-        return delegate.diagnostics().joinToString {
+        return delegate.diagnostics().joinToString(separator = System.lineSeparator()) {
             it.toString()
         }
     }
@@ -456,7 +543,7 @@ internal class KotlinCompilationResult constructor(
     override fun rawOutput(): String {
         return delegate.diagnostics.flatMap {
             it.value
-        }.joinToString {
+        }.joinToString(separator = System.lineSeparator()) {
             it.toString()
         }
     }

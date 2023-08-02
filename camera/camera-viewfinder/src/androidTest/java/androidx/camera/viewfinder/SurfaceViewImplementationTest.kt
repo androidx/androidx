@@ -72,7 +72,9 @@ class SurfaceViewImplementationTest {
         Assume.assumeTrue("No cameras found on device.", cameraIds.isNotEmpty())
         val cameraId = cameraIds[0]
         val characteristics = cameraManager.getCameraCharacteristics(cameraId)
-        mSurfaceRequest = ViewfinderSurfaceRequest(ANY_SIZE, characteristics)
+        mSurfaceRequest = ViewfinderSurfaceRequest.Builder(ANY_SIZE)
+            .populateFromCharacteristics(characteristics)
+            .build()
         mImplementation = SurfaceViewImplementation(mParent, ViewfinderTransformation())
     }
 

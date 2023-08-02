@@ -1,5 +1,4 @@
 /**
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 package androidx.core.internal;

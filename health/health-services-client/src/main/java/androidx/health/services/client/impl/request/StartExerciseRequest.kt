@@ -25,7 +25,6 @@ import androidx.health.services.client.proto.RequestsProto
 /**
  * Request for starting an exercise.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class StartExerciseRequest(
@@ -33,12 +32,11 @@ public class StartExerciseRequest(
     public val exerciseConfig: ExerciseConfig,
 ) : ProtoParcelable<RequestsProto.StartExerciseRequest>() {
 
-    override val proto: RequestsProto.StartExerciseRequest by lazy {
+    override val proto: RequestsProto.StartExerciseRequest =
         RequestsProto.StartExerciseRequest.newBuilder()
             .setPackageName(packageName)
             .setConfig(exerciseConfig.toProto())
             .build()
-    }
 
     public companion object {
         @JvmField

@@ -18,8 +18,8 @@ package androidx.room.compiler.processing.javac
 
 import androidx.room.compiler.processing.XExecutableParameterElement
 import androidx.room.compiler.processing.XMemberContainer
-import androidx.room.compiler.processing.javac.kotlin.KmType
-import androidx.room.compiler.processing.javac.kotlin.KmValueParameter
+import androidx.room.compiler.processing.javac.kotlin.KmTypeContainer
+import androidx.room.compiler.processing.javac.kotlin.KmValueParameterContainer
 import androidx.room.compiler.processing.util.sanitizeAsJavaParameterName
 import javax.lang.model.element.VariableElement
 
@@ -27,18 +27,40 @@ internal class JavacMethodParameter(
     env: JavacProcessingEnv,
     override val enclosingElement: JavacExecutableElement,
     element: VariableElement,
-    kotlinMetadataFactory: () -> KmValueParameter?,
+    kotlinMetadataFactory: () -> KmValueParameterContainer?,
     val argIndex: Int
 ) : JavacVariableElement(env, element), XExecutableParameterElement {
+    override fun isContinuationParam() =
+        enclosingElement is JavacMethodElement &&
+        enclosingElement.isSuspendFunction() &&
+        enclosingElement.parameters.last() == this
 
-    private val kotlinMetadata by lazy { kotlinMetadataFactory() }
+    override fun isReceiverParam() =
+        enclosingElement is JavacMethodElement &&
+        enclosingElement.isExtensionFunction() &&
+        enclosingElement.parameters.first() == this
+
+    override fun isVarArgs() =
+        kotlinMetadata?.isVarArgs() ?: (enclosingElement.isVarArgs() &&
+            enclosingElement.parameters.last() == this)
+
+    override fun isKotlinPropertyParam() =
+        enclosingElement is JavacMethodElement &&
+        enclosingElement.isKotlinPropertyMethod()
+
+    override val kotlinMetadata by lazy { kotlinMetadataFactory() }
 
     override val name: String
-        get() = (kotlinMetadata?.name ?: super.name).sanitizeAsJavaParameterName(
-            argIndex = argIndex
-        )
+        get() = if (isReceiverParam() && enclosingElement.isAbstract()) {
+            // Receiver parameter names for abstract methods are not reliable across different
+            // versions of KAPT so we just build the name ourselves to match KSP.
+            // https://youtrack.jetbrains.com/issue/KT-18048/kapt-drops-method-parameter-names
+            "\$this\$${enclosingElement.name}"
+        } else {
+            (kotlinMetadata?.name ?: super.name)
+        }.sanitizeAsJavaParameterName(argIndex)
 
-    override val kotlinType: KmType?
+    override val kotlinType: KmTypeContainer?
         get() = kotlinMetadata?.type
 
     override val hasDefaultValue: Boolean

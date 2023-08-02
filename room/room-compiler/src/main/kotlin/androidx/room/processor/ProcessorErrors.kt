@@ -18,19 +18,18 @@ package androidx.room.processor
 
 import androidx.room.Delete
 import androidx.room.Insert
-import androidx.room.Upsert
 import androidx.room.Query
 import androidx.room.RawQuery
 import androidx.room.RewriteQueriesToDropUnusedColumns
 import androidx.room.Update
+import androidx.room.Upsert
 import androidx.room.ext.KotlinTypeNames
-import androidx.room.ext.RoomTypeNames
+import androidx.room.ext.RoomTypeNames.ROOM_DB
 import androidx.room.ext.SupportDbTypeNames
 import androidx.room.parser.QueryType
 import androidx.room.parser.SQLTypeAffinity
 import androidx.room.vo.CustomTypeConverter
 import androidx.room.vo.Field
-import com.squareup.javapoet.TypeName
 
 object ProcessorErrors {
     private fun String.trim(): String {
@@ -65,6 +64,8 @@ object ProcessorErrors {
     val CANNOT_USE_UNBOUND_GENERICS_IN_DAO_CLASSES = "Cannot use unbound generics in Dao classes." +
         " If you are trying to create a base DAO, create a normal class, extend it with type" +
         " params then mark the subclass with @Dao."
+    val CANNOT_USE_MAP_COLUMN_AND_MAP_INFO_SIMULTANEOUSLY = "Cannot use @MapColumn and " +
+        " @MapInfo annotation in the same function. Please prefer using @MapColumn only."
     val CANNOT_FIND_GETTER_FOR_FIELD = "Cannot find getter for field."
     val CANNOT_FIND_SETTER_FOR_FIELD = "Cannot find setter for field."
     val MISSING_PRIMARY_KEY = "An entity must have at least 1 field annotated with @PrimaryKey"
@@ -137,7 +138,7 @@ object ProcessorErrors {
     val QUERY_PARAMETERS_CANNOT_START_WITH_UNDERSCORE = "Query/Insert method parameters cannot " +
         "start with underscore (_)."
 
-    fun cannotFindQueryResultAdapter(returnTypeName: TypeName) = "Not sure how to convert a " +
+    fun cannotFindQueryResultAdapter(returnTypeName: String) = "Not sure how to convert a " +
         "Cursor to this method's return type ($returnTypeName)."
 
     fun classMustImplementEqualsAndHashCode(keyType: String) = "The key" +
@@ -153,24 +154,18 @@ object ProcessorErrors {
     val DELETION_MISSING_PARAMS = "Method annotated with" +
         " @Delete but does not have any parameters to delete."
 
-    fun cannotMapInfoSpecifiedColumn(column: String, columnsInQuery: List<String>) =
-        "Column specified in the provided @MapInfo annotation must be present in the query. " +
+    fun cannotMapSpecifiedColumn(column: String, columnsInQuery: List<String>, annotation: String) =
+        "Column specified in the provided @$annotation annotation must be present in the query. " +
             "Provided: $column. Columns found: ${columnsInQuery.joinToString(", ")}"
 
     val MAP_INFO_MUST_HAVE_AT_LEAST_ONE_COLUMN_PROVIDED = "To use the @MapInfo annotation, you " +
         "must provide either the key column name, value column name, or both."
 
-    fun keyMayNeedMapInfo(keyArg: TypeName): String {
+    fun mayNeedMapColumn(columnArg: String): String {
         return """
-            Looks like you may need to use @MapInfo to clarify the 'keyColumn' needed for
-            the return type of a method. Type argument that needs @MapInfo: $keyArg
-            """.trim()
-    }
-
-    fun valueMayNeedMapInfo(valueArg: TypeName): String {
-        return """
-            Looks like you may need to use @MapInfo to clarify the 'valueColumn' needed for
-            the return type of a method. Type argument that needs @MapInfo: $valueArg
+            Looks like you may need to use @MapColumn to clarify the 'columnName' needed for
+            type argument(s) in the return type of a method. Type argument that needs
+            @MapColumn: $columnArg
             """.trim()
     }
 
@@ -207,6 +202,9 @@ object ProcessorErrors {
         "private, final, or abstract. It can be abstract only if the method is also" +
         " annotated with @Query."
 
+    fun nullableParamInShortcutMethod(param: String) = "Methods annotated with [@Insert, " +
+        "@Upsert, @Update, @Delete] shouldn't declare nullable parameters ($param)."
+
     fun transactionMethodAsync(returnTypeName: String) = "Method annotated with @Transaction must" +
         " not return deferred/async return type $returnTypeName. Since transactions are" +
         " thread confined and Room cannot guarantee that all queries in the method" +
@@ -225,7 +223,7 @@ object ProcessorErrors {
         "annotated with @Entity or a collection/array of it."
 
     val DB_MUST_EXTEND_ROOM_DB = "Classes annotated with @Database should extend " +
-        RoomTypeNames.ROOM_DB
+        ROOM_DB.canonicalName
 
     val OBSERVABLE_QUERY_NOTHING_TO_OBSERVE = "Observable query return type (LiveData, Flowable" +
         ", DataSource, DataSourceFactory etc) can only be used with SELECT queries that" +
@@ -253,6 +251,9 @@ object ProcessorErrors {
     val CANNOT_FIND_COLUMN_TYPE_ADAPTER = "Cannot figure out how to save this field into" +
         " database. You can consider adding a type converter for it."
 
+    val VALUE_CLASS_ONLY_SUPPORTED_IN_KSP = "Kotlin value classes are only supported " +
+        "in Room using KSP and generating Kotlin (room.generateKotlin=true)."
+
     val CANNOT_FIND_STMT_BINDER = "Cannot figure out how to bind this field into a statement."
 
     val CANNOT_FIND_CURSOR_READER = "Cannot figure out how to read this field from a cursor."
@@ -266,8 +267,9 @@ object ProcessorErrors {
         return MISSING_PARAMETER_FOR_BIND.format(bindVarName.joinToString(", "))
     }
 
-    fun valueCollectionMustBeListOrSet(mapValueTypeName: TypeName): String {
-        return "Multimap 'value' collection type must be a List or Set. Found $mapValueTypeName."
+    fun valueCollectionMustBeListOrSetOrMap(mapValueTypeName: String): String {
+        return "Multimap 'value' collection type must be a List, Set or Map. " +
+            "Found $mapValueTypeName."
     }
 
     private val UNUSED_QUERY_METHOD_PARAMETER = "Unused parameter%s: %s"
@@ -287,7 +289,7 @@ object ProcessorErrors {
 
     val DAO_METHOD_CONFLICTS_WITH_OTHERS = "Dao method has conflicts."
 
-    fun duplicateDao(dao: TypeName, methodNames: List<String>): String {
+    fun duplicateDao(dao: String, methodNames: List<String>): String {
         return """
                 All of these functions [${methodNames.joinToString(", ")}] return the same DAO
                 class [$dao].
@@ -299,7 +301,7 @@ object ProcessorErrors {
     }
 
     fun pojoMissingNonNull(
-        pojoTypeName: TypeName,
+        pojoTypeName: String,
         missingPojoFields: List<String>,
         allQueryColumns: List<String>
     ): String {
@@ -312,10 +314,10 @@ object ProcessorErrors {
     }
 
     fun cursorPojoMismatch(
-        pojoTypeNames: List<TypeName>,
+        pojoTypeNames: List<String>,
         unusedColumns: List<String>,
         allColumns: List<String>,
-        pojoUnusedFields: Map<TypeName, List<Field>>,
+        pojoUnusedFields: Map<String, List<Field>>,
     ): String {
         val unusedColumnsWarning = if (unusedColumns.isNotEmpty()) {
             val pojoNames = if (pojoTypeNames.size > 1) {
@@ -367,7 +369,7 @@ object ProcessorErrors {
             " ${converters.joinToString(", ") { it.toString() }}"
     }
 
-    fun typeConverterMustBeDeclared(typeName: TypeName): String {
+    fun typeConverterMustBeDeclared(typeName: String): String {
         return "Invalid type converter type: $typeName. Type converters must be a class."
     }
 
@@ -534,9 +536,10 @@ object ProcessorErrors {
         """.trim()
     }
 
-    val MISSING_SCHEMA_EXPORT_DIRECTORY = "Schema export directory is not provided to the" +
-        " annotation processor so we cannot export the schema. You can either provide" +
-        " `room.schemaLocation` annotation processor argument OR set exportSchema to false."
+    val MISSING_SCHEMA_EXPORT_DIRECTORY = "Schema export directory was not provided to the" +
+        " annotation processor so Room cannot export the schema. You can either provide" +
+        " `room.schemaLocation` annotation processor argument by applying the Room Gradle plugin" +
+        " (id 'androidx.room') OR set exportSchema to false."
 
     val INVALID_FOREIGN_KEY_ACTION = "Invalid foreign key action. It must be one of the constants" +
         " defined in ForeignKey.Action"
@@ -712,7 +715,7 @@ object ProcessorErrors {
 
     val RAW_QUERY_BAD_RETURN_TYPE = "RawQuery methods must return a non-void type."
 
-    fun rawQueryBadEntity(typeName: TypeName): String {
+    fun rawQueryBadEntity(typeName: String): String {
         return """
             observedEntities field in RawQuery must either reference a class that is annotated
             with @Entity or it should reference a POJO that either contains @Embedded fields that
@@ -722,7 +725,7 @@ object ProcessorErrors {
     }
 
     val RAW_QUERY_STRING_PARAMETER_REMOVED = "RawQuery does not allow passing a string anymore." +
-        " Please use ${SupportDbTypeNames.QUERY}."
+        " Please use ${SupportDbTypeNames.QUERY.canonicalName}."
 
     val MISSING_COPY_ANNOTATIONS = "Annotated property getter is missing " +
         "@AutoValue.CopyAnnotations."
@@ -821,7 +824,7 @@ object ProcessorErrors {
         "perform the query."
 
     fun cannotFindPreparedQueryResultAdapter(
-        returnType: TypeName,
+        returnType: String,
         type: QueryType
     ) = StringBuilder().apply {
         append("Not sure how to handle query method's return type ($returnType). ")
@@ -855,9 +858,9 @@ object ProcessorErrors {
 
     fun mismatchedGetter(
         fieldName: String,
-        ownerType: TypeName,
-        getterType: TypeName,
-        fieldType: TypeName
+        ownerType: String,
+        getterType: String,
+        fieldType: String
     ) = """
             $ownerType's $fieldName field has type $fieldType but its getter returns $getterType.
             This mismatch might cause unexpected $fieldName values in the database when $ownerType
@@ -866,9 +869,9 @@ object ProcessorErrors {
 
     fun mismatchedSetter(
         fieldName: String,
-        ownerType: TypeName,
-        setterType: TypeName,
-        fieldType: TypeName
+        ownerType: String,
+        setterType: String,
+        fieldType: String
     ) = """
             $ownerType's $fieldName field has type $fieldType but its setter accepts $setterType.
             This mismatch might cause unexpected $fieldName values when $ownerType is read from the
@@ -878,11 +881,11 @@ object ProcessorErrors {
     val DATABASE_INVALID_DAO_METHOD_RETURN_TYPE = "Abstract database methods must return a @Dao " +
         "annotated class or interface."
 
-    fun invalidEntityTypeInDatabaseAnnotation(typeName: TypeName): String {
+    fun invalidEntityTypeInDatabaseAnnotation(typeName: String): String {
         return "Invalid Entity type: $typeName. An entity in the database must be a class."
     }
 
-    fun invalidViewTypeInDatabaseAnnotation(typeName: TypeName): String {
+    fun invalidViewTypeInDatabaseAnnotation(typeName: String): String {
         return "Invalid View type: $typeName. Views in a database must be a class or an " +
             "interface."
     }
@@ -898,7 +901,7 @@ object ProcessorErrors {
         "or an interface."
 
     fun shortcutMethodArgumentMustBeAClass(
-        typeName: TypeName
+        typeName: String
     ): String {
         return "Invalid query argument: $typeName. It must be a class or an interface."
     }
@@ -933,8 +936,11 @@ object ProcessorErrors {
 
     fun invalidAutoMigrationSchema(schemaFile: String, schemaOutFolderPath: String): String {
         return "Found invalid schema file '$schemaFile.json' at the schema out " +
-            "folder: $schemaOutFolderPath. The schema files must be generated by Room. Cannot " +
-            "generate auto migrations."
+            "folder: $schemaOutFolderPath.\nIf you've modified the file, you might've broken the " +
+            "JSON format, try deleting the file and re-running the compiler.\n" +
+            "If you've not modified the file, please file a bug at " +
+            "https://issuetracker.google.com/issues/new?component=413107&template=1096568 " +
+            "with a sample app to reproduce the issue."
     }
 
     fun autoMigrationSchemasMustBeRoomGenerated(
@@ -1071,13 +1077,13 @@ object ProcessorErrors {
         return "Conflicting @RenameColumn annotations found: [$annotations]"
     }
 
-    val AUTO_MIGRATION_FOUND_BUT_EXPORT_SCHEMA_OFF = "Cannot create auto migrations when export " +
-        "schema is OFF."
+    val AUTO_MIGRATION_FOUND_BUT_EXPORT_SCHEMA_OFF = "Cannot create auto migrations when " +
+        "exportSchema is false."
 
-    val AUTO_MIGRATION_SCHEMA_OUT_FOLDER_NULL = "Schema export directory is not provided to the" +
-        " annotation processor so we cannot import the schema. To generate auto migrations, you " +
-        "must provide `room.schemaLocation` annotation processor argument AND set exportSchema to" +
-        " true."
+    val AUTO_MIGRATION_SCHEMA_IN_FOLDER_NULL = "Schema import directory was not provided to the" +
+        " annotation processor so Room cannot read older schemas. To generate auto migrations," +
+        " you must provide `room.schemaLocation` annotation processor arguments by applying the" +
+        " Room Gradle plugin (id 'androidx.room') AND set exportSchema to true."
 
     fun tableWithConflictingPrefixFound(tableName: String): String {
         return "The new version of the schema contains '$tableName' a table name" +
@@ -1099,7 +1105,7 @@ object ProcessorErrors {
     fun ambiguousColumn(
         columnName: String,
         location: AmbiguousColumnLocation,
-        typeName: TypeName?
+        typeName: String?
     ): String {
         val (locationDesc, recommendation) = when (location) {
             AmbiguousColumnLocation.MAP_INFO -> {
@@ -1125,4 +1131,37 @@ object ProcessorErrors {
         POJO,
         ENTITY,
     }
+
+    val KOTLIN_PROPERTY_OVERRIDE = "Property getter overrides are not support when generating " +
+        "Kotlin code, please rewrite as an abstract function."
+
+    val NONNULL_VOID = "Invalid non-null declaration of 'Void', should be nullable. The 'Void' " +
+        "class represents a placeholder type that is uninstantiable and 'null' is always returned."
+
+    fun nullableCollectionOrArrayReturnTypeInDaoMethod(
+        typeName: String,
+        returnType: String
+    ): String {
+        return "The nullable `$returnType` ($typeName) return type in a DAO method is " +
+        "meaningless because Room will instead return an empty `$returnType` if no rows are " +
+        "returned from the query."
+    }
+
+    fun nullableComponentInDaoMethodReturnType(typeName: String): String {
+        return "The DAO method return type ($typeName) with the nullable type argument " +
+        "is meaningless because for now Room will never put a null value in a result."
+    }
+
+    val EXPORTING_SCHEMA_TO_RESOURCES = "Schema export is set to be outputted as a resource" +
+        " (i.e. room.exportSchemaResource is set to true), this means Room will write the current" +
+        " schema version file into the produced JAR. Such flag must only be used for generating" +
+        " the schema file and extracting it from the JAR but not for production builds, otherwise" +
+        " the schema file will end up in the final artifact which is typically not desired. This" +
+        " warning serves as a reminder to use room.exportSchemaResource cautiously."
+
+    val INVALID_GRADLE_PLUGIN_AND_SCHEMA_LOCATION_OPTION = "The Room Gradle plugin " +
+        "(id 'androidx.room') cannot be used with an explicit use of the annotation processor" +
+        "option `room.schemaLocation`, please remove the configuration of the option and " +
+        "configure the schema location via the plugin project extension: " +
+        "`room { schemaDirectory(...) }`."
 }

@@ -44,6 +44,10 @@ public class ChangeClipBounds extends Transition {
             PROPNAME_CLIP,
     };
 
+    // Represents a null Rect in the tag. If null were used instead, we would treat it
+    // as not set.
+    static final Rect NULL_SENTINEL = new Rect();
+
     @Override
     @NonNull
     public String[] getTransitionProperties() {
@@ -57,13 +61,28 @@ public class ChangeClipBounds extends Transition {
         super(context, attrs);
     }
 
-    private void captureValues(TransitionValues values) {
+    @Override
+    public boolean isSeekingSupported() {
+        return true;
+    }
+
+    @SuppressWarnings("ReferenceEquality") // Reference comparison with NULL_SENTINEL
+    private void captureValues(TransitionValues values, boolean clipFromTag) {
         View view = values.view;
         if (view.getVisibility() == View.GONE) {
             return;
         }
 
-        Rect clip = ViewCompat.getClipBounds(view);
+        Rect clip = null;
+        if (clipFromTag) {
+            clip = (Rect) view.getTag(R.id.transition_clip);
+        }
+        if (clip == null) {
+            clip = ViewCompat.getClipBounds(view);
+        }
+        if (clip == NULL_SENTINEL) {
+            clip = null;
+        }
         values.values.put(PROPNAME_CLIP, clip);
         if (clip == null) {
             Rect bounds = new Rect(0, 0, view.getWidth(), view.getHeight());
@@ -73,12 +92,12 @@ public class ChangeClipBounds extends Transition {
 
     @Override
     public void captureStartValues(@NonNull TransitionValues transitionValues) {
-        captureValues(transitionValues);
+        captureValues(transitionValues, true);
     }
 
     @Override
     public void captureEndValues(@NonNull TransitionValues transitionValues) {
-        captureValues(transitionValues);
+        captureValues(transitionValues, false);
     }
 
     @Nullable
@@ -93,33 +112,83 @@ public class ChangeClipBounds extends Transition {
         }
         Rect start = (Rect) startValues.values.get(PROPNAME_CLIP);
         Rect end = (Rect) endValues.values.get(PROPNAME_CLIP);
-        final boolean endIsNull = end == null;
         if (start == null && end == null) {
             return null; // No animation required since there is no clip.
         }
 
-        if (start == null) {
-            start = (Rect) startValues.values.get(PROPNAME_BOUNDS);
-        } else if (end == null) {
-            end = (Rect) endValues.values.get(PROPNAME_BOUNDS);
-        }
-        if (start.equals(end)) {
+        Rect startClip = start == null ? (Rect) startValues.values.get(PROPNAME_BOUNDS) : start;
+        Rect endClip = end == null ? (Rect) endValues.values.get(PROPNAME_BOUNDS) : end;
+
+        if (startClip.equals(endClip)) {
             return null;
         }
 
         ViewCompat.setClipBounds(endValues.view, start);
         RectEvaluator evaluator = new RectEvaluator(new Rect());
         ObjectAnimator animator = ObjectAnimator.ofObject(endValues.view, ViewUtils.CLIP_BOUNDS,
-                evaluator, start, end);
-        if (endIsNull) {
-            final View endView = endValues.view;
-            animator.addListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    ViewCompat.setClipBounds(endView, null);
-                }
-            });
-        }
+                evaluator, startClip, endClip);
+        View view = endValues.view;
+        Listener listener = new Listener(view, start, end);
+        animator.addListener(listener);
+        addListener(listener);
         return animator;
+    }
+
+    private static class Listener extends AnimatorListenerAdapter implements TransitionListener {
+        private final Rect mStart;
+        private final Rect mEnd;
+        private final View mView;
+
+        Listener(View view, Rect start, Rect end) {
+            mView = view;
+            mStart = start;
+            mEnd = end;
+        }
+
+        @Override
+        public void onTransitionStart(@NonNull Transition transition) {
+
+        }
+
+        @Override
+        public void onTransitionEnd(@NonNull Transition transition) {
+
+        }
+
+        @Override
+        public void onTransitionCancel(@NonNull Transition transition) {
+
+        }
+
+        @Override
+        public void onTransitionPause(@NonNull Transition transition) {
+            Rect clipBounds = ViewCompat.getClipBounds(mView);
+            if (clipBounds == null) {
+                clipBounds = NULL_SENTINEL;
+            }
+            mView.setTag(R.id.transition_clip, clipBounds);
+            ViewCompat.setClipBounds(mView, mEnd);
+        }
+
+        @Override
+        public void onTransitionResume(@NonNull Transition transition) {
+            Rect clipBounds = (Rect) mView.getTag(R.id.transition_clip);
+            ViewCompat.setClipBounds(mView, clipBounds);
+            mView.setTag(R.id.transition_clip, null);
+        }
+
+        @Override
+        public void onAnimationEnd(Animator animation) {
+            onAnimationEnd(animation, false);
+        }
+
+        @Override
+        public void onAnimationEnd(Animator animation, boolean isReverse) {
+            if (!isReverse) {
+                ViewCompat.setClipBounds(mView, mEnd);
+            } else {
+                ViewCompat.setClipBounds(mView, mStart);
+            }
+        }
     }
 }

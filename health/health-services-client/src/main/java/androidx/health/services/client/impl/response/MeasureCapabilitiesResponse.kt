@@ -25,7 +25,6 @@ import androidx.health.services.client.proto.ResponsesProto
 /**
  * Response containing the [MeasureCapabilities] of the device.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class MeasureCapabilitiesResponse(
@@ -33,11 +32,10 @@ public class MeasureCapabilitiesResponse(
     public val measureCapabilities: MeasureCapabilities,
 ) : ProtoParcelable<ResponsesProto.MeasureCapabilitiesResponse>() {
 
-    override val proto: ResponsesProto.MeasureCapabilitiesResponse by lazy {
+    override val proto: ResponsesProto.MeasureCapabilitiesResponse =
         ResponsesProto.MeasureCapabilitiesResponse.newBuilder()
             .setCapabilities(measureCapabilities.proto)
             .build()
-    }
 
     public companion object {
         @JvmField

@@ -36,6 +36,7 @@ import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
 import org.robolectric.shadow.api.Shadow;
 import org.robolectric.shadows.ShadowCameraCharacteristics;
+import org.robolectric.shadows.StreamConfigurationMapBuilder;
 
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
@@ -144,9 +145,12 @@ public class AeFpsRangeTest {
                 hardwareLevel);
         shadowCharacteristics.set(CameraCharacteristics.CONTROL_AE_AVAILABLE_TARGET_FPS_RANGES,
                 availableFpsRanges);
+        shadowCharacteristics.set(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP,
+                StreamConfigurationMapBuilder.newBuilder().build());
 
         CameraCharacteristicsCompat characteristicsCompat =
-                CameraCharacteristicsCompat.toCameraCharacteristicsCompat(characteristics);
+                CameraCharacteristicsCompat.toCameraCharacteristicsCompat(characteristics,
+                        ANY_CAMERA_ID);
         final Quirks quirks = CameraQuirks.get(ANY_CAMERA_ID, characteristicsCompat);
         return new AeFpsRange(quirks);
     }

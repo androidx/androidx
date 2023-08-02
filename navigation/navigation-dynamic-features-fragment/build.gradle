@@ -38,7 +38,7 @@ dependencies {
     testImplementation(libs.testExtJunit)
     testImplementation(libs.testRunner)
     testImplementation(libs.junit)
-    testImplementation(libs.mockitoCore)
+    testImplementation(libs.mockitoCore4)
     testImplementation(libs.robolectric)
     testImplementation(libs.truth)
 
@@ -64,9 +64,8 @@ android {
 }
 
 androidx {
-    name = "Android Dynamic Feature Navigation Fragment"
+    name = "Dynamic Feature Navigation Fragment"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.NAVIGATION
     inceptionYear = "2019"
     description = "Android Dynamic Feature Navigation Fragment"
 }

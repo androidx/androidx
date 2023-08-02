@@ -21,6 +21,7 @@ import androidx.compose.foundation.lazy.layout.LazyAnimateScrollScope
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.util.fastFirstOrNull
 import androidx.compose.ui.util.fastSumBy
+import kotlin.math.abs
 
 internal class LazyListAnimateScrollScope(
     private val state: LazyListState
@@ -44,16 +45,20 @@ internal class LazyListAnimateScrollScope(
             it.index == index
         }?.offset
 
-    override fun snapToItem(index: Int, scrollOffset: Int) {
+    override fun ScrollScope.snapToItem(index: Int, scrollOffset: Int) {
         state.snapToItemIndexInternal(index, scrollOffset)
     }
 
     override fun expectedDistanceTo(index: Int, targetScrollOffset: Int): Float {
-        val visibleItems = state.layoutInfo.visibleItemsInfo
-        val averageSize = visibleItems.fastSumBy { it.size } / visibleItems.size
+        val layoutInfo = state.layoutInfo
+        val visibleItems = layoutInfo.visibleItemsInfo
+        val averageSize =
+            visibleItems.fastSumBy { it.size } / visibleItems.size + layoutInfo.mainAxisItemSpacing
         val indexesDiff = index - firstVisibleItemIndex
+        var coercedOffset = minOf(abs(targetScrollOffset), averageSize)
+        if (targetScrollOffset < 0) coercedOffset *= -1
         return (averageSize * indexesDiff).toFloat() +
-            targetScrollOffset - firstVisibleItemScrollOffset
+            coercedOffset - firstVisibleItemScrollOffset
     }
 
     override suspend fun scroll(block: suspend ScrollScope.() -> Unit) {

@@ -17,6 +17,7 @@
 package androidx.camera.camera2.pipe
 
 import androidx.annotation.RequiresApi
+import androidx.annotation.RestrictTo
 
 /**
  * An instance of a [RequestProcessor] exists for the duration of a CameraCaptureSession and must be
@@ -34,6 +35,8 @@ import androidx.annotation.RequiresApi
  * - Callbacks are expected to be invoked at *very* high frequency.
  * - One RequestProcessor instance per CameraCaptureSession
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@Deprecated("Use CaptureSequence and CaptureSequenceProcessor instead.")
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 interface RequestProcessor {
 
@@ -41,7 +44,7 @@ interface RequestProcessor {
      * Set the repeating [Request] with an optional set of parameters and listeners. Parameters are
      * applied, in order, to each request in the list:
      *
-     *   [Request.template] -> defaultParameters -> [Request.parameters] -> requiredParameters
+     * [Request.template] -> defaultParameters -> [Request.parameters] -> requiredParameters
      *
      * Parameters where values are set to null will physically remove a particular key from the
      * final map of parameters.
@@ -50,7 +53,7 @@ interface RequestProcessor {
      * @param defaultParameters will not override parameters specified in the [Request].
      * @param requiredParameters will override parameters specified in the [Request].
      * @param defaultListeners are internal and/or global listeners that should be invoked in
-     * addition to listeners that are specified on each [Request]
+     *   addition to listeners that are specified on each [Request]
      * @return false if the repeating request was not successfully updated.
      */
     fun startRepeating(
@@ -61,8 +64,8 @@ interface RequestProcessor {
     ): Boolean
 
     /**
-     * Stops the current repeating request, but does *not* close the session. The current
-     * repeating request can be resumed by invoking [startRepeating] again.
+     * Stops the current repeating request, but does *not* close the session. The current repeating
+     * request can be resumed by invoking [startRepeating] again.
      */
     fun stopRepeating()
 
@@ -70,7 +73,7 @@ interface RequestProcessor {
      * Submit a single [Request] with optional sets of parameters and listeners. Parameters are
      * applied, in order, to each request in the list:
      *
-     *   [Request.template] -> defaultParameters -> [Request.parameters] -> requiredParameters
+     * [Request.template] -> defaultParameters -> [Request.parameters] -> requiredParameters
      *
      * Parameters where values are set to null will physically remove a particular key from the
      * final map of parameters.
@@ -79,7 +82,7 @@ interface RequestProcessor {
      * @param defaultParameters will not override parameters specified in the [Request].
      * @param requiredParameters will override parameters specified in the [Request].
      * @param defaultListeners are internal and/or global listeners that should be invoked in
-     * addition to listeners that are specified on each [Request]
+     *   addition to listeners that are specified on each [Request]
      * @return false if this request was not submitted to the camera for any reason.
      */
     fun submit(
@@ -93,7 +96,7 @@ interface RequestProcessor {
      * Submit a list of [Request]s with optional sets of parameters and listeners. Parameters are
      * applied, in order, to each request in the list:
      *
-     *   [Request.template] -> defaultParameters -> [Request.parameters] -> requiredParameters
+     * [Request.template] -> defaultParameters -> [Request.parameters] -> requiredParameters
      *
      * Parameters where values are set to null will physically remove a particular key from the
      * final map of parameters.
@@ -102,7 +105,7 @@ interface RequestProcessor {
      * @param defaultParameters will not override parameters specified in the [Request].
      * @param requiredParameters will override parameters specified in the [Request].
      * @param defaultListeners are internal and/or global listeners that should be invoked in
-     * addition to listeners that are specified on each [Request]
+     *   addition to listeners that are specified on each [Request]
      * @return false if these requests were not submitted to the camera for any reason.
      */
     fun submit(
@@ -112,14 +115,12 @@ interface RequestProcessor {
         defaultListeners: List<Request.Listener>
     ): Boolean
 
-    /**
-     * Abort requests that have been submitted but not completed.
-     */
+    /** Abort requests that have been submitted but not completed. */
     fun abortCaptures()
 
     /**
-     * Puts the RequestProcessor into a closed state where it should immediately reject all
-     * incoming requests. This should NOT call stopRepeating() or abortCaptures().
+     * Puts the RequestProcessor into a closed state where it should immediately reject all incoming
+     * requests. This should NOT call stopRepeating() or abortCaptures().
      */
     fun close()
 }

@@ -23,24 +23,22 @@ import static java.util.Objects.requireNonNull;
 import android.annotation.SuppressLint;
 import android.os.RemoteException;
 
-import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.IOnDoneCallback;
 import androidx.car.app.OnDoneCallback;
+import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.model.ItemList.OnSelectedListener;
 import androidx.car.app.utils.RemoteUtils;
 
 /**
  * Implementation class for {@link OnSelectedDelegate}.
  *
- * @hide
  */
 @RestrictTo(LIBRARY)
+@KeepFields
 public class OnSelectedDelegateImpl implements OnSelectedDelegate {
-
-    @Keep
     @Nullable
     private final IOnSelectedListener mStub;
 
@@ -70,7 +68,7 @@ public class OnSelectedDelegateImpl implements OnSelectedDelegate {
         return new OnSelectedDelegateImpl(listener);
     }
 
-    @Keep // We need to keep these stub for Bundler serialization logic.
+    @KeepFields // We need to keep these stub for Bundler serialization logic.
     private static class OnSelectedListenerStub extends IOnSelectedListener.Stub {
         private final OnSelectedListener mListener;
 

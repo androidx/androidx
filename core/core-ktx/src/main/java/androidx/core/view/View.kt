@@ -310,7 +310,7 @@ public inline var View.isGone: Boolean
  *
  * @see View.getLayoutParams
  * @see View.setLayoutParams
- **/
+ */
 public inline fun View.updateLayoutParams(block: ViewGroup.LayoutParams.() -> Unit) {
     updateLayoutParams<ViewGroup.LayoutParams>(block)
 }
@@ -321,7 +321,7 @@ public inline fun View.updateLayoutParams(block: ViewGroup.LayoutParams.() -> Un
  *
  * @see View.getLayoutParams
  * @see View.setLayoutParams
- **/
+ */
 @JvmName("updateLayoutParamsTyped")
 public inline fun <reified T : ViewGroup.LayoutParams> View.updateLayoutParams(
     block: T.() -> Unit

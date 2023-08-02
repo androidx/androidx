@@ -18,16 +18,22 @@ package androidx.camera.camera2.pipe.integration.adapter
 import android.content.Context
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraId
+import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.core.Debug
 import androidx.camera.camera2.pipe.core.Log.debug
+import androidx.camera.camera2.pipe.core.SystemTimeSource
 import androidx.camera.camera2.pipe.core.Timestamps
-import androidx.camera.camera2.pipe.core.Timestamps.measureNow
 import androidx.camera.camera2.pipe.core.Timestamps.formatMs
-import androidx.camera.camera2.pipe.integration.config.CameraConfig
+import androidx.camera.camera2.pipe.core.Timestamps.measureNow
 import androidx.camera.camera2.pipe.integration.config.CameraAppComponent
 import androidx.camera.camera2.pipe.integration.config.CameraAppConfig
+import androidx.camera.camera2.pipe.integration.config.CameraConfig
 import androidx.camera.camera2.pipe.integration.config.DaggerCameraAppComponent
+import androidx.camera.camera2.pipe.integration.impl.CameraInteropStateCallbackRepository
+import androidx.camera.camera2.pipe.integration.internal.CameraCompatibilityFilter
+import androidx.camera.camera2.pipe.integration.internal.CameraSelectionOptimizer
 import androidx.camera.core.CameraSelector
+import androidx.camera.core.concurrent.CameraCoordinator
 import androidx.camera.core.impl.CameraFactory
 import androidx.camera.core.impl.CameraInternal
 import androidx.camera.core.impl.CameraThreadConfig
@@ -37,33 +43,70 @@ import androidx.camera.core.impl.CameraThreadConfig
  * to share resources across Camera instances.
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-class CameraFactoryAdapter(
+internal class CameraFactoryAdapter(
+    lazyCameraPipe: Lazy<CameraPipe>,
     context: Context,
     threadConfig: CameraThreadConfig,
-    availableCamerasSelector: CameraSelector?
+    camera2InteropCallbacks: CameraInteropStateCallbackRepository,
+    availableCamerasSelector: CameraSelector?,
 ) : CameraFactory {
     private val appComponent: CameraAppComponent by lazy {
         Debug.traceStart { "CameraFactoryAdapter#appComponent" }
-        val start = Timestamps.now()
+        val timeSource = SystemTimeSource()
+        val start = Timestamps.now(timeSource)
         val result = DaggerCameraAppComponent.builder()
-            .config(CameraAppConfig(context, threadConfig))
+            .config(
+                CameraAppConfig(
+                    context,
+                    threadConfig,
+                    lazyCameraPipe.value,
+                    camera2InteropCallbacks
+                )
+            )
             .build()
-        debug { "Created CameraFactoryAdapter in ${start.measureNow().formatMs()}" }
+        debug { "Created CameraFactoryAdapter in ${start.measureNow(timeSource).formatMs()}" }
         debug { "availableCamerasSelector: $availableCamerasSelector " }
         Debug.traceStop()
         result
     }
+    private var mAvailableCamerasSelector: CameraSelector? = availableCamerasSelector
+    private var mAvailableCameraIds: List<String>
+    private val cameraCoordinator: CameraCoordinatorAdapter = CameraCoordinatorAdapter(
+        appComponent.getCameraDevices(), appComponent.getCameraGraphCreator())
 
     init {
         debug { "Created CameraFactoryAdapter" }
+
+        val optimizedCameraIds = CameraSelectionOptimizer.getSelectedAvailableCameraIds(
+            this,
+            mAvailableCamerasSelector
+        )
+        mAvailableCameraIds = CameraCompatibilityFilter.getBackwardCompatibleCameraIds(
+            appComponent.getCameraDevices(),
+            optimizedCameraIds
+        )
     }
 
-    override fun getCamera(cameraId: String): CameraInternal =
-        appComponent.cameraBuilder()
+    /**
+     * The [getCamera] method is responsible for providing CameraInternal object based on cameraID.
+     * Use cameraId from set of cameraIds provided by [getAvailableCameraIds] method.
+     */
+    override fun getCamera(cameraId: String): CameraInternal {
+        val cameraInternal = appComponent.cameraBuilder()
             .config(CameraConfig(CameraId(cameraId)))
             .build()
             .getCameraInternal()
+        cameraCoordinator.registerCamera(cameraId, cameraInternal)
+        return cameraInternal
+    }
 
-    override fun getAvailableCameraIds(): Set<String> = appComponent.getAvailableCameraIds()
-    override fun getCameraManager(): Any? = appComponent
+    override fun getAvailableCameraIds(): Set<String> =
+        // Use a LinkedHashSet to preserve order
+        LinkedHashSet(mAvailableCameraIds)
+
+    override fun getCameraCoordinator(): CameraCoordinator {
+        return cameraCoordinator
+    }
+
+    override fun getCameraManager(): Any = appComponent
 }

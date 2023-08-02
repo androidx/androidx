@@ -16,15 +16,20 @@
 
 package androidx.benchmark
 
+import android.annotation.SuppressLint
 import android.os.Build
 import android.os.Debug
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
+import androidx.annotation.VisibleForTesting
 import androidx.benchmark.BenchmarkState.Companion.TAG
 import androidx.benchmark.Outputs.dateToFileName
+import androidx.benchmark.perfetto.StackSamplingConfig
 import androidx.benchmark.simpleperf.ProfileSession
 import androidx.benchmark.simpleperf.RecordOptions
+import androidx.benchmark.vmtrace.ArtTrace
+import java.io.File
 
 /**
  * Profiler abstraction used for the timing stage.
@@ -39,14 +44,38 @@ import androidx.benchmark.simpleperf.RecordOptions
  * avoid these however, in order to avoid the runtime visiting a new class in the hot path, when
  * switching from warmup -> timing phase, when [start] would be called.
  */
-internal sealed class Profiler {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+sealed class Profiler {
     class ResultFile(
         val label: String,
-        val outputRelativePath: String
-    )
+        val outputRelativePath: String,
+        val source: Profiler?
+    ) {
+        constructor(
+            label: String,
+            absolutePath: String
+        ) : this(
+            label = label,
+            outputRelativePath = Outputs.relativePathFor(absolutePath),
+            source = null
+        )
+
+        fun embedInPerfettoTrace(perfettoTracePath: String) {
+            source?.embedInPerfettoTrace(
+                File(Outputs.outputDirectory, outputRelativePath),
+                File(perfettoTracePath)
+            )
+        }
+        val sanitizedOutputRelativePath: String
+            get() = outputRelativePath
+                .replace("(", "\\(")
+                .replace(")", "\\)")
+    }
 
     abstract fun start(traceUniqueName: String): ResultFile?
     abstract fun stop()
+    internal open fun config(packageNames: List<String>): StackSamplingConfig? = null
+    open fun embedInPerfettoTrace(profilerTrace: File, perfettoTrace: File) {}
 
     /**
      * Measure exactly one loop (one repeat, one iteration).
@@ -105,7 +134,8 @@ internal sealed class Profiler {
 
 internal fun startRuntimeMethodTracing(
     traceFileName: String,
-    sampled: Boolean
+    sampled: Boolean,
+    profiler: Profiler,
 ): Profiler.ResultFile {
     val path = Outputs.testOutputFile(traceFileName).absolutePath
 
@@ -123,7 +153,8 @@ internal fun startRuntimeMethodTracing(
 
     return Profiler.ResultFile(
         outputRelativePath = traceFileName,
-        label = if (sampled) "Stack Sampling (legacy) Trace" else "Method Trace"
+        label = if (sampled) "Stack Sampling (legacy) Trace" else "Method Trace",
+        source = profiler
     )
 }
 
@@ -132,14 +163,15 @@ internal fun stopRuntimeMethodTracing() {
 }
 
 internal object StackSamplingLegacy : Profiler() {
-    @get:RestrictTo(RestrictTo.Scope.TESTS)
+    @get:VisibleForTesting
     var isRunning = false
 
     override fun start(traceUniqueName: String): ResultFile {
         isRunning = true
         return startRuntimeMethodTracing(
             traceFileName = traceName(traceUniqueName, "stackSamplingLegacy"),
-            sampled = true
+            sampled = true,
+            profiler = this
         )
     }
 
@@ -155,7 +187,8 @@ internal object MethodTracing : Profiler() {
     override fun start(traceUniqueName: String): ResultFile {
         return startRuntimeMethodTracing(
             traceFileName = traceName(traceUniqueName, "methodTracing"),
-            sampled = false
+            sampled = false,
+            profiler = this
         )
     }
 
@@ -164,8 +197,16 @@ internal object MethodTracing : Profiler() {
     }
 
     override val requiresSingleMeasurementIteration: Boolean = true
-}
 
+    override fun embedInPerfettoTrace(profilerTrace: File, perfettoTrace: File) {
+        perfettoTrace.appendBytes(
+            ArtTrace(profilerTrace)
+                .toPerfettoTrace()
+                .encode()
+        )
+    }
+}
+@SuppressLint("BanThreadSleep") // needed for connected profiling
 internal object ConnectedAllocation : Profiler() {
     override fun start(traceUniqueName: String): ResultFile? {
         Thread.sleep(CONNECTED_PROFILING_SLEEP_MS)
@@ -181,6 +222,7 @@ internal object ConnectedAllocation : Profiler() {
     override val requiresLibraryOutputDir: Boolean = false
 }
 
+@SuppressLint("BanThreadSleep") // needed for connected profiling
 internal object ConnectedSampling : Profiler() {
     override fun start(traceUniqueName: String): ResultFile? {
         Thread.sleep(CONNECTED_PROFILING_SLEEP_MS)
@@ -210,53 +252,40 @@ internal object StackSamplingSimpleperf : Profiler() {
     @RequiresApi(29)
     private val securityPerfHarden = PropOverride("security.perf_harden", "0")
 
-    var outputRelativePath: String? = null
+    private var outputRelativePath: String? = null
 
     @RequiresApi(29)
-    override fun start(traceUniqueName: String): ResultFile? {
+    override fun start(traceUniqueName: String): ResultFile {
         session?.stopRecording() // stop previous
 
         // for security perf harden, enable temporarily
         securityPerfHarden.forceValue()
 
         // for all other properties, simply set the values, as these don't have defaults
-        Shell.executeCommand("setprop debug.perf_event_max_sample_rate 10000")
-        Shell.executeCommand("setprop debug.perf_cpu_time_max_percent 25")
-        Shell.executeCommand("setprop debug.perf_event_mlock_kb 32800")
+        Shell.executeScriptSilent("setprop debug.perf_event_max_sample_rate 10000")
+        Shell.executeScriptSilent("setprop debug.perf_cpu_time_max_percent 25")
+        Shell.executeScriptSilent("setprop debug.perf_event_mlock_kb 32800")
 
         outputRelativePath = traceName(traceUniqueName, "stackSampling")
         session = ProfileSession().also {
             // prepare simpleperf must be done as shell user, so do this here with other shell setup
             // NOTE: this is sticky across reboots, so missing this will cause tests or profiling to
             // fail, but only on devices that have not run this command since flashing (e.g. in CI)
-            Shell.executeCommand(it.findSimpleperf() + " api-prepare")
+            Shell.executeScriptSilent(it.findSimpleperf() + " api-prepare")
             it.startRecording(
                 RecordOptions()
                     .setSampleFrequency(Arguments.profilerSampleFrequency)
                     .recordDwarfCallGraph() // enable Java/Kotlin callstacks
+                    .setEvent("cpu-clock") // Required on API 33 to enable traceOffCpu
                     .traceOffCpu() // track time sleeping
                     .setSampleCurrentThread() // sample stacks from this thread only
                     .setOutputFilename("simpleperf.data")
-                    .apply {
-                        // some emulators don't support cpu-cycles, the default event, so instead we
-                        // use cpu-clock, which is a software perf event using kernel hrtimer to
-                        // generate interrupts
-                        val hwEventsOutput = Shell.executeCommand("simpleperf list hw").trim()
-                        check(hwEventsOutput.startsWith("List of hardware events:"))
-                        val events = hwEventsOutput
-                            .split("\n")
-                            .drop(1)
-                            .map { line -> line.trim() }
-                        if (!events.any { hwEvent -> hwEvent.trim() == "cpu-cycles" }) {
-                            Log.d(TAG, "cpu-cycles not found - using cpu-clock (events = $events)")
-                            setEvent("cpu-clock")
-                        }
-                    }
             )
         }
         return ResultFile(
             label = "Stack Sampling Trace",
-            outputRelativePath = outputRelativePath!!
+            outputRelativePath = outputRelativePath!!,
+            source = this
         )
     }
 
@@ -273,6 +302,12 @@ internal object StackSamplingSimpleperf : Profiler() {
         session = null
         securityPerfHarden.resetIfOverridden()
     }
+
+    override fun config(packageNames: List<String>) = StackSamplingConfig(
+        packageNames = packageNames,
+        frequency = Arguments.profilerSampleFrequency.toLong(),
+        duration = Arguments.profilerSampleDurationSeconds,
+    )
 
     override val requiresLibraryOutputDir: Boolean = false
 }

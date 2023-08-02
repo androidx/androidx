@@ -16,12 +16,12 @@
 
 package androidx.compose.ui.geometry
 
+import kotlin.test.assertTrue
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import kotlin.test.assertTrue
 
 @RunWith(JUnit4::class)
 class RectTest {

@@ -26,7 +26,7 @@ import androidx.compose.ui.unit.IntSize
 internal class LazyListMeasureResult(
     // properties defining the scroll position:
     /** The new first visible item.*/
-    val firstVisibleItem: LazyMeasuredItem?,
+    val firstVisibleItem: LazyListMeasuredItem?,
     /** The new value for [LazyListState.firstVisibleItemScrollOffset].*/
     val firstVisibleItemScrollOffset: Int,
     /** True if there is some space available to continue scrolling in the forward direction.*/
@@ -35,6 +35,8 @@ internal class LazyListMeasureResult(
     val consumedScroll: Float,
     /** MeasureResult defining the layout.*/
     measureResult: MeasureResult,
+    /** The amount of scroll-back that happened due to reaching the end of the list. */
+    val scrollBackAmount: Float,
     // properties representing the info needed for LazyListLayoutInfo:
     /** see [LazyListLayoutInfo.visibleItemsInfo] */
     override val visibleItemsInfo: List<LazyListItemInfo>,
@@ -49,7 +51,9 @@ internal class LazyListMeasureResult(
     /** see [LazyListLayoutInfo.orientation] */
     override val orientation: Orientation,
     /** see [LazyListLayoutInfo.afterContentPadding] */
-    override val afterContentPadding: Int
+    override val afterContentPadding: Int,
+    /** see [LazyListLayoutInfo.mainAxisItemSpacing] */
+    override val mainAxisItemSpacing: Int
 ) : LazyListLayoutInfo, MeasureResult by measureResult {
     override val viewportSize: IntSize
         get() = IntSize(width, height)

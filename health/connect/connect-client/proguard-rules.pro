@@ -26,3 +26,7 @@
 # Permissions are put into Intents and retrieved via getParcelable, which uses
 # reflection and require name to be kept in client apps.
 -keepnames class androidx.health.platform.client.permission.Permission
+
+# ExerciseRoute is put into Intents and retrieved via getParcelable, which uses
+# reflection and require name to be kept in client apps.
+-keepnames class androidx.health.platform.client.exerciseroute.ExerciseRoute

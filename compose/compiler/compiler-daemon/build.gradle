@@ -40,10 +40,13 @@ shadowJar {
     archiveBaseName = 'kotlin-compiler-daemon'
 }
 
+project.tasks.named("shadowJar").configure { shadowJar ->
+    shadowJar.outputs.doNotCacheIf("Restoring from cache often takes longer", { true })
+}
+
 androidx {
     name = "Compose Compiler Daemon"
     type = LibraryType.COMPILER_DAEMON
-    mavenGroup = LibraryGroups.COMPOSE_COMPILER
     inceptionYear = "2021"
     description = "Compiler Daemon that includes the Compose plugin"
 }

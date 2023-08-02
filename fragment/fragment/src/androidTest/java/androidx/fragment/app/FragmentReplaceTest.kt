@@ -23,7 +23,10 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.testutils.withActivity
+import androidx.testutils.withUse
 import com.google.common.truth.Truth.assertThat
+import leakcanary.DetectLeaksAfterTestSuccess
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -34,9 +37,12 @@ import org.junit.runner.RunWith
 @LargeTest
 class FragmentReplaceTest {
 
+    @get:Rule
+    val rule = DetectLeaksAfterTestSuccess()
+
     @Test
     fun testReplaceFragment() {
-        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+       withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             val fm = withActivity { supportFragmentManager }
 
             fm.beginTransaction()
@@ -76,7 +82,7 @@ class FragmentReplaceTest {
 
     @Test
     fun testReplaceFragmentInOnCreate() {
-        with(ActivityScenario.launch(ReplaceInCreateActivity::class.java)) {
+       withUse(ActivityScenario.launch(ReplaceInCreateActivity::class.java)) {
             val replaceInCreateFragment = withActivity { this.replaceInCreateFragment }
 
             assertThat(replaceInCreateFragment.isAdded)

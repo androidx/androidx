@@ -24,6 +24,7 @@ import androidx.camera.camera2.pipe.AeMode
 import androidx.camera.camera2.pipe.AfMode
 import androidx.camera.camera2.pipe.AwbMode
 import androidx.camera.camera2.pipe.CameraGraph
+import androidx.camera.camera2.pipe.FrameMetadata
 import androidx.camera.camera2.pipe.Lock3ABehavior
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.Result3A
@@ -49,6 +50,7 @@ internal class CameraGraphSessionImpl(
 
     override fun submit(requests: List<Request>) {
         check(!closed.value) { "Cannot call submit on $this after close." }
+        check(requests.isNotEmpty()) { "Cannot call submit with an empty list of Requests!" }
         graphProcessor.submit(requests)
     }
 
@@ -65,6 +67,7 @@ internal class CameraGraphSessionImpl(
     override fun stopRepeating() {
         check(!closed.value) { "Cannot call stopRepeating on $this after close." }
         graphProcessor.stopRepeating()
+        controller3A.onStopRepeating()
     }
 
     override fun close() {
@@ -121,6 +124,9 @@ internal class CameraGraphSessionImpl(
         aeLockBehavior: Lock3ABehavior?,
         afLockBehavior: Lock3ABehavior?,
         awbLockBehavior: Lock3ABehavior?,
+        afTriggerStartAeMode: AeMode?,
+        convergedCondition: ((FrameMetadata) -> Boolean)?,
+        lockedCondition: ((FrameMetadata) -> Boolean)?,
         frameLimit: Int,
         timeLimitNs: Long
     ): Deferred<Result3A> {
@@ -135,22 +141,33 @@ internal class CameraGraphSessionImpl(
             aeLockBehavior,
             afLockBehavior,
             awbLockBehavior,
+            afTriggerStartAeMode,
+            convergedCondition,
+            lockedCondition,
             frameLimit,
             timeLimitNs
         )
     }
 
-    override suspend fun unlock3A(ae: Boolean?, af: Boolean?, awb: Boolean?): Deferred<Result3A> {
+    override suspend fun unlock3A(
+        ae: Boolean?,
+        af: Boolean?,
+        awb: Boolean?,
+        unlockedCondition: ((FrameMetadata) -> Boolean)?,
+        frameLimit: Int,
+        timeLimitNs: Long
+    ): Deferred<Result3A> {
         check(!closed.value) { "Cannot call unlock3A on $this after close." }
-        return controller3A.unlock3A(ae, af, awb)
+        return controller3A.unlock3A(ae, af, awb, unlockedCondition, frameLimit, timeLimitNs)
     }
 
     override suspend fun lock3AForCapture(
+        lockedCondition: ((FrameMetadata) -> Boolean)?,
         frameLimit: Int,
         timeLimitNs: Long
     ): Deferred<Result3A> {
         check(!closed.value) { "Cannot call lock3AForCapture on $this after close." }
-        return controller3A.lock3AForCapture(frameLimit, timeLimitNs)
+        return controller3A.lock3AForCapture(lockedCondition, frameLimit, timeLimitNs)
     }
 
     override suspend fun unlock3APostCapture(): Deferred<Result3A> {

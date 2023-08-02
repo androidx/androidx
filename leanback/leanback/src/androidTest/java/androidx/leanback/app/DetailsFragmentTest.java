@@ -176,6 +176,7 @@ public class DetailsFragmentTest extends SingleFragmentTestBase {
         assertEquals(0f, frameBottom.getAdapterPosition(), delta);
     }
 
+    @SdkSuppress(minSdkVersion = 22) // b/271026235
     @Test
     public void parallaxTest() throws Throwable {
         SingleFragmentTestActivity activity = launchAndWaitActivity(DetailsFragmentParallax.class,

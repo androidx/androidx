@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.lazy.grid
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -31,6 +32,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
@@ -50,6 +52,7 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 
+@OptIn(ExperimentalFoundationApi::class)
 class LazyArrangementsTest {
 
     private val ContainerTag = "ContainerTag"
@@ -529,6 +532,242 @@ class LazyArrangementsTest {
         }
 
         assertArrangementForTwoItems(Arrangement.End, LayoutDirection.Ltr)
+    }
+
+    @Test
+    fun vertical_negativeSpacing_itemsVisible() {
+        val state = LazyGridState()
+        val halfItemSize = itemSize / 2
+        rule.setContent {
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(1),
+                modifier = Modifier.requiredSize(itemSize),
+                verticalArrangement = Arrangement.spacedBy(-halfItemSize),
+                state = state
+            ) {
+                items(100) { index ->
+                    Box(Modifier.size(itemSize).testTag(index.toString()))
+                }
+            }
+        }
+
+        rule.onNodeWithTag("0")
+            .assertTopPositionInRootIsEqualTo(0.dp)
+        rule.onNodeWithTag("1")
+            .assertTopPositionInRootIsEqualTo(halfItemSize)
+
+        rule.runOnIdle {
+            assertThat(state.firstVisibleItemIndex).isEqualTo(0)
+            assertThat(state.firstVisibleItemScrollOffset).isEqualTo(0)
+
+            runBlocking {
+                state.scrollBy(with(rule.density) { halfItemSize.toPx() })
+            }
+
+            assertThat(state.firstVisibleItemIndex).isEqualTo(1)
+            assertThat(state.firstVisibleItemScrollOffset).isEqualTo(0)
+        }
+
+        rule.onNodeWithTag("0")
+            .assertTopPositionInRootIsEqualTo(-halfItemSize)
+        rule.onNodeWithTag("1")
+            .assertTopPositionInRootIsEqualTo(0.dp)
+    }
+
+    @Test
+    fun horizontal_negativeSpacing_negative_itemsVisible() {
+        val state = LazyGridState()
+        val halfItemSize = itemSize / 2
+        rule.setContent {
+            LazyHorizontalGrid(
+                rows = GridCells.Fixed(1),
+                modifier = Modifier.requiredSize(itemSize),
+                horizontalArrangement = Arrangement.spacedBy(-halfItemSize),
+                state = state
+            ) {
+                items(100) { index ->
+                    Box(Modifier.size(itemSize).testTag(index.toString()))
+                }
+            }
+        }
+
+        rule.onNodeWithTag("0")
+            .assertLeftPositionInRootIsEqualTo(0.dp)
+        rule.onNodeWithTag("1")
+            .assertLeftPositionInRootIsEqualTo(halfItemSize)
+
+        rule.runOnIdle {
+            assertThat(state.firstVisibleItemIndex).isEqualTo(0)
+            assertThat(state.firstVisibleItemScrollOffset).isEqualTo(0)
+
+            runBlocking {
+                state.scrollBy(with(rule.density) { halfItemSize.toPx() })
+            }
+
+            assertThat(state.firstVisibleItemIndex).isEqualTo(1)
+            assertThat(state.firstVisibleItemScrollOffset).isEqualTo(0)
+        }
+
+        rule.onNodeWithTag("0")
+            .assertLeftPositionInRootIsEqualTo(-halfItemSize)
+        rule.onNodeWithTag("1")
+            .assertLeftPositionInRootIsEqualTo(0.dp)
+    }
+
+    @Test
+    fun vertical_negativeSpacingLargerThanItem_itemsVisible() {
+        val state = LazyGridState(firstVisibleItemIndex = 2)
+        val largerThanItemSize = itemSize * 1.5f
+        rule.setContent {
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(2),
+                modifier = Modifier.requiredSize(width = itemSize * 2, height = itemSize),
+                verticalArrangement = Arrangement.spacedBy(-largerThanItemSize),
+                state = state
+            ) {
+                items(8) { index ->
+                    Box(Modifier.size(itemSize).testTag(index.toString()))
+                }
+            }
+        }
+
+        repeat(8) {
+            rule.onNodeWithTag("$it")
+                .assertTopPositionInRootIsEqualTo(0.dp)
+        }
+
+        rule.runOnIdle {
+            assertThat(state.firstVisibleItemIndex).isEqualTo(0)
+            assertThat(state.firstVisibleItemScrollOffset).isEqualTo(0)
+        }
+    }
+
+    @Test
+    fun horizontal_negativeSpacingLargerThanItem_itemsVisible() {
+        val state = LazyGridState(firstVisibleItemIndex = 2)
+        val largerThanItemSize = itemSize * 1.5f
+        rule.setContent {
+            LazyHorizontalGrid(
+                rows = GridCells.Fixed(2),
+                modifier = Modifier.requiredSize(width = itemSize, height = itemSize * 2),
+                horizontalArrangement = Arrangement.spacedBy(-largerThanItemSize),
+                state = state
+            ) {
+                items(8) { index ->
+                    Box(Modifier.size(itemSize).testTag(index.toString()))
+                }
+            }
+        }
+
+        repeat(8) {
+            rule.onNodeWithTag("$it")
+                .assertLeftPositionInRootIsEqualTo(0.dp)
+        }
+
+        rule.runOnIdle {
+            assertThat(state.firstVisibleItemIndex).isEqualTo(0)
+            assertThat(state.firstVisibleItemScrollOffset).isEqualTo(0)
+        }
+    }
+
+    @Test
+    fun horizontal_nonDefaultCrossAxisArrangement() {
+        val state = LazyGridState()
+        rule.setContent {
+            LazyHorizontalGrid(
+                rows = GridCells.FixedSize(itemSize * 2),
+                modifier = Modifier.requiredSize(width = itemSize * 5, height = itemSize * 5),
+                verticalArrangement = Arrangement.Center,
+                state = state
+            ) {
+                items(100) { index ->
+                    Box(Modifier.size(itemSize).testTag(index.toString()))
+                }
+            }
+        }
+
+        rule.onNodeWithTag("0")
+            .assertTopPositionInRootIsEqualTo(itemSize * 0.5f)
+            .assertHeightIsEqualTo(itemSize * 2f)
+
+        rule.onNodeWithTag("1")
+            .assertTopPositionInRootIsEqualTo(itemSize * 2.5f)
+            .assertHeightIsEqualTo(itemSize * 2f)
+    }
+
+    @Test
+    fun vertical_nonDefaultCrossAxisArrangement() {
+        val state = LazyGridState()
+        rule.setContent {
+            LazyVerticalGrid(
+                columns = GridCells.FixedSize(itemSize * 2),
+                modifier = Modifier.requiredSize(width = itemSize * 5, height = itemSize * 5),
+                horizontalArrangement = Arrangement.Center,
+                state = state
+            ) {
+                items(100) { index ->
+                    Box(Modifier.size(itemSize).testTag(index.toString()))
+                }
+            }
+        }
+
+        rule.onNodeWithTag("0")
+            .assertLeftPositionInRootIsEqualTo(itemSize * 0.5f)
+            .assertWidthIsEqualTo(itemSize * 2f)
+
+        rule.onNodeWithTag("1")
+            .assertLeftPositionInRootIsEqualTo(itemSize * 2.5f)
+            .assertWidthIsEqualTo(itemSize * 2f)
+    }
+
+    @Test
+    fun horizontal_crossAxisArrangement_withAlignment() {
+        val state = LazyGridState()
+        rule.setContent {
+            LazyHorizontalGrid(
+                rows = GridCells.FixedSize(itemSize * 2),
+                modifier = Modifier.requiredSize(width = itemSize * 5, height = itemSize * 5),
+                verticalArrangement = Arrangement.spacedBy(itemSize * 0.5f, Alignment.Bottom),
+                state = state
+            ) {
+                items(100) { index ->
+                    Box(Modifier.size(itemSize).testTag(index.toString()))
+                }
+            }
+        }
+
+        rule.onNodeWithTag("0")
+            .assertTopPositionInRootIsEqualTo(itemSize * 0.5f)
+            .assertHeightIsEqualTo(itemSize * 2f)
+
+        rule.onNodeWithTag("1")
+            .assertTopPositionInRootIsEqualTo(itemSize * 3f)
+            .assertHeightIsEqualTo(itemSize * 2f)
+    }
+
+    @Test
+    fun vertical_crossAxisArrangement_withAlignment() {
+        val state = LazyGridState()
+        rule.setContent {
+            LazyVerticalGrid(
+                columns = GridCells.FixedSize(itemSize * 2),
+                modifier = Modifier.requiredSize(width = itemSize * 5, height = itemSize * 5),
+                horizontalArrangement = Arrangement.spacedBy(itemSize * 0.5f, Alignment.End),
+                state = state
+            ) {
+                items(100) { index ->
+                    Box(Modifier.size(itemSize).testTag(index.toString()))
+                }
+            }
+        }
+
+        rule.onNodeWithTag("0")
+            .assertLeftPositionInRootIsEqualTo(itemSize * 0.5f)
+            .assertWidthIsEqualTo(itemSize * 2f)
+
+        rule.onNodeWithTag("1")
+            .assertLeftPositionInRootIsEqualTo(itemSize * 3f)
+            .assertWidthIsEqualTo(itemSize * 2f)
     }
 
     fun composeVerticalGridWith(arrangement: Arrangement.Vertical) {

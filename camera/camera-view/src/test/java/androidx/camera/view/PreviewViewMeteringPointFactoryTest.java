@@ -18,6 +18,7 @@ package androidx.camera.view;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import android.graphics.Matrix;
 import android.graphics.PointF;
 import android.graphics.Rect;
 import android.os.Build;
@@ -66,8 +67,15 @@ public class PreviewViewMeteringPointFactoryTest {
         // Arrange.
         PreviewTransformation previewTransformation = new PreviewTransformation();
         previewTransformation.setTransformationInfo(
-                SurfaceRequest.TransformationInfo.of(new Rect(0, 0, WIDTH, HEIGHT), 0,
-                        Surface.ROTATION_0), new Size(WIDTH, HEIGHT), false);
+                SurfaceRequest.TransformationInfo.of(
+                        new Rect(0, 0, WIDTH, HEIGHT),
+                        0,
+                        Surface.ROTATION_0,
+                        /*hasCameraTransform=*/true,
+                        /*sensorToBufferTransform=*/new Matrix(),
+                        /*mirroring=*/false),
+                new Size(WIDTH, HEIGHT),
+                /*isFrontCamera=*/false);
         PreviewViewMeteringPointFactory previewViewMeteringPointFactory =
                 new PreviewViewMeteringPointFactory(previewTransformation);
 
@@ -85,8 +93,15 @@ public class PreviewViewMeteringPointFactoryTest {
         // Arrange.
         PreviewTransformation previewTransformation = new PreviewTransformation();
         previewTransformation.setTransformationInfo(
-                SurfaceRequest.TransformationInfo.of(new Rect(0, 0, WIDTH, HEIGHT), 0,
-                        Surface.ROTATION_0), new Size(WIDTH, HEIGHT), false);
+                SurfaceRequest.TransformationInfo.of(
+                        new Rect(0, 0, WIDTH, HEIGHT),
+                        /*rotationDegrees=*/0,
+                        Surface.ROTATION_0,
+                        /*hasCameraTransform=*/true,
+                        /*sensorToBufferTransform=*/new Matrix(),
+                        /*mirroring=*/false),
+                new Size(WIDTH, HEIGHT),
+                /*isFrontCamera=*/false);
         PreviewViewMeteringPointFactory previewViewMeteringPointFactory =
                 new PreviewViewMeteringPointFactory(previewTransformation);
 

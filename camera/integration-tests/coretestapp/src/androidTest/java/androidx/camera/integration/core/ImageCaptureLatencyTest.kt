@@ -26,9 +26,10 @@ import androidx.camera.core.ImageProxy
 import androidx.camera.core.Logger
 import androidx.camera.core.internal.CameraUseCaseAdapter
 import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.camera.testing.CameraUtil
-import androidx.camera.testing.LabTestRule
-import androidx.camera.testing.fakes.FakeLifecycleOwner
+import androidx.camera.testing.impl.CameraPipeConfigTestRule
+import androidx.camera.testing.impl.CameraUtil
+import androidx.camera.testing.impl.LabTestRule
+import androidx.camera.testing.impl.fakes.FakeLifecycleOwner
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
 import java.util.concurrent.CountDownLatch
@@ -62,6 +63,11 @@ class ImageCaptureLatencyTest(
     private val implName: String,
     private val cameraXConfig: CameraXConfig
 ) {
+
+    @get:Rule
+    val cameraPipeConfigTestRule = CameraPipeConfigTestRule(
+        active = implName == CameraPipeConfig::class.simpleName,
+    )
 
     @get:Rule
     val useCamera = CameraUtil.grantCameraPermissionAndPreTest(
@@ -102,7 +108,6 @@ class ImageCaptureLatencyTest(
     fun tearDown() = runBlocking {
         if (::cameraProvider.isInitialized) {
             withContext(Dispatchers.Main) {
-                cameraProvider.unbindAll()
                 cameraProvider.shutdown()
             }
         }

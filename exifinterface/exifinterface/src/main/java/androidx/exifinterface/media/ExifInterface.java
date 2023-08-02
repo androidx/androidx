@@ -88,7 +88,7 @@ import java.util.zip.CRC32;
  * <p>
  * Supported for reading: JPEG, PNG, WebP, HEIF, DNG, CR2, NEF, NRW, ARW, RW2, ORF, PEF, SRW, RAF.
  * <p>
- * Supported for writing: JPEG, PNG, WebP, DNG.
+ * Supported for writing: JPEG, PNG, WebP.
  * <p>
  * Note: JPEG and HEIF files may contain XMP data either inside the Exif data chunk or outside of
  * it. This class will search both locations for XMP data, but if XMP data exist both inside and
@@ -2147,7 +2147,6 @@ public class ExifInterface {
     // TODO: Unhide this when it can be public.
     /**
      * @see #TAG_ORIENTATION
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public static final String TAG_THUMBNAIL_ORIENTATION = "ThumbnailOrientation";
@@ -2953,7 +2952,6 @@ public class ExifInterface {
      */
     public static final int STREAM_TYPE_EXIF_DATA_ONLY = 1;
 
-    /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({STREAM_TYPE_FULL_IMAGE_DATA, STREAM_TYPE_EXIF_DATA_ONLY})
@@ -3719,7 +3717,6 @@ public class ExifInterface {
             new ExifTag(TAG_Y_CB_CR_SUB_SAMPLING, 530, IFD_FORMAT_USHORT),
             new ExifTag(TAG_Y_CB_CR_POSITIONING, 531, IFD_FORMAT_USHORT),
             new ExifTag(TAG_REFERENCE_BLACK_WHITE, 532, IFD_FORMAT_URATIONAL),
-            new ExifTag(TAG_XMP, 700, IFD_FORMAT_BYTE),
             new ExifTag(TAG_COPYRIGHT, 33432, IFD_FORMAT_STRING),
             new ExifTag(TAG_EXIF_IFD_POINTER, 34665, IFD_FORMAT_ULONG),
             new ExifTag(TAG_GPS_INFO_IFD_POINTER, 34853, IFD_FORMAT_ULONG),
@@ -3753,7 +3750,6 @@ public class ExifInterface {
     // The following values are used for indicating pointers to the other Image File Directories.
 
     // Indices of Exif Ifd tag groups
-    /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({IFD_TYPE_PRIMARY, IFD_TYPE_EXIF, IFD_TYPE_GPS, IFD_TYPE_INTEROPERABILITY,
@@ -4653,7 +4649,7 @@ public class ExifInterface {
      * other. It's best to use {@link #setAttribute(String,String)} to set all attributes to write
      * and make a single call rather than multiple calls for each attribute.
      * <p>
-     * This method is supported for JPEG, PNG, WebP, and DNG formats.
+     * This method is supported for JPEG, PNG, and WebP formats.
      * <p class="note">
      * Note: after calling this method, any attempts to obtain range information
      * from {@link #getAttributeRange(String)} or {@link #getThumbnailRange()}
@@ -4669,7 +4665,7 @@ public class ExifInterface {
     public void saveAttributes() throws IOException {
         if (!isSupportedFormatForSavingAttributes(mMimeType)) {
             throw new IOException("ExifInterface only supports saving attributes for JPEG, PNG, "
-                    + "WebP, and DNG formats.");
+                    + "and WebP formats.");
         }
         if (mSeekableFileDescriptor == null && mFilename == null) {
             throw new IOException(
@@ -4738,10 +4734,6 @@ public class ExifInterface {
                 savePngAttributes(bufferedIn, bufferedOut);
             } else if (mMimeType == IMAGE_TYPE_WEBP) {
                 saveWebpAttributes(bufferedIn, bufferedOut);
-            } else if (mMimeType == IMAGE_TYPE_DNG || mMimeType == IMAGE_TYPE_UNKNOWN) {
-                ByteOrderedDataOutputStream dataOutputStream =
-                        new ByteOrderedDataOutputStream(bufferedOut, BIG_ENDIAN);
-                writeExifSegment(dataOutputStream);
             }
         } catch (Exception e) {
             try {
@@ -5119,7 +5111,6 @@ public class ExifInterface {
      * Set the date time value.
      *
      * @param timeStamp number of milliseconds since Jan. 1, 1970, midnight local time.
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public void setDateTime(@NonNull Long timeStamp) {
@@ -5149,7 +5140,6 @@ public class ExifInterface {
      *
      * @return null if date time information is unavailable or invalid.
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Nullable
@@ -5168,7 +5158,6 @@ public class ExifInterface {
      *
      * @return null if digitized date time information is unavailable or invalid.
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Nullable
@@ -5187,7 +5176,6 @@ public class ExifInterface {
      *
      * @return null if original date time information is unavailable or invalid.
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Nullable
@@ -6502,6 +6490,11 @@ public class ExifInterface {
                 // Skip input stream to the end of the EXIF chunk
                 totalInputStream.skipFully(WEBP_CHUNK_TYPE_BYTE_LENGTH);
                 int exifChunkLength = totalInputStream.readInt();
+                // RIFF chunks have a single padding byte at the end if the declared chunk size is
+                // odd.
+                if (exifChunkLength % 2 != 0) {
+                    exifChunkLength++;
+                }
                 totalInputStream.skipFully(exifChunkLength);
 
                 // Write new EXIF chunk to output stream
@@ -6574,7 +6567,7 @@ public class ExifInterface {
                     int widthAndHeight = 0;
                     int width = 0;
                     int height = 0;
-                    int alpha = 0;
+                    boolean alpha = false;
                     // Save VP8 frame data for later
                     byte[] vp8Frame = new byte[3];
 
@@ -6602,12 +6595,12 @@ public class ExifInterface {
 
                         // Retrieve image width/height
                         widthAndHeight = totalInputStream.readInt();
-                        // VP8L stores width - 1 and height - 1 values. See "2 RIFF Header" of
-                        // "WebP Lossless Bitstream Specification"
-                        width = ((widthAndHeight << 18) >> 18) + 1;
-                        height = ((widthAndHeight << 4) >> 18) + 1;
-                        // Retrieve alpha bit
-                        alpha = widthAndHeight & (1 << 3);
+                        // VP8L stores 14-bit 'width - 1' and 'height - 1' values. See "RIFF Header"
+                        // of "WebP Lossless Bitstream Specification".
+                        width = (widthAndHeight & 0x3FFF) + 1;  // Read bits 0 - 13
+                        height = ((widthAndHeight & 0xFFFC000) >>> 14) + 1;  // Read bits 14 - 27
+                        // Retrieve alpha bit 28
+                        alpha = (widthAndHeight & 1 << 28) != 0;
                         bytesToRead -= (1 /* VP8L signature */ + 4);
                     }
 
@@ -6615,10 +6608,12 @@ public class ExifInterface {
                     nonHeaderOutputStream.write(WEBP_CHUNK_TYPE_VP8X);
                     nonHeaderOutputStream.writeInt(WEBP_CHUNK_TYPE_VP8X_DEFAULT_LENGTH);
                     byte[] data = new byte[WEBP_CHUNK_TYPE_VP8X_DEFAULT_LENGTH];
+                    // ALPHA flag
+                    if (alpha) {
+                        data[0] = (byte) (data[0] | (1 << 4));
+                    }
                     // EXIF flag
                     data[0] = (byte) (data[0] | (1 << 3));
-                    // ALPHA flag
-                    data[0] = (byte) (data[0] | (alpha << 4));
                     // VP8X stores Width - 1 and Height - 1 values
                     width -= 1;
                     height -= 1;
@@ -6907,9 +6902,11 @@ public class ExifInterface {
                 }
 
                 // Check if the next IFD offset
-                // 1. Is a non-negative value, and
+                // 1. Is a non-negative value (within the length of the input, if known), and
                 // 2. Does not point to a previously read IFD.
-                if (offset > 0L) {
+                if (offset > 0L
+                        && (dataInputStream.length() == ByteOrderedDataInputStream.LENGTH_UNSET
+                                || offset < dataInputStream.length())) {
                     if (!mAttributesOffsets.contains((int) offset)) {
                         dataInputStream.seek(offset);
                         readImageFileDirectory(dataInputStream, nextIfdType);
@@ -6921,7 +6918,12 @@ public class ExifInterface {
                     }
                 } else {
                     if (DEBUG) {
-                        Log.d(TAG, "Skip jump into the IFD since its offset is invalid: " + offset);
+                        String message =
+                                "Skip jump into the IFD since its offset is invalid: " + offset;
+                        if (dataInputStream.length() != ByteOrderedDataInputStream.LENGTH_UNSET) {
+                            message += " (total length: " + dataInputStream.length() + ")";
+                        }
+                        Log.d(TAG, message);
                     }
                 }
 
@@ -7481,6 +7483,11 @@ public class ExifInterface {
 
         switch (mMimeType) {
             case IMAGE_TYPE_JPEG:
+                if (totalSize > 0xFFFF) {
+                    throw new IllegalStateException(
+                            "Size of exif data (" + totalSize + " bytes) exceeds the max size of a "
+                            + "JPEG APP1 segment (65536 bytes)");
+                }
                 // Write JPEG specific data (APP1 size, APP1 identifier)
                 dataOutputStream.writeUnsignedShort(totalSize);
                 dataOutputStream.write(IDENTIFIER_EXIF_APP1);
@@ -7698,14 +7705,18 @@ public class ExifInterface {
 
     // An input stream class that can parse both little and big endian order data.
     private static class ByteOrderedDataInputStream extends InputStream implements DataInput {
+
+        public static final int LENGTH_UNSET = -1;
         protected final DataInputStream mDataInputStream;
         protected int mPosition;
 
         private ByteOrder mByteOrder;
         private byte[] mSkipBuffer;
+        private int mLength;
 
         ByteOrderedDataInputStream(byte[] bytes) throws IOException {
             this(new ByteArrayInputStream(bytes), BIG_ENDIAN);
+            this.mLength = bytes.length;
         }
 
         ByteOrderedDataInputStream(InputStream in) throws IOException {
@@ -7717,6 +7728,9 @@ public class ExifInterface {
             mDataInputStream.mark(0);
             mPosition = 0;
             mByteOrder = byteOrder;
+            this.mLength = in instanceof ByteOrderedDataInputStream
+                    ? ((ByteOrderedDataInputStream) in).length()
+                    : LENGTH_UNSET;
         }
 
         public void setByteOrder(ByteOrder byteOrder) {
@@ -7943,6 +7957,12 @@ public class ExifInterface {
         public void reset() {
             throw new UnsupportedOperationException("Reset is currently unsupported");
         }
+
+        /** Return the total length (in bytes) of the underlying stream if known, otherwise
+         *  {@link #LENGTH_UNSET}. */
+        public int length() {
+            return mLength;
+        }
     }
 
     // An output stream to write EXIF data area, which can be written in either little or big endian
@@ -8000,10 +8020,18 @@ public class ExifInterface {
         }
 
         public void writeUnsignedShort(int val) throws IOException {
+            if (val > 0xFFFF) {
+                throw new IllegalArgumentException("val is larger than the maximum value of a "
+                        + "16-bit unsigned integer");
+            }
             writeShort((short) val);
         }
 
         public void writeUnsignedInt(long val) throws IOException {
+            if (val > 0xFFFF_FFFFL) {
+                throw new IllegalArgumentException("val is larger than the maximum value of a "
+                        + "32-bit unsigned integer");
+            }
             writeInt((int) val);
         }
     }
@@ -8076,8 +8104,7 @@ public class ExifInterface {
 
     private static boolean isSupportedFormatForSavingAttributes(int mimeType) {
         if (mimeType == IMAGE_TYPE_JPEG || mimeType == IMAGE_TYPE_PNG
-                || mimeType == IMAGE_TYPE_WEBP || mimeType == IMAGE_TYPE_DNG
-                || mimeType == IMAGE_TYPE_UNKNOWN) {
+                || mimeType == IMAGE_TYPE_WEBP) {
             return true;
         }
         return false;

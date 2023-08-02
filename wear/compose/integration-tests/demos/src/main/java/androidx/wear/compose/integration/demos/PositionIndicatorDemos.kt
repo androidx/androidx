@@ -32,6 +32,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -41,6 +43,8 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
+import androidx.wear.compose.foundation.lazy.rememberScalingLazyListState
 import androidx.wear.compose.material.Button
 import androidx.wear.compose.material.Chip
 import androidx.wear.compose.material.MaterialTheme
@@ -49,10 +53,8 @@ import androidx.wear.compose.material.PositionIndicatorAlignment
 import androidx.wear.compose.material.PositionIndicatorState
 import androidx.wear.compose.material.PositionIndicatorVisibility
 import androidx.wear.compose.material.Scaffold
-import androidx.wear.compose.material.ScalingLazyColumn
 import androidx.wear.compose.material.Text
 import androidx.wear.compose.material.ToggleButton
-import androidx.wear.compose.material.rememberScalingLazyListState
 
 @Composable
 fun HideWhenFullDemo() {
@@ -109,9 +111,9 @@ fun HideWhenFullSLCDemo() {
 
 @Composable
 fun ControllablePositionIndicator() {
-    var position = remember { mutableStateOf(0.2f) }
-    var size = remember { mutableStateOf(0.5f) }
-    var alignment by remember { mutableStateOf(0) }
+    val position = remember { mutableFloatStateOf(0.2f) }
+    val size = remember { mutableFloatStateOf(0.5f) }
+    var alignment by remember { mutableIntStateOf(0) }
     var reverseDirection by remember { mutableStateOf(false) }
     var layoutDirection by remember { mutableStateOf(false) }
     val actualLayoutDirection =
@@ -139,24 +141,26 @@ fun ControllablePositionIndicator() {
             }
         ) {
             Box(
-                modifier = Modifier.fillMaxHeight().padding(horizontal = 20.dp),
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .padding(horizontal = 20.dp),
                 contentAlignment = Alignment.Center
             ) {
                 Column {
                     Text("Position")
                     DefaultInlineSlider(
                         modifier = Modifier.height(40.dp),
-                        value = position.value,
+                        value = position.floatValue,
                         valueRange = 0f..1f,
                         steps = 9,
-                        onValueChange = { position.value = it })
+                        onValueChange = { position.floatValue = it })
                     Text("Size")
                     DefaultInlineSlider(
                         modifier = Modifier.height(40.dp),
-                        value = size.value,
+                        value = size.floatValue,
                         valueRange = 0f..1f,
                         steps = 9,
-                        onValueChange = { size.value = it })
+                        onValueChange = { size.floatValue = it })
                     Row(modifier = Modifier.align(Alignment.CenterHorizontally)) {
                         Button(onClick = { alignment = (alignment + 1) % 3 }) {
                             Text(alignmentNames[alignment])
@@ -184,10 +188,10 @@ fun ControllablePositionIndicator() {
 @Composable
 fun SharedPositionIndicator() {
     val listStates = listOf(rememberScrollState(), rememberScrollState())
-    val selected = remember { mutableStateOf(0) }
+    val selected = remember { mutableIntStateOf(0) }
     Scaffold(
         positionIndicator = {
-            PositionIndicator(listStates[selected.value])
+            PositionIndicator(listStates[selected.intValue])
         }
     ) {
         Row(modifier = Modifier.fillMaxSize()) {
@@ -201,7 +205,7 @@ fun SharedPositionIndicator() {
                 ) {
                     repeat(10) {
                         Chip(
-                            onClick = { selected.value = listIndex },
+                            onClick = { selected.intValue = listIndex },
                             label = { Text("#$it") }
                         )
                     }

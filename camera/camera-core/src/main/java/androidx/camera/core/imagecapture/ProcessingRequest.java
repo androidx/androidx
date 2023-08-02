@@ -32,6 +32,8 @@ import androidx.camera.core.ImageProxy;
 import androidx.camera.core.impl.CaptureBundle;
 import androidx.camera.core.impl.CaptureStage;
 
+import com.google.common.util.concurrent.ListenableFuture;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -56,6 +58,8 @@ class ProcessingRequest {
     @NonNull
     private final List<Integer> mStageIds;
 
+    @NonNull final ListenableFuture<Void> mCaptureFuture;
+
     ProcessingRequest(
             @NonNull CaptureBundle captureBundle,
             @Nullable ImageCapture.OutputFileOptions outputFileOptions,
@@ -63,7 +67,8 @@ class ProcessingRequest {
             int rotationDegrees,
             int jpegQuality,
             @NonNull Matrix sensorToBufferTransform,
-            @NonNull TakePictureCallback callback) {
+            @NonNull TakePictureCallback callback,
+            @NonNull ListenableFuture<Void> captureFuture) {
         mOutputFileOptions = outputFileOptions;
         mJpegQuality = jpegQuality;
         mRotationDegrees = rotationDegrees;
@@ -75,6 +80,7 @@ class ProcessingRequest {
         for (CaptureStage captureStage : requireNonNull(captureBundle.getCaptureStages())) {
             mStageIds.add(captureStage.getId());
         }
+        mCaptureFuture = captureFuture;
     }
 
     @NonNull
@@ -110,6 +116,10 @@ class ProcessingRequest {
         return mSensorToBufferTransform;
     }
 
+    boolean isInMemoryCapture() {
+        return getOutputFileOptions() == null;
+    }
+
     /**
      * @see TakePictureCallback#onImageCaptured()
      */
@@ -122,7 +132,7 @@ class ProcessingRequest {
      * @see TakePictureCallback#onFinalResult
      */
     @MainThread
-    void onFinalResult(@Nullable ImageCapture.OutputFileResults outputFileResults) {
+    void onFinalResult(@NonNull ImageCapture.OutputFileResults outputFileResults) {
         mCallback.onFinalResult(outputFileResults);
     }
 
@@ -130,7 +140,7 @@ class ProcessingRequest {
      * @see TakePictureCallback#onFinalResult
      */
     @MainThread
-    void onFinalResult(@Nullable ImageProxy imageProxy) {
+    void onFinalResult(@NonNull ImageProxy imageProxy) {
         mCallback.onFinalResult(imageProxy);
     }
 
@@ -140,5 +150,25 @@ class ProcessingRequest {
     @MainThread
     void onProcessFailure(@NonNull ImageCaptureException imageCaptureException) {
         mCallback.onProcessFailure(imageCaptureException);
+    }
+
+    /**
+     * @see TakePictureCallback#onCaptureFailure
+     */
+    @MainThread
+    void onCaptureFailure(@NonNull ImageCaptureException imageCaptureException) {
+        mCallback.onCaptureFailure(imageCaptureException);
+    }
+
+    /**
+     * Returns true if the request has been aborted by the app/lifecycle.
+     */
+    boolean isAborted() {
+        return mCallback.isAborted();
+    }
+
+    @NonNull
+    ListenableFuture<Void> getCaptureFuture() {
+        return mCaptureFuture;
     }
 }

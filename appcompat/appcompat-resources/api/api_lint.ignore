@@ -1,6 +1,4 @@
 // Baseline format: 1.0
-InvalidNullabilityOverride: androidx.appcompat.graphics.drawable.DrawableContainerCompat#onStateChange(int[]) parameter #0:
-    Invalid nullability on parameter `state` in method `onStateChange`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
 InvalidNullabilityOverride: androidx.appcompat.graphics.drawable.DrawableContainerCompat#setTintMode(android.graphics.PorterDuff.Mode) parameter #0:
     Invalid nullability on parameter `tintMode` in method `setTintMode`. Parameters of overrides cannot be NonNull if super parameter is Nullable.
 
@@ -29,8 +27,6 @@ MissingNullability: androidx.appcompat.graphics.drawable.DrawableWrapperCompat#g
     Missing nullability on method `getState` return
 MissingNullability: androidx.appcompat.graphics.drawable.DrawableWrapperCompat#getTransparentRegion():
     Missing nullability on method `getTransparentRegion` return
-MissingNullability: androidx.appcompat.graphics.drawable.DrawableWrapperCompat#getWrappedDrawable():
-    Missing nullability on method `getWrappedDrawable` return
 MissingNullability: androidx.appcompat.graphics.drawable.DrawableWrapperCompat#invalidateDrawable(android.graphics.drawable.Drawable) parameter #0:
     Missing nullability on parameter `who` in method `invalidateDrawable`
 MissingNullability: androidx.appcompat.graphics.drawable.DrawableWrapperCompat#onBoundsChange(android.graphics.Rect) parameter #0:
@@ -47,8 +43,6 @@ MissingNullability: androidx.appcompat.graphics.drawable.DrawableWrapperCompat#s
     Missing nullability on parameter `tint` in method `setTintList`
 MissingNullability: androidx.appcompat.graphics.drawable.DrawableWrapperCompat#setTintMode(android.graphics.PorterDuff.Mode) parameter #0:
     Missing nullability on parameter `tintMode` in method `setTintMode`
-MissingNullability: androidx.appcompat.graphics.drawable.DrawableWrapperCompat#setWrappedDrawable(android.graphics.drawable.Drawable) parameter #0:
-    Missing nullability on parameter `drawable` in method `setWrappedDrawable`
 MissingNullability: androidx.appcompat.graphics.drawable.DrawableWrapperCompat#unscheduleDrawable(android.graphics.drawable.Drawable, Runnable) parameter #0:
     Missing nullability on parameter `who` in method `unscheduleDrawable`
 MissingNullability: androidx.appcompat.graphics.drawable.DrawableWrapperCompat#unscheduleDrawable(android.graphics.drawable.Drawable, Runnable) parameter #1:

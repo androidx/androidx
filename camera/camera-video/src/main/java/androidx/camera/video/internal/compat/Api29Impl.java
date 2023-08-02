@@ -22,6 +22,7 @@ import android.media.AudioRecordingConfiguration;
 
 import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
 import java.util.concurrent.Executor;
@@ -33,6 +34,19 @@ import java.util.concurrent.Executor;
 public final class Api29Impl {
 
     private Api29Impl() {
+    }
+
+    /**
+     * Returns the current active audio recording for this audio recorder.
+     *
+     * @param audioRecord
+     * @return a valid AudioRecordingConfiguration if this recorder is active or null otherwise.
+     */
+    @Nullable
+    @DoNotInline
+    public static AudioRecordingConfiguration getActiveRecordingConfiguration(
+            @NonNull AudioRecord audioRecord) {
+        return audioRecord.getActiveRecordingConfiguration();
     }
 
     /**

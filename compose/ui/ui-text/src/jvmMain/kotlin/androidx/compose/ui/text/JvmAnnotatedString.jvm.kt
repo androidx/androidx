@@ -18,7 +18,6 @@ package androidx.compose.ui.text
 
 import androidx.compose.ui.text.AnnotatedString.Range
 import androidx.compose.ui.util.fastMap
-
 import java.util.SortedSet
 
 /**
@@ -31,8 +30,8 @@ internal actual fun AnnotatedString.transform(
     transform: (String, Int, Int) -> String
 ): AnnotatedString {
     val transitions = sortedSetOf(0, text.length)
-    collectRangeTransitions(spanStyles, transitions)
-    collectRangeTransitions(paragraphStyles, transitions)
+    collectRangeTransitions(spanStylesOrNull, transitions)
+    collectRangeTransitions(paragraphStylesOrNull, transitions)
     collectRangeTransitions(annotations, transitions)
 
     var resultStr = ""
@@ -42,21 +41,21 @@ internal actual fun AnnotatedString.transform(
         offsetMap.put(end, resultStr.length)
     }
 
-    val newSpanStyles = spanStyles.fastMap {
+    val newSpanStyles = spanStylesOrNull?.fastMap {
         // The offset map must have mapping entry from all style start, end position.
         Range(it.item, offsetMap[it.start]!!, offsetMap[it.end]!!)
     }
-    val newParaStyles = paragraphStyles.fastMap {
+    val newParaStyles = paragraphStylesOrNull?.fastMap {
         Range(it.item, offsetMap[it.start]!!, offsetMap[it.end]!!)
     }
-    val newAnnotations = annotations.fastMap {
+    val newAnnotations = annotations?.fastMap {
         Range(it.item, offsetMap[it.start]!!, offsetMap[it.end]!!)
     }
 
     return AnnotatedString(
         text = resultStr,
-        spanStyles = newSpanStyles,
-        paragraphStyles = newParaStyles,
+        spanStylesOrNull = newSpanStyles,
+        paragraphStylesOrNull = newParaStyles,
         annotations = newAnnotations
     )
 }
@@ -68,10 +67,10 @@ internal actual fun AnnotatedString.transform(
  * @param target The output list
  */
 private fun collectRangeTransitions(
-    ranges: List<Range<*>>,
+    ranges: List<Range<*>>?,
     target: SortedSet<Int>
 ) {
-    ranges.fastFold(target) { acc, range ->
+    ranges?.fastFold(target) { acc, range ->
         acc.apply {
             add(range.start)
             add(range.end)

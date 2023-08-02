@@ -45,7 +45,9 @@ public class TestLifecycleOwner @JvmOverloads constructor(
     private val lifecycleRegistry = LifecycleRegistry.createUnsafe(this).apply {
         currentState = initialState
     }
-    override fun getLifecycle(): LifecycleRegistry = lifecycleRegistry
+
+    override val lifecycle: LifecycleRegistry
+        get() = lifecycleRegistry
 
     /**
      * Update the [currentState] by moving it to the state directly after the given [event].

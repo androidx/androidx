@@ -18,18 +18,18 @@
 @file:JvmMultifileClass
 package androidx.compose.runtime
 
+import androidx.compose.runtime.collection.IdentityArraySet
 import androidx.compose.runtime.snapshots.Snapshot
+import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.EmptyCoroutineContext
+import kotlin.jvm.JvmMultifileClass
+import kotlin.jvm.JvmName
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.withContext
-import kotlin.coroutines.CoroutineContext
-import kotlin.coroutines.EmptyCoroutineContext
-// Explicit imports for these needed in common source sets.
-import kotlin.jvm.JvmName
-import kotlin.jvm.JvmMultifileClass
 
 /**
  * Collects values from this [StateFlow] and represents its latest value via [State].
@@ -111,7 +111,7 @@ fun <T> snapshotFlow(
     block: () -> T
 ): Flow<T> = flow {
     // Objects read the last time block was run
-    val readSet = mutableSetOf<Any>()
+    val readSet = IdentityArraySet<Any>()
     val readObserver: (Any) -> Unit = { readSet.add(it) }
 
     // This channel may not block or lose data on a trySend call.
@@ -169,5 +169,9 @@ fun <T> snapshotFlow(
 /**
  * Return `true` if there are any elements shared between `this` and [other]
  */
-private fun <T> Set<T>.intersects(other: Set<T>): Boolean =
-    if (size < other.size) any { it in other } else other.any { it in this }
+private fun <T : Any> IdentityArraySet<T>.intersects(other: Set<T>): Boolean =
+    when {
+        size < other.size -> fastAny { it in other }
+        other is IdentityArraySet<T> -> other.fastAny { it in this }
+        else -> other.any { it in this }
+    }

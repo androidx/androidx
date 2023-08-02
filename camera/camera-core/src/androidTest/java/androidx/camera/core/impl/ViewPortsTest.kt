@@ -24,12 +24,12 @@ import android.util.Size
 import androidx.camera.core.UseCase
 import androidx.camera.core.ViewPort
 import androidx.camera.core.internal.ViewPorts
-import androidx.camera.testing.fakes.FakeUseCaseConfig
+import androidx.camera.testing.impl.ConstraintEnclosedTestRunner
+import androidx.camera.testing.impl.fakes.FakeUseCaseConfig
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth
 import org.junit.Test
-import org.junit.experimental.runners.Enclosed
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
@@ -39,7 +39,7 @@ import org.junit.runners.Parameterized
 @SmallTest
 @SuppressLint("UnsupportedTestRunner")
 @RunWith(
-    Enclosed::class
+    ConstraintEnclosedTestRunner::class
 )
 @SdkSuppress(minSdkVersion = 21)
 object ViewPortsTest {
@@ -686,10 +686,10 @@ object ViewPortsTest {
             // Arrange.
             // Convert the sizes into a UseCase map.
             val orderedUseCases: MutableList<UseCase> = ArrayList()
-            val useCaseSizeMap = HashMap<UseCase?, Size?>().apply {
+            val useCaseStreamSpecMap = HashMap<UseCase?, StreamSpec?>().apply {
                 for (size in surfaceSizes) {
                     val fakeUseCase = FakeUseCaseConfig.Builder().build()
-                    put(fakeUseCase, size)
+                    put(fakeUseCase, StreamSpec.builder(size).build())
                     orderedUseCases.add(fakeUseCase)
                 }
             }
@@ -702,7 +702,7 @@ object ViewPortsTest {
                 rotationDegrees,
                 scaleType,
                 layoutDirection,
-                useCaseSizeMap
+                useCaseStreamSpecMap
             )
 
             // Assert.

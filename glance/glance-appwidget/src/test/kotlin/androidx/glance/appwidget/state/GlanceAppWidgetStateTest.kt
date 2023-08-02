@@ -17,28 +17,27 @@
 package androidx.glance.appwidget.state
 
 import android.content.Context
-import androidx.compose.runtime.Composable
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.preferencesOf
+import androidx.glance.GlanceId
 import androidx.glance.appwidget.AppWidgetId
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.createUniqueRemoteUiName
+import androidx.glance.appwidget.provideContent
 import androidx.glance.state.GlanceState
 import androidx.glance.state.GlanceStateDefinition
 import androidx.glance.state.PreferencesGlanceStateDefinition
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertFailsWith
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
-@OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(RobolectricTestRunner::class)
 class GlanceAppWidgetStateTest {
 
@@ -91,14 +90,20 @@ class GlanceAppWidgetStateTest {
     class GlanceAppWidgetProviderWithoutState : GlanceAppWidget() {
         override val stateDefinition: GlanceStateDefinition<*>? = null
 
-        @Composable
-        override fun Content() {
+        override suspend fun provideGlance(
+            context: Context,
+            id: GlanceId
+        ) {
+            provideContent {}
         }
     }
 
     class GlanceAppWidgetProviderPreferencesState : GlanceAppWidget() {
-        @Composable
-        override fun Content() {
+        override suspend fun provideGlance(
+            context: Context,
+            id: GlanceId
+        ) {
+            provideContent {}
         }
     }
 

@@ -26,21 +26,21 @@ import androidx.compose.ui.platform.TextToolbar
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.style.ResolvedTextDirection
 import com.google.common.truth.Truth.assertThat
-import com.nhaarman.mockitokotlin2.any
-import com.nhaarman.mockitokotlin2.argThat
-import com.nhaarman.mockitokotlin2.doReturn
-import com.nhaarman.mockitokotlin2.eq
-import com.nhaarman.mockitokotlin2.isNull
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.never
-import com.nhaarman.mockitokotlin2.spy
-import com.nhaarman.mockitokotlin2.times
-import com.nhaarman.mockitokotlin2.verify
-import com.nhaarman.mockitokotlin2.whenever
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import org.mockito.kotlin.any
+import org.mockito.kotlin.argThat
+import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.eq
+import org.mockito.kotlin.isNull
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.never
+import org.mockito.kotlin.spy
+import org.mockito.kotlin.times
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.whenever
 
 @RunWith(JUnit4::class)
 class SelectionManagerTest {
@@ -314,13 +314,17 @@ class SelectionManagerTest {
     @Test
     fun updateSelection_notConsumeDrag_return_false() {
         selectionRegistrar.subscribe(startSelectable)
-        // The start selectable returns true and consumes the drag.
+        // The start selectable returns false and does not consume the drag.
         whenever(
             startSelectable.updateSelection(
                 anyOffset(), anyOffset(), anyOffset(), any(), any(), any(), any()
             )
         ).thenReturn(Pair(null, false))
         whenever(startSelectable.getLayoutCoordinates()).thenReturn(mock())
+
+        // selection cannot change, else consumed will be true.
+        // the updated selection is null, so set the initial selection to null as well.
+        selectionManager.selection = null
 
         val previousStartHandlePosition = Offset(3f, 300f)
         val newStartHandlePosition = Offset(3f, 600f)
@@ -333,6 +337,31 @@ class SelectionManagerTest {
         )
 
         assertThat(consumed).isFalse()
+    }
+
+    @Test
+    fun updateSelection_notConsumeDrag_butSelectionChange_return_true() {
+        selectionRegistrar.subscribe(startSelectable)
+        // The start selectable returns false and does not consume the drag.
+        whenever(
+            startSelectable.updateSelection(
+                anyOffset(), anyOffset(), anyOffset(), any(), any(), any(), any()
+            )
+        ).thenReturn(Pair(null, false))
+        whenever(startSelectable.getLayoutCoordinates()).thenReturn(mock())
+
+        val previousStartHandlePosition = Offset(3f, 300f)
+        val newStartHandlePosition = Offset(3f, 600f)
+
+        // new selection is null, so it will be counted as a change
+        val consumed = selectionManager.updateSelection(
+            newPosition = newStartHandlePosition,
+            previousPosition = previousStartHandlePosition,
+            isStartHandle = false,
+            adjustment = SelectionAdjustment.None
+        )
+
+        assertThat(consumed).isTrue()
     }
 
     @Test
@@ -353,6 +382,149 @@ class SelectionManagerTest {
             hapticFeedback,
             times(1)
         ).performHapticFeedback(HapticFeedbackType.TextHandleMove)
+    }
+
+    @Test
+    fun isNonEmptySelection_whenNonEmptySelection_sameLine_returnsTrue() {
+        val text = "Text Demo"
+        val annotatedString = AnnotatedString(text)
+        val startOffset = text.indexOf('e')
+        val endOffset = text.indexOf('m')
+        selectable.textToReturn = annotatedString
+        selectionManager.selection = Selection(
+            start = Selection.AnchorInfo(
+                direction = ResolvedTextDirection.Ltr,
+                offset = startOffset,
+                selectableId = selectableId
+            ),
+            end = Selection.AnchorInfo(
+                direction = ResolvedTextDirection.Ltr,
+                offset = endOffset,
+                selectableId = selectableId
+            ),
+            handlesCrossed = false
+        )
+
+        assertThat(selectionManager.isNonEmptySelection()).isTrue()
+    }
+
+    @Test
+    fun isNonEmptySelection_whenEmptySelection_sameLine_returnsFalse() {
+        val text = "Text Demo"
+        val annotatedString = AnnotatedString(text)
+        val startOffset = text.indexOf('e')
+        selectable.textToReturn = annotatedString
+        selectionManager.selection = Selection(
+            start = Selection.AnchorInfo(
+                direction = ResolvedTextDirection.Ltr,
+                offset = startOffset,
+                selectableId = selectableId
+            ),
+            end = Selection.AnchorInfo(
+                direction = ResolvedTextDirection.Ltr,
+                offset = startOffset,
+                selectableId = selectableId
+            ),
+            handlesCrossed = false
+        )
+
+        assertThat(selectionManager.isNonEmptySelection()).isFalse()
+    }
+
+    @Test
+    fun isNonEmptySelection_whenNonEmptySelection_multiLine_returnsTrue() {
+        val text = "Text Demo"
+        val annotatedString = AnnotatedString(text = text)
+        val startOffset = text.indexOf('m')
+        val endOffset = text.indexOf('x')
+
+        selectionRegistrar.subscribe(endSelectable)
+        selectionRegistrar.subscribe(middleSelectable)
+        selectionRegistrar.subscribe(startSelectable)
+        selectionRegistrar.subscribe(lastSelectable)
+        selectionRegistrar.sorted = true
+        whenever(startSelectable.getText()).thenReturn(annotatedString)
+        whenever(middleSelectable.getText()).thenReturn(annotatedString)
+        whenever(endSelectable.getText()).thenReturn(annotatedString)
+        selectionManager.selection = Selection(
+            start = Selection.AnchorInfo(
+                direction = ResolvedTextDirection.Ltr,
+                offset = startOffset,
+                selectableId = startSelectableId
+            ),
+            end = Selection.AnchorInfo(
+                direction = ResolvedTextDirection.Ltr,
+                offset = endOffset,
+                selectableId = endSelectableId
+            ),
+            handlesCrossed = true
+        )
+
+        assertThat(selectionManager.isNonEmptySelection()).isTrue()
+    }
+
+    @Test
+    fun isNonEmptySelection_whenEmptySelection_multiLine_returnsFalse() {
+        val text = "Text Demo"
+        val annotatedString = AnnotatedString(text)
+        val startOffset = text.length
+        val endOffset = 0
+
+        selectionRegistrar.subscribe(startSelectable)
+        selectionRegistrar.subscribe(middleSelectable)
+        selectionRegistrar.subscribe(endSelectable)
+        selectionRegistrar.subscribe(lastSelectable)
+        selectionRegistrar.sorted = true
+        whenever(startSelectable.getText()).thenReturn(annotatedString)
+        whenever(middleSelectable.getText()).thenReturn(AnnotatedString(""))
+        whenever(endSelectable.getText()).thenReturn(annotatedString)
+        selectionManager.selection = Selection(
+            start = Selection.AnchorInfo(
+                direction = ResolvedTextDirection.Ltr,
+                offset = startOffset,
+                selectableId = startSelectableId
+            ),
+            end = Selection.AnchorInfo(
+                direction = ResolvedTextDirection.Ltr,
+                offset = endOffset,
+                selectableId = endSelectableId
+            ),
+            handlesCrossed = false
+        )
+
+        assertThat(selectionManager.isNonEmptySelection()).isFalse()
+    }
+
+    @Test
+    fun isNonEmptySelection_whenEmptySelection_multiLineCrossed_returnsFalse() {
+        val text = "Text Demo"
+        val annotatedString = AnnotatedString(text)
+        val startOffset = 0
+        val endOffset = text.length
+
+        selectionRegistrar.subscribe(endSelectable)
+        selectionRegistrar.subscribe(middleSelectable)
+        selectionRegistrar.subscribe(startSelectable)
+        selectionRegistrar.subscribe(lastSelectable)
+        selectionRegistrar.sorted = true
+        whenever(startSelectable.getText()).thenReturn(annotatedString)
+        whenever(middleSelectable.getText()).thenReturn(AnnotatedString(""))
+        whenever(endSelectable.getText()).thenReturn(annotatedString)
+        selectionManager.selection = Selection(
+            start = Selection.AnchorInfo(
+                direction = ResolvedTextDirection.Ltr,
+                offset = startOffset,
+                selectableId = startSelectableId
+            ),
+            end = Selection.AnchorInfo(
+                direction = ResolvedTextDirection.Ltr,
+                offset = endOffset,
+                selectableId = endSelectableId
+            ),
+            handlesCrossed = true
+        )
+
+        assertThat(selectionManager.isNonEmptySelection()).isFalse()
     }
 
     @Test
@@ -555,7 +727,7 @@ class SelectionManagerTest {
         )
         selectionManager.hasFocus = true
 
-        selectionManager.showSelectionToolbar()
+        selectionManager.showToolbar = true
 
         verify(textToolbar, times(1)).showMenu(
             eq(Rect.Zero),
@@ -588,7 +760,7 @@ class SelectionManagerTest {
         )
         selectionManager.hasFocus = false
 
-        selectionManager.showSelectionToolbar()
+        selectionManager.showToolbar = true
 
         verify(textToolbar, never()).showMenu(
             eq(Rect.Zero),

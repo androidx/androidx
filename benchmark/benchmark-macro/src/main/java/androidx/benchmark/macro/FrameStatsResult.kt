@@ -27,17 +27,10 @@ internal data class FrameStatsResult(
     /**
      * Most recent clock monotonic (e.g. System.nanoTime()) timestamp of a frame's vsync.
      */
-    val lastFrameNs: Long?,
-
-    /**
-     * Most recent clock monotonic (e.g. System.nanoTime()) timestamp of a launch frame's vsync.
-     *
-     * Note: may be null pre-API 29, as it may fail to be detected
-     */
-    val lastLaunchNs: Long?
+    val lastFrameNs: Long?
 ) {
     companion object {
-        private val NAME_REGEX = Regex("(\\S+) \\(visibility=[0-9]+\\)")
+        private val NAME_REGEX = Regex("(\\S+) \\(visibility=\\d+\\)")
 
         fun parse(frameStatsOutput: String): List<FrameStatsResult> {
             return frameStatsOutput
@@ -62,12 +55,7 @@ internal data class FrameStatsResult(
                     FrameStatsResult(
                         uniqueName = uniqueName,
                         lastFrameNs = profileDataLatestActivityLaunchNs(
-                            profileData,
-                            requireFlag = false
-                        ),
-                        lastLaunchNs = profileDataLatestActivityLaunchNs(
-                            profileData,
-                            requireFlag = true
+                            profileData
                         )
                     )
                 }
@@ -86,30 +74,22 @@ internal data class FrameStatsResult(
          * 0,6038928372818,//...
          * ```
          *
-         * Would return `5077693738881` - most recent intended vsync of frame with
-         * 0x1 flag from table
+         * Would return `6038928372818` - most recent intended vsync of frame
+         *
+         * Note that we previously checked for flag & 0x1 when looking specifically for initial
+         * frames or a startup, but this behavior is inconsistent, especially on emulators
          */
-        private fun profileDataLatestActivityLaunchNs(
-            profileData: String,
-            requireFlag: Boolean
-        ): Long? {
+        private fun profileDataLatestActivityLaunchNs(profileData: String): Long? {
             val lines = profileData.split(Regex("\r?\n"))
 
             val columnLabels = lines.first().split(",")
-            val flagsIndex = columnLabels.indexOf("Flags")
             val intendedVsyncIndex = columnLabels.indexOf("IntendedVsync")
 
             lines.forEachIndexed { index, s -> println("$index $s") }
             return lines
                 .drop(1)
-                .mapNotNull {
-                    val columns = it.split(",")
-                    if (!requireFlag || (columns[flagsIndex].toLong() and 0x1L) != 0L) {
-                        // 0x1L mask means initial frame
-                        columns[intendedVsyncIndex].toLong()
-                    } else {
-                        null
-                    }
+                .map {
+                    it.split(",")[intendedVsyncIndex].toLong()
                 }
                 .maxOfOrNull { it }
         }

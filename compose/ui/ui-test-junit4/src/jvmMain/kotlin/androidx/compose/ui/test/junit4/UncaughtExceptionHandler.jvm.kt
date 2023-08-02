@@ -16,9 +16,9 @@
 
 package androidx.compose.ui.test.junit4
 
-import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlin.coroutines.AbstractCoroutineContextElement
 import kotlin.coroutines.CoroutineContext
+import kotlinx.coroutines.CoroutineExceptionHandler
 
 /**
  * Similar to [TestCoroutineExceptionHandler], but with clearing all thrown exceptions

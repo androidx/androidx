@@ -81,6 +81,10 @@ internal fun AtomicInt.postIncrement(): Int = add(1) - 1
 
 internal expect fun ensureMutable(it: Any)
 
+internal expect class WeakReference<T : Any>(reference: T) {
+    fun get(): T?
+}
+
 @MustBeDocumented
 @Retention(AnnotationRetention.SOURCE)
 @Target(
@@ -125,3 +129,5 @@ internal expect fun <T> invokeComposableForResult(
 internal expect class SnapshotContextElementImpl(
     snapshot: Snapshot
 ) : SnapshotContextElement
+
+internal expect fun logError(message: String, e: Throwable)

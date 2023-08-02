@@ -34,6 +34,7 @@ import android.view.accessibility.AccessibilityNodeInfo;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.core.widget.TextViewCompat;
 import androidx.leanback.R;
 
@@ -250,7 +251,7 @@ class StreamingTextView extends EditText {
         }
 
         @Override
-        public void draw(Canvas canvas, CharSequence text, int start, int end,
+        public void draw(@NonNull Canvas canvas, CharSequence text, int start, int end,
                 float x, int top, int y, int bottom, Paint paint) {
 
             int width = (int) paint.measureText(text, start, end);

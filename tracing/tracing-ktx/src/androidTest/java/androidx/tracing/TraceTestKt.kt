@@ -21,6 +21,7 @@ import androidx.test.filters.MediumTest
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -36,9 +37,55 @@ class TraceTestKt {
     }
 
     @Test
+    fun testNoCrossInline() {
+        trace("Test") {
+            return
+        }
+    }
+
+    @Test
+    fun traceLazyTest() {
+        assertFalse(
+            "This test expects to be run without tracing enabled in this process",
+            Trace.isEnabled()
+        )
+
+        val x = trace(
+            lazyLabel = {
+                throw IllegalStateException("tracing should be disabled, with message not used")
+            }
+        ) {
+            10
+        }
+        assertEquals(10, x)
+    }
+
+    @Test
     fun asyncTraceTest() {
         runBlocking {
             val x = traceAsync("test", 0) {
+                delay(1)
+                10
+            }
+            assertEquals(10, x)
+        }
+    }
+
+    @Test
+    fun asyncTraceLazyTest() {
+        assertFalse(
+            "This test expects to be run without tracing enabled in this process",
+            Trace.isEnabled()
+        )
+        runBlocking {
+            val x = traceAsync(
+                lazyMethodName = {
+                    throw IllegalStateException("tracing should be disabled, with message not used")
+                },
+                lazyCookie = {
+                    throw IllegalStateException("tracing should be disabled, with message not used")
+                }
+            ) {
                 delay(1)
                 10
             }

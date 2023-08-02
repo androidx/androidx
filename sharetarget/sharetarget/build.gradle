@@ -36,9 +36,8 @@ dependencies {
 }
 
 androidx {
-    name = "AndroidX Share Target Support Library"
+    name = "Share Target"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.SHARETARGET
     inceptionYear = "2018"
     description = "ShareTarget"
 }

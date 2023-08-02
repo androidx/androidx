@@ -26,14 +26,14 @@ import androidx.compose.ui.test.util.isAlmostEqualTo
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.util.lerp
 import com.google.common.truth.Truth.assertThat
-import org.junit.Assert.fail
-import org.junit.Test
-import org.junit.runner.RunWith
-import org.junit.runners.Parameterized
 import kotlin.math.floor
 import kotlin.math.max
 import kotlin.math.roundToInt
 import kotlin.math.sqrt
+import org.junit.Assert.fail
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.Parameterized
 
 /**
  * Tests of [VelocityPathFinder] creates paths that will lead to the desired velocity.

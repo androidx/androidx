@@ -16,13 +16,13 @@
 
 package androidx.room.compiler.processing.ksp
 
+import androidx.kruth.assertThat
+import androidx.kruth.assertWithMessage
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.className
 import androidx.room.compiler.processing.util.compileFiles
 import androidx.room.compiler.processing.util.kspResolver
 import androidx.room.compiler.processing.util.runKspTest
-import com.google.common.truth.Truth.assertThat
-import com.google.common.truth.Truth.assertWithMessage
 import com.google.devtools.ksp.getDeclaredProperties
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.squareup.javapoet.ClassName
@@ -60,16 +60,18 @@ class KSTypeExtTest {
             listOf("main", "lib").map {
                 it to invocation.kspResolver.requireClass("$it.Baz")
             }.forEach { (pkg, subject) ->
-                assertThat(subject.propertyType("intField").typeName(invocation.kspResolver))
+                assertThat(subject.propertyType("intField").asJTypeName(invocation.kspResolver))
                     .isEqualTo(TypeName.INT)
-                assertThat(subject.propertyType("listOfInts").typeName(invocation.kspResolver))
+                assertThat(subject.propertyType("listOfInts").asJTypeName(invocation.kspResolver))
                     .isEqualTo(
                         ParameterizedTypeName.get(
                             List::class.className(),
                             TypeName.INT.box()
                         )
                     )
-                assertThat(subject.propertyType("mutableMapOfAny").typeName(invocation.kspResolver))
+                assertThat(
+                    subject.propertyType("mutableMapOfAny").asJTypeName(invocation.kspResolver)
+                )
                     .isEqualTo(
                         ParameterizedTypeName.get(
                             Map::class.className(),
@@ -77,7 +79,7 @@ class KSTypeExtTest {
                             TypeName.OBJECT,
                         )
                     )
-                val typeName = subject.propertyType("nested").typeName(invocation.kspResolver)
+                val typeName = subject.propertyType("nested").asJTypeName(invocation.kspResolver)
                 check(typeName is ClassName)
                 assertThat(typeName.packageName()).isEqualTo(pkg)
                 assertThat(typeName.simpleNames()).containsExactly("Baz", "Nested")
@@ -114,11 +116,11 @@ class KSTypeExtTest {
             }.forEach { subject ->
                 assertWithMessage(subject.qualifiedName!!.asString())
                     .that(
-                        subject.propertyType("intField").typeName(invocation.kspResolver)
+                        subject.propertyType("intField").asJTypeName(invocation.kspResolver)
                     ).isEqualTo(TypeName.INT)
                 assertWithMessage(subject.qualifiedName!!.asString())
                     .that(
-                        subject.propertyType("listOfInts").typeName(invocation.kspResolver)
+                        subject.propertyType("listOfInts").asJTypeName(invocation.kspResolver)
                     ).isEqualTo(
                         ParameterizedTypeName.get(
                             List::class.className(),
@@ -126,14 +128,15 @@ class KSTypeExtTest {
                         )
                     )
                 val propertyType = subject.propertyType("incompleteGeneric")
-                val typeName = propertyType.typeName(invocation.kspResolver)
+                val typeName = propertyType.asJTypeName(invocation.kspResolver)
                 assertWithMessage(subject.qualifiedName!!.asString())
                     .that(
                         typeName
                     ).isEqualTo(
                         ClassName.get(List::class.java)
                     )
-                val nestedTypeName = subject.propertyType("nested").typeName(invocation.kspResolver)
+                val nestedTypeName =
+                    subject.propertyType("nested").asJTypeName(invocation.kspResolver)
                 assertWithMessage(subject.qualifiedName!!.asString())
                     .that(nestedTypeName)
                     .isEqualTo(
@@ -159,23 +162,23 @@ class KSTypeExtTest {
         runKspTest(sources = listOf(subjectSrc)) { invocation ->
             val subject = invocation.kspResolver.requireClass("Foo")
             assertThat(
-                subject.propertyType("errorField").typeName(invocation.kspResolver)
-            ).isEqualTo(ERROR_TYPE_NAME)
+                subject.propertyType("errorField").asJTypeName(invocation.kspResolver)
+            ).isEqualTo(ERROR_JTYPE_NAME)
             assertThat(
-                subject.propertyType("listOfError").typeName(invocation.kspResolver)
+                subject.propertyType("listOfError").asJTypeName(invocation.kspResolver)
             ).isEqualTo(
                 ParameterizedTypeName.get(
                     List::class.className(),
-                    ERROR_TYPE_NAME
+                    ERROR_JTYPE_NAME
                 )
             )
             assertThat(
-                subject.propertyType("mutableMapOfDontExist").typeName(invocation.kspResolver)
+                subject.propertyType("mutableMapOfDontExist").asJTypeName(invocation.kspResolver)
             ).isEqualTo(
                 ParameterizedTypeName.get(
                     Map::class.className(),
                     String::class.className(),
-                    ERROR_TYPE_NAME
+                    ERROR_JTYPE_NAME
                 )
             )
             invocation.assertCompilationResult {

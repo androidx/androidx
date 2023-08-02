@@ -42,11 +42,13 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.SystemClock;
 import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.view.Window;
 import android.window.OnBackInvokedDispatcher;
 
@@ -67,7 +69,6 @@ import androidx.annotation.LayoutRes;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.ActivityOptionsCompat;
@@ -79,7 +80,6 @@ import androidx.core.app.PictureInPictureModeChangedInfo;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.OnConfigurationChangedProvider;
 import androidx.core.content.OnTrimMemoryProvider;
-import androidx.core.os.BuildCompat;
 import androidx.core.util.Consumer;
 import androidx.core.view.MenuHost;
 import androidx.core.view.MenuHostHelper;
@@ -106,6 +106,7 @@ import androidx.savedstate.ViewTreeSavedStateRegistryOwner;
 import androidx.tracing.Trace;
 
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -129,7 +130,8 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
         OnNewIntentProvider,
         OnMultiWindowModeChangedProvider,
         OnPictureInPictureModeChangedProvider,
-        MenuHost {
+        MenuHost,
+        FullyDrawnReporterOwner {
 
     static final class NonConfigurationInstances {
         Object custom;
@@ -167,6 +169,17 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
                     }
                 }
             });
+
+    final ReportFullyDrawnExecutor mReportFullyDrawnExecutor = createFullyDrawnExecutor();
+
+    @NonNull
+    final FullyDrawnReporter mFullyDrawnReporter = new FullyDrawnReporter(
+            mReportFullyDrawnExecutor,
+            () -> {
+                reportFullyDrawn();
+                return null;
+            }
+    );
 
     @LayoutRes
     private int mContentLayoutId;
@@ -299,6 +312,7 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
                     if (!isChangingConfigurations()) {
                         getViewModelStore().clear();
                     }
+                    mReportFullyDrawnExecutor.activityDestroyed();
                 }
             }
         });
@@ -353,7 +367,6 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
      * If your ComponentActivity is annotated with {@link ContentView}, this will
      * call {@link #setContentView(int)} for you.
      */
-    @OptIn(markerClass = BuildCompat.PrereleaseSdkCheck.class)
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         // Restore the Saved State first so that it is available to
@@ -362,7 +375,7 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
         mContextAwareHelper.dispatchOnContextAvailable(this);
         super.onCreate(savedInstanceState);
         ReportFragment.injectIfNeededIn(this);
-        if (BuildCompat.isAtLeastT()) {
+        if (Build.VERSION.SDK_INT >= 33) {
             mOnBackPressedDispatcher.setOnBackInvokedDispatcher(
                     Api33Impl.getOnBackInvokedDispatcher(this)
             );
@@ -444,13 +457,15 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
 
     @Override
     public void setContentView(@LayoutRes int layoutResID) {
-        initViewTreeOwners();
+        initializeViewTreeOwners();
+        mReportFullyDrawnExecutor.viewCreated(getWindow().getDecorView());
         super.setContentView(layoutResID);
     }
 
     @Override
     public void setContentView(@SuppressLint({"UnknownNullness", "MissingNullability"}) View view) {
-        initViewTreeOwners();
+        initializeViewTreeOwners();
+        mReportFullyDrawnExecutor.viewCreated(getWindow().getDecorView());
         super.setContentView(view);
     }
 
@@ -458,7 +473,8 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
     public void setContentView(@SuppressLint({"UnknownNullness", "MissingNullability"}) View view,
             @SuppressLint({"UnknownNullness", "MissingNullability"})
                     ViewGroup.LayoutParams params) {
-        initViewTreeOwners();
+        initializeViewTreeOwners();
+        mReportFullyDrawnExecutor.viewCreated(getWindow().getDecorView());
         super.setContentView(view, params);
     }
 
@@ -466,17 +482,22 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
     public void addContentView(@SuppressLint({"UnknownNullness", "MissingNullability"}) View view,
             @SuppressLint({"UnknownNullness", "MissingNullability"})
                     ViewGroup.LayoutParams params) {
-        initViewTreeOwners();
+        initializeViewTreeOwners();
+        mReportFullyDrawnExecutor.viewCreated(getWindow().getDecorView());
         super.addContentView(view, params);
     }
 
-    private void initViewTreeOwners() {
-        // Set the view tree owners before setting the content view so that the inflation process
-        // and attach listeners will see them already present
+    /**
+     * Sets the view tree owners before setting the content view so that the
+     * inflation process and attach listeners will see them already present.
+     */
+    @CallSuper
+    public void initializeViewTreeOwners() {
         ViewTreeLifecycleOwner.set(getWindow().getDecorView(), this);
         ViewTreeViewModelStoreOwner.set(getWindow().getDecorView(), this);
         ViewTreeSavedStateRegistryOwner.set(getWindow().getDecorView(), this);
         ViewTreeOnBackPressedDispatcherOwner.set(getWindow().getDecorView(), this);
+        ViewTreeFullyDrawnReporterOwner.set(getWindow().getDecorView(), this);
     }
 
     @Nullable
@@ -665,10 +686,16 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
      * {@link android.app.Activity#onBackPressed()} is invoked.
      *
      * @see #getOnBackPressedDispatcher()
+     *
+     * @deprecated This method has been deprecated in favor of using the
+     * {@link OnBackPressedDispatcher} via {@link #getOnBackPressedDispatcher()}.
+     * The OnBackPressedDispatcher controls how back button events are dispatched
+     * to one or more {@link OnBackPressedCallback} objects.
      */
-    @SuppressWarnings("deprecation")
     @Override
     @MainThread
+    @CallSuper
+    @Deprecated
     public void onBackPressed() {
         mOnBackPressedDispatcher.onBackPressed();
     }
@@ -690,6 +717,11 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
         return mSavedStateRegistryController.getSavedStateRegistry();
     }
 
+    @NonNull
+    @Override
+    public FullyDrawnReporter getFullyDrawnReporter() {
+        return mFullyDrawnReporter;
+    }
     /**
      * {@inheritDoc}
      *
@@ -1065,8 +1097,6 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
     public void reportFullyDrawn() {
         try {
             if (Trace.isEnabled()) {
-                // TODO: Ideally we'd include getComponentName() (as later versions of platform
-                //  do), but b/175345114 needs to be addressed.
                 Trace.beginSection("reportFullyDrawn() for ComponentActivity");
             }
 
@@ -1079,10 +1109,19 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
                 // throwing, we fall back to a no-op call.
                 super.reportFullyDrawn();
             }
-            // The Activity.reportFullyDrawn() got added in API 19, fall back to a no-op call if
-            // this method gets called on devices with an earlier version.
+            // Activity.reportFullyDrawn() was added in API 19, so we can't call super
+            // prior to that, but we still need to update our FullyLoadedReporter's state
+            mFullyDrawnReporter.fullyDrawnReported();
         } finally {
             Trace.endSection();
+        }
+    }
+
+    private ReportFullyDrawnExecutor createFullyDrawnExecutor() {
+        if (SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
+            return new ReportFullyDrawnExecutorApi1();
+        } else {
+            return new ReportFullyDrawnExecutorApi16Impl();
         }
     }
 
@@ -1102,6 +1141,116 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
         @DoNotInline
         static OnBackInvokedDispatcher getOnBackInvokedDispatcher(Activity activity) {
             return activity.getOnBackInvokedDispatcher();
+        }
+    }
+
+    private interface ReportFullyDrawnExecutor extends Executor {
+        void viewCreated(@NonNull View view);
+
+        void activityDestroyed();
+    }
+
+    static class ReportFullyDrawnExecutorApi1 implements ReportFullyDrawnExecutor {
+        final Handler mHandler = createHandler();
+
+        @Override
+        public void viewCreated(@NonNull View view) {
+        }
+
+        @Override
+        public void activityDestroyed() {
+        }
+
+        /**
+         * Called when we want to execute runnable that might call
+         * {@link ComponentActivity#reportFullyDrawn()}.
+         * @param runnable The call to potentially execute reportFullyDrawn().
+         */
+        @Override
+        public void execute(Runnable runnable) {
+            mHandler.postAtFrontOfQueue(runnable);
+        }
+
+        @NonNull
+        private Handler createHandler() {
+            Looper looper = Looper.myLooper();
+            return new Handler(looper == null ? Looper.getMainLooper() : looper);
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.JELLY_BEAN)
+    class ReportFullyDrawnExecutorApi16Impl implements ReportFullyDrawnExecutor,
+            ViewTreeObserver.OnDrawListener, Runnable {
+        final long mEndWatchTimeMillis = SystemClock.uptimeMillis() + 10_000;
+        Runnable mRunnable;
+        boolean mOnDrawScheduled = false;
+
+        @Override
+        public void viewCreated(@NonNull View view) {
+            if (!mOnDrawScheduled) {
+                mOnDrawScheduled = true;
+                view.getViewTreeObserver().addOnDrawListener(this);
+            }
+        }
+
+        @Override
+        public void activityDestroyed() {
+            getWindow().getDecorView().removeCallbacks(this);
+            getWindow().getDecorView().getViewTreeObserver().removeOnDrawListener(this);
+        }
+
+        /**
+         * Called when we want to execute runnable that might call
+         * {@link ComponentActivity#reportFullyDrawn()}.
+         * @param runnable The call to potentially execute reportFullyDrawn().
+         */
+        @Override
+        public void execute(Runnable runnable) {
+            mRunnable = runnable;
+            View decorView = getWindow().getDecorView();
+            if (mOnDrawScheduled) {
+                if (Looper.myLooper() == Looper.getMainLooper()) {
+                    decorView.invalidate();
+                } else {
+                    decorView.postInvalidate();
+                }
+            } else {
+                // We've already gotten past the 10 second timeout and dropped the
+                // OnPreDrawListener, so we just run on the next frame.
+                decorView.postOnAnimation(() -> {
+                    if (mRunnable != null) {
+                        mRunnable.run();
+                        mRunnable = null;
+                    }
+                });
+            }
+        }
+
+        @Override
+        public void onDraw() {
+            Runnable runnable = mRunnable;
+            if (runnable != null) {
+                runnable.run();
+                mRunnable = null;
+                if (mFullyDrawnReporter.isFullyDrawnReported()) {
+                    mOnDrawScheduled = false;
+                    getWindow().getDecorView().post(this); // remove the listener
+                }
+            } else if (SystemClock.uptimeMillis() > mEndWatchTimeMillis) {
+                // We've gone 10 seconds without calling reportFullyDrawn().
+                // We'll just stop doing this check to avoid unnecessary overhead.
+                mOnDrawScheduled = false;
+                getWindow().getDecorView().post(this); // remove the listener
+            }
+        }
+
+        /**
+         * Called when we want to remove the OnDrawListener. OnDrawListener can't be removed
+         * from within the onDraw() method.
+         */
+        @Override
+        public void run() {
+            getWindow().getDecorView().getViewTreeObserver().removeOnDrawListener(this);
         }
     }
 }

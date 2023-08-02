@@ -48,23 +48,25 @@ import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth
-import org.junit.After
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotNull
-import org.junit.Assert.assertTrue
-import org.junit.Before
-import org.junit.Ignore
-import org.junit.Test
-import org.junit.runner.RunWith
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.roundToInt
+import org.junit.After
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertThrows
+import org.junit.Assert.assertTrue
+import org.junit.Before
+import org.junit.Ignore
+import org.junit.Test
+import org.junit.runner.RunWith
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
 class RowColumnTest : LayoutTest() {
+
     @Before
     fun before() {
         isDebugInspectorInfoEnabled = true
@@ -232,6 +234,133 @@ class RowColumnTest : LayoutTest() {
     }
 
     @Test
+    fun testRow_withChildrenWithMaxValueWeight() = with(density) {
+        val width = 50.toDp()
+        val height = 80.toDp()
+        val childrenHeight = height.roundToPx()
+
+        val drawLatch = CountDownLatch(2)
+        val childSize = arrayOfNulls<IntSize>(2)
+        val childPosition = arrayOfNulls<Offset>(2)
+        show {
+            Container(alignment = Alignment.TopStart) {
+                Row {
+                    Container(
+                        Modifier.weight(Float.MAX_VALUE)
+                            .onGloballyPositioned { coordinates ->
+                                childSize[0] = coordinates.size
+                                childPosition[0] = coordinates.positionInRoot()
+                                drawLatch.countDown()
+                            },
+                        width = width,
+                        height = height
+                    ) {
+                    }
+
+                    Container(
+                        Modifier.weight(1f)
+                            .onGloballyPositioned { coordinates ->
+                                childSize[1] = coordinates.size
+                                childPosition[1] = coordinates.positionInRoot()
+                                drawLatch.countDown()
+                            },
+                        width = width,
+                        height = height
+                    ) {
+                    }
+                }
+            }
+        }
+        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
+
+        val root = findComposeView()
+        waitForDraw(root)
+        val rootWidth = root.width
+
+        assertEquals(
+            IntSize(rootWidth, childrenHeight),
+            childSize[0]
+        )
+        assertEquals(
+            IntSize(0, childrenHeight),
+            childSize[1]
+        )
+        assertEquals(Offset(0f, 0f), childPosition[0])
+        assertEquals(Offset((rootWidth).toFloat(), 0f), childPosition[1])
+    }
+
+    @Test
+    fun testRow_withChildrenWithPositiveInfinityWeight() = with(density) {
+        val width = 50.toDp()
+        val height = 80.toDp()
+        val childrenHeight = height.roundToPx()
+
+        val drawLatch = CountDownLatch(2)
+        val childSize = arrayOfNulls<IntSize>(2)
+        val childPosition = arrayOfNulls<Offset>(2)
+        show {
+            Container(alignment = Alignment.TopStart) {
+                Row {
+                    Container(
+                        Modifier.weight(Float.POSITIVE_INFINITY)
+                            .onGloballyPositioned { coordinates ->
+                                childSize[0] = coordinates.size
+                                childPosition[0] = coordinates.positionInRoot()
+                                drawLatch.countDown()
+                            },
+                        width = width,
+                        height = height
+                    ) {
+                    }
+
+                    Container(
+                        Modifier.weight(1f)
+                            .onGloballyPositioned { coordinates ->
+                                childSize[1] = coordinates.size
+                                childPosition[1] = coordinates.positionInRoot()
+                                drawLatch.countDown()
+                            },
+                        width = width,
+                        height = height
+                    ) {
+                    }
+                }
+            }
+        }
+        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
+
+        val root = findComposeView()
+        waitForDraw(root)
+        val rootWidth = root.width
+
+        assertEquals(
+            IntSize(rootWidth, childrenHeight),
+            childSize[0]
+        )
+        assertEquals(
+            IntSize(0, childrenHeight),
+            childSize[1]
+        )
+        assertEquals(Offset(0f, 0f), childPosition[0])
+        assertEquals(Offset((rootWidth).toFloat(), 0f), childPosition[1])
+    }
+
+    @Test
+    fun testRow_invalidWeight() {
+        with(RowScopeInstance) {
+            assertThrows(IllegalArgumentException::class.java) {
+                Modifier.weight(-1f)
+            }
+            assertThrows(IllegalArgumentException::class.java) {
+                Modifier.weight(Float.NaN)
+            }
+            assertThrows(IllegalArgumentException::class.java) {
+                Modifier.weight(Float.NEGATIVE_INFINITY)
+            }
+        }
+    }
+
+    @Test
     fun testColumn() = with(density) {
         val sizeDp = 50.toDp()
         val size = sizeDp.roundToPx()
@@ -382,6 +511,129 @@ class RowColumnTest : LayoutTest() {
         )
         assertEquals(Offset(0.0f, 0.0f), childPosition[0])
         assertEquals(Offset(0.0f, childrenHeight.toFloat()), childPosition[1])
+    }
+
+    @Test
+    fun testColumn_withChildrenWithMaxValueWeight() = with(density) {
+        val width = 80.toDp()
+        val childrenWidth = width.roundToPx()
+        val height = 50.toDp()
+
+        val drawLatch = CountDownLatch(2)
+        val childSize = arrayOfNulls<IntSize>(2)
+        val childPosition = arrayOfNulls<Offset>(2)
+        show {
+            Container(alignment = Alignment.TopStart) {
+                Column {
+                    Container(
+                        Modifier.weight(Float.MAX_VALUE)
+                            .onGloballyPositioned { coordinates ->
+                                childSize[0] = coordinates.size
+                                childPosition[0] = coordinates.positionInRoot()
+                                drawLatch.countDown()
+                            },
+                        width = width,
+                        height = height
+                    ) {
+                    }
+
+                    Container(
+                        Modifier.weight(1f)
+                            .onGloballyPositioned { coordinates ->
+                                childSize[1] = coordinates.size
+                                childPosition[1] = coordinates.positionInRoot()
+                                drawLatch.countDown()
+                            },
+                        width = width,
+                        height = height
+                    ) {
+                    }
+                }
+            }
+        }
+        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
+
+        val root = findComposeView()
+        waitForDraw(root)
+        val rootHeight = root.height
+
+        assertEquals(
+            IntSize(childrenWidth, rootHeight), childSize[0]
+        )
+        assertEquals(
+            IntSize(childrenWidth, 0), childSize[1]
+        )
+        assertEquals(Offset(0f, 0f), childPosition[0])
+        assertEquals(Offset(0f, rootHeight.toFloat()), childPosition[1])
+    }
+
+    @Test
+    fun testColumn_withChildrenWithPositiveInfinityWeight() = with(density) {
+        val width = 80.toDp()
+        val childrenWidth = width.roundToPx()
+        val height = 50.toDp()
+
+        val drawLatch = CountDownLatch(2)
+        val childSize = arrayOfNulls<IntSize>(2)
+        val childPosition = arrayOfNulls<Offset>(2)
+        show {
+            Container(alignment = Alignment.TopStart) {
+                Column {
+                    Container(
+                        Modifier.weight(Float.POSITIVE_INFINITY)
+                            .onGloballyPositioned { coordinates ->
+                                childSize[0] = coordinates.size
+                                childPosition[0] = coordinates.positionInRoot()
+                                drawLatch.countDown()
+                            },
+                        width = width,
+                        height = height
+                    ) {
+                    }
+
+                    Container(
+                        Modifier.weight(1f)
+                            .onGloballyPositioned { coordinates ->
+                                childSize[1] = coordinates.size
+                                childPosition[1] = coordinates.positionInRoot()
+                                drawLatch.countDown()
+                            },
+                        width = width,
+                        height = height
+                    ) {
+                    }
+                }
+            }
+        }
+        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
+
+        val root = findComposeView()
+        waitForDraw(root)
+        val rootHeight = root.height
+
+        assertEquals(
+            IntSize(childrenWidth, rootHeight), childSize[0]
+        )
+        assertEquals(
+            IntSize(childrenWidth, 0), childSize[1]
+        )
+        assertEquals(Offset(0f, 0f), childPosition[0])
+        assertEquals(Offset(0f, rootHeight.toFloat()), childPosition[1])
+    }
+
+    @Test
+    fun testColumn_invalidWeight() {
+        with(ColumnScopeInstance) {
+            assertThrows(IllegalArgumentException::class.java) {
+                Modifier.weight(-1f)
+            }
+            assertThrows(IllegalArgumentException::class.java) {
+                Modifier.weight(Float.NaN)
+            }
+            assertThrows(IllegalArgumentException::class.java) {
+                Modifier.weight(Float.NEGATIVE_INFINITY)
+            }
+        }
     }
 
     @Test
@@ -2540,7 +2792,51 @@ class RowColumnTest : LayoutTest() {
     }
 
     @Test
-    fun testRow_withSpaceBetweenArrangement() = with(density) {
+    fun testRow_withSpaceBetweenArrangement_singleItem() = with(density) {
+        val sizeDp = 50.toDp()
+
+        val drawLatch = CountDownLatch(2)
+        val childPosition = arrayOf(Offset(-1f, -1f))
+        val childLayoutCoordinates = arrayOfNulls<LayoutCoordinates?>(childPosition.size)
+        var parentLayoutCoordinates: LayoutCoordinates? = null
+        show {
+            Center {
+                Row(
+                    Modifier.fillMaxWidth().onGloballyPositioned { coordinates ->
+                        parentLayoutCoordinates = coordinates
+                        drawLatch.countDown()
+                    },
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    for (i in 0 until childPosition.size) {
+                        Container(
+                            width = sizeDp,
+                            height = sizeDp,
+                            modifier = Modifier.onGloballyPositioned { coordinates ->
+                                childLayoutCoordinates[i] = coordinates
+                                drawLatch.countDown()
+                            }
+                        ) {
+                        }
+                    }
+                }
+            }
+        }
+        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
+
+        calculateChildPositions(childPosition, parentLayoutCoordinates, childLayoutCoordinates)
+
+        val root = findComposeView()
+        waitForDraw(root)
+
+        assertEquals(
+            Offset(0f, 0f),
+            childPosition[0]
+        )
+    }
+
+    @Test
+    fun testRow_withSpaceBetweenArrangement_multipleItems() = with(density) {
         val sizeDp = 50.toDp()
         val size = sizeDp.roundToPx()
 
@@ -2559,7 +2855,7 @@ class RowColumnTest : LayoutTest() {
                     },
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    for (i in 0 until childPosition.size) {
+                    for (i in childPosition.indices) {
                         Container(
                             width = sizeDp,
                             height = sizeDp,
@@ -3542,6 +3838,53 @@ class RowColumnTest : LayoutTest() {
     }
 
     @Test
+    fun testRow_withNoItems_hasCorrectIntrinsicMeasurements() = with(density) {
+        testIntrinsics(
+            @Composable {
+                Row(
+                    Modifier.width(IntrinsicSize.Max).height(IntrinsicSize.Max),
+                    horizontalArrangement = Arrangement.spacedBy(
+                        48.dp
+                    ),
+                ) { }
+            },
+            @Composable {
+                Row(
+                    Modifier.width(IntrinsicSize.Min).height(IntrinsicSize.Min),
+                    horizontalArrangement = Arrangement.spacedBy(
+                        48.dp
+                    ),
+                ) { }
+            },
+            @Composable {
+                Column(
+                    Modifier.width(IntrinsicSize.Max).height(IntrinsicSize.Max),
+                    verticalArrangement = Arrangement.spacedBy(
+                        48.dp
+                    ),
+                ) { }
+            },
+            @Composable {
+                Column(
+                    Modifier.width(IntrinsicSize.Min).height(IntrinsicSize.Min),
+                    verticalArrangement = Arrangement.spacedBy(
+                        48.dp
+                    ),
+                ) { }
+            },
+        ) { minIntrinsicWidth, minIntrinsicHeight, maxIntrinsicWidth, maxIntrinsicHeight ->
+            // Min width.
+            assertEquals(0.toDp().roundToPx(), minIntrinsicWidth(0.toDp().roundToPx()))
+            // Min height.
+            assertEquals(0.toDp().roundToPx(), minIntrinsicHeight(0.toDp().roundToPx()))
+            // Max width.
+            assertEquals(0.toDp().roundToPx(), maxIntrinsicWidth(0.toDp().roundToPx()))
+            // Max height.
+            assertEquals(0.toDp().roundToPx(), maxIntrinsicHeight(0.toDp().roundToPx()))
+        }
+    }
+
+    @Test
     fun testRow_withWeightChildren_hasCorrectIntrinsicMeasurements() = with(density) {
         testIntrinsics(
             @Composable {
@@ -4513,7 +4856,55 @@ class RowColumnTest : LayoutTest() {
     }
 
     @Test
-    fun testRow_Rtl_arrangementSpaceBetween() = with(density) {
+    fun testRow_Rtl_arrangementSpaceBetween_singleItem() = with(density) {
+        val size = 100
+        val sizeDp = size.toDp()
+
+        val drawLatch = CountDownLatch(2)
+        val childPosition = Array(1) { Offset.Zero }
+        val childLayoutCoordinates = arrayOfNulls<LayoutCoordinates?>(childPosition.size)
+        var parentLayoutCoordinates: LayoutCoordinates? = null
+        show {
+            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .onGloballyPositioned { coordinates ->
+                            parentLayoutCoordinates = coordinates
+                            drawLatch.countDown()
+                        },
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    for (i in childPosition.indices) {
+                        Container(
+                            width = sizeDp,
+                            height = sizeDp,
+                            modifier = Modifier.onGloballyPositioned { coordinates ->
+                                childLayoutCoordinates[i] = coordinates
+                                drawLatch.countDown()
+                            },
+                            content = {}
+                        )
+                    }
+                }
+            }
+        }
+        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
+
+        calculateChildPositions(childPosition, parentLayoutCoordinates, childLayoutCoordinates)
+
+        val root = findComposeView()
+        waitForDraw(root)
+
+        val gap = root.width - size.toFloat()
+        assertEquals(
+            Offset(gap, 0f),
+            childPosition[0]
+        )
+    }
+
+    @Test
+    fun testRow_Rtl_arrangementSpaceBetween_multipleItems() = with(density) {
         val size = 100
         val sizeDp = size.toDp()
 
@@ -5672,6 +6063,7 @@ class RowColumnTest : LayoutTest() {
             ValueElement("fill", false)
         )
     }
+
     @Test
     fun testColumn_AlignInspectableValue() {
         val modifier = with(ColumnScopeInstance) { Modifier.align(Alignment.Start) }
@@ -5701,9 +6093,7 @@ class RowColumnTest : LayoutTest() {
             ValueElement("fill", false)
         )
     }
-    // endregion
 }
-
 private val TestHorizontalLine = HorizontalAlignmentLine(::min)
 private val TestVerticalLine = VerticalAlignmentLine(::min)
 

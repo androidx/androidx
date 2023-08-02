@@ -31,13 +31,11 @@ class FrameStatsResultTest {
             listOf(
                 FrameStatsResult(
                     uniqueName = "com.pkg/com.pkg.MyActivity1/android.view.ViewRootImpl@ade24ea",
-                    lastFrameNs = 4211995467212,
-                    lastLaunchNs = 3211995467212
+                    lastFrameNs = 4211995467212
                 ),
                 FrameStatsResult(
                     uniqueName = "com.pkg/com.pkg.MyActivity2/android.view.ViewRootImpl@e8a2229b",
-                    lastFrameNs = 6117484488193,
-                    lastLaunchNs = 5117484488193
+                    lastFrameNs = 6117484488193
                 )
             ),
             FrameStatsResult.parse(

@@ -18,11 +18,11 @@ package androidx.compose.compiler.plugins.kotlin
 
 import org.junit.Test
 
+// TODO(b/282189431): run this test with K2
 @Suppress("unused")
 class ComposeMultiPlatformTests : AbstractMultiPlatformIntegrationTest() {
-
     @Test
-    fun testBasicMpp() = ensureSetup {
+    fun testBasicMpp() {
         multiplatform(
             """
             expect val foo: String
@@ -41,7 +41,7 @@ class ComposeMultiPlatformTests : AbstractMultiPlatformIntegrationTest() {
     }
 
     @Test
-    fun testBasicComposable() = ensureSetup {
+    fun testBasicComposable() {
         multiplatform(
             """
             import androidx.compose.runtime.Composable
@@ -71,7 +71,7 @@ class ComposeMultiPlatformTests : AbstractMultiPlatformIntegrationTest() {
     }
 
     @Test
-    fun testComposableExpectDefaultParameter() = ensureSetup {
+    fun testComposableExpectDefaultParameter() {
         multiplatform(
             """
                 import androidx.compose.runtime.Composable

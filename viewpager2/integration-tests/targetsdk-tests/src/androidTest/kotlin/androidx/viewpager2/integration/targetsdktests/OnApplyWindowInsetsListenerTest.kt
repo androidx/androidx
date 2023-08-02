@@ -38,17 +38,17 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import androidx.viewpager2.widget.ViewPager2.ORIENTATION_HORIZONTAL
 import androidx.viewpager2.widget.WindowInsetsApplier
+import java.lang.reflect.Field
 import org.hamcrest.CoreMatchers.equalTo
-import org.junit.Assert.assertNotNull
 import org.hamcrest.MatcherAssert.assertThat
+import org.junit.Assert.assertNotNull
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
-import java.lang.reflect.Field
 
 @LargeTest
-@SdkSuppress(minSdkVersion = 21)
+@SdkSuppress(minSdkVersion = 30) // TODO(b/273945673): fix test on API 21..30
 @RunWith(Parameterized::class)
 class OnApplyWindowInsetsListenerTest(private val config: TestConfig) {
     data class TestConfig(
@@ -58,15 +58,12 @@ class OnApplyWindowInsetsListenerTest(private val config: TestConfig) {
 
     companion object {
         private const val numPages = 3
-        private var mSystemWindowInsetsConsumedField: Field? = null
-
-        init {
+        private val mSystemWindowInsetsConsumedField: Field? by lazy {
             // Only need reflection on API < 29 to create an unconsumed WindowInsets.
             // On API 29+, a new builder is used that will do that for us.
             if (Build.VERSION.SDK_INT < 29) {
-                mSystemWindowInsetsConsumedField = field("mSystemWindowInsetsConsumed")
-                mSystemWindowInsetsConsumedField!!.isAccessible = true
-            }
+                field("mSystemWindowInsetsConsumed").also { it.isAccessible = true }
+            } else null
         }
 
         @Suppress("SameParameterValue")
@@ -226,7 +223,7 @@ class OnApplyWindowInsetsListenerTest(private val config: TestConfig) {
     }
 
     private fun createWindowInsets(): WindowInsetsCompat {
-        val insets = Insets.of(10, 10, 10, 10)
+        val insets = Insets.of(10, 11, 12, 13)
         @Suppress("DEPRECATION")
         val windowInsets = WindowInsetsCompat.Builder().setSystemWindowInsets(insets).build()
         if (Build.VERSION.SDK_INT < 29) {

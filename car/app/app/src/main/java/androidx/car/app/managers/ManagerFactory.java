@@ -24,7 +24,6 @@ import androidx.annotation.RestrictTo;
  *
  * @param <T> type of {@link Manager} this factory is able to produce
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public interface ManagerFactory<T extends Manager> {

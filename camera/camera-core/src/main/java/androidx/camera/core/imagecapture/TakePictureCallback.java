@@ -28,7 +28,7 @@ import androidx.camera.core.ImageProxy;
  * <p>This is an internal callback that loosely maps to
  * {@link ImageCapture.OnImageCapturedCallback} or {@link ImageCapture.OnImageSavedCallback}.
  */
-public interface TakePictureCallback {
+interface TakePictureCallback {
 
     /**
      * Invoked when the capture is complete..
@@ -72,4 +72,9 @@ public interface TakePictureCallback {
      */
     @MainThread
     void onProcessFailure(@NonNull ImageCaptureException imageCaptureException);
+
+    /**
+     * Returns true if the request has been aborted.
+     */
+    boolean isAborted();
 }

@@ -19,6 +19,7 @@ package androidx.health.services.client.data
 import androidx.health.services.client.data.ComparisonType.Companion.GREATER_THAN
 import androidx.health.services.client.data.DataType.Companion.STEPS
 import androidx.health.services.client.data.DataType.Companion.STEPS_DAILY
+import androidx.health.services.client.proto.DataProto
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -28,42 +29,34 @@ import org.robolectric.RobolectricTestRunner
 class PassiveGoalTest {
     @Test
     fun protoRoundTrip() {
-        val proto = PassiveGoal(
-            DataTypeCondition(STEPS_DAILY, 400, GREATER_THAN),
-            PassiveGoal.TriggerFrequency.ONCE
-        ).proto
+        val proto = PassiveGoal(DataTypeCondition(STEPS_DAILY, 400, GREATER_THAN)).proto
 
         val goal = PassiveGoal(proto)
 
         assertThat(goal.dataTypeCondition.dataType).isEqualTo(STEPS_DAILY)
         assertThat(goal.dataTypeCondition.threshold).isEqualTo(400)
         assertThat(goal.dataTypeCondition.comparisonType).isEqualTo(GREATER_THAN)
-        assertThat(goal.triggerFrequency).isEqualTo(PassiveGoal.TriggerFrequency.ONCE)
+        assertThat(goal.triggerFrequency).isEqualTo(PassiveGoal.TriggerFrequency.REPEATED)
     }
 
     @Test
     fun shouldEqual() {
-        val goal1 = PassiveGoal(
-            DataTypeCondition(STEPS_DAILY, 400, GREATER_THAN),
-            PassiveGoal.TriggerFrequency.ONCE
-        )
-        val goal2 = PassiveGoal(
-            DataTypeCondition(STEPS_DAILY, 400, GREATER_THAN),
-            PassiveGoal.TriggerFrequency.ONCE
-        )
+        val goal1 = PassiveGoal(DataTypeCondition(STEPS_DAILY, 400, GREATER_THAN))
+        val goal2 = PassiveGoal(DataTypeCondition(STEPS_DAILY, 400, GREATER_THAN))
 
         assertThat(goal1).isEqualTo(goal2)
     }
 
     @Test
     fun shouldNotEqual_differentTriggerFrequency() {
-        val goal1 = PassiveGoal(
-            DataTypeCondition(STEPS_DAILY, 400, GREATER_THAN),
-            PassiveGoal.TriggerFrequency.ONCE
-        )
+        // This case isn't expected to happen for clients, but it _could_ happen from the service
+        // side for old clients. Using proto constructor because triggerFrequency constructor is
+        // private.
+        val goal1 = PassiveGoal(DataTypeCondition(STEPS_DAILY, 400, GREATER_THAN))
         val goal2 = PassiveGoal(
-            DataTypeCondition(STEPS_DAILY, 400, GREATER_THAN),
-            PassiveGoal.TriggerFrequency.REPEATED
+            goal1.proto.toBuilder()
+                .setTriggerFrequency(DataProto.PassiveGoal.TriggerFrequency.TRIGGER_FREQUENCY_ONCE)
+                .build()
         )
 
         assertThat(goal1).isNotEqualTo(goal2)
@@ -71,28 +64,16 @@ class PassiveGoalTest {
 
     @Test
     fun shouldNotEqual_differentThreshold() {
-        val goal1 = PassiveGoal(
-            DataTypeCondition(STEPS_DAILY, 400, GREATER_THAN),
-            PassiveGoal.TriggerFrequency.ONCE
-        )
-        val goal2 = PassiveGoal(
-            DataTypeCondition(STEPS_DAILY, 800, GREATER_THAN),
-            PassiveGoal.TriggerFrequency.ONCE
-        )
+        val goal1 = PassiveGoal(DataTypeCondition(STEPS_DAILY, 400, GREATER_THAN))
+        val goal2 = PassiveGoal(DataTypeCondition(STEPS_DAILY, 800, GREATER_THAN))
 
         assertThat(goal1).isNotEqualTo(goal2)
     }
 
     @Test
     fun shouldNotEqual_differentDataType() {
-        val goal1 = PassiveGoal(
-            DataTypeCondition(STEPS_DAILY, 400, GREATER_THAN),
-            PassiveGoal.TriggerFrequency.ONCE
-        )
-        val goal2 = PassiveGoal(
-            DataTypeCondition(STEPS, 400, GREATER_THAN),
-            PassiveGoal.TriggerFrequency.ONCE
-        )
+        val goal1 = PassiveGoal(DataTypeCondition(STEPS_DAILY, 400, GREATER_THAN))
+        val goal2 = PassiveGoal(DataTypeCondition(STEPS, 400, GREATER_THAN))
 
         assertThat(goal1).isNotEqualTo(goal2)
     }

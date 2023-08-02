@@ -1,12 +1,20 @@
-# Bug component: 461042
-gyumin@google.com
-hdmoon@google.com
-insun@google.com
-jaewan@google.com
-jinpark@google.com
-sungsoo@google.com
-olly@google.com
-tonihei@google.com
-christosts@google.com
+# Bug component: 188488
+
+# Media Playback:
 bachinger@google.com
+christosts@google.com
 ibaker@google.com
+jbibik@google.com
+michaelkatz@google.com
+rohks@google.com
+tianyifeng@google.com
+tonihei@google.com
+
+# Media Routing:
+adadukin@google.com
+aquilescanta@google.com
+bishoygendy@google.com
+ivanbuper@google.com
+
+# Escalations only:
+andrewlewis@google.com #{LAST_RESORT_SUGGESTION}

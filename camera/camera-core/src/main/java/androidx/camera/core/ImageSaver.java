@@ -111,8 +111,11 @@ final class ImageSaver implements Runnable {
         try {
             if (isSaveToFile()) {
                 // For saving to file, write to the target folder and rename for better performance.
+                // The file extensions must be the same as app provided to avoid the directory
+                // access problem.
                 tempFile = new File(mOutputFileOptions.getFile().getParent(),
-                        TEMP_FILE_PREFIX + UUID.randomUUID().toString() + TEMP_FILE_SUFFIX);
+                        TEMP_FILE_PREFIX + UUID.randomUUID().toString()
+                                + getFileExtensionWithDot(mOutputFileOptions.getFile()));
             } else {
                 tempFile = File.createTempFile(TEMP_FILE_PREFIX, TEMP_FILE_SUFFIX);
             }
@@ -123,7 +126,7 @@ final class ImageSaver implements Runnable {
 
         SaveError saveError = null;
         String errorMessage = null;
-        Exception exception = null;
+        Throwable throwable = null;
         try (ImageProxy imageToClose = mImage;
              FileOutputStream output = new FileOutputStream(tempFile)) {
             byte[] bytes = imageToJpegByteArray(mImage, mJpegQuality);
@@ -151,10 +154,14 @@ final class ImageSaver implements Runnable {
             }
 
             exif.save();
+        } catch (OutOfMemoryError e) {
+            saveError = SaveError.UNKNOWN;
+            errorMessage = "Processing failed due to low memory.";
+            throwable = e;
         } catch (IOException | IllegalArgumentException e) {
             saveError = SaveError.FILE_IO_FAILED;
             errorMessage = "Failed to write temp file";
-            exception = e;
+            throwable = e;
         } catch (CodecFailedException e) {
             switch (e.getFailureType()) {
                 case ENCODE_FAILED:
@@ -171,14 +178,24 @@ final class ImageSaver implements Runnable {
                     errorMessage = "Failed to transcode mImage";
                     break;
             }
-            exception = e;
+            throwable = e;
         }
         if (saveError != null) {
-            postError(saveError, errorMessage, exception);
+            postError(saveError, errorMessage, throwable);
             tempFile.delete();
             return null;
         }
         return tempFile;
+    }
+
+    private static String getFileExtensionWithDot(File file) {
+        String fileName = file.getName();
+        int dotIndex = fileName.lastIndexOf('.');
+        if (dotIndex >= 0) {
+            return fileName.substring(dotIndex);
+        } else {
+            return "";
+        }
     }
 
     @NonNull
@@ -197,7 +214,7 @@ final class ImageSaver implements Runnable {
             }
         } else if (imageFormat == ImageFormat.YUV_420_888) {
             return ImageUtil.yuvImageToJpegByteArray(image, shouldCropImage ? image.getCropRect() :
-                    null, jpegQuality);
+                    null, jpegQuality, 0 /* rotationDegrees */);
         } else {
             Logger.w(TAG, "Unrecognized image format: " + imageFormat);
         }
@@ -251,7 +268,7 @@ final class ImageSaver implements Runnable {
                 }
                 outputUri = Uri.fromFile(targetFile);
             }
-        } catch (IOException | IllegalArgumentException e) {
+        } catch (IOException | IllegalArgumentException | SecurityException e) {
             saveError = SaveError.FILE_IO_FAILED;
             errorMessage = "Failed to write destination file.";
             exception = e;

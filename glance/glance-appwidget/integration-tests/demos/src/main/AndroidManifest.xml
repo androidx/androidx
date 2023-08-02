@@ -20,6 +20,7 @@
         android:allowBackup="false"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/demos_label"
+        android:name=".DemoApplication"
         android:supportsRtl="true">
 
         <activity
@@ -96,20 +97,6 @@
         </receiver>
 
         <receiver
-            android:name="androidx.glance.appwidget.demos.SingleEntityWidgetReceiver"
-            android:enabled="@bool/glance_appwidget_available"
-            android:exported="false"
-            android:label="@string/single_entity_widget_name">
-            <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-                <action android:name="android.intent.action.LOCALE_CHANGED" />
-            </intent-filter>
-            <meta-data
-                android:name="android.appwidget.provider"
-                android:resource="@xml/default_app_widget_info" />
-        </receiver>
-
-        <receiver
             android:name="androidx.glance.appwidget.demos.ActionAppWidgetReceiver"
             android:enabled="@bool/glance_appwidget_available"
             android:exported="false"
@@ -138,6 +125,33 @@
         </receiver>
 
         <receiver
+            android:name="androidx.glance.appwidget.demos.FontDemoAppWidgetReceiver"
+            android:label="@string/font_widget_name"
+            android:enabled="@bool/glance_appwidget_available"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="android.intent.action.LOCALE_CHANGED" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/default_app_widget_info" />
+        </receiver>
+
+        <receiver
+            android:name="androidx.glance.appwidget.demos.TypographyDemoAppWidgetReceiver"
+            android:label="@string/typography_widget_name"
+            android:enabled="@bool/glance_appwidget_available"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/default_app_widget_info" />
+        </receiver>
+
+        <receiver
             android:name="androidx.glance.appwidget.demos.ScrollableAppWidgetReceiver"
             android:label="@string/scrollable_widget_name"
             android:enabled="@bool/glance_appwidget_available"
@@ -153,6 +167,32 @@
         <receiver
             android:name="androidx.glance.appwidget.demos.ImageAppWidgetReceiver"
             android:label="@string/image_widget_name"
+            android:enabled="@bool/glance_appwidget_available"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/default_app_widget_info" />
+        </receiver>
+
+        <receiver
+            android:name="androidx.glance.appwidget.demos.RippleAppWidgetReceiver"
+            android:label="@string/ripple_widget_name"
+            android:enabled="@bool/glance_appwidget_available"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/default_app_widget_info" />
+        </receiver>
+
+        <receiver
+            android:name="androidx.glance.appwidget.demos.RemoteViewsWidgetReceiver"
+            android:label="@string/remote_views_widget_name"
             android:enabled="@bool/glance_appwidget_available"
             android:exported="false">
             <intent-filter>
@@ -192,6 +232,19 @@
         <receiver
             android:name="androidx.glance.appwidget.demos.ProgressIndicatorAppWidgetReceiver"
             android:label="@string/progress_indicator_widget_name"
+            android:enabled="@bool/glance_appwidget_available"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/default_app_widget_info" />
+        </receiver>
+
+        <receiver
+            android:name="androidx.glance.appwidget.demos.DefaultColorsAppWidgetReceiver"
+            android:label="@string/default_color_widget_name"
             android:enabled="@bool/glance_appwidget_available"
             android:exported="false">
             <intent-filter>

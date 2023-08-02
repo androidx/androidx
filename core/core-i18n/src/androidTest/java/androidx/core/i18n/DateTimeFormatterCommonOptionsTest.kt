@@ -22,12 +22,12 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
-import org.junit.Assert.assertEquals
-import org.junit.Test
-import org.junit.runner.RunWith
 import java.util.Calendar
 import java.util.GregorianCalendar
 import java.util.Locale
+import org.junit.Assert.assertEquals
+import org.junit.Test
+import org.junit.runner.RunWith
 
 /** Must execute on an Android device. */
 @RunWith(AndroidJUnit4::class)
@@ -43,8 +43,6 @@ class DateTimeFormatterCommonOptionsTest {
         val commonFormats = mapOf(
             DateTimeFormatterCommonOptions.ABBR_MONTH_WEEKDAY_DAY to "Sun, Sep 19",
             DateTimeFormatterCommonOptions.ABBR_MONTH_DAY to "Sep 19",
-            DateTimeFormatterCommonOptions.HOUR_MINUTE to "9:42 PM",
-            DateTimeFormatterCommonOptions.HOUR_MINUTE_SECOND to "9:42:12 PM",
             DateTimeFormatterCommonOptions.MINUTE_SECOND to "42:12",
             DateTimeFormatterCommonOptions.MONTH_DAY to "September 19",
             DateTimeFormatterCommonOptions.MONTH_WEEKDAY_DAY to "Sunday, September 19",
@@ -60,7 +58,21 @@ class DateTimeFormatterCommonOptionsTest {
             DateTimeFormatterCommonOptions.YEAR_NUM_MONTH_DAY to "9/19/2021",
             DateTimeFormatterCommonOptions.YEAR_NUM_MONTH_WEEKDAY_DAY to "Sun, 9/19/2021"
         )
+        val commonFormatsVersionDependent = when {
+            Build.VERSION.SDK_INT >= 34 -> mapOf(
+                DateTimeFormatterCommonOptions.HOUR_MINUTE to "9:42\u202FPM",
+                DateTimeFormatterCommonOptions.HOUR_MINUTE_SECOND to "9:42:12\u202FPM"
+            )
+            else -> mapOf(
+                DateTimeFormatterCommonOptions.HOUR_MINUTE to "9:42 PM",
+                DateTimeFormatterCommonOptions.HOUR_MINUTE_SECOND to "9:42:12 PM"
+            )
+        }
         commonFormats.forEach { entry ->
+            assertEquals(entry.value,
+                DateTimeFormatter(appContext, entry.key, Locale.US).format(testCalendar))
+        }
+        commonFormatsVersionDependent.forEach { entry ->
             assertEquals(entry.value,
                 DateTimeFormatter(appContext, entry.key, Locale.US).format(testCalendar))
         }

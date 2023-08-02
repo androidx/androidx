@@ -22,8 +22,13 @@ import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraXConfig;
+import androidx.camera.core.concurrent.CameraCoordinator;
 import androidx.camera.core.impl.CameraDeviceSurfaceManager;
 import androidx.camera.core.impl.CameraFactory;
+import androidx.camera.testing.impl.fakes.FakeCameraCoordinator;
+import androidx.camera.testing.impl.fakes.FakeCameraDeviceSurfaceManager;
+import androidx.camera.testing.impl.fakes.FakeCameraFactory;
+import androidx.camera.testing.impl.fakes.FakeUseCaseConfigFactory;
 
 /**
  * Convenience class for generating a fake {@link CameraXConfig}.
@@ -60,6 +65,8 @@ public final class FakeAppConfig {
                     () -> new FakeCamera(CAMERA_ID_1, null,
                             new FakeCameraInfoInternal(CAMERA_ID_1, 0,
                                     CameraSelector.LENS_FACING_FRONT)));
+            final CameraCoordinator cameraCoordinator = new FakeCameraCoordinator();
+            cameraFactory.setCameraCoordinator(cameraCoordinator);
             return cameraFactory;
         };
 
@@ -78,7 +85,6 @@ public final class FakeAppConfig {
         return appConfigBuilder.build();
     }
 
-    /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final class DefaultProvider implements CameraXConfig.Provider {
 

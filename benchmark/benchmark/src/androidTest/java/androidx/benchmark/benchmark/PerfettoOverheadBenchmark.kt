@@ -16,8 +16,9 @@
 
 package androidx.benchmark.benchmark
 
+import androidx.benchmark.ExperimentalBenchmarkConfigApi
+import androidx.benchmark.MicrobenchmarkConfig
 import androidx.benchmark.junit4.BenchmarkRule
-import androidx.benchmark.junit4.PerfettoRule
 import androidx.benchmark.junit4.measureRepeated
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -27,14 +28,13 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
+@OptIn(ExperimentalBenchmarkConfigApi::class)
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 class PerfettoOverheadBenchmark {
-    @get:Rule
-    val benchmarkRule = BenchmarkRule()
 
     @get:Rule
-    val perfettoRule = PerfettoRule()
+    val benchmarkRule = BenchmarkRule(MicrobenchmarkConfig(shouldEnableTraceAppTag = true))
 
     /**
      * Empty baseline, no tracing. Expect similar results to [TrivialJavaBenchmark.nothing].
@@ -48,7 +48,7 @@ class PerfettoOverheadBenchmark {
      */
     @Test
     fun runWithTimingDisabled() = benchmarkRule.measureRepeated {
-        runWithTimingDisabled { /* nothing*/ }
+        runWithTimingDisabled { /* nothing */ }
     }
 
     /**

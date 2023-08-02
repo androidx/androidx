@@ -31,11 +31,11 @@ import androidx.work.WorkRequest
 import androidx.work.multiprocess.parcelable.ParcelConverters
 import androidx.work.multiprocess.parcelable.ParcelableConstraints
 import androidx.work.multiprocess.parcelable.ParcelableWorkRequest
+import java.util.concurrent.TimeUnit
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.util.concurrent.TimeUnit
 
 @RunWith(AndroidJUnit4::class)
 @LargeTest

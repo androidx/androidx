@@ -21,7 +21,6 @@ import android.os.Looper;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
-import androidx.annotation.VisibleForTesting;
 import androidx.core.os.HandlerCompat;
 import androidx.work.RunnableScheduler;
 
@@ -29,7 +28,6 @@ import androidx.work.RunnableScheduler;
  * The default implementation of the {@link androidx.work.RunnableScheduler} used by
  * {@link  androidx.work.impl.background.greedy.GreedyScheduler}.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class DefaultRunnableScheduler implements RunnableScheduler {
@@ -38,11 +36,6 @@ public class DefaultRunnableScheduler implements RunnableScheduler {
 
     public DefaultRunnableScheduler() {
         mHandler = HandlerCompat.createAsync(Looper.getMainLooper());
-    }
-
-    @VisibleForTesting
-    public DefaultRunnableScheduler(@NonNull Handler handler) {
-        mHandler = handler;
     }
 
     @NonNull

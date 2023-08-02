@@ -24,6 +24,8 @@ import androidx.wear.watchface.style.UserStyleSchema
 import com.google.common.truth.Truth.assertThat
 import com.google.common.util.concurrent.Futures
 import com.google.common.util.concurrent.ListenableFuture
+import java.time.Instant
+import java.time.ZonedDateTime
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -32,8 +34,6 @@ import org.mockito.Mockito
 import org.mockito.Mockito.`when`
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.internal.bytecode.InstrumentationConfiguration
-import java.time.Instant
-import java.time.ZonedDateTime
 
 private val REFERENCE_PREVIEW_TIME = Instant.ofEpochMilli(123456L)
 
@@ -46,28 +46,30 @@ private class TestListenableWatchFaceService : ListenableWatchFaceService() {
     ): ListenableFuture<WatchFace> {
         return Futures.immediateFuture(
             WatchFace(
-                WatchFaceType.DIGITAL,
-                @Suppress("deprecation")
-                object : Renderer.CanvasRenderer(
-                    surfaceHolder,
-                    currentUserStyleRepository,
-                    watchState,
-                    CanvasType.SOFTWARE,
-                    16
-                ) {
-                    override fun render(
-                        canvas: Canvas,
-                        bounds: Rect,
-                        zonedDateTime: ZonedDateTime
-                    ) {}
+                    WatchFaceType.DIGITAL,
+                    @Suppress("deprecation")
+                    object :
+                        Renderer.CanvasRenderer(
+                            surfaceHolder,
+                            currentUserStyleRepository,
+                            watchState,
+                            CanvasType.SOFTWARE,
+                            16
+                        ) {
+                        override fun render(
+                            canvas: Canvas,
+                            bounds: Rect,
+                            zonedDateTime: ZonedDateTime
+                        ) {}
 
-                    override fun renderHighlightLayer(
-                        canvas: Canvas,
-                        bounds: Rect,
-                        zonedDateTime: ZonedDateTime
-                    ) {}
-                }
-            ).apply { setOverridePreviewReferenceInstant(REFERENCE_PREVIEW_TIME) }
+                        override fun renderHighlightLayer(
+                            canvas: Canvas,
+                            bounds: Rect,
+                            zonedDateTime: ZonedDateTime
+                        ) {}
+                    }
+                )
+                .apply { setOverridePreviewReferenceInstant(REFERENCE_PREVIEW_TIME) }
         )
     }
 
@@ -76,12 +78,13 @@ private class TestListenableWatchFaceService : ListenableWatchFaceService() {
         watchState: WatchState,
         complicationSlotsManager: ComplicationSlotsManager,
         currentUserStyleRepository: CurrentUserStyleRepository
-    ): WatchFace = createWatchFace(
-        surfaceHolder,
-        watchState,
-        complicationSlotsManager,
-        currentUserStyleRepository
-    )
+    ): WatchFace =
+        createWatchFace(
+            surfaceHolder,
+            watchState,
+            complicationSlotsManager,
+            currentUserStyleRepository
+        )
 }
 
 @RunWith(ListenableWatchFaceServiceTestRunner::class)
@@ -98,30 +101,26 @@ public class ListenableWatchFaceServiceTest {
                 ComplicationSlotsManager(emptyList(), currentUserStyleRepository)
 
             // Make sure the ListenableFuture<> to kotlin coroutine bridge works.
-            val watchFace = service.createWatchFaceForTest(
-                mockSurfaceHolder,
-                MutableWatchState().asWatchState(),
-                complicationsSlotManager,
-                currentUserStyleRepository
-            )
+            val watchFace =
+                service.createWatchFaceForTest(
+                    mockSurfaceHolder,
+                    MutableWatchState().asWatchState(),
+                    complicationsSlotManager,
+                    currentUserStyleRepository
+                )
 
             // Simple check that [watchFace] looks sensible.
-            assertThat(watchFace.overridePreviewReferenceInstant).isEqualTo(
-                REFERENCE_PREVIEW_TIME
-            )
+            assertThat(watchFace.overridePreviewReferenceInstant).isEqualTo(REFERENCE_PREVIEW_TIME)
         }
     }
 }
 
 // Without this we get test failures with an error:
 // "failed to access class kotlin.jvm.internal.DefaultConstructorMarker".
-public class ListenableWatchFaceServiceTestRunner(
-    testClass: Class<*>
-) : RobolectricTestRunner(testClass) {
+public class ListenableWatchFaceServiceTestRunner(testClass: Class<*>) :
+    RobolectricTestRunner(testClass) {
     override fun createClassLoaderConfig(method: FrameworkMethod): InstrumentationConfiguration =
-        InstrumentationConfiguration.Builder(
-            super.createClassLoaderConfig(method)
-        )
+        InstrumentationConfiguration.Builder(super.createClassLoaderConfig(method))
             .doNotInstrumentPackage("androidx.wear.watchface")
             .build()
 }

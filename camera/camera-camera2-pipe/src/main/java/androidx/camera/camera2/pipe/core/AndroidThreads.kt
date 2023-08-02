@@ -38,30 +38,32 @@ internal object AndroidThreads {
      * - 5 is mapped to 0 (default)
      * - 10 is mapped to -8 (urgent display)
      */
-    private val NICE_VALUES = intArrayOf(
-        Process.THREAD_PRIORITY_LOWEST, // 1 (Thread.MIN_PRIORITY)
-        Process.THREAD_PRIORITY_BACKGROUND + 6,
-        Process.THREAD_PRIORITY_BACKGROUND + 3,
-        Process.THREAD_PRIORITY_BACKGROUND,
-        Process.THREAD_PRIORITY_DEFAULT, // 5 (Thread.NORM_PRIORITY)
-        Process.THREAD_PRIORITY_DEFAULT - 2,
-        Process.THREAD_PRIORITY_DEFAULT - 4,
-        Process.THREAD_PRIORITY_URGENT_DISPLAY + 3,
-        Process.THREAD_PRIORITY_URGENT_DISPLAY + 2,
-        Process.THREAD_PRIORITY_URGENT_DISPLAY // 10 (Thread.MAX_PRIORITY)
-    )
+    private val NICE_VALUES =
+        intArrayOf(
+            Process.THREAD_PRIORITY_LOWEST, // 1 (Thread.MIN_PRIORITY)
+            Process.THREAD_PRIORITY_BACKGROUND + 6,
+            Process.THREAD_PRIORITY_BACKGROUND + 3,
+            Process.THREAD_PRIORITY_BACKGROUND,
+            Process.THREAD_PRIORITY_DEFAULT, // 5 (Thread.NORM_PRIORITY)
+            Process.THREAD_PRIORITY_DEFAULT - 2,
+            Process.THREAD_PRIORITY_DEFAULT - 4,
+            Process.THREAD_PRIORITY_URGENT_DISPLAY + 3,
+            Process.THREAD_PRIORITY_URGENT_DISPLAY + 2,
+            Process.THREAD_PRIORITY_URGENT_DISPLAY // 10 (Thread.MAX_PRIORITY)
+        )
 
-    public val factory: ThreadFactory = Executors.defaultThreadFactory()
+    val factory: ThreadFactory = Executors.defaultThreadFactory()
 
-    /** Wraps `delegate` such that the threads created by it are set to `priority`.  */
+    /** Wraps `delegate` such that the threads created by it are set to `priority`. */
     fun ThreadFactory.withAndroidPriority(androidPriority: Int): ThreadFactory {
         return ThreadFactory { runnable ->
             val javaPriority = androidToJavaPriority(androidPriority)
-            val thread: Thread = this.newThread {
-                // Set the Android thread priority once the thread actually starts running.
-                Process.setThreadPriority(androidPriority)
-                runnable.run()
-            }
+            val thread: Thread =
+                this.newThread {
+                    // Set the Android thread priority once the thread actually starts running.
+                    Process.setThreadPriority(androidPriority)
+                    runnable.run()
+                }
 
             // Setting java priority internally sets the android priority, but not vice versa.
             // By setting the java priority here, we ensure that the priority is set to the same or
@@ -87,27 +89,20 @@ internal object AndroidThreads {
         }
     }
 
-    /**
-     * Create a new fixed size thread pool using [Executors.newFixedThreadPool].
-     */
+    /** Create a new fixed size thread pool using [Executors.newFixedThreadPool]. */
     fun ThreadFactory.asFixedSizeThreadPool(threads: Int): ExecutorService {
         require(threads > 0) { "Threads ($threads) must be > 0" }
         return Executors.newFixedThreadPool(threads, this)
     }
 
-    /**
-     * Create a new scheduled thread pool using [Executors.newScheduledThreadPool].
-     */
+    /** Create a new scheduled thread pool using [Executors.newScheduledThreadPool]. */
     fun ThreadFactory.asScheduledThreadPool(threads: Int): ScheduledExecutorService {
         require(threads > 0) { "Threads ($threads) must be > 0" }
         return Executors.newScheduledThreadPool(threads, this)
     }
 
-    /**
-     * Create a new cached thread pool using [Executors.newCachedThreadPool].
-     */
-    fun ThreadFactory.asCachedThreadPool(): ExecutorService =
-        Executors.newCachedThreadPool(this)
+    /** Create a new cached thread pool using [Executors.newCachedThreadPool]. */
+    fun ThreadFactory.asCachedThreadPool(): ExecutorService = Executors.newCachedThreadPool(this)
 
     private fun androidToJavaPriority(androidPriority: Int): Int {
         // Err on the side of increased priority.

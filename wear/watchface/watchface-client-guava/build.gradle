@@ -39,17 +39,9 @@ dependencies {
     androidTestImplementation(libs.truth)
 }
 
-// Allow usage of Kotlin's @OptIn.
-tasks.withType(KotlinCompile).configureEach {
-    kotlinOptions {
-        freeCompilerArgs += ["-opt-in=kotlin.RequiresOptIn"]
-    }
-}
-
 androidx {
-    name = "Android Wear Watchface Client Guava"
+    name = "Android Wear Watchface Client Guava Integration"
     type = LibraryType.PUBLISHED_LIBRARY
-    mavenGroup = LibraryGroups.WEAR_WATCHFACE
     inceptionYear = "2021"
     description = "Guava wrappers for the Androidx Wear Watchface library"
 }

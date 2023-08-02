@@ -17,15 +17,31 @@
 package androidx.window.embedding
 
 import android.app.Activity
-import androidx.window.core.ExperimentalWindowApi
+import android.os.IBinder
+import androidx.annotation.RestrictTo
+import androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP
 
 /** Describes a split pair of two containers with activities. */
-@ExperimentalWindowApi
-class SplitInfo internal constructor(
+class SplitInfo @RestrictTo(LIBRARY_GROUP) constructor(
+    /**
+     * The [ActivityStack] representing the primary split container.
+     */
     val primaryActivityStack: ActivityStack,
+    /**
+     * The [ActivityStack] representing the secondary split container.
+     */
     val secondaryActivityStack: ActivityStack,
-    val splitRatio: Float
+    /** The [SplitAttributes] of this split pair. */
+    val splitAttributes: SplitAttributes,
+    /**
+     * A token uniquely identifying this `SplitInfo`.
+     */
+    internal val token: IBinder,
 ) {
+    /**
+     * Whether the [primaryActivityStack] or the [secondaryActivityStack] in this [SplitInfo]
+     * contains the [activity].
+     */
     operator fun contains(activity: Activity): Boolean {
         return primaryActivityStack.contains(activity) ||
             secondaryActivityStack.contains(activity)
@@ -37,7 +53,8 @@ class SplitInfo internal constructor(
 
         if (primaryActivityStack != other.primaryActivityStack) return false
         if (secondaryActivityStack != other.secondaryActivityStack) return false
-        if (splitRatio != other.splitRatio) return false
+        if (splitAttributes != other.splitAttributes) return false
+        if (token != other.token) return false
 
         return true
     }
@@ -45,16 +62,19 @@ class SplitInfo internal constructor(
     override fun hashCode(): Int {
         var result = primaryActivityStack.hashCode()
         result = 31 * result + secondaryActivityStack.hashCode()
-        result = 31 * result + splitRatio.hashCode()
+        result = 31 * result + splitAttributes.hashCode()
+        result = 31 * result + token.hashCode()
         return result
     }
 
     override fun toString(): String {
         return buildString {
             append("SplitInfo:{")
-            append("primaryActivityStack=$primaryActivityStack,")
-            append("secondaryActivityStack=$secondaryActivityStack,")
-            append("splitRatio=$splitRatio}")
+            append("primaryActivityStack=$primaryActivityStack, ")
+            append("secondaryActivityStack=$secondaryActivityStack, ")
+            append("splitAttributes=$splitAttributes, ")
+            append("token=$token")
+            append("}")
         }
     }
 }

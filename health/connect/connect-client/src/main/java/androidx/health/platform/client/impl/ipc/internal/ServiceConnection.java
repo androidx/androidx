@@ -34,6 +34,7 @@ import androidx.health.platform.client.impl.logger.Logger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -46,7 +47,6 @@ import javax.annotation.concurrent.NotThreadSafe;
  *
  * <p>Note: this class is not thread safe and should be called always from the same thread.
  *
- * @hide
  */
 @NotThreadSafe
 @RestrictTo(Scope.LIBRARY)
@@ -86,9 +86,12 @@ public class ServiceConnection implements android.content.ServiceConnection {
     @VisibleForTesting
     @Nullable
     IBinder mBinder;
-    private volatile boolean mIsServiceBound;
+
+    @VisibleForTesting
+    volatile boolean mIsServiceBound;
     /** Denotes how many times connection to the service failed and we retried. */
     private int mServiceConnectionRetry;
+    private final IBinder.DeathRecipient mDeathRecipient;
 
     ServiceConnection(
             Context context,
@@ -99,6 +102,13 @@ public class ServiceConnection implements android.content.ServiceConnection {
         this.mConnectionConfiguration = checkNotNull(connectionConfiguration);
         this.mExecutionTracker = checkNotNull(executionTracker);
         this.mCallback = checkNotNull(callback);
+        this.mDeathRecipient = () -> {
+            Logger.warning(
+                    TAG,
+                    "Binder died for client:"
+                            + mConnectionConfiguration.getClientName());
+            handleRetriableDisconnection(new RemoteException("Binder died"));
+        };
     }
 
     private String getBindPackageName() {
@@ -182,20 +192,49 @@ public class ServiceConnection implements android.content.ServiceConnection {
         return (200 << retryNumber);
     }
 
+    /**
+     * Unbinds the service if there is no pending operation queued.
+     *
+     * @return true if the service is idle and unbind service is attempted.
+     */
+    boolean clearConnectionIfIdle() {
+        if (mOperationQueue.isEmpty() && mRegisteredListeners.isEmpty()) {
+            tryClearConnection();
+            return true;
+        }
+        return false;
+    }
+
     @VisibleForTesting
     void clearConnection(Throwable throwable) {
+        tryClearConnection();
+        mExecutionTracker.cancelPendingFutures(throwable);
+        cancelAllOperationsInQueue(throwable);
+    }
+
+    private void tryClearConnection() {
+        // See Android Service unbind code sample.
+        // https://developer.android.com/reference/android/app/Service#local-service-sample
         if (mIsServiceBound) {
             try {
                 mContext.unbindService(this);
-                mIsServiceBound = false;
             } catch (IllegalArgumentException e) {
+                // In the unlikely scenario that we couldn't unbind the service, we will continue
+                // assuming the service is invalid. Future operations will try connect to service
+                // again.
                 Logger.error(TAG, "Failed to unbind the service. Ignoring and continuing", e);
             }
+            mIsServiceBound = false;
         }
-
-        mBinder = null;
-        mExecutionTracker.cancelPendingFutures(throwable);
-        cancelAllOperationsInQueue(throwable);
+        if (mBinder != null) {
+            try {
+                mBinder.unlinkToDeath(mDeathRecipient, 0);
+            } catch (NoSuchElementException e) {
+                Logger.error(TAG, "mDeathRecipient not linked", e);
+            }
+            mBinder = null;
+        }
+        Logger.debug(TAG, "unbindService called");
     }
 
     void enqueue(QueueOperation operation) {
@@ -277,7 +316,6 @@ public class ServiceConnection implements android.content.ServiceConnection {
             boolean removed = mOperationQueue.remove(operation);
             if (removed) {
                 operation.setException(throwable);
-                execute(operation);
             }
         }
     }
@@ -301,15 +339,7 @@ public class ServiceConnection implements android.content.ServiceConnection {
 
     private void cleanOnDeath(IBinder binder) {
         try {
-            binder.linkToDeath(
-                    () -> {
-                        Logger.warning(
-                                TAG,
-                                "Binder died for client:"
-                                        + mConnectionConfiguration.getClientName());
-                        handleRetriableDisconnection(new RemoteException("Binder died"));
-                    },
-                    /* flags= */ 0);
+            binder.linkToDeath(mDeathRecipient, /* flags= */ 0);
         } catch (RemoteException exception) {
             Logger.warning(
                     TAG,

@@ -16,13 +16,15 @@
 
 package androidx.build.gitclient
 
+import androidx.build.getCheckoutRoot
 import androidx.build.releasenotes.getBuganizerLink
 import androidx.build.releasenotes.getChangeIdAOSPLink
 import java.io.File
+import java.util.concurrent.ConcurrentHashMap
 import org.gradle.api.GradleException
 import org.gradle.api.Project
-import org.gradle.api.provider.Provider
 import org.gradle.api.logging.Logger
+import org.gradle.api.provider.Provider
 
 interface GitClient {
     fun findChangedFilesSince(
@@ -30,25 +32,35 @@ interface GitClient {
         top: String = "HEAD",
         includeUncommitted: Boolean = false
     ): List<String>
+
     fun findPreviousSubmittedChange(): String?
 
     fun getGitLog(
         gitCommitRange: GitCommitRange,
         keepMerges: Boolean,
-        fullProjectDir: File
+        projectDir: File?
     ): List<Commit>
 
-    /**
-     * Abstraction for running execution commands for testability
-     */
+    /** Returns the full commit sha for the HEAD of the git repository */
+    fun getHeadSha(): String {
+        val projectDir = null
+        val commitList: List<Commit> =
+            getGitLog(
+                GitCommitRange(fromExclusive = "", untilInclusive = "HEAD", n = 1),
+                keepMerges = true,
+                projectDir = projectDir
+            )
+        if (commitList.isEmpty()) {
+            throw RuntimeException("Failed to find git commit for HEAD!")
+        }
+        return commitList.first().sha
+    }
+
+    /** Abstraction for running execution commands for testability */
     interface CommandRunner {
-        /**
-         * Executes the given shell command and returns the stdout as a string.
-         */
+        /** Executes the given shell command and returns the stdout as a string. */
         fun execute(command: String): String
-        /**
-         * Executes the given shell command and returns the stdout by lines.
-         */
+        /** Executes the given shell command and returns the stdout by lines. */
         fun executeAndParse(command: String): List<String>
     }
 
@@ -56,11 +68,24 @@ interface GitClient {
         fun getChangeInfoPath(project: Project): Provider<String> {
             return project.providers.environmentVariable("CHANGE_INFO").orElse("")
         }
+
         fun getManifestPath(project: Project): Provider<String> {
             return project.providers.environmentVariable("MANIFEST").orElse("")
         }
+
+        fun forProject(project: Project): GitClient {
+            return create(
+                project.projectDir,
+                project.getCheckoutRoot(),
+                project.logger,
+                GitClient.getChangeInfoPath(project).get(),
+                GitClient.getManifestPath(project).get()
+            )
+        }
+
         fun create(
-            rootProjectDir: File,
+            projectDir: File,
+            checkoutRoot: File,
             logger: Logger,
             changeInfoPath: String,
             manifestPath: String
@@ -79,18 +104,63 @@ interface GitClient {
                 }
                 val changeInfoText = changeInfoFile.readText()
                 val manifestText = manifestFile.readText()
-                logger.info("Using ChangeInfoGitClient with change info path $changeInfoPath, " +
-                    "manifest $manifestPath")
-                return ChangeInfoGitClient(changeInfoText, manifestText)
+                val projectDirRelativeToRoot = projectDir.relativeTo(checkoutRoot).toString()
+                logger.info(
+                    "Using ChangeInfoGitClient with change info path $changeInfoPath, " +
+                        "manifest $manifestPath project dir $projectDirRelativeToRoot"
+                )
+                return ChangeInfoGitClient(changeInfoText, manifestText, projectDirRelativeToRoot)
             }
+            val gitRoot = findGitDirInParentFilepath(projectDir)
+            check(gitRoot != null) { "Could not find .git dir for $projectDir" }
             logger.info("UsingGitRunnerGitClient")
-            return GitRunnerGitClient(rootProjectDir, logger)
+            return GitRunnerGitClient(gitRoot, logger)
+        }
+    }
+}
+
+data class MultiGitClient(
+    val checkoutRoot: File,
+    val logger: Logger,
+    val changeInfoPath: String,
+    val manifestPath: String
+) {
+    // Map from the root of the git repository to a GitClient for that repository
+    // In AndroidX this directory could be frameworks/support, external/noto-fonts, or others
+    @Transient // We don't want Gradle to persist GitClient in the configuration cache
+    var cache: MutableMap<File, GitClient>? = null
+
+    fun getGitClient(projectDir: File): GitClient {
+        // If this object was restored from the Configuration cache, this value will be null
+        // So, if it is null we have to reinitialize it
+        var cache = this.cache
+        if (cache == null) {
+            cache = ConcurrentHashMap()
+            this.cache = cache
+        }
+        return cache.getOrPut(key = projectDir) {
+            GitClient.create(projectDir, checkoutRoot, logger, changeInfoPath, manifestPath)
+        }
+    }
+
+    companion object {
+        fun create(project: Project): MultiGitClient {
+            return MultiGitClient(
+                project.getCheckoutRoot(),
+                project.logger,
+                GitClient.getChangeInfoPath(project).get(),
+                GitClient.getManifestPath(project).get()
+            )
         }
     }
 }
 
 enum class CommitType {
-    NEW_FEATURE, API_CHANGE, BUG_FIX, EXTERNAL_CONTRIBUTION;
+    NEW_FEATURE,
+    API_CHANGE,
+    BUG_FIX,
+    EXTERNAL_CONTRIBUTION;
+
     companion object {
         fun getTitle(commitType: CommitType): String {
             return when (commitType) {
@@ -107,10 +177,10 @@ enum class CommitType {
  * Defines the parameters for a git log command
  *
  * @property fromExclusive the oldest SHA at which the git log starts. Set to an empty string to use
- * [n]
- * @property untilInclusive the latest SHA included in the git log.  Defaults to HEAD
- * @property n a count of how many commits to go back to.  Only used when [fromExclusive] is an
- * empty string
+ *   [n]
+ * @property untilInclusive the latest SHA included in the git log. Defaults to HEAD
+ * @property n a count of how many commits to go back to. Only used when [fromExclusive] is an empty
+ *   string
  */
 data class GitCommitRange(
     val fromExclusive: String = "",
@@ -119,14 +189,14 @@ data class GitCommitRange(
 )
 
 /**
- * Class implementation of a git commit.  It uses the input delimiters to parse the commit
+ * Class implementation of a git commit. It uses the input delimiters to parse the commit
  *
  * @property formattedCommitText a string representation of a git commit
  * @property projectDir the project directory for which to parse file paths from a commit
  * @property commitSHADelimiter the term to use to search for the commit SHA
  * @property subjectDelimiter the term to use to search for the subject (aka commit summary)
  * @property changeIdDelimiter the term to use to search for the change-id in the body of the commit
- *           message
+ *   message
  * @property authorEmailDelimiter the term to use to search for the author email
  */
 data class Commit(
@@ -145,15 +215,13 @@ data class Commit(
     var summary: String = ""
     var type: CommitType = CommitType.BUG_FIX
     var releaseNote: String = ""
-    private val releaseNoteDelimiters: List<String> = listOf(
-        "Relnote:"
-    )
+    private val releaseNoteDelimiters: List<String> = listOf("Relnote:")
 
     init {
         val listedCommit: List<String> = formattedCommitText.split('\n')
-        listedCommit.filter { line -> line.trim() != "" }.forEach { line ->
-            processCommitLine(line)
-        }
+        listedCommit
+            .filter { line -> line.trim() != "" }
+            .forEach { line -> processCommitLine(line) }
     }
 
     private fun processCommitLine(line: String) {
@@ -173,11 +241,12 @@ data class Commit(
             getAuthorEmailFromGitLine(line)
             return
         }
-        if ("Bug:" in line ||
-            "b/" in line ||
-            "bug:" in line ||
-            "Fixes:" in line ||
-            "fixes b/" in line
+        if (
+            "Bug:" in line ||
+                "b/" in line ||
+                "bug:" in line ||
+                "Fixes:" in line ||
+                "fixes b/" in line
         ) {
             getBugsFromGitLine(line)
             return
@@ -199,32 +268,27 @@ data class Commit(
     }
 
     /**
-     * Parses SHAs from git commit line, with the format:
-     * [Commit.commitSHADelimiter] <commitSHA>
+     * Parses SHAs from git commit line, with the format: [Commit.commitSHADelimiter] <commitSHA>
      */
     private fun getSHAFromGitLine(line: String) {
         sha = line.substringAfter(commitSHADelimiter).trim()
     }
 
     /**
-     * Parses subject from git commit line, with the format:
-     * [Commit.subjectDelimiter]<commit subject>
+     * Parses subject from git commit line, with the format: [Commit.subjectDelimiter]<commit
+     * subject>
      */
     private fun getSummary(line: String) {
         summary = line.substringAfter(subjectDelimiter).trim()
     }
 
-    /**
-     * Parses commit Change-Id lines, with the format:
-     * `commit.changeIdDelimiter` <changeId>
-     */
+    /** Parses commit Change-Id lines, with the format: `commit.changeIdDelimiter` <changeId> */
     private fun getChangeIdFromGitLine(line: String) {
         changeId = line.substringAfter(changeIdDelimiter).trim()
     }
 
     /**
-     * Parses commit author lines, with the format:
-     * [Commit.authorEmailDelimiter]email@google.com
+     * Parses commit author lines, with the format: [Commit.authorEmailDelimiter]email@google.com
      */
     private fun getAuthorEmailFromGitLine(line: String) {
         authorEmail = line.substringAfter(authorEmailDelimiter).trim()
@@ -244,9 +308,7 @@ data class Commit(
         }
     }
 
-    /**
-     *  Parses bugs from a git commit message line
-     */
+    /** Parses bugs from a git commit message line */
     private fun getBugsFromGitLine(line: String) {
         var formattedLine = line.replace("b/", " ")
         formattedLine = formattedLine.replace(":", " ")
@@ -265,10 +327,9 @@ data class Commit(
      *
      * They can have a couple valid formats:
      *
-     * `Release notes: This is a one-line release note`
-     * `Release Notes: "This is a multi-line release note.  This accounts for the use case where
-     *                  the commit cannot be explained in one line"
-     * `release notes: "This is a one-line release note.  The quotes can be used this way too"`
+     * `Release notes: This is a one-line release note` `Release Notes: "This is a multi-line
+     * release note. This accounts for the use case where the commit cannot be explained in one
+     * line" `release notes: "This is a one-line release note. The quotes can be used this way too"`
      */
     private fun getReleaseNotesFromGitLine(line: String, formattedCommitText: String) {
         /* Account for the use of quotes in a release note line
@@ -277,7 +338,9 @@ data class Commit(
          */
         var quoteCountInRelNoteLine: Int = 0
         line.forEach { character ->
-            if (character == '"') { quoteCountInRelNoteLine++ }
+            if (character == '"') {
+                quoteCountInRelNoteLine++
+            }
         }
         if (quoteCountInRelNoteLine == 0) {
             getOneLineReleaseNotesFromGitLine(line)
@@ -286,7 +349,7 @@ data class Commit(
                 if (delimiter in line) {
                     // Find the starting quote of the release notes quote block
                     var releaseNoteStartIndex = formattedCommitText.lastIndexOf(delimiter)
-                    + delimiter.length
+                    +delimiter.length
                     releaseNoteStartIndex = formattedCommitText.indexOf('"', releaseNoteStartIndex)
                     // Move to the character after the first quote
                     if (formattedCommitText[releaseNoteStartIndex] == '"') {
@@ -300,10 +363,13 @@ data class Commit(
                         getOneLineReleaseNotesFromGitLine(line)
                         return
                     }
-                    releaseNote = formattedCommitText.substring(
-                        startIndex = releaseNoteStartIndex,
-                        endIndex = releaseNoteEndIndex
-                    ).trim()
+                    releaseNote =
+                        formattedCommitText
+                            .substring(
+                                startIndex = releaseNoteStartIndex,
+                                endIndex = releaseNoteEndIndex
+                            )
+                            .trim()
                 }
             }
         }
@@ -321,18 +387,14 @@ data class Commit(
     fun getReleaseNoteString(): String {
         var releaseNoteString: String = releaseNote
         releaseNoteString += " ${getChangeIdAOSPLink(changeId)}"
-        bugs.forEach { bug ->
-            releaseNoteString += " ${getBuganizerLink(bug)}"
-        }
+        bugs.forEach { bug -> releaseNoteString += " ${getBuganizerLink(bug)}" }
         return releaseNoteString
     }
 
     override fun toString(): String {
         var commitString: String = summary
         commitString += " ${getChangeIdAOSPLink(changeId)}"
-        bugs.forEach { bug ->
-            commitString += " ${getBuganizerLink(bug)}"
-        }
+        bugs.forEach { bug -> commitString += " ${getBuganizerLink(bug)}" }
         return commitString
     }
 }

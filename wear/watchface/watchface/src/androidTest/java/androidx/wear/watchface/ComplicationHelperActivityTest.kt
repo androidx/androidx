@@ -22,30 +22,36 @@ import android.content.pm.PackageManager
 import android.os.Handler
 import android.os.Looper
 import androidx.test.core.app.ApplicationProvider
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.MediumTest
 import androidx.wear.watchface.complications.data.ComplicationType
 import androidx.wear.watchface.complications.data.ComplicationType.LONG_TEXT
 import androidx.wear.watchface.complications.data.ComplicationType.MONOCHROMATIC_IMAGE
 import androidx.wear.watchface.complications.data.ComplicationType.SHORT_TEXT
+import androidx.wear.watchface.style.UserStyleData
 import com.google.common.truth.Truth.assertThat
-import org.junit.Test
-import com.nhaarman.mockitokotlin2.doReturn
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.never
-import com.nhaarman.mockitokotlin2.verify
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.never
+import org.mockito.kotlin.verify
 
 const val TIME_OUT_MILLIS = 500L
 
+@RunWith(AndroidJUnit4::class)
+@MediumTest
 public class ComplicationHelperActivityTest {
     private val mainThreadHandler = Handler(Looper.getMainLooper())
 
-    private val scenarios = mapOf(
-        ComplicationHelperActivity.PERMISSION_REQUEST_CODE_PROVIDER_CHOOSER to createIntent(),
-
-        ComplicationHelperActivity.PERMISSION_REQUEST_CODE_REQUEST_ONLY to
-            createPermissionOnlyIntent()
-    )
+    private val scenarios =
+        mapOf(
+            ComplicationHelperActivity.PERMISSION_REQUEST_CODE_PROVIDER_CHOOSER to createIntent(),
+            ComplicationHelperActivity.PERMISSION_REQUEST_CODE_REQUEST_ONLY to
+                createPermissionOnlyIntent()
+        )
 
     @Test
     public fun createProviderChooserHelperIntent_action() {
@@ -94,9 +100,10 @@ public class ComplicationHelperActivityTest {
     @Test
     public fun instanceId() {
         assertThat(
-            createIntent(instanceId = "ID-1")
-                .getStringExtra(ComplicationDataSourceChooserIntent.EXTRA_WATCHFACE_INSTANCE_ID)
-        ).isEqualTo("ID-1")
+                createIntent(instanceId = "ID-1")
+                    .getStringExtra(ComplicationDataSourceChooserIntent.EXTRA_WATCHFACE_INSTANCE_ID)
+            )
+            .isEqualTo("ID-1")
     }
 
     fun runOnMainThread(task: () -> Unit) {
@@ -114,9 +121,8 @@ public class ComplicationHelperActivityTest {
             scenarios.forEach { (_, intent) ->
                 val helper = ComplicationHelperActivity()
                 helper.intent = intent
-                helper.mDelegate = mock() {
-                    on { shouldShowRequestPermissionRationale() } doReturn true
-                }
+                helper.mDelegate =
+                    mock() { on { shouldShowRequestPermissionRationale() } doReturn true }
 
                 helper.start(true)
                 verify(helper.mDelegate).launchComplicationRationaleActivity()
@@ -130,9 +136,8 @@ public class ComplicationHelperActivityTest {
             scenarios.forEach { (_, intent) ->
                 val helper = ComplicationHelperActivity()
                 helper.intent = intent
-                helper.mDelegate = mock() {
-                    on { shouldShowRequestPermissionRationale() } doReturn false
-                }
+                helper.mDelegate =
+                    mock() { on { shouldShowRequestPermissionRationale() } doReturn false }
 
                 helper.start(true)
                 verify(helper.mDelegate, never()).launchComplicationRationaleActivity()
@@ -146,9 +151,8 @@ public class ComplicationHelperActivityTest {
             scenarios.forEach { (_, intent) ->
                 val helper = ComplicationHelperActivity()
                 helper.intent = intent
-                helper.mDelegate = mock() {
-                    on { shouldShowRequestPermissionRationale() } doReturn true
-                }
+                helper.mDelegate =
+                    mock() { on { shouldShowRequestPermissionRationale() } doReturn true }
 
                 helper.start(false)
                 verify(helper.mDelegate, never()).launchComplicationRationaleActivity()
@@ -162,10 +166,11 @@ public class ComplicationHelperActivityTest {
             scenarios.forEach { (requestId, intent) ->
                 val helper = ComplicationHelperActivity()
                 helper.intent = intent
-                helper.mDelegate = mock() {
-                    on { shouldShowRequestPermissionRationale() } doReturn false
-                    on { checkPermission() } doReturn false
-                }
+                helper.mDelegate =
+                    mock() {
+                        on { shouldShowRequestPermissionRationale() } doReturn false
+                        on { checkPermission() } doReturn false
+                    }
 
                 helper.start(true)
                 verify(helper.mDelegate).requestPermissions(requestId)
@@ -179,10 +184,11 @@ public class ComplicationHelperActivityTest {
             scenarios.forEach { (requestId, intent) ->
                 val helper = ComplicationHelperActivity()
                 helper.intent = intent
-                helper.mDelegate = mock() {
-                    on { shouldShowRequestPermissionRationale() } doReturn false
-                    on { checkPermission() } doReturn true
-                }
+                helper.mDelegate =
+                    mock() {
+                        on { shouldShowRequestPermissionRationale() } doReturn false
+                        on { checkPermission() } doReturn true
+                    }
 
                 helper.start(true)
                 verify(helper.mDelegate, never()).requestPermissions(requestId)
@@ -247,13 +253,13 @@ public class ComplicationHelperActivityTest {
 
     @Test
     public fun complicationDeniedActivity_not_launched_if_permission_denied_with_dont_show() {
-        val deniedScenarios = mapOf(
-            ComplicationHelperActivity.PERMISSION_REQUEST_CODE_PROVIDER_CHOOSER_NO_DENIED_INTENT to
-                createIntent(),
-
-            ComplicationHelperActivity.PERMISSION_REQUEST_CODE_REQUEST_ONLY_NO_DENIED_INTENT to
-                createPermissionOnlyIntent()
-        )
+        val deniedScenarios =
+            mapOf(
+                ComplicationHelperActivity
+                    .PERMISSION_REQUEST_CODE_PROVIDER_CHOOSER_NO_DENIED_INTENT to createIntent(),
+                ComplicationHelperActivity.PERMISSION_REQUEST_CODE_REQUEST_ONLY_NO_DENIED_INTENT to
+                    createPermissionOnlyIntent()
+            )
         runOnMainThread {
             deniedScenarios.forEach { (requestId, intent) ->
                 val helper = ComplicationHelperActivity()
@@ -278,27 +284,31 @@ public class ComplicationHelperActivityTest {
         instanceId: String? = null,
         vararg supportedTypes: ComplicationType = defaultSupportedTypes,
         complicationDeniedIntent: Intent? = Intent(),
-        complicationRationalIntent: Intent? = Intent()
-    ) = ComplicationHelperActivity.createComplicationDataSourceChooserHelperIntent(
-        context,
-        watchFaceComponentName,
-        complicationSlotId,
-        supportedTypes.asList(),
-        instanceId,
-        complicationDeniedIntent,
-        complicationRationalIntent
-    )
+        complicationRationalIntent: Intent? = Intent(),
+        userStyleData: UserStyleData? = null
+    ) =
+        ComplicationHelperActivity.createComplicationDataSourceChooserHelperIntent(
+            context,
+            watchFaceComponentName,
+            complicationSlotId,
+            supportedTypes.asList(),
+            instanceId,
+            complicationDeniedIntent,
+            complicationRationalIntent,
+            userStyleData
+        )
 
     private fun createPermissionOnlyIntent(
         watchFaceComponentName: ComponentName = defaultWatchFaceComponentName,
         complicationDeniedIntent: Intent? = Intent(),
         complicationRationalIntent: Intent? = Intent()
-    ) = ComplicationHelperActivity.createPermissionRequestHelperIntent(
-        context,
-        watchFaceComponentName,
-        complicationDeniedIntent,
-        complicationRationalIntent
-    )
+    ) =
+        ComplicationHelperActivity.createPermissionRequestHelperIntent(
+            context,
+            watchFaceComponentName,
+            complicationDeniedIntent,
+            complicationRationalIntent
+        )
 
     private companion object {
         /** The context to be used in the various tests. */
@@ -318,9 +328,10 @@ public class ComplicationHelperActivityTest {
 /** The watch face component name encoded in the intent. */
 @Suppress("DEPRECATION")
 private val Intent.watchFaceComponentName
-    get() = getParcelableExtra<ComponentName>(
-        ComplicationDataSourceChooserIntent.EXTRA_WATCH_FACE_COMPONENT_NAME
-    )
+    get() =
+        getParcelableExtra<ComponentName>(
+            ComplicationDataSourceChooserIntent.EXTRA_WATCH_FACE_COMPONENT_NAME
+        )
 
 /** The complication ID encoded in the intent. */
 private val Intent.complicationSlotId
@@ -328,6 +339,7 @@ private val Intent.complicationSlotId
 
 /** The support types encoded in the intent. */
 private val Intent.supportedTypes
-    get() = ComplicationType.fromWireTypes(
-        getIntArrayExtra(ComplicationDataSourceChooserIntent.EXTRA_SUPPORTED_TYPES)!!
-    )
+    get() =
+        ComplicationType.fromWireTypes(
+            getIntArrayExtra(ComplicationDataSourceChooserIntent.EXTRA_SUPPORTED_TYPES)!!
+        )

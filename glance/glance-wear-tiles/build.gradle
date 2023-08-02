@@ -15,31 +15,27 @@
  */
 
 import androidx.build.LibraryType
-import androidx.build.Publish
-import androidx.build.AndroidXComposePlugin
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
+    id("org.jetbrains.kotlin.android")
     id("AndroidXComposePlugin")
 }
-
-// Disable multi-platform; this will only be used on Android.
-AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project, /* isMultiplatformEnabled= */false)
 
 dependencies {
 
     api(project(":glance:glance"))
-    api("androidx.compose.runtime:runtime:1.1.0-beta01")
-    api("androidx.compose.ui:ui-graphics:1.1.0-beta01")
-    api("androidx.compose.ui:ui-unit:1.1.0-beta01")
-    api("androidx.wear.tiles:tiles:1.0.0")
+    api(project(":glance:glance-template"))
+    api("androidx.compose.runtime:runtime:1.1.1")
+    api("androidx.compose.ui:ui-graphics:1.1.1")
+    api("androidx.compose.ui:ui-unit:1.1.1")
+    api("androidx.wear.tiles:tiles:1.1.0")
 
     implementation(libs.kotlinStdlib)
     implementation(libs.kotlinCoroutinesGuava)
-    implementation "androidx.lifecycle:lifecycle-runtime:2.3.1"
-    implementation "androidx.lifecycle:lifecycle-runtime-ktx:2.3.1"
-    implementation "androidx.lifecycle:lifecycle-service:2.3.1"
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.1")
+    implementation("androidx.lifecycle:lifecycle-service:2.6.1")
 
     testImplementation(libs.testCore)
     testImplementation(libs.testRules)
@@ -50,8 +46,8 @@ dependencies {
     testImplementation(libs.kotlinCoroutinesTest)
     testImplementation(libs.robolectric)
     testImplementation(libs.kotlinReflect)
-    testImplementation(libs.mockitoCore)
-    testImplementation(libs.mockitoKotlin)
+    testImplementation(libs.mockitoCore4)
+    testImplementation(libs.mockitoKotlin4)
     testImplementation("androidx.core:core-ktx:1.7.0")
     testImplementation("androidx.wear.tiles:tiles-testing:1.0.0")
 
@@ -77,6 +73,8 @@ android {
     lintOptions {
         // TODO(b/191286558): Remove when lint is fixed.
         disable "UnsafeOptInUsageError", "UnsafeOptInUsageWarning"
+        // protobuf generates unannotated methods
+        disable "UnknownNullness"
     }
 
     sourceSets {
@@ -89,7 +87,7 @@ android {
 androidx {
     name = "Glance for Wear Tiles"
     type = LibraryType.PUBLISHED_LIBRARY
-    mavenGroup = LibraryGroups.GLANCE
+    mavenVersion = LibraryVersions.GLANCE_WEAR_TILES
     inceptionYear = "2021"
     description = "Glance allows developers to build layouts for Wear Tiles using a Jetpack " +
             "Compose-style API."

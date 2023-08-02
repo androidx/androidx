@@ -205,7 +205,8 @@ class FontPaddingTest {
             charSequence = text,
             textPaint = textPaint,
             includePadding = includePadding,
-            fallbackLineSpacing = false
+            fallbackLineSpacing = false,
+            width = fontSize * 1.5f
         )
     }
 }

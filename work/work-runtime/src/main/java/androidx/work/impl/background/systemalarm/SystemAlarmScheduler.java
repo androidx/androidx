@@ -30,7 +30,6 @@ import androidx.work.impl.model.WorkSpec;
 /**
  * A {@link Scheduler} that schedules work using {@link android.app.AlarmManager}.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class SystemAlarmScheduler implements Scheduler {

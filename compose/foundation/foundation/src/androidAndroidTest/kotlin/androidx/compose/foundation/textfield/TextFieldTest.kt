@@ -14,29 +14,32 @@
 * limitations under the License.
 */
 
-// TODO(b/160821157): Replace FocusState with FocusState2.isFocused
-@file:Suppress("DEPRECATION")
-
 package androidx.compose.foundation.textfield
 
 import android.os.Build
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.interaction.FocusInteraction
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.computeSizeForDefaultText
 import androidx.compose.runtime.Composable
@@ -51,6 +54,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.testutils.assertPixelColor
 import androidx.compose.testutils.assertShape
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -59,8 +63,6 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.toPixelMap
-import androidx.compose.ui.input.key.KeyEvent
-import androidx.compose.ui.input.key.NativeKeyEvent
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
@@ -78,6 +80,7 @@ import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertHasClickAction
+import androidx.compose.ui.test.assertIsFocused
 import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.click
@@ -87,15 +90,16 @@ import androidx.compose.ui.test.isFocused
 import androidx.compose.ui.test.isNotFocused
 import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.performKeyPress
-import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.performImeAction
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performTextClearance
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTextInputSelection
+import androidx.compose.ui.test.performTextReplacement
+import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.requestFocus
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.ParagraphStyle
@@ -133,6 +137,7 @@ import androidx.compose.ui.text.toUpperCase
 import androidx.compose.ui.text.withAnnotation
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
@@ -143,18 +148,19 @@ import androidx.test.filters.SdkSuppress
 import androidx.testutils.fonts.R
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
-import com.nhaarman.mockitokotlin2.any
-import com.nhaarman.mockitokotlin2.argumentCaptor
-import com.nhaarman.mockitokotlin2.atLeastOnce
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.times
-import com.nhaarman.mockitokotlin2.verify
+import kotlin.test.assertFailsWith
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.kotlin.any
+import org.mockito.kotlin.argumentCaptor
+import org.mockito.kotlin.atLeastOnce
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.times
+import org.mockito.kotlin.verify
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
@@ -583,6 +589,78 @@ class TextFieldTest {
     }
 
     @Test
+    fun semantics_setTextAction_doesNothingWhenReadOnly() {
+        rule.setContent {
+            var value by remember { mutableStateOf("") }
+            BasicTextField(
+                modifier = Modifier.testTag(Tag),
+                value = value,
+                onValueChange = { value = it },
+                readOnly = true
+            )
+        }
+
+        rule.onNodeWithTag(Tag)
+            .performTextReplacement("hello")
+        rule.onNodeWithTag(Tag)
+            .assertEditableTextEquals("")
+    }
+
+    @Test
+    fun semantics_setTextAction_throwsWhenDisabled() {
+        rule.setContent {
+            var value by remember { mutableStateOf("") }
+            BasicTextField(
+                modifier = Modifier.testTag(Tag),
+                value = value,
+                onValueChange = { value = it },
+                enabled = false
+            )
+        }
+
+        assertFailsWith<AssertionError> {
+            rule.onNodeWithTag(Tag)
+                .performTextReplacement("hello")
+        }
+    }
+
+    @Test
+    fun semantics_insertTextAction_doesNothingWhenReadOnly() {
+        rule.setContent {
+            var value by remember { mutableStateOf("") }
+            BasicTextField(
+                modifier = Modifier.testTag(Tag),
+                value = value,
+                onValueChange = { value = it },
+                readOnly = true
+            )
+        }
+
+        rule.onNodeWithTag(Tag)
+            .performTextInput("hello")
+        rule.onNodeWithTag(Tag)
+            .assertEditableTextEquals("")
+    }
+
+    @Test
+    fun semantics_insertTextAction_throwsWhenDisabled() {
+        rule.setContent {
+            var value by remember { mutableStateOf("") }
+            BasicTextField(
+                modifier = Modifier.testTag(Tag),
+                value = value,
+                onValueChange = { value = it },
+                enabled = false
+            )
+        }
+
+        assertFailsWith<AssertionError> {
+            rule.onNodeWithTag(Tag)
+                .performTextInput("hello")
+        }
+    }
+
+    @Test
     fun semantics_clickAction() {
         rule.setContent {
             var value by remember { mutableStateOf("") }
@@ -598,6 +676,63 @@ class TextFieldTest {
             .performSemanticsAction(SemanticsActions.OnClick)
         rule.onNodeWithTag(Tag)
             .assert(isFocused())
+    }
+
+    @Test
+    fun semantics_imeEnterAction() {
+        var done = false
+        rule.setContent {
+            var value by remember { mutableStateOf("") }
+            BasicTextField(
+                modifier = Modifier.testTag(Tag),
+                value = value,
+                onValueChange = { value = it },
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                keyboardActions = KeyboardActions(onDone = { done = true })
+            )
+        }
+
+        rule.onNodeWithTag(Tag)
+            .requestFocus()
+            .assertIsFocused()
+
+        rule.runOnIdle {
+            assertThat(done).isFalse()
+        }
+
+        rule.onNodeWithTag(Tag)
+            .performImeAction()
+
+        rule.runOnIdle {
+            assertThat(done).isTrue()
+        }
+    }
+
+    @Test
+    fun semantics_defaultImeEnterAction() {
+        rule.setContent {
+            var value by remember { mutableStateOf("") }
+            BasicTextField(
+                modifier = Modifier.testTag(Tag),
+                value = value,
+                onValueChange = { value = it },
+                keyboardActions = KeyboardActions()
+            )
+        }
+
+        rule.onNodeWithTag(Tag)
+            .requestFocus()
+            .assertIsFocused()
+
+        val error = assertFailsWith<AssertionError> {
+            rule.onNodeWithTag(Tag)
+                .performImeAction()
+        }
+        assertThat(error).hasMessageThat().startsWith(
+            "Failed to perform IME action.\n" +
+                "Failed to assert the following: (NOT (ImeAction = 'Default'))\n" +
+                "Semantics of the node:"
+        )
     }
 
     @Test
@@ -1030,6 +1165,39 @@ class TextFieldTest {
     }
 
     @Test
+    fun textField_stringOverload_doesNotCallOnValueChange_whenCompositionUpdatesOnly_semantics() {
+        var callbackCounter = 0
+
+        rule.setContent {
+            val focusManager = LocalFocusManager.current
+            val text = remember { mutableStateOf("A") }
+
+            BasicTextField(
+                value = text.value,
+                onValueChange = {
+                    callbackCounter += 1
+                    text.value = it
+
+                    // causes TextFieldValue's composition clearing
+                    focusManager.clearFocus(true)
+                },
+                modifier = Modifier.testTag("tag")
+            )
+        }
+
+        rule.onNodeWithTag("tag")
+            .performClick()
+        rule.waitForIdle()
+
+        rule.onNodeWithTag("tag")
+            .performSemanticsAction(SemanticsActions.SetText) { it(AnnotatedString("")) }
+
+        rule.runOnIdle {
+            assertThat(callbackCounter).isEqualTo(1)
+        }
+    }
+
+    @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun textField_textAlignCenter_defaultWidth() {
         val fontSize = 50
@@ -1140,11 +1308,12 @@ class TextFieldTest {
                 onValueChange = {
                     textFieldValue.value = it
                 },
-                modifier = Modifier.testTag(Tag).wrapContentSize()
+                modifier = Modifier
+                    .testTag(Tag)
+                    .wrapContentSize()
             )
         }
         val textNode = rule.onNodeWithTag(Tag)
-        textNode.performTouchInput { longClick() }
         textNode.performTextInputSelection(TextRange(0, 4))
         textFieldValue.value = ""
 
@@ -1155,6 +1324,7 @@ class TextFieldTest {
         assertThat(actual).isEqualTo(expected)
     }
 
+    @Ignore // b/284408746
     @OptIn(ExperimentalTestApi::class)
     @Test
     fun whenPartiallySelectedTextIsRemoved_SelectionCoercesToEdges() {
@@ -1165,11 +1335,12 @@ class TextFieldTest {
                 onValueChange = {
                     textFieldValue.value = it
                 },
-                modifier = Modifier.testTag(Tag).wrapContentSize()
+                modifier = Modifier
+                    .testTag(Tag)
+                    .wrapContentSize()
             )
         }
         val textNode = rule.onNodeWithTag(Tag)
-        textNode.performTouchInput { longClick() }
         textNode.performTextInputSelection(TextRange(2, 8))
         textFieldValue.value = "Hello"
 
@@ -1191,11 +1362,12 @@ class TextFieldTest {
                 onValueChange = {
                     textFieldValue.value = it
                 },
-                modifier = Modifier.testTag(Tag).wrapContentSize()
+                modifier = Modifier
+                    .testTag(Tag)
+                    .wrapContentSize()
             )
         }
         val textNode = rule.onNodeWithTag(Tag)
-        textNode.performTouchInput { longClick() }
         textNode.performTextInputSelection(TextRange(0, 4))
         rule.waitForIdle()
 
@@ -1223,11 +1395,12 @@ class TextFieldTest {
                 onValueChange = {
                     textFieldValue.value = it
                 },
-                modifier = Modifier.testTag(Tag).wrapContentSize()
+                modifier = Modifier
+                    .testTag(Tag)
+                    .wrapContentSize()
             )
         }
         val textNode = rule.onNodeWithTag(Tag)
-        textNode.performTouchInput { longClick() }
         textNode.performTextInputSelection(TextRange(0, 4))
         rule.waitForIdle()
 
@@ -1245,7 +1418,6 @@ class TextFieldTest {
         assertThat(actual).isEqualTo(expected)
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun whenSelectedTextIsRemovedByIME_SelectionDoesNotRevert() {
         // hard to find a descriptive name. Take a look at
@@ -1258,35 +1430,104 @@ class TextFieldTest {
                 onValueChange = {
                     textFieldValue.value = it
                 },
-                modifier = Modifier.testTag(Tag).wrapContentSize()
+                modifier = Modifier
+                    .testTag(Tag)
+                    .wrapContentSize()
             )
         }
         val textNode = rule.onNodeWithTag(Tag)
-        textNode.performTouchInput { longClick() }
-        textNode.performTextInputSelection(TextRange(0, 4))
-        textNode.performKeyPress(
-            KeyEvent(
-                NativeKeyEvent(
-                    NativeKeyEvent.ACTION_DOWN,
-                    NativeKeyEvent.KEYCODE_DEL
-                )
-            )
-        )
-        textNode.performKeyPress(KeyEvent(
-            NativeKeyEvent(
-                NativeKeyEvent.ACTION_UP,
-                NativeKeyEvent.KEYCODE_DEL
-            )
-        ))
+        textNode.performTextClearance()
+
+        rule.waitForIdle()
+        textNode.assertTextEquals("")
+        val selection = textNode.fetchSemanticsNode().config
+            .getOrNull(SemanticsProperties.TextSelectionRange)
+        assertThat(selection).isEqualTo(TextRange(0))
 
         textFieldValue.value = "Hello"
 
         rule.waitForIdle()
-
-        val expected = TextRange(0, 0)
         val actual = textNode.fetchSemanticsNode().config
             .getOrNull(SemanticsProperties.TextSelectionRange)
-        assertThat(actual).isEqualTo(expected)
+        assertThat(actual).isEqualTo(TextRange(0))
+    }
+
+    @Test
+    fun decorationBoxIntrinsics() {
+        var size: IntSize? = null
+        var dividerSize: IntSize? = null
+        rule.setContent {
+            Box(Modifier.onGloballyPositioned { size = it.size }) {
+                Row(Modifier.height(IntrinsicSize.Min)) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxHeight()
+                            .width(10.dp)
+                            .onGloballyPositioned { dividerSize = it.size }
+                            .drawBehind { drawRect(Color.Gray) }
+                    )
+                    BasicTextField(
+                        value = "",
+                        onValueChange = {},
+                        decorationBox = { content ->
+                            Box(
+                                modifier = Modifier
+                                    .border(1.dp, Color.Magenta)
+                                    .padding(4.dp),
+                                propagateMinConstraints = true
+                            ) {
+                                content()
+                            }
+                        }
+                    )
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            assertThat(dividerSize).isNotNull()
+            assertThat(size).isNotNull()
+            assertThat(dividerSize!!.height).isEqualTo(size!!.height)
+        }
+    }
+
+    @Test
+    fun decorationBox_togglingInnerTextField() {
+        var value by mutableStateOf("")
+        val decorationTag = "decorationTag"
+        rule.setContent {
+            Column {
+                BasicTextField(
+                    value = value,
+                    onValueChange = { value = it },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .testTag(Tag),
+                    decorationBox = {
+                        // the core text field is at the very bottom
+                        if (value.isEmpty()) {
+                            BasicText("test", modifier = Modifier.testTag(decorationTag))
+                        } else {
+                            it()
+                        }
+                    }
+                )
+            }
+        }
+
+        rule.onNodeWithTag(decorationTag, true).assertExists()
+
+        rule.onNode(hasSetTextAction()).performTextInput("hello")
+
+        rule.onNodeWithTag(decorationTag, true).assertDoesNotExist()
+
+        rule.onNode(hasSetTextAction()).performTextClearance()
+
+        rule.onNodeWithTag(decorationTag, true).assertExists()
+
+        rule.onNode(hasSetTextAction()).performTextInput("hello2")
+
+        rule.onNodeWithTag(decorationTag, true).assertDoesNotExist()
     }
 }
 

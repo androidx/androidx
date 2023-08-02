@@ -18,6 +18,7 @@
 import androidx.build.BundleInsideHelper
 import androidx.build.KmpPlatformsKt
 import androidx.build.LibraryType
+import androidx.build.PlatformIdentifier
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 
@@ -29,12 +30,14 @@ plugins {
 def enableNative = KmpPlatformsKt.enableNative(project)
 
 androidXMultiplatform {
-    jvm {
+    jvm() {
         withJava()
     }
     mac()
     linux()
     ios()
+
+    defaultPlatform(PlatformIdentifier.JVM)
 
     sourceSets {
         all {
@@ -55,7 +58,7 @@ androidXMultiplatform {
                 implementation(libs.kotlinTestAnnotationsCommon)
                 implementation(libs.kotlinCoroutinesTest)
                 implementation(project(":datastore:datastore-core"))
-                implementation(project(":internal-testutils-kmp"))
+                implementation(project(":kruth:kruth"))
                 implementation(project(":internal-testutils-datastore"))
             }
         }
@@ -68,7 +71,7 @@ androidXMultiplatform {
                 implementation(libs.junit)
                 implementation(libs.kotlinTest)
                 implementation(project(":internal-testutils-datastore"))
-                implementation(project(":internal-testutils-kmp"))
+                implementation(project(":kruth:kruth"))
             }
         }
         if (enableNative) {
@@ -85,16 +88,11 @@ androidXMultiplatform {
                 dependencies {
                     implementation(libs.kotlinTest)
                     implementation(project(":internal-testutils-datastore"))
-                    implementation(project(":internal-testutils-kmp"))
+                    implementation(project(":kruth:kruth"))
                 }
             }
         }
 
-        targets.withType(KotlinNativeTarget).configureEach {
-            binaries.all {
-                binaryOptions["memoryModel"] = "experimental"
-            }
-        }
         targets.all { target ->
             if (target.platformType == KotlinPlatformType.native) {
                 target.compilations["main"].defaultSourceSet {
@@ -115,16 +113,12 @@ BundleInsideHelper.forInsideJarKmp(
 )
 
 dependencies {
-    bundleInside(project(
-            path: ":datastore:datastore-preferences-proto",
-            configuration: "export"
-    ))
+    bundleInside(project(path: ":datastore:datastore-preferences-proto", configuration: "export"))
 }
 
 androidx {
-    name = "Android Preferences DataStore Core"
-    type = LibraryType.KMP_LIBRARY
-    mavenGroup = LibraryGroups.DATASTORE
+    name = "Preferences DataStore Core"
+    type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2020"
     description = "Android Preferences DataStore without the Android Dependencies"
     legacyDisableKotlinStrictApiMode = true

@@ -20,8 +20,8 @@ import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.room.Room.LOG_TAG
-import androidx.room.util.readVersion
 import androidx.room.util.copy
+import androidx.room.util.readVersion
 import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.sqlite.db.SupportSQLiteOpenHelper
 import androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory
@@ -54,32 +54,31 @@ internal class SQLiteCopyOpenHelper(
     private lateinit var databaseConfiguration: DatabaseConfiguration
     private var verified = false
 
-    override fun getDatabaseName(): String? {
-        return delegate.databaseName
-    }
+    override val databaseName: String?
+        get() = delegate.databaseName
 
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
     override fun setWriteAheadLoggingEnabled(enabled: Boolean) {
         delegate.setWriteAheadLoggingEnabled(enabled)
     }
 
-    @Synchronized
-    override fun getWritableDatabase(): SupportSQLiteDatabase {
-        if (!verified) {
-            verifyDatabaseFile(true)
-            verified = true
+    override val writableDatabase: SupportSQLiteDatabase
+        get() {
+            if (!verified) {
+                verifyDatabaseFile(true)
+                verified = true
+            }
+            return delegate.writableDatabase
         }
-        return delegate.writableDatabase
-    }
 
-    @Synchronized
-    override fun getReadableDatabase(): SupportSQLiteDatabase {
-        if (!verified) {
-            verifyDatabaseFile(false)
-            verified = true
+    override val readableDatabase: SupportSQLiteDatabase
+        get() {
+            if (!verified) {
+                verifyDatabaseFile(false)
+                verified = true
+            }
+            return delegate.readableDatabase
         }
-        return delegate.readableDatabase
-    }
 
     @Synchronized
     override fun close() {

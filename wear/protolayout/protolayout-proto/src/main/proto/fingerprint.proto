@@ -1,0 +1,38 @@
+// Fingerprints that represent the contents of a layout tree.
+syntax = "proto3";
+
+package androidx.wear.protolayout.proto;
+
+option java_package = "androidx.wear.protolayout.proto";
+option java_outer_classname = "FingerprintProto";
+
+// Fingerprint for a layout tree that makes it efficient to compare 2 trees.
+message TreeFingerprint {
+  // Fingerprint for the node at the root of the tree. This must match the root
+  // element of the layout that this object represents.
+  NodeFingerprint root = 1;
+}
+
+// Fingerprint for a node in the layout tree.
+message NodeFingerprint {
+  // Numeric fingerprint for the type of the node.
+  sfixed32 self_type_value = 1;
+
+  // Numeric fingerprint for the node's own properties, without its children.
+  // Note that this may depend on the way the node was built. In other words, 2
+  // messages with the same content may have different fingerprints if their
+  // setters were called in a different order. Expected to be virtually free
+  // of collisions for the purposes of diffing layout trees.
+  sfixed32 self_props_value = 2;
+
+  // Numeric fingerprint for all the children under this node. This value will
+  // change when any of the children have changed. May be 0 if there are no
+  // children. Expected to be virtually free of collisions for the purposes of
+  // diffing layout trees.
+  sfixed32 child_nodes_value = 3;
+
+  // The child nodes under this node. These must be in exactly the same order
+  // and number as the corresponding elements under the corresponding layout
+  // node.
+  repeated NodeFingerprint child_nodes = 4;
+}

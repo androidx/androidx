@@ -20,7 +20,7 @@ import androidx.room.compiler.processing.XConstructorElement
 import androidx.room.compiler.processing.XConstructorType
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeParameterElement
-import androidx.room.compiler.processing.javac.kotlin.KmConstructor
+import androidx.room.compiler.processing.javac.kotlin.KmConstructorContainer
 import com.google.auto.common.MoreTypes
 import javax.lang.model.element.ElementKind
 import javax.lang.model.element.ExecutableElement
@@ -35,6 +35,9 @@ internal class JavacConstructorElement(
             "Constructor element is constructed with invalid type: $element"
         }
     }
+
+    override fun isSyntheticConstructorForJvmOverloads() = false
+
     override val name: String
         get() = "<init>"
 
@@ -79,7 +82,8 @@ internal class JavacConstructorElement(
         }
     }
 
-    override val kotlinMetadata: KmConstructor? by lazy {
-        (enclosingElement as? JavacTypeElement)?.kotlinMetadata?.getConstructorMetadata(element)
+    override val kotlinMetadata: KmConstructorContainer? by lazy {
+        (enclosingElement as? JavacTypeElement)?.kotlinMetadata
+            ?.getConstructorMetadata(element)
     }
 }

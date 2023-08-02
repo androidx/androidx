@@ -15,10 +15,10 @@
  */
 package androidx.room
 
-import android.content.Intent
-import android.content.ServiceConnection
 import android.content.ComponentName
 import android.content.Context
+import android.content.Intent
+import android.content.ServiceConnection
 import android.os.IBinder
 import android.os.RemoteException
 import android.util.Log
@@ -56,7 +56,7 @@ internal class MultiInstanceInvalidationClient(
 
     val callback: IMultiInstanceInvalidationCallback =
         object : IMultiInstanceInvalidationCallback.Stub() {
-            override fun onInvalidation(tables: Array<String>) {
+            override fun onInvalidation(tables: Array<out String>) {
                 executor.execute { invalidationTracker.notifyObserversByTableNames(*tables) }
             }
         }

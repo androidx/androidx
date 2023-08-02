@@ -18,14 +18,12 @@ package androidx.room.migration.bundle
 
 import androidx.annotation.RestrictTo
 import androidx.room.migration.bundle.SchemaEqualityUtil.checkSchemaEquality
-
 import com.google.gson.annotations.SerializedName
 
 /**
  * Data class that holds the schema information about an {@link Fts3 FTS3} or {@link Fts4 FTS4}
  * entity.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public open class FtsEntityBundle(
@@ -60,6 +58,7 @@ public open class FtsEntityBundle(
         emptyList()
     )
 
+    @Transient
     private val SHADOW_TABLE_NAME_SUFFIXES = listOf(
         "_content",
         "_segdir",
@@ -92,6 +91,7 @@ public open class FtsEntityBundle(
      * Gets the list of shadow table names corresponding to the FTS virtual table.
      * @return the list of names.
      */
+    @delegate:Transient
     public open val shadowTableNames: List<String> by lazy {
         val currentTable = this@FtsEntityBundle.tableName
         buildList {

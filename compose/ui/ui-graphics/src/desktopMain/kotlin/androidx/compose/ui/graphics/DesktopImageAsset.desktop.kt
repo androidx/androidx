@@ -16,10 +16,10 @@
 
 package androidx.compose.ui.graphics
 
-import org.jetbrains.skia.Bitmap
-import org.jetbrains.skia.Image
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
+import org.jetbrains.skia.Bitmap
+import org.jetbrains.skia.Image
 
 /**
  * Create an [ImageBitmap] from the given [Bitmap]. Note this does

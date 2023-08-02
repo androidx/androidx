@@ -17,8 +17,8 @@
 package androidx.compose.foundation.lazy
 
 import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.ui.unit.IntSize
 import androidx.compose.foundation.internal.JvmDefaultWithCompatibility
+import androidx.compose.ui.unit.IntSize
 
 /**
  * Contains useful information about the currently displayed layout state of lazy lists like
@@ -82,4 +82,9 @@ interface LazyListLayoutInfo {
      * For example it is a bottom content padding for LazyColumn with reverseLayout set to false.
      */
     val afterContentPadding: Int get() = 0
+
+    /**
+     * The spacing between items in the direction of scrolling.
+     */
+    val mainAxisItemSpacing: Int get() = 0
 }

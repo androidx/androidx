@@ -18,6 +18,7 @@ package androidx.window.core
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.Context
 import androidx.annotation.CheckResult
 import java.lang.reflect.InvocationHandler
 import java.lang.reflect.Method
@@ -83,6 +84,61 @@ internal class ConsumerAdapter(
             }
         }
     }
+
+    @CheckResult
+    fun <T : Any> createSubscriptionNoActivity(
+        obj: Any,
+        clazz: KClass<T>,
+        addMethodName: String,
+        removeMethodName: String,
+        consumer: (T) -> Unit
+    ): Subscription {
+        val javaConsumer = buildConsumer(clazz, consumer)
+        obj.javaClass.getMethod(addMethodName, unsafeConsumerClass())
+            .invoke(obj, javaConsumer)
+        val removeMethod = obj.javaClass.getMethod(removeMethodName, unsafeConsumerClass())
+        return object : Subscription {
+            override fun dispose() {
+                removeMethod.invoke(obj, javaConsumer)
+            }
+        }
+    }
+
+    @CheckResult
+    fun <T : Any> createSubscription(
+        obj: Any,
+        clazz: KClass<T>,
+        addMethodName: String,
+        removeMethodName: String,
+        context: Context,
+        consumer: (T) -> Unit
+    ): Subscription {
+        val javaConsumer = buildConsumer(clazz, consumer)
+        obj.javaClass.getMethod(addMethodName, Context::class.java, unsafeConsumerClass())
+            .invoke(obj, context, javaConsumer)
+        val removeMethod = obj.javaClass.getMethod(removeMethodName, unsafeConsumerClass())
+        return object : Subscription {
+            override fun dispose() {
+                removeMethod.invoke(obj, javaConsumer)
+            }
+        }
+    }
+
+    /**
+     * Similar to {@link #createSubscription} but without needing to provide
+     * a {@code removeMethodName} due to it being handled on the extensions side
+     */
+    fun <T : Any> createConsumer(
+        obj: Any,
+        clazz: KClass<T>,
+        addMethodName: String,
+        activity: Activity,
+        consumer: (T) -> Unit
+    ) {
+        val javaConsumer = buildConsumer(clazz, consumer)
+        obj.javaClass.getMethod(addMethodName, Activity::class.java, unsafeConsumerClass())
+            .invoke(obj, activity, javaConsumer)
+        }
 
     private class ConsumerHandler<T : Any>(
         private val clazz: KClass<T>,

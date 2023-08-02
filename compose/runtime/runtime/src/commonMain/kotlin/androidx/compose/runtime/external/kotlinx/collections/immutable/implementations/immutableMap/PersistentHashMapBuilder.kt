@@ -9,9 +9,9 @@ import androidx.compose.runtime.external.kotlinx.collections.immutable.Persisten
 import androidx.compose.runtime.external.kotlinx.collections.immutable.internal.DeltaCounter
 import androidx.compose.runtime.external.kotlinx.collections.immutable.internal.MutabilityOwnership
 
-internal class PersistentHashMapBuilder<K, V>(private var map: PersistentHashMap<K, V>) : PersistentMap.Builder<K, V>, AbstractMutableMap<K, V>() {
-    internal var ownership = MutabilityOwnership()
-        private set
+internal open class PersistentHashMapBuilder<K, V>(private var map: PersistentHashMap<K, V>) : PersistentMap.Builder<K, V>, AbstractMutableMap<K, V>() {
+    var ownership = MutabilityOwnership()
+        protected set
     internal var node = map.node
     internal var operationResult: V? = null
     internal var modCount = 0

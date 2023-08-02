@@ -17,13 +17,13 @@
 package androidx.navigation.safeargs.gradle
 
 import androidx.testutils.gradle.ProjectSetupRule
+import java.io.File
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
 import org.hamcrest.CoreMatchers
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Rule
-import java.io.File
 
 internal const val MAIN_DIR = "androidx/navigation/testapp"
 
@@ -142,10 +142,21 @@ abstract class BasePluginTest {
             suffix = """
                 android {
                     namespace 'androidx.navigation.testapp'
+                    compileOptions {
+                        sourceCompatibility = JavaVersion.VERSION_1_8
+                        targetCompatibility = JavaVersion.VERSION_1_8
+                    }
                 }
                 dependencies {
                     implementation "${projectSetup.props.kotlinStblib}"
                     implementation "${projectSetup.props.navigationRuntime}"
+                }
+                tasks.withType(
+                    org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+                ).configureEach {
+                    kotlinOptions {
+                        jvmTarget = "1.8"
+                    }
                 }
             """.trimIndent()
         )

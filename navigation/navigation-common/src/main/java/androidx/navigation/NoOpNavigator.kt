@@ -20,8 +20,6 @@ import androidx.annotation.RestrictTo
 
 /**
  * A [Navigator] that only supports creating destinations.
- *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Navigator.Name("NoOp")

@@ -21,7 +21,6 @@ import static androidx.work.impl.utils.PackageManagerHelper.isComponentExplicitl
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
-import static org.mockito.Mockito.mock;
 
 import android.content.Context;
 import android.os.Build;
@@ -31,12 +30,12 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.FlakyTest;
 import androidx.test.filters.MediumTest;
 import androidx.test.filters.SdkSuppress;
+import androidx.work.Configuration;
 import androidx.work.impl.background.systemalarm.SystemAlarmScheduler;
 import androidx.work.impl.background.systemalarm.SystemAlarmService;
 import androidx.work.impl.background.systemjob.SystemJobScheduler;
 import androidx.work.impl.background.systemjob.SystemJobService;
 
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -44,21 +43,18 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public class SchedulersTest {
 
-    private Context mAppContext;
-    private WorkManagerImpl mWorkManager;
-
-    @Before
-    public void setUp() {
-        mWorkManager = mock(WorkManagerImpl.class);
-        mAppContext = ApplicationProvider.getApplicationContext();
-    }
+    private final Context mAppContext = ApplicationProvider.getApplicationContext();
+    private final Configuration mConfiguration = new Configuration.Builder().build();
+    private final WorkDatabase mWorkDatabase = WorkDatabase.create(
+            mAppContext, mConfiguration.getExecutor(), mConfiguration.getClock(), false);
 
     @FlakyTest(bugId = 206647994)
     @Test
     @SdkSuppress(minSdkVersion = WorkManagerImpl.MIN_JOB_SCHEDULER_API_LEVEL)
     public void testGetBackgroundScheduler_withJobSchedulerApiLevel() {
         Scheduler scheduler =
-                Schedulers.createBestAvailableBackgroundScheduler(mAppContext, mWorkManager);
+                Schedulers.createBestAvailableBackgroundScheduler(mAppContext,
+                        mWorkDatabase, mConfiguration);
         assertThat(scheduler, is(instanceOf(SystemJobScheduler.class)));
         assertServicesEnabled(true, false);
     }
@@ -67,7 +63,8 @@ public class SchedulersTest {
     @SdkSuppress(maxSdkVersion = WorkManagerImpl.MAX_PRE_JOB_SCHEDULER_API_LEVEL)
     public void testGetBackgroundScheduler_beforeJobSchedulerApiLevel() {
         Scheduler scheduler =
-                Schedulers.createBestAvailableBackgroundScheduler(mAppContext, mWorkManager);
+                Schedulers.createBestAvailableBackgroundScheduler(mAppContext,
+                        mWorkDatabase, mConfiguration);
         assertThat(scheduler, is(instanceOf(SystemAlarmScheduler.class)));
         assertServicesEnabled(false, true);
     }

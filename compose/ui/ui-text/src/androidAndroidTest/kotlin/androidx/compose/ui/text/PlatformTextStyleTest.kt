@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-@file:OptIn(ExperimentalTextApi::class)
-
 package androidx.compose.ui.text
 
 import com.google.common.truth.Truth.assertThat
@@ -23,7 +21,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-@Suppress("DEPRECATION")
 @RunWith(JUnit4::class)
 class PlatformTextStyleTest {
 
@@ -95,6 +92,26 @@ class PlatformTextStyleTest {
         val mergedStyle = style.merge(otherStyle)
 
         assertThat(mergedStyle.platformStyle?.paragraphStyle?.includeFontPadding).isFalse()
+    }
+
+    @Test
+    fun merge_platformStyle_handlesEmoji() {
+        val style = TextStyle(
+            platformStyle = PlatformTextStyle(
+                emojiSupportMatch = EmojiSupportMatch.None
+            )
+        )
+        val otherStyle = TextStyle(
+            platformStyle = PlatformTextStyle(
+                emojiSupportMatch = EmojiSupportMatch.Default
+            )
+        )
+
+        val mergedStyle = style.merge(otherStyle)
+
+        assertThat(mergedStyle.platformStyle?.paragraphStyle?.emojiSupportMatch).isEqualTo(
+            EmojiSupportMatch.Default
+        )
     }
 
     @Test

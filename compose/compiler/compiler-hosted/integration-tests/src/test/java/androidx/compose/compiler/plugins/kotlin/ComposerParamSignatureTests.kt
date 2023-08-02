@@ -16,23 +16,30 @@
 
 package androidx.compose.compiler.plugins.kotlin
 
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.robolectric.RobolectricTestRunner
+import org.robolectric.ParameterizedRobolectricTestRunner
 import org.robolectric.annotation.Config
 
 /* ktlint-disable max-line-length */
-@RunWith(RobolectricTestRunner::class)
+@RunWith(ParameterizedRobolectricTestRunner::class)
 @Config(
     manifest = Config.NONE,
     minSdk = 23,
     maxSdk = 23
 )
-class ComposerParamSignatureTests : AbstractCodegenSignatureTest() {
+class ComposerParamSignatureTests(useFir: Boolean) : AbstractCodegenSignatureTest(useFir) {
+    companion object {
+        @JvmStatic
+        @ParameterizedRobolectricTestRunner.Parameters(name = "useFir = {0}")
+        fun data() = arrayOf<Any>(false, true)
+    }
 
     @Test
-    fun testParameterlessChildrenLambdasReused(): Unit = checkApi(
+    fun testParameterlessChildrenLambdasReused() = checkApi(
         """
             @Composable fun Foo(content: @Composable () -> Unit) {
             }
@@ -65,8 +72,8 @@ class ComposerParamSignatureTests : AbstractCodegenSignatureTest() {
             public final class TestKt {
               public final static Foo(Lkotlin/jvm/functions/Function2;Landroidx/compose/runtime/Composer;I)V
               public final static Bar(Landroidx/compose/runtime/Composer;I)V
-              final static INNERCLASS TestKt%Foo%1 null null
               final static INNERCLASS TestKt%Bar%1 null null
+              final static INNERCLASS TestKt%Foo%1 null null
             }
             final class TestKt%Foo%1 extends kotlin/jvm/internal/Lambda implements kotlin/jvm/functions/Function2 {
               <init>(Lkotlin/jvm/functions/Function2;I)V
@@ -89,7 +96,7 @@ class ComposerParamSignatureTests : AbstractCodegenSignatureTest() {
     )
 
     @Test
-    fun testNoComposerNullCheck(): Unit = validateBytecode(
+    fun testNoComposerNullCheck() = validateBytecode(
         """
         @Composable fun Foo() {}
         """
@@ -98,7 +105,22 @@ class ComposerParamSignatureTests : AbstractCodegenSignatureTest() {
     }
 
     @Test
-    fun testStrangeReceiverIssue(): Unit = codegen(
+    fun testComposableLambdaCall() = validateBytecode(
+        """
+            @Composable
+            fun Foo(f: @Composable () -> Unit) {
+              f()
+            }
+        """
+    ) {
+        // Calls to a composable lambda needs to invoke the `Function2.invoke` interface method
+        // taking two objects and *not* directly the `invoke` method that takes a Composer and
+        // an unboxed int.
+        assertTrue(it.contains("INVOKEINTERFACE kotlin/jvm/functions/Function2.invoke (Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object; (itf)"))
+    }
+
+    @Test
+    fun testStrangeReceiverIssue() = codegen(
         """
         import androidx.compose.runtime.ExplicitGroupsComposable
         import androidx.compose.runtime.NonRestartableComposable
@@ -125,7 +147,7 @@ class ComposerParamSignatureTests : AbstractCodegenSignatureTest() {
     )
 
     @Test
-    fun testArrayListSizeOverride(): Unit = validateBytecode(
+    fun testArrayListSizeOverride() = validateBytecode(
         """
         class CustomList : ArrayList<Any>() {
             override val size: Int
@@ -138,7 +160,7 @@ class ComposerParamSignatureTests : AbstractCodegenSignatureTest() {
     }
 
     @Test
-    fun testForLoopIssue1(): Unit = codegen(
+    fun testForLoopIssue1() = codegen(
         """
             @Composable
             fun Test(text: String, callback: @Composable () -> Unit) {
@@ -153,7 +175,7 @@ class ComposerParamSignatureTests : AbstractCodegenSignatureTest() {
     )
 
     @Test
-    fun testForLoopIssue2(): Unit = codegen(
+    fun testForLoopIssue2() = codegen(
         """
             @Composable
             fun Test(text: List<String>, callback: @Composable () -> Unit) {
@@ -168,7 +190,7 @@ class ComposerParamSignatureTests : AbstractCodegenSignatureTest() {
     )
 
     @Test
-    fun testCaptureIssue23(): Unit = codegen(
+    fun testCaptureIssue23() = codegen(
         """
             import androidx.compose.animation.AnimatedContent
             import androidx.compose.animation.ExperimentalAnimationApi
@@ -187,7 +209,7 @@ class ComposerParamSignatureTests : AbstractCodegenSignatureTest() {
     )
 
     @Test
-    fun test32Params(): Unit = codegen(
+    fun test32Params() = codegen(
         """
         @Composable
         fun <T> TooVerbose(
@@ -212,7 +234,7 @@ class ComposerParamSignatureTests : AbstractCodegenSignatureTest() {
     )
 
     @Test
-    fun testInterfaceMethodWithComposableParameter(): Unit = validateBytecode(
+    fun testInterfaceMethodWithComposableParameter() = validateBytecode(
         """
             @Composable
             fun test1(cc: ControlledComposition) {
@@ -227,7 +249,7 @@ class ComposerParamSignatureTests : AbstractCodegenSignatureTest() {
     }
 
     @Test
-    fun testFakeOverrideFromSameModuleButLaterTraversal(): Unit = validateBytecode(
+    fun testFakeOverrideFromSameModuleButLaterTraversal() = validateBytecode(
         """
             class B : A() {
                 fun test() {
@@ -243,7 +265,7 @@ class ComposerParamSignatureTests : AbstractCodegenSignatureTest() {
     }
 
     @Test
-    fun testPrimitiveChangedCalls(): Unit = validateBytecode(
+    fun testPrimitiveChangedCalls() = validateBytecode(
         """
         @Composable fun Foo(
             a: Boolean,
@@ -278,7 +300,7 @@ class ComposerParamSignatureTests : AbstractCodegenSignatureTest() {
     }
 
     @Test
-    fun testNonPrimitiveChangedCalls(): Unit = validateBytecode(
+    fun testNonPrimitiveChangedCalls() = validateBytecode(
         """
         import androidx.compose.runtime.Stable
 
@@ -300,7 +322,7 @@ class ComposerParamSignatureTests : AbstractCodegenSignatureTest() {
     }
 
     @Test
-    fun testInlineClassChangedCalls(): Unit = validateBytecode(
+    fun testInlineClassChangedCalls() = validateBytecode(
         """
         inline class Bar(val value: Int)
         @Composable fun Foo(a: Bar) {
@@ -316,7 +338,7 @@ class ComposerParamSignatureTests : AbstractCodegenSignatureTest() {
     }
 
     @Test
-    fun testNullableInlineClassChangedCalls(): Unit = validateBytecode(
+    fun testNullableInlineClassChangedCalls() = validateBytecode(
         """
         inline class Bar(val value: Int)
         @Composable fun Foo(a: Bar?) {
@@ -343,7 +365,7 @@ class ComposerParamSignatureTests : AbstractCodegenSignatureTest() {
     }
 
     @Test
-    fun testNoNullCheckForPassedParameters(): Unit = validateBytecode(
+    fun testNoNullCheckForPassedParameters() = validateBytecode(
         """
         inline class Bar(val value: Int)
         fun nonNull(bar: Bar) {}
@@ -356,7 +378,7 @@ class ComposerParamSignatureTests : AbstractCodegenSignatureTest() {
     }
 
     @Test
-    fun testNoComposerNullCheck2(): Unit = validateBytecode(
+    fun testNoComposerNullCheck2() = validateBytecode(
         """
         val foo = @Composable {}
         val bar = @Composable { x: Int -> }
@@ -366,7 +388,7 @@ class ComposerParamSignatureTests : AbstractCodegenSignatureTest() {
     }
 
     @Test
-    fun testComposableLambdaInvoke(): Unit = validateBytecode(
+    fun testComposableLambdaInvoke() = validateBytecode(
         """
         @Composable fun NonNull(content: @Composable() () -> Unit) {
             content.invoke()
@@ -384,7 +406,7 @@ class ComposerParamSignatureTests : AbstractCodegenSignatureTest() {
     }
 
     @Test
-    fun testAnonymousParamNaming(): Unit = validateBytecode(
+    fun testAnonymousParamNaming() = validateBytecode(
         """
         @Composable
         fun Foo(content: @Composable (a: Int, b: Int) -> Unit) {}
@@ -398,7 +420,7 @@ class ComposerParamSignatureTests : AbstractCodegenSignatureTest() {
     }
 
     @Test
-    fun testBasicClassStaticTransform(): Unit = checkApi(
+    fun testBasicClassStaticTransform() = checkApi(
         """
             class Foo
         """,
@@ -412,7 +434,7 @@ class ComposerParamSignatureTests : AbstractCodegenSignatureTest() {
     )
 
     @Test
-    fun testLambdaReorderedParameter(): Unit = checkApi(
+    fun testLambdaReorderedParameter() = checkApi(
         """
             @Composable fun Foo(a: String, b: () -> Unit) { }
             @Composable fun Example() {
@@ -423,9 +445,9 @@ class ComposerParamSignatureTests : AbstractCodegenSignatureTest() {
             public final class TestKt {
               public final static Foo(Ljava/lang/String;Lkotlin/jvm/functions/Function0;Landroidx/compose/runtime/Composer;I)V
               public final static Example(Landroidx/compose/runtime/Composer;I)V
-              final static INNERCLASS TestKt%Foo%1 null null
               final static INNERCLASS TestKt%Example%1 null null
               final static INNERCLASS TestKt%Example%2 null null
+              final static INNERCLASS TestKt%Foo%1 null null
             }
             final class TestKt%Foo%1 extends kotlin/jvm/internal/Lambda implements kotlin/jvm/functions/Function2 {
               <init>(Ljava/lang/String;Lkotlin/jvm/functions/Function0;I)V
@@ -458,7 +480,7 @@ class ComposerParamSignatureTests : AbstractCodegenSignatureTest() {
     )
 
     @Test
-    fun testCompositionLocalCurrent(): Unit = checkApi(
+    fun testCompositionLocalCurrent() = checkApi(
         """
             val a = compositionLocalOf { 123 }
             @Composable fun Foo() {
@@ -472,8 +494,8 @@ class ComposerParamSignatureTests : AbstractCodegenSignatureTest() {
               public final static Foo(Landroidx/compose/runtime/Composer;I)V
               static <clinit>()V
               private final static Landroidx/compose/runtime/ProvidableCompositionLocal; a
-              final static INNERCLASS TestKt%Foo%1 null null
               final static INNERCLASS TestKt%a%1 null null
+              final static INNERCLASS TestKt%Foo%1 null null
             }
             final class TestKt%Foo%1 extends kotlin/jvm/internal/Lambda implements kotlin/jvm/functions/Function2 {
               <init>(I)V
@@ -496,7 +518,7 @@ class ComposerParamSignatureTests : AbstractCodegenSignatureTest() {
     )
 
     @Test
-    fun testRemappedTypes(): Unit = checkApi(
+    fun testRemappedTypes() = checkApi(
         """
             class A {
                 fun makeA(): A { return A() }
@@ -533,12 +555,13 @@ class ComposerParamSignatureTests : AbstractCodegenSignatureTest() {
               public final useAB()V
               static <clinit>()V
               public final static I %stable
+              public final static INNERCLASS A%B A B
             }
         """
     )
 
     @Test
-    fun testDataClassHashCode(): Unit = validateBytecode(
+    fun testDataClassHashCode() = validateBytecode(
         """
         data class Foo(
             val bar: @Composable () -> Unit
@@ -550,7 +573,7 @@ class ComposerParamSignatureTests : AbstractCodegenSignatureTest() {
 
     @Test
     @Ignore("b/179279455")
-    fun testCorrectComposerPassed1(): Unit = checkComposerParam(
+    fun testCorrectComposerPassed1() = checkComposerParam(
         """
             var a: Composer? = null
             fun run() {
@@ -564,7 +587,7 @@ class ComposerParamSignatureTests : AbstractCodegenSignatureTest() {
 
     @Test
     @Ignore("b/179279455")
-    fun testCorrectComposerPassed2(): Unit = checkComposerParam(
+    fun testCorrectComposerPassed2() = checkComposerParam(
         """
             var a: Composer? = null
             @Composable fun Foo() {
@@ -581,7 +604,7 @@ class ComposerParamSignatureTests : AbstractCodegenSignatureTest() {
 
     @Test
     @Ignore("b/179279455")
-    fun testCorrectComposerPassed3(): Unit = checkComposerParam(
+    fun testCorrectComposerPassed3() = checkComposerParam(
         """
             var a: Composer? = null
             var b: Composer? = null
@@ -605,7 +628,7 @@ class ComposerParamSignatureTests : AbstractCodegenSignatureTest() {
 
     @Test
     @Ignore("b/179279455")
-    fun testCorrectComposerPassed4(): Unit = checkComposerParam(
+    fun testCorrectComposerPassed4() = checkComposerParam(
         """
             var a: Composer? = null
             var b: Composer? = null
@@ -632,7 +655,7 @@ class ComposerParamSignatureTests : AbstractCodegenSignatureTest() {
 
     @Test
     @Ignore("b/179279455")
-    fun testCorrectComposerPassed5(): Unit = checkComposerParam(
+    fun testCorrectComposerPassed5() = checkComposerParam(
         """
             var a: Composer? = null
             @Composable fun Wrap(content: @Composable () -> Unit) {
@@ -657,7 +680,7 @@ class ComposerParamSignatureTests : AbstractCodegenSignatureTest() {
     )
 
     @Test
-    fun testDefaultParameters(): Unit = checkApi(
+    fun testDefaultParameters() = checkApi(
         """
             @Composable fun Foo(x: Int = 0) {
 
@@ -682,7 +705,7 @@ class ComposerParamSignatureTests : AbstractCodegenSignatureTest() {
     )
 
     @Test
-    fun testDefaultExpressionsWithComposableCall(): Unit = checkApi(
+    fun testDefaultExpressionsWithComposableCall() = checkApi(
         """
             @Composable fun <T> identity(value: T): T = value
             @Composable fun Foo(x: Int = identity(20)) {
@@ -723,7 +746,7 @@ class ComposerParamSignatureTests : AbstractCodegenSignatureTest() {
     )
 
     @Test
-    fun testBasicCallAndParameterUsage(): Unit = checkApi(
+    fun testBasicCallAndParameterUsage() = checkApi(
         """
             @Composable fun Foo(a: Int, b: String) {
                 print(a)
@@ -740,8 +763,8 @@ class ComposerParamSignatureTests : AbstractCodegenSignatureTest() {
             public final class TestKt {
               public final static Foo(ILjava/lang/String;Landroidx/compose/runtime/Composer;I)V
               public final static Bar(ILjava/lang/String;Landroidx/compose/runtime/Composer;I)V
-              final static INNERCLASS TestKt%Foo%1 null null
               final static INNERCLASS TestKt%Bar%1 null null
+              final static INNERCLASS TestKt%Foo%1 null null
             }
             final class TestKt%Foo%1 extends kotlin/jvm/internal/Lambda implements kotlin/jvm/functions/Function2 {
               <init>(ILjava/lang/String;I)V
@@ -767,7 +790,7 @@ class ComposerParamSignatureTests : AbstractCodegenSignatureTest() {
     )
 
     @Test
-    fun testCallFromInlinedLambda(): Unit = checkApi(
+    fun testCallFromInlinedLambda() = checkApi(
         """
             @Composable fun Foo() {
                 listOf(1, 2, 3).forEach { Bar(it) }
@@ -779,8 +802,8 @@ class ComposerParamSignatureTests : AbstractCodegenSignatureTest() {
             public final class TestKt {
               public final static Foo(Landroidx/compose/runtime/Composer;I)V
               public final static Bar(ILandroidx/compose/runtime/Composer;I)V
-              final static INNERCLASS TestKt%Foo%2 null null
               final static INNERCLASS TestKt%Bar%1 null null
+              final static INNERCLASS TestKt%Foo%2 null null
             }
             final class TestKt%Foo%2 extends kotlin/jvm/internal/Lambda implements kotlin/jvm/functions/Function2 {
               <init>(I)V
@@ -803,7 +826,7 @@ class ComposerParamSignatureTests : AbstractCodegenSignatureTest() {
     )
 
     @Test
-    fun testBasicLambda(): Unit = checkApi(
+    fun testBasicLambda() = checkApi(
         """
             val foo = @Composable { x: Int -> print(x)  }
             @Composable fun Bar() {
@@ -847,7 +870,7 @@ class ComposerParamSignatureTests : AbstractCodegenSignatureTest() {
     )
 
     @Test
-    fun testLocalLambda(): Unit = checkApi(
+    fun testLocalLambda() = checkApi(
         """
             @Composable fun Bar(content: @Composable () -> Unit) {
                 val foo = @Composable { x: Int -> print(x)  }
@@ -890,7 +913,7 @@ class ComposerParamSignatureTests : AbstractCodegenSignatureTest() {
     )
 
     @Test
-    fun testNesting(): Unit = checkApi(
+    fun testNesting() = checkApi(
         """
             @Composable fun Wrap(content: @Composable (x: Int) -> Unit) {
                 content(123)
@@ -912,9 +935,9 @@ class ComposerParamSignatureTests : AbstractCodegenSignatureTest() {
             public final class TestKt {
               public final static Wrap(Lkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;I)V
               public final static App(ILandroidx/compose/runtime/Composer;I)V
-              final static INNERCLASS TestKt%Wrap%1 null null
               final static INNERCLASS TestKt%App%1 null null
               final static INNERCLASS TestKt%App%2 null null
+              final static INNERCLASS TestKt%Wrap%1 null null
             }
             final class TestKt%Wrap%1 extends kotlin/jvm/internal/Lambda implements kotlin/jvm/functions/Function2 {
               <init>(Lkotlin/jvm/functions/Function3;I)V
@@ -931,8 +954,8 @@ class ComposerParamSignatureTests : AbstractCodegenSignatureTest() {
               public synthetic bridge invoke(Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
               final synthetic I %x
               OUTERCLASS TestKt App (ILandroidx/compose/runtime/Composer;I)V
-              final static INNERCLASS TestKt%App%1%1 null null
               final static INNERCLASS TestKt%App%1 null null
+              final static INNERCLASS TestKt%App%1%1 null null
             }
             final class TestKt%App%1%1 extends kotlin/jvm/internal/Lambda implements kotlin/jvm/functions/Function3 {
               <init>(II)V
@@ -941,8 +964,8 @@ class ComposerParamSignatureTests : AbstractCodegenSignatureTest() {
               final synthetic I %x
               final synthetic I %a
               OUTERCLASS TestKt%App%1 invoke (ILandroidx/compose/runtime/Composer;I)V
-              final static INNERCLASS TestKt%App%1%1 null null
               final static INNERCLASS TestKt%App%1 null null
+              final static INNERCLASS TestKt%App%1%1 null null
             }
             final class TestKt%App%2 extends kotlin/jvm/internal/Lambda implements kotlin/jvm/functions/Function2 {
               <init>(II)V
@@ -957,7 +980,7 @@ class ComposerParamSignatureTests : AbstractCodegenSignatureTest() {
     )
 
     @Test
-    fun testComposableInterface(): Unit = checkApi(
+    fun testComposableInterface() = checkApi(
         """
             interface Foo {
                 @Composable fun bar()
@@ -991,7 +1014,7 @@ class ComposerParamSignatureTests : AbstractCodegenSignatureTest() {
     )
 
     @Test
-    fun testSealedClassEtc(): Unit = checkApi(
+    fun testSealedClassEtc() = checkApi(
         """
             sealed class CompositionLocal2<T> {
                 inline val current: T
@@ -1042,7 +1065,7 @@ class ComposerParamSignatureTests : AbstractCodegenSignatureTest() {
     )
 
     @Test
-    fun testComposableTopLevelProperty(): Unit = checkApi(
+    fun testComposableTopLevelProperty() = checkApi(
         """
             val foo: Int @Composable get() { return 123 }
         """,
@@ -1054,7 +1077,7 @@ class ComposerParamSignatureTests : AbstractCodegenSignatureTest() {
     )
 
     @Test
-    fun testComposableProperty(): Unit = checkApi(
+    fun testComposableProperty() = checkApi(
         """
             class Foo {
                 val foo: Int @Composable get() { return 123 }
@@ -1071,7 +1094,7 @@ class ComposerParamSignatureTests : AbstractCodegenSignatureTest() {
     )
 
     @Test
-    fun testTableLambdaThing(): Unit = validateBytecode(
+    fun testTableLambdaThing() = validateBytecode(
         """
         @Composable
         fun Foo() {
@@ -1086,7 +1109,7 @@ class ComposerParamSignatureTests : AbstractCodegenSignatureTest() {
     }
 
     @Test
-    fun testDefaultArgs(): Unit = validateBytecode(
+    fun testDefaultArgs() = validateBytecode(
         """
         @Composable
         fun Scaffold(
@@ -1098,7 +1121,7 @@ class ComposerParamSignatureTests : AbstractCodegenSignatureTest() {
     }
 
     @Test
-    fun testSyntheticAccessFunctions(): Unit = validateBytecode(
+    fun testSyntheticAccessFunctions() = validateBytecode(
         """
         class Foo {
             @Composable private fun Bar() {}
@@ -1109,7 +1132,7 @@ class ComposerParamSignatureTests : AbstractCodegenSignatureTest() {
     }
 
     @Test
-    fun testLambdaMemoization(): Unit = validateBytecode(
+    fun testLambdaMemoization() = validateBytecode(
         """
         fun subcompose(block: @Composable () -> Unit) {}
         private class Foo {
@@ -1127,7 +1150,7 @@ class ComposerParamSignatureTests : AbstractCodegenSignatureTest() {
     }
 
     @Test
-    fun testCallingProperties(): Unit = checkApi(
+    fun testCallingProperties() = checkApi(
         """
             val bar: Int @Composable get() { return 123 }
 
@@ -1153,7 +1176,7 @@ class ComposerParamSignatureTests : AbstractCodegenSignatureTest() {
     )
 
     @Test
-    fun testAbstractComposable(): Unit = checkApi(
+    fun testAbstractComposable() = checkApi(
         """
             abstract class BaseFoo {
                 @Composable abstract fun bar()
@@ -1190,7 +1213,7 @@ class ComposerParamSignatureTests : AbstractCodegenSignatureTest() {
     )
 
     @Test
-    fun testLocalClassAndObjectLiterals(): Unit = checkApi(
+    fun testLocalClassAndObjectLiterals() = checkApi(
         """
             @Composable
             fun Wat() {}
@@ -1211,9 +1234,9 @@ class ComposerParamSignatureTests : AbstractCodegenSignatureTest() {
               public final static Wat(Landroidx/compose/runtime/Composer;I)V
               public final static Foo(ILandroidx/compose/runtime/Composer;I)V
               private final static Foo%goo(Landroidx/compose/runtime/Composer;I)V
-              final static INNERCLASS TestKt%Wat%1 null null
-              public final static INNERCLASS TestKt%Foo%Bar null Bar
               final static INNERCLASS TestKt%Foo%1 null null
+              public final static INNERCLASS TestKt%Foo%Bar null Bar
+              final static INNERCLASS TestKt%Wat%1 null null
             }
             final class TestKt%Wat%1 extends kotlin/jvm/internal/Lambda implements kotlin/jvm/functions/Function2 {
               <init>(I)V
@@ -1242,7 +1265,7 @@ class ComposerParamSignatureTests : AbstractCodegenSignatureTest() {
     )
 
     @Test
-    fun testNonComposableCode(): Unit = checkApi(
+    fun testNonComposableCode() = checkApi(
         """
             fun A() {}
             val b: Int get() = 123
@@ -1272,8 +1295,8 @@ class ComposerParamSignatureTests : AbstractCodegenSignatureTest() {
               public final static C(I)V
               public final static I(Lkotlin/jvm/functions/Function0;)V
               public final static J()V
-              public final static INNERCLASS TestKt%C%D null D
               public final static INNERCLASS TestKt%C%g%1 null null
+              public final static INNERCLASS TestKt%C%D null D
               final static INNERCLASS TestKt%J%1 null null
             }
             public final class TestKt%C%D {
@@ -1296,8 +1319,8 @@ class ComposerParamSignatureTests : AbstractCodegenSignatureTest() {
               static <clinit>()V
               public final static LTestKt%J%1; INSTANCE
               OUTERCLASS TestKt J ()V
-              final static INNERCLASS TestKt%J%1%1 null null
               final static INNERCLASS TestKt%J%1 null null
+              final static INNERCLASS TestKt%J%1%1 null null
             }
             final class TestKt%J%1%1 extends kotlin/jvm/internal/Lambda implements kotlin/jvm/functions/Function0 {
               <init>()V
@@ -1306,14 +1329,14 @@ class ComposerParamSignatureTests : AbstractCodegenSignatureTest() {
               static <clinit>()V
               public final static LTestKt%J%1%1; INSTANCE
               OUTERCLASS TestKt%J%1 invoke ()V
-              final static INNERCLASS TestKt%J%1%1 null null
               final static INNERCLASS TestKt%J%1 null null
+              final static INNERCLASS TestKt%J%1%1 null null
             }
         """
     )
 
     @Test
-    fun testCircularCall(): Unit = checkApi(
+    fun testCircularCall() = checkApi(
         """
             @Composable fun Example() {
                 Example()
@@ -1336,7 +1359,7 @@ class ComposerParamSignatureTests : AbstractCodegenSignatureTest() {
     )
 
     @Test
-    fun testInlineCall(): Unit = checkApi(
+    fun testInlineCall() = checkApi(
         """
             @Composable inline fun Example(content: @Composable () -> Unit) {
                 content()
@@ -1364,7 +1387,7 @@ class ComposerParamSignatureTests : AbstractCodegenSignatureTest() {
     )
 
     @Test
-    fun testDexNaming(): Unit = checkApi(
+    fun testDexNaming() = checkApi(
         """
             val myProperty: () -> Unit @Composable get() {
                 return {  }
@@ -1388,7 +1411,7 @@ class ComposerParamSignatureTests : AbstractCodegenSignatureTest() {
     )
 
     @Test
-    fun testInnerClass(): Unit = checkApi(
+    fun testInnerClass() = checkApi(
         """
             interface A {
                 fun b() {}
@@ -1429,7 +1452,7 @@ class ComposerParamSignatureTests : AbstractCodegenSignatureTest() {
     )
 
     @Test
-    fun testFunInterfaces(): Unit = checkApi(
+    fun testFunInterfaces() = checkApi(
         """
             fun interface A {
                 fun compute(value: Int): Unit
@@ -1448,21 +1471,13 @@ class ComposerParamSignatureTests : AbstractCodegenSignatureTest() {
             public final class TestKt {
               public final static Example(LA;)V
               public final static Usage()V
-              final static INNERCLASS TestKt%Usage%1 null null
-            }
-            final class TestKt%Usage%1 implements A {
-              <init>()V
-              public final compute(I)V
-              static <clinit>()V
-              public final static LTestKt%Usage%1; INSTANCE
-              OUTERCLASS TestKt Usage ()V
-              final static INNERCLASS TestKt%Usage%1 null null
+              private final static Usage%lambda%0(I)V
             }
         """
     )
 
     @Test
-    fun testComposableFunInterfaces(): Unit = checkApi(
+    fun testComposableFunInterfaces() = checkApi(
         """
             fun interface A {
                 @Composable fun compute(value: Int): Unit
@@ -1484,8 +1499,8 @@ class ComposerParamSignatureTests : AbstractCodegenSignatureTest() {
               public final compute(ILandroidx/compose/runtime/Composer;I)V
               final synthetic LA; %a
               OUTERCLASS TestKt Example (LA;)V
-              final static INNERCLASS TestKt%Example%1%compute%1 null null
               final static INNERCLASS TestKt%Example%1 null null
+              final static INNERCLASS TestKt%Example%1%compute%1 null null
             }
             final class TestKt%Example%1%compute%1 extends kotlin/jvm/internal/Lambda implements kotlin/jvm/functions/Function2 {
               <init>(LTestKt%Example%1;II)V
@@ -1495,14 +1510,121 @@ class ComposerParamSignatureTests : AbstractCodegenSignatureTest() {
               final synthetic I %it
               final synthetic I %%changed
               OUTERCLASS TestKt%Example%1 compute (ILandroidx/compose/runtime/Composer;I)V
-              final static INNERCLASS TestKt%Example%1%compute%1 null null
               final static INNERCLASS TestKt%Example%1 null null
+              final static INNERCLASS TestKt%Example%1%compute%1 null null
             }
         """
     )
 
     @Test
-    fun testFunInterfaceWithInlineReturnType(): Unit = checkApi(
+    fun testFunInterfacesInComposableCall() = checkApi(
+        """
+            fun interface MeasurePolicy {
+                fun compute(value: Int): Unit
+            }
+
+            @NonRestartableComposable
+            @Composable fun Text() {
+                Layout { value ->
+                    println(value)
+                }
+            }
+
+            @Composable inline fun Layout(policy: MeasurePolicy) {
+                policy.compute(0)
+            }
+        """,
+        """
+            public abstract interface MeasurePolicy {
+              public abstract compute(I)V
+            }
+            public final class TestKt {
+              public final static Text(Landroidx/compose/runtime/Composer;I)V
+              public final static Layout(LMeasurePolicy;Landroidx/compose/runtime/Composer;I)V
+              private final static Text%lambda%0(I)V
+            }
+        """,
+    )
+
+    @Test
+        fun testComposableFunInterfacesInVariance() = checkApi(
+        """
+           import androidx.compose.runtime.*
+
+            fun interface Consumer<T> {
+                @Composable fun consume(t: T)
+            }
+
+            class Repro<T : Any>() {
+                fun test(consumer: Consumer<in T>) {}
+            }
+
+            fun test() {
+                Repro<String>().test { string ->
+                    println(string)
+                }
+            }
+        """,
+        """
+            public abstract interface Consumer {
+              public abstract consume(Ljava/lang/Object;Landroidx/compose/runtime/Composer;I)V
+            }
+            public final class Repro {
+              public <init>()V
+              public final test(LConsumer;)V
+              static <clinit>()V
+              public final static I %stable
+            }
+            public final class TestKt {
+              public final static test()V
+              final static INNERCLASS TestKt%test%1 null null
+            }
+            final class TestKt%test%1 implements Consumer {
+              <init>()V
+              public final consume(Ljava/lang/String;Landroidx/compose/runtime/Composer;I)V
+              public synthetic bridge consume(Ljava/lang/Object;Landroidx/compose/runtime/Composer;I)V
+              static <clinit>()V
+              public final static LTestKt%test%1; INSTANCE
+              OUTERCLASS TestKt test ()V
+              final static INNERCLASS TestKt%test%1 null null
+              final static INNERCLASS TestKt%test%1%consume%1 null null
+            }
+            final class TestKt%test%1%consume%1 extends kotlin/jvm/internal/Lambda implements kotlin/jvm/functions/Function2 {
+              <init>(LTestKt%test%1;Ljava/lang/String;I)V
+              public final invoke(Landroidx/compose/runtime/Composer;I)V
+              public synthetic bridge invoke(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+              final synthetic LTestKt%test%1; %tmp0_rcvr
+              final synthetic Ljava/lang/String; %string
+              final synthetic I %%changed
+              OUTERCLASS TestKt%test%1 consume (Ljava/lang/String;Landroidx/compose/runtime/Composer;I)V
+              final static INNERCLASS TestKt%test%1 null null
+              final static INNERCLASS TestKt%test%1%consume%1 null null
+            }
+        """
+    )
+
+    val hashCodeEqualsAndToString = if (useFir) {
+        """
+              public static equals-impl(ILjava/lang/Object;)Z
+              public equals(Ljava/lang/Object;)Z
+              public static hashCode-impl(I)I
+              public hashCode()I
+              public static toString-impl(I)Ljava/lang/String;
+              public toString()Ljava/lang/String;
+        """
+    } else {
+        """
+              public static toString-impl(I)Ljava/lang/String;
+              public toString()Ljava/lang/String;
+              public static hashCode-impl(I)I
+              public hashCode()I
+              public static equals-impl(ILjava/lang/Object;)Z
+              public equals(Ljava/lang/Object;)Z
+        """
+    }
+
+    @Test
+    fun testFunInterfaceWithInlineReturnType() = checkApi(
         """
             inline class Color(val value: Int)
             fun interface A {
@@ -1515,12 +1637,7 @@ class ComposerParamSignatureTests : AbstractCodegenSignatureTest() {
         """
             public final class Color {
               public final getValue()I
-              public static toString-impl(I)Ljava/lang/String;
-              public toString()Ljava/lang/String;
-              public static hashCode-impl(I)I
-              public hashCode()I
-              public static equals-impl(ILjava/lang/Object;)Z
-              public equals(Ljava/lang/Object;)Z
+              $hashCodeEqualsAndToString
               private synthetic <init>(I)V
               public static constructor-impl(I)I
               public final static synthetic box-impl(I)LColor;
@@ -1547,7 +1664,7 @@ class ComposerParamSignatureTests : AbstractCodegenSignatureTest() {
     )
 
     @Test
-    fun testComposableFunInterfaceWithInlineReturnType(): Unit = checkApi(
+    fun testComposableFunInterfaceWithInlineReturnType() = checkApi(
         """
             inline class Color(val value: Int)
             fun interface A {
@@ -1560,12 +1677,7 @@ class ComposerParamSignatureTests : AbstractCodegenSignatureTest() {
         """
             public final class Color {
               public final getValue()I
-              public static toString-impl(I)Ljava/lang/String;
-              public toString()Ljava/lang/String;
-              public static hashCode-impl(I)I
-              public hashCode()I
-              public static equals-impl(ILjava/lang/Object;)Z
-              public equals(Ljava/lang/Object;)Z
+              $hashCodeEqualsAndToString
               private synthetic <init>(I)V
               public static constructor-impl(I)I
               public final static synthetic box-impl(I)LColor;
@@ -1592,7 +1704,7 @@ class ComposerParamSignatureTests : AbstractCodegenSignatureTest() {
     )
 
     @Test
-    fun testComposableMap(): Unit = codegen(
+    fun testComposableMap() = codegen(
         """
             class Repro {
                 private val composables = linkedMapOf<String, @Composable () -> Unit>()
@@ -1605,7 +1717,7 @@ class ComposerParamSignatureTests : AbstractCodegenSignatureTest() {
     )
 
     @Test
-    fun testComposableColorFunInterfaceExample(): Unit = checkApi(
+    fun testComposableColorFunInterfaceExample() = checkApi(
         """
             import androidx.compose.material.Text
             import androidx.compose.ui.graphics.Color
@@ -1654,6 +1766,7 @@ class ComposerParamSignatureTests : AbstractCodegenSignatureTest() {
               public final static LTestKt%Test%1; INSTANCE
               OUTERCLASS TestKt Test (Landroidx/compose/runtime/Composer;I)V
               final static INNERCLASS TestKt%Test%1 null null
+              public final static INNERCLASS androidx/compose/ui/graphics/Color%Companion androidx/compose/ui/graphics/Color Companion
             }
             final class TestKt%Test%2 extends kotlin/jvm/internal/Lambda implements kotlin/jvm/functions/Function2 {
               <init>(I)V
@@ -1665,4 +1778,23 @@ class ComposerParamSignatureTests : AbstractCodegenSignatureTest() {
             }
         """
     )
+
+    @Test
+    fun testComposableInlineFieldDelegate_noPropertyRefInit() = validateBytecode(
+        """
+            import kotlin.reflect.KProperty
+
+            class FooInline
+
+            @Composable
+            inline operator fun FooInline.getValue(thisRef: Any?, property: KProperty<*>) = 0
+
+            @Composable fun Test(foo: FooInline): Int {
+                val value by foo
+                return value
+            }
+        """,
+    ) {
+        assertFalse(it.contains("INVOKESTATIC kotlin/jvm/internal/Reflection.property0 (Lkotlin/jvm/internal/PropertyReference0;)Lkotlin/reflect/KProperty0;"))
+    }
 }

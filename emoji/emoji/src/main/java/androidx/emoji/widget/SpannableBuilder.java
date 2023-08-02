@@ -45,7 +45,6 @@ import java.util.concurrent.atomic.AtomicInteger;
  * applied only for EmojiSpans. Therefore any other span change operation works the same way as in
  * the framework.
  *
- * @hide
  * @see EmojiEditableFactory
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
@@ -61,7 +60,6 @@ public final class SpannableBuilder extends SpannableStringBuilder {
     private final List<WatcherWrapper> mWatchers = new ArrayList<>();
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     SpannableBuilder(@NonNull Class<?> watcherClass) {
@@ -70,7 +68,6 @@ public final class SpannableBuilder extends SpannableStringBuilder {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     SpannableBuilder(@NonNull Class<?> watcherClass, @NonNull CharSequence text) {
@@ -80,7 +77,6 @@ public final class SpannableBuilder extends SpannableStringBuilder {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     SpannableBuilder(@NonNull Class<?> watcherClass, @NonNull CharSequence text, int start,
@@ -91,7 +87,6 @@ public final class SpannableBuilder extends SpannableStringBuilder {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     static SpannableBuilder create(@NonNull Class<?> clazz, @NonNull CharSequence text) {
@@ -253,7 +248,6 @@ public final class SpannableBuilder extends SpannableStringBuilder {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public void beginBatchEdit() {
@@ -261,7 +255,6 @@ public final class SpannableBuilder extends SpannableStringBuilder {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public void endBatchEdit() {

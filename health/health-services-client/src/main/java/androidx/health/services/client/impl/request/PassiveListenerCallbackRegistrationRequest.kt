@@ -25,7 +25,6 @@ import androidx.health.services.client.proto.RequestsProto
 /**
  * Request for background registration.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 internal class PassiveListenerCallbackRegistrationRequest(
@@ -33,12 +32,11 @@ internal class PassiveListenerCallbackRegistrationRequest(
     public val passiveListenerConfig: PassiveListenerConfig,
 ) : ProtoParcelable<RequestsProto.PassiveListenerCallbackRegistrationRequest>() {
 
-    override val proto: RequestsProto.PassiveListenerCallbackRegistrationRequest by lazy {
+    override val proto: RequestsProto.PassiveListenerCallbackRegistrationRequest =
         RequestsProto.PassiveListenerCallbackRegistrationRequest.newBuilder()
             .setPackageName(packageName)
             .setConfig(passiveListenerConfig.proto)
             .build()
-    }
 
     public companion object {
         @JvmField

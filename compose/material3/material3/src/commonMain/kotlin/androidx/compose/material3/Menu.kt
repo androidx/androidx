@@ -21,6 +21,7 @@ import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.updateTransition
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
@@ -34,7 +35,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.tokens.MenuTokens
@@ -61,11 +61,11 @@ import androidx.compose.ui.window.PopupPositionProvider
 import kotlin.math.max
 import kotlin.math.min
 
-@Suppress("ModifierParameter")
 @Composable
 internal fun DropdownMenuContent(
     expandedStates: MutableTransitionState<Boolean>,
     transformOriginState: MutableState<TransformOrigin>,
+    scrollState: ScrollState,
     modifier: Modifier = Modifier,
     content: @Composable ColumnScope.() -> Unit
 ) {
@@ -124,7 +124,7 @@ internal fun DropdownMenuContent(
             this.alpha = alpha
             transformOrigin = transformOriginState.value
         },
-        shape = MenuTokens.ContainerShape.toShape(),
+        shape = MenuTokens.ContainerShape.value,
         color = MaterialTheme.colorScheme.fromToken(MenuTokens.ContainerColor),
         tonalElevation = MenuTokens.ContainerElevation,
         shadowElevation = MenuTokens.ContainerElevation
@@ -133,7 +133,7 @@ internal fun DropdownMenuContent(
             modifier = modifier
                 .padding(vertical = DropdownMenuVerticalPadding)
                 .width(IntrinsicSize.Max)
-                .verticalScroll(rememberScrollState()),
+                .verticalScroll(scrollState),
             content = content
         )
     }
@@ -233,15 +233,15 @@ object MenuDefaults {
      */
     @Composable
     fun itemColors(
-        textColor: Color = MenuTokens.ListItemLabelTextColor.toColor(),
-        leadingIconColor: Color = MenuTokens.ListItemLeadingIconColor.toColor(),
-        trailingIconColor: Color = MenuTokens.ListItemTrailingIconColor.toColor(),
+        textColor: Color = MenuTokens.ListItemLabelTextColor.value,
+        leadingIconColor: Color = MenuTokens.ListItemLeadingIconColor.value,
+        trailingIconColor: Color = MenuTokens.ListItemTrailingIconColor.value,
         disabledTextColor: Color =
-            MenuTokens.ListItemDisabledLabelTextColor.toColor()
+            MenuTokens.ListItemDisabledLabelTextColor.value
                 .copy(alpha = MenuTokens.ListItemDisabledLabelTextOpacity),
-        disabledLeadingIconColor: Color = MenuTokens.ListItemDisabledLeadingIconColor.toColor()
+        disabledLeadingIconColor: Color = MenuTokens.ListItemDisabledLeadingIconColor.value
             .copy(alpha = MenuTokens.ListItemDisabledLeadingIconOpacity),
-        disabledTrailingIconColor: Color = MenuTokens.ListItemDisabledTrailingIconColor.toColor()
+        disabledTrailingIconColor: Color = MenuTokens.ListItemDisabledTrailingIconColor.value
             .copy(alpha = MenuTokens.ListItemDisabledTrailingIconOpacity),
     ): MenuItemColors = MenuItemColors(
         textColor = textColor,
@@ -304,7 +304,7 @@ internal fun calculateTransformOrigin(
 internal data class DropdownMenuPositionProvider(
     val contentOffset: DpOffset,
     val density: Density,
-    val onPositionCalculated: (IntRect, IntRect) -> Unit = { _, _ -> }
+    val onPositionCalculated: (anchorBounds: IntRect, menuBounds: IntRect) -> Unit = { _, _ -> }
 ) : PopupPositionProvider {
     override fun calculatePosition(
         anchorBounds: IntRect,
@@ -318,40 +318,45 @@ internal data class DropdownMenuPositionProvider(
         val contentOffsetX = with(density) { contentOffset.x.roundToPx() }
         val contentOffsetY = with(density) { contentOffset.y.roundToPx() }
 
-        // Compute horizontal position.
-        val toRight = anchorBounds.left + contentOffsetX
-        val toLeft = anchorBounds.right - contentOffsetX - popupContentSize.width
-        val toDisplayRight = windowSize.width - popupContentSize.width
-        val toDisplayLeft = 0
+        // Compute menu horizontal position.
+        val leftToAnchorLeft = anchorBounds.left + contentOffsetX
+        val rightToAnchorRight = anchorBounds.right - contentOffsetX - popupContentSize.width
+        val leftToWindowLeft = 0
+        val rightToWindowRight = windowSize.width - popupContentSize.width
         val x = if (layoutDirection == LayoutDirection.Ltr) {
             sequenceOf(
-                toRight,
-                toLeft,
+                leftToAnchorLeft,
+                rightToAnchorRight,
                 // If the anchor gets outside of the window on the left, we want to position
-                // toDisplayLeft for proximity to the anchor. Otherwise, toDisplayRight.
-                if (anchorBounds.left >= 0) toDisplayRight else toDisplayLeft
+                // `leftToWindowLeft` for proximity to the anchor. Otherwise, `rightToWindowRight`.
+                if (anchorBounds.left < 0) leftToWindowLeft else rightToWindowRight
             )
         } else {
             sequenceOf(
-                toLeft,
-                toRight,
+                rightToAnchorRight,
+                leftToAnchorLeft,
                 // If the anchor gets outside of the window on the right, we want to position
-                // toDisplayRight for proximity to the anchor. Otherwise, toDisplayLeft.
-                if (anchorBounds.right <= windowSize.width) toDisplayLeft else toDisplayRight
+                // `rightToWindowRight` for proximity to the anchor. Otherwise, `leftToWindowLeft`.
+                if (anchorBounds.right > windowSize.width) rightToWindowRight else leftToWindowLeft
             )
         }.firstOrNull {
             it >= 0 && it + popupContentSize.width <= windowSize.width
-        } ?: toLeft
+        } ?: rightToAnchorRight
 
-        // Compute vertical position.
-        val toBottom = maxOf(anchorBounds.bottom + contentOffsetY, verticalMargin)
-        val toTop = anchorBounds.top - contentOffsetY - popupContentSize.height
-        val toCenter = anchorBounds.top - popupContentSize.height / 2
-        val toDisplayBottom = windowSize.height - popupContentSize.height - verticalMargin
-        val y = sequenceOf(toBottom, toTop, toCenter, toDisplayBottom).firstOrNull {
+        // Compute menu vertical position.
+        val topToAnchorBottom = maxOf(anchorBounds.bottom + contentOffsetY, verticalMargin)
+        val bottomToAnchorTop = anchorBounds.top - contentOffsetY - popupContentSize.height
+        val centerToAnchorTop = anchorBounds.top - popupContentSize.height / 2
+        val bottomToWindowBottom = windowSize.height - popupContentSize.height - verticalMargin
+        val y = sequenceOf(
+            topToAnchorBottom,
+            bottomToAnchorTop,
+            centerToAnchorTop,
+            bottomToWindowBottom
+        ).firstOrNull {
             it >= verticalMargin &&
                 it + popupContentSize.height <= windowSize.height - verticalMargin
-        } ?: toTop
+        } ?: bottomToAnchorTop
 
         onPositionCalculated(
             anchorBounds,
@@ -364,16 +369,27 @@ internal data class DropdownMenuPositionProvider(
 /**
  * Represents the text and icon colors used in a menu item at different states.
  *
- * - See [MenuDefaults.itemColors] for the default colors used in a [DropdownMenuItemContent].
+ * @constructor create an instance with arbitrary colors.
+ * See [MenuDefaults.itemColors] for the default colors used in a [DropdownMenuItemContent].
+ *
+ * @param textColor the text color of this [DropdownMenuItemContent] when enabled
+ * @param leadingIconColor the leading icon color of this [DropdownMenuItemContent] when enabled
+ * @param trailingIconColor the trailing icon color of this [DropdownMenuItemContent] when
+ * enabled
+ * @param disabledTextColor the text color of this [DropdownMenuItemContent] when not enabled
+ * @param disabledLeadingIconColor the leading icon color of this [DropdownMenuItemContent] when
+ * not enabled
+ * @param disabledTrailingIconColor the trailing icon color of this [DropdownMenuItemContent]
+ * when not enabled
  */
 @Immutable
-class MenuItemColors internal constructor(
-    private val textColor: Color,
-    private val leadingIconColor: Color,
-    private val trailingIconColor: Color,
-    private val disabledTextColor: Color,
-    private val disabledLeadingIconColor: Color,
-    private val disabledTrailingIconColor: Color,
+class MenuItemColors constructor(
+    val textColor: Color,
+    val leadingIconColor: Color,
+    val trailingIconColor: Color,
+    val disabledTextColor: Color,
+    val disabledLeadingIconColor: Color,
+    val disabledTrailingIconColor: Color,
 ) {
     /**
      * Represents the text color for a menu item, depending on its [enabled] state.

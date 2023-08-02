@@ -24,12 +24,12 @@
     <string name="MediaControlView_playback_speed_normal" msgid="2029510260288453183">"Normal"</string>
     <string name="MediaControlView_time_placeholder" msgid="6734584158942500617">"00:00:00"</string>
     <string name="MediaControlView_subtitle_track_number_text" msgid="2241078077382492349">"Track <xliff:g id="TRACK_NUMBER">%1$d</xliff:g>"</string>
-    <string name="MediaControlView_subtitle_track_number_and_lang_text" msgid="2268860463481696609">"Track <xliff:g id="TRACK_NUMBER">%1$d</xliff:g> – <xliff:g id="LANG">%2$s</xliff:g>"</string>
+    <string name="MediaControlView_subtitle_track_number_and_lang_text" msgid="2268860463481696609">"Track <xliff:g id="TRACK_NUMBER">%1$d</xliff:g> - <xliff:g id="LANG">%2$s</xliff:g>"</string>
     <string name="MediaControlView_audio_track_number_text" msgid="4263103361854223806">"Track <xliff:g id="AUDIO_NUMBER">%1$d</xliff:g>"</string>
     <string name="mcv2_non_music_title_unknown_text" msgid="2032814146738922144">"Video title unknown"</string>
     <string name="mcv2_music_title_unknown_text" msgid="6037645626002038645">"Song title unknown"</string>
     <string name="mcv2_music_artist_unknown_text" msgid="5393558204040775454">"Artist unknown"</string>
-    <string name="mcv2_playback_error_text" msgid="6061787693725630293">"Couldn\'t play the item that you requested"</string>
+    <string name="mcv2_playback_error_text" msgid="6061787693725630293">"Couldn\'t play the item you requested"</string>
     <string name="mcv2_error_dialog_button" msgid="5940167897992933850">"OK"</string>
     <string name="mcv2_back_button_desc" msgid="1540894858499118373">"Back"</string>
     <string name="mcv2_overflow_left_button_desc" msgid="2749567167276435888">"Back to previous button list"</string>
@@ -44,6 +44,6 @@
     <string name="mcv2_previous_button_desc" msgid="3080315055670437389">"Previous media"</string>
     <string name="mcv2_next_button_desc" msgid="1204572886248099893">"Next media"</string>
     <string name="mcv2_rewind_button_desc" msgid="578809901971186362">"Rewind by 10 seconds"</string>
-    <string name="mcv2_ffwd_button_desc" msgid="611689280746097673">"Go forwards 30 seconds"</string>
+    <string name="mcv2_ffwd_button_desc" msgid="611689280746097673">"Go forward by 30 seconds"</string>
     <string name="mcv2_full_screen_button_desc" msgid="1609817079594941003">"Full screen"</string>
 </resources>

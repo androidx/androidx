@@ -19,7 +19,7 @@
 package androidx.activity.compose.lint
 
 import androidx.compose.lint.test.Stubs
-import androidx.compose.lint.test.compiledStub
+import androidx.compose.lint.test.bytecodeStub
 import com.android.tools.lint.checks.infrastructure.LintDetectorTest
 import com.android.tools.lint.checks.infrastructure.TestMode
 import com.android.tools.lint.detector.api.Detector
@@ -40,7 +40,7 @@ class ActivityResultLaunchDetectorTest : LintDetectorTest() {
     override fun getIssues(): MutableList<Issue> =
         mutableListOf(ActivityResultLaunchDetector.LaunchDuringComposition)
 
-    private val MANAGED_ACTIVITY_RESULT_LAUNCHER = compiledStub(
+    private val MANAGED_ACTIVITY_RESULT_LAUNCHER = bytecodeStub(
         filename = "ActivityResultRegistry.kt",
         filepath = "androidx/activity/compose",
         checksum = 0x42f3e9f,

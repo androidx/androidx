@@ -30,7 +30,6 @@ import java.util.UUID;
 /**
  * Updates progress for a {@link androidx.work.multiprocess.RemoteListenableWorker}.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class RemoteProgressUpdater implements ProgressUpdater {

@@ -14,30 +14,34 @@
  * limitations under the License.
  */
 
-@file:RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
+// TODO(b/200306659): Remove and replace with annotation on package-info.java
+@file:Suppress("DEPRECATION")
+@file:RequiresApi(21)
 
 package androidx.camera.camera2.pipe.config
 
-import android.view.Surface
 import androidx.annotation.RequiresApi
+import androidx.camera.camera2.pipe.CameraBackend
+import androidx.camera.camera2.pipe.CameraBackendId
+import androidx.camera.camera2.pipe.CameraContext
 import androidx.camera.camera2.pipe.CameraController
 import androidx.camera.camera2.pipe.CameraGraph
+import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
+import androidx.camera.camera2.pipe.CameraStatusMonitor
 import androidx.camera.camera2.pipe.RequestProcessor
-import androidx.camera.camera2.pipe.StreamId
+import androidx.camera.camera2.pipe.StreamGraph
+import androidx.camera.camera2.pipe.compat.ExternalCameraController
 import androidx.camera.camera2.pipe.graph.GraphListener
 import dagger.Module
 import dagger.Provides
 import dagger.Subcomponent
-import kotlinx.atomicfu.atomic
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
 
 @CameraGraphScope
-@Subcomponent(
-    modules = [
-        SharedCameraGraphModules::class,
-        ExternalCameraGraphConfigModule::class
-    ]
-)
+@Subcomponent(modules = [SharedCameraGraphModules::class, ExternalCameraGraphConfigModule::class])
 internal interface ExternalCameraGraphComponent {
     fun cameraGraph(): CameraGraph
 
@@ -54,32 +58,61 @@ internal class ExternalCameraGraphConfigModule(
     private val cameraMetadata: CameraMetadata,
     private val requestProcessor: RequestProcessor
 ) {
+    private val externalCameraBackend = object : CameraBackend {
+        override val id: CameraBackendId
+            get() = CameraBackendId("External")
+        override val cameraStatus: Flow<CameraStatusMonitor.CameraStatus>
+            get() = MutableSharedFlow()
+
+        override suspend fun getCameraIds(): List<CameraId>? {
+            throwUnsupportedOperationException()
+        }
+
+        override fun awaitCameraIds(): List<CameraId>? {
+            throwUnsupportedOperationException()
+        }
+
+        override fun awaitConcurrentCameraIds(): Set<Set<CameraId>>? {
+            throwUnsupportedOperationException()
+        }
+
+        override fun awaitCameraMetadata(cameraId: CameraId): CameraMetadata? {
+            throwUnsupportedOperationException()
+        }
+
+        override fun disconnectAllAsync(): Deferred<Unit> {
+            throwUnsupportedOperationException()
+        }
+
+        override fun shutdownAsync(): Deferred<Unit> {
+            throwUnsupportedOperationException()
+        }
+
+        override fun createCameraController(
+            cameraContext: CameraContext,
+            graphConfig: CameraGraph.Config,
+            graphListener: GraphListener,
+            streamGraph: StreamGraph
+        ): CameraController {
+            throwUnsupportedOperationException()
+        }
+
+        private fun throwUnsupportedOperationException(): Nothing =
+            throw UnsupportedOperationException("External CameraPipe should not use backends")
+    }
+
     @Provides
     fun provideCameraGraphConfig(): CameraGraph.Config = config
 
     @Provides
     fun provideCameraMetadata(): CameraMetadata = cameraMetadata
 
+    @CameraGraphScope
     @Provides
     fun provideGraphController(graphListener: GraphListener): CameraController =
-        object : CameraController {
-            var started = atomic(false)
-            override fun start() {
-                if (started.compareAndSet(expect = false, update = true)) {
-                    graphListener.onGraphStarted(requestProcessor)
-                }
-            }
+        ExternalCameraController(config, graphListener, requestProcessor)
 
-            override fun stop() {
-                if (started.compareAndSet(expect = true, update = false)) {
-                    graphListener.onGraphStopped(requestProcessor)
-                }
-            }
-
-            override fun close() {
-            }
-
-            override fun updateSurfaceMap(surfaceMap: Map<StreamId, Surface>) {
-            }
-        }
+    @CameraGraphScope
+    @Provides
+    fun provideCameraBackend(): CameraBackend = externalCameraBackend
 }

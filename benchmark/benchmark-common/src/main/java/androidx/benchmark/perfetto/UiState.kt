@@ -17,19 +17,18 @@
 package androidx.benchmark.perfetto
 
 import androidx.annotation.RestrictTo
+import java.io.File
 import perfetto.protos.Trace
 import perfetto.protos.TracePacket
 import perfetto.protos.UiState
-import java.io.File
 
 /**
  * Convenience for UiState construction with specified package
  */
-@Suppress("FunctionName") // constructor convenience
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 fun UiState(
-    timelineStart: Long?,
-    timelineEnd: Long?,
+    timelineStart: Long? = null,
+    timelineEnd: Long? = null,
     highlightPackage: String?
 ) = UiState(
     timeline_start_ts = timelineStart,

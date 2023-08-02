@@ -22,16 +22,10 @@ include ":public"
 dependencyResolutionManagement {
     versionCatalogs {
         libs {
-            from(files("../gradle/libs.versions.toml"))
             def agpOverride = System.getenv("GRADLE_PLUGIN_VERSION")
             if (agpOverride != null) {
                 logger.warn("Using custom version ${agpOverride} of AGP due to GRADLE_PLUGIN_VERSION being set.")
                 version('androidGradlePlugin', agpOverride)
-            }
-            def lintOverride = System.getenv("LINT_VERSION")
-            if (lintOverride != null) {
-                logger.warn("Using custom version ${lintOverride} of Lint due to LINT_VERSION being set.")
-                version('androidLint', lintOverride)
             }
         }
     }

@@ -28,8 +28,9 @@ message ExerciseUpdateListenerEvent {
     ExerciseUpdateResponse exercise_update_response = 1;
     ExerciseLapSummaryResponse lap_summary_response = 2;
     AvailabilityResponse availability_response = 3;
+    ExerciseEventResponse exercise_event_response = 4;
   }
-  reserved 4 to max;  // Next ID
+  reserved 5 to max;  // Next ID
 }
 
 message MeasureCallbackEvent {

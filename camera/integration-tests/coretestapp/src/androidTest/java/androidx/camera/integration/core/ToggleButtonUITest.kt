@@ -26,9 +26,9 @@ import androidx.camera.core.ImageCapture
 import androidx.camera.core.TorchState
 import androidx.camera.integration.core.idlingresource.WaitForViewToShow
 import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.camera.testing.CameraPipeConfigTestRule
-import androidx.camera.testing.CameraUtil
-import androidx.camera.testing.CoreAppTestUtil
+import androidx.camera.testing.impl.CameraPipeConfigTestRule
+import androidx.camera.testing.impl.CameraUtil
+import androidx.camera.testing.impl.CoreAppTestUtil
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onIdle
@@ -87,7 +87,6 @@ class ToggleButtonUITest(
     @get:Rule
     val cameraPipeConfigTestRule = CameraPipeConfigTestRule(
         active = implName == CameraPipeConfig::class.simpleName,
-        forAllTests = true,
     )
 
     private val launchIntent = Intent(
@@ -95,6 +94,7 @@ class ToggleButtonUITest(
         CameraXActivity::class.java
     ).apply {
         putExtra(CameraXActivity.INTENT_EXTRA_CAMERA_IMPLEMENTATION, cameraConfig)
+        putExtra(CameraXActivity.INTENT_EXTRA_CAMERA_IMPLEMENTATION_NO_HISTORY, true)
     }
 
     @Before

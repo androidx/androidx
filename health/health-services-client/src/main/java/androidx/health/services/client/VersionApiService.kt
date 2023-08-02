@@ -20,10 +20,13 @@ import android.app.Service
 import android.content.Intent
 import android.os.IBinder
 import android.util.Log
+import androidx.annotation.RestrictTo
+import androidx.annotation.RestrictTo.Scope
 import androidx.health.services.client.impl.IVersionApiService
 import androidx.health.services.client.impl.IpcConstants
 
 /** Service that allows querying the canonical SDK version used to compile this app. */
+@RestrictTo(Scope.LIBRARY)
 public class VersionApiService : Service() {
 
     private val stub: VersionApiServiceStub = VersionApiServiceStub()

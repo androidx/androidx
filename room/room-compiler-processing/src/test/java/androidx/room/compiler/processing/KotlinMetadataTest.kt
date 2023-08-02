@@ -16,13 +16,13 @@
 
 package androidx.room.compiler.processing
 
+import androidx.kruth.assertThat
 import androidx.room.compiler.processing.testcode.KotlinTestClass
 import androidx.room.compiler.processing.util.Source
+import androidx.room.compiler.processing.util.asJTypeName
 import androidx.room.compiler.processing.util.getMethodByJvmName
 import androidx.room.compiler.processing.util.getParameter
 import androidx.room.compiler.processing.util.runProcessorTest
-import androidx.room.compiler.processing.util.typeName
-import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 
 class KotlinMetadataTest {
@@ -40,8 +40,8 @@ class KotlinMetadataTest {
             val element = it.processingEnv.requireTypeElement(KotlinTestClass::class)
             element.getMethodByJvmName("mySuspendMethod").apply {
                 assertThat(parameters).hasSize(2)
-                assertThat(getParameter("param1").type.typeName)
-                    .isEqualTo(String::class.typeName())
+                assertThat(getParameter("param1").type.asTypeName().java)
+                    .isEqualTo(String::class.asJTypeName())
                 assertThat(isSuspendFunction()).isTrue()
             }
         }

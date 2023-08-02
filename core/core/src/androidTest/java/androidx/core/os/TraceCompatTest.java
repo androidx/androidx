@@ -18,6 +18,8 @@ package androidx.core.os;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.junit.Assume.assumeTrue;
+
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import android.app.UiAutomation;
@@ -37,6 +39,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -46,21 +49,34 @@ import java.util.regex.Pattern;
 public final class TraceCompatTest {
 
     private static final int TRACE_BUFFER_SIZE = 8192;
+
+    private static final boolean TRACE_AVAILABLE;
+
+    static {
+        // Check if tracing is available via debugfs or tracefs
+        TRACE_AVAILABLE = new File("/sys/kernel/debug/tracing/trace_marker").exists()
+                || new File("/sys/kernel/tracing/trace_marker").exists();
+    }
+
     private ByteArrayOutputStream mByteArrayOutputStream;
 
     @Before
     public void setUp() {
+        assumeTrue("Tracing is not available via debugfs or tracefs.", TRACE_AVAILABLE);
         mByteArrayOutputStream = new ByteArrayOutputStream();
     }
 
     @After
     public void stopAtrace() throws IOException {
-        // Since API 23, 'async_stop' will work. On lower API levels it was broken (see aosp/157142)
-        if (Build.VERSION.SDK_INT >= 23) {
-            executeCommand("atrace --async_stop");
-        } else {
-            // Ensure tracing is not currently running by performing a short synchronous trace.
-            executeCommand("atrace -t 0");
+        if (TRACE_AVAILABLE) {
+            // Since API 23, 'async_stop' will work. On lower API levels it was broken
+            // (see aosp/157142)
+            if (Build.VERSION.SDK_INT >= 23) {
+                executeCommand("atrace --async_stop");
+            } else {
+                // Ensure tracing is not currently running by performing a short synchronous trace.
+                executeCommand("atrace -t 0");
+            }
         }
     }
 

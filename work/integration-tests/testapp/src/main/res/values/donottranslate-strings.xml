@@ -50,4 +50,5 @@
     <integer name="notification_id">1</integer>
     <string name="notification_title">Working</string>
     <string name="cancel_constraint_tracking_worker">Cancel Constraint Tracking Worker</string>
+    <string name="stress_test">Stress Test</string>
 </resources>

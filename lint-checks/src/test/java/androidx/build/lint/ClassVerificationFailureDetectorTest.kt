@@ -18,9 +18,9 @@
 
 package androidx.build.lint
 
-import androidx.build.lint.Stubs.Companion.RequiresApi
+import androidx.build.lint.Stubs.Companion.DoNotInline
 import androidx.build.lint.Stubs.Companion.IntRange
-import org.junit.Ignore
+import androidx.build.lint.Stubs.Companion.RequiresApi
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -28,7 +28,7 @@ import org.junit.runners.JUnit4
 @RunWith(JUnit4::class)
 class ClassVerificationFailureDetectorTest : AbstractLintDetectorTest(
     useDetector = ClassVerificationFailureDetector(),
-    useIssues = listOf(ClassVerificationFailureDetector.ISSUE),
+    useIssues = listOf(ClassVerificationFailureDetector.METHOD_CALL_ISSUE),
     stubs = arrayOf(
         // AndroidManifest with minSdkVersion=14
         manifest().minSdk(14),
@@ -199,13 +199,13 @@ Fix for src/androidx/AutofixUnsafeVoidMethodReferenceJava.java line 34: Extract 
 -             view.setBackgroundTintList(new ColorStateList(null, null));
 +             Api21Impl.setBackgroundTintList(view, new ColorStateList(null, null));
 @@ -37 +37
-+ @annotation.RequiresApi(21)
++ @androidx.annotation.RequiresApi(21)
 + static class Api21Impl {
 +     private Api21Impl() {
 +         // This class is not instantiable.
 +     }
 +
-+     @annotation.DoNotInline
++     @androidx.annotation.DoNotInline
 +     static void setBackgroundTintList(View view, ColorStateList tint) {
 +         view.setBackgroundTintList(tint);
 +     }
@@ -231,13 +231,13 @@ Fix for src/androidx/AutofixUnsafeConstructorReferenceJava.java line 35: Extract
 -             AccessibilityNodeInfo node = new AccessibilityNodeInfo(new View(context), 1);
 +             AccessibilityNodeInfo node = Api30Impl.createAccessibilityNodeInfo(new View(context), 1);
 @@ -38 +38
-+ @annotation.RequiresApi(30)
++ @androidx.annotation.RequiresApi(30)
 + static class Api30Impl {
 +     private Api30Impl() {
 +         // This class is not instantiable.
 +     }
 +
-+     @annotation.DoNotInline
++     @androidx.annotation.DoNotInline
 +     static AccessibilityNodeInfo createAccessibilityNodeInfo(View root, int virtualDescendantId) {
 +         return new AccessibilityNodeInfo(root, virtualDescendantId);
 +     }
@@ -263,13 +263,13 @@ Fix for src/androidx/AutofixUnsafeStaticMethodReferenceJava.java line 33: Extrac
 -             return View.generateViewId();
 +             return Api17Impl.generateViewId();
 @@ -37 +37
-+ @annotation.RequiresApi(17)
++ @androidx.annotation.RequiresApi(17)
 + static class Api17Impl {
 +     private Api17Impl() {
 +         // This class is not instantiable.
 +     }
 +
-+     @annotation.DoNotInline
++     @androidx.annotation.DoNotInline
 +     static int generateViewId() {
 +         return View.generateViewId();
 +     }
@@ -295,13 +295,13 @@ Fix for src/androidx/AutofixUnsafeGenericMethodReferenceJava.java line 34: Extra
 -             return context.getSystemService(serviceClass);
 +             return Api23Impl.getSystemService(context, serviceClass);
 @@ -38 +38
-+ @annotation.RequiresApi(23)
++ @androidx.annotation.RequiresApi(23)
 + static class Api23Impl {
 +     private Api23Impl() {
 +         // This class is not instantiable.
 +     }
 +
-+     @annotation.DoNotInline
++     @androidx.annotation.DoNotInline
 +     static <T> T getSystemService(Context context, java.lang.Class<T> serviceClass) {
 +         return context.getSystemService(serviceClass);
 +     }
@@ -347,7 +347,48 @@ Fix for src/androidx/AutofixUnsafeReferenceWithExistingClassJava.java line 36: E
         check(*input).expectFixDiffs(expectedFix)
     }
 
-    @Ignore("Ignored until the fix for b/241573146 is in the current version of studio")
+    @Test
+    fun `Auto-fix unsafe reference in Java source when the fix code already exists`() {
+        val input = arrayOf(
+            javaSample("androidx.AutofixUnsafeReferenceWithExistingFix"),
+            RequiresApi,
+            DoNotInline
+        )
+
+        /* ktlint-disable max-line-length */
+        val expected = """
+src/androidx/AutofixUnsafeReferenceWithExistingFix.java:37: Error: This call references a method added in API level 21; however, the containing class androidx.AutofixUnsafeReferenceWithExistingFix is reachable from earlier API levels and will fail run-time class verification. [ClassVerificationFailure]
+        view.setBackgroundTintList(new ColorStateList(null, null));
+             ~~~~~~~~~~~~~~~~~~~~~
+src/androidx/AutofixUnsafeReferenceWithExistingFix.java:45: Error: This call references a method added in API level 21; however, the containing class androidx.AutofixUnsafeReferenceWithExistingFix is reachable from earlier API levels and will fail run-time class verification. [ClassVerificationFailure]
+        drawable.getOutline(null);
+                 ~~~~~~~~~~
+2 errors, 0 warnings
+        """
+
+        val expectedFix = """
+Fix for src/androidx/AutofixUnsafeReferenceWithExistingFix.java line 37: Extract to static inner class:
+@@ -37 +37
+-         view.setBackgroundTintList(new ColorStateList(null, null));
++         Api21Impl.setBackgroundTintList(view, new ColorStateList(null, null));
+Fix for src/androidx/AutofixUnsafeReferenceWithExistingFix.java line 45: Extract to static inner class:
+@@ -45 +45
+-         drawable.getOutline(null);
++         Api21Impl.getOutline(drawable, null);
+@@ -58 +58
+-     }
++     @DoNotInline
++ static void getOutline(Drawable drawable, android.graphics.Outline outline) {
++     drawable.getOutline(outline);
+@@ -60 +62
++ }
++ }
+        """
+        /* ktlint-enable max-line-length */
+
+        check(*input).expect(expected).expectFixDiffs(expectedFix)
+    }
+
     @Test
     fun `Detection and auto-fix for qualified expressions (issue 205026874)`() {
         val input = arrayOf(
@@ -418,18 +459,17 @@ Fix for src/androidx/sample/appcompat/widget/ActionBarBackgroundDrawable.java li
 
         /* ktlint-disable max-line-length */
         val expected = """
-src/androidx/AutofixUnsafeMethodWithQualifiedClass.java:38: Error: This call references a method added in API level 19; however, the containing class androidx.AutofixUnsafeMethodWithQualifiedClass is reachable from earlier API levels and will fail run-time class verification. [ClassVerificationFailure]
-        builder.setMediaSize(mediaSize);
-                ~~~~~~~~~~~~
+src/androidx/AutofixUnsafeMethodWithQualifiedClass.java:40: Error: This call references a method added in API level 19; however, the containing class androidx.AutofixUnsafeMethodWithQualifiedClass is reachable from earlier API levels and will fail run-time class verification. [ClassVerificationFailure]
+        return builder.setMediaSize(mediaSize);
+                       ~~~~~~~~~~~~
 1 errors, 0 warnings
         """
 
         val expectedFixDiffs = """
-Fix for src/androidx/AutofixUnsafeMethodWithQualifiedClass.java line 38: Extract to static inner class:
-@@ -38 +38
--         builder.setMediaSize(mediaSize);
-+         Api19Impl.setMediaSize(builder, mediaSize);
+Fix for src/androidx/AutofixUnsafeMethodWithQualifiedClass.java line 40: Extract to static inner class:
 @@ -40 +40
++         return Api19Impl.setMediaSize(builder, mediaSize);
++     }
 + @RequiresApi(19)
 + static class Api19Impl {
 +     private Api19Impl() {
@@ -438,10 +478,9 @@ Fix for src/androidx/AutofixUnsafeMethodWithQualifiedClass.java line 38: Extract
 +
 +     @DoNotInline
 +     static PrintAttributes.Builder setMediaSize(PrintAttributes.Builder builder, PrintAttributes.MediaSize mediaSize) {
-+         return builder.setMediaSize(mediaSize);
-+     }
+@@ -42 +52
 +
-@@ -41 +52
+@@ -43 +54
 + }
         """
         /* ktlint-enable max-line-length */
@@ -475,13 +514,13 @@ Fix for src/androidx/AutofixUnsafeCallToThis.java line 39: Extract to static inn
 -             getClipToPadding();
 +             Api21Impl.getClipToPadding(this);
 @@ -60 +60
-+ @annotation.RequiresApi(21)
++ @androidx.annotation.RequiresApi(21)
 + static class Api21Impl {
 +     private Api21Impl() {
 +         // This class is not instantiable.
 +     }
 +
-+     @annotation.DoNotInline
++     @androidx.annotation.DoNotInline
 +     static boolean getClipToPadding(ViewGroup viewGroup) {
 +         return viewGroup.getClipToPadding();
 +     }
@@ -493,13 +532,13 @@ Fix for src/androidx/AutofixUnsafeCallToThis.java line 48: Extract to static inn
 -             this.getClipToPadding();
 +             Api21Impl.getClipToPadding(this);
 @@ -60 +60
-+ @annotation.RequiresApi(21)
++ @androidx.annotation.RequiresApi(21)
 + static class Api21Impl {
 +     private Api21Impl() {
 +         // This class is not instantiable.
 +     }
 +
-+     @annotation.DoNotInline
++     @androidx.annotation.DoNotInline
 +     static boolean getClipToPadding(ViewGroup viewGroup) {
 +         return viewGroup.getClipToPadding();
 +     }
@@ -511,13 +550,13 @@ Fix for src/androidx/AutofixUnsafeCallToThis.java line 57: Extract to static inn
 -             super.getClipToPadding();
 +             Api21Impl.getClipToPadding(super);
 @@ -60 +60
-+ @annotation.RequiresApi(21)
++ @androidx.annotation.RequiresApi(21)
 + static class Api21Impl {
 +     private Api21Impl() {
 +         // This class is not instantiable.
 +     }
 +
-+     @annotation.DoNotInline
++     @androidx.annotation.DoNotInline
 +     static boolean getClipToPadding(ViewGroup viewGroup) {
 +         return viewGroup.getClipToPadding();
 +     }
@@ -550,13 +589,13 @@ Fix for src/androidx/AutofixUnsafeCallOnCast.java line 32: Extract to static inn
 -             ((DisplayCutout) secretDisplayCutout).getSafeInsetTop();
 +             Api28Impl.getSafeInsetTop((DisplayCutout) secretDisplayCutout);
 @@ -35 +35
-+ @annotation.RequiresApi(28)
++ @androidx.annotation.RequiresApi(28)
 + static class Api28Impl {
 +     private Api28Impl() {
 +         // This class is not instantiable.
 +     }
 +
-+     @annotation.DoNotInline
++     @androidx.annotation.DoNotInline
 +     static int getSafeInsetTop(DisplayCutout displayCutout) {
 +         return displayCutout.getSafeInsetTop();
 +     }
@@ -570,35 +609,38 @@ Fix for src/androidx/AutofixUnsafeCallOnCast.java line 32: Extract to static inn
     }
 
     @Test
-    fun `Auto-fix with implicit class cast from new type (issue 214389795)`() {
+    fun `Auto-fix with implicit class cast from new return type (issue 214389795)`() {
         val input = arrayOf(
-            javaSample("androidx.AutofixUnsafeCallWithImplicitCast"),
+            javaSample("androidx.AutofixUnsafeCallWithImplicitReturnCast"),
             RequiresApi
         )
 
         /* ktlint-disable max-line-length */
         val expected = """
-src/androidx/AutofixUnsafeCallWithImplicitCast.java:35: Error: This call references a method added in API level 26; however, the containing class androidx.AutofixUnsafeCallWithImplicitCast is reachable from earlier API levels and will fail run-time class verification. [ClassVerificationFailure]
+src/androidx/AutofixUnsafeCallWithImplicitReturnCast.java:36: Error: This call references a method added in API level 26; however, the containing class androidx.AutofixUnsafeCallWithImplicitReturnCast is reachable from earlier API levels and will fail run-time class verification. [ClassVerificationFailure]
         return new AdaptiveIconDrawable(null, null);
                ~~~~~~~~~~~~~~~~~~~~~~~~
-src/androidx/AutofixUnsafeCallWithImplicitCast.java:43: Error: This call references a method added in API level 26; however, the containing class androidx.AutofixUnsafeCallWithImplicitCast is reachable from earlier API levels and will fail run-time class verification. [ClassVerificationFailure]
+src/androidx/AutofixUnsafeCallWithImplicitReturnCast.java:44: Error: This call references a method added in API level 26; however, the containing class androidx.AutofixUnsafeCallWithImplicitReturnCast is reachable from earlier API levels and will fail run-time class verification. [ClassVerificationFailure]
         return new AdaptiveIconDrawable(null, null);
                ~~~~~~~~~~~~~~~~~~~~~~~~
-src/androidx/AutofixUnsafeCallWithImplicitCast.java:51: Error: This call references a method added in API level 26; however, the containing class androidx.AutofixUnsafeCallWithImplicitCast is reachable from earlier API levels and will fail run-time class verification. [ClassVerificationFailure]
+src/androidx/AutofixUnsafeCallWithImplicitReturnCast.java:52: Error: This call references a method added in API level 26; however, the containing class androidx.AutofixUnsafeCallWithImplicitReturnCast is reachable from earlier API levels and will fail run-time class verification. [ClassVerificationFailure]
         return Icon.createWithAdaptiveBitmap(null);
                     ~~~~~~~~~~~~~~~~~~~~~~~~
-src/androidx/AutofixUnsafeCallWithImplicitCast.java:59: Error: This call references a method added in API level 26; however, the containing class androidx.AutofixUnsafeCallWithImplicitCast is reachable from earlier API levels and will fail run-time class verification. [ClassVerificationFailure]
+src/androidx/AutofixUnsafeCallWithImplicitReturnCast.java:60: Error: This call references a method added in API level 26; however, the containing class androidx.AutofixUnsafeCallWithImplicitReturnCast is reachable from earlier API levels and will fail run-time class verification. [ClassVerificationFailure]
         return Icon.createWithAdaptiveBitmap(null);
                     ~~~~~~~~~~~~~~~~~~~~~~~~
-4 errors, 0 warnings
+src/androidx/AutofixUnsafeCallWithImplicitReturnCast.java:68: Error: This call references a method added in API level 24; however, the containing class androidx.AutofixUnsafeCallWithImplicitReturnCast is reachable from earlier API levels and will fail run-time class verification. [ClassVerificationFailure]
+        useStyle(new Notification.DecoratedCustomViewStyle());
+                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+5 errors, 0 warnings
         """
 
         val expectedFix = """
-Fix for src/androidx/AutofixUnsafeCallWithImplicitCast.java line 35: Extract to static inner class:
-@@ -35 +35
+Fix for src/androidx/AutofixUnsafeCallWithImplicitReturnCast.java line 36: Extract to static inner class:
+@@ -36 +36
 -         return new AdaptiveIconDrawable(null, null);
 +         return Api26Impl.createAdaptiveIconDrawableReturnsDrawable(null, null);
-@@ -61 +61
+@@ -77 +77
 + @RequiresApi(26)
 + static class Api26Impl {
 +     private Api26Impl() {
@@ -610,13 +652,13 @@ Fix for src/androidx/AutofixUnsafeCallWithImplicitCast.java line 35: Extract to 
 +         return new AdaptiveIconDrawable(backgroundDrawable, foregroundDrawable);
 +     }
 +
-@@ -62 +73
+@@ -78 +89
 + }
-Fix for src/androidx/AutofixUnsafeCallWithImplicitCast.java line 43: Extract to static inner class:
-@@ -43 +43
+Fix for src/androidx/AutofixUnsafeCallWithImplicitReturnCast.java line 44: Extract to static inner class:
+@@ -44 +44
 -         return new AdaptiveIconDrawable(null, null);
 +         return Api26Impl.createAdaptiveIconDrawable(null, null);
-@@ -61 +61
+@@ -77 +77
 + @RequiresApi(26)
 + static class Api26Impl {
 +     private Api26Impl() {
@@ -628,13 +670,13 @@ Fix for src/androidx/AutofixUnsafeCallWithImplicitCast.java line 43: Extract to 
 +         return new AdaptiveIconDrawable(backgroundDrawable, foregroundDrawable);
 +     }
 +
-@@ -62 +73
+@@ -78 +89
 + }
-Fix for src/androidx/AutofixUnsafeCallWithImplicitCast.java line 51: Extract to static inner class:
-@@ -51 +51
+Fix for src/androidx/AutofixUnsafeCallWithImplicitReturnCast.java line 52: Extract to static inner class:
+@@ -52 +52
 -         return Icon.createWithAdaptiveBitmap(null);
 +         return Api26Impl.createWithAdaptiveBitmapReturnsObject(null);
-@@ -61 +61
+@@ -77 +77
 + @RequiresApi(26)
 + static class Api26Impl {
 +     private Api26Impl() {
@@ -646,13 +688,13 @@ Fix for src/androidx/AutofixUnsafeCallWithImplicitCast.java line 51: Extract to 
 +         return Icon.createWithAdaptiveBitmap(bits);
 +     }
 +
-@@ -62 +73
+@@ -78 +89
 + }
-Fix for src/androidx/AutofixUnsafeCallWithImplicitCast.java line 59: Extract to static inner class:
-@@ -59 +59
+Fix for src/androidx/AutofixUnsafeCallWithImplicitReturnCast.java line 60: Extract to static inner class:
+@@ -60 +60
 -         return Icon.createWithAdaptiveBitmap(null);
 +         return Api26Impl.createWithAdaptiveBitmap(null);
-@@ -61 +61
+@@ -77 +77
 + @RequiresApi(26)
 + static class Api26Impl {
 +     private Api26Impl() {
@@ -664,7 +706,206 @@ Fix for src/androidx/AutofixUnsafeCallWithImplicitCast.java line 59: Extract to 
 +         return Icon.createWithAdaptiveBitmap(bits);
 +     }
 +
-@@ -62 +73
+@@ -78 +89
++ }
+Fix for src/androidx/AutofixUnsafeCallWithImplicitReturnCast.java line 68: Extract to static inner class:
+@@ -68 +68
+-         useStyle(new Notification.DecoratedCustomViewStyle());
++         useStyle(Api24Impl.createDecoratedCustomViewStyleReturnsStyle());
+@@ -77 +77
++ @RequiresApi(24)
++ static class Api24Impl {
++     private Api24Impl() {
++         // This class is not instantiable.
++     }
++
++     @DoNotInline
++     static Notification.Style createDecoratedCustomViewStyleReturnsStyle() {
++         return new Notification.DecoratedCustomViewStyle();
++     }
++
+@@ -78 +89
++ }
+        """
+        /* ktlint-enable max-line-length */
+
+        check(*input).expect(expected).expectFixDiffs(expectedFix)
+    }
+
+    @Test
+    fun `Auto-fix for constructor needs qualified class name (issue 244714253)`() {
+        val input = arrayOf(
+            javaSample("androidx.AutofixUnsafeConstructorQualifiedClass"),
+            RequiresApi
+        )
+
+        /* ktlint-disable max-line-length */
+        val expected = """
+src/androidx/AutofixUnsafeConstructorQualifiedClass.java:32: Error: This call references a method added in API level 24; however, the containing class androidx.AutofixUnsafeConstructorQualifiedClass is reachable from earlier API levels and will fail run-time class verification. [ClassVerificationFailure]
+        return new Notification.DecoratedCustomViewStyle();
+               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+1 errors, 0 warnings
+        """
+
+        val expectedFix = """
+Fix for src/androidx/AutofixUnsafeConstructorQualifiedClass.java line 32: Extract to static inner class:
+@@ -32 +32
++         return Api24Impl.createDecoratedCustomViewStyle();
++     }
++ @RequiresApi(24)
++ static class Api24Impl {
++     private Api24Impl() {
++         // This class is not instantiable.
++     }
++
++     @DoNotInline
++     static Notification.DecoratedCustomViewStyle createDecoratedCustomViewStyle() {
+@@ -34 +44
++
+@@ -35 +46
++ }
+        """
+        /* ktlint-enable max-line-length */
+
+        check(*input).expect(expected).expectFixDiffs(expectedFix)
+    }
+
+    @Test
+    fun `Auto-fix with implicit class cast from new parameter type (issue 266845827)`() {
+        val input = arrayOf(
+            javaSample("androidx.AutofixUnsafeCallWithImplicitParamCast"),
+            RequiresApi
+        )
+
+        /* ktlint-disable max-line-length */
+        val expected = """
+src/androidx/AutofixUnsafeCallWithImplicitParamCast.java:34: Error: This call references a method added in API level 16; however, the containing class androidx.AutofixUnsafeCallWithImplicitParamCast is reachable from earlier API levels and will fail run-time class verification. [ClassVerificationFailure]
+        style.setBuilder(builder);
+              ~~~~~~~~~~
+src/androidx/AutofixUnsafeCallWithImplicitParamCast.java:43: Error: This call references a method added in API level 20; however, the containing class androidx.AutofixUnsafeCallWithImplicitParamCast is reachable from earlier API levels and will fail run-time class verification. [ClassVerificationFailure]
+        builder.extend(extender);
+                ~~~~~~
+2 errors, 0 warnings
+        """
+
+        val expectedFix = """
+Fix for src/androidx/AutofixUnsafeCallWithImplicitParamCast.java line 34: Extract to static inner class:
+@@ -34 +34
+-         style.setBuilder(builder);
++         Api16Impl.setBuilder(style, builder);
+@@ -45 +45
++ @RequiresApi(16)
++ static class Api16Impl {
++     private Api16Impl() {
++         // This class is not instantiable.
++     }
++
++     @DoNotInline
++     static void setBuilder(Notification.Style style, Notification.Builder builder) {
++         style.setBuilder(builder);
++     }
++
+@@ -46 +57
++ }
+Fix for src/androidx/AutofixUnsafeCallWithImplicitParamCast.java line 43: Extract to static inner class:
+@@ -43 +43
+-         builder.extend(extender);
++         Api20Impl.extend(builder, extender);
+@@ -45 +45
++ @RequiresApi(20)
++ static class Api20Impl {
++     private Api20Impl() {
++         // This class is not instantiable.
++     }
++
++     @DoNotInline
++     static Notification.Builder extend(Notification.Builder builder, Notification.CarExtender extender) {
++         return builder.extend(extender);
++     }
++
+@@ -46 +57
++ }
+        """
+        /* ktlint-enable max-line-length */
+
+        check(*input).expect(expected).expectFixDiffs(expectedFix)
+    }
+
+    @Test
+    fun `Auto-fix for method with varargs that are implicitly cast (issue 266845827)`() {
+        val input = arrayOf(
+            javaSample("androidx.AutofixOnUnsafeCallWithImplicitVarArgsCast"),
+            RequiresApi
+        )
+
+        /* ktlint-disable max-line-length */
+        val expected = """
+src/androidx/AutofixOnUnsafeCallWithImplicitVarArgsCast.java:35: Error: This call references a method added in API level 27; however, the containing class androidx.AutofixOnUnsafeCallWithImplicitVarArgsCast is reachable from earlier API levels and will fail run-time class verification. [ClassVerificationFailure]
+        adapter.setAutofillOptions();
+                ~~~~~~~~~~~~~~~~~~
+src/androidx/AutofixOnUnsafeCallWithImplicitVarArgsCast.java:43: Error: This call references a method added in API level 27; however, the containing class androidx.AutofixOnUnsafeCallWithImplicitVarArgsCast is reachable from earlier API levels and will fail run-time class verification. [ClassVerificationFailure]
+        adapter.setAutofillOptions(vararg);
+                ~~~~~~~~~~~~~~~~~~
+src/androidx/AutofixOnUnsafeCallWithImplicitVarArgsCast.java:52: Error: This call references a method added in API level 27; however, the containing class androidx.AutofixOnUnsafeCallWithImplicitVarArgsCast is reachable from earlier API levels and will fail run-time class verification. [ClassVerificationFailure]
+        adapter.setAutofillOptions(vararg1, vararg2, vararg3);
+                ~~~~~~~~~~~~~~~~~~
+3 errors, 0 warnings
+        """
+
+        val expectedFix = """
+Fix for src/androidx/AutofixOnUnsafeCallWithImplicitVarArgsCast.java line 35: Extract to static inner class:
+@@ -35 +35
+-         adapter.setAutofillOptions();
++         Api27Impl.setAutofillOptions(adapter);
+@@ -54 +54
++ @RequiresApi(27)
++ static class Api27Impl {
++     private Api27Impl() {
++         // This class is not instantiable.
++     }
++
++     @DoNotInline
++     static void setAutofillOptions(BaseAdapter baseAdapter, java.lang.CharSequence... options) {
++         baseAdapter.setAutofillOptions(options);
++     }
++
+@@ -55 +66
++ }
+Fix for src/androidx/AutofixOnUnsafeCallWithImplicitVarArgsCast.java line 43: Extract to static inner class:
+@@ -43 +43
+-         adapter.setAutofillOptions(vararg);
++         Api27Impl.setAutofillOptions(adapter, vararg);
+@@ -54 +54
++ @RequiresApi(27)
++ static class Api27Impl {
++     private Api27Impl() {
++         // This class is not instantiable.
++     }
++
++     @DoNotInline
++     static void setAutofillOptions(BaseAdapter baseAdapter, java.lang.CharSequence... options) {
++         baseAdapter.setAutofillOptions(options);
++     }
++
+@@ -55 +66
++ }
+Fix for src/androidx/AutofixOnUnsafeCallWithImplicitVarArgsCast.java line 52: Extract to static inner class:
+@@ -52 +52
+-         adapter.setAutofillOptions(vararg1, vararg2, vararg3);
++         Api27Impl.setAutofillOptions(adapter, vararg1, vararg2, vararg3);
+@@ -54 +54
++ @RequiresApi(27)
++ static class Api27Impl {
++     private Api27Impl() {
++         // This class is not instantiable.
++     }
++
++     @DoNotInline
++     static void setAutofillOptions(BaseAdapter baseAdapter, java.lang.CharSequence... options) {
++         baseAdapter.setAutofillOptions(options);
++     }
++
+@@ -55 +66
 + }
         """
         /* ktlint-enable max-line-length */

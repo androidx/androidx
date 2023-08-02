@@ -52,7 +52,6 @@ public class ExtensionVersionImpl {
      * @return the version that vendor supported in this device. The MAJOR.MINOR.PATCH format
      * should be used.
      */
-    @SuppressWarnings("unused")
     @NonNull
     public String checkApiVersion(@NonNull String version) {
         throw new RuntimeException("Stub, replace with implementation.");

@@ -16,17 +16,23 @@
 
 package androidx.room.compiler.processing
 
-import androidx.room.compiler.processing.util.CONTINUATION_CLASS_NAME
+import androidx.kruth.assertThat
+import androidx.room.compiler.codegen.XTypeName
+import androidx.room.compiler.codegen.asClassName
+import androidx.room.compiler.processing.util.CONTINUATION_JCLASS_NAME
 import androidx.room.compiler.processing.util.Source
-import androidx.room.compiler.processing.util.className
+import androidx.room.compiler.processing.util.asJClassName
+import androidx.room.compiler.processing.util.asKClassName
 import androidx.room.compiler.processing.util.compileFiles
 import androidx.room.compiler.processing.util.getField
 import androidx.room.compiler.processing.util.getMethodByJvmName
 import androidx.room.compiler.processing.util.runProcessorTest
-import com.google.common.truth.Truth.assertThat
-import com.squareup.javapoet.ParameterizedTypeName
-import com.squareup.javapoet.TypeName
-import com.squareup.javapoet.WildcardTypeName
+import com.squareup.kotlinpoet.LONG
+import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
+import com.squareup.kotlinpoet.javapoet.JParameterizedTypeName
+import com.squareup.kotlinpoet.javapoet.JTypeName
+import com.squareup.kotlinpoet.javapoet.JWildcardTypeName
+import kotlin.coroutines.Continuation
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -57,28 +63,39 @@ class TypeAliasTest {
                 val elm = invocation.processingEnv.requireTypeElement("$pkg.Subject")
                 elm.getField("prop").type.let {
                     assertThat(it.nullability).isEqualTo(XNullability.NONNULL)
-                    assertThat(it.typeName).isEqualTo(TypeName.LONG)
+                    assertThat(it.asTypeName()).isEqualTo(XTypeName.PRIMITIVE_LONG)
                 }
                 elm.getField("nullable").type.let {
                     assertThat(it.nullability).isEqualTo(XNullability.NULLABLE)
-                    assertThat(it.typeName).isEqualTo(TypeName.LONG.box())
+                    assertThat(it.asTypeName())
+                        .isEqualTo(Long::class.asClassName().copy(nullable = true))
                 }
                 elm.getField("inGeneric").type.let {
                     assertThat(it.nullability).isEqualTo(XNullability.NONNULL)
-                    assertThat(it.typeName).isEqualTo(
-                        ParameterizedTypeName.get(
-                            List::class.className(),
-                            TypeName.LONG.box()
+                    assertThat(it.asTypeName().java).isEqualTo(
+                        JParameterizedTypeName.get(
+                            List::class.asJClassName(),
+                            JTypeName.LONG.box()
                         )
                     )
+                    if (invocation.isKsp) {
+                        assertThat(it.asTypeName().kotlin).isEqualTo(
+                            List::class.asKClassName().parameterizedBy(LONG)
+                        )
+                    }
                 }
                 elm.getMethodByJvmName("suspendFun").parameters.last().type.let {
-                    assertThat(it.typeName).isEqualTo(
-                        ParameterizedTypeName.get(
-                            CONTINUATION_CLASS_NAME,
-                            WildcardTypeName.supertypeOf(TypeName.LONG.box())
+                    assertThat(it.asTypeName().java).isEqualTo(
+                        JParameterizedTypeName.get(
+                            CONTINUATION_JCLASS_NAME,
+                            JWildcardTypeName.supertypeOf(JTypeName.LONG.box())
                         )
                     )
+                    if (invocation.isKsp) {
+                        assertThat(it.asTypeName().kotlin).isEqualTo(
+                            Continuation::class.asKClassName().parameterizedBy(LONG)
+                        )
+                    }
                 }
             }
         }

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2013 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+
+<resources>
+    <string-array name="media_names">
+        <item>Big Buck Bunny</item>
+        <item>Elephants Dream</item>
+        <item>Sintel</item>
+        <item>Tears of Steel</item>
+        <item>(Music) Sing Sing Sing</item>
+    </string-array>
+
+    <string-array name="media_uris">
+        <item>https://archive.org/download/BigBuckBunny_328/BigBuckBunny_512kb.mp4</item>
+        <item>https://archive.org/download/ElephantsDream_277/elephant_dreams_640_512kb.mp4</item>
+        <item>https://archive.org/download/Sintel/sintel-2048-stereo_512kb.mp4</item>
+        <item>https://archive.org/download/Tears-of-Steel/tears_of_steel_720p.mp4</item>
+        <item>https://ia600904.us.archive.org/15/items/78_symposium-of-swing-sing-sing-sing-fox-trot-intro-christopher-columbus-pt1_/C_2936_2A_09571.mp3</item>
+    </string-array>
+
+    <string-array name="media_mimes">
+        <item>video/mp4</item>
+        <item>video/mp4</item>
+        <item>video/mp4</item>
+        <item>video/mp4</item>
+        <item>audio/mp3</item>
+    </string-array>
+
+    <string-array name="dialog_types_array">
+        <item>Default</item>
+        <item>Dynamic</item>
+        <item>Output Switcher</item>
+    </string-array>
+</resources>

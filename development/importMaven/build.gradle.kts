@@ -64,12 +64,14 @@ dependencies {
     testImplementation(importMavenLibs.okioFakeFilesystem)
 }
 
-tasks.withType<KotlinCompile> {
-    kotlinOptions.jvmTarget = "11"
+// b/250726951 Gradle ProjectBuilder needs reflection access to java.lang.
+val jvmAddOpensArgs = listOf("--add-opens=java.base/java.lang=ALL-UNNAMED")
+tasks.withType<Test>() {
+    this.jvmArgs(jvmAddOpensArgs)
 }
-
 application {
     mainClass.set("androidx.build.importMaven.MainKt")
+    applicationDefaultJvmArgs += jvmAddOpensArgs
 }
 
 tasks.named("installDist", Sync::class).configure {

@@ -25,9 +25,12 @@ import androidx.test.filters.LargeTest
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.testutils.withActivity
+import androidx.testutils.withUse
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
+import leakcanary.DetectLeaksAfterTestSuccess
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mockito.mock
@@ -43,6 +46,9 @@ class FragmentStoreTest {
     private lateinit var fragmentStore: FragmentStore
     private lateinit var emptyFragment: Fragment
     private lateinit var emptyStateManager: FragmentStateManager
+
+    @get:Rule
+    val rule = DetectLeaksAfterTestSuccess()
 
     @Before
     fun setup() {
@@ -312,7 +318,7 @@ class FragmentStoreTest {
     @LargeTest
     @Test
     fun testFindFragmentByWhoChildFragment() {
-        with(ActivityScenario.launch(EmptyFragmentTestActivity::class.java)) {
+       withUse(ActivityScenario.launch(EmptyFragmentTestActivity::class.java)) {
             val fm = withActivity { supportFragmentManager }
             val parentFragment = StrictFragment()
             fm.beginTransaction()
@@ -336,6 +342,9 @@ class FragmentStoreTest {
             val foundFragment = fragmentStore.findFragmentByWho(childFragment.mWho)
             assertThat(foundFragment)
                 .isSameInstanceAs(childFragment)
+
+            fragmentStore.removeFragment(parentFragment)
+            fragmentStore.makeInactive(parentStateManager)
         }
     }
 

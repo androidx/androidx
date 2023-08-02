@@ -72,7 +72,8 @@ private const val TEST_RESULT_STRING_FAILED = "FAILED"
 /**
  * A class to load, save and export the test results.
  */
-class TestResults constructor(private val context: Context) {
+class TestResults private constructor(val context: Context) {
+
     /**
      * Camera id to lens facing map.
      */
@@ -97,18 +98,33 @@ class TestResults constructor(private val context: Context) {
     fun getCameraExtensionResultMap() = cameraExtensionResultMap
 
     /**
+     * Updates test result for specific item and save.
+     */
+    fun updateTestResultAndSave(
+        testType: String,
+        cameraId: String,
+        extensionMode: Int,
+        testResult: Int
+    ) {
+        Log.d(
+            TAG, "updateTestResultAndSave: testType: $testType, cameraId: $cameraId" +
+                ", extensionMode: $extensionMode, testResult: $testResult"
+        )
+        cameraExtensionResultMap[Pair(testType, cameraId)]!![extensionMode] = testResult
+        saveTestResults()
+    }
+
+    /**
      * Saves the test results.
      *
      * The input parameter is pair of <test type, camera id> to list of
      * <extension mode, test result> map.
      */
-    fun saveTestResults(
-        cameraExtensionResultMap: LinkedHashMap<Pair<String, String>, LinkedHashMap<Int, Int>>
-    ) {
+    private fun saveTestResults() {
         val testResultsFile = File(context.getExternalFilesDir(null), TEST_RESULTS_FILE_NAME)
         val outputStream = FileOutputStream(testResultsFile)
 
-        val headerString = "Camera Id,Extension Mode,Test Result\n"
+        val headerString = "Test Type, Camera Id,Extension Mode,Test Result\n"
         outputStream.write(headerString.toByteArray())
 
         cameraExtensionResultMap.forEach { entry ->
@@ -295,6 +311,16 @@ class TestResults constructor(private val context: Context) {
     }
 
     companion object {
+        private var instance: TestResults? = null
+
+        @JvmStatic
+        fun getInstance(context: Context): TestResults {
+            if (instance == null) {
+                instance = TestResults(context.applicationContext)
+            }
+
+            return instance!!
+        }
         fun getExtensionModeStringFromId(testType: String, extensionMode: Int) =
             if (testType == TEST_TYPE_CAMERAX_EXTENSION) {
                 getExtensionModeStringFromId(extensionMode)

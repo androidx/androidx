@@ -37,10 +37,9 @@ android {
 }
 
 androidx {
-    name = "AndroidX Leanback Tab"
+    name = "Leanback Tab"
     publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.LEANBACK_TAB
-    mavenGroup = LibraryGroups.LEANBACK
     inceptionYear = "2020"
     description = "This library adds top tab navigation component to be used in TV"
 }

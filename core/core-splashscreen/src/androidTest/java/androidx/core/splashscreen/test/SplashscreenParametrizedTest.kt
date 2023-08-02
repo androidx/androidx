@@ -22,13 +22,18 @@ import android.os.Bundle
 import android.view.View
 import android.view.ViewTreeObserver
 import androidx.core.splashscreen.SplashScreenViewProvider
+import androidx.test.core.app.takeScreenshot
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
-import androidx.test.runner.screenshot.ScreenCapture
-import androidx.test.runner.screenshot.Screenshot
 import androidx.test.screenshot.matchers.MSSIMMatcher
 import androidx.test.uiautomator.UiDevice
+import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
+import kotlin.reflect.KClass
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
@@ -39,12 +44,6 @@ import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
-import java.io.File
-import java.io.FileOutputStream
-import java.io.IOException
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
-import kotlin.reflect.KClass
 
 @LargeTest
 @RunWith(Parameterized::class)
@@ -179,7 +178,7 @@ public class SplashscreenParametrizedTest(
         }
         assertTrue(controller.drawnLatch.await(2, TimeUnit.SECONDS))
         Thread.sleep(500)
-        val withoutListener = Screenshot.capture()
+        val withoutListener = takeScreenshot()
 
         // Take a screenshot of the container view while the splash screen view is invisible but
         // not removed
@@ -191,7 +190,7 @@ public class SplashscreenParametrizedTest(
         }
         val withListener = screenshotContainerInExitListener(controller)
 
-        compareBitmaps(withoutListener.bitmap, withListener.bitmap, 0.999)
+        compareBitmaps(withoutListener, withListener, 0.999)
 
         // Execute the same steps as above but with another set of theme attributes to check.
         controller = startActivityWithSplashScreen(SplashScreenStability2::class, device) {
@@ -201,7 +200,7 @@ public class SplashscreenParametrizedTest(
         }
         controller.waitForActivityDrawn()
         Thread.sleep(500)
-        val withoutListener2 = Screenshot.capture()
+        val withoutListener2 = takeScreenshot()
 
         controller = startActivityWithSplashScreen(SplashScreenStability2::class, device) {
             // Clear out any previous instances
@@ -210,17 +209,17 @@ public class SplashscreenParametrizedTest(
             it.putExtra(EXTRA_SPLASHSCREEN_WAIT, true)
         }
         val withListener2 = screenshotContainerInExitListener(controller)
-        compareBitmaps(withListener2.bitmap, withoutListener2.bitmap)
+        compareBitmaps(withListener2, withoutListener2)
     }
 
     private fun screenshotContainerInExitListener(
         controller: SplashScreenTestController
-    ): ScreenCapture {
-        lateinit var contentViewInListener: ScreenCapture
+    ): Bitmap {
+        lateinit var contentViewInListener: Bitmap
         controller.doOnExitAnimation {
             it.view.visibility = View.INVISIBLE
             it.view.postDelayed({
-                contentViewInListener = Screenshot.capture()
+                contentViewInListener = takeScreenshot()
                 it.remove()
                 controller.exitAnimationListenerLatch.countDown()
             }, 100)

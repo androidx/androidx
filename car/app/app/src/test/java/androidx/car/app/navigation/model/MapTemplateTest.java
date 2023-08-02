@@ -194,17 +194,17 @@ public class MapTemplateTest {
     }
 
     @Test
-    public void setPane_rowWithToggle_throws() {
+    public void setPane_rowWithToggle() {
         Row rowWithToggle = new Row.Builder()
                 .setTitle("Title")
                 .setToggle(new Toggle.Builder(isChecked -> {
                 }).build())
                 .build();
-        assertThrows(IllegalArgumentException.class,
-                () -> new MapTemplate.Builder()
+
+        new MapTemplate.Builder()
                         .setHeader(DEFAULT_HEADER)
                         .setPane(new Pane.Builder().addRow(rowWithToggle).build())
-                        .build());
+                        .build();
     }
 
     @Test
@@ -272,7 +272,7 @@ public class MapTemplateTest {
     }
 
     @Test
-    public void addList_hasToggle_throws() {
+    public void addList_hasToggle() {
         SpannableString title = new SpannableString("Title");
         title.setSpan(mDistanceSpan, /* start= */ 0, /* end= */ 1, /* flags= */ 0);
         Header header = new Header.Builder()
@@ -282,13 +282,10 @@ public class MapTemplateTest {
                 new Row.Builder().setTitle(title).setToggle(new Toggle.Builder(isChecked -> {
                 }).build()).build();
 
-        assertThrows(
-                IllegalArgumentException.class,
-                () ->
-                        new MapTemplate.Builder()
-                                .setHeader(header)
-                                .setItemList(new ItemList.Builder().addItem(rowWithToggle).build())
-                                .build());
+        new MapTemplate.Builder()
+                .setHeader(header)
+                .setItemList(new ItemList.Builder().addItem(rowWithToggle).build())
+                .build();
     }
 
     @Test

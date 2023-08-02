@@ -18,7 +18,14 @@ package androidx.appsearch.app;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.junit.Assert.assertThrows;
+
+import androidx.appsearch.app.AppSearchSchema.PropertyConfig;
+import androidx.appsearch.app.AppSearchSchema.StringPropertyConfig;
+
 import org.junit.Test;
+
+import java.util.List;
 
 /** Tests for private APIs of {@link SetSchemaResponse}. */
 public class SetSchemaResponseInternalTest {
@@ -66,5 +73,42 @@ public class SetSchemaResponseInternalTest {
                 "incompatible2");
         assertThat(rebuild.getMigratedTypes()).containsExactly("migrated1", "migrated2");
         assertThat(rebuild.getMigrationFailures()).containsExactly(failure1, failure2);
+    }
+
+    // TODO(b/268521214): Move test to cts once deletion propagation is available in framework.
+    @Test
+    public void testPropertyConfig_deletionPropagation() {
+        AppSearchSchema schema = new AppSearchSchema.Builder("Test")
+                .addProperty(new AppSearchSchema.StringPropertyConfig.Builder("qualifiedId1")
+                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setJoinableValueType(StringPropertyConfig.JOINABLE_VALUE_TYPE_QUALIFIED_ID)
+                        .setDeletionPropagation(true)
+                        .build())
+                .build();
+
+        assertThat(schema.getSchemaType()).isEqualTo("Test");
+        List<PropertyConfig> properties = schema.getProperties();
+        assertThat(properties).hasSize(1);
+
+        assertThat(properties.get(0).getName()).isEqualTo("qualifiedId1");
+        assertThat(properties.get(0).getCardinality())
+                .isEqualTo(PropertyConfig.CARDINALITY_OPTIONAL);
+        assertThat(((StringPropertyConfig) properties.get(0)).getJoinableValueType())
+                .isEqualTo(StringPropertyConfig.JOINABLE_VALUE_TYPE_QUALIFIED_ID);
+        assertThat(((StringPropertyConfig) properties.get(0)).getDeletionPropagation())
+                .isEqualTo(true);
+    }
+
+    // TODO(b/268521214): Move test to cts once deletion propagation is available in framework.
+    @Test
+    public void testStringPropertyConfig_setJoinableProperty_deletePropagationError() {
+        final StringPropertyConfig.Builder builder =
+                new StringPropertyConfig.Builder("qualifiedId")
+                        .setCardinality(PropertyConfig.CARDINALITY_REPEATED)
+                        .setDeletionPropagation(true);
+        IllegalStateException e =
+                assertThrows(IllegalStateException.class, () -> builder.build());
+        assertThat(e).hasMessageThat().contains(
+                "Cannot set deletion propagation without setting a joinable value type");
     }
 }

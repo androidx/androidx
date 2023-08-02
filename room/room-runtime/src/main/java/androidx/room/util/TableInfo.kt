@@ -36,7 +36,6 @@ import java.util.TreeMap
  *
  * Even though SQLite column names are case insensitive, this class uses case sensitive matching.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 // if you change this class, you must change TableInfoValidationWriter.kt
@@ -327,14 +326,13 @@ class TableInfo(
         override fun toString(): String {
             return ("Column{name='$name', type='$type', affinity='$affinity', " +
                 "notNull=$notNull, primaryKeyPosition=$primaryKeyPosition, " +
-                "defaultValue='$defaultValue'}")
+                "defaultValue='${defaultValue ?: "undefined"}'}")
         }
     }
 
     /**
      * Holds the information about an SQLite foreign key
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     class ForeignKey(
@@ -398,7 +396,6 @@ class TableInfo(
     /**
      * Holds the information about an SQLite index
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     class Index(

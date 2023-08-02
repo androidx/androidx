@@ -25,7 +25,6 @@ import androidx.health.services.client.proto.RequestsProto
 /**
  * Request for measure unregistration.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class MeasureUnregistrationRequest(
@@ -33,12 +32,11 @@ public class MeasureUnregistrationRequest(
     public val dataType: DataType<*, *>,
 ) : ProtoParcelable<RequestsProto.MeasureUnregistrationRequest>() {
 
-    override val proto: RequestsProto.MeasureUnregistrationRequest by lazy {
+    override val proto: RequestsProto.MeasureUnregistrationRequest =
         RequestsProto.MeasureUnregistrationRequest.newBuilder()
             .setPackageName(packageName)
             .setDataType(dataType.proto)
             .build()
-    }
 
     public companion object {
         @JvmField

@@ -25,11 +25,12 @@ import android.annotation.SuppressLint;
 import android.os.Looper;
 
 import androidx.annotation.IntDef;
-import androidx.annotation.Keep;
+import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.annotations.CarProtocol;
+import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.constraints.ActionsConstraints;
 import androidx.car.app.model.constraints.CarIconConstraints;
@@ -48,6 +49,7 @@ import java.util.Objects;
  * or switch.
  */
 @CarProtocol
+@KeepFields
 public final class Row implements Item {
     /** A boat that belongs to you. */
     private static final String YOUR_BOAT = "\uD83D\uDEA3"; // 🚣
@@ -58,7 +60,6 @@ public final class Row implements Item {
     /**
      * The type of images supported within rows.
      *
-     * @hide
      */
     @RestrictTo(LIBRARY)
     @IntDef(value = {IMAGE_TYPE_SMALL, IMAGE_TYPE_ICON, IMAGE_TYPE_LARGE})
@@ -96,31 +97,20 @@ public final class Row implements Item {
      */
     public static final int IMAGE_TYPE_ICON = (1 << 2);
 
-    @Keep
     private final boolean mIsEnabled;
-    @Keep
     @Nullable
     private final CarText mTitle;
-    @Keep
     private final List<CarText> mTexts;
-    @Keep
     @Nullable
     private final CarIcon mImage;
-    @Keep
     private final List<Action> mActions;
-    @Keep
-    private final int mDecoration;
-    @Keep
+    private final int mNumericDecoration;
     @Nullable
     private final Toggle mToggle;
-    @Keep
     @Nullable
     private final OnClickDelegate mOnClickDelegate;
-    @Keep
     private final Metadata mMetadata;
-    @Keep
     private final boolean mIsBrowsable;
-    @Keep
     @RowImageType
     private final int mRowImageType;
 
@@ -157,11 +147,14 @@ public final class Row implements Item {
     }
 
     /**
-     * Returns the list of additional actions at the end of the row.
+     * Returns the list of additional actions.
+     *
+     * <p> Actions are displayed at the end of the row.
      *
      * @see Builder#addAction(Action)
      */
     @NonNull
+    @RequiresCarApi(6)
     public List<Action> getActions() {
         return mActions;
     }
@@ -177,13 +170,15 @@ public final class Row implements Item {
      *
      * <p> Numeric decorations are displayed at the end of the row, but before any actions.
      *
+     * <p> Numeric decorations are only allowed in full-width lists.
+     *
      * <p> {@link Row#NO_DECORATION} will be returned if the row does not contain a decoration.
      *
      * @see Builder#setNumericDecoration(int)
      */
     @RequiresCarApi(6)
     public int getNumericDecoration() {
-        return mDecoration;
+        return mNumericDecoration;
     }
 
     /**
@@ -311,7 +306,7 @@ public final class Row implements Item {
         mTexts = CollectionUtils.unmodifiableCopy(builder.mTexts);
         mImage = builder.mImage;
         mActions = CollectionUtils.unmodifiableCopy(builder.mActions);
-        mDecoration = builder.mDecoration;
+        mNumericDecoration = builder.mDecoration;
         mToggle = builder.mToggle;
         mOnClickDelegate = builder.mOnClickDelegate;
         mMetadata = builder.mMetadata;
@@ -326,7 +321,7 @@ public final class Row implements Item {
         mTexts = Collections.emptyList();
         mImage = null;
         mActions = Collections.emptyList();
-        mDecoration = NO_DECORATION;
+        mNumericDecoration = NO_DECORATION;
         mToggle = null;
         mOnClickDelegate = null;
         mMetadata = EMPTY_METADATA;
@@ -362,7 +357,7 @@ public final class Row implements Item {
          *
          * @throws NullPointerException     if {@code title} is {@code null}
          * @throws IllegalArgumentException if {@code title} is empty, of if it contains
-     *                                      unsupported spans
+         *                                  unsupported spans
          */
         @NonNull
         public Builder setTitle(@NonNull CharSequence title) {
@@ -383,7 +378,7 @@ public final class Row implements Item {
          *
          * @throws NullPointerException     if {@code title} is {@code null}
          * @throws IllegalArgumentException if {@code title} is empty, of if it contains
-     *                                      unsupported spans
+         *                                  unsupported spans
          */
         @NonNull
         public Builder setTitle(@NonNull CarText title) {
@@ -534,7 +529,9 @@ public final class Row implements Item {
          *                                  exceeds the maximum number of allowed actions or does
          *                                  not contain a valid {@link CarIcon}.
          */
+        //TODO(b/260557014): Update docs when half-list UX is defined
         @NonNull
+        @RequiresCarApi(6)
         public Builder addAction(@NonNull Action action) {
             List<Action> mActionsCopy = new ArrayList<>(mActions);
             mActionsCopy.add(requireNonNull(action));
@@ -547,17 +544,20 @@ public final class Row implements Item {
          * Sets a numeric decoration to display in the row.
          *
          * <p> Numeric decorations are displayed at the end of the row, but before any actions.
+         * Numeric decorations are not displayed in half-list templates.
          *
          * <p> Numeric decorations typically represent a quantity of unseen content. For example, a
          * decoration might represent a number of missed notifications, or a number of unread
          * messages in a conversation.
          *
          * @param decoration the {@code int} to display. Must be positive, zero, or equal to
-         * {@link Row#NO_DECORATION}.
+         *                   {@link Row#NO_DECORATION}.
          * @throws IllegalArgumentException if {@code decoration} is invalid
          */
+        //TODO(b/260557014): Update docs when half-list UX is defined
         @NonNull
         @RequiresCarApi(6)
+        @IntRange(from = 0)
         public Builder setNumericDecoration(int decoration) {
             if (decoration < 0 && decoration != NO_DECORATION) {
                 throw new IllegalArgumentException(
@@ -576,6 +576,9 @@ public final class Row implements Item {
         /**
          * Sets a {@link Toggle} to show in the row.
          *
+         * <p> If a row has a toggle set, then no {@link Action}, {@link OnClickListener} or
+         * numeric decoration can be set.
+         *
          * @throws NullPointerException if {@code toggle} is {@code null}
          */
         @NonNull
@@ -590,7 +593,8 @@ public final class Row implements Item {
          * <p>Browsable rows can be used, for example, to represent the parent row in a hierarchy of
          * lists with child lists.
          *
-         * <p>If a row is browsable, then no {@link Action} or {@link Toggle} can be added to it.
+         * <p>If a row is browsable, then no {@link Action} or {@link Toggle} can be added to it. A
+         * browsable row must have an OnClickListener set.
          */
         @NonNull
         public Builder setBrowsable(boolean isBrowsable) {
@@ -641,11 +645,9 @@ public final class Row implements Item {
         /**
          * Constructs the {@link Row} defined by this builder.
          *
-         * @throws IllegalStateException if the row's title is not set, if it is a browsable
-         *                               row and has a {@link Toggle}, if it is a browsable
-         *                               row but does not have a {@link OnClickListener}, or if
-         *                               it has both a {@link OnClickListener} and a {@link
-         *                               Toggle}
+         * @throws IllegalStateException if the row's title is not set or if the row is not set
+         *                               correctly. See {@link #setToggle} and
+         *                               {@link #setBrowsable}.
          */
         @NonNull
         public Row build() {
@@ -661,11 +663,28 @@ public final class Row implements Item {
                     throw new IllegalStateException(
                             "A browsable row must have its onClickListener set");
                 }
+                if (!mActions.isEmpty()) {
+                    throw new IllegalStateException("A browsable row must not have a secondary "
+                            + "action set");
+                }
+
             }
 
-            if (mToggle != null && mOnClickDelegate != null) {
-                throw new IllegalStateException(
-                        "If a row contains a toggle, it must not have a onClickListener set");
+            if (mToggle != null) {
+                if (mOnClickDelegate != null) {
+                    throw new IllegalStateException(
+                            "If a row contains a toggle, it must not have an onClickListener set");
+                }
+
+                if (mDecoration != NO_DECORATION) {
+                    throw new IllegalStateException("If a row contains a toggle, it must not have"
+                            + " a numeric decoration set");
+                }
+
+                if (!mActions.isEmpty()) {
+                    throw new IllegalStateException("If a row contains a toggle, it must not have "
+                            + "a secondary action set");
+                }
             }
 
             return new Row(this);

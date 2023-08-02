@@ -17,6 +17,8 @@
 package androidx.datastore.core.okio
 
 import androidx.datastore.OkioTestIO
+import androidx.datastore.TestingOkioSerializer
+import androidx.datastore.TestingSerializerConfig
 import androidx.datastore.core.ReadScope
 import androidx.datastore.core.Storage
 import androidx.datastore.core.StorageConnection
@@ -24,19 +26,17 @@ import androidx.datastore.core.WriteScope
 import androidx.datastore.core.readData
 import androidx.datastore.core.use
 import androidx.datastore.core.writeData
-import androidx.datastore.TestingOkioSerializer
-import androidx.datastore.TestingSerializerConfig
 import androidx.kruth.assertThat
 import androidx.kruth.assertThrows
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlin.test.Test
 import kotlin.test.BeforeTest
+import kotlin.test.Test
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.yield
 import okio.FileSystem
 import okio.IOException
@@ -76,7 +76,7 @@ class OkioStorageTest {
     @Test
     fun readAfterDisposeFails() = testScope.runTest {
 
-        testConnection.writeTransaction { writeData(1) }
+        testConnection.writeScope { writeData(1) }
         testConnection.close()
 
         assertThrows<IllegalStateException> { testConnection.readData() }
@@ -85,10 +85,10 @@ class OkioStorageTest {
     @Test
     fun writeAfterDisposeFails() = testScope.runTest {
 
-        testConnection.writeTransaction { writeData(1) }
+        testConnection.writeScope { writeData(1) }
         testConnection.close()
 
-        assertThrows<IllegalStateException> { testConnection.writeTransaction { writeData(1) } }
+        assertThrows<IllegalStateException> { testConnection.writeScope { writeData(1) } }
     }
 
     @Test
@@ -123,7 +123,7 @@ class OkioStorageTest {
     fun blockWithNoWriteSucceeds() = testScope.runTest {
         val count = AtomicInt(0)
 
-        testConnection.writeTransaction {
+        testConnection.writeScope {
             // do no writes in here
             count.incrementAndGet()
         }
@@ -194,7 +194,7 @@ class OkioStorageTest {
     @Test
     fun leakedReadTransactionDoesntWork() = testScope.runTest {
         var scope: ReadScope<Byte>? = null
-        testConnection.readTransaction {
+        testConnection.readScope {
             readData()
             scope = this
         }
@@ -204,7 +204,7 @@ class OkioStorageTest {
     @Test
     fun leakedWriteTransactionDoesntWork() = testScope.runTest {
         var scope: WriteScope<Byte>? = null
-        testConnection.writeTransaction {
+        testConnection.writeScope {
             writeData(1)
             scope = this
         }
@@ -218,12 +218,12 @@ class OkioStorageTest {
 
         val async1 = async {
             hook1.await()
-            testConnection.writeTransaction {
+            testConnection.writeScope {
                 assertThat(count.incrementAndGet()).isEqualTo(3)
             }
         }
         val async2 = async {
-            testConnection.writeTransaction {
+            testConnection.writeScope {
                 hook1.complete(Unit)
                 assertThat(count.incrementAndGet()).isEqualTo(1)
                 yield()
@@ -244,12 +244,12 @@ class OkioStorageTest {
 
         val async1 = async {
             hook1.await()
-            testConnection.writeTransaction {
+            testConnection.writeScope {
                 assertThat(count.incrementAndGet()).isEqualTo(3)
             }
         }
         val async2 = async {
-            testConnection.readTransaction {
+            testConnection.readScope {
                 hook1.complete(Unit)
                 assertThat(count.incrementAndGet()).isEqualTo(1)
                 yield()
@@ -316,7 +316,7 @@ class OkioStorageTest {
             }
             FileSystem.SYSTEM_TEMPORARY_DIRECTORY / "new-temp-file.tmp"
         }
-        val storage = OkioStorage(fileSystem, testingSerializer, fileProducer)
+        val storage = OkioStorage(fileSystem, testingSerializer, producePath = fileProducer)
 
         assertThrows<IOException> { storage.createConnection().use {
             it.readData()

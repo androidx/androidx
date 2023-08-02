@@ -4,12 +4,14 @@ import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.DocumentClassFactory;
 import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.exceptions.AppSearchException;
+import java.lang.Class;
 import java.lang.Integer;
 import java.lang.Override;
 import java.lang.String;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import javax.annotation.processing.Generated;
 
@@ -29,9 +31,11 @@ public final class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
             .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
             .setTokenizerType(AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_NONE)
             .setIndexingType(AppSearchSchema.StringPropertyConfig.INDEXING_TYPE_NONE)
+            .setJoinableValueType(AppSearchSchema.StringPropertyConfig.JOINABLE_VALUE_TYPE_NONE)
             .build())
           .addProperty(new AppSearchSchema.LongPropertyConfig.Builder("setOfInt")
             .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
+            .setIndexingType(AppSearchSchema.LongPropertyConfig.INDEXING_TYPE_NONE)
             .build())
           .addProperty(new AppSearchSchema.BytesPropertyConfig.Builder("repeatedByteArray")
             .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
@@ -40,6 +44,11 @@ public final class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
             .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
             .build())
           .build();
+  }
+
+  @Override
+  public List<Class<?>> getDependencyDocumentClasses() throws AppSearchException {
+    return Collections.emptyList();
   }
 
   @Override

@@ -35,10 +35,9 @@ import org.gradle.api.tasks.TaskAction
 abstract class ExportAtomicLibraryGroupsToTextTask : DefaultTask() {
 
     @get:[Input]
-    lateinit var libraryGroups: Map<String, LibraryGroup>
+    lateinit var libraryGroups: List<LibraryGroup>
 
-    @get:OutputDirectory
-    abstract val outputDir: DirectoryProperty
+    @get:OutputDirectory abstract val outputDir: DirectoryProperty
 
     @TaskAction
     fun exec() {
@@ -48,7 +47,7 @@ abstract class ExportAtomicLibraryGroupsToTextTask : DefaultTask() {
         val textOutputFile = outputDir.file(filename).get().asFile
         val writer: Writer = BufferedWriter(Files.newWriter(textOutputFile, UTF_8))
 
-        libraryGroups.forEach { (_, libraryGroup) ->
+        libraryGroups.forEach { libraryGroup ->
             if (libraryGroup.requireSameVersion) {
                 writer.write("${libraryGroup.group}\n")
             }

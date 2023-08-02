@@ -16,11 +16,10 @@
 
 package com.example.androidx.webkit;
 
+import static androidx.test.espresso.Espresso.onData;
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
-import static androidx.test.espresso.matcher.ViewMatchers.isDescendantOfA;
-import static androidx.test.espresso.matcher.ViewMatchers.withClassName;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static androidx.test.espresso.web.assertion.WebViewAssertions.webMatches;
@@ -29,8 +28,8 @@ import static androidx.test.espresso.web.webdriver.DriverAtoms.findElement;
 import static androidx.test.espresso.web.webdriver.DriverAtoms.getText;
 
 import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.core.AllOf.allOf;
-import static org.hamcrest.core.Is.is;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasToString;
 
 import android.content.Context;
 
@@ -54,8 +53,8 @@ public final class WebkitTestHelpers {
      * @param resourceId string id of menu item
      */
     public static void clickMenuListItemWithString(@StringRes int resourceId) {
-        onView(allOf(isDescendantOfA(withClassName(is(MenuListView.class.getName()))),
-                withText(resourceId))).perform(click());
+        Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();
+        onData(hasToString(equalTo(context.getString(resourceId)))).perform(click());
     }
 
     /**
@@ -124,6 +123,39 @@ public final class WebkitTestHelpers {
             @WebViewFeature.WebViewSupportFeature String featureName) {
         final String msg = "This device has the feature '" +  featureName + "'";
         final boolean hasFeature = WebViewFeature.isFeatureSupported(featureName);
+        Assume.assumeFalse(msg, hasFeature);
+    }
+
+    /**
+     * Throws {@link org.junit.AssumptionViolatedException} if the device does not support the
+     * particular startup feature, otherwise returns.
+     *
+     * <p>
+     * This provides a more descriptive message than a bare {@code assumeTrue} call.
+     *
+     * @param featureName the feature to be checked
+     */
+    public static void assumeStartupFeature(
+            @WebViewFeature.WebViewStartupFeature String featureName,
+            Context context) {
+        final String msg = "This device does not have the feature '" +  featureName + "'";
+        final boolean hasFeature = WebViewFeature.isStartupFeatureSupported(context, featureName);
+        Assume.assumeTrue(msg, hasFeature);
+    }
+
+    /**
+     * Throws {@link org.junit.AssumptionViolatedException} if the device supports the
+     * particular startup feature, otherwise returns.
+     *
+     * <p>
+     * This provides a more descriptive message than a bare {@code assumeFalse} call.
+     *
+     * @param featureName the feature to be checked
+     */
+    public static void assumeStartupFeatureNotAvailable(
+            @WebViewFeature.WebViewStartupFeature String featureName, Context context) {
+        final String msg = "This device has the feature '" +  featureName + "'";
+        final boolean hasFeature = WebViewFeature.isStartupFeatureSupported(context, featureName);
         Assume.assumeFalse(msg, hasFeature);
     }
 

@@ -56,9 +56,8 @@ android {
 }
 
 androidx {
-    name = "AndroidX media2 widget library"
+    name = "Media2 Widget"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.MEDIA2
     inceptionYear = "2018"
     description = "AndroidX Media2 Widget"
 }

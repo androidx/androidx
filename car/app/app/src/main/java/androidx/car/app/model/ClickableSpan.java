@@ -21,11 +21,11 @@ import static java.util.Objects.requireNonNull;
 import android.annotation.SuppressLint;
 import android.os.Looper;
 
-import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.RequiresCarApi;
+import androidx.car.app.annotations.KeepFields;
 
 import java.util.Objects;
 
@@ -51,8 +51,8 @@ import java.util.Objects;
  */
 @RequiresCarApi(2)
 @CarProtocol
+@KeepFields
 public final class ClickableSpan extends CarSpan {
-    @Keep
     @Nullable
     private final OnClickDelegate mOnClickDelegate;
 

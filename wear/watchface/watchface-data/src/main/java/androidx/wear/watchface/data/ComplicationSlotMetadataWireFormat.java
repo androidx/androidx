@@ -35,7 +35,6 @@ import androidx.wear.watchface.complications.data.ComplicationExperimental;
 
 import java.util.List;
 
-/** @hide */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @VersionedParcelize
 @SuppressLint("BanParcelableUsage") // TODO(b/169214666): Remove Parcelable
@@ -103,8 +102,7 @@ public final class ComplicationSlotMetadataWireFormat implements VersionedParcel
     List<RectF> mComplicationMargins;
 
     /** Used by VersionedParcelable. */
-    ComplicationSlotMetadataWireFormat() {
-    }
+    ComplicationSlotMetadataWireFormat() {}
 
     @ComplicationExperimental
     public ComplicationSlotMetadataWireFormat(
@@ -172,7 +170,7 @@ public final class ComplicationSlotMetadataWireFormat implements VersionedParcel
 
     /**
      * @deprecated Use the other constructor with primaryDataSourceDefaultType &
-     * secondaryDataSourceDefaultType instead.
+     *     secondaryDataSourceDefaultType instead.
      */
     @Deprecated
     public ComplicationSlotMetadataWireFormat(
@@ -247,8 +245,8 @@ public final class ComplicationSlotMetadataWireFormat implements VersionedParcel
     }
 
     /**
-     * @return The {@link ComplicationData.ComplicationType} for
-     * {@link #getFallbackSystemDataSource}.
+     * @return The {@link ComplicationData.ComplicationType} for {@link
+     *     #getFallbackSystemDataSource}.
      */
     @ComplicationData.ComplicationType
     public int getDefaultDataSourceType() {
@@ -256,27 +254,29 @@ public final class ComplicationSlotMetadataWireFormat implements VersionedParcel
     }
 
     /**
-     * @return The {@link ComplicationData.ComplicationType} for the first entry from
-     * {@link #getDefaultDataSourcesToTry}.
+     * @return The {@link ComplicationData.ComplicationType} for the first entry from {@link
+     *     #getDefaultDataSourcesToTry}.
      */
     @ComplicationData.ComplicationType
     public int getPrimaryDataSourceDefaultType() {
         // Not supported in library v1.0. TYPE_NOT_CONFIGURED is not a valid API choice indicating
         // and old client.
         return (mPrimaryDataSourceDefaultType == ComplicationData.TYPE_NOT_CONFIGURED)
-                ? mDefaultType : mPrimaryDataSourceDefaultType;
+                ? mDefaultType
+                : mPrimaryDataSourceDefaultType;
     }
 
     /**
-     * @return The {@link ComplicationData.ComplicationType} for the second entry from
-     * {@link #getDefaultDataSourcesToTry}.
+     * @return The {@link ComplicationData.ComplicationType} for the second entry from {@link
+     *     #getDefaultDataSourcesToTry}.
      */
     @ComplicationData.ComplicationType
     public int getSecondaryDataSourceDefaultType() {
         // Not supported in library v1.0. TYPE_NOT_CONFIGURED is not a valid API choice indicating
         // and old client.
         return (mSecondaryDataSourceDefaultType == ComplicationData.TYPE_NOT_CONFIGURED)
-                ? mDefaultType : mSecondaryDataSourceDefaultType;
+                ? mDefaultType
+                : mSecondaryDataSourceDefaultType;
     }
 
     public boolean isInitiallyEnabled() {

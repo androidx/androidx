@@ -20,6 +20,7 @@ import android.os.Build
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.Email
@@ -27,6 +28,7 @@ import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.testutils.assertAgainstGolden
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -99,10 +101,14 @@ class MenuScreenshotTest {
 
     @Composable
     private fun TestMenu(enabledItems: Boolean) {
-        Box(Modifier.testTag(testTag).padding(20.dp), contentAlignment = Alignment.Center) {
+        Box(
+            Modifier
+                .testTag(testTag)
+                .padding(20.dp), contentAlignment = Alignment.Center) {
             DropdownMenuContent(
                 expandedStates = MutableTransitionState(initialState = true),
-                transformOriginState = mutableStateOf(TransformOrigin.Center)
+                transformOriginState = remember { mutableStateOf(TransformOrigin.Center) },
+                scrollState = rememberScrollState()
             ) {
                 DropdownMenuItem(
                     text = { Text("Edit") },
@@ -125,7 +131,7 @@ class MenuScreenshotTest {
                         )
                     },
                     trailingIcon = { Text("F11", textAlign = TextAlign.Center) })
-                Divider()
+                HorizontalDivider()
                 DropdownMenuItem(
                     text = { Text("Send Feedback") },
                     onClick = { },

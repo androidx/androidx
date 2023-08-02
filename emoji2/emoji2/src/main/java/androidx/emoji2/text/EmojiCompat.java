@@ -17,7 +17,6 @@ package androidx.emoji2.text;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
-import static androidx.annotation.RestrictTo.Scope.TESTS;
 
 import android.app.Application;
 import android.content.Context;
@@ -43,6 +42,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
+import androidx.annotation.VisibleForTesting;
 import androidx.collection.ArraySet;
 import androidx.core.util.Preconditions;
 
@@ -72,14 +72,14 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * disable {@link EmojiCompatInitializer} in the manifest with:
  *
  * <pre>
- *     <provider
+ *     &lt;provider
  *         android:name="androidx.startup.InitializationProvider"
  *         android:authorities="${applicationId}.androidx-startup"
  *         android:exported="false"
- *         tools:node="merge">
- *         <meta-data android:name="androidx.emoji2.text.EmojiCompatInitializer"
- *                   tools:node="remove" />
- *     </provider>
+ *         tools:node="merge"&gt;
+ *         &lt;meta-data android:name="androidx.emoji2.text.EmojiCompatInitializer"
+ *                   tools:node="remove" /&gt;
+ *     &lt;/provider&gt;
  * </pre>
  *
  * When not using EmojiCompatInitializer, EmojiCompat must to be initialized manually using
@@ -160,7 +160,6 @@ public class EmojiCompat {
     public static final int LOAD_STATE_FAILED = 2;
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     @IntDef({LOAD_STATE_DEFAULT, LOAD_STATE_LOADING, LOAD_STATE_SUCCEEDED, LOAD_STATE_FAILED})
@@ -188,7 +187,6 @@ public class EmojiCompat {
     public static final int REPLACE_STRATEGY_NON_EXISTENT = 2;
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     @IntDef({REPLACE_STRATEGY_DEFAULT, REPLACE_STRATEGY_NON_EXISTENT, REPLACE_STRATEGY_ALL})
@@ -212,7 +210,6 @@ public class EmojiCompat {
     public static final int LOAD_STRATEGY_MANUAL = 1;
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     @IntDef({LOAD_STRATEGY_DEFAULT, LOAD_STRATEGY_MANUAL})
@@ -221,7 +218,6 @@ public class EmojiCompat {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     @IntDef({EMOJI_UNSUPPORTED, EMOJI_SUPPORTED,
@@ -341,7 +337,6 @@ public class EmojiCompat {
     public static final int EMOJI_FALLBACK = 2;
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     static final int EMOJI_COUNT_UNLIMITED = Integer.MAX_VALUE;
@@ -378,6 +373,8 @@ public class EmojiCompat {
      */
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     final @NonNull MetadataRepoLoader mMetadataLoader;
+
+    private @NonNull final SpanFactory mSpanFactory;
 
     /**
      * @see Config#setReplaceAll(boolean)
@@ -469,6 +466,8 @@ public class EmojiCompat {
         mGlyphChecker = config.mGlyphChecker;
         mMainHandler = new Handler(Looper.getMainLooper());
         mInitCallbacks = new ArraySet<>();
+        SpanFactory localSpanFactory = config.mSpanFactory;
+        mSpanFactory = localSpanFactory != null ? localSpanFactory : new DefaultSpanFactory();
         if (config.mInitCallbacks != null && !config.mInitCallbacks.isEmpty()) {
             mInitCallbacks.addAll(config.mInitCallbacks);
         }
@@ -498,7 +497,6 @@ public class EmojiCompat {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     @Nullable
@@ -598,8 +596,8 @@ public class EmojiCompat {
      * Used by the tests to reset EmojiCompat with a new configuration. Every time it is called a
      * new instance is created with the new configuration.
      *
-     * @hide
      */
+    @RestrictTo(LIBRARY)
     @NonNull
     public static EmojiCompat reset(@NonNull final Config config) {
         synchronized (INSTANCE_LOCK) {
@@ -612,9 +610,9 @@ public class EmojiCompat {
     /**
      * Used by the tests to reset EmojiCompat with a new singleton instance.
      *
-     * @hide
      */
-    @RestrictTo(TESTS)
+    @RestrictTo(LIBRARY)
+    @VisibleForTesting
     @Nullable
     public static EmojiCompat reset(@Nullable final EmojiCompat emojiCompat) {
         synchronized (INSTANCE_LOCK) {
@@ -626,9 +624,9 @@ public class EmojiCompat {
     /**
      * Reset default configuration lookup flag, for tests.
      *
-     * @hide
      */
-    @RestrictTo(TESTS)
+    @RestrictTo(LIBRARY)
+    @VisibleForTesting
     public static void skipDefaultConfigurationLookup(boolean shouldSkip) {
         synchronized (CONFIG_LOCK) {
             sHasDoneDefaultConfigLookup = shouldSkip;
@@ -797,7 +795,6 @@ public class EmojiCompat {
 
     /**
      * @return whether a background should be drawn for the emoji for debugging
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
     public boolean isEmojiSpanIndicatorEnabled() {
@@ -806,11 +803,38 @@ public class EmojiCompat {
 
     /**
      * @return color of background drawn if {@link EmojiCompat#isEmojiSpanIndicatorEnabled} is true
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
     public @ColorInt int getEmojiSpanIndicatorColor() {
         return mEmojiSpanIndicatorColor;
+    }
+
+    /**
+     * Together with {@link #getEmojiEnd(CharSequence, int)}, if the character at {@code offset} is
+     * part of an emoji, returns the index range of that emoji, start index inclusively/end index
+     * exclusively so that {@code charSequence.subSequence(start, end)} will return that emoji.
+     * E.g., getEmojiStart/End("AB😀", 1) will return (-1,-1) since 'B' is not part an emoji;
+     *       getEmojiStart/End("AB😀", 3) will return [2,4), note that "😀" contains 2 Chars.
+     * Returns -1 otherwise.
+     * @param charSequence the whole sequence
+     * @param offset index of the emoji to look up
+     * @return the start index inclusively/end index exclusively
+     */
+    public int getEmojiStart(@NonNull final CharSequence charSequence,
+            @IntRange(from = 0) int offset) {
+        Preconditions.checkState(isInitialized(), "Not initialized yet");
+        Preconditions.checkNotNull(charSequence, "charSequence cannot be null");
+        return mHelper.getEmojiStart(charSequence, offset);
+    }
+
+    /**
+     * see {@link #getEmojiStart(CharSequence, int)}.
+     */
+    public int getEmojiEnd(@NonNull final CharSequence charSequence,
+            @IntRange(from = 0) int offset) {
+        Preconditions.checkState(isInitialized(), "Not initialized yet");
+        Preconditions.checkNotNull(charSequence, "charSequence cannot be null");
+        return mHelper.getEmojiEnd(charSequence, offset);
     }
 
     /**
@@ -1150,22 +1174,46 @@ public class EmojiCompat {
     }
 
     /**
-     * Factory class that creates the EmojiSpans. By default it creates {@link TypefaceEmojiSpan}.
+     * Factory class that creates the EmojiSpans.
      *
-     * @hide
+     * By default it creates {@link TypefaceEmojiSpan}.
+     *
+     * Apps should use this only if they want to control the drawing of EmojiSpans for non-standard
+     * emoji display (for example, resizing or repositioning emoji).
      */
-    @RestrictTo(LIBRARY)
-    @RequiresApi(19)
-    static class SpanFactory {
+    public interface SpanFactory {
         /**
          * Create EmojiSpan instance.
          *
-         * @param metadata EmojiMetadata instance
+         * @param rasterizer TypefaceEmojiRasterizer instance, which can draw the emoji onto a
+         *                   Canvas.
          *
-         * @return EmojiSpan instance
+         * @return EmojiSpan instance that can use TypefaceEmojiRasterizer to draw emoji.
          */
-        EmojiSpan createSpan(@NonNull final EmojiMetadata metadata) {
-            return new TypefaceEmojiSpan(metadata);
+        @RequiresApi(19)
+        @NonNull
+        EmojiSpan createSpan(@NonNull TypefaceEmojiRasterizer rasterizer);
+    }
+
+
+    /**
+     */
+    @RestrictTo(LIBRARY)
+    public static class DefaultSpanFactory implements SpanFactory {
+
+        /**
+         * Returns a TypefaceEmojiSpan.
+         *
+         * @param rasterizer TypefaceEmojiRasterizer instance, which can draw the emoji onto a
+         *                   Canvas.
+         *
+         * @return {@link TypefaceEmojiSpan}
+         */
+        @RequiresApi(19)
+        @NonNull
+        @Override
+        public EmojiSpan createSpan(@NonNull TypefaceEmojiRasterizer rasterizer) {
+            return new TypefaceEmojiSpan(rasterizer);
         }
     }
 
@@ -1285,6 +1333,13 @@ public class EmojiCompat {
         @SuppressWarnings("WeakerAccess") /* synthetic access */
         @NonNull
         final MetadataRepoLoader mMetadataLoader;
+
+        /**
+         * Used to create new EmojiSpans.
+         *
+         * May be set by developer using config to fully customize emoji display.
+         */
+        SpanFactory mSpanFactory;
         @SuppressWarnings("WeakerAccess") /* synthetic access */
         boolean mReplaceAll;
         @SuppressWarnings("WeakerAccess") /* synthetic access */
@@ -1488,6 +1543,18 @@ public class EmojiCompat {
         }
 
         /**
+         * Set the span factory used to actually draw emoji replacements.
+         *
+         * @param factory custum span factory that can draw the emoji replacements
+         * @return this
+         */
+        @NonNull
+        public Config setSpanFactory(@NonNull SpanFactory factory) {
+            mSpanFactory = factory;
+            return this;
+        }
+
+        /**
          * The interface that is used by EmojiCompat in order to check if a given emoji can be
          * rendered by the system.
          *
@@ -1582,6 +1649,16 @@ public class EmojiCompat {
             return false;
         }
 
+        int getEmojiStart(@NonNull final CharSequence cs, @IntRange(from = 0) final int offset) {
+            // Since no metadata is loaded, EmojiCompat cannot detect any emojis.
+            return -1;
+        }
+
+        int getEmojiEnd(@NonNull final CharSequence cs, @IntRange(from = 0) final int offset) {
+            // Since no metadata is loaded, EmojiCompat cannot detect any emojis.
+            return -1;
+        }
+
         CharSequence process(@NonNull final CharSequence charSequence,
                 @IntRange(from = 0) final int start, @IntRange(from = 0) final int end,
                 @IntRange(from = 0) final int maxEmojiCount, boolean replaceAll) {
@@ -1653,10 +1730,12 @@ public class EmojiCompat {
             mMetadataRepo = metadataRepo;
             mProcessor = new EmojiProcessor(
                     mMetadataRepo,
-                    new SpanFactory(),
+                    mEmojiCompat.mSpanFactory,
                     mEmojiCompat.mGlyphChecker,
                     mEmojiCompat.mUseEmojiAsDefaultStyle,
-                    mEmojiCompat.mEmojiAsDefaultStyleExceptions);
+                    mEmojiCompat.mEmojiAsDefaultStyleExceptions,
+                    EmojiExclusions.getEmojiExclusions()
+            );
 
             mEmojiCompat.onMetadataLoadSuccess();
         }
@@ -1675,6 +1754,16 @@ public class EmojiCompat {
         @Override
         public int getEmojiMatch(CharSequence sequence, int metadataVersion) {
             return mProcessor.getEmojiMatch(sequence, metadataVersion);
+        }
+
+        @Override
+        int getEmojiStart(@NonNull final CharSequence sequence, final int offset) {
+            return mProcessor.getEmojiStart(sequence, offset);
+        }
+
+        @Override
+        int getEmojiEnd(@NonNull final CharSequence sequence, final int offset) {
+            return mProcessor.getEmojiEnd(sequence, offset);
         }
 
         @Override

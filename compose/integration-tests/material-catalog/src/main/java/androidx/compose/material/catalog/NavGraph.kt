@@ -18,8 +18,8 @@ package androidx.compose.material.catalog
 
 import androidx.compose.material.catalog.library.MaterialCatalogApp
 import androidx.compose.material.catalog.library.MaterialRoute
-import androidx.compose.material.catalog.model.MaterialSpecification
 import androidx.compose.material.catalog.model.Material3Specification
+import androidx.compose.material.catalog.model.MaterialSpecification
 import androidx.compose.material.catalog.model.Specifications
 import androidx.compose.material.catalog.ui.specification.Specification
 import androidx.compose.material3.catalog.library.Material3CatalogApp

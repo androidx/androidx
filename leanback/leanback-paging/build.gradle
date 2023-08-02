@@ -10,7 +10,7 @@ plugins {
 dependencies {
     api("androidx.annotation:annotation:1.1.0")
     api("androidx.leanback:leanback:1.1.0-beta01")
-    api("androidx.paging:paging-runtime:3.0.0")
+    api("androidx.paging:paging-runtime:3.1.0")
 
     // To avoid manifest merger warnings due to duplicate package names
     // It can be removed if leanback library is updated to a newer version
@@ -36,7 +36,7 @@ dependencies {
     }
     androidTestImplementation(libs.kotlinTest)
     androidTestImplementation(libs.kotlinCoroutinesTest)
-    androidTestImplementation("androidx.arch.core:core-testing:2.1.0")
+    androidTestImplementation("androidx.arch.core:core-testing:2.2.0")
     androidTestImplementation("androidx.lifecycle:lifecycle-runtime-testing:2.3.1")
 }
 
@@ -51,18 +51,10 @@ android {
     namespace "androidx.leanback.paging"
 }
 
-// Allow usage of Kotlin's @OptIn.
-tasks.withType(KotlinCompile).configureEach {
-    kotlinOptions {
-        freeCompilerArgs += ["-opt-in=kotlin.RequiresOptIn"]
-    }
-}
-
 androidx {
-    name = "AndroidX Leanback Paging"
+    name = "Leanback Paging"
     publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.LEANBACK_PAGING
-    mavenGroup = LibraryGroups.LEANBACK
     inceptionYear = "2020"
     description = "AndroidX Leanback Paging"
     failOnDeprecationWarnings = false

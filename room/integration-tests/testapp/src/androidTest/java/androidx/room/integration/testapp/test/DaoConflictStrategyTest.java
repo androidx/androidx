@@ -22,7 +22,9 @@ import android.content.Context;
 
 import androidx.room.Room;
 import androidx.room.integration.testapp.TestDatabase;
+import androidx.room.integration.testapp.dao.PetDao;
 import androidx.room.integration.testapp.dao.ToyDao;
+import androidx.room.integration.testapp.vo.Pet;
 import androidx.room.integration.testapp.vo.Toy;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -38,16 +40,23 @@ public class DaoConflictStrategyTest {
 
     private ToyDao mToyDao;
     private Toy mOriginalToy;
+    private PetDao mPetDao;
+    private Pet mPet;
 
     @Before
     public void createDbAndSetUpToys() {
         Context context = ApplicationProvider.getApplicationContext();
         TestDatabase db = Room.inMemoryDatabaseBuilder(context, TestDatabase.class).build();
         mToyDao = db.getToyDao();
+        mPetDao = db.getPetDao();
 
+        mPet = TestUtil.createPet(1);
         mOriginalToy = new Toy();
         mOriginalToy.setId(10);
         mOriginalToy.setName("originalToy");
+        mOriginalToy.setPetId(1);
+
+        mPetDao.insertOrReplace(mPet);
         mToyDao.insert(mOriginalToy);
     }
 
@@ -56,6 +65,7 @@ public class DaoConflictStrategyTest {
         Toy newToy = new Toy();
         newToy.setId(10);
         newToy.setName("newToy");
+        newToy.setPetId(1);
         mToyDao.insertOrReplace(newToy);
 
         Toy output = mToyDao.getToy(10);
@@ -68,6 +78,7 @@ public class DaoConflictStrategyTest {
         Toy newToy = new Toy();
         newToy.setId(10);
         newToy.setName("newToy");
+        newToy.setPetId(1);
         mToyDao.insertOrIgnore(newToy);
 
         Toy output = mToyDao.getToy(10);
@@ -80,11 +91,13 @@ public class DaoConflictStrategyTest {
         Toy newToy = new Toy();
         newToy.setId(11);
         newToy.setName("newToy");
+        newToy.setPetId(1);
         mToyDao.insert(newToy);
 
         Toy conflictToy = new Toy();
         conflictToy.setId(11);
         conflictToy.setName("originalToy");
+        conflictToy.setPetId(1);
         mToyDao.updateOrReplace(conflictToy);
 
         // Conflicting row is deleted
@@ -101,11 +114,13 @@ public class DaoConflictStrategyTest {
         Toy newToy = new Toy();
         newToy.setId(11);
         newToy.setName("newToy");
+        newToy.setPetId(1);
         mToyDao.insert(newToy);
 
         Toy conflictToy = new Toy();
         conflictToy.setId(11);
         conflictToy.setName("originalToy");
+        conflictToy.setPetId(1);
         mToyDao.updateOrIgnore(conflictToy);
 
         // Conflicting row is kept

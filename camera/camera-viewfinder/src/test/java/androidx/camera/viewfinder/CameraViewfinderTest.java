@@ -46,7 +46,6 @@ public class CameraViewfinderTest {
     public void surfaceViewNormal_useSurfaceView() {
         // Assert: SurfaceView is used.
         assertThat(CameraViewfinder.shouldUseTextureView(
-                /* isLegacyDevice = */ false,
                 CameraViewfinder.ImplementationMode.PERFORMANCE)).isFalse();
     }
 
@@ -57,7 +56,6 @@ public class CameraViewfinderTest {
 
         // Assert: TextureView is used even the SurfaceRequest is compatible with SurfaceView.
         assertThat(CameraViewfinder.shouldUseTextureView(
-                /* isLegacyDevice = */ false,
                 CameraViewfinder.ImplementationMode.PERFORMANCE)).isTrue();
     }
 
@@ -68,7 +66,6 @@ public class CameraViewfinderTest {
 
         // Assert: TextureView is used even the SurfaceRequest is compatible with SurfaceView.
         assertThat(CameraViewfinder.shouldUseTextureView(
-                /* isLegacyDevice = */ false,
                 CameraViewfinder.ImplementationMode.PERFORMANCE)).isTrue();
     }
 
@@ -79,7 +76,6 @@ public class CameraViewfinderTest {
 
         // Assert: TextureView is used even the SurfaceRequest is compatible with SurfaceView.
         assertThat(CameraViewfinder.shouldUseTextureView(
-                /* isLegacyDevice = */ true,
                 CameraViewfinder.ImplementationMode.COMPATIBLE)).isTrue();
     }
 }

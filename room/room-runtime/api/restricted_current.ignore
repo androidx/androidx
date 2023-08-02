@@ -1,153 +1,39 @@
 // Baseline format: 1.0
-AddedFinal: androidx.room.Room:
-    Class androidx.room.Room added 'final' qualifier
-AddedFinal: androidx.room.RoomSQLiteQuery#bindBlob(int, byte[]):
-    Method androidx.room.RoomSQLiteQuery.bindBlob has added 'final' qualifier
-AddedFinal: androidx.room.RoomSQLiteQuery#bindDouble(int, double):
-    Method androidx.room.RoomSQLiteQuery.bindDouble has added 'final' qualifier
-AddedFinal: androidx.room.RoomSQLiteQuery#bindLong(int, long):
-    Method androidx.room.RoomSQLiteQuery.bindLong has added 'final' qualifier
-AddedFinal: androidx.room.RoomSQLiteQuery#bindNull(int):
-    Method androidx.room.RoomSQLiteQuery.bindNull has added 'final' qualifier
-AddedFinal: androidx.room.RoomSQLiteQuery#bindString(int, String):
-    Method androidx.room.RoomSQLiteQuery.bindString has added 'final' qualifier
-AddedFinal: androidx.room.RoomSQLiteQuery#bindTo(androidx.sqlite.db.SupportSQLiteProgram):
-    Method androidx.room.RoomSQLiteQuery.bindTo has added 'final' qualifier
-AddedFinal: androidx.room.RoomSQLiteQuery#clearBindings():
-    Method androidx.room.RoomSQLiteQuery.clearBindings has added 'final' qualifier
-AddedFinal: androidx.room.RoomSQLiteQuery#close():
-    Method androidx.room.RoomSQLiteQuery.close has added 'final' qualifier
-AddedFinal: androidx.room.RoomSQLiteQuery#copyArgumentsFrom(androidx.room.RoomSQLiteQuery):
-    Method androidx.room.RoomSQLiteQuery.copyArgumentsFrom has added 'final' qualifier
-AddedFinal: androidx.room.RoomSQLiteQuery#getArgCount():
-    Method androidx.room.RoomSQLiteQuery.getArgCount has added 'final' qualifier
-AddedFinal: androidx.room.RoomSQLiteQuery#getSql():
-    Method androidx.room.RoomSQLiteQuery.getSql has added 'final' qualifier
-AddedFinal: androidx.room.RoomSQLiteQuery#release():
-    Method androidx.room.RoomSQLiteQuery.release has added 'final' qualifier
+InvalidNullConversion: androidx.room.EntityDeletionOrUpdateAdapter#bind(androidx.sqlite.db.SupportSQLiteStatement, T) parameter #1:
+    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter entity in androidx.room.EntityDeletionOrUpdateAdapter.bind(androidx.sqlite.db.SupportSQLiteStatement statement, T entity)
+InvalidNullConversion: androidx.room.EntityDeletionOrUpdateAdapter#handle(T) parameter #0:
+    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter entity in androidx.room.EntityDeletionOrUpdateAdapter.handle(T entity)
+InvalidNullConversion: androidx.room.EntityInsertionAdapter#bind(androidx.sqlite.db.SupportSQLiteStatement, T) parameter #0:
+    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter statement in androidx.room.EntityInsertionAdapter.bind(androidx.sqlite.db.SupportSQLiteStatement statement, T entity)
+InvalidNullConversion: androidx.room.EntityInsertionAdapter#bind(androidx.sqlite.db.SupportSQLiteStatement, T) parameter #1:
+    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter entity in androidx.room.EntityInsertionAdapter.bind(androidx.sqlite.db.SupportSQLiteStatement statement, T entity)
+InvalidNullConversion: androidx.room.EntityInsertionAdapter#insert(T) parameter #0:
+    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter entity in androidx.room.EntityInsertionAdapter.insert(T entity)
+InvalidNullConversion: androidx.room.EntityInsertionAdapter#insertAndReturnId(T) parameter #0:
+    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter entity in androidx.room.EntityInsertionAdapter.insertAndReturnId(T entity)
+InvalidNullConversion: androidx.room.EntityUpsertionAdapter#upsert(T) parameter #0:
+    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter entity in androidx.room.EntityUpsertionAdapter.upsert(T entity)
+InvalidNullConversion: androidx.room.EntityUpsertionAdapter#upsertAndReturnId(T) parameter #0:
+    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter entity in androidx.room.EntityUpsertionAdapter.upsertAndReturnId(T entity)
 
 
-ChangedType: androidx.room.DatabaseConfiguration#autoMigrationSpecs:
-    Field androidx.room.DatabaseConfiguration.autoMigrationSpecs has changed type from java.util.List<androidx.room.migration.AutoMigrationSpec!> to java.util.List<androidx.room.migration.AutoMigrationSpec>
-ChangedType: androidx.room.DatabaseConfiguration#callbacks:
-    Field androidx.room.DatabaseConfiguration.callbacks has changed type from java.util.List<androidx.room.RoomDatabase.Callback!> to java.util.List<androidx.room.RoomDatabase.Callback>
-ChangedType: androidx.room.DatabaseConfiguration#copyFromInputStream:
-    Field androidx.room.DatabaseConfiguration.copyFromInputStream has changed type from java.util.concurrent.Callable<java.io.InputStream!> to java.util.concurrent.Callable<java.io.InputStream>
-ChangedType: androidx.room.DatabaseConfiguration#typeConverters:
-    Field androidx.room.DatabaseConfiguration.typeConverters has changed type from java.util.List<java.lang.Object!> to java.util.List<java.lang.Object>
-ChangedType: androidx.room.EntityInsertionAdapter#insertAndReturnIdsList(T[]):
-    Method androidx.room.EntityInsertionAdapter.insertAndReturnIdsList has changed return type from java.util.List<java.lang.Long!> to java.util.List<java.lang.Long>
-ChangedType: androidx.room.EntityInsertionAdapter#insertAndReturnIdsList(java.util.Collection<? extends T>):
-    Method androidx.room.EntityInsertionAdapter.insertAndReturnIdsList has changed return type from java.util.List<java.lang.Long!> to java.util.List<java.lang.Long>
-ChangedType: androidx.room.InvalidationTracker#createLiveData(String[], boolean, java.util.concurrent.Callable<T>):
-    Method androidx.room.InvalidationTracker.createLiveData has changed return type from androidx.lifecycle.LiveData<T!> to androidx.lifecycle.LiveData<T>
-ChangedType: androidx.room.InvalidationTracker#createLiveData(String[], java.util.concurrent.Callable<T>):
-    Method androidx.room.InvalidationTracker.createLiveData has changed return type from androidx.lifecycle.LiveData<T!> to androidx.lifecycle.LiveData<T>
-ChangedType: androidx.room.Room#databaseBuilder(android.content.Context, Class<T>, String):
-    Method androidx.room.Room.databaseBuilder has changed return type from androidx.room.RoomDatabase.Builder<T!> to androidx.room.RoomDatabase.Builder<T>
-ChangedType: androidx.room.Room#inMemoryDatabaseBuilder(android.content.Context, Class<T>):
-    Method androidx.room.Room.inMemoryDatabaseBuilder has changed return type from androidx.room.RoomDatabase.Builder<T!> to androidx.room.RoomDatabase.Builder<T>
-ChangedType: androidx.room.RoomDatabase#mCallbacks:
-    Field androidx.room.RoomDatabase.mCallbacks has changed type from java.util.List<androidx.room.RoomDatabase.Callback!> to java.util.List<? extends androidx.room.RoomDatabase.Callback>
-ChangedType: androidx.room.RoomDatabase.Builder#addAutoMigrationSpec(androidx.room.migration.AutoMigrationSpec):
-    Method androidx.room.RoomDatabase.Builder.addAutoMigrationSpec has changed return type from androidx.room.RoomDatabase.Builder<T!> to androidx.room.RoomDatabase.Builder<T>
-ChangedType: androidx.room.RoomDatabase.Builder#addCallback(androidx.room.RoomDatabase.Callback):
-    Method androidx.room.RoomDatabase.Builder.addCallback has changed return type from androidx.room.RoomDatabase.Builder<T!> to androidx.room.RoomDatabase.Builder<T>
-ChangedType: androidx.room.RoomDatabase.Builder#addMigrations(androidx.room.migration.Migration...):
-    Method androidx.room.RoomDatabase.Builder.addMigrations has changed return type from androidx.room.RoomDatabase.Builder<T!> to androidx.room.RoomDatabase.Builder<T>
-ChangedType: androidx.room.RoomDatabase.Builder#addTypeConverter(Object):
-    Method androidx.room.RoomDatabase.Builder.addTypeConverter has changed return type from androidx.room.RoomDatabase.Builder<T!> to androidx.room.RoomDatabase.Builder<T>
-ChangedType: androidx.room.RoomDatabase.Builder#allowMainThreadQueries():
-    Method androidx.room.RoomDatabase.Builder.allowMainThreadQueries has changed return type from androidx.room.RoomDatabase.Builder<T!> to androidx.room.RoomDatabase.Builder<T>
-ChangedType: androidx.room.RoomDatabase.Builder#createFromAsset(String):
-    Method androidx.room.RoomDatabase.Builder.createFromAsset has changed return type from androidx.room.RoomDatabase.Builder<T!> to androidx.room.RoomDatabase.Builder<T>
-ChangedType: androidx.room.RoomDatabase.Builder#createFromAsset(String, androidx.room.RoomDatabase.PrepackagedDatabaseCallback):
-    Method androidx.room.RoomDatabase.Builder.createFromAsset has changed return type from androidx.room.RoomDatabase.Builder<T!> to androidx.room.RoomDatabase.Builder<T>
-ChangedType: androidx.room.RoomDatabase.Builder#createFromFile(java.io.File):
-    Method androidx.room.RoomDatabase.Builder.createFromFile has changed return type from androidx.room.RoomDatabase.Builder<T!> to androidx.room.RoomDatabase.Builder<T>
-ChangedType: androidx.room.RoomDatabase.Builder#createFromFile(java.io.File, androidx.room.RoomDatabase.PrepackagedDatabaseCallback):
-    Method androidx.room.RoomDatabase.Builder.createFromFile has changed return type from androidx.room.RoomDatabase.Builder<T!> to androidx.room.RoomDatabase.Builder<T>
-ChangedType: androidx.room.RoomDatabase.Builder#createFromInputStream(java.util.concurrent.Callable<java.io.InputStream>):
-    Method androidx.room.RoomDatabase.Builder.createFromInputStream has changed return type from androidx.room.RoomDatabase.Builder<T!> to androidx.room.RoomDatabase.Builder<T>
-ChangedType: androidx.room.RoomDatabase.Builder#createFromInputStream(java.util.concurrent.Callable<java.io.InputStream>, androidx.room.RoomDatabase.PrepackagedDatabaseCallback):
-    Method androidx.room.RoomDatabase.Builder.createFromInputStream has changed return type from androidx.room.RoomDatabase.Builder<T!> to androidx.room.RoomDatabase.Builder<T>
-ChangedType: androidx.room.RoomDatabase.Builder#enableMultiInstanceInvalidation():
-    Method androidx.room.RoomDatabase.Builder.enableMultiInstanceInvalidation has changed return type from androidx.room.RoomDatabase.Builder<T!> to androidx.room.RoomDatabase.Builder<T>
-ChangedType: androidx.room.RoomDatabase.Builder#fallbackToDestructiveMigration():
-    Method androidx.room.RoomDatabase.Builder.fallbackToDestructiveMigration has changed return type from androidx.room.RoomDatabase.Builder<T!> to androidx.room.RoomDatabase.Builder<T>
-ChangedType: androidx.room.RoomDatabase.Builder#fallbackToDestructiveMigrationFrom(int...):
-    Method androidx.room.RoomDatabase.Builder.fallbackToDestructiveMigrationFrom has changed return type from androidx.room.RoomDatabase.Builder<T!> to androidx.room.RoomDatabase.Builder<T>
-ChangedType: androidx.room.RoomDatabase.Builder#fallbackToDestructiveMigrationOnDowngrade():
-    Method androidx.room.RoomDatabase.Builder.fallbackToDestructiveMigrationOnDowngrade has changed return type from androidx.room.RoomDatabase.Builder<T!> to androidx.room.RoomDatabase.Builder<T>
-ChangedType: androidx.room.RoomDatabase.Builder#openHelperFactory(androidx.sqlite.db.SupportSQLiteOpenHelper.Factory):
-    Method androidx.room.RoomDatabase.Builder.openHelperFactory has changed return type from androidx.room.RoomDatabase.Builder<T!> to androidx.room.RoomDatabase.Builder<T>
-ChangedType: androidx.room.RoomDatabase.Builder#setJournalMode(androidx.room.RoomDatabase.JournalMode):
-    Method androidx.room.RoomDatabase.Builder.setJournalMode has changed return type from androidx.room.RoomDatabase.Builder<T!> to androidx.room.RoomDatabase.Builder<T>
-ChangedType: androidx.room.RoomDatabase.Builder#setQueryCallback(androidx.room.RoomDatabase.QueryCallback, java.util.concurrent.Executor):
-    Method androidx.room.RoomDatabase.Builder.setQueryCallback has changed return type from androidx.room.RoomDatabase.Builder<T!> to androidx.room.RoomDatabase.Builder<T>
-ChangedType: androidx.room.RoomDatabase.Builder#setQueryExecutor(java.util.concurrent.Executor):
-    Method androidx.room.RoomDatabase.Builder.setQueryExecutor has changed return type from androidx.room.RoomDatabase.Builder<T!> to androidx.room.RoomDatabase.Builder<T>
-ChangedType: androidx.room.RoomDatabase.Builder#setTransactionExecutor(java.util.concurrent.Executor):
-    Method androidx.room.RoomDatabase.Builder.setTransactionExecutor has changed return type from androidx.room.RoomDatabase.Builder<T!> to androidx.room.RoomDatabase.Builder<T>
-ChangedType: androidx.room.RoomDatabase.MigrationContainer#findMigrationPath(int, int):
-    Method androidx.room.RoomDatabase.MigrationContainer.findMigrationPath has changed return type from java.util.List<androidx.room.migration.Migration!> to java.util.List<androidx.room.migration.Migration>
-ChangedType: androidx.room.RoomDatabase.MigrationContainer#getMigrations():
-    Method androidx.room.RoomDatabase.MigrationContainer.getMigrations has changed return type from java.util.Map<java.lang.Integer!,java.util.Map<java.lang.Integer!,androidx.room.migration.Migration!>!> to java.util.Map<java.lang.Integer,java.util.Map<java.lang.Integer,androidx.room.migration.Migration>>
-ChangedType: androidx.room.util.FtsTableInfo#columns:
-    Field androidx.room.util.FtsTableInfo.columns has changed type from java.util.Set<java.lang.String!> to java.util.Set<java.lang.String>
-ChangedType: androidx.room.util.FtsTableInfo#options:
-    Field androidx.room.util.FtsTableInfo.options has changed type from java.util.Set<java.lang.String!> to java.util.Set<java.lang.String>
-ChangedType: androidx.room.util.StringUtil#splitToIntList(String):
-    Method androidx.room.util.StringUtil.splitToIntList has changed return type from java.util.List<java.lang.Integer!> to java.util.List<java.lang.Integer>
-ChangedType: androidx.room.util.TableInfo#columns:
-    Field androidx.room.util.TableInfo.columns has changed type from java.util.Map<java.lang.String!,androidx.room.util.TableInfo.Column!> to java.util.Map<java.lang.String,androidx.room.util.TableInfo.Column>
-ChangedType: androidx.room.util.TableInfo#foreignKeys:
-    Field androidx.room.util.TableInfo.foreignKeys has changed type from java.util.Set<androidx.room.util.TableInfo.ForeignKey!> to java.util.Set<androidx.room.util.TableInfo.ForeignKey>
-ChangedType: androidx.room.util.TableInfo#indices:
-    Field androidx.room.util.TableInfo.indices has changed type from java.util.Set<androidx.room.util.TableInfo.Index!> to java.util.Set<androidx.room.util.TableInfo.Index>
-ChangedType: androidx.room.util.TableInfo.ForeignKey#columnNames:
-    Field androidx.room.util.TableInfo.ForeignKey.columnNames has changed type from java.util.List<java.lang.String!> to java.util.List<java.lang.String>
-ChangedType: androidx.room.util.TableInfo.ForeignKey#referenceColumnNames:
-    Field androidx.room.util.TableInfo.ForeignKey.referenceColumnNames has changed type from java.util.List<java.lang.String!> to java.util.List<java.lang.String>
-ChangedType: androidx.room.util.TableInfo.Index#columns:
-    Field androidx.room.util.TableInfo.Index.columns has changed type from java.util.List<java.lang.String!> to java.util.List<java.lang.String>
-ChangedType: androidx.room.util.TableInfo.Index#orders:
-    Field androidx.room.util.TableInfo.Index.orders has changed type from java.util.List<java.lang.String!> to java.util.List<java.lang.String>
+ParameterNameChange: androidx.room.RoomDatabase.JournalMode#valueOf(String) parameter #0:
+    Attempted to change parameter name from name to value in method androidx.room.RoomDatabase.JournalMode.valueOf
+ParameterNameChange: androidx.room.RoomOpenHelper.Delegate#createAllTables(androidx.sqlite.db.SupportSQLiteDatabase) parameter #0:
+    Attempted to change parameter name from database to db in method androidx.room.RoomOpenHelper.Delegate.createAllTables
+ParameterNameChange: androidx.room.RoomOpenHelper.Delegate#dropAllTables(androidx.sqlite.db.SupportSQLiteDatabase) parameter #0:
+    Attempted to change parameter name from database to db in method androidx.room.RoomOpenHelper.Delegate.dropAllTables
+ParameterNameChange: androidx.room.RoomOpenHelper.Delegate#onCreate(androidx.sqlite.db.SupportSQLiteDatabase) parameter #0:
+    Attempted to change parameter name from database to db in method androidx.room.RoomOpenHelper.Delegate.onCreate
+ParameterNameChange: androidx.room.RoomOpenHelper.Delegate#onOpen(androidx.sqlite.db.SupportSQLiteDatabase) parameter #0:
+    Attempted to change parameter name from database to db in method androidx.room.RoomOpenHelper.Delegate.onOpen
+ParameterNameChange: androidx.room.RoomOpenHelper.Delegate#onPostMigrate(androidx.sqlite.db.SupportSQLiteDatabase) parameter #0:
+    Attempted to change parameter name from database to db in method androidx.room.RoomOpenHelper.Delegate.onPostMigrate
+ParameterNameChange: androidx.room.RoomOpenHelper.Delegate#onPreMigrate(androidx.sqlite.db.SupportSQLiteDatabase) parameter #0:
+    Attempted to change parameter name from database to db in method androidx.room.RoomOpenHelper.Delegate.onPreMigrate
 
 
-InvalidNullConversion: androidx.room.DatabaseConfiguration#DatabaseConfiguration(android.content.Context, String, androidx.sqlite.db.SupportSQLiteOpenHelper.Factory, androidx.room.RoomDatabase.MigrationContainer, java.util.List<? extends androidx.room.RoomDatabase.Callback>, boolean, androidx.room.RoomDatabase.JournalMode, java.util.concurrent.Executor, java.util.concurrent.Executor, android.content.Intent, boolean, boolean, java.util.Set<java.lang.Integer>, String, java.io.File, java.util.concurrent.Callable<java.io.InputStream>, androidx.room.RoomDatabase.PrepackagedDatabaseCallback, java.util.List<?>, java.util.List<? extends androidx.room.migration.AutoMigrationSpec>) parameter #17:
-    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter typeConverters in androidx.room.DatabaseConfiguration(android.content.Context context, String name, androidx.sqlite.db.SupportSQLiteOpenHelper.Factory sqliteOpenHelperFactory, androidx.room.RoomDatabase.MigrationContainer migrationContainer, java.util.List<? extends androidx.room.RoomDatabase.Callback> callbacks, boolean allowMainThreadQueries, androidx.room.RoomDatabase.JournalMode journalMode, java.util.concurrent.Executor queryExecutor, java.util.concurrent.Executor transactionExecutor, android.content.Intent multiInstanceInvalidationServiceIntent, boolean requireMigration, boolean allowDestructiveMigrationOnDowngrade, java.util.Set<java.lang.Integer> migrationNotRequiredFrom, String copyFromAssetPath, java.io.File copyFromFile, java.util.concurrent.Callable<java.io.InputStream> copyFromInputStream, androidx.room.RoomDatabase.PrepackagedDatabaseCallback prepackagedDatabaseCallback, java.util.List<?> typeConverters, java.util.List<? extends androidx.room.migration.AutoMigrationSpec> autoMigrationSpecs)
-InvalidNullConversion: androidx.room.DatabaseConfiguration#DatabaseConfiguration(android.content.Context, String, androidx.sqlite.db.SupportSQLiteOpenHelper.Factory, androidx.room.RoomDatabase.MigrationContainer, java.util.List<? extends androidx.room.RoomDatabase.Callback>, boolean, androidx.room.RoomDatabase.JournalMode, java.util.concurrent.Executor, java.util.concurrent.Executor, android.content.Intent, boolean, boolean, java.util.Set<java.lang.Integer>, String, java.io.File, java.util.concurrent.Callable<java.io.InputStream>, androidx.room.RoomDatabase.PrepackagedDatabaseCallback, java.util.List<?>, java.util.List<? extends androidx.room.migration.AutoMigrationSpec>) parameter #18:
-    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter autoMigrationSpecs in androidx.room.DatabaseConfiguration(android.content.Context context, String name, androidx.sqlite.db.SupportSQLiteOpenHelper.Factory sqliteOpenHelperFactory, androidx.room.RoomDatabase.MigrationContainer migrationContainer, java.util.List<? extends androidx.room.RoomDatabase.Callback> callbacks, boolean allowMainThreadQueries, androidx.room.RoomDatabase.JournalMode journalMode, java.util.concurrent.Executor queryExecutor, java.util.concurrent.Executor transactionExecutor, android.content.Intent multiInstanceInvalidationServiceIntent, boolean requireMigration, boolean allowDestructiveMigrationOnDowngrade, java.util.Set<java.lang.Integer> migrationNotRequiredFrom, String copyFromAssetPath, java.io.File copyFromFile, java.util.concurrent.Callable<java.io.InputStream> copyFromInputStream, androidx.room.RoomDatabase.PrepackagedDatabaseCallback prepackagedDatabaseCallback, java.util.List<?> typeConverters, java.util.List<? extends androidx.room.migration.AutoMigrationSpec> autoMigrationSpecs)
-InvalidNullConversion: androidx.room.DatabaseConfiguration#DatabaseConfiguration(android.content.Context, String, androidx.sqlite.db.SupportSQLiteOpenHelper.Factory, androidx.room.RoomDatabase.MigrationContainer, java.util.List<? extends androidx.room.RoomDatabase.Callback>, boolean, androidx.room.RoomDatabase.JournalMode, java.util.concurrent.Executor, java.util.concurrent.Executor, boolean, boolean, boolean, java.util.Set<java.lang.Integer>, String, java.io.File, java.util.concurrent.Callable<java.io.InputStream>, androidx.room.RoomDatabase.PrepackagedDatabaseCallback, java.util.List<?>) parameter #17:
-    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter typeConverters in androidx.room.DatabaseConfiguration(android.content.Context context, String name, androidx.sqlite.db.SupportSQLiteOpenHelper.Factory sqliteOpenHelperFactory, androidx.room.RoomDatabase.MigrationContainer migrationContainer, java.util.List<? extends androidx.room.RoomDatabase.Callback> callbacks, boolean allowMainThreadQueries, androidx.room.RoomDatabase.JournalMode journalMode, java.util.concurrent.Executor queryExecutor, java.util.concurrent.Executor transactionExecutor, boolean multiInstanceInvalidation, boolean requireMigration, boolean allowDestructiveMigrationOnDowngrade, java.util.Set<java.lang.Integer> migrationNotRequiredFrom, String copyFromAssetPath, java.io.File copyFromFile, java.util.concurrent.Callable<java.io.InputStream> copyFromInputStream, androidx.room.RoomDatabase.PrepackagedDatabaseCallback prepackagedDatabaseCallback, java.util.List<?> typeConverters)
-InvalidNullConversion: androidx.room.DatabaseConfiguration#DatabaseConfiguration(android.content.Context, String, androidx.sqlite.db.SupportSQLiteOpenHelper.Factory, androidx.room.RoomDatabase.MigrationContainer, java.util.List<? extends androidx.room.RoomDatabase.Callback>, boolean, androidx.room.RoomDatabase.JournalMode, java.util.concurrent.Executor, java.util.concurrent.Executor, boolean, boolean, boolean, java.util.Set<java.lang.Integer>, String, java.io.File, java.util.concurrent.Callable<java.io.InputStream>, androidx.room.RoomDatabase.PrepackagedDatabaseCallback, java.util.List<?>, java.util.List<? extends androidx.room.migration.AutoMigrationSpec>) parameter #17:
-    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter typeConverters in androidx.room.DatabaseConfiguration(android.content.Context context, String name, androidx.sqlite.db.SupportSQLiteOpenHelper.Factory sqliteOpenHelperFactory, androidx.room.RoomDatabase.MigrationContainer migrationContainer, java.util.List<? extends androidx.room.RoomDatabase.Callback> callbacks, boolean allowMainThreadQueries, androidx.room.RoomDatabase.JournalMode journalMode, java.util.concurrent.Executor queryExecutor, java.util.concurrent.Executor transactionExecutor, boolean multiInstanceInvalidation, boolean requireMigration, boolean allowDestructiveMigrationOnDowngrade, java.util.Set<java.lang.Integer> migrationNotRequiredFrom, String copyFromAssetPath, java.io.File copyFromFile, java.util.concurrent.Callable<java.io.InputStream> copyFromInputStream, androidx.room.RoomDatabase.PrepackagedDatabaseCallback prepackagedDatabaseCallback, java.util.List<?> typeConverters, java.util.List<? extends androidx.room.migration.AutoMigrationSpec> autoMigrationSpecs)
-InvalidNullConversion: androidx.room.DatabaseConfiguration#DatabaseConfiguration(android.content.Context, String, androidx.sqlite.db.SupportSQLiteOpenHelper.Factory, androidx.room.RoomDatabase.MigrationContainer, java.util.List<? extends androidx.room.RoomDatabase.Callback>, boolean, androidx.room.RoomDatabase.JournalMode, java.util.concurrent.Executor, java.util.concurrent.Executor, boolean, boolean, boolean, java.util.Set<java.lang.Integer>, String, java.io.File, java.util.concurrent.Callable<java.io.InputStream>, androidx.room.RoomDatabase.PrepackagedDatabaseCallback, java.util.List<?>, java.util.List<? extends androidx.room.migration.AutoMigrationSpec>) parameter #18:
-    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter autoMigrationSpecs in androidx.room.DatabaseConfiguration(android.content.Context context, String name, androidx.sqlite.db.SupportSQLiteOpenHelper.Factory sqliteOpenHelperFactory, androidx.room.RoomDatabase.MigrationContainer migrationContainer, java.util.List<? extends androidx.room.RoomDatabase.Callback> callbacks, boolean allowMainThreadQueries, androidx.room.RoomDatabase.JournalMode journalMode, java.util.concurrent.Executor queryExecutor, java.util.concurrent.Executor transactionExecutor, boolean multiInstanceInvalidation, boolean requireMigration, boolean allowDestructiveMigrationOnDowngrade, java.util.Set<java.lang.Integer> migrationNotRequiredFrom, String copyFromAssetPath, java.io.File copyFromFile, java.util.concurrent.Callable<java.io.InputStream> copyFromInputStream, androidx.room.RoomDatabase.PrepackagedDatabaseCallback prepackagedDatabaseCallback, java.util.List<?> typeConverters, java.util.List<? extends androidx.room.migration.AutoMigrationSpec> autoMigrationSpecs)
-
-
-RemovedClass: androidx.room.util.CopyLock:
-    Removed class androidx.room.util.CopyLock
-
-
-RemovedDeprecatedMethod: androidx.room.DatabaseConfiguration#DatabaseConfiguration(android.content.Context, String, androidx.sqlite.db.SupportSQLiteOpenHelper.Factory, androidx.room.RoomDatabase.MigrationContainer, java.util.List<androidx.room.RoomDatabase.Callback>, boolean, androidx.room.RoomDatabase.JournalMode, java.util.concurrent.Executor, boolean, java.util.Set<java.lang.Integer>):
-    Removed deprecated constructor androidx.room.DatabaseConfiguration(android.content.Context,String,androidx.sqlite.db.SupportSQLiteOpenHelper.Factory,androidx.room.RoomDatabase.MigrationContainer,java.util.List<androidx.room.RoomDatabase.Callback>,boolean,androidx.room.RoomDatabase.JournalMode,java.util.concurrent.Executor,boolean,java.util.Set<java.lang.Integer>)
-RemovedDeprecatedMethod: androidx.room.DatabaseConfiguration#DatabaseConfiguration(android.content.Context, String, androidx.sqlite.db.SupportSQLiteOpenHelper.Factory, androidx.room.RoomDatabase.MigrationContainer, java.util.List<androidx.room.RoomDatabase.Callback>, boolean, androidx.room.RoomDatabase.JournalMode, java.util.concurrent.Executor, java.util.concurrent.Executor, boolean, boolean, boolean, java.util.Set<java.lang.Integer>):
-    Removed deprecated constructor androidx.room.DatabaseConfiguration(android.content.Context,String,androidx.sqlite.db.SupportSQLiteOpenHelper.Factory,androidx.room.RoomDatabase.MigrationContainer,java.util.List<androidx.room.RoomDatabase.Callback>,boolean,androidx.room.RoomDatabase.JournalMode,java.util.concurrent.Executor,java.util.concurrent.Executor,boolean,boolean,boolean,java.util.Set<java.lang.Integer>)
-RemovedDeprecatedMethod: androidx.room.DatabaseConfiguration#DatabaseConfiguration(android.content.Context, String, androidx.sqlite.db.SupportSQLiteOpenHelper.Factory, androidx.room.RoomDatabase.MigrationContainer, java.util.List<androidx.room.RoomDatabase.Callback>, boolean, androidx.room.RoomDatabase.JournalMode, java.util.concurrent.Executor, java.util.concurrent.Executor, boolean, boolean, boolean, java.util.Set<java.lang.Integer>, String, java.io.File):
-    Removed deprecated constructor androidx.room.DatabaseConfiguration(android.content.Context,String,androidx.sqlite.db.SupportSQLiteOpenHelper.Factory,androidx.room.RoomDatabase.MigrationContainer,java.util.List<androidx.room.RoomDatabase.Callback>,boolean,androidx.room.RoomDatabase.JournalMode,java.util.concurrent.Executor,java.util.concurrent.Executor,boolean,boolean,boolean,java.util.Set<java.lang.Integer>,String,java.io.File)
-RemovedDeprecatedMethod: androidx.room.DatabaseConfiguration#DatabaseConfiguration(android.content.Context, String, androidx.sqlite.db.SupportSQLiteOpenHelper.Factory, androidx.room.RoomDatabase.MigrationContainer, java.util.List<androidx.room.RoomDatabase.Callback>, boolean, androidx.room.RoomDatabase.JournalMode, java.util.concurrent.Executor, java.util.concurrent.Executor, boolean, boolean, boolean, java.util.Set<java.lang.Integer>, String, java.io.File, java.util.concurrent.Callable<java.io.InputStream>):
-    Removed deprecated constructor androidx.room.DatabaseConfiguration(android.content.Context,String,androidx.sqlite.db.SupportSQLiteOpenHelper.Factory,androidx.room.RoomDatabase.MigrationContainer,java.util.List<androidx.room.RoomDatabase.Callback>,boolean,androidx.room.RoomDatabase.JournalMode,java.util.concurrent.Executor,java.util.concurrent.Executor,boolean,boolean,boolean,java.util.Set<java.lang.Integer>,String,java.io.File,java.util.concurrent.Callable<java.io.InputStream>)
-RemovedDeprecatedMethod: androidx.room.DatabaseConfiguration#DatabaseConfiguration(android.content.Context, String, androidx.sqlite.db.SupportSQLiteOpenHelper.Factory, androidx.room.RoomDatabase.MigrationContainer, java.util.List<androidx.room.RoomDatabase.Callback>, boolean, androidx.room.RoomDatabase.JournalMode, java.util.concurrent.Executor, java.util.concurrent.Executor, boolean, boolean, boolean, java.util.Set<java.lang.Integer>, String, java.io.File, java.util.concurrent.Callable<java.io.InputStream>, androidx.room.RoomDatabase.PrepackagedDatabaseCallback):
-    Removed deprecated constructor androidx.room.DatabaseConfiguration(android.content.Context,String,androidx.sqlite.db.SupportSQLiteOpenHelper.Factory,androidx.room.RoomDatabase.MigrationContainer,java.util.List<androidx.room.RoomDatabase.Callback>,boolean,androidx.room.RoomDatabase.JournalMode,java.util.concurrent.Executor,java.util.concurrent.Executor,boolean,boolean,boolean,java.util.Set<java.lang.Integer>,String,java.io.File,java.util.concurrent.Callable<java.io.InputStream>,androidx.room.RoomDatabase.PrepackagedDatabaseCallback)
-RemovedDeprecatedMethod: androidx.room.DatabaseConfiguration#DatabaseConfiguration(android.content.Context, String, androidx.sqlite.db.SupportSQLiteOpenHelper.Factory, androidx.room.RoomDatabase.MigrationContainer, java.util.List<androidx.room.RoomDatabase.Callback>, boolean, androidx.room.RoomDatabase.JournalMode, java.util.concurrent.Executor, java.util.concurrent.Executor, boolean, boolean, boolean, java.util.Set<java.lang.Integer>, String, java.io.File, java.util.concurrent.Callable<java.io.InputStream>, androidx.room.RoomDatabase.PrepackagedDatabaseCallback, java.util.List<java.lang.Object>):
-    Removed deprecated constructor androidx.room.DatabaseConfiguration(android.content.Context,String,androidx.sqlite.db.SupportSQLiteOpenHelper.Factory,androidx.room.RoomDatabase.MigrationContainer,java.util.List<androidx.room.RoomDatabase.Callback>,boolean,androidx.room.RoomDatabase.JournalMode,java.util.concurrent.Executor,java.util.concurrent.Executor,boolean,boolean,boolean,java.util.Set<java.lang.Integer>,String,java.io.File,java.util.concurrent.Callable<java.io.InputStream>,androidx.room.RoomDatabase.PrepackagedDatabaseCallback,java.util.List<java.lang.Object>)
-RemovedDeprecatedMethod: androidx.room.DatabaseConfiguration#DatabaseConfiguration(android.content.Context, String, androidx.sqlite.db.SupportSQLiteOpenHelper.Factory, androidx.room.RoomDatabase.MigrationContainer, java.util.List<androidx.room.RoomDatabase.Callback>, boolean, androidx.room.RoomDatabase.JournalMode, java.util.concurrent.Executor, java.util.concurrent.Executor, boolean, boolean, boolean, java.util.Set<java.lang.Integer>, String, java.io.File, java.util.concurrent.Callable<java.io.InputStream>, androidx.room.RoomDatabase.PrepackagedDatabaseCallback, java.util.List<java.lang.Object>, java.util.List<androidx.room.migration.AutoMigrationSpec>):
-    Removed deprecated constructor androidx.room.DatabaseConfiguration(android.content.Context,String,androidx.sqlite.db.SupportSQLiteOpenHelper.Factory,androidx.room.RoomDatabase.MigrationContainer,java.util.List<androidx.room.RoomDatabase.Callback>,boolean,androidx.room.RoomDatabase.JournalMode,java.util.concurrent.Executor,java.util.concurrent.Executor,boolean,boolean,boolean,java.util.Set<java.lang.Integer>,String,java.io.File,java.util.concurrent.Callable<java.io.InputStream>,androidx.room.RoomDatabase.PrepackagedDatabaseCallback,java.util.List<java.lang.Object>,java.util.List<androidx.room.migration.AutoMigrationSpec>)
-RemovedDeprecatedMethod: androidx.room.Room#Room():
-    Removed deprecated constructor androidx.room.Room()
-
-
-RemovedMethod: androidx.room.DatabaseConfiguration#DatabaseConfiguration(android.content.Context, String, androidx.sqlite.db.SupportSQLiteOpenHelper.Factory, androidx.room.RoomDatabase.MigrationContainer, java.util.List<androidx.room.RoomDatabase.Callback>, boolean, androidx.room.RoomDatabase.JournalMode, java.util.concurrent.Executor, java.util.concurrent.Executor, android.content.Intent, boolean, boolean, java.util.Set<java.lang.Integer>, String, java.io.File, java.util.concurrent.Callable<java.io.InputStream>, androidx.room.RoomDatabase.PrepackagedDatabaseCallback, java.util.List<java.lang.Object>, java.util.List<androidx.room.migration.AutoMigrationSpec>):
-    Removed constructor androidx.room.DatabaseConfiguration(android.content.Context,String,androidx.sqlite.db.SupportSQLiteOpenHelper.Factory,androidx.room.RoomDatabase.MigrationContainer,java.util.List<androidx.room.RoomDatabase.Callback>,boolean,androidx.room.RoomDatabase.JournalMode,java.util.concurrent.Executor,java.util.concurrent.Executor,android.content.Intent,boolean,boolean,java.util.Set<java.lang.Integer>,String,java.io.File,java.util.concurrent.Callable<java.io.InputStream>,androidx.room.RoomDatabase.PrepackagedDatabaseCallback,java.util.List<java.lang.Object>,java.util.List<androidx.room.migration.AutoMigrationSpec>)
+RemovedClass: androidx.room.EntityUpsertionAdapterKt:
+    Removed class androidx.room.EntityUpsertionAdapterKt
+RemovedClass: androidx.room.util.TableInfoKt:
+    Removed class androidx.room.util.TableInfoKt

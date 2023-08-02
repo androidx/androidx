@@ -35,10 +35,12 @@ import androidx.car.app.versioning.CarAppApiLevels;
 import androidx.test.core.app.ApplicationProvider;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.Shadows;
 import org.robolectric.annotation.Config;
@@ -52,6 +54,9 @@ import org.robolectric.shadows.ShadowApplication;
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
 public class AutomotiveCarHardwareManagerTest {
+    @Rule
+    public final MockitoRule mockito = MockitoJUnit.rule();
+
     @Mock
     private Car mCarMock;
     @Mock
@@ -62,7 +67,6 @@ public class AutomotiveCarHardwareManagerTest {
 
     @Before
     public void setUp() {
-        MockitoAnnotations.initMocks(this);
         ShadowCar.setCar(mCarMock);
         when(mCarMock.getCarManager(anyString())).thenReturn(mCarPropertyManagerMock);
 

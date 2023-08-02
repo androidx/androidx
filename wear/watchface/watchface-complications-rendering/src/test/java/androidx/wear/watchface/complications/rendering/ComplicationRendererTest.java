@@ -30,7 +30,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -66,15 +66,16 @@ import androidx.wear.watchface.complications.rendering.ComplicationRenderer.Pain
 import com.google.common.truth.Truth;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
 import java.time.Instant;
-import java.util.ArrayList;
 
 /** Tests for {@link ComplicationRenderer}. */
 @RunWith(ComplicationsTestRunner.class)
@@ -93,23 +94,18 @@ public class ComplicationRendererTest {
     private ComplicationRenderer mComplicationRenderer;
     private Rect mComplicationBounds;
 
-    @Mock
-    private Icon mMockIcon;
-    @Mock
-    private Icon mMockBurnInProtectionIcon;
-    @Mock
-    private Icon mMockSmallImage;
-    @Mock
-    private Icon mMockBurnInProtectionSmallImage;
-    @Mock
-    private Canvas mMockCanvas;
-    @Mock
-    private OnInvalidateListener mMockInvalidateListener;
+    @Rule public final MockitoRule mocks = MockitoJUnit.rule();
+
+    @Mock private Icon mMockIcon;
+    @Mock private Icon mMockBurnInProtectionIcon;
+    @Mock private Icon mMockSmallImage;
+    @Mock private Icon mMockBurnInProtectionSmallImage;
+    @Mock private Canvas mMockCanvas;
+    @Mock private OnInvalidateListener mMockInvalidateListener;
     private final Resources mResurces = ApplicationProvider.getApplicationContext().getResources();
 
     @Before
     public void setUp() {
-        MockitoAnnotations.initMocks(this);
         mComplicationBounds = new Rect(0, 0, BOUNDS_WIDTH, BOUNDS_HEIGHT);
 
         mComplicationRenderer = createRendererWithBounds(mComplicationBounds);
@@ -129,10 +125,11 @@ public class ComplicationRendererTest {
                 new ComplicationData.Builder(ComplicationData.TYPE_NO_DATA).build(), true);
         assertThat(mComplicationRenderer.getComplicationData().getType())
                 .isEqualTo(TYPE_SHORT_TEXT);
-        assertThat(mComplicationRenderer
-                .getComplicationData()
-                .getShortText()
-                .getTextAt(mResurces, REFERENCE_TIME.toEpochMilli()))
+        assertThat(
+                        mComplicationRenderer
+                                .getComplicationData()
+                                .getShortText()
+                                .getTextAt(mResurces, REFERENCE_TIME.toEpochMilli()))
                 .isEqualTo(noDataText);
     }
 
@@ -253,21 +250,21 @@ public class ComplicationRendererTest {
         ComplicationRenderer.PaintSet thirdPaintSet = mComplicationRenderer.mAmbientPaintSet;
         // THEN different paint sets are used for every call
         assertThat(
-                firstPaintSet.mIsAmbientStyle
-                        && firstPaintSet.mLowBitAmbient
-                        && firstPaintSet.mBurnInProtection)
+                        firstPaintSet.mIsAmbientStyle
+                                && firstPaintSet.mLowBitAmbient
+                                && firstPaintSet.mBurnInProtection)
                 .isTrue();
         assertThat(firstPaintSet).isNotEqualTo(secondPaintSet);
         assertThat(
-                secondPaintSet.mIsAmbientStyle
-                        && secondPaintSet.mLowBitAmbient
-                        && !secondPaintSet.mBurnInProtection)
+                        secondPaintSet.mIsAmbientStyle
+                                && secondPaintSet.mLowBitAmbient
+                                && !secondPaintSet.mBurnInProtection)
                 .isTrue();
         assertThat(secondPaintSet).isNotEqualTo(thirdPaintSet);
         assertThat(
-                thirdPaintSet.mIsAmbientStyle
-                        && !thirdPaintSet.mLowBitAmbient
-                        && !thirdPaintSet.mBurnInProtection)
+                        thirdPaintSet.mIsAmbientStyle
+                                && !thirdPaintSet.mLowBitAmbient
+                                && !thirdPaintSet.mBurnInProtection)
                 .isTrue();
     }
 
@@ -334,7 +331,7 @@ public class ComplicationRendererTest {
         // AND complication is drawn again
         mComplicationRenderer.draw(mMockCanvas, REFERENCE_TIME, false, false, false, false);
         // THEN nothing is drawn on canvas
-        verifyZeroInteractions(mMockCanvas);
+        verifyNoMoreInteractions(mMockCanvas);
     }
 
     @Test
@@ -351,7 +348,7 @@ public class ComplicationRendererTest {
         mComplicationRenderer.draw(mMockCanvas, REFERENCE_TIME, false, false, false, false);
 
         // THEN nothing is drawn on canvas
-        verifyZeroInteractions(mMockCanvas);
+        verifyNoMoreInteractions(mMockCanvas);
     }
 
     @Test
@@ -428,15 +425,15 @@ public class ComplicationRendererTest {
     }
 
     private class RangedArcsTestData {
-        public int min;
-        public int max;
-        public int value;
+        public float min;
+        public float max;
+        public float value;
         public float progress;
         public float remaining;
         public float gap;
 
-        RangedArcsTestData(int min, int max, int value, float progress, float remaining,
-                float gap) {
+        RangedArcsTestData(
+                int min, int max, int value, float progress, float remaining, float gap) {
             this.min = min;
             this.max = max;
             this.value = value;
@@ -447,59 +444,92 @@ public class ComplicationRendererTest {
     }
 
     @Test
-    public void rangedValueArcsAreDrawnCorrectly() {
+    public void rangedValueArcsAreDrawnCorrectly_middle() {
         float gap = ComplicationRenderer.STROKE_GAP_IN_DEGREES;
+        checkRangedValueArcsAreDrawnCorrectly(
+                new RangedArcsTestData(0, 100, 50, 180.0f - gap, 180.0f - gap, gap));
+    }
 
-        ArrayList<RangedArcsTestData> testDataSet = new ArrayList<RangedArcsTestData>();
-        testDataSet.add(new RangedArcsTestData(0, 100, 50, 180.0f - gap, 180.0f - gap, gap));
-        testDataSet.add(new RangedArcsTestData(0, 100, 0, 0.0f, 360.0f, 0.0f));
-        testDataSet.add(new RangedArcsTestData(0, 100, 100, 360.0f, 0.0f, 0.0f));
-        testDataSet.add(new RangedArcsTestData(0, 100, 25, 90.0f - gap, 270.0f - gap, gap));
-        testDataSet.add(new RangedArcsTestData(0, 100, 99, 356.4f - gap, 0.0f, gap));
-        testDataSet.add(new RangedArcsTestData(0, 100, 1, 0.0f, 356.4f - gap, gap));
-        testDataSet.add(new RangedArcsTestData(50, 100, 0, 0.0f, 360.0f, 0.0f));
-        testDataSet.add(new RangedArcsTestData(0, 50, 100, 360.0f, 0.0f, 0.0f));
-        testDataSet.add(new RangedArcsTestData(100, 200, 125, 90.0f - gap, 270.0f - gap, gap));
+    public void rangedValueArcsAreDrawnCorrectly_minimum() {
+        checkRangedValueArcsAreDrawnCorrectly(
+                new RangedArcsTestData(0, 100, 0, 0.0f, 360.0f, 0.0f));
+    }
 
-        for (RangedArcsTestData data : testDataSet) {
-            setUp();
+    public void rangedValueArcsAreDrawnCorrectly_maximum() {
+        checkRangedValueArcsAreDrawnCorrectly(
+                new RangedArcsTestData(0, 100, 100, 360.0f, 0.0f, 0.0f));
+    }
 
-            mComplicationRenderer.setComplicationData(
-                    new ComplicationData.Builder(TYPE_RANGED_VALUE)
-                            .setRangedValue(data.value)
-                            .setRangedMinValue(data.min)
-                            .setRangedMaxValue(data.max)
-                            .build(),
-                    true);
+    public void rangedValueArcsAreDrawnCorrectly_oneFourth() {
+        float gap = ComplicationRenderer.STROKE_GAP_IN_DEGREES;
+        checkRangedValueArcsAreDrawnCorrectly(
+                new RangedArcsTestData(0, 100, 25, 90.0f - gap, 270.0f - gap, gap));
+    }
 
-            mComplicationRenderer.draw(mMockCanvas, REFERENCE_TIME, false, false, false, false);
+    public void rangedValueArcsAreDrawnCorrectly_almostMaximum() {
+        float gap = ComplicationRenderer.STROKE_GAP_IN_DEGREES;
+        checkRangedValueArcsAreDrawnCorrectly(
+                new RangedArcsTestData(0, 100, 99, 356.4f - gap, 0.0f, gap));
+    }
 
-            float start = ComplicationRenderer.RANGED_VALUE_START_ANGLE;
+    public void rangedValueArcsAreDrawnCorrectly_almostMinimum() {
+        float gap = ComplicationRenderer.STROKE_GAP_IN_DEGREES;
+        checkRangedValueArcsAreDrawnCorrectly(
+                new RangedArcsTestData(0, 100, 1, 0.0f, 356.4f - gap, gap));
+    }
 
-            verify(mMockCanvas)
-                    .drawArc(
-                            any(),
-                            eq(start + data.gap / 2.0f),
-                            eq(data.progress),
-                            eq(false),
-                            any());
+    public void rangedValueArcsAreDrawnCorrectly_belowRange() {
+        checkRangedValueArcsAreDrawnCorrectly(
+                new RangedArcsTestData(50, 100, 0, 0.0f, 360.0f, 0.0f));
+    }
 
-            verify(mMockCanvas)
-                    .drawArc(
-                            any(),
-                            eq(start + data.gap / 2.0f + data.progress + data.gap),
-                            eq(data.remaining),
-                            eq(false),
-                            any());
-        }
+    public void rangedValueArcsAreDrawnCorrectly_aboveRange() {
+        checkRangedValueArcsAreDrawnCorrectly(
+                new RangedArcsTestData(0, 50, 100, 360.0f, 0.0f, 0.0f));
+    }
+
+    public void rangedValueArcsAreDrawnCorrectly_nonZeroBased() {
+        float gap = ComplicationRenderer.STROKE_GAP_IN_DEGREES;
+        checkRangedValueArcsAreDrawnCorrectly(
+                new RangedArcsTestData(100, 200, 125, 90.0f - gap, 270.0f - gap, gap));
+    }
+
+    private void checkRangedValueArcsAreDrawnCorrectly(RangedArcsTestData data) {
+        mComplicationRenderer.setComplicationData(
+                new ComplicationData.Builder(TYPE_RANGED_VALUE)
+                .setRangedValue(data.value)
+                .setRangedMinValue(data.min)
+                .setRangedMaxValue(data.max)
+                .build(),
+                true);
+
+        mComplicationRenderer.draw(mMockCanvas, REFERENCE_TIME, false, false, false, false);
+
+        float start = ComplicationRenderer.RANGED_VALUE_START_ANGLE;
+
+        verify(mMockCanvas)
+                .drawArc(
+                        any(),
+                        eq(start + data.gap / 2.0f),
+                        eq(data.progress),
+                        eq(false),
+                        any());
+
+        verify(mMockCanvas)
+                .drawArc(
+                        any(),
+                        eq(start + data.gap / 2.0f + data.progress + data.gap),
+                        eq(data.remaining),
+                        eq(false),
+                        any());
     }
 
     @Test
     public void rangedValueIsDrawnCorrectlyInActiveMode() {
         // GIVEN a complication renderer with ranged value complication data
-        int min = 0;
-        int max = 100;
-        int value = (max - min) / 2;
+        float min = 0;
+        float max = 100;
+        float value = (max - min) / 2;
         mComplicationRenderer.setComplicationData(
                 new ComplicationData.Builder(TYPE_RANGED_VALUE)
                         .setRangedValue(value)
@@ -531,9 +561,9 @@ public class ComplicationRendererTest {
     @Test
     public void rangedValueIsDrawnCorrectlyInAmbientMode() {
         // GIVEN a complication renderer with ranged value complication data
-        int min = 0;
-        int max = 100;
-        int value = (max - min) / 2;
+        float min = 0;
+        float max = 100;
+        float value = (max - min) / 2;
         mComplicationRenderer.setComplicationData(
                 new ComplicationData.Builder(TYPE_RANGED_VALUE)
                         .setRangedValue(value)
@@ -577,9 +607,7 @@ public class ComplicationRendererTest {
         newStyle.setBorderStyle(ComplicationStyle.BORDER_STYLE_SOLID);
         newStyle.setBorderRadius((int) radius);
         newStyle.setBorderWidth(borderWidth);
-        mComplicationRenderer.updateStyle(
-                newStyle,
-                new ComplicationStyle());
+        mComplicationRenderer.updateStyle(newStyle, new ComplicationStyle());
         // WHEN the complication is drawn in active mode and as highlighted
         mComplicationRenderer.draw(mMockCanvas, REFERENCE_TIME, false, false, false, true);
         RectF bounds = new RectF(mComplicationBounds);
@@ -609,83 +637,113 @@ public class ComplicationRendererTest {
     public void placeholderLongTextIsDrawnAsPlaceholder() {
         mComplicationRenderer.setComplicationData(
                 new ComplicationData.Builder(ComplicationData.TYPE_NO_DATA)
-                        .setPlaceholder(new ComplicationData.Builder(
-                                ComplicationData.TYPE_LONG_TEXT)
-                                .setLongText(PLACEHOLDER_COMPLICATION_TEXT)
-                                .build())
+                        .setPlaceholder(
+                                new ComplicationData.Builder(ComplicationData.TYPE_LONG_TEXT)
+                                        .setLongText(PLACEHOLDER_COMPLICATION_TEXT)
+                                        .build())
                         .build(),
                 true);
 
         mComplicationRenderer.draw(mMockCanvas, REFERENCE_TIME, false, false, false, true);
 
-        verify(mMockCanvas).drawRoundRect(anyFloat(), anyFloat(), anyFloat(), anyFloat(),
-                anyFloat(), anyFloat(), eq(ComplicationRenderer.PLACEHOLDER_PAINT));
+        verify(mMockCanvas)
+                .drawRoundRect(
+                        anyFloat(),
+                        anyFloat(),
+                        anyFloat(),
+                        anyFloat(),
+                        anyFloat(),
+                        anyFloat(),
+                        eq(ComplicationRenderer.PLACEHOLDER_PAINT));
     }
 
     @Test
     public void placeholderShortTextIsDrawnAsPlaceholder() {
         mComplicationRenderer.setComplicationData(
                 new ComplicationData.Builder(ComplicationData.TYPE_NO_DATA)
-                        .setPlaceholder(new ComplicationData.Builder(
-                                TYPE_SHORT_TEXT)
-                                .setShortText(PLACEHOLDER_COMPLICATION_TEXT)
-                                .build())
+                        .setPlaceholder(
+                                new ComplicationData.Builder(TYPE_SHORT_TEXT)
+                                        .setShortText(PLACEHOLDER_COMPLICATION_TEXT)
+                                        .build())
                         .build(),
                 true);
 
         mComplicationRenderer.draw(mMockCanvas, REFERENCE_TIME, false, false, false, true);
 
-        verify(mMockCanvas).drawRoundRect(anyFloat(), anyFloat(), anyFloat(), anyFloat(),
-                anyFloat(), anyFloat(), eq(ComplicationRenderer.PLACEHOLDER_PAINT));
+        verify(mMockCanvas)
+                .drawRoundRect(
+                        anyFloat(),
+                        anyFloat(),
+                        anyFloat(),
+                        anyFloat(),
+                        anyFloat(),
+                        anyFloat(),
+                        eq(ComplicationRenderer.PLACEHOLDER_PAINT));
     }
 
     @Test
     public void placeholderLongTitleIsDrawnAsPlaceholder() {
         mComplicationRenderer.setComplicationData(
                 new ComplicationData.Builder(ComplicationData.TYPE_NO_DATA)
-                        .setPlaceholder(new ComplicationData.Builder(
-                                ComplicationData.TYPE_LONG_TEXT)
-                                .setLongText(ComplicationText.plainText("Hi"))
-                                .setLongTitle(PLACEHOLDER_COMPLICATION_TEXT)
-                                .build())
+                        .setPlaceholder(
+                                new ComplicationData.Builder(ComplicationData.TYPE_LONG_TEXT)
+                                        .setLongText(ComplicationText.plainText("Hi"))
+                                        .setLongTitle(PLACEHOLDER_COMPLICATION_TEXT)
+                                        .build())
                         .build(),
                 true);
 
         mComplicationRenderer.draw(mMockCanvas, REFERENCE_TIME, false, false, false, true);
 
-        verify(mMockCanvas).drawRoundRect(anyFloat(), anyFloat(), anyFloat(), anyFloat(),
-                anyFloat(), anyFloat(), eq(ComplicationRenderer.PLACEHOLDER_PAINT));
+        verify(mMockCanvas)
+                .drawRoundRect(
+                        anyFloat(),
+                        anyFloat(),
+                        anyFloat(),
+                        anyFloat(),
+                        anyFloat(),
+                        anyFloat(),
+                        eq(ComplicationRenderer.PLACEHOLDER_PAINT));
     }
 
     @Test
     public void placeholderShortTitleIsDrawnAsPlaceholder() {
         mComplicationRenderer.setComplicationData(
                 new ComplicationData.Builder(ComplicationData.TYPE_NO_DATA)
-                        .setPlaceholder(new ComplicationData.Builder(
-                                TYPE_SHORT_TEXT)
-                                .setShortText(ComplicationText.plainText("Hi"))
-                                .setShortTitle(PLACEHOLDER_COMPLICATION_TEXT)
-                                .build())
+                        .setPlaceholder(
+                                new ComplicationData.Builder(TYPE_SHORT_TEXT)
+                                        .setShortText(ComplicationText.plainText("Hi"))
+                                        .setShortTitle(PLACEHOLDER_COMPLICATION_TEXT)
+                                        .build())
                         .build(),
                 true);
 
         mComplicationRenderer.draw(mMockCanvas, REFERENCE_TIME, false, false, false, true);
 
-        verify(mMockCanvas).drawRoundRect(anyFloat(), anyFloat(), anyFloat(), anyFloat(),
-                anyFloat(), anyFloat(), eq(ComplicationRenderer.PLACEHOLDER_PAINT));
+        verify(mMockCanvas)
+                .drawRoundRect(
+                        anyFloat(),
+                        anyFloat(),
+                        anyFloat(),
+                        anyFloat(),
+                        anyFloat(),
+                        anyFloat(),
+                        eq(ComplicationRenderer.PLACEHOLDER_PAINT));
     }
 
     @Test
     public void iconIsTintedWithPlaceholderTintForPlaceholderComplication() {
         mComplicationRenderer.setComplicationData(
                 new ComplicationData.Builder(ComplicationData.TYPE_NO_DATA)
-                        .setPlaceholder(new ComplicationData.Builder(
-                                TYPE_SHORT_TEXT)
-                                .setShortText(ComplicationText.plainText("Hi"))
-                                .setIcon(Icon.createWithBitmap(
-                                        Bitmap.createBitmap(100, 100, Bitmap.Config.RGB_565)))
-                                .setShortTitle(PLACEHOLDER_COMPLICATION_TEXT)
-                                .build())
+                        .setPlaceholder(
+                                new ComplicationData.Builder(TYPE_SHORT_TEXT)
+                                        .setShortText(ComplicationText.plainText("Hi"))
+                                        .setIcon(
+                                                Icon.createWithBitmap(
+                                                        Bitmap.createBitmap(
+                                                                100, 100, Bitmap.Config.RGB_565)))
+                                        .setShortTitle(PLACEHOLDER_COMPLICATION_TEXT)
+                                        .build())
                         .build(),
                 false);
 
@@ -775,8 +833,12 @@ public class ComplicationRendererTest {
         assertThat(mComplicationRenderer.mMainTextRenderer.getPaint())
                 .isEqualTo(mComplicationRenderer.mActivePaintSet.mPrimaryTextPaint);
 
-        verify(mMockCanvas, atLeastOnce()).drawRoundRect(any(), anyFloat(), anyFloat(),
-                eq(mComplicationRenderer.mActivePaintSet.mBorderPaint));
+        verify(mMockCanvas, atLeastOnce())
+                .drawRoundRect(
+                        any(),
+                        anyFloat(),
+                        anyFloat(),
+                        eq(mComplicationRenderer.mActivePaintSet.mBorderPaint));
     }
 
     @Test
@@ -794,8 +856,12 @@ public class ComplicationRendererTest {
         assertThat(mComplicationRenderer.mMainTextRenderer.getPaint())
                 .isEqualTo(mComplicationRenderer.mActivePaintSetLostTapAction.mPrimaryTextPaint);
 
-        verify(mMockCanvas, atLeastOnce()).drawRoundRect(any(), anyFloat(), anyFloat(),
-                eq(mComplicationRenderer.mActivePaintSetLostTapAction.mBorderPaint));
+        verify(mMockCanvas, atLeastOnce())
+                .drawRoundRect(
+                        any(),
+                        anyFloat(),
+                        anyFloat(),
+                        eq(mComplicationRenderer.mActivePaintSetLostTapAction.mBorderPaint));
     }
 
     @Test
@@ -1004,9 +1070,9 @@ public class ComplicationRendererTest {
                 new ComplicationData.Builder(TYPE_RANGED_VALUE)
                         .setShortText(ComplicationText.plainText("foo"))
                         .setShortTitle(ComplicationText.plainText("bar"))
-                        .setRangedMinValue(1)
-                        .setRangedValue(5)
-                        .setRangedMaxValue(10)
+                        .setRangedMinValue(1f)
+                        .setRangedValue(5f)
+                        .setRangedMaxValue(10f)
                         .build(),
                 true);
         mComplicationRenderer.setRangedValueProgressHidden(true);
@@ -1028,9 +1094,9 @@ public class ComplicationRendererTest {
         mComplicationRenderer.setComplicationData(
                 new ComplicationData.Builder(TYPE_RANGED_VALUE)
                         .setIcon(mMockIcon)
-                        .setRangedMinValue(1)
-                        .setRangedValue(5)
-                        .setRangedMaxValue(10)
+                        .setRangedMinValue(1f)
+                        .setRangedValue(5f)
+                        .setRangedMaxValue(10f)
                         .build(),
                 true);
         mComplicationRenderer.setRangedValueProgressHidden(true);
@@ -1144,8 +1210,9 @@ public class ComplicationRendererTest {
     public void placeholderIcon() {
         mComplicationRenderer.setComplicationData(
                 new NoDataComplicationData(
-                        new MonochromaticImageComplicationData.Builder(
-                                MonochromaticImage.PLACEHOLDER, EMPTY_TEXT).build())
+                                new MonochromaticImageComplicationData.Builder(
+                                                MonochromaticImage.PLACEHOLDER, EMPTY_TEXT)
+                                        .build())
                         .asWireComplicationData(),
                 true);
         assertThat(mComplicationRenderer.mIsPlaceholderIcon).isTrue();
@@ -1155,8 +1222,9 @@ public class ComplicationRendererTest {
     public void placeholderSmallImage() {
         mComplicationRenderer.setComplicationData(
                 new NoDataComplicationData(
-                        new SmallImageComplicationData.Builder(
-                                SmallImage.PLACEHOLDER, EMPTY_TEXT).build())
+                                new SmallImageComplicationData.Builder(
+                                                SmallImage.PLACEHOLDER, EMPTY_TEXT)
+                                        .build())
                         .asWireComplicationData(),
                 true);
         assertThat(mComplicationRenderer.mIsPlaceholderSmallImage).isTrue();
@@ -1166,8 +1234,9 @@ public class ComplicationRendererTest {
     public void placeholderPhotoImage() {
         mComplicationRenderer.setComplicationData(
                 new NoDataComplicationData(
-                        new PhotoImageComplicationData.Builder(
-                                PhotoImageComplicationData.PLACEHOLDER, EMPTY_TEXT).build())
+                                new PhotoImageComplicationData.Builder(
+                                                PhotoImageComplicationData.PLACEHOLDER, EMPTY_TEXT)
+                                        .build())
                         .asWireComplicationData(),
                 true);
         assertThat(mComplicationRenderer.mIsPlaceholderLargeImage).isTrue();
@@ -1179,10 +1248,13 @@ public class ComplicationRendererTest {
                 androidx.wear.watchface.complications.data.ComplicationText.PLACEHOLDER;
         mComplicationRenderer.setComplicationData(
                 new NoDataComplicationData(
-                        new RangedValueComplicationData.Builder(
-                                RangedValueComplicationData.PLACEHOLDER, 0f, 100f, EMPTY_TEXT)
-                                .setTitle(placeholderText)
-                                .build())
+                                new RangedValueComplicationData.Builder(
+                                                RangedValueComplicationData.PLACEHOLDER,
+                                                0f,
+                                                100f,
+                                                EMPTY_TEXT)
+                                        .setTitle(placeholderText)
+                                        .build())
                         .asWireComplicationData(),
                 true);
         assertThat(mComplicationRenderer.mIsPlaceholderRangedValue).isTrue();
@@ -1195,18 +1267,18 @@ public class ComplicationRendererTest {
 
         mComplicationRenderer.setComplicationData(
                 new NoDataComplicationData(
-                        new ShortTextComplicationData.Builder(placeholderText, EMPTY_TEXT)
-                                .setTitle(placeholderText)
-                                .build())
+                                new ShortTextComplicationData.Builder(placeholderText, EMPTY_TEXT)
+                                        .setTitle(placeholderText)
+                                        .build())
                         .asWireComplicationData(),
                 true);
         assertThat(mComplicationRenderer.mIsPlaceholderText).isTrue();
 
         mComplicationRenderer.setComplicationData(
                 new NoDataComplicationData(
-                        new LongTextComplicationData.Builder(placeholderText, EMPTY_TEXT)
-                                .setTitle(placeholderText)
-                                .build())
+                                new LongTextComplicationData.Builder(placeholderText, EMPTY_TEXT)
+                                        .setTitle(placeholderText)
+                                        .build())
                         .asWireComplicationData(),
                 true);
         assertThat(mComplicationRenderer.mIsPlaceholderText).isTrue();
@@ -1219,15 +1291,16 @@ public class ComplicationRendererTest {
 
         mComplicationRenderer.setComplicationData(
                 new NoDataComplicationData(
-                        new ShortTextComplicationData.Builder(placeholderText, EMPTY_TEXT).build()
-                )
+                                new ShortTextComplicationData.Builder(placeholderText, EMPTY_TEXT)
+                                        .build())
                         .asWireComplicationData(),
                 true);
         assertThat(mComplicationRenderer.mIsPlaceholderText).isTrue();
 
         mComplicationRenderer.setComplicationData(
                 new NoDataComplicationData(
-                        new LongTextComplicationData.Builder(placeholderText, EMPTY_TEXT).build())
+                                new LongTextComplicationData.Builder(placeholderText, EMPTY_TEXT)
+                                        .build())
                         .asWireComplicationData(),
                 true);
         assertThat(mComplicationRenderer.mIsPlaceholderText).isTrue();
@@ -1237,8 +1310,9 @@ public class ComplicationRendererTest {
     public void placeholderIcon_notLoadedAsync() {
         mComplicationRenderer.setComplicationData(
                 new NoDataComplicationData(
-                        new MonochromaticImageComplicationData.Builder(
-                                MonochromaticImage.PLACEHOLDER, EMPTY_TEXT).build())
+                                new MonochromaticImageComplicationData.Builder(
+                                                MonochromaticImage.PLACEHOLDER, EMPTY_TEXT)
+                                        .build())
                         .asWireComplicationData(),
                 true);
         assertThat(mComplicationRenderer.loadDrawableIconAndImagesAsync()).isFalse();
@@ -1248,8 +1322,9 @@ public class ComplicationRendererTest {
     public void placeholderSmallImage_notLoadedAsync() {
         mComplicationRenderer.setComplicationData(
                 new NoDataComplicationData(
-                        new SmallImageComplicationData.Builder(
-                                SmallImage.PLACEHOLDER, EMPTY_TEXT).build())
+                                new SmallImageComplicationData.Builder(
+                                                SmallImage.PLACEHOLDER, EMPTY_TEXT)
+                                        .build())
                         .asWireComplicationData(),
                 true);
         assertThat(mComplicationRenderer.loadDrawableIconAndImagesAsync()).isFalse();
@@ -1259,8 +1334,9 @@ public class ComplicationRendererTest {
     public void placeholderPhotoImage_notLoadedAsync() {
         mComplicationRenderer.setComplicationData(
                 new NoDataComplicationData(
-                        new PhotoImageComplicationData.Builder(
-                                PhotoImageComplicationData.PLACEHOLDER, EMPTY_TEXT).build())
+                                new PhotoImageComplicationData.Builder(
+                                                PhotoImageComplicationData.PLACEHOLDER, EMPTY_TEXT)
+                                        .build())
                         .asWireComplicationData(),
                 true);
         assertThat(mComplicationRenderer.loadDrawableIconAndImagesAsync()).isFalse();

@@ -98,7 +98,6 @@ public class TemplateView extends SliceChildView implements
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Override
@@ -110,7 +109,6 @@ public class TemplateView extends SliceChildView implements
     /**
      * Called when the foreground view handling touch feedback should be activated.
      * @param event the event to handle.
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public void onForegroundActivated(MotionEvent event) {
@@ -136,7 +134,6 @@ public class TemplateView extends SliceChildView implements
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Override
@@ -147,7 +144,6 @@ public class TemplateView extends SliceChildView implements
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Override
@@ -156,7 +152,6 @@ public class TemplateView extends SliceChildView implements
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Override
@@ -165,7 +160,6 @@ public class TemplateView extends SliceChildView implements
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Override
@@ -174,7 +168,6 @@ public class TemplateView extends SliceChildView implements
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Override
@@ -184,8 +177,8 @@ public class TemplateView extends SliceChildView implements
     }
 
     /**
-     * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Override
     public void setSliceActionListener(SliceView.OnSliceActionListener observer) {
         mObserver = observer;
@@ -195,7 +188,6 @@ public class TemplateView extends SliceChildView implements
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Override
@@ -204,7 +196,6 @@ public class TemplateView extends SliceChildView implements
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Override
@@ -215,7 +206,6 @@ public class TemplateView extends SliceChildView implements
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Override
@@ -232,7 +222,6 @@ public class TemplateView extends SliceChildView implements
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Override
@@ -242,7 +231,6 @@ public class TemplateView extends SliceChildView implements
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Override
@@ -252,7 +240,6 @@ public class TemplateView extends SliceChildView implements
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Override
@@ -283,7 +270,6 @@ public class TemplateView extends SliceChildView implements
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Override
@@ -295,7 +281,6 @@ public class TemplateView extends SliceChildView implements
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Override
@@ -310,7 +295,6 @@ public class TemplateView extends SliceChildView implements
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Override
@@ -321,7 +305,6 @@ public class TemplateView extends SliceChildView implements
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Override
@@ -332,7 +315,6 @@ public class TemplateView extends SliceChildView implements
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Override
@@ -343,7 +325,6 @@ public class TemplateView extends SliceChildView implements
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Override

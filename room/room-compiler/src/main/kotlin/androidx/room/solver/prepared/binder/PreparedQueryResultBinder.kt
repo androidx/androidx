@@ -16,9 +16,9 @@
 
 package androidx.room.solver.prepared.binder
 
+import androidx.room.compiler.codegen.XPropertySpec
 import androidx.room.solver.CodeGenScope
 import androidx.room.solver.prepared.result.PreparedQueryResultAdapter
-import com.squareup.javapoet.FieldSpec
 
 /**
  * Connects a prepared query (INSERT, DELETE or UPDATE), db and ResultAdapter.
@@ -34,8 +34,8 @@ abstract class PreparedQueryResultBinder(val adapter: PreparedQueryResultAdapter
      */
     abstract fun executeAndReturn(
         prepareQueryStmtBlock: CodeGenScope.() -> String,
-        preparedStmtField: String?, // null when the query is not shared
-        dbField: FieldSpec,
+        preparedStmtProperty: XPropertySpec?, // null when the query is not shared
+        dbProperty: XPropertySpec,
         scope: CodeGenScope
     )
 }

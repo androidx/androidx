@@ -17,17 +17,26 @@
 package androidx.camera.camera2.pipe.integration.impl
 
 import android.hardware.camera2.CameraCharacteristics
+import android.hardware.camera2.CaptureRequest
+import android.hardware.camera2.CaptureResult
 import android.os.Build
 import android.util.Range
 import android.util.Rational
+import androidx.camera.camera2.pipe.FrameNumber
+import androidx.camera.camera2.pipe.RequestNumber
 import androidx.camera.camera2.pipe.integration.adapter.RobolectricCameraPipeTestRunner
 import androidx.camera.camera2.pipe.integration.compat.EvCompImpl
 import androidx.camera.camera2.pipe.integration.testing.FakeCameraProperties
 import androidx.camera.camera2.pipe.integration.testing.FakeUseCaseCamera
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
+import androidx.camera.camera2.pipe.testing.FakeFrameInfo
+import androidx.camera.camera2.pipe.testing.FakeFrameMetadata
+import androidx.camera.camera2.pipe.testing.FakeRequestMetadata
 import androidx.camera.core.CameraControl
 import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Job
@@ -39,8 +48,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
-import java.util.concurrent.Executors
-import java.util.concurrent.TimeUnit
 
 @RunWith(RobolectricCameraPipeTestRunner::class)
 @DoNotInstrument
@@ -146,9 +153,68 @@ class EvCompControlTest {
         }
     }
 
+    @Test
+    fun useCaseCameraUpdated_setExposureResultShouldPropagate(): Unit = runBlocking {
+        val targetEv = 1
+        val deferred = exposureControl.updateAsync(targetEv)
+
+        // Act. Simulate the UseCaseCamera is recreated.
+        exposureControl.useCaseCamera = FakeUseCaseCamera()
+        comboRequestListener.simulateAeConverge(exposureValue = targetEv)
+
+        // Assert. The setEV task should be completed.
+        assertThat(deferred.awaitWithTimeout()).isEqualTo(targetEv)
+    }
+
+    @Test
+    fun useCaseCameraUpdated_onlyCompleteLatestRequest(): Unit = runBlocking {
+        val targetEv = 2
+        val deferred = exposureControl.updateAsync(1)
+
+        // Act. Simulate the UseCaseCamera is recreated,
+        exposureControl.useCaseCamera = FakeUseCaseCamera()
+        // Act. Submits a new EV value.
+        val deferred2 = exposureControl.updateAsync(targetEv)
+        comboRequestListener.simulateAeConverge(exposureValue = targetEv)
+
+        // Assert. The previous setEV task should be cancelled
+        assertThrows<CameraControl.OperationCanceledException> {
+            deferred.awaitWithTimeout()
+        }
+        // Assert. The latest setEV task should be completed.
+        assertThat(deferred2.awaitWithTimeout()).isEqualTo(targetEv)
+    }
+
     private suspend fun Deferred<Int>.awaitWithTimeout(
         timeMillis: Long = TimeUnit.SECONDS.toMillis(5)
     ) = withTimeout(timeMillis) {
         await()
+    }
+
+    private fun ComboRequestListener.simulateAeConverge(
+        exposureValue: Int,
+        frameNumber: FrameNumber = FrameNumber(101L),
+    ) {
+        val requestMetadata = FakeRequestMetadata(
+            requestParameters = mapOf(
+                CaptureRequest.CONTROL_AE_EXPOSURE_COMPENSATION to exposureValue
+            ),
+            requestNumber = RequestNumber(1)
+        )
+        val resultMetaData = FakeFrameMetadata(
+            resultMetadata = mapOf(
+                CaptureResult.CONTROL_AE_EXPOSURE_COMPENSATION to exposureValue,
+                CaptureResult.CONTROL_AE_STATE to CaptureResult.CONTROL_AE_STATE_CONVERGED,
+            ),
+            frameNumber = frameNumber,
+        )
+        fakeUseCaseThreads.sequentialExecutor.execute {
+            onComplete(
+                requestMetadata, frameNumber, FakeFrameInfo(
+                    metadata = resultMetaData,
+                    requestMetadata = requestMetadata,
+                )
+            )
+        }
     }
 }

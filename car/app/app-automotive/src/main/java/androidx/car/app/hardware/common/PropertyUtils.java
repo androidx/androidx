@@ -17,6 +17,7 @@
 package androidx.car.app.hardware.common;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
+import static androidx.car.app.hardware.climate.AutomotiveCarClimate.HVAC_ELECTRIC_DEFROSTER_ON_PROPERTY_ID;
 import static androidx.car.app.hardware.common.CarUnit.IMPERIAL_GALLON;
 import static androidx.car.app.hardware.common.CarUnit.LITER;
 import static androidx.car.app.hardware.common.CarUnit.MILLILITER;
@@ -55,7 +56,6 @@ import java.util.concurrent.TimeUnit;
 /**
  * Utility functions to work with {@link android.car.hardware.CarPropertyValue}
  *
- * @hide
  */
 @RestrictTo(LIBRARY)
 public final class PropertyUtils {
@@ -131,6 +131,7 @@ public final class PropertyUtils {
             append(VehiclePropertyIds.HVAC_DUAL_ON, CAR_PERMISSION_CLIMATE_CONTROL);
             append(VehiclePropertyIds.HVAC_DEFROSTER, CAR_PERMISSION_CLIMATE_CONTROL);
             append(VehiclePropertyIds.HVAC_MAX_DEFROST_ON, CAR_PERMISSION_CLIMATE_CONTROL);
+            append(HVAC_ELECTRIC_DEFROSTER_ON_PROPERTY_ID, CAR_PERMISSION_CLIMATE_CONTROL);
         }
     };
 
@@ -191,6 +192,7 @@ public final class PropertyUtils {
             append(VehiclePropertyIds.HVAC_DUAL_ON, CAR_PERMISSION_CLIMATE_CONTROL);
             append(VehiclePropertyIds.HVAC_DEFROSTER, CAR_PERMISSION_CLIMATE_CONTROL);
             append(VehiclePropertyIds.HVAC_MAX_DEFROST_ON, CAR_PERMISSION_CLIMATE_CONTROL);
+            append(HVAC_ELECTRIC_DEFROSTER_ON_PROPERTY_ID, CAR_PERMISSION_CLIMATE_CONTROL);
         }
     };
     private static final Set<Integer> ON_CHANGE_PROPERTIES =
@@ -330,7 +332,7 @@ public final class PropertyUtils {
     /**
      * Creates a response from {@link CarPropertyValue}.
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "deprecation"})
     @NonNull
     @OptIn(markerClass = ExperimentalCarApi.class)
     public static CarPropertyResponse<?> convertPropertyValueToPropertyResponse(
@@ -470,6 +472,25 @@ public final class PropertyUtils {
                             (Integer) entry.getValue().second));
         }
         return carZoneSetsToIntegerValues;
+    }
+
+    /** Returns a map of min/max values in Float corresponding to a set of car zones.
+     *
+     * <p> The method is a utility to convert Pair<?, ?> to Pair<Float, Float>.
+     */
+    @NonNull
+    public static Map<Set<CarZone>, Pair<Float, Float>> getMinMaxProfileFloatMap(
+            @NonNull Map<Set<CarZone>, ? extends Pair<?, ?>> minMaxRange) {
+        Map<Set<CarZone>, Pair<Float, Float>>
+                carZoneSetsToFloatValues = new HashMap<>();
+        for (Map.Entry<Set<CarZone>, ? extends Pair<?, ?>> entry : requireNonNull(minMaxRange
+                .entrySet())) {
+            float min = (Float) entry.getValue().first;
+            float max = (Float) entry.getValue().second;
+            carZoneSetsToFloatValues.put(entry.getKey(),
+                    new Pair<>(min, max));
+        }
+        return carZoneSetsToFloatValues;
     }
 
     private PropertyUtils() {

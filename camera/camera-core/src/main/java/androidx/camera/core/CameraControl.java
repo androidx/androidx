@@ -90,7 +90,10 @@ public interface CameraControl {
      * @return A {@link ListenableFuture} which completes with {@link FocusMeteringAction} when
      * auto focus is done and AF/AE/AWB regions are updated. In case AF points are not added,
      * auto focus will not be triggered and this {@link ListenableFuture} completes when
-     * AE/AWB regions are updated. Cancellation of this future is a no-op.
+     * AE/AWB regions are updated. It fails with {@link OperationCanceledException} if there is
+     * newer value being set or camera is closed. If none of the specified AF/AE/AWB
+     * {@link MeteringPoint} is supported, it fails with {@link IllegalArgumentException}.
+     * Cancellation of this future is a no-op.
      */
     @NonNull
     ListenableFuture<FocusMeteringResult> startFocusAndMetering(
@@ -190,13 +193,11 @@ public interface CameraControl {
      * something wrong inside CameraControl and it has to cancel the operation.
      */
     final class OperationCanceledException extends Exception {
-        /** @hide */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public OperationCanceledException(@NonNull String message) {
             super(message);
         }
 
-        /** @hide */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public OperationCanceledException(@NonNull String message, @NonNull Throwable cause) {
             super(message, cause);

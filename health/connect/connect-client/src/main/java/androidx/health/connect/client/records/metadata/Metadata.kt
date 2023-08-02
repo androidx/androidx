@@ -15,8 +15,10 @@
  */
 package androidx.health.connect.client.records.metadata
 
-import java.time.Instant
+import androidx.annotation.IntDef
+import androidx.annotation.RestrictTo
 import androidx.health.connect.client.records.Record
+import java.time.Instant
 
 /** Set of shared metadata fields for [Record]. */
 @SuppressWarnings("NewApi") // Temporary until we can enable java8 desugaring effectively.
@@ -26,7 +28,7 @@ public class Metadata(
      * When [Record] is created before insertion, this takes a sentinel value, any assigned value
      * will be ignored.
      */
-    public val uid: String = EMPTY_UID,
+    public val id: String = EMPTY_ID,
 
     /**
      * Where the data comes from, such as application information originally generated this data.
@@ -36,9 +38,9 @@ public class Metadata(
     public val dataOrigin: DataOrigin = DataOrigin(""),
 
     /**
-     * Automatically populated to when data was last modified (or originally created).
-     * When [Record] is created before inserted, this contains a sentinel value, any assigned value
-     * will be ignored.
+     * Automatically populated to when data was last modified (or originally created). When [Record]
+     * is created before inserted, this contains a sentinel value, any assigned value will be
+     * ignored.
      */
     public val lastModifiedTime: Instant = Instant.EPOCH,
 
@@ -66,35 +68,86 @@ public class Metadata(
 
     /** Optional client supplied device information associated with the data. */
     public val device: Device? = null,
+
+    /**
+     * Optional client supplied data recording method to help to understand how the data was
+     * recorded.
+     *
+     * It should be one of the following: [RECORDING_METHOD_UNKNOWN],
+     * [RECORDING_METHOD_ACTIVELY_RECORDED], [RECORDING_METHOD_AUTOMATICALLY_RECORDED] and
+     * [RECORDING_METHOD_MANUAL_ENTRY].
+     */
+    @param:RecordingMethod
+    @property:RecordingMethod
+    @get:RecordingMethod
+    val recordingMethod: Int = RECORDING_METHOD_UNKNOWN,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is Metadata) return false
 
-        if (uid != other.uid) return false
+        if (id != other.id) return false
         if (dataOrigin != other.dataOrigin) return false
         if (lastModifiedTime != other.lastModifiedTime) return false
         if (clientRecordId != other.clientRecordId) return false
         if (clientRecordVersion != other.clientRecordVersion) return false
         if (device != other.device) return false
+        if (recordingMethod != other.recordingMethod) return false
 
         return true
     }
 
     override fun hashCode(): Int {
-        var result = uid.hashCode()
+        var result = id.hashCode()
         result = 31 * result + dataOrigin.hashCode()
         result = 31 * result + lastModifiedTime.hashCode()
         result = 31 * result + (clientRecordId?.hashCode() ?: 0)
         result = 31 * result + clientRecordVersion.hashCode()
         result = 31 * result + (device?.hashCode() ?: 0)
+        result = 31 * result + recordingMethod.hashCode()
         return result
     }
 
     internal companion object {
-        internal const val EMPTY_UID: String = ""
+        internal const val EMPTY_ID: String = ""
 
         /** A default instance of metadata with no fields initialised. */
         @JvmField internal val EMPTY = Metadata()
+
+        /** Unknown recording method. */
+        const val RECORDING_METHOD_UNKNOWN = 0
+
+        /**
+         * For actively recorded data by the user.
+         *
+         * For e.g. An exercise session actively recorded by the user using a phone or a watch
+         * device.
+         */
+        const val RECORDING_METHOD_ACTIVELY_RECORDED = 1
+
+        /**
+         * For passively recorded data by the app.
+         *
+         * For e.g. Steps data recorded by a watch or phone without the user starting a session.
+         */
+        const val RECORDING_METHOD_AUTOMATICALLY_RECORDED = 2
+
+        /**
+         * For manually entered data by the user.
+         *
+         * For e.g. Nutrition or weight data entered by the user.
+         */
+        const val RECORDING_METHOD_MANUAL_ENTRY = 3
+
+        /** List of possible Recording method for the [Record]. */
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        @IntDef(
+            RECORDING_METHOD_UNKNOWN,
+            RECORDING_METHOD_ACTIVELY_RECORDED,
+            RECORDING_METHOD_AUTOMATICALLY_RECORDED,
+            RECORDING_METHOD_MANUAL_ENTRY
+        )
+        @Retention(AnnotationRetention.SOURCE)
+        annotation class RecordingMethod
     }
 }

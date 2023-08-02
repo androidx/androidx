@@ -29,12 +29,12 @@ import androidx.work.impl.utils.SynchronousExecutor
 import androidx.work.impl.utils.futures.SettableFuture
 import com.google.common.truth.Truth.assertThat
 import io.reactivex.rxjava3.core.Single
+import java.util.UUID
+import java.util.concurrent.Executor
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import org.mockito.Mockito.mock
-import java.util.UUID
-import java.util.concurrent.Executor
 
 @RunWith(JUnit4::class)
 class RxForegroundInfoTest {

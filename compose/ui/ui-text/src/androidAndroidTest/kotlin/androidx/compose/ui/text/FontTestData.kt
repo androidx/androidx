@@ -22,7 +22,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.testutils.fonts.R
 
 class FontTestData {
-    @OptIn(ExperimentalTextApi::class)
     companion object {
         // This sample font provides the following features:
         // 1. The width of most of visible characters equals to font size.

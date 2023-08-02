@@ -18,7 +18,11 @@ package androidx.work.impl.background.greedy;
 
 import static android.os.Build.VERSION.SDK_INT;
 
+import static androidx.work.WorkRequest.DEFAULT_BACKOFF_DELAY_MILLIS;
+import static androidx.work.impl.constraints.WorkConstraintsTrackerKt.listen;
 import static androidx.work.impl.model.WorkSpecKt.generationalId;
+
+import static java.lang.Math.max;
 
 import android.content.Context;
 import android.text.TextUtils;
@@ -30,67 +34,78 @@ import androidx.work.Configuration;
 import androidx.work.Logger;
 import androidx.work.WorkInfo;
 import androidx.work.impl.ExecutionListener;
+import androidx.work.impl.Processor;
 import androidx.work.impl.Scheduler;
 import androidx.work.impl.StartStopToken;
 import androidx.work.impl.StartStopTokens;
-import androidx.work.impl.WorkManagerImpl;
-import androidx.work.impl.constraints.WorkConstraintsCallback;
+import androidx.work.impl.WorkLauncher;
+import androidx.work.impl.constraints.ConstraintsState;
+import androidx.work.impl.constraints.OnConstraintsStateChangedListener;
 import androidx.work.impl.constraints.WorkConstraintsTracker;
-import androidx.work.impl.constraints.WorkConstraintsTrackerImpl;
 import androidx.work.impl.constraints.trackers.Trackers;
 import androidx.work.impl.model.WorkGenerationalId;
 import androidx.work.impl.model.WorkSpec;
 import androidx.work.impl.utils.ProcessUtils;
+import androidx.work.impl.utils.taskexecutor.TaskExecutor;
 
+import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
+import java.util.Map;
 import java.util.Set;
+
+import kotlinx.coroutines.Job;
 
 /**
  * A greedy {@link Scheduler} that schedules unconstrained, non-timed work.  It intentionally does
  * not acquire any WakeLocks, instead trying to brute-force them as time allows before the process
  * gets killed.
- *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class GreedyScheduler implements Scheduler, WorkConstraintsCallback, ExecutionListener {
+public class GreedyScheduler implements Scheduler, OnConstraintsStateChangedListener,
+        ExecutionListener {
 
     private static final String TAG = Logger.tagWithPrefix("GreedyScheduler");
 
+    /**
+     * GreedyScheduler will start throttle workspec if it sees the same work being retried
+     * within process's lifetime.
+     */
+    private static final int NON_THROTTLE_RUN_ATTEMPT_COUNT = 5;
+
     private final Context mContext;
-    private final WorkManagerImpl mWorkManagerImpl;
-    private final WorkConstraintsTracker mWorkConstraintsTracker;
-    private final Set<WorkSpec> mConstrainedWorkSpecs = new HashSet<>();
+    private final Map<WorkGenerationalId, Job> mConstrainedWorkSpecs = new HashMap<>();
     private DelayedWorkTracker mDelayedWorkTracker;
     private boolean mRegisteredExecutionListener;
-    private final Object mLock;
+    private final Object mLock = new Object();
     private final StartStopTokens mStartStopTokens = new StartStopTokens();
+    private final Processor mProcessor;
+    private final WorkLauncher mWorkLauncher;
 
+    private final Configuration mConfiguration;
+
+    private final Map<WorkGenerationalId, AttemptData> mFirstRunAttempts = new HashMap<>();
     // Internal State
     Boolean mInDefaultProcess;
+
+    private final WorkConstraintsTracker mConstraintsTracker;
+    private final TaskExecutor mTaskExecutor;
 
     public GreedyScheduler(
             @NonNull Context context,
             @NonNull Configuration configuration,
             @NonNull Trackers trackers,
-            @NonNull WorkManagerImpl workManagerImpl) {
+            @NonNull Processor processor,
+            @NonNull WorkLauncher workLauncher,
+            @NonNull TaskExecutor taskExecutor
+    ) {
         mContext = context;
-        mWorkManagerImpl = workManagerImpl;
-        mWorkConstraintsTracker = new WorkConstraintsTrackerImpl(trackers, this);
-        mDelayedWorkTracker = new DelayedWorkTracker(this, configuration.getRunnableScheduler());
-        mLock = new Object();
-    }
-
-    @VisibleForTesting
-    public GreedyScheduler(
-            @NonNull Context context,
-            @NonNull WorkManagerImpl workManagerImpl,
-            @NonNull WorkConstraintsTracker workConstraintsTracker) {
-        mContext = context;
-        mWorkManagerImpl = workManagerImpl;
-        mWorkConstraintsTracker = workConstraintsTracker;
-        mLock = new Object();
+        mDelayedWorkTracker = new DelayedWorkTracker(this, configuration.getRunnableScheduler(),
+                configuration.getClock());
+        mTaskExecutor = taskExecutor;
+        mConstraintsTracker = new WorkConstraintsTracker(trackers);
+        mConfiguration = configuration;
+        mProcessor = processor;
+        mWorkLauncher = workLauncher;
     }
 
     @VisibleForTesting
@@ -124,13 +139,19 @@ public class GreedyScheduler implements Scheduler, WorkConstraintsCallback, Exec
         Set<String> constrainedWorkSpecIds = new HashSet<>();
 
         for (WorkSpec workSpec : workSpecs) {
-            long nextRunTime = workSpec.calculateNextRunTime();
-            long now = System.currentTimeMillis();
+            // it doesn't help against races, but reduces useless load in the system
+            WorkGenerationalId id = generationalId(workSpec);
+            if (mStartStopTokens.contains(id)) {
+                continue;
+            }
+            long throttled = throttleIfNeeded(workSpec);
+            long nextRunTime = max(workSpec.calculateNextRunTime(), throttled);
+            long now = mConfiguration.getClock().currentTimeMillis();
             if (workSpec.state == WorkInfo.State.ENQUEUED) {
                 if (now < nextRunTime) {
                     // Future work
                     if (mDelayedWorkTracker != null) {
-                        mDelayedWorkTracker.schedule(workSpec);
+                        mDelayedWorkTracker.schedule(workSpec, nextRunTime);
                     }
                 } else if (workSpec.hasConstraints()) {
                     if (SDK_INT >= 23 && workSpec.constraints.requiresDeviceIdle()) {
@@ -146,8 +167,11 @@ public class GreedyScheduler implements Scheduler, WorkConstraintsCallback, Exec
                         constrainedWorkSpecIds.add(workSpec.id);
                     }
                 } else {
-                    Logger.get().debug(TAG, "Starting work for " + workSpec.id);
-                    mWorkManagerImpl.startWork(mStartStopTokens.tokenFor(workSpec));
+                    // it doesn't help against races, but reduces useless load in the system
+                    if (!mStartStopTokens.contains(generationalId(workSpec))) {
+                        Logger.get().debug(TAG, "Starting work for " + workSpec.id);
+                        mWorkLauncher.startWork(mStartStopTokens.tokenFor(workSpec));
+                    }
                 }
             }
         }
@@ -158,15 +182,20 @@ public class GreedyScheduler implements Scheduler, WorkConstraintsCallback, Exec
             if (!constrainedWorkSpecs.isEmpty()) {
                 String formattedIds = TextUtils.join(",", constrainedWorkSpecIds);
                 Logger.get().debug(TAG, "Starting tracking for " + formattedIds);
-                mConstrainedWorkSpecs.addAll(constrainedWorkSpecs);
-                mWorkConstraintsTracker.replace(mConstrainedWorkSpecs);
+                for (WorkSpec spec: constrainedWorkSpecs) {
+                    WorkGenerationalId id = generationalId(spec);
+                    if (!mConstrainedWorkSpecs.containsKey(id)) {
+                        Job job = listen(mConstraintsTracker, spec,
+                                mTaskExecutor.getTaskCoroutineDispatcher(), this);
+                        mConstrainedWorkSpecs.put(id, job);
+                    }
+                }
             }
         }
     }
 
     private void checkDefaultProcess() {
-        Configuration configuration = mWorkManagerImpl.getConfiguration();
-        mInDefaultProcess = ProcessUtils.isDefaultProcess(mContext, configuration);
+        mInDefaultProcess = ProcessUtils.isDefaultProcess(mContext, mConfiguration);
     }
 
     @Override
@@ -186,28 +215,27 @@ public class GreedyScheduler implements Scheduler, WorkConstraintsCallback, Exec
             mDelayedWorkTracker.unschedule(workSpecId);
         }
         // onExecutionCompleted does the cleanup.
-        for (StartStopToken id: mStartStopTokens.remove(workSpecId)) {
-            mWorkManagerImpl.stopWork(id);
+        for (StartStopToken id : mStartStopTokens.remove(workSpecId)) {
+            mWorkLauncher.stopWork(id);
         }
     }
 
     @Override
-    public void onAllConstraintsMet(@NonNull List<WorkSpec> workSpecs) {
-        for (WorkSpec workSpec : workSpecs) {
-            WorkGenerationalId id = generationalId(workSpec);
-            Logger.get().debug(TAG, "Constraints met: Scheduling work ID " + id);
-            mWorkManagerImpl.startWork(mStartStopTokens.tokenFor(id));
-        }
-    }
-
-    @Override
-    public void onAllConstraintsNotMet(@NonNull List<WorkSpec> workSpecs) {
-        for (WorkSpec workSpec : workSpecs) {
-            WorkGenerationalId id = generationalId(workSpec);
+    public void onConstraintsStateChanged(@NonNull WorkSpec workSpec,
+            @NonNull ConstraintsState state) {
+        WorkGenerationalId id = generationalId(workSpec);
+        if (state instanceof ConstraintsState.ConstraintsMet) {
+            // it doesn't help against races, but reduces useless load in the system
+            if (!mStartStopTokens.contains(id)) {
+                Logger.get().debug(TAG, "Constraints met: Scheduling work ID " + id);
+                mWorkLauncher.startWork(mStartStopTokens.tokenFor(id));
+            }
+        } else {
             Logger.get().debug(TAG, "Constraints not met: Cancelling work ID " + id);
             StartStopToken runId = mStartStopTokens.remove(id);
             if (runId != null) {
-                mWorkManagerImpl.stopWork(runId);
+                int reason = ((ConstraintsState.ConstraintsNotMet) state).reasonInt();
+                mWorkLauncher.stopWorkWithReason(runId, reason);
             }
         }
     }
@@ -216,23 +244,28 @@ public class GreedyScheduler implements Scheduler, WorkConstraintsCallback, Exec
     public void onExecuted(@NonNull WorkGenerationalId id, boolean needsReschedule) {
         mStartStopTokens.remove(id);
         removeConstraintTrackingFor(id);
+
+        if (!needsReschedule) {
+            // finished execution rather than being interrupted
+            synchronized (mLock) {
+                mFirstRunAttempts.remove(id);
+            }
+        }
         // onExecuted does not need to worry about unscheduling WorkSpecs with the mDelayedTracker.
         // This is because, after onExecuted(), all schedulers are asked to cancel.
     }
 
     private void removeConstraintTrackingFor(@NonNull WorkGenerationalId id) {
+        Job job;
         synchronized (mLock) {
             // This is synchronized because onExecuted is on the main thread but
             // Schedulers#schedule() can modify the list of mConstrainedWorkSpecs on the task
             // executor thread.
-            for (WorkSpec constrainedWorkSpec : mConstrainedWorkSpecs) {
-                if (generationalId(constrainedWorkSpec).equals(id)) {
-                    Logger.get().debug(TAG, "Stopping tracking for " + id);
-                    mConstrainedWorkSpecs.remove(constrainedWorkSpec);
-                    mWorkConstraintsTracker.replace(mConstrainedWorkSpecs);
-                    break;
-                }
-            }
+            job = mConstrainedWorkSpecs.remove(id);
+        }
+        if (job != null) {
+            Logger.get().debug(TAG, "Stopping tracking for " + id);
+            job.cancel(null);
         }
     }
 
@@ -240,8 +273,33 @@ public class GreedyScheduler implements Scheduler, WorkConstraintsCallback, Exec
         // This method needs to be called *after* Processor is created, since Processor needs
         // Schedulers and is created after this class.
         if (!mRegisteredExecutionListener) {
-            mWorkManagerImpl.getProcessor().addExecutionListener(this);
+            mProcessor.addExecutionListener(this);
             mRegisteredExecutionListener = true;
+        }
+    }
+
+    private long throttleIfNeeded(WorkSpec workSpec) {
+        synchronized (mLock) {
+            WorkGenerationalId id = generationalId(workSpec);
+            AttemptData firstRunAttempt = mFirstRunAttempts.get(id);
+            if (firstRunAttempt == null) {
+                firstRunAttempt = new AttemptData(workSpec.runAttemptCount,
+                        mConfiguration.getClock().currentTimeMillis());
+                mFirstRunAttempts.put(id, firstRunAttempt);
+            }
+            return firstRunAttempt.mTimeStamp
+                    + max(workSpec.runAttemptCount - firstRunAttempt.mRunAttemptCount
+                    - NON_THROTTLE_RUN_ATTEMPT_COUNT, 0) * DEFAULT_BACKOFF_DELAY_MILLIS;
+        }
+    }
+
+    private static class AttemptData {
+        final int mRunAttemptCount;
+        final long mTimeStamp;
+
+        private AttemptData(int runAttemptCount, long timeStamp) {
+            this.mRunAttemptCount = runAttemptCount;
+            this.mTimeStamp = timeStamp;
         }
     }
 }

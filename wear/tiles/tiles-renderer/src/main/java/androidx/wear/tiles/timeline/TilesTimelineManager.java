@@ -20,8 +20,8 @@ import android.app.AlarmManager;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.VisibleForTesting;
-import androidx.wear.tiles.LayoutElementBuilders;
-import androidx.wear.tiles.TimelineBuilders;
+import androidx.wear.protolayout.LayoutElementBuilders;
+import androidx.wear.protolayout.TimelineBuilders;
 import androidx.wear.tiles.timeline.internal.TilesTimelineManagerInternal;
 
 import java.util.concurrent.Executor;
@@ -43,8 +43,29 @@ public class TilesTimelineManager implements AutoCloseable {
         long getCurrentTimeMillis();
     }
 
-    /** Type to listen for layout updates from a given timeline. */
+    /**
+     * Type to listen for layout updates from a given timeline.
+     *
+     * @deprecated Use {@link LayoutUpdateListener} instead.
+     */
+    @Deprecated
     public interface Listener {
+
+        /**
+         * Called when a timeline has a new layout to be displayed.
+         *
+         * @param token The token originally passed to {@link TilesTimelineManager}.
+         * @param layout The new layout to use.
+         * @deprecated Use {@link LayoutUpdateListener#onLayoutUpdate(int,
+         *     LayoutElementBuilders.Layout)} instead.
+         */
+        @Deprecated
+        void onLayoutUpdate(
+                int token, @NonNull androidx.wear.tiles.LayoutElementBuilders.Layout layout);
+    }
+
+    /** Type to listen for layout updates from a given timeline. */
+    public interface LayoutUpdateListener {
 
         /**
          * Called when a timeline has a new layout to be displayed.
@@ -65,6 +86,43 @@ public class TilesTimelineManager implements AutoCloseable {
      *     This should be synchronized to the same clock as used by {@code alarmManager}
      * @param timeline The Tiles timeline to use.
      * @param token A token, which will be passed to {@code listener}'s callback.
+     * @param listenerExecutor the executor for {@code listener}
+     * @param listener A listener instance, called when a new timeline entry is available.
+     * @deprecated Use {@link
+     *     #TilesTimelineManager(AlarmManager,Clock,TimelineBuilders.Timeline,int,Executor,LayoutUpdateListener)}
+     *     instead.
+     */
+    @Deprecated
+    public TilesTimelineManager(
+            @NonNull AlarmManager alarmManager,
+            @NonNull Clock clock,
+            @NonNull androidx.wear.tiles.TimelineBuilders.Timeline timeline,
+            int token,
+            @NonNull Executor listenerExecutor,
+            @NonNull Listener listener) {
+        mManager =
+                new TilesTimelineManagerInternal(
+                        alarmManager,
+                        clock::getCurrentTimeMillis,
+                        timeline.toProto(),
+                        token,
+                        listenerExecutor,
+                        (t, entry) ->
+                                listener.onLayoutUpdate(
+                                        t,
+                                        androidx.wear.tiles.LayoutElementBuilders.Layout.fromProto(
+                                                entry.getLayout())));
+    }
+
+    /**
+     * Default constructor.
+     *
+     * @param alarmManager An AlarmManager instance suitable for setting RTC alarms on.
+     * @param clock A Clock to use to ascertain the current time (and hence which tile to show).
+     *     This should be synchronized to the same clock as used by {@code alarmManager}
+     * @param timeline The Tiles timeline to use.
+     * @param token A token, which will be passed to {@code listener}'s callback.
+     * @param listenerExecutor the executor for {@code listener}
      * @param listener A listener instance, called when a new timeline entry is available.
      */
     public TilesTimelineManager(
@@ -73,11 +131,11 @@ public class TilesTimelineManager implements AutoCloseable {
             @NonNull TimelineBuilders.Timeline timeline,
             int token,
             @NonNull Executor listenerExecutor,
-            @NonNull Listener listener) {
+            @NonNull LayoutUpdateListener listener) {
         mManager =
                 new TilesTimelineManagerInternal(
                         alarmManager,
-                        () -> clock.getCurrentTimeMillis(),
+                        clock::getCurrentTimeMillis,
                         timeline.toProto(),
                         token,
                         listenerExecutor,

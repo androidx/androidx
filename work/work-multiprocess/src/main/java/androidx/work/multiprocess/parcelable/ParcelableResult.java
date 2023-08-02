@@ -28,7 +28,6 @@ import androidx.work.ListenableWorker;
 /**
  * {@link androidx.work.ListenableWorker.Result}, but parcelable.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @SuppressLint("BanParcelableUsage")

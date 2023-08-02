@@ -36,17 +36,24 @@ import androidx.camera.core.impl.ReadableConfig
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @ExperimentalCamera2Interop
-open class CaptureRequestOptions(private val config: Config) : ReadableConfig {
+
+open class CaptureRequestOptions private constructor(
+    private val config: Config,
+    @Suppress("UNUSED_PARAMETER") unused: Boolean
+) :
+    ReadableConfig {
+
+    internal constructor(config: Config) : this(config, false)
 
     /**
      * Returns a value for the given [CaptureRequest.Key] or null if it hasn't been set.
      *
      * @param key            The key to retrieve.
-     * @param <ValueT>       The type of the value.
+     * @param ValueT         The type of the value.
      * @return The stored value or null if the value does not exist in this
      * configuration.
      */
-    fun <ValueT> getCaptureRequestOption(key: CaptureRequest.Key<ValueT>): ValueT? {
+    open fun <ValueT> getCaptureRequestOption(key: CaptureRequest.Key<ValueT>): ValueT? {
         // Type should have been only set via Builder#setCaptureRequestOption()
         @Suppress("UNCHECKED_CAST")
         val opt = key.createCaptureRequestOption() as Config.Option<ValueT>
@@ -58,14 +65,11 @@ open class CaptureRequestOptions(private val config: Config) : ReadableConfig {
      *
      * @param key            The key to retrieve.
      * @param valueIfMissing The value to return if this configuration option has not been set.
-     * @param <ValueT>       The type of the value.
+     * @param ValueT         The type of the value.
      * @return The stored value or `valueIfMissing` if the value does not exist in this
      * configuration.
-     *
-     * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    fun <ValueT> getCaptureRequestOption(
+    internal fun <ValueT> getCaptureRequestOption(
         key: CaptureRequest.Key<ValueT>,
         valueIfMissing: ValueT?
     ): ValueT? {
@@ -77,8 +81,6 @@ open class CaptureRequestOptions(private val config: Config) : ReadableConfig {
 
     /**
      * Returns the [Config] object associated with this [CaptureRequestOptions].
-     *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     override fun getConfig(): Config {
@@ -88,6 +90,7 @@ open class CaptureRequestOptions(private val config: Config) : ReadableConfig {
     /**
      * Builder for creating [CaptureRequestOptions] instance.
      */
+    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     class Builder : ExtendableBuilder<CaptureRequestOptions?> {
         private val mutableOptionsBundle = MutableOptionsBundle.create()
 
@@ -97,7 +100,6 @@ open class CaptureRequestOptions(private val config: Config) : ReadableConfig {
              *
              * @param config An immutable configuration to pre-populate this builder.
              * @return The new Builder.
-             * @hide
              */
             @JvmStatic
             @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -122,8 +124,6 @@ open class CaptureRequestOptions(private val config: Config) : ReadableConfig {
 
         /**
          * {@inheritDoc}
-         *
-         * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         override fun getMutableConfig(): MutableConfig {

@@ -17,7 +17,20 @@
 package androidx.room
 
 import android.database.sqlite.SQLiteConstraintException
+import android.os.Build
 import androidx.annotation.RestrictTo
+
+/**
+ * The ErrorCode defined by SQLite Library for SQLITE_CONSTRAINT_PRIMARYKEY error
+ * Only used by android of version newer than 19
+ */
+private const val ErrorCode = "1555"
+
+/**
+ * For android of version below and including 19, use error message instead of
+ * error code to check
+ */
+private const val ErrorMsg = "unique"
 
 /**
  * This class knows how to insert an entity. When the insertion fails
@@ -45,6 +58,7 @@ class EntityUpsertionAdapter<T>(
         try {
             insertionAdapter.insert(entity)
         } catch (ex: SQLiteConstraintException) {
+            checkUniquenessException(ex)
             updateAdapter.handle(entity)
         }
     }
@@ -56,11 +70,12 @@ class EntityUpsertionAdapter<T>(
      *
      * @param entities array of entities to upsert
      */
-    fun upsert(entities: Array<T>) {
+    fun upsert(entities: Array<out T>) {
         entities.forEach { entity ->
             try {
                 insertionAdapter.insert(entity)
             } catch (ex: SQLiteConstraintException) {
+                checkUniquenessException(ex)
                 updateAdapter.handle(entity)
             }
         }
@@ -71,6 +86,7 @@ class EntityUpsertionAdapter<T>(
             try {
                 insertionAdapter.insert(entity)
             } catch (ex: SQLiteConstraintException) {
+                checkUniquenessException(ex)
                 updateAdapter.handle(entity)
             }
         }
@@ -88,8 +104,9 @@ class EntityUpsertionAdapter<T>(
         return try {
             insertionAdapter.insertAndReturnId(entity)
         } catch (ex: SQLiteConstraintException) {
+            checkUniquenessException(ex)
             updateAdapter.handle(entity)
-            return -1
+            -1
         }
     }
 
@@ -99,11 +116,12 @@ class EntityUpsertionAdapter<T>(
      * @param entities Entities to upsert
      * @return The SQLite row ids, for entities that are not inserted the row id returned will be -1
      */
-    fun upsertAndReturnIdsArray(entities: Array<T>): LongArray {
+    fun upsertAndReturnIdsArray(entities: Array<out T>): LongArray {
         return LongArray(entities.size) { index ->
             try {
                 insertionAdapter.insertAndReturnId(entities[index])
             } catch (ex: SQLiteConstraintException) {
+                checkUniquenessException(ex)
                 updateAdapter.handle(entities[index])
                 -1
             }
@@ -117,18 +135,20 @@ class EntityUpsertionAdapter<T>(
             try {
                 insertionAdapter.insertAndReturnId(entity)
             } catch (ex: SQLiteConstraintException) {
+                checkUniquenessException(ex)
                 updateAdapter.handle(entity)
                 -1
             }
         }
     }
 
-    fun upsertAndReturnIdsList(entities: Array<T>): List<Long> {
+    fun upsertAndReturnIdsList(entities: Array<out T>): List<Long> {
         return buildList {
             entities.forEach { entity ->
                 try {
                     add(insertionAdapter.insertAndReturnId(entity))
                 } catch (ex: SQLiteConstraintException) {
+                    checkUniquenessException(ex)
                     updateAdapter.handle(entity)
                     add(-1)
                 }
@@ -142,6 +162,7 @@ class EntityUpsertionAdapter<T>(
                 try {
                     add(insertionAdapter.insertAndReturnId(entity))
                 } catch (ex: SQLiteConstraintException) {
+                    checkUniquenessException(ex)
                     updateAdapter.handle(entity)
                     add(-1)
                 }
@@ -149,26 +170,54 @@ class EntityUpsertionAdapter<T>(
         }
     }
 
-    fun upsertAndReturnIdsArrayBox(entities: Array<T>): Array<Long> {
+    fun upsertAndReturnIdsArrayBox(entities: Array<out T>): Array<out Long> {
         return Array(entities.size) { index ->
             try {
                 insertionAdapter.insertAndReturnId(entities[index])
             } catch (ex: SQLiteConstraintException) {
+                checkUniquenessException(ex)
                 updateAdapter.handle(entities[index])
                 -1
             }
         }
     }
 
-    fun upsertAndReturnIdsArrayBox(entities: Collection<T>): Array<Long> {
+    fun upsertAndReturnIdsArrayBox(entities: Collection<T>): Array<out Long> {
         val iterator = entities.iterator()
         return Array(entities.size) {
             val entity = iterator.next()
             try {
                 insertionAdapter.insertAndReturnId(entity)
             } catch (ex: SQLiteConstraintException) {
+                checkUniquenessException(ex)
                 updateAdapter.handle(entity)
                 -1
+            }
+        }
+    }
+
+    /**
+     * Verify if the exception is caused by Uniqueness constraint (Primary Key Conflict).
+     * If yes, upsert should update the existing one. If not, upsert should re-throw the
+     * exception.
+     * For android of version newer than KITKAT(19), SQLite supports ErrorCode. Otherwise,
+     * check with Error Message.
+     *
+     * @param ex the exception thrown by the insert attempt
+     */
+    private fun checkUniquenessException(ex: SQLiteConstraintException) {
+        val message = ex.message ?: throw ex
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT) {
+            if (!message.contains(ErrorMsg, ignoreCase = true) && !message.contains(
+                    ErrorCode,
+                    ignoreCase = true
+                )
+            ) {
+                throw ex
+            }
+        } else {
+            if (!message.contains(ErrorCode, ignoreCase = true)) {
+                throw ex
             }
         }
     }

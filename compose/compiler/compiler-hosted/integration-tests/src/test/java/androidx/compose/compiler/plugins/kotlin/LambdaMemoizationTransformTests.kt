@@ -18,9 +18,9 @@ package androidx.compose.compiler.plugins.kotlin
 
 import org.junit.Test
 
-class LambdaMemoizationTransformTests : ComposeIrTransformTest() {
+class LambdaMemoizationTransformTests(useFir: Boolean) : AbstractIrTransformTest(useFir) {
     @Test
-    fun testCapturedThisFromFieldInitializer(): Unit = verifyComposeIrTransform(
+    fun testCapturedThisFromFieldInitializer() = verifyComposeIrTransform(
         """
             import androidx.compose.runtime.Composable
 
@@ -57,7 +57,7 @@ class LambdaMemoizationTransformTests : ComposeIrTransformTest() {
     )
 
     @Test
-    fun testLocalInALocal(): Unit = verifyComposeIrTransform(
+    fun testLocalInALocal() = verifyComposeIrTransform(
         """
             import androidx.compose.runtime.Composable
 
@@ -137,7 +137,7 @@ class LambdaMemoizationTransformTests : ComposeIrTransformTest() {
                 %composer.skipToGroupEnd()
               }
               %composer.endRestartGroup()?.updateScope { %composer: Composer?, %force: Int ->
-                Example(%composer, %changed or 0b0001)
+                Example(%composer, updateChangedFlags(%changed or 0b0001))
               }
             }
         """,
@@ -147,7 +147,7 @@ class LambdaMemoizationTransformTests : ComposeIrTransformTest() {
 
     // Fixes b/201252574
     @Test
-    fun testLocalFunCaptures(): Unit = verifyComposeIrTransform(
+    fun testLocalFunCaptures() = verifyComposeIrTransform(
         """
             import androidx.compose.runtime.NonRestartableComposable
             import androidx.compose.runtime.Composable
@@ -193,7 +193,7 @@ class LambdaMemoizationTransformTests : ComposeIrTransformTest() {
     )
 
     @Test
-    fun testLocalClassCaptures1(): Unit = verifyComposeIrTransform(
+    fun testLocalClassCaptures1() = verifyComposeIrTransform(
         """
             import androidx.compose.runtime.NonRestartableComposable
             import androidx.compose.runtime.Composable
@@ -241,7 +241,7 @@ class LambdaMemoizationTransformTests : ComposeIrTransformTest() {
     )
 
     @Test
-    fun testLocalClassCaptures2(): Unit = verifyComposeIrTransform(
+    fun testLocalClassCaptures2() = verifyComposeIrTransform(
         """
             import androidx.compose.runtime.Composable
             import androidx.compose.runtime.NonRestartableComposable
@@ -283,13 +283,10 @@ class LambdaMemoizationTransformTests : ComposeIrTransformTest() {
     )
 
     @Test
-    fun testLocalFunCaptures3(): Unit = verifyComposeIrTransform(
+    fun testLocalFunCaptures3() = verifyComposeIrTransform(
         """
-            import androidx.compose.animation.AnimatedContent
-            import androidx.compose.animation.ExperimentalAnimationApi
             import androidx.compose.runtime.Composable
 
-            @OptIn(ExperimentalAnimationApi::class)
             @Composable
             fun SimpleAnimatedContentSample() {
                 @Composable fun Foo() {}
@@ -300,7 +297,6 @@ class LambdaMemoizationTransformTests : ComposeIrTransformTest() {
             }
         """,
         """
-            @OptIn(markerClass = ExperimentalAnimationApi::class)
             @Composable
             fun SimpleAnimatedContentSample(%composer: Composer?, %changed: Int) {
               %composer = %composer.startRestartGroup(<>)
@@ -321,7 +317,7 @@ class LambdaMemoizationTransformTests : ComposeIrTransformTest() {
                   }
                   %composer.endReplaceableGroup()
                 }
-                AnimatedContent(1.0f, null, null, null, composableLambda(%composer, <>, false) { it: Float, %composer: Composer?, %changed: Int ->
+                AnimatedContent(1.0f, composableLambda(%composer, <>, false) { it: ${if (useFir) "@[ParameterName(name = 'targetState')] " else ""}Float, %composer: Composer?, %changed: Int ->
                   sourceInformation(%composer, "C<Foo()>:Test.kt")
                   if (isTraceInProgress()) {
                     traceEventStart(<>, %changed, -1, <>)
@@ -330,7 +326,7 @@ class LambdaMemoizationTransformTests : ComposeIrTransformTest() {
                   if (isTraceInProgress()) {
                     traceEventEnd()
                   }
-                }, %composer, 0b0110000000000110, 0b1110)
+                }, %composer, 0b00110110)
                 if (isTraceInProgress()) {
                   traceEventEnd()
                 }
@@ -338,23 +334,31 @@ class LambdaMemoizationTransformTests : ComposeIrTransformTest() {
                 %composer.skipToGroupEnd()
               }
               %composer.endRestartGroup()?.updateScope { %composer: Composer?, %force: Int ->
-                SimpleAnimatedContentSample(%composer, %changed or 0b0001)
+                SimpleAnimatedContentSample(%composer, updateChangedFlags(%changed or 0b0001))
               }
             }
         """,
         """
+            import androidx.compose.runtime.Composable
+            import androidx.compose.animation.AnimatedVisibilityScope
+
+            @Composable
+            fun <S> AnimatedContent(
+                targetState: S,
+                content: @Composable AnimatedVisibilityScope.(targetState: S) -> Unit
+            ) { }
         """
     )
 
     @Test
-    fun testStateDelegateCapture(): Unit = verifyComposeIrTransform(
+    fun testStateDelegateCapture() = verifyComposeIrTransform(
         """
             import androidx.compose.runtime.Composable
             import androidx.compose.runtime.mutableStateOf
             import androidx.compose.runtime.getValue
 
             @Composable fun A() {
-                val x by mutableStateOf(123)
+                val x by mutableStateOf("abc")
                 B {
                     print(x)
                 }
@@ -369,7 +373,14 @@ class LambdaMemoizationTransformTests : ComposeIrTransformTest() {
                 if (isTraceInProgress()) {
                   traceEventStart(<>, %changed, -1, <>)
                 }
-                <<LOCALDELPROP>>
+                val x by {
+                  val x%delegate = mutableStateOf(
+                    value = "abc"
+                  )
+                  get() {
+                    return x%delegate.getValue(null, ::x%delegate)
+                  }
+                }
                 B(composableLambda(%composer, <>, true) { %composer: Composer?, %changed: Int ->
                   sourceInformation(%composer, "C:Test.kt")
                   if (%changed and 0b1011 !== 0b0010 || !%composer.skipping) {
@@ -391,7 +402,7 @@ class LambdaMemoizationTransformTests : ComposeIrTransformTest() {
                 %composer.skipToGroupEnd()
               }
               %composer.endRestartGroup()?.updateScope { %composer: Composer?, %force: Int ->
-                A(%composer, %changed or 0b0001)
+                A(%composer, updateChangedFlags(%changed or 0b0001))
               }
             }
         """,
@@ -403,7 +414,7 @@ class LambdaMemoizationTransformTests : ComposeIrTransformTest() {
     )
 
     @Test
-    fun testTopLevelComposableLambdaProperties(): Unit = verifyComposeIrTransform(
+    fun testTopLevelComposableLambdaProperties() = verifyComposeIrTransform(
         """
             import androidx.compose.runtime.Composable
 
@@ -449,7 +460,7 @@ class LambdaMemoizationTransformTests : ComposeIrTransformTest() {
     )
 
     @Test
-    fun testLocalVariableComposableLambdas(): Unit = verifyComposeIrTransform(
+    fun testLocalVariableComposableLambdas() = verifyComposeIrTransform(
         """
             import androidx.compose.runtime.Composable
 
@@ -480,7 +491,7 @@ class LambdaMemoizationTransformTests : ComposeIrTransformTest() {
                 %composer.skipToGroupEnd()
               }
               %composer.endRestartGroup()?.updateScope { %composer: Composer?, %force: Int ->
-                A(%composer, %changed or 0b0001)
+                A(%composer, updateChangedFlags(%changed or 0b0001))
               }
             }
             internal object ComposableSingletons%TestKt {
@@ -521,7 +532,7 @@ class LambdaMemoizationTransformTests : ComposeIrTransformTest() {
     )
 
     @Test
-    fun testParameterComposableLambdas(): Unit = verifyComposeIrTransform(
+    fun testParameterComposableLambdas() = verifyComposeIrTransform(
         """
             import androidx.compose.runtime.Composable
 
@@ -546,7 +557,7 @@ class LambdaMemoizationTransformTests : ComposeIrTransformTest() {
                 %composer.skipToGroupEnd()
               }
               %composer.endRestartGroup()?.updateScope { %composer: Composer?, %force: Int ->
-                A(%composer, %changed or 0b0001)
+                A(%composer, updateChangedFlags(%changed or 0b0001))
               }
             }
             internal object ComposableSingletons%TestKt {
@@ -573,7 +584,7 @@ class LambdaMemoizationTransformTests : ComposeIrTransformTest() {
     )
 
     @Test // Regression test for b/180168881
-    fun testFunctionReferenceWithinInferredComposableLambda(): Unit = verifyComposeIrTransform(
+    fun testFunctionReferenceWithinInferredComposableLambda() = verifyComposeIrTransform(
         """
             import androidx.compose.runtime.Composable
 
@@ -606,7 +617,7 @@ class LambdaMemoizationTransformTests : ComposeIrTransformTest() {
     )
 
     @Test
-    fun testFunctionReferenceNonComposableMemoization(): Unit = verifyComposeIrTransform(
+    fun testFunctionReferenceNonComposableMemoization() = verifyComposeIrTransform(
         """
             import androidx.compose.runtime.Composable
             @Composable fun Example(x: Int) {
@@ -642,7 +653,7 @@ class LambdaMemoizationTransformTests : ComposeIrTransformTest() {
                 %composer.skipToGroupEnd()
               }
               %composer.endRestartGroup()?.updateScope { %composer: Composer?, %force: Int ->
-                Example(x, %composer, %changed or 0b0001)
+                Example(x, %composer, updateChangedFlags(%changed or 0b0001))
               }
             }
         """,
@@ -652,7 +663,7 @@ class LambdaMemoizationTransformTests : ComposeIrTransformTest() {
     )
 
     @Test // regression of b/162575428
-    fun testComposableInAFunctionParameter(): Unit = verifyComposeIrTransform(
+    fun testComposableInAFunctionParameter() = verifyComposeIrTransform(
         """
             import androidx.compose.runtime.Composable
 
@@ -678,7 +689,7 @@ class LambdaMemoizationTransformTests : ComposeIrTransformTest() {
               if (%default and 0b0010 !== 0) {
                 %dirty = %dirty or 0b00110000
               } else if (%changed and 0b01110000 === 0) {
-                %dirty = %dirty or if (%composer.changed(content)) 0b00100000 else 0b00010000
+                %dirty = %dirty or if (%composer.changedInstance(content)) 0b00100000 else 0b00010000
               }
               if (%dirty and 0b01011011 !== 0b00010010 || !%composer.skipping) {
                 if (%default and 0b0010 !== 0) {
@@ -708,7 +719,7 @@ class LambdaMemoizationTransformTests : ComposeIrTransformTest() {
                 %composer.skipToGroupEnd()
               }
               %composer.endRestartGroup()?.updateScope { %composer: Composer?, %force: Int ->
-                Test(enabled, content, %composer, %changed or 0b0001, %default)
+                Test(enabled, content, %composer, updateChangedFlags(%changed or 0b0001), %default)
               }
             }
         """,
@@ -721,7 +732,7 @@ class LambdaMemoizationTransformTests : ComposeIrTransformTest() {
     )
 
     @Test
-    fun testComposabableLambdaInLocalDeclaration(): Unit = verifyComposeIrTransform(
+    fun testComposabableLambdaInLocalDeclaration() = verifyComposeIrTransform(
         """
             import androidx.compose.runtime.Composable
 
@@ -768,7 +779,7 @@ class LambdaMemoizationTransformTests : ComposeIrTransformTest() {
                 %composer.skipToGroupEnd()
               }
               %composer.endRestartGroup()?.updateScope { %composer: Composer?, %force: Int ->
-                Test(enabled, %composer, %changed or 0b0001)
+                Test(enabled, %composer, updateChangedFlags(%changed or 0b0001))
               }
             }
         """,
@@ -805,7 +816,7 @@ class LambdaMemoizationTransformTests : ComposeIrTransformTest() {
               sourceInformation(%composer, "C(TestLambda):Test.kt")
               val %dirty = %changed
               if (%changed and 0b1110 === 0) {
-                %dirty = %dirty or if (%composer.changed(content)) 0b0100 else 0b0010
+                %dirty = %dirty or if (%composer.changedInstance(content)) 0b0100 else 0b0010
               }
               if (%dirty and 0b1011 !== 0b0010 || !%composer.skipping) {
                 if (isTraceInProgress()) {
@@ -819,7 +830,7 @@ class LambdaMemoizationTransformTests : ComposeIrTransformTest() {
                 %composer.skipToGroupEnd()
               }
               %composer.endRestartGroup()?.updateScope { %composer: Composer?, %force: Int ->
-                TestLambda(content, %composer, %changed or 0b0001)
+                TestLambda(content, %composer, updateChangedFlags(%changed or 0b0001))
               }
             }
             @Composable
@@ -840,7 +851,7 @@ class LambdaMemoizationTransformTests : ComposeIrTransformTest() {
                 %composer.skipToGroupEnd()
               }
               %composer.endRestartGroup()?.updateScope { %composer: Composer?, %force: Int ->
-                Test(%composer, %changed or 0b0001)
+                Test(%composer, updateChangedFlags(%changed or 0b0001))
               }
             }
     """
@@ -871,7 +882,7 @@ class LambdaMemoizationTransformTests : ComposeIrTransformTest() {
           sourceInformation(%composer, "C(TestLambda):Test.kt")
           val %dirty = %changed
           if (%changed and 0b1110 === 0) {
-            %dirty = %dirty or if (%composer.changed(content)) 0b0100 else 0b0010
+            %dirty = %dirty or if (%composer.changedInstance(content)) 0b0100 else 0b0010
           }
           if (%dirty and 0b1011 !== 0b0010 || !%composer.skipping) {
             if (isTraceInProgress()) {
@@ -885,7 +896,7 @@ class LambdaMemoizationTransformTests : ComposeIrTransformTest() {
             %composer.skipToGroupEnd()
           }
           %composer.endRestartGroup()?.updateScope { %composer: Composer?, %force: Int ->
-            TestLambda(content, %composer, %changed or 0b0001)
+            TestLambda(content, %composer, updateChangedFlags(%changed or 0b0001))
           }
         }
         @Composable
@@ -912,7 +923,7 @@ class LambdaMemoizationTransformTests : ComposeIrTransformTest() {
             %composer.skipToGroupEnd()
           }
           %composer.endRestartGroup()?.updateScope { %composer: Composer?, %force: Int ->
-            Test(a, %composer, %changed or 0b0001)
+            Test(a, %composer, updateChangedFlags(%changed or 0b0001))
           }
         }
         """
@@ -977,7 +988,7 @@ class LambdaMemoizationTransformTests : ComposeIrTransformTest() {
                 %composer.skipToGroupEnd()
               }
               %composer.endRestartGroup()?.updateScope { %composer: Composer?, %force: Int ->
-                Test(%composer, %changed or 0b0001)
+                Test(%composer, updateChangedFlags(%changed or 0b0001))
               }
             }
         """,
@@ -1046,7 +1057,7 @@ class LambdaMemoizationTransformTests : ComposeIrTransformTest() {
                     }
                   }
                 }
-                (%composer, 0)
+                (%composer, 6)
                 if (isTraceInProgress()) {
                   traceEventEnd()
                 }
@@ -1054,7 +1065,7 @@ class LambdaMemoizationTransformTests : ComposeIrTransformTest() {
                 %composer.skipToGroupEnd()
               }
               %composer.endRestartGroup()?.updateScope { %composer: Composer?, %force: Int ->
-                Test(s, %composer, %changed or 0b0001)
+                Test(s, %composer, updateChangedFlags(%changed or 0b0001))
               }
             }
         """,
@@ -1109,47 +1120,102 @@ class LambdaMemoizationTransformTests : ComposeIrTransformTest() {
     )
 
     @Test
-    fun testComposableCaptureInDelegates() = verifyComposeIrTransform(
-        """
-            import androidx.compose.runtime.*
+    fun testComposableCaptureInDelegates() {
+        val delegateImplementation = """
+                  val content: Function2<Composer, Int, Unit>
+                    get() {
+                      return <this>.%%delegate_0.content
+                    }"""
+        verifyComposeIrTransform(
+            """
+                import androidx.compose.runtime.*
 
-            class Test(val value: Int) : Delegate by Impl({
-                value
-            })
-        """,
-        """
-            @StabilityInferred(parameters = 0)
-            class Test(val value: Int) : Delegate {
-              private val %%delegate_0: Impl = Impl(composableLambdaInstance(<>, true) { %composer: Composer?, %changed: Int ->
-                sourceInformation(%composer, "C:Test.kt")
-                if (%changed and 0b1011 !== 0b0010 || !%composer.skipping) {
-                  if (isTraceInProgress()) {
-                    traceEventStart(<>, %changed, -1, <>)
+                class Test(val value: Int) : Delegate by Impl({
+                    value
+                })
+            """,
+            """
+                @StabilityInferred(parameters = 0)
+                class Test(val value: Int) : Delegate {${if (useFir) delegateImplementation else ""}
+                  private val %%delegate_0: Impl = Impl(composableLambdaInstance(<>, true) { %composer: Composer?, %changed: Int ->
+                    sourceInformation(%composer, "C:Test.kt")
+                    if (%changed and 0b1011 !== 0b0010 || !%composer.skipping) {
+                      if (isTraceInProgress()) {
+                        traceEventStart(<>, %changed, -1, <>)
+                      }
+                      value
+                      if (isTraceInProgress()) {
+                        traceEventEnd()
+                      }
+                    } else {
+                      %composer.skipToGroupEnd()
+                    }
                   }
-                  value
-                  if (isTraceInProgress()) {
-                    traceEventEnd()
-                  }
-                } else {
-                  %composer.skipToGroupEnd()
+                  )${if (!useFir) delegateImplementation else ""}
+                  static val %stable: Int = 0
                 }
-              }
-              )
-              val content: Function2<Composer, Int, Unit>
-                get() {
-                  return <this>.%%delegate_0.content
+            """,
+            """
+                import androidx.compose.runtime.Composable
+
+                interface Delegate {
+                    val content: @Composable () -> Unit
                 }
-              static val %stable: Int = 0
+
+                class Impl(override val content: @Composable () -> Unit) : Delegate
+            """
+        )
+    }
+
+    @Test // Regression validating b/246399235
+    fun testB246399235() {
+        testCompile(
+            """
+            import androidx.compose.runtime.Composable
+            import androidx.compose.ui.Modifier
+            import androidx.compose.foundation.clickable
+            import androidx.compose.ui.composed
+            import androidx.compose.foundation.interaction.MutableInteractionSource
+
+            @Composable
+            fun Something() {
+                Modifier.noRippleClickable { }
             }
-        """,
-        """
+
+            inline fun Modifier.noRippleClickable(crossinline onClick: () -> Unit): Modifier {
+                return composed {
+                    clickable(MutableInteractionSource(), null, enabled = false) {
+                        onClick()
+                    }
+                }
+            }
+            """
+        )
+    }
+
+    @Test // Regression validating b/246399235 without function returning a value
+    fun testB246399235_noReturn() {
+        testCompile(
+            """
             import androidx.compose.runtime.Composable
 
-            interface Delegate {
-                val content: @Composable () -> Unit
+            @Composable
+            fun Something() {
+                noRippleClickable { }
             }
 
-            class Impl(override val content: @Composable () -> Unit) : Delegate
-        """
-    )
+            inline fun noRippleClickable(crossinline onClick: () -> Unit) {
+                 composed {
+                    clickable {
+                        onClick()
+                    }
+                 }
+            }
+
+            fun composed(block: @Composable () -> Unit) { }
+
+            fun clickable(onClick: () -> Unit) { }
+            """
+        )
+    }
 }

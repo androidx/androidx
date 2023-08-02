@@ -16,8 +16,10 @@
 
 package androidx.room.writer
 
-import androidx.room.ext.L
-import androidx.room.ext.T
+import androidx.room.compiler.codegen.CodeLanguage
+import androidx.room.compiler.codegen.XCodeBlock
+import androidx.room.compiler.codegen.XTypeName
+import androidx.room.compiler.processing.XNullability
 import androidx.room.ext.capitalize
 import androidx.room.ext.defaultValue
 import androidx.room.solver.CodeGenScope
@@ -28,7 +30,6 @@ import androidx.room.vo.Field
 import androidx.room.vo.FieldWithIndex
 import androidx.room.vo.Pojo
 import androidx.room.vo.RelationCollector
-import com.squareup.javapoet.TypeName
 import java.util.Locale
 
 /**
@@ -73,13 +74,10 @@ class FieldReadWriteWriter(fieldWithIndex: FieldWithIndex) {
             val allParents = getAllParents(fieldsWithIndices.map { it.field })
             val rootNode = Node(rootVar, null)
             rootNode.directFields = fieldsWithIndices.filter { it.field.parent == null }
-            val parentNodes = allParents.associate {
-                Pair(
-                    it,
-                    Node(
-                        varName = scope.getTmpVar("_tmp${it.field.name.capitalize(Locale.US)}"),
-                        fieldParent = it
-                    )
+            val parentNodes = allParents.associateWith {
+                Node(
+                    varName = scope.getTmpVar("_tmp${it.field.name.capitalize(Locale.US)}"),
+                    fieldParent = it
                 )
             }
             parentNodes.values.forEach { node ->
@@ -118,18 +116,22 @@ class FieldReadWriteWriter(fieldWithIndex: FieldWithIndex) {
                     fieldParent.getter.writeGet(
                         ownerVar = node.parentNode!!.varName,
                         outVar = node.varName,
-                        builder = scope.builder()
+                        builder = scope.builder
                     )
-                    scope.builder().apply {
-                        beginControlFlow("if($L != null)", node.varName).apply {
+                    scope.builder.apply {
+                        if (fieldParent.nonNull) {
                             bindWithDescendants()
-                        }
-                        nextControlFlow("else").apply {
-                            node.allFields().forEach {
-                                addStatement("$L.bindNull($L)", stmtParamVar, it.indexVar)
+                        } else {
+                            beginControlFlow("if (%L != null)", node.varName).apply {
+                                bindWithDescendants()
                             }
+                            nextControlFlow("else").apply {
+                                node.allFields().forEach {
+                                    addStatement("%L.bindNull(%L)", stmtParamVar, it.indexVar)
+                                }
+                            }
+                            endControlFlow()
                         }
-                        endControlFlow()
                     }
                 } else {
                     bindWithDescendants()
@@ -146,16 +148,20 @@ class FieldReadWriteWriter(fieldWithIndex: FieldWithIndex) {
         private fun construct(
             outVar: String,
             constructor: Constructor?,
-            typeName: TypeName,
+            typeName: XTypeName,
             localVariableNames: Map<String, FieldWithIndex>,
             localEmbeddeds: List<Node>,
             localRelations: Map<String, Field>,
             scope: CodeGenScope
         ) {
             if (constructor == null) {
-                // best hope code generation
-                scope.builder().apply {
-                    addStatement("$L = new $T()", outVar, typeName)
+                // Instantiate with default constructor, best hope for code generation
+                scope.builder.apply {
+                    addStatement(
+                        "%L = %L",
+                        outVar,
+                        XCodeBlock.ofNewInstance(scope.language, typeName)
+                    )
                 }
                 return
             }
@@ -173,7 +179,7 @@ class FieldReadWriteWriter(fieldWithIndex: FieldWithIndex) {
                 }
             }
             val args = variableNames.joinToString(",") { it ?: "null" }
-            constructor.writeConstructor(outVar, args, scope.builder())
+            constructor.writeConstructor(outVar, args, scope.builder)
         }
 
         /**
@@ -196,7 +202,7 @@ class FieldReadWriteWriter(fieldWithIndex: FieldWithIndex) {
                     }.associateBy { fwi ->
                         FieldReadWriteWriter(fwi).readIntoTmpVar(
                             cursorVar,
-                            fwi.field.setter.type.typeName,
+                            fwi.field.setter.type.asTypeName(),
                             scope
                         )
                     }
@@ -257,7 +263,7 @@ class FieldReadWriteWriter(fieldWithIndex: FieldWithIndex) {
                         setter.writeSet(
                             ownerVar = node.varName,
                             inVar = varName,
-                            builder = scope.builder()
+                            builder = scope.builder
                         )
                     }
                     // assign relation fields that were not part of the constructor
@@ -267,7 +273,7 @@ class FieldReadWriteWriter(fieldWithIndex: FieldWithIndex) {
                         field.setter.writeSet(
                             ownerVar = node.varName,
                             inVar = varName,
-                            builder = scope.builder()
+                            builder = scope.builder
                         )
                     }
                 }
@@ -277,9 +283,9 @@ class FieldReadWriteWriter(fieldWithIndex: FieldWithIndex) {
                     readNode()
                 } else {
                     // always declare, we'll set below
-                    scope.builder().addStatement(
-                        "final $T $L", fieldParent.pojo.typeName,
-                        node.varName
+                    scope.builder.addLocalVariable(
+                        node.varName,
+                        fieldParent.field.typeName
                     )
                     if (fieldParent.nonNull) {
                         readNode()
@@ -289,15 +295,15 @@ class FieldReadWriteWriter(fieldWithIndex: FieldWithIndex) {
                             if (it.alwaysExists) {
                                 "$cursorVar.isNull(${it.indexVar})"
                             } else {
-                                "( ${it.indexVar} == -1 || $cursorVar.isNull(${it.indexVar}))"
+                                "(${it.indexVar} == -1 || $cursorVar.isNull(${it.indexVar}))"
                             }
                         }
-                        scope.builder().apply {
-                            beginControlFlow("if (! ($L))", allNullCheck).apply {
+                        scope.builder.apply {
+                            beginControlFlow("if (!(%L))", allNullCheck).apply {
                                 readNode()
                             }
-                            nextControlFlow(" else ").apply {
-                                addStatement("$L = null", node.varName)
+                            nextControlFlow("else").apply {
+                                addStatement("%L = null", node.varName)
                             }
                             endControlFlow()
                         }
@@ -309,60 +315,37 @@ class FieldReadWriteWriter(fieldWithIndex: FieldWithIndex) {
     }
 
     /**
-     * @param ownerVar The entity / pojo that owns this field. It must own this field! (not the
-     * container pojo)
+     * @param ownerVar The entity / pojo variable that owns this field.
+     * It must own this field! (not the container pojo)
      * @param stmtParamVar The statement variable
      * @param scope The code generation scope
      */
     private fun bindToStatement(ownerVar: String, stmtParamVar: String, scope: CodeGenScope) {
-        field.statementBinder?.let { binder ->
-            val varName = if (field.getter.callType == CallType.FIELD) {
-                "$ownerVar.${field.name}"
-            } else {
-                "$ownerVar.${field.getter.jvmName}()"
-            }
-            binder.bindToStmt(stmtParamVar, indexVar, varName, scope)
-        }
+        val binder = field.statementBinder ?: return
+        field.getter.writeGetToStatement(
+            ownerVar, stmtParamVar, indexVar, binder, scope
+        )
     }
 
     /**
-     * @param ownerVar The entity / pojo that owns this field. It must own this field (not the
-     * container pojo)
+     * @param ownerVar The entity / pojo variable that owns this field.
+     * It must own this field (not the container pojo)
      * @param cursorVar The cursor variable
      * @param scope The code generation scope
      */
     private fun readFromCursor(ownerVar: String, cursorVar: String, scope: CodeGenScope) {
-        fun toRead() {
-            field.cursorValueReader?.let { reader ->
-                scope.builder().apply {
-                    when (field.setter.callType) {
-                        CallType.FIELD -> {
-                            reader.readFromCursor(
-                                "$ownerVar.${field.setter.jvmName}", cursorVar,
-                                indexVar, scope
-                            )
-                        }
-                        CallType.METHOD -> {
-                            val tmpField = scope.getTmpVar(
-                                "_tmp${field.name.capitalize(Locale.US)}"
-                            )
-                            addStatement("final $T $L", field.setter.type.typeName, tmpField)
-                            reader.readFromCursor(tmpField, cursorVar, indexVar, scope)
-                            addStatement("$L.$L($L)", ownerVar, field.setter.jvmName, tmpField)
-                        }
-                        CallType.CONSTRUCTOR -> {
-                            // no-op
-                        }
-                    }
-                }
-            }
+        fun doRead() {
+            val reader = field.cursorValueReader ?: return
+            field.setter.writeSetFromCursor(
+                ownerVar, cursorVar, indexVar, reader, scope
+            )
         }
         if (alwaysExists) {
-            toRead()
+            doRead()
         } else {
-            scope.builder().apply {
-                beginControlFlow("if ($L != -1)", indexVar).apply {
-                    toRead()
+            scope.builder.apply {
+                beginControlFlow("if (%L != -1)", indexVar).apply {
+                    doRead()
                 }
                 endControlFlow()
             }
@@ -374,17 +357,30 @@ class FieldReadWriteWriter(fieldWithIndex: FieldWithIndex) {
      */
     fun readIntoTmpVar(
         cursorVar: String,
-        typeName: TypeName,
+        typeName: XTypeName,
         scope: CodeGenScope
     ): String {
         val tmpField = scope.getTmpVar("_tmp${field.name.capitalize(Locale.US)}")
-        scope.builder().apply {
-            addStatement("final $T $L", typeName, tmpField)
+        scope.builder.apply {
+            addLocalVariable(tmpField, typeName)
             if (alwaysExists) {
                 field.cursorValueReader?.readFromCursor(tmpField, cursorVar, indexVar, scope)
             } else {
-                beginControlFlow("if ($L == -1)", indexVar).apply {
-                    addStatement("$L = $L", tmpField, typeName.defaultValue())
+                beginControlFlow("if (%L == -1)", indexVar).apply {
+                    val defaultValue = typeName.defaultValue()
+                    if (
+                        language == CodeLanguage.KOTLIN &&
+                        typeName.nullability == XNullability.NONNULL &&
+                        defaultValue == "null"
+                    ) {
+                        addStatement(
+                            "error(%S)",
+                            "Missing value for a NON-NULL column '${field.columnName}', " +
+                                "found NULL value instead."
+                        )
+                    } else {
+                        addStatement("%L = %L", tmpField, defaultValue)
+                    }
                 }
                 nextControlFlow("else").apply {
                     field.cursorValueReader?.readFromCursor(tmpField, cursorVar, indexVar, scope)

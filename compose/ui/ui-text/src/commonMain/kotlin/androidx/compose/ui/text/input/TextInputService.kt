@@ -16,8 +16,11 @@
 
 package androidx.compose.ui.text.input
 
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.text.AtomicReference
+import androidx.compose.ui.text.InternalTextApi
+import androidx.compose.ui.text.TextLayoutResult
 
 /**
  * Handles communication with the IME. Informs about the IME changes via [EditCommand]s and
@@ -65,6 +68,15 @@ open class TextInputService(private val platformTextInputService: PlatformTextIn
     }
 
     /**
+    * Restart input and show the keyboard. This should only be called when starting a new
+    * `PlatformTextInputModifierNode.textInputSession`.
+    */
+    @InternalTextApi
+    fun startInput() {
+        platformTextInputService.startInput()
+    }
+
+    /**
      * Stop text input session.
      *
      * If the [session] is not the currently open session, no action will occur.
@@ -75,6 +87,11 @@ open class TextInputService(private val platformTextInputService: PlatformTextIn
         if (_currentInputSession.compareAndSet(session, null)) {
             platformTextInputService.stopInput()
         }
+    }
+
+    @InternalTextApi
+    fun stopInput() {
+        platformTextInputService.stopInput()
     }
 
     /**
@@ -94,9 +111,7 @@ open class TextInputService(private val platformTextInputService: PlatformTextIn
     )
     // TODO(b/183448615) @InternalTextApi
     fun showSoftwareKeyboard() {
-        if (_currentInputSession.get() != null) {
-            platformTextInputService.showSoftwareKeyboard()
-        }
+        platformTextInputService.showSoftwareKeyboard()
     }
 
     /**
@@ -110,6 +125,7 @@ open class TextInputService(private val platformTextInputService: PlatformTextIn
     // TODO(b/183448615) @InternalTextApi
     fun hideSoftwareKeyboard(): Unit = platformTextInputService.hideSoftwareKeyboard()
 }
+
 /**
  * Represents a input session for interactions between a soft keyboard and editable text.
  *
@@ -157,10 +173,50 @@ class TextInputSession(
         }
     }
 
-    @Suppress("DeprecatedCallableAddReplaceWith", "DEPRECATION")
-    @Deprecated("This method should not be called, used BringIntoViewRequester instead.")
+    /**
+     * Notify the focused rectangle to the system.
+     *
+     * The system can ignore this information or use it to for additional functionality.
+     *
+     * For example, desktop systems show a popup near the focused input area (for some languages).
+     *
+     * If the session is not open, no action will be performed.
+     *
+     * @param rect the rectangle that describes the boundaries on the screen that requires focus
+     * @return false if this session expired and no action was performed
+     */
     fun notifyFocusedRect(rect: Rect): Boolean = ensureOpenSession {
         platformTextInputService.notifyFocusedRect(rect)
+    }
+
+    /**
+     * Notify the input service of layout and position changes.
+     *
+     * @param textFieldValue the text field's [TextFieldValue]
+     * @param offsetMapping the offset mapping for the visual transformation
+     * @param textLayoutResult the text field's [TextLayoutResult]
+     * @param textLayoutPositionInWindow position of the text field relative to the window
+     * @param innerTextFieldBounds visible bounds of the text field in local coordinates, or an
+     *   empty rectangle if the text field is not visible
+     * @param decorationBoxBounds visible bounds of the decoration box in local coordinates, or an
+     *   empty rectangle if the decoration box is not visible
+     */
+    fun updateTextLayoutResult(
+        textFieldValue: TextFieldValue,
+        offsetMapping: OffsetMapping,
+        textLayoutResult: TextLayoutResult,
+        textLayoutPositionInWindow: Offset,
+        innerTextFieldBounds: Rect,
+        decorationBoxBounds: Rect
+    ) = ensureOpenSession {
+        platformTextInputService.updateTextLayoutResult(
+            textFieldValue,
+            offsetMapping,
+            textLayoutResult,
+            textLayoutPositionInWindow,
+            innerTextFieldBounds,
+            decorationBoxBounds
+        )
     }
 
     /**
@@ -236,6 +292,14 @@ interface PlatformTextInputService {
     )
 
     /**
+     * Restart input and show the keyboard. This should only be called when starting a new
+     * `PlatformTextInputModifierNode.textInputSession`.
+     *
+     * @see TextInputService.startInput
+     */
+    fun startInput() {}
+
+    /**
      * Stop text input session.
      *
      * @see TextInputService.stopInput
@@ -258,14 +322,36 @@ interface PlatformTextInputService {
      */
     fun hideSoftwareKeyboard()
 
-    /*
+    /**
      * Notify the new editor model to IME.
      *
-     * @see TextInputService.updateState
+     * @see TextInputSession.updateState
      */
     fun updateState(oldValue: TextFieldValue?, newValue: TextFieldValue)
 
-    @Deprecated("This method should not be called, used BringIntoViewRequester instead.")
+    /**
+     * Notify the focused rectangle to the system.
+     *
+     * The system can ignore this information or use it to for additional functionality.
+     *
+     * For example, desktop systems show a popup near the focused input area (for some languages).
+     */
+    // TODO(b/262648050) Try to find a better API.
     fun notifyFocusedRect(rect: Rect) {
+    }
+
+    /**
+     * Notify the input service of layout and position changes.
+     *
+     * @see TextInputSession.updateTextLayoutResult
+     */
+    fun updateTextLayoutResult(
+        textFieldValue: TextFieldValue,
+        offsetMapping: OffsetMapping,
+        textLayoutResult: TextLayoutResult,
+        textLayoutPositionInWindow: Offset,
+        innerTextFieldBounds: Rect,
+        decorationBoxBounds: Rect
+    ) {
     }
 }

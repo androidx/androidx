@@ -15,28 +15,25 @@
  */
 package androidx.compose.foundation.relocation
 
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.layout.LayoutCoordinates
-import androidx.compose.ui.layout.OnPlacedModifier
-import androidx.compose.ui.modifier.ModifierLocalConsumer
-import androidx.compose.ui.modifier.ModifierLocalReadScope
+import androidx.compose.ui.modifier.ModifierLocalModifierNode
 import androidx.compose.ui.modifier.modifierLocalOf
+import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
+import androidx.compose.ui.node.LayoutAwareModifierNode
 
 /**
  * The Key for the ModifierLocal that can be used to access the [BringIntoViewParent].
  */
-@OptIn(ExperimentalFoundationApi::class)
 internal val ModifierLocalBringIntoViewParent = modifierLocalOf<BringIntoViewParent?> { null }
 
 /**
  * Platform-specific "root" of the [BringIntoViewParent] chain to call into when there are no
- * [ModifierLocalBringIntoViewParent]s above a [BringIntoViewChildModifier]. The value returned by
- * this function should be passed to the [BringIntoViewChildModifier] constructor.
+ * [ModifierLocalBringIntoViewParent]s above a [BringIntoViewChildNode].
  */
-@Composable
-internal expect fun rememberDefaultBringIntoViewParent(): BringIntoViewParent
+internal expect fun CompositionLocalConsumerModifierNode.defaultBringIntoViewParent():
+    BringIntoViewParent
 
 /**
  * A node that can respond to [bringChildIntoView] requests from its children by scrolling its
@@ -44,17 +41,21 @@ internal expect fun rememberDefaultBringIntoViewParent(): BringIntoViewParent
  */
 internal fun interface BringIntoViewParent {
     /**
-     * Scrolls this node's content so that [rect] will be in visible bounds. Must ensure that the
+     * Scrolls this node's content so that [boundsProvider] will be in visible bounds. Must ensure that the
      * request is propagated up to the parent node.
      *
      * This method will not return until this request has been satisfied or interrupted by a
      * newer request.
      *
-     * @param rect The rectangle to bring into view, relative to [childCoordinates].
      * @param childCoordinates The [LayoutCoordinates] of the child node making the request. This
-     * parent can use these [LayoutCoordinates] to translate [rect] into its own coordinates.
+     * parent can use these [LayoutCoordinates] to translate [boundsProvider] into its own
+     * coordinates.
+     * @param boundsProvider A function returning the rectangle to bring into view, relative to
+     * [childCoordinates]. The function may return a different value over time, if the bounds of the
+     * request change while the request is being processed. If the rectangle cannot be calculated,
+     * e.g. because [childCoordinates] is not attached, return null.
      */
-    suspend fun bringChildIntoView(rect: Rect, childCoordinates: LayoutCoordinates)
+    suspend fun bringChildIntoView(childCoordinates: LayoutCoordinates, boundsProvider: () -> Rect?)
 }
 
 /**
@@ -63,16 +64,15 @@ internal fun interface BringIntoViewParent {
  * [BringIntoViewParent]: either one read from the [ModifierLocalBringIntoViewParent], or if no
  * modifier local is specified then the [defaultParent].
  *
- * @param defaultParent The [BringIntoViewParent] to use if there is no
+ * @property defaultParent The [BringIntoViewParent] to use if there is no
  * [ModifierLocalBringIntoViewParent] available to read. This parent should always be obtained by
- * calling [rememberDefaultBringIntoViewParent] to support platform-specific integration.
+ * calling [defaultBringIntoViewParent] to support platform-specific integration.
  */
-internal abstract class BringIntoViewChildModifier(
-    private val defaultParent: BringIntoViewParent
-) : ModifierLocalConsumer,
-    OnPlacedModifier {
+internal abstract class BringIntoViewChildNode : Modifier.Node(),
+    ModifierLocalModifierNode, LayoutAwareModifierNode, CompositionLocalConsumerModifierNode {
+    private val defaultParent = defaultBringIntoViewParent()
 
-    private var localParent: BringIntoViewParent? = null
+    private val localParent: BringIntoViewParent? get() = ModifierLocalBringIntoViewParent.current
 
     /** The [LayoutCoordinates] of this modifier, if attached. */
     protected var layoutCoordinates: LayoutCoordinates? = null
@@ -81,12 +81,6 @@ internal abstract class BringIntoViewChildModifier(
 
     protected val parent: BringIntoViewParent
         get() = localParent ?: defaultParent
-
-    override fun onModifierLocalsUpdated(scope: ModifierLocalReadScope) {
-        with(scope) {
-            localParent = ModifierLocalBringIntoViewParent.current
-        }
-    }
 
     override fun onPlaced(coordinates: LayoutCoordinates) {
         layoutCoordinates = coordinates

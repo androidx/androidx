@@ -40,3 +40,14 @@ internal actual class AtomicBoolean actual constructor(initialValue: Boolean) {
         delegate.set(value)
     }
 }
+
+internal actual class Synchronizer {
+    actual inline fun<T> withLock(block: () -> T): T {
+        // technically, it is wrong to sync on `this` but we are only using it from common
+        // code hence there is no way to access JVM/ART's sync; so I decided to be cheap here
+        // and avoid another object.
+        return synchronized(this) {
+            block()
+        }
+    }
+}

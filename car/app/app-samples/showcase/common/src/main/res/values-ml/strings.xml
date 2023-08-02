@@ -100,7 +100,7 @@
     <string name="example_2_text" msgid="718820705318661440">"ഈ ടെക്സ്റ്റിൽ പച്ച നിറമുണ്ട്"</string>
     <string name="example_3_text" msgid="977269832109695627">"ഈ ടെക്സ്റ്റിൽ നീല നിറമുണ്ട്"</string>
     <string name="example_4_text" msgid="2043547015979437373">"ഈ ടെക്സ്റ്റിൽ മഞ്ഞ നിറമുണ്ട്"</string>
-    <string name="example_5_text" msgid="4387859825054561488">"ഈ ടെക്സ്റ്റ് പ്രാഥമിക നിറം ഉപയോഗിക്കുന്നു"</string>
+    <string name="example_5_text" msgid="8828804968749423500">"ഈ ടെക്സ്റ്റ് പ്രാഥമിക നിറം ഉപയോഗിക്കുന്നു"</string>
     <string name="example_6_text" msgid="7991523168517599600">"ഈ ടെക്സ്റ്റ് ദ്വിതീയ നിറം ഉപയോഗിക്കുന്നു"</string>
     <string name="color_demo" msgid="1822427636476178993">"നിറത്തിന്റെ ഡെമോ"</string>
     <string name="list_limit" msgid="3023536401535417286">"ലിസ്റ്റ് പരിധി"</string>
@@ -113,6 +113,8 @@
     <string name="finish_app_msg" msgid="8354334557053141891">"ഇത് ആപ്പിന്റെ പ്രവർത്തനം നിർത്തും, നിങ്ങൾ തിരികെ വരുമ്പോൾ ഇത് ഒരു അനുമതി സ്ക്രീൻ പ്രീ-സീഡ് ചെയ്യും"</string>
     <string name="finish_app_title" msgid="9013328479438745074">"ആപ്പ് ഡെമോ പൂർത്തിയാക്കുക"</string>
     <string name="finish_app_demo_title" msgid="8223819062053448384">"അടുത്ത തവണ റൺ ചെയ്യുമ്പോൾ അനുമതി സ്ക്രീൻ പ്രീ-സീഡ് ചെയ്യുന്നതിന്റെ ഡെമോ"</string>
+    <string name="preseed_permission_app_title" msgid="182847662545676962">"പ്രീ-സീഡ് അനുമതി ആപ്പ് ഡെമോ"</string>
+    <string name="preseed_permission_demo_title" msgid="5476541421753978071">"അടുത്ത തവണ ഡെമോ റൺ ചെയ്യുമ്പോൾ അനുമതി സ്ക്രീൻ പ്രീ-സീഡ് ചെയ്യുക"</string>
     <string name="loading_demo_title" msgid="1086529475809143517">"ലോഡ് ചെയ്യൽ ഡെമോ"</string>
     <string name="loading_demo_row_title" msgid="8933049915126088142">"ലോഡ് ചെയ്യൽ പൂർത്തിയായി!"</string>
     <string name="pop_to_root" msgid="2078277386355064198">"പ്രധാന സ്ക്രീൻ ദൃശ്യമാക്കുക"</string>
@@ -220,6 +222,7 @@
     <string name="clicked_row_prefix" msgid="9068303427922069941">"ക്ലിക്ക് ചെയ്‌ത വരി"</string>
     <string name="first_line_text" msgid="6648055806656590336">"ടെക്സ്റ്റിന്റെ ആദ്യ വരി"</string>
     <string name="second_line_text" msgid="38664490158836864">"ടെക്സ്റ്റിലെ രണ്ടാമത്തെ വരി ക്ലിക്ക് ചെയ്‌തു"</string>
+    <string name="long_line_text" msgid="8082962600953333087">"ഈ സബ്ടെക്സ്റ്റ് നിയന്ത്രണമില്ലാത്ത മോഡിൽ പൂർണ്ണമായി കാണിക്കാനാകും (ഉദാ. പാർക്കിംഗ് മോഡ്, നിയന്ത്രിതമായ വേഗം കുറഞ്ഞ മോഡ്). എന്നാൽ നിയന്ത്രിത മോഡിൽ (ഉദാ. ഡ്രൈവിംഗ് മോഡ്) ആയിരിക്കുമ്പോൾ ഇത് രണ്ട് വരികളായി ചുരുക്കും. ടെസ്‌റ്റിംഗ് ആവശ്യങ്ങൾക്കായി ഈ സബ്ടെക്സ്റ്റ് വളരെ വളരെ വലുതായാണ് നൽകിയിരിക്കുന്നത്"</string>
     <string name="title_prefix" msgid="3991742709199357049">"പേര്"</string>
     <string name="list_template_demo_title" msgid="1740208242737246151">"ലിസ്റ്റ് ടെംപ്ലേറ്റ് ഡെമോ"</string>
     <string name="long_msg_template_demo_title" msgid="1793748562161438131">"നീളം കൂടിയ സന്ദേശ ടെംപ്ലേറ്റ് ഡെമോ"</string>
@@ -227,6 +230,7 @@
     <string name="long_msg_template_not_supported_title" msgid="8600719470226274925">"അനുയോജ്യമല്ലാത്ത ഹോസ്റ്റ്"</string>
     <string name="msg_template_demo_title" msgid="3895210951340409473">"സന്ദേശ ടെംപ്ലേറ്റ് ഡെമോ"</string>
     <string name="msg_template_demo_text" msgid="2275291617716161409">"സന്ദേശങ്ങൾ ഇവിടെ കാണാം.\nകൂടുതലുള്ള ടെക്സ്റ്റ് രണ്ടാമത്തെ വരിയിലും."</string>
+    <string name="short_msg_template_demo_title" msgid="6798738013668580714">"ഹ്രസ്വ സന്ദേശ ടെംപ്ലേറ്റ് ഡെമോ"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"പെയിൻ ടെംപ്ലേറ്റ് ഡെമോ"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"സ്ഥലങ്ങളുടെ ലിസ്റ്റിന്റെ ടെംപ്ലേറ്റ് ഡെമോ"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"സ്ഥലങ്ങൾ ബ്രൗസ് ചെയ്യുക"</string>
@@ -253,6 +257,15 @@
     <string name="sign_in_complete_text" msgid="8423984266325680606">"നിങ്ങൾ സൈൻ ഇൻ ചെയ്‌തു!"</string>
     <string name="sign_in_complete_title" msgid="8919868148773983428">"സൈൻ ഇൻ ചെയ്യൽ പൂർത്തിയായി"</string>
     <string name="sign_in_template_demo_title" msgid="6052035424941410249">"\'സൈൻ ഇൻ ചെയ്യൽ\' ടെം‍പ്ലേറ്റിന്റെ ഡെമോ"</string>
+    <string name="tab_template_layouts_demo_title" msgid="6529681462424538165">"ടാബ് ടെംപ്ലേറ്റ് ഡെമോകൾ"</string>
+    <string name="tab_template_demo_title" msgid="7587839101813629975">"ടാബ് ടെംപ്ലേറ്റ് ഡെമോ"</string>
+    <string name="tab_title_message" msgid="5266710951630087246">"സന്ദേശ ടാബ്"</string>
+    <string name="tab_title_pane" msgid="2520606145526537263">"പെയിൻ ടാബ്"</string>
+    <string name="tab_title_list" msgid="5104962518489668123">"ലിസ്റ്റ് ടാബ്"</string>
+    <string name="tab_title_grid" msgid="5268168907976325154">"നീളമേറിയ ടാബ് പേരോട് കൂടിയ ഗ്രിഡ് ടാബ്"</string>
+    <string name="tab_title_search" msgid="1892925693146631173">"തിരയൽ ടാബ്"</string>
+    <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"ടാബ് ടെംപ്ലേറ്റ് ലോഡ് ചെയ്യൽ ഡെമോ"</string>
+    <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"ടാബ് ടെംപ്ലേറ്റ് ടാബുകളൊന്നുമില്ല ഡെമോ"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"അജ്ഞാത ഹോസ്റ്റിൽ നിന്നുള്ള ചിത്രങ്ങൾ പ്രദർശിപ്പിക്കാനാകില്ല"</string>
     <string name="icon_title_prefix" msgid="8487026131229541244">"ഐക്കൺ"</string>
     <string name="content_provider_icons_demo_title" msgid="5708602618664311097">"ഉള്ളടക്ക ദാതാക്കളുടെ ഐക്കണുകളുടെ ഡെമോ"</string>
@@ -262,7 +275,7 @@
     <string name="vector_with_tint_title" msgid="1022346419829696827">"വെക്ടർ വരയ്ക്കാനാകും, നിറം നൽകിക്കൊണ്ട്"</string>
     <string name="vector_with_app_theme_attr_title" msgid="4890094482708376219">"വെക്ടർ വരയ്ക്കാനാകും, അതിന്റെ നിറത്തിനായി ഒരു ആപ്പിന്റെ തീം ആട്രിബ്യൂട്ട് ഉപയോഗിച്ച്"</string>
     <string name="png_res_title" msgid="7437083018336747544">"ഒരു PNG, റിസോഴ്‌സ് ആയി അയച്ചു"</string>
-    <string name="png_bitmap_title" msgid="120790220238335267">"ഒരു PNG, റിസോഴ്‌സ് ആയി അയച്ചു"</string>
+    <string name="png_bitmap_title" msgid="3385912074130977032">"ഒരു PNG, ബിറ്റ്മാപ്പായി അയച്ചു"</string>
     <string name="just_row_title" msgid="965700021568970725">"വെറുമൊരു പേരാണ്"</string>
     <string name="title_with_app_icon_row_title" msgid="6294250714820740520">"പേരും ആപ്പ് ഐക്കണും"</string>
     <string name="title_with_res_id_image_row_title" msgid="3813134904602875778">"റിസോഴ്‌സ് ഐഡി ചിത്രമുള്ള പേര്"</string>
@@ -274,6 +287,7 @@
     <string name="rows_demo_title" msgid="3198566660454251007">"വരികളുടെ ഡെമോ"</string>
     <string name="text_icons_demo_title" msgid="8732943920672143201">"ടെക്സ്റ്റിന്റെയും ഐക്കണുകളുടെയും ഡെമോകൾ"</string>
     <string name="row_text_icons_demo_title" msgid="135167694047524905">"ടെക്സ്റ്റും ഐക്കണുകളുമുള്ള വരികളുടെ ഡെമോ"</string>
+    <string name="radio_button_list_demo_title" msgid="9082264324855338774">"റേഡിയോ ബട്ടൺ ലിസ്റ്റുകളുടെ ഡെമോ"</string>
     <string name="selectable_lists_demo_title" msgid="5492658731113129386">"തിരഞ്ഞെടുത്ത ലിസ്റ്റുകളുടെ ഡെമോ"</string>
     <string name="option_1_title" msgid="7221252541651471199">"ഓപ്ഷൻ 1"</string>
     <string name="option_2_title" msgid="1905146448697963818">"ഓപ്ഷൻ 2"</string>
@@ -284,9 +298,11 @@
     <string name="some_additional_text" msgid="4009872495806318260">"ഏതാനും അധിക ടെക്സ്റ്റ്"</string>
     <string name="sample_additional_list" msgid="5085372891301576306">"തിരഞ്ഞെടുക്കാവുന്നവയുടെ സാമ്പിൾ ലിസ്റ്റ്"</string>
     <string name="task_restriction_demo_title" msgid="2212084350718766941">"ടാസ്ക്ക് നിയന്ത്രണ ഡെമോ"</string>
-    <string name="task_limit_reached_msg" msgid="6038763366777119364">"ടാസ്ക്ക് പരിധിയെത്തി\nമുന്നോട്ട് പോകുന്നത് ആപ്പ് നിർബന്ധിതമായി നിർത്താൻ കാരണമാകും"</string>
+    <string name="task_limit_reached_msg" msgid="7162842196382260992">"ഇത് ഘട്ടങ്ങളുടെ എണ്ണം വർദ്ധിക്കാൻ ഇടയാക്കും, പുതിയൊരു സ്‌ക്രീനിലേക്ക് നിങ്ങളെ നയിക്കുകയും ചെയ്യും."</string>
     <string name="task_step_of_title" msgid="2791717962535723839">"%2$d ടാസ്ക്ക് ഘട്ടങ്ങളിൽ %1$d -ാമത്തേത്"</string>
     <string name="task_step_of_text" msgid="4646729781462227219">"മുന്നോട്ട് പോകാൻ ക്ലിക്ക് ചെയ്യുക"</string>
+    <string name="task_content_allowed" msgid="545061986612431190">"വ്യത്യസ്ത ടെംപ്ലേറ്റുകൾ സന്ദർശിച്ച്, ഡ്രൈവിംഗ് മോഡിലാണ് കാർ ഉള്ളതെന്ന് ഉറപ്പാക്കുക"</string>
+    <string name="toggle_button_demo_title" msgid="3179103600967398928">"ടോഗിൾ ബട്ടൺ ഡെമോ"</string>
     <string name="toggle_test_title" msgid="924485265152862631">"ടെസ്റ്റ് മാറ്റുക"</string>
     <string name="toggle_test_text" msgid="8107217216013312857">"സ്റ്റേറ്റ്ഫുള്ളായ മാറ്റങ്ങൾ അനുവദനീയമാണ്"</string>
     <string name="toggle_test_first_toggle_title" msgid="3635022201072117680">"ടോഗിൾ ടെസ്‌റ്റ് പ്രവർത്തനക്ഷമമാക്കുക"</string>
@@ -299,11 +315,53 @@
     <string name="additional_data_text" msgid="2846223398214158872">"ബാക്ക് ഓപ്പറേഷനുകളിൽ അപ്ഡേറ്റുകൾ അനുവദിക്കുന്നു."</string>
     <string name="toggle_test_enabled" msgid="982370904182034076">"ടോഗിൾ ടെസ്‌റ്റ് പ്രവർത്തനക്ഷമമാക്കി"</string>
     <string name="toggle_test_disabled" msgid="8366040658408451664">"ടോഗിൾ ടെസ്‌റ്റ് പ്രവർത്തനരഹിതമാക്കി"</string>
+    <string name="secondary_actions_decoration_button_demo_title" msgid="3710817648501132309">"സെക്കൻഡറി പ്രവർത്തനവും ഡെക്കറേഷൻ ഡെമോയും"</string>
+    <string name="secondary_actions_test_title" msgid="3664453747553733613">"സെക്കൻഡറി പ്രവർത്തന ടെസ്റ്റ്"</string>
+    <string name="secondary_actions_test_subtitle" msgid="6985282813402073703">"സെക്കൻഡറി പ്രവർത്തനം മാത്രമേ തിരഞ്ഞെടുക്കാനാകൂ"</string>
+    <string name="decoration_test_title" msgid="8450127046762442244">"ഡെക്കറേഷൻ ടെസ്റ്റ്"</string>
+    <string name="secondary_actions_decoration_test_title" msgid="6282873404859209490">"സെക്കൻഡറി പ്രവർത്തനങ്ങളും ഡെക്കറേഷനും"</string>
+    <string name="secondary_actions_decoration_test_subtitle" msgid="155884606592724532">"വരിയും തിരഞ്ഞെടുക്കാവുന്നതാണ്"</string>
+    <string name="secondary_action_toast" msgid="5076434693504006565">"സെക്കൻഡറി പ്രവർത്തനം തിരഞ്ഞെടുത്തു"</string>
+    <string name="row_primary_action_toast" msgid="756516694751965204">"വരിയുടെ പ്രാഥമിക പ്രവർത്തനം തിരഞ്ഞെടുത്തു"</string>
+    <string name="sectioned_item_list_demo_title" msgid="1236735461225007729">"വിഭാഗങ്ങളാക്കിയ ഇന ലിസ്‌റ്റിന്റെ ഡെമോ"</string>
+    <string name="sectioned_item_list_one_title" msgid="6594204350307263338">"ലിസ്റ്റ് 1"</string>
+    <string name="sectioned_item_list_two_title" msgid="4941545381743022833">"ലിസ്റ്റ് 2"</string>
+    <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"ഓരോ ലിസ്‌റ്റിന് കീഴിലും സബ്‌ടെക്‌സ്‌റ്റ്"</string>
+    <string name="empty_list_demo_title" msgid="5989013634820902455">"ശൂന്യമായ ലിസ്‌റ്റിന്റെ ഡെമോ"</string>
+    <string name="empty_list_message" msgid="5331395517560728138">"ലിസ്‌റ്റിൽ ഒന്നുമില്ല"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"പലവക ടെംപ്ലേറ്റ് ഡെമോകൾ"</string>
     <string name="showcase_demos_title" msgid="1542092687878113304">"ഡെമോകൾ ഷോക്കേസ് ചെയ്യുക"</string>
+    <string name="template_layouts_demo_title" msgid="788249269446087847">"ടെംപ്ലേറ്റ് ലേഔട്ട് ഡെമോകൾ"</string>
+    <string name="grid_template_menu_demo_title" msgid="7096285873490705119">"ഗ്രിഡ് ടെംപ്ലേറ്റ് ഡെമോകൾ"</string>
+    <string name="voice_access_demo_title" msgid="3825223890895361496">"Voice Access ഡെമോ സ്ക്രീൻ"</string>
+    <string name="user_interactions_demo_title" msgid="1356952319161314986">"ഉപയോക്തൃ ഇടപഴകലുകൾ"</string>
+    <string name="request_permission_menu_demo_title" msgid="4796486779527427017">"അനുമതി ഡെമോകൾ അഭ്യർത്ഥിക്കുക"</string>
+    <string name="application_overflow_title" msgid="396427940886169325">"ആപ്ലിക്കേഷൻ ഓവർഫ്ലോ വാലിഡേറ്റർ"</string>
+    <string name="application_overflow_subtitle1" msgid="7429415605726615529">"പാർക്കിംഗിൽ നിന്ന് ഡ്രൈവിംഗ് നിലയിലേക്ക് വാഹനം"</string>
+    <string name="application_overflow_subtitle2" msgid="4385123036846369714">"മാറ്റുമ്പോൾ, ഇനിപ്പറയുന്ന ടെംപ്ലേറ്റുകൾ പരിശോധിക്കുക"</string>
+    <string name="perm_group" msgid="3834918337351876270">"അനുമതി ഗ്രൂപ്പ്"</string>
+    <string name="perm_group_description" msgid="7348847631139139024">"Showcase ആപ്പിനുള്ള അനുമതി ഗ്രൂപ്പ്"</string>
+    <string name="perm_fine_location" msgid="5438874642600304118">"ഫൈൻ ലൊക്കേഷനിലേക്കുള്ള ആക്സസ്"</string>
+    <string name="perm_fine_location_desc" msgid="3549183883787912516">"ഫൈൻ ലൊക്കേഷനിലേക്ക് ആക്സസിനുള്ള അനുമതി"</string>
+    <string name="perm_coarse_location" msgid="6140337431619481015">"കോഴ്സ് ലൊക്കേഷനിലേക്കുള്ള ആക്സസ്"</string>
+    <string name="perm_coarse_location_desc" msgid="6074759942301565943">"കോഴ്സ് ലൊക്കേഷനിലേക്ക് ആക്സസിനുള്ള അനുമതി"</string>
+    <string name="perm_record_audio" msgid="2758340693260523493">"ഓഡിയോ റെക്കോർഡ് ചെയ്യാനുള്ള ആക്സസ്"</string>
+    <string name="perm_record_audio_desc" msgid="8038648467605928912">"ഓഡിയോ റെക്കോർഡ് ചെയ്യാനുള്ള ആക്സസിനുള്ള അനുമതി"</string>
     <string name="location_1_description" msgid="4801052291684791371">"നിറമുള്ള റിസോഴ്‌സ് വെക്‌ടർ"</string>
     <string name="location_2_description" msgid="3331356135359047166">"ഇമേജ് റിസോഴ്‌സ് ബിറ്റ്മാപ്പ്"</string>
     <string name="location_3_description" msgid="3982142774088944850">"ടെക്സ്റ്റ് മാർക്കറിന് നിറം നൽകി"</string>
     <string name="location_4_description" msgid="6560365445044381911">"ഇമേജ് ബിറ്റ്മാപ്പ്"</string>
     <string name="location_description_text_label" msgid="2779911545316756419">"ടെക്സ്റ്റ് ലേബൽ"</string>
+    <string name="parking_vs_driving_demo_title" msgid="3367862800135053111">"പാർക്കിംഗ് Vs ഡ്രൈവിംഗ് ഡെമോ"</string>
+    <string name="latest_feature_details" msgid="6843008350392721502">"കാറുകളിൽ ക്ലസ്റ്റർ ഡിസ്പ്ലേകൾ!"</string>
+    <string name="latest_feature_title" msgid="7929405790070777460">"ഏറ്റവും പുതിയ ഫീച്ചറുകൾ"</string>
+    <string name="loading_toggle_enabled" msgid="8828072732804454994">"ലോഡ് ചെയ്യുന്നത് പ്രവർത്തനക്ഷമമാക്കി"</string>
+    <string name="loading_toggle_disabled" msgid="7689738885077382673">"ലോഡ് ചെയ്യുന്നത് പ്രവർത്തനരഹിതമാക്കി"</string>
+    <string name="loading_screen" msgid="4771507490730308794">"സ്‌ക്രീൻ ലോഡ് ചെയ്യുന്നു"</string>
+    <string name="vector_toggle_details" msgid="1301305340033556819">"നിറം ചേർക്കാൻ/നീക്കം ചെയ്യാൻ മാറ്റുക"</string>
+    <string name="map_template_toggle_demo_title" msgid="6510798293640092611">"ടോഗിൾ ഫങ്ഷൻ ഉള്ള മാപ്പ് ടെംപ്ലേറ്റ്"</string>
+    <string name="avoid_tolls_row_title" msgid="5194057244144831024">"ടോളുകൾ ഒഴിവാക്കുക"</string>
+    <string name="route_options_demo_title" msgid="4599699012716426514">"വഴി ഓപ്‌ഷനുകൾ"</string>
+    <string name="avoid_highways_row_title" msgid="4711913426200490304">"ദേശീയപാതകൾ ഒഴിവാക്കുക"</string>
+    <string name="avoid_ferries_row_title" msgid="8232883866013711974">"ഫെറി ഒഴിവാക്കുക"</string>
 </resources>

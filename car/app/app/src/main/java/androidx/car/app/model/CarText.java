@@ -23,11 +23,11 @@ import static java.util.Objects.requireNonNull;
 import android.text.SpannableString;
 import android.text.Spanned;
 
-import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.annotations.CarProtocol;
+import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.utils.CollectionUtils;
 import androidx.car.app.utils.StringUtils;
@@ -83,14 +83,11 @@ import java.util.Objects;
  * the text before sending it to the host.
  */
 @CarProtocol
+@KeepFields
 public final class CarText {
-    @Keep
     private final String mText;
-    @Keep
     private final List<String> mTextVariants;
-    @Keep
     private final List<SpanWrapper> mSpans;
-    @Keep
     private final List<List<SpanWrapper>> mSpansForVariants;
 
     /**
@@ -172,7 +169,6 @@ public final class CarText {
     }
 
     /**
-     * @hide
      */
     @NonNull
     @RestrictTo(LIBRARY)
@@ -181,7 +177,6 @@ public final class CarText {
     }
 
     /**
-     * @hide
      */
     @NonNull
     @RestrictTo(LIBRARY)
@@ -192,7 +187,6 @@ public final class CarText {
     /**
      * Returns a shortened string from the input {@code text}.
      *
-     * @hide
      */
     @RestrictTo(LIBRARY)
     @Nullable
@@ -279,17 +273,13 @@ public final class CarText {
     /**
      * Wraps a span to send it to the host.
      *
-     * @hide
      */
     @RestrictTo(LIBRARY)
+    @KeepFields
     public static class SpanWrapper {
-        @Keep
         private final int mStart;
-        @Keep
         private final int mEnd;
-        @Keep
         private final int mFlags;
-        @Keep
         @NonNull
         private final CarSpan mCarSpan;
 
@@ -352,10 +342,9 @@ public final class CarText {
     }
 
     /** A builder of {@link CarText}. */
+    @KeepFields
     public static final class Builder {
-        @Keep
         CharSequence mText;
-        @Keep
         List<CharSequence> mTextVariants = new ArrayList<>();
 
         /**

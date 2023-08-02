@@ -23,7 +23,6 @@ import androidx.annotation.RestrictTo;
 /**
  * A provider that supplies OpenGL shader code.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface ShaderProvider {
@@ -59,7 +58,7 @@ public interface ShaderProvider {
         return null;
     }
 
-    /** A default provider that will use the default shader code without any effect. */
+    /** A default provider that will use the default shader code without any post-processing. */
     ShaderProvider DEFAULT = new ShaderProvider() {
         // Use default implementation.
     };

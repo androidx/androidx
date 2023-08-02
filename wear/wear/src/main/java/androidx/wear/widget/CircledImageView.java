@@ -34,6 +34,7 @@ import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.view.View;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Px;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
@@ -45,7 +46,6 @@ import java.util.Objects;
 /**
  * An image view surrounded by a circle.
  *
- * @hide
  */
 @RestrictTo(Scope.LIBRARY)
 public class CircledImageView extends View {
@@ -222,7 +222,7 @@ public class CircledImageView extends View {
     }
 
     @Override
-    protected void onDraw(Canvas canvas) {
+    protected void onDraw(@NonNull Canvas canvas) {
         int paddingLeft = getPaddingLeft();
         int paddingTop = getPaddingTop();
 

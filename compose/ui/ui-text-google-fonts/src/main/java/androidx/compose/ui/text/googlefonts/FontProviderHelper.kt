@@ -22,12 +22,10 @@ import android.content.pm.PackageManager
 import android.content.pm.Signature
 import android.content.res.Resources
 import androidx.annotation.WorkerThread
-import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.core.content.res.FontResourcesParserCompat
 import java.util.Arrays
 
 @SuppressLint("ListIterator") // this is not a hot code path, nor is it optimized
-@OptIn(ExperimentalTextApi::class)
 @WorkerThread
 internal fun GoogleFont.Provider.checkAvailable(
     packageManager: PackageManager,
@@ -73,7 +71,6 @@ private fun repr(b: ByteArray): String {
     return b.joinToString(",", prefix = "byteArrayOf(", postfix = ")")
 }
 
-@OptIn(ExperimentalTextApi::class)
 private fun GoogleFont.Provider.loadCertsIfNeeded(resources: Resources): List<List<ByteArray?>?> {
     if (certificates != null) {
         return certificates

@@ -17,6 +17,7 @@
 package androidx.wear.watchface.control;
 
 import android.support.wearable.watchface.accessibility.ContentDescriptionLabel;
+import androidx.wear.watchface.control.IRemoteWatchFaceView;
 import androidx.wear.watchface.control.IWatchfaceListener;
 import androidx.wear.watchface.control.IWatchfaceReadyListener;
 import androidx.wear.watchface.control.data.WatchFaceRenderParams;
@@ -30,17 +31,17 @@ import androidx.wear.watchface.style.data.UserStyleWireFormat;
 /**
  * Interface for interacting with an interactive instance of a watch face.
  *
- * @hide
  */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 interface IInteractiveWatchFace {
     // IMPORTANT NOTE: All methods must be given an explicit transaction id that must never change
     // in the future to remain binary backwards compatible.
-    // Next Id: 23
+    // Next Id: 25
 
     /**
      * API version number. This should be incremented every time a new method is added.
      */
-    const int API_VERSION = 6;
+    const int API_VERSION = 9;
 
     /** Indicates a "down" touch event on the watch face. */
     const int TAP_TYPE_DOWN = 0;
@@ -214,4 +215,24 @@ interface IInteractiveWatchFace {
      * @since API version 6.
      */
     void removeWatchFaceListener(in IWatchfaceListener listener) = 22;
+
+    /**
+     * Returns the ID of the complication at (xPos, yPos) or Long.MIN_VALUE if no such complication
+     * exists.
+     *
+     * @since API version 7.
+     */
+    long getComplicationIdAt(in int xPos, in int yPos) = 23;
+
+    /**
+     * Request to create a RemoteWatchFaceView which can be used to render screenshots to a
+     * view in the caller.
+     *
+     * @since API version 9.
+     * @param hostToken The return value of {@link View#getHostToken()}.
+     * @param width The width of the view in pixels
+     * @param height The height of the view in pixels
+     */
+    IRemoteWatchFaceView createRemoteWatchFaceView(
+        in IBinder hostToken, in int width, in int height) = 24;
 }

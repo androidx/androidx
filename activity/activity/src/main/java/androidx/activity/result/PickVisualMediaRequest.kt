@@ -16,8 +16,8 @@
 
 package androidx.activity.result
 
-import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.VisualMediaType
 import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.ImageAndVideo
+import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.VisualMediaType
 
 /**
  * Creates a request for a

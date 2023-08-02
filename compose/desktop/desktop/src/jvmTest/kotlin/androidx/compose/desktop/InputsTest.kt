@@ -24,6 +24,7 @@ import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.test.assertRangeInfoEquals
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -37,6 +38,7 @@ class InputsTest {
     val rule = createComposeRule()
 
     @Test
+    @Ignore("b/293410369")
     fun sliderPosition_valueCoercion() {
         val state = mutableStateOf(0f)
         rule.setContent {

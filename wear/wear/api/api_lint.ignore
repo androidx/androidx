@@ -25,6 +25,10 @@ GetterSetterNames: androidx.wear.widget.drawer.WearableDrawerView#setIsAutoPeekE
     Symmetric method for `isAutoPeekEnabled` must be named `setAutoPeekEnabled`; was `setIsAutoPeekEnabled`
 GetterSetterNames: androidx.wear.widget.drawer.WearableDrawerView#setIsLocked(boolean):
     Symmetric method for `isLocked` must be named `setLocked`; was `setIsLocked`
+GetterSetterNames: field AmbientLifecycleObserver.AmbientDetails.burnInProtectionRequired:
+    Invalid name for boolean property `burnInProtectionRequired`. Should start with one of `has`, `can`, `should`, `is`.
+GetterSetterNames: field AmbientLifecycleObserver.AmbientDetails.deviceHasLowBitAmbient:
+    Invalid name for boolean property `deviceHasLowBitAmbient`. Should start with one of `has`, `can`, `should`, `is`.
 
 
 InvalidNullabilityOverride: androidx.wear.widget.ArcLayout#checkLayoutParams(android.view.ViewGroup.LayoutParams) parameter #0:
@@ -165,8 +169,6 @@ MissingNullability: androidx.wear.widget.CurvingLayoutCallback#onLayoutFinished(
     Missing nullability on parameter `parent` in method `onLayoutFinished`
 MissingNullability: androidx.wear.widget.RoundedDrawable#onBoundsChange(android.graphics.Rect) parameter #0:
     Missing nullability on parameter `bounds` in method `onBoundsChange`
-MissingNullability: androidx.wear.widget.RoundedDrawable#setColorFilter(android.graphics.ColorFilter) parameter #0:
-    Missing nullability on parameter `cf` in method `setColorFilter`
 MissingNullability: androidx.wear.widget.SwipeDismissFrameLayout#SwipeDismissFrameLayout(android.content.Context) parameter #0:
     Missing nullability on parameter `context` in method `SwipeDismissFrameLayout`
 MissingNullability: androidx.wear.widget.SwipeDismissFrameLayout#SwipeDismissFrameLayout(android.content.Context, android.util.AttributeSet) parameter #0:

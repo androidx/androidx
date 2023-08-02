@@ -18,19 +18,19 @@ package androidx.appsearch.platformstorage.converter;
 
 import android.os.Build;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.app.SearchResult;
-import androidx.core.os.BuildCompat;
 import androidx.core.util.Preconditions;
 
 import java.util.List;
 
 /**
  * Translates between Platform and Jetpack versions of {@link SearchResult}.
- * @hide
+ * @exportToFramework:hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RequiresApi(Build.VERSION_CODES.S)
@@ -38,7 +38,6 @@ public class SearchResultToPlatformConverter {
     private SearchResultToPlatformConverter() {}
 
     /** Translates from Platform to Jetpack versions of {@link SearchResult}. */
-    @BuildCompat.PrereleaseSdkCheck
     @NonNull
     public static SearchResult toJetpackSearchResult(
             @NonNull android.app.appsearch.SearchResult platformResult) {
@@ -55,10 +54,15 @@ public class SearchResultToPlatformConverter {
             SearchResult.MatchInfo jetpackMatchInfo = toJetpackMatchInfo(platformMatches.get(i));
             builder.addMatchInfo(jetpackMatchInfo);
         }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            for (android.app.appsearch.SearchResult joinedResult :
+                    ApiHelperForU.getJoinedResults(platformResult)) {
+                builder.addJoinedResult(toJetpackSearchResult(joinedResult));
+            }
+        }
         return builder.build();
     }
 
-    @BuildCompat.PrereleaseSdkCheck
     @NonNull
     private static SearchResult.MatchInfo toJetpackMatchInfo(
             @NonNull android.app.appsearch.SearchResult.MatchInfo platformMatchInfo) {
@@ -73,12 +77,44 @@ public class SearchResultToPlatformConverter {
                         new SearchResult.MatchRange(
                                 platformMatchInfo.getSnippetRange().getStart(),
                                 platformMatchInfo.getSnippetRange().getEnd()));
-        if (BuildCompat.isAtLeastT()) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             builder.setSubmatchRange(
                     new SearchResult.MatchRange(
-                            platformMatchInfo.getSubmatchRange().getStart(),
-                            platformMatchInfo.getSubmatchRange().getEnd()));
+                            ApiHelperForT.getSubmatchRangeStart(platformMatchInfo),
+                            ApiHelperForT.getSubmatchRangeEnd(platformMatchInfo)));
         }
         return builder.build();
+    }
+
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    private static class ApiHelperForT {
+        private ApiHelperForT() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static int getSubmatchRangeStart(@NonNull
+                android.app.appsearch.SearchResult.MatchInfo platformMatchInfo) {
+            return platformMatchInfo.getSubmatchRange().getStart();
+        }
+
+        @DoNotInline
+        static int getSubmatchRangeEnd(@NonNull
+                android.app.appsearch.SearchResult.MatchInfo platformMatchInfo) {
+            return platformMatchInfo.getSubmatchRange().getEnd();
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    private static class ApiHelperForU {
+        private ApiHelperForU() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static List<android.app.appsearch.SearchResult> getJoinedResults(@NonNull
+                android.app.appsearch.SearchResult result) {
+            return result.getJoinedResults();
+        }
     }
 }

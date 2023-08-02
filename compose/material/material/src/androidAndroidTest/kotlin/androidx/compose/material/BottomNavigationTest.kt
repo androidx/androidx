@@ -16,9 +16,14 @@
 package androidx.compose.material
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.samples.BottomNavigationSample
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.testutils.assertIsEqualTo
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.LayoutCoordinates
@@ -132,6 +137,31 @@ class BottomNavigationTest {
     }
 
     @Test
+    fun bottomNavigation_size_withInsets() {
+        val height = 56.dp
+        val fakeInset = 5.dp
+        rule.setMaterialContentForSizeAssertions {
+            var selectedItem by remember { mutableStateOf(0) }
+            val items = listOf("Songs", "Artists", "Playlists")
+
+            BottomNavigation(
+                windowInsets = WindowInsets(fakeInset, fakeInset, fakeInset, fakeInset),
+            ) {
+                items.forEachIndexed { index, item ->
+                    BottomNavigationItem(
+                        icon = { Icon(Icons.Filled.Favorite, contentDescription = null) },
+                        label = { Text(item) },
+                        selected = selectedItem == index,
+                        onClick = { selectedItem = index }
+                    )
+                }
+            }
+        }
+            .assertWidthIsEqualTo(rule.rootWidth())
+            .assertHeightIsEqualTo(height + fakeInset * 2)
+    }
+
+    @Test
     fun bottomNavigationItem_sizeAndPositions() {
         lateinit var parentCoords: LayoutCoordinates
         val itemCoords = mutableMapOf<Int, LayoutCoordinates>()
@@ -175,6 +205,54 @@ class BottomNavigationTest {
     }
 
     @Test
+    fun bottomNavigationItem_sizeAndPositions_withInsets() {
+        lateinit var parentCoords: LayoutCoordinates
+        val itemCoords = mutableMapOf<Int, LayoutCoordinates>()
+        val fakeInset = 6.dp
+        rule.setMaterialContent(
+            Modifier.onGloballyPositioned { coords: LayoutCoordinates ->
+                parentCoords = coords
+            }
+        ) {
+            Box {
+                BottomNavigation(
+                    windowInsets = WindowInsets(fakeInset, fakeInset, fakeInset, fakeInset),
+                ) {
+                    repeat(4) { index ->
+                        BottomNavigationItem(
+                            icon = { Icon(Icons.Filled.Favorite, null) },
+                            label = { Text("Item $index") },
+                            selected = index == 0,
+                            onClick = {},
+                            modifier = Modifier.onGloballyPositioned { coords ->
+                                itemCoords[index] = coords
+                            }
+                        )
+                    }
+                }
+            }
+        }
+
+        rule.runOnIdleWithDensity {
+            val totalWidth = parentCoords.size.width
+
+            val expectedItemWidth = (totalWidth - fakeInset.roundToPx() * 2) / 4
+            val expectedItemHeight = 56.dp.roundToPx()
+
+            Truth.assertThat(itemCoords.size).isEqualTo(4)
+
+            itemCoords.forEach { (index, coord) ->
+                Truth.assertThat(coord.size.width).isEqualTo(expectedItemWidth)
+                Truth.assertThat(coord.size.height).isEqualTo(expectedItemHeight)
+                Truth.assertThat(coord.positionInWindow().x)
+                    .isEqualTo((expectedItemWidth * index + fakeInset.roundToPx()).toFloat())
+                Truth.assertThat(coord.positionInWindow().y)
+                    .isEqualTo(fakeInset.roundToPx().toFloat())
+            }
+        }
+    }
+
+    @Test
     fun bottomNavigationItemContent_withLabel_sizeAndPosition() {
         rule.setMaterialContent {
             Box {
@@ -199,24 +277,24 @@ class BottomNavigationTest {
             .getUnclippedBoundsInRoot()
         val textBounds = rule.onNodeWithText("ItemText").getUnclippedBoundsInRoot()
 
-        // Distance from the bottom to the text baseline and from the text baseline to the
-        // bottom of the icon
+        val topPadding = 8.dp
+        // Distance from the text baseline to the bottom of the icon
         val textBaseline = 12.dp
 
         // Relative position of the baseline to the top of text
-        val relativeTextBaseline = rule.onNodeWithText("ItemText").getLastBaselinePosition()
+        val relativeTextBaseline = rule.onNodeWithText("ItemText").getFirstBaselinePosition()
         // Absolute y position of the text baseline
         val absoluteTextBaseline = textBounds.top + relativeTextBaseline
 
-        val itemBottom = itemBounds.height + itemBounds.top
-        // Text baseline should be 12.dp from the bottom of the item
-        absoluteTextBaseline.assertIsEqualTo(itemBottom - textBaseline)
+        val iconBottom = iconBounds.height + iconBounds.top
+        // Text baseline should be 12.dp from the bottom of the icon
+        absoluteTextBaseline.assertIsEqualTo(iconBottom + textBaseline)
 
         rule.onNodeWithTag("icon", useUnmergedTree = true)
-            // The icon should be centered in the item
+            // The icon should be horizontally centered in the item
             .assertLeftPositionInRootIsEqualTo((itemBounds.width - iconBounds.width) / 2)
-            // The bottom of the icon is 12.dp above the text baseline
-            .assertTopPositionInRootIsEqualTo(absoluteTextBaseline - 12.dp - iconBounds.height)
+            // The icon is 8.dp from the top
+            .assertTopPositionInRootIsEqualTo(topPadding)
     }
 
     @Test

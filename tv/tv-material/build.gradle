@@ -15,26 +15,52 @@
  */
 
 import androidx.build.LibraryType
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
+    id("AndroidXComposePlugin")
     id("com.android.library")
     id("org.jetbrains.kotlin.android")
 }
 
 dependencies {
     api(libs.kotlinStdlib)
-    // Add dependencies here
+
+    def composeVersion = '1.4.3'
+    def composeBetaVersion = "1.5.0-beta01"
+
+    api("androidx.compose.animation:animation:$composeVersion")
+    api("androidx.compose.material:material-icons-core:$composeVersion")
+    api(project(":tv:tv-foundation"))
+
+    implementation(libs.kotlinStdlibCommon)
+    implementation("androidx.profileinstaller:profileinstaller:1.3.1")
+
+    androidTestImplementation(libs.truth)
+
+    androidTestImplementation(project(":compose:ui:ui-test"))
+    androidTestImplementation(project(":compose:ui:ui-test-junit4"))
+    androidTestImplementation(project(":compose:test-utils"))
+    androidTestImplementation(project(":test:screenshot:screenshot"))
+    androidTestImplementation(libs.testRunner)
+
+    samples(project(":tv:tv-samples"))
 }
 
 android {
     namespace "androidx.tv.material"
+    defaultConfig {
+        minSdkVersion 21
+    }
+    sourceSets.androidTest.assets.srcDirs +=
+             project.rootDir.absolutePath + "/../../golden/tv/compose/material3"
 }
 
 androidx {
-    name = "androidx.tv:tv-material"
+    name = "TV Material"
     type = LibraryType.PUBLISHED_LIBRARY
-    mavenGroup = LibraryGroups.TV
     inceptionYear = "2022"
     description = "build TV applications using controls that adhere to Material Design Language."
+    targetsJavaConsumers = false
 }

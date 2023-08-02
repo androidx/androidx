@@ -25,6 +25,7 @@ from shutil import rmtree
 from shutil import copyfile
 from distutils.dir_util import copy_tree
 from distutils.dir_util import DistutilsFileError
+import re
 
 try:
     # non-default python3 module, be helpful if it is missing
@@ -150,9 +151,15 @@ def create_file(path):
 
 def generate_package_name(group_id, artifact_id):
     final_group_id_word = group_id.split(".")[-1]
-    artifact_id_suffix = artifact_id.replace(final_group_id_word, "")
+    artifact_id_suffix = re.sub(r"\b%s\b" % final_group_id_word, "", artifact_id)
     artifact_id_suffix = artifact_id_suffix.replace("-", ".")
-    return group_id + artifact_id_suffix
+    if (final_group_id_word == artifact_id):
+      return group_id +  artifact_id_suffix
+    elif (final_group_id_word != artifact_id):
+      if ("." in artifact_id_suffix):
+        return group_id +  artifact_id_suffix
+      else:
+        return group_id + "." + artifact_id_suffix
 
 def validate_name(group_id, artifact_id):
     if not group_id.startswith("androidx."):
@@ -301,10 +308,10 @@ def get_package_documentation_file_dir(group_id, artifact_id):
     """Generates the full package documentation directory
 
     Given androidx.foo.bar:bar-qux, the structure will be:
-    frameworks/support/foo/bar/bar-qux/src/main/androidx/foo/package-info.java
+    frameworks/support/foo/bar/bar-qux/src/main/java/androidx/foo/package-info.java
 
     For Kotlin:
-    frameworks/support/foo/bar/bar-qux/src/main/androidx/foo/<group>-<artifact>-documentation.md
+    frameworks/support/foo/bar/bar-qux/src/main/java/androidx/foo/<group>-<artifact>-documentation.md
 
     For Compose:
     frameworks/support/foo/bar/bar-qux/src/commonMain/kotlin/androidx/foo/<group>-<artifact>-documentation.md
@@ -318,7 +325,7 @@ def get_package_documentation_file_dir(group_id, artifact_id):
         group_id_subpath = "/src/commonMain/kotlin/" + \
                         group_id.replace(".", "/")
     else:
-        group_id_subpath = "/src/main/" + \
+        group_id_subpath = "/src/main/java/" + \
                         group_id.replace(".", "/")
     return full_artifact_path + group_id_subpath
 
@@ -352,8 +359,8 @@ def create_directories(group_id, artifact_id, project_type, is_compose_project):
 
     Given androidx.foo.bar:bar-qux, the structure will be:
     frameworks/support/foo/bar/bar-qux/build.gradle
-    frameworks/support/foo/bar/bar-qux/src/main/androidx/foo/bar/package-info.java
-    frameworks/support/foo/bar/bar-qux/src/main/androidx/foo/bar/artifact-documentation.md
+    frameworks/support/foo/bar/bar-qux/src/main/java/androidx/foo/bar/package-info.java
+    frameworks/support/foo/bar/bar-qux/src/main/java/androidx/foo/bar/artifact-documentation.md
     frameworks/support/foo/bar/bar-qux/api/current.txt
 
     Args:
@@ -418,9 +425,9 @@ def create_directories(group_id, artifact_id, project_type, is_compose_project):
         if project_type != ProjectType.JAVA:
             # Kotlin projects use -documentation.md files, so we need to rename it appropriately.
             # We also rename this file for native projects in case they also have public Kotlin APIs
-            rename_file(full_artifact_path + "/src/main/groupId/artifactId-documentation.md",
+            rename_file(full_artifact_path + "/src/main/java/groupId/artifactId-documentation.md",
                         package_docs_filename)
-        mv_dir(full_artifact_path + "/src/main/groupId", full_package_docs_dir)
+        mv_dir(full_artifact_path + "/src/main/java/groupId", full_package_docs_dir)
 
     # Populate the library type
     library_type = get_library_type(artifact_id)
@@ -590,7 +597,9 @@ def insert_new_group_id_into_library_versions_toml(group_id):
 
     # Open file for writing and update toml
     with open(LIBRARY_VERSIONS_FP, 'w') as f:
-        toml.dump(library_versions, f, encoder=toml.TomlPreserveInlineDictEncoder())
+        versions_toml_file_string = toml.dumps(library_versions, encoder=toml.TomlPreserveInlineDictEncoder())
+        versions_toml_file_string_new = re.sub(",]", " ]", versions_toml_file_string)
+        f.write(versions_toml_file_string_new)
 
 
 def is_group_id_atomic(group_id):

@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.text.android
 
+import android.graphics.text.LineBreakConfig
 import android.graphics.text.LineBreaker
 import android.text.Layout
 import android.text.Layout.Alignment
@@ -31,7 +32,7 @@ import androidx.annotation.IntRange
  * @suppress
  */
 @InternalPlatformTextApi
-object LayoutCompat {
+internal object LayoutCompat {
     const val ALIGN_NORMAL = 0
     const val ALIGN_OPPOSITE = 1
     const val ALIGN_CENTER = 2
@@ -55,15 +56,20 @@ object LayoutCompat {
     @IntDef(JUSTIFICATION_MODE_NONE, JUSTIFICATION_MODE_INTER_WORD)
     internal annotation class JustificationMode
 
-    const val HYPHENATION_FREQUENCY_NORMAL = Layout.HYPHENATION_FREQUENCY_NORMAL
-    const val HYPHENATION_FREQUENCY_FULL = Layout.HYPHENATION_FREQUENCY_FULL
     const val HYPHENATION_FREQUENCY_NONE = Layout.HYPHENATION_FREQUENCY_NONE
+    const val HYPHENATION_FREQUENCY_NORMAL = Layout.HYPHENATION_FREQUENCY_NORMAL
+    const val HYPHENATION_FREQUENCY_NORMAL_FAST = Layout.HYPHENATION_FREQUENCY_NORMAL_FAST
+    const val HYPHENATION_FREQUENCY_FULL = Layout.HYPHENATION_FREQUENCY_FULL
+    const val HYPHENATION_FREQUENCY_FULL_FAST = Layout.HYPHENATION_FREQUENCY_FULL_FAST
 
     @Retention(AnnotationRetention.SOURCE)
     @IntDef(
+        HYPHENATION_FREQUENCY_NONE,
         HYPHENATION_FREQUENCY_NORMAL,
+        HYPHENATION_FREQUENCY_NORMAL_FAST,
         HYPHENATION_FREQUENCY_FULL,
-        HYPHENATION_FREQUENCY_NONE
+        HYPHENATION_FREQUENCY_FULL_FAST
+
     )
     internal annotation class HyphenationFrequency
 
@@ -78,6 +84,30 @@ object LayoutCompat {
         BREAK_STRATEGY_BALANCED
     )
     internal annotation class BreakStrategy
+
+    const val LINE_BREAK_STYLE_NONE = LineBreakConfig.LINE_BREAK_STYLE_NONE
+    const val LINE_BREAK_STYLE_LOOSE = LineBreakConfig.LINE_BREAK_STYLE_LOOSE
+    const val LINE_BREAK_STYLE_NORMAL = LineBreakConfig.LINE_BREAK_STYLE_NORMAL
+    const val LINE_BREAK_STYLE_STRICT = LineBreakConfig.LINE_BREAK_STYLE_STRICT
+
+    @Retention(AnnotationRetention.SOURCE)
+    @IntDef(
+        LINE_BREAK_STYLE_NONE,
+        LINE_BREAK_STYLE_LOOSE,
+        LINE_BREAK_STYLE_NORMAL,
+        LINE_BREAK_STYLE_STRICT
+    )
+    internal annotation class LineBreakStyle
+
+    const val LINE_BREAK_WORD_STYLE_NONE = LineBreakConfig.LINE_BREAK_WORD_STYLE_NONE
+    const val LINE_BREAK_WORD_STYLE_PHRASE = LineBreakConfig.LINE_BREAK_WORD_STYLE_PHRASE
+
+    @Retention(AnnotationRetention.SOURCE)
+    @IntDef(
+        LINE_BREAK_WORD_STYLE_NONE,
+        LINE_BREAK_WORD_STYLE_PHRASE
+    )
+    internal annotation class LineBreakWordStyle
 
     const val TEXT_DIRECTION_LTR = 0
     const val TEXT_DIRECTION_RTL = 1
@@ -111,6 +141,10 @@ object LayoutCompat {
 
     internal const val DEFAULT_BREAK_STRATEGY = BREAK_STRATEGY_SIMPLE
 
+    internal const val DEFAULT_LINE_BREAK_STYLE = LINE_BREAK_STYLE_NONE
+
+    internal const val DEFAULT_LINE_BREAK_WORD_STYLE = LINE_BREAK_WORD_STYLE_NONE
+
     internal const val DEFAULT_HYPHENATION_FREQUENCY = HYPHENATION_FREQUENCY_NONE
 
     const val DEFAULT_JUSTIFICATION_MODE = JUSTIFICATION_MODE_NONE
@@ -141,7 +175,7 @@ object LayoutCompat {
  * @suppress
  */
 @InternalPlatformTextApi
-fun Layout.getLineForOffset(@IntRange(from = 0) offset: Int, upstream: Boolean): Int {
+internal fun Layout.getLineForOffset(@IntRange(from = 0) offset: Int, upstream: Boolean): Int {
     if (offset <= 0) return 0
     if (offset >= text.length) return lineCount - 1
     val downstreamLineNo = getLineForOffset(offset)

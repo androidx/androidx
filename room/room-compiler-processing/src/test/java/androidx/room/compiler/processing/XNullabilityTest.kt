@@ -16,6 +16,7 @@
 
 package androidx.room.compiler.processing
 
+import androidx.kruth.assertThat
 import androidx.room.compiler.processing.XNullability.NONNULL
 import androidx.room.compiler.processing.XNullability.NULLABLE
 import androidx.room.compiler.processing.XNullability.UNKNOWN
@@ -23,10 +24,12 @@ import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.getField
 import androidx.room.compiler.processing.util.getMethodByJvmName
 import androidx.room.compiler.processing.util.getParameter
-import androidx.room.compiler.processing.util.runProcessorTestWithoutKsp
 import androidx.room.compiler.processing.util.runProcessorTest
-import com.google.common.truth.Truth.assertThat
-import com.squareup.javapoet.TypeName
+import androidx.room.compiler.processing.util.runProcessorTestWithoutKsp
+import com.squareup.kotlinpoet.INT
+import com.squareup.kotlinpoet.UNIT
+import com.squareup.kotlinpoet.javapoet.JTypeName
+import org.junit.Assert.fail
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -258,22 +261,29 @@ class XNullabilityTest {
     @Test
     fun changeNullability_primitives() {
         runProcessorTest { invocation ->
-            PRIMITIVE_TYPES.forEach { primitiveTypeName ->
-                val primitive = invocation.processingEnv.requireType(primitiveTypeName)
+            PRIMITIVE_JTYPE_NAMES.forEachIndexed { index, primitiveJTypeName ->
+                val primitive = invocation.processingEnv.requireType(primitiveJTypeName)
                 assertThat(primitive.nullability).isEqualTo(NONNULL)
                 val nullable = primitive.makeNullable()
                 assertThat(nullable.nullability).isEqualTo(NULLABLE)
-                assertThat(nullable.typeName).isEqualTo(primitiveTypeName.box())
+                assertThat(nullable.asTypeName().java).isEqualTo(primitiveJTypeName.box())
+                if (invocation.isKsp) {
+                    assertThat(nullable.asTypeName().kotlin)
+                        .isEqualTo(PRIMITIVE_KTYPE_NAMES[index].copy(nullable = true))
+                }
 
                 // When a boxed primitive is marked as non-null, it should stay as boxed primitive
                 // Even though this might be counter-intutive (because making it nullable will box
                 // it) it is more consistent as it is completely valid to annotate a boxed primitive
                 // with non-null while you cannot annoteted a primitive with nullable as it is not
                 // a valid state.
-                val boxedPrimitive = invocation.processingEnv.requireType(primitiveTypeName.box())
+                val boxedPrimitive = invocation.processingEnv.requireType(primitiveJTypeName.box())
                 val nonNull = boxedPrimitive.makeNonNullable()
                 assertThat(nonNull.nullability).isEqualTo(NONNULL)
-                assertThat(nonNull.typeName).isEqualTo(primitiveTypeName.box())
+                assertThat(nonNull.asTypeName().java).isEqualTo(primitiveJTypeName.box())
+                if (invocation.isKsp) {
+                    assertThat(nonNull.asTypeName().kotlin).isEqualTo(PRIMITIVE_KTYPE_NAMES[index])
+                }
             }
         }
     }
@@ -300,14 +310,32 @@ class XNullabilityTest {
                 val subject = invocation.processingEnv.requireTypeElement(it)
                     .getField("subject").type
                 val typeArg = subject.typeArguments.first()
-                assertThat(typeArg.typeName).isEqualTo(TypeName.INT.box())
+                assertThat(typeArg.asTypeName().java).isEqualTo(JTypeName.INT.box())
                 typeArg.makeNonNullable().let {
-                    assertThat(it.typeName).isEqualTo(TypeName.INT.box())
+                    assertThat(it.asTypeName().java).isEqualTo(JTypeName.INT.box())
                     assertThat(it.nullability).isEqualTo(NONNULL)
                 }
                 typeArg.makeNonNullable().makeNullable().let {
-                    assertThat(it.typeName).isEqualTo(TypeName.INT.box())
+                    assertThat(it.asTypeName().java).isEqualTo(JTypeName.INT.box())
                     assertThat(it.nullability).isEqualTo(NULLABLE)
+                }
+                if (invocation.isKsp) {
+                    assertThat(typeArg.asTypeName().kotlin).isEqualTo(
+                        when (it) {
+                            "KotlinClass" -> INT.copy(nullable = true)
+                            // A type arg from Java has unknown nullability,
+                            // so name defaults to not-null
+                            "JavaClass" -> INT
+                            else -> fail("Unknown src $it")
+                        }
+                    )
+
+                    typeArg.makeNonNullable().let {
+                        assertThat(it.asTypeName().kotlin).isEqualTo(INT)
+                    }
+                    typeArg.makeNonNullable().makeNullable().let {
+                        assertThat(it.asTypeName().kotlin).isEqualTo(INT.copy(nullable = true))
+                    }
                 }
             }
         }
@@ -357,7 +385,7 @@ class XNullabilityTest {
     @Test
     fun makeNullable_void() {
         val src = Source.java(
-            "Foo.java",
+            "Foo",
             """
             class Foo {
                 void subject() {}
@@ -367,24 +395,42 @@ class XNullabilityTest {
         runProcessorTest(sources = listOf(src)) { invocation ->
             val voidType = invocation.processingEnv.requireTypeElement("Foo")
                 .getMethodByJvmName("subject").returnType
-            assertThat(voidType.typeName).isEqualTo(TypeName.VOID)
+            assertThat(voidType.asTypeName().java).isEqualTo(JTypeName.VOID)
             voidType.makeNullable().let {
                 assertThat(it.nullability).isEqualTo(NULLABLE)
-                assertThat(it.typeName).isEqualTo(TypeName.VOID.box())
+                assertThat(it.asTypeName().java).isEqualTo(JTypeName.VOID.box())
+            }
+            if (invocation.isKsp) {
+                assertThat(voidType.asTypeName().kotlin).isEqualTo(UNIT)
+                voidType.makeNullable().let {
+                    // `Unit?` does not make sense so XTypeName's KotlinPoet is non-null Unit
+                    assertThat(it.asTypeName().kotlin).isEqualTo(UNIT)
+                }
             }
         }
     }
 
     companion object {
-        val PRIMITIVE_TYPES = listOf(
-            TypeName.BOOLEAN,
-            TypeName.BYTE,
-            TypeName.SHORT,
-            TypeName.INT,
-            TypeName.LONG,
-            TypeName.CHAR,
-            TypeName.FLOAT,
-            TypeName.DOUBLE,
+        val PRIMITIVE_JTYPE_NAMES = listOf(
+            JTypeName.BOOLEAN,
+            JTypeName.BYTE,
+            JTypeName.SHORT,
+            JTypeName.INT,
+            JTypeName.LONG,
+            JTypeName.CHAR,
+            JTypeName.FLOAT,
+            JTypeName.DOUBLE,
+        )
+
+        val PRIMITIVE_KTYPE_NAMES = listOf(
+            com.squareup.kotlinpoet.BOOLEAN,
+            com.squareup.kotlinpoet.BYTE,
+            com.squareup.kotlinpoet.SHORT,
+            com.squareup.kotlinpoet.INT,
+            com.squareup.kotlinpoet.LONG,
+            com.squareup.kotlinpoet.CHAR,
+            com.squareup.kotlinpoet.FLOAT,
+            com.squareup.kotlinpoet.DOUBLE,
         )
     }
 }

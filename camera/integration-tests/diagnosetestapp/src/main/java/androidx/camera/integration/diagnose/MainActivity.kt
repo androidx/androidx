@@ -28,44 +28,43 @@ import android.util.Size
 import android.view.View
 import android.widget.Button
 import android.widget.Toast
-import androidx.annotation.OptIn
 import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
+import androidx.camera.mlkit.vision.MlKitAnalyzer
+import androidx.camera.video.MediaStoreOutputOptions
+import androidx.camera.video.Recording
+import androidx.camera.video.VideoRecordEvent
 import androidx.camera.view.CameraController
+import androidx.camera.view.CameraController.IMAGE_ANALYSIS
 import androidx.camera.view.CameraController.IMAGE_CAPTURE
 import androidx.camera.view.CameraController.VIDEO_CAPTURE
 import androidx.camera.view.LifecycleCameraController
 import androidx.camera.view.PreviewView
-import androidx.camera.view.video.ExperimentalVideo
-import androidx.camera.view.video.OnVideoSavedCallback
-import androidx.camera.view.video.OutputFileOptions
-import androidx.camera.view.video.OutputFileResults
+import androidx.camera.view.video.AudioConfig
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import java.text.SimpleDateFormat
-import java.util.Locale
-import java.util.concurrent.ExecutorService
-import androidx.camera.mlkit.vision.MlKitAnalyzer
-import androidx.camera.view.CameraController.IMAGE_ANALYSIS
 import androidx.core.util.Preconditions
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.tabs.TabLayout
 import com.google.mlkit.vision.barcode.BarcodeScanner
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import java.io.IOException
+import java.text.SimpleDateFormat
+import java.util.Locale
 import java.util.concurrent.Executor
+import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import kotlinx.coroutines.ExecutorCoroutineDispatcher
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-@OptIn(ExperimentalVideo::class)
-@SuppressLint("NullAnnotationGroup")
+@SuppressLint("NullAnnotationGroup", "MissingPermission")
 class MainActivity : AppCompatActivity() {
 
     private lateinit var cameraController: LifecycleCameraController
+    private lateinit var activeRecording: Recording
     private lateinit var previewView: PreviewView
     private lateinit var overlayView: OverlayView
     private lateinit var executor: Executor
@@ -185,7 +184,7 @@ class MainActivity : AppCompatActivity() {
         videoCaptureBtn.setOnClickListener {
             // determine whether the onclick is to start recording or stop recording
             if (cameraController.isRecording) {
-                cameraController.stopRecording()
+                activeRecording.stop()
                 videoCaptureBtn.setText(R.string.start_video_capture)
                 val msg = "video stopped recording"
                 showToast(msg)
@@ -200,35 +199,29 @@ class MainActivity : AppCompatActivity() {
                         put(MediaStore.Video.Media.RELATIVE_PATH, "Movies/CameraX-Video")
                     }
                 }
-                val outputFileOptions = OutputFileOptions
-                    .builder(
-                        contentResolver,
-                        MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
-                        contentValues
-                    )
+                val outputOptions = MediaStoreOutputOptions
+                    .Builder(contentResolver, MediaStore.Video.Media.EXTERNAL_CONTENT_URI)
+                    .setContentValues(contentValues)
                     .build()
                 Log.d(TAG, "finished composing video name")
 
+                val audioConfig = AudioConfig.create(true)
+
                 // start recording
                 try {
-                    cameraController.startRecording(
-                        outputFileOptions,
-                        executor,
-                        object : OnVideoSavedCallback {
-                            override fun onVideoSaved(outputFileResults: OutputFileResults) {
-                                val msg = "Video record succeeded: " + outputFileResults.savedUri
+                    activeRecording = cameraController.startRecording(
+                        outputOptions, audioConfig, executor
+                    ) { event ->
+                        if (event is VideoRecordEvent.Finalize) {
+                            val uri = event.outputResults.outputUri
+                            if (event.error == VideoRecordEvent.Finalize.ERROR_NONE) {
+                                val msg = "Video record succeeded: $uri"
                                 showToast(msg)
-                            }
-
-                            override fun onError(
-                                videoCaptureError: Int,
-                                message: String,
-                                cause: Throwable?
-                            ) {
-                                Log.e(TAG, "Video saving failed: $message")
+                            } else {
+                                Log.e(TAG, "Video saving failed: ${event.cause}")
                             }
                         }
-                    )
+                    }
                     videoCaptureBtn.setText(R.string.stop_video_capture)
                     val msg = "video recording"
                     showToast(msg)

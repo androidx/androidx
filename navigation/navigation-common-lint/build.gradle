@@ -35,7 +35,6 @@ dependencies {
 androidx {
     name = "Navigation Common Lint"
     type = LibraryType.LINT
-    mavenGroup = LibraryGroups.NAVIGATION
     inceptionYear = "2022"
     description = "Lint checks for Navigation Common"
 }

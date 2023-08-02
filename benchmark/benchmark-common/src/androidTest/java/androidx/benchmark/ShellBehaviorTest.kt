@@ -17,14 +17,15 @@
 package androidx.benchmark
 
 import android.os.Build
+import android.os.Process
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
-import org.junit.Test
-import org.junit.runner.RunWith
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
+import org.junit.Test
+import org.junit.runner.RunWith
 
 /**
  * This class collects tests of strange shell behavior, for the purpose of documenting
@@ -34,28 +35,43 @@ import kotlin.test.assertTrue
 @SdkSuppress(minSdkVersion = 21)
 @RunWith(AndroidJUnit4::class)
 class ShellBehaviorTest {
+    /**
+     * Test validates consistent behavior of pgrep, for usage in discovering processes without
+     * needing to check stderr
+     */
     @Test
     fun pgrepLF() {
         // Should only be one process - this one!
-        val pgrepString = Shell.executeCommand("pgrep -l -f ${Packages.TEST}").trim()
+        val pgrepOutput = Shell.executeScriptCaptureStdoutStderr("pgrep -l -f ${Packages.TEST}")
 
         if (Build.VERSION.SDK_INT >= 23) {
-            assertTrue(pgrepString.endsWith(" ${Packages.TEST}"))
+            // API 23 has trailing whitespace after the package name for some reason :shrug:
+            val regex = "^\\d+ ${Packages.TEST.replace(".", "\\.")}\\s*$".toRegex()
+            assertTrue(
+                // For some reason, `stdout.contains(regex)` doesn't work :shrug:
+                pgrepOutput.stdout.lines().any { it.matches(regex) },
+                "expected $regex to be contained in output:\n${pgrepOutput.stdout}"
+            )
         } else {
-            // command doesn't exist (and we don't try and read stderr here)
-            assertEquals("", pgrepString)
+            // command doesn't exist
+            assertEquals("", pgrepOutput.stdout)
+            assertTrue(pgrepOutput.stderr.isNotBlank())
         }
     }
 
     @Test
     fun pidof() {
         // Should only be one process - this one!
-        val pidofString = Shell.executeCommand("pidof ${Packages.TEST}").trim()
+        val output = Shell.executeScriptCaptureStdoutStderr("pidof ${Packages.TEST}")
+        val pidofString = output.stdout.trim()
 
         when {
             Build.VERSION.SDK_INT < 23 -> {
-                // command doesn't exist (and we don't try and read stderr here)
-                assertEquals("", pidofString)
+                // command doesn't exist
+                assertTrue(
+                    output.stdout.isBlank() && output.stderr.isNotBlank(),
+                    "saw output $output"
+                )
             }
             Build.VERSION.SDK_INT == 23 -> {
                 // on API 23 specifically, pidof prints... all processes, ignoring the arg...
@@ -69,14 +85,16 @@ class ShellBehaviorTest {
 
     @Test
     fun psDashA() {
-        val output = Shell.executeCommand("ps -A").trim()
+        val output = Shell.executeScriptCaptureStdout("ps -A").trim()
         when {
             Build.VERSION.SDK_INT <= 23 -> {
-                // doesn't correctly handle -A
-                assertTrue(
-                    output.matches(Regex("USER.+PID.+PPID.+VSIZE.+RSS.+WCHAN.+PC.+NAME")),
-                    "expected no processes from 'ps -A', saw $output"
-                )
+                // doesn't correctly handle -A, sometimes sees nothing, sometimes only this process
+                val processes = output.lines()
+                assertTrue(processes.size <= 2)
+                assertTrue(processes.first().matches(psLabelRowRegex))
+                if (processes.size > 1) {
+                    assertTrue(processes.last().endsWith(Packages.TEST))
+                }
             }
             Build.VERSION.SDK_INT in 24..25 -> {
                 // still doesn't support, but useful error at least
@@ -84,10 +102,37 @@ class ShellBehaviorTest {
             }
             else -> {
                 // ps -A should work - expect several processes including this one
-                val processes = output.split("\n")
+                val processes = output.lines()
                 assertTrue(processes.size > 5)
+                assertTrue(processes.first().matches(psLabelRowRegex))
                 assertTrue(processes.any { it.endsWith(Packages.TEST) })
             }
         }
+    }
+
+    /**
+     * Test validates consistent behavior of ps, for usage in checking process is alive without
+     * needing to check stderr
+     */
+    @Test
+    fun ps() {
+        val output = Shell.executeScriptCaptureStdout("ps ${Process.myPid()}").trim()
+        // ps should work - expect several processes including this one
+        val lines = output.lines()
+        assertEquals(2, lines.size)
+        assertTrue(lines.first().matches(psLabelRowRegex))
+        assertTrue(lines.last().endsWith(Packages.TEST))
+    }
+
+    companion object {
+        /**
+         * Regex for matching ps output label row
+         *
+         * Note that `ps` output changes over time, e.g.:
+         *
+         * * API 23 - `USER\s+PID\s+PPID\s+VSIZE\s+RSS\s+WCHAN\s+PC\s+NAME`
+         * * API 33 - `USER\s+PID\s+PPID\s+VSZ\s+RSS\s+WCHAN\s+ADDR\s+S\s+NAME\s`
+         */
+        val psLabelRowRegex = Regex("USER\\s+PID.+NAME\\s*")
     }
 }

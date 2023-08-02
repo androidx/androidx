@@ -22,6 +22,7 @@ import android.text.Selection;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.Spanned;
+import android.text.TextUtils;
 import android.text.method.KeyListener;
 import android.text.method.MetaKeyKeyListener;
 import android.view.KeyEvent;
@@ -39,11 +40,11 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Processes the CharSequence and adds the emojis.
  *
- * @hide
  */
 @AnyThread
 @RestrictTo(LIBRARY)
@@ -56,6 +57,20 @@ final class EmojiProcessor {
     @IntDef({ACTION_ADVANCE_BOTH, ACTION_ADVANCE_END, ACTION_FLUSH})
     @Retention(RetentionPolicy.SOURCE)
     private @interface Action {
+    }
+
+    private interface EmojiProcessCallback<T> {
+        /**
+         * Invoked on every emoji found during {@link #process}.
+         * Returning {@code false} can abort this {@link #process} loop.
+         */
+        boolean handleEmoji(@NonNull CharSequence charSequence, int start, int end,
+                TypefaceEmojiRasterizer metadata);
+
+        /**
+         * @return the result after process.
+         */
+        T getResult();
     }
 
     /**
@@ -73,6 +88,12 @@ final class EmojiProcessor {
      * pointer in CharSequence and reset the start to be the end.
      */
     private static final int ACTION_FLUSH = 3;
+
+    /**
+     * The max number of characters look around in {@link #getEmojiStart(CharSequence, int)} and
+     * {@link #getEmojiEnd(CharSequence, int)}.
+     */
+    private static final int MAX_LOOK_AROUND_CHARACTER = 16;
 
     /**
      * Factory used to create EmojiSpans.
@@ -108,13 +129,25 @@ final class EmojiProcessor {
             @NonNull final EmojiCompat.SpanFactory spanFactory,
             @NonNull final EmojiCompat.GlyphChecker glyphChecker,
             final boolean useEmojiAsDefaultStyle,
-            @Nullable final int[] emojiAsDefaultStyleExceptions
-    ) {
+            @Nullable final int[] emojiAsDefaultStyleExceptions,
+            @NonNull Set<int[]> emojiExclusions) {
         mSpanFactory = spanFactory;
         mMetadataRepo = metadataRepo;
         mGlyphChecker = glyphChecker;
         mUseEmojiAsDefaultStyle = useEmojiAsDefaultStyle;
         mEmojiAsDefaultStyleExceptions = emojiAsDefaultStyleExceptions;
+        initExclusions(emojiExclusions);
+    }
+
+    private void initExclusions(@NonNull Set<int[]> emojiExclusions) {
+        if (emojiExclusions.isEmpty()) {
+            return;
+        }
+        for (int[] codepoints : emojiExclusions) {
+            String emoji = new String(codepoints, 0, codepoints.length);
+            MarkExclusionCallback callback = new MarkExclusionCallback(emoji);
+            process(emoji, 0, emoji.length(), 1, true, callback);
+        }
     }
 
     @EmojiCompat.CodepointSequenceMatchResult
@@ -135,7 +168,7 @@ final class EmojiProcessor {
         while (currentOffset < end) {
             final int codePoint = Character.codePointAt(charSequence, currentOffset);
             final int action = sm.check(codePoint);
-            EmojiMetadata currentNode = sm.getCurrentMetadata();
+            TypefaceEmojiRasterizer currentNode = sm.getCurrentMetadata();
             switch (action) {
                 case ACTION_FLUSH: {
                     // this happens when matching new unknown ZWJ sequences that are comprised of
@@ -170,7 +203,7 @@ final class EmojiProcessor {
         if (sm.isInFlushableState()) {
             // We matched exactly one emoji
             // EmojiCompat can completely handle this sequence
-            EmojiMetadata exactMatch = sm.getCurrentMetadata();
+            TypefaceEmojiRasterizer exactMatch = sm.getCurrentMetadata();
             if (exactMatch.getCompatAdded() <= metadataVersion) {
                 return EmojiCompat.EMOJI_SUPPORTED;
             }
@@ -181,6 +214,53 @@ final class EmojiProcessor {
         } else {
             return EmojiCompat.EMOJI_FALLBACK;
         }
+    }
+
+
+    /**
+     * see {@link EmojiCompat#getEmojiStart(CharSequence, int)}.
+     */
+    int getEmojiStart(@NonNull final CharSequence charSequence, @IntRange(from = 0) int offset) {
+        if (offset < 0 || offset >= charSequence.length()) {
+            return -1;
+        }
+
+        if (charSequence instanceof Spanned) {
+            final Spanned spanned = (Spanned) charSequence;
+            final EmojiSpan[] spans = spanned.getSpans(offset, offset + 1, EmojiSpan.class);
+            if (spans.length > 0) {
+                return spanned.getSpanStart(spans[0]);
+            }
+        }
+
+        // TODO: come up with some heuristic logic to better determine the interval
+        final int start = Math.max(0, offset - MAX_LOOK_AROUND_CHARACTER);
+        final int end = Math.min(charSequence.length(), offset + MAX_LOOK_AROUND_CHARACTER);
+        return process(charSequence, start, end, EmojiCompat.EMOJI_COUNT_UNLIMITED, true,
+                new EmojiProcessLookupCallback(offset)).start;
+    }
+
+    /**
+     * see {@link EmojiCompat#getEmojiStart(CharSequence, int)}.
+     */
+    int getEmojiEnd(@NonNull final CharSequence charSequence, @IntRange(from = 0) int offset) {
+        if (offset < 0 || offset >= charSequence.length()) {
+            return -1;
+        }
+
+        if (charSequence instanceof Spanned) {
+            final Spanned spanned = (Spanned) charSequence;
+            final EmojiSpan[] spans = spanned.getSpans(offset, offset + 1, EmojiSpan.class);
+            if (spans.length > 0) {
+                return spanned.getSpanEnd(spans[0]);
+            }
+        }
+
+        // TODO: come up with some heuristic logic to better determine the interval
+        final int start = Math.max(0, offset - MAX_LOOK_AROUND_CHARACTER);
+        final int end = Math.min(charSequence.length(), offset + MAX_LOOK_AROUND_CHARACTER);
+        return process(charSequence, start, end, EmojiCompat.EMOJI_COUNT_UNLIMITED, true,
+                new EmojiProcessLookupCallback(offset)).end;
     }
 
     /**
@@ -262,60 +342,10 @@ final class EmojiProcessor {
             if (maxEmojiCount != EmojiCompat.EMOJI_COUNT_UNLIMITED && spannable != null) {
                 maxEmojiCount -= spannable.getSpans(0, spannable.length(), EmojiSpan.class).length;
             }
-            // add new ones
-            int addedCount = 0;
-            final ProcessorSm sm = new ProcessorSm(mMetadataRepo.getRootNode(),
-                    mUseEmojiAsDefaultStyle, mEmojiAsDefaultStyleExceptions);
 
-            int currentOffset = start;
-            int codePoint = Character.codePointAt(charSequence, currentOffset);
+            spannable = process(charSequence, start, end, maxEmojiCount, replaceAll,
+                    new EmojiProcessAddSpanCallback(spannable, mSpanFactory));
 
-            while (currentOffset < end && addedCount < maxEmojiCount) {
-                final int action = sm.check(codePoint);
-
-                switch (action) {
-                    case ACTION_ADVANCE_BOTH:
-                        start += Character.charCount(Character.codePointAt(charSequence, start));
-                        currentOffset = start;
-                        if (currentOffset < end) {
-                            codePoint = Character.codePointAt(charSequence, currentOffset);
-                        }
-                        break;
-                    case ACTION_ADVANCE_END:
-                        currentOffset += Character.charCount(codePoint);
-                        if (currentOffset < end) {
-                            codePoint = Character.codePointAt(charSequence, currentOffset);
-                        }
-                        break;
-                    case ACTION_FLUSH:
-                        if (replaceAll || !hasGlyph(charSequence, start, currentOffset,
-                                sm.getFlushMetadata())) {
-                            if (spannable == null) {
-                                spannable = new UnprecomputeTextOnModificationSpannable(
-                                        new SpannableString(charSequence));
-                            }
-                            addEmoji(spannable, sm.getFlushMetadata(), start, currentOffset);
-                            addedCount++;
-                        }
-                        start = currentOffset;
-                        break;
-                }
-            }
-
-            // After the last codepoint is consumed the state machine might be in a state where it
-            // identified an emoji before. i.e. abc[women-emoji] when the last codepoint is consumed
-            // state machine is waiting to see if there is an emoji sequence (i.e. ZWJ).
-            // Need to check if it is in such a state.
-            if (sm.isInFlushableState() && addedCount < maxEmojiCount) {
-                if (replaceAll || !hasGlyph(charSequence, start, currentOffset,
-                        sm.getCurrentMetadata())) {
-                    if (spannable == null) {
-                        spannable = new UnprecomputeTextOnModificationSpannable(charSequence);
-                    }
-                    addEmoji(spannable, sm.getCurrentMetadata(), start, currentOffset);
-                    addedCount++;
-                }
-            }
             // if nothing was written, always return the source
             if (spannable != null) {
                 return spannable.getUnwrappedSpannable();
@@ -327,6 +357,62 @@ final class EmojiProcessor {
                 ((SpannableBuilder) charSequence).endBatchEdit();
             }
         }
+    }
+
+    private <T> T process(@NonNull final CharSequence charSequence, @IntRange(from = 0) int start,
+            @IntRange(from = 0) int end, @IntRange(from = 0) int maxEmojiCount,
+            final boolean processAll, final EmojiProcessCallback<T> emojiProcessCallback) {
+        int addedCount = 0;
+        final ProcessorSm sm = new ProcessorSm(mMetadataRepo.getRootNode(),
+                mUseEmojiAsDefaultStyle, mEmojiAsDefaultStyleExceptions);
+
+        int currentOffset = start;
+        int codePoint = Character.codePointAt(charSequence, currentOffset);
+        boolean keepProcessing = true;
+
+        while (currentOffset < end && addedCount < maxEmojiCount && keepProcessing) {
+            final int action = sm.check(codePoint);
+
+            switch (action) {
+                case ACTION_ADVANCE_BOTH:
+                    start += Character.charCount(Character.codePointAt(charSequence, start));
+                    currentOffset = start;
+                    if (currentOffset < end) {
+                        codePoint = Character.codePointAt(charSequence, currentOffset);
+                    }
+                    break;
+                case ACTION_ADVANCE_END:
+                    currentOffset += Character.charCount(codePoint);
+                    if (currentOffset < end) {
+                        codePoint = Character.codePointAt(charSequence, currentOffset);
+                    }
+                    break;
+                case ACTION_FLUSH:
+                    if (processAll || !hasGlyph(charSequence, start, currentOffset,
+                            sm.getFlushMetadata())) {
+                        keepProcessing = emojiProcessCallback.handleEmoji(charSequence, start,
+                                currentOffset, sm.getFlushMetadata());
+                        addedCount++;
+                    }
+                    start = currentOffset;
+                    break;
+            }
+        }
+
+        // After the last codepoint is consumed the state machine might be in a state where it
+        // identified an emoji before. i.e. abc[women-emoji] when the last codepoint is consumed
+        // state machine is waiting to see if there is an emoji sequence (i.e. ZWJ).
+        // Need to check if it is in such a state.
+        if (sm.isInFlushableState() && addedCount < maxEmojiCount && keepProcessing) {
+            if (processAll || !hasGlyph(charSequence, start, currentOffset,
+                    sm.getCurrentMetadata())) {
+                emojiProcessCallback.handleEmoji(charSequence, start,
+                        currentOffset, sm.getCurrentMetadata());
+                addedCount++;
+            }
+        }
+
+        return emojiProcessCallback.getResult();
     }
 
     /**
@@ -485,12 +571,6 @@ final class EmojiProcessor {
         return !KeyEvent.metaStateHasNoModifiers(event.getMetaState());
     }
 
-    private void addEmoji(@NonNull final Spannable spannable, final EmojiMetadata metadata,
-            final int start, final int end) {
-        final EmojiSpan span = mSpanFactory.createSpan(metadata);
-        spannable.setSpan(span, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-    }
-
     /**
      * Checks whether the current OS can render a given emoji. Used by the system to decide if an
      * emoji span should be added. If the system cannot render it, an emoji span will be added.
@@ -499,20 +579,20 @@ final class EmojiProcessor {
      * @param charSequence the CharSequence that the emoji is in
      * @param start start index of the emoji in the CharSequence
      * @param end end index of the emoji in the CharSequence
-     * @param metadata EmojiMetadata instance for the emoji
+     * @param rasterizer TypefaceEmojiRasterizer instance for the emoji
      *
      * @return {@code true} if the OS can render emoji, {@code false} otherwise
      */
     private boolean hasGlyph(final CharSequence charSequence, int start, final int end,
-            final EmojiMetadata metadata) {
+            final TypefaceEmojiRasterizer rasterizer) {
         // if the existence is not calculated yet
-        if (metadata.getHasGlyph() == EmojiMetadata.HAS_GLYPH_UNKNOWN) {
+        if (rasterizer.getHasGlyph() == TypefaceEmojiRasterizer.HAS_GLYPH_UNKNOWN) {
             final boolean hasGlyph = mGlyphChecker.hasGlyph(charSequence, start, end,
-                    metadata.getSdkAdded());
-            metadata.setHasGlyph(hasGlyph);
+                    rasterizer.getSdkAdded());
+            rasterizer.setHasGlyph(hasGlyph);
         }
 
-        return metadata.getHasGlyph() == EmojiMetadata.HAS_GLYPH_EXISTS;
+        return rasterizer.getHasGlyph() == TypefaceEmojiRasterizer.HAS_GLYPH_EXISTS;
     }
 
     /**
@@ -631,14 +711,14 @@ final class EmojiProcessor {
         /**
          * @return the metadata node when ACTION_FLUSH is returned
          */
-        EmojiMetadata getFlushMetadata() {
+        TypefaceEmojiRasterizer getFlushMetadata() {
             return mFlushNode.getData();
         }
 
         /**
          * @return current pointer to the metadata node in the trie
          */
-        EmojiMetadata getCurrentMetadata() {
+        TypefaceEmojiRasterizer getCurrentMetadata() {
             return mCurrentNode.getData();
         }
 
@@ -820,6 +900,100 @@ final class EmojiProcessor {
                 waitingLowSurrogate = true;
                 ++currentIndex;
             }
+        }
+    }
+
+    private static class EmojiProcessAddSpanCallback
+            implements EmojiProcessCallback<UnprecomputeTextOnModificationSpannable> {
+        @Nullable
+        public UnprecomputeTextOnModificationSpannable spannable;
+        private final EmojiCompat.SpanFactory mSpanFactory;
+
+        EmojiProcessAddSpanCallback(@Nullable UnprecomputeTextOnModificationSpannable spannable,
+                EmojiCompat.SpanFactory spanFactory) {
+            this.spannable = spannable;
+            this.mSpanFactory = spanFactory;
+        }
+
+        @Override
+        public boolean handleEmoji(@NonNull CharSequence charSequence, int start, int end,
+                TypefaceEmojiRasterizer metadata) {
+            if (metadata.isPreferredSystemRender()) {
+                return true;
+            }
+            if (spannable == null) {
+                spannable = new UnprecomputeTextOnModificationSpannable(
+                        charSequence instanceof Spannable
+                                ? (Spannable) charSequence
+                                : new SpannableString(charSequence));
+            }
+            final EmojiSpan span = mSpanFactory.createSpan(metadata);
+            spannable.setSpan(span, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            return true;
+        }
+
+        @Override
+        public UnprecomputeTextOnModificationSpannable getResult() {
+            return spannable;
+        }
+    }
+
+    private static class EmojiProcessLookupCallback
+            implements EmojiProcessCallback<EmojiProcessLookupCallback> {
+        private final int mOffset;
+
+        public int start = -1;
+
+        public int end = -1;
+
+        EmojiProcessLookupCallback(int offset) {
+            this.mOffset = offset;
+        }
+
+        @Override
+        public boolean handleEmoji(@NonNull CharSequence charSequence, int start, int end,
+                TypefaceEmojiRasterizer metadata) {
+            if (start <= mOffset && mOffset < end) {
+                this.start = start;
+                this.end = end;
+                return false;
+            }
+
+            return end <= mOffset;
+        }
+
+        @Override
+        public EmojiProcessLookupCallback getResult() {
+            return this;
+        }
+    }
+
+    /**
+     * Mark exclusinos for any emoji matched by this callback
+     */
+    private static class MarkExclusionCallback
+            implements EmojiProcessCallback<MarkExclusionCallback> {
+
+        private final String mExclusion;
+
+        MarkExclusionCallback(String emoji) {
+            mExclusion = emoji;
+        }
+
+        @Override
+        public boolean handleEmoji(@NonNull CharSequence charSequence, int start, int end,
+                TypefaceEmojiRasterizer metadata) {
+            if (TextUtils.equals(charSequence.subSequence(start, end), mExclusion)) {
+                metadata.setExclusion(true);
+                return false;
+            } else {
+                return true;
+            }
+        }
+
+        @Override
+        public MarkExclusionCallback getResult() {
+            return this;
         }
     }
 }

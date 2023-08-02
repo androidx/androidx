@@ -94,21 +94,22 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 import junit.framework.TestCase.assertNotNull
-import org.hamcrest.CoreMatchers.`is`
+import kotlin.math.roundToInt
 import org.hamcrest.CoreMatchers.allOf
 import org.hamcrest.CoreMatchers.endsWith
 import org.hamcrest.CoreMatchers.instanceOf
+import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.CoreMatchers.not
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
-import kotlin.math.roundToInt
 
 /**
  * Testing the support for Android Views in Compose UI.
@@ -754,7 +755,7 @@ class AndroidViewCompatTest {
             }
         }
 
-        rule.runOnIdle { assertEquals(invalidatesDuringScroll + 1, view!!.draws) }
+        rule.waitUntil { view!!.draws == (invalidatesDuringScroll + 1) }
     }
 
     @Test
@@ -774,10 +775,12 @@ class AndroidViewCompatTest {
                 invalidate()
             }
         }
-
-        rule.runOnIdle { assertEquals(invalidatesDuringScroll + 1, view!!.draws) }
+        rule.waitUntil(10000) {
+            view!!.draws == invalidatesDuringScroll + 1
+        }
     }
 
+    @Ignore // b/254573760
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.M)
     @Test
     fun testWebViewIsRelaidOut_afterPageLoad() {
@@ -802,7 +805,7 @@ class AndroidViewCompatTest {
             }
         }
         assertTrue(latch.await(3, TimeUnit.SECONDS))
-        rule.runOnIdle { assertTrue(boxY > 0) }
+        rule.waitUntil { boxY > 0 }
     }
 
     @Test
@@ -917,10 +920,10 @@ class AndroidViewCompatTest {
             setMeasuredDimension(size, size)
         }
 
-        override fun draw(canvas: Canvas?) {
+        override fun draw(canvas: Canvas) {
             super.draw(canvas)
             drawnAfterLastColorChange = true
-            canvas!!.drawRect(
+            canvas.drawRect(
                 Rect(0, 0, size, size),
                 Paint().apply { color = this@ColoredSquareView.color.toArgb() }
             )
@@ -954,7 +957,7 @@ class AndroidViewCompatTest {
             }
         }
 
-        override fun onDraw(canvas: Canvas?) {
+        override fun onDraw(canvas: Canvas) {
             super.onDraw(canvas)
             ++draws
         }

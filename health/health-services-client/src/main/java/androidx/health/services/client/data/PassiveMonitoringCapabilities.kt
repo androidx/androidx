@@ -16,7 +16,6 @@
 
 package androidx.health.services.client.data
 
-import android.os.Parcelable
 import androidx.health.services.client.proto.DataProto
 import androidx.health.services.client.proto.DataProto.PassiveMonitoringCapabilities as PassiveMonitoringCapabilitiesProto
 
@@ -42,7 +41,7 @@ public class PassiveMonitoringCapabilities(
 
     /** Set of supported [UserActivityState]s on this device. */
     public val supportedUserActivityStates: Set<UserActivityState>,
-) : ProtoParcelable<PassiveMonitoringCapabilitiesProto>() {
+) {
     internal constructor(
         proto: DataProto.PassiveMonitoringCapabilities
     ) : this(
@@ -52,8 +51,7 @@ public class PassiveMonitoringCapabilities(
         proto.supportedUserActivityStatesList.mapNotNull { UserActivityState.fromProto(it) }.toSet()
     )
 
-    /** @hide */
-    override val proto: PassiveMonitoringCapabilitiesProto =
+    internal val proto: PassiveMonitoringCapabilitiesProto =
         PassiveMonitoringCapabilitiesProto.newBuilder()
             .addAllSupportedDataTypesPassiveMonitoring(
                 supportedDataTypesPassiveMonitoring.map { it.proto }
@@ -69,13 +67,4 @@ public class PassiveMonitoringCapabilities(
             "supportedDataTypesPassiveGoals=$supportedDataTypesPassiveGoals, " +
             "supportedHealthEventTypes=$supportedHealthEventTypes, " +
             "supportedUserActivityStates=$supportedUserActivityStates)"
-
-    public companion object {
-        @JvmField
-        public val CREATOR: Parcelable.Creator<PassiveMonitoringCapabilities> =
-            newCreator { bytes ->
-                val proto = PassiveMonitoringCapabilitiesProto.parseFrom(bytes)
-                PassiveMonitoringCapabilities(proto)
-            }
-    }
 }

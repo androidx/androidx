@@ -87,7 +87,6 @@ import java.util.Map;
 import java.util.concurrent.Executor;
 
 /**
- * @hide
  */
 @RestrictTo(LIBRARY)
 public class MediaUtils {
@@ -970,7 +969,7 @@ public class MediaUtils {
      *
      * @param attrs audio attributes
      * @return int legacy stream type from {@link AudioManager}
-     **/
+     */
     public static int getLegacyStreamType(@Nullable AudioAttributesCompat attrs) {
         int stream;
         if (attrs == null) {

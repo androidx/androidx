@@ -41,6 +41,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.os.PersistableBundle;
 
+import androidx.core.util.Consumer;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
@@ -49,7 +50,6 @@ import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 import androidx.work.Configuration;
 import androidx.work.OneTimeWorkRequest;
-import androidx.work.SchedulingExceptionHandler;
 import androidx.work.WorkInfo;
 import androidx.work.WorkManagerTest;
 import androidx.work.impl.WorkDatabase;
@@ -76,16 +76,19 @@ public class SystemJobSchedulerTest extends WorkManagerTest {
     private static final String TEST_ID = "test";
 
     private ComponentName mJobServiceComponent;
-    private WorkManagerImpl mWorkManager;
     private JobScheduler mJobScheduler;
     private SystemJobScheduler mSystemJobScheduler;
     private WorkSpecDao mMockWorkSpecDao;
+    private WorkDatabase mWorkDatabase;
+    private Consumer<Throwable> mHandler;
 
     @SuppressWarnings("unchecked")
     @Before
     public void setUp() {
         Context context = ApplicationProvider.getApplicationContext();
-        Configuration configuration = new Configuration.Builder().build();
+        mHandler = mock(Consumer.class);
+        Configuration configuration = new Configuration.Builder()
+                .setSchedulingExceptionHandler(mHandler).build();
         WorkDatabase workDatabase = mock(WorkDatabase.class);
         SystemIdInfoDao systemIdInfoDao = mock(SystemIdInfoDao.class);
         PreferenceDao preferenceDao = mock(PreferenceDao.class);
@@ -93,16 +96,13 @@ public class SystemJobSchedulerTest extends WorkManagerTest {
         mJobServiceComponent = new ComponentName(context, SystemJobService.class);
 
         mMockWorkSpecDao = mock(WorkSpecDao.class);
-
-        mWorkManager = mock(WorkManagerImpl.class);
         mJobScheduler = mock(JobScheduler.class);
 
-        when(mWorkManager.getConfiguration()).thenReturn(configuration);
         when(workDatabase.systemIdInfoDao()).thenReturn(systemIdInfoDao);
         when(workDatabase.preferenceDao()).thenReturn(preferenceDao);
         when(workDatabase.workSpecDao()).thenReturn(mMockWorkSpecDao);
         doCallRealMethod().when(workDatabase).runInTransaction(any(Callable.class));
-        when(mWorkManager.getWorkDatabase()).thenReturn(workDatabase);
+        mWorkDatabase = workDatabase;
 
         doReturn(RESULT_SUCCESS).when(mJobScheduler).schedule(any(JobInfo.class));
 
@@ -123,9 +123,10 @@ public class SystemJobSchedulerTest extends WorkManagerTest {
         mSystemJobScheduler =
                 spy(new SystemJobScheduler(
                         context,
-                        mWorkManager,
+                        workDatabase,
+                        configuration,
                         mJobScheduler,
-                        new SystemJobInfoConverter(context)));
+                        new SystemJobInfoConverter(context, configuration.getClock())));
 
         doNothing().when(mSystemJobScheduler).scheduleInternal(any(WorkSpec.class), anyInt());
     }
@@ -243,18 +244,12 @@ public class SystemJobSchedulerTest extends WorkManagerTest {
         doCallRealMethod().when(mSystemJobScheduler)
                 .scheduleInternal(any(WorkSpec.class), anyInt());
 
-        SchedulingExceptionHandler handler = mock(SchedulingExceptionHandler.class);
-        Configuration configuration = new Configuration.Builder()
-                .setSchedulingExceptionHandler(handler)
-                .build();
-
-        when(mWorkManager.getConfiguration()).thenReturn(configuration);
         doThrow(new IllegalStateException("Error scheduling")).when(mJobScheduler).schedule(any());
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class).build();
         WorkSpec workSpec = work.getWorkSpec();
         addToWorkSpecDao(workSpec);
         mSystemJobScheduler.schedule(workSpec);
-        verify(handler, times(1)).handleException(any());
+        verify(mHandler, times(1)).accept(any());
     }
 
     @Test
@@ -283,7 +278,7 @@ public class SystemJobSchedulerTest extends WorkManagerTest {
         when(mockContext.getPackageName()).thenReturn(
                 ApplicationProvider.getApplicationContext().getPackageName());
         when(mockContext.getSystemService(Context.JOB_SCHEDULER_SERVICE)).thenReturn(mJobScheduler);
-        SystemJobScheduler.reconcileJobs(mockContext, mWorkManager);
+        SystemJobScheduler.reconcileJobs(mockContext, mWorkDatabase);
 
         verify(mJobScheduler).cancel(invalidJob.getId());
         verify(mJobScheduler, never()).cancel(validJob.getId());

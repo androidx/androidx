@@ -6,6 +6,7 @@ import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.exceptions.AppSearchException;
 import java.lang.Boolean;
 import java.lang.Byte;
+import java.lang.Class;
 import java.lang.Double;
 import java.lang.Float;
 import java.lang.Integer;
@@ -32,9 +33,11 @@ public final class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
     return new AppSearchSchema.Builder(SCHEMA_NAME)
           .addProperty(new AppSearchSchema.LongPropertyConfig.Builder("collectLong")
             .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
+            .setIndexingType(AppSearchSchema.LongPropertyConfig.INDEXING_TYPE_NONE)
             .build())
           .addProperty(new AppSearchSchema.LongPropertyConfig.Builder("collectInteger")
             .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
+            .setIndexingType(AppSearchSchema.LongPropertyConfig.INDEXING_TYPE_NONE)
             .build())
           .addProperty(new AppSearchSchema.DoublePropertyConfig.Builder("collectDouble")
             .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
@@ -52,6 +55,7 @@ public final class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
             .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
             .setTokenizerType(AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_NONE)
             .setIndexingType(AppSearchSchema.StringPropertyConfig.INDEXING_TYPE_NONE)
+            .setJoinableValueType(AppSearchSchema.StringPropertyConfig.JOINABLE_VALUE_TYPE_NONE)
             .build())
           .addProperty(new AppSearchSchema.DocumentPropertyConfig.Builder("collectGift", $$__AppSearch__Gift.SCHEMA_NAME)
             .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
@@ -59,15 +63,19 @@ public final class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
             .build())
           .addProperty(new AppSearchSchema.LongPropertyConfig.Builder("arrBoxLong")
             .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
+            .setIndexingType(AppSearchSchema.LongPropertyConfig.INDEXING_TYPE_NONE)
             .build())
           .addProperty(new AppSearchSchema.LongPropertyConfig.Builder("arrUnboxLong")
             .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
+            .setIndexingType(AppSearchSchema.LongPropertyConfig.INDEXING_TYPE_NONE)
             .build())
           .addProperty(new AppSearchSchema.LongPropertyConfig.Builder("arrBoxInteger")
             .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
+            .setIndexingType(AppSearchSchema.LongPropertyConfig.INDEXING_TYPE_NONE)
             .build())
           .addProperty(new AppSearchSchema.LongPropertyConfig.Builder("arrUnboxInt")
             .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
+            .setIndexingType(AppSearchSchema.LongPropertyConfig.INDEXING_TYPE_NONE)
             .build())
           .addProperty(new AppSearchSchema.DoublePropertyConfig.Builder("arrBoxDouble")
             .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
@@ -97,6 +105,7 @@ public final class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
             .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
             .setTokenizerType(AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_NONE)
             .setIndexingType(AppSearchSchema.StringPropertyConfig.INDEXING_TYPE_NONE)
+            .setJoinableValueType(AppSearchSchema.StringPropertyConfig.JOINABLE_VALUE_TYPE_NONE)
             .build())
           .addProperty(new AppSearchSchema.DocumentPropertyConfig.Builder("arrGift", $$__AppSearch__Gift.SCHEMA_NAME)
             .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
@@ -106,18 +115,23 @@ public final class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
             .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
             .setTokenizerType(AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_NONE)
             .setIndexingType(AppSearchSchema.StringPropertyConfig.INDEXING_TYPE_NONE)
+            .setJoinableValueType(AppSearchSchema.StringPropertyConfig.JOINABLE_VALUE_TYPE_NONE)
             .build())
           .addProperty(new AppSearchSchema.LongPropertyConfig.Builder("boxLong")
             .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
+            .setIndexingType(AppSearchSchema.LongPropertyConfig.INDEXING_TYPE_NONE)
             .build())
           .addProperty(new AppSearchSchema.LongPropertyConfig.Builder("unboxLong")
             .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
+            .setIndexingType(AppSearchSchema.LongPropertyConfig.INDEXING_TYPE_NONE)
             .build())
           .addProperty(new AppSearchSchema.LongPropertyConfig.Builder("boxInteger")
             .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
+            .setIndexingType(AppSearchSchema.LongPropertyConfig.INDEXING_TYPE_NONE)
             .build())
           .addProperty(new AppSearchSchema.LongPropertyConfig.Builder("unboxInt")
             .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
+            .setIndexingType(AppSearchSchema.LongPropertyConfig.INDEXING_TYPE_NONE)
             .build())
           .addProperty(new AppSearchSchema.DoublePropertyConfig.Builder("boxDouble")
             .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
@@ -145,6 +159,13 @@ public final class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
             .setShouldIndexNestedProperties(false)
             .build())
           .build();
+  }
+
+  @Override
+  public List<Class<?>> getDependencyDocumentClasses() throws AppSearchException {
+    List<Class<?>> classSet = new ArrayList<Class<?>>();
+    classSet.add(Gift.class);
+    return classSet;
   }
 
   @Override

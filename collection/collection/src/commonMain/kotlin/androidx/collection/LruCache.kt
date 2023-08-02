@@ -16,7 +16,7 @@
 
 package androidx.collection
 
-import androidx.collection.internal.IntRangeKmp
+import androidx.annotation.IntRange
 import androidx.collection.internal.Lock
 import androidx.collection.internal.LruHashMap
 import androidx.collection.internal.synchronized
@@ -34,7 +34,7 @@ import kotlin.Long.Companion.MAX_VALUE
  * cache.
  */
 public open class LruCache<K : Any, V : Any>
-public constructor(@IntRangeKmp(from = 1, to = MAX_VALUE) private var maxSize: Int) {
+public constructor(@IntRange(from = 1, to = MAX_VALUE) private var maxSize: Int) {
 
     init {
         require(maxSize > 0) { "maxSize <= 0" }
@@ -59,7 +59,7 @@ public constructor(@IntRangeKmp(from = 1, to = MAX_VALUE) private var maxSize: I
      *
      * @param maxSize The new maximum size.
      */
-    public open fun resize(@IntRangeKmp(from = 1, to = MAX_VALUE) maxSize: Int) {
+    public open fun resize(@IntRange(from = 1, to = MAX_VALUE) maxSize: Int) {
         require(maxSize > 0) { "maxSize <= 0" }
 
         lock.synchronized {

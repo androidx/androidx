@@ -20,6 +20,7 @@ import android.content.Context;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.TotalCaptureResult;
 import android.media.Image;
+import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.util.Pair;
@@ -63,8 +64,8 @@ public final class HdrPreviewExtenderImpl implements PreviewExtenderImpl {
     @Override
     public boolean isExtensionAvailable(@NonNull String cameraId,
             @Nullable CameraCharacteristics cameraCharacteristics) {
-        // Implement the logic to check whether the extension function is supported or not.
-        return true;
+        // Return false to skip tests since old devices do not support extensions.
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.O;
     }
 
     @NonNull

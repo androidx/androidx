@@ -40,7 +40,6 @@ import java.util.concurrent.TimeUnit;
 /**
  * Constraints, but parcelable.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @SuppressLint("BanParcelableUsage")

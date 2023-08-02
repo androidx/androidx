@@ -63,6 +63,15 @@
             android:exported="false"
             android:process=":remote"
             tools:ignore="MissingServiceExportedEqualsTrue" />
+        <receiver
+            android:name=".DirectBootReceiver"
+            android:directBootAware="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.LOCKED_BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
     </application>
+
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 </manifest>

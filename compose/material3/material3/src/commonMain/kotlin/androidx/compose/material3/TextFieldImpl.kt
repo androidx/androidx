@@ -27,7 +27,6 @@ import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.defaultMinSize
-import androidx.compose.material3.Strings.Companion.DefaultErrorMessage
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
@@ -58,7 +57,6 @@ internal enum class TextFieldType {
 /**
  * Implementation of the [TextField] and [OutlinedTextField]
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun CommonDecorationBox(
     type: TextFieldType,
@@ -69,13 +67,16 @@ internal fun CommonDecorationBox(
     placeholder: @Composable (() -> Unit)? = null,
     leadingIcon: @Composable (() -> Unit)? = null,
     trailingIcon: @Composable (() -> Unit)? = null,
+    prefix: @Composable (() -> Unit)? = null,
+    suffix: @Composable (() -> Unit)? = null,
+    supportingText: @Composable (() -> Unit)? = null,
     singleLine: Boolean = false,
     enabled: Boolean = true,
     isError: Boolean = false,
     interactionSource: InteractionSource,
     contentPadding: PaddingValues,
     colors: TextFieldColors,
-    border: @Composable (() -> Unit)? = null
+    container: @Composable () -> Unit,
 ) {
     val transformedText = remember(value, visualTransformation) {
         visualTransformation.filter(AnnotatedString(value))
@@ -109,7 +110,8 @@ internal fun CommonDecorationBox(
         },
         contentColor = labelColor,
         showLabel = label != null
-    ) { labelProgress, labelTextStyleColor, labelContentColor, placeholderAlphaProgress ->
+    ) { labelProgress, labelTextStyleColor, labelContentColor, placeholderAlphaProgress,
+        prefixSuffixAlphaProgress ->
 
         val decoratedLabel: @Composable (() -> Unit)? = label?.let {
             @Composable {
@@ -124,12 +126,16 @@ internal fun CommonDecorationBox(
             }
         }
 
+        // Transparent components interfere with Talkback (b/261061240), so if any components below
+        // have alpha == 0, we set the component to null instead.
+
         val decoratedPlaceholder: @Composable ((Modifier) -> Unit)? =
-            if (placeholder != null && transformedText.isEmpty()) {
+            if (placeholder != null && transformedText.isEmpty() && placeholderAlphaProgress > 0f) {
                 @Composable { modifier ->
                     Box(modifier.alpha(placeholderAlphaProgress)) {
                         Decoration(
-                            contentColor = colors.placeholderColor(enabled).value,
+                            contentColor =
+                                colors.placeholderColor(enabled, isError, interactionSource).value,
                             typography = MaterialTheme.typography.bodyLarge,
                             content = placeholder
                         )
@@ -137,11 +143,33 @@ internal fun CommonDecorationBox(
                 }
             } else null
 
-        // Developers need to handle invalid input manually. But since we don't provide error
-        // message slot API, we can set the default error message in case developers forget about
-        // it.
-        val defaultErrorMessage = getString(DefaultErrorMessage)
-        val decorationBoxModifier = Modifier.semantics { if (isError) error(defaultErrorMessage) }
+        val prefixColor = colors.prefixColor(enabled, isError, interactionSource).value
+        val decoratedPrefix: @Composable (() -> Unit)? =
+            if (prefix != null && prefixSuffixAlphaProgress > 0f) {
+                @Composable {
+                    Box(Modifier.alpha(prefixSuffixAlphaProgress)) {
+                        Decoration(
+                            contentColor = prefixColor,
+                            typography = bodyLarge,
+                            content = prefix
+                        )
+                    }
+                }
+            } else null
+
+        val suffixColor = colors.suffixColor(enabled, isError, interactionSource).value
+        val decoratedSuffix: @Composable (() -> Unit)? =
+            if (suffix != null && prefixSuffixAlphaProgress > 0f) {
+                @Composable {
+                    Box(Modifier.alpha(prefixSuffixAlphaProgress)) {
+                        Decoration(
+                            contentColor = suffixColor,
+                            typography = bodyLarge,
+                            content = suffix
+                        )
+                    }
+                }
+            } else null
 
         val leadingIconColor = colors.leadingIconColor(enabled, isError, interactionSource).value
         val decoratedLeading: @Composable (() -> Unit)? = leadingIcon?.let {
@@ -157,15 +185,34 @@ internal fun CommonDecorationBox(
             }
         }
 
+        val supportingTextColor =
+            colors.supportingTextColor(enabled, isError, interactionSource).value
+        val decoratedSupporting: @Composable (() -> Unit)? = supportingText?.let {
+            @Composable {
+                Decoration(contentColor = supportingTextColor, typography = bodySmall, content = it)
+            }
+        }
+
         when (type) {
             TextFieldType.Filled -> {
+                val containerWithId: @Composable () -> Unit = {
+                    Box(Modifier.layoutId(ContainerId),
+                        propagateMinConstraints = true) {
+                        container()
+                    }
+                }
+
                 TextFieldLayout(
-                    modifier = decorationBoxModifier,
+                    modifier = Modifier,
                     textField = innerTextField,
                     placeholder = decoratedPlaceholder,
                     label = decoratedLabel,
                     leading = decoratedLeading,
                     trailing = decoratedTrailing,
+                    prefix = decoratedPrefix,
+                    suffix = decoratedSuffix,
+                    container = containerWithId,
+                    supporting = decoratedSupporting,
                     singleLine = singleLine,
                     animationProgress = labelProgress,
                     paddingValues = contentPadding
@@ -174,22 +221,27 @@ internal fun CommonDecorationBox(
             TextFieldType.Outlined -> {
                 // Outlined cutout
                 val labelSize = remember { mutableStateOf(Size.Zero) }
-                val drawBorder: @Composable () -> Unit = {
+                val borderContainerWithId: @Composable () -> Unit = {
                     Box(
-                        Modifier.layoutId(BorderId).outlineCutout(labelSize.value, contentPadding),
+                        Modifier
+                            .layoutId(ContainerId)
+                            .outlineCutout(labelSize.value, contentPadding),
                         propagateMinConstraints = true
                     ) {
-                        border?.invoke()
+                        container()
                     }
                 }
 
                 OutlinedTextFieldLayout(
-                    modifier = decorationBoxModifier,
+                    modifier = Modifier,
                     textField = innerTextField,
                     placeholder = decoratedPlaceholder,
                     label = decoratedLabel,
                     leading = decoratedLeading,
                     trailing = decoratedTrailing,
+                    prefix = decoratedPrefix,
+                    suffix = decoratedSuffix,
+                    supporting = decoratedSupporting,
                     singleLine = singleLine,
                     onLabelMeasured = {
                         val labelWidth = it.width * labelProgress
@@ -201,7 +253,7 @@ internal fun CommonDecorationBox(
                         }
                     },
                     animationProgress = labelProgress,
-                    border = drawBorder,
+                    container = borderContainerWithId,
                     paddingValues = contentPadding
                 )
             }
@@ -227,6 +279,13 @@ internal fun Decoration(
     if (typography != null) ProvideTextStyle(typography, contentWithColor) else contentWithColor()
 }
 
+// Developers need to handle invalid input manually. But since we don't provide an error message
+// slot API, we can set the default error message in case developers forget about it.
+internal fun Modifier.defaultErrorSemantics(
+    isError: Boolean,
+    defaultErrorMessage: String,
+): Modifier = if (isError) semantics { error(defaultErrorMessage) } else this
+
 internal fun widthOrZero(placeable: Placeable?) = placeable?.width ?: 0
 internal fun heightOrZero(placeable: Placeable?) = placeable?.height ?: 0
 
@@ -242,7 +301,8 @@ private object TextFieldTransitionScope {
             labelProgress: Float,
             labelTextStyleColor: Color,
             labelContentColor: Color,
-            placeholderOpacity: Float
+            placeholderOpacity: Float,
+            prefixSuffixOpacity: Float,
         ) -> Unit
     ) {
         // Transitions from/to InputPhase.Focused are the most critical in the transition below.
@@ -289,6 +349,17 @@ private object TextFieldTransitionScope {
             }
         }
 
+        val prefixSuffixOpacity by transition.animateFloat(
+            label = "PrefixSuffixOpacity",
+            transitionSpec = { tween(durationMillis = AnimationDuration) }
+        ) {
+            when (it) {
+                InputPhase.Focused -> 1f
+                InputPhase.UnfocusedEmpty -> if (showLabel) 0f else 1f
+                InputPhase.UnfocusedNotEmpty -> 1f
+            }
+        }
+
         val labelTextStyleColor by transition.animateColor(
             transitionSpec = { tween(durationMillis = AnimationDuration) },
             label = "LabelTextStyleColor"
@@ -309,7 +380,8 @@ private object TextFieldTransitionScope {
             labelProgress,
             labelTextStyleColor,
             labelContentColor,
-            placeholderOpacity
+            placeholderOpacity,
+            prefixSuffixOpacity,
         )
     }
 }
@@ -336,6 +408,10 @@ internal const val PlaceholderId = "Hint"
 internal const val LabelId = "Label"
 internal const val LeadingId = "Leading"
 internal const val TrailingId = "Trailing"
+internal const val PrefixId = "Prefix"
+internal const val SuffixId = "Suffix"
+internal const val SupportingId = "Supporting"
+internal const val ContainerId = "Container"
 internal val ZeroConstraints = Constraints(0, 0, 0, 0)
 
 internal const val AnimationDuration = 150
@@ -344,5 +420,10 @@ private const val PlaceholderAnimationDelayOrDuration = 67
 
 internal val TextFieldPadding = 16.dp
 internal val HorizontalIconPadding = 12.dp
+internal val SupportingTopPadding = 4.dp
+internal val PrefixSuffixTextPadding = 2.dp
+internal val MinTextLineHeight = 24.dp
+internal val MinFocusedLabelLineHeight = 16.dp
+internal val MinSupportingTextLineHeight = 16.dp
 
 internal val IconDefaultSizeModifier = Modifier.defaultMinSize(48.dp, 48.dp)

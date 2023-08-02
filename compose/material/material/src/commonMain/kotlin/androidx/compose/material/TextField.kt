@@ -142,9 +142,10 @@ import kotlin.math.roundToInt
  * text field instead of wrapping onto multiple lines. The keyboard will be informed to not show
  * the return key as the [ImeAction]. Note that [maxLines] parameter will be ignored as the
  * maxLines attribute will be automatically set to 1.
- * @param maxLines the maximum height in terms of maximum number of visible lines. Should be
- * equal or greater than 1. Note that this parameter will be ignored and instead maxLines will be
- * set to 1 if [singleLine] is set to true.
+ * @param maxLines the maximum height in terms of maximum number of visible lines. It is required
+ * that 1 <= [minLines] <= [maxLines]. This parameter is ignored when [singleLine] is true.
+ * @param minLines the minimum height in terms of minimum number of visible lines. It is required
+ * that 1 <= [minLines] <= [maxLines]. This parameter is ignored when [singleLine] is true.
  * @param interactionSource the [MutableInteractionSource] representing the stream of
  * [Interaction]s for this TextField. You can create and pass in your own remembered
  * [MutableInteractionSource] if you want to observe [Interaction]s and customize the
@@ -171,7 +172,8 @@ fun TextField(
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     keyboardActions: KeyboardActions = KeyboardActions(),
     singleLine: Boolean = false,
-    maxLines: Int = Int.MAX_VALUE,
+    maxLines: Int = if (singleLine) 1 else Int.MAX_VALUE,
+    minLines: Int = 1,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     shape: Shape =
         MaterialTheme.shapes.small.copy(bottomEnd = ZeroCornerSize, bottomStart = ZeroCornerSize),
@@ -189,6 +191,7 @@ fun TextField(
         modifier = modifier
             .background(colors.backgroundColor(enabled).value, shape)
             .indicatorLine(enabled, isError, interactionSource, colors)
+            .defaultErrorSemantics(isError, getString(Strings.DefaultErrorMessage))
             .defaultMinSize(
                 minWidth = TextFieldDefaults.MinWidth,
                 minHeight = TextFieldDefaults.MinHeight
@@ -204,6 +207,7 @@ fun TextField(
         interactionSource = interactionSource,
         singleLine = singleLine,
         maxLines = maxLines,
+        minLines = minLines,
         decorationBox = @Composable { innerTextField ->
             // places leading icon, text field with label and placeholder, trailing icon
             TextFieldDefaults.TextFieldDecorationBox(
@@ -221,6 +225,57 @@ fun TextField(
                 colors = colors
             )
         }
+    )
+}
+
+@Deprecated(
+    "Maintained for binary compatibility. Use version with minLines instead",
+    level = DeprecationLevel.HIDDEN
+)
+@Composable
+fun TextField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    readOnly: Boolean = false,
+    textStyle: TextStyle = LocalTextStyle.current,
+    label: @Composable (() -> Unit)? = null,
+    placeholder: @Composable (() -> Unit)? = null,
+    leadingIcon: @Composable (() -> Unit)? = null,
+    trailingIcon: @Composable (() -> Unit)? = null,
+    isError: Boolean = false,
+    visualTransformation: VisualTransformation = VisualTransformation.None,
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    keyboardActions: KeyboardActions = KeyboardActions(),
+    singleLine: Boolean = false,
+    maxLines: Int = Int.MAX_VALUE,
+    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    shape: Shape =
+        MaterialTheme.shapes.small.copy(bottomEnd = ZeroCornerSize, bottomStart = ZeroCornerSize),
+    colors: TextFieldColors = TextFieldDefaults.textFieldColors()
+) {
+    TextField(
+        value,
+        onValueChange,
+        modifier,
+        enabled,
+        readOnly,
+        textStyle,
+        label,
+        placeholder,
+        leadingIcon,
+        trailingIcon,
+        isError,
+        visualTransformation,
+        keyboardOptions,
+        keyboardActions,
+        singleLine,
+        maxLines,
+        1,
+        interactionSource,
+        shape,
+        colors
     )
 }
 
@@ -277,9 +332,10 @@ fun TextField(
  * text field instead of wrapping onto multiple lines. The keyboard will be informed to not show
  * the return key as the [ImeAction]. Note that [maxLines] parameter will be ignored as the
  * maxLines attribute will be automatically set to 1.
- * @param maxLines the maximum height in terms of maximum number of visible lines. Should be
- * equal or greater than 1. Note that this parameter will be ignored and instead maxLines will be
- * set to 1 if [singleLine] is set to true.
+ * @param maxLines the maximum height in terms of maximum number of visible lines. It is required
+ * that 1 <= [minLines] <= [maxLines]. This parameter is ignored when [singleLine] is true.
+ * @param minLines the minimum height in terms of minimum number of visible lines. It is required
+ * that 1 <= [minLines] <= [maxLines]. This parameter is ignored when [singleLine] is true.
  * @param interactionSource the [MutableInteractionSource] representing the stream of
  * [Interaction]s for this TextField. You can create and pass in your own remembered
  * [MutableInteractionSource] if you want to observe [Interaction]s and customize the
@@ -306,7 +362,8 @@ fun TextField(
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     keyboardActions: KeyboardActions = KeyboardActions(),
     singleLine: Boolean = false,
-    maxLines: Int = Int.MAX_VALUE,
+    maxLines: Int = if (singleLine) 1 else Int.MAX_VALUE,
+    minLines: Int = 1,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     shape: Shape = TextFieldDefaults.TextFieldShape,
     colors: TextFieldColors = TextFieldDefaults.textFieldColors()
@@ -323,6 +380,7 @@ fun TextField(
         modifier = modifier
             .background(colors.backgroundColor(enabled).value, shape)
             .indicatorLine(enabled, isError, interactionSource, colors)
+            .defaultErrorSemantics(isError, getString(Strings.DefaultErrorMessage))
             .defaultMinSize(
                 minWidth = TextFieldDefaults.MinWidth,
                 minHeight = TextFieldDefaults.MinHeight
@@ -338,6 +396,7 @@ fun TextField(
         interactionSource = interactionSource,
         singleLine = singleLine,
         maxLines = maxLines,
+        minLines = minLines,
         decorationBox = @Composable { innerTextField ->
             // places leading icon, text field with label and placeholder, trailing icon
             TextFieldDefaults.TextFieldDecorationBox(
@@ -355,6 +414,56 @@ fun TextField(
                 colors = colors
             )
         }
+    )
+}
+
+@Deprecated(
+    "Maintained for binary compatibility. Use version with minLines instead",
+    level = DeprecationLevel.HIDDEN
+)
+@Composable
+fun TextField(
+    value: TextFieldValue,
+    onValueChange: (TextFieldValue) -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    readOnly: Boolean = false,
+    textStyle: TextStyle = LocalTextStyle.current,
+    label: @Composable (() -> Unit)? = null,
+    placeholder: @Composable (() -> Unit)? = null,
+    leadingIcon: @Composable (() -> Unit)? = null,
+    trailingIcon: @Composable (() -> Unit)? = null,
+    isError: Boolean = false,
+    visualTransformation: VisualTransformation = VisualTransformation.None,
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    keyboardActions: KeyboardActions = KeyboardActions(),
+    singleLine: Boolean = false,
+    maxLines: Int = Int.MAX_VALUE,
+    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    shape: Shape = TextFieldDefaults.TextFieldShape,
+    colors: TextFieldColors = TextFieldDefaults.textFieldColors()
+) {
+    TextField(
+        value,
+        onValueChange,
+        modifier,
+        enabled,
+        readOnly,
+        textStyle,
+        label,
+        placeholder,
+        leadingIcon,
+        trailingIcon,
+        isError,
+        visualTransformation,
+        keyboardOptions,
+        keyboardActions,
+        singleLine,
+        maxLines,
+        1,
+        interactionSource,
+        shape,
+        colors
     )
 }
 
@@ -622,20 +731,26 @@ private class TextFieldMeasurePolicy(
         width: Int,
         intrinsicMeasurer: (IntrinsicMeasurable, Int) -> Int
     ): Int {
-        val textFieldHeight =
-            intrinsicMeasurer(measurables.first { it.layoutId == TextFieldId }, width)
-        val labelHeight = measurables.find { it.layoutId == LabelId }?.let {
+        var remainingWidth = width
+        val leadingHeight = measurables.find { it.layoutId == LeadingId }?.let {
+            remainingWidth -= it.maxIntrinsicWidth(Constraints.Infinity)
             intrinsicMeasurer(it, width)
         } ?: 0
         val trailingHeight = measurables.find { it.layoutId == TrailingId }?.let {
+            remainingWidth -= it.maxIntrinsicWidth(Constraints.Infinity)
             intrinsicMeasurer(it, width)
         } ?: 0
-        val leadingHeight = measurables.find { it.layoutId == LeadingId }?.let {
-            intrinsicMeasurer(it, width)
+
+        val labelHeight = measurables.find { it.layoutId == LabelId }?.let {
+            intrinsicMeasurer(it, remainingWidth)
         } ?: 0
+
+        val textFieldHeight =
+            intrinsicMeasurer(measurables.first { it.layoutId == TextFieldId }, remainingWidth)
         val placeholderHeight = measurables.find { it.layoutId == PlaceholderId }?.let {
-            intrinsicMeasurer(it, width)
+            intrinsicMeasurer(it, remainingWidth)
         } ?: 0
+
         return calculateHeight(
             textFieldHeight = textFieldHeight,
             hasLabel = labelHeight > 0,
@@ -819,4 +934,4 @@ internal val TextFieldBottomPadding = 10.dp
 
 /** Padding from label's baseline (or FirstBaselineOffset) to the input field */
 /*@VisibleForTesting*/
-internal val TextFieldTopPadding = 4.dp
+internal val TextFieldTopPadding = 2.dp

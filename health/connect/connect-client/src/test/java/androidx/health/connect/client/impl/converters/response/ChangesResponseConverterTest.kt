@@ -19,7 +19,6 @@ import androidx.health.connect.client.changes.DeletionChange
 import androidx.health.connect.client.changes.UpsertionChange
 import androidx.health.connect.client.records.StepsRecord
 import androidx.health.connect.client.records.metadata.DataOrigin
-import androidx.health.connect.client.records.metadata.Device
 import androidx.health.connect.client.records.metadata.Metadata
 import androidx.health.platform.client.proto.ChangeProto
 import androidx.health.platform.client.proto.DataProto
@@ -79,10 +78,9 @@ class ChangesResponseConverterTest {
                     endZoneOffset = null,
                     metadata =
                         Metadata(
-                            uid = "uid",
+                            id = "uid",
                             lastModifiedTime = Instant.ofEpochMilli(9999L),
                             dataOrigin = DataOrigin(packageName = "pkg1"),
-                            device = Device()
                         )
                 )
             )
@@ -97,8 +95,7 @@ class ChangesResponseConverterTest {
 
         val changesResponse = toChangesResponse(proto)
         assertThat(changesResponse.changes).hasSize(1)
-        assertThat((changesResponse.changes[0] as? DeletionChange)?.uid)
-            .isEqualTo("deleteUid")
+        assertThat((changesResponse.changes[0] as? DeletionChange)?.recordId).isEqualTo("deleteUid")
     }
 
     @Test

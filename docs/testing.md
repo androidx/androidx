@@ -30,17 +30,24 @@ be distinguishable by their packages.
 
 NOTE For best practices on writing libraries in a way that makes it easy for end
 users -- and library developers -- to write tests, see the
-[Testability](testability.md) guide.
+[Testability](/company/teams/androidx/testability.md) guide.
+
+### Adding a JVM based screenshot test
+
+For UI heavy libraries, it might make sense to add screenshot tests to verify
+that everything still renders as expected. For that you need to write the test
+([example](https://r.android.com/2428035)) and add new goldens
+([example](https://r.android.com/2428721)). You can run these tests just like
+any other JVM test using `test` Gradle task.
 
 ### What gets tested, and when {#affected-module-detector}
 
-We use the
+With over 45000 tests executed on every CI run, it is necessary for us to run
+only a subset of our instrumentation tests in presubmit. We use the
 [AffectedModuleDetector](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:buildSrc/private/src/main/kotlin/androidx/build/dependencyTracker/AffectedModuleDetector.kt)
-to determine what projects have changed since the last merge.
-
-In presubmit, "affected" modules will run all host and device tests regardless
-of size. Modules that *depend* on affected modules will run all host tests, but
-will only run device tests annotated with `@SmallTest` or `@MediumTest`.
+to determine what projects have changed since the last merge. In turn, we only
+generate apks and test configurations for those changed modules and their
+dependencies.
 
 When changes are made that can't be associated with a module, are in the root of
 the checkout, or are within `buildSrc`, then all host tests and all device tests
@@ -217,33 +224,47 @@ from `framework/support`:
 
 ```shell
 # Run instrumentation tests on a connected device
-./gradlew <project-name>:connectedAndroidTest --info --daemon
+./gradlew <project-name>:connectedAndroidTest --info
+
+# Run instrumentation tests in Firebase Test Lab (remote)
+./gradlew <project-name>:ftlnexus4api21
+./gradlew <project-name>:ftlpixel2api26
+./gradlew <project-name>:ftlpixel2api28
+./gradlew <project-name>:ftlpixel2api30
+./gradlew <project-name>:ftlpixel2api33
 
 # Run local unit tests
-./gradlew <project-name>:test --info --daemon
+./gradlew <project-name>:test
 ```
 
-substituting the Gradle project name (ex. `core`).
+substituting the Gradle project name (ex. `:core:core`).
 
-To run all integration tests in the specific project and test class you're
-working on, run
+To run a specific instrumentation test in a given project, run
 
 ```shell
-./gradlew <project-name>:connectedAndroidTest --info --daemon \
+# Run instrumentation tests on a connected device
+./gradlew <project-name>:connectedAndroidTest --info \
     -Pandroid.testInstrumentationRunnerArguments.class=<fully-qualified-class>[\#testName]
+
+# Run instrumentation tests on in Firebase Test Lab (remote)
+./gradlew <project-name>:ftlpixel2api30 --className=<fully-qualified-class>
 ```
 
 substituting the Gradle project name (ex. `viewpager`) and fully-qualified class
 name (ex. `androidx.viewpager.widget.ViewPagerTest`) of your test file,
 optionally followed by `\#testName` if you want to execute a single test in that
-file. Substitute `test` for `connectedAndroidTest` to run local unit tests.
+file
 
-If you see some weird compilation errors such as below, run `./gradlew clean`
-first:
+If you want to run a specific unit test, you can do it using
+[`--tests` filtering](https://docs.gradle.org/current/userguide/java_testing.html#test_filtering):
 
-```
-Unknown source file : UNEXPECTED TOP-LEVEL EXCEPTION:
-Unknown source file : com.android.dex.DexException: Multiple dex files define Landroid/content/pm/ParceledListSlice$1;
+```shell
+# Run a test for an Android library on a connected device
+./gradlew <project-name>:test --tests androidx.core.view.DisplayCompatTest
+
+# Run a test for a JVM library
+./gradlew <project-name>:testDebugUnitTest --tests
+androidx.core.view.DisplayCompatTest
 ```
 
 ## Test apps {#testapps}
@@ -256,7 +277,7 @@ their library's public API surface. Test apps serve multiple purposes:
 *   Validation of API usability and developer experience, when paired with a use
     case or critical user journey
 *   Sample documentation, when embedded into API reference docs using the
-    [`@sample` and `@Sampled` annotations](api_guidelines.md#sample-usage)
+    [`@sample` and `@Sampled` annotations](/company/teams/androidx/api_guidelines/index.md#sample-usage)
 
 ### Legacy test apps {#testapps-legacy}
 
@@ -274,4 +295,4 @@ apps for new APIs, but they may be useful for manual regression testing.
 
 AndroidX supports benchmarking - locally with Studio/Gradle, and continuously in
 post-submit. For more information on how to create and run benchmarks, see
-[Benchmarking](benchmarking.md).
+[Benchmarking](/company/teams/androidx/benchmarking.md).

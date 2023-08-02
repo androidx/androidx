@@ -16,6 +16,7 @@
 
 package androidx.graphics.surface
 
+import android.graphics.Rect
 import android.graphics.Region
 import android.hardware.HardwareBuffer
 import android.os.Build
@@ -24,9 +25,9 @@ import android.view.Surface
 import android.view.SurfaceControl
 import android.view.SurfaceView
 import androidx.annotation.RequiresApi
-import androidx.graphics.lowlatency.SyncFenceCompat
-import androidx.graphics.lowlatency.SyncFenceImpl
 import androidx.graphics.surface.SurfaceControlCompat.TransactionCommittedListener
+import androidx.hardware.SyncFenceCompat
+import androidx.hardware.SyncFenceImpl
 import java.util.concurrent.Executor
 
 /**
@@ -66,6 +67,15 @@ internal interface SurfaceControlImpl {
         fun setParent(surfaceView: SurfaceView): Builder
 
         /**
+         * Set a parent [SurfaceControlCompat] for the new [SurfaceControlCompat] instance.
+         * Furthermore they stack relatively in Z order, and inherit the transformation of the
+         * parent.
+         * @param surfaceControl Target [SurfaceControlCompat] used as the parent for the newly
+         * created [SurfaceControlCompat] instance
+         */
+        fun setParent(surfaceControl: SurfaceControlCompat): Builder
+
+        /**
          * Set a debugging-name for the [SurfaceControlImpl].
          * @param name Debugging name configured on the [SurfaceControlCompat] instance.
          */
@@ -78,6 +88,7 @@ internal interface SurfaceControlImpl {
         fun build(): SurfaceControlImpl
     }
 
+    @JvmDefaultWithCompatibility
     @RequiresApi(Build.VERSION_CODES.KITKAT)
     interface Transaction : AutoCloseable {
 
@@ -126,17 +137,6 @@ internal interface SurfaceControlImpl {
         ): Transaction
 
         /**
-         * Re-parents a given [SurfaceControlImpl] to be a child of the [Surface] associated with
-         * the provided [SurfaceView]. Children inherit transform
-         * (position, scaling) crop, visibility, and Z-ordering from their parents, as if the
-         * children were pixels within the parent [Surface].
-         * @param surfaceControl Target [SurfaceControlImpl] instance to reparent
-         * @param surfaceView [SurfaceView] instance that acts as the new parent of the provided
-         * [SurfaceControlImpl] instance.
-         */
-        fun reparent(surfaceControl: SurfaceControlImpl, surfaceView: SurfaceView): Transaction
-
-        /**
          * Re-parents a given [SurfaceControlImpl] to be a child of the [AttachedSurfaceControl].
          * Children inherit transform (position, scaling) crop, visibility, and Z-ordering from
          * their parents, as if the children were pixels within the parent [Surface].
@@ -175,9 +175,9 @@ internal interface SurfaceControlImpl {
          */
         fun setBuffer(
             surfaceControl: SurfaceControlImpl,
-            buffer: HardwareBuffer,
+            buffer: HardwareBuffer?,
             fence: SyncFenceImpl? = null,
-            releaseCallback: (() -> Unit)? = null
+            releaseCallback: ((SyncFenceCompat) -> Unit)? = null
         ): Transaction
 
         /**
@@ -204,6 +204,7 @@ internal interface SurfaceControlImpl {
          * @param listener [TransactionCommittedListener] instance that is invoked when the
          * transaction has been committed.
          */
+        @RequiresApi(Build.VERSION_CODES.S)
         fun addTransactionCommittedListener(
             executor: Executor,
             listener: TransactionCommittedListener
@@ -233,6 +234,98 @@ internal interface SurfaceControlImpl {
         fun setAlpha(
             surfaceControl: SurfaceControlImpl,
             alpha: Float
+        ): Transaction
+
+        /**
+         * Bounds the surface and its children to the bounds specified. Size of the surface
+         * will be ignored and only the crop and buffer size will be used to determine the
+         * bounds of the surface. If no crop is specified and the surface has no buffer,
+         * the surface bounds is only constrained by the size of its parent bounds.
+         *
+         * @param surfaceControl The [SurfaceControlImpl] to apply the crop to. This value
+         * cannot be null.
+         *
+         * @param crop Bounds of the crop to apply. This value can be null.
+         *
+         * @throws IllegalArgumentException if crop is not a valid rectangle.
+         */
+        fun setCrop(
+            surfaceControl: SurfaceControlImpl,
+            crop: Rect?
+        ): Transaction
+
+        /**
+         * Sets the SurfaceControl to the specified position relative to the parent SurfaceControl
+         *
+         * @param surfaceControl The [SurfaceControlImpl] to change position. This value cannot
+         * be null
+         *
+         * @param x the X position
+         *
+         * @param y the Y position
+         */
+        fun setPosition(
+            surfaceControl: SurfaceControlImpl,
+            x: Float,
+            y: Float
+        ): Transaction
+
+        /**
+         * Sets the SurfaceControl to the specified scale with (0, 0) as the
+         * center point of the scale.
+         *
+         * @param surfaceControl The [SurfaceControlImpl] to change scale. This value cannot
+         * be null.
+         *
+         * @param scaleX the X scale
+         *
+         * @param scaleY the Y scale
+         */
+        fun setScale(
+            surfaceControl: SurfaceControlImpl,
+            scaleX: Float,
+            scaleY: Float
+        ): Transaction
+
+        /**
+         * Sets the buffer transform that should be applied to the current buffer
+         *
+         * @param surfaceControl the [SurfaceControlImpl] to update. This value cannot be null.
+         *
+         * @param transformation The transform to apply to the buffer. Value is
+         * [SurfaceControlCompat.BUFFER_TRANSFORM_IDENTITY],
+         * [SurfaceControlCompat.BUFFER_TRANSFORM_MIRROR_HORIZONTAL],
+         * [SurfaceControlCompat.BUFFER_TRANSFORM_MIRROR_VERTICAL],
+         * [SurfaceControlCompat.BUFFER_TRANSFORM_ROTATE_90],
+         * [SurfaceControlCompat.BUFFER_TRANSFORM_ROTATE_180],
+         * [SurfaceControlCompat.BUFFER_TRANSFORM_ROTATE_270],
+         * [SurfaceControlCompat.BUFFER_TRANSFORM_MIRROR_HORIZONTAL] |
+         * [SurfaceControlCompat.BUFFER_TRANSFORM_ROTATE_90], or
+         * [SurfaceControlCompat.BUFFER_TRANSFORM_MIRROR_VERTICAL] |
+         * [SurfaceControlCompat.BUFFER_TRANSFORM_ROTATE_90]
+         */
+        fun setBufferTransform(
+            surfaceControl: SurfaceControlImpl,
+            @SurfaceControlCompat.Companion.BufferTransform transformation: Int
+        ): Transaction
+
+        /**
+         * See [SurfaceControlCompat.Transaction.setExtendedRangeBrightness]
+         */
+        @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+        fun setExtendedRangeBrightness(
+            surfaceControl: SurfaceControlImpl,
+            currentBufferRatio: Float,
+            desiredRatio: Float
+        ): Transaction
+
+        /**
+         * See [SurfaceControlCompat.Transaction.setDataSpace]
+         */
+        @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+        fun setDataSpace(
+            surfaceControl: SurfaceControlImpl,
+            dataSpace: Int
         ): Transaction
 
         /**

@@ -17,18 +17,30 @@
 package androidx.camera.camera2.pipe.config
 
 import androidx.annotation.RequiresApi
-import androidx.camera.camera2.pipe.CameraGraph
-import androidx.camera.camera2.pipe.StreamGraph
 import androidx.camera.camera2.pipe.CameraBackend
 import androidx.camera.camera2.pipe.CameraController
+import androidx.camera.camera2.pipe.CameraGraph
+import androidx.camera.camera2.pipe.CameraStatusMonitor
+import androidx.camera.camera2.pipe.StreamGraph
 import androidx.camera.camera2.pipe.compat.Camera2Backend
+import androidx.camera.camera2.pipe.compat.Camera2CameraAvailabilityMonitor
 import androidx.camera.camera2.pipe.compat.Camera2CameraController
+import androidx.camera.camera2.pipe.compat.Camera2CameraOpener
+import androidx.camera.camera2.pipe.compat.Camera2CameraStatusMonitor
+import androidx.camera.camera2.pipe.compat.Camera2CaptureSequenceProcessorFactory
 import androidx.camera.camera2.pipe.compat.Camera2CaptureSessionsModule
-import androidx.camera.camera2.pipe.compat.Camera2RequestProcessorFactory
-import androidx.camera.camera2.pipe.compat.StandardCamera2RequestProcessorFactory
+import androidx.camera.camera2.pipe.compat.Camera2DeviceCloser
+import androidx.camera.camera2.pipe.compat.Camera2DeviceCloserImpl
+import androidx.camera.camera2.pipe.compat.Camera2ErrorProcessor
+import androidx.camera.camera2.pipe.compat.Camera2MetadataCache
+import androidx.camera.camera2.pipe.compat.Camera2MetadataProvider
+import androidx.camera.camera2.pipe.compat.CameraAvailabilityMonitor
+import androidx.camera.camera2.pipe.compat.CameraOpener
+import androidx.camera.camera2.pipe.compat.StandardCamera2CaptureSequenceProcessorFactory
 import androidx.camera.camera2.pipe.core.Threads
 import androidx.camera.camera2.pipe.graph.GraphListener
 import androidx.camera.camera2.pipe.graph.StreamGraphImpl
+import androidx.camera.camera2.pipe.internal.CameraErrorListener
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -38,15 +50,39 @@ import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-@Module(
-    subcomponents = [
-        Camera2ControllerComponent::class
-    ]
-)
+@Module(subcomponents = [Camera2ControllerComponent::class])
 internal abstract class Camera2Module {
     @Binds
-    @CameraPipeCameraBackend
+    @DefaultCameraBackend
     abstract fun bindCameraPipeCameraBackend(camera2Backend: Camera2Backend): CameraBackend
+
+    @Binds
+    abstract fun bindCameraOpener(camera2CameraOpener: Camera2CameraOpener): CameraOpener
+
+    @Binds
+    abstract fun bindCameraMetadataProvider(
+        camera2MetadataCache: Camera2MetadataCache
+    ): Camera2MetadataProvider
+
+    @Binds
+    abstract fun bindCameraErrorListener(
+        camera2ErrorProcessor: Camera2ErrorProcessor
+    ): CameraErrorListener
+
+    @Binds
+    abstract fun bindCameraAvailabilityMonitor(
+        camera2CameraAvailabilityMonitor: Camera2CameraAvailabilityMonitor
+    ): CameraAvailabilityMonitor
+
+    @Binds
+    abstract fun bindCameraStatusMonitor(
+        camera2CameraStatusMonitor: Camera2CameraStatusMonitor
+    ): CameraStatusMonitor
+
+    @Binds
+    abstract fun bindCamera2DeviceCloser(
+        camera2CameraDeviceCloser: Camera2DeviceCloserImpl
+    ): Camera2DeviceCloser
 }
 
 @Scope
@@ -55,11 +91,11 @@ internal annotation class Camera2ControllerScope
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @Camera2ControllerScope
 @Subcomponent(
-    modules = [
+    modules =
+    [
         Camera2ControllerConfig::class,
         Camera2ControllerModule::class,
-        Camera2CaptureSessionsModule::class
-    ]
+        Camera2CaptureSessionsModule::class]
 )
 internal interface Camera2ControllerComponent {
     fun cameraController(): CameraController
@@ -95,8 +131,8 @@ internal class Camera2ControllerConfig(
 internal abstract class Camera2ControllerModule {
     @Binds
     abstract fun bindCamera2RequestProcessorFactory(
-        factoryStandard: StandardCamera2RequestProcessorFactory
-    ): Camera2RequestProcessorFactory
+        factoryStandard: StandardCamera2CaptureSequenceProcessorFactory
+    ): Camera2CaptureSequenceProcessorFactory
 
     @Binds
     abstract fun bindCameraController(

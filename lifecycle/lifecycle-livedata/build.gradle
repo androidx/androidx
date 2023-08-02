@@ -19,32 +19,26 @@ import androidx.build.Publish
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
+    id("org.jetbrains.kotlin.android")
 }
 
 dependencies {
-    implementation("androidx.arch.core:core-common:2.1.0")
-    api("androidx.arch.core:core-runtime:2.1.0")
+    api(libs.kotlinStdlib)
+    implementation("androidx.arch.core:core-common:2.2.0")
+    api("androidx.arch.core:core-runtime:2.2.0")
     api(project(":lifecycle:lifecycle-livedata-core"))
 
     testImplementation(project(":lifecycle:lifecycle-runtime-testing"))
-    testImplementation("androidx.arch.core:core-testing:2.1.0")
+    testImplementation("androidx.arch.core:core-testing:2.2.0")
     testImplementation(libs.kotlinCoroutinesTest)
     testImplementation(libs.junit)
-    testImplementation(libs.mockitoCore)
-
-    constraints {
-        // this syntax is a temporary workout to allow project dependency on cross-project-set
-        // i.e. COMPOSE + MAIN project sets
-        // update syntax when b/239979823 is fixed
-        implementation("androidx.lifecycle:lifecycle-livedata-core:{androidx.LibraryVersions.LIFECYCLE}")
-        implementation(project(":lifecycle:lifecycle-livedata-ktx"))
-    }
+    testImplementation(libs.mockitoCore4)
+    testImplementation(libs.truth)
 }
 
 androidx {
-    name = "Android Lifecycle LiveData"
+    name = "Lifecycle LiveData"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.LIFECYCLE
     inceptionYear = "2017"
     description = "Android Lifecycle LiveData"
 }

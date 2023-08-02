@@ -63,8 +63,10 @@ public final class Camera2CameraInfoTest {
         CameraCharacteristics characteristics = mock(CameraCharacteristics.class);
         when(characteristics.get(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL)).thenReturn(
                 CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL);
+        String cameraId = "0";
         CameraCharacteristicsCompat cameraCharacteristicsCompat =
-                CameraCharacteristicsCompat.toCameraCharacteristicsCompat(characteristics);
+                CameraCharacteristicsCompat.toCameraCharacteristicsCompat(characteristics,
+                        cameraId);
         Camera2CameraInfoImpl impl = mock(Camera2CameraInfoImpl.class);
         when(impl.getCameraCharacteristicsCompat()).thenAnswer(
                 ignored -> cameraCharacteristicsCompat);
@@ -81,6 +83,7 @@ public final class Camera2CameraInfoTest {
         Camera2CameraInfo camera2CameraInfo = mock(Camera2CameraInfo.class);
         Camera2CameraInfoImpl cameraInfoImpl = mock(Camera2CameraInfoImpl.class);
         when(cameraInfoImpl.getCamera2CameraInfo()).thenAnswer(ignored -> camera2CameraInfo);
+        when(cameraInfoImpl.getImplementation()).thenAnswer(ignored -> cameraInfoImpl);
         Camera2CameraInfo resultCamera2CameraInfo = Camera2CameraInfo.from(cameraInfoImpl);
 
         assertThat(resultCamera2CameraInfo).isEqualTo(camera2CameraInfo);

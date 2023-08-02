@@ -16,6 +16,7 @@
 
 package androidx.room.processor
 
+import androidx.room.compiler.codegen.CodeLanguage
 import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
@@ -44,9 +45,8 @@ class TransactionMethodProcessor(
         val rawReturnType = returnType.rawType
 
         DEFERRED_TYPES.firstOrNull { className ->
-            context.processingEnv.findType(className)?.let {
-                it.rawType.isAssignableFrom(rawReturnType)
-            } ?: false
+            context.processingEnv.findType(className.canonicalName)
+                ?.rawType?.isAssignableFrom(rawReturnType) ?: false
         }?.let { returnTypeName ->
             context.logger.e(
                 ProcessorErrors.transactionMethodAsync(returnTypeName.toString()),
@@ -69,10 +69,20 @@ class TransactionMethodProcessor(
                 TransactionMethod.CallType.CONCRETE
         }
 
+        val parameters = delegate.extractParams()
+        val processedParamNames = parameters.map { param ->
+            // Apply spread operator when delegating to a vararg parameter in Kotlin.
+            if (context.codeLanguage == CodeLanguage.KOTLIN && param.isVarArgs()) {
+                "*${param.name}"
+            } else {
+                param.name
+            }
+        }
+
         return TransactionMethod(
             element = executableElement,
             returnType = returnType,
-            parameterNames = delegate.extractParams().map { it.name },
+            parameterNames = processedParamNames,
             callType = callType,
             methodBinder = delegate.findTransactionMethodBinder(callType)
         )

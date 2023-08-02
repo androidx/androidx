@@ -16,9 +16,9 @@
 
 package androidx.room.compiler.processing
 
+import androidx.kruth.assertThat
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.runProcessorTest
-import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -56,12 +56,18 @@ class XTypeParameterElementTest {
 
             assertThat(t1.bounds).hasSize(1)
             val t1Bound = t1.bounds[0]
-            assertThat(t1Bound.typeName.toString()).isEqualTo("java.lang.Object")
+            assertThat(t1Bound.asTypeName().java.toString()).isEqualTo("java.lang.Object")
+            if (invocation.isKsp) {
+                assertThat(t1Bound.asTypeName().kotlin.toString()).isEqualTo("kotlin.Any?")
+            }
             assertThat(t1Bound.isSameType(expectedBoundType)).isTrue()
 
             assertThat(t2.bounds).hasSize(1)
             val t2Bound = t2.bounds[0]
-            assertThat(t2Bound.typeName.toString()).isEqualTo("java.lang.Object")
+            assertThat(t2Bound.asTypeName().java.toString()).isEqualTo("java.lang.Object")
+            if (invocation.isKsp) {
+                assertThat(t2Bound.asTypeName().kotlin.toString()).isEqualTo("kotlin.Any?")
+            }
             assertThat(t2Bound.isSameType(expectedBoundType)).isTrue()
         }
     }
@@ -91,13 +97,19 @@ class XTypeParameterElementTest {
 
             assertThat(t1.bounds).hasSize(1)
             val t1Bound = t1.bounds[0]
-            assertThat(t1Bound.typeName.toString()).isEqualTo("Bar")
+            assertThat(t1Bound.asTypeName().java.toString()).isEqualTo("Bar")
+            if (invocation.isKsp) {
+                assertThat(t1Bound.asTypeName().kotlin.toString()).isEqualTo("Bar")
+            }
             val bar = invocation.processingEnv.requireType("Bar")
             assertThat(t1Bound.isSameType(bar)).isTrue()
 
             assertThat(t2.bounds).hasSize(1)
             val t2Bound = t2.bounds[0]
-            assertThat(t2Bound.typeName.toString()).isEqualTo("Baz")
+            assertThat(t2Bound.asTypeName().java.toString()).isEqualTo("Baz")
+            if (invocation.isKsp) {
+                assertThat(t2Bound.asTypeName().kotlin.toString()).isEqualTo("Baz?")
+            }
             val nullableBar = invocation.processingEnv.requireType("Baz").makeNullable()
             assertThat(t2Bound.isSameType(nullableBar)).isTrue()
         }
@@ -128,13 +140,19 @@ class XTypeParameterElementTest {
 
             assertThat(t1.bounds).hasSize(1)
             val t1Bound = t1.bounds[0]
-            assertThat(t1Bound.typeName.toString()).isEqualTo("Bar")
+            assertThat(t1Bound.asTypeName().java.toString()).isEqualTo("Bar")
+            if (invocation.isKsp) {
+                assertThat(t1Bound.asTypeName().kotlin.toString()).isEqualTo("Bar?")
+            }
             val nullableBar = invocation.processingEnv.requireType("Bar").makeNullable()
             assertThat(t1Bound.isSameType(nullableBar)).isTrue()
 
             assertThat(t2.bounds).hasSize(1)
             val t2Bound = t2.bounds[0]
-            assertThat(t2Bound.typeName.toString()).isEqualTo("Baz")
+            assertThat(t2Bound.asTypeName().java.toString()).isEqualTo("Baz")
+            if (invocation.isKsp) {
+                assertThat(t2Bound.asTypeName().kotlin.toString()).isEqualTo("Baz")
+            }
             val baz = invocation.processingEnv.requireType("Baz")
             assertThat(t2Bound.isSameType(baz)).isTrue()
         }
@@ -162,13 +180,19 @@ class XTypeParameterElementTest {
             assertThat(t.bounds).hasSize(2)
 
             val bound0 = t.bounds[0]
-            assertThat(bound0.typeName.toString()).isEqualTo("Bar")
+            assertThat(bound0.asTypeName().java.toString()).isEqualTo("Bar")
+            if (invocation.isKsp) {
+                assertThat(bound0.asTypeName().kotlin.toString()).isEqualTo("Bar")
+            }
             val bar = invocation.processingEnv.requireType("Bar")
             assertThat(bound0.isSameType(bar)).isTrue()
             assertThat(bound0.nullability).isEqualTo(XNullability.UNKNOWN)
 
             val bound1 = t.bounds[1]
-            assertThat(bound1.typeName.toString()).isEqualTo("Baz")
+            assertThat(bound1.asTypeName().java.toString()).isEqualTo("Baz")
+            if (invocation.isKsp) {
+                assertThat(bound1.asTypeName().kotlin.toString()).isEqualTo("Baz")
+            }
             val baz = invocation.processingEnv.requireType("Baz")
             assertThat(bound1.isSameType(baz)).isTrue()
             assertThat(bound1.nullability).isEqualTo(XNullability.UNKNOWN)
@@ -212,12 +236,18 @@ class XTypeParameterElementTest {
 
             assertThat(t1.bounds).hasSize(1)
             val t1Bound = t1.bounds[0]
-            assertThat(t1Bound.typeName.toString()).isEqualTo("java.lang.Object")
+            assertThat(t1Bound.asTypeName().java.toString()).isEqualTo("java.lang.Object")
+            if (invocation.isKsp) {
+                assertThat(t1Bound.asTypeName().kotlin.toString()).isEqualTo("kotlin.Any?")
+            }
             assertThat(t1Bound.isSameType(expectedBoundType)).isTrue()
 
             assertThat(t2.bounds).hasSize(1)
             val t2Bound = t2.bounds[0]
-            assertThat(t2Bound.typeName.toString()).isEqualTo("java.lang.Object")
+            assertThat(t2Bound.asTypeName().java.toString()).isEqualTo("java.lang.Object")
+            if (invocation.isKsp) {
+                assertThat(t2Bound.asTypeName().kotlin.toString()).isEqualTo("kotlin.Any?")
+            }
             assertThat(t2Bound.isSameType(expectedBoundType)).isTrue()
         }
     }
@@ -254,13 +284,19 @@ class XTypeParameterElementTest {
 
             assertThat(t1.bounds).hasSize(1)
             val t1Bound = t1.bounds[0]
-            assertThat(t1Bound.typeName.toString()).isEqualTo("Bar")
+            assertThat(t1Bound.asTypeName().java.toString()).isEqualTo("Bar")
+            if (invocation.isKsp) {
+                assertThat(t1Bound.asTypeName().kotlin.toString()).isEqualTo("Bar")
+            }
             val bar = invocation.processingEnv.requireType("Bar")
             assertThat(t1Bound.isSameType(bar)).isTrue()
 
             assertThat(t2.bounds).hasSize(1)
             val t2Bound = t2.bounds[0]
-            assertThat(t2Bound.typeName.toString()).isEqualTo("Baz")
+            assertThat(t2Bound.asTypeName().java.toString()).isEqualTo("Baz")
+            if (invocation.isKsp) {
+                assertThat(t2Bound.asTypeName().kotlin.toString()).isEqualTo("Baz?")
+            }
             val nullableBar = invocation.processingEnv.requireType("Baz").makeNullable()
             assertThat(t2Bound.isSameType(nullableBar)).isTrue()
         }
@@ -295,13 +331,19 @@ class XTypeParameterElementTest {
             assertThat(t.bounds).hasSize(2)
 
             val bound0 = t.bounds[0]
-            assertThat(bound0.typeName.toString()).isEqualTo("Bar")
+            assertThat(bound0.asTypeName().java.toString()).isEqualTo("Bar")
+            if (invocation.isKsp) {
+                assertThat(bound0.asTypeName().kotlin.toString()).isEqualTo("Bar")
+            }
             val bar = invocation.processingEnv.requireType("Bar")
             assertThat(bound0.isSameType(bar)).isTrue()
             assertThat(bound0.nullability).isEqualTo(XNullability.UNKNOWN)
 
             val bound1 = t.bounds[1]
-            assertThat(bound1.typeName.toString()).isEqualTo("Baz")
+            assertThat(bound1.asTypeName().java.toString()).isEqualTo("Baz")
+            if (invocation.isKsp) {
+                assertThat(bound1.asTypeName().kotlin.toString()).isEqualTo("Baz")
+            }
             val baz = invocation.processingEnv.requireType("Baz")
             assertThat(bound1.isSameType(baz)).isTrue()
             assertThat(bound1.nullability).isEqualTo(XNullability.UNKNOWN)
@@ -337,13 +379,19 @@ class XTypeParameterElementTest {
             assertThat(t.bounds).hasSize(2)
 
             val bound0 = t.bounds[0]
-            assertThat(bound0.typeName.toString()).isEqualTo("Bar")
+            assertThat(bound0.asTypeName().java.toString()).isEqualTo("Bar")
+            if (invocation.isKsp) {
+                assertThat(bound0.asTypeName().kotlin.toString()).isEqualTo("Bar")
+            }
             val bar = invocation.processingEnv.requireType("Bar")
             assertThat(bound0.isSameType(bar)).isTrue()
             assertThat(bound0.nullability).isEqualTo(XNullability.UNKNOWN)
 
             val bound1 = t.bounds[1]
-            assertThat(bound1.typeName.toString()).isEqualTo("Baz")
+            assertThat(bound1.asTypeName().java.toString()).isEqualTo("Baz")
+            if (invocation.isKsp) {
+                assertThat(bound1.asTypeName().kotlin.toString()).isEqualTo("Baz")
+            }
             val baz = invocation.processingEnv.requireType("Baz")
             assertThat(bound1.isSameType(baz)).isTrue()
             assertThat(bound1.nullability).isEqualTo(XNullability.UNKNOWN)
@@ -351,7 +399,10 @@ class XTypeParameterElementTest {
             assertThat(constructor.parameters).hasSize(1)
             val parameter = constructor.parameters[0]
             assertThat(parameter.name).isEqualTo("t")
-            assertThat(parameter.type.typeName.toString()).isEqualTo("T")
+            assertThat(parameter.type.asTypeName().java.toString()).isEqualTo("T")
+            if (invocation.isKsp) {
+                assertThat(parameter.type.asTypeName().kotlin.toString()).isEqualTo("T")
+            }
         }
     }
 }

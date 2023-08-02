@@ -35,6 +35,7 @@ import android.view.View;
 import android.view.accessibility.CaptioningManager.CaptionStyle;
 
 import androidx.annotation.DoNotInline;
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 
 /** Copied from frameworks/base/core/java/com/android/internal/widget/SubtitleView.java */
@@ -242,7 +243,7 @@ class SubtitleView extends View {
     }
 
     @Override
-    protected void onDraw(Canvas c) {
+    protected void onDraw(@NonNull Canvas c) {
         final StaticLayout layout = mLayout;
         if (layout == null) {
             return;

@@ -21,7 +21,6 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
@@ -43,7 +42,6 @@ fun SpanStyleSample() {
     )
 }
 
-@OptIn(ExperimentalTextApi::class)
 @Sampled
 @Composable
 fun SpanStyleBrushSample() {

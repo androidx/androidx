@@ -26,7 +26,6 @@ import androidx.health.services.client.proto.ResponsesProto
  * Response containing the [ExerciseCapabilities] of the Health Services exercise client on the
  * device.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class ExerciseCapabilitiesResponse(
@@ -34,11 +33,10 @@ public class ExerciseCapabilitiesResponse(
     public val exerciseCapabilities: ExerciseCapabilities,
 ) : ProtoParcelable<ResponsesProto.ExerciseCapabilitiesResponse>() {
 
-    override val proto: ResponsesProto.ExerciseCapabilitiesResponse by lazy {
+    override val proto: ResponsesProto.ExerciseCapabilitiesResponse =
         ResponsesProto.ExerciseCapabilitiesResponse.newBuilder()
             .setCapabilities(exerciseCapabilities.proto)
             .build()
-    }
 
     public companion object {
         @JvmField

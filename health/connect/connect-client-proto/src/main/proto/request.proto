@@ -106,3 +106,12 @@ message RegisterForDataNotificationsRequest {
 message UnregisterFromDataNotificationsRequest {
   optional string notificationIntentAction = 1;
 }
+
+message UpsertExerciseRouteRequest {
+  optional string sessionUid = 1;
+  optional DataPoint exerciseRoute = 2;
+}
+
+message ReadExerciseRouteRequest {
+  optional string sessionUid = 1;
+}

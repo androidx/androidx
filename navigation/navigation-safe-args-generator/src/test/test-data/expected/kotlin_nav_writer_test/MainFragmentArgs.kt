@@ -21,7 +21,7 @@ import kotlin.jvm.JvmStatic
 public data class MainFragmentArgs(
   public val main: String,
   public val floatArrayArg: FloatArray,
-  public val objectArrayArg: Array<ActivityInfo>,
+  public val objectArrayArgument: Array<ActivityInfo>,
   public val optional: Int = -1,
   public val reference: Int = R.drawable.background,
   public val referenceZeroDefaultValue: Int = 0,
@@ -39,7 +39,7 @@ public data class MainFragmentArgs(
     result.putInt("referenceZeroDefaultValue", this.referenceZeroDefaultValue)
     result.putFloat("floatArg", this.floatArg)
     result.putFloatArray("floatArrayArg", this.floatArrayArg)
-    result.putParcelableArray("objectArrayArg", this.objectArrayArg)
+    result.putParcelableArray("objectArrayArgument", this.objectArrayArgument)
     result.putBoolean("boolArg", this.boolArg)
     if (Parcelable::class.java.isAssignableFrom(ActivityInfo::class.java)) {
       result.putParcelable("optionalParcelable", this.optionalParcelable as Parcelable?)
@@ -63,7 +63,7 @@ public data class MainFragmentArgs(
     result.set("referenceZeroDefaultValue", this.referenceZeroDefaultValue)
     result.set("floatArg", this.floatArg)
     result.set("floatArrayArg", this.floatArrayArg)
-    result.set("objectArrayArg", this.objectArrayArg)
+    result.set("objectArrayArgument", this.objectArrayArgument)
     result.set("boolArg", this.boolArg)
     if (Parcelable::class.java.isAssignableFrom(ActivityInfo::class.java)) {
       result.set("optionalParcelable", this.optionalParcelable as Parcelable?)
@@ -125,15 +125,15 @@ public data class MainFragmentArgs(
       } else {
         throw IllegalArgumentException("Required argument \"floatArrayArg\" is missing and does not have an android:defaultValue")
       }
-      val __objectArrayArg : Array<ActivityInfo>?
-      if (bundle.containsKey("objectArrayArg")) {
-        __objectArrayArg = bundle.getParcelableArray("objectArrayArg")?.map { it as ActivityInfo
-            }?.toTypedArray()
-        if (__objectArrayArg == null) {
-          throw IllegalArgumentException("Argument \"objectArrayArg\" is marked as non-null but was passed a null value.")
+      val __objectArrayArgument : Array<ActivityInfo>?
+      if (bundle.containsKey("objectArrayArgument")) {
+        __objectArrayArgument = bundle.getParcelableArray("objectArrayArgument")?.map { it as
+            ActivityInfo }?.toTypedArray()
+        if (__objectArrayArgument == null) {
+          throw IllegalArgumentException("Argument \"objectArrayArgument\" is marked as non-null but was passed a null value.")
         }
       } else {
-        throw IllegalArgumentException("Required argument \"objectArrayArg\" is missing and does not have an android:defaultValue")
+        throw IllegalArgumentException("Required argument \"objectArrayArgument\" is missing and does not have an android:defaultValue")
       }
       val __boolArg : Boolean
       if (bundle.containsKey("boolArg")) {
@@ -168,8 +168,9 @@ public data class MainFragmentArgs(
       } else {
         __enumArg = AccessMode.READ
       }
-      return MainFragmentArgs(__main, __floatArrayArg, __objectArrayArg, __optional, __reference,
-          __referenceZeroDefaultValue, __floatArg, __boolArg, __optionalParcelable, __enumArg)
+      return MainFragmentArgs(__main, __floatArrayArg, __objectArrayArgument, __optional,
+          __reference, __referenceZeroDefaultValue, __floatArg, __boolArg, __optionalParcelable,
+          __enumArg)
     }
 
     @JvmStatic
@@ -228,15 +229,16 @@ public data class MainFragmentArgs(
       } else {
         throw IllegalArgumentException("Required argument \"floatArrayArg\" is missing and does not have an android:defaultValue")
       }
-      val __objectArrayArg : Array<ActivityInfo>?
-      if (savedStateHandle.contains("objectArrayArg")) {
-        __objectArrayArg = savedStateHandle.get<Array<Parcelable>>("objectArrayArg")?.map { it as
-            ActivityInfo }?.toTypedArray()
-        if (__objectArrayArg == null) {
-          throw IllegalArgumentException("Argument \"objectArrayArg\" is marked as non-null but was passed a null value")
+      val __objectArrayArgument : Array<ActivityInfo>?
+      if (savedStateHandle.contains("objectArrayArgument")) {
+        __objectArrayArgument =
+            savedStateHandle.get<Array<Parcelable>>("objectArrayArgument")?.map { it as ActivityInfo
+            }?.toTypedArray()
+        if (__objectArrayArgument == null) {
+          throw IllegalArgumentException("Argument \"objectArrayArgument\" is marked as non-null but was passed a null value")
         }
       } else {
-        throw IllegalArgumentException("Required argument \"objectArrayArg\" is missing and does not have an android:defaultValue")
+        throw IllegalArgumentException("Required argument \"objectArrayArgument\" is missing and does not have an android:defaultValue")
       }
       val __boolArg : Boolean?
       if (savedStateHandle.contains("boolArg")) {
@@ -274,8 +276,9 @@ public data class MainFragmentArgs(
       } else {
         __enumArg = AccessMode.READ
       }
-      return MainFragmentArgs(__main, __floatArrayArg, __objectArrayArg, __optional, __reference,
-          __referenceZeroDefaultValue, __floatArg, __boolArg, __optionalParcelable, __enumArg)
+      return MainFragmentArgs(__main, __floatArrayArg, __objectArrayArgument, __optional,
+          __reference, __referenceZeroDefaultValue, __floatArg, __boolArg, __optionalParcelable,
+          __enumArg)
     }
   }
 }

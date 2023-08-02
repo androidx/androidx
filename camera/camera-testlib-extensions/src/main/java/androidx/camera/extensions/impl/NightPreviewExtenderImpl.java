@@ -53,7 +53,10 @@ public final class NightPreviewExtenderImpl implements PreviewExtenderImpl {
     @Override
     public boolean isExtensionAvailable(@NonNull String cameraId,
             @Nullable CameraCharacteristics cameraCharacteristics) {
-        // Implement the logic to check whether the extension function is supported or not.
+        // Return false to skip tests since old devices do not support extensions.
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+            return false;
+        }
 
         if (cameraCharacteristics == null) {
             return false;

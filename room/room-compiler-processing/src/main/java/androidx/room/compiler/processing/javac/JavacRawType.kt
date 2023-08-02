@@ -16,9 +16,10 @@
 
 package androidx.room.compiler.processing.javac
 
+import androidx.room.compiler.codegen.XTypeName
+import androidx.room.compiler.processing.XNullability
 import androidx.room.compiler.processing.XRawType
 import androidx.room.compiler.processing.safeTypeName
-import com.squareup.javapoet.TypeName
 
 internal class JavacRawType(
     env: JavacProcessingEnv,
@@ -27,21 +28,33 @@ internal class JavacRawType(
     private val erased = env.typeUtils.erasure(original.typeMirror)
     private val typeUtils = env.delegate.typeUtils
 
-    override val typeName: TypeName = erased.safeTypeName()
+    override val typeName by lazy {
+        xTypeName.java
+    }
+
+    private val xTypeName: XTypeName by lazy {
+        XTypeName(
+            erased.safeTypeName(),
+            XTypeName.UNAVAILABLE_KTYPE_NAME,
+            original.maybeNullability ?: XNullability.UNKNOWN
+        )
+    }
+
+    override fun asTypeName() = xTypeName
 
     override fun isAssignableFrom(other: XRawType): Boolean {
         return other is JavacRawType && typeUtils.isAssignable(other.erased, erased)
     }
 
     override fun equals(other: Any?): Boolean {
-        return this === other || typeName == (other as? XRawType)?.typeName
+        return this === other || xTypeName == (other as? XRawType)?.asTypeName()
     }
 
     override fun hashCode(): Int {
-        return typeName.hashCode()
+        return xTypeName.hashCode()
     }
 
     override fun toString(): String {
-        return erased.toString()
+        return xTypeName.java.toString()
     }
 }

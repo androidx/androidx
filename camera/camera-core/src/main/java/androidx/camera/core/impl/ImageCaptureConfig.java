@@ -47,8 +47,6 @@ public final class ImageCaptureConfig implements UseCaseConfig<ImageCapture>, Im
             Option.create("camerax.core.imageCapture.flashMode", int.class);
     public static final Option<CaptureBundle> OPTION_CAPTURE_BUNDLE =
             Option.create("camerax.core.imageCapture.captureBundle", CaptureBundle.class);
-    public static final Option<CaptureProcessor> OPTION_CAPTURE_PROCESSOR =
-            Option.create("camerax.core.imageCapture.captureProcessor", CaptureProcessor.class);
     public static final Option<Integer> OPTION_BUFFER_FORMAT =
             Option.create("camerax.core.imageCapture.bufferFormat", Integer.class);
     public static final Option<Integer> OPTION_MAX_CAPTURE_STAGES =
@@ -144,29 +142,6 @@ public final class ImageCaptureConfig implements UseCaseConfig<ImageCapture>, Im
     }
 
     /**
-     * Returns the {@link CaptureProcessor}.
-     *
-     * @param valueIfMissing The value to return if this configuration option has not been set.
-     * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
-     * configuration.
-     */
-    @Nullable
-    public CaptureProcessor getCaptureProcessor(@Nullable CaptureProcessor valueIfMissing) {
-        return retrieveOption(OPTION_CAPTURE_PROCESSOR, valueIfMissing);
-    }
-
-    /**
-     * Returns the {@link CaptureProcessor}.
-     *
-     * @return The stored value, if it exists in this configuration.
-     * @throws IllegalArgumentException if the option does not exist in this configuration.
-     */
-    @NonNull
-    public CaptureProcessor getCaptureProcessor() {
-        return retrieveOption(OPTION_CAPTURE_PROCESSOR);
-    }
-
-    /**
      * Returns the {@link ImageFormat} of the capture in memory.
      *
      * @param valueIfMissing The value to return if this configuration option has not been set.
@@ -223,7 +198,6 @@ public final class ImageCaptureConfig implements UseCaseConfig<ImageCapture>, Im
     /**
      * Gets the caller provided {@link ImageReaderProxy}.
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @Nullable
@@ -234,7 +208,6 @@ public final class ImageCaptureConfig implements UseCaseConfig<ImageCapture>, Im
     /**
      * Returns whether ImageCapture should use a software JPEG encoder, if available.
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public boolean isSoftwareJpegEncoderRequested() {

@@ -1,9 +1,6 @@
 // Signature format: 4.0
 package androidx.activity.compose {
 
-  public final class ActivityComposeUtilsKt {
-  }
-
   public final class ActivityResultRegistryKt {
     method @androidx.compose.runtime.Composable public static <I, O> androidx.activity.compose.ManagedActivityResultLauncher<I,O> rememberLauncherForActivityResult(androidx.activity.result.contract.ActivityResultContract<I,O> contract, kotlin.jvm.functions.Function1<? super O,kotlin.Unit> onResult);
   }
@@ -23,6 +20,13 @@ package androidx.activity.compose {
     field public static final androidx.activity.compose.LocalActivityResultRegistryOwner INSTANCE;
   }
 
+  public final class LocalFullyDrawnReporterOwner {
+    method @androidx.compose.runtime.Composable public androidx.activity.FullyDrawnReporterOwner? getCurrent();
+    method public infix androidx.compose.runtime.ProvidedValue<androidx.activity.FullyDrawnReporterOwner> provides(androidx.activity.FullyDrawnReporterOwner fullyDrawnReporterOwner);
+    property @androidx.compose.runtime.Composable public final androidx.activity.FullyDrawnReporterOwner? current;
+    field public static final androidx.activity.compose.LocalFullyDrawnReporterOwner INSTANCE;
+  }
+
   public final class LocalOnBackPressedDispatcherOwner {
     method @androidx.compose.runtime.Composable public androidx.activity.OnBackPressedDispatcherOwner? getCurrent();
     method public infix androidx.compose.runtime.ProvidedValue<androidx.activity.OnBackPressedDispatcherOwner> provides(androidx.activity.OnBackPressedDispatcherOwner dispatcherOwner);
@@ -32,13 +36,14 @@ package androidx.activity.compose {
 
   public final class ManagedActivityResultLauncher<I, O> extends androidx.activity.result.ActivityResultLauncher<I> {
     method public androidx.activity.result.contract.ActivityResultContract<I,?> getContract();
-    method public void launch(I? input, androidx.core.app.ActivityOptionsCompat? options);
+    method public void launch(I input, androidx.core.app.ActivityOptionsCompat? options);
     method @Deprecated public void unregister();
   }
 
-  public final class ReportLoadedKt {
-    method @androidx.compose.runtime.Composable public static void ReportLoadedAfter(kotlin.jvm.functions.Function1<? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?> block);
-    method @androidx.compose.runtime.Composable public static void ReportLoadedWhen(kotlin.jvm.functions.Function0<java.lang.Boolean> predicate);
+  public final class ReportDrawnKt {
+    method @androidx.compose.runtime.Composable public static void ReportDrawn();
+    method @androidx.compose.runtime.Composable public static void ReportDrawnAfter(kotlin.jvm.functions.Function1<? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?> block);
+    method @androidx.compose.runtime.Composable public static void ReportDrawnWhen(kotlin.jvm.functions.Function0<java.lang.Boolean> predicate);
   }
 
 }

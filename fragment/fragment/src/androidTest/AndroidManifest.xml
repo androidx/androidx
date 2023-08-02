@@ -22,6 +22,7 @@
     <uses-permission android:name="android.permission.WRITE_CONTACTS"/>
 
     <application
+        android:name="androidx.fragment.app.LeakCanaryApp"
         android:supportsRtl="true"
         android:theme="@style/TestActivityTheme">
         <activity android:name="androidx.fragment.app.test.FragmentTestActivity"/>
@@ -50,6 +51,9 @@
         <activity android:name="androidx.fragment.app.FragmentFinishEarlyTestActivity" />
         <activity android:name="androidx.fragment.app.SimpleContainerActivity" />
         <activity android:name="androidx.fragment.app.ReplaceInCreateActivity" />
+        <activity android:name="androidx.fragment.app.ResultActivity1" />
+        <activity android:name="androidx.fragment.app.ResultActivity2" />
+        <activity android:name="androidx.fragment.app.ResultActivity3" />
         <activity android:name="androidx.fragment.app.DialogActivity"
                   android:theme="@style/DialogTheme"/>
         <activity android:name="androidx.fragment.app.TestAppCompatActivity"

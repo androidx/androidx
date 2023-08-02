@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright 2022 The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+
+<resources>
+    <string name="trusted_embedding_activity">Trusted Embedding Activity</string>
+    <string name="trusted_embedding_activity_detail">Activity allows embedding in trusted mode via a
+        known certificate.</string>
+    <string name="untrusted_embedding_activity">Untrusted Embedding Activity</string>
+    <string name="untrusted_embedding_activity_detail">Activity allows embedding in untrusted mode
+        via opt-in.</string>
+    <string name="display_features_config_change">Display features handle config change</string>
+    <string name="fold">Fold</string>
+    <string name="legend">Legend:</string>
+    <string name="current_state">Current state</string>
+    <string name="window_layout">Window layout</string>
+    <string name="screens_are_separated">"Screens are separated"</string>
+    <string name="screens_are_not_separated">"Screen is not separated"</string>
+    <string name="screen_is_horizontal">"Hinge is horizontal"</string>
+    <string name="screen_is_vertical">"Hinge is vertical"</string>
+    <string name="occlusion_is_full">Full occlusion</string>
+    <string name="occlusion_is_none">No occlusion</string>
+</resources>

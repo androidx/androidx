@@ -24,8 +24,11 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SmallTest
 import androidx.testutils.withActivity
+import androidx.testutils.withUse
 import com.google.common.truth.Truth.assertWithMessage
+import leakcanary.DetectLeaksAfterTestSuccess
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -35,6 +38,9 @@ class OnBackPressedHandlerTest {
 
     private var fallbackCount = 0
     lateinit var dispatcher: OnBackPressedDispatcher
+
+    @get:Rule
+    val rule = DetectLeaksAfterTestSuccess()
 
     @Before
     fun setup() {
@@ -72,6 +78,34 @@ class OnBackPressedHandlerTest {
         assertWithMessage("Fallback count should not be incremented")
             .that(fallbackCount)
             .isEqualTo(0)
+    }
+
+    @UiThreadTest
+    @Test
+    fun testIsEnabledWithinCallback() {
+        var count = 0
+        val callback = dispatcher.addCallback {
+            count++
+            isEnabled = false
+        }
+        assertWithMessage("Callback should be enabled by default")
+            .that(callback.isEnabled)
+            .isTrue()
+        assertWithMessage("Dispatcher should have an enabled callback")
+            .that(dispatcher.hasEnabledCallbacks())
+            .isTrue()
+
+        dispatcher.onBackPressed()
+
+        assertWithMessage("Count should be incremented after onBackPressed")
+            .that(count)
+            .isEqualTo(1)
+        assertWithMessage("Callback should be disabled after onBackPressed()")
+            .that(callback.isEnabled)
+            .isFalse()
+        assertWithMessage("Dispatcher should have no enabled callbacks")
+            .that(dispatcher.hasEnabledCallbacks())
+            .isFalse()
     }
 
     @UiThreadTest
@@ -138,6 +172,25 @@ class OnBackPressedHandlerTest {
         assertWithMessage("Count shouldn't be incremented after removal")
             .that(onBackPressedCallback.count)
             .isEqualTo(1)
+    }
+
+    @UiThreadTest
+    @Test
+    fun testRemoveWithinCallback() {
+        var count = 0
+        dispatcher.addCallback {
+            count++
+            remove()
+        }
+
+        dispatcher.onBackPressed()
+
+        assertWithMessage("Count should be incremented after onBackPressed")
+            .that(count)
+            .isEqualTo(1)
+        assertWithMessage("Dispatcher should have no enabled callbacks after remove")
+            .that(dispatcher.hasEnabledCallbacks())
+            .isFalse()
     }
 
     @UiThreadTest
@@ -382,11 +435,85 @@ class OnBackPressedHandlerTest {
     @LargeTest
     @Test
     fun testCallOnBackPressedWhenStopped() {
-        with(ActivityScenario.launch(ContentViewActivity::class.java)) {
+       withUse(ActivityScenario.launch(ContentViewActivity::class.java)) {
             val realDispatcher = withActivity { onBackPressedDispatcher }
             moveToState(Lifecycle.State.CREATED)
             withActivity { realDispatcher.onBackPressed() }
         }
+    }
+
+    @Test
+    fun testOnHasEnabledCallbacks() {
+        var reportedHasEnabledCallbacks = false
+        var reportCount = 0
+        val dispatcher = OnBackPressedDispatcher(
+            fallbackOnBackPressed = null,
+            onHasEnabledCallbacksChanged = {
+                reportedHasEnabledCallbacks = it
+                reportCount++
+            }
+        )
+
+        assertWithMessage("initial reportCount")
+            .that(reportCount)
+            .isEqualTo(0)
+        assertWithMessage("initial reportedHasEnabledCallbacks")
+            .that(reportedHasEnabledCallbacks)
+            .isFalse()
+
+        val callbackA = dispatcher.addCallback(enabled = false) {}
+
+        assertWithMessage("reportCount")
+            .that(reportCount)
+            .isEqualTo(0)
+        assertWithMessage("reportedHasEnabledCallbacks")
+            .that(reportedHasEnabledCallbacks)
+            .isFalse()
+
+        callbackA.isEnabled = true
+
+        assertWithMessage("reportCount")
+            .that(reportCount)
+            .isEqualTo(1)
+        assertWithMessage("reportedHasEnabledCallbacks")
+            .that(reportedHasEnabledCallbacks)
+            .isTrue()
+
+        val callbackB = dispatcher.addCallback {}
+
+        assertWithMessage("reportCount")
+            .that(reportCount)
+            .isEqualTo(1)
+        assertWithMessage("reportedHasEnabledCallbacks")
+            .that(reportedHasEnabledCallbacks)
+            .isTrue()
+
+        callbackA.remove()
+
+        assertWithMessage("reportCount")
+            .that(reportCount)
+            .isEqualTo(1)
+        assertWithMessage("reportedHasEnabledCallbacks")
+            .that(reportedHasEnabledCallbacks)
+            .isTrue()
+
+        callbackB.remove()
+
+        assertWithMessage("reportCount")
+            .that(reportCount)
+            .isEqualTo(2)
+        assertWithMessage("reportedHasEnabledCallbacks")
+            .that(reportedHasEnabledCallbacks)
+            .isFalse()
+
+        dispatcher.addCallback {}
+
+        assertWithMessage("reportCount")
+            .that(reportCount)
+            .isEqualTo(3)
+        assertWithMessage("reportedHasEnabledCallbacks")
+            .that(reportedHasEnabledCallbacks)
+            .isTrue()
     }
 }
 

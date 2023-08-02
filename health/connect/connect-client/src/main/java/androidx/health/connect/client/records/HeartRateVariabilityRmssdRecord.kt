@@ -15,7 +15,6 @@
  */
 package androidx.health.connect.client.records
 
-import androidx.annotation.RestrictTo
 import androidx.health.connect.client.records.metadata.Metadata
 import java.time.Instant
 import java.time.ZoneOffset
@@ -23,17 +22,28 @@ import java.time.ZoneOffset
 /**
  * Captures user's heart rate variability (HRV) as measured by the root mean square of successive
  * differences (RMSSD) between normal heartbeats.
- *
- * @suppress
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class HeartRateVariabilityRmssdRecord(
-    /** Heart rate variability in milliseconds. Required field. */
-    public val heartRateVariabilityMillis: Double,
     override val time: Instant,
     override val zoneOffset: ZoneOffset?,
+    /** Heart rate variability in milliseconds. Required field. Valid Range: 1-200. */
+    public val heartRateVariabilityMillis: Double,
     override val metadata: Metadata = Metadata.EMPTY,
 ) : InstantaneousRecord {
+
+    init {
+        heartRateVariabilityMillis.requireInRange(
+            min = MIN_HRV_RMSSD,
+            max = MAX_HRV_RMSSD,
+            name = "heartRateVariabilityMillis"
+        )
+    }
+
+    internal companion object {
+        internal const val MIN_HRV_RMSSD = 1.0
+        internal const val MAX_HRV_RMSSD = 200.0
+    }
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is HeartRateVariabilityRmssdRecord) return false

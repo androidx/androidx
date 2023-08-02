@@ -29,3 +29,15 @@ internal expect class AtomicBoolean {
     fun get(): Boolean
     fun set(value: Boolean)
 }
+
+/**
+ * Simple class to provide synchronization blocks.
+ *
+ * On JVM/ART, this uses simple JDK's synchronization.
+ * On other platforms, it uses atomic-fu.
+ *
+ * @see withLock
+ */
+internal expect class Synchronizer() {
+    inline fun <T> withLock(crossinline block: () -> T): T
+}

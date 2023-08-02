@@ -17,6 +17,7 @@
 package androidx.room.integration.kotlintestapp.test
 
 import android.content.Context
+import androidx.kruth.assertThat
 import androidx.room.ColumnInfo
 import androidx.room.Dao
 import androidx.room.Database
@@ -29,7 +30,6 @@ import androidx.room.RoomDatabase
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.test.core.app.ApplicationProvider
-import com.google.common.truth.Truth.assertThat
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -60,8 +60,8 @@ class AlteredTableColumnOrderTest {
             Room.databaseBuilder(context, TestDatabase::class.java, "migrated_foo.db")
                 .createFromAsset("databases/foo_v1.db")
                 .addMigrations(object : Migration(1, 2) {
-                    override fun migrate(database: SupportSQLiteDatabase) {
-                        database.execSQL("ALTER TABLE Foo ADD COLUMN X TEXT NOT NULL DEFAULT 'X';")
+                    override fun migrate(db: SupportSQLiteDatabase) {
+                        db.execSQL("ALTER TABLE Foo ADD COLUMN X TEXT NOT NULL DEFAULT 'X';")
                     }
                 })
                 .build()
@@ -116,7 +116,7 @@ class AlteredTableColumnOrderTest {
     @Dao
     internal interface FooDao {
         @Insert
-        fun insertFoo(f: Foo?)
+        fun insertFoo(f: Foo)
 
         @Query("SELECT * FROM Foo LIMIT 1")
         fun getOneFoo(): Foo

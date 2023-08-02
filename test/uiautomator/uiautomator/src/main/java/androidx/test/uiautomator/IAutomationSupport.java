@@ -22,8 +22,6 @@ import androidx.annotation.NonNull;
 
 /**
  * Provides auxiliary support for running test cases
- *
- * @since API Level 16
  */
 public interface IAutomationSupport {
 
@@ -32,7 +30,6 @@ public interface IAutomationSupport {
      *
      * @param resultCode
      * @param status status report, consisting of key value pairs
-     * @since API Level 16
      */
     void sendStatus(int resultCode, @NonNull Bundle status);
 

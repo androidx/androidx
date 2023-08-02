@@ -21,13 +21,16 @@ import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.ExtendedFloatingActionButton
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.runtime.currentComposer
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.Modifier
 
 /**
  * Activity used to run `@Composable` previews from Android Studio.
@@ -104,21 +107,25 @@ class PreviewActivity : ComponentActivity() {
         // cycle through all the values.
         if (previewParameters.size > 1) {
             setContent {
-                val index = remember { mutableStateOf(0) }
+                val index = remember { mutableIntStateOf(0) }
 
                 Scaffold(
-                    content = {
-                        ComposableInvoker.invokeComposable(
-                            className,
-                            methodName,
-                            currentComposer,
-                            previewParameters[index.value]
-                        )
+                    content = { padding ->
+                        Box(Modifier.padding(padding)) {
+                            ComposableInvoker.invokeComposable(
+                                className,
+                                methodName,
+                                currentComposer,
+                                previewParameters[index.intValue]
+                            )
+                        }
                     },
                     floatingActionButton = {
                         ExtendedFloatingActionButton(
                             text = { Text("Next") },
-                            onClick = { index.value = (index.value + 1) % previewParameters.size }
+                            onClick = {
+                                index.intValue = (index.intValue + 1) % previewParameters.size
+                            }
                         )
                     }
                 )

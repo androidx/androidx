@@ -10,3 +10,6 @@
 
 # Don't obfuscate classes instantiated from outside the library via reflection
 -keep public class androidx.car.app.hardware.ProjectedCarHardwareManager { *; }
+-keepclasseswithmembers @androidx.car.app.annotations.KeepFields class * {
+  *;
+}

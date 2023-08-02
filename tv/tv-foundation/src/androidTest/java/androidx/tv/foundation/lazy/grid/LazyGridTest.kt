@@ -1058,6 +1058,39 @@ class LazyGridTest(
             assertThat(state.numMeasurePasses).isEqualTo(1)
         }
     }
+
+    @Test
+    fun fillingFullSize_nextItemIsNotComposed() {
+        val state = TvLazyGridState()
+        state.prefetchingEnabled = false
+        val itemSizePx = 5f
+        val itemSize = with(rule.density) { itemSizePx.toDp() }
+        rule.setContentWithTestViewConfiguration {
+            LazyGrid(
+                1,
+                Modifier
+                    .testTag(LazyGridTag)
+                    .mainAxisSize(itemSize),
+                state
+            ) {
+                items(3) { index ->
+                    Box(Modifier.size(itemSize).testTag("$index"))
+                }
+            }
+        }
+
+        repeat(3) { index ->
+            rule.onNodeWithTag("$index")
+                .assertIsDisplayed()
+            rule.onNodeWithTag("${index + 1}")
+                .assertDoesNotExist()
+            rule.runOnIdle {
+                runBlocking {
+                    state.scrollBy(itemSizePx)
+                }
+            }
+        }
+    }
 }
 
 internal fun IntegerSubject.isEqualTo(expected: Int, tolerance: Int) {
@@ -1065,6 +1098,7 @@ internal fun IntegerSubject.isEqualTo(expected: Int, tolerance: Int) {
 }
 
 internal fun ComposeContentTestRule.keyPress(keyCode: Int, numberOfPresses: Int = 1) {
-    for (index in 0 until numberOfPresses)
+    repeat(numberOfPresses) {
         InstrumentationRegistry.getInstrumentation().sendKeyDownUpSync(keyCode)
+    }
 }

@@ -16,18 +16,23 @@
 
 package androidx.glance
 
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.glance.layout.ContentScale
 import androidx.glance.layout.PaddingModifier
 import androidx.glance.layout.padding
 import androidx.glance.layout.runTestingComposition
+import androidx.glance.semantics.SemanticsModifier
+import androidx.glance.semantics.SemanticsProperties
+import androidx.glance.unit.ColorProvider
 import com.google.common.truth.Truth.assertThat
+import kotlin.test.assertIs
+import kotlin.test.assertNotNull
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
-import kotlin.test.assertIs
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class ImageTest {
@@ -56,8 +61,34 @@ class ImageTest {
 
         val imgSource = assertIs<AndroidResourceImageProvider>(img.provider)
         assertThat(imgSource.resId).isEqualTo(5)
-        assertThat(img.contentDescription).isEqualTo("Hello World")
+        val semanticsModifier = assertNotNull(img.modifier.findModifier<SemanticsModifier>())
+        assertThat(semanticsModifier.configuration[SemanticsProperties.ContentDescription])
+            .containsExactly("Hello World")
         assertThat(img.contentScale).isEqualTo(ContentScale.FillBounds)
         assertThat(img.modifier.findModifier<PaddingModifier>()).isNotNull()
+        assertThat(img.colorFilterParams).isNull()
+    }
+
+    @Test
+    fun createImage_tintColorFilter() {
+        val colorProvider = ColorProvider(Color.Gray)
+        fakeCoroutineScope.runTest {
+            val root = runTestingComposition {
+                Image(
+                    provider = ImageProvider(5),
+                    contentDescription = "Hello World",
+                    modifier = GlanceModifier.padding(5.dp),
+                    colorFilter = ColorFilter.tint(colorProvider)
+                )
+            }
+
+            assertThat(root.children).hasSize(1)
+            assertThat(root.children[0]).isInstanceOf(EmittableImage::class.java)
+
+            val img = root.children[0] as EmittableImage
+
+            val colorFilterParams = assertIs<TintColorFilterParams>(img.colorFilterParams)
+            assertThat(colorFilterParams.colorProvider).isEqualTo(colorProvider)
+        }
     }
 }

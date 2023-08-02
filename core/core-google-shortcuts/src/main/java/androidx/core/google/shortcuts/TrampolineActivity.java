@@ -42,7 +42,6 @@ import java.security.GeneralSecurityException;
  * Activity used to receives shortcut intents sent from Google, extracts its shortcut url, and
  * launches it in the scope of the app.
  *
- * @hide
  */
 @RestrictTo(LIBRARY)
 public class TrampolineActivity extends Activity {

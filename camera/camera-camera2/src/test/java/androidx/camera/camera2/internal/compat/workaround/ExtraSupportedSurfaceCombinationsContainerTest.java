@@ -68,6 +68,33 @@ public class ExtraSupportedSurfaceCombinationsContainerTest {
                 CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED,
                 createFullLevelYPYAndYYYSupportedCombinations())});
 
+        // Tests for FULL Pixel devices
+        data.add(new Object[]{new Config("Google", null, "Pixel 6", "0",
+                CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL,
+                createLevel3PrivPrivYuvRawConfiguration())});
+        data.add(new Object[]{new Config("Google", null, "Pixel 6", "1",
+                CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL,
+                createLevel3PrivPrivYuvRawConfiguration())});
+        data.add(new Object[]{new Config("Google", null, "Pixel 6 Pro", "0",
+                CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL,
+                createLevel3PrivPrivYuvRawConfiguration())});
+        data.add(new Object[]{new Config("Google", null, "Pixel 6 Pro", "1",
+                CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL,
+                createLevel3PrivPrivYuvRawConfiguration())});
+        data.add(new Object[]{new Config("Google", null, "Pixel 7", "0",
+                CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL,
+                createLevel3PrivPrivYuvRawConfiguration())});
+        data.add(new Object[]{new Config("Google", null, "Pixel 7", "1",
+                CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL,
+                createLevel3PrivPrivYuvRawConfiguration())});
+        data.add(new Object[]{new Config("Google", null, "Pixel 7 Pro", "0",
+                CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL,
+                createLevel3PrivPrivYuvRawConfiguration())});
+        data.add(new Object[]{new Config("Google", null, "Pixel 7 Pro", "1",
+                CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL,
+                createLevel3PrivPrivYuvRawConfiguration())});
+
+
         // Other cases
         data.add(new Object[]{new Config(null, null, null, "0",
                 CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED)});
@@ -116,8 +143,8 @@ public class ExtraSupportedSurfaceCombinationsContainerTest {
             // Checks the combination is supported by the list retrieved from the
             // ExtraSupportedSurfaceCombinationsContainer.
             for (SurfaceCombination extraSurfaceCombination : extraSurfaceCombinations) {
-                if (extraSurfaceCombination.isSupported(
-                        expectedSupportedSurfaceCombination.getSurfaceConfigList())) {
+                if (extraSurfaceCombination.getOrderedSupportedSurfaceConfigList(
+                        expectedSupportedSurfaceCombination.getSurfaceConfigList()) != null) {
                     isSupported = true;
                     break;
                 }
@@ -131,7 +158,7 @@ public class ExtraSupportedSurfaceCombinationsContainerTest {
         // (YUV, ANALYSIS) + (PRIV, PREVIEW) + (YUV, MAXIMUM)
         SurfaceCombination surfaceCombination = new SurfaceCombination();
         surfaceCombination.addSurfaceConfig(SurfaceConfig.create(SurfaceConfig.ConfigType.YUV,
-                SurfaceConfig.ConfigSize.ANALYSIS));
+                SurfaceConfig.ConfigSize.VGA));
         surfaceCombination.addSurfaceConfig(SurfaceConfig.create(SurfaceConfig.ConfigType.PRIV,
                 SurfaceConfig.ConfigSize.PREVIEW));
         surfaceCombination.addSurfaceConfig(SurfaceConfig.create(SurfaceConfig.ConfigType.YUV,
@@ -143,7 +170,7 @@ public class ExtraSupportedSurfaceCombinationsContainerTest {
         // (YUV, ANALYSIS) + (PRIV, PREVIEW) + (YUV, MAXIMUM)
         SurfaceCombination surfaceCombination1 = new SurfaceCombination();
         surfaceCombination1.addSurfaceConfig(SurfaceConfig.create(SurfaceConfig.ConfigType.YUV,
-                SurfaceConfig.ConfigSize.ANALYSIS));
+                SurfaceConfig.ConfigSize.VGA));
         surfaceCombination1.addSurfaceConfig(SurfaceConfig.create(SurfaceConfig.ConfigType.PRIV,
                 SurfaceConfig.ConfigSize.PREVIEW));
         surfaceCombination1.addSurfaceConfig(SurfaceConfig.create(SurfaceConfig.ConfigType.YUV,
@@ -152,12 +179,27 @@ public class ExtraSupportedSurfaceCombinationsContainerTest {
         // (YUV, ANALYSIS) + (YUV, PREVIEW) + (YUV, MAXIMUM)
         SurfaceCombination surfaceCombination2 = new SurfaceCombination();
         surfaceCombination2.addSurfaceConfig(SurfaceConfig.create(SurfaceConfig.ConfigType.YUV,
-                SurfaceConfig.ConfigSize.ANALYSIS));
+                SurfaceConfig.ConfigSize.VGA));
         surfaceCombination2.addSurfaceConfig(SurfaceConfig.create(SurfaceConfig.ConfigType.YUV,
                 SurfaceConfig.ConfigSize.PREVIEW));
         surfaceCombination2.addSurfaceConfig(SurfaceConfig.create(SurfaceConfig.ConfigType.YUV,
                 SurfaceConfig.ConfigSize.MAXIMUM));
         return new SurfaceCombination[]{surfaceCombination1, surfaceCombination2};
+    }
+
+    private static SurfaceCombination[] createLevel3PrivPrivYuvRawConfiguration() {
+        // (PRIV, PREVIEW) + (PRIV, ANALYSIS) + (YUV, MAXIMUM) + (RAW, MAXIMUM)
+        SurfaceCombination surfaceCombination = new SurfaceCombination();
+        surfaceCombination.addSurfaceConfig(SurfaceConfig.create(SurfaceConfig.ConfigType.PRIV,
+                SurfaceConfig.ConfigSize.PREVIEW));
+        surfaceCombination.addSurfaceConfig(SurfaceConfig.create(SurfaceConfig.ConfigType.PRIV,
+                SurfaceConfig.ConfigSize.VGA));
+        surfaceCombination.addSurfaceConfig(SurfaceConfig.create(SurfaceConfig.ConfigType.YUV,
+                SurfaceConfig.ConfigSize.MAXIMUM));
+        surfaceCombination.addSurfaceConfig(SurfaceConfig.create(SurfaceConfig.ConfigType.RAW,
+                SurfaceConfig.ConfigSize.MAXIMUM));
+
+        return new SurfaceCombination[]{surfaceCombination};
     }
 
     static class Config {

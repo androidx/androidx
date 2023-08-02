@@ -54,7 +54,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * Implementation of the {@link androidx.core.internal.view.SupportMenu} interface for creating a
  * standard menu UI.
  *
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 public class MenuBuilder implements SupportMenu {
@@ -188,7 +187,6 @@ public class MenuBuilder implements SupportMenu {
 
     /**
      * Called by menu to notify of close and selection changes.
-     * @hide
      */
 
     @RestrictTo(LIBRARY_GROUP_PREFIX)
@@ -213,7 +211,6 @@ public class MenuBuilder implements SupportMenu {
 
     /**
      * Called by menu items to execute their associated action
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public interface ItemInvoker {
@@ -1069,6 +1066,10 @@ public class MenuBuilder implements SupportMenu {
                 mStructureChangedWhileDispatchPrevented = true;
             }
         }
+    }
+
+    public boolean isDispatchingItemsChanged() {
+        return !mPreventDispatchingItemsChanged;
     }
 
     /**

@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import androidx.build.LibraryType
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 def isIdeBuild() {
@@ -38,11 +39,13 @@ dependencies {
 // Allow usage of Kotlin's @Experimental annotation, which is itself experimental.
 tasks.withType(KotlinCompile).configureEach {
     kotlinOptions {
-        freeCompilerArgs += [ "-opt-in=kotlin.Experimental" ]
-
         // Ensure that compilation passes in CLI despite opt-in violations in integration tests.
         if (!isIdeBuild()) {
             freeCompilerArgs += [ "-opt-in=sample.optin.ExperimentalKotlinAnnotation" ]
         }
     }
+}
+
+androidx {
+    type = LibraryType.INTERNAL_TEST_LIBRARY
 }

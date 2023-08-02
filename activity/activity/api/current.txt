@@ -1,7 +1,27 @@
 // Signature format: 4.0
 package androidx.activity {
 
-  public class ComponentActivity extends android.app.Activity implements androidx.activity.result.ActivityResultCaller androidx.activity.result.ActivityResultRegistryOwner androidx.activity.contextaware.ContextAware androidx.lifecycle.HasDefaultViewModelProviderFactory androidx.lifecycle.LifecycleOwner androidx.core.view.MenuHost androidx.activity.OnBackPressedDispatcherOwner androidx.core.content.OnConfigurationChangedProvider androidx.core.app.OnMultiWindowModeChangedProvider androidx.core.app.OnNewIntentProvider androidx.core.app.OnPictureInPictureModeChangedProvider androidx.core.content.OnTrimMemoryProvider androidx.savedstate.SavedStateRegistryOwner androidx.lifecycle.ViewModelStoreOwner {
+  public final class BackEventCompat {
+    ctor @RequiresApi(34) public BackEventCompat(android.window.BackEvent backEvent);
+    ctor @VisibleForTesting public BackEventCompat(float touchX, float touchY, float progress, int swipeEdge);
+    method public float getProgress();
+    method public int getSwipeEdge();
+    method public float getTouchX();
+    method public float getTouchY();
+    method @RequiresApi(34) public android.window.BackEvent toBackEvent();
+    property public final float progress;
+    property public final int swipeEdge;
+    property public final float touchX;
+    property public final float touchY;
+    field public static final androidx.activity.BackEventCompat.Companion Companion;
+    field public static final int EDGE_LEFT = 0; // 0x0
+    field public static final int EDGE_RIGHT = 1; // 0x1
+  }
+
+  public static final class BackEventCompat.Companion {
+  }
+
+  public class ComponentActivity extends android.app.Activity implements androidx.activity.result.ActivityResultCaller androidx.activity.result.ActivityResultRegistryOwner androidx.activity.contextaware.ContextAware androidx.activity.FullyDrawnReporterOwner androidx.lifecycle.HasDefaultViewModelProviderFactory androidx.lifecycle.LifecycleOwner androidx.core.view.MenuHost androidx.activity.OnBackPressedDispatcherOwner androidx.core.content.OnConfigurationChangedProvider androidx.core.app.OnMultiWindowModeChangedProvider androidx.core.app.OnNewIntentProvider androidx.core.app.OnPictureInPictureModeChangedProvider androidx.core.content.OnTrimMemoryProvider androidx.savedstate.SavedStateRegistryOwner androidx.lifecycle.ViewModelStoreOwner {
     ctor public ComponentActivity();
     ctor @ContentView public ComponentActivity(@LayoutRes int);
     method public void addMenuProvider(androidx.core.view.MenuProvider);
@@ -15,22 +35,23 @@ package androidx.activity {
     method public final void addOnTrimMemoryListener(androidx.core.util.Consumer<java.lang.Integer!>);
     method public final androidx.activity.result.ActivityResultRegistry getActivityResultRegistry();
     method public androidx.lifecycle.ViewModelProvider.Factory getDefaultViewModelProviderFactory();
+    method public androidx.activity.FullyDrawnReporter getFullyDrawnReporter();
     method @Deprecated public Object? getLastCustomNonConfigurationInstance();
     method public androidx.lifecycle.Lifecycle getLifecycle();
     method public final androidx.activity.OnBackPressedDispatcher getOnBackPressedDispatcher();
     method public final androidx.savedstate.SavedStateRegistry getSavedStateRegistry();
     method public androidx.lifecycle.ViewModelStore getViewModelStore();
+    method @CallSuper public void initializeViewTreeOwners();
     method public void invalidateMenu();
     method @Deprecated @CallSuper protected void onActivityResult(int, int, android.content.Intent?);
-    method @MainThread public void onBackPressed();
     method @CallSuper public void onMultiWindowModeChanged(boolean);
     method @CallSuper public void onPictureInPictureModeChanged(boolean);
     method @Deprecated @CallSuper public void onRequestPermissionsResult(int, String![], int[]);
     method @Deprecated public Object? onRetainCustomNonConfigurationInstance();
     method public final Object? onRetainNonConfigurationInstance();
     method public android.content.Context? peekAvailableContext();
-    method public final <I, O> androidx.activity.result.ActivityResultLauncher<I!> registerForActivityResult(androidx.activity.result.contract.ActivityResultContract<I!,O!>, androidx.activity.result.ActivityResultRegistry, androidx.activity.result.ActivityResultCallback<O!>);
     method public final <I, O> androidx.activity.result.ActivityResultLauncher<I!> registerForActivityResult(androidx.activity.result.contract.ActivityResultContract<I!,O!>, androidx.activity.result.ActivityResultCallback<O!>);
+    method public final <I, O> androidx.activity.result.ActivityResultLauncher<I!> registerForActivityResult(androidx.activity.result.contract.ActivityResultContract<I!,O!>, androidx.activity.result.ActivityResultRegistry, androidx.activity.result.ActivityResultCallback<O!>);
     method public void removeMenuProvider(androidx.core.view.MenuProvider);
     method public final void removeOnConfigurationChangedListener(androidx.core.util.Consumer<android.content.res.Configuration!>);
     method public final void removeOnContextAvailableListener(androidx.activity.contextaware.OnContextAvailableListener);
@@ -44,55 +65,97 @@ package androidx.activity {
     method @Deprecated public void startIntentSenderForResult(android.content.IntentSender, int, android.content.Intent?, int, int, int, android.os.Bundle?) throws android.content.IntentSender.SendIntentException;
   }
 
-  public class ComponentDialog extends android.app.Dialog implements androidx.lifecycle.LifecycleOwner androidx.activity.OnBackPressedDispatcherOwner {
-    ctor public ComponentDialog(android.content.Context context, optional @StyleRes int themeResId);
+  public class ComponentDialog extends android.app.Dialog implements androidx.lifecycle.LifecycleOwner androidx.activity.OnBackPressedDispatcherOwner androidx.savedstate.SavedStateRegistryOwner {
     ctor public ComponentDialog(android.content.Context context);
-    method public final androidx.lifecycle.Lifecycle getLifecycle();
+    ctor public ComponentDialog(android.content.Context context, optional @StyleRes int themeResId);
+    method public androidx.lifecycle.Lifecycle getLifecycle();
     method public final androidx.activity.OnBackPressedDispatcher getOnBackPressedDispatcher();
+    method public androidx.savedstate.SavedStateRegistry getSavedStateRegistry();
+    method @CallSuper public void initializeViewTreeOwners();
     method @CallSuper public void onBackPressed();
+    property public androidx.lifecycle.Lifecycle lifecycle;
+    property public final androidx.activity.OnBackPressedDispatcher onBackPressedDispatcher;
+    property public androidx.savedstate.SavedStateRegistry savedStateRegistry;
   }
 
-  @RequiresApi(android.os.Build.VERSION_CODES.KITKAT) public final class FullyLoadedReporter {
-    method public void addOnReportLoadedListener(kotlin.jvm.functions.Function0<kotlin.Unit> callback);
+  public final class EdgeToEdge {
+    method public static void enable(androidx.activity.ComponentActivity);
+    method public static void enable(androidx.activity.ComponentActivity, optional androidx.activity.SystemBarStyle statusBarStyle);
+    method public static void enable(androidx.activity.ComponentActivity, optional androidx.activity.SystemBarStyle statusBarStyle, optional androidx.activity.SystemBarStyle navigationBarStyle);
+  }
+
+  public final class FullyDrawnReporter {
+    ctor public FullyDrawnReporter(java.util.concurrent.Executor executor, kotlin.jvm.functions.Function0<kotlin.Unit> reportFullyDrawn);
+    method public void addOnReportDrawnListener(kotlin.jvm.functions.Function0<kotlin.Unit> callback);
     method public void addReporter();
-    method @MainThread public static androidx.activity.FullyLoadedReporter? findFullyLoadedReporter(android.content.Context context);
-    method public android.app.Activity getActivity();
-    method public boolean getHasReported();
-    method public void removeOnReportLoadedListener(kotlin.jvm.functions.Function0<kotlin.Unit> callback);
+    method public boolean isFullyDrawnReported();
+    method public void removeOnReportDrawnListener(kotlin.jvm.functions.Function0<kotlin.Unit> callback);
     method public void removeReporter();
-    property public final android.app.Activity activity;
-    property public final boolean hasReported;
-    field public static final androidx.activity.FullyLoadedReporter.Companion Companion;
+    property public final boolean isFullyDrawnReported;
   }
 
-  public static final class FullyLoadedReporter.Companion {
-    method @MainThread public androidx.activity.FullyLoadedReporter? findFullyLoadedReporter(android.content.Context context);
+  public final class FullyDrawnReporterKt {
+    method public static suspend inline Object? reportWhenComplete(androidx.activity.FullyDrawnReporter, kotlin.jvm.functions.Function1<? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?> reporter, kotlin.coroutines.Continuation<? super kotlin.Unit>);
   }
 
-  public final class FullyLoadedReporterKt {
-    method @RequiresApi(android.os.Build.VERSION_CODES.KITKAT) public static suspend inline Object? reportWhenComplete(androidx.activity.FullyLoadedReporter, kotlin.jvm.functions.Function1<? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?> reporter, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+  public interface FullyDrawnReporterOwner {
+    method public androidx.activity.FullyDrawnReporter getFullyDrawnReporter();
+    property public abstract androidx.activity.FullyDrawnReporter fullyDrawnReporter;
   }
 
   public abstract class OnBackPressedCallback {
-    ctor public OnBackPressedCallback(boolean);
+    ctor public OnBackPressedCallback(boolean enabled);
+    method @MainThread public void handleOnBackCancelled();
     method @MainThread public abstract void handleOnBackPressed();
+    method @MainThread public void handleOnBackProgressed(androidx.activity.BackEventCompat backEvent);
+    method @MainThread public void handleOnBackStarted(androidx.activity.BackEventCompat backEvent);
     method @MainThread public final boolean isEnabled();
     method @MainThread public final void remove();
     method @MainThread public final void setEnabled(boolean);
+    property @MainThread public final boolean isEnabled;
   }
 
   public final class OnBackPressedDispatcher {
     ctor public OnBackPressedDispatcher();
-    ctor public OnBackPressedDispatcher(Runnable?);
-    method @MainThread public void addCallback(androidx.activity.OnBackPressedCallback);
-    method @MainThread public void addCallback(androidx.lifecycle.LifecycleOwner, androidx.activity.OnBackPressedCallback);
+    ctor public OnBackPressedDispatcher(optional Runnable? fallbackOnBackPressed);
+    ctor public OnBackPressedDispatcher(Runnable? fallbackOnBackPressed, androidx.core.util.Consumer<java.lang.Boolean>? onHasEnabledCallbacksChanged);
+    method @MainThread public void addCallback(androidx.activity.OnBackPressedCallback onBackPressedCallback);
+    method @MainThread public void addCallback(androidx.lifecycle.LifecycleOwner owner, androidx.activity.OnBackPressedCallback onBackPressedCallback);
+    method @MainThread @VisibleForTesting public void dispatchOnBackCancelled();
+    method @MainThread @VisibleForTesting public void dispatchOnBackProgressed(androidx.activity.BackEventCompat backEvent);
+    method @MainThread @VisibleForTesting public void dispatchOnBackStarted(androidx.activity.BackEventCompat backEvent);
     method @MainThread public boolean hasEnabledCallbacks();
     method @MainThread public void onBackPressed();
-    method @RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU) public void setOnBackInvokedDispatcher(android.window.OnBackInvokedDispatcher);
+    method @RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU) public void setOnBackInvokedDispatcher(android.window.OnBackInvokedDispatcher invoker);
+  }
+
+  public final class OnBackPressedDispatcherKt {
+    method public static androidx.activity.OnBackPressedCallback addCallback(androidx.activity.OnBackPressedDispatcher, optional androidx.lifecycle.LifecycleOwner? owner, optional boolean enabled, kotlin.jvm.functions.Function1<? super androidx.activity.OnBackPressedCallback,kotlin.Unit> onBackPressed);
   }
 
   public interface OnBackPressedDispatcherOwner extends androidx.lifecycle.LifecycleOwner {
     method public androidx.activity.OnBackPressedDispatcher getOnBackPressedDispatcher();
+    property public abstract androidx.activity.OnBackPressedDispatcher onBackPressedDispatcher;
+  }
+
+  public final class SystemBarStyle {
+    method public static androidx.activity.SystemBarStyle auto(@ColorInt int lightScrim, @ColorInt int darkScrim);
+    method public static androidx.activity.SystemBarStyle auto(@ColorInt int lightScrim, @ColorInt int darkScrim, optional kotlin.jvm.functions.Function1<? super android.content.res.Resources,java.lang.Boolean> detectDarkMode);
+    method public static androidx.activity.SystemBarStyle dark(@ColorInt int scrim);
+    method public static androidx.activity.SystemBarStyle light(@ColorInt int scrim, @ColorInt int darkScrim);
+    field public static final androidx.activity.SystemBarStyle.Companion Companion;
+  }
+
+  public static final class SystemBarStyle.Companion {
+    method public androidx.activity.SystemBarStyle auto(@ColorInt int lightScrim, @ColorInt int darkScrim);
+    method public androidx.activity.SystemBarStyle auto(@ColorInt int lightScrim, @ColorInt int darkScrim, optional kotlin.jvm.functions.Function1<? super android.content.res.Resources,java.lang.Boolean> detectDarkMode);
+    method public androidx.activity.SystemBarStyle dark(@ColorInt int scrim);
+    method public androidx.activity.SystemBarStyle light(@ColorInt int scrim, @ColorInt int darkScrim);
+  }
+
+  public final class ViewTreeFullyDrawnReporterOwner {
+    method public static androidx.activity.FullyDrawnReporterOwner? get(android.view.View);
+    method public static void set(android.view.View, androidx.activity.FullyDrawnReporterOwner fullyDrawnReporterOwner);
   }
 
   public final class ViewTreeOnBackPressedDispatcherOwner {
@@ -105,22 +168,26 @@ package androidx.activity {
 package androidx.activity.contextaware {
 
   public interface ContextAware {
-    method public void addOnContextAvailableListener(androidx.activity.contextaware.OnContextAvailableListener);
+    method public void addOnContextAvailableListener(androidx.activity.contextaware.OnContextAvailableListener listener);
     method public android.content.Context? peekAvailableContext();
-    method public void removeOnContextAvailableListener(androidx.activity.contextaware.OnContextAvailableListener);
+    method public void removeOnContextAvailableListener(androidx.activity.contextaware.OnContextAvailableListener listener);
   }
 
   public final class ContextAwareHelper {
     ctor public ContextAwareHelper();
-    method public void addOnContextAvailableListener(androidx.activity.contextaware.OnContextAvailableListener);
+    method public void addOnContextAvailableListener(androidx.activity.contextaware.OnContextAvailableListener listener);
     method public void clearAvailableContext();
-    method public void dispatchOnContextAvailable(android.content.Context);
+    method public void dispatchOnContextAvailable(android.content.Context context);
     method public android.content.Context? peekAvailableContext();
-    method public void removeOnContextAvailableListener(androidx.activity.contextaware.OnContextAvailableListener);
+    method public void removeOnContextAvailableListener(androidx.activity.contextaware.OnContextAvailableListener listener);
   }
 
-  public interface OnContextAvailableListener {
-    method public void onContextAvailable(android.content.Context);
+  public final class ContextAwareKt {
+    method public static suspend inline <R> Object? withContextAvailable(androidx.activity.contextaware.ContextAware, kotlin.jvm.functions.Function1<android.content.Context,R> onContextAvailable, kotlin.coroutines.Continuation<R>);
+  }
+
+  public fun interface OnContextAvailableListener {
+    method public void onContextAvailable(android.content.Context context);
   }
 
 }
@@ -137,8 +204,8 @@ package androidx.activity.result {
     field public static final android.os.Parcelable.Creator<androidx.activity.result.ActivityResult!> CREATOR;
   }
 
-  public interface ActivityResultCallback<O> {
-    method public void onActivityResult(O!);
+  public fun interface ActivityResultCallback<O> {
+    method public void onActivityResult(O result);
   }
 
   public interface ActivityResultCaller {
@@ -161,12 +228,13 @@ package androidx.activity.result {
     method @MainThread public abstract <I, O> void onLaunch(int, androidx.activity.result.contract.ActivityResultContract<I!,O!>, I!, androidx.core.app.ActivityOptionsCompat?);
     method public final void onRestoreInstanceState(android.os.Bundle?);
     method public final void onSaveInstanceState(android.os.Bundle);
-    method public final <I, O> androidx.activity.result.ActivityResultLauncher<I!> register(String, androidx.lifecycle.LifecycleOwner, androidx.activity.result.contract.ActivityResultContract<I!,O!>, androidx.activity.result.ActivityResultCallback<O!>);
     method public final <I, O> androidx.activity.result.ActivityResultLauncher<I!> register(String, androidx.activity.result.contract.ActivityResultContract<I!,O!>, androidx.activity.result.ActivityResultCallback<O!>);
+    method public final <I, O> androidx.activity.result.ActivityResultLauncher<I!> register(String, androidx.lifecycle.LifecycleOwner, androidx.activity.result.contract.ActivityResultContract<I!,O!>, androidx.activity.result.ActivityResultCallback<O!>);
   }
 
   public interface ActivityResultRegistryOwner {
     method public androidx.activity.result.ActivityResultRegistry getActivityResultRegistry();
+    property public abstract androidx.activity.result.ActivityResultRegistry activityResultRegistry;
   }
 
   public final class IntentSenderRequest implements android.os.Parcelable {
@@ -175,16 +243,24 @@ package androidx.activity.result {
     method public int getFlagsMask();
     method public int getFlagsValues();
     method public android.content.IntentSender getIntentSender();
-    method public void writeToParcel(android.os.Parcel, int);
-    field public static final android.os.Parcelable.Creator<androidx.activity.result.IntentSenderRequest!> CREATOR;
+    method public void writeToParcel(android.os.Parcel dest, int flags);
+    property public final android.content.Intent? fillInIntent;
+    property public final int flagsMask;
+    property public final int flagsValues;
+    property public final android.content.IntentSender intentSender;
+    field public static final android.os.Parcelable.Creator<androidx.activity.result.IntentSenderRequest> CREATOR;
+    field public static final androidx.activity.result.IntentSenderRequest.Companion Companion;
   }
 
   public static final class IntentSenderRequest.Builder {
-    ctor public IntentSenderRequest.Builder(android.content.IntentSender);
-    ctor public IntentSenderRequest.Builder(android.app.PendingIntent);
+    ctor public IntentSenderRequest.Builder(android.app.PendingIntent pendingIntent);
+    ctor public IntentSenderRequest.Builder(android.content.IntentSender intentSender);
     method public androidx.activity.result.IntentSenderRequest build();
-    method public androidx.activity.result.IntentSenderRequest.Builder setFillInIntent(android.content.Intent?);
-    method public androidx.activity.result.IntentSenderRequest.Builder setFlags(int, int);
+    method public androidx.activity.result.IntentSenderRequest.Builder setFillInIntent(android.content.Intent? fillInIntent);
+    method public androidx.activity.result.IntentSenderRequest.Builder setFlags(int values, int mask);
+  }
+
+  public static final class IntentSenderRequest.Companion {
   }
 
   public final class PickVisualMediaRequest {
@@ -208,15 +284,15 @@ package androidx.activity.result.contract {
 
   public abstract class ActivityResultContract<I, O> {
     ctor public ActivityResultContract();
-    method public abstract android.content.Intent createIntent(android.content.Context context, I? input);
-    method public androidx.activity.result.contract.ActivityResultContract.SynchronousResult<O>? getSynchronousResult(android.content.Context context, I? input);
-    method public abstract O! parseResult(int resultCode, android.content.Intent? intent);
+    method public abstract android.content.Intent createIntent(android.content.Context context, I input);
+    method public androidx.activity.result.contract.ActivityResultContract.SynchronousResult<O>? getSynchronousResult(android.content.Context context, I input);
+    method public abstract O parseResult(int resultCode, android.content.Intent? intent);
   }
 
   public static final class ActivityResultContract.SynchronousResult<T> {
-    ctor public ActivityResultContract.SynchronousResult(T? value);
-    method public T! getValue();
-    property public final T! value;
+    ctor public ActivityResultContract.SynchronousResult(T value);
+    method public T getValue();
+    property public final T value;
   }
 
   public final class ActivityResultContracts {
@@ -230,8 +306,8 @@ package androidx.activity.result.contract {
   }
 
   @RequiresApi(19) public static class ActivityResultContracts.CreateDocument extends androidx.activity.result.contract.ActivityResultContract<java.lang.String,android.net.Uri> {
-    ctor public ActivityResultContracts.CreateDocument(String mimeType);
     ctor @Deprecated public ActivityResultContracts.CreateDocument();
+    ctor public ActivityResultContracts.CreateDocument(String mimeType);
     method @CallSuper public android.content.Intent createIntent(android.content.Context context, String input);
     method public final androidx.activity.result.contract.ActivityResultContract.SynchronousResult<android.net.Uri>? getSynchronousResult(android.content.Context context, String input);
     method public final android.net.Uri? parseResult(int resultCode, android.content.Intent? intent);
@@ -285,17 +361,21 @@ package androidx.activity.result.contract {
     method public final java.util.List<android.net.Uri> parseResult(int resultCode, android.content.Intent? intent);
   }
 
-  public static class ActivityResultContracts.PickVisualMedia extends androidx.activity.result.contract.ActivityResultContract<androidx.activity.result.PickVisualMediaRequest,android.net.Uri> {
+  @RequiresApi(19) public static class ActivityResultContracts.PickVisualMedia extends androidx.activity.result.contract.ActivityResultContract<androidx.activity.result.PickVisualMediaRequest,android.net.Uri> {
     ctor public ActivityResultContracts.PickVisualMedia();
     method @CallSuper public android.content.Intent createIntent(android.content.Context context, androidx.activity.result.PickVisualMediaRequest input);
     method public final androidx.activity.result.contract.ActivityResultContract.SynchronousResult<android.net.Uri>? getSynchronousResult(android.content.Context context, androidx.activity.result.PickVisualMediaRequest input);
-    method public static final boolean isPhotoPickerAvailable();
+    method @Deprecated public static final boolean isPhotoPickerAvailable();
+    method public static final boolean isPhotoPickerAvailable(android.content.Context context);
     method public final android.net.Uri? parseResult(int resultCode, android.content.Intent? intent);
+    field public static final String ACTION_SYSTEM_FALLBACK_PICK_IMAGES = "androidx.activity.result.contract.action.PICK_IMAGES";
     field public static final androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.Companion Companion;
+    field public static final String EXTRA_SYSTEM_FALLBACK_PICK_IMAGES_MAX = "androidx.activity.result.contract.extra.PICK_IMAGES_MAX";
   }
 
   public static final class ActivityResultContracts.PickVisualMedia.Companion {
-    method public boolean isPhotoPickerAvailable();
+    method @Deprecated public boolean isPhotoPickerAvailable();
+    method public boolean isPhotoPickerAvailable(android.content.Context context);
   }
 
   public static final class ActivityResultContracts.PickVisualMedia.ImageAndVideo implements androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.VisualMediaType {

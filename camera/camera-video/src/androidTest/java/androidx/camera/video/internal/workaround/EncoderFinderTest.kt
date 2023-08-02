@@ -20,20 +20,26 @@ import android.content.Context
 import android.media.MediaCodecList
 import android.media.MediaFormat
 import android.text.TextUtils
+import android.util.Size
 import androidx.camera.camera2.Camera2Config
+import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraSelector
+import androidx.camera.core.CameraXConfig
+import androidx.camera.core.SurfaceRequest
 import androidx.camera.core.impl.CameraInfoInternal
-import androidx.camera.testing.CameraUtil
-import androidx.camera.testing.CameraXUtil
-import androidx.camera.testing.LabTestRule
+import androidx.camera.core.impl.Timebase
+import androidx.camera.testing.impl.CameraPipeConfigTestRule
+import androidx.camera.testing.impl.CameraUtil
+import androidx.camera.testing.impl.CameraXUtil
+import androidx.camera.testing.impl.LabTestRule
 import androidx.camera.video.Quality
 import androidx.camera.video.QualitySelector
-import androidx.camera.video.VideoCapabilities
+import androidx.camera.video.Recorder
 import androidx.camera.video.VideoSpec
 import androidx.camera.video.internal.compat.quirk.DeviceQuirks
 import androidx.camera.video.internal.compat.quirk.MediaCodecInfoReportIncorrectInfoQuirk
-import androidx.camera.video.internal.config.VideoEncoderConfigCamcorderProfileResolver
+import androidx.camera.video.internal.config.VideoEncoderConfigVideoProfileResolver
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
@@ -51,14 +57,21 @@ import org.junit.runners.Parameterized
 @RunWith(Parameterized::class)
 @SdkSuppress(minSdkVersion = 21)
 class EncoderFinderTest(
+    private val implName: String,
+    private val cameraConfig: CameraXConfig,
     private val lensFacing: Int,
     private var cameraSelector: CameraSelector,
     private var quality: Quality,
 ) {
 
     @get:Rule
+    val cameraPipeConfigTestRule = CameraPipeConfigTestRule(
+        active = implName == CameraPipeConfig::class.simpleName,
+    )
+
+    @get:Rule
     val cameraRule = CameraUtil.grantCameraPermissionAndPreTest(
-        CameraUtil.PreTestCameraIdList(Camera2Config.defaultConfig())
+        CameraUtil.PreTestCameraIdList(cameraConfig)
     )
 
     @get:Rule
@@ -71,7 +84,10 @@ class EncoderFinderTest(
             arrayOf(CameraSelector.DEFAULT_BACK_CAMERA, CameraSelector.DEFAULT_FRONT_CAMERA)
 
         @JvmStatic
-        private val quality = arrayOf(
+        private val timebase = Timebase.UPTIME
+
+        @JvmStatic
+        private val availableQualities = arrayOf(
             Quality.SD,
             Quality.HD,
             Quality.FHD,
@@ -81,11 +97,31 @@ class EncoderFinderTest(
         )
 
         @JvmStatic
-        @Parameterized.Parameters(name = "lensFacing={0}, quality={2}")
+        private val cameraxConfigs =
+            listOf(Camera2Config::class.simpleName, CameraPipeConfig::class.simpleName)
+
+        @JvmStatic
+        @Parameterized.Parameters(name = "config={0}, lensFacing={2}, quality={4}")
         fun data() = mutableListOf<Array<Any?>>().apply {
-            cameraSelectors.forEach { cameraSelector ->
-                quality.forEach { quality ->
-                    add(arrayOf(cameraSelector.lensFacing, cameraSelector, quality))
+            cameraxConfigs.forEach { configImplName ->
+                cameraSelectors.forEach { cameraSelector ->
+                    availableQualities.forEach { quality ->
+                        add(
+                            arrayOf(
+                                configImplName,
+                                when (configImplName) {
+                                    CameraPipeConfig::class.simpleName ->
+                                        CameraPipeConfig.defaultConfig()
+                                    Camera2Config::class.simpleName ->
+                                        Camera2Config.defaultConfig()
+                                    else -> Camera2Config.defaultConfig()
+                                },
+                                cameraSelector.lensFacing,
+                                cameraSelector,
+                                quality
+                            )
+                        )
+                    }
                 }
             }
         }
@@ -98,7 +134,7 @@ class EncoderFinderTest(
     fun setUp() {
         Assume.assumeTrue(CameraUtil.hasCameraWithLensFacing(cameraSelector.lensFacing!!))
 
-        CameraXUtil.initialize(context, Camera2Config.defaultConfig()).get()
+        CameraXUtil.initialize(context, cameraConfig).get()
         camera = CameraUtil.createCameraUseCaseAdapter(context, cameraSelector)
     }
 
@@ -110,40 +146,45 @@ class EncoderFinderTest(
 
     @LabTestRule.LabTestOnly
     @Test
-    fun findEncoderForFormat_CamcorderProfile() {
+    fun findEncoderForFormat_EncoderProfiles() {
         // Arrange.
         val cameraInfo = camera.cameraInfo as CameraInfoInternal
-        val resolution = QualitySelector.getResolution(cameraInfo, quality)
-        Assume.assumeTrue(
-            "Quality $quality is not supported on the device.",
-            resolution != null
-        )
+        val videoCapabilities = Recorder.getVideoCapabilities(cameraInfo)
+        for (dynamicRange in videoCapabilities.supportedDynamicRanges) {
+            Assume.assumeTrue(
+                "Quality $quality is not supported on the device.",
+                videoCapabilities.isQualitySupported(quality, dynamicRange)
+            )
 
-        val camcorderProfile = VideoCapabilities.from(cameraInfo).getProfile(quality)
-        val camcorderProfileVideoMime = camcorderProfile!!.videoCodecMimeType!!
+            val encoderProfiles = videoCapabilities.getProfiles(quality, dynamicRange)
+            val videoProfile = encoderProfiles!!.defaultVideoProfile
+            val resolution = Size(videoProfile.width, videoProfile.height)
+            val videoSpec = VideoSpec.builder()
+                .setQualitySelector(QualitySelector.from(quality))
+                .build()
 
-        val videoSpec =
-            VideoSpec.builder().setQualitySelector(QualitySelector.from(quality)).build()
+            val mediaFormat = VideoEncoderConfigVideoProfileResolver(
+                videoProfile.mediaType,
+                timebase,
+                videoSpec,
+                resolution,
+                videoProfile,
+                dynamicRange,
+                SurfaceRequest.FRAME_RATE_RANGE_UNSPECIFIED
+            ).get().toMediaFormat()
 
-        val mediaFormat = VideoEncoderConfigCamcorderProfileResolver(
-            camcorderProfileVideoMime,
-            videoSpec,
-            resolution!!,
-            camcorderProfile,
-            /*expectedFrameRateRange=*/null
-        ).get().toMediaFormat()
+            // Act.
+            val encoderName = EncoderFinder().findEncoderForFormat(
+                mediaFormat,
+                MediaCodecList(MediaCodecList.ALL_CODECS)
+            )
 
-        // Act.
-        val encoderName = EncoderFinder().findEncoderForFormat(
-            mediaFormat,
-            MediaCodecList(MediaCodecList.ALL_CODECS)
-        )
-
-        // Assert.
-        assertTrue(
-            "Cannot find video encoder & the device config is not listed in Quirk.",
-            !TextUtils.isEmpty(encoderName) || isInQuirk(mediaFormat)
-        )
+            // Assert.
+            assertTrue(
+                "Cannot find video encoder & the device config is not listed in Quirk.",
+                !TextUtils.isEmpty(encoderName) || isInQuirk(mediaFormat)
+            )
+        }
     }
 
     private fun isInQuirk(mediaFormat: MediaFormat): Boolean {

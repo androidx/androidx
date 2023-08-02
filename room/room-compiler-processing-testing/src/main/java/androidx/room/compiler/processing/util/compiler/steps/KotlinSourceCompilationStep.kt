@@ -17,8 +17,9 @@
 package androidx.room.compiler.processing.util.compiler.steps
 
 import androidx.room.compiler.processing.util.compiler.KotlinCliRunner
-import org.jetbrains.kotlin.cli.common.ExitCode
 import java.io.File
+import org.jetbrains.kotlin.cli.common.ExitCode
+import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
 
 /**
  * Compiles kotlin sources.
@@ -28,6 +29,7 @@ import java.io.File
 internal object KotlinSourceCompilationStep : KotlinCompilationStep {
     override val name = "kotlinSourceCompilation"
 
+    @OptIn(ExperimentalCompilerApi::class)
     override fun execute(
         workingDir: File,
         arguments: CompilationStepArguments

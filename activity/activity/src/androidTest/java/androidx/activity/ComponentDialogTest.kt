@@ -17,14 +17,22 @@
 package androidx.activity
 
 import android.content.Context
+import android.os.Build
 import android.view.View
+import androidx.annotation.RequiresApi
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleRegistry
+import androidx.savedstate.findViewTreeSavedStateRegistryOwner
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.testutils.withActivity
+import androidx.testutils.withUse
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
+import leakcanary.DetectLeaksAfterTestSuccess
+import org.junit.Ignore
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -32,9 +40,14 @@ import org.junit.runner.RunWith
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 class ComponentDialogTest {
+
+    @get:Rule
+    val rule = DetectLeaksAfterTestSuccess()
+
+    @Ignore("b/286303870")
     @Test
     fun testLifecycle() {
-        with(ActivityScenario.launch(EmptyContentActivity::class.java)) {
+       withUse(ActivityScenario.launch(EmptyContentActivity::class.java)) {
             val dialog = withActivity {
                 ComponentDialog(this)
             }
@@ -57,9 +70,93 @@ class ComponentDialogTest {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
+    @Test
+    @Throws(Throwable::class)
+    fun savedState() {
+        withUse(ActivityScenario.launch(SavedStateActivity::class.java)) {
+            val dialog = withActivity {
+                ComponentDialog(this).also {
+                    it.show()
+                }
+            }
+            val lifecycle = dialog.lifecycle
+            assertThat(lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
+
+            // Initialize saved state
+            withActivity {
+                val registry = dialog.savedStateRegistry
+                val savedState = registry.consumeRestoredStateForKey(CALLBACK_KEY)
+                assertThat(savedState).isNull()
+                registry.registerSavedStateProvider(CALLBACK_KEY, DefaultProvider())
+            }
+
+            // Destroy dialog and restore saved instance state
+            val savedState = dialog.onSaveInstanceState()
+            assertThat(savedState).isNotNull()
+            onActivity {
+                dialog.dismiss()
+            }
+            assertThat(lifecycle.currentState).isEqualTo(Lifecycle.State.DESTROYED)
+            val restoredDialog = withActivity {
+                ComponentDialog(this)
+            }
+            withActivity {
+                assertThat((restoredDialog.lifecycle as LifecycleRegistry).currentState)
+                    .isEqualTo(Lifecycle.State.INITIALIZED)
+                restoredDialog.onRestoreInstanceState(savedState)
+            }
+            assertThat(hasDefaultSavedState(restoredDialog.savedStateRegistry)).isTrue()
+        }
+    }
+
+    @Test
+    fun testViewTreeSavedStateRegistryOwner() {
+        withUse(ActivityScenario.launch(EmptyContentActivity::class.java)) {
+            val dialog = withActivity {
+                ViewOwnerDialog(this).also {
+                    it.show()
+                }
+            }
+            val lifecycle = dialog.lifecycle
+            assertThat(lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
+
+            // Initialize saved state
+            withActivity {
+                val registry = dialog.savedStateRegistry
+                val savedState = registry.consumeRestoredStateForKey(CALLBACK_KEY)
+                assertThat(savedState).isNull()
+                registry.registerSavedStateProvider(CALLBACK_KEY, DefaultProvider())
+                val viewTreeOwner = dialog.view.findViewTreeSavedStateRegistryOwner()
+                assertThat(viewTreeOwner).isNotNull()
+                assertThat(viewTreeOwner).isEqualTo(dialog)
+            }
+
+            // Destroy dialog and restore saved instance state
+            val savedState = dialog.onSaveInstanceState()
+            assertThat(savedState).isNotNull()
+            onActivity {
+                dialog.dismiss()
+            }
+            assertThat(lifecycle.currentState).isEqualTo(Lifecycle.State.DESTROYED)
+            val restoredDialog = withActivity {
+                ViewOwnerDialog(this)
+            }
+            withActivity {
+                assertThat((restoredDialog.lifecycle as LifecycleRegistry).currentState)
+                    .isEqualTo(Lifecycle.State.INITIALIZED)
+                restoredDialog.onRestoreInstanceState(savedState)
+                val viewTreeOwner = restoredDialog.view.findViewTreeSavedStateRegistryOwner()
+                assertThat(viewTreeOwner).isNotNull()
+                assertThat(viewTreeOwner).isEqualTo(restoredDialog)
+            }
+            assertThat(hasDefaultSavedState(restoredDialog.savedStateRegistry)).isTrue()
+        }
+    }
+
     @Test
     fun testOnBackPressed() {
-        with(ActivityScenario.launch(EmptyContentActivity::class.java)) {
+       withUse(ActivityScenario.launch(EmptyContentActivity::class.java)) {
             val dialog = withActivity {
                 DoubleTapBackDialog(this).also {
                     it.show()
@@ -83,7 +180,7 @@ class ComponentDialogTest {
 
     @Test
     fun testViewTreeOnBackPressedDispatcherOwner() {
-        with(ActivityScenario.launch(EmptyContentActivity::class.java)) {
+       withUse(ActivityScenario.launch(EmptyContentActivity::class.java)) {
             val dialog = withActivity {
                 ViewOwnerDialog(this).also {
                     it.show()

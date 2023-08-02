@@ -21,7 +21,6 @@ import androidx.versionedparcelable.VersionedParcelable;
 
 /**
  * Base class for objects that serialize/deserialize {@link Status.Part} objects.
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 abstract class StatusPart implements VersionedParcelable, TimeDependentText {

@@ -16,12 +16,11 @@
 
 package androidx.webkit;
 
-import android.os.Build;
 import android.webkit.WebSettings;
+import android.webkit.WebView;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RequiresFeature;
 import androidx.annotation.RestrictTo;
 import androidx.webkit.internal.ApiFeature;
@@ -39,6 +38,7 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.util.Set;
 
 /**
  * Compatibility version of {@link android.webkit.WebSettings}
@@ -159,7 +159,6 @@ public class WebSettingsCompat {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef(flag = true, value = {
@@ -232,10 +231,9 @@ public class WebSettingsCompat {
      * returns true for {@link WebViewFeature#SUPPRESS_ERROR_PAGE}.
      *
      * @param suppressed whether the WebView should suppress its internal error page
-     *
-     * TODO(cricke): unhide
-     * @hide
+     * @deprecated unreleased API will be removed in 1.9.0
      */
+    @Deprecated
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @RequiresFeature(name = WebViewFeature.SUPPRESS_ERROR_PAGE,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
@@ -260,10 +258,9 @@ public class WebSettingsCompat {
      *
      * @return true if the WebView will suppress its internal error page
      * @see #setWillSuppressErrorPage
-     *
-     * TODO(cricke): unhide
-     * @hide
+     * @deprecated unreleased API will be removed in 1.9.0
      */
+    @Deprecated
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @RequiresFeature(name = WebViewFeature.SUPPRESS_ERROR_PAGE,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
@@ -319,7 +316,6 @@ public class WebSettingsCompat {
     public static final int FORCE_DARK_ON = WebSettings.FORCE_DARK_ON;
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef(value = {
@@ -435,8 +431,8 @@ public class WebSettingsCompat {
      *     <thead>
      *         <tr>
      *             <th>App</th>
-     *             <th>Web content which uses {@code prefers-color-scheme}</th>
-     *             <th>Web content which does not use {@code prefers-color-scheme}</th>
+     *             <th>Web content which uses prefers-color-scheme</th>
+     *             <th>Web content which does not use prefers-color-scheme</th>
      *         </tr>
      *     </thead>
      *     <tbody>
@@ -477,14 +473,20 @@ public class WebSettingsCompat {
      * </table>
      * </p>
      *
+     * <p>
+     * To check if {@code  WebViewFeature.ALGORITHMIC_DARKENING} is supported,
+     * {@link androidx.webkit.WebViewFeature#isFeatureSupported} should be called after WebView
+     * is created.
+     *
+     * <p>
      * @param allow allow algorithmic darkening or not.
+     *
      */
     @RequiresFeature(name = WebViewFeature.ALGORITHMIC_DARKENING,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
-    @RequiresApi(Build.VERSION_CODES.Q)
     public static void setAlgorithmicDarkeningAllowed(@NonNull WebSettings settings,
             boolean allow) {
-        ApiFeature.NoFramework feature = WebViewFeatureInternal.ALGORITHMIC_DARKENING;
+        ApiFeature.T feature = WebViewFeatureInternal.ALGORITHMIC_DARKENING;
         if (feature.isSupportedByWebView()) {
             getAdapter(settings).setAlgorithmicDarkeningAllowed(allow);
         } else {
@@ -501,9 +503,8 @@ public class WebSettingsCompat {
      */
     @RequiresFeature(name = WebViewFeature.ALGORITHMIC_DARKENING,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
-    @RequiresApi(Build.VERSION_CODES.Q)
     public static boolean isAlgorithmicDarkeningAllowed(@NonNull WebSettings settings) {
-        ApiFeature.NoFramework feature = WebViewFeatureInternal.ALGORITHMIC_DARKENING;
+        ApiFeature.T feature = WebViewFeatureInternal.ALGORITHMIC_DARKENING;
         if (feature.isSupportedByWebView()) {
             return getAdapter(settings).isAlgorithmicDarkeningAllowed();
         } else {
@@ -560,7 +561,6 @@ public class WebSettingsCompat {
             WebSettingsBoundaryInterface.ForceDarkBehavior.PREFER_MEDIA_QUERY_OVER_FORCE_DARK;
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef(value = {
@@ -630,101 +630,6 @@ public class WebSettingsCompat {
     }
 
     /**
-     * In this mode the WebView will not add an X-Requested-With header on HTTP
-     * requests automatically.
-     *
-     * @see #setRequestedWithHeaderMode(WebSettings, int)
-     * @see ServiceWorkerWebSettingsCompat#setRequestedWithHeaderMode(int)
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public static final int REQUESTED_WITH_HEADER_MODE_NO_HEADER =
-            WebSettingsBoundaryInterface.RequestedWithHeaderMode.NO_HEADER;
-    /**
-     * In this mode the WebView automatically add an X-Requested-With header to outgoing
-     * requests, if the application or the loaded webpage has not already set a header value.
-     * The value of this automatically added header will be the package name of the app.
-     *
-     * This is the default mode.
-     *
-     * @see #setRequestedWithHeaderMode(WebSettings, int)
-     * @see ServiceWorkerWebSettingsCompat#setRequestedWithHeaderMode(int)
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public static final int REQUESTED_WITH_HEADER_MODE_APP_PACKAGE_NAME =
-            WebSettingsBoundaryInterface.RequestedWithHeaderMode.APP_PACKAGE_NAME;
-
-    /**
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    @IntDef(value = {
-            REQUESTED_WITH_HEADER_MODE_NO_HEADER,
-            REQUESTED_WITH_HEADER_MODE_APP_PACKAGE_NAME
-    })
-    @Retention(RetentionPolicy.SOURCE)
-    @Target({ElementType.PARAMETER, ElementType.METHOD})
-    public @interface RequestedWithHeaderMode {}
-
-    /**
-     * Sets how the WebView will set the X-Requested-With header on requests.
-     *
-     * If you are calling this method, you may also want to call
-     * {@link ServiceWorkerWebSettingsCompat#setRequestedWithHeaderMode(int)} with the same
-     * parameter value to configure ServiceWorker requests.
-     *
-     * The default behavior may vary depending on the WebView implementation.
-     *
-     * <p>
-     * This method should only be called if
-     * {@link WebViewFeature#isFeatureSupported(String)}
-     * returns true for {@link WebViewFeature#REQUESTED_WITH_HEADER_CONTROL}.
-     *
-     * @param requestedWithHeaderMode The {@code REQUESTED_WITH_HEADER_MODE to use}
-     * @see ServiceWorkerWebSettingsCompat#setRequestedWithHeaderMode(int)
-     * @see #getRequestedWithHeaderMode(WebSettings)
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    @RequiresFeature(name = WebViewFeature.REQUESTED_WITH_HEADER_CONTROL,
-            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
-    public static void setRequestedWithHeaderMode(@NonNull WebSettings settings,
-            @RequestedWithHeaderMode int requestedWithHeaderMode) {
-        ApiFeature.NoFramework feature = WebViewFeatureInternal.REQUESTED_WITH_HEADER_CONTROL;
-        if (feature.isSupportedByWebView()) {
-            getAdapter(settings).setRequestedWithHeaderMode(requestedWithHeaderMode);
-        } else {
-            throw WebViewFeatureInternal.getUnsupportedOperationException();
-        }
-    }
-
-    /**
-     * Gets how the WebView will set the X-Requested-With header on HTTP requests.
-     *
-     * <p>
-     * This method should only be called if
-     * {@link WebViewFeature#isFeatureSupported(String)}
-     * returns true for {@link WebViewFeature#REQUESTED_WITH_HEADER_CONTROL}.
-     *
-     * @return the currently configured {@code REQUESTED_WITH_HEADER_MODE}
-     * @see #setRequestedWithHeaderMode(WebSettings, int)
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    @RequiresFeature(name = WebViewFeature.REQUESTED_WITH_HEADER_CONTROL,
-            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
-    @RequestedWithHeaderMode
-    public static int getRequestedWithHeaderMode(@NonNull WebSettings settings) {
-        ApiFeature.NoFramework feature = WebViewFeatureInternal.REQUESTED_WITH_HEADER_CONTROL;
-        if (feature.isSupportedByWebView()) {
-            return getAdapter(settings).getRequestedWithHeaderMode();
-        } else {
-            throw WebViewFeatureInternal.getUnsupportedOperationException();
-        }
-    }
-
-    /**
      * Sets whether EnterpriseAuthenticationAppLinkPolicy if set by admin is allowed to have any
      * effect on WebView.
      * <p>
@@ -780,6 +685,67 @@ public class WebSettingsCompat {
                 WebViewFeatureInternal.ENTERPRISE_AUTHENTICATION_APP_LINK_POLICY;
         if (feature.isSupportedByWebView()) {
             return getAdapter(settings).getEnterpriseAuthenticationAppLinkPolicyEnabled();
+        } else {
+            throw WebViewFeatureInternal.getUnsupportedOperationException();
+        }
+    }
+
+    /**
+     * Get the currently configured allow-list of origins, which is guaranteed to receive the
+     * {@code X-Requested-With} HTTP header on requests from the {@link WebView} owning the passed
+     * {@link WebSettings}.
+     * <p>
+     * Any origin <em>not</em> on this allow-list may not receive the header, depending on the
+     * current installed WebView provider.
+     * <p>
+     * The format of the strings in the allow-list follows the origin rules of
+     * {@link WebViewCompat#addWebMessageListener(WebView, String, Set, WebViewCompat.WebMessageListener)}.
+     *
+     * @param settings Settings retrieved from {@link WebView#getSettings()}.
+     * @return The configured set of allow-listed origins.
+     * @see #setRequestedWithHeaderOriginAllowList(WebSettings, Set)
+     */
+    @RequiresFeature(name = WebViewFeature.REQUESTED_WITH_HEADER_ALLOW_LIST,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
+    @NonNull
+    public static Set<String> getRequestedWithHeaderOriginAllowList(@NonNull WebSettings settings) {
+        final ApiFeature.NoFramework feature =
+                WebViewFeatureInternal.REQUESTED_WITH_HEADER_ALLOW_LIST;
+        if (feature.isSupportedByWebView()) {
+            return getAdapter(settings).getRequestedWithHeaderOriginAllowList();
+        } else {
+            throw WebViewFeatureInternal.getUnsupportedOperationException();
+        }
+    }
+
+    /**
+     * Set an allow-list of origins to receive the {@code X-Requested-With} HTTP header from the
+     * WebView owning the passed {@link WebSettings}.
+     * <p>
+     * Historically, this header was sent on all requests from WebView, containing the
+     * app package name of the embedding app. Depending on the version of installed WebView, this
+     * may no longer be the case, as the header was deprecated in late 2022, and its use
+     * discontinued.
+     * <p>
+     * Apps can use this method to restore the legacy behavior for servers that still rely on
+     * the deprecated header, but it should not be used to identify the webview to first-party
+     * servers under the control of the app developer.
+     * <p>
+     * The format of the strings in the allow-list follows the origin rules of
+     * {@link WebViewCompat#addWebMessageListener(WebView, String, Set, WebViewCompat.WebMessageListener)}.
+     *
+     * @param settings Settings retrieved from {@link WebView#getSettings()}.
+     * @param allowList Set of origins to allow-list.
+     * @throws IllegalArgumentException if the allow-list contains a malformed origin.
+     */
+    @RequiresFeature(name = WebViewFeature.REQUESTED_WITH_HEADER_ALLOW_LIST,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
+    public static void setRequestedWithHeaderOriginAllowList(@NonNull WebSettings settings,
+            @NonNull Set<String> allowList) {
+        final ApiFeature.NoFramework feature =
+                WebViewFeatureInternal.REQUESTED_WITH_HEADER_ALLOW_LIST;
+        if (feature.isSupportedByWebView()) {
+            getAdapter(settings).setRequestedWithHeaderOriginAllowList(allowList);
         } else {
             throw WebViewFeatureInternal.getUnsupportedOperationException();
         }

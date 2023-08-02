@@ -39,6 +39,11 @@ message ExerciseCapabilitiesResponse {
   reserved 2 to max;  // Next ID
 }
 
+message ExerciseEventResponse {
+  optional ExerciseEvent exercise_event = 1;
+  reserved 2 to max;  // Next ID
+}
+
 message ExerciseInfoResponse {
   optional ExerciseInfo exercise_info = 1;
   reserved 2 to max;  // Next ID

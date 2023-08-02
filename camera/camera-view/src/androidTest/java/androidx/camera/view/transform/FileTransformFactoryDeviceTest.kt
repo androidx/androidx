@@ -22,6 +22,7 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.media.ExifInterface
 import android.net.Uri
+import android.os.Environment
 import android.provider.MediaStore
 import androidx.camera.core.impl.utils.Exif
 import androidx.test.core.app.ApplicationProvider.getApplicationContext
@@ -30,13 +31,13 @@ import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.rule.GrantPermissionRule
 import com.google.common.truth.Truth.assertThat
+import java.io.File
+import java.io.FileInputStream
+import java.io.FileOutputStream
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.io.File
-import java.io.FileInputStream
-import java.io.FileOutputStream
 
 private const val WIDTH = 80
 private const val HEIGHT = 60
@@ -47,48 +48,48 @@ private const val HEIGHT = 60
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 @SdkSuppress(minSdkVersion = 21)
-public class FileTransformFactoryDeviceTest {
+class FileTransformFactoryDeviceTest {
 
     private lateinit var factory: FileTransformFactory
     private val contentResolver = getApplicationContext<Context>().contentResolver
 
     @get:Rule
-    public val runtimePermissionRule: GrantPermissionRule = GrantPermissionRule.grant(
+    val runtimePermissionRule: GrantPermissionRule = GrantPermissionRule.grant(
         Manifest.permission.WRITE_EXTERNAL_STORAGE
     )
 
     @Before
-    public fun setUp() {
+    fun setUp() {
         factory = FileTransformFactory()
     }
 
     @Test
-    public fun setUseRotationDegrees_getterReturnsTrue() {
+    fun setUseRotationDegrees_getterReturnsTrue() {
         factory.isUsingExifOrientation = true
         assertThat(factory.isUsingExifOrientation).isTrue()
     }
 
     @Test
-    public fun extractFromFile() {
+    fun extractFromFile() {
         factory.getOutputTransform(createImageFile()).assertMapping(1f, 1f, WIDTH, HEIGHT)
     }
 
     @Test
-    public fun extractFromFileWithExifInfo() {
+    fun extractFromFileWithExifInfo() {
         factory.isUsingExifOrientation = true
         factory.getOutputTransform(createImageFile(ExifInterface.ORIENTATION_ROTATE_90))
             .assertMapping(1f, 1f, 0, WIDTH)
     }
 
     @Test
-    public fun extractFromInputStream() {
+    fun extractFromInputStream() {
         FileInputStream(createImageFile()).use {
             factory.getOutputTransform(it).assertMapping(1f, 1f, WIDTH, HEIGHT)
         }
     }
 
     @Test
-    public fun extractFromMediaStoreUri() {
+    fun extractFromMediaStoreUri() {
         val uri = createMediaStoreImage()
         factory.getOutputTransform(contentResolver, uri).assertMapping(1f, 1f, WIDTH, HEIGHT)
         contentResolver.delete(uri, null, null)
@@ -128,6 +129,9 @@ public class FileTransformFactoryDeviceTest {
     }
 
     private fun createMediaStoreImage(): Uri {
+        // Ensure the folder of MediaStore.Images.Media is created.
+        Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)?.mkdirs()
+
         val contentValues = ContentValues()
         contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg")
         val uri = contentResolver.insert(
@@ -135,7 +139,7 @@ public class FileTransformFactoryDeviceTest {
             contentValues
         )
         contentResolver.openOutputStream(uri!!).use {
-            createBitmap().compress(Bitmap.CompressFormat.JPEG, 100, it)
+            createBitmap().compress(Bitmap.CompressFormat.JPEG, 100, it!!)
         }
         return uri
     }

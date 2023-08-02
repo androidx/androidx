@@ -31,6 +31,7 @@ import androidx.media2.test.service.MockPlayer;
 import androidx.media2.test.service.MockRemotePlayer;
 import androidx.media2.test.service.RemoteMediaController;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 
 import org.junit.After;
@@ -44,6 +45,7 @@ import java.util.concurrent.TimeUnit;
  * Tests whether the methods of {@link RemoteSessionPlayer} are triggered by the
  * controller.
  */
+@SdkSuppress(maxSdkVersion = 32) // b/244312419
 @RunWith(AndroidJUnit4.class)
 @SmallTest
 public class RemoteSessionPlayerTest extends MediaSessionTestBase {

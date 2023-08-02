@@ -16,17 +16,18 @@
 
 package androidx.compose.ui.input.pointer
 
+import androidx.collection.LongSparseArray
 import java.awt.event.MouseEvent
 
 internal actual class InternalPointerEvent constructor(
     val type: PointerEventType,
-    actual val changes: Map<PointerId, PointerInputChange>,
+    actual val changes: LongSparseArray<PointerInputChange>,
     val buttons: PointerButtons,
     val keyboardModifiers: PointerKeyboardModifiers,
     val mouseEvent: MouseEvent?
 ) {
     actual constructor(
-        changes: Map<PointerId, PointerInputChange>,
+        changes: LongSparseArray<PointerInputChange>,
         pointerInputEvent: PointerInputEvent
     ) : this(
         pointerInputEvent.eventType,

@@ -42,7 +42,6 @@ public class ParcelUtils {
 
     /**
      * Turn a VersionedParcelable into a Parcelable
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @NonNull
@@ -52,7 +51,6 @@ public class ParcelUtils {
 
     /**
      * Turn a Parcelable into a VersionedParcelable.
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @SuppressWarnings("TypeParameterUnusedInFormals")
@@ -68,7 +66,6 @@ public class ParcelUtils {
 
     /**
      * Write a VersionedParcelable into an OutputStream.
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public static void toOutputStream(
@@ -82,7 +79,6 @@ public class ParcelUtils {
 
     /**
      * Read a VersionedParcelable from an InputStream.
-     * @hide
      */
     @SuppressWarnings("TypeParameterUnusedInFormals")
     @RestrictTo(LIBRARY_GROUP_PREFIX)

@@ -26,7 +26,6 @@ import androidx.test.core.app.ApplicationProvider;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.MockitoAnnotations;
 import org.robolectric.Shadows;
 import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
@@ -40,7 +39,6 @@ public class WearTypeHelperTest {
 
     @Before
     public void setUp() {
-        MockitoAnnotations.initMocks(this);
         mContext = ApplicationProvider.getApplicationContext();
         mShadowPackageManager = Shadows.shadowOf(mContext.getPackageManager());
     }

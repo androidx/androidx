@@ -1,0 +1,42 @@
+
+/*
+ * Copyright (C) 2022 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+import androidx.build.LibraryType
+plugins {
+    id("AndroidXPlugin")
+    id("com.android.application")
+    id("org.jetbrains.kotlin.android")
+}
+dependencies {
+    // You might need to import this to resolve duplicate class in kotlin-stdlib.
+    // See: https://kotlinlang.org/docs/whatsnew18.html#usage-of-the-latest-kotlin-stdlib-version-in-transitive-dependencies
+    implementation(platform("org.jetbrains.kotlin:kotlin-bom:1.8.0"))
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-guava:1.6.4")
+    implementation("androidx.appcompat:appcompat:1.6.1")
+    implementation(project(":emoji2:emoji2-emojipicker"))
+}
+android {
+    defaultConfig {
+        minSdkVersion 21
+    }
+    namespace "androidx.emoji2.emojipicker.samples"
+}
+androidx {
+    name = "androidx.emoji2:emoji2-emojipicker-samples"
+    type = LibraryType.SAMPLES
+    inceptionYear = "2022"
+    description = "Contains the sample code for the APIs in the androidx.emoji2:emoji2-emojipicker library"
+}

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryType
+import androidx.build.Publish
 import androidx.build.RunApiTasks
 
 plugins {
@@ -25,21 +25,21 @@ plugins {
 
 dependencies {
     api("androidx.annotation:annotation:1.2.0")
-    implementation("androidx.annotation:annotation-experimental:1.1.0-rc01")
+    implementation("androidx.annotation:annotation-experimental:1.3.1")
     implementation(libs.guavaListenableFuture)
-    implementation("androidx.core:core:1.3.2")
-    implementation("androidx.concurrent:concurrent-futures:1.0.0")
+    implementation("androidx.core:core:1.7.0")
+    implementation("androidx.concurrent:concurrent-futures:1.1.0")
+    implementation("androidx.concurrent:concurrent-futures-ktx:1.1.0")
     implementation(libs.autoValueAnnotations)
     implementation("androidx.appcompat:appcompat:1.1.0")
     implementation("androidx.test.espresso:espresso-idling-resource:3.1.0")
-
-    // Added for annotation-experimental
-    compileOnly(libs.kotlinStdlib)
+    implementation(libs.kotlinCoroutinesCore)
+    implementation(libs.kotlinCoroutinesAndroid)
 
     annotationProcessor(libs.autoValue)
 
     testImplementation(libs.testRunner)
-    testImplementation(libs.mockitoCore)
+    testImplementation(libs.mockitoCore4)
     testImplementation(libs.robolectric)
     testImplementation(libs.kotlinStdlib)
     testImplementation(libs.truth)
@@ -77,9 +77,9 @@ android {
 }
 
 androidx {
-    name = "androidx.camera:camera-viewfinder"
-    type = LibraryType.PUBLISHED_LIBRARY
-    mavenGroup = LibraryGroups.CAMERA
+    name = "Camera ViewFinder"
+    publish = Publish.SNAPSHOT_AND_RELEASE
+    runApiTasks = new RunApiTasks.Yes("Need to track API surface before moving to publish")
     inceptionYear = "2022"
     description = "Standalone Viewfinder for Camera2 and CameraX"
 }

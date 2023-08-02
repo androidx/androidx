@@ -19,10 +19,6 @@ AcronymName: androidx.sqlite.db.SupportSQLiteStatement:
     Acronyms should not be capitalized in class names: was `SupportSQLiteStatement`, should this be `SupportSqLiteStatement`?
 
 
-ArrayReturn: androidx.sqlite.db.SimpleSQLiteQuery#SimpleSQLiteQuery(String, Object[]) parameter #1:
-    Method parameter should be Collection<Object> (or subclass) instead of raw array; was `java.lang.Object[]`
-ArrayReturn: androidx.sqlite.db.SimpleSQLiteQuery#bind(androidx.sqlite.db.SupportSQLiteProgram, Object[]) parameter #1:
-    Method parameter should be Collection<Object> (or subclass) instead of raw array; was `java.lang.Object[]`
 ArrayReturn: androidx.sqlite.db.SupportSQLiteDatabase#delete(String, String, Object[]) parameter #2:
     Method parameter should be Collection<Object> (or subclass) instead of raw array; was `java.lang.Object[]`
 ArrayReturn: androidx.sqlite.db.SupportSQLiteDatabase#execSQL(String, Object[]) parameter #1:
@@ -83,88 +79,6 @@ MissingBuildMethod: androidx.sqlite.db.SupportSQLiteQueryBuilder:
     androidx.sqlite.db.SupportSQLiteQueryBuilder does not declare a `build()` method, but builder classes are expected to
 
 
-MissingNullability: androidx.sqlite.db.SimpleSQLiteQuery#SimpleSQLiteQuery(String) parameter #0:
-    Missing nullability on parameter `query` in method `SimpleSQLiteQuery`
-MissingNullability: androidx.sqlite.db.SimpleSQLiteQuery#SimpleSQLiteQuery(String, Object[]) parameter #0:
-    Missing nullability on parameter `query` in method `SimpleSQLiteQuery`
-MissingNullability: androidx.sqlite.db.SimpleSQLiteQuery#bind(androidx.sqlite.db.SupportSQLiteProgram, Object[]) parameter #0:
-    Missing nullability on parameter `statement` in method `bind`
-MissingNullability: androidx.sqlite.db.SimpleSQLiteQuery#bind(androidx.sqlite.db.SupportSQLiteProgram, Object[]) parameter #1:
-    Missing nullability on parameter `bindArgs` in method `bind`
-MissingNullability: androidx.sqlite.db.SimpleSQLiteQuery#bindTo(androidx.sqlite.db.SupportSQLiteProgram) parameter #0:
-    Missing nullability on parameter `statement` in method `bindTo`
-MissingNullability: androidx.sqlite.db.SimpleSQLiteQuery#getSql():
-    Missing nullability on method `getSql` return
-MissingNullability: androidx.sqlite.db.SupportSQLiteDatabase#beginTransactionWithListener(android.database.sqlite.SQLiteTransactionListener) parameter #0:
-    Missing nullability on parameter `transactionListener` in method `beginTransactionWithListener`
-MissingNullability: androidx.sqlite.db.SupportSQLiteDatabase#beginTransactionWithListenerNonExclusive(android.database.sqlite.SQLiteTransactionListener) parameter #0:
-    Missing nullability on parameter `transactionListener` in method `beginTransactionWithListenerNonExclusive`
-MissingNullability: androidx.sqlite.db.SupportSQLiteDatabase#compileStatement(String):
-    Missing nullability on method `compileStatement` return
-MissingNullability: androidx.sqlite.db.SupportSQLiteDatabase#compileStatement(String) parameter #0:
-    Missing nullability on parameter `sql` in method `compileStatement`
-MissingNullability: androidx.sqlite.db.SupportSQLiteDatabase#delete(String, String, Object[]) parameter #0:
-    Missing nullability on parameter `table` in method `delete`
-MissingNullability: androidx.sqlite.db.SupportSQLiteDatabase#delete(String, String, Object[]) parameter #1:
-    Missing nullability on parameter `whereClause` in method `delete`
-MissingNullability: androidx.sqlite.db.SupportSQLiteDatabase#delete(String, String, Object[]) parameter #2:
-    Missing nullability on parameter `whereArgs` in method `delete`
-MissingNullability: androidx.sqlite.db.SupportSQLiteDatabase#execSQL(String) parameter #0:
-    Missing nullability on parameter `sql` in method `execSQL`
-MissingNullability: androidx.sqlite.db.SupportSQLiteDatabase#execSQL(String, Object[]) parameter #0:
-    Missing nullability on parameter `sql` in method `execSQL`
-MissingNullability: androidx.sqlite.db.SupportSQLiteDatabase#execSQL(String, Object[]) parameter #1:
-    Missing nullability on parameter `bindArgs` in method `execSQL`
-MissingNullability: androidx.sqlite.db.SupportSQLiteDatabase#getAttachedDbs():
-    Missing nullability on method `getAttachedDbs` return
-MissingNullability: androidx.sqlite.db.SupportSQLiteDatabase#getPath():
-    Missing nullability on method `getPath` return
-MissingNullability: androidx.sqlite.db.SupportSQLiteDatabase#insert(String, int, android.content.ContentValues) parameter #0:
-    Missing nullability on parameter `table` in method `insert`
-MissingNullability: androidx.sqlite.db.SupportSQLiteDatabase#insert(String, int, android.content.ContentValues) parameter #2:
-    Missing nullability on parameter `values` in method `insert`
-MissingNullability: androidx.sqlite.db.SupportSQLiteDatabase#query(String):
-    Missing nullability on method `query` return
-MissingNullability: androidx.sqlite.db.SupportSQLiteDatabase#query(String) parameter #0:
-    Missing nullability on parameter `query` in method `query`
-MissingNullability: androidx.sqlite.db.SupportSQLiteDatabase#query(String, Object[]):
-    Missing nullability on method `query` return
-MissingNullability: androidx.sqlite.db.SupportSQLiteDatabase#query(String, Object[]) parameter #0:
-    Missing nullability on parameter `query` in method `query`
-MissingNullability: androidx.sqlite.db.SupportSQLiteDatabase#query(String, Object[]) parameter #1:
-    Missing nullability on parameter `bindArgs` in method `query`
-MissingNullability: androidx.sqlite.db.SupportSQLiteDatabase#query(androidx.sqlite.db.SupportSQLiteQuery):
-    Missing nullability on method `query` return
-MissingNullability: androidx.sqlite.db.SupportSQLiteDatabase#query(androidx.sqlite.db.SupportSQLiteQuery) parameter #0:
-    Missing nullability on parameter `query` in method `query`
-MissingNullability: androidx.sqlite.db.SupportSQLiteDatabase#query(androidx.sqlite.db.SupportSQLiteQuery, android.os.CancellationSignal):
-    Missing nullability on method `query` return
-MissingNullability: androidx.sqlite.db.SupportSQLiteDatabase#query(androidx.sqlite.db.SupportSQLiteQuery, android.os.CancellationSignal) parameter #0:
-    Missing nullability on parameter `query` in method `query`
-MissingNullability: androidx.sqlite.db.SupportSQLiteDatabase#query(androidx.sqlite.db.SupportSQLiteQuery, android.os.CancellationSignal) parameter #1:
-    Missing nullability on parameter `cancellationSignal` in method `query`
-MissingNullability: androidx.sqlite.db.SupportSQLiteDatabase#setLocale(java.util.Locale) parameter #0:
-    Missing nullability on parameter `locale` in method `setLocale`
-MissingNullability: androidx.sqlite.db.SupportSQLiteDatabase#update(String, int, android.content.ContentValues, String, Object[]) parameter #0:
-    Missing nullability on parameter `table` in method `update`
-MissingNullability: androidx.sqlite.db.SupportSQLiteDatabase#update(String, int, android.content.ContentValues, String, Object[]) parameter #2:
-    Missing nullability on parameter `values` in method `update`
-MissingNullability: androidx.sqlite.db.SupportSQLiteDatabase#update(String, int, android.content.ContentValues, String, Object[]) parameter #3:
-    Missing nullability on parameter `whereClause` in method `update`
-MissingNullability: androidx.sqlite.db.SupportSQLiteDatabase#update(String, int, android.content.ContentValues, String, Object[]) parameter #4:
-    Missing nullability on parameter `whereArgs` in method `update`
-MissingNullability: androidx.sqlite.db.SupportSQLiteOpenHelper#getReadableDatabase():
-    Missing nullability on method `getReadableDatabase` return
-MissingNullability: androidx.sqlite.db.SupportSQLiteOpenHelper#getWritableDatabase():
-    Missing nullability on method `getWritableDatabase` return
-MissingNullability: androidx.sqlite.db.SupportSQLiteProgram#bindBlob(int, byte[]) parameter #1:
-    Missing nullability on parameter `value` in method `bindBlob`
-MissingNullability: androidx.sqlite.db.SupportSQLiteProgram#bindString(int, String) parameter #1:
-    Missing nullability on parameter `value` in method `bindString`
-MissingNullability: androidx.sqlite.db.SupportSQLiteQuery#bindTo(androidx.sqlite.db.SupportSQLiteProgram) parameter #0:
-    Missing nullability on parameter `statement` in method `bindTo`
-MissingNullability: androidx.sqlite.db.SupportSQLiteQuery#getSql():
-    Missing nullability on method `getSql` return
 MissingNullability: androidx.sqlite.db.SupportSQLiteQueryBuilder#builder(String):
     Missing nullability on method `builder` return
 MissingNullability: androidx.sqlite.db.SupportSQLiteQueryBuilder#builder(String) parameter #0:
@@ -199,8 +113,6 @@ MissingNullability: androidx.sqlite.db.SupportSQLiteQueryBuilder#selection(Strin
     Missing nullability on parameter `selection` in method `selection`
 MissingNullability: androidx.sqlite.db.SupportSQLiteQueryBuilder#selection(String, Object[]) parameter #1:
     Missing nullability on parameter `bindArgs` in method `selection`
-MissingNullability: androidx.sqlite.db.SupportSQLiteStatement#simpleQueryForString():
-    Missing nullability on method `simpleQueryForString` return
 
 
 StaticFinalBuilder: androidx.sqlite.db.SupportSQLiteOpenHelper.Configuration.Builder:

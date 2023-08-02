@@ -191,7 +191,7 @@ class PerformanceMetricsState private constructor() {
             val nowTime = System.nanoTime()
             markStateForRemoval(key, states, nowTime)
             states.add(
-                StateData(
+                getStateData(
                     nowTime, -1,
                     StateInfo(key, value)
                 )

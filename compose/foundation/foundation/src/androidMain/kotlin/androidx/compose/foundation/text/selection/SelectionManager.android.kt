@@ -16,10 +16,11 @@
 
 package androidx.compose.foundation.text.selection
 
-import android.annotation.SuppressLint
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.MagnifierStyle
 import androidx.compose.foundation.magnifier
+import androidx.compose.foundation.text.KeyCommand
+import androidx.compose.foundation.text.platformDefaultKeyMapping
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -30,12 +31,11 @@ import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntSize
 
-// TODO(b/139322105) Implement for Android when hardware keyboard is implemented
-internal actual fun isCopyKeyEvent(keyEvent: KeyEvent) = false
+internal actual fun isCopyKeyEvent(keyEvent: KeyEvent) =
+    platformDefaultKeyMapping.map(keyEvent) == KeyCommand.COPY
 
 // We use composed{} to read a local, but don't provide inspector info because the underlying
 // magnifier modifier provides more meaningful inspector info.
-@SuppressLint("ModifierInspectorInfo")
 @OptIn(ExperimentalFoundationApi::class)
 internal actual fun Modifier.selectionMagnifier(manager: SelectionManager): Modifier {
     // Avoid tracking animation state on older Android versions that don't support magnifiers.

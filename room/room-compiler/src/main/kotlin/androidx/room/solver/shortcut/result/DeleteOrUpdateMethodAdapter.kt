@@ -16,20 +16,22 @@
 
 package androidx.room.solver.shortcut.result
 
-import androidx.room.ext.KotlinTypeNames
-import androidx.room.ext.L
-import androidx.room.ext.N
-import androidx.room.ext.T
+import androidx.room.compiler.codegen.CodeLanguage
+import androidx.room.compiler.codegen.XCodeBlock
+import androidx.room.compiler.codegen.XPropertySpec
+import androidx.room.compiler.codegen.XTypeName
+import androidx.room.compiler.codegen.XTypeSpec
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.isInt
 import androidx.room.compiler.processing.isKotlinUnit
 import androidx.room.compiler.processing.isVoid
 import androidx.room.compiler.processing.isVoidObject
+import androidx.room.ext.KotlinTypeNames
+import androidx.room.ext.isNotKotlinUnit
+import androidx.room.ext.isNotVoid
+import androidx.room.ext.isNotVoidObject
 import androidx.room.solver.CodeGenScope
 import androidx.room.vo.ShortcutQueryParameter
-import com.squareup.javapoet.FieldSpec
-import com.squareup.javapoet.TypeName
-import com.squareup.javapoet.TypeSpec
 
 /**
  * Class that knows how to generate a delete or update method body.
@@ -53,8 +55,8 @@ class DeleteOrUpdateMethodAdapter private constructor(private val returnType: XT
 
     fun createDeleteOrUpdateMethodBody(
         parameters: List<ShortcutQueryParameter>,
-        adapters: Map<String, Pair<FieldSpec, TypeSpec>>,
-        dbField: FieldSpec,
+        adapters: Map<String, Pair<XPropertySpec, XTypeSpec>>,
+        dbProperty: XPropertySpec,
         scope: CodeGenScope
     ) {
         val resultVar = if (hasResultValue(returnType)) {
@@ -62,45 +64,46 @@ class DeleteOrUpdateMethodAdapter private constructor(private val returnType: XT
         } else {
             null
         }
-        scope.builder().apply {
+        scope.builder.apply {
             if (resultVar != null) {
-                addStatement("$T $L = 0", TypeName.INT, resultVar)
+                addLocalVariable(
+                    name = resultVar,
+                    typeName = XTypeName.PRIMITIVE_INT,
+                    isMutable = true,
+                    assignExpr = XCodeBlock.of(language, "0")
+                )
             }
-            addStatement("$N.beginTransaction()", dbField)
+            addStatement("%N.beginTransaction()", dbProperty)
             beginControlFlow("try").apply {
                 parameters.forEach { param ->
-                    val adapter = adapters[param.name]?.first
+                    val adapter = adapters.getValue(param.name).first
                     addStatement(
-                        "$L$N.$L($L)",
-                        if (resultVar == null) "" else "$resultVar +=",
-                        adapter, param.handleMethodName(), param.name
+                        "%L%L.%L(%L)",
+                        if (resultVar == null) "" else "$resultVar += ",
+                        adapter.name,
+                        param.handleMethodName(),
+                        param.name
                     )
                 }
-                addStatement("$N.setTransactionSuccessful()", dbField)
+                addStatement("%N.setTransactionSuccessful()", dbProperty)
                 if (resultVar != null) {
-                    addStatement("return $L", resultVar)
-                } else if (hasNullReturn(returnType)) {
+                    addStatement("return %L", resultVar)
+                } else if (returnType.isVoidObject()) {
                     addStatement("return null")
-                } else if (hasUnitReturn(returnType)) {
-                    addStatement("return $T.INSTANCE", KotlinTypeNames.UNIT)
+                } else if (returnType.isKotlinUnit() && scope.language == CodeLanguage.JAVA) {
+                    addStatement("return %T.INSTANCE", KotlinTypeNames.UNIT)
                 }
             }
             nextControlFlow("finally").apply {
-                addStatement("$N.endTransaction()", dbField)
+                addStatement("%N.endTransaction()", dbProperty)
             }
             endControlFlow()
         }
     }
 
     private fun hasResultValue(returnType: XType): Boolean {
-        return !(
-            returnType.isVoid() ||
-                returnType.isVoidObject() ||
-                returnType.isKotlinUnit()
-            )
+        return returnType.isNotVoid() &&
+            returnType.isNotVoidObject() &&
+            returnType.isNotKotlinUnit()
     }
-
-    private fun hasNullReturn(returnType: XType) = returnType.isVoidObject()
-
-    private fun hasUnitReturn(returnType: XType) = returnType.isKotlinUnit()
 }

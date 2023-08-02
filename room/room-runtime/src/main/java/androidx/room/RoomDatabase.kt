@@ -110,7 +110,6 @@ abstract class RoomDatabase {
     private var writeAheadLoggingEnabled = false
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     @Deprecated("Will be hidden in a future release.")
@@ -120,9 +119,9 @@ abstract class RoomDatabase {
     /**
      * A map of auto migration spec classes to their provided instance.
      *
-     * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     protected var autoMigrationSpecs: MutableMap<Class<out AutoMigrationSpec>, AutoMigrationSpec> =
         mutableMapOf()
     private val readWriteLock = ReentrantReadWriteLock()
@@ -154,7 +153,6 @@ abstract class RoomDatabase {
     /**
      * Gets the map for storing extension properties of Kotlin type.
      *
-     * @hide
      */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     val backingFieldMap: MutableMap<String, Any> = Collections.synchronizedMap(mutableMapOf())
@@ -298,7 +296,6 @@ abstract class RoomDatabase {
      * @return A list of migration instances each of which is a generated autoMigration
      * @param autoMigrationSpecs
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @JvmSuppressWildcards // Suppress wildcards due to generated Java code
@@ -369,7 +366,6 @@ abstract class RoomDatabase {
      *
      * @return Creates a set that will include all required auto migration specs for this database.
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     open fun getRequiredAutoMigrationSpecs(): Set<Class<out AutoMigrationSpec>> {
@@ -394,13 +390,22 @@ abstract class RoomDatabase {
     /**
      * True if database connection is open and initialized.
      *
+     * When Room is configured with [RoomDatabase.Builder.setAutoCloseTimeout] the database
+     * is considered open even if internally the connection has been closed, unless manually closed.
+     *
      * @return true if the database connection is open, false otherwise.
      */
-    @Suppress("Deprecation")
+    @Suppress("Deprecation") // Due to usage of `mDatabase`
     open val isOpen: Boolean
-        get() {
-            return (autoCloser?.isActive ?: mDatabase?.isOpen) == true
-        }
+        get() = (autoCloser?.isActive ?: mDatabase?.isOpen) == true
+
+    /**
+     * True if the actual database connection is open, regardless of auto-close.
+     */
+    @Suppress("Deprecation") // Due to usage of `mDatabase`
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    val isOpenInternal: Boolean
+        get() = mDatabase?.isOpen == true
 
     /**
      * Closes the database if it is already open.
@@ -425,7 +430,6 @@ abstract class RoomDatabase {
     /**
      * Asserts that we are not on the main thread.
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) // used in generated code
     open fun assertNotMainThread() {
@@ -441,7 +445,6 @@ abstract class RoomDatabase {
     /**
      * Asserts that we are not on a suspending transaction.
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // used in generated code
     open fun assertNotSuspendingTransaction() {
@@ -460,7 +463,7 @@ abstract class RoomDatabase {
      * @param args  The bind arguments for the placeholders in the query
      * @return A Cursor obtained by running the given query in the Room database.
      */
-    open fun query(query: String, args: Array<Any?>?): Cursor {
+    open fun query(query: String, args: Array<out Any?>?): Cursor {
         return openHelper.writableDatabase.query(SimpleSQLiteQuery(query, args))
     }
 
@@ -662,8 +665,9 @@ abstract class RoomDatabase {
                 return this
             }
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                val manager = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
-                if (!isLowRamDevice(manager)) {
+                val manager =
+                    context.getSystemService(Context.ACTIVITY_SERVICE) as? ActivityManager
+                if (manager != null && !isLowRamDevice(manager)) {
                     return WRITE_AHEAD_LOGGING
                 }
             }
@@ -1193,7 +1197,7 @@ abstract class RoomDatabase {
 
         /**
          * Enables auto-closing for the database to free up unused resources. The underlying
-         * database will be closed after it's last use after the specified `autoCloseTimeout` has
+         * database will be closed after it's last use after the specified [autoCloseTimeout] has
          * elapsed since its last usage. The database will be automatically
          * re-opened the next time it is accessed.
          *
@@ -1210,7 +1214,7 @@ abstract class RoomDatabase {
          *
          * The auto-closing database operation runs on the query executor.
          *
-         * The database will not be reopened if the RoomDatabase or the
+         * The database will not be re-opened if the RoomDatabase or the
          * SupportSqliteOpenHelper is closed manually (by calling
          * [RoomDatabase.close] or [SupportSQLiteOpenHelper.close]. If the
          * database is closed manually, you must create a new database using
@@ -1522,7 +1526,7 @@ abstract class RoomDatabase {
      *
      * Can be set using [RoomDatabase.Builder.setQueryCallback].
      */
-    interface QueryCallback {
+    fun interface QueryCallback {
         /**
          * Called when a SQL query is executed.
          *
@@ -1536,7 +1540,6 @@ abstract class RoomDatabase {
         /**
          * Unfortunately, we cannot read this value so we are only setting it to the SQLite default.
          *
-         * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
         const val MAX_BIND_PARAMETER_CNT = 999

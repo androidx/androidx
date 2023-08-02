@@ -25,6 +25,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.PointF;
 import android.graphics.Rect;
+import android.media.AudioManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcel;
@@ -460,6 +461,8 @@ public final class GridLayoutManager extends RecyclerView.LayoutManager {
     // mPositionToRowInPostLayout and mDisappearingPositions are temp variables in post layout.
     final SparseIntArray mPositionToRowInPostLayout = new SparseIntArray();
     int[] mDisappearingPositions;
+
+    AudioManager mAudioManager;
 
     RecyclerView.Recycler mRecycler;
 
@@ -1236,6 +1239,14 @@ public final class GridLayoutManager extends RecyclerView.LayoutManager {
     private int getViewCenterY(View v) {
         LayoutParams p = (LayoutParams) v.getLayoutParams();
         return p.getOpticalTop(v) + p.getAlignY();
+    }
+
+    AudioManager getAudioManager() {
+        if (mAudioManager == null) {
+            mAudioManager = (AudioManager) mBaseGridView.getContext()
+                .getSystemService(Context.AUDIO_SERVICE);
+        }
+        return mAudioManager;
     }
 
     /**
@@ -2861,6 +2872,21 @@ public final class GridLayoutManager extends RecyclerView.LayoutManager {
                 mPendingMoveSmoothScroller.decreasePendingMoves();
             }
         }
+        int soundEffect;
+        if (mOrientation == HORIZONTAL) {
+            boolean rtl = getLayoutDirection() == ViewCompat.LAYOUT_DIRECTION_RTL;
+            if (rtl) {
+                soundEffect = forward ? AudioManager.FX_FOCUS_NAVIGATION_LEFT :
+                        AudioManager.FX_FOCUS_NAVIGATION_RIGHT;
+            } else {
+                soundEffect = forward ? AudioManager.FX_FOCUS_NAVIGATION_RIGHT :
+                        AudioManager.FX_FOCUS_NAVIGATION_LEFT;
+            }
+        } else {
+            soundEffect = forward ? AudioManager.FX_FOCUS_NAVIGATION_DOWN :
+                    AudioManager.FX_FOCUS_NAVIGATION_UP;
+        }
+        getAudioManager().playSoundEffect(soundEffect);
     }
 
     @Override

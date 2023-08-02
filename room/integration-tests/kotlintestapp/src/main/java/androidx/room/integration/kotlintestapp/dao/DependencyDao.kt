@@ -33,18 +33,18 @@ interface DependencyDao {
     fun selectAll(): List<DataClassFromDependency>
 
     @Query("select * from DataClassFromDependency where id = :id LIMIT 1")
-    fun findEmbedded(id: Int): EmbeddedFromDependency
+    fun findEmbedded(id: Int): EmbeddedFromDependency?
 
     @Query("select * from DataClassFromDependency where id = :id LIMIT 1")
-    fun findPojo(id: Int): PojoFromDependency
+    fun findPojo(id: Int): PojoFromDependency?
 
     @Query("select * from DataClassFromDependency where id = :id LIMIT 1")
-    fun findById(id: Int): DataClassFromDependency
+    fun findById(id: Int): DataClassFromDependency?
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     @Transaction
     @Query("WITH nameTable( sharedName ) AS ( SELECT :name ) SELECT * from nameTable")
-    fun relation(name: String): RelationFromDependency
+    fun relation(name: String): RelationFromDependency?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(vararg input: DataClassFromDependency)

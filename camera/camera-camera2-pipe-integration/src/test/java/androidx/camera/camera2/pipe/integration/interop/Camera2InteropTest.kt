@@ -13,6 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+@file:RequiresApi(21)
+
 package androidx.camera.camera2.pipe.integration.interop
 
 import android.hardware.camera2.CameraCaptureSession
@@ -21,10 +24,11 @@ import android.hardware.camera2.CameraMetadata
 import android.hardware.camera2.CaptureRequest
 import android.os.Build
 import android.util.Range
+import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.integration.adapter.RobolectricCameraPipeTestRunner
 import androidx.camera.camera2.pipe.integration.impl.CAPTURE_REQUEST_ID_STEM
 import androidx.camera.camera2.pipe.integration.impl.Camera2ImplConfig
-import androidx.camera.testing.fakes.FakeConfig
+import androidx.camera.testing.impl.fakes.FakeConfig
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -33,6 +37,7 @@ import org.robolectric.annotation.internal.DoNotInstrument
 
 private const val INVALID_TEMPLATE_TYPE = -1
 private const val INVALID_COLOR_CORRECTION_MODE = -1
+private const val PHYSICAL_CAMERA_ID = "0"
 private val SESSION_CAPTURE_CALLBACK = object : CameraCaptureSession.CaptureCallback() {
     // unused
 }
@@ -76,6 +81,36 @@ class Camera2InteropTest {
         // Assert
         assertThat(config.getCaptureRequestTemplate(INVALID_TEMPLATE_TYPE)).isEqualTo(
             CameraDevice.TEMPLATE_PREVIEW
+        )
+    }
+
+    @Config(minSdk = 33)
+    @Test
+    fun canExtendWithStreamUseCase() {
+        // Arrange
+        val builder = FakeConfig.Builder()
+        Camera2Interop.Extender(builder).setStreamUseCase(3)
+
+        // Act
+        val config = Camera2ImplConfig(builder.build())
+
+        // Assert
+        assertThat(config.getStreamUseCase(-1)).isEqualTo(
+            3
+        )
+    }
+
+    @Test
+    fun defaultConfigDoesNotSetStreamUseCase() {
+        // Arrange
+        val builder = FakeConfig.Builder()
+
+        // Act
+        val config = Camera2ImplConfig(builder.build())
+
+        // Assert
+        assertThat(config.getStreamUseCase(-1)).isEqualTo(
+            -1
         )
     }
 
@@ -205,5 +240,19 @@ class Camera2InteropTest {
             ).isEqualTo(androidx.camera.core.impl.Config.OptionPriority.ALWAYS_OVERRIDE)
             true
         }
+    }
+
+    @Config(minSdk = 28)
+    @Test
+    fun canExtendWithPhysicalCameraId() {
+        // Arrange
+        val builder = FakeConfig.Builder()
+        Camera2Interop.Extender<FakeConfig>(builder).setPhysicalCameraId(PHYSICAL_CAMERA_ID)
+
+        // Act
+        val config = Camera2ImplConfig(builder.build())
+
+        // Assert
+        assertThat(config.getPhysicalCameraId(null)).isEqualTo(PHYSICAL_CAMERA_ID)
     }
 }

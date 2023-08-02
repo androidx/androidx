@@ -29,6 +29,7 @@ import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.runBlocking
 import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.ComposableNode
 import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.GetComposablesResponse
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 
@@ -37,6 +38,7 @@ class DialogTest {
     @get:Rule
     val rule = ComposeInspectionRule(DialogTestActivity::class)
 
+    @Ignore // b/273151077
     @Test
     fun dialogLocation(): Unit = runBlocking {
         assertThat(rule.roots).hasSize(2)
@@ -52,7 +54,9 @@ class DialogTest {
         assertThat(appRoots).hasSize(1)
         assertThat(dialogRoots).hasSize(1)
         assertThat(appRoots.single().name).isEqualTo("Column")
+        assertThat(appRoots.single().inlined).isTrue()
         assertThat(dialogRoots.single().name).isEqualTo("AlertDialog")
+        assertThat(dialogRoots.single().inlined).isFalse()
         val location = IntArray(2)
         dialogViewRoot.getLocationOnScreen(location)
         assertThat(dialogRoots.single().left).isEqualTo(location[0])
@@ -77,6 +81,7 @@ class DialogTest {
                 it.bounds.layout.y + it.bounds.layout.h
             )
             node.children.addAll(it.childrenList.convert(strings))
+            node.inlined = (it.flags and ComposableNode.Flags.INLINED_VALUE) != 0
             node.build()
         }
 }

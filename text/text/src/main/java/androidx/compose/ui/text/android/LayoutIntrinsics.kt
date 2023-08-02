@@ -32,52 +32,72 @@ import kotlin.math.ceil
  * @suppress
  */
 @InternalPlatformTextApi
-class LayoutIntrinsics(
-    charSequence: CharSequence,
-    textPaint: TextPaint,
-    @LayoutCompat.TextDirection textDirectionHeuristic: Int
+internal class LayoutIntrinsics(
+    private val charSequence: CharSequence,
+    private val textPaint: TextPaint,
+    @LayoutCompat.TextDirection private val textDirectionHeuristic: Int
 ) {
+
+    private var _maxIntrinsicWidth: Float = Float.NaN
+    private var _minIntrinsicWidth: Float = Float.NaN
+    private var _boringMetrics: BoringLayout.Metrics? = null
+    private var boringMetricsIsInit: Boolean = false
+
     /**
      * Compute Android platform BoringLayout metrics. A null value means the provided CharSequence
      * cannot be laid out using a BoringLayout.
      */
-    val boringMetrics: BoringLayout.Metrics? by lazy(LazyThreadSafetyMode.NONE) {
-        val frameworkTextDir = getTextDirectionHeuristic(textDirectionHeuristic)
-        BoringLayoutFactory.measure(charSequence, textPaint, frameworkTextDir)
-    }
+    val boringMetrics: BoringLayout.Metrics?
+        get() {
+            if (!boringMetricsIsInit) {
+                val frameworkTextDir = getTextDirectionHeuristic(textDirectionHeuristic)
+                _boringMetrics =
+                    BoringLayoutFactory.measure(charSequence, textPaint, frameworkTextDir)
+                boringMetricsIsInit = true
+            }
+            return _boringMetrics
+        }
 
     /**
      * Calculate minimum intrinsic width of the CharSequence.
      *
      * @see androidx.compose.ui.text.android.minIntrinsicWidth
      */
-    val minIntrinsicWidth: Float by lazy(LazyThreadSafetyMode.NONE) {
-        minIntrinsicWidth(charSequence, textPaint)
-    }
+    val minIntrinsicWidth: Float
+        get() = if (!_minIntrinsicWidth.isNaN()) {
+            _minIntrinsicWidth
+        } else {
+            _minIntrinsicWidth = minIntrinsicWidth(charSequence, textPaint)
+            _minIntrinsicWidth
+        }
 
     /**
      * Calculate maximum intrinsic width for the CharSequence. Maximum intrinsic width is the width
      * of text where no soft line breaks are applied.
      */
-    val maxIntrinsicWidth: Float by lazy(LazyThreadSafetyMode.NONE) {
-        var desiredWidth = boringMetrics?.width?.toFloat()
+    val maxIntrinsicWidth: Float
+        get() = if (!_maxIntrinsicWidth.isNaN()) {
+            _maxIntrinsicWidth
+        } else {
+            var desiredWidth = boringMetrics?.width?.toFloat()
 
-        // boring metrics doesn't cover RTL text so we fallback to different calculation when boring
-        // metrics can't be calculated
-        if (desiredWidth == null) {
-            // b/233856978, apply `ceil` function here to be consistent with the boring metrics
-            // width calculation that does it under the hood, too
-            desiredWidth = ceil(
-                Layout.getDesiredWidth(charSequence, 0, charSequence.length, textPaint)
-            )
+            // boring metrics doesn't cover RTL text so we fallback to different calculation when boring
+            // metrics can't be calculated
+            if (desiredWidth == null) {
+                // b/233856978, apply `ceil` function here to be consistent with the boring metrics
+                // width calculation that does it under the hood, too
+                desiredWidth = ceil(
+                    Layout.getDesiredWidth(charSequence, 0, charSequence.length, textPaint)
+                )
+            }
+            if (shouldIncreaseMaxIntrinsic(desiredWidth, charSequence, textPaint)) {
+                // b/173574230, increase maxIntrinsicWidth, so that StaticLayout won't form 2
+                // lines for the given maxIntrinsicWidth
+                desiredWidth += 0.5f
+            }
+            _maxIntrinsicWidth = desiredWidth
+            _maxIntrinsicWidth
         }
-        if (shouldIncreaseMaxIntrinsic(desiredWidth, charSequence, textPaint)) {
-            // b/173574230, increase maxIntrinsicWidth, so that StaticLayout won't form 2
-            // lines for the given maxIntrinsicWidth
-            desiredWidth += 0.5f
-        }
-        desiredWidth
-    }
 }
 
 /**
@@ -144,9 +164,8 @@ private fun shouldIncreaseMaxIntrinsic(
     textPaint: TextPaint
 ): Boolean {
     return desiredWidth != 0f &&
-        charSequence is Spanned && (
-        textPaint.letterSpacing != 0f ||
+        (charSequence is Spanned && (
             charSequence.hasSpan(LetterSpacingSpanPx::class.java) ||
             charSequence.hasSpan(LetterSpacingSpanEm::class.java)
-        )
+        ) || textPaint.letterSpacing != 0f)
 }

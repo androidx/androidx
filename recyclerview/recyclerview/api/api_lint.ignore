@@ -223,8 +223,6 @@ MissingGetterMatchingBuilder: androidx.recyclerview.widget.ConcatAdapter.Config.
 
 MissingNullability: androidx.recyclerview.widget.AdapterListUpdateCallback#onChanged(int, int, Object) parameter #2:
     Missing nullability on parameter `payload` in method `onChanged`
-MissingNullability: androidx.recyclerview.widget.AsyncDifferConfig.Builder#setBackgroundThreadExecutor(java.util.concurrent.Executor) parameter #0:
-    Missing nullability on parameter `executor` in method `setBackgroundThreadExecutor`
 MissingNullability: androidx.recyclerview.widget.BatchingListUpdateCallback#onChanged(int, int, Object) parameter #2:
     Missing nullability on parameter `payload` in method `onChanged`
 MissingNullability: androidx.recyclerview.widget.DefaultItemAnimator#animateAdd(androidx.recyclerview.widget.RecyclerView.ViewHolder) parameter #0:
@@ -365,12 +363,6 @@ MissingNullability: androidx.recyclerview.widget.ItemTouchHelper#onDraw(android.
     Missing nullability on parameter `parent` in method `onDraw`
 MissingNullability: androidx.recyclerview.widget.ItemTouchHelper#onDraw(android.graphics.Canvas, androidx.recyclerview.widget.RecyclerView, androidx.recyclerview.widget.RecyclerView.State) parameter #2:
     Missing nullability on parameter `state` in method `onDraw`
-MissingNullability: androidx.recyclerview.widget.ItemTouchHelper#onDrawOver(android.graphics.Canvas, androidx.recyclerview.widget.RecyclerView, androidx.recyclerview.widget.RecyclerView.State) parameter #0:
-    Missing nullability on parameter `c` in method `onDrawOver`
-MissingNullability: androidx.recyclerview.widget.ItemTouchHelper#onDrawOver(android.graphics.Canvas, androidx.recyclerview.widget.RecyclerView, androidx.recyclerview.widget.RecyclerView.State) parameter #1:
-    Missing nullability on parameter `parent` in method `onDrawOver`
-MissingNullability: androidx.recyclerview.widget.ItemTouchHelper#onDrawOver(android.graphics.Canvas, androidx.recyclerview.widget.RecyclerView, androidx.recyclerview.widget.RecyclerView.State) parameter #2:
-    Missing nullability on parameter `state` in method `onDrawOver`
 MissingNullability: androidx.recyclerview.widget.ItemTouchHelper.Callback#chooseDropTarget(androidx.recyclerview.widget.RecyclerView.ViewHolder, java.util.List<androidx.recyclerview.widget.RecyclerView.ViewHolder>, int, int):
     Missing nullability on method `chooseDropTarget` return
 MissingNullability: androidx.recyclerview.widget.ItemTouchHelper.Callback#onChildDrawOver(android.graphics.Canvas, androidx.recyclerview.widget.RecyclerView, androidx.recyclerview.widget.RecyclerView.ViewHolder, float, float, int, boolean) parameter #2:
@@ -699,26 +691,6 @@ MissingNullability: androidx.recyclerview.widget.RecyclerView.SmoothScroller#onC
     Missing nullability on parameter `child` in method `onChildAttachedToWindow`
 MissingNullability: androidx.recyclerview.widget.RecyclerView.State#put(int, Object) parameter #1:
     Missing nullability on parameter `data` in method `put`
-MissingNullability: androidx.recyclerview.widget.RecyclerViewAccessibilityDelegate#onInitializeAccessibilityEvent(android.view.View, android.view.accessibility.AccessibilityEvent) parameter #0:
-    Missing nullability on parameter `host` in method `onInitializeAccessibilityEvent`
-MissingNullability: androidx.recyclerview.widget.RecyclerViewAccessibilityDelegate#onInitializeAccessibilityEvent(android.view.View, android.view.accessibility.AccessibilityEvent) parameter #1:
-    Missing nullability on parameter `event` in method `onInitializeAccessibilityEvent`
-MissingNullability: androidx.recyclerview.widget.RecyclerViewAccessibilityDelegate#onInitializeAccessibilityNodeInfo(android.view.View, androidx.core.view.accessibility.AccessibilityNodeInfoCompat) parameter #0:
-    Missing nullability on parameter `host` in method `onInitializeAccessibilityNodeInfo`
-MissingNullability: androidx.recyclerview.widget.RecyclerViewAccessibilityDelegate#onInitializeAccessibilityNodeInfo(android.view.View, androidx.core.view.accessibility.AccessibilityNodeInfoCompat) parameter #1:
-    Missing nullability on parameter `info` in method `onInitializeAccessibilityNodeInfo`
-MissingNullability: androidx.recyclerview.widget.RecyclerViewAccessibilityDelegate#performAccessibilityAction(android.view.View, int, android.os.Bundle) parameter #0:
-    Missing nullability on parameter `host` in method `performAccessibilityAction`
-MissingNullability: androidx.recyclerview.widget.RecyclerViewAccessibilityDelegate#performAccessibilityAction(android.view.View, int, android.os.Bundle) parameter #2:
-    Missing nullability on parameter `args` in method `performAccessibilityAction`
-MissingNullability: androidx.recyclerview.widget.RecyclerViewAccessibilityDelegate.ItemDelegate#onInitializeAccessibilityNodeInfo(android.view.View, androidx.core.view.accessibility.AccessibilityNodeInfoCompat) parameter #0:
-    Missing nullability on parameter `host` in method `onInitializeAccessibilityNodeInfo`
-MissingNullability: androidx.recyclerview.widget.RecyclerViewAccessibilityDelegate.ItemDelegate#onInitializeAccessibilityNodeInfo(android.view.View, androidx.core.view.accessibility.AccessibilityNodeInfoCompat) parameter #1:
-    Missing nullability on parameter `info` in method `onInitializeAccessibilityNodeInfo`
-MissingNullability: androidx.recyclerview.widget.RecyclerViewAccessibilityDelegate.ItemDelegate#performAccessibilityAction(android.view.View, int, android.os.Bundle) parameter #0:
-    Missing nullability on parameter `host` in method `performAccessibilityAction`
-MissingNullability: androidx.recyclerview.widget.RecyclerViewAccessibilityDelegate.ItemDelegate#performAccessibilityAction(android.view.View, int, android.os.Bundle) parameter #2:
-    Missing nullability on parameter `args` in method `performAccessibilityAction`
 MissingNullability: androidx.recyclerview.widget.SimpleItemAnimator#animateAdd(androidx.recyclerview.widget.RecyclerView.ViewHolder) parameter #0:
     Missing nullability on parameter `holder` in method `animateAdd`
 MissingNullability: androidx.recyclerview.widget.SimpleItemAnimator#animateChange(androidx.recyclerview.widget.RecyclerView.ViewHolder, androidx.recyclerview.widget.RecyclerView.ViewHolder, int, int, int, int) parameter #0:
@@ -773,8 +745,6 @@ MissingNullability: androidx.recyclerview.widget.SortedList.BatchedCallback#onCh
     Missing nullability on parameter `payload` in method `onChanged`
 MissingNullability: androidx.recyclerview.widget.SortedList.Callback#onChanged(int, int, Object) parameter #2:
     Missing nullability on parameter `payload` in method `onChanged`
-MissingNullability: androidx.recyclerview.widget.SortedListAdapterCallback#SortedListAdapterCallback(androidx.recyclerview.widget.RecyclerView.Adapter) parameter #0:
-    Missing nullability on parameter `adapter` in method `SortedListAdapterCallback`
 MissingNullability: androidx.recyclerview.widget.SortedListAdapterCallback#onChanged(int, int, Object) parameter #2:
     Missing nullability on parameter `payload` in method `onChanged`
 MissingNullability: androidx.recyclerview.widget.StaggeredGridLayoutManager#StaggeredGridLayoutManager(android.content.Context, android.util.AttributeSet, int, int) parameter #0:

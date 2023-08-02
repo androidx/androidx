@@ -18,21 +18,22 @@ package androidx.benchmark
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
+import kotlin.test.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
-public class AllocationCountCaptureTest {
+class MetricCaptureTest {
     @Test
-    public fun simple() {
+    fun allocationCountCapture_simple() {
         AllocationCountCapture().verifyMedian(100..110) {
             allocate(100)
         }
     }
 
     @Test
-    public fun pauseResume() {
+    fun allocationCountCapture_pauseResume() {
         AllocationCountCapture().verifyMedian(100..110) {
             allocate(100)
 
@@ -50,12 +51,15 @@ public class AllocationCountCaptureTest {
  * This is done to reduce variance, e.g. from random background allocations
  */
 private fun MetricCapture.verifyMedian(expected: IntRange, block: MetricCapture.() -> Unit) {
+    assertEquals(1, names.size)
+    val longArray = longArrayOf(0L)
     val results = List(200) {
         captureStart(System.nanoTime())
         block()
-        captureStop(System.nanoTime()) * 1.0
+        captureStop(System.nanoTime(), longArray, 0)
+        longArray[0] * 1.0
     }
-    val median = MetricResult(name, results).median.toInt()
+    val median = MetricResult(names[0], results).median.toInt()
     if (median !in expected) {
         throw AssertionError(
             "observed median $median, expected $expected, saw: " + results.joinToString()

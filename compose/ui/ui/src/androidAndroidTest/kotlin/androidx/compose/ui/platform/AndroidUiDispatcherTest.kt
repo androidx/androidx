@@ -28,13 +28,22 @@ import androidx.compose.ui.test.setViewLayerTypeForApi28
 import androidx.core.view.doOnLayout
 import androidx.test.ext.junit.rules.activityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.FlakyTest
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
+import java.util.concurrent.atomic.AtomicInteger
+import kotlin.coroutines.ContinuationInterceptor
+import kotlin.coroutines.CoroutineContext
+import kotlin.test.fail
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Runnable
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
@@ -92,6 +101,7 @@ class AndroidUiDispatcherTest {
      * [MonotonicFrameClock.withFrameNanos] will resume in time to make the current frame if called
      * from the situation described above, and that subsequent calls will wait until the next frame.
      */
+    @FlakyTest(bugId = 255972660)
     @Test
     fun runsBeforeFrameDispatchedByInput() = runBlocking {
         val ranInputJobOnFrame = CompletableDeferred<Int>()
@@ -171,5 +181,61 @@ class AndroidUiDispatcherTest {
                 )
             }
         )
+    }
+
+    /**
+     * Test that an AndroidUiDispatcher can be wrapped by another ContinuationInterceptor
+     * without breaking the MonotonicFrameClock's ability to coordinate with its
+     * original dispatcher.
+     *
+     * Construct a situation where the Choreographer contains three frame callbacks:
+     * 1) checkpoint 1
+     * 2) the AndroidUiDispatcher awaiting-frame callback
+     * 3) checkpoint 2
+     * Confirm that a call to withFrameNanos made *after* these three frame callbacks
+     * are enqueued runs *before* checkpoint 2, indicating that it ran with the original
+     * dispatcher's awaiting-frame callback, even though we wrapped the dispatcher.
+     */
+    @Test
+    fun wrappedDispatcherPostsToDispatcherFrameClock() = runBlocking(Dispatchers.Main) {
+        val uiDispatcherContext = AndroidUiDispatcher.Main
+        val uiDispatcher = uiDispatcherContext[ContinuationInterceptor] as CoroutineDispatcher
+        val wrapperDispatcher = object : CoroutineDispatcher() {
+            override fun dispatch(context: CoroutineContext, block: Runnable) {
+                uiDispatcher.dispatch(context, block)
+            }
+        }
+
+        val choreographer = Choreographer.getInstance()
+
+        val expectCount = AtomicInteger(1)
+        fun expect(value: Int) {
+            while (true) {
+                val old = expectCount.get()
+                if (old != value) fail("expected sequence $old but encountered $value")
+                if (expectCount.compareAndSet(value, value + 1)) break
+            }
+        }
+
+        choreographer.postFrameCallback {
+            expect(1)
+        }
+
+        launch(uiDispatcherContext, start = CoroutineStart.UNDISPATCHED) {
+            withFrameNanos {
+                expect(2)
+            }
+        }
+
+        choreographer.postFrameCallback {
+            expect(4)
+        }
+
+        withContext(uiDispatcherContext + wrapperDispatcher) {
+            withFrameNanos {
+                expect(3)
+            }
+            expect(5)
+        }
     }
 }

@@ -43,10 +43,10 @@ import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
-import org.junit.After
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Rule
@@ -82,11 +82,6 @@ class CollectionInfoTest {
             accessibilityForceEnabledForTesting = true
         }
         info = AccessibilityNodeInfoCompat.obtain()
-    }
-
-    @After
-    fun cleanup() {
-        info.recycle()
     }
 
     // Collection Info tests
@@ -335,6 +330,41 @@ class CollectionInfoTest {
 
         val semanticsNode = rule.onNodeWithTag(tag).fetchSemanticsNode()
         Assert.assertFalse(semanticsNode.hasCollectionInfo())
+    }
+
+    @Test
+    fun testCollectionInfo_withSelectableGroup_zOrder() {
+        setContent {
+            Column(Modifier.selectableGroup()) {
+                Box(
+                    Modifier
+                        .size(50.dp)
+                        .selectable(selected = true, onClick = {})
+                        .zIndex(3f)
+                        .testTag("item0")
+                )
+                Box(
+                    Modifier
+                        .size(50.dp)
+                        .selectable(selected = false, onClick = {})
+                        .zIndex(2f)
+                        .testTag("item1")
+                )
+                Box(
+                    Modifier
+                        .size(50.dp)
+                        .selectable(selected = false, onClick = {})
+                        .zIndex(1f)
+                        .testTag("item2")
+                )
+            }
+        }
+
+        for (index in 0..2) {
+            val itemNode = rule.onNodeWithTag("item$index").fetchSemanticsNode()
+            populateAccessibilityNodeInfoProperties(itemNode)
+            Assert.assertEquals(index, info.collectionItemInfo.rowIndex)
+        }
     }
 
     private fun setContent(content: @Composable () -> Unit) {

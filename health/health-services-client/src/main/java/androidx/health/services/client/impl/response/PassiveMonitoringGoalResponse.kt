@@ -25,20 +25,17 @@ import androidx.health.services.client.proto.ResponsesProto
 /**
  * Response containing an achieved [PassiveGoal].
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class PassiveMonitoringGoalResponse(public val passiveGoal: PassiveGoal) :
     ProtoParcelable<ResponsesProto.PassiveMonitoringGoalResponse>() {
 
-    /** @hide */
     public constructor(
         proto: ResponsesProto.PassiveMonitoringGoalResponse
     ) : this(PassiveGoal(proto.goal))
 
-    override val proto: ResponsesProto.PassiveMonitoringGoalResponse by lazy {
+    override val proto: ResponsesProto.PassiveMonitoringGoalResponse =
         ResponsesProto.PassiveMonitoringGoalResponse.newBuilder().setGoal(passiveGoal.proto).build()
-    }
 
     public companion object {
         @JvmField

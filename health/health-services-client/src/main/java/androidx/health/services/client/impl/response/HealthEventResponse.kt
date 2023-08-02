@@ -24,19 +24,16 @@ import androidx.health.services.client.proto.ResponsesProto
 /**
  * Response containing a [HealthEvent].
  *
- * @hide
  */
 internal class HealthEventResponse(public val healthEvent: HealthEvent) :
     ProtoParcelable<ResponsesProto.HealthEventResponse>() {
 
-    /** @hide */
     public constructor(
         proto: ResponsesProto.HealthEventResponse
     ) : this(HealthEvent(proto.healthEvent))
 
-    override val proto: ResponsesProto.HealthEventResponse by lazy {
+    override val proto: ResponsesProto.HealthEventResponse =
         ResponsesProto.HealthEventResponse.newBuilder().setHealthEvent(healthEvent.proto).build()
-    }
 
     public companion object {
         @JvmField

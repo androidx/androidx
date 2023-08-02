@@ -26,9 +26,9 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Divider
 import androidx.compose.material.Icon
@@ -71,6 +71,7 @@ import androidx.compose.ui.platform.LocalTextInputService
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.error
+import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
@@ -79,6 +80,7 @@ import androidx.compose.ui.test.assertWidthIsEqualTo
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.click
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onChildren
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -100,16 +102,16 @@ import androidx.test.filters.LargeTest
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
-import com.nhaarman.mockitokotlin2.any
-import com.nhaarman.mockitokotlin2.atLeastOnce
-import com.nhaarman.mockitokotlin2.eq
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.verify
 import kotlin.math.max
+import kotlin.math.roundToInt
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import kotlin.math.roundToInt
+import org.mockito.kotlin.any
+import org.mockito.kotlin.atLeastOnce
+import org.mockito.kotlin.eq
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.verify
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
@@ -425,6 +427,77 @@ class OutlinedTextFieldTest {
     }
 
     @Test
+    fun testOutlinedTextField_labelHeight_contributesToTextFieldMeasurements_whenUnfocused() {
+        val tfSize = Ref<IntSize>()
+        val labelHeight = 200.dp
+        rule.setMaterialContent {
+            OutlinedTextField(
+                value = "",
+                onValueChange = {},
+                modifier = Modifier.testTag(TextfieldTag).onGloballyPositioned {
+                    tfSize.value = it.size
+                },
+                label = {
+                    Box(Modifier.size(width = 50.dp, height = labelHeight))
+                },
+            )
+        }
+
+        rule.runOnIdleWithDensity {
+            assertThat(tfSize.value!!.height).isAtLeast(labelHeight.roundToPx())
+        }
+    }
+
+    @Test
+    fun testOutlinedTextField_labelWidth_isNotAffectedByTrailingIcon_whenFocused() {
+        val textFieldWidth = 100.dp
+        val labelRequestedWidth = 65.dp
+        val labelSize = Ref<IntSize>()
+        val trailingSize = Ref<IntSize>()
+        rule.setMaterialContent {
+            OutlinedTextField(
+                value = "",
+                onValueChange = {},
+                modifier = Modifier.testTag(TextfieldTag).requiredWidth(textFieldWidth),
+                label = {
+                    Text(
+                        text = "Label",
+                        modifier = Modifier.width(labelRequestedWidth).onGloballyPositioned {
+                            labelSize.value = it.size
+                        }
+                    )
+                },
+                trailingIcon = {
+                    Icon(
+                        Icons.Default.Favorite,
+                        null,
+                        modifier = Modifier.onGloballyPositioned {
+                            trailingSize.value = it.size
+                        },
+                    )
+                },
+            )
+        }
+
+        // click to focus
+        rule.onNodeWithTag(TextfieldTag).performClick()
+
+        rule.runOnIdleWithDensity {
+            assertThat(labelSize.value).isNotNull()
+            assertThat(trailingSize.value).isNotNull()
+
+            // First, check that label's requested size would be too wide if it's on the same line
+            // as the icon + padding
+            assertThat((labelRequestedWidth + IconPadding).roundToPx() + trailingSize.value!!.width)
+                .isGreaterThan(textFieldWidth.roundToPx())
+
+            // Next, assert that the requested size is satisfied anyway because the trailing icon
+            // does not affect it.
+            assertThat(labelSize.value?.width).isEqualTo(labelRequestedWidth.roundToPx())
+        }
+    }
+
+    @Test
     fun testOutlinedTextField_labelPosition_whenInput() {
         val labelSize = Ref<IntSize>()
         val labelPosition = Ref<Offset>()
@@ -456,6 +529,23 @@ class OutlinedTextFieldTest {
 
             assertThat(labelPosition.value?.y).isEqualTo(getLabelPosition(labelSize))
         }
+    }
+
+    @Test
+    fun testOutlinedTextField_transparentPlaceholder_doesNotAppearInComposition() {
+        // Regression test for b/251162419
+        rule.setMaterialContent {
+            OutlinedTextField(
+                value = "",
+                onValueChange = {},
+                label = { Text(text = "Label") },
+                placeholder = {
+                    Text(text = "Placeholder", modifier = Modifier.testTag("Placeholder"))
+                },
+            )
+        }
+
+        rule.onNodeWithTag("Placeholder", useUnmergedTree = true).assertDoesNotExist()
     }
 
     @Test
@@ -992,19 +1082,32 @@ class OutlinedTextFieldTest {
     @Test
     fun testErrorSemantics_messageOverridable() {
         val errorMessage = "Special symbols not allowed"
+        lateinit var defaultErrorMessage: String
         rule.setMaterialContent {
             var isError = remember { mutableStateOf(true) }
             OutlinedTextField(
                 value = "test",
                 onValueChange = {},
-                modifier = Modifier.semantics { if (isError.value) error(errorMessage) },
+                modifier = Modifier
+                    .testTag(TextfieldTag)
+                    .semantics { if (isError.value) error(errorMessage) },
                 isError = isError.value
             )
+            defaultErrorMessage = getString(Strings.DefaultErrorMessage)
         }
 
-        rule.onNodeWithText("test")
+        rule.onNodeWithTag(TextfieldTag)
             .assert(SemanticsMatcher.keyIsDefined(SemanticsProperties.Error))
             .assert(SemanticsMatcher.expectValue(SemanticsProperties.Error, errorMessage))
+
+        // Check that default error message is overwritten and not lingering in a child node
+        rule.onNodeWithTag(TextfieldTag, useUnmergedTree = true)
+            .onChildren()
+            .fetchSemanticsNodes()
+            .forEach { node ->
+                assertThat(node.config.getOrNull(SemanticsProperties.Error))
+                    .isNotEqualTo(defaultErrorMessage)
+            }
     }
 
     @Test
@@ -1310,7 +1413,7 @@ class OutlinedTextFieldTest {
     }
 
     @Test
-    fun testOutlinedTextField_intrinsicsMeasurement_correctHeight() {
+    fun testOutlinedTextField_intrinsicHeight_withOnlyEmptyInput() {
         var height = 0
         rule.setMaterialContent {
             val text = remember { mutableStateOf("") }
@@ -1321,7 +1424,6 @@ class OutlinedTextFieldTest {
                     OutlinedTextField(
                         value = text.value,
                         onValueChange = { text.value = it },
-                        placeholder = { Text("placeholder") }
                     )
                     Divider(Modifier.fillMaxHeight())
                 }
@@ -1334,7 +1436,7 @@ class OutlinedTextFieldTest {
     }
 
     @Test
-    fun testOutlinedTextField_intrinsicsMeasurement_withLeadingIcon_correctHeight() {
+    fun testOutlinedTextField_intrinsicHeight_withEmptyInput_andDecorations() {
         var height = 0
         rule.setMaterialContent {
             val text = remember { mutableStateOf("") }
@@ -1345,8 +1447,8 @@ class OutlinedTextFieldTest {
                     OutlinedTextField(
                         value = text.value,
                         onValueChange = { text.value = it },
-                        placeholder = { Text("placeholder") },
-                        leadingIcon = { Icon(Icons.Default.Favorite, null) }
+                        leadingIcon = { Icon(Icons.Default.Favorite, null) },
+                        trailingIcon = { Icon(Icons.Default.Favorite, null) },
                     )
                     Divider(Modifier.fillMaxHeight())
                 }
@@ -1359,28 +1461,41 @@ class OutlinedTextFieldTest {
     }
 
     @Test
-    fun testOutlinedTextField_intrinsicsMeasurement_withTrailingIcon_correctHeight() {
-        var height = 0
+    fun testOutlinedTextField_intrinsicHeight_withLongInput_andDecorations() {
+        var tfHeightIntrinsic = 0
+        var tfHeightNoIntrinsic = 0
+        val text = "Long text input. ".repeat(20)
         rule.setMaterialContent {
-            val text = remember { mutableStateOf("") }
-            Box(Modifier.onGloballyPositioned {
-                height = it.size.height
-            }) {
-                Row(Modifier.height(IntrinsicSize.Min)) {
+            Row {
+                Box(Modifier.width(150.dp).height(IntrinsicSize.Min)) {
                     OutlinedTextField(
-                        value = text.value,
-                        onValueChange = { text.value = it },
-                        placeholder = { Text("placeholder") },
-                        trailingIcon = { Icon(Icons.Default.Favorite, null) }
+                        value = text,
+                        onValueChange = {},
+                        modifier = Modifier.onGloballyPositioned {
+                            tfHeightIntrinsic = it.size.height
+                        },
+                        leadingIcon = { Icon(Icons.Default.Favorite, null) },
+                        trailingIcon = { Icon(Icons.Default.Favorite, null) },
                     )
-                    Divider(Modifier.fillMaxHeight())
+                }
+                Box(Modifier.width(150.dp)) {
+                    OutlinedTextField(
+                        value = text,
+                        onValueChange = {},
+                        modifier = Modifier.onGloballyPositioned {
+                            tfHeightNoIntrinsic = it.size.height
+                        },
+                        leadingIcon = { Icon(Icons.Default.Favorite, null) },
+                        trailingIcon = { Icon(Icons.Default.Favorite, null) },
+                    )
                 }
             }
         }
 
-        with(rule.density) {
-            assertThat(height).isEqualTo((TextFieldDefaults.MinHeight).roundToPx())
-        }
+        assertThat(tfHeightIntrinsic).isNotEqualTo(0)
+        assertThat(tfHeightNoIntrinsic).isNotEqualTo(0)
+
+        assertThat(tfHeightIntrinsic).isEqualTo(tfHeightNoIntrinsic)
     }
 
     @Test

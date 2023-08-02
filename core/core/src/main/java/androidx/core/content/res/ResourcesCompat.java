@@ -470,7 +470,6 @@ public final class ResourcesCompat {
          * Call {@link #onFontRetrieved(Typeface)} on the handler given, or the Ui Thread if it is
          * null.
          *
-         * @hide
          */
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         public final void callbackSuccessAsync(final @NonNull Typeface typeface,
@@ -482,7 +481,6 @@ public final class ResourcesCompat {
          * Call {@link #onFontRetrievalFailed(int)} on the handler given, or the Ui Thread if it is
          * null.
          *
-         * @hide
          */
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         public final void callbackFailAsync(
@@ -490,7 +488,6 @@ public final class ResourcesCompat {
             getHandler(handler).post(() -> onFontRetrievalFailed(reason));
         }
 
-        /** @hide */
         @RestrictTo(LIBRARY)
         @NonNull
         public static Handler getHandler(@Nullable Handler handler) {
@@ -533,7 +530,6 @@ public final class ResourcesCompat {
     /**
      * Used by TintTypedArray.
      *
-     * @hide
      */
     @Nullable
     @RestrictTo(LIBRARY_GROUP_PREFIX)

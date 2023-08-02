@@ -23,12 +23,18 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertWithMessage
+import leakcanary.DetectLeaksAfterTestSuccess
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
 class ViewTreeOnBackPressedDispatcherTest {
+
+    @get:Rule
+    val rule = DetectLeaksAfterTestSuccess()
+
     /**
      * Tests that a direct set/get on a single view survives a round trip
      */
@@ -109,12 +115,10 @@ class ViewTreeOnBackPressedDispatcherTest {
     }
 
     private class FakeOnBackPressedDispatcherOwner : OnBackPressedDispatcherOwner {
-        override fun getLifecycle(): Lifecycle {
-            throw UnsupportedOperationException("not a real OnBackPressedDispatcherOwner")
-        }
+        override val lifecycle: Lifecycle
+            get() = throw UnsupportedOperationException("not a real OnBackPressedDispatcherOwner")
 
-        override fun getOnBackPressedDispatcher(): OnBackPressedDispatcher {
-            throw UnsupportedOperationException("not a real OnBackPressedDispatcherOwner")
-        }
+        override val onBackPressedDispatcher
+            get() = throw UnsupportedOperationException("not a real OnBackPressedDispatcherOwner")
     }
 }

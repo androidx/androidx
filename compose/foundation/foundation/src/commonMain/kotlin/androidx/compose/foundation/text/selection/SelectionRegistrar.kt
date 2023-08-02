@@ -73,6 +73,7 @@ internal interface SelectionRegistrar {
      * @param layoutCoordinates [LayoutCoordinates] of the [Selectable].
      * @param startPosition coordinates of where the selection is initiated.
      * @param adjustment selection should be adjusted according to this param
+     * @param isInTouchMode whether the update is from a touch pointer
      *
      * @see notifySelectionUpdate
      * @see notifySelectionUpdateEnd
@@ -80,7 +81,8 @@ internal interface SelectionRegistrar {
     fun notifySelectionUpdateStart(
         layoutCoordinates: LayoutCoordinates,
         startPosition: Offset,
-        adjustment: SelectionAdjustment
+        adjustment: SelectionAdjustment,
+        isInTouchMode: Boolean
     )
 
     /**
@@ -88,8 +90,9 @@ internal interface SelectionRegistrar {
      * with selectAll [Selection].
      *
      * @param selectableId [selectableId] of the [Selectable]
+     * @param isInTouchMode whether the update is from a touch pointer
      */
-    fun notifySelectionUpdateSelectAll(selectableId: Long)
+    fun notifySelectionUpdateSelectAll(selectableId: Long, isInTouchMode: Boolean)
 
     /**
      * Call this method to notify the [SelectionContainer] that one of the selection handle has
@@ -103,6 +106,7 @@ internal interface SelectionRegistrar {
      * @param newPosition coordinates of where the selection ends.
      * @param isStartHandle whether the moving selection handle the start handle.
      * @param adjustment selection should be adjusted according to this parameter
+     * @param isInTouchMode whether the update is from a touch pointer
      *
      * @return true if the selection handle movement is consumed. This function acts like a
      * pointer input consumer when a selection handle is dragged. It expects the caller to
@@ -117,7 +121,8 @@ internal interface SelectionRegistrar {
         newPosition: Offset,
         previousPosition: Offset,
         isStartHandle: Boolean,
-        adjustment: SelectionAdjustment
+        adjustment: SelectionAdjustment,
+        isInTouchMode: Boolean
     ): Boolean
 
     /**

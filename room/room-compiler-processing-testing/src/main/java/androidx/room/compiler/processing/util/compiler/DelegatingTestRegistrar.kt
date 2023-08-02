@@ -17,24 +17,27 @@
 package androidx.room.compiler.processing.util.compiler
 
 import androidx.room.compiler.processing.util.compiler.DelegatingTestRegistrar.Companion.runCompilation
+import java.net.URI
+import java.nio.file.Paths
 import org.jetbrains.kotlin.cli.common.ExitCode
 import org.jetbrains.kotlin.cli.common.arguments.K2JVMCompilerArguments
 import org.jetbrains.kotlin.cli.common.messages.MessageCollector
 import org.jetbrains.kotlin.cli.jvm.K2JVMCompiler
-import org.jetbrains.kotlin.cli.jvm.plugins.ServiceLoaderLite
 import org.jetbrains.kotlin.com.intellij.mock.MockProject
-import org.jetbrains.kotlin.compiler.plugin.ComponentRegistrar
+import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
 import org.jetbrains.kotlin.config.CompilerConfiguration
 import org.jetbrains.kotlin.config.Services
-import java.net.URI
-import java.nio.file.Paths
+import org.jetbrains.kotlin.util.ServiceLoaderLite
 
 /**
  * A component registrar for Kotlin Compiler that delegates to a list of thread local delegates.
  *
  * see [runCompilation] for usages.
  */
-internal class DelegatingTestRegistrar : ComponentRegistrar {
+@Suppress("DEPRECATION") // TODO: Migrate ComponentRegistrar to CompilerPluginRegistrar
+@OptIn(ExperimentalCompilerApi::class)
+internal class DelegatingTestRegistrar :
+    @Suppress("DEPRECATION") org.jetbrains.kotlin.compiler.plugin.ComponentRegistrar {
     override fun registerProjectComponents(
         project: MockProject,
         configuration: CompilerConfiguration
@@ -63,7 +66,8 @@ internal class DelegatingTestRegistrar : ComponentRegistrar {
                 }
                 .find { resourcesPath ->
                     ServiceLoaderLite.findImplementations(
-                        ComponentRegistrar::class.java,
+                        @Suppress("DEPRECATION")
+                        org.jetbrains.kotlin.compiler.plugin.ComponentRegistrar::class.java,
                         listOf(resourcesPath.toFile())
                     ).any { implementation ->
                         implementation == DelegatingTestRegistrar::class.java.name
@@ -76,12 +80,15 @@ internal class DelegatingTestRegistrar : ComponentRegistrar {
                     """.trimIndent()
                 )
         }
-        private val delegates = ThreadLocal<List<ComponentRegistrar>>()
+        @Suppress("DEPRECATION")
+        private val delegates =
+            ThreadLocal<List<org.jetbrains.kotlin.compiler.plugin.ComponentRegistrar>>()
         fun runCompilation(
             compiler: K2JVMCompiler,
             messageCollector: MessageCollector,
             arguments: K2JVMCompilerArguments,
-            pluginRegistrars: List<ComponentRegistrar>
+            @Suppress("DEPRECATION")
+            pluginRegistrars: List<org.jetbrains.kotlin.compiler.plugin.ComponentRegistrar>
         ): ExitCode {
             try {
                 arguments.addDelegatingTestRegistrar()

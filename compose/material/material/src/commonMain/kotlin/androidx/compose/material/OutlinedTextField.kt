@@ -61,6 +61,7 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.coerceAtLeast
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.offset
+import androidx.compose.ui.util.lerp
 import kotlin.math.max
 import kotlin.math.roundToInt
 
@@ -116,10 +117,10 @@ import kotlin.math.roundToInt
  * text field instead of wrapping onto multiple lines. The keyboard will be informed to not show
  * the return key as the [ImeAction]. Note that [maxLines] parameter will be ignored as the
  * maxLines attribute will be automatically set to 1
- * @param maxLines the maximum height in terms of maximum number of visible lines. Should be
- * equal or greater than 1. Note that this parameter will be ignored and instead maxLines will be
- * set to 1 if [singleLine] is set to true
- * [KeyboardOptions.imeAction] field.
+ * @param maxLines the maximum height in terms of maximum number of visible lines. It is required
+ * that 1 <= [minLines] <= [maxLines]. This parameter is ignored when [singleLine] is true.
+ * @param minLines the minimum height in terms of minimum number of visible lines. It is required
+ * that 1 <= [minLines] <= [maxLines]. This parameter is ignored when [singleLine] is true.
  * @param interactionSource the [MutableInteractionSource] representing the stream of
  * [Interaction]s for this OutlinedTextField. You can create and pass in your own remembered
  * [MutableInteractionSource] if you want to observe [Interaction]s and customize the
@@ -146,7 +147,8 @@ fun OutlinedTextField(
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     keyboardActions: KeyboardActions = KeyboardActions.Default,
     singleLine: Boolean = false,
-    maxLines: Int = Int.MAX_VALUE,
+    maxLines: Int = if (singleLine) 1 else Int.MAX_VALUE,
+    minLines: Int = 1,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     shape: Shape = MaterialTheme.shapes.small,
     colors: TextFieldColors = TextFieldDefaults.outlinedTextFieldColors()
@@ -170,6 +172,7 @@ fun OutlinedTextField(
             modifier
         }
             .background(colors.backgroundColor(enabled).value, shape)
+            .defaultErrorSemantics(isError, getString(Strings.DefaultErrorMessage))
             .defaultMinSize(
                 minWidth = TextFieldDefaults.MinWidth,
                 minHeight = TextFieldDefaults.MinHeight
@@ -185,6 +188,7 @@ fun OutlinedTextField(
         interactionSource = interactionSource,
         singleLine = singleLine,
         maxLines = maxLines,
+        minLines = minLines,
         decorationBox = @Composable { innerTextField ->
             TextFieldDefaults.OutlinedTextFieldDecorationBox(
                 value = value,
@@ -210,6 +214,56 @@ fun OutlinedTextField(
                 }
             )
         }
+    )
+}
+
+@Deprecated(
+    "Maintained for binary compatibility. Use version with minLines instead",
+    level = DeprecationLevel.HIDDEN
+)
+@Composable
+fun OutlinedTextField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    readOnly: Boolean = false,
+    textStyle: TextStyle = LocalTextStyle.current,
+    label: @Composable (() -> Unit)? = null,
+    placeholder: @Composable (() -> Unit)? = null,
+    leadingIcon: @Composable (() -> Unit)? = null,
+    trailingIcon: @Composable (() -> Unit)? = null,
+    isError: Boolean = false,
+    visualTransformation: VisualTransformation = VisualTransformation.None,
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    keyboardActions: KeyboardActions = KeyboardActions.Default,
+    singleLine: Boolean = false,
+    maxLines: Int = Int.MAX_VALUE,
+    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    shape: Shape = MaterialTheme.shapes.small,
+    colors: TextFieldColors = TextFieldDefaults.outlinedTextFieldColors()
+) {
+    OutlinedTextField(
+        value,
+        onValueChange,
+        modifier,
+        enabled,
+        readOnly,
+        textStyle,
+        label,
+        placeholder,
+        leadingIcon,
+        trailingIcon,
+        isError,
+        visualTransformation,
+        keyboardOptions,
+        keyboardActions,
+        singleLine,
+        maxLines,
+        1,
+        interactionSource,
+        shape,
+        colors
     )
 }
 
@@ -265,9 +319,10 @@ fun OutlinedTextField(
  * text field instead of wrapping onto multiple lines. The keyboard will be informed to not show
  * the return key as the [ImeAction]. Note that [maxLines] parameter will be ignored as the
  * maxLines attribute will be automatically set to 1
- * @param maxLines the maximum height in terms of maximum number of visible lines. Should be
- * equal or greater than 1. Note that this parameter will be ignored and instead maxLines will be
- * set to 1 if [singleLine] is set to true
+ * @param maxLines the maximum height in terms of maximum number of visible lines. It is required
+ * that 1 <= [minLines] <= [maxLines]. This parameter is ignored when [singleLine] is true.
+ * @param minLines the minimum height in terms of minimum number of visible lines. It is required
+ * that 1 <= [minLines] <= [maxLines]. This parameter is ignored when [singleLine] is true.
  * @param interactionSource the [MutableInteractionSource] representing the stream of
  * [Interaction]s for this OutlinedTextField. You can create and pass in your own remembered
  * [MutableInteractionSource] if you want to observe [Interaction]s and customize the
@@ -294,7 +349,8 @@ fun OutlinedTextField(
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     keyboardActions: KeyboardActions = KeyboardActions(),
     singleLine: Boolean = false,
-    maxLines: Int = Int.MAX_VALUE,
+    maxLines: Int = if (singleLine) 1 else Int.MAX_VALUE,
+    minLines: Int = 1,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     shape: Shape = TextFieldDefaults.OutlinedTextFieldShape,
     colors: TextFieldColors = TextFieldDefaults.outlinedTextFieldColors()
@@ -318,6 +374,7 @@ fun OutlinedTextField(
             modifier
         }
             .background(colors.backgroundColor(enabled).value, shape)
+            .defaultErrorSemantics(isError, getString(Strings.DefaultErrorMessage))
             .defaultMinSize(
                 minWidth = TextFieldDefaults.MinWidth,
                 minHeight = TextFieldDefaults.MinHeight
@@ -333,6 +390,7 @@ fun OutlinedTextField(
         interactionSource = interactionSource,
         singleLine = singleLine,
         maxLines = maxLines,
+        minLines = minLines,
         decorationBox = @Composable { innerTextField ->
             TextFieldDefaults.OutlinedTextFieldDecorationBox(
                 value = value.text,
@@ -358,6 +416,56 @@ fun OutlinedTextField(
                 }
             )
         }
+    )
+}
+
+@Deprecated(
+    "Maintained for binary compatibility. Use version with minLines instead",
+    level = DeprecationLevel.HIDDEN
+)
+@Composable
+fun OutlinedTextField(
+    value: TextFieldValue,
+    onValueChange: (TextFieldValue) -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    readOnly: Boolean = false,
+    textStyle: TextStyle = LocalTextStyle.current,
+    label: @Composable (() -> Unit)? = null,
+    placeholder: @Composable (() -> Unit)? = null,
+    leadingIcon: @Composable (() -> Unit)? = null,
+    trailingIcon: @Composable (() -> Unit)? = null,
+    isError: Boolean = false,
+    visualTransformation: VisualTransformation = VisualTransformation.None,
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    keyboardActions: KeyboardActions = KeyboardActions(),
+    singleLine: Boolean = false,
+    maxLines: Int = Int.MAX_VALUE,
+    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    shape: Shape = TextFieldDefaults.OutlinedTextFieldShape,
+    colors: TextFieldColors = TextFieldDefaults.outlinedTextFieldColors()
+) {
+    OutlinedTextField(
+        value,
+        onValueChange,
+        modifier,
+        enabled,
+        readOnly,
+        textStyle,
+        label,
+        placeholder,
+        leadingIcon,
+        trailingIcon,
+        isError,
+        visualTransformation,
+        keyboardOptions,
+        keyboardActions,
+        singleLine,
+        maxLines,
+        1,
+        interactionSource,
+        shape,
+        colors
     )
 }
 
@@ -483,10 +591,15 @@ private class OutlinedTextFieldMeasurePolicy(
         )
 
         // measure label
+        val labelHorizontalPaddingOffset =
+            paddingValues.calculateLeftPadding(layoutDirection).roundToPx() +
+                paddingValues.calculateRightPadding(layoutDirection).roundToPx()
         val labelConstraints = relaxedConstraints.offset(
-            horizontal = -occupiedSpaceHorizontally -
-                paddingValues.calculateLeftPadding(layoutDirection).roundToPx() -
-                paddingValues.calculateRightPadding(layoutDirection).roundToPx(),
+            horizontal = lerp(
+                -occupiedSpaceHorizontally - labelHorizontalPaddingOffset,
+                -labelHorizontalPaddingOffset,
+                animationProgress,
+            ),
             vertical = -bottomPadding
         )
         val labelPlaceable =
@@ -516,23 +629,27 @@ private class OutlinedTextFieldMeasurePolicy(
 
         val width =
             calculateWidth(
-                widthOrZero(leadingPlaceable),
-                widthOrZero(trailingPlaceable),
-                textFieldPlaceable.width,
-                widthOrZero(labelPlaceable),
-                widthOrZero(placeholderPlaceable),
-                constraints
+                leadingPlaceableWidth = widthOrZero(leadingPlaceable),
+                trailingPlaceableWidth = widthOrZero(trailingPlaceable),
+                textFieldPlaceableWidth = textFieldPlaceable.width,
+                labelPlaceableWidth = widthOrZero(labelPlaceable),
+                placeholderPlaceableWidth = widthOrZero(placeholderPlaceable),
+                animationProgress = animationProgress,
+                constraints = constraints,
+                density = density,
+                paddingValues = paddingValues,
             )
         val height =
             calculateHeight(
-                heightOrZero(leadingPlaceable),
-                heightOrZero(trailingPlaceable),
-                textFieldPlaceable.height,
-                heightOrZero(labelPlaceable),
-                heightOrZero(placeholderPlaceable),
-                constraints,
-                density,
-                paddingValues
+                leadingPlaceableHeight = heightOrZero(leadingPlaceable),
+                trailingPlaceableHeight = heightOrZero(trailingPlaceable),
+                textFieldPlaceableHeight = textFieldPlaceable.height,
+                labelPlaceableHeight = heightOrZero(labelPlaceable),
+                placeholderPlaceableHeight = heightOrZero(placeholderPlaceable),
+                animationProgress = animationProgress,
+                constraints = constraints,
+                density = density,
+                paddingValues = paddingValues,
             )
 
         val borderPlaceable = measurables.first { it.layoutId == BorderId }.measure(
@@ -598,7 +715,7 @@ private class OutlinedTextFieldMeasurePolicy(
         }
     }
 
-    private fun intrinsicWidth(
+    private fun IntrinsicMeasureScope.intrinsicWidth(
         measurables: List<IntrinsicMeasurable>,
         height: Int,
         intrinsicMeasurer: (IntrinsicMeasurable, Int) -> Int
@@ -623,7 +740,10 @@ private class OutlinedTextFieldMeasurePolicy(
             textFieldPlaceableWidth = textFieldWidth,
             labelPlaceableWidth = labelWidth,
             placeholderPlaceableWidth = placeholderWidth,
-            constraints = ZeroConstraints
+            animationProgress = animationProgress,
+            constraints = ZeroConstraints,
+            density = density,
+            paddingValues = paddingValues,
         )
     }
 
@@ -632,26 +752,33 @@ private class OutlinedTextFieldMeasurePolicy(
         width: Int,
         intrinsicMeasurer: (IntrinsicMeasurable, Int) -> Int
     ): Int {
-        val textFieldHeight =
-            intrinsicMeasurer(measurables.first { it.layoutId == TextFieldId }, width)
-        val labelHeight = measurables.find { it.layoutId == LabelId }?.let {
+        var remainingWidth = width
+        val leadingHeight = measurables.find { it.layoutId == LeadingId }?.let {
+            remainingWidth -= it.maxIntrinsicWidth(Constraints.Infinity)
             intrinsicMeasurer(it, width)
         } ?: 0
         val trailingHeight = measurables.find { it.layoutId == TrailingId }?.let {
+            remainingWidth -= it.maxIntrinsicWidth(Constraints.Infinity)
             intrinsicMeasurer(it, width)
         } ?: 0
-        val leadingHeight = measurables.find { it.layoutId == LeadingId }?.let {
-            intrinsicMeasurer(it, width)
+
+        val labelHeight = measurables.find { it.layoutId == LabelId }?.let {
+            intrinsicMeasurer(it, lerp(remainingWidth, width, animationProgress))
         } ?: 0
+
+        val textFieldHeight =
+            intrinsicMeasurer(measurables.first { it.layoutId == TextFieldId }, remainingWidth)
         val placeholderHeight = measurables.find { it.layoutId == PlaceholderId }?.let {
-            intrinsicMeasurer(it, width)
+            intrinsicMeasurer(it, remainingWidth)
         } ?: 0
+
         return calculateHeight(
             leadingPlaceableHeight = leadingHeight,
             trailingPlaceableHeight = trailingHeight,
             textFieldPlaceableHeight = textFieldHeight,
             labelPlaceableHeight = labelHeight,
             placeholderPlaceableHeight = placeholderHeight,
+            animationProgress = animationProgress,
             constraints = ZeroConstraints,
             density = density,
             paddingValues = paddingValues
@@ -669,16 +796,26 @@ private fun calculateWidth(
     textFieldPlaceableWidth: Int,
     labelPlaceableWidth: Int,
     placeholderPlaceableWidth: Int,
-    constraints: Constraints
+    animationProgress: Float,
+    constraints: Constraints,
+    density: Float,
+    paddingValues: PaddingValues,
 ): Int {
     val middleSection = maxOf(
         textFieldPlaceableWidth,
-        labelPlaceableWidth,
+        lerp(labelPlaceableWidth, 0, animationProgress),
         placeholderPlaceableWidth
     )
     val wrappedWidth =
         leadingPlaceableWidth + middleSection + trailingPlaceableWidth
-    return max(wrappedWidth, constraints.minWidth)
+
+    // Actual LayoutDirection doesn't matter; we only need the sum
+    val labelHorizontalPadding = (paddingValues.calculateLeftPadding(LayoutDirection.Ltr) +
+        paddingValues.calculateRightPadding(LayoutDirection.Ltr)).value * density
+    val focusedLabelWidth =
+        ((labelPlaceableWidth + labelHorizontalPadding) * animationProgress).roundToInt()
+
+    return maxOf(wrappedWidth, focusedLabelWidth, constraints.minWidth)
 }
 
 /**
@@ -691,23 +828,25 @@ private fun calculateHeight(
     textFieldPlaceableHeight: Int,
     labelPlaceableHeight: Int,
     placeholderPlaceableHeight: Int,
+    animationProgress: Float,
     constraints: Constraints,
     density: Float,
     paddingValues: PaddingValues
 ): Int {
-    // middle section is defined as a height of the text field or placeholder ( whichever is
-    // taller) plus 16.dp or half height of the label if it is taller, given that the label
-    // is vertically centered to the top edge of the resulting text field's container
-    val inputFieldHeight = max(
+    val inputFieldHeight = maxOf(
         textFieldPlaceableHeight,
-        placeholderPlaceableHeight
+        placeholderPlaceableHeight,
+        lerp(labelPlaceableHeight, 0, animationProgress),
     )
     val topPadding = paddingValues.calculateTopPadding().value * density
-    val bottomPadding = paddingValues.calculateBottomPadding().value * density
-    val middleSectionHeight = inputFieldHeight + bottomPadding + max(
+    val actualTopPadding = lerp(
         topPadding,
-        labelPlaceableHeight / 2f
+        max(topPadding, labelPlaceableHeight / 2f),
+        animationProgress,
     )
+    val bottomPadding = paddingValues.calculateBottomPadding().value * density
+    val middleSectionHeight = actualTopPadding + inputFieldHeight + bottomPadding
+
     return max(
         constraints.minHeight,
         maxOf(
@@ -763,8 +902,7 @@ private fun Placeable.PlacementScope.place(
         } else {
             topPadding
         }
-        val positionY =
-            startPositionY * (1 - animationProgress) - (it.height / 2) * animationProgress
+        val positionY = lerp(startPositionY, -(it.height / 2), animationProgress)
         val positionX = (
             if (leadingPlaceable == null) {
                 0f
@@ -772,7 +910,7 @@ private fun Placeable.PlacementScope.place(
                 (widthOrZero(leadingPlaceable) - iconPadding) * (1 - animationProgress)
             }
             ).roundToInt() + startPadding
-        it.placeRelative(positionX, positionY.roundToInt())
+        it.placeRelative(positionX, positionY)
     }
 
     // placed center vertically and after the leading icon horizontally if single line text field
@@ -789,11 +927,14 @@ private fun Placeable.PlacementScope.place(
 
     // placed similar to the input text above
     placeholderPlaceable?.let {
-        val placeholderVerticalPosition = if (singleLine) {
-            Alignment.CenterVertically.align(it.height, height)
-        } else {
-            topPadding
-        }
+        val placeholderVerticalPosition = max(
+            if (singleLine) {
+                Alignment.CenterVertically.align(it.height, height)
+            } else {
+                topPadding
+            },
+            heightOrZero(labelPlaceable) / 2
+        )
         it.placeRelative(widthOrZero(leadingPlaceable), placeholderVerticalPosition)
     }
 

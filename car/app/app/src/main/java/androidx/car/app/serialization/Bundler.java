@@ -74,7 +74,6 @@ import java.util.Set;
  * also serializable as per this list.
  * <li>Custom objects that hold only other objects as per defined in this list as fields.
  *
- * @hide
  */
 @RestrictTo(LIBRARY)
 public final class Bundler {

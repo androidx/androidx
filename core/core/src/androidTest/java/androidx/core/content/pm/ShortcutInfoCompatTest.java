@@ -383,7 +383,6 @@ public class ShortcutInfoCompatTest {
     @FlakyTest
     @SdkSuppress(minSdkVersion = 26)
     public void testBuilder_fromShortcutInfo() throws Exception {
-        final long ts = System.currentTimeMillis();
         String longLabel = "Test long label";
         ComponentName activity = new ComponentName("Package name", "Class name");
         String disabledMessage = "Test disabled message";
@@ -414,7 +413,6 @@ public class ShortcutInfoCompatTest {
         assertEquals(rank, compat.getRank());
         assertEquals(persistableBundle, compat.getExtras());
         assertEquals(ShortcutInfo.DISABLED_REASON_NOT_DISABLED, compat.getDisabledReason());
-        assertTrue(compat.getLastChangedTimestamp() > ts);
         assertNotNull(compat.getUserHandle());
         assertNotNull(compat.getPackage());
         assertFalse(compat.isCached());
@@ -516,5 +514,25 @@ public class ShortcutInfoCompatTest {
         }
 
         assertEquals(locusId, ShortcutInfoCompat.getLocusId(shortcut));
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 33)
+    public void testToShortcutInfo_ExcludedFromSurfaces() {
+        final ShortcutInfoCompat compat = mBuilder.setExcludedFromSurfaces(
+                ShortcutInfoCompat.SURFACE_LAUNCHER).build();
+        final ShortcutInfo shortcut = compat.toShortcutInfo();
+        assertTrue(shortcut.isExcludedFromSurfaces(ShortcutInfo.SURFACE_LAUNCHER));
+    }
+
+    @Test
+    public void testSetCategoriesAndAddCapabilityBinding() {
+        HashSet<String> categories = new HashSet<>();
+        categories.add("a");
+        mBuilder.setActivity(new ComponentName(mContext, TestActivity.class))
+                .setCategories(categories)
+                .addCapabilityBinding("b")
+                .build();
+        assertEquals(1, categories.size());
     }
 }

@@ -21,7 +21,6 @@ import android.opengl.EGLConfig
 import android.opengl.EGLSurface
 import android.os.Handler
 import android.os.HandlerThread
-import android.os.SystemClock
 import android.util.Log
 import android.view.Surface
 import androidx.annotation.AnyThread
@@ -30,6 +29,7 @@ import androidx.graphics.opengl.GLRenderer.EGLContextCallback
 import androidx.graphics.opengl.GLRenderer.RenderCallback
 import androidx.graphics.opengl.egl.EGLManager
 import androidx.graphics.opengl.egl.EGLSpec
+import androidx.graphics.utils.post
 import java.util.concurrent.atomic.AtomicBoolean
 
 /**
@@ -133,6 +133,9 @@ internal class GLThread(
             }
         }
     }
+
+    @AnyThread
+    fun execute(runnable: Runnable) = withHandler { post(runnable) }
 
     /**
      * Removes the corresponding [android.view.Surface] from management of the GLThread.
@@ -398,14 +401,5 @@ internal class GLThread(
          * Target height of the [surface]. This is only modified on the backing thread
          */
         var height: Int = 0
-    }
-
-    /**
-     * Handler does not expose a post method that takes a token and a runnable.
-     * We need the token to be able to cancel pending requests so just call
-     * postAtTime with the default of SystemClock.uptimeMillis
-     */
-    private fun Handler.post(token: Any?, runnable: Runnable) {
-        postAtTime(runnable, token, SystemClock.uptimeMillis())
     }
 }

@@ -23,7 +23,9 @@ message LayoutNode {
   VerticalAlignment vertical_alignment = 5;
   ContentScale image_scale = 6;
   NodeIdentity identity = 8;
+  bool hasAction = 9;
   repeated LayoutNode children = 7;
+  bool has_image_description = 10;
 }
 
 enum ContentScale {
@@ -83,4 +85,5 @@ enum LayoutType {
   RADIO_BUTTON = 19;
   RADIO_ROW = 20;
   RADIO_COLUMN = 21;
+  SIZE_BOX = 22;
 }

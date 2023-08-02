@@ -76,7 +76,8 @@ interface XProcessingStep {
     fun processOver(env: XProcessingEnv, elementsByAnnotation: Map<String, Set<XElement>>) { }
 
     /**
-     * The set of annotation qualified names processed by this step.
+     * The set of annotation qualified names processed by this step. Using the name "*" represents
+     * this step can process the set of all annotations, including the empty set.
      */
     fun annotations(): Set<String>
 }

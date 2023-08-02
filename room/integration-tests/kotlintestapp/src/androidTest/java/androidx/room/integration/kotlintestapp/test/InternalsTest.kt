@@ -13,8 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.room.androidx.room.integration.kotlintestapp.test
+package androidx.room.integration.kotlintestapp.test
 
+import androidx.kruth.assertThat
 import androidx.room.Dao
 import androidx.room.Database
 import androidx.room.Entity
@@ -25,7 +26,6 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
-import com.google.common.truth.Truth.assertThat
 import org.junit.Before
 import org.junit.Test
 
@@ -41,7 +41,7 @@ class InternalsTest {
         exportSchema = false
     )
     internal abstract class InternalDb : RoomDatabase() {
-        abstract val dao: InternalDao
+        abstract fun getDao(): InternalDao
     }
 
     @Entity
@@ -98,7 +98,7 @@ class InternalsTest {
     @Before
     fun init() {
         db = Room.inMemoryDatabaseBuilder(
-            InstrumentationRegistry.getInstrumentation().context,
+            InstrumentationRegistry.getInstrumentation().targetContext,
             InternalDb::class.java
         ).build()
     }
@@ -113,18 +113,18 @@ class InternalsTest {
             it.internalFieldProp = "ifp"
             it.publicFieldProp = "pfp"
         }
-        db.dao.insert(entity)
+        db.getDao().insert(entity)
         assertThat(
-            db.dao.byInternalField(field = "if")
+            db.getDao().byInternalField(field = "if")
         ).containsExactly(entity)
         assertThat(
-            db.dao.byPublicField(field = "pf")
+            db.getDao().byPublicField(field = "pf")
         ).containsExactly(entity)
         assertThat(
-            db.dao.byInternalFieldProp(field = "ifp")
+            db.getDao().byInternalFieldProp(field = "ifp")
         ).containsExactly(entity)
         assertThat(
-            db.dao.byPublicFieldProp(field = "pfp")
+            db.getDao().byPublicFieldProp(field = "pfp")
         ).containsExactly(entity)
     }
 }

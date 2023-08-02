@@ -41,6 +41,7 @@ import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -67,6 +68,7 @@ import kotlin.math.roundToInt
 @Composable
 fun ScrollableFocusedChildDemo() {
     val resizableState = remember { ResizableState() }
+    var reverseScrolling by remember { mutableStateOf(false) }
 
     Column {
         Text(
@@ -82,7 +84,7 @@ fun ScrollableFocusedChildDemo() {
                 },
                 modifier = Modifier.weight(1f)
             ) {
-                Text("Cut in half")
+                Text("½ size")
             }
             Button(
                 onClick = {
@@ -90,7 +92,15 @@ fun ScrollableFocusedChildDemo() {
                 },
                 modifier = Modifier.weight(1f)
             ) {
-                Text("Fill max size")
+                Text("Max size")
+            }
+            Button(
+                onClick = {
+                    reverseScrolling = !reverseScrolling
+                },
+                modifier = Modifier.weight(1f)
+            ) {
+                Text("Scroll: ${if (reverseScrolling) "backward" else "forward"}")
             }
         }
 
@@ -107,8 +117,8 @@ fun ScrollableFocusedChildDemo() {
             Box(
                 Modifier
                     .border(2.dp, Color.Black)
-                    .verticalScroll(rememberScrollState())
-                    .horizontalScroll(rememberScrollState())
+                    .verticalScroll(rememberScrollState(), reverseScrolling = reverseScrolling)
+                    .horizontalScroll(rememberScrollState(), reverseScrolling = reverseScrolling)
             ) {
                 Box(
                     Modifier
@@ -144,8 +154,8 @@ fun FocusGrabber(modifier: Modifier = Modifier) {
 }
 
 private class ResizableState {
-    var widthOverride by mutableStateOf(-1)
-    var heightOverride by mutableStateOf(-1)
+    var widthOverride by mutableIntStateOf(-1)
+    var heightOverride by mutableIntStateOf(-1)
 
     fun resetToMaxSize() {
         widthOverride = -1

@@ -16,12 +16,12 @@
 
 package androidx.compose.ui.platform
 
+import android.content.ClipDescription
 import android.content.ClipboardManager
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontStyle
@@ -32,19 +32,17 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextGeometricTransform
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.sp
-
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.whenever
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.whenever
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
-@OptIn(ExperimentalTextApi::class)
 class AndroidClipboardManagerTest {
 
     private val context = InstrumentationRegistry.getInstrumentation().context
@@ -212,8 +210,38 @@ class AndroidClipboardManagerTest {
         whenever(clipboardManager.primaryClip).thenReturn(null)
         val subject = AndroidClipboardManager(clipboardManager)
 
-        val actual = subject.getText()
-        assertThat(actual).isNull()
+        assertThat(subject.getText()).isNull()
+    }
+
+    @Test
+    fun hasText_whenHasPrimaryClipDescription_Text_returnsTrue() {
+        val clipboardManager = mock<ClipboardManager>()
+        val clipDescription = mock<ClipDescription>()
+        whenever(clipboardManager.primaryClipDescription).thenReturn(clipDescription)
+        whenever(clipDescription.hasMimeType("text/*")).thenReturn(true)
+        val subject = AndroidClipboardManager(clipboardManager)
+
+        assertThat(subject.hasText()).isTrue()
+    }
+
+    @Test
+    fun hasText_whenHasPrimaryClipDescription_notText_returnsFalse() {
+        val clipboardManager = mock<ClipboardManager>()
+        val clipDescription = mock<ClipDescription>()
+        whenever(clipboardManager.primaryClipDescription).thenReturn(clipDescription)
+        whenever(clipDescription.hasMimeType("text/*")).thenReturn(false)
+        val subject = AndroidClipboardManager(clipboardManager)
+
+        assertThat(subject.hasText()).isFalse()
+    }
+
+    @Test
+    fun hasText_whenNoPrimaryClipDescription_returnsFalse() {
+        val clipboardManager = mock<ClipboardManager>()
+        whenever(clipboardManager.primaryClipDescription).thenReturn(null)
+        val subject = AndroidClipboardManager(clipboardManager)
+
+        assertThat(subject.hasText()).isFalse()
     }
 
     private fun assertEncodeAndDecode(spanStyle: SpanStyle) {

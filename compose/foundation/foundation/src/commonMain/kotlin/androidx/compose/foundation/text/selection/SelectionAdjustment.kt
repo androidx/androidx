@@ -16,6 +16,8 @@
 
 package androidx.compose.foundation.text.selection
 
+import androidx.compose.foundation.text.findFollowingBreak
+import androidx.compose.foundation.text.findPrecedingBreak
 import androidx.compose.foundation.text.getParagraphBoundary
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextRange
@@ -38,6 +40,7 @@ internal interface SelectionAdjustment {
      * @param previousHandleOffset the previous offset of the moving handle. When isStartHandle is
      * true, it's the previous offset of the start handle before the movement, and vice versa.
      * When there isn't a valid previousHandleOffset, previousHandleOffset should be -1.
+     * Necessary for adjustment to tell whether selection is expanding or shrinking.
      * @param isStartHandle whether the moving handle is the start handle.
      * @param previousSelectionRange the previous selection range, or the selection range to be
      * updated.
@@ -87,6 +90,7 @@ internal interface SelectionAdjustment {
                     // If there isn't any selection before, we assume handles are not crossed.
                     val previousHandlesCrossed = previousSelectionRange?.reversed ?: false
                     ensureAtLeastOneChar(
+                        text = textLayoutResult.layoutInput.text.text,
                         offset = newRawSelectionRange.start,
                         lastOffset = textLayoutResult.layoutInput.text.lastIndex,
                         isStartHandle = isStartHandle,
@@ -151,7 +155,7 @@ internal interface SelectionAdjustment {
             if (textLayoutResult.layoutInput.text.isEmpty()) {
                 return TextRange.Zero
             }
-            val maxOffset = textLayoutResult.layoutInput.text.lastIndex
+            val maxOffset = textLayoutResult.layoutInput.text.length
             val startBoundary = boundaryFun(newRawSelection.start.coerceIn(0, maxOffset))
             val endBoundary = boundaryFun(newRawSelection.end.coerceIn(0, maxOffset))
 
@@ -180,7 +184,7 @@ internal interface SelectionAdjustment {
          * selection.
          *  b.if the previous start/end offset is a word boundary, use word based selection.
          *
-         *  Notice that this selection adjustment assumes that when isStartHandle is ture, only
+         *  Notice that this selection adjustment assumes that when isStartHandle is true, only
          *  start handle is moving(or unchanged), and vice versa.
          */
         val CharacterWithWordAccelerate = object : SelectionAdjustment {
@@ -198,18 +202,19 @@ internal interface SelectionAdjustment {
                         newRawSelectionRange = newRawSelectionRange,
                         previousHandleOffset = previousHandleOffset,
                         isStartHandle = isStartHandle,
-                        previousSelectionRange = previousSelectionRange
+                        previousSelectionRange = null
                     )
                 }
 
-                // The new selection is collapsed, ensure at least one char is selected.
-                if (newRawSelectionRange.collapsed) {
-                    return ensureAtLeastOneChar(
-                        offset = newRawSelectionRange.start,
-                        lastOffset = textLayoutResult.layoutInput.text.lastIndex,
-                        isStartHandle = isStartHandle,
-                        previousHandlesCrossed = previousSelectionRange.reversed
-                    )
+                // if previous is collapsed, allow the current to continue to be collapsed.
+                // Otherwise, starting a selection may have a collapsed selection,
+                // but moving even a pixel will result in a different selection
+                // because the following code will ensure at least one character is selected.
+                if (
+                    previousSelectionRange.collapsed &&
+                    newRawSelectionRange == previousSelectionRange
+                ) {
+                    return previousSelectionRange
                 }
 
                 val start: Int
@@ -237,6 +242,7 @@ internal interface SelectionAdjustment {
                         isReversed = newRawSelectionRange.reversed
                     )
                 }
+
                 return TextRange(start, end)
             }
 
@@ -288,9 +294,7 @@ internal interface SelectionAdjustment {
 
                 // Check if the start or end selection boundary is expanding. If it's shrinking,
                 // use character based selection.
-                val isExpanding =
-                    isExpanding(newRawOffset, previousRawOffset, isStart, isReversed)
-                if (!isExpanding) {
+                if (!isExpanding(newRawOffset, previousRawOffset, isStart, isReversed)) {
                     return newRawOffset
                 }
 
@@ -351,25 +355,16 @@ internal interface SelectionAdjustment {
                     return start
                 }
 
-                val threshold = (start + end) / 2
                 return if (isStart xor isReversed) {
                     // In this branch when:
                     // 1. selection is updating the start offset, and selection is not reversed.
                     // 2. selection is updating the end offset, and selection is reversed.
-                    if (newRawOffset <= threshold) {
-                        start
-                    } else {
-                        end
-                    }
+                    if (newRawOffset <= end) start else end
                 } else {
                     // In this branch when:
                     // 1. selection is updating the end offset, and selection is not reversed.
                     // 2. selection is updating the start offset, and selection is reversed.
-                    if (newRawOffset >= threshold) {
-                        end
-                    } else {
-                        start
-                    }
+                    if (newRawOffset >= start) end else start
                 }
             }
 
@@ -402,10 +397,12 @@ internal interface SelectionAdjustment {
 }
 
 /**
- * This method adjusts the raw start and end offset and bounds the selection to one character. The
- * logic of bounding evaluates the last selection result, which handle is being dragged, and if
- * selection reaches the boundary.
+ * This method adjusts the raw start and end offset and bounds the selection to one character
+ * respecting [String.findPrecedingBreak] and [String.findFollowingBreak]. The logic of bounding
+ * evaluates the last selection result, which handle is being dragged, and if selection reaches the
+ * boundary.
  *
+ * @param text the complete string
  * @param offset unprocessed start and end offset calculated directly from input position, in
  * this case start and offset equals to each other.
  * @param lastOffset last offset of the text. It's actually the length of the text.
@@ -417,6 +414,7 @@ internal interface SelectionAdjustment {
  * @return the adjusted [TextRange].
  */
 internal fun ensureAtLeastOneChar(
+    text: String,
     offset: Int,
     lastOffset: Int,
     isStartHandle: Boolean,
@@ -429,18 +427,20 @@ internal fun ensureAtLeastOneChar(
     // When offset is at the boundary, the handle that is not dragged should be at [offset]. Here
     // the other handle's position is computed accordingly.
     if (offset == 0) {
+        val followingBreak = text.findFollowingBreak(0)
         return if (isStartHandle) {
-            TextRange(1, 0)
+            TextRange(followingBreak, 0)
         } else {
-            TextRange(0, 1)
+            TextRange(0, followingBreak)
         }
     }
 
     if (offset == lastOffset) {
+        val precedingBreak = text.findPrecedingBreak(lastOffset)
         return if (isStartHandle) {
-            TextRange(lastOffset - 1, lastOffset)
+            TextRange(precedingBreak, lastOffset)
         } else {
-            TextRange(lastOffset, lastOffset - 1)
+            TextRange(lastOffset, precedingBreak)
         }
     }
 
@@ -449,18 +449,18 @@ internal fun ensureAtLeastOneChar(
     return if (isStartHandle) {
         if (!previousHandlesCrossed) {
             // Handle is NOT crossed, and the start handle is dragged.
-            TextRange(offset - 1, offset)
+            TextRange(text.findPrecedingBreak(offset), offset)
         } else {
             // Handle is crossed, and the start handle is dragged.
-            TextRange(offset + 1, offset)
+            TextRange(text.findFollowingBreak(offset), offset)
         }
     } else {
         if (!previousHandlesCrossed) {
             // Handle is NOT crossed, and the end handle is dragged.
-            TextRange(offset, offset + 1)
+            TextRange(offset, text.findFollowingBreak(offset))
         } else {
             // Handle is crossed, and the end handle is dragged.
-            TextRange(offset, offset - 1)
+            TextRange(offset, text.findPrecedingBreak(offset))
         }
     }
 }

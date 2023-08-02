@@ -17,6 +17,10 @@
 package androidx.compose.compiler.plugins.kotlin
 
 import com.intellij.openapi.util.io.FileUtil
+import java.io.ByteArrayOutputStream
+import java.io.File
+import java.io.PrintStream
+import java.io.PrintWriter
 import org.intellij.lang.annotations.Language
 import org.jetbrains.kotlin.cli.common.CLICompiler
 import org.jetbrains.kotlin.cli.common.CLITool
@@ -24,10 +28,11 @@ import org.jetbrains.kotlin.cli.common.ExitCode
 import org.jetbrains.kotlin.cli.jvm.K2JVMCompiler
 import org.jetbrains.org.objectweb.asm.ClassReader
 import org.jetbrains.org.objectweb.asm.util.TraceClassVisitor
-import java.io.ByteArrayOutputStream
-import java.io.File
-import java.io.PrintStream
-import java.io.PrintWriter
+import org.junit.Assert.assertEquals
+import org.junit.Rule
+import org.junit.rules.TemporaryFolder
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
 
 // AbstractCliTest
 private fun executeCompilerGrabOutput(
@@ -74,21 +79,22 @@ fun String.trimTrailingWhitespacesAndAddNewlineAtEOF(): String =
         if (result.endsWith("\n")) result else result + "\n"
     }
 
-abstract class AbstractMultiPlatformIntegrationTest : AbstractCompilerTest() {
-    fun multiplatform(
+@RunWith(JUnit4::class)
+abstract class AbstractMultiPlatformIntegrationTest : AbstractCompilerTest(useFir = false) {
+    @JvmField
+    @Rule
+    val sourceDirectory = TemporaryFolder()
+
+    protected fun multiplatform(
         @Language("kotlin")
         common: String,
         @Language("kotlin")
         jvm: String,
         output: String
     ) {
-        setUp()
-        val tmpdir = tmpDir(getTestName(true))
-
-        assert(
-            composePluginJar.exists(),
-            { "Compiler plugin jar does not exist: $composePluginJar" }
-        )
+        assert(composePluginJar.exists()) {
+            "Compiler plugin jar does not exist: $composePluginJar"
+        }
 
         val optionalArgs = arrayOf(
             "-cp",
@@ -96,21 +102,21 @@ abstract class AbstractMultiPlatformIntegrationTest : AbstractCompilerTest() {
                 .filter { it.exists() }
                 .joinToString(File.pathSeparator) { it.absolutePath },
             "-kotlin-home",
-            AbstractCompilerTest.kotlinHome.absolutePath,
+            kotlinHome.absolutePath,
             "-Xplugin=${composePluginJar.absolutePath}",
             "-Xuse-ir"
         )
 
         val jvmOnlyArgs = arrayOf("-no-stdlib")
 
-        val srcDir = File(tmpdir, "srcs").absolutePath
+        val srcDir = sourceDirectory.newFolder("srcs").absolutePath
         val commonSrc = File(srcDir, "common.kt")
         val jvmSrc = File(srcDir, "jvm.kt")
 
         FileUtil.writeToFile(commonSrc, common)
         FileUtil.writeToFile(jvmSrc, jvm)
 
-        val jvmDest = File(tmpdir, "jvm").absolutePath
+        val jvmDest = sourceDirectory.newFolder("jvm").absolutePath
 
         val result = K2JVMCompiler().compile(
             jvmSrc,

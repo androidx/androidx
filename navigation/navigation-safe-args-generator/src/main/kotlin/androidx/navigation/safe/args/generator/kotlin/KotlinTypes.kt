@@ -52,8 +52,8 @@ import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.INT
 import com.squareup.kotlinpoet.LONG
 import com.squareup.kotlinpoet.ParameterizedTypeName
-import com.squareup.kotlinpoet.TypeName
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
+import com.squareup.kotlinpoet.TypeName
 import com.squareup.kotlinpoet.asTypeName
 import java.lang.UnsupportedOperationException
 
@@ -184,7 +184,7 @@ internal fun NavType.addSavedStateGetStatement(
     is ObjectArrayType -> builder.apply {
         val baseType = (arg.type.typeName() as ParameterizedTypeName).typeArguments.first()
         addStatement(
-            "%L = %L.get<Array<%T>>(%S)?.map { it as %T }?.toTypedArray()",
+            "%L = %L.get<Array<%T>>(%S)?.map·{ it as %T }?.toTypedArray()",
             lValue, savedStateHandle, PARCELABLE_CLASSNAME, arg.name, baseType
         )
     }

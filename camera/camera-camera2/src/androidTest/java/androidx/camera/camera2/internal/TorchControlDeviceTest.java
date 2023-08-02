@@ -21,14 +21,15 @@ import static org.junit.Assume.assumeTrue;
 import android.content.Context;
 
 import androidx.camera.camera2.Camera2Config;
+import androidx.camera.camera2.internal.util.TestUtil;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraXConfig;
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageProxy;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.internal.CameraUseCaseAdapter;
-import androidx.camera.testing.CameraUtil;
-import androidx.camera.testing.CameraXUtil;
+import androidx.camera.testing.impl.CameraUtil;
+import androidx.camera.testing.impl.CameraXUtil;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
@@ -82,8 +83,8 @@ public class TorchControlDeviceTest {
         // Make ImageAnalysis active.
         imageAnalysis.setAnalyzer(CameraXExecutors.mainThreadExecutor(), ImageProxy::close);
         mCamera = CameraUtil.createCameraAndAttachUseCase(context, cameraSelector, imageAnalysis);
-        Camera2CameraControlImpl cameraControl = (Camera2CameraControlImpl)
-                mCamera.getCameraControl();
+        Camera2CameraControlImpl cameraControl =
+                TestUtil.getCamera2CameraControlImpl(mCamera.getCameraControl());
 
         mTorchControl = cameraControl.getTorchControl();
     }

@@ -16,11 +16,9 @@
 
 package androidx.room.solver.prepared.binder
 
-import androidx.room.ext.N
+import androidx.room.compiler.codegen.XPropertySpec
 import androidx.room.solver.CodeGenScope
 import androidx.room.solver.prepared.result.PreparedQueryResultAdapter
-import androidx.room.writer.DaoWriter
-import com.squareup.javapoet.FieldSpec
 
 /**
  * Default binder for prepared queries.
@@ -30,17 +28,17 @@ class InstantPreparedQueryResultBinder(adapter: PreparedQueryResultAdapter?) :
 
     override fun executeAndReturn(
         prepareQueryStmtBlock: CodeGenScope.() -> String,
-        preparedStmtField: String?,
-        dbField: FieldSpec,
+        preparedStmtProperty: XPropertySpec?,
+        dbProperty: XPropertySpec,
         scope: CodeGenScope
     ) {
-        scope.builder().apply {
-            addStatement("$N.assertNotSuspendingTransaction()", DaoWriter.dbField)
+        scope.builder.apply {
+            addStatement("%N.assertNotSuspendingTransaction()", dbProperty)
         }
         adapter?.executeAndReturn(
             stmtQueryVal = scope.prepareQueryStmtBlock(),
-            preparedStmtField = preparedStmtField,
-            dbField = dbField,
+            preparedStmtProperty = preparedStmtProperty,
+            dbProperty = dbProperty,
             scope = scope
         )
     }

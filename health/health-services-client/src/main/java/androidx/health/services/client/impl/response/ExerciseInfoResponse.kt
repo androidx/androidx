@@ -25,15 +25,13 @@ import androidx.health.services.client.proto.ResponsesProto
 /**
  * Response containing [ExerciseInfo] when changed.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class ExerciseInfoResponse(public val exerciseInfo: ExerciseInfo) :
     ProtoParcelable<ResponsesProto.ExerciseInfoResponse>() {
 
-    override val proto: ResponsesProto.ExerciseInfoResponse by lazy {
+    override val proto: ResponsesProto.ExerciseInfoResponse =
         ResponsesProto.ExerciseInfoResponse.newBuilder().setExerciseInfo(exerciseInfo.proto).build()
-    }
 
     public companion object {
         @JvmField

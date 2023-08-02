@@ -46,9 +46,8 @@ class InsertionMethodProcessor(
         )
 
         val returnType = delegate.extractReturnType()
-        val returnTypeName = returnType.typeName
         context.checker.notUnbound(
-            returnTypeName, executableElement,
+            returnType, executableElement,
             ProcessorErrors.CANNOT_USE_UNBOUND_GENERICS_IN_INSERTION_METHODS
         )
 
@@ -63,7 +62,7 @@ class InsertionMethodProcessor(
                     entity.primaryKey.autoGenerateId || !missingPrimaryKeys,
                     executableElement,
                     ProcessorErrors.missingPrimaryKeysInPartialEntityForInsert(
-                        partialEntityName = pojo.typeName.toString(),
+                        partialEntityName = pojo.typeName.toString(context.codeLanguage),
                         primaryKeyNames = entity.primaryKey.fields.columnNames
                     )
                 )
@@ -78,7 +77,7 @@ class InsertionMethodProcessor(
                     missingRequiredFields.isEmpty(),
                     executableElement,
                     ProcessorErrors.missingRequiredColumnsInPartialEntity(
-                        partialEntityName = pojo.typeName.toString(),
+                        partialEntityName = pojo.typeName.toString(context.codeLanguage),
                         missingColumnNames = missingRequiredFields.map { it.columnName }
                     )
                 )

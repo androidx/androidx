@@ -20,7 +20,7 @@ import androidx.annotation.MainThread
 /**
  * The listener for constraint changes.
  *
- * @param <T> the constraint data type for this listener
+ * @param T the constraint data type for this listener
  */
 interface ConstraintListener<T> {
     /**

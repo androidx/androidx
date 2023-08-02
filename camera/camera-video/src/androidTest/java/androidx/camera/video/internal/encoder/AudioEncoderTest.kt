@@ -16,7 +16,9 @@
 package androidx.camera.video.internal.encoder
 
 import android.media.MediaCodecInfo
+import android.os.Build
 import androidx.camera.core.impl.Observable.Observer
+import androidx.camera.core.impl.Timebase
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.video.internal.BufferProvider
 import androidx.camera.video.internal.BufferProvider.State
@@ -39,6 +41,7 @@ import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.junit.After
+import org.junit.Assume.assumeFalse
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -60,6 +63,7 @@ class AudioEncoderTest {
     companion object {
         private const val MIME_TYPE = "audio/mp4a-latm"
         private const val ENCODER_PROFILE = MediaCodecInfo.CodecProfileLevel.AACObjectLC
+        private val INPUT_TIMEBASE = Timebase.UPTIME
         private const val BIT_RATE = 64000
         private const val SAMPLE_RATE = 44100
         private const val CHANNEL_COUNT = 1
@@ -83,6 +87,7 @@ class AudioEncoderTest {
             AudioEncoderConfig.builder()
                 .setMimeType(MIME_TYPE)
                 .setProfile(ENCODER_PROFILE)
+                .setInputTimebase(INPUT_TIMEBASE)
                 .setBitrate(BIT_RATE)
                 .setSampleRate(SAMPLE_RATE)
                 .setChannelCount(CHANNEL_COUNT)
@@ -106,6 +111,11 @@ class AudioEncoderTest {
     }
 
     @Test
+    fun canGetEncoderInfo() {
+        assertThat(encoder.encoderInfo).isNotNull()
+    }
+
+    @Test
     fun discardInputBufferBeforeStart() {
         // Arrange.
         fakeAudioLoop.start()
@@ -120,6 +130,12 @@ class AudioEncoderTest {
 
     @Test
     fun canRestartEncoder() {
+        // Skip for b/269129619
+        assumeFalse(
+            "Skip test for Cuttlefish API 30 flaky native crash",
+            Build.MODEL.contains("Cuttlefish") && Build.VERSION.SDK_INT == 30
+        )
+
         // Arrange.
         fakeAudioLoop.start()
 

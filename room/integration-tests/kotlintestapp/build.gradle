@@ -18,7 +18,7 @@
 // -Dorg.gradle.debug=true
 // -Dkotlin.compiler.execution.strategy="in-process"
 
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import com.google.devtools.ksp.gradle.KspTask
 
 plugins {
     id("AndroidXPlugin")
@@ -45,7 +45,8 @@ android {
 
     sourceSets {
         androidTestWithKapt.assets.srcDirs += files("$projectDir/schemas".toString())
-        androidTestWithKsp.assets.srcDirs += files("$projectDir/schemas-ksp".toString())
+        androidTestWithKspGenJava.assets.srcDirs += files("$projectDir/schemas-ksp".toString())
+        androidTestWithKspGenKotlin.assets.srcDirs += files("$projectDir/schemas-ksp".toString())
     }
 
     flavorDimensions "processorConfiguration"
@@ -60,7 +61,10 @@ android {
                 }
             }
         }
-        withKsp {
+        withKspGenJava {
+            dimension "processorConfiguration"
+        }
+        withKspGenKotlin {
             dimension "processorConfiguration"
         }
     }
@@ -71,21 +75,24 @@ dependencies {
     implementation(project(":room:room-common"))
     implementation(project(":room:room-runtime"))
     implementation(project(":room:room-paging"))
-    implementation(projectOrArtifact(":arch:core:core-runtime"))
-    implementation(projectOrArtifact(":lifecycle:lifecycle-livedata"))
-    implementation(projectOrArtifact(":lifecycle:lifecycle-livedata-ktx"))
+    implementation("androidx.arch.core:core-runtime:2.2.0")
+    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.6.1")
     implementation(libs.kotlinStdlib)
     implementation(libs.kotlinCoroutinesAndroid)
     implementation(libs.multidex)
     // depend on the shadowed version so that it tests with the shipped artifact
     // this is a temporary attribute until KSP and AndroidX plugin supports variants.
-    kspAndroidTestWithKsp(
+    kspAndroidTestWithKspGenJava(
+            project(path: ":room:room-compiler", configuration: "shadowAndImplementation")
+    )
+    kspAndroidTestWithKspGenKotlin(
             project(path: ":room:room-compiler", configuration: "shadowAndImplementation")
     )
     kaptAndroidTestWithKapt(
             project(path: ":room:room-compiler", configuration: "shadowAndImplementation")
     )
-    androidTestImplementation(projectOrArtifact(":lifecycle:lifecycle-livedata-ktx"))
+    androidTestImplementation("androidx.arch.core:core-runtime:2.2.0")
+    androidTestImplementation("androidx.lifecycle:lifecycle-livedata-ktx:2.6.1")
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner) {
@@ -96,7 +103,7 @@ dependencies {
         exclude group: "com.android.support", module: "support-annotations"
         exclude module: "hamcrest-core"
     })
-    androidTestImplementation(libs.truth)
+    androidTestImplementation(project(":kruth:kruth"))
     androidTestImplementation(libs.kotlinTest)
     androidTestImplementation(project(":room:room-guava"))
     androidTestImplementation(project(":room:room-testing"))
@@ -110,21 +117,47 @@ dependencies {
     androidTestImplementation(project(":room:room-rxjava3"))
     androidTestImplementation(project(":room:room-ktx"))
     androidTestImplementation(project(":internal-testutils-common"))
-    androidTestImplementation("androidx.arch.core:core-testing:2.0.1")
+    androidTestImplementation("androidx.arch.core:core-testing:2.2.0")
     androidTestImplementation("androidx.paging:paging-runtime:3.1.1")
-    androidTestImplementation(projectOrArtifact(":lifecycle:lifecycle-runtime-testing"))
+    androidTestImplementation("androidx.lifecycle:lifecycle-runtime-testing:2.6.1")
     androidTestImplementation(libs.rxjava2)
-    testImplementation(libs.mockitoCore)
+    androidTestImplementation(libs.kotlinCoroutinesTest)
+    testImplementation(libs.mockitoCore4)
+    androidTestImplementation("androidx.collection:collection")
 }
 
-// KSP does not support argument per flavor so we set it to global instead.
-ksp {
-    arg("room.schemaLocation","$projectDir/schemas-ksp".toString())
-}
+class RoomSchemaArgProvider implements CommandLineArgumentProvider {
 
-// Allow usage of Kotlin's @OptIn.
-tasks.withType(KotlinCompile).configureEach {
-    kotlinOptions {
-        freeCompilerArgs += ["-opt-in=kotlin.RequiresOptIn"]
+    @InputDirectory
+    @PathSensitive(PathSensitivity.RELATIVE)
+    File schemaDir
+
+    @Input
+    Provider<Boolean> generateKotlin;
+
+    RoomSchemaArgProvider(File schemaDir, Provider<Boolean> generateKotlin) {
+        this.schemaDir = schemaDir
+        this.generateKotlin = generateKotlin
     }
+
+    @Override
+    Iterable<String> asArguments() {
+        // Note: If you're using KSP, you should change the line below to return
+        // ["room.schemaLocation=${schemaDir.path}"]
+        return [
+            "room.schemaLocation=" + schemaDir.path,
+            "room.generateKotlin=" + generateKotlin.get()
+        ]
+    }
+}
+
+// KSP does not support argument per flavor so for per flavor options we use flavor named tasks.
+// See https://github.com/google/ksp/issues/861.
+tasks.withType(KspTask).configureEach { kspTask ->
+    kspTask.commandLineArgumentProviders.add(
+        new RoomSchemaArgProvider(
+            new File(projectDir, "schemas-ksp"),
+            provider { kspTask.name.contains("GenKotlin") }
+        )
+    )
 }

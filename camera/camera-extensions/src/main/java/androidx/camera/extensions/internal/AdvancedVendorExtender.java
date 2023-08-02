@@ -19,6 +19,7 @@ package androidx.camera.extensions.internal;
 import android.content.Context;
 import android.graphics.ImageFormat;
 import android.hardware.camera2.CameraCharacteristics;
+import android.hardware.camera2.CaptureRequest;
 import android.util.Pair;
 import android.util.Range;
 import android.util.Size;
@@ -27,9 +28,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
+import androidx.annotation.VisibleForTesting;
 import androidx.camera.camera2.interop.Camera2CameraInfo;
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
 import androidx.camera.core.CameraInfo;
+import androidx.camera.core.Logger;
 import androidx.camera.core.impl.SessionProcessor;
 import androidx.camera.extensions.ExtensionMode;
 import androidx.camera.extensions.impl.advanced.AdvancedExtenderImpl;
@@ -52,14 +55,13 @@ import java.util.Map;
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class AdvancedVendorExtender implements VendorExtender {
+    private static final String TAG = "AdvancedVendorExtender";
     private final ExtensionDisabledValidator mExtensionDisabledValidator =
             new ExtensionDisabledValidator();
     private final AdvancedExtenderImpl mAdvancedExtenderImpl;
     private String mCameraId;
-    private final @ExtensionMode.Mode int mMode;
 
     public AdvancedVendorExtender(@ExtensionMode.Mode int mode) {
-        mMode = mode;
         try {
             switch (mode) {
                 case ExtensionMode.BOKEH:
@@ -86,6 +88,11 @@ public class AdvancedVendorExtender implements VendorExtender {
         }
     }
 
+    @VisibleForTesting
+    AdvancedVendorExtender(AdvancedExtenderImpl advancedExtenderImpl) {
+        mAdvancedExtenderImpl = advancedExtenderImpl;
+    }
+
     @OptIn(markerClass = ExperimentalCamera2Interop.class)
     @Override
     public void init(@NonNull CameraInfo cameraInfo) {
@@ -101,7 +108,7 @@ public class AdvancedVendorExtender implements VendorExtender {
     public boolean isExtensionAvailable(@NonNull String cameraId,
             @NonNull Map<String, CameraCharacteristics> characteristicsMap) {
 
-        if (mExtensionDisabledValidator.shouldDisableExtension(cameraId, mMode)) {
+        if (mExtensionDisabledValidator.shouldDisableExtension()) {
             return false;
         }
 
@@ -153,11 +160,28 @@ public class AdvancedVendorExtender implements VendorExtender {
         return yuvList == null ? new Size[0] : yuvList.toArray(new Size[0]);
     }
 
+    @NonNull
+    private List<CaptureRequest.Key> getSupportedParameterKeys() {
+        List<CaptureRequest.Key> keys = Collections.emptyList();
+        if (ExtensionVersion.getRuntimeVersion().compareTo(Version.VERSION_1_3) >= 0) {
+            try {
+                keys = Collections.unmodifiableList(
+                        mAdvancedExtenderImpl.getAvailableCaptureRequestKeys());
+            } catch (Exception e) {
+                Logger.e(TAG, "AdvancedExtenderImpl.getAvailableCaptureRequestKeys "
+                        + "throws exceptions", e);
+            }
+        }
+        return keys;
+    }
+
     @Nullable
     @Override
     public SessionProcessor createSessionProcessor(@NonNull Context context) {
         Preconditions.checkNotNull(mCameraId, "VendorExtender#init() must be called first");
         return new AdvancedSessionProcessor(
-                mAdvancedExtenderImpl.createSessionProcessor(), context);
+                mAdvancedExtenderImpl.createSessionProcessor(),
+                getSupportedParameterKeys(),
+                context);
     }
 }

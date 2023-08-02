@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.1.0-beta05" type="baseline" client="gradle" dependencies="false" name="AGP (8.1.0-beta05)" variant="all" version="8.1.0-beta05">
+
+    <issue
+        id="PlatformImportInCommonModule"
+        message="Platform-dependent import in a common module"
+        errorLine1="import android.view.View"
+        errorLine2="       ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/testutils/ComposeExecutionControl.kt"/>
+    </issue>
+
+    <issue
+        id="PlatformImportInCommonModule"
+        message="Platform-dependent import in a common module"
+        errorLine1="import java.io.PrintWriter"
+        errorLine2="       ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/testutils/Expect.kt"/>
+    </issue>
+
+    <issue
+        id="PlatformImportInCommonModule"
+        message="Platform-dependent import in a common module"
+        errorLine1="import java.io.StringWriter"
+        errorLine2="       ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/testutils/Expect.kt"/>
+    </issue>
+
+    <issue
+        id="PlatformImportInCommonModule"
+        message="Platform-dependent import in a common module"
+        errorLine1="import android.annotation.SuppressLint"
+        errorLine2="       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/testutils/ModifierTestUtils.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method assertPixels has parameter &apos;expectedColorProvider&apos; with type Function1&lt;? super IntOffset, Color>."
+        errorLine1="    expectedColorProvider: (pos: IntOffset) -> Color?"
+        errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/testutils/ImageAssertions.android.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method assertPixelColor has parameter &apos;error&apos; with type Function1&lt;? super Color, String>."
+        errorLine1="    error: (Color) -> String = { color -> &quot;Pixel($x, $y) expected to be $expected, but was $color&quot; }"
+        errorLine2="           ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/testutils/ImageAssertions.android.kt"/>
+    </issue>
+
+</issues>

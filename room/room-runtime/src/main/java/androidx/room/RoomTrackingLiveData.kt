@@ -43,8 +43,8 @@ internal class RoomTrackingLiveData<T> (
     val database: RoomDatabase,
     private val container: InvalidationLiveDataContainer,
     val inTransaction: Boolean,
-    val computeFunction: Callable<T>,
-    tableNames: Array<String>
+    val computeFunction: Callable<T?>,
+    tableNames: Array<out String>
 ) : LiveData<T>() {
     val observer: InvalidationTracker.Observer = object : InvalidationTracker.Observer(tableNames) {
         override fun onInvalidated(tables: Set<String>) {

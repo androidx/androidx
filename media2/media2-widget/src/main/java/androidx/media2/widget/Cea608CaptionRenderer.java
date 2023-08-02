@@ -207,7 +207,7 @@ class Cea608CaptionRenderer extends SubtitleController.Renderer {
             }
 
             @Override
-            protected void onDraw(Canvas c) {
+            protected void onDraw(@NonNull Canvas c) {
                 if (mEdgeType == CaptionStyle.EDGE_TYPE_UNSPECIFIED
                         || mEdgeType == CaptionStyle.EDGE_TYPE_NONE
                         || mEdgeType == CaptionStyle.EDGE_TYPE_DROP_SHADOW) {

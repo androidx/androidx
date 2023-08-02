@@ -24,7 +24,6 @@ import androidx.health.services.client.proto.RequestsProto
 /**
  * Request for enabling/disabling auto pause/resume.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class AutoPauseAndResumeConfigRequest(
@@ -32,12 +31,11 @@ public class AutoPauseAndResumeConfigRequest(
     public val shouldEnable: Boolean,
 ) : ProtoParcelable<RequestsProto.AutoPauseAndResumeConfigRequest>() {
 
-    override val proto: RequestsProto.AutoPauseAndResumeConfigRequest by lazy {
+    override val proto: RequestsProto.AutoPauseAndResumeConfigRequest =
         RequestsProto.AutoPauseAndResumeConfigRequest.newBuilder()
             .setPackageName(packageName)
             .setShouldEnable(shouldEnable)
             .build()
-    }
 
     public companion object {
         @JvmField

@@ -17,9 +17,9 @@
 package androidx.wear.watchface.complications.data
 
 import com.google.common.truth.Truth.assertThat
+import java.time.Instant
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.time.Instant
 
 @RunWith(SharedRobolectricTestRunner::class)
 public class TimeRangeTest {
@@ -45,10 +45,7 @@ public class TimeRangeTest {
 
     @Test
     public fun betweenTwoTimes() {
-        val range = TimeRange.between(
-            Instant.ofEpochMilli(1000),
-            Instant.ofEpochMilli(2000)
-        )
+        val range = TimeRange.between(Instant.ofEpochMilli(1000), Instant.ofEpochMilli(2000))
         assertThat(range.contains(Instant.ofEpochMilli(100))).isFalse()
         assertThat(range.contains(Instant.ofEpochMilli(999))).isFalse()
         assertThat(range.contains(Instant.ofEpochMilli(1000))).isTrue()

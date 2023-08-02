@@ -212,7 +212,6 @@ public class MediaItem extends CustomVersionedParcelable {
      * for the underlying media content.
      *
      * @return media Id from the session
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
     @Nullable
@@ -224,7 +223,6 @@ public class MediaItem extends CustomVersionedParcelable {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
     public void addOnMetadataChangedListener(
@@ -240,7 +238,6 @@ public class MediaItem extends CustomVersionedParcelable {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
     public void removeOnMetadataChangedListener(OnMetadataChangedListener listener) {
@@ -327,7 +324,6 @@ public class MediaItem extends CustomVersionedParcelable {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
     public interface OnMetadataChangedListener {
@@ -339,7 +335,6 @@ public class MediaItem extends CustomVersionedParcelable {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     @Override

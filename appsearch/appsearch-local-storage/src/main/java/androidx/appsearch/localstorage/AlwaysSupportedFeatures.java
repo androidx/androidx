@@ -24,28 +24,52 @@ import androidx.appsearch.app.Features;
  * An implementation of {@link Features}. This implementation always returns true. This is
  * sufficient for the use in the local backend because all features are always available on the
  * local backend.
- * @hide
+ * @exportToFramework:hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class AlwaysSupportedFeatures implements Features {
 
     @Override
     public boolean isFeatureSupported(@NonNull String feature) {
-        if (Features.SEARCH_RESULT_MATCH_INFO_SUBMATCH.equals(feature)) {
-            return true;
+        switch (feature) {
+            case Features.ADD_PERMISSIONS_AND_GET_VISIBILITY:
+                // fall through
+            case Features.GLOBAL_SEARCH_SESSION_GET_SCHEMA:
+                // fall through
+            case Features.GLOBAL_SEARCH_SESSION_GET_BY_ID:
+                // fall through
+            case Features.GLOBAL_SEARCH_SESSION_REGISTER_OBSERVER_CALLBACK:
+                // fall through
+            case Features.JOIN_SPEC_AND_QUALIFIED_ID:
+                // fall through
+            case Features.NUMERIC_SEARCH:
+                // fall through
+            case Features.VERBATIM_SEARCH:
+                // fall through
+            case Features.LIST_FILTER_QUERY_LANGUAGE:
+                // fall through
+            case Features.SEARCH_SPEC_GROUPING_TYPE_PER_SCHEMA:
+                // fall through
+            case Features.SEARCH_RESULT_MATCH_INFO_SUBMATCH:
+                // fall through
+            case Features.SEARCH_SPEC_PROPERTY_WEIGHTS:
+                // fall through
+            case Features.TOKENIZER_TYPE_RFC822:
+                // fall through
+            case Features.SEARCH_SPEC_ADVANCED_RANKING_EXPRESSION:
+                // fall through
+            case Features.SEARCH_SUGGESTION:
+                // fall through
+            case Features.SCHEMA_SET_DELETION_PROPAGATION:
+                // fall through
+            case Features.SET_SCHEMA_CIRCULAR_REFERENCES:
+                // fall through
+            case Features.SCHEMA_ADD_PARENT_TYPE:
+                // fall through
+            case Features.SCHEMA_ADD_INDEXABLE_NESTED_PROPERTIES:
+                return true;
+            default:
+                return false;
         }
-        if (Features.GLOBAL_SEARCH_SESSION_REGISTER_OBSERVER_CALLBACK.equals(feature)) {
-            return true;
-        }
-        if (Features.GLOBAL_SEARCH_SESSION_GET_SCHEMA.equals(feature)) {
-            return true;
-        }
-        if (Features.GLOBAL_SEARCH_SESSION_GET_BY_ID.equals(feature)) {
-            return true;
-        }
-        if (Features.ADD_PERMISSIONS_AND_GET_VISIBILITY.equals(feature)) {
-            return true;
-        }
-        return false;
     }
 }

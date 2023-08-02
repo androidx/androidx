@@ -28,14 +28,15 @@ import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.FrameInfo
+import androidx.camera.camera2.pipe.FrameMetadata
 import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.Metadata
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.RequestMetadata
 import androidx.camera.camera2.pipe.RequestNumber
 import androidx.camera.camera2.pipe.RequestTemplate
-import androidx.camera.camera2.pipe.FrameMetadata
 import androidx.camera.camera2.pipe.StreamId
+import kotlin.reflect.KClass
 import kotlinx.atomicfu.atomic
 
 private val fakeCameraIds = atomic(0)
@@ -52,19 +53,19 @@ internal fun nextFakeFrameNumber(): FrameNumber = FrameNumber(fakeFrameNumbers.i
 /**
  * Utility class for interacting with objects that require pre-populated Metadata.
  */
-public open class FakeMetadata(
+open class FakeMetadata(
     private val metadata: Map<Metadata.Key<*>, Any?> = emptyMap()
 ) : Metadata {
-    public companion object {
+    companion object {
         @JvmField
-        public val TEST_KEY: Metadata.Key<Int> = Metadata.Key.create("test.key")
+        val TEST_KEY: Metadata.Key<Int> = Metadata.Key.create("test.key")
 
         @JvmField
-        public val TEST_KEY_ABSENT: Metadata.Key<Int> = Metadata.Key.create("test.key.absent")
+        val TEST_KEY_ABSENT: Metadata.Key<Int> = Metadata.Key.create("test.key.absent")
     }
 
-    public override fun <T> get(key: Metadata.Key<T>): T? = metadata[key] as T?
-    public override fun <T> getOrDefault(key: Metadata.Key<T>, default: T): T {
+    override fun <T> get(key: Metadata.Key<T>): T? = metadata[key] as T?
+    override fun <T> getOrDefault(key: Metadata.Key<T>, default: T): T {
         val value = metadata[key]
         return if (value == null) default else value as T
     }
@@ -73,7 +74,7 @@ public open class FakeMetadata(
 /**
  * Utility class for interacting with objects require specific [CameraCharacteristics] metadata.
  */
-public class FakeCameraMetadata(
+class FakeCameraMetadata(
     private val characteristics: Map<CameraCharacteristics.Key<*>, Any?> = emptyMap(),
     metadata: Map<Metadata.Key<*>, Any?> = emptyMap(),
     cameraId: CameraId = nextFakeCameraId(),
@@ -81,7 +82,7 @@ public class FakeCameraMetadata(
     override val requestKeys: Set<CaptureRequest.Key<*>> = emptySet(),
     override val resultKeys: Set<CaptureResult.Key<*>> = emptySet(),
     override val sessionKeys: Set<CaptureRequest.Key<*>> = emptySet(),
-    public val physicalMetadata: Map<CameraId, CameraMetadata> = emptyMap(),
+    val physicalMetadata: Map<CameraId, CameraMetadata> = emptyMap(),
     override val physicalRequestKeys: Set<CaptureRequest.Key<*>> = emptySet(),
 ) : FakeMetadata(metadata), CameraMetadata {
 
@@ -89,8 +90,8 @@ public class FakeCameraMetadata(
     override fun <T> getOrDefault(key: CameraCharacteristics.Key<T>, default: T): T =
         get(key) ?: default
 
-    public override val camera: CameraId = cameraId
-    public override val isRedacted: Boolean = false
+    override val camera: CameraId = cameraId
+    override val isRedacted: Boolean = false
 
     override val physicalCameraIds: Set<CameraId> = physicalMetadata.keys
     override suspend fun getPhysicalMetadata(cameraId: CameraId): CameraMetadata =
@@ -99,18 +100,13 @@ public class FakeCameraMetadata(
     override fun awaitPhysicalMetadata(cameraId: CameraId): CameraMetadata =
         physicalMetadata[cameraId]!!
 
-    /** @throws UnsupportedOperationException */
-    override fun unwrap(): CameraCharacteristics? {
-        throw UnsupportedOperationException(
-            "FakeCameraMetadata does not wrap CameraCharacteristics"
-        )
-    }
+    override fun <T : Any> unwrapAs(type: KClass<T>): T? = null
 }
 
 /**
  * Utility class for interacting with objects require specific [CaptureRequest] metadata.
  */
-public class FakeRequestMetadata(
+class FakeRequestMetadata(
     private val requestParameters: Map<CaptureRequest.Key<*>, Any?> = emptyMap(),
     metadata: Map<Metadata.Key<*>, Any?> = emptyMap(),
     override val template: RequestTemplate = RequestTemplate(0),
@@ -123,18 +119,13 @@ public class FakeRequestMetadata(
     override fun <T> get(key: CaptureRequest.Key<T>): T? = requestParameters[key] as T?
     override fun <T> getOrDefault(key: CaptureRequest.Key<T>, default: T): T = get(key) ?: default
 
-    /** @throws UnsupportedOperationException */
-    override fun unwrap(): CaptureRequest? {
-        throw UnsupportedOperationException(
-            "FakeRequestMetadata does not wrap a real CaptureRequest"
-        )
-    }
+    override fun <T : Any> unwrapAs(type: KClass<T>): T? = null
 }
 
 /**
  * Utility class for interacting with objects require specific [CaptureResult] metadata
  */
-public class FakeFrameMetadata(
+class FakeFrameMetadata(
     private val resultMetadata: Map<CaptureResult.Key<*>, Any?> = emptyMap(),
     extraResultMetadata: Map<Metadata.Key<*>, Any?> = emptyMap(),
     override val camera: CameraId = nextFakeCameraId(),
@@ -147,19 +138,14 @@ public class FakeFrameMetadata(
 
     override fun <T> getOrDefault(key: CaptureResult.Key<T>, default: T): T = get(key) ?: default
 
-    /** @throws UnsupportedOperationException */
-    override fun unwrap(): CaptureResult? {
-        throw UnsupportedOperationException(
-            "FakeFrameMetadata does not wrap a real CaptureResult"
-        )
-    }
+    override fun <T : Any> unwrapAs(type: KClass<T>): T? = null
 }
 
 /**
  * Utility class for interacting with objects require specific [TotalCaptureResult] metadata
  */
 @Suppress("SyntheticAccessor") // Using an inline class generates a synthetic constructor
-public class FakeFrameInfo(
+class FakeFrameInfo(
     override val metadata: FrameMetadata = FakeFrameMetadata(),
     override val requestMetadata: RequestMetadata = FakeRequestMetadata(),
     private val physicalMetadata: Map<CameraId, FrameMetadata> = emptyMap()
@@ -172,10 +158,5 @@ public class FakeFrameInfo(
     override val frameNumber: FrameNumber
         get() = metadata.frameNumber
 
-    /** @throws UnsupportedOperationException */
-    override fun unwrap(): TotalCaptureResult? {
-        throw UnsupportedOperationException(
-            "FakeFrameInfo does not wrap a real TotalCaptureResult object!"
-        )
-    }
+    override fun <T : Any> unwrapAs(type: KClass<T>): T? = null
 }

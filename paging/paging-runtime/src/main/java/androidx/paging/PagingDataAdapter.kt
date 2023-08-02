@@ -17,6 +17,7 @@
 package androidx.paging
 
 import androidx.annotation.IntRange
+import androidx.annotation.MainThread
 import androidx.lifecycle.Lifecycle
 import androidx.paging.LoadState.NotLoading
 import androidx.paging.LoadType.REFRESH
@@ -297,6 +298,7 @@ constructor(
      * @param position Index of the presented item to return, including placeholders.
      * @return The presented item at [position], `null` if it is a placeholder
      */
+    @MainThread
     protected fun getItem(@IntRange(from = 0) position: Int) = differ.getItem(position)
 
     /**
@@ -306,6 +308,7 @@ constructor(
      * @param index Index of the presented item to return, including placeholders.
      * @return The presented item at position [index], `null` if it is a placeholder.
      */
+    @MainThread
     fun peek(@IntRange(from = 0) index: Int) = differ.peek(index)
 
     /**

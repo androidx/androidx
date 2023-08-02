@@ -41,10 +41,3 @@ dependencies {
     implementation("androidx.core:core:1.8.0-rc01")
     implementation("androidx.activity:activity:1.5.0-beta01")
 }
-
-// Allow usage of Kotlin's @OptIn.
-tasks.withType(KotlinCompile).configureEach {
-    kotlinOptions {
-        freeCompilerArgs += ["-opt-in=kotlin.RequiresOptIn"]
-    }
-}

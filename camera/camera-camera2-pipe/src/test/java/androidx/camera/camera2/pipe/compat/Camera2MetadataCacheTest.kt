@@ -20,50 +20,58 @@ import android.hardware.camera2.CameraCharacteristics
 import android.os.Build
 import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.core.Permissions
+import androidx.camera.camera2.pipe.core.SystemTimeSource
 import androidx.camera.camera2.pipe.testing.FakeThreads
 import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
 import androidx.camera.camera2.pipe.testing.RobolectricCameras
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.runTest
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(RobolectricCameraPipeTestRunner::class)
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 internal class Camera2MetadataCacheTest {
     @Test
-    fun metadataIsCachedAndShimmed() {
-        val camera0 = RobolectricCameras.create(
-            mapOf(
-                CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL to CameraCharacteristics
-                    .INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY,
-                CameraCharacteristics.SENSOR_ORIENTATION to 90,
-                CameraCharacteristics.LENS_FACING to CameraCharacteristics.LENS_FACING_BACK,
-                CameraCharacteristics.FLASH_INFO_AVAILABLE to true
+    fun metadataIsCachedAndShimmed() = runTest {
+        val camera0 =
+            RobolectricCameras.create(
+                mapOf(
+                    CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL to
+                        CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY,
+                    CameraCharacteristics.SENSOR_ORIENTATION to 90,
+                    CameraCharacteristics.LENS_FACING to CameraCharacteristics.LENS_FACING_BACK,
+                    CameraCharacteristics.FLASH_INFO_AVAILABLE to true
+                )
             )
-        )
 
-        val camera1 = RobolectricCameras.create(
-            mapOf(
-                CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL to CameraCharacteristics
-                    .INFO_SUPPORTED_HARDWARE_LEVEL_3,
-                CameraCharacteristics.SENSOR_ORIENTATION to 0,
-                CameraCharacteristics.LENS_FACING to CameraCharacteristics.LENS_FACING_FRONT,
-                CameraCharacteristics.FLASH_INFO_AVAILABLE to false
+        val camera1 =
+            RobolectricCameras.create(
+                mapOf(
+                    CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL to
+                        CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_3,
+                    CameraCharacteristics.SENSOR_ORIENTATION to 0,
+                    CameraCharacteristics.LENS_FACING to CameraCharacteristics.LENS_FACING_FRONT,
+                    CameraCharacteristics.FLASH_INFO_AVAILABLE to false
+                )
             )
-        )
 
-        val cache = Camera2MetadataCache(
-            RobolectricCameras.application,
-            FakeThreads.forTests,
-            Permissions(RobolectricCameras.application),
-            CameraPipe.CameraMetadataConfig()
-        )
+        val cache =
+            Camera2MetadataCache(
+                RobolectricCameras.application,
+                FakeThreads.fromTestScope(this),
+                Permissions(RobolectricCameras.application),
+                CameraPipe.CameraMetadataConfig(),
+                SystemTimeSource()
+            )
 
-        val metadata0 = cache.awaitMetadata(camera0)
-        val metadata1 = cache.awaitMetadata(camera1)
+        val metadata0 = cache.awaitCameraMetadata(camera0)
+        val metadata1 = cache.awaitCameraMetadata(camera1)
 
         // Check to make sure that metadata is not null, and that various properties do not crash
         // on older OS versions when accessed.

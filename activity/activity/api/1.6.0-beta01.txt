@@ -52,27 +52,6 @@ package androidx.activity {
     method @CallSuper public void onBackPressed();
   }
 
-  @RequiresApi(android.os.Build.VERSION_CODES.KITKAT) public final class FullyLoadedReporter {
-    method public void addOnReportLoadedListener(kotlin.jvm.functions.Function0<kotlin.Unit> callback);
-    method public void addReporter();
-    method @MainThread public static androidx.activity.FullyLoadedReporter? findFullyLoadedReporter(android.content.Context context);
-    method public android.app.Activity getActivity();
-    method public boolean getHasReported();
-    method public void removeOnReportLoadedListener(kotlin.jvm.functions.Function0<kotlin.Unit> callback);
-    method public void removeReporter();
-    property public final android.app.Activity activity;
-    property public final boolean hasReported;
-    field public static final androidx.activity.FullyLoadedReporter.Companion Companion;
-  }
-
-  public static final class FullyLoadedReporter.Companion {
-    method @MainThread public androidx.activity.FullyLoadedReporter? findFullyLoadedReporter(android.content.Context context);
-  }
-
-  public final class FullyLoadedReporterKt {
-    method @RequiresApi(android.os.Build.VERSION_CODES.KITKAT) public static suspend inline Object? reportWhenComplete(androidx.activity.FullyLoadedReporter, kotlin.jvm.functions.Function1<? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?> reporter, kotlin.coroutines.Continuation<? super kotlin.Unit>);
-  }
-
   public abstract class OnBackPressedCallback {
     ctor public OnBackPressedCallback(boolean);
     method @MainThread public abstract void handleOnBackPressed();

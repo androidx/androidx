@@ -16,19 +16,25 @@
 
 package androidx.compose.ui.draw
 
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.composed
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.internal.JvmDefaultWithCompatibility
+import androidx.compose.ui.node.DrawModifierNode
+import androidx.compose.ui.node.ModifierNodeElement
+import androidx.compose.ui.node.Nodes
+import androidx.compose.ui.node.ObserverModifierNode
+import androidx.compose.ui.node.invalidateDraw
+import androidx.compose.ui.node.observeReads
+import androidx.compose.ui.node.requireCoordinator
+import androidx.compose.ui.node.requireDensity
+import androidx.compose.ui.node.requireLayoutDirection
 import androidx.compose.ui.platform.InspectorInfo
-import androidx.compose.ui.platform.InspectorValueInfo
-import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
-import androidx.compose.ui.internal.JvmDefaultWithCompatibility
+import androidx.compose.ui.unit.toSize
 
 /**
  * A [Modifier.Element] that draws into the space of the layout.
@@ -85,35 +91,30 @@ interface BuildDrawCacheParams {
  */
 fun Modifier.drawBehind(
     onDraw: DrawScope.() -> Unit
-) = this.then(
-    DrawBackgroundModifier(
-        onDraw = onDraw,
-        inspectorInfo = debugInspectorInfo {
-            name = "drawBehind"
-            properties["onDraw"] = onDraw
-        }
-    )
-)
+) = this then DrawBehindElement(onDraw)
 
-private class DrawBackgroundModifier(
-    val onDraw: DrawScope.() -> Unit,
-    inspectorInfo: InspectorInfo.() -> Unit
-) : DrawModifier, InspectorValueInfo(inspectorInfo) {
+private data class DrawBehindElement(
+    val onDraw: DrawScope.() -> Unit
+) : ModifierNodeElement<DrawBackgroundModifier>() {
+    override fun create() = DrawBackgroundModifier(onDraw)
+
+    override fun update(node: DrawBackgroundModifier) {
+        node.onDraw = onDraw
+    }
+
+    override fun InspectorInfo.inspectableProperties() {
+        name = "drawBehind"
+        properties["onDraw"] = onDraw
+    }
+}
+
+internal class DrawBackgroundModifier(
+    var onDraw: DrawScope.() -> Unit
+) : Modifier.Node(), DrawModifierNode {
 
     override fun ContentDrawScope.draw() {
         onDraw()
         drawContent()
-    }
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is DrawBackgroundModifier) return false
-
-        return onDraw == other.onDraw
-    }
-
-    override fun hashCode(): Int {
-        return onDraw.hashCode()
     }
 }
 
@@ -134,14 +135,91 @@ private class DrawBackgroundModifier(
  */
 fun Modifier.drawWithCache(
     onBuildDrawCache: CacheDrawScope.() -> DrawResult
-) = composed(
-    inspectorInfo = debugInspectorInfo {
+) = this then DrawWithCacheElement(onBuildDrawCache)
+
+private data class DrawWithCacheElement(
+    val onBuildDrawCache: CacheDrawScope.() -> DrawResult
+) : ModifierNodeElement<CacheDrawModifierNodeImpl>() {
+    override fun create(): CacheDrawModifierNodeImpl {
+        return CacheDrawModifierNodeImpl(CacheDrawScope(), onBuildDrawCache)
+    }
+
+    override fun update(node: CacheDrawModifierNodeImpl) {
+        node.block = onBuildDrawCache
+    }
+
+    override fun InspectorInfo.inspectableProperties() {
         name = "drawWithCache"
         properties["onBuildDrawCache"] = onBuildDrawCache
     }
-) {
-    val cacheDrawScope = remember { CacheDrawScope() }
-    this.then(DrawContentCacheModifier(cacheDrawScope, onBuildDrawCache))
+}
+
+fun CacheDrawModifierNode(
+    onBuildDrawCache: CacheDrawScope.() -> DrawResult
+): CacheDrawModifierNode {
+    return CacheDrawModifierNodeImpl(CacheDrawScope(), onBuildDrawCache)
+}
+
+/**
+ * Expands on the [androidx.compose.ui.node.DrawModifierNode] by adding the ability to invalidate
+ * the draw cache for changes in things like shapes and bitmaps (see Modifier.border for a usage
+ * examples).
+ */
+sealed interface CacheDrawModifierNode : DrawModifierNode {
+    fun invalidateDrawCache()
+}
+
+private class CacheDrawModifierNodeImpl(
+    private val cacheDrawScope: CacheDrawScope,
+    block: CacheDrawScope.() -> DrawResult
+) : Modifier.Node(), CacheDrawModifierNode, ObserverModifierNode, BuildDrawCacheParams {
+
+    private var isCacheValid = false
+    var block: CacheDrawScope.() -> DrawResult = block
+        set(value) {
+            field = value
+            invalidateDrawCache()
+        }
+
+    init {
+        cacheDrawScope.cacheParams = this
+    }
+
+    override val density: Density get() = requireDensity()
+    override val layoutDirection: LayoutDirection get() = requireLayoutDirection()
+    override val size: Size get() = requireCoordinator(Nodes.LayoutAware).size.toSize()
+
+    override fun onMeasureResultChanged() {
+        invalidateDrawCache()
+    }
+
+    override fun onObservedReadsChanged() {
+        invalidateDrawCache()
+    }
+
+    override fun invalidateDrawCache() {
+        isCacheValid = false
+        cacheDrawScope.drawResult = null
+        invalidateDraw()
+    }
+
+    private fun getOrBuildCachedDrawBlock(): DrawResult {
+        if (!isCacheValid) {
+            cacheDrawScope.apply {
+                drawResult = null
+                observeReads { block() }
+                checkNotNull(drawResult) {
+                    "DrawResult not defined, did you forget to call onDraw?"
+                }
+            }
+            isCacheValid = true
+        }
+        return cacheDrawScope.drawResult!!
+    }
+
+    override fun ContentDrawScope.draw() {
+        getOrBuildCachedDrawBlock().block(this)
+    }
 }
 
 /**
@@ -195,47 +273,6 @@ private object EmptyBuildDrawCacheParams : BuildDrawCacheParams {
 }
 
 /**
- * DrawCacheModifier implementation that is used to construct objects that are dependent on
- * the drawing area and re-used across draw calls
- */
-private data class DrawContentCacheModifier(
-    val cacheDrawScope: CacheDrawScope,
-    val onBuildDrawCache: CacheDrawScope.() -> DrawResult
-) : DrawCacheModifier {
-
-    override fun onBuildCache(params: BuildDrawCacheParams) {
-        cacheDrawScope.apply {
-            cacheParams = params
-            drawResult = null
-            onBuildDrawCache()
-            checkNotNull(drawResult) {
-                "DrawResult not defined, did you forget to call onDraw?"
-            }
-        }
-    }
-
-    override fun ContentDrawScope.draw() {
-        cacheDrawScope.drawResult!!.block(this)
-    }
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is DrawContentCacheModifier) return false
-
-        if (cacheDrawScope != other.cacheDrawScope) return false
-        if (onBuildDrawCache != other.onBuildDrawCache) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = cacheDrawScope.hashCode()
-        result = 31 * result + onBuildDrawCache.hashCode()
-        return result
-    }
-}
-
-/**
  * Holder to a callback to be invoked during draw operations. This lambda
  * captures and reuses parameters defined within the CacheDrawScope receiver scope lambda.
  */
@@ -247,33 +284,28 @@ class DrawResult internal constructor(internal var block: ContentDrawScope.() ->
  */
 fun Modifier.drawWithContent(
     onDraw: ContentDrawScope.() -> Unit
-): Modifier = this.then(
-    DrawWithContentModifier(
-        onDraw = onDraw,
-        inspectorInfo = debugInspectorInfo {
-            name = "drawWithContent"
-            properties["onDraw"] = onDraw
-        }
-    )
-)
+): Modifier = this then DrawWithContentElement(onDraw)
+
+private data class DrawWithContentElement(
+    val onDraw: ContentDrawScope.() -> Unit
+) : ModifierNodeElement<DrawWithContentModifier>() {
+    override fun create() = DrawWithContentModifier(onDraw)
+
+    override fun update(node: DrawWithContentModifier) {
+        node.onDraw = onDraw
+    }
+
+    override fun InspectorInfo.inspectableProperties() {
+        name = "drawWithContent"
+        properties["onDraw"] = onDraw
+    }
+}
 
 private class DrawWithContentModifier(
-    val onDraw: ContentDrawScope.() -> Unit,
-    inspectorInfo: InspectorInfo.() -> Unit
-) : DrawModifier, InspectorValueInfo(inspectorInfo) {
+    var onDraw: ContentDrawScope.() -> Unit
+) : Modifier.Node(), DrawModifierNode {
 
     override fun ContentDrawScope.draw() {
         onDraw()
-    }
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is DrawWithContentModifier) return false
-
-        return onDraw == other.onDraw
-    }
-
-    override fun hashCode(): Int {
-        return onDraw.hashCode()
     }
 }

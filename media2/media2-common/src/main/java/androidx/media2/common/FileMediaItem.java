@@ -97,7 +97,6 @@ public class FileMediaItem extends MediaItem {
 
     /**
      * Increases reference count for underlying ParcelFileDescriptor.
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
     public void increaseRefCount() {
@@ -113,7 +112,6 @@ public class FileMediaItem extends MediaItem {
     /**
      * Increases reference count for underlying ParcelFileDescriptor. The ParcelFileDescriptor will
      * be closed when the count becomes zero.
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
     public void decreaseRefCount() {
@@ -138,7 +136,6 @@ public class FileMediaItem extends MediaItem {
 
     /**
      * @return whether the underlying {@link ParcelFileDescriptor} is closed or not.
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
     public boolean isClosed() {
@@ -149,7 +146,6 @@ public class FileMediaItem extends MediaItem {
 
     /**
      * Close the {@link ParcelFileDescriptor} of this {@link FileMediaItem}.
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
     public void close() throws IOException {

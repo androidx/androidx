@@ -55,7 +55,6 @@ public class AppWidgetProviderWithCallbacks<T extends CallbackReceiver> extends
     }
 
     /**
-     * @hide
      */
     @NonNull
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)

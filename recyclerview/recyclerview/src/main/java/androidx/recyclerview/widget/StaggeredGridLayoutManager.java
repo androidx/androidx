@@ -34,6 +34,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.core.view.ViewCompat;
+import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -1290,6 +1291,36 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager imple
     }
 
     @Override
+    public void onInitializeAccessibilityNodeInfo(@NonNull RecyclerView.Recycler recycler,
+            @NonNull RecyclerView.State state, @NonNull AccessibilityNodeInfoCompat info) {
+        super.onInitializeAccessibilityNodeInfo(recycler, state, info);
+        // Setting the classname allows accessibility services to set a role for staggered grids
+        // and ensures that they are treated distinctly from canonical grids with clear row/column
+        // semantics.
+        info.setClassName("androidx.recyclerview.widget.StaggeredGridLayoutManager");
+    }
+
+    @Override
+    public void onInitializeAccessibilityNodeInfoForItem(@NonNull RecyclerView.Recycler recycler,
+            @NonNull RecyclerView.State state, @NonNull View host,
+            @NonNull AccessibilityNodeInfoCompat info) {
+        ViewGroup.LayoutParams lp = host.getLayoutParams();
+        if (!(lp instanceof LayoutParams)) {
+            super.onInitializeAccessibilityNodeInfoForItem(host, info);
+            return;
+        }
+        LayoutParams sglp = (LayoutParams) lp;
+        if (mOrientation == HORIZONTAL) {
+            info.setCollectionItemInfo(AccessibilityNodeInfoCompat.CollectionItemInfoCompat.obtain(
+                    sglp.getSpanIndex(), sglp.mFullSpan ? mSpanCount : 1,
+                    -1, -1, false, false));
+        } else { // VERTICAL
+            info.setCollectionItemInfo(AccessibilityNodeInfoCompat.CollectionItemInfoCompat.obtain(
+                    -1, -1,
+                    sglp.getSpanIndex(), sglp.mFullSpan ? mSpanCount : 1, false, false));
+        }
+    }
+    @Override
     public void onInitializeAccessibilityEvent(AccessibilityEvent event) {
         super.onInitializeAccessibilityEvent(event);
         if (getChildCount() > 0) {
@@ -1319,6 +1350,24 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager imple
         final View first = mShouldReverseLayout ? findFirstVisibleItemClosestToEnd(true) :
                 findFirstVisibleItemClosestToStart(true);
         return first == null ? RecyclerView.NO_POSITION : getPosition(first);
+    }
+
+    @Override
+    public int getRowCountForAccessibility(@NonNull RecyclerView.Recycler recycler,
+            @NonNull RecyclerView.State state) {
+        if (mOrientation == HORIZONTAL) {
+            return Math.min(mSpanCount, state.getItemCount());
+        }
+        return -1;
+    }
+
+    @Override
+    public int getColumnCountForAccessibility(@NonNull RecyclerView.Recycler recycler,
+            @NonNull RecyclerView.State state) {
+        if (mOrientation == VERTICAL) {
+            return Math.min(mSpanCount, state.getItemCount());
+        }
+        return -1;
     }
 
     /**
@@ -2002,6 +2051,11 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager imple
     }
 
     @Override
+    public boolean isLayoutReversed() {
+        return mReverseLayout;
+    }
+
+    @Override
     public int scrollHorizontallyBy(int dx, RecyclerView.Recycler recycler,
             RecyclerView.State state) {
         return scrollBy(dx, recycler, state);
@@ -2078,7 +2132,6 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager imple
         requestLayout();
     }
 
-    /** @hide */
     @Override
     @RestrictTo(LIBRARY)
     public void collectAdjacentPrefetchPositions(int dx, int dy, RecyclerView.State state,
@@ -3118,7 +3171,6 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager imple
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     @SuppressLint("BanParcelableUsage")

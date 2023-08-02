@@ -80,7 +80,7 @@
             android:name="androidx.activity.OptionMenuNoSuperActivity"
             android:exported="true" />
         <activity
-            android:name="androidx.activity.FullyLoadedActivity"
+            android:name="androidx.activity.FullyDrawnActivity"
             android:exported="true" />
     </application>
 

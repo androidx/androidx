@@ -32,21 +32,11 @@ dependencies {
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)
-
-    constraints {
-        // this syntax mirrors the temporary workaround in lifecycle-viewmodel
-        // dependency constraints which allows lifecycle-viewmodel-ktx to have a
-        // project constraint on compose, even though compose is not within
-        // the 'MAIN' project-set.
-        // update syntax when b/239979823 is fixed.
-        implementation("androidx.lifecycle:lifecycle-viewmodel:{androidx.LibraryVersions.LIFECYCLE}")
-    }
 }
 
 androidx {
-    name = "Android Lifecycle ViewModel Kotlin Extensions"
+    name = "Lifecycle ViewModel Kotlin Extensions"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.LIFECYCLE
     inceptionYear = "2018"
     description = "Kotlin extensions for 'viewmodel' artifact"
 }

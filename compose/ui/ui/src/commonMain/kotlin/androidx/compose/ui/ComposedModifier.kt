@@ -18,13 +18,10 @@ package androidx.compose.ui
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Composer
-import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.CompositionLocalMap
 import androidx.compose.runtime.Stable
-import androidx.compose.runtime.remember
-import androidx.compose.ui.focus.FocusEventModifier
-import androidx.compose.ui.focus.FocusEventModifierLocal
-import androidx.compose.ui.focus.FocusRequesterModifier
-import androidx.compose.ui.focus.FocusRequesterModifierLocal
+import androidx.compose.ui.node.ModifierNodeElement
+import androidx.compose.ui.node.requireLayoutNode
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.InspectorValueInfo
 import androidx.compose.ui.platform.NoInspectorInfo
@@ -250,15 +247,10 @@ private class KeyedComposedModifierN(
  * You almost certainly do not need to call this function directly.
  */
 @Suppress("ModifierFactoryExtensionFunction")
+// "materialize" JVM name is taken below to solve a backwards-incompatibility
+@JvmName("materializeModifier")
 fun Composer.materialize(modifier: Modifier): Modifier {
-    if (modifier.all {
-            // onFocusEvent is implemented now with ModifierLocals and SideEffects, but
-            // FocusEventModifier needs to have composition to do the same. The following
-            // check for FocusEventModifier is only needed until the modifier is removed.
-            // The same is true for FocusRequesterModifier and focusTarget()
-            it !is ComposedModifier && it !is FocusEventModifier && it !is FocusRequesterModifier
-        }
-    ) {
+    if (modifier.all { it !is ComposedModifier }) {
         return modifier
     }
 
@@ -273,31 +265,12 @@ fun Composer.materialize(modifier: Modifier): Modifier {
     val result = modifier.foldIn<Modifier>(Modifier) { acc, element ->
         acc.then(
             if (element is ComposedModifier) {
-                @kotlin.Suppress("UNCHECKED_CAST")
+                @Suppress("UNCHECKED_CAST")
                 val factory = element.factory as Modifier.(Composer, Int) -> Modifier
                 val composedMod = factory(Modifier, this, 0)
                 materialize(composedMod)
             } else {
-                // onFocusEvent is implemented now with ModifierLocals and SideEffects, but
-                // FocusEventModifier needs to have composition to do the same. The following
-                // check for FocusEventModifier is only needed until the modifier is removed.
-                var newElement: Modifier = element
-                if (element is FocusEventModifier) {
-                    @Suppress("UNCHECKED_CAST")
-                    val factory = WrapFocusEventModifier
-                        as (FocusEventModifier, Composer, Int) -> Modifier
-
-                    newElement = newElement.then(factory(element, this, 0))
-                }
-                // The same is true for FocusRequesterModifier and focusTarget()
-                if (element is FocusRequesterModifier) {
-                    @Suppress("UNCHECKED_CAST")
-                    val factory = WrapFocusRequesterModifier
-                        as (FocusRequesterModifier, Composer, Int) -> Modifier
-
-                    newElement = newElement.then(factory(element, this, 0))
-                }
-                newElement
+                element
             }
         )
     }
@@ -306,18 +279,63 @@ fun Composer.materialize(modifier: Modifier): Modifier {
     return result
 }
 
-private val WrapFocusEventModifier: @Composable (FocusEventModifier) -> Modifier = { mod ->
-    val modifier = remember(mod) {
-        FocusEventModifierLocal(mod::onFocusEvent)
+/**
+ * This class is only used for backwards compatibility purposes to inject the CompositionLocalMap
+ * into LayoutNodes that were created by inlined code of older versions of the Layout composable.
+ * More details can be found at https://issuetracker.google.com/275067189
+ */
+internal class CompositionLocalMapInjectionNode(map: CompositionLocalMap) : Modifier.Node() {
+    var map: CompositionLocalMap = map
+        set(value) {
+            field = value
+            requireLayoutNode().compositionLocalMap = value
+        }
+    override fun onAttach() {
+        requireLayoutNode().compositionLocalMap = map
     }
-    SideEffect {
-        modifier.notifyIfNoFocusModifiers()
-    }
-    modifier
 }
 
-private val WrapFocusRequesterModifier: @Composable (FocusRequesterModifier) -> Modifier = { mod ->
-    remember(mod) {
-        FocusRequesterModifierLocal(mod.focusRequester)
+/**
+ * This class is only used for backwards compatibility purposes to inject the CompositionLocalMap
+ * into LayoutNodes that were created by inlined code of older versions of the Layout composable.
+ * More details can be found at https://issuetracker.google.com/275067189
+ */
+internal class CompositionLocalMapInjectionElement(
+    val map: CompositionLocalMap
+) : ModifierNodeElement<CompositionLocalMapInjectionNode>() {
+    override fun create() = CompositionLocalMapInjectionNode(map)
+    override fun update(node: CompositionLocalMapInjectionNode) { node.map = map }
+    override fun hashCode(): Int = map.hashCode()
+    override fun equals(other: Any?): Boolean {
+        return other is CompositionLocalMapInjectionElement && other.map == map
     }
+    override fun InspectorInfo.inspectableProperties() {
+        name = "<Injected CompositionLocalMap>"
+    }
+}
+
+/**
+ * This function exists solely for solving a backwards-incompatibility with older compilations
+ * that used an older version of the `Layout` composable. New code paths should not call this.
+ * More details can be found at https://issuetracker.google.com/275067189
+ */
+@Suppress("ModifierFactoryExtensionFunction")
+@JvmName("materialize")
+@Deprecated(
+    "Kept for backwards compatibility only. If you are recompiling, use materialize.",
+    ReplaceWith("materialize"),
+    DeprecationLevel.HIDDEN
+)
+fun Composer.materializeWithCompositionLocalInjection(modifier: Modifier): Modifier =
+    materializeWithCompositionLocalInjectionInternal(modifier)
+
+// This method is here to be called from tests since the deprecated hidden API cannot be.
+@Suppress("ModifierFactoryExtensionFunction")
+internal fun Composer.materializeWithCompositionLocalInjectionInternal(
+    modifier: Modifier
+): Modifier {
+    return if (modifier === Modifier)
+        modifier
+    else
+        materialize(CompositionLocalMapInjectionElement(currentCompositionLocalMap).then(modifier))
 }

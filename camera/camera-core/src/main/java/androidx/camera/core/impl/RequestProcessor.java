@@ -97,30 +97,30 @@ public interface RequestProcessor {
      * Callback to be invoked during the capture.
      */
     interface Callback {
-        void onCaptureStarted(
+        default void onCaptureStarted(
                 @NonNull Request request,
                 long frameNumber,
-                long timestamp);
+                long timestamp) {}
 
-        void onCaptureProgressed(
+        default void onCaptureProgressed(
                 @NonNull Request request,
-                @NonNull CameraCaptureResult captureResult);
+                @NonNull CameraCaptureResult captureResult) {}
 
-        void onCaptureCompleted(
+        default void onCaptureCompleted(
                 @NonNull Request request,
-                @NonNull CameraCaptureResult captureResult);
+                @NonNull CameraCaptureResult captureResult) {}
 
-        void onCaptureFailed(
+        default void onCaptureFailed(
                 @NonNull Request request,
-                @NonNull CameraCaptureFailure captureFailure);
+                @NonNull CameraCaptureFailure captureFailure) {}
 
-        void onCaptureBufferLost(
+        default void onCaptureBufferLost(
                 @NonNull Request request,
                 long frameNumber,
-                int outputConfigId);
+                int outputConfigId) {}
 
-        void onCaptureSequenceCompleted(int sequenceId, long frameNumber);
+        default void onCaptureSequenceCompleted(int sequenceId, long frameNumber) {}
 
-        void onCaptureSequenceAborted(int sequenceId);
+        default void onCaptureSequenceAborted(int sequenceId) {}
     }
 }

@@ -16,9 +16,7 @@
 
 package androidx.compose.ui.focus
 
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.internal.JvmDefaultWithCompatibility
 
 /**
@@ -46,6 +44,7 @@ interface FocusOrderModifier : Modifier.Element {
  */
 @Deprecated("Use FocusProperties instead")
 class FocusOrder internal constructor(private val focusProperties: FocusProperties) {
+    @Suppress("unused")
     constructor() : this(FocusPropertiesImpl())
 
     /**
@@ -169,7 +168,7 @@ fun Modifier.focusOrder(
  * @sample androidx.compose.ui.samples.CustomFocusOrderSample
  */
 @Deprecated(
-    "Use focusRequster() instead",
+    "Use focusRequester() instead",
     ReplaceWith("this.focusRequester(focusRequester)", "androidx.compose.ui.focus.focusRequester")
 )
 fun Modifier.focusOrder(focusRequester: FocusRequester): Modifier = focusRequester(focusRequester)
@@ -193,59 +192,11 @@ fun Modifier.focusOrder(
     .focusRequester(focusRequester)
     .focusProperties(FocusOrderToProperties(focusOrderReceiver))
 
-/**
- * Search up the component tree for any parent/parents that have specified a custom focus order.
- * Allowing parents higher up the hierarchy to overwrite the focus order specified by their
- * children.
- */
-internal fun FocusModifier.customFocusSearch(
-    focusDirection: FocusDirection,
-    layoutDirection: LayoutDirection
-): FocusRequester {
-    return when (focusDirection) {
-        FocusDirection.Next -> focusProperties.next
-        FocusDirection.Previous -> focusProperties.previous
-        FocusDirection.Up -> focusProperties.up
-        FocusDirection.Down -> focusProperties.down
-        FocusDirection.Left -> when (layoutDirection) {
-            LayoutDirection.Ltr -> focusProperties.start
-            LayoutDirection.Rtl -> focusProperties.end
-        }.takeUnless { it == FocusRequester.Default } ?: focusProperties.left
-        FocusDirection.Right -> when (layoutDirection) {
-            LayoutDirection.Ltr -> focusProperties.end
-            LayoutDirection.Rtl -> focusProperties.start
-        }.takeUnless { it == FocusRequester.Default } ?: focusProperties.right
-        // TODO(b/183746982): add focus order API for "In" and "Out".
-        //  Developers can to specify a custom "In" to specify which child should be visited when
-        //  the user presses dPad center. (They can also redirect the "In" to some other item).
-        //  Developers can specify a custom "Out" to specify which composable should take focus
-        //  when the user presses the back button.
-        @OptIn(ExperimentalComposeUiApi::class)
-        (FocusDirection.In) -> FocusRequester.Default
-        @OptIn(ExperimentalComposeUiApi::class)
-        (FocusDirection.Out) -> FocusRequester.Default
-        else -> error("invalid FocusDirection")
-    }
-}
-
 @Suppress("DEPRECATION")
 internal class FocusOrderToProperties(
     val focusOrderReceiver: FocusOrder.() -> Unit
 ) : (FocusProperties) -> Unit {
     override fun invoke(focusProperties: FocusProperties) {
         focusOrderReceiver(FocusOrder(focusProperties))
-    }
-}
-
-/**
- * Used internally for FocusOrderModifiers so that we can compare the modifiers and can reuse
- * the ModifierLocalConsumerEntity and ModifierLocalProviderEntity.
- */
-@Suppress("DEPRECATION")
-internal class FocusOrderModifierToProperties(
-    val modifier: FocusOrderModifier
-) : (FocusProperties) -> Unit {
-    override fun invoke(focusProperties: FocusProperties) {
-        modifier.populateFocusOrder(FocusOrder(focusProperties))
     }
 }

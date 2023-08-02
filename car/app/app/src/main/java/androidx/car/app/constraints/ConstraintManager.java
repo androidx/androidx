@@ -50,7 +50,6 @@ public class ConstraintManager implements Manager {
     /**
      * Represents the types of lists that apps can create.
      *
-     * @hide
      */
     @RestrictTo(LIBRARY)
     @IntDef({CONTENT_LIMIT_TYPE_LIST, CONTENT_LIMIT_TYPE_GRID, CONTENT_LIMIT_TYPE_PLACE_LIST,
@@ -137,6 +136,35 @@ public class ConstraintManager implements Manager {
         return mCarContext.getResources().getInteger(getResourceIdForContentType(contentLimitType));
     }
 
+
+    /**
+     * Determines if the hosts supports App Driven Refresh.
+     * This enables applications to refresh lists content without being counted towards a step.
+     *
+     * If this function returns false the app should return a template that is of the same
+     * type and contains the same main content as the previous template, the new template will
+     * not be counted against the quota.
+     *
+     */
+    @RequiresCarApi(6)
+    public boolean isAppDrivenRefreshEnabled() {
+        Boolean result;
+        try {
+            // TODO(b/185805900): consider caching these values if performance is a concern.
+            result = mHostDispatcher.dispatchForResult(
+                    CarContext.CONSTRAINT_SERVICE,
+                    "isAppDrivenRefreshEnabled", IConstraintHost::isAppDrivenRefreshEnabled
+            );
+            return Boolean.TRUE.equals(result);
+        } catch (RemoteException e) {
+            // The host is dead, don't crash the app, just log.
+            Log.w(LogTags.TAG,
+                    "Failed to retrieve if the host supports appDriven Refresh, using defaults", e);
+        }
+        // Returns default values as documented if host call failed.
+        return false;
+    }
+
     @IntegerRes
     private int getResourceIdForContentType(@ContentLimitType int contentType) {
         switch (contentType) {
@@ -157,7 +185,6 @@ public class ConstraintManager implements Manager {
     /**
      * Creates an instance of {@link ConstraintManager}.
      *
-     * @hide
      */
     @NonNull
     @RestrictTo(LIBRARY)

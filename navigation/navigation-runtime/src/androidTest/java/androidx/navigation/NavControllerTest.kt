@@ -54,10 +54,11 @@ import androidx.test.filters.LargeTest
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.testutils.TestNavigator
-import androidx.testutils.withActivity
 import androidx.testutils.test
+import androidx.testutils.withActivity
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
+import kotlin.test.assertFailsWith
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.take
@@ -89,6 +90,35 @@ class NavControllerTest {
     private val navController =
         NavController(ApplicationProvider.getApplicationContext()).apply {
             navigatorProvider += TestNavigator()
+        }
+
+    private val NESTED_NAV_GRAPH =
+        navController.createGraph(route = "graph", startDestination = "nested1") {
+            navigation(route = "nested1", startDestination = "nested2") {
+                navigation(route = "nested2", startDestination = "nested3") {
+                    navigation(route = "nested3", startDestination = "nested4") {
+                        test("nested4")
+                        test("nested5")
+                    }
+                }
+                test("nested2.2")
+            }
+    }
+
+    private val NESTED_NAV_GRAPH_2 =
+        navController.createGraph(route = "graph", startDestination = "dest1") {
+            test("dest1")
+            navigation(route = "nested/{longArg}", startDestination = "dest2/{longArg}") {
+                argument("longArg") {
+                    type = NavType.LongType
+                }
+                test("dest2/{longArg}") {
+                    argument("longArg") {
+                        type = NavType.LongType
+                    }
+                }
+                test("dest3")
+            }
         }
 
     @UiThreadTest
@@ -287,6 +317,148 @@ class NavControllerTest {
 
     @UiThreadTest
     @Test
+    fun testGraphRootMissingRequiredArgumentPlaceholder() {
+        val navController = createNavController()
+        val expected = assertFailsWith<IllegalArgumentException> {
+            navController.createGraph(route = "graph", startDestination = "dest1") {
+                argument("intArg") {
+                    type = NavType.IntType
+                    nullable = false
+                }
+                test("dest1")
+            }
+        }
+        assertThat(expected.message).isEqualTo(
+            "Deep link android-app://androidx.navigation/graph can't be used to open destination " +
+                "NavGraph(0xa22391e1) startDestination=0x0.\n" +
+                "Following required arguments are missing: [intArg]"
+        )
+    }
+
+    @UiThreadTest
+    @Test
+    fun testGraphRootMissingPartialRequiredArgumentPlaceholders() {
+        val navController = createNavController()
+        val expected = assertFailsWith<IllegalArgumentException> {
+            navController.createGraph(route = "graph/{intArg}", startDestination = "dest1") {
+                argument("intArg") {
+                    type = NavType.IntType
+                    nullable = false
+                }
+                argument("longArg") {
+                    type = NavType.LongType
+                    nullable = false
+                }
+                test("dest1")
+            }
+        }
+        assertThat(expected.message).isEqualTo(
+            "Deep link android-app://androidx.navigation/graph/{intArg} can't be used to " +
+                "open destination NavGraph(0xf9423909) startDestination=0x0.\n" +
+                "Following required arguments are missing: [longArg]"
+        )
+    }
+
+    @UiThreadTest
+    @Test
+    fun testGraphRootMissingAllRequiredArgumentPlaceholders() {
+        val navController = createNavController()
+        val expected = assertFailsWith<IllegalArgumentException> {
+            navController.createGraph(route = "graph", startDestination = "dest1") {
+                argument("intArg") {
+                    type = NavType.IntType
+                    nullable = false
+                }
+                argument("longArg") {
+                    type = NavType.LongType
+                    nullable = false
+                }
+                test("dest1")
+            }
+        }
+        assertThat(expected.message).isEqualTo(
+            "Deep link android-app://androidx.navigation/graph can't be used to open " +
+                "destination NavGraph(0xa22391e1) startDestination=0x0.\n" +
+                "Following required arguments are missing: [intArg, longArg]"
+        )
+    }
+
+    @UiThreadTest
+    @Test
+    fun testGraphDestMissingRequiredArgumentPlaceholder() {
+        val navController = createNavController()
+        val expected = assertFailsWith<IllegalArgumentException> {
+            navController.graph =
+                navController.createGraph(route = "graph", startDestination = "dest1") {
+                    test("dest1") {
+                        argument("intArg") {
+                            type = NavType.IntType
+                            nullable = false
+                        }
+                    }
+                }
+        }
+        assertThat(expected.message).isEqualTo(
+            "Deep link android-app://androidx.navigation/dest1 can't be used to open " +
+                "destination Destination(0xa1f3a662).\n" +
+                "Following required arguments are missing: [intArg]"
+        )
+    }
+
+    @UiThreadTest
+    @Test
+    fun testGraphDestMissingPartialRequiredArgumentPlaceholder() {
+        val navController = createNavController()
+        val expected = assertFailsWith<IllegalArgumentException> {
+            navController.graph =
+                navController.createGraph(route = "graph", startDestination = "dest1/{intArg}") {
+                    test("dest1/{intArg}") {
+                        argument("intArg") {
+                            type = NavType.IntType
+                            nullable = false
+                        }
+                        argument("longArg") {
+                            type = NavType.LongType
+                            nullable = false
+                        }
+                    }
+                }
+        }
+        assertThat(expected.message).isEqualTo(
+            "Deep link android-app://androidx.navigation/dest1/{intArg} can't be used to " +
+                "open destination Destination(0x994aa5a8).\n" +
+                "Following required arguments are missing: [longArg]"
+        )
+    }
+
+    @UiThreadTest
+    @Test
+    fun testGraphDestMissingAllRequiredArgumentPlaceholders() {
+        val navController = createNavController()
+        val expected = assertFailsWith<IllegalArgumentException> {
+            navController.graph =
+                navController.createGraph(route = "graph", startDestination = "dest1") {
+                    test("dest") {
+                        argument("intArg") {
+                            type = NavType.IntType
+                            nullable = false
+                        }
+                        argument("longArg") {
+                            type = NavType.LongType
+                            nullable = false
+                        }
+                    }
+                }
+        }
+        assertThat(expected.message).isEqualTo(
+            "Deep link android-app://androidx.navigation/dest can't be used to open " +
+                "destination Destination(0x78d64faf).\n" +
+                "Following required arguments are missing: [intArg, longArg]"
+        )
+    }
+
+    @UiThreadTest
+    @Test
     fun testSetGraph() {
         val navController = createNavController()
 
@@ -438,6 +610,23 @@ class NavControllerTest {
 
     @UiThreadTest
     @Test
+    fun testNavigateNullGraph() {
+        val navController = createNavController()
+        val deepLinkRequest = NavDeepLinkRequest.Builder.fromUri(
+            Uri.parse("android-app://androidx.navigation.test/destination")
+        ).build()
+
+        val expected = assertFailsWith<IllegalArgumentException> {
+            navController.navigate(deepLinkRequest)
+        }
+        assertThat(expected.message).isEqualTo(
+            "Cannot navigate to $deepLinkRequest. Navigation graph has not " +
+                "been set for NavController $navController."
+        )
+    }
+
+    @UiThreadTest
+    @Test
     fun testInvalidNavigateViaDeepLink() {
         val navController = createNavController()
         navController.setGraph(R.navigation.nav_simple)
@@ -513,6 +702,26 @@ class NavControllerTest {
 
     @UiThreadTest
     @Test
+    fun testNavigateViaDeepLinkAction_nonNullableArg() {
+        val navController = createNavController()
+        navController.setGraph(R.navigation.nav_simple)
+        val action = "test.action2"
+        val deepLink = NavDeepLinkRequest(null, action, null)
+
+        val expected = assertFailsWith<IllegalArgumentException> {
+            navController.navigate(deepLink)
+        }
+        assertThat(expected.message).isEqualTo(
+            "Navigation destination that matches request " +
+                "NavDeepLinkRequest{ action=test.action2 } cannot be " +
+                "found in the navigation graph NavGraph(androidx.navigation.test:id/nav_root) " +
+                "label= startDestination={Destination(androidx.navigation.test:id/start_test)}"
+        )
+        assertThat(navController.currentDestination?.route).isEqualTo(null)
+    }
+
+    @UiThreadTest
+    @Test
     @Suppress("DEPRECATION")
     fun testNavigateViaDeepLinkActionUnusedUri() {
         val navController = createNavController()
@@ -532,6 +741,26 @@ class NavControllerTest {
 
     @UiThreadTest
     @Test
+    fun testNavigateViaDeepLinkActionUnusedUri_nonNullableArg() {
+        val navController = createNavController()
+        navController.setGraph(R.navigation.nav_simple)
+        val action = "test.action2"
+        val deepLink = NavDeepLinkRequest("http://www.example.com".toUri(), action, null)
+
+        val expected = assertFailsWith<IllegalArgumentException> {
+            navController.navigate(deepLink)
+        }
+        assertThat(expected.message).isEqualTo(
+            "Navigation destination that matches request " +
+                "NavDeepLinkRequest{ uri=http://www.example.com action=test.action2 } cannot be " +
+                "found in the navigation graph NavGraph(androidx.navigation.test:id/nav_root) " +
+                "label= startDestination={Destination(androidx.navigation.test:id/start_test)}"
+        )
+        assertThat(navController.currentDestination?.route).isEqualTo(null)
+    }
+
+    @UiThreadTest
+    @Test
     fun testNavigateViaDeepLinkActionDifferentURI() {
         val navController = createNavController()
         navController.setGraph(R.navigation.nav_simple)
@@ -545,6 +774,24 @@ class NavControllerTest {
 
     @UiThreadTest
     @Test
+    fun testNavigateViaDeepLinkActionDifferentURI_nonNullableArg() {
+        val navController = createNavController()
+        navController.setGraph(R.navigation.nav_simple)
+        val deepLink = NavDeepLinkRequest(Uri.parse("invalidDeepLink.com"), "test.action2", null)
+
+        val expected = assertFailsWith<IllegalArgumentException> {
+            navController.navigate(deepLink)
+        }
+        assertThat(expected.message).isEqualTo(
+            "Navigation destination that matches request " +
+                "NavDeepLinkRequest{ uri=invalidDeepLink.com action=test.action2 } cannot be " +
+                "found in the navigation graph NavGraph(androidx.navigation.test:id/nav_root) " +
+                "label= startDestination={Destination(androidx.navigation.test:id/start_test)}"
+        )
+    }
+
+    @UiThreadTest
+    @Test
     fun testNavigateViaDeepLinkMimeTypeDifferentUri() {
         val navController = createNavController()
         navController.setGraph(R.navigation.nav_simple)
@@ -554,6 +801,45 @@ class NavControllerTest {
         navController.navigate(deepLink)
         assertThat(navController.currentDestination?.id ?: 0).isEqualTo(R.id.second_test)
         assertThat(navigator.backStack.size).isEqualTo(2)
+    }
+
+    @UiThreadTest
+    @Test
+    fun testNavigateViaDeepLinkMimeTypeDifferentUri_nonNullableArg() {
+        val navController = createNavController()
+        navController.setGraph(R.navigation.nav_simple)
+        val deepLink = NavDeepLinkRequest(Uri.parse("invalidDeepLink.com"), null, "type/test2")
+
+        val expected = assertFailsWith<IllegalArgumentException> {
+            navController.navigate(deepLink)
+        }
+        assertThat(expected.message).isEqualTo(
+            "Navigation destination that matches request " +
+                "NavDeepLinkRequest{ uri=invalidDeepLink.com mimetype=type/test2 } cannot be " +
+                "found in the navigation graph NavGraph(androidx.navigation.test:id/nav_root) " +
+                "label= startDestination={Destination(androidx.navigation.test:id/start_test)}"
+        )
+        assertThat(navController.currentDestination?.route).isEqualTo(null)
+    }
+
+    @UiThreadTest
+    @Test
+    fun testNavigateViaDeepLinkMimeTypeMissingQueryArg_nonNullableArg() {
+        val navController = createNavController()
+        navController.setGraph(R.navigation.nav_simple)
+        // deeplink with this mime type has a required Query arg
+        val deepLink = NavDeepLinkRequest(null, null, "type/test3")
+
+        val expected = assertFailsWith<IllegalArgumentException> {
+            navController.navigate(deepLink)
+        }
+        assertThat(expected.message).isEqualTo(
+            "Navigation destination that matches request " +
+                "NavDeepLinkRequest{ mimetype=type/test3 } cannot be " +
+                "found in the navigation graph NavGraph(androidx.navigation.test:id/nav_root) " +
+                "label= startDestination={Destination(androidx.navigation.test:id/start_test)}"
+        )
+        assertThat(navController.currentDestination?.route).isEqualTo(null)
     }
 
     @UiThreadTest
@@ -743,7 +1029,7 @@ class NavControllerTest {
 
         Intents.init()
 
-        with(ActivityScenario.launch<TestActivity>(intent)) {
+        with(ActivityScenario.launchActivityForResult<TestActivity>(intent)) {
             withActivity {
                 val navController = navController
                 navController.setGraph(R.navigation.nav_simple)
@@ -787,6 +1073,40 @@ class NavControllerTest {
             )
         )
 
+        Intents.release()
+    }
+
+    @Test
+    fun testNavigateUp_nullArgs() {
+        val intent = Intent(
+            Intent.ACTION_VIEW,
+            Uri.parse("android-app://androidx.navigation.test/nullArgTest/"),
+            ApplicationProvider.getApplicationContext(),
+            TestActivity::class.java
+        )
+
+        Intents.init()
+
+        with(ActivityScenario.launchActivityForResult<TestActivity>(intent)) {
+            withActivity {
+                val navController = navController
+                navController.setGraph(R.navigation.nav_simple)
+
+                val navigator =
+                    navController.navigatorProvider.getNavigator(TestNavigator::class.java)
+
+                assertThat(
+                    navController.currentDestination!!.id
+                ).isEqualTo(R.id.nullArg_test)
+                assertThat(navigator.backStack.size).isEqualTo(1)
+
+                // destination does not have args
+                assertThat(navController.currentDestination!!.arguments).isEmpty()
+                // On navigateUp, null args should not throw
+                assertThat(navController.navigateUp()).isTrue()
+                assertThat(this.isFinishing)
+            }
+        }
         Intents.release()
     }
 
@@ -1606,6 +1926,70 @@ class NavControllerTest {
 
     @UiThreadTest
     @Test
+    fun testNavigateWithMissingNonNullableArg() {
+        val navController = createNavController()
+        navController.graph = NESTED_NAV_GRAPH_2
+        assertThat(navController.currentDestination?.route).isEqualTo("dest1")
+
+        val nestedId = ("android-app://androidx.navigation/nested/{longArg}").hashCode()
+
+        val expected = assertFailsWith<NullPointerException> {
+            navController.navigate(nestedId)
+        }
+        assertThat(expected.message).isEqualTo(
+            "null cannot be cast to non-null type kotlin.Long"
+        )
+    }
+
+    @UiThreadTest
+    @Test
+    fun testNavigateMultipleParentsOnHierarchy() {
+        val navController = createNavController()
+        navController.setGraph(R.navigation.nav_root)
+        assertThat(navController.currentDestination?.id ?: 0).isEqualTo(R.id.root_start)
+
+        // nav_second has two parents: nav_root and nav_first
+        // nav_first has one parent: nav_root
+        // they share common parent of nav_root
+        navController.navigate(Uri.parse("http://www.second.com"))
+        assertThat(navController.currentDestination?.id ?: 0).isEqualTo(R.id.second_start)
+
+        navController.popBackStack()
+        assertThat(navController.currentDestination?.id).isEqualTo(R.id.root_start)
+    }
+
+    @UiThreadTest
+    @Test
+    fun testRebuildParentWithMissingNonNullableArg() {
+        val navController = createNavController()
+        navController.graph = NESTED_NAV_GRAPH_2
+        assertThat(navController.currentDestination?.route).isEqualTo("dest1")
+
+        val nestedId1 = ("android-app://androidx.navigation/nested/{longArg}").hashCode()
+
+        // navigate to nested graph first destination, provide non-nullable arg
+        navController.navigate(
+            nestedId1,
+            bundleOf("longArg" to 123L)
+        )
+        assertThat(navController.currentDestination?.route).isEqualTo("dest2/{longArg}")
+        assertThat(navController.currentBackStackEntry?.arguments?.getLong("longArg"))
+            .isEqualTo(123L)
+
+        val nestedId2 = ("android-app://androidx.navigation/dest3").hashCode()
+        // navigate to nested graph second destination after popping up to graph (inclusive)
+        // empty bundle to imitate navigating with NavDirections
+        navController.navigate(
+            nestedId2,
+            Bundle(),
+            NavOptions.Builder().setPopUpTo("nested/{longArg}", inclusive = true).build()
+        )
+        // [graph, dest1, nested, dest3]
+        assertThat(navController.currentBackStack.value.size).isEqualTo(4)
+    }
+
+    @UiThreadTest
+    @Test
     fun testNavigateWithOverriddenDefaultArgs() {
         val args = Bundle()
         args.putString(TEST_OVERRIDDEN_VALUE_ARG, TEST_OVERRIDDEN_VALUE_ARG_VALUE)
@@ -2014,6 +2398,259 @@ class NavControllerTest {
         val returnedArgs = navigator.current.arguments
         assertThat(returnedArgs?.getString(testKey)).isEqualTo(testValue)
         assertThat(destinationListenerExecuted).isTrue()
+    }
+
+    @UiThreadTest
+    @Test
+    fun testNavigateOptionSingleTopWithNavGraph_fromBaseGraph() {
+        val navController = createNavController()
+
+        // first navigation from setGraph
+        navController.setGraph(NESTED_NAV_GRAPH, startDestinationArgs = null)
+        assertThat(navController.currentDestination?.route).isEqualTo("nested4")
+
+        val graphNavigator = navController.navigatorProvider.getNavigator(
+            NavGraphNavigator::class.java
+        )
+        val testNavigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
+
+        // contains all entries from base node to final destination
+        val controllerBackStack1 = navController.currentBackStack.value
+        assertThat(controllerBackStack1.size).isEqualTo(5)
+
+        // contains all entries from base node until (excluding) final destination
+        val graphNavigatorBackStack1 = graphNavigator.backStack.value
+        assertThat(graphNavigatorBackStack1.size).isEqualTo(4)
+
+        // contains entry of final destination
+        val testNavigatorBackStack1 = testNavigator.backStack
+        assertThat(testNavigatorBackStack1.size).isEqualTo(1)
+
+        // second navigation to same graph starting from base graph, should be singleTop navigation
+        navController.navigate("graph", navOptions { launchSingleTop = true })
+        assertThat(navController.currentDestination?.route).isEqualTo("nested4")
+
+        // should not have additional entries due to singleTop entries being replaced
+        val controllerBackStack2 = navController.currentBackStack.value
+        assertThat(controllerBackStack2.size).isEqualTo(5)
+        assertReplacedEntries(controllerBackStack1, controllerBackStack2)
+
+        // should not have additional entries due to singleTop entries being replaced
+        val graphNavigatorBackStack2 = graphNavigator.backStack.value
+        assertThat(graphNavigatorBackStack2.size).isEqualTo(4)
+        assertReplacedEntries(graphNavigatorBackStack1, graphNavigatorBackStack2)
+
+        // should not have additional entries due to singleTop entries being replaced
+        val testNavigatorBackStack2 = testNavigator.backStack
+        assertThat(testNavigatorBackStack2.size).isEqualTo(1)
+        assertReplacedEntries(testNavigatorBackStack1, testNavigatorBackStack2)
+    }
+
+    @UiThreadTest
+    @Test
+    fun testNavigateOptionSingleTopWithNavGraph_fromIntermediateGraph() {
+        val navController = createNavController()
+
+        // first navigation from setGraph
+        navController.setGraph(NESTED_NAV_GRAPH, startDestinationArgs = null)
+        assertThat(navController.currentDestination?.route).isEqualTo("nested4")
+
+        val graphNavigator = navController.navigatorProvider.getNavigator(
+            NavGraphNavigator::class.java
+        )
+        val testNavigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
+
+        // contains all entries from base node to final destination
+        val controllerBackStack1 = navController.currentBackStack.value
+        assertThat(controllerBackStack1.size).isEqualTo(5)
+
+        // contains all entries from base node until (excluding) final destination
+        val graphNavigatorBackStack1 = graphNavigator.backStack.value
+        assertThat(graphNavigatorBackStack1.size).isEqualTo(4)
+
+        // contains entry of final destination
+        val testNavigatorBackStack1 = testNavigator.backStack
+        assertThat(testNavigatorBackStack1.size).isEqualTo(1)
+
+        // second navigation to same graph but starting from intermediate graph
+        // should be singleTop navigation starting from "nested2"
+        navController.navigate("nested2", navOptions { launchSingleTop = true })
+        assertThat(navController.currentDestination?.route).isEqualTo("nested4")
+
+        // should not have additional entries due to singleTop entries being replaced
+        val controllerBackStack2 = navController.currentBackStack.value
+        assertThat(controllerBackStack2.size).isEqualTo(5)
+        // replacement should only happen starting from nested2
+        assertIdenticalEntries(controllerBackStack1, controllerBackStack2, endIndex = 1)
+        assertReplacedEntries(controllerBackStack1, controllerBackStack2, startIndex = 2)
+
+        // should not have additional entries due to singleTop entries being replaced
+        val graphNavigatorBackStack2 = graphNavigator.backStack.value
+        assertThat(graphNavigatorBackStack2.size).isEqualTo(4)
+        // replacement should only happen starting from nested2
+        assertIdenticalEntries(graphNavigatorBackStack1, graphNavigatorBackStack2, endIndex = 1)
+        assertReplacedEntries(graphNavigatorBackStack1, graphNavigatorBackStack2, startIndex = 2)
+
+        // should not have additional entries due to singleTop entries being replaced
+        val testNavigatorBackStack2 = testNavigator.backStack
+        assertThat(testNavigatorBackStack2.size).isEqualTo(1)
+        assertReplacedEntries(testNavigatorBackStack1, testNavigatorBackStack2)
+    }
+
+    @UiThreadTest
+    @Test
+    fun testNavigateOptionSingleTopWithNavGraph_nonConsecutiveSingleTop() {
+        val navController = createNavController()
+
+        // first navigation from setGraph
+        navController.setGraph(NESTED_NAV_GRAPH, startDestinationArgs = null)
+        assertThat(navController.currentDestination?.route).isEqualTo("nested4")
+
+        val graphNavigator = navController.navigatorProvider.getNavigator(
+            NavGraphNavigator::class.java
+        )
+        val testNavigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
+
+        // second navigation to a non-singleTop destination
+        navController.navigate("nested2.2", navOptions { launchSingleTop = false })
+        assertThat(navController.currentDestination?.route).isEqualTo("nested2.2")
+
+        // contains all entries so far
+        val controllerBackStack1 = navController.currentBackStack.value
+        assertThat(controllerBackStack1.size).isEqualTo(6)
+
+        // contains all entries excluding those from testNavigator
+        val graphNavigatorBackStack1 = graphNavigator.backStack.value
+        assertThat(graphNavigatorBackStack1.size).isEqualTo(4)
+
+        // contains entry of final destinations
+        val testNavigatorBackStack1 = testNavigator.backStack
+        assertThat(testNavigatorBackStack1.size).isEqualTo(2)
+
+        // third navigation to a singleTop destination
+        navController.navigate("nested1", navOptions { launchSingleTop = true })
+        assertThat(navController.currentDestination?.route).isEqualTo("nested4")
+
+        // the non-consecutive navigation to same singleTop destination should allow added entries
+        val controllerBackStack2 = navController.currentBackStack.value
+        assertThat(controllerBackStack2.size).isEqualTo(10)
+        // entries in index[0-6] should be identical in both stacks
+        assertIdenticalEntries(controllerBackStack1, controllerBackStack2, endIndex = 6)
+
+        // the non-consecutive navigation to same singleTop destination should allow added entries
+        val graphNavigatorBackStack2 = graphNavigator.backStack.value
+        assertThat(graphNavigatorBackStack2.size).isEqualTo(7)
+        // entries in index[0-4] should be identical in both stacks
+        assertIdenticalEntries(graphNavigatorBackStack1, graphNavigatorBackStack2, endIndex = 4)
+
+        // the non-consecutive navigation to same singleTop destination should allow added entries
+        val testNavigatorBackStack2 = testNavigator.backStack
+        assertThat(testNavigatorBackStack2.size).isEqualTo(3)
+        // entries in index[0-1] should be identical in both stacks
+        assertIdenticalEntries(testNavigatorBackStack1, testNavigatorBackStack2, endIndex = 1)
+    }
+
+    @UiThreadTest
+    @Test
+    fun testNavigateOptionSingleTopWithNavGraph_consecutiveSingleTop() {
+        val navController = createNavController()
+
+        // first navigation from setGraph
+        navController.setGraph(NESTED_NAV_GRAPH, startDestinationArgs = null)
+        assertThat(navController.currentDestination?.route).isEqualTo("nested4")
+
+        val graphNavigator = navController.navigatorProvider.getNavigator(
+            NavGraphNavigator::class.java
+        )
+        val testNavigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
+
+        // second navigation to a singleTop destination
+        navController.navigate("nested1", navOptions { launchSingleTop = true })
+        assertThat(navController.currentDestination?.route).isEqualTo("nested4")
+
+        // contains all entries so far
+        val controllerBackStack1 = navController.currentBackStack.value
+        assertThat(controllerBackStack1.size).isEqualTo(5)
+
+        // contains all entries excluding those from testNavigator
+        val graphNavigatorBackStack1 = graphNavigator.backStack.value
+        assertThat(graphNavigatorBackStack1.size).isEqualTo(4)
+
+        // contains entry of final destinations
+        val testNavigatorBackStack1 = testNavigator.backStack
+        assertThat(testNavigatorBackStack1.size).isEqualTo(1)
+
+        // third navigation to the same singleTop destination
+        navController.navigate("nested1", navOptions { launchSingleTop = true })
+        assertThat(navController.currentDestination?.route).isEqualTo("nested4")
+
+        // no additional entries
+        val controllerBackStack2 = navController.currentBackStack.value
+        assertThat(controllerBackStack2.size).isEqualTo(5)
+        // different entries from "nested1" and onwards
+        assertIdenticalEntries(controllerBackStack1, controllerBackStack2, endIndex = 0)
+        assertReplacedEntries(controllerBackStack1, controllerBackStack2, startIndex = 1)
+
+        // no additional entries
+        val graphNavigatorBackStack2 = graphNavigator.backStack.value
+        assertThat(graphNavigatorBackStack2.size).isEqualTo(4)
+        // different entries from "nested1" and onwards
+        assertIdenticalEntries(graphNavigatorBackStack1, graphNavigatorBackStack2, endIndex = 0)
+        assertReplacedEntries(graphNavigatorBackStack1, graphNavigatorBackStack2, startIndex = 1)
+
+        // no additional entries
+        val testNavigatorBackStack2 = testNavigator.backStack
+        assertThat(testNavigatorBackStack2.size).isEqualTo(1)
+        assertReplacedEntries(testNavigatorBackStack1, testNavigatorBackStack2)
+    }
+
+    @UiThreadTest
+    @Test
+    fun testNavigateOptionSingleTopWithNavGraph_toSingleTopSibling() {
+        val navController = createNavController()
+
+        // first navigation from setGraph
+        navController.setGraph(NESTED_NAV_GRAPH, startDestinationArgs = null)
+        assertThat(navController.currentDestination?.route).isEqualTo("nested4")
+
+        val graphNavigator = navController.navigatorProvider.getNavigator(
+            NavGraphNavigator::class.java
+        )
+        val testNavigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
+
+        // contains all entries from base node to final destination
+        val controllerBackStack1 = navController.currentBackStack.value
+        assertThat(controllerBackStack1.size).isEqualTo(5)
+
+        // contains all entries from base node until (excluding) final destination
+        val graphNavigatorBackStack1 = graphNavigator.backStack.value
+        assertThat(graphNavigatorBackStack1.size).isEqualTo(4)
+
+        // contains entry of final destination
+        val testNavigatorBackStack1 = testNavigator.backStack
+        assertThat(testNavigatorBackStack1.size).isEqualTo(1)
+
+        // navigate to sibling of currentDestination with singleTop
+        navController.navigate("nested5", navOptions { launchSingleTop = true })
+        assertThat(navController.currentDestination?.route).isEqualTo("nested5")
+
+        // singleTop to sibling should not affect existing entries
+        val controllerBackStack2 = navController.currentBackStack.value
+        assertThat(controllerBackStack2.size).isEqualTo(6)
+        // entries in index[0-6] should be identical in both stacks
+        assertIdenticalEntries(controllerBackStack1, controllerBackStack2, endIndex = 6)
+
+        // singleTop to sibling should not affect existing entries
+        val graphNavigatorBackStack2 = graphNavigator.backStack.value
+        assertThat(graphNavigatorBackStack2.size).isEqualTo(4)
+        // entries in index[0-4] should be identical in both stacks
+        assertIdenticalEntries(controllerBackStack1, controllerBackStack2, endIndex = 4)
+
+        // // singleTop to sibling should not affect existing entries
+        val testNavigatorBackStack2 = testNavigator.backStack
+        assertThat(testNavigatorBackStack2.size).isEqualTo(2)
+        // entries in index[0] should be identical in both stacks
+        assertIdenticalEntries(testNavigatorBackStack1, testNavigatorBackStack2, endIndex = 0)
     }
 
     @UiThreadTest
@@ -2553,6 +3190,97 @@ class NavControllerTest {
 
     @UiThreadTest
     @Test
+    fun testHandleDeepLinkActionMissingURI_nonNullableArg() {
+        val navController = createNavController()
+        navController.setGraph(R.navigation.nav_simple)
+        val collectedDestinationIds = mutableListOf<Int>()
+        navController.addOnDestinationChangedListener { _, destination, _ ->
+            collectedDestinationIds.add(destination.id)
+        }
+
+        val intent = Intent("test.action2").apply {
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+        }
+        assertThat(intent).isNotNull()
+        assertWithMessage("NavController should not match with any deeplink due to missing arg")
+            .that(navController.handleDeepLink(intent))
+            .isFalse()
+        // Verify that we never navigated further than the startDestination
+        assertThat(collectedDestinationIds).containsExactly(R.id.start_test)
+    }
+
+    @UiThreadTest
+    @Test
+    fun testHandleDeepLinkActionDifferentURI_nonNullableArg() {
+        val navController = createNavController()
+        navController.setGraph(R.navigation.nav_simple)
+        val collectedDestinationIds = mutableListOf<Int>()
+        navController.addOnDestinationChangedListener { _, destination, _ ->
+            collectedDestinationIds.add(destination.id)
+        }
+
+        val intent = Intent(
+            "test.action2",
+            "invalidDeepLink.com".toUri(),
+            ApplicationProvider.getApplicationContext() as Context,
+            TestActivity::class.java
+        )
+        assertThat(intent).isNotNull()
+        assertWithMessage("NavController should not match with any deeplink due to missing arg")
+            .that(navController.handleDeepLink(intent))
+            .isFalse()
+        // Verify that we never navigated further than the startDestination
+        assertThat(collectedDestinationIds).containsExactly(R.id.start_test)
+    }
+
+    @UiThreadTest
+    @Test
+    fun testHandleDeepLinkActionWrongArgType_nonNullableArg() {
+        val navController = createNavController()
+        navController.setGraph(R.navigation.nav_simple)
+        val collectedDestinationIds = mutableListOf<Int>()
+        navController.addOnDestinationChangedListener { _, destination, _ ->
+            collectedDestinationIds.add(destination.id)
+        }
+
+        val intent = Intent(
+            "test.action2",
+            // deeplink with matching action has Int NavType
+            "test-app://test/abc".toUri(),
+            ApplicationProvider.getApplicationContext() as Context,
+            TestActivity::class.java
+        )
+        assertThat(intent).isNotNull()
+        assertWithMessage("NavController should not match with any deeplink due to wrong arg type")
+            .that(navController.handleDeepLink(intent))
+            .isFalse()
+    }
+
+    @UiThreadTest
+    @Test
+    fun testHandleDeepLinkActionMissingQueryArg_nonNullableArg() {
+        val navController = createNavController()
+        navController.setGraph(R.navigation.nav_simple)
+        val collectedDestinationIds = mutableListOf<Int>()
+        navController.addOnDestinationChangedListener { _, destination, _ ->
+            collectedDestinationIds.add(destination.id)
+        }
+
+        val intent = Intent(
+            "test.action3",
+            // deeplink with this action type has a required Query arg
+            "test-app://test".toUri(),
+            ApplicationProvider.getApplicationContext() as Context,
+            TestActivity::class.java
+        )
+        assertThat(intent).isNotNull()
+        assertWithMessage("NavController should not match with any deeplink due to wrong arg type")
+            .that(navController.handleDeepLink(intent))
+            .isFalse()
+    }
+
+    @UiThreadTest
+    @Test
     fun testHandleDeepLinkNestedStartDestination() {
         val navController = createNavController()
         navController.setGraph(R.navigation.nav_nested_start_destination)
@@ -2815,6 +3543,39 @@ class NavControllerTest {
         val navigator = TestNavigator()
         navController.navigatorProvider.addNavigator(navigator)
         return navController
+    }
+
+    // `startIndex` represents start of singleTop entries within the backstack. This method
+    // checks that on or after `startIndex`, newStack[index] should replace the
+    // entry of oldStack[index].
+    private fun assertReplacedEntries(
+        oldStack: List<NavBackStackEntry>,
+        newStack: List<NavBackStackEntry>,
+        startIndex: Int = 0,
+    ) {
+        oldStack.forEachIndexed { index, oldEntry ->
+            if (index >= startIndex) {
+                val newEntry = newStack[index]
+                // startIndex represents start of singleTop, thus entries should be replaced
+                assertThat(oldEntry !== newEntry).isTrue()
+                assertThat(oldEntry.destination.route).isEqualTo(newEntry.destination.route)
+            }
+        }
+    }
+
+    // `endIndex` + 1 represents start of singleTop entries within the backstack. This method
+    // checks that entries on or before `endIndex` remain identical instances.
+    private fun assertIdenticalEntries(
+        oldStack: List<NavBackStackEntry>,
+        newStack: List<NavBackStackEntry>,
+        endIndex: Int = oldStack.lastIndex,
+    ) {
+        oldStack.forEachIndexed { index, oldEntry ->
+            if (index <= endIndex) {
+                val newEntry = newStack[index]
+                assertThat(oldEntry === newEntry).isTrue()
+            }
+        }
     }
 }
 

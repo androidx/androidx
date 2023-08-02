@@ -16,13 +16,13 @@
 
 package androidx.navigation.dynamicfeatures.fragment.ui
 
-import androidx.navigation.dynamicfeatures.fragment.R as mainR
-import androidx.navigation.dynamicfeatures.fragment.test.R as testR
 import android.widget.TextView
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.dynamicfeatures.fragment.DynamicNavHostFragment
 import androidx.navigation.dynamicfeatures.fragment.NavigationActivity
+import androidx.navigation.dynamicfeatures.fragment.R as mainR
+import androidx.navigation.dynamicfeatures.fragment.test.R as testR
 import androidx.navigation.fragment.findNavController
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -72,8 +72,8 @@ class DefaultProgressFragmentTest {
                 // it to fail before we check for test failure.
                 val liveData = viewModel.installMonitor!!.status
                 val observer = object : Observer<SplitInstallSessionState> {
-                    override fun onChanged(state: SplitInstallSessionState) {
-                        if (state.status() == SplitInstallSessionStatus.FAILED) {
+                    override fun onChanged(value: SplitInstallSessionState) {
+                        if (value.status() == SplitInstallSessionStatus.FAILED) {
                             liveData.removeObserver(this)
                             failureCountdownLatch.countDown()
                         }

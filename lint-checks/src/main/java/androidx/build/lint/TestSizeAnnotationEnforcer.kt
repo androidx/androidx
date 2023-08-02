@@ -28,11 +28,11 @@ import com.android.tools.lint.detector.api.JavaContext
 import com.android.tools.lint.detector.api.Scope
 import com.android.tools.lint.detector.api.Severity
 import com.android.tools.lint.detector.api.SourceCodeScanner
+import java.util.Collections
+import java.util.EnumSet
 import org.jetbrains.uast.UClass
 import org.jetbrains.uast.UClassLiteralExpression
 import org.jetbrains.uast.UElement
-import java.util.Collections
-import java.util.EnumSet
 
 /**
  * Lint check to enforce that every device side test (tests in the androidTest dir) has correct

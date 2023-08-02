@@ -32,18 +32,27 @@ void colorBufferRegion(void *data, int32_t left, int32_t top, int32_t right, int
     }
 }
 
+static AHardwareBuffer* allocateBuffer(int32_t width, int32_t height) {
+    AHardwareBuffer* buffer = nullptr;
+    AHardwareBuffer_Desc desc = {};
+    desc.width = width;
+    desc.height = height;
+    desc.layers = 1;
+    desc.usage = AHARDWAREBUFFER_USAGE_COMPOSER_OVERLAY | AHARDWAREBUFFER_USAGE_CPU_WRITE_OFTEN |
+                 AHARDWAREBUFFER_USAGE_GPU_SAMPLED_IMAGE;
+    desc.format = AHARDWAREBUFFER_FORMAT_R8G8B8A8_UNORM;
+
+    AHardwareBuffer_allocate(&desc, &buffer);
+
+    return buffer;
+}
+
 bool createSolidBuffer(JNIEnv *env, jobject thiz, int32_t width, int32_t height, uint32_t color,
                        AHardwareBuffer **outBuffer, int *fence) {
-    AHardwareBuffer *buffer = nullptr;
-    AHardwareBuffer_Desc tempDesc = {};
-    tempDesc.width = width;
-    tempDesc.height = height;
-    tempDesc.layers = 1;
-    tempDesc.usage = AHARDWAREBUFFER_USAGE_CPU_WRITE_OFTEN |
-                     AHARDWAREBUFFER_USAGE_GPU_SAMPLED_IMAGE;
-    tempDesc.format = AHARDWAREBUFFER_FORMAT_R8G8B8A8_UNORM;
-
-    AHardwareBuffer_allocate(&tempDesc, &buffer);
+    AHardwareBuffer* buffer = allocateBuffer(width, height);
+    if (!buffer) {
+        return true;
+    }
 
     AHardwareBuffer_Desc desc = {};
     AHardwareBuffer_describe(buffer, &desc);
@@ -82,4 +91,55 @@ Java_androidx_graphics_surface_SurfaceControlUtils_00024Companion_nGetSolidBuffe
     jobject hardwareBuffer = AHardwareBuffer_toHardwareBuffer(env, tempBuffer);
     AHardwareBuffer_release(tempBuffer);
     return hardwareBuffer;
+}
+
+static bool getQuadrantBuffer(int32_t width, int32_t height, jint colorTopLeft,
+                              jint colorTopRight, jint colorBottomRight,
+                              jint colorBottomLeft,
+                              AHardwareBuffer** outHardwareBuffer,
+                              int* outFence) {
+    AHardwareBuffer* buffer = allocateBuffer(width, height);
+    if (!buffer) {
+        return true;
+    }
+
+    AHardwareBuffer_Desc desc = {};
+    AHardwareBuffer_describe(buffer, &desc);
+
+    void* data = nullptr;
+    const ARect rect{0, 0, width, height};
+    int error = AHardwareBuffer_lock(buffer, AHARDWAREBUFFER_USAGE_CPU_WRITE_OFTEN, -1, &rect,
+                         &data);
+    if (!data || error!=0) {
+        return true;
+    }
+
+    colorBufferRegion(data, 0, 0, width / 2, height / 2, colorTopLeft, desc.stride);
+    colorBufferRegion(data, width / 2, 0, width, height / 2, colorTopRight, desc.stride);
+    colorBufferRegion(data, 0, height / 2, width / 2, height, colorBottomLeft,
+                      desc.stride);
+    colorBufferRegion(data, width / 2, height / 2, width, height, colorBottomRight,
+                      desc.stride);
+
+    AHardwareBuffer_unlock(buffer, outFence);
+
+    *outHardwareBuffer = buffer;
+    return false;
+}
+
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_androidx_graphics_surface_SurfaceControlUtils_00024Companion_nGetQuadrantBuffer(
+        JNIEnv* env, jobject thiz,
+        jint width, jint height,
+        jint colorTopLeft, jint colorTopRight,
+        jint colorBottomRight, jint colorBottomLeft) {
+    AHardwareBuffer* buffer;
+    if (getQuadrantBuffer(width, height, colorTopLeft, colorTopRight, colorBottomRight,
+                          colorBottomLeft, &buffer, nullptr)) {
+        return nullptr;
+    }
+    jobject result = AHardwareBuffer_toHardwareBuffer(env, buffer);
+    AHardwareBuffer_release(buffer);
+    return result;
 }

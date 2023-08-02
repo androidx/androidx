@@ -25,6 +25,8 @@ import androidx.compose.ui.text.font.FontSynthesis
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.text.style.BaselineShift
+import androidx.compose.ui.text.style.Hyphens
+import androidx.compose.ui.text.style.LineBreak
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextDirection
@@ -47,7 +49,6 @@ class TextStyleResolveDefaultsTest {
     private val DefaultLineHeight = TextUnit.Unspecified
     private val DefaultColor = Color.Black
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun test_default_values() {
         // We explicitly expect the default values since we do not want to change these values.
@@ -72,10 +73,11 @@ class TextStyleResolveDefaultsTest {
             assertThat(it.lineHeight).isEqualTo(DefaultLineHeight)
             assertThat(it.textIndent).isEqualTo(TextIndent.None)
             assertThat(it.platformStyle).isNull()
+            assertThat(it.hyphens).isEqualTo(Hyphens.None)
+            assertThat(it.lineBreak).isEqualTo(LineBreak.Simple)
         }
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun test_use_provided_values_brush() {
         val brush = Brush.linearGradient(listOf(Color.White, Color.Black))
@@ -88,7 +90,16 @@ class TextStyleResolveDefaultsTest {
         ).isEqualTo(brush)
     }
 
-    @OptIn(ExperimentalTextApi::class)
+    @Test
+    fun test_use_provided_values_hyphens() {
+        assertThat(
+            resolveDefaults(
+                TextStyle(hyphens = Hyphens.Auto),
+                direction = LayoutDirection.Ltr
+            ).hyphens
+        ).isEqualTo(Hyphens.Auto)
+    }
+
     @Test
     fun test_use_provided_values_shader_brush_color_unspecified() {
         val brush = Brush.linearGradient(listOf(Color.White, Color.Black))
@@ -269,6 +280,16 @@ class TextStyleResolveDefaultsTest {
                 direction = LayoutDirection.Ltr
             ).textIndent
         ).isEqualTo(TextIndent(12.sp, 13.sp))
+    }
+
+    @Test
+    fun test_use_provided_values_lineBreak() {
+        assertThat(
+            resolveDefaults(
+                TextStyle(lineBreak = LineBreak.Heading),
+                direction = LayoutDirection.Ltr
+            ).lineBreak
+        ).isEqualTo(LineBreak.Heading)
     }
 
     @Test

@@ -279,7 +279,6 @@ class ViewOverlayApi14 implements ViewOverlayImpl {
         }
 
         /**
-         * @hide
          */
         @SuppressLint("BanUncheckedReflection") // This class is only used on APIs 14-17
         @RestrictTo(LIBRARY_GROUP_PREFIX)

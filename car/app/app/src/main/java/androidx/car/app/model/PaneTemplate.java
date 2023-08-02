@@ -23,11 +23,11 @@ import static androidx.car.app.model.constraints.RowListConstraints.ROW_LIST_CON
 
 import static java.util.Objects.requireNonNull;
 
-import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.model.constraints.CarTextConstraints;
+import androidx.car.app.annotations.KeepFields;
 
 import java.util.Collections;
 import java.util.Objects;
@@ -48,17 +48,14 @@ import java.util.Objects;
  * </ul>
  */
 @CarProtocol
+@KeepFields
 public final class PaneTemplate implements Template {
-    @Keep
     @Nullable
     private final CarText mTitle;
-    @Keep
     @Nullable
     private final Pane mPane;
-    @Keep
     @Nullable
     private final Action mHeaderAction;
-    @Keep
     @Nullable
     private final ActionStrip mActionStrip;
 

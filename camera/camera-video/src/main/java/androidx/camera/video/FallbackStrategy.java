@@ -73,7 +73,7 @@ public class FallbackStrategy {
     }
 
     /**
-     * Returns a fallback strategy that will choose the quality that is closest to and higher
+     * Returns a fallback strategy that will choose the quality that is closest to and lower
      * than the input quality.
      */
     @NonNull

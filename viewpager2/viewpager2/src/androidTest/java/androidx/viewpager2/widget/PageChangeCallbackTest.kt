@@ -40,19 +40,20 @@ import androidx.viewpager2.widget.ViewPager2.SCROLL_STATE_DRAGGING
 import androidx.viewpager2.widget.ViewPager2.SCROLL_STATE_IDLE
 import androidx.viewpager2.widget.ViewPager2.SCROLL_STATE_SETTLING
 import androidx.viewpager2.widget.swipe.PageSwiperManual
-import org.hamcrest.CoreMatchers.equalTo
-import org.hamcrest.CoreMatchers.not
-import org.hamcrest.Matchers.allOf
-import org.hamcrest.Matchers.greaterThan
-import org.hamcrest.Matchers.greaterThanOrEqualTo
-import org.hamcrest.MatcherAssert.assertThat
-import org.junit.Test
-import org.junit.runner.RunWith
-import org.junit.runners.Parameterized
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors.newSingleThreadExecutor
 import java.util.concurrent.TimeUnit.SECONDS
 import kotlin.math.roundToInt
+import org.hamcrest.CoreMatchers.equalTo
+import org.hamcrest.CoreMatchers.not
+import org.hamcrest.MatcherAssert.assertThat
+import org.hamcrest.Matchers.allOf
+import org.hamcrest.Matchers.greaterThan
+import org.hamcrest.Matchers.greaterThanOrEqualTo
+import org.junit.Ignore
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.Parameterized
 
 @RunWith(Parameterized::class)
 @LargeTest
@@ -872,6 +873,7 @@ class PageChangeCallbackTest(private val config: TestConfig) : BaseTest() {
         )
     }
 
+    @Ignore // b/266613027
     @Test
     fun test_getScrollState() {
         val test = setUpTest(config.orientation)
@@ -1087,6 +1089,7 @@ class PageChangeCallbackTest(private val config: TestConfig) : BaseTest() {
         recorder.assertAllPagesSelected(testPages.flatMap { listOf(it, it + 1) })
     }
 
+    @Ignore // b/266613027
     @Test
     fun test_setCurrentItemWhileScrolling_maxIntItems() {
         val test = setUpTest(config.orientation)

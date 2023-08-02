@@ -16,8 +16,6 @@
 
 package androidx.room.solver.types
 
-import androidx.room.ext.L
-import androidx.room.ext.T
 import androidx.room.compiler.processing.XType
 import androidx.room.solver.CodeGenScope
 
@@ -30,8 +28,7 @@ class CompositeAdapter(
     val columnTypeAdapter: ColumnTypeAdapter,
     val intoStatementConverter: TypeConverter?,
     val fromCursorConverter: TypeConverter?
-) :
-    ColumnTypeAdapter(out, columnTypeAdapter.typeAffinity) {
+) : ColumnTypeAdapter(out, columnTypeAdapter.typeAffinity) {
     override fun readFromCursor(
         outVarName: String,
         cursorVarName: String,
@@ -41,9 +38,9 @@ class CompositeAdapter(
         if (fromCursorConverter == null) {
             return
         }
-        scope.builder().apply {
+        scope.builder.apply {
             val tmpCursorValue = scope.getTmpVar()
-            addStatement("final $T $L", columnTypeAdapter.outTypeName, tmpCursorValue)
+            addLocalVariable(tmpCursorValue, columnTypeAdapter.outTypeName)
             columnTypeAdapter.readFromCursor(tmpCursorValue, cursorVarName, indexVarName, scope)
             fromCursorConverter.convert(tmpCursorValue, outVarName, scope)
         }
@@ -58,7 +55,7 @@ class CompositeAdapter(
         if (intoStatementConverter == null) {
             return
         }
-        scope.builder().apply {
+        scope.builder.apply {
             val bindVar = intoStatementConverter.convert(valueVarName, scope)
             columnTypeAdapter.bindToStmt(stmtName, indexVarName, bindVar, scope)
         }

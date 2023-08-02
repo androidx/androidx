@@ -28,7 +28,7 @@ import java.util.concurrent.Executor;
 
 /**
  * Utilities for working with {@link com.google.common.util.concurrent.ListenableFuture}.
- * @hide
+ * @exportToFramework:hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class FutureUtil {

@@ -34,8 +34,8 @@ import androidx.wear.watchface.editor.IEditorService;
 /**
  * Interface of a service that allows the user to create watch face instances.
  *
- * @hide
  */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 interface IWatchFaceControlService {
     // IMPORTANT NOTE: All methods must be given an explicit transaction id that must never change
     // in the future to remain binary backwards compatible.

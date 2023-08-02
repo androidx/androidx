@@ -19,12 +19,12 @@ package androidx.hilt.navigation.compose
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.HiltViewModelFactory
+import androidx.lifecycle.HasDefaultViewModelProviderFactory
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavBackStackEntry
 
 /**
  * Returns an existing
@@ -42,20 +42,21 @@ import androidx.navigation.NavBackStackEntry
 inline fun <reified VM : ViewModel> hiltViewModel(
     viewModelStoreOwner: ViewModelStoreOwner = checkNotNull(LocalViewModelStoreOwner.current) {
         "No ViewModelStoreOwner was provided via LocalViewModelStoreOwner"
-    }
+    },
+    key: String? = null
 ): VM {
     val factory = createHiltViewModelFactory(viewModelStoreOwner)
-    return viewModel(viewModelStoreOwner, factory = factory)
+    return viewModel(viewModelStoreOwner, key, factory = factory)
 }
 
 @Composable
 @PublishedApi
 internal fun createHiltViewModelFactory(
     viewModelStoreOwner: ViewModelStoreOwner
-): ViewModelProvider.Factory? = if (viewModelStoreOwner is NavBackStackEntry) {
+): ViewModelProvider.Factory? = if (viewModelStoreOwner is HasDefaultViewModelProviderFactory) {
     HiltViewModelFactory(
         context = LocalContext.current,
-        navBackStackEntry = viewModelStoreOwner
+        delegateFactory = viewModelStoreOwner.defaultViewModelProviderFactory
     )
 } else {
     // Use the default factory provided by the ViewModelStoreOwner

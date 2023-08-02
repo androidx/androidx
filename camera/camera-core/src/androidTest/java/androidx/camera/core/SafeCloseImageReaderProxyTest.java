@@ -29,7 +29,7 @@ import android.util.Pair;
 import androidx.camera.core.impl.ImageReaderProxy;
 import androidx.camera.core.impl.TagBundle;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
-import androidx.camera.testing.fakes.FakeImageReaderProxy;
+import androidx.camera.testing.impl.fakes.FakeImageReaderProxy;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
@@ -139,5 +139,22 @@ public class SafeCloseImageReaderProxyTest {
 
         // Assert
         verifyZeroInteractions(onImageAvailableListener);
+    }
+
+    @Test
+    public void closeTheImageInQueue_onImageCloseListenerGetsInvoked() throws InterruptedException {
+        // Arrange
+        ForwardingImageProxy.OnImageCloseListener onImageCloseListener = mock(
+                ForwardingImageProxy.OnImageCloseListener.class);
+        mSafeCloseImageReaderProxy.setOnImageCloseListener(onImageCloseListener);
+
+        // Act: send and close image.
+        mFakeImageReaderProxy.triggerImageAvailable(TagBundle.create(new Pair<>(mTagBundleKey,
+                mTag)), 1);
+        ImageProxy imageProxy = mSafeCloseImageReaderProxy.acquireLatestImage();
+        imageProxy.close();
+
+        // Assert: the callback gets invoked
+        verify(onImageCloseListener).onImageClose(any(ImageProxy.class));
     }
 }

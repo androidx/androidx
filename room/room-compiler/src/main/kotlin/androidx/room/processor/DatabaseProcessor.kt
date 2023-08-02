@@ -18,6 +18,8 @@ package androidx.room.processor
 
 import androidx.room.AutoMigration
 import androidx.room.SkipQueryVerification
+import androidx.room.compiler.codegen.CodeLanguage
+import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.processing.XAnnotationBox
 import androidx.room.compiler.processing.XElement
 import androidx.room.compiler.processing.XType
@@ -26,7 +28,7 @@ import androidx.room.ext.RoomTypeNames
 import androidx.room.migration.bundle.DatabaseBundle
 import androidx.room.migration.bundle.SchemaBundle
 import androidx.room.processor.ProcessorErrors.AUTO_MIGRATION_FOUND_BUT_EXPORT_SCHEMA_OFF
-import androidx.room.processor.ProcessorErrors.AUTO_MIGRATION_SCHEMA_OUT_FOLDER_NULL
+import androidx.room.processor.ProcessorErrors.AUTO_MIGRATION_SCHEMA_IN_FOLDER_NULL
 import androidx.room.processor.ProcessorErrors.autoMigrationSchemasMustBeRoomGenerated
 import androidx.room.processor.ProcessorErrors.invalidAutoMigrationSchema
 import androidx.room.util.SchemaFileResolver
@@ -41,7 +43,6 @@ import androidx.room.vo.FtsEntity
 import androidx.room.vo.Warning
 import androidx.room.vo.columnNames
 import androidx.room.vo.findFieldByColumnName
-import com.squareup.javapoet.TypeName
 import java.io.File
 import java.io.FileInputStream
 import java.nio.file.Path
@@ -51,9 +52,7 @@ class DatabaseProcessor(baseContext: Context, val element: XTypeElement) {
     val context = baseContext.fork(element)
 
     val roomDatabaseType: XType by lazy {
-        context.processingEnv.requireType(
-            RoomTypeNames.ROOM_DB.packageName() + "." + RoomTypeNames.ROOM_DB.simpleName()
-        )
+        context.processingEnv.requireType(RoomTypeNames.ROOM_DB)
     }
 
     fun process(): Database {
@@ -93,7 +92,7 @@ class DatabaseProcessor(baseContext: Context, val element: XTypeElement) {
             it.isAbstract()
         }.filterNot {
             // remove methods that belong to room
-            it.enclosingElement.className == RoomTypeNames.ROOM_DB
+            it.enclosingElement.asClassName() == RoomTypeNames.ROOM_DB
         }.mapNotNull { executable ->
             // TODO when we add support for non Dao return types (e.g. database), this code needs
             // to change
@@ -112,6 +111,12 @@ class DatabaseProcessor(baseContext: Context, val element: XTypeElement) {
                         executable,
                         ProcessorErrors.JVM_NAME_ON_OVERRIDDEN_METHOD
                     )
+                }
+                if (
+                    context.codeLanguage == CodeLanguage.KOTLIN &&
+                    executable.isKotlinPropertyMethod()
+                ) {
+                    context.logger.e(executable, ProcessorErrors.KOTLIN_PROPERTY_OVERRIDE)
                 }
                 val dao = DaoProcessor(context, daoElement, declaredType, dbVerifier)
                     .process()
@@ -146,63 +151,65 @@ class DatabaseProcessor(baseContext: Context, val element: XTypeElement) {
 
         val autoMigrationList = dbAnnotation
             .getAsAnnotationBoxArray<AutoMigration>("autoMigrations")
+        if (autoMigrationList.isEmpty()) {
+            return emptyList()
+        }
 
-        if (autoMigrationList.isNotEmpty()) {
-            if (!dbAnnotation.value.exportSchema) {
-                context.logger.e(
-                    element,
-                    AUTO_MIGRATION_FOUND_BUT_EXPORT_SCHEMA_OFF
-                )
-                return emptyList()
-            }
-            if (context.schemaOutFolderPath == null) {
-                context.logger.e(
-                    element,
-                    AUTO_MIGRATION_SCHEMA_OUT_FOLDER_NULL
-                )
-                return emptyList()
-            }
+        if (!dbAnnotation.value.exportSchema) {
+            context.logger.e(
+                element,
+                AUTO_MIGRATION_FOUND_BUT_EXPORT_SCHEMA_OFF
+            )
+            return emptyList()
+        }
+        val schemaInFolderPath = context.schemaInFolderPath
+        if (schemaInFolderPath == null) {
+            context.logger.e(
+                element,
+                AUTO_MIGRATION_SCHEMA_IN_FOLDER_NULL
+            )
+            return emptyList()
         }
 
         return autoMigrationList.mapNotNull {
-            val databaseSchemaFolderPath = Path.of(
-                context.schemaOutFolderPath!!,
-                element.className.canonicalName()
+            val databaseSchemaInFolderPath = Path.of(
+                schemaInFolderPath,
+                element.asClassName().canonicalName
             )
             val autoMigration = it.value
             val validatedFromSchemaFile = getValidatedSchemaFile(
                 autoMigration.from,
-                databaseSchemaFolderPath
-            )
+                databaseSchemaInFolderPath
+            ) ?: return@mapNotNull null
 
-            fun deserializeSchemaFile(fileInputStream: FileInputStream, versionNumber: Int): Any {
+            fun deserializeSchemaFile(
+                fileInputStream: FileInputStream,
+                versionNumber: Int
+            ): DatabaseBundle? {
                 return try {
                     SchemaBundle.deserialize(fileInputStream).database
                 } catch (th: Throwable) {
                     invalidAutoMigrationSchema(
                         "$versionNumber.json",
-                        databaseSchemaFolderPath.toString()
+                        databaseSchemaInFolderPath.toString()
                     )
+                    null
                 }
             }
 
-            if (validatedFromSchemaFile != null) {
-                val fromSchemaBundle = validatedFromSchemaFile.inputStream().use {
-                    deserializeSchemaFile(it, autoMigration.from)
-                }
-                val toSchemaBundle = if (autoMigration.to == latestDbSchema.version) {
+            val fromSchemaBundle = validatedFromSchemaFile.inputStream().use {
+                deserializeSchemaFile(it, autoMigration.from)
+            }
+            val toSchemaBundle =
+                if (autoMigration.to == latestDbSchema.version) {
                     latestDbSchema
                 } else {
                     val validatedToSchemaFile = getValidatedSchemaFile(
                         autoMigration.to,
-                        databaseSchemaFolderPath
-                    )
-                    if (validatedToSchemaFile != null) {
-                        validatedToSchemaFile.inputStream().use {
-                            deserializeSchemaFile(it, autoMigration.to)
-                        }
-                    } else {
-                        return@mapNotNull null
+                        databaseSchemaInFolderPath
+                    ) ?: return@mapNotNull null
+                    validatedToSchemaFile.inputStream().use {
+                        deserializeSchemaFile(it, autoMigration.to)
                     }
                 }
                 if (fromSchemaBundle !is DatabaseBundle || toSchemaBundle !is DatabaseBundle) {
@@ -216,15 +223,12 @@ class DatabaseProcessor(baseContext: Context, val element: XTypeElement) {
                     return@mapNotNull null
                 }
 
-                AutoMigrationProcessor(
-                    context = context,
-                    spec = it.getAsType("spec")!!,
-                    fromSchemaBundle = fromSchemaBundle,
-                    toSchemaBundle = toSchemaBundle
-                ).process()
-            } else {
-                null
-            }
+            AutoMigrationProcessor(
+                context = context,
+                spec = it.getAsType("spec")!!,
+                fromSchemaBundle = fromSchemaBundle,
+                toSchemaBundle = toSchemaBundle
+            ).process()
         }
     }
 
@@ -323,7 +327,9 @@ class DatabaseProcessor(baseContext: Context, val element: XTypeElement) {
                         element,
                         ProcessorErrors.duplicateIndexInDatabase(
                             it.key,
-                            it.value.map { "${it.second.typeName} > ${it.first}" }
+                            it.value.map {
+                                "${it.second.typeName.toString(context.codeLanguage)} > ${it.first}"
+                            }
                         )
                     )
                 }
@@ -339,8 +345,9 @@ class DatabaseProcessor(baseContext: Context, val element: XTypeElement) {
         daoMethods.groupBy { it.dao.typeName }
             .forEach {
                 if (it.value.size > 1) {
-                    val error = ProcessorErrors.duplicateDao(it.key,
-                        it.value.map { it.element.jvmName }
+                    val error = ProcessorErrors.duplicateDao(
+                        dao = it.key.toString(context.codeLanguage),
+                        methodNames = it.value.map { it.element.name }
                     )
                     it.value.forEach { daoMethod ->
                         context.logger.e(
@@ -355,7 +362,7 @@ class DatabaseProcessor(baseContext: Context, val element: XTypeElement) {
         val check = fun(
             element: XElement,
             dao: Dao,
-            typeName: TypeName?
+            typeName: XTypeName?
         ) {
             typeName?.let {
                 if (!entityTypeNames.contains(typeName)) {
@@ -363,8 +370,8 @@ class DatabaseProcessor(baseContext: Context, val element: XTypeElement) {
                         element,
                         ProcessorErrors.shortcutEntityIsNotInDatabase(
                             database = dbElement.qualifiedName,
-                            dao = dao.typeName.toString(),
-                            entity = typeName.toString()
+                            dao = dao.typeName.toString(context.codeLanguage),
+                            entity = typeName.toString(context.codeLanguage)
                         )
                     )
                 }
@@ -390,10 +397,18 @@ class DatabaseProcessor(baseContext: Context, val element: XTypeElement) {
         views: List<DatabaseView>
     ) {
         val entitiesInfo = entities.map {
-            Triple(it.tableName.lowercase(Locale.US), it.typeName.toString(), it.element)
+            Triple(
+                it.tableName.lowercase(Locale.US),
+                it.typeName.toString(context.codeLanguage),
+                it.element
+            )
         }
         val viewsInfo = views.map {
-            Triple(it.viewName.lowercase(Locale.US), it.typeName.toString(), it.element)
+            Triple(
+                it.viewName.lowercase(Locale.US),
+                it.typeName.toString(context.codeLanguage),
+                it.element
+            )
         }
         (entitiesInfo + viewsInfo)
             .groupBy { (name, _, _) -> name }
@@ -445,7 +460,7 @@ class DatabaseProcessor(baseContext: Context, val element: XTypeElement) {
                 context.logger.e(
                     element,
                     ProcessorErrors.invalidEntityTypeInDatabaseAnnotation(
-                        it.typeName
+                        it.asTypeName().toString(context.codeLanguage)
                     )
                 )
                 null
@@ -465,7 +480,7 @@ class DatabaseProcessor(baseContext: Context, val element: XTypeElement) {
                 context.logger.e(
                     element,
                     ProcessorErrors.invalidViewTypeInDatabaseAnnotation(
-                        it.typeName
+                        it.asTypeName().toString(context.codeLanguage)
                     )
                 )
                 null

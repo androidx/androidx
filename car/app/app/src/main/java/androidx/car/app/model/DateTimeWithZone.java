@@ -25,11 +25,11 @@ import android.annotation.SuppressLint;
 
 import androidx.annotation.DoNotInline;
 import androidx.annotation.IntRange;
-import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.car.app.annotations.CarProtocol;
+import androidx.car.app.annotations.KeepFields;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -55,16 +55,14 @@ import java.util.TimeZone;
  */
 @SuppressWarnings("MissingSummary")
 @CarProtocol
+@KeepFields
 public final class DateTimeWithZone {
     /** The maximum allowed offset for a time zone, in seconds. */
     private static final long MAX_ZONE_OFFSET_SECONDS = 18 * HOURS.toSeconds(1);
 
-    @Keep
     private final long mTimeSinceEpochMillis;
-    @Keep
     private final int mZoneOffsetSeconds;
     @Nullable
-    @Keep
     private final String mZoneShortName;
 
     /** Returns the number of milliseconds from the epoch of 1970-01-01T00:00:00Z. */

@@ -58,8 +58,11 @@ _formatted as “Jetpack libraries are…” with sub-points “Libraries should
 -   Avoid proprietary services or closed-source libraries for core
     functionality, and instead provide integration points that allow a developer
     to choose between a variety of services as the backing implementation
--   See [Integrating proprietary components](open_source.md) for guidance on
-    using closed-source and proprietary libraries and services
+-   Comply with AndroidX checks and policies such as API tracking and style
+    checks
+-   See
+    [Integrating proprietary components](/company/teams/androidx/open_source.md)
+    for guidance on using closed-source and proprietary libraries and services
 
 ### 6. Written using language-idiomatic APIs
 
@@ -107,17 +110,11 @@ _formatted as “Jetpack libraries are…” with sub-points “Libraries should
 ### 13. Examples of modern development
 
 -   Where possible, targeting the latest languages, OS features, and tools. All
-    new libraries should be written in Kotlin first. Existing libraries
-    implemented in Java should add Kotlin extension libraries to improve the
-    interoperability of the Java APIs from Kotlin. New libraries written in Java
-    require a significant business reason on why a dependency in Kotlin cannot
-    be taken. The following is the order of preference, with each lower tier
-    requiring a business reason:
-    1.  Implemented in Kotlin that compiles to Java 8 bytecode
-    2.  Implemented in Java 8, with `-ktx` extensions for Kotlin
-        interoperability
-    3.  Implemented in Java 7, with `-ktx` extensions for Kotlin
-        interoperability
+    new libraries should be written in Kotlin, compile using the latest stable
+    Android SDK, and assume that clients are using the latest stable versions of
+    Android Studio, Gradle, and AGP. See the
+    [AndroidX API Guidelines](/company/teams/androidx/api_guidelines/index.md#dependencies-kotlin)
+    for more details, including the use of Java sources and `-ktx` artifacts.
 
 ### 14. High quality APIs and ownership
 

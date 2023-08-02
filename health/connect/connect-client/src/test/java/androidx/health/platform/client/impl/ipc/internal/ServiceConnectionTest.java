@@ -159,6 +159,21 @@ public class ServiceConnectionTest {
     }
 
     @Test
+    public void clearConnection_failQueuedOperation() {
+        SettableFuture<Void> settableFuture = SettableFuture.create();
+        FakeQueueOperation queueOperation = new FakeQueueOperation(
+                new ConnectionConfiguration("package", "clientName", "bindAction",
+                        mVersionOperation));
+
+        mConnection.enqueue(queueOperation);
+        mConnection.clearConnection(new RemoteException());
+        shadowOf(getMainLooper()).idle();
+
+        assertThat(queueOperation.isExecuted()).isFalse();
+        assertThat(queueOperation.mThrowable).isInstanceOf(RemoteException.class);
+    }
+
+    @Test
     public void registerListener_serviceConnected_executesOperation() {
         when(mBinder.isBinderAlive()).thenReturn(true);
         mConnection.connect();
@@ -287,6 +302,7 @@ public class ServiceConnectionTest {
 
     private static class FakeQueueOperation extends BaseQueueOperation {
         boolean mExecuted = false;
+        Throwable mThrowable = null;
 
         FakeQueueOperation(ConnectionConfiguration connectionConfiguration) {
             super(connectionConfiguration);
@@ -295,6 +311,11 @@ public class ServiceConnectionTest {
         @Override
         public void execute(@NonNull IBinder binder) {
             mExecuted = true;
+        }
+
+        @Override
+        public void setException(@NonNull Throwable exception) {
+            mThrowable = exception;
         }
 
         public boolean isExecuted() {

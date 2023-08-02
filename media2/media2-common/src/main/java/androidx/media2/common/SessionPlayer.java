@@ -160,7 +160,6 @@ public abstract class SessionPlayer implements Closeable {
     private static final String TAG = "SessionPlayer";
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
     @IntDef({
@@ -173,7 +172,6 @@ public abstract class SessionPlayer implements Closeable {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
     @IntDef({
@@ -230,7 +228,6 @@ public abstract class SessionPlayer implements Closeable {
     public static final int BUFFERING_STATE_COMPLETE = 3;
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
     @IntDef({REPEAT_MODE_NONE, REPEAT_MODE_ONE, REPEAT_MODE_ALL,
@@ -262,7 +259,6 @@ public abstract class SessionPlayer implements Closeable {
     public static final int REPEAT_MODE_GROUP = 3;
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
     @IntDef({SHUFFLE_MODE_NONE, SHUFFLE_MODE_ALL, SHUFFLE_MODE_GROUP})
@@ -1046,7 +1042,6 @@ public abstract class SessionPlayer implements Closeable {
                 "androidx.media2.common.SessionPlayer.TrackInfo.KEY_IS_SELECTABLE";
 
         /**
-         * @hide
          */
         @IntDef(flag = false, /*prefix = "MEDIA_TRACK_TYPE",*/ value = {
                 MEDIA_TRACK_TYPE_UNKNOWN,
@@ -1221,7 +1216,6 @@ public abstract class SessionPlayer implements Closeable {
         }
 
         /**
-         * @hide
          * @param isStream
          */
         @RestrictTo(LIBRARY)
@@ -1245,7 +1239,6 @@ public abstract class SessionPlayer implements Closeable {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         @Override
@@ -1530,7 +1523,6 @@ public abstract class SessionPlayer implements Closeable {
     @SuppressWarnings("HiddenSuperclass")
     public static class PlayerResult implements BaseResult {
         /**
-         * @hide
          */
         @IntDef(flag = false, /*prefix = "RESULT",*/ value = {
                 RESULT_SUCCESS,
@@ -1569,7 +1561,6 @@ public abstract class SessionPlayer implements Closeable {
 
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY_GROUP)
         @NonNull

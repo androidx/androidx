@@ -39,6 +39,7 @@ import androidx.media2.test.service.MockMediaBrowserServiceCompat;
 import androidx.media2.test.service.MockMediaBrowserServiceCompat.Proxy;
 import androidx.media2.test.service.RemoteMediaBrowser;
 import androidx.test.filters.LargeTest;
+import androidx.test.filters.SdkSuppress;
 
 import org.junit.After;
 import org.junit.Before;
@@ -52,6 +53,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Tests {@link MediaBrowser} with {@link MediaBrowserServiceCompat}.
  */
+@SdkSuppress(maxSdkVersion = 32) // b/244312419
 @LargeTest
 public class MediaBrowserServiceCompatCallbackWithMediaBrowserTest extends MediaSessionTestBase {
     private SessionToken mToken;

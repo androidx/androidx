@@ -17,8 +17,7 @@
 package androidx.wear.watchface.client
 
 import androidx.annotation.RestrictTo
-
-typealias WireDeviceConfig = androidx.wear.watchface.data.DeviceConfig
+import androidx.wear.watchface.data.DeviceConfig as WireDeviceConfig
 
 /**
  * Describes the hardware configuration of the device the watch face is running on.
@@ -26,26 +25,24 @@ typealias WireDeviceConfig = androidx.wear.watchface.data.DeviceConfig
  * @param hasLowBitAmbient Whether or not the watch hardware supports low bit ambient support.
  * @param hasBurnInProtection Whether or not the watch hardware supports burn in protection.
  * @param analogPreviewReferenceTimeMillis UTC reference time for screenshots of analog watch faces
- * in milliseconds since the epoch.
+ *   in milliseconds since the epoch.
  * @param digitalPreviewReferenceTimeMillis UTC reference time for screenshots of digital watch
- * faces in milliseconds since the epoch.
+ *   faces in milliseconds since the epoch.
  */
 public class DeviceConfig(
-    @get:JvmName("hasLowBitAmbient")
-    public val hasLowBitAmbient: Boolean,
-    @get:JvmName("hasBurnInProtection")
-    public val hasBurnInProtection: Boolean,
+    @get:JvmName("hasLowBitAmbient") public val hasLowBitAmbient: Boolean,
+    @get:JvmName("hasBurnInProtection") public val hasBurnInProtection: Boolean,
     public val analogPreviewReferenceTimeMillis: Long,
     public val digitalPreviewReferenceTimeMillis: Long
 ) {
-    /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public fun asWireDeviceConfig(): WireDeviceConfig = WireDeviceConfig(
-        hasLowBitAmbient,
-        hasBurnInProtection,
-        analogPreviewReferenceTimeMillis,
-        digitalPreviewReferenceTimeMillis
-    )
+    public fun asWireDeviceConfig(): WireDeviceConfig =
+        WireDeviceConfig(
+            hasLowBitAmbient,
+            hasBurnInProtection,
+            analogPreviewReferenceTimeMillis,
+            digitalPreviewReferenceTimeMillis
+        )
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -84,11 +81,11 @@ public class DeviceConfig(
     }
 }
 
-/** @hide */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun WireDeviceConfig.asApiDeviceConfig(): DeviceConfig = DeviceConfig(
-    hasLowBitAmbient,
-    hasBurnInProtection,
-    analogPreviewReferenceTimeMillis,
-    digitalPreviewReferenceTimeMillis
-)
+public fun WireDeviceConfig.asApiDeviceConfig(): DeviceConfig =
+    DeviceConfig(
+        hasLowBitAmbient,
+        hasBurnInProtection,
+        analogPreviewReferenceTimeMillis,
+        digitalPreviewReferenceTimeMillis
+    )
