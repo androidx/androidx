@@ -234,6 +234,19 @@ class TextActionsTest {
     }
 
     @Test
+    @OptIn(ExperimentalTestApi::class)
+    fun performTextInput_withGlobalAssertion() {
+        rule.setContent { TextFieldUi {} }
+        var capturedSni: SemanticsNodeInteraction? = null
+        addGlobalAssertion(/* name= */ "Capture SNI") { sni -> capturedSni = sni }
+
+        val sni = rule.onNodeWithTag(fieldTag)
+        sni.performTextInput("Hello!")
+
+        assertThat(capturedSni).isEqualTo(sni)
+    }
+
+    @Test
     fun performImeAction_search() {
         var actionPerformed = false
         rule.setContent {
@@ -248,6 +261,29 @@ class TextActionsTest {
             .performImeAction()
 
         rule.runOnIdle {
+            assertThat(actionPerformed).isTrue()
+        }
+    }
+
+    @Test
+    @OptIn(ExperimentalTestApi::class)
+    fun performImeAction_withGlobalAssertion_search() {
+        var capturedSni: SemanticsNodeInteraction? = null
+        addGlobalAssertion(/* name= */ "Capture SNI") { sni -> capturedSni = sni }
+        var actionPerformed = false
+        rule.setContent {
+            TextFieldUi(
+                imeAction = ImeAction.Search,
+                keyboardActions = KeyboardActions(onSearch = { actionPerformed = true })
+            )
+        }
+        assertThat(actionPerformed).isFalse()
+
+        val sni = rule.onNodeWithTag(fieldTag)
+        sni.performImeAction()
+
+        rule.runOnIdle {
+            assertThat(capturedSni).isEqualTo(sni)
             assertThat(actionPerformed).isTrue()
         }
     }
