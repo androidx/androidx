@@ -72,7 +72,9 @@ class PublicKeyCredentialControllerUtilityTest {
       PublicKeyCredentialControllerUtility.Companion.JSON_KEY_EXTENSTIONS to "extensions",
       PublicKeyCredentialControllerUtility.Companion.JSON_KEY_ATTESTATION to "attestation",
       PublicKeyCredentialControllerUtility.Companion.JSON_KEY_PUB_KEY_CRED_PARAMS to
-        "pubKeyCredParams"
+        "pubKeyCredParams",
+      PublicKeyCredentialControllerUtility.Companion.JSON_KEY_CLIENT_EXTENSION_RESULTS to
+        "clientExtensionResults"
     )
 
   private val TEST_REQUEST_JSON = "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}"
@@ -151,6 +153,8 @@ class PublicKeyCredentialControllerUtilityTest {
     val publicKeyCredId = "id"
     val publicKeyCredRawId = byteArrayOf(0x48, 101, 108, 108, 115)
     val publicKeyCredType = "type"
+    val authenticatorAttachment = "platform"
+    val hasClientExtensionOutputs = false
 
     PublicKeyCredentialControllerUtility.beginSignInAssertionResponse(
       byteArrayClientDataJson,
@@ -160,7 +164,9 @@ class PublicKeyCredentialControllerUtilityTest {
       json,
       publicKeyCredId,
       publicKeyCredRawId,
-      publicKeyCredType
+      publicKeyCredType,
+      authenticatorAttachment,
+      hasClientExtensionOutputs
     )
 
     assertThat(json.get(PublicKeyCredentialControllerUtility.JSON_KEY_ID))
@@ -169,6 +175,10 @@ class PublicKeyCredentialControllerUtilityTest {
       .isEqualTo(PublicKeyCredentialControllerUtility.b64Encode(publicKeyCredRawId))
     assertThat(json.get(PublicKeyCredentialControllerUtility.JSON_KEY_TYPE))
       .isEqualTo(publicKeyCredType)
+    assertThat(json.get(PublicKeyCredentialControllerUtility.JSON_KEY_AUTH_ATTACHMENT))
+      .isEqualTo(authenticatorAttachment)
+    assertThat(json.getJSONObject(PublicKeyCredentialControllerUtility
+      .JSON_KEY_CLIENT_EXTENSION_RESULTS).toString()).isEqualTo(JSONObject().toString())
 
     // There is some embedded JSON so we should make sure we test that.
     var embeddedResponse =
@@ -191,6 +201,8 @@ class PublicKeyCredentialControllerUtilityTest {
     val publicKeyCredId = "id"
     val publicKeyCredRawId = byteArrayOf(0x48, 101, 108, 108, 115)
     val publicKeyCredType = "type"
+    val authenticatorAttachment = "platform"
+    val hasClientExtensionOutputs = false
 
     PublicKeyCredentialControllerUtility.beginSignInAssertionResponse(
       byteArrayClientDataJson,
@@ -200,7 +212,9 @@ class PublicKeyCredentialControllerUtilityTest {
       json,
       publicKeyCredId,
       publicKeyCredRawId,
-      publicKeyCredType
+      publicKeyCredType,
+      authenticatorAttachment,
+      hasClientExtensionOutputs
     )
 
     assertThat(json.get(PublicKeyCredentialControllerUtility.JSON_KEY_ID))
@@ -209,6 +223,57 @@ class PublicKeyCredentialControllerUtilityTest {
       .isEqualTo(PublicKeyCredentialControllerUtility.b64Encode(publicKeyCredRawId))
     assertThat(json.get(PublicKeyCredentialControllerUtility.JSON_KEY_TYPE))
       .isEqualTo(publicKeyCredType)
+    assertThat(json.get(PublicKeyCredentialControllerUtility.JSON_KEY_AUTH_ATTACHMENT))
+      .isEqualTo(authenticatorAttachment)
+    assertThat(json.getJSONObject(PublicKeyCredentialControllerUtility
+      .JSON_KEY_CLIENT_EXTENSION_RESULTS).toString()).isEqualTo(JSONObject().toString())
+
+    // There is some embedded JSON so we should make sure we test that.
+    var embeddedResponse =
+      json.getJSONObject(PublicKeyCredentialControllerUtility.JSON_KEY_RESPONSE)
+    assertThat(embeddedResponse.get(PublicKeyCredentialControllerUtility.JSON_KEY_CLIENT_DATA))
+      .isEqualTo(PublicKeyCredentialControllerUtility.b64Encode(byteArrayClientDataJson))
+    assertThat(embeddedResponse.get(PublicKeyCredentialControllerUtility.JSON_KEY_AUTH_DATA))
+      .isEqualTo(PublicKeyCredentialControllerUtility.b64Encode(byteArrayAuthenticatorData))
+    assertThat(embeddedResponse.get(PublicKeyCredentialControllerUtility.JSON_KEY_SIGNATURE))
+      .isEqualTo(PublicKeyCredentialControllerUtility.b64Encode(byteArraySignature))
+    assertThat(embeddedResponse.has(PublicKeyCredentialControllerUtility.JSON_KEY_USER_HANDLE))
+      .isFalse()
+  }
+
+  fun toAssertPasskeyResponse_authenticatorAssertionResponse_noAuthenticatorAttachment_success() {
+    val byteArrayClientDataJson = byteArrayOf(0x48, 101, 108, 108, 111)
+    val byteArrayAuthenticatorData = byteArrayOf(0x48, 101, 108, 108, 112)
+    val byteArraySignature = byteArrayOf(0x48, 101, 108, 108, 113)
+    val json = JSONObject()
+    val publicKeyCredId = "id"
+    val publicKeyCredRawId = byteArrayOf(0x48, 101, 108, 108, 115)
+    val publicKeyCredType = "type"
+    val hasClientExtensionOutputs = false
+
+    PublicKeyCredentialControllerUtility.beginSignInAssertionResponse(
+      byteArrayClientDataJson,
+      byteArrayAuthenticatorData,
+      byteArraySignature,
+      null,
+      json,
+      publicKeyCredId,
+      publicKeyCredRawId,
+      publicKeyCredType,
+      null,
+      hasClientExtensionOutputs
+    )
+
+    assertThat(json.get(PublicKeyCredentialControllerUtility.JSON_KEY_ID))
+      .isEqualTo(publicKeyCredId)
+    assertThat(json.get(PublicKeyCredentialControllerUtility.JSON_KEY_RAW_ID))
+      .isEqualTo(PublicKeyCredentialControllerUtility.b64Encode(publicKeyCredRawId))
+    assertThat(json.get(PublicKeyCredentialControllerUtility.JSON_KEY_TYPE))
+      .isEqualTo(publicKeyCredType)
+    assertThat(json.optJSONObject(PublicKeyCredentialControllerUtility.JSON_KEY_AUTH_ATTACHMENT))
+      .isNull()
+    assertThat(json.getJSONObject(PublicKeyCredentialControllerUtility
+      .JSON_KEY_CLIENT_EXTENSION_RESULTS).toString()).isEqualTo(JSONObject().toString())
 
     // There is some embedded JSON so we should make sure we test that.
     var embeddedResponse =
