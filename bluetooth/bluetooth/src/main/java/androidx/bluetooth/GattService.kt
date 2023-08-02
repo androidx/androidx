@@ -48,3 +48,8 @@ fun GattService(uuid: UUID, characteristics: List<GattCharacteristic>): GattServ
     characteristics.forEach { fwkService.addCharacteristic(it.fwkCharacteristic) }
     return GattService(fwkService, characteristics)
 }
+
+@RestrictTo(RestrictTo.Scope.LIBRARY)
+fun GattService.getCharacteristic(uuid: UUID): GattCharacteristic? {
+    return this.characteristics.first { it.uuid == uuid }
+}

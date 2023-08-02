@@ -28,10 +28,14 @@ internal class AttributeMap {
         characteristics.clear()
 
         services.forEach { serv ->
-            this.services[serv] = GattService(serv)
+            val serviceCharacteristics = mutableListOf<GattCharacteristic>()
             serv.characteristics.forEach { char ->
-                characteristics[char] = GattCharacteristic(char)
+               GattCharacteristic(char).let {
+                   characteristics[char] = it
+                   serviceCharacteristics.add(it)
+               }
             }
+            this.services[serv] = GattService(serv, serviceCharacteristics)
         }
     }
 
