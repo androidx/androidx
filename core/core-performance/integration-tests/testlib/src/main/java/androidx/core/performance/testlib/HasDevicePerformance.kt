@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,23 +14,18 @@
  * limitations under the License.
  */
 
-plugins {
-    id("AndroidXPlugin")
-    id("com.android.application")
-    id("org.jetbrains.kotlin.android")
-}
+package androidx.core.performance.testlib
 
-dependencies {
-    api(libs.kotlinStdlib)
-    implementation(project(":core:core-performance"))
-    implementation(project(":core:core-performance:integration-tests:testlib"))
-}
+import androidx.core.performance.DevicePerformance
 
-android {
-    defaultConfig {
-        applicationId "androidx.core.performance.testapp"
-        minSdkVersion 24
-    }
+/**
+ * A simple interface to inject [DevicePerformance] where needed.
+ *
+ * This is simple way to do manual dependency injections.
+ * Production applications should use a dependency framework.
+ * See https://developer.android.com/training/dependency-injection for more information.
+ */
+interface HasDevicePerformance {
 
-    namespace "androidx.core.performance.testapp"
+    fun getDevicePerformance(): DevicePerformance
 }
