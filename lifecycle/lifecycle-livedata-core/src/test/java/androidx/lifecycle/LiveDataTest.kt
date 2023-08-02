@@ -100,6 +100,21 @@ class LiveDataTest {
     }
 
     @Test
+    fun observe() {
+        @OptIn(ExperimentalCoroutinesApi::class)
+        val lifecycleOwner = TestLifecycleOwner(coroutineDispatcher = UnconfinedTestDispatcher())
+
+        val liveData = MutableLiveData<String>()
+        var value = ""
+        liveData.observe(lifecycleOwner) { newValue ->
+            value = newValue
+        }
+
+        liveData.value = "261"
+        assertThat(value, `is`("261"))
+    }
+
+    @Test
     fun testIsInitialized() {
         assertThat(liveData.isInitialized, `is`(false))
         assertThat(liveData.value, `is`(nullValue()))
