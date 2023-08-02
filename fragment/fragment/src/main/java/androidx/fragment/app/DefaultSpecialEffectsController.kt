@@ -783,7 +783,7 @@ internal class DefaultSpecialEffectsController(
                 // This means we can't use setAnimationListener() without overriding
                 // any listener that the Fragment has set themselves, so we
                 // just mark the special effect as complete immediately.
-                operation.effects.add(NoOpEffect(animationInfo))
+                animationInfo.completeSpecialEffect()
             } else {
                 container.startViewTransition(viewToAnimate)
                 val animation: Animation = FragmentAnim.EndViewTransitionAnimation(anim,
@@ -968,7 +968,7 @@ internal class DefaultSpecialEffectsController(
                                 "SpecialEffectsController: Container $container has not been " +
                                     "laid out. Completing operation $operation")
                         }
-                        operation.effects.add(NoOpEffect(transitionInfo))
+                        transitionInfo.completeSpecialEffect()
                     } else {
                         transitionImpl.setListenerForTransitionEnd(
                             transitionInfo.operation.fragment,
