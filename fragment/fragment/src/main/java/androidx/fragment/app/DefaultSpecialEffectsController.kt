@@ -89,7 +89,7 @@ internal class DefaultSpecialEffectsController(
             // Ensure that if the Operation is synchronously complete, we still
             // apply the container changes before the Operation completes
             operation.addCompletionListener {
-                applyContainerChangesToOperations { operations }
+                applyContainerChangesToOperation(operation)
             }
         }
 
@@ -130,21 +130,21 @@ internal class DefaultSpecialEffectsController(
             }
         }
 
-        applyContainerChangesToOperations { operations }
+        for (i in operations.indices) {
+            val operation = operations[i]
+            applyContainerChangesToOperation(operation)
+        }
+
         if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
             Log.v(FragmentManager.TAG,
                 "Completed executing operations from $firstOut to $lastIn")
         }
     }
 
-    private inline fun applyContainerChangesToOperations(operationsInput: () -> List<Operation>) {
-        val operations = operationsInput.invoke()
-        for (i in operations.indices) {
-            val currentOperation = operations[i]
-            if (currentOperation.isAwaitingContainerChanges) {
-                applyContainerChanges(currentOperation)
-                currentOperation.isAwaitingContainerChanges = false
-            }
+    internal fun applyContainerChangesToOperation(operation: Operation) {
+        if (operation.isAwaitingContainerChanges) {
+            applyContainerChanges(operation)
+            operation.isAwaitingContainerChanges = false
         }
     }
 
