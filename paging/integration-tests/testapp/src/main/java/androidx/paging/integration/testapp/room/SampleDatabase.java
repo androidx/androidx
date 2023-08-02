@@ -16,16 +16,24 @@
 
 package androidx.paging.integration.testapp.room;
 
+import androidx.annotation.NonNull;
 import androidx.room.Database;
 import androidx.room.RoomDatabase;
 
 /**
  * Sample database of customers.
  */
-@Database(entities = {Customer.class}, version = 1, exportSchema = false)
+@Database(entities = {Customer.class, RemoteKey.class}, version = 1, exportSchema = false)
 public abstract class SampleDatabase extends RoomDatabase {
     /**
      * @return customer dao.
      */
+    @NonNull
     public abstract CustomerDao getCustomerDao();
+
+    /**
+     * @return RemoteKeyDao
+     */
+    @NonNull
+    public abstract RemoteKeyDao getRemoteKeyDao();
 }

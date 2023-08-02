@@ -61,6 +61,9 @@ public interface PetDao {
     Flowable<Pet> petWithIdFlowable(int id);
 
     @Query("SELECT * FROM Pet WHERE Pet.mPetId = :id")
+    Pet petWithId(int id);
+
+    @Query("SELECT * FROM Pet WHERE Pet.mPetId = :id")
     LiveData<Pet> petWithIdLiveData(int id);
 
     @Query("SELECT * FROM PetWithUser WHERE mPetId = :id")

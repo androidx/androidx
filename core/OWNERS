@@ -1,4 +1,4 @@
-# Bug component: 460834
+# Bug component: 461355
 alanv@google.com
 aurimas@google.com
 cinek@google.com
@@ -8,7 +8,6 @@ juliacr@google.com
 # For fingerprint related files
 jaggies@google.com
 joshmccloskey@google.com
-kchyn@google.com
 curtislb@google.com
 
 # For text related files
@@ -16,5 +15,11 @@ nona@google.com
 siyamed@google.com
 
 # For shortcut related files
-mett@google.com
+sunnygoyal@google.com
 pinyaoting@google.com
+
+# Per-file for platform ownership
+per-file src/main/java/androidx/core/content/FileProvider.java = corinac@google.com
+
+# Per-file for Playground infra
+per-file settings.gradle = dustinlam@google.com, rahulrav@google.com

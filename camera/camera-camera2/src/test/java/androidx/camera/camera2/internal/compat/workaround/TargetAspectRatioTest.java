@@ -38,7 +38,6 @@ import androidx.camera.core.AspectRatio;
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.Preview;
 import androidx.camera.core.UseCase;
-import androidx.camera.core.impl.ImageOutputConfig;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -66,24 +65,6 @@ public class TargetAspectRatioTest {
     @ParameterizedRobolectricTestRunner.Parameters
     public static Collection<Object[]> data() {
         final List<Object[]> data = new ArrayList<>();
-        data.add(new Object[]{new Config("Samsung", "SM-J710MN", true,
-                INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED, RATIO_4_3, RATIO_16_9, ALL_API_LEVELS)});
-        data.add(new Object[]{new Config("Samsung", "SM-J710MN", true,
-                INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED, RATIO_16_9, RATIO_16_9, ALL_API_LEVELS)});
-        data.add(new Object[]{new Config("Samsung", "SM-J710MN", false,
-                INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED, RATIO_4_3, RATIO_ORIGINAL, ALL_API_LEVELS)});
-        data.add(new Object[]{new Config("Samsung", "SM-J710MN", false,
-                INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED, RATIO_16_9, RATIO_ORIGINAL,
-                ALL_API_LEVELS)});
-        data.add(new Object[]{new Config("Samsung", "SM-T580", true,
-                INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED, RATIO_4_3, RATIO_16_9, ALL_API_LEVELS)});
-        data.add(new Object[]{new Config("Samsung", "SM-T580", true,
-                INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED, RATIO_16_9, RATIO_16_9, ALL_API_LEVELS)});
-        data.add(new Object[]{new Config("Samsung", "SM-T580", false,
-                INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED, RATIO_4_3, RATIO_ORIGINAL, ALL_API_LEVELS)});
-        data.add(new Object[]{new Config("Samsung", "SM-T580", false,
-                INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED, RATIO_16_9, RATIO_ORIGINAL,
-                ALL_API_LEVELS)});
         data.add(new Object[]{new Config("Google", "Nexus 4", true,
                 INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY, RATIO_4_3, RATIO_MAX_JPEG,
                 new Range<>(21, 22))});
@@ -146,9 +127,7 @@ public class TargetAspectRatioTest {
                     .setTargetAspectRatio(mConfig.mInputAspectRatio)
                     .build();
         }
-        final ImageOutputConfig imageOutputConfig = (ImageOutputConfig) usecase.getCurrentConfig();
-
-        final int aspectRatio = new TargetAspectRatio().get(imageOutputConfig,
+        final int aspectRatio = new TargetAspectRatio().get(
                 BACK_CAMERA_ID, getCharacteristicsCompat(mConfig.mHardwareLevel));
         assertThat(aspectRatio).isEqualTo(getExpectedAspectRatio());
     }

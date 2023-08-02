@@ -1,0 +1,107 @@
+/*
+ * Copyright (C) 2022 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+
+import androidx.build.KmpPlatformsKt
+import androidx.build.LibraryType
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
+import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
+
+plugins {
+    id("AndroidXPlugin")
+}
+
+def enableNative = KmpPlatformsKt.enableNative(project)
+
+androidXMultiplatform {
+    jvm {
+        withJava()
+    }
+    mac()
+    linux()
+    ios()
+
+    sourceSets {
+        all {
+            languageSettings.optIn("kotlin.RequiresOptIn")
+        }
+
+        commonMain {
+            dependencies {
+                api(project(":datastore:datastore-core"))
+                api(libs.kotlinStdlib)
+                api(libs.kotlinCoroutinesCore)
+                api(libs.okio)
+                api(libs.atomicFu)
+            }
+        }
+        jvmMain {
+            dependencies {
+                api(libs.kotlinStdlib)
+                api(libs.kotlinCoroutinesCore)
+            }
+        }
+        commonTest {
+            dependencies {
+                api(project(":internal-testutils-kmp"))
+                api(libs.kotlinTestCommon)
+                api(libs.kotlinTestAnnotationsCommon)
+                api(libs.kotlinCoroutinesTest)
+                api(project(":internal-testutils-datastore"))
+                api(project(":internal-testutils-kmp"))
+            }
+        }
+        jvmTest {
+            dependencies {
+                implementation(libs.kotlinCoroutinesTest)
+                implementation(libs.kotlinTest)
+                implementation(libs.kotlinTestAnnotationsCommon)
+                api(project(":internal-testutils-datastore"))
+                api(project(":internal-testutils-kmp"))
+            }
+        }
+
+        if (enableNative) {
+            nativeMain {
+                dependencies {
+                    implementation(libs.atomicFu)
+                }
+            }
+        }
+
+        targets.withType(KotlinNativeTarget).configureEach {
+            binaries.all {
+                binaryOptions["memoryModel"] = "experimental"
+            }
+        }
+
+        targets.all { target ->
+            if (target.platformType == KotlinPlatformType.native) {
+                target.compilations["main"].defaultSourceSet {
+                    dependsOn(nativeMain)
+                }
+            }
+        }
+    }
+}
+
+androidx {
+    name = "Android DataStore Core Okio"
+    type = LibraryType.KMP_LIBRARY
+    mavenGroup = LibraryGroups.DATASTORE
+    inceptionYear = "2020"
+    description = "Android DataStore Core Okio- contains APIs to use datastore-core in multiplatform via okio"
+}

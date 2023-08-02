@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+package androidx.build
+
 import org.gradle.testkit.runner.GradleRunner
 import org.junit.Test
 import java.io.File
@@ -30,6 +32,11 @@ public class ProjectSubsetsTest {
     @Test
     fun testSubsetMain() {
         validateSubset("main")
+    }
+
+    @Test
+    fun testSubsetCamera() {
+        validateSubset("camera")
     }
 
     @Test
@@ -50,6 +57,11 @@ public class ProjectSubsetsTest {
     @Test
     fun testSubsetWear() {
         validateSubset("wear")
+    }
+
+    @Test
+    fun testSubsetGlance() {
+        validateSubset("glance")
     }
 
     /**

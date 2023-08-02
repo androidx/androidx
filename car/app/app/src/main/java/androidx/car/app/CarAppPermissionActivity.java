@@ -55,6 +55,7 @@ public class CarAppPermissionActivity extends ComponentActivity {
         processInternal(getIntent());
     }
 
+    @SuppressWarnings("deprecation")
     private void maybeSetCustomBackground() {
         @StyleRes int themeId = Resources.ID_NULL;
         ApplicationInfo applicationInfo;
@@ -137,8 +138,8 @@ public class CarAppPermissionActivity extends ComponentActivity {
                                 listener.onRequestPermissionsResult(granted.toArray(new String[0]),
                                         rejected.toArray(new String[0]));
                             } catch (RemoteException e) {
-                                // This is impossible since it is running in the same process.
-                                throw new IllegalStateException(e);
+                                Log.e(LogTags.TAG, "CarAppService dead when accepting/rejecting "
+                                        + "permissions", e);
                             }
 
                             finish();

@@ -46,6 +46,7 @@ import android.util.Log;
 import android.view.KeyEvent;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.FlakyTest;
 import androidx.test.filters.LargeTest;
 
 import org.junit.After;
@@ -61,6 +62,7 @@ import java.util.concurrent.atomic.AtomicReference;
  * Test of {@link MediaSessionCompat#getCurrentControllerInfo()} with all
  * {@link MediaControllerCompat} methods.
  */
+@FlakyTest(bugId = 206969269)
 @RunWith(AndroidJUnit4.class)
 @LargeTest
 public class RemoteUserInfoWithMediaControllerCompatTest {

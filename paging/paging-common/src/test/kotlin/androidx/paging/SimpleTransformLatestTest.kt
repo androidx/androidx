@@ -26,8 +26,8 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.flow.transformLatest
-import kotlinx.coroutines.test.TestCoroutineScope
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.runTest
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
@@ -37,10 +37,10 @@ import org.junit.runners.Parameterized
 class SimpleTransformLatestTest(
     val impl: Impl
 ) {
-    private val testScope = TestCoroutineScope()
+    private val testScope = TestScope()
 
     @Test
-    fun delayed() = testScope.runBlockingTest {
+    fun delayed() = testScope.runTest {
         assertThat(
             flowOf(1, 2, 3)
                 .onEach { delay(100) }
@@ -58,7 +58,7 @@ class SimpleTransformLatestTest(
     }
 
     @Test
-    fun allValues() = testScope.runBlockingTest {
+    fun allValues() = testScope.runTest {
         assertThat(
             flowOf(1, 2, 3)
                 .onEach { delay(1) }
@@ -73,7 +73,7 @@ class SimpleTransformLatestTest(
     }
 
     @Test
-    fun reusePreviousCollector() = testScope.runBlockingTest {
+    fun reusePreviousCollector() = testScope.runTest {
         var prevCollector: FlowCollector<String>? = null
         assertThat(
             flowOf(1, 2, 3)

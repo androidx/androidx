@@ -24,6 +24,7 @@ import androidx.annotation.RequiresApi;
 
 import java.util.Collections;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
 
@@ -104,7 +105,7 @@ public final class MutableOptionsBundle extends OptionsBundle implements Mutable
         OptionPriority priority2 = priority;
         Object value1 = values.get(priority1);
         ValueT value2 = value;
-        if (!value1.equals(value2) && Config.hasConflict(priority1, priority2)) {
+        if (!Objects.equals(value1, value2) && Config.hasConflict(priority1, priority2)) {
             throw new IllegalArgumentException("Option values conflicts: " + opt.getId()
                     + ", existing value (" + priority1 + ")=" + values.get(priority1)
                     + ", conflicting (" + priority2 + ")=" + value);

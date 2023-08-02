@@ -20,21 +20,24 @@ import android.content.Context
 import android.util.Log
 import android.util.Size
 import android.view.Surface
+import androidx.camera.camera2.Camera2Config
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
-import androidx.camera.core.impl.utils.executor.CameraXExecutors
+import androidx.camera.core.impl.utils.executor.CameraXExecutors.ioExecutor
 import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.camera.mlkit.vision.MlKitAnalyzer
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.LabTestRule
 import androidx.camera.testing.fakes.FakeLifecycleOwner
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertWithMessage
-import com.google.mlkit.vision.barcode.Barcode.FORMAT_QR_CODE
 import com.google.mlkit.vision.barcode.BarcodeScanner
 import com.google.mlkit.vision.barcode.BarcodeScannerOptions
 import com.google.mlkit.vision.barcode.BarcodeScanning
-import com.google.mlkit.vision.common.InputImage
+import com.google.mlkit.vision.barcode.common.Barcode.FORMAT_QR_CODE
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
@@ -44,8 +47,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
 
 /*  The integration-test is for MLKit vision barcode component with CameraX ImageAnalysis use case.
     The test is for lab device test. For the local test, mark the @LabTestRule.LabTestFrontCamera,
@@ -59,22 +60,26 @@ class MLKitBarcodeTest(
 ) {
 
     @get:Rule
-    val cameraRule = CameraUtil.grantCameraPermissionAndPreTest()
+    val cameraRule = CameraUtil.grantCameraPermissionAndPreTest(
+        CameraUtil.PreTestCameraIdList(Camera2Config.defaultConfig())
+    )
 
     @get:Rule
     val labTest: LabTestRule = LabTestRule()
 
     companion object {
-        private const val DETECT_TIMEOUT = 5_000L
+        private const val DETECT_TIMEOUT = 10_000L
         private const val TAG = "MLKitVisionTest"
         private val size480p = Size(640, 480)
         private val size720p = Size(1280, 720)
+
         @JvmStatic
         @Parameterized.Parameters
         fun data() = listOf(size480p, size720p)
     }
 
     private val context: Context = ApplicationProvider.getApplicationContext()
+
     // For MK Kit Barcode scanner
     private lateinit var barcodeScanner: BarcodeScanner
     private var imageResolution: Size = resolution
@@ -143,36 +148,19 @@ class MLKitBarcodeTest(
 
     private fun assertBarcodeDetect(imageAnalysis: ImageAnalysis) {
         val latchForBarcodeDetect = CountDownLatch(2)
-
-        imageAnalysis.setAnalyzer(
-            CameraXExecutors.ioExecutor()
-        ) { imageProxy ->
-            imageResolution = Size(imageProxy.image!!.width, imageProxy.image!!.height)
-            imageRotation = imageProxy.imageInfo.rotationDegrees
-            barcodeScanner.process(
-                InputImage.fromMediaImage(
-                    imageProxy.image!!,
-                    imageProxy.imageInfo.rotationDegrees
-                )
-            )
-                .addOnSuccessListener { barcodes ->
-                    barcodes.forEach {
-                        if ("Hi, CamX!" == it.displayValue) {
-                            latchForBarcodeDetect.countDown()
-                        }
-                        Log.d(TAG, "barcode display value: {${it.displayValue}} ")
-                    }
+        val mlKitAnalyzer = MlKitAnalyzer(
+            listOf(barcodeScanner),
+            ImageAnalysis.COORDINATE_SYSTEM_ORIGINAL,
+            ioExecutor()
+        ) { result ->
+            result.getValue(barcodeScanner)?.forEach {
+                if ("Hi, CamX!" == it.displayValue) {
+                    latchForBarcodeDetect.countDown()
                 }
-                .addOnFailureListener { exception ->
-                    Log.e(TAG, "processImage onFailure: $exception")
-                }
-                // When the image is from CameraX analysis use case, must call image.close() on
-                // received images when finished using them. Otherwise, new images may not be
-                // received or the camera may stall.
-                .addOnCompleteListener {
-                    imageProxy.close()
-                }
+                Log.d(TAG, "barcode display value: {${it.displayValue}} ")
+            }
         }
+        imageAnalysis.setAnalyzer(ioExecutor(), mlKitAnalyzer)
 
         // Verify it is the CameraX lab test environment and can detect qr-code.
         assertWithMessage(

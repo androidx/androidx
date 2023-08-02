@@ -422,6 +422,7 @@ class VersionedParcelStream extends VersionedParcel {
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     public void writeBundle(Bundle val) {
         try {
             if (val != null) {

@@ -28,6 +28,7 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.leanback.media.PlaybackBaseControlGlue;
 import androidx.leanback.media.PlayerAdapter;
 import androidx.leanback.widget.Action;
@@ -64,7 +65,7 @@ class PlaybackTransportControlGlueSample<T extends PlayerAdapter> extends
     }
 
     @Override
-    protected void onCreateSecondaryActions(ArrayObjectAdapter adapter) {
+    protected void onCreateSecondaryActions(@NonNull ArrayObjectAdapter adapter) {
         adapter.add(mThumbsUpAction);
         adapter.add(mThumbsDownAction);
         if (android.os.Build.VERSION.SDK_INT > 23) {
@@ -73,14 +74,14 @@ class PlaybackTransportControlGlueSample<T extends PlayerAdapter> extends
     }
 
     @Override
-    protected void onCreatePrimaryActions(ArrayObjectAdapter adapter) {
+    protected void onCreatePrimaryActions(@NonNull ArrayObjectAdapter adapter) {
         super.onCreatePrimaryActions(adapter);
         adapter.add(mRepeatAction);
         adapter.add(mClosedCaptioningAction);
     }
 
     @Override
-    public void onActionClicked(Action action) {
+    public void onActionClicked(@NonNull Action action) {
         if (shouldDispatchAction(action)) {
             dispatchAction(action);
             return;

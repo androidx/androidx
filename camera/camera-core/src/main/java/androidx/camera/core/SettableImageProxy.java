@@ -19,6 +19,7 @@ package androidx.camera.core;
 import android.graphics.Rect;
 import android.util.Size;
 
+import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -27,9 +28,11 @@ import androidx.annotation.RequiresApi;
  * An {@link ImageProxy} which overwrites the {@link ImageInfo}.
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-final class SettableImageProxy extends ForwardingImageProxy{
+final class SettableImageProxy extends ForwardingImageProxy {
+    private final Object mLock = new Object();
     private final ImageInfo mImageInfo;
 
+    @GuardedBy("mLock")
     @Nullable
     private Rect mCropRect;
 
@@ -67,36 +70,39 @@ final class SettableImageProxy extends ForwardingImageProxy{
 
     @NonNull
     @Override
-    public synchronized Rect getCropRect() {
-        if (mCropRect == null) {
-            return new Rect(0, 0, getWidth(), getHeight());
-        } else {
-            return new Rect(mCropRect); // return a copy
+    public Rect getCropRect() {
+        synchronized (mLock) {
+            if (mCropRect == null) {
+                return new Rect(0, 0, getWidth(), getHeight());
+            } else {
+                return new Rect(mCropRect); // return a copy
+            }
         }
     }
 
     @Override
-    public synchronized void setCropRect(@Nullable Rect cropRect) {
+    public void setCropRect(@Nullable Rect cropRect) {
         if (cropRect != null) {
             cropRect = new Rect(cropRect);  // make a copy
             if (!cropRect.intersect(0, 0, getWidth(), getHeight())) {
                 cropRect.setEmpty();
             }
         }
-        mCropRect = cropRect;
+        synchronized (mLock) {
+            mCropRect = cropRect;
+        }
     }
 
     @Override
-    public synchronized int getWidth() {
+    public int getWidth() {
         return mWidth;
     }
 
     @Override
-    public synchronized int getHeight() {
+    public int getHeight() {
         return mHeight;
     }
 
-    @SuppressWarnings("UnsynchronizedOverridesSynchronized")
     @Override
     @NonNull
     public ImageInfo getImageInfo() {

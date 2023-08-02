@@ -36,7 +36,7 @@ import java.util.List;
  *
  * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @VersionedParcelize
 @SuppressLint("BanParcelableUsage") // TODO(b/169214666): Remove Parcelable
 public class RenderParametersWireFormat implements VersionedParcelable, Parcelable {
@@ -201,6 +201,7 @@ public class RenderParametersWireFormat implements VersionedParcelable, Parcelab
 
     public static final Parcelable.Creator<RenderParametersWireFormat> CREATOR =
             new Parcelable.Creator<RenderParametersWireFormat>() {
+                @SuppressWarnings("deprecation")
                 @Override
                 public RenderParametersWireFormat createFromParcel(Parcel source) {
                     return ParcelUtils.fromParcelable(

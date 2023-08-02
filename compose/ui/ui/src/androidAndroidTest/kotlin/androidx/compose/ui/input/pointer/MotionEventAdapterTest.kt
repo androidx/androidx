@@ -17,6 +17,7 @@
 package androidx.compose.ui.input.pointer
 
 import android.util.SparseLongArray
+import android.view.InputDevice
 import android.view.MotionEvent
 import android.view.MotionEvent.ACTION_CANCEL
 import android.view.MotionEvent.ACTION_DOWN
@@ -25,7 +26,10 @@ import android.view.MotionEvent.ACTION_HOVER_EXIT
 import android.view.MotionEvent.ACTION_MOVE
 import android.view.MotionEvent.ACTION_POINTER_DOWN
 import android.view.MotionEvent.ACTION_POINTER_UP
+import android.view.MotionEvent.ACTION_SCROLL
 import android.view.MotionEvent.ACTION_UP
+import android.view.MotionEvent.AXIS_HSCROLL
+import android.view.MotionEvent.AXIS_VSCROLL
 import android.view.MotionEvent.TOOL_TYPE_FINGER
 import android.view.MotionEvent.TOOL_TYPE_MOUSE
 import androidx.compose.ui.geometry.Offset
@@ -1651,6 +1655,92 @@ class MotionEventAdapterTest {
         assertThat(pointerInputEvent!!.motionEvent).isSameInstanceAs(motionEvent)
     }
 
+    @Test
+    fun convertScrollEvent_horizontalPositive() {
+        val motionEvent = MotionEvent(
+            eventTime = 1,
+            action = ACTION_SCROLL,
+            numPointers = 1,
+            actionIndex = 0,
+            pointerProperties = arrayOf(PointerProperties(2)),
+            pointerCoords = arrayOf(
+                PointerCoords(3f, 4f).apply {
+                    setAxisValue(AXIS_HSCROLL, 5f)
+                }
+            )
+        )
+
+        val pointerInputEvent = motionEventAdapter.convertToPointerInputEvent(motionEvent)
+        assertThat(pointerInputEvent).isNotNull()
+        assertThat(pointerInputEvent!!.pointers[0].scrollDelta).isEqualTo(Offset(5f, 0f))
+        assertThat(pointerInputEvent.motionEvent).isSameInstanceAs(motionEvent)
+    }
+
+    @Test
+    fun convertScrollEvent_horizontalNegative() {
+        val motionEvent = MotionEvent(
+            eventTime = 1,
+            action = ACTION_SCROLL,
+            numPointers = 1,
+            actionIndex = 0,
+            pointerProperties = arrayOf(PointerProperties(2)),
+            pointerCoords = arrayOf(
+                PointerCoords(3f, 4f).apply {
+                    setAxisValue(AXIS_HSCROLL, -5f)
+                }
+            )
+        )
+
+        val pointerInputEvent = motionEventAdapter.convertToPointerInputEvent(motionEvent)
+        assertThat(pointerInputEvent).isNotNull()
+        assertThat(pointerInputEvent!!.pointers[0].scrollDelta).isEqualTo(Offset(-5f, 0f))
+        assertThat(pointerInputEvent.motionEvent).isSameInstanceAs(motionEvent)
+    }
+
+    @Test
+    fun convertScrollEvent_verticalPositive() {
+        val motionEvent = MotionEvent(
+            eventTime = 1,
+            action = ACTION_SCROLL,
+            numPointers = 1,
+            actionIndex = 0,
+            pointerProperties = arrayOf(PointerProperties(2)),
+            pointerCoords = arrayOf(
+                PointerCoords(3f, 4f).apply {
+                    setAxisValue(AXIS_VSCROLL, 5f)
+                }
+            )
+        )
+
+        val pointerInputEvent = motionEventAdapter.convertToPointerInputEvent(motionEvent)
+        assertThat(pointerInputEvent).isNotNull()
+        // Note: y is inverted, per https://r.android.com/2071209
+        assertThat(pointerInputEvent!!.pointers[0].scrollDelta).isEqualTo(Offset(0f, -5f))
+        assertThat(pointerInputEvent.motionEvent).isSameInstanceAs(motionEvent)
+    }
+
+    @Test
+    fun convertScrollEvent_verticalNegative() {
+        val motionEvent = MotionEvent(
+            eventTime = 1,
+            action = ACTION_SCROLL,
+            numPointers = 1,
+            actionIndex = 0,
+            pointerProperties = arrayOf(PointerProperties(2)),
+            pointerCoords = arrayOf(
+                PointerCoords(3f, 4f).apply {
+                    setAxisValue(AXIS_VSCROLL, -5f)
+                }
+            )
+        )
+
+        val pointerInputEvent = motionEventAdapter.convertToPointerInputEvent(motionEvent)
+        assertThat(pointerInputEvent).isNotNull()
+        // Note: y is inverted, per https://r.android.com/2071209
+        assertThat(pointerInputEvent!!.pointers[0].scrollDelta).isEqualTo(Offset(0f, 5f))
+        assertThat(pointerInputEvent.motionEvent).isSameInstanceAs(motionEvent)
+    }
+
     private fun MotionEventAdapter.convertToPointerInputEvent(motionEvent: MotionEvent) =
         convertToPointerInputEvent(motionEvent, positionCalculator)
 
@@ -1688,7 +1778,7 @@ private fun MotionEvent(
     0f,
     0,
     0,
-    0,
+    InputDevice.SOURCE_TOUCHSCREEN,
     0
 )
 

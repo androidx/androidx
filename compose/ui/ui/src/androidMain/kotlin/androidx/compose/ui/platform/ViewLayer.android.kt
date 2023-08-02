@@ -26,11 +26,15 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.CanvasHolder
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Matrix
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.RenderEffect
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.TransformOrigin
+import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.layout.GraphicLayerInfo
 import androidx.compose.ui.node.OwnedLayer
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
@@ -47,7 +51,7 @@ internal class ViewLayer(
     val container: DrawChildContainer,
     drawBlock: (Canvas) -> Unit,
     invalidateParentLayer: () -> Unit
-) : View(ownerView.context), OwnedLayer {
+) : View(ownerView.context), OwnedLayer, GraphicLayerInfo {
     private var drawBlock: ((Canvas) -> Unit)? = drawBlock
     private var invalidateParentLayer: (() -> Unit)? = invalidateParentLayer
 
@@ -97,12 +101,10 @@ internal class ViewLayer(
         }
 
     @RequiresApi(29)
-    private class UniqueDrawingIdApi29 {
-        @RequiresApi(29)
-        companion object {
-            @JvmStatic
-            fun getUniqueDrawingId(view: View) = view.uniqueDrawingId
-        }
+    private object UniqueDrawingIdApi29 {
+        @JvmStatic
+        @androidx.annotation.DoNotInline
+        fun getUniqueDrawingId(view: View) = view.uniqueDrawingId
     }
 
     /**
@@ -136,6 +138,8 @@ internal class ViewLayer(
         shape: Shape,
         clip: Boolean,
         renderEffect: RenderEffect?,
+        ambientShadowColor: Color,
+        spotShadowColor: Color,
         layoutDirection: LayoutDirection,
         density: Density
     ) {
@@ -173,8 +177,15 @@ internal class ViewLayer(
             invalidateParentLayer?.invoke()
         }
         matrixCache.invalidate()
+        if (Build.VERSION.SDK_INT >= 28) {
+            ViewLayerVerificationHelper28.setOutlineAmbientShadowColor(
+                this,
+                ambientShadowColor.toArgb()
+            )
+            ViewLayerVerificationHelper28.setOutlineSpotShadowColor(this, spotShadowColor.toArgb())
+        }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            ViewLayerVerificationHelper.setRenderEffect(this, renderEffect)
+            ViewLayerVerificationHelper31.setRenderEffect(this, renderEffect)
         }
     }
 
@@ -346,6 +357,17 @@ internal class ViewLayer(
         this.invalidateParentLayer = invalidateParentLayer
     }
 
+    override fun transform(matrix: Matrix) {
+        matrix.timesAssign(matrixCache.calculateMatrix(this))
+    }
+
+    override fun inverseTransform(matrix: Matrix) {
+        val inverse = matrixCache.calculateInverseMatrix(this)
+        if (inverse != null) {
+            matrix.timesAssign(inverse)
+        }
+    }
+
     companion object {
         private val getMatrix: (View, android.graphics.Matrix) -> Unit = { view, matrix ->
             val newMatrix = view.matrix
@@ -408,10 +430,24 @@ internal class ViewLayer(
 }
 
 @RequiresApi(Build.VERSION_CODES.S)
-private object ViewLayerVerificationHelper {
+private object ViewLayerVerificationHelper31 {
 
     @androidx.annotation.DoNotInline
     fun setRenderEffect(view: View, target: RenderEffect?) {
         view.setRenderEffect(target?.asAndroidRenderEffect())
+    }
+}
+
+@RequiresApi(Build.VERSION_CODES.P)
+private object ViewLayerVerificationHelper28 {
+
+    @androidx.annotation.DoNotInline
+    fun setOutlineAmbientShadowColor(view: View, target: Int) {
+        view.outlineAmbientShadowColor = target
+    }
+
+    @androidx.annotation.DoNotInline
+    fun setOutlineSpotShadowColor(view: View, target: Int) {
+        view.outlineSpotShadowColor = target
     }
 }

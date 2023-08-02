@@ -25,7 +25,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.yield
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.CoreMatchers.instanceOf
@@ -88,7 +88,7 @@ class ListenableFutureTest {
     }
 
     @Test
-    fun testAwaitWithCancellation() = runBlockingTest {
+    fun testAwaitWithCancellation() = runTest {
         val future = ResolvableFuture.create<Int>()
         val deferred = async {
             future.await()

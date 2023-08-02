@@ -440,7 +440,7 @@ class FocusStrategy {
      * Adapter used to obtain bounds from a generic data type.
      */
     public interface BoundsAdapter<T> {
-        void obtainBounds(T data, Rect outBounds);
+        void obtainBounds(T data, @NonNull Rect outBounds);
     }
 
     /**

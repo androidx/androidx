@@ -29,6 +29,8 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.ColorInt;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.view.ViewCompat;
 import androidx.leanback.R;
 
@@ -158,7 +160,7 @@ public class ImageCardView extends BaseCardView {
     /**
      * @see View#View(Context, AttributeSet, int)
      */
-    public ImageCardView(Context context, AttributeSet attrs, int defStyleAttr) {
+    public ImageCardView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         buildImageCardView(attrs, defStyleAttr, R.style.Widget_Leanback_ImageCardView);
     }
@@ -286,20 +288,21 @@ public class ImageCardView extends BaseCardView {
     /**
      * @see View#View(Context)
      */
-    public ImageCardView(Context context) {
+    public ImageCardView(@NonNull Context context) {
         this(context, null);
     }
 
     /**
      * @see View#View(Context, AttributeSet)
      */
-    public ImageCardView(Context context, AttributeSet attrs) {
+    public ImageCardView(@NonNull Context context, @Nullable AttributeSet attrs) {
         this(context, attrs, R.attr.imageCardViewStyle);
     }
 
     /**
      * Returns the main image view.
      */
+    @Nullable
     public final ImageView getMainImageView() {
         return mImageView;
     }
@@ -316,7 +319,7 @@ public class ImageCardView extends BaseCardView {
     /**
      * Sets the ScaleType of the main image.
      */
-    public void setMainImageScaleType(ScaleType scaleType) {
+    public void setMainImageScaleType(@NonNull ScaleType scaleType) {
         if (mImageView != null) {
             mImageView.setScaleType(scaleType);
         }
@@ -325,14 +328,14 @@ public class ImageCardView extends BaseCardView {
     /**
      * Sets the image drawable with fade-in animation.
      */
-    public void setMainImage(Drawable drawable) {
+    public void setMainImage(@Nullable Drawable drawable) {
         setMainImage(drawable, true);
     }
 
     /**
      * Sets the image drawable with optional fade-in animation.
      */
-    public void setMainImage(Drawable drawable, boolean fade) {
+    public void setMainImage(@Nullable Drawable drawable, boolean fade) {
         if (mImageView == null) {
             return;
         }
@@ -366,6 +369,7 @@ public class ImageCardView extends BaseCardView {
     /**
      * Returns the ImageView drawable.
      */
+    @Nullable
     public Drawable getMainImage() {
         if (mImageView == null) {
             return null;
@@ -377,6 +381,7 @@ public class ImageCardView extends BaseCardView {
     /**
      * Returns the info area background drawable.
      */
+    @Nullable
     public Drawable getInfoAreaBackground() {
         if (mInfoArea != null) {
             return mInfoArea.getBackground();
@@ -387,7 +392,7 @@ public class ImageCardView extends BaseCardView {
     /**
      * Sets the info area background drawable.
      */
-    public void setInfoAreaBackground(Drawable drawable) {
+    public void setInfoAreaBackground(@Nullable Drawable drawable) {
         if (mInfoArea != null) {
             mInfoArea.setBackground(drawable);
         }
@@ -405,7 +410,7 @@ public class ImageCardView extends BaseCardView {
     /**
      * Sets the title text.
      */
-    public void setTitleText(CharSequence text) {
+    public void setTitleText(@Nullable CharSequence text) {
         if (mTitleView == null) {
             return;
         }
@@ -415,6 +420,7 @@ public class ImageCardView extends BaseCardView {
     /**
      * Returns the title text.
      */
+    @Nullable
     public CharSequence getTitleText() {
         if (mTitleView == null) {
             return null;
@@ -426,7 +432,7 @@ public class ImageCardView extends BaseCardView {
     /**
      * Sets the content text.
      */
-    public void setContentText(CharSequence text) {
+    public void setContentText(@Nullable CharSequence text) {
         if (mContentView == null) {
             return;
         }
@@ -436,6 +442,7 @@ public class ImageCardView extends BaseCardView {
     /**
      * Returns the content text.
      */
+    @Nullable
     public CharSequence getContentText() {
         if (mContentView == null) {
             return null;
@@ -447,7 +454,7 @@ public class ImageCardView extends BaseCardView {
     /**
      * Sets the badge image drawable.
      */
-    public void setBadgeImage(Drawable drawable) {
+    public void setBadgeImage(@Nullable Drawable drawable) {
         if (mBadgeImage == null) {
             return;
         }
@@ -462,6 +469,7 @@ public class ImageCardView extends BaseCardView {
     /**
      * Returns the badge image drawable.
      */
+    @Nullable
     public Drawable getBadgeImage() {
         if (mBadgeImage == null) {
             return null;

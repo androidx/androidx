@@ -28,7 +28,9 @@ import com.intellij.psi.PsiMethod
 import com.intellij.psi.PsiType
 import org.jetbrains.uast.UCallExpression
 import org.jetbrains.uast.UClass
+import org.jetbrains.uast.UMethod
 import org.jetbrains.uast.getParentOfType
+import org.jetbrains.uast.kotlin.KotlinUFunctionCallExpression
 
 /**
  * Lint check for detecting calls to the suspend `repeatOnLifecycle` APIs using `lifecycleOwner`
@@ -58,18 +60,44 @@ class UnsafeRepeatOnLifecycleDetector : Detector(), SourceCodeScanner {
 
     override fun getApplicableMethodNames() = listOf("repeatOnLifecycle")
 
+    private val lifecycleMethods = setOf(
+        "onCreateView", "onViewCreated", "onActivityCreated",
+        "onViewStateRestored"
+    )
+
     override fun visitMethodCall(context: JavaContext, node: UCallExpression, method: PsiMethod) {
         // Check that repeatOnLifecycle is called in a Fragment
-        if (!hasFragmentAsAncestorType(node.getParentOfType<UClass>())) return
+        if (!hasFragmentAsAncestorType(node.getParentOfType())) return
 
-        // Report issue if the receiver is not using viewLifecycleOwner
-        if (node.receiver?.sourcePsi?.text?.contains(SAFE_RECEIVER, ignoreCase = true) != true) {
+        // Check that repeatOnLifecycle is called in the proper Lifecycle function
+        if (!isCalledInViewLifecycleFunction(node.getParentOfType())) return
+
+        // Look at the entire launch scope
+        var launchScope = node.getParentOfType<KotlinUFunctionCallExpression>()?.receiver
+        while (
+            launchScope != null && !containsViewLifecycleOwnerCall(launchScope.sourcePsi?.text)
+        ) {
+            launchScope = launchScope.getParentOfType()
+        }
+        // Report issue if there is no viewLifecycleOwner in the launch scope
+        if (!containsViewLifecycleOwnerCall(launchScope?.sourcePsi?.text)) {
             context.report(
                 ISSUE,
                 context.getLocation(node),
                 "The repeatOnLifecycle API should be used with viewLifecycleOwner"
             )
         }
+    }
+
+    private fun containsViewLifecycleOwnerCall(sourceText: String?): Boolean {
+        if (sourceText == null) return false
+        return sourceText.contains(VIEW_LIFECYCLE_KOTLIN_PROP, ignoreCase = true) ||
+            sourceText.contains(VIEW_LIFECYCLE_FUN, ignoreCase = true)
+    }
+
+    private fun isCalledInViewLifecycleFunction(uMethod: UMethod?): Boolean {
+        if (uMethod == null) return false
+        return lifecycleMethods.contains(uMethod.name)
     }
 
     /**
@@ -91,6 +119,7 @@ class UnsafeRepeatOnLifecycleDetector : Detector(), SourceCodeScanner {
     }
 }
 
-private const val SAFE_RECEIVER = "viewLifecycleOwner"
+private const val VIEW_LIFECYCLE_KOTLIN_PROP = "viewLifecycleOwner"
+private const val VIEW_LIFECYCLE_FUN = "getViewLifecycleOwner"
 private const val FRAGMENT_CLASS = "androidx.fragment.app.Fragment"
 private const val DIALOG_FRAGMENT_CLASS = "androidx.fragment.app.DialogFragment"

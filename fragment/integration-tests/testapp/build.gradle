@@ -29,6 +29,7 @@ android {
             ]
         }
     }
+    namespace "androidx.fragment.testapp"
 }
 
 dependencies {

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.1.0-beta02" type="baseline" client="gradle" dependencies="false" name="AGP (7.1.0-beta02)" variant="all" version="7.1.0-beta02">
+<issues format="6" by="lint 7.4.0-alpha08" type="baseline" client="gradle" dependencies="false" name="AGP (7.4.0-alpha08)" variant="all" version="7.4.0-alpha08">
 
     <issue
         id="KotlinPropertyAccess"
@@ -7,377 +7,118 @@
         errorLine1="    public int[] getColorSchemeColors() {"
         errorLine2="                 ~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/swiperefreshlayout/widget/CircularProgressDrawable.java"
-            line="381"
-            column="18"/>
+            file="src/main/java/androidx/swiperefreshlayout/widget/CircularProgressDrawable.java"/>
         <location
             file="src/main/java/androidx/swiperefreshlayout/widget/CircularProgressDrawable.java"
-            line="391"
-            column="17"
             message="Setter here"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public void draw(Canvas canvas) {"
         errorLine2="                     ~~~~~~">
         <location
-            file="src/main/java/androidx/swiperefreshlayout/widget/CircularProgressDrawable.java"
-            line="398"
-            column="22"/>
+            file="src/main/java/androidx/swiperefreshlayout/widget/CircularProgressDrawable.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public void setColorFilter(ColorFilter colorFilter) {"
         errorLine2="                               ~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/swiperefreshlayout/widget/CircularProgressDrawable.java"
-            line="418"
-            column="32"/>
+            file="src/main/java/androidx/swiperefreshlayout/widget/CircularProgressDrawable.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    protected Parcelable onSaveInstanceState() {"
-        errorLine2="              ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"
-            line="279"
-            column="15"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    protected void onRestoreInstanceState(Parcelable state) {"
-        errorLine2="                                          ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"
-            line="285"
-            column="43"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void setColorScheme(@ColorRes int... colors) {"
-        errorLine2="                                         ~~~~~~">
-        <location
-            file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"
-            line="607"
-            column="42"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void setColorSchemeResources(@ColorRes int... colorResIds) {"
-        errorLine2="                                                  ~~~~~~">
-        <location
-            file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"
-            line="618"
-            column="51"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void setColorSchemeColors(@ColorInt int... colors) {"
-        errorLine2="                                               ~~~~~~">
-        <location
-            file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"
-            line="634"
-            column="48"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public boolean onInterceptTouchEvent(MotionEvent ev) {"
-        errorLine2="                                         ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"
-            line="754"
-            column="42"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public boolean onStartNestedScroll(View child, View target, int axes, int type) {"
-        errorLine2="                                       ~~~~">
-        <location
-            file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"
-            line="902"
-            column="40"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public boolean onStartNestedScroll(View child, View target, int axes, int type) {"
-        errorLine2="                                                   ~~~~">
-        <location
-            file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"
-            line="902"
-            column="52"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void onNestedScrollAccepted(View child, View target, int axes, int type) {"
-        errorLine2="                                       ~~~~">
-        <location
-            file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"
-            line="911"
-            column="40"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void onNestedScrollAccepted(View child, View target, int axes, int type) {"
-        errorLine2="                                                   ~~~~">
-        <location
-            file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"
-            line="911"
-            column="52"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void onStopNestedScroll(View target, int type) {"
-        errorLine2="                                   ~~~~">
-        <location
-            file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"
-            line="920"
-            column="36"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void onNestedScroll(View target, int dxConsumed, int dyConsumed, int dxUnconsumed,"
-        errorLine2="                               ~~~~">
-        <location
-            file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"
-            line="929"
-            column="32"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void onNestedPreScroll(View target, int dx, int dy, int[] consumed, int type) {"
-        errorLine2="                                  ~~~~">
-        <location
-            file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"
-            line="936"
-            column="35"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void onNestedPreScroll(View target, int dx, int dy, int[] consumed, int type) {"
-        errorLine2="                                                               ~~~~~">
-        <location
-            file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"
-            line="936"
-            column="64"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public boolean onStartNestedScroll(View child, View target, int nestedScrollAxes) {"
         errorLine2="                                       ~~~~">
         <location
-            file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"
-            line="947"
-            column="40"/>
+            file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public boolean onStartNestedScroll(View child, View target, int nestedScrollAxes) {"
         errorLine2="                                                   ~~~~">
         <location
-            file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"
-            line="947"
-            column="52"/>
+            file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public void onNestedScrollAccepted(View child, View target, int axes) {"
         errorLine2="                                       ~~~~">
         <location
-            file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"
-            line="953"
-            column="40"/>
+            file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public void onNestedScrollAccepted(View child, View target, int axes) {"
         errorLine2="                                                   ~~~~">
         <location
-            file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"
-            line="953"
-            column="52"/>
+            file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public void onNestedPreScroll(View target, int dx, int dy, int[] consumed) {"
         errorLine2="                                  ~~~~">
         <location
-            file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"
-            line="963"
-            column="35"/>
+            file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public void onNestedPreScroll(View target, int dx, int dy, int[] consumed) {"
         errorLine2="                                                               ~~~~~">
         <location
-            file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"
-            line="963"
-            column="64"/>
+            file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public void onStopNestedScroll(View target) {"
         errorLine2="                                   ~~~~">
         <location
-            file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"
-            line="1000"
-            column="36"/>
+            file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public void onNestedScroll(final View target, final int dxConsumed, final int dyConsumed,"
         errorLine2="                                     ~~~~">
         <location
-            file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"
-            line="1019"
-            column="38"/>
+            file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public boolean onNestedPreFling(View target, float velocityX,"
         errorLine2="                                    ~~~~">
         <location
-            file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"
-            line="1026"
-            column="37"/>
+            file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public boolean onNestedFling(View target, float velocityX, float velocityY,"
         errorLine2="                                 ~~~~">
         <location
-            file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"
-            line="1032"
-            column="34"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            int dyUnconsumed, int[] offsetInWindow, int type) {"
-        errorLine2="                              ~~~~~">
-        <location
-            file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"
-            line="1070"
-            column="31"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public boolean dispatchNestedPreScroll(int dx, int dy, int[] consumed, int[] offsetInWindow,"
-        errorLine2="                                                           ~~~~~">
-        <location
-            file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"
-            line="1076"
-            column="60"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public boolean dispatchNestedPreScroll(int dx, int dy, int[] consumed, int[] offsetInWindow,"
-        errorLine2="                                                                           ~~~~~">
-        <location
-            file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"
-            line="1076"
-            column="76"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            int dyUnconsumed, int[] offsetInWindow) {"
-        errorLine2="                              ~~~~~">
-        <location
-            file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"
-            line="1111"
-            column="31"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public boolean dispatchNestedPreScroll(int dx, int dy, int[] consumed, int[] offsetInWindow) {"
-        errorLine2="                                                           ~~~~~">
-        <location
-            file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"
-            line="1117"
-            column="60"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public boolean dispatchNestedPreScroll(int dx, int dy, int[] consumed, int[] offsetInWindow) {"
-        errorLine2="                                                                           ~~~~~">
-        <location
-            file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"
-            line="1117"
-            column="76"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public boolean onTouchEvent(MotionEvent ev) {"
-        errorLine2="                                ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"
-            line="1222"
-            column="33"/>
+            file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"/>
     </issue>
 
 </issues>

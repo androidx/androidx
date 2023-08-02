@@ -23,7 +23,6 @@ plugins {
 }
 
 dependencies {
-    kotlinPlugin project(":compose:compiler:compiler")
     implementation project(":benchmark:benchmark-junit4")
     implementation project(":compose:runtime:runtime")
     implementation project(":compose:ui:ui-test-junit4")
@@ -37,4 +36,8 @@ dependencies {
     androidTestImplementation project(":compose:ui:ui")
     androidTestImplementation(libs.kotlinTestCommon)
     androidTestImplementation(libs.truth)
+}
+
+android {
+    namespace "androidx.compose.ui.text.benchmark"
 }

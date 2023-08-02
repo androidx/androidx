@@ -16,18 +16,27 @@
 
 package androidx.core.widget
 
+import android.annotation.TargetApi
 import android.app.Activity
 import android.appwidget.AppWidgetHost
 import android.appwidget.AppWidgetHostView
 import android.appwidget.AppWidgetManager
+import android.appwidget.AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT
+import android.appwidget.AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH
+import android.appwidget.AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT
+import android.appwidget.AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH
+import android.appwidget.AppWidgetManager.OPTION_APPWIDGET_SIZES
 import android.content.ComponentName
+import android.os.Build
 import android.os.Bundle
+import android.util.SizeF
 import android.view.WindowManager
 import android.widget.FrameLayout
 import androidx.core.remoteviews.test.R
 import org.junit.Assert.fail
 
 /** Test activity that contains an [AppWidgetHost].  */
+@TargetApi(29)
 public class AppWidgetHostTestActivity : Activity() {
     private var mHost: AppWidgetHost? = null
 
@@ -67,6 +76,30 @@ public class AppWidgetHostTestActivity : Activity() {
                 FrameLayout.LayoutParams.MATCH_PARENT,
                 FrameLayout.LayoutParams.MATCH_PARENT
             )
+        )
+
+        fun pxToDp(px: Int): Int {
+            val density = resources.displayMetrics.density
+            return (px / density).toInt()
+        }
+
+        val width = pxToDp(contentFrame.width)
+        val height = pxToDp(contentFrame.height)
+        val optionsBundle = Bundle()
+        optionsBundle.putInt(OPTION_APPWIDGET_MIN_WIDTH, width)
+        optionsBundle.putInt(OPTION_APPWIDGET_MAX_WIDTH, width)
+        optionsBundle.putInt(OPTION_APPWIDGET_MIN_HEIGHT, height)
+        optionsBundle.putInt(OPTION_APPWIDGET_MAX_HEIGHT, height)
+        if (Build.VERSION.SDK_INT >= 31) {
+            optionsBundle.putParcelableArrayList(
+                OPTION_APPWIDGET_SIZES,
+                arrayListOf(SizeF(width.toFloat(), height.toFloat()))
+            )
+        }
+
+        appWidgetManager.updateAppWidgetOptions(
+            appWidgetId,
+            optionsBundle
         )
 
         return hostView

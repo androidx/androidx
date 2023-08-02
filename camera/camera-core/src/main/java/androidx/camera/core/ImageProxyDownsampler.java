@@ -114,7 +114,6 @@ final class ImageProxyDownsampler {
             int outputHeight) {
         float scaleX = (float) inputWidth / outputWidth;
         float scaleY = (float) inputHeight / outputHeight;
-        int outputRowStride = outputWidth;
 
         byte[] row = new byte[inputRowStride];
         int[] sourceIndices = new int[outputWidth];
@@ -130,7 +129,7 @@ final class ImageProxyDownsampler {
                 float sourceY = iy * scaleY;
                 int floorSourceY = (int) sourceY;
                 int rowOffsetSource = Math.min(floorSourceY, inputHeight - 1) * inputRowStride;
-                int rowOffsetTarget = iy * outputRowStride;
+                int rowOffsetTarget = iy * outputWidth;
 
                 input.position(rowOffsetSource);
                 input.get(row, 0, Math.min(inputRowStride, input.remaining()));
@@ -153,7 +152,6 @@ final class ImageProxyDownsampler {
             int outputHeight) {
         float scaleX = (float) inputWidth / outputWidth;
         float scaleY = (float) inputHeight / outputHeight;
-        int outputRowStride = outputWidth;
 
         byte[] row0 = new byte[inputRowStride];
         byte[] row1 = new byte[inputRowStride];
@@ -171,7 +169,7 @@ final class ImageProxyDownsampler {
                 int floorSourceY = (int) sourceY;
                 int rowOffsetSource0 = Math.min(floorSourceY, inputHeight - 1) * inputRowStride;
                 int rowOffsetSource1 = Math.min(floorSourceY + 1, inputHeight - 1) * inputRowStride;
-                int rowOffsetTarget = iy * outputRowStride;
+                int rowOffsetTarget = iy * outputWidth;
 
                 input.position(rowOffsetSource0);
                 input.get(row0, 0, Math.min(inputRowStride, input.remaining()));
@@ -190,6 +188,7 @@ final class ImageProxyDownsampler {
         }
     }
 
+    @SuppressWarnings("SameParameterValue")
     private static ImageProxy.PlaneProxy createPlaneProxy(
             final int rowStride, final int pixelStride, final byte[] data) {
         return new ImageProxy.PlaneProxy() {
@@ -237,18 +236,18 @@ final class ImageProxyDownsampler {
         }
 
         @Override
-        public synchronized int getWidth() {
+        public int getWidth() {
             return mDownsampledWidth;
         }
 
         @Override
-        public synchronized int getHeight() {
+        public int getHeight() {
             return mDownsampledHeight;
         }
 
         @Override
         @NonNull
-        public synchronized PlaneProxy[] getPlanes() {
+        public PlaneProxy[] getPlanes() {
             return mDownsampledPlanes;
         }
     }

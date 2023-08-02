@@ -37,8 +37,8 @@ class VideoOutputTest {
         // VideoOutput#getStreamState() so the default implementation is used.
         val videoOutput = VideoOutput { request -> request.willNotProvideSurface() }
 
-        val streamState = videoOutput.streamState.asFlow().first()
-        assertThat(streamState).isEqualTo(VideoOutput.StreamState.ACTIVE)
+        val streamState = videoOutput.streamInfo.asFlow().first()!!.streamState
+        assertThat(streamState).isEqualTo(StreamInfo.StreamState.ACTIVE)
     }
 
     @Test

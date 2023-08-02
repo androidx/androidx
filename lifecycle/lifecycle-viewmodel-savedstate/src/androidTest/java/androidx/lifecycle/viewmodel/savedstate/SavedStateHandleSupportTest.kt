@@ -55,6 +55,7 @@ class SavedStateHandleSupportTest {
         component.resume()
         handle.set("a", "1")
         val interim = component.recreate(keepingViewModels = true)
+        interim.enableSavedStateHandles()
         handle.set("b", "2")
         interim.resume()
 

@@ -21,6 +21,8 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
+import static kotlinx.coroutines.test.TestCoroutineDispatchersKt.UnconfinedTestDispatcher;
+
 import androidx.annotation.Nullable;
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
 import androidx.lifecycle.testing.TestLifecycleOwner;
@@ -45,7 +47,6 @@ import io.reactivex.processors.PublishProcessor;
 import io.reactivex.processors.ReplayProcessor;
 import io.reactivex.schedulers.TestScheduler;
 import io.reactivex.subjects.AsyncSubject;
-import kotlinx.coroutines.test.TestCoroutineDispatcher;
 
 public class LiveDataReactiveStreamsTest {
     @Rule public final TestRule instantTaskExecutorRule = new InstantTaskExecutorRule();
@@ -67,7 +68,7 @@ public class LiveDataReactiveStreamsTest {
     @Before
     public void init() {
         mLifecycleOwner = new TestLifecycleOwner(Lifecycle.State.RESUMED,
-                new TestCoroutineDispatcher());
+                UnconfinedTestDispatcher(null, null));
     }
 
     @Test

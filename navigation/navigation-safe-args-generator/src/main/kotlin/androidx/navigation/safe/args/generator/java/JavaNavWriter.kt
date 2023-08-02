@@ -205,7 +205,15 @@ class JavaNavWriter(private val useAndroidX: Boolean = true) : NavWriter<JavaCod
         val fromBundleMethod = MethodSpec.methodBuilder("fromBundle").apply {
             addAnnotation(annotations.NONNULL_CLASSNAME)
             addModifiers(Modifier.PUBLIC, Modifier.STATIC)
-            addAnnotation(specs.suppressAnnotationSpec)
+            if (args.any { it.type is ObjectArrayType || it.type is ObjectType }) {
+                addAnnotation(
+                    specs.suppressAnnotationSpec.toBuilder()
+                        .addMember("value", "$S", "deprecation")
+                        .build()
+                )
+            } else {
+                addAnnotation(specs.suppressAnnotationSpec)
+            }
             val bundle = "bundle"
             addParameter(
                 ParameterSpec.builder(BUNDLE_CLASSNAME, bundle)

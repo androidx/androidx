@@ -5,6 +5,8 @@ echo "Starting $0 at $(date)"
 
 cd "$(dirname $0)"
 
+export USE_ANDROIDX_REMOTE_BUILD_CACHE=gcp
+
 impl/build.sh zipTestConfigsWithApks zipConstrainedTestConfigsWithApks \
     zipOwnersFiles createModuleInfo "$@"
 

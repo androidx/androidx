@@ -21,26 +21,53 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusStateImpl.Inactive
 import androidx.compose.ui.focus.FocusStateImpl.Active
 import androidx.compose.ui.focus.FocusStateImpl.Deactivated
+import androidx.compose.ui.focus.FocusStateImpl.Inactive
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.junit.runners.Parameterized
 
 @MediumTest
-@RunWith(AndroidJUnit4::class)
-class FocusEventCountTest {
+@RunWith(Parameterized::class)
+class FocusEventCountTest(focusEventType: String) {
+    private val onFocusEvent = if (focusEventType == UseOnFocusEvent) {
+        OnFocusEventCall
+    } else {
+        FocusEventModifierCall
+    }
+
     @get:Rule
     val rule = createComposeRule()
 
+    companion object {
+        val OnFocusEventCall: Modifier.((FocusState) -> Unit) -> Modifier = {
+            onFocusEvent(it)
+        }
+        val FocusEventModifierCall: Modifier.((FocusState) -> Unit) -> Modifier = {
+            focusEventModifier(it)
+        }
+        const val UseOnFocusEvent = "onFocusEvent"
+        const val UseFocusEventModifier = "FocusEventModifier"
+
+        @JvmStatic
+        @Parameterized.Parameters(name = "onFocusEvent = {0}")
+        fun initParameters() = listOf(UseOnFocusEvent, UseFocusEventModifier)
+
+        private fun Modifier.focusEventModifier(event: (FocusState) -> Unit) = this.then(
+            object : FocusEventModifier {
+                override fun onFocusEvent(focusState: FocusState) = event(focusState)
+            }
+        )
+    }
+
     @Test
-    fun initially_onFocusEventIsCalledThrice() {
+    fun initially_onFocusEventIsCalledOnce() {
         // Arrange.
         val focusStates = mutableListOf<FocusState>()
         val focusRequester = FocusRequester()
@@ -55,9 +82,8 @@ class FocusEventCountTest {
 
         // Assert.
         rule.runOnIdle {
-            assertThat(focusStates).containsExactly(
+            assertThat(focusStates).isExactly(
                 Inactive, // triggered by onFocusEvent node's onModifierChanged().
-                Inactive, // triggered by focus node's attach().
             )
         }
     }
@@ -71,7 +97,7 @@ class FocusEventCountTest {
         }
 
         // Assert.
-        rule.runOnIdle { assertThat(focusStates).containsExactly(Inactive) }
+        rule.runOnIdle { assertThat(focusStates).isExactly(Inactive) }
     }
 
     @Test
@@ -93,7 +119,7 @@ class FocusEventCountTest {
         rule.runOnIdle { focusRequester.requestFocus() }
 
         // Assert.
-        rule.runOnIdle { assertThat(focusStates).containsExactly(Active) }
+        rule.runOnIdle { assertThat(focusStates).isExactly(Active) }
     }
 
     @Test
@@ -118,7 +144,7 @@ class FocusEventCountTest {
         rule.runOnIdle { focusRequester.requestFocus() }
 
         // Assert.
-        rule.runOnIdle { assertThat(focusStates).containsExactly(Active) }
+        rule.runOnIdle { assertThat(focusStates).isExactly(Active) }
     }
 
     @Test
@@ -145,7 +171,7 @@ class FocusEventCountTest {
         rule.runOnIdle { focusManager.clearFocus() }
 
         // Assert.
-        rule.runOnIdle { assertThat(focusStates).containsExactly(Inactive) }
+        rule.runOnIdle { assertThat(focusStates).isExactly(Inactive) }
     }
 
     @Test
@@ -172,7 +198,7 @@ class FocusEventCountTest {
 
         // Assert.
         rule.runOnIdle {
-            assertThat(focusStates).containsExactly(
+            assertThat(focusStates).isExactly(
                 Inactive, // triggered by focus node's state change.
                 Inactive, // triggered by onFocusEvent node's onModifierChanged().
             )
@@ -197,11 +223,11 @@ class FocusEventCountTest {
         rule.runOnIdle { addFocusTarget = false }
 
         // Assert.
-        rule.runOnIdle { assertThat(focusStates).containsExactly(Inactive) }
+        rule.runOnIdle { assertThat(focusStates).isExactly(Inactive) }
     }
 
     @Test
-    fun addingFocusTarget_onFocusEventIsCalledThrice() {
+    fun addingFocusTarget_onFocusEventIsCalledTwice() {
         // Arrange.
         val focusStates = mutableListOf<FocusState>()
         var addFocusTarget by mutableStateOf(false)
@@ -219,10 +245,8 @@ class FocusEventCountTest {
 
         // Assert.
         rule.runOnIdle {
-            assertThat(focusStates).containsExactly(
-                Inactive, // triggered by focus node's attach().
-                Inactive, // triggered by onFocusEvent node's onModifierChanged().
-                Inactive, // triggered by focus node's onModifierChanged().
+            assertThat(focusStates).isExactly(
+                Inactive, // triggered by focus node's SideEffect.
             )
         }
     }
@@ -247,9 +271,8 @@ class FocusEventCountTest {
 
         // Assert.
         rule.runOnIdle {
-            assertThat(focusStates).containsExactly(
-                Inactive, // triggered by onFocusEvent node's onModifierChanged().
-                Inactive, // triggered by focus node's onModifierChanged().
+            assertThat(focusStates).isExactly(
+                Inactive, // triggered by focus node's property change.
             )
         }
     }
@@ -273,7 +296,7 @@ class FocusEventCountTest {
         rule.runOnIdle { deactiated = true }
 
         // Assert.
-        rule.runOnIdle { assertThat(focusStates).containsExactly(Deactivated) }
+        rule.runOnIdle { assertThat(focusStates).isExactly(Deactivated) }
     }
 
     @Test
@@ -295,6 +318,6 @@ class FocusEventCountTest {
         rule.runOnIdle { deactiated = false }
 
         // Assert.
-        rule.runOnIdle { assertThat(focusStates).containsExactly(Inactive) }
+        rule.runOnIdle { assertThat(focusStates).isExactly(Inactive) }
     }
 }

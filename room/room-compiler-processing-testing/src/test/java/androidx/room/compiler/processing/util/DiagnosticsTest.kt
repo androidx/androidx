@@ -87,18 +87,9 @@ class DiagnosticsTest internal constructor(
                 msg = "warning on field",
                 element = field
             )
-            val expectedLine = if (invocation.isKsp) {
-                3
-            } else {
-                // KAPT fails to report lines properly in certain cases
-                //  (e.g. when searching for field, it uses its parent rather than itself)
-                // Hopefully, once it is fixed, this test will break and we can remove this if/else
-                // https://youtrack.jetbrains.com/issue/KT-47934
-                2
-            }
             invocation.assertCompilationResult {
                 hasWarningContaining("on field")
-                    .onLine(expectedLine)
+                    .onLine(3)
                     .onSource(source)
             }
         }

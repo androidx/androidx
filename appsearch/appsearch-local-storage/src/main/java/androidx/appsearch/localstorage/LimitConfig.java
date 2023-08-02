@@ -53,4 +53,14 @@ public interface LimitConfig {
      * </ol>
      */
     int getMaxDocumentCount();
+
+    /**
+     * The maximum number of suggestion results a single app is allowed to search.
+     *
+     * <p>Enforced at searching suggestion time.
+     *
+     * <p>The purpose of this limit is to protect Android framework system resource like memory
+     * from being overwhelmed by a single app.
+     */
+    int getMaxSuggestionCount();
 }

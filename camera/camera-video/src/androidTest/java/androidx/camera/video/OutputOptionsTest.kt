@@ -19,13 +19,16 @@ package androidx.camera.video
 import android.content.ContentResolver
 import android.content.ContentValues
 import android.content.Context
+import android.location.Location
 import android.os.ParcelFileDescriptor
 import android.provider.MediaStore
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
+import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.io.File
@@ -136,4 +139,52 @@ class OutputOptionsTest {
         }
         savedFile.delete()
     }
+
+    @Test
+    fun defaultLocationIsNull() {
+        val outputOptions = FakeOutputOptions.Builder().build()
+
+        assertThat(outputOptions.location).isNull()
+    }
+
+    @Test
+    fun setValidLocation() {
+        listOf(
+            createLocation(0.0, 0.0),
+            createLocation(90.0, 180.0),
+            createLocation(-90.0, -180.0),
+            createLocation(10.1234, -100.5678),
+        ).forEach { location ->
+            val outputOptions = FakeOutputOptions.Builder().setLocation(location).build()
+
+            assertWithMessage("Test $location failed")
+                .that(outputOptions.location).isEqualTo(location)
+        }
+    }
+
+    @Test
+    fun setInvalidLocation() {
+        listOf(
+            createLocation(Double.NaN, 0.0),
+            createLocation(0.0, Double.NaN),
+            createLocation(90.5, 0.0),
+            createLocation(-90.5, 0.0),
+            createLocation(0.0, 180.5),
+            createLocation(0.0, -180.5),
+        ).forEach { location ->
+            assertThrows(IllegalArgumentException::class.java) {
+                FakeOutputOptions.Builder().setLocation(location)
+            }
+        }
+    }
+
+    private fun createLocation(
+        latitude: Double,
+        longitude: Double,
+        provider: String = "FakeProvider"
+    ): Location =
+        Location(provider).apply {
+            this.latitude = latitude
+            this.longitude = longitude
+        }
 }

@@ -39,8 +39,9 @@ public final class ArrivedDemoScreen extends Screen implements DefaultLifecycleO
     public Template onGetTemplate() {
         return new NavigationTemplate.Builder()
                 .setNavigationInfo(
-                        new MessageInfo.Builder("Arrived!")
-                                .setText("Google Bellevue Office\n1120 112th Ave NE")
+                        new MessageInfo.Builder(
+                                getCarContext().getString(R.string.arrived_exclamation_msg))
+                                .setText(getCarContext().getString(R.string.arrived_address_msg))
                                 .setImage(
                                         new CarIcon.Builder(
                                                 IconCompat.createWithResource(

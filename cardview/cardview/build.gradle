@@ -1,4 +1,3 @@
-import androidx.build.LibraryGroups
 import androidx.build.Publish
 
 plugins {
@@ -18,4 +17,8 @@ androidx {
     inceptionYear = "2011"
     description = "Android Support CardView"
     failOnDeprecationWarnings = false
+}
+
+android {
+    namespace "androidx.cardview"
 }

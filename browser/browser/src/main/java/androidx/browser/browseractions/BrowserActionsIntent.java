@@ -348,6 +348,7 @@ public class BrowserActionsIntent {
     /** @hide */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @VisibleForTesting
+    @SuppressWarnings("deprecation")
     static void launchIntent(Context context, Intent intent, List<ResolveInfo> handlers) {
         if (handlers == null || handlers.size() == 0) {
             openFallbackBrowserActionsMenu(context, intent);
@@ -380,6 +381,7 @@ public class BrowserActionsIntent {
      * @hide
      */
     @RestrictTo(LIBRARY)
+    @SuppressWarnings("deprecation")
     @NonNull
     public static List<ResolveInfo> getBrowserActionsIntentHandlers(@NonNull Context context) {
         Intent intent =
@@ -388,7 +390,7 @@ public class BrowserActionsIntent {
         return pm.queryIntentActivities(intent, PackageManager.MATCH_ALL);
     }
 
-    @SuppressWarnings("NullAway") // TODO: b/141869398
+    @SuppressWarnings({"NullAway", "deprecation"}) // TODO: b/141869398
     private static void openFallbackBrowserActionsMenu(Context context, Intent intent) {
         Uri uri = intent.getData();
         ArrayList<Bundle> bundles = intent.getParcelableArrayListExtra(EXTRA_MENU_ITEMS);
@@ -425,6 +427,7 @@ public class BrowserActionsIntent {
      * @return List of {@link BrowserActionItem}
      */
     @NonNull
+    @SuppressWarnings("deprecation")
     public static List<BrowserActionItem> parseBrowserActionItems(
             @NonNull ArrayList<Bundle> bundles) {
         List<BrowserActionItem> mActions = new ArrayList<>();

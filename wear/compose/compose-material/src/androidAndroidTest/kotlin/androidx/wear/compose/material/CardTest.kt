@@ -32,7 +32,6 @@ import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.test.onChildAt
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.text.TextStyle
@@ -72,7 +71,7 @@ public class CardBehaviourTest {
             }
         }
 
-        rule.onNodeWithTag(TEST_TAG).onChildAt(0).assertHasClickAction()
+        rule.onNodeWithTag(TEST_TAG).assertHasClickAction()
     }
 
     @Test
@@ -87,7 +86,7 @@ public class CardBehaviourTest {
             }
         }
 
-        rule.onNodeWithTag(TEST_TAG).onChildAt(0).assertHasClickAction()
+        rule.onNodeWithTag(TEST_TAG).assertHasClickAction()
     }
 
     @Test
@@ -102,7 +101,7 @@ public class CardBehaviourTest {
             }
         }
 
-        rule.onNodeWithTag(TEST_TAG).onChildAt(0).assertIsEnabled()
+        rule.onNodeWithTag(TEST_TAG).assertIsEnabled()
     }
 
     @Test
@@ -117,7 +116,7 @@ public class CardBehaviourTest {
             }
         }
 
-        rule.onNodeWithTag(TEST_TAG).onChildAt(0).assertIsNotEnabled()
+        rule.onNodeWithTag(TEST_TAG).assertIsNotEnabled()
     }
 
     @Test
@@ -134,7 +133,7 @@ public class CardBehaviourTest {
             }
         }
 
-        rule.onNodeWithTag(TEST_TAG).onChildAt(0).performClick()
+        rule.onNodeWithTag(TEST_TAG).performClick()
 
         rule.runOnIdle {
             assertEquals(true, clicked)
@@ -155,7 +154,7 @@ public class CardBehaviourTest {
             }
         }
 
-        rule.onNodeWithTag(TEST_TAG).onChildAt(0).performClick()
+        rule.onNodeWithTag(TEST_TAG).performClick()
 
         rule.runOnIdle {
             assertEquals(false, clicked)
@@ -175,13 +174,117 @@ public class CardBehaviourTest {
             }
         }
 
-        rule.onNodeWithTag(TEST_TAG).onChildAt(0)
+        rule.onNodeWithTag(TEST_TAG)
             .assert(
                 SemanticsMatcher.expectValue(
                     SemanticsProperties.Role,
                     Role.Button
                 )
             )
+    }
+}
+
+public class AppCardTest {
+    @get:Rule
+    public val rule: ComposeContentTestRule = createComposeRule()
+
+    @Test
+    public fun responds_to_click_when_enabled() {
+        var clicked = false
+
+        rule.setContentWithTheme {
+            AppCard(
+                onClick = { clicked = true },
+                enabled = true,
+                appName = {},
+                time = {},
+                title = {},
+                modifier = Modifier.testTag(TEST_TAG)
+            ) {
+                TestImage()
+            }
+        }
+
+        rule.onNodeWithTag(TEST_TAG).performClick()
+
+        rule.runOnIdle {
+            assertEquals(true, clicked)
+        }
+    }
+
+    @Test
+    public fun does_not_respond_to_click_when_disabled() {
+        var clicked = false
+
+        rule.setContentWithTheme {
+            AppCard(
+                onClick = { clicked = true },
+                appName = {},
+                time = {},
+                title = {},
+                enabled = false,
+                modifier = Modifier.testTag(TEST_TAG)
+            ) {
+                TestImage()
+            }
+        }
+
+        rule.onNodeWithTag(TEST_TAG).performClick()
+
+        rule.runOnIdle {
+            assertEquals(false, clicked)
+        }
+    }
+}
+
+public class TitleCardTest {
+    @get:Rule
+    public val rule: ComposeContentTestRule = createComposeRule()
+
+    @Test
+    public fun responds_to_click_when_enabled() {
+        var clicked = false
+
+        rule.setContentWithTheme {
+            TitleCard(
+                onClick = { clicked = true },
+                enabled = true,
+                time = {},
+                title = {},
+                modifier = Modifier.testTag(TEST_TAG)
+            ) {
+                TestImage()
+            }
+        }
+
+        rule.onNodeWithTag(TEST_TAG).performClick()
+
+        rule.runOnIdle {
+            assertEquals(true, clicked)
+        }
+    }
+
+    @Test
+    public fun does_not_respond_to_click_when_disabled() {
+        var clicked = false
+
+        rule.setContentWithTheme {
+            TitleCard(
+                onClick = { clicked = true },
+                enabled = false,
+                time = {},
+                title = {},
+                modifier = Modifier.testTag(TEST_TAG)
+            ) {
+                TestImage()
+            }
+        }
+
+        rule.onNodeWithTag(TEST_TAG).performClick()
+
+        rule.runOnIdle {
+            assertEquals(false, clicked)
+        }
     }
 }
 
@@ -217,13 +320,13 @@ public class CardColorTest {
     public fun gives_enabled_default_colors(): Unit =
         verifyColors(
             CardStatus.Enabled,
-        ) { MaterialTheme.colors.onSurfaceVariant2 }
+        ) { MaterialTheme.colors.onSurfaceVariant }
 
     @Test
     public fun gives_disabled_default_colors(): Unit =
         verifyColors(
             CardStatus.Disabled,
-        ) { MaterialTheme.colors.onSurfaceVariant2 }
+        ) { MaterialTheme.colors.onSurfaceVariant }
 
     @Test
     public fun app_card_gives_default_colors() {
@@ -241,7 +344,7 @@ public class CardColorTest {
             expectedAppColor = MaterialTheme.colors.onSurfaceVariant
             expectedTimeColor = MaterialTheme.colors.onSurfaceVariant
             expectedTitleColor = MaterialTheme.colors.onSurface
-            expectedContentColor = MaterialTheme.colors.onSurfaceVariant2
+            expectedContentColor = MaterialTheme.colors.onSurfaceVariant
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -278,7 +381,7 @@ public class CardColorTest {
         rule.setContentWithTheme {
             expectedTimeColor = MaterialTheme.colors.onSurfaceVariant
             expectedTitleColor = MaterialTheme.colors.onSurface
-            expectedContentColor = MaterialTheme.colors.onSurfaceVariant2
+            expectedContentColor = MaterialTheme.colors.onSurfaceVariant
             Box(
                 modifier = Modifier
                     .fillMaxSize()

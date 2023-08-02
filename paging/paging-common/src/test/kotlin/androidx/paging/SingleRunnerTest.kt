@@ -25,8 +25,12 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.test.TestCoroutineScope
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.advanceTimeBy
+import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.runCurrent
+import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -41,7 +45,7 @@ import kotlin.test.assertTrue
 @OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(JUnit4::class)
 class SingleRunnerTest {
-    private val testScope = TestCoroutineScope()
+    private val testScope = TestScope()
 
     @Test
     fun cancelsPreviousRun() = runBlocking {
@@ -73,7 +77,7 @@ class SingleRunnerTest {
     }
 
     @Test
-    fun preventsCompletionUntilBlockCompletes() = testScope.runBlockingTest {
+    fun preventsCompletionUntilBlockCompletes() = testScope.runTest {
         val runner = SingleRunner()
         val job = testScope.launch {
             runner.runInIsolation {
@@ -82,14 +86,16 @@ class SingleRunnerTest {
         }
 
         advanceTimeBy(500)
+        runCurrent()
         assertFalse { job.isCompleted }
 
         advanceTimeBy(500)
+        runCurrent()
         assertTrue { job.isCompleted }
     }
 
     @Test
-    fun orderedExecution() = testScope.runBlockingTest {
+    fun orderedExecution() = testScope.runTest {
         val jobStartList = mutableListOf<Int>()
 
         val runner = SingleRunner()
@@ -101,6 +107,7 @@ class SingleRunnerTest {
                 }
             }
         }
+        runCurrent()
 
         // Cancel previous job.
         runner.runInIsolation {
@@ -111,10 +118,10 @@ class SingleRunnerTest {
     }
 
     @Test
-    fun racingCoroutines() = testScope.runBlockingTest {
+    fun racingCoroutines() = testScope.runTest {
         val runner = SingleRunner()
         val output = mutableListOf<Char>()
-        pauseDispatcher {
+        withContext(coroutineContext) {
             launch {
                 ('0' until '4').forEach {
                     runner.runInIsolation {
@@ -183,7 +190,7 @@ class SingleRunnerTest {
     }
 
     @Test
-    fun priority() = testScope.runBlockingTest {
+    fun priority() = testScope.runTest {
         val runner = SingleRunner()
         val output = mutableListOf<String>()
         launch {
@@ -197,6 +204,7 @@ class SingleRunnerTest {
                 output.add("unexpected")
             }
         }
+        runCurrent()
 
         // should not run
         runner.runInIsolation(

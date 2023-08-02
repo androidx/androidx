@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
 import androidx.build.LibraryType
-import androidx.build.LibraryVersions
 
 plugins {
     id("AndroidXPlugin")
@@ -58,4 +56,5 @@ android {
         sourceCompatibility 1.8
         targetCompatibility 1.8
     }
+    namespace "androidx.wear.watchface.samples.minimal.style"
 }

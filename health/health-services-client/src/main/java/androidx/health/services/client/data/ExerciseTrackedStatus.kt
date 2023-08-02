@@ -16,28 +16,44 @@
 
 package androidx.health.services.client.data
 
+import androidx.annotation.IntDef
+import androidx.annotation.RestrictTo
 import androidx.health.services.client.proto.DataProto
 import androidx.health.services.client.proto.DataProto.ExerciseTrackedStatus.EXERCISE_TRACKED_STATUS_UNKNOWN
 
-/** Status representing if an exercise is being tracked and which app owns the exercise. */
-public enum class ExerciseTrackedStatus(public val id: Int) {
-    /** An app other than the calling one owns the active exercise in progress. */
-    OTHER_APP_IN_PROGRESS(1),
-    /** The current calling app owns the active exercise in progress. */
-    OWNED_EXERCISE_IN_PROGRESS(2),
-    /** There is not currently any exercise in progress owned by any app. */
-    NO_EXERCISE_IN_PROGRESS(3);
-
-    /** @hide */
-    public fun toProto(): DataProto.ExerciseTrackedStatus =
-        DataProto.ExerciseTrackedStatus.forNumber(id) ?: EXERCISE_TRACKED_STATUS_UNKNOWN
+/**
+ * Status representing if an exercise is being tracked and which app owns the exercise.
+ *
+ * @hide
+ */
+@Retention(AnnotationRetention.SOURCE)
+@IntDef(
+    ExerciseTrackedStatus.OTHER_APP_IN_PROGRESS,
+    ExerciseTrackedStatus.OWNED_EXERCISE_IN_PROGRESS,
+    ExerciseTrackedStatus.NO_EXERCISE_IN_PROGRESS
+)
+public annotation class ExerciseTrackedStatus {
 
     public companion object {
-        @JvmStatic
-        public fun fromId(id: Int): ExerciseTrackedStatus? = values().firstOrNull { it.id == id }
+        /** Exercise Tracked Status is an unknown or unexpected value. */
+        public const val UNKNOWN: Int = 0
+        /** An app other than the calling one owns the active exercise in progress. */
+        public const val OTHER_APP_IN_PROGRESS: Int = 1
+        /** The current calling app owns the active exercise in progress. */
+        public const val OWNED_EXERCISE_IN_PROGRESS: Int = 2
+        /** There is not currently any exercise in progress owned by any app. */
+        public const val NO_EXERCISE_IN_PROGRESS: Int = 3
 
         /** @hide */
-        public fun fromProto(proto: DataProto.ExerciseTrackedStatus): ExerciseTrackedStatus? =
-            fromId(proto.number)
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        internal fun @receiver:ExerciseTrackedStatus
+        Int.toProto(): DataProto.ExerciseTrackedStatus =
+            DataProto.ExerciseTrackedStatus.forNumber(this) ?: EXERCISE_TRACKED_STATUS_UNKNOWN
+
+        /** @hide */
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        @ExerciseTrackedStatus
+        @Suppress("WrongConstant")
+        public fun fromProto(proto: DataProto.ExerciseTrackedStatus): Int = proto.number
     }
 }

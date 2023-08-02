@@ -143,7 +143,7 @@ public class FragmentContainerView : FrameLayout {
         // If there is a name and there is no existing fragment,
         // we should add an inflated Fragment to the view.
         if (name != null && existingFragment == null) {
-            if (id <= 0) {
+            if (id == View.NO_ID) {
                 val tagMessage = if (tag != null) " with tag $tag" else ""
                 throw IllegalStateException(
                     "FragmentContainerView must have an android:id to add Fragment $name$tagMessage"

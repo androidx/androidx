@@ -18,12 +18,16 @@ package androidx.compose.ui.text
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
+import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.text.style.TextIndent
 import androidx.compose.ui.text.style.lerp
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.isUnspecified
+
+private val DefaultLineHeight = TextUnit.Unspecified
 
 /**
  * Paragraph styling configuration for a paragraph. The difference between [SpanStyle] and
@@ -38,8 +42,13 @@ import androidx.compose.ui.unit.isUnspecified
  * @param textAlign The alignment of the text within the lines of the paragraph.
  * @param textDirection The algorithm to be used to resolve the final text direction:
  * Left To Right or Right To Left.
- * @param textIndent The indentation of the paragraph.
  * @param lineHeight Line height for the [Paragraph] in [TextUnit] unit, e.g. SP or EM.
+ * @param textIndent The indentation of the paragraph.
+ * @param platformStyle Platform specific [ParagraphStyle] parameters.
+ * @param lineHeightStyle the configuration for line height such as vertical alignment of the
+ * line, whether to apply additional space as a result of line height to top of first line top and
+ * bottom of last line. The configuration is applied only when a [lineHeight] is defined.
+ * When null, [LineHeightStyle.Default] is used.
  *
  * @see Paragraph
  * @see AnnotatedString
@@ -51,8 +60,46 @@ class ParagraphStyle constructor(
     val textAlign: TextAlign? = null,
     val textDirection: TextDirection? = null,
     val lineHeight: TextUnit = TextUnit.Unspecified,
-    val textIndent: TextIndent? = null
+    val textIndent: TextIndent? = null,
+    val platformStyle: PlatformParagraphStyle? = null,
+    val lineHeightStyle: LineHeightStyle? = null
 ) {
+
+    /**
+     * Paragraph styling configuration for a paragraph. The difference between [SpanStyle] and
+     * `ParagraphStyle` is that, `ParagraphStyle` can be applied to a whole [Paragraph] while
+     * [SpanStyle] can be applied at the character level.
+     * Once a portion of the text is marked with a `ParagraphStyle`, that portion will be separated from
+     * the remaining as if a line feed character was added.
+     *
+     * @sample androidx.compose.ui.text.samples.ParagraphStyleSample
+     * @sample androidx.compose.ui.text.samples.ParagraphStyleAnnotatedStringsSample
+     *
+     * @param textAlign The alignment of the text within the lines of the paragraph.
+     * @param textDirection The algorithm to be used to resolve the final text direction:
+     * Left To Right or Right To Left.
+     * @param lineHeight Line height for the [Paragraph] in [TextUnit] unit, e.g. SP or EM.
+     * @param textIndent The indentation of the paragraph.
+     *
+     * @see Paragraph
+     * @see AnnotatedString
+     * @see SpanStyle
+     * @see TextStyle
+     */
+    constructor(
+        textAlign: TextAlign? = null,
+        textDirection: TextDirection? = null,
+        lineHeight: TextUnit = TextUnit.Unspecified,
+        textIndent: TextIndent? = null
+    ) : this(
+        textAlign = textAlign,
+        textDirection = textDirection,
+        lineHeight = lineHeight,
+        textIndent = textIndent,
+        platformStyle = null,
+        lineHeightStyle = null
+    )
+
     init {
         if (lineHeight != TextUnit.Unspecified) {
             // Since we are checking if it's negative, no need to convert Sp into Px at this point.
@@ -80,8 +127,16 @@ class ParagraphStyle constructor(
             },
             textIndent = other.textIndent ?: this.textIndent,
             textAlign = other.textAlign ?: this.textAlign,
-            textDirection = other.textDirection ?: this.textDirection
+            textDirection = other.textDirection ?: this.textDirection,
+            platformStyle = mergePlatformStyle(other.platformStyle),
+            lineHeightStyle = other.lineHeightStyle ?: this.lineHeightStyle
         )
+    }
+
+    private fun mergePlatformStyle(other: PlatformParagraphStyle?): PlatformParagraphStyle? {
+        if (platformStyle == null) return other
+        if (other == null) return platformStyle
+        return platformStyle.merge(other)
     }
 
     /**
@@ -100,11 +155,31 @@ class ParagraphStyle constructor(
             textAlign = textAlign,
             textDirection = textDirection,
             lineHeight = lineHeight,
-            textIndent = textIndent
+            textIndent = textIndent,
+            platformStyle = this.platformStyle,
+            lineHeightStyle = this.lineHeightStyle
         )
     }
 
-    override operator fun equals(other: Any?): Boolean {
+    fun copy(
+        textAlign: TextAlign? = this.textAlign,
+        textDirection: TextDirection? = this.textDirection,
+        lineHeight: TextUnit = this.lineHeight,
+        textIndent: TextIndent? = this.textIndent,
+        platformStyle: PlatformParagraphStyle? = this.platformStyle,
+        lineHeightStyle: LineHeightStyle? = this.lineHeightStyle
+    ): ParagraphStyle {
+        return ParagraphStyle(
+            textAlign = textAlign,
+            textDirection = textDirection,
+            lineHeight = lineHeight,
+            textIndent = textIndent,
+            platformStyle = platformStyle,
+            lineHeightStyle = lineHeightStyle
+        )
+    }
+
+    override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is ParagraphStyle) return false
 
@@ -112,6 +187,8 @@ class ParagraphStyle constructor(
         if (textDirection != other.textDirection) return false
         if (lineHeight != other.lineHeight) return false
         if (textIndent != other.textIndent) return false
+        if (platformStyle != other.platformStyle) return false
+        if (lineHeightStyle != other.lineHeightStyle) return false
 
         return true
     }
@@ -121,6 +198,8 @@ class ParagraphStyle constructor(
         result = 31 * result + (textDirection?.hashCode() ?: 0)
         result = 31 * result + lineHeight.hashCode()
         result = 31 * result + (textIndent?.hashCode() ?: 0)
+        result = 31 * result + (platformStyle?.hashCode() ?: 0)
+        result = 31 * result + (lineHeightStyle?.hashCode() ?: 0)
         return result
     }
 
@@ -129,7 +208,9 @@ class ParagraphStyle constructor(
             "textAlign=$textAlign, " +
             "textDirection=$textDirection, " +
             "lineHeight=$lineHeight, " +
-            "textIndent=$textIndent" +
+            "textIndent=$textIndent, " +
+            "platformStyle=$platformStyle, " +
+            "lineHeightStyle=$lineHeightStyle" +
             ")"
     }
 }
@@ -158,9 +239,38 @@ fun lerp(start: ParagraphStyle, stop: ParagraphStyle, fraction: Float): Paragrap
         ),
         lineHeight = lerpTextUnitInheritable(start.lineHeight, stop.lineHeight, fraction),
         textIndent = lerp(
-            start.textIndent ?: TextIndent(),
-            stop.textIndent ?: TextIndent(),
+            start.textIndent ?: TextIndent.None,
+            stop.textIndent ?: TextIndent.None,
+            fraction
+        ),
+        platformStyle = lerpPlatformStyle(start.platformStyle, stop.platformStyle, fraction),
+        lineHeightStyle = lerpDiscrete(
+            start.lineHeightStyle,
+            stop.lineHeightStyle,
             fraction
         )
     )
 }
+
+private fun lerpPlatformStyle(
+    start: PlatformParagraphStyle?,
+    stop: PlatformParagraphStyle?,
+    fraction: Float
+): PlatformParagraphStyle? {
+    if (start == null && stop == null) return null
+    val startNonNull = start ?: PlatformParagraphStyle.Default
+    val stopNonNull = stop ?: PlatformParagraphStyle.Default
+    return lerp(startNonNull, stopNonNull, fraction)
+}
+
+internal fun resolveParagraphStyleDefaults(
+    style: ParagraphStyle,
+    direction: LayoutDirection
+) = ParagraphStyle(
+    textAlign = style.textAlign ?: TextAlign.Start,
+    textDirection = resolveTextDirection(direction, style.textDirection),
+    lineHeight = if (style.lineHeight.isUnspecified) DefaultLineHeight else style.lineHeight,
+    textIndent = style.textIndent ?: TextIndent.None,
+    platformStyle = style.platformStyle,
+    lineHeightStyle = style.lineHeightStyle
+)

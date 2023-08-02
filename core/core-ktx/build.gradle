@@ -1,5 +1,3 @@
-import androidx.build.LibraryGroups
-import androidx.build.LibraryVersions
 import androidx.build.Publish
 
 plugins {
@@ -9,6 +7,11 @@ plugins {
 }
 
 dependencies {
+    // Atomic group
+    constraints {
+        implementation(project(":core:core"))
+    }
+
     api(libs.kotlinStdlib)
     api("androidx.annotation:annotation:1.1.0")
     api(project(":core:core"))
@@ -29,4 +32,8 @@ androidx {
     mavenGroup = LibraryGroups.CORE
     inceptionYear = "2018"
     description = "Kotlin extensions for 'core' artifact"
+}
+
+android {
+    namespace "androidx.core.ktx"
 }

@@ -25,7 +25,6 @@ import android.view.View;
 import android.view.ViewOutlineProvider;
 import android.widget.FrameLayout;
 
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 
 /**
@@ -34,7 +33,6 @@ import androidx.annotation.RestrictTo;
  *
  * @hide
  */
-@RequiresApi(21)
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 public class OutlineOnlyWithChildrenFrameLayout extends FrameLayout {
 

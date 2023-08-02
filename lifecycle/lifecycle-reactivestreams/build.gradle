@@ -15,7 +15,6 @@
  */
 
 
-import androidx.build.LibraryGroups
 import androidx.build.Publish
 
 plugins {
@@ -38,6 +37,10 @@ dependencies {
     testImplementation(libs.kotlinCoroutinesTest)
     testImplementation(project(":lifecycle:lifecycle-runtime-testing"))
     testImplementation("androidx.arch.core:core-testing:2.1.0")
+
+    constraints {
+        implementation(project(":lifecycle:lifecycle-reactivestreams-ktx"))
+    }
 }
 
 androidx {
@@ -46,4 +49,8 @@ androidx {
     mavenGroup = LibraryGroups.LIFECYCLE
     inceptionYear = "2017"
     description = "Android Lifecycle Reactivestreams"
+}
+
+android {
+    namespace "androidx.lifecycle.reactivestreams"
 }

@@ -106,6 +106,7 @@ public final class ProcessCompat {
                         // This should never happen, as the method returns a boolean primitive.
                         throw new NullPointerException();
                     }
+                    return result;
                 }
             } catch (Exception e) {
                 e.printStackTrace();

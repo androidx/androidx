@@ -17,6 +17,7 @@
 package androidx.arch.core.internal;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 
 import java.util.HashMap;
@@ -34,8 +35,9 @@ import java.util.Map;
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public class FastSafeIterableMap<K, V> extends SafeIterableMap<K, V> {
 
-    private HashMap<K, Entry<K, V>> mHashMap = new HashMap<>();
+    private final HashMap<K, Entry<K, V>> mHashMap = new HashMap<>();
 
+    @Nullable
     @SuppressWarnings("HiddenTypeParameter")
     @Override
     protected Entry<K, V> get(K k) {
@@ -72,6 +74,7 @@ public class FastSafeIterableMap<K, V> extends SafeIterableMap<K, V> {
      *
      * @param k the key
      */
+    @Nullable
     public Map.Entry<K, V> ceil(K k) {
         if (contains(k)) {
             return mHashMap.get(k).mPrevious;

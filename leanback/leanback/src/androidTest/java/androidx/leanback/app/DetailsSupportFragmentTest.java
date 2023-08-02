@@ -42,6 +42,7 @@ import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.leanback.graphics.FitWidthBitmapDrawable;
 import androidx.leanback.media.MediaPlayerGlue;
@@ -57,6 +58,7 @@ import androidx.leanback.widget.ParallaxTarget;
 import androidx.leanback.widget.RecyclerViewParallax;
 import androidx.leanback.widget.VerticalGridView;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.FlakyTest;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
@@ -71,6 +73,7 @@ import org.junit.runner.RunWith;
  */
 @RunWith(AndroidJUnit4.class)
 @LargeTest
+@FlakyTest(bugId = 207674174)
 public class DetailsSupportFragmentTest extends SingleSupportFragmentTestBase {
 
     static final int PARALLAX_VERTICAL_OFFSET = -300;
@@ -428,6 +431,7 @@ public class DetailsSupportFragmentTest extends SingleSupportFragmentTestBase {
         navigateBetweenRowsAndVideoUsingDPADInternal(DetailsSupportFragmentWithVideo1.class);
     }
 
+    @FlakyTest(bugId = 228336699)
     @Test
     public void navigateBetweenRowsAndVideoUsingDPAD2() throws Throwable {
         navigateBetweenRowsAndVideoUsingDPADInternal(DetailsSupportFragmentWithVideo2.class);
@@ -1088,7 +1092,7 @@ public class DetailsSupportFragmentTest extends SingleSupportFragmentTestBase {
         }
 
         @Override
-        public void onViewCreated(View view, Bundle savedInstanceState) {
+        public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
             super.onViewCreated(view, savedInstanceState);
         }
 

@@ -17,7 +17,6 @@
 package androidx.build.testConfiguration
 
 import androidx.build.dependencyTracker.ProjectSubset
-import androidx.build.isPresubmitBuild
 import androidx.build.renameApkForTesting
 import com.android.build.api.variant.BuiltArtifacts
 import com.android.build.api.variant.BuiltArtifactsLoader
@@ -29,7 +28,10 @@ import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.OutputFile
+import org.gradle.api.tasks.PathSensitive
+import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
+import org.gradle.work.DisableCachingByDefault
 import java.io.File
 
 /**
@@ -41,27 +43,32 @@ import java.io.File
  *
  * This config gets ingested by Tradefed.
  */
+@DisableCachingByDefault(because = "Doesn't benefit from caching")
 abstract class GenerateMediaTestConfigurationTask : DefaultTask() {
 
     @get:InputFiles
+    @get:PathSensitive(PathSensitivity.RELATIVE)
     abstract val clientToTFolder: DirectoryProperty
 
     @get:Internal
     abstract val clientToTLoader: Property<BuiltArtifactsLoader>
 
     @get:InputFiles
+    @get:PathSensitive(PathSensitivity.RELATIVE)
     abstract val clientPreviousFolder: DirectoryProperty
 
     @get:Internal
     abstract val clientPreviousLoader: Property<BuiltArtifactsLoader>
 
     @get:InputFiles
+    @get:PathSensitive(PathSensitivity.RELATIVE)
     abstract val serviceToTFolder: DirectoryProperty
 
     @get:Internal
     abstract val serviceToTLoader: Property<BuiltArtifactsLoader>
 
     @get:InputFiles
+    @get:PathSensitive(PathSensitivity.RELATIVE)
     abstract val servicePreviousFolder: DirectoryProperty
 
     @get:Internal
@@ -87,6 +94,9 @@ abstract class GenerateMediaTestConfigurationTask : DefaultTask() {
 
     @get:Input
     abstract val testRunner: Property<String>
+
+    @get:Input
+    abstract val presubmit: Property<Boolean>
 
     @get:OutputFile
     abstract val clientPreviousServiceToT: RegularFileProperty
@@ -175,7 +185,7 @@ abstract class GenerateMediaTestConfigurationTask : DefaultTask() {
             .isServicePrevious(isServicePrevious)
             .tag("androidx_unit_tests")
             .tag("media_compat")
-        val isPresubmit = isPresubmitBuild()
+        val isPresubmit = presubmit.get()
         configBuilder.isPostsubmit(!isPresubmit)
         when (affectedModuleDetectorSubset.get()) {
             ProjectSubset.DEPENDENT_PROJECTS -> {

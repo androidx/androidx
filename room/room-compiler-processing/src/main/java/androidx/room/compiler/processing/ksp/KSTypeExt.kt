@@ -22,8 +22,10 @@ import androidx.room.compiler.processing.tryBox
 import androidx.room.compiler.processing.util.ISSUE_TRACKER_LINK
 import com.google.devtools.ksp.KspExperimental
 import com.google.devtools.ksp.processing.Resolver
+import com.google.devtools.ksp.symbol.KSAnnotated
 import com.google.devtools.ksp.symbol.KSDeclaration
 import com.google.devtools.ksp.symbol.KSName
+import com.google.devtools.ksp.symbol.KSNode
 import com.google.devtools.ksp.symbol.KSType
 import com.google.devtools.ksp.symbol.KSTypeAlias
 import com.google.devtools.ksp.symbol.KSTypeArgument
@@ -149,21 +151,19 @@ private fun KSTypeArgument.typeName(
     typeArgumentTypeLookup: TypeArgumentTypeLookup
 ): TypeName {
     fun resolveTypeName() = type.typeName(resolver, typeArgumentTypeLookup).tryBox()
-
     return when (variance) {
         Variance.CONTRAVARIANT -> WildcardTypeName.supertypeOf(resolveTypeName())
         Variance.COVARIANT -> WildcardTypeName.subtypeOf(resolveTypeName())
         Variance.STAR -> {
-            // for star projected types, JavaPoet uses the name from the declaration if
-            // * is not given explicitly
-            if (type == null) {
-                // explicit *
-                WildcardTypeName.subtypeOf(TypeName.OBJECT)
+            WildcardTypeName.subtypeOf(TypeName.OBJECT)
+        }
+        else -> {
+            if (hasJvmWildcardAnnotation()) {
+                WildcardTypeName.subtypeOf(resolveTypeName())
             } else {
-                WildcardTypeName.subtypeOf(type.typeName(resolver, typeArgumentTypeLookup))
+                resolveTypeName()
             }
         }
-        else -> resolveTypeName()
     }
 }
 
@@ -180,7 +180,7 @@ private fun KSType.typeName(
     resolver: Resolver,
     typeArgumentTypeLookup: TypeArgumentTypeLookup
 ): TypeName {
-    return if (this.arguments.isNotEmpty()) {
+    return if (this.arguments.isNotEmpty() && !isRaw()) {
         val args: Array<TypeName> = this.arguments
             .map { typeArg ->
                 typeArg.typeName(
@@ -301,3 +301,34 @@ private fun createModifiableTypeVariableName(
     name,
     bounds
 ) as TypeVariableName
+
+private fun KSAnnotated.hasAnnotation(
+    qName: String
+) = annotations.any {
+    it.annotationType.resolve().declaration.qualifiedName?.asString() == qName
+}
+
+internal fun KSAnnotated.hasJvmWildcardAnnotation() = hasAnnotation(
+    JvmWildcard::class.java.canonicalName
+)
+
+internal fun KSAnnotated.hasSuppressJvmWildcardAnnotation() = hasAnnotation(
+    JvmSuppressWildcards::class.java.canonicalName
+)
+
+internal fun KSNode.hasSuppressWildcardsAnnotationInHierarchy(): Boolean {
+    (this as? KSAnnotated)?.let {
+        if (hasSuppressJvmWildcardAnnotation()) {
+            return true
+        }
+    }
+    val parent = parent ?: return false
+    return parent.hasSuppressWildcardsAnnotationInHierarchy()
+}
+
+internal fun KSType.isRaw(): Boolean {
+    // yes this is gross but KSP itself seems to be doing it as well
+    // https://github.com/google/ksp/blob/main/compiler-plugin/
+    // src/main/kotlin/com/google/devtools/ksp/symbol/impl/kotlin/KSTypeImpl.kt#L85
+    return toString().startsWith("raw ")
+}

@@ -22,6 +22,7 @@ import android.graphics.Rect;
 import android.graphics.Region;
 import android.graphics.drawable.Drawable;
 
+import androidx.annotation.NonNull;
 import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.core.graphics.drawable.TintAwareDrawable;
 
@@ -64,14 +65,12 @@ abstract class VectorDrawableCommon extends Drawable implements TintAwareDrawabl
         if (mDelegateDrawable != null) {
             DrawableCompat.setHotspot(mDelegateDrawable, x, y);
         }
-        return;
     }
 
     @Override
     public void setHotspotBounds(int left, int top, int right, int bottom) {
         if (mDelegateDrawable != null) {
             DrawableCompat.setHotspotBounds(mDelegateDrawable, left, top, right, bottom);
-            return;
         }
     }
 
@@ -79,24 +78,22 @@ abstract class VectorDrawableCommon extends Drawable implements TintAwareDrawabl
     public void setFilterBitmap(boolean filter) {
         if (mDelegateDrawable != null) {
             mDelegateDrawable.setFilterBitmap(filter);
-            return;
         }
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public void jumpToCurrentState() {
         if (mDelegateDrawable != null) {
             DrawableCompat.jumpToCurrentState(mDelegateDrawable);
-            return;
         }
     }
 
     @Override
-    public void applyTheme(Resources.Theme t) {
+    public void applyTheme(@NonNull Resources.Theme t) {
         // API >= 21 only.
         if (mDelegateDrawable != null) {
             DrawableCompat.applyTheme(mDelegateDrawable, t);
-            return;
         }
     }
 

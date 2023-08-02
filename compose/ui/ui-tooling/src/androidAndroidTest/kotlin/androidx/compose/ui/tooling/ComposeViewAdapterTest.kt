@@ -17,9 +17,11 @@
 package androidx.compose.ui.tooling
 
 import android.app.Activity
+import android.os.Build
 import android.os.Bundle
 import androidx.compose.animation.core.InternalAnimationApi
 import androidx.compose.ui.tooling.animation.PreviewAnimationClock
+import androidx.compose.ui.tooling.animation.UnsupportedComposeAnimation
 import androidx.compose.ui.tooling.data.UiToolingDataApi
 import androidx.compose.ui.tooling.test.R
 import androidx.test.filters.LargeTest
@@ -153,6 +155,11 @@ class ComposeViewAdapterTest {
     }
 
     @Test
+    fun animatedContentIsSubscribed() {
+        checkAnimationsAreSubscribed("AnimatedContentPreview", listOf("AnimatedContent"))
+    }
+
+    @Test
     fun transitionAnimationsAreSubscribedToTheClock() {
         checkTransitionIsSubscribed("CheckBoxPreview", "checkBoxAnim")
     }
@@ -160,6 +167,92 @@ class ComposeViewAdapterTest {
     @Test
     fun transitionAnimationsWithSubcomposition() {
         checkTransitionIsSubscribed("CheckBoxScaffoldPreview", "checkBoxAnim")
+    }
+
+    @Test
+    fun animateXAsStateIsSubscribed() {
+        checkAnimationsAreSubscribed(
+            "AnimateAsStatePreview",
+            listOf("DpAnimation", "IntAnimation")
+        )
+    }
+
+    @Test
+    fun animateContentSizeIsSubscribed() {
+        checkAnimationsAreSubscribed("AnimateContentSizePreview", listOf("animateContentSize"))
+    }
+
+    @Test
+    fun crossFadeIsSubscribed() {
+        checkTransitionIsSubscribed("CrossFadePreview", "Crossfade")
+    }
+
+    @Test
+    fun targetBasedAnimationIsSubscribed() {
+        checkAnimationsAreSubscribed("TargetBasedAnimationPreview", listOf("TargetBasedAnimation"))
+    }
+
+    @Test
+    fun decayAnimationIsSubscribed() {
+        checkAnimationsAreSubscribed("DecayAnimationPreview", listOf("DecayAnimation"))
+    }
+
+    @Test
+    fun infiniteTransitionIsSubscribed() {
+        checkAnimationsAreSubscribed("InfiniteTransitionPreview", listOf("InfiniteTransition"))
+    }
+
+    @Test
+    fun unsupportedAreNotSubscribedWhenEnumIsNotAvailable() {
+        UnsupportedComposeAnimation.testOverrideAvailability(false)
+        checkAnimationsAreSubscribed(
+            "AllAnimations",
+            emptyList(),
+            listOf("checkBoxAnim", "Crossfade")
+        )
+        UnsupportedComposeAnimation.testOverrideAvailability(true)
+    }
+
+    @Test
+    fun animationsAreOrdered() {
+        checkAnimationsAreSubscribed(
+            "AnimationOrder",
+            emptyList(),
+            listOf("transitionOne", "transitionTwo", "transitionThree")
+        )
+    }
+
+    private fun checkAnimationsAreSubscribed(
+        preview: String,
+        unsupported: List<String>,
+        transitions: List<String> = emptyList()
+    ) {
+        val clock = PreviewAnimationClock()
+
+        activityTestRule.runOnUiThread {
+            composeViewAdapter.init(
+                "androidx.compose.ui.tooling.TestAnimationPreviewKt",
+                preview
+            )
+            composeViewAdapter.clock = clock
+            assertFalse(composeViewAdapter.hasAnimations())
+            assertTrue(clock.trackedTransitions.isEmpty())
+            assertTrue(clock.trackedUnsupported.isEmpty())
+            assertTrue(clock.trackedAnimatedVisibility.isEmpty())
+        }
+
+        waitFor("Composable to have animations", 5, TimeUnit.SECONDS) {
+            // Handle the case where onLayout was called too soon. Calling requestLayout will
+            // make sure onLayout will be called again.
+            composeViewAdapter.requestLayout()
+            composeViewAdapter.hasAnimations()
+        }
+
+        activityTestRule.runOnUiThread {
+            assertEquals(unsupported, clock.trackedUnsupported.map { it.label })
+            assertEquals(transitions, clock.trackedTransitions.map { it.label })
+            assertEquals(0, clock.trackedAnimatedVisibility.size)
+        }
     }
 
     @OptIn(InternalAnimationApi::class)
@@ -320,6 +413,14 @@ class ComposeViewAdapterTest {
         )
     }
 
+    @Test
+    fun multipreviewTest() {
+        assertRendersCorrectly(
+                "androidx.compose.ui.tooling.SimpleComposablePreviewKt",
+                "Multipreview"
+        )
+    }
+
     /**
      * Check that no re-composition happens without forcing it.
      */
@@ -336,10 +437,14 @@ class ComposeViewAdapterTest {
                 onDraw = { onDrawCounter++ }
             )
         }
+
+        // API before 29, might issue an additional draw under testing.
+        val expectedDrawCount = if (Build.VERSION.SDK_INT < 29) 2 else 1
         repeat(5) {
             activityTestRule.runOnUiThread {
                 assertEquals(1, compositionCount.get())
-                assertTrue("At most, 1 draw is expected", onDrawCounter < 2)
+                assertTrue("At most, $expectedDrawCount draw is expected ($onDrawCounter happened)",
+                    onDrawCounter <= expectedDrawCount)
             }
             Thread.sleep(250)
         }

@@ -22,6 +22,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.exceptions.AppSearchException;
+import androidx.appsearch.util.LogUtil;
 import androidx.core.util.ObjectsCompat;
 import androidx.core.util.Preconditions;
 
@@ -219,12 +220,15 @@ public final class AppSearchResult<ValueType> {
     public static <ValueType> AppSearchResult<ValueType> throwableToFailedResult(
             @NonNull Throwable t) {
         // Log for traceability. NOT_FOUND is logged at VERBOSE because this error can occur during
-        // the regular operation of the system (b/183550974). Everything else is logged at DEBUG.
+        // the regular operation of the system (b/183550974). Everything else is indicative of an
+        // actual problem and is logged at WARN.
         if (t instanceof AppSearchException
                 && ((AppSearchException) t).getResultCode() == RESULT_NOT_FOUND) {
-            Log.v(TAG, "Converting throwable to failed result: " + t);
+            if (LogUtil.DEBUG) {
+                Log.v(TAG, "Converting throwable to failed result: " + t);
+            }
         } else {
-            Log.d(TAG, "Converting throwable to failed result.", t);
+            Log.w(TAG, "Converting throwable to failed result.", t);
         }
 
         if (t instanceof AppSearchException) {

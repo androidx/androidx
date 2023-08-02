@@ -33,8 +33,8 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 /**
- * WorkManager the recommended library for persistent work.
- * Scheduled work is is guaranteed to execute sometime after its {@link Constraints} are met.
+ * WorkManager is the recommended library for persistent work.
+ * Scheduled work is guaranteed to execute sometime after its {@link Constraints} are met.
  * WorkManager allows observation of work status and the ability to create complex chains of work.
  * <p>
  * WorkManager uses an underlying job dispatching service when available based on the following
@@ -209,6 +209,23 @@ public abstract class WorkManager {
     public static void initialize(@NonNull Context context, @NonNull Configuration configuration) {
         WorkManagerImpl.initialize(context, configuration);
     }
+
+    /**
+     * Provides a way to check if {@link WorkManager} is initialized in this process.
+     *
+     * @return {@code true} if {@link WorkManager} has been initialized in this process.
+     */
+    public static boolean isInitialized() {
+        return WorkManagerImpl.isInitialized();
+    }
+
+    /**
+     * Provides the {@link Configuration} instance that {@link WorkManager} was initialized with.
+     *
+     * @return The {@link Configuration} instance that {@link WorkManager} was initialized with.
+     */
+    @NonNull
+    public abstract Configuration getConfiguration();
 
     /**
      * Enqueues one item for background processing.
@@ -577,6 +594,69 @@ public abstract class WorkManager {
      */
     public abstract @NonNull ListenableFuture<List<WorkInfo>> getWorkInfos(
             @NonNull WorkQuery workQuery);
+
+    /**
+     * Updates the work with the new specification. A {@link WorkRequest} passed as parameter
+     * must have an id set with {@link WorkRequest.Builder#setId(UUID)} that matches an id of the
+     * previously enqueued work.
+     * <p>
+     * It preserves enqueue time, e.g. if a work was enqueued 3 hours ago and had 6 hours long
+     * initial delay, after the update it would be still eligible for run in 3 hours, assuming
+     * that initial delay wasn't updated.
+     * <p>
+     * If the work being updated is currently running the returned ListenableFuture will be
+     * completed with {@link UpdateResult#APPLIED_FOR_NEXT_RUN}. In this case the current run won't
+     * be interrupted and will continue to rely on previous state of the request, e.g. using
+     * old constraints, tags etc. However, on the next run, e.g. retry of one-time Worker or
+     * another iteration of periodic worker, the new worker specification will be used.
+     * <p>
+     * If the one time work that is updated is already finished the returned ListenableFuture
+     * will be completed with {@link UpdateResult#NOT_APPLIED}.
+     * <p>
+     * If update can be applied immediately, e.g. the updated work isn't currently running,
+     * the returned ListenableFuture will be completed with
+     * {@link UpdateResult#APPLIED_IMMEDIATELY}.
+     * <p>
+     * If the work with the given id ({@code request.getId()}) doesn't exist the returned
+     * ListenableFuture will be completed exceptionally with {@link IllegalArgumentException}.
+     * <p>
+     * Worker type can't be changed, {@link OneTimeWorkRequest} can't be updated to
+     * {@link PeriodicWorkRequest} and otherwise, the returned ListenableFuture will be
+     * completed with {@link IllegalArgumentException}.
+     *
+     * @param request the new specification for the work.
+     * @return a {@link ListenableFuture} that will be successfully completed if the update was
+     * successful. The future will be completed with an exception if the work is already running
+     * or finished.
+     */
+    // consistent with already existent method like getWorkInfos() in WorkManager
+    @SuppressWarnings("AsyncSuffixFuture")
+    @NonNull
+    public abstract ListenableFuture<UpdateResult> updateWork(@NonNull WorkRequest request);
+
+    /**
+     * An enumeration of results for {@link WorkManager#updateWork(WorkRequest)} method.
+     */
+    public enum UpdateResult {
+        /**
+         * An update wasn't applied, because {@code Worker} has already finished.
+         */
+        NOT_APPLIED,
+        /**
+         * An update was successfully applied immediately, meaning
+         * the updated work wasn't currently running in the moment of the request.
+         * See {@link UpdateResult#APPLIED_FOR_NEXT_RUN} for the case of running worker.
+         */
+        APPLIED_IMMEDIATELY,
+        /**
+         * An update was successfully applied, but the worker being updated was running.
+         * This run isn't interrupted and will continue to rely on previous state of the
+         * request, e.g. using old constraints, tags etc. However, on the next run, e.g. retry of
+         * one-time Worker or another iteration of periodic worker, the new worker specification.
+         * will be used.
+         */
+        APPLIED_FOR_NEXT_RUN,
+    }
 
     /**
      * @hide

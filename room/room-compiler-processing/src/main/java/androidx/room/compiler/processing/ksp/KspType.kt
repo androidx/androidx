@@ -19,12 +19,14 @@ package androidx.room.compiler.processing.ksp
 import androidx.room.compiler.processing.XEquality
 import androidx.room.compiler.processing.XNullability
 import androidx.room.compiler.processing.XType
+import androidx.room.compiler.processing.isArray
 import androidx.room.compiler.processing.tryBox
 import androidx.room.compiler.processing.tryUnbox
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSType
 import com.google.devtools.ksp.symbol.KSTypeReference
 import com.google.devtools.ksp.symbol.Nullability
+import com.squareup.javapoet.TypeName
 import kotlin.reflect.KClass
 
 /**
@@ -37,11 +39,32 @@ import kotlin.reflect.KClass
  */
 internal abstract class KspType(
     val env: KspProcessingEnv,
-    val ksType: KSType
+    val ksType: KSType,
+    /**
+     * Type resolver to convert KSType into its JVM representation.
+     */
+    protected val jvmTypeResolver: KspJvmTypeResolver?
 ) : XType, XEquality {
     override val rawType by lazy {
         KspRawType(this)
     }
+
+    final override val typeName: TypeName by lazy {
+        jvmWildcardType?.typeName ?: resolveTypeName()
+    }
+
+    /**
+     * A Kotlin type might have a sligtly different type in JVM due to wildcards.
+     * This fields holds onto that value which will be used when creating JVM types.
+     */
+    private val jvmWildcardType by lazy {
+        jvmTypeResolver?.resolveJvmType(env)
+    }
+
+    val jvmWildcardTypeOrSelf
+        get() = jvmWildcardType ?: this
+
+    protected abstract fun resolveTypeName(): TypeName
 
     override val nullability by lazy {
         when (ksType.nullability) {
@@ -51,10 +74,29 @@ internal abstract class KspType(
         }
     }
 
+    override val superTypes: List<XType> by lazy {
+        val declaration = ksType.declaration as? KSClassDeclaration
+        declaration?.superTypes?.toList()?.map {
+            env.wrap(
+                ksType = it.resolve(),
+                allowPrimitives = false
+            )
+        } ?: emptyList()
+    }
+
     override val typeElement by lazy {
-        // for primitive types, we could technically return null from here as they are not backed
-        // by a type element in javac but in Kotlin we have types for them, hence returning them
-        // is better.
+        // Array types don't have an associated type element (only the componentType does), so
+        // return null.
+        if (isArray()) {
+            return@lazy null
+        }
+
+        // If the typeName is primitive, return null for consistency since primitives normally imply
+        // that there isn't an associated type element.
+        if (typeName.isPrimitive) {
+            return@lazy null
+        }
+
         val declaration = ksType.declaration as? KSClassDeclaration
         declaration?.let {
             env.wrapClassDeclaration(it)
@@ -85,8 +127,9 @@ internal abstract class KspType(
         val builtIns = env.resolver.builtIns
         return when (ksType) {
             builtIns.booleanType -> "false"
-            builtIns.byteType, builtIns.shortType, builtIns.intType, builtIns.longType, builtIns
+            builtIns.byteType, builtIns.shortType, builtIns.intType, builtIns
                 .charType -> "0"
+            builtIns.longType -> "0L"
             builtIns.floatType -> "0f"
             builtIns.doubleType -> "0.0"
             else -> "null"
@@ -142,6 +185,21 @@ internal abstract class KspType(
     }
 
     abstract override fun boxed(): KspType
+
+    fun withJvmTypeResolver(
+        jvmTypeResolver: KspJvmTypeResolutionScope
+    ): KspType {
+        return copyWithJvmTypeResolver(
+            KspJvmTypeResolver(
+                scope = jvmTypeResolver,
+                delegate = this
+            )
+        )
+    }
+
+    abstract fun copyWithJvmTypeResolver(
+        jvmTypeResolver: KspJvmTypeResolver
+    ): KspType
 
     /**
      * Create a copy of this type with the given nullability.

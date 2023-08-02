@@ -27,7 +27,7 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.currentComposer
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.tooling.CommonPreviewUtils.invokeComposableViaReflection
+import androidx.compose.ui.ExperimentalComposeUiApi
 
 /**
  * Activity used to run `@Composable` previews from Android Studio.
@@ -58,6 +58,8 @@ class PreviewActivity : ComponentActivity() {
         intent?.getStringExtra("composable")?.let { setComposableContent(it) }
     }
 
+    @Suppress("DEPRECATION")
+    @OptIn(ExperimentalComposeUiApi::class)
     private fun setComposableContent(composableFqn: String) {
         Log.d(TAG, "PreviewActivity has composable $composableFqn")
         val className = composableFqn.substringBeforeLast('.')
@@ -69,7 +71,7 @@ class PreviewActivity : ComponentActivity() {
         }
         Log.d(TAG, "Previewing '$methodName' without a parameter provider.")
         setContent {
-            invokeComposableViaReflection(
+            ComposableInvoker.invokeComposable(
                 className,
                 methodName,
                 currentComposer
@@ -84,6 +86,8 @@ class PreviewActivity : ComponentActivity() {
      * Otherwise, the content will display a FAB that changes the argument value on click, cycling
      * through all the values in the provider's sequence.
      */
+    @Suppress("DEPRECATION")
+    @OptIn(ExperimentalComposeUiApi::class)
     private fun setParameterizedContent(
         className: String,
         methodName: String,
@@ -104,7 +108,7 @@ class PreviewActivity : ComponentActivity() {
 
                 Scaffold(
                     content = {
-                        invokeComposableViaReflection(
+                        ComposableInvoker.invokeComposable(
                             className,
                             methodName,
                             currentComposer,
@@ -121,7 +125,7 @@ class PreviewActivity : ComponentActivity() {
             }
         } else {
             setContent {
-                invokeComposableViaReflection(
+                ComposableInvoker.invokeComposable(
                     className,
                     methodName,
                     currentComposer,

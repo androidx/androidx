@@ -25,9 +25,13 @@ import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
 import androidx.room.compiler.processing.util.runProcessorTest
 import androidx.room.ext.CommonTypeNames
+import androidx.room.ext.GuavaUtilConcurrentTypeNames
 import androidx.room.ext.KotlinTypeNames
 import androidx.room.ext.LifecyclesTypeNames
 import androidx.room.ext.PagingTypeNames
+import androidx.room.ext.ReactiveStreamsTypeNames
+import androidx.room.ext.RxJava2TypeNames
+import androidx.room.ext.RxJava3TypeNames
 import androidx.room.ext.typeName
 import androidx.room.parser.QueryType
 import androidx.room.parser.Table
@@ -82,6 +86,20 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
                 @Dao
                 abstract class MyClass {
                 """
+        const val DAO_PREFIX_KT = """
+                package foo.bar
+                import androidx.room.*
+                import java.util.*
+                import io.reactivex.*         
+                io.reactivex.rxjava3.core.*
+                androidx.lifecycle.*
+                com.google.common.util.concurrent.*
+                org.reactivestreams.*
+                kotlinx.coroutines.flow.*
+            
+                @Dao
+                abstract class MyClass {
+                """
         const val DAO_SUFFIX = "}"
         val POJO: ClassName = ClassName.get("foo.bar", "MyClass.Pojo")
         @Parameterized.Parameters(name = "enableDbVerification={0}")
@@ -108,7 +126,7 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
                 abstract public int[] foo();
             """
         ) { parsedQuery, _ ->
-            assertThat(parsedQuery.name, `is`("foo"))
+            assertThat(parsedQuery.element.jvmName, `is`("foo"))
             assertThat(parsedQuery.parameters.size, `is`(0))
             assertThat(
                 parsedQuery.returnType.typeName,
@@ -125,7 +143,7 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
                 abstract public long foo(int x);
                 """
         ) { parsedQuery, invocation ->
-            assertThat(parsedQuery.name, `is`("foo"))
+            assertThat(parsedQuery.element.jvmName, `is`("foo"))
             assertThat(parsedQuery.returnType.typeName, `is`(TypeName.LONG))
             assertThat(parsedQuery.parameters.size, `is`(1))
             val param = parsedQuery.parameters.first()
@@ -146,7 +164,7 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
                 abstract public long foo(int... ids);
                 """
         ) { parsedQuery, _ ->
-            assertThat(parsedQuery.name, `is`("foo"))
+            assertThat(parsedQuery.element.jvmName, `is`("foo"))
             assertThat(parsedQuery.returnType.typeName, `is`(TypeName.LONG))
             assertThat(parsedQuery.parameters.size, `is`(1))
             val param = parsedQuery.parameters.first()
@@ -465,7 +483,7 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
                 abstract public int foo(int id);
                 """
         ) { parsedQuery, _ ->
-            assertThat(parsedQuery.name, `is`("foo"))
+            assertThat(parsedQuery.element.jvmName, `is`("foo"))
             assertThat(parsedQuery.parameters.size, `is`(1))
             assertThat(parsedQuery.returnType.typeName, `is`(TypeName.INT))
         }
@@ -479,7 +497,7 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
                 abstract public void foo(int id);
                 """
         ) { parsedQuery, _ ->
-            assertThat(parsedQuery.name, `is`("foo"))
+            assertThat(parsedQuery.element.jvmName, `is`("foo"))
             assertThat(parsedQuery.parameters.size, `is`(1))
             assertThat(parsedQuery.returnType.typeName, `is`(TypeName.VOID))
         }
@@ -493,7 +511,7 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
                 abstract public void updateAllNames(String name);
                 """
         ) { parsedQuery, invocation ->
-            assertThat(parsedQuery.name, `is`("updateAllNames"))
+            assertThat(parsedQuery.element.jvmName, `is`("updateAllNames"))
             assertThat(parsedQuery.parameters.size, `is`(1))
             assertThat(parsedQuery.returnType.typeName, `is`(TypeName.VOID))
             assertThat(
@@ -511,7 +529,7 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
                 abstract public void insertUsername(String name);
                 """
         ) { parsedQuery, invocation ->
-            assertThat(parsedQuery.name, `is`("insertUsername"))
+            assertThat(parsedQuery.element.jvmName, `is`("insertUsername"))
             assertThat(parsedQuery.parameters.size, `is`(1))
             assertThat(parsedQuery.returnType.typeName, `is`(TypeName.VOID))
             assertThat(
@@ -529,7 +547,7 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
                 abstract public long insertUsername(String name);
                 """
         ) { parsedQuery, invocation ->
-            assertThat(parsedQuery.name, `is`("insertUsername"))
+            assertThat(parsedQuery.element.jvmName, `is`("insertUsername"))
             assertThat(parsedQuery.parameters.size, `is`(1))
             assertThat(parsedQuery.returnType.typeName, `is`(TypeName.LONG))
             assertThat(
@@ -774,7 +792,7 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
                 abstract public int[] foo();
                 """
         ) { parsedQuery, _ ->
-            assertThat(parsedQuery.name, `is`("foo"))
+            assertThat(parsedQuery.element.jvmName, `is`("foo"))
             assertThat(parsedQuery.parameters.size, `is`(0))
             assertThat(
                 parsedQuery.returnType.typeName,
@@ -792,7 +810,7 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
                 abstract NotAnEntity getPojo();
                 """
         ) { parsedQuery, _ ->
-            assertThat(parsedQuery.name, `is`("getPojo"))
+            assertThat(parsedQuery.element.jvmName, `is`("getPojo"))
             assertThat(parsedQuery.parameters.size, `is`(0))
             assertThat(
                 parsedQuery.returnType.typeName,
@@ -1344,6 +1362,58 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
         }
     }
 
+    private fun <T : QueryMethod> singleQueryMethodKotlin(
+        vararg input: String,
+        additionalSources: Iterable<Source> = emptyList(),
+        options: Map<String, String> = emptyMap(),
+        handler: (T, XTestInvocation) -> Unit
+    ) {
+        val inputSource = Source.kotlin(
+            "MyClass.kt",
+            DAO_PREFIX_KT + input.joinToString("\n") + DAO_SUFFIX
+        )
+        val commonSources = listOf(
+            COMMON.USER, COMMON.BOOK, COMMON.NOT_AN_ENTITY, COMMON.RX2_COMPLETABLE,
+            COMMON.RX2_MAYBE, COMMON.RX2_SINGLE, COMMON.RX2_FLOWABLE, COMMON.RX2_OBSERVABLE,
+            COMMON.RX3_COMPLETABLE, COMMON.RX3_MAYBE, COMMON.RX3_SINGLE, COMMON.RX3_FLOWABLE,
+            COMMON.RX3_OBSERVABLE, COMMON.LISTENABLE_FUTURE, COMMON.LIVE_DATA,
+            COMMON.COMPUTABLE_LIVE_DATA, COMMON.PUBLISHER, COMMON.FLOW, COMMON.GUAVA_ROOM
+        )
+
+        runProcessorTest(
+            sources = additionalSources + commonSources + inputSource,
+            options = options
+        ) { invocation ->
+            val (owner, methods) = invocation.roundEnv
+                .getElementsAnnotatedWith(Dao::class.qualifiedName!!)
+                .filterIsInstance<XTypeElement>()
+                .map { typeElement ->
+                    Pair(
+                        typeElement,
+                        typeElement.getAllMethods().filter { method ->
+                            method.hasAnnotation(Query::class)
+                        }.toList()
+                    )
+                }.first { it.second.isNotEmpty() }
+            val verifier = if (enableVerification) {
+                createVerifierFromEntitiesAndViews(invocation).also(
+                    invocation.context::attachDatabaseVerifier
+                )
+            } else {
+                null
+            }
+            val parser = QueryMethodProcessor(
+                baseContext = invocation.context,
+                containing = owner.type,
+                executableElement = methods.first(),
+                dbVerifier = verifier
+            )
+            val parsedQuery = parser.process()
+            @Suppress("UNCHECKED_CAST")
+            handler(parsedQuery as T, invocation)
+        }
+    }
+
     @Test
     fun testInvalidLinkedListCollectionInMultimapJoin() {
         singleQueryMethod<ReadQueryMethod>(
@@ -1392,6 +1462,68 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
             invocation.assertCompilationResult {
                 hasErrorCount(1)
                 hasErrorContaining(MAP_INFO_MUST_HAVE_AT_LEAST_ONE_COLUMN_PROVIDED)
+            }
+        }
+    }
+
+    @Test
+    fun testUseMapInfoWithTableAndColumnName() {
+        if (!enableVerification) {
+            return
+        }
+        singleQueryMethod<ReadQueryMethod>(
+            """
+                @SuppressWarnings(
+                    {RoomWarnings.CURSOR_MISMATCH, RoomWarnings.AMBIGUOUS_COLUMN_IN_RESULT}
+                )
+                @MapInfo(keyColumn = "uid", keyTable = "u")
+                @Query("SELECT * FROM User u JOIN Book b ON u.uid == b.uid")
+                abstract Map<Integer, Book> getMultimap();
+            """
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasNoWarnings()
+            }
+        }
+    }
+
+    @Test
+    fun testUseMapInfoWithOriginalTableAndColumnName() {
+        if (!enableVerification) {
+            return
+        }
+        singleQueryMethod<ReadQueryMethod>(
+            """
+                @SuppressWarnings(
+                    {RoomWarnings.CURSOR_MISMATCH, RoomWarnings.AMBIGUOUS_COLUMN_IN_RESULT}
+                )
+                @MapInfo(keyColumn = "uid", keyTable = "User")
+                @Query("SELECT * FROM User u JOIN Book b ON u.uid == b.uid")
+                abstract Map<Integer, Book> getMultimap();
+            """
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasNoWarnings()
+            }
+        }
+    }
+
+    @Test
+    fun testUseMapInfoWithColumnAlias() {
+        if (!enableVerification) {
+            return
+        }
+        singleQueryMethod<ReadQueryMethod>(
+            """
+                @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
+                @MapInfo(keyColumn = "name", valueColumn = "bookCount")
+                @Query("SELECT name, (SELECT count(*) FROM User u JOIN Book b ON u.uid == b.uid) "
+                    + "AS bookCount FROM User")
+                abstract Map<String, Integer> getMultimap();
+            """
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasNoWarnings()
             }
         }
     }
@@ -1601,13 +1733,117 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
                 )
                 hasErrorCount(2)
                 hasErrorContaining(
-                    "Column(s) specified in the provided @MapInfo annotation must " +
+                    "Column specified in the provided @MapInfo annotation must " +
                         "be present in the query. Provided: cat."
                 )
                 hasErrorContaining(
-                    "Column(s) specified in the provided @MapInfo annotation must " +
+                    "Column specified in the provided @MapInfo annotation must " +
                         "be present in the query. Provided: dog."
                 )
+            }
+        }
+    }
+
+    @Test
+    fun testAmbiguousColumnInMapInfo() {
+        if (!enableVerification) {
+            // No warning without verification, avoiding false positives
+            return
+        }
+        singleQueryMethod<ReadQueryMethod>(
+            """
+                @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
+                @MapInfo(keyColumn = "uid")
+                @Query("SELECT * FROM User u JOIN Book b ON u.uid == b.uid")
+                abstract Map<Integer, Book> getMultimap();
+            """
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasWarning(
+                    ProcessorErrors.ambiguousColumn(
+                        "uid",
+                        ProcessorErrors.AmbiguousColumnLocation.MAP_INFO,
+                        null
+                    )
+                )
+            }
+        }
+    }
+
+    @Test
+    fun testAmbiguousColumnInMapPojo() {
+        if (!enableVerification) {
+            // No warning without verification, avoiding false positives
+            return
+        }
+        val extraPojo = Source.java(
+            "foo.bar.Id",
+            """
+                package foo.bar;
+                public class Id {
+                    public int uid;
+
+                    @Override
+                    public boolean equals(Object o) {
+                        return true;
+                    }
+
+                    @Override
+                    public int hashCode() {
+                        return 0;
+                    }
+                }
+            """.trimIndent()
+        )
+        singleQueryMethod<ReadQueryMethod>(
+            """
+                @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
+                @Query("SELECT * FROM User u JOIN Book b ON u.uid == b.uid")
+                abstract Map<Id, Book> getMultimap();
+            """,
+            additionalSources = listOf(extraPojo)
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasWarning(
+                    ProcessorErrors.ambiguousColumn(
+                        "uid",
+                        ProcessorErrors.AmbiguousColumnLocation.POJO,
+                        ClassName.get("foo.bar", "Id")
+                    )
+                )
+            }
+        }
+    }
+
+    @Test
+    fun suspendReturnsDeferredType() {
+        listOf(
+            "${RxJava2TypeNames.FLOWABLE}<Int>",
+            "${RxJava2TypeNames.OBSERVABLE}<Int>",
+            "${RxJava2TypeNames.MAYBE}<Int>",
+            "${RxJava2TypeNames.SINGLE}<Int>",
+            "${RxJava2TypeNames.COMPLETABLE}",
+            "${RxJava3TypeNames.FLOWABLE}<Int>",
+            "${RxJava3TypeNames.OBSERVABLE}<Int>",
+            "${RxJava3TypeNames.MAYBE}<Int>",
+            "${RxJava3TypeNames.SINGLE}<Int>",
+            "${RxJava3TypeNames.COMPLETABLE}",
+            "${LifecyclesTypeNames.LIVE_DATA}<Int>",
+            "${LifecyclesTypeNames.COMPUTABLE_LIVE_DATA}<Int>",
+            "${GuavaUtilConcurrentTypeNames.LISTENABLE_FUTURE}<Int>",
+            "${ReactiveStreamsTypeNames.PUBLISHER}<Int>",
+            "${KotlinTypeNames.FLOW}<Int>"
+        ).forEach { type ->
+            singleQueryMethodKotlin<WriteQueryMethod>(
+                """
+                @Query("DELETE from User where uid = :id")
+                abstract suspend fun foo(id: Int): $type
+                """
+            ) { _, invocation ->
+                invocation.assertCompilationResult {
+                    val rawTypeName = type.substringBefore("<")
+                    hasErrorContaining(ProcessorErrors.suspendReturnsDeferredType(rawTypeName))
+                }
             }
         }
     }

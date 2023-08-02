@@ -8,11 +8,12 @@ package androidx.emoji2.text {
   @AnyThread public class EmojiCompat {
     method public static androidx.emoji2.text.EmojiCompat get();
     method public String getAssetSignature();
+    method public int getEmojiMatch(CharSequence, @IntRange(from=0) int);
     method public int getLoadState();
     method public static boolean handleDeleteSurroundingText(android.view.inputmethod.InputConnection, android.text.Editable, @IntRange(from=0) int, @IntRange(from=0) int, boolean);
     method public static boolean handleOnKeyDown(android.text.Editable, int, android.view.KeyEvent);
-    method public boolean hasEmojiGlyph(CharSequence);
-    method public boolean hasEmojiGlyph(CharSequence, @IntRange(from=0) int);
+    method @Deprecated public boolean hasEmojiGlyph(CharSequence);
+    method @Deprecated public boolean hasEmojiGlyph(CharSequence, @IntRange(from=0) int);
     method public static androidx.emoji2.text.EmojiCompat? init(android.content.Context);
     method public static androidx.emoji2.text.EmojiCompat init(androidx.emoji2.text.EmojiCompat.Config);
     method public static boolean isConfigured();
@@ -26,6 +27,9 @@ package androidx.emoji2.text {
     method public void updateEditorInfo(android.view.inputmethod.EditorInfo);
     field public static final String EDITOR_INFO_METAVERSION_KEY = "android.support.text.emoji.emojiCompat_metadataVersion";
     field public static final String EDITOR_INFO_REPLACE_ALL_KEY = "android.support.text.emoji.emojiCompat_replaceAll";
+    field public static final int EMOJI_FALLBACK = 2; // 0x2
+    field public static final int EMOJI_SUPPORTED = 1; // 0x1
+    field public static final int EMOJI_UNSUPPORTED = 0; // 0x0
     field public static final int LOAD_STATE_DEFAULT = 3; // 0x3
     field public static final int LOAD_STATE_FAILED = 2; // 0x2
     field public static final int LOAD_STATE_LOADING = 0; // 0x0

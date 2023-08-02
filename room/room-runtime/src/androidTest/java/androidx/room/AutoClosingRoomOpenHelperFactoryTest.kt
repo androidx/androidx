@@ -17,7 +17,9 @@
 package androidx.room
 
 import android.content.Context
+import android.os.Build
 import android.os.Build.VERSION_CODES.JELLY_BEAN
+import androidx.annotation.RequiresApi
 import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.sqlite.db.SupportSQLiteOpenHelper
 import androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory
@@ -46,10 +48,11 @@ public class AutoClosingRoomOpenHelperFactoryTest {
         return AutoClosingRoomOpenHelperFactory(
             delegateOpenHelperFactory,
             AutoCloser(timeoutMillis, TimeUnit.MILLISECONDS, Executors.newSingleThreadExecutor())
-                .also { it.mOnAutoCloseCallback = Runnable {} }
+                .also { it.onAutoCloseCallback = Runnable {} }
         )
     }
 
+    @RequiresApi(Build.VERSION_CODES.N)
     @Test
     public fun testCallbacksCalled() {
         val autoClosingRoomOpenHelperFactory =
@@ -108,6 +111,7 @@ public class AutoClosingRoomOpenHelperFactoryTest {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.N)
     @Test
     public fun testDatabaseIsOpenForSlowCallbacks() {
         val autoClosingRoomOpenHelperFactory =

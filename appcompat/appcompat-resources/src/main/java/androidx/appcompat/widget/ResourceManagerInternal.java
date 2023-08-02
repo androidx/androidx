@@ -27,6 +27,7 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.Drawable.ConstantState;
+import android.graphics.drawable.LayerDrawable;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -437,10 +438,22 @@ public final class ResourceManagerInternal {
     }
 
     static void tintDrawable(Drawable drawable, TintInfo tint, int[] state) {
-        if (DrawableUtils.canSafelyMutateDrawable(drawable)
-                && drawable.mutate() != drawable) {
-            Log.d(TAG, "Mutated drawable is not the same instance as the input.");
-            return;
+        int[] drawableState = drawable.getState();
+
+        boolean mutated = false;
+        if (DrawableUtils.canSafelyMutateDrawable(drawable)) {
+            mutated = drawable.mutate() == drawable;
+            if (!mutated) {
+                Log.d(TAG, "Mutated drawable is not the same instance as the input.");
+                return;
+            }
+        }
+
+        // Workaround for b/232275112 where LayerDrawable loses its state on mutate().
+        if (drawable instanceof LayerDrawable && drawable.isStateful()) {
+            // Clear state first, otherwise setState() is a no-op.
+            drawable.setState(new int[0]);
+            drawable.setState(drawableState);
         }
 
         if (tint.mHasTintList || tint.mHasTintMode) {

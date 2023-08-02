@@ -250,15 +250,15 @@ public final class EnergyProfile {
 
     /** Constructs an empty instance, used by serialization code. */
     private EnergyProfile() {
-        mEvConnectorTypes = CarValue.UNIMPLEMENTED_INTEGER_LIST;
-        mFuelTypes = CarValue.UNIMPLEMENTED_INTEGER_LIST;
+        mEvConnectorTypes = CarValue.UNKNOWN_INTEGER_LIST;
+        mFuelTypes = CarValue.UNKNOWN_INTEGER_LIST;
     }
 
     /** A builder of {@link EnergyProfile}. */
     public static final class Builder {
         CarValue<List<@EvConnectorType Integer>> mEvConnectorTypes =
-                CarValue.UNIMPLEMENTED_INTEGER_LIST;
-        CarValue<List<@FuelType Integer>> mFuelTypes = CarValue.UNIMPLEMENTED_INTEGER_LIST;
+                CarValue.UNKNOWN_INTEGER_LIST;
+        CarValue<List<@FuelType Integer>> mFuelTypes = CarValue.UNKNOWN_INTEGER_LIST;
 
         /**
          * Sets the cars EV connector types.

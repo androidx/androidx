@@ -39,6 +39,8 @@ import androidx.core.util.Preconditions;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
+import java.util.concurrent.Executor;
+
 /**
  * The SurfaceView implementation for {@link PreviewView}.
  */
@@ -276,6 +278,12 @@ final class SurfaceViewImplementation extends PreviewViewImplementation {
     @NonNull
     ListenableFuture<Void> waitForNextFrame() {
         return Futures.immediateFuture(null);
+    }
+
+    @Override
+    void setFrameUpdateListener(@NonNull Executor executor,
+            @NonNull PreviewView.OnFrameUpdateListener listener) {
+        throw new IllegalArgumentException("SurfaceView doesn't support frame update listener");
     }
 
     /**

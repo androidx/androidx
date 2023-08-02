@@ -25,15 +25,20 @@
     android:minWidth="200dp"
     android:minHeight="200dp"
     android:background="@color/colorSplitContentBackground"
-    tools:context="androidx.window.sample.SplitLayoutActivity">
+    tools:context="SplitLayoutActivity">
 
     <ImageView
-        android:id="@+id/imageView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:id="@+id/image_view"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         android:contentDescription="@string/green_droid"
         android:scaleType="fitCenter"
         app:srcCompat="@drawable/ic_android_green_320dp"
         tools:layout_editor_absoluteX="45dp"
-        tools:layout_editor_absoluteY="205dp" />
+        tools:layout_editor_absoluteY="205dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"/>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

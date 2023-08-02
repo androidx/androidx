@@ -43,6 +43,7 @@ import java.util.concurrent.Executor;
 /**
  * Helper for accessing features in SessionConfiguration in a backwards compatible fashion.
  */
+@SuppressWarnings("unused")
 @RequiresApi(21)
 public final class SessionConfigurationCompat {
 
@@ -132,6 +133,7 @@ public final class SessionConfigurationCompat {
     }
 
     /** @hide */
+    @NonNull
     @RequiresApi(24)
     @RestrictTo(Scope.LIBRARY)
     public static List<OutputConfiguration> transformFromCompat(
@@ -159,6 +161,7 @@ public final class SessionConfigurationCompat {
      *
      * @return A list of output configurations for the capture session.
      */
+    @NonNull
     public List<OutputConfigurationCompat> getOutputConfigurations() {
         return mImpl.getOutputConfigurations();
     }
@@ -166,8 +169,10 @@ public final class SessionConfigurationCompat {
     /**
      * Retrieve the {@link CameraCaptureSession.StateCallback} for the capture session.
      *
-     * @return A state callback interface implementation.
+     * @return A state callback interface implementation. May be {@code null} when created from
+     * parcel.
      */
+    @NonNull
     public CameraCaptureSession.StateCallback getStateCallback() {
         return mImpl.getStateCallback();
     }
@@ -177,6 +182,7 @@ public final class SessionConfigurationCompat {
      *
      * @return The Executor on which the callback will be invoked.
      */
+    @NonNull
     public Executor getExecutor() {
         return mImpl.getExecutor();
     }
@@ -186,6 +192,7 @@ public final class SessionConfigurationCompat {
      *
      * @return The capture session input configuration.
      */
+    @Nullable
     public InputConfigurationCompat getInputConfiguration() {
         return mImpl.getInputConfiguration();
     }
@@ -208,6 +215,7 @@ public final class SessionConfigurationCompat {
      * @return A capture request that includes the initial values for any available
      * session wide capture keys.
      */
+    @Nullable
     public CaptureRequest getSessionParameters() {
         return mImpl.getSessionParameters();
     }
@@ -230,7 +238,7 @@ public final class SessionConfigurationCompat {
      *               the initial capture request, so that the session and initial request parameters
      *               match as much as possible.
      */
-    public void setSessionParameters(CaptureRequest params) {
+    public void setSessionParameters(@NonNull CaptureRequest params) {
         mImpl.setSessionParameters(params);
     }
 
@@ -273,19 +281,24 @@ public final class SessionConfigurationCompat {
         @SessionMode
         int getSessionType();
 
+        @NonNull
         List<OutputConfigurationCompat> getOutputConfigurations();
 
+        @NonNull
         CameraCaptureSession.StateCallback getStateCallback();
 
+        @NonNull
         Executor getExecutor();
 
+        @Nullable
         InputConfigurationCompat getInputConfiguration();
 
         void setInputConfiguration(@NonNull InputConfigurationCompat input);
 
+        @Nullable
         CaptureRequest getSessionParameters();
 
-        void setSessionParameters(CaptureRequest params);
+        void setSessionParameters(@NonNull CaptureRequest params);
 
         @Nullable
         Object getSessionConfiguration();
@@ -298,7 +311,7 @@ public final class SessionConfigurationCompat {
         private final List<OutputConfigurationCompat> mOutputConfigurations;
         private final CameraCaptureSession.StateCallback mStateCallback;
         private final Executor mExecutor;
-        private int mSessionType;
+        private final int mSessionType;
         private InputConfigurationCompat mInputConfig = null;
         private CaptureRequest mSessionParameters = null;
 
@@ -317,16 +330,19 @@ public final class SessionConfigurationCompat {
             return mSessionType;
         }
 
+        @NonNull
         @Override
         public List<OutputConfigurationCompat> getOutputConfigurations() {
             return mOutputConfigurations;
         }
 
+        @NonNull
         @Override
         public CameraCaptureSession.StateCallback getStateCallback() {
             return mStateCallback;
         }
 
+        @NonNull
         @Override
         public Executor getExecutor() {
             return mExecutor;
@@ -354,7 +370,7 @@ public final class SessionConfigurationCompat {
         }
 
         @Override
-        public void setSessionParameters(CaptureRequest params) {
+        public void setSessionParameters(@NonNull CaptureRequest params) {
             mSessionParameters = params;
         }
 
@@ -428,17 +444,20 @@ public final class SessionConfigurationCompat {
             return mObject.getSessionType();
         }
 
+        @NonNull
         @Override
         public List<OutputConfigurationCompat> getOutputConfigurations() {
             // Return cached compat version of list
             return mOutputConfigurations;
         }
 
+        @NonNull
         @Override
         public CameraCaptureSession.StateCallback getStateCallback() {
             return mObject.getStateCallback();
         }
 
+        @NonNull
         @Override
         public Executor getExecutor() {
             return mObject.getExecutor();
@@ -460,7 +479,7 @@ public final class SessionConfigurationCompat {
         }
 
         @Override
-        public void setSessionParameters(CaptureRequest params) {
+        public void setSessionParameters(@NonNull CaptureRequest params) {
             mObject.setSessionParameters(params);
         }
 

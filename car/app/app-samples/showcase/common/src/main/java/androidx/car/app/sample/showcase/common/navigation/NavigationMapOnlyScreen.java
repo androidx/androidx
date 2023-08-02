@@ -23,6 +23,7 @@ import androidx.car.app.model.Action;
 import androidx.car.app.model.ActionStrip;
 import androidx.car.app.model.Template;
 import androidx.car.app.navigation.model.NavigationTemplate;
+import androidx.car.app.sample.showcase.common.R;
 
 /** Simple demo of how to present a navigation screen with only a map. */
 public final class NavigationMapOnlyScreen extends Screen {
@@ -38,7 +39,8 @@ public final class NavigationMapOnlyScreen extends Screen {
                 new ActionStrip.Builder()
                         .addAction(
                                 new Action.Builder()
-                                        .setTitle("BACK")
+                                        .setTitle(getCarContext().getString(
+                                                R.string.back_caps_action_title))
                                         .setOnClickListener(this::finish)
                                         .build())
                         .build();

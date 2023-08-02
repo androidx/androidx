@@ -68,6 +68,10 @@ class OngoingActivityData implements VersionedParcelable {
     @ParcelField(value = 9, defaultValue = "null")
     String mTitle;
 
+    @Nullable
+    @ParcelField(value = 10, defaultValue = "null")
+    String mContentDescription;
+
     // Required by VersionedParcelable
     OngoingActivityData() {
     }
@@ -81,7 +85,8 @@ class OngoingActivityData implements VersionedParcelable {
             int ongoingActivityId,
             @Nullable String category,
             long timestamp,
-            @Nullable String title
+            @Nullable String title,
+            @Nullable String contentDescription
     ) {
         mAnimatedIcon = animatedIcon;
         mStaticIcon = staticIcon;
@@ -92,6 +97,7 @@ class OngoingActivityData implements VersionedParcelable {
         mCategory = category;
         mTimestamp = timestamp;
         mTitle = title;
+        mContentDescription = contentDescription;
     }
 
     @Nullable
@@ -135,6 +141,11 @@ class OngoingActivityData implements VersionedParcelable {
     @Nullable
     String getTitle() {
         return mTitle;
+    }
+
+    @Nullable
+    String getContentDescription() {
+        return mContentDescription;
     }
 
     // Status is mutable, by the library.

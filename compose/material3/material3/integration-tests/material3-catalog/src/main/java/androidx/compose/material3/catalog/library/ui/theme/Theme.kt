@@ -16,15 +16,17 @@
 
 package androidx.compose.material3.catalog.library.ui.theme
 
+import android.app.Activity
+import android.content.Context
+import android.content.ContextWrapper
 import android.os.Build
-import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material.darkColors
 import androidx.compose.material.lightColors
-import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.catalog.library.model.ColorMode
+import androidx.compose.material3.catalog.library.model.FontScaleMode
 import androidx.compose.material3.catalog.library.model.TextDirection
 import androidx.compose.material3.catalog.library.model.Theme
 import androidx.compose.material3.catalog.library.model.ThemeMode
@@ -42,7 +44,7 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
-import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat
 
 @Composable
 fun CatalogTheme(
@@ -79,9 +81,11 @@ fun CatalogTheme(
     }
 
     val view = LocalView.current
+    val context = LocalContext.current
     val darkTheme = isSystemInDarkTheme()
     SideEffect {
-        ViewCompat.getWindowInsetsController(view)?.isAppearanceLightStatusBars = !darkTheme
+        WindowCompat.getInsetsController(context.findActivity().window, view)
+            .isAppearanceLightStatusBars = !darkTheme
     }
 
     CompositionLocalProvider(
@@ -89,10 +93,12 @@ fun CatalogTheme(
         LocalDensity provides
             Density(
                 density = LocalDensity.current.density,
-                fontScale = theme.fontScale,
-            ),
-        // TODO: M3 MaterialTheme doesn't provide LocalIndication, remove when it does
-        LocalIndication provides rememberRipple()
+                fontScale = if (theme.fontScaleMode == FontScaleMode.System) {
+                    LocalDensity.current.fontScale
+                } else {
+                    theme.fontScale
+                }
+            )
     ) {
         // TODO: Remove M2 MaterialTheme when using only M3 components
         androidx.compose.material.MaterialTheme(
@@ -180,3 +186,10 @@ private val DarkCustomColorScheme = darkColorScheme(
     onErrorContainer = Color(0xFFFFDAD4),
     outline = Color(0xFFA08D85),
 )
+
+private tailrec fun Context.findActivity(): Activity =
+    when (this) {
+        is Activity -> this
+        is ContextWrapper -> this.baseContext.findActivity()
+        else -> throw IllegalArgumentException("Could not find activity!")
+    }

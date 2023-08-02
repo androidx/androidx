@@ -20,19 +20,24 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 
 import android.content.Context;
+import android.os.Build;
+import android.os.SystemClock;
 import android.view.MotionEvent;
 import android.view.ViewGroup;
 import android.widget.EdgeEffect;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.os.BuildCompat;
 import androidx.core.view.InputDeviceCompat;
 import androidx.core.widget.EdgeEffectCompat;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
+import androidx.test.filters.SdkSuppress;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -40,6 +45,8 @@ import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 @MediumTest
 @RunWith(AndroidJUnit4.class)
@@ -49,6 +56,7 @@ public class StretchEdgeEffectTest extends BaseRecyclerViewInstrumentationTest {
     private TestRecyclerView mRecyclerView;
     private LinearLayoutManager mLayoutManager;
     private TestEdgeEffectFactory mFactory;
+    private TestAdapter mAdapter;
 
     @Before
     public void setup() throws Throwable {
@@ -57,8 +65,7 @@ public class StretchEdgeEffectTest extends BaseRecyclerViewInstrumentationTest {
 
         mRecyclerView = new TestRecyclerView(getActivity());
         mRecyclerView.setLayoutManager(mLayoutManager);
-        mRecyclerView.setAdapter(new TestAdapter(NUM_ITEMS) {
-
+        mAdapter = new TestAdapter(NUM_ITEMS) {
             @Override
             public TestViewHolder onCreateViewHolder(@NonNull ViewGroup parent,
                     int viewType) {
@@ -67,7 +74,8 @@ public class StretchEdgeEffectTest extends BaseRecyclerViewInstrumentationTest {
                 holder.itemView.setMinimumWidth(mRecyclerView.getMeasuredWidth() * 2 / NUM_ITEMS);
                 return holder;
             }
-        });
+        };
+        mRecyclerView.setAdapter(mAdapter);
         mFactory = new TestEdgeEffectFactory();
         mRecyclerView.setEdgeEffectFactory(mFactory);
         setRecyclerView(mRecyclerView);
@@ -85,12 +93,12 @@ public class StretchEdgeEffectTest extends BaseRecyclerViewInstrumentationTest {
         scrollToPosition(0);
         waitForIdleScroll(mRecyclerView);
         scrollHorizontalBy(-3);
-        if (BuildCompat.isAtLeastS()) {
+        if (Build.VERSION.SDK_INT >= 31) {
             assertTrue(EdgeEffectCompat.getDistance(mFactory.mLeft) > 0);
         }
         scrollHorizontalBy(4);
         assertEquals(0f, EdgeEffectCompat.getDistance(mFactory.mLeft), 0f);
-        if (BuildCompat.isAtLeastS()) {
+        if (Build.VERSION.SDK_INT >= 31) {
             assertTrue(mFactory.mLeft.isFinished());
         }
     }
@@ -103,12 +111,12 @@ public class StretchEdgeEffectTest extends BaseRecyclerViewInstrumentationTest {
         scrollToPosition(0);
         waitForIdleScroll(mRecyclerView);
         scrollVerticalBy(3);
-        if (BuildCompat.isAtLeastS()) {
+        if (Build.VERSION.SDK_INT >= 31) {
             assertTrue(EdgeEffectCompat.getDistance(mFactory.mTop) > 0);
         }
         scrollVerticalBy(-4);
         assertEquals(0f, EdgeEffectCompat.getDistance(mFactory.mTop), 0f);
-        if (BuildCompat.isAtLeastS()) {
+        if (Build.VERSION.SDK_INT >= 31) {
             assertTrue(mFactory.mTop.isFinished());
         }
     }
@@ -123,12 +131,12 @@ public class StretchEdgeEffectTest extends BaseRecyclerViewInstrumentationTest {
         scrollToPosition(NUM_ITEMS - 1);
         waitForIdleScroll(mRecyclerView);
         scrollHorizontalBy(3);
-        if (BuildCompat.isAtLeastS()) {
+        if (Build.VERSION.SDK_INT >= 31) {
             assertTrue(EdgeEffectCompat.getDistance(mFactory.mRight) > 0);
         }
         scrollHorizontalBy(-4);
         assertEquals(0f, EdgeEffectCompat.getDistance(mFactory.mRight), 0f);
-        if (BuildCompat.isAtLeastS()) {
+        if (Build.VERSION.SDK_INT >= 31) {
             assertTrue(mFactory.mRight.isFinished());
         }
     }
@@ -141,12 +149,12 @@ public class StretchEdgeEffectTest extends BaseRecyclerViewInstrumentationTest {
         scrollToPosition(NUM_ITEMS - 1);
         waitForIdleScroll(mRecyclerView);
         scrollVerticalBy(-3);
-        if (BuildCompat.isAtLeastS()) {
+        if (Build.VERSION.SDK_INT >= 31) {
             assertTrue(EdgeEffectCompat.getDistance(mFactory.mBottom) > 0);
         }
 
         scrollVerticalBy(4);
-        if (BuildCompat.isAtLeastS()) {
+        if (Build.VERSION.SDK_INT >= 31) {
             assertEquals(0f, EdgeEffectCompat.getDistance(mFactory.mBottom), 0f);
             assertTrue(mFactory.mBottom.isFinished());
         }
@@ -165,7 +173,7 @@ public class StretchEdgeEffectTest extends BaseRecyclerViewInstrumentationTest {
         // test flinging right
         dragHorizontally(1000);
 
-        if (BuildCompat.isAtLeastS()) {
+        if (Build.VERSION.SDK_INT >= 31) {
             mActivityRule.runOnUiThread(() -> {
                 float pullDistance = EdgeEffectCompat.getDistance(mFactory.mLeft);
                 assertTrue(pullDistance > 0);
@@ -214,12 +222,10 @@ public class StretchEdgeEffectTest extends BaseRecyclerViewInstrumentationTest {
         scrollToPosition(0);
         waitForIdleScroll(mRecyclerView);
 
-        Thread.sleep(1000);
         // test flinging down
         dragVertically(1000);
-        Thread.sleep(1000);
 
-        if (BuildCompat.isAtLeastS()) {
+        if (Build.VERSION.SDK_INT >= 31) {
             mActivityRule.runOnUiThread(() -> {
                 float pullDistance = EdgeEffectCompat.getDistance(mFactory.mTop);
                 assertTrue(pullDistance > 0);
@@ -273,7 +279,7 @@ public class StretchEdgeEffectTest extends BaseRecyclerViewInstrumentationTest {
         // test flinging left
         dragHorizontally(-1000);
 
-        if (BuildCompat.isAtLeastS()) {
+        if (Build.VERSION.SDK_INT >= 31) {
             mActivityRule.runOnUiThread(() -> {
                 float pullDistance = EdgeEffectCompat.getDistance(mFactory.mRight);
                 assertTrue(pullDistance > 0);
@@ -328,7 +334,7 @@ public class StretchEdgeEffectTest extends BaseRecyclerViewInstrumentationTest {
         // test flinging up
         dragVertically(-1000);
 
-        if (BuildCompat.isAtLeastS()) {
+        if (Build.VERSION.SDK_INT >= 31) {
             mActivityRule.runOnUiThread(() -> {
                 float pullDistance = EdgeEffectCompat.getDistance(mFactory.mBottom);
                 assertTrue(pullDistance > 0);
@@ -371,6 +377,222 @@ public class StretchEdgeEffectTest extends BaseRecyclerViewInstrumentationTest {
         }
     }
 
+    /**
+     * On S and higher, a large fling back should remove the stretch as well as start flinging
+     * the content.
+     */
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
+    public void flingContentAfterStretchOnLeft() throws Throwable {
+        mActivityRule.runOnUiThread(
+                () -> mLayoutManager.setOrientation(LinearLayoutManager.HORIZONTAL));
+        scrollToPosition(0);
+        waitForIdleScroll(mRecyclerView);
+
+        dragHorizontally(1000);
+        float[] startPullDistance = new float[1];
+        mActivityRule.runOnUiThread(() -> {
+            mFactory.mLeft.mAbsorbVelocity = 0;
+            float pullDistance = EdgeEffectCompat.getDistance(mFactory.mLeft);
+            startPullDistance[0] = pullDistance;
+            assertTrue(pullDistance > 0);
+            assertTrue(mRecyclerView.fling(10000, 0));
+            assertEquals(pullDistance, EdgeEffectCompat.getDistance(mFactory.mLeft), 0.01f);
+            assertEquals(0, mFactory.mLeft.mAbsorbVelocity);
+            assertEquals(RecyclerView.SCROLL_STATE_SETTLING, mRecyclerView.getScrollState());
+        });
+        // Wait for at least one animation frame
+        CountDownLatch animationLatch = new CountDownLatch(1);
+        mActivityRule.runOnUiThread(() -> mRecyclerView.postOnAnimation(animationLatch::countDown));
+        assertTrue(animationLatch.await(1, TimeUnit.SECONDS));
+
+        // Now make sure the stretch is being released:
+        mActivityRule.runOnUiThread(() -> {
+            float pullDistance = EdgeEffectCompat.getDistance(mFactory.mLeft);
+            assertTrue(pullDistance < startPullDistance[0]);
+        });
+
+        // Wait for the stretch to be fully released:
+        float[] currentPullDistance = new float[1];
+        long start = SystemClock.uptimeMillis();
+        do {
+            mActivityRule.runOnUiThread(() -> {
+                assertEquals(RecyclerView.SCROLL_STATE_SETTLING, mRecyclerView.getScrollState());
+                currentPullDistance[0] = EdgeEffectCompat.getDistance(mFactory.mLeft);
+            });
+        } while (currentPullDistance[0] > 0 && SystemClock.uptimeMillis() < start + 1000);
+
+        assertEquals(0f, currentPullDistance[0], 0f);
+
+        // Now wait for the fling to finish:
+        waitForIdleScroll(mRecyclerView);
+        mActivityRule.runOnUiThread(() -> {
+            assertTrue(mLayoutManager.findFirstVisibleItemPosition() > 0);
+        });
+    }
+
+    /**
+     * On S and higher, a large fling back should remove the stretch as well as start flinging
+     * the content.
+     */
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
+    public void flingContentAfterStretchOnTop() throws Throwable {
+        scrollToPosition(0);
+        waitForIdleScroll(mRecyclerView);
+
+        dragVertically(1000);
+        float[] startPullDistance = new float[1];
+        mActivityRule.runOnUiThread(() -> {
+            mFactory.mTop.mAbsorbVelocity = 0;
+            float pullDistance = EdgeEffectCompat.getDistance(mFactory.mTop);
+            startPullDistance[0] = pullDistance;
+            assertTrue(pullDistance > 0);
+            assertTrue(mRecyclerView.fling(0, 10000));
+            assertEquals(pullDistance, EdgeEffectCompat.getDistance(mFactory.mTop), 0.01f);
+            assertEquals(0, mFactory.mTop.mAbsorbVelocity);
+            assertEquals(RecyclerView.SCROLL_STATE_SETTLING, mRecyclerView.getScrollState());
+        });
+        // Wait for at least one animation frame
+        CountDownLatch animationLatch = new CountDownLatch(1);
+        mActivityRule.runOnUiThread(() -> mRecyclerView.postOnAnimation(animationLatch::countDown));
+        assertTrue(animationLatch.await(1, TimeUnit.SECONDS));
+
+        // Now make sure the stretch is being released:
+        mActivityRule.runOnUiThread(() -> {
+            float pullDistance = EdgeEffectCompat.getDistance(mFactory.mTop);
+            assertTrue(pullDistance < startPullDistance[0]);
+        });
+
+        // Wait for the stretch to be fully released:
+        float[] currentPullDistance = new float[1];
+        long start = SystemClock.uptimeMillis();
+        do {
+            mActivityRule.runOnUiThread(() -> {
+                assertEquals(RecyclerView.SCROLL_STATE_SETTLING, mRecyclerView.getScrollState());
+                currentPullDistance[0] = EdgeEffectCompat.getDistance(mFactory.mTop);
+            });
+        } while (currentPullDistance[0] > 0 && SystemClock.uptimeMillis() < start + 1000);
+
+        assertEquals(0f, currentPullDistance[0], 0f);
+
+        // Now wait for the fling to finish:
+        waitForIdleScroll(mRecyclerView);
+        mActivityRule.runOnUiThread(() -> {
+            assertTrue(mLayoutManager.findFirstVisibleItemPosition() > 0);
+        });
+    }
+
+    /**
+     * On S and higher, a large fling back should remove the stretch as well as start flinging
+     * the content.
+     */
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
+    public void flingContentAfterStretchOnRight() throws Throwable {
+        mActivityRule.runOnUiThread(
+                () -> mLayoutManager.setOrientation(LinearLayoutManager.HORIZONTAL));
+        scrollToPosition(NUM_ITEMS - 1);
+        waitForIdleScroll(mRecyclerView);
+
+        dragHorizontally(-1000);
+        float[] startPullDistance = new float[1];
+        int[] lastItemPosition = new int[1];
+        mActivityRule.runOnUiThread(() -> {
+            lastItemPosition[0] = mLayoutManager.findLastVisibleItemPosition();
+            mFactory.mRight.mAbsorbVelocity = 0;
+            float pullDistance = EdgeEffectCompat.getDistance(mFactory.mRight);
+            startPullDistance[0] = pullDistance;
+            assertTrue(pullDistance > 0);
+            assertTrue(mRecyclerView.fling(-10000, 0));
+            assertEquals(pullDistance, EdgeEffectCompat.getDistance(mFactory.mRight), 0.01f);
+            assertEquals(0, mFactory.mRight.mAbsorbVelocity);
+            assertEquals(RecyclerView.SCROLL_STATE_SETTLING, mRecyclerView.getScrollState());
+        });
+        // Wait for at least one animation frame
+        CountDownLatch animationLatch = new CountDownLatch(1);
+        mActivityRule.runOnUiThread(() -> mRecyclerView.postOnAnimation(animationLatch::countDown));
+        assertTrue(animationLatch.await(1, TimeUnit.SECONDS));
+
+        // Now make sure the stretch is being released:
+        mActivityRule.runOnUiThread(() -> {
+            float pullDistance = EdgeEffectCompat.getDistance(mFactory.mRight);
+            assertTrue(pullDistance < startPullDistance[0]);
+        });
+
+        // Wait for the stretch to be fully released:
+        float[] currentPullDistance = new float[1];
+        long start = SystemClock.uptimeMillis();
+        do {
+            mActivityRule.runOnUiThread(() -> {
+                assertEquals(RecyclerView.SCROLL_STATE_SETTLING, mRecyclerView.getScrollState());
+                currentPullDistance[0] = EdgeEffectCompat.getDistance(mFactory.mRight);
+            });
+        } while (currentPullDistance[0] > 0 && SystemClock.uptimeMillis() < start + 1000);
+
+        assertEquals(0f, currentPullDistance[0], 0f);
+
+        // Now wait for the fling to finish:
+        waitForIdleScroll(mRecyclerView);
+        mActivityRule.runOnUiThread(() -> {
+            assertTrue(lastItemPosition[0] > mLayoutManager.findLastVisibleItemPosition());
+        });
+    }
+
+    /**
+     * On S and higher, a large fling back should remove the stretch as well as start flinging
+     * the content.
+     */
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
+    public void flingContentAfterStretchOnBottom() throws Throwable {
+        scrollToPosition(NUM_ITEMS - 1);
+        waitForIdleScroll(mRecyclerView);
+
+        dragVertically(-1000);
+        float[] startPullDistance = new float[1];
+        int[] lastItemPosition = new int[1];
+        mActivityRule.runOnUiThread(() -> {
+            lastItemPosition[0] = mLayoutManager.findLastVisibleItemPosition();
+            mFactory.mBottom.mAbsorbVelocity = 0;
+            float pullDistance = EdgeEffectCompat.getDistance(mFactory.mBottom);
+            startPullDistance[0] = pullDistance;
+            assertTrue(pullDistance > 0);
+            assertTrue(mRecyclerView.fling(0, -10000));
+            assertEquals(pullDistance, EdgeEffectCompat.getDistance(mFactory.mBottom), 0.01f);
+            assertEquals(0, mFactory.mBottom.mAbsorbVelocity);
+            assertEquals(RecyclerView.SCROLL_STATE_SETTLING, mRecyclerView.getScrollState());
+        });
+        // Wait for at least one animation frame
+        CountDownLatch animationLatch = new CountDownLatch(1);
+        mActivityRule.runOnUiThread(() -> mRecyclerView.postOnAnimation(animationLatch::countDown));
+        assertTrue(animationLatch.await(1, TimeUnit.SECONDS));
+
+        // Now make sure the stretch is being released:
+        mActivityRule.runOnUiThread(() -> {
+            float pullDistance = EdgeEffectCompat.getDistance(mFactory.mBottom);
+            assertTrue(pullDistance < startPullDistance[0]);
+        });
+
+        // Wait for the stretch to be fully released:
+        float[] currentPullDistance = new float[1];
+        long start = SystemClock.uptimeMillis();
+        do {
+            mActivityRule.runOnUiThread(() -> {
+                assertEquals(RecyclerView.SCROLL_STATE_SETTLING, mRecyclerView.getScrollState());
+                currentPullDistance[0] = EdgeEffectCompat.getDistance(mFactory.mBottom);
+            });
+        } while (currentPullDistance[0] > 0 && SystemClock.uptimeMillis() < start + 1000);
+
+        assertEquals(0f, currentPullDistance[0], 0f);
+
+        // Now wait for the fling to finish:
+        waitForIdleScroll(mRecyclerView);
+        mActivityRule.runOnUiThread(() -> {
+            assertTrue(lastItemPosition[0] > mLayoutManager.findLastVisibleItemPosition());
+        });
+    }
+
     @Test
     public void testScrollState() throws Throwable {
         // Drag down and it should only activate over scroll
@@ -386,6 +608,159 @@ public class StretchEdgeEffectTest extends BaseRecyclerViewInstrumentationTest {
                     (int) scrollStates.get(scrollStates.size() - 1)
             );
         });
+    }
+
+    @Test
+    public void stretchAndAddContentToBottom() throws Throwable {
+        if (BuildCompat.isAtLeastS()) {
+            stretchAndAddContent(() -> mFactory.mBottom, true, true);
+        }
+    }
+
+    @Test
+    public void doubleStretchBottom() throws Throwable {
+        if (BuildCompat.isAtLeastS()) {
+            stretchAndStretchMore(() -> mFactory.mBottom, true, true);
+        }
+    }
+
+    @Test
+    public void stretchAndAddContentToTop() throws Throwable {
+        if (BuildCompat.isAtLeastS()) {
+            stretchAndAddContent(() -> mFactory.mTop, false, true);
+        }
+    }
+
+    @Test
+    public void doubleStretchTop() throws Throwable {
+        if (BuildCompat.isAtLeastS()) {
+            stretchAndStretchMore(() -> mFactory.mTop, false, true);
+        }
+    }
+
+    @Test
+    public void stretchAndAddContentToRight() throws Throwable {
+        if (BuildCompat.isAtLeastS()) {
+            stretchAndAddContent(() -> mFactory.mRight, true, false);
+        }
+    }
+
+    @Test
+    public void doubleStretchRight() throws Throwable {
+        if (BuildCompat.isAtLeastS()) {
+            stretchAndStretchMore(() -> mFactory.mRight, true, false);
+        }
+    }
+
+    @Test
+    public void stretchAndAddContentToLeft() throws Throwable {
+        if (BuildCompat.isAtLeastS()) {
+            stretchAndAddContent(() -> mFactory.mLeft, false, false);
+        }
+    }
+
+    @Test
+    public void doubleStretchLeft() throws Throwable {
+        if (BuildCompat.isAtLeastS()) {
+            stretchAndStretchMore(() -> mFactory.mLeft, false, false);
+        }
+    }
+
+    /**
+     * When stretching and new items are added, the stretch should be released and
+     * a drag from the user should scroll instead of changing the stretch.
+     */
+    private void stretchAndAddContent(
+            @NonNull EdgeFactoryReference edgeEffect,
+            boolean increase,
+            boolean vertical
+    ) throws Throwable {
+        if (!vertical) {
+            mActivityRule.runOnUiThread(
+                    () -> mLayoutManager.setOrientation(LinearLayoutManager.HORIZONTAL));
+        }
+        if (increase) {
+            scrollToPosition(NUM_ITEMS - 1);
+        }
+        waitForIdleScroll(mRecyclerView);
+
+        float density =
+                mActivityRule.getActivity().getResources().getDisplayMetrics().densityDpi / 160f;
+
+        int distance = (int) (500 * density) * (increase ? -1 : 1);
+        int start = increase ? NUM_ITEMS : 0;
+
+        int dragX = vertical ? 0 : distance;
+        int dragY = vertical ? distance : 0;
+
+        dragAndExecute(
+                dragX,
+                dragY,
+                null,
+                () -> {
+                    assertFalse(edgeEffect.invoke().mOnReleaseCalled);
+                    try {
+                        mAdapter.addAndNotify(start, NUM_ITEMS);
+                    } catch (Throwable e) {
+                    }
+                },
+                () -> {
+                    assertTrue(edgeEffect.invoke().mOnReleaseCalled);
+                }
+        );
+
+        float oldDistance = edgeEffect.invoke().mDistance;
+        int firstVisible = mLayoutManager.findFirstVisibleItemPosition();
+
+        // There is no animation from the onRelease, so the stretch is still active.
+        // Additional drag should not change the stretch distance and should scroll instead.
+
+        dragAndExecute(dragX, dragY, () -> assertFalse(edgeEffect.invoke().mIsHeld), null, null);
+
+        assertEquals(oldDistance, edgeEffect.invoke().mDistance, 0.01f);
+        assertNotEquals(firstVisible, mLayoutManager.findFirstVisibleItemPosition());
+    }
+
+    /**
+     * When stretching and releasing, then drag to stretch again, it should
+     * increase the stretch.
+     */
+    private void stretchAndStretchMore(
+            @NonNull EdgeFactoryReference edgeEffect,
+            boolean increase,
+            boolean vertical
+    ) throws Throwable {
+        if (!vertical) {
+            mActivityRule.runOnUiThread(
+                    () -> mLayoutManager.setOrientation(LinearLayoutManager.HORIZONTAL));
+        }
+        if (increase) {
+            scrollToPosition(NUM_ITEMS - 1);
+        }
+        waitForIdleScroll(mRecyclerView);
+
+        float density =
+                mActivityRule.getActivity().getResources().getDisplayMetrics().densityDpi / 160f;
+
+        int distance = (int) (50 * density) * (increase ? -1 : 1);
+        int start = increase ? NUM_ITEMS : 0;
+
+        int dragX = vertical ? 0 : distance;
+        int dragY = vertical ? distance : 0;
+
+        drag(dragX, dragY);
+
+        float oldDistance = edgeEffect.invoke().mDistance;
+        assertTrue(oldDistance > 0f);
+        int firstVisible = mLayoutManager.findFirstVisibleItemPosition();
+
+        // There is no animation from the onRelease, so the stretch is still active.
+        // Additional drag should continue the stretch.
+
+        dragAndExecute(dragX, dragY, () -> assertTrue(edgeEffect.invoke().mIsHeld), null, null);
+
+        assertTrue(oldDistance < edgeEffect.invoke().mDistance);
+        assertEquals(firstVisible, mLayoutManager.findFirstVisibleItemPosition());
     }
 
     private void scrollVerticalBy(final int value) throws Throwable {
@@ -407,17 +782,38 @@ public class StretchEdgeEffectTest extends BaseRecyclerViewInstrumentationTest {
     }
 
     private void drag(int deltaX, int deltaY) {
+        dragAndExecute(deltaX, deltaY, null, null, null);
+    }
+
+    private void dragAndExecute(
+            int deltaX,
+            int deltaY,
+            @Nullable Runnable afterDown,
+            @Nullable Runnable middleDrag,
+            @Nullable Runnable endDrag
+    ) {
         float centerX = mRecyclerView.getWidth() / 2f;
         float centerY = mRecyclerView.getHeight() / 2f;
         MotionEvent down = MotionEvent.obtain(0, 0, MotionEvent.ACTION_DOWN,
                 centerX, centerY, 0);
         mActivityRule.runOnUiThread(() -> mRecyclerView.dispatchTouchEvent(down));
+
+        if (afterDown != null) {
+            afterDown.run();
+        }
+
         for (int i = 0; i < 10; i++) {
             float x = centerX + (deltaX * (i + 1) / 10f);
             float y = centerY + (deltaY * (i + 1) / 10f);
             MotionEvent move = MotionEvent.obtain(0, (16 * i) + 16, MotionEvent.ACTION_MOVE,
                     x, y, 0);
             mActivityRule.runOnUiThread(() -> mRecyclerView.dispatchTouchEvent(move));
+            if (i == 5 && middleDrag != null) {
+                middleDrag.run();
+            }
+        }
+        if (endDrag != null) {
+            endDrag.run();
         }
         MotionEvent up = MotionEvent.obtain(0, 160, MotionEvent.ACTION_UP,
                 centerX + deltaX, centerY + deltaY, 0);
@@ -453,6 +849,8 @@ public class StretchEdgeEffectTest extends BaseRecyclerViewInstrumentationTest {
 
         private float mDistance;
         public int mAbsorbVelocity;
+        public boolean mOnReleaseCalled;
+        public boolean mIsHeld;
 
         TestEdgeEffect(Context context) {
             super(context);
@@ -466,6 +864,7 @@ public class StretchEdgeEffectTest extends BaseRecyclerViewInstrumentationTest {
         @Override
         public void onPull(float deltaDistance) {
             mDistance += deltaDistance;
+            mIsHeld = true;
         }
 
         @Override
@@ -484,6 +883,8 @@ public class StretchEdgeEffectTest extends BaseRecyclerViewInstrumentationTest {
         public void finish() {
             super.finish();
             mDistance = 0;
+            mOnReleaseCalled = false;
+            mIsHeld = false;
         }
 
         @Override
@@ -494,6 +895,13 @@ public class StretchEdgeEffectTest extends BaseRecyclerViewInstrumentationTest {
         @Override
         public void onAbsorb(int velocity) {
             mAbsorbVelocity = velocity;
+            mIsHeld = false;
+        }
+
+        @Override
+        public void onRelease() {
+            mOnReleaseCalled = true;
+            mIsHeld = false;
         }
     }
 
@@ -509,5 +917,9 @@ public class StretchEdgeEffectTest extends BaseRecyclerViewInstrumentationTest {
             super.onScrollStateChanged(state);
             scrollStates.add(state);
         }
+    }
+
+    private interface EdgeFactoryReference {
+        TestEdgeEffect invoke();
     }
 }

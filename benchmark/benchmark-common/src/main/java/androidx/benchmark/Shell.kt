@@ -57,6 +57,17 @@ object Shell {
         return psOutputLine.endsWith(" $processName") || psOutputLine.endsWith("/$processName")
     }
 
+    /**
+     * Equivalent of [psLineContainsProcess], but to be used with full process name string
+     * (e.g. from pgrep)
+     */
+    private fun fullProcessNameMatchesProcess(
+        fullProcessName: String,
+        processName: String
+    ): Boolean {
+        return fullProcessName == processName || fullProcessName.endsWith("/$processName")
+    }
+
     fun connectUiAutomation() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             ShellImpl // force initialization
@@ -149,12 +160,12 @@ object Shell {
     }
 
     /**
-     * Returns true if the shell session is rooted, and thus root commands can be run (e.g. atrace
-     * commands with root-only tags)
+     * Returns true if the shell session is rooted or su is usable, and thus root commands can be
+     * run (e.g. atrace commands with root-only tags)
      */
     @RequiresApi(21)
     fun isSessionRooted(): Boolean {
-        return ShellImpl.executeCommand("getprop service.adb.root").trim() == "1"
+        return ShellImpl.isSessionRooted || ShellImpl.isSuAvailable
     }
 
     /**
@@ -217,20 +228,24 @@ object Shell {
 
     @RequiresApi(21)
     fun getPidsForProcess(processName: String): List<Int> {
-        if (Build.VERSION.SDK_INT >= 24) {
-            // On API 23 (first version to offer it) we observe that 'pidof'
-            // returns list of all processes :|
-            return executeCommand("pidof $processName")
-                .trim()
-                .split(Regex("\\s+"))
-                .filter { it.isNotEmpty() }
-                .map {
-                    it.toInt()
+        if (Build.VERSION.SDK_INT >= 23) {
+            return pgrepLF(pattern = processName)
+                .mapNotNull { (pid, fullProcessName) ->
+                    // aggressive safety - ensure target isn't subset of another running package
+                    if (fullProcessNameMatchesProcess(fullProcessName, processName)) {
+                        pid
+                    } else {
+                        null
+                    }
                 }
         }
 
-        // Can't use ps -A on older platforms, arg isn't supported.
-        // Can't simply run ps, since it gets truncated
+        // NOTE: `pidof $processName` would work too, but filtering by process
+        // (the whole point of the command) doesn't work pre API 24
+
+        // Can't use ps -A pre API 26, arg isn't supported.
+        // Grep device side, since ps output by itself gets truncated
+        // NOTE: `ps | grep` is slow (multiple seconds), so avoid whenever possible!
         return executeScript("ps | grep $processName")
             .split(Regex("\r?\n"))
             .map { it.trim() }
@@ -239,6 +254,60 @@ object Shell {
                 // map to int - split, and take 2nd column (PID)
                 it.split(Regex("\\s+"))[1]
                     .toInt()
+            }
+    }
+
+    /**
+     * pgrep -l -f <pattern>
+     *
+     * pgrep is *fast*, way faster than ps | grep, but requires API 23
+     *
+     * -l, --list-name           list PID and process name
+     * -f, --full                use full process name to match
+     *
+     * @return List of processes - pid & full process name
+     */
+    @RequiresApi(23)
+    private fun pgrepLF(pattern: String): List<Pair<Int, String>> {
+        return executeCommand("pgrep -l -f $pattern")
+            .split(Regex("\r?\n"))
+            .filter { it.isNotEmpty() }
+            .map {
+                val (pidString, process) = it.trim().split(" ")
+                Pair(pidString.toInt(), process)
+            }
+    }
+
+    @RequiresApi(21)
+    fun getRunningProcessesForPackage(packageName: String): List<String> {
+        require(!packageName.contains(":")) { "Package $packageName must not contain ':'" }
+
+        // pgrep is nice and fast, but requires API 23
+        if (Build.VERSION.SDK_INT >= 23) {
+            return pgrepLF(pattern = packageName)
+                .mapNotNull { (_, process) ->
+                    // aggressive safety - ensure target isn't subset of another running package
+                    if (process == packageName || process.startsWith("$packageName:")) {
+                        process
+                    } else {
+                        null
+                    }
+                }
+        }
+
+        // Grep device side, since ps output by itself gets truncated
+        // NOTE: Can't use ps -A pre API 26, arg isn't supported, but would need
+        // to pass it on 26 to see all processes.
+        // NOTE: `ps | grep` is slow (multiple seconds), so avoid whenever possible!
+        return executeScript("ps | grep $packageName")
+            .split(Regex("\r?\n"))
+            .map {
+                // get process name from end
+                it.substringAfterLast(" ")
+            }
+            .filter {
+                // allow primary or sub process
+                it == packageName || it.startsWith("$packageName:")
             }
     }
 
@@ -318,13 +387,40 @@ private object ShellImpl {
     private val uiAutomation = InstrumentationRegistry.getInstrumentation().uiAutomation
 
     /**
-     * Reimplementation of UiAutomator's Device.executeShellCommand,
-     * to avoid the UiAutomator dependency
+     * When true, the session is already rooted and all commands run as root by default.
      */
-    fun executeCommand(cmd: String): String {
-        val parcelFileDescriptor = uiAutomation.executeShellCommand(cmd)
+    var isSessionRooted = false
+
+    /**
+     * When true, su is available for running commands and scripts as root.
+     */
+    var isSuAvailable = false
+
+    init {
+        // These variables are used in executeCommand and executeScript, so we keep them as var
+        // instead of val and use a separate initializer
+        isSessionRooted = executeCommand("id").contains("uid=0(root)")
+        isSuAvailable = executeScript(
+            "su root id",
+            null,
+            false
+        ).first.contains("uid=0(root)")
+    }
+
+    /**
+     * Reimplementation of UiAutomator's Device.executeShellCommand,
+     * to avoid the UiAutomator dependency, and add tracing
+     */
+    fun executeCommand(cmd: String): String = trace("executeCommand $cmd".take(127)) {
+        val parcelFileDescriptor = uiAutomation.executeShellCommand(
+            if (!isSessionRooted && isSuAvailable) {
+                "su root $cmd"
+            } else {
+                cmd
+            }
+        )
         AutoCloseInputStream(parcelFileDescriptor).use { inputStream ->
-            return inputStream.readBytes().toString(Charset.defaultCharset())
+            return@trace inputStream.readBytes().toString(Charset.defaultCharset())
         }
     }
 
@@ -332,7 +428,7 @@ private object ShellImpl {
         script: String,
         stdin: String?,
         includeStderr: Boolean
-    ): Pair<String, String?> {
+    ): Pair<String, String?> = trace("executeScript $script".take(127)) {
         // dirUsableByAppAndShell is writable, but we can't execute there (as of Q),
         // so we copy to /data/local/tmp
         val externalDir = Outputs.dirUsableByAppAndShell
@@ -368,17 +464,19 @@ private object ShellImpl {
             executeCommand("cp ${writableScriptFile.absolutePath} $runnableScriptPath")
             Shell.chmodExecutable(runnableScriptPath)
 
-            val stdout = trace("executeCommand") { executeCommand(runnableScriptPath) }
+            val stdout = executeCommand(runnableScriptPath)
             val stderr = stderrPath?.run { executeCommand("cat $stderrPath") }
 
-            return Pair(stdout, stderr)
+            return@trace Pair(stdout, stderr)
         } finally {
             stdinFile?.delete()
-            stderrPath?.run {
-                executeCommand("rm $stderrPath")
-            }
             writableScriptFile.delete()
-            executeCommand("rm $runnableScriptPath")
+
+            if (stderrPath != null) {
+                executeCommand("rm $stderrPath $runnableScriptPath")
+            } else {
+                executeCommand("rm $runnableScriptPath")
+            }
         }
     }
 }

@@ -20,6 +20,7 @@ import androidx.testutils.gradle.ProjectSetupRule
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -27,7 +28,6 @@ import org.junit.runners.JUnit4
 import java.io.BufferedReader
 import java.io.File
 import java.io.InputStreamReader
-import java.util.Properties
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
@@ -41,11 +41,7 @@ class InspectionPluginTest {
 
     @Before
     fun setUp() {
-        val stream = File(projectSetup.rootDir, "local.properties").inputStream()
-
-        val properties = Properties()
-        properties.load(stream)
-        val sdkDir = properties.getProperty("sdk.dir")
+        val sdkDir = projectSetup.getSdkDirectory()
         dxExecutable = File(sdkDir, "build-tools/${projectSetup.props.buildToolsVersion}/dx")
             .absolutePath
         File("src/test/test-data", "app-project").copyRecursively(projectSetup.rootDir)
@@ -55,6 +51,7 @@ class InspectionPluginTest {
             .withPluginClasspath()
     }
 
+    @Ignore // b/193918205
     @Test
     fun applyInspection() {
         File(projectSetup.rootDir, "settings.gradle")

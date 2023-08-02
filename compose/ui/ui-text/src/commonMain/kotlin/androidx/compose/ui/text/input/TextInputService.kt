@@ -87,6 +87,11 @@ open class TextInputService(private val platformTextInputService: PlatformTextIn
      * There is no guarantee that the keyboard will be shown. The software keyboard or
      * system service may silently ignore this request.
      */
+    @Deprecated(
+        message = "Use SoftwareKeyboardController.show or " +
+            "TextInputSession.showSoftwareKeyboard instead.",
+        replaceWith = ReplaceWith("textInputSession.showSoftwareKeyboard()")
+    )
     // TODO(b/183448615) @InternalTextApi
     fun showSoftwareKeyboard() {
         if (_currentInputSession.get() != null) {
@@ -97,6 +102,11 @@ open class TextInputService(private val platformTextInputService: PlatformTextIn
     /**
      * Hide onscreen keyboard.
      */
+    @Deprecated(
+        message = "Use SoftwareKeyboardController.hide or " +
+            "TextInputSession.hideSoftwareKeyboard instead.",
+        replaceWith = ReplaceWith("textInputSession.hideSoftwareKeyboard()")
+    )
     // TODO(b/183448615) @InternalTextApi
     fun hideSoftwareKeyboard(): Unit = platformTextInputService.hideSoftwareKeyboard()
 }
@@ -147,14 +157,8 @@ class TextInputSession(
         }
     }
 
-    /**
-     * Notify the focused rectangle to the system.
-     *
-     * If the session is not open, no action will be performed.
-     *
-     * @param rect the rectangle that describes the boundaries on the screen that requires focus
-     * @return false if this session expired and no action was performed
-     */
+    @Suppress("DeprecatedCallableAddReplaceWith", "DEPRECATION")
+    @Deprecated("This method should not be called, used BringIntoViewRequester instead.")
     fun notifyFocusedRect(rect: Rect): Boolean = ensureOpenSession {
         platformTextInputService.notifyFocusedRect(rect)
     }
@@ -261,10 +265,7 @@ interface PlatformTextInputService {
      */
     fun updateState(oldValue: TextFieldValue?, newValue: TextFieldValue)
 
-    /**
-     * Notify the focused rectangle to the system.
-     *
-     * @see TextInputSession.notifyFocusedRect
-     */
-    fun notifyFocusedRect(rect: Rect)
+    @Deprecated("This method should not be called, used BringIntoViewRequester instead.")
+    fun notifyFocusedRect(rect: Rect) {
+    }
 }

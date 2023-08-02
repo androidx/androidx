@@ -20,12 +20,15 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.Internal
+import org.gradle.api.tasks.PathSensitive
+import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileNotFoundException
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
+import org.gradle.api.tasks.CacheableTask
 
 /**
  * Task for building all of Androidx libraries and documentation
@@ -34,6 +37,7 @@ import java.util.zip.ZipInputStream
  * produce artifacts that we want to build on server builds
  * When BuildOnServer executes, it double-checks that all expected artifacts were built
  */
+@CacheableTask
 open class BuildOnServerTask : DefaultTask() {
 
     init {
@@ -47,25 +51,15 @@ open class BuildOnServerTask : DefaultTask() {
     @Internal
     lateinit var buildId: String
 
-    @Internal
-    var jetifierProjectPresent: Boolean = false
-
-    @InputDirectory
+    @InputDirectory @PathSensitive(PathSensitivity.RELATIVE)
     lateinit var repositoryDirectory: File
 
-    @InputFiles
+    @InputFiles @PathSensitive(PathSensitivity.RELATIVE)
     fun getRequiredFiles(): List<File> {
-        val filesNames = mutableListOf(
+        return mutableListOf(
             "androidx_aggregate_build_info.txt",
             "top-of-tree-m2repository-all-$buildId.zip"
-        )
-
-        if (jetifierProjectPresent) {
-            filesNames.add("jetifier-standalone.zip")
-            filesNames.add("top-of-tree-m2repository-partially-dejetified-$buildId.zip")
-        }
-
-        return filesNames.map { fileName -> File(distributionDirectory, fileName) }
+        ).map { fileName -> File(distributionDirectory, fileName) }
     }
 
     @TaskAction

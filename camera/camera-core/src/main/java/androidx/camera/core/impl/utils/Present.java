@@ -16,6 +16,7 @@
 
 package androidx.camera.core.impl.utils;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.core.util.Preconditions;
@@ -39,26 +40,29 @@ final class Present<T> extends Optional<T> {
         return true;
     }
 
+    @NonNull
     @Override
     public T get() {
         return mReference;
     }
 
+    @NonNull
     @Override
-    public T or(T defaultValue) {
+    public T or(@NonNull T defaultValue) {
         Preconditions.checkNotNull(defaultValue,
                 "use Optional.orNull() instead of Optional.or(null)");
         return mReference;
     }
 
     @Override
-    public Optional<T> or(Optional<? extends T> secondChoice) {
+    public @NonNull Optional<T> or(@NonNull Optional<? extends T> secondChoice) {
         Preconditions.checkNotNull(secondChoice);
         return this;
     }
 
+    @NonNull
     @Override
-    public T or(Supplier<? extends T> supplier) {
+    public T or(@NonNull Supplier<? extends T> supplier) {
         Preconditions.checkNotNull(supplier);
         return mReference;
     }
@@ -82,6 +86,7 @@ final class Present<T> extends Optional<T> {
         return 0x598df91c + mReference.hashCode();
     }
 
+    @NonNull
     @Override
     public String toString() {
         return "Optional.of(" + mReference + ")";

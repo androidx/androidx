@@ -53,7 +53,7 @@ public abstract class RemoteCoroutineWorker(context: Context, parameters: Worker
                     job.cancel()
                 }
             },
-            taskExecutor.backgroundExecutor
+            taskExecutor.serialTaskExecutor
         )
     }
 

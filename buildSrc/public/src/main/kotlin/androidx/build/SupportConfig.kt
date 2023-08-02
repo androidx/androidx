@@ -20,20 +20,13 @@ import androidx.build.SupportConfig.COMPILE_SDK_VERSION
 import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.file.FileCollection
-import org.gradle.api.plugins.ExtraPropertiesExtension
 import java.io.File
 
 object SupportConfig {
     const val DEFAULT_MIN_SDK_VERSION = 14
     const val INSTRUMENTATION_RUNNER = "androidx.test.runner.AndroidJUnitRunner"
-    const val BUILD_TOOLS_VERSION = "30.0.3"
-    val NDK_VERSION by lazy {
-        // TODO(aurimas) b/173737578 remove when we no longer have divergent versions
-        when (getOperatingSystem()) {
-            OperatingSystem.LINUX -> "23.0.7243079"
-            else -> "23.0.7599858"
-        }
-    }
+    const val BUILD_TOOLS_VERSION = "33.0.0"
+    const val NDK_VERSION = "23.1.7779620"
 
     /**
      * The Android SDK version to use for compilation.
@@ -41,7 +34,7 @@ object SupportConfig {
      * Either an integer value or a pre-release platform code, prefixed with "android-" (ex.
      * "android-28" or "android-Q") as you would see within the SDK's platforms directory.
      */
-    const val COMPILE_SDK_VERSION = "android-31"
+    const val COMPILE_SDK_VERSION = "android-33"
 
     /**
      * The Android SDK version to use for targetSdkVersion meta-data.
@@ -54,7 +47,7 @@ object SupportConfig {
      * order for tests to run on devices running released versions of the Android OS. If this is
      * set to a pre-release version, tests will only be able to run on pre-release devices.
      */
-    const val TARGET_SDK_VERSION = 31
+    const val TARGET_SDK_VERSION = 33
 }
 
 fun Project.getExternalProjectPath(): File {
@@ -74,9 +67,7 @@ fun Project.getKeystore(): File {
 }
 
 fun Project.getPrebuiltsRoot(): File {
-    val ext = project.rootProject.property("ext") as ExtraPropertiesExtension
-    val reposProperties = ext.get("repos") as Map<*, *>
-    return File(reposProperties["prebuiltsRoot"].toString())
+    return File(project.rootProject.property("prebuiltsRoot").toString())
 }
 
 /**
@@ -93,6 +84,10 @@ fun Project.getAndroidJar(): FileCollection =
             File(
                 getSdkPath(),
                 "platforms/$COMPILE_SDK_VERSION/optional/android.car.jar"
-            )
+            ),
+            // Allow using optional android.test APIs
+            File(getSdkPath(), "platforms/$COMPILE_SDK_VERSION/optional/android.test.base.jar"),
+            File(getSdkPath(), "platforms/$COMPILE_SDK_VERSION/optional/android.test.mock.jar"),
+            File(getSdkPath(), "platforms/$COMPILE_SDK_VERSION/optional/android.test.runner.jar")
         )
     )

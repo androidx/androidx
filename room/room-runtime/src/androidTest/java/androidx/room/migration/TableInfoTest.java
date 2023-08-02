@@ -19,6 +19,7 @@ package androidx.room.migration;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
@@ -70,6 +71,25 @@ public class TableInfoTest {
                                 TableInfo.CREATED_FROM_ENTITY)),
                 Collections.<TableInfo.ForeignKey>emptySet());
         assertThat(expectedInfo, is(dbInfo));
+    }
+
+    @Test
+    public void readSimple_toStringCheck() {
+        mDb = createDatabase(
+                "CREATE TABLE foo (id INTEGER PRIMARY KEY AUTOINCREMENT,"
+                        + "name TEXT)");
+        TableInfo dbInfo = TableInfo.read(mDb, "foo");
+        assertThat(
+                dbInfo.toString(),
+                // Leaves out indices as they are represented as null in versionn17 and empty
+                // array for later versions
+                containsString("TableInfo{name='foo', columns={id=Column{name='id'"
+                        + ", type='INTEGER', "
+                        + "affinity='3', notNull=false, primaryKeyPosition=1, "
+                        + "defaultValue='null'}, name=Column{name='name', type='TEXT', "
+                        + "affinity='2', notNull=false, primaryKeyPosition=0, "
+                        + "defaultValue='null'}}, foreignKeys=[]")
+        );
     }
 
     @Test

@@ -18,10 +18,9 @@ package androidx.work.impl.constraints.trackers;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -99,7 +98,7 @@ public class StorageNotLowTrackerTest {
         mTracker.addListener(mListener);
         verify(mListener).onConstraintChanged(true);
 
-        mTracker.onBroadcastReceive(mMockContext, new Intent("INVALID"));
+        mTracker.onBroadcastReceive(new Intent("INVALID"));
         verifyNoMoreInteractions(mListener);
     }
 
@@ -108,11 +107,12 @@ public class StorageNotLowTrackerTest {
     public void testOnBroadcastReceive_notifiesListeners() {
         mockContextReturns(new Intent("INVALID"));
         mTracker.addListener(mListener);
-        verify(mListener, never()).onConstraintChanged(anyBoolean());
-
-        mTracker.onBroadcastReceive(mMockContext, new Intent(Intent.ACTION_DEVICE_STORAGE_OK));
-        verify(mListener).onConstraintChanged(true);
-        mTracker.onBroadcastReceive(mMockContext, new Intent(Intent.ACTION_DEVICE_STORAGE_LOW));
         verify(mListener).onConstraintChanged(false);
+
+        mTracker.onBroadcastReceive(new Intent(Intent.ACTION_DEVICE_STORAGE_OK));
+        verify(mListener).onConstraintChanged(true);
+        mTracker.onBroadcastReceive(new Intent(Intent.ACTION_DEVICE_STORAGE_LOW));
+        // onConstraintChanged was called once more, in total, twice
+        verify(mListener, times(2)).onConstraintChanged(false);
     }
 }

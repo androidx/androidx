@@ -18,6 +18,7 @@ package androidx.room.processor
 
 import androidx.room.Delete
 import androidx.room.Insert
+import androidx.room.Upsert
 import androidx.room.Query
 import androidx.room.RawQuery
 import androidx.room.RewriteQueriesToDropUnusedColumns
@@ -42,6 +43,7 @@ object ProcessorErrors {
     val MISSING_INSERT_ANNOTATION = "Insertion methods must be annotated with ${Insert::class.java}"
     val MISSING_DELETE_ANNOTATION = "Deletion methods must be annotated with ${Delete::class.java}"
     val MISSING_UPDATE_ANNOTATION = "Update methods must be annotated with ${Update::class.java}"
+    val MISSING_UPSERT_ANNOTATION = "Upsertion methods must be annotated with ${Upsert::class.java}"
     val MISSING_RAWQUERY_ANNOTATION = "RawQuery methods must be annotated with" +
         " ${RawQuery::class.java}"
     val INVALID_ON_CONFLICT_VALUE = "On conflict value must be one of @OnConflictStrategy values."
@@ -57,6 +59,8 @@ object ProcessorErrors {
         " methods. It must be bound to a type through base Dao class."
     val CANNOT_USE_UNBOUND_GENERICS_IN_INSERTION_METHODS = "Cannot use unbound generics in" +
         " insertion methods. It must be bound to a type through base Dao class."
+    val CANNOT_USE_UNBOUND_GENERICS_IN_UPSERTION_METHODS = "Cannot use unbound generics in" +
+        " upsertion methods. It must be bound to a type through base Dao class."
     val CANNOT_USE_UNBOUND_GENERICS_IN_ENTITY_FIELDS = "Cannot use unbound fields in entities."
     val CANNOT_USE_UNBOUND_GENERICS_IN_DAO_CLASSES = "Cannot use unbound generics in Dao classes." +
         " If you are trying to create a base DAO, create a normal class, extend it with type" +
@@ -143,29 +147,30 @@ object ProcessorErrors {
     val INSERTION_DOES_NOT_HAVE_ANY_PARAMETERS_TO_INSERT = "Method annotated with" +
         " @Insert but does not have any parameters to insert."
 
+    val UPSERTION_DOES_NOT_HAVE_ANY_PARAMETERS_TO_UPSERT = "Method annotated with" +
+        " @Upsert but does not have any parameters to insert or update."
+
     val DELETION_MISSING_PARAMS = "Method annotated with" +
         " @Delete but does not have any parameters to delete."
 
     fun cannotMapInfoSpecifiedColumn(column: String, columnsInQuery: List<String>) =
-        "Column(s) specified in the provided @MapInfo annotation must be present in the query. " +
-            "Provided: $column. Columns Found: ${columnsInQuery.joinToString(", ")}"
+        "Column specified in the provided @MapInfo annotation must be present in the query. " +
+            "Provided: $column. Columns found: ${columnsInQuery.joinToString(", ")}"
 
     val MAP_INFO_MUST_HAVE_AT_LEAST_ONE_COLUMN_PROVIDED = "To use the @MapInfo annotation, you " +
         "must provide either the key column name, value column name, or both."
 
     fun keyMayNeedMapInfo(keyArg: TypeName): String {
         return """
-            Looks like you may need to use @MapInfo to clarify the 'keyColumnName' needed for
-            the return type of a method. Type argument that needs
-            @MapInfo: $keyArg
+            Looks like you may need to use @MapInfo to clarify the 'keyColumn' needed for
+            the return type of a method. Type argument that needs @MapInfo: $keyArg
             """.trim()
     }
 
     fun valueMayNeedMapInfo(valueArg: TypeName): String {
         return """
-            Looks like you may need to use @MapInfo to clarify the 'valueColumnName' needed for
-            the return type of a method. Type argument that needs
-            @MapInfo: $valueArg
+            Looks like you may need to use @MapInfo to clarify the 'valueColumn' needed for
+            the return type of a method. Type argument that needs @MapInfo: $valueArg
             """.trim()
     }
 
@@ -175,7 +180,25 @@ object ProcessorErrors {
     val CANNOT_FIND_UPDATE_RESULT_ADAPTER = "Not sure how to handle update method's " +
         "return type. Currently the supported return types are void, int or Int."
 
+    fun suspendReturnsDeferredType(returnTypeName: String) = "Dao functions that have a suspend " +
+        "modifier must not return a deferred/async type ($returnTypeName). Most probably this " +
+        "is an error. Consider changing the return type or removing the suspend modifier."
+
     val CANNOT_FIND_INSERT_RESULT_ADAPTER = "Not sure how to handle insert method's return type."
+
+    val CANNOT_FIND_UPSERT_RESULT_ADAPTER = "Not sure how to handle upsert method's return type."
+
+    val INSERT_MULTI_PARAM_SINGLE_RETURN_MISMATCH = "Insert method accepts multiple parameters " +
+        "but the return type is a single element. Try using a multiple element return type."
+
+    val UPSERT_MULTI_PARAM_SINGLE_RETURN_MISMATCH = "Upsert method accepts multiple parameters " +
+        "but the return type is a single element. Try using a multiple element return type."
+
+    val INSERT_SINGLE_PARAM_MULTI_RETURN_MISMATCH = "Insert method accepts a single parameter " +
+        "but the return type is a collection of elements. Try using a single element return type."
+
+    val UPSERT_SINGLE_PARAM_MULTI_RETURN_MISMATCH = "Upsert method accepts a single parameter " +
+        "but the return type is a collection of elements. Try using a single element return type."
 
     val UPDATE_MISSING_PARAMS = "Method annotated with" +
         " @Update but does not have any parameters to update."
@@ -615,6 +638,18 @@ object ProcessorErrors {
     val MISSING_ROOM_PAGING_ARTIFACT = "To use PagingSource, you must add `room-paging`" +
         " artifact from Room as a dependency. androidx.room:room-paging:<version>"
 
+    val MISSING_ROOM_PAGING_GUAVA_ARTIFACT = "To use ListenableFuturePagingSource, you must " +
+        "add `room-paging-guava` artifact from Room as a dependency. " +
+        "androidx.room:room-paging-guava:<version>"
+
+    val MISSING_ROOM_PAGING_RXJAVA2_ARTIFACT = "To use RxPagingSource, you must " +
+        "add `room-paging-rxjava2` artifact from Room as a dependency. " +
+        "androidx.room:room-paging-rxjava2:<version>"
+
+    val MISSING_ROOM_PAGING_RXJAVA3_ARTIFACT = "To use RxPagingSource, you must " +
+        "add `room-paging-rxjava3` artifact from Room as a dependency. " +
+        "androidx.room:room-paging-rxjava3:<version>"
+
     val MISSING_ROOM_COROUTINE_ARTIFACT = "To use Coroutine features, you must add `ktx`" +
         " artifact from Room as a dependency. androidx.room:room-ktx:<version>"
 
@@ -758,6 +793,13 @@ object ProcessorErrors {
         primaryKeyNames: List<String>
     ) = "The partial entity $partialEntityName is missing the primary key fields " +
         "(${primaryKeyNames.joinToString()}) needed to perform an INSERT. If your single " +
+        "primary key is auto generated then the fields are optional."
+
+    fun missingPrimaryKeysInPartialEntityForUpsert(
+        partialEntityName: String,
+        primaryKeyNames: List<String>
+    ) = "The partial entity $partialEntityName is missing the primary key fields " +
+        "(${primaryKeyNames.joinToString()}) needed to perform an UPSERT. If your single " +
         "primary key is auto generated then the fields are optional."
 
     fun missingRequiredColumnsInPartialEntity(
@@ -925,34 +967,42 @@ object ProcessorErrors {
             """
             AutoMigration Failure in ‘$className’: Column ‘$columnName’ in table ‘$tableName’ has
             been either removed or renamed. Please annotate ‘$className’ with the @RenameColumn
-            or @RemoveColumn annotation to specify the change to be performed:
+            or @DeleteColumn annotation to specify the change to be performed:
             1) RENAME:
-                @RenameColumn(
+                @RenameColumn.Entries(
+                    @RenameColumn(
                         tableName = "$tableName",
                         fromColumnName = "$columnName",
                         toColumnName = <NEW_COLUMN_NAME>
+                    )
                 )
             2) DELETE:
-                @DeleteColumn=(
+                @DeleteColumn.Entries(
+                    @DeleteColumn(
                         tableName = "$tableName",
                         columnName = "$columnName"
+                    )
                 )
             """
         } else {
             """
             AutoMigration Failure: Please declare an interface extending 'AutoMigrationSpec',
-            and annotate with the @RenameColumn or @RemoveColumn annotation to specify the
+            and annotate with the @RenameColumn or @DeleteColumn annotation to specify the
             change to be performed:
             1) RENAME:
-                @RenameColumn(
+                @RenameColumn.Entries(
+                    @RenameColumn(
                         tableName = "$tableName",
                         fromColumnName = "$columnName",
                         toColumnName = <NEW_COLUMN_NAME>
+                    )
                 )
             2) DELETE:
-                @DeleteColumn=(
+                @DeleteColumn.Entries(
+                    @DeleteColumn(
                         tableName = "$tableName",
                         columnName = "$columnName"
+                    )
                 )
             """
         }
@@ -965,20 +1015,40 @@ object ProcessorErrors {
         return if (className != null) {
             """
             AutoMigration Failure in '$className': Table '$tableName' has been either removed or
-            renamed. Please annotate '$className' with the @RenameTable or @RemoveTable
+            renamed. Please annotate '$className' with the @RenameTable or @DeleteTable
             annotation to specify the change to be performed:
-            1) RENAME: @RenameTable.Entries(
-                @RenameTable(fromTableName = "$tableName", toTableName = <NEW_TABLE_NAME>))
-            2) DELETE: @DeleteTable.Entries(@DeleteTable(tableName = "$tableName"))
+            1) RENAME:
+                @RenameTable.Entries(
+                    @RenameTable(
+                        fromTableName = "$tableName",
+                        toTableName = <NEW_TABLE_NAME>
+                    )
+                )
+            2) DELETE:
+                @DeleteTable.Entries(
+                    @DeleteTable(
+                        tableName = "$tableName"
+                    )
+                )
             """
         } else {
             """
             AutoMigration Failure: Please declare an interface extending 'AutoMigrationSpec',
-            and annotate with the @RenameTable or @RemoveTable
-            annotation to specify the change to be performed:
-            1) RENAME: @RenameTable.Entries(
-                @RenameTable(fromTableName = "$tableName", toTableName = <NEW_TABLE_NAME>))
-            2) DELETE: @DeleteTable.Entries(@DeleteTable(tableName = "$tableName"))
+            and annotate with the @RenameTable or @DeleteTable annotation to specify the change
+            to be performed:
+            1) RENAME:
+                @RenameTable.Entries(
+                    @RenameTable(
+                        fromTableName = "$tableName",
+                        toTableName = <NEW_TABLE_NAME>
+                    )
+                )
+            2) DELETE:
+                @DeleteTable.Entries(
+                    @DeleteTable(
+                        tableName = "$tableName"
+                    )
+                )
             """
         }
     }
@@ -1021,4 +1091,38 @@ object ProcessorErrors {
     val AUTOMIGRATION_SPEC_MISSING_NOARG_CONSTRUCTOR = "Classes that are used as " +
         "AutoMigrationSpec " +
         "implementations must have no-argument public constructors."
+
+    val JVM_NAME_ON_OVERRIDDEN_METHOD = "Using @JvmName annotation on a function or accessor " +
+        "that will be overridden by Room is not supported. If this is important for your use " +
+        "case, please file a bug at $ISSUE_TRACKER_LINK with details."
+
+    fun ambiguousColumn(
+        columnName: String,
+        location: AmbiguousColumnLocation,
+        typeName: TypeName?
+    ): String {
+        val (locationDesc, recommendation) = when (location) {
+            AmbiguousColumnLocation.MAP_INFO -> {
+                "in the @MapInfo" to "update @MapInfo"
+            }
+            AmbiguousColumnLocation.POJO -> {
+                checkNotNull(typeName)
+                "in the object '$typeName'" to "use @ColumnInfo"
+            }
+            AmbiguousColumnLocation.ENTITY -> {
+                checkNotNull(typeName)
+                "in the entity '$typeName'" to "use a new data class / POJO with @ColumnInfo'"
+            }
+        }
+        return "The column '$columnName' $locationDesc is ambiguous and cannot be properly " +
+            "resolved. Please alias the column and $recommendation. Otherwise there is a risk of " +
+            "the query returning invalid values. You can suppress this warning by annotating " +
+            "the method with @SuppressWarnings(RoomWarnings.AMBIGUOUS_COLUMN_IN_RESULT)."
+    }
+
+    enum class AmbiguousColumnLocation {
+        MAP_INFO,
+        POJO,
+        ENTITY,
+    }
 }

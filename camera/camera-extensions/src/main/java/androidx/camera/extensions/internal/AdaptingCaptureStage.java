@@ -20,8 +20,10 @@ import android.hardware.camera2.CaptureRequest;
 import android.util.Pair;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.impl.Camera2ImplConfig;
+import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
 import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.CaptureStage;
 import androidx.camera.extensions.impl.CaptureStageImpl;
@@ -34,9 +36,9 @@ public final class AdaptingCaptureStage implements CaptureStage {
     private final int mId;
 
     @SuppressWarnings("unchecked")
+    @OptIn(markerClass = ExperimentalCamera2Interop.class)
     public AdaptingCaptureStage(@NonNull CaptureStageImpl impl) {
         mId = impl.getId();
-
         Camera2ImplConfig.Builder camera2ConfigurationBuilder = new Camera2ImplConfig.Builder();
 
         for (Pair<CaptureRequest.Key, Object> captureParameter : impl.getParameters()) {

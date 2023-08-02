@@ -17,8 +17,12 @@
 package androidx.compose.foundation.lazy
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.lazy.layout.IntervalList
+import androidx.compose.foundation.lazy.layout.LazyLayoutIntervalContent
+import androidx.compose.foundation.lazy.layout.MutableIntervalList
 import androidx.compose.runtime.Composable
 
+@OptIn(ExperimentalFoundationApi::class)
 internal class LazyListScopeImpl : LazyListScope {
 
     private val _intervals = MutableIntervalList<LazyListIntervalContent>()
@@ -30,39 +34,48 @@ internal class LazyListScopeImpl : LazyListScope {
     override fun items(
         count: Int,
         key: ((index: Int) -> Any)?,
+        contentType: (index: Int) -> Any?,
         itemContent: @Composable LazyItemScope.(index: Int) -> Unit
     ) {
-        _intervals.add(
+        _intervals.addInterval(
             count,
             LazyListIntervalContent(
                 key = key,
-                content = { index -> @Composable { itemContent(index) } }
+                type = contentType,
+                item = itemContent
             )
         )
     }
 
-    override fun item(key: Any?, content: @Composable LazyItemScope.() -> Unit) {
-        _intervals.add(
+    override fun item(key: Any?, contentType: Any?, content: @Composable LazyItemScope.() -> Unit) {
+        _intervals.addInterval(
             1,
             LazyListIntervalContent(
                 key = if (key != null) { _: Int -> key } else null,
-                content = { @Composable { content() } }
+                type = { contentType },
+                item = { content() }
             )
         )
     }
 
     @ExperimentalFoundationApi
-    override fun stickyHeader(key: Any?, content: @Composable LazyItemScope.() -> Unit) {
+    override fun stickyHeader(
+        key: Any?,
+        contentType: Any?,
+        content: @Composable LazyItemScope.() -> Unit
+    ) {
         val headersIndexes = _headerIndexes ?: mutableListOf<Int>().also {
             _headerIndexes = it
         }
-        headersIndexes.add(_intervals.totalSize)
+        headersIndexes.add(_intervals.size)
 
-        item(key, content)
+        item(key, contentType, content)
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 internal class LazyListIntervalContent(
-    val key: ((index: Int) -> Any)?,
-    val content: LazyItemScope.(index: Int) -> @Composable () -> Unit
-)
+    override val key: ((index: Int) -> Any)?,
+    override val type: ((index: Int) -> Any?),
+    val item: @Composable LazyItemScope.(index: Int) -> Unit
+) : LazyLayoutIntervalContent

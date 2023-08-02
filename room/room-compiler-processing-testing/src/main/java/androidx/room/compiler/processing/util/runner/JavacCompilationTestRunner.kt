@@ -26,9 +26,12 @@ import androidx.room.compiler.processing.util.toDiagnosticMessages
 import com.google.testing.compile.Compilation
 import com.google.testing.compile.Compiler
 import java.io.File
+import javax.annotation.processing.Processor
 
 @ExperimentalProcessingApi
-internal object JavacCompilationTestRunner : CompilationTestRunner {
+internal class JavacCompilationTestRunner(
+    private val testProcessors: List<Processor> = emptyList()
+) : CompilationTestRunner {
 
     override val name: String = "javac"
 
@@ -37,7 +40,8 @@ internal object JavacCompilationTestRunner : CompilationTestRunner {
     }
 
     override fun compile(workingDir: File, params: TestCompilationParameters): CompilationResult {
-        val syntheticJavacProcessor = SyntheticJavacProcessor(params.handlers)
+        val syntheticJavacProcessor = SyntheticJavacProcessor(params.config, params.handlers)
+        val processors = testProcessors + syntheticJavacProcessor
         val sources = if (params.sources.isEmpty()) {
             // synthesize a source to trigger compilation
             listOf(
@@ -58,7 +62,7 @@ internal object JavacCompilationTestRunner : CompilationTestRunner {
         }
         val compiler = Compiler
             .javac()
-            .withProcessors(syntheticJavacProcessor)
+            .withProcessors(processors)
             .withOptions(params.javacArguments + optionsArg + "-Xlint")
             .let {
                 if (params.classpath.isNotEmpty()) {

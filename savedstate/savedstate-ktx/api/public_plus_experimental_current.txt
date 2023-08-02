@@ -2,7 +2,7 @@
 package androidx.savedstate {
 
   public final class ViewKt {
-    method public static androidx.savedstate.SavedStateRegistryOwner? findViewTreeSavedStateRegistryOwner(android.view.View);
+    method @Deprecated public static androidx.savedstate.SavedStateRegistryOwner! findViewTreeSavedStateRegistryOwner(android.view.View);
   }
 
 }

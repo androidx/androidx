@@ -27,7 +27,12 @@ import java.util.concurrent.TimeUnit
  *
  * Tuned to do minimal amount of intrusive work in onNextIteration to avoid polluting the benchmark.
  */
-internal class WarmupManager {
+internal class WarmupManager(
+    /**
+     * If non-null, defines number of iterations to perform
+     */
+    val overrideCount: Int? = null
+) {
     private var fastMovingAvg: Float = 0f
     private var slowMovingAvg: Float = 0f
     private var similarIterationCount: Int = 0
@@ -57,7 +62,7 @@ internal class WarmupManager {
         if (iteration == 1) {
             fastMovingAvg = durationNs.toFloat()
             slowMovingAvg = durationNs.toFloat()
-            return false
+            return iteration == overrideCount
         }
 
         fastMovingAvg = FAST_RATIO * durationNs + (1 - FAST_RATIO) * fastMovingAvg
@@ -69,6 +74,13 @@ internal class WarmupManager {
             similarIterationCount++
         } else {
             similarIterationCount = 0
+        }
+
+        if (overrideCount != null) {
+            check(iteration <= overrideCount) {
+                "Too many warmups, iter $iteration, target $overrideCount"
+            }
+            return iteration == overrideCount
         }
 
         if (iteration >= MIN_ITERATIONS && totalDurationNs >= MIN_DURATION_NS) {

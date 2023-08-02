@@ -13,8 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import androidx.build.LibraryGroups
-import androidx.build.LibraryVersions
+import androidx.build.LibraryType
 import androidx.build.Publish
 
 plugins {
@@ -27,18 +26,24 @@ dependencies {
 
     implementation(project(":appsearch:appsearch"))
     implementation(project(":appsearch:appsearch-local-storage"))
+    implementation('androidx.collection:collection:1.1.0')
     implementation(libs.truth)
 
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.truth)
-    androidTestImplementation("junit:junit:4.13")
+    androidTestImplementation(libs.junit)
 }
 
 androidx {
     name = 'AppSearch Test Util'
+    type = LibraryType.INTERNAL_TEST_LIBRARY
     publish = Publish.NONE
     mavenGroup = LibraryGroups.APPSEARCH
     inceptionYear = '2021'
     description = 'Test Utilities to be used by any test module for AppSearch'
+}
+
+android {
+    namespace "androidx.appsearch.testutil"
 }

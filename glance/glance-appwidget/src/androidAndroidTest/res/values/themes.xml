@@ -18,4 +18,5 @@
     <style name="Theme.TestDimensionAttr" parent="">
         <item name="dimensionAttr">@dimen/testDimension</item>
     </style>
+    <style name="Glance.AppWidget.Theme" parent=""/>
 </resources>

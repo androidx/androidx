@@ -22,14 +22,13 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteCursor;
-import android.database.sqlite.SQLiteCursorDriver;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteQuery;
 import android.database.sqlite.SQLiteTransactionListener;
 import android.os.Build;
 import android.os.CancellationSignal;
 import android.util.Pair;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -63,8 +62,9 @@ class FrameworkSQLiteDatabase implements SupportSQLiteDatabase {
         mDelegate = delegate;
     }
 
+    @NonNull
     @Override
-    public SupportSQLiteStatement compileStatement(String sql) {
+    public SupportSQLiteStatement compileStatement(@NonNull String sql) {
         return new FrameworkSQLiteStatement(mDelegate.compileStatement(sql));
     }
 
@@ -79,13 +79,14 @@ class FrameworkSQLiteDatabase implements SupportSQLiteDatabase {
     }
 
     @Override
-    public void beginTransactionWithListener(SQLiteTransactionListener transactionListener) {
+    public void beginTransactionWithListener(
+            @NonNull SQLiteTransactionListener transactionListener) {
         mDelegate.beginTransactionWithListener(transactionListener);
     }
 
     @Override
     public void beginTransactionWithListenerNonExclusive(
-            SQLiteTransactionListener transactionListener) {
+            @NonNull SQLiteTransactionListener transactionListener) {
         mDelegate.beginTransactionWithListenerNonExclusive(transactionListener);
     }
 
@@ -124,13 +125,10 @@ class FrameworkSQLiteDatabase implements SupportSQLiteDatabase {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.R;
     }
 
-    // Adding @RequiresApi(30) would prevent unbundled implementations from offering this
-    // functionality to lower API levels.
-    @SuppressWarnings("ClassVerificationFailure")
     @Override
     public void execPerConnectionSQL(@NonNull String sql, @Nullable Object[] bindArgs) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            mDelegate.execPerConnectionSQL(sql, bindArgs);
+            Api30Impl.execPerConnectionSQL(mDelegate, sql, bindArgs);
         } else {
             throw new UnsupportedOperationException("execPerConnectionSQL is not supported on a "
                     + "SDK version lower than 30, current version is: " + Build.VERSION.SDK_INT);
@@ -168,52 +166,44 @@ class FrameworkSQLiteDatabase implements SupportSQLiteDatabase {
     }
 
     @Override
-    public Cursor query(String query) {
+    public @NonNull Cursor query(@NonNull String query) {
         return query(new SimpleSQLiteQuery(query));
     }
 
     @Override
-    public Cursor query(String query, Object[] bindArgs) {
+    public @NonNull Cursor query(@NonNull String query, @NonNull Object[] bindArgs) {
         return query(new SimpleSQLiteQuery(query, bindArgs));
     }
 
-
     @Override
-    public Cursor query(final SupportSQLiteQuery supportQuery) {
-        return mDelegate.rawQueryWithFactory(new SQLiteDatabase.CursorFactory() {
-            @Override
-            public Cursor newCursor(SQLiteDatabase db, SQLiteCursorDriver masterQuery,
-                    String editTable, SQLiteQuery query) {
-                supportQuery.bindTo(new FrameworkSQLiteProgram(query));
-                return new SQLiteCursor(masterQuery, editTable, query);
-            }
+    public @NonNull Cursor query(@NonNull final SupportSQLiteQuery supportQuery) {
+        return mDelegate.rawQueryWithFactory((db, masterQuery, editTable, query) -> {
+            supportQuery.bindTo(new FrameworkSQLiteProgram(query));
+            return new SQLiteCursor(masterQuery, editTable, query);
         }, supportQuery.getSql(), EMPTY_STRING_ARRAY, null);
     }
 
     @Override
-    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
-    public Cursor query(final SupportSQLiteQuery supportQuery,
+    @RequiresApi(16)
+    public @NonNull Cursor query(@NonNull final SupportSQLiteQuery supportQuery,
             CancellationSignal cancellationSignal) {
         return SupportSQLiteCompat.Api16Impl.rawQueryWithFactory(mDelegate, supportQuery.getSql(),
-                EMPTY_STRING_ARRAY, null, cancellationSignal, new SQLiteDatabase.CursorFactory() {
-                    @Override
-                    public Cursor newCursor(SQLiteDatabase db, SQLiteCursorDriver masterQuery,
-                            String editTable, SQLiteQuery query) {
-                        supportQuery.bindTo(new FrameworkSQLiteProgram(query));
-                        return new SQLiteCursor(masterQuery, editTable, query);
-                    }
+                EMPTY_STRING_ARRAY, null, cancellationSignal,
+                (db, masterQuery, editTable, query) -> {
+                    supportQuery.bindTo(new FrameworkSQLiteProgram(query));
+                    return new SQLiteCursor(masterQuery, editTable, query);
                 });
     }
 
     @Override
-    public long insert(String table, int conflictAlgorithm, ContentValues values)
+    public long insert(@NonNull String table, int conflictAlgorithm, @NonNull ContentValues values)
             throws SQLException {
         return mDelegate.insertWithOnConflict(table, null, values,
                 conflictAlgorithm);
     }
 
     @Override
-    public int delete(String table, String whereClause, Object[] whereArgs) {
+    public int delete(@NonNull String table, String whereClause, Object[] whereArgs) {
         String query = "DELETE FROM " + table
                 + (isEmpty(whereClause) ? "" : " WHERE " + whereClause);
         SupportSQLiteStatement statement = compileStatement(query);
@@ -223,8 +213,8 @@ class FrameworkSQLiteDatabase implements SupportSQLiteDatabase {
 
 
     @Override
-    public int update(String table, int conflictAlgorithm, ContentValues values, String whereClause,
-            Object[] whereArgs) {
+    public int update(@NonNull String table, int conflictAlgorithm, ContentValues values,
+            String whereClause, Object[] whereArgs) {
         // taken from SQLiteDatabase class.
         if (values == null || values.size() == 0) {
             throw new IllegalArgumentException("Empty values");
@@ -261,12 +251,12 @@ class FrameworkSQLiteDatabase implements SupportSQLiteDatabase {
     }
 
     @Override
-    public void execSQL(String sql) throws SQLException {
+    public void execSQL(@NonNull String sql) throws SQLException {
         mDelegate.execSQL(sql);
     }
 
     @Override
-    public void execSQL(String sql, Object[] bindArgs) throws SQLException {
+    public void execSQL(@NonNull String sql, Object[] bindArgs) throws SQLException {
         mDelegate.execSQL(sql, bindArgs);
     }
 
@@ -291,7 +281,7 @@ class FrameworkSQLiteDatabase implements SupportSQLiteDatabase {
     }
 
     @Override
-    public void setLocale(Locale locale) {
+    public void setLocale(@NonNull Locale locale) {
         mDelegate.setLocale(locale);
     }
 
@@ -343,5 +333,18 @@ class FrameworkSQLiteDatabase implements SupportSQLiteDatabase {
      */
     boolean isDelegate(SQLiteDatabase sqLiteDatabase) {
         return mDelegate == sqLiteDatabase;
+    }
+
+    @RequiresApi(30)
+    static class Api30Impl {
+        private Api30Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static void execPerConnectionSQL(SQLiteDatabase sQLiteDatabase, String sql,
+                Object[] bindArgs) {
+            sQLiteDatabase.execPerConnectionSQL(sql, bindArgs);
+        }
     }
 }

@@ -47,6 +47,7 @@ import androidx.car.app.utils.RemoteUtils;
 public class CarAppNotificationBroadcastReceiver extends BroadcastReceiver {
     private static final String TAG = LogTags.TAG + ".NBR";
 
+    @SuppressWarnings("deprecation")
     @Override
     public void onReceive(@NonNull Context context, @NonNull Intent intent) {
         ComponentName appComponent =

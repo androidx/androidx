@@ -26,14 +26,14 @@ import com.google.auto.value.AutoValue;
 import java.util.concurrent.Executor;
 
 /**
- * A snapshot of statistics about an {@link ActiveRecording} at a point in time.
+ * A snapshot of statistics about an {@link Recording} at a point in time.
  *
  * <p>Recording stats provide information about a recording such as file size, duration and other
  * useful statistics which may be useful for tracking the state of a recording.
  *
  * <p>Recording stats are generated for every {@link VideoRecordEvent} and can be retrieved via
  * {@link VideoRecordEvent#getRecordingStats()}.
- * @see PendingRecording#withEventListener(Executor, Consumer)
+ * @see PendingRecording#start(Executor, Consumer)
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @AutoValue

@@ -24,11 +24,11 @@ import android.os.Build;
 import android.os.Handler;
 import android.view.Surface;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
-import androidx.camera.camera2.internal.SynchronizedCaptureSessionOpener.SynchronizedSessionFeature;
 import androidx.camera.camera2.internal.annotation.CameraExecutor;
 import androidx.camera.camera2.internal.compat.CameraCaptureSessionCompat;
 import androidx.camera.camera2.internal.compat.CameraDeviceCompat;
@@ -48,6 +48,7 @@ import androidx.core.util.Preconditions;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
@@ -126,8 +127,7 @@ class SynchronizedCaptureSessionBaseImpl extends SynchronizedCaptureSession.Stat
 
     @NonNull
     @Override
-    public ListenableFuture<Void> getSynchronizedBlocker(
-            @SynchronizedSessionFeature @NonNull String feature) {
+    public ListenableFuture<Void> getOpeningBlocker() {
         return Futures.immediateFuture(null);
     }
 
@@ -168,7 +168,7 @@ class SynchronizedCaptureSessionBaseImpl extends SynchronizedCaptureSession.Stat
                 }
 
                 @Override
-                public void onFailure(Throwable t) {
+                public void onFailure(@NonNull Throwable t) {
                     SynchronizedCaptureSessionBaseImpl.this.finishClose();
                     mCaptureSessionRepository.onCaptureSessionConfigureFail(
                             SynchronizedCaptureSessionBaseImpl.this);
@@ -288,6 +288,7 @@ class SynchronizedCaptureSessionBaseImpl extends SynchronizedCaptureSession.Stat
         }
     }
 
+    @SuppressWarnings("ConstantConditions") // Implied non-null type use for surfaces.
     @NonNull
     @Override
     public ListenableFuture<List<Surface>> startWithDeferrableSurface(
@@ -365,6 +366,17 @@ class SynchronizedCaptureSessionBaseImpl extends SynchronizedCaptureSession.Stat
     public CameraDevice getDevice() {
         Preconditions.checkNotNull(mCameraCaptureSessionCompat);
         return mCameraCaptureSessionCompat.toCameraCaptureSession().getDevice();
+    }
+
+    @Nullable
+    @Override
+    public Surface getInputSurface() {
+        Preconditions.checkNotNull(mCameraCaptureSessionCompat);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            return Api23Impl.getInputSurface(mCameraCaptureSessionCompat.toCameraCaptureSession());
+        } else {
+            return null;
+        }
     }
 
     @Override
@@ -469,17 +481,20 @@ class SynchronizedCaptureSessionBaseImpl extends SynchronizedCaptureSession.Stat
 
     @Override
     public void onReady(@NonNull SynchronizedCaptureSession session) {
+        Objects.requireNonNull(mCaptureSessionStateCallback);
         mCaptureSessionStateCallback.onReady(session);
     }
 
     @Override
     public void onActive(@NonNull SynchronizedCaptureSession session) {
+        Objects.requireNonNull(mCaptureSessionStateCallback);
         mCaptureSessionStateCallback.onActive(session);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     public void onCaptureQueueEmpty(@NonNull SynchronizedCaptureSession session) {
+        Objects.requireNonNull(mCaptureSessionStateCallback);
         mCaptureSessionStateCallback.onCaptureQueueEmpty(session);
     }
 
@@ -487,17 +502,20 @@ class SynchronizedCaptureSessionBaseImpl extends SynchronizedCaptureSession.Stat
     @Override
     public void onSurfacePrepared(@NonNull SynchronizedCaptureSession session,
             @NonNull Surface surface) {
+        Objects.requireNonNull(mCaptureSessionStateCallback);
         mCaptureSessionStateCallback.onSurfacePrepared(session, surface);
     }
 
     @Override
     public void onConfigured(@NonNull SynchronizedCaptureSession session) {
+        Objects.requireNonNull(mCaptureSessionStateCallback);
         mCaptureSessionRepository.onCaptureSessionCreated(this);
         mCaptureSessionStateCallback.onConfigured(session);
     }
 
     @Override
     public void onConfigureFailed(@NonNull SynchronizedCaptureSession session) {
+        Objects.requireNonNull(mCaptureSessionStateCallback);
         finishClose();
         mCaptureSessionRepository.onCaptureSessionConfigureFail(this);
         mCaptureSessionStateCallback.onConfigureFailed(session);
@@ -536,6 +554,7 @@ class SynchronizedCaptureSessionBaseImpl extends SynchronizedCaptureSession.Stat
                 // the onClosed callback, we can treat this session is already in closed state.
                 onSessionFinished(session);
 
+                Objects.requireNonNull(mCaptureSessionStateCallback);
                 mCaptureSessionStateCallback.onClosed(session);
             }, CameraXExecutors.directExecutor());
         }
@@ -555,6 +574,7 @@ class SynchronizedCaptureSessionBaseImpl extends SynchronizedCaptureSession.Stat
         }
         if (openFuture != null) {
             openFuture.addListener(() -> {
+                Objects.requireNonNull(mCaptureSessionStateCallback);
                 mCaptureSessionStateCallback.onSessionFinished(session);
             }, CameraXExecutors.directExecutor());
         }
@@ -598,5 +618,20 @@ class SynchronizedCaptureSessionBaseImpl extends SynchronizedCaptureSession.Stat
     @Override
     public void finishClose() {
         releaseDeferrableSurfaces();
+    }
+
+    /**
+     * Nested class to avoid verification errors for methods introduced in Android 6.0 (API 23).
+     */
+    @RequiresApi(23)
+    private static class Api23Impl {
+
+        private Api23Impl() {
+        }
+
+        @DoNotInline
+        static Surface getInputSurface(CameraCaptureSession cameraCaptureSession) {
+            return cameraCaptureSession.getInputSurface();
+        }
     }
 }

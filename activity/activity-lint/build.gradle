@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
 import androidx.build.LibraryType
 
 plugins {
@@ -23,6 +22,7 @@ plugins {
 }
 
 dependencies {
+    compileOnly(libs.androidBuilderModelMin)
     compileOnly(libs.androidLintMinApi)
     compileOnly(libs.kotlinStdlib)
 

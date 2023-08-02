@@ -115,7 +115,10 @@ class PerfettoCaptureSweepTest(
         )
         matchingSlices
             .forEach {
-                assertTrue(it.dur > 30_000_000) // should be at least 30ms
+                assertTrue(
+                    "Expected dur > 30ms, was ${it.dur / 1_000_000.0} ms",
+                    it.dur > 30_000_000
+                )
             }
     }
 

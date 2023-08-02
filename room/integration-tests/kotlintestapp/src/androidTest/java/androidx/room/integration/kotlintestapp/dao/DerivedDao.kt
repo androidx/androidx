@@ -18,6 +18,7 @@ package androidx.room.integration.kotlintestapp.dao
 
 import androidx.room.Dao
 import androidx.room.Query
+import androidx.room.Transaction
 import androidx.room.integration.kotlintestapp.vo.Author
 
 @Dao
@@ -25,4 +26,10 @@ interface DerivedDao : BaseDao<Author> {
 
     @Query("SELECT * FROM author WHERE authorId = :authorId")
     fun getAuthor(authorId: String): Author
+
+    @Transaction
+    suspend fun insertAndDelete(author: Author) {
+        suspendInsert(author)
+        suspendDelete(author)
+    }
 }

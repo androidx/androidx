@@ -138,6 +138,7 @@ public class EditorRequest @RequiresApi(Build.VERSION_CODES.R) constructor(
          * if there is one or `null` otherwise. Intended for use by the watch face editor activity.
          * @throws [TimeoutCancellationException] in case of en error.
          */
+        @Suppress("DEPRECATION")
         @SuppressLint("NewApi")
         @JvmStatic
         @Throws(TimeoutCancellationException::class)
@@ -185,6 +186,7 @@ public class EditorRequest @RequiresApi(Build.VERSION_CODES.R) constructor(
          */
         @JvmStatic
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        @Suppress("DEPRECATION")
         @Throws(PackageManager.NameNotFoundException::class)
         public fun supportsWatchFaceHeadlessEditing(
             packageManager: PackageManager,

@@ -28,10 +28,36 @@ interface XProcessingStep {
      *     is unable to process, possibly until a later processing round. These elements will be
      *     passed back to this step at the next round of processing.
      */
+    @Deprecated(
+        message = "We're combining processOver() and this process() overload.",
+        replaceWith = ReplaceWith(
+            "process(XProcessingEnv, Map<String, Set<XElement>>, Boolean)"),
+        level = DeprecationLevel.WARNING
+    )
     fun process(
         env: XProcessingEnv,
         elementsByAnnotation: Map<String, Set<XElement>>
-    ): Set<XElement>
+    ): Set<XElement> = emptySet()
+
+    /**
+     * The implementation of processing logic for the step. It is guaranteed that the keys in
+     * [elementsByAnnotation] will be a subset of the set returned by [annotations].
+     *
+     * @return the elements (a subset of the values of [elementsByAnnotation]) that this step
+     *     is unable to process, possibly until a later processing round. These elements will be
+     *     passed back to this step at the next round of processing.
+     */
+    @Suppress("deprecation")
+    fun process(
+        env: XProcessingEnv,
+        elementsByAnnotation: Map<String, Set<XElement>>,
+        isLastRound: Boolean
+    ): Set<XElement> = if (isLastRound) {
+        processOver(env, elementsByAnnotation)
+        emptySet()
+    } else {
+        process(env, elementsByAnnotation)
+    }
 
     /**
      * An optional hook for logic to be executed in the last round of processing.
@@ -41,6 +67,12 @@ interface XProcessingStep {
      *
      * @see [XRoundEnv.isProcessingOver]
      */
+    @Deprecated(
+        message = "We're combining processOver() and the original process().",
+        replaceWith = ReplaceWith(
+            "process(XProcessingEnv, Map<String, Set<XElement>>, Boolean)"),
+        level = DeprecationLevel.WARNING
+    )
     fun processOver(env: XProcessingEnv, elementsByAnnotation: Map<String, Set<XElement>>) { }
 
     /**

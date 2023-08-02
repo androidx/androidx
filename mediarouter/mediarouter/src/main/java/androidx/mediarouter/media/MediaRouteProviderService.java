@@ -1068,6 +1068,7 @@ public abstract class MediaRouteProviderService extends Service {
                         .obtainMessage(PRIVATE_MSG_CLIENT_DIED, mMessenger).sendToTarget();
             }
 
+            @NonNull
             @Override
             public String toString() {
                 return getClientId(mMessenger);

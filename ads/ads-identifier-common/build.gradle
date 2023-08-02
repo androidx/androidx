@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
-import androidx.build.LibraryVersions
 import androidx.build.Publish
 
 plugins {
@@ -39,6 +37,7 @@ android {
         aidl = true
     }
     testOptions.unitTests.includeAndroidResources = true
+    namespace "androidx.ads.identifier.common"
 }
 
 androidx {

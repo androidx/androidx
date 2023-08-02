@@ -60,8 +60,14 @@ public final class OutputTransform {
         mViewPortSize = viewPortSize;
     }
 
+    /**
+     * Internal API that returns the underlying {@link Matrix} object.
+     *
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @NonNull
-    Matrix getMatrix() {
+    public Matrix getMatrix() {
         return mMatrix;
     }
 

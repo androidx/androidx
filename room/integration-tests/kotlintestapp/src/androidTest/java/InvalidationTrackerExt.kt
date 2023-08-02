@@ -20,24 +20,12 @@ import kotlinx.coroutines.withTimeout
 import java.util.concurrent.TimeUnit
 
 /**
- * Makes refresh runnable accessible in tests
- */
-val InvalidationTracker.refreshRunnable: Runnable
-    get() = this.mRefreshRunnable
-
-/**
- * True if invalidation tracker is pending a refresh event to get database changes.
- */
-val InvalidationTracker.pendingRefresh
-    get() = this.mPendingRefresh.get()
-
-/**
  * Polls [InvalidationTracker] until it sets its pending refresh flag to true.
  */
 suspend fun InvalidationTracker.awaitPendingRefresh() {
     withTimeout(TimeUnit.SECONDS.toMillis(10)) {
         while (true) {
-            if (pendingRefresh) return@withTimeout
+            if (pendingRefresh.get()) return@withTimeout
             delay(50)
         }
     }

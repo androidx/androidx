@@ -17,6 +17,7 @@
 package androidx.health.services.client.impl.response
 
 import android.os.Parcelable
+import androidx.annotation.RestrictTo
 import androidx.health.services.client.data.ExerciseCapabilities
 import androidx.health.services.client.data.ProtoParcelable
 import androidx.health.services.client.proto.ResponsesProto
@@ -27,6 +28,7 @@ import androidx.health.services.client.proto.ResponsesProto
  *
  * @hide
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class ExerciseCapabilitiesResponse(
     /** [ExerciseCapabilities] supported by this device. */
     public val exerciseCapabilities: ExerciseCapabilities,

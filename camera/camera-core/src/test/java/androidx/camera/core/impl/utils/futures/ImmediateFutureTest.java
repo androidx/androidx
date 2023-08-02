@@ -22,6 +22,7 @@ import static org.mockito.Mockito.mock;
 
 import android.os.Build;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 
@@ -84,7 +85,7 @@ public class ImmediateFutureTest {
             }
 
             @Override
-            public void onFailure(Throwable t) {
+            public void onFailure(@NonNull Throwable t) {
 
             }
         }, CameraXExecutors.directExecutor());
@@ -140,7 +141,7 @@ public class ImmediateFutureTest {
             }
 
             @Override
-            public void onFailure(Throwable t) {
+            public void onFailure(@NonNull Throwable t) {
                 causeRef.set(t);
             }
         }, CameraXExecutors.directExecutor());

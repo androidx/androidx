@@ -16,11 +16,17 @@
 
 package androidx.camera.camera2.pipe.integration.adapter
 
+import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CaptureRequest
 import android.os.Build
+import androidx.camera.camera2.pipe.RequestTemplate
 import androidx.camera.camera2.pipe.StreamId
+import androidx.camera.camera2.pipe.integration.config.UseCaseGraphConfig
 import androidx.camera.camera2.pipe.integration.impl.CAMERAX_TAG_BUNDLE
 import androidx.camera.camera2.pipe.integration.impl.Camera2ImplConfig
+import androidx.camera.camera2.pipe.integration.impl.UseCaseThreads
+import androidx.camera.camera2.pipe.integration.testing.FakeCameraGraph
+import androidx.camera.camera2.pipe.integration.testing.FakeCameraProperties
 import androidx.camera.camera2.pipe.integration.testing.FakeSurface
 import androidx.camera.core.impl.CameraCaptureCallback
 import androidx.camera.core.impl.CaptureConfig
@@ -28,7 +34,11 @@ import androidx.camera.core.impl.TagBundle
 import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.runBlocking
+import org.junit.After
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
@@ -39,20 +49,46 @@ import java.util.concurrent.Executors
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 @DoNotInstrument
 class CaptureConfigAdapterTest {
+    private val fakeUseCaseThreads by lazy {
+        val executor = Executors.newSingleThreadExecutor()
+        val dispatcher = executor.asCoroutineDispatcher()
+        val cameraScope = CoroutineScope(Job() + dispatcher)
+
+        UseCaseThreads(
+            cameraScope,
+            executor,
+            dispatcher,
+        )
+    }
+    private val fakeCameraProperties = FakeCameraProperties()
+    private val surface = FakeSurface()
+    private val configAdapter = CaptureConfigAdapter(
+        useCaseGraphConfig = UseCaseGraphConfig(
+            graph = FakeCameraGraph(),
+            surfaceToStreamMap = mapOf(surface to StreamId(0)),
+        ),
+        cameraProperties = fakeCameraProperties,
+        threads = fakeUseCaseThreads,
+    )
+
+    @After
+    fun tearDown() {
+        surface.close()
+    }
 
     @Test
     fun shouldFail_whenCaptureConfigHasNoSurfaces() {
         // Arrange
         val captureConfig = CaptureConfig.defaultEmptyCaptureConfig()
-        val configAdapter = CaptureConfigAdapter(
-            surfaceToStreamMap = emptyMap(),
-            callbackExecutor = Executors.newSingleThreadExecutor()
-        )
         val sessionConfigOptions = Camera2ImplConfig.Builder().build()
 
         // Act/Assert
         assertThrows<IllegalStateException> {
-            configAdapter.mapToRequest(captureConfig, sessionConfigOptions)
+            configAdapter.mapToRequest(
+                captureConfig,
+                RequestTemplate(CameraDevice.TEMPLATE_PREVIEW),
+                sessionConfigOptions
+            )
         }
     }
 
@@ -62,27 +98,21 @@ class CaptureConfigAdapterTest {
         val captureConfig = CaptureConfig.Builder()
             .apply { addSurface(FakeSurface()) }
             .build()
-        val configAdapter = CaptureConfigAdapter(
-            surfaceToStreamMap = emptyMap(),
-            callbackExecutor = Executors.newSingleThreadExecutor()
-        )
         val sessionConfigOptions = Camera2ImplConfig.Builder().build()
 
         // Act/Assert
         assertThrows<IllegalStateException> {
-            configAdapter.mapToRequest(captureConfig, sessionConfigOptions)
+            configAdapter.mapToRequest(
+                captureConfig,
+                RequestTemplate(CameraDevice.TEMPLATE_PREVIEW),
+                sessionConfigOptions
+            )
         }
     }
 
     @Test
     fun shouldReturnRequestThatIncludesCaptureCallbacks() {
         // Arrange
-        val surface = FakeSurface()
-        val configAdapter = CaptureConfigAdapter(
-            surfaceToStreamMap = mapOf(surface to StreamId(0)),
-            callbackExecutor = Executors.newSingleThreadExecutor()
-        )
-
         val callbackAborted = CompletableDeferred<Unit>()
         val captureCallback = object : CameraCaptureCallback() {
             override fun onCaptureCancelled() {
@@ -98,7 +128,11 @@ class CaptureConfigAdapterTest {
         val sessionConfigOptions = Camera2ImplConfig.Builder().build()
 
         // Act
-        val request = configAdapter.mapToRequest(captureConfig, sessionConfigOptions)
+        val request = configAdapter.mapToRequest(
+            captureConfig,
+            RequestTemplate(CameraDevice.TEMPLATE_PREVIEW),
+            sessionConfigOptions
+        )
         request.listeners.forEach { listener ->
             listener.onAborted(request)
         }
@@ -112,12 +146,6 @@ class CaptureConfigAdapterTest {
     @Test
     fun shouldReturnRequestThatIncludesCaptureOptions() {
         // Arrange
-        val surface = FakeSurface()
-        val configAdapter = CaptureConfigAdapter(
-            surfaceToStreamMap = mapOf(surface to StreamId(0)),
-            callbackExecutor = Executors.newSingleThreadExecutor()
-        )
-
         val captureConfig = CaptureConfig.Builder()
             .apply {
                 addSurface(surface)
@@ -130,7 +158,11 @@ class CaptureConfigAdapterTest {
         }.build()
 
         // Act
-        val request = configAdapter.mapToRequest(captureConfig, sessionConfigOptions)
+        val request = configAdapter.mapToRequest(
+            captureConfig,
+            RequestTemplate(CameraDevice.TEMPLATE_PREVIEW),
+            sessionConfigOptions
+        )
 
         // Assert
         val rotation = request.parameters[CaptureRequest.JPEG_ORIENTATION]
@@ -144,12 +176,6 @@ class CaptureConfigAdapterTest {
     @Test
     fun shouldSetTagBundleToTheRequest() {
         // Arrange
-        val surface = FakeSurface()
-        val configAdapter = CaptureConfigAdapter(
-            surfaceToStreamMap = mapOf(surface to StreamId(0)),
-            callbackExecutor = Executors.newSingleThreadExecutor()
-        )
-
         val tagKey = "testTagKey"
         val tagValue = "testTagValue"
         val captureConfig = CaptureConfig.Builder().apply {
@@ -159,7 +185,11 @@ class CaptureConfigAdapterTest {
         val sessionConfigOptions = Camera2ImplConfig.Builder().build()
 
         // Act
-        val request = configAdapter.mapToRequest(captureConfig, sessionConfigOptions)
+        val request = configAdapter.mapToRequest(
+            captureConfig,
+            RequestTemplate(CameraDevice.TEMPLATE_PREVIEW),
+            sessionConfigOptions
+        )
 
         // Assert
         assertThat(request.extras).containsKey(CAMERAX_TAG_BUNDLE)
@@ -170,12 +200,6 @@ class CaptureConfigAdapterTest {
     @Test
     fun captureOptionsMergeConflict_singleCaptureOptionShouldKeep() {
         // Arrange
-        val surface = FakeSurface()
-        val configAdapter = CaptureConfigAdapter(
-            surfaceToStreamMap = mapOf(surface to StreamId(0)),
-            callbackExecutor = Executors.newSingleThreadExecutor()
-        )
-
         val captureConfig = CaptureConfig.Builder()
             .apply {
                 addSurface(surface)
@@ -189,10 +213,74 @@ class CaptureConfigAdapterTest {
         }.build()
 
         // Act
-        val request = configAdapter.mapToRequest(captureConfig, sessionConfigOptions)
+        val request = configAdapter.mapToRequest(
+            captureConfig,
+            RequestTemplate(CameraDevice.TEMPLATE_PREVIEW),
+            sessionConfigOptions
+        )
 
         // Assert, the options of the single capture should have higher priority.
         val rotation = request.parameters[CaptureRequest.JPEG_ORIENTATION]
         assertThat(rotation).isEqualTo(90)
     }
+
+    @Test
+    fun submitStillCaptureRequests_withTemplate_templateSent(): Unit = runBlocking {
+        // Arrange.
+        val imageCaptureConfig = CaptureConfig.Builder().let {
+            it.addSurface(surface)
+            it.templateType = CameraDevice.TEMPLATE_MANUAL
+            it.build()
+        }
+        val request = configAdapter.mapToRequest(
+            imageCaptureConfig,
+            RequestTemplate(CameraDevice.TEMPLATE_PREVIEW),
+            Camera2ImplConfig.Builder().build(),
+        )
+
+        // Assert.
+        val template = request.template
+        assertThat(template).isEqualTo(RequestTemplate(CameraDevice.TEMPLATE_MANUAL))
+    }
+
+    @Test
+    fun submitStillCaptureRequests_withNoTemplate_templateStillCaptureSent(): Unit = runBlocking {
+        // Arrange.
+        val imageCaptureConfig = CaptureConfig.Builder().apply {
+            addSurface(surface)
+        }.build()
+
+        // Act.
+        val request = configAdapter.mapToRequest(
+            imageCaptureConfig,
+            RequestTemplate(CameraDevice.TEMPLATE_PREVIEW),
+            Camera2ImplConfig.Builder().build(),
+        )
+
+        // Assert.
+        val template = request.template
+        assertThat(template).isEqualTo(RequestTemplate(CameraDevice.TEMPLATE_STILL_CAPTURE))
+    }
+
+    @Test
+    fun submitStillCaptureRequests_withTemplateRecord_templateVideoSnapshotSent(): Unit =
+        runBlocking {
+            // Arrange.
+            val imageCaptureConfig = CaptureConfig.Builder().apply {
+                templateType = CameraDevice.TEMPLATE_STILL_CAPTURE
+                addSurface(surface)
+            }.build()
+
+            // Act.
+            val request = configAdapter.mapToRequest(
+                imageCaptureConfig,
+                // With session template in TEMPLATE_RECORD
+                RequestTemplate(CameraDevice.TEMPLATE_RECORD),
+                Camera2ImplConfig.Builder().build(),
+            )
+
+            // Assert.
+            val template = request.template
+            assertThat(template).isEqualTo(RequestTemplate(CameraDevice.TEMPLATE_VIDEO_SNAPSHOT))
+        }
 }

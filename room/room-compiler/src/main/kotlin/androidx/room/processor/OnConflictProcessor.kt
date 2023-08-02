@@ -27,6 +27,7 @@ object OnConflictProcessor {
     @Suppress("DEPRECATION")
     fun onConflictText(@OnConflictStrategy onConflict: Int): String {
         return when (onConflict) {
+            OnConflictStrategy.NONE -> ""
             OnConflictStrategy.REPLACE -> "REPLACE"
             OnConflictStrategy.ABORT -> "ABORT"
             OnConflictStrategy.FAIL -> "FAIL"

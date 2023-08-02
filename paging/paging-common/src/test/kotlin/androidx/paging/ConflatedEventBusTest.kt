@@ -19,14 +19,14 @@ package androidx.paging
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.test.TestCoroutineScope
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.runCurrent
 import org.junit.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class ConflatedEventBusTest {
-    val testScope = TestCoroutineScope()
+    val testScope = TestScope()
 
     @Test
     fun noInitialValue() {

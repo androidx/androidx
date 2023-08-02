@@ -1,4 +1,3 @@
-import androidx.build.LibraryGroups
 import androidx.build.Publish
 
 plugins {
@@ -21,11 +20,7 @@ android {
     }
 
     testOptions.unitTests.includeAndroidResources = true
-}
-
-// Robolectric requires more memory than Gradle default
-tasks.withType(Test) { t ->
-    t.maxHeapSize = "1024m"
+    namespace "androidx.enterprise.feedback"
 }
 
 androidx {

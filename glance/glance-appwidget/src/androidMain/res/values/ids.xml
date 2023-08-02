@@ -14,7 +14,9 @@
   limitations under the License.
   -->
 
-<resources>
+<resources
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:ignore="ResourceName">
     <id name="checkBoxIcon" />
     <id name="checkBoxText" />
     <id name="glanceView" />
@@ -23,9 +25,12 @@
     <id name="sizeView" />
     <id name="sizeViewStub" />
     <id name="switchText" />
-    <id name="switchTrack" />
     <id name="switchThumb" />
+    <id name="switchTrack" />
     <id name="rootView" />
     <id name="rootStubId" />
     <id name="deletedViewId" />
+    <id name="radioIcon" />
+    <id name="radioText" />
+    <id name="checkBox" />
 </resources>

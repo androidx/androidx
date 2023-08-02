@@ -1,0 +1,110 @@
+// Signature format: 4.0
+package androidx.room.migration.bundle {
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class BundleUtil {
+    field public static final String TABLE_NAME_PLACEHOLDER = "${TABLE_NAME}";
+    field public static final String VIEW_NAME_PLACEHOLDER = "${VIEW_NAME}";
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class DatabaseBundle {
+    ctor public DatabaseBundle(int, String!, java.util.List<androidx.room.migration.bundle.EntityBundle!>!, java.util.List<androidx.room.migration.bundle.DatabaseViewBundle!>!, java.util.List<java.lang.String!>!);
+    ctor public DatabaseBundle();
+    method public java.util.List<java.lang.String!>! buildCreateQueries();
+    method public java.util.List<androidx.room.migration.bundle.EntityBundle!>! getEntities();
+    method public java.util.Map<java.lang.String!,androidx.room.migration.bundle.EntityBundle!>! getEntitiesByTableName();
+    method public String! getIdentityHash();
+    method public int getVersion();
+    method public java.util.List<androidx.room.migration.bundle.DatabaseViewBundle!>! getViews();
+    method public boolean isSchemaEqual(androidx.room.migration.bundle.DatabaseBundle!);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class DatabaseViewBundle {
+    ctor public DatabaseViewBundle(String!, String!);
+    method public String! createView();
+    method public String! getCreateSql();
+    method public String! getViewName();
+    method public boolean isSchemaEqual(androidx.room.migration.bundle.DatabaseViewBundle!);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class EntityBundle {
+    ctor public EntityBundle(String!, String!, java.util.List<androidx.room.migration.bundle.FieldBundle!>!, androidx.room.migration.bundle.PrimaryKeyBundle!, java.util.List<androidx.room.migration.bundle.IndexBundle!>!, java.util.List<androidx.room.migration.bundle.ForeignKeyBundle!>!);
+    method public java.util.Collection<java.lang.String!>! buildCreateQueries();
+    method public String! createNewTable();
+    method public String! createTable();
+    method public String! getCreateSql();
+    method public java.util.List<androidx.room.migration.bundle.FieldBundle!>! getFields();
+    method public java.util.Map<java.lang.String!,androidx.room.migration.bundle.FieldBundle!>! getFieldsByColumnName();
+    method public java.util.List<androidx.room.migration.bundle.ForeignKeyBundle!>! getForeignKeys();
+    method public java.util.List<androidx.room.migration.bundle.IndexBundle!>! getIndices();
+    method public String! getNewTableName();
+    method public androidx.room.migration.bundle.PrimaryKeyBundle! getPrimaryKey();
+    method public String! getTableName();
+    method public boolean isSchemaEqual(androidx.room.migration.bundle.EntityBundle!);
+    method public String renameToOriginal();
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class FieldBundle {
+    ctor @Deprecated public FieldBundle(String!, String!, String!, boolean);
+    ctor public FieldBundle(String!, String!, String!, boolean, String!);
+    method public String! getAffinity();
+    method public String! getColumnName();
+    method public String! getDefaultValue();
+    method public String! getFieldPath();
+    method public boolean isNonNull();
+    method public boolean isSchemaEqual(androidx.room.migration.bundle.FieldBundle!);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class ForeignKeyBundle {
+    ctor public ForeignKeyBundle(String!, String!, String!, java.util.List<java.lang.String!>!, java.util.List<java.lang.String!>!);
+    method public java.util.List<java.lang.String!>! getColumns();
+    method public String! getOnDelete();
+    method public String! getOnUpdate();
+    method public java.util.List<java.lang.String!>! getReferencedColumns();
+    method public String! getTable();
+    method public boolean isSchemaEqual(androidx.room.migration.bundle.ForeignKeyBundle!);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class FtsEntityBundle extends androidx.room.migration.bundle.EntityBundle {
+    ctor public FtsEntityBundle(String!, String!, java.util.List<androidx.room.migration.bundle.FieldBundle!>!, androidx.room.migration.bundle.PrimaryKeyBundle!, String!, androidx.room.migration.bundle.FtsOptionsBundle!, java.util.List<java.lang.String!>!);
+    method public androidx.room.migration.bundle.FtsOptionsBundle! getFtsOptions();
+    method public java.util.List<java.lang.String!>! getShadowTableNames();
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class FtsOptionsBundle {
+    ctor public FtsOptionsBundle(String!, java.util.List<java.lang.String!>!, String!, String!, String!, java.util.List<java.lang.String!>!, java.util.List<java.lang.Integer!>!, String!);
+    method public String! getContentTable();
+    method public boolean isSchemaEqual(androidx.room.migration.bundle.FtsOptionsBundle!);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class IndexBundle {
+    ctor @Deprecated public IndexBundle(String!, boolean, java.util.List<java.lang.String!>!, String!);
+    ctor public IndexBundle(String!, boolean, java.util.List<java.lang.String!>!, java.util.List<java.lang.String!>!, String!);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public String! create(String);
+    method public java.util.List<java.lang.String!>! getColumnNames();
+    method public String! getCreateSql(String!);
+    method public String! getName();
+    method public java.util.List<java.lang.String!>! getOrders();
+    method public boolean isSchemaEqual(androidx.room.migration.bundle.IndexBundle);
+    method public boolean isUnique();
+    field public static final String DEFAULT_PREFIX = "index_";
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class PrimaryKeyBundle {
+    ctor public PrimaryKeyBundle(boolean, java.util.List<java.lang.String!>!);
+    method public java.util.List<java.lang.String!>! getColumnNames();
+    method public boolean isAutoGenerate();
+    method public boolean isSchemaEqual(androidx.room.migration.bundle.PrimaryKeyBundle!);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class SchemaBundle {
+    ctor public SchemaBundle(int, androidx.room.migration.bundle.DatabaseBundle!);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static androidx.room.migration.bundle.SchemaBundle deserialize(java.io.InputStream!) throws java.io.UnsupportedEncodingException;
+    method public androidx.room.migration.bundle.DatabaseBundle! getDatabase();
+    method public int getFormatVersion();
+    method public boolean isSchemaEqual(androidx.room.migration.bundle.SchemaBundle!);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static void serialize(androidx.room.migration.bundle.SchemaBundle!, java.io.File!) throws java.io.IOException;
+    field public static final int LATEST_FORMAT = 1; // 0x1
+  }
+
+}
+

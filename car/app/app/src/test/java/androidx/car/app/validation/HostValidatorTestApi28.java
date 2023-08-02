@@ -100,6 +100,7 @@ public class HostValidatorTestApi28 {
         assertThat(hostValidator.isValidHost(hostInfo)).isTrue();
     }
 
+    @SuppressWarnings("deprecation")
     private void installPackage(String packageName, Signature[] signatures) {
         PackageInfo packageInfo = new PackageInfo();
         packageInfo.applicationInfo = new ApplicationInfo();

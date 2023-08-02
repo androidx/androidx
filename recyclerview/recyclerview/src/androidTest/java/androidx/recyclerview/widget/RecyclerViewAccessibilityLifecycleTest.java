@@ -478,12 +478,13 @@ public class RecyclerViewAccessibilityLifecycleTest extends BaseRecyclerViewInst
         };
         recyclerView.setAccessibilityDelegateCompat(
                     new RecyclerViewAccessibilityDelegate(recyclerView) {
+                @NonNull
                 @Override
                 public AccessibilityDelegateCompat getItemDelegate() {
                     return new RecyclerViewAccessibilityDelegate.ItemDelegate(this) {
                         @Override
-                        public void onInitializeAccessibilityNodeInfo(View host,
-                                AccessibilityNodeInfoCompat info) {
+                        public void onInitializeAccessibilityNodeInfo(@NonNull View host,
+                                @NonNull AccessibilityNodeInfoCompat info) {
                             super.onInitializeAccessibilityNodeInfo(host, info);
                             info.setChecked(true);
                         }

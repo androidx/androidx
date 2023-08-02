@@ -15,15 +15,15 @@
   limitations under the License.
   -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    package="androidx.car.app.projected">
+    xmlns:tools="http://schemas.android.com/tools">
 
     <application>
         <service
             android:name="androidx.car.app.CarAppMetadataHolderService"
             android:exported="false"
             android:enabled="false"
-            tools:ignore="Instantiatable"
+            android:process=""
+            tools:ignore="Instantiatable,MissingServiceExportedEqualsTrue"
             tools:node="merge">
             <meta-data
                 android:name=

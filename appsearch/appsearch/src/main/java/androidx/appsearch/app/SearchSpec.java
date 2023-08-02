@@ -43,7 +43,6 @@ import java.util.Set;
  * This class represents the specification logic for AppSearch. It can be used to set the type of
  * search, like prefix or exact only or apply filters to search for a specific schema type only etc.
  */
-// TODO(sidchhabra) : AddResultSpec fields for Snippets etc.
 public final class SearchSpec {
     /**
      * Schema type to be used in {@link SearchSpec.Builder#addProjection} to apply
@@ -297,11 +296,37 @@ public final class SearchSpec {
      */
     @NonNull
     public Map<String, List<String>> getProjections() {
-        Bundle typePropertyPathsBundle = mBundle.getBundle(PROJECTION_TYPE_PROPERTY_PATHS_FIELD);
+        Bundle typePropertyPathsBundle = Preconditions.checkNotNull(
+                mBundle.getBundle(PROJECTION_TYPE_PROPERTY_PATHS_FIELD));
         Set<String> schemas = typePropertyPathsBundle.keySet();
         Map<String, List<String>> typePropertyPathsMap = new ArrayMap<>(schemas.size());
         for (String schema : schemas) {
-            typePropertyPathsMap.put(schema, typePropertyPathsBundle.getStringArrayList(schema));
+            typePropertyPathsMap.put(schema, Preconditions.checkNotNull(
+                    typePropertyPathsBundle.getStringArrayList(schema)));
+        }
+        return typePropertyPathsMap;
+    }
+
+    /**
+     * Returns a map from schema type to property paths to be used for projection.
+     *
+     * <p>If the map is empty, then all properties will be retrieved for all results.
+     *
+     * <p>Calling this function repeatedly is inefficient. Prefer to retain the Map returned
+     * by this function, rather than calling it multiple times.
+     */
+    @NonNull
+    public Map<String, List<PropertyPath>> getProjectionPaths() {
+        Bundle typePropertyPathsBundle = mBundle.getBundle(PROJECTION_TYPE_PROPERTY_PATHS_FIELD);
+        Set<String> schemas = typePropertyPathsBundle.keySet();
+        Map<String, List<PropertyPath>> typePropertyPathsMap = new ArrayMap<>(schemas.size());
+        for (String schema : schemas) {
+            ArrayList<String> propertyPathList = typePropertyPathsBundle.getStringArrayList(schema);
+            List<PropertyPath> copy = new ArrayList<>(propertyPathList.size());
+            for (String p: propertyPathList) {
+                copy.add(new PropertyPath(p));
+            }
+            typePropertyPathsMap.put(schema, copy);
         }
         return typePropertyPathsMap;
     }
@@ -598,6 +623,29 @@ public final class SearchSpec {
          * results of that type. If a property path that is specified isn't present in a result,
          * it will be ignored for that result. Property paths cannot be null.
          *
+         * @see #addProjectionPaths
+         */
+        @NonNull
+        public SearchSpec.Builder addProjection(
+                @NonNull String schema, @NonNull Collection<String> propertyPaths) {
+            Preconditions.checkNotNull(schema);
+            Preconditions.checkNotNull(propertyPaths);
+            resetIfBuilt();
+            ArrayList<String> propertyPathsArrayList = new ArrayList<>(propertyPaths.size());
+            for (String propertyPath : propertyPaths) {
+                Preconditions.checkNotNull(propertyPath);
+                propertyPathsArrayList.add(propertyPath);
+            }
+            mProjectionTypePropertyMasks.putStringArrayList(schema, propertyPathsArrayList);
+            return this;
+        }
+
+        /**
+         * Adds property paths for the specified type to be used for projection. If property
+         * paths are added for a type, then only the properties referred to will be retrieved for
+         * results of that type. If a property path that is specified isn't present in a result,
+         * it will be ignored for that result. Property paths cannot be null.
+         *
          * <p>If no property paths are added for a particular type, then all properties of
          * results of that type will be retrieved.
          *
@@ -653,18 +701,15 @@ public final class SearchSpec {
          * }</pre>
          */
         @NonNull
-        public SearchSpec.Builder addProjection(
-                @NonNull String schema, @NonNull Collection<String> propertyPaths) {
+        public SearchSpec.Builder addProjectionPaths(
+                @NonNull String schema, @NonNull Collection<PropertyPath> propertyPaths) {
             Preconditions.checkNotNull(schema);
             Preconditions.checkNotNull(propertyPaths);
-            resetIfBuilt();
             ArrayList<String> propertyPathsArrayList = new ArrayList<>(propertyPaths.size());
-            for (String propertyPath : propertyPaths) {
-                Preconditions.checkNotNull(propertyPath);
-                propertyPathsArrayList.add(propertyPath);
+            for (PropertyPath propertyPath : propertyPaths) {
+                propertyPathsArrayList.add(propertyPath.toString());
             }
-            mProjectionTypePropertyMasks.putStringArrayList(schema, propertyPathsArrayList);
-            return this;
+            return addProjection(schema, propertyPathsArrayList);
         }
 
         /**

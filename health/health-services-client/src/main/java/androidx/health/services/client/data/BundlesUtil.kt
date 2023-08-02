@@ -17,23 +17,18 @@
 package androidx.health.services.client.data
 
 import android.os.Bundle
-import androidx.annotation.RestrictTo
 import androidx.health.services.client.proto.DataProto
 import com.google.protobuf.ByteString
 
-/**
- * Utility methods for working with Bundles.
- *
- * @hide
- */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
-public object BundlesUtil {
+/** Utility methods for working with Bundles. */
+internal object BundlesUtil {
 
     @JvmStatic
     internal fun toProto(bundle: Bundle): DataProto.Bundle {
         val builder = DataProto.Bundle.newBuilder()
 
         for (key in bundle.keySet()) {
+            @Suppress("DEPRECATION")
             when (val value = bundle.get(key)) {
                 is Boolean -> builder.putBools(key, value)
                 is String -> builder.putStrings(key, value)

@@ -15,7 +15,6 @@
  */
 
 
-import androidx.build.LibraryGroups
 import androidx.build.Publish
 
 plugins {
@@ -33,6 +32,15 @@ dependencies {
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)
+
+    constraints {
+        // this syntax mirrors the temporary workaround in lifecycle-viewmodel
+        // dependency constraints which allows lifecycle-viewmodel-ktx to have a
+        // project constraint on compose, even though compose is not within
+        // the 'MAIN' project-set.
+        // update syntax when b/239979823 is fixed.
+        implementation("androidx.lifecycle:lifecycle-viewmodel:{androidx.LibraryVersions.LIFECYCLE}")
+    }
 }
 
 androidx {
@@ -41,4 +49,8 @@ androidx {
     mavenGroup = LibraryGroups.LIFECYCLE
     inceptionYear = "2018"
     description = "Kotlin extensions for 'viewmodel' artifact"
+}
+
+android {
+    namespace "androidx.lifecycle.viewmodel.ktx"
 }

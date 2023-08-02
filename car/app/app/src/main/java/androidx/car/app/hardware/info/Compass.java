@@ -87,6 +87,6 @@ public final class Compass {
 
     /** Constructs an empty instance, used by serialization code. */
     private Compass() {
-        mOrientations = CarValue.UNIMPLEMENTED_FLOAT_LIST;
+        mOrientations = CarValue.UNKNOWN_FLOAT_LIST;
     }
 }

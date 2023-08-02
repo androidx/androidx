@@ -204,6 +204,7 @@ public class InputConnectionCompatTest extends BaseInstrumentationTestCase<TestA
         }
         return new ArgumentMatcher<Bundle>() {
             @Override
+            @SuppressWarnings("deprecation")
             public boolean matches(Bundle data) {
                 final Uri contentUri = data.getParcelable(contentUriKey);
                 final ClipDescription description = data.getParcelable(descriptionKey);

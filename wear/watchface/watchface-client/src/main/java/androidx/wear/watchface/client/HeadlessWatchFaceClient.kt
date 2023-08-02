@@ -17,6 +17,7 @@
 package androidx.wear.watchface.client
 
 import android.graphics.Bitmap
+import android.graphics.drawable.Icon
 import android.os.Bundle
 import android.os.RemoteException
 import android.support.wearable.watchface.SharedMemoryImage
@@ -32,8 +33,10 @@ import androidx.wear.watchface.control.data.ComplicationRenderParams
 import androidx.wear.watchface.control.data.WatchFaceRenderParams
 import androidx.wear.watchface.data.IdAndComplicationDataWireFormat
 import androidx.wear.watchface.style.UserStyle
+import androidx.wear.watchface.style.UserStyleFlavors
 import androidx.wear.watchface.style.UserStyleSchema
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting
+import java.security.MessageDigest
 import java.time.Instant
 import java.util.concurrent.Executor
 
@@ -62,6 +65,26 @@ public interface HeadlessWatchFaceClient : AutoCloseable {
     /** The watch face's [UserStyleSchema]. */
     @get:Throws(RemoteException::class)
     public val userStyleSchema: UserStyleSchema
+
+    /**
+     * A SHA-1 [MessageDigest] hash of the [UserStyleSchema]. Note that for performance reasons
+     * where possible the resource id or url for [Icon]s in the schema are used rather than the
+     * image bytes. This means that this hash should be considered insensitive to changes to the
+     * contents of icons between APK versions, which the user should account for accordingly.
+     *
+     * This gives the same result as calling [UserStyleSchema.computeDigestHash] on
+     * [userStyleSchema] but is slightly faster since less data is passed over AIDL.
+     */
+    @Throws(RemoteException::class)
+    public fun getUserStyleSchemaDigestHash(): ByteArray = ByteArray(0)
+
+    /**
+     * Returns the watch face's [UserStyleFlavors] if any.
+     *
+     * @throws [RuntimeException] if the watch face threw an exception while trying to service the
+     * request or there was a communication problem with watch face process.
+     */
+    public fun getUserStyleFlavors(): UserStyleFlavors = UserStyleFlavors()
 
     /**
      * Map of [androidx.wear.watchface.ComplicationSlot] ids to [ComplicationSlotState] for each
@@ -95,7 +118,7 @@ public interface HeadlessWatchFaceClient : AutoCloseable {
         slotIdToComplicationData: Map<Int, ComplicationData>?
     ): Bitmap
 
-    /**c
+    /**
      * Renders the [androidx.wear.watchface.ComplicationSlot] to a shared memory backed [Bitmap]
      * with the given settings.
      *
@@ -176,6 +199,22 @@ internal class HeadlessWatchFaceClientImpl internal constructor(
 
     override val userStyleSchema: UserStyleSchema
         get() = UserStyleSchema(iHeadlessWatchFace.userStyleSchema)
+
+    override fun getUserStyleSchemaDigestHash(): ByteArray =
+        if (iHeadlessWatchFace.apiVersion >= 2) {
+            iHeadlessWatchFace.computeUserStyleSchemaDigestHash()
+        } else {
+            userStyleSchema.getDigestHash()
+        }
+
+    override fun getUserStyleFlavors(): UserStyleFlavors =
+        callRemote {
+            if (iHeadlessWatchFace.apiVersion >= 3) {
+                UserStyleFlavors(iHeadlessWatchFace.userStyleFlavors)
+            } else {
+                UserStyleFlavors()
+            }
+        }
 
     override val complicationSlotsState: Map<Int, ComplicationSlotState>
         get() = iHeadlessWatchFace.complicationState.associateBy(

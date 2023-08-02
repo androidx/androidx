@@ -21,15 +21,19 @@ import android.os.Bundle;
 import android.view.ViewGroup;
 import android.webkit.WebView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 public class WebViewTestActivity extends Activity {
     private WebView mWebView;
 
+    @NonNull
     public WebView getWebView() {
         return mWebView;
     }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         mWebView = new WebView(this);

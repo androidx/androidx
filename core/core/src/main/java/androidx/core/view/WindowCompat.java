@@ -16,14 +16,15 @@
 
 package androidx.core.view;
 
+import android.app.Activity;
+import android.graphics.Rect;
 import android.os.Build;
 import android.view.View;
 import android.view.Window;
-import android.view.WindowInsetsController;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
 /**
@@ -51,9 +52,9 @@ public final class WindowCompat {
      * View.SYSTEM_UI_FLAG_FULLSCREEN}, which allows you to seamlessly hide the
      * action bar in conjunction with other screen decorations.
      *
-     * <p>As of {@link android.os.Build.VERSION_CODES#JELLY_BEAN}, when an
+     * <p>As of {@link Build.VERSION_CODES#JELLY_BEAN}, when an
      * ActionBar is in this mode it will adjust the insets provided to
-     * {@link View#fitSystemWindows(android.graphics.Rect) View.fitSystemWindows(Rect)}
+     * {@link View#fitSystemWindows(Rect) View.fitSystemWindows(Rect)}
      * to include the content covered by the action bar, so you can do layout within
      * that space.
      */
@@ -69,7 +70,7 @@ public final class WindowCompat {
 
     /**
      * Finds a view that was identified by the {@code android:id} XML attribute
-     * that was processed in {@link android.app.Activity#onCreate}, or throws an
+     * that was processed in {@link Activity#onCreate}, or throws an
      * IllegalArgumentException if the ID is invalid, or there is no matching view in the hierarchy.
      * <p>
      * <strong>Note:</strong> In most cases -- depending on compiler support --
@@ -86,7 +87,7 @@ public final class WindowCompat {
     @NonNull
     public static <T extends View> T requireViewById(@NonNull Window window, @IdRes int id) {
         if (Build.VERSION.SDK_INT >= 28) {
-            return window.requireViewById(id);
+            return Api28Impl.requireViewById(window, id);
         }
 
         T view = window.findViewById(id);
@@ -115,32 +116,32 @@ public final class WindowCompat {
     public static void setDecorFitsSystemWindows(@NonNull Window window,
             final boolean decorFitsSystemWindows) {
         if (Build.VERSION.SDK_INT >= 30) {
-            Impl30.setDecorFitsSystemWindows(window, decorFitsSystemWindows);
+            Api30Impl.setDecorFitsSystemWindows(window, decorFitsSystemWindows);
         } else if (Build.VERSION.SDK_INT >= 16) {
-            Impl16.setDecorFitsSystemWindows(window, decorFitsSystemWindows);
+            Api16Impl.setDecorFitsSystemWindows(window, decorFitsSystemWindows);
         }
     }
 
-
     /**
-     * Retrieves the single {@link WindowInsetsController} of the window this view is attached to.
+     * Retrieves the single {@link WindowInsetsControllerCompat} of the window this view is attached
+     * to.
      *
-     * @return The {@link WindowInsetsController} or {@code null} if the view is neither attached to
-     * a window nor a view tree with a decor.
+     * @return The {@link WindowInsetsControllerCompat} for the window.
      * @see Window#getInsetsController()
      */
-    @Nullable
+    @NonNull
     public static WindowInsetsControllerCompat getInsetsController(@NonNull Window window,
             @NonNull View view) {
-        if (Build.VERSION.SDK_INT >= 30) {
-            return Impl30.getInsetsController(window);
-        } else {
-            return new WindowInsetsControllerCompat(window, view);
-        }
+        return new WindowInsetsControllerCompat(window, view);
     }
 
     @RequiresApi(16)
-    private static class Impl16 {
+    static class Api16Impl {
+        private Api16Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
         static void setDecorFitsSystemWindows(@NonNull Window window,
                 final boolean decorFitsSystemWindows) {
             final int decorFitsFlags = View.SYSTEM_UI_FLAG_LAYOUT_STABLE
@@ -156,19 +157,28 @@ public final class WindowCompat {
     }
 
     @RequiresApi(30)
-    private static class Impl30 {
+    static class Api30Impl {
+        private Api30Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
         static void setDecorFitsSystemWindows(@NonNull Window window,
                 final boolean decorFitsSystemWindows) {
             window.setDecorFitsSystemWindows(decorFitsSystemWindows);
         }
+    }
 
-        static WindowInsetsControllerCompat getInsetsController(@NonNull Window window) {
-            WindowInsetsController insetsController = window.getInsetsController();
-            if (insetsController != null) {
-                return WindowInsetsControllerCompat.toWindowInsetsControllerCompat(
-                        insetsController);
-            }
-            return null;
+    @RequiresApi(28)
+    static class Api28Impl {
+        private Api28Impl() {
+            // This class is not instantiable.
+        }
+
+        @SuppressWarnings({"unchecked", "TypeParameterUnusedInFormals"})
+        @DoNotInline
+        static <T> T requireViewById(Window window, int id) {
+            return (T) window.requireViewById(id);
         }
     }
 }

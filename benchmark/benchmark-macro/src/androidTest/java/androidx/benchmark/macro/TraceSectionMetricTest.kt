@@ -19,56 +19,90 @@ package androidx.benchmark.macro
 import android.annotation.SuppressLint
 import androidx.benchmark.perfetto.PerfettoHelper
 import androidx.test.filters.MediumTest
+import kotlin.test.assertEquals
 import org.junit.Assume.assumeTrue
 import org.junit.Test
-import kotlin.test.assertEquals
 
 @MediumTest
 @OptIn(ExperimentalMetricApi::class)
 class TraceSectionMetricTest {
-    private val tracePath = createTempFileFromAsset(
+    private val api24ColdStart = createTempFileFromAsset(
         prefix = "api24_startup_cold",
         suffix = ".perfetto-trace"
     ).absolutePath
 
-    private val captureInfo = Metric.CaptureInfo(
-        targetPackageName = Packages.TEST,
-        testPackageName = Packages.TEST,
-        startupMode = StartupMode.COLD,
-        apiLevel = 24
+    private val commasInSliceNames = createTempFileFromAsset(
+        prefix = "api24_commas_in_slice_names",
+        suffix = ".perfetto-trace"
+    ).absolutePath
+
+    @Test
+    fun activityThreadMain() = verifySingleMetric(
+        tracePath = api24ColdStart,
+        packageName = Packages.TEST,
+        sectionName = "ActivityThreadMain",
+        expectedMs = 12.639
     )
 
     @Test
-    fun activityThreadMain() = verifySingleMetric("ActivityThreadMain", 12.639)
+    fun activityStart() = verifySingleMetric(
+        tracePath = api24ColdStart,
+        packageName = Packages.TEST,
+        sectionName = "activityStart",
+        expectedMs = 81.979
+    )
 
     @Test
-    fun activityStart() = verifySingleMetric("activityStart", 81.979)
-
-    @Test
-    fun startActivityAndWait() = verifySingleMetric("startActivityAndWait", 1_110.689)
+    fun startActivityAndWait() = verifySingleMetric(
+        tracePath = api24ColdStart,
+        packageName = Packages.TEST,
+        sectionName = "startActivityAndWait",
+        expectedMs = 1_110.689
+    )
 
     @Test
     fun launching() = verifySingleMetric(
-        "launching: androidx.benchmark.integration.macrobenchmark.target",
-        269.947
+        tracePath = api24ColdStart,
+        packageName = Packages.TEST,
+        sectionName = "launching: androidx.benchmark.integration.macrobenchmark.target",
+        expectedMs = 269.947
     )
 
-    @SuppressLint("NewApi") // we use a fixed trace - ignore for TraceSectionMetric
-    private fun verifySingleMetric(
-        sectionName: String,
-        expectedMs: Double
-    ) {
-        assumeTrue(PerfettoHelper.isAbiSupported())
+    @Test
+    fun section1_2() = verifySingleMetric(
+        tracePath = commasInSliceNames,
+        packageName = Packages.TARGET,
+        sectionName = "section1,2",
+        expectedMs = 0.006615
+    )
 
-        val metric = TraceSectionMetric(sectionName)
-        val expectedKey = sectionName + "Ms"
-        metric.configure(Packages.TEST)
-        val iterationResult = metric.getMetrics(
-            captureInfo = captureInfo,
-            tracePath = tracePath
+    companion object {
+        private val captureInfo = Metric.CaptureInfo(
+            targetPackageName = Packages.TEST,
+            testPackageName = Packages.TEST,
+            startupMode = StartupMode.COLD,
+            apiLevel = 24
         )
 
-        assertEquals(setOf(expectedKey), iterationResult.singleMetrics.keys)
-        assertEquals(expectedMs, iterationResult.singleMetrics[expectedKey]!!, 0.001)
+        @SuppressLint("NewApi") // we use a fixed trace - ignore for TraceSectionMetric
+        private fun verifySingleMetric(
+            tracePath: String,
+            packageName: String,
+            sectionName: String,
+            expectedMs: Double
+        ) {
+            assumeTrue(PerfettoHelper.isAbiSupported())
+
+            val metric = TraceSectionMetric(sectionName)
+            val expectedKey = sectionName + "Ms"
+            metric.configure(packageName = packageName)
+            val iterationResult = metric.getMetrics(
+                captureInfo = captureInfo,
+                tracePath = tracePath
+            )
+
+            assertEquals(setOf(expectedKey), iterationResult.singleMetrics.keys)
+            assertEquals(expectedMs, iterationResult.singleMetrics[expectedKey]!!, 0.001)
+        }
     }
 }

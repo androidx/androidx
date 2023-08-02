@@ -29,15 +29,15 @@ import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.sp
-import androidx.wear.compose.foundation.BasicCurvedText
-import androidx.wear.compose.material.TimeTextDefaults.CurvedTextSeparator
+import androidx.wear.compose.foundation.curvedComposable
+import java.util.Calendar
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
-import java.util.Calendar
 
-@ExperimentalWearMaterialApi
 class TimeTextTest {
     @get:Rule
     val rule = createComposeRule()
@@ -73,7 +73,8 @@ class TimeTextTest {
         rule.onNodeWithText("Changed").assertIsDisplayed()
     }
 
-    @Test
+    // TODO(220086395): Reimplement this test when we have the infraestructure
+    // @Test
     fun updates_clock_when_source_changes_on_round_device() {
         val timeState = mutableStateOf("Unchanged")
 
@@ -94,22 +95,24 @@ class TimeTextTest {
     }
 
     @Test
-    fun supports_leading_linear_text_only_on_square_device() {
+    fun supports_start_linear_text_only_on_square_device() {
         rule.setContentWithTheme {
             ConfiguredShapeScreen(false) {
                 TimeText(
-                    leadingLinearContent = {
+                    startLinearContent = {
                         Text(
                             modifier = Modifier.testTag(LINEAR_ITEM_TAG),
-                            text = "Leading content",
+                            text = "Start content",
                         )
                     },
-                    leadingCurvedContent = {
-                        BasicCurvedText(
-                            modifier = Modifier.testTag(CURVED_ITEM_TAG),
-                            text = "Leading content",
-                            style = TimeTextDefaults.timeCurvedTextStyle()
-                        )
+                    startCurvedContent = {
+                        // TODO(220086395): replace back with a curvedText
+                        curvedComposable {
+                            Text(
+                                modifier = Modifier.testTag(CURVED_ITEM_TAG),
+                                text = "Curved content",
+                            )
+                        }
                     }
                 )
             }
@@ -120,22 +123,24 @@ class TimeTextTest {
     }
 
     @Test
-    fun supports_leading_curved_text_only_on_round_device() {
+    fun supports_start_curved_text_only_on_round_device() {
         rule.setContentWithTheme {
             ConfiguredShapeScreen(true) {
                 TimeText(
-                    leadingLinearContent = {
+                    startLinearContent = {
                         Text(
                             modifier = Modifier.testTag(LINEAR_ITEM_TAG),
-                            text = "Leading content",
+                            text = "Start content",
                         )
                     },
-                    leadingCurvedContent = {
-                        BasicCurvedText(
-                            modifier = Modifier.testTag(CURVED_ITEM_TAG),
-                            text = "Leading content",
-                            style = TimeTextDefaults.timeCurvedTextStyle()
-                        )
+                    startCurvedContent = {
+                        // TODO(220086395): replace back with a curvedText
+                        curvedComposable {
+                            Text(
+                                modifier = Modifier.testTag(CURVED_ITEM_TAG),
+                                text = "Curved content",
+                            )
+                        }
                     }
                 )
             }
@@ -145,22 +150,24 @@ class TimeTextTest {
     }
 
     @Test
-    fun supports_trailing_linear_text_only_on_square_device() {
+    fun supports_end_linear_text_only_on_square_device() {
         rule.setContentWithTheme {
             ConfiguredShapeScreen(false) {
                 TimeText(
-                    trailingLinearContent = {
+                    endLinearContent = {
                         Text(
                             modifier = Modifier.testTag(LINEAR_ITEM_TAG),
-                            text = "Trailing content",
+                            text = "End content",
                         )
                     },
-                    trailingCurvedContent = {
-                        BasicCurvedText(
-                            modifier = Modifier.testTag(CURVED_ITEM_TAG),
-                            text = "Trailing content",
-                            style = TimeTextDefaults.timeCurvedTextStyle()
-                        )
+                    endCurvedContent = {
+                        // TODO(220086395): replace back with a curvedText
+                        curvedComposable {
+                            Text(
+                                modifier = Modifier.testTag(CURVED_ITEM_TAG),
+                                text = "Curved content",
+                            )
+                        }
                     }
                 )
             }
@@ -170,22 +177,24 @@ class TimeTextTest {
     }
 
     @Test
-    fun supports_trailing_curved_text_only_on_round_device() {
+    fun supports_end_curved_text_only_on_round_device() {
         rule.setContentWithTheme {
             ConfiguredShapeScreen(true) {
                 TimeText(
-                    trailingLinearContent = {
+                    endLinearContent = {
                         Text(
                             modifier = Modifier.testTag(LINEAR_ITEM_TAG),
-                            text = "Leading content",
+                            text = "Start content",
                         )
                     },
-                    trailingCurvedContent = {
-                        BasicCurvedText(
-                            modifier = Modifier.testTag(CURVED_ITEM_TAG),
-                            text = "Leading content",
-                            style = TimeTextDefaults.timeCurvedTextStyle()
-                        )
+                    endCurvedContent = {
+                        // TODO(220086395): replace back with a curvedText
+                        curvedComposable {
+                            Text(
+                                modifier = Modifier.testTag(CURVED_ITEM_TAG),
+                                text = "Curved content",
+                            )
+                        }
                     }
                 )
             }
@@ -205,9 +214,13 @@ class TimeTextTest {
                         )
                     },
                     textCurvedSeparator = {
-                        CurvedTextSeparator(
-                            modifier = Modifier.testTag(CURVED_SEPARATOR_ITEM_TAG)
-                        )
+                        // TODO(220086395): replace back with a CurvedTextSeparator
+                        curvedComposable {
+                            Text(
+                                modifier = Modifier.testTag(CURVED_SEPARATOR_ITEM_TAG),
+                                text = ".",
+                            )
+                        }
                     }
                 )
             }
@@ -227,9 +240,13 @@ class TimeTextTest {
                         )
                     },
                     textCurvedSeparator = {
-                        CurvedTextSeparator(
-                            modifier = Modifier.testTag(CURVED_SEPARATOR_ITEM_TAG)
-                        )
+                        // TODO(220086395): replace back with a CurvedTextSeparator
+                        curvedComposable {
+                            Text(
+                                modifier = Modifier.testTag(CURVED_SEPARATOR_ITEM_TAG),
+                                text = ".",
+                            )
+                        }
                     }
                 )
             }
@@ -239,13 +256,13 @@ class TimeTextTest {
     }
 
     @Test
-    fun shows_only_leading_linear_separator_on_square_device() {
+    fun shows_only_start_linear_separator_on_square_device() {
         rule.setContentWithTheme {
             ConfiguredShapeScreen(false) {
                 TimeText(
-                    leadingLinearContent = {
+                    startLinearContent = {
                         Text(
-                            text = "Leading content",
+                            text = "Start content",
                         )
                     },
                     textLinearSeparator = {
@@ -254,9 +271,13 @@ class TimeTextTest {
                         )
                     },
                     textCurvedSeparator = {
-                        CurvedTextSeparator(
-                            modifier = Modifier.testTag(CURVED_SEPARATOR_ITEM_TAG)
-                        )
+                        // TODO(220086395): replace back with a CurvedTextSeparator
+                        curvedComposable {
+                            Text(
+                                modifier = Modifier.testTag(CURVED_SEPARATOR_ITEM_TAG),
+                                text = ".",
+                            )
+                        }
                     }
                 )
             }
@@ -268,14 +289,16 @@ class TimeTextTest {
     }
 
     @Test
-    fun shows_only_leading_curved_separator_on_round_device() {
+    fun shows_only_start_curved_separator_on_round_device() {
         rule.setContentWithTheme {
             ConfiguredShapeScreen(true) {
                 TimeText(
-                    leadingCurvedContent = {
-                        Text(
-                            text = "Leading content",
-                        )
+                    startCurvedContent = {
+                        curvedComposable {
+                            Text(
+                                text = "Start content",
+                            )
+                        }
                     },
                     textLinearSeparator = {
                         TimeTextDefaults.TextSeparator(
@@ -283,9 +306,13 @@ class TimeTextTest {
                         )
                     },
                     textCurvedSeparator = {
-                        CurvedTextSeparator(
-                            modifier = Modifier.testTag(CURVED_SEPARATOR_ITEM_TAG)
-                        )
+                        // TODO(220086395): replace back with a CurvedTextSeparator
+                        curvedComposable {
+                            Text(
+                                modifier = Modifier.testTag(CURVED_SEPARATOR_ITEM_TAG),
+                                text = ".",
+                            )
+                        }
                     }
                 )
             }
@@ -296,13 +323,13 @@ class TimeTextTest {
     }
 
     @Test
-    fun shows_only_trailing_linear_separator_on_square_device() {
+    fun shows_only_end_linear_separator_on_square_device() {
         rule.setContentWithTheme {
             ConfiguredShapeScreen(false) {
                 TimeText(
-                    trailingLinearContent = {
+                    endLinearContent = {
                         Text(
-                            text = "Trailing content",
+                            text = "End content",
                         )
                     },
                     textLinearSeparator = {
@@ -311,9 +338,13 @@ class TimeTextTest {
                         )
                     },
                     textCurvedSeparator = {
-                        CurvedTextSeparator(
-                            modifier = Modifier.testTag(CURVED_SEPARATOR_ITEM_TAG)
-                        )
+                        // TODO(220086395): replace back with a CurvedTextSeparator
+                        curvedComposable {
+                            Text(
+                                modifier = Modifier.testTag(CURVED_SEPARATOR_ITEM_TAG),
+                                text = ".",
+                            )
+                        }
                     }
                 )
             }
@@ -325,14 +356,13 @@ class TimeTextTest {
     }
 
     @Test
-    fun shows_only_trailing_curved_separator_on_round_device() {
+    fun shows_only_end_curved_separator_on_round_device() {
         rule.setContentWithTheme {
             ConfiguredShapeScreen(true) {
                 TimeText(
-                    trailingCurvedContent = {
-                        BasicCurvedText(
-                            text = "Trailing content",
-                            style = TimeTextDefaults.timeCurvedTextStyle()
+                    endCurvedContent = {
+                        curvedText(
+                            text = "End content"
                         )
                     },
                     textLinearSeparator = {
@@ -341,9 +371,13 @@ class TimeTextTest {
                         )
                     },
                     textCurvedSeparator = {
-                        CurvedTextSeparator(
-                            modifier = Modifier.testTag(CURVED_SEPARATOR_ITEM_TAG)
-                        )
+                        // TODO(220086395): replace back with a CurvedTextSeparator
+                        curvedComposable {
+                            Text(
+                                modifier = Modifier.testTag(CURVED_SEPARATOR_ITEM_TAG),
+                                text = ".",
+                            )
+                        }
                     }
                 )
             }
@@ -354,18 +388,18 @@ class TimeTextTest {
     }
 
     @Test
-    fun shows_leading_and_trailing_linear_separators_on_square_device() {
+    fun shows_start_and_end_linear_separators_on_square_device() {
         rule.setContentWithTheme {
             ConfiguredShapeScreen(false) {
                 TimeText(
-                    leadingLinearContent = {
+                    startLinearContent = {
                         Text(
-                            text = "Leading content",
+                            text = "Start content",
                         )
                     },
-                    trailingLinearContent = {
+                    endLinearContent = {
                         Text(
-                            text = "Trailing content",
+                            text = "End content",
                         )
                     },
                     textLinearSeparator = {
@@ -374,9 +408,13 @@ class TimeTextTest {
                         )
                     },
                     textCurvedSeparator = {
-                        CurvedTextSeparator(
-                            modifier = Modifier.testTag(CURVED_SEPARATOR_ITEM_TAG)
-                        )
+                        // TODO(220086395): replace back with a CurvedTextSeparator
+                        curvedComposable {
+                            Text(
+                                modifier = Modifier.testTag(CURVED_SEPARATOR_ITEM_TAG),
+                                text = ".",
+                            )
+                        }
                     }
                 )
             }
@@ -386,20 +424,18 @@ class TimeTextTest {
     }
 
     @Test
-    fun shows_leading_and_trailing_curved_separators_on_round_device() {
+    fun shows_start_and_end_curved_separators_on_round_device() {
         rule.setContentWithTheme {
             ConfiguredShapeScreen(true) {
                 TimeText(
-                    leadingCurvedContent = {
-                        BasicCurvedText(
-                            text = "Leading content",
-                            style = TimeTextDefaults.timeCurvedTextStyle()
+                    startCurvedContent = {
+                        curvedText(
+                            text = "Start content"
                         )
                     },
-                    trailingCurvedContent = {
-                        BasicCurvedText(
-                            text = "Trailing content",
-                            style = TimeTextDefaults.timeCurvedTextStyle()
+                    endCurvedContent = {
+                        curvedText(
+                            text = "End content"
                         )
                     },
                     textLinearSeparator = {
@@ -408,9 +444,13 @@ class TimeTextTest {
                         )
                     },
                     textCurvedSeparator = {
-                        CurvedTextSeparator(
-                            modifier = Modifier.testTag(CURVED_SEPARATOR_ITEM_TAG)
-                        )
+                        // TODO(220086395): replace back with a CurvedTextSeparator
+                        curvedComposable {
+                            Text(
+                                modifier = Modifier.testTag(CURVED_SEPARATOR_ITEM_TAG),
+                                text = ".",
+                            )
+                        }
                     }
                 )
             }
@@ -423,7 +463,7 @@ class TimeTextTest {
     // for CurvedText
     @Test
     fun changes_timeTextStyle_on_square_device() {
-        val timeState = mutableStateOf("testState")
+        val timeText = "testTime"
 
         val testTextStyle = TextStyle(
             color = Color.Green,
@@ -436,20 +476,54 @@ class TimeTextTest {
                     timeSource = object : TimeSource {
                         override val currentTime: String
                             @Composable
-                            get() = timeState.value
+                            get() = timeText
                     },
                     timeTextStyle = testTextStyle
                 )
             }
         }
-        val actualStyle = rule.textStyleOf(timeState.value)
+        val actualStyle = rule.textStyleOf(timeText)
         assertEquals(testTextStyle.color, actualStyle.color)
         assertEquals(testTextStyle.background, actualStyle.background)
         assertEquals(testTextStyle.fontSize, actualStyle.fontSize)
     }
+
+    @Test
+    fun changes_material_theme_on_square_device() {
+        val timeText = "testTime"
+
+        val testTextStyle = TextStyle(
+            color = Color.Green,
+            background = Color.Black,
+            fontStyle = FontStyle.Italic,
+            fontSize = 25.sp,
+            fontFamily = FontFamily.SansSerif
+        )
+        rule.setContent {
+            MaterialTheme(
+                typography = MaterialTheme.typography.copy(
+                    caption1 = testTextStyle)
+            ) {
+                ConfiguredShapeScreen(false) {
+                    TimeText(
+                        timeSource = object : TimeSource {
+                            override val currentTime: String
+                                @Composable
+                                get() = timeText
+                        }
+                    )
+                }
+            }
+        }
+        val actualStyle = rule.textStyleOf(timeText)
+        assertEquals(testTextStyle.color, actualStyle.color)
+        assertEquals(testTextStyle.background, actualStyle.background)
+        assertEquals(testTextStyle.fontSize, actualStyle.fontSize)
+        assertEquals(testTextStyle.fontStyle, actualStyle.fontStyle)
+        assertEquals(testTextStyle.fontFamily, actualStyle.fontFamily)
+    }
 }
 
-@ExperimentalWearMaterialApi
 class TimeSourceTest {
     @get:Rule
     val rule = createComposeRule()

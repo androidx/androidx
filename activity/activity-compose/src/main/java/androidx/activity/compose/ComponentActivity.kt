@@ -23,7 +23,8 @@ import androidx.compose.runtime.CompositionContext
 import androidx.compose.ui.platform.ComposeView
 import androidx.lifecycle.ViewTreeLifecycleOwner
 import androidx.lifecycle.ViewTreeViewModelStoreOwner
-import androidx.savedstate.ViewTreeSavedStateRegistryOwner
+import androidx.savedstate.findViewTreeSavedStateRegistryOwner
+import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 
 /**
  * Composes the given composable into the given activity. The [content] will become the root view
@@ -85,7 +86,7 @@ private fun ComponentActivity.setOwners() {
     if (ViewTreeViewModelStoreOwner.get(decorView) == null) {
         ViewTreeViewModelStoreOwner.set(decorView, this)
     }
-    if (ViewTreeSavedStateRegistryOwner.get(decorView) == null) {
-        ViewTreeSavedStateRegistryOwner.set(decorView, this)
+    if (decorView.findViewTreeSavedStateRegistryOwner() == null) {
+        decorView.setViewTreeSavedStateRegistryOwner(this)
     }
 }

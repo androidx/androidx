@@ -25,7 +25,9 @@ import android.view.ViewConfiguration;
 import android.view.ViewParent;
 import android.view.accessibility.AccessibilityEvent;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 
 /**
  * Helper for accessing features in {@link ViewParent}.
@@ -80,8 +82,8 @@ public final class ViewParentCompat {
      *                         {@link ViewCompat#SCROLL_AXIS_VERTICAL} or both
      * @return true if this ViewParent accepts the nested scroll operation
      */
-    public static boolean onStartNestedScroll(ViewParent parent, View child, View target,
-            int nestedScrollAxes) {
+    public static boolean onStartNestedScroll(@NonNull ViewParent parent, @NonNull View child,
+            @NonNull View target, int nestedScrollAxes) {
         return onStartNestedScroll(parent, child, target, nestedScrollAxes, ViewCompat.TYPE_TOUCH);
     }
 
@@ -97,20 +99,20 @@ public final class ViewParentCompat {
      * @param nestedScrollAxes Flags consisting of {@link ViewCompat#SCROLL_AXIS_HORIZONTAL},
      *                         {@link ViewCompat#SCROLL_AXIS_VERTICAL} or both
      */
-    public static void onNestedScrollAccepted(ViewParent parent, View child, View target,
-            int nestedScrollAxes) {
+    public static void onNestedScrollAccepted(@NonNull ViewParent parent, @NonNull View child,
+            @NonNull View target, int nestedScrollAxes) {
         onNestedScrollAccepted(parent, child, target, nestedScrollAxes, ViewCompat.TYPE_TOUCH);
     }
 
     /**
      * React to a nested scroll operation ending.
      *
-     * <p>This version of the method just calls {@link #onStopNestedScroll(ViewParent, View)}
+     * <p>This version of the method just calls {@link #onStopNestedScroll(ViewParent, View, int)}
      * using the touch input type.</p>
      *
      * @param target View that initiated the nested scroll
      */
-    public static void onStopNestedScroll(ViewParent parent, View target) {
+    public static void onStopNestedScroll(@NonNull ViewParent parent, @NonNull View target) {
         onStopNestedScroll(parent, target, ViewCompat.TYPE_TOUCH);
     }
 
@@ -127,8 +129,8 @@ public final class ViewParentCompat {
      * @param dxUnconsumed Horizontal scroll distance in pixels not consumed by target
      * @param dyUnconsumed Vertical scroll distance in pixels not consumed by target
      */
-    public static void onNestedScroll(ViewParent parent, View target, int dxConsumed,
-            int dyConsumed, int dxUnconsumed, int dyUnconsumed) {
+    public static void onNestedScroll(@NonNull ViewParent parent, @NonNull View target,
+            int dxConsumed, int dyConsumed, int dxUnconsumed, int dyUnconsumed) {
         onNestedScroll(parent, target, dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed,
                 ViewCompat.TYPE_TOUCH, getTempNestedScrollConsumed());
     }
@@ -155,8 +157,8 @@ public final class ViewParentCompat {
      * @param dyUnconsumed Vertical scroll distance in pixels not consumed by target
      * @param type the type of input which cause this scroll event
      */
-    public static void onNestedScroll(ViewParent parent, View target, int dxConsumed,
-            int dyConsumed, int dxUnconsumed, int dyUnconsumed, int type) {
+    public static void onNestedScroll(@NonNull ViewParent parent, @NonNull View target,
+            int dxConsumed, int dyConsumed, int dxUnconsumed, int dyUnconsumed, int type) {
         onNestedScroll(parent, target, dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed,
                 type, getTempNestedScrollConsumed());
     }
@@ -173,8 +175,8 @@ public final class ViewParentCompat {
      * @param dy Vertical scroll distance in pixels
      * @param consumed Output. The horizontal and vertical scroll distance consumed by this parent
      */
-    public static void onNestedPreScroll(ViewParent parent, View target, int dx, int dy,
-            int[] consumed) {
+    public static void onNestedPreScroll(@NonNull ViewParent parent, @NonNull View target, int dx,
+            int dy, @NonNull int[] consumed) {
         onNestedPreScroll(parent, target, dx, dy, consumed, ViewCompat.TYPE_TOUCH);
     }
 
@@ -202,8 +204,8 @@ public final class ViewParentCompat {
      * @return true if this ViewParent accepts the nested scroll operation
      */
     @SuppressWarnings("RedundantCast") // Intentionally invoking interface method.
-    public static boolean onStartNestedScroll(ViewParent parent, View child, View target,
-            int nestedScrollAxes, int type) {
+    public static boolean onStartNestedScroll(@NonNull ViewParent parent, @NonNull View child,
+            @NonNull View target, int nestedScrollAxes, int type) {
         if (parent instanceof NestedScrollingParent2) {
             // First try the NestedScrollingParent2 API
             return ((NestedScrollingParent2) parent).onStartNestedScroll(child, target,
@@ -212,7 +214,7 @@ public final class ViewParentCompat {
             // Else if the type is the default (touch), try the NestedScrollingParent API
             if (Build.VERSION.SDK_INT >= 21) {
                 try {
-                    return parent.onStartNestedScroll(child, target, nestedScrollAxes);
+                    return Api21Impl.onStartNestedScroll(parent, child, target, nestedScrollAxes);
                 } catch (AbstractMethodError e) {
                     Log.e(TAG, "ViewParent " + parent + " does not implement interface "
                             + "method onStartNestedScroll", e);
@@ -243,8 +245,8 @@ public final class ViewParentCompat {
      * @see #onStopNestedScroll(ViewParent, View, int)
      */
     @SuppressWarnings("RedundantCast") // Intentionally invoking interface method.
-    public static void onNestedScrollAccepted(ViewParent parent, View child, View target,
-            int nestedScrollAxes, int type) {
+    public static void onNestedScrollAccepted(@NonNull ViewParent parent, @NonNull View child,
+            @NonNull View target, int nestedScrollAxes, int type) {
         if (parent instanceof NestedScrollingParent2) {
             // First try the NestedScrollingParent2 API
             ((NestedScrollingParent2) parent).onNestedScrollAccepted(child, target,
@@ -253,7 +255,7 @@ public final class ViewParentCompat {
             // Else if the type is the default (touch), try the NestedScrollingParent API
             if (Build.VERSION.SDK_INT >= 21) {
                 try {
-                    parent.onNestedScrollAccepted(child, target, nestedScrollAxes);
+                    Api21Impl.onNestedScrollAccepted(parent, child, target, nestedScrollAxes);
                 } catch (AbstractMethodError e) {
                     Log.e(TAG, "ViewParent " + parent + " does not implement interface "
                             + "method onNestedScrollAccepted", e);
@@ -278,7 +280,8 @@ public final class ViewParentCompat {
      * @param type the type of input which cause this scroll event
      */
     @SuppressWarnings("RedundantCast") // Intentionally invoking interface method.
-    public static void onStopNestedScroll(ViewParent parent, View target, int type) {
+    public static void onStopNestedScroll(@NonNull ViewParent parent, @NonNull View target,
+            int type) {
         if (parent instanceof NestedScrollingParent2) {
             // First try the NestedScrollingParent2 API
             ((NestedScrollingParent2) parent).onStopNestedScroll(target, type);
@@ -286,7 +289,7 @@ public final class ViewParentCompat {
             // Else if the type is the default (touch), try the NestedScrollingParent API
             if (Build.VERSION.SDK_INT >= 21) {
                 try {
-                    parent.onStopNestedScroll(target);
+                    Api21Impl.onStopNestedScroll(parent, target);
                 } catch (AbstractMethodError e) {
                     Log.e(TAG, "ViewParent " + parent + " does not implement interface "
                             + "method onStopNestedScroll", e);
@@ -322,8 +325,8 @@ public final class ViewParentCompat {
      *                 distances consumed by this nested scrolling parent and the scroll distances
      *                 consumed by any other parent up the view hierarchy.
      */
-    public static void onNestedScroll(ViewParent parent, View target, int dxConsumed,
-            int dyConsumed, int dxUnconsumed, int dyUnconsumed, int type,
+    public static void onNestedScroll(@NonNull ViewParent parent, @NonNull View target,
+            int dxConsumed, int dyConsumed, int dxUnconsumed, int dyUnconsumed, int type,
             @NonNull int[] consumed) {
 
         if (parent instanceof NestedScrollingParent3) {
@@ -343,8 +346,8 @@ public final class ViewParentCompat {
                 // Else if the type is the default (touch), try the NestedScrollingParent API
                 if (Build.VERSION.SDK_INT >= 21) {
                     try {
-                        parent.onNestedScroll(target, dxConsumed, dyConsumed, dxUnconsumed,
-                                dyUnconsumed);
+                        Api21Impl.onNestedScroll(parent, target, dxConsumed, dyConsumed,
+                                dxUnconsumed, dyUnconsumed);
                     } catch (AbstractMethodError e) {
                         Log.e(TAG, "ViewParent " + parent + " does not implement interface "
                                 + "method onNestedScroll", e);
@@ -379,8 +382,8 @@ public final class ViewParentCompat {
      * @param type the type of input which cause this scroll event
      */
     @SuppressWarnings("RedundantCast") // Intentionally invoking interface method.
-    public static void onNestedPreScroll(ViewParent parent, View target, int dx, int dy,
-            int[] consumed, int type) {
+    public static void onNestedPreScroll(@NonNull ViewParent parent, @NonNull View target, int dx,
+            int dy, @NonNull int[] consumed, int type) {
         if (parent instanceof NestedScrollingParent2) {
             // First try the NestedScrollingParent2 API
             ((NestedScrollingParent2) parent).onNestedPreScroll(target, dx, dy, consumed, type);
@@ -388,7 +391,7 @@ public final class ViewParentCompat {
             // Else if the type is the default (touch), try the NestedScrollingParent API
             if (Build.VERSION.SDK_INT >= 21) {
                 try {
-                    parent.onNestedPreScroll(target, dx, dy, consumed);
+                    Api21Impl.onNestedPreScroll(parent, target, dx, dy, consumed);
                 } catch (AbstractMethodError e) {
                     Log.e(TAG, "ViewParent " + parent + " does not implement interface "
                             + "method onNestedPreScroll", e);
@@ -419,11 +422,11 @@ public final class ViewParentCompat {
      * @return true if this parent consumed or otherwise reacted to the fling
      */
     @SuppressWarnings("RedundantCast") // Intentionally invoking interface method.
-    public static boolean onNestedFling(ViewParent parent, View target, float velocityX,
-            float velocityY, boolean consumed) {
+    public static boolean onNestedFling(@NonNull ViewParent parent, @NonNull View target,
+            float velocityX, float velocityY, boolean consumed) {
         if (Build.VERSION.SDK_INT >= 21) {
             try {
-                return parent.onNestedFling(target, velocityX, velocityY, consumed);
+                return Api21Impl.onNestedFling(parent, target, velocityX, velocityY, consumed);
             } catch (AbstractMethodError e) {
                 Log.e(TAG, "ViewParent " + parent + " does not implement interface "
                         + "method onNestedFling", e);
@@ -456,11 +459,11 @@ public final class ViewParentCompat {
      * @return true if this parent consumed the fling ahead of the target view
      */
     @SuppressWarnings("RedundantCast") // Intentionally invoking interface method.
-    public static boolean onNestedPreFling(ViewParent parent, View target, float velocityX,
-            float velocityY) {
+    public static boolean onNestedPreFling(@NonNull ViewParent parent, @NonNull View target,
+            float velocityX, float velocityY) {
         if (Build.VERSION.SDK_INT >= 21) {
             try {
-                return parent.onNestedPreFling(target, velocityX, velocityY);
+                return Api21Impl.onNestedPreFling(parent, target, velocityX, velocityY);
             } catch (AbstractMethodError e) {
                 Log.e(TAG, "ViewParent " + parent + " does not implement interface "
                         + "method onNestedPreFling", e);
@@ -487,10 +490,10 @@ public final class ViewParentCompat {
      *            <li>{@link AccessibilityEvent#CONTENT_CHANGE_TYPE_UNDEFINED}
      *            </ul>
      */
-    public static void notifySubtreeAccessibilityStateChanged(ViewParent parent, View child,
-            View source, int changeType) {
+    public static void notifySubtreeAccessibilityStateChanged(@NonNull ViewParent parent,
+            @NonNull View child, @NonNull View source, int changeType) {
         if (Build.VERSION.SDK_INT >= 19) {
-            parent.notifySubtreeAccessibilityStateChanged(child, source, changeType);
+            Api19Impl.notifySubtreeAccessibilityStateChanged(parent, child, source, changeType);
         }
     }
 
@@ -502,5 +505,62 @@ public final class ViewParentCompat {
             sTempNestedScrollConsumed[1] = 0;
         }
         return sTempNestedScrollConsumed;
+    }
+
+    @RequiresApi(19)
+    static class Api19Impl {
+        private Api19Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static void notifySubtreeAccessibilityStateChanged(ViewParent viewParent, View view,
+                View view1, int i) {
+            viewParent.notifySubtreeAccessibilityStateChanged(view, view1, i);
+        }
+    }
+
+    @RequiresApi(21)
+    static class Api21Impl {
+        private Api21Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static boolean onStartNestedScroll(ViewParent viewParent, View view, View view1, int i) {
+            return viewParent.onStartNestedScroll(view, view1, i);
+        }
+
+        @DoNotInline
+        static void onNestedScrollAccepted(ViewParent viewParent, View view, View view1, int i) {
+            viewParent.onNestedScrollAccepted(view, view1, i);
+        }
+
+        @DoNotInline
+        static void onStopNestedScroll(ViewParent viewParent, View view) {
+            viewParent.onStopNestedScroll(view);
+        }
+
+        @DoNotInline
+        static void onNestedScroll(ViewParent viewParent, View view, int i, int i1, int i2,
+                int i3) {
+            viewParent.onNestedScroll(view, i, i1, i2, i3);
+        }
+
+        @DoNotInline
+        static void onNestedPreScroll(ViewParent viewParent, View view, int i, int i1, int[] ints) {
+            viewParent.onNestedPreScroll(view, i, i1, ints);
+        }
+
+        @DoNotInline
+        static boolean onNestedFling(ViewParent viewParent, View view, float v, float v1,
+                boolean b) {
+            return viewParent.onNestedFling(view, v, v1, b);
+        }
+
+        @DoNotInline
+        static boolean onNestedPreFling(ViewParent viewParent, View view, float v, float v1) {
+            return viewParent.onNestedPreFling(view, v, v1);
+        }
     }
 }

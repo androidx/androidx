@@ -76,7 +76,7 @@ public final class AppOpsManagerCompat {
     @Nullable
     public static String permissionToOp(@NonNull String permission) {
         if (SDK_INT >= 23) {
-            return AppOpsManager.permissionToOp(permission);
+            return Api23Impl.permissionToOp(permission);
         } else {
             return null;
         }
@@ -107,7 +107,7 @@ public final class AppOpsManagerCompat {
         if (SDK_INT >= 19) {
             AppOpsManager appOpsManager =
                     (AppOpsManager) context.getSystemService(Context.APP_OPS_SERVICE);
-            return appOpsManager.noteOp(op, uid, packageName);
+            return Api19Impl.noteOp(appOpsManager, op, uid, packageName);
         } else {
             return MODE_IGNORED;
         }
@@ -127,7 +127,7 @@ public final class AppOpsManagerCompat {
         if (SDK_INT >= 19) {
             AppOpsManager appOpsManager =
                     (AppOpsManager) context.getSystemService(Context.APP_OPS_SERVICE);
-            return appOpsManager.noteOpNoThrow(op, uid, packageName);
+            return Api19Impl.noteOpNoThrow(appOpsManager, op, uid, packageName);
         } else {
             return MODE_IGNORED;
         }
@@ -157,8 +157,8 @@ public final class AppOpsManagerCompat {
     public static int noteProxyOp(@NonNull Context context, @NonNull String op,
             @NonNull String proxiedPackageName) {
         if (SDK_INT >= 23) {
-            AppOpsManager appOpsManager = context.getSystemService(AppOpsManager.class);
-            return appOpsManager.noteProxyOp(op, proxiedPackageName);
+            AppOpsManager appOpsManager = Api23Impl.getSystemService(context, AppOpsManager.class);
+            return Api23Impl.noteProxyOp(appOpsManager, op, proxiedPackageName);
         } else {
             return MODE_IGNORED;
         }
@@ -176,8 +176,8 @@ public final class AppOpsManagerCompat {
     public static int noteProxyOpNoThrow(@NonNull Context context, @NonNull String op,
             @NonNull String proxiedPackageName) {
         if (SDK_INT >= 23) {
-            AppOpsManager appOpsManager = context.getSystemService(AppOpsManager.class);
-            return appOpsManager.noteProxyOpNoThrow(op, proxiedPackageName);
+            AppOpsManager appOpsManager = Api23Impl.getSystemService(context, AppOpsManager.class);
+            return Api23Impl.noteProxyOpNoThrow(appOpsManager, op, proxiedPackageName);
         } else {
             return MODE_IGNORED;
         }
@@ -252,6 +252,52 @@ public final class AppOpsManagerCompat {
         @DoNotInline
         static @NonNull String getOpPackageName(@NonNull Context context) {
             return context.getOpPackageName();
+        }
+    }
+
+    @RequiresApi(23)
+    static class Api23Impl {
+        private Api23Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static String permissionToOp(String permission) {
+            return AppOpsManager.permissionToOp(permission);
+        }
+
+        @DoNotInline
+        static <T> T getSystemService(Context context, Class<T> serviceClass) {
+            return context.getSystemService(serviceClass);
+        }
+
+        @DoNotInline
+        static int noteProxyOp(AppOpsManager appOpsManager, String op, String proxiedPackageName) {
+            return appOpsManager.noteProxyOp(op, proxiedPackageName);
+        }
+
+        @DoNotInline
+        static int noteProxyOpNoThrow(AppOpsManager appOpsManager, String op,
+                String proxiedPackageName) {
+            return appOpsManager.noteProxyOpNoThrow(op, proxiedPackageName);
+        }
+    }
+
+    @RequiresApi(19)
+    static class Api19Impl {
+        private Api19Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static int noteOpNoThrow(AppOpsManager appOpsManager, String op, int uid,
+                String packageName) {
+            return appOpsManager.noteOpNoThrow(op, uid, packageName);
+        }
+
+        @DoNotInline
+        static int noteOp(AppOpsManager appOpsManager, String op, int uid, String packageName) {
+            return appOpsManager.noteOp(op, uid, packageName);
         }
     }
 }

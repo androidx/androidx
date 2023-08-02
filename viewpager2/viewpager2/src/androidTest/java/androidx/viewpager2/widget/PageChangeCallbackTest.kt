@@ -45,7 +45,7 @@ import org.hamcrest.CoreMatchers.not
 import org.hamcrest.Matchers.allOf
 import org.hamcrest.Matchers.greaterThan
 import org.hamcrest.Matchers.greaterThanOrEqualTo
-import org.junit.Assert.assertThat
+import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
@@ -1221,6 +1221,12 @@ class PageChangeCallbackTest(private val config: TestConfig) : BaseTest() {
                         isBetweenInInMinMax(prevScrollPosition, selectedPage.toDouble())
                     )
                     prevScrollPosition = currScrollPosition
+                }
+                is MarkerEvent -> {
+                    // Nothing
+                }
+                is OnPageScrollStateChangedEvent -> {
+                    // Nothing
                 }
             }
         }

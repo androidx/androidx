@@ -39,7 +39,6 @@ import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.rx3.SchedulerCoroutineDispatcher
 import kotlinx.coroutines.rx3.asCoroutineDispatcher
 import kotlinx.coroutines.withContext
 
@@ -71,9 +70,9 @@ class RxPagedListBuilder<Key : Any, Value : Any> {
 
     @Suppress("DEPRECATION")
     private var boundaryCallback: PagedList.BoundaryCallback<Value>? = null
-    private var notifyDispatcher: SchedulerCoroutineDispatcher? = null
+    private var notifyDispatcher: CoroutineDispatcher? = null
     private var notifyScheduler: Scheduler? = null
-    private var fetchDispatcher: SchedulerCoroutineDispatcher? = null
+    private var fetchDispatcher: CoroutineDispatcher? = null
     private var fetchScheduler: Scheduler? = null
 
     /**

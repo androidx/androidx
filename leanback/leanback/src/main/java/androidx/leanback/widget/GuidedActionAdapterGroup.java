@@ -22,6 +22,8 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.leanback.widget.GuidedActionAdapter.EditListener;
 
@@ -43,7 +45,10 @@ public class GuidedActionAdapterGroup {
     private boolean mImeOpened;
     private EditListener mEditListener;
 
-    public void addAdpter(GuidedActionAdapter adapter1, GuidedActionAdapter adapter2) {
+    public void addAdpter(
+            @Nullable GuidedActionAdapter adapter1,
+            @Nullable GuidedActionAdapter adapter2
+    ) {
         mAdapters.add(new Pair<GuidedActionAdapter, GuidedActionAdapter>(adapter1, adapter2));
         if (adapter1 != null) {
             adapter1.mGroup = this;
@@ -53,7 +58,8 @@ public class GuidedActionAdapterGroup {
         }
     }
 
-    public GuidedActionAdapter getNextAdapter(GuidedActionAdapter adapter) {
+    @Nullable
+    public GuidedActionAdapter getNextAdapter(@NonNull GuidedActionAdapter adapter) {
         for (int i = 0; i < mAdapters.size(); i++) {
             Pair<GuidedActionAdapter, GuidedActionAdapter> pair = mAdapters.get(i);
             if (pair.first == adapter) {
@@ -63,7 +69,7 @@ public class GuidedActionAdapterGroup {
         return null;
     }
 
-    public void setEditListener(EditListener listener) {
+    public void setEditListener(@Nullable EditListener listener) {
         mEditListener = listener;
     }
 
@@ -119,7 +125,10 @@ public class GuidedActionAdapterGroup {
         return false;
     }
 
-    public void openIme(GuidedActionAdapter adapter, GuidedActionsStylist.ViewHolder avh) {
+    public void openIme(
+            @NonNull GuidedActionAdapter adapter,
+            @NonNull GuidedActionsStylist.ViewHolder avh
+    ) {
         adapter.getGuidedActionsStylist().setEditingMode(avh, true);
         View v = avh.getEditingView();
         if (v == null || !avh.isInEditingText()) {
@@ -138,7 +147,7 @@ public class GuidedActionAdapterGroup {
         }
     }
 
-    public void closeIme(View v) {
+    public void closeIme(@NonNull View v) {
         if (mImeOpened) {
             mImeOpened = false;
             InputMethodManager mgr = (InputMethodManager)
@@ -148,7 +157,7 @@ public class GuidedActionAdapterGroup {
         }
     }
 
-    public void fillAndStay(GuidedActionAdapter adapter, TextView v) {
+    public void fillAndStay(@NonNull GuidedActionAdapter adapter, @NonNull TextView v) {
         GuidedActionsStylist.ViewHolder avh = adapter.findSubChildViewHolder(v);
         updateTextIntoAction(avh, v);
         mEditListener.onGuidedActionEditCanceled(avh.getAction());
@@ -157,7 +166,7 @@ public class GuidedActionAdapterGroup {
         avh.itemView.requestFocus();
     }
 
-    public void fillAndGoNext(GuidedActionAdapter adapter, TextView v) {
+    public void fillAndGoNext(@NonNull GuidedActionAdapter adapter, @NonNull TextView v) {
         boolean handled = false;
         GuidedActionsStylist.ViewHolder avh = adapter.findSubChildViewHolder(v);
         updateTextIntoAction(avh, v);

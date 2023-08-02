@@ -28,8 +28,8 @@ import java.util.Locale;
 final class LocaleListPlatformWrapper implements LocaleListInterface {
     private final LocaleList mLocaleList;
 
-    LocaleListPlatformWrapper(LocaleList localeList) {
-        mLocaleList = localeList;
+    LocaleListPlatformWrapper(Object localeList) {
+        mLocaleList = (LocaleList) localeList;
     }
 
     @Override

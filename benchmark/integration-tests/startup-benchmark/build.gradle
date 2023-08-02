@@ -28,3 +28,7 @@ dependencies {
     androidTestImplementation(libs.junit)
     androidTestImplementation(libs.kotlinStdlib)
 }
+
+android {
+    namespace "androidx.benchmark.integration.startup.benchmark"
+}

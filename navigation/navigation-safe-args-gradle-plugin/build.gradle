@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
 import androidx.build.LibraryType
 import androidx.build.SdkResourceGenerator
 
@@ -25,7 +24,7 @@ plugins {
 }
 
 dependencies {
-    implementation("com.android.tools.build:gradle:4.2.0")
+    implementation("com.android.tools.build:gradle:7.0.4")
     implementation(libs.kotlinGradlePluginz)
     api(project(":navigation:navigation-safe-args-generator"))
     api(gradleApi())

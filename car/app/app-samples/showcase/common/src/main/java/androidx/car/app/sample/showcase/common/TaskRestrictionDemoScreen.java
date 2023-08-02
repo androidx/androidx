@@ -16,10 +16,12 @@
 
 package androidx.car.app.sample.showcase.common;
 
+import static androidx.car.app.CarToast.LENGTH_LONG;
 import static androidx.car.app.model.Action.BACK;
 
 import androidx.annotation.NonNull;
 import androidx.car.app.CarContext;
+import androidx.car.app.CarToast;
 import androidx.car.app.Screen;
 import androidx.car.app.model.Action;
 import androidx.car.app.model.ActionStrip;
@@ -40,7 +42,9 @@ public final class TaskRestrictionDemoScreen extends Screen {
 
     private final int mStep;
     private boolean mIsBackOperation = false;
-    private boolean mToggleState = false;
+    private boolean mFirstToggleState = false;
+    private boolean mSecondToggleState = false;
+    private boolean mSecondToggleEnabled = true;
     private int mImageType = Row.IMAGE_TYPE_ICON;
 
     public TaskRestrictionDemoScreen(int step, @NonNull CarContext carContext) {
@@ -64,51 +68,75 @@ public final class TaskRestrictionDemoScreen extends Screen {
                                             mIsBackOperation = true);
 
             return new MessageTemplate.Builder(
-                    "Task limit reached\nGoing forward will force stop the app")
+                    getCarContext().getString(R.string.task_limit_reached_msg))
                     .setHeaderAction(BACK)
                     .addAction(
                             new Action.Builder()
-                                    .setTitle("Try Anyway")
+                                    .setTitle(getCarContext().getString(
+                                            R.string.try_anyway_action_title))
                                     .setOnClickListener(onClickListener)
                                     .build())
                     .build();
         }
 
+        Toggle mFirstToggle = new Toggle.Builder((checked) -> {
+            mSecondToggleEnabled = checked;
+            if (checked) {
+                CarToast.makeText(getCarContext(), R.string.toggle_test_enabled,
+                        LENGTH_LONG).show();
+            } else {
+                CarToast.makeText(getCarContext(), R.string.toggle_test_disabled,
+                        LENGTH_LONG).show();
+            }
+            mFirstToggleState = !mFirstToggleState;
+            invalidate();
+        }).setChecked(mFirstToggleState).build();
+
+        Toggle mSecondToggle = new Toggle.Builder((checked) -> {
+            mSecondToggleState = !mSecondToggleState;
+            invalidate();
+        }).setChecked(mSecondToggleState).setEnabled(mSecondToggleEnabled).build();
+
         ItemList.Builder builder = new ItemList.Builder();
         builder.addItem(
-                new Row.Builder()
-                        .setTitle("Task step " + mStep + " of " + MAX_STEPS_ALLOWED)
-                        .addText("Click to go forward")
-                        .setOnClickListener(
-                                () ->
-                                        getScreenManager()
-                                                .pushForResult(
-                                                        new TaskRestrictionDemoScreen(
-                                                                mStep + 1, getCarContext()),
-                                                        result -> mIsBackOperation = true))
-                        .build())
-                .addItem(
                         new Row.Builder()
-                                .setTitle("Toggle test")
-                                .addText("Stateful changes are allowed")
-                                .setToggle(
-                                        new Toggle.Builder(
-                                                checked -> {
-                                                    mToggleState = !mToggleState;
-                                                    invalidate();
-                                                })
-                                                .setChecked(mToggleState)
-                                                .build())
+                                .setTitle(getCarContext().getString(R.string.task_step_of_title,
+                                        mStep,
+                                        MAX_STEPS_ALLOWED))
+                                .addText(getCarContext().getString(R.string.task_step_of_text))
+                                .setOnClickListener(
+                                        () ->
+                                                getScreenManager()
+                                                        .pushForResult(
+                                                                new TaskRestrictionDemoScreen(
+                                                                        mStep + 1, getCarContext()),
+                                                                result -> mIsBackOperation = true))
                                 .build())
                 .addItem(
                         new Row.Builder()
-                                .setTitle("Image test")
-                                .addText("Image changes are allowed")
+                                .setTitle(getCarContext().getString(
+                                        R.string.toggle_test_first_toggle_title))
+                                .addText(getCarContext().getString(
+                                        R.string.toggle_test_first_toggle_text))
+                                .setToggle(mFirstToggle)
+                                .build())
+                .addItem(
+                        new Row.Builder()
+                                .setTitle(getCarContext().getString(
+                                        R.string.toggle_test_second_toggle_title))
+                                .addText(getCarContext().getString(
+                                        R.string.toggle_test_second_toggle_text))
+                                .setToggle(mSecondToggle)
+                                .build())
+                .addItem(
+                        new Row.Builder()
+                                .setTitle(getCarContext().getString(R.string.image_test_title))
+                                .addText(getCarContext().getString(R.string.image_test_text))
                                 .setImage(
                                         new CarIcon.Builder(
                                                 IconCompat.createWithResource(
                                                         getCarContext(),
-                                                        R.drawable.ic_fastfood_white_48dp))
+                                                        R.drawable.ic_fastfood_yellow_48dp))
                                                 .build(),
                                         mImageType)
                                 .setOnClickListener(
@@ -124,20 +152,21 @@ public final class TaskRestrictionDemoScreen extends Screen {
         if (mIsBackOperation) {
             builder.addItem(
                     new Row.Builder()
-                            .setTitle("Additional Data")
-                            .addText("Updates allows on back operations.")
+                            .setTitle(getCarContext().getString(R.string.additional_data_title))
+                            .addText(getCarContext().getString(R.string.additional_data_text))
                             .build());
         }
 
         return new ListTemplate.Builder()
                 .setSingleList(builder.build())
-                .setTitle("Task Restriction Demo")
+                .setTitle(getCarContext().getString(R.string.task_restriction_demo_title))
                 .setHeaderAction(BACK)
                 .setActionStrip(
                         new ActionStrip.Builder()
                                 .addAction(
                                         new Action.Builder()
-                                                .setTitle("HOME")
+                                                .setTitle(getCarContext().getString(
+                                                        R.string.home_caps_action_title))
                                                 .setOnClickListener(
                                                         () -> getScreenManager().popToRoot())
                                                 .build())

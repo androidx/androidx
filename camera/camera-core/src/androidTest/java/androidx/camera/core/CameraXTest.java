@@ -19,6 +19,8 @@ package androidx.camera.core;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.content.Context;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 
 import androidx.camera.core.impl.CameraFactory;
@@ -191,5 +193,38 @@ public final class CameraXTest {
         // Checks whether minimum log level is correctly reset as DEBUG level after the second
         // CameraX instance is shutdown
         assertThat(Logger.getMinLogLevel()).isEqualTo(Log.DEBUG);
+    }
+
+    @Test
+    public void canBeShutdownWithoutSchedulerHandler()
+            throws ExecutionException, InterruptedException, TimeoutException {
+        // Makes sure that the fake config does not contain a scheduler handler in it
+        assertThat(mConfigBuilder.build().getSchedulerHandler(null)).isNull();
+
+        // Creates a CameraX instance with the config
+        CameraX cameraX = new CameraX(mContext, () -> mConfigBuilder.build());
+
+        // Waits for the created CameraX instance being initialized completely.
+        cameraX.getInitializeFuture().get(10000, TimeUnit.MILLISECONDS);
+
+        // Waits for the CameraX instance being shutdown successfully.
+        cameraX.shutdown().get(10000, TimeUnit.MILLISECONDS);
+    }
+
+    @Test
+    public void canBeShutdownWithSchedulerHandler()
+            throws ExecutionException, InterruptedException, TimeoutException {
+        // Adds a scheduler handler to the config builder
+        Handler handler = new Handler(Looper.getMainLooper());
+        mConfigBuilder.setSchedulerHandler(handler);
+
+        // Creates a CameraX instance with the config
+        CameraX cameraX = new CameraX(mContext, () -> mConfigBuilder.build());
+
+        // Waits for the created CameraX instance being initialized completely.
+        cameraX.getInitializeFuture().get(10000, TimeUnit.MILLISECONDS);
+
+        // Waits for the CameraX instance being shutdown successfully.
+        cameraX.shutdown().get(10000, TimeUnit.MILLISECONDS);
     }
 }

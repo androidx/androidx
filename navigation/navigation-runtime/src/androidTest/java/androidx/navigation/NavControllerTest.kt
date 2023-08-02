@@ -459,6 +459,7 @@ class NavControllerTest {
 
     @UiThreadTest
     @Test
+    @Suppress("DEPRECATION")
     fun testNavigateViaDeepLink() {
         val navController = createNavController()
         navController.setGraph(R.navigation.nav_simple)
@@ -493,6 +494,7 @@ class NavControllerTest {
 
     @UiThreadTest
     @Test
+    @Suppress("DEPRECATION")
     fun testNavigateViaDeepLinkAction() {
         val navController = createNavController()
         navController.setGraph(R.navigation.nav_simple)
@@ -511,6 +513,7 @@ class NavControllerTest {
 
     @UiThreadTest
     @Test
+    @Suppress("DEPRECATION")
     fun testNavigateViaDeepLinkActionUnusedUri() {
         val navController = createNavController()
         navController.setGraph(R.navigation.nav_simple)
@@ -555,6 +558,7 @@ class NavControllerTest {
 
     @UiThreadTest
     @Test
+    @Suppress("DEPRECATION")
     fun testNavigateViaDeepLinkMimeType() {
         val navController = createNavController()
         navController.setGraph(R.navigation.nav_deeplink)
@@ -1373,6 +1377,7 @@ class NavControllerTest {
 
     @UiThreadTest
     @Test
+    @Suppress("DEPRECATION")
     fun testBackstackArgsBundleParceled() {
         val context = ApplicationProvider.getApplicationContext() as Context
         var navController = NavController(context)
@@ -1403,6 +1408,31 @@ class NavControllerTest {
             assertThat(arguments?.getParcelable<CustomTestParcelable>(TEST_ARG)?.name)
                 .isEqualTo(TEST_ARG_VALUE)
         }
+    }
+    @UiThreadTest
+    @Test
+    fun testChangeArgsFromOnDestinationChangedListener() {
+        val navController = createNavController()
+
+        // Purposefully add both OnDestinationChangedListeners
+        // before calling setGraph so that both are fired at the same time
+        navController.addOnDestinationChangedListener { _, _, arguments ->
+            // Try injecting an extra argument into the arguments
+            arguments?.putString(TEST_ARG, TEST_ARG_VALUE)
+        }
+        var receivedArguments: Bundle? = null
+        navController.addOnDestinationChangedListener { _, _, arguments ->
+            receivedArguments = arguments
+        }
+
+        // Now set the graph, which will cause both listeners to fire
+        navController.setGraph(R.navigation.nav_arguments)
+
+        // The arguments should be immutable, so they shouldn't be changed
+        assertThat(navController.currentBackStackEntry?.arguments).doesNotContainKey(TEST_ARG)
+
+        // And the second listener should receive a new Bundle as well
+        assertThat(receivedArguments).doesNotContainKey(TEST_ARG)
     }
 
     @UiThreadTest
@@ -1526,6 +1556,7 @@ class NavControllerTest {
     }
 
     @UiThreadTest
+    @Suppress("DEPRECATION")
     @Test
     fun testNavigateArgs() {
         val navController = createNavController()
@@ -2827,6 +2858,7 @@ class SaveStateTestNavigator : TestNavigator() {
         return state
     }
 
+    @Suppress("DEPRECATION")
     override fun onRestoreState(savedState: Bundle) {
         super.onRestoreState(savedState)
         saveStateCount = savedState.getInt(STATE_SAVED_COUNT)
@@ -2840,8 +2872,8 @@ class SaveStateTestNavigator : TestNavigator() {
 data class CustomTestParcelable(val name: String?) : Parcelable {
     constructor(parcel: Parcel) : this(parcel.readString())
 
-    override fun writeToParcel(dest: Parcel?, flags: Int) {
-        dest?.writeString(name)
+    override fun writeToParcel(dest: Parcel, flags: Int) {
+        dest.writeString(name)
     }
 
     override fun describeContents() = 0

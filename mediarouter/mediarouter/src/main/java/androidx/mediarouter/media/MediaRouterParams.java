@@ -76,14 +76,14 @@ public class MediaRouterParams {
 
     @DialogType
     final int mDialogType;
-    final boolean mMediaTransferReceiverDisabled;
+    final boolean mMediaTransferReceiverEnabled;
     final boolean mOutputSwitcherEnabled;
     final boolean mTransferToLocalEnabled;
     final Bundle mExtras;
 
     MediaRouterParams(@NonNull Builder builder) {
         mDialogType = builder.mDialogType;
-        mMediaTransferReceiverDisabled = builder.mMediaTransferDisabled;
+        mMediaTransferReceiverEnabled = builder.mMediaTransferEnabled;
         mOutputSwitcherEnabled = builder.mOutputSwitcherEnabled;
         mTransferToLocalEnabled = builder.mTransferToLocalEnabled;
 
@@ -101,12 +101,12 @@ public class MediaRouterParams {
     }
 
     /**
-     * Gets whether declared {@link MediaTransferReceiver} is disabled.
+     * Gets whether declared {@link MediaTransferReceiver} is enabled.
      *
-     * @see Builder#setMediaTransferReceiverDisabled(boolean)
+     * @see Builder#setMediaTransferReceiverEnabled(boolean)
      */
-    public boolean isMediaTransferReceiverDisabled() {
-        return mMediaTransferReceiverDisabled;
+    public boolean isMediaTransferReceiverEnabled() {
+        return mMediaTransferReceiverEnabled;
     }
 
     /**
@@ -146,7 +146,7 @@ public class MediaRouterParams {
     public static final class Builder {
         @DialogType
         int mDialogType = DIALOG_TYPE_DEFAULT;
-        boolean mMediaTransferDisabled;
+        boolean mMediaTransferEnabled = Build.VERSION.SDK_INT >= Build.VERSION_CODES.R;
         boolean mOutputSwitcherEnabled;
         boolean mTransferToLocalEnabled;
         Bundle mExtras;
@@ -170,7 +170,7 @@ public class MediaRouterParams {
             mDialogType = params.mDialogType;
             mOutputSwitcherEnabled = params.mOutputSwitcherEnabled;
             mTransferToLocalEnabled = params.mTransferToLocalEnabled;
-            mMediaTransferDisabled = params.mMediaTransferReceiverDisabled;
+            mMediaTransferEnabled = params.mMediaTransferReceiverEnabled;
             mExtras = params.mExtras == null ? null : new Bundle(params.mExtras);
         }
 
@@ -194,12 +194,13 @@ public class MediaRouterParams {
         }
 
         /**
-         * Sets whether declared {@link MediaTransferReceiver} is disabled. This method will be
-         * no-op for Android versions earlier than Android R. The default value is {@code false}.
+         * Sets whether declared {@link MediaTransferReceiver} is enabled. The default value is
+         * {@code true}. This method will be no-op for Android versions earlier than Android R and
+         * it stays {@code false} on devices earlier than Android R.
          * <p>
-         * It is used to disable media transfer feature when {@link MediaTransferReceiver} is
+         * It can be used to disable media transfer feature when {@link MediaTransferReceiver} is
          * declared.
-         * If set to {@code true}, media transfer feature will be disabled
+         * If set to {@code false}, media transfer feature will be disabled
          * even when {@link MediaTransferReceiver} is declared.
          * <p>
          * It is not recommended to change this value at runtime.
@@ -207,9 +208,9 @@ public class MediaRouterParams {
          * @see MediaTransferReceiver
          */
         @NonNull
-        public Builder setMediaTransferReceiverDisabled(boolean disabled) {
+        public Builder setMediaTransferReceiverEnabled(boolean enabled) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                mMediaTransferDisabled = disabled;
+                mMediaTransferEnabled = enabled;
             }
             return this;
         }

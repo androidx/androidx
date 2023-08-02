@@ -677,11 +677,15 @@ class DiffRunner(object):
       if self.runnerTest(self.originalFailingState)[0]:
         print("\nGiven failing state at " + self.originalFailingPath + " does not actually fail!")
         return False
+      # clean up temporary dirs in case any daemons remain running
+      self.cleanupTempDirs()
 
       print("Testing that the given passing state actually passes")
       if not self.runnerTest(self.full_resetTo_state)[0]:
         print("\nGiven passing state at " + self.originalPassingPath + " does not actually pass!")
         return False
+      # clean up temporary dirs in case any daemons remain running
+      self.cleanupTempDirs()
 
     print("Saving best state found so far")
     fileIo.removePath(self.bestState_path)

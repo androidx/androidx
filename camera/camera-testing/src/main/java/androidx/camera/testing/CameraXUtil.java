@@ -107,7 +107,7 @@ public class CameraXUtil {
                         @SuppressLint("SyntheticAccessor")
                         @SuppressWarnings("FutureReturnValueIgnored")
                         @Override
-                        public void onFailure(Throwable t) {
+                        public void onFailure(@NonNull Throwable t) {
                             Logger.w(TAG, "CameraX initialize failed", t);
                             // Call shutdown() automatically, if initialization fails.
                             synchronized (mLock) {

@@ -31,11 +31,19 @@ import java.util.Set;
 /**
  * Quirk which denotes JPEGs produced directly from the HAL may sometimes be corrupted.
  *
- * <p>Corrupt images generally manifest as completely monochrome JPEGs, sometimes solid green.
- * If possible, it is preferred that CameraX produce JPEGs from some other image format rather
- * than receiving JPEGs directly from the HAL.
- *
- * @see <a href="https://issuetracker.google.com/159831206">issuetracker.google.com/159831206</a>
+ * <p>QuirkSummary
+ *      Bug Id:      <a href="https://issuetracker.google.com/159831206">159831206</a>,
+ *                   <a href="https://issuetracker.google.com/242509463">242509463</a>
+ *      Description: Corrupt images generally manifest as completely monochrome JPEGs, sometimes
+ *                   solid green. On the affected devices, this is easier to reproduce
+ *                   immediately after rebooting the device. If possible, it is preferred
+ *                   that CameraX produce JPEGs from some other image format rather than
+ *                   receiving JPEGs directly from the HAL. This issue happens on Samsung Galaxy S7.
+ *                   The other issue is that the Exif metadata of the captured images might be
+ *                   incorrect to cause IOException when using ExifInterface to save the updated
+ *                   attributes. Capturing the images in YUV format and then compress it to JPEG
+ *                   output images can produce correct Exif metadata to workaround this issue.
+ *      Device(s):   Samsung Galaxy S7 (SM-G930T and SM-G930V variants), alps k61v1_basic_ref
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class JpegHalCorruptImageQuirk implements SoftwareJpegEncodingPreferredQuirk {
@@ -43,7 +51,8 @@ public final class JpegHalCorruptImageQuirk implements SoftwareJpegEncodingPrefe
     private static final Set<String> KNOWN_AFFECTED_DEVICES = new HashSet<>(
             Arrays.asList(
                     "heroqltevzw",
-                    "heroqltetmo"
+                    "heroqltetmo",
+                    "k61v1_basic_ref"
             ));
 
     static boolean load(@NonNull CameraCharacteristicsCompat characteristicsCompat) {

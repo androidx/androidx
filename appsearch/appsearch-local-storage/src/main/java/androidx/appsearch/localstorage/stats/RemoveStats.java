@@ -29,8 +29,8 @@ import java.lang.annotation.RetentionPolicy;
 
 /**
  * Class holds detailed stats for
- * {@link androidx.appsearch.app.AppSearchSession#remove(RemoveByDocumentIdRequest)} and
- * {@link androidx.appsearch.app.AppSearchSession#remove(String, SearchSpec)}
+ * {@link androidx.appsearch.app.AppSearchSession#removeAsync(RemoveByDocumentIdRequest)} and
+ * {@link androidx.appsearch.app.AppSearchSession#removeAsync(String, SearchSpec)}
  *
  * @hide
  */

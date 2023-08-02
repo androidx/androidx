@@ -18,6 +18,9 @@ package androidx.room
 
 import android.content.Context
 import android.content.res.AssetManager
+import android.os.Build
+import androidx.annotation.RequiresApi
+import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.sqlite.db.SupportSQLiteOpenHelper
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertSame
@@ -56,7 +59,7 @@ class SQLiteCopyOpenHelperTest {
 
     val context: Context = mock(Context::class.java)
     val assetManager: AssetManager = mock(AssetManager::class.java)
-    val delegate: SupportSQLiteOpenHelper = mock(SQLiteCopyOpenHelper::class.java)
+    val delegate: SupportSQLiteOpenHelper = mock(SupportSQLiteOpenHelper::class.java)
     val configuration: DatabaseConfiguration = mock(DatabaseConfiguration::class.java)
 
     @Test
@@ -118,6 +121,7 @@ class SQLiteCopyOpenHelperTest {
         assertEquals(1, getAndIncrementAccessCount(copyFile))
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     @Ignore("b/166632825 test is flaky")
     @Test
     fun singleCopy_multiProcess() {
@@ -189,11 +193,12 @@ class SQLiteCopyOpenHelperTest {
     fun testGetDelegate() {
         val openHelper = createOpenHelper(tempDirectory.newFile("toCopy.db"))
 
-        assertSame(delegate, openHelper.getDelegate())
+        assertSame(delegate, openHelper.delegate)
     }
 
     internal fun setupMocks(tmpDir: File, copyFromFile: File, onAssetOpen: () -> Unit = {}) {
         `when`(delegate.databaseName).thenReturn(DB_NAME)
+        `when`(delegate.writableDatabase).thenReturn(mock(SupportSQLiteDatabase::class.java))
         `when`(context.getDatabasePath(DB_NAME)).thenReturn(File(tmpDir, DB_NAME))
         configuration::class.java.getField("multiInstanceInvalidation").let { field ->
             field.isAccessible = true
@@ -251,6 +256,7 @@ class SQLiteCopyOpenHelperTest {
     }
 
     // Spawns a new Java process to perform a copy using the open helper.
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun spawnCopyProcess(copyFromFile: File): Process {
         val home = checkNotNull(System.getProperty("java.home")) {
             "cannot read java.home from system properties."

@@ -26,6 +26,7 @@ import androidx.car.app.model.ItemList;
 import androidx.car.app.model.ListTemplate;
 import androidx.car.app.model.Row;
 import androidx.car.app.model.Template;
+import androidx.car.app.sample.showcase.common.R;
 
 /**
  * A {@link Screen} that shows examples on how to query for various content limits via the
@@ -44,31 +45,31 @@ public class ContentLimitsDemoScreen extends Screen {
         ItemList.Builder listBuilder = new ItemList.Builder();
         listBuilder.addItem(
                 new Row.Builder()
-                        .setTitle("List Limit")
+                        .setTitle(getCarContext().getString(R.string.list_limit))
                         .addText(Integer.toString(manager.getContentLimit(
                                 ConstraintManager.CONTENT_LIMIT_TYPE_LIST)))
                         .build());
         listBuilder.addItem(
                 new Row.Builder()
-                        .setTitle("Grid Limit")
+                        .setTitle(getCarContext().getString(R.string.grid_limit))
                         .addText(Integer.toString(manager.getContentLimit(
                                 ConstraintManager.CONTENT_LIMIT_TYPE_GRID)))
                         .build());
         listBuilder.addItem(
                 new Row.Builder()
-                        .setTitle("Pane Limit")
+                        .setTitle(getCarContext().getString(R.string.pane_limit))
                         .addText(Integer.toString(manager.getContentLimit(
                                 ConstraintManager.CONTENT_LIMIT_TYPE_PANE)))
                         .build());
         listBuilder.addItem(
                 new Row.Builder()
-                        .setTitle("Place List Limit")
+                        .setTitle(getCarContext().getString(R.string.place_list_limit))
                         .addText(Integer.toString(manager.getContentLimit(
                                 ConstraintManager.CONTENT_LIMIT_TYPE_PLACE_LIST)))
                         .build());
         listBuilder.addItem(
                 new Row.Builder()
-                        .setTitle("Route List Limit")
+                        .setTitle(getCarContext().getString(R.string.route_list_limit))
                         .addText(Integer.toString(manager.getContentLimit(
                                 ConstraintManager.CONTENT_LIMIT_TYPE_ROUTE_LIST)))
                         .build());
@@ -76,7 +77,7 @@ public class ContentLimitsDemoScreen extends Screen {
 
         return new ListTemplate.Builder()
                 .setSingleList(listBuilder.build())
-                .setTitle("Content Limits")
+                .setTitle(getCarContext().getString(R.string.content_limits))
                 .setHeaderAction(BACK)
                 .build();
     }

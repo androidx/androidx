@@ -52,6 +52,7 @@ public class CarPendingIntentTest {
     private final ComponentName mComponentName = new ComponentName(mContext, CarAppService.class);
     private final Intent mIntent = new Intent("fooAction").setComponent(mComponentName);
 
+    @SuppressWarnings("deprecation")
     @Test
     public void getCarApp_returnsTheExpectedPendingIntent() throws PendingIntent.CanceledException {
         PendingIntent pendingIntent = CarPendingIntent.getCarApp(mContext, 1, mIntent,

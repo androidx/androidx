@@ -21,7 +21,6 @@ import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 
 import android.content.pm.PackageManager;
 import android.location.Location;
-import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.HandlerThread;
 
@@ -37,6 +36,8 @@ import androidx.car.app.model.Place;
 import androidx.car.app.model.PlaceListMapTemplate;
 import androidx.car.app.model.Row;
 import androidx.car.app.model.Template;
+import androidx.car.app.sample.showcase.common.R;
+import androidx.core.location.LocationListenerCompat;
 import androidx.lifecycle.DefaultLifecycleObserver;
 import androidx.lifecycle.LifecycleOwner;
 
@@ -50,14 +51,20 @@ public final class PlaceListTemplateBrowseDemoScreen extends Screen {
     private static final int LOCATION_UPDATE_MIN_INTERVAL_MILLIS = 1000;
     private static final int LOCATION_UPDATE_MIN_DISTANCE_METER = 1;
 
-    final LocationListener mLocationListener;
+    final LocationListenerCompat mLocationListener;
     final HandlerThread mLocationUpdateHandlerThread;
+    boolean mHasPermissionLocation;
 
     @Nullable
     private Location mCurrentLocation;
 
     public PlaceListTemplateBrowseDemoScreen(@NonNull CarContext carContext) {
         super(carContext);
+
+        mHasPermissionLocation = carContext.checkSelfPermission(ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED
+                || carContext.checkSelfPermission(ACCESS_COARSE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED;
 
         mLocationUpdateHandlerThread = new HandlerThread("LocationThread");
         mLocationListener = location -> {
@@ -68,10 +75,11 @@ public final class PlaceListTemplateBrowseDemoScreen extends Screen {
         getLifecycle().addObserver(new DefaultLifecycleObserver() {
             @Override
             public void onResume(@NonNull LifecycleOwner owner) {
-                if (carContext.checkSelfPermission(ACCESS_FINE_LOCATION)
+                mHasPermissionLocation = carContext.checkSelfPermission(ACCESS_FINE_LOCATION)
                         == PackageManager.PERMISSION_GRANTED
                         || carContext.checkSelfPermission(ACCESS_COARSE_LOCATION)
-                        == PackageManager.PERMISSION_GRANTED) {
+                        == PackageManager.PERMISSION_GRANTED;
+                if (mHasPermissionLocation) {
                     LocationManager locationManager =
                             carContext.getSystemService(LocationManager.class);
                     locationManager.requestLocationUpdates(LocationManager.FUSED_PROVIDER,
@@ -81,7 +89,7 @@ public final class PlaceListTemplateBrowseDemoScreen extends Screen {
                             mLocationUpdateHandlerThread.getLooper());
                 } else {
                     CarToast.makeText(carContext,
-                            "Grant location Permission to see current location",
+                            getCarContext().getString(R.string.grant_location_permission_toast_msg),
                             CarToast.LENGTH_LONG).show();
                 }
             }
@@ -101,16 +109,16 @@ public final class PlaceListTemplateBrowseDemoScreen extends Screen {
         PlaceListMapTemplate.Builder builder = new PlaceListMapTemplate.Builder()
                 .setItemList(new ItemList.Builder()
                         .addItem(new Row.Builder()
-                                .setTitle("Browse Places")
+                                .setTitle(getCarContext().getString(R.string.browse_places_title))
                                 .setBrowsable(true)
                                 .setOnClickListener(
                                         () -> getScreenManager().push(
                                                 new PlaceListTemplateDemoScreen(
                                                         getCarContext()))).build())
                         .build())
-                .setTitle("Place List Template Demo")
+                .setTitle(getCarContext().getString(R.string.place_list_template_demo_title))
                 .setHeaderAction(Action.BACK)
-                .setCurrentLocationEnabled(true);
+                .setCurrentLocationEnabled(mHasPermissionLocation);
 
         if (mCurrentLocation != null) {
             builder.setAnchor(new Place.Builder(CarLocation.create(mCurrentLocation)).build());

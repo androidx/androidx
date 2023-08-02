@@ -1900,10 +1900,6 @@ public final class TileRendererInternal {
     private static class FixedImageSpan extends ImageSpan {
         private WeakReference<Drawable> mDrawableRef;
 
-        FixedImageSpan(@NonNull Drawable drawable) {
-            super(drawable);
-        }
-
         FixedImageSpan(@NonNull Drawable drawable, int verticalAlignment) {
             super(drawable, verticalAlignment);
         }

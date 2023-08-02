@@ -29,6 +29,11 @@ import kotlinx.coroutines.runBlocking
 class FakeCameraDevices(
     private val cameras: List<CameraMetadata>
 ) : CameraDevices {
+    @Deprecated(
+        message = "findAll may block the calling thread and is deprecated.",
+        replaceWith = ReplaceWith("ids"),
+        level = DeprecationLevel.WARNING
+    )
     override fun findAll(): List<CameraId> = runBlocking { ids() }
     override suspend fun ids(): List<CameraId> = cameras.map { it.camera }
 

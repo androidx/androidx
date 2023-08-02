@@ -60,7 +60,7 @@ abstract class ArgumentsGenerationTask @Inject constructor(
     @get:OutputDirectory
     abstract val outputDir: DirectoryProperty
 
-    @get:PathSensitive(PathSensitivity.ABSOLUTE)
+    @get:PathSensitive(PathSensitivity.RELATIVE)
     @get:Incremental
     @get:InputFiles
     abstract val navigationFiles: ConfigurableFileCollection

@@ -264,6 +264,7 @@ public class JobIntentServiceTest {
             Log.i(TAG, "Running!");
         }
 
+        @SuppressWarnings("deprecation")
         @Override
         protected void onHandleWork(@NonNull Intent intent) {
             Log.i(TAG, "Handling work: " + intent);

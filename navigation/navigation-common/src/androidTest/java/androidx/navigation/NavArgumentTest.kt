@@ -24,6 +24,7 @@ import org.junit.Test
 @SmallTest
 class NavArgumentTest {
     @Test
+    @Suppress("DEPRECATION")
     fun putDefaultValue() {
         val bundle = Bundle()
         val argument = NavArgument.Builder()

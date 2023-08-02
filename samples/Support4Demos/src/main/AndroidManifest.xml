@@ -19,9 +19,9 @@
      supplies a unique name for the application.  When writing your
      own application, the package name must be changed from "com.example.*"
      to come from a domain that you own or have control over. -->
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.android.supportv4">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <application
         android:hardwareAccelerated="true"
         android:icon="@drawable/app_sample_code"

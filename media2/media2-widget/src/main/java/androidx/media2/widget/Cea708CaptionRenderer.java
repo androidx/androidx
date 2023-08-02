@@ -1140,10 +1140,6 @@ class Cea708CaptionRenderer extends SubtitleController.Renderer {
                 }
             }
 
-            public void setText(String text) {
-                updateText(text, false);
-            }
-
             public void appendText(String text) {
                 updateText(text, true);
             }

@@ -7,7 +7,7 @@ import kotlin.String
 
 public class InnerSettingsDirections private constructor() {
   private data class Exit(
-    public val exitReason: Int
+    public val exitReason: Int,
   ) : NavDirections {
     public override val actionId: Int = R.id.exit
 

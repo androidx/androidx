@@ -146,9 +146,9 @@ public class TileUiClient(
 
             val tile = tilesConnection.requestTile(tileRequest).await()
 
-            if (tile.resourcesVersion.isNotEmpty() &&
-                tile.resourcesVersion != tileResources?.version
-            ) {
+            if (tile.resourcesVersion.isEmpty()) {
+                tileResources = ResourceBuilders.Resources.Builder().build()
+            } else if (tile.resourcesVersion != tileResources?.version) {
                 val resourcesRequest = RequestBuilders.ResourcesRequest
                     .Builder()
                     .setVersion(tile.resourcesVersion)
@@ -156,8 +156,6 @@ public class TileUiClient(
                     .build()
 
                 tileResources = tilesConnection.requestResources(resourcesRequest).await()
-            } else {
-                tileResources = ResourceBuilders.Resources.Builder().build()
             }
 
             timelineManager?.apply {

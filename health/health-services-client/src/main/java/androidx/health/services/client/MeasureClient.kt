@@ -16,7 +16,7 @@
 
 package androidx.health.services.client
 
-import androidx.health.services.client.data.DataType
+import androidx.health.services.client.data.DeltaDataType
 import androidx.health.services.client.data.MeasureCapabilities
 import com.google.common.util.concurrent.ListenableFuture
 import java.util.concurrent.Executor
@@ -33,45 +33,67 @@ import java.util.concurrent.Executor
  */
 public interface MeasureClient {
     /**
-     * Registers the app for live measurement of the specified [DataType].
+     * Registers the app for live measurement of the specified [DeltaDataType].
      *
      * The callback will be called on the main application thread. To move calls to an alternative
-     * thread use [registerCallback].
+     * thread use [registerMeasureCallback].
      *
      * Even if data is registered for live capture, it can still be sent out in batches depending on
      * the application processor state.
      *
-     * Registering a [DataType] for live measurement capture is expected to increase the sample rate
-     * on the associated sensor(s); this is typically used for one-off measurements. Do not use this
-     * method for background capture or workout tracking. The client is responsible for ensuring
-     * that their requested [DataType] is supported on this device by checking the
+     * Registering a [DeltaDataType] for live measurement capture is expected to increase the sample
+     * rate on the associated sensor(s); this is typically used for one-off measurements. Do not use
+     * this method for background capture or workout tracking. The client is responsible for
+     * ensuring that their requested [DeltaDataType] is supported on this device by checking the
      * [MeasureCapabilities]. The returned future will fail if the request is not supported on a
      * given device.
      *
-     * The callback will continue to be called until the app is killed or [unregisterCallback] is
-     * called.
+     * The callback will continue to be called until the app is killed or
+     * [unregisterMeasureCallbackAsync] is called.
      *
-     * If the same [callback] is already registered for the given [DataType], this operation is a
-     * no-op.
+     * If the same [callback] is already registered for the given [DeltaDataType], this operation is
+     * a no-op.
+     *
+     * @param dataType the [DeltaDataType] that needs to be measured
+     * @param callback the [MeasureCallback] to receive updates from Health Services
      */
-    public fun registerCallback(
-        dataType: DataType,
+    public fun registerMeasureCallback(dataType: DeltaDataType<*, *>, callback: MeasureCallback)
+
+    /**
+     * Same as [registerMeasureCallback], except the [callback] is called on the given [Executor].
+     *
+     * @param dataType the [DeltaDataType] that needs to be measured
+     * @param executor the [Executor] on which [callback] will be invoked
+     * @param callback the [MeasureCallback] to receive updates from Health Services
+     */
+    public fun registerMeasureCallback(
+        dataType: DeltaDataType<*, *>,
+        executor: Executor,
+        callback: MeasureCallback
+    )
+
+    /**
+     * Unregisters the given [MeasureCallback] for updates of the given [DeltaDataType].
+     *
+     * @param dataType the [DeltaDataType] that needs to be unregistered
+     * @param callback the [MeasureCallback] which was used in registration
+     * @return a [ListenableFuture] that completes when the un-registration succeeds in Health
+     * Services. This is a no-op if the callback has already been unregistered.
+     */
+    public fun unregisterMeasureCallbackAsync(
+        dataType: DeltaDataType<*, *>,
         callback: MeasureCallback
     ): ListenableFuture<Void>
 
-    /** Same as [registerCallback], except the [callback] is called on the given [Executor]. */
-    public fun registerCallback(
-        dataType: DataType,
-        callback: MeasureCallback,
-        executor: Executor
-    ): ListenableFuture<Void>
-
-    /** Unregisters the given [MeasureCallback] for updates of the given [DataType]. */
-    public fun unregisterCallback(
-        dataType: DataType,
-        callback: MeasureCallback
-    ): ListenableFuture<Void>
-
-    /** Returns the [MeasureCapabilities] of this client for the device. */
-    public val capabilities: ListenableFuture<MeasureCapabilities>
+    /**
+     * Returns the [MeasureCapabilities] of this client for the device.
+     *
+     * This can be used to determine what [DeltaDataType]s this device supports for live
+     * measurement. Clients should use the capabilities to inform their requests since Health
+     * Services will typically reject requests made for [DeltaDataType]s which are not enabled for
+     * measurement.
+     *
+     * @return a [ListenableFuture] containing the [MeasureCapabilities] for this device
+     */
+    public fun getCapabilitiesAsync(): ListenableFuture<MeasureCapabilities>
 }

@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="androidx.wear.watchface.samples.minimal.style">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
   <uses-feature android:name="android.hardware.type.watch" />
 
@@ -55,6 +54,9 @@
           android:name="com.google.android.wearable.watchface.companionBuiltinConfigurationEnabled"
           android:value="true" />
 
+      <meta-data
+          android:name="androidx.wear.watchface.XmlSchemaAndComplicationSlotsDefinition"
+          android:resource="@xml/xml_watchface" />
     </service>
 
   </application>

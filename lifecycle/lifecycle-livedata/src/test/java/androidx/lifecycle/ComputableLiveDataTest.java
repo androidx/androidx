@@ -27,6 +27,8 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 
+import static kotlinx.coroutines.test.TestCoroutineDispatchersKt.UnconfinedTestDispatcher;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.arch.core.executor.ArchTaskExecutor;
@@ -48,8 +50,6 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import kotlinx.coroutines.test.TestCoroutineDispatcher;
-
 @RunWith(JUnit4.class)
 public class ComputableLiveDataTest {
     private TaskExecutor mTaskExecutor;
@@ -58,7 +58,7 @@ public class ComputableLiveDataTest {
     @Before
     public void setup() {
         mLifecycleOwner = new TestLifecycleOwner(Lifecycle.State.INITIALIZED,
-                new TestCoroutineDispatcher());
+                UnconfinedTestDispatcher(null, null));
     }
 
     @Before

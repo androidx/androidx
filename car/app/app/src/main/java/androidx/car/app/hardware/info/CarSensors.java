@@ -22,6 +22,7 @@ import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.annotations.RequiresCarApi;
+import androidx.car.app.hardware.common.CarValue;
 import androidx.car.app.hardware.common.OnCarDataAvailableListener;
 
 import java.lang.annotation.Retention;
@@ -30,8 +31,17 @@ import java.util.concurrent.Executor;
 
 /**
  * Manages access to androidx.car.app.hardware specific sensors such as compass, accelerometer,
- * and gyroscope.
+ * gyroscope and location.
+ *
+ * <p>For Android Automotive OS, the sensor APIs in this class are currently not implemented, and
+ * they will return {@link CarValue#STATUS_UNIMPLEMENTED} by default. To get these values for
+ * Android Automotive OS, use
+ * <a href="https://developer.android.com/reference/android/hardware/SensorManager">
+ * SensorManager</a> and
+ * <a href="https://developer.android.com/reference/android/location/LocationManager">
+ * LocationManager</a> instead.
  */
+//TODO(b/220203294): Implement the sensor apis and remove the related comment above.
 @RequiresCarApi(3)
 @MainThread
 public interface CarSensors {
@@ -59,8 +69,8 @@ public interface CarSensors {
     int UPDATE_RATE_NORMAL = 1;
 
     /**
-     * Car hardware property, sensor, or action should be fetched at a rate consistent with
-     * drawing UI to a screen.
+     * Car hardware property, sensor, or action should be fetched at a rate consistent with drawing
+     * UI to a screen.
      */
     @UpdateRate
     int UPDATE_RATE_UI = 2;
@@ -148,7 +158,6 @@ public interface CarSensors {
      *
      * <p>If the {@code listener} was added previously then previous rate is updated with the new
      * rate. Use {@link #UPDATE_RATE_NORMAL} as a good default {@code rate} in most cases.
-     *
      *
      * @param rate     the maximum rate at which the data will be returned through the provided
      *                 listener

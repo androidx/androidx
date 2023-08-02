@@ -29,6 +29,7 @@ import androidx.car.app.model.ActionStrip;
 import androidx.car.app.model.CarLocation;
 import androidx.car.app.model.Distance;
 import androidx.car.app.model.DistanceSpan;
+import androidx.car.app.model.Header;
 import androidx.car.app.model.ItemList;
 import androidx.car.app.model.Metadata;
 import androidx.car.app.model.Place;
@@ -93,11 +94,15 @@ public final class SearchResultsScreen extends Screen {
                             .build());
         }
 
+        Header header = new Header.Builder()
+                .setStartHeaderAction(Action.BACK)
+                .setTitle("Search: " + mSearchText)
+                .build();
+
         return new PlaceListNavigationTemplate.Builder()
                 .setItemList(listBuilder.build())
-                .setTitle("Search: " + mSearchText)
+                .setHeader(header)
                 .setActionStrip(new ActionStrip.Builder().addAction(mSettingsAction).build())
-                .setHeaderAction(Action.BACK)
                 .build();
     }
 

@@ -68,6 +68,7 @@ import java.util.concurrent.TimeUnit;
  */
 @RunWith(AndroidJUnit4.class)
 @MediumTest
+@SuppressWarnings("deprecation")
 public class FontsContractCompatTest {
     private static final String AUTHORITY = "androidx.core.provider.fonts.font";
     private static final String PACKAGE = "androidx.core.test";
@@ -322,6 +323,7 @@ public class FontsContractCompatTest {
     }
 
     @Test
+    @SuppressWarnings("deprecation")
     public void testGetProvider_duplicateCerts()
             throws PackageManager.NameNotFoundException {
         PackageManager packageManager = mock(PackageManager.class);
@@ -377,6 +379,7 @@ public class FontsContractCompatTest {
         }
     }
 
+    @SuppressWarnings("deprecation")
     private ProviderInfo setupPackageManager(PackageManager packageManager)
             throws PackageManager.NameNotFoundException {
         ProviderInfo info = new ProviderInfo();

@@ -27,8 +27,8 @@ import android.view.Surface
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.UnsafeWrapper
 import androidx.camera.camera2.pipe.core.Log
-import kotlinx.atomicfu.atomic
 import java.io.Closeable
+import kotlinx.atomicfu.atomic
 
 /**
  * Interface shim for [CameraCaptureSession] with minor modifications.

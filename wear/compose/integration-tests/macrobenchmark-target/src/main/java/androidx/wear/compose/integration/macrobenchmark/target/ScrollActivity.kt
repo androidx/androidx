@@ -31,7 +31,6 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.wear.compose.material.ExperimentalWearMaterialApi
 import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.ScalingLazyColumn
 import androidx.wear.compose.material.Text
@@ -41,7 +40,6 @@ class ScrollActivity : ComponentActivity() {
     private var itemHeightDp: Dp = 20.dp
     private var defaultItemSpacingDp: Dp = 8.dp
 
-    @OptIn(ExperimentalWearMaterialApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 

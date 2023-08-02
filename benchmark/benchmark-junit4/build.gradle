@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
 import androidx.build.Publish
 
 plugins {
@@ -27,6 +26,7 @@ android {
     defaultConfig {
         testInstrumentationRunner = "androidx.benchmark.junit4.AndroidBenchmarkRunner"
     }
+    namespace "androidx.benchmark.junit4"
 }
 
 dependencies {

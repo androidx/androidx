@@ -16,6 +16,7 @@
 
 package androidx.activity.compose
 
+import androidx.activity.findViewTreeOnBackPressedDispatcherOwner
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.OnBackPressedDispatcher
 import androidx.activity.OnBackPressedDispatcherOwner
@@ -29,6 +30,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.platform.LocalView
 
 /**
  * Provides a [OnBackPressedDispatcher] that can be used by Composables hosted in a
@@ -40,11 +42,14 @@ public object LocalOnBackPressedDispatcherOwner {
 
     /**
      * Returns current composition local value for the owner or `null` if one has not
-     * been provided nor is one available by looking at the [LocalContext].
+     * been provided, one has not been set via
+     * [androidx.activity.setViewTreeOnBackPressedDispatcherOwner], nor is one available by
+     * looking at the [LocalContext].
      */
     public val current: OnBackPressedDispatcherOwner?
         @Composable
         get() = LocalOnBackPressedDispatcherOwner.current
+            ?: LocalView.current.findViewTreeOnBackPressedDispatcherOwner()
             ?: findOwner<OnBackPressedDispatcherOwner>(LocalContext.current)
 
     /**

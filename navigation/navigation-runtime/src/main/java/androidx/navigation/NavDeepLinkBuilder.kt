@@ -334,6 +334,7 @@ public class NavDeepLinkBuilder(private val context: Context) {
      * @return a PendingIntent constructed with [TaskStackBuilder.getPendingIntent] to deep link
      * to the given destination
      */
+    @Suppress("DEPRECATION")
     public fun createPendingIntent(): PendingIntent {
         var requestCode = 0
         globalArgs?.let { globalArgs ->

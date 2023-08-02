@@ -1,6 +1,9 @@
-# Bug component: 460343
+# Bug component: 461199
 clarabayarri@google.com
 
 # For text related files
 nona@google.com
 siyamed@google.com
+
+# Per-file for Playground infra
+per-file settings.gradle = dustinlam@google.com, rahulrav@google.com

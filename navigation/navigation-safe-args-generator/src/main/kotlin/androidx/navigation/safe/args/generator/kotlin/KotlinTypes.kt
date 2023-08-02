@@ -155,6 +155,47 @@ internal fun NavType.addBundlePutStatement(
     )
 }
 
+internal fun NavType.addSavedStateGetStatement(
+    builder: FunSpec.Builder,
+    arg: Argument,
+    lValue: String,
+    savedStateHandle: String
+): FunSpec.Builder = when (this) {
+    is ObjectType -> builder.apply {
+        beginControlFlow(
+            "if (%T::class.java.isAssignableFrom(%T::class.java) " +
+                "|| %T::class.java.isAssignableFrom(%T::class.java))",
+            PARCELABLE_CLASSNAME, arg.type.typeName(),
+            SERIALIZABLE_CLASSNAME, arg.type.typeName()
+        )
+        addStatement(
+            "%L = %L.get<%T>(%S)",
+            lValue, savedStateHandle, arg.type.typeName().copy(nullable = true), arg.name
+        )
+        nextControlFlow("else")
+        addStatement(
+            "throw·%T(%T::class.java.name + %S)",
+            UnsupportedOperationException::class.asTypeName(),
+            arg.type.typeName(),
+            " must implement Parcelable or Serializable or must be an Enum."
+        )
+        endControlFlow()
+    }
+    is ObjectArrayType -> builder.apply {
+        val baseType = (arg.type.typeName() as ParameterizedTypeName).typeArguments.first()
+        addStatement(
+            "%L = %L.get<Array<%T>>(%S)?.map { it as %T }?.toTypedArray()",
+            lValue, savedStateHandle, PARCELABLE_CLASSNAME, arg.name, baseType
+        )
+    }
+    else -> builder.addStatement(
+        "%L = %L[%S]",
+        lValue,
+        savedStateHandle,
+        arg.name
+    )
+}
+
 internal fun NavType.addSavedStateSetStatement(
     builder: FunSpec.Builder,
     arg: Argument,

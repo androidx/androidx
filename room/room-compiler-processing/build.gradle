@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
 import androidx.build.LibraryType
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
@@ -27,6 +26,7 @@ dependencies {
     api(libs.kotlinStdlib)
     api(libs.javapoet)
     api(libs.kotlinPoet)
+    api(libs.kotlinPoetJavaPoet)
     implementation(libs.guava)
     implementation(libs.autoCommon)
     implementation(libs.autoValueAnnotations)
@@ -42,15 +42,16 @@ dependencies {
     testImplementation(libs.jsr250)
     testImplementation(libs.ksp)
     testImplementation(project(":room:room-compiler-processing-testing"))
+    testImplementation(project(":internal-testutils-common"))
 }
 
 tasks.withType(KotlinCompile).configureEach {
     kotlinOptions {
         freeCompilerArgs += [
                 "-Xjvm-default=all",
-                "-Xopt-in=kotlin.RequiresOptIn",
-                "-Xopt-in=kotlin.contracts.ExperimentalContracts",
-                "-Xopt-in=androidx.room.compiler.processing.ExperimentalProcessingApi"
+                "-opt-in=kotlin.RequiresOptIn",
+                "-opt-in=kotlin.contracts.ExperimentalContracts",
+                "-opt-in=androidx.room.compiler.processing.ExperimentalProcessingApi"
         ]
     }
 }

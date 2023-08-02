@@ -27,5 +27,10 @@ internal fun String?.sanitizeAsJavaParameterName(
 ): String = if (this != null && SourceVersion.isName(this)) {
     this
 } else {
-    "arg$argIndex"
+    "p$argIndex"
 }
+
+/**
+ * Returns true if the given name can be used in generated java sources.
+ */
+internal fun String.isValidJavaSourceName() = SourceVersion.isName(this)

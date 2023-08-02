@@ -19,7 +19,7 @@ package androidx.room.compiler.processing.javac
 import androidx.room.compiler.processing.XConstructorElement
 import androidx.room.compiler.processing.XConstructorType
 import androidx.room.compiler.processing.XType
-import androidx.room.compiler.processing.XTypeElement
+import androidx.room.compiler.processing.XTypeParameterElement
 import androidx.room.compiler.processing.javac.kotlin.KmConstructor
 import com.google.auto.common.MoreTypes
 import javax.lang.model.element.ElementKind
@@ -27,35 +27,47 @@ import javax.lang.model.element.ExecutableElement
 
 internal class JavacConstructorElement(
     env: JavacProcessingEnv,
-    containing: JavacTypeElement,
     element: ExecutableElement
-) : JavacExecutableElement(
-    env,
-    containing,
-    element
-),
+) : JavacExecutableElement(env, element),
     XConstructorElement {
     init {
         check(element.kind == ElementKind.CONSTRUCTOR) {
             "Constructor element is constructed with invalid type: $element"
         }
     }
+    override val name: String
+        get() = "<init>"
 
-    override val enclosingElement: XTypeElement by lazy {
-        element.requireEnclosingType(env)
+    override val typeParameters: List<XTypeParameterElement> by lazy {
+        element.typeParameters.map {
+            // Type parameters are not allowed in Kotlin sources, so if type parameters exist they
+            // must have come from Java sources. Thus, there's no kotlin metadata so just use null.
+            JavacTypeParameterElement(env, this, it, null)
+        }
+    }
+
+    override val parameters: List<JavacMethodParameter> by lazy {
+        element.parameters.mapIndexed { index, variable ->
+            JavacMethodParameter(
+                env = env,
+                enclosingElement = this,
+                element = variable,
+                kotlinMetadataFactory = { kotlinMetadata?.parameters?.getOrNull(index) },
+                argIndex = index
+            )
+        }
     }
 
     override val executableType: XConstructorType by lazy {
-        val asMemberOf = env.typeUtils.asMemberOf(containing.type.typeMirror, element)
         JavacConstructorType(
             env = env,
             element = this,
-            executableType = MoreTypes.asExecutable(asMemberOf)
+            executableType = MoreTypes.asExecutable(element.asType())
         )
     }
 
     override fun asMemberOf(other: XType): XConstructorType {
-        return if (other !is JavacDeclaredType || containing.type.isSameType(other)) {
+        return if (other !is JavacDeclaredType || enclosingElement.type.isSameType(other)) {
             executableType
         } else {
             val asMemberOf = env.typeUtils.asMemberOf(other.typeMirror, element)

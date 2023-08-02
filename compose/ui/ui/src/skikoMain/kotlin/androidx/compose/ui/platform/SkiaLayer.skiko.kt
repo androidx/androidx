@@ -24,6 +24,7 @@ import androidx.compose.ui.geometry.toRect
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.ClipOp
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.DefaultShadowColor
 import androidx.compose.ui.graphics.Matrix
 import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.Paint
@@ -79,11 +80,8 @@ internal class SkiaLayer(
     private var clip: Boolean = false
     private var renderEffect: RenderEffect? = null
     private var shadowElevation: Float = 0f
-
-    override val layerId = lastId++
-
-    override val ownerViewId: Long
-        get() = 0
+    private var ambientShadowColor: Color = DefaultShadowColor
+    private var spotShadowColor: Color = DefaultShadowColor
 
     override fun destroy() {
         picture?.close()
@@ -131,7 +129,7 @@ internal class SkiaLayer(
             return 0f <= x && x < size.width && 0f <= y && y < size.height
         }
 
-        return isInOutline(outlineCache.outline!!, x, y)
+        return isInOutline(outlineCache.outline, x, y)
     }
 
     private fun getMatrix(inverse: Boolean): Matrix {
@@ -160,6 +158,8 @@ internal class SkiaLayer(
         shape: Shape,
         clip: Boolean,
         renderEffect: RenderEffect?,
+        ambientShadowColor: Color,
+        spotShadowColor: Color,
         layoutDirection: LayoutDirection,
         density: Density
     ) {
@@ -176,6 +176,8 @@ internal class SkiaLayer(
         this.shadowElevation = shadowElevation
         this.density = density
         this.renderEffect = renderEffect
+        this.ambientShadowColor = ambientShadowColor
+        this.spotShadowColor = spotShadowColor
         outlineCache.shape = shape
         outlineCache.layoutDirection = layoutDirection
         outlineCache.density = density
@@ -228,6 +230,14 @@ internal class SkiaLayer(
         canvas.translate(position.x.toFloat(), position.y.toFloat())
         canvas.nativeCanvas.drawPicture(picture!!, null, null)
         canvas.restore()
+    }
+
+    override fun transform(matrix: Matrix) {
+        matrix.timesAssign(getMatrix(inverse = false))
+    }
+
+    override fun inverseTransform(matrix: Matrix) {
+        matrix.timesAssign(getMatrix(inverse = true))
     }
 
     private fun performDrawLayer(canvas: Canvas, bounds: Rect) {
@@ -296,8 +306,8 @@ internal class SkiaLayer(
 
         val ambientAlpha = 0.039f * alpha
         val spotAlpha = 0.19f * alpha
-        val ambientColor = Color.Black.copy(alpha = ambientAlpha)
-        val spotColor = Color.Black.copy(alpha = spotAlpha)
+        val ambientColor = ambientShadowColor.copy(alpha = ambientAlpha)
+        val spotColor = spotShadowColor.copy(alpha = spotAlpha)
 
         ShadowUtils.drawShadow(
             canvas.nativeCanvas, path.asSkiaPath(), zParams, lightPos,
@@ -305,9 +315,5 @@ internal class SkiaLayer(
             ambientColor.toArgb(),
             spotColor.toArgb(), alpha < 1f, false
         )
-    }
-
-    companion object {
-        private var lastId = 0L
     }
 }

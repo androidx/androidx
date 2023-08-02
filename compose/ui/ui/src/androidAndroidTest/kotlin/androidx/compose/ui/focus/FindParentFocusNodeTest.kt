@@ -46,12 +46,12 @@ class FindParentFocusNodeTest(private val deactivated: Boolean) {
         // Arrange.
         val focusModifier = FocusModifier(Inactive)
         rule.setFocusableContent {
-            Box(modifier = focusModifier)
+            Box(Modifier.focusTarget(focusModifier))
         }
 
         // Act.
         val rootFocusNode = rule.runOnIdle {
-            focusModifier.focusNode.findParentFocusNode()!!.findParentFocusNode()
+            focusModifier.parent!!.parent
         }
 
         // Assert.
@@ -70,23 +70,25 @@ class FindParentFocusNodeTest(private val deactivated: Boolean) {
         val modifier4 = FocusModifier(Inactive)
         val modifier5 = FocusModifier(Inactive)
         rule.setFocusableContent {
-            Box(modifier = modifier1
-                .focusProperties { canFocus = !deactivated }
-                .then(modifier2)
-                .then(modifier3)
-                .then(modifier4)
-                .then(modifier5)
+            Box(
+                Modifier
+                    .focusTarget(modifier1)
+                    .focusProperties { canFocus = !deactivated }
+                    .focusTarget(modifier2)
+                    .focusTarget(modifier3)
+                    .focusTarget(modifier4)
+                    .focusTarget(modifier5)
             )
         }
 
         // Act.
         val parent = rule.runOnIdle {
-            modifier3.focusNode.findParentFocusNode()
+            modifier3.parent
         }
 
         // Assert.
         rule.runOnIdle {
-            assertThat(parent).isEqualTo(modifier2.focusNode)
+            assertThat(parent).isEqualTo(modifier2)
         }
     }
 
@@ -99,22 +101,23 @@ class FindParentFocusNodeTest(private val deactivated: Boolean) {
         val modifier3 = FocusModifier(Inactive)
         rule.setFocusableContent {
             Box(
-                modifier = modifier1
+                Modifier
+                    .focusTarget(modifier1)
                     .focusProperties { canFocus = !deactivated }
-                    .then(modifier2)
+                    .focusTarget(modifier2)
                     .background(color = Red)
-                    .then(modifier3)
+                    .focusTarget(modifier3)
             )
         }
 
         // Act.
         val parent = rule.runOnIdle {
-            modifier3.focusNode.findParentFocusNode()
+            modifier3.parent
         }
 
         // Assert.
         rule.runOnIdle {
-            assertThat(parent).isEqualTo(modifier2.focusNode)
+            assertThat(parent).isEqualTo(modifier2)
         }
     }
 
@@ -128,22 +131,24 @@ class FindParentFocusNodeTest(private val deactivated: Boolean) {
         val parentFocusModifier2 = FocusModifier(Inactive)
         val focusModifier = FocusModifier(Inactive)
         rule.setFocusableContent {
-            Box(modifier = parentFocusModifier1
-                .focusProperties { canFocus = !deactivated }
-                .then(parentFocusModifier2)
+            Box(
+                Modifier
+                    .focusTarget(parentFocusModifier1)
+                    .focusProperties { canFocus = !deactivated }
+                    .focusTarget(parentFocusModifier2)
             ) {
-                Box(modifier = focusModifier)
+                Box(Modifier.focusTarget(focusModifier))
             }
         }
 
         // Act.
         val parent = rule.runOnIdle {
-            focusModifier.focusNode.findParentFocusNode()
+            focusModifier.parent
         }
 
         // Assert.
         rule.runOnIdle {
-            assertThat(parent).isEqualTo(parentFocusModifier2.focusNode)
+            assertThat(parent).isEqualTo(parentFocusModifier2)
         }
     }
 
@@ -162,13 +167,13 @@ class FindParentFocusNodeTest(private val deactivated: Boolean) {
         val parentFocusModifier = FocusModifier(Inactive)
         val focusModifier = FocusModifier(Inactive)
         rule.setFocusableContent {
-            Box(modifier = greatGrandparentFocusModifier) {
-                Box(modifier = grandparentFocusModifier) {
-                    Box(modifier = Modifier
+            Box(Modifier.focusTarget(greatGrandparentFocusModifier)) {
+                Box(Modifier.focusTarget(grandparentFocusModifier)) {
+                    Box(Modifier
                         .focusProperties { canFocus = !deactivated }
-                        .then(parentFocusModifier)
+                        .focusTarget(parentFocusModifier)
                     ) {
-                        Box(modifier = focusModifier)
+                        Box(Modifier.focusTarget(focusModifier))
                     }
                 }
             }
@@ -176,12 +181,12 @@ class FindParentFocusNodeTest(private val deactivated: Boolean) {
 
         // Act.
         val parent = rule.runOnIdle {
-            focusModifier.focusNode.findParentFocusNode()
+            focusModifier.parent
         }
 
         // Assert.
         rule.runOnIdle {
-            assertThat(parent).isEqualTo(parentFocusModifier.focusNode)
+            assertThat(parent).isEqualTo(parentFocusModifier)
         }
     }
 
@@ -197,13 +202,13 @@ class FindParentFocusNodeTest(private val deactivated: Boolean) {
         val grandparentFocusModifier = FocusModifier(Inactive)
         val focusModifier = FocusModifier(Inactive)
         rule.setFocusableContent {
-            Box(modifier = greatGrandparentFocusModifier) {
-                Box(modifier = Modifier
+            Box(Modifier.focusTarget(greatGrandparentFocusModifier)) {
+                Box(Modifier
                     .focusProperties { canFocus = !deactivated }
-                    .then(grandparentFocusModifier)
+                    .focusTarget(grandparentFocusModifier)
                 ) {
                     Box {
-                        Box(modifier = focusModifier)
+                        Box(Modifier.focusTarget(focusModifier))
                     }
                 }
             }
@@ -211,12 +216,12 @@ class FindParentFocusNodeTest(private val deactivated: Boolean) {
 
         // Act.
         val parent = rule.runOnIdle {
-            focusModifier.focusNode.findParentFocusNode()
+            focusModifier.parent
         }
 
         // Assert.
         rule.runOnIdle {
-            assertThat(parent).isEqualTo(grandparentFocusModifier.focusNode)
+            assertThat(parent).isEqualTo(grandparentFocusModifier)
         }
     }
 }

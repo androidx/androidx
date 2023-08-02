@@ -67,13 +67,32 @@ public final class RowListConstraints {
                     .setRowConstraints(ROW_CONSTRAINTS_SIMPLE)
                     .build();
 
-    /** Default constraints for the route preview card. */
+    /**
+     * Default constraints for the route preview card.
+     *
+     * @deprecated This is deprecated. Use
+     * {@link #MAP_ROW_LIST_CONSTRAINTS_ALLOW_SELECTABLE} instead.
+     *
+     * As more half sheet template lists allow selectable lists, this constraints is
+     * too narrow for the only use case at route preview template. Use
+     * {@link #MAP_ROW_LIST_CONSTRAINTS_ALLOW_SELECTABLE} for more general half sheet lists.
+     */
     @NonNull
+    @Deprecated
     public static final RowListConstraints ROW_LIST_CONSTRAINTS_ROUTE_PREVIEW =
             new RowListConstraints.Builder(ROW_LIST_CONSTRAINTS_CONSERVATIVE)
                     .setRowConstraints(ROW_CONSTRAINTS_SIMPLE)
                     .setAllowSelectableLists(true)
                     .build();
+
+    /** Default constraints for half sheet template lists that allow selectable lists. */
+    @NonNull
+    public static final RowListConstraints MAP_ROW_LIST_CONSTRAINTS_ALLOW_SELECTABLE =
+            new RowListConstraints.Builder(ROW_LIST_CONSTRAINTS_CONSERVATIVE)
+                    .setRowConstraints(ROW_CONSTRAINTS_SIMPLE)
+                    .setAllowSelectableLists(true)
+                    .build();
+
 
     /** Default constraints for uniform lists of items, full width (simple + toggle support). */
     @NonNull

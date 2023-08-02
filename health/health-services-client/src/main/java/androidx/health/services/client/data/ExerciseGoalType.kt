@@ -16,34 +16,53 @@
 
 package androidx.health.services.client.data
 
+import androidx.annotation.RestrictTo
 import androidx.health.services.client.proto.DataProto
-import androidx.health.services.client.proto.DataProto.ExerciseGoalType.EXERCISE_GOAL_TYPE_MILESTONE
-import androidx.health.services.client.proto.DataProto.ExerciseGoalType.EXERCISE_GOAL_TYPE_ONE_TIME
 import androidx.health.services.client.proto.DataProto.ExerciseGoalType.EXERCISE_GOAL_TYPE_UNKNOWN
 
 /** Exercise goal types. */
-public enum class ExerciseGoalType(public val id: Int) {
-    ONE_TIME_GOAL(1),
-    MILESTONE(2);
+public class ExerciseGoalType private constructor(public val id: Int, public val name: String) {
+
+    override fun toString(): String = name
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is ExerciseGoalType) return false
+        if (id != other.id) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int = id
 
     /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     internal fun toProto(): DataProto.ExerciseGoalType =
-        when (this) {
-            ONE_TIME_GOAL -> EXERCISE_GOAL_TYPE_ONE_TIME
-            MILESTONE -> EXERCISE_GOAL_TYPE_MILESTONE
-        }
+        DataProto.ExerciseGoalType.forNumber(id) ?: EXERCISE_GOAL_TYPE_UNKNOWN
 
     public companion object {
+        /** Goal type indicating this goal is for one event and should then be removed. */
+        @JvmField
+        public val ONE_TIME_GOAL: ExerciseGoalType = ExerciseGoalType(1, "ONE_TIME_GOAL")
+
+        /**
+         * Goal type indicating this goal is for a repeating event and should remain until the
+         * calling app removes it.
+         */
+        @JvmField
+        public val MILESTONE: ExerciseGoalType = ExerciseGoalType(2, "MILESTONE")
+
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        @JvmField
+        public val VALUES: List<ExerciseGoalType> = listOf(ONE_TIME_GOAL, MILESTONE)
+
         @JvmStatic
-        public fun fromId(id: Int): ExerciseGoalType? = values().firstOrNull { it.id == id }
+        public fun fromId(id: Int): ExerciseGoalType? = VALUES.firstOrNull { it.id == id }
 
         /** @hide */
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
         @JvmStatic
         internal fun fromProto(proto: DataProto.ExerciseGoalType): ExerciseGoalType? =
-            when (proto) {
-                EXERCISE_GOAL_TYPE_ONE_TIME -> ONE_TIME_GOAL
-                EXERCISE_GOAL_TYPE_MILESTONE -> MILESTONE
-                EXERCISE_GOAL_TYPE_UNKNOWN -> null
-            }
+            fromId(proto.number)
     }
 }

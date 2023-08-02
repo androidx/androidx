@@ -99,5 +99,12 @@ class ExtensionsConfig implements CameraConfig {
             mConfig.insertOption(OPTION_SESSION_PROCESSOR, sessionProcessor);
             return this;
         }
+
+        @NonNull
+        @Override
+        public Builder setZslDisabled(boolean disabled) {
+            mConfig.insertOption(OPTION_ZSL_DISABLED, disabled);
+            return this;
+        }
     }
 }

@@ -68,7 +68,7 @@ internal class SourceSet(
         if (!file.path.startsWith(root.path)) {
             return null
         }
-        val relativePath = path.substringAfter(root.canonicalPath + "/")
+        val relativePath = path.substringAfter(root.canonicalPath + File.separator)
         return sources.firstOrNull {
             it.relativePath == relativePath
         }
@@ -98,7 +98,7 @@ private fun File.collectSources(): Sequence<Source> {
             "java" -> Source.loadJavaSource(
                 file = file,
                 qName = file.relativeTo(root).path
-                    .replace('/', '.')
+                    .replace(File.separatorChar, '.')
                     .substringBeforeLast('.') // drop .java
             )
             "kt" -> Source.loadKotlinSource(

@@ -18,7 +18,7 @@ package androidx.room.compiler.processing
 
 import com.squareup.javapoet.ClassName
 
-interface XTypeElement : XHasModifiers, XElement, XMemberContainer {
+interface XTypeElement : XHasModifiers, XParameterizable, XElement, XMemberContainer {
     /**
      * The qualified name of the Class/Interface.
      */
@@ -30,13 +30,6 @@ interface XTypeElement : XHasModifiers, XElement, XMemberContainer {
     val packageName: String
 
     /**
-     * SimpleName of the type converted to String.
-     *
-     * @see [javax.lang.model.element.Element.getSimpleName]
-     */
-    val name: String
-
-    /**
      * The type represented by this [XTypeElement].
      */
     override val type: XType
@@ -44,7 +37,29 @@ interface XTypeElement : XHasModifiers, XElement, XMemberContainer {
     /**
      * The super type of this element if it represents a class.
      */
+    @Deprecated(
+        message = "Function name was misleading.",
+        replaceWith = ReplaceWith("superClass")
+    )
     val superType: XType?
+        get() = superClass
+
+    /**
+     * The direct super types of this element.
+     *
+     * See [JLS 4.10.2](https://docs.oracle.com/javase/specs/jls/se18/html/jls-4.html#jls-4.10.2)
+     */
+    val superTypes: List<XType>
+
+    /**
+     * The super class of this element if it represents a class.
+     */
+    val superClass: XType?
+
+    /**
+     * The super interfaces implemented by this class.
+     */
+    val superInterfaces: List<XType>
 
     /**
      * Javapoet [ClassName] of the type.
@@ -56,8 +71,18 @@ interface XTypeElement : XHasModifiers, XElement, XMemberContainer {
      */
     val enclosingTypeElement: XTypeElement?
 
+    override val enclosingElement: XMemberContainer?
+
+    override val closestMemberContainer: XTypeElement
+        get() = this
+
     override val fallbackLocationText: String
         get() = qualifiedName
+
+    /**
+     * Returns `true` if this [XTypeElement] is a nested class/interface.
+     */
+    fun isNested(): Boolean
 
     /**
      * Returns `true` if this [XTypeElement] represents an interface
@@ -98,7 +123,7 @@ interface XTypeElement : XHasModifiers, XElement, XMemberContainer {
     fun isAnnotationClass(): Boolean
 
     /**
-     * Returns `true` if this [XTypeElement] is a non-companion `object` in Kotlin
+     * Returns `true` if this [XTypeElement] is an `object` or `companion object` in Kotlin
      */
     fun isKotlinObject(): Boolean
 
@@ -117,9 +142,7 @@ interface XTypeElement : XHasModifiers, XElement, XMemberContainer {
      * All fields, including private supers.
      * Room only ever reads fields this way.
      */
-    fun getAllFieldsIncludingPrivateSupers(): Sequence<XFieldElement> {
-        return collectFieldsIncludingPrivateSupers(this)
-    }
+    fun getAllFieldsIncludingPrivateSupers(): Sequence<XFieldElement>
 
     /**
      * Returns the primary constructor for the type, if it exists.
@@ -146,9 +169,7 @@ interface XTypeElement : XHasModifiers, XElement, XMemberContainer {
      *   2. All super class methods appear before all sub class methods,
      *   3. Within a given class/interface methods appear in the order they're declared in source.
      */
-    fun getAllMethods(): Sequence<XMethodElement> {
-        return collectAllMethods(this)
-    }
+    fun getAllMethods(): Sequence<XMethodElement>
 
     /**
      * Instance methods declared in this and supers

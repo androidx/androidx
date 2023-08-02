@@ -27,6 +27,8 @@
     <string name="toggle_video_off">video\noff</string>
     <string name="toggle_capture_quality_on">MAX</string>
     <string name="toggle_capture_quality_off">MIN</string>
+    <string name="toggle_capture_zsl_on">ZSL ON</string>
+    <string name="toggle_capture_zsl_off">ZSL OFF</string>
     <string name="toggle_plus_ev">+EV</string>
     <string name="toggle_dec_ev">-EV</string>
     <string name="toggle_zoom_in_2x">2X</string>

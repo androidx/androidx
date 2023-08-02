@@ -386,7 +386,7 @@ public class TransitionSet extends Transition {
     }
 
     @Override
-    public void setPathMotion(PathMotion pathMotion) {
+    public void setPathMotion(@Nullable PathMotion pathMotion) {
         super.setPathMotion(pathMotion);
         mChangeFlags |= FLAG_CHANGE_PATH_MOTION;
         if (mTransitions != null) {
@@ -456,9 +456,10 @@ public class TransitionSet extends Transition {
     }
 
     @Override
-    void createAnimators(ViewGroup sceneRoot, TransitionValuesMaps startValues,
-            TransitionValuesMaps endValues, ArrayList<TransitionValues> startValuesList,
-            ArrayList<TransitionValues> endValuesList) {
+    void createAnimators(@NonNull ViewGroup sceneRoot, @NonNull TransitionValuesMaps startValues,
+            @NonNull TransitionValuesMaps endValues,
+            @NonNull ArrayList<TransitionValues> startValuesList,
+            @NonNull ArrayList<TransitionValues> endValuesList) {
         long startDelay = getStartDelay();
         int numTransitions = mTransitions.size();
         for (int i = 0; i < numTransitions; i++) {
@@ -548,10 +549,11 @@ public class TransitionSet extends Transition {
         }
     }
 
-    /** @hide */
+    /** @hide
+     * @param sceneRoot */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
-    public void pause(View sceneRoot) {
+    public void pause(@Nullable View sceneRoot) {
         super.pause(sceneRoot);
         int numTransitions = mTransitions.size();
         for (int i = 0; i < numTransitions; ++i) {
@@ -559,10 +561,11 @@ public class TransitionSet extends Transition {
         }
     }
 
-    /** @hide */
+    /** @hide
+     * @param sceneRoot */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
-    public void resume(View sceneRoot) {
+    public void resume(@Nullable View sceneRoot) {
         super.resume(sceneRoot);
         int numTransitions = mTransitions.size();
         for (int i = 0; i < numTransitions; ++i) {
@@ -602,7 +605,7 @@ public class TransitionSet extends Transition {
     }
 
     @Override
-    public void setPropagation(TransitionPropagation transitionPropagation) {
+    public void setPropagation(@Nullable TransitionPropagation transitionPropagation) {
         super.setPropagation(transitionPropagation);
         mChangeFlags |= FLAG_CHANGE_PROPAGATION;
         int numTransitions = mTransitions.size();
@@ -612,7 +615,7 @@ public class TransitionSet extends Transition {
     }
 
     @Override
-    public void setEpicenterCallback(EpicenterCallback epicenterCallback) {
+    public void setEpicenterCallback(@Nullable EpicenterCallback epicenterCallback) {
         super.setEpicenterCallback(epicenterCallback);
         mChangeFlags |= FLAG_CHANGE_EPICENTER;
         int numTransitions = mTransitions.size();
@@ -630,6 +633,7 @@ public class TransitionSet extends Transition {
         return result;
     }
 
+    @NonNull
     @Override
     public Transition clone() {
         TransitionSet clone = (TransitionSet) super.clone();

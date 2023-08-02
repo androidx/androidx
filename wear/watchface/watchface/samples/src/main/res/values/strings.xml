@@ -24,12 +24,17 @@
     <string name="gl_watch_face_name" translatable="false">Example OpenGL Watchface</string>
     <string name="gl_background_init_watch_face_name"
         translatable="false">Background Init Watchface</string>
+    <string name="hierarchical_watch_face_name"
+        translatable="false">Example Hierarchical Watchface</string>
 
     <!-- Name of watchface style [CHAR LIMIT=20] -->
     <string name="red_style_name">Red Style</string>
 
     <!-- Name of watchface style [CHAR LIMIT=20] -->
     <string name="green_style_name">Green Style</string>
+
+    <!-- Name of watchface style [CHAR LIMIT=20] -->
+    <string name="yellow_style_name">Yellow Style</string>
 
     <!-- Name of watchface style category for selecting the color theme [CHAR LIMIT=20] -->
     <string name="colors_style_setting">Colors</string>
@@ -45,6 +50,9 @@
 
     <!-- An option within the watch face color style theme settings [CHAR LIMIT=20] -->
     <string name="colors_style_blue">Blue</string>
+
+    <!-- An option within the watch face color style theme settings [CHAR LIMIT=20] -->
+    <string name="colors_style_yellow">Yellow</string>
 
     <!-- An option within the analog watch face to draw pips to mark each hour [CHAR LIMIT=20] -->
     <string name="watchface_pips_setting">Hour Pips</string>
@@ -84,4 +92,74 @@
     <!-- Menu option within the complications configuration widget that lets us select only the
     right complication for rendering. [CHAR LIMIT=20] -->
     <string name="watchface_complications_setting_right">Right</string>
+
+    <!-- Menu option to select a widget that lets us configure the frequency of hours labeling
+    [CHAR LIMIT=20] -->
+    <string name="watchface_draw_hours_freq_setting">Hours labeling</string>
+
+    <!-- Sub title for the menu option to select a widget that lets us configure the frequency of
+    hours labeling [CHAR LIMIT=20] -->
+    <string name="watchface_draw_hours_freq_setting_description">Labeling frequency</string>
+
+    <!-- Name of the left complication for use visually in the companion editor. [CHAR LIMIT=20] -->
+    <string name="left_complication_screen_name">Left</string>
+
+    <!-- Name of the left complication for use by in the companion editor screen reader. -->
+    <string name="left_complication_screen_reader_name">Left complication.</string>
+
+    <!-- Name of the right complication for use visually in the companion editor.
+    [CHAR LIMIT=20] -->
+    <string name="right_complication_screen_name">Right</string>
+
+    <!-- Name of the right complication for use by the companion editor screen reader. -->
+    <string name="right_complication_screen_reader_name">Right complication.</string>
+
+    <!-- Name of a complication at the top of the screen, for use visually in the companion editor.
+    [CHAR LIMIT=20] -->
+    <string name="upper_complication_screen_name">Upper</string>
+
+    <!-- Name of a complication at the top of the screen, for use by the companion editor screen
+    reader. -->
+    <string name="upper_complication_screen_reader_name">Upper complication.</string>
+
+    <!-- Name of a complication at the bottom of the screen, for use visually in the companion
+    editor. [CHAR LIMIT=20] -->
+    <string name="lower_complication_screen_name">Lower</string>
+
+    <!-- Name of a complication at the bottom of the screen, for use by the companion editor screen
+    reader. -->
+    <string name="lower_complication_screen_reader_name">Lower complication.</string>
+
+    <!-- Name of the optional background complication which is drawn behind the watchface, for use
+    visually in the companion editor. [CHAR LIMIT=20] -->
+    <string name="background_complication_screen_name">Background</string>
+
+    <!-- Name of the optional background complication which is drawn behind the watchface, for use
+    by the companion editor screen reader. -->
+    <string name="background_complication_screen_reader_name">Background complication.</string>
+
+    <!-- Name of a style that controls the appearance of a digital clock [CHAR LIMIT=20] -->
+    <string name="digital_clock_style_name">Clock style</string>
+
+    <!-- Sub title for the menu option to select a widget that lets us configure the style of a
+    digital watch [CHAR LIMIT=20] -->
+    <string name="digital_clock_style_description">Clock style setting</string>
+
+    <!-- Menu option for a 12 hour digital clock display. [CHAR LIMIT=20] -->
+    <string name="digital_clock_style_12">12</string>
+
+    <!-- Menu option for a 24 hour digital clock display. [CHAR LIMIT=20] -->
+    <string name="digital_clock_style_24">24</string>
+
+    <!-- Menu option for selecting a digital clock [CHAR LIMIT=20] -->
+    <string name="style_digital_watch">Digital</string>
+
+    <!-- Menu option for selecting an analog clock [CHAR LIMIT=20] -->
+    <string name="style_analog_watch">Analog</string>
+
+    <!-- Title for the menu option to select an analog or digital clock [CHAR LIMIT=20] -->
+    <string name="clock_type">Clock type</string>
+
+    <!-- Sub title for the menu option to select an analog or digital clock [CHAR LIMIT=20] -->
+    <string name="clock_type_description">Select analog or digital</string>
 </resources>

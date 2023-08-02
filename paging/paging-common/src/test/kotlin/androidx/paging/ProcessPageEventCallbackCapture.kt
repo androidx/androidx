@@ -62,9 +62,3 @@ class ProcessPageEventCallbackCapture : ProcessPageEventCallback {
         list.add(CombinedStateEvent(source, mediator))
     }
 }
-
-fun <E> MutableList<E>.getAllAndClear(): List<E> {
-    val data = this.toList()
-    this.clear()
-    return data
-}

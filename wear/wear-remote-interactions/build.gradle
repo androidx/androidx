@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
-import androidx.build.LibraryVersions
 import androidx.build.Publish
 
 plugins {
@@ -35,10 +33,10 @@ dependencies {
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.testRules)
-    androidTestImplementation 'junit:junit:4.12'
+    androidTestImplementation(libs.junit)
 
     // Needed for Assert.assertThrows
-    testImplementation("junit:junit:4.13")
+    testImplementation(libs.junit)
     testImplementation(libs.testCore)
     testImplementation(libs.testRules)
     testImplementation(libs.testRunner)
@@ -58,6 +56,7 @@ android {
 
     // Use Robolectric 4.+
     testOptions.unitTests.includeAndroidResources = true
+    namespace "androidx.wear.remote.interactions"
 }
 
 androidx {

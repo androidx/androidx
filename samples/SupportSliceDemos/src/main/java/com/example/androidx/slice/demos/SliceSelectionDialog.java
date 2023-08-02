@@ -148,6 +148,7 @@ public class SliceSelectionDialog {
         }).start();
     }
 
+    @SuppressWarnings("deprecation")
     private static void showSliceList(Context context, Consumer<Uri> selectedCallback,
             ProviderInfo provider, String label) {
         ProgressDialog dialog = ProgressDialog.show(context, null, "Loading...");

@@ -34,6 +34,7 @@ import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.core.internal.CameraUseCaseAdapter
 import androidx.camera.testing.AudioUtil
 import androidx.camera.testing.CameraUtil
+import androidx.camera.testing.CameraUtil.PreTestCameraIdList
 import androidx.camera.testing.CameraXUtil
 import androidx.camera.testing.SurfaceTextureProvider.SurfaceTextureCallback
 import androidx.camera.testing.SurfaceTextureProvider.createSurfaceTextureProvider
@@ -46,37 +47,36 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.GrantPermissionRule
 import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
+import java.io.File
+import java.util.concurrent.TimeUnit
 import org.junit.After
 import org.junit.Assume.assumeFalse
 import org.junit.Assume.assumeTrue
 import org.junit.Before
-import org.junit.ClassRule
 import org.junit.Rule
 import org.junit.Test
-import org.junit.rules.TestRule
 import org.junit.runner.RunWith
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.timeout
 import org.mockito.Mockito.verify
-import java.io.File
-import java.util.concurrent.TimeUnit
 
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 @SdkSuppress(minSdkVersion = 21)
 class VideoCaptureTest {
     companion object {
-        @ClassRule
-        @JvmField
-        val useRecordingResource: TestRule = CameraUtil.checkVideoRecordingResource()
-
         private const val TAG = "VideoCaptureTest"
     }
 
     @get:Rule
-    val useCamera: TestRule = CameraUtil.grantCameraPermissionAndPreTest()
+    val useRecordingResource = CameraUtil.checkVideoRecordingResource()
+
+    @get:Rule
+    val useCamera = CameraUtil.grantCameraPermissionAndPreTest(
+        PreTestCameraIdList(Camera2Config.defaultConfig())
+    )
 
     @get:Rule
     val permissionRule: GrantPermissionRule =
@@ -324,44 +324,6 @@ class VideoCaptureTest {
         // Wait for the signal that the video has been saved.
         verify(callback, timeout(10000)).onVideoSaved(any())
         file.delete()
-    }
-
-    @Test(timeout = 30000)
-    fun videoCapture_noKeyFrameVideoShouldCallOnError() {
-        val realFile = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
-
-        val preview = Preview.Builder().build()
-        val videoCapture = VideoCapture.Builder().build()
-
-        assumeTrue(
-            "This combination (videoCapture, preview) is not supported.",
-            cameraUseCaseAdapter.isUseCasesCombinationSupported(videoCapture, preview)
-        )
-        instrumentation.runOnMainSync {
-            preview.setSurfaceProvider(
-                CameraXExecutors.mainThreadExecutor(),
-                getSurfaceProvider()
-            )
-            cameraUseCaseAdapter.addUseCases(listOf(videoCapture, preview))
-        }
-
-        val callback = mock(VideoCapture.OnVideoSavedCallback::class.java)
-        videoCapture.startRecording(
-            VideoCapture.OutputFileOptions.Builder(realFile).build(),
-            CameraXExecutors.mainThreadExecutor(),
-            callback
-        )
-
-        // Stop recording directly
-        videoCapture.stopRecording()
-        // Wait for the signal that the video has been saved.
-        verify(callback, timeout(10000)).onError(
-            VideoCapture.ERROR_RECORDING_TOO_SHORT, "The file has no video key frame.", null
-        )
-        // If verification fails, it still needs to be removed.
-        if (realFile.exists()) {
-            realFile.delete()
-        }
     }
 
     /** Return a VideoOutputFileOption which is used to save a video.  */

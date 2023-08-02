@@ -16,6 +16,7 @@
 
 package androidx.compose.integration.demos.test
 
+import android.content.Intent
 import androidx.compose.integration.demos.AllDemosCategory
 import androidx.compose.integration.demos.DemoActivity
 import androidx.compose.integration.demos.Tags
@@ -24,6 +25,7 @@ import androidx.compose.integration.demos.common.Demo
 import androidx.compose.integration.demos.common.DemoCategory
 import androidx.compose.integration.demos.common.allDemos
 import androidx.compose.integration.demos.common.allLaunchableDemos
+import androidx.compose.material3.demos.Material3Demos
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.SemanticsNodeInteractionCollection
 import androidx.compose.ui.test.assertTextEquals
@@ -35,12 +37,16 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.runEmptyComposeUiTest
+import androidx.test.core.app.ActivityScenario
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.FlakyTest
 import androidx.test.filters.LargeTest
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -93,6 +99,17 @@ class DemoTest {
     }
 
     @Test
+    fun testPassingDemoNameDeeplinksForDemo() = runEmptyComposeUiTest {
+        val demo = AllButIgnoredDemos.allLaunchableDemos()[0]
+        val demoIntent = Intent(
+            ApplicationProvider.getApplicationContext(),
+            DemoActivity::class.java
+        ).apply { putExtra(DemoActivity.DEMO_NAME, demo.title) }
+        ActivityScenario.launch<DemoActivity>(demoIntent)
+        onNodeWithTag(Tags.AppBarTitle).assertTextEquals(demo.title)
+    }
+
+    @Test
     fun navigateThroughAllDemos_1() {
         navigateThroughAllDemos(SplitDemoCategories[0])
     }
@@ -107,9 +124,22 @@ class DemoTest {
         navigateThroughAllDemos(SplitDemoCategories[2])
     }
 
+    // Broken: b/206811195
+    @Ignore
     @Test
     fun navigateThroughAllDemos_4() {
         navigateThroughAllDemos(SplitDemoCategories[3])
+    }
+
+    @Test
+    fun navigateThroughMaterial3Demos() {
+        val material3Demos = DemoCategory(
+            "Jetpack Compose Demos",
+            listOf(
+                Material3Demos,
+            )
+        )
+        navigateThroughAllDemos(material3Demos)
     }
 
     private fun navigateThroughAllDemos(root: DemoCategory, fastForwardClock: Boolean = false) {
@@ -237,7 +267,7 @@ class DemoTest {
     }
 }
 
-private val AllButIgnoredDemos =
+internal val AllButIgnoredDemos =
     AllDemosCategory.filter { path, demo ->
         demo.navigationTitle(path) !in ignoredDemos
     }

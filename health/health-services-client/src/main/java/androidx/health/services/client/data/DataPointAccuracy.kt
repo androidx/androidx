@@ -28,7 +28,7 @@ public abstract class DataPointAccuracy : ProtoParcelable<DataProto.DataPointAcc
     internal companion object {
         internal fun fromProto(proto: DataProto.DataPointAccuracy): DataPointAccuracy =
             when (proto.accuracyCase) {
-                HR_ACCURACY -> HrAccuracy(proto)
+                HR_ACCURACY -> HeartRateAccuracy(proto)
                 LOCATION_ACCURACY -> LocationAccuracy(proto)
                 null, ACCURACY_NOT_SET -> throw IllegalStateException("Accuracy not set on $proto")
             }

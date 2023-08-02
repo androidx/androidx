@@ -19,6 +19,7 @@ package androidx.paging
 import androidx.paging.LoadType.APPEND
 import androidx.paging.LoadType.PREPEND
 import androidx.paging.LoadType.REFRESH
+import androidx.paging.internal.appendMediatorStatesIfNotNull
 
 /**
  * Events in the stream from paging fetch logic to UI.
@@ -26,6 +27,59 @@ import androidx.paging.LoadType.REFRESH
  * Every event sent to the UI is a PageEvent, and will be processed atomically.
  */
 internal sealed class PageEvent<T : Any> {
+    /**
+     * Represents a fully-terminal, static list of data.
+     *
+     * This event should always be the first and only emission in a Flow<PageEvent> within a
+     * generation.
+     *
+     * @param sourceLoadStates source [LoadStates] to emit if non-null, ignored otherwise, allowing
+     * the presenter receiving this event to maintain the previous state.
+     * @param mediatorLoadStates mediator [LoadStates] to emit if non-null, ignored otherwise,
+     * allowing the presenter receiving this event to maintain its previous state.
+     */
+    data class StaticList<T : Any>(
+        val data: List<T>,
+        val sourceLoadStates: LoadStates? = null,
+        val mediatorLoadStates: LoadStates? = null
+    ) : PageEvent<T>() {
+        override suspend fun <R : Any> map(transform: suspend (T) -> R): PageEvent<R> {
+            return StaticList(
+                data = data.map { transform(it) },
+                sourceLoadStates = sourceLoadStates,
+                mediatorLoadStates = mediatorLoadStates,
+            )
+        }
+
+        override suspend fun <R : Any> flatMap(
+            transform: suspend (T) -> Iterable<R>
+        ): PageEvent<R> {
+            return StaticList(
+                data = data.flatMap { transform(it) },
+                sourceLoadStates = sourceLoadStates,
+                mediatorLoadStates = mediatorLoadStates,
+            )
+        }
+
+        override suspend fun filter(predicate: suspend (T) -> Boolean): PageEvent<T> {
+            return StaticList(
+                data = data.filter { predicate(it) },
+                sourceLoadStates = sourceLoadStates,
+                mediatorLoadStates = mediatorLoadStates,
+            )
+        }
+
+        override fun toString(): String {
+            return appendMediatorStatesIfNotNull(mediatorLoadStates) {
+                """PageEvent.StaticList with ${data.size} items (
+                    |   first item: ${data.firstOrNull()}
+                    |   last item: ${data.lastOrNull()}
+                    |   sourceLoadStates: $sourceLoadStates
+                    """
+            }
+        }
+    }
+
     // Intentional to prefer Refresh, Prepend, Append constructors from Companion.
     @Suppress("DataClassPrivateConstructor")
     data class Insert<T : Any> private constructor(
@@ -174,7 +228,23 @@ internal sealed class PageEvent<T : Any> {
                 ),
             )
         }
+
+        override fun toString(): String {
+            val itemCount = pages.fold(0) { total, page -> total + page.data.size }
+            val placeholdersBefore = if (placeholdersBefore != -1) "$placeholdersBefore" else "none"
+            val placeholdersAfter = if (placeholdersAfter != -1) "$placeholdersAfter" else "none"
+            return appendMediatorStatesIfNotNull(mediatorLoadStates) {
+                """PageEvent.Insert for $loadType, with $itemCount items (
+                    |   first item: ${pages.firstOrNull()?.data?.firstOrNull()}
+                    |   last item: ${pages.lastOrNull()?.data?.lastOrNull()}
+                    |   placeholdersBefore: $placeholdersBefore
+                    |   placeholdersAfter: $placeholdersAfter
+                    |   sourceLoadStates: $sourceLoadStates
+                    """
+            }
+        }
     }
+
     // TODO: b/195658070 consider refactoring Drop events to carry full source/mediator states.
     data class Drop<T : Any>(
         val loadType: LoadType,
@@ -198,6 +268,21 @@ internal sealed class PageEvent<T : Any> {
         }
 
         val pageCount get() = maxPageOffset - minPageOffset + 1
+
+        override fun toString(): String {
+            val direction = when (loadType) {
+                APPEND -> "end"
+                PREPEND -> "front"
+                else -> throw IllegalArgumentException(
+                    "Drop load type must be PREPEND or APPEND"
+                )
+            }
+            return """PageEvent.Drop from the $direction (
+                    |   minPageOffset: $minPageOffset
+                    |   maxPageOffset: $maxPageOffset
+                    |   placeholdersRemaining: $placeholdersRemaining
+                    |)""".trimMargin()
+        }
     }
 
     /**
@@ -209,7 +294,16 @@ internal sealed class PageEvent<T : Any> {
     data class LoadStateUpdate<T : Any>(
         val source: LoadStates,
         val mediator: LoadStates? = null,
-    ) : PageEvent<T>()
+    ) : PageEvent<T>() {
+
+        override fun toString(): String {
+            return appendMediatorStatesIfNotNull(mediator) {
+                """PageEvent.LoadStateUpdate (
+                    |   sourceLoadStates: $source
+                    """
+            }
+        }
+    }
 
     @Suppress("UNCHECKED_CAST")
     open suspend fun <R : Any> map(transform: suspend (T) -> R): PageEvent<R> = this as PageEvent<R>

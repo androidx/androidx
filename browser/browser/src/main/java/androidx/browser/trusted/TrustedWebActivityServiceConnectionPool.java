@@ -205,6 +205,7 @@ public final class TrustedWebActivityServiceConnectionPool {
      * {@code possiblePackages}.
      * Will return {@code null} if there is no applicable Service.
      */
+    @SuppressWarnings("deprecation")
     private @Nullable Intent createServiceIntent(Context appContext, Uri scope,
             Set<Token> possiblePackages, boolean shouldLog) {
         if (possiblePackages == null || possiblePackages.size() == 0) {

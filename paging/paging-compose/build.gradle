@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
-import androidx.build.LibraryVersions
 import androidx.build.Publish
 import androidx.build.RunApiTasks
 
@@ -28,12 +26,18 @@ plugins {
 }
 
 dependencies {
-    kotlinPlugin(projectOrArtifact(":compose:compiler:compiler"))
+    constraints {
+        // this syntax mirrors the temp workaround in paging-common dependencies constraint
+        // which allows paging-common to have project constraint on compose even though
+        // compose is not within the `MAIN` project-set.
+        // update syntax when b/239979823 is fixed
+        implementation("androidx.paging:paging-common:${androidx.LibraryVersions.PAGING}")
+    }
 
     implementation(libs.kotlinStdlib)
-    api("androidx.compose.foundation:foundation:1.0.2")
+    api("androidx.compose.foundation:foundation:1.0.5")
     api(project(":paging:paging-common"))
-    api("androidx.compose.runtime:runtime:1.0.2")
+    api("androidx.compose.runtime:runtime:1.0.5")
 
     androidTestImplementation(projectOrArtifact(":compose:ui:ui-test-junit4"))
     androidTestImplementation(project(":compose:test-utils"))
@@ -54,4 +58,8 @@ androidx {
     description = "Compose integration with Paging"
     runApiTasks = new RunApiTasks.Yes()
     legacyDisableKotlinStrictApiMode = true
+}
+
+android {
+    namespace "androidx.paging.compose"
 }

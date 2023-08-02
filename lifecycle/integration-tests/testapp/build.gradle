@@ -37,8 +37,13 @@ dependencies {
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.espressoCore)
+    androidTestImplementation(libs.truth)
 
     testImplementation(libs.junit)
     testImplementation(libs.mockitoCore)
     testAnnotationProcessor(project(":lifecycle:lifecycle-compiler"))
+}
+
+android {
+    namespace "androidx.lifecycle.testapp"
 }

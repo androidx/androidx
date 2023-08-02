@@ -14,8 +14,11 @@
  * limitations under the License.
  */
 
+@file:SuppressLint("ClassVerificationFailure") // Entire file is RequiresApi(28)
+
 package androidx.core.graphics
 
+import android.annotation.SuppressLint
 import android.graphics.Bitmap
 import android.graphics.ImageDecoder
 import android.graphics.ImageDecoder.ImageInfo

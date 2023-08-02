@@ -28,6 +28,7 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverter
 import androidx.room.TypeConverters
+import androidx.room.util.useCursor
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
@@ -295,7 +296,7 @@ class NullabilityAwareTypeConversionTest {
          */
         fun getRawData(): String {
             return buildString {
-                getUsers().use {
+                getUsers().useCursor {
                     if (it.moveToNext()) {
                         append(it.getInt(0))
                         append("-")

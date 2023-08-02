@@ -22,7 +22,6 @@ import android.os.Bundle
 import android.os.Parcel
 import android.os.ResultReceiver
 import androidx.annotation.IntDef
-import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import androidx.concurrent.futures.CallbackToFutureAdapter
 import androidx.wear.remote.interactions.RemoteInteractionsUtil.isCurrentDeviceAWatch
@@ -98,6 +97,7 @@ public class RemoteActivityHelper(
          * @param intent The intent holding configuration.
          * @return The remote intent, or null if none was set.
          */
+        @Suppress("DEPRECATION")
         @JvmStatic
         public fun getTargetIntent(intent: Intent): Intent? =
             intent.getParcelableExtra(EXTRA_INTENT)
@@ -118,6 +118,7 @@ public class RemoteActivityHelper(
          * @param intent The intent holding configuration.
          * @return The result receiver, or null if none was set.
          */
+        @Suppress("DEPRECATION")
         @JvmStatic
         internal fun getRemoteIntentResultReceiver(intent: Intent): ResultReceiver? =
             intent.getParcelableExtra(EXTRA_RESULT_RECEIVER)
@@ -283,13 +284,10 @@ public class RemoteActivityHelper(
 
     /**
      * Result code passed to [ResultReceiver.send] for the status of remote intent.
-     *
-     * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef(RESULT_OK, RESULT_FAILED)
     @Retention(AnnotationRetention.SOURCE)
-    public annotation class SendResult
+    internal annotation class SendResult
 
     public class RemoteIntentException(message: String) : Exception(message)
 

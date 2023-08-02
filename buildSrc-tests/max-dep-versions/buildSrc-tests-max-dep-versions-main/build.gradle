@@ -1,4 +1,3 @@
-import androidx.build.LibraryGroups
 import androidx.build.LibraryType
 
 plugins {
@@ -8,6 +7,10 @@ plugins {
 
 dependencies {
     implementation("androidx.buildSrc-tests:buildSrc-tests-max-dep-versions-dep:1.0.0")
+}
+
+android {
+    namespace "androidx.testapp"
 }
 
 androidx {

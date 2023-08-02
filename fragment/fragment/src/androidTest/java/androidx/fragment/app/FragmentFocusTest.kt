@@ -134,7 +134,7 @@ class FragmentFocusTest {
 
             val animator = ValueAnimator.ofFloat(0f, 1f).setDuration(1)
             animator.addListener(object : AnimatorListenerAdapter() {
-                override fun onAnimationStart(animation: Animator?) {
+                override fun onAnimationStart(animation: Animator) {
                     val editText = requireView().findViewById<EditText>(R.id.editText)
                     (view as ViewGroup).removeView(editText)
                     requireActivity().findViewById<ViewGroup>(
@@ -142,7 +142,7 @@ class FragmentFocusTest {
                     ).addView(editText)
                 }
 
-                override fun onAnimationEnd(animation: Animator?) {
+                override fun onAnimationEnd(animation: Animator) {
                     endAnimationCountDownLatch.countDown()
                 }
             })
@@ -166,7 +166,7 @@ class FragmentFocusTest {
 
             val animator = ValueAnimator.ofFloat(0f, 1f).setDuration(1)
             animator.addListener(object : AnimatorListenerAdapter() {
-                override fun onAnimationEnd(animation: Animator?) {
+                override fun onAnimationEnd(animation: Animator) {
                     endAnimationCountDownLatch.countDown()
                 }
             })

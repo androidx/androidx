@@ -16,52 +16,79 @@
 
 package androidx.wear.watchface.complications.datasource.samples
 
-import androidx.wear.watchface.complications.datasource.ComplicationDataSourceService
-import androidx.wear.watchface.complications.datasource.ComplicationRequest
+import androidx.wear.watchface.complications.data.ComplicationData
 import androidx.wear.watchface.complications.data.ComplicationText
 import androidx.wear.watchface.complications.data.ComplicationType
 import androidx.wear.watchface.complications.data.LongTextComplicationData
 import androidx.wear.watchface.complications.data.ShortTextComplicationData
+import androidx.wear.watchface.complications.datasource.ComplicationDataSourceService
+import androidx.wear.watchface.complications.datasource.ComplicationRequest
+import java.time.ZonedDateTime
 
-/** A minimal complication data source which reports the ID of the complication immediately. */
+/**
+ * A minimal immediate complication data source. Typically this would be used to surface sensor
+ * data rather than the time.
+ */
 class SynchronousDataSourceService : ComplicationDataSourceService() {
 
     override fun onComplicationRequest(
         request: ComplicationRequest,
         listener: ComplicationRequestListener
     ) {
+        val time = ZonedDateTime.now()
         listener.onComplicationData(
-            when (request.complicationType) {
-                ComplicationType.SHORT_TEXT ->
-                    ShortTextComplicationData.Builder(
-                        plainText("# ${request.complicationInstanceId}"),
-                        ComplicationText.EMPTY
-                    ).build()
+            if (request.immediateResponseRequired) {
+                // Return different data to illustrate responseNeededSoon is true.
+                when (request.complicationType) {
+                    ComplicationType.SHORT_TEXT ->
+                        ShortTextComplicationData.Builder(
+                            plainText("S ${time.second}"),
+                            ComplicationText.EMPTY
+                        ).build()
 
-                ComplicationType.LONG_TEXT ->
-                    LongTextComplicationData.Builder(
-                        plainText("hello ${request.complicationInstanceId}"),
-                        ComplicationText.EMPTY
-                    ).build()
+                    ComplicationType.LONG_TEXT ->
+                        LongTextComplicationData.Builder(
+                            plainText("Secs ${time.second}"),
+                            ComplicationText.EMPTY
+                        ).build()
 
-                else -> null
+                    else -> null
+                }
+            } else {
+                when (request.complicationType) {
+                    ComplicationType.SHORT_TEXT ->
+                        ShortTextComplicationData.Builder(
+                            plainText("M ${time.minute}"),
+                            ComplicationText.EMPTY
+                        ).build()
+
+                    ComplicationType.LONG_TEXT ->
+                        LongTextComplicationData.Builder(
+                            plainText("Mins ${time.minute}"),
+                            ComplicationText.EMPTY
+                        ).build()
+
+                    else -> null
+                }
             }
         )
     }
 
-    override fun getPreviewData(type: ComplicationType) = when (type) {
-        ComplicationType.SHORT_TEXT ->
-            ShortTextComplicationData.Builder(
-                plainText("# 123"),
-                ComplicationText.EMPTY
-            ).build()
+    override fun getPreviewData(type: ComplicationType): ComplicationData? {
+        return when (type) {
+            ComplicationType.SHORT_TEXT ->
+                ShortTextComplicationData.Builder(
+                    plainText("S 10"),
+                    ComplicationText.EMPTY
+                ).build()
 
-        ComplicationType.LONG_TEXT ->
-            LongTextComplicationData.Builder(
-                plainText("hello 123"),
-                ComplicationText.EMPTY
-            ).build()
+            ComplicationType.LONG_TEXT ->
+                LongTextComplicationData.Builder(
+                    plainText("Secs 10"),
+                    ComplicationText.EMPTY
+                ).build()
 
-        else -> null
+            else -> null
+        }
     }
 }

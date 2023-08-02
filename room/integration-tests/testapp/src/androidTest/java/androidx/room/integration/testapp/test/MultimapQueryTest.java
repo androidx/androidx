@@ -964,7 +964,7 @@ public class MultimapQueryTest {
                 mMusicDao.getAllAlbumCoverYearToArtistsWithLongSparseArray();
 
         assertThat(imageToArtistsMap.size()).isEqualTo(2);
-        assertThat(imageToArtistsMap.get(1)).isEqualTo(mRhcp);
+        assertThat(imageToArtistsMap.get(2006L)).isEqualTo(mRhcp);
     }
 
     @Test
@@ -976,8 +976,8 @@ public class MultimapQueryTest {
                 mMusicDao.getAllAlbumCoverYearToArtistsWithIntSparseArray();
 
         assertThat(imageToArtistsMap.size()).isEqualTo(2);
-        assertThat(imageToArtistsMap.get(1)).isEqualTo(mRhcp);
-        assertThat(imageToArtistsMap.get(4)).isEqualTo(mPinkFloyd);
+        assertThat(imageToArtistsMap.get(2006)).isEqualTo(mRhcp);
+        assertThat(imageToArtistsMap.get(1973)).isEqualTo(mPinkFloyd);
     }
 
     @Test

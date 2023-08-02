@@ -312,6 +312,7 @@ class AppSignatureVerifier {
          * @throws AppSignatureVerifierException if the specified package is not found, or if the
          * {@code SigningInfo} is not returned for the package.
          */
+        @SuppressWarnings("deprecation")
         static AppSigningInfo getAppSigningInfo(PackageManager packageManager,
                 String packageName) throws AppSignatureVerifierException {
             PackageInfo packageInfo;

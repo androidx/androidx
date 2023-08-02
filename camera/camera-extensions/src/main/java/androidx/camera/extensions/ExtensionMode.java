@@ -20,7 +20,6 @@ import androidx.annotation.IntDef;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.camera.core.Camera;
-import androidx.camera.core.CameraProvider;
 import androidx.camera.core.CameraSelector;
 
 import java.lang.annotation.Retention;
@@ -33,15 +32,30 @@ import java.lang.annotation.RetentionPolicy;
 public final class ExtensionMode {
     /** Normal mode without any specific effect applied. */
     public static final int NONE = 0;
-    /** Makes foreground people sharper when photos are taken in portrait mode. */
+    /**
+     * Bokeh mode blurs the background of a photo. It is generally intended for taking portrait
+     * photos of people like what would be produced by a camera with a large lens.
+     */
     public static final int BOKEH = 1;
-    /** Takes photos with different AE settings to generate the best result. */
+    /**
+     * HDR mode takes photos that keep a larger range of scene illumination levels visible in the
+     * final image. For example, when taking a picture of an object in front of a bright window,
+     * both the object and the scene through the window may be visible when using HDR mode, while
+     * in normal mode, one or the other may be poorly exposed. As a tradeoff, HDR mode generally
+     * takes much longer to capture a single image, has no user control, and may have other
+     * artifacts depending on the HDR method used.
+     */
     public static final int HDR = 2;
     /** Gets the best still images under low-light situations, typically at night time. */
     public static final int NIGHT = 3;
     /** Retouches face skin tone, geometry and so on when taking still images. */
     public static final int FACE_RETOUCH = 4;
-    /** Automatically adjusts the final image with the surrounding scenery. */
+    /** Automatically adjusts the final image with the surrounding scenery. For example, the
+     * vendor library implementation might do the low light detection and can switch to low light
+     * mode or HDR to take the picture. Or the face retouch mode can be automatically applied
+     * when taking a portrait image. This delegates modes to the vendor library implementation to
+     * decide.
+     */
     public static final int AUTO = 5;
 
     /**
@@ -49,7 +63,7 @@ public final class ExtensionMode {
      *
      * <p>Not all devices and cameras support the different extension modes. To query whether or
      * not a specific Camera supports an extension mode use
-     * {@link ExtensionsInfo#isExtensionAvailable(CameraProvider, CameraSelector, int)}.
+     * {@link ExtensionsManager#isExtensionAvailable(CameraSelector, int)}.
      *
      * @hide
      */

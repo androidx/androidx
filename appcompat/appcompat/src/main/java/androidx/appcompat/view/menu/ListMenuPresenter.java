@@ -196,6 +196,7 @@ public class ListMenuPresenter implements MenuPresenter, AdapterView.OnItemClick
         outState.putSparseParcelableArray(VIEWS_TAG, viewStates);
     }
 
+    @SuppressWarnings("deprecation")
     public void restoreHierarchyState(Bundle inState) {
         SparseArray<Parcelable> viewStates = inState.getSparseParcelableArray(VIEWS_TAG);
         if (viewStates != null) {

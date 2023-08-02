@@ -21,16 +21,16 @@ package androidx.camera.camera2.pipe.core
 
 import androidx.annotation.GuardedBy
 import androidx.annotation.RequiresApi
-import kotlinx.coroutines.CancellableContinuation
-import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.suspendCancellableCoroutine
-import kotlinx.atomicfu.atomic
+import androidx.camera.camera2.pipe.core.TokenLock.Token
 import java.io.Closeable
 import java.util.ArrayDeque
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.math.min
-import kotlin.io.use
+import kotlinx.atomicfu.atomic
+import kotlinx.coroutines.CancellableContinuation
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.suspendCancellableCoroutine
 
 /**
  * Provides fair access to a resources by acquiring and releasing variable sized [Token] objects.

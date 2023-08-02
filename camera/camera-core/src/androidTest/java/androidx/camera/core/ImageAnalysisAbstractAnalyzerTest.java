@@ -31,6 +31,7 @@ import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 
 import android.graphics.Matrix;
+import android.graphics.Rect;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -164,6 +165,8 @@ public class ImageAnalysisAbstractAnalyzerTest {
         verify(mAnalyzer).analyze(imageProxyArgumentCaptor.capture());
         assertThat(imageProxyArgumentCaptor.getValue().getFormat()).isEqualTo(YUV_420_888);
         assertThat(imageProxyArgumentCaptor.getValue().getPlanes().length).isEqualTo(3);
+        assertThat(imageProxyArgumentCaptor.getValue().getCropRect()).isEqualTo(
+                new Rect(0, 0, WIDTH, HEIGHT));
     }
 
     @Test
@@ -183,6 +186,8 @@ public class ImageAnalysisAbstractAnalyzerTest {
         verify(mAnalyzer).analyze(imageProxyArgumentCaptor.capture());
         assertThat(imageProxyArgumentCaptor.getValue().getFormat()).isEqualTo(RGBA_8888);
         assertThat(imageProxyArgumentCaptor.getValue().getPlanes().length).isEqualTo(1);
+        assertThat(imageProxyArgumentCaptor.getValue().getCropRect()).isEqualTo(
+                new Rect(0, 0, WIDTH, HEIGHT));
     }
 
     @SdkSuppress(minSdkVersion = 23)
@@ -277,6 +282,8 @@ public class ImageAnalysisAbstractAnalyzerTest {
                 WIDTH, HEIGHT, HEIGHT, WIDTH, 90));
         assertThat(imageProxyArgumentCaptor.getValue().getImageInfo()
                 .getSensorToBufferTransformMatrix()).isEqualTo(target);
+        assertThat(imageProxyArgumentCaptor.getValue().getCropRect())
+                .isEqualTo(new Rect(0, 0, HEIGHT, WIDTH));
 
         assertThat(mImageAnalysisAbstractAnalyzer.getRGBConverterBuffer()).isNotNull();
         assertThat(mImageAnalysisAbstractAnalyzer.getYRotatedBuffer()).isNull();

@@ -16,36 +16,88 @@
 -->
 
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:padding="16dp">
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_height="wrap_content"
+    android:layout_width="match_parent">
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:padding="16dp">
 
-    <EditText
+        <EditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="EditText"/>
+
+        <AutoCompleteTextView
+                android:id="@+id/widgets_autocompletetextview"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="AutoCompleteTextView"/>
+
+        <MultiAutoCompleteTextView
+                android:id="@+id/widgets_multiautocompletetextview"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="MultiAutoCompleteTextView"/>
+
+        <CheckedTextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="CheckedTextView"
+                android:checked="true"
+                android:checkMark="?android:listChoiceIndicatorMultiple"/>
+
+        <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="EditText"/>
+            android:text="Input type demos"
+            />
 
-    <AutoCompleteTextView
-            android:id="@+id/widgets_autocompletetextview"
+        <androidx.appcompat.widget.AppCompatEditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="AutoCompleteTextView"/>
+            android:hint="android:inputType=number android:digits=01234"
+            android:inputType="number"
+            android:digits="01234"
+            />
 
-    <MultiAutoCompleteTextView
-            android:id="@+id/widgets_multiautocompletetextview"
+        <androidx.appcompat.widget.AppCompatEditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="MultiAutoCompleteTextView"/>
+            android:hint="android:inputType=numberDecimal android:digits=01234,"
+            android:inputType="numberDecimal"
+            android:digits="01234,"
+            />
 
-    <CheckedTextView
+        <androidx.appcompat.widget.AppCompatEditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="CheckedTextView"
-            android:checked="true"
-            android:checkMark="?android:listChoiceIndicatorMultiple"/>
+            android:hint="android:inputType=datetime"
+            android:inputType="datetime"
+            />
 
-</LinearLayout>
+        <androidx.appcompat.widget.AppCompatEditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="android:inputType=date"
+            android:inputType="date"
+            />
 
+        <androidx.appcompat.widget.AppCompatEditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="android:inputType=phone"
+            android:inputType="phone"
+            />
 
+        <androidx.appcompat.widget.AppCompatEditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="android:inputType=textPassword"
+            android:inputType="textPassword"
+            />
+    </LinearLayout>
+</ScrollView>

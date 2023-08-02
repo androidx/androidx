@@ -1,6 +1,7 @@
 package androidx.health.services.client.impl.event
 
 import android.os.Parcelable
+import androidx.annotation.RestrictTo
 import androidx.health.services.client.data.ProtoParcelable
 import androidx.health.services.client.impl.response.PassiveMonitoringUpdateResponse
 import androidx.health.services.client.proto.EventsProto.PassiveCallbackEvent as EventProto
@@ -10,6 +11,7 @@ import androidx.health.services.client.proto.EventsProto.PassiveCallbackEvent as
  *
  * @hide
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class PassiveCallbackEvent(public override val proto: EventProto) :
     ProtoParcelable<EventProto>() {
 

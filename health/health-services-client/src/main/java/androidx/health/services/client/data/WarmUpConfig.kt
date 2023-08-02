@@ -19,82 +19,42 @@ package androidx.health.services.client.data
 import android.os.Parcelable
 import androidx.health.services.client.proto.DataProto
 
-/** Defines configuration for an exercise tracked using HealthServices. */
-@Suppress("DataClassPrivateConstructor", "ParcelCreator")
-public class WarmUpConfig
-protected constructor(
-    /**
-     * [ExerciseType] the user is performing for this exercise.
-     *
-     * This information can be used to tune sensors, e.g. the calories estimate can take the MET
-     * value into account.
-     */
+/**
+ * Defines configuration for an exercise tracked using Health Services.
+ *
+ * @constructor Creates a new WarmUpConfig for an exercise tracked using Health Services
+ *
+ * @property exerciseType The active [ExerciseType] user is performing for this exercise
+ * @property dataTypes [DeltaDataType]s which should be tracked during this exercise
+ */
+@Suppress("ParcelCreator")
+public class WarmUpConfig(
     public val exerciseType: ExerciseType,
-    public val dataTypes: Set<DataType>,
+    public val dataTypes: Set<DeltaDataType<*, *>>,
 ) : ProtoParcelable<DataProto.WarmUpConfig>() {
 
     internal constructor(
         proto: DataProto.WarmUpConfig
     ) : this(
         ExerciseType.fromProto(proto.exerciseType),
-        proto.dataTypesList.map { DataType(it) }.toSet(),
+        proto.dataTypesList.map { DataType.deltaFromProto(it) }.toSet(),
     )
 
     init {
         require(dataTypes.isNotEmpty()) { "Must specify the desired data types." }
     }
 
-    /** Builder for [WarmUpConfig] instances. */
-    public class Builder {
-        private var exerciseType: ExerciseType? = null
-        private var dataTypes: Set<DataType>? = null
-
-        /**
-         * Sets the active [ExerciseType] the user is performing for this exercise.
-         *
-         * Provide this parameter when tracking a workout to provide more accurate data. This
-         * information can be used to tune sensors, e.g. the calories estimate can take the MET
-         * value into account.
-         */
-        public fun setExerciseType(exerciseType: ExerciseType): Builder {
-            require(exerciseType != ExerciseType.UNKNOWN) { "Must specify a valid exercise type." }
-            this.exerciseType = exerciseType
-            return this
-        }
-
-        /**
-         * Sets the requested [DataType]s that should be tracked during this exercise. If not
-         * explicitly called, a default set of [DataType] will be chosen based on the [ExerciseType]
-         * .
-         */
-        public fun setDataTypes(dataTypes: Set<DataType>): Builder {
-            this.dataTypes = dataTypes.toSet()
-            return this
-        }
-
-        /** Returns the built `WarmUpConfig`. */
-        public fun build(): WarmUpConfig {
-            return WarmUpConfig(
-                checkNotNull(exerciseType) { "No exercise type specified" },
-                checkNotNull(dataTypes) { "No data types specified" },
-            )
-        }
-    }
-
     /** @hide */
-    override val proto: DataProto.WarmUpConfig by lazy {
+    override val proto: DataProto.WarmUpConfig =
         DataProto.WarmUpConfig.newBuilder()
             .setExerciseType(exerciseType.toProto())
             .addAllDataTypes(dataTypes.map { it.proto })
             .build()
-    }
 
     override fun toString(): String =
         "WarmUpConfig(exerciseType=$exerciseType, dataTypes=$dataTypes)"
 
     public companion object {
-        @JvmStatic public fun builder(): Builder = Builder()
-
         @JvmField
         public val CREATOR: Parcelable.Creator<WarmUpConfig> = newCreator { bytes ->
             val proto = DataProto.WarmUpConfig.parseFrom(bytes)

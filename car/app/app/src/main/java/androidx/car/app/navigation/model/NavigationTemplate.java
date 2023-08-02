@@ -332,12 +332,18 @@ public final class NavigationTemplate implements Template {
         /**
          * Sets an {@link ActionStrip} with a list of template-scoped actions for this template.
          *
+         * <p>The {@link Action} buttons in Map Based Template are automatically adjusted based
+         * on the screen size. On narrow width screen, icon {@link Action}s show by
+         * default. If no icon specify, showing title {@link Action}s instead. On wider width
+         * screen, title {@link Action}s show by default. If no title specify, showing icon
+         * {@link Action}s instead.
+         *
          * <h4>Requirements</h4>
          *
-         * Besides {@link Action#APP_ICON} and {@link Action#BACK}, this template requires at
-         * least 1 and up to 4 {@link Action}s in its {@link ActionStrip}. Of the 4 allowed
-         * {@link Action}s, only one can contain a title as set via
-         * {@link Action.Builder#setTitle}. Otherwise, only {@link Action}s with icons are allowed.
+         * This template allows up to 4 {@link Action}s in its {@link ActionStrip}. Of the 4
+         * allowed {@link Action}s, it can either be a title {@link Action} as set via
+         * {@link Action.Builder#setTitle}, or a icon {@link Action} as set via
+         * {@link Action.Builder#setIcon}.
          *
          * @throws IllegalArgumentException if {@code actionStrip} does not meet the template's
          *                                  requirements

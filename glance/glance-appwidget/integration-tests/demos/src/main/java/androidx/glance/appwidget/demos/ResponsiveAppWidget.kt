@@ -23,19 +23,21 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
+import androidx.glance.Button
+import androidx.glance.ButtonColors
+import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
 import androidx.glance.LocalSize
 import androidx.glance.action.ActionParameters
-import androidx.glance.action.ActionRunnable
 import androidx.glance.action.actionParametersOf
-import androidx.glance.action.actionUpdateContent
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
 import androidx.glance.appwidget.SizeMode
+import androidx.glance.appwidget.action.ActionCallback
+import androidx.glance.appwidget.action.actionRunCallback
 import androidx.glance.background
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.Box
-import androidx.glance.layout.Button
 import androidx.glance.layout.Column
 import androidx.glance.layout.Row
 import androidx.glance.layout.fillMaxSize
@@ -43,6 +45,7 @@ import androidx.glance.layout.padding
 import androidx.glance.layout.size
 import androidx.glance.text.TextAlign
 import androidx.glance.text.TextStyle
+import androidx.glance.unit.ColorProvider
 
 /**
  * Sample AppWidget that showcase the Responsive SizeMode changing its content to Row, Column or Box
@@ -81,7 +84,7 @@ class ResponsiveAppWidget : GlanceAppWidget() {
     }
 }
 
-private val KEY_ITEM_CLICKED = ActionParameters.Key<String>("name")
+private val ItemClickedKey = ActionParameters.Key<String>("name")
 
 private val parentModifier = GlanceModifier
     .fillMaxSize()
@@ -151,22 +154,30 @@ private fun ContentItem(
         Button(
             text = text,
             modifier = GlanceModifier.fillMaxSize().padding(8.dp).background(color),
+            colors = ButtonColors(
+                backgroundColor = ColorProvider(color),
+                contentColor = ColorProvider(Color.White)
+            ),
             style = textStyle ?: TextStyle(textAlign = TextAlign.Center),
-            onClick = actionUpdateContent<ResponsiveAction>(
+            onClick = actionRunCallback<ResponsiveAction>(
                 actionParametersOf(
-                    KEY_ITEM_CLICKED to text
+                    ItemClickedKey to text
                 )
             )
         )
     }
 }
 
-class ResponsiveAction : ActionRunnable {
-    override suspend fun run(context: Context, parameters: ActionParameters) {
+class ResponsiveAction : ActionCallback {
+    override suspend fun onAction(
+        context: Context,
+        glanceId: GlanceId,
+        parameters: ActionParameters
+    ) {
         Handler(context.mainLooper).post {
             Toast.makeText(
                 context,
-                "Item clicked: ${parameters[KEY_ITEM_CLICKED]}",
+                "Item clicked: ${parameters[ItemClickedKey]}",
                 Toast.LENGTH_SHORT
             ).show()
         }

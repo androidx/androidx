@@ -22,6 +22,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.versionedparcelable.ParcelField;
 import androidx.versionedparcelable.ParcelUtils;
@@ -34,7 +35,7 @@ import androidx.wear.watchface.data.DeviceConfig;
  *
  * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @VersionedParcelize
 @SuppressLint("BanParcelableUsage") // TODO(b/169214666): Remove Parcelable
 public class HeadlessWatchFaceInstanceParams implements VersionedParcelable, Parcelable {
@@ -57,9 +58,15 @@ public class HeadlessWatchFaceInstanceParams implements VersionedParcelable, Par
     @ParcelField(4)
     int mHeight;
 
+    /** The id of the watchface. */
+    @ParcelField(5)
+    String mInstanceId = null;
+
     /** Used by VersionedParcelable. */
     HeadlessWatchFaceInstanceParams() {}
 
+    /** @deprecated Use the other constructor instead. */
+    @Deprecated
     public HeadlessWatchFaceInstanceParams(
             @NonNull ComponentName watchFaceName,
             @NonNull DeviceConfig deviceConfig,
@@ -69,6 +76,20 @@ public class HeadlessWatchFaceInstanceParams implements VersionedParcelable, Par
         mDeviceConfig = deviceConfig;
         mWidth = width;
         mHeight = height;
+        mInstanceId = null;
+    }
+
+    public HeadlessWatchFaceInstanceParams(
+            @NonNull ComponentName watchFaceName,
+            @NonNull DeviceConfig deviceConfig,
+            int width,
+            int height,
+            @Nullable String instanceId) {
+        mWatchFaceName = watchFaceName;
+        mDeviceConfig = deviceConfig;
+        mWidth = width;
+        mHeight = height;
+        mInstanceId = instanceId;
     }
 
     @NonNull
@@ -89,6 +110,11 @@ public class HeadlessWatchFaceInstanceParams implements VersionedParcelable, Par
         return mHeight;
     }
 
+    @Nullable
+    public String getInstanceId() {
+        return mInstanceId;
+    }
+
     /** Serializes this InteractiveWatchFaceInstanceParams to the specified {@link Parcel}. */
     @Override
     public void writeToParcel(@NonNull Parcel parcel, int flags) {
@@ -102,6 +128,7 @@ public class HeadlessWatchFaceInstanceParams implements VersionedParcelable, Par
 
     public static final Parcelable.Creator<HeadlessWatchFaceInstanceParams> CREATOR =
             new Parcelable.Creator<HeadlessWatchFaceInstanceParams>() {
+                @SuppressWarnings("deprecation")
                 @Override
                 public HeadlessWatchFaceInstanceParams createFromParcel(Parcel source) {
                     return ParcelUtils.fromParcelable(

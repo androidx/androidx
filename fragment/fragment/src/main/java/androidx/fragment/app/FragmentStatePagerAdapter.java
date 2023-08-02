@@ -309,6 +309,7 @@ public abstract class FragmentStatePagerAdapter extends PagerAdapter {
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     public void restoreState(@Nullable Parcelable state, @Nullable ClassLoader loader) {
         if (state != null) {
             Bundle bundle = (Bundle)state;

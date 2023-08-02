@@ -131,6 +131,7 @@ public abstract class ActivityResultRegistry {
         }
         LifecycleEventObserver observer = new LifecycleEventObserver() {
             @Override
+            @SuppressWarnings("deprecation")
             public void onStateChanged(
                     @NonNull LifecycleOwner lifecycleOwner,
                     @NonNull Lifecycle.Event event) {
@@ -208,6 +209,7 @@ public abstract class ActivityResultRegistry {
      * @return a launcher that can be used to execute an ActivityResultContract.
      */
     @NonNull
+    @SuppressWarnings("deprecation")
     public final <I, O> ActivityResultLauncher<I> register(
             @NonNull final String key,
             @NonNull final ActivityResultContract<I, O> contract,
@@ -240,7 +242,12 @@ public abstract class ActivityResultRegistry {
                             + "before calling launch().");
                 }
                 mLaunchedKeys.add(key);
-                onLaunch(innerCode, contract, input, options);
+                try {
+                    onLaunch(innerCode, contract, input, options);
+                } catch (Exception e) {
+                    mLaunchedKeys.remove(key);
+                    throw e;
+                }
             }
 
             @Override
@@ -263,6 +270,7 @@ public abstract class ActivityResultRegistry {
      * @param key the unique key used when registering a callback.
      */
     @MainThread
+    @SuppressWarnings("deprecation")
     final void unregister(@NonNull String key) {
         if (!mLaunchedKeys.contains(key)) {
             // Only remove the key -> requestCode mapping if there isn't a launch in flight
@@ -311,6 +319,7 @@ public abstract class ActivityResultRegistry {
      *
      * @param savedInstanceState the place to restore from
      */
+    @SuppressWarnings("deprecation")
     public final void onRestoreInstanceState(@Nullable Bundle savedInstanceState) {
         if (savedInstanceState == null) {
             return;

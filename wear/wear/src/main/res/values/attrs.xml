@@ -275,6 +275,7 @@
             <enum name="center" value="1" />
             <enum name="inner" value="2" />
         </attr>
+        <attr name="layout_weight" format="float" />
     </declare-styleable>
 
     <declare-styleable name="ArcLayout">

@@ -33,11 +33,6 @@ const val TEST_FAILURES_DO_NOT_FAIL_TEST_TASK = "androidx.ignoreTestFailures"
 const val DISPLAY_TEST_OUTPUT = "androidx.displayTestOutput"
 
 /**
- * Setting this property turns javac and kotlinc warnings into errors that fail the build.
- */
-const val ALL_WARNINGS_AS_ERRORS = "androidx.allWarningsAsErrors"
-
-/**
  * Setting this property changes "url" property in publishing maven artifact metadata
  */
 const val ALTERNATIVE_PROJECT_URL = "androidx.alternativeProjectUrl"
@@ -106,6 +101,12 @@ const val PLAYGROUND_METALAVA_BUILD_ID = "androidx.playground.metalavaBuildId"
 const val PLAYGROUND_DOKKA_BUILD_ID = "androidx.playground.dokkaBuildId"
 
 /**
+ * Filepath to the java agent of YourKit for profiling
+ * If this value is set, profiling via YourKit will automatically be enabled
+ */
+const val PROFILE_YOURKIT_AGENT_PATH = "androidx.profile.yourkitAgentPath"
+
+/**
  * Specifies to validate that the build doesn't generate any unrecognized messages
  * This prevents developers from inadvertently adding new warnings to the build output
  */
@@ -124,22 +125,12 @@ const val VERIFY_UP_TO_DATE = "androidx.verifyUpToDate"
 const val KMP_GITHUB_BUILD = "androidx.github.build"
 
 /**
- * If true, include mac targets when building KMP
+ * If true, don't require lint-checks project to exist.  This should only be set in
+ * integration tests, to allow them to save time by not configuring extra projects.
  */
-const val KMP_ENABLE_MAC = "androidx.kmp.mac.enabled"
-
-/**
- * If true, include js targets when building KMP
- */
-const val KMP_ENABLE_JS = "androidx.kmp.js.enabled"
-
-/**
- * If true, include linux targets when building KMP
- */
-const val KMP_ENABLE_LINUX = "androidx.kmp.linux.enabled"
+const val ALLOW_MISSING_LINT_CHECKS_PROJECT = "androidx.allow.missing.lint"
 
 val ALL_ANDROIDX_PROPERTIES = setOf(
-    ALL_WARNINGS_AS_ERRORS,
     ALTERNATIVE_PROJECT_URL,
     VERSION_EXTRA_CHECK_ENABLED,
     VALIDATE_PROJECT_STRUCTURE,
@@ -161,10 +152,10 @@ val ALL_ANDROIDX_PROPERTIES = setOf(
     PLAYGROUND_SNAPSHOT_BUILD_ID,
     PLAYGROUND_METALAVA_BUILD_ID,
     PLAYGROUND_DOKKA_BUILD_ID,
+    PROFILE_YOURKIT_AGENT_PATH,
     KMP_GITHUB_BUILD,
-    KMP_ENABLE_MAC,
-    KMP_ENABLE_JS,
-    KMP_ENABLE_LINUX
+    ENABLED_KMP_TARGET_PLATFORMS,
+    ALLOW_MISSING_LINT_CHECKS_PROJECT
 )
 
 /**
@@ -181,13 +172,13 @@ fun Project.getAlternativeProjectUrl(): String? =
  * (version is in format major.minor.patch-extra)
  */
 fun Project.isVersionExtraCheckEnabled(): Boolean =
-    (project.findProperty(VERSION_EXTRA_CHECK_ENABLED) as? String)?.toBoolean() ?: true
+    findBooleanProperty(VERSION_EXTRA_CHECK_ENABLED) ?: true
 
 /**
  * Validate the project structure against Jetpack guidelines
  */
 fun Project.isValidateProjectStructureEnabled(): Boolean =
-    (project.findProperty(VALIDATE_PROJECT_STRUCTURE) as? String)?.toBoolean() ?: true
+    findBooleanProperty(VALIDATE_PROJECT_STRUCTURE) ?: true
 
 /**
  * Validates that all properties passed by the user of the form "-Pandroidx.*" are not misspelled
@@ -215,8 +206,7 @@ fun Project.validateAllAndroidxArgumentsAreRecognized() {
  * results aren't considered build failures, and instead pass their test failures on via build
  * artifacts to be tracked and displayed on test dashboards in a different format
  */
-fun Project.isDisplayTestOutput(): Boolean =
-    (project.findProperty(DISPLAY_TEST_OUTPUT) as? String)?.toBoolean() ?: true
+fun Project.isDisplayTestOutput(): Boolean = findBooleanProperty(DISPLAY_TEST_OUTPUT) ?: true
 
 /**
  * Returns whether the project should write versioned API files, e.g. `1.1.0-alpha01.txt`.
@@ -226,7 +216,7 @@ fun Project.isDisplayTestOutput(): Boolean =
  * is `true`.
  */
 fun Project.isWriteVersionedApiFilesEnabled(): Boolean =
-    (project.findProperty(WRITE_VERSIONED_API_FILES) as? String)?.toBoolean() ?: true
+    findBooleanProperty(WRITE_VERSIONED_API_FILES) ?: true
 
 /**
  * Returns whether the project should generate documentation.
@@ -240,8 +230,17 @@ fun Project.isDocumentationEnabled(): Boolean {
 }
 
 /**
- * Returns whether the build is for checking forward compatibility across projets
+ * Returns whether the build is for checking forward compatibility across projects
  */
 fun Project.usingMaxDepVersions(): Boolean {
     return project.hasProperty(USE_MAX_DEP_VERSIONS)
 }
+
+/**
+ * Returns whether this is an integration test that is allowing lint checks to be skipped to
+ * save configuration time.
+ */
+fun Project.allowMissingLintProject() =
+    findBooleanProperty(ALLOW_MISSING_LINT_CHECKS_PROJECT) ?: false
+
+fun Project.findBooleanProperty(propName: String) = (findProperty(propName) as? String)?.toBoolean()

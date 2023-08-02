@@ -1,0 +1,36 @@
+import org.jetbrains.kotlin.gradle.plugin.mpp.BitcodeEmbeddingMode
+
+plugins {
+    id("AndroidXPlugin")
+}
+
+androidXMultiplatform {
+  sourceSets {
+  }
+
+  /// b/243154573
+  jvm()
+
+  ios {
+    compilations.main {
+      cinterops {
+        xcTestInterop {
+          defFile project.file("src/nativeInterop/cinterop/xcTestInterop.def")
+          // https://youtrack.jetbrains.com/issue/KT-48807#focus=Comments-27-5210791.0-0
+          compilerOpts("-DNS_FORMAT_ARGUMENT(A)=")
+        }
+      }
+    }
+    binaries.framework {
+      baseName = "AndroidXBenchmarkXCTest"
+      embedBitcode = BitcodeEmbeddingMode.DISABLE
+    }
+  }
+}
+
+androidx {
+    name = "Android Benchmark - Darwin Core"
+    mavenGroup = LibraryGroups.BENCHMARK
+    inceptionYear = "2022"
+    description = "Android Benchmark - Darwin Core"
+}

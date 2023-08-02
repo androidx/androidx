@@ -1,0 +1,51 @@
+// Baseline format: 1.0
+ArrayReturn: androidx.test.uiautomator.UiDevice#swipe(android.graphics.Point[], int) parameter #0:
+    Method parameter should be Collection<Point> (or subclass) instead of raw array; was `android.graphics.Point[]`
+
+
+MissingNullability: androidx.test.uiautomator.UiAutomatorInstrumentationTestRunner#getAndroidTestRunner():
+    Missing nullability on method `getAndroidTestRunner` return
+MissingNullability: androidx.test.uiautomator.UiAutomatorInstrumentationTestRunner#initializeUiAutomatorTest(androidx.test.uiautomator.UiAutomatorTestCase) parameter #0:
+    Missing nullability on parameter `test` in method `initializeUiAutomatorTest`
+MissingNullability: androidx.test.uiautomator.UiAutomatorTestCase#getParams():
+    Missing nullability on method `getParams` return
+MissingNullability: androidx.test.uiautomator.UiAutomatorTestCase#getUiDevice():
+    Missing nullability on method `getUiDevice` return
+MissingNullability: androidx.test.uiautomator.UiDevice#findObject(androidx.test.uiautomator.BySelector):
+    Missing nullability on method `findObject` return
+MissingNullability: androidx.test.uiautomator.UiDevice#getCurrentPackageName():
+    Missing nullability on method `getCurrentPackageName` return
+MissingNullability: androidx.test.uiautomator.UiDevice#getLastTraversedText():
+    Missing nullability on method `getLastTraversedText` return
+MissingNullability: androidx.test.uiautomator.UiDevice#getLauncherPackageName():
+    Missing nullability on method `getLauncherPackageName` return
+MissingNullability: androidx.test.uiautomator.UiObject2#findObject(androidx.test.uiautomator.BySelector):
+    Missing nullability on method `findObject` return
+MissingNullability: androidx.test.uiautomator.UiObject2#getApplicationPackage():
+    Missing nullability on method `getApplicationPackage` return
+MissingNullability: androidx.test.uiautomator.UiObject2#getClassName():
+    Missing nullability on method `getClassName` return
+MissingNullability: androidx.test.uiautomator.UiObject2#getContentDescription():
+    Missing nullability on method `getContentDescription` return
+MissingNullability: androidx.test.uiautomator.UiObject2#getParent():
+    Missing nullability on method `getParent` return
+MissingNullability: androidx.test.uiautomator.UiObject2#getResourceName():
+    Missing nullability on method `getResourceName` return
+MissingNullability: androidx.test.uiautomator.UiObject2#getText():
+    Missing nullability on method `getText` return
+
+
+PercentageInt: androidx.test.uiautomator.UiScrollable#getSwipeDeadZonePercentage():
+    Percentage must use ints, was `double` in `getSwipeDeadZonePercentage`
+
+
+ReferencesDeprecated: androidx.test.uiautomator.UiAutomatorInstrumentationTestRunner#getAndroidTestRunner():
+    Return type of deprecated type android.test.AndroidTestRunner in androidx.test.uiautomator.UiAutomatorInstrumentationTestRunner.getAndroidTestRunner(): this method should also be deprecated
+ReferencesDeprecated: androidx.test.uiautomator.UiAutomatorInstrumentationTestRunner#initializeUiAutomatorTest(androidx.test.uiautomator.UiAutomatorTestCase):
+    Parameter of deprecated type androidx.test.uiautomator.UiAutomatorTestCase in androidx.test.uiautomator.UiAutomatorInstrumentationTestRunner.initializeUiAutomatorTest(): this method should also be deprecated
+
+
+StreamFiles: androidx.test.uiautomator.UiDevice#takeScreenshot(java.io.File):
+    Methods accepting `File` should also accept `FileDescriptor` or streams: method androidx.test.uiautomator.UiDevice.takeScreenshot(java.io.File)
+StreamFiles: androidx.test.uiautomator.UiDevice#takeScreenshot(java.io.File, float, int):
+    Methods accepting `File` should also accept `FileDescriptor` or streams: method androidx.test.uiautomator.UiDevice.takeScreenshot(java.io.File,float,int)

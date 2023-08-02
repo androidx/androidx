@@ -16,6 +16,15 @@
  * limitations under the License.
  */
 
+/**
+ * To run .kts files, follow these steps:
+ *
+ * 1. Download and install the Kotlin compiler (kotlinc). There are several ways to do this; see
+ *    https://kotlinlang.org/docs/command-line.html
+ * 2. Run the script from the command line:
+ *    <path_to>/kotlinc -script <script_file>.kts <arguments>
+ */
+
 @file:Repository("https://repo1.maven.org/maven2")
 @file:DependsOn("junit:junit:4.11")
 
@@ -31,18 +40,18 @@ import java.io.StringReader
 import javax.xml.parsers.DocumentBuilderFactory
 import kotlin.system.exitProcess
 
-if (args[0] == "test") {
-    runTests()
-    println("All tests passed")
-    exitProcess(0)
-}
-
 if (args.isEmpty()) {
     println("Expected space-delimited list of files. Consider parsing all baselines with:")
     println("  ./<path-to-script> `find . -name lint-baseline.xml`")
     println("Also, consider updating baselines before running the script using:")
-    println("  ./gradlew lintDebug -PupdateLintBaseline --continue")
+    println("  ./gradlew updateLintBaseline --continue")
     exitProcess(1)
+}
+
+if (args[0] == "test") {
+    runTests()
+    println("All tests passed")
+    exitProcess(0)
 }
 
 val missingFiles = args.filter { arg -> !File(arg).exists() }

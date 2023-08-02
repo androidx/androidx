@@ -45,8 +45,8 @@ public class TrackingVisibility extends Visibility implements TargetTracking {
     }
 
     @Override
-    public Animator onAppear(ViewGroup sceneRoot, View view, TransitionValues startValues,
-            TransitionValues endValues) {
+    public Animator onAppear(@NonNull ViewGroup sceneRoot, @NonNull View view,
+            TransitionValues startValues, TransitionValues endValues) {
         mEnteringTargets.add(endValues.view);
         Rect epicenter = getEpicenter();
         if (epicenter != null) {
@@ -81,8 +81,8 @@ public class TrackingVisibility extends Visibility implements TargetTracking {
     }
 
     @Override
-    public Animator onDisappear(ViewGroup sceneRoot, View view, TransitionValues startValues,
-            TransitionValues endValues) {
+    public Animator onDisappear(@NonNull ViewGroup sceneRoot, @NonNull View view,
+            TransitionValues startValues, TransitionValues endValues) {
         mExitingTargets.add(startValues.view);
         Rect epicenter = getEpicenter();
         if (epicenter != null) {

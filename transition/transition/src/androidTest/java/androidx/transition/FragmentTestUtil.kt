@@ -31,7 +31,6 @@ import androidx.transition.test.R
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import java.lang.ref.WeakReference
-import java.util.ArrayList
 
 fun FragmentTransaction.setReorderingAllowed(
     reorderingAllowed: ReorderingAllowed

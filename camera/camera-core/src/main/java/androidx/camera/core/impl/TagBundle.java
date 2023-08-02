@@ -16,6 +16,7 @@
 
 package androidx.camera.core.impl;
 
+import android.hardware.camera2.CaptureRequest;
 import android.util.ArrayMap;
 import android.util.Pair;
 
@@ -40,6 +41,9 @@ public class TagBundle {
 
     private static final TagBundle EMPTY_TAGBUNDLE = new TagBundle(new ArrayMap<>());
 
+    private static final String USER_TAG_PREFIX = "android.hardware.camera2.CaptureRequest.setTag.";
+
+    private static final String CAMERAX_USER_TAG_PREFIX = USER_TAG_PREFIX + "CX";
     /**
      * Creates an empty TagBundle.
      *
@@ -100,5 +104,25 @@ public class TagBundle {
     @NonNull
     public Set<String> listKeys() {
         return mTagMap.keySet();
+    }
+
+    /**
+     * Produces a string that can be used to identify CameraX usage in a Camera2
+     * {@link CaptureRequest}.
+     *
+     * <p>In Android 13 or later, Camera2 will log the string representation of any
+     * tag set on {@link CaptureRequest.Builder#setTag(Object)}. Since
+     * tag bundles are always set internally by CameraX as the tag in a capture
+     * request, the constant string value returned here can be used to identify
+     * usage of CameraX versus application usage of Camera2.
+     *
+     * <p>Note: Doesn't return an actual string representation of the tag bundle.
+     *
+     * @return Returns a constant string value used to identify usage of CameraX.
+     */
+    @NonNull
+    @Override
+    public final String toString() {
+        return CAMERAX_USER_TAG_PREFIX;
     }
 }

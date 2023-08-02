@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
-import androidx.build.LibraryVersions
 import androidx.build.Publish
 
 plugins {
@@ -27,15 +25,15 @@ plugins {
 
 dependencies {
     implementation(libs.kotlinStdlib)
+    implementation("androidx.core:core:1.7.0")
 
-    api "androidx.annotation:annotation:1.1.0"
+    api "androidx.annotation:annotation:1.2.0"
 
     testImplementation(libs.testRules)
     testImplementation(libs.testRunner)
     testImplementation(libs.junit)
 
-    androidTestImplementation("androidx.core:core:1.5.0-rc02")
-    androidTestImplementation(project(":compose:ui:ui-test-font"))
+    androidTestImplementation(project(":internal-testutils-fonts"))
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.testExtJunit)
@@ -56,4 +54,12 @@ androidx {
     inceptionYear = "2020"
     description = "Text primitives and utilities"
     legacyDisableKotlinStrictApiMode = true
+}
+
+androidxCompose {
+    composeCompilerPluginEnabled = false
+}
+
+android {
+    namespace "androidx.compose.ui.text.android"
 }

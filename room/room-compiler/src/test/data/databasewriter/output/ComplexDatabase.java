@@ -62,7 +62,7 @@ public final class ComplexDatabase_Impl extends ComplexDatabase {
             }
 
             @Override
-            protected void onCreate(SupportSQLiteDatabase _db) {
+            public void onCreate(SupportSQLiteDatabase _db) {
                 if (mCallbacks != null) {
                     for (int _i = 0, _size = mCallbacks.size(); _i < _size; _i++) {
                         mCallbacks.get(_i).onCreate(_db);
@@ -91,7 +91,7 @@ public final class ComplexDatabase_Impl extends ComplexDatabase {
             }
 
             @Override
-            protected RoomOpenHelper.ValidationResult onValidateSchema(SupportSQLiteDatabase _db) {
+            public RoomOpenHelper.ValidationResult onValidateSchema(SupportSQLiteDatabase _db) {
                 final HashMap<String, TableInfo.Column> _columnsUser = new HashMap<String, TableInfo.Column>(4);
                 _columnsUser.put("uid", new TableInfo.Column("uid", "INTEGER", true, 1, null, TableInfo.CREATED_FROM_ENTITY));
                 _columnsUser.put("name", new TableInfo.Column("name", "TEXT", false, 0, null, TableInfo.CREATED_FROM_ENTITY));

@@ -26,6 +26,7 @@ import androidx.room.integration.kotlintestapp.vo.Publisher
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.base.Optional
+import com.google.common.truth.Truth
 import io.reactivex.Flowable
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subscribers.TestSubscriber
@@ -45,6 +46,18 @@ import java.util.Date
 
 @MediumTest
 class BooksDaoTest : TestDatabaseTest() {
+
+    @Test
+    fun addPublisherIdError() {
+        // the following would cause Unique constraint fail and would not return -1
+        // booksDao.addPublishers(TestUtil.PUBLISHER2)
+        val publisherList = buildList<Publisher> {
+            add(TestUtil.PUBLISHER)
+            add(TestUtil.PUBLISHER2)
+        }
+        val result = booksDao.addPublisherReturnArray(publisherList)
+        assertEquals(result[1], 2)
+    }
 
     @Test
     fun bookById() {
@@ -412,6 +425,16 @@ class BooksDaoTest : TestDatabaseTest() {
         runBlocking {
             assertEquals("", booksDao.concreteSuspendFunction())
             assertEquals("2 - hi", booksDao.concreteSuspendFunctionWithParams(2, "hi"))
+        }
+    }
+
+    @Test
+    fun multimapDataClassKey() {
+        booksDao.addPublishers(TestUtil.PUBLISHER)
+        booksDao.addBooks(TestUtil.BOOK_1)
+
+        booksDao.getBooksByPublisher().let { result ->
+            Truth.assertThat(result[TestUtil.PUBLISHER]).containsExactly(TestUtil.BOOK_1)
         }
     }
 }

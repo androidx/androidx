@@ -36,10 +36,14 @@ import androidx.room.vo.CallType
 import androidx.room.vo.Constructor
 import androidx.room.vo.EmbeddedField
 import androidx.room.vo.Field
+import androidx.room.vo.FieldGetter
+import androidx.room.vo.FieldSetter
 import androidx.room.vo.Pojo
 import androidx.room.vo.RelationCollector
+import com.google.common.truth.Truth
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.TypeName
+import java.io.File
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.CoreMatchers.instanceOf
 import org.hamcrest.CoreMatchers.not
@@ -52,7 +56,6 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import org.mockito.Mockito.doReturn
 import org.mockito.Mockito.mock
-import java.io.File
 
 /**
  * Some of the functionality is tested via TableEntityProcessor.
@@ -327,16 +330,8 @@ class PojoProcessorTest {
                 int embeddedPrimitive;
                 """
         ) { _, invocation ->
-            if (invocation.isKsp) {
-                // there are no primitives in KSP so this won't work. Instead, it will fail
-                // because we cannot find a constructor for `int`
-                invocation.assertCompilationResult {
-                    hasErrorContaining(MISSING_POJO_CONSTRUCTOR)
-                }
-            } else {
-                invocation.assertCompilationResult {
-                    hasErrorContaining(ProcessorErrors.EMBEDDED_TYPES_MUST_BE_A_CLASS_OR_INTERFACE)
-                }
+            invocation.assertCompilationResult {
+                hasErrorContaining(ProcessorErrors.EMBEDDED_TYPES_MUST_BE_A_CLASS_OR_INTERFACE)
             }
         }
     }
@@ -478,22 +473,8 @@ class PojoProcessorTest {
                 public long user;
                 """
         ) { _, invocation ->
-            if (invocation.isKsp) {
-                // in KSP, there are no primitives so `long` (kotlin.Long) will still look like a
-                // class but then we'll fail because it doesn't hvae a `uid` column
-                invocation.assertCompilationResult {
-                    hasErrorContaining(
-                        relationCannotFindEntityField(
-                            entityName = "java.lang.Long",
-                            columnName = "uid",
-                            availableColumns = emptyList()
-                        )
-                    )
-                }
-            } else {
-                invocation.assertCompilationResult {
-                    hasErrorContaining(ProcessorErrors.RELATION_TYPE_MUST_BE_A_CLASS_OR_INTERFACE)
-                }
+            invocation.assertCompilationResult {
+                hasErrorContaining(ProcessorErrors.RELATION_TYPE_MUST_BE_A_CLASS_OR_INTERFACE)
             }
         }
     }
@@ -2084,6 +2065,95 @@ class PojoProcessorTest {
         }
     }
 
+    @Test
+    fun setterStartsWithIs() {
+        runProcessorTest(
+            listOf(
+                Source.kotlin(
+                    "Book.kt",
+                    """
+                    package foo.bar;
+                    data class Book(
+                        var isbn: String
+                    ) {
+                        var isbn2: String? = null
+                    }
+                    """
+                )
+            )
+        ) { invocation ->
+            val result = PojoProcessor.createFor(
+                context = invocation.context,
+                element = invocation.processingEnv.requireTypeElement("foo.bar.Book"),
+                bindingScope = FieldProcessor.BindingScope.READ_FROM_CURSOR,
+                parent = null
+            ).process()
+            val fields = result.fields.associateBy {
+                it.name
+            }
+            val stringType = invocation.context.COMMON_TYPES.STRING
+            Truth.assertThat(
+                fields["isbn"]?.getter
+            ).isEqualTo(
+                FieldGetter(
+                    jvmName = "getIsbn",
+                    type = stringType,
+                    callType = CallType.METHOD
+                )
+            )
+            Truth.assertThat(
+                fields["isbn"]?.setter
+            ).isEqualTo(
+                FieldSetter(
+                    jvmName = "isbn",
+                    type = stringType,
+                    callType = CallType.CONSTRUCTOR
+                )
+            )
+
+            Truth.assertThat(
+                fields["isbn2"]?.getter
+            ).isEqualTo(
+                FieldGetter(
+                    jvmName = "getIsbn2",
+                    type = stringType.makeNullable(),
+                    callType = CallType.METHOD
+                )
+            )
+            Truth.assertThat(
+                fields["isbn2"]?.setter
+            ).isEqualTo(
+                FieldSetter(
+                    jvmName = "setIsbn2",
+                    type = stringType.makeNullable(),
+                    callType = CallType.METHOD
+                )
+            )
+        }
+    }
+
+    @Test
+    fun embedded_nullability() {
+        listOf(
+            TestData.SomeEmbeddedVals::class.java.canonicalName!!
+        ).forEach {
+            runProcessorTest { invocation ->
+                val result = PojoProcessor.createFor(
+                    context = invocation.context,
+                    element = invocation.processingEnv.requireTypeElement(it),
+                    bindingScope = FieldProcessor.BindingScope.READ_FROM_CURSOR,
+                    parent = null
+                ).process()
+
+                val embeddedFields = result.embeddedFields
+
+                assertThat(embeddedFields.size, `is`(2))
+                assertThat(embeddedFields[0].nonNull, `is`(true))
+                assertThat(embeddedFields[1].nonNull, `is`(false))
+            }
+        }
+    }
+
     private fun singleRun(
         code: String,
         vararg sources: Source,
@@ -2159,6 +2229,18 @@ class PojoProcessorTest {
             val lastName: String = "",
             var number: Int = 0,
             var bit: Boolean
+        )
+
+        data class AllNullableVals(
+            val name: String?,
+            val number: Int?,
+            val bit: Boolean?
+        )
+
+        data class SomeEmbeddedVals(
+            val id: String,
+            @Embedded(prefix = "non_nullable_") val nonNullableVal: AllNullableVals,
+            @Embedded(prefix = "nullable_") val nullableVal: AllNullableVals?
         )
     }
 }

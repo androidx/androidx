@@ -20,6 +20,7 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.graphics.Rect;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
@@ -96,6 +97,7 @@ public final class Insets {
      * @param b The subtrahend; the value which will be subtracted from {@code a}.
      * @return a - b, i. e. all insets on every side are subtracted from each other.
      */
+    @SuppressWarnings("unused")
     @NonNull
     public static Insets subtract(@NonNull Insets a, @NonNull Insets b) {
         return Insets.of(a.left - b.left, a.top - b.top, a.right - b.right, a.bottom - b.bottom);
@@ -136,6 +138,7 @@ public final class Insets {
      * @param o the object to compare this instance with.
      * @return true iff this object is equal {@code o}
      */
+    @SuppressWarnings("RedundantIfStatement")
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -160,6 +163,7 @@ public final class Insets {
         return result;
     }
 
+    @NonNull
     @Override
     public String toString() {
         return "Insets{left=" + left + ", top=" + top
@@ -192,9 +196,21 @@ public final class Insets {
      * Return a copy this instance, converted to be an {@link android.graphics.Insets} instance
      * from the platform.
      */
-    @RequiresApi(api = 29)
+    @RequiresApi(29)
     @NonNull
     public android.graphics.Insets toPlatformInsets() {
-        return android.graphics.Insets.of(left, top, right, bottom);
+        return Api29Impl.of(left, top, right, bottom);
+    }
+
+    @RequiresApi(29)
+    static class Api29Impl {
+        private Api29Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static android.graphics.Insets of(int left, int top, int right, int bottom) {
+            return android.graphics.Insets.of(left, top, right, bottom);
+        }
     }
 }

@@ -20,7 +20,9 @@ import android.content.Context;
 import android.os.Build;
 import android.os.UserManager;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 
 /**
  * Helper for accessing features in {@link android.os.UserManager} in a backwards compatible
@@ -39,10 +41,21 @@ public class UserManagerCompat {
      */
     public static boolean isUserUnlocked(@NonNull Context context) {
         if (Build.VERSION.SDK_INT >= 24) {
-            return context.getSystemService(UserManager.class).isUserUnlocked();
+            return Api24Impl.isUserUnlocked(context);
         } else {
             return true;
         }
     }
 
+    @RequiresApi(24)
+    static class Api24Impl {
+        private Api24Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static boolean isUserUnlocked(Context context) {
+            return context.getSystemService(UserManager.class).isUserUnlocked();
+        }
+    }
 }

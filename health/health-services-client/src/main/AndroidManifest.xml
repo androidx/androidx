@@ -11,7 +11,21 @@
   See the License for the specific language governing permissions and
   limitations under the License.
   -->
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="androidx.health.services.client">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <queries>
+        <package android:name="com.google.android.wearable.healthservices" />
+    </queries>
+
+    <application>
+        <service
+            android:name="androidx.health.services.client.VersionApiService"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="hs.versionclient.BIND" />
+            </intent-filter>
+        </service>
+    </application>
+
 </manifest>
 

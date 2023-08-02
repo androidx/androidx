@@ -28,10 +28,10 @@ import androidx.camera.core.UseCase
 import androidx.camera.core.impl.DeferrableSurface
 import androidx.camera.core.impl.SessionConfig
 import androidx.camera.core.impl.utils.futures.Futures
+import androidx.concurrent.futures.await
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
-import kotlinx.coroutines.guava.await
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull

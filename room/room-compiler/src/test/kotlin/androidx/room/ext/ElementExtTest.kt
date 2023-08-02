@@ -208,7 +208,7 @@ class ElementExtTest(
                 }
             val method = element.getDeclaredMethods()
                 .first {
-                    it.name == "method"
+                    it.jvmName == "method"
                 }
             assertThat(field.type.typeName).isEqualTo(TypeName.INT)
             assertThat(method.returnType.typeName).isEqualTo(TypeName.INT)
@@ -261,13 +261,13 @@ class ElementExtTest(
     private fun XTestInvocation.objectMethodNames(): List<String> {
         return processingEnv.requireTypeElement("java.lang.Object")
             .getAllMethods().map {
-                it.name
+                it.jvmName
             }.toList() - "registerNatives"
     }
 
-    private fun List<XMethodElement>.names() = map { it.name }
+    private fun List<XMethodElement>.names() = map { it.jvmName }
 
-    private fun Sequence<XMethodElement>.names() = map { it.name }.toList()
+    private fun Sequence<XMethodElement>.names() = map { it.jvmName }.toList()
 
     companion object {
         @JvmStatic

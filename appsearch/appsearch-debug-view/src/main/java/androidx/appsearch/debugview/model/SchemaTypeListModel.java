@@ -90,7 +90,7 @@ public class SchemaTypeListModel extends ViewModel {
      */
     @NonNull
     private LiveData<GetSchemaResponse> getSchema() {
-        Futures.addCallback(mDebugAppSearchManager.getSchema(),
+        Futures.addCallback(mDebugAppSearchManager.getSchemaAsync(),
                 new FutureCallback<GetSchemaResponse>() {
                     @Override
                     public void onSuccess(GetSchemaResponse result) {

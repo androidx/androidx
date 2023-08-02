@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
 import androidx.build.Publish
 
 plugins {
@@ -31,6 +30,7 @@ android {
     }
 
     testOptions.unitTests.includeAndroidResources = true
+    namespace "androidx.enterprise.feedback.testing"
 }
 androidx {
     name = "Enterprise Feedback Testing"

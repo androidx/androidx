@@ -23,11 +23,14 @@ import android.os.Build;
 import android.view.DragAndDropPermissions;
 import android.view.DragEvent;
 
+import androidx.annotation.DoNotInline;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 
 /**
- * Helper for accessing features in {@link android.view.DragAndDropPermissions} a backwards
+ * Helper for accessing features in {@link DragAndDropPermissions} a backwards
  * compatible fashion.
  *
  * <p>
@@ -37,19 +40,20 @@ import androidx.annotation.RestrictTo;
  * </p>
  */
 public final class DragAndDropPermissionsCompat {
-    private Object mDragAndDropPermissions;
+    private final DragAndDropPermissions mDragAndDropPermissions;
 
-    private DragAndDropPermissionsCompat(Object dragAndDropPermissions) {
+    private DragAndDropPermissionsCompat(DragAndDropPermissions dragAndDropPermissions) {
         mDragAndDropPermissions = dragAndDropPermissions;
     }
 
     /** @hide */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Nullable
-    public static DragAndDropPermissionsCompat request(Activity activity, DragEvent dragEvent) {
+    public static DragAndDropPermissionsCompat request(@NonNull Activity activity,
+            @NonNull DragEvent dragEvent) {
         if (Build.VERSION.SDK_INT >= 24) {
             DragAndDropPermissions dragAndDropPermissions =
-                    activity.requestDragAndDropPermissions(dragEvent);
+                    Api24Impl.requestDragAndDropPermissions(activity, dragEvent);
             if (dragAndDropPermissions != null) {
                 return new DragAndDropPermissionsCompat(dragAndDropPermissions);
             }
@@ -62,7 +66,25 @@ public final class DragAndDropPermissionsCompat {
      */
     public void release() {
         if (Build.VERSION.SDK_INT >= 24) {
-            ((DragAndDropPermissions) mDragAndDropPermissions).release();
+            Api24Impl.release(mDragAndDropPermissions);
+        }
+    }
+
+    @RequiresApi(24)
+    static class Api24Impl {
+        private Api24Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static DragAndDropPermissions requestDragAndDropPermissions(Activity activity,
+                DragEvent event) {
+            return activity.requestDragAndDropPermissions(event);
+        }
+
+        @DoNotInline
+        static void release(DragAndDropPermissions dragAndDropPermissions) {
+            dragAndDropPermissions.release();
         }
     }
 }

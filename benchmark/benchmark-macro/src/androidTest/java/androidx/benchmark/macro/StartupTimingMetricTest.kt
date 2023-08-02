@@ -219,12 +219,10 @@ internal fun measureStartup(
     startupMode: StartupMode,
     measureBlock: () -> Unit
 ): IterationResult {
-    val wrapper = PerfettoCaptureWrapper()
     val metric = StartupTimingMetric()
     metric.configure(packageName)
-    val tracePath = wrapper.record(
+    val tracePath = PerfettoCaptureWrapper().record(
         benchmarkName = packageName,
-        iteration = 1,
         // note - packageName may be this package, so we convert to set then list to make unique
         // and on API 23 and below, we use reflection to trace instead within this process
         packages = if (Build.VERSION.SDK_INT >= 24 && packageName != Packages.TEST) {

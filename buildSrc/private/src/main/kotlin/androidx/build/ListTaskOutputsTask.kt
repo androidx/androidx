@@ -16,6 +16,7 @@
 
 package androidx.build
 
+import java.io.File
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.Project
@@ -24,11 +25,12 @@ import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
-import java.io.File
+import org.gradle.work.DisableCachingByDefault
 
 /**
  * Finds the outputs of every task and saves this mapping into a file
  */
+@DisableCachingByDefault(because = "Uses too many inputs to be feasible to cache, but runs quickly")
 abstract class ListTaskOutputsTask : DefaultTask() {
     @OutputFile
     val outputFile: Property<File> = project.objects.property(File::class.java)
@@ -40,6 +42,9 @@ abstract class ListTaskOutputsTask : DefaultTask() {
     init {
         group = "Help"
         outputs.upToDateWhen { false }
+        notCompatibleWithConfigurationCache(
+            "This task uses project object to inspect outputs of all tasks"
+        )
     }
 
     fun setOutput(f: File) {
@@ -106,14 +111,7 @@ val taskNamesKnownToDuplicateOutputs = setOf(
     "jarDebug",
     "kotlinSourcesJar",
     "releaseSourcesJar",
-    "sourceJar",
-    // Can remove "lint" after AGP 7.1.0-alpha05.
-    "lint",
-    "lintReport",
-    "lintFix",
-    // Can remove "lintVital" after AGP 7.1.0-alpha05.
-    "lintVital",
-    "lintVitalReport",
+    "sourceJarRelease",
     "sourceJar",
     // MPP plugin has issues with modules using withJava() clause, see b/158747039.
     "processTestResources",
@@ -126,14 +124,20 @@ val taskNamesKnownToDuplicateOutputs = setOf(
     "generateDebugProtos",
     "generateReleaseProtos",
     // Release APKs
-    "copyReleaseApk"
+    "copyReleaseApk",
+)
+
+val taskTypesKnownToDuplicateOutputs = setOf(
+    // b/224564238
+    "com.android.build.gradle.internal.lint.AndroidLintTask_Decorated"
 )
 
 fun shouldValidateTaskOutput(task: Task): Boolean {
     if (!task.enabled) {
         return false
     }
-    return !taskNamesKnownToDuplicateOutputs.contains(task.name)
+    return !taskNamesKnownToDuplicateOutputs.contains(task.name) &&
+        !taskTypesKnownToDuplicateOutputs.contains(task::class.qualifiedName)
 }
 
 // For this project and all subprojects, collects all tasks and creates a map keyed by their output files

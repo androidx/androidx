@@ -62,7 +62,8 @@ internal class SyntheticProcessorImpl(
             override fun annotations(): Set<String> = setOf("*")
             override fun process(
                 env: XProcessingEnv,
-                elementsByAnnotation: Map<String, Set<XElement>>
+                elementsByAnnotation: Map<String, Set<XElement>>,
+                isLastRound: Boolean
             ): Set<XTypeElement> = emptySet()
         }
     )

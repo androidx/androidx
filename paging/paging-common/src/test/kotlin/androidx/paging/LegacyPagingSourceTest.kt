@@ -324,7 +324,7 @@ class LegacyPagingSourceTest {
                 pagingData.flow.filter {
                     it is PageEvent.Insert
                 }.first()
-                pagingData.receiver.refresh()
+                pagingData.uiReceiver.refresh()
             }
         }
         // validate method calls (to ensure test did run as expected) and their threads.

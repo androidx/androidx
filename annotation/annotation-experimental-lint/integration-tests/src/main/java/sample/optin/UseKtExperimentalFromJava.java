@@ -109,6 +109,16 @@ class UseKtExperimentalFromJava {
     }
 
     /**
+     * Unsafe references to experimental properties.
+     */
+    void unsafePropertyUsage() {
+        new AnnotatedKotlinMembers().setField(-1);
+        int value = new AnnotatedKotlinMembers().getField();
+        new AnnotatedKotlinMembers().setFieldWithSetMarker(-1);
+        int value2 = new AnnotatedKotlinMembers().getFieldWithSetMarker(); // safe
+    }
+
+    /**
      * Safe usage due to opting in to experimental annotation.
      */
     @OptIn(markerClass = ExperimentalKotlinAnnotation.class)

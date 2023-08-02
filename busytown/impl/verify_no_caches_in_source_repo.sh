@@ -76,5 +76,4 @@ Generated files should go in OUT_DIR instead because that is where developers ex
     exit 1
   fi
 }
-echo checking compared to $COMPARE_TO_FILE
 checkForGeneratedFilesInSourceRepo

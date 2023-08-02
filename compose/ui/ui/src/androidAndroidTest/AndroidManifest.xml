@@ -13,14 +13,17 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="androidx.compose.ui">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <application
         android:supportsRtl="true"
         >
         <activity
             android:name="androidx.compose.ui.test.TestActivity"
             android:theme="@android:style/Theme.Material.NoActionBar.Fullscreen" />
+        <activity
+            android:name="androidx.compose.ui.window.ActivityWithInsets"
+            android:windowSoftInputMode="adjustResize"
+            android:theme="@android:style/Theme.Material.Light.NoActionBar" />
         <activity
             android:name="androidx.compose.ui.input.pointer.AndroidPointerInputTestActivity" />
         <activity android:name="androidx.appcompat.app.AppCompatActivity"

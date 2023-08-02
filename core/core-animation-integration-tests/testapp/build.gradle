@@ -29,3 +29,7 @@ dependencies {
     implementation(libs.testCore, excludes.espresso)
     implementation(libs.testRules, excludes.espresso)
 }
+
+android {
+    namespace "androidx.core.animation.testapp"
+}

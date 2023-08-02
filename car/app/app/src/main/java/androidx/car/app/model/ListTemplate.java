@@ -350,11 +350,11 @@ public final class ListTemplate implements Template {
          * host will ignore any items over that limit. Each {@link Row}s can add up to 2 lines of
          * texts via {@link Row.Builder#addText}.
          *
-         * <p>Either a header {@link Action} or the title must be set on the template.
+         * <p>If none of the header {@link Action}, the header title or the action strip have been
+         * set on the template, the header is hidden.
          *
          * @throws IllegalStateException    if the template is in a loading state but there are
-         *                                  lists added or vice versa, or if the template does
-         *                                  not have either a title or header {@link Action} set
+         *                                  lists added or vice versa
          * @throws IllegalArgumentException if the added {@link ItemList}(s) do not meet the
          *                                  template's requirements
          * @see androidx.car.app.constraints.ConstraintManager#getContentLimit(int)
@@ -373,10 +373,6 @@ public final class ListTemplate implements Template {
                 } else if (mSingleList != null) {
                     ROW_LIST_CONSTRAINTS_FULL_LIST.validateOrThrow(mSingleList);
                 }
-            }
-
-            if (CarText.isNullOrEmpty(mTitle) && mHeaderAction == null) {
-                throw new IllegalStateException("Either the title or header action must be set");
             }
 
             return new ListTemplate(this);

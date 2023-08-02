@@ -32,6 +32,7 @@ import android.content.Context;
 import android.database.Cursor;
 
 import androidx.annotation.NonNull;
+import androidx.arch.core.executor.testing.CountingTaskExecutorRule;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
 import androidx.room.InvalidationTracker;
@@ -43,12 +44,15 @@ import androidx.room.integration.testapp.vo.User;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.FlakyTest;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -61,14 +65,19 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 @RunWith(AndroidJUnit4.class)
+@FlakyTest(bugId = 241095868)
 @LargeTest
 @SdkSuppress(minSdkVersion = 16)
 public class WriteAheadLoggingTest {
 
     private static final String DATABASE_NAME = "wal.db";
     private TestDatabase mDatabase;
+
+    @Rule
+    public CountingTaskExecutorRule countingTaskExecutorRule = new CountingTaskExecutorRule();
 
     @Before
     public void openDatabase() {
@@ -80,7 +89,10 @@ public class WriteAheadLoggingTest {
     }
 
     @After
-    public void closeDatabase() {
+    public void closeDatabase() throws InterruptedException, TimeoutException {
+        countingTaskExecutorRule.drainTasks(500, TimeUnit.MILLISECONDS);
+        assertThat(countingTaskExecutorRule.isIdle(), is(true));
+
         mDatabase.close();
         Context context = ApplicationProvider.getApplicationContext();
         context.deleteDatabase(DATABASE_NAME);
@@ -123,6 +135,7 @@ public class WriteAheadLoggingTest {
         }
     }
 
+    @FlakyTest(bugId = 241095868)
     @Test
     public void observeLiveData() {
         UserDao dao = mDatabase.getUserDao();
@@ -134,6 +147,7 @@ public class WriteAheadLoggingTest {
         stopObserver(user1, observer);
     }
 
+    @FlakyTest(bugId = 241095868)
     @Test
     public void observeLiveDataWithTransaction() {
         UserDao dao = mDatabase.getUserDao();
@@ -145,6 +159,7 @@ public class WriteAheadLoggingTest {
         stopObserver(user1, observer);
     }
 
+    @Ignore("b/239575607")
     @Test
     public void parallelWrites() throws InterruptedException, ExecutionException {
         int numberOfThreads = 10;

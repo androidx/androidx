@@ -17,7 +17,7 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="indeterminate" msgid="2486394087603402002">"Ni marcada ni desmarcada"</string>
+    <string name="indeterminate" msgid="7933458017204019916">"Marcat parcialment"</string>
     <string name="on" msgid="8655164131929253426">"Activat"</string>
     <string name="off" msgid="875452955155264703">"Desactivat"</string>
     <string name="selected" msgid="6043586758067023">"Seleccionat"</string>
@@ -31,4 +31,6 @@
     <string name="close_sheet" msgid="7573152094250666567">"Tanca el full"</string>
     <string name="default_error_message" msgid="8038256446254964252">"L\'entrada no és vàlida"</string>
     <string name="default_popup_window_title" msgid="6312721426453364202">"Finestra emergent"</string>
+    <string name="range_start" msgid="7097486360902471446">"Inici de l\'interval"</string>
+    <string name="range_end" msgid="5941395253238309765">"Fi de l\'interval"</string>
 </resources>

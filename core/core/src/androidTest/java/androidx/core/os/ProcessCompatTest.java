@@ -16,20 +16,25 @@
 
 package androidx.core.os;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import android.os.Process;
 
+import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 
 import org.junit.Test;
 
 @SmallTest
+@SdkSuppress(minSdkVersion = 16)
 public class ProcessCompatTest {
 
     @Test
     public void testIsApplicationUid() {
         assertTrue("Test process is an application",
                 ProcessCompat.isApplicationUid(Process.myUid()));
+        assertFalse("Test process is not an application",
+                ProcessCompat.isApplicationUid(1000));
     }
 }

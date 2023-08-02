@@ -16,9 +16,13 @@
 package androidx.window.layout
 
 import android.graphics.Rect
+import android.os.Build.VERSION_CODES
+import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.annotation.RestrictTo.Scope.TESTS
+import androidx.core.view.WindowInsetsCompat
 import androidx.window.core.Bounds
+import androidx.window.core.ExperimentalWindowApi
 
 /**
  * Metrics about a [android.view.Window], consisting of its bounds.
@@ -29,15 +33,18 @@ import androidx.window.core.Bounds
  *
  * @see WindowMetricsCalculator
  */
-public class WindowMetrics internal constructor(private val _bounds: Bounds) {
+public class WindowMetrics internal constructor
+    (private val _bounds: Bounds, private val _windowInsetsCompat: WindowInsetsCompat) {
 
     /**
      * An internal constructor for [WindowMetrics]
      * @suppress
      */
     @RestrictTo(TESTS)
-    public constructor(bounds: Rect) : this(Bounds(bounds))
-
+    public constructor(
+        bounds: Rect,
+        insets: WindowInsetsCompat = WindowInsetsCompat.Builder().build()
+        ) : this(Bounds(bounds), insets)
     /**
      * Returns a new [Rect] describing the bounds of the area the window occupies.
      *
@@ -53,17 +60,34 @@ public class WindowMetrics internal constructor(private val _bounds: Bounds) {
         get() = _bounds.toRect()
 
     override fun toString(): String {
-        return "WindowMetrics { bounds: $bounds }"
+        return "WindowMetrics( bounds=$_bounds, windowInsetsCompat=$_windowInsetsCompat)"
     }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (other == null || javaClass != other.javaClass) return false
-        val that = other as WindowMetrics
-        return _bounds == that._bounds
+        if (javaClass != other?.javaClass) return false
+
+        other as WindowMetrics
+
+        if (_bounds != other._bounds) return false
+        if (_windowInsetsCompat != other._windowInsetsCompat) return false
+
+        return true
     }
 
     override fun hashCode(): Int {
-        return _bounds.hashCode()
+        var result = _bounds.hashCode()
+        result = 31 * result + _windowInsetsCompat.hashCode()
+        return result
+    }
+
+    /**
+     * Returns the [WindowInsetsCompat] of the area associated with this window or visual context.
+     */
+    @ExperimentalWindowApi
+    @RequiresApi(VERSION_CODES.R)
+    // TODO (b/238354685): Match interface style of Bounds after the API is fully backported
+    fun getWindowInsets(): WindowInsetsCompat {
+        return _windowInsetsCompat
     }
 }

@@ -18,7 +18,7 @@ package androidx.emoji.text;
 import static androidx.emoji.util.EmojiMatcher.hasEmojiAt;
 import static androidx.emoji.util.EmojiMatcher.hasEmojiCount;
 
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 import android.content.Context;

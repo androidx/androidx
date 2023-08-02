@@ -26,26 +26,14 @@ import androidx.wear.watchface.WatchFace;
 import androidx.wear.watchface.WatchFaceType;
 import androidx.wear.watchface.WatchState;
 import androidx.wear.watchface.style.CurrentUserStyleRepository;
-import androidx.wear.watchface.style.UserStyleSchema;
 
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Collections;
-
 /** The service that defines the watch face. */
 public class WatchFaceService extends ListenableWatchFaceService {
-
-    private TimeStyle mTimeStyle;
-
-    @NonNull
-    @Override
-    protected UserStyleSchema createUserStyleSchema() {
-        mTimeStyle = new TimeStyle(this);
-        return new UserStyleSchema(Collections.singletonList(mTimeStyle.get()));
-    }
 
     @NotNull
     @Override
@@ -55,7 +43,7 @@ public class WatchFaceService extends ListenableWatchFaceService {
             @NonNull CurrentUserStyleRepository currentUserStyleRepository) {
         Renderer renderer =
                 new WatchFaceRenderer(
-                        surfaceHolder, currentUserStyleRepository, watchState, mTimeStyle);
+                        surfaceHolder, currentUserStyleRepository, watchState, getResources());
         WatchFace watchFace = new WatchFace(WatchFaceType.DIGITAL, renderer);
         return Futures.immediateFuture(watchFace);
     }

@@ -16,9 +16,14 @@
 
 package androidx.lifecycle
 
+import android.annotation.SuppressLint
 import android.os.Build
 import androidx.annotation.MainThread
 import androidx.annotation.RequiresApi
+import java.time.Duration
+import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.EmptyCoroutineContext
+import kotlin.experimental.ExperimentalTypeInference
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.DisposableHandle
@@ -27,10 +32,6 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.time.Duration
-import kotlin.coroutines.CoroutineContext
-import kotlin.coroutines.EmptyCoroutineContext
-import kotlin.experimental.ExperimentalTypeInference
 
 internal const val DEFAULT_TIMEOUT = 5000L
 
@@ -94,6 +95,7 @@ internal class LiveDataScopeImpl<T>(
             return@withContext target.emitSource(source)
         }
 
+    @SuppressLint("NullSafeMutableLiveData")
     override suspend fun emit(value: T) = withContext(coroutineContext) {
         target.clearSource()
         target.value = value
@@ -467,4 +469,11 @@ public fun <T> liveData(
     context: CoroutineContext = EmptyCoroutineContext,
     timeout: Duration,
     @BuilderInference block: suspend LiveDataScope<T>.() -> Unit
-): LiveData<T> = CoroutineLiveData(context, timeout.toMillis(), block)
+): LiveData<T> = CoroutineLiveData(context, Api26Impl.toMillis(timeout), block)
+
+@RequiresApi(26)
+internal object Api26Impl {
+    fun toMillis(timeout: Duration): Long {
+        return timeout.toMillis()
+    }
+}

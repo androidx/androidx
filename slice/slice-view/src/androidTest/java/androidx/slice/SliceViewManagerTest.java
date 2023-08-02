@@ -42,6 +42,7 @@ import androidx.slice.render.SliceRenderActivity;
 import androidx.slice.widget.SliceLiveData;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.FlakyTest;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
 
@@ -109,6 +110,7 @@ public class SliceViewManagerTest {
         verify(mSliceProvider, timeout(2000)).onSliceUnpinned(eq(uri));
     }
 
+    @FlakyTest(bugId = 239964752)
     @Test
     public void testPinList() {
         Uri uri = new Uri.Builder()
@@ -210,6 +212,7 @@ public class SliceViewManagerTest {
 
     @Test
     @SdkSuppress(minSdkVersion = 28)
+    @SuppressWarnings("deprecation")
     public void testSuspended() throws PackageManager.NameNotFoundException {
         Uri uri = new Uri.Builder()
                 .scheme(ContentResolver.SCHEME_CONTENT)

@@ -26,6 +26,7 @@ import android.os.Build;
 import android.os.CancellationSignal;
 import android.os.Handler;
 
+import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
@@ -38,6 +39,7 @@ import androidx.core.content.res.FontResourcesParserCompat.ProviderResourceEntry
 import androidx.core.content.res.ResourcesCompat;
 import androidx.core.provider.FontsContractCompat;
 import androidx.core.provider.FontsContractCompat.FontInfo;
+import androidx.core.util.Preconditions;
 
 /**
  * Helper for accessing features in {@link Typeface}.
@@ -75,9 +77,24 @@ public class TypefaceCompat {
      * @hide
      */
     @Nullable
+    @RestrictTo(LIBRARY)
+    public static Typeface findFromCache(@NonNull Resources resources, int id,
+            @Nullable String path, int cookie, int style) {
+        return sTypefaceCache.get(createResourceUid(resources, id, path, cookie, style));
+    }
+
+    /**
+     * Find from internal cache.
+     *
+     * @return null if not found.
+     * @hide
+     * @deprecated Use {@link #findFromCache(Resources, int, String, int, int)} method
+     */
+    @Nullable
     @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @Deprecated
     public static Typeface findFromCache(@NonNull Resources resources, int id, int style) {
-        return sTypefaceCache.get(createResourceUid(resources, id, style));
+        return findFromCache(resources, id, null, 0, style);
     }
 
     /**
@@ -88,8 +105,19 @@ public class TypefaceCompat {
      * @param style style to be used for this resource, -1 if not available.
      * @return Unique id for a given resource and id.
      */
-    private static String createResourceUid(final Resources resources, int id, int style) {
-        return resources.getResourcePackageName(id) + "-" + id + "-" + style;
+    private static String createResourceUid(final Resources resources, int id, String path,
+            int cookie, int style) {
+        return new StringBuilder(
+                resources.getResourcePackageName(id))
+                .append('-')
+                .append(path)
+                .append('-')
+                .append(cookie)
+                .append('-')
+                .append(id)
+                .append('-')
+                .append(style)
+                .toString();
     }
 
     /**
@@ -113,10 +141,11 @@ public class TypefaceCompat {
      * @hide
      */
     @Nullable
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     public static Typeface createFromResourcesFamilyXml(
             @NonNull Context context, @NonNull FamilyResourceEntry entry,
-            @NonNull Resources resources, int id, int style,
+            @NonNull Resources resources, int id, @Nullable String path,
+            int cookie, int style,
             @Nullable ResourcesCompat.FontCallback fontCallback, @Nullable Handler handler,
             boolean isRequestFromLayoutInflator) {
         Typeface typeface;
@@ -157,9 +186,29 @@ public class TypefaceCompat {
             }
         }
         if (typeface != null) {
-            sTypefaceCache.put(createResourceUid(resources, id, style), typeface);
+            sTypefaceCache.put(createResourceUid(resources, id, path, cookie, style), typeface);
         }
         return typeface;
+    }
+
+    /**
+     * Create Typeface from XML resource which root node is font-family.
+     *
+     * @return null if failed to create.
+     * @hide
+     * @deprecated Use {@link #createFromResourcesFamilyXml(Context, FamilyResourceEntry,
+     * Resources, int, String, int, int, ResourcesCompat.FontCallback, Handler, boolean)} method
+     */
+    @Nullable
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @Deprecated
+    public static Typeface createFromResourcesFamilyXml(
+            @NonNull Context context, @NonNull FamilyResourceEntry entry,
+            @NonNull Resources resources, int id, int style,
+            @Nullable ResourcesCompat.FontCallback fontCallback, @Nullable Handler handler,
+            boolean isRequestFromLayoutInflator) {
+        return createFromResourcesFamilyXml(context, entry, resources, id, null, 0, style,
+                fontCallback, handler, isRequestFromLayoutInflator);
     }
 
     /**
@@ -167,17 +216,32 @@ public class TypefaceCompat {
      * @hide
      */
     @Nullable
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     public static Typeface createFromResourcesFontFile(
-            @NonNull Context context, @NonNull Resources resources, int id, String path,
+            @NonNull Context context, @NonNull Resources resources, int id, String path, int cookie,
             int style) {
         Typeface typeface = sTypefaceCompatImpl.createFromResourcesFontFile(
                 context, resources, id, path, style);
         if (typeface != null) {
-            final String resourceUid = createResourceUid(resources, id, style);
+            final String resourceUid = createResourceUid(resources, id, path, cookie, style);
             sTypefaceCache.put(resourceUid, typeface);
         }
         return typeface;
+    }
+
+    /**
+     * Used by Resources to load a font resource of type font file.
+     * @hide
+     * @deprecated Use {@link #createFromResourcesFontFile(Context, Resources, int, String,
+     * int, int)} method
+     */
+    @Nullable
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @Deprecated
+    public static Typeface createFromResourcesFontFile(
+            @NonNull Context context, @NonNull Resources resources, int id, String path,
+            int style) {
+        return createFromResourcesFontFile(context, resources, id, path, 0, style);
     }
 
     /**
@@ -231,6 +295,54 @@ public class TypefaceCompat {
         }
 
         return Typeface.create(family, style);
+    }
+
+    /**
+     * Creates a typeface object that best matches the specified existing typeface and the specified
+     * weight and italic style
+     * <p>Below are numerical values and corresponding common weight names.</p>
+     * <table>
+     * <thead>
+     * <tr><th>Value</th><th>Common weight name</th></tr>
+     * </thead>
+     * <tbody>
+     * <tr><td>100</td><td>Thin</td></tr>
+     * <tr><td>200</td><td>Extra Light</td></tr>
+     * <tr><td>300</td><td>Light</td></tr>
+     * <tr><td>400</td><td>Normal</td></tr>
+     * <tr><td>500</td><td>Medium</td></tr>
+     * <tr><td>600</td><td>Semi Bold</td></tr>
+     * <tr><td>700</td><td>Bold</td></tr>
+     * <tr><td>800</td><td>Extra Bold</td></tr>
+     * <tr><td>900</td><td>Black</td></tr>
+     * </tbody>
+     * </table>
+     *
+     * <p>
+     * This method is thread safe.
+     * </p>
+     *
+     * @param family An existing {@link Typeface} object. In case of {@code null}, the default
+     *               typeface is used instead.
+     * @param weight The desired weight to be drawn.
+     * @param italic {@code true} if italic style is desired to be drawn. Otherwise, {@code false}
+     * @return A {@link Typeface} object for drawing specified weight and italic style. Never
+     *         returns {@code null}
+     *
+     * @see Typeface#getWeight()
+     * @see Typeface#isItalic()
+     */
+    @NonNull
+    public static Typeface create(@NonNull Context context, @Nullable Typeface family,
+            @IntRange(from = 1, to = 1000) int weight, boolean italic) {
+        if (context == null) {
+            throw new IllegalArgumentException("Context cannot be null");
+        }
+        Preconditions.checkArgumentInRange(weight, 1, 1000, "weight");
+        if (family == null) {
+            family = Typeface.DEFAULT;
+        }
+        return sTypefaceCompatImpl.createWeightStyle(context, family, weight, italic);
     }
 
     /**

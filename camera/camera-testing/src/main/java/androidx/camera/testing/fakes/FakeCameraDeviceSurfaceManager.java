@@ -19,7 +19,9 @@ package androidx.camera.testing.fakes;
 import android.util.Size;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.camera.core.impl.AttachedSurfaceInfo;
 import androidx.camera.core.impl.CameraDeviceSurfaceManager;
 import androidx.camera.core.impl.SurfaceConfig;
 import androidx.camera.core.impl.UseCaseConfig;
@@ -34,14 +36,15 @@ public final class FakeCameraDeviceSurfaceManager implements CameraDeviceSurface
 
     public static final Size MAX_OUTPUT_SIZE = new Size(4032, 3024); // 12.2 MP
 
-    private Map<String, Map<Class<? extends UseCaseConfig<?>>, Size>> mDefinedResolutions =
+    private final Map<String, Map<Class<? extends UseCaseConfig<?>>, Size>> mDefinedResolutions =
             new HashMap<>();
 
     /**
      * Sets the given suggested resolutions for the specified camera Id and use case type.
      */
-    public void setSuggestedResolution(String cameraId, Class<? extends UseCaseConfig<?>> type,
-            Size size) {
+    public void setSuggestedResolution(@NonNull String cameraId,
+            @NonNull Class<? extends UseCaseConfig<?>> type,
+            @NonNull Size size) {
         Map<Class<? extends UseCaseConfig<?>>, Size> useCaseConfigTypeToSizeMap =
                 mDefinedResolutions.get(cameraId);
         if (useCaseConfigTypeToSizeMap == null) {
@@ -53,20 +56,26 @@ public final class FakeCameraDeviceSurfaceManager implements CameraDeviceSurface
     }
 
     @Override
-    public boolean checkSupported(String cameraId, List<SurfaceConfig> surfaceConfigList) {
+    public boolean checkSupported(@NonNull String cameraId,
+            @Nullable List<SurfaceConfig> surfaceConfigList) {
         return false;
     }
 
     @Override
-    public SurfaceConfig transformSurfaceConfig(String cameraId, int imageFormat, Size size) {
-        return null;
+    @Nullable
+    public SurfaceConfig transformSurfaceConfig(@NonNull String cameraId, int imageFormat,
+            @NonNull Size size) {
+
+        //returns a placeholder SurfaceConfig
+        return SurfaceConfig.create(SurfaceConfig.ConfigType.PRIV,
+                SurfaceConfig.ConfigSize.PREVIEW);
     }
 
     @Override
     @NonNull
     public Map<UseCaseConfig<?>, Size> getSuggestedResolutions(
             @NonNull String cameraId,
-            @NonNull List<SurfaceConfig> existingSurfaces,
+            @NonNull List<AttachedSurfaceInfo> existingSurfaces,
             @NonNull List<UseCaseConfig<?>> newUseCaseConfigs) {
         Map<UseCaseConfig<?>, Size> suggestedSizes = new HashMap<>();
         for (UseCaseConfig<?> useCaseConfig : newUseCaseConfigs) {

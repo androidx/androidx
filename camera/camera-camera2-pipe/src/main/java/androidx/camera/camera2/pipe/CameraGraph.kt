@@ -16,18 +16,18 @@
 
 package androidx.camera.camera2.pipe
 
-import android.hardware.camera2.CaptureRequest
-import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CameraCaptureSession
 import android.hardware.camera2.CameraConstrainedHighSpeedCaptureSession
-import android.hardware.camera2.params.SessionConfiguration
+import android.hardware.camera2.CameraDevice
+import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.params.MeteringRectangle
+import android.hardware.camera2.params.SessionConfiguration
 import android.view.Surface
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraGraph.Constants3A.DEFAULT_FRAME_LIMIT
 import androidx.camera.camera2.pipe.CameraGraph.Constants3A.DEFAULT_TIME_LIMIT_NS
-import kotlinx.coroutines.Deferred
 import java.io.Closeable
+import kotlinx.coroutines.Deferred
 
 /**
  * A [CameraGraph] represents the combined configuration and state of a camera.
@@ -71,6 +71,7 @@ public interface CameraGraph : Closeable {
 
     /**
      * This defines the configuration, flags, and pre-defined structure of a [CameraGraph] instance.
+     * Note that for parameters, null is considered a valid value, and unset keys are ignored.
      *
      * @param camera The Camera2 [CameraId] that this [CameraGraph] represents.
      * @param streams A list of [CameraStream]s to use when building the configuration.
@@ -89,6 +90,12 @@ public interface CameraGraph : Closeable {
      * @param defaultListeners A default set of listeners that will be added to every [Request].
      * @param requiredParameters Will override any other configured parameter, and can be used
      *   to enforce that specific keys are always set to specific value for every [CaptureRequest].
+     * @param cameraBackendId If defined, this tells the [CameraGraph] to use a specific
+     *   [CameraBackend] to open and operate the camera. The defined [camera] parameter must be a
+     *   camera that can be opened by this [CameraBackend]. If this value is null it will use the
+     *   default backend that has been configured by [CameraPipe].
+     * @param customCameraBackend If defined, this [customCameraBackend] will be created an used for
+     *   _only_ this [CameraGraph]. This cannot be defined if [cameraBackendId] is defined.
      */
     public data class Config(
         val camera: CameraId,
@@ -96,17 +103,25 @@ public interface CameraGraph : Closeable {
         val streamSharingGroups: List<List<CameraStream.Config>> = listOf(),
         val input: InputStream.Config? = null,
         val sessionTemplate: RequestTemplate = RequestTemplate(1),
-        val sessionParameters: Map<CaptureRequest.Key<*>, Any> = emptyMap(),
+        val sessionParameters: Map<*, Any?> = emptyMap<Any, Any?>(),
         val sessionMode: OperatingMode = OperatingMode.NORMAL,
         val defaultTemplate: RequestTemplate = RequestTemplate(1),
-        val defaultParameters: Map<*, Any> = emptyMap<Any, Any>(),
+        val defaultParameters: Map<*, Any?> = emptyMap<Any, Any?>(),
         val defaultListeners: List<Request.Listener> = listOf(),
-        val requiredParameters: Map<Any, Any?> = emptyMap(),
+        val requiredParameters: Map<*, Any?> = emptyMap<Any, Any?>(),
 
+        val cameraBackendId: CameraBackendId? = null,
+        val customCameraBackend: CameraBackendFactory? = null,
         val metadataTransform: MetadataTransform = MetadataTransform(),
         val flags: Flags = Flags()
         // TODO: Internal error handling. May be better at the CameraPipe level.
-    )
+    ) {
+        init {
+            check(cameraBackendId == null || customCameraBackend == null) {
+                "Setting both cameraBackendId and customCameraBackend is not supported."
+            }
+        }
+    }
 
     /**
      * Flags define boolean values that are used to adjust the behavior and interactions with

@@ -360,6 +360,12 @@
             app:textLocale="ja-JP,zh-CN" />
 
         <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/textview_textLocale_textView_singleLocale"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:textLocale="zh-CN" />
+
+        <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/textview_textLocale_textAppearance"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

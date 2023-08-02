@@ -17,7 +17,6 @@ package androidx.navigation.ui
 
 import android.graphics.drawable.Drawable
 import android.os.Bundle
-import androidx.annotation.RestrictTo
 import androidx.annotation.StringRes
 import androidx.appcompat.widget.Toolbar
 import androidx.navigation.NavController
@@ -31,9 +30,7 @@ import java.lang.ref.WeakReference
  * CollapsingToolbarLayout+Toolbar updated.
  * This handles both updating the title and updating the Up Indicator, transitioning between
  * the drawer icon and up arrow as needed.
- * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 internal class CollapsingToolbarOnDestinationChangedListener(
     collapsingToolbarLayout: CollapsingToolbarLayout,
     toolbar: Toolbar,

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  Copyright 2021 The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+
+<resources>
+    <!-- These values match androidx.wear.watchface.complications.data.ComplicationType. -->
+    <attr name="complicationType" format="enum">
+        <enum name="NOT_CONFIGURED" value="1" />
+        <enum name="EMPTY" value="2" />
+        <enum name="SHORT_TEXT" value="3" />
+        <enum name="LONG_TEXT" value="4" />
+        <enum name="RANGED_VALUE" value="5" />
+        <enum name="MONOCHROMATIC_IMAGE" value="6" />
+        <enum name="SMALL_IMAGE" value="7" />
+        <enum name="PHOTO_IMAGE" value="8" />
+        <enum name="NO_PERMISSION" value="9" />
+        <enum name="NO_DATA" value="10" />
+    </attr>
+</resources>

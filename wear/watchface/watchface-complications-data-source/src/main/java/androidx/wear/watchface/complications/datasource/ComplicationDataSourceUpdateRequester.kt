@@ -15,7 +15,6 @@
  */
 package androidx.wear.watchface.complications.datasource
 
-import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.content.ComponentName
 import android.content.Context
@@ -108,7 +107,6 @@ private class ComplicationDataSourceUpdateRequesterImpl(
     private val complicationDataSourceComponent: ComponentName
 ) : ComplicationDataSourceUpdateRequester {
 
-    @SuppressLint("PendingIntentMutability")
     override fun requestUpdateAll() {
         val intent = Intent(ComplicationDataSourceUpdateRequester.ACTION_REQUEST_UPDATE_ALL)
         intent.setPackage(ComplicationDataSourceUpdateRequester.UPDATE_REQUEST_RECEIVER_PACKAGE)
@@ -119,12 +117,16 @@ private class ComplicationDataSourceUpdateRequesterImpl(
         // Add a placeholder PendingIntent to allow the UID to be checked.
         intent.putExtra(
             ComplicationDataSourceUpdateRequesterConstants.EXTRA_PENDING_INTENT,
-            PendingIntent.getActivity(context, 0, Intent(""), 0)
+            PendingIntent.getActivity(
+                context,
+                0,
+                Intent(""),
+                PendingIntent.FLAG_IMMUTABLE
+            )
         )
         context.sendBroadcast(intent)
     }
 
-    @SuppressLint("PendingIntentMutability")
     override fun requestUpdate(vararg complicationInstanceIds: Int) {
         val intent = Intent(ComplicationDataSourceUpdateRequester.ACTION_REQUEST_UPDATE)
         intent.setPackage(ComplicationDataSourceUpdateRequester.UPDATE_REQUEST_RECEIVER_PACKAGE)

@@ -16,6 +16,7 @@
 
 package androidx.lifecycle
 
+import androidx.lifecycle.viewmodel.CreationExtras
 import kotlin.reflect.KClass
 
 /**
@@ -27,11 +28,15 @@ import kotlin.reflect.KClass
  *
  * [factoryProducer] is a lambda that will be called during initialization,
  * returned [ViewModelProvider.Factory] will be used for creation of [VM]
+ *
+ * [providerOwner] is a lambda that will be called during initialization,
+ * returned [HasDefaultViewModelProviderFactory] will get [CreationExtras] used for creation of [VM]
  */
-public class ViewModelLazy<VM : ViewModel> (
+public class ViewModelLazy<VM : ViewModel> @JvmOverloads constructor(
     private val viewModelClass: KClass<VM>,
     private val storeProducer: () -> ViewModelStore,
-    private val factoryProducer: () -> ViewModelProvider.Factory
+    private val factoryProducer: () -> ViewModelProvider.Factory,
+    private val extrasProducer: () -> CreationExtras = { CreationExtras.Empty }
 ) : Lazy<VM> {
     private var cached: VM? = null
 
@@ -41,7 +46,11 @@ public class ViewModelLazy<VM : ViewModel> (
             return if (viewModel == null) {
                 val factory = factoryProducer()
                 val store = storeProducer()
-                ViewModelProvider(store, factory).get(viewModelClass.java).also {
+                ViewModelProvider(
+                    store,
+                    factory,
+                    extrasProducer()
+                ).get(viewModelClass.java).also {
                     cached = it
                 }
             } else {

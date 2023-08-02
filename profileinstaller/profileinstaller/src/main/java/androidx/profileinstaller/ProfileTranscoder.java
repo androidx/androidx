@@ -19,7 +19,9 @@ package androidx.profileinstaller;
 import static androidx.profileinstaller.Encoding.SIZEOF_BYTE;
 import static androidx.profileinstaller.Encoding.UINT_16_SIZE;
 import static androidx.profileinstaller.Encoding.UINT_32_SIZE;
+import static androidx.profileinstaller.Encoding.UINT_8_SIZE;
 import static androidx.profileinstaller.Encoding.bitsToBytes;
+import static androidx.profileinstaller.Encoding.compress;
 import static androidx.profileinstaller.Encoding.error;
 import static androidx.profileinstaller.Encoding.read;
 import static androidx.profileinstaller.Encoding.readCompressed;
@@ -35,6 +37,7 @@ import static androidx.profileinstaller.Encoding.writeUInt32;
 import static androidx.profileinstaller.Encoding.writeUInt8;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
 import java.io.ByteArrayInputStream;
@@ -42,13 +45,12 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.BitSet;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.TreeSet;
 
 @RequiresApi(19)
 class ProfileTranscoder {
@@ -93,6 +95,11 @@ class ProfileTranscoder {
             @NonNull byte[] desiredVersion,
             @NonNull DexProfileData[] data
     ) throws IOException {
+        if (Arrays.equals(desiredVersion, ProfileVersion.V015_S)) {
+            writeProfileForS(os, data);
+            return true;
+        }
+
         if (Arrays.equals(desiredVersion, ProfileVersion.V010_P)) {
             writeProfileForP(os, data);
             return true;
@@ -152,6 +159,276 @@ class ProfileTranscoder {
                 writeUInt16(os, id);
             }
         }
+    }
+
+    /**
+     * Writes the provided [lines] out into a binary profile suitable for S devices. This
+     * method expects that the MAGIC and Version of the profile header have already been written
+     * to the OutputStream.
+     *
+     * This format has the following encoding:
+     *
+     * The file starts with a header and section information:
+     *   FileHeader
+     *   FileSectionInfo[]
+     * The first FileSectionInfo must be for the DexFiles section.
+     *
+     * The rest of the file is allowed to contain different sections in any order,
+     * at arbitrary offsets, with any gaps between them and each section can be
+     * either plaintext or separately zipped. However, we're writing sections
+     * without any gaps with the following order and compression:
+     *   DexFiles - mandatory, plaintext
+     *   ExtraDescriptors - optional, zipped
+     *   Classes - optional, zipped
+     *   Methods - optional, zipped
+     *   AggregationCounts - optional, zipped, server-side
+     *
+     * DexFiles:
+     *    number_of_dex_files
+     *    (checksum,num_type_ids,num_method_ids,profile_key)[number_of_dex_files]
+     * where `profile_key` is a length-prefixed string, the length is `uint16_t`.
+     *
+     * ExtraDescriptors:
+     *    number_of_extra_descriptors
+     *    (extra_descriptor)[number_of_extra_descriptors]
+     * where `extra_descriptor` is a length-prefixed string, the length is `uint16_t`.
+     *
+     * Classes section contains records for any number of dex files, each consisting of:
+     *    profile_index  // Index of the dex file in DexFiles section.
+     *    number_of_classes
+     *    type_index_diff[number_of_classes]
+     * where instead of storing plain sorted type indexes, we store their differences
+     * as smaller numbers are likely to compress better.
+     *
+     * Methods section contains records for any number of dex files, each consisting of:
+     *    profile_index  // Index of the dex file in DexFiles section.
+     *    following_data_size  // For easy skipping of remaining data when dex file is filtered out.
+     *    method_flags
+     *    bitmap_data
+     *    method_encoding[]  // Until the size indicated by `following_data_size`.
+     * where `method_flags` is a union of flags recorded for methods in the referenced dex file,
+     * `bitmap_data` contains `num_method_ids` bits for each bit set in `method_flags` other
+     * than "hot" (the size of `bitmap_data` is rounded up to whole bytes) and `method_encoding[]`
+     * contains data for hot methods. The `method_encoding` is:
+     *    method_index_diff
+     *    number_of_inline_caches
+     *    inline_cache_encoding[number_of_inline_caches]
+     * where differences in method indexes are used for better compression,
+     * and the `inline_cache_encoding` is
+     *    dex_pc
+     *    (M|dex_map_size)
+     *    type_index_diff[dex_map_size]
+     * where `M` stands for special encodings indicating missing types (kIsMissingTypesEncoding)
+     * or memamorphic call (kIsMegamorphicEncoding) which both imply `dex_map_size == 0`.
+     */
+    private static void writeProfileForS(
+            @NonNull OutputStream os,
+            @NonNull DexProfileData[] profileData
+    ) throws IOException {
+        writeProfileSections(os, profileData);
+    }
+
+    private static void writeProfileSections(
+            @NonNull OutputStream os,
+            @NonNull DexProfileData[] profileData
+    ) throws IOException {
+        // 3 Sections
+        // Dex, Classes and Methods
+        List<WritableFileSection> sections = new ArrayList<>(3);
+        List<byte[]> sectionContents = new ArrayList<>(3);
+        sections.add(writeDexFileSection(profileData));
+        sections.add(createCompressibleClassSection(profileData));
+        sections.add(createCompressibleMethodsSection(profileData));
+        // We already wrote the version + magic
+        // https://errorprone.info/bugpattern/IntLongMath
+        long offset = (long) ProfileVersion.V015_S.length + MAGIC_PROF.length;
+        // Number of sections
+        offset += UINT_32_SIZE;
+        // (section type, offset, size, inflate size) per section
+        offset += (4 * UINT_32_SIZE) * sections.size();
+        writeUInt32(os, sections.size());
+        for (int i = 0; i < sections.size(); i++) {
+            WritableFileSection section = sections.get(i);
+            // File Section Type
+            writeUInt32(os, section.mType.getValue());
+            // Compute contents, and keep track of next content offset
+            writeUInt32(os, offset);
+            // Compute Next Offset based on Contents
+            if (section.mNeedsCompression) {
+                long inflatedSize = section.mContents.length;
+                byte[] compressed = compress(section.mContents);
+                sectionContents.add(compressed);
+                // Size
+                writeUInt32(os, compressed.length);
+                // Inflated Size
+                writeUInt32(os, inflatedSize);
+                offset += compressed.length;
+            } else {
+                sectionContents.add(section.mContents);
+                // Size
+                writeUInt32(os, section.mContents.length);
+                // Inflated Size (0L represents uncompressed)
+                writeUInt32(os, 0L);
+                offset += section.mContents.length;
+            }
+        }
+        // Write contents
+        for (int i = 0; i < sectionContents.size(); i++) {
+            os.write(sectionContents.get(i));
+        }
+    }
+
+    private static WritableFileSection writeDexFileSection(
+            @NonNull DexProfileData[] profileData
+    ) throws IOException {
+        int expectedSize = 0;
+        try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+            // Number of Dex files
+            expectedSize += UINT_16_SIZE;
+            writeUInt16(out, profileData.length);
+            for (int i = 0; i < profileData.length; i++) {
+                DexProfileData profile = profileData[i];
+                // Checksum
+                expectedSize += UINT_32_SIZE;
+                writeUInt32(out, profile.dexChecksum);
+                // Number of type ids
+                expectedSize += UINT_32_SIZE;
+                // This is information we may not have.
+                // For this to be a valid profile, the data should have been merged with
+                // METADATA_0_0_2.
+                writeUInt32(out, profile.mTypeIdCount);
+                // Number of method ids
+                expectedSize += UINT_32_SIZE;
+                writeUInt32(out, profile.numMethodIds);
+                // Profile Key
+                String profileKey = generateDexKey(
+                        profile.apkName,
+                        profile.dexName,
+                        ProfileVersion.V015_S
+                );
+                expectedSize += UINT_16_SIZE;
+                int keyLength = utf8Length(profileKey);
+                writeUInt16(out, keyLength);
+                expectedSize += keyLength * UINT_8_SIZE;
+                writeString(out, profileKey);
+            }
+            byte[] contents = out.toByteArray();
+            if (expectedSize != contents.length) {
+                throw error(
+                        "Expected size " + expectedSize + ", does not match actual size "
+                                + contents.length
+                );
+            }
+            return new WritableFileSection(
+                    FileSectionType.DEX_FILES,
+                    expectedSize,
+                    contents,
+                    false /* needsCompression */
+            );
+        }
+    }
+
+    private static WritableFileSection createCompressibleClassSection(
+            @NonNull DexProfileData[] profileData
+    ) throws IOException {
+        int expectedSize = 0;
+        try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+            for (int i = 0; i < profileData.length; i++) {
+                DexProfileData profile = profileData[i];
+                // Profile Index
+                expectedSize += UINT_16_SIZE;
+                writeUInt16(out, i);
+                // Number of classes
+                expectedSize += UINT_16_SIZE;
+                writeUInt16(out, profile.classSetSize);
+                // Class Indexes
+                expectedSize += UINT_16_SIZE * profile.classSetSize;
+                writeClasses(out, profile);
+            }
+            byte[] contents = out.toByteArray();
+            if (expectedSize != contents.length) {
+                throw error(
+                        "Expected size " + expectedSize + ", does not match actual size "
+                                + contents.length
+                );
+            }
+            return new WritableFileSection(
+                    FileSectionType.CLASSES,
+                    expectedSize,
+                    contents,
+                    true /* needsCompression */
+            );
+        }
+    }
+
+    private static WritableFileSection createCompressibleMethodsSection(
+            @NonNull DexProfileData[] profileData
+    ) throws IOException {
+        int expectedSize = 0;
+        try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+            for (int i = 0; i < profileData.length; i++) {
+                DexProfileData profile = profileData[i];
+                // Method Flags
+                int methodFlags = computeMethodFlags(profile);
+                // Bitmap Contents
+                byte[] bitmapContents = createMethodBitmapRegion(profile);
+                // Methods with Inline Caches
+                byte[] methodRegionContents = createMethodsWithInlineCaches(profile);
+                // Profile Index
+                expectedSize += UINT_16_SIZE;
+                writeUInt16(out, i);
+                // Following Data (flags + bitmap contents + method region)
+                int followingDataSize =
+                        UINT_16_SIZE + bitmapContents.length + methodRegionContents.length;
+                expectedSize += UINT_32_SIZE;
+                writeUInt32(out, followingDataSize);
+                // Contents
+                writeUInt16(out, methodFlags);
+                out.write(bitmapContents);
+                out.write(methodRegionContents);
+                expectedSize += followingDataSize;
+            }
+            byte[] contents = out.toByteArray();
+            if (expectedSize != contents.length) {
+                throw error(
+                        "Expected size " + expectedSize + ", does not match actual size "
+                                + contents.length
+                );
+            }
+            return new WritableFileSection(
+                    FileSectionType.METHODS,
+                    expectedSize,
+                    contents,
+                    true /* needsCompression */
+            );
+        }
+    }
+
+    private static byte[] createMethodBitmapRegion(
+            @NonNull DexProfileData profile
+    ) throws IOException {
+        try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+            writeMethodBitmap(out, profile);
+            return out.toByteArray();
+        }
+    }
+
+    private static byte[] createMethodsWithInlineCaches(
+            @NonNull DexProfileData profile
+    ) throws IOException {
+        try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+            writeMethodsWithInlineCaches(out, profile);
+            return out.toByteArray();
+        }
+    }
+
+    private static int computeMethodFlags(@NonNull DexProfileData profileData) {
+        int methodFlags = 0;
+        for (Map.Entry<Integer, Integer> entry: profileData.methods.entrySet()) {
+            int flagValue = entry.getValue();
+            methodFlags |= flagValue;
+        }
+        return methodFlags;
     }
 
     /**
@@ -532,9 +809,30 @@ class ProfileTranscoder {
         }
     }
 
+
+    static @NonNull DexProfileData[] readMeta(
+            @NonNull InputStream is,
+            @NonNull byte[] metadataVersion,
+            @NonNull byte[] desiredProfileVersion,
+            DexProfileData[] profile
+    ) throws IOException {
+        if (Arrays.equals(metadataVersion, ProfileVersion.METADATA_V001_N)) {
+            boolean requiresProfileV015 = Arrays.equals(
+                    ProfileVersion.V015_S, desiredProfileVersion
+            );
+            if (requiresProfileV015) {
+                throw error("Requires new Baseline Profile Metadata."
+                        + " Please rebuild the APK with Android Gradle Plugin 7.2 Canary 7 or "
+                        + "higher");
+            }
+            return readMetadata001(is, metadataVersion, profile);
+        } else if (Arrays.equals(metadataVersion, ProfileVersion.METADATA_V002)) {
+            return readMetadataV002(is, desiredProfileVersion, profile);
+        }
+        throw error("Unsupported meta version");
+    }
+
     /**
-     *
-     *
      * [profile_header, zipped[[dex_data_header1, dex_data_header2...],[dex_data1,
      *    dex_data2...], global_aggregation_count]]
      * profile_header:
@@ -543,19 +841,13 @@ class ProfileTranscoder {
      *   dex_location,number_of_classes
      * dex_data:
      *   class_id1,class_id2...
-     *
-     * @param is
-     * @param version
-     * @param profile
-     * @return
-     * @throws IOException
      */
-    static @NonNull DexProfileData[] readMeta(
+    static @NonNull DexProfileData[] readMetadata001(
             @NonNull InputStream is,
-            @NonNull byte[] version,
+            @NonNull byte[] metadataVersion,
             DexProfileData[] profile
     ) throws IOException {
-        if (!Arrays.equals(version, ProfileVersion.METADATA_V001_N)) {
+        if (!Arrays.equals(metadataVersion, ProfileVersion.METADATA_V001_N)) {
             throw error("Unsupported meta version");
         }
         int numberOfDexFiles = readUInt8(is);
@@ -574,6 +866,108 @@ class ProfileTranscoder {
         try (InputStream dataStream = new ByteArrayInputStream(uncompressedData)) {
             return readMetadataForNBody(dataStream, numberOfDexFiles, profile);
         }
+    }
+
+    /**
+     * 0.0.2 Metadata Serialization format (used by N, S)
+     * ==================================================
+     * profile_header:
+     * magic,version,number_of_dex_files,uncompressed_size_of_zipped_data,compressed_data_size
+     * profile_data:
+     * profile_index, profile_key_size, profile_key,
+     * type_id_size, class_index_size, class_index_deltas
+     */
+    @NonNull
+    static DexProfileData[] readMetadataV002(
+            @NonNull InputStream is,
+            @NonNull byte[] desiredProfileVersion,
+            DexProfileData[] profile
+    ) throws IOException {
+        // No of dex files
+        int dexFileCount = readUInt16(is);
+        // Uncompressed Size
+        long uncompressed = readUInt32(is);
+        // Compressed Size
+        long compressed = readUInt32(is);
+        // We are done with the header, so everything that follows is the compressed blob. We
+        // uncompress it all and load it into memory
+        byte[] contents = readCompressed(
+                is,
+                (int) compressed,
+                (int) uncompressed
+        );
+        if (is.read() > 0) throw error("Content found after the end of file");
+        try (InputStream dataStream = new ByteArrayInputStream(contents)) {
+            return readMetadataV002Body(
+                    dataStream,
+                    desiredProfileVersion,
+                    dexFileCount,
+                    profile
+            );
+        }
+    }
+
+    @NonNull
+    private static DexProfileData[] readMetadataV002Body(
+            @NonNull InputStream is,
+            @NonNull byte[] desiredProfileVersion,
+            int dexFileCount,
+            DexProfileData[] profile
+    ) throws IOException {
+        // If the uncompressed profile data stream is empty then we have nothing more to do.
+        if (is.available() == 0) {
+            return new DexProfileData[0];
+        }
+        if (dexFileCount != profile.length) {
+            throw error("Mismatched number of dex files found in metadata");
+        }
+        for (int i = 0; i < dexFileCount; i++) {
+            // Profile Index
+            readUInt16(is);
+            // Profile Key
+            int profileKeySize = readUInt16(is);
+            String profileKey = readString(is, profileKeySize);
+            // Total number of type ids
+            long typeIdCount = readUInt32(is);
+            // Class Index Size
+            int classIdSetSize = readUInt16(is);
+            DexProfileData data = findByDexName(profile, profileKey);
+            if (data == null) {
+                throw error("Missing profile key: " + profileKey);
+            }
+            // Purely additive information
+            data.mTypeIdCount = typeIdCount;
+            // Classes
+            // Read classes even though we may not actually use it given we need to advance
+            // the offsets of the input stream to be consistent.
+            int[] classes = readClasses(is, classIdSetSize);
+            // We only need classIds for Android N and N MR1.
+            // For other profile versions we need to use type ids instead.
+            if (Arrays.equals(desiredProfileVersion, ProfileVersion.V001_N)) {
+                data.classSetSize = classIdSetSize;
+                data.classes = classes;
+            }
+        }
+        return profile;
+    }
+
+    @Nullable
+    private static DexProfileData findByDexName(
+            @NonNull DexProfileData[] profile,
+            @NonNull String profileKey) {
+
+        if (profile.length <= 0) return null;
+        // Searching by using dexName here given the apkName is somewhat irrelevant.
+        // This is because we are essentially installing the profile bundled as part of the APK
+        // itself. This is more forgiving when the apkName does not align with the one used when
+        // generating a profile with profgen.
+        String dexName = extractKey(profileKey);
+        for (int i = 0; i < profile.length; i++) {
+            if (profile[i].dexName.equals(dexName)) {
+                return profile[i];
+            }
+        }
+        return null;
     }
 
     /**
@@ -611,9 +1005,8 @@ class ProfileTranscoder {
                 throw error("Order of dexfiles in metadata did not match baseline");
             }
             data.classSetSize = sizes[i];
-            data.classes = new int[data.classSetSize];
             // Then the startup classes are stored
-            readClasses(is, data);
+            data.classes = readClasses(is, data.classSetSize);
         }
 
         return profile;
@@ -625,8 +1018,9 @@ class ProfileTranscoder {
      *
      * This returns one of:
      * 1. If dexName is "classes.dex" -> apkName
-     * 2. If dexName ends with ".apk" -> dexName
-     * 3. else -> $apkName$separator$deXName
+     * 2. If the apkName is empty -> return dexName
+     * 3. If dexName ends with ".apk" -> dexName
+     * 4. else -> $apkName$separator$deXName
      *
      * @param apkName name of APK to generate key for
      * @param dexName name of dex file, or input string if original profile dex key matched ".*\
@@ -635,10 +1029,44 @@ class ProfileTranscoder {
      * @return correctly formatted dex key for this API version
      */
     @NonNull
-    private static String generateDexKey(@NonNull String apkName, @NonNull String dexName,
+    private static String generateDexKey(
+            @NonNull String apkName,
+            @NonNull String dexName,
             @NonNull byte[] version) {
+        String separator = ProfileVersion.dexKeySeparator(version);
+        if (apkName.length() <= 0) return enforceSeparator(dexName, separator);
         if (dexName.equals("classes.dex")) return apkName;
+        if (dexName.contains("!") || dexName.contains(":")) {
+            return enforceSeparator(dexName, separator);
+        }
+        if (dexName.endsWith(".apk")) return dexName;
         return apkName + ProfileVersion.dexKeySeparator(version) + dexName;
+    }
+
+    @NonNull
+    private static String enforceSeparator(
+            @NonNull String value,
+            @NonNull String separator) {
+        if ("!".equals(separator)) {
+            return value.replace(":", "!");
+        } else if (":".equals(separator)) {
+            return value.replace("!", ":");
+        } else {
+            return value;
+        }
+    }
+
+    @NonNull
+    private static String extractKey(@NonNull String profileKey) {
+        int index = profileKey.indexOf("!");
+        if (index < 0) {
+            index = profileKey.indexOf(":");
+        }
+        if (index > 0) {
+            // We need the string after the separator
+            return profileKey.substring(index + 1);
+        }
+        return profileKey;
     }
 
     /**
@@ -670,6 +1098,7 @@ class ProfileTranscoder {
                     apkName,
                     readString(is, dexNameSize), /* req: only dex name no separater from profgen */
                     dexChecksum,
+                    0L, /* typeId count. */
                     classSetSize,
                     (int) hotMethodRegionSize,
                     (int) numMethodIds,
@@ -686,7 +1115,7 @@ class ProfileTranscoder {
             readHotMethodRegion(is, data);
 
             // Then the startup classes are stored
-            readClasses(is, data);
+            data.classes = readClasses(is, data.classSetSize);
 
             // In addition to [HOT], the methods can be labeled as [STARTUP] and [POST_STARTUP].
             // To compress this information better, this information is stored as a bitmap, with
@@ -757,17 +1186,19 @@ class ProfileTranscoder {
         }
     }
 
-    private static void readClasses(
+    private static int[] readClasses(
             @NonNull InputStream is,
-            @NonNull DexProfileData data
+            int classSetSize
     ) throws IOException {
+        int[] classes = new int[classSetSize];
         int lastClassIndex = 0;
-        for (int k = 0; k < data.classSetSize; k++) {
+        for (int k = 0; k < classSetSize; k++) {
             int diffWithTheLastClassIndex = readUInt16(is);
             int classDexIndex = lastClassIndex + diffWithTheLastClassIndex;
-            data.classes[k] = classDexIndex;
+            classes[k] = classDexIndex;
             lastClassIndex = classDexIndex;
         }
+        return classes;
     }
 
     private static void readMethodBitmap(

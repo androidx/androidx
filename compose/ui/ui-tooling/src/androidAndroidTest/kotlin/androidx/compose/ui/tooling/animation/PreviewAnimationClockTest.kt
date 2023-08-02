@@ -127,6 +127,56 @@ class PreviewAnimationClockTest {
     }
 
     @Test
+    fun getAnimatedPropertiesWithNotSyncedTime() {
+        var rotationAnimation: ComposeAnimation? = null
+        var offsetAnimation: ComposeAnimation? = null
+        var animatedVisibility: Transition<Any>? = null
+
+        composeRule.setContent {
+            rotationAnimation = setUpRotationColorScenario()
+            offsetAnimation = setUpOffsetScenario()
+            animatedVisibility = createAnimationVisibility(1000)
+        }
+        composeRule.waitForIdle()
+        testClock.trackAnimatedVisibility(animatedVisibility!!)
+        composeRule.waitForIdle()
+        val animatedVisibilityComposeAnimation = testClock.trackedAnimatedVisibility.single()
+        testClock.setClockTimes(
+            mapOf(
+                rotationAnimation!! to 500,
+                offsetAnimation!! to 200,
+                animatedVisibilityComposeAnimation to 800
+            )
+        )
+        composeRule.waitForIdle()
+
+        var animatedProperties = testClock.getAnimatedProperties(rotationAnimation!!)
+        val rotation = animatedProperties.single { it.label == "myRotation" }
+        // We're animating from RC1 (0 degrees) to RC3 (360 degrees). There is a transition of
+        // 1000ms defined for the rotation, and we set the clock to 50% of this time.
+        assertEquals(180f, rotation.value as Float, eps)
+
+        animatedProperties = testClock.getAnimatedProperties(offsetAnimation!!)
+        val offset = animatedProperties.single { it.label == "myOffset" }
+        // We're animating from O1 (0) to O2 (100). There is a transition of 800ms defined for
+        // the offset, and we set the clock to 25% of this time.
+        assertEquals(25f, offset.value as Float, eps)
+
+        animatedProperties = testClock.getAnimatedProperties(animatedVisibilityComposeAnimation)
+        val scale = animatedProperties.single { it.label == "box scale" }
+        // We're animating from invisible to visible, which means PreEnter (scale 0.5f) to
+        // Visible (scale 1f). Animation duration is 1000ms, so the current clock time
+        // corresponds to 80% of it.
+        assertEquals(0.9f, scale.value as Float, 0.0001f)
+
+        animatedProperties = testClock.getAnimatedProperties(animatedVisibilityComposeAnimation)
+        val alpha = animatedProperties.single { it.label == "Built-in alpha" }
+        // We're animating from invisible (Built-in alpha 0f) to visible (Built-in alpha 1f),
+        // 1000ms being the animation duration, clock time corresponds to 80% of it.
+        assertEquals(0.8f, alpha.value)
+    }
+
+    @Test
     fun getAnimatedPropertiesReturnsAllDescendantAnimations() {
         var transitionAnimation: ComposeAnimation? = null
 
@@ -167,6 +217,20 @@ class PreviewAnimationClockTest {
         // Animation duration is 1000ms, so we're at 50%.
         val alpha = animatedProperties.single { it.label == "Built-in alpha" }
         assertEquals(0.5f, alpha.value as Float, 0.0001f)
+    }
+
+    @Test
+    fun onSeekCallbackCalledWhenTrackingAnimatedVisibility() {
+        var animatedVisibility: Transition<Any>? = null
+        var onSeekCalls = 0
+        composeRule.setContent {
+            animatedVisibility = createAnimationVisibility(1000)
+        }
+
+        composeRule.waitForIdle()
+        assertEquals(0, onSeekCalls)
+        testClock.trackAnimatedVisibility(animatedVisibility!!) { onSeekCalls++ }
+        assertEquals(1, onSeekCalls)
     }
 
     @Test
@@ -212,7 +276,7 @@ class PreviewAnimationClockTest {
         )
 
         transitions = testClock.getTransitions(offsetAnimation!!, 200)
-        val offset = transitions.single()
+        val offset = transitions.single { it.label == "myOffset" }
         // We're animating from O1 (0) to O2 (100), 800ms being the animation duration.
         assertEquals("myOffset", offset.label)
         assertEquals(0, offset.startTimeMillis)
@@ -221,6 +285,17 @@ class PreviewAnimationClockTest {
         assertArrayEquals(
             arrayOf(0L, 200L, 400L, 600L, 800L),
             offset.values.keys.sorted().toTypedArray()
+        )
+
+        val grandChild = transitions.single { it.label == "grandchild" }
+        // We're animating from O1 (1.dp) to O2 (9.dp), 900ms being the animation duration.
+        assertEquals("grandchild", grandChild.label)
+        assertEquals(0, grandChild.startTimeMillis)
+        assertEquals(900, grandChild.endTimeMillis)
+        assertEquals("androidx.compose.animation.core.TweenSpec", grandChild.specType)
+        assertArrayEquals(
+            arrayOf(0L, 200L, 400L, 600L, 800L, 900L),
+            grandChild.values.keys.sorted().toTypedArray()
         )
 
         val animatedVisibilityComposeAnimation = testClock.trackedAnimatedVisibility.single()
@@ -486,8 +561,10 @@ class PreviewAnimationClockTest {
         }
 
         child1.createChildTransition { it }
-            .animateDp(label = "grandchild") { parentState ->
-                if (parentState) 1.dp else 3.dp
+            .animateDp(label = "grandchild", transitionSpec = {
+                tween(durationMillis = 900, easing = LinearEasing)
+            }) { parentState ->
+                if (parentState) 1.dp else 9.dp
             }
 
         transition.createChildTransition { it }

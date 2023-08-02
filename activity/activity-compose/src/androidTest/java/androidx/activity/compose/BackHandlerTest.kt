@@ -31,7 +31,6 @@ import androidx.compose.ui.test.performClick
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.testing.TestLifecycleOwner
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.FlakyTest
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
@@ -112,7 +111,6 @@ class BackHandlerTest {
      * Test to ensure that the callback from the BackHandler remains in the correct order though
      * lifecycle changes
      */
-    @FlakyTest(bugId = 189889254)
     @Test
     fun testBackHandlerLifecycle() {
         var inteceptedBack = false

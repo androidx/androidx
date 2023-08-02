@@ -24,6 +24,10 @@ import kotlin.contracts.contract
 /**
  * Iterates through a [List] using the index and calls [action] for each item.
  * This does not allocate an iterator like [Iterable.forEach].
+ *
+ * **Do not use for collections that come from public APIs**, since they may not support random
+ * access in an efficient way, and this method may actually be a lot slower. Only use for
+ * collections that are created by code we control and are known to support random access.
  */
 @OptIn(ExperimentalContracts::class)
 internal inline fun <T> List<T>.fastForEach(action: (T) -> Unit) {
@@ -37,6 +41,10 @@ internal inline fun <T> List<T>.fastForEach(action: (T) -> Unit) {
 /**
  * Applies the given [transform] function to each element of the original collection
  * and appends the results to the given [destination].
+ *
+ * **Do not use for collections that come from public APIs**, since they may not support random
+ * access in an efficient way, and this method may actually be a lot slower. Only use for
+ * collections that are created by code we control and are known to support random access.
  */
 @OptIn(ExperimentalContracts::class)
 internal inline fun <T, R, C : MutableCollection<in R>> List<T>.fastMapTo(
@@ -55,6 +63,10 @@ internal inline fun <T, R, C : MutableCollection<in R>> List<T>.fastMapTo(
  * to each pair of two adjacent elements in this collection.
  *
  * The returned list is empty if this collection contains less than two elements.
+ *
+ * **Do not use for collections that come from public APIs**, since they may not support random
+ * access in an efficient way, and this method may actually be a lot slower. Only use for
+ * collections that are created by code we control and are known to support random access.
  */
 @OptIn(ExperimentalContracts::class)
 internal inline fun <T, R> List<T>.fastZipWithNext(transform: (T, T) -> R): List<R> {

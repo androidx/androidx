@@ -16,29 +16,20 @@
 
 package androidx.glance.appwidget.translators
 
-import android.content.Context
-import android.content.res.ColorStateList
 import android.os.Build
 import android.view.Gravity
 import android.widget.RemoteViews
-import androidx.annotation.ColorRes
-import androidx.annotation.DoNotInline
-import androidx.annotation.RequiresApi
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
-import androidx.core.widget.setCompoundButtonTintList
-import androidx.core.widget.setImageViewColorFilter
+import androidx.core.widget.RemoteViewsCompat.setCompoundButtonTintList
+import androidx.glance.appwidget.EmittableCheckBox
 import androidx.glance.appwidget.LayoutType
 import androidx.glance.appwidget.R
 import androidx.glance.appwidget.TranslationContext
 import androidx.glance.appwidget.applyModifiers
 import androidx.glance.appwidget.inflateViewStub
 import androidx.glance.appwidget.insertView
-import androidx.glance.appwidget.layout.CheckBoxColors
-import androidx.glance.appwidget.layout.EmittableCheckBox
-import androidx.glance.appwidget.layout.ResolvedCheckBoxColors
-import androidx.glance.appwidget.layout.ResourceCheckBoxColors
 import androidx.glance.appwidget.setViewEnabled
+import androidx.glance.appwidget.unit.CheckedUncheckedColorProvider
+import androidx.glance.appwidget.unit.ResourceCheckableColorProvider
 
 internal fun RemoteViews.translateEmittableCheckBox(
     translationContext: TranslationContext,
@@ -52,28 +43,35 @@ internal fun RemoteViews.translateEmittableCheckBox(
     }
 
     val viewDef = insertView(translationContext, layoutType, element.modifier)
+    val actionTargetId: Int
     val textViewId: Int
 
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-        textViewId = viewDef.mainViewId
+        val checkBoxId = inflateViewStub(translationContext, R.id.checkBox)
+        textViewId = checkBoxId
+        actionTargetId = checkBoxId
         CompoundButtonApi31Impl.setCompoundButtonChecked(
             this,
-            viewDef.mainViewId,
+            checkBoxId,
             element.checked
         )
-        when (val colors = element.colors) {
-            is ResolvedCheckBoxColors -> {
-                setCompoundButtonTintList(viewDef.mainViewId, colors.toColorStateList())
+        when (val colors = element.colors.checkBox) {
+            is CheckedUncheckedColorProvider -> {
+                val (day, night) = colors.toDayNightColorStateList(translationContext.context)
+                setCompoundButtonTintList(checkBoxId, notNight = day, night = night)
             }
-            is ResourceCheckBoxColors -> setCompoundButtonTintList(viewDef.mainViewId, colors.resId)
-        }.let {}
+            is ResourceCheckableColorProvider -> {
+                setCompoundButtonTintList(checkBoxId, colors.resId)
+            }
+        }
     } else {
         val iconId = inflateViewStub(translationContext, R.id.checkBoxIcon)
         textViewId = inflateViewStub(translationContext, R.id.checkBoxText)
+        actionTargetId = viewDef.mainViewId
         setViewEnabled(iconId, element.checked)
         setImageViewColorFilter(
             iconId,
-            element.colors.resolve(translationContext.context, element.checked).toArgb()
+            element.colors.checkBox.getColor(translationContext.context, element.checked)
         )
     }
 
@@ -82,53 +80,13 @@ internal fun RemoteViews.translateEmittableCheckBox(
         textViewId,
         element.text,
         element.style,
+        maxLines = element.maxLines,
         verticalTextGravity = Gravity.CENTER_VERTICAL,
     )
-    applyModifiers(translationContext, this, element.modifier, viewDef)
-}
-
-private fun ResolvedCheckBoxColors.toColorStateList(): ColorStateList {
-    return ColorStateList(
-        arrayOf(intArrayOf(android.R.attr.state_checked), intArrayOf()),
-        intArrayOf(checked.toArgb(), unchecked.toArgb())
+    applyModifiers(
+        translationContext.forCompoundButton().forActionTargetId(actionTargetId),
+        this,
+        element.modifier,
+        viewDef
     )
-}
-
-private fun CheckBoxColors.resolve(context: Context, isChecked: Boolean): Color {
-    return when (this) {
-        is ResolvedCheckBoxColors -> if (isChecked) checked else unchecked
-        is ResourceCheckBoxColors -> {
-            val colorStateList = getColorStateList(context, resId)
-            return Color(
-                colorStateList.getColorForState(
-                    if (isChecked) CheckedStateSet else UncheckedStateSet,
-                    colorStateList.defaultColor
-                )
-            )
-        }
-    }
-}
-
-private val CheckedStateSet = intArrayOf(android.R.attr.state_checked)
-private val UncheckedStateSet = intArrayOf(-android.R.attr.state_checked)
-
-private fun getColorStateList(context: Context, @ColorRes resId: Int): ColorStateList {
-    if (Build.VERSION.SDK_INT >= 23) {
-        return CheckBoxTranslatorApi23Impl.getColorStateList(context, resId)
-    } else {
-        // Must create ColorStateList in this way before API 23.
-        @Suppress("DEPRECATION", "ResourceType")
-        return ColorStateList.createFromXml(
-            context.resources,
-            context.resources.getXml(resId)
-        )
-    }
-}
-
-@RequiresApi(23)
-private object CheckBoxTranslatorApi23Impl {
-    @DoNotInline
-    fun getColorStateList(context: Context, @ColorRes resId: Int): ColorStateList {
-        return context.getColorStateList(resId)
-    }
 }

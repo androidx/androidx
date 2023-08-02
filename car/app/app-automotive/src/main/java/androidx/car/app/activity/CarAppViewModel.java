@@ -28,16 +28,15 @@ import android.graphics.Insets;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
-import androidx.car.app.HandshakeInfo;
+import androidx.car.app.SessionInfo;
 import androidx.car.app.activity.renderer.ICarAppActivity;
 import androidx.car.app.activity.renderer.IInsetsListener;
 import androidx.car.app.activity.renderer.IRendererCallback;
-import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.utils.ThreadUtils;
 import androidx.car.app.versioning.CarAppApiLevels;
+import androidx.core.view.DisplayCutoutCompat;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -60,9 +59,12 @@ public class CarAppViewModel extends AndroidViewModel implements
     private final MutableLiveData<ErrorHandler.ErrorType> mError = new MutableLiveData<>();
     private final MutableLiveData<State> mState = new MutableLiveData<>(State.IDLE);
     private ServiceConnectionManager mServiceConnectionManager;
+
     @Nullable private IRendererCallback mIRendererCallback;
     @Nullable private IInsetsListener mIInsetsListener;
     @Nullable private Insets mInsets = Insets.NONE;
+    @Nullable private DisplayCutoutCompat mDisplayCutout;
+
     private static WeakReference<Activity> sActivity = new WeakReference<>(null);
 
     /** Possible view states */
@@ -77,14 +79,17 @@ public class CarAppViewModel extends AndroidViewModel implements
         ERROR,
     }
 
-    public CarAppViewModel(@NonNull Application application, @NonNull ComponentName componentName) {
+    public CarAppViewModel(@NonNull Application application,
+            @NonNull ComponentName componentName, @NonNull SessionInfo sessionInfo) {
         super(application);
 
-        mServiceConnectionManager = new ServiceConnectionManager(application, componentName, this);
+        mServiceConnectionManager = new ServiceConnectionManager(application, componentName,
+                sessionInfo, this);
     }
 
     @VisibleForTesting
-    @NonNull ServiceConnectionManager getServiceConnectionManager() {
+    @NonNull
+    ServiceConnectionManager getServiceConnectionManager() {
         return mServiceConnectionManager;
     }
 
@@ -93,7 +98,8 @@ public class CarAppViewModel extends AndroidViewModel implements
         mServiceConnectionManager = serviceConnectionManager;
     }
 
-    @NonNull ServiceDispatcher getServiceDispatcher() {
+    @NonNull
+    ServiceDispatcher getServiceDispatcher() {
         return mServiceConnectionManager.getServiceDispatcher();
     }
 
@@ -132,6 +138,7 @@ public class CarAppViewModel extends AndroidViewModel implements
     void unbind() {
         mServiceConnectionManager.unbind();
         mIInsetsListener = null;
+        mIRendererCallback = null;
     }
 
     @Override
@@ -237,41 +244,57 @@ public class CarAppViewModel extends AndroidViewModel implements
      * Updates the insets for this {@link CarAppActivity}
      *
      * @param insets latest received {@link Insets}
-     * @return true if this insets will be consumed by the host. Otherwise, the insets should be
-     * consumed by the client.
+     * @param displayCutout latest received {@link DisplayCutoutCompat}
      */
-    public boolean updateWindowInsets(@NonNull Insets insets) {
-        if (!Objects.equals(mInsets, insets)) {
-            mInsets = insets;
+    public void updateWindowInsets(@NonNull Insets insets,
+            @Nullable DisplayCutoutCompat displayCutout) {
+        if (Objects.equals(mInsets, insets) && Objects.equals(mDisplayCutout, displayCutout)) {
+            return;
+        }
+        mInsets = insets;
+        mDisplayCutout = displayCutout;
+        // If listener is not set yet, the inset will be dispatched once the listener is set.
+        if (mIInsetsListener != null) {
             dispatchInsetsUpdates();
         }
-        return isHostHandlingInsets();
     }
 
-    @OptIn(markerClass = ExperimentalCarApi.class)
-    private boolean isHostHandlingInsets() {
-        HandshakeInfo handshakeInfo = mServiceConnectionManager.getHandshakeInfo();
-        return mIInsetsListener != null
-                && handshakeInfo != null
-                && handshakeInfo.getHostCarAppApiLevel() >= CarAppApiLevels.LEVEL_4;
-    }
-
-    @SuppressWarnings("NullAway")
+    /**
+     * Dispatches the insets updates for this {@link CarAppActivity}
+     */
+    @SuppressWarnings({"NullAway", "deprecation"})
     private void dispatchInsetsUpdates() {
-        if (isHostHandlingInsets()) {
-            getServiceDispatcher().dispatch("onInsetsChanged",
-                    () -> requireNonNull(mIInsetsListener).onInsetsChanged(mInsets)
+        if (mServiceConnectionManager.getHandshakeInfo().getHostCarAppApiLevel()
+                >= CarAppApiLevels.LEVEL_5) {
+            getServiceDispatcher().dispatch("onWindowInsetsChanged",
+                    () -> requireNonNull(mIInsetsListener).onWindowInsetsChanged(mInsets,
+                            getSafeInsets(mDisplayCutout))
             );
+            return;
         }
+        getServiceDispatcher().dispatch("onInsetsChanged",
+                () -> requireNonNull(mIInsetsListener).onInsetsChanged(mInsets));
     }
 
     /**
      * Updates the listener that will handle insets changes. If a non-null listener is set, it will
      * be assumed that inset changes are handled by the host, and
-     * {@link #updateWindowInsets(Insets)} will return <code>false</code>
+     * {@link #updateWindowInsets(Insets, DisplayCutoutCompat)} will return <code>false</code>
      */
     public void setInsetsListener(@Nullable IInsetsListener listener) {
         mIInsetsListener = listener;
         dispatchInsetsUpdates();
+    }
+
+    /**
+     * Returns the safe insets of a given {@link DisplayCutoutCompat}.
+     *
+     * @param displayCutout the {@link DisplayCutoutCompat} for which the safe insets is calculated.
+     */
+    private Insets getSafeInsets(@Nullable DisplayCutoutCompat displayCutout) {
+        return displayCutout == null ? Insets.NONE :
+                Insets.of(displayCutout.getSafeInsetLeft(), displayCutout.getSafeInsetTop(),
+                        displayCutout.getSafeInsetRight(),
+                        displayCutout.getSafeInsetBottom());
     }
 }

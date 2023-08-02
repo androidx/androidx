@@ -101,6 +101,14 @@ class AppWidgetHostTestActivity : Activity() {
         return hostView
     }
 
+    fun deleteAppWidget(hostView: TestAppWidgetHostView) {
+        val appWidgetId = hostView.appWidgetId
+        mHost?.deleteAppWidgetId(appWidgetId)
+        mHostViews.remove(hostView)
+        val contentFrame = findViewById<FrameLayout>(R.id.content)
+        contentFrame.removeView(hostView)
+    }
+
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
         updateAllSizes(newConfig.orientation)

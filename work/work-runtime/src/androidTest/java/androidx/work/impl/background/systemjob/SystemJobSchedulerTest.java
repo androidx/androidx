@@ -49,6 +49,7 @@ import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 import androidx.work.Configuration;
 import androidx.work.OneTimeWorkRequest;
+import androidx.work.SchedulingExceptionHandler;
 import androidx.work.WorkInfo;
 import androidx.work.WorkManagerTest;
 import androidx.work.impl.WorkDatabase;
@@ -66,6 +67,7 @@ import org.junit.runner.RunWith;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.Callable;
 
 @RunWith(AndroidJUnit4.class)
 @SdkSuppress(minSdkVersion = WorkManagerImpl.MIN_JOB_SCHEDULER_API_LEVEL)
@@ -79,6 +81,7 @@ public class SystemJobSchedulerTest extends WorkManagerTest {
     private SystemJobScheduler mSystemJobScheduler;
     private WorkSpecDao mMockWorkSpecDao;
 
+    @SuppressWarnings("unchecked")
     @Before
     public void setUp() {
         Context context = ApplicationProvider.getApplicationContext();
@@ -98,6 +101,7 @@ public class SystemJobSchedulerTest extends WorkManagerTest {
         when(workDatabase.systemIdInfoDao()).thenReturn(systemIdInfoDao);
         when(workDatabase.preferenceDao()).thenReturn(preferenceDao);
         when(workDatabase.workSpecDao()).thenReturn(mMockWorkSpecDao);
+        doCallRealMethod().when(workDatabase).runInTransaction(any(Callable.class));
         when(mWorkManager.getWorkDatabase()).thenReturn(workDatabase);
 
         doReturn(RESULT_SUCCESS).when(mJobScheduler).schedule(any(JobInfo.class));
@@ -131,11 +135,11 @@ public class SystemJobSchedulerTest extends WorkManagerTest {
     @SdkSuppress(minSdkVersion = 23, maxSdkVersion = 23)
     public void testSystemJobScheduler_schedulesTwiceOnApi23() {
         OneTimeWorkRequest work1 = new OneTimeWorkRequest.Builder(TestWorker.class).build();
-        WorkSpec workSpec1 = getWorkSpec(work1);
+        WorkSpec workSpec1 = work1.getWorkSpec();
         addToWorkSpecDao(workSpec1);
 
         OneTimeWorkRequest work2 = new OneTimeWorkRequest.Builder(TestWorker.class).build();
-        WorkSpec workSpec2 = getWorkSpec(work2);
+        WorkSpec workSpec2 = work2.getWorkSpec();
         addToWorkSpecDao(workSpec2);
 
         mSystemJobScheduler.schedule(workSpec1, workSpec2);
@@ -151,11 +155,11 @@ public class SystemJobSchedulerTest extends WorkManagerTest {
     @SdkSuppress(minSdkVersion = 24)
     public void testSystemJobScheduler_schedulesOnceAtOrAboveApi24() {
         OneTimeWorkRequest work1 = new OneTimeWorkRequest.Builder(TestWorker.class).build();
-        WorkSpec workSpec1 = getWorkSpec(work1);
+        WorkSpec workSpec1 = work1.getWorkSpec();
         addToWorkSpecDao(workSpec1);
 
         OneTimeWorkRequest work2 = new OneTimeWorkRequest.Builder(TestWorker.class).build();
-        WorkSpec workSpec2 = getWorkSpec(work2);
+        WorkSpec workSpec2 = work2.getWorkSpec();
         addToWorkSpecDao(workSpec2);
 
         mSystemJobScheduler.schedule(workSpec1, workSpec2);
@@ -194,7 +198,7 @@ public class SystemJobSchedulerTest extends WorkManagerTest {
     @SdkSuppress(minSdkVersion = 23)
     public void testSystemJobScheduler_ignoresUnfoundWork() {
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class).build();
-        WorkSpec workSpec = getWorkSpec(work);
+        WorkSpec workSpec = work.getWorkSpec();
         // Don't use addToWorkSpecDao and put it in the database mock.
 
         mSystemJobScheduler.schedule(workSpec);
@@ -208,7 +212,7 @@ public class SystemJobSchedulerTest extends WorkManagerTest {
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class)
                 .setInitialState(WorkInfo.State.CANCELLED)
                 .build();
-        WorkSpec workSpec = getWorkSpec(work);
+        WorkSpec workSpec = work.getWorkSpec();
         // Don't use addToWorkSpecDao and put it in the database mock.
 
         mSystemJobScheduler.schedule(workSpec);
@@ -225,11 +229,32 @@ public class SystemJobSchedulerTest extends WorkManagerTest {
         doThrow(new RuntimeException("Crash")).when(mJobScheduler).getAllPendingJobs();
 
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class).build();
-        WorkSpec workSpec = getWorkSpec(work);
+        WorkSpec workSpec = work.getWorkSpec();
         addToWorkSpecDao(workSpec);
         mSystemJobScheduler.schedule(workSpec);
         // JobScheduler#schedule() should be called once at the very least.
         verify(mJobScheduler, times(1)).schedule(any(JobInfo.class));
+    }
+
+    @Test
+    @MediumTest
+    @SdkSuppress(minSdkVersion = 23)
+    public void testSchedulingExceptionHandler() {
+        doCallRealMethod().when(mSystemJobScheduler)
+                .scheduleInternal(any(WorkSpec.class), anyInt());
+
+        SchedulingExceptionHandler handler = mock(SchedulingExceptionHandler.class);
+        Configuration configuration = new Configuration.Builder()
+                .setSchedulingExceptionHandler(handler)
+                .build();
+
+        when(mWorkManager.getConfiguration()).thenReturn(configuration);
+        doThrow(new IllegalStateException("Error scheduling")).when(mJobScheduler).schedule(any());
+        OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class).build();
+        WorkSpec workSpec = work.getWorkSpec();
+        addToWorkSpecDao(workSpec);
+        mSystemJobScheduler.schedule(workSpec);
+        verify(handler, times(1)).handleException(any());
     }
 
     @Test

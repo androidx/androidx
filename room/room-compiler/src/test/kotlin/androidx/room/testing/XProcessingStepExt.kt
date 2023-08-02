@@ -32,7 +32,8 @@ fun XProcessingStep.asTestInvocationHandler(
     }
     this.process(
         env = invocation.processingEnv,
-        elementsByAnnotation = elementsByAnnotation
+        elementsByAnnotation = elementsByAnnotation,
+        false
     )
     delegate(invocation)
 }

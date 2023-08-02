@@ -21,6 +21,7 @@ import androidx.room.compiler.processing.XNullability
 import androidx.room.compiler.processing.XRawType
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.javac.kotlin.KmType
+import androidx.room.compiler.processing.javac.kotlin.KotlinMetadataElement
 import androidx.room.compiler.processing.ksp.ERROR_TYPE_NAME
 import androidx.room.compiler.processing.safeTypeName
 import com.google.auto.common.MoreTypes
@@ -30,7 +31,7 @@ import javax.lang.model.type.TypeMirror
 import kotlin.reflect.KClass
 
 internal abstract class JavacType(
-    protected val env: JavacProcessingEnv,
+    internal val env: JavacProcessingEnv,
     open val typeMirror: TypeMirror,
     private val maybeNullability: XNullability?,
 ) : XType, XEquality {
@@ -39,6 +40,18 @@ internal abstract class JavacType(
 
     override val rawType: XRawType by lazy {
         JavacRawType(env, this)
+    }
+
+    override val superTypes by lazy {
+        val superTypes = env.typeUtils.directSupertypes(typeMirror)
+        superTypes.map {
+            val element = MoreTypes.asTypeElement(it)
+            env.wrap<JavacType>(
+                typeMirror = it,
+                kotlinType = KotlinMetadataElement.createFor(element)?.kmType,
+                elementNullability = element.nullability
+            )
+        }
     }
 
     override val typeElement by lazy {
@@ -73,7 +86,8 @@ internal abstract class JavacType(
     override fun defaultValue(): String {
         return when (typeMirror.kind) {
             TypeKind.BOOLEAN -> "false"
-            TypeKind.BYTE, TypeKind.SHORT, TypeKind.INT, TypeKind.LONG, TypeKind.CHAR -> "0"
+            TypeKind.BYTE, TypeKind.SHORT, TypeKind.INT, TypeKind.CHAR -> "0"
+            TypeKind.LONG -> "0L"
             TypeKind.FLOAT -> "0f"
             TypeKind.DOUBLE -> "0.0"
             else -> "null"

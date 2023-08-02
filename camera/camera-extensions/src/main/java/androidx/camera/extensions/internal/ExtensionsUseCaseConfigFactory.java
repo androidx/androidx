@@ -16,11 +16,14 @@
 
 package androidx.camera.extensions.internal;
 
+import static androidx.camera.core.impl.UseCaseConfig.OPTION_ZSL_DISABLED;
+
 import android.content.Context;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.camera.core.ImageCapture.CaptureMode;
 import androidx.camera.core.impl.Config;
 import androidx.camera.core.impl.MutableOptionsBundle;
 import androidx.camera.core.impl.OptionsBundle;
@@ -50,7 +53,10 @@ public final class ExtensionsUseCaseConfigFactory implements UseCaseConfigFactor
      */
     @Nullable
     @Override
-    public Config getConfig(@NonNull CaptureType captureType) {
+    public Config getConfig(
+            @NonNull CaptureType captureType,
+            @CaptureMode int captureMode
+    ) {
         MutableOptionsBundle mutableOptionsBundle;
 
         switch (captureType) {
@@ -62,9 +68,15 @@ public final class ExtensionsUseCaseConfigFactory implements UseCaseConfigFactor
                 mutableOptionsBundle =
                         MutableOptionsBundle.from(mPreviewConfigProvider.getConfig());
                 break;
+            case VIDEO_CAPTURE:
+                throw new IllegalArgumentException("CameraX Extensions doesn't support "
+                        + "VideoCapture!");
             default:
                 return null;
         }
+
+        // Disable ZSL when Extension is ON.
+        mutableOptionsBundle.insertOption(OPTION_ZSL_DISABLED, true);
 
         return OptionsBundle.from(mutableOptionsBundle);
     }

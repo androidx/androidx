@@ -18,7 +18,7 @@ package androidx.room.compiler.processing
 
 import androidx.room.compiler.processing.testcode.KotlinTestClass
 import androidx.room.compiler.processing.util.Source
-import androidx.room.compiler.processing.util.getMethod
+import androidx.room.compiler.processing.util.getMethodByJvmName
 import androidx.room.compiler.processing.util.getParameter
 import androidx.room.compiler.processing.util.runProcessorTest
 import androidx.room.compiler.processing.util.typeName
@@ -38,7 +38,7 @@ class KotlinMetadataTest {
             sources = listOf(source)
         ) {
             val element = it.processingEnv.requireTypeElement(KotlinTestClass::class)
-            element.getMethod("mySuspendMethod").apply {
+            element.getMethodByJvmName("mySuspendMethod").apply {
                 assertThat(parameters).hasSize(2)
                 assertThat(getParameter("param1").type.typeName)
                     .isEqualTo(String::class.typeName())

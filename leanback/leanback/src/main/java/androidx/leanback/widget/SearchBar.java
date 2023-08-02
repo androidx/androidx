@@ -276,15 +276,15 @@ public class SearchBar extends RelativeLayout {
                     }, 500);
                 } else if (EditorInfo.IME_ACTION_GO == action) {
                     if (DEBUG) Log.v(TAG, "Voice Clicked");
-                        hideNativeKeyboard();
-                        mHandler.postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                if (DEBUG) Log.v(TAG, "Delayed action handling (voice_mode)");
-                                mAutoStartRecognition = true;
-                                mSpeechOrbView.requestFocus();
-                            }
-                        }, 500);
+                    hideNativeKeyboard();
+                    mHandler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (DEBUG) Log.v(TAG, "Delayed action handling (voice_mode)");
+                            mAutoStartRecognition = true;
+                            mSpeechOrbView.requestFocus();
+                        }
+                    }, 500);
                 } else {
                     handled = false;
                 }

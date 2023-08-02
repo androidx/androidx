@@ -18,7 +18,6 @@ package androidx.navigation.dynamicfeatures
 
 import android.content.Context
 import android.util.AttributeSet
-import androidx.annotation.RestrictTo
 import androidx.core.content.withStyledAttributes
 import androidx.navigation.ActivityNavigator
 import androidx.navigation.NavBackStackEntry
@@ -35,11 +34,7 @@ public class DynamicActivityNavigator(
     private val installManager: DynamicInstallManager
 ) : ActivityNavigator(context) {
 
-    /**
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public val packageName: String = context.packageName
+    internal val packageName: String = context.packageName
 
     override fun navigate(
         entries: List<NavBackStackEntry>,

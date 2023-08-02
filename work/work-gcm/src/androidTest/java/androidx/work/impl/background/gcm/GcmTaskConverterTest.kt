@@ -29,7 +29,7 @@ import com.google.android.gms.gcm.Task
 import org.hamcrest.Matchers.greaterThan
 import org.hamcrest.Matchers.lessThanOrEqualTo
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertThat
+import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -233,7 +233,7 @@ class GcmTaskConverterTest {
             15L, TimeUnit.MINUTES, 5, TimeUnit.MINUTES
         ).build()
 
-        request.workSpec.periodStartTime = now
+        request.workSpec.lastEnqueueTime = now
         val expected = TimeUnit.MINUTES.toSeconds(15L)
 
         val task = mTaskConverter.convert(request.workSpec)

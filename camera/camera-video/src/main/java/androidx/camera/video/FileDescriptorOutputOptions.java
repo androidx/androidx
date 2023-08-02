@@ -30,7 +30,7 @@ import com.google.auto.value.AutoValue;
  *
  * <p>The file descriptor must be seekable and writable. The caller is responsible for closing
  * the file descriptor, which can be safely closed after the recording starts. That is, after
- * {@link PendingRecording#start()} returns. Application should not use the file referenced by
+ * {@link PendingRecording#start(java.util.concurrent.Executor, androidx.core.util.Consumer)} returns. Application should not use the file referenced by
  * this file descriptor until the recording is complete.
  *
  * <p>To use a {@link java.io.File} as an output destination instead of a file descriptor, use
@@ -43,8 +43,7 @@ public final class FileDescriptorOutputOptions extends OutputOptions {
 
     FileDescriptorOutputOptions(
             @NonNull FileDescriptorOutputOptionsInternal fileDescriptorOutputOptionsInternal) {
-        Preconditions.checkNotNull(fileDescriptorOutputOptionsInternal,
-                "FileDescriptorOutputOptionsInternal can't be null.");
+        super(fileDescriptorOutputOptionsInternal);
         mFileDescriptorOutputOptionsInternal = fileDescriptorOutputOptionsInternal;
     }
 
@@ -56,14 +55,6 @@ public final class FileDescriptorOutputOptions extends OutputOptions {
     @NonNull
     public ParcelFileDescriptor getParcelFileDescriptor() {
         return mFileDescriptorOutputOptionsInternal.getParcelFileDescriptor();
-    }
-
-    /**
-     * Gets the limit for the file length in bytes.
-     */
-    @Override
-    public long getFileSizeLimit() {
-        return mFileDescriptorOutputOptionsInternal.getFileSizeLimit();
     }
 
     @Override
@@ -93,12 +84,10 @@ public final class FileDescriptorOutputOptions extends OutputOptions {
 
     /** The builder of the {@link FileDescriptorOutputOptions} object. */
     @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-    public static final class Builder implements
+    public static final class Builder extends
             OutputOptions.Builder<FileDescriptorOutputOptions, Builder> {
-        private final FileDescriptorOutputOptionsInternal.Builder mInternalBuilder =
-                new AutoValue_FileDescriptorOutputOptions_FileDescriptorOutputOptionsInternal
-                        .Builder()
-                        .setFileSizeLimit(FILE_SIZE_UNLIMITED);
+
+        private final FileDescriptorOutputOptionsInternal.Builder mInternalBuilder;
 
         /**
          * Creates a builder of the {@link FileDescriptorOutputOptions} with a file descriptor.
@@ -106,7 +95,10 @@ public final class FileDescriptorOutputOptions extends OutputOptions {
          * @param fileDescriptor the file descriptor to use as the output destination.
          */
         public Builder(@NonNull ParcelFileDescriptor fileDescriptor) {
+            super(new AutoValue_FileDescriptorOutputOptions_FileDescriptorOutputOptionsInternal
+                    .Builder());
             Preconditions.checkNotNull(fileDescriptor, "File descriptor can't be null.");
+            mInternalBuilder = (FileDescriptorOutputOptionsInternal.Builder) mRootInternalBuilder;
             mInternalBuilder.setParcelFileDescriptor(fileDescriptor);
         }
 
@@ -124,8 +116,7 @@ public final class FileDescriptorOutputOptions extends OutputOptions {
         @Override
         @NonNull
         public Builder setFileSizeLimit(long fileSizeLimitBytes) {
-            mInternalBuilder.setFileSizeLimit(fileSizeLimitBytes);
-            return this;
+            return super.setFileSizeLimit(fileSizeLimitBytes);
         }
 
         /** Builds the {@link FileDescriptorOutputOptions} instance. */
@@ -137,18 +128,17 @@ public final class FileDescriptorOutputOptions extends OutputOptions {
     }
 
     @AutoValue
-    abstract static class FileDescriptorOutputOptionsInternal {
+    abstract static class FileDescriptorOutputOptionsInternal extends OutputOptionsInternal {
         @NonNull
         abstract ParcelFileDescriptor getParcelFileDescriptor();
-        abstract long getFileSizeLimit();
 
+        @SuppressWarnings("NullableProblems") // Nullable problem in AutoValue generated class
         @AutoValue.Builder
-        abstract static class Builder {
+        abstract static class Builder extends OutputOptionsInternal.Builder<Builder> {
             @NonNull
             abstract Builder setParcelFileDescriptor(
                     @NonNull ParcelFileDescriptor parcelFileDescriptor);
-            @NonNull
-            abstract Builder setFileSizeLimit(long fileSizeLimitBytes);
+            @Override
             @NonNull
             abstract FileDescriptorOutputOptionsInternal build();
         }

@@ -16,8 +16,8 @@
 
 package androidx.core.google.shortcuts;
 
-import static androidx.core.google.shortcuts.ShortcutUtils.SHORTCUT_TAG_KEY;
-import static androidx.core.google.shortcuts.ShortcutUtils.SHORTCUT_URL_KEY;
+import static androidx.core.google.shortcuts.utils.ShortcutUtils.SHORTCUT_TAG_KEY;
+import static androidx.core.google.shortcuts.utils.ShortcutUtils.SHORTCUT_URL_KEY;
 import static androidx.test.espresso.intent.Intents.intended;
 import static androidx.test.espresso.intent.Intents.times;
 import static androidx.test.espresso.intent.matcher.IntentMatchers.hasComponent;
@@ -31,6 +31,7 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 
 import androidx.core.google.shortcuts.test.TestActivity;
+import androidx.core.google.shortcuts.utils.ShortcutUtils;
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.espresso.intent.Intents;
@@ -123,6 +124,7 @@ public class TrampolineActivityTest {
         assertThat(scenario.getResult().getResultCode()).isEqualTo(Activity.RESULT_CANCELED);
     }
 
+    @SuppressWarnings("deprecation") // usage of PackageManager.queryIntentActivities
     @Test
     @SmallTest
     public void testManifest_canDiscoverMetadata() {
@@ -133,10 +135,14 @@ public class TrampolineActivityTest {
         List<ResolveInfo> resolveInfos = packageManager.queryIntentActivities(
                 activityIntent, PackageManager.GET_META_DATA);
 
-        assertThat(resolveInfos.stream().anyMatch(resolveInfo ->
-                SHORTCUT_LISTENER_CLASS_NAME.equals(resolveInfo.activityInfo.metaData
-                        .getString(SHORTCUT_LISTENER_META_DATA_KEY))))
-                .isTrue();
+        boolean hasMetadata = false;
+        for (ResolveInfo resolveInfo : resolveInfos) {
+            if (SHORTCUT_LISTENER_CLASS_NAME.equals(
+                    resolveInfo.activityInfo.metaData.getString(SHORTCUT_LISTENER_META_DATA_KEY))) {
+                hasMetadata = true;
+            }
+        }
+        assertThat(hasMetadata).isTrue();
     }
 
     private Intent createIntentToTestActivity() throws Exception {

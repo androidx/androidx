@@ -135,6 +135,36 @@ class NavBackStackEntryLifecycleTest {
             .collect()
     }
 
+    @UiThreadTest
+    @Test
+    @Suppress("DEPRECATION", "EXPERIMENTAL_API_USAGE")
+    fun visibleEntriesFlowChangedLifecycle() = runBlocking {
+        val owner = TestLifecycleOwner(Lifecycle.State.RESUMED)
+        val navController = createNavController(owner)
+        navController.graph = navController.createGraph(startDestination = 1) {
+            test(1)
+            test(2)
+            test(3)
+        }
+
+        owner.currentState = Lifecycle.State.CREATED
+
+        navController.visibleEntries
+            .take(navController.graph.count())
+            .withIndex()
+            .onEach { (index, list) ->
+                val expectedDestination = index + 1
+                assertWithMessage("Flow emitted unexpected back stack entry (wrong destination)")
+                    .that(list)
+                    .containsExactly(navController.currentBackStackEntry)
+
+                if (expectedDestination < navController.graph.count()) {
+                    navController.navigate(expectedDestination + 1)
+                }
+            }
+            .collect()
+    }
+
     /**
      * Test that navigating from a sibling to a FloatingWindow sibling leaves the previous
      * destination started.

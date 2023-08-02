@@ -19,10 +19,11 @@ package androidx.health.services.client.data
 import android.os.Parcel
 import android.os.Parcelable
 import android.os.Parcelable.Creator
+import androidx.annotation.RestrictTo
 import com.google.protobuf.MessageLite
 
 /**
- * Base class for parcelables backed by protos.
+ * Base class for parcelables backed by Protocol Buffers.
  *
  * Provided [proto] represents everything important to subclasses, they need not implement [equals]
  * and [hashCode].
@@ -66,6 +67,7 @@ public abstract class ProtoParcelable<T : MessageLite> : Parcelable {
          * .
          * @hide
          */
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
         public inline fun <reified U : ProtoParcelable<*>> newCreator(
             crossinline parser: (ByteArray) -> U
         ): Creator<U> {

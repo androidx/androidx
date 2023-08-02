@@ -610,6 +610,7 @@ fun getMainCamera(activity: MainActivity, allTestResults: ArrayList<TestResults>
 /**
  * Return the version name of the Activity
  */
+@Suppress("DEPRECATION")
 fun getVersionName(activity: MainActivity): String {
     val packageInfo = activity.packageManager.getPackageInfo(activity.packageName, 0)
     return packageInfo.versionName

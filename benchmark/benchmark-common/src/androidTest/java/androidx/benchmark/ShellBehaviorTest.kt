@@ -35,6 +35,19 @@ import kotlin.test.assertTrue
 @RunWith(AndroidJUnit4::class)
 class ShellBehaviorTest {
     @Test
+    fun pgrepLF() {
+        // Should only be one process - this one!
+        val pgrepString = Shell.executeCommand("pgrep -l -f ${Packages.TEST}").trim()
+
+        if (Build.VERSION.SDK_INT >= 23) {
+            assertTrue(pgrepString.endsWith(" ${Packages.TEST}"))
+        } else {
+            // command doesn't exist (and we don't try and read stderr here)
+            assertEquals("", pgrepString)
+        }
+    }
+
+    @Test
     fun pidof() {
         // Should only be one process - this one!
         val pidofString = Shell.executeCommand("pidof ${Packages.TEST}").trim()

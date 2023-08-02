@@ -27,15 +27,20 @@ import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.Camera;
 import androidx.camera.core.CameraControl;
+import androidx.camera.core.CameraEffect;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraSelector;
+import androidx.camera.core.EffectBundle;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.Logger;
 import androidx.camera.core.Preview;
+import androidx.camera.core.SurfaceEffect;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.ViewPort;
+import androidx.camera.core.impl.AttachedSurfaceInfo;
 import androidx.camera.core.impl.CameraConfig;
 import androidx.camera.core.impl.CameraConfigs;
 import androidx.camera.core.impl.CameraControlInternal;
@@ -47,6 +52,8 @@ import androidx.camera.core.impl.SurfaceConfig;
 import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.UseCaseConfigFactory;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
+import androidx.camera.core.processing.SurfaceEffectInternal;
+import androidx.camera.core.processing.SurfaceEffectWithExecutor;
 import androidx.core.util.Preconditions;
 
 import java.util.ArrayList;
@@ -57,6 +64,7 @@ import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Executor;
 
 /**
  * A {@link CameraInternal} adapter which checks that the UseCases to make sure that the resolutions
@@ -87,6 +95,10 @@ public final class CameraUseCaseAdapter implements Camera {
     @GuardedBy("mLock")
     @Nullable
     private ViewPort mViewPort;
+
+    @GuardedBy("mLock")
+    @Nullable
+    private EffectBundle mEffectBundle;
 
     // Additional configs to apply onto the UseCases when added to this Camera
     @GuardedBy("mLock")
@@ -162,6 +174,15 @@ public final class CameraUseCaseAdapter implements Camera {
     }
 
     /**
+     * Set the effects that will be used for the {@link UseCase} attached to the camera.
+     */
+    public void setEffectBundle(@Nullable EffectBundle effectBundle) {
+        synchronized (mLock) {
+            mEffectBundle = effectBundle;
+        }
+    }
+
+    /**
      * Add the specified collection of {@link UseCase} to the adapter.
      *
      * @throws CameraException Thrown if the combination of newly added UseCases and the
@@ -169,8 +190,9 @@ public final class CameraUseCaseAdapter implements Camera {
      */
     public void addUseCases(@NonNull Collection<UseCase> useCases) throws CameraException {
         synchronized (mLock) {
+            // TODO: merge UseCase for stream sharing. e.g. replace Preview and VideoCapture with a
+            //  StreamSharing UseCase.
             List<UseCase> newUseCases = new ArrayList<>();
-
             for (UseCase useCase : useCases) {
                 if (mUseCases.contains(useCase)) {
                     Logger.d(TAG, "Attempting to attach already attached UseCase");
@@ -222,6 +244,7 @@ public final class CameraUseCaseAdapter implements Camera {
                 throw new CameraException(e.getMessage());
             }
             updateViewPort(suggestedResolutionsMap, useCases);
+            updateEffects(mEffectBundle, useCases);
 
             // Saves the updated extra use cases set after confirming the use case combination
             // can be supported.
@@ -321,6 +344,18 @@ public final class CameraUseCaseAdapter implements Camera {
     }
 
     /**
+     * When in active resuming mode, it will actively retry opening the camera periodically to
+     * resume regardless of the camera availability if the camera is interrupted in
+     * OPEN/OPENING/PENDING_OPEN state.
+     *
+     * When not in actively resuming mode, it will retry opening camera only when camera
+     * becomes available.
+     */
+    public void setActiveResumingMode(boolean enabled) {
+        mCameraInternal.setActiveResumingMode(enabled);
+    }
+
+    /**
      * Detach the UseCases from the {@link CameraInternal} so that the UseCases stop receiving data.
      *
      * <p> This will stop the underlying {@link CameraInternal} instance.
@@ -365,7 +400,7 @@ public final class CameraUseCaseAdapter implements Camera {
             @NonNull List<UseCase> newUseCases,
             @NonNull List<UseCase> currentUseCases,
             @NonNull Map<UseCase, ConfigPair> configPairMap) {
-        List<SurfaceConfig> existingSurfaces = new ArrayList<>();
+        List<AttachedSurfaceInfo> existingSurfaces = new ArrayList<>();
         String cameraId = cameraInfoInternal.getCameraId();
         Map<UseCase, Size> suggestedResolutions = new HashMap<>();
 
@@ -375,7 +410,9 @@ public final class CameraUseCaseAdapter implements Camera {
                     mCameraDeviceSurfaceManager.transformSurfaceConfig(cameraId,
                             useCase.getImageFormat(),
                             useCase.getAttachedSurfaceResolution());
-            existingSurfaces.add(surfaceConfig);
+            existingSurfaces.add(AttachedSurfaceInfo.create(surfaceConfig,
+                    useCase.getImageFormat(), useCase.getAttachedSurfaceResolution(),
+                    useCase.getCurrentConfig().getTargetFramerate(null)));
             suggestedResolutions.put(useCase, useCase.getAttachedSurfaceResolution());
         }
 
@@ -402,6 +439,31 @@ public final class CameraUseCaseAdapter implements Camera {
             }
         }
         return suggestedResolutions;
+    }
+
+    @VisibleForTesting
+    static void updateEffects(@Nullable EffectBundle effectBundle,
+            @NonNull Collection<UseCase> useCases) {
+        Map<Integer, CameraEffect> effectsWithExecutors = new HashMap<>();
+        // Wrap external effects with the executor to make sure they are thread safe.
+        if (effectBundle != null) {
+            Executor executor = effectBundle.getExecutor();
+            for (Map.Entry<Integer, CameraEffect> entry : effectBundle.getEffects().entrySet()) {
+                CameraEffect effect = entry.getValue();
+                int targets = entry.getKey();
+                if (effect instanceof SurfaceEffect) {
+                    effectsWithExecutors.put(targets, new SurfaceEffectWithExecutor(
+                            (SurfaceEffect) effect, executor));
+                }
+            }
+        }
+        // Set effects on the UseCases. This also removes existing effects if necessary.
+        for (UseCase useCase : useCases) {
+            if (useCase instanceof Preview) {
+                ((Preview) useCase).setEffect(
+                        (SurfaceEffectInternal) effectsWithExecutors.get(SurfaceEffect.PREVIEW));
+            }
+        }
     }
 
     private void updateViewPort(@NonNull Map<UseCase, Size> suggestedResolutionsMap,

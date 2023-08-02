@@ -20,6 +20,8 @@ import static androidx.camera.core.ImageAnalysis.OUTPUT_IMAGE_FORMAT_RGBA_8888;
 import static androidx.camera.core.ImageProcessingUtil.applyPixelShiftForYUV;
 import static androidx.camera.core.ImageProcessingUtil.convertYUVToRGB;
 import static androidx.camera.core.ImageProcessingUtil.rotateYUV;
+import static androidx.camera.core.impl.utils.TransformUtils.NORMALIZED_RECT;
+import static androidx.camera.core.impl.utils.TransformUtils.getNormalizedToBuffer;
 
 import android.graphics.Matrix;
 import android.graphics.Rect;
@@ -55,7 +57,6 @@ import java.util.concurrent.Executor;
 abstract class ImageAnalysisAbstractAnalyzer implements ImageReaderProxy.OnImageAvailableListener {
 
     private static final String TAG = "ImageAnalysisAnalyzer";
-    private static final RectF NORMALIZED_RECT = new RectF(-1, -1, 1, 1);
 
     // Member variables from ImageAnalysis.
     @GuardedBy("mAnalyzerLock")
@@ -279,7 +280,9 @@ abstract class ImageAnalysisAbstractAnalyzer implements ImageReaderProxy.OnImage
 
                                 ImageProxy outputSettableImageProxy = new SettableImageProxy(
                                         outputImageProxy, imageInfo);
-                                outputSettableImageProxy.setCropRect(cropRect);
+                                if (!cropRect.isEmpty()) {
+                                    outputSettableImageProxy.setCropRect(cropRect);
+                                }
                                 analyzer.analyze(outputSettableImageProxy);
                                 completer.set(null);
                             } else {
@@ -357,10 +360,11 @@ abstract class ImageAnalysisAbstractAnalyzer implements ImageReaderProxy.OnImage
 
     void setAnalyzer(@Nullable Executor userExecutor,
             @Nullable ImageAnalysis.Analyzer subscribedAnalyzer) {
+        // Keep clearCache out of mAnalyzerLock critical section to avoid deadlock.
+        if (subscribedAnalyzer == null) {
+            clearCache();
+        }
         synchronized (mAnalyzerLock) {
-            if (subscribedAnalyzer == null) {
-                clearCache();
-            }
             mSubscribedAnalyzer = subscribedAnalyzer;
             mUserExecutor = userExecutor;
         }
@@ -486,12 +490,5 @@ abstract class ImageAnalysisAbstractAnalyzer implements ImageReaderProxy.OnImage
                     rotatedHeight)));
         }
         return matrix;
-    }
-
-    @NonNull
-    private static Matrix getNormalizedToBuffer(@NonNull RectF buffer) {
-        Matrix normalizedToBuffer = new Matrix();
-        normalizedToBuffer.setRectToRect(NORMALIZED_RECT, buffer, Matrix.ScaleToFit.FILL);
-        return normalizedToBuffer;
     }
 }

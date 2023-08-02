@@ -24,10 +24,11 @@ import android.content.Context;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.work.Configuration;
+import androidx.work.ForegroundUpdater;
 import androidx.work.ListenableWorker;
 import androidx.work.Logger;
+import androidx.work.ProgressUpdater;
 import androidx.work.WorkerParameters;
-import androidx.work.impl.WorkManagerImpl;
 import androidx.work.impl.utils.futures.SettableFuture;
 import androidx.work.impl.utils.taskexecutor.TaskExecutor;
 import androidx.work.multiprocess.parcelable.ParcelConverters;
@@ -59,19 +60,23 @@ public class ListenableWorkerImpl extends IListenableWorkerImpl.Stub {
     // Synthetic access
     final Context mContext;
     // Synthetic access
-    final WorkManagerImpl mWorkManager;
-    // Synthetic access
     final Configuration mConfiguration;
     // Synthetic access
     final TaskExecutor mTaskExecutor;
+    // Synthetic access
+    final ProgressUpdater mProgressUpdater;
+    // Synthetic access
+    final ForegroundUpdater mForegroundUpdater;
     // Synthetic access
     final Map<String, ListenableFuture<ListenableWorker.Result>> mFutureMap;
 
     ListenableWorkerImpl(@NonNull Context context) {
         mContext = context.getApplicationContext();
-        mWorkManager = WorkManagerImpl.getInstance(mContext);
-        mConfiguration = mWorkManager.getConfiguration();
-        mTaskExecutor = mWorkManager.getWorkTaskExecutor();
+        RemoteWorkManagerInfo remoteInfo = RemoteWorkManagerInfo.getInstance(context);
+        mConfiguration = remoteInfo.getConfiguration();
+        mTaskExecutor = remoteInfo.getTaskExecutor();
+        mProgressUpdater = remoteInfo.getProgressUpdater();
+        mForegroundUpdater = remoteInfo.getForegroundUpdater();
         mFutureMap = new HashMap<>();
     }
 
@@ -87,7 +92,12 @@ public class ListenableWorkerImpl extends IListenableWorkerImpl.Stub {
                     parcelableRemoteWorkRequest.getParcelableWorkerParameters();
 
             WorkerParameters workerParameters =
-                    parcelableWorkerParameters.toWorkerParameters(mWorkManager);
+                    parcelableWorkerParameters.toWorkerParameters(
+                            mConfiguration,
+                            mTaskExecutor,
+                            mProgressUpdater,
+                            mForegroundUpdater
+                    );
 
             final String id = workerParameters.getId().toString();
             final String workerClassName = parcelableRemoteWorkRequest.getWorkerClassName();
@@ -117,7 +127,7 @@ public class ListenableWorkerImpl extends IListenableWorkerImpl.Stub {
                         }
                     }
                 }
-            }, mTaskExecutor.getBackgroundExecutor());
+            }, mTaskExecutor.getSerialTaskExecutor());
         } catch (Throwable throwable) {
             reportFailure(callback, throwable);
         }
@@ -138,7 +148,7 @@ public class ListenableWorkerImpl extends IListenableWorkerImpl.Stub {
                 future = mFutureMap.remove(id);
             }
             if (future != null) {
-                mWorkManager.getWorkTaskExecutor().getBackgroundExecutor()
+                mTaskExecutor.getSerialTaskExecutor()
                         .execute(new Runnable() {
                             @Override
                             public void run() {
@@ -162,36 +172,37 @@ public class ListenableWorkerImpl extends IListenableWorkerImpl.Stub {
             @NonNull WorkerParameters workerParameters) {
 
         final SettableFuture<ListenableWorker.Result> future = SettableFuture.create();
-        Logger.get().debug(TAG, "Tracking execution of "  + id + " (" + workerClassName + ")");
+        Logger.get().debug(TAG, "Tracking execution of " + id + " (" + workerClassName + ")");
 
         synchronized (sLock) {
             mFutureMap.put(id, future);
         }
+        mTaskExecutor.getMainThreadExecutor().execute(() -> {
+            try {
+                ListenableWorker worker = mConfiguration.getWorkerFactory()
+                        .createWorkerWithDefaultFallback(mContext, workerClassName,
+                                workerParameters);
+                if (worker == null) {
+                    String message = "Unable to create an instance of " + workerClassName;
+                    Logger.get().error(TAG, message);
+                    future.setException(new IllegalStateException(message));
+                    return;
+                }
 
-        ListenableWorker worker = mConfiguration.getWorkerFactory()
-                .createWorkerWithDefaultFallback(mContext, workerClassName, workerParameters);
+                if (!(worker instanceof RemoteListenableWorker)) {
+                    String message = workerClassName + " does not extend "
+                            + RemoteListenableWorker.class.getName();
+                    Logger.get().error(TAG, message);
+                    future.setException(new IllegalStateException(message));
+                    return;
+                }
 
-        if (worker == null) {
-            String message = "Unable to create an instance of " + workerClassName;
-            Logger.get().error(TAG, message);
-            future.setException(new IllegalStateException(message));
-            return future;
-        }
-
-        if (!(worker instanceof RemoteListenableWorker)) {
-            String message =
-                    workerClassName + " does not extend " + RemoteListenableWorker.class.getName();
-            Logger.get().error(TAG, message);
-            future.setException(new IllegalStateException(message));
-            return future;
-        }
-
-        try {
-            RemoteListenableWorker remoteListenableWorker = (RemoteListenableWorker) worker;
-            future.setFuture(remoteListenableWorker.startRemoteWork());
-        } catch (Throwable throwable) {
-            future.setException(throwable);
-        }
+                RemoteListenableWorker remoteListenableWorker = (RemoteListenableWorker) worker;
+                future.setFuture(remoteListenableWorker.startRemoteWork());
+            } catch (Throwable throwable) {
+                future.setException(throwable);
+            }
+        });
 
         return future;
     }

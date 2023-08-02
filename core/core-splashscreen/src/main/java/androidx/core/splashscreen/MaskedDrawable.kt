@@ -52,9 +52,8 @@ internal class MaskedDrawable(
     @Suppress("DEPRECATION")
     override fun getOpacity() = drawable.opacity
 
-    override fun onBoundsChange(bounds: Rect?) {
+    override fun onBoundsChange(bounds: Rect) {
         super.onBoundsChange(bounds)
-        bounds ?: return
         drawable.bounds = bounds
         mask.offset(bounds.exactCenterX(), bounds.exactCenterY())
     }

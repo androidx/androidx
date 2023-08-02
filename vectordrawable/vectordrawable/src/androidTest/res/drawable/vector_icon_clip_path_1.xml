@@ -30,7 +30,8 @@
                 l 7.3, 0
                 l 0, 12.25
                 l -7.3, 0
-                z"/>
+                z"
+                android:fillType="nonZero"/>
 
         <group
                 android:pivotX="3.65"

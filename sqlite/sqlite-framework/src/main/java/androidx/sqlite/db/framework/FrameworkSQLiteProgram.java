@@ -18,6 +18,7 @@ package androidx.sqlite.db.framework;
 
 import android.database.sqlite.SQLiteProgram;
 
+import androidx.annotation.NonNull;
 import androidx.sqlite.db.SupportSQLiteProgram;
 
 /**
@@ -46,12 +47,12 @@ class FrameworkSQLiteProgram implements SupportSQLiteProgram {
     }
 
     @Override
-    public void bindString(int index, String value) {
+    public void bindString(int index, @NonNull String value) {
         mDelegate.bindString(index, value);
     }
 
     @Override
-    public void bindBlob(int index, byte[] value) {
+    public void bindBlob(int index, @NonNull byte[] value) {
         mDelegate.bindBlob(index, value);
     }
 

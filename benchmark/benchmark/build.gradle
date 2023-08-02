@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
@@ -24,9 +26,21 @@ plugins {
 dependencies {
     androidTestImplementation(project(":benchmark:benchmark-junit4"))
     androidTestImplementation(project(":tracing:tracing-ktx"))
+    androidTestImplementation(project(":tracing:tracing-perfetto"))
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.junit)
     androidTestImplementation(libs.kotlinStdlib)
+}
+
+android {
+    namespace "androidx.benchmark.benchmark"
+}
+
+// Allow usage of Kotlin's @OptIn.
+tasks.withType(KotlinCompile).configureEach {
+    kotlinOptions {
+        freeCompilerArgs += ["-opt-in=kotlin.RequiresOptIn"]
+    }
 }

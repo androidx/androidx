@@ -15,7 +15,8 @@
   -->
 
 <resources>
-    <style name="Widget.Glance.AppWidget.ErrorBackground.Base" parent="">
+    <style name="Glance.AppWidget.Background"
+        parent="Base.Glance.AppWidget.Background">
         <item name="android:clipToOutline">true</item>
         <item name="android:padding">16dp</item>
     </style>

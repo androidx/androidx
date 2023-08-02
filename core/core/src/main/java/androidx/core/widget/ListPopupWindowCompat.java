@@ -21,8 +21,10 @@ import android.view.View;
 import android.view.View.OnTouchListener;
 import android.widget.ListPopupWindow;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 
 /**
  * Helper for accessing features in {@link ListPopupWindow}.
@@ -33,7 +35,7 @@ public final class ListPopupWindowCompat {
     }
 
     /**
-     * On API {@link android.os.Build.VERSION_CODES#KITKAT} and higher, returns
+     * On API {@link Build.VERSION_CODES#KITKAT} and higher, returns
      * an {@link OnTouchListener} that can be added to the source view to
      * implement drag-to-open behavior. Generally, the source view should be the
      * same view that was passed to ListPopupWindow.setAnchorView(View).
@@ -67,7 +69,7 @@ public final class ListPopupWindowCompat {
     }
 
     /**
-     * On API {@link android.os.Build.VERSION_CODES#KITKAT} and higher, returns
+     * On API {@link Build.VERSION_CODES#KITKAT} and higher, returns
      * an {@link OnTouchListener} that can be added to the source view to
      * implement drag-to-open behavior. Generally, the source view should be the
      * same view that was passed to ListPopupWindow.setAnchorView(View).
@@ -95,9 +97,21 @@ public final class ListPopupWindowCompat {
     public static OnTouchListener createDragToOpenListener(
             @NonNull ListPopupWindow listPopupWindow, @NonNull View src) {
         if (Build.VERSION.SDK_INT >= 19) {
-            return listPopupWindow.createDragToOpenListener(src);
+            return Api19Impl.createDragToOpenListener(listPopupWindow, src);
         } else {
             return null;
+        }
+    }
+
+    @RequiresApi(19)
+    static class Api19Impl {
+        private Api19Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static OnTouchListener createDragToOpenListener(ListPopupWindow listPopupWindow, View src) {
+            return listPopupWindow.createDragToOpenListener(src);
         }
     }
 }

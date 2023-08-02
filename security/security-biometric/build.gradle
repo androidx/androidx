@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
-import androidx.build.LibraryVersions
 import androidx.build.Publish
 
 plugins {
@@ -41,6 +39,7 @@ android {
     defaultConfig {
         minSdkVersion 23
     }
+    namespace "androidx.security.biometric"
 }
 
 androidx {

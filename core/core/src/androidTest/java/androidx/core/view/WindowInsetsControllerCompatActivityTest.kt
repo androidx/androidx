@@ -16,11 +16,13 @@
 
 package androidx.core.view
 
+import android.app.Dialog
 import android.os.Build
 import android.view.View
 import android.view.WindowInsetsController
 import android.view.WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS
 import android.widget.EditText
+import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.core.graphics.Insets
 import androidx.core.test.R
@@ -65,15 +67,15 @@ public class WindowInsetsControllerCompatActivityTest {
         scenario = ActivityScenario.launch(WindowInsetsCompatActivity::class.java)
 
         container = scenario.withActivity { findViewById(R.id.container) }
-        windowInsetsController = ViewCompat.getWindowInsetsController(container)!!
         scenario.withActivity {
+            windowInsetsController = WindowCompat.getInsetsController(window, container)
             WindowCompat.setDecorFitsSystemWindows(window, true)
         }
         // Close the IME if it's open, so we start from a known scenario
         onView(withId(R.id.edittext)).perform(closeSoftKeyboard())
 
         scenario.withActivity {
-            ViewCompat.getWindowInsetsController(container)!!.systemBarsBehavior =
+            WindowCompat.getInsetsController(window, container).systemBarsBehavior =
                 WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
             // Needed on API 23 to report the nav bar insets
             this.window.addFlags(FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
@@ -91,7 +93,9 @@ public class WindowInsetsControllerCompatActivityTest {
         val container: View = scenario.withActivity { findViewById(R.id.container) }
         scenario.withActivity { findViewById<View>(R.id.edittext).requestFocus() }
 
-        val windowInsetsController = ViewCompat.getWindowInsetsController(container)!!
+        val windowInsetsController = scenario.withActivity {
+            WindowCompat.getInsetsController(window, container)
+        }
         scenario.onActivity { windowInsetsController.hide(WindowInsetsCompat.Type.ime()) }
         container.assertInsetsVisibility(WindowInsetsCompat.Type.ime(), false)
         testShow(WindowInsetsCompat.Type.ime())
@@ -129,18 +133,77 @@ public class WindowInsetsControllerCompatActivityTest {
         assumeNotCuttlefish()
         val type = WindowInsetsCompat.Type.ime()
         val editText = scenario.withActivity { findViewById(R.id.edittext) }
-        val controller = scenario.withActivity { ViewCompat.getWindowInsetsController(editText)!! }
+        val controller = scenario.withActivity {
+            WindowCompat.getInsetsController(window, editText)
+        }
 
         scenario.onActivity {
             editText.requestFocus()
+            controller.show(type)
         }
         assertThat(editText.isFocused, `is`(true))
-        if (Build.VERSION.SDK_INT == 30) {
-            // Dirty hack until we figure out why the IME is not showing if we don't wait before
-            Thread.sleep(100)
-        }
-        controller.show(type)
         container.assertInsetsVisibility(type, true)
+    }
+
+    /**
+     * IME visibility is only reliable on API 23+, where we have access to the root WindowInsets
+     */
+    @SdkSuppress(minSdkVersion = 23)
+    @Test
+    public fun do_not_show_IME_if_TextView_in_dialog_not_focused() {
+        val dialog = scenario.withActivity {
+            object : Dialog(this) {
+                override fun onAttachedToWindow() {
+                    super.onAttachedToWindow()
+                    WindowCompat.setDecorFitsSystemWindows(window!!, false)
+                }
+            }.apply {
+                setContentView(R.layout.insets_compat_activity)
+            }
+        }
+
+        val editText = dialog.findViewById<TextView>(R.id.edittext)
+
+        // We hide the edit text to ensure it won't be automatically focused
+        scenario.onActivity {
+            dialog.show()
+            editText.visibility = View.GONE
+            assertThat(editText.isFocused, `is`(false))
+        }
+
+        val type = WindowInsetsCompat.Type.ime()
+        scenario.onActivity {
+            WindowCompat.getInsetsController(dialog.window!!, editText).show(type)
+        }
+        container.assertInsetsVisibility(type, false)
+    }
+
+    /**
+     * IME visibility is only reliable on API 23+, where we have access to the root WindowInsets
+     */
+    @SdkSuppress(minSdkVersion = 23)
+    @Test
+    fun show_IME_fromEditText_in_dialog() {
+        val dialog = scenario.withActivity {
+            object : Dialog(this) {
+                override fun onAttachedToWindow() {
+                    super.onAttachedToWindow()
+                    WindowCompat.setDecorFitsSystemWindows(window!!, false)
+                }
+            }.apply {
+                setContentView(R.layout.insets_compat_activity)
+            }
+        }
+
+        val type = WindowInsetsCompat.Type.ime()
+        val editText = dialog.findViewById<TextView>(R.id.edittext)
+
+        scenario.onActivity { dialog.show() }
+
+        val controller = WindowCompat.getInsetsController(dialog.window!!, editText)
+
+        scenario.onActivity { controller.show(type) }
+        editText.assertInsetsVisibility(type, true)
     }
 
     /**
@@ -183,12 +246,12 @@ public class WindowInsetsControllerCompatActivityTest {
 
     @SdkSuppress(minSdkVersion = 23)
     @Test
-    public fun systemBar_light() {
+    public fun statusBar_light() {
         scenario.onActivity {
             windowInsetsController.setAppearanceLightStatusBars(true)
         }
-        if (Build.VERSION.SDK_INT < 30) {
-            // The view's systemUiVisibility flags are not changed on API 30+
+        if (Build.VERSION.SDK_INT < 31) {
+            // The view's systemUiVisibility flags are not changed on API 31+
             val systemUiVisibility = scenario.withActivity { window.decorView }.systemUiVisibility
             assertThat(
                 systemUiVisibility and View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR,
@@ -198,33 +261,27 @@ public class WindowInsetsControllerCompatActivityTest {
         assertThat(windowInsetsController.isAppearanceLightStatusBars(), `is`(true))
     }
 
-    /**
-     * Tests that after calling setAppearanceLightStatusBars in API 30
-     * isAppearanceLightStatusBars is true and SYSTEM_UI_FLAG_LIGHT_STATUS_BAR flag is unset.
-     *
-     * Currently this works only with Impl30(Window window, WindowInsetsControllerCompat
-     * compatController) constructor (b/180881870).
-     */
-    @SdkSuppress(minSdkVersion = 30, maxSdkVersion = 30)
+    @SdkSuppress(minSdkVersion = 23)
     @Test
-    public fun systemBar_light_theme() {
+    public fun statusBar_dark() {
         val decorView = scenario.withActivity { window.decorView }
-
-        scenario.onActivity { activity ->
-            windowInsetsController = WindowInsetsControllerCompat(
-                activity.window, activity.findViewById(R.id.container)
-            )
-
+        scenario.onActivity {
+            // start off with light status bars (as if set in the theme)
             decorView.systemUiVisibility = decorView.systemUiVisibility or
                 View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
-            windowInsetsController.setAppearanceLightStatusBars(true)
+
+            windowInsetsController.setAppearanceLightStatusBars(false)
         }
 
-        assertThat(
-            decorView.systemUiVisibility and View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR,
-            equalTo(0)
-        )
-        assertThat(windowInsetsController.isAppearanceLightStatusBars(), `is`(true))
+        if (Build.VERSION.SDK_INT < 31) {
+            // The view's systemUiVisibility flags are not changed on API 31+
+            val systemUiVisibility = scenario.withActivity { window.decorView }.systemUiVisibility
+            assertThat(
+                systemUiVisibility and View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR,
+                equalTo(0)
+            )
+        }
+        assertThat(windowInsetsController.isAppearanceLightStatusBars(), `is`(false))
     }
 
     @SdkSuppress(minSdkVersion = 26)
@@ -234,8 +291,8 @@ public class WindowInsetsControllerCompatActivityTest {
             windowInsetsController.setAppearanceLightNavigationBars(true)
         }
         val systemUiVisibility = scenario.withActivity { window.decorView }.systemUiVisibility
-        if (Build.VERSION.SDK_INT < 30) {
-            // The view's systemUiVisibility flags are not changed on API 30+
+        if (Build.VERSION.SDK_INT < 31) {
+            // The view's systemUiVisibility flags are not changed on API 31+
             assertThat(
                 systemUiVisibility and View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR,
                 equalTo(View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR)
@@ -243,6 +300,30 @@ public class WindowInsetsControllerCompatActivityTest {
         }
         assertThat(
             windowInsetsController.isAppearanceLightNavigationBars(), `is`(true)
+        )
+    }
+
+    @SdkSuppress(minSdkVersion = 26)
+    @Test
+    public fun navigationBar_dark() {
+        val decorView = scenario.withActivity { window.decorView }
+        scenario.onActivity {
+            // start off with light navigation bars (as if set in the theme)
+            decorView.systemUiVisibility = decorView.systemUiVisibility or
+                View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
+
+            windowInsetsController.setAppearanceLightNavigationBars(false)
+        }
+        val systemUiVisibility = scenario.withActivity { window.decorView }.systemUiVisibility
+        if (Build.VERSION.SDK_INT < 31) {
+            // The view's systemUiVisibility flags are not changed on API 31+
+            assertThat(
+                systemUiVisibility and View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR,
+                equalTo(0)
+            )
+        }
+        assertThat(
+            windowInsetsController.isAppearanceLightNavigationBars(), `is`(false)
         )
     }
 
@@ -270,7 +351,9 @@ public class WindowInsetsControllerCompatActivityTest {
             assertEquals(Insets.NONE, insets.getInsets(type))
         }
 
-        val windowInsetsController = ViewCompat.getWindowInsetsController(container)!!
+        val windowInsetsController = scenario.withActivity {
+            WindowCompat.getInsetsController(window, container)
+        }
 
         // Now open the IME using the InsetsController The IME should
         // now be open

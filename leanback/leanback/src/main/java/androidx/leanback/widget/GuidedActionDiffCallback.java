@@ -31,6 +31,7 @@ public class GuidedActionDiffCallback extends DiffCallback<GuidedAction> {
      * Returns the singleton GuidedActionDiffCallback.
      * @return The singleton GuidedActionDiffCallback.
      */
+    @NonNull
     public static GuidedActionDiffCallback getInstance() {
         return sInstance;
     }

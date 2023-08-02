@@ -56,14 +56,14 @@ import java.util.concurrent.ThreadPoolExecutor;
  * disable the default configuration (and allow manual configuration) add this to your manifest:</p>
  *
  * <pre>
- *     <provider
+ *     &lt;provider
  *         android:name="androidx.startup.InitializationProvider"
  *         android:authorities="${applicationId}.androidx-startup"
  *         android:exported="false"
- *         tools:node="merge">
- *         <meta-data android:name="androidx.emoji2.text.EmojiCompatInitializer"
- *                   tools:node="remove" />
- *     </provider>
+ *         tools:node="merge"&gt;
+ *         &lt;meta-data android:name="androidx.emoji2.text.EmojiCompatInitializer"
+ *                   tools:node="remove" /&gt;
+ *     &lt;/provider&gt;
  * </pre>
  *
  * This initializer depends on {@link ProcessLifecycleInitializer}.

@@ -15,8 +15,6 @@
  */
 
 import androidx.build.BundleInsideHelper
-import androidx.build.LibraryGroups
-import androidx.build.LibraryVersions
 import androidx.build.Publish
 
 plugins {
@@ -46,19 +44,19 @@ android {
     defaultConfig {
         externalNativeBuild {
             cmake {
-                cppFlags "-std=c++17"
                 arguments "-DCMAKE_VERBOSE_MAKEFILE=ON"
                 targets "icing"
             }
         }
-	multiDexEnabled true
+        multiDexEnabled true
     }
     externalNativeBuild {
         cmake {
-            version "3.18.1"
+            version libs.versions.cmake.get()
             path "../../../../external/icing/CMakeLists.txt"
         }
     }
+    namespace "androidx.appsearch.localstorage"
 }
 
 BundleInsideHelper.forInsideAar(
@@ -73,6 +71,7 @@ dependencies {
     api("androidx.annotation:annotation:1.1.0")
 
     implementation(project(":appsearch:appsearch"))
+    implementation('androidx.collection:collection:1.2.0')
     implementation("androidx.concurrent:concurrent-futures:1.0.0")
     implementation("androidx.core:core:1.2.0")
 
@@ -83,7 +82,7 @@ dependencies {
     androidTestImplementation(libs.truth)
     androidTestImplementation(libs.mockitoAndroid)
     //TODO(b/149787478) upgrade and link to Dependencies.kt
-    androidTestImplementation("junit:junit:4.13")
+    androidTestImplementation(libs.junit)
 }
 
 androidx {

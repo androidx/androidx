@@ -121,8 +121,8 @@ public class ConstraintTrackerTest {
 
         mTracker.addListener(constraintListener1);
         mTracker.addListener(constraintListener2);
-        verify(constraintListener1).onConstraintChanged(null);
-        verify(constraintListener2).onConstraintChanged(null);
+        verify(constraintListener1).onConstraintChanged(false);
+        verify(constraintListener2).onConstraintChanged(false);
     }
 
     @Test
@@ -132,8 +132,8 @@ public class ConstraintTrackerTest {
 
         mTracker.addListener(constraintListener1);
         mTracker.addListener(constraintListener2);
-        verify(constraintListener1).onConstraintChanged(null);
-        verify(constraintListener2).onConstraintChanged(null);
+        verify(constraintListener1).onConstraintChanged(false);
+        verify(constraintListener2).onConstraintChanged(false);
 
         mTracker.setState(true);
         verify(constraintListener1).onConstraintChanged(true);
@@ -147,10 +147,6 @@ public class ConstraintTrackerTest {
 
         mTracker.addListener(constraintListener1);
         mTracker.addListener(constraintListener2);
-        verify(constraintListener1).onConstraintChanged(null);
-        verify(constraintListener2).onConstraintChanged(null);
-
-        mTracker.setState(false);
         verify(constraintListener1).onConstraintChanged(false);
         verify(constraintListener2).onConstraintChanged(false);
 
@@ -181,7 +177,7 @@ public class ConstraintTrackerTest {
         int mGetInitialStateCount;
         int mStartTrackingCount;
         int mStopTrackingCount;
-        Boolean mInitialState = null;
+        boolean mInitialState = false;
 
         TestConstraintTracker(Context context, TaskExecutor taskExecutor) {
             super(context, taskExecutor);

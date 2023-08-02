@@ -39,8 +39,7 @@ public final class FileOutputOptions extends OutputOptions {
     private final FileOutputOptionsInternal mFileOutputOptionsInternal;
 
     FileOutputOptions(@NonNull FileOutputOptionsInternal fileOutputOptionsInternal) {
-        Preconditions.checkNotNull(fileOutputOptionsInternal,
-                "FileOutputOptionsInternal can't be null.");
+        super(fileOutputOptionsInternal);
         mFileOutputOptionsInternal = fileOutputOptionsInternal;
     }
 
@@ -48,14 +47,6 @@ public final class FileOutputOptions extends OutputOptions {
     @NonNull
     public File getFile() {
         return mFileOutputOptionsInternal.getFile();
-    }
-
-    /**
-     * Gets the limit for the file length in bytes.
-     */
-    @Override
-    public long getFileSizeLimit() {
-        return mFileOutputOptionsInternal.getFileSizeLimit();
     }
 
     @Override
@@ -85,10 +76,9 @@ public final class FileOutputOptions extends OutputOptions {
 
     /** The builder of the {@link FileOutputOptions} object. */
     @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-    public static final class Builder implements OutputOptions.Builder<FileOutputOptions, Builder> {
-        private final FileOutputOptionsInternal.Builder mInternalBuilder =
-                new AutoValue_FileOutputOptions_FileOutputOptionsInternal.Builder()
-                        .setFileSizeLimit(OutputOptions.FILE_SIZE_UNLIMITED);
+    public static final class Builder extends OutputOptions.Builder<FileOutputOptions, Builder> {
+
+        private final FileOutputOptionsInternal.Builder mInternalBuilder;
 
         /**
          * Creates a builder of the {@link FileOutputOptions} with a file object.
@@ -101,7 +91,9 @@ public final class FileOutputOptions extends OutputOptions {
          */
         @SuppressWarnings("StreamFiles") // FileDescriptor API is in FileDescriptorOutputOptions
         public Builder(@NonNull File file) {
+            super(new AutoValue_FileOutputOptions_FileOutputOptionsInternal.Builder());
             Preconditions.checkNotNull(file, "File can't be null.");
+            mInternalBuilder = (FileOutputOptionsInternal.Builder) mRootInternalBuilder;
             mInternalBuilder.setFile(file);
         }
 
@@ -119,8 +111,7 @@ public final class FileOutputOptions extends OutputOptions {
         @Override
         @NonNull
         public Builder setFileSizeLimit(long fileSizeLimitBytes) {
-            mInternalBuilder.setFileSizeLimit(fileSizeLimitBytes);
-            return this;
+            return super.setFileSizeLimit(fileSizeLimitBytes);
         }
 
         /** Builds the {@link FileOutputOptions} instance. */
@@ -132,20 +123,19 @@ public final class FileOutputOptions extends OutputOptions {
     }
 
     @AutoValue
-    abstract static class FileOutputOptionsInternal {
+    abstract static class FileOutputOptionsInternal extends OutputOptions.OutputOptionsInternal {
+
         @NonNull
         abstract File getFile();
 
-        abstract long getFileSizeLimit();
-
+        @SuppressWarnings("NullableProblems") // Nullable problem in AutoValue generated class
         @AutoValue.Builder
-        abstract static class Builder {
+        abstract static class Builder extends OutputOptions.OutputOptionsInternal.Builder<Builder> {
+
             @NonNull
             abstract Builder setFile(@NonNull File file);
 
-            @NonNull
-            abstract Builder setFileSizeLimit(long fileSizeLimitBytes);
-
+            @Override
             @NonNull
             abstract FileOutputOptionsInternal build();
         }

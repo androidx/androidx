@@ -32,12 +32,10 @@ import android.graphics.Rect;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CaptureRequest;
-import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.Camera2Config;
 import androidx.camera.camera2.impl.Camera2ImplConfig;
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
@@ -68,6 +66,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 
+import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ScheduledExecutorService;
@@ -77,6 +76,7 @@ import java.util.concurrent.TimeoutException;
 @SmallTest
 @RunWith(AndroidJUnit4.class)
 @SdkSuppress(minSdkVersion = 21)
+@SuppressWarnings("ConstantConditions") // We might hit an NPE, which is fine. It's a test.
 public final class ZoomControlDeviceTest {
     private static final int TOLERANCE = 5;
     private ZoomControl mZoomControl;
@@ -84,6 +84,7 @@ public final class ZoomControlDeviceTest {
     private HandlerThread mHandlerThread;
     private ControlUpdateCallback mControlUpdateCallback;
     private CameraCharacteristics mCameraCharacteristics;
+    private CameraCharacteristicsCompat mCameraCharacteristicsCompat;
     private Handler mHandler;
 
     @Before
@@ -107,9 +108,9 @@ public final class ZoomControlDeviceTest {
         mHandler = HandlerCompat.createAsync(mHandlerThread.getLooper());
 
         ScheduledExecutorService executorService = CameraXExecutors.newHandlerExecutor(mHandler);
-        CameraCharacteristicsCompat cameraCharacteristicsCompat =
-                CameraCharacteristicsCompat.toCameraCharacteristicsCompat(mCameraCharacteristics);
-        mCamera2CameraControlImpl = new Camera2CameraControlImpl(cameraCharacteristicsCompat,
+        mCameraCharacteristicsCompat = CameraCharacteristicsCompat.toCameraCharacteristicsCompat(
+                mCameraCharacteristics);
+        mCamera2CameraControlImpl = new Camera2CameraControlImpl(mCameraCharacteristicsCompat,
                 executorService, executorService, mControlUpdateCallback);
 
         mZoomControl = mCamera2CameraControlImpl.getZoomControl();
@@ -129,9 +130,7 @@ public final class ZoomControlDeviceTest {
     }
 
     private boolean isAndroidRZoomEnabled() {
-        return (Build.VERSION.SDK_INT >= 30
-                && mCameraCharacteristics.get(CameraCharacteristics.CONTROL_ZOOM_RATIO_RANGE)
-                != null);
+        return ZoomControl.isAndroidRZoomSupported(mCameraCharacteristicsCompat);
     }
 
     @Test
@@ -167,7 +166,7 @@ public final class ZoomControlDeviceTest {
     private void assertThrowOutOfRangeExceptionOnListenableFuture(ListenableFuture<Void> result) {
         try {
             result.get(100, TimeUnit.MILLISECONDS);
-        } catch (InterruptedException | TimeoutException e) {
+        } catch (InterruptedException | TimeoutException ignored) {
         } catch (ExecutionException ee) {
             assertThat(ee.getCause()).isInstanceOf(IllegalArgumentException.class);
             return;
@@ -209,7 +208,7 @@ public final class ZoomControlDeviceTest {
     }
 
     @Test
-    @RequiresApi(30)
+    @SdkSuppress(minSdkVersion = 30)
     public void setZoomRatioBy1_0_androidRZoomRatioIsUpdated() throws InterruptedException {
         assumeTrue(isAndroidRZoomEnabled());
         mZoomControl.setZoomRatio(1.0f);
@@ -235,7 +234,7 @@ public final class ZoomControlDeviceTest {
     }
 
     @Test
-    @RequiresApi(30)
+    @SdkSuppress(minSdkVersion = 30)
     public void setZoomRatioBy2_0_androidRZoomRatioIsUpdated() throws InterruptedException {
         assumeTrue(isAndroidRZoomEnabled());
         mZoomControl.setZoomRatio(2.0f);
@@ -253,11 +252,12 @@ public final class ZoomControlDeviceTest {
                 sessionConfig.getImplementationOptions());
 
         reset(controlUpdateCallback);
-        return camera2Config.getCaptureRequestOption(
-                CaptureRequest.SCALER_CROP_REGION, null);
+        return Objects.requireNonNull(camera2Config.getCaptureRequestOption(
+                CaptureRequest.SCALER_CROP_REGION, null));
     }
 
     @NonNull
+    @SdkSuppress(minSdkVersion = 30)
     private Float getAndroidRZoomRatio(ControlUpdateCallback controlUpdateCallback) {
         verify(controlUpdateCallback, times(1)).onCameraControlUpdateSessionConfig();
         SessionConfig sessionConfig = mCamera2CameraControlImpl.getSessionConfig();
@@ -267,8 +267,8 @@ public final class ZoomControlDeviceTest {
         reset(controlUpdateCallback);
         assertThat(camera2Config.getCaptureRequestOption(CaptureRequest.SCALER_CROP_REGION, null))
                 .isNull();
-        return camera2Config.getCaptureRequestOption(
-                CaptureRequest.CONTROL_ZOOM_RATIO, null);
+        return Objects.requireNonNull(camera2Config.getCaptureRequestOption(
+                CaptureRequest.CONTROL_ZOOM_RATIO, null));
     }
 
     @UiThreadTest
@@ -315,8 +315,8 @@ public final class ZoomControlDeviceTest {
     }
 
     @UiThreadTest
-    @RequiresApi(30)
     @Test
+    @SdkSuppress(minSdkVersion = 30)
     public void setLinearZoomBy0_5_androidRZoomRatioUpdatedCorrectly() throws InterruptedException {
         assumeTrue(isAndroidRZoomEnabled());
 
@@ -367,8 +367,8 @@ public final class ZoomControlDeviceTest {
     }
 
     @UiThreadTest
-    @RequiresApi(30)
     @Test
+    @SdkSuppress(minSdkVersion = 30)
     public void setLinearZoom_androidRZoomRatio_cropWidthChangedLinearly()
             throws InterruptedException {
         assumeTrue(isAndroidRZoomEnabled());
@@ -408,7 +408,7 @@ public final class ZoomControlDeviceTest {
     }
 
     @Test
-    public void setLinearZoom_largerThan1_outOfRangeExeception() {
+    public void setLinearZoom_largerThan1_outOfRangeException() {
         ListenableFuture<Void> result = mZoomControl.setLinearZoom(1.1f);
         assertThrowOutOfRangeExceptionOnListenableFuture(result);
     }
@@ -422,7 +422,7 @@ public final class ZoomControlDeviceTest {
     }
 
     @Test
-    public void setLinearZoom_smallerThan0_outOfRangeExeception() {
+    public void setLinearZoom_smallerThan0_outOfRangeException() {
         ListenableFuture<Void> result = mZoomControl.setLinearZoom(-0.1f);
         assertThrowOutOfRangeExceptionOnListenableFuture(result);
     }

@@ -21,11 +21,12 @@ import android.content.Context
 import android.util.Log
 import androidx.annotation.RestrictTo
 import androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP
-import androidx.window.extensions.WindowExtensionsProvider
+import androidx.window.core.ConsumerAdapter
 import kotlinx.coroutines.flow.Flow
 
 /**
  * An interface to provide all the relevant info about a [android.view.Window].
+ * @see WindowInfoTracker.getOrCreate to get an instance.
  */
 public interface WindowInfoTracker {
 
@@ -53,6 +54,24 @@ public interface WindowInfoTracker {
         private val DEBUG = false
         private val TAG = WindowInfoTracker::class.simpleName
 
+        @Suppress("MemberVisibilityCanBePrivate") // Avoid synthetic accessor
+        internal val extensionBackend: WindowBackend? by lazy {
+            try {
+                val loader = WindowInfoTracker::class.java.classLoader
+                val provider = loader?.let {
+                    SafeWindowLayoutComponentProvider(loader, ConsumerAdapter(loader))
+                }
+                provider?.windowLayoutComponent?.let { component ->
+                    ExtensionWindowLayoutInfoBackend(component, ConsumerAdapter(loader))
+                }
+            } catch (t: Throwable) {
+                if (DEBUG) {
+                    Log.d(TAG, "Failed to load WindowExtensions")
+                }
+                null
+            }
+        }
+
         private var decorator: WindowInfoTrackerDecorator = EmptyDecorator
 
         /**
@@ -65,25 +84,9 @@ public interface WindowInfoTracker {
         @JvmName("getOrCreate")
         @JvmStatic
         public fun getOrCreate(context: Context): WindowInfoTracker {
-            val repo = WindowInfoTrackerImpl(
-                    WindowMetricsCalculatorCompat,
-                    windowBackend(context)
-                )
+            val backend = extensionBackend ?: SidecarWindowBackend.getInstance(context)
+            val repo = WindowInfoTrackerImpl(WindowMetricsCalculatorCompat, backend)
             return decorator.decorate(repo)
-        }
-
-        @Suppress("MemberVisibilityCanBePrivate") // Avoid synthetic accessor
-        internal fun windowBackend(context: Context): WindowBackend {
-            val extensionBackend = try {
-                WindowExtensionsProvider.getWindowExtensions().windowLayoutComponent
-                    ?.let(::ExtensionWindowLayoutInfoBackend)
-            } catch (t: Throwable) {
-                if (DEBUG) {
-                    Log.d(TAG, "Failed to load WindowExtensions")
-                }
-                null
-            }
-            return extensionBackend ?: SidecarWindowBackend.getInstance(context)
         }
 
         @JvmStatic

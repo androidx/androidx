@@ -253,15 +253,11 @@ public final class MetadataImageReaderTest {
 
         final AtomicReference<ImageProxy> receivedImage = new AtomicReference<>();
 
-        ImageReaderProxy.OnImageAvailableListener outputListener =
-                new ImageReaderProxy.OnImageAvailableListener() {
-                    @Override
-                    public void onImageAvailable(@NonNull ImageReaderProxy imageReader) {
+        ImageReaderProxy.OnImageAvailableListener outputListener = imageReader -> {
                         // The First ImageProxy is output without closing.
                         ImageProxy resultImage = imageReader.acquireNextImage();
                         receivedImage.set(resultImage);
                         mSemaphore.release();
-                    }
                 };
         mMetadataImageReader.setOnImageAvailableListener(outputListener, mBackgroundExecutor);
         // Feeds the first Image.
@@ -271,25 +267,19 @@ public final class MetadataImageReaderTest {
         assertThat(receivedImage.get().getImageInfo().getTimestamp()).isEqualTo(
                 TIMESTAMP_0);
 
-        final AtomicBoolean hasReceivedSecondImage = new AtomicBoolean(false);
-        outputListener =
-                new ImageReaderProxy.OnImageAvailableListener() {
-                    @Override
-                    public void onImageAvailable(@NonNull ImageReaderProxy imageReader) {
-                        // The second ImageProxy should be dropped, otherwise fail the test case.
-                        hasReceivedSecondImage.set(true);
-                        mSemaphore.release();
-                    }
-                };
+        Semaphore secondSemaphore = new Semaphore(0);
+        outputListener = imageReader -> {
+            // The second ImageProxy should be dropped, otherwise fail the test case.
+            secondSemaphore.release();
+        };
         mMetadataImageReader.setOnImageAvailableListener(outputListener, mBackgroundExecutor);
         // Feeds the second Image.
         TagBundle tagBundle = TagBundle.create(new Pair<>("FakeCaptureStageId", 0));
-        assertThat(mImageReader.triggerImageAvailable(tagBundle, TIMESTAMP_1, 50,
-                TimeUnit.MILLISECONDS)).isFalse();
-
+        mImageReader.triggerImageAvailable(tagBundle, TIMESTAMP_1);
         HandlerUtil.waitForLooperToIdle(mBackgroundHandler);
 
-        assertThat(hasReceivedSecondImage.get()).isFalse();
+        // OnImageAvailableListener won't be called for the 2nd image.
+        assertThat(secondSemaphore.tryAcquire(1, TimeUnit.SECONDS)).isFalse();
     }
 
     @Test

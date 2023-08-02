@@ -21,8 +21,9 @@ import androidx.paging.TestPagingDataDiffer
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.TestCoroutineDispatcher
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -33,32 +34,33 @@ import org.junit.runners.JUnit4
 class RxPagingDataTest {
     private val original = PagingData.from(listOf("a", "b", "c"))
 
-    private val testDispatcher = TestCoroutineDispatcher()
+    private val testDispatcher = UnconfinedTestDispatcher()
+    val testScope = TestScope(testDispatcher)
     private val differ = TestPagingDataDiffer<String>(testDispatcher)
 
     @Test
-    fun map() = testDispatcher.runBlockingTest {
+    fun map() = testScope.runTest {
         val transformed = original.mapAsync { Single.just(it + it) }
         differ.collectFrom(transformed)
         assertEquals(listOf("aa", "bb", "cc"), differ.currentList)
     }
 
     @Test
-    fun flatMap() = testDispatcher.runBlockingTest {
+    fun flatMap() = testScope.runTest {
         val transformed = original.flatMapAsync { Single.just(listOf(it, it) as Iterable<String>) }
         differ.collectFrom(transformed)
         assertEquals(listOf("a", "a", "b", "b", "c", "c"), differ.currentList)
     }
 
     @Test
-    fun filter() = testDispatcher.runBlockingTest {
+    fun filter() = testScope.runTest {
         val filtered = original.filterAsync { Single.just(it != "b") }
         differ.collectFrom(filtered)
         assertEquals(listOf("a", "c"), differ.currentList)
     }
 
     @Test
-    fun insertSeparators() = testDispatcher.runBlockingTest {
+    fun insertSeparators() = testScope.runTest {
         val separated = original.insertSeparatorsAsync { left, right ->
             if (left == null || right == null) Maybe.empty() else Maybe.just("|")
         }

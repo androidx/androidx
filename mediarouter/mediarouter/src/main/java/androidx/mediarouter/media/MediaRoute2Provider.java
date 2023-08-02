@@ -271,19 +271,25 @@ class MediaRoute2Provider extends MediaRouteProvider {
             Log.w(TAG, "Exception while unparceling control hints.", ex);
         }
 
-        // Create group route descriptor
+        // Create or update the group route descriptor.
+        MediaRouteDescriptor.Builder groupDescriptorBuilder;
         if (groupDescriptor == null) {
-            groupDescriptor = new MediaRouteDescriptor.Builder(
+            groupDescriptorBuilder = new MediaRouteDescriptor.Builder(
                     routingController.getId(), groupRouteName)
                     .setConnectionState(MediaRouter.RouteInfo.CONNECTION_STATE_CONNECTED)
-                    .setPlaybackType(MediaRouter.RouteInfo.PLAYBACK_TYPE_REMOTE)
-                    .setVolume(routingController.getVolume())
-                    .setVolumeMax(routingController.getVolumeMax())
-                    .setVolumeHandling(routingController.getVolumeHandling())
-                    .addControlFilters(initialRouteDescriptor.getControlFilters())
-                    .addGroupMemberIds(selectedRouteIds)
-                    .build();
+                    .setPlaybackType(MediaRouter.RouteInfo.PLAYBACK_TYPE_REMOTE);
+        } else {
+            groupDescriptorBuilder = new MediaRouteDescriptor.Builder(groupDescriptor);
         }
+        groupDescriptor = groupDescriptorBuilder
+                .setVolume(routingController.getVolume())
+                .setVolumeMax(routingController.getVolumeMax())
+                .setVolumeHandling(routingController.getVolumeHandling())
+                .clearControlFilters()
+                .addControlFilters(initialRouteDescriptor.getControlFilters())
+                .clearGroupMemberIds()
+                .addGroupMemberIds(selectedRouteIds)
+                .build();
 
         // Create dynamic route descriptors
         List<String> selectableRouteIds =
@@ -512,7 +518,8 @@ class MediaRoute2Provider extends MediaRouteProvider {
         }
 
         @Override
-        public boolean onControlRequest(Intent intent, @Nullable ControlRequestCallback callback) {
+        public boolean onControlRequest(@NonNull Intent intent,
+                @Nullable ControlRequestCallback callback) {
             if (mRoutingController == null || mRoutingController.isReleased()
                     || mServiceMessenger == null) {
                 return false;
@@ -579,7 +586,7 @@ class MediaRoute2Provider extends MediaRouteProvider {
         }
 
         @Override
-        public void onRemoveMemberRoute(String routeId) {
+        public void onRemoveMemberRoute(@NonNull String routeId) {
             if (routeId == null || routeId.isEmpty()) {
                 Log.w(TAG, "onRemoveMemberRoute: Ignoring null or empty routeId.");
                 return;

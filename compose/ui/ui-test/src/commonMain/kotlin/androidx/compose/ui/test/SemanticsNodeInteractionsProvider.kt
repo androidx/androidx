@@ -16,11 +16,14 @@
 
 package androidx.compose.ui.test
 
+import androidx.compose.ui.test.internal.JvmDefaultWithCompatibility
+
 /**
  * Provides the main entry point into testing.
  *
  * Typically implemented by a test rule.
  */
+@JvmDefaultWithCompatibility
 interface SemanticsNodeInteractionsProvider {
     /**
      * Finds a semantics node that matches the given condition.

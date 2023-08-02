@@ -22,6 +22,7 @@ import androidx.room.compiler.processing.XSuspendMethodType
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XVariableElement
 import androidx.room.compiler.processing.isSuspendFunction
+import androidx.room.ext.DEFERRED_TYPES
 import androidx.room.ext.KotlinTypeNames
 import androidx.room.ext.L
 import androidx.room.ext.N
@@ -35,8 +36,9 @@ import androidx.room.solver.query.result.CoroutineResultBinder
 import androidx.room.solver.query.result.QueryResultBinder
 import androidx.room.solver.shortcut.binder.CallableDeleteOrUpdateMethodBinder.Companion.createDeleteOrUpdateBinder
 import androidx.room.solver.shortcut.binder.CallableInsertMethodBinder.Companion.createInsertBinder
+import androidx.room.solver.shortcut.binder.CallableUpsertMethodBinder.Companion.createUpsertBinder
 import androidx.room.solver.shortcut.binder.DeleteOrUpdateMethodBinder
-import androidx.room.solver.shortcut.binder.InsertMethodBinder
+import androidx.room.solver.shortcut.binder.InsertOrUpsertMethodBinder
 import androidx.room.solver.transaction.binder.CoroutineTransactionMethodBinder
 import androidx.room.solver.transaction.binder.InstantTransactionMethodBinder
 import androidx.room.solver.transaction.binder.TransactionMethodBinder
@@ -86,9 +88,14 @@ abstract class MethodProcessorDelegate(
     abstract fun findInsertMethodBinder(
         returnType: XType,
         params: List<ShortcutQueryParameter>
-    ): InsertMethodBinder
+    ): InsertOrUpsertMethodBinder
 
     abstract fun findDeleteOrUpdateMethodBinder(returnType: XType): DeleteOrUpdateMethodBinder
+
+    abstract fun findUpsertMethodBinder(
+        returnType: XType,
+        params: List<ShortcutQueryParameter>
+    ): InsertOrUpsertMethodBinder
 
     abstract fun findTransactionMethodBinder(
         callType: TransactionMethod.CallType
@@ -123,6 +130,21 @@ abstract class MethodProcessorDelegate(
             }
         }
     }
+}
+
+fun MethodProcessorDelegate.isSuspendAndReturnsDeferredType(): Boolean {
+    if (!executableElement.isSuspendFunction()) {
+        return false
+    }
+
+    val deferredTypes = DEFERRED_TYPES.mapNotNull { context.processingEnv.findType(it) }
+
+    val returnType = extractReturnType()
+    val hasDeferredReturnType = deferredTypes.any { deferredType ->
+        deferredType.rawType.isAssignableFrom(returnType.rawType)
+    }
+
+    return hasDeferredReturnType
 }
 
 /**
@@ -160,9 +182,14 @@ class DefaultMethodProcessorDelegate(
     override fun findDeleteOrUpdateMethodBinder(returnType: XType) =
         context.typeAdapterStore.findDeleteOrUpdateMethodBinder(returnType)
 
+    override fun findUpsertMethodBinder(
+        returnType: XType,
+        params: List<ShortcutQueryParameter>
+    ) = context.typeAdapterStore.findUpsertMethodBinder(returnType, params)
+
     override fun findTransactionMethodBinder(callType: TransactionMethod.CallType) =
         InstantTransactionMethodBinder(
-            TransactionMethodAdapter(executableElement.name, callType)
+            TransactionMethodAdapter(executableElement.jvmName, callType)
         )
 }
 
@@ -239,6 +266,23 @@ class SuspendMethodProcessorDelegate(
         )
     }
 
+    override fun findUpsertMethodBinder(
+        returnType: XType,
+        params: List<ShortcutQueryParameter>
+    ) = createUpsertBinder(
+        typeArg = returnType,
+        adapter = context.typeAdapterStore.findUpsertAdapter(returnType, params)
+    ) { callableImpl, dbField ->
+        addStatement(
+            "return $T.execute($N, $L, $L, $N)",
+            RoomCoroutinesTypeNames.COROUTINES_ROOM,
+            dbField,
+            "true", // inTransaction
+            callableImpl,
+            continuationParam.name
+        )
+    }
+
     override fun findDeleteOrUpdateMethodBinder(returnType: XType) =
         createDeleteOrUpdateBinder(
             typeArg = returnType,
@@ -256,7 +300,8 @@ class SuspendMethodProcessorDelegate(
 
     override fun findTransactionMethodBinder(callType: TransactionMethod.CallType) =
         CoroutineTransactionMethodBinder(
-            adapter = TransactionMethodAdapter(executableElement.name, callType),
-            continuationParamName = continuationParam.name
+            adapter = TransactionMethodAdapter(executableElement.jvmName, callType),
+            continuationParamName = continuationParam.name,
+            useLambdaSyntax = context.processingEnv.jvmVersion >= 8
         )
 }

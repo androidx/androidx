@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
 import androidx.build.LibraryType
 
 plugins {
@@ -25,7 +24,6 @@ plugins {
 }
 
 dependencies {
-    kotlinPlugin(projectOrArtifact(":compose:compiler:compiler"))
     implementation(libs.kotlinStdlib)
 
     compileOnly projectOrArtifact(":annotation:annotation-sampled")
@@ -33,6 +31,12 @@ dependencies {
     implementation projectOrArtifact(":activity:activity-compose")
     implementation projectOrArtifact(":activity:activity-ktx")
     implementation "androidx.compose.material:material:1.0.1"
+    // old version of common-java8 conflicts with newer version, because both have
+    // DefaultLifecycleEventObserver.
+    // Outside of androidx this is resolved via constraint added to lifecycle-common,
+    // but it doesn't work in androidx.
+    // See aosp/1804059
+    implementation projectOrArtifact(":lifecycle:lifecycle-common-java8")
 }
 
 androidx {
@@ -41,4 +45,8 @@ androidx {
     mavenGroup = LibraryGroups.ACTIVITY
     inceptionYear = "2020"
     description = "Samples for Compose integration with Activity"
+}
+
+android {
+    namespace "androidx.activity.compose.samples"
 }

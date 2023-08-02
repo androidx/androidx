@@ -15,7 +15,6 @@
  */
 
 
-import androidx.build.LibraryGroups
 import androidx.build.Publish
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
@@ -35,6 +34,10 @@ dependencies {
   testImplementation(libs.kotlinCoroutinesTest)
   testImplementation(project(":lifecycle:lifecycle-runtime-testing"))
   testImplementation("androidx.arch.core:core-testing:2.1.0")
+
+  constraints {
+    implementation(project(":lifecycle:lifecycle-reactivestreams"))
+  }
 }
 
 androidx {
@@ -45,9 +48,13 @@ androidx {
   description = "Kotlin extensions for Lifecycle ReactiveStreams"
 }
 
+android {
+    namespace "androidx.lifecycle.reactivestreams.ktx"
+}
+
 // Allow usage of Kotlin's @OptIn.
 tasks.withType(KotlinCompile).configureEach {
   kotlinOptions {
-    freeCompilerArgs += ["-Xopt-in=kotlin.RequiresOptIn"]
+    freeCompilerArgs += ["-opt-in=kotlin.RequiresOptIn"]
   }
 }

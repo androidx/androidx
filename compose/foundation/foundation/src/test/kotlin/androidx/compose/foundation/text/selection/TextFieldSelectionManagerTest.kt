@@ -36,6 +36,8 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.OffsetMapping
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.input.TransformedText
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.ResolvedTextDirection
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Constraints
@@ -105,7 +107,7 @@ class TextFieldSelectionManagerTest {
                 overflow = TextOverflow.Ellipsis,
                 density = density,
                 layoutDirection = LayoutDirection.Ltr,
-                resourceLoader = mock(),
+                fontFamilyResolver = mock(),
                 constraints = Constraints()
             )
         )
@@ -131,7 +133,7 @@ class TextFieldSelectionManagerTest {
 
         whenever(layoutResultProxy.value).thenReturn(layoutResult)
 
-        state = TextFieldState(mock())
+        state = TextFieldState(mock(), mock())
         state.layoutResult = layoutResultProxy
         manager.state = state
         whenever(state.textDelegate.density).thenReturn(density)
@@ -222,7 +224,7 @@ class TextFieldSelectionManagerTest {
     fun TextFieldSelectionManager_handleDragObserver_onStart_startHandle() {
         manager.handleDragObserver(isStartHandle = true).onStart(Offset.Zero)
 
-        assertThat(state.draggingHandle).isTrue()
+        assertThat(manager.draggingHandle).isNotNull()
         assertThat(state.showFloatingToolbar).isFalse()
         verify(spyLambda, times(0)).invoke(any())
         verify(
@@ -235,7 +237,7 @@ class TextFieldSelectionManagerTest {
     fun TextFieldSelectionManager_handleDragObserver_onStart_endHandle() {
         manager.handleDragObserver(isStartHandle = false).onStart(Offset.Zero)
 
-        assertThat(state.draggingHandle).isTrue()
+        assertThat(manager.draggingHandle).isNotNull()
         assertThat(state.showFloatingToolbar).isFalse()
         verify(spyLambda, times(0)).invoke(any())
         verify(
@@ -279,7 +281,7 @@ class TextFieldSelectionManagerTest {
 
         manager.handleDragObserver(false).onStop()
 
-        assertThat(state.draggingHandle).isFalse()
+        assertThat(manager.draggingHandle).isNull()
         assertThat(state.showFloatingToolbar).isTrue()
         verify(
             hapticFeedback,
@@ -291,7 +293,7 @@ class TextFieldSelectionManagerTest {
     fun TextFieldSelectionManager_cursorDragObserver_onStart() {
         manager.cursorDragObserver().onStart(Offset.Zero)
 
-        assertThat(state.draggingHandle).isTrue()
+        assertThat(manager.draggingHandle).isNotNull()
         assertThat(state.showFloatingToolbar).isFalse()
         verify(spyLambda, times(0)).invoke(any())
         verify(
@@ -315,13 +317,34 @@ class TextFieldSelectionManagerTest {
     }
 
     @Test
+    fun TextFieldSelectionManager_cursorDragObserver_onDrag_withVisualTransformation() {
+        // there is a placeholder after every other char in the original value
+        val offsetMapping = object : OffsetMapping {
+            override fun originalToTransformed(offset: Int) = 2 * offset
+            override fun transformedToOriginal(offset: Int) = offset / 2
+        }
+        manager.value = TextFieldValue(text = "H*e*l*l*o* *W*o*r*l*d", selection = TextRange(0, 0))
+        manager.offsetMapping = offsetMapping
+        manager.visualTransformation = VisualTransformation { original ->
+            TransformedText(
+                AnnotatedString(original.indices.map { original[it] }.joinToString("*")),
+                offsetMapping
+            )
+        }
+
+        manager.cursorDragObserver().onDrag(dragDistance)
+
+        assertThat(value.selection).isEqualTo(TextRange(dragOffset / 2, dragOffset / 2))
+    }
+
+    @Test
     fun TextFieldSelectionManager_cursorDragObserver_onStop() {
         manager.handleDragObserver(false).onStart(Offset.Zero)
         manager.handleDragObserver(false).onDrag(Offset.Zero)
 
         manager.cursorDragObserver().onStop()
 
-        assertThat(state.draggingHandle).isFalse()
+        assertThat(manager.draggingHandle).isNull()
         assertThat(state.showFloatingToolbar).isFalse()
         verify(
             hapticFeedback,
@@ -472,13 +495,6 @@ class TextFieldSelectionManagerTest {
         manager.selectAll()
 
         assertThat(value.selection).isEqualTo(TextRange(0, text.length))
-        verify(textToolbar, times(1)).showMenu(
-            anyOrNull(),
-            anyOrNull(),
-            anyOrNull(),
-            anyOrNull(),
-            isNull()
-        )
     }
 
     @Test
@@ -491,14 +507,6 @@ class TextFieldSelectionManagerTest {
         manager.selectAll()
 
         assertThat(value.selection).isEqualTo(TextRange(0, text.length))
-
-        verify(textToolbar, times(1)).showMenu(
-            anyOrNull(),
-            anyOrNull(),
-            anyOrNull(),
-            anyOrNull(),
-            isNull()
-        )
     }
 
     @Test

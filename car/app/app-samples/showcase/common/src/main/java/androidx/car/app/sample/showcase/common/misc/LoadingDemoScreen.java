@@ -28,6 +28,7 @@ import androidx.car.app.model.Pane;
 import androidx.car.app.model.PaneTemplate;
 import androidx.car.app.model.Row;
 import androidx.car.app.model.Template;
+import androidx.car.app.sample.showcase.common.R;
 import androidx.lifecycle.DefaultLifecycleObserver;
 import androidx.lifecycle.LifecycleOwner;
 
@@ -62,11 +63,13 @@ public final class LoadingDemoScreen extends Screen implements DefaultLifecycleO
         if (!mIsFinishedLoading) {
             paneBuilder.setLoading(true);
         } else {
-            paneBuilder.addRow(new Row.Builder().setTitle("Loading Complete!").build());
+            paneBuilder.addRow(new Row.Builder()
+                    .setTitle(getCarContext().getString(R.string.loading_demo_row_title))
+                    .build());
         }
 
         return new PaneTemplate.Builder(paneBuilder.build())
-                .setTitle("Loading Demo")
+                .setTitle(getCarContext().getString(R.string.loading_demo_title))
                 .setHeaderAction(BACK)
                 .build();
     }

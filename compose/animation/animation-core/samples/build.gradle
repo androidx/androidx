@@ -15,7 +15,6 @@
  */
 
 
-import androidx.build.LibraryGroups
 import androidx.build.LibraryType
 
 plugins {
@@ -26,12 +25,10 @@ plugins {
 }
 
 dependencies {
-    kotlinPlugin(project(":compose:compiler:compiler"))
-
     implementation(libs.kotlinStdlib)
     compileOnly(project(":annotation:annotation-sampled"))
     implementation(project(":compose:animation:animation-core"))
-    implementation(project(":compose:runtime:runtime"))
+    implementation("androidx.compose.runtime:runtime:1.2.0")
     implementation("androidx.compose.ui:ui:1.0.0")
     implementation("androidx.compose.ui:ui-unit:1.0.0")
     implementation("androidx.compose.foundation:foundation:1.0.0")
@@ -42,7 +39,11 @@ dependencies {
 androidx {
     name = "AndroidX Compose UI Animation Library Core Classes Samples"
     type = LibraryType.SAMPLES
-    mavenGroup = LibraryGroups.Compose.ANIMATION
+    mavenGroup = LibraryGroups.COMPOSE_ANIMATION
     inceptionYear = "2019"
     description = "Contains the sample code for the Androidx Compose UI Animation Core Classes"
+}
+
+android {
+    namespace "androidx.compose.animation.core.samples"
 }

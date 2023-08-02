@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
 import androidx.build.LibraryType
 import androidx.build.SdkHelperKt
 import androidx.build.SupportConfig
@@ -34,16 +33,27 @@ dependencies {
 
     testImplementation(libs.junit)
     testImplementation(libs.googleCompileTesting)
+    testImplementation(projectOrArtifact(":room:room-compiler-processing-testing"), {
+        exclude group: "androidx.room", module: "room-compiler-processing"
+    })
     testImplementation(fileTree(
             dir: "${SdkHelperKt.getSdkPath(project)}/platforms/$SupportConfig.COMPILE_SDK_VERSION/",
             include : "android.jar"
     ))
     testImplementation(fileTree(
-            dir: "${new File(project(":navigation:navigation-common").buildDir, "libJar")}",
+            dir: provider {
+                // Wrapping in a provider as a workaround as we access buildDir before this project is configured
+                // Replace with AGP API once it is added b/228109260
+                "${new File(project(":navigation:navigation-common").buildDir, "libJar")}"
+            },
             include : "*.jar"
     ))
     testImplementation(fileTree(
-            dir: "${new File(project(":lifecycle:lifecycle-viewmodel-savedstate").buildDir, "libJar")}",
+            dir: provider {
+                // Wrapping in a provider as a workaround as we access buildDir before this project is configured
+                // Replace with AGP API once it is added b/228109260
+                "${new File(project(":lifecycle:lifecycle-viewmodel-savedstate").buildDir, "libJar")}"
+            },
             include : "*.jar"
     ))
 }

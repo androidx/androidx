@@ -15,7 +15,7 @@
  */
 
 
-import androidx.build.LibraryGroups
+import androidx.build.LibraryType
 import androidx.build.Publish
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
@@ -30,12 +30,12 @@ dependencies {
     implementation(libs.testRules)
     implementation(libs.testUiautomator)
     api("androidx.annotation:annotation:1.2.0")
-    implementation(libs.espressoCore)
     implementation(libs.guavaListenableFuture)
     implementation("androidx.appcompat:appcompat:1.1.0")
     api(project(":camera:camera-core"))
     implementation("androidx.core:core:1.1.0")
     implementation("androidx.concurrent:concurrent-futures:1.0.0")
+    implementation("androidx.test.espresso:espresso-core:3.3.0")
     implementation("androidx.test.espresso:espresso-idling-resource:3.1.0")
     implementation(libs.junit)
     implementation(libs.kotlinStdlib)
@@ -59,26 +59,32 @@ android {
         }
     }
 
+    lintOptions {
+        enable 'CameraXQuirksClassDetector'
+    }
+
     // Use Robolectric 4.+
     testOptions.unitTests.includeAndroidResources = true
 
     externalNativeBuild {
         cmake {
             path "src/main/cpp/CMakeLists.txt"
-            version "3.18.1"
+            version libs.versions.cmake.get()
         }
     }
+    namespace "androidx.camera.testing"
 }
 
 // Allow usage of Kotlin's @OptIn.
 tasks.withType(KotlinCompile).configureEach {
     kotlinOptions {
-        freeCompilerArgs += ["-Xopt-in=kotlin.RequiresOptIn"]
+        freeCompilerArgs += ["-opt-in=kotlin.RequiresOptIn"]
     }
 }
 
 androidx {
     name = "Jetpack Camera Testing Library"
+    type = LibraryType.INTERNAL_TEST_LIBRARY
     publish = Publish.NONE
     mavenGroup = LibraryGroups.CAMERA
     inceptionYear = "2019"

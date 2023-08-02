@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
-import androidx.build.LibraryVersions
 import androidx.build.Publish
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
@@ -51,10 +50,18 @@ dependencies {
     samples(project(":wear:watchface:watchface-samples"))
 }
 
+// Allow usage of Kotlin's @OptIn.
+tasks.withType(KotlinCompile).configureEach {
+    kotlinOptions {
+        freeCompilerArgs += ["-opt-in=kotlin.RequiresOptIn"]
+    }
+}
+
 android {
     defaultConfig {
         minSdkVersion 26
     }
+    namespace "androidx.wear.watchface.editor"
 }
 
 androidx {

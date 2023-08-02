@@ -16,8 +16,8 @@
 
 package androidx.room.vo
 
-import androidx.room.migration.bundle.BundleUtil
 import androidx.room.migration.bundle.IndexBundle
+import androidx.room.migration.bundle.TABLE_NAME_PLACEHOLDER
 
 private typealias IndexOrder = androidx.room.Index.Order
 
@@ -71,6 +71,6 @@ data class Index(
 
     fun toBundle(): IndexBundle = IndexBundle(
         name, unique, columnNames, orders.map { it.name },
-        createQuery(BundleUtil.TABLE_NAME_PLACEHOLDER)
+        createQuery(TABLE_NAME_PLACEHOLDER)
     )
 }

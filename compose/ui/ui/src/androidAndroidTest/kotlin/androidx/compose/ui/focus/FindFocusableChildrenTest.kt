@@ -18,6 +18,7 @@ package androidx.compose.ui.focus
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusStateImpl.Inactive
 import androidx.compose.ui.graphics.Color.Companion.Red
@@ -51,26 +52,26 @@ class FindFocusableChildrenTest(private val excludeDeactivated: Boolean) {
         // layoutNode--focusNode1--focusNode2--focusNode3--focusNode4
         rule.setContent {
             Box(
-                modifier = Modifier
-                .then(focusModifier1)
-                .focusProperties { canFocus = false }
-                .then(focusModifier2)
-                .then(focusModifier3)
-                .then(focusModifier4)
+                Modifier
+                    .focusTarget(focusModifier1)
+                    .focusProperties { canFocus = false }
+                    .focusTarget(focusModifier2)
+                    .focusTarget(focusModifier3)
+                    .focusTarget(focusModifier4)
             )
         }
 
         // Act.
         val focusableChildren = rule.runOnIdle {
-            focusModifier1.focusNode.focusableChildren(excludeDeactivated)
+            focusModifier1.focusableChildren(excludeDeactivated)
         }
 
         // Assert.
         rule.runOnIdle {
             if (excludeDeactivated) {
-                assertThat(focusableChildren).containsExactly(focusModifier3.focusNode)
+                assertThat(focusableChildren).isExactly(focusModifier3)
             } else {
-                assertThat(focusableChildren).containsExactly(focusModifier2.focusNode)
+                assertThat(focusableChildren).isExactly(focusModifier2)
             }
         }
     }
@@ -84,26 +85,26 @@ class FindFocusableChildrenTest(private val excludeDeactivated: Boolean) {
         // layoutNode--focusNode1--nonFocusNode--focusNode2--focusNode3
         rule.setContent {
             Box(
-                modifier = Modifier
-                    .then(focusModifier1)
+                Modifier
+                    .focusTarget(focusModifier1)
                     .background(color = Red)
                     .focusProperties { canFocus = false }
-                    .then(focusModifier2)
-                    .then(focusModifier3)
+                    .focusTarget(focusModifier2)
+                    .focusTarget(focusModifier3)
             )
         }
 
         // Act.
         val focusableChildren = rule.runOnIdle {
-            focusModifier1.focusNode.focusableChildren(excludeDeactivated)
+            focusModifier1.focusableChildren(excludeDeactivated)
         }
 
         // Assert.
         rule.runOnIdle {
             if (excludeDeactivated) {
-                assertThat(focusableChildren).containsExactly(focusModifier3.focusNode)
+                assertThat(focusableChildren).isExactly(focusModifier3)
             } else {
-                assertThat(focusableChildren).containsExactly(focusModifier2.focusNode)
+                assertThat(focusableChildren).isExactly(focusModifier2)
             }
         }
     }
@@ -121,36 +122,72 @@ class FindFocusableChildrenTest(private val excludeDeactivated: Boolean) {
         val focusModifier3 = FocusModifier(Inactive)
         val focusModifier4 = FocusModifier(Inactive)
         rule.setContent {
-            Box(modifier = parentFocusModifier) {
-                Box(modifier = Modifier
-                    .focusProperties { canFocus = false }
-                    .then(focusModifier1)
-                    .then(focusModifier2)
+            Box(Modifier.focusTarget(parentFocusModifier)) {
+                Box(
+                    Modifier
+                        .focusProperties { canFocus = false }
+                        .focusTarget(focusModifier1)
+                        .focusTarget(focusModifier2)
                 )
-                Box(modifier = Modifier
-                    .then(focusModifier3)
-                    .focusProperties { canFocus = false }
-                    .then(focusModifier4)
+                Box(
+                    Modifier
+                        .focusTarget(focusModifier3)
+                        .focusProperties { canFocus = false }
+                        .focusTarget(focusModifier4)
                 )
             }
         }
 
         // Act.
         val focusableChildren = rule.runOnIdle {
-            parentFocusModifier.focusNode.focusableChildren(excludeDeactivated)
+            parentFocusModifier.focusableChildren(excludeDeactivated)
         }
 
         // Assert.
         rule.runOnIdle {
             if (excludeDeactivated) {
-                assertThat(focusableChildren).containsExactly(
-                    focusModifier2.focusNode, focusModifier3.focusNode
+                assertThat(focusableChildren).isExactly(
+                    focusModifier2, focusModifier3
                 )
             } else {
-                assertThat(focusableChildren).containsExactly(
-                    focusModifier1.focusNode, focusModifier3.focusNode
+                assertThat(focusableChildren).isExactly(
+                    focusModifier1, focusModifier3
                 )
             }
         }
     }
+
+    @OptIn(ExperimentalComposeUiApi::class)
+    @Test
+    fun focusedChildIsAvailableFromOnFocusEvent() {
+        // Arrange.
+        val parentFocusModifier = FocusModifier(Inactive)
+        val childFocusModifier = FocusModifier(Inactive)
+        val focusRequester = FocusRequester()
+        var focusedChildAtTimeOfEvent: FocusModifier? = null
+        rule.setFocusableContent {
+            Box(Modifier.focusTarget(parentFocusModifier)) {
+                Box(
+                    Modifier
+                        .onFocusEvent {
+                            if (it.isFocused) {
+                                focusedChildAtTimeOfEvent = parentFocusModifier.focusedChild
+                            }
+                        }
+                        .focusRequester(focusRequester)
+                        .focusTarget(childFocusModifier)
+                )
+            }
+        }
+
+        // Act.
+        rule.runOnIdle { focusRequester.requestFocus() }
+
+        // Assert.
+        assertThat(focusedChildAtTimeOfEvent)
+            .isEqualTo(childFocusModifier)
+    }
+
+    private fun FocusModifier.focusableChildren(excludeDeactivated: Boolean): List<FocusModifier> =
+        (if (excludeDeactivated) activatedChildren() else children).asMutableList()
 }

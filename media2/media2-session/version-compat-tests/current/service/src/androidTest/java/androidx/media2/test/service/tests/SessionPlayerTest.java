@@ -24,6 +24,9 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.junit.Assume.assumeTrue;
+
+import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.media2.common.MediaItem;
@@ -62,6 +65,9 @@ public class SessionPlayerTest extends MediaSessionTestBase {
     @Before
     @Override
     public void setUp() throws Exception {
+        // b/204596299
+        assumeTrue(Build.VERSION.SDK_INT != 17);
+
         super.setUp();
         mPlayer = new MockPlayer(1);
         mSession = new MediaSession.Builder(mContext, mPlayer)

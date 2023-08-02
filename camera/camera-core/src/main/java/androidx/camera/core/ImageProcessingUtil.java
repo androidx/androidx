@@ -23,6 +23,7 @@ import android.graphics.ImageFormat;
 import android.media.Image;
 import android.media.ImageWriter;
 import android.os.Build;
+import android.util.Log;
 import android.view.Surface;
 
 import androidx.annotation.IntRange;
@@ -32,14 +33,17 @@ import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.ImageOutputConfig;
 import androidx.camera.core.impl.ImageReaderProxy;
 import androidx.camera.core.internal.compat.ImageWriterCompat;
+import androidx.core.util.Preconditions;
 
 import java.nio.ByteBuffer;
+import java.util.Locale;
 
 /** Utility class to convert an {@link Image} from YUV to RGB. */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 final class ImageProcessingUtil {
 
     private static final String TAG = "ImageProcessingUtil";
+    private static int sImageCount = 0;
 
     static {
         System.loadLibrary("image_processing_util_jni");
@@ -55,16 +59,45 @@ final class ImageProcessingUtil {
     }
 
     /**
+     * Wraps a JPEG byte array with an {@link Image}.
+     *
+     * <p>This methods wraps the given byte array with an {@link Image} via the help of the
+     * given ImageReader. The image format of the ImageReader has to be JPEG, and the JPEG image
+     * size has to match the size of the ImageReader.
+     */
+    @Nullable
+    public static ImageProxy convertJpegBytesToImage(
+            @NonNull ImageReaderProxy jpegImageReaderProxy,
+            @NonNull byte[] jpegBytes) {
+        Preconditions.checkArgument(jpegImageReaderProxy.getImageFormat() == ImageFormat.JPEG);
+        Preconditions.checkNotNull(jpegBytes);
+
+        Surface surface = jpegImageReaderProxy.getSurface();
+        Preconditions.checkNotNull(surface);
+
+        if (nativeWriteJpegToSurface(jpegBytes, surface) != 0) {
+            Logger.e(TAG, "Failed to enqueue JPEG image.");
+            return null;
+        }
+
+        final ImageProxy imageProxy = jpegImageReaderProxy.acquireLatestImage();
+        if (imageProxy == null) {
+            Logger.e(TAG, "Failed to get acquire JPEG image.");
+        }
+        return imageProxy;
+    }
+
+    /**
      * Converts image proxy in YUV to RGB.
      *
      * Currently this config supports the devices which generated NV21, NV12, I420 YUV layout,
      * otherwise the input YUV layout will be converted to NV12 first and then to RGBA_8888 as a
      * fallback.
      *
-     * @param imageProxy input image proxy in YUV.
-     * @param rgbImageReaderProxy output image reader proxy in RGB.
-     * @param rgbConvertedBuffer intermediate image buffer for format conversion.
-     * @param rotationDegrees output image rotation degrees.
+     * @param imageProxy           input image proxy in YUV.
+     * @param rgbImageReaderProxy  output image reader proxy in RGB.
+     * @param rgbConvertedBuffer   intermediate image buffer for format conversion.
+     * @param rotationDegrees      output image rotation degrees.
      * @param onePixelShiftEnabled true if one pixel shift should be applied, otherwise false.
      * @return output image proxy in RGB.
      */
@@ -79,6 +112,7 @@ final class ImageProcessingUtil {
             Logger.e(TAG, "Unsupported format for YUV to RGB");
             return null;
         }
+        long startTimeMillis = System.currentTimeMillis();
 
         if (!isSupportedRotationDegrees(rotationDegrees)) {
             Logger.e(TAG, "Unsupported rotation degrees for rotate RGB");
@@ -96,6 +130,14 @@ final class ImageProcessingUtil {
         if (result == ERROR_CONVERSION) {
             Logger.e(TAG, "YUV to RGB conversion failure");
             return null;
+        }
+        if (Log.isLoggable("MH", Log.DEBUG)) {
+            // The log is used to profile the ImageProcessing performance and only shows in the
+            // mobile harness tests.
+            Logger.d(TAG, String.format(Locale.US,
+                    "Image processing performance profiling, duration: [%d], image count: %d",
+                    (System.currentTimeMillis() - startTimeMillis), sImageCount));
+            sImageCount++;
         }
 
         // Retrieve ImageProxy in RGB
@@ -140,13 +182,13 @@ final class ImageProcessingUtil {
     /**
      * Rotates YUV image proxy.
      *
-     * @param imageProxy input image proxy.
+     * @param imageProxy              input image proxy.
      * @param rotatedImageReaderProxy input image reader proxy.
-     * @param rotatedImageWriter output image writer.
-     * @param yRotatedBuffer intermediate image buffer for y plane rotation.
-     * @param uRotatedBuffer intermediate image buffer for u plane rotation.
-     * @param vRotatedBuffer intermediate image buffer for v plane rotation.
-     * @param rotationDegrees output image rotation degrees.
+     * @param rotatedImageWriter      output image writer.
+     * @param yRotatedBuffer          intermediate image buffer for y plane rotation.
+     * @param uRotatedBuffer          intermediate image buffer for u plane rotation.
+     * @param vRotatedBuffer          intermediate image buffer for v plane rotation.
+     * @param rotationDegrees         output image rotation degrees.
      * @return rotated image proxy or null if rotation fails or format is not supported.
      */
     @Nullable
@@ -347,6 +389,9 @@ final class ImageProcessingUtil {
         ImageWriterCompat.queueInputImage(rotatedImageWriter, rotatedImage);
         return SUCCESS;
     }
+
+    private static native int nativeWriteJpegToSurface(@NonNull byte[] jpegArray,
+            @NonNull Surface surface);
 
     private static native int nativeConvertAndroid420ToABGR(
             @NonNull ByteBuffer srcByteBufferY,

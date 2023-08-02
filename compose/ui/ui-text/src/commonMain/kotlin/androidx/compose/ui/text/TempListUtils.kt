@@ -24,7 +24,12 @@ import kotlin.contracts.contract
 
 /**
  * Returns a list containing only elements matching the given [predicate].
+ *
+ * **Do not use for collections that come from public APIs**, since they may not support random
+ * access in an efficient way, and this method may actually be a lot slower. Only use for
+ * collections that are created by code we control and are known to support random access.
  */
+@Suppress("BanInlineOptIn") // Treat Kotlin Contracts as non-experimental.
 @OptIn(ExperimentalContracts::class)
 internal inline fun <T> List<T>.fastFilter(predicate: (T) -> Boolean): List<T> {
     contract { callsInPlace(predicate) }
@@ -40,7 +45,12 @@ internal inline fun <T> List<T>.fastFilter(predicate: (T) -> Boolean): List<T> {
  * having distinct keys returned by the given [selector] function.
  *
  * The elements in the resulting list are in the same order as they were in the source collection.
+ *
+ * **Do not use for collections that come from public APIs**, since they may not support random
+ * access in an efficient way, and this method may actually be a lot slower. Only use for
+ * collections that are created by code we control and are known to support random access.
  */
+@Suppress("BanInlineOptIn") // Treat Kotlin Contracts as non-experimental.
 @OptIn(ExperimentalContracts::class)
 internal inline fun <T, K> List<T>.fastDistinctBy(selector: (T) -> K): List<T> {
     contract { callsInPlace(selector) }
@@ -56,7 +66,12 @@ internal inline fun <T, K> List<T>.fastDistinctBy(selector: (T) -> K): List<T> {
 /**
  * Returns the first element yielding the largest value of the given function or `null` if there
  * are no elements.
+ *
+ * **Do not use for collections that come from public APIs**, since they may not support random
+ * access in an efficient way, and this method may actually be a lot slower. Only use for
+ * collections that are created by code we control and are known to support random access.
  */
+@Suppress("BanInlineOptIn") // Treat Kotlin Contracts as non-experimental.
 @OptIn(ExperimentalContracts::class)
 internal inline fun <T, R : Comparable<R>> List<T>.fastMinByOrNull(selector: (T) -> R): T? {
     contract { callsInPlace(selector) }
@@ -80,8 +95,14 @@ internal inline fun <T, R : Comparable<R>> List<T>.fastMinByOrNull(selector: (T)
  *
  * Returns the specified [initial] value if the collection is empty.
  *
- * @param [operation] function that takes current accumulator value and an element, and calculates the next accumulator value.
+ * **Do not use for collections that come from public APIs**, since they may not support random
+ * access in an efficient way, and this method may actually be a lot slower. Only use for
+ * collections that are created by code we control and are known to support random access.
+ *
+ * @param [operation] function that takes current accumulator value and an element, and calculates
+ * the next accumulator value.
  */
+@Suppress("BanInlineOptIn") // Treat Kotlin Contracts as non-experimental.
 @OptIn(ExperimentalContracts::class)
 internal inline fun <T, R> List<T>.fastFold(initial: R, operation: (acc: R, T) -> R): R {
     contract { callsInPlace(operation) }
@@ -95,7 +116,12 @@ internal inline fun <T, R> List<T>.fastFold(initial: R, operation: (acc: R, T) -
 /**
  * Returns a single list of all elements yielded from results of [transform] function being invoked
  * on each element of original collection.
+ *
+ * **Do not use for collections that come from public APIs**, since they may not support random
+ * access in an efficient way, and this method may actually be a lot slower. Only use for
+ * collections that are created by code we control and are known to support random access.
  */
+@Suppress("BanInlineOptIn") // Treat Kotlin Contracts as non-experimental.
 @OptIn(ExperimentalContracts::class)
 internal inline fun <T, R> List<T>.fastFlatMap(transform: (T) -> Iterable<R>): List<R> {
     contract { callsInPlace(transform) }
@@ -109,7 +135,12 @@ internal inline fun <T, R> List<T>.fastFlatMap(transform: (T) -> Iterable<R>): L
 
 /**
  * Returns a list containing all elements not matching the given [predicate].
+ *
+ * **Do not use for collections that come from public APIs**, since they may not support random
+ * access in an efficient way, and this method may actually be a lot slower. Only use for
+ * collections that are created by code we control and are known to support random access.
  */
+@Suppress("BanInlineOptIn") // Treat Kotlin Contracts as non-experimental.
 @OptIn(ExperimentalContracts::class)
 internal inline fun <T> List<T>.fastFilterNot(predicate: (T) -> Boolean): List<T> {
     contract { callsInPlace(predicate) }
@@ -121,8 +152,29 @@ internal inline fun <T> List<T>.fastFilterNot(predicate: (T) -> Boolean): List<T
 }
 
 /**
- * Returns a list containing the first elements satisfying the given [predicate].
+ * Returns a list containing all elements that are not null
+ *
+ * **Do not use for collections that come from public APIs**, since they may not support random
+ * access in an efficient way, and this method may actually be a lot slower. Only use for
+ * collections that are created by code we control and are known to support random access.
  */
+@OptIn(ExperimentalContracts::class)
+internal fun <T : Any> List<T?>.fastFilterNotNull(): List<T> {
+    val target = ArrayList<T>(size)
+    fastForEach {
+        if ((it) != null) target += (it)
+    }
+    return target
+}
+
+/**
+ * Returns a list containing the first elements satisfying the given [predicate].
+ *
+ * **Do not use for collections that come from public APIs**, since they may not support random
+ * access in an efficient way, and this method may actually be a lot slower. Only use for
+ * collections that are created by code we control and are known to support random access.
+ */
+@Suppress("BanInlineOptIn") // Treat Kotlin Contracts as non-experimental.
 @OptIn(ExperimentalContracts::class)
 internal inline fun <T> List<T>.fastTakeWhile(predicate: (T) -> Boolean): List<T> {
     contract { callsInPlace(predicate) }
@@ -138,6 +190,10 @@ internal inline fun <T> List<T>.fastTakeWhile(predicate: (T) -> Boolean): List<T
 
 /**
  * Returns a list containing all elements except first [n] elements.
+ *
+ * **Do not use for collections that come from public APIs**, since they may not support random
+ * access in an efficient way, and this method may actually be a lot slower. Only use for
+ * collections that are created by code we control and are known to support random access.
  *
  * @throws IllegalArgumentException if [n] is negative.
  */
@@ -167,6 +223,10 @@ internal fun <T> List<T>.fastDrop(n: Int): List<T> {
  * If the collection could be huge, you can specify a non-negative value of [limit], in which case
  * only the first [limit] elements will be appended, followed by the [truncated] string (which
  * defaults to "...").
+ *
+ * **Do not use for collections that come from public APIs**, since they may not support random
+ * access in an efficient way, and this method may actually be a lot slower. Only use for
+ * collections that are created by code we control and are known to support random access.
  */
 internal fun <T> List<T>.fastJoinToString(
     separator: CharSequence = ", ",
@@ -187,6 +247,10 @@ internal fun <T> List<T>.fastJoinToString(
  * If the collection could be huge, you can specify a non-negative value of [limit], in which
  * case only the first [limit] elements will be appended, followed by the [truncated] string
  * (which defaults to "...").
+ *
+ * **Do not use for collections that come from public APIs**, since they may not support random
+ * access in an efficient way, and this method may actually be a lot slower. Only use for
+ * collections that are created by code we control and are known to support random access.
  */
 private fun <T, A : Appendable> List<T>.fastJoinTo(
     buffer: A,

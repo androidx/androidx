@@ -69,6 +69,7 @@ class EvCompControl @Inject constructor(
     override fun reset() {
         evCompIndex = 0
         compat.stopRunningTask()
+        updateAsync(0)
     }
 
     fun updateAsync(exposureIndex: Int): Deferred<Int> {

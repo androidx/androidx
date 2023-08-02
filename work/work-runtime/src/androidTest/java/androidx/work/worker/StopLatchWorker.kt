@@ -25,20 +25,24 @@ import java.util.concurrent.TimeUnit
 class StopLatchWorker(context: Context, parameters: WorkerParameters) :
     Worker(context, parameters) {
 
-    private val latch = CountDownLatch(1)
+    private val stopLatch = CountDownLatch(1)
+    private val onStopLatch = CountDownLatch(1)
 
     override fun doWork(): Result {
-        while (latch.count > 0) {
+        while (stopLatch.count > 0) {
             // do nothing.
         }
         return Result.success()
     }
 
+    fun awaitOnStopCall() = onStopLatch.await(5000, TimeUnit.SECONDS)
+
     fun countDown() {
-        latch.countDown()
+        stopLatch.countDown()
     }
 
     override fun onStopped() {
-        latch.await(10, TimeUnit.SECONDS)
+        onStopLatch.countDown()
+        stopLatch.await(5000, TimeUnit.SECONDS)
     }
 }

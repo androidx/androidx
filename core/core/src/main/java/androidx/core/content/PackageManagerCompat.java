@@ -217,6 +217,7 @@ public final class PackageManagerCompat {
      */
     @Nullable
     @RestrictTo(LIBRARY)
+    @SuppressWarnings("deprecation")
     public static String getPermissionRevocationVerifierApp(
             @NonNull PackageManager packageManager) {
         Intent permissionRevocationSettingsIntent =

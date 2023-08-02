@@ -37,6 +37,8 @@ import android.text.Spanned;
 import android.text.TextUtils;
 import android.util.Base64;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.graphics.drawable.IconCompat;
@@ -204,12 +206,14 @@ class SliceXml {
             } else if (type == START_TAG && TAG_SLICE.equals(parser.getName())) {
                 b.addSubSlice(parseSlice(context, parser, listener), subtype);
             } else if (type == START_TAG && TAG_ACTION.equals(parser.getName())) {
-                b.addAction(new SliceItem.ActionHandler() {
-                    @Override
-                    public void onAction(SliceItem item, Context context, Intent intent) {
-                        listener.onSliceAction(item.getSlice().getUri(), context, intent);
-                    }
-                }, parseSlice(context, parser, listener), subtype);
+                b.addAction(parseSlice(context, parser, listener), subtype,
+                        new SliceItem.ActionHandler() {
+                            @Override
+                            public void onAction(@NonNull SliceItem item, @Nullable Context context,
+                                    Intent intent) {
+                                listener.onSliceAction(item.getSlice().getUri(), context, intent);
+                            }
+                        });
             }
         }
     }

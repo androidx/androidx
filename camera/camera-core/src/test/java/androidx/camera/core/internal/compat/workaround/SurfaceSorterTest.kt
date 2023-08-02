@@ -24,6 +24,7 @@ import androidx.camera.core.Preview
 import androidx.camera.core.VideoCapture
 import androidx.camera.core.impl.DeferrableSurface
 import androidx.camera.core.impl.ImmediateSurface
+import androidx.camera.core.impl.SessionConfig
 import com.google.common.truth.Truth.assertThat
 import org.junit.After
 import org.junit.Test
@@ -32,10 +33,6 @@ import org.mockito.Mockito.mock
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
-import org.robolectric.shadows.ShadowBuild
-
-private const val BRAND = "SAMSUNG"
-private const val HARDWARE = "samsungexynos7570"
 
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
@@ -50,87 +47,89 @@ class SurfaceSorterTest {
     }
 
     @Test
-    fun sort_mediaCodecSurfaceIsInTheLast() {
+    fun sort_previewSurfaceIsInTheFirstAndMediaCodecSurfaceIsInTheLast() {
         // Arrange.
-        setupQuirkDevice()
-        val videoSurface = createSurface(containerClass = MediaCodec::class.java)
-        val previewSurface = createSurface(containerClass = Preview::class.java)
-        val imageSurface = createSurface(containerClass = ImageCapture::class.java)
+        val videoOutput = SessionConfig.OutputConfig.builder(
+            createSurface(containerClass = MediaCodec::class.java)).build()
+        val previewOutput = SessionConfig.OutputConfig.builder(
+            createSurface(containerClass = Preview::class.java)).build()
+        val imageOutput = SessionConfig.OutputConfig.builder(
+            createSurface(containerClass = ImageCapture::class.java)).build()
         val surfaceSorter = SurfaceSorter()
 
         // All combinations
-        val surfaces1 = mutableListOf(previewSurface, videoSurface, imageSurface)
-        val surfaces2 = mutableListOf(previewSurface, imageSurface, videoSurface)
-        val surfaces3 = mutableListOf(videoSurface, previewSurface, imageSurface)
-        val surfaces4 = mutableListOf(videoSurface, imageSurface, previewSurface)
-        val surfaces5 = mutableListOf(imageSurface, videoSurface, previewSurface)
-        val surfaces6 = mutableListOf(imageSurface, previewSurface, videoSurface)
+        val outputConfigs1 = mutableListOf(previewOutput, videoOutput, imageOutput)
+        val outputConfigs2 = mutableListOf(previewOutput, imageOutput, videoOutput)
+        val outputConfigs3 = mutableListOf(videoOutput, previewOutput, imageOutput)
+        val outputConfigs4 = mutableListOf(videoOutput, imageOutput, previewOutput)
+        val outputConfigs5 = mutableListOf(imageOutput, videoOutput, previewOutput)
+        val outputConfigs6 = mutableListOf(imageOutput, previewOutput, videoOutput)
 
         // Act.
-        surfaceSorter.sort(surfaces1)
-        surfaceSorter.sort(surfaces2)
-        surfaceSorter.sort(surfaces3)
-        surfaceSorter.sort(surfaces4)
-        surfaceSorter.sort(surfaces5)
-        surfaceSorter.sort(surfaces6)
+        surfaceSorter.sort(outputConfigs1)
+        surfaceSorter.sort(outputConfigs2)
+        surfaceSorter.sort(outputConfigs3)
+        surfaceSorter.sort(outputConfigs4)
+        surfaceSorter.sort(outputConfigs5)
+        surfaceSorter.sort(outputConfigs6)
 
         // Assert.
-        assertThat(surfaces1.last()).isEqualTo(videoSurface)
-        assertThat(surfaces2.last()).isEqualTo(videoSurface)
-        assertThat(surfaces3.last()).isEqualTo(videoSurface)
-        assertThat(surfaces4.last()).isEqualTo(videoSurface)
-        assertThat(surfaces5.last()).isEqualTo(videoSurface)
-        assertThat(surfaces6.last()).isEqualTo(videoSurface)
+        assertThat(outputConfigs1.first()).isEqualTo(previewOutput)
+        assertThat(outputConfigs2.first()).isEqualTo(previewOutput)
+        assertThat(outputConfigs3.first()).isEqualTo(previewOutput)
+        assertThat(outputConfigs4.first()).isEqualTo(previewOutput)
+        assertThat(outputConfigs5.first()).isEqualTo(previewOutput)
+        assertThat(outputConfigs6.first()).isEqualTo(previewOutput)
+
+        assertThat(outputConfigs1.last()).isEqualTo(videoOutput)
+        assertThat(outputConfigs2.last()).isEqualTo(videoOutput)
+        assertThat(outputConfigs3.last()).isEqualTo(videoOutput)
+        assertThat(outputConfigs4.last()).isEqualTo(videoOutput)
+        assertThat(outputConfigs5.last()).isEqualTo(videoOutput)
+        assertThat(outputConfigs6.last()).isEqualTo(videoOutput)
     }
 
     @Test
-    fun sort_videoCaptureSurfaceIsInTheLast() {
+    fun sort_previewSurfaceIsInTheFirstAndVideoCaptureSurfaceIsInTheLast() {
         // Arrange.
-        setupQuirkDevice()
-        val videoSurface = createSurface(containerClass = VideoCapture::class.java)
-        val previewSurface = createSurface(containerClass = Preview::class.java)
-        val imageSurface = createSurface(containerClass = ImageCapture::class.java)
+        val videoOutput = SessionConfig.OutputConfig.builder(
+            createSurface(containerClass = VideoCapture::class.java)).build()
+        val previewOutput = SessionConfig.OutputConfig.builder(
+            createSurface(containerClass = Preview::class.java)).build()
+        val imageOutput = SessionConfig.OutputConfig.builder(
+            createSurface(containerClass = ImageCapture::class.java)).build()
         val surfaceSorter = SurfaceSorter()
 
         // All combinations
-        val surfaces1 = mutableListOf(previewSurface, videoSurface, imageSurface)
-        val surfaces2 = mutableListOf(previewSurface, imageSurface, videoSurface)
-        val surfaces3 = mutableListOf(videoSurface, previewSurface, imageSurface)
-        val surfaces4 = mutableListOf(videoSurface, imageSurface, previewSurface)
-        val surfaces5 = mutableListOf(imageSurface, videoSurface, previewSurface)
-        val surfaces6 = mutableListOf(imageSurface, previewSurface, videoSurface)
+        val outputConfigs1 = mutableListOf(previewOutput, videoOutput, imageOutput)
+        val outputConfigs2 = mutableListOf(previewOutput, imageOutput, videoOutput)
+        val outputConfigs3 = mutableListOf(videoOutput, previewOutput, imageOutput)
+        val outputConfigs4 = mutableListOf(videoOutput, imageOutput, previewOutput)
+        val outputConfigs5 = mutableListOf(imageOutput, videoOutput, previewOutput)
+        val outputConfigs6 = mutableListOf(imageOutput, previewOutput, videoOutput)
 
         // Act.
-        surfaceSorter.sort(surfaces1)
-        surfaceSorter.sort(surfaces2)
-        surfaceSorter.sort(surfaces3)
-        surfaceSorter.sort(surfaces4)
-        surfaceSorter.sort(surfaces5)
-        surfaceSorter.sort(surfaces6)
+        surfaceSorter.sort(outputConfigs1)
+        surfaceSorter.sort(outputConfigs2)
+        surfaceSorter.sort(outputConfigs3)
+        surfaceSorter.sort(outputConfigs4)
+        surfaceSorter.sort(outputConfigs5)
+        surfaceSorter.sort(outputConfigs6)
 
         // Assert.
-        assertThat(surfaces1.last()).isEqualTo(videoSurface)
-        assertThat(surfaces2.last()).isEqualTo(videoSurface)
-        assertThat(surfaces3.last()).isEqualTo(videoSurface)
-        assertThat(surfaces4.last()).isEqualTo(videoSurface)
-        assertThat(surfaces5.last()).isEqualTo(videoSurface)
-        assertThat(surfaces6.last()).isEqualTo(videoSurface)
-    }
+        assertThat(outputConfigs1.first()).isEqualTo(previewOutput)
+        assertThat(outputConfigs2.first()).isEqualTo(previewOutput)
+        assertThat(outputConfigs3.first()).isEqualTo(previewOutput)
+        assertThat(outputConfigs4.first()).isEqualTo(previewOutput)
+        assertThat(outputConfigs5.first()).isEqualTo(previewOutput)
+        assertThat(outputConfigs6.first()).isEqualTo(previewOutput)
 
-    @Test
-    fun notQuirkDevice_wontSort() {
-        // Arrange.
-        val videoSurface = createSurface(containerClass = VideoCapture::class.java)
-        val previewSurface = createSurface(containerClass = Preview::class.java)
-        val imageSurface = createSurface(containerClass = ImageCapture::class.java)
-        val surfaceSorter = SurfaceSorter()
-        val surfaces = mutableListOf(videoSurface, previewSurface, imageSurface)
-
-        // Act.
-        surfaceSorter.sort(surfaces)
-
-        // Assert.
-        assertThat(surfaces).isEqualTo(listOf(videoSurface, previewSurface, imageSurface))
+        assertThat(outputConfigs1.last()).isEqualTo(videoOutput)
+        assertThat(outputConfigs2.last()).isEqualTo(videoOutput)
+        assertThat(outputConfigs3.last()).isEqualTo(videoOutput)
+        assertThat(outputConfigs4.last()).isEqualTo(videoOutput)
+        assertThat(outputConfigs5.last()).isEqualTo(videoOutput)
+        assertThat(outputConfigs6.last()).isEqualTo(videoOutput)
     }
 
     private fun createSurface(
@@ -140,10 +139,5 @@ class SurfaceSorterTest {
         deferrableSurface.setContainerClass(containerClass)
         deferrableSurfaces.add(deferrableSurface)
         return deferrableSurface
-    }
-
-    private fun setupQuirkDevice() {
-        ShadowBuild.setBrand(BRAND)
-        ShadowBuild.setHardware(HARDWARE)
     }
 }

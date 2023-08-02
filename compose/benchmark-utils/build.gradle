@@ -22,8 +22,6 @@ plugins {
 }
 
 dependencies {
-    kotlinPlugin project(":compose:compiler:compiler")
-
     api("androidx.activity:activity:1.2.0")
     api(project(":compose:test-utils"))
     api(project(":benchmark:benchmark-junit4"))
@@ -36,4 +34,8 @@ dependencies {
     // This has stub APIs for access to legacy Android APIs, so we don't want
     // any dependency on this module.
     compileOnly(project(":compose:ui:ui-android-stubs"))
+}
+
+android {
+    namespace "androidx.compose.benchmarkutils"
 }

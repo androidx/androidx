@@ -1,6 +1,6 @@
 -keep class * extends androidx.work.Worker
 -keep class * extends androidx.work.InputMerger
-# Keep all constructors on ListenableWorker, Worker (also marked with @Keep)
+# Keep all constructors on ListenableWorker, Worker
 -keep public class * extends androidx.work.ListenableWorker {
     public <init>(...);
 }

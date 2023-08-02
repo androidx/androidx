@@ -35,15 +35,16 @@ internal class IdentityArrayIntMap {
         return if (index >= 0) values[index] else error("Key not found")
     }
     /**
-     * Add [value] to the set and return `true` if it was added or `false` if it already existed.
+     * Add [value] to the map and return `-1` if it was added or previous value if it already existed.
      */
-    fun add(key: Any, value: Int) {
+    fun add(key: Any, value: Int): Int {
         val index: Int
         if (size > 0) {
             index = find(key)
             if (index >= 0) {
+                val previousValue = values[index]
                 values[index] = value
-                return
+                return previousValue
             }
         } else {
             index = -1
@@ -93,6 +94,8 @@ internal class IdentityArrayIntMap {
         keys[insertIndex] = key
         values[insertIndex] = value
         size++
+
+        return -1
     }
 
     /**
@@ -170,10 +173,10 @@ internal class IdentityArrayIntMap {
         while (low <= high) {
             val mid = (low + high).ushr(1)
             val midVal = keys[mid]
-            val comparison = identityHashCode(midVal) - valueIdentity
+            val midIdentity = identityHashCode(midVal)
             when {
-                comparison < 0 -> low = mid + 1
-                comparison > 0 -> high = mid - 1
+                midIdentity < valueIdentity -> low = mid + 1
+                midIdentity > valueIdentity -> high = mid - 1
                 midVal === key -> return mid
                 else -> return findExactIndex(mid, key, valueIdentity)
             }

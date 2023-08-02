@@ -17,6 +17,7 @@
 package androidx.health.services.client.impl.internal
 
 import android.os.RemoteException
+import androidx.annotation.RestrictTo
 import androidx.health.services.client.data.ExerciseInfo
 import androidx.health.services.client.impl.response.ExerciseInfoResponse
 import com.google.common.util.concurrent.SettableFuture
@@ -26,6 +27,7 @@ import com.google.common.util.concurrent.SettableFuture
  *
  * @hide
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class ExerciseInfoCallback(private val resultFuture: SettableFuture<ExerciseInfo>) :
     IExerciseInfoCallback.Stub() {
 

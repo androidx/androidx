@@ -117,6 +117,8 @@ public open class ListenableWatchFaceControlClient(
             }
     }
 
+    @Suppress("DEPRECATION")
+    @Deprecated("createHeadlessWatchFaceClient without an id is deprecated")
     override fun createHeadlessWatchFaceClient(
         watchFaceName: ComponentName,
         deviceConfig: DeviceConfig,
@@ -124,6 +126,21 @@ public open class ListenableWatchFaceControlClient(
         surfaceHeight: Int
     ): HeadlessWatchFaceClient? =
         watchFaceControlClient.createHeadlessWatchFaceClient(
+            watchFaceName,
+            deviceConfig,
+            surfaceWidth,
+            surfaceHeight
+        )
+
+    override fun createHeadlessWatchFaceClient(
+        id: String,
+        watchFaceName: ComponentName,
+        deviceConfig: DeviceConfig,
+        surfaceWidth: Int,
+        surfaceHeight: Int
+    ): HeadlessWatchFaceClient? =
+        watchFaceControlClient.createHeadlessWatchFaceClient(
+            id,
             watchFaceName,
             deviceConfig,
             surfaceWidth,
@@ -182,6 +199,8 @@ public open class ListenableWatchFaceControlClient(
     override fun getEditorServiceClient(): EditorServiceClient =
         watchFaceControlClient.getEditorServiceClient()
 
+    @Deprecated("Use the WatchFaceMetadataClient instead.")
+    @Suppress("DEPRECATION")
     override fun getDefaultComplicationDataSourcePoliciesAndType(
         watchFaceName: ComponentName
     ): Map<Int, DefaultComplicationDataSourcePolicyAndType> =

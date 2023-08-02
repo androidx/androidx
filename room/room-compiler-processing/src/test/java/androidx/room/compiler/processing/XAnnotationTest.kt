@@ -16,6 +16,7 @@
 
 package androidx.room.compiler.processing
 
+import androidx.room.compiler.processing.compat.XConverters.toJavac
 import androidx.room.compiler.processing.testcode.JavaAnnotationWithDefaults
 import androidx.room.compiler.processing.testcode.JavaAnnotationWithEnum
 import androidx.room.compiler.processing.testcode.JavaAnnotationWithEnumArray
@@ -30,13 +31,14 @@ import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
 import androidx.room.compiler.processing.util.compileFiles
 import androidx.room.compiler.processing.util.getField
-import androidx.room.compiler.processing.util.getMethod
+import androidx.room.compiler.processing.util.getMethodByJvmName
 import androidx.room.compiler.processing.util.getParameter
 import androidx.room.compiler.processing.util.runProcessorTest
 import androidx.room.compiler.processing.util.runProcessorTestWithoutKsp
 import androidx.room.compiler.processing.util.typeName
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
+import com.squareup.javapoet.AnnotationSpec
 import com.squareup.javapoet.ClassName
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -115,6 +117,87 @@ class XAnnotationTest(
             assertThat(annotation1.annotationValues).hasSize(1)
             assertThat(annotation1.annotationValues.first().name).isEqualTo("bar")
             assertThat(annotation1.annotationValues.first().value).isEqualTo(1)
+        }
+    }
+
+    @Test
+    fun annotationSpec() {
+        val source = Source.java(
+            "test.MyClass",
+            """
+            package test;
+            import androidx.room.compiler.processing.testcode.TestSuppressWarnings;
+            @TestSuppressWarnings("test")
+            public class MyClass {}
+            """.trimIndent()
+        )
+        runTest(
+            sources = listOf(source),
+        ) { invocation ->
+            val element = invocation.processingEnv.requireTypeElement("test.MyClass")
+            val annotation =
+                element.requireAnnotation(ClassName.get(TestSuppressWarnings::class.java))
+            if (!invocation.isKsp) {
+                assertThat(annotation.toAnnotationSpec())
+                    .isEqualTo(AnnotationSpec.get(annotation.toJavac()))
+            }
+        }
+    }
+
+    @Test
+    fun getAnnotationsAnnotatedWith() {
+        val source = Source.kotlin(
+            "MyClass.kt",
+            """
+            package foo.bar
+
+            @Target(AnnotationTarget.ANNOTATION_CLASS)
+            @Retention(AnnotationRetention.SOURCE)
+            annotation class SourceAnnotation
+
+            @Target(AnnotationTarget.ANNOTATION_CLASS)
+            @Retention(AnnotationRetention.BINARY)
+            annotation class BinaryAnnotation
+
+            @Target(AnnotationTarget.ANNOTATION_CLASS)
+            @Retention(AnnotationRetention.RUNTIME)
+            annotation class RuntimeAnnotation
+
+            @SourceAnnotation
+            @BinaryAnnotation
+            @RuntimeAnnotation
+            @Target(AnnotationTarget.CLASS)
+            @Retention(AnnotationRetention.RUNTIME)
+            annotation class Foo
+
+            @Foo
+            class MyClass
+            """.trimIndent()
+        )
+        runTest(
+            sources = listOf(source),
+        ) { invocation ->
+            val element = invocation.processingEnv.requireTypeElement("foo.bar.MyClass")
+
+            val annotationsForAnnotations = if (preCompiled) {
+                // Source level annotations are gone if it's pre-compiled
+                listOf("BinaryAnnotation", "RuntimeAnnotation")
+            } else {
+                listOf("SourceAnnotation", "BinaryAnnotation", "RuntimeAnnotation")
+            }
+
+            annotationsForAnnotations.forEach {
+                val annotations = element.getAnnotationsAnnotatedWith(
+                    ClassName.get("foo.bar", it))
+                assertThat(annotations).hasSize(1)
+                val annotation = annotations.first()
+                assertThat(annotation.name)
+                    .isEqualTo("Foo")
+                assertThat(annotation.qualifiedName)
+                    .isEqualTo("foo.bar.Foo")
+                assertThat(annotation.type.typeElement)
+                    .isEqualTo(invocation.processingEnv.requireTypeElement("foo.bar.Foo"))
+            }
         }
     }
 
@@ -407,31 +490,31 @@ class XAnnotationTest(
             val subject = invocation.processingEnv.requireTypeElement("Subject")
 
             subject.getField("prop1").assertHasSuppressWithValue("onProp1")
-            subject.getMethod("getProp1").assertDoesNotHaveAnnotation()
-            subject.getMethod("setProp1").assertDoesNotHaveAnnotation()
-            subject.getMethod("setProp1").parameters.first().assertDoesNotHaveAnnotation()
+            subject.getMethodByJvmName("getProp1").assertDoesNotHaveAnnotation()
+            subject.getMethodByJvmName("setProp1").assertDoesNotHaveAnnotation()
+            subject.getMethodByJvmName("setProp1").parameters.first().assertDoesNotHaveAnnotation()
 
             subject.getField("prop2").assertHasSuppressWithValue("onField2")
-            subject.getMethod("getProp2").assertHasSuppressWithValue("onGetter2")
-            subject.getMethod("setProp2").assertHasSuppressWithValue("onSetter2")
-            subject.getMethod("setProp2").parameters.first().assertHasSuppressWithValue(
+            subject.getMethodByJvmName("getProp2").assertHasSuppressWithValue("onGetter2")
+            subject.getMethodByJvmName("setProp2").assertHasSuppressWithValue("onSetter2")
+            subject.getMethodByJvmName("setProp2").parameters.first().assertHasSuppressWithValue(
                 "onSetterParam2"
             )
 
-            subject.getMethod("getProp3").assertHasSuppressWithValue("onGetter3")
-            subject.getMethod("setProp3").assertHasSuppressWithValue("onSetter3")
-            subject.getMethod("setProp3").parameters.first().assertHasSuppressWithValue(
+            subject.getMethodByJvmName("getProp3").assertHasSuppressWithValue("onGetter3")
+            subject.getMethodByJvmName("setProp3").assertHasSuppressWithValue("onSetter3")
+            subject.getMethodByJvmName("setProp3").parameters.first().assertHasSuppressWithValue(
                 "onSetterParam3"
             )
 
             assertThat(
-                subject.getMethod("getProp3").getOtherAnnotationValue()
+                subject.getMethodByJvmName("getProp3").getOtherAnnotationValue()
             ).isEqualTo("_onGetter3")
             assertThat(
-                subject.getMethod("setProp3").getOtherAnnotationValue()
+                subject.getMethodByJvmName("setProp3").getOtherAnnotationValue()
             ).isEqualTo("_onSetter3")
             val otherAnnotationValue =
-                subject.getMethod("setProp3").parameters.first().getOtherAnnotationValue()
+                subject.getMethodByJvmName("setProp3").parameters.first().getOtherAnnotationValue()
             assertThat(
                 otherAnnotationValue
             ).isEqualTo("_onSetterParam3")
@@ -457,11 +540,11 @@ class XAnnotationTest(
         )
         runTest(sources = listOf(src)) { invocation ->
             val subject = invocation.processingEnv.requireTypeElement("Subject")
-            subject.getMethod("noAnnotations").let { method ->
+            subject.getMethodByJvmName("noAnnotations").let { method ->
                 method.assertDoesNotHaveAnnotation()
                 method.getParameter("x").assertDoesNotHaveAnnotation()
             }
-            subject.getMethod("methodAnnotation").let { method ->
+            subject.getMethodByJvmName("methodAnnotation").let { method ->
                 method.assertHasSuppressWithValue("onMethod")
                 method.getParameter("annotated").assertHasSuppressWithValue("onParam")
                 method.getParameter("notAnnotated").assertDoesNotHaveAnnotation()
@@ -491,8 +574,8 @@ class XAnnotationTest(
             assertThat(subject.getConstructors()).hasSize(1)
             val constructor = subject.getConstructors().single()
             constructor.getParameter("x").assertHasSuppressWithValue("onConstructorParam")
-            subject.getMethod("getX").assertHasSuppressWithValue("onGetter")
-            subject.getMethod("setX").assertHasSuppressWithValue("onSetter")
+            subject.getMethodByJvmName("getX").assertHasSuppressWithValue("onGetter")
+            subject.getMethodByJvmName("setX").assertHasSuppressWithValue("onSetter")
             subject.getField("x").assertHasSuppressWithValue("onField")
         }
     }
@@ -546,14 +629,14 @@ class XAnnotationTest(
                     val enumValueEntry = annotation.getAsEnum("enumVal")
                     assertThat(enumValueEntry.name).isEqualTo("DEFAULT")
                     val javaEnumType = invocation.processingEnv.requireTypeElement(JavaEnum::class)
-                    assertThat(enumValueEntry.enumTypeElement)
+                    assertThat(enumValueEntry.enclosingElement)
                         .isEqualTo(javaEnumType)
 
                     val enumList = annotation.getAsEnumList("enumArrayVal")
                     assertThat(enumList[0].name).isEqualTo("VAL1")
                     assertThat(enumList[1].name).isEqualTo("VAL2")
-                    assertThat(enumList[0].enumTypeElement).isEqualTo(javaEnumType)
-                    assertThat(enumList[1].enumTypeElement).isEqualTo(javaEnumType)
+                    assertThat(enumList[0].enclosingElement).isEqualTo(javaEnumType)
+                    assertThat(enumList[1].enclosingElement).isEqualTo(javaEnumType)
 
                     // TODO: KSP mistakenly sees null for the value in a default annotation in
                     //  sources. https://github.com/google/ksp/issues/53

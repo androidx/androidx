@@ -38,6 +38,8 @@ import android.database.sqlite.SQLiteCantOpenDatabaseException;
 import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteDatabaseCorruptException;
 import android.database.sqlite.SQLiteDatabaseLockedException;
+import android.database.sqlite.SQLiteDiskIOException;
+import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteTableLockedException;
 import android.os.Build;
 import android.text.TextUtils;
@@ -46,7 +48,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
-import androidx.core.os.BuildCompat;
 import androidx.work.Configuration;
 import androidx.work.InitializationExceptionHandler;
 import androidx.work.Logger;
@@ -86,11 +87,13 @@ public class ForceStopRunnable implements Runnable {
 
     private final Context mContext;
     private final WorkManagerImpl mWorkManager;
+    private final PreferenceUtils mPreferenceUtils;
     private int mRetryCount;
 
     public ForceStopRunnable(@NonNull Context context, @NonNull WorkManagerImpl workManager) {
         mContext = context.getApplicationContext();
         mWorkManager = workManager;
+        mPreferenceUtils = workManager.getPreferenceUtils();
         mRetryCount = 0;
     }
 
@@ -101,8 +104,29 @@ public class ForceStopRunnable implements Runnable {
                 return;
             }
             while (true) {
-                // Migrate the database to the no-backup directory if necessary.
-                WorkDatabasePathHelper.migrateDatabase(mContext);
+
+                try {
+                    // Migrate the database to the no-backup directory if necessary.
+                    // Migrations are not retry-able. So if something unexpected were to happen
+                    // here, the best we can do is to hand things off to the
+                    // InitializationExceptionHandler.
+                    WorkDatabasePathHelper.migrateDatabase(mContext);
+                } catch (SQLiteException sqLiteException) {
+                    // This should typically never happen.
+                    String message = "Unexpected SQLite exception during migrations";
+                    Logger.get().error(TAG, message);
+                    IllegalStateException exception =
+                            new IllegalStateException(message, sqLiteException);
+                    InitializationExceptionHandler exceptionHandler =
+                            mWorkManager.getConfiguration().getInitializationExceptionHandler();
+                    if (exceptionHandler != null) {
+                        exceptionHandler.handleException(exception);
+                        break;
+                    } else {
+                        throw exception;
+                    }
+                }
+
                 // Clean invalid jobs attributed to WorkManager, and Workers that might have been
                 // interrupted because the application crashed (RUNNING state).
                 Logger.get().debug(TAG, "Performing cleanup operations.");
@@ -110,11 +134,12 @@ public class ForceStopRunnable implements Runnable {
                     forceStopRunnable();
                     break;
                 } catch (SQLiteCantOpenDatabaseException
-                        | SQLiteDatabaseCorruptException
-                        | SQLiteDatabaseLockedException
-                        | SQLiteTableLockedException
-                        | SQLiteConstraintException
-                        | SQLiteAccessPermException exception) {
+                         | SQLiteDiskIOException
+                         | SQLiteDatabaseCorruptException
+                         | SQLiteDatabaseLockedException
+                         | SQLiteTableLockedException
+                         | SQLiteConstraintException
+                         | SQLiteAccessPermException exception) {
                     mRetryCount++;
                     if (mRetryCount >= MAX_ATTEMPTS) {
                         // ForceStopRunnable is usually the first thing that accesses a database
@@ -128,7 +153,7 @@ public class ForceStopRunnable implements Runnable {
                         IllegalStateException throwable = new IllegalStateException(message,
                                 exception);
                         InitializationExceptionHandler exceptionHandler =
-                                mWorkManager.getConfiguration().getExceptionHandler();
+                                mWorkManager.getConfiguration().getInitializationExceptionHandler();
                         if (exceptionHandler != null) {
                             Logger.get().debug(TAG,
                                     "Routing exception to the specified exception handler",
@@ -164,7 +189,7 @@ public class ForceStopRunnable implements Runnable {
         // something different.
         try {
             int flags = FLAG_NO_CREATE;
-            if (BuildCompat.isAtLeastS()) {
+            if (Build.VERSION.SDK_INT >= 31) {
                 flags |= FLAG_MUTABLE;
             }
             PendingIntent pendingIntent = getPendingIntent(mContext, flags);
@@ -183,9 +208,11 @@ public class ForceStopRunnable implements Runnable {
                         );
 
                 if (exitInfoList != null && !exitInfoList.isEmpty()) {
+                    long timestamp = mPreferenceUtils.getLastForceStopEventMillis();
                     for (int i = 0; i < exitInfoList.size(); i++) {
                         ApplicationExitInfo info = exitInfoList.get(i);
-                        if (info.getReason() == REASON_USER_REQUESTED) {
+                        if (info.getReason() == REASON_USER_REQUESTED
+                                && info.getTimestamp() >= timestamp) {
                             return true;
                         }
                     }
@@ -221,6 +248,8 @@ public class ForceStopRunnable implements Runnable {
         } else if (isForceStopped()) {
             Logger.get().debug(TAG, "Application was force-stopped, rescheduling.");
             mWorkManager.rescheduleEligibleWork();
+            // Update the last known force-stop event timestamp.
+            mPreferenceUtils.setLastForceStopEventMillis(System.currentTimeMillis());
         } else if (needsScheduling) {
             Logger.get().debug(TAG, "Found unfinished work, scheduling it.");
             Schedulers.schedule(
@@ -282,7 +311,7 @@ public class ForceStopRunnable implements Runnable {
      * @return {@code true} If we need to reschedule Workers.
      */
     @VisibleForTesting
-    boolean shouldRescheduleWorkers() {
+    public boolean shouldRescheduleWorkers() {
         return mWorkManager.getPreferenceUtils().getNeedsReschedule();
     }
 
@@ -346,7 +375,7 @@ public class ForceStopRunnable implements Runnable {
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         // Using FLAG_UPDATE_CURRENT, because we only ever want once instance of this alarm.
         int flags = FLAG_UPDATE_CURRENT;
-        if (BuildCompat.isAtLeastS()) {
+        if (Build.VERSION.SDK_INT >= 31) {
             flags |= FLAG_MUTABLE;
         }
         PendingIntent pendingIntent = getPendingIntent(context, flags);

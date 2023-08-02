@@ -16,9 +16,12 @@
 
 package androidx.leanback.media;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 
 import androidx.annotation.CallSuper;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -53,21 +56,21 @@ public abstract class PlaybackGlue {
          * Event for {@link #isPrepared()} changed.
          * @param glue The PlaybackGlue that has changed {@link #isPrepared()}.
          */
-        public void onPreparedStateChanged(PlaybackGlue glue) {
+        public void onPreparedStateChanged(@NonNull PlaybackGlue glue) {
         }
 
         /**
          * Event for Play/Pause state change. See {@link #isPlaying()}}.
          * @param glue The PlaybackGlue that has changed playing or pausing state.
          */
-        public void onPlayStateChanged(PlaybackGlue glue) {
+        public void onPlayStateChanged(@NonNull PlaybackGlue glue) {
         }
 
         /**
          * Event of the current media is finished.
          * @param glue The PlaybackGlue that has finished current media playing.
          */
-        public void onPlayCompleted(PlaybackGlue glue) {
+        public void onPlayCompleted(@NonNull PlaybackGlue glue) {
         }
     }
 
@@ -76,13 +79,14 @@ public abstract class PlaybackGlue {
     /**
      * Constructor.
      */
-    public PlaybackGlue(Context context) {
+    public PlaybackGlue(@NonNull Context context) {
         this.mContext = context;
     }
 
     /**
      * Returns the context.
      */
+    @NonNull
     public Context getContext() {
         return mContext;
     }
@@ -100,7 +104,7 @@ public abstract class PlaybackGlue {
      * Add a PlayerCallback.
      * @param playerCallback The callback to add.
      */
-    public void addPlayerCallback(PlayerCallback playerCallback) {
+    public void addPlayerCallback(@NonNull PlayerCallback playerCallback) {
         if (mPlayerCallbacks == null) {
             mPlayerCallbacks = new ArrayList<>();
         }
@@ -111,7 +115,7 @@ public abstract class PlaybackGlue {
      * Remove a PlayerCallback.
      * @param callback The callback to remove.
      */
-    public void removePlayerCallback(PlayerCallback callback) {
+    public void removePlayerCallback(@NonNull PlayerCallback callback) {
         if (mPlayerCallbacks != null) {
             mPlayerCallbacks.remove(callback);
         }
@@ -120,6 +124,8 @@ public abstract class PlaybackGlue {
     /**
      * @return A snapshot of list of PlayerCallbacks set on the Glue.
      */
+    @SuppressLint("NullableCollection")
+    @Nullable
     protected List<PlayerCallback> getPlayerCallbacks() {
         if (mPlayerCallbacks == null) {
             return null;
@@ -150,7 +156,7 @@ public abstract class PlaybackGlue {
         } else {
             addPlayerCallback(new PlayerCallback() {
                 @Override
-                public void onPreparedStateChanged(PlaybackGlue glue) {
+                public void onPreparedStateChanged(@NonNull PlaybackGlue glue) {
                     if (glue.isPrepared()) {
                         removePlayerCallback(this);
                         play();
@@ -184,7 +190,7 @@ public abstract class PlaybackGlue {
      *
      * @param host The host for the PlaybackGlue. Set to null to detach from the host.
      */
-    public final void setHost(PlaybackGlueHost host) {
+    public final void setHost(@Nullable PlaybackGlueHost host) {
         if (mPlaybackGlueHost == host) {
             return;
         }
@@ -226,7 +232,7 @@ public abstract class PlaybackGlue {
      * and call super.onAttachedToHost().
      */
     @CallSuper
-    protected void onAttachedToHost(PlaybackGlueHost host) {
+    protected void onAttachedToHost(@NonNull PlaybackGlueHost host) {
         mPlaybackGlueHost = host;
         mPlaybackGlueHost.setHostCallback(new PlaybackGlueHost.HostCallback() {
             @Override
@@ -273,6 +279,7 @@ public abstract class PlaybackGlue {
     /**
      * @return Associated {@link PlaybackGlueHost} or null if not attached to host.
      */
+    @Nullable
     public PlaybackGlueHost getHost() {
         return mPlaybackGlueHost;
     }

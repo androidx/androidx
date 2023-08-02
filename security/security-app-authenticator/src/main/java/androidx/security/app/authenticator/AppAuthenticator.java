@@ -23,8 +23,10 @@ import android.os.Binder;
 import android.text.TextUtils;
 import android.util.Log;
 
+import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.annotation.XmlRes;
 import androidx.collection.ArrayMap;
@@ -38,6 +40,8 @@ import org.xmlpull.v1.XmlPullParserFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -85,6 +89,22 @@ public class AppAuthenticator {
     public static final int PERMISSION_DENIED_PACKAGE_UID_MISMATCH = -5;
 
     /**
+     * Values returned when checking that a specified package has the expected signing identity
+     * for a particular permission.
+     *
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @IntDef(value = {
+            PERMISSION_GRANTED,
+            PERMISSION_DENIED_NO_MATCH,
+            PERMISSION_DENIED_UNKNOWN_PACKAGE,
+            PERMISSION_DENIED_PACKAGE_UID_MISMATCH,
+    })
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface AppIdentityPermissionResult {}
+
+    /**
      * This is returned by {@link #checkAppIdentity(String)} when the specified package name has
      * the expected signing identity.
      *
@@ -99,6 +119,20 @@ public class AppAuthenticator {
      * @see PackageManager#SIGNATURE_NO_MATCH
      */
     public static final int SIGNATURE_NO_MATCH = -1;
+
+    /**
+     * Values returned when checking that a specified package has the expected signing identity
+     * on the device.
+     *
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @IntDef(value = {
+            SIGNATURE_MATCH,
+            SIGNATURE_NO_MATCH,
+    })
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface AppIdentityResult {}
 
     /**
      * The root tag for an AppAuthenticator XMl config file.
@@ -233,6 +267,7 @@ public class AppAuthenticator {
      *     {@link #PERMISSION_DENIED_PACKAGE_UID_MISMATCH} if the uid as returned from
      *     {@link Binder#getCallingUid()} does not match the uid assigned to the package
      */
+    @AppIdentityPermissionResult
     public int checkCallingAppIdentity(@NonNull String packageName, @NonNull String permission) {
         return checkCallingAppIdentity(packageName, permission,
                 mAppAuthenticatorUtils.getCallingPid(), mAppAuthenticatorUtils.getCallingUid());
@@ -258,6 +293,7 @@ public class AppAuthenticator {
      *     {@link #PERMISSION_DENIED_PACKAGE_UID_MISMATCH} if the specified {@code uid} does not
      *     match the uid assigned to the package
      */
+    @AppIdentityPermissionResult
     public int checkCallingAppIdentity(@NonNull String packageName, @NonNull String permission,
             int pid, int uid) {
         AppAuthenticatorResult result = checkCallingAppIdentityInternal(packageName, permission,
@@ -332,6 +368,7 @@ public class AppAuthenticator {
      * @return {@link #SIGNATURE_MATCH} if the specified package has the expected
      * signing identity
      */
+    @AppIdentityResult
     public int checkAppIdentity(@NonNull String packageName) {
         if (mAppSignatureVerifier.verifyExpectedIdentity(packageName)) {
             return SIGNATURE_MATCH;

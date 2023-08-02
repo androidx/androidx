@@ -23,6 +23,7 @@ import androidx.annotation.RestrictTo;
 import androidx.work.Data;
 import androidx.work.ExistingPeriodicWorkPolicy;
 import androidx.work.ExistingWorkPolicy;
+import androidx.work.ForegroundInfo;
 import androidx.work.ListenableWorker;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.PeriodicWorkRequest;
@@ -333,6 +334,22 @@ public abstract class RemoteWorkManager {
     @NonNull
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public abstract ListenableFuture<Void> setProgress(@NonNull UUID id, @NonNull Data data);
+
+    /**
+     * Delegates the call to {@link ListenableWorker#setForegroundAsync(ForegroundInfo)} to the
+     * designated process.
+     *
+     * @param id             The {@link WorkRequest} id
+     * @param foregroundInfo THe {@link ForegroundInfo} instance
+     * @return A {@link ListenableFuture} that can be used to determine when the setForeground
+     * has completed.
+     * @hide
+     */
+    @NonNull
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public abstract ListenableFuture<Void> setForegroundAsync(
+            @NonNull String id,
+            @NonNull ForegroundInfo foregroundInfo);
 
     /**
      * Gets the instance of {@link RemoteWorkManager} which provides a subset of

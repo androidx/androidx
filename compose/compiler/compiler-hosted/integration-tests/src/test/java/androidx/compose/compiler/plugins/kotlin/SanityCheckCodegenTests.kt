@@ -32,4 +32,103 @@ class SanityCheckCodegenTests : AbstractCodegenTest() {
         """
         )
     }
+
+    // Regression test, because we didn't have a test to catch a breakage introduced by
+    // https://github.com/JetBrains/kotlin/commit/ae608ea67fc589c4472657dc0317e97cb67dd158
+    fun testNothings() = ensureSetup {
+        testCompile(
+            """
+                import androidx.compose.runtime.Composable
+
+                @Composable
+                fun NothingToUnit(): Unit {
+                    return error("")
+                }
+
+                @Composable
+                fun NothingToNothing(): Nothing {
+                    return error("")
+                }
+
+                @Composable
+                fun NullableNothing(condition: Boolean): Nothing? {
+                    return (if(condition) error("") else null)
+                }
+        """
+        )
+    }
+
+    // Regression test for b/222979253
+    fun testLabeledLambda() = ensureSetup {
+        testCompile(
+            """
+                import androidx.compose.runtime.Composable
+
+                @Composable
+                fun test(): Unit {
+                    Box box@{}
+                }
+
+                @Composable
+                fun Box(content: @Composable () -> Unit) {}
+        """
+        )
+    }
+
+    // Regression test for b/180168881
+    fun testFunctionReferenceWithinInferredComposableLambda() = ensureSetup {
+        testCompile(
+            """
+                import androidx.compose.runtime.Composable
+
+                fun Problem() {
+                    fun foo() { }
+                    val lambda: @Composable ()->Unit = {
+                        ::foo
+                    }
+                }
+        """
+        )
+    }
+
+    // Regression test for KT-52843
+    fun testParameterInlineCaptureLambda() = ensureSetup {
+        testCompile(
+            """
+            import androidx.compose.runtime.Composable
+            import androidx.compose.ui.graphics.Color
+
+            @Composable
+            inline fun InlineWidget(
+                propagateMinConstraints: Boolean = false,
+                content: () -> Unit
+            ) {
+            }
+
+            @Composable
+            fun DarkThemeSample() {
+                val color = Color.Black
+                InlineWidget {
+                    println(color)
+                }
+            }
+        """
+        )
+    }
+
+    // Regression validating b/237863365
+    fun testComposableAsLastStatementInUnitReturningLambda() {
+        testCompile(
+            """
+            import androidx.compose.runtime.Composable
+
+            fun foo(lambda: ()->Unit){}
+            fun main() {
+                foo {
+                    @Composable {}
+                }
+            }
+            """
+        )
+    }
 }

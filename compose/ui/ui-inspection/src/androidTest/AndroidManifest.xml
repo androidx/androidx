@@ -12,15 +12,18 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="androidx.compose.ui.inspection.test">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <application>
         <activity android:name="androidx.compose.ui.inspection.testdata.AndroidViewTestActivity" />
+        <activity android:name="androidx.compose.ui.inspection.testdata.ComposeViewTestActivity" />
         <activity android:name="androidx.compose.ui.inspection.testdata.DialogTestActivity" />
         <activity android:name="androidx.compose.ui.inspection.testdata.ParametersTestActivity" />
         <activity android:name="androidx.compose.ui.inspection.testdata.RippleTestActivity" />
+        <activity android:name="androidx.compose.ui.inspection.testdata.RecompositionTestActivity"
+            />
         <activity android:name="androidx.compose.ui.inspection.testdata.TestActivity"
             android:theme="@style/TestTheme"/>
+        <activity android:name="androidx.compose.ui.tooling.PreviewActivity" />
     </application>
 </manifest>

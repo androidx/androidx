@@ -48,7 +48,8 @@ public class ParcelableWorkInfoTest {
             Data.EMPTY,
             listOf("tag1", "tag2"),
             Data.EMPTY,
-            1
+            1,
+            1,
         )
         assertOn(workInfo)
     }
@@ -72,7 +73,8 @@ public class ParcelableWorkInfoTest {
             data,
             listOf("tag1", "tag2"),
             Data.EMPTY,
-            1
+            1,
+            3,
         )
         assertOn(workInfo)
     }
@@ -96,7 +98,8 @@ public class ParcelableWorkInfoTest {
             data,
             listOf("tag1", "tag2"),
             Data.EMPTY,
-            1
+            1,
+            0,
         )
 
         assertOn(listOf(workInfo, workInfo))
@@ -135,5 +138,6 @@ public class ParcelableWorkInfoTest {
         assertEquals(first.tags, second.tags)
         assertEquals(first.progress, second.progress)
         assertEquals(first.runAttemptCount, second.runAttemptCount)
+        assertEquals(first.generation, second.generation)
     }
 }

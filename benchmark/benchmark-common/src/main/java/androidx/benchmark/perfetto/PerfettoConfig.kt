@@ -21,6 +21,7 @@ import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.benchmark.Shell
 import perfetto.protos.DataSourceConfig
+import perfetto.protos.AndroidPowerConfig
 import perfetto.protos.FtraceConfig
 import perfetto.protos.MeminfoCounters
 import perfetto.protos.ProcessStatsConfig
@@ -57,6 +58,7 @@ private fun ftraceDataSource(
             ),
             atrace_categories = listOf(
                 AtraceTag.ActivityManager,
+                AtraceTag.Audio,
                 AtraceTag.BinderDriver,
                 AtraceTag.Camera,
                 AtraceTag.Dalvik,
@@ -93,6 +95,9 @@ private val PROCESS_STATS_DATASOURCE = TraceConfig.DataSource(
         target_buffer = 1,
         process_stats_config = ProcessStatsConfig(
             proc_stats_poll_ms = 10000,
+            // This flag appears to be unreliable on API 29 unbundled perfetto, so to avoid very
+            // frequent proc stats polling to name processes correctly, we currently use unbundled
+            // perfetto on API 29, even though the bundled version exists. (b/218668335)
             scan_all_processes_on_start = true
         )
     )
@@ -130,6 +135,21 @@ private val LINUX_SYS_STATS_DATASOURCE = TraceConfig.DataSource(
     )
 )
 
+private val ANDROID_POWER_DATASOURCE = TraceConfig.DataSource(
+    config = DataSourceConfig(
+        name = "android.power",
+        android_power_config = AndroidPowerConfig(
+            battery_poll_ms = 250,
+            battery_counters = listOf(
+                AndroidPowerConfig.BatteryCounters.BATTERY_COUNTER_CAPACITY_PERCENT,
+                AndroidPowerConfig.BatteryCounters.BATTERY_COUNTER_CHARGE,
+                AndroidPowerConfig.BatteryCounters.BATTERY_COUNTER_CURRENT
+            ),
+            collect_power_rails = true
+        )
+    )
+)
+
 /**
  * Config for perfetto.
  *
@@ -149,7 +169,9 @@ fun perfettoConfig(
         ftraceDataSource(atraceApps),
         PROCESS_STATS_DATASOURCE,
         LINUX_SYS_STATS_DATASOURCE,
-        TraceConfig.DataSource(DataSourceConfig("android.surfaceflinger.frametimeline"))
+        ANDROID_POWER_DATASOURCE,
+        TraceConfig.DataSource(DataSourceConfig("android.surfaceflinger.frametimeline")),
+        TraceConfig.DataSource(DataSourceConfig("track_event")) // required by tracing-perfetto
     ),
     // periodically dump to file, so we don't overrun our ring buffer
     // buffers are expected to be big enough for 5 seconds, so conservatively set 2.5 dump

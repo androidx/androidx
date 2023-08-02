@@ -45,6 +45,7 @@ import androidx.test.filters.FlakyTest;
 import androidx.test.filters.LargeTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.wear.test.R;
+import androidx.wear.utils.WearableNavigationHelper;
 import androidx.wear.widget.util.ArcSwipe;
 import androidx.wear.widget.util.FrameLocationAvoidingEdges;
 import androidx.wear.widget.util.WakeLockRule;
@@ -156,7 +157,14 @@ public class SwipeDismissFrameLayoutTest {
                         (SwipeDismissFrameLayout) activity.findViewById(R.id.swipe_dismiss_root);
                 // WHEN we check that the layout is dismissible
                 // THEN the layout is find to be dismissible
-                assertFalse(testLayout.isSwipeable());
+                // Use the default as set in the system, as different builds can have different
+                // behaviour here.
+                if (WearableNavigationHelper.isSwipeToDismissEnabled(
+                        ApplicationProvider.getApplicationContext())) {
+                    assertTrue(testLayout.isSwipeable());
+                } else {
+                    assertFalse(testLayout.isSwipeable());
+                }
             });
         }
     }

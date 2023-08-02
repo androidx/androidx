@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
 import androidx.build.LibraryType
 
 plugins {
@@ -34,4 +33,8 @@ androidx {
     mavenGroup = LibraryGroups.BIOMETRIC
     inceptionYear = "2021"
     description = "Contains the sample code for the AndroidX Biometric library"
+}
+
+android {
+    namespace "androidx.biometric.samples"
 }

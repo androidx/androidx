@@ -52,6 +52,7 @@ public class VersionedParcelFactoryTest {
         mUseStream = useStream;
     }
 
+    @SuppressWarnings("deprecation")
     private FactoryParcelImpl parcelCopy(FactoryParcelImpl obj) {
         if (mUseStream) {
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();

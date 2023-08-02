@@ -66,7 +66,8 @@ import androidx.compose.ui.util.fastMap
 import androidx.compose.ui.window.PopupPositionProvider
 import androidx.lifecycle.ViewTreeLifecycleOwner
 import androidx.lifecycle.ViewTreeViewModelStoreOwner
-import androidx.savedstate.ViewTreeSavedStateRegistryOwner
+import androidx.savedstate.findViewTreeSavedStateRegistryOwner
+import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import java.util.UUID
 import kotlin.math.roundToInt
 
@@ -163,7 +164,7 @@ internal fun ExposedDropdownMenuPopup(
     }
 }
 
-// TODO(b/142431825): This is a hack to work around Popups not using Semantics for test tags
+// TODO(b/139861182): This is a hack to work around Popups not using Semantics for test tags
 //  We should either remove it, or come up with an abstracted general solution that isn't specific
 //  to Popup
 internal val LocalPopupTestTag = compositionLocalOf { "DEFAULT_TEST_TAG" }
@@ -233,7 +234,9 @@ private class PopupLayout(
     // Track parent bounds and content size; only show popup once we have both
     val canCalculatePosition by derivedStateOf { parentBounds != null && popupContentSize != null }
 
-    private val maxSupportedElevation = 30.dp
+    // On systems older than Android S, there is a bug in the surface insets matrix math used by
+    // elevation, so high values of maxSupportedElevation break accessibility services: b/232788477.
+    private val maxSupportedElevation = 8.dp
 
     // The window visible frame used for the last popup position calculation.
     private val previousWindowVisibleFrame = Rect()
@@ -254,7 +257,7 @@ private class PopupLayout(
         id = android.R.id.content
         ViewTreeLifecycleOwner.set(this, ViewTreeLifecycleOwner.get(composeView))
         ViewTreeViewModelStoreOwner.set(this, ViewTreeViewModelStoreOwner.get(composeView))
-        ViewTreeSavedStateRegistryOwner.set(this, ViewTreeSavedStateRegistryOwner.get(composeView))
+        setViewTreeSavedStateRegistryOwner(composeView.findViewTreeSavedStateRegistryOwner())
         composeView.viewTreeObserver.addOnGlobalLayoutListener(this)
         // Set unique id for AbstractComposeView. This allows state restoration for the state
         // defined inside the Popup via rememberSaveable()

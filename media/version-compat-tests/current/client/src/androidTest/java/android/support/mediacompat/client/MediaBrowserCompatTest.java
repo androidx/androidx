@@ -453,6 +453,7 @@ public class MediaBrowserCompatTest {
 
     @Test
     @SmallTest
+    @SuppressWarnings("deprecation")
     public void testSubscribeWithOptionsIncludingCompatParcelables() throws Exception {
         connectMediaBrowserService();
 

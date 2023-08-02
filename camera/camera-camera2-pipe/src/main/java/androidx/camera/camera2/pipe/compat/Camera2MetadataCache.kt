@@ -26,14 +26,13 @@ import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.core.Debug
 import androidx.camera.camera2.pipe.core.Log
-import androidx.camera.camera2.pipe.core.Timestamps
-import androidx.camera.camera2.pipe.core.Timestamps.formatMs
 import androidx.camera.camera2.pipe.core.Permissions
 import androidx.camera.camera2.pipe.core.Threads
-import kotlinx.coroutines.withContext
-import java.lang.IllegalStateException
+import androidx.camera.camera2.pipe.core.Timestamps
+import androidx.camera.camera2.pipe.core.Timestamps.formatMs
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.withContext
 
 /**
  * Provides caching and querying of [CameraMetadata] via Camera2.
@@ -61,7 +60,7 @@ internal class Camera2MetadataCache @Inject constructor(
         }
 
         // Suspend and query CameraMetadata on a background thread.
-        return withContext(threads.ioDispatcher) {
+        return withContext(threads.backgroundDispatcher) {
             awaitMetadata(cameraId)
         }
     }
@@ -82,6 +81,10 @@ internal class Camera2MetadataCache @Inject constructor(
         }
     }
 
+    fun readCameraMetadata(cameraId: CameraId): CameraMetadata {
+        return createCameraMetadata(cameraId, isMetadataRedacted())
+    }
+
     private fun createCameraMetadata(cameraId: CameraId, redacted: Boolean): Camera2CameraMetadata {
         val start = Timestamps.now()
 
@@ -91,6 +94,13 @@ internal class Camera2MetadataCache @Inject constructor(
                     context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
                 val characteristics =
                     cameraManager.getCameraCharacteristics(cameraId.value)
+
+                // This technically shouldn't be null per documentation, but we suspect it could be
+                // under certain devices in certain situations.
+                @Suppress("RedundantRequireNotNullCall")
+                checkNotNull(characteristics) {
+                    "Failed to get CameraCharacteristics for $cameraId!"
+                }
 
                 // Merge the camera specific and global cache blocklists together.
                 // this will prevent these values from being cached after first access.

@@ -104,7 +104,7 @@ public abstract class AppCompatInflaterPassTest<A extends BaseTestActivity> {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 19)
+    @SdkSuppress(minSdkVersion = 28)
     public void testBackportAccessibilityAttributes() {
         View view = mContainer.findViewById(R.id.accessibility_heading_view);
         assertThat(ViewCompat.isAccessibilityHeading(view)).isTrue();

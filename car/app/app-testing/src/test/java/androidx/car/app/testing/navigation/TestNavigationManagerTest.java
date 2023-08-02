@@ -18,6 +18,8 @@ package androidx.car.app.testing.navigation;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import android.os.Build;
+
 import androidx.car.app.model.CarText;
 import androidx.car.app.model.DateTimeWithZone;
 import androidx.car.app.model.Distance;
@@ -36,6 +38,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
 import java.text.ParseException;
@@ -57,6 +60,7 @@ public class TestNavigationManagerTest {
     }
 
     @Test
+    @Config(minSdk = Build.VERSION_CODES.O)
     public void getNavigationStatesSent() {
         // First need to set a listener and start navigation.
         NavigationManagerCallback listener1 = new TestNavigationManagerCallback();

@@ -16,10 +16,10 @@
 
 package androidx.paging
 
-import androidx.paging.PageEvent.LoadStateUpdate
-import androidx.paging.LoadType.REFRESH
 import androidx.paging.LoadType.APPEND
 import androidx.paging.LoadType.PREPEND
+import androidx.paging.LoadType.REFRESH
+import androidx.paging.PageEvent.LoadStateUpdate
 
 private fun <T : Any> localInsert(
     loadType: LoadType,
@@ -189,3 +189,9 @@ internal fun <T : Any> remoteLoadStateUpdate(
 )
 
 private fun <T : Any> emptyPage() = TransformablePage<T>(0, emptyList())
+
+public fun <E> MutableList<E>.getAllAndClear(): List<E> {
+    val data = toList()
+    repeat(data.size) { removeFirst() }
+    return data
+}

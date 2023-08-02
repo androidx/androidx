@@ -53,7 +53,7 @@ public class CarAppMetadataHolderService extends Service {
      * Returns the {@link ServiceInfo} for the declared {@link CarAppMetadataHolderService}.
      */
     @NonNull
-    @SuppressWarnings("deprecation") // GET_DISABLED_COMPONENTS
+    @SuppressWarnings("deprecation") // GET_DISABLED_COMPONENTS, getServiceInfo
     public static ServiceInfo getServiceInfo(@NonNull Context context) throws
             PackageManager.NameNotFoundException {
         int flags = PackageManager.GET_META_DATA;

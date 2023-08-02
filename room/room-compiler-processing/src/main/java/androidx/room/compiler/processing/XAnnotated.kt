@@ -106,6 +106,11 @@ interface XAnnotated {
         annotations.any(this::hasAnnotation)
 
     /**
+     * Returns `true` if this element has one of the [annotations].
+     */
+    fun hasAnyAnnotation(annotations: Collection<ClassName>) = annotations.any(this::hasAnnotation)
+
+    /**
      * Returns `true` if this element has all the [annotations].
      */
     fun hasAllAnnotations(vararg annotations: ClassName): Boolean =
@@ -115,6 +120,12 @@ interface XAnnotated {
      * Returns `true` if this element has all the [annotations].
      */
     fun hasAllAnnotations(vararg annotations: KClass<out Annotation>): Boolean =
+        annotations.all(this::hasAnnotation)
+
+    /**
+     * Returns `true` if this element has all the [annotations].
+     */
+    fun hasAllAnnotations(annotations: Collection<ClassName>): Boolean =
         annotations.all(this::hasAnnotation)
 
     @Deprecated(
@@ -146,6 +157,17 @@ interface XAnnotated {
      */
     fun getAnnotation(annotationName: ClassName): XAnnotation? {
         return getAnnotations(annotationName).firstOrNull()
+    }
+
+    /**
+     * Returns the [Annotation]s that are annotated with [annotationName]
+     */
+    fun getAnnotationsAnnotatedWith(
+        annotationName: ClassName
+    ): Set<XAnnotation> {
+        return getAllAnnotations().filter {
+            it.type.typeElement?.hasAnnotation(annotationName) ?: false
+        }.toSet()
     }
 
     /**

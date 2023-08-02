@@ -17,6 +17,7 @@
 package androidx.work;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 
 import java.util.List;
@@ -55,9 +56,10 @@ public abstract class InputMerger {
      *
      * @hide
      */
+    @Nullable
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @SuppressWarnings("ClassNewInstance")
-    public static InputMerger fromClassName(String className) {
+    public static InputMerger fromClassName(@NonNull String className) {
         try {
             Class<?> clazz = Class.forName(className);
             return (InputMerger) clazz.newInstance();

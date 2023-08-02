@@ -64,7 +64,7 @@ import androidx.camera.testing.fakes.FakeCamera;
 import androidx.camera.testing.fakes.FakeCameraFactory;
 import androidx.test.core.app.ApplicationProvider;
 
-import org.apache.maven.artifact.ant.shaded.ReflectionUtils;
+import org.codehaus.plexus.util.ReflectionUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -138,6 +138,7 @@ public final class Camera2DeviceSurfaceManagerTest {
     @Before
     @SuppressWarnings("deprecation")  /* defaultDisplay */
     public void setUp() throws IllegalAccessException {
+        DisplayInfoManager.releaseInstance();
         WindowManager windowManager =
                 (WindowManager) mContext.getSystemService(Context.WINDOW_SERVICE);
         Shadows.shadowOf(windowManager.getDefaultDisplay()).setRealWidth(mDisplaySize.getWidth());
