@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.core.performance.testapp
+package androidx.core.performance.testlib
 
 import android.app.Activity
 import android.os.Build.VERSION_CODES
@@ -23,6 +23,10 @@ import android.view.View
 import android.widget.TextView
 import androidx.core.performance.DevicePerformance
 
+/** Sample Media Performance Class Activity.
+ *
+ * The user experience is different for each MPC.  In this sample it is just a text string.
+ */
 class MpcActivity : Activity() {
 
     private lateinit var resultTextView: TextView
@@ -32,7 +36,7 @@ class MpcActivity : Activity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_mpc)
         resultTextView = findViewById(R.id.resultTextView)
-        devicePerformance = (application as MpcApp).devicePerformance
+        devicePerformance = (application as HasDevicePerformance).getDevicePerformance()
     }
 
     fun onClickDoSomething(view: View) {
@@ -50,8 +54,7 @@ class MpcActivity : Activity() {
             devicePerformance.mediaPerformanceClass == VERSION_CODES.R -> {
                 return R.string.mpc_30_experience_string
             }
-            devicePerformance.mediaPerformanceClass == VERSION_CODES.Q
-            -> {
+            devicePerformance.mediaPerformanceClass == VERSION_CODES.Q -> {
                 return R.string.mpc_29_experience_string
             }
             else -> {
