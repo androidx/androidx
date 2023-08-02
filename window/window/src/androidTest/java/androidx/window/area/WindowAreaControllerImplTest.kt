@@ -181,7 +181,7 @@ class WindowAreaControllerImplTest {
 
         assertNotNull(windowAreaInfo)
         assertEquals(
-            windowAreaInfo.getCapability(OPERATION_TRANSFER_ACTIVITY_TO_AREA)?.status,
+            windowAreaInfo.getCapability(OPERATION_TRANSFER_ACTIVITY_TO_AREA).status,
             WINDOW_AREA_STATUS_AVAILABLE
         )
 
@@ -245,7 +245,7 @@ class WindowAreaControllerImplTest {
 
         assertNotNull(windowAreaInfo)
         assertEquals(
-            windowAreaInfo.getCapability(OPERATION_TRANSFER_ACTIVITY_TO_AREA)?.status,
+            windowAreaInfo.getCapability(OPERATION_TRANSFER_ACTIVITY_TO_AREA).status,
             WindowAreaAdapter.translate(initialState)
         )
 
@@ -290,7 +290,7 @@ class WindowAreaControllerImplTest {
         assertNotNull(windowAreaInfo)
         assertTrue {
             windowAreaInfo
-                .getCapability(OPERATION_PRESENT_ON_AREA)?.status ==
+                .getCapability(OPERATION_PRESENT_ON_AREA).status ==
                 WINDOW_AREA_STATUS_AVAILABLE
         }
 
@@ -341,7 +341,7 @@ class WindowAreaControllerImplTest {
         assertNotNull(windowAreaInfo)
         assertTrue {
             windowAreaInfo
-                .getCapability(OPERATION_PRESENT_ON_AREA)?.status ==
+                .getCapability(OPERATION_PRESENT_ON_AREA).status ==
                 WINDOW_AREA_STATUS_AVAILABLE
         }
 
@@ -395,7 +395,7 @@ class WindowAreaControllerImplTest {
 
         assertNotNull(windowAreaInfo)
         assertEquals(
-            windowAreaInfo.getCapability(OPERATION_TRANSFER_ACTIVITY_TO_AREA)?.status,
+            windowAreaInfo.getCapability(OPERATION_TRANSFER_ACTIVITY_TO_AREA).status,
             WINDOW_AREA_STATUS_AVAILABLE
         )
 
@@ -454,7 +454,7 @@ class WindowAreaControllerImplTest {
         assertNotNull(windowAreaInfo)
         assertTrue {
             windowAreaInfo
-                .getCapability(OPERATION_PRESENT_ON_AREA)?.status ==
+                .getCapability(OPERATION_PRESENT_ON_AREA).status ==
                 WINDOW_AREA_STATUS_UNAVAILABLE
         }
 
