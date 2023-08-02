@@ -39,9 +39,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 private val ignoredDemos = listOf<String>(
-    // TODO(b/294013164): Reinstate these tests
-    "Material > Curved Text > Basic Styling",
-    "Material > Curved Text > Provider Styling",
+    // Not ignoring any of them \o/
 )
 
 // Run this test on a phone emulator.
