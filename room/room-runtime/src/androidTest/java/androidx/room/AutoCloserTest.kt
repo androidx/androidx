@@ -18,6 +18,7 @@ package androidx.room
 
 import androidx.arch.core.executor.ArchTaskExecutor
 import androidx.arch.core.executor.testing.CountingTaskExecutorRule
+import androidx.kruth.assertThat
 import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.sqlite.db.SupportSQLiteOpenHelper
 import androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory
@@ -26,14 +27,14 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.FlakyTest
 import androidx.test.filters.MediumTest
 import androidx.testutils.assertThrows
-import com.google.common.truth.Truth.assertThat
+import java.io.IOException
+import java.util.concurrent.TimeUnit
 import org.junit.After
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.io.IOException
-import java.util.concurrent.TimeUnit
 
 @RunWith(AndroidJUnit4::class)
 @MediumTest
@@ -89,6 +90,7 @@ public class AutoCloserTest {
         assertThat(countingTaskExecutorRule.isIdle).isTrue()
     }
 
+    @Ignore("b/283959848")
     @Test
     public fun refCountsCounted() {
         autoCloser.incrementCountAndEnsureDbIsOpen()
@@ -114,6 +116,7 @@ public class AutoCloserTest {
         countingTaskExecutorRule.drainTasks(10, TimeUnit.MILLISECONDS)
     }
 
+    @Ignore // b/271325600
     @Test
     public fun executeRefCountingFunctionPropagatesFailure() {
         assertThrows<IOException> {

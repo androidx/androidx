@@ -24,7 +24,6 @@ import androidx.sqlite.db.SupportSQLiteOpenHelper
 /**
  * An open helper that holds a reference to the configuration until the database is opened.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 open class RoomOpenHelper(
@@ -175,14 +174,13 @@ open class RoomOpenHelper(
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     abstract class Delegate(@JvmField val version: Int) {
-        abstract fun dropAllTables(database: SupportSQLiteDatabase)
-        abstract fun createAllTables(database: SupportSQLiteDatabase)
-        abstract fun onOpen(database: SupportSQLiteDatabase)
-        abstract fun onCreate(database: SupportSQLiteDatabase)
+        abstract fun dropAllTables(db: SupportSQLiteDatabase)
+        abstract fun createAllTables(db: SupportSQLiteDatabase)
+        abstract fun onOpen(db: SupportSQLiteDatabase)
+        abstract fun onCreate(db: SupportSQLiteDatabase)
 
         /**
          * Called after a migration run to validate database integrity.
@@ -209,17 +207,16 @@ open class RoomOpenHelper(
          * Called before migrations execute to perform preliminary work.
          * @param database The SQLite database.
          */
-        open fun onPreMigrate(database: SupportSQLiteDatabase) {}
+        open fun onPreMigrate(db: SupportSQLiteDatabase) {}
 
         /**
          * Called after migrations execute to perform additional work.
          * @param database The SQLite database.
          */
-        open fun onPostMigrate(database: SupportSQLiteDatabase) {}
+        open fun onPostMigrate(db: SupportSQLiteDatabase) {}
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     open class ValidationResult(

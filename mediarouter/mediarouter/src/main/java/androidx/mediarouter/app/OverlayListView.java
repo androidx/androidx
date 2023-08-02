@@ -80,7 +80,7 @@ final class OverlayListView extends ListView {
     }
 
     @Override
-    public void onDraw(Canvas canvas) {
+    public void onDraw(@NonNull Canvas canvas) {
         super.onDraw(canvas);
         if (mOverlayObjects.size() > 0) {
             Iterator<OverlayObject> it = mOverlayObjects.iterator();

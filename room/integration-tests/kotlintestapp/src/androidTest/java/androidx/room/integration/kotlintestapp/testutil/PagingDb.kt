@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.room.androidx.room.integration.kotlintestapp.testutil
+package androidx.room.integration.kotlintestapp.testutil
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
@@ -25,5 +25,5 @@ import androidx.room.RoomDatabase
     entities = [PagingEntity::class]
 )
 abstract class PagingDb : RoomDatabase() {
-    abstract val dao: PagingEntityDao
+    abstract fun getDao(): PagingEntityDao
 }

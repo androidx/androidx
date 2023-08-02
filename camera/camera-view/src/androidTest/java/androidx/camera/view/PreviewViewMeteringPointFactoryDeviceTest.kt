@@ -16,6 +16,7 @@
 
 package androidx.camera.view
 
+import android.graphics.Matrix
 import android.graphics.PointF
 import android.graphics.Rect
 import android.util.LayoutDirection
@@ -205,8 +206,14 @@ class PreviewViewMeteringPointFactoryDeviceTest(
         val previewTransformation = PreviewTransformation()
         previewTransformation.scaleType = scaleType
         previewTransformation.setTransformationInfo(
-            SurfaceRequest.TransformationInfo.of
-            (cropRect, rotationDegrees, FAKE_TARGET_ROTATION),
+            SurfaceRequest.TransformationInfo.of(
+                cropRect,
+                rotationDegrees,
+                FAKE_TARGET_ROTATION,
+                /*hasCameraTransform=*/true,
+                /*sensorToBufferTransform=*/Matrix(),
+                /*mirroring=*/false
+            ),
             surfaceSize, isFrontCamera
         )
         val meteringPointFactory = PreviewViewMeteringPointFactory(previewTransformation)

@@ -40,7 +40,6 @@ android {
 androidx {
     name = "Android Wear Input Samples"
     type = LibraryType.SAMPLES
-    mavenGroup = LibraryGroups.WEAR
     mavenVersion = LibraryVersions.WEAR_INPUT
     inceptionYear = "2021"
     description = "Contains the sample code for the Android Wear Input Classes"

@@ -56,7 +56,7 @@ import kotlin.math.floor
 import kotlin.math.max
 
 /**
- * Material Design checkbox.
+ * <a href="https://m3.material.io/components/checkbox/overview" class="external" target="_blank">Material Design checkbox</a>.
  *
  * Checkboxes allow users to select one or more items from a set. Checkboxes can turn an option on
  * or off.
@@ -97,7 +97,9 @@ fun Checkbox(
         state = ToggleableState(checked),
         onClick = if (onCheckedChange != null) {
             { onCheckedChange(!checked) }
-        } else null,
+        } else {
+            null
+        },
         modifier = modifier,
         enabled = enabled,
         colors = colors,
@@ -106,7 +108,7 @@ fun Checkbox(
 }
 
 /**
- * Material Design checkbox parent.
+ * <a href="https://m3.material.io/components/checkbox/guidelines" class="external" target="_blank">Material Design checkbox</a> parent.
  *
  * Checkboxes can have a parent-child relationship with other checkboxes. When the parent checkbox
  * is checked, all child checkboxes are checked. If a parent checkbox is unchecked, all child
@@ -163,7 +165,7 @@ fun TriStateCheckbox(
         modifier = modifier
             .then(
                 if (onClick != null) {
-                    Modifier.minimumTouchTargetSize()
+                    Modifier.minimumInteractiveComponentSize()
                 } else {
                     Modifier
                 }
@@ -183,44 +185,39 @@ object CheckboxDefaults {
      * Material specification.
      *
      * @param checkedColor the color that will be used for the border and box when checked
-     * @param uncheckedColor color that will be used for the border when unchecked
+     * @param uncheckedColor color that will be used for the border when unchecked. By default, the
+     * inner box is transparent when unchecked.
      * @param checkmarkColor color that will be used for the checkmark when checked
      * @param disabledCheckedColor color that will be used for the box and border when disabled and
      * checked
-     * @param disabledUncheckedColor color that will be used for the box and border when disabled
-     * and not checked
+     * @param disabledUncheckedColor color that will be used for the border when disabled and
+     * unchecked. By default, the inner box is transparent when unchecked.
      * @param disabledIndeterminateColor color that will be used for the box and
-     * border in a [TriStateCheckbox] when disabled AND in an [ToggleableState.Indeterminate] state.
+     * border in a [TriStateCheckbox] when disabled AND in an [ToggleableState.Indeterminate] state
      */
     @Composable
     fun colors(
-        checkedColor: Color =
-            MaterialTheme.colorScheme.fromToken(CheckboxTokens.SelectedContainerColor),
-        uncheckedColor: Color =
-            MaterialTheme.colorScheme.fromToken(CheckboxTokens.UnselectedOutlineColor),
-        checkmarkColor: Color =
-            MaterialTheme.colorScheme.fromToken(CheckboxTokens.SelectedIconColor),
-        disabledCheckedColor: Color =
-            MaterialTheme.colorScheme
-                .fromToken(CheckboxTokens.SelectedDisabledContainerColor)
-                .copy(alpha = CheckboxTokens.SelectedDisabledContainerOpacity),
-        disabledUncheckedColor: Color =
-            MaterialTheme.colorScheme
-                .fromToken(CheckboxTokens.UnselectedDisabledOutlineColor)
-                .copy(alpha = CheckboxTokens.UnselectedDisabledContainerOpacity),
+        checkedColor: Color = CheckboxTokens.SelectedContainerColor.value,
+        uncheckedColor: Color = CheckboxTokens.UnselectedOutlineColor.value,
+        checkmarkColor: Color = CheckboxTokens.SelectedIconColor.value,
+        disabledCheckedColor: Color = CheckboxTokens.SelectedDisabledContainerColor.value
+            .copy(alpha = CheckboxTokens.SelectedDisabledContainerOpacity),
+        disabledUncheckedColor: Color = CheckboxTokens.UnselectedDisabledOutlineColor.value
+            .copy(alpha = CheckboxTokens.UnselectedDisabledContainerOpacity),
         disabledIndeterminateColor: Color = disabledCheckedColor
     ): CheckboxColors = CheckboxColors(
-        checkedBorderColor = checkedColor,
-        checkedBoxColor = checkedColor,
         checkedCheckmarkColor = checkmarkColor,
-        uncheckedCheckmarkColor = checkmarkColor.copy(alpha = 0f),
-        uncheckedBoxColor = checkedColor.copy(alpha = 0f),
+        uncheckedCheckmarkColor = Color.Transparent,
+        checkedBoxColor = checkedColor,
+        uncheckedBoxColor = Color.Transparent,
         disabledCheckedBoxColor = disabledCheckedColor,
-        disabledUncheckedBoxColor = disabledUncheckedColor.copy(alpha = 0f),
+        disabledUncheckedBoxColor = Color.Transparent,
         disabledIndeterminateBoxColor = disabledIndeterminateColor,
+        checkedBorderColor = checkedColor,
         uncheckedBorderColor = uncheckedColor,
         disabledBorderColor = disabledCheckedColor,
-        disabledIndeterminateBorderColor = disabledIndeterminateColor,
+        disabledUncheckedBorderColor = disabledUncheckedColor,
+        disabledIndeterminateBorderColor = disabledIndeterminateColor
     )
 }
 
@@ -371,22 +368,39 @@ private class CheckDrawingCache(
  * Represents the colors used by the three different sections (checkmark, box, and border) of a
  * [Checkbox] or [TriStateCheckbox] in different states.
  *
- * See [CheckboxDefaults.colors] for the default implementation that follows Material
- * specifications.
+ * @constructor create an instance with arbitrary colors, see [CheckboxDefaults.colors] for the
+ * default implementation that follows Material specifications.
+ *
+ * @param checkedCheckmarkColor color that will be used for the checkmark when checked
+ * @param uncheckedCheckmarkColor color that will be used for the checkmark when unchecked
+ * @param checkedBoxColor the color that will be used for the box when checked
+ * @param uncheckedBoxColor color that will be used for the box when unchecked
+ * @param disabledCheckedBoxColor color that will be used for the box when disabled and checked
+ * @param disabledUncheckedBoxColor color that will be used for the box when disabled and unchecked
+ * @param disabledIndeterminateBoxColor color that will be used for the box and border in a
+ * [TriStateCheckbox] when disabled AND in an [ToggleableState.Indeterminate] state.
+ * @param checkedBorderColor color that will be used for the border when checked
+ * @param uncheckedBorderColor color that will be used for the border when unchecked
+ * @param disabledBorderColor color that will be used for the border when disabled and checked
+ * @param disabledUncheckedBorderColor color that will be used for the border when disabled and
+ * unchecked
+ * @param disabledIndeterminateBorderColor color that will be used for the border when disabled and
+ * in an [ToggleableState.Indeterminate] state.
  */
 @Immutable
-class CheckboxColors internal constructor(
-    private val checkedCheckmarkColor: Color,
-    private val uncheckedCheckmarkColor: Color,
-    private val checkedBoxColor: Color,
-    private val uncheckedBoxColor: Color,
-    private val disabledCheckedBoxColor: Color,
-    private val disabledUncheckedBoxColor: Color,
-    private val disabledIndeterminateBoxColor: Color,
-    private val checkedBorderColor: Color,
-    private val uncheckedBorderColor: Color,
-    private val disabledBorderColor: Color,
-    private val disabledIndeterminateBorderColor: Color
+class CheckboxColors constructor(
+    val checkedCheckmarkColor: Color,
+    val uncheckedCheckmarkColor: Color,
+    val checkedBoxColor: Color,
+    val uncheckedBoxColor: Color,
+    val disabledCheckedBoxColor: Color,
+    val disabledUncheckedBoxColor: Color,
+    val disabledIndeterminateBoxColor: Color,
+    val checkedBorderColor: Color,
+    val uncheckedBorderColor: Color,
+    val disabledBorderColor: Color,
+    val disabledUncheckedBorderColor: Color,
+    val disabledIndeterminateBorderColor: Color
 ) {
     /**
      * Represents the color used for the checkmark inside the checkbox, depending on [state].
@@ -453,7 +467,8 @@ class CheckboxColors internal constructor(
         } else {
             when (state) {
                 ToggleableState.Indeterminate -> disabledIndeterminateBorderColor
-                ToggleableState.On, ToggleableState.Off -> disabledBorderColor
+                ToggleableState.On -> disabledBorderColor
+                ToggleableState.Off -> disabledUncheckedBorderColor
             }
         }
 
@@ -481,6 +496,7 @@ class CheckboxColors internal constructor(
         if (checkedBorderColor != other.checkedBorderColor) return false
         if (uncheckedBorderColor != other.uncheckedBorderColor) return false
         if (disabledBorderColor != other.disabledBorderColor) return false
+        if (disabledUncheckedBorderColor != other.disabledUncheckedBorderColor) return false
         if (disabledIndeterminateBorderColor != other.disabledIndeterminateBorderColor) return false
 
         return true
@@ -497,6 +513,7 @@ class CheckboxColors internal constructor(
         result = 31 * result + checkedBorderColor.hashCode()
         result = 31 * result + uncheckedBorderColor.hashCode()
         result = 31 * result + disabledBorderColor.hashCode()
+        result = 31 * result + disabledUncheckedBorderColor.hashCode()
         result = 31 * result + disabledIndeterminateBorderColor.hashCode()
         return result
     }

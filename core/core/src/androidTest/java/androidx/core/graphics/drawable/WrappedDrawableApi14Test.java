@@ -16,22 +16,23 @@
 
 package androidx.core.graphics.drawable;
 
-import static org.mockito.Mockito.verify;
+import static org.junit.Assert.assertEquals;
 
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.view.View;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.MediumTest;
 import androidx.test.filters.SdkSuppress;
+import androidx.test.filters.SmallTest;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
+
+import java.util.concurrent.atomic.AtomicInteger;
 
 @RunWith(AndroidJUnit4.class)
-@MediumTest
+@SmallTest
 public class WrappedDrawableApi14Test {
 
     /**
@@ -40,11 +41,19 @@ public class WrappedDrawableApi14Test {
     @SdkSuppress(minSdkVersion = 23)
     @Test
     public void testSetLayoutDirection() {
-        // Note that Mockito is VERY SLOW on CF targets, so this test must be medium+.
-        Drawable baseDrawable = Mockito.spy(new ColorDrawable());
+        AtomicInteger layoutDirectionChangedTo = new AtomicInteger(-1);
+
+        Drawable baseDrawable = new ColorDrawable() {
+            @Override
+            public boolean onLayoutDirectionChanged(int layoutDirection) {
+                layoutDirectionChangedTo.set(layoutDirection);
+                return super.onLayoutDirectionChanged(layoutDirection);
+            }
+        };
         WrappedDrawableApi14 drawable = new WrappedDrawableApi14(baseDrawable);
+        drawable.setLayoutDirection(View.LAYOUT_DIRECTION_RTL);
         drawable.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
 
-        verify(baseDrawable).setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
+        assertEquals(layoutDirectionChangedTo.get(), View.LAYOUT_DIRECTION_LTR);
     }
 }

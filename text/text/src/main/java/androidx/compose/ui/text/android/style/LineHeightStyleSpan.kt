@@ -44,19 +44,19 @@ import kotlin.math.ceil
  * @suppress
  */
 @InternalPlatformTextApi
-class LineHeightStyleSpan(
+internal class LineHeightStyleSpan(
     val lineHeight: Float,
     private val startIndex: Int,
     private val endIndex: Int,
     private val trimFirstLineTop: Boolean,
     val trimLastLineBottom: Boolean,
-    @FloatRange(from = 0.0, to = 1.0) private val topRatio: Float
+    @FloatRange(from = -1.0, to = 1.0) private val topRatio: Float
 ) : android.text.style.LineHeightSpan {
 
-    private var firstAscent: Int = 0
-    private var ascent: Int = 0
-    private var descent: Int = 0
-    private var lastDescent: Int = 0
+    private var firstAscent: Int = Int.MIN_VALUE
+    private var ascent: Int = Int.MIN_VALUE
+    private var descent: Int = Int.MIN_VALUE
+    private var lastDescent: Int = Int.MIN_VALUE
 
     /** Holds the firstAscent - fontMetricsInt.ascent */
     var firstAscentDiff = 0
@@ -90,7 +90,9 @@ class LineHeightStyleSpan(
         // if single line and should not apply, return
         if (isFirstLine && isLastLine && trimFirstLineTop && trimLastLineBottom) return
 
-        if (isFirstLine) calculateTargetMetrics(fontMetricsInt)
+        if (firstAscent == Int.MIN_VALUE) {
+            calculateTargetMetrics(fontMetricsInt)
+        }
 
         fontMetricsInt.ascent = if (isFirstLine) firstAscent else ascent
         fontMetricsInt.descent = if (isLastLine) lastDescent else descent

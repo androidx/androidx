@@ -23,11 +23,12 @@ import androidx.compose.ui.autofill.AutofillTree
 import androidx.compose.ui.draw.DrawModifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.focus.FocusDirection
-import androidx.compose.ui.focus.FocusManager
+import androidx.compose.ui.focus.FocusOwner
 import androidx.compose.ui.geometry.MutableRect
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.Matrix
 import androidx.compose.ui.graphics.RenderEffect
 import androidx.compose.ui.graphics.Shape
@@ -44,6 +45,7 @@ import androidx.compose.ui.input.pointer.PointerInputFilter
 import androidx.compose.ui.input.pointer.PointerInputModifier
 import androidx.compose.ui.layout.AlignmentLine
 import androidx.compose.ui.layout.LayoutModifier
+import androidx.compose.ui.layout.LayoutModifierImpl
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.MeasureScope
@@ -53,12 +55,14 @@ import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.modifier.ModifierLocalManager
 import androidx.compose.ui.platform.AccessibilityManager
 import androidx.compose.ui.platform.ClipboardManager
+import androidx.compose.ui.platform.PlatformTextInputSessionScope
 import androidx.compose.ui.platform.TextToolbar
 import androidx.compose.ui.platform.ViewConfiguration
 import androidx.compose.ui.platform.WindowInfo
 import androidx.compose.ui.platform.invertTo
 import androidx.compose.ui.semantics.SemanticsConfiguration
 import androidx.compose.ui.semantics.SemanticsModifier
+import androidx.compose.ui.semantics.SemanticsPropertyReceiver
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.TextInputService
@@ -72,6 +76,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toOffset
 import androidx.compose.ui.zIndex
 import com.google.common.truth.Truth.assertThat
+import java.util.concurrent.Executors
+import kotlin.coroutines.CoroutineContext
+import kotlinx.coroutines.asCoroutineDispatcher
 import org.junit.Assert
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -84,7 +91,6 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
-@OptIn(ExperimentalComposeUiApi::class)
 class LayoutNodeTest {
     // Ensure that attach and detach work properly
     @Test
@@ -514,10 +520,10 @@ class LayoutNodeTest {
 
     @Test
     fun testLocalPositionOfWithSiblings() {
-        val node0 = LayoutNode()
+        val node0 = ZeroSizedLayoutNode()
         node0.attach(MockOwner())
-        val node1 = LayoutNode()
-        val node2 = LayoutNode()
+        val node1 = ZeroSizedLayoutNode()
+        val node2 = ZeroSizedLayoutNode()
         node0.insertAt(0, node1)
         node0.insertAt(1, node2)
         node1.place(10, 20)
@@ -753,7 +759,9 @@ class LayoutNodeTest {
     fun nodeCoordinatorAttachedWhenLayoutNodeAttached() {
         val layoutNode = LayoutNode()
         // 2 modifiers at the start
-        val layoutModifier = Modifier.graphicsLayer { }.graphicsLayer { }
+        val layoutModifier = Modifier
+            .graphicsLayer { }
+            .graphicsLayer { }
 
         layoutNode.modifier = layoutModifier
         val oldNodeCoordinator = layoutNode.outerCoordinator
@@ -933,10 +941,10 @@ class LayoutNodeTest {
         assertEquals(0f, matrix.map(Offset(1f, 1f)).x, 0.001f)
         assertEquals(1f, matrix.map(Offset(1f, 1f)).y, 0.001f)
 
-        child.innerCoordinator.onLayerBlockUpdated {
+        child.innerCoordinator.updateLayerBlock({
             scaleX = 0.5f
             scaleY = 0.25f
-        }
+        })
 
         child.innerCoordinator.transformFrom(parent.innerCoordinator, matrix)
 
@@ -1035,7 +1043,7 @@ class LayoutNodeTest {
             ).apply {
                 attach(MockOwner())
             }
-        val hit = mutableListOf<PointerInputModifierNode>()
+        val hit = mutableListOf<Modifier.Node>()
 
         layoutNode.hitTest(Offset(0f, 0f), hit)
 
@@ -1053,7 +1061,7 @@ class LayoutNodeTest {
             ).apply {
                 attach(MockOwner())
             }
-        val hit = mutableListOf<PointerInputModifierNode>()
+        val hit = mutableListOf<Modifier.Node>()
 
         layoutNode.hitTest(Offset(-3f, 3f), hit, true)
 
@@ -1071,7 +1079,7 @@ class LayoutNodeTest {
             ).apply {
                 attach(MockOwner())
             }
-        val hit = mutableListOf<PointerInputModifierNode>()
+        val hit = mutableListOf<Modifier.Node>()
 
         layoutNode.hitTest(Offset(0f, 3f), hit, true)
 
@@ -1089,7 +1097,7 @@ class LayoutNodeTest {
             ).apply {
                 attach(MockOwner())
             }
-        val hit = mutableListOf<PointerInputModifierNode>()
+        val hit = mutableListOf<Modifier.Node>()
 
         layoutNode.hitTest(Offset(3f, 0f), hit, true)
 
@@ -1107,7 +1115,7 @@ class LayoutNodeTest {
         )
         outerNode.add(layoutNode)
         layoutNode.onNodePlaced()
-        val hit = mutableListOf<PointerInputModifierNode>()
+        val hit = mutableListOf<Modifier.Node>()
 
         outerNode.hitTest(Offset(-3f, 3f), hit, true)
 
@@ -1128,7 +1136,7 @@ class LayoutNodeTest {
         )
         outerNode.add(layoutNode)
         layoutNode.onNodePlaced()
-        val hit = mutableListOf<PointerInputModifierNode>()
+        val hit = mutableListOf<Modifier.Node>()
 
         outerNode.hitTest(Offset(25f, 25f), hit)
 
@@ -1151,7 +1159,7 @@ class LayoutNodeTest {
         )
         outerNode.add(layoutNode)
         layoutNode.onNodePlaced()
-        val hit = mutableListOf<PointerInputModifierNode>()
+        val hit = mutableListOf<Modifier.Node>()
 
         outerNode.hitTest(Offset(25f, 25f), hit)
 
@@ -1179,7 +1187,7 @@ class LayoutNodeTest {
         layoutNode1.onNodePlaced()
         layoutNode2.onNodePlaced()
 
-        val hit = mutableListOf<PointerInputModifierNode>()
+        val hit = mutableListOf<Modifier.Node>()
 
         // Hit closer to layoutNode1
         outerNode.hitTest(Offset(5.1f, 5.5f), hit, true)
@@ -1282,7 +1290,7 @@ class LayoutNodeTest {
         layoutNode2.onNodePlaced()
         layoutNode3.onNodePlaced()
 
-        val hit = mutableListOf<PointerInputModifierNode>()
+        val hit = mutableListOf<Modifier.Node>()
 
         // Hit outside of layoutNode2, but near layoutNode1
         outerNode.hitTest(Offset(10.1f, 10.1f), hit, true)
@@ -1317,7 +1325,7 @@ class LayoutNodeTest {
         layoutNode1.onNodePlaced()
         layoutNode2.onNodePlaced()
 
-        val hit = mutableListOf<PointerInputModifierNode>()
+        val hit = mutableListOf<Modifier.Node>()
 
         // Hit layoutNode1
         outerNode.hitTest(Offset(3.95f, 3.95f), hit, true)
@@ -1346,7 +1354,7 @@ class LayoutNodeTest {
             ).apply {
                 attach(MockOwner())
             }
-        val hit = HitTestResult<SemanticsModifierNode>()
+        val hit = HitTestResult()
 
         layoutNode.hitTestSemantics(Offset(-3f, 3f), hit)
 
@@ -1364,7 +1372,7 @@ class LayoutNodeTest {
         val layoutNode = LayoutNode(0, 0, 1, 1, semanticsModifier, DpSize(48.dp, 48.dp))
         outerNode.add(layoutNode)
         layoutNode.onNodePlaced()
-        val hit = HitTestResult<SemanticsModifierNode>()
+        val hit = HitTestResult()
 
         layoutNode.hitTestSemantics(Offset(-3f, 3f), hit)
 
@@ -1374,17 +1382,22 @@ class LayoutNodeTest {
 
     @Test
     fun hitTestSemantics_pointerInMinimumTouchTarget_closestHit() {
-        val semanticsConfiguration = SemanticsConfiguration()
-        val semanticsModifier1 = object : SemanticsModifierNode, Modifier.Node() {
-            override val semanticsConfiguration: SemanticsConfiguration = semanticsConfiguration
+        val semanticsNode1 = object : SemanticsModifierNode, Modifier.Node() {
+            override fun SemanticsPropertyReceiver.applySemantics() { }
         }
-        val semanticsModifier2 = object : SemanticsModifierNode, Modifier.Node() {
-            override val semanticsConfiguration: SemanticsConfiguration = semanticsConfiguration
+        val semanticsNode2 = object : SemanticsModifierNode, Modifier.Node() {
+            override fun SemanticsPropertyReceiver.applySemantics() { }
         }
-        val semanticsModifierElement1 = modifierElementOf(null, { semanticsModifier1 }, { })
-        val semanticsModifierElement2 = modifierElementOf(null, { semanticsModifier2 }, { })
-        val layoutNode1 = LayoutNode(0, 0, 5, 5, semanticsModifierElement1, DpSize(48.dp, 48.dp))
-        val layoutNode2 = LayoutNode(6, 6, 11, 11, semanticsModifierElement2, DpSize(48.dp, 48.dp))
+        data class TestSemanticsElement(
+            private val node: Modifier.Node
+        ) : ModifierNodeElement<Modifier.Node>() {
+            override fun create() = node
+            override fun update(node: Modifier.Node) {}
+        }
+        val semanticsElement1 = TestSemanticsElement(semanticsNode1)
+        val semanticsElement2 = TestSemanticsElement(semanticsNode2)
+        val layoutNode1 = LayoutNode(0, 0, 5, 5, semanticsElement1, DpSize(48.dp, 48.dp))
+        val layoutNode2 = LayoutNode(6, 6, 11, 11, semanticsElement2, DpSize(48.dp, 48.dp))
         val outerNode = LayoutNode(0, 0, 11, 11).apply { attach(MockOwner()) }
         outerNode.add(layoutNode1)
         outerNode.add(layoutNode2)
@@ -1392,46 +1405,46 @@ class LayoutNodeTest {
         layoutNode2.onNodePlaced()
 
         // Hit closer to layoutNode1
-        val hit1 = HitTestResult<SemanticsModifierNode>()
+        val hit1 = HitTestResult()
         outerNode.hitTestSemantics(Offset(5.1f, 5.5f), hit1, true)
 
         assertThat(hit1).hasSize(1)
-        assertThat(hit1[0]).isEqualTo(semanticsModifier1)
+        assertThat(hit1[0]).isEqualTo(semanticsNode1)
 
         // Hit closer to layoutNode2
-        val hit2 = HitTestResult<SemanticsModifierNode>()
+        val hit2 = HitTestResult()
         outerNode.hitTestSemantics(Offset(5.9f, 5.5f), hit2, true)
 
         assertThat(hit2).hasSize(1)
-        assertThat(hit2[0]).isEqualTo(semanticsModifier2)
+        assertThat(hit2[0]).isEqualTo(semanticsNode2)
 
         // Hit closer to layoutNode1
-        val hit3 = HitTestResult<SemanticsModifierNode>()
+        val hit3 = HitTestResult()
         outerNode.hitTestSemantics(Offset(5.5f, 5.1f), hit3, true)
 
         assertThat(hit3).hasSize(1)
-        assertThat(hit3[0]).isEqualTo(semanticsModifier1)
+        assertThat(hit3[0]).isEqualTo(semanticsNode1)
 
         // Hit closer to layoutNode2
-        val hit4 = HitTestResult<SemanticsModifierNode>()
+        val hit4 = HitTestResult()
         outerNode.hitTestSemantics(Offset(5.5f, 5.9f), hit4, true)
 
         assertThat(hit4).hasSize(1)
-        assertThat(hit4[0]).isEqualTo(semanticsModifier2)
+        assertThat(hit4[0]).isEqualTo(semanticsNode2)
 
         // Hit inside layoutNode1
-        val hit5 = HitTestResult<SemanticsModifierNode>()
+        val hit5 = HitTestResult()
         outerNode.hitTestSemantics(Offset(4.9f, 4.9f), hit5, true)
 
         assertThat(hit5).hasSize(1)
-        assertThat(hit5[0]).isEqualTo(semanticsModifier1)
+        assertThat(hit5[0]).isEqualTo(semanticsNode1)
 
         // Hit inside layoutNode2
-        val hit6 = HitTestResult<SemanticsModifierNode>()
+        val hit6 = HitTestResult()
         outerNode.hitTestSemantics(Offset(6.1f, 6.1f), hit6, true)
 
         assertThat(hit6).hasSize(1)
-        assertThat(hit6[0]).isEqualTo(semanticsModifier2)
+        assertThat(hit6[0]).isEqualTo(semanticsNode2)
     }
 
     @Test
@@ -1452,14 +1465,14 @@ class LayoutNodeTest {
         layoutNode2.onNodePlaced()
 
         // Hit layoutNode1
-        val hit1 = HitTestResult<SemanticsModifierNode>()
+        val hit1 = HitTestResult()
         outerNode.hitTestSemantics(Offset(3.95f, 3.95f), hit1, true)
 
         assertThat(hit1).hasSize(1)
         assertThat(hit1[0].toModifier()).isEqualTo(semanticsModifier1)
 
         // Hit layoutNode2
-        val hit2 = HitTestResult<SemanticsModifierNode>()
+        val hit2 = HitTestResult()
         outerNode.hitTestSemantics(Offset(4.05f, 4.05f), hit2, true)
 
         assertThat(hit2).hasSize(1)
@@ -1476,7 +1489,7 @@ class LayoutNodeTest {
             ).apply {
                 attach(MockOwner())
             }
-        val hit = mutableListOf<PointerInputModifierNode>()
+        val hit = mutableListOf<Modifier.Node>()
 
         layoutNode.hitTest(Offset(-1f, -1f), hit)
         layoutNode.hitTest(Offset(0f, -1f), hit)
@@ -1504,7 +1517,7 @@ class LayoutNodeTest {
             ).apply {
                 attach(MockOwner())
             }
-        val hit = mutableListOf<PointerInputModifierNode>()
+        val hit = mutableListOf<Modifier.Node>()
 
         layoutNode.hitTest(Offset(-3f, -5f), hit)
         layoutNode.hitTest(Offset(0f, -5f), hit)
@@ -1579,7 +1592,7 @@ class LayoutNodeTest {
             else -> throw IllegalStateException()
         }
 
-        val hit = mutableListOf<PointerInputModifierNode>()
+        val hit = mutableListOf<Modifier.Node>()
 
         // Act.
 
@@ -1597,6 +1610,7 @@ class LayoutNodeTest {
                             childPointerInputFilter
                         )
                     )
+
             2 ->
                 assertThat(hit.toFilters())
                     .isEqualTo(
@@ -1605,6 +1619,7 @@ class LayoutNodeTest {
                             middlePointerInputFilter
                         )
                     )
+
             1 ->
                 assertThat(hit.toFilters())
                     .isEqualTo(
@@ -1612,6 +1627,7 @@ class LayoutNodeTest {
                             parentPointerInputFilter
                         )
                     )
+
             else -> throw IllegalStateException()
         }
     }
@@ -1669,8 +1685,8 @@ class LayoutNodeTest {
         val offset1 = Offset(25f, 25f)
         val offset2 = Offset(75f, 75f)
 
-        val hit1 = mutableListOf<PointerInputModifierNode>()
-        val hit2 = mutableListOf<PointerInputModifierNode>()
+        val hit1 = mutableListOf<Modifier.Node>()
+        val hit2 = mutableListOf<Modifier.Node>()
 
         // Act
 
@@ -1750,9 +1766,9 @@ class LayoutNodeTest {
         val offset2 = Offset(75f, 75f)
         val offset3 = Offset(125f, 125f)
 
-        val hit1 = mutableListOf<PointerInputModifierNode>()
-        val hit2 = mutableListOf<PointerInputModifierNode>()
-        val hit3 = mutableListOf<PointerInputModifierNode>()
+        val hit1 = mutableListOf<Modifier.Node>()
+        val hit2 = mutableListOf<Modifier.Node>()
+        val hit3 = mutableListOf<Modifier.Node>()
 
         parentLayoutNode.hitTest(offset1, hit1)
         parentLayoutNode.hitTest(offset2, hit2)
@@ -1814,9 +1830,9 @@ class LayoutNodeTest {
         val offset2 = Offset(50f, 75f)
         val offset3 = Offset(50f, 125f)
 
-        val hit1 = mutableListOf<PointerInputModifierNode>()
-        val hit2 = mutableListOf<PointerInputModifierNode>()
-        val hit3 = mutableListOf<PointerInputModifierNode>()
+        val hit1 = mutableListOf<Modifier.Node>()
+        val hit2 = mutableListOf<Modifier.Node>()
+        val hit3 = mutableListOf<Modifier.Node>()
 
         // Act
 
@@ -1878,9 +1894,9 @@ class LayoutNodeTest {
         val offset2 = Offset(75f, 50f)
         val offset3 = Offset(125f, 50f)
 
-        val hit1 = mutableListOf<PointerInputModifierNode>()
-        val hit2 = mutableListOf<PointerInputModifierNode>()
-        val hit3 = mutableListOf<PointerInputModifierNode>()
+        val hit1 = mutableListOf<Modifier.Node>()
+        val hit2 = mutableListOf<Modifier.Node>()
+        val hit3 = mutableListOf<Modifier.Node>()
 
         // Act
 
@@ -1992,7 +2008,7 @@ class LayoutNodeTest {
                 Offset(4f, 3f)
             )
 
-        val hit = mutableListOf<PointerInputModifierNode>()
+        val hit = mutableListOf<Modifier.Node>()
 
         // Act and Assert
 
@@ -2048,7 +2064,7 @@ class LayoutNodeTest {
 
         val offset1 = Offset(50f, 75f)
 
-        val hit = mutableListOf<PointerInputModifierNode>()
+        val hit = mutableListOf<Modifier.Node>()
 
         // Act.
 
@@ -2095,7 +2111,7 @@ class LayoutNodeTest {
         layoutNode1.onNodePlaced()
         val offset1 = Offset(499f, 499f)
 
-        val hit = mutableListOf<PointerInputModifierNode>()
+        val hit = mutableListOf<Modifier.Node>()
 
         // Act.
 
@@ -2154,7 +2170,7 @@ class LayoutNodeTest {
 
         val offset1 = Offset(499f, 499f)
 
-        val hit = mutableListOf<PointerInputModifierNode>()
+        val hit = mutableListOf<Modifier.Node>()
 
         // Act.
 
@@ -2201,7 +2217,7 @@ class LayoutNodeTest {
 
         val offset = Offset(50f, 50f)
 
-        val hit = mutableListOf<PointerInputModifierNode>()
+        val hit = mutableListOf<Modifier.Node>()
 
         // Act.
 
@@ -2228,7 +2244,7 @@ class LayoutNodeTest {
 
         val offset = Offset.Zero
 
-        val hit = mutableListOf<PointerInputModifierNode>()
+        val hit = mutableListOf<Modifier.Node>()
 
         // Act.
 
@@ -2275,7 +2291,7 @@ class LayoutNodeTest {
         parent.remeasure()
         parent.replace()
 
-        val hit = mutableListOf<PointerInputModifierNode>()
+        val hit = mutableListOf<Modifier.Node>()
 
         // Act.
 
@@ -2311,45 +2327,49 @@ class LayoutNodeTest {
 
     @Test
     fun modifierMatchesWrapperWithIdentity() {
-        val modifier1 = Modifier.layout { measurable, constraints ->
-            val placeable = measurable.measure(constraints)
-            layout(placeable.width, placeable.height) {
-                placeable.place(0, 0)
+        val measureLambda1: MeasureScope.(Measurable, Constraints) -> MeasureResult =
+            { measurable, constraints ->
+                val placeable = measurable.measure(constraints)
+                layout(placeable.width, placeable.height) {
+                    placeable.place(0, 0)
+                }
             }
-        }
-        val modifier2 = Modifier.layout { measurable, constraints ->
-            val placeable = measurable.measure(constraints)
-            layout(placeable.width, placeable.height) {
-                placeable.place(1, 1)
+        val modifier1 = Modifier.layout(measureLambda1)
+
+        val measureLambda2: MeasureScope.(Measurable, Constraints) -> MeasureResult =
+            { measurable, constraints ->
+                val placeable = measurable.measure(constraints)
+                layout(placeable.width, placeable.height) {
+                    placeable.place(1, 1)
+                }
             }
-        }
+        val modifier2 = Modifier.layout(measureLambda2)
 
         val root = LayoutNode()
         root.modifier = modifier1.then(modifier2)
 
-        val wrapper1 = root.outerCoordinator
-        val wrapper2 = root.outerCoordinator.wrapped
-
         assertEquals(
-            modifier1,
-            (wrapper1 as LayoutModifierNodeCoordinator).layoutModifierNode.toModifier()
+            measureLambda1,
+            ((root.outerCoordinator as LayoutModifierNodeCoordinator)
+                .layoutModifierNode as LayoutModifierImpl).measureBlock
         )
         assertEquals(
-            modifier2,
-            (wrapper2 as LayoutModifierNodeCoordinator).layoutModifierNode.toModifier()
+            measureLambda2,
+            ((root.outerCoordinator.wrapped as LayoutModifierNodeCoordinator)
+                .layoutModifierNode as LayoutModifierImpl).measureBlock
         )
 
         root.modifier = modifier2.then(modifier1)
 
         assertEquals(
-            modifier1,
-            (root.outerCoordinator.wrapped as LayoutModifierNodeCoordinator)
-                .layoutModifierNode
-                .toModifier()
+            measureLambda1,
+            ((root.outerCoordinator.wrapped as LayoutModifierNodeCoordinator)
+                .layoutModifierNode as LayoutModifierImpl).measureBlock
         )
         assertEquals(
-            modifier2,
-            (root.outerCoordinator as LayoutModifierNodeCoordinator).layoutModifierNode.toModifier()
+            measureLambda2,
+            ((root.outerCoordinator as LayoutModifierNodeCoordinator)
+                .layoutModifierNode as LayoutModifierImpl).measureBlock
         )
     }
 
@@ -2375,13 +2395,13 @@ class LayoutNodeTest {
         val owner = MockOwner()
         node.attach(owner)
         assertEquals(0, owner.layoutChangeCount)
-        node.innerCoordinator.onLayerBlockUpdated { scaleX = 0.5f }
+        node.innerCoordinator.updateLayerBlock({ scaleX = 0.5f })
         assertEquals(1, owner.layoutChangeCount)
         repeat(2) {
-            node.innerCoordinator.onLayerBlockUpdated { scaleX = 1f }
+            node.innerCoordinator.updateLayerBlock({ scaleX = 1f })
         }
         assertEquals(2, owner.layoutChangeCount)
-        node.innerCoordinator.onLayerBlockUpdated(null)
+        node.innerCoordinator.updateLayerBlock(null)
         assertEquals(3, owner.layoutChangeCount)
     }
 
@@ -2402,8 +2422,12 @@ class LayoutNodeTest {
                 drawContent()
             }
         }
-        val a = Modifier.then(EmptyLayoutModifier()).then(drawAndLayoutModifier)
-        val b = Modifier.then(EmptyLayoutModifier()).then(drawAndLayoutModifier)
+        val a = Modifier
+            .then(EmptyLayoutModifier())
+            .then(drawAndLayoutModifier)
+        val b = Modifier
+            .then(EmptyLayoutModifier())
+            .then(drawAndLayoutModifier)
         val node = LayoutNode(20, 20, 100, 100)
         val owner = MockOwner()
         node.attach(owner)
@@ -2417,7 +2441,10 @@ class LayoutNodeTest {
     fun nodeCoordinator_alpha() {
         val root = LayoutNode().apply { this.modifier = Modifier.drawBehind {} }
         val layoutNode1 = LayoutNode().apply {
-            this.modifier = Modifier.graphicsLayer { }.graphicsLayer { }.drawBehind {}
+            this.modifier = Modifier
+                .graphicsLayer { }
+                .graphicsLayer { }
+                .drawBehind {}
         }
         val layoutNode2 = LayoutNode().apply { this.modifier = Modifier.drawBehind {} }
         val owner = MockOwner()
@@ -2427,12 +2454,12 @@ class LayoutNodeTest {
         root.attach(owner)
 
         // provide alpha to the graphics layer
-        layoutNode1.outerCoordinator.wrapped!!.onLayerBlockUpdated {
+        layoutNode1.outerCoordinator.wrapped!!.updateLayerBlock({
             alpha = 0f
-        }
-        layoutNode1.outerCoordinator.wrapped!!.wrapped!!.onLayerBlockUpdated {
+        })
+        layoutNode1.outerCoordinator.wrapped!!.wrapped!!.updateLayerBlock({
             alpha = 0.5f
-        }
+        })
 
         assertFalse(layoutNode1.outerCoordinator.isTransparent())
         assertTrue(layoutNode1.innerCoordinator.isTransparent())
@@ -2467,10 +2494,11 @@ private class EmptyLayoutModifier : LayoutModifier {
     }
 }
 
-@OptIn(InternalCoreApi::class)
-private class MockOwner(
-    val position: IntOffset = IntOffset.Zero,
-    override val root: LayoutNode = LayoutNode()
+internal class MockOwner(
+    private val position: IntOffset = IntOffset.Zero,
+    override val root: LayoutNode = LayoutNode(),
+    override val coroutineContext: CoroutineContext =
+        Executors.newFixedThreadPool(3).asCoroutineDispatcher()
 ) : Owner {
     val onRequestMeasureParams = mutableListOf<LayoutNode>()
     val onAttachParams = mutableListOf<LayoutNode>()
@@ -2503,7 +2531,7 @@ private class MockOwner(
         get() = TODO("Not yet implemented")
     override val pointerIconService: PointerIconService
         get() = TODO("Not yet implemented")
-    override val focusManager: FocusManager
+    override val focusOwner: FocusOwner
         get() = TODO("Not yet implemented")
     override val windowInfo: WindowInfo
         get() = TODO("Not yet implemented")
@@ -2519,6 +2547,7 @@ private class MockOwner(
         get() = TODO("Not yet implemented")
     override val layoutDirection: LayoutDirection
         get() = LayoutDirection.Ltr
+    @InternalCoreApi
     override var showLayoutBounds: Boolean = false
     override val snapshotObserver = OwnerSnapshotObserver { it.invoke() }
     override val modifierLocalManager: ModifierLocalManager = ModifierLocalManager(this)
@@ -2526,7 +2555,8 @@ private class MockOwner(
     override fun onRequestMeasure(
         layoutNode: LayoutNode,
         affectsLookahead: Boolean,
-        forceRequest: Boolean
+        forceRequest: Boolean,
+        scheduleMeasureAndLayout: Boolean
     ) {
         onRequestMeasureParams += layoutNode
         if (affectsLookahead) {
@@ -2571,7 +2601,7 @@ private class MockOwner(
     override fun measureAndLayout(layoutNode: LayoutNode, constraints: Constraints) {
     }
 
-    override fun forceMeasureTheSubtree(layoutNode: LayoutNode) {
+    override fun forceMeasureTheSubtree(layoutNode: LayoutNode, affectsLookahead: Boolean) {
     }
 
     override fun registerOnEndApplyChangesListener(listener: () -> Unit) {
@@ -2584,6 +2614,14 @@ private class MockOwner(
     override fun registerOnLayoutCompletedListener(listener: Owner.OnLayoutCompletedListener) {
         TODO("Not yet implemented")
     }
+
+    override suspend fun textInputSession(
+        session: suspend PlatformTextInputSessionScope.() -> Nothing
+    ): Nothing {
+        TODO("Not yet implemented")
+    }
+
+    val invalidatedLayers = mutableListOf<OwnedLayer>()
 
     override fun createLayer(
         drawBlock: (Canvas) -> Unit,
@@ -2609,6 +2647,7 @@ private class MockOwner(
                 renderEffect: RenderEffect?,
                 ambientShadowColor: Color,
                 spotShadowColor: Color,
+                compositingStrategy: CompositingStrategy,
                 layoutDirection: LayoutDirection,
                 density: Density
             ) {
@@ -2636,6 +2675,7 @@ private class MockOwner(
             }
 
             override fun invalidate() {
+                invalidatedLayers.add(this)
             }
 
             override fun destroy() {
@@ -2662,7 +2702,9 @@ private class MockOwner(
         }
     }
 
+    var semanticsChanged: Boolean = false
     override fun onSemanticsChange() {
+        semanticsChanged = true
     }
 
     override fun onLayoutChange(layoutNode: LayoutNode) {
@@ -2680,18 +2722,17 @@ private class MockOwner(
     override val sharedDrawScope = LayoutNodeDrawScope()
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 private fun LayoutNode.hitTest(
     pointerPosition: Offset,
-    hitPointerInputFilters: MutableList<PointerInputModifierNode>,
+    hitPointerInputFilters: MutableList<Modifier.Node>,
     isTouchEvent: Boolean = false
 ) {
-    val hitTestResult = HitTestResult<PointerInputModifierNode>()
+    val hitTestResult = HitTestResult()
     hitTest(pointerPosition, hitTestResult, isTouchEvent)
     hitPointerInputFilters.addAll(hitTestResult)
 }
 
-private fun LayoutNode(
+internal fun LayoutNode(
     x: Int,
     y: Int,
     x2: Int,
@@ -2742,7 +2783,6 @@ private fun mockPointerInputFilter(
 // This returns the corresponding modifier that produced the PointerInputNode. This is only
 // possible for PointerInputNodes that are BackwardsCompatNodes and once we refactor the
 // pointerInput modifier to use Modifier.Nodes directly, the tests that use this should be rewritten
-@OptIn(ExperimentalComposeUiApi::class)
 fun PointerInputModifierNode.toFilter(): PointerInputFilter {
     val node = this as? BackwardsCompatNode
         ?: error("Incorrectly assumed PointerInputNode was a BackwardsCompatNode")
@@ -2750,15 +2790,18 @@ fun PointerInputModifierNode.toFilter(): PointerInputFilter {
         ?: error("Incorrectly assumed Modifier.Element was a PointerInputModifier")
     return modifier.pointerInputFilter
 }
-@OptIn(ExperimentalComposeUiApi::class)
-fun List<PointerInputModifierNode>.toFilters(): List<PointerInputFilter> = map { it.toFilter() }
+
+fun List<Modifier.Node>.toFilters(): List<PointerInputFilter> = map {
+    (it as PointerInputModifierNode).toFilter()
+}
 
 // This returns the corresponding modifier that produced the Node. This is only possible for
 // Nodes that are BackwardsCompatNodes and once we refactor semantics / pointer input to use
 // Modifier.Nodes directly, the tests that use this should be rewritten
-@OptIn(ExperimentalComposeUiApi::class)
 fun DelegatableNode.toModifier(): Modifier.Element {
     val node = node as? BackwardsCompatNode
         ?: error("Incorrectly assumed Modifier.Node was a BackwardsCompatNode")
     return node.element
 }
+
+private fun LayoutNode.onNodePlaced() = measurePassDelegate.onNodePlaced()

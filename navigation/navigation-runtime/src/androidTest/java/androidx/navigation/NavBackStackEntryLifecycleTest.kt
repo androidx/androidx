@@ -716,6 +716,65 @@ class NavBackStackEntryLifecycleTest {
             .isEqualTo(Lifecycle.State.RESUMED)
     }
 
+    /**
+     * Test that popping the last destination in a graph and navigating to a double nested graph
+     * with the same previous parent graph, does not DESTROY the parent graph.
+     */
+    @UiThreadTest
+    @Test
+    fun testLifecycleDoubleNestedGraph() {
+        val navController = createNavController()
+        val navGraph = navController.navigatorProvider.navigation(
+            route = "root",
+            startDestination = "first_nested"
+        ) {
+            navigation(route = "first_nested", startDestination = "first_nested_test") {
+                test("first_nested_test")
+                navigation(route = "second_nested", startDestination = "third_nested") {
+                    navigation(route = "third_nested", startDestination = "third_nested_test") {
+                        test("third_nested_test")
+                    }
+                }
+            }
+        }
+        navController.graph = navGraph
+
+        val graphBackStackEntry = navController.getBackStackEntry(navGraph.route!!)
+        assertWithMessage("The parent graph should be resumed when its child is resumed")
+            .that(graphBackStackEntry.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.RESUMED)
+        val nestedGraphBackStackEntry = navController.getBackStackEntry("first_nested")
+        assertWithMessage("The nested graph should be resumed when its child is resumed")
+            .that(nestedGraphBackStackEntry.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.RESUMED)
+        val nestedBackStackEntry = navController.getBackStackEntry("first_nested_test")
+        assertWithMessage("The nested start destination should be resumed")
+            .that(nestedBackStackEntry.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.RESUMED)
+
+        navController.navigate(
+            "second_nested",
+            navOptions {
+                popUpTo("first_nested")
+            }
+        )
+
+        assertWithMessage("The parent graph should be resumed when its child is resumed")
+            .that(graphBackStackEntry.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.RESUMED)
+        assertWithMessage("The nested start destination should be destroyed after being popped")
+            .that(nestedBackStackEntry.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.DESTROYED)
+        assertWithMessage("The nested graph should be resumed when its new child is resumed")
+            .that(nestedGraphBackStackEntry.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.RESUMED)
+
+        val secondBackStackEntry = navController.getBackStackEntry("third_nested_test")
+        assertWithMessage("The new destination should be resumed")
+            .that(secondBackStackEntry.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.RESUMED)
+    }
+
     @Suppress("DEPRECATION")
     @UiThreadTest
     @Test

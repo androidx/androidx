@@ -21,15 +21,15 @@ import android.database.Cursor
 import android.database.sqlite.SQLiteTransactionListener
 import android.os.CancellationSignal
 import android.util.Pair
+import androidx.kruth.assertThat
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.sqlite.db.SupportSQLiteQuery
 import androidx.sqlite.db.SupportSQLiteStatement
-import com.google.common.truth.Truth.assertThat
+import java.util.Locale
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import java.util.Locale
 
 @RunWith(JUnit4::class)
 class MigrationTest {
@@ -87,47 +87,36 @@ private class FakeDB : SupportSQLiteDatabase {
         throw UnsupportedOperationException()
     }
 
-    override fun isDbLockedByCurrentThread(): Boolean {
-        throw UnsupportedOperationException()
-    }
+    override val isDbLockedByCurrentThread: Boolean
+        get() { throw UnsupportedOperationException() }
 
     override fun yieldIfContendedSafely(): Boolean {
         throw UnsupportedOperationException()
     }
 
-    override fun yieldIfContendedSafely(sleepAfterYieldDelay: Long): Boolean {
+    override fun yieldIfContendedSafely(sleepAfterYieldDelayMillis: Long): Boolean {
         throw UnsupportedOperationException()
     }
 
-    override fun getVersion(): Int {
-        throw UnsupportedOperationException()
-    }
+    override var version: Int
+        get() { throw UnsupportedOperationException() }
+        set(_) { throw UnsupportedOperationException() }
 
-    override fun setVersion(version: Int) {
-        throw UnsupportedOperationException()
-    }
-
-    override fun getMaximumSize(): Long {
-        throw UnsupportedOperationException()
-    }
-
+    override val maximumSize: Long
+        get() { throw UnsupportedOperationException() }
     override fun setMaximumSize(numBytes: Long): Long {
         throw UnsupportedOperationException()
     }
 
-    override fun getPageSize(): Long {
-        throw UnsupportedOperationException()
-    }
-
-    override fun setPageSize(numBytes: Long) {
-        throw UnsupportedOperationException()
-    }
+    override var pageSize: Long
+        get() { throw UnsupportedOperationException() }
+        set(_) { throw UnsupportedOperationException() }
 
     override fun query(query: String): Cursor {
         throw UnsupportedOperationException()
     }
 
-    override fun query(query: String, bindArgs: Array<out Any>): Cursor {
+    override fun query(query: String, bindArgs: Array<out Any?>): Cursor {
         throw UnsupportedOperationException()
     }
 
@@ -146,7 +135,7 @@ private class FakeDB : SupportSQLiteDatabase {
         throw UnsupportedOperationException()
     }
 
-    override fun delete(table: String, whereClause: String?, whereArgs: Array<out Any>?): Int {
+    override fun delete(table: String, whereClause: String?, whereArgs: Array<out Any?>?): Int {
         throw UnsupportedOperationException()
     }
 
@@ -155,7 +144,7 @@ private class FakeDB : SupportSQLiteDatabase {
         conflictAlgorithm: Int,
         values: ContentValues,
         whereClause: String?,
-        whereArgs: Array<out Any>?
+        whereArgs: Array<out Any?>?
     ): Int {
         throw UnsupportedOperationException()
     }
@@ -164,25 +153,22 @@ private class FakeDB : SupportSQLiteDatabase {
         throw UnsupportedOperationException()
     }
 
-    override fun execSQL(sql: String, bindArgs: Array<out Any>) {
+    override fun execSQL(sql: String, bindArgs: Array<out Any?>) {
         throw UnsupportedOperationException()
     }
 
-    override fun isReadOnly(): Boolean {
-        throw UnsupportedOperationException()
-    }
+    override val isReadOnly: Boolean
+        get() { throw UnsupportedOperationException() }
 
-    override fun isOpen(): Boolean {
-        throw UnsupportedOperationException()
-    }
+    override val isOpen: Boolean
+        get() { throw UnsupportedOperationException() }
 
     override fun needUpgrade(newVersion: Int): Boolean {
         throw UnsupportedOperationException()
     }
 
-    override fun getPath(): String {
-        throw UnsupportedOperationException()
-    }
+    override val path: String
+        get() { throw UnsupportedOperationException() }
 
     override fun setLocale(locale: Locale) {
         throw UnsupportedOperationException()
@@ -192,7 +178,7 @@ private class FakeDB : SupportSQLiteDatabase {
         throw UnsupportedOperationException()
     }
 
-    override fun setForeignKeyConstraintsEnabled(enable: Boolean) {
+    override fun setForeignKeyConstraintsEnabled(enabled: Boolean) {
         throw UnsupportedOperationException()
     }
 
@@ -204,15 +190,12 @@ private class FakeDB : SupportSQLiteDatabase {
         throw UnsupportedOperationException()
     }
 
-    override fun isWriteAheadLoggingEnabled(): Boolean {
-        throw UnsupportedOperationException()
-    }
+    override val isWriteAheadLoggingEnabled: Boolean
+        get() { throw UnsupportedOperationException() }
 
-    override fun getAttachedDbs(): MutableList<Pair<String, String>> {
-        throw UnsupportedOperationException()
-    }
+    override val attachedDbs: MutableList<Pair<String, String>>
+        get() { throw UnsupportedOperationException() }
 
-    override fun isDatabaseIntegrityOk(): Boolean {
-        throw UnsupportedOperationException()
-    }
+    override val isDatabaseIntegrityOk: Boolean
+        get() { throw UnsupportedOperationException() }
 }

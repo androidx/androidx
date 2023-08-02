@@ -18,6 +18,7 @@ package androidx.room.integration.kotlintestapp.test
 
 import android.database.sqlite.SQLiteConstraintException
 import androidx.arch.core.executor.ArchTaskExecutor
+import androidx.kruth.assertThat
 import androidx.room.integration.kotlintestapp.vo.Author
 import androidx.room.integration.kotlintestapp.vo.Book
 import androidx.room.integration.kotlintestapp.vo.BookWithPublisher
@@ -26,15 +27,15 @@ import androidx.room.integration.kotlintestapp.vo.Publisher
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.base.Optional
-import com.google.common.truth.Truth
 import io.reactivex.Flowable
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subscribers.TestSubscriber
+import java.util.Date
 import kotlinx.coroutines.runBlocking
 import org.hamcrest.CoreMatchers
-import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.CoreMatchers.instanceOf
+import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.CoreMatchers.notNullValue
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Assert.assertEquals
@@ -42,7 +43,6 @@ import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.fail
 import org.junit.Test
-import java.util.Date
 
 @MediumTest
 class BooksDaoTest : TestDatabaseTest() {
@@ -362,6 +362,20 @@ class BooksDaoTest : TestDatabaseTest() {
     }
 
     @Test
+    fun deleteAndAddPublisher_immutableList() {
+        booksDao.addPublishers(TestUtil.PUBLISHER)
+        booksDao.getPublishersImmutable().run {
+            assertThat(this.size, `is`(1))
+            assertThat(this.first(), `is`(equalTo(TestUtil.PUBLISHER)))
+        }
+        booksDao.deleteAndAddPublisher(TestUtil.PUBLISHER, TestUtil.PUBLISHER2)
+        booksDao.getPublishers().run {
+            assertThat(this.size, `is`(1))
+            assertThat(this.first(), `is`(equalTo(TestUtil.PUBLISHER2)))
+        }
+    }
+
+    @Test
     fun deleteAndAddPublisher_failure() {
         booksDao.addPublishers(TestUtil.PUBLISHER)
         booksDao.getPublishers().run {
@@ -417,7 +431,7 @@ class BooksDaoTest : TestDatabaseTest() {
     @Test
     fun kotlinDefaultFunction() {
         booksDao.addAndRemovePublisher(TestUtil.PUBLISHER)
-        assertNull(booksDao.getPublisher(TestUtil.PUBLISHER.publisherId))
+        assertNull(booksDao.getPublisherNullable(TestUtil.PUBLISHER.publisherId))
 
         assertEquals("", booksDao.concreteFunction())
         assertEquals("1 - hello", booksDao.concreteFunctionWithParams(1, "hello"))
@@ -434,7 +448,7 @@ class BooksDaoTest : TestDatabaseTest() {
         booksDao.addBooks(TestUtil.BOOK_1)
 
         booksDao.getBooksByPublisher().let { result ->
-            Truth.assertThat(result[TestUtil.PUBLISHER]).containsExactly(TestUtil.BOOK_1)
+            assertThat(result[TestUtil.PUBLISHER]).containsExactly(TestUtil.BOOK_1)
         }
     }
 }

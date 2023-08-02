@@ -24,7 +24,9 @@ import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.camera.camera2.pipe.integration.impl.DEVICE_STATE_CALLBACK_OPTION
 import androidx.camera.camera2.pipe.integration.impl.SESSION_CAPTURE_CALLBACK_OPTION
+import androidx.camera.camera2.pipe.integration.impl.SESSION_PHYSICAL_CAMERA_ID_OPTION
 import androidx.camera.camera2.pipe.integration.impl.SESSION_STATE_CALLBACK_OPTION
+import androidx.camera.camera2.pipe.integration.impl.STREAM_USE_CASE_OPTION
 import androidx.camera.camera2.pipe.integration.impl.TEMPLATE_TYPE_OPTION
 import androidx.camera.camera2.pipe.integration.impl.createCaptureRequestOption
 import androidx.camera.core.ExtendableBuilder
@@ -42,10 +44,11 @@ class Camera2Interop private constructor() {
     /**
      * Extends a [ExtendableBuilder] to add Camera2 options.
      *
-     * @param <T> the type being built by the extendable builder.
+     * @param T the type being built by the extendable builder.
      * @property baseBuilder The builder being extended.
      * @constructor Creates an Extender that can be used to add Camera2 options to another Builder.
      */
+    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     class Extender<T> (private var baseBuilder: ExtendableBuilder<T>) {
 
         /**
@@ -56,7 +59,7 @@ class Camera2Interop private constructor() {
          *
          * @param key      The [CaptureRequest.Key] which will be set.
          * @param value    The value for the key.
-         * @param <ValueT> The type of the value.
+         * @param ValueT   The type of the value.
          * @return The current Extender.
          */
         fun <ValueT> setCaptureRequestOption(
@@ -84,13 +87,41 @@ class Camera2Interop private constructor() {
          *
          * @param templateType The template type to set.
          * @return The current Extender.
-         * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         fun setCaptureRequestTemplate(templateType: Int): Extender<T> {
             baseBuilder.mutableConfig.insertOption(
                 TEMPLATE_TYPE_OPTION,
                 templateType
+            )
+            return this
+        }
+
+        /**
+         * Sets a stream use case flag on the given extendable builder.
+         *
+         * Requires API 33 or above.
+         *
+         *
+         * Calling this method will set the stream useCase for the stream associated with the
+         * surface whose container class is the UseCase.
+         * Valid use cases available on devices can be found in
+         * [android.hardware.camera2.CameraCharacteristics.SCALER_AVAILABLE_STREAM_USE_CASES]
+         * The app should make sure the input argument is in the list of supported use cases first.
+         *
+         * If a unsupported value is provided, [IllegalArgumentException] will be thrown.
+         *
+         * @see android.hardware.camera2.params.OutputConfiguration.setStreamUseCase
+         * to see how Camera2 framework uses this.
+         *
+         * @param streamUseCase The stream use case to set.
+         * @return The current Extender.
+         */
+        @RequiresApi(33)
+        fun setStreamUseCase(streamUseCase: Long): Extender<T> {
+            baseBuilder.mutableConfig.insertOption(
+                STREAM_USE_CASE_OPTION,
+                streamUseCase
             )
             return this
         }
@@ -172,6 +203,32 @@ class Camera2Interop private constructor() {
                 SESSION_CAPTURE_CALLBACK_OPTION,
                 captureCallback
             )
+            return this
+        }
+
+        /**
+         * Set the ID of the physical camera to get output from.
+         *
+         * In the case one logical camera is made up of multiple physical cameras, this call
+         * forces the physical camera with the specified camera ID to produce image.
+         *
+         * The valid physical camera IDs can be queried by `CameraCharacteristics
+         * .getPhysicalCameraIds` on API &gt;= 28. Passing in an invalid physical camera ID will
+         * be ignored.
+         *
+         * On API &lt;= 27, the physical camera ID will be ignored since logical camera is not
+         * supported on these API levels.
+         *
+         * Currently it doesn't support binding use cases with different physical camera IDs. If
+         * use cases with different physical camera IDs are bound at the same time, an
+         * [IllegalArgumentException] will be thrown.
+         *
+         * @param cameraId The desired camera ID.
+         * @return The current Extender.
+         */
+        @RequiresApi(28)
+        fun setPhysicalCameraId(@Suppress("UNUSED_PARAMETER") cameraId: String): Extender<T> {
+            baseBuilder.mutableConfig.insertOption(SESSION_PHYSICAL_CAMERA_ID_OPTION, cameraId)
             return this
         }
     }

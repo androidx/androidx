@@ -23,21 +23,24 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.BuildDrawCacheParams
 import androidx.compose.ui.draw.DrawCacheModifier
 import androidx.compose.ui.draw.DrawModifier
+import androidx.compose.ui.focus.FocusEventModifier
+import androidx.compose.ui.focus.FocusEventModifierNode
+import androidx.compose.ui.focus.FocusOrder
 import androidx.compose.ui.focus.FocusOrderModifier
-import androidx.compose.ui.focus.FocusOrderModifierToProperties
-import androidx.compose.ui.focus.FocusPropertiesModifier
+import androidx.compose.ui.focus.FocusProperties
+import androidx.compose.ui.focus.FocusPropertiesModifierNode
+import androidx.compose.ui.focus.FocusRequesterModifier
+import androidx.compose.ui.focus.FocusRequesterModifierNode
+import androidx.compose.ui.focus.FocusState
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.input.pointer.PointerEvent
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.PointerInputModifier
-import androidx.compose.ui.layout.IntermediateLayoutModifier
 import androidx.compose.ui.layout.IntrinsicMeasurable
 import androidx.compose.ui.layout.IntrinsicMeasureScope
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.LayoutModifier
-import androidx.compose.ui.layout.LookaheadLayoutCoordinates
-import androidx.compose.ui.layout.LookaheadOnPlacedModifier
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.MeasureScope
@@ -50,13 +53,13 @@ import androidx.compose.ui.modifier.BackwardsCompatLocalMap
 import androidx.compose.ui.modifier.ModifierLocal
 import androidx.compose.ui.modifier.ModifierLocalConsumer
 import androidx.compose.ui.modifier.ModifierLocalMap
-import androidx.compose.ui.modifier.ModifierLocalNode
+import androidx.compose.ui.modifier.ModifierLocalModifierNode
 import androidx.compose.ui.modifier.ModifierLocalProvider
 import androidx.compose.ui.modifier.ModifierLocalReadScope
 import androidx.compose.ui.modifier.modifierLocalMapOf
-import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.semantics.SemanticsConfiguration
 import androidx.compose.ui.semantics.SemanticsModifier
+import androidx.compose.ui.semantics.SemanticsPropertyReceiver
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
@@ -70,19 +73,20 @@ import androidx.compose.ui.unit.toSize
  * everything to the modifier instance, but those interfaces should only be called in the cases
  * where the modifier would have been previously.
  */
-@Suppress("NOTHING_TO_INLINE")
 @OptIn(ExperimentalComposeUiApi::class)
 internal class BackwardsCompatNode(element: Modifier.Element) :
     LayoutModifierNode,
-    IntermediateLayoutModifierNode,
     DrawModifierNode,
     SemanticsModifierNode,
     PointerInputModifierNode,
-    ModifierLocalNode,
+    ModifierLocalModifierNode,
     ModifierLocalReadScope,
     ParentDataModifierNode,
     LayoutAwareModifierNode,
     GlobalPositionAwareModifierNode,
+    FocusEventModifierNode,
+    FocusPropertiesModifierNode,
+    FocusRequesterModifierNode,
     OwnerScope,
     BuildDrawCacheParams,
     Modifier.Node() {
@@ -92,13 +96,22 @@ internal class BackwardsCompatNode(element: Modifier.Element) :
 
     var element: Modifier.Element = element
         set(value) {
-            // TODO(lmr): do we need to do a detach type thing with the previous element?
+            if (isAttached) unInitializeModifier()
             field = value
             kindSet = calculateNodeKindSetFrom(value)
-            if (isAttached) onModifierUpdated(false)
+            if (isAttached) initializeModifier(false)
         }
 
+    override fun onAttach() {
+        initializeModifier(true)
+    }
+
     override fun onDetach() {
+        unInitializeModifier()
+    }
+
+    private fun unInitializeModifier() {
+        check(isAttached) { "unInitializeModifier called on unattached node" }
         val element = element
         if (isKind(Nodes.Locals)) {
             if (element is ModifierLocalProvider<*>) {
@@ -109,88 +122,62 @@ internal class BackwardsCompatNode(element: Modifier.Element) :
             if (element is ModifierLocalConsumer) {
                 element.onModifierLocalsUpdated(DetachedModifierLocalReadScope)
             }
-            if (element is FocusOrderModifier) {
-                val focusOrderElement = focusOrderElement
-                if (focusOrderElement != null) {
-                    requireOwner()
-                        .modifierLocalManager
-                        .removedProvider(this, focusOrderElement.key)
-                }
-            }
         }
         if (isKind(Nodes.Semantics)) {
             requireOwner().onSemanticsChange()
         }
+        if (element is FocusRequesterModifier) {
+            element.focusRequester.focusRequesterNodes -= this
+        }
     }
 
-    override fun onAttach() {
-        onModifierUpdated(true)
-    }
-
-    private fun onModifierUpdated(duringAttach: Boolean) {
-        check(isAttached)
+    private fun initializeModifier(duringAttach: Boolean) {
+        check(isAttached) { "initializeModifier called on unattached node" }
         val element = element
         if (isKind(Nodes.Locals)) {
+            if (element is ModifierLocalConsumer) {
+                sideEffect { updateModifierLocalConsumer() }
+            }
             if (element is ModifierLocalProvider<*>) {
                 updateModifierLocalProvider(element)
-            }
-            if (element is ModifierLocalConsumer) {
-                if (duringAttach)
-                    updateModifierLocalConsumer()
-                else
-                    sideEffect { updateModifierLocalConsumer() }
-            }
-            // Special handling for FocusOrderModifier -- we have to use modifier local
-            // consumers and providers for it.
-            if (element is FocusOrderModifier) {
-                // Have to create a new consumer/provider
-                val scope = FocusOrderModifierToProperties(element)
-                focusOrderElement = FocusPropertiesModifier(
-                    focusPropertiesScope = scope,
-                    inspectorInfo = debugInspectorInfo {
-                        name = "focusProperties"
-                        properties["scope"] = scope
-                    }
-                )
-                updateModifierLocalProvider(focusOrderElement!!)
-                if (duringAttach)
-                    updateFocusOrderModifierLocalConsumer()
-                else
-                    sideEffect { updateFocusOrderModifierLocalConsumer() }
             }
         }
         if (isKind(Nodes.Draw)) {
             if (element is DrawCacheModifier) {
                 invalidateCache = true
             }
-            invalidateLayer()
+            if (!duringAttach) {
+                invalidateLayer()
+            }
         }
         if (isKind(Nodes.Layout)) {
-            val isChainUpdate = requireLayoutNode().nodes.tail.isAttached
+            val isChainUpdate = isChainUpdate()
             if (isChainUpdate) {
                 val coordinator = coordinator!!
                 coordinator as LayoutModifierNodeCoordinator
                 coordinator.layoutModifierNode = this
                 coordinator.onLayoutModifierNodeChanged()
             }
-            invalidateLayer()
-            requireLayoutNode().invalidateMeasurements()
+            if (!duringAttach) {
+                invalidateLayer()
+                requireLayoutNode().invalidateMeasurements()
+            }
         }
         if (element is RemeasurementModifier) {
-            element.onRemeasurementAvailable(this)
+            element.onRemeasurementAvailable(requireLayoutNode())
         }
         if (isKind(Nodes.LayoutAware)) {
             if (element is OnRemeasuredModifier) {
                 // if the modifier was added but layout has already happened and might not change,
                 // we want to call remeasured in case layout doesn't happen again
-                val isChainUpdate = requireLayoutNode().nodes.tail.isAttached
+                val isChainUpdate = isChainUpdate()
                 if (isChainUpdate) {
                     requireLayoutNode().invalidateMeasurements()
                 }
             }
             if (element is OnPlacedModifier) {
                 lastOnPlacedCoordinates = null
-                val isChainUpdate = requireLayoutNode().nodes.tail.isAttached
+                val isChainUpdate = isChainUpdate()
                 if (isChainUpdate) {
                     requireOwner().registerOnLayoutCompletedListener(
                         object : Owner.OnLayoutCompletedListener {
@@ -208,11 +195,14 @@ internal class BackwardsCompatNode(element: Modifier.Element) :
             // if the modifier was added but layout has already happened and might not change,
             // we want to call remeasured in case layout doesn't happen again
             if (element is OnGloballyPositionedModifier) {
-                val isChainUpdate = requireLayoutNode().nodes.tail.isAttached
+                val isChainUpdate = isChainUpdate()
                 if (isChainUpdate) {
                     requireLayoutNode().invalidateMeasurements()
                 }
             }
+        }
+        if (element is FocusRequesterModifier) {
+            element.focusRequester.focusRequesterNodes += this
         }
         if (isKind(Nodes.PointerInput)) {
             if (element is PointerInputModifier) {
@@ -237,7 +227,7 @@ internal class BackwardsCompatNode(element: Modifier.Element) :
 
     override fun onMeasureResultChanged() {
         invalidateCache = true
-        requestDraw()
+        invalidateDraw()
     }
 
     private fun updateDrawCache() {
@@ -254,10 +244,9 @@ internal class BackwardsCompatNode(element: Modifier.Element) :
 
     internal fun onDrawCacheReadsChanged() {
         invalidateCache = true
-        requestDraw()
+        invalidateDraw()
     }
 
-    private var focusOrderElement: FocusPropertiesModifier? = null
     private var _providedValues: BackwardsCompatLocalMap? = null
     var readValues = hashSetOf<ModifierLocal<*>>()
     override val providedValues: ModifierLocalMap get() = _providedValues ?: modifierLocalMapOf()
@@ -287,18 +276,7 @@ internal class BackwardsCompatNode(element: Modifier.Element) :
         }
     }
 
-    fun updateFocusOrderModifierLocalConsumer() {
-        if (isAttached) {
-            requireOwner().snapshotObserver.observeReads(
-                this,
-                updateFocusOrderModifierLocalConsumer
-            ) {
-                (focusOrderElement!! as ModifierLocalConsumer).onModifierLocalsUpdated(this)
-            }
-        }
-    }
-
-    fun updateModifierLocalProvider(element: ModifierLocalProvider<*>) {
+    private fun updateModifierLocalProvider(element: ModifierLocalProvider<*>) {
         val providedValues = _providedValues
         if (providedValues != null && providedValues.contains(element.key)) {
             providedValues.element = element
@@ -309,12 +287,12 @@ internal class BackwardsCompatNode(element: Modifier.Element) :
             _providedValues = BackwardsCompatLocalMap(element)
             // we only need to notify the modifierLocalManager of an inserted provider
             // in the cases where a provider was added to the chain where it was possible
-            // that consumers below it could need to be invalidated. If this layoutnode
+            // that consumers below it could need to be invalidated. If this layout node
             // is just now being created, then that is impossible. In this case, we can just
             // do nothing and wait for the child consumers to read us. We infer this by
             // checking to see if the tail node is attached or not. If it is not, then the node
             // chain is being attached for the first time.
-            val isChainUpdate = requireLayoutNode().nodes.tail.isAttached
+            val isChainUpdate = isChainUpdate()
             if (isChainUpdate) {
                 requireOwner()
                     .modifierLocalManager
@@ -323,12 +301,7 @@ internal class BackwardsCompatNode(element: Modifier.Element) :
         }
     }
 
-    override val isValid: Boolean get() = isAttached
-    override var targetSize: IntSize
-        get() = (element as IntermediateLayoutModifier).targetSize
-        set(value) {
-            (element as IntermediateLayoutModifier).targetSize = value
-        }
+    override val isValidOwnerScope: Boolean get() = isAttached
 
     override fun MeasureScope.measure(
         measurable: Measurable,
@@ -377,8 +350,11 @@ internal class BackwardsCompatNode(element: Modifier.Element) :
         }
     }
 
-    override val semanticsConfiguration: SemanticsConfiguration
-        get() = (element as SemanticsModifier).semanticsConfiguration
+    override fun SemanticsPropertyReceiver.applySemantics() {
+        val config = (element as SemanticsModifier).semanticsConfiguration
+        val toMergeInto = (this as SemanticsConfiguration)
+        toMergeInto.collapsePeer(config)
+    }
 
     override fun onPointerEvent(
         pointerEvent: PointerEvent,
@@ -396,7 +372,6 @@ internal class BackwardsCompatNode(element: Modifier.Element) :
         }
     }
 
-    @OptIn(ExperimentalComposeUiApi::class)
     override fun sharePointerInputWithSiblings(): Boolean {
         return with(element as PointerInputModifier) {
             pointerInputFilter.shareWithSiblings
@@ -419,14 +394,6 @@ internal class BackwardsCompatNode(element: Modifier.Element) :
         (element as OnGloballyPositionedModifier).onGloballyPositioned(coordinates)
     }
 
-    @OptIn(ExperimentalComposeUiApi::class)
-    override fun onLookaheadPlaced(coordinates: LookaheadLayoutCoordinates) {
-        val element = element
-        if (element is LookaheadOnPlacedModifier) {
-            element.onPlaced(coordinates)
-        }
-    }
-
     override fun onRemeasured(size: IntSize) {
         val element = element
         if (element is OnRemeasuredModifier) {
@@ -441,6 +408,20 @@ internal class BackwardsCompatNode(element: Modifier.Element) :
         if (element is OnPlacedModifier) {
             element.onPlaced(coordinates)
         }
+    }
+
+    override fun onFocusEvent(focusState: FocusState) {
+        val focusEventModifier = element
+        check(focusEventModifier is FocusEventModifier) { "onFocusEvent called on wrong node" }
+        focusEventModifier.onFocusEvent(focusState)
+    }
+
+    override fun applyFocusProperties(focusProperties: FocusProperties) {
+        val focusOrderModifier = element
+        check(focusOrderModifier is FocusOrderModifier) {
+            "applyFocusProperties called on wrong node"
+        }
+        focusProperties.apply(FocusOrderModifierToProperties(focusOrderModifier))
     }
 
     override fun toString(): String = element.toString()
@@ -459,6 +440,20 @@ private val updateModifierLocalConsumer = { it: BackwardsCompatNode ->
     it.updateModifierLocalConsumer()
 }
 
-private val updateFocusOrderModifierLocalConsumer = { it: BackwardsCompatNode ->
-    it.updateFocusOrderModifierLocalConsumer()
+/**
+ * Used internally for FocusOrderModifiers so that we can compare the modifiers and can reuse
+ * the ModifierLocalConsumerEntity and ModifierLocalProviderEntity.
+ */
+@Suppress("DEPRECATION")
+private class FocusOrderModifierToProperties(
+    val modifier: FocusOrderModifier
+) : (FocusProperties) -> Unit {
+    override fun invoke(focusProperties: FocusProperties) {
+        modifier.populateFocusOrder(FocusOrder(focusProperties))
+    }
+}
+
+private fun BackwardsCompatNode.isChainUpdate(): Boolean {
+    val tailNode = requireLayoutNode().nodes.tail as TailModifierNode
+    return tailNode.attachHasBeenRun
 }

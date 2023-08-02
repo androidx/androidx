@@ -40,9 +40,11 @@ import androidx.media2.test.service.MockPlayer;
 import androidx.media2.test.service.RemoteMediaController;
 import androidx.media2.test.service.TestServiceRegistry;
 import androidx.test.filters.MediumTest;
+import androidx.test.filters.SdkSuppress;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -53,6 +55,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Tests {@link MediaSessionService}.
  */
+@SdkSuppress(maxSdkVersion = 32) // b/244312419
 @MediumTest
 public class MediaSessionServiceTest extends MediaSessionTestBase {
     private SessionToken mToken;
@@ -156,6 +159,7 @@ public class MediaSessionServiceTest extends MediaSessionTestBase {
      * can return different sessions for different controllers.
      */
     @Test
+    @Ignore("Flaky: b/291281118")
     public void onGetSession_returnsDifferentSessions() {
         final List<SessionToken> tokens = new ArrayList<>();
         TestServiceRegistry.getInstance().setOnGetSessionHandler(

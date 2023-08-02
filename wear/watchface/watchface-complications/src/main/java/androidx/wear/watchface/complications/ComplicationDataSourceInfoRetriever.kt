@@ -23,6 +23,7 @@ import android.content.ServiceConnection
 import android.graphics.drawable.Icon
 import android.os.Build
 import android.os.IBinder
+import android.support.wearable.complications.ComplicationProviderInfo as WireComplicationProviderInfo
 import android.support.wearable.complications.IPreviewComplicationDataCallback
 import android.support.wearable.complications.IProviderInfoService
 import android.util.Log
@@ -46,30 +47,29 @@ import androidx.wear.watchface.complications.data.SmallImageComplicationData
 import androidx.wear.watchface.complications.data.SmallImageType
 import androidx.wear.watchface.complications.data.toApiComplicationData
 import androidx.wear.watchface.utility.TraceEvent
-import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.suspendCancellableCoroutine
-import java.lang.IllegalArgumentException
+import androidx.wear.watchface.utility.aidlMethod
+import androidx.wear.watchface.utility.iconEquals
+import androidx.wear.watchface.utility.iconHashCode
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
-
-private typealias WireComplicationProviderInfo =
-    android.support.wearable.complications.ComplicationProviderInfo
+import kotlinx.coroutines.CancellableContinuation
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.suspendCancellableCoroutine
 
 /**
  * Retrieves [Result] for a watch face's complications.
  *
- *
  * To use construct an instance and call [retrieveComplicationDataSourceInfo] which returns an array
  * of [Result] objects.
  *
- *
  * Further calls to [retrieveComplicationDataSourceInfo] may be made using the same instance of this
- * class, but [close] must be called when it is no longer needed. Once release has been
- * called, further retrieval attempts will fail.
+ * class, but [close] must be called when it is no longer needed. Once release has been called,
+ * further retrieval attempts will fail.
  */
 public class ComplicationDataSourceInfoRetriever : AutoCloseable {
     /** Results for [retrieveComplicationDataSourceInfo]. */
-    public class Result internal constructor(
+    public class Result
+    internal constructor(
         /** The id for the complication slot, as passed to [retrieveComplicationDataSourceInfo]. */
         public val slotId: Int,
 
@@ -88,17 +88,13 @@ public class ComplicationDataSourceInfoRetriever : AutoCloseable {
 
         @SuppressLint("SyntheticAccessor")
         override fun onBindingDied(name: ComponentName?) {
-            synchronized(lock) {
-                closed = true
-            }
+            synchronized(lock) { closed = true }
             deferredService.completeExceptionally(ServiceDisconnectedException())
         }
 
         @SuppressLint("SyntheticAccessor")
         override fun onServiceDisconnected(name: ComponentName) {
-            synchronized(lock) {
-                closed = true
-            }
+            synchronized(lock) { closed = true }
             deferredService.completeExceptionally(ServiceDisconnectedException())
         }
     }
@@ -109,11 +105,10 @@ public class ComplicationDataSourceInfoRetriever : AutoCloseable {
     private val deferredService = CompletableDeferred<IProviderInfoService>()
     private val lock = Any()
 
-    /**
-     * @hide
-     */
     @VisibleForTesting
     @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY)
+    @set:RestrictTo(RestrictTo.Scope.LIBRARY)
     public var closed: Boolean = false
         private set
 
@@ -123,7 +118,9 @@ public class ComplicationDataSourceInfoRetriever : AutoCloseable {
     }
 
     /** @param context the current context */
-    public constructor(context: Context) : this(
+    public constructor(
+        context: Context
+    ) : this(
         context,
         Intent(ACTION_GET_COMPLICATION_CONFIG).apply { setPackage(PROVIDER_INFO_SERVICE_PACKAGE) }
     )
@@ -131,9 +128,6 @@ public class ComplicationDataSourceInfoRetriever : AutoCloseable {
     /** Exception thrown if the service disconnects. */
     public class ServiceDisconnectedException : Exception()
 
-    /**
-     * @hide
-     */
     @VisibleForTesting
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public constructor(service: IProviderInfoService) {
@@ -141,16 +135,15 @@ public class ComplicationDataSourceInfoRetriever : AutoCloseable {
     }
 
     /**
-     * Requests [Result] for the specified complication ids on the specified
-     * watch face. When the info is received, the listener will receive a callback for each id.
-     * These callbacks will occur on the main thread.
-     *
+     * Requests [Result] for the specified complication ids on the specified watch face. When the
+     * info is received, the listener will receive a callback for each id. These callbacks will
+     * occur on the main thread.
      *
      * This will only work if the package of the current app is the same as the package of the
      * specified watch face.
      *
-     * @param watchFaceComponent the ComponentName of the WatchFaceService for which info is
-     * being requested
+     * @param watchFaceComponent the ComponentName of the WatchFaceService for which info is being
+     *   requested
      * @param watchFaceComplicationIds ids of the complications that info is being requested for
      * @return An array of [Result]. If the look up fails null will be returned.
      * @throws [ServiceDisconnectedException] if the service disconnected during the call.
@@ -162,18 +155,14 @@ public class ComplicationDataSourceInfoRetriever : AutoCloseable {
     ): Array<Result>? =
         TraceEvent("ComplicationDataSourceInfoRetriever.retrieveComplicationDataSourceInfo").use {
             synchronized(lock) {
-                require(!closed) {
-                    "retrieveComplicationDataSourceInfo called after close"
-                }
+                require(!closed) { "retrieveComplicationDataSourceInfo called after close" }
             }
-            awaitDeferredService().getProviderInfos(
-                watchFaceComponent, watchFaceComplicationIds
-            )?.mapIndexed { index, info ->
-                Result(
-                    watchFaceComplicationIds[index],
-                    info?.toApiComplicationDataSourceInfo()
-                )
-            }?.toTypedArray()
+            awaitDeferredService()
+                .getProviderInfos(watchFaceComponent, watchFaceComplicationIds)
+                ?.mapIndexed { index, info ->
+                    Result(watchFaceComplicationIds[index], info?.toApiComplicationDataSourceInfo())
+                }
+                ?.toTypedArray()
         }
 
     /**
@@ -183,11 +172,11 @@ public class ComplicationDataSourceInfoRetriever : AutoCloseable {
      * data based on the name and icon of the provider.
      *
      * @param complicationDataSourceComponent The [ComponentName] of the complication data source
-     * from which preview data is requested.
+     *   from which preview data is requested.
      * @param complicationType The requested [ComplicationType] for the preview data.
      * @return The preview [ComplicationData] or `null` if the complication data source component
-     * doesn't exist, or if it doesn't support complicationType, or if the remote service doesn't
-     * support this API.
+     *   doesn't exist, or if it doesn't support complicationType, or if the remote service doesn't
+     *   support this API.
      * @throws [ServiceDisconnectedException] if the service disconnected during the call.
      */
     @Throws(ServiceDisconnectedException::class)
@@ -195,58 +184,65 @@ public class ComplicationDataSourceInfoRetriever : AutoCloseable {
     public suspend fun retrievePreviewComplicationData(
         complicationDataSourceComponent: ComponentName,
         complicationType: ComplicationType
-    ): ComplicationData? = TraceEvent(
-        "ComplicationDataSourceInfoRetriever.requestPreviewComplicationData"
-    ).use {
-        synchronized(lock) {
-            require(!closed) {
-                "retrievePreviewComplicationData called after close"
+    ): ComplicationData? =
+        TraceEvent("ComplicationDataSourceInfoRetriever.requestPreviewComplicationData").use {
+            synchronized(lock) {
+                require(!closed) { "retrievePreviewComplicationData called after close" }
             }
-        }
-        val service = awaitDeferredService()
-        if (service.apiVersion < 1) {
-            return null
+            val service = awaitDeferredService()
+            if (service.apiVersion < 1) {
+                return null
+            }
+
+            return suspendCancellableCoroutine { continuation ->
+                val callback = PreviewComplicationDataCallback(service, continuation)
+                if (
+                    !service.requestPreviewComplicationData(
+                        complicationDataSourceComponent,
+                        complicationType.toWireComplicationType(),
+                        callback
+                    )
+                ) {
+                    callback.safeUnlinkToDeath()
+                    continuation.resume(null)
+                }
+            }
         }
 
-        return suspendCancellableCoroutine { continuation ->
-            val deathObserver = IBinder.DeathRecipient {
-                continuation.resumeWithException(ServiceDisconnectedException())
+    private class PreviewComplicationDataCallback(
+        val service: IProviderInfoService,
+        var continuation: CancellableContinuation<ComplicationData?>?
+    ) : IPreviewComplicationDataCallback.Stub() {
+        val deathObserver: IBinder.DeathRecipient =
+            IBinder.DeathRecipient {
+                continuation?.resumeWithException(ServiceDisconnectedException())
             }
+
+        init {
             service.asBinder().linkToDeath(deathObserver, 0)
 
             // Not a huge deal but we might as well unlink the deathObserver.
-            continuation.invokeOnCancellation {
-                safeUnlinkToDeath(service, deathObserver)
-            }
-
-            if (!service.requestPreviewComplicationData(
-                    complicationDataSourceComponent,
-                    complicationType.toWireComplicationType(),
-                    object : IPreviewComplicationDataCallback.Stub() {
-                        override fun updateComplicationData(
-                            data: android.support.wearable.complications.ComplicationData?
-                        ) {
-                            safeUnlinkToDeath(service, deathObserver)
-                            continuation.resume(data?.toApiComplicationData())
-                        }
-                    }
-                )
-            ) {
-                safeUnlinkToDeath(service, deathObserver)
-                continuation.resume(null)
-            }
+            continuation?.invokeOnCancellation { safeUnlinkToDeath() }
         }
-    }
 
-    internal fun safeUnlinkToDeath(
-        service: IProviderInfoService,
-        deathObserver: IBinder.DeathRecipient
-    ) {
-        try {
-            service.asBinder().unlinkToDeath(deathObserver, 0)
-        } catch (e: NoSuchElementException) {
-            // This really shouldn't happen.
-            Log.w(TAG, "retrievePreviewComplicationData encountered", e)
+        override fun updateComplicationData(
+            data: android.support.wearable.complications.ComplicationData?
+        ) =
+            aidlMethod(TAG, "updateComplicationData") {
+                safeUnlinkToDeath()
+                continuation!!.resume(data?.toApiComplicationData())
+
+                // Re http://b/249121838 this is important, it prevents a memory leak.
+                continuation = null
+            }
+
+        internal fun safeUnlinkToDeath() {
+            try {
+                service.asBinder().unlinkToDeath(deathObserver, 0)
+            } catch (e: NoSuchElementException) {
+                // This really shouldn't happen.
+                Log.w(TAG, "retrievePreviewComplicationData encountered", e)
+            }
         }
     }
 
@@ -256,15 +252,14 @@ public class ComplicationDataSourceInfoRetriever : AutoCloseable {
         }
 
     /**
-     * Releases the connection to the complication system used by this class. This must
-     * be called when the retriever is no longer needed.
-     *
+     * Releases the connection to the complication system used by this class. This must be called
+     * when the retriever is no longer needed.
      *
      * Any outstanding or subsequent futures returned by [retrieveComplicationDataSourceInfo] will
      * resolve with null.
      *
-     * This class implements the Java `AutoClosable` interface and
-     * may be used with try-with-resources.
+     * This class implements the Java `AutoClosable` interface and may be used with
+     * try-with-resources.
      */
     override fun close() {
         synchronized(lock) {
@@ -289,7 +284,7 @@ public class ComplicationDataSourceInfoRetriever : AutoCloseable {
     private companion object {
         private const val TAG = "ComplicationDataS"
 
-        /** The package of the service that supplies complication data source info.  */
+        /** The package of the service that supplies complication data source info. */
         private const val PROVIDER_INFO_SERVICE_PACKAGE = "com.google.android.wearable.app"
         private const val ACTION_GET_COMPLICATION_CONFIG =
             "android.support.wearable.complications.ACTION_GET_COMPLICATION_CONFIG"
@@ -297,10 +292,9 @@ public class ComplicationDataSourceInfoRetriever : AutoCloseable {
 }
 
 /**
- * Holder of details of a complication data source, for use by watch faces (for example,
- * to show the current complication data source in settings). A
- * [ComplicationDataSourceInfoRetriever] can be used to obtain references of this class for each
- * of a watch face's complications.
+ * Holder of details of a complication data source, for use by watch faces (for example, to show the
+ * current complication data source in settings). A [ComplicationDataSourceInfoRetriever] can be
+ * used to obtain references of this class for each of a watch face's complications.
  */
 public class ComplicationDataSourceInfo(
     /** The name of the application containing the complication data source. */
@@ -325,67 +319,55 @@ public class ComplicationDataSourceInfo(
     /**
      * Lazily constructed fallback preview [ComplicationData] based on this
      * ComplicationDataSourceInfo. This is useful when
-     * [ComplicationDataSourceInfoRetriever.retrievePreviewComplicationData] returns `null` (e.g.
-     * on a pre-android R device).
+     * [ComplicationDataSourceInfoRetriever.retrievePreviewComplicationData] returns `null` (e.g. on
+     * a pre-android R device).
      */
     public val fallbackPreviewData: ComplicationData by lazy {
         val contentDescription = PlainComplicationText.Builder(name).build()
         when (type) {
             ComplicationType.SHORT_TEXT ->
                 ShortTextComplicationData.Builder(
-                    PlainComplicationText.Builder(
-                        name.take(ShortTextComplicationData.MAX_TEXT_LENGTH)
-                    ).build(),
-                    contentDescription
-                ).setMonochromaticImage(
-                    MonochromaticImage.Builder(icon).build()
-                ).build()
-
+                        PlainComplicationText.Builder(
+                                name.take(ShortTextComplicationData.MAX_TEXT_LENGTH)
+                            )
+                            .build(),
+                        contentDescription
+                    )
+                    .setMonochromaticImage(MonochromaticImage.Builder(icon).build())
+                    .build()
             ComplicationType.LONG_TEXT ->
                 LongTextComplicationData.Builder(
-                    PlainComplicationText.Builder(name).build(),
-                    contentDescription
-                ).setMonochromaticImage(
-                    MonochromaticImage.Builder(icon).build()
-                ).build()
-
+                        PlainComplicationText.Builder(name).build(),
+                        contentDescription
+                    )
+                    .setMonochromaticImage(MonochromaticImage.Builder(icon).build())
+                    .build()
             ComplicationType.SMALL_IMAGE ->
                 SmallImageComplicationData.Builder(
-                    SmallImage.Builder(icon, SmallImageType.ICON).build(),
-                    contentDescription
-                ).build()
-
+                        SmallImage.Builder(icon, SmallImageType.ICON).build(),
+                        contentDescription
+                    )
+                    .build()
             ComplicationType.MONOCHROMATIC_IMAGE ->
                 MonochromaticImageComplicationData.Builder(
-                    MonochromaticImage.Builder(icon).build(),
-                    contentDescription
-                ).build()
-
+                        MonochromaticImage.Builder(icon).build(),
+                        contentDescription
+                    )
+                    .build()
             ComplicationType.PHOTO_IMAGE ->
-                PhotoImageComplicationData.Builder(
-                    icon,
-                    contentDescription
-                ).build()
-
+                PhotoImageComplicationData.Builder(icon, contentDescription).build()
             ComplicationType.RANGED_VALUE ->
-                RangedValueComplicationData.Builder(
-                    42f,
-                    0f,
-                    100f,
-                    contentDescription
-                ).setMonochromaticImage(MonochromaticImage.Builder(icon).build())
+                RangedValueComplicationData.Builder(42f, 0f, 100f, contentDescription)
+                    .setMonochromaticImage(MonochromaticImage.Builder(icon).build())
                     .setText(PlainComplicationText.Builder(name).build())
                     .build()
-
             else -> NoDataComplicationData()
         }
     }
 
     init {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            require(componentName != null) {
-                "ComponentName is required on Android R and above"
-            }
+            require(componentName != null) { "ComponentName is required on Android R and above" }
         }
     }
 
@@ -402,7 +384,7 @@ public class ComplicationDataSourceInfo(
         if (appName != other.appName) return false
         if (name != other.name) return false
         if (type != other.type) return false
-        if (icon != other.icon) return false
+        if (!(icon iconEquals other.icon)) return false
         if (componentName != other.componentName) return false
 
         return true
@@ -412,33 +394,29 @@ public class ComplicationDataSourceInfo(
         var result = appName.hashCode()
         result = 31 * result + name.hashCode()
         result = 31 * result + type.hashCode()
-        result = 31 * result + icon.hashCode()
+        result = 31 * result + icon.iconHashCode()
         result = 31 * result + componentName.hashCode()
         return result
     }
 
-    /**
-     * Converts this value to [WireComplicationProviderInfo] object used for serialization.
-     *
-     * @hide
-     */
+    /** Converts this value to [WireComplicationProviderInfo] object used for serialization. */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun toWireComplicationProviderInfo(): WireComplicationProviderInfo =
         WireComplicationProviderInfo(
-            appName, name, icon, type.toWireComplicationType(),
+            appName,
+            name,
+            icon,
+            type.toWireComplicationType(),
             componentName
         )
 }
 
-// Ugh we need this since the linter wants the method signature all on one line...
-typealias ApiInfo = ComplicationDataSourceInfo
-
-/**
- * @hide
- */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun WireComplicationProviderInfo.toApiComplicationDataSourceInfo(): ApiInfo =
+public fun WireComplicationProviderInfo.toApiComplicationDataSourceInfo() =
     ComplicationDataSourceInfo(
-        appName!!, providerName!!, providerIcon!!, fromWireType(complicationType),
+        appName!!,
+        providerName!!,
+        providerIcon!!,
+        fromWireType(complicationType),
         providerComponentName
     )

@@ -72,7 +72,6 @@ public abstract class WorkerFactory {
      * {@code null} if the worker could not be created
      * @throws IllegalStateException when the {@link WorkerFactory} returns an instance
      *                               of the {@link ListenableWorker} which is used.
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public final @Nullable ListenableWorker createWorkerWithDefaultFallback(
@@ -116,7 +115,6 @@ public abstract class WorkerFactory {
 
     /**
      * @return A default {@link WorkerFactory} with no custom behavior
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static @NonNull WorkerFactory getDefaultWorkerFactory() {

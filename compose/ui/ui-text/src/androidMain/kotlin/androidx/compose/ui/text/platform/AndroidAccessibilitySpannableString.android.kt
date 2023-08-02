@@ -32,13 +32,11 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.InternalTextApi
 import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontSynthesis
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.font.GenericFontFamily
-import androidx.compose.ui.text.font.createFontFamilyResolver
 import androidx.compose.ui.text.font.getAndroidTypefaceStyle
 import androidx.compose.ui.text.platform.extensions.setBackground
 import androidx.compose.ui.text.platform.extensions.setColor
@@ -49,30 +47,16 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.util.fastForEach
 
-/**
- * Convert an AnnotatedString into SpannableString for Android text to speech support.
- *
- * @suppress
- */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@InternalTextApi // used in ui:ui
-fun AnnotatedString.toAccessibilitySpannableString(
-    density: Density,
-    @Suppress("DEPRECATION") resourceLoader: Font.ResourceLoader
-): SpannableString {
-    @Suppress("DEPRECATION")
-    return toAccessibilitySpannableString(density, createFontFamilyResolver(resourceLoader))
-}
-
 @OptIn(ExperimentalTextApi::class)
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @InternalTextApi // used in ui:ui
 fun AnnotatedString.toAccessibilitySpannableString(
     density: Density,
-    fontFamilyResolver: FontFamily.Resolver
+    fontFamilyResolver: FontFamily.Resolver,
+    urlSpanCache: URLSpanCache
 ): SpannableString {
     val spannableString = SpannableString(text)
-    spanStyles.fastForEach { (style, start, end) ->
+    spanStylesOrNull?.fastForEach { (style, start, end) ->
         // b/232238615 looking up fonts inside of accessibility does not honor overwritten
         // FontFamilyResolver. This is not safe until Font.ResourceLoader is fully removed.
         val noFontStyle = style.copy(fontFamily = null)
@@ -90,7 +74,7 @@ fun AnnotatedString.toAccessibilitySpannableString(
 
     getUrlAnnotations(0, length).fastForEach { (urlAnnotation, start, end) ->
         spannableString.setSpan(
-            urlAnnotation.toSpan(),
+            urlSpanCache.toURLSpan(urlAnnotation),
             start,
             end,
             Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
@@ -101,7 +85,6 @@ fun AnnotatedString.toAccessibilitySpannableString(
 }
 
 /** Apply the serializable styles to SpannableString. */
-@OptIn(ExperimentalTextApi::class)
 private fun SpannableString.setSpanStyle(
     spanStyle: SpanStyle,
     start: Int,

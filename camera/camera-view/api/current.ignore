@@ -1,0 +1,73 @@
+// Baseline format: 1.0
+BecameUnchecked: androidx.camera.view.PreviewView#getOutputTransform():
+    Removed method androidx.camera.view.PreviewView.getOutputTransform() from compatibility checked API surface
+BecameUnchecked: androidx.camera.view.transform.CoordinateTransform:
+    Removed class androidx.camera.view.transform.CoordinateTransform from compatibility checked API surface
+BecameUnchecked: androidx.camera.view.transform.CoordinateTransform#CoordinateTransform(androidx.camera.view.transform.OutputTransform, androidx.camera.view.transform.OutputTransform):
+    Removed constructor androidx.camera.view.transform.CoordinateTransform(androidx.camera.view.transform.OutputTransform,androidx.camera.view.transform.OutputTransform) from compatibility checked API surface
+BecameUnchecked: androidx.camera.view.transform.CoordinateTransform#CoordinateTransform(androidx.camera.view.transform.OutputTransform, androidx.camera.view.transform.OutputTransform) parameter #0:
+    Removed parameter arg1 in androidx.camera.view.transform.CoordinateTransform(androidx.camera.view.transform.OutputTransform arg1, androidx.camera.view.transform.OutputTransform arg2) from compatibility checked API surface
+BecameUnchecked: androidx.camera.view.transform.CoordinateTransform#CoordinateTransform(androidx.camera.view.transform.OutputTransform, androidx.camera.view.transform.OutputTransform) parameter #1:
+    Removed parameter arg2 in androidx.camera.view.transform.CoordinateTransform(androidx.camera.view.transform.OutputTransform arg1, androidx.camera.view.transform.OutputTransform arg2) from compatibility checked API surface
+BecameUnchecked: androidx.camera.view.transform.CoordinateTransform#mapPoint(android.graphics.PointF):
+    Removed method androidx.camera.view.transform.CoordinateTransform.mapPoint(android.graphics.PointF) from compatibility checked API surface
+BecameUnchecked: androidx.camera.view.transform.CoordinateTransform#mapPoint(android.graphics.PointF) parameter #0:
+    Removed parameter arg1 in androidx.camera.view.transform.CoordinateTransform.mapPoint(android.graphics.PointF arg1) from compatibility checked API surface
+BecameUnchecked: androidx.camera.view.transform.CoordinateTransform#mapPoints(float[]):
+    Removed method androidx.camera.view.transform.CoordinateTransform.mapPoints(float[]) from compatibility checked API surface
+BecameUnchecked: androidx.camera.view.transform.CoordinateTransform#mapPoints(float[]) parameter #0:
+    Removed parameter arg1 in androidx.camera.view.transform.CoordinateTransform.mapPoints(float[] arg1) from compatibility checked API surface
+BecameUnchecked: androidx.camera.view.transform.CoordinateTransform#mapRect(android.graphics.RectF):
+    Removed method androidx.camera.view.transform.CoordinateTransform.mapRect(android.graphics.RectF) from compatibility checked API surface
+BecameUnchecked: androidx.camera.view.transform.CoordinateTransform#mapRect(android.graphics.RectF) parameter #0:
+    Removed parameter arg1 in androidx.camera.view.transform.CoordinateTransform.mapRect(android.graphics.RectF arg1) from compatibility checked API surface
+BecameUnchecked: androidx.camera.view.transform.CoordinateTransform#transform(android.graphics.Matrix):
+    Removed method androidx.camera.view.transform.CoordinateTransform.transform(android.graphics.Matrix) from compatibility checked API surface
+BecameUnchecked: androidx.camera.view.transform.CoordinateTransform#transform(android.graphics.Matrix) parameter #0:
+    Removed parameter arg1 in androidx.camera.view.transform.CoordinateTransform.transform(android.graphics.Matrix arg1) from compatibility checked API surface
+BecameUnchecked: androidx.camera.view.transform.FileTransformFactory:
+    Removed class androidx.camera.view.transform.FileTransformFactory from compatibility checked API surface
+BecameUnchecked: androidx.camera.view.transform.FileTransformFactory#FileTransformFactory():
+    Removed constructor androidx.camera.view.transform.FileTransformFactory() from compatibility checked API surface
+BecameUnchecked: androidx.camera.view.transform.FileTransformFactory#getOutputTransform(android.content.ContentResolver, android.net.Uri):
+    Removed method androidx.camera.view.transform.FileTransformFactory.getOutputTransform(android.content.ContentResolver,android.net.Uri) from compatibility checked API surface
+BecameUnchecked: androidx.camera.view.transform.FileTransformFactory#getOutputTransform(android.content.ContentResolver, android.net.Uri) parameter #0:
+    Removed parameter arg1 in androidx.camera.view.transform.FileTransformFactory.getOutputTransform(android.content.ContentResolver arg1, android.net.Uri arg2) from compatibility checked API surface
+BecameUnchecked: androidx.camera.view.transform.FileTransformFactory#getOutputTransform(android.content.ContentResolver, android.net.Uri) parameter #1:
+    Removed parameter arg2 in androidx.camera.view.transform.FileTransformFactory.getOutputTransform(android.content.ContentResolver arg1, android.net.Uri arg2) from compatibility checked API surface
+BecameUnchecked: androidx.camera.view.transform.FileTransformFactory#getOutputTransform(java.io.File):
+    Removed method androidx.camera.view.transform.FileTransformFactory.getOutputTransform(java.io.File) from compatibility checked API surface
+BecameUnchecked: androidx.camera.view.transform.FileTransformFactory#getOutputTransform(java.io.File) parameter #0:
+    Removed parameter arg1 in androidx.camera.view.transform.FileTransformFactory.getOutputTransform(java.io.File arg1) from compatibility checked API surface
+BecameUnchecked: androidx.camera.view.transform.FileTransformFactory#getOutputTransform(java.io.InputStream):
+    Removed method androidx.camera.view.transform.FileTransformFactory.getOutputTransform(java.io.InputStream) from compatibility checked API surface
+BecameUnchecked: androidx.camera.view.transform.FileTransformFactory#getOutputTransform(java.io.InputStream) parameter #0:
+    Removed parameter arg1 in androidx.camera.view.transform.FileTransformFactory.getOutputTransform(java.io.InputStream arg1) from compatibility checked API surface
+BecameUnchecked: androidx.camera.view.transform.FileTransformFactory#isUsingExifOrientation():
+    Removed method androidx.camera.view.transform.FileTransformFactory.isUsingExifOrientation() from compatibility checked API surface
+BecameUnchecked: androidx.camera.view.transform.FileTransformFactory#setUsingExifOrientation(boolean):
+    Removed method androidx.camera.view.transform.FileTransformFactory.setUsingExifOrientation(boolean) from compatibility checked API surface
+BecameUnchecked: androidx.camera.view.transform.FileTransformFactory#setUsingExifOrientation(boolean) parameter #0:
+    Removed parameter arg1 in androidx.camera.view.transform.FileTransformFactory.setUsingExifOrientation(boolean arg1) from compatibility checked API surface
+BecameUnchecked: androidx.camera.view.transform.ImageProxyTransformFactory:
+    Removed class androidx.camera.view.transform.ImageProxyTransformFactory from compatibility checked API surface
+BecameUnchecked: androidx.camera.view.transform.ImageProxyTransformFactory#ImageProxyTransformFactory():
+    Removed constructor androidx.camera.view.transform.ImageProxyTransformFactory() from compatibility checked API surface
+BecameUnchecked: androidx.camera.view.transform.ImageProxyTransformFactory#getOutputTransform(androidx.camera.core.ImageProxy):
+    Removed method androidx.camera.view.transform.ImageProxyTransformFactory.getOutputTransform(androidx.camera.core.ImageProxy) from compatibility checked API surface
+BecameUnchecked: androidx.camera.view.transform.ImageProxyTransformFactory#getOutputTransform(androidx.camera.core.ImageProxy) parameter #0:
+    Removed parameter arg1 in androidx.camera.view.transform.ImageProxyTransformFactory.getOutputTransform(androidx.camera.core.ImageProxy arg1) from compatibility checked API surface
+BecameUnchecked: androidx.camera.view.transform.ImageProxyTransformFactory#isUsingCropRect():
+    Removed method androidx.camera.view.transform.ImageProxyTransformFactory.isUsingCropRect() from compatibility checked API surface
+BecameUnchecked: androidx.camera.view.transform.ImageProxyTransformFactory#isUsingRotationDegrees():
+    Removed method androidx.camera.view.transform.ImageProxyTransformFactory.isUsingRotationDegrees() from compatibility checked API surface
+BecameUnchecked: androidx.camera.view.transform.ImageProxyTransformFactory#setUsingCropRect(boolean):
+    Removed method androidx.camera.view.transform.ImageProxyTransformFactory.setUsingCropRect(boolean) from compatibility checked API surface
+BecameUnchecked: androidx.camera.view.transform.ImageProxyTransformFactory#setUsingCropRect(boolean) parameter #0:
+    Removed parameter arg1 in androidx.camera.view.transform.ImageProxyTransformFactory.setUsingCropRect(boolean arg1) from compatibility checked API surface
+BecameUnchecked: androidx.camera.view.transform.ImageProxyTransformFactory#setUsingRotationDegrees(boolean):
+    Removed method androidx.camera.view.transform.ImageProxyTransformFactory.setUsingRotationDegrees(boolean) from compatibility checked API surface
+BecameUnchecked: androidx.camera.view.transform.ImageProxyTransformFactory#setUsingRotationDegrees(boolean) parameter #0:
+    Removed parameter arg1 in androidx.camera.view.transform.ImageProxyTransformFactory.setUsingRotationDegrees(boolean arg1) from compatibility checked API surface
+BecameUnchecked: androidx.camera.view.transform.OutputTransform:
+    Removed class androidx.camera.view.transform.OutputTransform from compatibility checked API surface

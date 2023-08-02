@@ -23,9 +23,6 @@ import androidx.annotation.RestrictTo.Scope.LIBRARY
 import androidx.core.graphics.drawable.IconCompat
 import androidx.slice.builders.ListBuilder.ICON_IMAGE
 
-/**
- * @hide
- */
 @RestrictTo(LIBRARY)
 @DslMarker
 annotation class SliceMarker

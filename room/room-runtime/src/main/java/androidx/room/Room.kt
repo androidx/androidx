@@ -53,7 +53,7 @@ object Room {
             val aClass = Class.forName(
                 fullClassName, true, klass.classLoader
             ) as Class<T>
-            aClass.newInstance()
+            aClass.getDeclaredConstructor().newInstance()
         } catch (e: ClassNotFoundException) {
             throw RuntimeException(
                 "Cannot find implementation for ${klass.canonicalName}. $implName does not " +
@@ -61,11 +61,11 @@ object Room {
             )
         } catch (e: IllegalAccessException) {
             throw RuntimeException(
-                "Cannot access the constructor $klass.canonicalName"
+                "Cannot access the constructor ${klass.canonicalName}"
             )
         } catch (e: InstantiationException) {
             throw RuntimeException(
-                "Failed to create an instance of $klass.canonicalName"
+                "Failed to create an instance of ${klass.canonicalName}"
             )
         }
     }

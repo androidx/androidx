@@ -24,10 +24,10 @@ import androidx.camera.camera2.Camera2Config
 import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.CameraSelector
 import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.camera.testing.CameraPipeConfigTestRule
-import androidx.camera.testing.CameraUtil
-import androidx.camera.testing.CameraUtil.PreTestCameraIdList
-import androidx.camera.testing.CoreAppTestUtil
+import androidx.camera.testing.impl.CameraPipeConfigTestRule
+import androidx.camera.testing.impl.CameraUtil
+import androidx.camera.testing.impl.CameraUtil.PreTestCameraIdList
+import androidx.camera.testing.impl.CoreAppTestUtil
 import androidx.lifecycle.Lifecycle.State.CREATED
 import androidx.lifecycle.Lifecycle.State.RESUMED
 import androidx.test.core.app.ActivityScenario
@@ -84,7 +84,6 @@ class ExistingActivityLifecycleTest(
     @get:Rule
     val cameraPipeConfigTestRule = CameraPipeConfigTestRule(
         active = implName == CameraPipeConfig::class.simpleName,
-        forAllTests = true,
     )
 
     private val launchIntent = Intent(
@@ -92,6 +91,7 @@ class ExistingActivityLifecycleTest(
         CameraXActivity::class.java
     ).apply {
         putExtra(CameraXActivity.INTENT_EXTRA_CAMERA_IMPLEMENTATION, cameraConfig)
+        putExtra(CameraXActivity.INTENT_EXTRA_CAMERA_IMPLEMENTATION_NO_HISTORY, true)
     }
 
     @Before
@@ -355,7 +355,9 @@ class ExistingActivityLifecycleTest(
 
     @Test
     fun checkPreviewUpdatedWithNewInstance() {
-        ActivityScenario.launch<CameraXActivity>(launchIntent).use { firstActivity ->
+        ActivityScenario.launchActivityForResult<CameraXActivity>(
+            launchIntent
+        ).use { firstActivity ->
             // Arrange. Check the 1st activity Preview.
             firstActivity.waitForViewfinderIdle()
 
@@ -370,7 +372,6 @@ class ExistingActivityLifecycleTest(
                     CameraXActivity::class.java
                 ).apply {
                     addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                    putExtra(CameraXActivity.INTENT_EXTRA_CAMERA_IMPLEMENTATION, cameraConfig)
                 }
             )!!
 

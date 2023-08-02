@@ -17,23 +17,26 @@
 package androidx.window.java.layout
 
 import android.app.Activity
+import android.content.Context
+import androidx.window.core.ExperimentalWindowApi
 import androidx.window.java.TestConsumer
 import androidx.window.layout.FoldingFeature
 import androidx.window.layout.WindowInfoTracker
 import androidx.window.layout.WindowLayoutInfo
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.whenever
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.receiveAsFlow
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.whenever
 
 /**
  * Add a test for [WindowInfoTrackerCallbackAdapter] to verify adapted methods. Test converting
  * from the kotlin coroutine API to listeners and callbacks.
  * @see WindowInfoTracker
  */
+@OptIn(ExperimentalWindowApi::class)
 public class WindowInfoTrackerCallbackAdapterTest {
 
     @Test
@@ -47,6 +50,21 @@ public class WindowInfoTrackerCallbackAdapterTest {
         val testConsumer = TestConsumer<WindowLayoutInfo>()
 
         unitUnderTest.addWindowLayoutInfoListener(activity, Runnable::run, testConsumer)
+
+        testConsumer.assertValue(expected)
+    }
+
+    @Test
+    public fun testRegisterListenerForUiContext() {
+        val context = mock<Context>()
+        val feature = mock<FoldingFeature>()
+        val expected = WindowLayoutInfo(listOf(feature))
+        val mockTracker = mock<WindowInfoTracker>()
+        whenever(mockTracker.windowLayoutInfo(context)).thenReturn(flowOf(expected))
+        val unitUnderTest = WindowInfoTrackerCallbackAdapter(mockTracker)
+        val testConsumer = TestConsumer<WindowLayoutInfo>()
+
+        unitUnderTest.addWindowLayoutInfoListener(context, Runnable::run, testConsumer)
 
         testConsumer.assertValue(expected)
     }
@@ -80,6 +98,26 @@ public class WindowInfoTrackerCallbackAdapterTest {
 
         unitUnderTest.addWindowLayoutInfoListener(activity, Runnable::run, testConsumer)
         unitUnderTest.addWindowLayoutInfoListener(activity, Runnable::run, mock())
+        unitUnderTest.removeWindowLayoutInfoListener(testConsumer)
+        val accepted = channel.trySend(info).isSuccess
+
+        assertTrue(accepted)
+        testConsumer.assertEmpty()
+    }
+
+    @Test
+    public fun testWindowLayoutInfo_unregisterForUiContext() {
+        val context = mock<Context>()
+        val feature = mock<FoldingFeature>()
+        val info = WindowLayoutInfo(listOf(feature))
+        val mockTracker = mock<WindowInfoTracker>()
+        val channel = Channel<WindowLayoutInfo>()
+        whenever(mockTracker.windowLayoutInfo(context)).thenReturn(channel.receiveAsFlow())
+        val unitUnderTest = WindowInfoTrackerCallbackAdapter(mockTracker)
+        val testConsumer = TestConsumer<WindowLayoutInfo>()
+
+        unitUnderTest.addWindowLayoutInfoListener(context, Runnable::run, testConsumer)
+        unitUnderTest.addWindowLayoutInfoListener(context, Runnable::run, mock())
         unitUnderTest.removeWindowLayoutInfoListener(testConsumer)
         val accepted = channel.trySend(info).isSuccess
 

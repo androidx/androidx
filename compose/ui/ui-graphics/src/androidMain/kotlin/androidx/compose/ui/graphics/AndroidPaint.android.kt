@@ -24,9 +24,24 @@ actual typealias NativePaint = android.graphics.Paint
 
 actual fun Paint(): Paint = AndroidPaint()
 
-class AndroidPaint : Paint {
+/**
+ * Convert an [android.graphics.Paint] instance into a Compose-compatible Paint
+ */
+fun android.graphics.Paint.asComposePaint(): Paint = AndroidPaint(this)
 
-    private var internalPaint = makeNativePaint()
+/**
+ * Create a Compose [Paint] instance backed by an [android.graphics.Paint] object to be
+ * consumed by Compose applications running on the Android platform
+ *
+ * @param internalPaint [android.graphics.Paint] to be wrapped by the [AndroidPaint] instance
+ */
+class AndroidPaint(private var internalPaint: android.graphics.Paint) : Paint {
+
+    /**
+     * Create a new [AndroidPaint] instance backed by a newly created [android.graphics.Paint]
+     */
+    constructor() : this(makeNativePaint())
+
     private var _blendMode = BlendMode.SrcOver
     private var internalShader: Shader? = null
     private var internalColorFilter: ColorFilter? = null
@@ -54,8 +69,10 @@ class AndroidPaint : Paint {
     override var blendMode: BlendMode
         get() = _blendMode
         set(value) {
-            _blendMode = value
-            internalPaint.setNativeBlendMode(value)
+            if (_blendMode != value) {
+                _blendMode = value
+                internalPaint.setNativeBlendMode(value)
+            }
         }
 
     override var style: PaintingStyle

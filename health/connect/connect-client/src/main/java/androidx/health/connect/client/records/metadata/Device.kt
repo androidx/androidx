@@ -15,6 +15,9 @@
  */
 package androidx.health.connect.client.records.metadata
 
+import androidx.annotation.IntDef
+import androidx.annotation.RestrictTo
+
 /**
  * A physical device (such as phone, watch, scale, or chest strap) which captured associated health
  * data point.
@@ -29,11 +32,13 @@ package androidx.health.connect.client.records.metadata
 public class Device(
     public val manufacturer: String? = null,
     public val model: String? = null,
-    @property:DeviceType public val type: String? = null
+    @property:DeviceType public val type: Int = TYPE_UNKNOWN
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (other !is Device) return false
+        if (javaClass != other?.javaClass) return false
+
+        other as Device
 
         if (manufacturer != other.manufacturer) return false
         if (model != other.model) return false
@@ -43,10 +48,43 @@ public class Device(
     }
 
     override fun hashCode(): Int {
-        var result = 0
-        result = 31 * result + (manufacturer?.hashCode() ?: 0)
+        var result = manufacturer?.hashCode() ?: 0
         result = 31 * result + (model?.hashCode() ?: 0)
-        result = 31 * result + (type?.hashCode() ?: 0)
+        result = 31 * result + type
         return result
     }
+
+    companion object {
+        const val TYPE_UNKNOWN = 0
+        const val TYPE_WATCH = 1
+        const val TYPE_PHONE = 2
+        const val TYPE_SCALE = 3
+        const val TYPE_RING = 4
+        const val TYPE_HEAD_MOUNTED = 5
+        const val TYPE_FITNESS_BAND = 6
+        const val TYPE_CHEST_STRAP = 7
+        const val TYPE_SMART_DISPLAY = 8
+    }
+
+    /**
+     * List of supported device types on Health Platform.
+     * @suppress
+     */
+    @Retention(AnnotationRetention.SOURCE)
+    @IntDef(
+        value =
+            [
+                TYPE_UNKNOWN,
+                TYPE_WATCH,
+                TYPE_PHONE,
+                TYPE_SCALE,
+                TYPE_RING,
+                TYPE_HEAD_MOUNTED,
+                TYPE_FITNESS_BAND,
+                TYPE_CHEST_STRAP,
+                TYPE_SMART_DISPLAY,
+            ]
+    )
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    annotation class DeviceType
 }

@@ -228,7 +228,7 @@ interface TvGridCells {
      */
     class Fixed(private val count: Int) : TvGridCells {
         init {
-            require(count > 0)
+            require(count > 0) { "grid with no rows/columns" }
         }
 
         override fun Density.calculateCrossAxisCellSizes(
@@ -258,7 +258,7 @@ interface TvGridCells {
      */
     class Adaptive(private val minSize: Dp) : TvGridCells {
         init {
-            require(minSize > 0.dp)
+            require(minSize > 0.dp) { "Grid requires a positive minSize" }
         }
 
         override fun Density.calculateCrossAxisCellSizes(

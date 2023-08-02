@@ -50,7 +50,6 @@ public interface CarSensors {
      * Defines the possible update rates that properties, sensors, and actions can be requested
      * with.
      *
-     * @hide
      */
     @IntDef({
             UPDATE_RATE_NORMAL,

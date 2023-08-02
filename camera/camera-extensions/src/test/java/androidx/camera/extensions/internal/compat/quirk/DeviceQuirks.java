@@ -18,6 +18,7 @@ package androidx.camera.extensions.internal.compat.quirk;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.Quirk;
 
 import java.util.List;
@@ -45,6 +46,7 @@ public class DeviceQuirks {
      * @return A device {@link Quirk} instance of the provided type, or {@code null} if it isn't
      * found.
      */
+    @RequiresApi(21)
     @SuppressWarnings("unchecked")
     @Nullable
     public static <T extends Quirk> T get(@NonNull final Class<T> quirkClass) {

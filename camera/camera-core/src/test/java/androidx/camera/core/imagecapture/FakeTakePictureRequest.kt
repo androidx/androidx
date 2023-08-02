@@ -18,10 +18,13 @@ package androidx.camera.core.imagecapture
 
 import android.graphics.Matrix
 import android.graphics.Rect
+import androidx.annotation.RequiresApi
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCapture.OnImageCapturedCallback
 import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.ImageProxy
+import androidx.camera.core.imagecapture.Utils.JPEG_QUALITY
+import androidx.camera.core.imagecapture.Utils.ROTATION_DEGREES
 import androidx.camera.core.impl.CameraCaptureCallback
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor
 import java.util.concurrent.Executor
@@ -29,6 +32,7 @@ import java.util.concurrent.Executor
 /**
  * Fake [TakePictureRequest].
  */
+@RequiresApi(21)
 class FakeTakePictureRequest() : TakePictureRequest() {
 
     var imageCapturedCallback: OnImageCapturedCallback? = null
@@ -81,20 +85,24 @@ class FakeTakePictureRequest() : TakePictureRequest() {
         return fileOptions
     }
 
-    override fun getCropRect(): Rect {
+    internal override fun getCropRect(): Rect {
         return Rect(0, 0, 640, 480)
     }
 
-    override fun sensorToBufferTransform(): Matrix {
+    internal override fun getSensorToBufferTransform(): Matrix {
         return Matrix()
     }
 
-    override fun getRotationDegrees(): Int {
-        return 0
+    internal override fun getRotationDegrees(): Int {
+        return ROTATION_DEGREES
     }
 
-    override fun getJpegQuality(): Int {
-        return 100
+    internal override fun getJpegQuality(): Int {
+        return JPEG_QUALITY
+    }
+
+    internal override fun getCaptureMode(): Int {
+        return ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY
     }
 
     override fun getSessionConfigCameraCaptureCallbacks(): MutableList<CameraCaptureCallback> {

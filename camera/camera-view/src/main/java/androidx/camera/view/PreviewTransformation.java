@@ -105,10 +105,14 @@ final class PreviewTransformation {
     private Rect mSurfaceCropRect;
     // TransformationInfo.getRotationDegrees().
     private int mPreviewRotationDegrees;
+    // TransformationInfo.getSensorToBufferTransform().
+    private Matrix mSensorToBufferTransform;
     // TransformationInfo.getTargetRotation.
     private int mTargetRotation;
     // Whether the preview is using front camera.
     private boolean mIsFrontCamera;
+    // Whether the Surface contains camera transform.
+    private boolean mHasCameraTransform;
 
     private PreviewView.ScaleType mScaleType = DEFAULT_SCALE_TYPE;
 
@@ -129,12 +133,22 @@ final class PreviewTransformation {
         mTargetRotation = transformationInfo.getTargetRotation();
         mResolution = resolution;
         mIsFrontCamera = isFrontCamera;
+        mHasCameraTransform = transformationInfo.hasCameraTransform();
+        mSensorToBufferTransform = transformationInfo.getSensorToBufferTransform();
     }
 
     /**
      * Override with display rotation when Preview does not have a target rotation set.
+     *
+     * TODO: move the PreviewView#updateDisplayRotationIfNeeded logic into PreviewTransformation
+     *  so all the transformation logic will be in one place.
      */
     void overrideWithDisplayRotation(int rotationDegrees, int displayRotation) {
+        if (!mHasCameraTransform) {
+            // When the Surface doesn't have the camera transform, we use mPreviewRotationDegrees
+            // from the core directly. There is no need to override the values.
+            return;
+        }
         mPreviewRotationDegrees = rotationDegrees;
         mTargetRotation = displayRotation;
     }
@@ -154,8 +168,30 @@ final class PreviewTransformation {
     Matrix getTextureViewCorrectionMatrix() {
         Preconditions.checkState(isTransformationInfoReady());
         RectF surfaceRect = new RectF(0, 0, mResolution.getWidth(), mResolution.getHeight());
-        int rotationDegrees = -surfaceRotationToDegrees(mTargetRotation);
+        int rotationDegrees = getRemainingRotationDegrees();
         return getRectToRect(surfaceRect, surfaceRect, rotationDegrees);
+    }
+
+
+    /**
+     * Gets the remaining rotation degrees after the preview is transformed by Android Views.
+     *
+     * <p>Both {@link TextureView} or {@link SurfaceView} uses the camera transform encoded in
+     * the {@link Surface} to correct the output. The remaining rotation degrees depends on
+     * whether the camera transform is present.
+     */
+    private int getRemainingRotationDegrees() {
+        if (!mHasCameraTransform) {
+            // If the Surface is not connected to the camera, then the SurfaceView/TextureView will
+            // not apply any transformation. In that case, we need to apply the rotation
+            // calculated by CameraX.
+            return mPreviewRotationDegrees;
+        } else {
+            // If the Surface is connected to the camera, then the SurfaceView/TextureView
+            // will be the one to apply the camera orientation. In that case, only the Surface
+            // rotation needs to be applied by PreviewView.
+            return -surfaceRotationToDegrees(mTargetRotation);
+        }
     }
 
     /**
@@ -180,9 +216,12 @@ final class PreviewTransformation {
         } else {
             // Logs an error if non-display rotation is used with SurfaceView.
             Display display = preview.getDisplay();
-            if (display != null && display.getRotation() != mTargetRotation) {
-                Logger.e(TAG, "Non-display rotation not supported with SurfaceView / PERFORMANCE "
-                        + "mode.");
+            boolean mismatchedDisplayRotation = mHasCameraTransform && display != null
+                    && display.getRotation() != mTargetRotation;
+            boolean hasRemainingRotation =
+                    !mHasCameraTransform && getRemainingRotationDegrees() != 0;
+            if (mismatchedDisplayRotation || hasRemainingRotation) {
+                Logger.e(TAG, "Custom rotation not supported with SurfaceView/PERFORMANCE mode.");
             }
         }
 
@@ -226,6 +265,23 @@ final class PreviewTransformation {
     }
 
     /**
+     * Gets the camera sensor to {@link PreviewView} transform.
+     *
+     * <p>Returns null when it's not ready.
+     */
+    @Nullable
+    Matrix getSensorToViewTransform(@NonNull Size previewViewSize, int layoutDirection) {
+        if (!isTransformationInfoReady()) {
+            return null;
+        }
+        // The matrix is calculated as the sensor -> buffer transform concatenated with the
+        // buffer -> view transform.
+        Matrix matrix = new Matrix(mSensorToBufferTransform);
+        matrix.postConcat(getSurfaceToPreviewViewMatrix(previewViewSize, layoutDirection));
+        return matrix;
+    }
+
+    /**
      * Calculates the transformation from {@link Surface} coordinates to {@link PreviewView}
      * coordinates.
      *
@@ -250,10 +306,11 @@ final class PreviewTransformation {
         }
         Matrix matrix = getRectToRect(new RectF(mSurfaceCropRect), previewViewCropRect,
                 mPreviewRotationDegrees);
-        if (mIsFrontCamera) {
+        if (mIsFrontCamera && mHasCameraTransform) {
             // SurfaceView/TextureView automatically mirrors the Surface for front camera, which
             // needs to be compensated by mirroring the Surface around the upright direction of the
-            // output image.
+            // output image. This is only necessary if the stream has camera transform.
+            // Otherwise, an internal GL processor would have mirrored it already.
             if (is90or270(mPreviewRotationDegrees)) {
                 // If the rotation is 90/270, the Surface should be flipped vertically.
                 //   +---+     90 +---+  270 +---+
@@ -441,7 +498,10 @@ final class PreviewTransformation {
     }
 
     private boolean isTransformationInfoReady() {
+        // Ignore target rotation if Surface doesn't have camera transform.
+        boolean isTargetRotationSpecified =
+                !mHasCameraTransform || (mTargetRotation != ROTATION_NOT_SPECIFIED);
         return mSurfaceCropRect != null && mResolution != null
-                && mTargetRotation != ROTATION_NOT_SPECIFIED;
+                && isTargetRotationSpecified;
     }
 }

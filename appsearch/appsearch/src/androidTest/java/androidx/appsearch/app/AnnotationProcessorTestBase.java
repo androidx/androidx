@@ -17,15 +17,26 @@
 package androidx.appsearch.app;
 
 import static androidx.appsearch.app.AppSearchSchema.StringPropertyConfig.INDEXING_TYPE_PREFIXES;
+import static androidx.appsearch.app.AppSearchSchema.StringPropertyConfig.JOINABLE_VALUE_TYPE_QUALIFIED_ID;
 import static androidx.appsearch.app.AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_PLAIN;
 import static androidx.appsearch.testutil.AppSearchTestUtils.checkIsBatchResultSuccess;
 import static androidx.appsearch.testutil.AppSearchTestUtils.convertSearchResultsToDocuments;
+import static androidx.appsearch.testutil.AppSearchTestUtils.doGet;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.junit.Assert.assertThrows;
+import static org.junit.Assume.assumeFalse;
+import static org.junit.Assume.assumeTrue;
+
 import androidx.annotation.NonNull;
 import androidx.appsearch.annotation.Document;
+import androidx.appsearch.builtintypes.PotentialAction;
+import androidx.appsearch.builtintypes.Thing;
+import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.testutil.AppSearchEmail;
+import androidx.appsearch.util.DocumentIdUtil;
+import androidx.test.core.app.ApplicationProvider;
 
 import com.google.auto.value.AutoValue;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -40,6 +51,8 @@ import java.util.List;
 
 public abstract class AnnotationProcessorTestBase {
     private AppSearchSession mSession;
+    private static final String TEST_PACKAGE_NAME =
+            ApplicationProvider.getApplicationContext().getPackageName();
     private static final String DB_NAME_1 = "";
 
     protected abstract ListenableFuture<AppSearchSession> createSearchSessionAsync(
@@ -241,7 +254,7 @@ public abstract class AnnotationProcessorTestBase {
             assertThat(first.toArray()).isEqualTo(second.toArray());
         }
 
-        public static Gift createPopulatedGift() {
+        public static Gift createPopulatedGift() throws AppSearchException {
             Gift gift = new Gift();
             gift.mNamespace = "gift.namespace";
             gift.mId = "gift.id";
@@ -295,6 +308,33 @@ public abstract class AnnotationProcessorTestBase {
         }
     }
 
+
+    @Document
+    static class CardAction {
+        @Document.Namespace
+        String mNamespace;
+
+        @Document.Id
+        String mId;
+        @Document.StringProperty(name = "cardRef",
+                joinableValueType = JOINABLE_VALUE_TYPE_QUALIFIED_ID)
+        String mCardReference; // 3a
+        @Override
+        public boolean equals(Object other) {
+            if (this == other) {
+                return true;
+            }
+            if (!(other instanceof CardAction)) {
+                return false;
+            }
+            CardAction otherGift = (CardAction) other;
+            assertThat(otherGift.mNamespace).isEqualTo(this.mNamespace);
+            assertThat(otherGift.mId).isEqualTo(this.mId);
+            assertThat(otherGift.mCardReference).isEqualTo(this.mCardReference);
+            return true;
+        }
+    }
+
     @Test
     public void testAnnotationProcessor() throws Exception {
         //TODO(b/156296904) add test for int, float, GenericDocument, and class with
@@ -323,9 +363,9 @@ public abstract class AnnotationProcessorTestBase {
     @Test
     public void testAnnotationProcessor_queryByType() throws Exception {
         mSession.setSchemaAsync(
-                new SetSchemaRequest.Builder()
-                        .addDocumentClasses(Card.class, Gift.class)
-                        .addSchemas(AppSearchEmail.SCHEMA).build())
+                        new SetSchemaRequest.Builder()
+                                .addDocumentClasses(Card.class, Gift.class)
+                                .addSchemas(AppSearchEmail.SCHEMA).build())
                 .get();
 
         // Create documents and index them
@@ -374,6 +414,61 @@ public abstract class AnnotationProcessorTestBase {
                         .build());
         documents = convertSearchResultsToDocuments(searchResults);
         assertThat(documents).hasSize(3);
+    }
+
+    @Test
+    public void testAnnotationProcessor_simpleJoin() throws Exception {
+        assumeTrue(mSession.getFeatures().isFeatureSupported(Features.JOIN_SPEC_AND_QUALIFIED_ID));
+        mSession.setSchemaAsync(
+                        new SetSchemaRequest.Builder()
+                                .addDocumentClasses(Card.class, CardAction.class)
+                                .build())
+                .get();
+
+        // Index a Card and a Gift referencing it.
+        Card peetsCard = new Card();
+        peetsCard.mNamespace = "personal";
+        peetsCard.mId = "peets1";
+        CardAction bdayGift = new CardAction();
+        bdayGift.mNamespace = "personal";
+        bdayGift.mId = "2023-jan-31";
+        bdayGift.mCardReference = DocumentIdUtil.createQualifiedId(TEST_PACKAGE_NAME, DB_NAME_1,
+                GenericDocument.fromDocumentClass(peetsCard));
+        checkIsBatchResultSuccess(mSession.putAsync(
+                new PutDocumentsRequest.Builder().addDocuments(peetsCard, bdayGift).build()));
+
+        // Retrieve cards with any given gifts.
+        SearchSpec innerSpec = new SearchSpec.Builder()
+                .addFilterDocumentClasses(CardAction.class)
+                .build();
+        JoinSpec js = new JoinSpec.Builder("cardRef")
+                .setNestedSearch(/*nestedQuery*/ "", innerSpec)
+                .build();
+        SearchResults resultsIter = mSession.search(/*queryExpression*/ "",
+                new SearchSpec.Builder()
+                        .addFilterDocumentClasses(Card.class)
+                        .setJoinSpec(js)
+                        .build());
+
+        // Verify that search results include card(s) joined with gift(s).
+        List<SearchResult> results = resultsIter.getNextPageAsync().get();
+        assertThat(results).hasSize(1);
+        GenericDocument cardResultDoc = results.get(0).getGenericDocument();
+        assertThat(cardResultDoc.getId()).isEqualTo(peetsCard.mId);
+        List<SearchResult> joinedCardResults = results.get(0).getJoinedResults();
+        assertThat(joinedCardResults).hasSize(1);
+        GenericDocument giftResultDoc = joinedCardResults.get(0).getGenericDocument();
+        assertThat(giftResultDoc.getId()).isEqualTo(bdayGift.mId);
+    }
+
+    @Test
+    public void testAnnotationProcessor_onTAndBelow_joinNotSupported() throws Exception {
+        assumeFalse(mSession.getFeatures().isFeatureSupported(Features.JOIN_SPEC_AND_QUALIFIED_ID));
+        Exception e = assertThrows(UnsupportedOperationException.class,
+                () -> mSession.setSchemaAsync(
+                        new SetSchemaRequest.Builder()
+                                .addDocumentClasses(Card.class, CardAction.class)
+                                .build()));
     }
 
     @Test
@@ -471,5 +566,786 @@ public abstract class AnnotationProcessorTestBase {
                         .build());
         List<GenericDocument> documents = convertSearchResultsToDocuments(searchResults);
         assertThat(documents).containsExactly(genericDocument);
+    }
+
+    @Test
+    public void testActionDocumentPutAndRetrieveHelper() throws Exception {
+        String namespace = "namespace";
+        String id = "docId";
+        String name = "View";
+        String uri = "package://view";
+        String description = "View action";
+        long creationMillis = 300;
+
+        GenericDocument genericDocAction = new GenericDocument.Builder<>(namespace, id,
+                "builtin:PotentialAction")
+                .setPropertyString("name", name)
+                .setPropertyString("uri", uri)
+                .setPropertyString("description", description)
+                .setCreationTimestampMillis(creationMillis)
+                .build();
+
+        mSession.setSchemaAsync(
+                new SetSchemaRequest.Builder().addDocumentClasses(PotentialAction.class)
+                        .setForceOverride(true).build()).get();
+        checkIsBatchResultSuccess(
+                mSession.putAsync(new PutDocumentsRequest.Builder().addGenericDocuments(
+                        genericDocAction).build()));
+
+        GetByDocumentIdRequest request = new GetByDocumentIdRequest.Builder(namespace)
+                .addIds(id)
+                .build();
+        List<GenericDocument> outDocuments = doGet(mSession, request);
+        assertThat(outDocuments).hasSize(1);
+        PotentialAction potentialAction =
+                outDocuments.get(0).toDocumentClass(PotentialAction.class);
+
+        assertThat(potentialAction.getName()).isEqualTo(name);
+        assertThat(potentialAction.getUri()).isEqualTo(uri);
+        assertThat(potentialAction.getDescription()).isEqualTo(description);
+    }
+
+    @Test
+    public void testDependentSchemas() throws Exception {
+        // Test that makes sure if you call setSchema on Thing, PotentialAction also goes in.
+        String namespace = "namespace";
+        String name = "View";
+        String uri = "package://view";
+        String description = "View action";
+        long creationMillis = 300;
+
+        GenericDocument genericDocAction = new GenericDocument.Builder<>(namespace, "actionid",
+                "builtin:PotentialAction")
+                .setPropertyString("name", name)
+                .setPropertyString("uri", uri)
+                .setPropertyString("description", description)
+                .setCreationTimestampMillis(creationMillis)
+                .build();
+
+        Thing thing = new Thing.Builder(namespace, "thingid")
+                .setName(name)
+                .setCreationTimestampMillis(creationMillis).build();
+
+        SetSchemaRequest request = new SetSchemaRequest.Builder().addDocumentClasses(Thing.class)
+                .setForceOverride(true).build();
+
+        // Both Thing and PotentialAction should be set as schemas
+        assertThat(request.getSchemas()).hasSize(2);
+        mSession.setSchemaAsync(request).get();
+
+        assertThat(mSession.getSchemaAsync().get().getSchemas()).hasSize(2);
+
+        // We should be able to put a PotentialAction as well as a Thing
+        checkIsBatchResultSuccess(
+                mSession.putAsync(new PutDocumentsRequest.Builder()
+                        .addDocuments(thing)
+                        .addGenericDocuments(genericDocAction)
+                        .build()));
+
+        GetByDocumentIdRequest getDocRequest = new GetByDocumentIdRequest.Builder(namespace)
+                .addIds("thingid")
+                .build();
+        List<GenericDocument> outDocuments = doGet(mSession, getDocRequest);
+        assertThat(outDocuments).hasSize(1);
+        Thing potentialAction = outDocuments.get(0).toDocumentClass(Thing.class);
+
+        assertThat(potentialAction.getNamespace()).isEqualTo(namespace);
+        assertThat(potentialAction.getId()).isEqualTo("thingid");
+        assertThat(potentialAction.getName()).isEqualTo(name);
+        assertThat(potentialAction.getPotentialActions()).isEmpty();
+    }
+
+    @Document
+    static class Outer {
+        @Document.Id String mId;
+        @Document.Namespace String mNamespace;
+        @Document.DocumentProperty Middle mMiddle;
+    }
+
+    @Document
+    static class Middle {
+        @Document.Id String mId;
+        @Document.Namespace String mNamespace;
+        @Document.DocumentProperty Inner mInner;
+    }
+
+    @Document
+    static class Inner {
+        @Document.Id String mId;
+        @Document.Namespace String mNamespace;
+        @Document.StringProperty String mContents;
+    }
+
+    @Test
+    public void testMultipleDependentSchemas() throws Exception {
+        SetSchemaRequest request = new SetSchemaRequest.Builder().addDocumentClasses(Outer.class)
+                .setForceOverride(true).build();
+
+        // Outer, as well as Middle and Inner should be set.
+        assertThat(request.getSchemas()).hasSize(3);
+        mSession.setSchemaAsync(request).get();
+        assertThat(mSession.getSchemaAsync().get().getSchemas()).hasSize(3);
+    }
+
+    @Document
+    static class Root {
+        @Document.Id String mId;
+        @Document.Namespace String mNamespace;
+    }
+
+    @Document(name = "Email", parent = Root.class)
+    static class Email extends Root {
+        @Document.StringProperty String mSender;
+    }
+
+    @Document(name = "Message", parent = Root.class)
+    static class Message extends Root {
+        @Document.StringProperty String mContent;
+    }
+
+    // EmailMessage can choose any class to "extends" from, since Java's type relationship is
+    // independent on AppSearch's. In this case, EmailMessage extends Root to avoid redefining
+    // mId and mNamespace, but it still needs to specify mSender and mContent coming from
+    // Email and Message.
+    @Document(name = "EmailMessage", parent = {Email.class, Message.class})
+    static class EmailMessage extends Root {
+        @Document.StringProperty String mSender;
+        @Document.StringProperty String mContent;
+    }
+
+    @Test
+    public void testPolymorphism() throws Exception {
+        assumeTrue(mSession.getFeatures().isFeatureSupported(Features.SCHEMA_ADD_PARENT_TYPE));
+
+        mSession.setSchemaAsync(new SetSchemaRequest.Builder()
+                // EmailMessage's dependencies should be automatically added.
+                .addDocumentClasses(EmailMessage.class)
+                // Add some other class
+                .addDocumentClasses(Gift.class)
+                .build()).get();
+
+        // Create documents
+        Root root = new Root();
+        root.mNamespace = "namespace";
+        root.mId = "id1";
+
+        Email email = new Email();
+        email.mNamespace = "namespace";
+        email.mId = "id2";
+        email.mSender = "test@test.com";
+
+        Message message = new Message();
+        message.mNamespace = "namespace";
+        message.mId = "id3";
+        message.mContent = "hello";
+
+        EmailMessage emailMessage = new EmailMessage();
+        emailMessage.mNamespace = "namespace";
+        emailMessage.mId = "id4";
+        emailMessage.mSender = "test@test.com";
+        emailMessage.mContent = "hello";
+
+        Gift gift = new Gift();
+        gift.mNamespace = "namespace";
+        gift.mId = "id5";
+
+        checkIsBatchResultSuccess(mSession.putAsync(
+                new PutDocumentsRequest.Builder()
+                        .addDocuments(root, email, message, emailMessage, gift)
+                        .build()));
+
+        // Query for all documents
+        SearchResults searchResults = mSession.search("",
+                new SearchSpec.Builder()
+                        .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                        .build());
+        List<GenericDocument> documents = convertSearchResultsToDocuments(searchResults);
+        assertThat(documents).hasSize(5);
+
+        // A query with a filter for the "Root" type should also include "Email", "Message" and
+        // "EmailMessage".
+        searchResults = mSession.search("",
+                new SearchSpec.Builder()
+                        .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                        .addFilterDocumentClasses(Root.class)
+                        .build());
+        documents = convertSearchResultsToDocuments(searchResults);
+        assertThat(documents).hasSize(4);
+
+        // A query with a filter for the "Email" type should also include "EmailMessage".
+        searchResults = mSession.search("",
+                new SearchSpec.Builder()
+                        .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                        .addFilterDocumentClasses(Email.class)
+                        .build());
+        documents = convertSearchResultsToDocuments(searchResults);
+        assertThat(documents).hasSize(2);
+
+        // A query with a filter for the "Message" type should also include "EmailMessage".
+        searchResults = mSession.search("",
+                new SearchSpec.Builder()
+                        .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                        .addFilterDocumentClasses(Message.class)
+                        .build());
+        documents = convertSearchResultsToDocuments(searchResults);
+        assertThat(documents).hasSize(2);
+
+        // Query with a filter for the "EmailMessage" type.
+        searchResults = mSession.search("",
+                new SearchSpec.Builder()
+                        .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                        .addFilterDocumentClasses(EmailMessage.class)
+                        .build());
+        documents = convertSearchResultsToDocuments(searchResults);
+        assertThat(documents).hasSize(1);
+    }
+
+    // A class that some properties are annotated via getters without backing fields.
+    @Document
+    static class FakeMessage {
+        public int mSenderSetCount = 0;
+        public String mContent;
+
+        @Document.Id String mId;
+        @Document.Namespace String mNamespace;
+
+        @Document.StringProperty
+        String getSender() {
+            return "fake sender";
+        }
+
+        @Document.StringProperty
+        String getContent() {
+            return mContent;
+        }
+
+        @Document.StringProperty String mNote;
+
+        void setSender(String sender) {
+            if (sender.equals("fake sender")) {
+                mSenderSetCount += 1;
+            }
+        }
+
+        FakeMessage(String id, String namespace, String content) {
+            mId = id;
+            mNamespace = namespace;
+            mContent = content;
+        }
+    }
+
+    @Test
+    public void testGenericDocumentConversion_AnnotatedGetter() throws Exception {
+        // Create a document
+        FakeMessage fakeMessage = new FakeMessage("id", "namespace", "fake content");
+        fakeMessage.setSender("fake sender");
+        fakeMessage.mNote = "fake note";
+
+        // Test the conversion from FakeMessage to GenericDocument
+        GenericDocument genericDocument = GenericDocument.fromDocumentClass(fakeMessage);
+        assertThat(genericDocument.getId()).isEqualTo("id");
+        assertThat(genericDocument.getNamespace()).isEqualTo("namespace");
+        assertThat(genericDocument.getSchemaType()).isEqualTo("FakeMessage");
+        assertThat(genericDocument.getPropertyString("sender")).isEqualTo("fake sender");
+        assertThat(genericDocument.getPropertyString("content")).isEqualTo("fake content");
+        assertThat(genericDocument.getPropertyString("note")).isEqualTo("fake note");
+
+
+        // Test the conversion from GenericDocument to FakeMessage
+        FakeMessage newFakeMessage = genericDocument.toDocumentClass(FakeMessage.class);
+        assertThat(newFakeMessage.mId).isEqualTo("id");
+        assertThat(newFakeMessage.mNamespace).isEqualTo("namespace");
+        assertThat(newFakeMessage.mSenderSetCount).isEqualTo(1);
+        assertThat(newFakeMessage.getContent()).isEqualTo("fake content");
+        assertThat(newFakeMessage.mNote).isEqualTo("fake note");
+    }
+
+    @Document
+    interface InterfaceRoot {
+        @Document.Id
+        String getId();
+
+        @Document.Namespace
+        String getNamespace();
+
+        @Document.CreationTimestampMillis
+        long getCreationTimestamp();
+
+        static InterfaceRoot create(String id, String namespace, long creationTimestamp) {
+            return new InterfaceRootImpl(id, namespace, creationTimestamp);
+        }
+    }
+
+    static class InterfaceRootImpl implements InterfaceRoot {
+        String mId;
+        String mNamespace;
+        long mCreationTimestamp;
+
+        InterfaceRootImpl(String id, String namespace, long creationTimestamp) {
+            mId = id;
+            mNamespace = namespace;
+            mCreationTimestamp = creationTimestamp;
+        }
+
+        public String getId() {
+            return mId;
+        }
+
+        public String getNamespace() {
+            return mNamespace;
+        }
+
+        public long getCreationTimestamp() {
+            return mCreationTimestamp;
+        }
+    }
+
+    @Document(name = "Place", parent = InterfaceRoot.class)
+    interface Place extends InterfaceRoot {
+        @Document.StringProperty
+        String getLocation();
+
+        static Place createPlace(String id, String namespace, long creationTimestamp,
+                String location) {
+            return new PlaceImpl(id, namespace, creationTimestamp, location);
+        }
+    }
+
+    static class PlaceImpl implements Place {
+        String mId;
+        String mNamespace;
+        String mLocation;
+        long mCreationTimestamp;
+
+        PlaceImpl(String id, String namespace, long creationTimestamp, String location) {
+            mId = id;
+            mNamespace = namespace;
+            mCreationTimestamp = creationTimestamp;
+            mLocation = location;
+        }
+
+        public String getId() {
+            return mId;
+        }
+
+        public String getNamespace() {
+            return mNamespace;
+        }
+
+        public long getCreationTimestamp() {
+            return mCreationTimestamp;
+        }
+
+        public String getLocation() {
+            return mLocation;
+        }
+    }
+
+    @Document(name = "Organization", parent = InterfaceRoot.class)
+    interface Organization extends InterfaceRoot {
+        @Document.StringProperty
+        String getOrganizationDescription();
+
+        @Document.BuilderProducer
+        static OrganizationBuilder getBuilder() {
+            return new OrganizationBuilder();
+        }
+    }
+
+    static class OrganizationBuilder {
+        String mId;
+        String mNamespace;
+        long mCreationTimestamp;
+        String mOrganizationDescription;
+
+        public Organization build() {
+            return new OrganizationImpl(mId, mNamespace, mCreationTimestamp,
+                    mOrganizationDescription);
+        }
+
+        public OrganizationBuilder setId(String id) {
+            mId = id;
+            return this;
+        }
+
+        public OrganizationBuilder setNamespace(String namespace) {
+            mNamespace = namespace;
+            return this;
+        }
+
+        public OrganizationBuilder setCreationTimestamp(long creationTimestamp) {
+            mCreationTimestamp = creationTimestamp;
+            return this;
+        }
+
+        public OrganizationBuilder setOrganizationDescription(String organizationDescription) {
+            mOrganizationDescription = organizationDescription;
+            return this;
+        }
+    }
+
+    static class OrganizationImpl implements Organization {
+        String mId;
+        String mNamespace;
+        long mCreationTimestamp;
+        String mOrganizationDescription;
+
+        OrganizationImpl(String id, String namespace, long creationTimestamp,
+                String organizationDescription) {
+            mId = id;
+            mNamespace = namespace;
+            mCreationTimestamp = creationTimestamp;
+            mOrganizationDescription = organizationDescription;
+        }
+
+        public String getId() {
+            return mId;
+        }
+
+        public String getNamespace() {
+            return mNamespace;
+        }
+
+        public long getCreationTimestamp() {
+            return mCreationTimestamp;
+        }
+
+        public String getOrganizationDescription() {
+            return mOrganizationDescription;
+        }
+    }
+
+    @Document(name = "Business", parent = {Place.class, Organization.class})
+    interface Business extends Place, Organization {
+        @Document.StringProperty
+        String getBusinessName();
+
+        static Business createBusiness(String id, String namespace, long creationTimestamp,
+                String location, String organizationDescription, String businessName) {
+            return new BusinessImpl(id, namespace, creationTimestamp, location,
+                    organizationDescription, businessName);
+        }
+    }
+
+    // We have to annotate this class with @Document to generate a factory for it. Otherwise there
+    // will be an ambiguity on finding the factory class.
+    @Document(name = "BusinessImpl", parent = Business.class)
+    static class BusinessImpl extends PlaceImpl implements Business {
+        String mOrganizationDescription;
+        String mBusinessName;
+
+        BusinessImpl(String id, String namespace, long creationTimestamp, String location,
+                String organizationDescription, String businessName) {
+            super(id, namespace, creationTimestamp, location);
+            mOrganizationDescription = organizationDescription;
+            mBusinessName = businessName;
+        }
+
+        public String getOrganizationDescription() {
+            return mOrganizationDescription;
+        }
+
+        public String getBusinessName() {
+            return mBusinessName;
+        }
+    }
+
+    @Test
+    public void testGenericDocumentConversion_AnnotatedInterface() throws Exception {
+        // Create Place document
+        Place place = Place.createPlace("id", "namespace", 1000, "loc");
+
+        // Test the conversion from Place to GenericDocument
+        GenericDocument genericDocument = GenericDocument.fromDocumentClass(place);
+        assertThat(genericDocument.getId()).isEqualTo("id");
+        assertThat(genericDocument.getNamespace()).isEqualTo("namespace");
+        assertThat(genericDocument.getCreationTimestampMillis()).isEqualTo(1000);
+        assertThat(genericDocument.getSchemaType()).isEqualTo("Place");
+        assertThat(genericDocument.getPropertyString("location")).isEqualTo("loc");
+
+        // Test the conversion from GenericDocument to Place
+        Place newPlace = genericDocument.toDocumentClass(Place.class);
+        assertThat(newPlace.getId()).isEqualTo("id");
+        assertThat(newPlace.getNamespace()).isEqualTo("namespace");
+        assertThat(newPlace.getCreationTimestamp()).isEqualTo(1000);
+        assertThat(newPlace.getLocation()).isEqualTo("loc");
+
+
+        // Create Business document
+        Business business = Business.createBusiness("id", "namespace", 2000, "business_loc",
+                "business_dec", "business_name");
+
+        // Test the conversion from Business to GenericDocument
+        genericDocument = GenericDocument.fromDocumentClass(business);
+        assertThat(genericDocument.getId()).isEqualTo("id");
+        assertThat(genericDocument.getNamespace()).isEqualTo("namespace");
+        assertThat(genericDocument.getCreationTimestampMillis()).isEqualTo(2000);
+        // The schema type of business has to be "BusinessImpl" because
+        // GenericDocument.fromDocumentClass is looking up factory classes by runtime types. It will
+        // start finding a factory class for "BusinessImpl" first. If the class is not found, it
+        // will continue to search the unique parent type (class and interface in Java). In this
+        // case, BusinessImpl has more than one parent, so BusinessImpl must also be @Document
+        // annotated. Otherwise, no factor class will be found.
+        assertThat(genericDocument.getSchemaType()).isEqualTo("BusinessImpl");
+        assertThat(genericDocument.getPropertyString("location")).isEqualTo("business_loc");
+        assertThat(genericDocument.getPropertyString("organizationDescription")).isEqualTo(
+                "business_dec");
+        assertThat(genericDocument.getPropertyString("businessName")).isEqualTo("business_name");
+
+
+        // Test the conversion from GenericDocument to Business
+        Business newBusiness = genericDocument.toDocumentClass(Business.class);
+        assertThat(newBusiness.getId()).isEqualTo("id");
+        assertThat(newBusiness.getNamespace()).isEqualTo("namespace");
+        assertThat(newBusiness.getCreationTimestamp()).isEqualTo(2000);
+        assertThat(newBusiness.getLocation()).isEqualTo("business_loc");
+        assertThat(newBusiness.getOrganizationDescription()).isEqualTo("business_dec");
+        assertThat(newBusiness.getBusinessName()).isEqualTo("business_name");
+    }
+
+    @Test
+    public void testGenericDocumentConversion_AnnotatedBuilder() throws Exception {
+        // Create Organization document
+        Organization organization = Organization.getBuilder()
+                .setId("id")
+                .setNamespace("namespace")
+                .setCreationTimestamp(3000)
+                .setOrganizationDescription("organization_dec")
+                .build();
+
+        // Test the conversion from Organization to GenericDocument
+        GenericDocument genericDocument = GenericDocument.fromDocumentClass(organization);
+        assertThat(genericDocument.getId()).isEqualTo("id");
+        assertThat(genericDocument.getNamespace()).isEqualTo("namespace");
+        assertThat(genericDocument.getCreationTimestampMillis()).isEqualTo(3000);
+        assertThat(genericDocument.getSchemaType()).isEqualTo("Organization");
+        assertThat(genericDocument.getPropertyString("organizationDescription")).isEqualTo(
+                "organization_dec");
+
+        // Test the conversion from GenericDocument to Organization
+        Organization newOrganization = genericDocument.toDocumentClass(Organization.class);
+        assertThat(newOrganization.getId()).isEqualTo("id");
+        assertThat(newOrganization.getNamespace()).isEqualTo("namespace");
+        assertThat(newOrganization.getCreationTimestamp()).isEqualTo(3000);
+        assertThat(newOrganization.getOrganizationDescription()).isEqualTo("organization_dec");
+    }
+
+    @Document(name = "Person", parent = InterfaceRoot.class)
+    interface Person extends InterfaceRoot {
+        @Document.StringProperty
+        String getFirstName();
+
+        @Document.StringProperty
+        String getLastName();
+
+        @Document.BuilderProducer
+        class Builder {
+            String mId;
+            String mNamespace;
+            long mCreationTimestamp;
+            String mFirstName;
+            String mLastName;
+
+            Builder(String id, String namespace) {
+                mId = id;
+                mNamespace = namespace;
+            }
+
+            public Person build() {
+                return new PersonImpl(mId, mNamespace, mCreationTimestamp, mFirstName, mLastName);
+            }
+
+            public Builder setCreationTimestamp(long creationTimestamp) {
+                mCreationTimestamp = creationTimestamp;
+                return this;
+            }
+
+            public Builder setFirstName(String firstName) {
+                mFirstName = firstName;
+                return this;
+            }
+
+            // Void return type should work.
+            public void setLastName(String lastName) {
+                mLastName = lastName;
+            }
+        }
+    }
+
+    static class PersonImpl implements Person {
+        String mId;
+        String mNamespace;
+        long mCreationTimestamp;
+        String mFirstName;
+        String mLastName;
+
+        PersonImpl(String id, String namespace, long creationTimestamp, String firstName,
+                String lastName) {
+            mId = id;
+            mNamespace = namespace;
+            mCreationTimestamp = creationTimestamp;
+            mFirstName = firstName;
+            mLastName = lastName;
+        }
+
+        public String getId() {
+            return mId;
+        }
+
+        public String getNamespace() {
+            return mNamespace;
+        }
+
+        public long getCreationTimestamp() {
+            return mCreationTimestamp;
+        }
+
+        public String getFirstName() {
+            return mFirstName;
+        }
+
+        public String getLastName() {
+            return mLastName;
+        }
+    }
+
+    @Test
+    public void testGenericDocumentConversion_BuilderConstructor() throws Exception {
+        // Create Person document
+        Person.Builder personBuilder = new Person.Builder("id", "namespace")
+                .setCreationTimestamp(3000)
+                .setFirstName("first");
+        personBuilder.setLastName("last");
+        Person person = personBuilder.build();
+
+        // Test the conversion from person to GenericDocument
+        GenericDocument genericDocument = GenericDocument.fromDocumentClass(person);
+        assertThat(genericDocument.getId()).isEqualTo("id");
+        assertThat(genericDocument.getNamespace()).isEqualTo("namespace");
+        assertThat(genericDocument.getCreationTimestampMillis()).isEqualTo(3000);
+        assertThat(genericDocument.getSchemaType()).isEqualTo("Person");
+        assertThat(genericDocument.getPropertyString("firstName")).isEqualTo("first");
+        assertThat(genericDocument.getPropertyString("lastName")).isEqualTo("last");
+
+        // Test the conversion from GenericDocument to person
+        Person newPerson = genericDocument.toDocumentClass(Person.class);
+        assertThat(newPerson.getId()).isEqualTo("id");
+        assertThat(newPerson.getNamespace()).isEqualTo("namespace");
+        assertThat(newPerson.getCreationTimestamp()).isEqualTo(3000);
+        assertThat(newPerson.getFirstName()).isEqualTo("first");
+        assertThat(newPerson.getLastName()).isEqualTo("last");
+    }
+
+    @Test
+    public void testPolymorphismForInterface() throws Exception {
+        assumeTrue(mSession.getFeatures().isFeatureSupported(Features.SCHEMA_ADD_PARENT_TYPE));
+
+        mSession.setSchemaAsync(new SetSchemaRequest.Builder()
+                // Adding BusinessImpl should be enough to add all the dependency classes.
+                .addDocumentClasses(BusinessImpl.class)
+                // Add some other class
+                .addDocumentClasses(Gift.class)
+                .build()).get();
+
+        // Create documents
+        InterfaceRoot root = InterfaceRoot.create("id0", "namespace", 1000);
+        GenericDocument rootGeneric = GenericDocument.fromDocumentClass(root);
+        assertThat(rootGeneric.getId()).isEqualTo("id0");
+        assertThat(rootGeneric.getNamespace()).isEqualTo("namespace");
+        assertThat(rootGeneric.getCreationTimestampMillis()).isEqualTo(1000);
+        assertThat(rootGeneric.getSchemaType()).isEqualTo("InterfaceRoot");
+
+        Place place = Place.createPlace("id1", "namespace", 2000, "place_loc");
+        GenericDocument placeGeneric = GenericDocument.fromDocumentClass(place);
+        assertThat(placeGeneric.getId()).isEqualTo("id1");
+        assertThat(placeGeneric.getNamespace()).isEqualTo("namespace");
+        assertThat(placeGeneric.getCreationTimestampMillis()).isEqualTo(2000);
+        assertThat(placeGeneric.getSchemaType()).isEqualTo("Place");
+        assertThat(placeGeneric.getPropertyString("location")).isEqualTo("place_loc");
+
+        Organization organization = Organization.getBuilder()
+                .setId("id2")
+                .setNamespace("namespace")
+                .setCreationTimestamp(3000)
+                .setOrganizationDescription("organization_dec")
+                .build();
+        GenericDocument organizationGeneric = GenericDocument.fromDocumentClass(organization);
+        assertThat(organizationGeneric.getId()).isEqualTo("id2");
+        assertThat(organizationGeneric.getNamespace()).isEqualTo("namespace");
+        assertThat(organizationGeneric.getCreationTimestampMillis()).isEqualTo(3000);
+        assertThat(organizationGeneric.getSchemaType()).isEqualTo("Organization");
+        assertThat(organizationGeneric.getPropertyString("organizationDescription")).isEqualTo(
+                "organization_dec");
+
+        Business business = Business.createBusiness("id3", "namespace", 4000, "business_loc",
+                "business_dec", "business_name");
+        GenericDocument businessGeneric = GenericDocument.fromDocumentClass(business);
+        assertThat(businessGeneric.getId()).isEqualTo("id3");
+        assertThat(businessGeneric.getNamespace()).isEqualTo("namespace");
+        assertThat(businessGeneric.getCreationTimestampMillis()).isEqualTo(4000);
+        // The type of business should be BusinessImpl because it's annotated with @Document.
+        assertThat(businessGeneric.getSchemaType()).isEqualTo("BusinessImpl");
+        assertThat(businessGeneric.getPropertyString("location")).isEqualTo(
+                "business_loc");
+        assertThat(businessGeneric.getPropertyString("organizationDescription")).isEqualTo(
+                "business_dec");
+
+        Gift gift = new Gift();
+        gift.mNamespace = "namespace";
+        gift.mId = "id4";
+        gift.mCreationTimestampMillis = 5000;
+        GenericDocument giftGeneric = GenericDocument.fromDocumentClass(gift);
+
+        checkIsBatchResultSuccess(mSession.putAsync(
+                new PutDocumentsRequest.Builder()
+                        .addDocuments(root, place, organization, business, gift)
+                        .build()));
+
+        // Query for all documents
+        SearchResults searchResults = mSession.search("",
+                new SearchSpec.Builder()
+                        .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                        .build());
+        List<GenericDocument> documents = convertSearchResultsToDocuments(searchResults);
+        assertThat(documents).containsExactly(rootGeneric, placeGeneric, organizationGeneric,
+                businessGeneric, giftGeneric);
+
+        // A query with a filter for the "InterfaceRoot" type should also include "Place",
+        // "Organization" and "Business".
+        searchResults = mSession.search("",
+                new SearchSpec.Builder()
+                        .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                        .addFilterDocumentClasses(InterfaceRoot.class)
+                        .build());
+        documents = convertSearchResultsToDocuments(searchResults);
+        assertThat(documents).containsExactly(rootGeneric, placeGeneric, organizationGeneric,
+                businessGeneric);
+
+        // A query with a filter for the "Place" type should also include "Business".
+        searchResults = mSession.search("",
+                new SearchSpec.Builder()
+                        .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                        .addFilterDocumentClasses(Place.class)
+                        .build());
+        documents = convertSearchResultsToDocuments(searchResults);
+        assertThat(documents).containsExactly(placeGeneric, businessGeneric);
+
+        // A query with a filter for the "Organization" type should also include "Business".
+        searchResults = mSession.search("",
+                new SearchSpec.Builder()
+                        .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                        .addFilterDocumentClasses(Organization.class)
+                        .build());
+        documents = convertSearchResultsToDocuments(searchResults);
+        assertThat(documents).containsExactly(organizationGeneric, businessGeneric);
+
+        // Query with a filter for the "Business" type.
+        searchResults = mSession.search("",
+                new SearchSpec.Builder()
+                        .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                        .addFilterDocumentClasses(Business.class)
+                        .build());
+        documents = convertSearchResultsToDocuments(searchResults);
+        assertThat(documents).containsExactly(businessGeneric);
     }
 }

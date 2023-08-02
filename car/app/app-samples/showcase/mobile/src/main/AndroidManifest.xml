@@ -41,7 +41,6 @@
   <application
       android:label="@string/app_name"
       android:icon="@drawable/ic_launcher"
-      android:extractNativeLibs="false"
       android:supportsRtl="true">
 
     <meta-data
@@ -73,12 +72,12 @@
     </service>
 
     <service
-        android:name=".common.navigation.NavigationNotificationService"
+        android:name=".common.screens.navigationdemos.NavigationNotificationService"
         android:exported="true">
     </service>
 
     <provider
-        android:name=".common.textandicons.DelayedFileProvider"
+        android:name=".common.screens.templatelayouts.listtemplates.DelayedFileProvider"
         android:authorities="com.showcase.fileprovider"
         android:exported="false"
         android:grantUriPermissions="true">

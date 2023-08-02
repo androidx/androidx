@@ -30,7 +30,6 @@ import androidx.annotation.RestrictTo;
  * Common superclass for layout helpers. Layout helpers are used to calculate bounds for each
  * element depending on width, height of the complication and complication data.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class LayoutHelper {
@@ -152,7 +151,7 @@ public class LayoutHelper {
     }
 
     /**
-     * @param outRect {@link Rect}  that receives the computed bounds for the long text
+     * @param outRect {@link Rect} that receives the computed bounds for the long text
      */
     public void getLongTextBounds(@NonNull Rect outRect) {
         outRect.setEmpty();
@@ -174,7 +173,7 @@ public class LayoutHelper {
     }
 
     /**
-     * @param outRect {@link Rect}  that receives the computed bounds for the long title text
+     * @param outRect {@link Rect} that receives the computed bounds for the long title text
      */
     public void getLongTitleBounds(@NonNull Rect outRect) {
         outRect.setEmpty();

@@ -49,16 +49,20 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.launch
 
 /**
  * <a href="https://m3.material.io/components/floating-action-button/overview" class="external" target="_blank">Material Design floating action button</a>.
@@ -89,7 +93,6 @@ import androidx.compose.ui.unit.dp
  * and customize the appearance / behavior of this FAB in different states.
  * @param content the content of this FAB, typically an [Icon]
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FloatingActionButton(
     onClick: () -> Unit,
@@ -103,7 +106,7 @@ fun FloatingActionButton(
 ) {
     Surface(
         onClick = onClick,
-        modifier = modifier,
+        modifier = modifier.semantics { role = Role.Button },
         shape = shape,
         color = containerColor,
         contentColor = contentColor,
@@ -392,20 +395,20 @@ object FloatingActionButtonDefaults {
     val LargeIconSize = FabPrimaryLargeTokens.IconSize
 
     /** Default shape for a floating action button. */
-    val shape: Shape @Composable get() = FabPrimaryTokens.ContainerShape.toShape()
+    val shape: Shape @Composable get() = FabPrimaryTokens.ContainerShape.value
 
     /** Default shape for a small floating action button. */
-    val smallShape: Shape @Composable get() = FabPrimarySmallTokens.ContainerShape.toShape()
+    val smallShape: Shape @Composable get() = FabPrimarySmallTokens.ContainerShape.value
 
     /** Default shape for a large floating action button. */
-    val largeShape: Shape @Composable get() = FabPrimaryLargeTokens.ContainerShape.toShape()
+    val largeShape: Shape @Composable get() = FabPrimaryLargeTokens.ContainerShape.value
 
     /** Default shape for an extended floating action button. */
     val extendedFabShape: Shape @Composable get() =
-        ExtendedFabPrimaryTokens.ContainerShape.toShape()
+        ExtendedFabPrimaryTokens.ContainerShape.value
 
     /** Default container color for a floating action button. */
-    val containerColor: Color @Composable get() = FabPrimaryTokens.ContainerColor.toColor()
+    val containerColor: Color @Composable get() = FabPrimaryTokens.ContainerColor.value
 
     /**
      * Creates a [FloatingActionButtonElevation] that represents the elevation of a
@@ -502,9 +505,15 @@ object FloatingActionButtonDefaults {
 
     @Composable
     private fun animateElevation(interactionSource: InteractionSource): State<Dp> {
-        val interactions = remember { mutableStateListOf<Interaction>() }
+        val animatable = remember(interactionSource) {
+            Animatable(defaultElevation, Dp.VectorConverter)
+        }
 
         LaunchedEffect(interactionSource) {
+            var animation: Job? = null
+            var lastTargetInteraction: Interaction? = null
+            var lastTarget: Dp? = null
+            val interactions = mutableListOf<Interaction>()
             interactionSource.interactions.collect { interaction ->
                 when (interaction) {
                     is HoverInteraction.Enter -> {
@@ -529,32 +538,36 @@ object FloatingActionButtonDefaults {
                         interactions.remove(interaction.press)
                     }
                 }
+                val targetInteraction = interactions.lastOrNull()
+                val target = when (targetInteraction) {
+                    is PressInteraction.Press -> pressedElevation
+                    is HoverInteraction.Enter -> hoveredElevation
+                    is FocusInteraction.Focus -> focusedElevation
+                    else -> defaultElevation
+                }
+                if (lastTarget != target) {
+                    lastTarget = target
+                    // Cancel any existing animations if we change target
+                    animation?.cancelAndJoin()
+                    // We need to handle the case where the target has changed, but the animation
+                    // was cancelled so quickly that its internal target never got changed - if
+                    // this happened and we are back at the same target before the cancelled
+                    // animation, we don't want to do anything.
+                    if (animatable.targetValue != target) {
+                        animation = launch {
+                            try {
+                                animatable.animateElevation(
+                                    from = lastTargetInteraction,
+                                    to = targetInteraction,
+                                    target = target
+                                )
+                            } finally {
+                                lastTargetInteraction = targetInteraction
+                            }
+                        }
+                    }
+                }
             }
-        }
-
-        val interaction = interactions.lastOrNull()
-
-        val target = when (interaction) {
-            is PressInteraction.Press -> pressedElevation
-            is HoverInteraction.Enter -> hoveredElevation
-            is FocusInteraction.Focus -> focusedElevation
-            else -> defaultElevation
-        }
-
-        val animatable = remember { Animatable(target, Dp.VectorConverter) }
-
-        LaunchedEffect(target) {
-            val lastInteraction = when (animatable.targetValue) {
-                pressedElevation -> PressInteraction.Press(Offset.Zero)
-                hoveredElevation -> HoverInteraction.Enter()
-                focusedElevation -> FocusInteraction.Focus()
-                else -> null
-            }
-            animatable.animateElevation(
-                from = lastInteraction,
-                to = interaction,
-                target = target,
-            )
         }
         return animatable.asState()
     }

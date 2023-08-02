@@ -148,7 +148,7 @@ public class FitWidthBitmapDrawable extends Drawable {
     }
 
     @Override
-    public void draw(Canvas canvas) {
+    public void draw(@NonNull Canvas canvas) {
         if (mBitmapState.mBitmap != null) {
             Rect bounds = getBounds();
             mDest.left = 0;

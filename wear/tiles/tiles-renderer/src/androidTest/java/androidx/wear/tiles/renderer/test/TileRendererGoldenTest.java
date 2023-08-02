@@ -30,16 +30,16 @@ import androidx.core.content.ContextCompat;
 import androidx.test.filters.LargeTest;
 import androidx.test.screenshot.AndroidXScreenshotTestRule;
 import androidx.test.screenshot.matchers.MSSIMMatcher;
-import androidx.wear.tiles.LayoutElementBuilders;
-import androidx.wear.tiles.ResourceBuilders;
-import androidx.wear.tiles.proto.LayoutElementProto.Layout;
-import androidx.wear.tiles.proto.LayoutElementProto.LayoutElement;
-import androidx.wear.tiles.proto.ResourceProto.AndroidImageResourceByResId;
-import androidx.wear.tiles.proto.ResourceProto.ImageFormat;
-import androidx.wear.tiles.proto.ResourceProto.ImageResource;
-import androidx.wear.tiles.proto.ResourceProto.InlineImageResource;
-import androidx.wear.tiles.proto.ResourceProto.Resources;
-import androidx.wear.tiles.protobuf.ByteString;
+import androidx.wear.protolayout.LayoutElementBuilders;
+import androidx.wear.protolayout.ResourceBuilders;
+import androidx.wear.protolayout.proto.LayoutElementProto.Layout;
+import androidx.wear.protolayout.proto.LayoutElementProto.LayoutElement;
+import androidx.wear.protolayout.proto.ResourceProto.AndroidImageResourceByResId;
+import androidx.wear.protolayout.proto.ResourceProto.ImageFormat;
+import androidx.wear.protolayout.proto.ResourceProto.ImageResource;
+import androidx.wear.protolayout.proto.ResourceProto.InlineImageResource;
+import androidx.wear.protolayout.proto.ResourceProto.Resources;
+import androidx.wear.protolayout.protobuf.ByteString;
 import androidx.wear.tiles.renderer.TileRenderer;
 
 import com.google.protobuf.TextFormat;
@@ -53,6 +53,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.concurrent.TimeUnit;
 
 @RunWith(Parameterized.class)
 @LargeTest
@@ -236,13 +237,16 @@ public class TileRendererGoldenTest {
         TileRenderer renderer =
                 new TileRenderer(
                         appContext,
-                        LayoutElementBuilders.Layout.fromProto(
-                                Layout.newBuilder().setRoot(rootElement).build()),
-                        ResourceBuilders.Resources.fromProto(generateResources()),
                         ContextCompat.getMainExecutor(getApplicationContext()),
                         i -> {});
 
-        View firstChild = renderer.inflate(mainFrame);
+        View firstChild =
+                renderer.inflateAsync(
+                                LayoutElementBuilders.Layout.fromProto(
+                                        Layout.newBuilder().setRoot(rootElement).build()),
+                                ResourceBuilders.Resources.fromProto(generateResources()),
+                                mainFrame)
+                        .get(30, TimeUnit.MILLISECONDS);
 
         if (firstChild == null) {
             throw new RuntimeException("Failed to inflate " + expectedKey);

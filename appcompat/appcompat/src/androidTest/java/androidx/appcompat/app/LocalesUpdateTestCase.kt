@@ -16,20 +16,25 @@
 
 package androidx.appcompat.app
 
+import android.os.Build
+import android.util.LayoutDirection.RTL
 import android.webkit.WebView
 import androidx.appcompat.testutils.LocalesActivityTestRule
 import androidx.appcompat.testutils.LocalesUtils
 import androidx.appcompat.testutils.LocalesUtils.CUSTOM_LOCALE_LIST
 import androidx.appcompat.testutils.LocalesUtils.assertConfigurationLocalesEquals
+import androidx.appcompat.testutils.LocalesUtils.getRTLLocaleList
 import androidx.appcompat.testutils.LocalesUtils.setLocalesAndWait
 import androidx.appcompat.testutils.LocalesUtils.setLocalesAndWaitForRecreate
 import androidx.core.os.LocaleListCompat
+import androidx.test.filters.FlakyTest
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.testutils.waitForExecution
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 
@@ -112,5 +117,20 @@ class LocalesUpdateTestCase() {
         )
         // Assert that onConfigurationChange was not called
         assertNull(activity.lastConfigurationChangeAndClear)
+    }
+
+    @Ignore("b/262902574")
+    @SdkSuppress(minSdkVersion = 17, maxSdkVersion = 33)
+    @Test
+    @FlakyTest(bugId = 255765202)
+    fun testLayoutDirectionAfterRecreating() {
+        if (Build.VERSION.SDK_INT == 33 && Build.VERSION.CODENAME != "REL") {
+            return // b/262909049: Do not run this test on pre-release Android U.
+        }
+
+        setLocalesAndWaitForRecreate(rule, getRTLLocaleList())
+
+        // Now assert that the layoutDirection of decorView is RTL
+        assertEquals(rule.activity.window.decorView.layoutDirection, RTL)
     }
 }

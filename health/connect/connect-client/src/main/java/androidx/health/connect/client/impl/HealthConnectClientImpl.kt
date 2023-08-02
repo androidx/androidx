@@ -15,7 +15,6 @@
  */
 package androidx.health.connect.client.impl
 
-import androidx.activity.result.contract.ActivityResultContract
 import androidx.health.connect.client.HealthConnectClient
 import androidx.health.connect.client.HealthConnectClient.Companion.HEALTH_CONNECT_CLIENT_TAG
 import androidx.health.connect.client.PermissionController
@@ -25,10 +24,8 @@ import androidx.health.connect.client.aggregate.AggregationResultGroupedByPeriod
 import androidx.health.connect.client.impl.converters.aggregate.retrieveAggregateDataRow
 import androidx.health.connect.client.impl.converters.aggregate.toAggregateDataRowGroupByDuration
 import androidx.health.connect.client.impl.converters.aggregate.toAggregateDataRowGroupByPeriod
+import androidx.health.connect.client.impl.converters.datatype.toDataType
 import androidx.health.connect.client.impl.converters.datatype.toDataTypeIdPairProtoList
-import androidx.health.connect.client.impl.converters.datatype.toDataTypeName
-import androidx.health.connect.client.impl.converters.permission.toJetpackPermission
-import androidx.health.connect.client.impl.converters.permission.toProtoPermission
 import androidx.health.connect.client.impl.converters.records.toProto
 import androidx.health.connect.client.impl.converters.records.toRecord
 import androidx.health.connect.client.impl.converters.request.toDeleteDataRangeRequestProto
@@ -38,7 +35,6 @@ import androidx.health.connect.client.impl.converters.request.toReadDataRequestP
 import androidx.health.connect.client.impl.converters.response.toChangesResponse
 import androidx.health.connect.client.impl.converters.response.toReadRecordsResponse
 import androidx.health.connect.client.permission.HealthPermission
-import androidx.health.connect.client.permission.createHealthDataRequestPermissions
 import androidx.health.connect.client.records.Record
 import androidx.health.connect.client.request.AggregateGroupByDurationRequest
 import androidx.health.connect.client.request.AggregateGroupByPeriodRequest
@@ -53,6 +49,7 @@ import androidx.health.connect.client.time.TimeRangeFilter
 import androidx.health.platform.client.HealthDataAsyncClient
 import androidx.health.platform.client.impl.logger.Logger
 import androidx.health.platform.client.proto.DataProto
+import androidx.health.platform.client.proto.PermissionProto
 import androidx.health.platform.client.proto.RequestProto
 import kotlin.reflect.KClass
 import kotlinx.coroutines.guava.await
@@ -65,25 +62,35 @@ import kotlinx.coroutines.guava.await
  */
 class HealthConnectClientImpl
 internal constructor(
-    private val providerPackageName: String,
     private val delegate: HealthDataAsyncClient,
+    private val allPermissions: List<String> =
+        buildList() {
+            addAll(
+                HealthPermission.RECORD_TYPE_TO_PERMISSION.flatMap {
+                    listOf<String>(
+                        HealthPermission.WRITE_PERMISSION_PREFIX + it.value,
+                        HealthPermission.READ_PERMISSION_PREFIX + it.value
+                    )
+                }
+            )
+            add(HealthPermission.PERMISSION_WRITE_EXERCISE_ROUTE)
+        },
 ) : HealthConnectClient, PermissionController {
 
-    override fun createRequestPermissionActivityContract():
-        ActivityResultContract<Set<HealthPermission>, Set<HealthPermission>> =
-        createHealthDataRequestPermissions(providerPackageName = providerPackageName)
-
-    override suspend fun getGrantedPermissions(
-        permissions: Set<HealthPermission>
-    ): Set<HealthPermission> {
-        val grantedPermissions = delegate
-            .getGrantedPermissions(permissions.map { it.toProtoPermission() }.toSet())
-            .await()
-            .map { it.toJetpackPermission() }
-            .toSet()
+    override suspend fun getGrantedPermissions(): Set<String> {
+        val grantedPermissions =
+            delegate
+                .filterGrantedPermissions(
+                    allPermissions
+                        .map { PermissionProto.Permission.newBuilder().setPermission(it).build() }
+                        .toSet()
+                )
+                .await()
+                .map { it.permission }
+                .toSet()
         Logger.debug(
             HEALTH_CONNECT_CLIENT_TAG,
-            "Granted ${grantedPermissions.size} out of ${permissions.size} permissions."
+            "Granted ${grantedPermissions.size} out of ${allPermissions.size} permissions."
         )
         return grantedPermissions
     }
@@ -99,7 +106,7 @@ internal constructor(
     override suspend fun insertRecords(records: List<Record>): InsertRecordsResponse {
         val uidList = delegate.insertData(records.map { it.toProto() }).await()
         Logger.debug(HEALTH_CONNECT_CLIENT_TAG, "${records.size} records inserted.")
-        return InsertRecordsResponse(recordUidsList = uidList)
+        return InsertRecordsResponse(recordIdsList = uidList)
     }
 
     override suspend fun updateRecords(records: List<Record>) {
@@ -109,18 +116,18 @@ internal constructor(
 
     override suspend fun deleteRecords(
         recordType: KClass<out Record>,
-        uidsList: List<String>,
+        recordIdsList: List<String>,
         clientRecordIdsList: List<String>,
     ) {
         delegate
             .deleteData(
-                toDataTypeIdPairProtoList(recordType, uidsList),
+                toDataTypeIdPairProtoList(recordType, recordIdsList),
                 toDataTypeIdPairProtoList(recordType, clientRecordIdsList)
             )
             .await()
         Logger.debug(
             HEALTH_CONNECT_CLIENT_TAG,
-            "${uidsList.size + clientRecordIdsList.size} records deleted."
+            "${recordIdsList.size + clientRecordIdsList.size} records deleted."
         )
     }
 
@@ -135,11 +142,11 @@ internal constructor(
     @Suppress("UNCHECKED_CAST") // Safe to cast as the type should match
     override suspend fun <T : Record> readRecord(
         recordType: KClass<T>,
-        uid: String,
+        recordId: String,
     ): ReadRecordResponse<T> {
-        val proto = delegate.readData(toReadDataRequestProto(recordType, uid)).await()
+        val proto = delegate.readData(toReadDataRequestProto(recordType, recordId)).await()
         val response = ReadRecordResponse(toRecord(proto) as T)
-        Logger.debug(HEALTH_CONNECT_CLIENT_TAG, "Reading record of $uid successful.")
+        Logger.debug(HEALTH_CONNECT_CLIENT_TAG, "Reading record of $recordId successful.")
         return response
     }
 
@@ -148,11 +155,7 @@ internal constructor(
             delegate
                 .getChangesToken(
                     RequestProto.GetChangesTokenRequest.newBuilder()
-                        .addAllDataType(
-                            request.recordTypes.map {
-                                DataProto.DataType.newBuilder().setName(it.toDataTypeName()).build()
-                            }
-                        )
+                        .addAllDataType(request.recordTypes.map { it.toDataType() })
                         .addAllDataOriginFilters(
                             request.dataOriginFilters.map {
                                 DataProto.DataOrigin.newBuilder()

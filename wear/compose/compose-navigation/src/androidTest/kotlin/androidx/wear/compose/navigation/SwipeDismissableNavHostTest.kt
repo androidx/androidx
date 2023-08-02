@@ -25,8 +25,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.runtime.setValue
@@ -34,6 +34,7 @@ import androidx.compose.testutils.WithTouchSlop
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
@@ -45,9 +46,11 @@ import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeRight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.testing.TestLifecycleOwner
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
+import androidx.navigation.testing.TestNavHostController
 import androidx.wear.compose.material.Button
 import androidx.wear.compose.material.CompactChip
 import androidx.wear.compose.material.MaterialTheme
@@ -98,13 +101,27 @@ class SwipeDismissableNavHostTest {
     }
 
     @Test
-    fun navigates_back_to_previous_level_with_back_button() {
-        val lifecycleOwner = TestLifecycleOwner()
-        val onBackPressedDispatcher = OnBackPressedDispatcher()
-        val dispatcherOwner = object : OnBackPressedDispatcherOwner {
-            override fun getLifecycle() = lifecycleOwner.lifecycle
-            override fun getOnBackPressedDispatcher() = onBackPressedDispatcher
+    fun does_not_navigate_back_to_previous_level_when_swipe_disabled() {
+        rule.setContentWithTheme {
+            SwipeDismissWithNavigation(userSwipeEnabled = false)
         }
+
+        // Click to move to next destination then swipe to dismiss.
+        rule.onNodeWithText(START).performClick()
+        rule.onNodeWithTag(TEST_TAG).performTouchInput { swipeRight() }
+
+        // Should still display "next".
+        rule.onNodeWithText(NEXT).assertExists()
+        rule.onNodeWithText(START).assertDoesNotExist()
+    }
+
+    @Test
+    fun navigates_back_to_previous_level_with_back_button() {
+        val onBackPressedDispatcher = OnBackPressedDispatcher()
+        val dispatcherOwner =
+            object : OnBackPressedDispatcherOwner, LifecycleOwner by TestLifecycleOwner() {
+                override val onBackPressedDispatcher = onBackPressedDispatcher
+            }
         lateinit var navController: NavHostController
 
         rule.setContentWithTheme {
@@ -390,14 +407,45 @@ class SwipeDismissableNavHostTest {
         }
     }
 
+    @Test
+    fun testNavHostController_starts_at_default_destination() {
+        lateinit var navController: TestNavHostController
+
+        rule.setContentWithTheme {
+            navController = TestNavHostController(LocalContext.current)
+            navController.navigatorProvider.addNavigator(WearNavigator())
+
+            SwipeDismissWithNavigation(navController)
+        }
+
+        rule.onNodeWithText(START).assertExists()
+    }
+
+    @Test
+    fun testNavHostController_sets_current_destination() {
+        lateinit var navController: TestNavHostController
+
+        rule.setContentWithTheme {
+            navController = TestNavHostController(LocalContext.current)
+            navController.navigatorProvider.addNavigator(WearNavigator())
+
+            SwipeDismissWithNavigation(navController)
+            navController.setCurrentDestination(NEXT)
+        }
+
+        rule.onNodeWithText(NEXT).assertExists()
+    }
+
     @Composable
     fun SwipeDismissWithNavigation(
-        navController: NavHostController = rememberSwipeDismissableNavController()
+        navController: NavHostController = rememberSwipeDismissableNavController(),
+        userSwipeEnabled: Boolean = true
     ) {
         SwipeDismissableNavHost(
             navController = navController,
             startDestination = START,
             modifier = Modifier.testTag(TEST_TAG),
+            userSwipeEnabled = userSwipeEnabled
         ) {
             composable(START) {
                 CompactChip(

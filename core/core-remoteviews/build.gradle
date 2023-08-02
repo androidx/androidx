@@ -58,10 +58,9 @@ android {
 }
 
 androidx {
-    name = "AndroidX RemoteViews Support"
+    name = "RemoteViews"
     type = LibraryType.PUBLISHED_LIBRARY
     mavenVersion = LibraryVersions.CORE_REMOTEVIEWS
-    mavenGroup = LibraryGroups.CORE
     inceptionYear = "2021"
     description = "AndroidX RemoteViews Support"
 }

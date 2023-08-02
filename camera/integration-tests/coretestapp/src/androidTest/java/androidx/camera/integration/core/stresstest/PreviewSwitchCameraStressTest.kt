@@ -16,13 +16,14 @@
 
 package androidx.camera.integration.core.stresstest
 
+import androidx.camera.core.CameraXConfig
 import androidx.camera.integration.core.CameraXActivity.BIND_IMAGE_ANALYSIS
 import androidx.camera.integration.core.CameraXActivity.BIND_IMAGE_CAPTURE
 import androidx.camera.integration.core.CameraXActivity.BIND_PREVIEW
 import androidx.camera.integration.core.CameraXActivity.BIND_VIDEO_CAPTURE
 import androidx.camera.integration.core.util.StressTestUtil.LARGE_STRESS_TEST_REPEAT_COUNT
 import androidx.camera.integration.core.util.StressTestUtil.VERIFICATION_TARGET_PREVIEW
-import androidx.camera.testing.LabTestRule
+import androidx.camera.testing.impl.LabTestRule
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.testutils.RepeatRule
@@ -33,8 +34,11 @@ import org.junit.runners.Parameterized
 @LargeTest
 @RunWith(Parameterized::class)
 @SdkSuppress(minSdkVersion = 21)
-class PreviewSwitchCameraStressTest constructor(cameraId: String) :
-    SwitchCameraStressTestBase(cameraId) {
+class PreviewSwitchCameraStressTest constructor(
+    implName: String,
+    cameraConfig: CameraXConfig,
+    cameraId: String
+) : SwitchCameraStressTestBase(implName, cameraConfig, cameraId) {
 
     @LabTestRule.LabTestOnly
     @Test
@@ -53,6 +57,7 @@ class PreviewSwitchCameraStressTest constructor(cameraId: String) :
     @RepeatRule.Repeat(times = LARGE_STRESS_TEST_REPEAT_COUNT)
     fun switchCamera_checkPreviewInEachTime_withPreviewImageCaptureImageAnalysis() {
         val useCaseCombination = BIND_PREVIEW or BIND_IMAGE_CAPTURE or BIND_IMAGE_ANALYSIS
+        assumeBothLensFacingCamerasSupportUseCaseCombination(camera, useCaseCombination)
         switchCamera_checkOutput_repeatedly(
             cameraId,
             useCaseCombination,
@@ -115,6 +120,7 @@ class PreviewSwitchCameraStressTest constructor(cameraId: String) :
     @RepeatRule.Repeat(times = LARGE_STRESS_TEST_REPEAT_COUNT)
     fun checkPreview_afterSwitchCameraRepeatedly_withPreviewImageCaptureImageAnalysis() {
         val useCaseCombination = BIND_PREVIEW or BIND_IMAGE_CAPTURE or BIND_IMAGE_ANALYSIS
+        assumeBothLensFacingCamerasSupportUseCaseCombination(camera, useCaseCombination)
         switchCamera_repeatedly_thenCheckOutput(
             cameraId,
             useCaseCombination,

@@ -23,11 +23,13 @@ import androidx.compose.foundation.gestures.ScrollScope
 import androidx.compose.foundation.gestures.ScrollableState
 import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.lazy.layout.LazyLayoutPinnedItemList
 import androidx.compose.foundation.lazy.layout.LazyLayoutPrefetchState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.collection.mutableVectorOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.listSaver
@@ -39,6 +41,7 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.util.fastForEach
+import androidx.tv.foundation.lazy.layout.animateScrollToItem
 import androidx.tv.foundation.lazy.list.AwaitFirstLayoutModifier
 import kotlin.math.abs
 
@@ -133,7 +136,7 @@ class TvLazyGridState constructor(
     /**
      * Needed for [animateScrollToItem]. Updated on every measure.
      */
-    internal var slotsPerLine: Int by mutableStateOf(0)
+    internal var slotsPerLine: Int by mutableIntStateOf(0)
 
     /**
      * Needed for [animateScrollToItem]. Updated on every measure.
@@ -172,7 +175,7 @@ class TvLazyGridState constructor(
     /**
      * The list of handles associated with the items from the [lineToPrefetch] line.
      */
-    private var currentLinePrefetchHandles =
+    private val currentLinePrefetchHandles =
         mutableVectorOf<LazyLayoutPrefetchState.PrefetchHandle>()
 
     /**
@@ -209,6 +212,13 @@ class TvLazyGridState constructor(
     mutableStateOf({ emptyList() })
 
     internal var placementAnimator by mutableStateOf<LazyGridItemPlacementAnimator?>(null)
+
+    private val animateScrollScope = LazyGridAnimateScrollScope(this)
+
+    /**
+     * Stores currently pinned items which are always composed.
+     */
+    internal val pinnedItems = LazyLayoutPinnedItemList()
 
     /**
      * Instantly brings the item at [index] to the top of the viewport, offset by [scrollOffset]
@@ -258,8 +268,9 @@ class TvLazyGridState constructor(
     override val isScrollInProgress: Boolean
         get() = scrollableState.isScrollInProgress
 
-    private var canScrollBackward: Boolean = false
-    internal var canScrollForward: Boolean = false
+    override var canScrollForward: Boolean by mutableStateOf(false)
+        private set
+    override var canScrollBackward: Boolean by mutableStateOf(false)
         private set
 
     // TODO: Coroutine scrolling APIs will allow this to be private again once we have more
@@ -306,7 +317,6 @@ class TvLazyGridState constructor(
         }
         val info = layoutInfo
         if (info.visibleItemsInfo.isNotEmpty()) {
-            // check(isActive)
             val scrollingForward = delta < 0
             val lineToPrefetch: Int
             val closestNextItemToPrefetch: Int
@@ -343,6 +353,25 @@ class TvLazyGridState constructor(
         }
     }
 
+    private fun cancelPrefetchIfVisibleItemsChanged(info: TvLazyGridLayoutInfo) {
+        if (lineToPrefetch != -1 && info.visibleItemsInfo.isNotEmpty()) {
+            val expectedLineToPrefetch = if (wasScrollingForward) {
+                info.visibleItemsInfo.last().let {
+                    if (isVertical) it.row else it.column
+                } + 1
+            } else {
+                info.visibleItemsInfo.first().let {
+                    if (isVertical) it.row else it.column
+                } - 1
+            }
+            if (lineToPrefetch != expectedLineToPrefetch) {
+                lineToPrefetch = -1
+                currentLinePrefetchHandles.forEach { it.cancel() }
+                currentLinePrefetchHandles.clear()
+            }
+        }
+    }
+
     internal val prefetchState = LazyLayoutPrefetchState()
 
     /**
@@ -358,7 +387,7 @@ class TvLazyGridState constructor(
         index: Int,
         scrollOffset: Int = 0
     ) {
-        doSmoothScrollToItem(index, scrollOffset, slotsPerLine)
+        animateScrollScope.animateScrollToItem(index, scrollOffset)
     }
 
     /**
@@ -374,6 +403,8 @@ class TvLazyGridState constructor(
             result.firstVisibleLineScrollOffset != 0
 
         numMeasurePasses++
+
+        cancelPrefetchIfVisibleItemsChanged(result)
     }
 
     /**
@@ -411,4 +442,5 @@ private object EmptyTvLazyGridLayoutInfo : TvLazyGridLayoutInfo {
     override val reverseLayout = false
     override val beforeContentPadding: Int = 0
     override val afterContentPadding: Int = 0
+    override val mainAxisItemSpacing: Int = 0
 }

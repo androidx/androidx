@@ -28,10 +28,12 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
 import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
@@ -40,6 +42,9 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 // API Level 28 introduced signing key rotation, so run the tests with and without rotation support.
 @Config(minSdk = 27, maxSdk = 28)
 public class AppAuthenticatorTest {
+    @Rule
+    public final MockitoRule mockito = MockitoJUnit.rule();
+
     private static final String TEST_PACKAGE = "com.android.app1";
     private static final String TEST_PERMISSION = "androidx.security.app.authenticator"
             + ".TEST_PERMISSION";
@@ -55,7 +60,6 @@ public class AppAuthenticatorTest {
 
     @Before
     public void setUp() throws Exception {
-        MockitoAnnotations.initMocks(this);
         Context context = ApplicationProvider.getApplicationContext();
         mAppAuthenticator = AppAuthenticator.createFromResource(context,
                 R.xml.all_supported_elements_and_attributes);

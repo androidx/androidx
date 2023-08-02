@@ -60,12 +60,14 @@ class AfRegionFlipHorizontallyQuirkTest(
             CameraCharacteristics.LENS_FACING,
             lensFacing
         )
+        val cameraId = "0" /* don't care */
         val characteristicsCompat =
-            CameraCharacteristicsCompat.toCameraCharacteristicsCompat(characteristics)
-        return CameraQuirks.get("0" /* don't care */, characteristicsCompat)
+            CameraCharacteristicsCompat.toCameraCharacteristicsCompat(characteristics, cameraId)
+        return CameraQuirks.get(cameraId, characteristicsCompat)
     }
 
     @Test
+    @Config(maxSdk = Build.VERSION_CODES.S_V2)
     fun canEnableQuirkCorrectly() {
         // Arrange
         ShadowBuild.setBrand(brand)
@@ -78,5 +80,21 @@ class AfRegionFlipHorizontallyQuirkTest(
         // Verify
         Truth.assertThat(cameraQuirks.contains(AfRegionFlipHorizontallyQuirk::class.java))
             .isEqualTo(enabled)
+    }
+
+    @Test
+    @Config(minSdk = Build.VERSION_CODES.TIRAMISU)
+    fun canDisableQuirkOnSamsungAPI33() {
+        // Arrange
+        ShadowBuild.setBrand(brand)
+        ShadowBuild.setModel("DO NOT CARE")
+        ShadowBuild.setDevice("DO NOT CARE")
+
+        // Act
+        val cameraQuirks = getCameraQuirks(lensFacing)
+
+        // Verify
+        Truth.assertThat(cameraQuirks.contains(AfRegionFlipHorizontallyQuirk::class.java))
+            .isEqualTo(false)
     }
 }

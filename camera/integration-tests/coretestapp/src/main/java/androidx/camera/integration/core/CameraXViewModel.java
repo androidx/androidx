@@ -106,7 +106,48 @@ public class CameraXViewModel extends AndroidViewModel {
 
     @OptIn(markerClass = ExperimentalCameraProviderConfiguration.class)
     @MainThread
+    public static boolean isCameraProviderUnInitializedOrSameAsParameter(
+            @NonNull String cameraImplementation) {
+
+        if (sConfiguredCameraXCameraImplementation == null) {
+            return true;
+        }
+        String currentCameraProvider = getCameraProviderName(
+                sConfiguredCameraXCameraImplementation);
+        cameraImplementation = getCameraProviderName(cameraImplementation);
+
+        if (currentCameraProvider.equals(cameraImplementation)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * convert null and IMPLICIT_IMPLEMENTATION_OPTION Camera Provider name to
+     * CAMERA2_IMPLEMENTATION_OPTION
+     */
+    @OptIn(markerClass = ExperimentalCameraProviderConfiguration.class)
+    @MainThread
+    private static String getCameraProviderName(String mCameraProvider) {
+        if (mCameraProvider == null) {
+            mCameraProvider = CAMERA2_IMPLEMENTATION_OPTION;
+        }
+        if (mCameraProvider.equals(IMPLICIT_IMPLEMENTATION_OPTION)) {
+            mCameraProvider = CAMERA2_IMPLEMENTATION_OPTION;
+        }
+        return mCameraProvider;
+    }
+
+    @OptIn(markerClass = ExperimentalCameraProviderConfiguration.class)
+    @MainThread
     static void configureCameraProvider(@NonNull String cameraImplementation) {
+        configureCameraProvider(cameraImplementation, false);
+    }
+
+    @OptIn(markerClass = ExperimentalCameraProviderConfiguration.class)
+    @MainThread
+    static void configureCameraProvider(@NonNull String cameraImplementation, boolean noHistory) {
         if (!cameraImplementation.equals(sConfiguredCameraXCameraImplementation)) {
             // Attempt to configure. This will throw an ISE if singleton is already configured.
             try {
@@ -118,7 +159,7 @@ public class CameraXViewModel extends AndroidViewModel {
                         ProcessCameraProvider.configureInstance(Camera2Config.defaultConfig());
                     } else if (cameraImplementation.equals(CAMERA_PIPE_IMPLEMENTATION_OPTION)) {
                         ProcessCameraProvider.configureInstance(
-                                CameraPipeConfig.INSTANCE.defaultConfig());
+                                CameraPipeConfig.defaultConfig());
                     } else {
                         throw new IllegalArgumentException("Failed to configure the CameraProvider "
                                 + "using unknown " + cameraImplementation
@@ -127,7 +168,9 @@ public class CameraXViewModel extends AndroidViewModel {
                 }
 
                 Log.d(TAG, "ProcessCameraProvider initialized using " + cameraImplementation);
-                sConfiguredCameraXCameraImplementation = cameraImplementation;
+                if (!noHistory) {
+                    sConfiguredCameraXCameraImplementation = cameraImplementation;
+                }
             } catch (IllegalStateException e) {
                 throw new IllegalStateException("WARNING: CameraX is currently configured to use "
                         + sConfiguredCameraXCameraImplementation + " which is different "

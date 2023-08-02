@@ -27,9 +27,9 @@ import com.android.tools.lint.detector.api.JavaContext
 import com.android.tools.lint.detector.api.Scope
 import com.android.tools.lint.detector.api.Severity
 import com.intellij.psi.PsiModifier
+import java.util.Collections
 import org.jetbrains.uast.UAnonymousClass
 import org.jetbrains.uast.UClass
-import java.util.Collections
 
 const val PARCELABLE_INTERFACE_CANONICAL_NAME = "android.os.Parcelable"
 

@@ -25,9 +25,12 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.testutils.withActivity
+import androidx.testutils.withUse
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import java.util.concurrent.TimeUnit
+import leakcanary.DetectLeaksAfterTestSuccess
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -36,8 +39,12 @@ import org.junit.runner.RunWith
 @MediumTest
 class OnBackPressedCallbackTest {
 
+    @get:Rule
+    val rule = DetectLeaksAfterTestSuccess()
+
     @Test
     fun testBackPressFinishesActivity() {
+        // Since this activity finishes manually, we do not want to use withUse here
         with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             val countDownLatch = withActivity {
                 onBackPressed()
@@ -55,7 +62,7 @@ class OnBackPressedCallbackTest {
     @Suppress("DEPRECATION")
     @Test
     fun testBackPressWithFrameworkFragment() {
-        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+       withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             val fragmentManager = withActivity { fragmentManager }
             val fragment = android.app.Fragment()
 
@@ -77,7 +84,7 @@ class OnBackPressedCallbackTest {
     @Suppress("DEPRECATION")
     @Test
     fun testBackPressWithFragmentOverFrameworkFragment() {
-        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+       withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             val fragmentManager = withActivity { fragmentManager }
             val fragment = android.app.Fragment()
 
@@ -112,7 +119,7 @@ class OnBackPressedCallbackTest {
     @Suppress("DEPRECATION")
     @Test
     fun testBackPressWithCallbackOverFrameworkFragment() {
-        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+       withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             val fragmentManager = withActivity { fragmentManager }
             val fragment = android.app.Fragment()
 
@@ -140,7 +147,7 @@ class OnBackPressedCallbackTest {
 
     @Test
     fun testBackPressWithCallbackOverFragment() {
-        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+       withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             val fragmentManager = withActivity { supportFragmentManager }
             val fragment = StrictFragment()
             fragmentManager.beginTransaction()
@@ -168,7 +175,8 @@ class OnBackPressedCallbackTest {
 
     @Test
     fun testBackPressFinishesActivityAfterFragmentPop() {
-        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+        // Since this activity finishes manually, we do not want to use withUse here
+       with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             val fragmentManager = withActivity { supportFragmentManager }
             val fragment = StrictFragment()
             fragmentManager.beginTransaction()
@@ -199,7 +207,7 @@ class OnBackPressedCallbackTest {
 
     @Test
     fun testBackPressWithFragmentCallbackOverFragmentManager() {
-        with(ActivityScenario.launch(OnBackPressedFragmentActivity::class.java)) {
+       withUse(ActivityScenario.launch(OnBackPressedFragmentActivity::class.java)) {
             val fragmentManager = withActivity { supportFragmentManager }
             val fragment = withActivity { fragment }
             val fragmentCallback = fragment.onBackPressedCallback
@@ -218,7 +226,7 @@ class OnBackPressedCallbackTest {
 
     @Test
     fun testBackPressWithChildFragmentOverFragmentCallback() {
-        with(ActivityScenario.launch(OnBackPressedFragmentActivity::class.java)) {
+       withUse(ActivityScenario.launch(OnBackPressedFragmentActivity::class.java)) {
             val fragmentManager = withActivity { supportFragmentManager }
             val fragment = withActivity { fragment }
             val fragmentCallback = fragment.onBackPressedCallback

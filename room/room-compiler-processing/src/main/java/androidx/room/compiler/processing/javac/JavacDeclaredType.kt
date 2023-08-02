@@ -17,7 +17,7 @@
 package androidx.room.compiler.processing.javac
 
 import androidx.room.compiler.processing.XNullability
-import androidx.room.compiler.processing.javac.kotlin.KmType
+import androidx.room.compiler.processing.javac.kotlin.KmTypeContainer
 import javax.lang.model.type.DeclaredType
 
 /**
@@ -29,7 +29,7 @@ internal class JavacDeclaredType private constructor(
     env: JavacProcessingEnv,
     override val typeMirror: DeclaredType,
     nullability: XNullability?,
-    override val kotlinType: KmType?
+    override val kotlinType: KmTypeContainer?
 ) : JavacType(
     env, typeMirror, nullability
 ) {
@@ -46,7 +46,7 @@ internal class JavacDeclaredType private constructor(
     constructor(
         env: JavacProcessingEnv,
         typeMirror: DeclaredType,
-        kotlinType: KmType
+        kotlinType: KmTypeContainer
     ) : this(
         env = env,
         typeMirror = typeMirror,

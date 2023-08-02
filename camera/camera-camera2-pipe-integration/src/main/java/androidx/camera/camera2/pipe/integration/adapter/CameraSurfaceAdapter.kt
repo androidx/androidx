@@ -19,19 +19,20 @@
 package androidx.camera.camera2.pipe.integration.adapter
 
 import android.content.Context
-import android.graphics.ImageFormat
+import android.util.Pair
 import android.util.Size
 import androidx.annotation.RequiresApi
+import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraPipe
+import androidx.camera.camera2.pipe.DoNotDisturbException
+import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.core.Log.debug
 import androidx.camera.camera2.pipe.integration.config.CameraAppComponent
 import androidx.camera.core.impl.AttachedSurfaceInfo
 import androidx.camera.core.impl.CameraDeviceSurfaceManager
+import androidx.camera.core.impl.StreamSpec
 import androidx.camera.core.impl.SurfaceConfig
-import androidx.camera.core.impl.SurfaceConfig.ConfigSize
 import androidx.camera.core.impl.UseCaseConfig
-
-internal val MAXIMUM_PREVIEW_SIZE = Size(1920, 1080)
 
 /**
  * Adapt the [CameraDeviceSurfaceManager] interface to [CameraPipe].
@@ -45,52 +46,105 @@ class CameraSurfaceAdapter(
     availableCameraIds: Set<String>
 ) : CameraDeviceSurfaceManager {
     private val component = cameraComponent as CameraAppComponent
+    private val supportedSurfaceCombinationMap =
+        mutableMapOf<String, SupportedSurfaceCombination?>()
 
     init {
         debug { "AvailableCameraIds = $availableCameraIds" }
         debug { "Created StreamConfigurationMap from $context" }
+        initSupportedSurfaceCombinationMap(context, availableCameraIds)
     }
 
-    override fun checkSupported(
-        cameraId: String,
-        surfaceConfigList: List<SurfaceConfig>?
-    ): Boolean {
-        // TODO: This method needs to check to see if the list of SurfaceConfig's is in the map of
-        //   guaranteed stream configurations for this camera's support level.
-        return component.getAvailableCameraIds().contains(cameraId)
+    /**
+     * Prepare supportedSurfaceCombinationMap for surface adapter.
+     */
+    private fun initSupportedSurfaceCombinationMap(
+        context: Context,
+        availableCameraIds: Set<String>
+    ) {
+        for (cameraId in availableCameraIds) {
+            try {
+                val cameraMetadata =
+                    component.getCameraDevices().awaitCameraMetadata(CameraId(cameraId))
+                supportedSurfaceCombinationMap[cameraId] = SupportedSurfaceCombination(
+                    context,
+                    checkNotNull(cameraMetadata),
+                    EncoderProfilesProviderAdapter(cameraId)
+                )
+            } catch (exception: DoNotDisturbException) {
+                Log.error {
+                    "Failed to create supported surface combinations: " +
+                        "Do Not Disturb mode is on"
+                }
+            }
+        }
     }
 
+    /**
+     * Transform to a SurfaceConfig object with cameraId, image format and size info
+     *
+     * @param cameraMode  the working camera mode.
+     * @param cameraId    the camera id of the camera device to transform the object
+     * @param imageFormat the image format info for the surface configuration object
+     * @param size        the size info for the surface configuration object
+     * @return new {@link SurfaceConfig} object
+     */
     override fun transformSurfaceConfig(
+        cameraMode: Int,
         cameraId: String,
         imageFormat: Int,
         size: Size
     ): SurfaceConfig {
-        // TODO: Many of the "find a stream combination that will work" is already provided by the
-        //   existing camera2 implementation, and this implementation should leverage that work.
+        checkIfSupportedCombinationExist(cameraId)
 
-        val configType = when (imageFormat) {
-            ImageFormat.YUV_420_888 -> SurfaceConfig.ConfigType.YUV
-            ImageFormat.JPEG -> SurfaceConfig.ConfigType.JPEG
-            ImageFormat.RAW_SENSOR -> SurfaceConfig.ConfigType.RAW
-            else -> SurfaceConfig.ConfigType.PRIV
-        }
-
-        val configSize = ConfigSize.PREVIEW
-        return SurfaceConfig.create(configType, configSize)
+        return supportedSurfaceCombinationMap[cameraId]!!.transformSurfaceConfig(
+            cameraMode,
+            imageFormat, size
+        )
     }
 
-    override fun getSuggestedResolutions(
+    /**
+     * Check whether the supportedSurfaceCombination for the camera id exists
+     *
+     * @param cameraId          the camera id of the camera device used by the use case.
+     */
+    private fun checkIfSupportedCombinationExist(cameraId: String): Boolean {
+        return supportedSurfaceCombinationMap.containsKey(cameraId)
+    }
+
+    /**
+     * Retrieves a map of suggested stream specifications for the given list of use cases.
+     *
+     * @param cameraMode        the working camera mode.
+     * @param cameraId          the camera id of the camera device used by the use cases
+     * @param existingSurfaces  list of surfaces already configured and used by the camera. The
+     *                          resolutions for these surface can not change.
+     * @param newUseCaseConfigsSupportedSizeMap map of configurations of the use cases to the
+     *                                          supported sizes list that will be given a
+     *                                          suggested stream specification
+     * @return map of suggested stream specifications for given use cases
+     * @throws IllegalArgumentException if {@code newUseCaseConfigs} is an empty list, if
+     *                                  there isn't a supported combination of surfaces
+     *                                  available, or if the {@code cameraId}
+     *                                  is not a valid id.
+     */
+    override fun getSuggestedStreamSpecs(
+        cameraMode: Int,
         cameraId: String,
         existingSurfaces: List<AttachedSurfaceInfo>,
-        newUseCaseConfigs: List<UseCaseConfig<*>?>
-    ): Map<UseCaseConfig<*>, Size> {
-        // TODO: Many of the "find a stream combination that will work" is already provided by the
-        //   existing camera2 implementation, and this implementation should leverage that work.
+        newUseCaseConfigsSupportedSizeMap: Map<UseCaseConfig<*>, List<Size>>
+    ): Pair<Map<UseCaseConfig<*>, StreamSpec>, Map<AttachedSurfaceInfo, StreamSpec>> {
 
-        val sizes: MutableMap<UseCaseConfig<*>, Size> = mutableMapOf()
-        for (config in newUseCaseConfigs) {
-            sizes[config as UseCaseConfig<*>] = MAXIMUM_PREVIEW_SIZE
+        if (!checkIfSupportedCombinationExist(cameraId)) {
+            throw IllegalArgumentException(
+                "No such camera id in supported combination list: $cameraId"
+            )
         }
-        return sizes
+
+        return supportedSurfaceCombinationMap[cameraId]!!.getSuggestedStreamSpecifications(
+            cameraMode,
+            existingSurfaces,
+            newUseCaseConfigsSupportedSizeMap
+        )
     }
 }

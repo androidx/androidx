@@ -27,8 +27,8 @@ dependencies {
     api("androidx.core:core:1.7.0")
     annotationProcessor(libs.nullaway)
     androidTestImplementation(libs.robolectric)
-    androidTestImplementation(libs.mockitoAndroid)
-
+    androidTestImplementation(libs.mockitoCore, excludes.bytebuddy)
+    androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)
@@ -44,9 +44,8 @@ android {
 }
 
 androidx {
-    name = "AndroidX Drag and Drop Library"
+    name = "Drag and Drop"
     type = LibraryType.PUBLISHED_LIBRARY
-    mavenGroup = LibraryGroups.DRAGANDDROP
     inceptionYear = "2021"
     description = "This library makes it easy for developers to accept data dragged-and-dropped from another app, and show a consistent affordance."
 }

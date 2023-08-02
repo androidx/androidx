@@ -28,12 +28,14 @@
     <ListOption
         android:icon="@drawable/red_icon"
         app:displayName="@string/red_style_name"
+        app:nameForScreenReaders="@string/red_style_name_screen_reader"
         app:id="@string/list_setting_common_option_red_id">
         <OnWatchEditorData android:icon="@drawable/red_icon_wf"/>
     </ListOption>
     <ListOption
         android:icon="@drawable/green_icon"
         app:displayName="@string/green_style_name"
+        app:nameForScreenReaders="@string/green_style_name_screen_reader"
         app:id="@string/list_setting_common_option_green_id">
         <OnWatchEditorData android:icon="@drawable/green_icon_wf"/>
     </ListOption>

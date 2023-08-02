@@ -23,9 +23,12 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.testutils.withActivity
+import androidx.testutils.withUse
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
+import leakcanary.DetectLeaksAfterTestSuccess
 import org.junit.Assert.fail
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -33,9 +36,12 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class SaveRestoreBackStackTest {
 
+    @get:Rule
+    val rule = DetectLeaksAfterTestSuccess()
+
     @Test
     fun saveBackStack() {
-        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+       withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             val fm = withActivity {
                 supportFragmentManager
             }
@@ -85,7 +91,7 @@ class SaveRestoreBackStackTest {
 
     @Test
     fun saveBackStackWithoutExecutePendingTransactions() {
-        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+       withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             val fm = withActivity {
                 supportFragmentManager
             }
@@ -120,7 +126,7 @@ class SaveRestoreBackStackTest {
 
     @Test
     fun saveBackStackAddedWithoutExecutePendingTransactions() {
-        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+       withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             val fm = withActivity {
                 supportFragmentManager
             }
@@ -153,7 +159,7 @@ class SaveRestoreBackStackTest {
 
     @Test
     fun savePreviouslyReferencedFragment() {
-        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+       withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             val fm = withActivity {
                 supportFragmentManager
             }
@@ -192,7 +198,7 @@ class SaveRestoreBackStackTest {
 
     @Test
     fun saveNonReorderingAllowedTransaction() {
-        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+       withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             val fm = withActivity {
                 supportFragmentManager
             }
@@ -230,7 +236,7 @@ class SaveRestoreBackStackTest {
 
     @Test
     fun saveNonReorderingAllowedSecondTransaction() {
-        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+       withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             val fm = withActivity {
                 supportFragmentManager
             }
@@ -277,7 +283,7 @@ class SaveRestoreBackStackTest {
     @Suppress("DEPRECATION")
     @Test
     fun saveRetainedFragment() {
-        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+       withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             val fm = withActivity {
                 supportFragmentManager
             }
@@ -317,7 +323,7 @@ class SaveRestoreBackStackTest {
     @Suppress("DEPRECATION")
     @Test
     fun saveRetainedChildFragment() {
-        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+       withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             val fm = withActivity {
                 supportFragmentManager
             }
@@ -360,7 +366,7 @@ class SaveRestoreBackStackTest {
 
     @Test
     fun restoreBackStack() {
-        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+       withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             val fm = withActivity {
                 supportFragmentManager
             }
@@ -422,7 +428,7 @@ class SaveRestoreBackStackTest {
 
     @Test
     fun restoreBackStackTwice() {
-        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+       withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             val fm = withActivity {
                 supportFragmentManager
             }
@@ -459,7 +465,7 @@ class SaveRestoreBackStackTest {
 
     @Test
     fun restoreBackStackTwoTransactions() {
-        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+       withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             val fm = withActivity {
                 supportFragmentManager
             }
@@ -535,7 +541,7 @@ class SaveRestoreBackStackTest {
 
     @Test
     fun restoreBackStackAfterRecreate() {
-        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+       withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             var fm = withActivity {
                 supportFragmentManager
             }
@@ -604,7 +610,7 @@ class SaveRestoreBackStackTest {
 
     @Test
     fun restoreBackStackWithoutExecutePendingTransactions() {
-        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+       withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             val fm = withActivity {
                 supportFragmentManager
             }
@@ -660,7 +666,7 @@ class SaveRestoreBackStackTest {
 
     @Test
     fun clearBackStack() {
-        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+       withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             val fm = withActivity {
                 supportFragmentManager
             }
@@ -712,7 +718,7 @@ class SaveRestoreBackStackTest {
 
     @Test
     fun clearBackStackWithoutExecutePendingTransactions() {
-        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+       withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             val fm = withActivity {
                 supportFragmentManager
             }
@@ -756,6 +762,57 @@ class SaveRestoreBackStackTest {
 
             // Assert that cleared fragment has been removed
             assertThat(fm.backStackEntryCount).isEqualTo(0)
+        }
+    }
+
+    @Test
+    fun resumeClearsFragmentStoreSavedState() {
+        withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+            val fm = withActivity {
+                supportFragmentManager
+            }
+            val fragmentBase = StrictViewFragment()
+            val fragmentReplacement = StateSaveFragment()
+            val fragmentReplacementChild = StateSaveFragment()
+
+            fm.beginTransaction()
+                .add(R.id.content, fragmentBase)
+                .commit()
+            executePendingTransactions()
+
+            fm.beginTransaction()
+                .setReorderingAllowed(true)
+                .replace(R.id.content, fragmentReplacement)
+                .addToBackStack("replacement")
+                .commit()
+            executePendingTransactions()
+
+            fragmentReplacement.childFragmentManager.beginTransaction()
+                .add(fragmentReplacementChild, "replacementChild")
+                .commit()
+            executePendingTransactions(fragmentReplacement.childFragmentManager)
+
+            // stop activity and save fragments
+            moveToState(Lifecycle.State.CREATED)
+            executePendingTransactions()
+
+            // states should be stored in fragmentStore
+            assertThat(fm.fragmentStore.getSavedState(fragmentReplacement.mWho))
+                .isNotNull()
+            assertThat(fragmentReplacement.childFragmentManager.fragmentStore
+                .getSavedState(fragmentReplacementChild.mWho)
+            ).isNotNull()
+
+            // resume activity and restore fragments
+            moveToState(Lifecycle.State.RESUMED)
+            executePendingTransactions()
+
+            // states should be cleared from fragmentStore
+            assertThat(fm.fragmentStore.getSavedState(fragmentReplacement.mWho))
+                .isNull()
+            assertThat(fragmentReplacement.childFragmentManager.fragmentStore
+                .getSavedState(fragmentReplacementChild.mWho)
+            ).isNull()
         }
     }
 }

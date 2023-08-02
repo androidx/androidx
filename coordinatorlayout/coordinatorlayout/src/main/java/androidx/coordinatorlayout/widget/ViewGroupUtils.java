@@ -29,7 +29,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 
 /**
- * @hide
  */
 @RestrictTo(LIBRARY)
 public class ViewGroupUtils {

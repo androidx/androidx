@@ -27,7 +27,7 @@
 
   <uses-sdk
       android:minSdkVersion="23"
-      android:targetSdkVersion="29" />
+      android:targetSdkVersion="31" />
 
   <uses-permission android:name="android.permission.INTERNET"/>
   <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
@@ -40,16 +40,18 @@
   <uses-permission android:name="androidx.car.app.NAVIGATION_TEMPLATES"/>
   <uses-permission android:name="androidx.car.app.ACCESS_SURFACE"/>
 
+  <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+
   <!-- For Access to Car Hardware. -->
   <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+  <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
   <uses-permission android:name="com.google.android.gms.permission.CAR_MILEAGE"/>
   <uses-permission android:name="com.google.android.gms.permission.CAR_SPEED"/>
   <uses-permission android:name="com.google.android.gms.permission.CAR_FUEL"/>
 
   <application
       android:label="@string/app_name"
-      android:icon="@drawable/ic_launcher"
-      android:extractNativeLibs="false">
+      android:icon="@drawable/ic_launcher">
 
     <meta-data
         android:name="com.google.android.gms.car.application"
@@ -80,12 +82,12 @@
     </service>
 
     <service
-        android:name=".common.navigation.NavigationNotificationService"
+        android:name=".common.screens.navigationdemos.NavigationNotificationService"
         android:exported="true">
     </service>
 
     <provider
-        android:name=".common.textandicons.DelayedFileProvider"
+        android:name=".common.screens.templatelayouts.listtemplates.DelayedFileProvider"
         android:authorities="com.showcase.fileprovider"
         android:exported="false"
         android:grantUriPermissions="true">

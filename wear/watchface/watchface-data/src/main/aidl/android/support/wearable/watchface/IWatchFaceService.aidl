@@ -19,6 +19,7 @@ package android.support.wearable.watchface;
 import android.content.ComponentName;
 import android.os.Bundle;
 import android.support.wearable.watchface.accessibility.ContentDescriptionLabel;
+import android.support.wearable.watchface.ParcelableWrapper;
 import android.support.wearable.watchface.WatchFaceStyle;
 import androidx.wear.watchface.style.data.UserStyleWireFormat;
 import androidx.wear.watchface.style.data.UserStyleSchemaWireFormat;
@@ -26,8 +27,8 @@ import androidx.wear.watchface.style.data.UserStyleSchemaWireFormat;
 /**
  * Interface of a service that allows the watch face to interact with the wearable.
  *
- * @hide
  */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 interface IWatchFaceService {
     // IMPORTANT NOTE: All methods must be given an explicit transaction id that must never change
     // in the future to remain binary backwards compatible.
@@ -75,7 +76,7 @@ interface IWatchFaceService {
     void setContentDescriptionLabels(in ContentDescriptionLabel[] labels) = 4;
 
     /** Reserved. Do not use. */
-    void reserved5() = 5;
+    void reserved5(in ParcelableWrapper wrapper) = 5;
 
     /**
      * Sets the default provider for a complication, choosing the first element
@@ -99,5 +100,5 @@ interface IWatchFaceService {
     int getApiVersion() = 7;
 
     /** Reserved. Do not use. */
-    void reserved8() = 8;
+    void reserved8(in ParcelableWrapper wrapper, in IBinder binder) = 8;
 }

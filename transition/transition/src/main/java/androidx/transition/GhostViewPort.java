@@ -121,7 +121,7 @@ class GhostViewPort extends ViewGroup implements GhostView {
     }
 
     @Override
-    protected void onDraw(Canvas canvas) {
+    protected void onDraw(@NonNull Canvas canvas) {
         CanvasUtils.enableZ(canvas, true); // enable shadows
         canvas.setMatrix(mMatrix);
 

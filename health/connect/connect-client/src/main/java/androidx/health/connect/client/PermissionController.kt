@@ -16,32 +16,26 @@
 package androidx.health.connect.client
 
 import androidx.activity.result.contract.ActivityResultContract
+import androidx.annotation.RestrictTo
+import androidx.health.connect.client.HealthConnectClient.Companion.DEFAULT_PROVIDER_PACKAGE_NAME
+import androidx.health.connect.client.contracts.HealthPermissionsRequestContract
+import androidx.health.connect.client.permission.HealthDataRequestPermissionsInternal
 import androidx.health.connect.client.permission.HealthPermission
 
+@JvmDefaultWithCompatibility
 /** Interface for operations related to permissions. */
 interface PermissionController {
 
     /**
-     * Creates an [ActivityResultContract] to request Health permissions.
+     * Returns a set of all health permissions granted by the user to the calling app.
      *
-     * @see androidx.activity.ComponentActivity.registerForActivityResult
-     * @sample androidx.health.connect.client.samples.RequestPermission
-     */
-    fun createRequestPermissionActivityContract():
-        ActivityResultContract<Set<HealthPermission>, Set<HealthPermission>>
-
-    /**
-     * Returns a set of [HealthPermission] granted by the user to the calling app, out of the input
-     * [permissions] set.
-     *
-     * @param permissions set of permissions interested to check if granted or not
      * @return set of granted permissions.
-     *
      * @throws android.os.RemoteException For any IPC transportation failures.
      * @throws java.io.IOException For any disk I/O issues.
      * @throws IllegalStateException If service is not available.
+     * @sample androidx.health.connect.client.samples.GetPermissions
      */
-    suspend fun getGrantedPermissions(permissions: Set<HealthPermission>): Set<HealthPermission>
+    suspend fun getGrantedPermissions(): Set<String>
 
     /**
      * Revokes all previously granted [HealthPermission] by the user to the calling app.
@@ -51,4 +45,32 @@ interface PermissionController {
      * @throws IllegalStateException If service is not available.
      */
     suspend fun revokeAllPermissions()
+
+    companion object {
+
+        @JvmStatic
+        @JvmOverloads
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        fun createRequestPermissionResultContractLegacy(
+            providerPackageName: String = DEFAULT_PROVIDER_PACKAGE_NAME
+        ): ActivityResultContract<Set<String>, Set<String>> {
+            return HealthDataRequestPermissionsInternal(providerPackageName = providerPackageName)
+        }
+
+        /**
+         * Creates an [ActivityResultContract] to request Health permissions.
+         *
+         * @param providerPackageName Optional provider package name to request health permissions
+         *   from.
+         * @sample androidx.health.connect.client.samples.RequestPermission
+         * @see androidx.activity.ComponentActivity.registerForActivityResult
+         */
+        @JvmStatic
+        @JvmOverloads
+        fun createRequestPermissionResultContract(
+            providerPackageName: String = DEFAULT_PROVIDER_PACKAGE_NAME
+        ): ActivityResultContract<Set<String>, Set<String>> {
+            return HealthPermissionsRequestContract(providerPackageName)
+        }
+    }
 }

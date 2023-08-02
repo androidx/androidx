@@ -44,7 +44,7 @@ When to use?
 The following sample provides static helper methods for the platform class
 `android.os.Process`.
 
-~~~java
+```java
 package androidx.core.os;
 
 /**
@@ -81,8 +81,9 @@ public final class ProcessCompat {
         }
     }
 }
+```
 
-### Wrapper (ex. [AccessibilityNodeInfoCompat](https://developer.android.com/reference/android/view/accessibility/AccessibilityNodeInfo)) {#wrapper}
+### Wrapper (ex. [AccessibilityNodeInfoCompat](https://developer.android.com/reference/androidx/core/view/accessibility/AccessibilityNodeInfoCompat)) {#wrapper}
 
 When to use?
 
@@ -227,7 +228,7 @@ public final class ModemInfoCompat {
     }
   }
 }
-~~~
+```
 
 Note that libraries written in Java should express conversion to and from the
 platform class differently than Kotlin classes. For Java classes, conversion

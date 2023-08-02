@@ -20,6 +20,7 @@ import androidx.compose.foundation.gestures.ScrollScope
 import androidx.compose.foundation.lazy.layout.LazyAnimateScrollScope
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.util.fastFirstOrNull
+import kotlin.math.abs
 import kotlin.math.max
 
 internal class LazyGridAnimateScrollScope(
@@ -48,15 +49,14 @@ internal class LazyGridAnimateScrollScope(
                 }
             }
 
-    override fun snapToItem(index: Int, scrollOffset: Int) {
+    override fun ScrollScope.snapToItem(index: Int, scrollOffset: Int) {
         state.snapToItemIndexInternal(index, scrollOffset)
     }
 
     override fun expectedDistanceTo(index: Int, targetScrollOffset: Int): Float {
-        val visibleItems = state.layoutInfo.visibleItemsInfo
         val slotsPerLine = state.slotsPerLine
         val averageLineMainAxisSize = calculateLineAverageMainAxisSize(
-            visibleItems,
+            state.layoutInfo,
             state.isVertical
         )
         val before = index < firstVisibleItemIndex
@@ -64,16 +64,19 @@ internal class LazyGridAnimateScrollScope(
             (index - firstVisibleItemIndex + (slotsPerLine - 1) * if (before) -1 else 1) /
                 slotsPerLine
 
+        var coercedOffset = minOf(abs(targetScrollOffset), averageLineMainAxisSize)
+        if (targetScrollOffset < 0) coercedOffset *= -1
         return (averageLineMainAxisSize * linesDiff).toFloat() +
-            targetScrollOffset - firstVisibleItemScrollOffset
+            coercedOffset - firstVisibleItemScrollOffset
     }
 
     override val numOfItemsForTeleport: Int get() = 100 * state.slotsPerLine
 
     private fun calculateLineAverageMainAxisSize(
-        visibleItems: List<LazyGridItemInfo>,
+        layoutInfo: LazyGridLayoutInfo,
         isVertical: Boolean
     ): Int {
+        val visibleItems = layoutInfo.visibleItemsInfo
         val lineOf: (Int) -> Int = {
             if (isVertical) visibleItems[it].row else visibleItems[it].column
         }
@@ -110,7 +113,7 @@ internal class LazyGridAnimateScrollScope(
             lineStartIndex = lineEndIndex
         }
 
-        return totalLinesMainAxisSize / linesCount
+        return totalLinesMainAxisSize / linesCount + layoutInfo.mainAxisItemSpacing
     }
 
     override suspend fun scroll(block: suspend ScrollScope.() -> Unit) {

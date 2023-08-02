@@ -22,7 +22,6 @@ import static java.util.Objects.requireNonNull;
 
 import android.annotation.SuppressLint;
 
-import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.SurfaceCallback;
@@ -30,6 +29,7 @@ import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.Action;
 import androidx.car.app.model.ActionStrip;
+import androidx.car.app.annotations.KeepFields;
 
 import java.util.Objects;
 
@@ -38,11 +38,10 @@ import java.util.Objects;
  */
 @RequiresCarApi(5)
 @CarProtocol
+@KeepFields
 public final class MapController {
-    @Keep
     @Nullable
     private final PanModeDelegate mPanModeDelegate;
-    @Keep
     @Nullable
     private final ActionStrip mMapActionStrip;
 

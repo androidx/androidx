@@ -23,7 +23,7 @@ import androidx.core.util.Preconditions;
 
 /**
  * Contains attributes of an API caller relevant to its access via visibility store.
- * @hide
+ * @exportToFramework:hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class CallerAccess {

@@ -23,7 +23,7 @@ import kotlin.reflect.KClass
  * A [WorkRequest] for non-repeating work.
  *
  * OneTimeWorkRequests can be put in simple or complex graphs of work by using methods like
- * [WorkManager.beginWith] or [WorkManager.beginWith].
+ * [WorkManager.enqueue] or [WorkManager.beginWith].
  */
 class OneTimeWorkRequest internal constructor(builder: Builder) :
     WorkRequest(builder.id, builder.workSpec, builder.tags) {
@@ -34,10 +34,6 @@ class OneTimeWorkRequest internal constructor(builder: Builder) :
      */
     class Builder(workerClass: Class<out ListenableWorker>) :
         WorkRequest.Builder<Builder, OneTimeWorkRequest>(workerClass) {
-
-        init {
-            workSpec.inputMergerClassName = OverwritingInputMerger::class.java.name
-        }
 
         /**
          * Specifies the [InputMerger] class name for this [OneTimeWorkRequest].

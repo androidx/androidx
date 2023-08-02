@@ -17,6 +17,7 @@
 package androidx.wear.watchface.test
 
 import android.content.Context
+import android.os.Build
 import android.os.Handler
 import android.view.SurfaceHolder
 import androidx.wear.watchface.ComplicationSlotsManager
@@ -46,11 +47,12 @@ internal class TestCanvasAnalogWatchFaceService(
 
     // We can't subclass ExampleCanvasAnalogWatchFaceService because we want to override internal
     // methods, so instead we use composition.
-    private val delegate = object : ExampleCanvasAnalogWatchFaceService() {
-        init {
-            attachBaseContext(testContext)
+    private val delegate =
+        object : ExampleCanvasAnalogWatchFaceService() {
+            init {
+                attachBaseContext(testContext)
+            }
         }
-    }
 
     init {
         attachBaseContext(testContext)
@@ -75,11 +77,7 @@ internal class TestCanvasAnalogWatchFaceService(
             watchState,
             complicationSlotsManager,
             currentUserStyleRepository
-        ).setSystemTimeProvider(object : WatchFace.SystemTimeProvider {
-            override fun getSystemTimeMillis() = mockSystemTimeMillis
-
-            override fun getSystemTimeZoneId() = mockZoneId
-        })
+        )
     }
 
     override fun getMutableWatchState() = mutableWatchState
@@ -91,12 +89,13 @@ internal class TestCanvasAnalogWatchFaceService(
 
     override fun getWallpaperSurfaceHolderOverride() = surfaceHolderOverride
 
-    override fun isPreAndroidR() = preRInitFlow
+    override val wearPlatformVersion =
+        when (preRInitFlow) {
+            true -> Build.VERSION_CODES.O_MR1
+            false -> Build.VERSION_CODES.R
+        }
 
-    override fun readDirectBootPrefs(
-        context: Context,
-        fileName: String
-    ) = directBootParams
+    override fun readDirectBootPrefs(context: Context, fileName: String) = directBootParams
 
     override fun writeDirectBootPrefs(
         context: Context,
@@ -118,4 +117,11 @@ internal class TestCanvasAnalogWatchFaceService(
     override fun onInvalidate() {
         onInvalidateCountDownLatch?.countDown()
     }
+
+    override fun getSystemTimeProvider() =
+        object : SystemTimeProvider {
+            override fun getSystemTimeMillis() = mockSystemTimeMillis
+
+            override fun getSystemTimeZoneId() = mockZoneId
+        }
 }

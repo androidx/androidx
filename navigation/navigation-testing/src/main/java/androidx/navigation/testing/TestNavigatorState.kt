@@ -112,6 +112,18 @@ public class TestNavigatorState @JvmOverloads constructor(
         }
     }
 
+    override fun prepareForTransition(entry: NavBackStackEntry) {
+        super.prepareForTransition(entry)
+        runBlocking(coroutineDispatcher) {
+            // NavBackStackEntry Lifecycles must be updated on the main thread
+            // as per the contract within Lifecycle, so we explicitly swap to the main thread
+            // no matter what CoroutineDispatcher was passed to us.
+            withContext(Dispatchers.Main.immediate) {
+                entry.maxLifecycle = Lifecycle.State.STARTED
+            }
+        }
+    }
+
     private fun updateMaxLifecycle(
         poppedList: List<NavBackStackEntry> = emptyList(),
         saveState: Boolean = false

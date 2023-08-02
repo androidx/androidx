@@ -18,6 +18,9 @@ package androidx.camera.camera2.internal;
 
 import static android.hardware.camera2.CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES;
 
+import static androidx.camera.core.DynamicRange.HLG_10_BIT;
+import static androidx.camera.core.DynamicRange.SDR;
+
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -27,11 +30,16 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import android.content.Context;
+import android.graphics.Rect;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CameraManager;
+import android.hardware.camera2.params.DynamicRangeProfiles;
 import android.os.Build;
 import android.util.Pair;
+import android.util.Range;
+import android.util.Size;
+import android.util.SizeF;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
@@ -41,6 +49,7 @@ import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
 import androidx.camera.camera2.internal.compat.CameraManagerCompat;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraSelector;
+import androidx.camera.core.DynamicRange;
 import androidx.camera.core.ExposureState;
 import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.SurfaceOrientedMeteringPointFactory;
@@ -48,10 +57,13 @@ import androidx.camera.core.TorchState;
 import androidx.camera.core.ZoomState;
 import androidx.camera.core.impl.CameraCaptureCallback;
 import androidx.camera.core.impl.CameraInfoInternal;
+import androidx.camera.core.impl.ImageFormatConstants;
 import androidx.camera.core.internal.ImmutableZoomState;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.test.core.app.ApplicationProvider;
+
+import com.google.common.collect.ImmutableSet;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -61,12 +73,15 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 import org.robolectric.shadow.api.Shadow;
 import org.robolectric.shadows.ShadowCameraCharacteristics;
 import org.robolectric.shadows.ShadowCameraManager;
+import org.robolectric.shadows.StreamConfigurationMapBuilder;
+import org.robolectric.util.ReflectionHelpers;
 
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Executor;
 
 @RunWith(RobolectricTestRunner.class)
@@ -82,6 +97,31 @@ public class Camera2CameraInfoImplTest {
     private static final int CAMERA0_LENS_FACING_ENUM = CameraSelector.LENS_FACING_BACK;
     private static final int CAMERA0_LENS_FACING_INT = CameraCharacteristics.LENS_FACING_BACK;
     private static final boolean CAMERA0_FLASH_INFO_BOOLEAN = true;
+    private static final int CAMERA0_SUPPORTED_PRIVATE_REPROCESSING =
+            CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_PRIVATE_REPROCESSING;
+    private static final int CAMERA0_SUPPORTED_DYNAMIC_RANGE_TEN_BIT =
+            CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_DYNAMIC_RANGE_TEN_BIT;
+    private static final int[] CAMERA0_SUPPORTED_CAPABILITIES = new int[] {
+            CAMERA0_SUPPORTED_PRIVATE_REPROCESSING, CAMERA0_SUPPORTED_DYNAMIC_RANGE_TEN_BIT
+    };
+    private static final float[] CAMERA0_LENS_FOCAL_LENGTH = new float[]{
+            3.0F,
+            4.0F,
+            5.0F
+    };
+    private static final SizeF CAMERA0_SENSOR_PHYSICAL_SIZE = new SizeF(1.5F, 1F);
+    private static final Rect CAMERA0_SENSOR_ACTIVE_ARRAY_SIZE = new Rect(0, 0, 1920, 1080);
+    private static final Size CAMERA0_SENSOR_PIXEL_ARRAY_SIZE = new Size(1920, 1080);
+    private static final Range<?>[] CAMERA0_AE_FPS_RANGES = {
+            new Range<>(12, 30),
+            new Range<>(24, 24),
+            new Range<>(30, 30),
+            new Range<>(60, 60)
+    };
+
+    @RequiresApi(33)
+    private static final DynamicRangeProfiles CAMERA0_DYNAMIC_RANGE_PROFILES =
+            new DynamicRangeProfiles(new long[]{DynamicRangeProfiles.HLG10, 0, 0});
 
     private static final String CAMERA1_ID = "1";
     private static final int CAMERA1_SUPPORTED_HARDWARE_LEVEL =
@@ -90,14 +130,23 @@ public class Camera2CameraInfoImplTest {
     private static final int CAMERA1_LENS_FACING_INT = CameraCharacteristics.LENS_FACING_FRONT;
     private static final boolean CAMERA1_FLASH_INFO_BOOLEAN = false;
 
-    private static final int CAMERA0_SUPPORTED_PRIVATE_REPROCESSING =
-            CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_PRIVATE_REPROCESSING;
-    private static final int[] CAMERA0_SUPPORTED_CAPABILITIES = new int[] {
-            CAMERA0_SUPPORTED_PRIVATE_REPROCESSING,
+    private static final String CAMERA2_ID = "2";
+    private static final int CAMERA2_SENSOR_ORIENTATION = 90;
+    private static final int CAMERA2_LENS_FACING_INT = CameraCharacteristics.LENS_FACING_BACK;
+    private static final float[] CAMERA2_LENS_FOCAL_LENGTH = new float[]{
+            5.0F
     };
-
+    private static final SizeF CAMERA2_SENSOR_PHYSICAL_SIZE = new SizeF(1.5F, 1F);
+    private static final Rect CAMERA2_SENSOR_ACTIVE_ARRAY_SIZE = new Rect(0, 0, 1920, 1080);
+    private static final Size CAMERA2_SENSOR_PIXEL_ARRAY_SIZE = new Size(1920, 1080);
+    private static final float CAMERA2_INTRINSIC_ZOOM_RATIO =
+            ((float) FovUtil.focalLengthToViewAngleDegrees(CAMERA0_LENS_FOCAL_LENGTH[0], 1))
+                    / FovUtil.focalLengthToViewAngleDegrees(CAMERA2_LENS_FOCAL_LENGTH[0], 1);
+    private static final Range<?>[] CAMERA2_AE_FPS_RANGES = {
+            new Range<>(12, 30),
+            new Range<>(30, 30),
+    };
     private CameraCharacteristicsCompat mCameraCharacteristics0;
-    private CameraCharacteristicsCompat mCameraCharacteristics1;
     private CameraManagerCompat mCameraManagerCompat;
     private ZoomControl mMockZoomControl;
     private TorchControl mMockTorchControl;
@@ -107,7 +156,7 @@ public class Camera2CameraInfoImplTest {
 
     @Test
     public void canCreateCameraInfo() throws CameraAccessExceptionCompat {
-        init(/* hasReprocessingCapabilities = */ true);
+        init(/* hasAvailableCapabilities = */ true);
 
         CameraInfoInternal cameraInfoInternal =
                 new Camera2CameraInfoImpl(CAMERA0_ID, mCameraManagerCompat);
@@ -117,7 +166,7 @@ public class Camera2CameraInfoImplTest {
 
     @Test
     public void cameraInfo_canReturnSensorOrientation() throws CameraAccessExceptionCompat {
-        init(/* hasReprocessingCapabilities = */ true);
+        init(/* hasAvailableCapabilities = */ true);
 
         CameraInfoInternal cameraInfoInternal =
                 new Camera2CameraInfoImpl(CAMERA0_ID, mCameraManagerCompat);
@@ -128,7 +177,7 @@ public class Camera2CameraInfoImplTest {
     @Test
     public void cameraInfo_canCalculateCorrectRelativeRotation_forBackCamera()
             throws CameraAccessExceptionCompat {
-        init(/* hasReprocessingCapabilities = */ true);
+        init(/* hasAvailableCapabilities = */ true);
 
         CameraInfoInternal cameraInfoInternal =
                 new Camera2CameraInfoImpl(CAMERA0_ID, mCameraManagerCompat);
@@ -147,7 +196,7 @@ public class Camera2CameraInfoImplTest {
     @Test
     public void cameraInfo_canCalculateCorrectRelativeRotation_forFrontCamera()
             throws CameraAccessExceptionCompat {
-        init(/* hasReprocessingCapabilities = */ true);
+        init(/* hasAvailableCapabilities = */ true);
 
         CameraInfoInternal cameraInfoInternal =
                 new Camera2CameraInfoImpl(CAMERA1_ID, mCameraManagerCompat);
@@ -165,7 +214,7 @@ public class Camera2CameraInfoImplTest {
 
     @Test
     public void cameraInfo_canReturnLensFacing() throws CameraAccessExceptionCompat {
-        init(/* hasReprocessingCapabilities = */ true);
+        init(/* hasAvailableCapabilities = */ true);
 
         CameraInfoInternal cameraInfoInternal =
                 new Camera2CameraInfoImpl(CAMERA0_ID, mCameraManagerCompat);
@@ -175,7 +224,7 @@ public class Camera2CameraInfoImplTest {
     @Test
     public void cameraInfo_canReturnHasFlashUnit_forBackCamera()
             throws CameraAccessExceptionCompat {
-        init(/* hasReprocessingCapabilities = */ true);
+        init(/* hasAvailableCapabilities = */ true);
 
         CameraInfoInternal cameraInfoInternal =
                 new Camera2CameraInfoImpl(CAMERA0_ID, mCameraManagerCompat);
@@ -185,7 +234,7 @@ public class Camera2CameraInfoImplTest {
     @Test
     public void cameraInfo_canReturnHasFlashUnit_forFrontCamera()
             throws CameraAccessExceptionCompat {
-        init(/* hasReprocessingCapabilities = */ true);
+        init(/* hasAvailableCapabilities = */ true);
 
         CameraInfoInternal cameraInfoInternal =
                 new Camera2CameraInfoImpl(CAMERA1_ID, mCameraManagerCompat);
@@ -195,7 +244,7 @@ public class Camera2CameraInfoImplTest {
     @Test
     public void cameraInfoWithoutCameraControl_canReturnDefaultTorchState()
             throws CameraAccessExceptionCompat {
-        init(/* hasReprocessingCapabilities = */ true);
+        init(/* hasAvailableCapabilities = */ true);
 
         Camera2CameraInfoImpl camera2CameraInfoImpl =
                 new Camera2CameraInfoImpl(CAMERA0_ID, mCameraManagerCompat);
@@ -206,7 +255,7 @@ public class Camera2CameraInfoImplTest {
     @Test
     public void cameraInfoWithCameraControl_canReturnTorchState()
             throws CameraAccessExceptionCompat {
-        init(/* hasReprocessingCapabilities = */ true);
+        init(/* hasAvailableCapabilities = */ true);
 
         when(mMockTorchControl.getTorchState()).thenReturn(new MutableLiveData<>(TorchState.ON));
         Camera2CameraInfoImpl camera2CameraInfoImpl =
@@ -218,7 +267,7 @@ public class Camera2CameraInfoImplTest {
     @Test
     public void torchStateLiveData_SameInstanceBeforeAndAfterCameraControlLink()
             throws CameraAccessExceptionCompat {
-        init(/* hasReprocessingCapabilities = */ true);
+        init(/* hasAvailableCapabilities = */ true);
 
         Camera2CameraInfoImpl camera2CameraInfoImpl =
                 new Camera2CameraInfoImpl(CAMERA0_ID, mCameraManagerCompat);
@@ -239,7 +288,7 @@ public class Camera2CameraInfoImplTest {
     @Test
     public void cameraInfoWithCameraControl_getZoom_valueIsCorrect()
             throws CameraAccessExceptionCompat {
-        init(/* hasReprocessingCapabilities = */ true);
+        init(/* hasAvailableCapabilities = */ true);
 
         ZoomState zoomState = ImmutableZoomState.create(3.0f, 8.0f, 1.0f, 0.2f);
         when(mMockZoomControl.getZoomState()).thenReturn(new MutableLiveData<>(zoomState));
@@ -254,7 +303,7 @@ public class Camera2CameraInfoImplTest {
     @Test
     public void cameraInfoWithoutCameraControl_getDetaultZoomState()
             throws CameraAccessExceptionCompat {
-        init(/* hasReprocessingCapabilities = */ true);
+        init(/* hasAvailableCapabilities = */ true);
 
         Camera2CameraInfoImpl camera2CameraInfoImpl =
                 new Camera2CameraInfoImpl(CAMERA0_ID, mCameraManagerCompat);
@@ -265,7 +314,7 @@ public class Camera2CameraInfoImplTest {
     @Test
     public void zoomStateLiveData_SameInstanceBeforeAndAfterCameraControlLink()
             throws CameraAccessExceptionCompat {
-        init(/* hasReprocessingCapabilities = */ true);
+        init(/* hasAvailableCapabilities = */ true);
 
         Camera2CameraInfoImpl camera2CameraInfoImpl =
                 new Camera2CameraInfoImpl(CAMERA0_ID, mCameraManagerCompat);
@@ -285,7 +334,7 @@ public class Camera2CameraInfoImplTest {
     @Test
     public void cameraInfoWithCameraControl_canReturnExposureState()
             throws CameraAccessExceptionCompat {
-        init(/* hasReprocessingCapabilities = */ true);
+        init(/* hasAvailableCapabilities = */ true);
 
         ExposureState exposureState = new ExposureStateImpl(mCameraCharacteristics0, 2);
         when(mExposureControl.getExposureState()).thenReturn(exposureState);
@@ -300,7 +349,7 @@ public class Camera2CameraInfoImplTest {
     @Test
     public void cameraInfoWithoutCameraControl_canReturnDefaultExposureState()
             throws CameraAccessExceptionCompat {
-        init(/* hasReprocessingCapabilities = */ true);
+        init(/* hasAvailableCapabilities = */ true);
 
         Camera2CameraInfoImpl camera2CameraInfoImpl =
                 new Camera2CameraInfoImpl(CAMERA0_ID, mCameraManagerCompat);
@@ -320,7 +369,7 @@ public class Camera2CameraInfoImplTest {
 
     @Test
     public void cameraInfo_getImplementationType_legacy() throws CameraAccessExceptionCompat {
-        init(/* hasReprocessingCapabilities = */ true);
+        init(/* hasAvailableCapabilities = */ true);
 
         final CameraInfoInternal cameraInfo =
                 new Camera2CameraInfoImpl(CAMERA0_ID, mCameraManagerCompat);
@@ -330,7 +379,7 @@ public class Camera2CameraInfoImplTest {
 
     @Test
     public void cameraInfo_getImplementationType_noneLegacy() throws CameraAccessExceptionCompat {
-        init(/* hasReprocessingCapabilities = */ true);
+        init(/* hasAvailableCapabilities = */ true);
 
         final CameraInfoInternal cameraInfo = new Camera2CameraInfoImpl(
                 CAMERA1_ID, mCameraManagerCompat);
@@ -341,7 +390,7 @@ public class Camera2CameraInfoImplTest {
     @Test
     public void addSessionCameraCaptureCallback_isCalledToCameraControl()
             throws CameraAccessExceptionCompat {
-        init(/* hasReprocessingCapabilities = */ true);
+        init(/* hasAvailableCapabilities = */ true);
 
         final Camera2CameraInfoImpl cameraInfo = new Camera2CameraInfoImpl(
                 CAMERA1_ID, mCameraManagerCompat);
@@ -357,7 +406,7 @@ public class Camera2CameraInfoImplTest {
     @Test
     public void removeSessionCameraCaptureCallback_isCalledToCameraControl()
             throws CameraAccessExceptionCompat {
-        init(/* hasReprocessingCapabilities = */ true);
+        init(/* hasAvailableCapabilities = */ true);
 
         final Camera2CameraInfoImpl cameraInfo = new Camera2CameraInfoImpl(
                 CAMERA1_ID, mCameraManagerCompat);
@@ -372,7 +421,7 @@ public class Camera2CameraInfoImplTest {
     @Test
     public void addSessionCameraCaptureCallbackWithoutCameraControl_attachedToCameraControlLater()
             throws CameraAccessExceptionCompat {
-        init(/* hasReprocessingCapabilities = */ true);
+        init(/* hasAvailableCapabilities = */ true);
 
         final Camera2CameraInfoImpl cameraInfo = new Camera2CameraInfoImpl(
                 CAMERA1_ID, mCameraManagerCompat);
@@ -388,7 +437,7 @@ public class Camera2CameraInfoImplTest {
     @Test
     public void removeSessionCameraCaptureCallbackWithoutCameraControl_callbackIsRemoved()
             throws CameraAccessExceptionCompat {
-        init(/* hasReprocessingCapabilities = */ true);
+        init(/* hasAvailableCapabilities = */ true);
 
         final Camera2CameraInfoImpl cameraInfo = new Camera2CameraInfoImpl(
                 CAMERA1_ID, mCameraManagerCompat);
@@ -412,7 +461,7 @@ public class Camera2CameraInfoImplTest {
     @Test
     public void cameraInfoWithCameraControl_canReturnIsFocusMeteringSupported()
             throws CameraAccessExceptionCompat {
-        init(/* hasReprocessingCapabilities = */ true);
+        init(/* hasAvailableCapabilities = */ true);
 
         final Camera2CameraInfoImpl cameraInfo = new Camera2CameraInfoImpl(
                 CAMERA0_ID, mCameraManagerCompat);
@@ -434,7 +483,7 @@ public class Camera2CameraInfoImplTest {
     @Test
     public void canReturnCameraCharacteristicsMapWithPhysicalCameras()
             throws CameraAccessExceptionCompat {
-        init(/* hasReprocessingCapabilities = */ true);
+        init(/* hasAvailableCapabilities = */ true);
 
         CameraCharacteristics characteristics0 = mock(CameraCharacteristics.class);
         CameraCharacteristics characteristicsPhysical2 = mock(CameraCharacteristics.class);
@@ -459,7 +508,7 @@ public class Camera2CameraInfoImplTest {
     @Test
     public void canReturnCameraCharacteristicsMapWithMainCamera()
             throws CameraAccessExceptionCompat {
-        init(/* hasReprocessingCapabilities = */ true);
+        init(/* hasAvailableCapabilities = */ true);
 
         Camera2CameraInfoImpl impl = new Camera2CameraInfoImpl("0", mCameraManagerCompat);
         Map<String, CameraCharacteristics> map = impl.getCameraCharacteristicsMap();
@@ -471,7 +520,7 @@ public class Camera2CameraInfoImplTest {
     @Test
     public void cameraInfoWithCameraControl_canReturnIsPrivateReprocessingSupported()
             throws CameraAccessExceptionCompat {
-        init(/* hasReprocessingCapabilities = */ true);
+        init(/* hasAvailableCapabilities = */ true);
 
         final Camera2CameraInfoImpl cameraInfo = new Camera2CameraInfoImpl(
                 CAMERA0_ID, mCameraManagerCompat);
@@ -482,7 +531,7 @@ public class Camera2CameraInfoImplTest {
     @Config(minSdk = 23)
     @Test
     public void isZslSupported_apiVersionMet_returnTrue() throws CameraAccessExceptionCompat {
-        init(/* hasReprocessingCapabilities = */ true);
+        init(/* hasAvailableCapabilities = */ true);
 
         final Camera2CameraInfoImpl cameraInfo = new Camera2CameraInfoImpl(
                 CAMERA0_ID, mCameraManagerCompat);
@@ -493,7 +542,7 @@ public class Camera2CameraInfoImplTest {
     @Config(maxSdk = 22)
     @Test
     public void isZslSupported_apiVersionNotMet_returnFalse() throws CameraAccessExceptionCompat {
-        init(/* hasReprocessingCapabilities = */ true);
+        init(/* hasAvailableCapabilities = */ true);
 
         final Camera2CameraInfoImpl cameraInfo = new Camera2CameraInfoImpl(
                 CAMERA0_ID, mCameraManagerCompat);
@@ -504,12 +553,168 @@ public class Camera2CameraInfoImplTest {
     @Test
     public void isZslSupported_noReprocessingCapability_returnFalse()
             throws CameraAccessExceptionCompat {
-        init(/* hasReprocessingCapabilities = */ false);
+        init(/* hasAvailableCapabilities = */ false);
 
         final Camera2CameraInfoImpl cameraInfo = new Camera2CameraInfoImpl(
                 CAMERA0_ID, mCameraManagerCompat);
 
         assertThat(cameraInfo.isZslSupported()).isFalse();
+    }
+
+    @Config(minSdk = 23)
+    @Test
+    public void isZslSupported_hasZslDisablerQuirkSamsung_returnFalse()
+            throws CameraAccessExceptionCompat {
+        ReflectionHelpers.setStaticField(Build.class, "BRAND", "samsung");
+        ReflectionHelpers.setStaticField(Build.class, "MODEL", "SM-F936B");
+
+        init(/* hasAvailableCapabilities = */ true);
+
+        final Camera2CameraInfoImpl cameraInfo = new Camera2CameraInfoImpl(
+                CAMERA0_ID, mCameraManagerCompat);
+
+        assertThat(cameraInfo.isZslSupported()).isFalse();
+    }
+
+    @Config(minSdk = 23)
+    @Test
+    public void isZslSupported_hasNoZslDisablerQuirkSamsung_returnTrue()
+            throws CameraAccessExceptionCompat {
+        ReflectionHelpers.setStaticField(Build.class, "BRAND", "samsung");
+        ReflectionHelpers.setStaticField(Build.class, "MODEL", "SM-G973");
+
+        init(/* hasAvailableCapabilities = */ true);
+
+        final Camera2CameraInfoImpl cameraInfo = new Camera2CameraInfoImpl(
+                CAMERA0_ID, mCameraManagerCompat);
+
+        assertThat(cameraInfo.isZslSupported()).isTrue();
+    }
+
+    @Config(minSdk = 23)
+    @Test
+    public void isZslSupported_hasZslDisablerQuirkXiaomi_returnFalse()
+            throws CameraAccessExceptionCompat {
+        ReflectionHelpers.setStaticField(Build.class, "BRAND", "xiaomi");
+        ReflectionHelpers.setStaticField(Build.class, "MODEL", "Mi 8");
+
+        init(/* hasAvailableCapabilities = */ true);
+
+        final Camera2CameraInfoImpl cameraInfo = new Camera2CameraInfoImpl(
+                CAMERA0_ID, mCameraManagerCompat);
+
+        assertThat(cameraInfo.isZslSupported()).isFalse();
+    }
+
+    @Config(minSdk = 23)
+    @Test
+    public void isZslSupported_hasNoZslDisablerQuirkXiaomi_returnTrue()
+            throws CameraAccessExceptionCompat {
+        ReflectionHelpers.setStaticField(Build.class, "BRAND", "xiaomi");
+        ReflectionHelpers.setStaticField(Build.class, "MODEL", "Mi A1");
+
+        init(/* hasAvailableCapabilities = */ true);
+
+        final Camera2CameraInfoImpl cameraInfo = new Camera2CameraInfoImpl(
+                CAMERA0_ID, mCameraManagerCompat);
+
+        assertThat(cameraInfo.isZslSupported()).isTrue();
+    }
+
+    @Test
+    public void canReturnSupportedResolutions() throws CameraAccessExceptionCompat {
+        init(/* hasAvailableCapabilities = */ true);
+
+        Camera2CameraInfoImpl cameraInfo = new Camera2CameraInfoImpl(CAMERA0_ID,
+                mCameraManagerCompat);
+        List<Size> resolutions = cameraInfo.getSupportedResolutions(
+                ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE);
+
+        assertThat(resolutions).containsExactly(
+                new Size(1920, 1080),
+                new Size(1280, 720),
+                new Size(640, 480)
+        );
+    }
+
+    @Test
+    public void cameraInfo_canReturnIntrinsicZoomRatio() throws CameraAccessExceptionCompat {
+        init(/* hasAvailableCapabilities = */ false);
+
+        final Camera2CameraInfoImpl cameraInfo = new Camera2CameraInfoImpl(CAMERA2_ID,
+                mCameraManagerCompat);
+
+        float resultZoomRatio = cameraInfo.getIntrinsicZoomRatio();
+
+        assertThat(resultZoomRatio).isEqualTo(CAMERA2_INTRINSIC_ZOOM_RATIO);
+    }
+
+    @Test
+    public void cameraInfo_canReturnSupportedFpsRanges() throws CameraAccessExceptionCompat {
+        init(/* hasAvailableCapabilities = */ false);
+
+        CameraInfo cameraInfo0 = new Camera2CameraInfoImpl(CAMERA0_ID,
+                mCameraManagerCompat);
+        CameraInfo cameraInfo2 = new Camera2CameraInfoImpl(CAMERA2_ID,
+                mCameraManagerCompat);
+
+        Set<Range<Integer>> resultFpsRanges0 = cameraInfo0.getSupportedFrameRateRanges();
+        Set<Range<Integer>> resultFpsRanges2 = cameraInfo2.getSupportedFrameRateRanges();
+
+        assertThat(resultFpsRanges0).containsExactly((Object[]) CAMERA0_AE_FPS_RANGES);
+        assertThat(resultFpsRanges2).containsExactly((Object[]) CAMERA2_AE_FPS_RANGES);
+    }
+
+    @Test
+    public void cameraInfo_returnsEmptyFpsRanges_whenNotSupported()
+            throws CameraAccessExceptionCompat {
+        init(/* hasAvailableCapabilities = */ false);
+
+        CameraInfo cameraInfo1 = new Camera2CameraInfoImpl(CAMERA1_ID,
+                mCameraManagerCompat);
+
+        Set<Range<Integer>> resultFpsRanges1 = cameraInfo1.getSupportedFrameRateRanges();
+
+        assertThat(resultFpsRanges1).isEmpty();
+    }
+
+    @Test
+    public void cameraInfo_checkDefaultCameraIntrinsicZoomRatio()
+            throws CameraAccessExceptionCompat {
+        init(/* hasAvailableCapabilities = */ false);
+
+        final Camera2CameraInfoImpl cameraInfo = new Camera2CameraInfoImpl(CAMERA0_ID,
+                mCameraManagerCompat);
+
+        float resultZoomRatio = cameraInfo.getIntrinsicZoomRatio();
+
+        // The intrinsic zoom ratio of the default camera should always be 1.0.
+        assertThat(resultZoomRatio).isEqualTo(1.0F);
+    }
+
+    @Config(minSdk = 33)
+    @Test
+    public void apiVersionMet_canReturnSupportedDynamicRanges() throws CameraAccessExceptionCompat {
+        init(/* hasAvailableCapabilities = */ true);
+
+        final Camera2CameraInfoImpl cameraInfo = new Camera2CameraInfoImpl(
+                CAMERA0_ID, mCameraManagerCompat);
+
+        Set<DynamicRange> supportedDynamicRanges = cameraInfo.getSupportedDynamicRanges();
+        assertThat(supportedDynamicRanges).containsExactly(SDR, HLG_10_BIT);
+    }
+
+    @Config(maxSdk = 32)
+    @Test
+    public void apiVersionNotMet_canReturnSupportedDynamicRanges()
+            throws CameraAccessExceptionCompat {
+        init(/* hasAvailableCapabilities = */ true);
+
+        final Camera2CameraInfoImpl cameraInfo = new Camera2CameraInfoImpl(
+                CAMERA0_ID, mCameraManagerCompat);
+
+        Set<DynamicRange> supportedDynamicRanges = cameraInfo.getSupportedDynamicRanges();
+        assertThat(supportedDynamicRanges).containsExactly(SDR);
     }
 
     private CameraManagerCompat initCameraManagerWithPhysicalIds(
@@ -523,13 +728,12 @@ public class Camera2CameraInfoImplTest {
         return CameraManagerCompat.from(cameraManagerImpl);
     }
 
-    private void init(boolean hasReprocessingCapabilities) throws CameraAccessExceptionCompat {
-        initCameras(hasReprocessingCapabilities);
+    private void init(boolean hasAvailableCapabilities) throws CameraAccessExceptionCompat {
+        initCameras(hasAvailableCapabilities);
 
         mCameraManagerCompat =
                 CameraManagerCompat.from((Context) ApplicationProvider.getApplicationContext());
         mCameraCharacteristics0 = mCameraManagerCompat.getCameraCharacteristicsCompat(CAMERA0_ID);
-        mCameraCharacteristics1 = mCameraManagerCompat.getCameraCharacteristicsCompat(CAMERA1_ID);
 
         mMockZoomControl = mock(ZoomControl.class);
         mMockTorchControl = mock(TorchControl.class);
@@ -543,7 +747,7 @@ public class Camera2CameraInfoImplTest {
         when(mMockCameraControl.getFocusMeteringControl()).thenReturn(mFocusMeteringControl);
     }
 
-    private void initCameras(boolean hasReprocessingCapabilities) {
+    private void initCameras(boolean hasAvailableCapabilities) {
         // **** Camera 0 characteristics ****//
         CameraCharacteristics characteristics0 =
                 ShadowCameraCharacteristics.newCameraCharacteristics();
@@ -564,8 +768,44 @@ public class Camera2CameraInfoImplTest {
         shadowCharacteristics0.set(
                 CameraCharacteristics.FLASH_INFO_AVAILABLE, CAMERA0_FLASH_INFO_BOOLEAN);
 
+        // Mock the supported resolutions
+        {
+            int formatPrivate = ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE;
+            StreamConfigurationMapBuilder streamMapBuilder =
+                    StreamConfigurationMapBuilder.newBuilder()
+                            .addOutputSize(formatPrivate, new Size(1920, 1080))
+                            .addOutputSize(formatPrivate, new Size(1280, 720))
+                            .addOutputSize(formatPrivate, new Size(640, 480));
+            shadowCharacteristics0.set(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP,
+                    streamMapBuilder.build());
+        }
+
+        shadowCharacteristics0.set(
+                CameraCharacteristics.SENSOR_INFO_PHYSICAL_SIZE, CAMERA0_SENSOR_PHYSICAL_SIZE);
+
+        shadowCharacteristics0.set(
+                CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE,
+                CAMERA0_SENSOR_ACTIVE_ARRAY_SIZE);
+
+        shadowCharacteristics0.set(
+                CameraCharacteristics.SENSOR_INFO_PIXEL_ARRAY_SIZE,
+                CAMERA0_SENSOR_PIXEL_ARRAY_SIZE);
+
+        shadowCharacteristics0.set(
+                CameraCharacteristics.LENS_INFO_AVAILABLE_FOCAL_LENGTHS, CAMERA0_LENS_FOCAL_LENGTH);
+
+        shadowCharacteristics0.set(
+                CameraCharacteristics.CONTROL_AE_AVAILABLE_TARGET_FPS_RANGES,
+                CAMERA0_AE_FPS_RANGES);
+
+        if (Build.VERSION.SDK_INT >= 33) {
+            shadowCharacteristics0.set(
+                    CameraCharacteristics.REQUEST_AVAILABLE_DYNAMIC_RANGE_PROFILES,
+                    CAMERA0_DYNAMIC_RANGE_PROFILES);
+        }
+
         // Mock the request capability
-        if (hasReprocessingCapabilities) {
+        if (hasAvailableCapabilities) {
             shadowCharacteristics0.set(REQUEST_AVAILABLE_CAPABILITIES,
                     CAMERA0_SUPPORTED_CAPABILITIES);
         }
@@ -597,12 +837,62 @@ public class Camera2CameraInfoImplTest {
         shadowCharacteristics1.set(
                 CameraCharacteristics.FLASH_INFO_AVAILABLE, CAMERA1_FLASH_INFO_BOOLEAN);
 
+        // Mock the supported resolutions
+        {
+            int formatPrivate = ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE;
+            StreamConfigurationMapBuilder streamMapBuilder =
+                    StreamConfigurationMapBuilder.newBuilder()
+                            .addOutputSize(formatPrivate, new Size(1280, 720))
+                            .addOutputSize(formatPrivate, new Size(640, 480));
+            shadowCharacteristics1.set(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP,
+                    streamMapBuilder.build());
+        }
+
         // Add the camera to the camera service
         ((ShadowCameraManager)
                 Shadow.extract(
                         ApplicationProvider.getApplicationContext()
                                 .getSystemService(Context.CAMERA_SERVICE)))
                 .addCamera(CAMERA1_ID, characteristics1);
+
+        // **** Camera 2 characteristics ****//
+        CameraCharacteristics characteristics2 =
+                ShadowCameraCharacteristics.newCameraCharacteristics();
+
+        ShadowCameraCharacteristics shadowCharacteristics2 = Shadow.extract(characteristics2);
+
+        // Add a lens facing to the camera
+        shadowCharacteristics2.set(CameraCharacteristics.LENS_FACING, CAMERA2_LENS_FACING_INT);
+
+        // Mock the sensor orientation
+        shadowCharacteristics2.set(
+                CameraCharacteristics.SENSOR_ORIENTATION, CAMERA2_SENSOR_ORIENTATION);
+
+        // Mock FOV related characteristics
+        shadowCharacteristics2.set(
+                CameraCharacteristics.SENSOR_INFO_PHYSICAL_SIZE, CAMERA2_SENSOR_PHYSICAL_SIZE);
+
+        shadowCharacteristics2.set(
+                CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE,
+                CAMERA2_SENSOR_ACTIVE_ARRAY_SIZE);
+
+        shadowCharacteristics2.set(
+                CameraCharacteristics.SENSOR_INFO_PIXEL_ARRAY_SIZE,
+                CAMERA2_SENSOR_PIXEL_ARRAY_SIZE);
+
+        shadowCharacteristics2.set(
+                CameraCharacteristics.LENS_INFO_AVAILABLE_FOCAL_LENGTHS, CAMERA2_LENS_FOCAL_LENGTH);
+
+        shadowCharacteristics2.set(
+                CameraCharacteristics.CONTROL_AE_AVAILABLE_TARGET_FPS_RANGES,
+                CAMERA2_AE_FPS_RANGES);
+
+        // Add the camera to the camera service
+        ((ShadowCameraManager)
+                Shadow.extract(
+                        ApplicationProvider.getApplicationContext()
+                                .getSystemService(Context.CAMERA_SERVICE)))
+                .addCamera(CAMERA2_ID, characteristics2);
     }
 
     private static class FakeCameraManagerImpl
@@ -618,6 +908,12 @@ public class Camera2CameraInfoImplTest {
         @Override
         public String[] getCameraIdList() throws CameraAccessExceptionCompat {
             return mCameraIdCharacteristics.keySet().toArray(new String[0]);
+        }
+
+        @NonNull
+        @Override
+        public Set<Set<String>> getConcurrentCameraIds() throws CameraAccessExceptionCompat {
+            return ImmutableSet.of(mCameraIdCharacteristics.keySet());
         }
 
         @Override

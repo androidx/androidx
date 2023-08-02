@@ -22,6 +22,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresFeature;
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.annotation.CanIgnoreReturnValue;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.core.util.ObjectsCompat;
 import androidx.core.util.Preconditions;
@@ -50,6 +51,7 @@ public final class SearchResult {
     static final String PACKAGE_NAME_FIELD = "packageName";
     static final String DATABASE_NAME_FIELD = "databaseName";
     static final String RANKING_SIGNAL_FIELD = "rankingSignal";
+    static final String JOINED_RESULTS = "joinedResults";
 
     @NonNull
     private final Bundle mBundle;
@@ -62,13 +64,13 @@ public final class SearchResult {
     @Nullable
     private List<MatchInfo> mMatchInfos;
 
-    /** @hide */
+    /** @exportToFramework:hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public SearchResult(@NonNull Bundle bundle) {
         mBundle = Preconditions.checkNotNull(bundle);
     }
 
-    /** @hide */
+    /** @exportToFramework:hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @NonNull
     public Bundle getBundle() {
@@ -183,6 +185,35 @@ public final class SearchResult {
         return mBundle.getDouble(RANKING_SIGNAL_FIELD);
     }
 
+    /**
+     * Gets a list of {@link SearchResult} joined from the join operation.
+     *
+     * <p> These joined documents match the outer document as specified in the {@link JoinSpec}
+     * with parentPropertyExpression and childPropertyExpression. They are ordered according to the
+     * {@link JoinSpec#getNestedSearchSpec}, and as many SearchResults as specified by
+     * {@link JoinSpec#getMaxJoinedResultCount} will be returned. If no {@link JoinSpec} was
+     * specified, this returns an empty list.
+     *
+     * <p> This method is inefficient to call repeatedly, as new {@link SearchResult} objects are
+     * created each time.
+     *
+     * @return a List of SearchResults containing joined documents.
+     */
+    @NonNull
+    @SuppressWarnings("deprecation") // Bundle#getParcelableArrayList(String) is deprecated.
+    public List<SearchResult> getJoinedResults() {
+        ArrayList<Bundle> bundles = mBundle.getParcelableArrayList(JOINED_RESULTS);
+        if (bundles == null) {
+            return new ArrayList<>();
+        }
+        List<SearchResult> res = new ArrayList<>(bundles.size());
+        for (int i = 0; i < bundles.size(); i++) {
+            res.add(new SearchResult(bundles.get(i)));
+        }
+
+        return res;
+    }
+
     /** Builder for {@link SearchResult} objects. */
     public static final class Builder {
         private final String mPackageName;
@@ -190,6 +221,7 @@ public final class SearchResult {
         private ArrayList<Bundle> mMatchInfoBundles = new ArrayList<>();
         private GenericDocument mGenericDocument;
         private double mRankingSignal;
+        private ArrayList<Bundle> mJoinedResults = new ArrayList<>();
         private boolean mBuilt = false;
 
         /**
@@ -213,6 +245,7 @@ public final class SearchResult {
          * @throws AppSearchException if an error occurs converting a document class into a
          *                            {@link GenericDocument}.
          */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder setDocument(@NonNull Object document) throws AppSearchException {
             Preconditions.checkNotNull(document);
@@ -222,6 +255,7 @@ public final class SearchResult {
 // @exportToFramework:endStrip()
 
         /** Sets the document which matched. */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder setGenericDocument(@NonNull GenericDocument document) {
             Preconditions.checkNotNull(document);
@@ -231,6 +265,7 @@ public final class SearchResult {
         }
 
         /** Adds another match to this SearchResult. */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder addMatchInfo(@NonNull MatchInfo matchInfo) {
             Preconditions.checkState(
@@ -243,10 +278,23 @@ public final class SearchResult {
         }
 
         /** Sets the ranking signal of the matched document in this SearchResult. */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder setRankingSignal(double rankingSignal) {
             resetIfBuilt();
             mRankingSignal = rankingSignal;
+            return this;
+        }
+
+        /**
+         * Adds a {@link SearchResult} that was joined by the {@link JoinSpec}.
+         * @param joinedResult The joined SearchResult to add.
+         */
+        @CanIgnoreReturnValue
+        @NonNull
+        public Builder addJoinedResult(@NonNull SearchResult joinedResult) {
+            resetIfBuilt();
+            mJoinedResults.add(joinedResult.getBundle());
             return this;
         }
 
@@ -259,6 +307,7 @@ public final class SearchResult {
             bundle.putBundle(DOCUMENT_FIELD, mGenericDocument.getBundle());
             bundle.putDouble(RANKING_SIGNAL_FIELD, mRankingSignal);
             bundle.putParcelableArrayList(MATCH_INFOS_FIELD, mMatchInfoBundles);
+            bundle.putParcelableArrayList(JOINED_RESULTS, mJoinedResults);
             mBuilt = true;
             return new SearchResult(bundle);
         }
@@ -266,14 +315,15 @@ public final class SearchResult {
         private void resetIfBuilt() {
             if (mBuilt) {
                 mMatchInfoBundles = new ArrayList<>(mMatchInfoBundles);
+                mJoinedResults = new ArrayList<>(mJoinedResults);
                 mBuilt = false;
             }
         }
     }
 
     /**
-     * This class represents match objects for any Snippets that might be present in
-     * {@link SearchResults} from a query. Using this class, the user can get:
+     * This class represents match objects for any snippets that might be present in
+     * {@link SearchResults} from a query. Using this class, you can get:
      * <ul>
      *     <li>the full text - all of the text in that String property</li>
      *     <li>the exact term match - the 'term' (full word) that matched the query</li>
@@ -431,7 +481,7 @@ public final class SearchResult {
             if (mFullText == null) {
                 if (mDocument == null) {
                     throw new IllegalStateException(
-                    "Document has not been populated; this MatchInfo cannot be used yet");
+                            "Document has not been populated; this MatchInfo cannot be used yet");
                 }
                 mFullText = getPropertyValues(mDocument, mPropertyPath);
             }
@@ -591,16 +641,17 @@ public final class SearchResult {
              * property in the document these snippets correspond to.
              *
              * <p>Example properties: 'body', 'sender.name', 'sender.emailaddress', etc.
-             * For class example 1 this returns "subject".
+             * For class example 1, this returns "subject".
              *
-             * @param propertyPath A {@code dot-delimited sequence of property names indicating
-             *                     which property in the document these snippets correspond to.
+             * @param propertyPath A dot-delimited sequence of property names indicating which
+             *                     property in the document these snippets correspond to.
              */
             public Builder(@NonNull String propertyPath) {
                 mPropertyPath = Preconditions.checkNotNull(propertyPath);
             }
 
             /** Sets the exact {@link MatchRange} corresponding to the given entry. */
+            @CanIgnoreReturnValue
             @NonNull
             public Builder setExactMatchRange(@NonNull MatchRange matchRange) {
                 mExactMatchRange = Preconditions.checkNotNull(matchRange);
@@ -609,6 +660,7 @@ public final class SearchResult {
 
 
             /** Sets the submatch {@link MatchRange} corresponding to the given entry. */
+            @CanIgnoreReturnValue
             @NonNull
             public Builder setSubmatchRange(@NonNull MatchRange matchRange) {
                 mSubmatchRange = Preconditions.checkNotNull(matchRange);
@@ -616,6 +668,7 @@ public final class SearchResult {
             }
 
             /** Sets the snippet {@link MatchRange} corresponding to the given entry. */
+            @CanIgnoreReturnValue
             @NonNull
             public Builder setSnippetRange(@NonNull MatchRange matchRange) {
                 mSnippetRange = Preconditions.checkNotNull(matchRange);
@@ -653,7 +706,7 @@ public final class SearchResult {
      * <p> All ranges are finite, and the left side of the range is always {@code <=} the right
      * side of the range.
      *
-     * <p> Example: MatchRange(0, 100) represent a hundred ints from 0 to 99."
+     * <p> Example: MatchRange(0, 100) represents hundred ints from 0 to 99."
      */
     public static final class MatchRange {
         private final int mEnd;

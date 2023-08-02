@@ -22,13 +22,14 @@ import androidx.compose.runtime.benchmark.siblings.ReorderType
 import androidx.compose.runtime.benchmark.siblings.SiblingManagement
 import androidx.compose.runtime.benchmark.siblings.update
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.test.annotation.UiThreadTest
 import androidx.test.filters.LargeTest
+import kotlin.random.Random
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
-import kotlin.random.Random
 
 /**
  * Managing “lists” of components that are siblings in Compose and other declarative reactive frameworks ends up
@@ -52,7 +53,7 @@ import kotlin.random.Random
  */
 @LargeTest
 @RunWith(Parameterized::class)
-@OptIn(ExperimentalCoroutinesApi::class)
+@OptIn(ExperimentalCoroutinesApi::class, ExperimentalTestApi::class)
 class SiblingBenchmark(
     val count: Int,
     val reorder: ReorderType,

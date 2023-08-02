@@ -16,6 +16,8 @@
 
 package androidx.lifecycle;
 
+import static android.os.Build.VERSION.SDK_INT;
+
 import static androidx.test.platform.app.InstrumentationRegistry.getInstrumentation;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -37,6 +39,8 @@ import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 import androidx.test.rule.UiThreadTestRule;
 
+import org.junit.Assume;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -53,6 +57,12 @@ public class SynchronousActivityLifecycleTest {
 
     @Rule
     public UiThreadTestRule uiThreadTestRule = new UiThreadTestRule();
+
+    @Before
+    public void setup() {
+        // b/276959207
+        Assume.assumeTrue(!Build.MODEL.contains("x86") || SDK_INT != 21);
+    }
 
     @Test
     public void testOnCreateCall() throws Throwable {
@@ -152,7 +162,7 @@ public class SynchronousActivityLifecycleTest {
 
     private static void performStop(Activity activity) {
         try {
-            if (Build.VERSION.SDK_INT >= 24) {
+            if (SDK_INT >= 24) {
                 Method m = Activity.class.getDeclaredMethod("performStop", boolean.class);
                 m.setAccessible(true);
                 m.invoke(activity, false);

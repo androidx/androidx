@@ -15,6 +15,7 @@
  */
 package androidx.compose.ui.text.android
 
+import android.os.Build
 import android.text.BoringLayout
 import android.text.BoringLayout.Metrics
 import android.text.Layout.Alignment
@@ -24,7 +25,6 @@ import android.text.TextPaint
 import android.text.TextUtils.TruncateAt
 import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
-import androidx.core.os.BuildCompat
 
 /**
  * Factory Class for BoringLayout
@@ -40,13 +40,12 @@ internal object BoringLayoutFactory {
      * @return null if not boring; the width, ascent, and descent in a BoringLayout.Metrics
      * object.
      */
-    @androidx.annotation.OptIn(markerClass = [BuildCompat.PrereleaseSdkCheck::class])
     fun measure(
         text: CharSequence,
         paint: TextPaint,
         textDir: TextDirectionHeuristic
     ): Metrics? {
-        return if (BuildCompat.isAtLeastT()) {
+        return if (Build.VERSION.SDK_INT >= 33) {
             BoringLayoutFactory33.isBoring(text, paint, textDir)
         } else {
             BoringLayoutFactoryDefault.isBoring(text, paint, textDir)
@@ -72,8 +71,7 @@ internal object BoringLayoutFactory {
      *
      * @see BoringLayout.isFallbackLineSpacingEnabled
      * @see StaticLayout.Builder.setUseLineSpacingFromFallbacks
-     **/
-    @androidx.annotation.OptIn(markerClass = [BuildCompat.PrereleaseSdkCheck::class])
+     */
     fun create(
         text: CharSequence,
         paint: TextPaint,
@@ -85,10 +83,10 @@ internal object BoringLayoutFactory {
         ellipsize: TruncateAt? = null,
         ellipsizedWidth: Int = width,
     ): BoringLayout {
-        require(width >= 0)
-        require(ellipsizedWidth >= 0)
+        require(width >= 0) { "negative width" }
+        require(ellipsizedWidth >= 0) { "negative ellipsized width" }
 
-        return if (BuildCompat.isAtLeastT()) {
+        return if (Build.VERSION.SDK_INT >= 33) {
             BoringLayoutFactory33.create(
                 text,
                 paint,
@@ -121,9 +119,8 @@ internal object BoringLayoutFactory {
     /**
      * Returns whether fallbackLineSpacing is enabled for the given layout.
      */
-    @androidx.annotation.OptIn(markerClass = [BuildCompat.PrereleaseSdkCheck::class])
     fun isFallbackLineSpacingEnabled(layout: BoringLayout): Boolean {
-        return if (BuildCompat.isAtLeastT()) {
+        return if (Build.VERSION.SDK_INT >= 33) {
             BoringLayoutFactory33.isFallbackLineSpacingEnabled(layout)
         } else {
             return false
@@ -162,7 +159,7 @@ private object BoringLayoutFactory33 {
         ellipsize: TruncateAt? = null,
         ellipsizedWidth: Int = width
     ): BoringLayout {
-        return BoringLayoutConstructor33.create(
+        return BoringLayout(
             text,
             paint,
             width,

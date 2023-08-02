@@ -17,16 +17,20 @@ package androidx.health.connect.client
 
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.RemoteException
 import androidx.annotation.ChecksSdkIntAtLeast
+import androidx.annotation.IntDef
 import androidx.annotation.RestrictTo
+import androidx.core.content.pm.PackageInfoCompat
 import androidx.health.connect.client.aggregate.AggregateMetric
 import androidx.health.connect.client.aggregate.AggregationResult
 import androidx.health.connect.client.aggregate.AggregationResultGroupedByDuration
 import androidx.health.connect.client.aggregate.AggregationResultGroupedByPeriod
 import androidx.health.connect.client.impl.HealthConnectClientImpl
+import androidx.health.connect.client.impl.HealthConnectClientUpsideDownImpl
 import androidx.health.connect.client.records.Record
 import androidx.health.connect.client.records.metadata.DataOrigin
 import androidx.health.connect.client.request.AggregateGroupByDurationRequest
@@ -41,9 +45,9 @@ import androidx.health.connect.client.response.ReadRecordsResponse
 import androidx.health.connect.client.time.TimeRangeFilter
 import androidx.health.platform.client.HealthDataService
 import java.io.IOException
-import java.lang.IllegalStateException
 import kotlin.reflect.KClass
 
+@JvmDefaultWithCompatibility
 /** Interface to access health and fitness records. */
 interface HealthConnectClient {
 
@@ -52,23 +56,8 @@ interface HealthConnectClient {
 
     /**
      * Inserts one or more [Record] and returns newly assigned
-     * [androidx.health.connect.client.records.metadata.Metadata.uid] generated. Insertion of
+     * [androidx.health.connect.client.records.metadata.Metadata.id] generated. Insertion of
      * multiple [records] is executed in a transaction - if one fails, none is inserted.
-     *
-     * For example, to insert basic data like step counts:
-     * @sample androidx.health.connect.client.samples.InsertSteps
-     *
-     * To insert more complex data like nutrition for a user who’s eaten a banana:
-     * @sample androidx.health.connect.client.samples.InsertNutrition
-     *
-     * To insert some heart rate data:
-     * @sample androidx.health.connect.client.samples.InsertHeartRateSeries
-     *
-     * [androidx.health.connect.client.records.metadata.Metadata.clientRecordId] can be used to
-     * deduplicate data with a client provided unique identifier. When a subsequent [insertRecords]
-     * is called with the same [androidx.health.connect.client.records.metadata.Metadata.clientRecordId],
-     * whichever [Record] with the higher [androidx.health.connect.client.records.metadata.Metadata.clientRecordVersion]
-     * takes precedence.
      *
      * @param records List of records to insert
      * @return List of unique identifiers in the order of inserted records.
@@ -76,6 +65,26 @@ interface HealthConnectClient {
      * @throws SecurityException For requests with unpermitted access.
      * @throws IOException For any disk I/O issues.
      * @throws IllegalStateException If service is not available.
+     *
+     * For example, to insert basic data like step counts:
+     *
+     * @sample androidx.health.connect.client.samples.InsertSteps
+     *
+     * To insert more complex data like nutrition for a user who’s eaten a banana:
+     *
+     * @sample androidx.health.connect.client.samples.InsertNutrition
+     *
+     * To insert some heart rate data:
+     *
+     * @sample androidx.health.connect.client.samples.InsertHeartRateSeries
+     *
+     * [androidx.health.connect.client.records.metadata.Metadata.clientRecordId] can be used to
+     * deduplicate data with a client provided unique identifier. When a subsequent [insertRecords]
+     * is called with the same
+     * [androidx.health.connect.client.records.metadata.Metadata.clientRecordId], whichever [Record]
+     * with the higher
+     * [androidx.health.connect.client.records.metadata.Metadata.clientRecordVersion] takes
+     * precedence.
      */
     suspend fun insertRecords(records: List<Record>): InsertRecordsResponse
 
@@ -85,7 +94,7 @@ interface HealthConnectClient {
      *
      * @param records List of records to update
      * @throws RemoteException For any IPC transportation failures. Update with invalid identifiers
-     * will result in IPC failure.
+     *   will result in IPC failure.
      * @throws SecurityException For requests with unpermitted access.
      * @throws IOException For any disk I/O issues.
      * @throws IllegalStateException If service is not available.
@@ -96,22 +105,24 @@ interface HealthConnectClient {
      * Deletes one or more [Record] by their identifiers. Deletion of multiple [Record] is executed
      * in single transaction - if one fails, none is deleted.
      *
-     * Example usage to delete written steps data by its unique identifier:
-     * @sample androidx.health.connect.client.samples.DeleteByUniqueIdentifier
-     *
      * @param recordType Which type of [Record] to delete, such as `Steps::class`
-     * @param uidsList List of uids of [Record] to delete
+     * @param recordIdsList List of [androidx.health.connect.client.records.metadata.Metadata.id] of
+     *   [Record] to delete
      * @param clientRecordIdsList List of client record IDs of [Record] to delete
      * @throws RemoteException For any IPC transportation failures. Deleting by invalid identifiers
-     * such as a non-existing identifier or deleting the same record multiple times will result in
-     * IPC failure.
+     *   such as a non-existing identifier or deleting the same record multiple times will result in
+     *   IPC failure.
      * @throws SecurityException For requests with unpermitted access.
      * @throws IOException For any disk I/O issues.
      * @throws IllegalStateException If service is not available.
+     *
+     * Example usage to delete written steps data by its unique identifier:
+     *
+     * @sample androidx.health.connect.client.samples.DeleteByUniqueIdentifier
      */
     suspend fun deleteRecords(
         recordType: KClass<out Record>,
-        uidsList: List<String>,
+        recordIdsList: List<String>,
         clientRecordIdsList: List<String>,
     )
 
@@ -120,46 +131,51 @@ interface HealthConnectClient {
      * filtered to [Record] belonging to the calling application). Deletion of multiple [Record] is
      * executed in a transaction - if one fails, none is deleted.
      *
-     * Example usage to delete written steps data in a time range:
-     * @sample androidx.health.connect.client.samples.DeleteByTimeRange
-     *
      * @param recordType Which type of [Record] to delete, such as `Steps::class`
      * @param timeRangeFilter The [TimeRangeFilter] to delete from
      * @throws RemoteException For any IPC transportation failures.
      * @throws SecurityException For requests with unpermitted access.
      * @throws IOException For any disk I/O issues.
      * @throws IllegalStateException If service is not available.
+     *
+     * Example usage to delete written steps data in a time range:
+     *
+     * @sample androidx.health.connect.client.samples.DeleteByTimeRange
      */
     suspend fun deleteRecords(recordType: KClass<out Record>, timeRangeFilter: TimeRangeFilter)
 
     /**
-     * Reads one [Record] point with its [recordType] and [uid].
+     * Reads one [Record] point with its [recordType] and [recordId].
      *
      * @param recordType Which type of [Record] to read, such as `Steps::class`
-     * @param uid Uid of [Record] to read
+     * @param recordId [androidx.health.connect.client.records.metadata.Metadata.id] of [Record] to
+     *   read
      * @return The [Record] data point.
      * @throws RemoteException For any IPC transportation failures. Update with invalid identifiers
-     * will result in IPC failure.
+     *   will result in IPC failure.
      * @throws SecurityException For requests with unpermitted access.
      * @throws IOException For any disk I/O issues.
      * @throws IllegalStateException If service is not available.
      */
-    suspend fun <T : Record> readRecord(recordType: KClass<T>, uid: String): ReadRecordResponse<T>
+    suspend fun <T : Record> readRecord(
+        recordType: KClass<T>,
+        recordId: String
+    ): ReadRecordResponse<T>
 
     /**
      * Retrieves a collection of [Record]s.
      *
-     * Example code to read basic data like step counts:
-     * @sample androidx.health.connect.client.samples.ReadStepsRange
-     *
      * @param T the type of [Record]
      * @param request [ReadRecordsRequest] object specifying time range and other filters
-     *
      * @return a response containing a collection of [Record]s.
      * @throws RemoteException For any IPC transportation failures.
      * @throws SecurityException For requests with unpermitted access.
      * @throws IOException For any disk I/O issues.
      * @throws IllegalStateException If service is not available.
+     *
+     * Example code to read basic data like step counts:
+     *
+     * @sample androidx.health.connect.client.samples.ReadStepsRange
      */
     suspend fun <T : Record> readRecords(request: ReadRecordsRequest<T>): ReadRecordsResponse<T>
 
@@ -167,20 +183,21 @@ interface HealthConnectClient {
      * Reads [AggregateMetric]s according to requested read criteria: [Record]s from
      * [AggregateRequest.dataOriginFilter] and within [AggregateRequest.timeRangeFilter].
      *
-     * Example code to aggregate cumulative data like distance:
-     * @sample androidx.health.connect.client.samples.AggregateDistance
-     *
-     * Example code to retrieve statistical aggregates like maximum or minimum heart rate:
-     * @sample androidx.health.connect.client.samples.AggregateHeartRate
-     *
      * @param request [AggregateRequest] object specifying [AggregateMetric]s to aggregate and other
-     * filters.
-     *
+     *   filters.
      * @return the [AggregationResult] that contains aggregated values.
      * @throws RemoteException For any IPC transportation failures.
      * @throws SecurityException For requests with unpermitted access.
      * @throws IOException For any disk I/O issues.
      * @throws IllegalStateException If service is not available.
+     *
+     * Example code to aggregate cumulative data like distance:
+     *
+     * @sample androidx.health.connect.client.samples.AggregateDistance
+     *
+     * Example code to retrieve statistical aggregates like maximum or minimum heart rate:
+     *
+     * @sample androidx.health.connect.client.samples.AggregateHeartRate
      */
     suspend fun aggregate(request: AggregateRequest): AggregationResult
 
@@ -195,18 +212,18 @@ interface HealthConnectClient {
      * An [AggregationResultGroupedByDuration] is returned only if there are [Record] to aggregate
      * within start and end time of the row.
      *
-     * Example code to retrieve cumulative step count for each minute within provided time range:
-     * @sample androidx.health.connect.client.samples.AggregateIntoMinutes
-     *
      * @param request [AggregateGroupByDurationRequest] object specifying [AggregateMetric]s to
-     * aggregate and other filters.
-     *
+     *   aggregate and other filters.
      * @return a list of [AggregationResultGroupedByDuration]s, each contains aggregated values and
-     * start/end time of the row. The list is sorted by time in ascending order.
+     *   start/end time of the row. The list is sorted by time in ascending order.
      * @throws RemoteException For any IPC transportation failures.
      * @throws SecurityException For requests with unpermitted access.
      * @throws IOException For any disk I/O issues.
      * @throws IllegalStateException If service is not available.
+     *
+     * Example code to retrieve cumulative step count for each minute within provided time range:
+     *
+     * @sample androidx.health.connect.client.samples.AggregateIntoMinutes
      */
     suspend fun aggregateGroupByDuration(
         request: AggregateGroupByDurationRequest,
@@ -223,18 +240,18 @@ interface HealthConnectClient {
      * An [AggregationResultGroupedByPeriod] is returned only if there are [Record] to aggregate
      * within start and end time of the row.
      *
-     * Example code to retrieve cumulative step count for each month within provided time range:
-     * @sample androidx.health.connect.client.samples.AggregateIntoMonths
-     *
      * @param request [AggregateGroupByPeriodRequest] object specifying [AggregateMetric]s to
-     * aggregate and other filters.
-     *
+     *   aggregate and other filters.
      * @return a list of [AggregationResultGroupedByPeriod]s, each contains aggregated values and
-     * start/end time of the row. The list is sorted by time in ascending order.
+     *   start/end time of the row. The list is sorted by time in ascending order.
      * @throws RemoteException For any IPC transportation failures.
      * @throws SecurityException For requests with unpermitted access.
      * @throws IOException For any disk I/O issues.
      * @throws IllegalStateException If service is not available.
+     *
+     * Example code to retrieve cumulative step count for each month within provided time range:
+     *
+     * @sample androidx.health.connect.client.samples.AggregateIntoMonths
      */
     suspend fun aggregateGroupByPeriod(
         request: AggregateGroupByPeriodRequest,
@@ -253,11 +270,9 @@ interface HealthConnectClient {
      *
      * @param request Includes interested types of record to observe changes and optional filters.
      * @return a changes-token
-     *
      * @throws RemoteException For any IPC transportation failures.
      * @throws SecurityException For requests with unpermitted access.
      * @throws IllegalStateException If service is not available.
-     *
      * @see getChanges
      */
     suspend fun getChangesToken(request: ChangesTokenRequest): String
@@ -284,13 +299,11 @@ interface HealthConnectClient {
      * ```
      *
      * @param changesToken A Changes-Token that represents a specific point in time in Android
-     * Health Platform.
+     *   Health Platform.
      * @return a [ChangesResponse] with changes since provided [changesToken].
-     *
      * @throws RemoteException For any IPC transportation failures.
      * @throws SecurityException For requests with unpermitted access.
      * @throws IllegalStateException If service is not available.
-     *
      * @see getChangesToken
      */
     suspend fun getChanges(changesToken: String): ChangesResponse
@@ -299,71 +312,195 @@ interface HealthConnectClient {
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         internal const val DEFAULT_PROVIDER_PACKAGE_NAME = "com.google.android.apps.healthdata"
 
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        internal const val DEFAULT_PROVIDER_MIN_VERSION_CODE = 68623
+
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        const val ACTION_HEALTH_CONNECT_SETTINGS_LEGACY =
+            "androidx.health.ACTION_HEALTH_CONNECT_SETTINGS"
+
         /**
-         * Determines whether an implementation of [HealthConnectClient] is available on this device
-         * at the moment.
+         * Intent action to open Health Connect settings on this phone. Developers should use this
+         * if they want to re-direct the user to Health Connect.
+         */
+        @get:JvmName("getHealthConnectSettingsAction")
+        @JvmStatic
+        val ACTION_HEALTH_CONNECT_SETTINGS =
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+                "android.health.connect.action.HEALTH_HOME_SETTINGS"
+            else "androidx.health.ACTION_HEALTH_CONNECT_SETTINGS"
+
+        /**
+         * The Health Connect SDK is not unavailable on this device at the time. This can be due to
+         * the device running a lower than required Android Version.
          *
-         * @param packageNames optional package provider to choose implementation from
-         * @return whether the api is available
+         * Apps should hide any integration points to Health Connect in this case.
+         */
+        const val SDK_UNAVAILABLE = 1
+        /**
+         * The Health Connect SDK APIs are currently unavailable, the provider is either not
+         * installed or needs to be updated.
+         *
+         * Apps may choose to redirect to package installers to find a suitable APK.
+         */
+        const val SDK_UNAVAILABLE_PROVIDER_UPDATE_REQUIRED = 2
+        /**
+         * The Health Connect SDK APIs are available.
+         *
+         * Apps can subsequently call [getOrCreate] to get an instance of [HealthConnectClient].
+         */
+        const val SDK_AVAILABLE = 3
+
+        /** Availability Status. */
+        @Retention(AnnotationRetention.SOURCE)
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        @IntDef(
+            value =
+                [
+                    SDK_UNAVAILABLE,
+                    SDK_UNAVAILABLE_PROVIDER_UPDATE_REQUIRED,
+                    SDK_AVAILABLE,
+                ]
+        )
+        annotation class AvailabilityStatus
+
+        /**
+         * Determines whether the Health Connect SDK is available on this device at the moment.
+         *
+         * @param context the context
+         * @param providerPackageName optional package provider to choose for backend implementation
+         * @return One of [SDK_UNAVAILABLE], [SDK_UNAVAILABLE_PROVIDER_UPDATE_REQUIRED] or
+         *   [SDK_AVAILABLE]
+         * @sample androidx.health.connect.client.samples.AvailabilityCheckSamples
          */
         @JvmOverloads
         @JvmStatic
-        public fun isAvailable(
+        @AvailabilityStatus
+        fun getSdkStatus(
             context: Context,
-            packageNames: List<String> = listOf(DEFAULT_PROVIDER_PACKAGE_NAME),
-        ): Boolean {
+            providerPackageName: String = DEFAULT_PROVIDER_PACKAGE_NAME,
+        ): Int {
             if (!isSdkVersionSufficient()) {
-                return false
+                return SDK_UNAVAILABLE
             }
-            return packageNames.any { isPackageInstalled(context.packageManager, it) }
+            if (!isProviderAvailable(context, providerPackageName)) {
+                return SDK_UNAVAILABLE_PROVIDER_UPDATE_REQUIRED
+            }
+            return SDK_AVAILABLE
+        }
+
+        @JvmOverloads
+        @JvmStatic
+        @AvailabilityStatus
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        fun getSdkStatusLegacy(
+            context: Context,
+            providerPackageName: String = DEFAULT_PROVIDER_PACKAGE_NAME,
+        ): Int {
+            @Suppress("Deprecation")
+            if (!isSdkVersionSufficient()) {
+                return SDK_UNAVAILABLE
+            }
+            @Suppress("Deprecation")
+            if (!isProviderAvailableLegacy(context, providerPackageName)) {
+                return SDK_UNAVAILABLE_PROVIDER_UPDATE_REQUIRED
+            }
+            return SDK_AVAILABLE
         }
 
         /**
          * Retrieves an IPC-backed [HealthConnectClient] instance binding to an available
          * implementation.
          *
-         * @param packageNames optional package provider to choose implementation from
+         * @param context the context
+         * @param providerPackageName optional alternative package provider to choose for backend
+         *   implementation
          * @return instance of [HealthConnectClient] ready for issuing requests
          * @throws UnsupportedOperationException if service not available due to SDK version too low
          * @throws IllegalStateException if service not available due to not installed
-         *
-         * @see isAvailable
+         * @see isProviderAvailable
          */
         @JvmOverloads
         @JvmStatic
         public fun getOrCreate(
             context: Context,
-            packageNames: List<String> = listOf(DEFAULT_PROVIDER_PACKAGE_NAME),
+            providerPackageName: String = DEFAULT_PROVIDER_PACKAGE_NAME,
         ): HealthConnectClient {
-            if (!isSdkVersionSufficient()) {
+            val status = getSdkStatus(context, providerPackageName)
+            if (status == SDK_UNAVAILABLE) {
                 throw UnsupportedOperationException("SDK version too low")
             }
-            if (!isAvailable(context, packageNames)) {
+            if (status == SDK_UNAVAILABLE_PROVIDER_UPDATE_REQUIRED) {
                 throw IllegalStateException("Service not available")
             }
-            val enabledPackage =
-                packageNames.first { isPackageInstalled(context.packageManager, it) }
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                return HealthConnectClientUpsideDownImpl(context)
+            }
             return HealthConnectClientImpl(
-                enabledPackage,
-                HealthDataService.getClient(context, enabledPackage)
+                HealthDataService.getClient(context, providerPackageName)
+            )
+        }
+
+        @JvmOverloads
+        @JvmStatic
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        fun getOrCreateLegacy(
+            context: Context,
+            providerPackageName: String = DEFAULT_PROVIDER_PACKAGE_NAME,
+        ): HealthConnectClient {
+            val status = getSdkStatusLegacy(context, providerPackageName)
+            if (status == SDK_UNAVAILABLE) {
+                throw UnsupportedOperationException("SDK version too low")
+            }
+            if (status == SDK_UNAVAILABLE_PROVIDER_UPDATE_REQUIRED) {
+                throw IllegalStateException("Service not available")
+            }
+            return HealthConnectClientImpl(
+                HealthDataService.getClient(context, providerPackageName)
             )
         }
 
         @ChecksSdkIntAtLeast(api = Build.VERSION_CODES.P)
         internal fun isSdkVersionSufficient() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.P
 
-        internal fun isPackageInstalled(
+        /**
+         * Determines whether an implementation of [HealthConnectClient] is available on this device
+         * at the moment.
+         */
+        internal fun isProviderAvailable(
+            context: Context,
+            providerPackageName: String = DEFAULT_PROVIDER_PACKAGE_NAME,
+        ): Boolean {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                return true
+            }
+            return isPackageInstalled(context.packageManager, providerPackageName)
+        }
+
+        internal fun isProviderAvailableLegacy(
+            context: Context,
+            providerPackageName: String = DEFAULT_PROVIDER_PACKAGE_NAME,
+        ): Boolean {
+            return isPackageInstalled(context.packageManager, providerPackageName)
+        }
+
+        private fun isPackageInstalled(
             packageManager: PackageManager,
             packageName: String,
         ): Boolean {
-            val isPackageInstalledAndEnabled =
+            val packageInfo: PackageInfo =
                 try {
-                    @Suppress("Deprecation") // getApplicationInfo deprecated in T
-                    packageManager.getApplicationInfo(packageName, /* flags= */ 0).enabled
+                    @Suppress("Deprecation") // getPackageInfo deprecated in T
+                    packageManager.getPackageInfo(packageName, /* flags= */ 0)
                 } catch (e: PackageManager.NameNotFoundException) {
-                    false
+                    return false
                 }
-            return isPackageInstalledAndEnabled && hasBindableService(packageManager, packageName)
+            return packageInfo.applicationInfo.enabled &&
+                (packageName != DEFAULT_PROVIDER_PACKAGE_NAME ||
+                    PackageInfoCompat.getLongVersionCode(packageInfo) >=
+                        DEFAULT_PROVIDER_MIN_VERSION_CODE) &&
+                hasBindableService(packageManager, packageName)
         }
 
         internal fun hasBindableService(
@@ -379,6 +516,7 @@ interface HealthConnectClient {
 
         /**
          * Tag used in SDK debug logs.
+         *
          * @suppress
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY)

@@ -17,13 +17,17 @@
 package androidx.compose.foundation.text
 
 import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.ScrollableState
 import androidx.compose.foundation.gestures.rememberScrollableState
 import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.offset
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.structuralEqualityPolicy
@@ -64,7 +68,7 @@ internal fun Modifier.textFieldScrollable(
     // do not reverse direction only in case of RTL in horizontal orientation
     val rtl = LocalLayoutDirection.current == LayoutDirection.Rtl
     val reverseDirection = scrollerPosition.orientation == Orientation.Vertical || !rtl
-    val controller = rememberScrollableState { delta ->
+    val scrollableState = rememberScrollableState { delta ->
         val newOffset = scrollerPosition.offset + delta
         val consumedDelta = when {
             newOffset > scrollerPosition.maximum ->
@@ -75,10 +79,20 @@ internal fun Modifier.textFieldScrollable(
         scrollerPosition.offset += consumedDelta
         consumedDelta
     }
+    // TODO: b/255557085 remove when / if rememberScrollableState exposes lambda parameters for
+    //  setting these
+    val wrappedScrollableState = remember(scrollableState, scrollerPosition) {
+        object : ScrollableState by scrollableState {
+            override val canScrollForward by derivedStateOf {
+                scrollerPosition.offset < scrollerPosition.maximum
+            }
+            override val canScrollBackward by derivedStateOf { scrollerPosition.offset > 0f }
+        }
+    }
     val scroll = Modifier.scrollable(
         orientation = scrollerPosition.orientation,
         reverseDirection = reverseDirection,
-        state = controller,
+        state = wrappedScrollableState,
         interactionSource = interactionSource,
         enabled = enabled && scrollerPosition.maximum != 0f
     )
@@ -237,13 +251,13 @@ internal class TextFieldScrollerPosition(
      * Taken with the opposite sign defines the x or y position of the text field in the
      * horizontal or vertical scroller container correspondingly.
      */
-    var offset by mutableStateOf(initial)
+    var offset by mutableFloatStateOf(initial)
 
     /**
      * Maximum length by which the text field can be scrolled. Defined as a difference in
      * size between the scroller container and the text field.
      */
-    var maximum by mutableStateOf(0f)
+    var maximum by mutableFloatStateOf(0f)
         private set
 
     /**

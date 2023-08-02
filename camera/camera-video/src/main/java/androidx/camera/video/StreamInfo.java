@@ -19,6 +19,7 @@ package androidx.camera.video;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.camera.core.SurfaceRequest;
@@ -35,7 +36,6 @@ import java.util.Set;
 /**
  * A class that contains the information of an video output stream.
  *
- * @hide
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -61,7 +61,6 @@ public abstract class StreamInfo {
      *
      * <p>This is used in the observable returned by {@link #getStreamState()} to inform
      * producers that they can start or stop producing frames.
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     enum StreamState {
@@ -77,7 +76,13 @@ public abstract class StreamInfo {
 
     @NonNull
     static StreamInfo of(int id, @NonNull StreamState streamState) {
-        return new AutoValue_StreamInfo(id, streamState);
+        return new AutoValue_StreamInfo(id, streamState, null);
+    }
+
+    @NonNull
+    static StreamInfo of(int id, @NonNull StreamState streamState, @Nullable
+            SurfaceRequest.TransformationInfo inProgressTransformationInfo) {
+        return new AutoValue_StreamInfo(id, streamState, inProgressTransformationInfo);
     }
 
     /**
@@ -112,4 +117,13 @@ public abstract class StreamInfo {
      */
     @NonNull
     public abstract StreamState getStreamState();
+
+    /**
+     * Returns the existing transformation information if there's an in-processing surface.
+     *
+     * @return the in-progress transformation information, or {@code null} if there's no
+     * in-processing surface.
+     */
+    @Nullable
+    public abstract SurfaceRequest.TransformationInfo getInProgressTransformationInfo();
 }

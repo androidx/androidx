@@ -19,6 +19,7 @@ package androidx.fragment.lint
 import androidx.fragment.lint.stubs.ALERT_DIALOG
 import androidx.fragment.lint.stubs.DIALOG_FRAGMENT
 import com.android.tools.lint.checks.infrastructure.LintDetectorTest
+import com.android.tools.lint.checks.infrastructure.TestMode
 import com.android.tools.lint.detector.api.Detector
 import com.android.tools.lint.detector.api.Issue
 import org.junit.Test
@@ -222,6 +223,7 @@ src/foo/TestFragment.java:11: Warning: Use onDismiss() instead of calling setOnD
     fun `kotlin expect fail dialog fragment with cancel listener`() {
         lint().files(dialogFragmentStubKotlinWithCancelListener, DIALOG_FRAGMENT, ALERT_DIALOG)
             .allowCompilationErrors(false)
+            .skipTestModes(TestMode.IMPORT_ALIAS, TestMode.TYPE_ALIAS) // b/266247269
             .run()
             .expect(
                 """
@@ -238,6 +240,7 @@ src/foo/TestDialog.kt:10: Warning: Use onCancel() instead of calling setOnCancel
     fun `kotlin expect fail dialog fragment with dismiss listener`() {
         lint().files(dialogFragmentStubKotlinWithDismissListener, DIALOG_FRAGMENT, ALERT_DIALOG)
             .allowCompilationErrors(false)
+            .skipTestModes(TestMode.IMPORT_ALIAS, TestMode.TYPE_ALIAS) // b/266247269
             .run()
             .expect(
                 """
@@ -257,6 +260,7 @@ src/foo/TestDialog.kt:10: Warning: Use onDismiss() instead of calling setOnDismi
             DIALOG_FRAGMENT,
             ALERT_DIALOG
         ).allowCompilationErrors(false)
+            .skipTestModes(TestMode.IMPORT_ALIAS, TestMode.TYPE_ALIAS) // b/266247269
             .run()
             .expect(
                 """

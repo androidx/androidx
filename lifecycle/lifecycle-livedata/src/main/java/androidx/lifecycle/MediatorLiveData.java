@@ -32,10 +32,10 @@ import java.util.Map;
  * objects.
  * <p>
  * Consider the following scenario: we have 2 instances of {@code LiveData}, let's name them
- * {@code liveData1} and {@code liveData2}, and we want to merge their emissions in one object:
- * {@code liveDataMerger}. Then, {@code liveData1} and {@code liveData2} will become sources for
- * the {@code MediatorLiveData liveDataMerger} and every time {@code onChanged} callback
- * is called for either of them, we set a new value in {@code liveDataMerger}.
+ * {@code liveData1} and {@code liveData2}, and we want to merge their emissions in one
+ * {@link MediatorLiveData} object: {@code liveDataMerger}. Then, {@code liveData1} and {@code
+ * liveData2} will become sources for the {@code liveDataMerger} and every time {@code onChanged}
+ * callback is called for either of them, we set a new value in {@code liveDataMerger}.
  *
  * <pre>
  * LiveData&lt;Integer&gt; liveData1 = ...;
@@ -70,8 +70,24 @@ public class MediatorLiveData<T> extends MutableLiveData<T> {
     private SafeIterableMap<LiveData<?>, Source<?>> mSources = new SafeIterableMap<>();
 
     /**
-     * Starts to listen the given {@code source} LiveData, {@code onChanged} observer will be called
-     * when {@code source} value was changed.
+     * Creates a MediatorLiveData with no value assigned to it.
+     */
+    public MediatorLiveData() {
+        super();
+    }
+
+    /**
+     * Creates a MediatorLiveData initialized with the given {@code value}.
+     *
+     * @param value initial value
+     */
+    public MediatorLiveData(T value) {
+        super(value);
+    }
+
+    /**
+     * Starts to listen to the given {@code source} LiveData, {@code onChanged} observer will be
+     * called when {@code source} value was changed.
      * <p>
      * {@code onChanged} callback will be called only when this {@code MediatorLiveData} is active.
      * <p> If the given LiveData is already added as a source but with a different Observer,

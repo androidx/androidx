@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-import androidx.build.BuildOnServerKt
-import androidx.build.BuildServerConfigurationKt
+
+import androidx.build.ApkCopyHelperKt
+import androidx.build.Publish
 
 plugins {
     id("AndroidXPlugin")
@@ -45,23 +46,7 @@ dependencies {
 }
 
 // We want to publish a release apk of this project for webkit team's use
-def copyReleaseApk = tasks.register("copyReleaseApk", Copy) { task ->
-    android.applicationVariants.all { variant ->
-        if (variant.buildType.name == "release") {
-            task.from(variant.packageApplicationProvider.get().outputDirectory)
-        }
-    }
-    task.include("*.apk")
-    String projectPath = project.path
-    task.rename { fileName ->
-        "${projectPath.substring(1).replace(':', '-')}_$fileName"
-    }
-    task.destinationDir =
-            new File(BuildServerConfigurationKt.getDistributionDirectory(project), "apks")
-    task.dependsOn(projectPath + ":assembleRelease")
-}
-
-BuildOnServerKt.addToBuildOnServer(project, copyReleaseApk)
+ApkCopyHelperKt.setupAppApkCopy(project, "release")
 
 android {
     defaultConfig {
@@ -77,4 +62,12 @@ android {
         }
     }
     namespace "com.example.androidx.webkit"
+}
+
+androidx {
+    name = "WebKit Test App"
+    publish = Publish.NONE
+    inceptionYear = "2017"
+    description = "The WebKit Support Library test application is a demonstration of the APIs provided in the androidx.webkit library."
+    additionalDeviceTestApkKeys.add("chrome")
 }

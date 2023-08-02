@@ -49,7 +49,6 @@ public abstract class BaseGridView extends RecyclerView {
      * In this mode, the last focused position will be remembered and restored when focus
      * is back to the view.
      *
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public static final int FOCUS_SCROLL_ALIGNED = 0;
@@ -57,7 +56,6 @@ public abstract class BaseGridView extends RecyclerView {
     /**
      * Scroll to make the focused item inside client area.
      *
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public static final int FOCUS_SCROLL_ITEM = 1;
@@ -66,7 +64,6 @@ public abstract class BaseGridView extends RecyclerView {
      * Scroll a page of items when focusing to item outside the client area.
      * The page size matches the client area size of RecyclerView.
      *
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public static final int FOCUS_SCROLL_PAGE = 2;
@@ -319,7 +316,6 @@ public abstract class BaseGridView extends RecyclerView {
      * <li>{@link #FOCUS_SCROLL_PAGE}</li>
      * </ul>
      *
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public void setFocusScrollStrategy(int scrollStrategy) {
@@ -339,7 +335,6 @@ public abstract class BaseGridView extends RecyclerView {
      * <li>{@link #FOCUS_SCROLL_PAGE}</li>
      * </ul>
      *
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public int getFocusScrollStrategy() {
@@ -767,7 +762,6 @@ public abstract class BaseGridView extends RecyclerView {
     /**
      * Changes the selected item and/or subposition immediately without animation.
      *
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public void setSelectedPositionWithSub(int position, int subposition) {
@@ -788,7 +782,6 @@ public abstract class BaseGridView extends RecyclerView {
      * applied in primary scroll direction.  The scrollExtra will be kept until
      * another {@link #setSelectedPosition} or {@link #setSelectedPositionSmooth} call.
      *
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public void setSelectedPositionWithSub(int position, int subposition, int scrollExtra) {
@@ -809,7 +802,6 @@ public abstract class BaseGridView extends RecyclerView {
      * Changes the selected item and/or subposition, runs an animation to scroll to the target
      * position.
      *
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public void setSelectedPositionSmoothWithSub(int position, int subposition) {
@@ -887,7 +879,6 @@ public abstract class BaseGridView extends RecyclerView {
      * or {@link FacetProviderAdapter}.  Zero is returned when no {@link ItemAlignmentFacet}
      * is defined.
      *
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public int getSelectedSubPosition() {
@@ -1234,7 +1225,6 @@ public abstract class BaseGridView extends RecyclerView {
      *
      * @param extraLayoutSpace Pixels of extra space for layout invisible child.
      *                         Must be bigger or equals to 0.
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public void setExtraLayoutSpace(int extraLayoutSpace) {
@@ -1244,7 +1234,6 @@ public abstract class BaseGridView extends RecyclerView {
     /**
      * Returns pixels of extra space for layout child in invisible area.
      *
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public int getExtraLayoutSpace() {

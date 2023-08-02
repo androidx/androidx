@@ -18,6 +18,7 @@ package androidx.compose.ui.input.pointer
 
 import android.view.MotionEvent
 import android.view.View
+import androidx.collection.LongSparseArray
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.gesture.PointerCoords
 import androidx.compose.ui.gesture.PointerProperties
@@ -577,7 +578,14 @@ private fun PointerEvent(
     changes: List<PointerInputChange>,
     motionEvent: MotionEvent
 ): PointerEvent {
-    val changesMap = changes.map { it.id to it }.toMap()
-    val internalPointerEvent = InternalPointerEvent(changesMap, motionEvent)
+    val internalPointerEvent = InternalPointerEvent(changes.toLongSparseArray(), motionEvent)
     return PointerEvent(changes, internalPointerEvent)
+}
+
+fun List<PointerInputChange>.toLongSparseArray(): LongSparseArray<PointerInputChange> {
+    val returnArray = LongSparseArray<PointerInputChange>(this.count())
+    for (change in this) {
+        returnArray.put(change.id.value, change)
+    }
+    return returnArray
 }

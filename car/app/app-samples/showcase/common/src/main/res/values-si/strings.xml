@@ -100,7 +100,7 @@
     <string name="example_2_text" msgid="718820705318661440">"මෙම පෙළට කොළ පැහැයක් ඇත"</string>
     <string name="example_3_text" msgid="977269832109695627">"මෙම පෙළට නිල් පැහැයක් ඇත"</string>
     <string name="example_4_text" msgid="2043547015979437373">"මෙම පෙළට කහ පැහැයක් ඇත"</string>
-    <string name="example_5_text" msgid="4387859825054561488">"මෙම පෙළ මූලික වර්ණය භාවිත කරයි"</string>
+    <string name="example_5_text" msgid="8828804968749423500">"මෙම පෙළ මූලික වර්ණය භාවිතා කරයි"</string>
     <string name="example_6_text" msgid="7991523168517599600">"මෙම පෙළ ද්විතීයික වර්ණය භාවිත කරයි"</string>
     <string name="color_demo" msgid="1822427636476178993">"වර්ණ ආදර්ශනය"</string>
     <string name="list_limit" msgid="3023536401535417286">"ලැයිස්තු සීමාව"</string>
@@ -113,6 +113,8 @@
     <string name="finish_app_msg" msgid="8354334557053141891">"මෙය යෙදුම අවසන් කරනු ඇති අතර, ඔබ ආපසු පැමිණෙන විට එය අවසර තිරයක් පූර්ව-වපුරනු ඇත"</string>
     <string name="finish_app_title" msgid="9013328479438745074">"යෙදුම් ආදර්ශනය අවසන් කරන්න"</string>
     <string name="finish_app_demo_title" msgid="8223819062053448384">"මීළඟ ධාවන ආදර්ශනයෙහි අවසර තිරය පූර්ව-වපුරන්න"</string>
+    <string name="preseed_permission_app_title" msgid="182847662545676962">"පූර්ව-මුල අවසර යෙදුම් ආදර්ශනය"</string>
+    <string name="preseed_permission_demo_title" msgid="5476541421753978071">"මීළඟ ධාවන ආදර්ශනයෙහි අවසර තිරය පූර්ව-වපුරන්න"</string>
     <string name="loading_demo_title" msgid="1086529475809143517">"ආදර්ශනය පූරණය කරමින්"</string>
     <string name="loading_demo_row_title" msgid="8933049915126088142">"පූරණය කිරීම සම්පූර්ණයි!"</string>
     <string name="pop_to_root" msgid="2078277386355064198">"මූලය වෙත පොප් කරන්න"</string>
@@ -220,6 +222,7 @@
     <string name="clicked_row_prefix" msgid="9068303427922069941">"පේළිය ක්ලික් කරන ලදි"</string>
     <string name="first_line_text" msgid="6648055806656590336">"පෙළෙහෙි පළමු පෙළ"</string>
     <string name="second_line_text" msgid="38664490158836864">"පෙළෙහි දෙවන පේළිය"</string>
+    <string name="long_line_text" msgid="8082962600953333087">"මෙම අනුපාඨය සීමා නොකළ ප්‍රකාරය තුළ සම්පූර්ණයෙන් දිස් විය හැක (උදා: රිය නැවතුම් ප්‍රකාරය, සීමා පැනවූ අඩු වේග ප්‍රකාරය). නමුත් මෙය සීමා කළ ප්‍රකාරය තුළ පේළි දෙකකට කෙටි වේ (උදා: ධාවන ප්‍රකාරය). පරීක්ෂා කිරීමේ අරමුණු සඳහා, මෙම අනුපාඨය ඉතාමත්, ඉතාමත්, ඉතාමත් හා ඉතාමත් ම දිගු වේ"</string>
     <string name="title_prefix" msgid="3991742709199357049">"මාතෘකාව"</string>
     <string name="list_template_demo_title" msgid="1740208242737246151">"ලැයිස්තු අච්චු ආදර්ශනය"</string>
     <string name="long_msg_template_demo_title" msgid="1793748562161438131">"දිගු පණිවිඩ අච්චු ආදර්ශනය"</string>
@@ -227,6 +230,7 @@
     <string name="long_msg_template_not_supported_title" msgid="8600719470226274925">"නොගැළපෙන සංග්‍රාහක"</string>
     <string name="msg_template_demo_title" msgid="3895210951340409473">"පණිවිඩ අච්චු ආදර්ශනය"</string>
     <string name="msg_template_demo_text" msgid="2275291617716161409">"පණිවිඩය මෙතැනට යයි.\nදෙවන පේළියේ තවත් පෙළ."</string>
+    <string name="short_msg_template_demo_title" msgid="6798738013668580714">"කෙටි පණිවිඩ අච්චු ආදර්ශනය"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"කවුළු අච්චු ආදර්ශනය"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"ස්ථාන ලැයිස්තු අච්චු ආදර්ශනය"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"ස්ථාන බ්‍රවුස් කරන්න"</string>
@@ -253,6 +257,15 @@
     <string name="sign_in_complete_text" msgid="8423984266325680606">"ඔබ පුරා ඇත!"</string>
     <string name="sign_in_complete_title" msgid="8919868148773983428">"පිරීම අසම්පූර්ණයි"</string>
     <string name="sign_in_template_demo_title" msgid="6052035424941410249">"පිරීම් අච්චු ආදර්ශනය"</string>
+    <string name="tab_template_layouts_demo_title" msgid="6529681462424538165">"පටිති අච්චු ආදර්ශන"</string>
+    <string name="tab_template_demo_title" msgid="7587839101813629975">"පටිති අච්චු ආදර්ශනය"</string>
+    <string name="tab_title_message" msgid="5266710951630087246">"පණිවිඩ පටිත්ත"</string>
+    <string name="tab_title_pane" msgid="2520606145526537263">"පුවරු පටිත්ත"</string>
+    <string name="tab_title_list" msgid="5104962518489668123">"ලැයිස්තු පටිත්ත"</string>
+    <string name="tab_title_grid" msgid="5268168907976325154">"දිගු පටිති මාතෘකාව සහිත ජාල පටිත්ත"</string>
+    <string name="tab_title_search" msgid="1892925693146631173">"සෙවීම් පටිත්ත"</string>
+    <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"පටිති අච්චු පූරණය වීමේ ආදර්ශනය"</string>
+    <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"පටිති අච්චු පටිති නැති ආදර්ශනය"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"නොදන්නා සංග්‍රාහකයෙක් සඳහා රූප සංදර්ශනය කළ නොහැකිය"</string>
     <string name="icon_title_prefix" msgid="8487026131229541244">"නිරූපකය"</string>
     <string name="content_provider_icons_demo_title" msgid="5708602618664311097">"අන්තර්ගත සැපයුම්කරු නිරූපක ආදර්ශනය"</string>
@@ -262,7 +275,7 @@
     <string name="vector_with_tint_title" msgid="1022346419829696827">"වර්ණ ගැන්වීමක් සහිතව, ඇඳිය හැකි දෛශිකයක්"</string>
     <string name="vector_with_app_theme_attr_title" msgid="4890094482708376219">"යෙදුමක එහි වර්ණය සඳහා තේමා ගුණාංගය සහිත, ඇඳිය හැකි දෛශිකයක්"</string>
     <string name="png_res_title" msgid="7437083018336747544">"PNG, සම්පතක් ලෙස යවන ලදී"</string>
-    <string name="png_bitmap_title" msgid="120790220238335267">"PNG, සම්පතක් ලෙස යවන ලදී"</string>
+    <string name="png_bitmap_title" msgid="3385912074130977032">"PNG එකක්, bitmap එකක් ලෙස යවන ලදි"</string>
     <string name="just_row_title" msgid="965700021568970725">"මාතෘකාවක් පමණයි"</string>
     <string name="title_with_app_icon_row_title" msgid="6294250714820740520">"යෙදුම් නිරූපකය සහිත මාතෘකාව"</string>
     <string name="title_with_res_id_image_row_title" msgid="3813134904602875778">"සම්පත් ID රූපය සහිත මාතෘකාව"</string>
@@ -274,6 +287,7 @@
     <string name="rows_demo_title" msgid="3198566660454251007">"පේළි ආදර්ශනය"</string>
     <string name="text_icons_demo_title" msgid="8732943920672143201">"පෙළ සහ නිරූපක ආදර්ශන"</string>
     <string name="row_text_icons_demo_title" msgid="135167694047524905">"පෙළ සහ නිරූපණ ආදර්ශන සහිත පේළි"</string>
+    <string name="radio_button_list_demo_title" msgid="9082264324855338774">"රේඩියෝ බොත්තම් ලැයිස්තු ආදර්ශන"</string>
     <string name="selectable_lists_demo_title" msgid="5492658731113129386">"තෝරා ගත හැකි ලැයිස්තු ආදර්ශනය"</string>
     <string name="option_1_title" msgid="7221252541651471199">"විකල්පය 1"</string>
     <string name="option_2_title" msgid="1905146448697963818">"විකල්පය 2"</string>
@@ -284,9 +298,11 @@
     <string name="some_additional_text" msgid="4009872495806318260">"සමහර අතිරේක පෙළ"</string>
     <string name="sample_additional_list" msgid="5085372891301576306">"නියැදි තේරිය හැකි ලැයිස්තුව"</string>
     <string name="task_restriction_demo_title" msgid="2212084350718766941">"කාර්ය සීමා කිරීම් ආදර්ශනය"</string>
-    <string name="task_limit_reached_msg" msgid="6038763366777119364">"කාර්ය සීමාව ළඟා විය\nඉදිරියට යාම යෙදුම බලෙන් නවත්වනු ඇත"</string>
+    <string name="task_limit_reached_msg" msgid="7162842196382260992">"මෙය පියවර ගණන පිරී ඉතිරී යනු ඇති අතර, ඔබව නව තිරයකට ගෙන යනු ඇත."</string>
     <string name="task_step_of_title" msgid="2791717962535723839">"%2$d කින් %1$dවන කාර්ය පියවර"</string>
     <string name="task_step_of_text" msgid="4646729781462227219">"ඉදිරියට යාමට ක්ලික් කරන්න"</string>
+    <string name="task_content_allowed" msgid="545061986612431190">"විවිධ අච්චු වෙත පැමිණ මෝටර් රථය ධාවන ප්‍රකාරයේ ඇති බව තහවුරු කර ගන්න"</string>
+    <string name="toggle_button_demo_title" msgid="3179103600967398928">"බොත්තම් ආදර්ශනය ටොගල් කරන්න"</string>
     <string name="toggle_test_title" msgid="924485265152862631">"ටොගල පරීක්ෂාව"</string>
     <string name="toggle_test_text" msgid="8107217216013312857">"රාජ්‍ය වෙනස් කිරීම්වලට ඉඩ දේ"</string>
     <string name="toggle_test_first_toggle_title" msgid="3635022201072117680">"ටොගල පරීක්ෂාව සබල කරන්න"</string>
@@ -299,11 +315,53 @@
     <string name="additional_data_text" msgid="2846223398214158872">"පසු මෙහෙයුම්වල යාවත්කාලීන කිරීම් ඉඩ දෙනු ලැබේ."</string>
     <string name="toggle_test_enabled" msgid="982370904182034076">"ටොගල පරීක්ෂාව සබලයි"</string>
     <string name="toggle_test_disabled" msgid="8366040658408451664">"ටොගල පරීක්ෂාව අබලයි"</string>
+    <string name="secondary_actions_decoration_button_demo_title" msgid="3710817648501132309">"ද්විතීයික ක්‍රියා සහ සැරසිලි ආදර්ශනය"</string>
+    <string name="secondary_actions_test_title" msgid="3664453747553733613">"ද්විතියික ක්‍රියා පරීක්ෂණය"</string>
+    <string name="secondary_actions_test_subtitle" msgid="6985282813402073703">"ද්විතියික ක්‍රියාව පමණක් තෝරා ගත හැක"</string>
+    <string name="decoration_test_title" msgid="8450127046762442244">"සැරසිලි පරීක්ෂණය"</string>
+    <string name="secondary_actions_decoration_test_title" msgid="6282873404859209490">"ද්විතියික ක්‍රියා සහ සැරසිලි"</string>
+    <string name="secondary_actions_decoration_test_subtitle" msgid="155884606592724532">"පේළිය ද තෝරා ගත හැක"</string>
+    <string name="secondary_action_toast" msgid="5076434693504006565">"ද්විතියික ක්‍රියාව තෝරා ඇත"</string>
+    <string name="row_primary_action_toast" msgid="756516694751965204">"පේළියේ මූලික ක්‍රියාව තෝරා ඇත"</string>
+    <string name="sectioned_item_list_demo_title" msgid="1236735461225007729">"කොටස් කරන ලද අයිතම ලැයිස්තු ආදර්ශනය"</string>
+    <string name="sectioned_item_list_one_title" msgid="6594204350307263338">"ලැයිස්තුව 1"</string>
+    <string name="sectioned_item_list_two_title" msgid="4941545381743022833">"ලැයිස්තුව 2"</string>
+    <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"එක් එක් ලැයිස්තුව යටතේ උප පෙළ"</string>
+    <string name="empty_list_demo_title" msgid="5989013634820902455">"හිස් ලැයිස්තු ආදර්ශනය"</string>
+    <string name="empty_list_message" msgid="5331395517560728138">"ලැයිස්තුව හිස් ය"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"විවිධ අච්චු ආදර්ශන"</string>
     <string name="showcase_demos_title" msgid="1542092687878113304">"ප්‍රකාශක තේරූ ආදර්ශන"</string>
+    <string name="template_layouts_demo_title" msgid="788249269446087847">"අච්චු පිරිසැලසුම් ආදර්ශන"</string>
+    <string name="grid_template_menu_demo_title" msgid="7096285873490705119">"ජාල අච්චු ආදර්ශන"</string>
+    <string name="voice_access_demo_title" msgid="3825223890895361496">"හඬ ප්‍රවේශ ආදර්ශන තිරය"</string>
+    <string name="user_interactions_demo_title" msgid="1356952319161314986">"පරිශීලක අන්තර්ක්‍රියා"</string>
+    <string name="request_permission_menu_demo_title" msgid="4796486779527427017">"අවසර ආදර්ශන ඉල්ලන්න"</string>
+    <string name="application_overflow_title" msgid="396427940886169325">"යෙදුම් ඉතිරියෑම් වලංගුකරණය"</string>
+    <string name="application_overflow_subtitle1" msgid="7429415605726615529">"වෙනස් කරන අතරතුර පහත සඳහන් අච්චු පරීක්ෂා කරන්න"</string>
+    <string name="application_overflow_subtitle2" msgid="4385123036846369714">"වාහනය ගාල් කළ තත්ත්වයේ සිට ධාවන තත්ත්වයට"</string>
+    <string name="perm_group" msgid="3834918337351876270">"අවසර සමූහය"</string>
+    <string name="perm_group_description" msgid="7348847631139139024">"ප්‍රදර්ශන යෙදුම සඳහා අවසර සමූහය"</string>
+    <string name="perm_fine_location" msgid="5438874642600304118">"නිවැරදි ස්ථානයට ප්‍රවේශය"</string>
+    <string name="perm_fine_location_desc" msgid="3549183883787912516">"නිවැරදි ස්ථානයට ප්‍රවේශය සඳහා අවසරය"</string>
+    <string name="perm_coarse_location" msgid="6140337431619481015">"දළ ස්ථානයට ප්‍රවේශය"</string>
+    <string name="perm_coarse_location_desc" msgid="6074759942301565943">"දළ ස්ථානයට ප්‍රවේශය සඳහා අවසරය"</string>
+    <string name="perm_record_audio" msgid="2758340693260523493">"පටිගත කිරීමේ ශ්‍රව්‍ය වෙත ප්‍රවේශය"</string>
+    <string name="perm_record_audio_desc" msgid="8038648467605928912">"ශ්‍රව්‍ය පටිගත කිරීමට ප්‍රවේශය සඳහා අවසරය"</string>
     <string name="location_1_description" msgid="4801052291684791371">"ටින්ටඩ් සම්පත් දෛශිකය"</string>
     <string name="location_2_description" msgid="3331356135359047166">"රූප සම්පත් බිටු සිතියම"</string>
     <string name="location_3_description" msgid="3982142774088944850">"වර්ණ ගැන්වූ පෙළ ලකුණුකරය"</string>
     <string name="location_4_description" msgid="6560365445044381911">"රූප බිටු සිතියම"</string>
     <string name="location_description_text_label" msgid="2779911545316756419">"පෙළ ලේබලය"</string>
+    <string name="parking_vs_driving_demo_title" msgid="3367862800135053111">"වාහන නැවැත්වීමේ සහ රිය පැදවීමේ ආදර්ශනය"</string>
+    <string name="latest_feature_details" msgid="6843008350392721502">"මෝටර් රථවල පොකුරු සංදර්ශක!"</string>
+    <string name="latest_feature_title" msgid="7929405790070777460">"නවතම විශේෂාංග"</string>
+    <string name="loading_toggle_enabled" msgid="8828072732804454994">"පූරණය සබල කර ඇත"</string>
+    <string name="loading_toggle_disabled" msgid="7689738885077382673">"පූරණය අබල කර ඇත"</string>
+    <string name="loading_screen" msgid="4771507490730308794">"තිරය පූරණය වේ"</string>
+    <string name="vector_toggle_details" msgid="1301305340033556819">"වර්ණය එක් කිරීමට/ඉවත් කිරීමට ටොගල් කරන්න"</string>
+    <string name="map_template_toggle_demo_title" msgid="6510798293640092611">"ටොගල් සහිත සිතියම් අච්චුව"</string>
+    <string name="avoid_tolls_row_title" msgid="5194057244144831024">"ගෙවන මාර්ග මඟ හරින්න"</string>
+    <string name="route_options_demo_title" msgid="4599699012716426514">"මාර්ග විකල්ප"</string>
+    <string name="avoid_highways_row_title" msgid="4711913426200490304">"අධිවේගී මාර්ග මඟ හරින්න"</string>
+    <string name="avoid_ferries_row_title" msgid="8232883866013711974">"ගංතොට මඟ හරින්න"</string>
 </resources>

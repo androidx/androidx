@@ -19,25 +19,24 @@ package androidx.core.i18n
 import android.annotation.SuppressLint
 import android.os.Build
 import android.util.Log
-import androidx.core.os.BuildCompat
+import androidx.core.i18n.DateTimeFormatterSkeletonOptions as SkeletonOptions
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
-import org.junit.After
-import org.junit.Assert.assertEquals
-import org.junit.Before
-import org.junit.BeforeClass
-import org.junit.Test
-import org.junit.runner.RunWith
 import java.util.Calendar
 import java.util.Date
 import java.util.GregorianCalendar
 import java.util.Locale
 import java.util.TimeZone
 import kotlin.test.assertFailsWith
-import androidx.core.i18n.DateTimeFormatterSkeletonOptions as SkeletonOptions
+import org.junit.After
+import org.junit.Assert.assertEquals
+import org.junit.Before
+import org.junit.BeforeClass
+import org.junit.Test
+import org.junit.runner.RunWith
 
 /** Must execute on an Android device. */
 @RunWith(AndroidJUnit4::class)
@@ -99,7 +98,10 @@ class DateTimeFormatterTest {
     fun test() {
         val locale = Locale.US
         val options = SkeletonOptions.fromString("yMMMdjms")
-        val expected = "Sep 19, 2021, 9:42:12 PM"
+        val expected = when {
+            Build.VERSION.SDK_INT >= 34 -> "Sep 19, 2021, 9:42:12\u202FPM"
+            else -> "Sep 19, 2021, 9:42:12 PM"
+        }
 
         // Test Calendar
         assertEquals(expected, DateTimeFormatter(appContext, options, locale).format(testCalendar))
@@ -122,14 +124,24 @@ class DateTimeFormatterTest {
         val localeFr = Locale.FRANCE
         val localeUs = Locale.US
 
-        val expectedUs12 = "Sep 19, 2021, 9:42:12 PM"
+        val expectedUs12 = when {
+            Build.VERSION.SDK_INT >= 34 -> "Sep 19, 2021, 9:42:12\u202FPM"
+            else -> "Sep 19, 2021, 9:42:12 PM"
+        }
         val expectedUs24 = "Sep 19, 2021, 21:42:12"
-        val expectedUs12Milli = "Sep 19, 2021, 9:42:12.345 PM"
+        val expectedUs12Milli = when {
+            Build.VERSION.SDK_INT >= 34 -> "Sep 19, 2021, 9:42:12.345\u202FPM"
+            else -> "Sep 19, 2021, 9:42:12.345 PM"
+        }
 
         val expectedFr12: String
         val expectedFr24: String
         when {
-            Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> { // >= 31
+             Build.VERSION.SDK_INT >= 34 -> { // >= 31
+                 expectedFr12 = "19 sept. 2021, 9:42:12\u202FPM"
+                 expectedFr24 = "19 sept. 2021, 21:42:12"
+             }
+             Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> { // >= 31
                 expectedFr12 = "19 sept. 2021, 9:42:12 PM"
                 expectedFr24 = "19 sept. 2021, 21:42:12"
             }
@@ -192,46 +204,38 @@ class DateTimeFormatterTest {
         val enUsForceH23 = Locale.forLanguageTag("en-US-u-hc-h23")
         val enUsForceH24 = Locale.forLanguageTag("en-US-u-hc-h24")
 
-        val expectedUs: String
-        val expectedUs11: String
-        val expectedUs12: String
-        val expectedUs23: String
-        val expectedUs24: String
-        if (isHcExtensionHonored) {
-            // TODO: check this. Is `-u-hc-` not honored at all? File bug, maybe implement workaround.
-            expectedUs = "9:42:12 PM"
-            expectedUs11 = expectedUs
-            expectedUs12 = expectedUs
-            // Is this a bug? Looks like h23 is not honored on Android S (API 31)?
-            expectedUs23 = if (isHcExtensionHonored) "9:42:12 PM" else "21:42:12"
-            expectedUs24 = expectedUs23
-        } else {
-            expectedUs = "9:42:12 PM"
-            expectedUs11 = expectedUs
-            expectedUs12 = expectedUs
-            expectedUs23 = expectedUs
-            expectedUs24 = expectedUs
-        }
+        val expectedUs: String = "9:42:12 PM"
+        val expectedUs11: String = expectedUs
+        val expectedUs12: String = expectedUs
+        // TODO: check this. Is `-u-hc-` not honored at all?
+        // Official bug: https://unicode-org.atlassian.net/browse/ICU-11870
+        // It only manifests for the predefined formats (`DateFormat.MEDIUM` and so on),
+        // not for patterns generated from skeletons.
+        val expectedUs23: String = expectedUs
+        val expectedUs24: String = expectedUs
 
         var formatter: java.text.DateFormat
 
         // Formatting with style does not honor the uc overrides
         formatter = java.text.DateFormat.getTimeInstance(java.text.DateFormat.MEDIUM, Locale.US)
-        assertEquals(expectedUs, formatter.format(testMillis))
+        assertEquals(expectedUs, Helper.normalizeNnbsp(formatter.format(testMillis)))
         formatter = java.text.DateFormat.getTimeInstance(java.text.DateFormat.MEDIUM, enUsForceH11)
-        assertEquals(expectedUs11, formatter.format(testMillis))
+        assertEquals(expectedUs11, Helper.normalizeNnbsp(formatter.format(testMillis)))
         formatter = java.text.DateFormat.getTimeInstance(java.text.DateFormat.MEDIUM, enUsForceH12)
-        assertEquals(expectedUs12, formatter.format(testMillis))
+        assertEquals(expectedUs12, Helper.normalizeNnbsp(formatter.format(testMillis)))
         formatter = java.text.DateFormat.getTimeInstance(java.text.DateFormat.MEDIUM, enUsForceH23)
-        assertEquals(expectedUs23, formatter.format(testMillis))
+        assertEquals(expectedUs23, Helper.normalizeNnbsp(formatter.format(testMillis)))
         formatter = java.text.DateFormat.getTimeInstance(java.text.DateFormat.MEDIUM, enUsForceH24)
-        assertEquals(expectedUs24, formatter.format(testMillis))
+        assertEquals(expectedUs24, Helper.normalizeNnbsp(formatter.format(testMillis)))
     }
 
     @Test @SmallTest
     @SdkSuppress(minSdkVersion = AVAILABLE_LANGUAGE_TAG)
     fun testHourCycleOverrides() {
-        val expectedUs12 = "Sep 19, 2021, 9:42:12 PM"
+        val expectedUs12 = when {
+            Build.VERSION.SDK_INT >= 34 -> "Sep 19, 2021, 9:42:12\u202FPM"
+            else -> "Sep 19, 2021, 9:42:12 PM"
+        }
         val expectedUs24 = "Sep 19, 2021, 21:42:12"
         val builder = SkeletonOptions.Builder()
             .setYear(SkeletonOptions.Year.NUMERIC)
@@ -308,13 +312,14 @@ class DateTimeFormatterTest {
         } else {
             "12:43 AM || 4:43 AM || 8:43 AM || 12:43 PM || 4:43 PM || 8:43 PM"
         }
-        val expectedZh = if (BuildCompat.isAtLeastT()) {
+        val expectedZh = when {
             // Chinese changed to 24h from ICU 70.1
-            "00:43 || 04:43 || 08:43 || 12:43 || 16:43 || 20:43"
-        } else if (isFlexiblePeriodAvailable) {
-            "凌晨12:43 || 凌晨4:43 || 上午8:43 || 中午12:43 || 下午4:43 || 晚上8:43"
-        } else {
-            "上午12:43 || 上午4:43 || 上午8:43 || 下午12:43 || 下午4:43 || 下午8:43"
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU ->
+                "00:43 || 04:43 || 08:43 || 12:43 || 16:43 || 20:43"
+            isFlexiblePeriodAvailable ->
+                "凌晨12:43 || 凌晨4:43 || 上午8:43 || 中午12:43 || 下午4:43 || 晚上8:43"
+            else ->
+                "上午12:43 || 上午4:43 || 上午8:43 || 下午12:43 || 下午4:43 || 下午8:43"
         }
         val expectedFr = "00:43 || 04:43 || 08:43 || 12:43 || 16:43 || 20:43"
 
@@ -403,29 +408,41 @@ class DateTimeFormatterTest {
 
         var options = builder.build()
         assertEquals(
-            if (isIcuAvailable) {
-                "9:42 PM Mountain Daylight Time"
-            } else {
-                "8:42 PM Pacific Daylight Time"
+            when {
+                Build.VERSION.SDK_INT >= 34 -> "9:42\u202FPM Mountain Daylight Time"
+                isIcuAvailable -> "9:42 PM Mountain Daylight Time"
+                else -> "8:42 PM Pacific Daylight Time"
             },
             DateTimeFormatter(appContext, options, locale).format(coloradoTime)
         )
 
         options = builder.setTimezone(SkeletonOptions.Timezone.SHORT).build()
         assertEquals(
-            if (isIcuAvailable) "9:42 PM MDT" else "8:42 PM PDT",
+            when {
+                Build.VERSION.SDK_INT >= 34 -> "9:42\u202FPM MDT"
+                isIcuAvailable -> "9:42 PM MDT"
+                else -> "8:42 PM PDT"
+             },
             DateTimeFormatter(appContext, options, locale).format(coloradoTime)
         )
 
         options = builder.setTimezone(SkeletonOptions.Timezone.SHORT_GENERIC).build()
         assertEquals(
-            if (isIcuAvailable) "9:42 PM MT" else "8:42 PM PDT",
+            when {
+                Build.VERSION.SDK_INT >= 34 -> "9:42\u202FPM MT"
+                isIcuAvailable -> "9:42 PM MT"
+                else -> "8:42 PM PDT"
+             },
             DateTimeFormatter(appContext, options, locale).format(coloradoTime)
         )
 
         options = builder.setTimezone(SkeletonOptions.Timezone.SHORT_OFFSET).build()
         assertEquals(
-            if (isIcuAvailable) "9:42 PM GMT-6" else "8:42 PM PDT",
+            when {
+                Build.VERSION.SDK_INT >= 34 -> "9:42\u202FPM GMT-6"
+                isIcuAvailable -> "9:42 PM GMT-6"
+                else -> "8:42 PM PDT"
+             },
             DateTimeFormatter(appContext, options, locale).format(coloradoTime)
         )
     }
@@ -441,7 +458,10 @@ class DateTimeFormatterTest {
         val locale = Locale.US
 
         // Honor the current default timezone
-        val expPDT = "9:42 PM Pacific Daylight Time"
+        val expPDT = when {
+            Build.VERSION.SDK_INT >= 34 -> "9:42\u202FPM Pacific Daylight Time"
+            else -> "9:42 PM Pacific Daylight Time"
+        }
         // Test Calendar, Date, and milliseconds
         assertEquals(expPDT, DateTimeFormatter(appContext, options, locale).format(testCalendar))
         assertEquals(expPDT, DateTimeFormatter(appContext, options, locale).format(testDate))
@@ -449,7 +469,10 @@ class DateTimeFormatterTest {
 
         // Change the default timezone.
         TimeZone.setDefault(TimeZone.getTimeZone("America/Denver"))
-        val expMDT = "10:42 PM Mountain Daylight Time"
+        val expMDT = when {
+            Build.VERSION.SDK_INT >= 34 -> "10:42\u202FPM Mountain Daylight Time"
+            else -> "10:42 PM Mountain Daylight Time"
+        }
         // The calendar object already has a time zone of its own, captured at creation time.
         // So not matching the default changed after is the expected behavior.
         // BUT!

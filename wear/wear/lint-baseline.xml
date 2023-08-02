@@ -1,5 +1,50 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.4.0-alpha08" type="baseline" client="gradle" dependencies="false" name="AGP (7.4.0-alpha08)" variant="all" version="7.4.0-alpha08">
+<issues format="6" by="lint 8.1.0-beta02" type="baseline" client="gradle" dependencies="false" name="AGP (8.1.0-beta02)" variant="all" version="8.1.0-beta02">
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="            Thread.sleep(time);"
+        errorLine2="                   ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/wear/widget/CircularProgressLayoutTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(MILLIS_TO_WAIT_FOR_ACTIVITY_TO_BE_DRAWN);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/wear/activity/ConfirmationActivityTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(MILLIS_TO_WAIT_FOR_ACTIVITY_TO_BE_DRAWN);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/wear/activity/ConfirmationActivityTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(duration - MILLIS_BEFORE_END_OF_DURATION"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/wear/activity/ConfirmationActivityTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(MILLIS_AFTER_END_OF_DURATION + MILLIS_BEFORE_END_OF_DURATION"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/wear/activity/ConfirmationActivityTest.java"/>
+    </issue>
 
     <issue
         id="KotlinPropertyAccess"
@@ -74,87 +119,6 @@
         errorLine2="                ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/wear/widget/drawer/WearableDrawerView.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        AmbientCallback getAmbientCallback();"
-        errorLine2="        ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/ambient/AmbientModeSupport.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public void onEnterAmbient(Bundle ambientDetails) {}"
-        errorLine2="                                   ~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/ambient/AmbientModeSupport.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public void onAttach(Context context) {"
-        errorLine2="                         ~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/ambient/AmbientModeSupport.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public void onCreate(Bundle savedInstanceState) {"
-        errorLine2="                         ~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/ambient/AmbientModeSupport.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public static &lt;T extends FragmentActivity> AmbientController attach(T activity) {"
-        errorLine2="                                               ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/ambient/AmbientModeSupport.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public void dump(String prefix, FileDescriptor fd, PrintWriter writer, String[] args) {"
-        errorLine2="                     ~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/ambient/AmbientModeSupport.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public void dump(String prefix, FileDescriptor fd, PrintWriter writer, String[] args) {"
-        errorLine2="                                    ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/ambient/AmbientModeSupport.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public void dump(String prefix, FileDescriptor fd, PrintWriter writer, String[] args) {"
-        errorLine2="                                                       ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/ambient/AmbientModeSupport.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public void dump(String prefix, FileDescriptor fd, PrintWriter writer, String[] args) {"
-        errorLine2="                                                                           ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/ambient/AmbientModeSupport.java"/>
     </issue>
 
     <issue

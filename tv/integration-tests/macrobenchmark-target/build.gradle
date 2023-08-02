@@ -1,0 +1,33 @@
+plugins {
+    id("AndroidXPlugin")
+    id("com.android.application")
+    id("AndroidXComposePlugin")
+    id("org.jetbrains.kotlin.android")
+}
+
+android {
+    namespace 'androidx.tv.integration.macrobenchmark.target'
+
+    defaultConfig {
+        minSdkVersion 28
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'),
+                    'proguard-rules.pro'
+        }
+        benchmark {
+            initWith release
+            signingConfig signingConfigs.debug
+            matchingFallbacks = ['release']
+            debuggable false
+        }
+    }
+}
+
+dependencies {
+    implementation(libs.kotlinStdlib)
+}

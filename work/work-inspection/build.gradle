@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
+
 import androidx.build.LibraryType
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
@@ -28,9 +28,9 @@ dependencies {
     api("androidx.annotation:annotation:1.1.0")
     api(libs.kotlinStdlib)
     compileOnly("androidx.inspection:inspection:1.0.0")
-    compileOnly("androidx.lifecycle:lifecycle-runtime:2.2.0")
+    compileOnly(project(":lifecycle:lifecycle-runtime"))
     compileOnly(project(":work:work-runtime"))
-    compileOnly("androidx.room:room-runtime:2.4.0-rc01")
+    compileOnly("androidx.room:room-runtime:2.5.0")
     androidTestImplementation(project(":inspection:inspection-testing"))
     androidTestImplementation(project(":work:work-runtime"))
     androidTestImplementation(project(":work:work-runtime-ktx"))
@@ -42,9 +42,8 @@ dependencies {
 }
 
 androidx {
-    name = "Android WorkManager Inspector"
+    name = "WorkManager Inspector"
     type = LibraryType.IDE_PLUGIN
-    mavenGroup = LibraryGroups.WORK
     inceptionYear = "2020"
     description = "The implementation of WorkManager Inspector."
 }
@@ -58,13 +57,4 @@ android {
         main.resources.srcDirs += "src/main/proto"
     }
     namespace "androidx.work.inspection"
-}
-
-// Allow usage of Kotlin's @OptIn.
-tasks.withType(KotlinCompile).configureEach {
-    kotlinOptions {
-        freeCompilerArgs += [
-                "-opt-in=kotlin.RequiresOptIn"
-        ]
-    }
 }

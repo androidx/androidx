@@ -257,14 +257,8 @@ InvalidNullabilityOverride: androidx.core.content.FileProvider#update(android.ne
     Invalid nullability on parameter `values` in method `update`. Parameters of overrides cannot be NonNull if super parameter is Nullable.
 InvalidNullabilityOverride: androidx.core.content.UnusedAppRestrictionsBackportService#onBind(android.content.Intent):
     Invalid nullability on method `onBind` return. Overrides of unannotated super method cannot be Nullable.
-InvalidNullabilityOverride: androidx.core.graphics.drawable.RoundedBitmapDrawable#onBoundsChange(android.graphics.Rect) parameter #0:
-    Invalid nullability on parameter `bounds` in method `onBoundsChange`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
 InvalidNullabilityOverride: androidx.core.location.LocationListenerCompat#onStatusChanged(String, int, android.os.Bundle) parameter #0:
     Invalid nullability on parameter `provider` in method `onStatusChanged`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
-InvalidNullabilityOverride: androidx.core.view.OneShotPreDrawListener#onViewAttachedToWindow(android.view.View) parameter #0:
-    Invalid nullability on parameter `v` in method `onViewAttachedToWindow`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
-InvalidNullabilityOverride: androidx.core.view.OneShotPreDrawListener#onViewDetachedFromWindow(android.view.View) parameter #0:
-    Invalid nullability on parameter `v` in method `onViewDetachedFromWindow`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
 InvalidNullabilityOverride: androidx.core.widget.NestedScrollView#addView(android.view.View) parameter #0:
     Invalid nullability on parameter `child` in method `addView`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
 InvalidNullabilityOverride: androidx.core.widget.NestedScrollView#draw(android.graphics.Canvas) parameter #0:

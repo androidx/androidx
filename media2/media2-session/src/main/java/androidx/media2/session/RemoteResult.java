@@ -21,7 +21,7 @@ import androidx.media2.common.BaseResult;
 /**
  * Base interface for result classes in {@link MediaSession} and {@link MediaController} that may
  * be sent across the processes.
- **/
+ */
 interface RemoteResult extends BaseResult {
     /**
      * Result code representing that the session and controller were disconnected.

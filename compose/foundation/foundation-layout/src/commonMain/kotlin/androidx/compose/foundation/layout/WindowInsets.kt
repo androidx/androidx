@@ -67,6 +67,31 @@ interface WindowInsets {
 }
 
 /**
+ * A [WindowInsets] whose values can change without changing the instance. This is useful
+ * to avoid recomposition when [WindowInsets] can change.
+ *
+ * @sample androidx.compose.foundation.layout.samples.withConsumedInsetsSample
+ */
+@ExperimentalLayoutApi
+class MutableWindowInsets(initialInsets: WindowInsets = WindowInsets(0, 0, 0, 0)) : WindowInsets {
+    /**
+     * The [WindowInsets] that are used for [left][getLeft], [top][getTop], [right][getRight],
+     * and [bottom][getBottom] values.
+     */
+    var insets by mutableStateOf(initialInsets)
+
+    override fun getLeft(density: Density, layoutDirection: LayoutDirection): Int =
+        insets.getLeft(density, layoutDirection)
+
+    override fun getTop(density: Density): Int = insets.getTop(density)
+
+    override fun getRight(density: Density, layoutDirection: LayoutDirection): Int =
+        insets.getRight(density, layoutDirection)
+
+    override fun getBottom(density: Density): Int = insets.getBottom(density)
+}
+
+/**
  * [WindowInsetsSides] is used in [WindowInsets.only] to define which sides of the
  * [WindowInsets] should apply.
  */
@@ -208,7 +233,7 @@ fun WindowInsets.only(sides: WindowInsetsSides): WindowInsets = LimitInsets(this
  * Convert a [WindowInsets] to a [PaddingValues] and uses [LocalDensity] for DP to pixel
  * conversion. [PaddingValues] can be passed to some containers to pad internal content so that
  * it doesn't overlap the insets when fully scrolled. Ensure that the insets are
- * [consumed][consumedWindowInsets] after the padding is applied if insets are to be used further
+ * [consumed][consumeWindowInsets] after the padding is applied if insets are to be used further
  * down the hierarchy.
  *
  * @sample androidx.compose.foundation.layout.samples.paddingValuesSample
@@ -221,7 +246,7 @@ fun WindowInsets.asPaddingValues(): PaddingValues = InsetsPaddingValues(this, Lo
  * Convert a [WindowInsets] to a [PaddingValues] and uses [density] for DP to pixel conversion.
  * [PaddingValues] can be passed to some containers to pad internal content so that it doesn't
  * overlap the insets when fully scrolled. Ensure that the insets are
- * [consumed][consumedWindowInsets] after the padding is applied if insets are to be used further
+ * [consumed][consumeWindowInsets] after the padding is applied if insets are to be used further
  * down the hierarchy.
  *
  * @sample androidx.compose.foundation.layout.samples.paddingValuesSample
@@ -646,3 +671,75 @@ private class InsetsPaddingValues(
         return result
     }
 }
+
+/**
+ * An insets type representing the window of a caption bar.
+ */
+expect val WindowInsets.Companion.captionBar: WindowInsets
+
+/**
+ * This [WindowInsets] represents the area with the display cutout (e.g. for camera).
+ */
+expect val WindowInsets.Companion.displayCutout: WindowInsets
+
+/**
+ * An insets type representing the window of the software keyboard.
+ */
+expect val WindowInsets.Companion.ime: WindowInsets
+
+/**
+ * These insets represent the space where system gestures have priority over application gestures.
+ */
+expect val WindowInsets.Companion.mandatorySystemGestures: WindowInsets
+
+/**
+ * These insets represent where system UI places navigation bars.
+ * Interactive UI should avoid the navigation bars area.
+ */
+expect val WindowInsets.Companion.navigationBars: WindowInsets
+
+/**
+ * These insets represent status bar.
+ */
+expect val WindowInsets.Companion.statusBars: WindowInsets
+
+/**
+ * These insets represent all system bars.
+ * Includes [statusBars], [captionBar] as well as [navigationBars], but not [ime].
+ */
+expect val WindowInsets.Companion.systemBars: WindowInsets
+
+/**
+ * The [systemGestures] insets represent the area of a window where system gestures have
+ * priority and may consume some or all touch input, e.g. due to the system bar
+ * occupying it, or it being reserved for touch-only gestures.
+ */
+expect val WindowInsets.Companion.systemGestures: WindowInsets
+
+/**
+ * Returns the tappable element insets.
+ */
+expect val WindowInsets.Companion.tappableElement: WindowInsets
+
+/**
+ * The insets for the curved areas in a waterfall display.
+ */
+expect val WindowInsets.Companion.waterfall: WindowInsets
+
+/**
+ * The insets that include areas where content may be covered by other drawn content.
+ * This includes all [systemBars], [displayCutout], and [ime].
+ */
+expect val WindowInsets.Companion.safeDrawing: WindowInsets
+
+/**
+ * The insets that include areas where gestures may be confused with other input,
+ * including [systemGestures], [mandatorySystemGestures], [waterfall], and [tappableElement].
+ */
+expect val WindowInsets.Companion.safeGestures: WindowInsets
+
+/**
+ * The insets that include all areas that may be drawn over or have gesture confusion,
+ * including everything in [safeDrawing] and [safeGestures].
+ */
+expect val WindowInsets.Companion.safeContent: WindowInsets

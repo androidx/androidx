@@ -211,6 +211,16 @@ class GLRenderer(
     }
 
     /**
+     * Queue a [Runnable] to be executed on the GL rendering thread. Note it is important that this
+     * [Runnable] does not block otherwise it can stall the GL thread.
+     *
+     * @param runnable Runnable to be executed
+     */
+    fun execute(runnable: Runnable) {
+        mGLThread?.execute(runnable)
+    }
+
+    /**
      * Stop the corresponding GL thread. This destroys all EGLSurfaces as well
      * as any other EGL dependencies. All queued requests that have not been processed
      * yet are cancelled.
@@ -299,6 +309,7 @@ class GLRenderer(
         fun onEGLContextDestroyed(eglManager: EGLManager)
     }
 
+    @JvmDefaultWithCompatibility
     /**
      * Interface used for creating an [EGLSurface] with a user defined configuration
      * from the provided surface as well as a callback used to render content into the surface

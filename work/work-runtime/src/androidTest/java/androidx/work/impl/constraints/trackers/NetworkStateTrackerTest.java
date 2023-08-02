@@ -69,7 +69,7 @@ public class NetworkStateTrackerTest {
     public void testGetInitialState_nullNetworkInfoSdk15() {
         // API < 16 conservatively treats null networkInfo as metered.
         NetworkState expectedState = new NetworkState(false, false, true, false);
-        assertThat(mTracker.getInitialState(), is(expectedState));
+        assertThat(mTracker.readSystemState(), is(expectedState));
     }
 
     @Test
@@ -77,7 +77,7 @@ public class NetworkStateTrackerTest {
     @SdkSuppress(minSdkVersion = 16)
     public void testGetInitialState_nullNetworkInfo() {
         NetworkState expectedState = new NetworkState(false, false, false, false);
-        assertThat(mTracker.getInitialState(), is(expectedState));
+        assertThat(mTracker.readSystemState(), is(expectedState));
     }
 
     @Test

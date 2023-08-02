@@ -47,30 +47,42 @@ public class NavDeepLink internal constructor(
      */
     public val mimeType: String?
 ) {
+    // path
     private val pathArgs = mutableListOf<String>()
-    private val paramArgMap = mutableMapOf<String, ParamQuery>()
-    private val fragArgs = mutableListOf<String>()
-
-    private var patternFinalRegex: String? = null
-    private val pattern by lazy {
-        patternFinalRegex?.let { Pattern.compile(it, Pattern.CASE_INSENSITIVE) }
+    private var pathRegex: String? = null
+    private val pathPattern by lazy {
+        pathRegex?.let { Pattern.compile(it, Pattern.CASE_INSENSITIVE) }
     }
-    private var isParameterizedQuery = false
+
+    // query
+    private val isParameterizedQuery by lazy {
+        uriPattern != null && Uri.parse(uriPattern).query != null
+    }
+    private val queryArgsMap by lazy(LazyThreadSafetyMode.NONE) { parseQuery() }
     private var isSingleQueryParamValueOnly = false
 
-    private var fragmentFinalRegex: String? = null
-    private val fragmentPattern by lazy {
-        fragmentFinalRegex?.let { Pattern.compile(it, Pattern.CASE_INSENSITIVE) }
+    // fragment
+    private val fragArgsAndRegex: Pair<MutableList<String>, String>? by
+        lazy(LazyThreadSafetyMode.NONE) { parseFragment() }
+    private val fragArgs by lazy(LazyThreadSafetyMode.NONE) {
+        fragArgsAndRegex?.first ?: mutableListOf()
+    }
+    private val fragRegex by lazy(LazyThreadSafetyMode.NONE) {
+        fragArgsAndRegex?.second
+    }
+    private val fragPattern by lazy {
+        fragRegex?.let { Pattern.compile(it, Pattern.CASE_INSENSITIVE) }
     }
 
-    private var mimeTypeFinalRegex: String? = null
+    // mime
+    private var mimeTypeRegex: String? = null
     private val mimeTypePattern by lazy {
-        mimeTypeFinalRegex?.let { Pattern.compile(it) }
+        mimeTypeRegex?.let { Pattern.compile(it) }
     }
 
     /** Arguments present in the deep link, including both path and query arguments. */
     internal val argumentsNames: List<String>
-        get() = pathArgs + paramArgMap.values.flatMap { it.arguments } + fragArgs
+        get() = pathArgs + queryArgsMap.values.flatMap { it.arguments } + fragArgs
 
     public var isExactDeepLink: Boolean = false
         /** @suppress */
@@ -120,9 +132,9 @@ public class NavDeepLink internal constructor(
 
     private fun matchUri(uri: Uri?): Boolean {
         // If the null status of both are not the same return false.
-        return if (uri == null == (pattern != null)) {
+        return if (uri == null == (pathPattern != null)) {
             false
-        } else uri == null || pattern!!.matcher(uri.toString()).matches()
+        } else uri == null || pathPattern!!.matcher(uri.toString()).matches()
         // If both are null return true, otherwise see if they match
     }
 
@@ -162,7 +174,7 @@ public class NavDeepLink internal constructor(
         arguments: Map<String, NavArgument?>
     ): Bundle? {
         // first check overall uri pattern for quick return if general pattern does not match
-        val matcher = pattern?.matcher(deepLink.toString()) ?: return null
+        val matcher = pathPattern?.matcher(deepLink.toString()) ?: return null
         if (!matcher.matches()) {
             return null
         }
@@ -176,12 +188,30 @@ public class NavDeepLink internal constructor(
         getMatchingUriFragment(deepLink.fragment, bundle, arguments)
 
         // Check that all required arguments are present in bundle
-        for ((argName, argument) in arguments.entries) {
-            val argumentIsRequired = argument != null && !argument.isNullable &&
-                !argument.isDefaultValuePresent
-            if (argumentIsRequired && !bundle.containsKey(argName)) return null
+        val missingRequiredArguments = arguments.missingRequiredArguments { argName ->
+            !bundle.containsKey(argName)
         }
+        if (missingRequiredArguments.isNotEmpty()) return null
 
+        return bundle
+    }
+
+    /**
+     * Returns a bundle containing matching path and query arguments with the requested uri.
+     * It returns empty bundle if this Deeplink's path pattern does not match with the uri.
+     */
+    internal fun getMatchingPathAndQueryArgs(
+        deepLink: Uri?,
+        arguments: Map<String, NavArgument?>
+    ): Bundle {
+        val bundle = Bundle()
+        if (deepLink == null) return bundle
+        val matcher = pathPattern?.matcher(deepLink.toString()) ?: return bundle
+        if (!matcher.matches()) {
+            return bundle
+        }
+        getMatchingPathArguments(matcher, bundle, arguments)
+        if (isParameterizedQuery) getMatchingQueryArguments(deepLink, bundle, arguments)
         return bundle
     }
 
@@ -193,7 +223,7 @@ public class NavDeepLink internal constructor(
         // Base condition of a matching fragment is a complete match on regex pattern. If a
         // required fragment arg is present while regex does not match, this will be caught later
         // on as a non-match when we check for presence of required args in the bundle.
-        val matcher = fragmentPattern?.matcher(fragment.toString()) ?: return
+        val matcher = fragPattern?.matcher(fragment.toString()) ?: return
         if (!matcher.matches()) return
 
         this.fragArgs.mapIndexed { index, argumentName ->
@@ -236,7 +266,7 @@ public class NavDeepLink internal constructor(
         bundle: Bundle,
         arguments: Map<String, NavArgument?>
     ): Boolean {
-        paramArgMap.forEach { entry ->
+        queryArgsMap.forEach { entry ->
             val paramName = entry.key
             val storedParam = entry.value
 
@@ -245,7 +275,7 @@ public class NavDeepLink internal constructor(
                 // If the deep link contains a single query param with no value,
                 // we will treat everything after the '?' as the input parameter
                 val argValue = deepLink.query
-                if (argValue != deepLink.toString()) {
+                if (argValue != null && argValue != deepLink.toString()) {
                     inputParams = listOf(argValue)
                 }
             }
@@ -533,22 +563,21 @@ public class NavDeepLink internal constructor(
         }
         // we need to specifically escape any .* instances to ensure
         // they are still treated as wildcards in our final regex
-        patternFinalRegex = uriRegex.toString().replace(".*", "\\E.*\\Q")
+        pathRegex = uriRegex.toString().replace(".*", "\\E.*\\Q")
     }
 
-    private fun parseQuery() {
-        if (uriPattern == null || Uri.parse(uriPattern).query == null) return
+    private fun parseQuery(): MutableMap<String, ParamQuery> {
+        val paramArgMap = mutableMapOf<String, ParamQuery>()
+        if (!isParameterizedQuery) return paramArgMap
         val uri = Uri.parse(uriPattern)
-
-        isParameterizedQuery = true
 
         for (paramName in uri.queryParameterNames) {
             val argRegex = StringBuilder()
             val queryParams = uri.getQueryParameters(paramName)
             require(queryParams.size <= 1) {
-                "Query parameter $paramName must only be present once in $uriPattern." +
-                    "To support repeated query parameters, use an array type for your" +
-                    "argument and the pattern provided in your URI will be used to" +
+                "Query parameter $paramName must only be present once in $uriPattern. " +
+                    "To support repeated query parameters, use an array type for your " +
+                    "argument and the pattern provided in your URI will be used to " +
                     "parse each query parameter instance."
             }
             val queryParam = queryParams.firstOrNull()
@@ -580,15 +609,17 @@ public class NavDeepLink internal constructor(
             param.paramRegex = argRegex.toString().replace(".*", "\\E.*\\Q")
             paramArgMap[paramName] = param
         }
+        return paramArgMap
     }
 
-    private fun parseFragment() {
-        if (uriPattern == null || Uri.parse(uriPattern).fragment == null) return
+    private fun parseFragment(): Pair<MutableList<String>, String>? {
+        if (uriPattern == null || Uri.parse(uriPattern).fragment == null) return null
 
+        val fragArgs = mutableListOf<String>()
         val fragment = Uri.parse(uriPattern).fragment
         val fragRegex = StringBuilder()
         buildRegex(fragment!!, fragArgs, fragRegex)
-        fragmentFinalRegex = fragRegex.toString()
+        return fragArgs to fragRegex.toString()
     }
 
     private fun parseMime() {
@@ -606,17 +637,14 @@ public class NavDeepLink internal constructor(
         )
 
         // the matching pattern can have the exact name or it can be wildcard literal (*)
-        val mimeTypeRegex = "^(${splitMimeType.type}|[*]+)/(${splitMimeType.subType}|[*]+)$"
-        println("cfok inside mimeTypeRegex $mimeTypeRegex")
+        val regex = "^(${splitMimeType.type}|[*]+)/(${splitMimeType.subType}|[*]+)$"
 
         // if the deep link type or subtype is wildcard, allow anything
-        mimeTypeFinalRegex = mimeTypeRegex.replace("*|[*]", "[\\s\\S]")
+        mimeTypeRegex = regex.replace("*|[*]", "[\\s\\S]")
     }
 
     init {
         parsePath()
-        parseQuery()
-        parseFragment()
         parseMime()
     }
 }

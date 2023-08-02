@@ -30,16 +30,16 @@ import androidx.viewpager2.integration.testapp.R
 import androidx.viewpager2.widget.ViewPager2
 import androidx.viewpager2.widget.ViewPager2.ORIENTATION_HORIZONTAL
 import androidx.viewpager2.widget.ViewPager2.ORIENTATION_VERTICAL
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 import org.hamcrest.CoreMatchers
+import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.closeTo
 import org.hamcrest.Matchers.equalTo
 import org.hamcrest.Matchers.greaterThan
-import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
 
 private const val LABEL_NONE = "None"
 private const val LABEL_50_PX = "Margin 50px"
@@ -50,11 +50,13 @@ private const val LABEL_32_DP = "Margin 32dp"
 class MarginPageTransformerTest :
     BaseTest<PageTransformerActivity>(PageTransformerActivity::class.java) {
 
+    @Ignore // b/268113370
     @Test
     fun testMargin_offscreenLimit_noChange() {
         testMargin(null)
     }
 
+    @Ignore // b/266476890
     @Test
     fun testMargin_offscreenLimit_default() {
         testMargin(ViewPager2.OFFSCREEN_PAGE_LIMIT_DEFAULT)

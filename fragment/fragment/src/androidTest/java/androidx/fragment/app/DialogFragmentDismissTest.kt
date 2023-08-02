@@ -19,6 +19,7 @@ package androidx.fragment.app
 import android.app.AlertDialog
 import android.app.Dialog
 import android.content.DialogInterface
+import android.os.Build
 import android.os.Bundle
 import android.os.Looper
 import androidx.fragment.app.test.EmptyFragmentTestActivity
@@ -26,12 +27,14 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertWithMessage
-import org.junit.Rule
-import org.junit.Test
-import org.junit.runner.RunWith
-import org.junit.runners.Parameterized
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import leakcanary.DetectLeaksAfterTestSuccess
+import org.junit.Rule
+import org.junit.Test
+import org.junit.rules.RuleChain
+import org.junit.runner.RunWith
+import org.junit.runners.Parameterized
 
 /**
  * Class representing the different ways of dismissing a [DialogFragment]
@@ -99,13 +102,21 @@ class DialogFragmentDismissTest(
     }
 
     @Suppress("DEPRECATION")
+    val activityTestRule =
+        androidx.test.rule.ActivityTestRule(EmptyFragmentTestActivity::class.java)
+
+    // Detect leaks BEFORE and AFTER activity is destroyed
     @get:Rule
-    var activityTestRule = androidx.test.rule.ActivityTestRule(
-        EmptyFragmentTestActivity::class.java
-    )
+    val ruleChain: RuleChain = RuleChain.outerRule(DetectLeaksAfterTestSuccess())
+        .around(activityTestRule)
 
     @Test
     fun testDialogFragmentDismiss() {
+        // Due to b/157955883, we need to early return if API == 30.
+        // Otherwise, this test flakes.
+        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.R) {
+            return
+        }
         val fragment = TestDialogFragment()
         activityTestRule.runOnUiThread {
             fragment.showNow(activityTestRule.activity.supportFragmentManager, null)

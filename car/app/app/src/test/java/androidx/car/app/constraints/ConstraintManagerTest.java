@@ -37,10 +37,12 @@ import androidx.car.app.testing.TestCarContext;
 import androidx.test.core.app.ApplicationProvider;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
@@ -48,6 +50,9 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
 public class ConstraintManagerTest {
+    @Rule
+    public final MockitoRule mockito = MockitoJUnit.rule();
+
     @Mock
     private ICarHost mMockCarHost;
     @Mock
@@ -61,8 +66,6 @@ public class ConstraintManagerTest {
 
     @Before
     public void setUp() throws RemoteException {
-        MockitoAnnotations.initMocks(this);
-
         mTestCarContext =
                 TestCarContext.createCarContext(ApplicationProvider.getApplicationContext());
 
@@ -71,6 +74,11 @@ public class ConstraintManagerTest {
                     @Override
                     public int getContentLimit(int contentType) throws RemoteException {
                         return mMockConstraintHost.getContentLimit(contentType);
+                    }
+
+                    @Override
+                    public boolean isAppDrivenRefreshEnabled() throws RemoteException {
+                        return mMockConstraintHost.isAppDrivenRefreshEnabled();
                     }
                 };
         when(mMockCarHost.getHost(any())).thenReturn(hostStub.asBinder());
@@ -103,5 +111,19 @@ public class ConstraintManagerTest {
         assertThat(mConstraintManager.getContentLimit(CONTENT_LIMIT_TYPE_PLACE_LIST)).isEqualTo(3);
         assertThat(mConstraintManager.getContentLimit(CONTENT_LIMIT_TYPE_ROUTE_LIST)).isEqualTo(4);
         assertThat(mConstraintManager.getContentLimit(CONTENT_LIMIT_TYPE_PANE)).isEqualTo(5);
+    }
+
+    @Test
+    public void host_throwsException_returnsDefault() throws RemoteException {
+        when(mMockConstraintHost.isAppDrivenRefreshEnabled()).thenThrow(new RemoteException());
+
+        assertThat(mConstraintManager.isAppDrivenRefreshEnabled()).isFalse();
+    }
+
+    @Test
+    public void host_returAppDrivenRefreshEnabled() throws RemoteException {
+        when(mMockConstraintHost.isAppDrivenRefreshEnabled()).thenReturn(true);
+
+        assertThat(mConstraintManager.isAppDrivenRefreshEnabled()).isTrue();
     }
 }

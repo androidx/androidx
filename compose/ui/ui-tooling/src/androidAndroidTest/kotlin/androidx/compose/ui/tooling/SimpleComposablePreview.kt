@@ -26,9 +26,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.saveable.LocalSaveableStateRegistry
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewDynamicColors
+import androidx.compose.ui.tooling.preview.PreviewFontScale
+import androidx.compose.ui.tooling.preview.PreviewLightDark
+import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.tooling.preview.PreviewParameterProvider
+import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 
@@ -72,6 +79,14 @@ fun DefaultParametersPreview3(a: () -> Int = { 4 }, b: Int = 3, c: Data = Data()
     if (b != 3) throw IllegalArgumentException("Unexpected default value")
     if (c.name != "123") throw IllegalArgumentException("Unexpected default value")
     Text("Default parameter  ${a()} $b ${c.name}")
+}
+
+@Preview
+@Composable
+fun DefaultParametersPreview4(a: String = "Hello", b: Color = Color.White) {
+    if (a != "Hello") throw IllegalArgumentException("Unexpected default value")
+    if (b != Color.White) throw IllegalArgumentException("Unexpected default value")
+    Text("Default parameter  $a $b")
 }
 
 @Preview
@@ -143,4 +158,43 @@ fun Multipreview() {
     Surface(color = Color.Red) {
         Text("Hello world")
     }
+}
+
+@PreviewDynamicColors
+@PreviewFontScale
+@PreviewLightDark
+@PreviewScreenSizes
+@Composable
+fun MultiPreviews() {
+    Text("MultiPreviews test")
+}
+
+class TestContentParameterProviderBoolean : PreviewParameterProvider<Boolean> {
+    override val values: Sequence<Boolean> = sequenceOf(false, true)
+}
+
+@Preview
+@Composable
+fun PreviewParametersComposablePreview(
+    @PreviewParameter(TestContentParameterProviderBoolean::class)
+    valueParameter: Boolean
+) {
+    Text(valueParameter.toString())
+}
+
+class TestContentParameterProviderCornerRadius : PreviewParameterProvider<CornerRadius> {
+    override val values = sequenceOf(
+        CornerRadius(42f),
+        CornerRadius.Zero,
+        CornerRadius(0f, 34f)
+    )
+}
+
+@Preview
+@Composable
+fun TestCornerRadius(
+    @PreviewParameter(TestContentParameterProviderCornerRadius::class)
+    radius: CornerRadius
+) {
+    Text(radius.toString())
 }

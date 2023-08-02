@@ -26,7 +26,6 @@ import android.graphics.Rect;
 
 import androidx.test.filters.SdkSuppress;
 import androidx.test.uiautomator.UiObject;
-import androidx.test.uiautomator.UiObjectNotFoundException;
 import androidx.test.uiautomator.UiSelector;
 
 import org.junit.Test;
@@ -75,7 +74,7 @@ public class UiObjectTest extends BaseTest {
 
         UiObject noNode = mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id/no_node"));
 
-        assertThrows(UiObjectNotFoundException.class, noNode::getChildCount);
+        assertUiObjectNotFound(noNode::getChildCount);
     }
 
     @Test
@@ -297,13 +296,13 @@ public class UiObjectTest extends BaseTest {
 
         UiObject noNode = mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id/no_node"));
 
-        assertThrows(UiObjectNotFoundException.class, noNode::click);
-        assertThrows(UiObjectNotFoundException.class, noNode::clickAndWaitForNewWindow);
-        assertThrows(UiObjectNotFoundException.class, noNode::clickTopLeft);
-        assertThrows(UiObjectNotFoundException.class, noNode::longClickBottomRight);
-        assertThrows(UiObjectNotFoundException.class, noNode::clickBottomRight);
-        assertThrows(UiObjectNotFoundException.class, noNode::longClick);
-        assertThrows(UiObjectNotFoundException.class, noNode::longClickTopLeft);
+        assertUiObjectNotFound(noNode::click);
+        assertUiObjectNotFound(noNode::clickAndWaitForNewWindow);
+        assertUiObjectNotFound(noNode::clickTopLeft);
+        assertUiObjectNotFound(noNode::longClickBottomRight);
+        assertUiObjectNotFound(noNode::clickBottomRight);
+        assertUiObjectNotFound(noNode::longClick);
+        assertUiObjectNotFound(noNode::longClickTopLeft);
     }
 
     @Test
@@ -342,18 +341,6 @@ public class UiObjectTest extends BaseTest {
     }
 
     @Test
-    public void testLegacySetText() throws Exception {
-        launchTestActivity(ClearTextTestActivity.class);
-
-        UiObject editText = mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id"
-                + "/edit_text"));
-
-        assertEquals("sample_text", editText.getText());
-        editText.legacySetText("new_text");
-        assertEquals("new_text", editText.getText());
-    }
-
-    @Test
     public void testSetText() throws Exception {
         launchTestActivity(ClearTextTestActivity.class);
 
@@ -383,13 +370,12 @@ public class UiObjectTest extends BaseTest {
 
         UiObject noNode = mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id/no_node"));
 
-        assertThrows(UiObjectNotFoundException.class, noNode::getText);
-        assertThrows(UiObjectNotFoundException.class, noNode::getClassName);
-        assertThrows(UiObjectNotFoundException.class, noNode::getContentDescription);
-        assertThrows(UiObjectNotFoundException.class, () -> noNode.legacySetText("new_text"));
-        assertThrows(UiObjectNotFoundException.class, () -> noNode.setText("new_text"));
-        assertThrows(UiObjectNotFoundException.class, noNode::clearTextField);
-        assertThrows(UiObjectNotFoundException.class, noNode::getPackageName);
+        assertUiObjectNotFound(noNode::getText);
+        assertUiObjectNotFound(noNode::getClassName);
+        assertUiObjectNotFound(noNode::getContentDescription);
+        assertUiObjectNotFound(() -> noNode.setText("new_text"));
+        assertUiObjectNotFound(noNode::clearTextField);
+        assertUiObjectNotFound(noNode::getPackageName);
     }
 
     @Test
@@ -496,15 +482,15 @@ public class UiObjectTest extends BaseTest {
 
     @Test
     public void testIsLongClickable() throws Exception {
-        launchTestActivity(LongClickTestActivity.class);
+        launchTestActivity(IsLongClickableTestActivity.class);
 
-        UiObject button = mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id/button"));
-        UiObject expectedButton = mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id"
-                + "/button").text("I've been long clicked!"));
+        UiObject longClickableButton = mDevice.findObject(
+                new UiSelector().resourceId(TEST_APP + ":id/long_clickable_button"));
+        UiObject nonLongClickableButton = mDevice.findObject(
+                new UiSelector().resourceId(TEST_APP + ":id/non_long_clickable_button"));
 
-        assertEquals("Long Click Me!", button.getText());
-        button.longClick();
-        assertTrue(expectedButton.waitForExists(TIMEOUT_MS));
+        assertTrue(longClickableButton.isLongClickable());
+        assertFalse(nonLongClickableButton.isLongClickable());
     }
 
     @Test
@@ -513,15 +499,15 @@ public class UiObjectTest extends BaseTest {
 
         UiObject noNode = mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id/no_node"));
 
-        assertThrows(UiObjectNotFoundException.class, noNode::isChecked);
-        assertThrows(UiObjectNotFoundException.class, noNode::isSelected);
-        assertThrows(UiObjectNotFoundException.class, noNode::isCheckable);
-        assertThrows(UiObjectNotFoundException.class, noNode::isEnabled);
-        assertThrows(UiObjectNotFoundException.class, noNode::isClickable);
-        assertThrows(UiObjectNotFoundException.class, noNode::isFocused);
-        assertThrows(UiObjectNotFoundException.class, noNode::isFocusable);
-        assertThrows(UiObjectNotFoundException.class, noNode::isScrollable);
-        assertThrows(UiObjectNotFoundException.class, noNode::isLongClickable);
+        assertUiObjectNotFound(noNode::isChecked);
+        assertUiObjectNotFound(noNode::isSelected);
+        assertUiObjectNotFound(noNode::isCheckable);
+        assertUiObjectNotFound(noNode::isEnabled);
+        assertUiObjectNotFound(noNode::isClickable);
+        assertUiObjectNotFound(noNode::isFocused);
+        assertUiObjectNotFound(noNode::isFocusable);
+        assertUiObjectNotFound(noNode::isScrollable);
+        assertUiObjectNotFound(noNode::isLongClickable);
     }
 
     @Test
@@ -553,6 +539,7 @@ public class UiObjectTest extends BaseTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 23) // Bounds include invisible regions prior to API 23.
     public void testGetBounds() throws Exception {
         launchTestActivity(VisibleBoundsTestActivity.class);
 
@@ -636,6 +623,8 @@ public class UiObjectTest extends BaseTest {
         UiObject expectedScaleText = mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id"
                 + "/scale_factor").text("1.0f"));
 
+        assertTrue(pinchArea.pinchOut(0, 10));
+        assertFalse(expectedScaleText.waitUntilGone(TIMEOUT_MS));
         assertTrue(pinchArea.pinchOut(100, 10));
         assertTrue(expectedScaleText.waitUntilGone(TIMEOUT_MS));
         float scaleValueAfterPinch = Float.parseFloat(scaleText.getText());
@@ -656,6 +645,8 @@ public class UiObjectTest extends BaseTest {
         UiObject expectedScaleText = mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id"
                 + "/scale_factor").text("1.0f"));
 
+        assertTrue(pinchArea.pinchIn(0, 10));
+        assertFalse(expectedScaleText.waitUntilGone(TIMEOUT_MS));
         assertTrue(pinchArea.pinchIn(100, 10));
         assertTrue(expectedScaleText.waitUntilGone(TIMEOUT_MS));
         float scaleValueAfterPinch = Float.parseFloat(scaleText.getText());
@@ -671,10 +662,14 @@ public class UiObjectTest extends BaseTest {
         UiObject smallArea = mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id"
                 + "/small_area"));
 
-        assertThrows(UiObjectNotFoundException.class, () -> noNode.pinchOut(100, 10));
-        assertThrows(UiObjectNotFoundException.class, () -> noNode.pinchIn(100, 10));
+        assertUiObjectNotFound(() -> noNode.pinchOut(100, 10));
+        assertUiObjectNotFound(() -> noNode.pinchIn(100, 10));
         assertThrows(IllegalStateException.class, () -> smallArea.pinchOut(100, 10));
         assertThrows(IllegalStateException.class, () -> smallArea.pinchIn(100, 10));
+        assertThrows(IllegalArgumentException.class, () -> smallArea.pinchOut(-1, 10));
+        assertThrows(IllegalArgumentException.class, () -> smallArea.pinchOut(101, 10));
+        assertThrows(IllegalArgumentException.class, () -> smallArea.pinchIn(-1, 10));
+        assertThrows(IllegalArgumentException.class, () -> smallArea.pinchIn(101, 10));
     }
 
     @Test

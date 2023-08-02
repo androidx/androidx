@@ -67,7 +67,8 @@ public class SingleSupportFragmentTestActivity extends FragmentActivity {
         if (savedInstanceState == null && findViewById(R.id.main_frame) != null) {
             try {
                 Fragment fragment = (Fragment) Class.forName(
-                        intent.getStringExtra(EXTRA_FRAGMENT_NAME)).newInstance();
+                        intent.getStringExtra(EXTRA_FRAGMENT_NAME))
+                        .getDeclaredConstructor().newInstance();
                 FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
                 ft.replace(R.id.main_frame, fragment);
                 ft.commit();

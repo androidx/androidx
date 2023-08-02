@@ -15,20 +15,12 @@ ForbiddenSuperClass: androidx.activity.ComponentActivity:
     ComponentActivity should not extend `Activity`. Activity subclasses are impossible to compose. Expose a composable API instead.
 
 
-InvalidNullabilityOverride: androidx.activity.ComponentActivity#onCreateOptionsMenu(android.view.Menu) parameter #0:
-    Invalid nullability on parameter `menu` in method `onCreateOptionsMenu`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
 InvalidNullabilityOverride: androidx.activity.ComponentActivity#onMultiWindowModeChanged(boolean, android.content.res.Configuration) parameter #1:
     Invalid nullability on parameter `newConfig` in method `onMultiWindowModeChanged`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
 InvalidNullabilityOverride: androidx.activity.ComponentActivity#onPictureInPictureModeChanged(boolean, android.content.res.Configuration) parameter #1:
     Invalid nullability on parameter `newConfig` in method `onPictureInPictureModeChanged`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
-InvalidNullabilityOverride: androidx.activity.ComponentActivity#onPrepareOptionsMenu(android.view.Menu) parameter #0:
-    Invalid nullability on parameter `menu` in method `onPrepareOptionsMenu`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
 InvalidNullabilityOverride: androidx.activity.ComponentActivity#onRetainNonConfigurationInstance():
     Invalid nullability on method `onRetainNonConfigurationInstance` return. Overrides of unannotated super method cannot be Nullable.
-InvalidNullabilityOverride: androidx.activity.result.ActivityResult#writeToParcel(android.os.Parcel, int) parameter #0:
-    Invalid nullability on parameter `dest` in method `writeToParcel`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
-InvalidNullabilityOverride: androidx.activity.result.IntentSenderRequest#writeToParcel(android.os.Parcel, int) parameter #0:
-    Invalid nullability on parameter `dest` in method `writeToParcel`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
 InvalidNullabilityOverride: androidx.activity.result.contract.ActivityResultContracts.CaptureVideo#getSynchronousResult(android.content.Context, android.net.Uri):
     Invalid nullability on method `getSynchronousResult` return. Overrides of unannotated super method cannot be Nullable.
 InvalidNullabilityOverride: androidx.activity.result.contract.ActivityResultContracts.CreateDocument#getSynchronousResult(android.content.Context, String):

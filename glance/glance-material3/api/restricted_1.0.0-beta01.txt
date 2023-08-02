@@ -1,0 +1,10 @@
+// Signature format: 4.0
+package androidx.glance.material3 {
+
+  public final class Material3ThemesKt {
+    method public static androidx.glance.color.ColorProviders ColorProviders(androidx.compose.material3.ColorScheme scheme);
+    method public static androidx.glance.color.ColorProviders ColorProviders(androidx.compose.material3.ColorScheme light, androidx.compose.material3.ColorScheme dark);
+  }
+
+}
+

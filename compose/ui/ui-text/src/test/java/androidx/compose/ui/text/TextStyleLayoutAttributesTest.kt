@@ -25,9 +25,10 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontSynthesis
 import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.text.style.BaselineShift
+import androidx.compose.ui.text.style.LineBreak
 import androidx.compose.ui.text.style.LineHeightStyle
-import androidx.compose.ui.text.style.LineHeightStyle.Trim
 import androidx.compose.ui.text.style.LineHeightStyle.Alignment
+import androidx.compose.ui.text.style.LineHeightStyle.Trim
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextDirection
@@ -74,7 +75,6 @@ class TextStyleLayoutAttributesTest {
         ).isTrue()
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun returns_true_for_color_to_brush_change() {
         val style = TextStyle(color = Color.Red)
@@ -83,7 +83,6 @@ class TextStyleLayoutAttributesTest {
         ).isTrue()
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun returns_true_for_brush_to_color_change() {
         val style = TextStyle(brush = SolidColor(Color.Green))
@@ -92,7 +91,6 @@ class TextStyleLayoutAttributesTest {
         ).isTrue()
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun returns_true_for_brush_solid_color_change() {
         val style = TextStyle(brush = SolidColor(Color.Red))
@@ -102,7 +100,6 @@ class TextStyleLayoutAttributesTest {
         ).isTrue()
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun returns_true_for_brush_shader_change() {
         val style = TextStyle(brush = Brush.linearGradient(listOf(Color.Black, Color.White)))
@@ -113,7 +110,6 @@ class TextStyleLayoutAttributesTest {
         ).isTrue()
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun returns_true_for_brush_alpha_change() {
         val brush = Brush.linearGradient(listOf(Color.Black, Color.White))
@@ -286,7 +282,6 @@ class TextStyleLayoutAttributesTest {
     }
 
     @Suppress("DEPRECATION")
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun returns_false_for_platformStyle_change() {
         val style = TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = false))
@@ -307,7 +302,6 @@ class TextStyleLayoutAttributesTest {
         ).isFalse()
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun returns_false_for_lineHeightStyle_change() {
         val style = TextStyle(
@@ -323,6 +317,20 @@ class TextStyleLayoutAttributesTest {
                         alignment = Alignment.Bottom,
                         trim = Trim.Both
                     )
+                )
+            )
+        ).isFalse()
+    }
+
+    @Test
+    fun returns_false_for_lineBreak_change() {
+        val style = TextStyle(
+            lineBreak = LineBreak.Heading
+        )
+        assertThat(
+            style.hasSameLayoutAffectingAttributes(
+                TextStyle(
+                    lineBreak = LineBreak.Paragraph
                 )
             )
         ).isFalse()
@@ -350,6 +358,7 @@ class TextStyleLayoutAttributesTest {
             getProperty("textGeometricTransform"),
             getProperty("localeList"),
             getProperty("background"),
+            getProperty("drawStyle"),
             getProperty("textAlign"),
             getProperty("textDirection"),
             getProperty("lineHeight"),
@@ -360,7 +369,10 @@ class TextStyleLayoutAttributesTest {
             // ui-text/../androidx/compose/ui/text/TextSpanParagraphStyleTest.kt
             getProperty("paragraphStyle"),
             getProperty("spanStyle"),
-            getProperty("lineHeightStyle")
+            getProperty("lineHeightStyle"),
+            getProperty("hyphens"),
+            getProperty("lineBreak"),
+            getProperty("textMotion")
         )
 
         val textStyleProperties = TextStyle::class.memberProperties.map { Property(it) }

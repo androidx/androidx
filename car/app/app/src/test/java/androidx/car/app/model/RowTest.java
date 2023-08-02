@@ -163,6 +163,17 @@ public class RowTest {
         );
     }
 
+    public void setDecoration_withToggle_throws() {
+        Toggle toggle = new Toggle.Builder(isChecked -> {}).build();
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new Row.Builder().setTitle("Title")
+                        .setToggle(toggle)
+                        .setNumericDecoration(5)
+                        .build());
+    }
+
     @Test
     public void setToggle() {
         Toggle toggle1 = new Toggle.Builder(isChecked -> {
@@ -198,19 +209,35 @@ public class RowTest {
 
     @Test
     public void addAction() {
+        CarIcon icon = TestUtils.getTestCarIcon(ApplicationProvider.getApplicationContext(),
+                "ic_test_1");
+        Action customAction = new Action.Builder().setIcon(icon).build();
         Row row = new Row.Builder()
                 .setTitle("Title")
-                .addAction(Action.PAN)
-                .addAction(Action.BACK)
+                .addAction(customAction)
                 .build();
-        assertThat(row.getActions()).containsExactly(Action.PAN, Action.BACK);
+        assertThat(row.getActions()).containsExactly(customAction);
     }
 
     @Test
-    public void addAction_invalidActionType_throws() {
+    public void addAction_appIconInvalid_throws() {
         assertThrows(
                 IllegalArgumentException.class,
                 () -> new Row.Builder().setTitle("Title").addAction(Action.APP_ICON).build());
+    }
+
+    @Test
+    public void addAction_backInvalid_throws() {
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new Row.Builder().setTitle("Title").addAction(Action.BACK).build());
+    }
+
+    @Test
+    public void addAction_panInvalid_throws() {
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new Row.Builder().setTitle("Title").addAction(Action.PAN).build());
     }
 
     @Test
@@ -222,8 +249,8 @@ public class RowTest {
         assertThrows(
                 IllegalArgumentException.class,
                 () -> new Row.Builder().setTitle("Title")
-                        .addAction(Action.BACK)
-                        .addAction(Action.PAN)
+                        .addAction(customAction)
+                        .addAction(customAction)
                         .addAction(customAction)
                         .build());
     }
@@ -235,6 +262,33 @@ public class RowTest {
         assertThrows(
                 IllegalArgumentException.class,
                 () -> new Row.Builder().setTitle("Title")
+                        .addAction(customAction)
+                        .build());
+    }
+
+    public void addAction_browsableRow_throws() {
+        CarIcon carIcon = TestUtils.getTestCarIcon(ApplicationProvider.getApplicationContext(),
+                "ic_test_1");
+        Action customAction = TestUtils.createAction("Title", carIcon);
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new Row.Builder().setTitle("Title")
+                        .setBrowsable(true)
+                        .addAction(customAction)
+                        .build());
+    }
+
+    public void addAction_withToggle_throws() {
+        Toggle toggle = new Toggle.Builder(isChecked -> {}).build();
+        CarIcon carIcon = TestUtils.getTestCarIcon(ApplicationProvider.getApplicationContext(),
+                "ic_test_1");
+        Action customAction = TestUtils.createAction("Title", carIcon);
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new Row.Builder().setTitle("Title")
+                        .setToggle(toggle)
                         .addAction(customAction)
                         .build());
     }

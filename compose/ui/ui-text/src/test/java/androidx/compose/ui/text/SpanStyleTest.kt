@@ -19,6 +19,9 @@ package androidx.compose.ui.text
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.Fill
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
@@ -39,7 +42,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-@OptIn(ExperimentalTextApi::class)
 @RunWith(JUnit4::class)
 class SpanStyleTest {
     @Test
@@ -56,9 +58,9 @@ class SpanStyleTest {
         assertThat(style.background).isEqualTo(Color.Unspecified)
         assertThat(style.textDecoration).isNull()
         assertThat(style.fontFamily).isNull()
+        assertThat(style.drawStyle).isNull()
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun `constructor with customized brush`() {
         val brush = Brush.linearGradient(colors = listOf(Color.Blue, Color.Red))
@@ -68,7 +70,6 @@ class SpanStyleTest {
         assertThat(style.brush).isEqualTo(brush)
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun `constructor with customized brush and alpha`() {
         val brush = Brush.linearGradient(colors = listOf(Color.Blue, Color.Red))
@@ -79,7 +80,6 @@ class SpanStyleTest {
         assertThat(style.alpha).isEqualTo(0.3f)
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun `constructor with gradient brush has unspecified color`() {
         val brush = Brush.linearGradient(colors = listOf(Color.Blue, Color.Red))
@@ -89,7 +89,6 @@ class SpanStyleTest {
         assertThat(style.color).isEqualTo(Color.Unspecified)
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun `constructor with SolidColor converts to regular color`() {
         val brush = SolidColor(Color.Red)
@@ -197,6 +196,15 @@ class SpanStyleTest {
         val style = SpanStyle(fontFamily = fontFamily)
 
         assertThat(style.fontFamily).isEqualTo(fontFamily)
+    }
+
+    @Test
+    fun `constructor with customized drawStyle`() {
+        val stroke = Stroke(width = 4f)
+
+        val style = SpanStyle(drawStyle = stroke)
+
+        assertThat(style.drawStyle).isEqualTo(stroke)
     }
 
     @Test
@@ -436,7 +444,6 @@ class SpanStyleTest {
         assertThat(newSpanStyle.localeList).isEqualTo(otherStyle.localeList)
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun `merge with null platformStyles has null platformStyle`() {
         val style = SpanStyle(platformStyle = null)
@@ -447,7 +454,6 @@ class SpanStyleTest {
         assertThat(mergedStyle.platformStyle).isNull()
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun `merge with brush has other brush and no color`() {
         val brush = Brush.linearGradient(listOf(Color.Blue, Color.Red))
@@ -461,7 +467,6 @@ class SpanStyleTest {
         assertThat(mergedStyle.brush).isEqualTo(brush)
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun `merge with unspecified brush has original brush`() {
         val brush = Brush.linearGradient(listOf(Color.Blue, Color.Red))
@@ -475,7 +480,6 @@ class SpanStyleTest {
         assertThat(mergedStyle.brush).isEqualTo(brush)
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun `merge brush with brush uses other's alpha`() {
         val brush = Brush.linearGradient(listOf(Color.Blue, Color.Red))
@@ -490,7 +494,6 @@ class SpanStyleTest {
         assertThat(mergedStyle.alpha).isEqualTo(0.6f)
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun `merge brush with brush uses current alpha if other's is NaN`() {
         val brush = Brush.linearGradient(listOf(Color.Blue, Color.Red))
@@ -503,6 +506,28 @@ class SpanStyleTest {
         assertThat(mergedStyle.color).isEqualTo(Color.Unspecified)
         assertThat(mergedStyle.brush).isEqualTo(brush)
         assertThat(mergedStyle.alpha).isEqualTo(0.3f)
+    }
+
+    @Test
+    fun `merge with other's drawStyle is null should use this' drawStyle`() {
+        val drawStyle1 = Stroke(cap = StrokeCap.Butt)
+        val style = SpanStyle(drawStyle = drawStyle1)
+
+        val newSpanStyle = style.merge(SpanStyle(drawStyle = null))
+
+        assertThat(newSpanStyle.drawStyle).isEqualTo(drawStyle1)
+    }
+
+    @Test
+    fun `merge with other's drawStyle is set should use other's drawStyle`() {
+        val drawStyle1 = Stroke(cap = StrokeCap.Butt)
+        val drawStyle2 = Fill
+        val style = SpanStyle(drawStyle = drawStyle1)
+        val otherStyle = SpanStyle(drawStyle = drawStyle2)
+
+        val newSpanStyle = style.merge(otherStyle)
+
+        assertThat(newSpanStyle.drawStyle).isEqualTo(otherStyle.drawStyle)
     }
 
     @Test
@@ -842,7 +867,6 @@ class SpanStyleTest {
         assertThat(newSpanStyle.textDecoration).isEqualTo(decoration2)
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun `lerp with null platformStyles have null platformStyle`() {
         val style = SpanStyle(platformStyle = null)
@@ -853,7 +877,6 @@ class SpanStyleTest {
         assertThat(lerpedStyle.platformStyle).isNull()
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun `lerp brush with a specified, b specified and t is smaller than half`() {
         val brush = Brush.linearGradient(listOf(Color.Blue, Color.Red))
@@ -866,7 +889,6 @@ class SpanStyleTest {
         assertThat(newStyle.color).isEqualTo(Color.Unspecified)
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun `lerp brush with a specified, b specified and t is larger than half`() {
         val brush = Brush.linearGradient(listOf(Color.Blue, Color.Red))
@@ -879,7 +901,6 @@ class SpanStyleTest {
         assertThat(newStyle.color).isEqualTo(Color.Red)
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun `lerp brush with a specified, b not specified and t is larger than half`() {
         val brush = Brush.linearGradient(listOf(Color.Blue, Color.Red))

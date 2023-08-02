@@ -16,6 +16,7 @@
 
 package androidx.room.processor
 
+import androidx.room.compiler.processing.XNullability
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XVariableElement
 import androidx.room.compiler.processing.isArray
@@ -32,10 +33,20 @@ class ShortcutParameterProcessor(
     val context = baseContext.fork(element)
     fun process(): ShortcutQueryParameter {
         val asMember = element.asMemberOf(containing)
+        if (isParamNullable(asMember)) {
+            context.logger.e(
+                element = element,
+                msg = ProcessorErrors.nullableParamInShortcutMethod(
+                    asMember.asTypeName().toString(context.codeLanguage)
+                )
+            )
+        }
+
         val name = element.name
         context.checker.check(
-            !name.startsWith("_"), element,
-            ProcessorErrors.QUERY_PARAMETERS_CANNOT_START_WITH_UNDERSCORE
+            !name.startsWith("_"),
+            element = element,
+            errorMsg = ProcessorErrors.QUERY_PARAMETERS_CANNOT_START_WITH_UNDERSCORE
         )
 
         val (pojoType, isMultiple) = extractPojoType(asMember)
@@ -46,6 +57,13 @@ class ShortcutParameterProcessor(
             pojoType = pojoType,
             isMultiple = isMultiple
         )
+    }
+
+    private fun isParamNullable(paramType: XType): Boolean {
+        if (paramType.nullability == XNullability.NULLABLE) return true
+        if (paramType.isArray() && paramType.componentType.nullability == XNullability.NULLABLE)
+            return true
+        return paramType.typeArguments.any { it.nullability == XNullability.NULLABLE }
     }
 
     @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")

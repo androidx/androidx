@@ -16,12 +16,17 @@
 
 package androidx.compose.ui.test.junit4
 
+import android.os.Handler
+import android.os.Looper
+import android.view.MotionEvent
+import android.view.View
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.LocalOverscrollConfiguration
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.gestures.FlingBehavior
 import androidx.compose.foundation.gestures.ScrollScope
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -33,10 +38,12 @@ import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Button
+import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -46,7 +53,13 @@ import androidx.compose.runtime.withFrameNanos
 import androidx.compose.testutils.WithTouchSlop
 import androidx.compose.testutils.expectError
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.layout.LayoutCoordinates
+import androidx.compose.ui.layout.findRootCoordinates
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsDisplayed
@@ -56,17 +69,23 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
+import androidx.compose.ui.test.performTextInputSelection
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.runComposeUiTest
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Popup
+import androidx.test.core.view.MotionEventBuilder
 import androidx.test.espresso.AppNotIdleException
 import androidx.test.espresso.IdlingPolicies
 import androidx.test.espresso.IdlingPolicy
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
+import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import kotlin.math.roundToInt
 import org.junit.After
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -145,7 +164,12 @@ class RobolectricComposeTest {
         setContent {
             val offset = animateFloatAsState(target)
             Box(Modifier.fillMaxSize()) {
-                Box(Modifier.size(10.dp).offset(x = offset.value.dp).testTag("box"))
+                Box(
+                    Modifier
+                        .size(10.dp)
+                        .offset(x = offset.value.dp)
+                        .testTag("box")
+                )
             }
         }
         onNodeWithTag("box").assertLeftPositionInRootIsEqualTo(0.dp)
@@ -206,13 +230,20 @@ class RobolectricComposeTest {
                 CompositionLocalProvider(LocalOverscrollConfiguration provides null) {
                     Box(Modifier.fillMaxSize()) {
                         Column(
-                            Modifier.requiredSize(200.dp).verticalScroll(
-                                scrollState,
-                                flingBehavior = flingBehavior
-                            ).testTag("list")
+                            Modifier
+                                .requiredSize(200.dp)
+                                .verticalScroll(
+                                    scrollState,
+                                    flingBehavior = flingBehavior
+                                )
+                                .testTag("list")
                         ) {
                             repeat(n) {
-                                Spacer(Modifier.fillMaxWidth().height(30.dp))
+                                Spacer(
+                                    Modifier
+                                        .fillMaxWidth()
+                                        .height(30.dp)
+                                )
                             }
                         }
                     }
@@ -254,6 +285,8 @@ class RobolectricComposeTest {
             TextField(value = text, onValueChange = { updatedText = it })
         }
         onNodeWithText(text).assertIsDisplayed()
+        // If selection isn't set on initial state, it will be 0.
+        onNodeWithText(text).performTextInputSelection(TextRange(1))
         onNodeWithText(text).performTextInput("b")
         runOnIdle {
             assertThat(updatedText).isEqualTo("ab")
@@ -274,5 +307,433 @@ class RobolectricComposeTest {
             }
             return 0f
         }
+    }
+
+    @Test
+    fun testComposeMainQueueTrampolining() = runComposeUiTest {
+        val trampoliningIterations = 10
+        var phase by mutableStateOf(0)
+        var done = false
+        val handler = Handler(Looper.getMainLooper())
+
+        setContent {
+            // Alternate scheduling work to the main queue and scheduling work for Compose.
+            // waitForIdle shouldn't return until both Compose and the main queue have nothing to
+            // do.
+            if (phase in 1 until trampoliningIterations) {
+                DisposableEffect(phase) {
+                    handler.post { phase++ }
+                    onDispose {}
+                }
+            } else if (phase == trampoliningIterations) {
+                DisposableEffect(Unit) {
+                    done = true
+                    onDispose {}
+                }
+            }
+        }
+
+        runOnIdle {
+            assertThat(phase).isEqualTo(0)
+            assertThat(done).isFalse()
+        }
+
+        // Trigger the trampolining.
+        phase = 1
+
+        // If Robolectric and Compose don't coordinate idleness correctly, waitForIdle will return
+        // before finishing the chain of trampolined work, and we won't be in the expected terminal
+        // state.
+        runOnIdle {
+            assertThat(phase).isEqualTo(trampoliningIterations)
+            assertThat(done).isTrue()
+        }
+    }
+
+    @Test
+    fun testWaitForPopupWindow() = runComposeUiTest {
+        var expanded by mutableStateOf(false)
+
+        setContent {
+            Box(Modifier.requiredSize(20.dp)) {
+                if (expanded) {
+                    Popup {
+                        DropdownMenuItem(modifier = Modifier.testTag("MenuContent"), onClick = {}) {
+                            Text("Option 1")
+                        }
+                    }
+                }
+            }
+        }
+
+        onNodeWithTag("MenuContent").assertDoesNotExist()
+
+        expanded = true
+
+        onNodeWithTag("MenuContent").assertIsDisplayed()
+    }
+
+    /*
+     * Two tests properly demonstrating how to properly advance the clock (advanceTimeBy()) while
+     * testing pointer input events using performTouchInput() with espresso and/or Robolectric).
+     */
+    @Test
+    fun areTwoTapsFired_dispatchTwoDelayedTapsWithPerformTouchInput_assertTrue() =
+        runComposeUiTest {
+            var composableTouchCount = 0
+            var composableTapCount = 0
+            var composableDoubleTapCount = 0
+            var composableLongTapCount = 0
+
+            val setupLatch = CountDownLatch(1)
+            val tapLatch = CountDownLatch(2)
+
+            setContent {
+                Box(
+                    modifier = Modifier
+                        .testTag("mainBox")
+                        .fillMaxSize()
+                        .pointerInput(Unit) {
+                            detectTapGestures(
+                                onPress = {
+                                    ++composableTouchCount
+                                },
+                                onTap = {
+                                    tapLatch.countDown()
+                                    ++composableTapCount
+                                },
+                                onDoubleTap = {
+                                    ++composableDoubleTapCount
+                                },
+                                onLongPress = {
+                                    ++composableLongTapCount
+                                }
+                            )
+                        }
+                        .onGloballyPositioned {
+                            setupLatch.countDown()
+                        }
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                    )
+                }
+            }
+            assertTrue(setupLatch.await(10, TimeUnit.SECONDS))
+
+            onNodeWithTag("mainBox").assertIsDisplayed()
+
+            runOnIdle {
+                onNodeWithTag("mainBox").performTouchInput {
+                    down(center)
+                    up()
+                }
+            }
+
+            // In testing (Espresso, Robolectric, etc.), it's important to move the clock forward
+            // when using detectTapGestures {} as parts of it rely on changes in the clock
+            // (double tap, etc.).
+            mainClock.advanceTimeBy(400)
+
+            runOnIdle {
+                onNodeWithTag("mainBox").performTouchInput {
+                    down(center)
+                    up()
+                }
+            }
+
+            // Delay again to trigger second single tap (times out double tap detector)
+            mainClock.advanceTimeBy(400)
+
+            assertTrue(tapLatch.await(10, TimeUnit.SECONDS))
+
+            assertThat(composableTouchCount).isEqualTo(2)
+            assertThat(composableTapCount).isEqualTo(2)
+            assertThat(composableDoubleTapCount).isEqualTo(0)
+            assertThat(composableLongTapCount).isEqualTo(0)
+        }
+
+    @Test
+    fun isDoubleTapFired_dispatchTwoTapsWithPerformTouchInput_assertTrue() = runComposeUiTest {
+        var composableTouchCount = 0
+        var composableTapCount = 0
+        var composableDoubleTapCount = 0
+        var composableLongTapCount = 0
+
+        val setupLatch = CountDownLatch(1)
+        val doubleTapLatch = CountDownLatch(1)
+
+        setContent {
+            Box(
+                modifier = Modifier
+                    .testTag("mainBox")
+                    .fillMaxSize()
+                    .pointerInput(Unit) {
+                        detectTapGestures(
+                            onPress = {
+                                ++composableTouchCount
+                            },
+                            onTap = {
+                                ++composableTapCount
+                            },
+                            onDoubleTap = {
+                                doubleTapLatch.countDown()
+                                ++composableDoubleTapCount
+                            },
+                            onLongPress = {
+                                ++composableLongTapCount
+                            }
+                        )
+                    }
+                    .onGloballyPositioned {
+                        setupLatch.countDown()
+                    }
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                )
+            }
+        }
+        assertTrue(setupLatch.await(10, TimeUnit.SECONDS))
+
+        onNodeWithTag("mainBox").assertIsDisplayed()
+
+        runOnIdle {
+            onNodeWithTag("mainBox").performTouchInput {
+                down(center)
+                up()
+            }
+        }
+
+        // In testing (Espresso, Robolectric, etc.), it's important to move the clock forward when
+        // using detectTapGestures {} as parts of it rely on changes in the clock (double tap, etc.)
+        mainClock.advanceTimeBy(100)
+
+        runOnIdle {
+            onNodeWithTag("mainBox").performTouchInput { down(center) }
+            onNodeWithTag("mainBox").performTouchInput { up() }
+        }
+
+        // Delay but just enough to stay inside double tap timeframe
+        mainClock.advanceTimeBy(100)
+
+        assertTrue(doubleTapLatch.await(10, TimeUnit.SECONDS))
+
+        assertThat(composableTouchCount).isEqualTo(2)
+        assertThat(composableTapCount).isEqualTo(0)
+        assertThat(composableDoubleTapCount).isEqualTo(1)
+        assertThat(composableLongTapCount).isEqualTo(0)
+    }
+
+    /*
+     * Two tests properly demonstrating how to properly advance the clock (advanceTimeBy()) while
+     * testing pointer input events using manually created MotionEvents with espresso and/or
+     * Robolectric).
+     */
+    @Test
+    fun isTapFired_dispatchTapWithMotionEvents_assertTrue() = runComposeUiTest {
+        var composableTouchCount = 0
+        var composableTapCount = 0
+        var composableDoubleTapCount = 0
+        var composableLongTapCount = 0
+
+        val setupLatch = CountDownLatch(1)
+        val tapLatch = CountDownLatch(1)
+
+        var bottomBoxInnerCoordinates: LayoutCoordinates? = null
+        var topLevelContainerView: View? = null
+
+        setContent {
+            topLevelContainerView = LocalView.current
+
+            Box(
+                modifier = Modifier
+                    .testTag("mainBox")
+                    .fillMaxSize()
+                    .pointerInput(Unit) {
+                        detectTapGestures(
+                            onPress = {
+                                ++composableTouchCount
+                            },
+                            onTap = {
+                                tapLatch.countDown()
+                                ++composableTapCount
+                            },
+                            onDoubleTap = {
+                                ++composableDoubleTapCount
+                            },
+                            onLongPress = {
+                                ++composableLongTapCount
+                            }
+                        )
+                    }
+                    .onGloballyPositioned {
+                        setupLatch.countDown()
+                        bottomBoxInnerCoordinates = it
+                    }
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                )
+            }
+        }
+        assertTrue(setupLatch.await(10, TimeUnit.SECONDS))
+
+        onNodeWithTag("mainBox").assertIsDisplayed()
+
+        val root = bottomBoxInnerCoordinates!!.findRootCoordinates()
+        val topBoxOffset = root.localPositionOf(bottomBoxInnerCoordinates!!, Offset.Zero)
+        val topBoxFingerPointerPropertiesId = 0
+        val topBoxPointerProperties =
+            MotionEvent.PointerProperties().also {
+                it.id = topBoxFingerPointerPropertiesId
+                it.toolType = MotionEvent.TOOL_TYPE_FINGER
+            }
+        val coords = MotionEvent.PointerCoords()
+        coords.x = topBoxOffset.x
+        coords.y = topBoxOffset.y
+
+        val motionEventDown = MotionEventBuilder.newBuilder()
+            .setEventTime(0)
+            .setAction(MotionEvent.ACTION_DOWN)
+            .setActionIndex(0)
+            .setPointer(topBoxPointerProperties, coords)
+            .build()
+
+        val motionEventUp = MotionEventBuilder.newBuilder()
+            .setEventTime(100)
+            .setAction(MotionEvent.ACTION_UP)
+            .setActionIndex(0)
+            .setPointer(topBoxPointerProperties, coords)
+            .build()
+
+        topLevelContainerView?.dispatchTouchEvent(motionEventDown)
+        topLevelContainerView?.dispatchTouchEvent(motionEventUp)
+
+        // In testing (Espresso, Robolectric, etc.), it's important to move the clock forward when
+        // using detectTapGestures {} as parts of it rely on changes in the clock (double tap, etc.)
+        // Delay to trigger second single tap (times out double tap detector)
+        mainClock.advanceTimeBy(400)
+
+        assertTrue(tapLatch.await(10, TimeUnit.SECONDS))
+
+        assertThat(composableTouchCount).isEqualTo(1)
+        assertThat(composableTapCount).isEqualTo(1)
+        assertThat(composableDoubleTapCount).isEqualTo(0)
+        assertThat(composableLongTapCount).isEqualTo(0)
+    }
+
+    @Test
+    fun isDoubleTapFired_dispatchTwoTapsWithMotionEvents_assertTrue() = runComposeUiTest {
+        var composableTouchCount = 0
+        var composableTapCount = 0
+        var composableDoubleTapCount = 0
+        var composableLongTapCount = 0
+
+        val setupLatch = CountDownLatch(1)
+        val doubleTapLatch = CountDownLatch(1)
+
+        var bottomBoxInnerCoordinates: LayoutCoordinates? = null
+        var topLevelContainerView: View? = null
+
+        setContent {
+            topLevelContainerView = LocalView.current
+
+            Box(
+                modifier = Modifier
+                    .testTag("mainBox")
+                    .fillMaxSize()
+                    .pointerInput(Unit) {
+                        detectTapGestures(
+                            onPress = {
+                                ++composableTouchCount
+                            },
+                            onTap = {
+                                ++composableTapCount
+                            },
+                            onDoubleTap = {
+                                doubleTapLatch.countDown()
+                                ++composableDoubleTapCount
+                            },
+                            onLongPress = {
+                                ++composableLongTapCount
+                            }
+                        )
+                    }
+                    .onGloballyPositioned {
+                        setupLatch.countDown()
+                        bottomBoxInnerCoordinates = it
+                    }
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                )
+            }
+        }
+        assertTrue(setupLatch.await(10, TimeUnit.SECONDS))
+
+        val root = bottomBoxInnerCoordinates!!.findRootCoordinates()
+        val topBoxOffset = root.localPositionOf(bottomBoxInnerCoordinates!!, Offset.Zero)
+        val topBoxFingerPointerPropertiesId = 0
+        val topBoxPointerProperties =
+            MotionEvent.PointerProperties().also {
+                it.id = topBoxFingerPointerPropertiesId
+                it.toolType = MotionEvent.TOOL_TYPE_FINGER
+            }
+        val coords = MotionEvent.PointerCoords()
+        coords.x = topBoxOffset.x
+        coords.y = topBoxOffset.y
+
+        val motionEventDown1 = MotionEventBuilder.newBuilder()
+            .setEventTime(0)
+            .setAction(MotionEvent.ACTION_DOWN)
+            .setActionIndex(0)
+            .setPointer(topBoxPointerProperties, coords)
+            .build()
+
+        val motionEventUp1 = MotionEventBuilder.newBuilder()
+            .setEventTime(50)
+            .setAction(MotionEvent.ACTION_UP)
+            .setActionIndex(0)
+            .setPointer(topBoxPointerProperties, coords)
+            .build()
+
+        topLevelContainerView?.dispatchTouchEvent(motionEventDown1)
+        topLevelContainerView?.dispatchTouchEvent(motionEventUp1)
+
+        // In testing (Espresso, Robolectric, etc.), it's important to move the clock forward when
+        // using detectTapGestures {} as parts of it rely on changes in the clock (double tap, etc.)
+        mainClock.advanceTimeBy(100)
+
+        val motionEventDown2 = MotionEventBuilder.newBuilder()
+            .setEventTime(100)
+            .setAction(MotionEvent.ACTION_DOWN)
+            .setActionIndex(0)
+            .setPointer(topBoxPointerProperties, coords)
+            .build()
+
+        val motionEventUp2 = MotionEventBuilder.newBuilder()
+            .setEventTime(150)
+            .setAction(MotionEvent.ACTION_UP)
+            .setActionIndex(0)
+            .setPointer(topBoxPointerProperties, coords)
+            .build()
+
+        topLevelContainerView?.dispatchTouchEvent(motionEventDown2)
+        topLevelContainerView?.dispatchTouchEvent(motionEventUp2)
+
+        // Delay but just enough to stay inside double tap timeframe
+        mainClock.advanceTimeBy(100)
+
+        assertTrue(doubleTapLatch.await(2, TimeUnit.SECONDS))
+
+        assertThat(composableTouchCount).isEqualTo(2)
+        assertThat(composableTapCount).isEqualTo(0)
+        assertThat(composableDoubleTapCount).isEqualTo(1)
+        assertThat(composableLongTapCount).isEqualTo(0)
     }
 }

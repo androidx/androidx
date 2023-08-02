@@ -19,12 +19,12 @@ package androidx.health.services.client.impl.internal
 import android.os.RemoteException
 import androidx.annotation.CallSuper
 import androidx.annotation.RestrictTo
+import androidx.health.services.client.HealthServicesException
 import com.google.common.util.concurrent.SettableFuture
-
+import java.lang.SecurityException
 /**
  * A generic callback for ipc invocations.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 internal open class StatusCallback(private val resultFuture: SettableFuture<Void?>) :
@@ -39,6 +39,9 @@ internal open class StatusCallback(private val resultFuture: SettableFuture<Void
     @Throws(RemoteException::class)
     @CallSuper
     override fun onFailure(msg: String) {
-        resultFuture.setException(Exception(msg))
+        if (msg.startsWith("Missing permissions"))
+            resultFuture.setException(SecurityException(msg))
+        else
+            resultFuture.setException(HealthServicesException(msg))
     }
 }

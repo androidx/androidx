@@ -16,21 +16,20 @@
 
 package androidx.privacysandbox.tools.apicompiler.parser
 
+import androidx.privacysandbox.tools.PrivacySandboxCallback
+import androidx.privacysandbox.tools.PrivacySandboxInterface
 import androidx.privacysandbox.tools.PrivacySandboxService
-import androidx.privacysandbox.tools.core.ParsedApi
-import androidx.privacysandbox.tools.core.AnnotatedInterface
-import androidx.privacysandbox.tools.core.Method
-import androidx.privacysandbox.tools.core.Parameter
-import androidx.privacysandbox.tools.core.Type
-import com.google.devtools.ksp.getDeclaredFunctions
+import androidx.privacysandbox.tools.PrivacySandboxValue
+import androidx.privacysandbox.tools.core.model.AnnotatedInterface
+import androidx.privacysandbox.tools.core.model.AnnotatedValue
+import androidx.privacysandbox.tools.core.model.ParsedApi
+import androidx.privacysandbox.tools.core.validator.ModelValidator
 import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.symbol.ClassKind
 import com.google.devtools.ksp.symbol.KSClassDeclaration
-import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.KSName
-import com.google.devtools.ksp.symbol.KSType
-import com.google.devtools.ksp.symbol.KSValueParameter
+import kotlin.reflect.KClass
 
 /** Convenience extension to get the full qualifier + name from a [KSName]. */
 internal fun KSName.getFullName(): String {
@@ -40,63 +39,67 @@ internal fun KSName.getFullName(): String {
 
 /** Top-level entry point to parse a complete user-defined sandbox SDK API into a [ParsedApi]. */
 class ApiParser(private val resolver: Resolver, private val logger: KSPLogger) {
-    private val validator: ApiValidator = ApiValidator(logger, resolver)
+    private val typeParser = TypeParser(logger)
+    private val interfaceParser = InterfaceParser(logger, typeParser)
+    private val valueParser = ValueParser(logger, typeParser)
 
     fun parseApi(): ParsedApi {
-        return ParsedApi(services = parseAllServices())
+        val services = parseAllServices()
+        if (services.count() > 1) {
+            logger.error(
+                "Multiple interfaces annotated with @PrivacySandboxService are not supported (${
+                    services.joinToString {
+                        it.type.simpleName
+                    }
+                }).")
+        }
+        val values = parseAllValues()
+        val callbacks = parseAllCallbacks()
+        val interfaces = parseAllInterfaces()
+        return ParsedApi(services, values, callbacks, interfaces).also(::validate)
+    }
+
+    private fun parseAllValues(): Set<AnnotatedValue> {
+        return resolver.getSymbolsWithAnnotation(PrivacySandboxValue::class.qualifiedName!!)
+            .mapNotNull(valueParser::parseValue).toSet()
     }
 
     private fun parseAllServices(): Set<AnnotatedInterface> {
-        val symbolsWithServiceAnnotation =
-            resolver.getSymbolsWithAnnotation(PrivacySandboxService::class.qualifiedName!!)
-        val interfacesWithServiceAnnotation =
-            symbolsWithServiceAnnotation.filterIsInstance<KSClassDeclaration>()
-                .filter { it.classKind == ClassKind.INTERFACE }
-        if (symbolsWithServiceAnnotation.count() != interfacesWithServiceAnnotation.count()) {
-            logger.error("Only interfaces can be annotated with @PrivacySandboxService.")
-            return setOf()
+        return getInterfacesWithAnnotation(PrivacySandboxService::class)
+            .map(interfaceParser::parseInterface)
+            .toSet()
+    }
+
+    private fun parseAllCallbacks(): Set<AnnotatedInterface> {
+        return getInterfacesWithAnnotation(PrivacySandboxCallback::class)
+            .map(interfaceParser::parseInterface)
+            .toSet()
+    }
+
+    private fun parseAllInterfaces(): Set<AnnotatedInterface> {
+        return getInterfacesWithAnnotation(PrivacySandboxInterface::class)
+            .map(interfaceParser::parseInterface)
+            .toSet()
+    }
+
+    private fun getInterfacesWithAnnotation(annotationName: KClass<*>):
+        Sequence<KSClassDeclaration> {
+        val symbolsWithAnnotation =
+            resolver.getSymbolsWithAnnotation(annotationName.qualifiedName!!)
+        if (symbolsWithAnnotation.any {
+                it !is KSClassDeclaration ||
+                    it.classKind != ClassKind.INTERFACE
+            }) {
+            logger.error("Only interfaces can be annotated with @${annotationName.simpleName}.")
+            return emptySequence()
         }
-        return interfacesWithServiceAnnotation.map(this::parseInterface).toSet()
+        return symbolsWithAnnotation.filterIsInstance<KSClassDeclaration>()
     }
 
-    private fun parseInterface(classDeclaration: KSClassDeclaration): AnnotatedInterface {
-        validator.validateInterface(classDeclaration)
-        return AnnotatedInterface(
-            name = classDeclaration.simpleName.getShortName(),
-            packageName = classDeclaration.packageName.getFullName(),
-            methods = getAllMethods(classDeclaration),
-        )
-    }
-
-    private fun getAllMethods(classDeclaration: KSClassDeclaration) =
-        classDeclaration.getDeclaredFunctions().map(::parseMethod).toList()
-
-    private fun parseMethod(method: KSFunctionDeclaration): Method {
-        validator.validateMethod(method)
-        return Method(
-            name = method.simpleName.getFullName(),
-            parameters = getAllParameters(method),
-            // TODO: returnType "Can be null if an error occurred during resolution".
-            returnType = parseType(method, method.returnType!!.resolve()),
-        )
-    }
-
-    private fun getAllParameters(method: KSFunctionDeclaration) =
-        method.parameters.map { parameter -> parseParameter(method, parameter) }.toList()
-
-    private fun parseParameter(method: KSFunctionDeclaration, parameter: KSValueParameter):
-        Parameter {
-        validator.validateParameter(method, parameter)
-        return Parameter(
-            name = parameter.name!!.getFullName(),
-            type = parseType(method, parameter.type.resolve()),
-        )
-    }
-
-    private fun parseType(method: KSFunctionDeclaration, type: KSType): Type {
-        validator.validateType(method, type)
-        return Type(
-            name = type.declaration.simpleName.getFullName(),
-        )
+    private fun validate(api: ParsedApi) {
+        val validationResult = ModelValidator.validate(api)
+        for (error in validationResult.errors) {
+            logger.error(error)
+        }
     }
 }

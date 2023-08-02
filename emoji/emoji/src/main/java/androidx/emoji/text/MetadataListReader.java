@@ -33,7 +33,6 @@ import java.nio.ByteOrder;
 /**
  * Reads the emoji metadata from a given InputStream or ByteBuffer.
  *
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 @AnyThread

@@ -24,7 +24,6 @@ import androidx.health.services.client.proto.DataProto.DataType.TimeType.TIME_TY
 import androidx.health.services.client.proto.DataProto.DataType.TimeType.TIME_TYPE_SAMPLE
 import androidx.health.services.client.proto.DataProto.DataType.TimeType.TIME_TYPE_UNKNOWN
 import com.google.protobuf.ByteString
-import kotlin.reflect.KClass
 
 /**
  * [DataType] that represents a granular, non-aggregated point in time. This will map to
@@ -33,7 +32,7 @@ import kotlin.reflect.KClass
 class DeltaDataType<T : Any, D : DataPoint<T>>(
     name: String,
     timeType: TimeType,
-    valueClass: KClass<T>
+    valueClass: Class<T>
 ) : DataType<T, D>(name, timeType, valueClass, isAggregate = false)
 
 /**
@@ -43,7 +42,7 @@ class DeltaDataType<T : Any, D : DataPoint<T>>(
 class AggregateDataType<T : Number, D : DataPoint<T>>(
     name: String,
     timeType: TimeType,
-    valueClass: KClass<T>,
+    valueClass: Class<T>,
 ) : DataType<T, D>(name, timeType, valueClass, isAggregate = true)
 
 /**
@@ -69,8 +68,8 @@ abstract class DataType<T : Any, D : DataPoint<T>>(
     /** Returns the [TimeType] of this [DataType]. */
     internal val timeType: TimeType,
 
-    /** Returns the underlying [KClass] of this [DataType]. */
-    val valueClass: KClass<T>,
+    /** Returns the underlying [Class] of this [DataType]. */
+    val valueClass: Class<T>,
 
     /**
      * Returns `true` if this will be represented by [StatisticalDataPoint] or
@@ -145,7 +144,7 @@ abstract class DataType<T : Any, D : DataPoint<T>>(
         value: T,
     ): DataProto.Value {
         val builder = DataProto.Value.newBuilder()
-        when (valueClass) {
+        when (valueClass.kotlin) {
             Long::class -> builder.longVal = value as Long
             Double::class -> builder.doubleVal = value as Double
             Boolean::class -> builder.boolVal = value as Boolean
@@ -161,7 +160,7 @@ abstract class DataType<T : Any, D : DataPoint<T>>(
 
     @Suppress("IMPLICIT_CAST_TO_ANY", "UNCHECKED_CAST")
     internal fun toValueFromProto(proto: DataProto.Value): T {
-        return when (valueClass) {
+        return when (valueClass.kotlin) {
             Long::class -> proto.longVal
             Double::class -> proto.doubleVal
             Boolean::class -> proto.boolVal
@@ -173,7 +172,7 @@ abstract class DataType<T : Any, D : DataPoint<T>>(
     }
 
     private fun classToValueFormat(): Int {
-        return when (valueClass) {
+        return when (valueClass.kotlin) {
             Double::class -> FORMAT_DOUBLE
             Long::class -> FORMAT_LONG
             Boolean::class -> FORMAT_BOOLEAN
@@ -185,29 +184,49 @@ abstract class DataType<T : Any, D : DataPoint<T>>(
         }
     }
 
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as DataType<*, *>
+
+        if (name != other.name) return false
+        if (timeType != other.timeType) return false
+        if (isAggregate != other.isAggregate) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = name.hashCode()
+        result = 31 * result + timeType.hashCode()
+        result = 31 * result + isAggregate.hashCode()
+        return result
+    }
+
     companion object {
         private const val TAG = "DataType"
 
         private inline fun <reified T : Number> createIntervalDataType(
             name: String
         ): DeltaDataType<T, IntervalDataPoint<T>> =
-            DeltaDataType(name, TimeType.INTERVAL, T::class)
+            DeltaDataType(name, TimeType.INTERVAL, T::class.java)
 
         private inline fun <reified T : Number> createSampleDataType(
             name: String
         ): DeltaDataType<T, SampleDataPoint<T>> = DeltaDataType(
-            name, TimeType.SAMPLE, T::class
+            name, TimeType.SAMPLE, T::class.java
         )
 
         private inline fun <reified T : Number> createStatsDataType(
             name: String
         ): AggregateDataType<T, StatisticalDataPoint<T>> =
-            AggregateDataType(name, TimeType.SAMPLE, T::class)
+            AggregateDataType(name, TimeType.SAMPLE, T::class.java)
 
         private inline fun <reified T : Number> createCumulativeDataType(
             name: String
         ): AggregateDataType<T, CumulativeDataPoint<T>> =
-            AggregateDataType(name, TimeType.INTERVAL, T::class)
+            AggregateDataType(name, TimeType.INTERVAL, T::class.java)
 
         /**
          * A measure of the gain in elevation since the last update expressed in meters. Elevation
@@ -412,7 +431,7 @@ abstract class DataType<T : Any, D : DataPoint<T>>(
          */
         @JvmField
         val LOCATION: DeltaDataType<LocationData, SampleDataPoint<LocationData>> =
-            DeltaDataType("Location", TimeType.SAMPLE, LocationData::class)
+            DeltaDataType("Location", TimeType.SAMPLE, LocationData::class.java)
 
         /** Speed at a specific point in time, expressed as meters/second. */
         @JvmField
@@ -473,11 +492,6 @@ abstract class DataType<T : Any, D : DataPoint<T>>(
         @JvmField
         val RUNNING_STEPS_TOTAL: AggregateDataType<Long, CumulativeDataPoint<Long>> =
             createCumulativeDataType("Running Steps")
-
-        /** Temperature at the surface of the skin in Celsius. */
-        @JvmField
-        public val SKIN_TEMPERATURE: DeltaDataType<Double, SampleDataPoint<Double>> =
-            createSampleDataType("Skin temperature")
 
         /** Step rate in steps/minute at a given point in time. */
         @JvmField
@@ -639,7 +653,6 @@ abstract class DataType<T : Any, D : DataPoint<T>>(
             REP_COUNT,
             RESTING_EXERCISE_DURATION,
             RUNNING_STEPS,
-            SKIN_TEMPERATURE,
             SPEED,
             STEPS,
             STEPS_PER_MINUTE,
@@ -698,6 +711,9 @@ abstract class DataType<T : Any, D : DataPoint<T>>(
         /** The format used for a [DataProto.Value] represented as a [ByteArray]. */
         internal const val FORMAT_BYTE_ARRAY: Int = 5
 
+        /** A name prefix for custom data types. */
+        internal const val CUSTOM_DATA_TYPE_PREFIX = "health_services.device_private"
+
         @Suppress("UNCHECKED_CAST")
         internal fun aggregateFromProto(
             proto: DataProto.DataType
@@ -705,7 +721,7 @@ abstract class DataType<T : Any, D : DataPoint<T>>(
             aggregateDataTypes.firstOrNull { it.name == proto.name } ?: AggregateDataType(
                 proto.name,
                 TimeType.fromProto(proto.timeType),
-                protoDataTypeToClass(proto) as KClass<Number>
+                protoDataTypeToClass(proto) as Class<Number>
             )
 
         internal fun deltaFromProto(
@@ -720,10 +736,12 @@ abstract class DataType<T : Any, D : DataPoint<T>>(
         ): List<DataType<out Any, out DataPoint<out Any>>> {
             val list = mutableListOf<DataType<out Any, out DataPoint<out Any>>>()
 
-            if (!namesOfAggregatesWithNoDelta.contains(proto.name)) {
+            val isCustom = proto.name.startsWith(CUSTOM_DATA_TYPE_PREFIX)
+
+            if (isCustom || !namesOfAggregatesWithNoDelta.contains(proto.name)) {
                 list += deltaFromProto(proto)
             }
-            if (!namesOfDeltasWithNoAggregate.contains(proto.name)) {
+            if (!isCustom && !namesOfDeltasWithNoAggregate.contains(proto.name)) {
                 list += aggregateFromProto(proto)
             }
 
@@ -731,15 +749,15 @@ abstract class DataType<T : Any, D : DataPoint<T>>(
         }
 
         private fun protoDataTypeToClass(proto: DataProto.DataType) = when (proto.format) {
-            FORMAT_DOUBLE -> Double::class
-            FORMAT_LONG -> Long::class
-            FORMAT_BOOLEAN -> Boolean::class
+            FORMAT_DOUBLE -> Double::class.java
+            FORMAT_LONG -> Long::class.java
+            FORMAT_BOOLEAN -> Boolean::class.java
             FORMAT_DOUBLE_ARRAY -> {
                 if (proto.name == LOCATION.name) LOCATION.valueClass
-                else DoubleArray::class
+                else DoubleArray::class.java
             }
-            FORMAT_BYTE_ARRAY -> ByteArray::class
-            else -> Nothing::class
+            FORMAT_BYTE_ARRAY -> ByteArray::class.java
+            else -> Nothing::class.java
         }
     }
 }

@@ -83,8 +83,6 @@ MissingNullability: androidx.preference.EditTextPreference#onGetDefaultValue(and
     Missing nullability on method `onGetDefaultValue` return
 MissingNullability: androidx.preference.EditTextPreference#onSetInitialValue(Object) parameter #0:
     Missing nullability on parameter `defaultValue` in method `onSetInitialValue`
-MissingNullability: androidx.preference.EditTextPreferenceDialogFragmentCompat#newInstance(String) parameter #0:
-    Missing nullability on parameter `key` in method `newInstance`
 MissingNullability: androidx.preference.ListPreference#findIndexOfValue(String) parameter #0:
     Missing nullability on parameter `value` in method `findIndexOfValue`
 MissingNullability: androidx.preference.ListPreference#getEntries():
@@ -103,8 +101,6 @@ MissingNullability: androidx.preference.ListPreference#setEntryValues(CharSequen
     Missing nullability on parameter `entryValues` in method `setEntryValues`
 MissingNullability: androidx.preference.ListPreference#setValue(String) parameter #0:
     Missing nullability on parameter `value` in method `setValue`
-MissingNullability: androidx.preference.ListPreferenceDialogFragmentCompat#newInstance(String) parameter #0:
-    Missing nullability on parameter `key` in method `newInstance`
 MissingNullability: androidx.preference.MultiSelectListPreference#findIndexOfValue(String) parameter #0:
     Missing nullability on parameter `value` in method `findIndexOfValue`
 MissingNullability: androidx.preference.MultiSelectListPreference#getEntries():
@@ -125,8 +121,6 @@ MissingNullability: androidx.preference.MultiSelectListPreference#setValues(java
     Missing nullability on parameter `values` in method `setValues`
 MissingNullability: androidx.preference.MultiSelectListPreferenceDialogFragment#onCreate(android.os.Bundle) parameter #0:
     Missing nullability on parameter `savedInstanceState` in method `onCreate`
-MissingNullability: androidx.preference.MultiSelectListPreferenceDialogFragmentCompat#newInstance(String) parameter #0:
-    Missing nullability on parameter `key` in method `newInstance`
 MissingNullability: androidx.preference.Preference#callChangeListener(Object) parameter #0:
     Missing nullability on parameter `newValue` in method `callChangeListener`
 MissingNullability: androidx.preference.Preference#getKey():
@@ -155,30 +149,6 @@ MissingNullability: androidx.preference.Preference.BaseSavedState#BaseSavedState
     Missing nullability on parameter `superState` in method `BaseSavedState`
 MissingNullability: androidx.preference.Preference.OnPreferenceChangeListener#onPreferenceChange(androidx.preference.Preference, Object) parameter #1:
     Missing nullability on parameter `newValue` in method `onPreferenceChange`
-MissingNullability: androidx.preference.PreferenceDataStore#getBoolean(String, boolean) parameter #0:
-    Missing nullability on parameter `key` in method `getBoolean`
-MissingNullability: androidx.preference.PreferenceDataStore#getFloat(String, float) parameter #0:
-    Missing nullability on parameter `key` in method `getFloat`
-MissingNullability: androidx.preference.PreferenceDataStore#getInt(String, int) parameter #0:
-    Missing nullability on parameter `key` in method `getInt`
-MissingNullability: androidx.preference.PreferenceDataStore#getLong(String, long) parameter #0:
-    Missing nullability on parameter `key` in method `getLong`
-MissingNullability: androidx.preference.PreferenceDataStore#getString(String, String) parameter #0:
-    Missing nullability on parameter `key` in method `getString`
-MissingNullability: androidx.preference.PreferenceDataStore#getStringSet(String, java.util.Set<java.lang.String>) parameter #0:
-    Missing nullability on parameter `key` in method `getStringSet`
-MissingNullability: androidx.preference.PreferenceDataStore#putBoolean(String, boolean) parameter #0:
-    Missing nullability on parameter `key` in method `putBoolean`
-MissingNullability: androidx.preference.PreferenceDataStore#putFloat(String, float) parameter #0:
-    Missing nullability on parameter `key` in method `putFloat`
-MissingNullability: androidx.preference.PreferenceDataStore#putInt(String, int) parameter #0:
-    Missing nullability on parameter `key` in method `putInt`
-MissingNullability: androidx.preference.PreferenceDataStore#putLong(String, long) parameter #0:
-    Missing nullability on parameter `key` in method `putLong`
-MissingNullability: androidx.preference.PreferenceDataStore#putString(String, String) parameter #0:
-    Missing nullability on parameter `key` in method `putString`
-MissingNullability: androidx.preference.PreferenceDataStore#putStringSet(String, java.util.Set<java.lang.String>) parameter #0:
-    Missing nullability on parameter `key` in method `putStringSet`
 MissingNullability: androidx.preference.PreferenceDialogFragmentCompat#getPreference():
     Missing nullability on method `getPreference` return
 MissingNullability: androidx.preference.PreferenceFragmentCompat#getListView():
@@ -201,12 +171,6 @@ MissingNullability: androidx.preference.PreferenceManager#setPreferences(android
     Missing nullability on parameter `preferenceScreen` in method `setPreferences`
 MissingNullability: androidx.preference.PreferenceManager#setSharedPreferencesName(String) parameter #0:
     Missing nullability on parameter `sharedPreferencesName` in method `setSharedPreferencesName`
-MissingNullability: androidx.preference.PreferenceViewHolder#findViewById(int):
-    Missing nullability on method `findViewById` return
-MissingNullability: androidx.preference.SeekBarPreference#onSetInitialValue(Object) parameter #0:
-    Missing nullability on parameter `defaultValue` in method `onSetInitialValue`
-MissingNullability: androidx.preference.TwoStatePreference#onSetInitialValue(Object) parameter #0:
-    Missing nullability on parameter `defaultValue` in method `onSetInitialValue`
 
 
 MutableBareField: androidx.preference.TwoStatePreference#mChecked:

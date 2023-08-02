@@ -26,7 +26,7 @@ plugins {
 BundleInsideHelper.forInsideLintJar(project)
 
 dependencies {
-    compileOnly(libs.androidLintMinComposeApi)
+    compileOnly(libs.androidLintApi)
     compileOnly(libs.kotlinStdlib)
     bundleInside(projectOrArtifact(":compose:lint:common"))
 
@@ -41,7 +41,6 @@ dependencies {
 androidx {
     name = "Compose Runtime Lint Checks"
     type = LibraryType.LINT
-    mavenGroup = LibraryGroups.COMPOSE_RUNTIME
     inceptionYear = "2020"
     description = "Compose Runtime Lint Checks"
 }

@@ -16,20 +16,18 @@
 package androidx.window.embedding
 
 import android.app.Activity
-import android.content.ComponentName
 import android.content.Intent
 import android.util.Log
-import androidx.window.core.ExperimentalWindowApi
+import androidx.window.core.ActivityComponentInfo
 
 /**
  * Internal utils used for matching activities with embedding rules.
  */
-@ExperimentalWindowApi
 internal object MatcherUtils {
     /** Checks component match allowing wildcard patterns. */
     internal fun areComponentsMatching(
-        activityComponent: ComponentName?,
-        ruleComponent: ComponentName
+        activityComponent: ActivityComponentInfo?,
+        ruleComponent: ActivityComponentInfo
     ): Boolean {
         if (activityComponent == null) {
             return ruleComponent.packageName == "*" && ruleComponent.className == "*"
@@ -58,11 +56,11 @@ internal object MatcherUtils {
      * Returns `true` if [Activity.getComponentName] match or [Activity.getIntent] match allowing
      * wildcard patterns.
      */
-    internal fun isActivityOrIntentMatching(
+    internal fun isActivityMatching(
         activity: Activity,
-        ruleComponent: ComponentName
+        ruleComponent: ActivityComponentInfo
     ): Boolean {
-        if (areComponentsMatching(activity.componentName, ruleComponent)) {
+        if (areComponentsMatching(ActivityComponentInfo(activity.componentName), ruleComponent)) {
             return true
         }
         // Returns false if activity's intent doesn't exist or its intent doesn't match.
@@ -75,16 +73,24 @@ internal object MatcherUtils {
      */
     internal fun isIntentMatching(
         intent: Intent,
-        ruleComponent: ComponentName
+        ruleComponent: ActivityComponentInfo
     ): Boolean {
+        // Check if the component is matched.
+        if (areComponentsMatching(
+                intent.component?.let(::ActivityComponentInfo),
+                ruleComponent
+            )) {
+            return true
+        }
         if (intent.component != null) {
-            // Compare the component if set.
-            return areComponentsMatching(intent.component, ruleComponent)
+            // Only check package if the component is not set.
+            return false
         }
         // Check if there is wildcard match for Intent that only specifies the packageName.
         val packageName = intent.`package` ?: return false
         return (packageName == ruleComponent.packageName ||
-            wildcardMatch(packageName, ruleComponent.packageName)) && ruleComponent.className == "*"
+            wildcardMatch(packageName, ruleComponent.packageName)) &&
+            ruleComponent.className == "*"
     }
 
     /**
@@ -106,6 +112,22 @@ internal object MatcherUtils {
                 )
         ) { "Name pattern with a wildcard must only contain a single wildcard in the end" }
         return name.startsWith(pattern.substring(0, pattern.length - 1))
+    }
+
+    /**
+     * Makes sure the component name is in the correct format.
+     */
+    internal fun validateComponentName(packageName: String, className: String) {
+        require(packageName.isNotEmpty()) { "Package name must not be empty" }
+        require(className.isNotEmpty()) { "Activity class name must not be empty" }
+        require(
+            !(packageName.contains("*") &&
+                packageName.indexOf("*") != packageName.length - 1)
+        ) { "Wildcard in package name is only allowed at the end." }
+        require(
+            !(className.contains("*") &&
+                className.indexOf("*") != className.length - 1)
+        ) { "Wildcard in class name is only allowed at the end." }
     }
 
     internal const val sDebugMatchers = SplitController.sDebug

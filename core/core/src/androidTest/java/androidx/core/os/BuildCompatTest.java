@@ -16,10 +16,12 @@
 
 package androidx.core.os;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 
 import org.junit.Test;
@@ -28,6 +30,7 @@ import org.junit.runner.RunWith;
 /**
  * Tests for {@link BuildCompat}.
  */
+@SuppressWarnings("deprecation")
 @RunWith(AndroidJUnit4.class)
 @SmallTest
 public class BuildCompatTest {
@@ -50,4 +53,27 @@ public class BuildCompatTest {
         assertFalse(BuildCompat.isAtLeastPreReleaseCodename("RMR1", "REL"));
     }
 
+    @Test
+    public void extensionConstants() {
+        if (!BuildCompat.isAtLeastR()) {
+            assertEquals(0, BuildCompat.R_EXTENSION_INT);
+            assertEquals(0, BuildCompat.S_EXTENSION_INT);
+        }
+        if (BuildCompat.isAtLeastS()) {
+            assertTrue(BuildCompat.R_EXTENSION_INT >= 1);
+            assertTrue(BuildCompat.S_EXTENSION_INT >= 1);
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = 33)
+    @Test
+    public void isAtLeastT_byMinSdk() {
+        assertTrue(BuildCompat.isAtLeastT());
+    }
+
+    @SdkSuppress(minSdkVersion = 34)
+    @Test
+    public void isAtLeastU_byMinSdk() {
+        assertTrue(BuildCompat.isAtLeastU());
+    }
 }

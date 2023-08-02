@@ -17,21 +17,23 @@
 package androidx.tv.foundation.lazy.list
 
 import androidx.compose.animation.core.FloatSpringSpec
-import androidx.tv.foundation.lazy.AutoTestFrameClock
+import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.unit.Dp
 import androidx.test.filters.MediumTest
 import androidx.tv.foundation.PivotOffsets
+import androidx.tv.foundation.lazy.AutoTestFrameClock
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
+import java.util.concurrent.TimeUnit
+import kotlin.math.roundToInt
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -42,8 +44,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
-import java.util.concurrent.TimeUnit
-import kotlin.math.roundToInt
 
 @MediumTest
 @RunWith(Parameterized::class)
@@ -237,6 +237,52 @@ class LazyScrollTest(private val orientation: Orientation) {
     @Test
     fun animatePerFrameBackwardWithInitialOffset() {
         assertSpringAnimation(toIndex = 0, toOffset = 20, fromIndex = 8)
+    }
+
+    @Test
+    fun animateScrollToItemWithOffsetLargerThanItemSize_forward() = runBlocking {
+        withContext(Dispatchers.Main + AutoTestFrameClock()) {
+            state.animateScrollToItem(10, -itemSizePx * 3)
+        }
+        assertThat(state.firstVisibleItemIndex).isEqualTo(7)
+        assertThat(state.firstVisibleItemScrollOffset).isEqualTo(0)
+    }
+
+    @Test
+    fun animateScrollToItemWithOffsetLargerThanItemSize_backward() = runBlocking {
+        withContext(Dispatchers.Main + AutoTestFrameClock()) {
+            state.scrollToItem(10)
+            state.animateScrollToItem(0, itemSizePx * 3)
+        }
+        assertThat(state.firstVisibleItemIndex).isEqualTo(3)
+        assertThat(state.firstVisibleItemScrollOffset).isEqualTo(0)
+    }
+
+    @Test
+    fun canScrollForward() = runBlocking {
+        assertThat(state.firstVisibleItemScrollOffset).isEqualTo(0)
+        assertThat(state.canScrollForward).isTrue()
+        assertThat(state.canScrollBackward).isFalse()
+    }
+
+    @Test
+    fun canScrollBackward() = runBlocking {
+        withContext(Dispatchers.Main + AutoTestFrameClock()) {
+            state.scrollToItem(itemsCount)
+        }
+        assertThat(state.firstVisibleItemIndex).isEqualTo(itemsCount - 3)
+        assertThat(state.canScrollForward).isFalse()
+        assertThat(state.canScrollBackward).isTrue()
+    }
+
+    @Test
+    fun canScrollForwardAndBackward() = runBlocking {
+        withContext(Dispatchers.Main + AutoTestFrameClock()) {
+            state.scrollToItem(1)
+        }
+        assertThat(state.firstVisibleItemIndex).isEqualTo(1)
+        assertThat(state.canScrollForward).isTrue()
+        assertThat(state.canScrollBackward).isTrue()
     }
 
     private fun assertSpringAnimation(

@@ -26,7 +26,7 @@ import org.junit.runner.RunWith
 class BenchmarkRuleAnnotationTest {
     @Suppress("MemberVisibilityCanBePrivate") // intentionally public
     // NOTE: not annotated, so will throw when state is accessed
-    val unannotatedRule = BenchmarkRule(enableReport = false)
+    val unannotatedRule = BenchmarkRule()
 
     @Test(expected = IllegalStateException::class)
     fun throwsIfNotAnnotated() {

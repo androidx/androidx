@@ -27,6 +27,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
+import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.Logger;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.Futures;
@@ -63,7 +64,6 @@ public abstract class DeferrableSurface {
      * The exception that is returned by the ListenableFuture of {@link #getSurface()} if the
      * {@link Surface} backing the DeferrableSurface has already been closed.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     public static final class SurfaceClosedException extends Exception {
@@ -127,7 +127,7 @@ public abstract class DeferrableSurface {
     /**
      * Creates a new DeferrableSurface which has no use count.
      *
-     * @param size  the {@link Size} of the surface
+     * @param size   the {@link Size} of the surface
      * @param format the stream configuration format that the provided Surface will be used on.
      */
     public DeferrableSurface(@NonNull Size size, int format) {
@@ -332,11 +332,19 @@ public abstract class DeferrableSurface {
         return mPrescribedStreamFormat;
     }
 
-    /** @hide */
-    @RestrictTo(Scope.TESTS)
+    @VisibleForTesting
     public int getUseCount() {
         synchronized (mLock) {
             return mUseCount;
+        }
+    }
+
+    /**
+     * Checks if the {@link DeferrableSurface} is closed
+     */
+    public boolean isClosed() {
+        synchronized (mLock) {
+            return mClosed;
         }
     }
 

@@ -20,6 +20,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.glance.ColorFilter
 import androidx.glance.GlanceModifier
 import androidx.glance.Image
 import androidx.glance.ImageProvider
@@ -36,6 +37,7 @@ import androidx.glance.layout.size
 import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
+import androidx.glance.unit.ColorProvider
 import androidx.glance.wear.tiles.GlanceTileService
 
 class HelloTileService : GlanceTileService() {
@@ -50,15 +52,17 @@ class HelloTileService : GlanceTileService() {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Image(
-                provider = ImageProvider(R.mipmap.ic_launcher),
+                provider = ImageProvider(R.drawable.ic_waving_hand),
                 modifier = GlanceModifier.size(imageSize.width, imageSize.height),
-                contentScale = ContentScale.FillBounds,
+                contentScale = ContentScale.Fit,
+                colorFilter = ColorFilter.tint(ColorProvider(Color.Yellow)),
                 contentDescription = "Hello tile icon"
             )
             Spacer(GlanceModifier.height(10.dp))
             Text(
                 text = context.getString(R.string.hello_tile_greeting),
                 style = TextStyle(
+                    color = ColorProvider(Color.White),
                     fontWeight = FontWeight.Bold,
                     fontSize = 20.sp
                 )

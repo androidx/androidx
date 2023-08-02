@@ -37,7 +37,6 @@ import androidx.annotation.RestrictTo;
  * It exists solely as a destination for data copied by {@link ContentPager} from a source
  * Cursor when a page is being synthesized. It is not anticipated at this time that this
  * will be useful outside of this package. As such it is immutable once constructed.
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 final class InMemoryCursor extends AbstractCursor {

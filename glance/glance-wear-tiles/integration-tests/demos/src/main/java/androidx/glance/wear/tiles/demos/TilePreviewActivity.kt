@@ -25,9 +25,9 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
-import androidx.wear.tiles.manager.TileUiClient
-import androidx.viewpager2.widget.ViewPager2
 import androidx.viewpager2.adapter.FragmentStateAdapter
+import androidx.viewpager2.widget.ViewPager2
+import androidx.wear.tiles.manager.TileUiClient
 
 private const val NUM_PAGES = 4
 private val TILE_PROVIDERS_NAME = arrayOf(

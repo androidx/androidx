@@ -16,62 +16,68 @@
 
 package androidx.room.solver.types
 
+import androidx.room.compiler.codegen.CodeLanguage
+import androidx.room.compiler.codegen.XCodeBlock
+import androidx.room.compiler.codegen.XTypeName
+import androidx.room.compiler.codegen.XTypeName.Companion.PRIMITIVE_BYTE
+import androidx.room.compiler.codegen.XTypeName.Companion.PRIMITIVE_CHAR
+import androidx.room.compiler.codegen.XTypeName.Companion.PRIMITIVE_DOUBLE
+import androidx.room.compiler.codegen.XTypeName.Companion.PRIMITIVE_FLOAT
+import androidx.room.compiler.codegen.XTypeName.Companion.PRIMITIVE_INT
+import androidx.room.compiler.codegen.XTypeName.Companion.PRIMITIVE_LONG
+import androidx.room.compiler.codegen.XTypeName.Companion.PRIMITIVE_SHORT
 import androidx.room.compiler.processing.XProcessingEnv
 import androidx.room.compiler.processing.XType
-import androidx.room.ext.L
-import androidx.room.ext.capitalize
 import androidx.room.parser.SQLTypeAffinity
-import androidx.room.parser.SQLTypeAffinity.REAL
 import androidx.room.solver.CodeGenScope
-import com.squareup.javapoet.TypeName.BYTE
-import com.squareup.javapoet.TypeName.CHAR
-import com.squareup.javapoet.TypeName.DOUBLE
-import com.squareup.javapoet.TypeName.FLOAT
-import com.squareup.javapoet.TypeName.INT
-import com.squareup.javapoet.TypeName.LONG
-import com.squareup.javapoet.TypeName.SHORT
-import java.util.Locale
 
 /**
  * Adapters for all primitives that has direct cursor mappings.
  */
-open class PrimitiveColumnTypeAdapter(
+class PrimitiveColumnTypeAdapter(
     out: XType,
-    val cursorGetter: String,
-    val stmtSetter: String,
-    typeAffinity: SQLTypeAffinity
+    typeAffinity: SQLTypeAffinity,
+    val primitive: Primitive,
 ) : ColumnTypeAdapter(out, typeAffinity) {
-    val cast = if (cursorGetter == "get${out.typeName.toString().capitalize(Locale.US)}")
-        ""
-    else
-        "(${out.typeName}) "
 
     companion object {
+
+        enum class Primitive(
+            val typeName: XTypeName,
+            val cursorGetter: String,
+            val stmtSetter: String,
+        ) {
+            INT(PRIMITIVE_INT, "getInt", "bindLong"),
+            SHORT(PRIMITIVE_SHORT, "getShort", "bindLong"),
+            BYTE(PRIMITIVE_BYTE, "getShort", "bindLong"),
+            LONG(PRIMITIVE_LONG, "getLong", "bindLong"),
+            CHAR(PRIMITIVE_CHAR, "getInt", "bindLong"),
+            FLOAT(PRIMITIVE_FLOAT, "getFloat", "bindDouble"),
+            DOUBLE(PRIMITIVE_DOUBLE, "getDouble", "bindDouble"),
+        }
+
+        private fun getAffinity(primitive: Primitive) = when (primitive) {
+            Primitive.INT, Primitive.SHORT, Primitive.BYTE, Primitive.LONG, Primitive.CHAR ->
+                SQLTypeAffinity.INTEGER
+            Primitive.FLOAT, Primitive.DOUBLE ->
+                SQLTypeAffinity.REAL
+        }
+
         fun createPrimitiveAdapters(
             processingEnvironment: XProcessingEnv
         ): List<PrimitiveColumnTypeAdapter> {
-            return listOf(
-                Triple(INT, "getInt", "bindLong"),
-                Triple(SHORT, "getShort", "bindLong"),
-                Triple(BYTE, "getShort", "bindLong"),
-                Triple(LONG, "getLong", "bindLong"),
-                Triple(CHAR, "getInt", "bindLong"),
-                Triple(FLOAT, "getFloat", "bindDouble"),
-                Triple(DOUBLE, "getDouble", "bindDouble")
-            ).map {
+            return Primitive.values().map {
                 PrimitiveColumnTypeAdapter(
-                    out = processingEnvironment.requireType(it.first),
-                    cursorGetter = it.second,
-                    stmtSetter = it.third,
-                    typeAffinity = when (it.first) {
-                        INT, SHORT, BYTE, LONG, CHAR -> SQLTypeAffinity.INTEGER
-                        FLOAT, DOUBLE -> REAL
-                        else -> throw IllegalArgumentException("invalid type")
-                    }
+                    out = processingEnvironment.requireType(it.typeName),
+                    typeAffinity = getAffinity(it),
+                    primitive = it
                 )
             }
         }
     }
+
+    private val cursorGetter = primitive.cursorGetter
+    private val stmtSetter = primitive.stmtSetter
 
     override fun bindToStmt(
         stmtName: String,
@@ -79,8 +85,29 @@ open class PrimitiveColumnTypeAdapter(
         valueVarName: String,
         scope: CodeGenScope
     ) {
-        scope.builder()
-            .addStatement("$L.$L($L, $L)", stmtName, stmtSetter, indexVarName, valueVarName)
+        // These primitives don't have an exact statement setter.
+        val castFunction = when (primitive) {
+            Primitive.INT, Primitive.SHORT, Primitive.BYTE, Primitive.CHAR -> "toLong"
+            Primitive.FLOAT -> "toDouble"
+            else -> null
+        }
+        val valueExpr = when (scope.language) {
+            CodeLanguage.JAVA -> {
+                // For Java, with the language's primitive type casting, value variable can be
+                // used as bind argument directly.
+                XCodeBlock.of(scope.language, "%L", valueVarName)
+            }
+            CodeLanguage.KOTLIN -> {
+                // For Kotlin, a converter function is emitted when a cast is needed.
+                if (castFunction != null) {
+                    XCodeBlock.of(scope.language, "%L.%L()", valueVarName, castFunction)
+                } else {
+                    XCodeBlock.of(scope.language, "%L", valueVarName)
+                }
+            }
+        }
+        scope.builder
+            .addStatement("%L.%L(%L, %L)", stmtName, stmtSetter, indexVarName, valueExpr)
     }
 
     override fun readFromCursor(
@@ -89,10 +116,33 @@ open class PrimitiveColumnTypeAdapter(
         indexVarName: String,
         scope: CodeGenScope
     ) {
-        scope.builder()
-            .addStatement(
-                "$L = $L$L.$L($L)", outVarName, cast, cursorVarName,
-                cursorGetter, indexVarName
-            )
+        scope.builder.addStatement(
+            "%L = %L",
+            outVarName,
+            XCodeBlock.of(
+                scope.language,
+                "%L.%L(%L)",
+                cursorVarName,
+                cursorGetter,
+                indexVarName
+            ).let {
+                // These primitives don't have an exact cursor getter.
+                val castFunction = when (primitive) {
+                    Primitive.BYTE -> "toByte"
+                    Primitive.CHAR -> "toChar"
+                    else -> null
+                } ?: return@let it
+                when (it.language) {
+                    // For Java a cast will suffice
+                    CodeLanguage.JAVA -> {
+                        XCodeBlock.ofCast(it.language, out.asTypeName(), it)
+                    }
+                    // For Kotlin a converter function is emitted
+                    CodeLanguage.KOTLIN -> {
+                        XCodeBlock.of(it.language, "%L.%L()", it, castFunction)
+                    }
+                }
+            }
+        )
     }
 }

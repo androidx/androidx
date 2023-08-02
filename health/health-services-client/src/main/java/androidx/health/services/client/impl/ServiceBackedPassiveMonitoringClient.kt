@@ -18,8 +18,8 @@ package androidx.health.services.client.impl
 
 import android.content.Context
 import androidx.annotation.RestrictTo
-import androidx.annotation.VisibleForTesting
 import androidx.core.content.ContextCompat
+import androidx.health.services.client.HealthServicesException
 import androidx.health.services.client.PassiveListenerCallback
 import androidx.health.services.client.PassiveListenerService
 import androidx.health.services.client.PassiveMonitoringClient
@@ -45,11 +45,8 @@ import java.util.concurrent.Executor
 
 /**
  * [PassiveMonitoringClient] implementation that is backed by Health Services.
- *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-@VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)
 public class ServiceBackedPassiveMonitoringClient(
     private val applicationContext: Context,
     private val connectionManager: ConnectionManager =
@@ -71,10 +68,20 @@ public class ServiceBackedPassiveMonitoringClient(
     ): ListenableFuture<Void> {
         return executeWithVersionCheck(
             { remoteService, resultFuture ->
-                remoteService.registerPassiveListenerService(
-                    PassiveListenerServiceRegistrationRequest(packageName, service.name, config),
-                    StatusCallback(resultFuture)
-                )
+                if (config.isValidPassiveGoal()) {
+                    remoteService.registerPassiveListenerService(
+                        PassiveListenerServiceRegistrationRequest(
+                            packageName,
+                            service.name,
+                            config
+                        ),
+                        StatusCallback(resultFuture)
+                    )
+                } else {
+                    resultFuture.setException(HealthServicesException(
+                            "DataType for the requested passive goal is not tracked"
+                        ))
+                }
             },
             /* minApiVersion= */ 4
         )
@@ -100,11 +107,19 @@ public class ServiceBackedPassiveMonitoringClient(
             PassiveListenerCallbackCache.INSTANCE.getOrCreate(packageName, executor, callback)
         val future =
             registerListener(callbackStub.listenerKey) { service, result: SettableFuture<Void?> ->
-                service.registerPassiveListenerCallback(
-                    PassiveListenerCallbackRegistrationRequest(packageName, config),
-                    callbackStub,
-                    StatusCallback(result)
-                )
+                if (config.isValidPassiveGoal()) {
+                    service.registerPassiveListenerCallback(
+                        PassiveListenerCallbackRegistrationRequest(packageName, config),
+                        callbackStub,
+                        StatusCallback(result)
+                    )
+                } else {
+                    result.setException(
+                        HealthServicesException(
+                            "DataType for the requested passive goal is not tracked"
+                        )
+                    )
+                }
             }
         Futures.addCallback(
             future,

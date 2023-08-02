@@ -18,13 +18,14 @@ package androidx.benchmark.macro.perfetto
 
 import androidx.benchmark.macro.createTempFileFromAsset
 import androidx.benchmark.perfetto.PerfettoHelper.Companion.isAbiSupported
+import androidx.benchmark.perfetto.PerfettoTraceProcessor
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
+import kotlin.test.assertEquals
 import org.junit.Assume.assumeTrue
 import org.junit.Test
 import org.junit.runner.RunWith
-import kotlin.test.assertEquals
 
 @SdkSuppress(minSdkVersion = 23)
 @RunWith(AndroidJUnit4::class)
@@ -37,7 +38,10 @@ class AudioUnderrunQueryTest {
         // the trace was generated during 2 seconds AudioUnderrunBenchmark scenario run
         val traceFile = createTempFileFromAsset("api23_audio_underrun", ".perfetto-trace")
 
-        val subMetrics = AudioUnderrunQuery.getSubMetrics(traceFile.absolutePath)
+        val subMetrics = PerfettoTraceProcessor.runSingleSessionServer(traceFile.absolutePath) {
+            AudioUnderrunQuery.getSubMetrics(this)
+        }
+
         val expectedMetrics = AudioUnderrunQuery.SubMetrics(2212, 892)
 
         assertEquals(expectedMetrics, subMetrics)

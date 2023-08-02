@@ -31,12 +31,20 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.testutils.withActivity
 import com.google.common.truth.Truth.assertThat
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
+import leakcanary.DetectLeaksAfterTestSuccess
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 class ComponentActivityResultTest {
+
+    @get:Rule
+    val rule = DetectLeaksAfterTestSuccess()
+
     @Test
     fun launchInOnCreate() {
         ActivityScenario.launch(ResultComponentActivity::class.java).use { scenario ->
@@ -83,9 +91,9 @@ class ComponentActivityResultTest {
                 launcher.launch(Intent(this, FinishActivity::class.java))
             }
 
-            scenario.withActivity {
-                assertThat(launchCount).isEqualTo(1)
-            }
+            val launchCountDownLatch = scenario.withActivity { launchCount }
+
+            assertThat(launchCountDownLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
         }
     }
 
@@ -101,10 +109,12 @@ class ComponentActivityResultTest {
                 }
             }
 
-            scenario.withActivity {
+            val launchCountDownLatch = scenario.withActivity {
                 assertThat(exceptionThrown).isTrue()
-                assertThat(launchCount).isEqualTo(0)
+                launchCount
             }
+
+            assertThat(launchCountDownLatch.await(1000, TimeUnit.MILLISECONDS)).isFalse()
         }
     }
 
@@ -120,10 +130,12 @@ class ComponentActivityResultTest {
                 }
             }
 
-            scenario.withActivity {
+            val launchCountDownLatch = scenario.withActivity {
                 assertThat(exceptionThrown).isTrue()
-                assertThat(launchCount).isEqualTo(0)
+                launchCount
             }
+
+            assertThat(launchCountDownLatch.await(1000, TimeUnit.MILLISECONDS)).isFalse()
         }
     }
 }
@@ -196,14 +208,14 @@ class RegisterBeforeOnCreateActivity : ComponentActivity() {
 class RegisterInInitActivity : ComponentActivity() {
     var launcher: ActivityResultLauncher<Intent>
     val launcherNoLifecycle: ActivityResultLauncher<Intent>
-    var launchCount = 0
+    var launchCount = CountDownLatch(1)
 
     init {
         launcher = registerForActivityResult(StartActivityForResult()) {
-            launchCount++
+            launchCount.countDown()
         }
         launcherNoLifecycle = activityResultRegistry.register("test", StartActivityForResult()) {
-            launchCount++
+            launchCount.countDown()
         }
     }
 }

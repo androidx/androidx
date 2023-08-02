@@ -23,9 +23,7 @@ import androidx.build.getBuildInfoDirectory
 import androidx.build.getGroupZipPath
 import androidx.build.getProjectZipPath
 import androidx.build.getSupportRootFolder
-import androidx.build.gitclient.Commit
 import androidx.build.gitclient.GitClient
-import androidx.build.gitclient.GitCommitRange
 import androidx.build.jetpad.LibraryBuildInfoFile
 import com.google.common.annotations.VisibleForTesting
 import com.google.gson.GsonBuilder
@@ -33,11 +31,13 @@ import java.io.File
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Dependency
+import org.gradle.api.artifacts.DependencyConstraint
 import org.gradle.api.artifacts.ModuleVersionIdentifier
 import org.gradle.api.artifacts.ProjectDependency
 import org.gradle.api.component.ComponentWithCoordinates
 import org.gradle.api.component.ComponentWithVariants
 import org.gradle.api.internal.artifacts.dependencies.DefaultExternalModuleDependency
+import org.gradle.api.internal.artifacts.dependencies.DefaultProjectDependencyConstraint
 import org.gradle.api.internal.artifacts.ivyservice.projectmodule.ProjectComponentPublication
 import org.gradle.api.internal.component.SoftwareComponentInternal
 import org.gradle.api.provider.ListProperty
@@ -56,11 +56,10 @@ import org.jetbrains.kotlin.gradle.plugin.getKotlinPluginVersion
 
 /**
  * This task generates a library build information file containing the artifactId, groupId, and
- * version of public androidx dependencies and release checklist of the library for consumption
- * by the Jetpack Release Service (JetPad).
+ * version of public androidx dependencies and release checklist of the library for consumption by
+ * the Jetpack Release Service (JetPad).
  *
- * Example:
- * If this task is configured
+ * Example: If this task is configured
  * - for a project with group name "myGroup"
  * - on a variant with artifactId "myArtifact",
  * - and root project outDir is "out"
@@ -76,62 +75,46 @@ abstract class CreateLibraryBuildInfoFileTask : DefaultTask() {
         description = "Generates a file containing library build information serialized to json"
     }
 
-    @get:OutputFile
-    abstract val outputFile: Property<File>
+    @get:OutputFile abstract val outputFile: Property<File>
 
-    @get:Input
-    abstract val artifactId: Property<String>
+    @get:Input abstract val artifactId: Property<String>
 
-    @get:Input
-    abstract val groupId: Property<String>
+    @get:Input abstract val groupId: Property<String>
 
-    @get:Input
-    abstract val version: Property<String>
+    @get:Input abstract val version: Property<String>
 
-    @get:Optional
-    @get:Input
-    abstract val kotlinVersion: Property<String>
+    @get:Optional @get:Input abstract val kotlinVersion: Property<String>
 
-    @get:Input
-    abstract val projectDir: Property<String>
+    @get:Input abstract val projectDir: Property<String>
 
-    @get:Input
-    abstract val commit: Property<String>
+    @get:Input abstract val commit: Property<String>
 
-    @get:Input
-    abstract val groupIdRequiresSameVersion: Property<Boolean>
+    @get:Input abstract val groupIdRequiresSameVersion: Property<Boolean>
 
-    @get:Input
-    abstract val groupZipPath: Property<String>
+    @get:Input abstract val groupZipPath: Property<String>
 
-    @get:Input
-    abstract val projectZipPath: Property<String>
+    @get:Input abstract val projectZipPath: Property<String>
 
-    @get:Input
+    @get:[Input Optional]
     abstract val dependencyList: ListProperty<LibraryBuildInfoFile.Dependency>
 
-    /**
-     * the local project directory without the full framework/support root directory path
-     */
-    @get:Input
-    abstract val projectSpecificDirectory: Property<String>
+    @get:[Input Optional]
+    abstract val dependencyConstraintList: ListProperty<LibraryBuildInfoFile.Dependency>
+
+    /** the local project directory without the full framework/support root directory path */
+    @get:Input abstract val projectSpecificDirectory: Property<String>
 
     private fun writeJsonToFile(info: LibraryBuildInfoFile) {
         val resolvedOutputFile: File = outputFile.get()
         val outputDir = resolvedOutputFile.parentFile
         if (!outputDir.exists()) {
             if (!outputDir.mkdirs()) {
-                throw RuntimeException(
-                    "Failed to create " +
-                        "output directory: $outputDir"
-                )
+                throw RuntimeException("Failed to create " + "output directory: $outputDir")
             }
         }
         if (!resolvedOutputFile.exists()) {
             if (!resolvedOutputFile.createNewFile()) {
-                throw RuntimeException(
-                    "Failed to create output dependency dump file: $outputFile"
-                )
+                throw RuntimeException("Failed to create output dependency dump file: $outputFile")
             }
         }
 
@@ -153,15 +136,19 @@ abstract class CreateLibraryBuildInfoFileTask : DefaultTask() {
         libraryBuildInfoFile.projectZipPath = projectZipPath.get()
         libraryBuildInfoFile.kotlinVersion = kotlinVersion.orNull
         libraryBuildInfoFile.checks = ArrayList()
-        libraryBuildInfoFile.dependencies = ArrayList(dependencyList.get())
+        libraryBuildInfoFile.dependencies =
+            if (dependencyList.isPresent) ArrayList(dependencyList.get()) else ArrayList()
+        libraryBuildInfoFile.dependencyConstraints =
+            if (dependencyConstraintList.isPresent) ArrayList(dependencyConstraintList.get())
+            else ArrayList()
         return libraryBuildInfoFile
     }
 
     /**
-     * Task: createLibraryBuildInfoFile
-     * Iterates through each configuration of the project and builds the set of all dependencies.
-     * Then adds each dependency to the Artifact class as a project or prebuilt dependency.  Finally,
-     * writes these dependencies to a json file as a json object.
+     * Task: createLibraryBuildInfoFile Iterates through each configuration of the project and
+     * builds the set of all dependencies. Then adds each dependency to the Artifact class as a
+     * project or prebuilt dependency. Finally, writes these dependencies to a json file as a json
+     * object.
      */
     @TaskAction
     fun createLibraryBuildInfoFile() {
@@ -185,10 +172,7 @@ abstract class CreateLibraryBuildInfoFileTask : DefaultTask() {
                 val group = project.group.toString()
                 val artifactId = variant.artifactId
                 task.outputFile.set(
-                    File(
-                        project.getBuildInfoDirectory(),
-                        "${group}_${artifactId}_build_info.txt"
-                    )
+                    File(project.getBuildInfoDirectory(), "${group}_${artifactId}_build_info.txt")
                 )
                 task.artifactId.set(artifactId)
                 task.groupId.set(group)
@@ -200,7 +184,7 @@ abstract class CreateLibraryBuildInfoFileTask : DefaultTask() {
                     )
                 )
                 task.commit.set(shaProvider)
-                task.groupIdRequiresSameVersion.set(mavenGroup?.requireSameVersion)
+                task.groupIdRequiresSameVersion.set(mavenGroup?.requireSameVersion ?: false)
                 task.groupZipPath.set(project.getGroupZipPath())
                 task.projectZipPath.set(project.getProjectZipPath())
 
@@ -216,20 +200,39 @@ abstract class CreateLibraryBuildInfoFileTask : DefaultTask() {
 
                 // lazily compute the task dependency list based on the variant dependencies.
                 task.dependencyList.set(variant.dependencies.map { it.asBuildInfoDependencies() })
+                task.dependencyConstraintList.set(
+                    variant.dependencyConstraints.map { it.asBuildInfoDependencies() }
+                )
             }
         }
 
         fun List<Dependency>.asBuildInfoDependencies() =
-            filter { it.group.isAndroidXDependency() }.map {
-                LibraryBuildInfoFile.Dependency().apply {
-                    this.artifactId = it.name.toString()
-                    this.groupId = it.group.toString()
-                    this.version = it.version.toString()
-                    this.isTipOfTree = it is ProjectDependency || it is BuildInfoVariantDependency
+            filter { it.group.isAndroidXDependency() }
+                .map {
+                    LibraryBuildInfoFile.Dependency().apply {
+                        this.artifactId = it.name.toString()
+                        this.groupId = it.group.toString()
+                        this.version = it.version.toString()
+                        this.isTipOfTree =
+                            it is ProjectDependency || it is BuildInfoVariantDependency
+                    }
                 }
-            }.toHashSet().sortedWith(
-                compareBy({ it.groupId }, { it.artifactId }, { it.version })
-            )
+                .toHashSet()
+                .sortedWith(compareBy({ it.groupId }, { it.artifactId }, { it.version }))
+
+        @JvmName("dependencyConstraintsasBuildInfoDependencies")
+        fun List<DependencyConstraint>.asBuildInfoDependencies() =
+            filter { it.group.isAndroidXDependency() }
+                .map {
+                    LibraryBuildInfoFile.Dependency().apply {
+                        this.artifactId = it.name.toString()
+                        this.groupId = it.group.toString()
+                        this.version = it.version.toString()
+                        this.isTipOfTree = it is DefaultProjectDependencyConstraint
+                    }
+                }
+                .toHashSet()
+                .sortedWith(compareBy({ it.groupId }, { it.artifactId }, { it.version }))
 
         private fun String?.isAndroidXDependency() =
             this != null && startsWith("androidx.") && !startsWith("androidx.test")
@@ -238,27 +241,8 @@ abstract class CreateLibraryBuildInfoFileTask : DefaultTask() {
          * of the build that is released.  Thus, we use frameworks/support to get the sha
          */
         fun Project.getFrameworksSupportCommitShaAtHead(): String {
-            val gitClient = GitClient.create(
-                project.getSupportRootFolder(),
-                logger,
-                GitClient.getChangeInfoPath(project).get(),
-                GitClient.getManifestPath(project).get()
-            )
-            val commitList: List<Commit> =
-                gitClient
-                    .getGitLog(
-                        GitCommitRange(
-                            fromExclusive = "",
-                            untilInclusive = "HEAD",
-                            n = 1
-                        ),
-                        keepMerges = true,
-                        fullProjectDir = getSupportRootFolder()
-                    )
-            if (commitList.isEmpty()) {
-                throw RuntimeException("Failed to find git commit for HEAD!")
-            }
-            return commitList.first().sha
+            val gitClient = GitClient.forProject(project)
+            return gitClient.getHeadSha()
         }
     }
 }
@@ -290,33 +274,51 @@ private fun Project.createTaskForComponent(
     libraryGroup: LibraryGroup?,
     artifactId: String
 ) {
-    val task: TaskProvider<CreateLibraryBuildInfoFileTask> =
-        CreateLibraryBuildInfoFileTask.setup(
-            project = project,
-            mavenGroup = libraryGroup,
-            variant = VariantPublishPlan(
-                artifactId = artifactId,
-                taskSuffix = computeTaskSuffix(artifactId),
-                dependencies = project.provider {
-                    pub.component?.let { component ->
-                        val usageDependencies =
-                            component.usages.orEmpty().flatMap { it.dependencies }
-                        usageDependencies + dependenciesOnKmpVariants(component)
-                    }.orEmpty()
-                }),
-            shaProvider = project.provider {
-                project.getFrameworksSupportCommitShaAtHead()
-            }
+    val task =
+        createBuildInfoTask(
+            pub,
+            libraryGroup,
+            artifactId,
+            project.provider { project.getFrameworksSupportCommitShaAtHead() }
         )
-
-    rootProject.tasks.named(CreateLibraryBuildInfoFileTask.TASK_NAME)
-        .configure { it.dependsOn(task) }
+    rootProject.tasks.named(CreateLibraryBuildInfoFileTask.TASK_NAME).configure {
+        it.dependsOn(task)
+    }
     addTaskToAggregateBuildInfoFileTask(task)
 }
 
+private fun Project.createBuildInfoTask(
+    pub: ProjectComponentPublication,
+    libraryGroup: LibraryGroup?,
+    artifactId: String,
+    shaProvider: Provider<String>
+): TaskProvider<CreateLibraryBuildInfoFileTask> {
+    return CreateLibraryBuildInfoFileTask.setup(
+        project = project,
+        mavenGroup = libraryGroup,
+        variant =
+            VariantPublishPlan(
+                artifactId = artifactId,
+                taskSuffix = computeTaskSuffix(artifactId),
+                dependencies =
+                    pub.component.map { component ->
+                        val usageDependencies =
+                            component.usages.orEmpty().flatMap { it.dependencies }
+                        usageDependencies + dependenciesOnKmpVariants(component)
+                    },
+                dependencyConstraints =
+                    pub.component.map { component ->
+                        component.usages.orEmpty().flatMap { it.dependencyConstraints }
+                    }
+            ),
+        shaProvider = shaProvider
+    )
+}
+
 private fun dependenciesOnKmpVariants(component: SoftwareComponentInternal) =
-    (component as? ComponentWithVariants)?.variants.orEmpty()
-        .mapNotNull { (it as? ComponentWithCoordinates)?.coordinates?.asDependency() }
+    (component as? ComponentWithVariants)?.variants.orEmpty().mapNotNull {
+        (it as? ComponentWithCoordinates)?.coordinates?.asDependency()
+    }
 
 private fun ModuleVersionIdentifier.asDependency() =
     BuildInfoVariantDependency(group, name, version)
@@ -326,5 +328,7 @@ class BuildInfoVariantDependency(group: String, name: String, version: String) :
 
 // For examples, see CreateLibraryBuildInfoFileTaskTest
 @VisibleForTesting
-fun computeTaskSuffix(artifactId: String) = artifactId.split("-").drop(1)
-    .joinToString("") { word -> word.replaceFirstChar { it.uppercase() } }
+fun computeTaskSuffix(artifactId: String) =
+    artifactId.split("-").drop(1).joinToString("") { word ->
+        word.replaceFirstChar { it.uppercase() }
+    }

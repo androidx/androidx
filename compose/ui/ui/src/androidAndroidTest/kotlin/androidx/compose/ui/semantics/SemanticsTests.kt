@@ -19,33 +19,37 @@ package androidx.compose.ui.semantics
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.BasicText
+import androidx.compose.material.Surface
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.ReusableContent
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.MeasurePolicy
 import androidx.compose.ui.layout.SubcomposeLayout
+import androidx.compose.ui.node.DelegatingNode
+import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.platform.InspectableValue
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.ValueElement
 import androidx.compose.ui.platform.isDebugInspectorInfoEnabled
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assert
-import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertContentDescriptionEquals
+import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.assertValueEquals
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -54,8 +58,7 @@ import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.unit.Density
-import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastMap
@@ -63,14 +66,15 @@ import androidx.compose.ui.zIndex
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
+import kotlin.math.max
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import kotlin.math.max
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
@@ -107,19 +111,81 @@ class SemanticsTests {
     }
 
     @Test
-    fun valueSemanticsAreEqual() {
-        assertEquals(
-            Modifier.semantics {
-                text = AnnotatedString("text")
-                contentDescription = "foo"
-                popup()
-            },
-            Modifier.semantics {
-                text = AnnotatedString("text")
-                contentDescription = "foo"
-                popup()
+    fun isTraversalGroupProperty() {
+        rule.setContent {
+            Surface(
+                Modifier.testTag(TestTag)
+            ) {
+                Text("Hello World", modifier = Modifier.padding(8.dp))
             }
-        )
+        }
+
+        rule.onNodeWithTag(TestTag)
+            .assert(SemanticsMatcher.expectValue(
+                SemanticsProperties.IsTraversalGroup, true))
+    }
+
+    @Test
+    fun traversalIndexProperty() {
+        rule.setContent {
+            Surface {
+                Box(Modifier
+                    .semantics { traversalIndex = 0f }
+                    .testTag(TestTag)
+                ) {
+                    Text("Hello World", modifier = Modifier.padding(8.dp))
+                }
+            }
+        }
+
+        rule.onNodeWithTag(TestTag)
+            .assert(SemanticsMatcher.expectValue(
+                SemanticsProperties.TraversalIndex, 0f))
+    }
+
+    @Test
+    fun traversalIndexPropertyNull() {
+        rule.setContent {
+            Surface {
+                Box(Modifier
+                    .testTag(TestTag)
+                ) {
+                    Text("Hello World", modifier = Modifier.padding(8.dp))
+                }
+            }
+        }
+
+        // If traversalIndex is not explicitly set, the default value is zero, but
+        // only considered so when sorting in the DelegateCompat file
+        rule.onNodeWithTag(TestTag)
+            .assertDoesNotHaveProperty(SemanticsProperties.TraversalIndex)
+    }
+
+    @Test
+    @Suppress("DEPRECATION")
+    fun isContainerPropertyDeprecated() {
+        rule.setContent {
+            Surface {
+                Box(Modifier
+                    .testTag(TestTag)
+                    .semantics { isContainer = true }
+                ) {
+                    Text("Hello World", modifier = Modifier.padding(8.dp))
+                }
+            }
+        }
+
+        // Since `isContainer` has been deprecated, setting that property will actually set
+        // `isTraversalGroup` instead, but `IsContainer` can still be used to retrieve the value
+        rule.onNodeWithTag(TestTag)
+            .assert(
+                SemanticsMatcher("container property") {
+                    it.config.getOrNull(SemanticsProperties.IsContainer) == true
+                }
+            )
+        rule.onNodeWithTag(TestTag)
+            .assert(SemanticsMatcher.expectValue(
+                SemanticsProperties.IsTraversalGroup, true))
     }
 
     @Test
@@ -294,6 +360,23 @@ class SemanticsTests {
     }
 
     @Test
+    fun higherUpSemanticsOverridePropertiesOfLowerSemanticsOnSameNode() {
+        rule.setContent {
+            Box(Modifier
+                .testTag("tag")
+                .semantics { contentDescription = "high" }
+                .semantics { contentDescription = "low" }
+            )
+        }
+
+        rule
+            .onNodeWithTag("tag")
+            .assert(
+                SemanticsMatcher.expectValue(SemanticsProperties.ContentDescription, listOf("high"))
+            )
+    }
+
+    @Test
     fun replacedChildren_includeFakeNodes() {
         val tag = "tag1"
         rule.setContent {
@@ -321,6 +404,32 @@ class SemanticsTests {
         val children = node.children
         assertThat(children.count()).isEqualTo(1)
         assertThat(children.last().isFake).isFalse()
+    }
+
+    @Test
+    fun fakeSemanticsNode_usesValuesFromParent() {
+        val tag = "tag1"
+        rule.setContent {
+            SimpleTestLayout(
+                Modifier
+                    .offset(10.dp, 10.dp)
+                    .clickable(role = Role.Button, onClick = {})
+                    .testTag(tag)
+            ) {
+                BasicText("text")
+            }
+        }
+
+        val node = rule.onNodeWithTag(tag, true).fetchSemanticsNode()
+        val fakeNode = node.replacedChildren.first { it.isFake }
+
+        // Ensure that the fake node uses the properties of the parent.
+        assertThat(fakeNode.size).isNotEqualTo(IntSize.Zero)
+        assertThat(fakeNode.boundsInRoot).isNotEqualTo(Rect.Zero)
+        assertThat(fakeNode.positionInRoot).isNotEqualTo(Offset.Zero)
+        assertThat(fakeNode.boundsInWindow).isNotEqualTo(Rect.Zero)
+        assertThat(fakeNode.positionInWindow).isNotEqualTo(Offset.Zero)
+        assertThat(fakeNode.isTransparent).isFalse()
     }
 
     @Test
@@ -783,7 +892,11 @@ class SemanticsTests {
 
     @Test
     fun testInspectorValue() {
-        val properties: SemanticsPropertyReceiver.() -> Unit = {}
+        val properties: SemanticsPropertyReceiver.() -> Unit = {
+            paneTitle = "testTitle"
+            focused = false
+            role = Role.Image
+        }
         rule.setContent {
             val modifier = Modifier.semantics(true, properties) as InspectableValue
 
@@ -791,7 +904,11 @@ class SemanticsTests {
             assertThat(modifier.valueOverride).isNull()
             assertThat(modifier.inspectableElements.asIterable()).containsExactly(
                 ValueElement("mergeDescendants", true),
-                ValueElement("properties", properties)
+                ValueElement("properties", mapOf(
+                    "PaneTitle" to "testTitle",
+                    "Focused" to false,
+                    "Role" to Role.Image
+                ))
             )
         }
     }
@@ -824,469 +941,209 @@ class SemanticsTests {
     }
 
     @Test
-    fun testChildrenSortedByBounds_vertical_zIndex() {
-        val child1 = "child1"
-        val child2 = "child2"
-        rule.setContent {
-            Column(
-                Modifier.testTag(TestTag)
-            ) {
-                SimpleTestLayout(
-                    Modifier
-                        .requiredSize(50.dp)
-                        .zIndex(1f)
-                        .semantics { testTag = child1 }
-                ) {}
-                SimpleTestLayout(
-                    Modifier.requiredSize(50.dp).semantics { testTag = child2 }
-                ) {}
-            }
+    fun delegatedSemanticsPropertiesGetRead() {
+        val node = object : DelegatingNode() {
+            val inner = delegate(SemanticsMod {
+                contentDescription = "hello world"
+            })
         }
 
-        val root = rule.onNodeWithTag(TestTag).fetchSemanticsNode("can't find node $TestTag")
-        assertEquals(2, root.replacedChildrenSortedByBounds.size)
-        assertEquals(
-            child1,
-            root.replacedChildrenSortedByBounds[0].config.getOrNull(SemanticsProperties.TestTag)
-        )
-        assertEquals(
-            child2,
-            root.replacedChildrenSortedByBounds[1].config.getOrNull(SemanticsProperties.TestTag)
-        )
-    }
-
-    @Test
-    fun testChildrenSortedByBounds_horizontal_zIndex() {
-        val child1 = "child1"
-        val child2 = "child2"
-        rule.setContent {
-            Row(
-                Modifier.testTag(TestTag)
-            ) {
-                SimpleTestLayout(
-                    Modifier
-                        .requiredSize(50.dp)
-                        .zIndex(1f)
-                        .semantics { testTag = child1 }
-                ) {}
-                SimpleTestLayout(
-                    Modifier.requiredSize(50.dp).semantics { testTag = child2 }
-                ) {}
-            }
-        }
-
-        val root = rule.onNodeWithTag(TestTag).fetchSemanticsNode("can't find node $TestTag")
-        assertEquals(2, root.replacedChildrenSortedByBounds.size)
-        assertEquals(
-            child1,
-            root.replacedChildrenSortedByBounds[0].config.getOrNull(SemanticsProperties.TestTag)
-        )
-        assertEquals(
-            child2,
-            root.replacedChildrenSortedByBounds[1].config.getOrNull(SemanticsProperties.TestTag)
-        )
-    }
-
-    @Test
-    fun testChildrenSortedByBounds_vertical_offset() {
-        val child1 = "child1"
-        val child2 = "child2"
         rule.setContent {
             Box(
-                Modifier.testTag(TestTag)
-            ) {
-                SimpleTestLayout(
-                    Modifier
-                        .requiredSize(50.dp)
-                        .offset(x = 0.dp, y = 50.dp)
-                        .semantics { testTag = child1 }
-                ) {}
-                SimpleTestLayout(
-                    Modifier.requiredSize(50.dp).semantics { testTag = child2 }
-                ) {}
-            }
+                Modifier
+                    .testTag(TestTag)
+                    .elementFor(node)
+            )
         }
 
-        val root = rule.onNodeWithTag(TestTag).fetchSemanticsNode("can't find node $TestTag")
-        assertEquals(2, root.replacedChildrenSortedByBounds.size)
-        assertEquals(
-            child2,
-            root.replacedChildrenSortedByBounds[0].config.getOrNull(SemanticsProperties.TestTag)
-        )
-        assertEquals(
-            child1,
-            root.replacedChildrenSortedByBounds[1].config.getOrNull(SemanticsProperties.TestTag)
-        )
+        rule
+            .onNodeWithTag(TestTag)
+            .assertContentDescriptionEquals("hello world")
     }
 
     @Test
-    fun testChildrenSortedByBounds_horizontal_offset() {
-        val child1 = "child1"
-        val child2 = "child2"
+    fun multipleDelegatesGetCombined() {
+        val node = object : DelegatingNode() {
+            val a = delegate(SemanticsMod {
+                contentDescription = "hello world"
+            })
+            val b = delegate(SemanticsMod {
+                testProperty = "bar"
+            })
+        }
+
         rule.setContent {
             Box(
-                Modifier.testTag(TestTag)
-            ) {
-                SimpleTestLayout(
-                    Modifier
-                        .requiredSize(50.dp)
-                        .offset(x = 50.dp, y = 0.dp)
-                        .semantics { testTag = child1 }
-                ) {}
-                SimpleTestLayout(
-                    Modifier.requiredSize(50.dp).semantics { testTag = child2 }
-                ) {}
-            }
+                Modifier
+                    .testTag(TestTag)
+                    .elementFor(node)
+            )
         }
 
-        val root = rule.onNodeWithTag(TestTag).fetchSemanticsNode("can't find node $TestTag")
-        assertEquals(2, root.replacedChildrenSortedByBounds.size)
-        assertEquals(
-            child2,
-            root.replacedChildrenSortedByBounds[0].config.getOrNull(SemanticsProperties.TestTag)
-        )
-        assertEquals(
-            child1,
-            root.replacedChildrenSortedByBounds[1].config.getOrNull(SemanticsProperties.TestTag)
-        )
+        rule
+            .onNodeWithTag(TestTag)
+            .assertContentDescriptionEquals("hello world")
+            .assertTestPropertyEquals("bar")
     }
 
     @Test
-    fun testChildrenSortedByBounds_vertical_offset_overlapped() {
-        val child1 = "child1"
-        val child2 = "child2"
+    fun testBoundInParent() {
         rule.setContent {
-            Box(
-                Modifier.testTag(TestTag)
-            ) {
-                SimpleTestLayout(
+            with(LocalDensity.current) {
+                Box(
                     Modifier
-                        .requiredSize(50.dp)
-                        .offset(x = 0.dp, y = 20.dp)
-                        .semantics { testTag = child1 }
-                ) {}
-                SimpleTestLayout(
-                    Modifier.requiredSize(50.dp).semantics { testTag = child2 }
-                ) {}
-            }
-        }
-
-        val root = rule.onNodeWithTag(TestTag).fetchSemanticsNode("can't find node $TestTag")
-        assertEquals(2, root.replacedChildrenSortedByBounds.size)
-        assertEquals(
-            child2,
-            root.replacedChildrenSortedByBounds[0].config.getOrNull(SemanticsProperties.TestTag)
-        )
-        assertEquals(
-            child1,
-            root.replacedChildrenSortedByBounds[1].config.getOrNull(SemanticsProperties.TestTag)
-        )
-    }
-
-    @Test
-    fun testChildrenSortedByBounds_horizontal_offset_overlapped() {
-        val child1 = "child1"
-        val child2 = "child2"
-        rule.setContent {
-            Box(
-                Modifier.testTag(TestTag)
-            ) {
-                SimpleTestLayout(
-                    Modifier
-                        .requiredSize(50.dp)
-                        .offset(x = 20.dp, y = 0.dp)
-                        .semantics { testTag = child1 }
-                ) {}
-                SimpleTestLayout(
-                    Modifier
-                        .requiredSize(50.dp)
-                        .offset(x = 0.dp, y = 20.dp)
-                        .semantics { testTag = child2 }
-                ) {}
-            }
-        }
-
-        val root = rule.onNodeWithTag(TestTag).fetchSemanticsNode("can't find node $TestTag")
-        assertEquals(2, root.replacedChildrenSortedByBounds.size)
-        assertEquals(
-            child2,
-            root.replacedChildrenSortedByBounds[0].config.getOrNull(SemanticsProperties.TestTag)
-        )
-        assertEquals(
-            child1,
-            root.replacedChildrenSortedByBounds[1].config.getOrNull(SemanticsProperties.TestTag)
-        )
-    }
-
-    @Test
-    fun testChildrenSortedByBounds_vertical_offset_overlapped_withPadding() {
-        val child1 = "child1"
-        val child2 = "child2"
-        rule.setContent {
-            Box(
-                Modifier.testTag(TestTag)
-            ) {
-                SimpleTestLayout(
-                    Modifier
-                        .requiredSize(100.dp)
-                        .offset(x = 25.dp, y = 20.dp)
-                        .semantics { testTag = child1 }
-                ) {}
-                SimpleTestLayout(
-                    Modifier
-                        .requiredSize(100.dp)
-                        .padding(25.dp)
-                        .semantics { testTag = child2 }
-                ) {}
-            }
-        }
-
-        val root = rule.onNodeWithTag(TestTag).fetchSemanticsNode("can't find node $TestTag")
-        assertEquals(2, root.replacedChildrenSortedByBounds.size)
-        assertEquals(
-            child1,
-            root.replacedChildrenSortedByBounds[0].config.getOrNull(SemanticsProperties.TestTag)
-        )
-        assertEquals(
-            child2,
-            root.replacedChildrenSortedByBounds[1].config.getOrNull(SemanticsProperties.TestTag)
-        )
-    }
-
-    @Test
-    fun testChildrenSortedByBounds_horizontal_offset_overlapped_withPadding() {
-        val child1 = "child1"
-        val child2 = "child2"
-        rule.setContent {
-            Box(
-                Modifier.testTag(TestTag)
-            ) {
-                SimpleTestLayout(
-                    Modifier
-                        .requiredSize(100.dp)
-                        .offset(x = 20.dp, y = 25.dp)
-                        .semantics { testTag = child1 }
-                ) {}
-                SimpleTestLayout(
-                    Modifier
-                        .requiredSize(100.dp)
-                        .padding(25.dp)
-                        .semantics { testTag = child2 }
-                ) {}
-            }
-        }
-
-        val root = rule.onNodeWithTag(TestTag).fetchSemanticsNode("can't find node $TestTag")
-        assertEquals(2, root.replacedChildrenSortedByBounds.size)
-        assertEquals(
-            child1,
-            root.replacedChildrenSortedByBounds[0].config.getOrNull(SemanticsProperties.TestTag)
-        )
-        assertEquals(
-            child2,
-            root.replacedChildrenSortedByBounds[1].config.getOrNull(SemanticsProperties.TestTag)
-        )
-    }
-
-    @Test
-    fun testChildrenSortedByBounds_sameOffset_differentSize() {
-        val child1 = "child1"
-        val child2 = "child2"
-        rule.setContent {
-            Box(
-                Modifier.testTag(TestTag)
-            ) {
-                SimpleTestLayout(
-                    Modifier
-                        .requiredSize(100.dp)
-                        .offset(x = 50.dp, y = 0.dp)
-                        .semantics { testTag = child1 }
-                ) {}
-                SimpleTestLayout(
-                    Modifier.requiredSize(50.dp)
-                    .offset(x = 50.dp, y = 0.dp)
-                    .semantics { testTag = child2 }
-                ) {}
-            }
-        }
-
-        // Size should not be a factor.  z-order or placement order should break the tie instead.
-        val root = rule.onNodeWithTag(TestTag).fetchSemanticsNode("can't find node $TestTag")
-        assertEquals(2, root.replacedChildrenSortedByBounds.size)
-        assertEquals(
-            child2,
-            root.replacedChildrenSortedByBounds[0].config.getOrNull(SemanticsProperties.TestTag)
-        )
-        assertEquals(
-            child1,
-            root.replacedChildrenSortedByBounds[1].config.getOrNull(SemanticsProperties.TestTag)
-        )
-    }
-
-    @Test
-    fun testChildrenSortedByBounds_vertical_subcompose() {
-        val child1 = "child1"
-        val child2 = "child2"
-        val density = Density(1f)
-        val size = with(density) { 100.dp.roundToPx() }.toFloat()
-        rule.setContent {
-            CompositionLocalProvider(LocalDensity provides density) {
-                SimpleSubcomposeLayout(
-                    Modifier.testTag(TestTag),
-                    {
-                        SimpleTestLayout(
-                            Modifier
-                                .requiredSize(100.dp)
-                                .semantics { testTag = child1 }
-                        ) {}
-                    },
-                    Offset(0f, size),
-                    {
-                        SimpleTestLayout(
-                            Modifier
-                                .requiredSize(100.dp)
-                                .semantics { testTag = child2 }
-                        ) {}
-                    },
-                    Offset(0f, 0f)
-                )
-            }
-        }
-
-        val root = rule.onNodeWithTag(TestTag).fetchSemanticsNode("can't find node $TestTag")
-        assertEquals(2, root.replacedChildrenSortedByBounds.size)
-        assertEquals(
-            child2,
-            root.replacedChildrenSortedByBounds[0].config.getOrNull(SemanticsProperties.TestTag)
-        )
-        assertEquals(
-            child1,
-            root.replacedChildrenSortedByBounds[1].config.getOrNull(SemanticsProperties.TestTag)
-        )
-    }
-
-    @Test
-    fun testChildrenSortedByBounds_horizontal_subcompose() {
-        val child1 = "child1"
-        val child2 = "child2"
-        val density = Density(1f)
-        val size = with(density) { 100.dp.roundToPx() }.toFloat()
-        rule.setContent {
-            CompositionLocalProvider(LocalDensity provides density) {
-                SimpleSubcomposeLayout(
-                    Modifier.testTag(TestTag),
-                    {
-                        SimpleTestLayout(
-                            Modifier
-                                .requiredSize(100.dp)
-                                .semantics { testTag = child1 }
-                        ) {}
-                    },
-                    Offset(size, 0f),
-                    {
-                        SimpleTestLayout(
-                            Modifier
-                                .requiredSize(100.dp)
-                                .semantics { testTag = child2 }
-                        ) {}
-                    },
-                    Offset(0f, 0f)
-                )
-            }
-        }
-
-        val root = rule.onNodeWithTag(TestTag).fetchSemanticsNode("can't find node $TestTag")
-        assertEquals(2, root.replacedChildrenSortedByBounds.size)
-        assertEquals(
-            child2,
-            root.replacedChildrenSortedByBounds[0].config.getOrNull(SemanticsProperties.TestTag)
-        )
-        assertEquals(
-            child1,
-            root.replacedChildrenSortedByBounds[1].config.getOrNull(SemanticsProperties.TestTag)
-        )
-    }
-
-    @Test
-    fun testChildrenSortedByBounds_rtl() {
-        val child1 = "child1"
-        val child2 = "child2"
-        val child3 = "child3"
-        val rtlChild1 = "rtlChild1"
-        val rtlChild2 = "rtlChild2"
-        val rtlChild3 = "rtlChild3"
-        rule.setContent {
-            Column(Modifier.testTag(TestTag)) {
-                Row {
-                    SimpleTestLayout(
+                        .size(100.toDp())
+                        .padding(10.toDp(), 20.toDp())
+                        .semantics {}
+                ) {
+                    Box(
                         Modifier
-                            .requiredSize(100.dp)
-                            .semantics { testTag = child1 }
-                    ) {}
-                    SimpleTestLayout(
-                        Modifier
-                            .requiredSize(100.dp)
-                            .semantics { testTag = child2 }
-                    ) {}
-                    SimpleTestLayout(
-                        Modifier
-                            .requiredSize(100.dp)
-                            .semantics { testTag = child3 }
-                    ) {}
-                }
-                CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
-                    // Will display rtlChild3 rtlChild2 rtlChild1
-                    Row {
-                        SimpleTestLayout(
-                            Modifier
-                                .requiredSize(100.dp)
-                                .semantics { testTag = rtlChild1 }
-                        ) {}
-                        SimpleTestLayout(
-                            Modifier
-                                .requiredSize(100.dp)
-                                .semantics { testTag = rtlChild2 }
-                        ) {}
-                        SimpleTestLayout(
-                            Modifier
-                                .requiredSize(100.dp)
-                                .semantics { testTag = rtlChild3 }
-                        ) {}
+                            .size(10.toDp())
+                            .offset(20.toDp(), 30.toDp())
+                    ) {
+                        Box(Modifier
+                            .size(1.toDp())
+                            .testTag(TestTag)) {}
                     }
                 }
             }
         }
 
-        val root = rule.onNodeWithTag(TestTag).fetchSemanticsNode("can't find node $TestTag")
-        assertEquals(6, root.replacedChildrenSortedByBounds.size)
+        rule.waitForIdle()
 
-        // Ltr
+        val bounds = rule.onNodeWithTag(TestTag, true).fetchSemanticsNode().boundsInParent
         assertEquals(
-            child1,
-            root.replacedChildrenSortedByBounds[0].config.getOrNull(SemanticsProperties.TestTag)
+            Rect(20.0f, 30.0f, 21.0f, 31.0f),
+            bounds
         )
-        assertEquals(
-            child2,
-            root.replacedChildrenSortedByBounds[1].config.getOrNull(SemanticsProperties.TestTag)
-        )
-        assertEquals(
-            child3,
-            root.replacedChildrenSortedByBounds[2].config.getOrNull(SemanticsProperties.TestTag)
-        )
+    }
 
-        // Rtl
+    @Test
+    fun testBoundInParent_boundInRootWhenNoParent() {
+        rule.setContent {
+            with(LocalDensity.current) {
+                Box(
+                    Modifier
+                        .size(100.toDp())
+                        .padding(10.toDp(), 20.toDp())
+                ) {
+                    Box(
+                        Modifier
+                            .size(10.toDp())
+                            .offset(20.toDp(), 30.toDp())
+                    ) {
+                        Box(Modifier
+                            .size(1.toDp())
+                            .testTag(TestTag)) {}
+                    }
+                }
+            }
+        }
+
+        rule.waitForIdle()
+
+        val bounds = rule.onNodeWithTag(TestTag, true).fetchSemanticsNode().boundsInParent
         assertEquals(
-            rtlChild1,
-            root.replacedChildrenSortedByBounds[3].config.getOrNull(SemanticsProperties.TestTag)
+            Rect(30.0f, 50.0f, 31.0f, 51.0f),
+            bounds
         )
+    }
+
+    @Test
+    fun testRegenerateSemanticsId() {
+        var reuseKey by mutableStateOf(0)
+        rule.setContent {
+            ReusableContent(reuseKey) {
+                Box(
+                    Modifier.testTag(TestTag)
+                )
+            }
+        }
+        val oldId = rule.onNodeWithTag(TestTag).fetchSemanticsNode().id
+        rule.runOnIdle {
+            reuseKey = 1
+        }
+        val newId = rule.onNodeWithTag(TestTag).fetchSemanticsNode().id
+
+        assertNotEquals(oldId, newId)
+    }
+
+    @Test
+    fun testSetTextSubstitution_annotatedString() {
+        rule.setContent {
+            Surface {
+                Text(
+                    AnnotatedString("hello"),
+                    Modifier
+                        .testTag(TestTag)
+                )
+            }
+        }
+
+        val config = rule.onNodeWithTag(TestTag, true).fetchSemanticsNode().config
+        rule.runOnUiThread {
+            config.getOrNull(SemanticsActions.SetTextSubstitution)?.action?.invoke(
+                AnnotatedString("bonjour"))
+        }
+
+        rule.waitForIdle()
+
+        var newConfig = rule.onNodeWithTag(TestTag, true).fetchSemanticsNode().config
+        // SetTextSubstitution doesn't trigger text update
+        assertThat(newConfig.getOrNull(SemanticsProperties.Text))
+            .containsExactly(AnnotatedString("hello"))
+
+        rule.runOnUiThread {
+            config.getOrNull(SemanticsActions.ShowTextSubstitution)?.action?.invoke(true)
+        }
+
+        rule.waitForIdle()
+
+        newConfig = rule.onNodeWithTag(TestTag, true).fetchSemanticsNode().config
+        // ShowTextSubstitution triggers text update
+        assertThat(newConfig.getOrNull(SemanticsProperties.Text))
+            .containsExactly(AnnotatedString("bonjour"))
         assertEquals(
-            rtlChild2,
-            root.replacedChildrenSortedByBounds[4].config.getOrNull(SemanticsProperties.TestTag)
-        )
+            AnnotatedString("hello"), newConfig.getOrNull(SemanticsProperties.OriginalText))
+    }
+
+    @Test
+    fun testSetTextSubstitution_simpleString() {
+        rule.setContent {
+            Surface {
+                Text(
+                    "hello",
+                    Modifier
+                        .testTag(TestTag)
+                )
+            }
+        }
+
+        val config = rule.onNodeWithTag(TestTag, true).fetchSemanticsNode().config
+        rule.runOnUiThread {
+            config.getOrNull(SemanticsActions.SetTextSubstitution)?.action?.invoke(
+                AnnotatedString("bonjour"))
+        }
+
+        rule.waitForIdle()
+
+        var newConfig = rule.onNodeWithTag(TestTag, true).fetchSemanticsNode().config
+        // SetTextSubstitution doesn't trigger text update
+        assertThat(newConfig.getOrNull(SemanticsProperties.Text))
+            .containsExactly(AnnotatedString("hello"))
+
+        rule.runOnUiThread {
+            config.getOrNull(SemanticsActions.ShowTextSubstitution)?.action?.invoke(true)
+        }
+
+        rule.waitForIdle()
+
+        newConfig = rule.onNodeWithTag(TestTag, true).fetchSemanticsNode().config
+        // ShowTextSubstitution triggers text update
+        assertThat(newConfig.getOrNull(SemanticsProperties.Text))
+            .containsExactly(AnnotatedString("bonjour"))
         assertEquals(
-            rtlChild3,
-            root.replacedChildrenSortedByBounds[5].config.getOrNull(SemanticsProperties.TestTag)
-        )
+            AnnotatedString("hello"), newConfig.getOrNull(SemanticsProperties.OriginalText))
     }
 }
 
@@ -1297,9 +1154,9 @@ private fun SemanticsNodeInteraction.assertDoesNotHaveProperty(property: Semanti
 private val TestProperty = SemanticsPropertyKey<String>("TestProperty") { parent, child ->
     if (parent == null) child else "$parent, $child"
 }
-private var SemanticsPropertyReceiver.testProperty by TestProperty
+internal var SemanticsPropertyReceiver.testProperty by TestProperty
 
-private fun SemanticsNodeInteraction.assertTestPropertyEquals(value: String) = assert(
+internal fun SemanticsNodeInteraction.assertTestPropertyEquals(value: String) = assert(
     SemanticsMatcher.expectValue(TestProperty, value)
 )
 
@@ -1396,3 +1253,23 @@ private fun SimpleSubcomposeLayout(
 }
 
 private enum class TestSlot { First, Second }
+
+internal fun SemanticsMod(
+    mergeDescendants: Boolean = false,
+    properties: SemanticsPropertyReceiver.() -> Unit
+): CoreSemanticsModifierNode {
+    return CoreSemanticsModifierNode(
+        mergeDescendants = mergeDescendants,
+        isClearingSemantics = false,
+        properties = properties,
+    )
+}
+
+internal fun Modifier.elementFor(node: Modifier.Node): Modifier {
+    return this then NodeElement(node)
+}
+
+internal data class NodeElement(val node: Modifier.Node) : ModifierNodeElement<Modifier.Node>() {
+    override fun create(): Modifier.Node = node
+    override fun update(node: Modifier.Node) {}
+}

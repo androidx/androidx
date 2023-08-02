@@ -18,10 +18,10 @@ package androidx.car.app.navigation.model;
 
 import static java.util.Objects.requireNonNull;
 
-import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.annotations.CarProtocol;
+import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.utils.CollectionUtils;
 
 import java.util.ArrayList;
@@ -36,8 +36,8 @@ import java.util.Objects;
  * and indicates which directions the driver could take to stay on the navigation route.
  */
 @CarProtocol
+@KeepFields
 public final class Lane {
-    @Keep
     private final List<LaneDirection> mDirections;
 
     /**

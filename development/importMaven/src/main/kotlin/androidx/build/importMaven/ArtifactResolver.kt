@@ -18,6 +18,7 @@ package androidx.build.importMaven
 
 import androidx.build.importMaven.ArtifactResolver.resolveArtifacts
 import androidx.build.importMaven.KmpConfig.SUPPORTED_KONAN_TARGETS
+import java.net.URI
 import org.apache.logging.log4j.kotlin.logger
 import org.gradle.api.Named
 import org.gradle.api.Project
@@ -35,13 +36,12 @@ import org.gradle.api.attributes.Usage
 import org.gradle.api.attributes.java.TargetJvmEnvironment
 import org.gradle.api.attributes.java.TargetJvmVersion
 import org.gradle.api.attributes.plugin.GradlePluginApiVersion
-import org.gradle.api.internal.artifacts.verification.DependencyVerificationException
+import org.gradle.api.internal.artifacts.verification.exceptions.DependencyVerificationException
 import org.gradle.util.GradleVersion
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinUsages
 import org.jetbrains.kotlin.konan.target.KonanTarget
-import java.net.URI
 
 /**
  * Provides functionality to resolve and download artifacts.
@@ -55,6 +55,8 @@ internal object ArtifactResolver {
         "https://maven.pkg.jetbrains.space/kotlin/p/kotlin/dev",
         "https://maven.pkg.jetbrains.space/public/p/compose/dev"
     )
+
+    internal val gradlePluginPortalRepo = "https://plugins.gradle.org/m2/"
 
     internal fun createAndroidXRepo(
         buildId: Int
@@ -90,7 +92,7 @@ internal object ArtifactResolver {
         localRepositories: List<String> = emptyList(),
         explicitlyFetchInheritedDependencies: Boolean = false,
         downloadObserver: DownloadObserver?,
-    ): List<ResolvedArtifactResult> {
+    ): ArtifactsResolutionResult {
         return SingleUseArtifactResolver(
             project = ProjectService.createProject(),
             artifacts = artifacts,
@@ -113,7 +115,7 @@ internal object ArtifactResolver {
         private val downloadObserver: DownloadObserver?,
     ) {
         private val logger = logger("ArtifactResolver")
-        fun resolveArtifacts(): List<ResolvedArtifactResult> {
+        fun resolveArtifacts(): ArtifactsResolutionResult {
             logger.info {
                 """--------------------------------------------------------------------------------
 Resolving artifacts:
@@ -135,6 +137,7 @@ ${
                 logger.trace {
                     "Initialized proxy servers"
                 }
+                var dependenciesPassedVerification = true
 
                 project.dependencies.apply {
                     components.all(CustomMetadataRules::class.java)
@@ -151,10 +154,13 @@ ${
                         project.dependencies.create(it)
                     }
                     val resolvedArtifacts = createConfigurationsAndResolve(dependencies)
-                    allResolvedArtifacts.addAll(resolvedArtifacts)
+                    if (!resolvedArtifacts.dependenciesPassedVerification) {
+                        dependenciesPassedVerification = false
+                    }
+                    allResolvedArtifacts.addAll(resolvedArtifacts.artifacts)
                     completedComponentIds.addAll(pendingComponentIds)
                     pendingComponentIds.clear()
-                    val newComponentIds = resolvedArtifacts.mapNotNull {
+                    val newComponentIds = resolvedArtifacts.artifacts.mapNotNull {
                         (it.id.componentIdentifier as? ModuleComponentIdentifier)?.toString()
                     }.filter {
                         !completedComponentIds.contains(it) && pendingComponentIds.add(it)
@@ -164,15 +170,20 @@ ${
                     }
                     pendingComponentIds.addAll(newComponentIds)
                 } while (explicitlyFetchInheritedDependencies && pendingComponentIds.isNotEmpty())
-                allResolvedArtifacts.toList()
+                ArtifactsResolutionResult(
+                    allResolvedArtifacts.toList(),
+                    dependenciesPassedVerification
+                )
             }.also { result ->
+                val artifacts = result.artifacts
                 logger.trace {
-                    "Resolved files: ${result.size}"
+                    "Resolved files: ${artifacts.size}"
                 }
-                check(result.isNotEmpty()) {
-                    "Didn't resolve any artifacts from $artifacts"
+                check(artifacts.isNotEmpty()) {
+                    "Didn't resolve any artifacts from $artifacts. Try --verbose for more " +
+                      "information"
                 }
-                result.forEach { artifact ->
+                artifacts.forEach { artifact ->
                     logger.trace {
                         artifact.id.toString()
                     }
@@ -185,7 +196,7 @@ ${
          */
         private fun createConfigurationsAndResolve(
             dependencies: List<Dependency>
-        ): List<ResolvedArtifactResult> {
+        ): ArtifactsResolutionResult {
             val configurations = dependencies.flatMap { dep ->
                 buildList {
                     addAll(createApiConfigurations(dep))
@@ -194,9 +205,16 @@ ${
                     addAll(createKmpConfigurations(dep))
                 }
             }
-            return configurations.flatMap { configuration ->
+            val resolutionList = configurations.map { configuration ->
                 resolveArtifacts(configuration, disableVerificationOnFailure = true)
             }
+            val artifacts = resolutionList.flatMap { resolution ->
+                resolution.artifacts
+            }
+            val dependenciesPassedVerification = resolutionList.map { resolution ->
+                resolution.dependenciesPassedVerification
+            }.all { it == true }
+            return ArtifactsResolutionResult(artifacts, dependenciesPassedVerification)
         }
 
         /**
@@ -209,13 +227,14 @@ ${
         private fun resolveArtifacts(
             configuration: Configuration,
             disableVerificationOnFailure: Boolean
-        ): Set<ResolvedArtifactResult> {
+        ): ArtifactsResolutionResult {
             return try {
-                configuration.incoming.artifactView {
+                val artifacts = configuration.incoming.artifactView {
                     // We need to be lenient because we are requesting files that might not exist.
                     // For example source.jar or .asc.
                     it.lenient(true)
-                }.artifacts.artifacts ?: emptySet()
+                }.artifacts.artifacts.toList()
+                ArtifactsResolutionResult(artifacts.toList(), dependenciesPassedVerification = true)
             } catch (verificationException: DependencyVerificationException) {
                 if (disableVerificationOnFailure) {
                     val copy = configuration.copyRecursive().also {
@@ -227,7 +246,11 @@ Failed key verification for public servers, will retry without verification.
 ${verificationException.message?.prependIndent("    ")}
                         """
                     }
-                    resolveArtifacts(copy, disableVerificationOnFailure = false)
+                    val artifacts = resolveArtifacts(copy, disableVerificationOnFailure = false)
+                    return ArtifactsResolutionResult(
+                        artifacts.artifacts,
+                        dependenciesPassedVerification = false
+                    )
                 } else {
                     throw verificationException
                 }
@@ -245,6 +268,7 @@ ${verificationException.message?.prependIndent("    ")}
             val repoUrls = additionalPriorityRepositories + listOf(
                 RepositoryHandler.GOOGLE_URL,
                 RepositoryHandler.MAVEN_CENTRAL_URL,
+                gradlePluginPortalRepo
             )
             return MavenRepositoryProxy.startAll(
                 repositoryUrls = repoUrls,

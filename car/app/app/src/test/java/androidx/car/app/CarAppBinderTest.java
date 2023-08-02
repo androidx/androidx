@@ -60,7 +60,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.InOrder;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 import org.robolectric.RobolectricTestRunner;
@@ -96,7 +95,6 @@ public class CarAppBinderTest {
 
     @Before
     public void setUp() {
-        MockitoAnnotations.initMocks(this);
         mCarAppService = new TestCarAppService();
 
         AppInfo appInfo = new AppInfo(CarAppApiLevels.getOldest(), CarAppApiLevels.getLatest(),
@@ -364,7 +362,7 @@ public class CarAppBinderTest {
         verify(mLifecycleObserver).onDestroy(any());
 
         assertThat(currentSession.getCarContext().getCarService(
-                ScreenManager.class).getScreenStack()).isEmpty();
+                ScreenManager.class).getScreenStackInternal()).isEmpty();
         assertThat(mCarAppBinder.getCurrentSession()).isNull();
 
         String hostPackageName = "com.google.projection.gearhead";
@@ -375,7 +373,7 @@ public class CarAppBinderTest {
 
         currentSession = mCarAppBinder.getCurrentSession();
         assertThat(currentSession.getCarContext().getCarService(
-                ScreenManager.class).getScreenStack()).hasSize(1);
+                ScreenManager.class).getScreenStackInternal()).hasSize(1);
     }
 
     @Test
@@ -383,7 +381,7 @@ public class CarAppBinderTest {
         mCarAppBinder.onAppCreate(mMockCarHost, null, new Configuration(), mMockOnDoneCallback);
 
         Deque<Screen> screenStack = mCarAppBinder.getCurrentSession().getCarContext().getCarService(
-                ScreenManager.class).getScreenStack();
+                ScreenManager.class).getScreenStackInternal();
         assertThat(screenStack).hasSize(1);
 
         Screen screen = screenStack.getFirst();

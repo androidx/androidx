@@ -36,7 +36,6 @@ import java.util.List;
 /**
  * Wire format for {@link androidx.wear.watchface.style.UserStyleSetting}.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @VersionedParcelize
@@ -62,15 +61,11 @@ public class UserStyleSettingWireFormat implements VersionedParcelable, Parcelab
     @Nullable
     public Icon mIcon = null;
 
-    /**
-     * The default option index, used if nothing has been selected within the options list.
-     */
+    /** The default option index, used if nothing has been selected within the options list. */
     @ParcelField(5)
     public int mDefaultOptionIndex;
 
-    /**
-     * Used by the style configuration UI. Describes which rendering layers this style affects.
-     */
+    /** Used by the style configuration UI. Describes which rendering layers this style affects. */
     @ParcelField(6)
     @NonNull
     public List<Integer> mAffectsLayers;
@@ -80,7 +75,7 @@ public class UserStyleSettingWireFormat implements VersionedParcelable, Parcelab
      * may be an exhaustive list, or just examples to populate a ListView in case the
      * UserStyleCategory isn't supported by the UI (e.g. a new WatchFace with an old Companion).
      *
-     * OptionWireFormat can't change because VersionedParcelable has a design flaw, if the format
+     * <p>OptionWireFormat can't change because VersionedParcelable has a design flaw, if the format
      * changes the reader can't determine the correct size of the list and data afterwards
      * (including elements of this list) will get corrupted.
      */
@@ -96,9 +91,7 @@ public class UserStyleSettingWireFormat implements VersionedParcelable, Parcelab
     @ParcelField(101)
     public List<Integer> mOptionChildIndices = null;
 
-    /**
-     * Contains OnWatchFaceData.
-     */
+    /** Contains OnWatchFaceData. */
     @Nullable
     @ParcelField(102)
     public Bundle mOnWatchFaceEditorBundle = null;
@@ -111,9 +104,13 @@ public class UserStyleSettingWireFormat implements VersionedParcelable, Parcelab
     @ParcelField(103)
     public List<Bundle> mPerOptionOnWatchFaceEditorBundles = new ArrayList<>();
 
+    // Field 104 is reserved.
+
     UserStyleSettingWireFormat() {}
 
-    /** @deprecated use a constructor with List<Bundle> perOptionOnWatchFaceEditorBundles. */
+    /**
+     * @deprecated use a constructor with List<Bundle> perOptionOnWatchFaceEditorBundles.
+     */
     @Deprecated
     public UserStyleSettingWireFormat(
             @NonNull String id,

@@ -28,8 +28,7 @@ dependencies {
 
 androidx {
     name = "Remote Callback Compiler"
-    type = LibraryType.COMPILER_PLUGIN
-    mavenGroup = LibraryGroups.REMOTECALLBACK
+    type = LibraryType.ANNOTATION_PROCESSOR
     inceptionYear = "2018"
     description = "Compiler for RemoteCallback implementations"
     failOnDeprecationWarnings = false

@@ -17,42 +17,37 @@
 package androidx.glance.appwidget.demos
 
 import android.content.Context
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
-import androidx.glance.action.ActionParameters
-import androidx.glance.action.actionParametersOf
 import androidx.glance.appwidget.CheckBox
-import androidx.glance.appwidget.CheckBoxColors
+import androidx.glance.appwidget.CheckboxDefaults
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
 import androidx.glance.appwidget.RadioButton
-import androidx.glance.appwidget.RadioButtonColors
+import androidx.glance.appwidget.RadioButtonDefaults
 import androidx.glance.appwidget.SizeMode
 import androidx.glance.appwidget.Switch
-import androidx.glance.appwidget.SwitchColors
-import androidx.glance.appwidget.selectableGroup
-import androidx.glance.appwidget.action.ActionCallback
-import androidx.glance.appwidget.action.ToggleableStateKey
-import androidx.glance.appwidget.action.actionRunCallback
+import androidx.glance.appwidget.SwitchDefaults
 import androidx.glance.appwidget.appWidgetBackground
 import androidx.glance.appwidget.cornerRadius
-import androidx.glance.appwidget.state.updateAppWidgetState
-import androidx.glance.appwidget.unit.ColorProvider
+import androidx.glance.appwidget.provideContent
+import androidx.glance.appwidget.selectableGroup
 import androidx.glance.background
-import androidx.glance.currentState
+import androidx.glance.color.ColorProvider
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.Column
 import androidx.glance.layout.Row
 import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.fillMaxWidth
-import androidx.glance.layout.padding
 import androidx.glance.layout.height
+import androidx.glance.layout.padding
 import androidx.glance.text.FontStyle
 import androidx.glance.text.FontWeight
 import androidx.glance.text.TextStyle
@@ -61,18 +56,10 @@ class CompoundButtonAppWidget : GlanceAppWidget() {
 
     override val sizeMode: SizeMode = SizeMode.Exact
 
-    enum class Buttons {
-        CHECK_1, CHECK_2, CHECK_3, SWITCH_1, SWITCH_2, RADIO_1, RADIO_2, RADIO_3;
-        val prefsKey = booleanPreferencesKey(name)
-    }
-
-    enum class Radios {
-        RADIO_1, RADIO_2, RADIO_3;
-        val prefsKey = booleanPreferencesKey(name)
-    }
-
-    @Composable
-    override fun Content() {
+    override suspend fun provideGlance(
+        context: Context,
+        id: GlanceId,
+    ) = provideContent {
         Column(
             modifier = GlanceModifier.fillMaxSize().background(Color.LightGray)
                 .padding(R.dimen.external_padding).cornerRadius(R.dimen.corner_radius)
@@ -88,52 +75,40 @@ class CompoundButtonAppWidget : GlanceAppWidget() {
             )
             val fillModifier = GlanceModifier.fillMaxWidth()
 
-            val prefs = currentState<Preferences>()
-            val checkbox1Checked = prefs[Buttons.CHECK_1.prefsKey] ?: false
-            val checkbox2Checked = prefs[Buttons.CHECK_2.prefsKey] ?: false
-            val checkbox3Checked = prefs[Buttons.CHECK_3.prefsKey] ?: false
-            val switch1Checked = prefs[Buttons.SWITCH_1.prefsKey] ?: false
-            val switch2Checked = prefs[Buttons.SWITCH_2.prefsKey] ?: false
-            val radio1Checked = prefs[Buttons.RADIO_1.prefsKey] ?: false
-            val radio2Checked = prefs[Buttons.RADIO_2.prefsKey] ?: false
-            val radio3Checked = prefs[Buttons.RADIO_3.prefsKey] ?: false
+            var checkbox1Checked by remember { mutableStateOf(false) }
+            var checkbox2Checked by remember { mutableStateOf(false) }
+            var checkbox3Checked by remember { mutableStateOf(false) }
+            var switch1Checked by remember { mutableStateOf(false) }
+            var switch2Checked by remember { mutableStateOf(false) }
+            var radioChecked by remember { mutableStateOf(0) }
 
             CheckBox(
                 checked = checkbox1Checked,
-                onCheckedChange = actionRunCallback<ToggleAction>(
-                    actionParametersOf(EventTargetKey to Buttons.CHECK_1.name)
-                ),
+                onCheckedChange = { checkbox1Checked = !checkbox1Checked },
                 text = "Checkbox 1",
                 modifier = GlanceModifier.height(56.dp).padding(bottom = 24.dp),
             )
             CheckBox(
                 checked = checkbox2Checked,
-                onCheckedChange = actionRunCallback<ToggleAction>(
-                    actionParametersOf(EventTargetKey to Buttons.CHECK_2.name)
-                ),
+                onCheckedChange = { checkbox2Checked = !checkbox2Checked },
                 text = "Checkbox 2",
                 style = textStyle,
                 modifier = fillModifier,
-                colors = CheckBoxColors(
+                colors = CheckboxDefaults.colors(
                     checkedColor = ColorProvider(day = Color.Red, night = Color.Cyan),
                     uncheckedColor = ColorProvider(day = Color.Green, night = Color.Magenta)
                 )
             )
             CheckBox(
                 checked = checkbox3Checked,
-                onCheckedChange = actionRunCallback<ToggleAction>(
-                    actionParametersOf(EventTargetKey to Buttons.CHECK_3.name)
-                ),
+                onCheckedChange = { checkbox3Checked = !checkbox2Checked },
                 text = "Checkbox 3",
-                colors = CheckBoxColors(R.color.my_checkbox_colors)
             )
             Switch(
                 checked = switch1Checked,
-                onCheckedChange = actionRunCallback<ToggleAction>(
-                    actionParametersOf(EventTargetKey to Buttons.SWITCH_1.name)
-                ),
+                onCheckedChange = { switch1Checked = !switch1Checked },
                 text = "Switch 1",
-                colors = SwitchColors(
+                colors = SwitchDefaults.colors(
                     checkedThumbColor = ColorProvider(day = Color.Red, night = Color.Cyan),
                     uncheckedThumbColor = ColorProvider(day = Color.Green, night = Color.Magenta),
                     checkedTrackColor = ColorProvider(day = Color.Blue, night = Color.Yellow),
@@ -142,101 +117,54 @@ class CompoundButtonAppWidget : GlanceAppWidget() {
             )
             Switch(
                 checked = switch2Checked,
-                onCheckedChange = actionRunCallback<ToggleAction>(
-                    actionParametersOf(EventTargetKey to Buttons.SWITCH_2.name)
-                ),
+                onCheckedChange = { switch2Checked = !switch2Checked },
                 text = "Switch 2",
                 style = textStyle,
                 modifier = fillModifier
             )
             Column(modifier = fillModifier.selectableGroup()) {
                 RadioButton(
-                    checked = radio1Checked,
-                    onClick = actionRunCallback<RadioAction>(
-                        actionParametersOf(EventTargetKey to Radios.RADIO_1.name)
-                    ),
+                    checked = radioChecked == 0,
+                    onClick = { radioChecked = 0 },
                     text = "Radio 1",
-                    colors = RadioButtonColors(
+                    colors = RadioButtonDefaults.colors(
                         checkedColor = ColorProvider(day = Color.Red, night = Color.Cyan),
                         uncheckedColor = ColorProvider(day = Color.Green, night = Color.Magenta)
                     ),
                 )
                 RadioButton(
-                    checked = radio2Checked,
-                    onClick = actionRunCallback<RadioAction>(
-                        actionParametersOf(EventTargetKey to Radios.RADIO_2.name)
-                    ),
+                    checked = radioChecked == 1,
+                    onClick = { radioChecked = 1 },
                     text = "Radio 2",
-                    colors = RadioButtonColors(
+                    colors = RadioButtonDefaults.colors(
                         checkedColor = ColorProvider(day = Color.Cyan, night = Color.Yellow),
                         uncheckedColor = ColorProvider(day = Color.Red, night = Color.Blue)
                     ),
                 )
                 RadioButton(
-                    checked = radio3Checked,
-                    onClick = actionRunCallback<RadioAction>(
-                        actionParametersOf(EventTargetKey to Radios.RADIO_3.name)
-                    ),
+                    checked = radioChecked == 2,
+                    onClick = { radioChecked = 2 },
                     text = "Radio 3",
                 )
             }
             Row(modifier = fillModifier.selectableGroup()) {
                 RadioButton(
-                    checked = radio1Checked,
+                    checked = radioChecked == 0,
                     onClick = null,
                     text = "Radio 1",
                 )
                 RadioButton(
-                    checked = radio2Checked,
+                    checked = radioChecked == 1,
                     onClick = null,
                     text = "Radio 2",
                 )
                 RadioButton(
-                    checked = radio3Checked,
+                    checked = radioChecked == 2,
                     onClick = null,
                     text = "Radio 3",
                 )
             }
         }
-    }
-}
-
-class ToggleAction : ActionCallback {
-    override suspend fun onAction(
-        context: Context,
-        glanceId: GlanceId,
-        parameters: ActionParameters,
-    ) {
-        val target = requireNotNull(parameters[EventTargetKey]) {
-            "Add event target to parameters in order to update the view state."
-        }.let { CompoundButtonAppWidget.Buttons.valueOf(it) }
-        val checked = requireNotNull(parameters[ToggleableStateKey]) {
-            "This action should only be called in response to toggleable events"
-        }
-
-        updateAppWidgetState(context, glanceId) { state ->
-            state[target.prefsKey] = checked
-        }
-        CompoundButtonAppWidget().update(context, glanceId)
-    }
-}
-
-private val EventTargetKey = ActionParameters.Key<String>("EventTarget")
-
-class RadioAction : ActionCallback {
-    override suspend fun onAction(
-        context: Context,
-        glanceId: GlanceId,
-        parameters: ActionParameters,
-    ) {
-        val target = requireNotNull(parameters[EventTargetKey]) {
-            "Add event target to parameters in order to update the view state."
-        }.let { CompoundButtonAppWidget.Radios.valueOf(it) }
-
-        updateAppWidgetState(context, glanceId) { state ->
-            CompoundButtonAppWidget.Radios.values().forEach { state[it.prefsKey] = it == target }
-        }
-        CompoundButtonAppWidget().update(context, glanceId)
     }
 }
 

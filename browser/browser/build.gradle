@@ -3,6 +3,7 @@ import androidx.build.Publish
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
+    id("androidx.stableaidl")
 }
 
 android {
@@ -12,13 +13,18 @@ android {
     buildFeatures {
         aidl = true
     }
+    buildTypes.all {
+        stableAidl {
+            version 1
+        }
+    }
     testOptions.unitTests.includeAndroidResources = true
     namespace "androidx.browser"
 }
 
 dependencies {
     api("androidx.core:core:1.1.0")
-    api("androidx.annotation:annotation:1.1.0")
+    api("androidx.annotation:annotation:1.2.0")
     api(libs.guavaListenableFuture)
 
     implementation("androidx.collection:collection:1.1.0")
@@ -31,7 +37,7 @@ dependencies {
     testImplementation(libs.testRunner)
     testImplementation(libs.junit)
     testImplementation(libs.robolectric)
-    testImplementation(libs.mockitoCore)
+    testImplementation(libs.mockitoCore4)
 
     androidTestImplementation("androidx.appcompat:appcompat:1.1.0")
     androidTestImplementation(libs.testExtJunit)
@@ -45,9 +51,8 @@ dependencies {
 }
 
 androidx {
-    name = "Android Support Custom Tabs"
+    name = "Browser"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.BROWSER
     inceptionYear = "2015"
-    description = "Android Support Custom Tabs"
+    description = "Provides support for embedding Custom Tabs in an app."
 }

@@ -22,7 +22,6 @@ import android.graphics.Color
 import android.graphics.Typeface
 import android.os.ParcelFileDescriptor
 import android.text.TextPaint
-import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
@@ -34,7 +33,6 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@OptIn(ExperimentalTextApi::class)
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class AndroidVariableFontTest {

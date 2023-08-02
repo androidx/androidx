@@ -19,6 +19,7 @@ package androidx.compose.ui.tooling
 import androidx.compose.material.Colors
 import androidx.compose.material.darkColors
 import androidx.compose.material.lightColors
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.tooling.preview.datasource.CollectionPreviewParameterProvider
 import androidx.compose.ui.tooling.preview.datasource.LoremIpsum
 import androidx.compose.ui.tooling.test.R
@@ -81,6 +82,38 @@ class PreviewParameterTest {
                 "androidx.compose.ui.tooling.ParameterProviderComposableKt",
                 "ColorsParameter",
                 parameterProvider = MyColorsProvider::class.java,
+                debugViewInfos = true
+            )
+        }
+    }
+
+    private class MyBooleanProvider : CollectionPreviewParameterProvider<Boolean>(
+        listOf(true, false)
+    )
+
+    @Test
+    fun checkBooleanProvider() {
+        activityTestRule.runOnUiThread {
+            composeViewAdapter.init(
+                "androidx.compose.ui.tooling.ParameterProviderComposableKt",
+                "BooleanParameter",
+                parameterProvider = MyBooleanProvider::class.java,
+                debugViewInfos = true
+            )
+        }
+    }
+
+    class MyCornerRadiusProvider : CollectionPreviewParameterProvider<CornerRadius>(
+        listOf(CornerRadius.Zero, CornerRadius(5f))
+    )
+
+    @Test
+    fun checkKotlinValueClasses() {
+        activityTestRule.runOnUiThread {
+            composeViewAdapter.init(
+                "androidx.compose.ui.tooling.ParameterProviderComposableKt",
+                "CornerRadiusParameter",
+                parameterProvider = MyCornerRadiusProvider::class.java,
                 debugViewInfos = true
             )
         }

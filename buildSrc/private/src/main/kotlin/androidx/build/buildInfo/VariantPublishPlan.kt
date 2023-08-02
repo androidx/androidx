@@ -17,18 +17,20 @@
 package androidx.build.buildInfo
 
 import org.gradle.api.artifacts.Dependency
+import org.gradle.api.artifacts.DependencyConstraint
 import org.gradle.api.provider.Provider
 
 /**
  * Info about a particular variant that will be published
  *
  * @param artifactId the maven artifact id
- * @param taskSuffix if non-null, will be added to the end of task names to disambiguate
- *                   (i.e. createLibraryBuildInfoFiles becomes createLibraryBuildInfoFilesJvm)
+ * @param taskSuffix if non-null, will be added to the end of task names to disambiguate (i.e.
+ *   createLibraryBuildInfoFiles becomes createLibraryBuildInfoFilesJvm)
  * @param dependencies provider that will return the dependencies of this variant when/if needed
  */
 data class VariantPublishPlan(
     val artifactId: String,
     val taskSuffix: String = "",
-    val dependencies: Provider<List<Dependency>>
+    val dependencies: Provider<List<Dependency>>,
+    val dependencyConstraints: Provider<List<DependencyConstraint>>
 )

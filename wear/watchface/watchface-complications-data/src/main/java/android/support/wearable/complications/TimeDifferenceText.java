@@ -37,7 +37,6 @@ import java.util.concurrent.TimeUnit;
  *
  * <p>Time differences greater than {@link Integer#MAX_VALUE} days are not supported.
  *
- * @hide
  * @see ComplicationText.TimeDifferenceBuilder
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -51,13 +50,11 @@ public final class TimeDifferenceText implements TimeDependentText {
     private final long mReferencePeriodStart;
     private final long mReferencePeriodEnd;
 
-    @ComplicationText.TimeDifferenceStyle
-    private final int mStyle;
+    @ComplicationText.TimeDifferenceStyle private final int mStyle;
 
     private final boolean mShowNowText;
 
-    @Nullable
-    private final TimeUnit mMinimumUnit;
+    @Nullable private final TimeUnit mMinimumUnit;
 
     public TimeDifferenceText(
             long referencePeriodStart,
@@ -78,14 +75,16 @@ public final class TimeDifferenceText implements TimeDependentText {
         if (o == null || getClass() != o.getClass()) return false;
         TimeDifferenceText that = (TimeDifferenceText) o;
         return mReferencePeriodStart == that.mReferencePeriodStart
-                && mReferencePeriodEnd == that.mReferencePeriodEnd && mStyle == that.mStyle
-                && mShowNowText == that.mShowNowText && mMinimumUnit == that.mMinimumUnit;
+                && mReferencePeriodEnd == that.mReferencePeriodEnd
+                && mStyle == that.mStyle
+                && mShowNowText == that.mShowNowText
+                && mMinimumUnit == that.mMinimumUnit;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(mReferencePeriodStart, mReferencePeriodEnd, mStyle, mShowNowText,
-                mMinimumUnit);
+        return Objects.hash(
+                mReferencePeriodStart, mReferencePeriodEnd, mStyle, mShowNowText, mMinimumUnit);
     }
 
     @NonNull
@@ -94,23 +93,28 @@ public final class TimeDifferenceText implements TimeDependentText {
         if (ComplicationData.shouldRedact()) {
             return "TimeDifferenceText{Redacted}";
         }
-        return "TimeDifferenceText{mReferencePeriodStart=" + mReferencePeriodStart
-                + ", mReferencePeriodEnd=" + mReferencePeriodEnd
-                + ", mStyle=" + mStyle  + ", mShowNowText=" + mShowNowText
-                + ", mMinimumUnit=" + mMinimumUnit + '}';
+        return "TimeDifferenceText{mReferencePeriodStart="
+                + mReferencePeriodStart
+                + ", mReferencePeriodEnd="
+                + mReferencePeriodEnd
+                + ", mStyle="
+                + mStyle
+                + ", mShowNowText="
+                + mShowNowText
+                + ", mMinimumUnit="
+                + mMinimumUnit
+                + '}';
     }
 
     private static class SerializedForm implements Serializable {
         long mReferencePeriodStart;
         long mReferencePeriodEnd;
 
-        @ComplicationText.TimeDifferenceStyle
-        int mStyle;
+        @ComplicationText.TimeDifferenceStyle int mStyle;
 
         boolean mShowNowText;
 
-        @Nullable
-        TimeUnit mMinimumUnit;
+        @Nullable TimeUnit mMinimumUnit;
 
         SerializedForm(
                 long referencePeriodStart,
@@ -126,14 +130,14 @@ public final class TimeDifferenceText implements TimeDependentText {
         }
 
         Object readResolve() {
-            return new TimeDifferenceText(mReferencePeriodStart, mReferencePeriodEnd, mStyle,
-                    mShowNowText, mMinimumUnit);
+            return new TimeDifferenceText(
+                    mReferencePeriodStart, mReferencePeriodEnd, mStyle, mShowNowText, mMinimumUnit);
         }
     }
 
     Object writeReplace() {
-        return new SerializedForm(mReferencePeriodStart, mReferencePeriodEnd, mStyle,
-                mShowNowText, mMinimumUnit);
+        return new SerializedForm(
+                mReferencePeriodStart, mReferencePeriodEnd, mStyle, mShowNowText, mMinimumUnit);
     }
 
     private void readObject(ObjectInputStream stream) throws InvalidObjectException {
@@ -179,9 +183,7 @@ public final class TimeDifferenceText implements TimeDependentText {
         return divRoundingUp(fromTime, precision) * precision + 1;
     }
 
-    /**
-     * Returns the time precision in milliseconds.
-     */
+    /** Returns the time precision in milliseconds. */
     public long getPrecision() {
         long defaultPrecision;
         switch (mStyle) {

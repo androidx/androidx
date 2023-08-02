@@ -34,7 +34,6 @@ dependencies {
 androidx {
     name = "RecyclerView Lint Checks"
     type = LibraryType.LINT
-    mavenGroup = LibraryGroups.RECYCLERVIEW
     inceptionYear = "2020"
     description = "RecyclerView Lint Checks"
 }

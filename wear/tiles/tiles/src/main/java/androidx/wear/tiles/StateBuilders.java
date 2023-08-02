@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 The Android Open Source Project
+ * Copyright 2021-2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,20 +17,29 @@
 package androidx.wear.tiles;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
-import androidx.wear.tiles.proto.StateProto;
+import androidx.wear.protolayout.expression.Fingerprint;
+import androidx.wear.protolayout.proto.StateProto;
 
-/** Builders for state of a tile. */
+/**
+ * Builders for state of a tile.
+ *
+ * @deprecated Use {@link androidx.wear.protolayout.StateBuilders} instead.
+ */
+@Deprecated
 public final class StateBuilders {
     private StateBuilders() {}
 
     /** {@link State} information. */
     public static final class State {
         private final StateProto.State mImpl;
+        @Nullable private final Fingerprint mFingerprint;
 
-        private State(StateProto.State impl) {
+        State(StateProto.State impl, @Nullable Fingerprint fingerprint) {
             this.mImpl = impl;
+            this.mFingerprint = fingerprint;
         }
 
         /** Gets the ID of the clickable that was last clicked. */
@@ -39,14 +48,19 @@ public final class StateBuilders {
             return mImpl.getLastClickableId();
         }
 
-        /** @hide */
+        /** Get the fingerprint for this object, or null if unknown. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Nullable
+        public Fingerprint getFingerprint() {
+            return mFingerprint;
+        }
+
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public static State fromProto(@NonNull StateProto.State proto) {
-            return new State(proto);
+            return new State(proto, null);
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public StateProto.State toProto() {
@@ -56,13 +70,14 @@ public final class StateBuilders {
         /** Builder for {@link State} */
         public static final class Builder {
             private final StateProto.State.Builder mImpl = StateProto.State.newBuilder();
+            private final Fingerprint mFingerprint = new Fingerprint(616326811);
 
             public Builder() {}
 
             /** Builds an instance from accumulated values. */
             @NonNull
             public State build() {
-                return State.fromProto(mImpl.build());
+                return new State(mImpl.build(), mFingerprint);
             }
         }
     }

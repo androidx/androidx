@@ -3,6 +3,7 @@ package androidx.health.services.client.impl.event
 import android.os.Parcelable
 import androidx.health.services.client.data.ProtoParcelable
 import androidx.health.services.client.impl.response.AvailabilityResponse
+import androidx.health.services.client.impl.response.ExerciseEventResponse
 import androidx.health.services.client.impl.response.ExerciseLapSummaryResponse
 import androidx.health.services.client.impl.response.ExerciseUpdateResponse
 import androidx.health.services.client.proto.EventsProto.ExerciseUpdateListenerEvent as ListenerProto
@@ -39,6 +40,14 @@ internal class ExerciseUpdateListenerEvent(override val proto: ListenerProto) :
         ): ExerciseUpdateListenerEvent =
             ExerciseUpdateListenerEvent(
                 ListenerProto.newBuilder().setAvailabilityResponse(availability.proto).build()
+            )
+
+        @JvmStatic
+        public fun createExerciseEventUpdateEvent(
+            exerciseEvent: ExerciseEventResponse
+        ): ExerciseUpdateListenerEvent =
+            ExerciseUpdateListenerEvent(
+                ListenerProto.newBuilder().setExerciseEventResponse(exerciseEvent.proto).build()
             )
     }
 }

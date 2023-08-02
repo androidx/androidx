@@ -16,50 +16,89 @@
 
 package androidx.compose.ui.node
 
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.areObjectsOfSameType
+import androidx.compose.ui.platform.InspectableValue
+import androidx.compose.ui.platform.InspectorInfo
+import androidx.compose.ui.platform.ValueElement
+import androidx.compose.ui.tryPopulateReflectively
 
-@ExperimentalComposeUiApi
-abstract class ModifierNodeElement<N : Modifier.Node>(
-    // it is important to have this `params` here so that they will get included
-    // in equals() and hashCode() calculations. Having it as a single object of a
-    // generic object allows us to have anonymous objects implement ManagedModifier
-    // while still having a reasonable equals implementation.
-    internal val params: Any? = null
-) : Modifier.Element {
+/**
+ * A [Modifier.Element] which manages an instance of a particular [Modifier.Node] implementation. A
+ * given [Modifier.Node] implementation can only be used when a [ModifierNodeElement] which creates
+ * and updates that implementation is applied to a Layout.
+ *
+ * A [ModifierNodeElement] should be very lightweight, and do little more than hold the information
+ * necessary to create and maintain an instance of the associated [Modifier.Node] type.
+ *
+ * @sample androidx.compose.ui.samples.ModifierNodeElementSample
+ * @sample androidx.compose.ui.samples.SemanticsModifierNodeSample
+ *
+ * @see Modifier.Node
+ * @see Modifier.Element
+ */
+abstract class ModifierNodeElement<N : Modifier.Node> : Modifier.Element, InspectableValue {
+
+    private var _inspectorValues: InspectorInfo? = null
+    private val inspectorValues: InspectorInfo
+        get() = _inspectorValues ?: InspectorInfo()
+            .apply {
+                name = this@ModifierNodeElement::class.simpleName
+                inspectableProperties()
+            }
+            .also { _inspectorValues = it }
+
+    final override val nameFallback: String?
+        get() = inspectorValues.name
+
+    final override val valueOverride: Any?
+        get() = inspectorValues.value
+
+    final override val inspectableElements: Sequence<ValueElement>
+        get() = inspectorValues.properties
+
+    /**
+     * This will be called the first time the modifier is applied to the Layout and it should
+     * construct and return the corresponding [Modifier.Node] instance.
+     */
     abstract fun create(): N
-    abstract fun update(node: N): N
 
-    override fun hashCode(): Int {
-        return params.hashCode()
+    /**
+     * Called when a modifier is applied to a Layout whose inputs have changed from the previous
+     * application. This function will have the current node instance passed in as a parameter, and
+     * it is expected that the node will be brought up to date.
+     */
+    abstract fun update(node: N)
+
+    /**
+     * Populates an [InspectorInfo] object with attributes to display in the layout inspector. This
+     * is called by tooling to resolve the properties of this modifier. By convention, implementors
+     * should set the [name][InspectorInfo.name] to the function name of the modifier.
+     *
+     * The default implementation will attempt to reflectively populate the inspector info with the
+     * properties declared on the subclass. It will also set the [name][InspectorInfo.name] property
+     * to the name of this instance's class by default (not the name of the modifier function).
+     * Modifier property population depends on the kotlin-reflect library. If it is not in the
+     * classpath at runtime, the default implementation of this function will populate the
+     * properties with an error message.
+     *
+     * If you override this function and provide the properties you wish to display, you do not need
+     * to call `super`. Doing so may result in duplicate properties appearing in the layout
+     * inspector.
+     */
+    open fun InspectorInfo.inspectableProperties() {
+        tryPopulateReflectively(this@ModifierNodeElement)
     }
 
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is ModifierNodeElement<*>) return false
-        if (!areObjectsOfSameType(this, other)) return false
-        return params == other.params
-    }
-}
+    /**
+     * Require hashCode() to be implemented. Using a data class is sufficient. Singletons and
+     * modifiers with no parameters may implement this function by returning an arbitrary constant.
+     */
+    abstract override fun hashCode(): Int
 
-// TODO(lmr): make sure this produces reasonable bytecode.
-@Suppress("MissingNullability", "ModifierFactoryExtensionFunction")
-@ExperimentalComposeUiApi
-inline fun <reified T : Modifier.Node> modifierElementOf(
-    params: Any?,
-    crossinline create: () -> T,
-    crossinline update: (T) -> Unit
-): Modifier = object : ModifierNodeElement<T>(params) {
-    override fun create(): T = create()
-    override fun update(node: T): T = node.also(update)
-}
-
-@Suppress("MissingNullability", "ModifierFactoryExtensionFunction")
-@ExperimentalComposeUiApi
-inline fun <reified T : Modifier.Node> modifierElementOf(
-    crossinline create: () -> T,
-): Modifier = object : ModifierNodeElement<T>(null) {
-    override fun create(): T = create()
-    override fun update(node: T): T = node
+    /**
+     * Require equals() to be implemented. Using a data class is sufficient. Singletons may
+     * implement this function with referential equality (`this === other`). Modifiers with no
+     * inputs may implement this function by checking the type of the other object.
+     */
+    abstract override fun equals(other: Any?): Boolean
 }

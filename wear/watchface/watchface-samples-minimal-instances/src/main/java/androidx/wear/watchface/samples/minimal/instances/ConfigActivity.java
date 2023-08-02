@@ -20,13 +20,12 @@ import static androidx.wear.watchface.style.UserStyleSetting.ListUserStyleSettin
 import static androidx.wear.watchface.style.UserStyleSetting.ListUserStyleSetting.ListOption;
 
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.util.Log;
 import android.widget.TextView;
 
 import androidx.activity.ComponentActivity;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.wear.watchface.editor.ListenableEditorSession;
 import androidx.wear.watchface.style.MutableUserStyle;
 import androidx.wear.watchface.style.UserStyleSetting;
@@ -35,50 +34,24 @@ import androidx.wear.widget.CurvedTextView;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.Objects;
-import java.util.concurrent.Executor;
-
-import kotlin.OptIn;
+import java.util.concurrent.ExecutionException;
 
 /** Configuration activity for the watch face. */
 public class ConfigActivity extends ComponentActivity {
 
     private static final String TAG = "ConfigActivity";
 
-    private final Executor mMainExecutor = new Executor() {
-        private final Handler mHandler = new Handler(Looper.getMainLooper());
-
-        @Override
-        public void execute(Runnable runnable) {
-            mHandler.post(runnable);
-        }
-    };
-
     private CurvedTextView mInstanceId;
     private TextView mStyleValue;
     private final UserStyleSetting.Id mTimeStyleId = new UserStyleSetting.Id("TimeStyle");
 
-    @Nullable
-    private ListenableEditorSession mEditorSession;
-
-    public ConfigActivity() {
-        addCallback(
-                ListenableEditorSession.listenableCreateOnWatchEditorSession(this),
-                new BaseFutureCallback<ListenableEditorSession>(
-                        this, TAG, "listenableCreateOnWatchEditingSession") {
-                    @Override
-                    public void onSuccess(ListenableEditorSession editorSession) {
-                        super.onSuccess(editorSession);
-                        mEditorSession = editorSession;
-                        updateInstanceId();
-                        updateStyleValue();
-                    }
-                });
-    }
+    @Nullable private ListenableEditorSession mEditorSession;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.config_activity_layout);
+        listenForEditorSession();
 
         mInstanceId = findViewById(R.id.instance_id);
         mStyleValue = findViewById(R.id.style_value);
@@ -98,6 +71,28 @@ public class ConfigActivity extends ComponentActivity {
         super.onDestroy();
     }
 
+    private void listenForEditorSession() {
+        ListenableFuture<ListenableEditorSession> editorSessionFuture =
+                ListenableEditorSession.listenableCreateOnWatchEditorSession(this);
+        editorSessionFuture.addListener(
+                () -> {
+                    ListenableEditorSession editorSession;
+                    try {
+                        editorSession = editorSessionFuture.get();
+                    } catch (ExecutionException | InterruptedException e) {
+                        e.printStackTrace();
+                        return;
+                    }
+                    if (editorSession == null) {
+                        return;
+                    }
+                    mEditorSession = editorSession;
+                    updateInstanceId();
+                    updateStyleValue();
+                },
+                ContextCompat.getMainExecutor(this));
+    }
+
     private void changeStyle() {
         Log.d(TAG, "changeStyle");
         if (mEditorSession == null) {
@@ -106,11 +101,9 @@ public class ConfigActivity extends ComponentActivity {
 
         MutableUserStyle userStyle = mEditorSession.getUserStyle().getValue().toMutableUserStyle();
         ListOption currentOption = (ListOption) userStyle.get(mTimeStyleId);
-        @OptIn(markerClass = androidx.wear.watchface.style.ExperimentalHierarchicalStyle.class)
         ListUserStyleSetting listUserStyleSetting =
-                (ListUserStyleSetting) mEditorSession.getUserStyleSchema()
-                        .getRootUserStyleSettings()
-                        .get(0);
+                (ListUserStyleSetting)
+                        mEditorSession.getUserStyleSchema().getRootUserStyleSettings().get(0);
 
         // Choose the first option in the list of options that isn't currentOption. We only expect
         // two options here, so this will flip flop between them.
@@ -135,12 +128,7 @@ public class ConfigActivity extends ComponentActivity {
         if (mEditorSession == null) {
             return;
         }
-        ListOption option =
-                (ListOption) mEditorSession.getUserStyle().getValue().get(mTimeStyleId);
+        ListOption option = (ListOption) mEditorSession.getUserStyle().getValue().get(mTimeStyleId);
         mStyleValue.setText(option.getDisplayName());
-    }
-
-    private <T> void addCallback(ListenableFuture<T> future, FutureCallback<T> callback) {
-        FutureCallback.addCallback(future, callback, mMainExecutor);
     }
 }

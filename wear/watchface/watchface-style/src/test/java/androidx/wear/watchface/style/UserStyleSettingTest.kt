@@ -16,22 +16,25 @@
 
 package androidx.wear.watchface.style
 
+import android.annotation.SuppressLint
 import android.graphics.Bitmap
 import android.graphics.RectF
 import android.graphics.drawable.Icon
 import androidx.wear.watchface.complications.data.ComplicationType
 import androidx.wear.watchface.style.UserStyleSetting.BooleanUserStyleSetting.BooleanOption
+import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotOverlay
 import androidx.wear.watchface.style.UserStyleSetting.DoubleRangeUserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.DoubleRangeUserStyleSetting.DoubleRangeOption
+import androidx.wear.watchface.style.UserStyleSetting.ListUserStyleSetting.ListOption
 import androidx.wear.watchface.style.UserStyleSetting.LongRangeUserStyleSetting.LongRangeOption
 import androidx.wear.watchface.style.UserStyleSetting.Option
 import androidx.wear.watchface.style.data.ComplicationOverlayWireFormat
 import com.google.common.truth.Truth.assertThat
+import java.nio.ByteBuffer
+import kotlin.test.assertFailsWith
 import org.junit.Assert.fail
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.nio.ByteBuffer
-import kotlin.test.assertFailsWith
 
 @RunWith(StyleTestRunner::class)
 public class UserStyleSettingTest {
@@ -63,28 +66,26 @@ public class UserStyleSettingTest {
             )
 
         assertThat(
-            (
-                rangedUserStyleSetting.getOptionForId(
-                    Option.Id("not a number".encodeToByteArray())
-                ) as DoubleRangeOption
-                ).value
-        ).isEqualTo(defaultValue)
+                (rangedUserStyleSetting.getOptionForId(
+                        Option.Id("not a number".encodeToByteArray())
+                    ) as DoubleRangeOption)
+                    .value
+            )
+            .isEqualTo(defaultValue)
 
         assertThat(
-            (
-                rangedUserStyleSetting.getOptionForId(
-                    Option.Id("-1".encodeToByteArray())
-                ) as DoubleRangeOption
-                ).value
-        ).isEqualTo(defaultValue)
+                (rangedUserStyleSetting.getOptionForId(Option.Id("-1".encodeToByteArray()))
+                        as DoubleRangeOption)
+                    .value
+            )
+            .isEqualTo(defaultValue)
 
         assertThat(
-            (
-                rangedUserStyleSetting.getOptionForId(
-                    Option.Id("10".encodeToByteArray())
-                ) as DoubleRangeOption
-                ).value
-        ).isEqualTo(defaultValue)
+                (rangedUserStyleSetting.getOptionForId(Option.Id("10".encodeToByteArray()))
+                        as DoubleRangeOption)
+                    .value
+            )
+            .isEqualTo(defaultValue)
     }
 
     @Test
@@ -111,22 +112,25 @@ public class UserStyleSettingTest {
             )
 
         assertThat(
-            byteArrayToDouble(
-                rangedUserStyleSetting.getOptionForId(doubleToOptionId(0.0)).id.value
+                byteArrayToDouble(
+                    rangedUserStyleSetting.getOptionForId(doubleToOptionId(0.0)).id.value
+                )
             )
-        ).isEqualTo(0.0)
+            .isEqualTo(0.0)
 
         assertThat(
-            byteArrayToDouble(
-                rangedUserStyleSetting.getOptionForId(doubleToOptionId(0.5)).id.value
+                byteArrayToDouble(
+                    rangedUserStyleSetting.getOptionForId(doubleToOptionId(0.5)).id.value
+                )
             )
-        ).isEqualTo(0.5)
+            .isEqualTo(0.5)
 
         assertThat(
-            byteArrayToDouble(
-                rangedUserStyleSetting.getOptionForId(doubleToOptionId(1.0)).id.value
+                byteArrayToDouble(
+                    rangedUserStyleSetting.getOptionForId(doubleToOptionId(1.0)).id.value
+                )
             )
-        ).isEqualTo(1.0)
+            .isEqualTo(1.0)
     }
 
     @Test
@@ -146,11 +150,64 @@ public class UserStyleSettingTest {
     @Test
     public fun maximumOptionIdLength() {
         // OK.
-        Option.Id("x".repeat(Option.Id.MAX_LENGTH))
+        ListOption(
+            Option.Id("x".repeat(Option.Id.MAX_LENGTH)),
+            displayName = "test",
+            screenReaderName = "test",
+            icon = null
+        )
 
         try {
             // Not OK.
-            Option.Id("x".repeat(Option.Id.MAX_LENGTH + 1))
+            ListOption(
+                Option.Id("x".repeat(Option.Id.MAX_LENGTH + 1)),
+                displayName = "test",
+                screenReaderName = "test",
+                icon = null
+            )
+            fail("Should have thrown an exception")
+        } catch (e: Exception) {
+            // Expected
+        }
+    }
+
+    @Test
+    public fun maximumCustomValueOptionSize() {
+        // OK.
+        UserStyleSetting.CustomValueUserStyleSetting.CustomValueOption(
+            ByteArray(Option.Id.MAX_LENGTH)
+        )
+
+        try {
+            // Not OK.
+            UserStyleSetting.CustomValueUserStyleSetting.CustomValueOption(
+                ByteArray(Option.Id.MAX_LENGTH + 1)
+            )
+            fail("Should have thrown an exception")
+        } catch (e: Exception) {
+            // Expected
+        }
+    }
+
+    @SuppressLint("NewApi")
+    @Test
+    public fun maximumCustomValueOption2Size() {
+        // OK.
+        UserStyleSetting.LargeCustomValueUserStyleSetting.CustomValueOption(
+            ByteArray(Option.Id.MAX_LENGTH + 1)
+        )
+
+        UserStyleSetting.LargeCustomValueUserStyleSetting.CustomValueOption(
+            ByteArray(UserStyleSetting.LargeCustomValueUserStyleSetting.CustomValueOption.MAX_SIZE)
+        )
+
+        try {
+            // Not OK.
+            UserStyleSetting.LargeCustomValueUserStyleSetting.CustomValueOption(
+                ByteArray(
+                    UserStyleSetting.LargeCustomValueUserStyleSetting.CustomValueOption.MAX_SIZE + 1
+                )
+            )
             fail("Should have thrown an exception")
         } catch (e: Exception) {
             // Expected
@@ -159,46 +216,50 @@ public class UserStyleSettingTest {
 
     @Test
     public fun equalsBasedOnId() {
-        val setting = DoubleRangeUserStyleSetting(
-            UserStyleSetting.Id("example_setting"),
-            "Example Ranged Setting",
-            "An example setting",
-            null,
-            0.0,
-            1.0,
-            listOf(WatchFaceLayer.BASE),
-            0.1
-        )
-        val settingCopy = DoubleRangeUserStyleSetting(
-            UserStyleSetting.Id("example_setting"),
-            "Example Ranged Setting",
-            "An example setting",
-            null,
-            0.0,
-            1.0,
-            listOf(WatchFaceLayer.BASE),
-            0.1
-        )
-        val settings1ModifiedInfo = DoubleRangeUserStyleSetting(
-            UserStyleSetting.Id("example_setting"),
-            "Example Ranged Setting (modified)",
-            "An example setting (modified)",
-            null,
-            0.0,
-            100.0,
-            listOf(WatchFaceLayer.BASE),
-            3.0
-        )
-        val settings1ModifiedId = DoubleRangeUserStyleSetting(
-            UserStyleSetting.Id("example_setting_modified"),
-            "Example Ranged Setting",
-            "An example setting",
-            null,
-            0.0,
-            1.0,
-            listOf(WatchFaceLayer.BASE),
-            0.1
-        )
+        val setting =
+            DoubleRangeUserStyleSetting(
+                UserStyleSetting.Id("example_setting"),
+                "Example Ranged Setting",
+                "An example setting",
+                null,
+                0.0,
+                1.0,
+                listOf(WatchFaceLayer.BASE),
+                0.1
+            )
+        val settingCopy =
+            DoubleRangeUserStyleSetting(
+                UserStyleSetting.Id("example_setting"),
+                "Example Ranged Setting",
+                "An example setting",
+                null,
+                0.0,
+                1.0,
+                listOf(WatchFaceLayer.BASE),
+                0.1
+            )
+        val settings1ModifiedInfo =
+            DoubleRangeUserStyleSetting(
+                UserStyleSetting.Id("example_setting"),
+                "Example Ranged Setting (modified)",
+                "An example setting (modified)",
+                null,
+                0.0,
+                100.0,
+                listOf(WatchFaceLayer.BASE),
+                3.0
+            )
+        val settings1ModifiedId =
+            DoubleRangeUserStyleSetting(
+                UserStyleSetting.Id("example_setting_modified"),
+                "Example Ranged Setting",
+                "An example setting",
+                null,
+                0.0,
+                1.0,
+                listOf(WatchFaceLayer.BASE),
+                0.1
+            )
         assertThat(setting).isEqualTo(setting)
         assertThat(setting).isEqualTo(settingCopy)
         assertThat(setting).isEqualTo(settings1ModifiedInfo)
@@ -207,46 +268,50 @@ public class UserStyleSettingTest {
 
     @Test
     public fun hashcodeBasedOnId() {
-        val setting = DoubleRangeUserStyleSetting(
-            UserStyleSetting.Id("example_setting"),
-            "Example Ranged Setting",
-            "An example setting",
-            null,
-            0.0,
-            1.0,
-            listOf(WatchFaceLayer.BASE),
-            0.1
-        )
-        val settingCopy = DoubleRangeUserStyleSetting(
-            UserStyleSetting.Id("example_setting"),
-            "Example Ranged Setting",
-            "An example setting",
-            null,
-            0.0,
-            1.0,
-            listOf(WatchFaceLayer.BASE),
-            0.1
-        )
-        val settings1ModifiedInfo = DoubleRangeUserStyleSetting(
-            UserStyleSetting.Id("example_setting"),
-            "Example Ranged Setting (modified)",
-            "An example setting (modified)",
-            null,
-            0.0,
-            100.0,
-            listOf(WatchFaceLayer.BASE),
-            3.0
-        )
-        val settings1ModifiedId = DoubleRangeUserStyleSetting(
-            UserStyleSetting.Id("example_setting_modified"),
-            "Example Ranged Setting",
-            "An example setting",
-            null,
-            0.0,
-            1.0,
-            listOf(WatchFaceLayer.BASE),
-            0.1
-        )
+        val setting =
+            DoubleRangeUserStyleSetting(
+                UserStyleSetting.Id("example_setting"),
+                "Example Ranged Setting",
+                "An example setting",
+                null,
+                0.0,
+                1.0,
+                listOf(WatchFaceLayer.BASE),
+                0.1
+            )
+        val settingCopy =
+            DoubleRangeUserStyleSetting(
+                UserStyleSetting.Id("example_setting"),
+                "Example Ranged Setting",
+                "An example setting",
+                null,
+                0.0,
+                1.0,
+                listOf(WatchFaceLayer.BASE),
+                0.1
+            )
+        val settings1ModifiedInfo =
+            DoubleRangeUserStyleSetting(
+                UserStyleSetting.Id("example_setting"),
+                "Example Ranged Setting (modified)",
+                "An example setting (modified)",
+                null,
+                0.0,
+                100.0,
+                listOf(WatchFaceLayer.BASE),
+                3.0
+            )
+        val settings1ModifiedId =
+            DoubleRangeUserStyleSetting(
+                UserStyleSetting.Id("example_setting_modified"),
+                "Example Ranged Setting",
+                "An example setting",
+                null,
+                0.0,
+                1.0,
+                listOf(WatchFaceLayer.BASE),
+                0.1
+            )
         assertThat(setting.hashCode()).isEqualTo(setting.hashCode())
         assertThat(setting.hashCode()).isEqualTo(settingCopy.hashCode())
         assertThat(setting.hashCode()).isEqualTo(settings1ModifiedInfo.hashCode())
@@ -254,6 +319,7 @@ public class UserStyleSettingTest {
     }
 
     @Test
+    @Suppress("Deprecation")
     public fun noDuplicatedComplicationSlotOptions() {
         val leftComplicationSlot =
             UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotOverlay(1)
@@ -267,25 +333,29 @@ public class UserStyleSettingTest {
                 icon = null,
                 listOf(
                     UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotsOption(
-                        UserStyleSetting.Option.Id("both"),
+                        Option.Id("both"),
+                        "left and right complications",
                         "left and right complications",
                         icon = null,
                         listOf(leftComplicationSlot, rightComplicationSlot),
                     ),
                     UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotsOption(
-                        UserStyleSetting.Option.Id("left"),
+                        Option.Id("left"),
+                        "left complication",
                         "left complication",
                         icon = null,
                         listOf(leftComplicationSlot),
                     ),
                     UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotsOption(
-                        UserStyleSetting.Option.Id("right"),
+                        Option.Id("right"),
+                        "right complication",
                         "right complication",
                         icon = null,
                         listOf(rightComplicationSlot),
                     ),
                     UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotsOption(
-                        UserStyleSetting.Option.Id("both"),
+                        Option.Id("both"),
+                        "right and left complications",
                         "right and left complications",
                         icon = null,
                         listOf(rightComplicationSlot, leftComplicationSlot),
@@ -308,20 +378,24 @@ public class UserStyleSettingTest {
                     UserStyleSetting.ListUserStyleSetting.ListOption(
                         UserStyleSetting.Option.Id("plain"),
                         "plain hands",
+                        "plain hands",
                         icon = null
                     ),
                     UserStyleSetting.ListUserStyleSetting.ListOption(
                         UserStyleSetting.Option.Id("florescent"),
+                        "florescent hands",
                         "florescent hands",
                         icon = null
                     ),
                     UserStyleSetting.ListUserStyleSetting.ListOption(
                         UserStyleSetting.Option.Id("thick"),
                         "thick hands",
+                        "thick hands",
                         icon = null
                     ),
                     UserStyleSetting.ListUserStyleSetting.ListOption(
                         UserStyleSetting.Option.Id("plain"),
+                        "simple hands",
                         "simple hands",
                         icon = null
                     )
@@ -333,18 +407,18 @@ public class UserStyleSettingTest {
 
     @Test
     public fun partial_ComplicationBounds_in_ComplicationOverlayWireFormat() {
-        val wireFormat = ComplicationOverlayWireFormat(
-            123,
-            true,
-            mapOf(
-                ComplicationType.SHORT_TEXT.toWireComplicationType() to
-                    RectF(0.1f, 0.2f, 0.3f, 0.4f),
-
-                ComplicationType.LONG_TEXT.toWireComplicationType() to
-                    RectF(0.5f, 0.6f, 0.7f, 0.8f)
-            ),
-            null
-        )
+        val wireFormat =
+            ComplicationOverlayWireFormat(
+                123,
+                true,
+                mapOf(
+                    ComplicationType.SHORT_TEXT.toWireComplicationType() to
+                        RectF(0.1f, 0.2f, 0.3f, 0.4f),
+                    ComplicationType.LONG_TEXT.toWireComplicationType() to
+                        RectF(0.5f, 0.6f, 0.7f, 0.8f)
+                ),
+                null
+            )
 
         val overlay =
             UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotOverlay(
@@ -378,5 +452,38 @@ public class UserStyleSettingTest {
                 assertThat(margins[type]).isEqualTo(RectF())
             }
         }
+    }
+
+    @Test
+    @Suppress("deprecation")
+    public fun complicationSlotsOptionWireFormatRoundTrip() {
+        val leftComplicationSlot =
+            ComplicationSlotOverlay(1, nameResourceId = null, screenReaderNameResourceId = null)
+        val rightComplicationSlot =
+            ComplicationSlotOverlay(2, nameResourceId = null, screenReaderNameResourceId = null)
+        val option =
+            UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotsOption(
+                Option.Id("both"),
+                "right and left complications",
+                "right and left complications",
+                icon = null,
+                listOf(rightComplicationSlot, leftComplicationSlot),
+            )
+
+        val optionAfterRoundTrip =
+            UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotsOption(
+                option.toWireFormat()
+            )
+
+        assertThat(option).isEqualTo(optionAfterRoundTrip)
+        assertThat(optionAfterRoundTrip.complicationSlotOverlays)
+            .containsExactly(
+                ComplicationSlotOverlay(
+                    1,
+                    nameResourceId = null,
+                    screenReaderNameResourceId = null
+                ),
+                ComplicationSlotOverlay(2, nameResourceId = null, screenReaderNameResourceId = null)
+            )
     }
 }

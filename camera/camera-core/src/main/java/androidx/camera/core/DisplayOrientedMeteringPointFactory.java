@@ -21,10 +21,8 @@ import android.view.Display;
 import android.view.View;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
-import androidx.camera.core.impl.CameraInfoInternal;
 
 /**
  * A {@link MeteringPointFactory} that can convert a {@link View} (x, y) into a
@@ -92,21 +90,9 @@ public final class DisplayOrientedMeteringPointFactory extends MeteringPointFact
         mCameraInfo = cameraInfo;
     }
 
-    @Nullable
-    private Integer getLensFacing() {
-        // This assumes CameraInfo is an instance of CameraInfoInternal which contains lens
-        // facing information. A Camera may not be simply of a single lens facing type so that is
-        // why it isn't exposed directly through CameraInfo.
-        if (mCameraInfo instanceof CameraInfoInternal) {
-            return ((CameraInfoInternal) mCameraInfo).getLensFacing();
-        }
-        return null;
-    }
-
     /**
      * {@inheritDoc}
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @NonNull
@@ -115,9 +101,8 @@ public final class DisplayOrientedMeteringPointFactory extends MeteringPointFact
         float width = mWidth;
         float height = mHeight;
 
-        final Integer lensFacing = getLensFacing();
-        boolean compensateForMirroring =
-                (lensFacing != null && lensFacing == CameraSelector.LENS_FACING_FRONT);
+        final int lensFacing = mCameraInfo.getLensFacing();
+        boolean compensateForMirroring = lensFacing == CameraSelector.LENS_FACING_FRONT;
         int relativeCameraOrientation = getRelativeCameraOrientation(compensateForMirroring);
         float outputX = x;
         float outputY = y;

@@ -22,6 +22,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.tv.foundation.ExperimentalTvFoundationApi
 import androidx.tv.foundation.PivotOffsets
 
 /* Copied from
@@ -73,6 +74,28 @@ sealed interface TvLazyListScope {
         key: ((index: Int) -> Any)? = null,
         contentType: (index: Int) -> Any? = { null },
         itemContent: @Composable TvLazyListItemScope.(index: Int) -> Unit
+    )
+
+    /**
+     * Adds a sticky header item, which will remain pinned even when scrolling after it.
+     * The header will remain pinned until the next header will take its place.
+     *
+     * @param key a stable and unique key representing the item. Using the same key
+     * for multiple items in the list is not allowed. Type of the key should be saveable
+     * via Bundle on Android. If null is passed the position in the list will represent the key.
+     * When you specify the key the scroll position will be maintained based on the key, which
+     * means if you add/remove items before the current visible item the item with the given key
+     * will be kept as the first visible one.
+     * @param contentType the type of the content of this item. The item compositions of the same
+     * type could be reused more efficiently. Note that null is a valid type and items of such
+     * type will be considered compatible.
+     * @param content the content of the header
+     */
+    @ExperimentalTvFoundationApi
+    fun stickyHeader(
+        key: Any? = null,
+        contentType: Any? = null,
+        content: @Composable TvLazyListItemScope.() -> Unit
     )
 }
 

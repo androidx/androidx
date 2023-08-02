@@ -29,16 +29,14 @@ import androidx.annotation.NonNull;
  * the original value of any parameter that you are modifying. After running your
  * tests with the modified parameters, make sure to also restore
  * the original parameter values, otherwise this will impact other tests cases.
- * @since API Level 18
  */
 public final class Configurator {
     private long mWaitForIdleTimeout = 10 * 1000;
     private long mWaitForSelector = 10 * 1000;
     private long mWaitForActionAcknowledgment = 3 * 1000;
 
-    // The events for a scroll typically complete even before touchUp occurs.
-    // This short timeout to make sure we get the very last in cases where the above isn't true.
-    private long mScrollEventWaitTimeout = 200; // ms
+    // Scroll timeout used only in InteractionController
+    private long mScrollEventWaitTimeout = 1_000; // ms
 
     // Default is inject as fast as we can
     private long mKeyInjectionDelay = 0; // ms
@@ -61,7 +59,6 @@ public final class Configurator {
      * Retrieves a singleton instance of Configurator.
      *
      * @return Configurator instance
-     * @since API Level 18
      */
     public static @NonNull Configurator getInstance() {
         if (sConfigurator == null) {
@@ -83,7 +80,6 @@ public final class Configurator {
      *
      * @param timeout Timeout value in milliseconds
      * @return self
-     * @since API Level 18
      */
     public @NonNull Configurator setWaitForIdleTimeout(long timeout) {
         mWaitForIdleTimeout = timeout;
@@ -102,7 +98,6 @@ public final class Configurator {
      * See {@link #setWaitForSelectorTimeout(long)}
      *
      * @return Current timeout value in milliseconds
-     * @since API Level 18
      */
     public long getWaitForIdleTimeout() {
         return mWaitForIdleTimeout;
@@ -119,7 +114,6 @@ public final class Configurator {
      *
      * @param timeout Timeout value in milliseconds.
      * @return self
-     * @since API Level 18
      */
     public @NonNull Configurator setWaitForSelectorTimeout(long timeout) {
         mWaitForSelector = timeout;
@@ -136,7 +130,6 @@ public final class Configurator {
      * the timeout elapses.
      *
      * @return Current timeout value in milliseconds
-     * @since API Level 18
      */
     public long getWaitForSelectorTimeout() {
         return mWaitForSelector;
@@ -153,7 +146,6 @@ public final class Configurator {
      *
      * @param timeout Timeout value in milliseconds
      * @return self
-     * @since API Level 18
      */
     public @NonNull Configurator setScrollAcknowledgmentTimeout(long timeout) {
         mScrollEventWaitTimeout = timeout;
@@ -170,7 +162,6 @@ public final class Configurator {
      * See {@link UiScrollable}
      *
      * @return current timeout in milliseconds
-     * @since API Level 18
      */
     public long getScrollAcknowledgmentTimeout() {
         return mScrollEventWaitTimeout;
@@ -187,7 +178,6 @@ public final class Configurator {
      *
      * @param timeout Timeout value in milliseconds
      * @return self
-     * @since API Level 18
      */
     public @NonNull Configurator setActionAcknowledgmentTimeout(long timeout) {
         mWaitForActionAcknowledgment = timeout;
@@ -204,7 +194,6 @@ public final class Configurator {
      * See {@link UiObject}
      *
      * @return current timeout in milliseconds
-     * @since API Level 18
      */
     public long getActionAcknowledgmentTimeout() {
         return mWaitForActionAcknowledgment;
@@ -216,7 +205,6 @@ public final class Configurator {
      *
      * @param delay Delay value in milliseconds
      * @return self
-     * @since API Level 18
      */
     public @NonNull Configurator setKeyInjectionDelay(long delay) {
         mKeyInjectionDelay = delay;
@@ -228,7 +216,6 @@ public final class Configurator {
      * See {@link UiObject#setText(String)}
      *
      * @return current delay in milliseconds
-     * @since API Level 18
      */
     public long getKeyInjectionDelay() {
         return mKeyInjectionDelay;
@@ -237,6 +224,11 @@ public final class Configurator {
     /**
      * Sets the current tool type to use for motion events.
      * @see MotionEvent#getToolType(int)
+     * @see MotionEvent#TOOL_TYPE_FINGER
+     * @see MotionEvent#TOOL_TYPE_STYLUS
+     * @see MotionEvent#TOOL_TYPE_MOUSE
+     * @see MotionEvent#TOOL_TYPE_ERASER
+     * @see MotionEvent#TOOL_TYPE_UNKNOWN
      */
     public @NonNull Configurator setToolType(final int toolType) {
         mToolType = toolType;
@@ -252,12 +244,12 @@ public final class Configurator {
     }
 
     /**
-     * Sets the flags to use when obtaining a {@link UiAutomation} instance.
+     * Sets the flags to use when obtaining a {@link android.app.UiAutomation} instance.
+     *
      * @param flags The UiAutomation flags to use.
      * @return A reference to this object.
-     *
-     * @see Instrumentation#getUiAutomation(int)
-     * @see UiAutomation#FLAG_DONT_SUPPRESS_ACCESSIBILITY_SERVICES
+     * @see android.app.Instrumentation#getUiAutomation(int)
+     * @see android.app.UiAutomation#FLAG_DONT_SUPPRESS_ACCESSIBILITY_SERVICES
      */
     public @NonNull Configurator setUiAutomationFlags(int flags) {
         mUiAutomationFlags = flags;
@@ -265,11 +257,11 @@ public final class Configurator {
     }
 
     /**
-     * Gets the current flags that are used to obtain a {@link UiAutomation} instance.
-     * @return The UiAutomation flags.
+     * Gets the current flags that are used to obtain a {@link android.app.UiAutomation} instance.
      *
-     * @see Instrumentation#getUiAutomation(int)
-     * @see UiAutomation#FLAG_DONT_SUPPRESS_ACCESSIBILITY_SERVICES
+     * @return The UiAutomation flags.
+     * @see android.app.Instrumentation#getUiAutomation(int)
+     * @see android.app.UiAutomation#FLAG_DONT_SUPPRESS_ACCESSIBILITY_SERVICES
      */
     public int getUiAutomationFlags() {
         return mUiAutomationFlags;

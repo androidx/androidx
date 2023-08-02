@@ -18,6 +18,7 @@ package androidx.camera.video.internal.config
 
 import android.media.MediaCodecInfo
 import android.util.Range
+import androidx.camera.core.impl.Timebase
 import androidx.camera.video.AudioSpec
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
@@ -34,26 +35,27 @@ class AudioEncoderConfigDefaultResolverTest {
     companion object {
         const val MIME_TYPE = "audio/mp4a-latm"
         const val ENCODER_PROFILE = MediaCodecInfo.CodecProfileLevel.AACObjectLC
+        val TIMEBASE = Timebase.UPTIME
     }
 
     private val defaultAudioSpec = AudioSpec.builder().build()
-    private val defaultAudioSourceSettings =
-        AudioSourceSettingsDefaultResolver(defaultAudioSpec).get()
+    private val defaultAudioSettings = AudioSettingsDefaultResolver(defaultAudioSpec).get()
 
     @Test
     fun defaultAudioSpecProducesValidSettings() {
         val resolvedAudioConfig = AudioEncoderConfigDefaultResolver(
             MIME_TYPE,
             ENCODER_PROFILE,
+            TIMEBASE,
             defaultAudioSpec,
-            defaultAudioSourceSettings
+            defaultAudioSettings
         ).get()
 
         assertThat(resolvedAudioConfig.mimeType).isEqualTo(MIME_TYPE)
         assertThat(resolvedAudioConfig.profile).isEqualTo(ENCODER_PROFILE)
         assertThat(resolvedAudioConfig.channelCount)
-            .isEqualTo(defaultAudioSourceSettings.channelCount)
-        assertThat(resolvedAudioConfig.sampleRate).isEqualTo(defaultAudioSourceSettings.sampleRate)
+            .isEqualTo(defaultAudioSettings.channelCount)
+        assertThat(resolvedAudioConfig.sampleRate).isEqualTo(defaultAudioSettings.sampleRate)
         assertThat(resolvedAudioConfig.bitrate).isGreaterThan(0)
     }
 
@@ -64,19 +66,21 @@ class AudioEncoderConfigDefaultResolverTest {
             AudioEncoderConfigDefaultResolver(
                 MIME_TYPE,
                 ENCODER_PROFILE,
+                TIMEBASE,
                 defaultAudioSpec,
-                defaultAudioSourceSettings
+                defaultAudioSettings
             ).get()
         val defaultChannelCount = defaultConfig.channelCount
 
-        val higherChannelCountSourceSettings =
-            defaultAudioSourceSettings.toBuilder().setChannelCount(defaultChannelCount * 2).build()
+        val higherChannelCountAudioSettings =
+            defaultAudioSettings.toBuilder().setChannelCount(defaultChannelCount * 2).build()
 
         val higherChannelCountConfig = AudioEncoderConfigDefaultResolver(
             MIME_TYPE,
             ENCODER_PROFILE,
+            TIMEBASE,
             defaultAudioSpec,
-            higherChannelCountSourceSettings
+            higherChannelCountAudioSettings
         ).get()
 
         assertThat(higherChannelCountConfig.bitrate).isGreaterThan(defaultConfig.bitrate)
@@ -89,19 +93,21 @@ class AudioEncoderConfigDefaultResolverTest {
             AudioEncoderConfigDefaultResolver(
                 MIME_TYPE,
                 ENCODER_PROFILE,
+                TIMEBASE,
                 defaultAudioSpec,
-                defaultAudioSourceSettings
+                defaultAudioSettings
             ).get()
         val defaultSampleRate = defaultConfig.sampleRate
 
-        val higherSampleRateSourceSettings =
-            defaultAudioSourceSettings.toBuilder().setSampleRate(defaultSampleRate * 2).build()
+        val higherSampleRateAudioSettings =
+            defaultAudioSettings.toBuilder().setSampleRate(defaultSampleRate * 2).build()
 
         val higherSampleRateConfig = AudioEncoderConfigDefaultResolver(
             MIME_TYPE,
             ENCODER_PROFILE,
+            TIMEBASE,
             defaultAudioSpec,
-            higherSampleRateSourceSettings
+            higherSampleRateAudioSettings
         ).get()
 
         assertThat(higherSampleRateConfig.bitrate).isGreaterThan(defaultConfig.bitrate)
@@ -113,8 +119,9 @@ class AudioEncoderConfigDefaultResolverTest {
             AudioEncoderConfigDefaultResolver(
                 MIME_TYPE,
                 ENCODER_PROFILE,
+                TIMEBASE,
                 defaultAudioSpec,
-                defaultAudioSourceSettings
+                defaultAudioSettings
             ).get()
         val defaultBitrate = defaultConfig.bitrate
 
@@ -131,8 +138,9 @@ class AudioEncoderConfigDefaultResolverTest {
             AudioEncoderConfigDefaultResolver(
                 MIME_TYPE,
                 ENCODER_PROFILE,
+                TIMEBASE,
                 higherAudioSpec,
-                defaultAudioSourceSettings
+                defaultAudioSettings
             ).get().bitrate
         ).isEqualTo(higherBitrate)
 
@@ -140,8 +148,9 @@ class AudioEncoderConfigDefaultResolverTest {
             AudioEncoderConfigDefaultResolver(
                 MIME_TYPE,
                 ENCODER_PROFILE,
+                TIMEBASE,
                 lowerAudioSpec,
-                defaultAudioSourceSettings
+                defaultAudioSettings
             ).get().bitrate
         ).isEqualTo(lowerBitrate)
     }

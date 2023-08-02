@@ -14,24 +14,21 @@
  * limitations under the License.
  */
 
-package androidx.room.androidx.room.integration.kotlintestapp.test
+package androidx.room.integration.kotlintestapp.test
 
+import androidx.kruth.assertThat
+import androidx.kruth.assertWithMessage
 import androidx.paging.Pager
 import androidx.paging.PagingState
 import androidx.paging.rxjava2.RxPagingSource
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import androidx.room.androidx.room.integration.kotlintestapp.testutil.ItemStore
-import androidx.room.androidx.room.integration.kotlintestapp.testutil.PagingDb
-import androidx.room.androidx.room.integration.kotlintestapp.testutil.PagingEntity
-import androidx.room.integration.kotlintestapp.test.CONFIG
-import androidx.room.integration.kotlintestapp.test.createExpected
-import androidx.room.integration.kotlintestapp.test.createItems
+import androidx.room.integration.kotlintestapp.testutil.ItemStore
+import androidx.room.integration.kotlintestapp.testutil.PagingDb
+import androidx.room.integration.kotlintestapp.testutil.PagingEntity
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
-import com.google.common.truth.Truth
-import com.google.common.truth.Truth.assertThat
 import io.reactivex.Single
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
@@ -97,18 +94,18 @@ class Rx2PagingSourceTest {
     @Test
     fun refresh_canceledCoroutine_disposesSingle() {
         val items = createItems(startId = 0, count = 90)
-        db.dao.insert(items)
+        db.getDao().insert(items)
 
         var isDisposed = false
         val pager = Pager(CONFIG) {
-            val baseSource = db.dao.loadItemsRx2()
+            val baseSource = db.getDao().loadItemsRx2()
             RxPagingSourceImpl(
                 baseSource = baseSource,
                 initialLoadSingle = { params ->
                     baseSource.loadSingle(params)
                         // delay load for refresh so we have time to cancel load
                         .doOnSubscribe { Thread.sleep(500) }
-                        .doOnSuccess { Truth.assertWithMessage("Should not succeed").fail() }
+                        .doOnSuccess { assertWithMessage("Should not succeed").fail() }
                         .doOnDispose { isDisposed = true }
                 },
                 nonInitialLoadSingle = { params -> baseSource.loadSingle(params) },
@@ -138,11 +135,11 @@ class Rx2PagingSourceTest {
     @Test
     fun append_canceledCoroutine_disposesSingle() {
         val items = createItems(startId = 0, count = 90)
-        db.dao.insert(items)
+        db.getDao().insert(items)
 
         var isDisposed = false
         val pager = Pager(CONFIG) {
-            val baseSource = db.dao.loadItemsRx2()
+            val baseSource = db.getDao().loadItemsRx2()
             RxPagingSourceImpl(
                 baseSource = baseSource,
                 initialLoadSingle = { params -> baseSource.loadSingle(params) },
@@ -150,7 +147,7 @@ class Rx2PagingSourceTest {
                     baseSource.loadSingle(params)
                         // delay load for append/prepend so we have time to cancel load
                         .doOnSubscribe { Thread.sleep(500) }
-                        .doOnSuccess { Truth.assertWithMessage("Should not succeed").fail() }
+                        .doOnSuccess { assertWithMessage("Should not succeed").fail() }
                         .doOnDispose { isDisposed = true }
                 },
             ).also { pagingSources.add(it) }
@@ -188,11 +185,11 @@ class Rx2PagingSourceTest {
     @Test
     fun prepend_canceledCoroutine_disposesSingle() {
         val items = createItems(startId = 0, count = 90)
-        db.dao.insert(items)
+        db.getDao().insert(items)
 
         var isDisposed = false
         val pager = Pager(config = CONFIG, initialKey = 50) {
-            val baseSource = db.dao.loadItemsRx2()
+            val baseSource = db.getDao().loadItemsRx2()
             RxPagingSourceImpl(
                 baseSource = baseSource,
                 initialLoadSingle = { params -> baseSource.loadSingle(params) },
@@ -200,7 +197,7 @@ class Rx2PagingSourceTest {
                     baseSource.loadSingle(params)
                         // delay load for append/prepend so we have time to cancel load
                         .doOnSubscribe { Thread.sleep(500) }
-                        .doOnSuccess { Truth.assertWithMessage("Should not succeed").fail() }
+                        .doOnSuccess { assertWithMessage("Should not succeed").fail() }
                         .doOnDispose { isDisposed = true }
                 },
             ).also { pagingSources.add(it) }
@@ -248,25 +245,27 @@ class Rx2PagingSourceTest {
             block(collection)
         }
     }
-}
 
-private class RxPagingSourceImpl(
-    private val baseSource: RxPagingSource<Int, PagingEntity>,
-    private val initialLoadSingle: (LoadParams<Int>) -> Single<LoadResult<Int, PagingEntity>>,
-    private val nonInitialLoadSingle: (LoadParams<Int>) -> Single<LoadResult<Int, PagingEntity>>,
-) : RxPagingSource<Int, PagingEntity>() {
+    private class RxPagingSourceImpl(
+        private val baseSource: RxPagingSource<Int, PagingEntity>,
+        private val initialLoadSingle:
+            (LoadParams<Int>) -> Single<LoadResult<Int, PagingEntity>>,
+        private val nonInitialLoadSingle:
+            (LoadParams<Int>) -> Single<LoadResult<Int, PagingEntity>>,
+    ) : RxPagingSource<Int, PagingEntity>() {
 
-    val singles = mutableListOf<Single<LoadResult<Int, PagingEntity>>>()
+        val singles = mutableListOf<Single<LoadResult<Int, PagingEntity>>>()
 
-    override fun getRefreshKey(state: PagingState<Int, PagingEntity>): Int? {
-        return baseSource.getRefreshKey(state)
-    }
+        override fun getRefreshKey(state: PagingState<Int, PagingEntity>): Int? {
+            return baseSource.getRefreshKey(state)
+        }
 
-    override fun loadSingle(params: LoadParams<Int>): Single<LoadResult<Int, PagingEntity>> {
-        return if (singles.isEmpty()) {
-            initialLoadSingle(params)
-        } else {
-            nonInitialLoadSingle(params)
-        }.also { singles.add(it) }
+        override fun loadSingle(params: LoadParams<Int>): Single<LoadResult<Int, PagingEntity>> {
+            return if (singles.isEmpty()) {
+                initialLoadSingle(params)
+            } else {
+                nonInitialLoadSingle(params)
+            }.also { singles.add(it) }
+        }
     }
 }

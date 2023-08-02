@@ -20,7 +20,8 @@ import android.media.MediaFormat;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
-import androidx.camera.core.impl.CamcorderProfileProxy;
+import androidx.camera.core.impl.EncoderProfilesProxy;
+import androidx.camera.core.impl.Timebase;
 
 /**
  * The configuration represents the required parameters to configure an encoder.
@@ -31,14 +32,14 @@ import androidx.camera.core.impl.CamcorderProfileProxy;
 public interface EncoderConfig {
 
     /** Constant corresponding to no profile for the encoder */
-    int CODEC_PROFILE_NONE = CamcorderProfileProxy.CODEC_PROFILE_NONE;
+    int CODEC_PROFILE_NONE = EncoderProfilesProxy.CODEC_PROFILE_NONE;
 
     /**
      * The mime type of the encoder.
      *
      * <p>For example, "video/avc" for a video encoder and "audio/mp4a-latm" for an audio encoder.
      *
-     * @see {@link MediaFormat}
+     * @see MediaFormat
      */
     @NonNull
     String getMimeType();
@@ -53,6 +54,12 @@ public interface EncoderConfig {
      * <p>Not all mime types require a profile, so this is optional.
      */
     int getProfile();
+
+    /**
+     * Gets the input timebase.
+     */
+    @NonNull
+    Timebase getInputTimebase();
 
     /**
      * Transfers the config to a {@link MediaFormat}.

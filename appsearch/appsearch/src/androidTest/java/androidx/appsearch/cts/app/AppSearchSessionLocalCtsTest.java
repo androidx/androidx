@@ -16,6 +16,8 @@
 // @exportToFramework:skipFile()
 package androidx.appsearch.cts.app;
 
+import static android.os.Build.VERSION.SDK_INT;
+
 import static androidx.appsearch.testutil.AppSearchTestUtils.checkIsBatchResultSuccess;
 import static androidx.appsearch.testutil.AppSearchTestUtils.convertSearchResultsToDocuments;
 import static androidx.appsearch.testutil.AppSearchTestUtils.doGet;
@@ -23,6 +25,7 @@ import static androidx.appsearch.testutil.AppSearchTestUtils.doGet;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.content.Context;
+import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.appsearch.app.AppSearchBatchResult;
@@ -39,14 +42,16 @@ import androidx.appsearch.app.SearchResults;
 import androidx.appsearch.app.SearchSpec;
 import androidx.appsearch.app.SetSchemaRequest;
 import androidx.appsearch.localstorage.LocalStorage;
-import androidx.appsearch.localstorage.stats.SchemaMigrationStats;
 import androidx.appsearch.localstorage.stats.SearchStats;
+import androidx.appsearch.localstorage.stats.SetSchemaStats;
+import androidx.appsearch.stats.SchemaMigrationStats;
 import androidx.appsearch.testutil.AppSearchEmail;
 import androidx.appsearch.testutil.SimpleTestLogger;
 import androidx.test.core.app.ApplicationProvider;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
+import org.junit.Assume;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -86,6 +91,8 @@ public class AppSearchSessionLocalCtsTest extends AppSearchSessionCtsTestBase {
                 Features.GLOBAL_SEARCH_SESSION_GET_BY_ID)).isTrue();
         assertThat(db2.getFeatures().isFeatureSupported(
                 Features.ADD_PERMISSIONS_AND_GET_VISIBILITY)).isTrue();
+        assertThat(db2.getFeatures().isFeatureSupported(
+                Features.SEARCH_SPEC_PROPERTY_WEIGHTS)).isTrue();
     }
 
     // TODO(b/194207451) This test can be moved to CtsTestBase if customized logger is
@@ -353,17 +360,16 @@ public class AppSearchSessionLocalCtsTest extends AppSearchSessionCtsTestBase {
         db2.setSchemaAsync(
                 new SetSchemaRequest.Builder().addSchemas(appSearchSchema).build()).get();
 
-        assertThat(logger.mSetSchemaStats).isNotNull();
-        assertThat(logger.mSetSchemaStats.getPackageName()).isEqualTo(context.getPackageName());
-        assertThat(logger.mSetSchemaStats.getDatabase()).isEqualTo(DB_NAME_2);
-        assertThat(logger.mSetSchemaStats.getSchemaMigrationStats()).isNull();
-        assertThat(logger.mSetSchemaStats.getNewTypeCount()).isEqualTo(1);
-        assertThat(logger.mSetSchemaStats.getDeletedTypeCount()).isEqualTo(0);
-        assertThat(logger.mSetSchemaStats.getIndexIncompatibleTypeChangeCount())
-                .isEqualTo(0);
-        assertThat(logger.mSetSchemaStats.getBackwardsIncompatibleTypeChangeCount())
-                .isEqualTo(0);
-        assertThat(logger.mSetSchemaStats.getCompatibleTypeChangeCount()).isEqualTo(0);
+        assertThat(logger.mSetSchemaStats).hasSize(1);
+        SetSchemaStats stats = logger.mSetSchemaStats.get(0);
+        assertThat(stats.getPackageName()).isEqualTo(context.getPackageName());
+        assertThat(stats.getDatabase()).isEqualTo(DB_NAME_2);
+        assertThat(stats.getNewTypeCount()).isEqualTo(1);
+        assertThat(stats.getDeletedTypeCount()).isEqualTo(0);
+        assertThat(stats.getIndexIncompatibleTypeChangeCount()).isEqualTo(0);
+        assertThat(stats.getBackwardsIncompatibleTypeChangeCount()).isEqualTo(0);
+        assertThat(stats.getCompatibleTypeChangeCount()).isEqualTo(0);
+        assertThat(stats.getSchemaMigrationCallType()).isEqualTo(SchemaMigrationStats.NO_MIGRATION);
     }
 
     // TODO(b/194207451) This test can be moved to CtsTestBase if customized logger is
@@ -397,7 +403,11 @@ public class AppSearchSessionLocalCtsTest extends AppSearchSessionCtsTestBase {
                         .setTokenizerType(AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
                         .build())
                 .build();
-        GenericDocument doc = new GenericDocument.Builder<>("namespace", "id", "testSchema")
+        GenericDocument doc1 = new GenericDocument.Builder<>("namespace", "id1", "testSchema")
+                .setPropertyString("subject", "testPut example")
+                .setPropertyString("To", "testTo example")
+                .build();
+        GenericDocument doc2 = new GenericDocument.Builder<>("namespace", "id2", "testSchema")
                 .setPropertyString("subject", "testPut example")
                 .setPropertyString("To", "testTo example")
                 .build();
@@ -412,6 +422,14 @@ public class AppSearchSessionLocalCtsTest extends AppSearchSessionCtsTestBase {
             @Override
             public GenericDocument onUpgrade(int currentVersion, int finalVersion,
                     @NonNull GenericDocument document) {
+                if (document.getId().equals("id2")) {
+                    return new GenericDocument.Builder<>(document.getNamespace(), document.getId(),
+                            document.getSchemaType())
+                            .setPropertyString("subject", "testPut example2")
+                            .setPropertyString("fail",
+                                    "Expect to fail, property not in the schema")
+                            .build();
+                }
                 return new GenericDocument.Builder<>(document.getNamespace(), document.getId(),
                         document.getSchemaType())
                         .setPropertyString("subject", "testPut example migrated")
@@ -430,23 +448,57 @@ public class AppSearchSessionLocalCtsTest extends AppSearchSessionCtsTestBase {
         db2.setSchemaAsync(new SetSchemaRequest.Builder().addSchemas(
                 schema).setForceOverride(true).build()).get();
         checkIsBatchResultSuccess(db2.putAsync(
-                new PutDocumentsRequest.Builder().addGenericDocuments(doc).build()));
+                new PutDocumentsRequest.Builder().addGenericDocuments(doc1, doc2).build()));
         db2.setSchemaAsync(new SetSchemaRequest.Builder().addSchemas(newSchema)
                 .setMigrator("testSchema", migrator)
                 .setVersion(2)     // upgrade version
                 .build()).get();
 
-        assertThat(logger.mSetSchemaStats).isNotNull();
-        assertThat(logger.mSetSchemaStats.getSchemaMigrationStats()).isNotNull();
-        SchemaMigrationStats schemaMigrationStats =
-                logger.mSetSchemaStats.getSchemaMigrationStats();
-        assertThat(schemaMigrationStats.getMigratedDocumentCount()).isEqualTo(1);
-        assertThat(schemaMigrationStats.getSavedDocumentCount()).isEqualTo(1);
+        assertThat(logger.mSchemaMigrationStats).isNotNull();
+        SchemaMigrationStats schemaMigrationStats = logger.mSchemaMigrationStats;
+        assertThat(schemaMigrationStats.getTotalNeedMigratedDocumentCount()).isEqualTo(2);
+        assertThat(schemaMigrationStats.getTotalSuccessMigratedDocumentCount()).isEqualTo(1);
+        assertThat(schemaMigrationStats.getMigrationFailureCount()).isEqualTo(1);
+        assertThat(schemaMigrationStats.isFirstSetSchemaSuccess()).isFalse();
+
+        // 1 for set old schema + 2 for migration
+        assertThat(logger.mSetSchemaStats).hasSize(3);
+
+        SetSchemaStats setOldStats = logger.mSetSchemaStats.get(0);
+        assertThat(setOldStats.getNewTypeCount()).isEqualTo(1);
+        assertThat(setOldStats.getDeletedTypeCount()).isEqualTo(0);
+        assertThat(setOldStats.getIndexIncompatibleTypeChangeCount()).isEqualTo(0);
+        assertThat(setOldStats.getBackwardsIncompatibleTypeChangeCount()).isEqualTo(0);
+        assertThat(setOldStats.getCompatibleTypeChangeCount()).isEqualTo(0);
+
+        SetSchemaStats firstSetSchemaStats = logger.mSetSchemaStats.get(1);
+        assertThat(firstSetSchemaStats.getNewTypeCount()).isEqualTo(0);
+        assertThat(firstSetSchemaStats.getDeletedTypeCount()).isEqualTo(0);
+        assertThat(firstSetSchemaStats.getIndexIncompatibleTypeChangeCount()).isEqualTo(1);
+        assertThat(firstSetSchemaStats.getBackwardsIncompatibleTypeChangeCount()).isEqualTo(1);
+        assertThat(firstSetSchemaStats.getCompatibleTypeChangeCount()).isEqualTo(0);
+        assertThat(firstSetSchemaStats.getSchemaMigrationCallType())
+                .isEqualTo(SchemaMigrationStats.FIRST_CALL_GET_INCOMPATIBLE);
+
+        SetSchemaStats secondSetSchemaStats = logger.mSetSchemaStats.get(2);
+        assertThat(secondSetSchemaStats.getNewTypeCount()).isEqualTo(0);
+        assertThat(secondSetSchemaStats.getDeletedTypeCount()).isEqualTo(0);
+        assertThat(secondSetSchemaStats.getIndexIncompatibleTypeChangeCount()).isEqualTo(1);
+        assertThat(secondSetSchemaStats.getBackwardsIncompatibleTypeChangeCount()).isEqualTo(1);
+        assertThat(secondSetSchemaStats.getCompatibleTypeChangeCount()).isEqualTo(0);
+        assertThat(secondSetSchemaStats.getSchemaMigrationCallType())
+                .isEqualTo(SchemaMigrationStats.SECOND_CALL_APPLY_NEW_SCHEMA);
+    }
+
+    private void maybeSkipLargeDocumentTest() {
+        // Skip running this test on emulators API 26 - 28 b/269806908
+        Assume.assumeTrue(!(Build.MODEL.contains("SDK") && SDK_INT >= 26 && SDK_INT < 29));
     }
 
     // Framework has max Document size which is 512KiB, this test should only exists in Jetpack.
     @Test
     public void testPutLargeDocumentToIcing() throws Exception {
+        maybeSkipLargeDocumentTest();
         Context context = ApplicationProvider.getApplicationContext();
         AppSearchSession db2 = LocalStorage.createSearchSessionAsync(
                 new LocalStorage.SearchContext.Builder(context, DB_NAME_2).build()).get();
@@ -482,6 +534,7 @@ public class AppSearchSessionLocalCtsTest extends AppSearchSessionCtsTestBase {
     // Framework has max Document size which is 512KiB, this test should only exists in Jetpack.
     @Test
     public void testPutLargeDocumentToIcing_exceedLimit() throws Exception {
+        maybeSkipLargeDocumentTest();
         Context context = ApplicationProvider.getApplicationContext();
         AppSearchSession db2 = LocalStorage.createSearchSessionAsync(
                 new LocalStorage.SearchContext.Builder(context, DB_NAME_2).build()).get();

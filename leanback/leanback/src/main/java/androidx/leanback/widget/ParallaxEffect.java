@@ -70,7 +70,6 @@ public abstract class ParallaxEffect {
      * Weights are used when there are three or more marker values.
      *
      * @return A list of Float objects that represents weight associated with each variable range.
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public final List<Float> getWeights() {
@@ -97,7 +96,6 @@ public abstract class ParallaxEffect {
      *
      * @param weights A list of Float objects that represents weight associated with each variable
      *                range.
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public final void setWeights(float... weights) {
@@ -123,7 +121,6 @@ public abstract class ParallaxEffect {
      * @param weights A list of Float objects that represents weight associated with each variable
      *                range.
      * @return This ParallaxEffect object, allowing calls to methods in this class to be chained.
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public final ParallaxEffect weights(float... weights) {

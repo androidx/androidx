@@ -21,29 +21,16 @@ import org.gradle.internal.logging.slf4j.OutputEventListenerBackedLogger
 import org.gradle.internal.logging.slf4j.OutputEventListenerBackedLoggerContext
 import org.gradle.internal.time.Clock
 
-/**
- * Gradle logger that logs to a string.
- */
-class ToStringLogger(
-    private val stringBuilder: StringBuilder = StringBuilder()
-) : OutputEventListenerBackedLogger(
-    "my_logger",
-    OutputEventListenerBackedLoggerContext(
-        Clock {
-            System.currentTimeMillis()
-        }
-    ).also {
-        it.level = LogLevel.DEBUG
-        it.setOutputEventListener {
-            stringBuilder.append(it.toString() + "\n")
-        }
-    },
-    Clock {
-        System.currentTimeMillis()
-    }
-) {
-    /**
-     * Returns the current log.
-     */
+/** Gradle logger that logs to a string. */
+class ToStringLogger(private val stringBuilder: StringBuilder = StringBuilder()) :
+    OutputEventListenerBackedLogger(
+        "my_logger",
+        OutputEventListenerBackedLoggerContext(Clock { System.currentTimeMillis() }).also {
+            it.level = LogLevel.DEBUG
+            it.setOutputEventListener { stringBuilder.append(it.toString() + "\n") }
+        },
+        Clock { System.currentTimeMillis() }
+    ) {
+    /** Returns the current log. */
     fun buildString() = stringBuilder.toString()
 }

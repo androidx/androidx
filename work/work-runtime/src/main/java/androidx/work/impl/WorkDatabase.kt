@@ -25,6 +25,7 @@ import androidx.room.TypeConverters
 import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.sqlite.db.SupportSQLiteOpenHelper
 import androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory
+import androidx.work.Clock
 import androidx.work.Data
 import androidx.work.impl.WorkDatabaseVersions.VERSION_10
 import androidx.work.impl.WorkDatabaseVersions.VERSION_11
@@ -55,7 +56,6 @@ import java.util.concurrent.TimeUnit
 /**
  * A Room database for keeping track of work states.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Database(
@@ -64,8 +64,11 @@ import java.util.concurrent.TimeUnit
     autoMigrations = [
         AutoMigration(from = 13, to = 14),
         AutoMigration(from = 14, to = 15, spec = AutoMigration_14_15::class),
+        AutoMigration(from = 16, to = 17),
+        AutoMigration(from = 17, to = 18),
+        AutoMigration(from = 18, to = 19),
     ],
-    version = 16
+    version = 19
 )
 @TypeConverters(value = [Data::class, WorkTypeConverters::class])
 abstract class WorkDatabase : RoomDatabase() {
@@ -116,6 +119,7 @@ abstract class WorkDatabase : RoomDatabase() {
          * @param context         A context (this method will use the application context from it)
          * @param queryExecutor   An [Executor] that will be used to execute all async Room
          * queries.
+         * @param clock           The [Clock] to use for pruning operations
          * @param useTestDatabase `true` to generate an in-memory database that allows main thread
          * access
          * @return The created WorkDatabase
@@ -124,6 +128,7 @@ abstract class WorkDatabase : RoomDatabase() {
         fun create(
             context: Context,
             queryExecutor: Executor,
+            clock: Clock,
             useTestDatabase: Boolean
         ): WorkDatabase {
             val builder = if (useTestDatabase) {
@@ -141,7 +146,7 @@ abstract class WorkDatabase : RoomDatabase() {
                     }
             }
             return builder.setQueryExecutor(queryExecutor)
-                .addCallback(CleanupCallback)
+                .addCallback(CleanupCallback(clock))
                 .addMigrations(Migration_1_2)
                 .addMigrations(RescheduleMigration(context, VERSION_2, VERSION_3))
                 .addMigrations(Migration_3_4)
@@ -155,6 +160,7 @@ abstract class WorkDatabase : RoomDatabase() {
                 .addMigrations(Migration_11_12)
                 .addMigrations(Migration_12_13)
                 .addMigrations(Migration_15_16)
+                .addMigrations(Migration_16_17)
                 .fallbackToDestructiveMigration()
                 .build()
         }
@@ -174,14 +180,17 @@ private const val PRUNE_SQL_FORMAT_SUFFIX = " AND " +
     "    prerequisite_id=id AND " +
     "    work_spec_id NOT IN " +
     "        (SELECT id FROM workspec WHERE state IN $COMPLETED_STATES))"
-private val PRUNE_THRESHOLD_MILLIS = TimeUnit.DAYS.toMillis(1)
 
-internal object CleanupCallback : RoomDatabase.Callback() {
+@JvmField
+val PRUNE_THRESHOLD_MILLIS: Long = TimeUnit.DAYS.toMillis(1)
+
+internal class CleanupCallback(val clock: Clock) : RoomDatabase.Callback() {
+
     private val pruneSQL: String
         get() = "$PRUNE_SQL_FORMAT_PREFIX$pruneDate$PRUNE_SQL_FORMAT_SUFFIX"
 
-    val pruneDate: Long
-        get() = System.currentTimeMillis() - PRUNE_THRESHOLD_MILLIS
+    private val pruneDate: Long
+        get() = clock.currentTimeMillis() - PRUNE_THRESHOLD_MILLIS
 
     override fun onOpen(db: SupportSQLiteDatabase) {
         super.onOpen(db)

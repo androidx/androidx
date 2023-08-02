@@ -28,7 +28,7 @@ import androidx.compose.runtime.MonotonicFrameClock
 import androidx.compose.runtime.PausableMonotonicFrameClock
 import androidx.compose.runtime.Recomposer
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.InternalComposeUiApi
@@ -38,7 +38,7 @@ import androidx.core.os.HandlerCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.ViewTreeLifecycleOwner
+import androidx.lifecycle.findViewTreeLifecycleOwner
 import java.util.concurrent.atomic.AtomicReference
 import kotlin.coroutines.ContinuationInterceptor
 import kotlin.coroutines.CoroutineContext
@@ -54,7 +54,6 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.Channel.Factory.CONFLATED
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -155,7 +154,8 @@ fun interface WindowRecomposerFactory {
         /**
          * A [WindowRecomposerFactory] that creates **lifecycle-aware** [Recomposer]s.
          *
-         * Returned [Recomposer]s will be bound to the [ViewTreeLifecycleOwner] registered
+         * Returned [Recomposer]s will be bound to the
+         * [LifecycleOwner] returned by [findViewTreeLifecycleOwner] registered
          * at the [root][View.getRootView] of the view hierarchy and run
          * [recomposition][Recomposer.runRecomposeAndApplyChanges] and composition effects on the
          * [AndroidUiDispatcher.CurrentThread] for the window's UI thread. The associated
@@ -286,7 +286,8 @@ private val View.contentChild: View
 
 /**
  * Get or lazily create a [Recomposer] for this view's window. The view must be attached
- * to a window with a [ViewTreeLifecycleOwner] registered at the root to access this property.
+ * to a window with the [LifecycleOwner] returned by [findViewTreeLifecycleOwner] registered at
+ * the root to access this property.
  */
 @OptIn(InternalComposeUiApi::class)
 internal val View.windowRecomposer: Recomposer
@@ -311,8 +312,8 @@ internal val View.windowRecomposer: Recomposer
  * [AndroidUiDispatcher.CurrentThread]; this function should only be called from the UI thread
  * of this [View] or its intended UI thread if it is currently detached.
  *
- * If [lifecycle] is `null` or not supplied the [ViewTreeLifecycleOwner] will be used;
- * if a non-null [lifecycle] is not provided and a [ViewTreeLifecycleOwner] is not present
+ * If [lifecycle] is `null` or not supplied the [LifecycleOwner] returned by [findViewTreeLifecycleOwner]
+ * will be used; if a non-null [lifecycle] is not provided and a ViewTreeLifecycleOwner is not present
  * an [IllegalStateException] will be thrown.
  *
  * The returned [Recomposer] will be [cancelled][Recomposer.cancel] when this [View] is detached
@@ -343,10 +344,12 @@ fun View.createLifecycleAwareWindowRecomposer(
 
     val contextWithClockAndMotionScale =
         baseContext + (pausableClock ?: EmptyCoroutineContext) + motionDurationScale
-    val recomposer = Recomposer(contextWithClockAndMotionScale)
+    val recomposer = Recomposer(contextWithClockAndMotionScale).also {
+        it.pauseCompositionFrameClock()
+    }
     val runRecomposeScope = CoroutineScope(contextWithClockAndMotionScale)
     val viewTreeLifecycle =
-        checkNotNull(lifecycle ?: ViewTreeLifecycleOwner.get(this)?.lifecycle) {
+        checkNotNull(lifecycle ?: findViewTreeLifecycleOwner()?.lifecycle) {
             "ViewTreeLifecycleOwner not found from $this"
         }
 
@@ -366,7 +369,7 @@ fun View.createLifecycleAwareWindowRecomposer(
     viewTreeLifecycle.addObserver(
         object : LifecycleEventObserver {
             override fun onStateChanged(
-                lifecycleOwner: LifecycleOwner,
+                source: LifecycleOwner,
                 event: Lifecycle.Event
             ) {
                 val self = this
@@ -394,12 +397,26 @@ fun View.createLifecycleAwareWindowRecomposer(
                                 // If runRecomposeAndApplyChanges returns or this coroutine is
                                 // cancelled it means we no longer care about this lifecycle.
                                 // Clean up the dangling references tied to this observer.
-                                lifecycleOwner.lifecycle.removeObserver(self)
+                                source.lifecycle.removeObserver(self)
                             }
                         }
                     }
-                    Lifecycle.Event.ON_START -> pausableClock?.resume()
-                    Lifecycle.Event.ON_STOP -> pausableClock?.pause()
+                    Lifecycle.Event.ON_START -> {
+                        // The clock starts life as paused so resume it when starting. If it is
+                        // already running (this ON_START is after an ON_STOP) then the resume is
+                        // ignored.
+                        pausableClock?.resume()
+
+                        // Resumes the frame clock dispatching If this is an ON_START after an
+                        // ON_STOP that paused it. If the recomposer is not paused  calling
+                        // `resumeFrameClock()` is ignored.
+                        recomposer.resumeCompositionFrameClock()
+                    }
+                    Lifecycle.Event.ON_STOP -> {
+                        // Pause the recomposer's frame clock which will pause all calls to
+                        // `withFrameNanos` (e.g. animations) while the window is stopped.
+                        recomposer.pauseCompositionFrameClock()
+                    }
                     Lifecycle.Event.ON_DESTROY -> {
                         recomposer.cancel()
                     }
@@ -420,5 +437,5 @@ fun View.createLifecycleAwareWindowRecomposer(
 }
 
 private class MotionDurationScaleImpl : MotionDurationScale {
-    override var scaleFactor by mutableStateOf(1f)
+    override var scaleFactor by mutableFloatStateOf(1f)
 }

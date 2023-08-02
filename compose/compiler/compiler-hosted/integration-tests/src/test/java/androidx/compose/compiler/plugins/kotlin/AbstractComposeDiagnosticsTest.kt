@@ -16,140 +16,78 @@
 
 package androidx.compose.compiler.plugins.kotlin
 
+import androidx.compose.compiler.plugins.kotlin.facade.AnalysisResult
+import androidx.compose.compiler.plugins.kotlin.facade.SourceFile
 import org.jetbrains.kotlin.checkers.utils.CheckerTestUtil
-import org.jetbrains.kotlin.checkers.DiagnosedRange
-import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreEnvironment
-import org.jetbrains.kotlin.cli.jvm.compiler.TopDownAnalyzerFacadeForJVM
-import org.jetbrains.kotlin.cli.jvm.compiler.NoScopeRecordCliBindingTrace
-import org.jetbrains.kotlin.config.JVMConfigurationKeys
-import org.jetbrains.kotlin.config.JvmTarget
-import org.jetbrains.kotlin.diagnostics.Diagnostic
-import java.io.File
+import org.jetbrains.kotlin.utils.addToStdlib.flatGroupBy
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertThrows
 
-abstract class AbstractComposeDiagnosticsTest : AbstractCompilerTest() {
+abstract class AbstractComposeDiagnosticsTest(useFir: Boolean) : AbstractCompilerTest(useFir) {
+    protected fun check(
+        expectedText: String,
+        commonText: String? = null,
+        ignoreParseErrors: Boolean = false
+    ) {
+        val clearText = CheckerTestUtil.parseDiagnosedRanges(expectedText, mutableListOf())
+        val clearCommonText = commonText?.let {
+            CheckerTestUtil.parseDiagnosedRanges(commonText, mutableListOf())
+        }
 
-    fun doTest(expectedText: String) {
-        doTest(expectedText, myEnvironment!!)
+        val errors = analyze(
+            listOf(SourceFile("test.kt", clearText, ignoreParseErrors)),
+            listOfNotNull(clearCommonText?.let { SourceFile("common.kt", it, ignoreParseErrors) }),
+        ).diagnostics
+
+        checkDiagnostics(expectedText, clearText, errors["test.kt"])
+        if (clearCommonText != null) {
+            checkDiagnostics(commonText, clearCommonText, errors["common.kt"])
+        }
     }
 
-    fun doTest(expectedText: String, environment: KotlinCoreEnvironment) {
-        val diagnosedRanges: MutableList<DiagnosedRange> = ArrayList()
-        val clearText = CheckerTestUtil.parseDiagnosedRanges(expectedText, diagnosedRanges)
-        val file =
-            createFile("test.kt", clearText, environment.project)
-        val files = listOf(file)
+    private fun checkDiagnostics(
+        expectedText: String,
+        clearText: String,
+        allDiagnostics: List<AnalysisResult.Diagnostic>?
+    ) {
+        val annotatedText = if (allDiagnostics != null) {
+            val rangeToDiagnostics = allDiagnostics
+                .flatGroupBy { it.textRanges }
+                .mapValues { entry ->
+                    entry.value.map { it.factoryName }.toSet()
+                }
+            val startOffsetToGroups = rangeToDiagnostics.entries.groupBy(
+                keySelector = { it.key.startOffset },
+                valueTransform = { it.value }
+            )
+            val endOffsetsToGroups = rangeToDiagnostics.entries.groupBy(
+                keySelector = { it.key.endOffset },
+                valueTransform = { it.value }
+            )
 
-        // Use the JVM version of the analyzer to allow using classes in .jar files
-        val moduleTrace = NoScopeRecordCliBindingTrace()
-        val result = TopDownAnalyzerFacadeForJVM.analyzeFilesWithJavaIntegration(
-            environment.project,
-            files,
-            moduleTrace,
-            environment.configuration.copy().apply {
-                this.put(JVMConfigurationKeys.JVM_TARGET, JvmTarget.JVM_1_8)
-            },
-            environment::createPackagePartProvider
-        )
-
-        // Collect the errors
-        val errors = result.bindingContext.diagnostics.all().toMutableList()
-
-        val message = StringBuilder()
-
-        // Ensure all the expected messages are there
-        val found = mutableSetOf<Diagnostic>()
-        for (range in diagnosedRanges) {
-            for (diagnostic in range.getDiagnostics()) {
-                val reportedDiagnostics = errors.filter { it.factoryName == diagnostic.name }
-                if (reportedDiagnostics.isNotEmpty()) {
-                    val reportedDiagnostic =
-                        reportedDiagnostics.find {
-                            it.textRanges.find {
-                                it.startOffset == range.start && it.endOffset == range.end
-                            } != null
-                        }
-                    if (reportedDiagnostic == null) {
-                        val firstRange = reportedDiagnostics.first().textRanges.first()
-                        message.append(
-                            "  Error ${diagnostic.name} reported at ${
-                            firstRange.startOffset
-                            }-${firstRange.endOffset} but expected at ${range.start}-${range.end}\n"
-                        )
-                        message.append(
-                            sourceInfo(
-                                clearText,
-                                firstRange.startOffset, firstRange.endOffset,
-                                "  "
-                            )
-                        )
-                    } else {
-                        errors.remove(reportedDiagnostic)
-                        found.add(reportedDiagnostic)
+            buildString {
+                for ((i, c) in clearText.withIndex()) {
+                    endOffsetsToGroups[i]?.let { groups ->
+                        repeat(groups.size) { append("<!>") }
                     }
-                } else {
-                    message.append(
-                        "  Diagnostic ${diagnostic.name} not reported, expected at ${
-                        range.start
-                        }\n"
-                    )
-                    message.append(
-                        sourceInfo(
-                            clearText,
-                            range.start,
-                            range.end,
-                            "  "
-                        )
-                    )
+                    startOffsetToGroups[i]?.let { groups ->
+                        for (diagnostics in groups) {
+                            append("<!${diagnostics.joinToString(",")}!>")
+                        }
+                    }
+                    append(c)
                 }
             }
+        } else {
+            clearText
         }
 
-        // Ensure only the expected errors are reported
-        for (diagnostic in errors) {
-            if (diagnostic !in found) {
-                val range = diagnostic.textRanges.first()
-                message.append(
-                    "  Unexpected diagnostic ${diagnostic.factoryName} reported at ${
-                    range.startOffset
-                    }\n"
-                )
-                message.append(
-                    sourceInfo(
-                        clearText,
-                        range.startOffset,
-                        range.endOffset,
-                        "  "
-                    )
-                )
-            }
+        assertEquals(expectedText, annotatedText)
+    }
+
+    protected fun checkFail(expectedText: String) {
+        assertThrows(AssertionError::class.java) {
+            check(expectedText)
         }
-
-        // Throw an error if anything was found that was not expected
-        if (message.length > 0) throw Exception("Mismatched errors:\n$message")
     }
-}
-
-fun assertExists(file: File): File {
-    if (!file.exists()) {
-        throw IllegalStateException("'$file' does not exist. Run test from gradle")
-    }
-    return file
-}
-
-fun String.lineStart(offset: Int): Int {
-    return this.lastIndexOf('\n', offset) + 1
-}
-
-fun String.lineEnd(offset: Int): Int {
-    val result = this.indexOf('\n', offset)
-    return if (result < 0) this.length else result
-}
-
-// Return the source line that contains the given range with the range underlined with '~'s
-fun sourceInfo(clearText: String, start: Int, end: Int, prefix: String = ""): String {
-    val lineStart = clearText.lineStart(start)
-    val lineEnd = clearText.lineEnd(start)
-    val displayEnd = if (end > lineEnd) lineEnd else end
-    return prefix + clearText.substring(lineStart, lineEnd) + "\n" +
-        prefix + " ".repeat(start - lineStart) + "~".repeat(displayEnd - start) + "\n"
 }

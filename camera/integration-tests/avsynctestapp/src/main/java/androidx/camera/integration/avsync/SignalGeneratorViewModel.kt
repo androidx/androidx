@@ -51,7 +51,7 @@ enum class ActivationSignal {
 class SignalGeneratorViewModel : ViewModel() {
 
     private var signalGenerationJob: Job? = null
-    private val audioGenerator = AudioGenerator()
+    private lateinit var audioGenerator: AudioGenerator
     private val cameraHelper = CameraHelper()
     private lateinit var audioManager: AudioManager
     private var originalVolume: Int = 0
@@ -66,6 +66,8 @@ class SignalGeneratorViewModel : ViewModel() {
         private set
     var isRecording: Boolean by mutableStateOf(false)
         private set
+    var isPaused: Boolean by mutableStateOf(false)
+        private set
 
     suspend fun initialRecorder(context: Context, lifecycleOwner: LifecycleOwner) {
         withContext(Dispatchers.Main) {
@@ -73,12 +75,13 @@ class SignalGeneratorViewModel : ViewModel() {
         }
     }
 
-    suspend fun initialSignalGenerator(context: Context, beepFrequency: Int) {
+    suspend fun initialSignalGenerator(context: Context, beepFrequency: Int, beepEnabled: Boolean) {
         audioManager = context.getSystemService(AUDIO_SERVICE) as AudioManager
         saveOriginalVolume()
 
         withContext(Dispatchers.Default) {
-            audioGenerator.initAudioTrack(
+            audioGenerator = AudioGenerator(beepEnabled)
+            audioGenerator.initial(
                 context = context,
                 frequency = beepFrequency,
                 beepLengthInSec = ACTIVE_LENGTH_SEC,
@@ -144,6 +147,23 @@ class SignalGeneratorViewModel : ViewModel() {
 
         cameraHelper.stopRecording()
         isRecording = false
+        isPaused = false
+    }
+
+    fun pauseRecording() {
+        Logger.d(TAG, "Pause recording.")
+        Preconditions.checkState(isRecorderReady)
+
+        cameraHelper.pauseRecording()
+        isPaused = true
+    }
+
+    fun resumeRecording() {
+        Logger.d(TAG, "Resume recording.")
+        Preconditions.checkState(isRecorderReady)
+
+        cameraHelper.resumeRecording()
+        isPaused = false
     }
 
     private fun saveOriginalVolume() {

@@ -29,12 +29,14 @@ import android.text.TextUtils;
 import androidx.activity.OnBackPressedCallback;
 import androidx.activity.OnBackPressedDispatcher;
 import androidx.annotation.IntDef;
-import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.CarContext;
 import androidx.car.app.annotations.CarProtocol;
+import androidx.car.app.annotations.ExperimentalCarApi;
+import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.constraints.CarIconConstraints;
 import androidx.lifecycle.LifecycleOwner;
@@ -62,12 +64,12 @@ import java.util.Objects;
  * the action will note them accordingly.
  */
 @CarProtocol
+@KeepFields
 public final class Action {
     /**
      * The type of action represented by the {@link Action} instance.
-     *
-     * @hide
      */
+    @OptIn(markerClass = androidx.car.app.annotations.ExperimentalCarApi.class)
     @RestrictTo(LIBRARY)
     @IntDef(
             value = {
@@ -75,6 +77,7 @@ public final class Action {
                     TYPE_APP_ICON,
                     TYPE_BACK,
                     TYPE_PAN,
+                    TYPE_COMPOSE_MESSAGE,
             })
     @Retention(RetentionPolicy.SOURCE)
     public @interface ActionType {
@@ -82,8 +85,6 @@ public final class Action {
 
     /**
      * The flag of action represented by the {@link Action} instance.
-     *
-     * @hide
      */
     @RestrictTo(LIBRARY)
     @IntDef(
@@ -124,6 +125,13 @@ public final class Action {
     public static final int TYPE_PAN = 4 | TYPE_STANDARD;
 
     /**
+     * An action to allow user compose a message.
+     */
+    @ExperimentalCarApi
+    @RequiresCarApi(7)
+    public static final int TYPE_COMPOSE_MESSAGE = 5 | TYPE_STANDARD;
+
+    /**
      * Indicates that this action is the most important one, out of a set of other actions.
      *
      * <p>The action with this flag may be treated differently by the host depending on where they
@@ -161,6 +169,16 @@ public final class Action {
     public static final Action APP_ICON = new Action(TYPE_APP_ICON);
 
     /**
+     * A standard action to show the message compose button
+     *
+     * <p>This action is interactive.
+     */
+    @NonNull
+    @ExperimentalCarApi
+    @RequiresCarApi(7)
+    public static final Action COMPOSE_MESSAGE = new Action(TYPE_COMPOSE_MESSAGE);
+
+    /**
      * A standard action to navigate back in the user interface.
      *
      * <p>The default behavior for a back press will call
@@ -187,23 +205,16 @@ public final class Action {
     @NonNull
     public static final Action PAN = new Action(TYPE_PAN);
 
-    @Keep
     private final boolean mIsEnabled;
-    @Keep
     @Nullable
     private final CarText mTitle;
-    @Keep
     @Nullable
     private final CarIcon mIcon;
-    @Keep
     private final CarColor mBackgroundColor;
-    @Keep
     @Nullable
     private final OnClickDelegate mOnClickDelegate;
-    @Keep
     @ActionType
     private final int mType;
-    @Keep
     @ActionFlag
     private final int mFlags;
 
@@ -283,6 +294,7 @@ public final class Action {
     /**
      * Converts the given {@code type} into a string representation.
      */
+    @OptIn(markerClass = androidx.car.app.annotations.ExperimentalCarApi.class)
     @NonNull
     public static String typeToString(@ActionType int type) {
         switch (type) {
@@ -294,6 +306,8 @@ public final class Action {
                 return "BACK";
             case TYPE_PAN:
                 return "PAN";
+            case TYPE_COMPOSE_MESSAGE:
+                return "COMPOSE_MESSAGE";
             default:
                 return "<unknown>";
         }

@@ -16,14 +16,14 @@
 
 package androidx.room.compiler.processing.ksp.synthetic
 
+import androidx.kruth.assertThat
+import androidx.kruth.assertWithMessage
 import androidx.room.compiler.processing.ksp.KspFieldElement
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.compileFiles
 import androidx.room.compiler.processing.util.getField
 import androidx.room.compiler.processing.util.kspResolver
 import androidx.room.compiler.processing.util.runKspTest
-import com.google.common.truth.Truth.assertThat
-import com.google.common.truth.Truth.assertWithMessage
 import com.google.devtools.ksp.KspExperimental
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 import org.junit.Test
@@ -56,10 +56,10 @@ class KspSyntheticFileMemberContainerTest {
             val className = elements.map {
                 val owner = invocation.kspResolver.getOwnerJvmClassName(it as KSPropertyDeclaration)
                 assertWithMessage(it.toString()).that(owner).isNotNull()
-                KspSyntheticFileMemberContainer(owner!!).className
+                KspSyntheticFileMemberContainer(owner!!).asClassName()
             }.first()
-            assertThat(className.packageName()).isEmpty()
-            assertThat(className.simpleNames()).containsExactly("AppKt")
+            assertThat(className.packageName).isEmpty()
+            assertThat(className.simpleNames).containsExactly("AppKt")
         }
     }
 
@@ -136,7 +136,8 @@ class KspSyntheticFileMemberContainerTest {
                     val owner = invocation.kspResolver.getOwnerJvmClassName(field.declaration)
                     assertWithMessage(qName).that(owner).isNotNull()
                     val synthetic = KspSyntheticFileMemberContainer(owner!!)
-                    assertWithMessage(qName).that(target.className).isEqualTo(synthetic.className)
+                    assertWithMessage(qName).that(target.asClassName())
+                        .isEqualTo(synthetic.asClassName())
                 }
             }
             listOf("lib", "app").forEach { pkg ->

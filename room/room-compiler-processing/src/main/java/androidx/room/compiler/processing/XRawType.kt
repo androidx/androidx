@@ -16,6 +16,7 @@
 
 package androidx.room.compiler.processing
 
+import androidx.room.compiler.codegen.XTypeName
 import com.squareup.javapoet.TypeName
 
 /**
@@ -32,11 +33,23 @@ import com.squareup.javapoet.TypeName
  * Instances of XRawType implement equality.
  */
 interface XRawType {
+    // TODO(b/247248619): Deprecate when more progress is made, otherwise -werror fails the build.
+    // @Deprecated(
+    //     message = "Use asTypeName().toJavaPoet() to be clear the name is for JavaPoet.",
+    //     replaceWith = ReplaceWith(
+    //         expression = "asTypeName().toJavaPoet()",
+    //         imports = ["androidx.room.compiler.codegen.toJavaPoet"]
+    //     )
+    // )
     val typeName: TypeName
+
+    fun asTypeName(): XTypeName
+
     /**
      * Returns `true` if this raw type can be assigned from [other].
      */
     fun isAssignableFrom(other: XRawType): Boolean
+
     /**
      * Returns `true` if this raw type can be assigned from [other].
      */

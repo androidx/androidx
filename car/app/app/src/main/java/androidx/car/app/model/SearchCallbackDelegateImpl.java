@@ -24,25 +24,23 @@ import static java.util.Objects.requireNonNull;
 import android.annotation.SuppressLint;
 import android.os.RemoteException;
 
-import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.IOnDoneCallback;
 import androidx.car.app.OnDoneCallback;
 import androidx.car.app.annotations.CarProtocol;
+import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.utils.RemoteUtils;
 
 /**
  * Implementation class for {@link SearchCallbackDelegate}.
  *
- * @hide
  */
 @RestrictTo(LIBRARY)
 @CarProtocol
+@KeepFields
 public class SearchCallbackDelegateImpl implements SearchCallbackDelegate {
-
-    @Keep
     @Nullable
     private final ISearchCallback mStubCallback;
 
@@ -84,7 +82,7 @@ public class SearchCallbackDelegateImpl implements SearchCallbackDelegate {
         return new SearchCallbackDelegateImpl(callback);
     }
 
-    @Keep // We need to keep these stub for Bundler serialization logic.
+    @KeepFields // We need to keep these stub for Bundler serialization logic.
     private static class SearchCallbackStub extends ISearchCallback.Stub {
         private final SearchCallback mCallback;
 

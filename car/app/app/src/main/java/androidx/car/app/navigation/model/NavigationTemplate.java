@@ -24,12 +24,12 @@ import static java.util.Objects.requireNonNull;
 
 import android.annotation.SuppressLint;
 
-import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.Screen;
 import androidx.car.app.SurfaceCallback;
 import androidx.car.app.annotations.CarProtocol;
+import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.Action;
 import androidx.car.app.model.ActionStrip;
@@ -111,6 +111,7 @@ import java.util.Objects;
  * androidx.car.app.NAVIGATION_TEMPLATES} permission in the manifest.
  */
 @CarProtocol
+@KeepFields
 public final class NavigationTemplate implements Template {
 
     /**
@@ -120,25 +121,18 @@ public final class NavigationTemplate implements Template {
     public interface NavigationInfo {
     }
 
-    @Keep
     @Nullable
     private final NavigationInfo mNavigationInfo;
-    @Keep
     @Nullable
     private final CarColor mBackgroundColor;
-    @Keep
     @Nullable
     private final TravelEstimate mDestinationTravelEstimate;
-    @Keep
     @Nullable
     private final ActionStrip mActionStrip;
-    @Keep
     @Nullable
     private final ActionStrip mMapActionStrip;
-    @Keep
     @Nullable
     private final Toggle mPanModeToggle;
-    @Keep
     @Nullable
     private final PanModeDelegate mPanModeDelegate;
 
@@ -312,15 +306,17 @@ public final class NavigationTemplate implements Template {
         /**
          * Sets the {@link TravelEstimate} to the final destination.
          *
-         * @throws IllegalArgumentException if the {@link TravelEstimate}'s remaining time is
-         *                                  {@link TravelEstimate#REMAINING_TIME_UNKNOWN} or less
-         *                                  than zero
+         * @throws IllegalArgumentException if the {@link TravelEstimate}'s remaining time is less
+         *                                  than zero unless the value provided is
+         *                                  {@link TravelEstimate#REMAINING_TIME_UNKNOWN}
          * @throws NullPointerException     if {@code destinationTravelEstimate} is {@code null}
          */
         @NonNull
         public Builder setDestinationTravelEstimate(
                 @NonNull TravelEstimate destinationTravelEstimate) {
-            if (requireNonNull(destinationTravelEstimate).getRemainingTimeSeconds() < 0) {
+            if (requireNonNull(destinationTravelEstimate).getRemainingTimeSeconds() < 0
+                    && requireNonNull(destinationTravelEstimate).getRemainingTimeSeconds()
+                    != TravelEstimate.REMAINING_TIME_UNKNOWN) {
                 throw new IllegalArgumentException(
                         "The destination travel estimate's remaining time must be greater or "
                                 + "equal to zero");

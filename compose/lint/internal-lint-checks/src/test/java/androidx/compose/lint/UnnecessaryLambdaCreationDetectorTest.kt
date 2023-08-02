@@ -19,16 +19,16 @@
 package androidx.compose.lint
 
 import androidx.compose.lint.test.Stubs
-import androidx.compose.lint.test.kotlinAndCompiledStub
-import com.android.tools.lint.checks.infrastructure.TestLintResult
-import org.junit.Test
-import org.junit.runner.RunWith
+import androidx.compose.lint.test.kotlinAndBytecodeStub
 import com.android.tools.lint.checks.infrastructure.LintDetectorTest
 import com.android.tools.lint.checks.infrastructure.TestFile
+import com.android.tools.lint.checks.infrastructure.TestLintResult
 import com.android.tools.lint.checks.infrastructure.TestMode
 import com.android.tools.lint.detector.api.Detector
 import com.android.tools.lint.detector.api.Issue
 import org.intellij.lang.annotations.Language
+import org.junit.Test
+import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
 /* ktlint-disable max-line-length */
@@ -39,7 +39,7 @@ class UnnecessaryLambdaCreationDetectorTest(
     private val stub: TestFile
 ) : LintDetectorTest() {
     companion object {
-        private val stub = kotlinAndCompiledStub(
+        private val stub = kotlinAndBytecodeStub(
             filename = "Stub.kt",
             filepath = "test",
             checksum = 0xdbff73f0,
@@ -97,7 +97,7 @@ class UnnecessaryLambdaCreationDetectorTest(
         @Parameterized.Parameters(name = "{0}")
         fun params(): Array<Any> = arrayOf(
             arrayOf("Source stubs", stub.kotlin),
-            arrayOf("Compiled stubs", stub.compiled)
+            arrayOf("Compiled stubs", stub.bytecode)
         )
     }
 

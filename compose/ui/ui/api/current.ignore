@@ -1,9 +1,23 @@
 // Baseline format: 1.0
-AddedAbstractMethod: androidx.compose.ui.layout.LayoutInfo#getSemanticsId():
-    Added method androidx.compose.ui.layout.LayoutInfo.getSemanticsId()
+ChangedType: androidx.compose.ui.draw.DrawModifierKt#CacheDrawModifierNode(kotlin.jvm.functions.Function1<? super androidx.compose.ui.draw.CacheDrawScope,androidx.compose.ui.draw.DrawResult>):
+    Method androidx.compose.ui.draw.DrawModifierKt.CacheDrawModifierNode has changed return type from androidx.compose.ui.node.CacheDrawModifierNode to androidx.compose.ui.draw.CacheDrawModifierNode
 
 
-RemovedDeprecatedMethod: androidx.compose.ui.graphics.vector.ImageVector.Builder#Builder(String, float, float, float, float, long, int):
-    Removed deprecated method androidx.compose.ui.graphics.vector.ImageVector.Builder.Builder(String,float,float,float,float,long,int)
-RemovedDeprecatedMethod: androidx.compose.ui.input.pointer.PointerInputChange#PointerInputChange(long, long, long, boolean, long, long, boolean, androidx.compose.ui.input.pointer.ConsumedData, int):
-    Removed deprecated method androidx.compose.ui.input.pointer.PointerInputChange.PointerInputChange(long,long,long,boolean,long,long,boolean,androidx.compose.ui.input.pointer.ConsumedData,int)
+RemovedClass: androidx.compose.ui.focus.FocusTargetNode:
+    Removed class androidx.compose.ui.focus.FocusTargetNode
+RemovedClass: androidx.compose.ui.layout.RelocationModifierKt:
+    Removed class androidx.compose.ui.layout.RelocationModifierKt
+RemovedClass: androidx.compose.ui.layout.RelocationRequesterModifierKt:
+    Removed class androidx.compose.ui.layout.RelocationRequesterModifierKt
+
+
+RemovedInterface: androidx.compose.ui.node.CacheDrawModifierNode:
+    Removed class androidx.compose.ui.node.CacheDrawModifierNode
+
+
+RemovedMethod: androidx.compose.ui.platform.CompositionLocalsKt#getLocalPlatformTextInputPluginRegistry():
+    Removed method androidx.compose.ui.platform.CompositionLocalsKt.getLocalPlatformTextInputPluginRegistry()
+RemovedMethod: androidx.compose.ui.semantics.SemanticsActions#getPerformImeAction():
+    Removed method androidx.compose.ui.semantics.SemanticsActions.getPerformImeAction()
+RemovedMethod: androidx.compose.ui.semantics.SemanticsPropertiesKt#performImeAction(androidx.compose.ui.semantics.SemanticsPropertyReceiver, int, String, kotlin.jvm.functions.Function0<java.lang.Boolean>):
+    Removed method androidx.compose.ui.semantics.SemanticsPropertiesKt.performImeAction(androidx.compose.ui.semantics.SemanticsPropertyReceiver,int,String,kotlin.jvm.functions.Function0<java.lang.Boolean>)

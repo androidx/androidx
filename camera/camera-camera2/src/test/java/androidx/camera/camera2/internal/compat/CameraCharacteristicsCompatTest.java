@@ -43,6 +43,7 @@ import org.robolectric.shadows.ShadowCameraCharacteristics;
 public class CameraCharacteristicsCompatTest {
     private CameraCharacteristics mCharacteristics;
     private static final int SENSOR_ORIENTATION_VAL = 270;
+    private static final String CAMERA_ID_0 = "0";
 
     @Before
     public void setUp() {
@@ -60,7 +61,8 @@ public class CameraCharacteristicsCompatTest {
     @Test
     public void canGetCorrectValues() {
         CameraCharacteristicsCompat characteristicsCompat =
-                CameraCharacteristicsCompat.toCameraCharacteristicsCompat(mCharacteristics);
+                CameraCharacteristicsCompat.toCameraCharacteristicsCompat(mCharacteristics,
+                        CAMERA_ID_0);
 
         assertThat(characteristicsCompat.get(CameraCharacteristics.CONTROL_MAX_REGIONS_AE))
                 .isEqualTo(mCharacteristics.get(CameraCharacteristics.CONTROL_MAX_REGIONS_AE));
@@ -72,7 +74,8 @@ public class CameraCharacteristicsCompatTest {
     @Test
     public void canGetCachedValues() {
         CameraCharacteristicsCompat characteristicsCompat =
-                CameraCharacteristicsCompat.toCameraCharacteristicsCompat(mCharacteristics);
+                CameraCharacteristicsCompat.toCameraCharacteristicsCompat(mCharacteristics,
+                        CAMERA_ID_0);
 
 
         assertThat(characteristicsCompat.get(CameraCharacteristics.CONTROL_MAX_REGIONS_AE))
@@ -85,7 +88,8 @@ public class CameraCharacteristicsCompatTest {
     @Test
     public void canGetNullValue() {
         CameraCharacteristicsCompat characteristicsCompat =
-                CameraCharacteristicsCompat.toCameraCharacteristicsCompat(mCharacteristics);
+                CameraCharacteristicsCompat.toCameraCharacteristicsCompat(mCharacteristics,
+                        CAMERA_ID_0);
 
         // CONTROL_AE_AVAILABLE_MODES is set to null in setUp
         assertThat(characteristicsCompat.get(CameraCharacteristics.CONTROL_AE_AVAILABLE_MODES))
@@ -101,7 +105,8 @@ public class CameraCharacteristicsCompatTest {
     public void getPhysicalCameraIds_invokeCameraCharacteristics_api28() {
         CameraCharacteristics cameraCharacteristics = mock(CameraCharacteristics.class);
         CameraCharacteristicsCompat characteristicsCompat =
-                CameraCharacteristicsCompat.toCameraCharacteristicsCompat(cameraCharacteristics);
+                CameraCharacteristicsCompat.toCameraCharacteristicsCompat(cameraCharacteristics,
+                        CAMERA_ID_0);
 
         characteristicsCompat.getPhysicalCameraIds();
         verify(cameraCharacteristics).getPhysicalCameraIds();
@@ -111,7 +116,8 @@ public class CameraCharacteristicsCompatTest {
     @Test
     public void getPhysicalCameraIds_returnEmptyList_below28() {
         CameraCharacteristicsCompat characteristicsCompat =
-                CameraCharacteristicsCompat.toCameraCharacteristicsCompat(mCharacteristics);
+                CameraCharacteristicsCompat.toCameraCharacteristicsCompat(mCharacteristics,
+                        CAMERA_ID_0);
         assertThat(characteristicsCompat.getPhysicalCameraIds()).isEmpty();
     }
 
@@ -119,7 +125,8 @@ public class CameraCharacteristicsCompatTest {
     public void getSensorOrientation_shouldNotCache() {
         CameraCharacteristics cameraCharacteristics = spy(mCharacteristics);
         CameraCharacteristicsCompat characteristicsCompat =
-                CameraCharacteristicsCompat.toCameraCharacteristicsCompat(cameraCharacteristics);
+                CameraCharacteristicsCompat.toCameraCharacteristicsCompat(cameraCharacteristics,
+                        CAMERA_ID_0);
         assertThat(characteristicsCompat.get(CameraCharacteristics.SENSOR_ORIENTATION))
                 .isEqualTo(SENSOR_ORIENTATION_VAL);
 

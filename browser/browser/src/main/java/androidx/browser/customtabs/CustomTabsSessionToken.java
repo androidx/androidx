@@ -74,6 +74,9 @@ public class CustomTabsSessionToken {
                 Uri requestedOrigin, boolean result, Bundle extras) {}
 
         @Override
+        public void onActivityResized(int height, int width, Bundle extras) {}
+
+        @Override
         public IBinder asBinder() {
             return this;
         }
@@ -186,6 +189,15 @@ public class CustomTabsSessionToken {
                 }
             }
 
+            @SuppressWarnings("NullAway")  // TODO: b/142938599
+            @Override
+            public void onActivityResized(int height, int width, @NonNull Bundle extras) {
+                try {
+                    mCallbackBinder.onActivityResized(height, width, extras);
+                } catch (RemoteException e) {
+                    Log.e(TAG, "RemoteException during ICustomTabsCallback transaction");
+                }
+            }
         };
     }
 
@@ -207,7 +219,6 @@ public class CustomTabsSessionToken {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public boolean hasCallback() {
@@ -215,7 +226,6 @@ public class CustomTabsSessionToken {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public boolean hasId() {

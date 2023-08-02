@@ -18,7 +18,7 @@ package androidx.wear.ambient;
 import static org.junit.Assert.assertFalse;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import androidx.fragment.app.FragmentActivity;
@@ -66,7 +66,7 @@ public class AmbientDelegateTest {
     public void testNullActivity() {
         mAmbientDelegateUnderTest = new AmbientDelegate(null,
                 mMockWearableControllerProvider, mMockAmbientCallback);
-        verifyZeroInteractions(mMockWearableControllerProvider);
+        verifyNoMoreInteractions(mMockWearableControllerProvider);
 
         assertFalse(mAmbientDelegateUnderTest.isAmbient());
 

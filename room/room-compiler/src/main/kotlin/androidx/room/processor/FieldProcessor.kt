@@ -17,6 +17,7 @@
 package androidx.room.processor
 
 import androidx.room.ColumnInfo
+import androidx.room.compiler.codegen.CodeLanguage
 import androidx.room.compiler.processing.XFieldElement
 import androidx.room.compiler.processing.XType
 import androidx.room.parser.Collate
@@ -36,7 +37,6 @@ class FieldProcessor(
     val context = baseContext.fork(element)
     fun process(): Field {
         val member = element.asMemberOf(containing)
-        val type = member.typeName
         val columnInfo = element.getAnnotation(ColumnInfo::class)?.value
         val name = element.name
         val rawCName = if (columnInfo != null && columnInfo.name != ColumnInfo.INHERIT_FIELD_NAME) {
@@ -56,7 +56,7 @@ class FieldProcessor(
             ProcessorErrors.COLUMN_NAME_CANNOT_BE_EMPTY
         )
         context.checker.notUnbound(
-            type, element,
+            member, element,
             ProcessorErrors.CANNOT_USE_UNBOUND_GENERICS_IN_ENTITY_FIELDS
         )
 
@@ -82,6 +82,13 @@ class FieldProcessor(
             indexed = columnInfo?.index ?: false,
             nonNull = nonNull
         )
+
+        // TODO(b/273592453): Figure out a way to detect value classes in KAPT and guard against it.
+        if (member.typeElement?.isValueClass() == true &&
+            context.codeLanguage != CodeLanguage.KOTLIN
+        ) {
+            onBindingError(field, ProcessorErrors.VALUE_CLASS_ONLY_SUPPORTED_IN_KSP)
+        }
 
         when (bindingScope) {
             BindingScope.TWO_WAY -> {

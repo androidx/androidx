@@ -83,7 +83,6 @@ public interface Camera {
      *
      * <p> The set of CameraInternal should be static for the lifetime of the Camera.
      *
-     * @hide
      */
     @NonNull
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -92,7 +91,6 @@ public interface Camera {
     /**
      * Get the currently set extended config of the Camera.
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @NonNull
@@ -107,7 +105,6 @@ public interface Camera {
      * HDR or bokeh.
      *
      * @param cameraConfig if null then it will reset the camera to an empty config.
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     void setExtendedConfig(@Nullable CameraConfig cameraConfig);
@@ -117,7 +114,6 @@ public interface Camera {
      *
      * @param useCases to be checked whether can be supported.
      * @return whether the use cases combination is supported by the camera
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     default boolean isUseCasesCombinationSupported(@NonNull UseCase... useCases) {

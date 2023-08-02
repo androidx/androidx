@@ -48,12 +48,6 @@
             android:layout_height="wrap_content"
             android:textOff="@string/toggle_camera_front"
             android:textOn="@string/toggle_camera_back" />
-        <ToggleButton
-            android:id="@+id/effect_toggle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textOff="@string/toggle_effect_off"
-            android:textOn="@string/toggle_effect_on" />
     </LinearLayout>
 
     <LinearLayout
@@ -74,6 +68,12 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/btn_capture" />
+        <CheckBox
+            android:id="@+id/on_disk"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="@string/on_disk"/>
     </LinearLayout>
 
     <LinearLayout

@@ -44,6 +44,14 @@ public class DeviceQuirksLoader {
             quirks.add(new ExtensionDisabledQuirk());
         }
 
+        if (CrashWhenOnDisableTooSoon.load()) {
+            quirks.add(new CrashWhenOnDisableTooSoon());
+        }
+
+        if (GetAvailableKeysNeedsOnInit.load()) {
+            quirks.add(new GetAvailableKeysNeedsOnInit());
+        }
+
         return quirks;
     }
 }

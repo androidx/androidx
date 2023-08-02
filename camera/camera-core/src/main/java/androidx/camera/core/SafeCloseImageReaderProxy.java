@@ -23,6 +23,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
+import androidx.annotation.VisibleForTesting;
+import androidx.camera.core.ForwardingImageProxy.OnImageCloseListener;
 import androidx.camera.core.impl.ImageReaderProxy;
 
 import java.util.concurrent.Executor;
@@ -31,7 +33,6 @@ import java.util.concurrent.Executor;
  * An {@link ImageReaderProxy} that wraps another ImageReaderProxy to safely wait until all
  * produced {@link ImageProxy} are closed before closing the ImageReaderProxy.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
@@ -50,14 +51,20 @@ public class SafeCloseImageReaderProxy implements ImageReaderProxy {
 
     @Nullable
     private final Surface mSurface;
+    private OnImageCloseListener mForwardingImageCloseListener;
 
     // Called after images are closed to check if the ImageReaderProxy should be closed
-    private final ForwardingImageProxy.OnImageCloseListener mImageCloseListener = (image) -> {
+    private final OnImageCloseListener mImageCloseListener = (image) -> {
+        OnImageCloseListener forwardingListener;
         synchronized (mLock) {
             mOutstandingImages--;
             if (mIsClosed && mOutstandingImages == 0) {
                 close();
             }
+            forwardingListener = mForwardingImageCloseListener;
+        }
+        if (forwardingListener != null) {
+            forwardingListener.onImageClose(image);
         }
     };
 
@@ -132,6 +139,36 @@ public class SafeCloseImageReaderProxy implements ImageReaderProxy {
         }
     }
 
+    /**
+     * Check if the {@link SafeCloseImageReaderProxy} is closed for testing.
+     */
+    @VisibleForTesting
+    public boolean isClosed() {
+        synchronized (mLock) {
+            return mIsClosed;
+        }
+    }
+
+    /**
+     * Returns the number of empty slots in the queue.
+     */
+    public int getCapacity() {
+        synchronized (mLock) {
+            return mImageReaderProxy.getMaxImages() - mOutstandingImages;
+        }
+    }
+
+    /**
+     * Sets a listener for close calls on this image.
+     *
+     * @param listener to set
+     */
+    public void setOnImageCloseListener(@NonNull OnImageCloseListener listener) {
+        synchronized (mLock) {
+            mForwardingImageCloseListener = listener;
+        }
+    }
+
     @Override
     public int getHeight() {
         synchronized (mLock) {
@@ -181,6 +218,17 @@ public class SafeCloseImageReaderProxy implements ImageReaderProxy {
     public void clearOnImageAvailableListener() {
         synchronized (mLock) {
             mImageReaderProxy.clearOnImageAvailableListener();
+        }
+    }
+
+    /**
+     * Returns the underlying {@link ImageReaderProxy} for testing.
+     */
+    @VisibleForTesting
+    @NonNull
+    public ImageReaderProxy getImageReaderProxy() {
+        synchronized (mLock) {
+            return mImageReaderProxy;
         }
     }
 }

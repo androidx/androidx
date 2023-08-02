@@ -82,7 +82,10 @@ internal class MultiModalInjectionScopeImpl(node: SemanticsNode, testContext: Te
 
     // TODO(b/133217292): Better error: explain which gesture couldn't be performed
     private var _inputDispatcher: InputDispatcher? =
-        createInputDispatcher(testContext, checkNotNull(semanticsNode.root))
+        createInputDispatcher(
+            testContext,
+            checkNotNull(semanticsNode.root) { "null semantics root" }
+        )
     internal val inputDispatcher
         get() = checkNotNull(_inputDispatcher) {
             "Can't send gesture, InjectionScope has already been disposed"

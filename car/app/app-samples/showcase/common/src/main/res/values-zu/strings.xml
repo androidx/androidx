@@ -100,7 +100,7 @@
     <string name="example_2_text" msgid="718820705318661440">"Lo mbhalo unombala oluhlaza kotshani"</string>
     <string name="example_3_text" msgid="977269832109695627">"Lo mbhalo unombala oluhlaza kwesibhakabhaka"</string>
     <string name="example_4_text" msgid="2043547015979437373">"Lo mbhalo unombala ophuzi"</string>
-    <string name="example_5_text" msgid="4387859825054561488">"Lo mbhalo usebenzisa umbala oyinhloko"</string>
+    <string name="example_5_text" msgid="8828804968749423500">"Lo mbhalo usebenzisa umbala oyinhloko"</string>
     <string name="example_6_text" msgid="7991523168517599600">"Lo mbhalo usebenzisa umbala wesibili"</string>
     <string name="color_demo" msgid="1822427636476178993">"Umbala Wedemo"</string>
     <string name="list_limit" msgid="3023536401535417286">"Umkhawulo Wohlu"</string>
@@ -113,6 +113,8 @@
     <string name="finish_app_msg" msgid="8354334557053141891">"Lokhu kuzoqeda i-app, futhi uma ubuya kuzokhipha isikrini semvume kusengaphambili"</string>
     <string name="finish_app_title" msgid="9013328479438745074">"Qedelela i-App Yedemo"</string>
     <string name="finish_app_demo_title" msgid="8223819062053448384">"Hlunga kusengaphambili Isikrini Semvume ekuqalisweni kwe-Demo okulandelayo"</string>
+    <string name="preseed_permission_app_title" msgid="182847662545676962">"Idemo Ye-App yemvume yangaphambi kwembewu"</string>
+    <string name="preseed_permission_demo_title" msgid="5476541421753978071">"Thola kusengaphambili Isikrini Semvume ekuqalisweni kwe-Demo okulandelayo"</string>
     <string name="loading_demo_title" msgid="1086529475809143517">"Ilayisha Idemo"</string>
     <string name="loading_demo_row_title" msgid="8933049915126088142">"Ukulayisha Kuqedile!"</string>
     <string name="pop_to_root" msgid="2078277386355064198">"Ngena empandeni"</string>
@@ -220,6 +222,7 @@
     <string name="clicked_row_prefix" msgid="9068303427922069941">"Umugqa ochofoziwe"</string>
     <string name="first_line_text" msgid="6648055806656590336">"Umugqa wokuqala wombhalo"</string>
     <string name="second_line_text" msgid="38664490158836864">"Umugqa wesibili wombhalo"</string>
+    <string name="long_line_text" msgid="8082962600953333087">"Lo mbhalo ongaphansi ungaboniswa ngokugcwele kumodi engakhawulelwe (isb. imodi yokupaka, imodi ekhawulelwe yesivinini esiphansi). Kodwa lokhu kuzoncipha kube imigqa emibili kuphela ngenkathi ukumodi ekhawulelwe (isb. imodi yokushayela). Ngezinjongo zokuhlola, lo mbhalo ongezansi umude kakhulu ngokwedlulele"</string>
     <string name="title_prefix" msgid="3991742709199357049">"Isihloko"</string>
     <string name="list_template_demo_title" msgid="1740208242737246151">"Umkhawulo Wesifanekiso Sedemo"</string>
     <string name="long_msg_template_demo_title" msgid="1793748562161438131">"Idemo Yesifanekiso Somyalezo Omude"</string>
@@ -227,6 +230,7 @@
     <string name="long_msg_template_not_supported_title" msgid="8600719470226274925">"Umsingathi ongahambisani"</string>
     <string name="msg_template_demo_title" msgid="3895210951340409473">"Idemo Yesifanekiso Somyalezo"</string>
     <string name="msg_template_demo_text" msgid="2275291617716161409">"Umyalezo uya lapha.\nUmbhalo owengeziwe emugqeni wesibili."</string>
+    <string name="short_msg_template_demo_title" msgid="6798738013668580714">"I-demo Yesifanekiso Somyalezo Omfushane"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"Idemo Yesifanekiso se-Pane"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"Beka Idemo Yesifanekiso Sohlu"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"Bhrawuza Izindawo"</string>
@@ -253,6 +257,15 @@
     <string name="sign_in_complete_text" msgid="8423984266325680606">"Ungene ngemvume!"</string>
     <string name="sign_in_complete_title" msgid="8919868148773983428">"Ukungena ngemvume kuqedile"</string>
     <string name="sign_in_template_demo_title" msgid="6052035424941410249">"Idemo Yesifanekiso Yokungena Ngemvume"</string>
+    <string name="tab_template_layouts_demo_title" msgid="6529681462424538165">"Idemo Yesifanekiso Sethebhu"</string>
+    <string name="tab_template_demo_title" msgid="7587839101813629975">"Idemo Yesifanekiso Sethebhu"</string>
+    <string name="tab_title_message" msgid="5266710951630087246">"Ithebhu Yomlayezo"</string>
+    <string name="tab_title_pane" msgid="2520606145526537263">"Ithebhu ye-Pane"</string>
+    <string name="tab_title_list" msgid="5104962518489668123">"Ithebhu Yohlu"</string>
+    <string name="tab_title_grid" msgid="5268168907976325154">"Ithebhu yegridi enesihloko sethebhu ende"</string>
+    <string name="tab_title_search" msgid="1892925693146631173">"Sesha, ithebhu"</string>
+    <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"Isifanekiso Sethebhu Silayisha Idemo"</string>
+    <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"Isifanekiso Sethebhu Ayikho Idemo Yamathebhu"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"Imifanekiso ayikwazi ukuboniswa mayelana nomsingathi ongaziwa"</string>
     <string name="icon_title_prefix" msgid="8487026131229541244">"Isithonjana"</string>
     <string name="content_provider_icons_demo_title" msgid="5708602618664311097">"Idemo Yezithonjana Zomhlinzeki Wokuqukethwe"</string>
@@ -262,7 +275,7 @@
     <string name="vector_with_tint_title" msgid="1022346419829696827">"Ivekhtha edwebekayo, ene-tint"</string>
     <string name="vector_with_app_theme_attr_title" msgid="4890094482708376219">"Ivekhtha edwebekayo, ngesibaluli setimu ye-app yombala walo"</string>
     <string name="png_res_title" msgid="7437083018336747544">"I-PNG, ithunyelwe njengensiza"</string>
-    <string name="png_bitmap_title" msgid="120790220238335267">"I-PNG, ithunyelwe njengensiza"</string>
+    <string name="png_bitmap_title" msgid="3385912074130977032">"I-PNG, ithunyelwe njenge-bitmap"</string>
     <string name="just_row_title" msgid="965700021568970725">"Kancane nje"</string>
     <string name="title_with_app_icon_row_title" msgid="6294250714820740520">"Isihloko esinesithonjana se-app"</string>
     <string name="title_with_res_id_image_row_title" msgid="3813134904602875778">"Isihloko esinensiza yomfanekiso we-ID"</string>
@@ -274,6 +287,7 @@
     <string name="rows_demo_title" msgid="3198566660454251007">"Idemo Yemigqa"</string>
     <string name="text_icons_demo_title" msgid="8732943920672143201">"Umbhalo Nezithonjana Zamademo"</string>
     <string name="row_text_icons_demo_title" msgid="135167694047524905">"Imigqa Enombhalo kanye Nedemo Yezithonjana"</string>
+    <string name="radio_button_list_demo_title" msgid="9082264324855338774">"Inkinobho Yokukhetha Izinhla Ze-demo"</string>
     <string name="selectable_lists_demo_title" msgid="5492658731113129386">"Idemo Yohlu Olukhethekayo"</string>
     <string name="option_1_title" msgid="7221252541651471199">"Inketho 1"</string>
     <string name="option_2_title" msgid="1905146448697963818">"Inketho 2"</string>
@@ -284,9 +298,11 @@
     <string name="some_additional_text" msgid="4009872495806318260">"Omunye umbhalo owengeziwe"</string>
     <string name="sample_additional_list" msgid="5085372891301576306">"Isampula lohlu olukhethekayo"</string>
     <string name="task_restriction_demo_title" msgid="2212084350718766941">"Idemo Yokukhawulelwa Komsebenzi"</string>
-    <string name="task_limit_reached_msg" msgid="6038763366777119364">"Umkhawulo womsebenzi ufinyelelwe\nUkuqhubekela phambili kuzophoqa ukumisa i-app"</string>
+    <string name="task_limit_reached_msg" msgid="7162842196382260992">"Lokhu kuzogelezisa ngokweqile inani lesinyathelo, futhi kukuholele kusikrini esisha."</string>
     <string name="task_step_of_title" msgid="2791717962535723839">"Isinyathelo somsebenzi %1$d kwengu-%2$d"</string>
     <string name="task_step_of_text" msgid="4646729781462227219">"Chofoza ukuze uye phambili"</string>
+    <string name="task_content_allowed" msgid="545061986612431190">"Sicela uvakashele izifanekiso ezahlukene futhi uqinisekise ukuthi imoto ikumodi yokushayela"</string>
+    <string name="toggle_button_demo_title" msgid="3179103600967398928">"Inkinobho Yokuguqula I-demo"</string>
     <string name="toggle_test_title" msgid="924485265152862631">"Guqula ukuhlola"</string>
     <string name="toggle_test_text" msgid="8107217216013312857">"Izinguquko ezisemthethweni zivunyelwe"</string>
     <string name="toggle_test_first_toggle_title" msgid="3635022201072117680">"Nika Amandla Ukuhlola Kokuguqula"</string>
@@ -299,11 +315,53 @@
     <string name="additional_data_text" msgid="2846223398214158872">"Izibuyekezo zivunyelwe ukusebenza ngemuva."</string>
     <string name="toggle_test_enabled" msgid="982370904182034076">"Ukuhlola Kokuguqula Kunikwe Amandla"</string>
     <string name="toggle_test_disabled" msgid="8366040658408451664">"Ukuhlola Kokuguqula Kukhutshaziwe"</string>
+    <string name="secondary_actions_decoration_button_demo_title" msgid="3710817648501132309">"Idemo Yesibili Yesenzo Nokuhlobisa"</string>
+    <string name="secondary_actions_test_title" msgid="3664453747553733613">"Ukuhlolwa Kwesenzo Kwesibili"</string>
+    <string name="secondary_actions_test_subtitle" msgid="6985282813402073703">"Isenzo sesibili kuphela esingakhethwa"</string>
+    <string name="decoration_test_title" msgid="8450127046762442244">"Ukuhlolwa Kokuhlobisa"</string>
+    <string name="secondary_actions_decoration_test_title" msgid="6282873404859209490">"Izenzo Zesibili Nokuhlobisa"</string>
+    <string name="secondary_actions_decoration_test_subtitle" msgid="155884606592724532">"Umugqa ungabuye ukhethwe"</string>
+    <string name="secondary_action_toast" msgid="5076434693504006565">"Isenzo Sesibili Sikhethiwe"</string>
+    <string name="row_primary_action_toast" msgid="756516694751965204">"Isenzo esiyinhloko somugqa sikhethiwe"</string>
+    <string name="sectioned_item_list_demo_title" msgid="1236735461225007729">"Idemo yento ekuhlu efakwe esigabeni"</string>
+    <string name="sectioned_item_list_one_title" msgid="6594204350307263338">"Uhlu 1"</string>
+    <string name="sectioned_item_list_two_title" msgid="4941545381743022833">"Uhlu 2"</string>
+    <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"Umbhalo ongaphansi kohlu ngalunye"</string>
+    <string name="empty_list_demo_title" msgid="5989013634820902455">"Idemo Yohlu Olungenalutho"</string>
+    <string name="empty_list_message" msgid="5331395517560728138">"Uhlu alunalutho"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"Amademo Ezifanekiso Ezixubile"</string>
     <string name="showcase_demos_title" msgid="1542092687878113304">"Bonisa Amademo"</string>
+    <string name="template_layouts_demo_title" msgid="788249269446087847">"Ama-demo Esakhiwo Sesifanekiso"</string>
+    <string name="grid_template_menu_demo_title" msgid="7096285873490705119">"Ama-demo esifanekiso Segridi"</string>
+    <string name="voice_access_demo_title" msgid="3825223890895361496">"Isikrini Sedemo Sokufinyelela Ngezwi"</string>
+    <string name="user_interactions_demo_title" msgid="1356952319161314986">"Ukusebenzisana Komsebenzisi"</string>
+    <string name="request_permission_menu_demo_title" msgid="4796486779527427017">"Cela Amademo Ezimvume"</string>
+    <string name="application_overflow_title" msgid="396427940886169325">"Isiqinisekisi sokuchichima se-app"</string>
+    <string name="application_overflow_subtitle1" msgid="7429415605726615529">"Sicela uhlole izifanekiso ezilandelayo ngenkathi ushintsha"</string>
+    <string name="application_overflow_subtitle2" msgid="4385123036846369714">"imoto isuka lapho imile iye esimweni sokushayela"</string>
+    <string name="perm_group" msgid="3834918337351876270">"Iqembu Lemvume"</string>
+    <string name="perm_group_description" msgid="7348847631139139024">"Iqembu Lemvume Le-app Ye-showcase"</string>
+    <string name="perm_fine_location" msgid="5438874642600304118">"Ukufinyelela Endaweni Enhle"</string>
+    <string name="perm_fine_location_desc" msgid="3549183883787912516">"Imvume Yokufinyelela Endaweni Enhle"</string>
+    <string name="perm_coarse_location" msgid="6140337431619481015">"Ukufinyelela Endaweni Emaholoholo"</string>
+    <string name="perm_coarse_location_desc" msgid="6074759942301565943">"Imvume Yokufinyelela Endaweni Emaholoholo"</string>
+    <string name="perm_record_audio" msgid="2758340693260523493">"Ukufinyelela Kurekhodi Lomsindo"</string>
+    <string name="perm_record_audio_desc" msgid="8038648467605928912">"Imvume Yokufinyelela Ukurekhoda Umsindo"</string>
     <string name="location_1_description" msgid="4801052291684791371">"Ivekhtha yensiza enemibala"</string>
     <string name="location_2_description" msgid="3331356135359047166">"Umfanekiso wensiza ye-bitmap"</string>
     <string name="location_3_description" msgid="3982142774088944850">"Umaka wombala wombhalo"</string>
     <string name="location_4_description" msgid="6560365445044381911">"Umfanekiso we-bitmap"</string>
     <string name="location_description_text_label" msgid="2779911545316756419">"Ilebula yombhalo"</string>
+    <string name="parking_vs_driving_demo_title" msgid="3367862800135053111">"Ukupaka Kuqhathaniswa Nedemo Yokushayela"</string>
+    <string name="latest_feature_details" msgid="6843008350392721502">"Izibonisi Zeqoqo ezimotweni!"</string>
+    <string name="latest_feature_title" msgid="7929405790070777460">"Izakhi Zakamuva"</string>
+    <string name="loading_toggle_enabled" msgid="8828072732804454994">"Ukulayisha kunikwe amandla"</string>
+    <string name="loading_toggle_disabled" msgid="7689738885077382673">"Ukulayisha kukhutshaziwe"</string>
+    <string name="loading_screen" msgid="4771507490730308794">"Ilayisha isikrini"</string>
+    <string name="vector_toggle_details" msgid="1301305340033556819">"Guqula ukuze wengeze/ususe umbala"</string>
+    <string name="map_template_toggle_demo_title" msgid="6510798293640092611">"Isifanekiso Semephu Esinokuguqulwa"</string>
+    <string name="avoid_tolls_row_title" msgid="5194057244144831024">"Gwema imigwaqo ekhokhelwayo"</string>
+    <string name="route_options_demo_title" msgid="4599699012716426514">"Okungakhethwa kukho komzila"</string>
+    <string name="avoid_highways_row_title" msgid="4711913426200490304">"Gwema othelawayeka"</string>
+    <string name="avoid_ferries_row_title" msgid="8232883866013711974">"Gwema isikebhe"</string>
 </resources>

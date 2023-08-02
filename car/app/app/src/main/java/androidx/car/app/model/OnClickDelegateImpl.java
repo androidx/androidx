@@ -23,27 +23,24 @@ import static java.util.Objects.requireNonNull;
 import android.annotation.SuppressLint;
 import android.os.RemoteException;
 
-import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.IOnDoneCallback;
 import androidx.car.app.OnDoneCallback;
 import androidx.car.app.annotations.CarProtocol;
+import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.utils.RemoteUtils;
 
 /**
  * Implementation class for {@link OnClickDelegate} to allow IPC for click-related events.
  *
- * @hide
  */
 @RestrictTo(LIBRARY)
 @CarProtocol
+@KeepFields
 public class OnClickDelegateImpl implements OnClickDelegate {
-
-    @Keep
     private final boolean mIsParkedOnly;
-    @Keep
     @Nullable
     private final IOnClickListener mListener;
 
@@ -85,7 +82,7 @@ public class OnClickDelegateImpl implements OnClickDelegate {
         mIsParkedOnly = false;
     }
 
-    @Keep // We need to keep these stub for Bundler serialization logic.
+    @KeepFields // We need to keep these stub for Bundler serialization logic.
     private static class OnClickListenerStub extends IOnClickListener.Stub {
         private final OnClickListener mOnClickListener;
 

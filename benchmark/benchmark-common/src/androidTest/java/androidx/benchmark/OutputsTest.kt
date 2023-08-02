@@ -19,14 +19,15 @@ package androidx.benchmark
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
-import org.junit.Assert
-import org.junit.Before
-import org.junit.Test
-import org.junit.runner.RunWith
 import java.io.File
 import java.util.Date
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import org.junit.Assert
+import org.junit.Assume.assumeTrue
+import org.junit.Before
+import org.junit.Test
+import org.junit.runner.RunWith
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
@@ -105,12 +106,79 @@ public class OutputsTest {
     public fun dirUsableByAppAndShell_writeAppReadShell() {
         val dir = Outputs.dirUsableByAppAndShell
         val file = File.createTempFile("testFile", null, dir)
+        file.setReadable(true, false)
         try {
             file.writeText(file.name) // use name, as it's fairly unique
             Assert.assertEquals(
                 file.name,
-                Shell.executeCommand("cat ${file.absolutePath}")
+                Shell.executeScriptCaptureStdout("cat ${file.absolutePath}")
             )
+        } finally {
+            file.delete()
+        }
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 21)
+    public fun dirUsableByAppAndShell_writeShellReadShell() {
+        val dir = Outputs.dirUsableByAppAndShell
+
+        // simple way to get a unique path, not shared across runs
+        val file = File.createTempFile("shellwrite", null, dir)
+        val path = file.absolutePath
+        file.delete()
+
+        Shell.executeScriptSilent("rm -f $path")
+        try {
+            Shell.executeScriptSilent("echo test > $path")
+            assertEquals(
+                "test\n",
+                Shell.executeScriptCaptureStdout("cat $path")
+            )
+            file.appendBytes("extra".toByteArray())
+        } finally {
+            Shell.executeScriptSilent("rm -f $path")
+        }
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 21)
+    public fun dirUsableByAppAndShell_writeShellReadApp() {
+        val dir = Outputs.dirUsableByAppAndShell
+
+        // simple way to get a unique path, not shared across runs
+        val file = File.createTempFile("shellwrite", null, dir)
+        val path = file.absolutePath
+        file.delete()
+
+        Shell.executeScriptSilent("rm -f $path")
+        try {
+            Shell.executeScriptSilent("echo test > $path")
+            assertEquals(
+                "test\n",
+                File(path).readText()
+            )
+            file.appendBytes("extra".toByteArray())
+        } finally {
+            Shell.executeScriptSilent("rm -f $path")
+        }
+    }
+
+    /**
+     * NOTE: this test checks that the instrumentation argument additionalTestOutputDir isn't set to
+     * an invalid / unusable location.
+     *
+     * Running through Studio/Gradle, this isn't defined by the library, it's defined by AGP.
+     *
+     * If this test fails, we need to handle the directory differently.
+     */
+    @Test
+    fun additionalTestOutputDir_appWrite() {
+        val additionalTestOutputDir = Arguments.additionalTestOutputDir
+        assumeTrue(additionalTestOutputDir != null)
+        val file = File.createTempFile("testFile", null, File(additionalTestOutputDir!!))
+        try {
+            file.writeText("testString")
         } finally {
             file.delete()
         }

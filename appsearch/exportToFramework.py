@@ -136,6 +136,13 @@ class ExportToFramework:
                     r'^(\s*package [^;]+;\s*)$', r'\1\nimport %s;\n' % import_to_add, contents,
                     flags=re.MULTILINE)
 
+        # Remove all imports for stub CREATOR classes imported for SafeParcelable
+        # If there are more use cases in the future we might want to add
+        # imports_to_delete
+        contents = re.sub(
+            r'import androidx\.appsearch\.safeparcel\.stub.*?\;',
+            '', contents, flags=re.MULTILINE)
+
         # Apply in-place replacements
         contents = (contents
             .replace('androidx.appsearch.app', 'android.app.appsearch')
@@ -169,6 +176,7 @@ class ExportToFramework:
             .replace('/*@exportToFramework:CurrentTimeMillisLong*/', '@CurrentTimeMillisLong')
             .replace('/*@exportToFramework:UnsupportedAppUsage*/', '@UnsupportedAppUsage')
             .replace('<!--@exportToFramework:hide-->', '@hide')
+            .replace('@exportToFramework:hide', '@hide')
             .replace('// @exportToFramework:skipFile()', '')
         )
         contents = re.sub(r'\/\/ @exportToFramework:copyToPath\([^)]+\)', '', contents)

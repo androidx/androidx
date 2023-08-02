@@ -17,22 +17,19 @@
 package androidx.room.compiler.processing.javac
 
 import androidx.room.compiler.processing.XExecutableElement
-import androidx.room.compiler.processing.XHasModifiers
 import androidx.room.compiler.processing.XNullability
-import androidx.room.compiler.processing.javac.kotlin.KmExecutable
+import androidx.room.compiler.processing.javac.kotlin.KmFunctionContainer
 import androidx.room.compiler.processing.javac.kotlin.descriptor
 import javax.lang.model.element.ExecutableElement
 
 internal abstract class JavacExecutableElement(
     env: JavacProcessingEnv,
     override val element: ExecutableElement
-) : JavacElement(env, element),
-    XExecutableElement,
-    XHasModifiers by JavacHasModifiers(element) {
-    abstract val kotlinMetadata: KmExecutable?
+) : JavacElement(env, element), XExecutableElement {
+    abstract override val kotlinMetadata: KmFunctionContainer?
 
-    val descriptor by lazy {
-        element.descriptor()
+    override val jvmDescriptor by lazy {
+        element.descriptor(env.delegate)
     }
 
     abstract override val parameters: List<JavacMethodParameter>

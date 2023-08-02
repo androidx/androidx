@@ -21,6 +21,7 @@ import androidx.benchmark.Shell
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
+import kotlin.test.assertFailsWith
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -28,7 +29,6 @@ import org.junit.Assume.assumeFalse
 import org.junit.Assume.assumeTrue
 import org.junit.Test
 import org.junit.runner.RunWith
-import kotlin.test.assertFailsWith
 
 @Suppress("DEPRECATION")
 @RunWith(AndroidJUnit4::class)
@@ -37,8 +37,8 @@ class CompilationModeTest {
     private val vmRunningInterpretedOnly: Boolean
 
     init {
-        val getProp = Shell.executeCommand("getprop dalvik.vm.extra-opts")
-        vmRunningInterpretedOnly = getProp.contains("-Xusejit:false")
+        vmRunningInterpretedOnly = Shell.getprop("dalvik.vm.extra-opts")
+            .contains("-Xusejit:false")
     }
 
     @SdkSuppress(minSdkVersion = 24)

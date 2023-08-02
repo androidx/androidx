@@ -32,7 +32,7 @@
     <string name="mcv2_playback_error_text" msgid="6061787693725630293">"مورد درخواستی پخش نشد"</string>
     <string name="mcv2_error_dialog_button" msgid="5940167897992933850">"تأیید"</string>
     <string name="mcv2_back_button_desc" msgid="1540894858499118373">"برگشت"</string>
-    <string name="mcv2_overflow_left_button_desc" msgid="2749567167276435888">"فهرست دکمه برگشت به عقب"</string>
+    <string name="mcv2_overflow_left_button_desc" msgid="2749567167276435888">"فهرست دکمه برگشتن به‌عقب"</string>
     <string name="mcv2_overflow_right_button_desc" msgid="7388732945289831383">"مشاهده دکمه‌های بیشتر"</string>
     <string name="mcv2_seek_bar_desc" msgid="24915699029009384">"پیشرفت بازپخش"</string>
     <string name="mcv2_settings_button_desc" msgid="811917224044739656">"تنظیمات"</string>

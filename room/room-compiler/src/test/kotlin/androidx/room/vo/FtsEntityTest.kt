@@ -16,10 +16,10 @@
 
 package androidx.room.vo
 
-import androidx.room.parser.FtsVersion
 import androidx.room.compiler.processing.XElement
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
+import androidx.room.parser.FtsVersion
 import mockElementAndType
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat

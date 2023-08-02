@@ -26,6 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEvent as ComposeKeyEvent
 import androidx.compose.ui.input.key.nativeKeyCode
 import androidx.compose.ui.platform.LocalTextInputService
 import androidx.compose.ui.test.hasSetTextAction
@@ -35,10 +36,10 @@ import androidx.compose.ui.text.input.TextInputService
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
-import com.nhaarman.mockitokotlin2.mock
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.kotlin.mock
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
@@ -73,24 +74,35 @@ class TextFieldUndoTest {
 
         rule.waitForIdle()
 
-        // undo command
-        rule.onNode(hasSetTextAction()).performKeyPress(downEvent(Key.Z, KeyEvent.META_CTRL_ON))
+        fun verifyRedoShortcut(redoKeyEvent: ComposeKeyEvent) {
+            // undo command
+            rule.onNode(hasSetTextAction()).performKeyPress(downEvent(Key.Z, KeyEvent.META_CTRL_ON))
 
-        rule.runOnIdle {
-            assertThat(state.value).isEqualTo("hi")
+            rule.runOnIdle {
+                assertThat(state.value).isEqualTo("hi")
+            }
+
+            // redo command
+            rule.onNode(hasSetTextAction()).performKeyPress(redoKeyEvent)
+
+            rule.runOnIdle {
+                assertThat(state.value).isEqualTo("hello")
+            }
         }
 
-        // redo command
-        rule.onNode(hasSetTextAction()).performKeyPress(
+        verifyRedoShortcut(
             downEvent(
                 Key.Z,
                 KeyEvent.META_CTRL_ON or KeyEvent.META_SHIFT_ON
             )
         )
 
-        rule.runOnIdle {
-            assertThat(state.value).isEqualTo("hello")
-        }
+        verifyRedoShortcut(
+            downEvent(
+                Key.Y,
+                KeyEvent.META_CTRL_ON
+            )
+        )
     }
 }
 

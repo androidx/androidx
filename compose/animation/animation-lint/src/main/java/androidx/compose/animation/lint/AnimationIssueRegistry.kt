@@ -27,11 +27,13 @@ import com.android.tools.lint.detector.api.CURRENT_API
  */
 class AnimationIssueRegistry : IssueRegistry() {
     // Tests are run with this version. We ensure that with ApiLintVersionsTest
-    override val api = 13
+    override val api = 14
     override val minApi = CURRENT_API
-    override val issues get() = listOf(
-        CrossfadeDetector.UnusedCrossfadeTargetStateParameter
-    )
+    override val issues
+        get() = listOf(
+            CrossfadeDetector.UnusedCrossfadeTargetStateParameter,
+            AnimatedContentDetector.UnusedContentLambdaTargetStateParameter
+        )
     override val vendor = Vendor(
         vendorName = "Jetpack Compose",
         identifier = "androidx.compose.animation",

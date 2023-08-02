@@ -29,6 +29,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.testutils.withActivity
+import androidx.testutils.withUse
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Assert.fail
@@ -926,7 +927,7 @@ class FragmentViewTest {
     // Test that adding a fragment and making its view invisible in onStart is still invisible
     @Test
     fun makeFragmentInvisibleInOnStart() {
-        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+       withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             val container = withActivity { findViewById<View>(R.id.content) as ViewGroup }
 
             val fm = withActivity { supportFragmentManager }

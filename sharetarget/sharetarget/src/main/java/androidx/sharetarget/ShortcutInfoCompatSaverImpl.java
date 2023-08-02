@@ -56,7 +56,6 @@ import java.util.concurrent.TimeUnit;
  * keeps an up-to-date cache of the complete list in memory for quick access, except shortcuts'
  * Icons, which are stored on the disk and only loaded from disk separately if necessary.
  *
- * @hide
  */
 @RequiresApi(19)
 @RestrictTo(LIBRARY_GROUP_PREFIX)

@@ -27,6 +27,8 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.DrawCache
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
+import java.io.InputStream
+import kotlin.math.ceil
 import org.jetbrains.skia.Data
 import org.jetbrains.skia.Rect
 import org.jetbrains.skia.svg.SVGDOM
@@ -34,8 +36,6 @@ import org.jetbrains.skia.svg.SVGLength
 import org.jetbrains.skia.svg.SVGLengthUnit
 import org.jetbrains.skia.svg.SVGPreserveAspectRatio
 import org.jetbrains.skia.svg.SVGPreserveAspectRatioAlign
-import java.io.InputStream
-import kotlin.math.ceil
 
 /**
  * Synchronously load an SVG image from some [inputStream].

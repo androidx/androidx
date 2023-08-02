@@ -34,7 +34,7 @@ suspend fun DeleteByUniqueIdentifier(
 ) {
     healthConnectClient.deleteRecords(
         StepsRecord::class,
-        uidsList = listOf(uid1, uid2),
+        recordIdsList = listOf(uid1, uid2),
         clientRecordIdsList = emptyList()
     )
 }

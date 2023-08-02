@@ -49,15 +49,9 @@ data class JavaCompileInputs(
         ): JavaCompileInputs {
             val sourceCollection = getSourceCollection(variant, project)
 
-            val dependencyClasspath = variant.getCompileClasspath(null).filter {
-                it.exists()
-            }
+            val dependencyClasspath = variant.getCompileClasspath(null).filter { it.exists() }
 
-            return JavaCompileInputs(
-                sourceCollection,
-                dependencyClasspath,
-                bootClasspath
-            )
+            return JavaCompileInputs(sourceCollection, dependencyClasspath, bootClasspath)
         }
 
         /**
@@ -65,37 +59,38 @@ data class JavaCompileInputs(
          *
          * @param project The project whose main jvm target inputs will be returned.
          */
-        fun fromKmpJvmTarget(
-            project: Project
-        ): JavaCompileInputs {
-            val kmpExtension = checkNotNull(project.multiplatformExtension) {
-                """
+        fun fromKmpJvmTarget(project: Project): JavaCompileInputs {
+            val kmpExtension =
+                checkNotNull(project.multiplatformExtension) {
+                    """
                 ${project.path} needs to have Kotlin Multiplatform Plugin applied to obtain its
                 jvm source sets.
-                """.trimIndent()
-            }
-            val jvmTarget = kmpExtension.targets.requirePlatform(
-                KotlinPlatformType.jvm
-            )
-            val sourceCollection = jvmTarget.sourceFiles(
-                compilationName = KotlinCompilation.MAIN_COMPILATION_NAME
-            )
+                """
+                        .trimIndent()
+                }
+            val jvmTarget = kmpExtension.targets.requirePlatform(KotlinPlatformType.jvm)
+            val sourceCollection =
+                project.files(
+                    project.provider {
+                        jvmTarget.sourceFiles(
+                            compilationName = KotlinCompilation.MAIN_COMPILATION_NAME
+                        )
+                    }
+                )
 
             return JavaCompileInputs(
-                sourcePaths = project.files(sourceCollection),
-                dependencyClasspath = jvmTarget
-                    .compilations[KotlinCompilation.MAIN_COMPILATION_NAME].compileDependencyFiles,
+                sourcePaths = sourceCollection,
+                dependencyClasspath =
+                    jvmTarget.compilations[KotlinCompilation.MAIN_COMPILATION_NAME]
+                        .compileDependencyFiles,
                 bootClasspath = project.getAndroidJar()
             )
         }
 
         // Constructs a JavaCompileInputs from a sourceset
         fun fromSourceSet(sourceSet: SourceSet, project: Project): JavaCompileInputs {
-            val sourcePaths: FileCollection = project.files(
-                project.provider {
-                    sourceSet.allSource.srcDirs
-                }
-            )
+            val sourcePaths: FileCollection =
+                project.files(project.provider { sourceSet.allSource.srcDirs })
             val dependencyClasspath = sourceSet.compileClasspath
             return JavaCompileInputs(sourcePaths, dependencyClasspath, project.getAndroidJar())
         }
@@ -110,22 +105,24 @@ data class JavaCompileInputs(
             // with a common and Android source set, this will look inside commonMain and
             // androidMain.
             val taskDependencies = mutableListOf<Any>(variant.javaCompileProvider)
-            val sourceFiles = project.multiplatformExtension?.let { kmpExtension ->
-                project.provider {
-                    kmpExtension.targets.requirePlatform(
-                        KotlinPlatformType.androidJvm
-                    ).sourceFiles(compilationName = variant.name)
-                }
-            } ?: project.provider {
-                variant
-                    .getSourceFolders(com.android.build.gradle.api.SourceKind.JAVA)
-                    .map { folder ->
-                        for (builtBy in folder.builtBy) {
-                            taskDependencies.add(builtBy)
-                        }
-                        folder.dir
+            val sourceFiles =
+                project.multiplatformExtension?.let { kmpExtension ->
+                    project.provider {
+                        kmpExtension.targets
+                            .requirePlatform(KotlinPlatformType.androidJvm)
+                            .sourceFiles(compilationName = variant.name)
                     }
-            }
+                }
+                    ?: project.provider {
+                        variant
+                            .getSourceFolders(com.android.build.gradle.api.SourceKind.JAVA)
+                            .map { folder ->
+                                for (builtBy in folder.builtBy) {
+                                    taskDependencies.add(builtBy)
+                                }
+                                folder.dir
+                            }
+                    }
 
             val sourceCollection = project.files(sourceFiles)
             for (dep in taskDependencies) {
@@ -135,31 +132,30 @@ data class JavaCompileInputs(
         }
 
         /**
-         * Returns the list of Files (might be directories) that are included in the compilation
-         * of this target.
+         * Returns the list of Files (might be directories) that are included in the compilation of
+         * this target.
          *
          * @param compilationName The name of the compilation. A target might have separate
-         * compilations (e.g. main vs test for jvm or debug vs release for Android)
+         *   compilations (e.g. main vs test for jvm or debug vs release for Android)
          */
-        private fun KotlinTarget.sourceFiles(
-            compilationName: String
-        ): List<File> {
-            val selectedCompilation = checkNotNull(compilations.findByName(compilationName)) {
-                """
+        private fun KotlinTarget.sourceFiles(compilationName: String): List<File> {
+            val selectedCompilation =
+                checkNotNull(compilations.findByName(compilationName)) {
+                    """
                 Cannot find $compilationName compilation configuration of $name in
                 ${project.parent}.
                 Available compilations: ${compilations.joinToString(", ") { it.name }}
-                """.trimIndent()
-            }
-            return selectedCompilation
-                .allKotlinSourceSets
-                .flatMap {
-                    it.kotlin.sourceDirectories
-                }.also {
+                """
+                        .trimIndent()
+                }
+            return selectedCompilation.allKotlinSourceSets
+                .flatMap { it.kotlin.sourceDirectories }
+                .also {
                     require(it.isNotEmpty()) {
                         """
                         Didn't find any source sets for $selectedCompilation in ${project.path}.
-                        """.trimIndent()
+                        """
+                            .trimIndent()
                     }
                 }
         }
@@ -173,17 +169,17 @@ data class JavaCompileInputs(
         private fun Collection<KotlinTarget>.requirePlatform(
             expectedPlatformType: KotlinPlatformType
         ): KotlinTarget {
-            return this.singleOrNull {
-                it.platformType == expectedPlatformType
-            } ?: error(
-                """
+            return this.singleOrNull { it.platformType == expectedPlatformType }
+                ?: error(
+                    """
                 Expected 1 and only 1 kotlin target with $expectedPlatformType. Found $size.
                 Matching compilation targets:
                     ${joinToString(",") { it.name }}
                 All compilation targets:
                     ${this@requirePlatform.joinToString(",") { it.name }}
-                """.trimIndent()
-            )
+                """
+                        .trimIndent()
+                )
         }
     }
 }

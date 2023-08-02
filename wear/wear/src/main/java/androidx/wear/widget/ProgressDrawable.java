@@ -28,13 +28,13 @@ import android.graphics.drawable.Drawable;
 import android.util.Property;
 import android.view.animation.LinearInterpolator;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 
 /**
  * Drawable for showing an indeterminate progress indicator.
  *
- * @hide
  */
 @RestrictTo(Scope.LIBRARY)
 class ProgressDrawable extends Drawable {
@@ -120,7 +120,7 @@ class ProgressDrawable extends Drawable {
     }
 
     @Override
-    public void draw(Canvas canvas) {
+    public void draw(@NonNull Canvas canvas) {
         canvas.save();
         mInnerCircleBounds.set(getBounds());
         mInnerCircleBounds.inset(mCircleBorderWidth / 2.0f, mCircleBorderWidth / 2.0f);

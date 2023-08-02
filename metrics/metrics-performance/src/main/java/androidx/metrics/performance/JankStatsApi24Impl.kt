@@ -80,9 +80,7 @@ internal open class JankStatsApi24Impl(
         prevEnd = startTime + uiDuration
         metricsStateHolder.state?.getIntervalStates(startTime, prevEnd, stateInfo)
         val isJank = uiDuration > expectedDuration
-        val cpuDuration = uiDuration +
-            frameMetrics.getMetric(FrameMetrics.COMMAND_ISSUE_DURATION) +
-            frameMetrics.getMetric(FrameMetrics.SWAP_BUFFERS_DURATION)
+        val cpuDuration = frameMetrics.getMetric(FrameMetrics.TOTAL_DURATION)
         frameData.update(startTime, uiDuration, cpuDuration, isJank)
         return frameData
     }

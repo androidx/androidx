@@ -49,7 +49,7 @@ class AggregateMetricConverterTest {
                     .setFieldName("distance")
                     .build()
             )
-        assertThat(ExerciseSessionRecord.ACTIVE_TIME_TOTAL.toProto())
+        assertThat(ExerciseSessionRecord.EXERCISE_DURATION_TOTAL.toProto())
             .isEqualTo(
                 RequestProto.AggregateMetricSpec.newBuilder()
                     .setDataTypeName("ActiveTime")

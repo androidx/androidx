@@ -16,9 +16,10 @@
 
 package androidx.camera.camera2.pipe.integration.impl
 
-import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CaptureRequest
 import androidx.annotation.RequiresApi
+import androidx.camera.camera2.pipe.integration.adapter.propagateTo
+import androidx.camera.camera2.pipe.integration.compat.workaround.isFlashAvailable
 import androidx.camera.camera2.pipe.integration.config.CameraScope
 import androidx.camera.core.CameraControl
 import androidx.camera.core.TorchState
@@ -29,10 +30,10 @@ import androidx.lifecycle.MutableLiveData
 import dagger.Binds
 import dagger.Module
 import dagger.multibindings.IntoSet
+import javax.inject.Inject
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 /**
  * Implementation of Torch control exposed by [CameraControlInternal].
@@ -41,6 +42,7 @@ import javax.inject.Inject
 @CameraScope
 class TorchControl @Inject constructor(
     cameraProperties: CameraProperties,
+    private val state3AControl: State3AControl,
     private val threads: UseCaseThreads,
 ) : UseCaseCameraControl {
 
@@ -50,10 +52,11 @@ class TorchControl @Inject constructor(
         set(value) {
             _useCaseCamera = value
             setTorchAsync(
-                when (torchStateLiveData.value) {
+                torch = when (torchStateLiveData.value) {
                     TorchState.ON -> true
                     else -> false
-                }
+                },
+                cancelPreviousTask = false,
             )
         }
 
@@ -65,10 +68,7 @@ class TorchControl @Inject constructor(
         setTorchAsync(false)
     }
 
-    private val hasFlashUnit: Boolean =
-        cameraProperties.metadata[CameraCharacteristics.FLASH_INFO_AVAILABLE].let {
-            it != null && it
-        }
+    private val hasFlashUnit: Boolean = cameraProperties.isFlashAvailable()
 
     private val _torchState = MutableLiveData(TorchState.OFF)
     val torchStateLiveData: LiveData<Int>
@@ -76,7 +76,7 @@ class TorchControl @Inject constructor(
 
     private var _updateSignal: CompletableDeferred<Unit>? = null
 
-    fun setTorchAsync(torch: Boolean): Deferred<Unit> {
+    fun setTorchAsync(torch: Boolean, cancelPreviousTask: Boolean = true): Deferred<Unit> {
         val signal = CompletableDeferred<Unit>()
 
         if (!hasFlashUnit) {
@@ -88,28 +88,27 @@ class TorchControl @Inject constructor(
             _torchState.setLiveDataValue(torch)
 
             threads.sequentialScope.launch {
-                stopRunningTaskInternal()
+                if (cancelPreviousTask) {
+                    stopRunningTaskInternal()
+                } else {
+                    // Propagate the result to the previous updateSignal
+                    _updateSignal?.let { previousUpdateSignal ->
+                        signal.propagateTo(previousUpdateSignal)
+                    }
+                }
+
                 _updateSignal = signal
 
                 // TODO(b/209757083), handle the failed result of the setTorchAsync().
                 useCaseCamera.requestControl.setTorchAsync(torch).join()
 
-                if (torch) {
-                    // Hold the internal AE mode to ON while the torch is turned ON.
-                    useCaseCamera.requestControl.addParametersAsync(
-                        type = UseCaseCameraRequestControl.Type.TORCH,
-                        values = mapOf(
-                            CaptureRequest.CONTROL_AE_MODE to CaptureRequest.CONTROL_AE_MODE_ON,
-                        )
-                    )
-                } else {
-                    // Restore the AE mode after the torch control has been used.
-                    useCaseCamera.requestControl.setConfigAsync(
-                        type = UseCaseCameraRequestControl.Type.TORCH,
-                    )
-                }.join()
+                // Hold the internal AE mode to ON while the torch is turned ON.
+                state3AControl.preferredAeMode =
+                    if (torch) CaptureRequest.CONTROL_AE_MODE_ON else null
 
-                signal.complete(Unit)
+                // Always update3A again to reset the AE state in the Camera-pipe controller.
+                state3AControl.invalidate()
+                state3AControl.updateSignal?.propagateTo(signal) ?: run { signal.complete(Unit) }
             }
         } ?: run {
             signal.createFailureResult(

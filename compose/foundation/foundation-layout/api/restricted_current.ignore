@@ -1,0 +1,5 @@
+// Baseline format: 1.0
+RemovedMethod: androidx.compose.foundation.layout.WindowInsets_androidKt#getConsumeWindowInsets(androidx.compose.ui.platform.ComposeView):
+    Removed method androidx.compose.foundation.layout.WindowInsets_androidKt.getConsumeWindowInsets(androidx.compose.ui.platform.ComposeView)
+RemovedMethod: androidx.compose.foundation.layout.WindowInsets_androidKt#setConsumeWindowInsets(androidx.compose.ui.platform.ComposeView, boolean):
+    Removed method androidx.compose.foundation.layout.WindowInsets_androidKt.setConsumeWindowInsets(androidx.compose.ui.platform.ComposeView,boolean)

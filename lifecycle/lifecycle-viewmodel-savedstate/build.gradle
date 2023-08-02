@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-
 import androidx.build.Publish
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
@@ -34,7 +32,7 @@ android {
 dependencies {
     api("androidx.annotation:annotation:1.0.0")
     api("androidx.core:core-ktx:1.2.0")
-    api("androidx.savedstate:savedstate:1.2.0")
+    api("androidx.savedstate:savedstate:1.2.1")
     api(projectOrArtifact(":lifecycle:lifecycle-livedata-core"))
     api(projectOrArtifact(":lifecycle:lifecycle-viewmodel"))
     api(libs.kotlinStdlib)
@@ -50,29 +48,11 @@ dependencies {
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.testRules)
-
-    constraints {
-        implementation(project(":lifecycle:lifecycle-viewmodel"))
-    }
-}
-
-//used by testImplementation safe-args-generator
-android.libraryVariants.all { variant ->
-    def name = variant.name
-    def suffix = name.capitalize()
-    project.tasks.register("jar${suffix}", Copy).configure {
-        dependsOn ("assemble$suffix")
-        from(zipTree("${project.buildDir}/outputs/aar/lifecycle-viewmodel-savedstate-${name}.aar")) {
-            include "classes.jar"
-        }
-        destinationDir new File(project.buildDir, "libJar")
-    }
 }
 
 androidx {
-    name = "Android Lifecycle ViewModel with SavedState"
+    name = "Lifecycle ViewModel with SavedState"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.LIFECYCLE
     inceptionYear = "2018"
     description = "Android Lifecycle ViewModel"
 }

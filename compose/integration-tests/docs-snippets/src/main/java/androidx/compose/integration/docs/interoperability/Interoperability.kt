@@ -1,4 +1,3 @@
-// ktlint-disable indent https://github.com/pinterest/ktlint/issues/967
 /*
  * Copyright 2020 The Android Open Source Project
  *
@@ -48,7 +47,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
@@ -169,7 +168,7 @@ private object InteropSnippet4 {
 private object InteropSnippet5 {
     @Composable
     fun CustomView() {
-        val selectedItem = remember { mutableStateOf(0) }
+        val selectedItem = remember { mutableIntStateOf(0) }
 
         // Adds view to Compose
         AndroidView(
@@ -179,7 +178,7 @@ private object InteropSnippet5 {
                 CustomView(context).apply {
                     // Sets up listeners for View -> Compose communication
                     myView.setOnClickListener {
-                        selectedItem.value = 1
+                        selectedItem.intValue = 1
                     }
                 }
             },
@@ -190,7 +189,7 @@ private object InteropSnippet5 {
                 // As selectedItem is read here, AndroidView will recompose
                 // whenever the state changes
                 // Example of Compose -> View communication
-                view.coordinator.selectedItem = selectedItem.value
+                view.coordinator.selectedItem = selectedItem.intValue
             }
         )
     }

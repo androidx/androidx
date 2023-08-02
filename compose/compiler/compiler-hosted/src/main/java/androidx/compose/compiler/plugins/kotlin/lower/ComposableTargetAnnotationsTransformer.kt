@@ -16,13 +16,13 @@
 
 package androidx.compose.compiler.plugins.kotlin.lower
 
+import androidx.compose.compiler.plugins.kotlin.ComposeClassIds
 import androidx.compose.compiler.plugins.kotlin.ComposeFqNames
 import androidx.compose.compiler.plugins.kotlin.KtxNameConventions
 import androidx.compose.compiler.plugins.kotlin.ModuleMetrics
 import androidx.compose.compiler.plugins.kotlin.analysis.ComposeWritableSlices
 import androidx.compose.compiler.plugins.kotlin.inference.ApplierInferencer
 import androidx.compose.compiler.plugins.kotlin.inference.ErrorReporter
-import androidx.compose.compiler.plugins.kotlin.inference.TypeAdapter
 import androidx.compose.compiler.plugins.kotlin.inference.Item
 import androidx.compose.compiler.plugins.kotlin.inference.LazyScheme
 import androidx.compose.compiler.plugins.kotlin.inference.LazySchemeStorage
@@ -31,9 +31,10 @@ import androidx.compose.compiler.plugins.kotlin.inference.NodeKind
 import androidx.compose.compiler.plugins.kotlin.inference.Open
 import androidx.compose.compiler.plugins.kotlin.inference.Scheme
 import androidx.compose.compiler.plugins.kotlin.inference.Token
+import androidx.compose.compiler.plugins.kotlin.inference.TypeAdapter
 import androidx.compose.compiler.plugins.kotlin.inference.deserializeScheme
+import androidx.compose.compiler.plugins.kotlin.inference.mergeWith
 import androidx.compose.compiler.plugins.kotlin.irTrace
-import androidx.compose.compiler.plugins.kotlin.mergeWith
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.descriptors.ClassKind
 import org.jetbrains.kotlin.descriptors.Modality
@@ -102,13 +103,13 @@ class ComposableTargetAnnotationsTransformer(
     metrics: ModuleMetrics
 ) : AbstractComposeLowering(context, symbolRemapper, metrics) {
     private val ComposableTargetClass = symbolRemapper.getReferencedClassOrNull(
-        getTopLevelClassOrNull(ComposeFqNames.ComposableTarget)
+        getTopLevelClassOrNull(ComposeClassIds.ComposableTarget)
     )
     private val ComposableOpenTargetClass = symbolRemapper.getReferencedClassOrNull(
-        getTopLevelClassOrNull(ComposeFqNames.ComposableOpenTarget)
+        getTopLevelClassOrNull(ComposeClassIds.ComposableOpenTarget)
     )
     private val ComposableInferredTargetClass = symbolRemapper.getReferencedClassOrNull(
-        getTopLevelClassOrNull(ComposeFqNames.ComposableInferredTarget)
+        getTopLevelClassOrNull(ComposeClassIds.ComposableInferredTarget)
     )
 
     /**
@@ -286,7 +287,7 @@ class ComposableTargetAnnotationsTransformer(
         val owner = currentOwner
         if (
             owner == null || (
-                    !expression.isTransformedComposableCall() &&
+                    !expression.isComposableCall() &&
                     !expression.hasComposableArguments()
                 ) || when (expression.symbol.owner.fqNameWhenAvailable) {
                     ComposeFqNames.getCurrentComposerFullName,

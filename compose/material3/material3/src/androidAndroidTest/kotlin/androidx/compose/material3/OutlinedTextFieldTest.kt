@@ -22,8 +22,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.size
@@ -52,6 +50,7 @@ import androidx.compose.ui.platform.LocalTextInputService
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.error
+import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
@@ -60,6 +59,7 @@ import androidx.compose.ui.test.assertWidthIsEqualTo
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.click
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onChildren
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -76,28 +76,28 @@ import androidx.compose.ui.text.input.TextInputService
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
-import com.nhaarman.mockitokotlin2.any
-import com.nhaarman.mockitokotlin2.atLeastOnce
-import com.nhaarman.mockitokotlin2.eq
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.verify
-import kotlin.math.max
 import kotlin.math.roundToInt
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.kotlin.any
+import org.mockito.kotlin.atLeastOnce
+import org.mockito.kotlin.eq
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.verify
 
 @OptIn(ExperimentalMaterial3Api::class)
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class OutlinedTextFieldTest {
-    private val ExpectedMinimumTextFieldHeight = TextFieldDefaults.MinHeight
-    private val ExpectedDefaultTextFieldWidth = TextFieldDefaults.MinWidth
+    private val ExpectedMinimumTextFieldHeight = OutlinedTextFieldDefaults.MinHeight
+    private val ExpectedDefaultTextFieldWidth = OutlinedTextFieldDefaults.MinWidth
     private val ExpectedPadding = TextFieldPadding
     private val IconPadding = HorizontalIconPadding
     private val TextFieldTag = "textField"
@@ -205,8 +205,8 @@ class OutlinedTextFieldTest {
                     OutlinedTextField(
                         value = "",
                         onValueChange = {},
-                        colors = TextFieldDefaults.outlinedTextFieldColors(
-                            textColor = Color.White,
+                        colors = OutlinedTextFieldDefaults.colors(
+                            unfocusedTextColor = Color.White,
                             unfocusedBorderColor = Color.White
                         ),
                         shape = RectangleShape
@@ -227,39 +227,58 @@ class OutlinedTextFieldTest {
 
     @Test
     fun testOutlinedTextField_labelPosition_initial_singleLine() {
-        val labelSize = Ref<IntSize>()
         val labelPosition = Ref<Offset>()
         rule.setMaterialContent(lightColorScheme()) {
-            Box {
-                OutlinedTextField(
-                    value = "",
-                    onValueChange = {},
-                    singleLine = true,
-                    label = {
-                        Text(
-                            text = "label",
-                            modifier = Modifier.onGloballyPositioned {
-                                labelPosition.value = it.positionInRoot()
-                                labelSize.value = it.size
-                            }
-                        )
-                    }
-                )
-            }
+            OutlinedTextField(
+                value = "",
+                onValueChange = {},
+                singleLine = true,
+                label = {
+                    Box(Modifier
+                        .size(MinTextLineHeight)
+                        .onGloballyPositioned {
+                            labelPosition.value = it.positionInRoot()
+                        }
+                    )
+                }
+            )
         }
 
         rule.runOnIdleWithDensity {
-            // size
-            assertThat(labelSize.value).isNotNull()
-            assertThat(labelSize.value?.height).isGreaterThan(0)
-            assertThat(labelSize.value?.width).isGreaterThan(0)
-            assertThat(labelPosition.value?.x).isEqualTo(
-                ExpectedPadding.roundToPx().toFloat()
+            // x position is start + padding
+            assertThat(labelPosition.value?.x).isWithin(1f).of(ExpectedPadding.toPx())
+            // y position is centered, plus additional padding allowance on top
+            assertThat(labelPosition.value?.y).isWithin(1f).of(
+                ((ExpectedMinimumTextFieldHeight - MinTextLineHeight) / 2 +
+                    OutlinedTextFieldTopPadding).toPx()
             )
-            // label is centered in 56.dp default container, plus additional 8.dp padding on top
-            val minimumHeight = ExpectedMinimumTextFieldHeight.roundToPx()
-            assertThat(labelPosition.value?.y).isEqualTo(
-                ((minimumHeight - labelSize.value!!.height) / 2f).roundToInt() + 8.dp.roundToPx()
+        }
+    }
+
+    @Test
+    fun testOutlinedTextField_labelPosition_initial_withDefaultHeight() {
+        val labelPosition = Ref<Offset>()
+        rule.setMaterialContent(lightColorScheme()) {
+            OutlinedTextField(
+                value = "",
+                onValueChange = {},
+                label = {
+                    Box(Modifier
+                        .size(MinTextLineHeight)
+                        .onGloballyPositioned {
+                            labelPosition.value = it.positionInRoot()
+                        }
+                    )
+                }
+            )
+        }
+
+        rule.runOnIdleWithDensity {
+            // x position is start + padding
+            assertThat(labelPosition.value?.x).isWithin(1f).of(ExpectedPadding.toPx())
+            // y position is top + default padding + label padding allowance
+            assertThat(labelPosition.value?.y).isWithin(1f).of(
+                (ExpectedPadding + OutlinedTextFieldTopPadding).toPx()
             )
         }
     }
@@ -268,22 +287,22 @@ class OutlinedTextFieldTest {
     fun testOutlinedTextField_labelPosition_initial_withMultiLineLabel() {
         val textFieldWidth = 200.dp
         val labelSize = Ref<IntSize>()
+        val labelPosition = Ref<Offset>()
         rule.setMaterialContent(lightColorScheme()) {
-            Box {
-                OutlinedTextField(
-                    value = "",
-                    onValueChange = {},
-                    modifier = Modifier.requiredWidth(textFieldWidth),
-                    label = {
-                        Text(
-                            text = "long long long long long long long long long long long long",
-                            modifier = Modifier.onGloballyPositioned {
-                                labelSize.value = it.size
-                            }
-                        )
-                    }
-                )
-            }
+            OutlinedTextField(
+                value = "",
+                onValueChange = {},
+                modifier = Modifier.requiredWidth(textFieldWidth),
+                label = {
+                    Text(
+                        text = "long long long long long long long long long long long long",
+                        modifier = Modifier.onGloballyPositioned {
+                            labelSize.value = it.size
+                            labelPosition.value = it.positionInRoot()
+                        }
+                    )
+                }
+            )
         }
 
         rule.runOnIdleWithDensity {
@@ -292,50 +311,20 @@ class OutlinedTextFieldTest {
             assertThat(labelSize.value?.height).isGreaterThan(0)
             assertThat(labelSize.value?.width)
                 .isEqualTo(textFieldWidth.roundToPx() - 2 * ExpectedPadding.roundToPx())
-        }
-    }
 
-    @Test
-    fun testOutlinedTextField_labelPosition_initial_withDefaultHeight() {
-        val labelSize = Ref<IntSize>()
-        val labelPosition = Ref<Offset>()
-        rule.setMaterialContent(lightColorScheme()) {
-            Box {
-                OutlinedTextField(
-                    value = "",
-                    onValueChange = {},
-                    label = {
-                        Text(
-                            text = "label",
-                            modifier = Modifier.onGloballyPositioned {
-                                labelPosition.value = it.positionInRoot()
-                                labelSize.value = it.size
-                            }
-                        )
-                    }
-                )
-            }
-        }
-
-        rule.runOnIdleWithDensity {
-            // size
-            assertThat(labelSize.value).isNotNull()
-            assertThat(labelSize.value?.height).isGreaterThan(0)
-            assertThat(labelSize.value?.width).isGreaterThan(0)
-            assertThat(labelPosition.value?.x).isEqualTo(
-                ExpectedPadding.roundToPx().toFloat()
-            )
-            // label is aligned to the top with padding, plus additional 8.dp padding on top
-            assertThat(labelPosition.value?.y).isEqualTo(
-                TextFieldPadding.roundToPx() + 8.dp.roundToPx()
+            // x position is start + padding
+            assertThat(labelPosition.value?.x).isWithin(1f).of(ExpectedPadding.toPx())
+            // y position is top + default padding + label padding allowance
+            assertThat(labelPosition.value?.y).isWithin(1f).of(
+                (ExpectedPadding + OutlinedTextFieldTopPadding).toPx()
             )
         }
     }
 
     @Test
     fun testOutlinedTextField_labelPosition_whenFocused() {
-        val labelSize = Ref<IntSize>()
         val labelPosition = Ref<Offset>()
+        val labelSize = MinFocusedLabelLineHeight
 
         rule.setMaterialContent(lightColorScheme()) {
             OutlinedTextField(
@@ -343,11 +332,10 @@ class OutlinedTextFieldTest {
                 value = "",
                 onValueChange = {},
                 label = {
-                    Text(
-                        text = "label",
-                        modifier = Modifier.onGloballyPositioned {
+                    Box(Modifier
+                        .size(MinFocusedLabelLineHeight)
+                        .onGloballyPositioned {
                             labelPosition.value = it.positionInRoot()
-                            labelSize.value = it.size
                         }
                     )
                 }
@@ -358,15 +346,10 @@ class OutlinedTextFieldTest {
         rule.onNodeWithTag(TextFieldTag).performClick()
 
         rule.runOnIdleWithDensity {
-            // size
-            assertThat(labelSize.value).isNotNull()
-            assertThat(labelSize.value?.height).isGreaterThan(0)
-            assertThat(labelSize.value?.width).isGreaterThan(0)
-            // label position
-            assertThat(labelPosition.value?.x).isEqualTo(
-                ExpectedPadding.roundToPx().toFloat()
+            assertThat(labelPosition.value?.x).isWithin(1f).of(ExpectedPadding.toPx())
+            assertThat(labelPosition.value?.y).isWithin(1f).of(
+                getLabelPosition(labelSize.roundToPx()).toFloat()
             )
-            assertThat(labelPosition.value?.y).isEqualTo(getLabelPosition(labelSize))
         }
     }
 
@@ -374,22 +357,22 @@ class OutlinedTextFieldTest {
     fun testOutlinedTextField_labelPosition_whenFocused_withMultiLineLabel() {
         val textFieldWidth = 200.dp
         val labelSize = Ref<IntSize>()
+        val labelPosition = Ref<Offset>()
         rule.setMaterialContent(lightColorScheme()) {
-            Box {
-                OutlinedTextField(
-                    value = "",
-                    onValueChange = {},
-                    modifier = Modifier.testTag(TextFieldTag).requiredWidth(textFieldWidth),
-                    label = {
-                        Text(
-                            text = "long long long long long long long long long long long long",
-                            modifier = Modifier.onGloballyPositioned {
-                                labelSize.value = it.size
-                            }
-                        )
-                    }
-                )
-            }
+            OutlinedTextField(
+                value = "",
+                onValueChange = {},
+                modifier = Modifier.testTag(TextFieldTag).requiredWidth(textFieldWidth),
+                label = {
+                    Text(
+                        text = "long long long long long long long long long long long long",
+                        modifier = Modifier.onGloballyPositioned {
+                            labelSize.value = it.size
+                            labelPosition.value = it.positionInRoot()
+                        }
+                    )
+                }
+            )
         }
 
         // click to focus
@@ -399,25 +382,102 @@ class OutlinedTextFieldTest {
             // label size
             assertThat(labelSize.value).isNotNull()
             assertThat(labelSize.value?.height).isGreaterThan(0)
-            assertThat(labelSize.value?.width)
-                .isEqualTo(textFieldWidth.roundToPx() - 2 * ExpectedPadding.roundToPx())
+            assertThat(labelSize.value?.width!!.toFloat()).isWithin(1f).of(
+                (textFieldWidth - ExpectedPadding * 2).toPx()
+            )
+
+            // label position
+            assertThat(labelPosition.value?.x).isWithin(1f).of(ExpectedPadding.toPx())
+            assertThat(labelPosition.value?.y).isWithin(1f).of(
+                getLabelPosition(labelSize.value!!.height).toFloat()
+            )
+        }
+    }
+
+    @Test
+    fun testOutlinedTextField_labelHeight_contributesToTextFieldMeasurements_whenUnfocused() {
+        val tfSize = Ref<IntSize>()
+        val labelHeight = 200.dp
+        rule.setMaterialContent(lightColorScheme()) {
+            OutlinedTextField(
+                value = "",
+                onValueChange = {},
+                modifier = Modifier.testTag(TextFieldTag).onGloballyPositioned {
+                    tfSize.value = it.size
+                },
+                label = {
+                    Box(Modifier.size(width = 50.dp, height = labelHeight))
+                },
+            )
+        }
+
+        rule.runOnIdleWithDensity {
+            assertThat(tfSize.value!!.height).isAtLeast(labelHeight.roundToPx())
+        }
+    }
+
+    @Test
+    fun testOutlinedTextField_labelWidth_isNotAffectedByTrailingIcon_whenFocused() {
+        val textFieldWidth = 100.dp
+        val labelRequestedWidth = 65.dp
+        val labelSize = Ref<IntSize>()
+        val trailingSize = Ref<IntSize>()
+        rule.setMaterialContent(lightColorScheme()) {
+            OutlinedTextField(
+                value = "",
+                onValueChange = {},
+                modifier = Modifier.testTag(TextFieldTag).requiredWidth(textFieldWidth),
+                label = {
+                    Text(
+                        text = "Label",
+                        modifier = Modifier.width(labelRequestedWidth).onGloballyPositioned {
+                            labelSize.value = it.size
+                        }
+                    )
+                },
+                trailingIcon = {
+                    Icon(
+                        Icons.Default.Favorite,
+                        null,
+                        modifier = Modifier.onGloballyPositioned {
+                            trailingSize.value = it.size
+                        },
+                    )
+                },
+            )
+        }
+
+        // click to focus
+        rule.onNodeWithTag(TextFieldTag).performClick()
+
+        rule.runOnIdleWithDensity {
+            assertThat(labelSize.value).isNotNull()
+            assertThat(trailingSize.value).isNotNull()
+
+            // First, check that label's requested size would be too wide if it's on the same line
+            // as the icon + padding
+            assertThat((labelRequestedWidth + IconPadding).roundToPx() + trailingSize.value!!.width)
+                .isGreaterThan(textFieldWidth.roundToPx())
+
+            // Next, assert that the requested size is satisfied anyway because the trailing icon
+            // does not affect it.
+            assertThat(labelSize.value?.width).isEqualTo(labelRequestedWidth.roundToPx())
         }
     }
 
     @Test
     fun testOutlinedTextField_labelPosition_whenInput() {
-        val labelSize = Ref<IntSize>()
+        val labelSize = MinFocusedLabelLineHeight
         val labelPosition = Ref<Offset>()
         rule.setMaterialContent(lightColorScheme()) {
             OutlinedTextField(
                 value = "input",
                 onValueChange = {},
                 label = {
-                    Text(
-                        text = "label",
-                        modifier = Modifier.onGloballyPositioned {
+                    Box(Modifier
+                        .size(labelSize)
+                        .onGloballyPositioned {
                             labelPosition.value = it.positionInRoot()
-                            labelSize.value = it.size
                         }
                     )
                 }
@@ -425,21 +485,42 @@ class OutlinedTextFieldTest {
         }
 
         rule.runOnIdleWithDensity {
-            // size
-            assertThat(labelSize.value).isNotNull()
-            assertThat(labelSize.value?.height).isGreaterThan(0)
-            assertThat(labelSize.value?.width).isGreaterThan(0)
             // label position
-            assertThat(labelPosition.value?.x).isEqualTo(
-                ExpectedPadding.roundToPx().toFloat()
+            assertThat(labelPosition.value?.x).isWithin(1f).of(ExpectedPadding.toPx())
+            assertThat(labelPosition.value?.y).isWithin(1f).of(
+                getLabelPosition(labelSize.roundToPx()).toFloat()
             )
-            assertThat(labelPosition.value?.y).isEqualTo(getLabelPosition(labelSize))
         }
     }
 
     @Test
+    fun testOutlinedTextField_transparentComponents_doNotAppearInComposition() {
+        // Regression test for b/251162419
+        rule.setMaterialContent(lightColorScheme()) {
+            OutlinedTextField(
+                value = "",
+                onValueChange = {},
+                label = { Text(text = "Label") },
+                placeholder = {
+                    Text(text = "Placeholder", modifier = Modifier.testTag("Placeholder"))
+                },
+                prefix = {
+                    Text(text = "Prefix", modifier = Modifier.testTag("Prefix"))
+                },
+                suffix = {
+                    Text(text = "Suffix", modifier = Modifier.testTag("Suffix"))
+                }
+            )
+        }
+
+        rule.onNodeWithTag("Placeholder", useUnmergedTree = true).assertDoesNotExist()
+        rule.onNodeWithTag("Prefix", useUnmergedTree = true).assertDoesNotExist()
+        rule.onNodeWithTag("Suffix", useUnmergedTree = true).assertDoesNotExist()
+    }
+
+    @Test
     fun testOutlinedTextField_placeholderPosition_withLabel() {
-        val placeholderSize = Ref<IntSize>()
+        val placeholderSize = MinTextLineHeight
         val placeholderPosition = Ref<Offset>()
         rule.setMaterialContent(lightColorScheme()) {
             Box {
@@ -447,13 +528,12 @@ class OutlinedTextFieldTest {
                     modifier = Modifier.testTag(TextFieldTag),
                     value = "",
                     onValueChange = {},
-                    label = { Text("label") },
+                    label = { Box(Modifier.size(MinFocusedLabelLineHeight)) },
                     placeholder = {
-                        Text(
-                            text = "placeholder",
-                            modifier = Modifier.onGloballyPositioned {
+                        Box(Modifier
+                            .size(placeholderSize)
+                            .onGloballyPositioned {
                                 placeholderPosition.value = it.positionInRoot()
-                                placeholderSize.value = it.size
                             }
                         )
                     }
@@ -464,57 +544,38 @@ class OutlinedTextFieldTest {
         rule.onNodeWithTag(TextFieldTag).performClick()
 
         rule.runOnIdleWithDensity {
-            // size
-            assertThat(placeholderSize.value).isNotNull()
-            assertThat(placeholderSize.value?.height).isGreaterThan(0)
-            assertThat(placeholderSize.value?.width).isGreaterThan(0)
-            // position
-            assertThat(placeholderPosition.value?.x).isEqualTo(
-                ExpectedPadding.roundToPx().toFloat()
-            )
-            // placeholder is aligned to the top with padding, plus additional 8.dp padding on top
-            assertThat(placeholderPosition.value?.y).isEqualTo(
-                TextFieldPadding.roundToPx() + 8.dp.roundToPx()
+            assertThat(placeholderPosition.value?.x).isWithin(1f).of(ExpectedPadding.toPx())
+            assertThat(placeholderPosition.value?.y).isWithin(1f).of(
+                (ExpectedPadding + OutlinedTextFieldTopPadding).toPx()
             )
         }
     }
 
     @Test
     fun testOutlinedTextField_placeholderPosition_whenNoLabel() {
-        val placeholderSize = Ref<IntSize>()
+        val placeholderSize = MinTextLineHeight
         val placeholderPosition = Ref<Offset>()
         rule.setMaterialContent(lightColorScheme()) {
-            Box {
-                OutlinedTextField(
-                    modifier = Modifier.testTag(TextFieldTag),
-                    value = "",
-                    onValueChange = {},
-                    placeholder = {
-                        Text(
-                            text = "placeholder",
-                            modifier = Modifier.onGloballyPositioned {
-                                placeholderPosition.value = it.positionInRoot()
-                                placeholderSize.value = it.size
-                            }
-                        )
-                    }
-                )
-            }
+            OutlinedTextField(
+                modifier = Modifier.testTag(TextFieldTag),
+                value = "",
+                onValueChange = {},
+                placeholder = {
+                    Box(Modifier
+                        .size(placeholderSize)
+                        .onGloballyPositioned {
+                            placeholderPosition.value = it.positionInRoot()
+                        }
+                    )
+                }
+            )
         }
         // click to focus
         rule.onNodeWithTag(TextFieldTag).performClick()
 
         rule.runOnIdleWithDensity {
-            // size
-            assertThat(placeholderSize.value).isNotNull()
-            assertThat(placeholderSize.value?.height).isGreaterThan(0)
-            assertThat(placeholderSize.value?.width).isGreaterThan(0)
-            // position
-            assertThat(placeholderPosition.value?.x).isEqualTo(
-                ExpectedPadding.roundToPx().toFloat()
-            )
-            // placeholder is placed with fixed padding
-            assertThat(placeholderPosition.value?.y).isEqualTo(TextFieldPadding.roundToPx())
+            assertThat(placeholderPosition.value?.x).isWithin(1f).of(ExpectedPadding.toPx())
+            assertThat(placeholderPosition.value?.y).isWithin(1f).of(ExpectedPadding.toPx())
         }
     }
 
@@ -523,22 +584,20 @@ class OutlinedTextFieldTest {
         val placeholderSize = Ref<IntSize>()
         val placeholderPosition = Ref<Offset>()
         rule.setMaterialContent(lightColorScheme()) {
-            Column {
-                OutlinedTextField(
-                    modifier = Modifier.testTag(TextFieldTag),
-                    value = "input",
-                    onValueChange = {},
-                    placeholder = {
-                        Text(
-                            text = "placeholder",
-                            modifier = Modifier.onGloballyPositioned {
-                                placeholderPosition.value = it.positionInRoot()
-                                placeholderSize.value = it.size
-                            }
-                        )
-                    }
-                )
-            }
+            OutlinedTextField(
+                modifier = Modifier.testTag(TextFieldTag),
+                value = "input",
+                onValueChange = {},
+                placeholder = {
+                    Text(
+                        text = "placeholder",
+                        modifier = Modifier.onGloballyPositioned {
+                            placeholderPosition.value = it.positionInRoot()
+                            placeholderSize.value = it.size
+                        }
+                    )
+                }
+            )
         }
 
         // click to focus
@@ -567,6 +626,61 @@ class OutlinedTextFieldTest {
 
         // click to focus
         rule.onNodeWithTag(TextFieldTag).performClick()
+    }
+
+    @Test
+    fun testOutlinedTextField_labelAndPlaceholderPosition_whenSmallerThanMinimumHeight() {
+        val labelSize = 10.dp
+        val labelPosition = Ref<Offset>()
+        val placeholderSize = 20.dp
+        val placeholderPosition = Ref<Offset>()
+        rule.setMaterialContent(lightColorScheme()) {
+            OutlinedTextField(
+                modifier = Modifier.testTag(TextFieldTag),
+                value = "",
+                onValueChange = {},
+                label = {
+                    Box(Modifier
+                        .size(labelSize)
+                        .onGloballyPositioned {
+                            labelPosition.value = it.positionInRoot()
+                        }
+                    )
+                },
+                placeholder = {
+                    Box(Modifier
+                        .size(placeholderSize)
+                        .onGloballyPositioned {
+                            placeholderPosition.value = it.positionInRoot()
+                        }
+                    )
+                }
+            )
+        }
+
+        // click to focus
+        rule.onNodeWithTag(TextFieldTag).performClick()
+
+        rule.runOnIdleWithDensity {
+            // size
+            assertThat(labelSize).isLessThan(MinFocusedLabelLineHeight)
+            assertThat(placeholderSize).isLessThan(MinTextLineHeight)
+
+            // label position
+            assertThat(labelPosition.value?.x).isWithin(1f).of(ExpectedPadding.toPx())
+            assertThat(labelPosition.value?.y).isWithin(1f).of(
+                getLabelPosition(labelSize.roundToPx()).toFloat()
+            )
+
+            // placeholder position
+            assertThat(placeholderPosition.value?.x).isWithin(1f).of(ExpectedPadding.toPx())
+            // placeholder y position is top + default padding + label padding allowance, then
+            // centered within allocated space
+            assertThat(placeholderPosition.value?.y).isWithin(1f).of(
+                (ExpectedPadding + OutlinedTextFieldTopPadding +
+                    (MinTextLineHeight - placeholderSize) / 2).toPx()
+            )
+        }
     }
 
     @Test
@@ -765,32 +879,190 @@ class OutlinedTextFieldTest {
     }
 
     @Test
-    fun testOutlinedTextField_labelPositionX_initial_withTrailingAndLeading() {
-        val labelPosition = Ref<Offset>()
+    fun testOutlinedTextField_prefixAndSuffixPosition_withLabel() {
+        val textFieldWidth = 300.dp
+        val prefixPosition = Ref<Offset>()
+        val prefixSize = MinTextLineHeight
+        val suffixPosition = Ref<Offset>()
+        val suffixSize = MinTextLineHeight
+        val density = Density(2f)
+
         rule.setMaterialContent(lightColorScheme()) {
-            Box {
+            CompositionLocalProvider(LocalDensity provides density) {
                 OutlinedTextField(
-                    value = "",
+                    value = "text",
                     onValueChange = {},
-                    label = {
-                        Text(
-                            text = "label",
-                            modifier = Modifier.onGloballyPositioned {
-                                labelPosition.value = it.positionInRoot()
+                    modifier = Modifier.width(textFieldWidth),
+                    label = { Box(Modifier.size(MinFocusedLabelLineHeight)) },
+                    prefix = {
+                        Box(Modifier
+                            .size(prefixSize)
+                            .onGloballyPositioned {
+                                prefixPosition.value = it.positionInRoot()
                             }
                         )
                     },
-                    trailingIcon = { Icon(Icons.Default.Favorite, null) },
-                    leadingIcon = { Icon(Icons.Default.Favorite, null) }
+                    suffix = {
+                        Box(Modifier
+                            .size(suffixSize)
+                            .onGloballyPositioned {
+                                suffixPosition.value = it.positionInRoot()
+                            }
+                        )
+                    }
                 )
             }
         }
 
+        rule.runOnIdle {
+            with(density) {
+                // prefix
+                assertThat(prefixPosition.value?.x).isWithin(1f).of(ExpectedPadding.toPx())
+                assertThat(prefixPosition.value?.y).isWithin(1f).of(
+                    (ExpectedPadding + OutlinedTextFieldTopPadding).toPx()
+                )
+
+                // suffix
+                assertThat(suffixPosition.value?.x).isWithin(1f).of(
+                    (textFieldWidth - ExpectedPadding - suffixSize).toPx()
+                )
+                assertThat(suffixPosition.value?.y).isWithin(1f).of(
+                    (ExpectedPadding + OutlinedTextFieldTopPadding).toPx()
+                )
+            }
+        }
+    }
+
+    @Test
+    fun testOutlinedTextField_prefixAndSuffixPosition_whenNoLabel() {
+        val textFieldWidth = 300.dp
+        val prefixPosition = Ref<Offset>()
+        val prefixSize = MinTextLineHeight
+        val suffixPosition = Ref<Offset>()
+        val suffixSize = MinTextLineHeight
+        val density = Density(2f)
+
+        rule.setMaterialContent(lightColorScheme()) {
+            CompositionLocalProvider(LocalDensity provides density) {
+                OutlinedTextField(
+                    value = "text",
+                    onValueChange = {},
+                    modifier = Modifier.width(textFieldWidth),
+                    prefix = {
+                        Box(Modifier
+                            .size(prefixSize)
+                            .onGloballyPositioned {
+                                prefixPosition.value = it.positionInRoot()
+                            }
+                        )
+                    },
+                    suffix = {
+                        Box(Modifier
+                            .size(suffixSize)
+                            .onGloballyPositioned {
+                                suffixPosition.value = it.positionInRoot()
+                            }
+                        )
+                    }
+                )
+            }
+        }
+
+        rule.runOnIdle {
+            with(density) {
+                // prefix
+                assertThat(prefixPosition.value?.x).isWithin(1f).of(ExpectedPadding.toPx())
+                assertThat(prefixPosition.value?.y).isWithin(1f).of(ExpectedPadding.toPx())
+
+                // suffix
+                assertThat(suffixPosition.value?.x).isWithin(1f).of(
+                    (textFieldWidth - ExpectedPadding - suffixSize).toPx()
+                )
+                assertThat(suffixPosition.value?.y).isWithin(1f).of(ExpectedPadding.toPx())
+            }
+        }
+    }
+
+    @Test
+    fun testOutlinedTextField_prefixAndSuffixPosition_withIcons() {
+        val textFieldWidth = 300.dp
+        val prefixPosition = Ref<Offset>()
+        val prefixSize = MinTextLineHeight
+        val suffixPosition = Ref<Offset>()
+        val suffixSize = MinTextLineHeight
+        val density = Density(2f)
+
+        rule.setMaterialContent(lightColorScheme()) {
+            CompositionLocalProvider(LocalDensity provides density) {
+                OutlinedTextField(
+                    value = "text",
+                    onValueChange = {},
+                    modifier = Modifier.width(textFieldWidth),
+                    prefix = {
+                        Box(Modifier
+                            .size(prefixSize)
+                            .onGloballyPositioned {
+                                prefixPosition.value = it.positionInRoot()
+                            }
+                        )
+                    },
+                    suffix = {
+                        Box(Modifier
+                            .size(suffixSize)
+                            .onGloballyPositioned {
+                                suffixPosition.value = it.positionInRoot()
+                            }
+                        )
+                    },
+                    leadingIcon = { Icon(Icons.Default.Favorite, null) },
+                    trailingIcon = { Icon(Icons.Default.Favorite, null) },
+                )
+            }
+        }
+
+        rule.runOnIdle {
+            with(density) {
+                val iconSize = 24.dp // default icon size
+
+                // prefix
+                assertThat(prefixPosition.value?.x).isWithin(1f).of(
+                    (ExpectedPadding + IconPadding + iconSize).toPx()
+                )
+                assertThat(prefixPosition.value?.y).isWithin(1f).of(ExpectedPadding.toPx())
+
+                // suffix
+                assertThat(suffixPosition.value?.x).isWithin(1f).of(
+                    (textFieldWidth - IconPadding - iconSize - ExpectedPadding - suffixSize).toPx()
+                )
+                assertThat(suffixPosition.value?.y).isWithin(1f).of(ExpectedPadding.toPx())
+            }
+        }
+    }
+
+    @Test
+    fun testOutlinedTextField_labelPositionX_initial_withTrailingAndLeading() {
+        val labelPosition = Ref<Offset>()
+        rule.setMaterialContent(lightColorScheme()) {
+            OutlinedTextField(
+                value = "",
+                onValueChange = {},
+                label = {
+                    Text(
+                        text = "label",
+                        modifier = Modifier.onGloballyPositioned {
+                            labelPosition.value = it.positionInRoot()
+                        }
+                    )
+                },
+                trailingIcon = { Icon(Icons.Default.Favorite, null) },
+                leadingIcon = { Icon(Icons.Default.Favorite, null) }
+            )
+        }
+
         rule.runOnIdleWithDensity {
             val iconSize = 24.dp // default icon size
-            assertThat(labelPosition.value?.x).isEqualTo(
-                (ExpectedPadding.roundToPx() + IconPadding.roundToPx() + iconSize.roundToPx())
-                    .toFloat()
+            assertThat(labelPosition.value?.x).isWithin(1f).of(
+                (ExpectedPadding + IconPadding + iconSize).toPx()
             )
         }
     }
@@ -799,28 +1071,24 @@ class OutlinedTextFieldTest {
     fun testOutlinedTextField_labelPositionX_initial_withNullTrailingAndLeading() {
         val labelPosition = Ref<Offset>()
         rule.setMaterialContent(lightColorScheme()) {
-            Box {
-                OutlinedTextField(
-                    value = "",
-                    onValueChange = {},
-                    label = {
-                        Text(
-                            text = "label",
-                            modifier = Modifier.onGloballyPositioned {
-                                labelPosition.value = it.positionInRoot()
-                            }
-                        )
-                    },
-                    trailingIcon = null,
-                    leadingIcon = null
-                )
-            }
+            OutlinedTextField(
+                value = "",
+                onValueChange = {},
+                label = {
+                    Text(
+                        text = "label",
+                        modifier = Modifier.onGloballyPositioned {
+                            labelPosition.value = it.positionInRoot()
+                        }
+                    )
+                },
+                trailingIcon = null,
+                leadingIcon = null
+            )
         }
 
         rule.runOnIdleWithDensity {
-            assertThat(labelPosition.value?.x).isEqualTo(
-                ExpectedPadding.roundToPx().toFloat()
-            )
+            assertThat(labelPosition.value?.x).isWithin(1f).of(ExpectedPadding.toPx())
         }
     }
 
@@ -862,6 +1130,152 @@ class OutlinedTextFieldTest {
     }
 
     @Test
+    fun testOutlinedTextField_supportingText_position() {
+        val supportingPosition = Ref<Offset>()
+        rule.setMaterialContent(lightColorScheme()) {
+            OutlinedTextField(
+                value = "",
+                onValueChange = {},
+                textStyle = TextStyle(fontSize = 1.sp), // ensure text size is minimum
+                supportingText = {
+                    Box(Modifier
+                        .size(MinSupportingTextLineHeight)
+                        .onGloballyPositioned {
+                            supportingPosition.value = it.positionInRoot()
+                        }
+                    )
+                }
+            )
+        }
+
+        rule.runOnIdleWithDensity {
+            assertThat(supportingPosition.value?.x).isWithin(1f).of(ExpectedPadding.toPx())
+            assertThat(supportingPosition.value?.y).isWithin(1f).of(
+                (ExpectedMinimumTextFieldHeight + SupportingTopPadding).toPx()
+            )
+        }
+    }
+
+    @Test
+    fun testOutlinedTextField_supportingText_widthIsNotWiderThanTextField() {
+        val tfSize = Ref<IntSize>()
+        val supportingSize = Ref<IntSize>()
+        rule.setMaterialContent(lightColorScheme()) {
+            OutlinedTextField(
+                value = "",
+                onValueChange = {},
+                modifier = Modifier.onGloballyPositioned {
+                    tfSize.value = it.size
+                },
+                supportingText = {
+                    Text(
+                        text = "Long long long long long long long long long long long long " +
+                            "long long long long long long long long long long long long",
+                        modifier = Modifier.onGloballyPositioned {
+                            supportingSize.value = it.size
+                        }
+                    )
+                }
+            )
+        }
+
+        rule.runOnIdleWithDensity {
+            assertThat(supportingSize.value!!.width).isAtMost(tfSize.value!!.width)
+        }
+    }
+
+    @Test
+    fun testOutlinedTextField_supportingText_contributesToTextFieldMeasurements() {
+        val tfSize = Ref<IntSize>()
+        rule.setMaterialContent(lightColorScheme()) {
+            OutlinedTextField(
+                value = "",
+                onValueChange = {},
+                modifier = Modifier.onGloballyPositioned {
+                    tfSize.value = it.size
+                },
+                supportingText = { Text("Supporting") }
+            )
+        }
+
+        rule.runOnIdleWithDensity {
+            assertThat(tfSize.value!!.height).isGreaterThan(
+                ExpectedMinimumTextFieldHeight.roundToPx()
+            )
+        }
+    }
+
+    @Test
+    fun testOutlinedTextField_supportingText_remainsVisibleWithTallInput() {
+        rule.setMaterialContent(lightColorScheme()) {
+            OutlinedTextField(
+                value = buildString {
+                    repeat(200) {
+                        append("line $it\n")
+                    }
+                },
+                onValueChange = {},
+                modifier = Modifier.size(width = ExpectedDefaultTextFieldWidth, height = 150.dp),
+                supportingText = { Text("Supporting", modifier = Modifier.testTag("Supporting")) }
+            )
+        }
+
+        rule.onNodeWithTag("Supporting", useUnmergedTree = true).assertIsDisplayed()
+    }
+
+    @Test
+    fun testOutlinedTextField_supportingText_clickFocusesTextField() {
+        var focused = false
+        rule.setMaterialContent(lightColorScheme()) {
+            OutlinedTextField(
+                modifier = Modifier.onFocusChanged { focused = it.isFocused },
+                value = "input",
+                onValueChange = {},
+                supportingText = { Text("Supporting") }
+            )
+        }
+
+        rule.onNodeWithText("Supporting").performClick()
+        rule.runOnIdle {
+            assertThat(focused).isTrue()
+        }
+    }
+
+    @Test
+    fun testOutlinedTextField_supportingText_colorAndStyle() {
+        rule.setMaterialContent(lightColorScheme()) {
+            OutlinedTextField(
+                value = "",
+                onValueChange = {},
+                supportingText = {
+                    assertThat(LocalTextStyle.current)
+                        .isEqualTo(MaterialTheme.typography.bodySmall)
+                    assertThat(LocalContentColor.current)
+                        .isEqualTo(MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+            )
+        }
+    }
+
+    @Test
+    fun testOutlinedTextField_supportingText_error_colorAndStyle() {
+        rule.setMaterialContent(lightColorScheme()) {
+            OutlinedTextField(
+                value = "",
+                onValueChange = {},
+                isError = true,
+                supportingText = {
+                    assertThat(LocalTextStyle.current)
+                        .isEqualTo(MaterialTheme.typography.bodySmall)
+                    assertThat(LocalContentColor.current)
+                        .isEqualTo(MaterialTheme.colorScheme.error)
+                }
+            )
+        }
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
     fun testOutlinedTextField_imeActionAndKeyboardTypePropagatedDownstream() {
         val platformTextInputService = mock<PlatformTextInputService>()
         val textInputService = TextInputService(platformTextInputService)
@@ -927,7 +1341,7 @@ class OutlinedTextFieldTest {
     }
 
     @Test
-    fun testErrorSemantics_defaultMessage() {
+    fun testOutlinedTextField_errorSemantics_defaultMessage() {
         lateinit var errorMessage: String
         rule.setMaterialContent(lightColorScheme()) {
             OutlinedTextField(
@@ -946,21 +1360,34 @@ class OutlinedTextFieldTest {
     }
 
     @Test
-    fun testErrorSemantics_messageOverridable() {
+    fun testOutlinedTextField_errorSemantics_messageOverridable() {
         val errorMessage = "Special symbols not allowed"
+        lateinit var defaultErrorMessage: String
         rule.setMaterialContent(lightColorScheme()) {
             val isError = remember { mutableStateOf(true) }
             OutlinedTextField(
                 value = "test",
                 onValueChange = {},
-                modifier = Modifier.semantics { if (isError.value) error(errorMessage) },
+                modifier = Modifier
+                    .testTag(TextFieldTag)
+                    .semantics { if (isError.value) error(errorMessage) },
                 isError = isError.value
             )
+            defaultErrorMessage = getString(Strings.DefaultErrorMessage)
         }
 
-        rule.onNodeWithText("test")
+        rule.onNodeWithTag(TextFieldTag)
             .assert(SemanticsMatcher.keyIsDefined(SemanticsProperties.Error))
             .assert(SemanticsMatcher.expectValue(SemanticsProperties.Error, errorMessage))
+
+        // Check that default error message is overwritten and not lingering in a child node
+        rule.onNodeWithTag(TextFieldTag, useUnmergedTree = true)
+            .onChildren()
+            .fetchSemanticsNodes()
+            .forEach { node ->
+                assertThat(node.config.getOrNull(SemanticsProperties.Error))
+                    .isNotEqualTo(defaultErrorMessage)
+            }
     }
 
     @Test
@@ -971,11 +1398,9 @@ class OutlinedTextFieldTest {
             val text = remember { mutableStateOf("") }
             Box(Modifier.onGloballyPositioned { size = it.size }) {
                 Row(Modifier.height(IntrinsicSize.Min)) {
-                    Divider(
-                        modifier = Modifier
-                            .fillMaxHeight()
-                            .width(10.dp)
-                            .onGloballyPositioned { dividerSize = it.size }
+                    VerticalDivider(
+                        thickness = 10.dp,
+                        modifier = Modifier.onGloballyPositioned { dividerSize = it.size }
                     )
                     OutlinedTextField(
                         value = text.value,
@@ -1001,8 +1426,8 @@ class OutlinedTextFieldTest {
                 value = "",
                 onValueChange = {},
                 modifier = Modifier.testTag(TextFieldTag),
-                colors = TextFieldDefaults.outlinedTextFieldColors(
-                    containerColor = Color.Red,
+                colors = OutlinedTextFieldDefaults.colors(
+                    unfocusedContainerColor = Color.Red,
                     unfocusedBorderColor = Color.Red
                 ),
                 shape = RectangleShape
@@ -1022,11 +1447,9 @@ class OutlinedTextFieldTest {
             val text = remember { mutableStateOf("") }
             Box {
                 Column(Modifier.width(IntrinsicSize.Min)) {
-                    Divider(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(10.dp)
-                            .onGloballyPositioned { dividerSize = it.size }
+                    HorizontalDivider(
+                        thickness = 10.dp,
+                        modifier = Modifier.onGloballyPositioned { dividerSize = it.size }
                     )
                     OutlinedTextField(
                         value = text.value,
@@ -1063,7 +1486,7 @@ class OutlinedTextFieldTest {
                     contentColor = LocalContentColor.current
                 },
                 modifier = Modifier.focusRequester(focusRequester),
-                colors = TextFieldDefaults.textFieldColors(
+                colors = OutlinedTextFieldDefaults.colors(
                     unfocusedLabelColor = unfocusedLabelColor,
                     focusedLabelColor = focusedLabelColor
                 )
@@ -1106,7 +1529,7 @@ class OutlinedTextFieldTest {
                         contentColor = LocalContentColor.current
                     },
                     modifier = Modifier.focusRequester(focusRequester),
-                    colors = TextFieldDefaults.textFieldColors(
+                    colors = OutlinedTextFieldDefaults.colors(
                         unfocusedLabelColor = unfocusedLabelColor,
                         focusedLabelColor = focusedLabelColor
                     )
@@ -1149,7 +1572,7 @@ class OutlinedTextFieldTest {
                         contentColor = LocalContentColor.current
                     },
                     modifier = Modifier.focusRequester(focusRequester),
-                    colors = TextFieldDefaults.textFieldColors(
+                    colors = OutlinedTextFieldDefaults.colors(
                         unfocusedLabelColor = expectedLabelColor,
                         focusedLabelColor = focusedLabelColor
                     )
@@ -1195,7 +1618,7 @@ class OutlinedTextFieldTest {
                         contentColor = LocalContentColor.current
                     },
                     modifier = Modifier.focusRequester(focusRequester),
-                    colors = TextFieldDefaults.textFieldColors(
+                    colors = OutlinedTextFieldDefaults.colors(
                         unfocusedLabelColor = unfocusedLabelColor,
                         focusedLabelColor = focusedLabelColor
                     )
@@ -1228,7 +1651,7 @@ class OutlinedTextFieldTest {
                     onValueChange = { text.value = it },
                     label = { Text("Label") }
                 )
-                Divider(Modifier.fillMaxHeight())
+                VerticalDivider()
             }
         }
 
@@ -1241,7 +1664,7 @@ class OutlinedTextFieldTest {
     }
 
     @Test
-    fun testOutlinedTextField_intrinsicsMeasurement_correctHeight() {
+    fun testOutlinedTextField_intrinsicHeight_withOnlyEmptyInput() {
         var height = 0
         rule.setMaterialContent(lightColorScheme()) {
             val text = remember { mutableStateOf("") }
@@ -1252,20 +1675,19 @@ class OutlinedTextFieldTest {
                     OutlinedTextField(
                         value = text.value,
                         onValueChange = { text.value = it },
-                        placeholder = { Text("placeholder") }
                     )
-                    Divider(Modifier.fillMaxHeight())
+                    VerticalDivider()
                 }
             }
         }
 
         with(rule.density) {
-            assertThat(height).isEqualTo((TextFieldDefaults.MinHeight).roundToPx())
+            assertThat(height).isEqualTo((OutlinedTextFieldDefaults.MinHeight).roundToPx())
         }
     }
 
     @Test
-    fun testOutlinedTextField_intrinsicsMeasurement_withLeadingIcon_correctHeight() {
+    fun testOutlinedTextField_intrinsicHeight_withEmptyInput_andDecorations() {
         var height = 0
         rule.setMaterialContent(lightColorScheme()) {
             val text = remember { mutableStateOf("") }
@@ -1276,42 +1698,62 @@ class OutlinedTextFieldTest {
                     OutlinedTextField(
                         value = text.value,
                         onValueChange = { text.value = it },
-                        placeholder = { Text("placeholder") },
-                        leadingIcon = { Icon(Icons.Default.Favorite, null) }
+                        leadingIcon = { Icon(Icons.Default.Favorite, null) },
+                        trailingIcon = { Icon(Icons.Default.Favorite, null) },
+                        prefix = { Text("P") },
+                        suffix = { Text("S") },
                     )
-                    Divider(Modifier.fillMaxHeight())
+                    VerticalDivider()
                 }
             }
         }
 
         with(rule.density) {
-            assertThat(height).isEqualTo((TextFieldDefaults.MinHeight).roundToPx())
+            assertThat(height).isEqualTo((OutlinedTextFieldDefaults.MinHeight).roundToPx())
         }
     }
 
     @Test
-    fun testOutlinedTextField_intrinsicsMeasurement_withTrailingIcon_correctHeight() {
-        var height = 0
+    fun testOutlinedTextField_intrinsicHeight_withLongInput_andDecorations() {
+        var tfHeightIntrinsic = 0
+        var tfHeightNoIntrinsic = 0
+        val text = "Long text input. ".repeat(20)
         rule.setMaterialContent(lightColorScheme()) {
-            val text = remember { mutableStateOf("") }
-            Box(Modifier.onGloballyPositioned {
-                height = it.size.height
-            }) {
-                Row(Modifier.height(IntrinsicSize.Min)) {
+            Row {
+                Box(Modifier.width(150.dp).height(IntrinsicSize.Min)) {
                     OutlinedTextField(
-                        value = text.value,
-                        onValueChange = { text.value = it },
-                        placeholder = { Text("placeholder") },
-                        trailingIcon = { Icon(Icons.Default.Favorite, null) }
+                        value = text,
+                        onValueChange = {},
+                        modifier = Modifier.onGloballyPositioned {
+                            tfHeightIntrinsic = it.size.height
+                        },
+                        leadingIcon = { Icon(Icons.Default.Favorite, null) },
+                        trailingIcon = { Icon(Icons.Default.Favorite, null) },
+                        prefix = { Text("P") },
+                        suffix = { Text("S") },
                     )
-                    Divider(Modifier.fillMaxHeight())
+                }
+
+                Box(Modifier.width(150.dp)) {
+                    OutlinedTextField(
+                        value = text,
+                        onValueChange = {},
+                        modifier = Modifier.onGloballyPositioned {
+                            tfHeightNoIntrinsic = it.size.height
+                        },
+                        leadingIcon = { Icon(Icons.Default.Favorite, null) },
+                        trailingIcon = { Icon(Icons.Default.Favorite, null) },
+                        prefix = { Text("P") },
+                        suffix = { Text("S") },
+                    )
                 }
             }
         }
 
-        with(rule.density) {
-            assertThat(height).isEqualTo((TextFieldDefaults.MinHeight).roundToPx())
-        }
+        assertThat(tfHeightIntrinsic).isNotEqualTo(0)
+        assertThat(tfHeightNoIntrinsic).isNotEqualTo(0)
+
+        assertThat(tfHeightIntrinsic).isEqualTo(tfHeightNoIntrinsic)
     }
 
     @Test
@@ -1347,11 +1789,11 @@ class OutlinedTextFieldTest {
         }
     }
 
-    private fun getLabelPosition(labelSize: Ref<IntSize>): Int {
-        val labelHalfHeight = labelSize.value!!.height / 2
+    private fun getLabelPosition(labelHeight: Int): Int {
+        val labelHalfHeight = labelHeight / 2
         val paddingTop = with(rule.density) { OutlinedTextFieldTopPadding.toPx() }
-        // vertical position is the default padding - half height
-        // in case negative position, fix to 0
-        return max(paddingTop - labelHalfHeight, 0f).roundToInt()
+        // Vertical position is the default padding - half height.
+        // This can be negative, meaning default padding is not enough for the focused label.
+        return (paddingTop - labelHalfHeight).roundToInt()
     }
 }

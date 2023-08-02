@@ -27,7 +27,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
@@ -43,8 +43,8 @@ import kotlinx.coroutines.launch
 @Preview
 @Composable
 fun SuspendDoubleTapToLikeDemo() {
-    var alpha by remember { mutableStateOf(0f) }
-    var scale by remember { mutableStateOf(0f) }
+    var alpha by remember { mutableFloatStateOf(0f) }
+    var scale by remember { mutableFloatStateOf(0f) }
 
     val mutatorMutex = MutatorMutex()
     val scope = rememberCoroutineScope()

@@ -25,8 +25,8 @@ import androidx.camera.core.CameraXConfig
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.MeteringPointFactory
 import androidx.camera.core.SurfaceOrientedMeteringPointFactory
-import androidx.camera.testing.CameraUtil
-import androidx.camera.testing.CameraXUtil
+import androidx.camera.testing.impl.CameraUtil
+import androidx.camera.testing.impl.CameraXUtil
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
@@ -133,6 +133,7 @@ class SurfaceOrientedMeteringPointFactoryTest(
             }
     }
 
+    @Suppress("DEPRECATION") // test for legacy resolution API
     @Test(expected = IllegalStateException::class)
     fun createPointWithFoVUseCase_FailedNotBound() {
         Assume.assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_BACK))

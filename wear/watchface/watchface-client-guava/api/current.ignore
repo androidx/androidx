@@ -1,0 +1,7 @@
+// Baseline format: 1.0
+ChangedThrows: androidx.wear.watchface.client.ListenableWatchFaceControlClient#getOrCreateInteractiveWatchFaceClient(String, androidx.wear.watchface.client.DeviceConfig, androidx.wear.watchface.client.WatchUiState, androidx.wear.watchface.style.UserStyleData, java.util.Map<java.lang.Integer,? extends androidx.wear.watchface.complications.data.ComplicationData>, java.util.concurrent.Executor, androidx.core.util.Consumer<java.lang.String>, kotlin.coroutines.Continuation<? super androidx.wear.watchface.client.InteractiveWatchFaceClient>):
+    Method androidx.wear.watchface.client.ListenableWatchFaceControlClient.getOrCreateInteractiveWatchFaceClient no longer throws exception android.os.RemoteException
+
+
+ParameterNameChange: androidx.wear.watchface.client.ListenableWatchFaceControlClient#getOrCreateInteractiveWatchFaceClient(String, androidx.wear.watchface.client.DeviceConfig, androidx.wear.watchface.client.WatchUiState, androidx.wear.watchface.style.UserStyleData, java.util.Map<java.lang.Integer,? extends androidx.wear.watchface.complications.data.ComplicationData>, java.util.concurrent.Executor, androidx.core.util.Consumer<java.lang.String>, kotlin.coroutines.Continuation<? super androidx.wear.watchface.client.InteractiveWatchFaceClient>) parameter #7:
+    Attempted to remove parameter name from parameter arg8 in androidx.wear.watchface.client.ListenableWatchFaceControlClient.getOrCreateInteractiveWatchFaceClient

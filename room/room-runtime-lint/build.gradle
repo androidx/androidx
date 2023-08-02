@@ -33,9 +33,8 @@ dependencies {
 }
 
 androidx {
-    name = "Android Room-Runtime Lint Checks"
+    name = "Room-Runtime Lint Checks"
     type = LibraryType.LINT
-    mavenGroup = LibraryGroups.ROOM
     inceptionYear = "2022"
     description = "Android Room-Runtime Lint Checks"
 }

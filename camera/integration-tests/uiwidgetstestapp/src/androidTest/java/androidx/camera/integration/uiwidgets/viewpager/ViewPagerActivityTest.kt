@@ -26,9 +26,9 @@ import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.CameraSelector
 import androidx.camera.integration.uiwidgets.R
 import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.camera.testing.CameraPipeConfigTestRule
-import androidx.camera.testing.CameraUtil
-import androidx.camera.testing.CoreAppTestUtil
+import androidx.camera.testing.impl.CameraPipeConfigTestRule
+import androidx.camera.testing.impl.CameraUtil
+import androidx.camera.testing.impl.CoreAppTestUtil
 import androidx.camera.view.PreviewView
 import androidx.lifecycle.Lifecycle.State
 import androidx.test.core.app.ActivityScenario
@@ -91,7 +91,6 @@ class ViewPagerActivityTest(private val lensFacing: Int, private val cameraXConf
     @get:Rule
     val cameraPipeConfigTestRule = CameraPipeConfigTestRule(
         active = cameraXConfig == CameraFragment.CAMERA_PIPE_IMPLEMENTATION_OPTION,
-        forAllTests = true,
     )
 
     @get:Rule
@@ -207,6 +206,7 @@ class ViewPagerActivityTest(private val lensFacing: Int, private val cameraXConf
             ).apply {
                 putExtra(BaseActivity.INTENT_LENS_FACING, lensFacing)
                 putExtra(CameraFragment.KEY_CAMERA_IMPLEMENTATION, cameraXConfig)
+                putExtra(CameraFragment.KEY_CAMERA_IMPLEMENTATION_NO_HISTORY, true)
             }
             return ActivityScenario.launch<ViewPagerActivity>(intent)
         }

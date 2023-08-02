@@ -38,6 +38,9 @@ public class SearchSpecInternalTest {
                 .setResultCountPerPage(42)
                 .setOrder(SearchSpec.ORDER_ASCENDING)
                 .setRankingStrategy(SearchSpec.RANKING_STRATEGY_DOCUMENT_SCORE)
+                .setNumericSearchEnabled(true)
+                .setVerbatimSearchEnabled(true)
+                .setListFilterQueryLanguageEnabled(true)
                 .build();
 
         Bundle bundle = searchSpec.getBundle();
@@ -56,5 +59,27 @@ public class SearchSpecInternalTest {
         assertThat(bundle.getInt(SearchSpec.ORDER_FIELD)).isEqualTo(SearchSpec.ORDER_ASCENDING);
         assertThat(bundle.getInt(SearchSpec.RANKING_STRATEGY_FIELD))
                 .isEqualTo(SearchSpec.RANKING_STRATEGY_DOCUMENT_SCORE);
+        assertThat(bundle.getStringArrayList(SearchSpec.ENABLED_FEATURES_FIELD)).containsExactly(
+                Features.NUMERIC_SEARCH, Features.VERBATIM_SEARCH,
+                Features.LIST_FILTER_QUERY_LANGUAGE);
+    }
+
+    @Test
+    public void testBuildMultipleSearchSpecs() {
+        SearchSpec.Builder builder = new SearchSpec.Builder();
+        SearchSpec searchSpec1 = builder.build();
+        assertThat(searchSpec1.getEnabledFeatures()).isEmpty();
+
+        SearchSpec searchSpec2 = builder.setNumericSearchEnabled(true).build();
+        // Check that reusing the builder for new SearchSpec does not change old built SearchSpec.
+        assertThat(searchSpec1.getEnabledFeatures()).isEmpty();
+        assertThat(searchSpec2.getEnabledFeatures()).containsExactly(Features.NUMERIC_SEARCH);
+
+        SearchSpec searchSpec3 = builder.setNumericSearchEnabled(false)
+                .setVerbatimSearchEnabled(true)
+                .setListFilterQueryLanguageEnabled(true)
+                .build();
+        assertThat(searchSpec3.getEnabledFeatures()).containsExactly(
+                Features.VERBATIM_SEARCH, Features.LIST_FILTER_QUERY_LANGUAGE);
     }
 }

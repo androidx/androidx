@@ -18,17 +18,15 @@ package androidx.lifecycle
 
 import androidx.testutils.gradle.ProjectSetupRule
 import com.google.common.truth.Truth.assertThat
-import org.gradle.tooling.GradleConnector
-import org.gradle.tooling.ProjectConnection
-import org.junit.After
+import java.io.File
+import java.nio.file.Files
+import java.nio.file.Path
+import org.gradle.testkit.runner.GradleRunner
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import java.io.File
-import java.nio.file.Files
-import java.nio.file.Path
 
 @RunWith(JUnit4::class)
 class IncrementalAnnotationProcessingTest {
@@ -58,7 +56,6 @@ class IncrementalAnnotationProcessingTest {
     private lateinit var barObserverClass: File
     private lateinit var genFooAdapterClass: File
     private lateinit var genBarAdapterClass: File
-    private lateinit var projectConnection: ProjectConnection
 
     @Before
     fun setup() {
@@ -103,17 +100,18 @@ class IncrementalAnnotationProcessingTest {
         setupSettingsGradle()
         setupAndroidManifest()
         addSource()
+    }
 
-        projectConnection = GradleConnector.newConnector()
-            .forProjectDirectory(projectRoot).connect()
+    fun gradleRunner(): GradleRunner {
+        return GradleRunner.create()
+            .withProjectDir(projectRoot)
     }
 
     @Test
     fun checkModifySource() {
-        projectConnection
-            .newBuild()
-            .forTasks("clean", "compileDebugJavaWithJavac")
-            .run()
+        gradleRunner()
+            .withArguments("clean", "compileDebugJavaWithJavac")
+            .build()
 
         val fooAdapterFirstBuild = Files.getLastModifiedTime(genFooAdapter.toPath()).toMillis()
         val barAdapterFirstBuild = Files.getLastModifiedTime(genBarAdapter.toPath()).toMillis()
@@ -130,10 +128,9 @@ class IncrementalAnnotationProcessingTest {
 
         searchAndReplace(fooObserver.toPath(), "FooObserver_Log", "Modified_FooObserver_Log")
 
-        projectConnection
-            .newBuild()
-            .forTasks("compileDebugJavaWithJavac")
-            .run()
+        gradleRunner()
+            .withArguments("compileDebugJavaWithJavac")
+            .build()
 
         val fooAdapterSecondBuild = Files.getLastModifiedTime(genFooAdapter.toPath()).toMillis()
         val barAdapterSecondBuild = Files.getLastModifiedTime(genBarAdapter.toPath()).toMillis()
@@ -164,10 +161,9 @@ class IncrementalAnnotationProcessingTest {
 
     @Test
     fun checkDeleteOneSource() {
-        projectConnection
-            .newBuild()
-            .forTasks("clean", "compileDebugJavaWithJavac")
-            .run()
+        gradleRunner()
+            .withArguments("clean", "compileDebugJavaWithJavac")
+            .build()
 
         val barAdapterFirstBuild = Files.getLastModifiedTime(genBarAdapter.toPath()).toMillis()
         val barProguardFirstBuild = Files.getLastModifiedTime(genBarProguard.toPath()).toMillis()
@@ -181,10 +177,9 @@ class IncrementalAnnotationProcessingTest {
 
         fooObserver.delete()
 
-        projectConnection
-            .newBuild()
-            .forTasks("compileDebugJavaWithJavac")
-            .run()
+        gradleRunner()
+            .withArguments("compileDebugJavaWithJavac")
+            .build()
 
         val barAdapterSecondBuild = Files.getLastModifiedTime(genBarAdapter.toPath()).toMillis()
         val barProguardSecondBuild = Files.getLastModifiedTime(genBarProguard.toPath()).toMillis()
@@ -202,11 +197,6 @@ class IncrementalAnnotationProcessingTest {
         assertThat(barProguardFirstBuild).isEqualTo(barProguardSecondBuild)
         assertThat(barObserverClassFirstBuild).isEqualTo(barObserverClassSecondBuild)
         assertThat(barAdapterClassFirstBuild).isEqualTo(barAdapterClassSecondBuild)
-    }
-
-    @After
-    fun closeProjectConnection() {
-        projectConnection.close()
     }
 
     private fun setupProjectBuildGradle() {
@@ -245,6 +235,7 @@ class IncrementalAnnotationProcessingTest {
             apply plugin: 'com.android.application'
 
             android {
+                namespace "androidx.lifecycle.incap"
                 compileSdkVersion ${projectSetup.props.compileSdkVersion}
                 buildToolsVersion "${projectSetup.props.buildToolsVersion}"
 
@@ -282,9 +273,7 @@ class IncrementalAnnotationProcessingTest {
         addFileWithContent(
             "$MAIN_DIR/AndroidManifest.xml",
             """
-            <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-                package="androidx.lifecycle.incap">
-            </manifest>
+            <manifest/>
             """.trimIndent()
         )
     }

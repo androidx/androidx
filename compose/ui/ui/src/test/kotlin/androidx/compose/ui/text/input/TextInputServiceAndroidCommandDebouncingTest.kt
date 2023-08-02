@@ -16,12 +16,11 @@
 
 package androidx.compose.ui.text.input
 
-import android.os.IBinder
 import android.view.View
+import android.view.inputmethod.CursorAnchorInfo
 import android.view.inputmethod.ExtractedText
 import com.google.common.truth.Truth.assertThat
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.whenever
+import java.util.concurrent.Executor
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
@@ -32,13 +31,17 @@ import kotlinx.coroutines.test.advanceUntilIdle
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.whenever
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class TextInputServiceAndroidCommandDebouncingTest {
 
     private val view = mock<View>()
     private val inputMethodManager = TestInputMethodManager()
-    private val service = TextInputServiceAndroid(view, inputMethodManager)
+    private val executor = Executor { runnable -> scope.launch { runnable.run() } }
+    private val service =
+        TextInputServiceAndroid(view, inputMethodManager, inputCommandProcessorExecutor = executor)
     private val dispatcher = StandardTestDispatcher()
     private val scope = TestScope(dispatcher + Job())
 
@@ -46,7 +49,6 @@ class TextInputServiceAndroidCommandDebouncingTest {
     fun setUp() {
         // Default the view to focused because when it's not focused commands should be ignored.
         whenever(view.isFocused).thenReturn(true)
-        scope.launch { service.textInputCommandEventLoop() }
     }
 
     @After
@@ -59,9 +61,9 @@ class TextInputServiceAndroidCommandDebouncingTest {
         service.showSoftwareKeyboard()
         scope.advanceUntilIdle()
 
-        assertThat(inputMethodManager.showSoftInputCalls).hasSize(1)
-        assertThat(inputMethodManager.restartCalls).isEmpty()
-        assertThat(inputMethodManager.hideSoftInputCalls).isEmpty()
+        assertThat(inputMethodManager.showSoftInputCalls).isEqualTo(1)
+        assertThat(inputMethodManager.restartCalls).isEqualTo(0)
+        assertThat(inputMethodManager.hideSoftInputCalls).isEqualTo(0)
     }
 
     @Test
@@ -69,25 +71,25 @@ class TextInputServiceAndroidCommandDebouncingTest {
         service.hideSoftwareKeyboard()
         scope.advanceUntilIdle()
 
-        assertThat(inputMethodManager.hideSoftInputCalls).hasSize(1)
-        assertThat(inputMethodManager.restartCalls).isEmpty()
-        assertThat(inputMethodManager.showSoftInputCalls).isEmpty()
+        assertThat(inputMethodManager.hideSoftInputCalls).isEqualTo(1)
+        assertThat(inputMethodManager.restartCalls).isEqualTo(0)
+        assertThat(inputMethodManager.showSoftInputCalls).isEqualTo(0)
     }
 
     @Test
     fun startInput_callsRestartInput() {
-        service.startInput()
+        service.startInputForTest()
         scope.advanceUntilIdle()
 
-        assertThat(inputMethodManager.restartCalls).hasSize(1)
+        assertThat(inputMethodManager.restartCalls).isEqualTo(1)
     }
 
     @Test
     fun startInput_callsShowKeyboard() {
-        service.startInput()
+        service.startInputForTest()
         scope.advanceUntilIdle()
 
-        assertThat(inputMethodManager.showSoftInputCalls).hasSize(1)
+        assertThat(inputMethodManager.showSoftInputCalls).isEqualTo(1)
     }
 
     @Test
@@ -95,7 +97,7 @@ class TextInputServiceAndroidCommandDebouncingTest {
         service.stopInput()
         scope.advanceUntilIdle()
 
-        assertThat(inputMethodManager.restartCalls).hasSize(1)
+        assertThat(inputMethodManager.restartCalls).isEqualTo(1)
     }
 
     @Test
@@ -103,12 +105,12 @@ class TextInputServiceAndroidCommandDebouncingTest {
         service.stopInput()
         scope.advanceUntilIdle()
 
-        assertThat(inputMethodManager.hideSoftInputCalls).hasSize(1)
+        assertThat(inputMethodManager.hideSoftInputCalls).isEqualTo(1)
     }
 
     @Test
     fun startThenStopInput_onlyCallsRestartOnce() {
-        service.startInput()
+        service.startInputForTest()
         service.stopInput()
         scope.advanceUntilIdle()
 
@@ -116,20 +118,20 @@ class TextInputServiceAndroidCommandDebouncingTest {
         // in either order, should debounce to a single restart call. If they aren't de-duped, the
         // keyboard may flicker if one of the calls configures the IME in a non-default way (e.g.
         // number input).
-        assertThat(inputMethodManager.restartCalls).hasSize(1)
+        assertThat(inputMethodManager.restartCalls).isEqualTo(1)
     }
 
     @Test
     fun stopThenStartInput_onlyCallsRestartOnce() {
         service.stopInput()
-        service.startInput()
+        service.startInputForTest()
         scope.advanceUntilIdle()
 
         // Both startInput and stopInput restart the IMM. So calling those two methods back-to-back,
         // in either order, should debounce to a single restart call. If they aren't de-duped, the
         // keyboard may flicker if one of the calls configures the IME in a non-default way (e.g.
         // number input).
-        assertThat(inputMethodManager.restartCalls).hasSize(1)
+        assertThat(inputMethodManager.restartCalls).isEqualTo(1)
     }
 
     @Test
@@ -140,7 +142,7 @@ class TextInputServiceAndroidCommandDebouncingTest {
 
         // After stopInput, there's no input connection, so any calls to show the keyboard should
         // be ignored until the next call to startInput.
-        assertThat(inputMethodManager.showSoftInputCalls).isEmpty()
+        assertThat(inputMethodManager.showSoftInputCalls).isEqualTo(0)
     }
 
     @Test
@@ -152,7 +154,7 @@ class TextInputServiceAndroidCommandDebouncingTest {
         // stopInput will hide the keyboard implicitly, so both stopInput and hideSoftwareKeyboard
         // have the effect "hide the keyboard". These two effects should be debounced and the IMM
         // should only get a single hide call instead of two redundant calls.
-        assertThat(inputMethodManager.hideSoftInputCalls).hasSize(1)
+        assertThat(inputMethodManager.hideSoftInputCalls).isEqualTo(1)
     }
 
     @Test
@@ -162,7 +164,7 @@ class TextInputServiceAndroidCommandDebouncingTest {
         }
         scope.advanceUntilIdle()
 
-        assertThat(inputMethodManager.showSoftInputCalls).hasSize(1)
+        assertThat(inputMethodManager.showSoftInputCalls).isEqualTo(1)
     }
 
     @Test
@@ -172,7 +174,7 @@ class TextInputServiceAndroidCommandDebouncingTest {
         }
         scope.advanceUntilIdle()
 
-        assertThat(inputMethodManager.hideSoftInputCalls).hasSize(1)
+        assertThat(inputMethodManager.hideSoftInputCalls).isEqualTo(1)
     }
 
     @Test
@@ -181,8 +183,8 @@ class TextInputServiceAndroidCommandDebouncingTest {
         service.hideSoftwareKeyboard()
         scope.advanceUntilIdle()
 
-        assertThat(inputMethodManager.showSoftInputCalls).hasSize(0)
-        assertThat(inputMethodManager.hideSoftInputCalls).hasSize(1)
+        assertThat(inputMethodManager.showSoftInputCalls).isEqualTo(0)
+        assertThat(inputMethodManager.hideSoftInputCalls).isEqualTo(1)
     }
 
     @Test
@@ -191,43 +193,48 @@ class TextInputServiceAndroidCommandDebouncingTest {
         service.showSoftwareKeyboard()
         scope.advanceUntilIdle()
 
-        assertThat(inputMethodManager.showSoftInputCalls).hasSize(1)
-        assertThat(inputMethodManager.hideSoftInputCalls).hasSize(0)
+        assertThat(inputMethodManager.showSoftInputCalls).isEqualTo(1)
+        assertThat(inputMethodManager.hideSoftInputCalls).isEqualTo(0)
     }
 
-    @Test fun stopInput_isNotProcessedImmediately() {
+    @Test
+    fun stopInput_isNotProcessedImmediately() {
         service.stopInput()
 
-        assertThat(inputMethodManager.restartCalls).isEmpty()
-        assertThat(inputMethodManager.showSoftInputCalls).isEmpty()
-        assertThat(inputMethodManager.hideSoftInputCalls).isEmpty()
+        assertThat(inputMethodManager.restartCalls).isEqualTo(0)
+        assertThat(inputMethodManager.showSoftInputCalls).isEqualTo(0)
+        assertThat(inputMethodManager.hideSoftInputCalls).isEqualTo(0)
     }
 
-    @Test fun startInput_isNotProcessedImmediately() {
-        service.startInput()
+    @Test
+    fun startInput_isNotProcessedImmediately() {
+        service.startInputForTest()
 
-        assertThat(inputMethodManager.restartCalls).isEmpty()
-        assertThat(inputMethodManager.showSoftInputCalls).isEmpty()
-        assertThat(inputMethodManager.hideSoftInputCalls).isEmpty()
+        assertThat(inputMethodManager.restartCalls).isEqualTo(0)
+        assertThat(inputMethodManager.showSoftInputCalls).isEqualTo(0)
+        assertThat(inputMethodManager.hideSoftInputCalls).isEqualTo(0)
     }
 
-    @Test fun showSoftwareKeyboard_isNotProcessedImmediately() {
+    @Test
+    fun showSoftwareKeyboard_isNotProcessedImmediately() {
         service.showSoftwareKeyboard()
 
-        assertThat(inputMethodManager.restartCalls).isEmpty()
-        assertThat(inputMethodManager.showSoftInputCalls).isEmpty()
-        assertThat(inputMethodManager.hideSoftInputCalls).isEmpty()
+        assertThat(inputMethodManager.restartCalls).isEqualTo(0)
+        assertThat(inputMethodManager.showSoftInputCalls).isEqualTo(0)
+        assertThat(inputMethodManager.hideSoftInputCalls).isEqualTo(0)
     }
 
-    @Test fun hideSoftwareKeyboard_isNotProcessedImmediately() {
+    @Test
+    fun hideSoftwareKeyboard_isNotProcessedImmediately() {
         service.hideSoftwareKeyboard()
 
-        assertThat(inputMethodManager.restartCalls).isEmpty()
-        assertThat(inputMethodManager.showSoftInputCalls).isEmpty()
-        assertThat(inputMethodManager.hideSoftInputCalls).isEmpty()
+        assertThat(inputMethodManager.restartCalls).isEqualTo(0)
+        assertThat(inputMethodManager.showSoftInputCalls).isEqualTo(0)
+        assertThat(inputMethodManager.hideSoftInputCalls).isEqualTo(0)
     }
 
-    @Test fun commandsAreIgnored_ifFocusLostBeforeProcessing() {
+    @Test
+    fun commandsAreIgnored_ifFocusLostBeforeProcessing() {
         // Send command while view still has focus.
         service.showSoftwareKeyboard()
         // Blur the view.
@@ -235,10 +242,11 @@ class TextInputServiceAndroidCommandDebouncingTest {
         // Process the queued commands.
         scope.advanceUntilIdle()
 
-        assertThat(inputMethodManager.showSoftInputCalls).isEmpty()
+        assertThat(inputMethodManager.showSoftInputCalls).isEqualTo(0)
     }
 
-    @Test fun commandsAreDrained_whenProcessedWithoutFocus() {
+    @Test
+    fun commandsAreDrained_whenProcessedWithoutFocus() {
         whenever(view.isFocused).thenReturn(false)
         service.showSoftwareKeyboard()
         service.hideSoftwareKeyboard()
@@ -246,10 +254,23 @@ class TextInputServiceAndroidCommandDebouncingTest {
         whenever(view.isFocused).thenReturn(true)
         scope.advanceUntilIdle()
 
-        assertThat(inputMethodManager.showSoftInputCalls).isEmpty()
+        assertThat(inputMethodManager.showSoftInputCalls).isEqualTo(0)
     }
 
-    private fun TextInputServiceAndroid.startInput() {
+    @Test
+    fun commandsAreCleared_afterProcessing() {
+        service.startInputForTest()
+        scope.advanceUntilIdle()
+        assertThat(inputMethodManager.restartCalls).isEqualTo(1)
+        assertThat(inputMethodManager.showSoftInputCalls).isEqualTo(1)
+
+        service.showSoftwareKeyboard()
+        scope.advanceUntilIdle()
+        assertThat(inputMethodManager.restartCalls).isEqualTo(1) // does not increase
+        assertThat(inputMethodManager.showSoftInputCalls).isEqualTo(2)
+    }
+
+    private fun TextInputServiceAndroid.startInputForTest() {
         startInput(
             TextFieldValue(),
             ImeOptions.Default,
@@ -259,32 +280,36 @@ class TextInputServiceAndroidCommandDebouncingTest {
     }
 
     private class TestInputMethodManager : InputMethodManager {
-        val restartCalls = mutableListOf<View>()
-        val showSoftInputCalls = mutableListOf<View>()
-        val hideSoftInputCalls = mutableListOf<IBinder?>()
+        var restartCalls = 0
+        var showSoftInputCalls = 0
+        var hideSoftInputCalls = 0
 
-        override fun restartInput(view: View) {
-            restartCalls += view
+        override fun isActive(): Boolean = true
+
+        override fun restartInput() {
+            restartCalls++
         }
 
-        override fun showSoftInput(view: View) {
-            showSoftInputCalls += view
+        override fun showSoftInput() {
+            showSoftInputCalls++
         }
 
-        override fun hideSoftInputFromWindow(windowToken: IBinder?) {
-            hideSoftInputCalls += windowToken
+        override fun hideSoftInput() {
+            hideSoftInputCalls++
         }
 
-        override fun updateExtractedText(view: View, token: Int, extractedText: ExtractedText) {
+        override fun updateExtractedText(token: Int, extractedText: ExtractedText) {
         }
 
         override fun updateSelection(
-            view: View,
             selectionStart: Int,
             selectionEnd: Int,
             compositionStart: Int,
             compositionEnd: Int
         ) {
+        }
+
+        override fun updateCursorAnchorInfo(cursorAnchorInfo: CursorAnchorInfo) {
         }
     }
 }

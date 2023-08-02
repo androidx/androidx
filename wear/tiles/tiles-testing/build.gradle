@@ -38,7 +38,7 @@ dependencies {
     implementation(libs.kotlinCoroutinesCore)
     implementation(libs.kotlinCoroutinesAndroid)
     implementation(libs.robolectric)
-    implementation(libs.testCore)
+    implementation("androidx.test:core:1.5.0")
 
     testImplementation(libs.testExtJunit)
     testImplementation(libs.testExtTruth)
@@ -63,7 +63,6 @@ androidx {
     name = "Android Wear Tiles Testing Utilities"
     type = LibraryType.PUBLISHED_TEST_LIBRARY
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.WEAR_TILES
     inceptionYear = "2021"
     description = "Testing utilities for Android Wear Tiles."
 }

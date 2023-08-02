@@ -18,7 +18,7 @@ package androidx.compose.material3
 
 import android.os.Build
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.forEachGesture
+import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
@@ -66,13 +66,11 @@ import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@OptIn(ExperimentalMaterial3Api::class)
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class SurfaceTest {
@@ -133,12 +131,58 @@ class SurfaceTest {
                     Box(Modifier.fillMaxSize())
                 }
                 surfaceTonalColor =
-                    MaterialTheme.colorScheme.surfaceColorAtElevation(absoluteTonalElevation)
+                    MaterialTheme.colorScheme.applyTonalElevation(
+                        backgroundColor = surfaceColor,
+                        elevation = absoluteTonalElevation
+                    )
             }
         }
 
         rule.runOnIdle {
             Truth.assertThat(absoluteTonalElevation).isEqualTo(2.dp)
+        }
+
+        rule.onNodeWithTag("box")
+            .captureToImage()
+            .assertShape(
+                density = rule.density,
+                shape = RectangleShape,
+                shapeColor = surfaceTonalColor,
+                backgroundColor = Color.White
+            )
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun noTonalElevationColorIsSetOnElevatedSurfaceColor_tonalElevationDisabled() {
+        var absoluteTonalElevation: Dp = 0.dp
+        var surfaceTonalColor: Color = Color.Unspecified
+        var surfaceColor: Color = Color.Unspecified
+        rule.setMaterialContent(lightColorScheme()) {
+            CompositionLocalProvider(LocalTonalElevationEnabled provides false) {
+                surfaceColor = MaterialTheme.colorScheme.surface
+                Box(
+                    Modifier
+                        .size(10.dp, 10.dp)
+                        .semantics(mergeDescendants = true) {}
+                        .testTag("box")
+                ) {
+                    Surface(color = surfaceColor, tonalElevation = 2.dp) {
+                        absoluteTonalElevation = LocalAbsoluteTonalElevation.current
+                        Box(Modifier.fillMaxSize())
+                    }
+                    surfaceTonalColor =
+                        MaterialTheme.colorScheme.applyTonalElevation(
+                            backgroundColor = surfaceColor,
+                            elevation = absoluteTonalElevation
+                        )
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            Truth.assertThat(absoluteTonalElevation).isEqualTo(2.dp)
+            Truth.assertThat(surfaceColor).isEqualTo(surfaceTonalColor)
         }
 
         rule.onNodeWithTag("box")
@@ -215,7 +259,9 @@ class SurfaceTest {
                         .testTag("top level")
                 ) {
                     Surface(
-                        Modifier.fillMaxSize().padding(0.dp),
+                        Modifier
+                            .fillMaxSize()
+                            .padding(0.dp),
                         tonalElevation = 2.dp,
                         shadowElevation = 2.dp,
                         color = Color.Blue,
@@ -235,7 +281,9 @@ class SurfaceTest {
                             .testTag("nested")
                     ) {
                         Surface(
-                            Modifier.fillMaxSize().padding(0.dp),
+                            Modifier
+                                .fillMaxSize()
+                                .padding(0.dp),
                             tonalElevation = 0.dp,
                             shadowElevation = 2.dp,
                             color = Color.Blue,
@@ -296,7 +344,7 @@ class SurfaceTest {
         }
         rule.onNodeWithTag("surface")
             .assertHasClickAction()
-            .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Button))
+            .assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.Role))
             .assertIsEnabled()
             // since we merge descendants we should have text on the same node
             .assertTextEquals("0")
@@ -310,7 +358,9 @@ class SurfaceTest {
         rule.setMaterialContent(lightColorScheme()) {
             Surface(
                 onClick = { count.value += 1 },
-                modifier = Modifier.semantics { role = Role.Checkbox }.testTag("surface"),
+                modifier = Modifier
+                    .semantics { role = Role.Checkbox }
+                    .testTag("surface"),
             ) {
                 Text("${count.value}")
                 Spacer(Modifier.size(30.dp))
@@ -388,7 +438,8 @@ class SurfaceTest {
         val interactionSource = MutableInteractionSource()
         rule.setMaterialContent(lightColorScheme()) {
             Surface(
-                modifier = Modifier.testTag("surface")
+                modifier = Modifier
+                    .testTag("surface")
                     .clickable(
                         interactionSource = interactionSource,
                         indication = null,
@@ -472,11 +523,15 @@ class SurfaceTest {
         rule.setContent {
             Box(Modifier.fillMaxSize()) {
                 Button(
-                    modifier = Modifier.fillMaxSize().testTag("clickable"),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .testTag("clickable"),
                     onClick = { state.value += 1 }
                 ) { Text("button fullscreen") }
                 Surface(
-                    Modifier.fillMaxSize().testTag("surface"),
+                    Modifier
+                        .fillMaxSize()
+                        .testTag("surface"),
                 ) {}
             }
         }
@@ -500,7 +555,7 @@ class SurfaceTest {
         }
         rule.onNodeWithTag("surface")
             .assertHasClickAction()
-            .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Tab))
+            .assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.Role))
             .assertIsEnabled()
             // since we merge descendants we should have text on the same node
             .assertTextEquals("false")
@@ -515,7 +570,9 @@ class SurfaceTest {
             Surface(
                 selected = selected.value,
                 onClick = { selected.value = !selected.value },
-                modifier = Modifier.semantics { role = Role.Switch }.testTag("surface"),
+                modifier = Modifier
+                    .semantics { role = Role.Switch }
+                    .testTag("surface"),
             ) {
                 Text("${selected.value}")
                 Spacer(Modifier.size(30.dp))
@@ -604,7 +661,7 @@ class SurfaceTest {
         }
         rule.onNodeWithTag("surface")
             .assertHasClickAction()
-            .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Switch))
+            .assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.Role))
             .assertIsEnabled()
             // since we merge descendants we should have text on the same node
             .assertTextEquals("false")
@@ -619,7 +676,9 @@ class SurfaceTest {
             Surface(
                 checked = toggled.value,
                 onCheckedChange = { toggled.value = !toggled.value },
-                modifier = Modifier.semantics { role = Role.Tab }.testTag("surface"),
+                modifier = Modifier
+                    .semantics { role = Role.Tab }
+                    .testTag("surface"),
             ) {
                 Text("${toggled.value}")
                 Spacer(Modifier.size(30.dp))
@@ -700,20 +759,21 @@ class SurfaceTest {
         rule.setContent {
             Box(Modifier.fillMaxSize()) {
                 Surface(
-                    Modifier.fillMaxSize().testTag("surface"),
+                    Modifier
+                        .fillMaxSize()
+                        .testTag("surface"),
                 ) {
                     Box(
                         Modifier
                             .fillMaxSize()
                             .testTag("clickable")
                             .pointerInput(Unit) {
-                                forEachGesture {
-                                    awaitPointerEventScope {
-                                        hitTested.value = true
-                                        val event = awaitPointerEvent(PointerEventPass.Final)
-                                        Truth.assertThat(event.changes[0].isConsumed)
-                                            .isFalse()
-                                    }
+                                awaitEachGesture {
+                                    hitTested.value = true
+                                    val event = awaitPointerEvent(PointerEventPass.Final)
+                                    Truth
+                                        .assertThat(event.changes[0].isConsumed)
+                                        .isFalse()
                                 }
                             }
                     )

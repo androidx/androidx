@@ -22,14 +22,12 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.consumedWindowInsets
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
@@ -51,9 +49,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SmallTopAppBar
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
@@ -111,8 +109,8 @@ fun DemoApp(
             .nestedScroll(scrollBehavior.nestedScrollConnection)
     ) { innerPadding ->
         val modifier = Modifier
-            // as scaffold currently doesn't consume the safe drawing internally - consume here
-            .consumedWindowInsets(WindowInsets.safeDrawing)
+            // as scaffold currently doesn't consume - consume what's needed
+            .consumeWindowInsets(innerPadding)
             .padding(innerPadding)
         DemoContent(
             modifier,
@@ -245,7 +243,7 @@ private fun DemoAppBar(
             scrollBehavior = scrollBehavior
         )
     } else {
-        SmallTopAppBar(
+        TopAppBar(
             title = {
                 Text(title, Modifier.testTag(Tags.AppBarTitle))
             },

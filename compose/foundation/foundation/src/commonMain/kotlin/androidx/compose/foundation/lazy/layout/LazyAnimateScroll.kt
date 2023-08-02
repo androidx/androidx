@@ -33,6 +33,7 @@ private class ItemFoundInScroll(
 
 private val TargetDistance = 2500.dp
 private val BoundDistance = 1500.dp
+private val MinimumDistance = 50.dp
 
 private const val DEBUG = false
 private inline fun debugLog(generateMsg: () -> String) {
@@ -44,7 +45,7 @@ private inline fun debugLog(generateMsg: () -> String) {
 /**
  * Abstraction over animated scroll for using [animateScrollToItem] in different layouts.
  * todo(b/243786897): revisit this API and make it public
- **/
+ */
 internal interface LazyAnimateScrollScope {
     val density: Density
 
@@ -58,7 +59,7 @@ internal interface LazyAnimateScrollScope {
 
     fun getTargetItemOffset(index: Int): Int?
 
-    fun snapToItem(index: Int, scrollOffset: Int)
+    fun ScrollScope.snapToItem(index: Int, scrollOffset: Int)
 
     fun expectedDistanceTo(index: Int, targetScrollOffset: Int): Float
 
@@ -77,6 +78,7 @@ internal suspend fun LazyAnimateScrollScope.animateScrollToItem(
         try {
             val targetDistancePx = with(density) { TargetDistance.toPx() }
             val boundDistancePx = with(density) { BoundDistance.toPx() }
+            val minDistancePx = with(density) { MinimumDistance.toPx() }
             var loop = true
             var anim = AnimationState(0f)
             val targetItemInitialOffset = getTargetItemOffset(index)
@@ -118,7 +120,8 @@ internal suspend fun LazyAnimateScrollScope.animateScrollToItem(
             while (loop && itemCount > 0) {
                 val expectedDistance = expectedDistanceTo(index, scrollOffset)
                 val target = if (abs(expectedDistance) < targetDistancePx) {
-                    expectedDistance
+                    val absTargetPx = maxOf(abs(expectedDistance), minDistancePx)
+                    if (forward) absTargetPx else -absTargetPx
                 } else {
                     if (forward) targetDistancePx else -targetDistancePx
                 }
@@ -205,7 +208,11 @@ internal suspend fun LazyAnimateScrollScope.animateScrollToItem(
                     // We don't throw ItemFoundInScroll when we snap, because once we've snapped to
                     // the final position, there's no need to animate to it.
                     if (isOvershot()) {
-                        debugLog { "Overshot" }
+                        debugLog {
+                            "Overshot, " +
+                                "item $firstVisibleItemIndex at $firstVisibleItemScrollOffset, " +
+                                "target is $scrollOffset"
+                        }
                         snapToItem(index = index, scrollOffset = scrollOffset)
                         loop = false
                         cancelAnimation()

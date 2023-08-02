@@ -25,19 +25,21 @@ import android.util.Size
 import android.util.SizeF
 import android.util.SparseArray
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
+import androidx.lifecycle.testing.TestLifecycleOwner
 import androidx.savedstate.SavedStateRegistry
 import androidx.savedstate.SavedStateRegistryController
 import androidx.savedstate.SavedStateRegistryOwner
 import androidx.test.annotation.UiThreadTest
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
+import java.io.Serializable
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.io.Serializable
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
@@ -252,19 +254,18 @@ private class CustomParcelableFunction(parcel: Parcel? = null) : Parcelable, (St
 
 private class TestOwner(
     restoredBundle: Bundle? = null
-) : SavedStateRegistryOwner {
+) : SavedStateRegistryOwner, LifecycleOwner by TestLifecycleOwner(Lifecycle.State.INITIALIZED) {
 
-    private val lifecycle = LifecycleRegistry(this)
     private val controller = SavedStateRegistryController.create(this).apply {
         performRestore(restoredBundle ?: Bundle())
     }
+
     init {
-        lifecycle.currentState = Lifecycle.State.RESUMED
+        (lifecycle as LifecycleRegistry).currentState = Lifecycle.State.RESUMED
     }
 
     override val savedStateRegistry: SavedStateRegistry
         get() = controller.savedStateRegistry
-    override fun getLifecycle(): Lifecycle = lifecycle
 
     fun save() = Bundle().apply {
         controller.performSave(this)

@@ -21,11 +21,12 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.IntrinsicMeasurable
 import androidx.compose.ui.layout.IntrinsicMeasureScope
+import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.LayoutModifier
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasurePolicy
@@ -33,7 +34,12 @@ import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.layoutId
+import androidx.compose.ui.node.LayoutModifierNode
+import androidx.compose.ui.node.ModifierNodeElement
+import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.offset
 
 @Sampled
@@ -186,6 +192,40 @@ fun LayoutModifierSample() {
     }
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
+@Sampled
+@Composable
+fun LayoutModifierNodeSample() {
+    class VerticalPadding(var padding: Dp) : LayoutModifierNode, Modifier.Node() {
+        override fun MeasureScope.measure(
+            measurable: Measurable,
+            constraints: Constraints
+        ): MeasureResult {
+            val paddingPx = padding.roundToPx()
+            val placeable = measurable.measure(constraints.offset(vertical = -paddingPx))
+            return layout(placeable.width, placeable.height + paddingPx) {
+                placeable.placeRelative(0, paddingPx)
+            }
+        }
+    }
+    data class VerticalPaddingElement(
+        val padding: Dp
+    ) : ModifierNodeElement<VerticalPadding>() {
+        override fun create() = VerticalPadding(padding)
+        override fun update(node: VerticalPadding) {
+            node.padding = padding
+        }
+        override fun InspectorInfo.inspectableProperties() {
+            name = "verticalPadding"
+            properties["padding"] = padding
+        }
+    }
+    fun Modifier.verticalPadding(padding: Dp) = this then VerticalPaddingElement(padding)
+    Box(Modifier.background(Color.Gray).verticalPadding(50.dp)) {
+        Box(Modifier.fillMaxSize().background(Color.DarkGray))
+    }
+}
+
 @Sampled
 @Composable
 fun ConvenienceLayoutModifierSample() {
@@ -201,5 +241,38 @@ fun ConvenienceLayoutModifierSample() {
             }
     ) {
         Box(Modifier.fillMaxSize().background(Color.DarkGray))
+    }
+}
+
+@OptIn(ExperimentalComposeUiApi::class)
+@Sampled
+@Composable
+fun LayoutWithMultipleContentsUsage(
+    content1: @Composable () -> Unit,
+    content2: @Composable () -> Unit,
+) {
+    // We can provide pass a list of two composable lambdas in order to be able to treat
+    // measureables from each lambda differently.
+    Layout(listOf(content1, content2)) { (content1Measurables, content2Measurables), constraints ->
+        val content1Placeables = content1Measurables.map { it.measure(constraints) }
+        val content2Placeables = content2Measurables.map { it.measure(constraints) }
+        layout(constraints.maxWidth, constraints.maxHeight) {
+            var currentX = 0
+            var currentY = 0
+            var currentMaxHeight = 0
+            // we place placeables from content1 as a first line
+            content1Placeables.forEach {
+                it.place(currentX, currentY)
+                currentX += it.width
+                currentMaxHeight = maxOf(currentMaxHeight, it.height)
+            }
+            currentX = 0
+            currentY = currentMaxHeight
+            // and placeables from content2 composable as a second line
+            content2Placeables.forEach {
+                it.place(currentX, currentY)
+                currentX += it.width
+            }
+        }
     }
 }

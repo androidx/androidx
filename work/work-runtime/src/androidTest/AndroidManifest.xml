@@ -14,13 +14,20 @@
   ~ limitations under the License.
   -->
 
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <!--
-      ~ Adding this permission to the test-app's AndroidManifest.xml. This is because
+      ~ Adding these permissions to the test-app's AndroidManifest.xml. This is because
       ~ we don't want applications to implicitly add this permission on API 31 and above. We only
       ~ need this permission for tests.
     -->
-    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
-    <application android:name="androidx.multidex.MultiDexApplication"/>
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM"
+        android:maxSdkVersion="32"/>
+    <uses-permission android:name="android.permission.USE_EXACT_ALARM"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE"/>
+    <application android:name="androidx.multidex.MultiDexApplication">
+        <service android:name="androidx.work.impl.foreground.SystemForegroundService"
+            android:foregroundServiceType="specialUse" />
+    </application>
 </manifest>

@@ -17,6 +17,8 @@
 package androidx.camera.camera2.internal;
 
 import static android.hardware.camera2.CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_PRIVATE_REPROCESSING;
+import static android.hardware.camera2.CameraMetadata.SENSOR_INFO_TIMESTAMP_SOURCE_REALTIME;
+import static android.hardware.camera2.CameraMetadata.SENSOR_INFO_TIMESTAMP_SOURCE_UNKNOWN;
 
 import static androidx.camera.camera2.internal.ZslUtil.isCapabilitySupported;
 
@@ -24,8 +26,11 @@ import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraMetadata;
 import android.os.Build;
 import android.util.Pair;
+import android.util.Range;
+import android.util.Size;
 import android.view.Surface;
 
+import androidx.annotation.FloatRange;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -34,21 +39,27 @@ import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.internal.compat.CameraAccessExceptionCompat;
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
 import androidx.camera.camera2.internal.compat.CameraManagerCompat;
+import androidx.camera.camera2.internal.compat.StreamConfigurationMapCompat;
+import androidx.camera.camera2.internal.compat.params.DynamicRangesCompat;
 import androidx.camera.camera2.internal.compat.quirk.CameraQuirks;
+import androidx.camera.camera2.internal.compat.quirk.DeviceQuirks;
+import androidx.camera.camera2.internal.compat.quirk.ZslDisablerQuirk;
 import androidx.camera.camera2.internal.compat.workaround.FlashAvailabilityChecker;
 import androidx.camera.camera2.interop.Camera2CameraInfo;
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraState;
+import androidx.camera.core.DynamicRange;
 import androidx.camera.core.ExposureState;
 import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.Logger;
 import androidx.camera.core.ZoomState;
-import androidx.camera.core.impl.CamcorderProfileProvider;
 import androidx.camera.core.impl.CameraCaptureCallback;
 import androidx.camera.core.impl.CameraInfoInternal;
+import androidx.camera.core.impl.EncoderProfilesProvider;
 import androidx.camera.core.impl.ImageOutputConfig.RotationValue;
 import androidx.camera.core.impl.Quirks;
+import androidx.camera.core.impl.Timebase;
 import androidx.camera.core.impl.utils.CameraOrientationUtil;
 import androidx.core.util.Preconditions;
 import androidx.lifecycle.LiveData;
@@ -56,11 +67,15 @@ import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.Observer;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.Executor;
 
 /**
@@ -102,7 +117,7 @@ public final class Camera2CameraInfoImpl implements CameraInfoInternal {
     @NonNull
     private final Quirks mCameraQuirks;
     @NonNull
-    private final CamcorderProfileProvider mCamera2CamcorderProfileProvider;
+    private final EncoderProfilesProvider mCamera2EncoderProfilesProvider;
     @NonNull
     private final CameraManagerCompat mCameraManager;
 
@@ -110,7 +125,7 @@ public final class Camera2CameraInfoImpl implements CameraInfoInternal {
      * Constructs an instance. Before {@link #linkWithCameraControl(Camera2CameraControlImpl)} is
      * called, camera control related API (torch/exposure/zoom) will return default values.
      */
-    Camera2CameraInfoImpl(@NonNull String cameraId,
+    public Camera2CameraInfoImpl(@NonNull String cameraId,
             @NonNull CameraManagerCompat cameraManager) throws CameraAccessExceptionCompat {
         mCameraId = Preconditions.checkNotNull(cameraId);
         mCameraManager = cameraManager;
@@ -118,8 +133,7 @@ public final class Camera2CameraInfoImpl implements CameraInfoInternal {
         mCameraCharacteristicsCompat = cameraManager.getCameraCharacteristicsCompat(mCameraId);
         mCamera2CameraInfo = new Camera2CameraInfo(this);
         mCameraQuirks = CameraQuirks.get(cameraId, mCameraCharacteristicsCompat);
-        mCamera2CamcorderProfileProvider = new Camera2CamcorderProfileProvider(cameraId,
-                mCameraCharacteristicsCompat);
+        mCamera2EncoderProfilesProvider = new Camera2EncoderProfilesProvider(cameraId);
         mCameraStateLiveData = new RedirectableLiveData<>(
                 CameraState.create(CameraState.Type.CLOSED));
     }
@@ -175,19 +189,13 @@ public final class Camera2CameraInfoImpl implements CameraInfoInternal {
         return mCameraCharacteristicsCompat;
     }
 
-    @Nullable
+    @CameraSelector.LensFacing
     @Override
-    public Integer getLensFacing() {
+    public int getLensFacing() {
         Integer lensFacing = mCameraCharacteristicsCompat.get(CameraCharacteristics.LENS_FACING);
-        Preconditions.checkNotNull(lensFacing);
-        switch (lensFacing) {
-            case CameraCharacteristics.LENS_FACING_FRONT:
-                return CameraSelector.LENS_FACING_FRONT;
-            case CameraCharacteristics.LENS_FACING_BACK:
-                return CameraSelector.LENS_FACING_BACK;
-            default:
-                return null;
-        }
+        Preconditions.checkArgument(lensFacing != null, "Unable to get the lens facing of the "
+                + "camera.");
+        return LensFacingUtil.getCameraSelectorLensFacing(lensFacing);
     }
 
     @Override
@@ -198,9 +206,8 @@ public final class Camera2CameraInfoImpl implements CameraInfoInternal {
         // Currently this assumes that a back-facing camera is always opposite to the screen.
         // This may not be the case for all devices, so in the future we may need to handle that
         // scenario.
-        final Integer lensFacing = getLensFacing();
-        boolean isOppositeFacingScreen =
-                (lensFacing != null && CameraSelector.LENS_FACING_BACK == lensFacing);
+        final int lensFacing = getLensFacing();
+        boolean isOppositeFacingScreen = CameraSelector.LENS_FACING_BACK == lensFacing;
         return CameraOrientationUtil.getRelativeImageRotation(
                 relativeRotationDegrees,
                 sensorOrientation,
@@ -261,7 +268,7 @@ public final class Camera2CameraInfoImpl implements CameraInfoInternal {
 
     @Override
     public boolean hasFlashUnit() {
-        return FlashAvailabilityChecker.isFlashAvailable(mCameraCharacteristicsCompat);
+        return FlashAvailabilityChecker.isFlashAvailable(mCameraCharacteristicsCompat::get);
     }
 
     @NonNull
@@ -342,6 +349,33 @@ public final class Camera2CameraInfoImpl implements CameraInfoInternal {
                 ? IMPLEMENTATION_TYPE_CAMERA2_LEGACY : IMPLEMENTATION_TYPE_CAMERA2;
     }
 
+    @FloatRange(from = 0, fromInclusive = false)
+    @Override
+    public float getIntrinsicZoomRatio() {
+        final Integer lensFacing =
+                mCameraCharacteristicsCompat.get(CameraCharacteristics.LENS_FACING);
+        if (lensFacing == null) {
+            return INTRINSIC_ZOOM_RATIO_UNKNOWN;
+        }
+
+        int fovDegrees;
+        int defaultFovDegrees;
+        try {
+            fovDegrees =
+                    FovUtil.focalLengthToViewAngleDegrees(
+                            FovUtil.getDefaultFocalLength(mCameraCharacteristicsCompat),
+                            FovUtil.getSensorHorizontalLength(mCameraCharacteristicsCompat));
+            defaultFovDegrees = FovUtil.getDeviceDefaultViewAngleDegrees(mCameraManager,
+                    lensFacing);
+        } catch (Exception e) {
+            Logger.e(TAG, "The camera is unable to provide necessary information to resolve its "
+                    + "intrinsic zoom ratio with error: " + e);
+            return INTRINSIC_ZOOM_RATIO_UNKNOWN;
+        }
+
+        return ((float) defaultFovDegrees) / fovDegrees;
+    }
+
     @Override
     public boolean isFocusMeteringSupported(@NonNull FocusMeteringAction action) {
         synchronized (mLock) {
@@ -355,7 +389,8 @@ public final class Camera2CameraInfoImpl implements CameraInfoInternal {
 
     @Override
     public boolean isZslSupported() {
-        return Build.VERSION.SDK_INT >= 23 && isPrivateReprocessingSupported();
+        return Build.VERSION.SDK_INT >= 23 && isPrivateReprocessingSupported()
+                && (DeviceQuirks.get(ZslDisablerQuirk.class) == null);
     }
 
     @Override
@@ -367,8 +402,50 @@ public final class Camera2CameraInfoImpl implements CameraInfoInternal {
     /** {@inheritDoc} */
     @NonNull
     @Override
-    public CamcorderProfileProvider getCamcorderProfileProvider() {
-        return mCamera2CamcorderProfileProvider;
+    public EncoderProfilesProvider getEncoderProfilesProvider() {
+        return mCamera2EncoderProfilesProvider;
+    }
+
+    @NonNull
+    @Override
+    public Timebase getTimebase() {
+        Integer timeSource = mCameraCharacteristicsCompat.get(
+                CameraCharacteristics.SENSOR_INFO_TIMESTAMP_SOURCE);
+        Preconditions.checkNotNull(timeSource);
+        switch (timeSource) {
+            case SENSOR_INFO_TIMESTAMP_SOURCE_REALTIME:
+                return Timebase.REALTIME;
+            case SENSOR_INFO_TIMESTAMP_SOURCE_UNKNOWN:
+            default:
+                return Timebase.UPTIME;
+        }
+    }
+
+    @NonNull
+    @Override
+    public List<Size> getSupportedResolutions(int format) {
+        StreamConfigurationMapCompat mapCompat =
+                mCameraCharacteristicsCompat.getStreamConfigurationMapCompat();
+        Size[] size = mapCompat.getOutputSizes(format);
+        return size != null ? Arrays.asList(size) : Collections.emptyList();
+    }
+
+    @NonNull
+    @Override
+    public List<Size> getSupportedHighResolutions(int format) {
+        StreamConfigurationMapCompat mapCompat =
+                mCameraCharacteristicsCompat.getStreamConfigurationMapCompat();
+        Size[] size = mapCompat.getHighResolutionOutputSizes(format);
+        return size != null ? Arrays.asList(size) : Collections.emptyList();
+    }
+
+    @NonNull
+    @Override
+    public Set<DynamicRange> getSupportedDynamicRanges() {
+        DynamicRangesCompat dynamicRangesCompat = DynamicRangesCompat.fromCameraCharacteristics(
+                mCameraCharacteristicsCompat);
+
+        return dynamicRangesCompat.getSupportedDynamicRanges();
     }
 
     @Override
@@ -413,6 +490,19 @@ public final class Camera2CameraInfoImpl implements CameraInfoInternal {
     @Override
     public Quirks getCameraQuirks() {
         return mCameraQuirks;
+    }
+
+    @NonNull
+    @Override
+    public Set<Range<Integer>> getSupportedFrameRateRanges() {
+        Range<Integer>[] availableTargetFpsRanges =
+                mCameraCharacteristicsCompat.get(
+                        CameraCharacteristics.CONTROL_AE_AVAILABLE_TARGET_FPS_RANGES);
+        if (availableTargetFpsRanges != null) {
+            return new HashSet<>(Arrays.asList(availableTargetFpsRanges));
+        } else {
+            return Collections.emptySet();
+        }
     }
 
     /**

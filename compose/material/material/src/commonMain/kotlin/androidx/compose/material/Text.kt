@@ -24,7 +24,7 @@ import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.structuralEqualityPolicy
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.takeOrElse
+import androidx.compose.ui.graphics.isSpecified
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.Paragraph
 import androidx.compose.ui.text.TextLayoutResult
@@ -80,7 +80,9 @@ import androidx.compose.ui.unit.TextUnit
  * [overflow] and TextAlign may have unexpected effects.
  * @param maxLines An optional maximum number of lines for the text to span, wrapping if
  * necessary. If the text exceeds the given number of lines, it will be truncated according to
- * [overflow] and [softWrap]. If it is not null, then it must be greater than zero.
+ * [overflow] and [softWrap]. It is required that 1 <= [minLines] <= [maxLines].
+ * @param minLines The minimum height in terms of minimum number of visible lines. It is required
+ * that 1 <= [minLines] <= [maxLines].
  * @param onTextLayout Callback that is executed when a new text layout is calculated. A
  * [TextLayoutResult] object that callback provides contains paragraph information, size of the
  * text, baselines and other details. The callback can be used to add additional decoration or
@@ -103,20 +105,41 @@ fun Text(
     overflow: TextOverflow = TextOverflow.Clip,
     softWrap: Boolean = true,
     maxLines: Int = Int.MAX_VALUE,
-    onTextLayout: (TextLayoutResult) -> Unit = {},
+    minLines: Int = 1,
+    onTextLayout: ((TextLayoutResult) -> Unit)? = null,
     style: TextStyle = LocalTextStyle.current
 ) {
-
-    val textColor = color.takeOrElse {
-        style.color.takeOrElse {
-            LocalContentColor.current.copy(alpha = LocalContentAlpha.current)
-        }
+    // TL:DR: profile before you change any line of code in this method
+    //
+    // The call to LocalContentAlpha.current looks like it can be avoided by only calling it in the
+    // last else block but, in 1.5, this causes a control flow group to be created because it would
+    // be a conditional call to a composable function. The call is currently made unconditionally
+    // since the call to LocalContentAlpha.current does not create a group (it is a read-only
+    // composable) and looking up the value in the composition locals map is currently faster than
+    // creating a group to avoid it.
+    //
+    // Similar notes regarding lambda allocations. It appears there's a path to optimize for
+    // zero-allocations in the style-provided color route, but this either introduces a group or a
+    // box depending on how it's coded. It's also possible that allocating a final ColorProducer
+    // subclass with no capture may be a successful optimization, but it appeared slower in initial
+    // profiling.
+    //
+    // If changing ANY LINE OF CODE, please confirm that it's faster or the same speed using
+    // profilers and benchmarks.
+    val localContentColor = LocalContentColor.current
+    val localContentAlpha = LocalContentAlpha.current
+    val overrideColorOrUnspecified: Color = if (color.isSpecified) {
+        color
+    } else if (style.color.isSpecified) {
+        style.color
+    } else {
+        localContentColor.copy(localContentAlpha)
     }
-    // NOTE(text-perf-review): It might be worthwhile writing a bespoke merge implementation that
-    // will avoid reallocating if all of the options here are the defaults
-    val mergedStyle = style.merge(
-        TextStyle(
-            color = textColor,
+
+    BasicText(
+        text = text,
+        modifier = modifier,
+        style = style.merge(
             fontSize = fontSize,
             fontWeight = fontWeight,
             textAlign = textAlign,
@@ -125,16 +148,57 @@ fun Text(
             textDecoration = textDecoration,
             fontStyle = fontStyle,
             letterSpacing = letterSpacing
-        )
+        ),
+        onTextLayout = onTextLayout,
+        overflow = overflow,
+        softWrap = softWrap,
+        maxLines = maxLines,
+        minLines = minLines,
+        color = { overrideColorOrUnspecified }
     )
-    BasicText(
+}
+
+@Deprecated(
+    "Maintained for binary compatibility. Use version with minLines instead",
+    level = DeprecationLevel.HIDDEN
+)
+@Composable
+fun Text(
+    text: String,
+    modifier: Modifier = Modifier,
+    color: Color = Color.Unspecified,
+    fontSize: TextUnit = TextUnit.Unspecified,
+    fontStyle: FontStyle? = null,
+    fontWeight: FontWeight? = null,
+    fontFamily: FontFamily? = null,
+    letterSpacing: TextUnit = TextUnit.Unspecified,
+    textDecoration: TextDecoration? = null,
+    textAlign: TextAlign? = null,
+    lineHeight: TextUnit = TextUnit.Unspecified,
+    overflow: TextOverflow = TextOverflow.Clip,
+    softWrap: Boolean = true,
+    maxLines: Int = Int.MAX_VALUE,
+    onTextLayout: (TextLayoutResult) -> Unit = {},
+    style: TextStyle = LocalTextStyle.current
+) {
+    Text(
         text,
         modifier,
-        mergedStyle,
-        onTextLayout,
+        color,
+        fontSize,
+        fontStyle,
+        fontWeight,
+        fontFamily,
+        letterSpacing,
+        textDecoration,
+        textAlign,
+        lineHeight,
         overflow,
         softWrap,
         maxLines,
+        1,
+        onTextLayout,
+        style
     )
 }
 
@@ -181,7 +245,9 @@ fun Text(
  * [overflow] and TextAlign may have unexpected effects.
  * @param maxLines An optional maximum number of lines for the text to span, wrapping if
  * necessary. If the text exceeds the given number of lines, it will be truncated according to
- * [overflow] and [softWrap]. If it is not null, then it must be greater than zero.
+ * [overflow] and [softWrap]. It is required that 1 <= [minLines] <= [maxLines].
+ * @param minLines The minimum height in terms of minimum number of visible lines. It is required
+ * that 1 <= [minLines] <= [maxLines].
  * @param inlineContent A map store composables that replaces certain ranges of the text. It's
  * used to insert composables into text layout. Check [InlineTextContent] for more information.
  * @param onTextLayout Callback that is executed when a new text layout is calculated. A
@@ -206,20 +272,42 @@ fun Text(
     overflow: TextOverflow = TextOverflow.Clip,
     softWrap: Boolean = true,
     maxLines: Int = Int.MAX_VALUE,
+    minLines: Int = 1,
     inlineContent: Map<String, InlineTextContent> = mapOf(),
     onTextLayout: (TextLayoutResult) -> Unit = {},
     style: TextStyle = LocalTextStyle.current
 ) {
-    val textColor = color.takeOrElse {
-        style.color.takeOrElse {
-            LocalContentColor.current.copy(alpha = LocalContentAlpha.current)
-        }
+    // TL:DR: profile before you change any line of code in this method
+    //
+    // The call to LocalContentAlpha.current looks like it can be avoided by only calling it in the
+    // last else block but, in 1.5, this causes a control flow group to be created because it would
+    // be a conditional call to a composable function. The call is currently made unconditionally
+    // since the call to LocalContentAlpha.current does not create a group (it is a read-only
+    // composable) and looking up the value in the composition locals map is currently faster than
+    // creating a group to avoid it.
+    //
+    // Similar notes regarding lambda allocations. It appears there's a path to optimize for
+    // zero-allocations in the style-provided color route, but this either introduces a group or a
+    // box depending on how it's coded. It's also possible that allocating a final ColorProducer
+    // subclass with no capture may be a successful optimization, but it appeared slower in initial
+    // profiling.
+    //
+    // If changing ANY LINE OF CODE, please confirm that it's faster or the same speed using
+    // profilers and benchmarks.
+    val localContentColor = LocalContentColor.current
+    val localContentAlpha = LocalContentAlpha.current
+    val overrideColorOrUnspecified = if (color.isSpecified) {
+        color
+    } else if (style.color.isSpecified) {
+        style.color
+    } else {
+        localContentColor.copy(localContentAlpha)
     }
-    // NOTE(text-perf-review): It might be worthwhile writing a bespoke merge implementation that
-    // will avoid reallocating if all of the options here are the defaults
-    val mergedStyle = style.merge(
-        TextStyle(
-            color = textColor,
+
+    BasicText(
+        text = text,
+        modifier = modifier,
+        style = style.merge(
             fontSize = fontSize,
             fontWeight = fontWeight,
             textAlign = textAlign,
@@ -228,17 +316,60 @@ fun Text(
             textDecoration = textDecoration,
             fontStyle = fontStyle,
             letterSpacing = letterSpacing
-        )
+        ),
+        onTextLayout = onTextLayout,
+        overflow = overflow,
+        softWrap = softWrap,
+        maxLines = maxLines,
+        minLines = minLines,
+        inlineContent = inlineContent,
+        color = { overrideColorOrUnspecified }
     )
-    BasicText(
+}
+
+@Deprecated(
+    "Maintained for binary compatibility. Use version with minLines instead",
+    level = DeprecationLevel.HIDDEN
+)
+@Composable
+fun Text(
+    text: AnnotatedString,
+    modifier: Modifier = Modifier,
+    color: Color = Color.Unspecified,
+    fontSize: TextUnit = TextUnit.Unspecified,
+    fontStyle: FontStyle? = null,
+    fontWeight: FontWeight? = null,
+    fontFamily: FontFamily? = null,
+    letterSpacing: TextUnit = TextUnit.Unspecified,
+    textDecoration: TextDecoration? = null,
+    textAlign: TextAlign? = null,
+    lineHeight: TextUnit = TextUnit.Unspecified,
+    overflow: TextOverflow = TextOverflow.Clip,
+    softWrap: Boolean = true,
+    maxLines: Int = Int.MAX_VALUE,
+    inlineContent: Map<String, InlineTextContent> = mapOf(),
+    onTextLayout: (TextLayoutResult) -> Unit = {},
+    style: TextStyle = LocalTextStyle.current
+) {
+    Text(
         text,
         modifier,
-        mergedStyle,
-        onTextLayout,
+        color,
+        fontSize,
+        fontStyle,
+        fontWeight,
+        fontFamily,
+        letterSpacing,
+        textDecoration,
+        textAlign,
+        lineHeight,
         overflow,
         softWrap,
         maxLines,
-        inlineContent
+        1,
+        inlineContent,
+        onTextLayout,
+        style
     )
 }
 
@@ -249,7 +380,7 @@ fun Text(
  *
  * @see ProvideTextStyle
  */
-val LocalTextStyle = compositionLocalOf(structuralEqualityPolicy()) { TextStyle.Default }
+val LocalTextStyle = compositionLocalOf(structuralEqualityPolicy()) { DefaultTextStyle }
 
 // TODO: b/156598010 remove this and replace with fold definition on the backing CompositionLocal
 /**

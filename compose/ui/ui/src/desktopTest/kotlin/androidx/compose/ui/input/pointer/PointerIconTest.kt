@@ -19,25 +19,30 @@ package androidx.compose.ui.input.pointer
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalPointerIconService
 import androidx.compose.ui.platform.TestComposeWindow
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import com.google.common.truth.Truth.assertThat
+import java.awt.Cursor
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import java.awt.Cursor
 
 @RunWith(JUnit4::class)
-@OptIn(ExperimentalComposeUiApi::class)
 class PointerIconTest {
     private val window = TestComposeWindow(width = 100, height = 100, density = Density(1f))
 
     private val iconService = object : PointerIconService {
-        override var current: PointerIcon = PointerIconDefaults.Default
+        private var currentIcon: PointerIcon = PointerIcon.Default
+        override fun getIcon(): PointerIcon {
+            return currentIcon
+        }
+
+        override fun setIcon(value: PointerIcon?) {
+            currentIcon = value ?: PointerIcon.Default
+        }
     }
 
     @Test
@@ -52,7 +57,7 @@ class PointerIconTest {
                 ) {
                     Box(
                         modifier = Modifier
-                            .pointerHoverIcon(PointerIconDefaults.Text)
+                            .pointerHoverIcon(PointerIcon.Text)
                             .size(10.dp, 10.dp)
                     )
                 }
@@ -63,7 +68,7 @@ class PointerIconTest {
             x = 5,
             y = 5
         )
-        assertThat(iconService.current).isEqualTo(PointerIconDefaults.Text)
+        assertThat(iconService.getIcon()).isEqualTo(PointerIcon.Text)
     }
 
     @Test
@@ -75,7 +80,7 @@ class PointerIconTest {
             ) {
                 Box(
                     modifier = Modifier
-                        .pointerHoverIcon(PointerIconDefaults.Text)
+                        .pointerHoverIcon(PointerIcon.Text)
                         .size(10.dp, 10.dp)
                 )
             }
@@ -97,7 +102,7 @@ class PointerIconTest {
             ) {
                 Box(
                     modifier = Modifier
-                        .pointerHoverIcon(PointerIconDefaults.Text)
+                        .pointerHoverIcon(PointerIcon.Text)
                         .size(10.dp, 10.dp)
                 )
             }
@@ -122,12 +127,12 @@ class PointerIconTest {
             ) {
                 Box(
                     modifier = Modifier
-                        .pointerHoverIcon(PointerIconDefaults.Hand, true)
+                        .pointerHoverIcon(PointerIcon.Hand, true)
                         .size(30.dp, 30.dp)
                 ) {
                     Box(
                         modifier = Modifier
-                            .pointerHoverIcon(PointerIconDefaults.Text)
+                            .pointerHoverIcon(PointerIcon.Text)
                             .size(10.dp, 10.dp)
                     )
                 }
@@ -138,13 +143,13 @@ class PointerIconTest {
             x = 5,
             y = 5
         )
-        assertThat(iconService.current).isEqualTo(PointerIconDefaults.Hand)
+        assertThat(iconService.getIcon()).isEqualTo(PointerIcon.Hand)
 
         window.onMouseMoved(
             x = 15,
             y = 15
         )
-        assertThat(iconService.current).isEqualTo(PointerIconDefaults.Hand)
+        assertThat(iconService.getIcon()).isEqualTo(PointerIcon.Hand)
     }
 
     @Test
@@ -155,12 +160,12 @@ class PointerIconTest {
             ) {
                 Box(
                     modifier = Modifier
-                        .pointerHoverIcon(PointerIconDefaults.Hand)
+                        .pointerHoverIcon(PointerIcon.Hand)
                         .size(30.dp, 30.dp)
                 ) {
                     Box(
                         modifier = Modifier
-                            .pointerHoverIcon(PointerIconDefaults.Text)
+                            .pointerHoverIcon(PointerIcon.Text)
                             .size(10.dp, 10.dp)
                     )
                 }
@@ -171,12 +176,12 @@ class PointerIconTest {
             x = 5,
             y = 5
         )
-        assertThat(iconService.current).isEqualTo(PointerIconDefaults.Text)
+        assertThat(iconService.getIcon()).isEqualTo(PointerIcon.Text)
 
         window.onMouseMoved(
             x = 15,
             y = 15
         )
-        assertThat(iconService.current).isEqualTo(PointerIconDefaults.Hand)
+        assertThat(iconService.getIcon()).isEqualTo(PointerIcon.Hand)
     }
 }

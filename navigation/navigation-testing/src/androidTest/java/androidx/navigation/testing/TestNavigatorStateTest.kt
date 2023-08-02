@@ -17,8 +17,11 @@
 package androidx.navigation.testing
 
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.testing.TestLifecycleOwner
 import androidx.navigation.FloatingWindow
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavDestination
@@ -228,6 +231,148 @@ class TestNavigatorStateTest {
         assertThat(viewModel.wasCleared).isFalse()
     }
 
+    @Test
+    fun testTransitionInterruptPushPop() {
+        val navigator = TestTransitionNavigator()
+        navigator.onAttach(state)
+        val firstEntry = state.createBackStackEntry(navigator.createDestination(), null)
+
+        navigator.navigate(listOf(firstEntry), null, null)
+        state.markTransitionComplete(firstEntry)
+
+        val secondEntry = state.createBackStackEntry(navigator.createDestination(), null)
+        navigator.navigate(listOf(secondEntry), null, null)
+        assertThat(state.transitionsInProgress.value.contains(firstEntry)).isTrue()
+        assertThat(state.transitionsInProgress.value.contains(secondEntry)).isTrue()
+        assertThat(firstEntry.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.CREATED)
+        assertThat(secondEntry.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.STARTED)
+
+        navigator.popBackStack(secondEntry, true)
+        assertThat(state.transitionsInProgress.value.contains(firstEntry)).isTrue()
+        assertThat(state.transitionsInProgress.value.contains(secondEntry)).isTrue()
+        state.markTransitionComplete(firstEntry)
+        state.markTransitionComplete(secondEntry)
+        assertThat(firstEntry.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.RESUMED)
+        assertThat(secondEntry.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.DESTROYED)
+    }
+
+    @Test
+    fun testTransitionInterruptPopPush() {
+        val navigator = TestTransitionNavigator()
+        navigator.onAttach(state)
+        val firstEntry = state.createBackStackEntry(navigator.createDestination(), null)
+
+        navigator.navigate(listOf(firstEntry), null, null)
+        state.markTransitionComplete(firstEntry)
+
+        val secondEntry = state.createBackStackEntry(navigator.createDestination(), null)
+        navigator.navigate(listOf(secondEntry), null, null)
+        assertThat(state.transitionsInProgress.value.contains(firstEntry)).isTrue()
+        assertThat(state.transitionsInProgress.value.contains(secondEntry)).isTrue()
+        assertThat(firstEntry.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.CREATED)
+        assertThat(secondEntry.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.STARTED)
+        state.markTransitionComplete(firstEntry)
+        state.markTransitionComplete(secondEntry)
+
+        navigator.popBackStack(secondEntry, true)
+        assertThat(state.transitionsInProgress.value.contains(firstEntry)).isTrue()
+        assertThat(state.transitionsInProgress.value.contains(secondEntry)).isTrue()
+
+        val secondEntryReplace = state.createBackStackEntry(navigator.createDestination(), null)
+        navigator.navigate(listOf(secondEntryReplace), null, null)
+        assertThat(state.transitionsInProgress.value.contains(firstEntry)).isTrue()
+        assertThat(state.transitionsInProgress.value.contains(secondEntry)).isTrue()
+        assertThat(state.transitionsInProgress.value.contains(secondEntryReplace)).isTrue()
+        assertThat(firstEntry.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.CREATED)
+        assertThat(secondEntry.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.CREATED)
+        assertThat(secondEntryReplace.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.STARTED)
+        state.markTransitionComplete(firstEntry)
+        state.markTransitionComplete(secondEntry)
+        state.markTransitionComplete(secondEntryReplace)
+        assertThat(firstEntry.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.CREATED)
+        assertThat(secondEntry.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.DESTROYED)
+        assertThat(secondEntryReplace.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.RESUMED)
+    }
+
+    @Test
+    fun testPrepareForTransition() {
+        val navigator = TestTransitionNavigator()
+        navigator.onAttach(state)
+        val firstEntry = state.createBackStackEntry(navigator.createDestination(), null)
+        assertThat(firstEntry.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.INITIALIZED)
+
+        navigator.navigate(listOf(firstEntry), null, null)
+        navigator.testLifecycle.addObserver(object : LifecycleEventObserver {
+            override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
+                when (event) {
+                    Lifecycle.Event.ON_STOP -> {
+                        // this is okay since the first entry will not be DESTROYED in this test.
+                        state.markTransitionComplete(firstEntry)
+                    }
+                    Lifecycle.Event.ON_PAUSE -> state.prepareForTransition(firstEntry)
+                    Lifecycle.Event.ON_START -> state.prepareForTransition(firstEntry)
+                    Lifecycle.Event.ON_RESUME -> state.markTransitionComplete(firstEntry)
+                    else -> {}
+                }
+            }
+        })
+        assertThat(firstEntry.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.STARTED)
+
+        navigator.testLifecycle.currentState = Lifecycle.State.RESUMED
+        assertThat(firstEntry.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.RESUMED)
+
+        navigator.testLifecycle.currentState = Lifecycle.State.STARTED
+        assertThat(firstEntry.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.STARTED)
+
+        val secondEntry = state.createBackStackEntry(navigator.createDestination(), null)
+        navigator.navigate(listOf(secondEntry), null, null)
+        assertThat(firstEntry.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.CREATED)
+        assertThat(secondEntry.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.STARTED)
+        assertThat(state.transitionsInProgress.value.contains(firstEntry)).isTrue()
+
+        // Moving down to reflect a destination being on a back stack and only CREATED
+        navigator.testLifecycle.currentState = Lifecycle.State.CREATED
+
+        state.markTransitionComplete(secondEntry)
+        assertThat(secondEntry.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.RESUMED)
+        assertThat(firstEntry.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.CREATED)
+
+        navigator.testLifecycle.currentState = Lifecycle.State.STARTED
+        assertThat(firstEntry.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.STARTED)
+
+        navigator.popBackStack(secondEntry, true)
+        assertThat(secondEntry.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.CREATED)
+
+        navigator.testLifecycle.currentState = Lifecycle.State.RESUMED
+        assertThat(firstEntry.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.RESUMED)
+        state.markTransitionComplete(secondEntry)
+        assertThat(secondEntry.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.DESTROYED)
+    }
+
     @Navigator.Name("test")
     internal class TestNavigator : Navigator<NavDestination>() {
         override fun createDestination(): NavDestination = NavDestination(this)
@@ -235,6 +380,9 @@ class TestNavigatorStateTest {
 
     @Navigator.Name("test")
     internal class TestTransitionNavigator : Navigator<NavDestination>() {
+        private val testLifecycleOwner = TestLifecycleOwner()
+        val testLifecycle = testLifecycleOwner.lifecycle
+
         override fun createDestination(): NavDestination = NavDestination(this)
 
         override fun navigate(

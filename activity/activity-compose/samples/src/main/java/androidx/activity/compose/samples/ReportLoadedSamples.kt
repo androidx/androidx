@@ -15,8 +15,9 @@
  */
 package androidx.activity.compose.samples
 
-import androidx.activity.compose.ReportLoadedAfter
-import androidx.activity.compose.ReportLoadedWhen
+import androidx.activity.compose.ReportDrawn
+import androidx.activity.compose.ReportDrawnAfter
+import androidx.activity.compose.ReportDrawnWhen
 import androidx.annotation.Sampled
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
@@ -31,7 +32,7 @@ import androidx.compose.ui.Modifier
 
 @Sampled
 @Composable
-fun ReportLoadedWhenSample() {
+fun ReportDrawnWhenSample() {
     var contentComposed by remember { mutableStateOf(false) }
     LazyColumn(modifier = Modifier.fillMaxSize()) {
         items(100) {
@@ -39,14 +40,21 @@ fun ReportLoadedWhenSample() {
             Text("Hello World $it")
         }
     }
-    ReportLoadedWhen { contentComposed }
+    ReportDrawnWhen { contentComposed }
 }
 
 @Sampled
 @Composable
-fun ReportLoadedAfterSample() {
+fun ReportDrawnAfterSample() {
     val lazyListState = remember { LazyListState() }
-    ReportLoadedAfter {
+    ReportDrawnAfter {
         lazyListState.animateScrollToItem(10)
     }
+}
+
+@Sampled
+@Composable
+fun ReportDrawnSample() {
+    ReportDrawn()
+    Text("Hello World")
 }

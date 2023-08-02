@@ -18,6 +18,8 @@ package androidx.car.app.hardware.common;
 
 import static android.car.VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL;
 import static android.car.VehicleAreaType.VEHICLE_AREA_TYPE_SEAT;
+import static android.car.VehiclePropertyIds.HVAC_FAN_DIRECTION;
+import static android.car.VehiclePropertyIds.HVAC_FAN_DIRECTION_AVAILABLE;
 import static android.car.VehiclePropertyIds.HVAC_TEMPERATURE_SET;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
@@ -30,25 +32,28 @@ import android.car.hardware.CarPropertyValue;
 import android.car.hardware.property.CarPropertyManager;
 import android.content.Context;
 import android.util.ArraySet;
+import android.util.Log;
 import android.util.Pair;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
+import androidx.car.app.utils.LogTags;
 
 import com.google.common.collect.ImmutableList;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
 
 /**
  * A class for interacting with the {@link CarPropertyManager} for getting any vehicle property.
  *
- * @hide
  */
 @RestrictTo(LIBRARY)
 final class PropertyRequestProcessor {
@@ -166,6 +171,7 @@ final class PropertyRequestProcessor {
         listener.onGetProperties(values, errors);
     }
 
+    @SuppressWarnings("deprecation")
     public void fetchCarPropertyProfiles(List<Integer> propertyIds,
             @NonNull OnGetCarPropertyProfilesListener listener) {
         ImmutableList.Builder<CarInternalError> errors = new ImmutableList.Builder<>();
@@ -177,12 +183,44 @@ final class PropertyRequestProcessor {
                         || (propertyConfig.getAreaType() != VEHICLE_AREA_TYPE_GLOBAL
                         && propertyConfig.getAreaType() != VEHICLE_AREA_TYPE_SEAT)) {
                     errors.add(CarInternalError.create(propertyId, CarValue.STATUS_UNIMPLEMENTED));
+                } else if (propertyId == HVAC_FAN_DIRECTION) {
+                    CarPropertyConfig<?> fanDirectionPropertyConfig = getPropertyConfig(
+                            HVAC_FAN_DIRECTION_AVAILABLE);
+                    if (fanDirectionPropertyConfig == null) {
+                        Log.e(LogTags.TAG_CAR_HARDWARE, "Failed to fetch fan direction"
+                                + " config.");
+                        errors.add(CarInternalError.create(HVAC_FAN_DIRECTION_AVAILABLE,
+                                CarValue.STATUS_UNIMPLEMENTED));
+                        continue;
+                    }
+                    if (fanDirectionPropertyConfig.getAreaType() != VEHICLE_AREA_TYPE_SEAT) {
+                        Log.e(LogTags.TAG_CAR_HARDWARE,
+                                "Invalid area type for fan direction.");
+                        errors.add(CarInternalError.create(HVAC_FAN_DIRECTION_AVAILABLE,
+                                CarValue.STATUS_UNIMPLEMENTED));
+                        continue;
+                    }
+                    Map<Set<CarZone>, Set<Integer>> fanDirectionValues = new HashMap<>();
+                    for (int areaId : fanDirectionPropertyConfig.getAreaIds()) {
+                        CarPropertyValue<Integer[]> hvacFanDirectionAvailableValue =
+                                mCarPropertyManager.getProperty(
+                                        HVAC_FAN_DIRECTION_AVAILABLE, areaId);
+                        Integer[] fanDirectionsAvailable =
+                                (Integer[]) hvacFanDirectionAvailableValue.getValue();
+                        fanDirectionValues.put(convertAreaIdToCarZones(CarZoneUtils.AreaType.SEAT,
+                                areaId), Arrays.stream(fanDirectionsAvailable)
+                                .collect(Collectors.toSet()));
+                    }
+                    carPropertyProfile.add(CarPropertyProfile.builder()
+                            .setPropertyId(propertyId)
+                            .setStatus(STATUS_SUCCESS)
+                            .setHvacFanDirection(fanDirectionValues).build());
                 } else {
                     int areaType = propertyConfig.getAreaType() == VEHICLE_AREA_TYPE_SEAT
                             ? CarZoneUtils.AreaType.SEAT : CarZoneUtils.AreaType.NONE;
                     Map<Set<CarZone>, Pair<Object, Object>> minMaxRange = new HashMap<>();
                     List<Set<CarZone>> carZones = new ArrayList<>();
-                    for (Integer areaId : propertyConfig.getAreaIds()) {
+                    for (int areaId : propertyConfig.getAreaIds()) {
                         if (propertyConfig.getMinValue(areaId) != null
                                 && propertyConfig.getMaxValue(areaId) != null) {
                             minMaxRange.put(convertAreaIdToCarZones(areaType,
@@ -244,11 +282,20 @@ final class PropertyRequestProcessor {
      * @throws IllegalArgumentException if a property is not implemented in the car
      */
     public void registerProperty(int propertyId, float sampleRate) {
+        Log.i(LogTags.TAG_CAR_HARDWARE,
+                "Attempting registration for the property: " + propertyId + " at sample rate: "
+                        + sampleRate);
         if (getPropertyConfig(propertyId) == null) {
             throw new IllegalArgumentException("Property is not implemented in the car: "
                     + propertyId);
         }
-        mCarPropertyManager.registerCallback(mPropertyEventCallback, propertyId, sampleRate);
+        boolean registerCallback =
+                mCarPropertyManager.registerCallback(mPropertyEventCallback,
+                        propertyId,
+                        sampleRate);
+        Log.i(LogTags.TAG_CAR_HARDWARE,
+                "Registration completed in CarPropertyManager with success status: "
+                        + registerCallback);
     }
 
     /**

@@ -6,7 +6,7 @@ function usage {
     echo "usage: ./profile.sh <gradle tasks>
     ./profile.sh --name my_run \
         --target gradle \
-        :room:integration-tests:room-testapp-kotlin:kspWithKspDebugAndroidTestKotlin \
+        :room:integration-tests:room-testapp-kotlin:kspWithKspGenJavaDebugAndroidTestKotlin \
         --filter *K2JVMCompiler*
     ./profile.sh --name my_run \
         --target test \
@@ -93,7 +93,7 @@ while [ $# -gt 0 ]; do
                 ADDITIONAL_AGENT_PARAMS="$ADDITIONAL_AGENT_PARAMS,include=*AbstractKapt3Extension*"
                 AGENT_TARGET="gradle"
             elif [ "$2" = "ksp" ]; then
-                GRADLE_ARGS=":room:integration-tests:room-testapp-kotlin:kspWithKspDebugAndroidTestKotlin"
+                GRADLE_ARGS=":room:integration-tests:room-testapp-kotlin:kspWithKspGenJavaDebugAndroidTestKotlin"
                 ADDITIONAL_AGENT_PARAMS="$ADDITIONAL_AGENT_PARAMS,include=*AbstractKotlinSymbolProcessingExtension*"
                 AGENT_TARGET="gradle"
             else
@@ -144,7 +144,9 @@ function profile {
     $GRADLEW --no-daemon \
         --init-script $SCRIPT_DIR/rerun-requested-task-init-script.gradle \
         --init-script $SCRIPT_DIR/attach-async-profiler-to-tests-init-script.gradle \
-        -p $PROJECT_DIR $GRADLE_ARGS \
+        -p $PROJECT_DIR \
+        --no-configuration-cache \
+        $GRADLE_ARGS \
         -Dkotlin.compiler.execution.strategy="in-process"  \
         $AGENT_PARAMETER_NAME="-agentpath:$AGENT_PATH=start,event=cpu,$AGENT_PARAMS,interval=500000" #sample every .5 ms
 }

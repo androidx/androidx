@@ -25,7 +25,6 @@ import androidx.annotation.RestrictTo;
 /**
  * A list menu which can be shown and hidden and which is internally represented by a ListView.
  *
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 public interface ShowableListMenu {

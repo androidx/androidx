@@ -29,7 +29,7 @@ import java.util.List;
 
 /**
  * This class represents a page of {@link SearchResult}s
- * @hide
+ * @exportToFramework:hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class SearchResultPage {

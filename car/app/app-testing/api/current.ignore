@@ -1,0 +1,5 @@
+// Baseline format: 1.0
+BecameUnchecked: androidx.car.app.testing.FakeHost#setMicrophoneInputData(java.io.InputStream):
+    Removed method androidx.car.app.testing.FakeHost.setMicrophoneInputData(java.io.InputStream) from compatibility checked API surface
+BecameUnchecked: androidx.car.app.testing.FakeHost#setMicrophoneInputData(java.io.InputStream) parameter #0:
+    Removed parameter arg1 in androidx.car.app.testing.FakeHost.setMicrophoneInputData(java.io.InputStream arg1) from compatibility checked API surface

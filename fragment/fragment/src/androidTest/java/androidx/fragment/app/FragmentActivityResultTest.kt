@@ -26,12 +26,18 @@ import androidx.activity.result.contract.ActivityResultContract
 import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
 import androidx.core.app.ActivityOptionsCompat
 import androidx.fragment.app.test.FragmentTestActivity
+import androidx.fragment.test.R
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.testutils.withActivity
+import androidx.testutils.withUse
 import com.google.common.truth.Truth.assertThat
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
+import leakcanary.DetectLeaksAfterTestSuccess
 import org.junit.Assert.fail
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -42,14 +48,17 @@ import org.junit.runner.RunWith
 @MediumTest
 class FragmentActivityResultTest {
 
+    @get:Rule
+    val rule = DetectLeaksAfterTestSuccess()
+
     @Test
     fun registerActivityResultInOnAttach() {
-        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+       withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             withActivity {
                 val fragment = RegisterInLifecycleCallbackFragment(Fragment.ATTACHED)
 
                 supportFragmentManager.beginTransaction()
-                    .add(androidx.fragment.test.R.id.content, fragment)
+                    .add(R.id.content, fragment)
                     .commitNow()
 
                 assertThat(fragment.launchedCounter).isEqualTo(1)
@@ -59,12 +68,12 @@ class FragmentActivityResultTest {
 
     @Test
     fun registerActivityResultInOnCreate() {
-        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+       withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             withActivity {
                 val fragment = RegisterInLifecycleCallbackFragment(Fragment.CREATED)
 
                 supportFragmentManager.beginTransaction()
-                    .add(androidx.fragment.test.R.id.content, fragment)
+                    .add(R.id.content, fragment)
                     .commitNow()
 
                 assertThat(fragment.launchedCounter).isEqualTo(1)
@@ -74,13 +83,13 @@ class FragmentActivityResultTest {
 
     @Test
     fun registerActivityResultInOnStart() {
-        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+       withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             withActivity {
                 val fragment = RegisterInLifecycleCallbackFragment(Fragment.STARTED)
 
                 try {
                     supportFragmentManager.beginTransaction()
-                        .add(androidx.fragment.test.R.id.content, fragment)
+                        .add(R.id.content, fragment)
                         .commitNow()
                     fail("Registering for activity result after onCreate() should fail")
                 } catch (e: IllegalStateException) {
@@ -97,12 +106,12 @@ class FragmentActivityResultTest {
 
     @Test
     fun launchActivityResultInOnCreate() {
-        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+       withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             withActivity {
                 val fragment = ActivityResultFragment()
 
                 supportFragmentManager.beginTransaction()
-                    .add(androidx.fragment.test.R.id.content, fragment)
+                    .add(R.id.content, fragment)
                     .commitNow()
             }
         }
@@ -110,16 +119,65 @@ class FragmentActivityResultTest {
 
     @Test
     fun launchTwoActivityResult() {
-        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+       withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             withActivity {
                 val fragment = DoubleActivityResultFragment()
 
                 supportFragmentManager.beginTransaction()
-                    .add(androidx.fragment.test.R.id.content, fragment)
+                    .add(R.id.content, fragment)
                     .commitNow()
 
                 assertThat(fragment.launchedCounter).isEqualTo(2)
             }
+        }
+    }
+
+    @Test
+    fun launchMultipleActivitiesFromFragment() {
+        withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+            val fragment = LaunchMultipleActivitiesFragment()
+            val fm = withActivity { supportFragmentManager }
+
+            fm.beginTransaction()
+                .add(R.id.content, fragment)
+                .commit()
+            executePendingTransactions()
+
+            @Suppress("DEPRECATION")
+            withActivity {
+                fragment.startActivityForResult(
+                    Intent(this, ResultActivity1::class.java),
+                    ResultActivity1.REQUEST_CODE
+                )
+                fragment.startActivityForResult(
+                    Intent(this, ResultActivity2::class.java),
+                    ResultActivity2.REQUEST_CODE
+                )
+                fragment.startActivityForResult(
+                    Intent(this, ResultActivity3::class.java),
+                    ResultActivity3.REQUEST_CODE
+                )
+            }
+
+            assertThat(
+                fragment.onActivityResultCountDownLatch.await(1000, TimeUnit.MILLISECONDS)
+            ).isTrue()
+
+            assertThat(fragment.launcherInfoMap)
+                .containsEntry(
+                    ResultActivity1.REQUEST_CODE,
+                    ResultActivity1.RESULT_KEY
+                )
+            assertThat(fragment.launcherInfoMap)
+                .containsEntry(
+                    ResultActivity2.REQUEST_CODE,
+                    ResultActivity2.RESULT_KEY
+                )
+            assertThat(fragment.launcherInfoMap)
+                .containsEntry(
+                    ResultActivity3.REQUEST_CODE,
+                    ResultActivity3.RESULT_KEY
+                )
         }
     }
 }
@@ -217,5 +275,67 @@ class RegisterInLifecycleCallbackFragment(val state: Int) : Fragment() {
             ) { launchedCounter++ }
         }
         launcher.launch(Intent())
+    }
+}
+
+@Suppress("DEPRECATION")
+class LaunchMultipleActivitiesFragment : Fragment() {
+    val launcherInfoMap: MutableMap<Int, String> = mutableMapOf()
+    val onActivityResultCountDownLatch = CountDownLatch(3)
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        val extras = data?.extras
+        if (extras!!.containsKey(ResultActivity1.RESULT_KEY)) {
+            launcherInfoMap[requestCode] = ResultActivity1.RESULT_KEY
+        } else if (extras.containsKey(ResultActivity2.RESULT_KEY)) {
+            launcherInfoMap[requestCode] = ResultActivity2.RESULT_KEY
+        } else if (extras.containsKey(ResultActivity3.RESULT_KEY)) {
+            launcherInfoMap[requestCode] = ResultActivity3.RESULT_KEY
+        }
+
+        onActivityResultCountDownLatch.countDown()
+    }
+}
+
+class ResultActivity1 : Activity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setResult(RESULT_OK, Intent().putExtra(RESULT_KEY, RESULT_VALUE))
+        finish()
+    }
+
+    companion object {
+        const val REQUEST_CODE = 1111
+        const val RESULT_KEY = "ResultActivity1"
+        private const val RESULT_VALUE = "ResultActivity1Value"
+    }
+}
+
+class ResultActivity2 : Activity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setResult(RESULT_OK, Intent().putExtra(RESULT_KEY, RESULT_VALUE))
+        finish()
+    }
+
+    companion object {
+        const val REQUEST_CODE = 2222
+        const val RESULT_KEY = "ResultActivity2"
+        private const val RESULT_VALUE = "ResultActivity2Value"
+    }
+}
+
+class ResultActivity3 : Activity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setResult(RESULT_OK, Intent().putExtra(RESULT_KEY, RESULT_VALUE))
+        finish()
+    }
+
+    companion object {
+        const val REQUEST_CODE = 3333
+        const val RESULT_KEY = "ResultActivity3"
+        private const val RESULT_VALUE = "ResultActivity3Value"
     }
 }

@@ -18,6 +18,14 @@ package androidx.paging {
     method public abstract com.google.common.util.concurrent.ListenableFuture<androidx.paging.PagingSource.LoadResult<Key,Value>> loadFuture(androidx.paging.PagingSource.LoadParams<Key> params);
   }
 
+  @androidx.paging.ExperimentalPagingApi public abstract class ListenableFutureRemoteMediator<Key, Value> extends androidx.paging.RemoteMediator<Key,Value> {
+    ctor public ListenableFutureRemoteMediator();
+    method public final suspend Object? initialize(kotlin.coroutines.Continuation<? super androidx.paging.RemoteMediator.InitializeAction> p);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.paging.RemoteMediator.InitializeAction> initializeFuture();
+    method public final suspend Object? load(androidx.paging.LoadType loadType, androidx.paging.PagingState<Key,Value> state, kotlin.coroutines.Continuation<? super androidx.paging.RemoteMediator.MediatorResult> p);
+    method public abstract com.google.common.util.concurrent.ListenableFuture<androidx.paging.RemoteMediator.MediatorResult> loadFuture(androidx.paging.LoadType loadType, androidx.paging.PagingState<Key,Value> state);
+  }
+
   public final class PagingDataFutures {
     method @CheckResult public static <T> androidx.paging.PagingData<T> filter(androidx.paging.PagingData<T>, com.google.common.util.concurrent.AsyncFunction<T,java.lang.Boolean> predicate, java.util.concurrent.Executor executor);
     method @CheckResult public static <T, R> androidx.paging.PagingData<R> flatMap(androidx.paging.PagingData<T>, com.google.common.util.concurrent.AsyncFunction<T,java.lang.Iterable<R>> transform, java.util.concurrent.Executor executor);

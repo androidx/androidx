@@ -17,23 +17,25 @@
 package androidx.room.writer
 
 import androidx.annotation.VisibleForTesting
-import androidx.room.ext.L
-import androidx.room.ext.N
+import androidx.room.compiler.codegen.CodeLanguage
+import androidx.room.compiler.codegen.VisibilityModifier
+import androidx.room.compiler.codegen.XCodeBlock
+import androidx.room.compiler.codegen.XCodeBlock.Builder.Companion.addLocalVal
+import androidx.room.compiler.codegen.XCodeBlock.Builder.Companion.beginForEachControlFlow
+import androidx.room.compiler.codegen.XFunSpec
+import androidx.room.compiler.codegen.XFunSpec.Builder.Companion.addStatement
+import androidx.room.compiler.codegen.XTypeName
+import androidx.room.compiler.codegen.XTypeSpec
+import androidx.room.ext.CommonTypeNames
+import androidx.room.ext.RoomMemberNames
 import androidx.room.ext.RoomTypeNames
-import androidx.room.ext.S
 import androidx.room.ext.SupportDbTypeNames
-import androidx.room.ext.T
 import androidx.room.solver.CodeGenScope
 import androidx.room.vo.Database
 import androidx.room.vo.DatabaseView
 import androidx.room.vo.Entity
 import androidx.room.vo.FtsEntity
-import com.squareup.javapoet.MethodSpec
-import com.squareup.javapoet.ParameterSpec
-import com.squareup.javapoet.TypeSpec
 import java.util.ArrayDeque
-import javax.lang.model.element.Modifier.PRIVATE
-import javax.lang.model.element.Modifier.PUBLIC
 
 /**
  * The threshold amount of statements in a validateMigration() method before creating additional
@@ -45,215 +47,279 @@ const val VALIDATE_CHUNK_SIZE = 1000
  * Create an open helper using SupportSQLiteOpenHelperFactory
  */
 class SQLiteOpenHelperWriter(val database: Database) {
-    fun write(outVar: String, configuration: ParameterSpec, scope: CodeGenScope) {
-        scope.builder().apply {
+
+    private val dbParamName = "db"
+
+    fun write(outVar: String, configParamName: String, scope: CodeGenScope) {
+        scope.builder.apply {
             val sqliteConfigVar = scope.getTmpVar("_sqliteConfig")
             val callbackVar = scope.getTmpVar("_openCallback")
-            addStatement(
-                "final $T $L = new $T($N, $L, $S, $S)",
-                SupportDbTypeNames.SQLITE_OPEN_HELPER_CALLBACK,
-                callbackVar, RoomTypeNames.OPEN_HELPER, configuration,
-                createOpenCallback(scope), database.identityHash, database.legacyIdentityHash
+            addLocalVariable(
+                name = callbackVar,
+                typeName = SupportDbTypeNames.SQLITE_OPEN_HELPER_CALLBACK,
+                assignExpr = XCodeBlock.ofNewInstance(
+                    language,
+                    RoomTypeNames.OPEN_HELPER,
+                    "%L, %L, %S, %S",
+                    configParamName,
+                    createOpenCallback(scope),
+                    database.identityHash,
+                    database.legacyIdentityHash
+                )
             )
             // build configuration
-            addStatement(
-                """
-                    final $T $L = $T.builder($N.context)
-                    .name($N.name)
-                    .callback($L)
-                    .build()
-                """.trimIndent(),
-                SupportDbTypeNames.SQLITE_OPEN_HELPER_CONFIG, sqliteConfigVar,
+            addLocalVal(
+                sqliteConfigVar,
                 SupportDbTypeNames.SQLITE_OPEN_HELPER_CONFIG,
-                configuration, configuration, callbackVar
+                "%T.builder(%L.context).name(%L.name).callback(%L).build()",
+                SupportDbTypeNames.SQLITE_OPEN_HELPER_CONFIG,
+                configParamName,
+                configParamName,
+                callbackVar
             )
-            addStatement(
-                "final $T $N = $N.sqliteOpenHelperFactory.create($L)",
-                SupportDbTypeNames.SQLITE_OPEN_HELPER, outVar,
-                configuration, sqliteConfigVar
+            addLocalVal(
+                outVar,
+                SupportDbTypeNames.SQLITE_OPEN_HELPER,
+                "%L.sqliteOpenHelperFactory.create(%L)",
+                configParamName,
+                sqliteConfigVar
             )
         }
     }
 
-    private fun createOpenCallback(scope: CodeGenScope): TypeSpec {
-        return TypeSpec.anonymousClassBuilder(L, database.version).apply {
+    private fun createOpenCallback(scope: CodeGenScope): XTypeSpec {
+        return XTypeSpec.anonymousClassBuilder(
+            scope.language, "%L", database.version
+        ).apply {
             superclass(RoomTypeNames.OPEN_HELPER_DELEGATE)
-            addMethod(createCreateAllTables())
-            addMethod(createDropAllTables(scope.fork()))
-            addMethod(createOnCreate(scope.fork()))
-            addMethod(createOnOpen(scope.fork()))
-            addMethod(createOnPreMigrate())
-            addMethod(createOnPostMigrate())
-            addMethods(createValidateMigration(scope.fork()))
+            addFunction(createCreateAllTables(scope))
+            addFunction(createDropAllTables(scope.fork()))
+            addFunction(createOnCreate(scope.fork()))
+            addFunction(createOnOpen(scope.fork()))
+            addFunction(createOnPreMigrate(scope))
+            addFunction(createOnPostMigrate(scope))
+            createValidateMigration(scope.fork()).forEach {
+                addFunction(it)
+            }
         }.build()
     }
 
-    private fun createValidateMigration(scope: CodeGenScope): List<MethodSpec> {
-        val methodSpecs = mutableListOf<MethodSpec>()
+    private fun createValidateMigration(scope: CodeGenScope): List<XFunSpec> {
+        val methodBuilders = mutableListOf<XFunSpec.Builder>()
         val entities = ArrayDeque(database.entities)
         val views = ArrayDeque(database.views)
-        val dbParam = ParameterSpec.builder(SupportDbTypeNames.DB, "_db").build()
         while (!entities.isEmpty() || !views.isEmpty()) {
-            val isPrimaryMethod = methodSpecs.isEmpty()
+            val isPrimaryMethod = methodBuilders.isEmpty()
             val methodName = if (isPrimaryMethod) {
                 "onValidateSchema"
             } else {
-                "onValidateSchema${methodSpecs.size + 1}"
+                "onValidateSchema${methodBuilders.size + 1}"
             }
-            methodSpecs.add(
-                MethodSpec.methodBuilder(methodName).apply {
-                    if (isPrimaryMethod) {
-                        addModifiers(PUBLIC)
-                        addAnnotation(Override::class.java)
-                    } else {
-                        addModifiers(PRIVATE)
+            val validateMethod = XFunSpec.builder(
+                language = scope.language,
+                name = methodName,
+                visibility = if (isPrimaryMethod) {
+                    VisibilityModifier.PUBLIC
+                } else {
+                    VisibilityModifier.PRIVATE
+                },
+                isOverride = isPrimaryMethod
+            ).apply {
+                returns(RoomTypeNames.OPEN_HELPER_VALIDATION_RESULT)
+                addParameter(SupportDbTypeNames.DB, dbParamName)
+                var statementCount = 0
+                while (!entities.isEmpty() && statementCount < VALIDATE_CHUNK_SIZE) {
+                    val methodScope = scope.fork()
+                    val entity = entities.poll()
+                    val validationWriter = when (entity) {
+                        is FtsEntity -> FtsTableInfoValidationWriter(entity)
+                        else -> TableInfoValidationWriter(entity)
                     }
-                    returns(RoomTypeNames.OPEN_HELPER_VALIDATION_RESULT)
-                    addParameter(dbParam)
-                    var statementCount = 0
-                    while (!entities.isEmpty() && statementCount < VALIDATE_CHUNK_SIZE) {
-                        val methodScope = scope.fork()
-                        val entity = entities.poll()
-                        val validationWriter = when (entity) {
-                            is FtsEntity -> FtsTableInfoValidationWriter(entity)
-                            else -> TableInfoValidationWriter(entity)
-                        }
-                        validationWriter.write(dbParam, methodScope)
-                        addCode(methodScope.builder().build())
-                        statementCount += validationWriter.statementCount()
-                    }
-                    while (!views.isEmpty() && statementCount < VALIDATE_CHUNK_SIZE) {
-                        val methodScope = scope.fork()
-                        val view = views.poll()
-                        val validationWriter = ViewInfoValidationWriter(view)
-                        validationWriter.write(dbParam, methodScope)
-                        addCode(methodScope.builder().build())
-                        statementCount += validationWriter.statementCount()
-                    }
-                    if (!isPrimaryMethod) {
-                        addStatement(
-                            "return new $T(true, null)",
-                            RoomTypeNames.OPEN_HELPER_VALIDATION_RESULT
+                    validationWriter.write(dbParamName, methodScope)
+                    addCode(methodScope.generate())
+                    statementCount += validationWriter.statementCount()
+                }
+                while (!views.isEmpty() && statementCount < VALIDATE_CHUNK_SIZE) {
+                    val methodScope = scope.fork()
+                    val view = views.poll()
+                    val validationWriter = ViewInfoValidationWriter(view)
+                    validationWriter.write(dbParamName, methodScope)
+                    addCode(methodScope.generate())
+                    statementCount += validationWriter.statementCount()
+                }
+                if (!isPrimaryMethod) {
+                    addStatement(
+                        "return %L",
+                        XCodeBlock.ofNewInstance(
+                            scope.language,
+                            RoomTypeNames.OPEN_HELPER_VALIDATION_RESULT,
+                            "true, null"
                         )
-                    }
-                }.build()
-            )
+                    )
+                }
+            }
+            methodBuilders.add(validateMethod)
         }
 
         // If there are secondary validate methods then add invocation statements to all of them
         // from the primary method.
-        if (methodSpecs.size > 1) {
-            methodSpecs[0] = methodSpecs[0].toBuilder().apply {
+        if (methodBuilders.size > 1) {
+            val body = XCodeBlock.builder(scope.language).apply {
                 val resultVar = scope.getTmpVar("_result")
-                addStatement("$T $L", RoomTypeNames.OPEN_HELPER_VALIDATION_RESULT, resultVar)
-                methodSpecs.drop(1).forEach {
-                    addStatement("$L = ${it.name}($N)", resultVar, dbParam)
-                    beginControlFlow("if (!$L.isValid)", resultVar)
-                    addStatement("return $L", resultVar)
+                addLocalVariable(
+                    name = resultVar,
+                    typeName = RoomTypeNames.OPEN_HELPER_VALIDATION_RESULT,
+                    isMutable = true
+                )
+                methodBuilders.drop(1).forEach {
+                    addStatement("%L = %L(%L)", resultVar, it.name, dbParamName)
+                    beginControlFlow("if (!%L.isValid)", resultVar).apply {
+                        addStatement("return %L", resultVar)
+                    }
                     endControlFlow()
                 }
                 addStatement(
-                    "return new $T(true, null)",
-                    RoomTypeNames.OPEN_HELPER_VALIDATION_RESULT
+                    "return %L",
+                    XCodeBlock.ofNewInstance(
+                        scope.language,
+                        RoomTypeNames.OPEN_HELPER_VALIDATION_RESULT,
+                        "true, null"
+                    )
                 )
             }.build()
-        } else if (methodSpecs.size == 1) {
-            methodSpecs[0] = methodSpecs[0].toBuilder().apply {
-                addStatement(
-                    "return new $T(true, null)",
-                    RoomTypeNames.OPEN_HELPER_VALIDATION_RESULT
+            methodBuilders.first().addCode(body)
+        } else if (methodBuilders.size == 1) {
+            methodBuilders.first().addStatement(
+                "return %L",
+                XCodeBlock.ofNewInstance(
+                    scope.language,
+                    RoomTypeNames.OPEN_HELPER_VALIDATION_RESULT,
+                    "true, null"
                 )
-            }.build()
+            )
         }
-
-        return methodSpecs
+        return methodBuilders.map { it.build() }
     }
 
-    private fun createOnCreate(scope: CodeGenScope): MethodSpec {
-        return MethodSpec.methodBuilder("onCreate").apply {
-            addModifiers(PUBLIC)
-            addAnnotation(Override::class.java)
-            addParameter(SupportDbTypeNames.DB, "_db")
-            invokeCallbacks(scope, "onCreate")
+    private fun createOnCreate(scope: CodeGenScope): XFunSpec {
+        return XFunSpec.builder(
+            language = scope.language,
+            name = "onCreate",
+            visibility = VisibilityModifier.PUBLIC,
+            isOverride = true
+        ).apply {
+            addParameter(SupportDbTypeNames.DB, dbParamName)
+            addCode(createInvokeCallbacksCode(scope, "onCreate"))
         }.build()
     }
 
-    private fun createOnOpen(scope: CodeGenScope): MethodSpec {
-        return MethodSpec.methodBuilder("onOpen").apply {
-            addModifiers(PUBLIC)
-            addAnnotation(Override::class.java)
-            addParameter(SupportDbTypeNames.DB, "_db")
-            addStatement("mDatabase = _db")
+    private fun createOnOpen(scope: CodeGenScope): XFunSpec {
+        return XFunSpec.builder(
+            language = scope.language,
+            name = "onOpen",
+            visibility = VisibilityModifier.PUBLIC,
+            isOverride = true
+        ).apply {
+            addParameter(SupportDbTypeNames.DB, dbParamName)
+            addStatement("mDatabase = %L", dbParamName)
             if (database.enableForeignKeys) {
-                addStatement("_db.execSQL($S)", "PRAGMA foreign_keys = ON")
+                addStatement("%L.execSQL(%S)", dbParamName, "PRAGMA foreign_keys = ON")
             }
-            addStatement("internalInitInvalidationTracker(_db)")
-            invokeCallbacks(scope, "onOpen")
+            addStatement("internalInitInvalidationTracker(%L)", dbParamName)
+            addCode(createInvokeCallbacksCode(scope, "onOpen"))
         }.build()
     }
 
-    private fun createCreateAllTables(): MethodSpec {
-        return MethodSpec.methodBuilder("createAllTables").apply {
-            addModifiers(PUBLIC)
-            addAnnotation(Override::class.java)
-            addParameter(SupportDbTypeNames.DB, "_db")
+    private fun createCreateAllTables(scope: CodeGenScope): XFunSpec {
+        return XFunSpec.builder(
+            language = scope.language,
+            name = "createAllTables",
+            visibility = VisibilityModifier.PUBLIC,
+            isOverride = true
+        ).apply {
+            addParameter(SupportDbTypeNames.DB, dbParamName)
             database.bundle.buildCreateQueries().forEach {
-                addStatement("_db.execSQL($S)", it)
+                addStatement("%L.execSQL(%S)", dbParamName, it)
             }
         }.build()
     }
 
-    private fun createDropAllTables(scope: CodeGenScope): MethodSpec {
-        return MethodSpec.methodBuilder("dropAllTables").apply {
-            addModifiers(PUBLIC)
-            addAnnotation(Override::class.java)
-            addParameter(SupportDbTypeNames.DB, "_db")
+    private fun createDropAllTables(scope: CodeGenScope): XFunSpec {
+        return XFunSpec.builder(
+            language = scope.language,
+            name = "dropAllTables",
+            visibility = VisibilityModifier.PUBLIC,
+            isOverride = true
+        ).apply {
+            addParameter(SupportDbTypeNames.DB, dbParamName)
             database.entities.forEach {
-                addStatement("_db.execSQL($S)", createDropTableQuery(it))
+                addStatement("%L.execSQL(%S)", dbParamName, createDropTableQuery(it))
             }
             database.views.forEach {
-                addStatement("_db.execSQL($S)", createDropViewQuery(it))
+                addStatement("%L.execSQL(%S)", dbParamName, createDropViewQuery(it))
             }
-            invokeCallbacks(scope, "onDestructiveMigration")
+            addCode(createInvokeCallbacksCode(scope, "onDestructiveMigration"))
         }.build()
     }
 
-    private fun createOnPreMigrate(): MethodSpec {
-        return MethodSpec.methodBuilder("onPreMigrate").apply {
-            addModifiers(PUBLIC)
-            addAnnotation(Override::class.java)
-            addParameter(SupportDbTypeNames.DB, "_db")
-            addStatement("$T.dropFtsSyncTriggers($L)", RoomTypeNames.DB_UTIL, "_db")
+    private fun createOnPreMigrate(scope: CodeGenScope): XFunSpec {
+        return XFunSpec.builder(
+            language = scope.language,
+            name = "onPreMigrate",
+            visibility = VisibilityModifier.PUBLIC,
+            isOverride = true
+        ).apply {
+            addParameter(SupportDbTypeNames.DB, dbParamName)
+            addStatement("%M(%L)", RoomMemberNames.DB_UTIL_DROP_FTS_SYNC_TRIGGERS, dbParamName)
         }.build()
     }
 
-    private fun createOnPostMigrate(): MethodSpec {
-        return MethodSpec.methodBuilder("onPostMigrate").apply {
-            addModifiers(PUBLIC)
-            addAnnotation(Override::class.java)
-            addParameter(SupportDbTypeNames.DB, "_db")
+    private fun createOnPostMigrate(scope: CodeGenScope): XFunSpec {
+        return XFunSpec.builder(
+            language = scope.language,
+            name = "onPostMigrate",
+            visibility = VisibilityModifier.PUBLIC,
+            isOverride = true
+        ).apply {
+            addParameter(SupportDbTypeNames.DB, dbParamName)
             database.entities.filterIsInstance(FtsEntity::class.java)
                 .filter { it.ftsOptions.contentEntity != null }
                 .flatMap { it.contentSyncTriggerCreateQueries }
                 .forEach { syncTriggerQuery ->
-                    addStatement("_db.execSQL($S)", syncTriggerQuery)
+                    addStatement("%L.execSQL(%S)", dbParamName, syncTriggerQuery)
                 }
         }.build()
     }
 
-    private fun MethodSpec.Builder.invokeCallbacks(scope: CodeGenScope, methodName: String) {
-        val iVar = scope.getTmpVar("_i")
-        val sizeVar = scope.getTmpVar("_size")
-        beginControlFlow("if (mCallbacks != null)").apply {
-            beginControlFlow(
-                "for (int $N = 0, $N = mCallbacks.size(); $N < $N; $N++)",
-                iVar, sizeVar, iVar, sizeVar, iVar
-            ).apply {
-                addStatement("mCallbacks.get($N).$N(_db)", iVar, methodName)
+    private fun createInvokeCallbacksCode(scope: CodeGenScope, methodName: String): XCodeBlock {
+        val localCallbackListVarName = scope.getTmpVar("_callbacks")
+        val callbackVarName = scope.getTmpVar("_callback")
+        return XCodeBlock.builder(scope.language).apply {
+            addLocalVal(
+                localCallbackListVarName,
+                CommonTypeNames.LIST.parametrizedBy(
+                    // For Kotlin, the variance is redundant, but for Java, due to `mCallbacks`
+                    // not having @JvmSuppressWildcards, we use a wildcard name.
+                    if (language == CodeLanguage.KOTLIN) {
+                        RoomTypeNames.ROOM_DB_CALLBACK
+                    } else {
+                        XTypeName.getProducerExtendsName(RoomTypeNames.ROOM_DB_CALLBACK)
+                    }
+                ).copy(nullable = true),
+                "mCallbacks"
+            )
+            beginControlFlow("if (%L != null)", localCallbackListVarName).apply {
+                beginForEachControlFlow(
+                    itemVarName = callbackVarName,
+                    typeName = RoomTypeNames.ROOM_DB_CALLBACK,
+                    iteratorVarName = localCallbackListVarName
+                ).apply {
+                    addStatement("%L.%L(%L)", callbackVarName, methodName, dbParamName)
+                }
+                endControlFlow()
             }
             endControlFlow()
-        }
-        endControlFlow()
+        }.build()
     }
 
     @VisibleForTesting

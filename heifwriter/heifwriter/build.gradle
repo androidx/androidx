@@ -23,9 +23,8 @@ dependencies {
 }
 
 androidx {
-    name = "Android Support HeifWriter"
+    name = "HeifWriter"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.HEIFWRITER
     inceptionYear = "2018"
     description = "Android Support HeifWriter for writing HEIF still images"
 }

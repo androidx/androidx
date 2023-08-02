@@ -27,10 +27,11 @@ import kotlin.coroutines.EmptyCoroutineContext
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.conflate
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -102,24 +103,20 @@ public fun <T> Flow<T>.asLiveData(
  * LiveData due to a slow collector, so collector always gets the most recent value emitted.
  */
 @OptIn(DelicateCoroutinesApi::class)
-public fun <T> LiveData<T>.asFlow(): Flow<T> = flow {
-    val channel = Channel<T>(Channel.CONFLATED)
+public fun <T> LiveData<T>.asFlow(): Flow<T> = callbackFlow {
     val observer = Observer<T> {
-        channel.trySend(it)
+        trySend(it)
     }
     withContext(Dispatchers.Main.immediate) {
         observeForever(observer)
     }
-    try {
-        for (value in channel) {
-            emit(value)
-        }
-    } finally {
+
+    awaitClose {
         GlobalScope.launch(Dispatchers.Main.immediate) {
             removeObserver(observer)
         }
     }
-}
+}.conflate()
 
 /**
  * Creates a LiveData that has values collected from the origin [Flow].

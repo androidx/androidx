@@ -45,9 +45,6 @@ android {
     buildFeatures {
         viewBinding true
     }
-    kotlinOptions {
-        freeCompilerArgs += "-opt-in=kotlin.RequiresOptIn"
-    }
     namespace "androidx.camera.integration.antelope"
 }
 
@@ -70,6 +67,7 @@ dependencies {
     implementation(libs.kotlinCoroutinesAndroid)
 
     // Testing framework
+    androidTestImplementation(project(":concurrent:concurrent-futures"))
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)

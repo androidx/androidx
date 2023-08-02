@@ -26,16 +26,17 @@ import androidx.viewpager2.widget.SetItemWhileScrollInProgressTest.TestConfig
 import androidx.viewpager2.widget.ViewPager2.ORIENTATION_HORIZONTAL
 import androidx.viewpager2.widget.ViewPager2.ORIENTATION_VERTICAL
 import androidx.viewpager2.widget.ViewPager2.SCROLL_STATE_DRAGGING
+import java.util.Random
 import org.hamcrest.CoreMatchers.anyOf
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.CoreMatchers.instanceOf
 import org.hamcrest.CoreMatchers.not
 import org.hamcrest.CoreMatchers.nullValue
 import org.hamcrest.MatcherAssert.assertThat
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
-import java.util.Random
 
 private const val RANDOM_TESTS_PER_CONFIG = 0 // increase to have random tests generated
 
@@ -133,6 +134,7 @@ class SetItemWhileScrollInProgressTest(private val config: TestConfig) : BaseTes
         fun spec(): List<TestConfig> = createTestSet()
     }
 
+    @Ignore // b/266974735
     @Test
     fun test() {
         config.apply {

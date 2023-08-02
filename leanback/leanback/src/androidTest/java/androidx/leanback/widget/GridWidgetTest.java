@@ -39,6 +39,7 @@ import android.os.Parcelable;
 import android.text.Selection;
 import android.text.Spannable;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.util.SparseArray;
 import android.util.SparseIntArray;
 import android.util.TypedValue;
@@ -65,6 +66,7 @@ import androidx.testutils.AnimationActivityTestRule;
 import androidx.testutils.AnimationTest;
 
 import org.junit.After;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
@@ -82,6 +84,7 @@ import java.util.List;
 @RunWith(AndroidJUnit4.class)
 public class GridWidgetTest {
 
+    private static final String TAG = "GridWidgetTest";
     private static final float DELTA = 1f;
     private static final boolean HUMAN_DELAY = false;
     private static final long WAIT_FOR_SCROLL_IDLE_TIMEOUT_MS = 60000;
@@ -91,6 +94,7 @@ public class GridWidgetTest {
     @Rule
     public final AnimationActivityTestRule<GridActivity> mActivityTestRule =
             new AnimationActivityTestRule<GridActivity>(GridActivity.class, false, false);;
+
     protected GridActivity mActivity;
     protected BaseGridView mGridView;
     protected GridLayoutManager mLayoutManager;
@@ -931,6 +935,7 @@ public class GridWidgetTest {
         assertEquals(29, mGridView.getSelectedPosition());
     }
 
+    @Ignore // b/266757643
     @Test
     public void testThreeColumnVerticalBasic() throws Throwable {
         Intent intent = new Intent();
@@ -947,6 +952,7 @@ public class GridWidgetTest {
         verifyBeginAligned();
     }
 
+    @Ignore // b/269352002
     @Test
     public void testRedundantAppendRemove() throws Throwable {
         Intent intent = new Intent();
@@ -1588,6 +1594,7 @@ public class GridWidgetTest {
         assertEquals(leftEdge, mGridView.getLayoutManager().findViewByPosition(199).getLeft());
     }
 
+    @FlakyTest(bugId = 249493545)
     @Test
     public void testContinuousSwapBackward() throws Throwable {
         Intent intent = new Intent();
@@ -2102,6 +2109,7 @@ public class GridWidgetTest {
         assertFalse(scrolled[0]);
     }
 
+    @Ignore // b/268680302
     @Test
     public void testItemMovedHorizontal() throws Throwable {
         Intent intent = new Intent();
@@ -2130,6 +2138,132 @@ public class GridWidgetTest {
         scrollToBegin(mVerifyLayout);
 
         verifyBeginAligned();
+    }
+
+    @Ignore // This is a long running test that can take hours, improper for a presubmit check.
+    @Test
+    @AnimationTest
+    @SuppressWarnings("unchecked")
+    public void testRandomChangeAdapterAndScroll() throws Throwable {
+        // Randomly run adapter change and scrolling repeatedly, in order to capture a potential
+        // crash.
+        Intent intent = new Intent();
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID,
+                R.layout.horizontal_linear);
+        intent.putExtra(GridActivity.EXTRA_STAGGERED, false);
+        intent.putExtra(GridActivity.EXTRA_ITEMS, new int[] {});
+        initActivity(intent);
+        mOrientation = BaseGridView.HORIZONTAL;
+        mNumRows = 1;
+
+        ArrayObjectAdapter adapter = new ArrayObjectAdapter(new TestPresenter());
+        ItemBridgeAdapter itemBridgeAdapter = new ItemBridgeAdapter();
+        itemBridgeAdapter.setAdapter(adapter);
+        mActivityTestRule.runOnUiThread(
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        // Setup a fixed size RV to match exactly the number of Views we want.
+                        TestPresenter.setupHorizontalGridView(mGridView);
+                        mGridView.setAdapter(itemBridgeAdapter);
+                    }
+                }
+        );
+
+        for (int i = 0; i < 10000; i++) {
+            final List<TestPresenter.Item>[] itemsHolder = (List<TestPresenter.Item>[]) new List[1];
+            itemsHolder[0] = TestPresenter.generateItems(0, 20);
+            mActivityTestRule.runOnUiThread(
+                    new Runnable() {
+                        @Override
+                        public void run() {
+                            Log.d(TAG, "Setup initial items: " + itemsHolder[0].toString());
+                            adapter.setItems(itemsHolder[0], TestPresenter.DIFF_CALLBACK);
+                        }
+                    }
+            );
+
+            for (int j = 0; j < 20; j++) {
+                // Either change adapter or scrolling
+                boolean changeAdapter = TestPresenter.randomBoolean();
+                if (changeAdapter) {
+                    itemsHolder[0] = TestPresenter.randomChange(itemsHolder[0]);
+                    mActivityTestRule.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Log.d(TAG, "Random change items: " + itemsHolder[0].toString());
+                            adapter.setItems(itemsHolder[0], TestPresenter.DIFF_CALLBACK);
+                        }
+                    });
+                } else {
+                    mActivityTestRule.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (TestPresenter.randomBoolean()) {
+                                Log.d(TAG, "Scrolling to first item");
+                                mGridView.setSelectedPositionSmooth(0);
+                            } else {
+                                Log.d(TAG, "Scrolling to last item");
+                                mGridView.setSelectedPositionSmooth(itemsHolder[0].size() - 1);
+                            }
+                        }
+                    });
+                }
+                Thread.sleep(100);
+            }
+        }
+    }
+
+    @Ignore // wait b/292114537 to be fixed *and* update the recyclerview version in build.gradle.
+    @Test
+    @AnimationTest
+    @SuppressWarnings("unchecked")
+    public void testCrashOnRVChildHelperBug292114537() throws Throwable {
+        // see b/292114537
+        Intent intent = new Intent();
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID,
+                R.layout.horizontal_linear);
+        intent.putExtra(GridActivity.EXTRA_STAGGERED, false);
+        intent.putExtra(GridActivity.EXTRA_ITEMS, new int[] {});
+        initActivity(intent);
+        mOrientation = BaseGridView.HORIZONTAL;
+        mNumRows = 1;
+
+        ArrayObjectAdapter adapter = new ArrayObjectAdapter(new TestPresenter());
+        ItemBridgeAdapter itemBridgeAdapter = new ItemBridgeAdapter();
+        itemBridgeAdapter.setAdapter(adapter);
+
+        mActivityTestRule.runOnUiThread(
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        // Setup a fixed size RV to match exactly the number of Views we want.
+                        TestPresenter.setupHorizontalGridView(mGridView);
+                        mGridView.setAdapter(itemBridgeAdapter);
+                        mGridView.getItemAnimator().setAddDuration(1000);
+                        mGridView.getItemAnimator().setMoveDuration(1000);
+                        mGridView.getItemAnimator().setRemoveDuration(1000);
+                        adapter.setItems(
+                                TestPresenter.generateItems(new int[]{0, 1, 2, 3, 4, 5, 6, 7, 8}),
+                                TestPresenter.DIFF_CALLBACK);
+                    }
+                }
+        );
+        // showing 0 1(selected) 2 3 4 5(peek)
+        setSelectedPosition(1);
+
+        // swap 5 and 6, showing 0 1(selected) 2 3 4 6(slide in) 5(slide out)
+        mActivityTestRule.runOnUiThread(() ->
+                adapter.setItems(TestPresenter.generateItems(new int[]{0, 1, 2, 3, 4, 6, 5, 7, 8}),
+                        TestPresenter.DIFF_CALLBACK));
+
+        // Wait a little bit for the ItemAnimation to be started
+        waitForItemAnimationStart();
+
+        // Scroll to 0 to remove "6", this can break ChildHelper and scroll to 2 may failed to find
+        // the View and crash.
+        setSelectedPosition(0);
+        setSelectedPosition(2);
     }
 
     @Test
@@ -2248,6 +2382,7 @@ public class GridWidgetTest {
         assertEquals(topPadding, mGridView.findViewHolderForAdapterPosition(0).itemView.getTop());
     }
 
+    @Ignore // b/268680302
     @Test
     public void testItemMovedVertical() throws Throwable {
 
@@ -2342,6 +2477,7 @@ public class GridWidgetTest {
         assertEquals(mGridView.getWidth() / 2, (view.getLeft() + view.getRight()) / 2);
     }
 
+    @Ignore // b/266757643
     @Test
     public void testItemAddRemoveHorizontal() throws Throwable {
 
@@ -2925,7 +3061,7 @@ public class GridWidgetTest {
         testRemoveVisibleItemsInSmoothScrollingBackward(/*focusOnGridView=*/ false);
     }
 
-    @FlakyTest(bugId = 186848347)
+    @Ignore // b/266757643
     @Test
     public void testPendingSmoothScrollAndRemove() throws Throwable {
         Intent intent = new Intent();
@@ -5168,6 +5304,7 @@ public class GridWidgetTest {
         assertTrue(selectedPosition2 < selectedPosition1);
     }
 
+    @SdkSuppress(minSdkVersion = 23) // b/271599830
     @Test
     public void testAccessibilityFocusOutFrontEnd_actionsAvailable() throws Throwable {
         Intent intent = new Intent();

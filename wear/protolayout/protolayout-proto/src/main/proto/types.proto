@@ -1,0 +1,79 @@
+// Extensible primitive types used by layout elements.
+syntax = "proto3";
+
+package androidx.wear.protolayout.proto;
+
+import "alignment.proto";
+import "dynamic.proto";
+
+option java_package = "androidx.wear.protolayout.proto";
+option java_outer_classname = "TypesProto";
+
+// An int32 type.
+message Int32Prop {
+
+  oneof optional_value {
+    // The static value.
+    int32 value = 1;
+  }
+
+  // The dynamic value.
+  androidx.wear.protolayout.expression.proto.DynamicInt32 dynamic_value = 2;
+}
+
+// A string type.
+message StringProp {
+
+  oneof optional_value {
+    // The static value. If a dynamic value is also set and the renderer supports
+    // dynamic values for the corresponding field, this static value will be
+    // ignored. If the static value is not specified, {@code null} will be used
+    // instead.
+    string value = 1;
+  }
+
+  // The dynamic value. Note that when setting this value, the static value is
+  // still required to be set to support older renderers that only read the
+  // static value. If {@code dynamicValue} has an invalid result, the provided
+  // static value will be used instead.
+  androidx.wear.protolayout.expression.proto.DynamicString dynamic_value = 2;
+
+  oneof optional_value_for_layout {
+    // When used as a layout-changing data bind, the string to measure, when
+    // considering how wide the element should be in the layout.
+    string value_for_layout = 3;
+  }
+
+  // Alignment alignment of the actual text within the space reserved by
+  // value_for_layout. If not specified, defaults to center alignment.
+  TextAlignment text_alignment_for_layout = 4;
+}
+
+// A float type.
+message FloatProp {
+
+  oneof optional_value {
+    // The static value. If a dynamic value is also set and the renderer supports
+    // dynamic values for the corresponding field, this static value will be
+    // ignored. If the static value is not specified, zero will be used instead.
+    float value = 1;
+  }
+
+  // The dynamic value. Note that when setting this value, the static value is
+  // still required to be set to support older renderers that only read the
+  // static value. If {@code dynamicValue} has an invalid result, the provided
+  // static value will be used instead.
+  androidx.wear.protolayout.expression.proto.DynamicFloat dynamic_value = 2;
+}
+
+// A boolean type.
+message BoolProp {
+
+  oneof optional_value {
+    // The static value.
+    bool value = 1;
+  }
+
+  // The dynamic value.
+  androidx.wear.protolayout.expression.proto.DynamicBool dynamic_value = 2;
+}

@@ -105,7 +105,6 @@ public class WearableDrawerView extends FrameLayout {
 
     /**
      * Enumeration of possible drawer states.
-     * @hide
      */
     @Retention(RetentionPolicy.SOURCE)
     @RestrictTo(Scope.LIBRARY)

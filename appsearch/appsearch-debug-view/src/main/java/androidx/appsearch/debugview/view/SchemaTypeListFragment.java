@@ -48,7 +48,7 @@ import java.util.Collections;
 /**
  * A fragment for displaying a list of {@link AppSearchSchema} objects.
  *
- * @hide
+ * @exportToFramework:hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class SchemaTypeListFragment extends Fragment {

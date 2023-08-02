@@ -16,9 +16,9 @@
 
 package androidx.datastore.preferences.core
 
-import androidx.datastore.core.okio.OkioSerializer
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.test.runTest
 import okio.Buffer
 import okio.ByteString.Companion.decodeBase64
@@ -29,14 +29,13 @@ import okio.ByteString.Companion.decodeBase64
 class PreferencesCompatibilityTest {
 
     @Test
-    fun testWireCompatibility() = runTest(dispatchTimeoutMs = 10000) {
+    fun testWireCompatibility() = runTest(timeout = 10000.milliseconds) {
 
         // base64 output of serializing "expectedProto"
         val protoBase64 = "ChAKB215RmxvYXQSBRXNzIw/ChUKCG15RG91YmxlEgk5mpmZmZmZ8T8KCwoFbXlJbnQSAh" +
             "gBCgwKBm15TG9uZxICIAEKGQoIbXlTdHJpbmcSDSoLc3RyaW5nVmFsdWUKDwoJbXlCb29sZWFuEgIIAQo" +
             "bCgtteVN0cmluZ1NldBIMMgoKA29uZQoDdHdvChMKC215Qnl0ZUFycmF5EgRCAgEC"
         val byteString = protoBase64.decodeBase64() ?: throw Exception("Unable to decode")
-        val preferencesSerializer: OkioSerializer<Preferences> = getPreferencesSerializer()
         val expectedProto = preferencesOf(
             Preferences.Pair(floatPreferencesKey("myFloat"), 1.1f),
             Preferences.Pair(doublePreferencesKey("myDouble"), 1.1),
@@ -50,7 +49,7 @@ class PreferencesCompatibilityTest {
 
         val protoBuffer = Buffer()
         protoBuffer.write(byteString)
-        val protoPrefsFromBytes = preferencesSerializer.readFrom(protoBuffer)
+        val protoPrefsFromBytes = PreferencesSerializer.readFrom(protoBuffer)
         assertEquals(expectedProto, protoPrefsFromBytes)
     }
 }

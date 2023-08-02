@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package androidx.room.androidx.room.integration.kotlintestapp.test
+package androidx.room.integration.kotlintestapp.test
 
+import androidx.kruth.assertThat
 import androidx.room.Dao
 import androidx.room.Database
 import androidx.room.Delete
@@ -28,7 +29,6 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverter
 import androidx.room.TypeConverters
 import androidx.test.core.app.ApplicationProvider
-import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 
 /**
@@ -51,13 +51,13 @@ class JvmNameInDaoTest {
             JvmNameDb::class.java
         ).build()
         try {
-            db.dao.insert(entity)
+            db.getDao().insert(entity)
             assertThat(
-                db.dao.query()
+                db.getDao().query()
             ).containsExactly(entity)
-            db.dao.delete(entity)
+            db.getDao().delete(entity)
             assertThat(
-                db.dao.query()
+                db.getDao().query()
             ).isEmpty()
         } finally {
             db.close()
@@ -121,7 +121,7 @@ class JvmNameInDaoTest {
     @TypeConverters(MyConverterConverter::class)
     abstract class JvmNameDb : RoomDatabase() {
         @Suppress("INAPPLICABLE_JVM_NAME")
-        @get:JvmName("jvmDao")
-        abstract val dao: JvmNameDao
+        @JvmName("jvmDao")
+        abstract fun getDao(): JvmNameDao
     }
 }

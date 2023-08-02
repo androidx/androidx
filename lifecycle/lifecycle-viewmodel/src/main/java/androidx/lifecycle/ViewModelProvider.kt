@@ -22,9 +22,9 @@ import androidx.annotation.MainThread
 import androidx.annotation.RestrictTo
 import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.DEFAULT_KEY
 import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.defaultFactory
-import androidx.lifecycle.viewmodel.CreationExtras.Key
 import androidx.lifecycle.ViewModelProvider.NewInstanceFactory.Companion.VIEW_MODEL_KEY
 import androidx.lifecycle.viewmodel.CreationExtras
+import androidx.lifecycle.viewmodel.CreationExtras.Key
 import androidx.lifecycle.viewmodel.InitializerViewModelFactory
 import androidx.lifecycle.viewmodel.MutableCreationExtras
 import androidx.lifecycle.viewmodel.ViewModelInitializer
@@ -109,7 +109,7 @@ constructor(
      *
      *
      * This method will use the
-     * [default factory][HasDefaultViewModelProviderFactory.getDefaultViewModelProviderFactory]
+     * [default factory][HasDefaultViewModelProviderFactory.defaultViewModelProviderFactory]
      * if the owner implements [HasDefaultViewModelProviderFactory]. Otherwise, a
      * [NewInstanceFactory] will be used.
      */
@@ -171,7 +171,7 @@ constructor(
     public open operator fun <T : ViewModel> get(key: String, modelClass: Class<T>): T {
         val viewModel = store[key]
         if (modelClass.isInstance(viewModel)) {
-            (factory as? OnRequeryFactory)?.onRequery(viewModel)
+            (factory as? OnRequeryFactory)?.onRequery(viewModel!!)
             return viewModel as T
         } else {
             @Suppress("ControlFlowWithEmptyBody")
@@ -199,7 +199,9 @@ constructor(
         @Suppress("DocumentExceptions")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             return try {
-                modelClass.newInstance()
+                modelClass.getDeclaredConstructor().newInstance()
+            } catch (e: NoSuchMethodException) {
+                throw RuntimeException("Cannot create an instance of $modelClass", e)
             } catch (e: InstantiationException) {
                 throw RuntimeException("Cannot create an instance of $modelClass", e)
             } catch (e: IllegalAccessException) {

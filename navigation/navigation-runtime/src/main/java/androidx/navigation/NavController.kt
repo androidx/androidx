@@ -42,6 +42,8 @@ import androidx.lifecycle.ViewModelStoreOwner
 import androidx.navigation.NavDestination.Companion.createRoute
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
+import java.util.concurrent.CopyOnWriteArrayList
+import java.util.concurrent.atomic.AtomicInteger
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -49,8 +51,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
-import java.util.concurrent.CopyOnWriteArrayList
-import java.util.concurrent.atomic.AtomicInteger
 
 /**
  * NavController manages app navigation within a [NavHost].
@@ -113,7 +113,6 @@ public open class NavController(
      * Retrieve the current back stack.
      *
      * @return The current back stack.
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -240,7 +239,6 @@ public open class NavController(
     public open var navigatorProvider: NavigatorProvider
         get() = _navigatorProvider
         /**
-         * @hide
          */
         set(navigatorProvider) {
             check(backQueue.isEmpty()) { "NavigatorProvider must be set before setGraph call" }
@@ -372,6 +370,15 @@ public open class NavController(
             // else, updateBackStackLifecycle() will be called after any ongoing navigate() call
             // completes
         }
+
+        override fun prepareForTransition(entry: NavBackStackEntry) {
+            super.prepareForTransition(entry)
+            if (backQueue.contains(entry)) {
+                entry.maxLifecycle = Lifecycle.State.STARTED
+            } else {
+                throw IllegalStateException("Cannot transition entry that is not in the back stack")
+            }
+        }
     }
 
     /**
@@ -489,7 +496,8 @@ public open class NavController(
     /**
      * Attempts to pop the controller's back stack back to a specific destination.
      *
-     * @param route The topmost destination to retain
+     * @param route The topmost destination to retain. May contain filled in arguments as long as
+     * it is exact match with route used to navigate.
      * @param inclusive Whether the given destination should also be popped.
      * @param saveState Whether the back stack and the state of all destinations between the
      * current destination and the [route] should be saved for later
@@ -506,7 +514,12 @@ public open class NavController(
         route: String,
         inclusive: Boolean,
         saveState: Boolean = false
-    ): Boolean = popBackStack(createRoute(route).hashCode(), inclusive, saveState)
+    ): Boolean {
+        val popped = popBackStackInternal(route, inclusive, saveState)
+        // Only return true if the pop succeeded and we've dispatched
+        // the change to a new destination
+        return popped && dispatchOnDestinationChanged()
+    }
 
     /**
      * Attempts to pop the controller's back stack back to a specific destination. This does
@@ -561,6 +574,64 @@ public open class NavController(
             )
             return false
         }
+        return executePopOperations(popOperations, foundDestination, inclusive, saveState)
+    }
+
+    /**
+     * Attempts to pop the controller's back stack back to a specific destination. This does
+     * **not** handle calling [dispatchOnDestinationChanged]
+     *
+     * @param route The topmost destination with this route to retain
+     * @param inclusive Whether the given destination should also be popped.
+     * @param saveState Whether the back stack and the state of all destinations between the
+     * current destination and the destination with [route] should be saved for later to be
+     * restored via [NavOptions.Builder.setRestoreState] or the `restoreState` attribute using
+     * the [NavDestination.id] of the destination with this route (note: this matching ID
+     * is true whether [inclusive] is true or false).
+     *
+     * @return true if the stack was popped at least once, false otherwise
+     */
+    private fun popBackStackInternal(
+        route: String,
+        inclusive: Boolean,
+        saveState: Boolean,
+    ): Boolean {
+        if (backQueue.isEmpty()) {
+            // Nothing to pop if the back stack is empty
+            return false
+        }
+
+        val popOperations = mutableListOf<Navigator<*>>()
+        val foundDestination = backQueue.lastOrNull { entry ->
+            val hasRoute = entry.destination.hasRoute(route, entry.arguments)
+            if (inclusive || !hasRoute) {
+                val navigator = _navigatorProvider.getNavigator<Navigator<*>>(
+                    entry.destination.navigatorName
+                )
+                popOperations.add(navigator)
+            }
+            hasRoute
+        }?.destination
+
+        if (foundDestination == null) {
+            // We were passed a route that doesn't exist on our back stack.
+            // Better to ignore the popBackStack than accidentally popping the entire stack
+            Log.i(
+                TAG,
+                "Ignoring popBackStack to route $route as it was not found " +
+                    "on the current back stack"
+            )
+            return false
+        }
+        return executePopOperations(popOperations, foundDestination, inclusive, saveState)
+    }
+
+    private fun executePopOperations(
+        popOperations: List<Navigator<*>>,
+        foundDestination: NavDestination,
+        inclusive: Boolean,
+        saveState: Boolean,
+    ): Boolean {
         var popped = false
         val savedState = ArrayDeque<NavBackStackEntryState>()
         for (navigator in popOperations) {
@@ -699,14 +770,18 @@ public open class NavController(
      * via [popBackStack] when using a `saveState` value of `true`.
      *
      * @param route The route of the destination previously used with [popBackStack] with a
-     * `saveState` value of `true`
+     * `saveState` value of `true`. May contain filled in arguments as long as
+     * it is exact match with route used with [popBackStack].
      *
      * @return true if the saved state of the stack associated with [route] was cleared.
      */
     @MainThread
-    public fun clearBackStack(
-        route: String
-    ): Boolean = clearBackStack(createRoute(route).hashCode())
+    public fun clearBackStack(route: String): Boolean {
+        val cleared = clearBackStackInternal(route)
+        // Only return true if the clear succeeded and we've dispatched
+        // the change to a new destination
+        return cleared && dispatchOnDestinationChanged()
+    }
 
     /**
      * Clears any saved state associated with [destinationId] that was previously saved
@@ -730,11 +805,24 @@ public open class NavController(
         navigatorState.values.forEach { state ->
             state.isNavigating = true
         }
-        val restored = restoreStateInternal(destinationId, null, null, null)
+        val restored = restoreStateInternal(destinationId, null,
+            navOptions { restoreState = true }, null)
         navigatorState.values.forEach { state ->
             state.isNavigating = false
         }
         return restored && popBackStackInternal(destinationId, inclusive = true, saveState = false)
+    }
+
+    @MainThread
+    private fun clearBackStackInternal(route: String): Boolean {
+        navigatorState.values.forEach { state ->
+            state.isNavigating = true
+        }
+        val restored = restoreStateInternal(route)
+        navigatorState.values.forEach { state ->
+            state.isNavigating = false
+        }
+        return restored && popBackStackInternal(route, inclusive = true, saveState = false)
     }
 
     /**
@@ -847,7 +935,7 @@ public open class NavController(
                         val matchingDeepLink = _graph!!.matchDeepLink(
                             NavDeepLinkRequest(activity!!.intent)
                         )
-                        if (matchingDeepLink != null) {
+                        if (matchingDeepLink?.matchingArgs != null) {
                             val destinationArgs = matchingDeepLink.destination.addInDefaultArgs(
                                 matchingDeepLink.matchingArgs
                             )
@@ -1097,17 +1185,30 @@ public open class NavController(
             _graph = graph
             onGraphCreated(startDestinationArgs)
         } else {
+            // first we update _graph with new instances from graph
             for (i in 0 until graph.nodes.size()) {
                 val newDestination = graph.nodes.valueAt(i)
-                _graph!!.nodes.replace(i, newDestination)
-                backQueue.filter { currentEntry ->
-                    // Necessary since CI builds against ToT, can be removed once
-                    // androidx.collection is updated to >= 1.3.*
-                    @Suppress("UNNECESSARY_SAFE_CALL", "SAFE_CALL_WILL_CHANGE_NULLABILITY")
-                    currentEntry.destination.id == newDestination?.id
-                }.forEach { entry ->
-                    entry.destination = newDestination
+                val key = _graph!!.nodes.keyAt(i)
+                _graph!!.nodes.replace(key, newDestination)
+            }
+            // then we update backstack with the new instances
+            backQueue.forEach { entry ->
+                // we will trace this hierarchy in new graph to get new destination instance
+                val hierarchy = entry.destination.hierarchy.toList().asReversed()
+                val newDestination = hierarchy.fold(_graph!!) {
+                        newDest: NavDestination, oldDest: NavDestination ->
+                    if (oldDest == _graph && newDest == graph) {
+                        // if root graph, it is already the node that matches with oldDest
+                        newDest
+                    } else if (newDest is NavGraph) {
+                        // otherwise we walk down the hierarchy to the next child
+                        newDest.findNode(oldDest.id)!!
+                    } else {
+                        // final leaf node found
+                        newDest
+                    }
                 }
+                entry.destination = newDestination
             }
         }
     }
@@ -1206,7 +1307,16 @@ public open class NavController(
             return false
         }
         val extras = intent.extras
-        var deepLink = extras?.getIntArray(KEY_DEEP_LINK_IDS)
+        var deepLink = try {
+            extras?.getIntArray(KEY_DEEP_LINK_IDS)
+        } catch (e: Exception) {
+            Log.e(
+                TAG,
+                "handleDeepLink() could not extract deepLink from $intent",
+                e
+            )
+            null
+        }
         var deepLinkArgs = extras?.getParcelableArrayList<Bundle>(KEY_DEEP_LINK_ARGS)
         val globalArgs = Bundle()
         val deepLinkExtras = extras?.getBundle(KEY_DEEP_LINK_EXTRAS)
@@ -1421,16 +1531,17 @@ public open class NavController(
 
     /** @suppress */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public fun findDestination(destinationRoute: String): NavDestination? {
+    public fun findDestination(route: String): NavDestination? {
         if (_graph == null) {
             return null
         }
-        if (_graph!!.route == destinationRoute) {
+        // if not matched by routePattern, try matching with route args
+        if (_graph!!.route == route || _graph!!.matchDeepLink(route) != null) {
             return _graph
         }
         val currentNode = backQueue.lastOrNull()?.destination ?: _graph!!
         val currentGraph = if (currentNode is NavGraph) currentNode else currentNode.parent!!
-        return currentGraph.findNode(destinationRoute)
+        return currentGraph.findNode(route)
     }
 
     /**
@@ -1494,7 +1605,7 @@ public open class NavController(
      * @param navOptions special options for this navigation operation
      * @param navigatorExtras extras to pass to the Navigator
      *
-     * @throws IllegalStateException if there is no current navigation node
+     * @throws IllegalStateException if navigation graph has not been set for this NavController
      * @throws IllegalArgumentException if the desired destination cannot be found from the
      *                                  current destination
      */
@@ -1511,7 +1622,10 @@ public open class NavController(
                 _graph
             else
                 backQueue.last().destination
-            ) ?: throw IllegalStateException("no current navigation node")
+            ) ?: throw IllegalStateException(
+                "No current destination found. Ensure a navigation graph has been set for " +
+                    "NavController $this."
+            )
 
         @IdRes
         var destId = resId
@@ -1661,6 +1775,10 @@ public open class NavController(
         navOptions: NavOptions?,
         navigatorExtras: Navigator.Extras?
     ) {
+        requireNotNull(_graph) {
+            "Cannot navigate to $request. Navigation graph has not been set for " +
+                "NavController $this."
+        }
         val deepLinkMatch = _graph!!.matchDeepLink(request)
         if (deepLinkMatch != null) {
             val destination = deepLinkMatch.destination
@@ -1707,26 +1825,16 @@ public open class NavController(
         if (navOptions?.shouldRestoreState() == true && backStackMap.containsKey(node.id)) {
             navigated = restoreStateInternal(node.id, finalArgs, navOptions, navigatorExtras)
         } else {
-            val currentBackStackEntry = currentBackStackEntry
-            val navigator = _navigatorProvider.getNavigator<Navigator<NavDestination>>(
-                node.navigatorName
-            )
-            if (navOptions?.shouldLaunchSingleTop() == true &&
-                node.id == currentBackStackEntry?.destination?.id
-            ) {
-                unlinkChildFromParent(backQueue.removeLast())
-                val newEntry = NavBackStackEntry(currentBackStackEntry, finalArgs)
-                backQueue.addLast(newEntry)
-                val parent = newEntry.destination.parent
-                if (parent != null) {
-                    linkChildToParent(newEntry, getBackStackEntry(parent.id))
-                }
-                navigator.onLaunchSingleTop(newEntry)
-                launchSingleTop = true
-            } else {
+            launchSingleTop = navOptions?.shouldLaunchSingleTop() == true &&
+                launchSingleTopInternal(node, args)
+
+            if (!launchSingleTop) {
                 // Not a single top operation, so we're looking to add the node to the back stack
                 val backStackEntry = NavBackStackEntry.create(
                     context, node, finalArgs, hostLifecycleState, viewModel
+                )
+                val navigator = _navigatorProvider.getNavigator<Navigator<NavDestination>>(
+                    node.navigatorName
                 )
                 navigator.navigateInternal(listOf(backStackEntry), navOptions, navigatorExtras) {
                     navigated = true
@@ -1745,6 +1853,49 @@ public open class NavController(
         }
     }
 
+    private fun launchSingleTopInternal(
+        node: NavDestination,
+        args: Bundle?
+    ): Boolean {
+        val currentBackStackEntry = currentBackStackEntry
+        val nodeId = if (node is NavGraph) node.findStartDestination().id else node.id
+        if (nodeId != currentBackStackEntry?.destination?.id) return false
+
+        val tempBackQueue: ArrayDeque<NavBackStackEntry> = ArrayDeque()
+        // pop from startDestination back to original node and create a new entry for each
+        backQueue.indexOfLast { it.destination === node }.let { nodeIndex ->
+            while (backQueue.lastIndex >= nodeIndex) {
+                val oldEntry = backQueue.removeLast()
+                unlinkChildFromParent(oldEntry)
+                val newEntry = NavBackStackEntry(
+                    oldEntry,
+                    oldEntry.destination.addInDefaultArgs(args)
+                )
+                tempBackQueue.addFirst(newEntry)
+            }
+        }
+
+        // add each new entry to backQueue starting from original node to startDestination
+        tempBackQueue.forEach { newEntry ->
+            val parent = newEntry.destination.parent
+            if (parent != null) {
+                val newParent = getBackStackEntry(parent.id)
+                linkChildToParent(newEntry, newParent)
+            }
+            backQueue.add(newEntry)
+        }
+
+        // we replace NavState entries here only after backQueue has been finalized
+        tempBackQueue.forEach { newEntry ->
+            val navigator = _navigatorProvider.getNavigator<Navigator<*>>(
+                newEntry.destination.navigatorName
+            )
+            navigator.onLaunchSingleTop(newEntry)
+        }
+
+        return true
+    }
+
     private fun restoreStateInternal(
         id: Int,
         args: Bundle?,
@@ -1760,6 +1911,47 @@ public open class NavController(
         val backStackState = backStackStates.remove(backStackId)
         // Now restore the back stack from its saved state
         val entries = instantiateBackStack(backStackState)
+        return executeRestoreState(entries, args, navOptions, navigatorExtras)
+    }
+
+    private fun restoreStateInternal(route: String): Boolean {
+        var id = createRoute(route).hashCode()
+        // try to match based on routePattern
+        return if (backStackMap.containsKey(id)) {
+            restoreStateInternal(id, null, null, null)
+        } else {
+            // if it didn't match, it means the route contains filled in arguments and we need
+            // to find the destination that matches this route's general pattern
+            val matchingDestination = findDestination(route)
+            check(matchingDestination != null) {
+                "Restore State failed: route $route cannot be found from the current " +
+                    "destination $currentDestination"
+            }
+
+            id = matchingDestination.id
+            val backStackId = backStackMap[id]
+            // Clear out the state we're going to restore so that it isn't restored a second time
+            backStackMap.values.removeAll { it == backStackId }
+            val backStackState = backStackStates.remove(backStackId)
+
+            val matchingDeepLink = matchingDestination.matchDeepLink(route)
+            // check if the topmost NavBackStackEntryState contains the arguments in this
+            // matchingDeepLink. If not, we didn't find the correct stack.
+            val isCorrectStack = matchingDeepLink!!.hasMatchingArgs(
+                backStackState?.firstOrNull()?.args
+            )
+            if (!isCorrectStack) return false
+            val entries = instantiateBackStack(backStackState)
+            executeRestoreState(entries, null, null, null)
+        }
+    }
+
+    private fun executeRestoreState(
+        entries: List<NavBackStackEntry>,
+        args: Bundle?,
+        navOptions: NavOptions?,
+        navigatorExtras: Navigator.Extras?
+    ): Boolean {
         // Split up the entries by Navigator so we can restore them as an atomic operation
         val entriesGroupedByNavigator = mutableListOf<MutableList<NavBackStackEntry>>()
         entries.filterNot { entry ->
@@ -1866,15 +2058,18 @@ public open class NavController(
         }
 
         // Now collect the set of all intermediate NavGraphs that need to be put onto
-        // the back stack
+        // the back stack. Destinations can have multiple parents, so we check referential
+        // equality to ensure that same destinations with a parent that is not this _graph
+        // will also have their parents added to the hierarchy.
         destination = if (hierarchy.isEmpty()) newDest else hierarchy.first().destination
-        while (destination != null && findDestination(destination.id) == null) {
+        while (destination != null && findDestination(destination.id) !== destination) {
             val parent = destination.parent
             if (parent != null) {
+                val args = if (finalArgs?.isEmpty == true) null else finalArgs
                 val entry = restoredEntries.lastOrNull { restoredEntry ->
                     restoredEntry.destination == parent
                 } ?: NavBackStackEntry.create(
-                    context, parent, parent.addInDefaultArgs(finalArgs), hostLifecycleState,
+                    context, parent, parent.addInDefaultArgs(args), hostLifecycleState,
                     viewModel
                 )
                 hierarchy.addFirst(entry)
@@ -1885,7 +2080,7 @@ public open class NavController(
             if (hierarchy.isEmpty())
                 newDest
             else
-                hierarchy.last().destination
+                hierarchy.first().destination
         // Pop any orphaned navigation graphs that don't connect to the new destinations
         while (!backQueue.isEmpty() && backQueue.last().destination is NavGraph &&
             (backQueue.last().destination as NavGraph).findNode(
@@ -1973,6 +2168,7 @@ public open class NavController(
      *
      * @throws IllegalArgumentException if the given route is invalid
      */
+    @MainThread
     public fun navigate(route: String, builder: NavOptionsBuilder.() -> Unit) {
         navigate(route, navOptions(builder))
     }
@@ -1987,6 +2183,7 @@ public open class NavController(
      *
      * @throws IllegalArgumentException if the given route is invalid
      */
+    @MainThread
     @JvmOverloads
     public fun navigate(
         route: String,
@@ -2232,12 +2429,13 @@ public open class NavController(
      * [its parent][NavDestination.parent] or grandparent navigation graphs as these
      * destinations are guaranteed to be on the back stack.
      *
-     * @param route route of a destination that exists on the back stack
+     * @param route route of a destination that exists on the back stack. May contain filled in
+     * arguments as long as it is exact match with route used to navigate.
      * @throws IllegalArgumentException if the destination is not on the back stack
      */
     public fun getBackStackEntry(route: String): NavBackStackEntry {
         val lastFromBackStack: NavBackStackEntry? = backQueue.lastOrNull { entry ->
-            entry.destination.route == route
+            entry.destination.hasRoute(route, entry.arguments)
         }
         requireNotNull(lastFromBackStack) {
             "No destination with route $route is on the NavController's back stack. The " +

@@ -16,24 +16,22 @@
 
 package androidx.wear.watchface
 
-import android.content.ContentResolver
+import android.app.KeyguardManager
+import android.content.Context
 import android.content.Intent
-import android.provider.Settings
 import androidx.annotation.RestrictTo
+import androidx.annotation.UiThread
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 
-/** @hide */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class BroadcastsObserver(
     private val watchState: WatchState,
     private val watchFaceHostApi: WatchFaceHostApi,
     private val deferredWatchFaceImpl: Deferred<WatchFaceImpl>,
-    private val uiThreadCoroutineScope: CoroutineScope,
-    private val contentResolver: ContentResolver,
-    private val ambientSettingAvailable: Boolean
+    private val uiThreadCoroutineScope: CoroutineScope
 ) : BroadcastsReceiver.BroadcastEventObserver {
     private var batteryLow: Boolean? = null
     private var charging: Boolean? = null
@@ -49,15 +47,11 @@ public class BroadcastsObserver(
     }
 
     override fun onActionTimeZoneChanged() {
-        uiThreadCoroutineScope.launch {
-            deferredWatchFaceImpl.await().onActionTimeZoneChanged()
-        }
+        uiThreadCoroutineScope.launch { deferredWatchFaceImpl.await().onActionTimeZoneChanged() }
     }
 
     override fun onActionTimeChanged() {
-        uiThreadCoroutineScope.launch {
-            deferredWatchFaceImpl.await().onActionTimeChanged()
-        }
+        uiThreadCoroutineScope.launch { deferredWatchFaceImpl.await().onActionTimeChanged() }
     }
 
     override fun onActionBatteryLow() {
@@ -85,14 +79,11 @@ public class BroadcastsObserver(
     }
 
     override fun onMockTime(intent: Intent) {
-        uiThreadCoroutineScope.launch {
-            deferredWatchFaceImpl.await().onMockTime(intent)
-        }
+        uiThreadCoroutineScope.launch { deferredWatchFaceImpl.await().onMockTime(intent) }
     }
 
     private fun updateBatteryLowAndNotChargingStatus(value: Boolean) {
-        val isBatteryLowAndNotCharging =
-            watchState.isBatteryLowAndNotCharging as MutableStateFlow
+        val isBatteryLowAndNotCharging = watchState.isBatteryLowAndNotCharging as MutableStateFlow
         if (!isBatteryLowAndNotCharging.hasValue() || value != isBatteryLowAndNotCharging.value) {
             isBatteryLowAndNotCharging.value = value
             watchFaceHostApi.invalidate()
@@ -104,33 +95,42 @@ public class BroadcastsObserver(
     }
 
     override fun onActionScreenOff() {
-        // Before SysUI has connected, we use ActionScreenOn/ActionScreenOff as a trigger to query
-        // AMBIENT_ENABLED_PATH in order to determine if the device os ambient or not.
+        val keyguardManager =
+            watchFaceHostApi.getContext().getSystemService(Context.KEYGUARD_SERVICE)
+                as KeyguardManager
+
+        (watchState.isLocked as MutableStateFlow).value = keyguardManager.isDeviceLocked
+    }
+
+    override fun onActionUserPresent() {
+        (watchState.isLocked as MutableStateFlow).value = false
+    }
+
+    override fun onActionAmbientStarted() {
         if (sysUiHasSentWatchUiState) {
             return
         }
 
         val isAmbient = watchState.isAmbient as MutableStateFlow
-
-        // This is a backup signal for when SysUI is unable to deliver the ambient state (e.g. in
-        // direct boot mode). We need to distinguish between ACTION_SCREEN_OFF for entering ambient
-        // and the screen turning off. This is only possible from R.
-        isAmbient.value = if (ambientSettingAvailable) {
-            Settings.Global.getInt(contentResolver, AMBIENT_ENABLED_PATH, 0) == 1
-        } else {
-            // On P and below we just have to assume we're not ambient.
-            false
-        }
+        isAmbient.value = true
     }
 
-    override fun onActionScreenOn() {
-        // Before SysUI has connected, we use ActionScreenOn/ActionScreenOff as a trigger to query
-        // AMBIENT_ENABLED_PATH in order to determine if the device os ambient or not.
+    override fun onActionAmbientStopped() {
         if (sysUiHasSentWatchUiState) {
             return
         }
 
         val isAmbient = watchState.isAmbient as MutableStateFlow
         isAmbient.value = false
+    }
+
+    @UiThread
+    internal fun dump(writer: IndentingPrintWriter) {
+        writer.println("BroadcastsObserver:")
+        writer.increaseIndent()
+        writer.println("batteryLow=$batteryLow")
+        writer.println("charging=$charging")
+        writer.println("sysUiHasSentWatchUiState=$sysUiHasSentWatchUiState")
+        writer.decreaseIndent()
     }
 }

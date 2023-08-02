@@ -22,13 +22,12 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
 
 import androidx.appsearch.app.AppSearchSchema;
+import androidx.appsearch.app.AppSearchSchema.LongPropertyConfig;
 import androidx.appsearch.app.AppSearchSchema.PropertyConfig;
 import androidx.appsearch.app.AppSearchSchema.StringPropertyConfig;
 import androidx.appsearch.testutil.AppSearchEmail;
 
 import org.junit.Test;
-
-import java.util.List;
 
 public class AppSearchSchemaCtsTest {
     @Test
@@ -38,10 +37,19 @@ public class AppSearchSchemaCtsTest {
     }
 
     @Test
-    public void testDefaultValues() {
+    public void testStringPropertyConfigDefaultValues() {
         StringPropertyConfig builder = new StringPropertyConfig.Builder("test").build();
         assertThat(builder.getIndexingType()).isEqualTo(StringPropertyConfig.INDEXING_TYPE_NONE);
         assertThat(builder.getTokenizerType()).isEqualTo(StringPropertyConfig.TOKENIZER_TYPE_NONE);
+        assertThat(builder.getCardinality()).isEqualTo(PropertyConfig.CARDINALITY_OPTIONAL);
+        assertThat(builder.getJoinableValueType())
+                .isEqualTo(StringPropertyConfig.JOINABLE_VALUE_TYPE_NONE);
+    }
+
+    @Test
+    public void testLongPropertyConfigDefaultValues() {
+        LongPropertyConfig builder = new LongPropertyConfig.Builder("test").build();
+        assertThat(builder.getIndexingType()).isEqualTo(LongPropertyConfig.INDEXING_TYPE_NONE);
         assertThat(builder.getCardinality()).isEqualTo(PropertyConfig.CARDINALITY_OPTIONAL);
     }
 
@@ -155,74 +163,6 @@ public class AppSearchSchemaCtsTest {
     }
 
     @Test
-    public void testPropertyConfig() {
-        AppSearchSchema schema = new AppSearchSchema.Builder("Test")
-                .addProperty(new StringPropertyConfig.Builder("string")
-                        .setCardinality(PropertyConfig.CARDINALITY_REQUIRED)
-                        .setIndexingType(StringPropertyConfig.INDEXING_TYPE_EXACT_TERMS)
-                        .setTokenizerType(StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
-                        .build())
-                .addProperty(new AppSearchSchema.LongPropertyConfig.Builder("long")
-                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
-                        .build())
-                .addProperty(new AppSearchSchema.DoublePropertyConfig.Builder("double")
-                        .setCardinality(PropertyConfig.CARDINALITY_REPEATED)
-                        .build())
-                .addProperty(new AppSearchSchema.BooleanPropertyConfig.Builder("boolean")
-                        .setCardinality(PropertyConfig.CARDINALITY_REQUIRED)
-                        .build())
-                .addProperty(new AppSearchSchema.BytesPropertyConfig.Builder("bytes")
-                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
-                        .build())
-                .addProperty(new AppSearchSchema.DocumentPropertyConfig.Builder(
-                        "document", AppSearchEmail.SCHEMA_TYPE)
-                        .setCardinality(PropertyConfig.CARDINALITY_REPEATED)
-                        .setShouldIndexNestedProperties(true)
-                        .build())
-                .build();
-
-        assertThat(schema.getSchemaType()).isEqualTo("Test");
-        List<PropertyConfig> properties = schema.getProperties();
-        assertThat(properties).hasSize(6);
-
-        assertThat(properties.get(0).getName()).isEqualTo("string");
-        assertThat(properties.get(0).getCardinality())
-                .isEqualTo(PropertyConfig.CARDINALITY_REQUIRED);
-        assertThat(((StringPropertyConfig) properties.get(0)).getIndexingType())
-                .isEqualTo(StringPropertyConfig.INDEXING_TYPE_EXACT_TERMS);
-        assertThat(((StringPropertyConfig) properties.get(0)).getTokenizerType())
-                .isEqualTo(StringPropertyConfig.TOKENIZER_TYPE_PLAIN);
-
-        assertThat(properties.get(1).getName()).isEqualTo("long");
-        assertThat(properties.get(1).getCardinality())
-                .isEqualTo(PropertyConfig.CARDINALITY_OPTIONAL);
-        assertThat(properties.get(1)).isInstanceOf(AppSearchSchema.LongPropertyConfig.class);
-
-        assertThat(properties.get(2).getName()).isEqualTo("double");
-        assertThat(properties.get(2).getCardinality())
-                .isEqualTo(PropertyConfig.CARDINALITY_REPEATED);
-        assertThat(properties.get(2)).isInstanceOf(AppSearchSchema.DoublePropertyConfig.class);
-
-        assertThat(properties.get(3).getName()).isEqualTo("boolean");
-        assertThat(properties.get(3).getCardinality())
-                .isEqualTo(PropertyConfig.CARDINALITY_REQUIRED);
-        assertThat(properties.get(3)).isInstanceOf(AppSearchSchema.BooleanPropertyConfig.class);
-
-        assertThat(properties.get(4).getName()).isEqualTo("bytes");
-        assertThat(properties.get(4).getCardinality())
-                .isEqualTo(PropertyConfig.CARDINALITY_OPTIONAL);
-        assertThat(properties.get(4)).isInstanceOf(AppSearchSchema.BytesPropertyConfig.class);
-
-        assertThat(properties.get(5).getName()).isEqualTo("document");
-        assertThat(properties.get(5).getCardinality())
-                .isEqualTo(PropertyConfig.CARDINALITY_REPEATED);
-        assertThat(((AppSearchSchema.DocumentPropertyConfig) properties.get(5)).getSchemaType())
-                .isEqualTo(AppSearchEmail.SCHEMA_TYPE);
-        assertThat(((AppSearchSchema.DocumentPropertyConfig) properties.get(5))
-                .shouldIndexNestedProperties()).isEqualTo(true);
-    }
-
-    @Test
     public void testInvalidStringPropertyConfigsTokenizerNone() {
         // Everything should work fine with the defaults.
         final StringPropertyConfig.Builder builder =
@@ -253,24 +193,58 @@ public class AppSearchSchemaCtsTest {
     }
 
     @Test
-    public void testInvalidStringPropertyConfigsTokenizerPlain() {
-        // Setting indexing type to be NONE with tokenizer type PLAIN should fail. Regardless of
-        // whether NONE is set explicitly or just kept as default.
-        final StringPropertyConfig.Builder builder =
+    public void testInvalidStringPropertyConfigsTokenizerNonNone() {
+        // Setting indexing type to be NONE with tokenizer type PLAIN or VERBATIM or RFC822 should
+        // fail. Regardless of whether NONE is set explicitly or just kept as default.
+        final StringPropertyConfig.Builder builder1 =
                 new StringPropertyConfig.Builder("property")
                         .setTokenizerType(StringPropertyConfig.TOKENIZER_TYPE_PLAIN);
-        assertThrows(IllegalStateException.class, () -> builder.build());
+        final StringPropertyConfig.Builder builder2 =
+                new StringPropertyConfig.Builder("property")
+                        .setTokenizerType(StringPropertyConfig.TOKENIZER_TYPE_VERBATIM);
+        final StringPropertyConfig.Builder builder3 =
+                new StringPropertyConfig.Builder("property")
+                        .setTokenizerType(StringPropertyConfig.TOKENIZER_TYPE_RFC822);
+        assertThrows(IllegalStateException.class, () -> builder1.build());
+        assertThrows(IllegalStateException.class, () -> builder2.build());
+        assertThrows(IllegalStateException.class, () -> builder3.build());
 
-        builder.setIndexingType(StringPropertyConfig.INDEXING_TYPE_NONE);
-        assertThrows(IllegalStateException.class, () -> builder.build());
+        builder1.setIndexingType(StringPropertyConfig.INDEXING_TYPE_NONE);
+        builder2.setIndexingType(StringPropertyConfig.INDEXING_TYPE_NONE);
+        builder3.setIndexingType(StringPropertyConfig.INDEXING_TYPE_NONE);
+        assertThrows(IllegalStateException.class, () -> builder1.build());
+        assertThrows(IllegalStateException.class, () -> builder2.build());
+        assertThrows(IllegalStateException.class, () -> builder3.build());
 
         // Setting indexing type to be something other than NONE with tokenizer type PLAIN should
         // be just fine.
-        builder.setIndexingType(StringPropertyConfig.INDEXING_TYPE_EXACT_TERMS);
-        assertThat(builder.build()).isNotNull();
+        builder1.setIndexingType(StringPropertyConfig.INDEXING_TYPE_EXACT_TERMS);
+        builder2.setIndexingType(StringPropertyConfig.INDEXING_TYPE_EXACT_TERMS);
+        builder3.setIndexingType(StringPropertyConfig.INDEXING_TYPE_EXACT_TERMS);
+        assertThat(builder1.build()).isNotNull();
+        assertThat(builder2.build()).isNotNull();
+        assertThat(builder3.build()).isNotNull();
 
-        builder.setIndexingType(StringPropertyConfig.INDEXING_TYPE_PREFIXES);
-        assertThat(builder.build()).isNotNull();
+        builder1.setIndexingType(StringPropertyConfig.INDEXING_TYPE_PREFIXES);
+        builder2.setIndexingType(StringPropertyConfig.INDEXING_TYPE_PREFIXES);
+        builder3.setIndexingType(StringPropertyConfig.INDEXING_TYPE_PREFIXES);
+        assertThat(builder1.build()).isNotNull();
+        assertThat(builder2.build()).isNotNull();
+        assertThat(builder3.build()).isNotNull();
+    }
+
+    @Test
+    public void testInvalidStringPropertyConfigsJoinableValueType() {
+        // Setting cardinality to be REPEATED with joinable value type QUALIFIED_ID should fail.
+        final StringPropertyConfig.Builder builder =
+                new StringPropertyConfig.Builder("qualifiedId")
+                        .setCardinality(PropertyConfig.CARDINALITY_REPEATED)
+                        .setJoinableValueType(
+                                StringPropertyConfig.JOINABLE_VALUE_TYPE_QUALIFIED_ID);
+        IllegalStateException e =
+                assertThrows(IllegalStateException.class, () -> builder.build());
+        assertThat(e).hasMessageThat().contains(
+                "Cannot set JOINABLE_VALUE_TYPE_QUALIFIED_ID with CARDINALITY_REPEATED.");
     }
 
     @Test
@@ -291,8 +265,31 @@ public class AppSearchSchemaCtsTest {
                         .setIndexingType(StringPropertyConfig.INDEXING_TYPE_PREFIXES)
                         .setTokenizerType(StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
                         .build())
+                .addProperty(new StringPropertyConfig.Builder("string4")
+                        .setCardinality(PropertyConfig.CARDINALITY_REQUIRED)
+                        .setIndexingType(StringPropertyConfig.INDEXING_TYPE_PREFIXES)
+                        .setTokenizerType(StringPropertyConfig.TOKENIZER_TYPE_VERBATIM)
+                        .build())
+                .addProperty(new StringPropertyConfig.Builder("string5")
+                        .setCardinality(PropertyConfig.CARDINALITY_REQUIRED)
+                        .setIndexingType(StringPropertyConfig.INDEXING_TYPE_PREFIXES)
+                        .setTokenizerType(StringPropertyConfig.TOKENIZER_TYPE_RFC822)
+                        .build())
+                .addProperty(new StringPropertyConfig.Builder("qualifiedId1")
+                        .setCardinality(PropertyConfig.CARDINALITY_REQUIRED)
+                        .setJoinableValueType(StringPropertyConfig.JOINABLE_VALUE_TYPE_QUALIFIED_ID)
+                        .build())
+                .addProperty(new StringPropertyConfig.Builder("qualifiedId2")
+                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setJoinableValueType(StringPropertyConfig.JOINABLE_VALUE_TYPE_QUALIFIED_ID)
+                        .build())
                 .addProperty(new AppSearchSchema.LongPropertyConfig.Builder("long")
                         .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setIndexingType(LongPropertyConfig.INDEXING_TYPE_NONE)
+                        .build())
+                .addProperty(new AppSearchSchema.LongPropertyConfig.Builder("indexableLong")
+                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setIndexingType(LongPropertyConfig.INDEXING_TYPE_RANGE)
                         .build())
                 .addProperty(new AppSearchSchema.DoublePropertyConfig.Builder("double")
                         .setCardinality(PropertyConfig.CARDINALITY_REPEATED)
@@ -328,6 +325,7 @@ public class AppSearchSchemaCtsTest {
                 + "    {\n"
                 + "      name: \"document\",\n"
                 + "      shouldIndexNestedProperties: true,\n"
+                + "      indexableNestedProperties: [],\n"
                 + "      schemaType: \"builtin:Email\",\n"
                 + "      cardinality: CARDINALITY_REPEATED,\n"
                 + "      dataType: DATA_TYPE_DOCUMENT,\n"
@@ -338,14 +336,38 @@ public class AppSearchSchemaCtsTest {
                 + "      dataType: DATA_TYPE_DOUBLE,\n"
                 + "    },\n"
                 + "    {\n"
-                + "      name: \"long\",\n"
+                + "      name: \"indexableLong\",\n"
+                + "      indexingType: INDEXING_TYPE_RANGE,\n"
                 + "      cardinality: CARDINALITY_OPTIONAL,\n"
                 + "      dataType: DATA_TYPE_LONG,\n"
+                + "    },\n"
+                + "    {\n"
+                + "      name: \"long\",\n"
+                + "      indexingType: INDEXING_TYPE_NONE,\n"
+                + "      cardinality: CARDINALITY_OPTIONAL,\n"
+                + "      dataType: DATA_TYPE_LONG,\n"
+                + "    },\n"
+                + "    {\n"
+                + "      name: \"qualifiedId1\",\n"
+                + "      indexingType: INDEXING_TYPE_NONE,\n"
+                + "      tokenizerType: TOKENIZER_TYPE_NONE,\n"
+                + "      joinableValueType: JOINABLE_VALUE_TYPE_QUALIFIED_ID,\n"
+                + "      cardinality: CARDINALITY_REQUIRED,\n"
+                + "      dataType: DATA_TYPE_STRING,\n"
+                + "    },\n"
+                + "    {\n"
+                + "      name: \"qualifiedId2\",\n"
+                + "      indexingType: INDEXING_TYPE_NONE,\n"
+                + "      tokenizerType: TOKENIZER_TYPE_NONE,\n"
+                + "      joinableValueType: JOINABLE_VALUE_TYPE_QUALIFIED_ID,\n"
+                + "      cardinality: CARDINALITY_OPTIONAL,\n"
+                + "      dataType: DATA_TYPE_STRING,\n"
                 + "    },\n"
                 + "    {\n"
                 + "      name: \"string1\",\n"
                 + "      indexingType: INDEXING_TYPE_NONE,\n"
                 + "      tokenizerType: TOKENIZER_TYPE_NONE,\n"
+                + "      joinableValueType: JOINABLE_VALUE_TYPE_NONE,\n"
                 + "      cardinality: CARDINALITY_REQUIRED,\n"
                 + "      dataType: DATA_TYPE_STRING,\n"
                 + "    },\n"
@@ -353,6 +375,7 @@ public class AppSearchSchemaCtsTest {
                 + "      name: \"string2\",\n"
                 + "      indexingType: INDEXING_TYPE_EXACT_TERMS,\n"
                 + "      tokenizerType: TOKENIZER_TYPE_PLAIN,\n"
+                + "      joinableValueType: JOINABLE_VALUE_TYPE_NONE,\n"
                 + "      cardinality: CARDINALITY_REQUIRED,\n"
                 + "      dataType: DATA_TYPE_STRING,\n"
                 + "    },\n"
@@ -360,6 +383,23 @@ public class AppSearchSchemaCtsTest {
                 + "      name: \"string3\",\n"
                 + "      indexingType: INDEXING_TYPE_PREFIXES,\n"
                 + "      tokenizerType: TOKENIZER_TYPE_PLAIN,\n"
+                + "      joinableValueType: JOINABLE_VALUE_TYPE_NONE,\n"
+                + "      cardinality: CARDINALITY_REQUIRED,\n"
+                + "      dataType: DATA_TYPE_STRING,\n"
+                + "    },\n"
+                + "    {\n"
+                + "      name: \"string4\",\n"
+                + "      indexingType: INDEXING_TYPE_PREFIXES,\n"
+                + "      tokenizerType: TOKENIZER_TYPE_VERBATIM,\n"
+                + "      joinableValueType: JOINABLE_VALUE_TYPE_NONE,\n"
+                + "      cardinality: CARDINALITY_REQUIRED,\n"
+                + "      dataType: DATA_TYPE_STRING,\n"
+                + "    },\n"
+                + "    {\n"
+                + "      name: \"string5\",\n"
+                + "      indexingType: INDEXING_TYPE_PREFIXES,\n"
+                + "      tokenizerType: TOKENIZER_TYPE_RFC822,\n"
+                + "      joinableValueType: JOINABLE_VALUE_TYPE_NONE,\n"
                 + "      cardinality: CARDINALITY_REQUIRED,\n"
                 + "      dataType: DATA_TYPE_STRING,\n"
                 + "    }\n"
@@ -367,5 +407,35 @@ public class AppSearchSchemaCtsTest {
                 + "}";
 
         assertThat(schemaString).isEqualTo(expectedString);
+    }
+
+    @Test
+    public void testStringPropertyConfig_setTokenizerType() {
+        assertThrows(IllegalArgumentException.class, () ->
+                new StringPropertyConfig.Builder("subject").setTokenizerType(5).build());
+        assertThrows(IllegalArgumentException.class, () ->
+                new StringPropertyConfig.Builder("subject").setTokenizerType(4).build());
+        assertThrows(IllegalArgumentException.class, () ->
+                new StringPropertyConfig.Builder("subject").setTokenizerType(-1).build());
+    }
+
+    @Test
+    public void testStringPropertyConfig_setJoinableValueType() {
+        assertThrows(IllegalArgumentException.class, () ->
+                new StringPropertyConfig.Builder("qualifiedId").setJoinableValueType(5).build());
+        assertThrows(IllegalArgumentException.class, () ->
+                new StringPropertyConfig.Builder("qualifiedId").setJoinableValueType(2).build());
+        assertThrows(IllegalArgumentException.class, () ->
+                new StringPropertyConfig.Builder("qualifiedId").setJoinableValueType(-1).build());
+    }
+
+    @Test
+    public void testLongPropertyConfig_setIndexingType() {
+        assertThrows(IllegalArgumentException.class, () ->
+                new LongPropertyConfig.Builder("timestamp").setIndexingType(5).build());
+        assertThrows(IllegalArgumentException.class, () ->
+                new LongPropertyConfig.Builder("timestamp").setIndexingType(2).build());
+        assertThrows(IllegalArgumentException.class, () ->
+                new LongPropertyConfig.Builder("timestamp").setIndexingType(-1).build());
     }
 }

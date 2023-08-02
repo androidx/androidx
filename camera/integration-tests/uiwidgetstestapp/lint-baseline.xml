@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.1.0-beta02" type="baseline" client="gradle" dependencies="false" name="AGP (8.1.0-beta02)" variant="all" version="8.1.0-beta02">
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method ImageCaptureScreen has parameter &apos;onLinearZoomChange&apos; with type Function1&lt;? super Float, Unit>."
+        errorLine1="    onLinearZoomChange: (Float) -> Unit,"
+        errorLine2="                        ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/uiwidgets/compose/ui/screen/imagecapture/ImageCaptureScreen.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method VideoCaptureScreen has parameter &apos;onLinearZoomChange&apos; with type Function1&lt;? super Float, Unit>."
+        errorLine1="    onLinearZoomChange: (Float) -> Unit,"
+        errorLine2="                        ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/uiwidgets/compose/ui/screen/videocapture/VideoCaptureScreen.kt"/>
+    </issue>
+
+</issues>

@@ -73,10 +73,10 @@ public interface Node<I, O> {
      * <p>Releases all the resources allocated by the node, including threads, buffers, GL context
      * etc. Once released, the node can never be brought back to life.
      *
-     * <p>This method is usually called during {@link UseCase#onDetached()}. It also can be called
-     * outside of {@link UseCase#onDetached()}. If the pipeline is rebuilt on-the-fly, e.g.
+     * <p>This method is usually called during {@link UseCase#onUnbind()}. It also can be called
+     * outside of {@link UseCase#onUnbind()}. If the pipeline is rebuilt on-the-fly, e.g.
      * target rotation is changed by the app, then the node should be released right away. On the
-     * other hand, it's also possible to not release even after {@link UseCase#onDetached()}, if the
+     * other hand, it's also possible to not release even after {@link UseCase#onUnbind()}, if the
      * node needs to be kept alive across lifecycles. For example, for front/back camera switching
      * during video recording.
      */

@@ -20,9 +20,7 @@ import android.app.Service
 import android.content.Intent
 import android.os.IBinder
 
-/**
- * Test WatchFaceControlService which has obsolete XML version in manifest.
- */
+/** Test WatchFaceControlService which has obsolete XML version in manifest. */
 public class OutdatedWatchFaceControlTestService : Service() {
     override fun onBind(p0: Intent?): IBinder? {
         // It is not assumed to be called

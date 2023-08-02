@@ -33,9 +33,8 @@ dependencies {
 }
 
 androidx {
-    name = "AndroidX Wear Watchface Samples"
+    name = "Wear Watchface Samples"
     type = LibraryType.SAMPLES
-    mavenGroup = LibraryGroups.WEAR_WATCHFACE
     inceptionYear = "2020"
     description = "Contains the sample code for the Androidx Wear Watchface library"
 }
@@ -45,11 +44,4 @@ android {
         minSdkVersion 26
     }
     namespace "androidx.wear.watchface.samples"
-}
-
-// Allow usage of Kotlin's @OptIn.
-tasks.withType(KotlinCompile).configureEach {
-    kotlinOptions {
-        freeCompilerArgs += ["-opt-in=kotlin.RequiresOptIn"]
-    }
 }

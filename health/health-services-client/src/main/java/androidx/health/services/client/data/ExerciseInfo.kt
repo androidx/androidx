@@ -16,7 +16,6 @@
 
 package androidx.health.services.client.data
 
-import android.os.Parcelable
 import androidx.health.services.client.data.ExerciseTrackedStatus.Companion.toProto
 import androidx.health.services.client.proto.DataProto
 
@@ -31,7 +30,7 @@ public class ExerciseInfo(
      * active exercise.
      */
     public val exerciseType: ExerciseType,
-) : ProtoParcelable<DataProto.ExerciseInfo>() {
+) {
 
     internal constructor(
         proto: DataProto.ExerciseInfo
@@ -40,18 +39,9 @@ public class ExerciseInfo(
         ExerciseType.fromProto(proto.exerciseType)
     )
 
-    /** @hide */
-    override val proto: DataProto.ExerciseInfo =
+    internal val proto: DataProto.ExerciseInfo =
         DataProto.ExerciseInfo.newBuilder()
             .setExerciseTrackedStatus(exerciseTrackedStatus.toProto())
             .setExerciseType(exerciseType.toProto())
             .build()
-
-    public companion object {
-        @JvmField
-        public val CREATOR: Parcelable.Creator<ExerciseInfo> = newCreator { bytes ->
-            val proto = DataProto.ExerciseInfo.parseFrom(bytes)
-            ExerciseInfo(proto)
-        }
-    }
 }

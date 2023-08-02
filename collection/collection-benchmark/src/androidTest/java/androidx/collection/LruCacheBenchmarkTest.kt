@@ -17,47 +17,27 @@
 package androidx.collection
 
 import androidx.benchmark.junit4.BenchmarkRule
-import androidx.benchmark.junit4.measureRepeated
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 import org.junit.runners.Parameterized.Parameters
 
-private class MyCache(maxSize: Int) : LruCache<Int, String>(maxSize) {
-    override fun create(key: Int): String? = "value of $key"
-}
-
 @RunWith(Parameterized::class)
-class LruCacheBenchmarkTest(val size: Int) {
-
-    val keyList = (0 until size).toList()
+class LruCacheBenchmarkTest(private val size: Int) {
+    private val keyList = createKeyList(size)
 
     @get:Rule
     val benchmark = BenchmarkRule()
 
     @Test
     fun createThenFetchWithAllHits() {
-        benchmark.measureRepeated {
-            val cache = MyCache(size)
-            for (e in keyList) {
-                cache.get(e)
-            }
-
-            for (e in keyList) {
-                cache.get(e)
-            }
-        }
+        benchmark.runCollectionBenchmark(LruCacheCreateThenFetchWithAllHitsBenchmark(keyList, size))
     }
 
     @Test
     fun allMisses() {
-        benchmark.measureRepeated {
-            val cache = MyCache(size / 2)
-            for (e in keyList) {
-                cache.get(e)
-            }
-        }
+        benchmark.runCollectionBenchmark(LruCacheAllMissesBenchmark(keyList, size))
     }
 
     companion object {

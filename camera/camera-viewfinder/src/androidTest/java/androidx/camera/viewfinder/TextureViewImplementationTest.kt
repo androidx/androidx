@@ -56,7 +56,9 @@ class TextureViewImplementationTest {
                 val cameraId = cameraIds[0]
                 val characteristics = cameraManager.getCameraCharacteristics(cameraId)
                 _surfaceRequest =
-                    ViewfinderSurfaceRequest(ANY_SIZE, characteristics)
+                    ViewfinderSurfaceRequest.Builder(ANY_SIZE)
+                        .populateFromCharacteristics(characteristics)
+                        .build()
             }
             return _surfaceRequest!!
         }

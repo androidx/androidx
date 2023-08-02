@@ -34,11 +34,8 @@ class NavUtilsTest {
 
     @Suppress("DEPRECATION")
     @get:Rule
-    val activityRule = androidx.test.rule.ActivityTestRule(
-        NavUtilsActivity::class.java,
-        false,
-        false
-    )
+    val activityRule =
+        androidx.test.rule.ActivityTestRule(NavUtilsActivity::class.java, false, false)
 
     @Test
     fun testGetParentActivityName() {
@@ -49,30 +46,26 @@ class NavUtilsTest {
 
     @Test
     fun testGetParentActivityNameWithAlias() {
-        val aliasComponentName = ComponentName(
-            InstrumentationRegistry.getInstrumentation().context,
-            "androidx.core.app.NavUtilsAliasActivity"
-        )
-        val activity = activityRule.launchActivity(
-            Intent().apply {
-                component = aliasComponentName
-            }
-        )
+        val aliasComponentName =
+            ComponentName(
+                InstrumentationRegistry.getInstrumentation().context,
+                "androidx.core.app.NavUtilsAliasActivity"
+            )
+        val activity =
+            activityRule.launchActivity(Intent().apply { component = aliasComponentName })
         assertThat(NavUtils.getParentActivityName(activity))
             .isEqualTo(NavUtilsParentActivity::class.java.name)
     }
 
     @Test
     fun testGetParentActivityNameWithDisabledAlias() {
-        val aliasComponentName = ComponentName(
-            InstrumentationRegistry.getInstrumentation().context,
-            "androidx.core.app.NavUtilsAliasActivity"
-        )
-        val activity = activityRule.launchActivity(
-            Intent().apply {
-                component = aliasComponentName
-            }
-        )
+        val aliasComponentName =
+            ComponentName(
+                InstrumentationRegistry.getInstrumentation().context,
+                "androidx.core.app.NavUtilsAliasActivity"
+            )
+        val activity =
+            activityRule.launchActivity(Intent().apply { component = aliasComponentName })
         val packageManager = activity.packageManager
         packageManager.setComponentEnabledSetting(
             aliasComponentName,

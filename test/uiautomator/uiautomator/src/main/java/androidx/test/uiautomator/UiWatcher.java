@@ -22,7 +22,6 @@ package androidx.test.uiautomator;
  * invoke checkForCondition() only when a regular API call is in retry mode because it is unable
  * to locate its selector yet. Only during this time, the watchers are invoked to check if there is
  * something else unexpected on the screen.
- * @since API Level 16
  */
 public interface UiWatcher {
 
@@ -43,7 +42,6 @@ public interface UiWatcher {
      * currently under test.
      *
      * @return true to indicate a matched condition or false for nothing was matched
-     * @since API Level 16
      */
-    public boolean checkForCondition();
+    boolean checkForCondition();
 }

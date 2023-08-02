@@ -17,7 +17,9 @@
 package androidx.compose.material
 
 import android.os.Build
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -25,6 +27,10 @@ import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -49,8 +55,10 @@ import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertHasClickAction
 import androidx.compose.ui.test.assertHeightIsAtLeast
 import androidx.compose.ui.test.assertHeightIsEqualTo
+import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.assertLeftPositionInRootIsEqualTo
 import androidx.compose.ui.test.assertTouchHeightIsEqualTo
 import androidx.compose.ui.test.assertTouchWidthIsEqualTo
 import androidx.compose.ui.test.assertWidthIsEqualTo
@@ -59,6 +67,7 @@ import androidx.compose.ui.test.click
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.text.TextStyle
@@ -119,6 +128,27 @@ class ChipTest {
     }
 
     @Test
+    fun disabledSemantics_filterChip() {
+        rule.setMaterialContent {
+            Box {
+                FilterChip(
+                    selected = true,
+                    modifier = Modifier.testTag(TestChipTag),
+                    onClick = {},
+                    enabled = false
+                ) {
+                    Text(TestChipTag)
+                }
+            }
+        }
+
+        rule.onNodeWithTag(TestChipTag)
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Checkbox))
+            .assertIsNotEnabled()
+            .assertHasClickAction()
+    }
+
+    @Test
     fun onClick() {
         var counter = 0
         val onClick: () -> Unit = { ++counter }
@@ -157,6 +187,32 @@ class ChipTest {
         }
         rule.onNodeWithTag(TestChipTag)
             // Confirm the chip starts off enabled, with a click action
+            .assertHasClickAction()
+            .assertIsEnabled()
+            .performClick()
+            // Then confirm it's disabled with click action after clicking it
+            .assertHasClickAction()
+            .assertIsNotEnabled()
+    }
+
+    @Test
+    fun canBeDisabled_filterChip() {
+        rule.setMaterialContent {
+            var enabled by remember { mutableStateOf(true) }
+            val onClick = { enabled = false }
+            Box {
+                FilterChip(
+                    selected = true,
+                    modifier = Modifier.testTag(TestChipTag),
+                    onClick = onClick,
+                    enabled = enabled
+                ) {
+                    Text("Hello")
+                }
+            }
+        }
+        rule.onNodeWithTag(TestChipTag)
+            // Confirm the filter chip starts off enabled, with a click action
             .assertHasClickAction()
             .assertIsEnabled()
             .performClick()
@@ -217,6 +273,44 @@ class ChipTest {
     }
 
     @Test
+    fun horizontalPadding_withCustomWidth_filterChip() {
+        val chipWidth = 200.dp
+        rule.setMaterialContent {
+            FilterChip(
+                selected = false,
+                onClick = {},
+                content = { Text("Test chip") },
+                modifier = Modifier.width(chipWidth),
+                leadingIcon = {
+                    Icon(
+                        Icons.Filled.Settings,
+                        contentDescription = "Localized description",
+                        modifier = Modifier.testTag("Leading").size(ChipDefaults.LeadingIconSize)
+                    )
+                },
+                trailingIcon = {
+                    Icon(
+                        Icons.Filled.Settings,
+                        contentDescription = "Localized description",
+                        modifier = Modifier.testTag("Trailing").size(ChipDefaults.LeadingIconSize)
+                    )
+                },
+            )
+        }
+
+        rule.onNodeWithTag("Leading", useUnmergedTree = true)
+            .assertLeftPositionInRootIsEqualTo(4.dp)
+        rule.onNodeWithText("Test chip", useUnmergedTree = true)
+            .assertLeftPositionInRootIsEqualTo(
+                4.dp + ChipDefaults.LeadingIconSize + 8.dp
+            )
+        rule.onNodeWithTag("Trailing", useUnmergedTree = true)
+            .assertLeftPositionInRootIsEqualTo(
+                chipWidth - 8.dp - ChipDefaults.LeadingIconSize
+            )
+    }
+
+    @Test
     fun contentColorIsCorrect() {
         var onSurface = Color.Unspecified
         var content = Color.Unspecified
@@ -274,14 +368,19 @@ class ChipTest {
                 }
             ) {
                 Spacer(
-                    Modifier.requiredSize(10.dp).onGloballyPositioned {
-                        item1Bounds = it.boundsInRoot()
-                    }
+                    Modifier
+                        .requiredSize(10.dp)
+                        .onGloballyPositioned {
+                            item1Bounds = it.boundsInRoot()
+                        }
                 )
                 Spacer(
-                    Modifier.requiredWidth(10.dp).requiredHeight(5.dp).onGloballyPositioned {
-                        item2Bounds = it.boundsInRoot()
-                    }
+                    Modifier
+                        .requiredWidth(10.dp)
+                        .requiredHeight(5.dp)
+                        .onGloballyPositioned {
+                            item2Bounds = it.boundsInRoot()
+                        }
                 )
             }
         }
@@ -293,12 +392,62 @@ class ChipTest {
     }
 
     @Test
+    fun correctDimensionsInScrollableRow_filterChip() {
+        val labelWidth = 64.dp
+        val horizontalPadding = 12.dp
+        rule.setMaterialContent {
+            Row(Modifier.horizontalScroll(rememberScrollState())) {
+                FilterChip(
+                    selected = false,
+                    onClick = {},
+                    content = { Box(Modifier.width(labelWidth)) },
+                )
+            }
+        }
+
+        rule.onNode(hasClickAction())
+            .assertHeightIsEqualTo(ChipDefaults.MinHeight)
+            .assertWidthIsEqualTo(labelWidth + horizontalPadding * 2)
+    }
+
+    @Test
+    fun longLabelDoesNotHideTrailingIcon_filterChip() {
+        rule.setMaterialContent {
+            FilterChip(
+                selected = false,
+                onClick = {},
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Filled.Settings,
+                        contentDescription = "Localized Description",
+                        modifier = Modifier.size(ChipDefaults.LeadingIconSize)
+                    )
+                },
+                trailingIcon = {
+                    Icon(
+                        imageVector = Icons.Filled.Settings,
+                        contentDescription = "Localized Description",
+                        modifier = Modifier.testTag("Trailing").size(ChipDefaults.LeadingIconSize)
+                    )
+                }
+            ) {
+                Text("Long long long long long long long long long long long long long long" +
+                    "long long long long long long long long long long long long long long long")
+            }
+        }
+
+        rule.onNodeWithTag("Trailing", useUnmergedTree = true).assertIsDisplayed()
+    }
+
+    @Test
     fun clickableInMinimumTouchTarget() {
         var clicked = false
         rule.setMaterialContent {
             Box(Modifier.fillMaxSize()) {
                 Chip(
-                    modifier = Modifier.align(Alignment.Center).testTag(TestChipTag)
+                    modifier = Modifier
+                        .align(Alignment.Center)
+                        .testTag(TestChipTag)
                         .requiredSize(10.dp),
                     onClick = { clicked = !clicked }
                 ) {

@@ -37,6 +37,7 @@ dependencies {
     api(libs.kotlinCoroutinesRx2)
     api(libs.rxjava2)
     api(project(":window:window"))
+    implementation("androidx.annotation:annotation:1.5.0")
 
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testRunner)
@@ -49,17 +50,9 @@ dependencies {
 }
 
 androidx {
-    name = "WindowManager RxJava 2"
+    name = "WindowManager RxJava2"
     publish = Publish.SNAPSHOT_AND_RELEASE
     type = LibraryType.PUBLISHED_LIBRARY
-    mavenGroup = LibraryGroups.WINDOW
     inceptionYear = "2021"
     description = "WindowManager RxJava 2"
-}
-
-// Allow usage of Kotlin's @OptIn.
-tasks.withType(KotlinCompile).configureEach {
-    kotlinOptions {
-        freeCompilerArgs += ["-opt-in=kotlin.RequiresOptIn"]
-    }
 }

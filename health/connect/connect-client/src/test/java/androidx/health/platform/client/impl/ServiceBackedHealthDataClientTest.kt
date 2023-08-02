@@ -15,6 +15,12 @@
  */
 package androidx.health.platform.client.impl
 
+import android.app.ActivityManager
+import android.app.ActivityManager.RunningAppProcessInfo.IMPORTANCE_CACHED
+import android.app.ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND
+import android.app.ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND_SERVICE
+import android.app.ActivityManager.RunningAppProcessInfo.IMPORTANCE_GONE
+import android.app.ActivityManager.RunningAppProcessInfo.IMPORTANCE_VISIBLE
 import android.app.Application
 import android.content.ComponentName
 import android.content.Context
@@ -22,6 +28,7 @@ import android.content.Intent
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageInfo
 import android.os.Looper.getMainLooper
+import androidx.health.connect.client.permission.HealthPermission
 import androidx.health.platform.client.impl.ipc.ClientConfiguration
 import androidx.health.platform.client.impl.ipc.internal.ConnectionManager
 import androidx.health.platform.client.impl.testing.FakeHealthDataService
@@ -117,11 +124,61 @@ class ServiceBackedHealthDataClientTest {
     }
 
     @Test
+    fun filterGrantedPermissions_somePermissionsGranted_expectCorrectGrantedList() {
+        val readPermission =
+            PermissionProto.Permission.newBuilder()
+                .setPermission(HealthPermission.READ_HEART_RATE)
+                .build()
+        val writePermission =
+            PermissionProto.Permission.newBuilder()
+                .setPermission(HealthPermission.WRITE_BLOOD_PRESSURE)
+                .build()
+
+        fakeAhpServiceStub.addGrantedPermission(Permission(readPermission))
+        val resultFuture = ahpClient.getGrantedPermissions(setOf(readPermission, writePermission))
+        shadowOf(getMainLooper()).idle()
+
+        val expected = setOf(readPermission)
+        assertSuccess(resultFuture, expected)
+    }
+
+    @Test
     fun revokeAllPermissions_success() {
         val resultFuture: ListenableFuture<Unit> = ahpClient.revokeAllPermissions()
         shadowOf(getMainLooper()).idle()
 
         assertSuccess(resultFuture, Unit)
+    }
+
+    @Test
+    fun apiCall_passRelevantForegroundFlag() {
+        for (importance in
+            setOf(IMPORTANCE_FOREGROUND, IMPORTANCE_FOREGROUND_SERVICE, IMPORTANCE_VISIBLE)) {
+            setApplicationRunningImportance(importance)
+            val resultFuture: ListenableFuture<Unit> = ahpClient.revokeAllPermissions()
+            shadowOf(getMainLooper()).idle()
+            assertSuccess(resultFuture, Unit)
+
+            assertThat(fakeAhpServiceStub.lastRequestContext?.isInForeground).isTrue()
+        }
+
+        for (importance in setOf(IMPORTANCE_GONE, IMPORTANCE_CACHED)) {
+            setApplicationRunningImportance(importance)
+            val resultFuture: ListenableFuture<Unit> = ahpClient.revokeAllPermissions()
+            shadowOf(getMainLooper()).idle()
+            assertSuccess(resultFuture, Unit)
+
+            assertThat(fakeAhpServiceStub.lastRequestContext?.isInForeground).isFalse()
+        }
+    }
+
+    private fun setApplicationRunningImportance(importance: Int) {
+        val activityManager =
+            ApplicationProvider.getApplicationContext<Context>()
+                .getSystemService(ActivityManager::class.java)
+        val runningInfo = ActivityManager.RunningAppProcessInfo()
+        runningInfo.importance = importance
+        shadowOf(activityManager).setProcesses(listOf(runningInfo))
     }
 
     // TODO(b/219327543): Add test cases.

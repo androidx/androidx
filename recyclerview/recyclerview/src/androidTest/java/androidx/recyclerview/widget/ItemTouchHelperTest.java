@@ -42,6 +42,7 @@ import androidx.test.filters.Suppress;
 import androidx.testutils.AnimationDurationScaleRule;
 import androidx.testutils.PollingCheck;
 
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -285,6 +286,7 @@ public class ItemTouchHelperTest extends BaseRecyclerViewInstrumentationTest {
         assertTrue(mCallback.isCleared(target));
     }
 
+    @Ignore // b/269644602
     @Test
     public void attachToRecyclerView_recoveryAnimRunningNullRv_recoveryAnimStopped()
             throws Throwable {

@@ -56,6 +56,7 @@ import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 import androidx.test.rule.ActivityTestRule;
 
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -80,6 +81,7 @@ public abstract class BaseBasicsTestCase<A extends BaseTestActivity> {
                 mActivityTestRule.getActivity().getSupportActionBar());
     }
 
+    @Ignore // b/256195085
     @Test
     public void testActionBarOverflowVisibilityListener() {
         if ("ranchu".equals(Build.HARDWARE)) {

@@ -19,7 +19,6 @@ package androidx.compose.compiler.plugins.kotlin.lower
 
 import androidx.compose.compiler.plugins.kotlin.ComposeFqNames
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
-import org.jetbrains.kotlin.backend.jvm.ir.isInlineParameter
 import org.jetbrains.kotlin.ir.IrElement
 import org.jetbrains.kotlin.ir.declarations.IrConstructor
 import org.jetbrains.kotlin.ir.declarations.IrFunction
@@ -31,9 +30,14 @@ import org.jetbrains.kotlin.ir.expressions.IrFunctionExpression
 import org.jetbrains.kotlin.ir.expressions.IrFunctionReference
 import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin
 import org.jetbrains.kotlin.ir.symbols.IrFunctionSymbol
+import org.jetbrains.kotlin.ir.types.IrType
+import org.jetbrains.kotlin.ir.types.classFqName
+import org.jetbrains.kotlin.ir.types.isNullable
 import org.jetbrains.kotlin.ir.util.constructedClass
 import org.jetbrains.kotlin.ir.util.hasAnnotation
+import org.jetbrains.kotlin.ir.util.isFunction
 import org.jetbrains.kotlin.ir.util.isLambda
+import org.jetbrains.kotlin.ir.util.isSuspendFunction
 import org.jetbrains.kotlin.ir.visitors.IrElementVisitorVoid
 import org.jetbrains.kotlin.ir.visitors.acceptChildrenVoid
 import org.jetbrains.kotlin.ir.visitors.acceptVoid
@@ -61,7 +65,7 @@ class ComposeInlineLambdaLocator(private val context: IrPluginContext) {
                 val parent = declaration.parent as? IrFunction
                 if (parent?.isInlineFunctionCall(context) == true &&
                     declaration.isInlineParameter()) {
-                    declaration.defaultValue?.expression?.unwrapInlineLambda()?.let {
+                    declaration.defaultValue?.expression?.unwrapLambda()?.let {
                         inlineLambdaToParameter[it] = declaration
                     }
                 }
@@ -74,7 +78,7 @@ class ComposeInlineLambdaLocator(private val context: IrPluginContext) {
                     for (parameter in function.valueParameters) {
                         if (parameter.isInlineParameter()) {
                             expression.getValueArgument(parameter.index)
-                                ?.unwrapInlineLambda()
+                                ?.unwrapLambda()
                                 ?.let { inlineLambdaToParameter[it] = parameter }
                         }
                     }
@@ -96,8 +100,8 @@ private fun IrFunction.isInlineArrayConstructor(context: IrPluginContext): Boole
             it in context.irBuiltIns.primitiveArraysToPrimitiveTypes
     }
 
-private fun IrExpression.unwrapInlineLambda(): IrFunctionSymbol? = when {
-    this is IrBlock && origin.isInlinable ->
+fun IrExpression.unwrapLambda(): IrFunctionSymbol? = when {
+    this is IrBlock && origin.isLambdaBlockOrigin ->
         (statements.lastOrNull() as? IrFunctionReference)?.symbol
 
     this is IrFunctionExpression ->
@@ -107,6 +111,21 @@ private fun IrExpression.unwrapInlineLambda(): IrFunctionSymbol? = when {
         null
 }
 
-private val IrStatementOrigin?.isInlinable: Boolean
+private val IrStatementOrigin?.isLambdaBlockOrigin: Boolean
     get() = isLambda || this == IrStatementOrigin.ADAPTED_FUNCTION_REFERENCE ||
         this == IrStatementOrigin.SUSPEND_CONVERSION
+
+// This is copied from JvmIrInlineUtils.kt in the Kotlin compiler, since we
+// need to check for synthetic composable functions.
+private fun IrValueParameter.isInlineParameter(): Boolean =
+    index >= 0 && !isNoinline && (type.isFunction() || type.isSuspendFunction() ||
+        type.isSyntheticComposableFunction()) &&
+        // Parameters with default values are always nullable, so check the expression too.
+        // Note that the frontend has a diagnostic for nullable inline parameters, so actually
+        // making this return `false` requires using `@Suppress`.
+        (!type.isNullable() || defaultValue?.expression?.type?.isNullable() == false)
+
+fun IrType.isSyntheticComposableFunction() =
+    classFqName?.asString()?.startsWith(
+        "androidx.compose.runtime.internal.ComposableFunction"
+    ) == true

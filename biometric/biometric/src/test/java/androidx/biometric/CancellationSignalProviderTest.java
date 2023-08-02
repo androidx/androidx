@@ -47,6 +47,7 @@ public class CancellationSignalProviderTest {
     private CancellationSignalProvider.Injector mFieldMockInjector;
     private CancellationSignalProvider.Injector mNewMockInjector;
 
+    @SuppressWarnings("deprecation") // b/251211046
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);

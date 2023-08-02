@@ -43,7 +43,7 @@ public interface OkioSerializer<T> {
      *  Marshal object to a Sink.
      *
      *  @param t the data to write to output
-     *  @output the BufferedSink to serialize data to
+     *  @param sink the BufferedSink to serialize data to
      */
     public suspend fun writeTo(t: T, sink: BufferedSink)
 }

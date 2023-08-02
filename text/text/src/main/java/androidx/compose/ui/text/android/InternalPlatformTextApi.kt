@@ -25,4 +25,5 @@ package androidx.compose.ui.text.android
     AnnotationTarget.FUNCTION,
     AnnotationTarget.PROPERTY
 )
+@Retention(AnnotationRetention.BINARY)
 annotation class InternalPlatformTextApi

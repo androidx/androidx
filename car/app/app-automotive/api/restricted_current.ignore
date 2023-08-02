@@ -1,0 +1,35 @@
+// Baseline format: 1.0
+BecameUnchecked: androidx.car.app.activity.renderer.surface.LegacySurfacePackage:
+    Removed class androidx.car.app.activity.renderer.surface.LegacySurfacePackage from compatibility checked API surface
+BecameUnchecked: androidx.car.app.activity.renderer.surface.LegacySurfacePackage#LegacySurfacePackage(androidx.car.app.activity.renderer.surface.SurfaceControlCallback):
+    Removed constructor androidx.car.app.activity.renderer.surface.LegacySurfacePackage(androidx.car.app.activity.renderer.surface.SurfaceControlCallback) from compatibility checked API surface
+BecameUnchecked: androidx.car.app.activity.renderer.surface.LegacySurfacePackage#LegacySurfacePackage(androidx.car.app.activity.renderer.surface.SurfaceControlCallback) parameter #0:
+    Removed parameter arg1 in androidx.car.app.activity.renderer.surface.LegacySurfacePackage(androidx.car.app.activity.renderer.surface.SurfaceControlCallback arg1) from compatibility checked API surface
+BecameUnchecked: androidx.car.app.activity.renderer.surface.SurfaceWrapper:
+    Removed class androidx.car.app.activity.renderer.surface.SurfaceWrapper from compatibility checked API surface
+BecameUnchecked: androidx.car.app.activity.renderer.surface.SurfaceWrapper#SurfaceWrapper(android.os.IBinder, int, int, int, int, android.view.Surface):
+    Removed constructor androidx.car.app.activity.renderer.surface.SurfaceWrapper(android.os.IBinder,int,int,int,int,android.view.Surface) from compatibility checked API surface
+BecameUnchecked: androidx.car.app.activity.renderer.surface.SurfaceWrapper#SurfaceWrapper(android.os.IBinder, int, int, int, int, android.view.Surface) parameter #0:
+    Removed parameter arg1 in androidx.car.app.activity.renderer.surface.SurfaceWrapper(android.os.IBinder arg1, int arg2, int arg3, int arg4, int arg5, android.view.Surface arg6) from compatibility checked API surface
+BecameUnchecked: androidx.car.app.activity.renderer.surface.SurfaceWrapper#SurfaceWrapper(android.os.IBinder, int, int, int, int, android.view.Surface) parameter #1:
+    Removed parameter arg2 in androidx.car.app.activity.renderer.surface.SurfaceWrapper(android.os.IBinder arg1, int arg2, int arg3, int arg4, int arg5, android.view.Surface arg6) from compatibility checked API surface
+BecameUnchecked: androidx.car.app.activity.renderer.surface.SurfaceWrapper#SurfaceWrapper(android.os.IBinder, int, int, int, int, android.view.Surface) parameter #2:
+    Removed parameter arg3 in androidx.car.app.activity.renderer.surface.SurfaceWrapper(android.os.IBinder arg1, int arg2, int arg3, int arg4, int arg5, android.view.Surface arg6) from compatibility checked API surface
+BecameUnchecked: androidx.car.app.activity.renderer.surface.SurfaceWrapper#SurfaceWrapper(android.os.IBinder, int, int, int, int, android.view.Surface) parameter #3:
+    Removed parameter arg4 in androidx.car.app.activity.renderer.surface.SurfaceWrapper(android.os.IBinder arg1, int arg2, int arg3, int arg4, int arg5, android.view.Surface arg6) from compatibility checked API surface
+BecameUnchecked: androidx.car.app.activity.renderer.surface.SurfaceWrapper#SurfaceWrapper(android.os.IBinder, int, int, int, int, android.view.Surface) parameter #4:
+    Removed parameter arg5 in androidx.car.app.activity.renderer.surface.SurfaceWrapper(android.os.IBinder arg1, int arg2, int arg3, int arg4, int arg5, android.view.Surface arg6) from compatibility checked API surface
+BecameUnchecked: androidx.car.app.activity.renderer.surface.SurfaceWrapper#SurfaceWrapper(android.os.IBinder, int, int, int, int, android.view.Surface) parameter #5:
+    Removed parameter arg6 in androidx.car.app.activity.renderer.surface.SurfaceWrapper(android.os.IBinder arg1, int arg2, int arg3, int arg4, int arg5, android.view.Surface arg6) from compatibility checked API surface
+BecameUnchecked: androidx.car.app.activity.renderer.surface.SurfaceWrapper#getDensityDpi():
+    Removed method androidx.car.app.activity.renderer.surface.SurfaceWrapper.getDensityDpi() from compatibility checked API surface
+BecameUnchecked: androidx.car.app.activity.renderer.surface.SurfaceWrapper#getDisplayId():
+    Removed method androidx.car.app.activity.renderer.surface.SurfaceWrapper.getDisplayId() from compatibility checked API surface
+BecameUnchecked: androidx.car.app.activity.renderer.surface.SurfaceWrapper#getHeight():
+    Removed method androidx.car.app.activity.renderer.surface.SurfaceWrapper.getHeight() from compatibility checked API surface
+BecameUnchecked: androidx.car.app.activity.renderer.surface.SurfaceWrapper#getHostToken():
+    Removed method androidx.car.app.activity.renderer.surface.SurfaceWrapper.getHostToken() from compatibility checked API surface
+BecameUnchecked: androidx.car.app.activity.renderer.surface.SurfaceWrapper#getSurface():
+    Removed method androidx.car.app.activity.renderer.surface.SurfaceWrapper.getSurface() from compatibility checked API surface
+BecameUnchecked: androidx.car.app.activity.renderer.surface.SurfaceWrapper#getWidth():
+    Removed method androidx.car.app.activity.renderer.surface.SurfaceWrapper.getWidth() from compatibility checked API surface

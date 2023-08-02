@@ -17,6 +17,10 @@
 package androidx.compose.compiler.test
 
 import androidx.testutils.gradle.ProjectSetupRule
+import java.io.File
+import javax.xml.parsers.DocumentBuilderFactory
+import javax.xml.xpath.XPathConstants
+import javax.xml.xpath.XPathFactory
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
 import org.junit.Assert.assertEquals
@@ -26,10 +30,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import java.io.File
-import javax.xml.parsers.DocumentBuilderFactory
-import javax.xml.xpath.XPathConstants
-import javax.xml.xpath.XPathFactory
 
 @RunWith(JUnit4::class)
 class CompilerPluginRuntimeVersionCheckTest {
@@ -122,8 +122,6 @@ class CompilerPluginRuntimeVersionCheckTest {
     }
 
     private fun setupProjectBuildGradle() {
-        val kotlinGradlePlugin =
-            "org.jetbrains.kotlin:kotlin-gradle-plugin:${projectSetup.props.kotlinVersion}"
         val repositoriesBlock = buildString {
             appendLine("repositories {")
             appendLine("maven { url \"${projectSetup.props.tipOfTreeMavenRepoPath}\" }")
@@ -145,7 +143,7 @@ class CompilerPluginRuntimeVersionCheckTest {
                 $repositoriesBlock
                 dependencies {
                     classpath "${projectSetup.props.agpDependency}"
-                    classpath "$kotlinGradlePlugin"
+                    classpath "${projectSetup.props.kgpDependency}"
                 }
             }
 
@@ -168,6 +166,7 @@ class CompilerPluginRuntimeVersionCheckTest {
             apply plugin: "kotlin-android"
 
             android {
+                namespace "androidx.compose.compiler.test"
                 compileSdkVersion ${projectSetup.props.compileSdkVersion}
                 buildToolsVersion "${projectSetup.props.buildToolsVersion}"
                 defaultConfig {
@@ -189,6 +188,14 @@ class CompilerPluginRuntimeVersionCheckTest {
             dependencies {
                 $dependenciesBlock
             }
+
+            tasks.withType(
+                org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+            ).configureEach {
+                kotlinOptions {
+                    jvmTarget = "1.8"
+                }
+            }
             """.trimIndent()
         )
     }
@@ -206,9 +213,7 @@ class CompilerPluginRuntimeVersionCheckTest {
         addFileWithContent(
             "$MAIN_DIR/AndroidManifest.xml",
             """
-            <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-                package="androidx.compose.compiler.test">
-            </manifest>
+            <manifest/>
             """.trimIndent()
         )
     }

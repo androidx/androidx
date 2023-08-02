@@ -33,28 +33,16 @@ dependencies {
   testImplementation(libs.truth)
   testImplementation(libs.kotlinCoroutinesTest)
   testImplementation(project(":lifecycle:lifecycle-runtime-testing"))
-  testImplementation("androidx.arch.core:core-testing:2.1.0")
-
-  constraints {
-    implementation(project(":lifecycle:lifecycle-reactivestreams"))
-  }
+  testImplementation("androidx.arch.core:core-testing:2.2.0")
 }
 
 androidx {
-  name = "Android Lifecycle ReactiveStreams KTX"
+  name = "Lifecycle ReactiveStreams KTX"
   publish = Publish.SNAPSHOT_AND_RELEASE
-  mavenGroup = LibraryGroups.LIFECYCLE
   inceptionYear = "2018"
   description = "Kotlin extensions for Lifecycle ReactiveStreams"
 }
 
 android {
     namespace "androidx.lifecycle.reactivestreams.ktx"
-}
-
-// Allow usage of Kotlin's @OptIn.
-tasks.withType(KotlinCompile).configureEach {
-  kotlinOptions {
-    freeCompilerArgs += ["-opt-in=kotlin.RequiresOptIn"]
-  }
 }

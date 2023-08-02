@@ -22,6 +22,7 @@ import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.unit.toSize
 import kotlin.math.max
 
 internal class MultiWidgetSelectionDelegate(
@@ -29,6 +30,43 @@ internal class MultiWidgetSelectionDelegate(
     private val coordinatesCallback: () -> LayoutCoordinates?,
     private val layoutResultCallback: () -> TextLayoutResult?
 ) : Selectable {
+
+    private var _previousTextLayoutResult: TextLayoutResult? = null
+
+    // previously calculated `lastVisibleOffset` for the `_previousTextLayoutResult`
+    private var _previousLastVisibleOffset: Int = -1
+
+    /**
+     * TextLayoutResult is not expected to change repeatedly in a BasicText composable. At least
+     * most TextLayoutResult changes would likely affect Selection logic in some way. Therefore,
+     * this value only caches the last visible offset calculation for the latest seen
+     * TextLayoutResult instance. Object equality check is not worth the extra calculation as
+     * instance check is enough to accomplish whether a text layout has changed in a meaningful
+     * way.
+     */
+    private val TextLayoutResult.lastVisibleOffset: Int
+        @Synchronized get() {
+            if (_previousTextLayoutResult !== this) {
+                val lastVisibleLine = when {
+                    !didOverflowHeight || multiParagraph.didExceedMaxLines -> lineCount - 1
+                    else -> { // size.height < multiParagraph.height
+                        var finalVisibleLine = getLineForVerticalPosition(size.height.toFloat())
+                            .coerceAtMost(lineCount - 1)
+                        // if final visible line's top is equal to or larger than text layout
+                        // result's height, we need to check above lines one by one until we find
+                        // a line that fits in boundaries.
+                        while (
+                            finalVisibleLine >= 0 &&
+                            getLineTop(finalVisibleLine) >= size.height
+                        ) finalVisibleLine--
+                        finalVisibleLine.coerceAtLeast(0)
+                    }
+                }
+                _previousLastVisibleOffset = getLineEnd(lastVisibleLine, true)
+                _previousTextLayoutResult = this
+            }
+            return _previousLastVisibleOffset
+        }
 
     override fun updateSelection(
         startHandlePosition: Offset,
@@ -92,9 +130,11 @@ internal class MultiWidgetSelectionDelegate(
         if (getLayoutCoordinates() == null) return Offset.Zero
 
         val textLayoutResult = layoutResultCallback() ?: return Offset.Zero
+        val offset = if (isStartHandle) selection.start.offset else selection.end.offset
+        val coercedOffset = offset.coerceIn(0, textLayoutResult.lastVisibleOffset)
         return getSelectionHandleCoordinates(
             textLayoutResult = textLayoutResult,
-            offset = if (isStartHandle) selection.start.offset else selection.end.offset,
+            offset = coercedOffset,
             isStart = isStartHandle,
             areHandlesCrossed = selection.handlesCrossed
         )
@@ -122,13 +162,18 @@ internal class MultiWidgetSelectionDelegate(
 
     override fun getRangeOfLineContaining(offset: Int): TextRange {
         val textLayoutResult = layoutResultCallback() ?: return TextRange.Zero
-        val textLength = textLayoutResult.layoutInput.text.length
-        if (textLength < 1) return TextRange.Zero
-        val line = textLayoutResult.getLineForOffset(offset.coerceIn(0, textLength - 1))
+        val visibleTextLength = textLayoutResult.lastVisibleOffset
+        if (visibleTextLength < 1) return TextRange.Zero
+        val line = textLayoutResult.getLineForOffset(offset.coerceIn(0, visibleTextLength - 1))
         return TextRange(
             start = textLayoutResult.getLineStart(line),
             end = textLayoutResult.getLineEnd(line, visibleEnd = true)
         )
+    }
+
+    override fun getLastVisibleOffset(): Int {
+        val textLayoutResult = layoutResultCallback() ?: return 0
+        return textLayoutResult.lastVisibleOffset
     }
 }
 
@@ -158,6 +203,7 @@ internal fun getTextSelectionInfo(
     isStartHandle: Boolean = true
 ): Pair<Selection?, Boolean> {
 
+    val currentHandlePosition = if (isStartHandle) startHandlePosition else endHandlePosition
     val bounds = Rect(
         0.0f,
         0.0f,
@@ -172,8 +218,20 @@ internal fun getTextSelectionInfo(
         return Pair(null, false)
     }
 
+    // check if going horizontally on the same line/Text and getting out of horizontal bounds.
+    // if so reject the change.
+    if (isMovingOutOfBoundsOnTheSameLineInCurrentText(
+            previousHandlePosition,
+            currentHandlePosition,
+            textLayoutResult
+        )
+    ) {
+        return Pair(previousSelection, false)
+    }
+
     val rawStartHandleOffset = getOffsetForPosition(textLayoutResult, bounds, startHandlePosition)
     val rawEndHandleOffset = getOffsetForPosition(textLayoutResult, bounds, endHandlePosition)
+    val rawCurrentHandleOffset = if (isStartHandle) rawStartHandleOffset else rawEndHandleOffset
     val rawPreviousHandleOffset = previousHandlePosition?.let {
         getOffsetForPosition(textLayoutResult, bounds, it)
     } ?: -1
@@ -185,9 +243,26 @@ internal fun getTextSelectionInfo(
         isStartHandle = isStartHandle,
         previousSelectionRange = previousSelection?.toTextRange()
     )
+
+    // Edge case where it isn't clear whether our selection should be reversed,
+    // Our offsets (previous, start, and end) are the same.
+    // If our current position is in bounds,
+    // but our previous position out of bounds and forwards,
+    // then we want to make sure that our selection is reversed
+    // because it is a backwards selection
+    val shouldReverseRange = rawCurrentHandleOffset == rawPreviousHandleOffset &&
+        rawStartHandleOffset == rawEndHandleOffset &&
+        previousHandlePosition != null &&
+        SelectionMode.Vertical.compare(currentHandlePosition, bounds) == 0 &&
+        SelectionMode.Vertical.compare(previousHandlePosition, bounds) > 0
+
+    val selectionRange = adjustedTextRange.run {
+        if (shouldReverseRange) TextRange(max, min) else this
+    }
+
     val newSelection = getAssembledSelectionInfo(
-        newSelectionRange = adjustedTextRange,
-        handlesCrossed = adjustedTextRange.reversed,
+        newSelectionRange = selectionRange,
+        handlesCrossed = selectionRange.reversed,
         selectableId = selectableId,
         textLayoutResult = textLayoutResult
     )
@@ -198,16 +273,47 @@ internal fun getTextSelectionInfo(
     // offset has changed.(Usually this happen because of adjustment like SelectionAdjustment.Word)
     // In this case we also consider the movement being consumed.
     val selectionUpdated = newSelection != previousSelection
-    val handleUpdated = if (isStartHandle) {
-        rawStartHandleOffset != rawPreviousHandleOffset
-    } else {
-        rawEndHandleOffset != rawPreviousHandleOffset
-    }
+    val handleUpdated = rawCurrentHandleOffset != rawPreviousHandleOffset
     val consumed = handleUpdated || selectionUpdated
     return Pair(newSelection, consumed)
 }
 
-internal fun getOffsetForPosition(
+/**
+ * Returns true if the handle is moving horizontally on the same line/text and getting out of
+ * horizontal bounds on left or right.
+ */
+private fun isMovingOutOfBoundsOnTheSameLineInCurrentText(
+    previousHandlePosition: Offset?,
+    currentHandlePosition: Offset,
+    textLayoutResult: TextLayoutResult
+): Boolean {
+    if (previousHandlePosition == null) {
+        return false
+    }
+
+    val bounds = Rect(Offset.Zero, textLayoutResult.size.toSize())
+    if (
+        !bounds.containsInclusive(previousHandlePosition) ||
+        !bounds.containsInclusive(currentHandlePosition)
+    ) {
+        return false
+    }
+
+    val previousHandleLine = textLayoutResult.getLineForVerticalPosition(previousHandlePosition.y)
+    val currentHandleLine = textLayoutResult.getLineForVerticalPosition(currentHandlePosition.y)
+    if (currentHandleLine != previousHandleLine) return false
+
+    val lineRight = textLayoutResult.getLineRight(currentHandleLine)
+    val lineLeft = textLayoutResult.getLineLeft(currentHandleLine)
+
+    // When x is equal to the line sides,
+    // it still can trigger a selection change that we want to avoid
+    // (selecting the whitespace at the ends),
+    // so return true for those as well.
+    return currentHandlePosition.x <= lineLeft || lineRight <= currentHandlePosition.x
+}
+
+private fun getOffsetForPosition(
     textLayoutResult: TextLayoutResult,
     bounds: Rect,
     position: Offset

@@ -1,4 +1,8 @@
 // Baseline format: 1.0
+RemovedClass: androidx.wear.watchface.style.UserStyleSettingKt:
+    Removed class androidx.wear.watchface.style.UserStyleSettingKt
+
+
 RemovedMethod: androidx.wear.watchface.style.UserStyle#toWireFormat():
     Removed method androidx.wear.watchface.style.UserStyle.toWireFormat()
 RemovedMethod: androidx.wear.watchface.style.UserStyleData#UserStyleData(androidx.wear.watchface.style.data.UserStyleWireFormat):
@@ -43,9 +47,3 @@ RemovedMethod: androidx.wear.watchface.style.UserStyleSetting.Option#toWireForma
     Removed method androidx.wear.watchface.style.UserStyleSetting.Option.toWireFormat()
 RemovedMethod: androidx.wear.watchface.style.UserStyleSetting.Option.Companion#createFromWireFormat(androidx.wear.watchface.style.data.OptionWireFormat):
     Removed method androidx.wear.watchface.style.UserStyleSetting.Option.Companion.createFromWireFormat(androidx.wear.watchface.style.data.OptionWireFormat)
-RemovedMethod: androidx.wear.watchface.style.UserStyleSettingKt#getIntRefAttribute(android.content.res.Resources, android.content.res.XmlResourceParser, String):
-    Removed method androidx.wear.watchface.style.UserStyleSettingKt.getIntRefAttribute(android.content.res.Resources,android.content.res.XmlResourceParser,String)
-RemovedMethod: androidx.wear.watchface.style.UserStyleSettingKt#getStringRefAttribute(android.content.res.Resources, android.content.res.XmlResourceParser, String):
-    Removed method androidx.wear.watchface.style.UserStyleSettingKt.getStringRefAttribute(android.content.res.Resources,android.content.res.XmlResourceParser,String)
-RemovedMethod: androidx.wear.watchface.style.UserStyleSettingKt#moveToStart(org.xmlpull.v1.XmlPullParser, String):
-    Removed method androidx.wear.watchface.style.UserStyleSettingKt.moveToStart(org.xmlpull.v1.XmlPullParser,String)

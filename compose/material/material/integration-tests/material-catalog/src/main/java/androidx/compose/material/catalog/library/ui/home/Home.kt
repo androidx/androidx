@@ -17,12 +17,6 @@
 package androidx.compose.material.catalog.library.ui.home
 
 import androidx.compose.foundation.layout.BoxWithConstraints
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.WindowInsetsSides
-import androidx.compose.foundation.layout.asPaddingValues
-import androidx.compose.foundation.layout.only
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
@@ -32,7 +26,6 @@ import androidx.compose.material.catalog.library.model.Theme
 import androidx.compose.material.catalog.library.ui.common.CatalogScaffold
 import androidx.compose.material.catalog.library.ui.component.ComponentItem
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 
@@ -48,7 +41,7 @@ fun Home(
         theme = theme,
         onThemeChange = onThemeChange
     ) { paddingValues ->
-        BoxWithConstraints(modifier = Modifier.padding(paddingValues)) {
+        BoxWithConstraints {
             val cellsCount = maxOf((maxWidth / HomeCellMinSize).toInt(), 1)
             LazyVerticalGrid(
                 // LazyGridScope doesn't expose nColumns from LazyVerticalGrid
@@ -64,9 +57,7 @@ fun Home(
                         )
                     }
                 },
-                contentPadding = WindowInsets.safeDrawing
-                    .only(WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom)
-                    .asPaddingValues()
+                contentPadding = paddingValues
             )
         }
     }

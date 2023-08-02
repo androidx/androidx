@@ -1,0 +1,111 @@
+/*
+ * Copyright (C) 2022 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import androidx.build.LibraryType
+
+plugins {
+    id("AndroidXPlugin")
+    id("com.android.library")
+    id("AndroidXComposePlugin")
+}
+
+androidXMultiplatform {
+    android()
+
+    sourceSets {
+        commonMain {
+            dependencies {
+                implementation(project(":compose:ui:ui"))
+                implementation(project(":compose:ui:ui-unit"))
+                implementation(project(":compose:ui:ui-util"))
+                implementation(project(":compose:foundation:foundation"))
+                implementation(project(":compose:foundation:foundation-layout"))
+                implementation(project(":constraintlayout:constraintlayout-core"))
+            }
+        }
+
+        commonTest {
+            dependencies {
+            }
+        }
+
+        jvmMain {
+            dependencies {
+            }
+        }
+
+
+        androidMain {
+            dependsOn(commonMain)
+            dependsOn(jvmMain)
+            dependencies {
+                api("androidx.annotation:annotation:1.1.0")
+                implementation("androidx.core:core-ktx:1.5.0")
+            }
+        }
+
+        jvmTest {
+            dependencies {
+            }
+        }
+
+        androidAndroidTest {
+            dependsOn(jvmTest)
+            dependencies {
+                implementation(libs.kotlinTest)
+                implementation(libs.testRules)
+                implementation(libs.testRunner)
+                implementation(libs.junit)
+                implementation(libs.truth)
+                implementation(project(":compose:foundation:foundation"))
+                implementation(project(":compose:material:material"))
+                implementation(project(":compose:ui:ui-test-junit4"))
+                implementation(project(":compose:ui:ui-test-manifest"))
+                implementation(project(":compose:test-utils"))
+            }
+        }
+
+
+        // TODO(b/214407011): These dependencies leak into instrumented tests as well. If you
+        //  need to add Robolectric (which must be kept out of androidAndroidTest), use a top
+        //  level dependencies block instead:
+        //  `dependencies { testImplementation(libs.robolectric) }`
+        androidTest {
+            dependsOn(jvmTest)
+            dependencies {
+                implementation(libs.testRules)
+                implementation(libs.testRunner)
+                implementation(libs.junit)
+            }
+        }
+    }
+}
+
+dependencies {
+    lintPublish(project(":constraintlayout:constraintlayout-compose-lint"))
+}
+
+androidx {
+    name = "ConstraintLayout Compose"
+    type = LibraryType.PUBLISHED_LIBRARY
+    mavenVersion = LibraryVersions.CONSTRAINTLAYOUT_COMPOSE
+    inceptionYear = "2022"
+    description = "This library offers a flexible and adaptable way to position and animate widgets in Compose"
+}
+
+android {
+    namespace "androidx.constraintlayout.compose"
+}

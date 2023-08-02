@@ -29,6 +29,7 @@ internal data class View(
     val className: ClassName = ClassName.get(type)
 }
 
+@JvmDefaultWithCompatibility
 internal interface Attribute {
     val name: String
     val namespace: String

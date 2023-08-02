@@ -43,6 +43,9 @@ private val DefaultCacheSize = 8
 /**
  * TextMeasurer is responsible for measuring a text in its entirety so that it's ready to be drawn.
  *
+ * A TextMeasurer instance should be created via `androidx.compose.ui.rememberTextMeasurer` in a
+ * Composable context to use fallback values from default composition locals.
+ *
  * Text layout is a computationally expensive task. Therefore, this class holds an internal LRU
  * Cache of layout input and output pairs to optimize the repeated measure calls that use the same
  * input parameters.
@@ -61,13 +64,13 @@ private val DefaultCacheSize = 8
  *
  * [FontFamily.Resolver], [LayoutDirection], and [Density] are required parameters to construct a
  * text layout but they have no safe fallbacks outside of composition. These parameters must be
- * provided during the construction of a [TextMeasurer] to be used as default values when they
+ * provided during the construction of a TextMeasurer to be used as default values when they
  * are skipped in [TextMeasurer.measure] call.
  *
- * @param fallbackFontFamilyResolver to be used to load fonts given in [TextStyle] and [SpanStyle]s
+ * @param defaultFontFamilyResolver to be used to load fonts given in [TextStyle] and [SpanStyle]s
  * in [AnnotatedString].
- * @param fallbackLayoutDirection layout direction of the measurement environment.
- * @param fallbackDensity density of the measurement environment. Density controls the scaling
+ * @param defaultLayoutDirection layout direction of the measurement environment.
+ * @param defaultDensity density of the measurement environment. Density controls the scaling
  * factor for fonts.
  * @param cacheSize Capacity of internal cache inside TextMeasurer. Size unit is the number of
  * unique text layout inputs that are measured. Value of this parameter highly depends on the
@@ -76,12 +79,11 @@ private val DefaultCacheSize = 8
  * other layout affecting input, cache can be skipped because most repeated measure calls would miss
  * the cache.
  */
-@ExperimentalTextApi
 @Immutable
 class TextMeasurer constructor(
-    private val fallbackFontFamilyResolver: FontFamily.Resolver,
-    private val fallbackDensity: Density,
-    private val fallbackLayoutDirection: LayoutDirection,
+    private val defaultFontFamilyResolver: FontFamily.Resolver,
+    private val defaultDensity: Density,
+    private val defaultLayoutDirection: LayoutDirection,
     private val cacheSize: Int = DefaultCacheSize
 ) {
     private val textLayoutCache: TextLayoutCache? = if (cacheSize > 0) {
@@ -94,12 +96,14 @@ class TextMeasurer constructor(
      * This function supports laying out text that consists of multiple paragraphs, includes
      * placeholders, wraps around soft line breaks, and might overflow outside the specified size.
      *
-     * Most parameters for text affect the final text layout. One pixel change in [size] can
-     * displace a word to another line which would cause a chain reaction that completely changes
-     * how text is rendered. On the other hand, some attributes only play a role when drawing the
-     * created text layout. For example text layout can be created completely in black color but we
-     * can apply [TextStyle.color] later in draw phase. This also means that animating text color
-     * shouldn't invalidate text layout.
+     * Most parameters for text affect the final text layout. One pixel change in [constraints]
+     * boundaries can displace a word to another line which would cause a chain reaction that
+     * completely changes how text is rendered.
+     *
+     * On the other hand, some attributes only play a role when drawing the created text layout.
+     * For example text layout can be created completely in black color but we can apply
+     * [TextStyle.color] later in draw phase. This also means that animating text color shouldn't
+     * invalidate text layout.
      *
      * Thus, [textLayoutCache] helps in the process of converting a set of text layout inputs to
      * a text layout while ignoring non-layout-affecting attributes. Iterative calls that use the
@@ -118,9 +122,10 @@ class TextMeasurer constructor(
      * skipped during layout and replaced with [Placeholder]. It's required that the range of each
      * [Placeholder] doesn't cross paragraph boundary, otherwise [IllegalArgumentException] is
      * thrown.
-     * @param size how wide and tall the text is allowed to be. [IntSize.width]
-     * will define the width of the text. [IntSize.height] helps defining the
-     * number of lines that fit if [softWrap] is enabled and [overflow] is [TextOverflow.Ellipsis].
+     * @param constraints how wide and tall the text is allowed to be. [Constraints.maxWidth]
+     * will define the width of the MultiParagraph. [Constraints.maxHeight] helps defining the
+     * number of lines that fit with ellipsis is true. [Constraints.minWidth] defines the minimum
+     * width the resulting [TextLayoutResult.size] will report. [Constraints.minHeight] is no-op.
      * @param layoutDirection layout direction of the measurement environment. If not specified,
      * defaults to the value that was given during initialization of this [TextMeasurer].
      * @param density density of the measurement environment. If not specified, defaults to
@@ -128,6 +133,8 @@ class TextMeasurer constructor(
      * @param fontFamilyResolver to be used to load the font given in [SpanStyle]s. If not
      * specified, defaults to the value that was given during initialization of this [TextMeasurer].
      * @param skipCache Disables cache optimization if it is passed as true.
+     *
+     * @sample androidx.compose.ui.text.samples.measureTextAnnotatedString
      */
     @Stable
     fun measure(
@@ -137,13 +144,12 @@ class TextMeasurer constructor(
         softWrap: Boolean = true,
         maxLines: Int = Int.MAX_VALUE,
         placeholders: List<AnnotatedString.Range<Placeholder>> = emptyList(),
-        size: IntSize = IntSize(Int.MAX_VALUE, Int.MAX_VALUE),
-        layoutDirection: LayoutDirection = this.fallbackLayoutDirection,
-        density: Density = this.fallbackDensity,
-        fontFamilyResolver: FontFamily.Resolver = this.fallbackFontFamilyResolver,
+        constraints: Constraints = Constraints(),
+        layoutDirection: LayoutDirection = this.defaultLayoutDirection,
+        density: Density = this.defaultDensity,
+        fontFamilyResolver: FontFamily.Resolver = this.defaultFontFamilyResolver,
         skipCache: Boolean = false
     ): TextLayoutResult {
-        val constraints = Constraints(maxWidth = size.width, maxHeight = size.height)
         val requestedTextLayoutInput = TextLayoutInput(
             text,
             style,
@@ -178,6 +184,75 @@ class TextMeasurer constructor(
         }
     }
 
+    /**
+     * Creates a [TextLayoutResult] according to given parameters.
+     *
+     * This function supports laying out text that consists of multiple paragraphs, includes
+     * placeholders, wraps around soft line breaks, and might overflow outside the specified size.
+     *
+     * Most parameters for text affect the final text layout. One pixel change in [constraints]
+     * boundaries can displace a word to another line which would cause a chain reaction that
+     * completely changes how text is rendered.
+     *
+     * On the other hand, some attributes only play a role when drawing the created text layout.
+     * For example text layout can be created completely in black color but we can apply
+     * [TextStyle.color] later in draw phase. This also means that animating text color shouldn't
+     * invalidate text layout.
+     *
+     * Thus, [textLayoutCache] helps in the process of converting a set of text layout inputs to
+     * a text layout while ignoring non-layout-affecting attributes. Iterative calls that use the
+     * same input parameters should benefit from substantial performance improvements.
+     *
+     * @param text the text to be laid out
+     * @param style the [TextStyle] to be applied to the whole text
+     * @param overflow How visual overflow should be handled.
+     * @param softWrap Whether the text should break at soft line breaks. If false, the glyphs in
+     * the text will be positioned as if there was unlimited horizontal space. If [softWrap] is
+     * false, [overflow] and TextAlign may have unexpected effects.
+     * @param maxLines An optional maximum number of lines for the text to span, wrapping if
+     * necessary. If the text exceeds the given number of lines, it will be truncated according to
+     * [overflow] and [softWrap]. If it is not null, then it must be greater than zero.
+     * @param constraints how wide and tall the text is allowed to be. [Constraints.maxWidth]
+     * will define the width of the MultiParagraph. [Constraints.maxHeight] helps defining the
+     * number of lines that fit with ellipsis is true. [Constraints.minWidth] defines the minimum
+     * width the resulting [TextLayoutResult.size] will report. [Constraints.minHeight] is no-op.
+     * @param layoutDirection layout direction of the measurement environment. If not specified,
+     * defaults to the value that was given during initialization of this [TextMeasurer].
+     * @param density density of the measurement environment. If not specified, defaults to
+     * the value that was given during initialization of this [TextMeasurer].
+     * @param fontFamilyResolver to be used to load the font given in [SpanStyle]s. If not
+     * specified, defaults to the value that was given during initialization of this [TextMeasurer].
+     * @param skipCache Disables cache optimization if it is passed as true.
+     *
+     * @sample androidx.compose.ui.text.samples.measureTextStringWithConstraints
+     */
+    @Stable
+    fun measure(
+        text: String,
+        style: TextStyle = TextStyle.Default,
+        overflow: TextOverflow = TextOverflow.Clip,
+        softWrap: Boolean = true,
+        maxLines: Int = Int.MAX_VALUE,
+        constraints: Constraints = Constraints(),
+        layoutDirection: LayoutDirection = this.defaultLayoutDirection,
+        density: Density = this.defaultDensity,
+        fontFamilyResolver: FontFamily.Resolver = this.defaultFontFamilyResolver,
+        skipCache: Boolean = false
+    ): TextLayoutResult {
+        return measure(
+            text = AnnotatedString(text),
+            style = style,
+            overflow = overflow,
+            softWrap = softWrap,
+            maxLines = maxLines,
+            constraints = constraints,
+            layoutDirection = layoutDirection,
+            density = density,
+            fontFamilyResolver = fontFamilyResolver,
+            skipCache = skipCache
+        )
+    }
+
     internal companion object {
         /**
          * Computes the visual position of the glyphs for painting the text.
@@ -198,8 +273,7 @@ class TextMeasurer constructor(
             )
 
             val minWidth = constraints.minWidth
-            val widthMatters = softWrap ||
-                overflow == TextOverflow.Ellipsis
+            val widthMatters = softWrap || overflow == TextOverflow.Ellipsis
             val maxWidth = if (widthMatters && constraints.hasBoundedWidth) {
                 constraints.maxWidth
             } else {
@@ -220,8 +294,7 @@ class TextMeasurer constructor(
             //     AA…
             // Here we assume there won't be any '\n' character when softWrap is false. And make
             // maxLines 1 to implement the similar behavior.
-            val overwriteMaxLines = !softWrap &&
-                overflow == TextOverflow.Ellipsis
+            val overwriteMaxLines = !softWrap && overflow == TextOverflow.Ellipsis
             val finalMaxLines = if (overwriteMaxLines) 1 else maxLines
 
             // if minWidth == maxWidth the width is fixed.

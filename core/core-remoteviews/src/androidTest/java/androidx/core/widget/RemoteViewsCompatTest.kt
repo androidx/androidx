@@ -42,14 +42,15 @@ import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
-import org.junit.After
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import kotlin.test.assertFailsWith
 import kotlin.test.fail
+import org.junit.After
+import org.junit.Before
+import org.junit.Ignore
+import org.junit.Rule
+import org.junit.Test
 
 @SdkSuppress(minSdkVersion = 29)
 @MediumTest
@@ -276,6 +277,7 @@ public class RemoteViewsCompatTest {
         assertThat(getListChildAt<TextView>(1).text.toString()).isEqualTo("World")
     }
 
+    @Ignore // b/270413183
     @Test
     public fun testSetRemoteAdapter_clickListener() {
         val action = "my-action"

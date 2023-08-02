@@ -16,6 +16,8 @@
 
 package androidx.camera.view;
 
+import static java.util.Objects.requireNonNull;
+
 import android.graphics.Bitmap;
 import android.os.Handler;
 import android.util.Size;
@@ -39,7 +41,10 @@ import androidx.core.util.Preconditions;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
+import java.util.Objects;
 import java.util.concurrent.Executor;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 
 /**
  * The SurfaceView implementation for {@link PreviewView}.
@@ -49,6 +54,9 @@ final class SurfaceViewImplementation extends PreviewViewImplementation {
 
     private static final String TAG = "SurfaceViewImpl";
 
+    // Wait for 100ms for a screenshot. It usually takes <10ms on Pixel 6a / OS 14.
+    private static final int SCREENSHOT_TIMEOUT_MILLIS = 100;
+
     // Synthetic Accessor
     @SuppressWarnings("WeakerAccess")
     SurfaceView mSurfaceView;
@@ -56,9 +64,6 @@ final class SurfaceViewImplementation extends PreviewViewImplementation {
     // Synthetic Accessor
     @SuppressWarnings("WeakerAccess")
     final SurfaceRequestCallback mSurfaceRequestCallback = new SurfaceRequestCallback();
-
-    @Nullable
-    private OnSurfaceNotInUseListener mOnSurfaceNotInUseListener;
 
     SurfaceViewImplementation(@NonNull FrameLayout parent,
             @NonNull PreviewTransformation previewTransform) {
@@ -68,13 +73,23 @@ final class SurfaceViewImplementation extends PreviewViewImplementation {
     @Override
     void onSurfaceRequested(@NonNull SurfaceRequest surfaceRequest,
             @Nullable OnSurfaceNotInUseListener onSurfaceNotInUseListener) {
-        mResolution = surfaceRequest.getResolution();
-        mOnSurfaceNotInUseListener = onSurfaceNotInUseListener;
-        initializePreview();
-        surfaceRequest.addRequestCancellationListener(
-                ContextCompat.getMainExecutor(mSurfaceView.getContext()),
-                this::notifySurfaceNotInUse);
-        mSurfaceView.post(() -> mSurfaceRequestCallback.setSurfaceRequest(surfaceRequest));
+        if (!shouldReusePreview(mSurfaceView, mResolution, surfaceRequest)) {
+            mResolution = surfaceRequest.getResolution();
+            initializePreview();
+        }
+        if (onSurfaceNotInUseListener != null) {
+            surfaceRequest.addRequestCancellationListener(
+                    ContextCompat.getMainExecutor(mSurfaceView.getContext()),
+                    onSurfaceNotInUseListener::onSurfaceNotInUse);
+        }
+
+        // Note that View.post will add the Runnable to SurfaceView's message queue. This means
+        // that if this line is called while the SurfaceView is detached from window,
+        // "setSurfaceRequest" will be pending til the SurfaceView is attached to window and its
+        // view is prepared. In other words, "setSurfaceRequest" will happen after
+        // "surfaceCreated" is triggered.
+        mSurfaceView.post(() -> mSurfaceRequestCallback.setSurfaceRequest(surfaceRequest,
+                onSurfaceNotInUseListener));
     }
 
     @Override
@@ -106,14 +121,6 @@ final class SurfaceViewImplementation extends PreviewViewImplementation {
         // Do nothing currently.
     }
 
-    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    void notifySurfaceNotInUse() {
-        if (mOnSurfaceNotInUseListener != null) {
-            mOnSurfaceNotInUseListener.onSurfaceNotInUse();
-            mOnSurfaceNotInUseListener = null;
-        }
-    }
-
     /**
      * Getting a Bitmap from a Surface is achieved using the `PixelCopy#request()` API, which
      * would introduced in API level 24. PreviewView doesn't currently use a SurfaceView on API
@@ -129,6 +136,8 @@ final class SurfaceViewImplementation extends PreviewViewImplementation {
             return null;
         }
 
+        Semaphore screenshotLock = new Semaphore(0);
+
         // Copy display contents of the surfaceView's surface into a Bitmap.
         final Bitmap bitmap = Bitmap.createBitmap(mSurfaceView.getWidth(), mSurfaceView.getHeight(),
                 Bitmap.Config.ARGB_8888);
@@ -139,8 +148,22 @@ final class SurfaceViewImplementation extends PreviewViewImplementation {
                 Logger.e(TAG, "PreviewView.SurfaceViewImplementation.getBitmap() failed with error "
                         + copyResult);
             }
+            screenshotLock.release();
         }, mSurfaceView.getHandler());
 
+        // Blocks the current thread until the screenshot is done or timed out.
+        try {
+            boolean success = screenshotLock.tryAcquire(1, SCREENSHOT_TIMEOUT_MILLIS,
+                    TimeUnit.MILLISECONDS);
+            if (!success) {
+                // Fail silently if we can't take the screenshot in time. It's unlikely to
+                // happen but when it happens, it's better to return a half rendered screenshot
+                // than nothing.
+                Logger.e(TAG, "Timed out while trying to acquire screenshot.");
+            }
+        } catch (InterruptedException e) {
+            Logger.e(TAG, "Interrupted while trying to acquire screenshot.", e);
+        }
         return bitmap;
     }
 
@@ -164,6 +187,12 @@ final class SurfaceViewImplementation extends PreviewViewImplementation {
         @Nullable
         private SurfaceRequest mSurfaceRequest;
 
+        @Nullable
+        private SurfaceRequest mSurfaceRequestToBeInvalidated;
+
+        @Nullable
+        private OnSurfaceNotInUseListener mOnSurfaceNotInUseListener;
+
         // The cached size of the current Surface.
         // Guarded by the UI thread.
         @Nullable
@@ -172,25 +201,41 @@ final class SurfaceViewImplementation extends PreviewViewImplementation {
         // Guarded by the UI thread.
         private boolean mWasSurfaceProvided = false;
 
+        private boolean mNeedToInvalidate = false;
+
         /**
          * Sets the completer and the size. The completer will only be set if the current size of
          * the Surface matches the target size.
          */
         @UiThread
-        void setSurfaceRequest(@NonNull SurfaceRequest surfaceRequest) {
+        void setSurfaceRequest(@NonNull SurfaceRequest surfaceRequest,
+                @Nullable OnSurfaceNotInUseListener onSurfaceNotInUseListener) {
             // Cancel the previous request, if any
             cancelPreviousRequest();
 
-            mSurfaceRequest = surfaceRequest;
-            Size targetSize = surfaceRequest.getResolution();
-            mTargetSize = targetSize;
-            mWasSurfaceProvided = false;
+            if (mNeedToInvalidate) {
+                // In some edge cases, the DeferrableSurface behind the SurfaceRequest is timed-out.
+                // Since we can not tell if the timeout happened, we invalidate the
+                // SurfaceRequest to get a new one when the situation is abnormal. (Normally,
+                // invalidate is called when the surface is recreated.)
+                // It's not ideal to track the "timed out" state of the SurfaceRequest this way.
+                // A better way would be making it part of SurfaceRequest. e.g. something like
+                // SurfaceRequest.isTimedOut().
+                mNeedToInvalidate = false;
+                surfaceRequest.invalidate();
+            } else {
+                mSurfaceRequest = surfaceRequest;
+                mOnSurfaceNotInUseListener = onSurfaceNotInUseListener;
+                Size targetSize = surfaceRequest.getResolution();
+                mTargetSize = targetSize;
+                mWasSurfaceProvided = false;
 
-            if (!tryToComplete()) {
-                // The current size is incorrect. Wait for it to change.
-                Logger.d(TAG, "Wait for new Surface creation.");
-                mSurfaceView.getHolder().setFixedSize(targetSize.getWidth(),
-                        targetSize.getHeight());
+                if (!tryToComplete()) {
+                    // The current size is incorrect. Wait for it to change.
+                    Logger.d(TAG, "Wait for new Surface creation.");
+                    mSurfaceView.getHolder().setFixedSize(targetSize.getWidth(),
+                            targetSize.getHeight());
+                }
             }
         }
 
@@ -204,12 +249,17 @@ final class SurfaceViewImplementation extends PreviewViewImplementation {
             final Surface surface = mSurfaceView.getHolder().getSurface();
             if (canProvideSurface()) {
                 Logger.d(TAG, "Surface set on Preview.");
-                mSurfaceRequest.provideSurface(surface,
+
+                final OnSurfaceNotInUseListener listener = mOnSurfaceNotInUseListener;
+                requireNonNull(mSurfaceRequest).provideSurface(surface,
                         ContextCompat.getMainExecutor(mSurfaceView.getContext()),
                         (result) -> {
                             Logger.d(TAG, "Safe to release surface.");
-                            notifySurfaceNotInUse();
-                        });
+                            if (listener != null) {
+                                listener.onSurfaceNotInUse();
+                            }
+                        }
+                );
                 mWasSurfaceProvided = true;
                 onSurfaceProvided();
                 return true;
@@ -218,8 +268,8 @@ final class SurfaceViewImplementation extends PreviewViewImplementation {
         }
 
         private boolean canProvideSurface() {
-            return !mWasSurfaceProvided && mSurfaceRequest != null && mTargetSize != null
-                    && mTargetSize.equals(mCurrentSurfaceSize);
+            return !mWasSurfaceProvided && mSurfaceRequest != null && Objects.equals(mTargetSize,
+                    mCurrentSurfaceSize);
         }
 
         @UiThread
@@ -233,9 +283,9 @@ final class SurfaceViewImplementation extends PreviewViewImplementation {
 
         @UiThread
         @SuppressWarnings("ObjectToString")
-        private void invalidateSurface() {
+        private void closeSurface() {
             if (mSurfaceRequest != null) {
-                Logger.d(TAG, "Surface invalidated " + mSurfaceRequest);
+                Logger.d(TAG, "Surface closed " + mSurfaceRequest);
                 mSurfaceRequest.getDeferrableSurface().close();
             }
         }
@@ -243,7 +293,14 @@ final class SurfaceViewImplementation extends PreviewViewImplementation {
         @Override
         public void surfaceCreated(@NonNull SurfaceHolder surfaceHolder) {
             Logger.d(TAG, "Surface created.");
-            // No-op. Handling surfaceChanged() is enough because it's always called afterwards.
+
+            // Invalidate the surface request so that the requester is notified that the previously
+            // obtained surface is no longer valid and should request a new one.
+            if (mNeedToInvalidate && mSurfaceRequestToBeInvalidated != null) {
+                mSurfaceRequestToBeInvalidated.invalidate();
+                mSurfaceRequestToBeInvalidated = null;
+                mNeedToInvalidate = false;
+            }
         }
 
         @Override
@@ -258,17 +315,25 @@ final class SurfaceViewImplementation extends PreviewViewImplementation {
         public void surfaceDestroyed(@NonNull SurfaceHolder surfaceHolder) {
             Logger.d(TAG, "Surface destroyed.");
 
-            // If a surface was already provided to the camera, invalidate it so that it requests
-            // a new valid one. Otherwise, cancel the surface request.
+            // If a surface was already provided to the camera, close the surface. Otherwise,
+            // cancel the surface request.
             if (mWasSurfaceProvided) {
-                invalidateSurface();
+                closeSurface();
             } else {
                 cancelPreviousRequest();
+            }
+
+            // The surface is no longer valid. The surface request will be invalidated when the new
+            // surface is ready so that the requester can get the new one.
+            mNeedToInvalidate = true;
+            if (mSurfaceRequest != null) {
+                mSurfaceRequestToBeInvalidated = mSurfaceRequest;
             }
 
             // Reset state
             mWasSurfaceProvided = false;
             mSurfaceRequest = null;
+            mOnSurfaceNotInUseListener = null;
             mCurrentSurfaceSize = null;
             mTargetSize = null;
         }
@@ -300,5 +365,11 @@ final class SurfaceViewImplementation extends PreviewViewImplementation {
                 @NonNull PixelCopy.OnPixelCopyFinishedListener listener, @NonNull Handler handler) {
             PixelCopy.request(source, dest, listener, handler);
         }
+    }
+
+    private static boolean shouldReusePreview(@Nullable SurfaceView surfaceView,
+            @Nullable Size resolution, @NonNull SurfaceRequest surfaceRequest) {
+        boolean isSameResolution = Objects.equals(resolution, surfaceRequest.getResolution());
+        return surfaceView != null && isSameResolution;
     }
 }

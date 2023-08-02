@@ -258,7 +258,7 @@ public class PagerTabStrip extends PagerTitleStrip {
     }
 
     @Override
-    protected void onDraw(Canvas canvas) {
+    protected void onDraw(@NonNull Canvas canvas) {
         super.onDraw(canvas);
 
         final int height = getHeight();

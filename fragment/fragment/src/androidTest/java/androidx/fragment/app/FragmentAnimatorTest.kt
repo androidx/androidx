@@ -22,6 +22,7 @@ import android.animation.AnimatorListenerAdapter
 import android.animation.ValueAnimator
 import android.content.res.Resources
 import android.os.Build
+import android.view.Choreographer
 import android.view.View
 import androidx.annotation.AnimatorRes
 import androidx.annotation.LayoutRes
@@ -35,20 +36,26 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.testutils.waitForExecution
 import com.google.common.truth.Truth.assertThat
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
+import leakcanary.DetectLeaksAfterTestSuccess
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.RuleChain
 import org.junit.runner.RunWith
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
 
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 class FragmentAnimatorTest {
 
     @Suppress("DEPRECATION")
+    val activityRule = androidx.test.rule.ActivityTestRule(FragmentTestActivity::class.java)
+
+    // Detect leaks BEFORE and AFTER activity is destroyed
     @get:Rule
-    var activityRule = androidx.test.rule.ActivityTestRule(FragmentTestActivity::class.java)
+    val ruleChain: RuleChain = RuleChain.outerRule(DetectLeaksAfterTestSuccess())
+        .around(activityRule)
 
     @Before
     fun setupContainer() {
@@ -137,6 +144,7 @@ class FragmentAnimatorTest {
 
     // Ensure that showing and popping a Fragment uses the enter and popExit animators
     // This tests reordered transactions
+    @RequiresApi(16)
     @Test
     fun showAnimatorsReordered() {
         val fm = activityRule.activity.supportFragmentManager
@@ -163,6 +171,16 @@ class FragmentAnimatorTest {
 
         assertEnterPopExit(fragment)
 
+        val layoutCountDownLatch = CountDownLatch(1)
+
+        activityRule.runOnUiThread {
+            Choreographer.getInstance().postFrameCallback {
+                layoutCountDownLatch.countDown()
+            }
+        }
+
+        assertThat(layoutCountDownLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
+
         activityRule.runOnUiThread {
             assertThat(fragment.requireView().visibility).isEqualTo(View.GONE)
         }
@@ -170,6 +188,7 @@ class FragmentAnimatorTest {
 
     // Ensure that showing and popping a Fragment uses the enter and popExit animators
     // This tests ordered transactions
+    @RequiresApi(16)
     @Test
     fun showAnimatorsOrdered() {
         val fm = activityRule.activity.supportFragmentManager
@@ -200,6 +219,15 @@ class FragmentAnimatorTest {
         }
 
         assertEnterPopExit(fragment)
+        val postFrameCountDownLatch = CountDownLatch(1)
+
+        activityRule.runOnUiThread {
+            Choreographer.getInstance().postFrameCallback {
+                postFrameCountDownLatch.countDown()
+            }
+        }
+
+        assertThat(postFrameCountDownLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
 
         activityRule.runOnUiThread {
             assertThat(fragment.requireView().visibility).isEqualTo(View.GONE)

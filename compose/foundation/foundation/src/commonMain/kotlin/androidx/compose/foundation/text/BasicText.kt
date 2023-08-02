@@ -16,23 +16,42 @@
 
 package androidx.compose.foundation.text
 
+import androidx.compose.foundation.fastMapIndexedNotNull
+import androidx.compose.foundation.text.modifiers.SelectableTextAnnotatedStringElement
+import androidx.compose.foundation.text.modifiers.SelectionController
+import androidx.compose.foundation.text.modifiers.TextAnnotatedStringElement
+import androidx.compose.foundation.text.modifiers.TextStringSimpleElement
 import androidx.compose.foundation.text.selection.LocalSelectionRegistrar
 import androidx.compose.foundation.text.selection.LocalTextSelectionColors
 import androidx.compose.foundation.text.selection.SelectionRegistrar
 import androidx.compose.foundation.text.selection.hasSelection
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.currentComposer
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.Saver
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.graphics.ColorProducer
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.Layout
-import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.layout.Measurable
+import androidx.compose.ui.layout.MeasurePolicy
+import androidx.compose.ui.layout.MeasureResult
+import androidx.compose.ui.layout.MeasureScope
+import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.platform.LocalFontFamilyResolver
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.Placeholder
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.util.fastForEach
+import kotlin.math.floor
+import kotlin.math.roundToInt
 
 /**
  * Basic element that displays text and provides semantics / accessibility information.
@@ -52,85 +71,72 @@ import androidx.compose.ui.text.style.TextOverflow
  * [overflow] and TextAlign may have unexpected effects.
  * @param maxLines An optional maximum number of lines for the text to span, wrapping if
  * necessary. If the text exceeds the given number of lines, it will be truncated according to
- * [overflow] and [softWrap]. If it is not null, then it must be greater than zero.
+ * [overflow] and [softWrap]. It is required that 1 <= [minLines] <= [maxLines].
+ * @param minLines The minimum height in terms of minimum number of visible lines. It is required
+ * that 1 <= [minLines] <= [maxLines].
+ * @param color Overrides the text color provided in [style]
  */
-@OptIn(InternalFoundationTextApi::class)
 @Composable
 fun BasicText(
     text: String,
     modifier: Modifier = Modifier,
     style: TextStyle = TextStyle.Default,
-    onTextLayout: (TextLayoutResult) -> Unit = {},
+    onTextLayout: ((TextLayoutResult) -> Unit)? = null,
     overflow: TextOverflow = TextOverflow.Clip,
     softWrap: Boolean = true,
     maxLines: Int = Int.MAX_VALUE,
+    minLines: Int = 1,
+    color: ColorProducer? = null
 ) {
-    // NOTE(text-perf-review): consider precomputing layout here by pushing text to a channel...
-    // something like:
-    // remember(text) { precomputeTextLayout(text) }
-    require(maxLines > 0) { "maxLines should be greater than 0" }
-
-    // selection registrar, if no SelectionContainer is added ambient value will be null
+    validateMinMaxLines(
+        minLines = minLines,
+        maxLines = maxLines
+    )
     val selectionRegistrar = LocalSelectionRegistrar.current
-    val density = LocalDensity.current
-    val fontFamilyResolver = LocalFontFamilyResolver.current
-
-    // The ID used to identify this CoreText. If this CoreText is removed from the composition
-    // tree and then added back, this ID should stay the same.
-    // Notice that we need to update selectable ID when the input text or selectionRegistrar has
-    // been updated.
-    // When text is updated, the selection on this CoreText becomes invalid. It can be treated
-    // as a brand new CoreText.
-    // When SelectionRegistrar is updated, CoreText have to request a new ID to avoid ID collision.
-
-    // NOTE(text-perf-review): potential bug. selectableId is regenerated here whenever text
-    // changes, but it is only saved in the initial creation of TextState.
-    val selectableId = if (selectionRegistrar == null) {
-        SelectionRegistrar.InvalidSelectableId
-    } else {
-        rememberSaveable(text, selectionRegistrar, saver = selectionIdSaver(selectionRegistrar)) {
-            selectionRegistrar.nextSelectableId()
+    val selectionController = if (selectionRegistrar != null) {
+        val backgroundSelectionColor = LocalTextSelectionColors.current.backgroundColor
+        remember(selectionRegistrar, backgroundSelectionColor) {
+            SelectionController(
+                selectionRegistrar,
+                backgroundSelectionColor
+            )
         }
+    } else {
+        null
     }
-
-    val controller = remember {
-        TextController(
-            TextState(
-                TextDelegate(
-                    text = AnnotatedString(text),
-                    style = style,
-                    density = density,
-                    softWrap = softWrap,
-                    fontFamilyResolver = fontFamilyResolver,
-                    overflow = overflow,
-                    maxLines = maxLines,
-                ),
-                selectableId
-            )
-        )
-    }
-    val state = controller.state
-    if (!currentComposer.inserting) {
-        controller.setTextDelegate(
-            updateTextDelegate(
-                current = state.textDelegate,
-                text = text,
+    val finalModifier = if (selectionController != null || onTextLayout != null) {
+        modifier
+            // TODO(b/274781644): Remove this graphicsLayer
+            .graphicsLayer()
+            .textModifier(
+                AnnotatedString(text = text),
                 style = style,
-                density = density,
-                softWrap = softWrap,
-                fontFamilyResolver = fontFamilyResolver,
+                onTextLayout = onTextLayout,
                 overflow = overflow,
+                softWrap = softWrap,
                 maxLines = maxLines,
+                minLines = minLines,
+                fontFamilyResolver = LocalFontFamilyResolver.current,
+                placeholders = null,
+                onPlaceholderLayout = null,
+                selectionController = selectionController,
+                color = color
             )
+    } else {
+        modifier
+            // TODO(b/274781644): Remove this graphicsLayer
+            .graphicsLayer() then TextStringSimpleElement(
+            text = text,
+            style = style,
+            fontFamilyResolver = LocalFontFamilyResolver.current,
+            overflow = overflow,
+            softWrap = softWrap,
+            maxLines = maxLines,
+            minLines = minLines,
+            color = color
         )
     }
-    state.onTextLayout = onTextLayout
-    controller.update(selectionRegistrar)
-    if (selectionRegistrar != null) {
-        state.selectionBackgroundColor = LocalTextSelectionColors.current.backgroundColor
-    }
-
-    Layout(modifier.then(controller.modifiers), controller.measurePolicy)
+    Layout(finalModifier, EmptyMeasurePolicy)
 }
 
 /**
@@ -151,98 +157,180 @@ fun BasicText(
  * [overflow] and TextAlign may have unexpected effects.
  * @param maxLines An optional maximum number of lines for the text to span, wrapping if
  * necessary. If the text exceeds the given number of lines, it will be truncated according to
- * [overflow] and [softWrap]. If it is not null, then it must be greater than zero.
+ * [overflow] and [softWrap]. It is required that 1 <= [minLines] <= [maxLines].
+ * @param minLines The minimum height in terms of minimum number of visible lines. It is required
+ * that 1 <= [minLines] <= [maxLines].
  * @param inlineContent A map store composables that replaces certain ranges of the text. It's
  * used to insert composables into text layout. Check [InlineTextContent] for more information.
+ * @param color Overrides the text color provided in [style]
  */
-@OptIn(InternalFoundationTextApi::class)
 @Composable
 fun BasicText(
     text: AnnotatedString,
     modifier: Modifier = Modifier,
     style: TextStyle = TextStyle.Default,
-    onTextLayout: (TextLayoutResult) -> Unit = {},
+    onTextLayout: ((TextLayoutResult) -> Unit)? = null,
+    overflow: TextOverflow = TextOverflow.Clip,
+    softWrap: Boolean = true,
+    maxLines: Int = Int.MAX_VALUE,
+    minLines: Int = 1,
+    inlineContent: Map<String, InlineTextContent> = mapOf(),
+    color: ColorProducer? = null
+) {
+    validateMinMaxLines(
+        minLines = minLines,
+        maxLines = maxLines
+    )
+    val selectionRegistrar = LocalSelectionRegistrar.current
+    val selectionController = if (selectionRegistrar != null) {
+        val backgroundSelectionColor = LocalTextSelectionColors.current.backgroundColor
+        remember(selectionRegistrar, backgroundSelectionColor) {
+            SelectionController(
+                selectionRegistrar,
+                backgroundSelectionColor
+            )
+        }
+    } else {
+        null
+    }
+    if (!text.hasInlineContent()) {
+        // this is the same as text: String, use all the early exits
+        Layout(
+            modifier = modifier
+                // TODO(b/274781644): Remove this graphicsLayer
+                .graphicsLayer()
+                .textModifier(
+                    text = text,
+                    style = style,
+                    onTextLayout = onTextLayout,
+                    overflow = overflow,
+                    softWrap = softWrap,
+                    maxLines = maxLines,
+                    minLines = minLines,
+                    fontFamilyResolver = LocalFontFamilyResolver.current,
+                    placeholders = null,
+                    onPlaceholderLayout = null,
+                    selectionController = selectionController,
+                    color = color
+                ),
+            EmptyMeasurePolicy
+        )
+    } else {
+        // do the inline content allocs
+        val (placeholders, inlineComposables) = text.resolveInlineContent(
+            inlineContent = inlineContent
+        )
+        val measuredPlaceholderPositions = remember<MutableState<List<Rect?>?>> {
+            mutableStateOf(null)
+        }
+        Layout(
+            content = { InlineChildren(text = text, inlineContents = inlineComposables) },
+            modifier = modifier
+                // TODO(b/274781644): Remove this graphicsLayer
+                .graphicsLayer()
+                .textModifier(
+                text = text,
+                style = style,
+                onTextLayout = onTextLayout,
+                overflow = overflow,
+                softWrap = softWrap,
+                maxLines = maxLines,
+                minLines = minLines,
+                fontFamilyResolver = LocalFontFamilyResolver.current,
+                placeholders = placeholders,
+                onPlaceholderLayout = { measuredPlaceholderPositions.value = it },
+                selectionController = selectionController,
+                color = color
+            ),
+            measurePolicy = TextMeasurePolicy { measuredPlaceholderPositions.value }
+        )
+    }
+}
+
+@Deprecated("Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
+@Composable
+fun BasicText(
+    text: String,
+    modifier: Modifier = Modifier,
+    style: TextStyle = TextStyle.Default,
+    onTextLayout: ((TextLayoutResult) -> Unit)? = null,
+    overflow: TextOverflow = TextOverflow.Clip,
+    softWrap: Boolean = true,
+    maxLines: Int = Int.MAX_VALUE
+) {
+    BasicText(
+        text = text,
+        modifier = modifier,
+        style = style,
+        onTextLayout = onTextLayout,
+        overflow = overflow,
+        softWrap = softWrap,
+        minLines = 1,
+        maxLines = maxLines
+    )
+}
+
+@Deprecated("Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
+@Composable
+fun BasicText(
+    text: AnnotatedString,
+    modifier: Modifier = Modifier,
+    style: TextStyle = TextStyle.Default,
+    onTextLayout: ((TextLayoutResult) -> Unit)? = null,
     overflow: TextOverflow = TextOverflow.Clip,
     softWrap: Boolean = true,
     maxLines: Int = Int.MAX_VALUE,
     inlineContent: Map<String, InlineTextContent> = mapOf(),
 ) {
-    require(maxLines > 0) { "maxLines should be greater than 0" }
-
-    // selection registrar, if no SelectionContainer is added ambient value will be null
-    val selectionRegistrar = LocalSelectionRegistrar.current
-    val density = LocalDensity.current
-    val fontFamilyResolver = LocalFontFamilyResolver.current
-    val selectionBackgroundColor = LocalTextSelectionColors.current.backgroundColor
-
-    val (placeholders, inlineComposables) = resolveInlineContent(text, inlineContent)
-
-    // The ID used to identify this CoreText. If this CoreText is removed from the composition
-    // tree and then added back, this ID should stay the same.
-    // Notice that we need to update selectable ID when the input text or selectionRegistrar has
-    // been updated.
-    // When text is updated, the selection on this CoreText becomes invalid. It can be treated
-    // as a brand new CoreText.
-    // When SelectionRegistrar is updated, CoreText have to request a new ID to avoid ID collision.
-
-    // NOTE(text-perf-review): potential bug. selectableId is regenerated here whenever text
-    // changes, but it is only saved in the initial creation of TextState.
-    val selectableId = if (selectionRegistrar == null) {
-        SelectionRegistrar.InvalidSelectableId
-    } else {
-        rememberSaveable(text, selectionRegistrar, saver = selectionIdSaver(selectionRegistrar)) {
-            selectionRegistrar.nextSelectableId()
-        }
-    }
-
-    val controller = remember {
-        TextController(
-            TextState(
-                TextDelegate(
-                    text = text,
-                    style = style,
-                    density = density,
-                    softWrap = softWrap,
-                    fontFamilyResolver = fontFamilyResolver,
-                    overflow = overflow,
-                    maxLines = maxLines,
-                    placeholders = placeholders
-                ),
-                selectableId
-            )
-        )
-    }
-    val state = controller.state
-    if (!currentComposer.inserting) {
-        controller.setTextDelegate(
-            updateTextDelegate(
-                current = state.textDelegate,
-                text = text,
-                style = style,
-                density = density,
-                softWrap = softWrap,
-                fontFamilyResolver = fontFamilyResolver,
-                overflow = overflow,
-                maxLines = maxLines,
-                placeholders = placeholders,
-            )
-        )
-    }
-    state.onTextLayout = onTextLayout
-    state.selectionBackgroundColor = selectionBackgroundColor
-
-    controller.update(selectionRegistrar)
-
-    Layout(
-        content = if (inlineComposables.isEmpty()) {
-            {}
-        } else {
-            { InlineChildren(text, inlineComposables) }
-        },
-        modifier = modifier.then(controller.modifiers),
-        measurePolicy = controller.measurePolicy
+    BasicText(
+        text = text,
+        modifier = modifier,
+        style = style,
+        onTextLayout = onTextLayout,
+        overflow = overflow,
+        softWrap = softWrap,
+        minLines = 1,
+        maxLines = maxLines,
+        inlineContent = inlineContent
     )
 }
+
+@Deprecated("Maintained for binary compat", level = DeprecationLevel.HIDDEN)
+@Composable
+fun BasicText(
+    text: String,
+    modifier: Modifier = Modifier,
+    style: TextStyle = TextStyle.Default,
+    onTextLayout: ((TextLayoutResult) -> Unit)? = null,
+    overflow: TextOverflow = TextOverflow.Clip,
+    softWrap: Boolean = true,
+    maxLines: Int = Int.MAX_VALUE,
+    minLines: Int = 1
+) = BasicText(text, modifier, style, onTextLayout, overflow, softWrap, maxLines, minLines)
+
+@Deprecated("Maintained for binary compat", level = DeprecationLevel.HIDDEN)
+@Composable
+fun BasicText(
+    text: AnnotatedString,
+    modifier: Modifier = Modifier,
+    style: TextStyle = TextStyle.Default,
+    onTextLayout: ((TextLayoutResult) -> Unit)? = null,
+    overflow: TextOverflow = TextOverflow.Clip,
+    softWrap: Boolean = true,
+    maxLines: Int = Int.MAX_VALUE,
+    minLines: Int = 1,
+    inlineContent: Map<String, InlineTextContent> = mapOf()
+) = BasicText(
+    text = text,
+    modifier = modifier,
+    style = style,
+    onTextLayout = onTextLayout,
+    overflow = overflow,
+    softWrap = softWrap,
+    maxLines = maxLines,
+    minLines = minLines,
+    inlineContent = inlineContent
+)
 
 /**
  * A custom saver that won't save if no selection is active.
@@ -251,3 +339,97 @@ private fun selectionIdSaver(selectionRegistrar: SelectionRegistrar?) = Saver<Lo
     save = { if (selectionRegistrar.hasSelection(it)) it else null },
     restore = { it }
 )
+
+internal expect fun Modifier.textPointerHoverIcon(selectionRegistrar: SelectionRegistrar?): Modifier
+
+private object EmptyMeasurePolicy : MeasurePolicy {
+    private val placementBlock: Placeable.PlacementScope.() -> Unit = {}
+    override fun MeasureScope.measure(
+        measurables: List<Measurable>,
+        constraints: Constraints
+    ): MeasureResult {
+        return layout(constraints.maxWidth, constraints.maxHeight, placementBlock = placementBlock)
+    }
+}
+
+private class TextMeasurePolicy(
+    private val placements: () -> List<Rect?>?
+) : MeasurePolicy {
+    override fun MeasureScope.measure(
+        measurables: List<Measurable>,
+        constraints: Constraints
+    ): MeasureResult {
+        val toPlace = placements()?.fastMapIndexedNotNull { index, rect ->
+            // PlaceholderRect will be null if it's ellipsized. In that case, the corresponding
+            // inline children won't be measured or placed.
+            rect?.let {
+                Pair(
+                    measurables[index].measure(
+                        Constraints(
+                            maxWidth = floor(it.width).toInt(),
+                            maxHeight = floor(it.height).toInt()
+                        )
+                    ),
+                    IntOffset(it.left.roundToInt(), it.top.roundToInt())
+                )
+            }
+        }
+        return layout(
+            constraints.maxWidth,
+            constraints.maxHeight,
+        ) {
+            toPlace?.fastForEach { (placeable, position) ->
+                placeable.place(position)
+            }
+        }
+    }
+}
+
+private fun Modifier.textModifier(
+    text: AnnotatedString,
+    style: TextStyle,
+    onTextLayout: ((TextLayoutResult) -> Unit)?,
+    overflow: TextOverflow,
+    softWrap: Boolean,
+    maxLines: Int,
+    minLines: Int,
+    fontFamilyResolver: FontFamily.Resolver,
+    placeholders: List<AnnotatedString.Range<Placeholder>>?,
+    onPlaceholderLayout: ((List<Rect?>) -> Unit)?,
+    selectionController: SelectionController?,
+    color: ColorProducer?
+): Modifier {
+    if (selectionController == null) {
+        val staticTextModifier = TextAnnotatedStringElement(
+            text,
+            style,
+            fontFamilyResolver,
+            onTextLayout,
+            overflow,
+            softWrap,
+            maxLines,
+            minLines,
+            placeholders,
+            onPlaceholderLayout,
+            null,
+            color
+        )
+        return this then Modifier /* selection position */ then staticTextModifier
+    } else {
+        val selectableTextModifier = SelectableTextAnnotatedStringElement(
+            text,
+            style,
+            fontFamilyResolver,
+            onTextLayout,
+            overflow,
+            softWrap,
+            maxLines,
+            minLines,
+            placeholders,
+            onPlaceholderLayout,
+            selectionController,
+            color
+        )
+        return this then selectionController.modifier then selectableTextModifier
+    }
+}

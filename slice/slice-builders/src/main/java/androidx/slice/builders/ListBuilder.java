@@ -180,7 +180,6 @@ public class ListBuilder extends TemplateSliceBuilder {
     public static final int UNKNOWN_IMAGE = SliceHints.UNKNOWN_IMAGE;
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef({
@@ -197,7 +196,6 @@ public class ListBuilder extends TemplateSliceBuilder {
     public static final long INFINITY = SliceHints.INFINITY;
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef({
@@ -494,7 +492,6 @@ public class ListBuilder extends TemplateSliceBuilder {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     @Override
@@ -511,7 +508,6 @@ public class ListBuilder extends TemplateSliceBuilder {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     @NonNull
@@ -520,7 +516,6 @@ public class ListBuilder extends TemplateSliceBuilder {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef({
@@ -727,7 +722,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         public boolean isTitleItemLoading() {
@@ -735,7 +729,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         public int getTitleImageMode() {
@@ -743,7 +736,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         @Nullable
@@ -752,7 +744,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         public int getValue() {
@@ -760,7 +751,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         public int getMax() {
@@ -768,7 +758,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         public boolean isValueSet() {
@@ -776,7 +765,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         @Nullable
@@ -785,7 +773,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         @Nullable
@@ -794,7 +781,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         @Nullable
@@ -803,7 +789,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         @Nullable
@@ -812,7 +797,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         public int getLayoutDirection() {
@@ -820,7 +804,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         public int getMode() {
@@ -838,7 +821,6 @@ public class ListBuilder extends TemplateSliceBuilder {
     @SuppressLint("MissingBuildMethod")
     public static final class RatingBuilder {
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         public static final int TYPE_ACTION = 2;
@@ -867,7 +849,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         public int getMin() {
@@ -884,7 +865,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         public int getMax() {
@@ -901,7 +881,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         public float getValue() {
@@ -922,7 +901,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         public boolean isValueSet() {
@@ -930,7 +908,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         @Nullable
@@ -939,7 +916,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         @Nullable
@@ -1029,7 +1005,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         @Nullable
@@ -1058,7 +1033,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         @Nullable
@@ -1067,7 +1041,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         @Nullable
@@ -1076,7 +1049,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         @Nullable
@@ -1085,7 +1057,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         public boolean isTitleItemLoading() {
@@ -1093,7 +1064,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         public int getTitleImageMode() {
@@ -1101,7 +1071,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         @Nullable
@@ -1338,7 +1307,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         public boolean isTitleItemLoading() {
@@ -1346,7 +1314,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         public int getTitleImageMode() {
@@ -1354,7 +1321,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         @Nullable
@@ -1363,13 +1329,11 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         public static final int TYPE_ACTION = 2;
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         @NonNull
@@ -1378,7 +1342,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         @NonNull
@@ -1387,7 +1350,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         @NonNull
@@ -1396,7 +1358,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         public int getMin() {
@@ -1404,7 +1365,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         public int getMax() {
@@ -1412,7 +1372,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         public int getValue() {
@@ -1420,7 +1379,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         public boolean isValueSet() {
@@ -1428,7 +1386,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         @Nullable
@@ -1437,7 +1394,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         @Nullable
@@ -1446,7 +1402,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         @Nullable
@@ -1455,7 +1410,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         @Nullable
@@ -1464,7 +1418,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         @Nullable
@@ -1473,7 +1426,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         @Nullable
@@ -1482,7 +1434,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         @Nullable
@@ -1491,7 +1442,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         public int getLayoutDirection() {
@@ -1558,17 +1508,14 @@ public class ListBuilder extends TemplateSliceBuilder {
         private boolean mTitleActionLoading;
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         public static final int TYPE_TIMESTAMP = 0;
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         public static final int TYPE_ICON = 1;
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         public static final int TYPE_ACTION = 2;
@@ -1873,7 +1820,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         @Nullable
@@ -1882,7 +1828,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         public boolean isEndOfSection() {
@@ -1890,7 +1835,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         public boolean hasEndActionOrToggle() {
@@ -1898,7 +1842,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         public boolean hasEndImage() {
@@ -1906,7 +1849,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         public boolean hasDefaultToggle() {
@@ -1914,7 +1856,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         public boolean hasTimestamp() {
@@ -1922,7 +1863,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         public long getTimeStamp() {
@@ -1930,7 +1870,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         public boolean isTitleItemLoading() {
@@ -1938,7 +1877,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         public int getTitleImageMode() {
@@ -1946,7 +1884,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         @Nullable
@@ -1955,7 +1892,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         @Nullable
@@ -1964,7 +1900,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         @Nullable
@@ -1973,7 +1908,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         @Nullable
@@ -1982,7 +1916,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         public boolean isTitleLoading() {
@@ -1990,7 +1923,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         @Nullable
@@ -1999,7 +1931,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         public boolean isSubtitleLoading() {
@@ -2007,7 +1938,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         @Nullable
@@ -2016,7 +1946,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         public int getLayoutDirection() {
@@ -2024,7 +1953,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         @NonNull
@@ -2033,7 +1961,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         @NonNull
@@ -2042,7 +1969,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         @NonNull
@@ -2051,7 +1977,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         public boolean isTitleActionLoading() {
@@ -2103,7 +2028,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         public HeaderBuilder(@NonNull final Uri uri) {
@@ -2227,7 +2151,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         @Nullable
@@ -2236,7 +2159,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         @Nullable
@@ -2245,7 +2167,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         public boolean isTitleLoading() {
@@ -2253,7 +2174,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         @Nullable
@@ -2262,7 +2182,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         public boolean isSubtitleLoading() {
@@ -2270,7 +2189,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         @Nullable
@@ -2279,7 +2197,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         public boolean isSummaryLoading() {
@@ -2287,7 +2204,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         @Nullable
@@ -2296,7 +2212,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         @Nullable
@@ -2305,7 +2220,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         public int getLayoutDirection() {

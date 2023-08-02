@@ -33,6 +33,7 @@ dependencies {
     api(libs.kotlinCoroutinesAndroid)
 
     implementation("androidx.core:core:1.1.0")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.5.1")
     implementation("androidx.lifecycle:lifecycle-common-java8:2.3.1")
 
     androidTestImplementation(project(":wear:watchface:watchface-complications-rendering"))
@@ -50,13 +51,6 @@ dependencies {
     samples(project(":wear:watchface:watchface-samples"))
 }
 
-// Allow usage of Kotlin's @OptIn.
-tasks.withType(KotlinCompile).configureEach {
-    kotlinOptions {
-        freeCompilerArgs += ["-opt-in=kotlin.RequiresOptIn"]
-    }
-}
-
 android {
     defaultConfig {
         minSdkVersion 26
@@ -67,7 +61,6 @@ android {
 androidx {
     name = "Android Wear Watchface Editor"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.WEAR_WATCHFACE
     inceptionYear = "2020"
     description = "Classes for building Android Wear watchface editors"
 }

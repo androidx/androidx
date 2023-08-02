@@ -17,57 +17,69 @@
 package androidx.compose.ui.text.input
 
 import android.content.Context
-import android.os.IBinder
+import android.util.Log
 import android.view.View
+import android.view.inputmethod.CursorAnchorInfo
 import android.view.inputmethod.ExtractedText
+import androidx.core.view.SoftwareKeyboardControllerCompat
 
 internal interface InputMethodManager {
-    fun restartInput(view: View)
+    fun isActive(): Boolean
 
-    fun showSoftInput(view: View)
+    fun restartInput()
 
-    fun hideSoftInputFromWindow(windowToken: IBinder?)
+    fun showSoftInput()
+
+    fun hideSoftInput()
 
     fun updateExtractedText(
-        view: View,
         token: Int,
         extractedText: ExtractedText
     )
 
     fun updateSelection(
-        view: View,
         selectionStart: Int,
         selectionEnd: Int,
         compositionStart: Int,
         compositionEnd: Int
     )
+
+    fun updateCursorAnchorInfo(cursorAnchorInfo: CursorAnchorInfo)
 }
 
 /**
  * Wrapper class to prevent depending on getSystemService and final InputMethodManager.
  * Let's us test TextInputServiceAndroid class.
  */
-internal class InputMethodManagerImpl(context: Context) : InputMethodManager {
+internal class InputMethodManagerImpl(private val view: View) : InputMethodManager {
 
     private val imm by lazy(LazyThreadSafetyMode.NONE) {
-        context.getSystemService(Context.INPUT_METHOD_SERVICE)
+        view.context.getSystemService(Context.INPUT_METHOD_SERVICE)
             as android.view.inputmethod.InputMethodManager
     }
 
-    override fun restartInput(view: View) {
+    private val softwareKeyboardControllerCompat =
+        SoftwareKeyboardControllerCompat(view)
+
+    override fun isActive(): Boolean = imm.isActive(view)
+
+    override fun restartInput() {
         imm.restartInput(view)
     }
 
-    override fun showSoftInput(view: View) {
-        imm.showSoftInput(view, 0)
+    override fun showSoftInput() {
+        if (DEBUG && !view.hasWindowFocus()) {
+            Log.d(TAG, "InputMethodManagerImpl: requesting soft input on non focused field")
+        }
+
+        softwareKeyboardControllerCompat.show()
     }
 
-    override fun hideSoftInputFromWindow(windowToken: IBinder?) {
-        imm.hideSoftInputFromWindow(windowToken, 0)
+    override fun hideSoftInput() {
+        softwareKeyboardControllerCompat.hide()
     }
 
     override fun updateExtractedText(
-        view: View,
         token: Int,
         extractedText: ExtractedText
     ) {
@@ -75,12 +87,15 @@ internal class InputMethodManagerImpl(context: Context) : InputMethodManager {
     }
 
     override fun updateSelection(
-        view: View,
         selectionStart: Int,
         selectionEnd: Int,
         compositionStart: Int,
         compositionEnd: Int
     ) {
         imm.updateSelection(view, selectionStart, selectionEnd, compositionStart, compositionEnd)
+    }
+
+    override fun updateCursorAnchorInfo(cursorAnchorInfo: CursorAnchorInfo) {
+        imm.updateCursorAnchorInfo(view, cursorAnchorInfo)
     }
 }

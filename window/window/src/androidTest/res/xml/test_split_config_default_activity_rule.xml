@@ -18,6 +18,6 @@
     xmlns:window="http://schemas.android.com/apk/res-auto">
     <ActivityRule>
         <ActivityFilter
-            window:activityName="androidx.window.sample.embedding.SplitActivityList"/>
+            window:activityName="SplitActivityList"/>
     </ActivityRule>
 </resources>

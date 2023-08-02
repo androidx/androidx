@@ -19,21 +19,37 @@ package androidx.camera.video
 import android.content.Context
 import android.graphics.SurfaceTexture
 import android.os.Build
+import android.util.Size
 import android.view.Surface
 import androidx.camera.camera2.Camera2Config
 import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraXConfig
+import androidx.camera.core.DynamicRange
+import androidx.camera.core.DynamicRange.BIT_DEPTH_10_BIT
+import androidx.camera.core.DynamicRange.HDR10_10_BIT
+import androidx.camera.core.DynamicRange.HDR_UNSPECIFIED_10_BIT
+import androidx.camera.core.DynamicRange.HLG_10_BIT
+import androidx.camera.core.DynamicRange.SDR
+import androidx.camera.core.Preview
 import androidx.camera.core.SurfaceRequest
+import androidx.camera.core.impl.CameraInfoInternal
 import androidx.camera.core.impl.MutableStateObservable
 import androidx.camera.core.impl.Observable
 import androidx.camera.core.internal.CameraUseCaseAdapter
-import androidx.camera.testing.CameraPipeConfigTestRule
-import androidx.camera.testing.CameraUtil
-import androidx.camera.testing.CameraXUtil
-import androidx.camera.testing.GLUtil
+import androidx.camera.testing.impl.CameraPipeConfigTestRule
+import androidx.camera.testing.impl.CameraUtil
+import androidx.camera.testing.impl.CameraXUtil
+import androidx.camera.testing.impl.EncoderProfilesUtil.RESOLUTION_1080P
+import androidx.camera.testing.impl.EncoderProfilesUtil.RESOLUTION_2160P
+import androidx.camera.testing.impl.EncoderProfilesUtil.RESOLUTION_480P
+import androidx.camera.testing.impl.EncoderProfilesUtil.RESOLUTION_720P
+import androidx.camera.testing.impl.EncoderProfilesUtil.createFakeEncoderProfilesProxy
+import androidx.camera.testing.impl.GLUtil
+import androidx.camera.testing.impl.fakes.FakeVideoEncoderInfo
 import androidx.camera.video.VideoOutput.SourceState
+import androidx.camera.video.internal.VideoValidatedEncoderProfilesProxy
 import androidx.concurrent.futures.await
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
@@ -44,6 +60,7 @@ import com.google.common.truth.Truth.assertWithMessage
 import java.util.concurrent.ArrayBlockingQueue
 import java.util.concurrent.CopyOnWriteArraySet
 import java.util.concurrent.Executors
+import java.util.concurrent.RejectedExecutionException
 import java.util.concurrent.TimeUnit
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.CompletableDeferred
@@ -86,11 +103,9 @@ class VideoCaptureDeviceTest(
     private val cameraConfig: CameraXConfig
 ) {
 
-    // TODO(b/241296464): remove this rule after fixed
     @get:Rule
     val cameraPipeConfigTestRule = CameraPipeConfigTestRule(
         active = implName == CameraPipeConfig::class.simpleName,
-        forAllTests = true,
     )
 
     @get:Rule
@@ -109,9 +124,23 @@ class VideoCaptureDeviceTest(
 
     private val context: Context = ApplicationProvider.getApplicationContext()
     private val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
+    private val supportedResolutionMap = mapOf(
+        SDR to mapOf(
+            Quality.HIGHEST to RESOLUTION_2160P,
+            Quality.UHD to RESOLUTION_2160P,
+            Quality.HD to RESOLUTION_720P,
+            Quality.LOWEST to RESOLUTION_720P
+        ),
+        HDR10_10_BIT to mapOf(
+            Quality.HIGHEST to RESOLUTION_1080P,
+            Quality.FHD to RESOLUTION_1080P,
+            Quality.SD to RESOLUTION_480P,
+            Quality.LOWEST to RESOLUTION_480P
+        )
+    )
 
     private lateinit var cameraUseCaseAdapter: CameraUseCaseAdapter
-    private lateinit var cameraInfo: CameraInfo
+    private lateinit var cameraInfo: CameraInfoInternal
 
     @Before
     fun setUp() {
@@ -121,7 +150,7 @@ class VideoCaptureDeviceTest(
         ).get()
 
         cameraUseCaseAdapter = CameraUtil.createCameraUseCaseAdapter(context, cameraSelector)
-        cameraInfo = cameraUseCaseAdapter.cameraInfo
+        cameraInfo = cameraUseCaseAdapter.cameraInfo as CameraInfoInternal
     }
 
     @After
@@ -143,7 +172,7 @@ class VideoCaptureDeviceTest(
     @Test
     fun addUseCases_canReceiveFrame(): Unit = runBlocking {
         // Arrange.
-        val videoOutput = TestVideoOutput()
+        val videoOutput = createTestVideoOutput()
         val videoCapture = VideoCapture.withOutput(videoOutput)
 
         // Act.
@@ -164,7 +193,7 @@ class VideoCaptureDeviceTest(
     fun changeStreamState_canReceiveFrame(): Unit = runBlocking {
         // Arrange.
         val videoOutput =
-            TestVideoOutput(
+            createTestVideoOutput(
                 streamInfo = StreamInfo.of(
                     StreamInfo.STREAM_ID_ANY,
                     StreamInfo.StreamState.INACTIVE
@@ -204,79 +233,51 @@ class VideoCaptureDeviceTest(
         } ?: fail("Timed out waiting for 5 frame updates. Waited $timeout.")
     }
 
-    @CameraPipeConfigTestRule.CameraPipeExperimental
     @Test
     fun addUseCases_setSupportedQuality_getCorrectResolution() = runBlocking {
-        assumeTrue(QualitySelector.getSupportedQualities(cameraInfo).isNotEmpty())
-        // Cuttlefish API 29 has inconsistent resolution issue. See b/184015059.
-        assumeFalse(Build.MODEL.contains("Cuttlefish") && Build.VERSION.SDK_INT == 29)
+        assumeExtraCroppingQuirk(implName)
 
-        // Arrange.
-        val qualityList = QualitySelector.getSupportedQualities(cameraInfo)
-        qualityList.forEach loop@{ quality ->
-            val targetResolution = QualitySelector.getResolution(cameraInfo, quality)
-            val videoOutput = TestVideoOutput(
-                mediaSpec = MediaSpec.builder().configureVideo {
-                    it.setQualitySelector(QualitySelector.from(quality))
-                }.build()
-            )
-            val videoCapture = VideoCapture.withOutput(videoOutput)
+        val videoCapabilities = createFakeVideoCapabilities(supportedResolutionMap)
+        videoCapabilities.supportedDynamicRanges.forEach { dynamicRange ->
+            assumeTrue(videoCapabilities.getSupportedQualities(dynamicRange).isNotEmpty())
+            // Cuttlefish API 29 has inconsistent resolution issue. See b/184015059.
+            assumeFalse(Build.MODEL.contains("Cuttlefish") && Build.VERSION.SDK_INT == 29)
 
-            // Act.
-            if (!cameraUseCaseAdapter.isUseCasesCombinationSupported(videoCapture)) {
-                return@loop
-            }
-            withContext(Dispatchers.Main) {
-                cameraUseCaseAdapter.addUseCases(listOf(videoCapture))
-            }
-
-            // Assert.
-            val surfaceRequest = videoOutput.nextSurfaceRequest(5, TimeUnit.SECONDS)
-            assertWithMessage("Set quality value by $quality")
-                .that(surfaceRequest.resolution).isEqualTo(targetResolution)
-
-            // Cleanup.
-            withContext(Dispatchers.Main) {
-                cameraUseCaseAdapter.apply {
-                    removeUseCases(listOf(videoCapture))
-                }
-            }
-        }
-    }
-
-    @Test
-    fun addUseCases_setQualityWithRotation_getCorrectResolution() = runBlocking {
-        assumeTrue(QualitySelector.getSupportedQualities(cameraInfo).isNotEmpty())
-        // Cuttlefish API 29 has inconsistent resolution issue. See b/184015059.
-        assumeFalse(Build.MODEL.contains("Cuttlefish") && Build.VERSION.SDK_INT == 29)
-
-        val targetResolution = QualitySelector.getResolution(cameraInfo, Quality.LOWEST)
-
-        arrayOf(
-            Surface.ROTATION_0, Surface.ROTATION_90, Surface.ROTATION_180, Surface.ROTATION_270
-        ).forEach { rotation ->
             // Arrange.
-            val videoOutput = TestVideoOutput(
-                mediaSpec = MediaSpec.builder().configureVideo {
-                    it.setQualitySelector(QualitySelector.from(Quality.LOWEST))
-                }.build()
-            )
-            val videoCapture = VideoCapture.withOutput(videoOutput)
+            val qualityList = videoCapabilities.getSupportedQualities(dynamicRange)
+            qualityList.forEach loop@{ quality ->
+                val profile =
+                    videoCapabilities.getProfiles(quality, dynamicRange)!!.defaultVideoProfile
+                val targetResolution = Size(profile.width, profile.height)
+                val videoOutput = createTestVideoOutput(
+                    mediaSpec = MediaSpec.builder().configureVideo {
+                        it.setQualitySelector(QualitySelector.from(quality))
+                    }.build(),
+                    videoCapabilities = videoCapabilities
+                )
 
-            // Act.
-            withContext(Dispatchers.Main) {
-                cameraUseCaseAdapter.addUseCases(listOf(videoCapture))
-            }
+                // Use custom VideoEncoderInfoFinder which always returns default
+                // FakeVideoEncoderInfo, which tolerance typical resolutions.
+                val videoCapture = VideoCapture.Builder(videoOutput)
+                    .setVideoEncoderInfoFinder { FakeVideoEncoderInfo() }.build()
 
-            // Assert.
-            val surfaceRequest = videoOutput.nextSurfaceRequest(5, TimeUnit.SECONDS)
-            assertWithMessage("Set rotation value by $rotation")
-                .that(surfaceRequest.resolution).isEqualTo(targetResolution)
+                // Act.
+                if (!cameraUseCaseAdapter.isUseCasesCombinationSupported(videoCapture)) {
+                    return@loop
+                }
+                withContext(Dispatchers.Main) {
+                    cameraUseCaseAdapter.addUseCases(listOf(videoCapture))
+                }
 
-            // Cleanup.
-            withContext(Dispatchers.Main) {
-                cameraUseCaseAdapter.apply {
-                    removeUseCases(listOf(videoCapture))
+                // Assert.
+                assertWithMessage("Set quality value by $quality")
+                    .that(videoCapture.attachedSurfaceResolution).isEqualTo(targetResolution)
+
+                // Cleanup.
+                withContext(Dispatchers.Main) {
+                    cameraUseCaseAdapter.apply {
+                        removeUseCases(listOf(videoCapture))
+                    }
                 }
             }
         }
@@ -285,7 +286,7 @@ class VideoCaptureDeviceTest(
     @Test
     fun useCaseCanBeReused(): Unit = runBlocking {
         // Arrange.
-        val videoOutput = TestVideoOutput()
+        val videoOutput = createTestVideoOutput()
         val videoCapture = VideoCapture.withOutput(videoOutput)
 
         // Act.
@@ -323,7 +324,7 @@ class VideoCaptureDeviceTest(
     fun activeStreamingVideoCaptureStaysInactive_afterUnbind(): Unit = runBlocking {
         // Arrange.
         val videoOutput =
-            TestVideoOutput(
+            createTestVideoOutput(
                 streamInfo = StreamInfo.of(1, StreamInfo.StreamState.ACTIVE)
             )
         val videoCapture = VideoCapture.withOutput(videoOutput)
@@ -391,12 +392,191 @@ class VideoCaptureDeviceTest(
         } ?: fail("Timed out waiting for INACTIVE state. Waited $timeout.")
     }
 
-    private class TestVideoOutput(
+    @Test
+    fun defaultDynamicRange_isSdr(): Unit = runBlocking {
+        testDynamicRangeSelection { selectedDynamicRange ->
+            assertThat(selectedDynamicRange).isEqualTo(SDR)
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = 33) // HLG10 only supported on API 33+
+    @Test
+    fun dynamicRangeHlg_selectsHlg(): Unit = runBlocking {
+        assumeTrue(
+            "Device does not support HLG10",
+            cameraInfo.supportedDynamicRanges.contains(HLG_10_BIT)
+        )
+
+        testDynamicRangeSelection(
+            requestedDynamicRange = HLG_10_BIT
+        ) { selectedDynamicRange ->
+            assertThat(selectedDynamicRange).isEqualTo(HLG_10_BIT)
+        }
+    }
+    @SdkSuppress(minSdkVersion = 33) // HLG10 only supported on API 33+
+    @Test
+    fun dynamicRange_isSetInSessionConfig(): Unit = runBlocking {
+        // TODO(b/275632219): Disabled on camera-pipe until automatic dynamic range
+        //  selection is supported
+        assumeTrue(implName != CameraPipeConfig::class.simpleName)
+        assumeTrue(
+            "Device does not support HLG10",
+            cameraInfo.supportedDynamicRanges.contains(HLG_10_BIT)
+        )
+
+        // Arrange.
+        val videoOutput = createTestVideoOutput()
+        val videoCapture = VideoCapture.Builder(videoOutput)
+            .setDynamicRange(HLG_10_BIT)
+            .build()
+
+        // Act.
+        withContext(Dispatchers.Main) {
+            cameraUseCaseAdapter.addUseCases(listOf(videoCapture))
+        }
+
+        // Assert.
+        // Wait for surface request to ensure session config was attached
+        videoOutput.nextSurfaceRequest(5, TimeUnit.SECONDS)
+        val outputConfig = videoCapture.sessionConfig.outputConfigs.first()
+        assertThat(outputConfig.dynamicRange).isEqualTo(HLG_10_BIT)
+    }
+
+    @SdkSuppress(minSdkVersion = 33) // 10-bit HDR only supported on API 33+
+    @Test
+    fun dynamicRangeHdrUnspecified10Bit_selectsHdr10Bit(): Unit = runBlocking {
+        val supported10BitDynamicRanges = cameraInfo.supportedDynamicRanges.filter {
+            it.bitDepth == BIT_DEPTH_10_BIT
+        }
+        assumeFalse(
+            "Device does not support any 10-bit dynamic ranges",
+            supported10BitDynamicRanges.isEmpty()
+        )
+
+        testDynamicRangeSelection(
+            requestedDynamicRange = HDR_UNSPECIFIED_10_BIT
+        ) { selectedDynamicRange ->
+            assertThat(selectedDynamicRange).isIn(supported10BitDynamicRanges)
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = 33) // 10-bit HDR only supported on API 33+
+    @Test
+    fun dynamicRangeHlg_selectsAndAppliesHlgForConcurrentPreview(): Unit = runBlocking {
+        // TODO(b/275632219): Disabled on camera-pipe until automatic dynamic range
+        //  selection is supported
+        assumeTrue(implName != CameraPipeConfig::class.simpleName)
+        assumeTrue(
+            "Device does not support HLG10",
+            cameraInfo.supportedDynamicRanges.contains(HLG_10_BIT)
+        )
+
+        // Arrange.
+        val videoOutput = createTestVideoOutput()
+        val videoCapture = VideoCapture.Builder(videoOutput)
+            .setDynamicRange(HLG_10_BIT)
+            .build()
+        // Preview will derive dynamic range from VideoCapture since it uses
+        // DynamicRange.UNSPECIFIED by default.
+        val preview = Preview.Builder().build()
+
+        // Act.
+        val deferredSurfaceRequest = CompletableDeferred<SurfaceRequest>()
+        withContext(Dispatchers.Main) {
+            // SurfaceProvider will run on main thread
+            preview.setSurfaceProvider {
+                deferredSurfaceRequest.complete(it)
+            }
+            cameraUseCaseAdapter.addUseCases(listOf(videoCapture, preview))
+        }
+
+        // Assert.
+        val timeout = 5.seconds
+        val previewSurfaceRequest = withTimeoutOrNull(timeout) {
+             deferredSurfaceRequest.await()
+        } ?: fail("Timed out waiting for Preview SurfaceRequest. Waited $timeout.")
+        val previewOutputConfig = preview.sessionConfig.outputConfigs.first()
+        assertThat(previewSurfaceRequest.dynamicRange).isEqualTo(HLG_10_BIT)
+        assertThat(previewOutputConfig.dynamicRange).isEqualTo(HLG_10_BIT)
+    }
+
+    private suspend fun testDynamicRangeSelection(
+        requestedDynamicRange: DynamicRange? = null,
+        assertBlock: (selectedDynamicRange: DynamicRange) -> Unit
+    ) {
+        // TODO(b/275632219): Disabled on camera-pipe until automatic dynamic range
+        //  selection is supported
+        assumeTrue(implName != CameraPipeConfig::class.simpleName)
+        // Arrange.
+        val videoOutput = createTestVideoOutput()
+        val videoCapture = VideoCapture.Builder(videoOutput).apply {
+            requestedDynamicRange?.let { setDynamicRange(requestedDynamicRange) }
+        }.build()
+
+        // Act.
+        withContext(Dispatchers.Main) {
+            cameraUseCaseAdapter.addUseCases(listOf(videoCapture))
+        }
+
+        // Assert.
+        val surfaceRequest = videoOutput.nextSurfaceRequest(5, TimeUnit.SECONDS)
+        assertBlock(surfaceRequest.dynamicRange)
+    }
+
+    private fun createTestVideoOutput(
         streamInfo: StreamInfo = StreamInfo.of(
             StreamInfo.STREAM_ID_ANY,
             StreamInfo.StreamState.ACTIVE
         ),
-        mediaSpec: MediaSpec = MediaSpec.builder().build()
+        mediaSpec: MediaSpec = MediaSpec.builder().build(),
+        videoCapabilities: VideoCapabilities = createFakeVideoCapabilities(supportedResolutionMap)
+    ): TestVideoOutput {
+        return TestVideoOutput(streamInfo, mediaSpec, videoCapabilities)
+    }
+
+    /**
+     * Create a fake VideoCapabilities.
+     */
+    private fun createFakeVideoCapabilities(
+        resolutionMap: Map<DynamicRange, Map<Quality, Size>>
+    ): VideoCapabilities {
+        return object : VideoCapabilities {
+
+            override fun getSupportedDynamicRanges(): MutableSet<DynamicRange> {
+                return resolutionMap.keys.toMutableSet()
+            }
+
+            override fun getSupportedQualities(
+                dynamicRange: DynamicRange
+            ): MutableList<Quality> {
+                return resolutionMap[dynamicRange]?.keys
+                    ?.filter { it != Quality.HIGHEST && it != Quality.LOWEST }
+                    ?.toMutableList() ?: mutableListOf()
+            }
+
+            override fun isQualitySupported(
+                quality: Quality,
+                dynamicRange: DynamicRange
+            ): Boolean {
+                return resolutionMap[dynamicRange]?.contains(quality) ?: false
+            }
+
+            override fun getProfiles(
+                quality: Quality,
+                dynamicRange: DynamicRange
+            ): VideoValidatedEncoderProfilesProxy? {
+                val size = resolutionMap[dynamicRange]?.get(quality) ?: return null
+
+                val profiles = createFakeEncoderProfilesProxy(size.width, size.height)
+                return VideoValidatedEncoderProfilesProxy.from(profiles)
+            }
+        }
+    }
+
+    private class TestVideoOutput(
+        streamInfo: StreamInfo,
+        mediaSpec: MediaSpec,
+        private val videoCapabilities: VideoCapabilities
     ) : VideoOutput {
         private val surfaceRequests = ArrayBlockingQueue<SurfaceRequest>(10)
 
@@ -421,6 +601,10 @@ class VideoCaptureDeviceTest(
 
         override fun getMediaSpec(): Observable<MediaSpec> = mediaSpecObservable
 
+        override fun getMediaCapabilities(cameraInfo: CameraInfo): VideoCapabilities {
+            return videoCapabilities
+        }
+
         override fun onSourceStateChanged(sourceState: SourceState) {
             for (listener in sourceStateListeners) {
                 listener(sourceState)
@@ -432,8 +616,6 @@ class VideoCaptureDeviceTest(
         }
 
         fun setStreamInfo(streamInfo: StreamInfo) = streamInfoObservable.setState(streamInfo)
-
-        fun setMediaSpec(mediaSpec: MediaSpec) = mediaSpecObservable.setState(mediaSpec)
     }
 
     private suspend fun SurfaceRequest.provideUpdatingSurface(): StateFlow<Int> {
@@ -448,10 +630,15 @@ class VideoCaptureDeviceTest(
                 attachToGLContext(GLUtil.getTexIdFromGLContext())
                 setOnFrameAvailableListener {
                     frameCountFlow.getAndUpdate { frameCount -> frameCount + 1 }
-                    executor.execute {
-                        if (!isReleased) {
-                            updateTexImage()
+                    try {
+                        executor.execute {
+                            if (!isReleased) {
+                                updateTexImage()
+                            }
                         }
+                    } catch (_: RejectedExecutionException) {
+                        // Ignored since frame updating is no longer needed after surface
+                        // and executor are released.
                     }
                 }
             }

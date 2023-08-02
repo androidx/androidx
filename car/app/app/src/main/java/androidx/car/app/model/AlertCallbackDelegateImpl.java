@@ -23,23 +23,21 @@ import static java.util.Objects.requireNonNull;
 import android.annotation.SuppressLint;
 import android.os.RemoteException;
 
-import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.IOnDoneCallback;
 import androidx.car.app.OnDoneCallback;
+import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.utils.RemoteUtils;
 
 /**
  * Implementation class for {@link AlertCallbackDelegate} to allow IPC for cancel events.
  *
- * @hide
  */
 @RestrictTo(LIBRARY)
+@KeepFields
 public class AlertCallbackDelegateImpl implements AlertCallbackDelegate {
-
-    @Keep
     @Nullable
     private final IAlertCallback mCallback;
 
@@ -78,7 +76,7 @@ public class AlertCallbackDelegateImpl implements AlertCallbackDelegate {
         }
     }
 
-    @Keep // We need to keep these stub for Bundler serialization logic.
+    @KeepFields // We need to keep these stub for Bundler serialization logic.
     private static class AlertCallbackStub extends IAlertCallback.Stub {
         private final AlertCallback mCallback;
 

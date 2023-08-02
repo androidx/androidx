@@ -34,7 +34,6 @@ import androidx.wear.watchface.style.data.UserStyleWireFormat;
 /**
  * Parameters for the various AIDL renderComplicationToBitmap commands.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @VersionedParcelize

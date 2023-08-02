@@ -36,7 +36,8 @@ public final class CamTest {
 
     @Test
     public void xyzFromRgb() {
-        float[] xyz = CamUtils.xyzFromInt(RED);
+        float[] xyz = new float[3];
+        CamUtils.xyzFromInt(RED, xyz);
         float[] expected = new float[]{41.233f, 21.260f, 1.932f};
         assertArrayEquals(expected, xyz, 0.001f);
     }

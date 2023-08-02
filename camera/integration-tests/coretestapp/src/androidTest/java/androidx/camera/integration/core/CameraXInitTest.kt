@@ -23,11 +23,13 @@ import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraXConfig
 import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.camera.testing.impl.LabTestRule
 import androidx.concurrent.futures.await
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
 import androidx.test.rule.GrantPermissionRule
 import com.google.common.truth.Truth.assertThat
+import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import org.junit.After
@@ -37,7 +39,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
-import java.util.concurrent.TimeUnit
 
 @LargeTest
 @RunWith(Parameterized::class)
@@ -57,6 +58,9 @@ class CameraXInitTest(private val implName: String, private val cameraXConfig: C
     @get:Rule
     val permissionRule: GrantPermissionRule =
         GrantPermissionRule.grant(android.Manifest.permission.CAMERA)
+
+    @get:Rule
+    val labTest: LabTestRule = LabTestRule()
 
     private val context = ApplicationProvider.getApplicationContext<Context>()
     private val packageManager = context.packageManager
@@ -88,6 +92,9 @@ class CameraXInitTest(private val implName: String, private val cameraXConfig: C
         }
     }
 
+    // Only test on lab devices because emulator may not have correctly set the matching camera
+    // features and camera list.
+    @LabTestRule.LabTestOnly
     @Test
     fun initOnDevice_hasCamera() {
         ProcessCameraProvider.configureInstance(cameraXConfig)

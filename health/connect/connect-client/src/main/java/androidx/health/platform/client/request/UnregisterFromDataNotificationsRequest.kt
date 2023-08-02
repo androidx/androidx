@@ -20,6 +20,7 @@ import android.os.Parcelable
 import androidx.health.platform.client.impl.data.ProtoParcelable
 import androidx.health.platform.client.proto.RequestProto
 
+/** @suppress */
 class UnregisterFromDataNotificationsRequest(
     override val proto: RequestProto.UnregisterFromDataNotificationsRequest
 ) : ProtoParcelable<RequestProto.UnregisterFromDataNotificationsRequest>() {

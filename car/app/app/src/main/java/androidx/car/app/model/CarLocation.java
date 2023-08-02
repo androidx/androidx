@@ -21,17 +21,16 @@ import static java.util.Objects.requireNonNull;
 
 import android.location.Location;
 
-import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.annotations.CarProtocol;
+import androidx.car.app.annotations.KeepFields;
 
 /** Represents a geographical location with a latitude and a longitude. */
 @CarProtocol
+@KeepFields
 public final class CarLocation {
-    @Keep
     private final double mLat;
-    @Keep
     private final double mLng;
 
     /** Returns a new instance of a {@link CarLocation}. */

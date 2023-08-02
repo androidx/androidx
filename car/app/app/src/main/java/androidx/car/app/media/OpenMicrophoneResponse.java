@@ -21,11 +21,11 @@ import static java.util.Objects.requireNonNull;
 import android.annotation.SuppressLint;
 import android.os.ParcelFileDescriptor;
 
-import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.RequiresCarApi;
+import androidx.car.app.annotations.KeepFields;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -38,12 +38,10 @@ import java.io.InputStream;
  */
 @CarProtocol
 @RequiresCarApi(5)
+@KeepFields
 public final class OpenMicrophoneResponse {
-    @Keep
     @Nullable
     private final CarAudioCallbackDelegate mCarAudioCallbackDelegate;
-
-    @Keep
     @Nullable
     private final ParcelFileDescriptor mCarMicrophoneDescriptor;
 

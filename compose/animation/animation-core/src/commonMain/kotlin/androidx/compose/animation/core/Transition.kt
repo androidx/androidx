@@ -26,6 +26,7 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -38,8 +39,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import kotlin.math.max
-import androidx.compose.animation.core.internal.JvmDefaultWithCompatibility
-import kotlin.jvm.JvmName
 
 /**
  * This sets up a [Transition], and updates it with the target provided by [targetState]. When
@@ -231,8 +230,8 @@ class Transition<S> @PublishedApi internal constructor(
      * @suppress
      */
     @InternalAnimationApi
-    var playTimeNanos by mutableStateOf(0L)
-    private var startTimeNanos by mutableStateOf(AnimationConstants.UnspecifiedTime)
+    var playTimeNanos by mutableLongStateOf(0L)
+    private var startTimeNanos by mutableLongStateOf(AnimationConstants.UnspecifiedTime)
 
     // This gets calculated every time child is updated/added
     internal var updateChildrenNeeded: Boolean by mutableStateOf(true)
@@ -253,7 +252,7 @@ class Transition<S> @PublishedApi internal constructor(
         get() = _animations
 
     // Seeking related
-    /** @suppress **/
+    /** @suppress */
     @InternalAnimationApi
     var isSeeking: Boolean by mutableStateOf(false)
         internal set
@@ -445,6 +444,10 @@ class Transition<S> @PublishedApi internal constructor(
         }
     }
 
+    override fun toString(): String {
+        return animations.fold("Transition animation values: ") { acc, anim -> "$acc$anim, " }
+    }
+
     private fun onChildAnimationUpdated() {
         updateChildrenNeeded = true
         if (isSeeking) {
@@ -495,7 +498,7 @@ class Transition<S> @PublishedApi internal constructor(
             private set
 
         internal var isFinished: Boolean by mutableStateOf(true)
-        private var offsetTimeNanos by mutableStateOf(0L)
+        private var offsetTimeNanos by mutableLongStateOf(0L)
         private var needsReset by mutableStateOf(false)
 
         // Changed during animation, no concerns of rolling back
@@ -564,6 +567,10 @@ class Transition<S> @PublishedApi internal constructor(
 
         internal fun resetAnimation() {
             needsReset = true
+        }
+
+        override fun toString(): String {
+            return "current value: $value, target: $targetValue, spec: $animationSpec"
         }
 
         // This gets called *during* composition

@@ -18,11 +18,13 @@ package androidx.camera.core;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.LensFacingCameraFilter;
+import androidx.core.util.Preconditions;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -39,10 +41,21 @@ import java.util.List;
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class CameraSelector {
 
+    /** A camera on the devices that its lens facing is resolved. */
+    public static final int LENS_FACING_UNKNOWN = -1;
     /** A camera on the device facing the same direction as the device's screen. */
     public static final int LENS_FACING_FRONT = 0;
     /** A camera on the device facing the opposite direction as the device's screen. */
     public static final int LENS_FACING_BACK = 1;
+    /**
+     * An external camera that has no fixed facing relative to the device's screen.
+     *
+     * <p>The behavior of an external camera highly depends on the manufacturer. Currently it's
+     * treated similar to a front facing camera with little verification. So it's considered
+     * experimental and should be used with caution.
+     */
+    @ExperimentalLensFacing
+    public static final int LENS_FACING_EXTERNAL = 2;
 
     /** A static {@link CameraSelector} that selects the default front facing camera. */
     @NonNull
@@ -70,7 +83,6 @@ public final class CameraSelector {
      * @return The first camera filtered.
      * @throws IllegalArgumentException If there's no available camera after filtering or the
      *                                  filtered cameras aren't contained in the input set.
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -127,7 +139,6 @@ public final class CameraSelector {
      * @param cameras The camera set being filtered.
      * @return The remaining set of cameras.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -152,7 +163,6 @@ public final class CameraSelector {
     /**
      * Gets the set of {@link CameraFilter} assigned to this camera selector.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -168,7 +178,6 @@ public final class CameraSelector {
      * @throws IllegalStateException if a single lens facing cannot be resolved, such as if
      *                               multiple conflicting lens facing requirements exist in this
      *                               camera selector.
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -208,14 +217,22 @@ public final class CameraSelector {
         /**
          * Requires a camera with the specified lens facing.
          *
-         * <p>Valid values for lens facing are {@link CameraSelector#LENS_FACING_FRONT} and
-         * {@link CameraSelector#LENS_FACING_BACK}.
+         * <p>Valid values for lens facing are {@link CameraSelector#LENS_FACING_FRONT},
+         * {@link CameraSelector#LENS_FACING_BACK} and
+         * {@link CameraSelector#LENS_FACING_EXTERNAL}. However, requiring
+         * {@link CameraSelector#LENS_FACING_EXTERNAL} is currently experimental and may produce
+         * unexpected behaviors.
          *
          * <p>If lens facing is already set, this will add extra requirement for lens facing
          * instead of replacing the previous setting.
+         *
+         * @param lensFacing the lens facing for selecting cameras with.
+         * @return this builder.
          */
         @NonNull
         public Builder requireLensFacing(@LensFacing int lensFacing) {
+            Preconditions.checkState(lensFacing != LENS_FACING_UNKNOWN, "The specified lens "
+                    + "facing is invalid.");
             mCameraFilterSet.add(new LensFacingCameraFilter(lensFacing));
             return this;
         }
@@ -227,6 +244,9 @@ public final class CameraSelector {
          * <p>Multiple filters can be added. All filters will be applied by the order they were
          * added when the {@link CameraSelector} is used, and the first camera output from the
          * filters will be selected.
+         *
+         * @param cameraFilter the {@link CameraFilter} for selecting cameras with.
+         * @return this builder.
          */
         @NonNull
         public Builder addCameraFilter(@NonNull CameraFilter cameraFilter) {
@@ -239,7 +259,6 @@ public final class CameraSelector {
          *
          * @param cameraSelector An existing CameraSelector.
          * @return The new Builder.
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -259,9 +278,9 @@ public final class CameraSelector {
     /**
      * The direction the camera faces relative to device screen.
      *
-     * @hide
      */
-    @IntDef({LENS_FACING_FRONT, LENS_FACING_BACK})
+    @OptIn(markerClass = ExperimentalLensFacing.class)
+    @IntDef({LENS_FACING_UNKNOWN, LENS_FACING_FRONT, LENS_FACING_BACK, LENS_FACING_EXTERNAL})
     @Retention(RetentionPolicy.SOURCE)
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public @interface LensFacing {

@@ -16,38 +16,36 @@
 
 package androidx.appsearch.builtintypes;
 
+import androidx.annotation.IntDef;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
 import androidx.appsearch.annotation.Document;
-import androidx.appsearch.app.AppSearchSchema.StringPropertyConfig;
 import androidx.appsearch.utils.DateTimeFormatValidator;
 import androidx.core.util.Preconditions;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.Calendar;
+import java.util.List;
 
 /**
  * AppSearch document representing an {@link Alarm} entity.
  */
 @Document(name = "builtin:Alarm")
-public final class Alarm {
-    @Document.Namespace
-    private final String mNamespace;
-
-    @Document.Id
-    private final String mId;
-
-    @Document.Score
-    private final int mDocumentScore;
-
-    @Document.CreationTimestampMillis
-    private final long mCreationTimestampMillis;
-
-    @Document.TtlMillis
-    private final long mDocumentTtlMillis;
-
-    @Document.StringProperty(indexingType = StringPropertyConfig.INDEXING_TYPE_PREFIXES)
-    private final String mName;
+public class Alarm extends Thing {
+    /** The device that this {@link Alarm} belongs to. */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @IntDef({COMPUTING_DEVICE_UNKNOWN, COMPUTING_DEVICE_SMART_PHONE, COMPUTING_DEVICE_SMART_WATCH})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface ComputingDevice {}
+    /** The {@link Alarm} belongs to an unknown device. */
+    public static final int COMPUTING_DEVICE_UNKNOWN = 0;
+    /** The {@link Alarm} belongs to a smart phone device. */
+    public static final int COMPUTING_DEVICE_SMART_PHONE = 1;
+    /** The {@link Alarm} belongs to a smart watch device. */
+    public static final int COMPUTING_DEVICE_SMART_WATCH = 2;
 
     @Document.BooleanProperty
     private final boolean mEnabled;
@@ -79,18 +77,21 @@ public final class Alarm {
     @Document.DocumentProperty
     private final AlarmInstance mNextInstance;
 
+    @Document.LongProperty
+    private final int mComputingDevice;
+
     Alarm(@NonNull String namespace, @NonNull String id, int documentScore,
             long creationTimestampMillis, long documentTtlMillis, @Nullable String name,
+            @Nullable List<String> alternateNames, @Nullable String description,
+            @Nullable String image, @Nullable String url,
+            @NonNull List<PotentialAction> potentialActions,
             boolean enabled, @Nullable int[] daysOfWeek, int hour, int minute,
             @Nullable String blackoutPeriodStartDate, @Nullable String blackoutPeriodEndDate,
             @Nullable String ringtone, boolean shouldVibrate,
-            @Nullable AlarmInstance previousInstance, @Nullable AlarmInstance nextInstance) {
-        mNamespace = Preconditions.checkNotNull(namespace);
-        mId = Preconditions.checkNotNull(id);
-        mDocumentScore = documentScore;
-        mCreationTimestampMillis = creationTimestampMillis;
-        mDocumentTtlMillis = documentTtlMillis;
-        mName = name;
+            @Nullable AlarmInstance previousInstance, @Nullable AlarmInstance nextInstance,
+            int computingDevice) {
+        super(namespace, id, documentScore, creationTimestampMillis, documentTtlMillis, name,
+                alternateNames, description, image, url, potentialActions);
         mEnabled = enabled;
         mDaysOfWeek = daysOfWeek;
         mHour = hour;
@@ -101,63 +102,7 @@ public final class Alarm {
         mShouldVibrate = shouldVibrate;
         mPreviousInstance = previousInstance;
         mNextInstance = nextInstance;
-    }
-
-    /** Returns the namespace. */
-    @NonNull
-    public String getNamespace() {
-        return mNamespace;
-    }
-
-    /** Returns the unique identifier. */
-    @NonNull
-    public String getId() {
-        return mId;
-    }
-
-    /**
-     * Returns the user-provided opaque document score of the current AppSearch document, which can
-     * be used for ranking using
-     * {@link androidx.appsearch.app.SearchSpec.RankingStrategy#RANKING_STRATEGY_DOCUMENT_SCORE}.
-     *
-     * <p>See {@link Document.Score} for more information on score.
-     */
-    public int getDocumentScore() {
-        return mDocumentScore;
-    }
-
-    /**
-     * Returns the creation timestamp for the current AppSearch entity, in milliseconds using the
-     * {@link System#currentTimeMillis()} time base.
-     *
-     * <p>This timestamp refers to the creation time of the AppSearch entity, not when the
-     * document is written into AppSearch.
-     *
-     * <p>If not set, then the current timestamp will be used.
-     *
-     * <p>See {@link androidx.appsearch.annotation.Document.CreationTimestampMillis} for more
-     * information on creation timestamp.
-     */
-    public long getCreationTimestampMillis() {
-        return mCreationTimestampMillis;
-    }
-
-    /**
-     * Returns the time-to-live (TTL) for the current AppSearch document as a duration in
-     * milliseconds.
-     *
-     * <p>The document will be automatically deleted when the TTL expires.
-     *
-     * <p>See {@link Document.TtlMillis} for more information on TTL.
-     */
-    public long getDocumentTtlMillis() {
-        return mDocumentTtlMillis;
-    }
-
-    /** Returns the name. */
-    @Nullable
-    public String getName() {
-        return mName;
+        mComputingDevice = computingDevice;
     }
 
     /** Returns whether or not the {@link Alarm} is active. */
@@ -272,20 +217,15 @@ public final class Alarm {
         return mNextInstance;
     }
 
-    /** Builder for {@link Alarm}. */
-    public static final class Builder extends BaseBuiltinTypeBuilder<Builder> {
-        private String mName;
-        private boolean mEnabled;
-        private int[] mDaysOfWeek;
-        private int mHour;
-        private int mMinute;
-        private String mBlackoutPeriodStartDate;
-        private String mBlackoutPeriodEndDate;
-        private String mRingtone;
-        private boolean mShouldVibrate;
-        private AlarmInstance mPreviousInstance;
-        private AlarmInstance mNextInstance;
+    /** Returns the {@link ComputingDevice} this alarm belongs to. */
+    @ComputingDevice
+    public int getComputingDevice() {
+        return mComputingDevice;
+    }
 
+    /** Builder for {@link Alarm}. */
+    @Document.BuilderProducer
+    public static final class Builder extends BuilderImpl<Builder> {
         /**
          * Constructor for {@link Alarm.Builder}.
          *
@@ -301,11 +241,30 @@ public final class Alarm {
          * Constructor with all the existing values.
          */
         public Builder(@NonNull Alarm alarm) {
-            this(alarm.getNamespace(), alarm.getId());
-            mDocumentScore = alarm.getDocumentScore();
-            mCreationTimestampMillis = alarm.getCreationTimestampMillis();
-            mDocumentTtlMillis = alarm.getDocumentTtlMillis();
-            mName = alarm.getName();
+            super(alarm);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    static class BuilderImpl<T extends BuilderImpl<T>> extends Thing.BuilderImpl<T> {
+        protected boolean mEnabled;
+        protected int[] mDaysOfWeek;
+        protected int mHour;
+        protected int mMinute;
+        protected String mBlackoutPeriodStartDate;
+        protected String mBlackoutPeriodEndDate;
+        protected String mRingtone;
+        protected boolean mShouldVibrate;
+        protected AlarmInstance mPreviousInstance;
+        protected AlarmInstance mNextInstance;
+        protected int mComputingDevice;
+
+        BuilderImpl(@NonNull String namespace, @NonNull String id) {
+            super(namespace, id);
+        }
+
+        BuilderImpl(@NonNull Alarm alarm) {
+            super(new Thing.Builder(alarm).build());
             mEnabled = alarm.isEnabled();
             mDaysOfWeek = alarm.getDaysOfWeek();
             mHour = alarm.getHour();
@@ -316,20 +275,14 @@ public final class Alarm {
             mShouldVibrate = alarm.shouldVibrate();
             mPreviousInstance = alarm.getPreviousInstance();
             mNextInstance = alarm.getNextInstance();
-        }
-
-        /** Sets the name. */
-        @NonNull
-        public Builder setName(@Nullable String name) {
-            mName = name;
-            return this;
+            mComputingDevice = alarm.getComputingDevice();
         }
 
         /** Sets whether or not the {@link Alarm} is active. */
         @NonNull
-        public Builder setEnabled(boolean enabled) {
+        public T setEnabled(boolean enabled) {
             mEnabled = enabled;
-            return this;
+            return (T) this;
         }
 
         /**
@@ -343,7 +296,7 @@ public final class Alarm {
          * <p>If not set, or if the list is empty, then the {@link Alarm} does not repeat.
          */
         @NonNull
-        public Builder setDaysOfWeek(
+        public T setDaysOfWeek(
                 @Nullable
                 @IntRange(from = Calendar.SUNDAY, to = Calendar.SATURDAY) int... daysOfWeek) {
             if (daysOfWeek != null) {
@@ -353,7 +306,7 @@ public final class Alarm {
                 }
             }
             mDaysOfWeek = daysOfWeek;
-            return this;
+            return (T) this;
         }
 
         /**
@@ -362,9 +315,9 @@ public final class Alarm {
          * <p>Hours are specified by integers from 0 to 23.
          */
         @NonNull
-        public Builder setHour(@IntRange(from = 0, to = 23) int hour) {
+        public T setHour(@IntRange(from = 0, to = 23) int hour) {
             mHour = Preconditions.checkArgumentInRange(hour, 0, 23, "hour");
-            return this;
+            return (T) this;
         }
 
         /**
@@ -373,9 +326,9 @@ public final class Alarm {
          * <p>Minutes are specified by integers from 0 to 59.
          */
         @NonNull
-        public Builder setMinute(@IntRange(from = 0, to = 59) int minute) {
+        public T setMinute(@IntRange(from = 0, to = 59) int minute) {
             mMinute = Preconditions.checkArgumentInRange(minute, 0, 59, "minute");
-            return this;
+            return (T) this;
         }
 
         /**
@@ -390,7 +343,7 @@ public final class Alarm {
          * the blackout period is not defined.
          */
         @NonNull
-        public Builder setBlackoutPeriodStartDate(
+        public T setBlackoutPeriodStartDate(
                 @Nullable String blackoutPeriodStartDate) {
             if (blackoutPeriodStartDate != null) {
                 Preconditions.checkArgument(
@@ -398,7 +351,7 @@ public final class Alarm {
                         "blackoutPeriodStartDate must be in the format: yyyy-MM-dd");
             }
             mBlackoutPeriodStartDate = blackoutPeriodStartDate;
-            return this;
+            return (T) this;
         }
 
         /**
@@ -413,14 +366,14 @@ public final class Alarm {
          * the blackout period is not defined.
          */
         @NonNull
-        public Builder setBlackoutPeriodEndDate(@Nullable String blackoutPeriodEndDate) {
+        public T setBlackoutPeriodEndDate(@Nullable String blackoutPeriodEndDate) {
             if (blackoutPeriodEndDate != null) {
                 Preconditions.checkArgument(
                         DateTimeFormatValidator.validateISO8601Date(blackoutPeriodEndDate),
                         "blackoutPeriodEndDate must be in the format: yyyy-MM-dd");
             }
             mBlackoutPeriodEndDate = blackoutPeriodEndDate;
-            return this;
+            return (T) this;
         }
 
         /**
@@ -428,16 +381,16 @@ public final class Alarm {
          * {@link android.provider.AlarmClock#VALUE_RINGTONE_SILENT} if no ringtone will be played.
          */
         @NonNull
-        public Builder setRingtone(@Nullable String ringtone) {
+        public T setRingtone(@Nullable String ringtone) {
             mRingtone = ringtone;
-            return this;
+            return (T) this;
         }
 
         /** Sets whether or not to activate the device vibrator when the {@link Alarm} fires. */
         @NonNull
-        public Builder setShouldVibrate(boolean shouldVibrate) {
+        public T setShouldVibrate(boolean shouldVibrate) {
             mShouldVibrate = shouldVibrate;
-            return this;
+            return (T) this;
         }
 
         /**
@@ -449,9 +402,9 @@ public final class Alarm {
          * <p>See {@link AlarmInstance}.
          */
         @NonNull
-        public Builder setPreviousInstance(@Nullable AlarmInstance previousInstance) {
+        public T setPreviousInstance(@Nullable AlarmInstance previousInstance) {
             mPreviousInstance = previousInstance;
-            return this;
+            return (T) this;
         }
 
         /**
@@ -463,18 +416,28 @@ public final class Alarm {
          * <p>See {@link AlarmInstance}.
          */
         @NonNull
-        public Builder setNextInstance(@Nullable AlarmInstance nextInstance) {
+        public T setNextInstance(@Nullable AlarmInstance nextInstance) {
             mNextInstance = nextInstance;
-            return this;
+            return (T) this;
+        }
+
+        /** Sets the {@link ComputingDevice} this alarm belongs to. */
+        @NonNull
+        public T setComputingDevice(@ComputingDevice int computingDevice) {
+            mComputingDevice = computingDevice;
+            return (T) this;
         }
 
         /** Builds the {@link Alarm}. */
         @NonNull
+        @Override
         public Alarm build() {
             return new Alarm(mNamespace, mId, mDocumentScore, mCreationTimestampMillis,
-                    mDocumentTtlMillis, mName, mEnabled, mDaysOfWeek, mHour, mMinute,
-                    mBlackoutPeriodStartDate, mBlackoutPeriodEndDate, mRingtone,
-                    mShouldVibrate, mPreviousInstance, mNextInstance);
+                    mDocumentTtlMillis, mName, mAlternateNames, mDescription, mImage, mUrl,
+                    mPotentialActions,
+                    mEnabled, mDaysOfWeek, mHour, mMinute, mBlackoutPeriodStartDate,
+                    mBlackoutPeriodEndDate, mRingtone, mShouldVibrate, mPreviousInstance,
+                    mNextInstance, mComputingDevice);
         }
     }
 }

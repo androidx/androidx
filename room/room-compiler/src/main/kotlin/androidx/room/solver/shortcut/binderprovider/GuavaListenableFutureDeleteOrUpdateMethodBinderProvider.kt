@@ -16,12 +16,11 @@
 
 package androidx.room.solver.shortcut.binderprovider
 
+import androidx.room.compiler.processing.XNullability
 import androidx.room.compiler.processing.XType
+import androidx.room.compiler.processing.isVoidObject
 import androidx.room.ext.GuavaUtilConcurrentTypeNames
-import androidx.room.ext.L
-import androidx.room.ext.N
 import androidx.room.ext.RoomGuavaTypeNames
-import androidx.room.ext.T
 import androidx.room.processor.Context
 import androidx.room.processor.ProcessorErrors
 import androidx.room.solver.shortcut.binder.CallableDeleteOrUpdateMethodBinder.Companion.createDeleteOrUpdateBinder
@@ -35,12 +34,12 @@ class GuavaListenableFutureDeleteOrUpdateMethodBinderProvider(
 ) : DeleteOrUpdateMethodBinderProvider {
 
     private val hasGuavaRoom by lazy {
-        context.processingEnv.findTypeElement(RoomGuavaTypeNames.GUAVA_ROOM) != null
+        context.processingEnv.findTypeElement(RoomGuavaTypeNames.GUAVA_ROOM.canonicalName) != null
     }
 
     override fun matches(declared: XType): Boolean =
         declared.typeArguments.size == 1 &&
-            declared.rawType.typeName == GuavaUtilConcurrentTypeNames.LISTENABLE_FUTURE
+            declared.rawType.asTypeName() == GuavaUtilConcurrentTypeNames.LISTENABLE_FUTURE
 
     override fun provide(declared: XType): DeleteOrUpdateMethodBinder {
         if (!hasGuavaRoom) {
@@ -48,12 +47,16 @@ class GuavaListenableFutureDeleteOrUpdateMethodBinderProvider(
         }
 
         val typeArg = declared.typeArguments.first()
+        if (typeArg.isVoidObject() && typeArg.nullability == XNullability.NONNULL) {
+            context.logger.e(ProcessorErrors.NONNULL_VOID)
+        }
+
         val adapter = context.typeAdapterStore.findDeleteOrUpdateAdapter(typeArg)
-        return createDeleteOrUpdateBinder(typeArg, adapter) { callableImpl, dbField ->
+        return createDeleteOrUpdateBinder(typeArg, adapter) { callableImpl, dbProperty ->
             addStatement(
-                "return $T.createListenableFuture($N, $L, $L)",
+                "return %T.createListenableFuture(%N, %L, %L)",
                 RoomGuavaTypeNames.GUAVA_ROOM,
-                dbField,
+                dbProperty,
                 "true", // inTransaction
                 callableImpl
             )

@@ -18,6 +18,7 @@ package androidx.camera.integration.view;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -30,7 +31,11 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.camera.camera2.Camera2Config;
+import androidx.camera.camera2.pipe.integration.CameraPipeConfig;
+import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
@@ -40,17 +45,35 @@ import androidx.fragment.app.FragmentTransaction;
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
 
-    // Possible values for this intent key (case-insensitive): "PreviewView", "ComposeUi".
+    // Possible values for this intent key (case-insensitive): "Portrait", "Landscape".
+    private static final String INTENT_SCREEN_ORIENTATION = "orientation";
+    private static final String SCREEN_ORIENTATION_PORTRAIT = "Portrait";
+    private static final String SCREEN_ORIENTATION_LANDSCAPE = "Landscape";
+
+    // Possible values for this intent key (case-insensitive): "PreviewView", "ComposeUi",
+    // "StreamSharing".
     private static final String INTENT_FRAGMENT_TYPE = "fragment_type";
     private static final String PREVIEW_VIEW_FRAGMENT = "PreviewView";
     private static final String COMPOSE_UI_FRAGMENT = "ComposeUi";
+    private static final String STREAM_SHARING_FRAGMENT = "StreamSharing";
 
-    private static final String[] REQUIRED_PERMISSIONS =
-            new String[]{
+    private static final String[] REQUIRED_PERMISSIONS;
+    static {
+        // From Android T, skips the permission check of WRITE_EXTERNAL_STORAGE since it won't be
+        // granted any more.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            REQUIRED_PERMISSIONS = new String[]{
+                    Manifest.permission.CAMERA,
+                    Manifest.permission.RECORD_AUDIO
+            };
+        } else {
+            REQUIRED_PERMISSIONS = new String[]{
                     Manifest.permission.CAMERA,
                     Manifest.permission.RECORD_AUDIO,
                     Manifest.permission.WRITE_EXTERNAL_STORAGE
             };
+        }
+    }
     private static final int REQUEST_CODE_PERMISSIONS = 10;
 
     // Possible values for this intent key are the name values of LensFacing encoded as
@@ -62,9 +85,25 @@ public class MainActivity extends AppCompatActivity {
     public static final String INTENT_EXTRA_E2E_TEST_CASE = "e2e_test_case";
     public static final String PREVIEW_TEST_CASE = "preview_test_case";
 
+    // Launch the activity with the specified scale type.
+    public static final String INTENT_EXTRA_SCALE_TYPE = "scale_type";
+    // The default scale type is FILL_CENTER.
+    public static final int DEFAULT_SCALE_TYPE_ID = 1;
+
+    /** Intent extra representing type of camera implementation. */
+    public static final String INTENT_EXTRA_CAMERA_IMPLEMENTATION = "camera_implementation";
+
+    // Camera2 implementation.
+    public static final String CAMERA2_IMPLEMENTATION_OPTION = "camera2";
+    // Camera-pipe implementation.
+    public static final String CAMERA_PIPE_IMPLEMENTATION_OPTION = "camera_pipe";
+
+    private static String sCameraImplementationType;
+
     private boolean mCheckedPermissions = false;
     private FragmentType mFragmentType = FragmentType.CAMERA_CONTROLLER;
 
+    @OptIn(markerClass = androidx.camera.lifecycle.ExperimentalCameraProviderConfiguration.class)
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -72,17 +111,28 @@ public class MainActivity extends AppCompatActivity {
         // Get extra option for checking whether it needs to be implemented with PreviewView
         Bundle bundle = getIntent().getExtras();
         if (bundle != null) {
-            final String viewTypeString = bundle.getString(INTENT_FRAGMENT_TYPE);
-            if (PREVIEW_VIEW_FRAGMENT.equalsIgnoreCase(viewTypeString)) {
-                mFragmentType = FragmentType.PREVIEW_VIEW;
-            } else if (COMPOSE_UI_FRAGMENT.equalsIgnoreCase(viewTypeString)) {
-                mFragmentType = FragmentType.COMPOSE_UI;
-            }
+            parseScreenOrientationAndSetValueIfNeed(bundle);
+            parseFragmentType(bundle);
             // Update the app UI according to the e2e test case.
             String testItem = bundle.getString(INTENT_EXTRA_E2E_TEST_CASE);
             if (testItem != null) {
                 if (getSupportActionBar() != null) {
                     getSupportActionBar().hide();
+                }
+            }
+            String cameraImplementation = bundle.getString(INTENT_EXTRA_CAMERA_IMPLEMENTATION);
+            if (cameraImplementation != null && sCameraImplementationType == null) {
+                if (cameraImplementation.equals(CAMERA2_IMPLEMENTATION_OPTION)) {
+                    ProcessCameraProvider.configureInstance(Camera2Config.defaultConfig());
+                    sCameraImplementationType = cameraImplementation;
+                } else if (cameraImplementation.equals(CAMERA_PIPE_IMPLEMENTATION_OPTION)) {
+                    ProcessCameraProvider.configureInstance(
+                            CameraPipeConfig.defaultConfig());
+                    sCameraImplementationType = cameraImplementation;
+                } else {
+                    throw new IllegalArgumentException("Failed to configure the CameraProvider "
+                            + "using unknown " + cameraImplementation
+                            + " implementation option in " + TAG + ".");
                 }
             }
         }
@@ -144,6 +194,12 @@ public class MainActivity extends AppCompatActivity {
             case R.id.mlkit:
                 mFragmentType = FragmentType.MLKIT;
                 break;
+            case R.id.effects:
+                mFragmentType = FragmentType.EFFECTS;
+                break;
+            case R.id.stream_sharing:
+                mFragmentType = FragmentType.STREAM_SHARING;
+                break;
         }
         startFragment();
         return true;
@@ -157,6 +213,26 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         return true;
+    }
+
+    private void parseScreenOrientationAndSetValueIfNeed(@NonNull Bundle bundle) {
+        final String orientationString = bundle.getString(INTENT_SCREEN_ORIENTATION);
+        if (SCREEN_ORIENTATION_PORTRAIT.equalsIgnoreCase(orientationString)) {
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        } else if (SCREEN_ORIENTATION_LANDSCAPE.equalsIgnoreCase(orientationString)) {
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+        }
+    }
+
+    private void parseFragmentType(@NonNull Bundle bundle) {
+        final String viewTypeString = bundle.getString(INTENT_FRAGMENT_TYPE);
+        if (PREVIEW_VIEW_FRAGMENT.equalsIgnoreCase(viewTypeString)) {
+            mFragmentType = FragmentType.PREVIEW_VIEW;
+        } else if (COMPOSE_UI_FRAGMENT.equalsIgnoreCase(viewTypeString)) {
+            mFragmentType = FragmentType.COMPOSE_UI;
+        } else if (STREAM_SHARING_FRAGMENT.equalsIgnoreCase(viewTypeString)) {
+            mFragmentType = FragmentType.STREAM_SHARING;
+        }
     }
 
     private void startFragment() {
@@ -175,6 +251,12 @@ public class MainActivity extends AppCompatActivity {
                 break;
             case MLKIT:
                 startFragment(R.string.mlkit, new MlKitFragment());
+                break;
+            case EFFECTS:
+                startFragment(R.string.effects, new EffectsFragment());
+                break;
+            case STREAM_SHARING:
+                startFragment(R.string.stream_sharing, new StreamSharingFragment());
                 break;
         }
     }
@@ -197,6 +279,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private enum FragmentType {
-        PREVIEW_VIEW, CAMERA_CONTROLLER, TRANSFORM, COMPOSE_UI, MLKIT
+        PREVIEW_VIEW, CAMERA_CONTROLLER, TRANSFORM, COMPOSE_UI, MLKIT, EFFECTS, STREAM_SHARING
     }
 }

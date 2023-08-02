@@ -27,24 +27,28 @@ import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.Metadata
 import androidx.camera.camera2.pipe.core.Debug
+import androidx.camera.camera2.pipe.core.Log
+import kotlin.reflect.KClass
 
 /**
  * This implementation provides access to [CameraCharacteristics] and lazy caching of properties
- * that are either expensive to create and access, or that only exist on newer versions of the
- * OS. This allows all fields to be accessed and return reasonable values on all OS versions.
+ * that are either expensive to create and access, or that only exist on newer versions of the OS.
+ * This allows all fields to be accessed and return reasonable values on all OS versions.
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-internal class Camera2CameraMetadata constructor(
+internal class Camera2CameraMetadata
+constructor(
     override val camera: CameraId,
     override val isRedacted: Boolean,
     private val characteristics: CameraCharacteristics,
-    private val metadataProvider: CameraMetadataProvider,
+    private val metadataProvider: Camera2MetadataProvider,
     private val metadata: Map<Metadata.Key<*>, Any?>,
     private val cacheBlocklist: Set<CameraCharacteristics.Key<*>>,
 ) : CameraMetadata {
     @GuardedBy("values")
     private val values = ArrayMap<CameraCharacteristics.Key<*>, Any?>()
 
+    // TODO: b/275575818 - this here may need a switch statement on the key
     @Suppress("UNCHECKED_CAST")
     override fun <T> get(key: Metadata.Key<T>): T? = metadata[key] as T?
 
@@ -71,14 +75,11 @@ internal class Camera2CameraMetadata constructor(
         // 3. Duplicate non-null values are expected to be identical (even if the object instance
         //    is different), and so it does not matter which value is cached if two calls from
         //    different threads try to read the value simultaneously.
-        @Suppress("UNCHECKED_CAST")
-        var result = synchronized(values) { values[key] } as T?
+        @Suppress("UNCHECKED_CAST") var result = synchronized(values) { values[key] } as T?
         if (result == null) {
             result = characteristics.get(key)
             if (result != null) {
-                synchronized(values) {
-                    values[key] = result
-                }
+                synchronized(values) { values[key] = result }
             }
         }
         return result
@@ -87,13 +88,23 @@ internal class Camera2CameraMetadata constructor(
     override fun <T> getOrDefault(key: CameraCharacteristics.Key<T>, default: T): T =
         get(key) ?: default
 
-    override fun unwrap(): CameraCharacteristics = characteristics
+    @Suppress("UNCHECKED_CAST")
+    override fun <T : Any> unwrapAs(type: KClass<T>): T? =
+        when (type) {
+            CameraCharacteristics::class -> characteristics as T
+            else -> null
+        }
 
-    override val keys: Set<CameraCharacteristics.Key<*>> get() = _keys.value
-    override val requestKeys: Set<CaptureRequest.Key<*>> get() = _requestKeys.value
-    override val resultKeys: Set<CaptureResult.Key<*>> get() = _resultKeys.value
-    override val sessionKeys: Set<CaptureRequest.Key<*>> get() = _sessionKeys.value
-    override val physicalCameraIds: Set<CameraId> get() = _physicalCameraIds.value
+    override val keys: Set<CameraCharacteristics.Key<*>>
+        get() = _keys.value
+    override val requestKeys: Set<CaptureRequest.Key<*>>
+        get() = _requestKeys.value
+    override val resultKeys: Set<CaptureResult.Key<*>>
+        get() = _resultKeys.value
+    override val sessionKeys: Set<CaptureRequest.Key<*>>
+        get() = _sessionKeys.value
+    override val physicalCameraIds: Set<CameraId>
+        get() = _physicalCameraIds.value
     override val physicalRequestKeys: Set<CaptureRequest.Key<*>>
         get() = _physicalRequestKeys.value
 
@@ -101,24 +112,26 @@ internal class Camera2CameraMetadata constructor(
         check(physicalCameraIds.contains(cameraId)) {
             "$cameraId is not a valid physical camera on $this"
         }
-        return metadataProvider.getMetadata(cameraId)
+        return metadataProvider.getCameraMetadata(cameraId)
     }
 
     override fun awaitPhysicalMetadata(cameraId: CameraId): CameraMetadata {
         check(physicalCameraIds.contains(cameraId)) {
             "$cameraId is not a valid physical camera on $this"
         }
-        return metadataProvider.awaitMetadata(cameraId)
+        return metadataProvider.awaitCameraMetadata(cameraId)
     }
 
     private val _keys: Lazy<Set<CameraCharacteristics.Key<*>>> =
         lazy(LazyThreadSafetyMode.PUBLICATION) {
             try {
                 Debug.trace("Camera-${camera.value}#keys") {
-                    @Suppress("UselessCallOnNotNull")
                     characteristics.keys.orEmpty().toSet()
                 }
-            } catch (ignored: AssertionError) {
+            } catch (e: AssertionError) {
+                Log.warn(e) {
+                    "Failed to getKeys from Camera-${camera.value}"
+                }
                 emptySet()
             }
         }
@@ -127,10 +140,12 @@ internal class Camera2CameraMetadata constructor(
         lazy(LazyThreadSafetyMode.PUBLICATION) {
             try {
                 Debug.trace("Camera-${camera.value}#availableCaptureRequestKeys") {
-                    @Suppress("UselessCallOnNotNull")
                     characteristics.availableCaptureRequestKeys.orEmpty().toSet()
                 }
-            } catch (ignored: AssertionError) {
+            } catch (e: AssertionError) {
+                Log.warn(e) {
+                    "Failed to getAvailableCaptureRequestKeys from Camera-${camera.value}"
+                }
                 emptySet()
             }
         }
@@ -139,10 +154,12 @@ internal class Camera2CameraMetadata constructor(
         lazy(LazyThreadSafetyMode.PUBLICATION) {
             try {
                 Debug.trace("Camera-${camera.value}#availableCaptureResultKeys") {
-                    @Suppress("UselessCallOnNotNull")
                     characteristics.availableCaptureResultKeys.orEmpty().toSet()
                 }
-            } catch (ignored: AssertionError) {
+            } catch (e: AssertionError) {
+                Log.warn(e) {
+                    "Failed to getAvailableCaptureResultKeys from Camera-${camera.value}"
+                }
                 emptySet()
             }
         }
@@ -154,15 +171,19 @@ internal class Camera2CameraMetadata constructor(
             } else {
                 try {
                     Debug.trace("Camera-${camera.value}#physicalCameraIds") {
+                        val ids = Api28Compat.getPhysicalCameraIds(characteristics)
+                        Log.info { "Loaded physicalCameraIds from $camera: $ids" }
+
                         @Suppress("UselessCallOnNotNull")
-                        Api28Compat.getPhysicalCameraIds(characteristics)
-                            .orEmpty()
+                        ids.orEmpty()
                             .map { CameraId(it) }
                             .toSet()
                     }
-                } catch (ignored: AssertionError) {
+                } catch (e: AssertionError) {
+                    Log.warn(e) { "Failed to getPhysicalCameraIds from Camera-${camera.value}" }
                     emptySet()
-                } catch (ignored: NullPointerException) {
+                } catch (e: NullPointerException) {
+                    Log.warn(e) { "Failed to getPhysicalCameraIds from Camera-${camera.value}" }
                     emptySet()
                 }
             }
@@ -179,7 +200,11 @@ internal class Camera2CameraMetadata constructor(
                             .orEmpty()
                             .toSet()
                     }
-                } catch (ignored: AssertionError) {
+                } catch (e: AssertionError) {
+                    Log.warn(e) {
+                        "Failed to getAvailablePhysicalCameraRequestKeys from " +
+                            "Camera-${camera.value}"
+                    }
                     emptySet()
                 }
             }
@@ -194,7 +219,10 @@ internal class Camera2CameraMetadata constructor(
                     Debug.trace("Camera-${camera.value}#availableSessionKeys") {
                         Api28Compat.getAvailableSessionKeys(characteristics).orEmpty().toSet()
                     }
-                } catch (ignored: AssertionError) {
+                } catch (e: AssertionError) {
+                    Log.warn(e) {
+                        "Failed to getAvailableSessionKeys from Camera-${camera.value}"
+                    }
                     emptySet()
                 }
             }

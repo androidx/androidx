@@ -23,7 +23,14 @@ import androidx.health.services.client.proto.DataProto.DataPointAccuracy.Accurac
 
 /** Accuracy of a [DataPoint]. */
 @Suppress("ParcelCreator", "ParcelNotFinal")
-public abstract class DataPointAccuracy : ProtoParcelable<DataProto.DataPointAccuracy>() {
+public abstract class DataPointAccuracy {
+
+    internal val proto: DataProto.DataPointAccuracy
+        get() = when (this) {
+            is LocationAccuracy -> getDataPointAccuracyProto()
+            is HeartRateAccuracy -> getDataPointAccuracyProto()
+            else -> throw IllegalStateException("No serialization available for this type.")
+        }
 
     internal companion object {
         internal fun fromProto(proto: DataProto.DataPointAccuracy): DataPointAccuracy =

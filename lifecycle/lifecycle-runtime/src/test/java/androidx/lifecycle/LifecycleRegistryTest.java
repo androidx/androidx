@@ -68,7 +68,8 @@ public class LifecycleRegistryTest {
         try {
             mRegistry.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY);
         } catch (IllegalStateException e) {
-            assertThat(e.getMessage(), is("no event down from INITIALIZED"));
+            assertThat(e.getMessage(),
+                    is("no event down from INITIALIZED in component " + mLifecycleOwner));
         }
     }
 

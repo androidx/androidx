@@ -23,15 +23,24 @@ import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.Icon
 import android.net.Uri
+import android.view.View
 import android.widget.ImageView
+import androidx.compose.ui.graphics.Color
 import androidx.core.graphics.drawable.toBitmap
-import androidx.glance.appwidget.applyRemoteViews
+import androidx.glance.ColorFilter
+import androidx.glance.GlanceModifier
+import androidx.glance.Image
+import androidx.glance.ImageProvider
 import androidx.glance.appwidget.ImageProvider
+import androidx.glance.appwidget.ImageViewSubject.Companion.assertThat
+import androidx.glance.appwidget.applyRemoteViews
 import androidx.glance.appwidget.runAndTranslate
 import androidx.glance.appwidget.test.R
 import androidx.glance.layout.ContentScale
-import androidx.glance.Image
-import androidx.glance.ImageProvider
+import androidx.glance.semantics.contentDescription
+import androidx.glance.semantics.semantics
+import androidx.glance.unit.ColorProvider
+import androidx.glance.unit.ResourceColorProvider
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
@@ -52,7 +61,6 @@ class ImageTranslatorTest {
     private lateinit var fakeCoroutineScope: TestScope
     private lateinit var expectedBitmap: Bitmap
     private val context = ApplicationProvider.getApplicationContext<Context>()
-    private val displayMetrics = context.resources.displayMetrics
 
     @Before
     fun setUp() {
@@ -69,9 +77,11 @@ class ImageTranslatorTest {
             )
         }
         val imageView = assertIs<ImageView>(context.applyRemoteViews(rv))
-        assertThat(imageView.getContentDescription()).isEqualTo("2x1 bitmap")
+        assertThat(imageView.contentDescription).isEqualTo("2x1 bitmap")
+        assertThat(imageView.importantForAccessibility)
+            .isEqualTo(View.IMPORTANT_FOR_ACCESSIBILITY_YES)
         val bitmapDrawable = assertIs<BitmapDrawable>(imageView.getDrawable())
-        assertThat(bitmapDrawable.getBitmap().sameAs(expectedBitmap)).isTrue()
+        assertThat(bitmapDrawable.bitmap.sameAs(expectedBitmap)).isTrue()
     }
 
     @Test
@@ -84,7 +94,9 @@ class ImageTranslatorTest {
         }
 
         val imageView = assertIs<ImageView>(context.applyRemoteViews(rv))
-        assertThat(imageView.getContentDescription()).isEqualTo("oval")
+        assertThat(imageView.contentDescription).isEqualTo("oval")
+        assertThat(imageView.importantForAccessibility)
+            .isEqualTo(View.IMPORTANT_FOR_ACCESSIBILITY_YES)
         val gradientDrawable = assertIs<GradientDrawable>(imageView.getDrawable())
         assertThat(gradientDrawable.toBitmap().sameAs(expectedBitmap)).isTrue()
     }
@@ -107,7 +119,7 @@ class ImageTranslatorTest {
         }
 
         val imageView = assertIs<ImageView>(context.applyRemoteViews(rv))
-        val gradientDrawable = assertIs<GradientDrawable>(imageView.getDrawable())
+        val gradientDrawable = assertIs<GradientDrawable>(imageView.drawable)
         assertThat(gradientDrawable.toBitmap().sameAs(expectedBitmap)).isTrue()
     }
 
@@ -139,8 +151,10 @@ class ImageTranslatorTest {
         }
 
         val imageView = assertIs<ImageView>(context.applyRemoteViews(rv))
-        assertThat(imageView.getContentDescription()).isEqualTo("oval")
-        assertThat(imageView.getScaleType()).isEqualTo(ImageView.ScaleType.CENTER_CROP)
+        assertThat(imageView.contentDescription).isEqualTo("oval")
+        assertThat(imageView.importantForAccessibility)
+            .isEqualTo(View.IMPORTANT_FOR_ACCESSIBILITY_YES)
+        assertThat(imageView.scaleType).isEqualTo(ImageView.ScaleType.CENTER_CROP)
     }
 
     @Test
@@ -154,8 +168,10 @@ class ImageTranslatorTest {
         }
 
         val imageView = assertIs<ImageView>(context.applyRemoteViews(rv))
-        assertThat(imageView.getContentDescription()).isEqualTo("oval")
-        assertThat(imageView.getScaleType()).isEqualTo(ImageView.ScaleType.FIT_CENTER)
+        assertThat(imageView.contentDescription).isEqualTo("oval")
+        assertThat(imageView.importantForAccessibility)
+            .isEqualTo(View.IMPORTANT_FOR_ACCESSIBILITY_YES)
+        assertThat(imageView.scaleType).isEqualTo(ImageView.ScaleType.FIT_CENTER)
     }
 
     @Test
@@ -169,7 +185,124 @@ class ImageTranslatorTest {
         }
 
         val imageView = assertIs<ImageView>(context.applyRemoteViews(rv))
-        assertThat(imageView.getContentDescription()).isEqualTo("oval")
-        assertThat(imageView.getScaleType()).isEqualTo(ImageView.ScaleType.FIT_XY)
+        assertThat(imageView.contentDescription).isEqualTo("oval")
+        assertThat(imageView.importantForAccessibility)
+            .isEqualTo(View.IMPORTANT_FOR_ACCESSIBILITY_YES)
+        assertThat(imageView.scaleType).isEqualTo(ImageView.ScaleType.FIT_XY)
     }
+
+    @Test
+    fun translateImage_contentDescriptionFieldAndSemanticsSet_fieldPreferred() =
+        fakeCoroutineScope.runTest {
+            val rv = context.runAndTranslate {
+                Image(
+                    provider = ImageProvider(R.drawable.oval),
+                    contentDescription = "oval",
+                    modifier = GlanceModifier.semantics { contentDescription = "round" },
+                )
+            }
+
+            val imageView = assertIs<ImageView>(context.applyRemoteViews(rv))
+            assertThat(imageView.contentDescription).isEqualTo("oval")
+            assertThat(imageView.importantForAccessibility)
+                .isEqualTo(View.IMPORTANT_FOR_ACCESSIBILITY_YES)
+        }
+
+    @Test
+    fun translateImage_contentDescriptionEmptyString_treatedAsDecorative() =
+        fakeCoroutineScope.runTest {
+            val rv = context.runAndTranslate {
+                Image(
+                    provider = ImageProvider(R.drawable.oval),
+                    contentDescription = "",
+                )
+            }
+
+            val imageView = assertIs<ImageView>(context.applyRemoteViews(rv))
+            assertThat(imageView.contentDescription).isEqualTo("")
+            assertThat(imageView.importantForAccessibility)
+                .isEqualTo(View.IMPORTANT_FOR_ACCESSIBILITY_NO)
+        }
+
+    @Test
+    fun translateImage_contentDescriptionFieldNullAndSemanticsSet_setFromSemantics() =
+        fakeCoroutineScope.runTest {
+            val rv = context.runAndTranslate {
+                Image(
+                    provider = ImageProvider(R.drawable.oval),
+                    contentDescription = null,
+                    modifier = GlanceModifier.semantics { contentDescription = "round" },
+                )
+            }
+
+            val imageView = assertIs<ImageView>(context.applyRemoteViews(rv))
+            assertThat(imageView.contentDescription).isEqualTo("round")
+            assertThat(imageView.importantForAccessibility)
+                .isEqualTo(View.IMPORTANT_FOR_ACCESSIBILITY_YES)
+        }
+
+    @Test
+    fun translateImage_contentDescriptionFieldAndSemanticsNull_treatedAsDecorative() =
+        fakeCoroutineScope.runTest {
+            val rv = context.runAndTranslate {
+                Image(
+                    provider = ImageProvider(R.drawable.oval),
+                    contentDescription = null,
+                    modifier = GlanceModifier.semantics {},
+                )
+            }
+
+            val imageView = assertIs<ImageView>(context.applyRemoteViews(rv))
+            assertThat(imageView.contentDescription).isNull()
+            assertThat(imageView.importantForAccessibility)
+                .isEqualTo(View.IMPORTANT_FOR_ACCESSIBILITY_NO)
+        }
+
+    @Test
+    @Config(sdk = [23, 31])
+    fun translateImage_colorFilter() =
+        fakeCoroutineScope.runTest {
+            val rv = context.runAndTranslate {
+                Image(
+                    provider = ImageProvider(R.drawable.oval),
+                    contentDescription = null,
+                    colorFilter = ColorFilter.tint(ColorProvider(Color.Gray))
+                )
+            }
+
+            val imageView = assertIs<ImageView>(context.applyRemoteViews(rv))
+            assertThat(imageView).hasColorFilter(Color.Gray)
+        }
+
+    @Test
+    @Config(sdk = [23, 31])
+    fun translateImage_colorFilterWithResource() =
+        fakeCoroutineScope.runTest {
+            val colorProvider = ColorProvider(R.color.my_color) as ResourceColorProvider
+            val rv = context.runAndTranslate {
+                Image(
+                    provider = ImageProvider(R.drawable.oval),
+                    contentDescription = null,
+                    colorFilter = ColorFilter.tint(colorProvider)
+                )
+            }
+
+            val imageView = assertIs<ImageView>(context.applyRemoteViews(rv))
+            assertThat(imageView).hasColorFilter(colorProvider.getColor(context))
+        }
+
+    @Test
+    @Config(sdk = [23, 31])
+    fun translateImage_noColorFilter() =
+        fakeCoroutineScope.runTest {
+            val rv = context.runAndTranslate {
+                Image(
+                    provider = ImageProvider(R.drawable.oval),
+                    contentDescription = null,
+                )
+            }
+
+            val imageView = assertIs<ImageView>(context.applyRemoteViews(rv))
+            assertThat(imageView.colorFilter).isNull()
+        }
 }

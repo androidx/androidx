@@ -30,10 +30,12 @@ dependencies {
     compileOnly(project(":annotation:annotation-sampled"))
     implementation(project(":compose:foundation:foundation"))
     implementation(project(":compose:foundation:foundation-layout"))
+    implementation(project(":compose:material:material-icons-core"))
     implementation(project(":compose:runtime:runtime"))
     implementation(project(":compose:ui:ui"))
     implementation(project(":compose:ui:ui-text"))
     implementation(project(":wear:compose:compose-foundation"))
+    implementation(project(":wear:compose:compose-material"))
 }
 
 android {
@@ -46,7 +48,18 @@ android {
 androidx {
     name = "Android Wear Compose Foundation Samples"
     type = LibraryType.SAMPLES
-    mavenGroup = LibraryGroups.WEAR_COMPOSE
     inceptionYear = "2021"
     description = "Contains the sample code for the Android Wear Compose Foundation Classes"
+}
+
+// Workaround for https://github.com/gradle/gradle/issues/19882
+configurations.all {
+    resolutionStrategy.dependencySubstitution {
+        substitute(module("androidx.lifecycle:lifecycle-viewmodel:")).
+                using project(":lifecycle:lifecycle-viewmodel")
+        substitute(module("androidx.lifecycle:lifecycle-runtime:")).
+                using project(":lifecycle:lifecycle-runtime")
+        substitute(module("androidx.lifecycle:lifecycle-runtime-ktx:")).
+                using project(":lifecycle:lifecycle-runtime-ktx")
+    }
 }

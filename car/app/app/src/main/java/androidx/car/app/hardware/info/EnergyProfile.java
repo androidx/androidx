@@ -20,13 +20,13 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static java.util.Objects.requireNonNull;
 
 import androidx.annotation.IntDef;
-import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.hardware.common.CarValue;
+import androidx.car.app.annotations.KeepFields;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -38,12 +38,12 @@ import java.util.Objects;
 /** Information about car hardware fuel profile such as fuel types and connector ports. */
 @CarProtocol
 @RequiresCarApi(3)
+@KeepFields
 public final class EnergyProfile {
 
     /**
      * Possible EV Connector types.
      *
-     * @hide
      */
     @IntDef({
             EVCONNECTOR_TYPE_UNKNOWN,
@@ -123,7 +123,6 @@ public final class EnergyProfile {
     /**
      * Possible Fual types.
      *
-     * @hide
      */
     @IntDef({
             FUEL_TYPE_UNKNOWN,
@@ -186,11 +185,9 @@ public final class EnergyProfile {
     @FuelType
     public static final int FUEL_TYPE_OTHER = 12;
 
-    @Keep
     @NonNull
     private final CarValue<List<@EvConnectorType Integer>> mEvConnectorTypes;
 
-    @Keep
     @NonNull
     private final CarValue<List<@FuelType Integer>> mFuelTypes;
 

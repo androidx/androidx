@@ -59,7 +59,6 @@ import java.lang.annotation.RetentionPolicy;
  * Also see {@link LinearLayoutCompat.LayoutParams} for layout attributes </p>
  */
 public class LinearLayoutCompat extends ViewGroup {
-    /** @hide */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @IntDef({HORIZONTAL, VERTICAL})
     @Retention(RetentionPolicy.SOURCE)
@@ -68,7 +67,6 @@ public class LinearLayoutCompat extends ViewGroup {
     public static final int HORIZONTAL = 0;
     public static final int VERTICAL = 1;
 
-    /** @hide */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @IntDef(flag = true,
             value = {
@@ -291,7 +289,6 @@ public class LinearLayoutCompat extends ViewGroup {
     /**
      * Get the width of the current divider drawable.
      *
-     * @hide Used internally by framework.
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public int getDividerWidth() {
@@ -299,7 +296,7 @@ public class LinearLayoutCompat extends ViewGroup {
     }
 
     @Override
-    protected void onDraw(Canvas canvas) {
+    protected void onDraw(@NonNull Canvas canvas) {
         if (mDivider == null) {
             return;
         }
@@ -583,7 +580,6 @@ public class LinearLayoutCompat extends ViewGroup {
      *
      * @param childIndex Index of child to check for preceding divider
      * @return true if there should be a divider before the child at childIndex
-     * @hide Pending API consideration. Currently only used internally by the system.
      */
     @RestrictTo(LIBRARY)
     protected boolean hasDividerBeforeChildAt(int childIndex) {
@@ -1771,7 +1767,13 @@ public class LinearLayoutCompat extends ViewGroup {
 
     @Override
     protected LayoutParams generateLayoutParams(ViewGroup.LayoutParams p) {
-        return new LayoutParams(p);
+        if (p instanceof LayoutParams) {
+            return new LayoutParams((LayoutParams) p);
+        } else if (p instanceof MarginLayoutParams) {
+            return new LayoutParams((MarginLayoutParams) p);
+        } else {
+            return new LayoutParams(p);
+        }
     }
 
 

@@ -42,7 +42,6 @@ import kotlin.concurrent.thread
  * - status bar repaints
  * - running in background (some cores may be foreground-app only)
  *
- * @suppress
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class IsolationActivity : android.app.Activity() {
@@ -53,6 +52,7 @@ public class IsolationActivity : android.app.Activity() {
         setContentView(R.layout.isolation_activity)
 
         // disable launch animation
+        @Suppress("Deprecation")
         overridePendingTransition(0, 0)
 
         if (firstInit) {
@@ -117,6 +117,7 @@ public class IsolationActivity : android.app.Activity() {
 
     public fun actuallyFinish() {
         // disable close animation
+        @Suppress("Deprecation")
         overridePendingTransition(0, 0)
         super.finish()
     }

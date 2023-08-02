@@ -27,7 +27,7 @@ import androidx.core.util.Preconditions;
 /**
  * Translates between Platform and Jetpack versions of {@link GenericDocument}.
  *
- * @hide
+ * @exportToFramework:hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RequiresApi(Build.VERSION_CODES.S)

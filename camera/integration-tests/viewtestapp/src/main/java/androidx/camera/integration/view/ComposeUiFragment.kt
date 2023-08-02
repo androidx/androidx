@@ -48,13 +48,24 @@ private const val TAG = "ComposeUiFragment"
 
 class ComposeUiFragment : Fragment() {
 
+    var currentScaleType = PreviewView.ScaleType.FILL_CENTER
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         val cameraProvider = ProcessCameraProvider.getInstance(requireContext()).get()
+        val bundle: Bundle? = requireActivity().intent.extras
+        if (bundle != null) {
+            val scaleTypeId = bundle.getInt(
+                MainActivity.INTENT_EXTRA_SCALE_TYPE,
+                MainActivity.DEFAULT_SCALE_TYPE_ID
+            )
+            currentScaleType = PreviewView.ScaleType.values()[scaleTypeId]
+        }
         val previewView = PreviewView(requireContext())
+        previewView.scaleType = currentScaleType
 
         return ComposeView(requireContext()).apply {
             setContent {
@@ -72,7 +83,6 @@ class ComposeUiFragment : Fragment() {
             ViewGroup.LayoutParams.MATCH_PARENT,
             ViewGroup.LayoutParams.MATCH_PARENT
         )
-        previewView.scaleType = PreviewView.ScaleType.FILL_CENTER
 
         AndroidView(
             factory = {

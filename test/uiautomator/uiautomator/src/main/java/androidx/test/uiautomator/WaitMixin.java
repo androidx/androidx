@@ -24,7 +24,7 @@ import android.os.SystemClock;
 class WaitMixin<T> {
 
     private static final long DEFAULT_POLL_INTERVAL = 100;
-    private T mObject;
+    private final T mObject;
 
     public WaitMixin(T instance) {
         mObject = instance;

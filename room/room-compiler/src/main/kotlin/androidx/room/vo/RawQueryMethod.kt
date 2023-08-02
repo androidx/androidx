@@ -16,14 +16,14 @@
 
 package androidx.room.vo
 
-import androidx.room.ext.CommonTypeNames
-import androidx.room.ext.SupportDbTypeNames
+import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.isKotlinUnit
+import androidx.room.ext.CommonTypeNames
+import androidx.room.ext.SupportDbTypeNames
 import androidx.room.ext.isNotVoid
 import androidx.room.solver.query.result.QueryResultBinder
-import com.squareup.javapoet.TypeName
 
 /**
  * A class that holds information about a method annotated with RawQuery.
@@ -31,7 +31,6 @@ import com.squareup.javapoet.TypeName
  */
 data class RawQueryMethod(
     val element: XMethodElement,
-    val name: String,
     val returnType: XType,
     val inTransaction: Boolean,
     val observedTableNames: Set<String>,
@@ -44,9 +43,9 @@ data class RawQueryMethod(
 
     data class RuntimeQueryParameter(
         val paramName: String,
-        val type: TypeName
+        val typeName: XTypeName
     ) {
-        fun isString() = CommonTypeNames.STRING == type
-        fun isSupportQuery() = SupportDbTypeNames.QUERY == type
+        fun isString() = CommonTypeNames.STRING == typeName
+        fun isSupportQuery() = SupportDbTypeNames.QUERY == typeName
     }
 }

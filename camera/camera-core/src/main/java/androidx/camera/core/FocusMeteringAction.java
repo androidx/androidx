@@ -145,7 +145,6 @@ public final class FocusMeteringAction {
      * Focus/Metering mode used to specify which 3A regions is activated for corresponding
      * {@link MeteringPoint}.
      *
-     * @hide
      */
     @IntDef(flag = true, value = {FLAG_AF, FLAG_AE, FLAG_AWB})
     @Retention(RetentionPolicy.SOURCE)
@@ -184,6 +183,17 @@ public final class FocusMeteringAction {
          */
         public Builder(@NonNull MeteringPoint point, @MeteringMode int meteringMode) {
             addPoint(point, meteringMode);
+        }
+
+        /**
+         * Create a Builder from a {@link FocusMeteringAction}.
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        public Builder(@NonNull FocusMeteringAction focusMeteringAction) {
+            mMeteringPointsAf.addAll(focusMeteringAction.getMeteringPointsAf());
+            mMeteringPointsAe.addAll(focusMeteringAction.getMeteringPointsAe());
+            mMeteringPointsAwb.addAll(focusMeteringAction.getMeteringPointsAwb());
+            mAutoCancelDurationInMillis = focusMeteringAction.getAutoCancelDurationInMillis();
         }
 
         /**
@@ -268,6 +278,27 @@ public final class FocusMeteringAction {
         @NonNull
         public Builder disableAutoCancel() {
             mAutoCancelDurationInMillis = 0;
+            return this;
+        }
+
+        /**
+         *
+         * Remove all points of the given meteringMode.
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        @NonNull
+        public Builder removePoints(@MeteringMode int meteringMode) {
+            if ((meteringMode & FLAG_AF) != 0) {
+                mMeteringPointsAf.clear();
+            }
+
+            if ((meteringMode & FLAG_AE) != 0) {
+                mMeteringPointsAe.clear();
+            }
+
+            if ((meteringMode & FLAG_AWB) != 0) {
+                mMeteringPointsAwb.clear();
+            }
             return this;
         }
 

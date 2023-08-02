@@ -18,12 +18,11 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+    id("androidx.baselineprofile")
 }
 
 android {
     defaultConfig {
-        testInstrumentationRunnerArgument "listener", "com.squareup.leakcanary.FailTestOnLeakRunListener"
-
         applicationId "androidx.activity.integration.testapp"
     }
     namespace "androidx.activity.integration.testapp"
@@ -31,7 +30,9 @@ android {
 
 dependencies {
     implementation(project(":activity:activity-ktx"))
-    implementation(projectOrArtifact(":lifecycle:lifecycle-runtime-ktx"))
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.1")
+    implementation("androidx.appcompat:appcompat:1.6.0")
+    implementation("androidx.core:core-splashscreen:1.0.0")
     androidTestImplementation(libs.kotlinStdlib)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)

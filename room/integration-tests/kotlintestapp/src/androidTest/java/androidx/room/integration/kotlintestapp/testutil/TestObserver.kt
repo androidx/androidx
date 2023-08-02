@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.room.androidx.room.integration.kotlintestapp.testutil
+package androidx.room.integration.kotlintestapp.testutil
 
 import androidx.lifecycle.Observer
 
@@ -27,8 +27,8 @@ abstract class TestObserver<T> : Observer<T> {
         mLastData = null
     }
 
-    override fun onChanged(o: T?) {
-        mLastData = o
+    override fun onChanged(value: T) {
+        mLastData = value
         mHasValue = true
     }
 

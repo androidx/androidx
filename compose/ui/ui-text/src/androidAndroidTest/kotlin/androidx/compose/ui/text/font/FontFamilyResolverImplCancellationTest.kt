@@ -19,7 +19,6 @@
 package androidx.compose.ui.text.font
 
 import android.graphics.Typeface
-import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.font.testutils.AsyncFauxFont
 import androidx.compose.ui.text.font.testutils.AsyncTestTypefaceLoader
 import androidx.compose.ui.text.matchers.assertThat
@@ -29,7 +28,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.TestCoroutineDispatcher
+import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestCoroutineScope
 import kotlinx.coroutines.test.runCurrent
 import org.junit.After
@@ -39,7 +38,6 @@ import org.junit.runner.RunWith
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
-@OptIn(ExperimentalTextApi::class)
 @ExperimentalCoroutinesApi
 class FontFamilyResolverImplCancellationTest {
     private lateinit var typefaceLoader: AsyncTestTypefaceLoader
@@ -56,10 +54,8 @@ class FontFamilyResolverImplCancellationTest {
     fun setup() {
         asyncTypefaceCache = AsyncTypefaceCache()
         typefaceRequestCache = TypefaceRequestCache()
-        val dispatcher = TestCoroutineDispatcher()
-        scope = TestCoroutineScope(dispatcher).also {
-            dispatcher.pauseDispatcher()
-        }
+        val dispatcher = StandardTestDispatcher()
+        scope = TestCoroutineScope(dispatcher)
         val injectedContext = scope.coroutineContext.minusKey(CoroutineExceptionHandler)
         subject = FontFamilyResolverImpl(
             fontLoader,

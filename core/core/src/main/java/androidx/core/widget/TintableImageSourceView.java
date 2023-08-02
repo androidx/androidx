@@ -33,7 +33,6 @@ import androidx.annotation.RestrictTo;
  * implies that AppCompat shadows the platform's image tint attributes. See
  * {@link androidx.resourceinspection.processor} for more details and a full mapping of attributes.
  *
- * @hide Internal use only
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 public interface TintableImageSourceView {

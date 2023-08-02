@@ -86,7 +86,6 @@ public class CheckBoxPreference extends TwoStatePreference {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     @Override

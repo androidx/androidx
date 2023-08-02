@@ -60,7 +60,6 @@ dependencies {
 androidx {
     name = "Lifecycle ViewModel Compose"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.LIFECYCLE
     inceptionYear = "2021"
     description = "Compose integration with Lifecycle ViewModel"
     runApiTasks = new RunApiTasks.Yes()

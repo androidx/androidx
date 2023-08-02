@@ -91,7 +91,6 @@ import androidx.annotation.VisibleForTesting;
  * <p>TextRenderer also hides characters and styling that may not be suitable for display in ambient
  * mode - for example full color emoji.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 class TextRenderer {
@@ -102,15 +101,15 @@ class TextRenderer {
     private static final int SPACE_CHARACTER = 0x20;
 
     private static final Class<?>[] SPAN_ALLOW_LIST =
-            new Class<?>[]{
-                    ForegroundColorSpan.class,
-                    LocaleSpan.class,
-                    SubscriptSpan.class,
-                    SuperscriptSpan.class,
-                    StrikethroughSpan.class,
-                    StyleSpan.class,
-                    TypefaceSpan.class,
-                    UnderlineSpan.class
+            new Class<?>[] {
+                ForegroundColorSpan.class,
+                LocaleSpan.class,
+                SubscriptSpan.class,
+                SuperscriptSpan.class,
+                StrikethroughSpan.class,
+                StyleSpan.class,
+                TypefaceSpan.class,
+                UnderlineSpan.class
             };
 
     private final Rect mBounds = new Rect();
@@ -207,7 +206,8 @@ class TextRenderer {
             for (Object span : spans) {
                 if (!isSpanAllowed(span)) {
                     builder.removeSpan(span);
-                    Log.w(TAG,
+                    Log.w(
+                            TAG,
                             "Removing unsupported span of type " + span.getClass().getSimpleName());
                 }
             }
@@ -268,7 +268,7 @@ class TextRenderer {
      * <p>If not called, the default is {@link Gravity#CENTER}.
      *
      * @param gravity Gravity to position text, should be one of the constants specified in {@link
-     * android.view.Gravity} class.
+     *     android.view.Gravity} class.
      */
     public void setGravity(int gravity) {
         if (mGravity == gravity) {

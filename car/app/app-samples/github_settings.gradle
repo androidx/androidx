@@ -15,15 +15,9 @@
  */
 
 rootProject.name='car_app_samples'
-include ':helloworld:automotive'
-include ':helloworld:common'
-include ':helloworld:mobile'
 include ':navigation:automotive'
 include ':navigation:common'
 include ':navigation:mobile'
-include ':places:automotive'
-include ':places:common'
-include ':places:mobile'
 include ':showcase:automotive'
 include ':showcase:common'
 include ':showcase:mobile'

@@ -19,30 +19,38 @@ package androidx.benchmark
 import android.os.Bundle
 import android.util.Log
 import androidx.annotation.RestrictTo
+import androidx.annotation.VisibleForTesting
 import androidx.test.platform.app.InstrumentationRegistry
 
 /**
  * This allows tests to override arguments from code
- *
- * @hide
  */
-@RestrictTo(RestrictTo.Scope.TESTS)
+@RestrictTo(RestrictTo.Scope.LIBRARY)
+@get:RestrictTo(RestrictTo.Scope.LIBRARY)
+@set:RestrictTo(RestrictTo.Scope.LIBRARY)
+@VisibleForTesting
 public var argumentSource: Bundle? = null
 
-/**
- * Allows tests to override profiler
- */
-@RestrictTo(RestrictTo.Scope.TESTS)
-internal var profilerOverride: Profiler? = null
-
-/**
- * @hide
- */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public object Arguments {
-
+object Arguments {
     // public properties are shared by micro + macro benchmarks
-    public val suppressedErrors: Set<String>
+    val suppressedErrors: Set<String>
+
+    /**
+     * Set to true to enable androidx.tracing.perfetto tracepoints (such as composition tracing)
+     *
+     * Note that when StartupMode.COLD is used, additional work must be performed during target app
+     * startup to initialize tracing.
+     */
+    private val _perfettoSdkTracingEnable: Boolean
+    val perfettoSdkTracingEnable: Boolean get() =
+        perfettoSdkTracingEnableOverride ?: _perfettoSdkTracingEnable
+
+    /**
+     * Allows tests to override whether full tracing is enabled
+     */
+    @VisibleForTesting
+    var perfettoSdkTracingEnableOverride: Boolean? = null
 
     val enabledRules: Set<RuleType>
 
@@ -55,18 +63,18 @@ public object Arguments {
     val enableCompilation: Boolean
     val killProcessDelayMillis: Long
     val enableStartupProfiles: Boolean
-    val strictStartupProfiles: Boolean
+    val dryRunMode: Boolean
 
     // internal properties are microbenchmark only
     internal val outputEnable: Boolean
     internal val startupMode: Boolean
-    internal val dryRunMode: Boolean
     internal val iterations: Int?
-    private val _profiler: Profiler?
     internal val profiler: Profiler?
-        get() = if (profilerOverride != null) profilerOverride else _profiler
     internal val profilerSampleFrequency: Int
     internal val profilerSampleDurationSeconds: Long
+    internal val thermalThrottleSleepDurationSeconds: Long
+    private val cpuEventCounterEnable: Boolean
+    internal val cpuEventCounterMask: Int
 
     internal var error: String? = null
     internal val additionalTestOutputDir: String?
@@ -111,6 +119,12 @@ public object Arguments {
         iterations =
             arguments.getBenchmarkArgument("iterations")?.toInt()
 
+        _perfettoSdkTracingEnable =
+            arguments.getBenchmarkArgument("perfettoSdkTracing.enable")?.toBoolean()
+                // fullTracing.enable is the legacy/compat name
+                ?: arguments.getBenchmarkArgument("fullTracing.enable")?.toBoolean()
+                    ?: false
+
         // Transform comma-delimited list into set of suppressed errors
         // E.g. "DEBUGGABLE, UNLOCKED" -> setOf("DEBUGGABLE", "UNLOCKED")
         suppressedErrors = arguments.getBenchmarkArgument("suppressErrors", "")
@@ -122,20 +136,36 @@ public object Arguments {
         enabledRules = arguments.getBenchmarkArgument(
             key = "enabledRules",
             defaultValue = RuleType.values().joinToString(separator = ",") { it.toString() }
-        )
-            .split(',')
-            .map { it.trim() }
-            .filter { it.isNotEmpty() }
-            .map { arg ->
-                RuleType.values().find { arg.lowercase() == it.toString().lowercase() }
-                    ?: throw IllegalArgumentException("Unable to parse enabledRules arg: $arg")
+        ).run {
+            if (this.lowercase() == "none") {
+                emptySet()
+            } else {
+                // parse comma-delimited list
+                try {
+                    this.split(',')
+                        .map { it.trim() }
+                        .filter { it.isNotEmpty() }
+                        .map { arg ->
+                            RuleType.values().find { arg.lowercase() == it.toString().lowercase() }
+                                ?: throw Throwable("unable to find $arg")
+                        }
+                        .toSet()
+                } catch (e: Throwable) {
+                    // defer parse error, so it doesn't show up as a missing class
+                    val allRules = RuleType.values()
+                    val allRulesString = allRules.joinToString(",") { it.toString() }
+                    error = "unable to parse enabledRules='$this', should be 'None' or" +
+                        " comma-separated list of supported ruletypes: $allRulesString"
+                    allRules.toSet() // don't filter tests, so we have an opportunity to throw
+                }
             }
-            .toSet()
+        }
 
+        // compilation defaults to disabled if dryRunMode is on
         enableCompilation =
-            arguments.getBenchmarkArgument("compilation.enabled")?.toBoolean() ?: true
+            arguments.getBenchmarkArgument("compilation.enabled")?.toBoolean() ?: !dryRunMode
 
-        _profiler = arguments.getProfiler(outputEnable)
+        profiler = arguments.getProfiler(outputEnable)
         profilerSampleFrequency =
             arguments.getBenchmarkArgument("profiling.sampleFrequency")?.ifBlank { null }
                 ?.toInt()
@@ -144,22 +174,56 @@ public object Arguments {
             arguments.getBenchmarkArgument("profiling.sampleDurationSeconds")?.ifBlank { null }
                 ?.toLong()
                 ?: 5
-        if (_profiler != null) {
+        if (profiler != null) {
             Log.d(
                 BenchmarkState.TAG,
-                "Profiler ${_profiler.javaClass.simpleName}, freq " +
+                "Profiler ${profiler.javaClass.simpleName}, freq " +
                     "$profilerSampleFrequency, duration $profilerSampleDurationSeconds"
             )
         }
+
+        cpuEventCounterEnable =
+            arguments.getBenchmarkArgument("cpuEventCounter.enable")?.toBoolean() ?: false
+        cpuEventCounterMask =
+            if (cpuEventCounterEnable) {
+                arguments.getBenchmarkArgument("cpuEventCounter.events", "Instructions,CpuCycles")
+                    .split(",").map { eventName ->
+                            CpuEventCounter.Event.valueOf(eventName)
+                    }.getFlags()
+            } else {
+                0x0
+            }
+        if (cpuEventCounterEnable && cpuEventCounterMask == 0x0) {
+            error = "Must set a cpu event counters mask to use counters." +
+                " See CpuEventCounters.Event for flag definitions."
+        }
+
+        thermalThrottleSleepDurationSeconds =
+            arguments.getBenchmarkArgument("thermalThrottle.sleepDurationSeconds")?.ifBlank { null }
+                ?.toLong()
+                ?: 90
+
         additionalTestOutputDir = arguments.getString("additionalTestOutputDir")
+        Log.d(BenchmarkState.TAG, "additionalTestOutputDir=$additionalTestOutputDir")
 
         killProcessDelayMillis =
             arguments.getBenchmarkArgument("killProcessDelayMillis")?.toLong() ?: 0L
 
         enableStartupProfiles =
-            arguments.getBenchmarkArgument("startupProfiles.enable")?.toBoolean() ?: false
+            arguments.getBenchmarkArgument("startupProfiles.enable")?.toBoolean() ?: true
+    }
 
-        strictStartupProfiles =
-            arguments.getBenchmarkArgument("startupProfiles.strict")?.toBoolean() ?: false
+    fun methodTracingEnabled(): Boolean {
+        return when {
+            dryRunMode -> false
+            profiler == MethodTracing -> true
+            else -> false
+        }
+    }
+
+    fun throwIfError() {
+        if (error != null) {
+            throw AssertionError(error)
+        }
     }
 }

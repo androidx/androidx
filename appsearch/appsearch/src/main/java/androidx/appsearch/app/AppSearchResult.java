@@ -40,7 +40,7 @@ public final class AppSearchResult<ValueType> {
 
     /**
      * Result codes from {@link AppSearchSession} methods.
-     * @hide
+     * @exportToFramework:hide
      */
     @IntDef(value = {
             RESULT_OK,
@@ -52,7 +52,10 @@ public final class AppSearchResult<ValueType> {
             RESULT_NOT_FOUND,
             RESULT_INVALID_SCHEMA,
             RESULT_SECURITY_ERROR,
+            RESULT_DENIED,
+            RESULT_RATE_LIMITED,
     })
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Retention(RetentionPolicy.SOURCE)
     public @interface ResultCode {}
 
@@ -95,6 +98,22 @@ public final class AppSearchResult<ValueType> {
     /** The caller requested an operation it does not have privileges for. */
     public static final int RESULT_SECURITY_ERROR = 8;
 
+    /**
+     * The requested operation is denied for the caller. This error is logged and returned for
+     * denylist rejections.
+     * <!--@exportToFramework:hide-->
+     */
+    // TODO(b/279047435): unhide this the next time we can make API changes
+    public static final int RESULT_DENIED = 9;
+
+    /**
+     * The caller has hit AppSearch's rate limit and the requested operation has been rejected.
+     * <!--@exportToFramework:hide-->
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    // TODO(b/279047435): unhide this the next time we can make API changes
+    public static final int RESULT_RATE_LIMITED = 10;
+
     private final @ResultCode int mResultCode;
     @Nullable private final ValueType mResultValue;
     @Nullable private final String mErrorMessage;
@@ -114,7 +133,8 @@ public final class AppSearchResult<ValueType> {
     }
 
     /** Returns one of the {@code RESULT} constants defined in {@link AppSearchResult}. */
-    public @ResultCode int getResultCode() {
+    @ResultCode
+    public int getResultCode() {
         return mResultCode;
     }
 
@@ -202,7 +222,7 @@ public final class AppSearchResult<ValueType> {
     /**
      * Creates a new failed {@link AppSearchResult} by a AppSearchResult in another type.
      *
-     * @hide
+     * @exportToFramework:hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @NonNull
@@ -214,7 +234,7 @@ public final class AppSearchResult<ValueType> {
                 otherFailedResult.getResultCode(), otherFailedResult.getErrorMessage());
     }
 
-    /** @hide */
+    /** @exportToFramework:hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @NonNull
     public static <ValueType> AppSearchResult<ValueType> throwableToFailedResult(

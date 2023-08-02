@@ -18,7 +18,6 @@ package androidx.room
 
 import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.sqlite.db.SupportSQLiteOpenHelper
-
 import java.util.concurrent.Executor
 
 internal class QueryInterceptorOpenHelper(
@@ -26,19 +25,17 @@ internal class QueryInterceptorOpenHelper(
     private val queryCallbackExecutor: Executor,
     private val queryCallback: RoomDatabase.QueryCallback
 ) : SupportSQLiteOpenHelper by delegate, DelegatingOpenHelper {
-    override fun getWritableDatabase(): SupportSQLiteDatabase {
-        return QueryInterceptorDatabase(
+    override val writableDatabase: SupportSQLiteDatabase
+        get() = QueryInterceptorDatabase(
             delegate.writableDatabase,
             queryCallbackExecutor,
             queryCallback
         )
-    }
 
-    override fun getReadableDatabase(): SupportSQLiteDatabase {
-        return QueryInterceptorDatabase(
+    override val readableDatabase: SupportSQLiteDatabase
+        get() = QueryInterceptorDatabase(
             delegate.readableDatabase,
             queryCallbackExecutor,
             queryCallback
         )
-    }
 }

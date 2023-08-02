@@ -23,11 +23,9 @@ import androidx.work.lint.Stubs.WORKER_FACTORY
 import androidx.work.lint.Stubs.WORK_MANAGER_CONFIGURATION_PROVIDER
 import com.android.tools.lint.checks.infrastructure.LintDetectorTest.kotlin
 import com.android.tools.lint.checks.infrastructure.TestLintTask.lint
-import org.junit.Ignore
 import org.junit.Test
 
 class WorkerHasPublicModifierDetectorTest {
-    @Ignore("b/187541663")
     @Test
     fun testWithPrivateWorker() {
         val worker = kotlin(
@@ -52,7 +50,7 @@ class WorkerHasPublicModifierDetectorTest {
                 """
                 src/com/example/Worker.kt:5: Error: com.example.Worker needs to be public [WorkerHasAPublicModifier]
                 private class Worker: ListenableWorker()
-                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                              ~~~~~~
                 1 errors, 0 warnings
                 """.trimIndent()
             )

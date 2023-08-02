@@ -50,7 +50,6 @@ androidx {
     name = "SplashScreen"
     type = LibraryType.PUBLISHED_LIBRARY
     mavenVersion = LibraryVersions.CORE_SPLASHSCREEN
-    mavenGroup = LibraryGroups.CORE
     inceptionYear = "2021"
     description = "This library provides the compatibility APIs for SplashScreen " +
             "and helper method to enable a splashscreen on devices prior Android 12"

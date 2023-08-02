@@ -62,6 +62,6 @@
  * A {@link androidx.leanback.app.GuidedStepSupportFragment} is used to guide the user
  * through a decision or series of decisions.
  * </p>
- **/
+ */
 
 package androidx.leanback.app;

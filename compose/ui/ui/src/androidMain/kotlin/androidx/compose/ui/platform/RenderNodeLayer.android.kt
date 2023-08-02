@@ -25,6 +25,7 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.CanvasHolder
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.Matrix
 import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.RectangleShape
@@ -123,6 +124,7 @@ internal class RenderNodeLayer(
         renderEffect: RenderEffect?,
         ambientShadowColor: Color,
         spotShadowColor: Color,
+        compositingStrategy: CompositingStrategy,
         layoutDirection: LayoutDirection,
         density: Density
     ) {
@@ -145,6 +147,7 @@ internal class RenderNodeLayer(
         renderNode.clipToOutline = clip && shape !== RectangleShape
         renderNode.clipToBounds = clip && shape === RectangleShape
         renderNode.renderEffect = renderEffect
+        renderNode.compositingStrategy = compositingStrategy
         val shapeChanged = outlineResolver.update(
             shape,
             renderNode.alpha,
@@ -205,8 +208,12 @@ internal class RenderNodeLayer(
         val newLeft = position.x
         val newTop = position.y
         if (oldLeft != newLeft || oldTop != newTop) {
-            renderNode.offsetLeftAndRight(newLeft - oldLeft)
-            renderNode.offsetTopAndBottom(newTop - oldTop)
+            if (oldLeft != newLeft) {
+                renderNode.offsetLeftAndRight(newLeft - oldLeft)
+            }
+            if (oldTop != newTop) {
+                renderNode.offsetTopAndBottom(newTop - oldTop)
+            }
             triggerRepaint()
             matrixCache.invalidate()
         }
@@ -288,7 +295,6 @@ internal class RenderNodeLayer(
 
     override fun updateDisplayList() {
         if (isDirty || !renderNode.hasDisplayList) {
-            isDirty = false
             val clipPath = if (renderNode.clipToOutline && !outlineResolver.outlineClipSupported) {
                 outlineResolver.clipPath
             } else {
@@ -297,6 +303,7 @@ internal class RenderNodeLayer(
             drawBlock?.let {
                 renderNode.record(canvasHolder, clipPath, it)
             }
+            isDirty = false
         }
     }
 

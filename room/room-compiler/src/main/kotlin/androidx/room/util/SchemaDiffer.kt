@@ -23,20 +23,19 @@ import androidx.room.migration.bundle.FieldBundle
 import androidx.room.migration.bundle.ForeignKeyBundle
 import androidx.room.migration.bundle.FtsEntityBundle
 import androidx.room.migration.bundle.IndexBundle
-import androidx.room.processor.ProcessorErrors.deletedOrRenamedTableFound
-import androidx.room.processor.ProcessorErrors.tableRenameError
 import androidx.room.processor.ProcessorErrors.conflictingRenameColumnAnnotationsFound
 import androidx.room.processor.ProcessorErrors.conflictingRenameTableAnnotationsFound
-import androidx.room.processor.ProcessorErrors.newNotNullColumnMustHaveDefaultValue
 import androidx.room.processor.ProcessorErrors.deletedOrRenamedColumnFound
+import androidx.room.processor.ProcessorErrors.deletedOrRenamedTableFound
+import androidx.room.processor.ProcessorErrors.newNotNullColumnMustHaveDefaultValue
+import androidx.room.processor.ProcessorErrors.tableRenameError
 import androidx.room.processor.ProcessorErrors.tableWithConflictingPrefixFound
 import androidx.room.vo.AutoMigration
 
 /**
- * This exception should be thrown to abandon processing an @AutoMigration.
+ * This RuntimeException should be thrown to abandon processing an @AutoMigration.
  *
  * @param errorMessage Error message to be thrown with the exception
- * @return RuntimeException with the provided error message
  */
 class DiffException(val errorMessage: String) : RuntimeException(errorMessage)
 
@@ -292,15 +291,20 @@ class SchemaDiffer(
         // table as a complex change and include the renamed column.
         val renamedToColumn = isColumnRenamed(fromColumn.columnName, fromTable.tableName)
         if (renamedToColumn != null) {
-            val renamedColumnsMap = mutableMapOf(
-                renamedToColumn.newColumnName to fromColumn.columnName
-            )
             // Make sure there are no conflicts in the new version of the table with the
             // temporary new table name
             if (toSchemaBundle.entitiesByTableName.containsKey(toTable.newTableName)) {
                 diffError(tableWithConflictingPrefixFound(toTable.newTableName))
             }
             renamedTables.remove(fromTable.tableName)
+
+            // If the table is already marked as a complex change, then we want to add a new entry
+            // to it's renamedColumnMap
+            val renamedColumnsMap = complexChangedTables[fromTable.tableName]?.renamedColumnsMap
+                ?: mutableMapOf()
+
+            renamedColumnsMap[renamedToColumn.newColumnName] = fromColumn.columnName
+
             complexChangedTables[fromTable.tableName] =
                 AutoMigration.ComplexChangedTable(
                     tableName = fromTable.tableName,

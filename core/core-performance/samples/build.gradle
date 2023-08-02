@@ -25,18 +25,21 @@ plugins {
 dependencies {
     api(libs.kotlinStdlib)
     implementation(project(":core:core-performance"))
+    implementation(project(":core:core-performance-play-services"))
     compileOnly(project(":annotation:annotation-sampled"))
 }
 
 androidx {
-    name = "cSamples"
+    name = "Core Performance Samples"
     type = LibraryType.SAMPLES
     mavenVersion = LibraryVersions.CORE_PERFORMANCE
-    mavenGroup = LibraryGroups.CORE
     inceptionYear = "2021"
     description = "Samples for AndroidX Core Performance Library"
 }
 
 android {
+    defaultConfig {
+        minSdkVersion 24
+    }
     namespace "androidx.core.performance.samples"
 }

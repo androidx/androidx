@@ -48,6 +48,7 @@ import androidx.camera.camera2.interop.Camera2Interop;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ExposureState;
 import androidx.camera.core.ImageCapture;
+import androidx.camera.core.concurrent.CameraCoordinator;
 import androidx.camera.core.impl.CameraControlInternal;
 import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.CameraInternal;
@@ -55,13 +56,15 @@ import androidx.camera.core.impl.CameraStateRegistry;
 import androidx.camera.core.impl.DeferrableSurface;
 import androidx.camera.core.impl.ImmediateSurface;
 import androidx.camera.core.impl.SessionConfig;
+import androidx.camera.core.impl.StreamSpec;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.internal.CameraUseCaseAdapter;
-import androidx.camera.testing.CameraUtil;
-import androidx.camera.testing.fakes.FakeCameraDeviceSurfaceManager;
-import androidx.camera.testing.fakes.FakeUseCase;
-import androidx.camera.testing.fakes.FakeUseCaseConfig;
-import androidx.camera.testing.fakes.FakeUseCaseConfigFactory;
+import androidx.camera.testing.impl.CameraUtil;
+import androidx.camera.testing.impl.fakes.FakeCameraCoordinator;
+import androidx.camera.testing.impl.fakes.FakeCameraDeviceSurfaceManager;
+import androidx.camera.testing.impl.fakes.FakeUseCase;
+import androidx.camera.testing.impl.fakes.FakeUseCaseConfig;
+import androidx.camera.testing.impl.fakes.FakeUseCaseConfigFactory;
 import androidx.core.os.HandlerCompat;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -116,6 +119,7 @@ public class ExposureDeviceTest {
     Semaphore mSemaphore;
     String mCameraId;
     SemaphoreReleasingCamera2Callbacks.SessionStateCallback mSessionStateCallback;
+    private CameraCoordinator mCameraCoordinator;
     private CameraUseCaseAdapter mCameraUseCaseAdapter;
     private CameraInfoInternal mCameraInfoInternal;
     private CameraControlInternal mCameraControlInternal;
@@ -148,7 +152,9 @@ public class ExposureDeviceTest {
         mSessionStateCallback = new SemaphoreReleasingCamera2Callbacks.SessionStateCallback();
         mCameraId = CameraUtil.getCameraIdWithLensFacing(DEFAULT_LENS_FACING);
         mSemaphore = new Semaphore(0);
-        mCameraStateRegistry = new CameraStateRegistry(DEFAULT_AVAILABLE_CAMERA_COUNT);
+        mCameraCoordinator = new FakeCameraCoordinator();
+        mCameraStateRegistry = new CameraStateRegistry(mCameraCoordinator,
+                DEFAULT_AVAILABLE_CAMERA_COUNT);
         CameraManagerCompat cameraManagerCompat =
                 CameraManagerCompat.from((Context) ApplicationProvider.getApplicationContext());
         Camera2CameraInfoImpl camera2CameraInfo = new Camera2CameraInfoImpl(
@@ -157,6 +163,7 @@ public class ExposureDeviceTest {
                 CameraManagerCompat.from((Context) ApplicationProvider.getApplicationContext()),
                 mCameraId,
                 camera2CameraInfo,
+                mCameraCoordinator,
                 mCameraStateRegistry, sCameraExecutor, sCameraHandler,
                 DisplayInfoManager.getInstance(ApplicationProvider.getApplicationContext())
         );
@@ -167,11 +174,12 @@ public class ExposureDeviceTest {
 
         FakeCameraDeviceSurfaceManager fakeCameraDeviceSurfaceManager =
                 new FakeCameraDeviceSurfaceManager();
-        fakeCameraDeviceSurfaceManager.setSuggestedResolution(mCameraId, FakeUseCaseConfig.class,
-                new Size(640, 480));
-
+        fakeCameraDeviceSurfaceManager.setSuggestedStreamSpec(mCameraId, FakeUseCaseConfig.class,
+                StreamSpec.builder(new Size(640, 480)).build());
+        mCameraCoordinator = new FakeCameraCoordinator();
         mCameraUseCaseAdapter = new CameraUseCaseAdapter(
                 new LinkedHashSet<>(Collections.singleton(mCamera2CameraImpl)),
+                mCameraCoordinator,
                 fakeCameraDeviceSurfaceManager, new FakeUseCaseConfigFactory());
     }
 
@@ -190,7 +198,7 @@ public class ExposureDeviceTest {
         }
 
         for (FakeTestUseCase fakeUseCase : mFakeTestUseCases) {
-            fakeUseCase.onDetached();
+            fakeUseCase.onUnbind();
         }
     }
 
@@ -427,8 +435,8 @@ public class ExposureDeviceTest {
         }
 
         @Override
-        public void onDetached() {
-            super.onDetached();
+        public void onUnbind() {
+            super.onUnbind();
             if (mDeferrableSurface != null) {
                 mDeferrableSurface.close();
             }
@@ -436,15 +444,16 @@ public class ExposureDeviceTest {
 
         @Override
         @NonNull
-        protected Size onSuggestedResolutionUpdated(
-                @NonNull Size suggestedResolution) {
-            createPipeline(suggestedResolution);
+        protected StreamSpec onSuggestedStreamSpecUpdated(
+                @NonNull StreamSpec suggestedStreamSpec) {
+            createPipeline(suggestedStreamSpec);
             notifyActive();
-            return suggestedResolution;
+            return suggestedStreamSpec;
         }
 
-        private void createPipeline(Size resolution) {
-            SessionConfig.Builder builder = SessionConfig.Builder.createFrom(getCurrentConfig());
+        private void createPipeline(StreamSpec streamSpec) {
+            SessionConfig.Builder builder = SessionConfig.Builder.createFrom(getCurrentConfig(),
+                    streamSpec.getResolution());
 
             builder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
             if (mDeferrableSurface != null) {
@@ -452,6 +461,7 @@ public class ExposureDeviceTest {
             }
 
             // Create the metering DeferrableSurface
+            Size resolution = streamSpec.getResolution();
             SurfaceTexture surfaceTexture = new SurfaceTexture(0);
             surfaceTexture.setDefaultBufferSize(resolution.getWidth(), resolution.getHeight());
             Surface surface = new Surface(surfaceTexture);
@@ -477,7 +487,7 @@ public class ExposureDeviceTest {
 
             builder.addErrorListener((sessionConfig, error) -> {
                 // Create new pipeline and it will close the old one.
-                createPipeline(resolution);
+                createPipeline(streamSpec);
             });
             updateSessionConfig(builder.build());
         }

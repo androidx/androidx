@@ -35,6 +35,12 @@ message BackgroundRegistrationRequest {
   reserved 2 to max;  // Next ID
 }
 
+message BatchingModeConfigRequest {
+  optional string package_name = 1;
+  repeated BatchingMode batching_mode_overrides = 2 [packed = true];
+  reserved 3 to max;  // Next ID
+}
+
 // Request for capabilities.
 message CapabilitiesRequest {
   optional string package_name = 1;
@@ -114,5 +120,11 @@ message PrepareExerciseRequest {
 message StartExerciseRequest {
   optional string package_name = 1;
   optional ExerciseConfig config = 2;
+  reserved 3 to max;  // Next ID
+}
+
+message UpdateExerciseTypeConfigRequest {
+  optional string package_name = 1;
+  optional ExerciseTypeConfig config = 2;
   reserved 3 to max;  // Next ID
 }

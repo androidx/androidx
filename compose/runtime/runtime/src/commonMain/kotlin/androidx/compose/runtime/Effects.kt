@@ -17,11 +17,12 @@
 package androidx.compose.runtime
 
 import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.EmptyCoroutineContext
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
-import kotlin.coroutines.EmptyCoroutineContext
 
 /**
  * Schedule [effect] to run when the current composition completes successfully and applies
@@ -41,6 +42,7 @@ import kotlin.coroutines.EmptyCoroutineContext
  */
 @Composable
 @NonRestartableComposable
+@ExplicitGroupsComposable
 @OptIn(InternalComposeApi::class)
 fun SideEffect(
     effect: () -> Unit
@@ -284,17 +286,18 @@ internal class LaunchedEffectImpl(
     private var job: Job? = null
 
     override fun onRemembered() {
+        // This should never happen but is left here for safety
         job?.cancel("Old job was still running!")
         job = scope.launch(block = task)
     }
 
     override fun onForgotten() {
-        job?.cancel()
+        job?.cancel(LeftCompositionCancellationException())
         job = null
     }
 
     override fun onAbandoned() {
-        job?.cancel()
+        job?.cancel(LeftCompositionCancellationException())
         job = null
     }
 }
@@ -384,6 +387,16 @@ fun LaunchedEffect(
     remember(key1, key2, key3) { LaunchedEffectImpl(applyContext, block) }
 }
 
+private class LeftCompositionCancellationException : CancellationException(
+    "The coroutine scope left the composition"
+) {
+    override fun fillInStackTrace(): Throwable {
+        // Avoid null.clone() on Android <= 6.0 when accessing stackTrace
+        stackTrace = emptyArray()
+        return this
+    }
+}
+
 /**
  * When [LaunchedEffect] enters the composition it will launch [block] into the composition's
  * [CoroutineContext]. The coroutine will be [cancelled][Job.cancel] and **re-launched** when
@@ -416,11 +429,11 @@ internal class CompositionScopedCoroutineScopeCanceller(
     }
 
     override fun onForgotten() {
-        coroutineScope.cancel()
+        coroutineScope.cancel(LeftCompositionCancellationException())
     }
 
     override fun onAbandoned() {
-        coroutineScope.cancel()
+        coroutineScope.cancel(LeftCompositionCancellationException())
     }
 }
 
@@ -470,7 +483,8 @@ internal fun createCompositionCoroutineScope(
  */
 @Composable
 inline fun rememberCoroutineScope(
-    getContext: @DisallowComposableCalls () -> CoroutineContext = { EmptyCoroutineContext }
+    crossinline getContext: @DisallowComposableCalls () -> CoroutineContext =
+        { EmptyCoroutineContext }
 ): CoroutineScope {
     val composer = currentComposer
     val wrapper = remember {

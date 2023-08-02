@@ -21,7 +21,6 @@ import androidx.annotation.NonNull;
 /**
  * Used to enumerate a container's UI elements for the purpose of counting,
  * or targeting a sub elements by a child's text or description.
- * @since API Level 16
  */
 public class UiCollection extends UiObject {
 
@@ -29,7 +28,6 @@ public class UiCollection extends UiObject {
      * Constructs an instance as described by the selector
      *
      * @param selector
-     * @since API Level 16
      */
     public UiCollection(@NonNull UiSelector selector) {
         super(selector);
@@ -48,12 +46,10 @@ public class UiCollection extends UiObject {
      * @param text String of the identifying child contents of of the <code>childPattern</code>
      * @return {@link UiObject} pointing at and instance of <code>childPattern</code>
      * @throws UiObjectNotFoundException
-     * @since API Level 16
      */
     @NonNull
     public UiObject getChildByDescription(@NonNull UiSelector childPattern, @NonNull String text)
             throws UiObjectNotFoundException {
-        Tracer.trace(childPattern, text);
         if (text != null) {
             int count = getChildCount(childPattern);
             for (int x = 0; x < count; x++) {
@@ -83,12 +79,10 @@ public class UiCollection extends UiObject {
      * @param childPattern {@link UiSelector} selector of the child pattern to match and return
      * @param instance int the desired matched instance of this <code>childPattern</code>
      * @return {@link UiObject} pointing at and instance of <code>childPattern</code>
-     * @since API Level 16
      */
     @NonNull
     public UiObject getChildByInstance(@NonNull UiSelector childPattern, int instance)
             throws UiObjectNotFoundException {
-        Tracer.trace(childPattern, instance);
         UiSelector patternSelector = UiSelector.patternBuilder(getSelector(),
                 UiSelector.patternBuilder(childPattern).instance(instance));
         return new UiObject(patternSelector);
@@ -108,12 +102,10 @@ public class UiCollection extends UiObject {
      * @param text String of the identifying child contents of of the <code>childPattern</code>
      * @return {@link UiObject} pointing at and instance of <code>childPattern</code>
      * @throws UiObjectNotFoundException
-     * @since API Level 16
      */
     @NonNull
     public UiObject getChildByText(@NonNull UiSelector childPattern, @NonNull String text)
             throws UiObjectNotFoundException {
-        Tracer.trace(childPattern, text);
         if (text != null) {
             int count = getChildCount(childPattern);
             for (int x = 0; x < count; x++) {
@@ -140,10 +132,8 @@ public class UiCollection extends UiObject {
      * @param childPattern a {@link UiSelector} that represents the matching child UI
      * elements to count
      * @return the number of matched childPattern under the current {@link UiCollection}
-     * @since API Level 16
      */
     public int getChildCount(@NonNull UiSelector childPattern) {
-        Tracer.trace(childPattern);
         UiSelector patternSelector =
                 UiSelector.patternBuilder(getSelector(), UiSelector.patternBuilder(childPattern));
         return getQueryController().getPatternCount(patternSelector);

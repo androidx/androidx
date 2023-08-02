@@ -16,41 +16,54 @@
 
 package androidx.room.solver.query.result
 
+import androidx.room.compiler.codegen.XCodeBlock
+import androidx.room.compiler.codegen.XCodeBlock.Builder.Companion.addLocalVal
 import androidx.room.compiler.processing.XType
-import androidx.room.ext.L
-import androidx.room.ext.T
+import androidx.room.ext.GuavaTypeNames
 import androidx.room.solver.CodeGenScope
-import com.google.common.collect.ImmutableList
-import com.squareup.javapoet.ClassName
-import com.squareup.javapoet.ParameterizedTypeName
 
 class ImmutableListQueryResultAdapter(
     private val typeArg: XType,
     private val rowAdapter: RowAdapter
 ) : QueryResultAdapter(listOf(rowAdapter)) {
     override fun convert(outVarName: String, cursorVarName: String, scope: CodeGenScope) {
-        scope.builder().apply {
+        scope.builder.apply {
             rowAdapter.onCursorReady(cursorVarName = cursorVarName, scope = scope)
-            val collectionType = ParameterizedTypeName
-                .get(ClassName.get(ImmutableList::class.java), typeArg.typeName)
-            val immutableListBuilderType = ParameterizedTypeName
-                .get(ClassName.get(ImmutableList.Builder::class.java), typeArg.typeName)
-            val immutableListBuilderName = scope.getTmpVar("_immutableListBuilder")
-            addStatement(
-                "final $T $L = $T.<$T>builder()",
-                immutableListBuilderType, immutableListBuilderName,
-                ClassName.get(ImmutableList::class.java), typeArg.typeName
+            val collectionType = GuavaTypeNames.IMMUTABLE_LIST.parametrizedBy(
+                typeArg.asTypeName()
             )
+            val immutableListBuilderType = GuavaTypeNames
+                .IMMUTABLE_LIST_BUILDER.parametrizedBy(typeArg.asTypeName())
+            val immutableListBuilderName = scope.getTmpVar("_immutableListBuilder")
+            addLocalVariable(
+                name = immutableListBuilderName,
+                typeName = immutableListBuilderType,
+                assignExpr = XCodeBlock.of(
+                    language = language,
+                    "%T.builder()",
+                    GuavaTypeNames.IMMUTABLE_LIST
+                )
+            )
+
             val tmpVarName = scope.getTmpVar("_item")
-            beginControlFlow("while($L.moveToNext())", cursorVarName).apply {
-                addStatement("final $T $L", typeArg.typeName, tmpVarName)
+            beginControlFlow("while (%L.moveToNext())", cursorVarName).apply {
+                addLocalVariable(
+                    name = tmpVarName,
+                    typeName = typeArg.asTypeName()
+                )
                 rowAdapter.convert(tmpVarName, cursorVarName, scope)
-                addStatement("$L.add($L)", immutableListBuilderName, tmpVarName)
+                addStatement(
+                    "%L.add(%L)",
+                    immutableListBuilderName,
+                    tmpVarName
+                )
             }
             endControlFlow()
-            addStatement(
-                "final $T $L = $L.build()",
-                collectionType, outVarName, immutableListBuilderName
+            addLocalVal(
+                name = outVarName,
+                typeName = collectionType,
+                assignExprFormat = "%L.build()",
+                immutableListBuilderName
             )
         }
     }

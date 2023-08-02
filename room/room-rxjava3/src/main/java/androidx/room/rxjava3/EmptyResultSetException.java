@@ -27,6 +27,7 @@ import androidx.annotation.NonNull;
  * contains a type argument of a collection (e.g. Single&lt;List&lt;Song&gt&gt;) then this
  * exception is not thrown an an empty collection is emitted instead.
  */
+@SuppressWarnings("serial")
 public final class EmptyResultSetException extends RuntimeException {
     /**
      * Constructs a new EmptyResultSetException with the exception.

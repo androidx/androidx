@@ -36,27 +36,15 @@ dependencies {
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)
-
-    constraints {
-        implementation(project(":lifecycle:lifecycle-runtime"))
-    }
 }
 
 androidx {
-    name = "Android Lifecycle Runtime Testing"
+    name = "Lifecycle Runtime Testing"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.LIFECYCLE
     inceptionYear = "2019"
     description = "Testing utilities for 'lifecycle' artifact"
 }
 
 android {
     namespace "androidx.lifecycle.testing"
-}
-
-// Allow usage of Kotlin's @OptIn.
-tasks.withType(KotlinCompile).configureEach {
-    kotlinOptions {
-        freeCompilerArgs += ["-opt-in=kotlin.RequiresOptIn"]
-    }
 }

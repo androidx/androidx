@@ -23,31 +23,28 @@ import static java.util.Objects.requireNonNull;
 import android.annotation.SuppressLint;
 import android.os.RemoteException;
 
-import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.IOnDoneCallback;
 import androidx.car.app.OnDoneCallback;
 import androidx.car.app.annotations.CarProtocol;
+import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.utils.RemoteUtils;
-
-import org.jetbrains.annotations.NotNull;
 
 /**
  * Implementation class for {@link PanModeDelegate}.
  *
- * @hide
  */
 @RestrictTo(LIBRARY)
 @CarProtocol
+@KeepFields
 public class PanModeDelegateImpl implements PanModeDelegate {
-    @Keep
     @Nullable
     private final IPanModeListener mStub;
 
     @Override
-    public void sendPanModeChanged(boolean isInPanMode, @NonNull @NotNull OnDoneCallback callback) {
+    public void sendPanModeChanged(boolean isInPanMode, @NonNull OnDoneCallback callback) {
         try {
             requireNonNull(mStub).onPanModeChanged(isInPanMode,
                     RemoteUtils.createOnDoneCallbackStub(callback));
@@ -72,7 +69,7 @@ public class PanModeDelegateImpl implements PanModeDelegate {
         return new PanModeDelegateImpl(listener);
     }
 
-    @Keep // We need to keep these stub for Bundler serialization logic.
+    @KeepFields // We need to keep these stub for Bundler serialization logic.
     private static class PanModeListenerStub extends IPanModeListener.Stub {
         private final PanModeListener mListener;
 

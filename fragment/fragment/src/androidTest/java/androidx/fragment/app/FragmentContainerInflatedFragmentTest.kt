@@ -25,7 +25,10 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.testutils.withActivity
+import androidx.testutils.withUse
 import com.google.common.truth.Truth.assertThat
+import leakcanary.DetectLeaksAfterTestSuccess
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -33,11 +36,14 @@ import org.junit.runner.RunWith
 @LargeTest
 class FragmentContainerInflatedFragmentTest {
 
+    @get:Rule
+    val rule = DetectLeaksAfterTestSuccess()
+
     @Test
     fun testContentViewWithInflatedFragment() {
         // The StrictViewFragment runs the appropriate checks to make sure
         // we're moving through the states appropriately
-        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+       withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             val fm = withActivity {
                 setContentView(R.layout.inflated_fragment_container_view)
                 supportFragmentManager
@@ -51,7 +57,7 @@ class FragmentContainerInflatedFragmentTest {
     fun testContentViewWithInflatedFragmentWithClass() {
         // The StrictViewFragment runs the appropriate checks to make sure
         // we're moving through the states appropriately
-        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+       withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             val fm = withActivity {
                 setContentView(R.layout.inflated_fragment_container_view_with_class)
                 supportFragmentManager
@@ -63,7 +69,7 @@ class FragmentContainerInflatedFragmentTest {
 
     @Test
     fun testGetInflatedFragmentInActivityOnCreate() {
-        with(ActivityScenario.launch(ContainerViewActivity::class.java)) {
+       withUse(ActivityScenario.launch(ContainerViewActivity::class.java)) {
             val foundFragment = withActivity { foundFragment }
 
             assertThat(foundFragment).isTrue()
@@ -72,7 +78,7 @@ class FragmentContainerInflatedFragmentTest {
 
     @Test
     fun testContentViewWithNoID() {
-        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+       withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             withActivity {
                 try {
                     setContentView(R.layout.fragment_container_view_no_id)
@@ -89,7 +95,7 @@ class FragmentContainerInflatedFragmentTest {
 
     @Test
     fun addInflatedFragmentToParentChildFragmentManager() {
-        with(ActivityScenario.launch(SimpleContainerActivity::class.java)) {
+       withUse(ActivityScenario.launch(SimpleContainerActivity::class.java)) {
             val parent = InflatedParentFragment()
 
             withActivity {
@@ -106,7 +112,7 @@ class FragmentContainerInflatedFragmentTest {
 
     @Test
     fun addInflatedFragmentToGrandParentChildFragmentManager() {
-        with(ActivityScenario.launch(SimpleContainerActivity::class.java)) {
+       withUse(ActivityScenario.launch(SimpleContainerActivity::class.java)) {
             val grandParent = InflatedParentFragment()
             withActivity {
                 supportFragmentManager.beginTransaction()
@@ -131,7 +137,7 @@ class FragmentContainerInflatedFragmentTest {
 
     @Test
     fun addInflatedFragmentContainerWithClassToGrandParentChildFragmentManager() {
-        with(ActivityScenario.launch(SimpleContainerActivity::class.java)) {
+       withUse(ActivityScenario.launch(SimpleContainerActivity::class.java)) {
             val grandParent = InflatedParentFragmentContainerWithClass()
             withActivity {
                 supportFragmentManager.beginTransaction()
@@ -156,7 +162,7 @@ class FragmentContainerInflatedFragmentTest {
 
     @Test
     fun addInflatedAfterRestore() {
-        with(ActivityScenario.launch(SimpleContainerActivity::class.java)) {
+       withUse(ActivityScenario.launch(SimpleContainerActivity::class.java)) {
             val parent = InflatedParentFragment()
 
             withActivity {
@@ -186,7 +192,7 @@ class FragmentContainerInflatedFragmentTest {
 
     @Test
     fun inflatedChildFragmentHasAttributesOnInflate() {
-        with(ActivityScenario.launch(SimpleContainerActivity::class.java)) {
+       withUse(ActivityScenario.launch(SimpleContainerActivity::class.java)) {
             val parent = InflatedParentFragment()
 
             withActivity {
@@ -206,7 +212,13 @@ class FragmentContainerInflatedFragmentTest {
     }
 }
 
-class SimpleContainerActivity : FragmentActivity(R.layout.simple_container)
+class SimpleContainerActivity : FragmentActivity(R.layout.simple_container) {
+    var invalidateCount = 0
+    override fun invalidateMenu() {
+        invalidateCount++
+        super.invalidateMenu()
+    }
+}
 
 class ContainerViewActivity : FragmentActivity(R.layout.inflated_fragment_container_view) {
     var foundFragment = false

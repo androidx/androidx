@@ -53,8 +53,9 @@ public inline fun <reified VM : ViewModel> Fragment.hiltNavGraphViewModels(
     }
     return createViewModelLazy(
         VM::class, storeProducer,
-        {
-            HiltViewModelFactory(requireActivity(), backStackEntry)
-        }
+        factoryProducer = {
+            HiltViewModelFactory(requireActivity(), backStackEntry.defaultViewModelProviderFactory)
+        },
+        extrasProducer = { backStackEntry.defaultViewModelCreationExtras }
     )
 }

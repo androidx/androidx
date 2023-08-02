@@ -100,7 +100,7 @@
     <string name="example_2_text" msgid="718820705318661440">"رنگ این نوشتار سبز است"</string>
     <string name="example_3_text" msgid="977269832109695627">"رنگ این نوشتار آبی است"</string>
     <string name="example_4_text" msgid="2043547015979437373">"رنگ این نوشتار زرد است"</string>
-    <string name="example_5_text" msgid="4387859825054561488">"این نوشتار از رنگ اصلی استفاده می‌کند"</string>
+    <string name="example_5_text" msgid="8828804968749423500">"این نوشتار از رنگ اصلی استفاده می‌کند"</string>
     <string name="example_6_text" msgid="7991523168517599600">"این نوشتار از رنگ فرعی استفاده می‌کند"</string>
     <string name="color_demo" msgid="1822427636476178993">"نمونه رنگ"</string>
     <string name="list_limit" msgid="3023536401535417286">"محدودیت فهرست"</string>
@@ -113,6 +113,8 @@
     <string name="finish_app_msg" msgid="8354334557053141891">"با این کار، برنامه به‌پایان می‌رسد و وقتی برگردید، صفحه اجازه را اضافه خواهد کرد"</string>
     <string name="finish_app_title" msgid="9013328479438745074">"به‌پایان رساندن نمونه برنامه"</string>
     <string name="finish_app_demo_title" msgid="8223819062053448384">"پیش‌پیگردی «صفحه اجازه» در اجرای بعدی نسخه نمونه"</string>
+    <string name="preseed_permission_app_title" msgid="182847662545676962">"پیش‌پیگردی اجازه برای برنامه نمونه"</string>
+    <string name="preseed_permission_demo_title" msgid="5476541421753978071">"پیش‌پیگردی صفحه اجازه در اجرای بعدی نسخه نمونه"</string>
     <string name="loading_demo_title" msgid="1086529475809143517">"درحال بار کردن نسخه نمونه"</string>
     <string name="loading_demo_row_title" msgid="8933049915126088142">"بار کردن انجام شد!"</string>
     <string name="pop_to_root" msgid="2078277386355064198">"رفتن به ریشه"</string>
@@ -220,6 +222,7 @@
     <string name="clicked_row_prefix" msgid="9068303427922069941">"روی ردیف کلیک شد"</string>
     <string name="first_line_text" msgid="6648055806656590336">"اولین خط نوشتار"</string>
     <string name="second_line_text" msgid="38664490158836864">"خط دوم نوشتار"</string>
+    <string name="long_line_text" msgid="8082962600953333087">"این نوشتار فرعی می‌تواند به‌طور کامل در حالت نامحدود نمایش داده شود (برای مثال حالت پارکینگ، حالت سرعت پایین محدودشده). اما در حالت محدود (مثلاً حالت رانندگی) کوتاه می‌شود و فقط دو خط نشان داده می‌شود. برای اهداف آزمایشی، این نوشتار فرعی بسیار بسیار بسیار بسیار بسیار طولانی است"</string>
     <string name="title_prefix" msgid="3991742709199357049">"عنوان"</string>
     <string name="list_template_demo_title" msgid="1740208242737246151">"الگوی فهرست نمونه"</string>
     <string name="long_msg_template_demo_title" msgid="1793748562161438131">"نمونه الگوی پیام طولانی"</string>
@@ -227,6 +230,7 @@
     <string name="long_msg_template_not_supported_title" msgid="8600719470226274925">"میزبان سازگار نیست"</string>
     <string name="msg_template_demo_title" msgid="3895210951340409473">"نمونه الگوی پیام"</string>
     <string name="msg_template_demo_text" msgid="2275291617716161409">"پیام اینجا می‌رود.\nنوشتار بیشتر در خط دوم."</string>
+    <string name="short_msg_template_demo_title" msgid="6798738013668580714">"نسخه نمونه الگوی پیام کوتاه"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"الگوی قاب نمونه"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"نمونه الگوی فهرست مکان"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"مرور مکان‌ها"</string>
@@ -240,7 +244,7 @@
     <string name="sign_in_template_not_supported_title" msgid="4892883228898541764">"میزبان سازگار نیست"</string>
     <string name="email_hint" msgid="7205549445477319606">"ایمیل"</string>
     <string name="sign_in_title" msgid="4551967308262681703">"ورود به سیستم"</string>
-    <string name="sign_in_instructions" msgid="9044850228284294762">"اطلاعات کاربری‌تان را وارد کنید"</string>
+    <string name="sign_in_instructions" msgid="9044850228284294762">"اطلاعات اعتباری‌تان را وارد کنید"</string>
     <string name="invalid_email_error_msg" msgid="5261362663718987167">"نام کاربری باید نشانی ایمیل معتبر باشد"</string>
     <string name="invalid_length_error_msg" msgid="8238905276326976425">"‏نام کاربری باید حداقل %s نویسه داشته باشد"</string>
     <string name="invalid_password_error_msg" msgid="1090359893902674610">"گذرواژه نامعتبر است"</string>
@@ -253,6 +257,15 @@
     <string name="sign_in_complete_text" msgid="8423984266325680606">"به سیستم وارد شدید!"</string>
     <string name="sign_in_complete_title" msgid="8919868148773983428">"ورود به سیستم تکمیل شد"</string>
     <string name="sign_in_template_demo_title" msgid="6052035424941410249">"الگوی ورود به سیستم نمونه"</string>
+    <string name="tab_template_layouts_demo_title" msgid="6529681462424538165">"نمونه‌های الگوی برگه"</string>
+    <string name="tab_template_demo_title" msgid="7587839101813629975">"نمونه الگوی برگه"</string>
+    <string name="tab_title_message" msgid="5266710951630087246">"برگه پیام"</string>
+    <string name="tab_title_pane" msgid="2520606145526537263">"برگه قاب"</string>
+    <string name="tab_title_list" msgid="5104962518489668123">"برگه فهرست"</string>
+    <string name="tab_title_grid" msgid="5268168907976325154">"برگه جدول با عنوان برگه طولانی"</string>
+    <string name="tab_title_search" msgid="1892925693146631173">"برگه جستجو"</string>
+    <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"نمونه بارگیری الگوی برگه"</string>
+    <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"نمونه عدم وجود برگه الگوی برگه"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"به‌دلیل نامشخص بودن میزبان، تصویر نمایش داده نمی‌شود"</string>
     <string name="icon_title_prefix" msgid="8487026131229541244">"نماد"</string>
     <string name="content_provider_icons_demo_title" msgid="5708602618664311097">"نمونه نمادهای ارائه‌دهنده محتوا"</string>
@@ -262,7 +275,7 @@
     <string name="vector_with_tint_title" msgid="1022346419829696827">"ترسیمی بُرداری، با سایه‌رنگ"</string>
     <string name="vector_with_app_theme_attr_title" msgid="4890094482708376219">"ترسیمی بُرداری، با مشخصه زمینه برنامه برای رنگ آن"</string>
     <string name="png_res_title" msgid="7437083018336747544">"‏فایل PNG، به‌عنوان منبع ارسال شد"</string>
-    <string name="png_bitmap_title" msgid="120790220238335267">"‏فایل PNG، به‌عنوان منبع ارسال شد"</string>
+    <string name="png_bitmap_title" msgid="3385912074130977032">"‏PNG، ارسال به‌عنوان بیت‌مپ"</string>
     <string name="just_row_title" msgid="965700021568970725">"فقط یک عنوان"</string>
     <string name="title_with_app_icon_row_title" msgid="6294250714820740520">"عنوان با نماد برنامه"</string>
     <string name="title_with_res_id_image_row_title" msgid="3813134904602875778">"عنوان با تصویر شناسه منبع"</string>
@@ -274,6 +287,7 @@
     <string name="rows_demo_title" msgid="3198566660454251007">"ردیف‌های نمونه"</string>
     <string name="text_icons_demo_title" msgid="8732943920672143201">"نوشتار و نمادهای نمونه"</string>
     <string name="row_text_icons_demo_title" msgid="135167694047524905">"نمونه ردیف‌ها به‌همراه نوشتار و نمادها"</string>
+    <string name="radio_button_list_demo_title" msgid="9082264324855338774">"نسخه نمونه فهرست‌های دکمه رادیو"</string>
     <string name="selectable_lists_demo_title" msgid="5492658731113129386">"فهرست‌های قابل‌انتخاب نمونه"</string>
     <string name="option_1_title" msgid="7221252541651471199">"گزینه ١"</string>
     <string name="option_2_title" msgid="1905146448697963818">"گزینه ۲"</string>
@@ -284,9 +298,11 @@
     <string name="some_additional_text" msgid="4009872495806318260">"چند نوشتار دیگر"</string>
     <string name="sample_additional_list" msgid="5085372891301576306">"فهرست نمونه قابل‌انتخاب"</string>
     <string name="task_restriction_demo_title" msgid="2212084350718766941">"محدودیت تکلیف نمونه"</string>
-    <string name="task_limit_reached_msg" msgid="6038763366777119364">"به حد مجاز تکلیف رسیدید\nاگر ادامه دهید، برنامه به‌اجبار متوقف خواهد شد"</string>
+    <string name="task_limit_reached_msg" msgid="7162842196382260992">"با این کار، تعداد مراحل سرریز خواهد شد و به صفحه جدید هدایت خواهید شد."</string>
     <string name="task_step_of_title" msgid="2791717962535723839">"‏مرحله %1$d از %2$d تکلیف"</string>
     <string name="task_step_of_text" msgid="4646729781462227219">"برای ادامه دادن، کلیک کنید"</string>
+    <string name="task_content_allowed" msgid="545061986612431190">"لطفاً از الگوهای مختلف بازدید کنید و مطمئن شوید خودرو در حالت رانندگی باشد"</string>
+    <string name="toggle_button_demo_title" msgid="3179103600967398928">"نسخه نمونه دکمه مبدل"</string>
     <string name="toggle_test_title" msgid="924485265152862631">"امتحان کردن تغییر وضعیت"</string>
     <string name="toggle_test_text" msgid="8107217216013312857">"تغییرات حالت‌مند مجاز است"</string>
     <string name="toggle_test_first_toggle_title" msgid="3635022201072117680">"فعال کردن آزمایش تغییر وضعیت"</string>
@@ -295,15 +311,57 @@
     <string name="toggle_test_second_toggle_text" msgid="1813071017415876745">"تغییرات حالت‌مند مجاز است"</string>
     <string name="image_test_title" msgid="8273863429801477547">"امتحان کردن تصویر"</string>
     <string name="image_test_text" msgid="6264812093895530445">"تغییرات تصویر مجاز است"</string>
-    <string name="additional_data_title" msgid="3546689652240300617">"داده‌های تکمیلی"</string>
+    <string name="additional_data_title" msgid="3546689652240300617">"داده‌های جانبی"</string>
     <string name="additional_data_text" msgid="2846223398214158872">"به‌روزرسانی در عملیات‌های برگشتی مجاز است."</string>
     <string name="toggle_test_enabled" msgid="982370904182034076">"آزمایش تغییر وضعیت فعال شد"</string>
     <string name="toggle_test_disabled" msgid="8366040658408451664">"آزمایش تغییر وضعیت غیرفعال شد"</string>
+    <string name="secondary_actions_decoration_button_demo_title" msgid="3710817648501132309">"نمونه آرایه‌گری و کنش فرعی"</string>
+    <string name="secondary_actions_test_title" msgid="3664453747553733613">"آزمایش کنش فرعی"</string>
+    <string name="secondary_actions_test_subtitle" msgid="6985282813402073703">"فقط کنش فرعی را می‌توان انتخاب کرد"</string>
+    <string name="decoration_test_title" msgid="8450127046762442244">"آزمایش آرایه‌گری"</string>
+    <string name="secondary_actions_decoration_test_title" msgid="6282873404859209490">"کنش‌های فرعی و آرایه‌گری"</string>
+    <string name="secondary_actions_decoration_test_subtitle" msgid="155884606592724532">"ردیف را هم می‌توان انتخاب کرد"</string>
+    <string name="secondary_action_toast" msgid="5076434693504006565">"کنش فرعی انتخاب شده است"</string>
+    <string name="row_primary_action_toast" msgid="756516694751965204">"کنش اصلی ردیف انتخاب شده است"</string>
+    <string name="sectioned_item_list_demo_title" msgid="1236735461225007729">"نمونه فهرست موارد بخش‌بندی‌شده"</string>
+    <string name="sectioned_item_list_one_title" msgid="6594204350307263338">"فهرست ۱"</string>
+    <string name="sectioned_item_list_two_title" msgid="4941545381743022833">"فهرست ۲"</string>
+    <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"نوشتار فرعی زیر هر فهرست"</string>
+    <string name="empty_list_demo_title" msgid="5989013634820902455">"نمونه فهرست خالی"</string>
+    <string name="empty_list_message" msgid="5331395517560728138">"فهرست خالی است"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"الگوهای متفرقه نمونه"</string>
     <string name="showcase_demos_title" msgid="1542092687878113304">"نمایش نمونه‌ها"</string>
+    <string name="template_layouts_demo_title" msgid="788249269446087847">"نسخه‌های نمونه طرح‌بندی الگو"</string>
+    <string name="grid_template_menu_demo_title" msgid="7096285873490705119">"نسخه‌های نمونه الگوی جدولی"</string>
+    <string name="voice_access_demo_title" msgid="3825223890895361496">"صفحه نمونه دسترسی صوتی"</string>
+    <string name="user_interactions_demo_title" msgid="1356952319161314986">"تعاملات کاربران"</string>
+    <string name="request_permission_menu_demo_title" msgid="4796486779527427017">"درخواست اجازه برای نسخه‌های نمونه"</string>
+    <string name="application_overflow_title" msgid="396427940886169325">"اعتبارسنج سرریز برنامه"</string>
+    <string name="application_overflow_subtitle1" msgid="7429415605726615529">"لطفاً درحین تغییر دادن، الگوهای زیر را آزمایش کنید"</string>
+    <string name="application_overflow_subtitle2" msgid="4385123036846369714">"وسیله نقلیه از حالت پارک به حالت رانندگی"</string>
+    <string name="perm_group" msgid="3834918337351876270">"گروه اجازه"</string>
+    <string name="perm_group_description" msgid="7348847631139139024">"گروه اجازه برنامه «ویترین»"</string>
+    <string name="perm_fine_location" msgid="5438874642600304118">"دسترسی به مکان دقیق"</string>
+    <string name="perm_fine_location_desc" msgid="3549183883787912516">"اجازه دسترسی به مکان دقیق"</string>
+    <string name="perm_coarse_location" msgid="6140337431619481015">"دسترسی به مکان تقریبی"</string>
+    <string name="perm_coarse_location_desc" msgid="6074759942301565943">"اجازه دسترسی به مکان تقریبی"</string>
+    <string name="perm_record_audio" msgid="2758340693260523493">"دسترسی به ضبط صدا"</string>
+    <string name="perm_record_audio_desc" msgid="8038648467605928912">"اجازه دسترسی به ضبط صدا"</string>
     <string name="location_1_description" msgid="4801052291684791371">"بردار منبع با سایه‌رنگ"</string>
     <string name="location_2_description" msgid="3331356135359047166">"بیت‌مپ منبع تصویر"</string>
     <string name="location_3_description" msgid="3982142774088944850">"نشانگر نوشتار رنگی"</string>
     <string name="location_4_description" msgid="6560365445044381911">"بیت‌مپ تصویر"</string>
     <string name="location_description_text_label" msgid="2779911545316756419">"برچسب نوشتار"</string>
+    <string name="parking_vs_driving_demo_title" msgid="3367862800135053111">"نمونه حالت پارک درمقایسه با حالت رانندگی"</string>
+    <string name="latest_feature_details" msgid="6843008350392721502">"خوشه در خودروها نشان داده می‌شود!"</string>
+    <string name="latest_feature_title" msgid="7929405790070777460">"جدیدترین ویژگی‌ها"</string>
+    <string name="loading_toggle_enabled" msgid="8828072732804454994">"بار کردن فعال شد"</string>
+    <string name="loading_toggle_disabled" msgid="7689738885077382673">"بار کردن غیرفعال شد"</string>
+    <string name="loading_screen" msgid="4771507490730308794">"صفحه بار کردن"</string>
+    <string name="vector_toggle_details" msgid="1301305340033556819">"برای افزودن/ برداشتن رنگ، تغییر وضعیت دهید"</string>
+    <string name="map_template_toggle_demo_title" msgid="6510798293640092611">"الگوی نقشه با کلیدها"</string>
+    <string name="avoid_tolls_row_title" msgid="5194057244144831024">"اجتناب از مسیرهای دارای عوارض"</string>
+    <string name="route_options_demo_title" msgid="4599699012716426514">"گزینه‌های مسیر"</string>
+    <string name="avoid_highways_row_title" msgid="4711913426200490304">"اجتناب از بزرگراه‌ها"</string>
+    <string name="avoid_ferries_row_title" msgid="8232883866013711974">"اجتناب از قایق مسافربری"</string>
 </resources>

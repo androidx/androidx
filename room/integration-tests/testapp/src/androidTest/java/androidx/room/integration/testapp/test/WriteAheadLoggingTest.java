@@ -135,7 +135,7 @@ public class WriteAheadLoggingTest {
         }
     }
 
-    @FlakyTest(bugId = 241095868)
+    @Ignore("b/241095868")
     @Test
     public void observeLiveData() {
         UserDao dao = mDatabase.getUserDao();
@@ -147,7 +147,7 @@ public class WriteAheadLoggingTest {
         stopObserver(user1, observer);
     }
 
-    @FlakyTest(bugId = 241095868)
+    @Ignore("b/241095868")
     @Test
     public void observeLiveDataWithTransaction() {
         UserDao dao = mDatabase.getUserDao();

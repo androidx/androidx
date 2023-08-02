@@ -30,6 +30,8 @@ import androidx.room.RoomDatabase
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertWithMessage
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.runBlocking
@@ -37,8 +39,6 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.util.concurrent.Executors
-import java.util.concurrent.TimeUnit
 
 @RunWith(AndroidJUnit4::class)
 class RoomInvalidationHookTest {
@@ -132,7 +132,7 @@ private fun RoomDatabase.getSqliteDb(): SQLiteDatabase {
     val supportDb = this.openHelper.writableDatabase
     // this runs with defaults so we can extract db from it until inspection supports support
     // instances directly
-    return supportDb::class.java.getDeclaredField("mDelegate").let {
+    return supportDb::class.java.getDeclaredField("delegate").let {
         it.isAccessible = true
         it.get(supportDb)
     } as SQLiteDatabase

@@ -28,7 +28,7 @@ import androidx.annotation.Nullable;
 
 /**
  * An interpolator where the rate of change starts out quickly and
- * and then decelerates.
+ * then decelerates.
  *
  */
 public class DecelerateInterpolator implements Interpolator {

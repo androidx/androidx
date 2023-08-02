@@ -22,20 +22,26 @@ import android.view.MotionEvent.ACTION_DOWN
 import android.view.MotionEvent.ACTION_HOVER_MOVE
 import android.view.MotionEvent.ACTION_UP
 import android.view.View
+import androidx.collection.LongSparseArray
 import androidx.compose.runtime.remember
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.layout.LayoutCoordinates
+import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.NodeCoordinator
 import androidx.compose.ui.node.PointerInputModifierNode
+import androidx.compose.ui.platform.InspectorInfo
+import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.unit.IntSize
 import com.google.common.truth.FailureMetadata
 import com.google.common.truth.Subject
 import com.google.common.truth.Subject.Factory
 import com.google.common.truth.Truth
+import org.junit.Assert
 
+@OptIn(ExperimentalComposeUiApi::class)
 internal fun PointerInputEventData(
     id: Int,
     uptime: Long,
@@ -247,23 +253,35 @@ internal fun pointerEventOf(
     motionEvent: MotionEvent = MotionEventDouble
 ) = PointerEvent(
     changes.toList(),
-    InternalPointerEvent(changes.map { it.id to it }.toMap(), motionEvent)
+    InternalPointerEvent(changes.toLongSparseArray(), motionEvent)
 )
 
+fun Array<out PointerInputChange>.toLongSparseArray(): LongSparseArray<PointerInputChange> {
+    val returnArray = LongSparseArray<PointerInputChange>(this.count())
+    for (change in this) {
+        returnArray.put(change.id.value, change)
+    }
+    return returnArray
+}
+
 internal fun InternalPointerEvent(
-    changes: Map<PointerId, PointerInputChange>,
+    changes: LongSparseArray<PointerInputChange>,
     motionEvent: MotionEvent
 ): InternalPointerEvent {
-    val pointers = changes.values.map {
-        @OptIn(ExperimentalComposeUiApi::class)
-        PointerInputEventData(
-            id = it.id,
-            uptime = it.uptimeMillis,
-            positionOnScreen = it.position,
-            position = it.position,
-            down = it.pressed,
-            pressure = it.pressure,
-            type = it.type
+    val pointers = mutableListOf<PointerInputEventData>()
+    for (i in 0 until changes.size()) {
+        val data = changes.valueAt(i)
+        pointers.add(
+            @OptIn(ExperimentalComposeUiApi::class)
+            PointerInputEventData(
+                id = data.id,
+                uptime = data.uptimeMillis,
+                positionOnScreen = data.position,
+                position = data.position,
+                down = data.pressed,
+                pressure = data.pressure,
+                type = data.type
+            )
         )
     }
     val pointer = PointerInputEvent(pointers[0].uptime, pointers, motionEvent)
@@ -279,7 +297,8 @@ internal class PointerInputNodeMock(
     init {
         updateCoordinator(coordinator)
         if (coordinator.isAttached) {
-            attach()
+            markAsAttached()
+            runAttachLifecycle()
         }
     }
 
@@ -289,7 +308,8 @@ internal class PointerInputNodeMock(
             coordinator.isAttached = false
         }
         if (isAttached) {
-            detach()
+            runDetachLifecycle()
+            markAsDetached()
         }
     }
 
@@ -402,7 +422,7 @@ internal fun internalPointerEventOf(vararg changes: PointerInputChange): Interna
         )
     }
     val pointerEvent = PointerInputEvent(0L, pointers, event)
-    return InternalPointerEvent(changes.toList().associateBy { it.id }.toMutableMap(), pointerEvent)
+    return InternalPointerEvent(changes.toLongSparseArray(), pointerEvent)
 }
 
 internal fun hoverInternalPointerEvent(
@@ -436,8 +456,10 @@ internal fun hoverInternalPointerEvent(
     )
     val pointerEvent = PointerInputEvent(0L, listOf(pointer), createHoverMotionEvent(action, x, y))
 
+    val pointerArray = LongSparseArray<PointerInputChange>(1)
+    pointerArray.put(change.id.value, change)
     return InternalPointerEvent(
-        mutableMapOf(change.id to change),
+        pointerArray,
         pointerEvent
     )
 }
@@ -554,3 +576,73 @@ internal fun PointerInputChange.deepCopy() = PointerInputChange(
     type = this.type,
     scrollDelta = this.scrollDelta
 )
+
+// SuspendingPointerInputFilter test utilities
+internal fun PointerInputChange.toPointerEvent() = PointerEvent(listOf(this))
+
+internal val PointerEvent.firstChange get() = changes.first()
+
+internal class PointerInputChangeEmitter(id: Int = 0) {
+    val pointerId = PointerId(id.toLong())
+    var previousTime = 0L
+    var previousPosition = Offset.Zero
+    var previousPressed = false
+
+    fun nextChange(
+        position: Offset = Offset.Zero,
+        down: Boolean = true,
+        time: Long = 0
+    ): PointerInputChange {
+        return PointerInputChange(
+            id = pointerId,
+            time,
+            position,
+            down,
+            previousTime,
+            previousPosition,
+            previousPressed,
+            isInitiallyConsumed = false
+        ).also {
+            previousTime = time
+            previousPosition = position
+            previousPressed = down
+        }
+    }
+}
+
+internal class TestCounter {
+    private var count = 0
+
+    fun expect(checkpoint: Int, message: String = "(no message)") {
+        val expected = count + 1
+        if (checkpoint != expected) {
+            Assert.fail("out of order event $checkpoint, expected $expected, $message")
+        }
+        count = expected
+    }
+}
+
+internal fun elementFor(
+    key1: Any? = null,
+    instance: Modifier.Node
+) = object : ModifierNodeElement<Modifier.Node>() {
+    override fun InspectorInfo.inspectableProperties() {
+        debugInspectorInfo {
+            name = "pointerInput"
+            properties["key1"] = key1
+            properties["instance"] = instance
+        }
+    }
+
+    override fun create() = instance
+    override fun update(node: Modifier.Node) {}
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is SuspendPointerInputElement) return false
+        if (key1 != other.key1) return false
+        return true
+    }
+    override fun hashCode(): Int {
+        return key1?.hashCode() ?: 0
+    }
+}

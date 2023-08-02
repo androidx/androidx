@@ -119,7 +119,12 @@ class EditProcessor {
 
         val newState = TextFieldValue(
             annotatedString = mBuffer.toAnnotatedString(),
-            selection = mBuffer.selection,
+            // preserve original reversed selection when creating new state.
+            // otherwise the text range may flicker to un-reversed for a frame,
+            // which can cause haptics and handles to be crossed.
+            selection = mBuffer.selection.run {
+                takeUnless { mBufferState.selection.reversed } ?: TextRange(max, min)
+            },
             composition = mBuffer.composition
         )
 

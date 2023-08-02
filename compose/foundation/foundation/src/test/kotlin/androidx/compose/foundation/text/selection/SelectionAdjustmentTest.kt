@@ -29,11 +29,11 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.util.packInts
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
-import com.nhaarman.mockitokotlin2.any
-import com.nhaarman.mockitokotlin2.mock
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import org.mockito.kotlin.any
+import org.mockito.kotlin.mock
 
 @SmallTest
 @RunWith(JUnit4::class)
@@ -108,6 +108,82 @@ class SelectionAdjustmentTest {
         )
 
         assertThat(adjustedTextRange).isEqualTo(TextRange(2, 1))
+    }
+
+    @Test
+    fun adjustment_Character_collapsedNotReversed_returnOneUnicodeSelectionNotReversed() {
+        val textLayoutResult = mockTextLayoutResult(text = "hi\uD83D\uDE00")
+        // After the adjustment, the complete unicode should be selected instead of a single
+        // character that is only part of the unicode.
+        val rawSelection = TextRange(2, 2)
+        val previousSelection = TextRange(2, 4)
+        val isStartHandle = false
+
+        val adjustedSelection = SelectionAdjustment.Character.adjust(
+            textLayoutResult = textLayoutResult,
+            newRawSelectionRange = rawSelection,
+            previousHandleOffset = -1,
+            isStartHandle = isStartHandle,
+            previousSelectionRange = previousSelection
+        )
+
+        assertThat(adjustedSelection).isEqualTo(TextRange(2, 4))
+    }
+
+    @Test
+    fun adjustment_Character_collapsedReversed_returnOneUnicodeSelectionReversed() {
+        val textLayoutResult = mockTextLayoutResult(text = "hi\uD83D\uDE00")
+        val rawSelection = TextRange(4, 4)
+        val previousTextRange = TextRange(4, 2)
+        val isStartHandle = false
+
+        val adjustedTextRange = SelectionAdjustment.Character.adjust(
+            textLayoutResult = textLayoutResult,
+            newRawSelectionRange = rawSelection,
+            previousHandleOffset = -1,
+            isStartHandle = isStartHandle,
+            previousSelectionRange = previousTextRange
+        )
+
+        assertThat(adjustedTextRange).isEqualTo(TextRange(4, 2))
+    }
+
+    @Test
+    fun adjustment_Character_collapsedNotReversed_returnOneEmojiSelectionNotReversed() {
+        val textLayoutResult = mockTextLayoutResult(text = "#️⃣sharp")
+        // After the adjustment, the unicode sequence representing the keycap # emoji should be
+        // selected instead of a single character/unicode that is only part of the emoji.
+        val rawSelection = TextRange(0, 0)
+        val previousSelection = TextRange(0, 3)
+        val isStartHandle = false
+
+        val adjustedSelection = SelectionAdjustment.Character.adjust(
+            textLayoutResult = textLayoutResult,
+            newRawSelectionRange = rawSelection,
+            previousHandleOffset = -1,
+            isStartHandle = isStartHandle,
+            previousSelectionRange = previousSelection
+        )
+
+        assertThat(adjustedSelection).isEqualTo(TextRange(0, 3))
+    }
+
+    @Test
+    fun adjustment_Character_collapsedReversed_returnOneEmojiSelectionReversed() {
+        val textLayoutResult = mockTextLayoutResult(text = "#️⃣sharp")
+        val rawSelection = TextRange(3, 3)
+        val previousTextRange = TextRange(3, 0)
+        val isStartHandle = false
+
+        val adjustedTextRange = SelectionAdjustment.Character.adjust(
+            textLayoutResult = textLayoutResult,
+            newRawSelectionRange = rawSelection,
+            previousHandleOffset = -1,
+            isStartHandle = isStartHandle,
+            previousSelectionRange = previousTextRange
+        )
+
+        assertThat(adjustedTextRange).isEqualTo(TextRange(3, 0))
     }
 
     @Test
@@ -496,7 +572,7 @@ class SelectionAdjustmentTest {
                 TextRange(18, 23)
             )
         )
-        // The and previous selection is null, it should use word based
+        // The previous selection is null, it should use word based
         // selection in this case.
         val rawSelection = TextRange(3, 3)
         val isStartHandle = false
@@ -623,7 +699,7 @@ class SelectionAdjustmentTest {
     }
 
     @Test
-    fun adjustment_characterWithWordAccelerate_expandEndOutOfWord_notExceedThreshold() {
+    fun adjustment_characterWithWordAccelerate_expandEndOutOfWord() {
         val textLayoutResult = mockTextLayoutResult(
             text = "hello world hello world",
             wordBoundaries = listOf(
@@ -633,11 +709,11 @@ class SelectionAdjustmentTest {
                 TextRange(18, 23)
             )
         )
-        // The previous selection is [6, 11) and the new selection expand the end to 13.
+        // The previous selection is [6, 11) and the new selection expand the end to 12.
         // Because the previous selection end is at word boundary, it will use word selection mode.
-        // However, the end is didn't exceed the middle of the next word(offset = 14), the adjusted
-        // selection end will be 12, which is the start of the next word.
-        val rawSelection = TextRange(6, 13)
+        // The end did exceed start of the next word(offset = 12), the adjusted
+        // selection end will be 17, which is the end of the next word.
+        val rawSelection = TextRange(6, 12)
         val previousSelection = TextRange(6, 11)
         val isStartHandle = false
 
@@ -649,11 +725,11 @@ class SelectionAdjustmentTest {
             previousSelectionRange = previousSelection
         )
 
-        assertThat(adjustedTextRange).isEqualTo(TextRange(6, 12))
+        assertThat(adjustedTextRange).isEqualTo(TextRange(6, 17))
     }
 
     @Test
-    fun adjustment_characterWithWordAccelerate_expandStartOutOfWord_notExceedThreshold_reversed() {
+    fun adjustment_characterWithWordAccelerate_expandStartOutOfWord_reversed() {
         val textLayoutResult = mockTextLayoutResult(
             text = "hello world hello world",
             wordBoundaries = listOf(
@@ -676,11 +752,11 @@ class SelectionAdjustmentTest {
             previousSelectionRange = previousSelection
         )
 
-        assertThat(adjustedTextRange).isEqualTo(TextRange(12, 6))
+        assertThat(adjustedTextRange).isEqualTo(TextRange(17, 6))
     }
 
     @Test
-    fun adjustment_characterWithWordAccelerate_expandStartOutOfWord_notExceedThreshold() {
+    fun adjustment_characterWithWordAccelerate_expandStartOutOfWord() {
         val textLayoutResult = mockTextLayoutResult(
             text = "hello world hello world",
             wordBoundaries = listOf(
@@ -693,8 +769,8 @@ class SelectionAdjustmentTest {
         // The previous selection is [6, 11) and the new selection expand the start to 5.
         // Because the previous selection start is at word boundary, it will use word selection
         // mode.
-        // However, the start is didn't exceed the middle of the previous word(offset = 2), the
-        // adjusted selection end will be 5, which is the end of the previous word.
+        // The start did exceed the end of the previous word(offset = 5), the
+        // adjusted selection end will be 0, which is the start of the previous word.
         val rawSelection = TextRange(5, 11)
         val previousSelection = TextRange(6, 11)
         val isStartHandle = true
@@ -707,11 +783,11 @@ class SelectionAdjustmentTest {
             previousSelectionRange = previousSelection
         )
 
-        assertThat(adjustedTextRange).isEqualTo(TextRange(5, 11))
+        assertThat(adjustedTextRange).isEqualTo(TextRange(0, 11))
     }
 
     @Test
-    fun adjustment_characterWithWordAccelerate_expandEndOutOfWord_notExceedThreshold_reversed() {
+    fun adjustment_characterWithWordAccelerate_expandEndOutOfWord_reversed() {
         val textLayoutResult = mockTextLayoutResult(
             text = "hello world hello world",
             wordBoundaries = listOf(
@@ -722,6 +798,7 @@ class SelectionAdjustmentTest {
             )
         )
 
+        // expands to first word boundary, so will select the first word.
         val rawSelection = TextRange(11, 5)
         val previousSelection = TextRange(11, 6)
         val isStartHandle = false
@@ -734,7 +811,7 @@ class SelectionAdjustmentTest {
             previousSelectionRange = previousSelection
         )
 
-        assertThat(adjustedTextRange).isEqualTo(TextRange(11, 5))
+        assertThat(adjustedTextRange).isEqualTo(TextRange(11, 0))
     }
 
     @Test
@@ -935,8 +1012,8 @@ class SelectionAdjustmentTest {
         //   world_
         // The previous selection is [6, 8) and new selection expand the start to 3. Because offset
         // 3 is at the previous line, it will use word based selection strategy. And because 3
-        // doesn't exceed the middle of the previous word(offset: 2), the end will be adjusted to
-        // word end: 5.
+        // does exceed the end of the previous word(offset: 5), the end will be adjusted to
+        // word start: 0.
         val rawSelection = TextRange(3, 8)
         val previousSelection = TextRange(7, 8)
         val isStartHandle = true
@@ -949,7 +1026,7 @@ class SelectionAdjustmentTest {
             previousSelectionRange = previousSelection
         )
 
-        assertThat(adjustedTextRange).isEqualTo(TextRange(5, 8))
+        assertThat(adjustedTextRange).isEqualTo(TextRange(0, 8))
     }
 
     @Test
@@ -965,6 +1042,7 @@ class SelectionAdjustmentTest {
             lineLength = 6
         )
 
+        // expands into first word so will select first word
         val rawSelection = TextRange(8, 3)
         val previousSelection = TextRange(8, 7)
         val isStartHandle = false
@@ -977,7 +1055,7 @@ class SelectionAdjustmentTest {
             previousSelectionRange = previousSelection
         )
 
-        assertThat(adjustedTextRange).isEqualTo(TextRange(8, 5))
+        assertThat(adjustedTextRange).isEqualTo(TextRange(8, 0))
     }
 
     @Test
@@ -1063,9 +1141,9 @@ class SelectionAdjustmentTest {
         // The previous selection is [16, 17) and the start is expanded to 15, which is at the
         // previous line.
         // Because start offset is moving between lines, it will use word based selection. In this
-        // case the word "hello" crosses 2 lines, so the candidate values for the adjusted start
-        // offset are 12(word start) and 16(last character of the line). Since 15 is closer to
-        // 16(word end), the end offset will be adjusted to 16.
+        // case the word "hello" crosses 2 lines. The candidate values for the adjusted start
+        // offset are 12(word start) and 16(last character of the line). Since we are expanding
+        // back, the end offset will be adjusted to the word start at 12.
         val rawSelection = TextRange(15, 17)
         val previousSelection = TextRange(16, 17)
         val isStartHandle = true
@@ -1078,7 +1156,7 @@ class SelectionAdjustmentTest {
             previousSelectionRange = previousSelection
         )
 
-        assertThat(adjustedTextRange).isEqualTo(TextRange(16, 17))
+        assertThat(adjustedTextRange).isEqualTo(TextRange(12, 17))
     }
 
     @Test
@@ -1094,6 +1172,7 @@ class SelectionAdjustmentTest {
             lineLength = 8
         )
 
+        // crosses line, then uses word based selection which selects the rest of the word
         val rawSelection = TextRange(17, 15)
         val previousSelection = TextRange(17, 16)
         val isStartHandle = false
@@ -1106,7 +1185,7 @@ class SelectionAdjustmentTest {
             previousSelectionRange = previousSelection
         )
 
-        assertThat(adjustedTextRange).isEqualTo(TextRange(17, 16))
+        assertThat(adjustedTextRange).isEqualTo(TextRange(17, 12))
     }
 
     @Test

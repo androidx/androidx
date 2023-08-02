@@ -16,7 +16,9 @@
 
 package androidx.compose.foundation.text
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.offset
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
@@ -28,20 +30,27 @@ import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalTextInputService
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.text.TextLayoutResult
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.EditCommand
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.ImeOptions
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.OffsetMapping
 import androidx.compose.ui.text.input.PlatformTextInputService
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.TextInputService
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.toOffset
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
@@ -314,6 +323,202 @@ class CoreTextFieldInputServiceIntegrationTest {
         rule.runOnIdle { assertThat(platformTextInputService.keyboardShown).isFalse() }
     }
 
+    @Test
+    fun keyboardShownWhenFieldChangedToWritableWhileFocused() {
+        // Arrange.
+        val focusRequester = FocusRequester()
+        var readOnly by mutableStateOf(true)
+        setContent {
+            CoreTextField(
+                value = TextFieldValue("Hello"),
+                onValueChange = {},
+                modifier = Modifier.focusRequester(focusRequester),
+                readOnly = readOnly
+            )
+        }
+        // Request focus and wait for keyboard.
+        rule.runOnIdle { focusRequester.requestFocus() }
+        rule.runOnIdle { assertThat(platformTextInputService.keyboardShown).isFalse() }
+
+        // Act.
+        readOnly = false
+
+        // Assert.
+        rule.runOnIdle { assertThat(platformTextInputService.keyboardShown).isTrue() }
+    }
+
+    @Test
+    fun focusedRectIsPassedOnFocus() {
+        val value = TextFieldValue("abc\nefg", TextRange(6))
+        lateinit var textLayoutResult: TextLayoutResult
+        val focusRequester = FocusRequester()
+
+        setContent {
+            CoreTextField(
+                value = value,
+                modifier = Modifier.focusRequester(focusRequester),
+                onValueChange = { },
+                onTextLayout = { textLayoutResult = it }
+            )
+        }
+
+        rule.runOnIdle {
+            assertThat(platformTextInputService.focusedRect).isEqualTo(null)
+        }
+
+        rule.runOnUiThread {
+            focusRequester.requestFocus()
+        }
+
+        rule.runOnIdle {
+            assertThat(platformTextInputService.focusedRect)
+                .isEqualTo(textLayoutResult.getBoundingBox(6))
+        }
+    }
+
+    @Test
+    fun focusedRectIsPassedOnGlobalPositionChanged() {
+        var offset by mutableStateOf(IntOffset(0, 10))
+        val value = TextFieldValue("abc\nefg", TextRange(6))
+        lateinit var textLayoutResult: TextLayoutResult
+        val focusRequester = FocusRequester()
+
+        setContent {
+            Box(Modifier.offset { offset }) {
+                CoreTextField(
+                    value = value,
+                    modifier = Modifier.focusRequester(focusRequester),
+                    onValueChange = { },
+                    onTextLayout = { textLayoutResult = it }
+                )
+            }
+        }
+
+        rule.runOnIdle {
+            assertThat(platformTextInputService.focusedRect).isEqualTo(null)
+        }
+
+        rule.runOnUiThread {
+            focusRequester.requestFocus()
+        }
+
+        rule.runOnIdle {
+            assertThat(platformTextInputService.focusedRect).isEqualTo(
+                textLayoutResult.getBoundingBox(6).translate(offset.toOffset())
+            )
+        }
+
+        offset = IntOffset(10, 20)
+
+        rule.runOnIdle {
+            assertThat(platformTextInputService.focusedRect).isEqualTo(
+                textLayoutResult.getBoundingBox(6).translate(offset.toOffset())
+            )
+        }
+    }
+
+    @Test
+    fun focusedRectIsPassedOnValueChange() {
+        val tag = "TextField1"
+        var value by mutableStateOf(TextFieldValue(""))
+        lateinit var textLayoutResult: TextLayoutResult
+
+        setContent {
+            CoreTextField(
+                value = value,
+                modifier = Modifier.testTag(tag),
+                onValueChange = { value = it },
+                onTextLayout = { textLayoutResult = it }
+            )
+        }
+
+        rule.onNodeWithTag(tag).performClick()
+        rule.runOnIdle {
+            assertThat(platformTextInputService.focusedRect?.topLeft)
+                .isEqualTo(Offset.Zero)
+        }
+
+        value = TextFieldValue("a", TextRange(1))
+        rule.runOnIdle {
+            assertThat(platformTextInputService.focusedRect)
+                .isEqualTo(textLayoutResult.getBoundingBox(0))
+        }
+
+        value = TextFieldValue("a\nbc", TextRange(4))
+        rule.runOnIdle {
+            assertThat(platformTextInputService.focusedRect)
+                .isEqualTo(textLayoutResult.getBoundingBox(3))
+        }
+
+        value = TextFieldValue("a\nbc", TextRange(3))
+        rule.runOnIdle {
+            assertThat(platformTextInputService.focusedRect)
+                .isEqualTo(textLayoutResult.getBoundingBox(3))
+        }
+
+        value = TextFieldValue("a\nbc", TextRange(2))
+        rule.runOnIdle {
+            assertThat(platformTextInputService.focusedRect)
+                .isEqualTo(textLayoutResult.getBoundingBox(2))
+        }
+
+        value = TextFieldValue("a\nbc", TextRange(0))
+        rule.runOnIdle {
+            assertThat(platformTextInputService.focusedRect)
+                .isEqualTo(textLayoutResult.getBoundingBox(0))
+        }
+    }
+
+    @Test
+    fun updateTextLayoutResultCalledOnGlobalPositionChanged() {
+        var offset by mutableStateOf(IntOffset(0, 10))
+        val value = TextFieldValue("abc\nefg", TextRange(6))
+        lateinit var textLayoutResult: TextLayoutResult
+        val focusRequester = FocusRequester()
+
+        setContent {
+            Box(Modifier.offset { offset }) {
+                CoreTextField(
+                    value = value,
+                    modifier = Modifier.focusRequester(focusRequester),
+                    onValueChange = { },
+                    onTextLayout = { textLayoutResult = it }
+                )
+            }
+        }
+
+        rule.runOnIdle {
+            assertThat(platformTextInputService.lastInputValue).isNull()
+            assertThat(platformTextInputService.offsetMapping).isNull()
+            assertThat(platformTextInputService.textLayoutResult).isNull()
+            assertThat(platformTextInputService.textLayoutPositionInWindow).isNull()
+            assertThat(platformTextInputService.innerTextFieldBounds).isNull()
+            assertThat(platformTextInputService.decorationBoxBounds).isNull()
+        }
+
+        rule.runOnUiThread {
+            focusRequester.requestFocus()
+        }
+
+        rule.runOnIdle {
+            assertThat(platformTextInputService.lastInputValue).isEqualTo(value)
+            assertThat(platformTextInputService.offsetMapping).isNotNull()
+            assertThat(platformTextInputService.textLayoutResult).isNotNull()
+            assertThat(platformTextInputService.textLayoutResult).isEqualTo(textLayoutResult)
+            assertThat(platformTextInputService.textLayoutPositionInWindow)
+                .isEqualTo(offset.toOffset())
+            assertThat(platformTextInputService.innerTextFieldBounds).isNotNull()
+            assertThat(platformTextInputService.decorationBoxBounds).isNotNull()
+        }
+
+        offset = IntOffset(10, 20)
+
+        rule.runOnIdle {
+            assertThat(platformTextInputService.textLayoutPositionInWindow)
+                .isEqualTo(offset.toOffset())
+        }
+    }
+
     private fun setContent(content: @Composable () -> Unit) {
         rule.setContent {
             focusManager = LocalFocusManager.current
@@ -329,9 +534,16 @@ class CoreTextFieldInputServiceIntegrationTest {
         var stopInputCalls = 0
         var inputStarted = false
         var keyboardShown = false
+        var focusedRect: Rect? = null
 
         var lastInputValue: TextFieldValue? = null
         var lastInputImeOptions: ImeOptions? = null
+
+        var offsetMapping: OffsetMapping? = null
+        var textLayoutResult: TextLayoutResult? = null
+        var textLayoutPositionInWindow: Offset? = null
+        var innerTextFieldBounds: Rect? = null
+        var decorationBoxBounds: Rect? = null
 
         override fun startInput(
             value: TextFieldValue,
@@ -362,6 +574,26 @@ class CoreTextFieldInputServiceIntegrationTest {
 
         override fun updateState(oldValue: TextFieldValue?, newValue: TextFieldValue) {
             // Tests don't care.
+        }
+
+        override fun notifyFocusedRect(rect: Rect) {
+            focusedRect = rect
+        }
+
+        override fun updateTextLayoutResult(
+            textFieldValue: TextFieldValue,
+            offsetMapping: OffsetMapping,
+            textLayoutResult: TextLayoutResult,
+            textLayoutPositionInWindow: Offset,
+            innerTextFieldBounds: Rect,
+            decorationBoxBounds: Rect
+        ) {
+            lastInputValue = textFieldValue
+            this.offsetMapping = offsetMapping
+            this.textLayoutResult = textLayoutResult
+            this.textLayoutPositionInWindow = textLayoutPositionInWindow
+            this.innerTextFieldBounds = innerTextFieldBounds
+            this.decorationBoxBounds = decorationBoxBounds
         }
     }
 }

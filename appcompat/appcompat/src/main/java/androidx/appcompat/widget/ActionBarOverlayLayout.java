@@ -58,7 +58,6 @@ import androidx.core.view.WindowInsetsCompat;
  * Special layout for the containing of an overlay action bar (and its content) to correctly handle
  * fitting system windows when the content has request that its layout ignore them.
  *
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 @SuppressLint("UnknownNullness") // this is not public API
@@ -539,7 +538,7 @@ public class ActionBarOverlayLayout extends ViewGroup implements DecorContentPar
     }
 
     @Override
-    public void draw(Canvas c) {
+    public void draw(@NonNull Canvas c) {
         super.draw(c);
         if (mWindowContentOverlay != null && !mIgnoreWindowContentOverlay) {
             final int top = mActionBarTop.getVisibility() == VISIBLE ?

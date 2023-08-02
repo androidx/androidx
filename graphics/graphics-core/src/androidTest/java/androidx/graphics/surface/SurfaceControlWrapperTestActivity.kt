@@ -27,8 +27,11 @@ class SurfaceControlWrapperTestActivity : Activity() {
     lateinit var mSurfaceView: SurfaceView
     lateinit var mFrameLayout: FrameLayout
     lateinit var mLayoutParams: FrameLayout.LayoutParams
-    var DEFAULT_WIDTH = 100
-    var DEFAULT_HEIGHT = 100
+
+    companion object {
+        var DEFAULT_WIDTH = 100
+        var DEFAULT_HEIGHT = 100
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

@@ -16,6 +16,8 @@
 
 package androidx.core.view;
 
+import static com.google.common.truth.Truth.assertThat;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
@@ -58,6 +60,8 @@ import androidx.test.filters.FlakyTest;
 import androidx.test.filters.MediumTest;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
+
+import com.google.common.truth.Truth;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -576,6 +580,28 @@ public class AccessibilityDelegateCompatTest extends
         verify(action).perform(eq(mView), argCaptor.capture());
         assertEquals(granularity, argCaptor.getValue().getGranularity());
         assertEquals(extendSelection, argCaptor.getValue().getExtendSelection());
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 21)
+    public void testSetAccessibilityDelegate_viewAutoImportant_makesViewImportant() {
+        ViewCompat.setImportantForAccessibility(mView, ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_AUTO);
+        assertThat(mView.getImportantForAccessibility()).isEqualTo(
+                ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_AUTO);
+        ViewCompat.setAccessibilityDelegate(mView, new AccessibilityDelegateCompat());
+        assertThat(mView.getImportantForAccessibility()).isEqualTo(
+                ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_YES);
+    }
+
+    @SdkSuppress(minSdkVersion = 21)
+    @Test
+    public void testSetAccessibilityDelegate_viewUnimportant_doesNotMakeViewImportant() {
+        ViewCompat.setImportantForAccessibility(mView, ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_NO);
+        Truth.assertThat(mView.getImportantForAccessibility()).isEqualTo(
+                ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_NO);
+        ViewCompat.setAccessibilityDelegate(mView, new AccessibilityDelegateCompat());
+        Truth.assertThat(mView.getImportantForAccessibility()).isEqualTo(
+                ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_NO);
     }
 
     @Test

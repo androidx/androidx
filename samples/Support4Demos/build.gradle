@@ -11,12 +11,22 @@ dependencies {
     implementation(project(":slidingpanelayout:slidingpanelayout"))
     implementation(project(":swiperefreshlayout:swiperefreshlayout"))
     implementation(project(":fragment:fragment-ktx"))
+    implementation(project(":lifecycle:lifecycle-common"))
+    implementation(project(":lifecycle:lifecycle-runtime-ktx"))
     implementation(project(":media:media"))
     implementation(project(":viewpager:viewpager"))
     implementation(libs.kotlinStdlib)
     implementation(libs.kotlinCoroutinesAndroid)
+    implementation(project(":coordinatorlayout:coordinatorlayout"))
+    implementation("com.google.android.material:material:1.6.0")
+    implementation(project(":appcompat:appcompat"))
+    implementation(libs.multidex)
 }
 
 android {
     namespace "com.example.android.supportv4"
+
+    defaultConfig {
+        multiDexEnabled true
+    }
 }

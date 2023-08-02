@@ -24,172 +24,225 @@ public class MathUtils {
     private MathUtils() {}
 
     /**
-     * See {@link Math#addExact(int, int)}.
+     * Returns the sum of its arguments, throwing an exception if the result overflows an
+     * {@code int}.
+     *
+     * @param x the first value
+     * @param y the second value
+     * @return the result
+     * @throws ArithmeticException if the result overflows an int
      */
     public static int addExact(int x, int y) {
-        // copied from Math.java
-        int r = x + y;
-        // HD 2-12 Overflow iff both arguments have the opposite sign of the result
-        if (((x ^ r) & (y ^ r)) < 0) {
+        int sum = x + y;
+        // If x and y have the same sign, their sum should have the same sign as well
+        if ((x >= 0 == y >= 0) && (x >= 0 != sum >= 0)) {
             throw new ArithmeticException("integer overflow");
+        } else {
+            return sum;
         }
-        return r;
     }
 
     /**
-     * See {@link Math#addExact(long, long)}.
+     * Returns the sum of its arguments, throwing an exception if the result overflows a
+     * {@code long}.
+     *
+     * @param x the first value
+     * @param y the second value
+     * @return the result
+     * @throws ArithmeticException if the result overflows a long
      */
     public static long addExact(long x, long y) {
-        // copied from Math.java
-        long r = x + y;
-        // HD 2-12 Overflow iff both arguments have the opposite sign of the result
-        if (((x ^ r) & (y ^ r)) < 0) {
-            throw new ArithmeticException("long overflow");
+        long sum = x + y;
+        // If x and y have the same sign, their sum should have the same sign as well
+        if ((x >= 0 == y >= 0) && (x >= 0 != sum >= 0)) {
+            throw new ArithmeticException("integer overflow");
+        } else {
+            return sum;
         }
-        return r;
     }
 
-
     /**
-     * See {@link Math#subtractExact(int, int)}.
+     * Returns the difference of the arguments, throwing an exception if the result overflows an
+     * {@code int}.
+     *
+     * @param x the first value
+     * @param y the second value to subtract from the first
+     * @return the result
+     * @throws ArithmeticException if the result overflows an int
      */
     public static int subtractExact(int x, int y) {
-        // copied from Math.java
-        int r = x - y;
-        // HD 2-12 Overflow iff the arguments have different signs and
-        // the sign of the result is different than the sign of x
-        if (((x ^ y) & (x ^ r)) < 0) {
+        int difference = x - y;
+        // If only one of x or y is negative, the difference should have the same sign as x
+        if ((x < 0 != y < 0) && (x < 0 != difference < 0)) {
             throw new ArithmeticException("integer overflow");
         }
-        return r;
+        return difference;
     }
 
     /**
-     * See {@link Math#subtractExact(long, long)}.
+     * Returns the difference of the arguments, throwing an exception if the result overflows a
+     * {@code long}.
+     *
+     * @param x the first value
+     * @param y the second value to subtract from the first
+     * @return the result
+     * @throws ArithmeticException if the result overflows a long
      */
     public static long subtractExact(long x, long y) {
-        // copied from Math.java
-        long r = x - y;
-        // HD 2-12 Overflow iff the arguments have different signs and
-        // the sign of the result is different than the sign of x
-        if (((x ^ y) & (x ^ r)) < 0) {
-            throw new ArithmeticException("long overflow");
+        long difference = x - y;
+        // If only one of x or y is negative, the difference should have the same sign as x
+        if ((x < 0 != y < 0) && (x < 0 != difference < 0)) {
+            throw new ArithmeticException("integer overflow");
         }
-        return r;
+        return difference;
     }
 
     /**
-     * See {@link Math#multiplyExact(int, int)}.
+     * Returns the product of the arguments, throwing an exception if the result overflows an
+     * {@code int}.
+     *
+     * @param x the first value
+     * @param y the second value
+     * @return the result
+     * @throws ArithmeticException if the result overflows an int
      */
     public static int multiplyExact(int x, int y) {
-        // copied from Math.java
-        long r = (long) x * (long) y;
-        if ((int) r != r) {
+        int product = x * y;
+        // Dividing back by one of x or y should get the other back unless there was overflow
+        if (x != 0 && y != 0 && (product / x != y || product / y != x)) {
             throw new ArithmeticException("integer overflow");
         }
-        return (int) r;
+        return product;
     }
 
     /**
-     * See {@link Math#multiplyExact(long, long)}.
+     * Returns the product of the arguments, throwing an exception if the result overflows a
+     * {@code long}.
+     *
+     * @param x the first value
+     * @param y the second value
+     * @return the result
+     * @throws ArithmeticException if the result overflows a long
      */
     public static long multiplyExact(long x, long y) {
-        // copied from Math.java
-        long r = x * y;
-        long ax = Math.abs(x);
-        long ay = Math.abs(y);
-        if (((ax | ay) >>> 31 != 0)) {
-            // Some bits greater than 2^31 that might cause overflow
-            // Check the result using the divide operator
-            // and check for the special case of Long.MIN_VALUE * -1
-            if (((y != 0) && (r / y != x)) || (x == Long.MIN_VALUE && y == -1)) {
-                throw new ArithmeticException("long overflow");
-            }
+        long product = x * y;
+        // Dividing back by one of x or y should get the other back unless there was overflow
+        if (x != 0 && y != 0 && (product / x != y || product / y != x)) {
+            throw new ArithmeticException("integer overflow");
         }
-        return r;
+        return product;
     }
 
     /**
-     * See {@link Math#incrementExact(int)}.
+     * Returns the argument incremented by one, throwing an exception if the result overflows an
+     * {@code int}. The overflow only occurs for {@linkplain Integer#MAX_VALUE the maximum value}.
+     *
+     * @param a the value to increment
+     * @return the result
+     * @throws ArithmeticException if the result overflows an int
      */
     public static int incrementExact(int a) {
-        // copied from Math.java
         if (a == Integer.MAX_VALUE) {
             throw new ArithmeticException("integer overflow");
+        } else {
+            return a + 1;
         }
-
-        return a + 1;
     }
 
     /**
-     * See {@link Math#incrementExact(long)}.
+     * Returns the argument incremented by one, throwing an exception if the result overflows a
+     * {@code long}. The overflow only occurs for {@linkplain Long#MAX_VALUE the maximum value}.
+     *
+     * @param a the value to increment
+     * @return the result
+     * @throws ArithmeticException if the result overflows a long
      */
     public static long incrementExact(long a) {
-        // copied from Math.java
         if (a == Long.MAX_VALUE) {
-            throw new ArithmeticException("long overflow");
+            throw new ArithmeticException("integer overflow");
+        } else {
+            return a + 1;
         }
-
-        return a + 1L;
     }
 
     /**
-     * See {@link Math#decrementExact(int)}.
+     * Returns the argument decremented by one, throwing an exception if the result overflows an
+     * {@code int}. The overflow only occurs for {@linkplain Integer#MIN_VALUE the minimum value}.
+     *
+     * @param a the value to decrement
+     * @return the result
+     * @throws ArithmeticException if the result overflows an int
      */
     public static int decrementExact(int a) {
-        // copied from Math.java
         if (a == Integer.MIN_VALUE) {
             throw new ArithmeticException("integer overflow");
+        } else {
+            return a - 1;
         }
-
-        return a - 1;
     }
 
     /**
-     * See {@link Math#decrementExact(long)}.
+     * Returns the argument decremented by one, throwing an exception if the result overflows a
+     * {@code long}. The overflow only occurs for {@linkplain Long#MIN_VALUE the minimum value}.
+     *
+     * @param a the value to decrement
+     * @return the result
+     * @throws ArithmeticException if the result overflows a long
      */
     public static long decrementExact(long a) {
-        // copied from Math.java
         if (a == Long.MIN_VALUE) {
-            throw new ArithmeticException("long overflow");
+            throw new ArithmeticException("integer overflow");
+        } else {
+            return a - 1;
         }
-
-        return a - 1L;
     }
 
     /**
-     * See {@link Math#negateExact(int)}.
+     * Returns the negation of the argument, throwing an exception if the result overflows an
+     * {@code int}. The overflow only occurs for {@linkplain Integer#MIN_VALUE the minimum value}.
+     *
+     * @param a the value to negate
+     * @return the result
+     * @throws ArithmeticException if the result overflows an int
      */
     public static int negateExact(int a) {
-        // copied from Math.java
         if (a == Integer.MIN_VALUE) {
             throw new ArithmeticException("integer overflow");
+        } else {
+            return -a;
         }
-
-        return -a;
     }
 
     /**
-     * See {@link Math#negateExact(long)}.
+     * Returns the negation of the argument, throwing an exception if the result overflows a
+     * {@code long}. The overflow only occurs for {@linkplain Long#MIN_VALUE the minimum value}.
+     *
+     * @param a the value to negate
+     * @return the result
+     * @throws ArithmeticException if the result overflows a long
      */
     public static long negateExact(long a) {
-        // copied from Math.java
         if (a == Long.MIN_VALUE) {
-            throw new ArithmeticException("long overflow");
+            throw new ArithmeticException("integer overflow");
+        } else {
+            return -a;
         }
-
-        return -a;
     }
 
     /**
-     * See {@link Math#toIntExact(long)}.
+     * Returns the value of the {@code long} argument, throwing an exception if the value
+     * overflows an {@code int}.
+     *
+     * @param value the long value
+     * @return the argument as an int
+     * @throws ArithmeticException if the {@code argument} overflows an int
      */
     public static int toIntExact(long value) {
-        // copied from Math.java
-        if ((int) value != value) {
+        if (value > Integer.MAX_VALUE || value < Integer.MIN_VALUE) {
             throw new ArithmeticException("integer overflow");
+        } else {
+            return (int) value;
         }
-        return (int) value;
     }
 
     /**

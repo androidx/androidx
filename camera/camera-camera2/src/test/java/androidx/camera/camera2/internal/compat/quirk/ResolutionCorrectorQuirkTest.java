@@ -46,13 +46,13 @@ public class ResolutionCorrectorQuirkTest {
         ReflectionHelpers.setStaticField(Build.class, "MODEL", "SM-T580");
         assertThat(ExtraCroppingQuirk.load()).isTrue();
         ReflectionHelpers.setStaticField(Build.class, "MODEL", "SM-J710MN");
-        assertThat(ExtraCroppingQuirk.load()).isTrue();
+        assertThat(ExtraCroppingQuirk.load()).isEqualTo(Build.VERSION.SDK_INT <= 26);
         ReflectionHelpers.setStaticField(Build.class, "MODEL", "SM-A320FL");
         assertThat(ExtraCroppingQuirk.load()).isTrue();
         ReflectionHelpers.setStaticField(Build.class, "MODEL", "SM-G570M");
         assertThat(ExtraCroppingQuirk.load()).isTrue();
         ReflectionHelpers.setStaticField(Build.class, "MODEL", "SM-G610M");
-        assertThat(ExtraCroppingQuirk.load()).isTrue();
+        assertThat(ExtraCroppingQuirk.load()).isEqualTo(Build.VERSION.SDK_INT <= 26);
         ReflectionHelpers.setStaticField(Build.class, "MODEL", "SM-G610F");
         assertThat(ExtraCroppingQuirk.load()).isTrue();
     }

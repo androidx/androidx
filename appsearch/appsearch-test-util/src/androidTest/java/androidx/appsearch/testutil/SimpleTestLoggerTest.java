@@ -25,6 +25,7 @@ import androidx.appsearch.localstorage.stats.PutDocumentStats;
 import androidx.appsearch.localstorage.stats.RemoveStats;
 import androidx.appsearch.localstorage.stats.SearchStats;
 import androidx.appsearch.localstorage.stats.SetSchemaStats;
+import androidx.appsearch.stats.SchemaMigrationStats;
 
 import org.junit.Test;
 
@@ -39,7 +40,8 @@ public class SimpleTestLoggerTest {
         assertThat(logger.mSearchStats).isNull();
         assertThat(logger.mRemoveStats).isNull();
         assertThat(logger.mOptimizeStats).isNull();
-        assertThat(logger.mSetSchemaStats).isNull();
+        assertThat(logger.mSetSchemaStats).isEmpty();
+        assertThat(logger.mSchemaMigrationStats).isNull();
     }
 
     @Test
@@ -54,7 +56,7 @@ public class SimpleTestLoggerTest {
         logger.logStats(new RemoveStats.Builder("package", "db").build());
         logger.logStats(new OptimizeStats.Builder().build());
         logger.logStats(new SetSchemaStats.Builder("package", "db").build());
-
+        logger.logStats(new SchemaMigrationStats.Builder("package", "db").build());
 
         assertThat(logger.mCallStats).isNotNull();
         assertThat(logger.mPutDocumentStats).isNotNull();
@@ -63,5 +65,6 @@ public class SimpleTestLoggerTest {
         assertThat(logger.mRemoveStats).isNotNull();
         assertThat(logger.mOptimizeStats).isNotNull();
         assertThat(logger.mSetSchemaStats).isNotNull();
+        assertThat(logger.mSchemaMigrationStats).isNotNull();
     }
 }

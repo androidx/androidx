@@ -46,13 +46,15 @@ public class WebMessageListenerAdapter implements WebMessageListenerBoundaryInte
     public void onPostMessage(@NonNull WebView view,
             @NonNull /* WebMessage */ InvocationHandler message, @NonNull Uri sourceOrigin,
             boolean isMainFrame, @NonNull /* JavaScriptReplyProxy */ InvocationHandler replyProxy) {
-        WebMessageCompat webMessage = WebMessageAdapter.webMessageCompatFromBoundaryInterface(
+        final WebMessageCompat webMessage = WebMessageAdapter.webMessageCompatFromBoundaryInterface(
                 BoundaryInterfaceReflectionUtil.castToSuppLibClass(
                         WebMessageBoundaryInterface.class, message));
-        JavaScriptReplyProxy jsReplyProxy =
-                JavaScriptReplyProxyImpl.forInvocationHandler(replyProxy);
-        mWebMessageListener.onPostMessage(
-                view, webMessage, sourceOrigin, isMainFrame, jsReplyProxy);
+        if (webMessage != null) {
+            JavaScriptReplyProxy jsReplyProxy =
+                    JavaScriptReplyProxyImpl.forInvocationHandler(replyProxy);
+            mWebMessageListener.onPostMessage(
+                    view, webMessage, sourceOrigin, isMainFrame, jsReplyProxy);
+        }
     }
 
     /**
@@ -61,6 +63,6 @@ public class WebMessageListenerAdapter implements WebMessageListenerBoundaryInte
      */
     @Override
     public @NonNull String[] getSupportedFeatures() {
-        return new String[] {Features.WEB_MESSAGE_LISTENER};
+        return new String[] {Features.WEB_MESSAGE_LISTENER, Features.WEB_MESSAGE_ARRAY_BUFFER};
     }
 }

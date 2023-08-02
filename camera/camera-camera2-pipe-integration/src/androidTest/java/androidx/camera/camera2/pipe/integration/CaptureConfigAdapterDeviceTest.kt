@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
+
 package androidx.camera.camera2.pipe.integration
 
 import android.content.Context
@@ -22,6 +24,7 @@ import android.hardware.camera2.CameraDevice
 import android.view.Surface
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.integration.adapter.CameraControlAdapter
+import androidx.camera.camera2.pipe.testing.toCameraControlAdapter
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.impl.CameraCaptureCallback
@@ -32,17 +35,17 @@ import androidx.camera.core.impl.DeferrableSurface
 import androidx.camera.core.impl.SessionConfig
 import androidx.camera.core.impl.utils.futures.Futures
 import androidx.camera.core.internal.CameraUseCaseAdapter
-import androidx.camera.testing.CameraUtil
-import androidx.camera.testing.CameraXUtil
-import androidx.camera.testing.LabTestRule
-import androidx.camera.testing.fakes.FakeUseCase
-import androidx.camera.testing.fakes.FakeUseCaseConfig
+import androidx.camera.testing.impl.CameraUtil
+import androidx.camera.testing.impl.CameraXUtil
+import androidx.camera.testing.impl.fakes.FakeUseCase
+import androidx.camera.testing.impl.fakes.FakeUseCaseConfig
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth
 import com.google.common.util.concurrent.ListenableFuture
+import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asExecutor
@@ -56,9 +59,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
 import org.junit.runner.RunWith
-import java.util.concurrent.TimeUnit
 
-@RequiresApi(21)
 private const val DEFAULT_LENS_FACING_SELECTOR = CameraSelector.LENS_FACING_BACK
 
 @LargeTest
@@ -69,36 +70,30 @@ class CaptureConfigAdapterDeviceTest {
     @get:Rule
     val useCamera: TestRule = CameraUtil.grantCameraPermissionAndPreTest()
 
-    // TODO(b/187015621): Remove the rule after the surface can be safely closed.
-    @get:Rule
-    val labTest: LabTestRule = LabTestRule()
-
     private var cameraControl: CameraControlAdapter? = null
     private var camera: CameraUseCaseAdapter? = null
-    private val testDeferrableSurface = TestDeferrableSurface()
-    private val fakeUseCase = FakeTestUseCase(
-        FakeUseCaseConfig.Builder().setTargetName("UseCase").useCaseConfig
-    ).apply {
-        setupSessionConfig(
-            SessionConfig.Builder().also { sessionConfigBuilder ->
-                sessionConfigBuilder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW)
-                sessionConfigBuilder.addSurface(testDeferrableSurface)
-            }
-        )
-    }
+    private lateinit var testDeferrableSurface: TestDeferrableSurface
+    private lateinit var fakeUseCase: FakeTestUseCase
 
     @Before
     fun setUp() = runBlocking {
         Assume.assumeTrue(CameraUtil.hasCameraWithLensFacing(DEFAULT_LENS_FACING_SELECTOR))
+        testDeferrableSurface = TestDeferrableSurface()
+        fakeUseCase = FakeTestUseCase(
+            FakeUseCaseConfig.Builder().setTargetName("UseCase").useCaseConfig
+        ).apply {
+            setupSessionConfig(SessionConfig.Builder().also { sessionConfigBuilder ->
+                sessionConfigBuilder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW)
+                sessionConfigBuilder.addSurface(testDeferrableSurface)
+            })
+        }
 
         val context: Context = ApplicationProvider.getApplicationContext()
         CameraXUtil.initialize(
-            context,
-            CameraPipeConfig.defaultConfig()
+            context, CameraPipeConfig.defaultConfig()
         )
         camera = CameraUtil.createCameraUseCaseAdapter(
-            context,
-            CameraSelector.Builder().requireLensFacing(
+            context, CameraSelector.Builder().requireLensFacing(
                 DEFAULT_LENS_FACING_SELECTOR
             ).build()
         ).apply {
@@ -107,25 +102,25 @@ class CaptureConfigAdapterDeviceTest {
             }
         }
 
-        cameraControl = camera!!.cameraControl as CameraControlAdapter
+        cameraControl = camera!!.cameraControl.toCameraControlAdapter()
     }
 
     @After
     fun tearDown() {
         camera?.detachUseCases()
-        testDeferrableSurface.close()
+        if (this::testDeferrableSurface.isInitialized) {
+            testDeferrableSurface.close()
+        }
         CameraXUtil.shutdown()[10000, TimeUnit.MILLISECONDS]
     }
 
     @Test
-    @LabTestRule.LabTestOnly
     fun tagBundleTest() = runBlocking {
         // Arrange
         val deferred = CompletableDeferred<CameraCaptureResult>()
         val tagKey = "TestTagBundleKey"
         val tagValue = "testing"
-        val captureConfig = CaptureConfig.Builder()
-            .apply {
+        val captureConfig = CaptureConfig.Builder().apply {
                 templateType = CameraDevice.TEMPLATE_PREVIEW
                 addTag(tagKey, tagValue)
                 addSurface(testDeferrableSurface)
@@ -158,39 +153,36 @@ class CaptureConfigAdapterDeviceTest {
             }!!.tagBundle.getTag(tagKey)
         ).isEqualTo(tagValue)
     }
-}
 
-@RequiresApi(21)
-private class FakeTestUseCase(
-    config: FakeUseCaseConfig,
-) : FakeUseCase(config) {
+    private class FakeTestUseCase(
+        config: FakeUseCaseConfig,
+    ) : FakeUseCase(config) {
 
-    fun setupSessionConfig(sessionConfigBuilder: SessionConfig.Builder) {
-        updateSessionConfig(sessionConfigBuilder.build())
-        notifyActive()
-    }
-}
-
-@RequiresApi(21)
-private class TestDeferrableSurface : DeferrableSurface() {
-    init {
-        terminationFuture.addListener(
-            { cleanUp() },
-            Dispatchers.IO.asExecutor()
-        )
+        fun setupSessionConfig(sessionConfigBuilder: SessionConfig.Builder) {
+            updateSessionConfig(sessionConfigBuilder.build())
+            notifyActive()
+        }
     }
 
-    private val surfaceTexture = SurfaceTexture(0).also {
-        it.setDefaultBufferSize(640, 480)
-    }
-    val testSurface = Surface(surfaceTexture)
+    private class TestDeferrableSurface : DeferrableSurface() {
+        init {
+            terminationFuture.addListener(
+                { cleanUp() }, Dispatchers.IO.asExecutor()
+            )
+        }
 
-    override fun provideSurface(): ListenableFuture<Surface> {
-        return Futures.immediateFuture(testSurface)
-    }
+        private val surfaceTexture = SurfaceTexture(0).also {
+            it.setDefaultBufferSize(640, 480)
+        }
+        val testSurface = Surface(surfaceTexture)
 
-    fun cleanUp() {
-        testSurface.release()
-        surfaceTexture.release()
+        override fun provideSurface(): ListenableFuture<Surface> {
+            return Futures.immediateFuture(testSurface)
+        }
+
+        fun cleanUp() {
+            testSurface.release()
+            surfaceTexture.release()
+        }
     }
 }

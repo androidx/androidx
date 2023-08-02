@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?><!--
+  Copyright 2022 The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+
+<resources>
+    <!-- Describes the category list in the emoji picker header view. -->
+    <dimen name="emoji_picker_header_icon_holder_width">39dp</dimen>
+    <dimen name="emoji_picker_header_icon_holder_min_height">46dp</dimen>
+    <dimen name="emoji_picker_header_icon_width">20dp</dimen>
+    <dimen name="emoji_picker_header_icon_height">20dp</dimen>
+    <dimen name="emoji_picker_header_icon_underline_width">28dp</dimen>
+    <dimen name="emoji_picker_header_icon_underline_height">2dp</dimen>
+    <dimen name="emoji_picker_header_height">42dp</dimen>
+    <dimen name="emoji_picker_header_padding">5dp</dimen>
+    <dimen name="variant_availability_indicator_height">5dp</dimen>
+    <dimen name="variant_availability_indicator_width">5dp</dimen>
+    <dimen name="emoji_picker_popup_view_holder_padding_vertical">10dp</dimen>
+    <dimen name="emoji_picker_popup_view_holder_padding_start">10dp</dimen>
+    <dimen name="emoji_picker_popup_view_holder_padding_end">10dp</dimen>
+    <dimen name="emoji_picker_popup_view_elevation">8dp</dimen>
+    <dimen name="emoji_picker_popup_view_holder_corner_radius">30dp</dimen>
+    <dimen name="emoji_picker_skin_tone_circle_radius">6dp</dimen>
+    <dimen name="emoji_picker_category_name_height">24dp</dimen>
+    <dimen name="emoji_picker_category_name_padding_top">4dp</dimen>
+    <dimen name="emoji_picker_emoji_view_padding">2dp</dimen>
+</resources>

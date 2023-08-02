@@ -27,7 +27,6 @@ import androidx.annotation.RestrictTo;
 import java.util.ArrayList;
 
 /**
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 public class MenuAdapter extends BaseAdapter {

@@ -30,13 +30,13 @@ import com.android.tools.lint.detector.api.LintFix
 import com.android.tools.lint.detector.api.Scope
 import com.android.tools.lint.detector.api.Severity
 import com.android.tools.lint.detector.api.SourceCodeScanner
+import java.util.EnumSet
 import org.jetbrains.kotlin.psi.KtFunctionType
 import org.jetbrains.kotlin.psi.KtNullableType
 import org.jetbrains.kotlin.psi.KtParameter
 import org.jetbrains.uast.UElement
 import org.jetbrains.uast.UMethod
 import org.jetbrains.uast.UParameter
-import java.util.EnumSet
 
 /**
  * [Detector] that checks composable lambda parameters inside composable functions for
@@ -107,7 +107,7 @@ class ComposableLambdaParameterDetector : Detector(), SourceCodeScanner {
             if (name != "content" && parameterInfo.functionType.parameters.isEmpty()) {
                 context.report(
                     ComposableLambdaParameterNaming,
-                    node,
+                    uElement,
                     context.getNameLocation(uElement),
                     "Composable lambda parameter should be named `content`",
                     LintFix.create()
@@ -123,7 +123,7 @@ class ComposableLambdaParameterDetector : Detector(), SourceCodeScanner {
             if (parameter !== node.uastParameters.last()) {
                 context.report(
                     ComposableLambdaParameterPosition,
-                    node,
+                    uElement,
                     context.getNameLocation(uElement),
                     "Composable lambda parameter should be the last parameter so it can be used " +
                         "as a trailing lambda"

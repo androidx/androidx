@@ -184,7 +184,6 @@ public class PreviewChannel {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     boolean isLogoChanged() {
@@ -192,7 +191,6 @@ public class PreviewChannel {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     Uri getLogoUri() {
@@ -290,7 +288,6 @@ public class PreviewChannel {
      * to the TvProvider. You never need to use this method unless you want to communicate to the
      * TvProvider directly.
      *
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public ContentValues toContentValues() {
@@ -299,7 +296,6 @@ public class PreviewChannel {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public static class Columns {
@@ -364,7 +360,6 @@ public class PreviewChannel {
          *
          * @param packageName The value of {@link Channels#COLUMN_PACKAGE_NAME} for the channel.
          * @return This Builder object to allow for chaining of calls to builder methods.
-         * @hide
          */
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         Builder setPackageName(String packageName) {

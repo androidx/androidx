@@ -28,7 +28,7 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
 import androidx.work.Configuration;
-import androidx.work.InputMergerFactory;
+import androidx.work.NoOpInputMergerFactory;
 import androidx.work.WorkManager;
 import androidx.work.WorkerFactory;
 import androidx.work.impl.WorkManagerImpl;
@@ -94,7 +94,7 @@ public class WorkManagerInitHelperTest {
     public void testWorkManagerInitialized_withFullConfiguration() {
         Configuration configuration = new Configuration.Builder()
                 .setExecutor(mExecutor)
-                .setInputMergerFactory(InputMergerFactory.getDefaultInputMergerFactory())
+                .setInputMergerFactory(NoOpInputMergerFactory.INSTANCE)
                 .setWorkerFactory(WorkerFactory.getDefaultWorkerFactory())
                 .setJobSchedulerJobIdRange(1000, 2000)
                 .setMaxSchedulerLimit(50)

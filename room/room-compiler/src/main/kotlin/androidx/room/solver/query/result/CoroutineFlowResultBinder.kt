@@ -16,15 +16,14 @@
 
 package androidx.room.solver.query.result
 
-import androidx.room.ext.CallableTypeSpecBuilder
-import androidx.room.ext.L
-import androidx.room.ext.N
-import androidx.room.ext.RoomCoroutinesTypeNames
-import androidx.room.ext.T
-import androidx.room.ext.arrayTypeName
+import androidx.room.compiler.codegen.XCodeBlock
+import androidx.room.compiler.codegen.XPropertySpec
 import androidx.room.compiler.processing.XType
+import androidx.room.ext.ArrayLiteral
+import androidx.room.ext.CallableTypeSpecBuilder
+import androidx.room.ext.CommonTypeNames
+import androidx.room.ext.RoomCoroutinesTypeNames.COROUTINES_ROOM
 import androidx.room.solver.CodeGenScope
-import com.squareup.javapoet.FieldSpec
 
 /**
  * Binds the result of a of a Kotlin Coroutine Flow<T>
@@ -38,34 +37,41 @@ class CoroutineFlowResultBinder(
     override fun convertAndReturn(
         roomSQLiteQueryVar: String,
         canReleaseQuery: Boolean,
-        dbField: FieldSpec,
+        dbProperty: XPropertySpec,
         inTransaction: Boolean,
         scope: CodeGenScope
     ) {
-        val callableImpl = CallableTypeSpecBuilder(typeArg.typeName) {
-            createRunQueryAndReturnStatements(
-                builder = this,
-                roomSQLiteQueryVar = roomSQLiteQueryVar,
-                dbField = dbField,
-                inTransaction = inTransaction,
-                scope = scope,
-                cancellationSignalVar = "null"
+        val callableImpl = CallableTypeSpecBuilder(scope.language, typeArg.asTypeName()) {
+            addCode(
+                XCodeBlock.builder(language).apply {
+                    createRunQueryAndReturnStatements(
+                        builder = this,
+                        roomSQLiteQueryVar = roomSQLiteQueryVar,
+                        dbProperty = dbProperty,
+                        inTransaction = inTransaction,
+                        scope = scope,
+                        cancellationSignalVar = "null"
+                    )
+                }.build()
             )
         }.apply {
             if (canReleaseQuery) {
-                addMethod(createFinalizeMethod(roomSQLiteQueryVar))
+                createFinalizeMethod(roomSQLiteQueryVar)
             }
         }.build()
 
-        scope.builder().apply {
-            val tableNamesList = tableNames.joinToString(",") { "\"$it\"" }
+        scope.builder.apply {
+            val arrayOfTableNamesLiteral = ArrayLiteral(
+                scope.language,
+                CommonTypeNames.STRING,
+                *tableNames.toTypedArray()
+            )
             addStatement(
-                "return $T.createFlow($N, $L, new $T{$L}, $L)",
-                RoomCoroutinesTypeNames.COROUTINES_ROOM,
-                dbField,
+                "return %T.createFlow(%N, %L, %L, %L)",
+                COROUTINES_ROOM,
+                dbProperty,
                 if (inTransaction) "true" else "false",
-                String::class.arrayTypeName,
-                tableNamesList,
+                arrayOfTableNamesLiteral,
                 callableImpl
             )
         }

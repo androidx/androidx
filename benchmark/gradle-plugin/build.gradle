@@ -25,14 +25,13 @@ plugins {
 apply from: "../../buildSrc/kotlin-dsl-dependency.gradle"
 
 dependencies {
-    implementation(findGradleKotlinDsl())
-    implementation(gradleApi())
-    implementation("com.android.tools.build:gradle:7.0.0")
-    implementation(libs.kotlinStdlib)
+    compileOnly("com.android.tools.build:gradle:7.3.0")
 
+    implementation(gradleApi())
+
+    testImplementation("com.android.tools.build:gradle:7.3.0")
     testImplementation(gradleTestKit())
     testImplementation(project(":internal-testutils-gradle-plugin"))
-    testImplementation(libs.testRunner)
     testImplementation(libs.junit)
     testImplementation(libs.kotlinTest)
 }
@@ -59,9 +58,8 @@ gradlePlugin {
 }
 
 androidx {
-    name = "Android Benchmark Gradle Plugin"
+    name = "Benchmark Gradle Plugin"
     type = LibraryType.GRADLE_PLUGIN
-    mavenGroup = LibraryGroups.BENCHMARK
     inceptionYear = "2019"
     description = "Android Benchmark Gradle Plugin"
 }
@@ -72,3 +70,4 @@ tasks {
         enableStricterValidation.set(true)
     }
 }
+afterEvaluate { tasks.named("test") {it.dependsOn( tasks.named("publish")) }}

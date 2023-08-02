@@ -39,7 +39,6 @@ import androidx.versionedparcelable.VersionedParcelize;
  * {@link SliceSpec} that one of the supported {@link SliceSpec}s provided
  * {@link #canRender}.
  *
- * @hide
  * @see Slice
  * @see SliceProvider#onBindSlice(Uri)
  */
@@ -55,7 +54,6 @@ public final class SliceSpec implements VersionedParcelable {
 
     /**
      * Used for VersionedParcelable
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public SliceSpec() {

@@ -16,14 +16,18 @@
 
 package androidx.compose.ui.layout
 
+import androidx.annotation.RestrictTo
 import androidx.compose.runtime.Applier
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ComposeNode
+import androidx.compose.runtime.currentCompositeKeyHash
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.node.ComposeUiNode
+import androidx.compose.ui.node.ComposeUiNode.Companion.SetCompositeKeyHash
+import androidx.compose.ui.node.ComposeUiNode.Companion.SetMeasurePolicy
 import androidx.compose.ui.node.LayoutNode
 
-/** @hide */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 @Deprecated(
     "It is a test API, do not use it in the real applications",
     level = DeprecationLevel.ERROR
@@ -35,7 +39,7 @@ class TestModifierUpdater internal constructor(private val node: LayoutNode) {
     }
 }
 
-/** @hide */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 @Deprecated(
     "It is a test API, do not use it in the real applications",
     level = DeprecationLevel.ERROR
@@ -44,13 +48,16 @@ class TestModifierUpdater internal constructor(private val node: LayoutNode) {
 @Composable
 @Suppress("DEPRECATION_ERROR")
 fun TestModifierUpdaterLayout(onAttached: (TestModifierUpdater) -> Unit) {
+    val compositeKeyHash = currentCompositeKeyHash
     val measurePolicy = MeasurePolicy { _, constraints ->
         layout(constraints.maxWidth, constraints.maxHeight) {}
     }
     ComposeNode<LayoutNode, Applier<Any>>(
         factory = LayoutNode.Constructor,
         update = {
-            set(measurePolicy, ComposeUiNode.SetMeasurePolicy)
+            set(measurePolicy, SetMeasurePolicy)
+            @OptIn(ExperimentalComposeUiApi::class)
+            set(compositeKeyHash, SetCompositeKeyHash)
             init { onAttached(TestModifierUpdater(this)) }
         }
     )

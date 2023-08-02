@@ -53,7 +53,6 @@ public final class WorkerParameters {
     private int mGeneration;
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public WorkerParameters(
@@ -176,7 +175,6 @@ public final class WorkerParameters {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public @NonNull Executor getBackgroundExecutor() {
@@ -184,7 +182,6 @@ public final class WorkerParameters {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public @NonNull TaskExecutor getTaskExecutor() {
@@ -192,7 +189,6 @@ public final class WorkerParameters {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public @NonNull WorkerFactory getWorkerFactory() {
@@ -200,7 +196,6 @@ public final class WorkerParameters {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public @NonNull ProgressUpdater getProgressUpdater() {
@@ -208,7 +203,6 @@ public final class WorkerParameters {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public @NonNull ForegroundUpdater getForegroundUpdater() {
@@ -216,7 +210,6 @@ public final class WorkerParameters {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public @NonNull RuntimeExtras getRuntimeExtras() {
@@ -226,7 +219,6 @@ public final class WorkerParameters {
     /**
      * Extra runtime information for Workers.
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static class RuntimeExtras {

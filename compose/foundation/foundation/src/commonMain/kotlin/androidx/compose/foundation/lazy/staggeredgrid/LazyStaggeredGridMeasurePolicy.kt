@@ -17,63 +17,151 @@
 package androidx.compose.foundation.lazy.staggeredgrid
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.OverscrollEffect
 import androidx.compose.foundation.checkScrollableContainerConstraints
 import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.lazy.layout.LazyLayoutItemProvider
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.lazy.layout.LazyLayoutMeasureScope
+import androidx.compose.foundation.lazy.layout.calculateLazyLayoutPinnedIndices
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.constrainHeight
+import androidx.compose.ui.unit.constrainWidth
+import kotlinx.coroutines.CoroutineScope
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
-@ExperimentalFoundationApi
 internal fun rememberStaggeredGridMeasurePolicy(
     state: LazyStaggeredGridState,
-    itemProvider: LazyLayoutItemProvider,
+    itemProviderLambda: () -> LazyStaggeredGridItemProvider,
     contentPadding: PaddingValues,
     reverseLayout: Boolean,
     orientation: Orientation,
-    verticalArrangement: Arrangement.Vertical,
-    horizontalArrangement: Arrangement.Horizontal,
-    slotSizesSums: Density.(Constraints) -> IntArray,
-    overscrollEffect: OverscrollEffect
+    mainAxisSpacing: Dp,
+    crossAxisSpacing: Dp,
+    coroutineScope: CoroutineScope,
+    slots: Density.(Constraints) -> LazyStaggeredGridSlots
 ): LazyLayoutMeasureScope.(Constraints) -> LazyStaggeredGridMeasureResult = remember(
     state,
-    itemProvider,
+    itemProviderLambda,
     contentPadding,
     reverseLayout,
     orientation,
-    verticalArrangement,
-    horizontalArrangement,
-    slotSizesSums,
-    overscrollEffect,
+    mainAxisSpacing,
+    crossAxisSpacing,
+    slots
 ) {
     { constraints ->
         checkScrollableContainerConstraints(
             constraints,
             orientation
         )
-        val resolvedSlotSums = slotSizesSums(this, constraints)
+        val resolvedSlots = slots(this, constraints)
+        val isVertical = orientation == Orientation.Vertical
+        val itemProvider = itemProviderLambda()
 
         // setup information for prefetch
-        state.prefetchLaneWidths = resolvedSlotSums
-        state.isVertical = orientation == Orientation.Vertical
+        state.slots = resolvedSlots
+        state.isVertical = isVertical
+        state.spanProvider = itemProvider.spanProvider
 
-        measure(
-            state,
-            itemProvider,
-            resolvedSlotSums,
-            constraints,
-            isVertical = orientation == Orientation.Vertical,
-            beforeContentPadding = 0,
-            afterContentPadding = 0,
+        // setup measure
+        val beforeContentPadding = contentPadding.beforePadding(
+            orientation, reverseLayout, layoutDirection
+        ).roundToPx()
+        val afterContentPadding = contentPadding.afterPadding(
+            orientation, reverseLayout, layoutDirection
+        ).roundToPx()
+        val startContentPadding = contentPadding.startPadding(
+            orientation, layoutDirection
+        ).roundToPx()
+
+        val maxMainAxisSize = if (isVertical) constraints.maxHeight else constraints.maxWidth
+        val mainAxisAvailableSize = maxMainAxisSize - beforeContentPadding - afterContentPadding
+        val contentOffset = if (isVertical) {
+            IntOffset(startContentPadding, beforeContentPadding)
+        } else {
+            IntOffset(beforeContentPadding, startContentPadding)
+        }
+
+        val horizontalPadding = contentPadding.run {
+            calculateStartPadding(layoutDirection) + calculateEndPadding(layoutDirection)
+        }.roundToPx()
+        val verticalPadding = contentPadding.run {
+            calculateTopPadding() + calculateBottomPadding()
+        }.roundToPx()
+
+        val pinnedItems = itemProvider.calculateLazyLayoutPinnedIndices(
+            state.pinnedItems,
+            state.beyondBoundsInfo
+        )
+
+        measureStaggeredGrid(
+            state = state,
+            pinnedItems = pinnedItems,
+            itemProvider = itemProvider,
+            resolvedSlots = resolvedSlots,
+            constraints = constraints.copy(
+                minWidth = constraints.constrainWidth(horizontalPadding),
+                minHeight = constraints.constrainHeight(verticalPadding)
+            ),
+            mainAxisSpacing = mainAxisSpacing.roundToPx(),
+            contentOffset = contentOffset,
+            mainAxisAvailableSize = mainAxisAvailableSize,
+            isVertical = isVertical,
+            reverseLayout = reverseLayout,
+            beforeContentPadding = beforeContentPadding,
+            afterContentPadding = afterContentPadding,
+            coroutineScope = coroutineScope
         ).also {
             state.applyMeasureResult(it)
-            overscrollEffect.isEnabled = it.canScrollForward || it.canScrollBackward
         }
     }
 }
+
+private fun PaddingValues.startPadding(
+    orientation: Orientation,
+    layoutDirection: LayoutDirection
+): Dp =
+    when (orientation) {
+        Orientation.Vertical -> calculateStartPadding(layoutDirection)
+        Orientation.Horizontal -> calculateTopPadding()
+    }
+
+private fun PaddingValues.beforePadding(
+    orientation: Orientation,
+    reverseLayout: Boolean,
+    layoutDirection: LayoutDirection
+): Dp =
+    when (orientation) {
+        Orientation.Vertical ->
+            if (reverseLayout) calculateBottomPadding() else calculateTopPadding()
+        Orientation.Horizontal ->
+            if (reverseLayout) {
+                calculateEndPadding(layoutDirection)
+            } else {
+                calculateStartPadding(layoutDirection)
+            }
+    }
+
+private fun PaddingValues.afterPadding(
+    orientation: Orientation,
+    reverseLayout: Boolean,
+    layoutDirection: LayoutDirection
+): Dp =
+    when (orientation) {
+        Orientation.Vertical ->
+            if (reverseLayout) calculateTopPadding() else calculateBottomPadding()
+        Orientation.Horizontal ->
+            if (reverseLayout) {
+                calculateStartPadding(layoutDirection)
+            } else {
+                calculateEndPadding(layoutDirection)
+            }
+    }

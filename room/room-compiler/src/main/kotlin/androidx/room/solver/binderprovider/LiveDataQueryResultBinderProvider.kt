@@ -16,9 +16,9 @@
 
 package androidx.room.solver.binderprovider
 
-import androidx.room.ext.LifecyclesTypeNames
 import androidx.room.compiler.processing.XRawType
 import androidx.room.compiler.processing.XType
+import androidx.room.ext.LifecyclesTypeNames
 import androidx.room.processor.Context
 import androidx.room.solver.ObservableQueryResultBinderProvider
 import androidx.room.solver.query.result.LiveDataQueryResultBinder
@@ -28,10 +28,11 @@ import androidx.room.solver.query.result.QueryResultBinder
 class LiveDataQueryResultBinderProvider(context: Context) :
     ObservableQueryResultBinderProvider(context) {
     private val liveDataType: XRawType? by lazy {
-        context.processingEnv.findType(LifecyclesTypeNames.LIVE_DATA)?.rawType
+        context.processingEnv.findType(LifecyclesTypeNames.LIVE_DATA.canonicalName)?.rawType
     }
 
-    override fun extractTypeArg(declared: XType): XType = declared.typeArguments.first()
+    override fun extractTypeArg(declared: XType): XType =
+        declared.typeArguments.first().makeNullable()
 
     override fun create(
         typeArg: XType,

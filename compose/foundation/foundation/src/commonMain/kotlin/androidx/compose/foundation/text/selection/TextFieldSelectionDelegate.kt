@@ -25,6 +25,9 @@ import androidx.compose.ui.text.TextRange
  * @param textLayoutResult a result of the text layout.
  * @param rawStartOffset unprocessed start offset calculated directly from input position
  * @param rawEndOffset unprocessed end offset calculated directly from input position
+ * @param previousHandleOffset the previous offset of the moving handle. When isStartHandle is
+ * true, it's the previous offset of the start handle before the movement, and vice versa.
+ * When there isn't a valid previousHandleOffset, previousHandleOffset should be -1.
  * @param previousSelection previous selection result
  * @param isStartHandle true if the start handle is being dragged
  * @param adjustment selection is adjusted according to this param
@@ -35,6 +38,7 @@ internal fun getTextFieldSelection(
     textLayoutResult: TextLayoutResult?,
     rawStartOffset: Int,
     rawEndOffset: Int,
+    previousHandleOffset: Int,
     previousSelection: TextRange?,
     isStartHandle: Boolean,
     adjustment: SelectionAdjustment
@@ -51,7 +55,7 @@ internal fun getTextFieldSelection(
         return adjustment.adjust(
             textLayoutResult = textLayoutResult,
             newRawSelectionRange = textRange,
-            previousHandleOffset = -1,
+            previousHandleOffset = previousHandleOffset,
             isStartHandle = isStartHandle,
             previousSelectionRange = previousSelection
         )

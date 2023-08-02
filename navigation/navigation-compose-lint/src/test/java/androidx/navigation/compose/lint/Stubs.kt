@@ -16,9 +16,9 @@
 
 package androidx.navigation.compose.lint
 
-import androidx.compose.lint.test.compiledStub
+import androidx.compose.lint.test.bytecodeStub
 
-internal val NAV_BACK_STACK_ENTRY = compiledStub(
+internal val NAV_BACK_STACK_ENTRY = bytecodeStub(
     filename = "NavBackStackEntry.kt",
     filepath = "androidx/navigation",
     checksum = 0x6920c3ac,
@@ -46,7 +46,7 @@ internal val NAV_BACK_STACK_ENTRY = compiledStub(
     """
 )
 
-internal val NAV_CONTROLLER = compiledStub(
+internal val NAV_CONTROLLER = bytecodeStub(
     filename = "NavController.kt",
     filepath = "androidx/navigation",
     checksum = 0xa6eda16e,
@@ -81,7 +81,7 @@ internal val NAV_CONTROLLER = compiledStub(
     """
 )
 
-internal val NAV_GRAPH_BUILDER = compiledStub(
+internal val NAV_GRAPH_BUILDER = bytecodeStub(
     filename = "NavGraphBuilder.kt",
     filepath = "androidx/navigation",
     checksum = 0xf26bfe8b,
@@ -110,7 +110,7 @@ internal val NAV_GRAPH_BUILDER = compiledStub(
     """
 )
 
-internal val NAV_GRAPH_COMPOSABLE = compiledStub(
+internal val NAV_GRAPH_COMPOSABLE = bytecodeStub(
     filename = "NavGraphBuilder.kt",
     filepath = "androidx/navigation/compose",
     checksum = 0x6920624a,
@@ -156,7 +156,7 @@ internal val NAV_GRAPH_COMPOSABLE = compiledStub(
     """
 )
 
-internal val NAV_HOST = compiledStub(
+internal val NAV_HOST = bytecodeStub(
     filename = "NavHost.kt",
     filepath = "androidx/navigation/compose",
     checksum = 0x72aa34d0,

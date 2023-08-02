@@ -6,11 +6,6 @@ plugins {
 }
 
 dependencies {
-    // Atomic group
-    constraints {
-        implementation(project(":palette:palette-ktx"))
-    }
-
     api("androidx.core:core:1.1.0")
     implementation("androidx.collection:collection:1.1.0")
 
@@ -22,9 +17,8 @@ dependencies {
 }
 
 androidx {
-    name = "Android Support Palette"
+    name = "Palette"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.PALETTE
     inceptionYear = "2014"
     description = "Android Support Palette"
 }

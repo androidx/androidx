@@ -31,7 +31,6 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
 import androidx.versionedparcelable.ParcelUtils
 import androidx.wear.watchface.editor.samples.R
-import androidx.wear.watchface.style.ExperimentalHierarchicalStyle
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleData
 import androidx.wear.watchface.style.UserStyleSchema
@@ -43,6 +42,7 @@ import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyle
 import androidx.wear.watchface.style.UserStyleSetting.CustomValueUserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.DoubleRangeUserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.DoubleRangeUserStyleSetting.DoubleRangeOption
+import androidx.wear.watchface.style.UserStyleSetting.LargeCustomValueUserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.ListUserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.LongRangeUserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.LongRangeUserStyleSetting.LongRangeOption
@@ -52,9 +52,7 @@ import androidx.wear.widget.SwipeDismissFrameLayout
 import androidx.wear.widget.WearableLinearLayoutManager
 import androidx.wear.widget.WearableRecyclerView
 
-/**
- * Fragment for selecting a userStyle setting within a particular setting.
- */
+/** Fragment for selecting a userStyle setting within a particular setting. */
 internal class StyleConfigFragment : Fragment(), ClickListener {
 
     private lateinit var settingId: String
@@ -67,20 +65,21 @@ internal class StyleConfigFragment : Fragment(), ClickListener {
         const val USER_STYLE = "USER_STYLE"
         const val STYLE_SCHEMA = "STYLE_SCHEMA"
 
-        fun newInstance(
-            settingId: String,
-            styleSchema: UserStyleSchema,
-            userStyle: UserStyle
-        ) = StyleConfigFragment().apply {
-            arguments = Bundle().apply {
-                putCharSequence(SETTING_ID, settingId)
-                putParcelable(
-                    STYLE_SCHEMA,
-                    ParcelUtils.toParcelable(styleSchema.toWireFormat())
-                )
-                putParcelable(USER_STYLE, ParcelUtils.toParcelable(userStyle.toWireFormat()))
+        fun newInstance(settingId: String, styleSchema: UserStyleSchema, userStyle: UserStyle) =
+            StyleConfigFragment().apply {
+                arguments =
+                    Bundle().apply {
+                        putCharSequence(SETTING_ID, settingId)
+                        putParcelable(
+                            STYLE_SCHEMA,
+                            ParcelUtils.toParcelable(styleSchema.toWireFormat())
+                        )
+                        putParcelable(
+                            USER_STYLE,
+                            ParcelUtils.toParcelable(userStyle.toWireFormat())
+                        )
+                    }
             }
-        }
     }
 
     override fun onCreateView(
@@ -107,7 +106,6 @@ internal class StyleConfigFragment : Fragment(), ClickListener {
                 }
                 booleanStyle.visibility = View.VISIBLE
             }
-
             is ListUserStyleSetting -> {
                 styleOptionsList.adapter =
                     ListStyleSettingViewAdapter(
@@ -120,7 +118,6 @@ internal class StyleConfigFragment : Fragment(), ClickListener {
                 styleOptionsList.layoutManager = WearableLinearLayoutManager(context)
                 styleOptionsList.visibility = View.VISIBLE
             }
-
             is ComplicationSlotsUserStyleSetting -> {
                 styleOptionsList.adapter =
                     ComplicationsStyleSettingViewAdapter(
@@ -132,17 +129,16 @@ internal class StyleConfigFragment : Fragment(), ClickListener {
                 styleOptionsList.layoutManager = WearableLinearLayoutManager(context)
                 styleOptionsList.visibility = View.VISIBLE
             }
-
             is CustomValueUserStyleSetting -> {
-                // TODO(alexclarke): Implement.
+                // Not supported, ignore.
             }
-
+            is LargeCustomValueUserStyleSetting -> {
+                // Not supported, ignore.
+            }
             is DoubleRangeUserStyleSetting -> {
                 val rangedStyleSetting = styleSetting as DoubleRangeUserStyleSetting
-                val minValue =
-                    (rangedStyleSetting.options.first() as DoubleRangeOption).value
-                val maxValue =
-                    (rangedStyleSetting.options.last() as DoubleRangeOption).value
+                val minValue = (rangedStyleSetting.options.first() as DoubleRangeOption).value
+                val maxValue = (rangedStyleSetting.options.last() as DoubleRangeOption).value
                 val delta = (maxValue - minValue) / 100.0f
                 val value = (userStyleOption as DoubleRangeOption).value.toFloat()
                 rangedStyle.progress = ((value - minValue) / delta).toInt()
@@ -150,23 +146,22 @@ internal class StyleConfigFragment : Fragment(), ClickListener {
                     setUserStyleOption(DoubleRangeOption(minValue + delta * it.toFloat()))
                 }
             }
-
             is LongRangeUserStyleSetting -> {
                 val longRangeStyleSetting = styleSetting as LongRangeUserStyleSetting
                 rangedStyle.min = longRangeStyleSetting.minimumValue.toInt()
                 rangedStyle.max = longRangeStyleSetting.maximumValue.toInt()
                 rangedStyle.progress = (userStyleOption as LongRangeOption).value.toInt()
-                setupRangedStyle(rangedStyle) {
-                    setUserStyleOption(LongRangeOption(it.toLong()))
-                }
+                setupRangedStyle(rangedStyle) { setUserStyleOption(LongRangeOption(it.toLong())) }
             }
         }
 
-        view.addCallback(object : SwipeDismissFrameLayout.Callback() {
-            override fun onDismissed(layout: SwipeDismissFrameLayout) {
-                parentFragmentManager.popBackStackImmediate()
+        view.addCallback(
+            object : SwipeDismissFrameLayout.Callback() {
+                override fun onDismissed(layout: SwipeDismissFrameLayout) {
+                    parentFragmentManager.popBackStackImmediate()
+                }
             }
-        })
+        )
 
         return view
     }
@@ -174,11 +169,8 @@ internal class StyleConfigFragment : Fragment(), ClickListener {
     private fun setupRangedStyle(rangedStyle: SeekBar, onProgressChanged: (progress: Int) -> Unit) {
         rangedStyle.setOnSeekBarChangeListener(
             object : SeekBar.OnSeekBarChangeListener {
-                override fun onProgressChanged(
-                    seekBar: SeekBar,
-                    progress: Int,
-                    fromUser: Boolean
-                ) = onProgressChanged(progress)
+                override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) =
+                    onProgressChanged(progress)
 
                 override fun onStartTrackingTouch(seekBar: SeekBar) {}
 
@@ -193,20 +185,22 @@ internal class StyleConfigFragment : Fragment(), ClickListener {
     private fun readOptionsFromArguments() {
         settingId = requireArguments().getCharSequence(SETTING_ID).toString()
 
-        styleSchema = UserStyleSchema(
-            ParcelUtils.fromParcelable<UserStyleSchemaWireFormat>(
-                requireArguments().getParcelable(STYLE_SCHEMA)!!
-            )!!
-        )
-
-        userStyle = UserStyle(
-            UserStyleData(
-                ParcelUtils.fromParcelable<UserStyleWireFormat>(
-                    requireArguments().getParcelable(USER_STYLE)!!
+        styleSchema =
+            UserStyleSchema(
+                ParcelUtils.fromParcelable<UserStyleSchemaWireFormat>(
+                    requireArguments().getParcelable(STYLE_SCHEMA)!!
                 )!!
-            ),
-            styleSchema
-        )
+            )
+
+        userStyle =
+            UserStyle(
+                UserStyleData(
+                    ParcelUtils.fromParcelable<UserStyleWireFormat>(
+                        requireArguments().getParcelable(USER_STYLE)!!
+                    )!!
+                ),
+                styleSchema
+            )
 
         styleSetting = styleSchema[UserStyleSetting.Id(settingId)]!!
     }
@@ -214,12 +208,13 @@ internal class StyleConfigFragment : Fragment(), ClickListener {
     internal fun setUserStyleOption(userStyleOption: UserStyleSetting.Option) {
         val watchFaceConfigActivity = (activity as WatchFaceConfigActivity)
         val editorSession = watchFaceConfigActivity.editorSession
-        editorSession.userStyle.value = editorSession.userStyle.value.toMutableUserStyle().apply {
-            this[styleSetting] = userStyleOption
-        }.toUserStyle()
+        editorSession.userStyle.value =
+            editorSession.userStyle.value
+                .toMutableUserStyle()
+                .apply { this[styleSetting] = userStyleOption }
+                .toUserStyle()
     }
 
-    @OptIn(ExperimentalHierarchicalStyle::class)
     override fun onItemClick(userStyleOption: UserStyleSetting.Option) {
         setUserStyleOption(userStyleOption)
         if (userStyleOption.childSettings.isEmpty()) {
@@ -279,17 +274,18 @@ internal class ListStyleSettingViewAdapter(
 
     private val handler = Handler(Looper.getMainLooper())
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = StyleSettingViewHolder(
-        LayoutInflater.from(parent.context).inflate(
-            R.layout.stylelist_item_layout, parent, false
-        )
-    ).apply {
-        itemView.setOnClickListener {
-            currentSelection = userStyleOption!!
-            this@ListStyleSettingViewAdapter.notifyDataSetChanged()
-            clickListener.onItemClick(userStyleOption!!)
-        }
-    }
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
+        StyleSettingViewHolder(
+                LayoutInflater.from(parent.context)
+                    .inflate(R.layout.stylelist_item_layout, parent, false)
+            )
+            .apply {
+                itemView.setOnClickListener {
+                    currentSelection = userStyleOption!!
+                    this@ListStyleSettingViewAdapter.notifyDataSetChanged()
+                    clickListener.onItemClick(userStyleOption!!)
+                }
+            }
 
     override fun onBindViewHolder(holder: StyleSettingViewHolder, position: Int) {
         val styleOption = styleOptions[position]
@@ -317,25 +313,21 @@ internal class ListStyleSettingViewAdapter(
     override fun getItemCount() = styleOptions.size
 }
 
-/**
- * An adapter for [ComplicationSlotsUserStyleSetting]. This is a very minimal placeholder UI.
- */
+/** An adapter for [ComplicationSlotsUserStyleSetting]. This is a very minimal placeholder UI. */
 internal class ComplicationsStyleSettingViewAdapter(
     private val context: Context,
     private val styleOptions: List<ComplicationSlotsOption>,
     private val clickListener: ClickListener
-) :
-    RecyclerView.Adapter<StyleSettingViewHolder>() {
+) : RecyclerView.Adapter<StyleSettingViewHolder>() {
 
     private val handler = Handler(Looper.getMainLooper())
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = StyleSettingViewHolder(
-        LayoutInflater.from(parent.context).inflate(
-            R.layout.stylelist_item_layout, parent, false
-        )
-    ).apply {
-        itemView.setOnClickListener { clickListener.onItemClick(userStyleOption!!) }
-    }
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
+        StyleSettingViewHolder(
+                LayoutInflater.from(parent.context)
+                    .inflate(R.layout.stylelist_item_layout, parent, false)
+            )
+            .apply { itemView.setOnClickListener { clickListener.onItemClick(userStyleOption!!) } }
 
     override fun onBindViewHolder(holder: StyleSettingViewHolder, position: Int) {
         val styleOption = styleOptions[position]

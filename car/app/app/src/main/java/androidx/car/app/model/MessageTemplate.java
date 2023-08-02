@@ -25,13 +25,13 @@ import static java.util.Objects.requireNonNull;
 
 import android.util.Log;
 
-import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.constraints.CarIconConstraints;
 import androidx.car.app.model.constraints.CarTextConstraints;
+import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.utils.CollectionUtils;
 
 import java.util.ArrayList;
@@ -49,27 +49,20 @@ import java.util.Objects;
  * considered a refresh of a previous one if the title and messages have not changed.
  */
 @CarProtocol
+@KeepFields
 public final class MessageTemplate implements Template {
-    @Keep
     private final boolean mIsLoading;
-    @Keep
     @Nullable
     private final CarText mTitle;
-    @Keep
     @Nullable
     private final CarText mMessage;
-    @Keep
     @Nullable
     private final CarText mDebugMessage;
-    @Keep
     @Nullable
     private final CarIcon mIcon;
-    @Keep
     @Nullable
     private final Action mHeaderAction;
-    @Keep
     private final List<Action> mActionList;
-    @Keep
     @Nullable
     private final ActionStrip mActionStrip;
 

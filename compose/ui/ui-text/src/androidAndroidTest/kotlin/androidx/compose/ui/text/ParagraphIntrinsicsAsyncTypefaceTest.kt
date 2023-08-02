@@ -58,7 +58,7 @@ class ParagraphIntrinsicsAsyncTypefaceTest {
         }
     }
 
-    @OptIn(ExperimentalTextApi::class, ExperimentalCoroutinesApi::class)
+    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun hasStaleResolvedFonts_trueOnTypefaceUpdate_mainTypeface() {
         val loader = AsyncTestTypefaceLoader()
@@ -90,7 +90,7 @@ class ParagraphIntrinsicsAsyncTypefaceTest {
         }
     }
 
-    @OptIn(ExperimentalTextApi::class, ExperimentalCoroutinesApi::class)
+    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun hasStaleResolvedFonts_trueOnTypefaceUpdate_spanTypeface() {
         val loader = AsyncTestTypefaceLoader()

@@ -23,23 +23,29 @@ package androidx.datastore.core
 interface StorageConnection<T> : Closeable {
 
     /**
-     * Creates a read transaction to allow storage reads.
+     * Creates a scope for reading to allow storage reads, and will try to obtain a read lock.
      *
-     * @param block The block of code that is performed within this transaction.
+     * @param block The block of code that is performed within this scope.  Block will
+     * receive `locked` parameter which is true if the try lock succeeded.
      *
      * @throws IOException when there is an unrecoverable exception in reading.
      */
-    suspend fun <R> readTransaction(
-        block: suspend ReadScope<T>.() -> R
+    suspend fun <R> readScope(
+        block: suspend ReadScope<T>.(locked: Boolean) -> R
     ): R
 
     /**
-     * Creates an write transaction that guaranteed to only have one single writer, insuring also
+     * Creates a write scope that guaranteed to only have one single writer, ensuring also
      * that any reads within this scope have the most current data.
      *
      * @throws IOException when there is an unrecoverable exception in writing.
      */
-    suspend fun writeTransaction(block: suspend WriteScope<T>.() -> Unit)
+    suspend fun writeScope(block: suspend WriteScope<T>.() -> Unit)
+
+    /**
+     * Provides a coordinator to guarantee data consistency across multiple threads and processes.
+     */
+    val coordinator: InterProcessCoordinator
 }
 
 /**
@@ -64,5 +70,8 @@ interface WriteScope<T> : ReadScope<T> {
     suspend fun writeData(value: T)
 }
 
-suspend fun <T> StorageConnection<T>.readData(): T = readTransaction { readData() }
-suspend fun <T> StorageConnection<T>.writeData(value: T) = writeTransaction { writeData(value) }
+/* Convenience method for opening a read scope, doing a single read, and closing the scope. */
+suspend fun <T> StorageConnection<T>.readData(): T = readScope { readData() }
+
+/* Convenience method for opening a write scope, doing a single write, and closing the scope. */
+suspend fun <T> StorageConnection<T>.writeData(value: T) = writeScope { writeData(value) }

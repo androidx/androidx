@@ -21,6 +21,7 @@ import androidx.annotation.GuardedBy
 import androidx.health.services.client.ExerciseUpdateCallback
 import androidx.health.services.client.data.Availability
 import androidx.health.services.client.data.DataType
+import androidx.health.services.client.data.ExerciseEvent
 import androidx.health.services.client.data.ExerciseLapSummary
 import androidx.health.services.client.data.ExerciseUpdate
 import androidx.health.services.client.impl.event.ExerciseUpdateListenerEvent
@@ -69,7 +70,13 @@ internal class ExerciseUpdateListenerStub internal constructor(
                 val availability = Availability.fromProto(proto.availabilityResponse.availability)
                 matchingDataTypes.forEach { listener.onAvailabilityChanged(it, availability) }
             }
-            null, EventCase.EVENT_NOT_SET -> Log.w(TAG, "Received unknown event ${proto.eventCase}")
+            EventCase.EXERCISE_EVENT_RESPONSE ->
+                listener
+                    .onExerciseEventReceived(
+                        ExerciseEvent.fromProto(
+                            proto.exerciseEventResponse.exerciseEvent))
+            null,
+            EventCase.EVENT_NOT_SET -> Log.w(TAG, "Received unknown event ${proto.eventCase}")
         }
     }
 

@@ -22,10 +22,11 @@ import androidx.fragment.test.R
 import androidx.test.annotation.UiThreadTest
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import leakcanary.DetectLeaksAfterTestSuccess
 import org.junit.Assert.assertEquals
-import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.RuleChain
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
@@ -33,23 +34,20 @@ import org.junit.runner.RunWith
 class FragmentFactoryTest {
 
     @Suppress("DEPRECATION")
+    val activityRule = androidx.test.rule.ActivityTestRule(EmptyFragmentTestActivity::class.java)
+
+    // Detect leaks BEFORE and AFTER activity is destroyed
     @get:Rule
-    var activityRule = androidx.test.rule.ActivityTestRule(EmptyFragmentTestActivity::class.java)
-
-    private lateinit var activity: EmptyFragmentTestActivity
-    private lateinit var fragmentManager: FragmentManager
-    private lateinit var fragmentFactory: TestFragmentFactory
-
-    @Before
-    fun setup() {
-        activity = activityRule.activity
-        fragmentManager = activity.supportFragmentManager
-        fragmentFactory = TestFragmentFactory()
-    }
+    val ruleChain: RuleChain = RuleChain.outerRule(DetectLeaksAfterTestSuccess())
+        .around(activityRule)
 
     @Test
     @UiThreadTest
     fun testActivityFragmentManagerFactory() {
+        val activity = activityRule.activity
+        val fragmentManager = activity.supportFragmentManager
+        val fragmentFactory = TestFragmentFactory()
+
         fragmentManager.fragmentFactory = fragmentFactory
         activity.setContentView(R.layout.activity_inflated_fragment)
         assertEquals(
@@ -61,6 +59,10 @@ class FragmentFactoryTest {
     @Test
     @UiThreadTest
     fun testActivityFragmentManagerFactoryWithFragmentContainer() {
+        val activity = activityRule.activity
+        val fragmentManager = activity.supportFragmentManager
+        val fragmentFactory = TestFragmentFactory()
+
         fragmentManager.fragmentFactory = fragmentFactory
         activity.setContentView(R.layout.inflated_fragment_container_view)
         assertEquals(
@@ -72,6 +74,10 @@ class FragmentFactoryTest {
     @Test
     @UiThreadTest
     fun testActivityFragmentManagerFactoryWithChild() {
+        val activity = activityRule.activity
+        val fragmentManager = activity.supportFragmentManager
+        val fragmentFactory = TestFragmentFactory()
+
         fragmentManager.fragmentFactory = fragmentFactory
         activity.setContentView(R.layout.activity_content)
         fragmentManager.beginTransaction()
@@ -86,6 +92,10 @@ class FragmentFactoryTest {
     @Test
     @UiThreadTest
     fun testActivityFragmentManagerFactoryWithChildWithFragmentContainerView() {
+        val activity = activityRule.activity
+        val fragmentManager = activity.supportFragmentManager
+        val fragmentFactory = TestFragmentFactory()
+
         fragmentManager.fragmentFactory = fragmentFactory
         activity.setContentView(R.layout.activity_content)
         fragmentManager.beginTransaction()
@@ -100,6 +110,10 @@ class FragmentFactoryTest {
     @Test
     @UiThreadTest
     fun testChildFragmentManagerFactory() {
+        val activity = activityRule.activity
+        val fragmentManager = activity.supportFragmentManager
+        val fragmentFactory = TestFragmentFactory()
+
         fragmentManager.fragmentFactory = fragmentFactory
         activity.setContentView(R.layout.activity_content)
         val childFragmentFactory = TestFragmentFactory()
@@ -125,6 +139,10 @@ class FragmentFactoryTest {
     @Test
     @UiThreadTest
     fun testChildFragmentManagerFactoryWithFragmentContainerView() {
+        val activity = activityRule.activity
+        val fragmentManager = activity.supportFragmentManager
+        val fragmentFactory = TestFragmentFactory()
+
         fragmentManager.fragmentFactory = fragmentFactory
         activity.setContentView(R.layout.activity_content)
         val childFragmentFactory = TestFragmentFactory()

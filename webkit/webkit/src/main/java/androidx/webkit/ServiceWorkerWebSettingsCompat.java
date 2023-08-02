@@ -17,14 +17,16 @@
 package androidx.webkit;
 
 import android.webkit.WebSettings;
+import android.webkit.WebView;
 
 import androidx.annotation.IntDef;
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresFeature;
 import androidx.annotation.RestrictTo;
-import androidx.webkit.WebSettingsCompat.RequestedWithHeaderMode;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.Set;
 
 /**
  * Manages settings state for all Service Workers. These settings are not tied to
@@ -34,12 +36,10 @@ import java.lang.annotation.RetentionPolicy;
  */
 public abstract class ServiceWorkerWebSettingsCompat {
     /**
-     * @hide Don't allow apps to sub-class this class.
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public ServiceWorkerWebSettingsCompat() {}
 
-    /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef(value = {
             WebSettings.LOAD_DEFAULT,
@@ -177,45 +177,45 @@ public abstract class ServiceWorkerWebSettingsCompat {
 
 
     /**
-     * Sets how Service Workers will set the X-Requested-With header on requests.
-     *
-     * If you are calling this method, you may also want to call
-     * {@link WebSettingsCompat#setRequestedWithHeaderMode(WebSettings, int)} with the same
-     * parameter value to configure non-ServiceWorker requests.
-     *
-     * The default behavior may vary depending on the WebView implementation.
-     *
+     * Get the currently configured allow-list of origins, which is guaranteed to receive the
+     * {@code X-Requested-With} HTTP header on requests from service workers.
      * <p>
-     * This method should only be called if
-     * {@link WebViewFeature#isFeatureSupported(String)}
-     * returns true for {@link WebViewFeature#REQUESTED_WITH_HEADER_CONTROL}.
+     * Any origin <em>not</em> on this allow-list may not receive the header, depending on the
+     * current installed WebView provider.
+     * <p>
+     * The format of the strings in the allow-list follows the origin rules of
+     * {@link WebViewCompat#addWebMessageListener(WebView, String, Set, WebViewCompat.WebMessageListener)}.
      *
-     * @param requestedWithHeaderMode The {@code REQUESTED_WITH_HEADER_MODE to use}
-     * @see WebSettingsCompat#setRequestedWithHeaderMode(WebSettings, int)
-     * @see #getBlockNetworkLoads
-     * @hide
+     * @return The configured set of allow-listed origins.
+     * @see #setRequestedWithHeaderOriginAllowList(Set)
+     * @see WebSettingsCompat#getRequestedWithHeaderOriginAllowList(WebSettings)
      */
-    @RequiresFeature(name = WebViewFeature.REQUESTED_WITH_HEADER_CONTROL,
+    @RequiresFeature(name = WebViewFeature.REQUESTED_WITH_HEADER_ALLOW_LIST,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public abstract void setRequestedWithHeaderMode(
-            @RequestedWithHeaderMode int requestedWithHeaderMode);
+    @NonNull
+    public abstract Set<String> getRequestedWithHeaderOriginAllowList();
 
     /**
-     * Gets how Service Workers will set the X-Requested-With header on HTTP requests.
-     *
+     * Set an allow-list of origins to receive the {@code X-Requested-With} HTTP header from
+     * service workers.
      * <p>
-     * This method should only be called if
-     * {@link WebViewFeature#isFeatureSupported(String)}
-     * returns true for {@link WebViewFeature#REQUESTED_WITH_HEADER_CONTROL}.
+     * Historically, this header was sent on all requests from WebView, containing the
+     * app package name of the embedding app. Depending on the version of installed WebView, this
+     * may no longer be the case, as the header was deprecated in late 2022, and its use
+     * discontinued.
+     * <p>
+     * Apps can use this method to restore the legacy behavior for servers that still rely on
+     * the deprecated header, but it should not be used to identify the webview to first-party
+     * servers under the control of the app developer.
+     * <p>
+     * The format of the strings in the allow-list follows the origin rules of
+     * {@link WebViewCompat#addWebMessageListener(WebView, String, Set, WebViewCompat.WebMessageListener)}.
      *
-     * @return the currently configured {@code REQUESTED_WITH_HEADER_MODE}
-     * @see #setRequestedWithHeaderMode(int)
-     * @hide
+     * @param allowList Set of origins to allow-list.
+     * @see WebSettingsCompat#setRequestedWithHeaderOriginAllowList(WebSettings, Set)
+     * @throws IllegalArgumentException if the allow-list contains a malformed origin.
      */
-    @RequiresFeature(name = WebViewFeature.REQUESTED_WITH_HEADER_CONTROL,
+    @RequiresFeature(name = WebViewFeature.REQUESTED_WITH_HEADER_ALLOW_LIST,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    @RequestedWithHeaderMode
-    public abstract int getRequestedWithHeaderMode();
+    public abstract void setRequestedWithHeaderOriginAllowList(@NonNull Set<String> allowList);
 }

@@ -20,6 +20,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.lazy.layout.LazyLayoutMeasureScope
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.unit.Constraints
+import androidx.tv.foundation.lazy.layout.LazyLayoutKeyIndexMap
 
 /**
  * Abstracts away the subcomposition from the measuring logic.
@@ -46,7 +47,7 @@ internal class LazyMeasuredItemProvider @ExperimentalFoundationApi constructor(
         val crossAxisSize = if (constraints.hasFixedWidth) {
             constraints.minWidth
         } else {
-            require(constraints.hasFixedHeight)
+            require(constraints.hasFixedHeight) { "constraints require fixed height" }
             constraints.minHeight
         }
         return measuredItemFactory.createItem(
@@ -61,8 +62,8 @@ internal class LazyMeasuredItemProvider @ExperimentalFoundationApi constructor(
     /**
      * Contains the mapping between the key and the index. It could contain not all the items of
      * the list as an optimization.
-     **/
-    val keyToIndexMap: Map<Any, Int> get() = itemProvider.keyToIndexMap
+     */
+    val keyToIndexMap: LazyLayoutKeyIndexMap get() = itemProvider.keyToIndexMap
 }
 
 // This interface allows to avoid autoboxing on index param

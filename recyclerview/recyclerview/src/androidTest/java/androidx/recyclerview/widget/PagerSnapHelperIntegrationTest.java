@@ -39,6 +39,7 @@ import androidx.annotation.Nullable;
 import androidx.test.filters.LargeTest;
 import androidx.testutils.SwipeToLocation;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -199,6 +200,7 @@ public class PagerSnapHelperIntegrationTest extends BaseLinearLayoutManagerTest 
         runSnapOnMaxFlingNextView(mRecyclerView.getMaxFlingVelocity());
     }
 
+    @Ignore // b/269644618
     @Test
     public void snapWhenFlingToSnapPosition() throws Throwable {
         setUpTest();

@@ -7,8 +7,6 @@ Using AndroidX remote build cache
 ZipFile closed
 # > Task :room:integration-tests:room-testapp:runErrorProne
 java\.util\.zip\.ZipException\: ZipFile closed
-# > Task :compose:internal-lint-checks:lint
-Classpath entry points to a non\-existent location\: \$OUT_DIR\/ui\/compose\/internal\-lint\-checks\/build\/classes\/kotlin\/main
 # > Task :compose:animation:animation-core:testDebugUnitTest
 androidx\.compose\.animation\.core\.AnimationClockTest \> testSubscriptionDuringFrameCallback FAILED
 kotlin\.UninitializedPropertyAccessException at AnimationClockTest\.kt\:[0-9]+
@@ -40,7 +38,6 @@ See the profiling report at\: file\:\/\/\$OUT_DIR\/buildSrc\/build\/reports\/pro
 [0-9]+ errors, [0-9]+ warnings \([0-9]+ warnings filtered by baseline lint\-baseline\.xml\)
 [0-9]+ errors, [0-9]+ warnings \([0-9]+ warning filtered by baseline lint\-baseline\.xml\)
 [0-9]+ problems were found reusing the configuration cache, [0-9]+ of which seems unique\.
-[0-9]+ problems were found storing the configuration cache, [0-9]+ of which seems unique\.
 [0-9]+ problems were found reusing the configuration cache\.
 [0-9]+ problem was found reusing the configuration cache\.
 Configuration cache entry reused with [0-9]+ problem\.
@@ -145,5 +142,12 @@ Using custom version .* of Lint due to LINT_VERSION being set\.
 Using custom version .* of metalava due to METALAVA_VERSION being set\.
 Publishing build scan\.\.\.
 https://ge\.androidx\.dev/s/.*
-# support-v7-demos:compileReleaseJavaWithJavac
-Note: \$SUPPORT/samples/Support[0-9]+Demos/src/main/java/com/example/android/supportv[0-9]+/util/DiffUtilActivity\.java uses unchecked or unsafe operations\.
+# androidx-demos:compileReleaseJavaWithJavac
+Note: \$SUPPORT/samples/AndroidXDemos/src/main/java/com/example/androidx/util/DiffUtilActivity\.java uses unchecked or unsafe operations\.
+Calculating task graph as configuration cache cannot be reused because JVM has changed\.
+# b/270412262
+Failed to compile with Kotlin daemon: java\.lang\.RuntimeException: Could not connect to Kotlin compile daemon
+Using fallback strategy: Compile without Kotlin daemon
+Try \./gradlew \-\-stop if this issue persists\.
+# b/ 279739438
+w\: Detected multiple Kotlin daemon sessions at kotlin/sessions

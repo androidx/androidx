@@ -45,7 +45,6 @@ public final class ImageViewStyle extends ViewStyle {
      * a style. It does not validate the provided bundle. {@link #isValid()} or
      * {@link #assertIsValid()} can be used for validation.
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public ImageViewStyle(@NonNull Bundle bundle) {
@@ -53,7 +52,6 @@ public final class ImageViewStyle extends ViewStyle {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @NonNull
@@ -65,7 +63,6 @@ public final class ImageViewStyle extends ViewStyle {
     /**
      * Applies the specified style on the {@code imageView}.
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @SuppressWarnings("deprecation")
@@ -110,7 +107,6 @@ public final class ImageViewStyle extends ViewStyle {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @NonNull

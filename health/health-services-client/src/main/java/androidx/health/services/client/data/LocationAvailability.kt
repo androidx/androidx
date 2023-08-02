@@ -39,7 +39,6 @@ public class LocationAvailability private constructor(
 
     override fun hashCode(): Int = id
 
-    /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public override fun toProto(): DataProto.Availability =
         DataProto.Availability.newBuilder()
@@ -83,7 +82,6 @@ public class LocationAvailability private constructor(
         @JvmStatic
         public fun fromId(id: Int): LocationAvailability? = VALUES.firstOrNull { it.id == id }
 
-        /** @hide */
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         internal fun fromProto(proto: LocationAvailabilityProto): LocationAvailability =
             fromId(proto.number) ?: UNKNOWN

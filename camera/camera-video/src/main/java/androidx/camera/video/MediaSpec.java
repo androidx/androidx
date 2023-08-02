@@ -38,7 +38,6 @@ import java.util.Objects;
 /**
  * MediaSpec communicates the encoding type and encoder-specific options for both the
  * video and audio inputs to the VideoOutput.
- * @hide
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @RestrictTo(Scope.LIBRARY)
@@ -59,15 +58,15 @@ public abstract class MediaSpec {
     /** VP8, VP9 media file format */
     public static final int OUTPUT_FORMAT_WEBM = 1;
 
-    /** @hide */
     @IntDef({OUTPUT_FORMAT_AUTO, OUTPUT_FORMAT_MPEG_4, OUTPUT_FORMAT_WEBM})
     @Retention(RetentionPolicy.SOURCE)
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public @interface OutputFormat {
     }
 
+    @RestrictTo(Scope.LIBRARY)
     @NonNull
-    static String outputFormatToAudioMime(@OutputFormat int outputFormat) {
+    public static String outputFormatToAudioMime(@OutputFormat int outputFormat) {
         switch (outputFormat) {
             case MediaSpec.OUTPUT_FORMAT_WEBM:
                 return AUDIO_ENCODER_MIME_WEBM_DEFAULT;
@@ -80,7 +79,8 @@ public abstract class MediaSpec {
         }
     }
 
-    static int outputFormatToAudioProfile(@OutputFormat int outputFormat) {
+    @RestrictTo(Scope.LIBRARY)
+    public static int outputFormatToAudioProfile(@OutputFormat int outputFormat) {
         String audioMime = outputFormatToAudioMime(outputFormat);
         if (Objects.equals(audioMime, MediaFormat.MIMETYPE_AUDIO_AAC)) {
             return AAC_DEFAULT_PROFILE;
@@ -89,8 +89,9 @@ public abstract class MediaSpec {
         return EncoderConfig.CODEC_PROFILE_NONE;
     }
 
+    @RestrictTo(Scope.LIBRARY)
     @NonNull
-    static String outputFormatToVideoMime(@OutputFormat int outputFormat) {
+    public static String outputFormatToVideoMime(@OutputFormat int outputFormat) {
         switch (outputFormat) {
             case MediaSpec.OUTPUT_FORMAT_WEBM:
                 return VIDEO_ENCODER_MIME_WEBM_DEFAULT;
@@ -157,7 +158,6 @@ public abstract class MediaSpec {
 
     /**
      * The builder for {@link MediaSpec}.
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY)
     @SuppressWarnings("StaticFinalBuilder")

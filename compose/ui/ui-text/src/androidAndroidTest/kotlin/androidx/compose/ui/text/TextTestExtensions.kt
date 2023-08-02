@@ -18,43 +18,99 @@ package androidx.compose.ui.text
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shadow
+import androidx.compose.ui.graphics.drawscope.DrawStyle
 import androidx.compose.ui.text.font.AndroidFontLoader
+import androidx.compose.ui.text.font.AndroidFontResolveInterceptor
 import androidx.compose.ui.text.font.AsyncTypefaceCache
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontFamilyResolverImpl
 import androidx.compose.ui.text.font.FontListFontFamilyTypefaceAdapter
-import androidx.compose.ui.text.font.PlatformFontLoader
 import androidx.compose.ui.text.font.PlatformFontFamilyTypefaceAdapter
-import androidx.compose.ui.text.font.TypefaceRequestCache
-import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.text.font.AndroidFontResolveInterceptor
+import androidx.compose.ui.text.font.PlatformFontLoader
 import androidx.compose.ui.text.font.PlatformResolveInterceptor
+import androidx.compose.ui.text.font.TypefaceRequestCache
+import androidx.compose.ui.text.style.TextDecoration
 import kotlin.math.ceil
 import kotlin.math.roundToInt
 
-fun Paragraph.bitmap(): Bitmap {
-    val bitmap = Bitmap.createBitmap(
-        width.toIntPx(),
-        height.toIntPx(),
-        Bitmap.Config.ARGB_8888
-    )
-    this.paint(androidx.compose.ui.graphics.Canvas(Canvas(bitmap)))
-    return bitmap
-}
-
-@OptIn(ExperimentalTextApi::class)
-fun Paragraph.bitmap(
-    brush: Brush,
-    alpha: Float
+/**
+ * Creates a special canvas using this paragraph's size. Draw operations can be called through
+ * [block] lambda. Returns the final bitmap representation of the canvas after drawing is completed.
+ */
+fun Paragraph.onCanvas(
+    block: Paragraph.(androidx.compose.ui.graphics.Canvas) -> Unit = {}
 ): Bitmap {
     val bitmap = Bitmap.createBitmap(
         width.toIntPx(),
         height.toIntPx(),
         Bitmap.Config.ARGB_8888
     )
-    this.paint(androidx.compose.ui.graphics.Canvas(Canvas(bitmap)), brush, alpha)
+    val canvas = androidx.compose.ui.graphics.Canvas(Canvas(bitmap))
+    block(canvas)
     return bitmap
+}
+
+/**
+ * Creates a special canvas using this MultiParagraph's size. Draw operations can be called through
+ * [block] lambda. Returns the final bitmap representation of the canvas after drawing is completed.
+ */
+fun MultiParagraph.onCanvas(
+    block: MultiParagraph.(androidx.compose.ui.graphics.Canvas) -> Unit = {}
+): Bitmap {
+    val width = paragraphInfoList.maxByOrNull { it.paragraph.width }?.paragraph?.width ?: 0f
+    val bitmap = Bitmap.createBitmap(
+        width.toIntPx(),
+        height.toIntPx(),
+        Bitmap.Config.ARGB_8888
+    )
+    val canvas = androidx.compose.ui.graphics.Canvas(Canvas(bitmap))
+    block(canvas)
+    return bitmap
+}
+
+fun Paragraph.bitmap(
+    color: Color = Color.Unspecified,
+    shadow: Shadow? = null,
+    textDecoration: TextDecoration? = null,
+    drawStyle: DrawStyle? = null,
+    blendMode: BlendMode = BlendMode.SrcOver
+): Bitmap {
+    return onCanvas { canvas ->
+        this.paint(
+            canvas = canvas,
+            color = color,
+            shadow = shadow,
+            textDecoration = textDecoration,
+            drawStyle = drawStyle,
+            blendMode = blendMode
+        )
+    }
+}
+
+fun Paragraph.bitmap(
+    brush: Brush,
+    alpha: Float,
+    shadow: Shadow? = null,
+    textDecoration: TextDecoration? = null,
+    drawStyle: DrawStyle? = null,
+    blendMode: BlendMode = BlendMode.SrcOver
+): Bitmap {
+    return onCanvas { canvas ->
+        this.paint(
+            canvas = canvas,
+            brush = brush,
+            alpha = alpha,
+            shadow = shadow,
+            textDecoration = textDecoration,
+            drawStyle = drawStyle,
+            blendMode = blendMode
+        )
+    }
 }
 
 /**
@@ -65,26 +121,34 @@ fun Paragraph.bitmap(
  * We have to re-specify the brush during paint(draw) to apply it according to the total size of
  * MultiParagraph.
  */
-@OptIn(ExperimentalTextApi::class)
 fun MultiParagraph.bitmap(
     brush: Brush? = null,
-    alpha: Float = Float.NaN
+    alpha: Float = Float.NaN,
+    textDecoration: TextDecoration? = null,
+    drawStyle: DrawStyle? = null,
+    blendMode: BlendMode = BlendMode.SrcOver
 ): Bitmap {
-    val width = paragraphInfoList.maxByOrNull { it.paragraph.width }?.paragraph?.width ?: 0f
-    val bitmap = Bitmap.createBitmap(
-        width.toIntPx(),
-        height.toIntPx(),
-        Bitmap.Config.ARGB_8888
-    )
-    if (brush != null) {
-        this.paint(androidx.compose.ui.graphics.Canvas(Canvas(bitmap)), brush, alpha)
-    } else {
-        this.paint(androidx.compose.ui.graphics.Canvas(Canvas(bitmap)))
+    return onCanvas { canvas ->
+        if (brush != null) {
+            this.paint(
+                canvas,
+                brush,
+                alpha,
+                decoration = textDecoration,
+                drawStyle = drawStyle,
+                blendMode = blendMode
+            )
+        } else {
+            this.paint(
+                canvas = canvas,
+                decoration = textDecoration,
+                drawStyle = drawStyle,
+                blendMode = blendMode
+            )
+        }
     }
-    return bitmap
 }
 
-@OptIn(ExperimentalTextApi::class)
 internal fun UncachedFontFamilyResolver(
     context: Context
 ): FontFamily.Resolver = UncachedFontFamilyResolver(
@@ -92,7 +156,6 @@ internal fun UncachedFontFamilyResolver(
     AndroidFontResolveInterceptor(context)
 )
 
-@OptIn(ExperimentalTextApi::class)
 internal fun UncachedFontFamilyResolver(
     platformFontLoader: PlatformFontLoader,
     platformResolveInterceptor: PlatformResolveInterceptor
@@ -103,6 +166,17 @@ internal fun UncachedFontFamilyResolver(
     FontListFontFamilyTypefaceAdapter(AsyncTypefaceCache()),
     PlatformFontFamilyTypefaceAdapter()
 )
+
+fun MultiParagraph.bitmap(): Bitmap {
+    val bitmap = Bitmap.createBitmap(
+        width.toIntPx(),
+        height.toIntPx(),
+        Bitmap.Config.ARGB_8888
+    )
+    val canvas = androidx.compose.ui.graphics.Canvas(Canvas(bitmap))
+    this.paint(canvas)
+    return bitmap
+}
 
 fun Float.toIntPx(): Int = ceil(this).roundToInt()
 

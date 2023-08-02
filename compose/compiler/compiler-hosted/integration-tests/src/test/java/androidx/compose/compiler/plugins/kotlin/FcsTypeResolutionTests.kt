@@ -16,9 +16,12 @@
 
 package androidx.compose.compiler.plugins.kotlin
 
-class FcsTypeResolutionTests : AbstractComposeDiagnosticsTest() {
+import org.junit.Assume.assumeFalse
+import org.junit.Test
 
-    fun testImplicitlyPassedReceiverScope1() = doTest(
+class FcsTypeResolutionTests(useFir: Boolean) : AbstractComposeDiagnosticsTest(useFir) {
+    @Test
+    fun testImplicitlyPassedReceiverScope1() = check(
         """
             import androidx.compose.runtime.*
 
@@ -29,24 +32,28 @@ class FcsTypeResolutionTests : AbstractComposeDiagnosticsTest() {
         """
     )
 
-    fun testImplicitlyPassedReceiverScope2() = doTest(
+    @Test
+    fun testImplicitlyPassedReceiverScope2() = check(
         """
             import androidx.compose.runtime.*
 
             @Composable
             fun Int.Foo(content: @Composable Int.(foo: String) -> Unit) {
-                content(<!NO_VALUE_FOR_PARAMETER, NO_VALUE_FOR_PARAMETER!>)<!>
+                ${if (useFir) "<!NO_VALUE_FOR_PARAMETER!>" else ""}content${if (!useFir) "<!NO_VALUE_FOR_PARAMETER!>" else ""}()<!>
             }
 
             @Composable
             fun Bar(content: @Composable Int.() -> Unit) {
-                content(<!NO_VALUE_FOR_PARAMETER!>)<!>
+                ${if (useFir) "<!NO_VALUE_FOR_PARAMETER!>" else ""}content${if (!useFir) "<!NO_VALUE_FOR_PARAMETER!>" else ""}()<!>
             }
         """
     )
 
-    fun testSmartCastsAndPunning() = doTest(
-        """
+    @Test
+    fun testSmartCastsAndPunning() {
+        val typeMismatch = if (useFir) "ARGUMENT_TYPE_MISMATCH" else "TYPE_MISMATCH"
+        check(
+            """
             import androidx.compose.runtime.*
 
             @Composable
@@ -54,16 +61,18 @@ class FcsTypeResolutionTests : AbstractComposeDiagnosticsTest() {
 
             @Composable
             fun test(bar: String?) {
-                Foo(<!TYPE_MISMATCH!>bar<!>)
+                Foo(<!$typeMismatch!>bar<!>)
                 if (bar != null) {
                     Foo(bar)
                     Foo(bar=bar)
                 }
             }
         """
-    )
+        )
+    }
 
-    fun testExtensionInvoke() = doTest(
+    @Test
+    fun testExtensionInvoke() = check(
         """
             import androidx.compose.runtime.*
 
@@ -76,7 +85,8 @@ class FcsTypeResolutionTests : AbstractComposeDiagnosticsTest() {
         """
     )
 
-    fun testResolutionInsideWhenExpression() = doTest(
+    @Test
+    fun testResolutionInsideWhenExpression() = check(
         """
             import androidx.compose.runtime.*
             
@@ -91,7 +101,8 @@ class FcsTypeResolutionTests : AbstractComposeDiagnosticsTest() {
         """
     )
 
-    fun testUsedParameters() = doTest(
+    @Test
+    fun testUsedParameters() = check(
         """
             import androidx.compose.runtime.*
             import android.widget.LinearLayout
@@ -134,7 +145,8 @@ class FcsTypeResolutionTests : AbstractComposeDiagnosticsTest() {
         """
     )
 
-    fun testDispatchInvoke() = doTest(
+    @Test
+    fun testDispatchInvoke() = check(
         """
             import androidx.compose.runtime.*
 
@@ -150,7 +162,8 @@ class FcsTypeResolutionTests : AbstractComposeDiagnosticsTest() {
         """
     )
 
-    fun testDispatchAndExtensionReceiver() = doTest(
+    @Test
+    fun testDispatchAndExtensionReceiver() = check(
         """
             import androidx.compose.runtime.*
 
@@ -168,7 +181,8 @@ class FcsTypeResolutionTests : AbstractComposeDiagnosticsTest() {
         """
     )
 
-    fun testDispatchAndExtensionReceiverLocal() = doTest(
+    @Test
+    fun testDispatchAndExtensionReceiverLocal() = check(
         """
             import androidx.compose.runtime.*
 
@@ -184,36 +198,43 @@ class FcsTypeResolutionTests : AbstractComposeDiagnosticsTest() {
         """
     )
 
-    fun testMissingAttributes() = doTest(
-        """
-            import androidx.compose.runtime.*
+    @Test
+    fun testMissingAttributes() {
+        // Fails on K2 because of KT-57471. We cannot have named composable lambda arguments
+        // until the upstream bug is fixed.
+        assumeFalse(useFir)
+        check(
+            """
+                import androidx.compose.runtime.*
 
-            data class Foo(val value: Int)
+                data class Foo(val value: Int)
 
-            @Composable fun A(x: Foo) { println(x) }
+                @Composable fun A(x: Foo) { println(x) }
 
-            // NOTE: It's important that the diagnostic be only over the call target, and not the
-            // entire element so that a single error doesn't end up making a huge part of an 
-            // otherwise correct file "red".
-            @Composable fun Test(F: @Composable (x: Foo) -> Unit) {
-                // NOTE: constructor attributes and fn params get a "missing parameter" diagnostic
-                A(<!NO_VALUE_FOR_PARAMETER!>)<!>
+                // NOTE: It's important that the diagnostic be only over the call target, and not the
+                // entire element so that a single error doesn't end up making a huge part of an
+                // otherwise correct file "red".
+                @Composable fun Test(F: @Composable (x: Foo) -> Unit) {
+                    // NOTE: constructor attributes and fn params get a "missing parameter" diagnostic
+                    A<!NO_VALUE_FOR_PARAMETER!>()<!>
 
-                // local
-                F(<!NO_VALUE_FOR_PARAMETER!>)<!>
+                    // local
+                    F<!NO_VALUE_FOR_PARAMETER!>()<!>
 
-                val x = Foo(123)
+                    val x = Foo(123)
 
                 A(x)
                 F(x)
                 A(x=x)
-                F(x=x)
+                F(<!NAMED_ARGUMENTS_NOT_ALLOWED!>x<!>=x)
             }
 
-        """.trimIndent()
-    )
+            """.trimIndent()
+        )
+    }
 
-    fun testDuplicateAttributes() = doTest(
+    @Test
+    fun testDuplicateAttributes() = check(
         """
             import androidx.compose.runtime.*
 
@@ -232,7 +253,8 @@ class FcsTypeResolutionTests : AbstractComposeDiagnosticsTest() {
         """.trimIndent()
     )
 
-    fun testChildrenNamedAndBodyDuplicate() = doTest(
+    @Test
+    fun testChildrenNamedAndBodyDuplicate() = check(
         """
             import androidx.compose.runtime.*
 
@@ -245,7 +267,8 @@ class FcsTypeResolutionTests : AbstractComposeDiagnosticsTest() {
         """.trimIndent()
     )
 
-    fun testAbstractClassTags() = doTest(
+    @Test
+    fun testAbstractClassTags() = check(
         """
             import androidx.compose.runtime.*
             import android.content.Context
@@ -257,81 +280,95 @@ class FcsTypeResolutionTests : AbstractComposeDiagnosticsTest() {
 
             @Composable fun Test() {
                 <!CREATING_AN_INSTANCE_OF_ABSTRACT_CLASS!>Foo()<!>
-                <!CREATING_AN_INSTANCE_OF_ABSTRACT_CLASS!>Bar(<!NO_VALUE_FOR_PARAMETER!>)<!><!>
+                ${if (!useFir) {
+                    "<!CREATING_AN_INSTANCE_OF_ABSTRACT_CLASS!>Bar" +
+                        "<!NO_VALUE_FOR_PARAMETER!>()<!><!>"
+                } else {
+                    "<!CREATING_AN_INSTANCE_OF_ABSTRACT_CLASS,NO_VALUE_FOR_PARAMETER!>Bar()<!>"
+                }}
             }
 
         """.trimIndent()
     )
 
-    fun testGenerics() = doTest(
-        """
-            import androidx.compose.runtime.*
+    @Test
+    fun testGenerics() {
+        val typeMismatch = if (useFir) "ARGUMENT_TYPE_MISMATCH" else "TYPE_MISMATCH"
+        check(
+            """
+                import androidx.compose.runtime.*
 
-            class A { fun a() {} }
-            class B { fun b() {} }
+                class A { fun a() {} }
+                class B { fun b() {} }
 
-            @Composable fun <T> Bar(x: Int, value: T, f: (T) -> Unit) { println(value); println(f); println(x) }
+                @Composable fun <T> Bar(x: Int, value: T, f: (T) -> Unit) { println(value); println(f); println(x) }
 
-            @Composable fun Test() {
+                @Composable fun Test() {
 
-                val fa: (A) -> Unit = { it.a() }
-                val fb: (B) -> Unit = { it.b() }
+                    val fa: (A) -> Unit = { it.a() }
+                    val fb: (B) -> Unit = { it.b() }
 
-                Bar(x=1, value=A(), f={ it.a() })
-                Bar(x=1, value=B(), f={ it.b() })
-                Bar(x=1, value=A(), f=fa)
-                Bar(x=1, value=B(), f=fb)
-                Bar(x=1, value=B(), f={ it.<!UNRESOLVED_REFERENCE!>a<!>() })
-                Bar(x=1, value=A(), f={ it.<!UNRESOLVED_REFERENCE!>b<!>() })
-                Bar(
-                  x=1, 
-                  value=A(), 
-                  f=<!TYPE_MISMATCH!>fb<!>
-                )
-                Bar(
-                  x=1,
-                  value=B(), 
-                  f=<!TYPE_MISMATCH!>fa<!>
-                )
-            }
+                    Bar(x=1, value=A(), f={ it.a() })
+                    Bar(x=1, value=B(), f={ it.b() })
+                    Bar(x=1, value=A(), f=fa)
+                    Bar(x=1, value=B(), f=fb)
+                    Bar(x=1, value=B(), f={ it.<!UNRESOLVED_REFERENCE!>a<!>() })
+                    Bar(x=1, value=A(), f={ it.<!UNRESOLVED_REFERENCE!>b<!>() })
+                    Bar(
+                      x=1,
+                      value=A(),
+                      f=<!$typeMismatch!>fb<!>
+                    )
+                    Bar(
+                      x=1,
+                      value=B(),
+                      f=<!$typeMismatch!>fa<!>
+                    )
+                }
 
-        """.trimIndent()
-    )
+            """.trimIndent()
+        )
+    }
 
-    fun testUnresolvedAttributeValueResolvedTarget() = doTest(
-        """
-            import androidx.compose.runtime.*
+    @Test
+    fun testUnresolvedAttributeValueResolvedTarget() {
+        val typeMismatch = if (useFir) "ARGUMENT_TYPE_MISMATCH" else "TYPE_MISMATCH"
+        check(
+            """
+                import androidx.compose.runtime.*
 
-            @Composable fun Fam(bar: Int, x: Int) {
-                print(bar)
-                print(x)
-            }
+                @Composable fun Fam(bar: Int, x: Int) {
+                    print(bar)
+                    print(x)
+                }
 
-            @Composable fun Test() {
-                Fam(
-                  bar=<!UNRESOLVED_REFERENCE!>undefined<!>,
-                  x=1
-                )
-                Fam(
-                  bar=1,
-                  x=<!UNRESOLVED_REFERENCE!>undefined<!>
-                )
-                Fam(
-                  <!UNRESOLVED_REFERENCE!>bar<!>,
-                  <!UNRESOLVED_REFERENCE!>x<!>
-                )
+                @Composable fun Test() {
+                    Fam(
+                      bar=<!UNRESOLVED_REFERENCE!>undefined<!>,
+                      x=1
+                    )
+                    Fam(
+                      bar=1,
+                      x=<!UNRESOLVED_REFERENCE!>undefined<!>
+                    )
+                    Fam(
+                      <!UNRESOLVED_REFERENCE!>bar<!>,
+                      <!UNRESOLVED_REFERENCE!>x<!>
+                    )
 
-                Fam(
-                  bar=<!TYPE_MISMATCH!>""<!>,
-                  x=<!TYPE_MISMATCH!>""<!>
-                )
-            }
+                    Fam(
+                      bar=<!$typeMismatch!>""<!>,
+                      x=<!$typeMismatch!>""<!>
+                    )
+                }
 
-        """.trimIndent()
-    )
+            """.trimIndent()
+        )
+    }
 
     // TODO(lmr): this triggers an exception!
-    fun testEmptyAttributeValue() = doTest(
+    @Test
+    fun testEmptyAttributeValue() = check(
         """
             import androidx.compose.runtime.*
 
@@ -341,7 +378,7 @@ class FcsTypeResolutionTests : AbstractComposeDiagnosticsTest() {
             }
 
             @Composable fun Test() {
-                Foo(abc=<!NO_VALUE_FOR_PARAMETER!>)<!>
+                Foo(<!NO_VALUE_FOR_PARAMETER!>abc=)<!>
 
                 // NOTE(lmr): even though there is NO diagnostic here, there *is* a parse
                 // error. This is intentional and done to mimic how kotlin handles function
@@ -349,44 +386,55 @@ class FcsTypeResolutionTests : AbstractComposeDiagnosticsTest() {
                 Foo(abc=123, xyz=)
             }
 
-        """.trimIndent()
+        """.trimIndent(),
+        ignoreParseErrors = true
     )
 
-    fun testMismatchedAttributes() = doTest(
-        """
-            import androidx.compose.runtime.*
+    @Test
+    fun testMismatchedAttributes() {
+        val typeMismatch = if (useFir) "ARGUMENT_TYPE_MISMATCH" else "TYPE_MISMATCH"
+        val constantTypeMismatch = if (useFir) {
+            "ARGUMENT_TYPE_MISMATCH"
+        } else {
+            "CONSTANT_EXPECTED_TYPE_MISMATCH"
+        }
+        check(
+            """
+                import androidx.compose.runtime.*
 
-            open class A {}
-            class B : A() {}
+                open class A {}
+                class B : A() {}
 
-            @Composable fun Foo(x: A = A(), y: A = B(), z: B = B()) {
-                print(x)
-                print(y)
-                print(z)
-            }
+                @Composable fun Foo(x: A = A(), y: A = B(), z: B = B()) {
+                    print(x)
+                    print(y)
+                    print(z)
+                }
 
-            @Composable fun Test() {
-                Foo(
-                    x=A(),
-                    y=A(),
-                    z=<!TYPE_MISMATCH!>A()<!>
-                )
-                Foo(
-                    x=B(),
-                    y=B(),
-                    z=B()
-                )
-                Foo(
-                    x=<!CONSTANT_EXPECTED_TYPE_MISMATCH!>1<!>,
-                    y=<!CONSTANT_EXPECTED_TYPE_MISMATCH!>1<!>,
-                    z=<!CONSTANT_EXPECTED_TYPE_MISMATCH!>1<!>
-                )
-            }
+                @Composable fun Test() {
+                    Foo(
+                        x=A(),
+                        y=A(),
+                        z=<!$typeMismatch!>A()<!>
+                    )
+                    Foo(
+                        x=B(),
+                        y=B(),
+                        z=B()
+                    )
+                    Foo(
+                        x=<!$constantTypeMismatch!>1<!>,
+                        y=<!$constantTypeMismatch!>1<!>,
+                        z=<!$constantTypeMismatch!>1<!>
+                    )
+                }
 
-        """.trimIndent()
-    )
+            """.trimIndent()
+        )
+    }
 
-    fun testErrorAttributeValue() = doTest(
+    @Test
+    fun testErrorAttributeValue() = check(
         """
             import androidx.compose.runtime.*
 
@@ -402,105 +450,149 @@ class FcsTypeResolutionTests : AbstractComposeDiagnosticsTest() {
         """.trimIndent()
     )
 
-    fun testUnresolvedQualifiedTag() = doTest(
-        """
-            import androidx.compose.runtime.*
+    @Test
+    fun testUnresolvedQualifiedTag() {
+        val functionExpected = if (useFir) {
+            "FUNCTION_EXPECTED"
+        } else {
+            "UNRESOLVED_REFERENCE_WRONG_RECEIVER"
+        }
+        check(
+            """
+                import androidx.compose.runtime.*
 
-            object MyNamespace {
-                @Composable fun Bar(content: @Composable () -> Unit = {}) { 
-                    content() 
+                object MyNamespace {
+                    @Composable fun Bar(content: @Composable () -> Unit = {}) {
+                        content()
+                    }
+
+                    var Baz = @Composable { }
+
+                    var someString = ""
+                    class NonComponent {}
                 }
 
-                var Baz = @Composable { }
-
-                var someString = ""
-                class NonComponent {}
-            }
-
-            class Boo {
-                @Composable fun Wat() { }
-            }
-
-            @Composable fun Test() {
-
-                MyNamespace.Bar()
-                MyNamespace.Baz()
-                MyNamespace.<!UNRESOLVED_REFERENCE!>Qoo<!>()
-                MyNamespace.<!FUNCTION_EXPECTED!>someString<!>()
-                MyNamespace.NonComponent()
-                MyNamespace.Bar {}
-                MyNamespace.Baz <!TOO_MANY_ARGUMENTS!>{}<!>
-
-                val obj = Boo()
-                Boo.<!UNRESOLVED_REFERENCE!>Wat<!>()
-                obj.Wat()
-
-                MyNamespace.<!UNRESOLVED_REFERENCE!>Bam<!>()
-                <!UNRESOLVED_REFERENCE!>SomethingThatDoesntExist<!>.Foo()
-
-                obj.Wat <!TOO_MANY_ARGUMENTS!>{
-                }<!>
-
-                MyNamespace.<!UNRESOLVED_REFERENCE!>Qoo<!> {
+                class Boo {
+                    @Composable fun Wat() { }
                 }
 
-                MyNamespace.<!UNRESOLVED_REFERENCE_WRONG_RECEIVER!>someString<!> {
+                @Composable fun Test() {
+
+                    MyNamespace.Bar()
+                    MyNamespace.Baz()
+                    MyNamespace.<!UNRESOLVED_REFERENCE!>Qoo<!>()
+                    MyNamespace.<!FUNCTION_EXPECTED!>someString<!>()
+                    MyNamespace.NonComponent()
+                    MyNamespace.Bar {}
+                    MyNamespace.Baz <!TOO_MANY_ARGUMENTS!>{}<!>
+
+                    val obj = Boo()
+                    Boo.<!UNRESOLVED_REFERENCE!>Wat<!>()
+                    obj.Wat()
+
+                    MyNamespace.<!UNRESOLVED_REFERENCE!>Bam<!>()
+                    <!UNRESOLVED_REFERENCE!>SomethingThatDoesntExist<!>.Foo()
+
+                    obj.Wat <!TOO_MANY_ARGUMENTS!>{
+                    }<!>
+
+                    MyNamespace.<!UNRESOLVED_REFERENCE!>Qoo<!> {
+                    }
+
+                    MyNamespace.<!$functionExpected!>someString<!> {
+                    }
+
+                    <!UNRESOLVED_REFERENCE!>SomethingThatDoesntExist<!>.Foo {
+                    }
+
+                    MyNamespace.NonComponent <!TOO_MANY_ARGUMENTS!>{}<!>
+
+                    MyNamespace.<!UNRESOLVED_REFERENCE!>Bam<!> {}
+
                 }
 
-                <!UNRESOLVED_REFERENCE!>SomethingThatDoesntExist<!>.Foo {
-                }
-
-                MyNamespace.NonComponent <!TOO_MANY_ARGUMENTS!>{}<!>
-
-                MyNamespace.<!UNRESOLVED_REFERENCE!>Bam<!> {}
-
-            }
-
-        """.trimIndent()
-    )
+            """.trimIndent()
+        )
+    }
 
     // TODO(lmr): overloads creates resolution exception
-    fun testChildren() = doTest(
-        """
-            import androidx.compose.runtime.*
-            import android.widget.Button
-            import android.widget.LinearLayout
+    @Test
+    fun testChildren() {
+        val declarations = """
+                import androidx.compose.runtime.*
+                import android.widget.Button
+                import android.widget.LinearLayout
 
-            @Composable fun ChildrenRequired2(content: @Composable () -> Unit) { content() }
+                @Composable fun ChildrenRequired2(content: @Composable () -> Unit) { content() }
 
-            @Composable fun ChildrenOptional3(content: @Composable () -> Unit = {}){ content() }
+                @Composable fun ChildrenOptional3(content: @Composable () -> Unit = {}){ content() }
 
-            @Composable fun NoChildren2() {}
+                @Composable fun NoChildren2() {}
 
-            @Composable 
-            fun MultiChildren(c: @Composable (x: Int) -> Unit = {}) { c(1) }
+                @Composable
+                fun MultiChildren(c: @Composable (x: Int) -> Unit = {}) { c(1) }
 
-            @Composable 
-            fun MultiChildren(c: @Composable (x: Int, y: Int) -> Unit = { x, y ->println(x + y) }) { c(1,1) }
-
-            @Composable fun Test() {
-                ChildrenRequired2 {}
-                ChildrenRequired2(<!NO_VALUE_FOR_PARAMETER!>)<!>
-
-                ChildrenOptional3 {}
-                ChildrenOptional3()
-
-                NoChildren2 <!TOO_MANY_ARGUMENTS!>{}<!>
-                NoChildren2()
-
-                <!OVERLOAD_RESOLUTION_AMBIGUITY!>MultiChildren<!> {}
-                MultiChildren { x ->
-                    println(x)
-                }
-                MultiChildren { x, y ->
-                    println(x + y)
-                }
-                <!NONE_APPLICABLE!>MultiChildren<!> { <!CANNOT_INFER_PARAMETER_TYPE!>x<!>,
-                <!CANNOT_INFER_PARAMETER_TYPE!>y<!>, <!CANNOT_INFER_PARAMETER_TYPE!>z<!> ->
-                    println(x + y + z)
-                }
-            }
-
+                @Composable
+                fun MultiChildren(c: @Composable (x: Int, y: Int) -> Unit = { x, y ->println(x + y) }) { c(1,1) }
         """.trimIndent()
-    )
+        if (!useFir) {
+            check(
+                """
+                $declarations
+
+                @Composable fun Test() {
+                    ChildrenRequired2 {}
+                    ChildrenRequired2<!NO_VALUE_FOR_PARAMETER!>()<!>
+
+                    ChildrenOptional3 {}
+                    ChildrenOptional3()
+
+                    NoChildren2 <!TOO_MANY_ARGUMENTS!>{}<!>
+                    NoChildren2()
+
+                    <!OVERLOAD_RESOLUTION_AMBIGUITY!>MultiChildren<!> {}
+                    MultiChildren { x ->
+                        println(x)
+                    }
+                    MultiChildren { x, y ->
+                        println(x + y)
+                    }
+                    <!NONE_APPLICABLE!>MultiChildren<!> { <!CANNOT_INFER_PARAMETER_TYPE!>x<!>,
+                    <!CANNOT_INFER_PARAMETER_TYPE!>y<!>, <!CANNOT_INFER_PARAMETER_TYPE!>z<!> ->
+                        println(x + y + z)
+                    }
+                }
+            """.trimIndent())
+        } else {
+            check(
+                """
+                $declarations
+
+                @Composable fun Test() {
+                    ChildrenRequired2 {}
+                    <!NO_VALUE_FOR_PARAMETER!>ChildrenRequired2()<!>
+
+                    ChildrenOptional3 {}
+                    ChildrenOptional3()
+
+                    NoChildren2 <!TOO_MANY_ARGUMENTS!>{}<!>
+                    NoChildren2()
+
+                    // This call is not ambiguous in K2. The call can only match the single
+                    // argument lambda - with an implicit `it`. The two argument version would
+                    // have required explicit lambda parameters.
+                    MultiChildren {}
+                    MultiChildren { x ->
+                        println(x)
+                    }
+                    MultiChildren { x, y ->
+                        println(x + y)
+                    }
+                    <!NONE_APPLICABLE!>MultiChildren<!> { x, y, z ->
+                        <!OVERLOAD_RESOLUTION_AMBIGUITY!>println<!>(x <!OVERLOAD_RESOLUTION_AMBIGUITY!>+<!> y <!OVERLOAD_RESOLUTION_AMBIGUITY!>+<!> z)
+                    }
+                }
+            """.trimIndent())
+        }
+    }
 }

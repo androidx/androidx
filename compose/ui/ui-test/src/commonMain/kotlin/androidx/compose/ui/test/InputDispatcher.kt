@@ -607,7 +607,7 @@ internal abstract class InputDispatcher(
 
     fun enqueueRotaryScrollVertically(verticalScrollPixels: Float) {
         // TODO(b/214437966): figure out if ongoing scroll events need to be cancelled.
-        rotaryInputState.enqueueRotaryScrollHorizontally(verticalScrollPixels)
+        rotaryInputState.enqueueRotaryScrollVertically(verticalScrollPixels)
     }
 
     private fun MouseInputState.enterHover() {

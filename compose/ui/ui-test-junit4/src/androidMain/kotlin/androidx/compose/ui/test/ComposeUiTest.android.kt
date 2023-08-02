@@ -23,13 +23,11 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Recomposer
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.node.RootForTest
 import androidx.compose.ui.platform.InfiniteAnimationPolicy
-import androidx.compose.ui.platform.ViewRootForTest
 import androidx.compose.ui.platform.WindowRecomposerPolicy
-import androidx.compose.ui.platform.textInputServiceFactory
-import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.test.junit4.ComposeIdlingResource
 import androidx.compose.ui.test.junit4.ComposeRootRegistry
 import androidx.compose.ui.test.junit4.EspressoLink
@@ -37,16 +35,15 @@ import androidx.compose.ui.test.junit4.IdlingResourceRegistry
 import androidx.compose.ui.test.junit4.IdlingStrategy
 import androidx.compose.ui.test.junit4.MainTestClockImpl
 import androidx.compose.ui.test.junit4.RobolectricIdlingStrategy
-import androidx.compose.ui.test.junit4.TextInputServiceForTests
 import androidx.compose.ui.test.junit4.UncaughtExceptionHandler
 import androidx.compose.ui.test.junit4.awaitComposeRoots
 import androidx.compose.ui.test.junit4.isOnUiThread
 import androidx.compose.ui.test.junit4.waitForComposeRoots
-import androidx.compose.ui.text.input.EditCommand
-import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.Density
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
+import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.EmptyCoroutineContext
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -58,8 +55,8 @@ import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 
 @ExperimentalTestApi
-actual fun runComposeUiTest(block: ComposeUiTest.() -> Unit) {
-    runAndroidComposeUiTest(ComponentActivity::class.java, block)
+actual fun runComposeUiTest(effectContext: CoroutineContext, block: ComposeUiTest.() -> Unit) {
+    runAndroidComposeUiTest(ComponentActivity::class.java, effectContext, block)
 }
 
 /**
@@ -70,12 +67,16 @@ actual fun runComposeUiTest(block: ComposeUiTest.() -> Unit) {
  *
  * @param A The Activity type to be launched, which typically (but not necessarily) hosts the
  * Compose content
+ * @param effectContext The [CoroutineContext] used to run the composition. The context for
+ * `LaunchedEffect`s and `rememberCoroutineScope` will be derived from this context.
+ * @param block The test function.
  */
 @ExperimentalTestApi
 inline fun <reified A : ComponentActivity> runAndroidComposeUiTest(
+    effectContext: CoroutineContext = EmptyCoroutineContext,
     noinline block: AndroidComposeUiTest<A>.() -> Unit
 ) {
-    runAndroidComposeUiTest(A::class.java, block)
+    runAndroidComposeUiTest(A::class.java, effectContext, block)
 }
 
 /**
@@ -86,16 +87,21 @@ inline fun <reified A : ComponentActivity> runAndroidComposeUiTest(
  *
  * @param A The Activity type to be launched, which typically (but not necessarily) hosts the
  * Compose content
+ * @param activityClass The [Class] of the Activity type to be launched, corresponding to [A].
+ * @param effectContext The [CoroutineContext] used to run the composition. The context for
+ * `LaunchedEffect`s and `rememberCoroutineScope` will be derived from this context.
+ * @param block The test function.
  */
 @ExperimentalTestApi
 fun <A : ComponentActivity> runAndroidComposeUiTest(
     activityClass: Class<A>,
+    effectContext: CoroutineContext = EmptyCoroutineContext,
     block: AndroidComposeUiTest<A>.() -> Unit
 ) {
     // Don't start the scenario now, wait until we're inside runTest { },
     // in case the Activity's onCreate/Start/Resume calls setContent
     var scenario: ActivityScenario<A>? = null
-    val environment = AndroidComposeUiTestEnvironment {
+    val environment = AndroidComposeUiTestEnvironment(effectContext) {
         requireNotNull(scenario) {
             "ActivityScenario has not yet been launched, or has already finished. Make sure that " +
                 "any call to ComposeUiTest.setContent() and AndroidComposeUiTest.getActivity() " +
@@ -194,13 +200,16 @@ sealed interface AndroidComposeUiTest<A : ComponentActivity> : ComposeUiTest {
  * @param activityProvider A lambda that should return the current Activity instance of type [A],
  * if it is available. If it is not available, it should return `null`.
  * @param A The Activity type to be interacted with, which typically (but not necessarily) is the
- * activity that was launched and hosts the Compose content
+ * activity that was launched and hosts the Compose content.
+ * @param effectContext The [CoroutineContext] used to run the composition. The context for
+ * `LaunchedEffect`s and `rememberCoroutineScope` will be derived from this context.
  */
 @ExperimentalTestApi
 inline fun <A : ComponentActivity> AndroidComposeUiTestEnvironment(
+    effectContext: CoroutineContext = EmptyCoroutineContext,
     crossinline activityProvider: () -> A?
 ): AndroidComposeUiTestEnvironment<A> {
-    return object : AndroidComposeUiTestEnvironment<A>() {
+    return object : AndroidComposeUiTestEnvironment<A>(effectContext) {
         override val activity: A?
             get() = activityProvider.invoke()
     }
@@ -212,11 +221,15 @@ inline fun <A : ComponentActivity> AndroidComposeUiTestEnvironment(
  * as they require that the environment has been set up.
  *
  * @param A The Activity type to be interacted with, which typically (but not necessarily) is the
- * activity that was launched and hosts the Compose content
+ * activity that was launched and hosts the Compose content.
+ * @param effectContext The [CoroutineContext] used to run the composition. The context for
+ * `LaunchedEffect`s and `rememberCoroutineScope` will be derived from this context.
  */
 @ExperimentalTestApi
-@OptIn(InternalTestApi::class, ExperimentalCoroutinesApi::class)
-abstract class AndroidComposeUiTestEnvironment<A : ComponentActivity> {
+@OptIn(InternalTestApi::class, ExperimentalCoroutinesApi::class, ExperimentalComposeUiApi::class)
+abstract class AndroidComposeUiTestEnvironment<A : ComponentActivity>(
+    effectContext: CoroutineContext = EmptyCoroutineContext
+) {
     private val idlingResourceRegistry = IdlingResourceRegistry()
 
     internal val composeRootRegistry = ComposeRootRegistry()
@@ -228,13 +241,26 @@ abstract class AndroidComposeUiTestEnvironment<A : ComponentActivity> {
     private val recomposer: Recomposer
     private val testCoroutineDispatcher = UnconfinedTestDispatcher()
     private val testCoroutineScope = TestScope(testCoroutineDispatcher)
-    private val recomposerContinuationInterceptor =
-        ApplyingContinuationInterceptor(testCoroutineDispatcher)
     private val recomposerCoroutineScope: CoroutineScope
     private val coroutineExceptionHandler = UncaughtExceptionHandler()
 
     init {
-        val frameClock = TestMonotonicFrameClock(testCoroutineScope)
+        val frameClock = TestMonotonicFrameClock(
+            testCoroutineScope,
+            // This callback will get run at the same time, relative to frame callbacks and
+            // coroutine resumptions, as the Choreographer's perform traversal frame, where it runs
+            // layout and draw passes. We use it to run layout passes manually when executing frames
+            // during a waitForIdle, during which the Choreographer isn't in control.
+            onPerformTraversals = {
+                composeRootRegistry.getRegisteredComposeRoots().forEach {
+                    it.measureAndLayoutForTest()
+                }
+            }
+        )
+        // The applying interceptor needs to be the outermost wrapper since TestMonotonicFrameClock
+        // will not delegate if the dispatcher dispatch is not needed at the time of intercept.
+        val recomposerContinuationInterceptor =
+            ApplyingContinuationInterceptor(frameClock.continuationInterceptor)
         mainClockImpl = MainTestClockImpl(testCoroutineDispatcher.scheduler, frameClock)
         val infiniteAnimationPolicy = object : InfiniteAnimationPolicy {
             override suspend fun <R> onInfiniteOperation(block: suspend () -> R): R {
@@ -245,8 +271,12 @@ abstract class AndroidComposeUiTestEnvironment<A : ComponentActivity> {
             }
         }
         recomposerCoroutineScope = CoroutineScope(
-            recomposerContinuationInterceptor + frameClock + infiniteAnimationPolicy +
-                coroutineExceptionHandler + Job()
+            effectContext +
+                recomposerContinuationInterceptor +
+                frameClock +
+                infiniteAnimationPolicy +
+                coroutineExceptionHandler +
+                Job()
         )
         recomposer = Recomposer(recomposerCoroutineScope.coroutineContext)
         composeIdlingResource = ComposeIdlingResource(
@@ -290,9 +320,7 @@ abstract class AndroidComposeUiTestEnvironment<A : ComponentActivity> {
                     withTestCoroutines {
                         withWindowRecomposer {
                             withComposeIdlingResource {
-                                withTextInputService {
-                                    testReceiverScope.withDisposableContent(block)
-                                }
+                                testReceiverScope.withDisposableContent(block)
                             }
                         }
                     }
@@ -347,19 +375,6 @@ abstract class AndroidComposeUiTestEnvironment<A : ComponentActivity> {
             return block()
         } finally {
             test.unregisterIdlingResource(composeIdlingResource)
-        }
-    }
-
-    @OptIn(InternalComposeUiApi::class)
-    private fun <R> withTextInputService(block: () -> R): R {
-        val oldTextInputFactory = textInputServiceFactory
-        try {
-            textInputServiceFactory = {
-                TextInputServiceForTests(it)
-            }
-            return block()
-        } finally {
-            textInputServiceFactory = oldTextInputFactory
         }
     }
 
@@ -506,28 +521,6 @@ abstract class AndroidComposeUiTestEnvironment<A : ComponentActivity> {
         override val mainClock: MainTestClock
             get() = mainClockImpl
 
-        override fun sendTextInputCommand(node: SemanticsNode, command: List<EditCommand>) {
-            val owner = node.root as ViewRootForTest
-
-            test.runOnIdle {
-                val textInputService = owner.getTextInputServiceOrDie()
-                val onEditCommand = textInputService.onEditCommand
-                    ?: throw IllegalStateException("No input session started. Missing a focus?")
-                onEditCommand(command)
-            }
-        }
-
-        override fun sendImeAction(node: SemanticsNode, actionSpecified: ImeAction) {
-            val owner = node.root as ViewRootForTest
-
-            test.runOnIdle {
-                val textInputService = owner.getTextInputServiceOrDie()
-                val onImeActionPerformed = textInputService.onImeActionPerformed
-                    ?: throw IllegalStateException("No input session started. Missing a focus?")
-                onImeActionPerformed.invoke(actionSpecified)
-            }
-        }
-
         override fun <T> runOnUiThread(action: () -> T): T {
             return androidx.compose.ui.test.junit4.runOnUiThread(action)
         }
@@ -535,13 +528,6 @@ abstract class AndroidComposeUiTestEnvironment<A : ComponentActivity> {
         override fun getRoots(atLeastOneRootExpected: Boolean): Set<RootForTest> {
             waitForIdle(atLeastOneRootExpected)
             return composeRootRegistry.getRegisteredComposeRoots()
-        }
-
-        private fun ViewRootForTest.getTextInputServiceOrDie(): TextInputServiceForTests {
-            return textInputService as? TextInputServiceForTests
-                ?: throw IllegalStateException(
-                    "Text input service wrapper not set up! Did you use ComposeTestRule?"
-                )
         }
     }
 }

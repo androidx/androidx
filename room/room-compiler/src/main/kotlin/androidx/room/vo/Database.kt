@@ -17,13 +17,14 @@
 package androidx.room.vo
 
 import androidx.room.RoomMasterTable
+import androidx.room.compiler.codegen.XClassName
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.migration.bundle.DatabaseBundle
 import androidx.room.migration.bundle.SchemaBundle
-import com.squareup.javapoet.ClassName
-import org.apache.commons.codec.digest.DigestUtils
 import java.io.File
+import java.io.OutputStream
+import org.apache.commons.codec.digest.DigestUtils
 
 /**
  * Holds information about a class annotated with Database.
@@ -41,14 +42,14 @@ data class Database(
     // This variable will be set once auto-migrations are processed given the DatabaseBundle from
     // this object. This is necessary for tracking the versions involved in the auto-migration.
     lateinit var autoMigrations: List<AutoMigration>
-    val typeName: ClassName by lazy { element.className }
+    val typeName: XClassName by lazy { element.asClassName() }
 
     private val implClassName by lazy {
-        "${typeName.simpleNames().joinToString("_")}_Impl"
+        "${typeName.simpleNames.joinToString("_")}_Impl"
     }
 
-    val implTypeName: ClassName by lazy {
-        ClassName.get(typeName.packageName(), implClassName)
+    val implTypeName: XClassName by lazy {
+        XClassName.get(typeName.packageName, implClassName)
     }
 
     val bundle by lazy {
@@ -100,29 +101,28 @@ data class Database(
         DigestUtils.md5Hex(input)
     }
 
-    fun exportSchema(file: File) {
+    // Writes scheme file to output file, using the input file to check if the schema has changed
+    // otherwise it is not written.
+    fun exportSchema(inputFile: File, outputFile: File) {
         val schemaBundle = SchemaBundle(SchemaBundle.LATEST_FORMAT, bundle)
-        if (file.exists()) {
-            val existing = try {
-                file.inputStream().use {
-                    SchemaBundle.deserialize(it)
-                }
-            } catch (th: Throwable) {
-                throw IllegalStateException(
-                    """
-                    Cannot parse existing schema file: ${file.absolutePath}.
-                    If you've modified the file, you might've broken the JSON format, try
-                    deleting the file and re-running the compiler.
-                    If you've not modified the file, please file a bug at
-                    https://issuetracker.google.com/issues/new?component=413107&template=1096568
-                    with a sample app to reproduce the issue.
-                    """.trimIndent()
-                )
+        if (inputFile.exists()) {
+            val existing = inputFile.inputStream().use {
+                SchemaBundle.deserialize(it)
             }
+            // If existing schema file is the same as the current schema then do not write the file
+            // which helps the copy task configured by the Room Gradle Plugin skip execution due
+            // to empty variant schema output directory.
             if (existing.isSchemaEqual(schemaBundle)) {
                 return
             }
         }
-        SchemaBundle.serialize(schemaBundle, file)
+        SchemaBundle.serialize(schemaBundle, outputFile)
+    }
+
+    // Writes scheme file to output stream, the stream should be for a resource otherwise use the
+    // file version of `exportSchema`.
+    fun exportSchema(outputStream: OutputStream) {
+        val schemaBundle = SchemaBundle(SchemaBundle.LATEST_FORMAT, bundle)
+        SchemaBundle.serialize(schemaBundle, outputStream)
     }
 }

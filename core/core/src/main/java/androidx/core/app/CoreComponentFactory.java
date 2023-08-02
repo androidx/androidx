@@ -32,7 +32,6 @@ import androidx.annotation.RestrictTo;
 /**
  * Instance of AppComponentFactory for support libraries.
  * @see CompatWrapped
- * @hide
  */
 @RequiresApi(api = 28)
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
@@ -89,7 +88,6 @@ public class CoreComponentFactory extends AppComponentFactory {
     /**
      * Implement this interface to allow a different class to be returned when instantiating
      * on certain API levels.
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     public interface CompatWrapped {
