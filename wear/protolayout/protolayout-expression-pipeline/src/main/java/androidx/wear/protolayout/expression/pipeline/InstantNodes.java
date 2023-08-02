@@ -68,7 +68,11 @@ class InstantNodes {
 
         @Override
         @UiThread
-        public void preInit() {}
+        public void preInit() {
+            if (mEpochTimePlatformDataSource != null) {
+                mEpochTimePlatformDataSource.preRegister();
+            }
+        }
 
         @Override
         @UiThread

@@ -65,7 +65,6 @@ public class InstantNodesTest {
 
         ArgumentCaptor<Runnable> receiverCaptor = ArgumentCaptor.forClass(Runnable.class);
         verify(notifier).setReceiver(any(), receiverCaptor.capture());
-        receiverCaptor.getValue().run(); // Ticking.
         assertThat(results).containsExactly(Instant.ofEpochSecond(1234567L));
 
         node.destroy();
