@@ -694,6 +694,7 @@ includeProject(":core:core-performance:integration-tests:testapp", [BuildType.MA
 includeProject(":core:core-performance:integration-tests:testlib", [BuildType.MAIN])
 includeProject(":core:core-performance-testing", [BuildType.MAIN])
 includeProject(":core:core-performance-play-services", [BuildType.MAIN])
+includeProject(":core:core-performance-play-services:integration-tests:testapp", [BuildType.MAIN])
 includeProject(":core:core-performance:core-performance-samples", "core/core-performance/samples", [BuildType.MAIN])
 includeProject(":core:core-remoteviews", [BuildType.MAIN, BuildType.GLANCE])
 includeProject(":core:core-remoteviews:integration-tests:demos", [BuildType.MAIN, BuildType.GLANCE])
