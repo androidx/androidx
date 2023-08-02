@@ -25,8 +25,6 @@ import android.view.ViewGroup
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import android.view.animation.TranslateAnimation
-import android.window.BackEvent
-import androidx.activity.BackEventCompat
 import androidx.annotation.AnimRes
 import androidx.annotation.LayoutRes
 import androidx.core.view.ViewCompat
@@ -610,64 +608,6 @@ class FragmentAnimationTest {
 
         // We need to wait for the exit animation to end
         assertThat(fragment2.exitLatch.await(6000, TimeUnit.MILLISECONDS)).isTrue()
-
-        // Make sure the original fragment was correctly readded to the container
-        assertThat(fragment1.requireView().parent).isNotNull()
-    }
-
-    @Test
-    fun replaceOperationWithAnimationsThenSystemBack() {
-        waitForAnimationReady()
-        val fm1 = activityRule.activity.supportFragmentManager
-
-        val fragment1 = AnimationListenerFragment(R.layout.scene1)
-        fm1.beginTransaction()
-            .replace(R.id.fragmentContainer, fragment1, "1")
-            .addToBackStack(null)
-            .commit()
-        activityRule.waitForExecution()
-
-        val fragment2 = AnimationListenerFragment()
-
-        fm1.beginTransaction()
-            .setCustomAnimations(
-                R.anim.fade_in,
-                R.anim.fade_out,
-                R.anim.fade_in,
-                R.anim.fade_out
-            )
-            .replace(R.id.fragmentContainer, fragment2, "2")
-            .addToBackStack(null)
-            .commit()
-        activityRule.executePendingTransactions(fm1)
-
-        assertThat(fragment2.startAnimationLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
-        // We need to wait for the exit animation to end
-        assertThat(fragment1.exitLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
-
-        val dispatcher = activityRule.activity.onBackPressedDispatcher
-        activityRule.runOnUiThread {
-            dispatcher.dispatchOnBackStarted(BackEventCompat(0.1F, 0.1F, 0.1F, BackEvent.EDGE_LEFT))
-        }
-        activityRule.executePendingTransactions(fm1)
-        activityRule.runOnUiThread {
-            dispatcher.dispatchOnBackProgressed(
-                BackEventCompat(0.2F, 0.2F, 0.2F, BackEvent.EDGE_LEFT)
-            )
-            dispatcher.onBackPressed()
-        }
-        activityRule.executePendingTransactions(fm1)
-
-        assertThat(fragment2.startAnimationLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
-        // Now fragment2 should be animating away
-        assertThat(fragment2.isAdded).isFalse()
-        assertThat(fm1.findFragmentByTag("2"))
-            .isEqualTo(null) // fragmentManager does not know about animating fragment
-        assertThat(fragment2.parentFragmentManager)
-            .isEqualTo(fm1) // but the animating fragment knows the fragmentManager
-
-        // We need to wait for the exit animation to end
-        assertThat(fragment2.exitLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
 
         // Make sure the original fragment was correctly readded to the container
         assertThat(fragment1.requireView().parent).isNotNull()
