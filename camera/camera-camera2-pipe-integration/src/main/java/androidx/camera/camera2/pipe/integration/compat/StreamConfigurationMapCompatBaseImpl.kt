@@ -50,6 +50,10 @@ internal open class StreamConfigurationMapCompatBaseImpl(
         return null
     }
 
+    override fun getOutputMinFrameDuration(format: Int, size: Size?): Long? {
+        return streamConfigurationMap?.getOutputMinFrameDuration(format, size)
+    }
+
     override fun unwrap(): StreamConfigurationMap? {
         return streamConfigurationMap
     }
