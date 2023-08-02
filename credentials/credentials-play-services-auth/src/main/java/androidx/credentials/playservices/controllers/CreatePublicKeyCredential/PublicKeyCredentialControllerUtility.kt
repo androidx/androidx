@@ -221,10 +221,19 @@ internal class PublicKeyCredentialControllerUtility {
             when (val authenticatorResponse = publicKeyCred?.response!!) {
                 is AuthenticatorErrorResponse -> {
                     throw beginSignInPublicKeyCredentialResponseContainsError(
-                        authenticatorResponse)
+                        authenticatorResponse.errorCode,
+                        authenticatorResponse.errorMessage)
                 }
                 is AuthenticatorAssertionResponse -> {
-                    beginSignInAssertionResponse(authenticatorResponse, json, publicKeyCred)
+                    beginSignInAssertionResponse(
+                        authenticatorResponse.clientDataJSON,
+                        authenticatorResponse.authenticatorData,
+                        authenticatorResponse.signature,
+                        authenticatorResponse.userHandle,
+                        json,
+                        publicKeyCred.id,
+                        publicKeyCred.rawId,
+                        publicKeyCred.type)
                 }
                 else -> {
                 Log.e(
@@ -236,33 +245,38 @@ internal class PublicKeyCredentialControllerUtility {
             return json.toString()
         }
 
-        private fun beginSignInAssertionResponse(
-            authenticatorResponse: AuthenticatorAssertionResponse,
+        internal fun beginSignInAssertionResponse(
+            clientDataJSON: ByteArray,
+            authenticatorData: ByteArray,
+            signature: ByteArray,
+            userHandle: ByteArray?,
             json: JSONObject,
-            publicKeyCred: PublicKeyCredential
+            publicKeyCredId: String,
+            publicKeyCredRawId: ByteArray,
+            publicKeyCredType: String
         ) {
             val responseJson = JSONObject()
             responseJson.put(
                 JSON_KEY_CLIENT_DATA,
-                b64Encode(authenticatorResponse.clientDataJSON)
+                b64Encode(clientDataJSON)
             )
             responseJson.put(
                 JSON_KEY_AUTH_DATA,
-                b64Encode(authenticatorResponse.authenticatorData)
+                b64Encode(authenticatorData)
             )
             responseJson.put(
                 JSON_KEY_SIGNATURE,
-                b64Encode(authenticatorResponse.signature)
+                b64Encode(signature)
             )
-            authenticatorResponse.userHandle?.let {
+            userHandle?.let {
                 responseJson.put(
-                    JSON_KEY_USER_HANDLE, b64Encode(authenticatorResponse.userHandle!!)
+                    JSON_KEY_USER_HANDLE, b64Encode(userHandle)
                 )
             }
             json.put(JSON_KEY_RESPONSE, responseJson)
-            json.put(JSON_KEY_ID, publicKeyCred.id)
-            json.put(JSON_KEY_RAW_ID, b64Encode(publicKeyCred.rawId))
-            json.put(JSON_KEY_TYPE, publicKeyCred.type)
+            json.put(JSON_KEY_ID, publicKeyCredId)
+            json.put(JSON_KEY_RAW_ID, b64Encode(publicKeyCredRawId))
+            json.put(JSON_KEY_TYPE, publicKeyCredType)
         }
 
         /**
@@ -285,7 +299,7 @@ internal class PublicKeyCredentialControllerUtility {
          *
          * @return the backwards compatible auth module passkey request
          */
-        @Deprecated("Upgrade GMS version so 'convertToPlayAuthPasskeyJsoNRequest' is used")
+        @Deprecated("Upgrade GMS version so 'convertToPlayAuthPasskeyJsonRequest' is used")
         @Suppress("deprecation")
         fun convertToPlayAuthPasskeyRequest(option: GetPublicKeyCredentialOption):
             BeginSignInRequest.PasskeysRequestOptions {
@@ -352,12 +366,11 @@ internal class PublicKeyCredentialControllerUtility {
         }
 
         // Helper method for the begin sign in flow to identify an authenticator error response
-        private fun beginSignInPublicKeyCredentialResponseContainsError(
-            authenticatorResponse: AuthenticatorErrorResponse
+        internal fun beginSignInPublicKeyCredentialResponseContainsError(
+            code: ErrorCode,
+            msg: String?,
         ): GetCredentialException {
-            val code = authenticatorResponse.errorCode
             var exceptionError = orderedErrorCodeToExceptions[code]
-            var msg = authenticatorResponse.errorMessage
             val exception: GetCredentialException
             if (exceptionError == null) {
                 exception = GetPublicKeyCredentialDomException(
