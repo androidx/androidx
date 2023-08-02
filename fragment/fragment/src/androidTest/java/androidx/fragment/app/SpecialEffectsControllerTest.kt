@@ -166,6 +166,77 @@ class SpecialEffectsControllerTest {
 
     @MediumTest
     @Test
+    fun ensureOnlyChangeContainerStatusForCompletedOperation() {
+        withUse(ActivityScenario.launch(EmptyFragmentTestActivity::class.java)) {
+            val container = withActivity { findViewById<ViewGroup>(android.R.id.content) }
+            val fm = withActivity { supportFragmentManager }
+            fm.specialEffectsControllerFactory = SpecialEffectsControllerFactory {
+                TestSpecialEffectsController(it)
+            }
+            val fragment1 = StrictViewFragment()
+            val fragmentStore = FragmentStore()
+            fragmentStore.nonConfig = FragmentManagerViewModel(true)
+            val fragmentStateManager1 = FragmentStateManager(
+                fm.lifecycleCallbacksDispatcher,
+                fragmentStore, fragment1
+            )
+
+            val fragment2 = StrictViewFragment()
+            val fragmentStateManager2 = FragmentStateManager(
+                fm.lifecycleCallbacksDispatcher,
+                fragmentStore, fragment2
+            )
+            // Set up the Fragment and FragmentStateManager as if the Fragment was
+            // added to the container via a FragmentTransaction
+            fragment1.mFragmentManager = fm
+            fragment1.mAdded = true
+            fragment1.mContainerId = android.R.id.content
+
+            fragment2.mFragmentManager = fm
+            fragment2.mAdded = true
+            fragment2.mContainerId = android.R.id.content
+            fragmentStateManager1.setFragmentManagerState(Fragment.ACTIVITY_CREATED)
+            fragmentStateManager2.setFragmentManagerState(Fragment.ACTIVITY_CREATED)
+            val controller = SpecialEffectsController.getOrCreateController(container, fm)
+                as TestSpecialEffectsController
+            onActivity {
+                // This moves the Fragment up to ACTIVITY_CREATED,
+                // calling enqueueAdd() under the hood
+                fragmentStateManager1.moveToExpectedState()
+                fragmentStateManager2.moveToExpectedState()
+                controller.executePendingOperations()
+            }
+            assertThat(fragment1.view)
+                .isNotNull()
+            // setFragmentManagerState() doesn't call moveToExpectedState() itself
+            fragmentStateManager1.setFragmentManagerState(Fragment.STARTED)
+            assertThat(controller.getAwaitingCompletionLifecycleImpact(fragmentStateManager1))
+                .isEqualTo(SpecialEffectsController.Operation.LifecycleImpact.ADDING)
+            fragmentStateManager2.setFragmentManagerState(Fragment.STARTED)
+            assertThat(controller.getAwaitingCompletionLifecycleImpact(fragmentStateManager2))
+                .isEqualTo(SpecialEffectsController.Operation.LifecycleImpact.ADDING)
+            val operation2 = controller.operationsToExecute[1]
+            var awaitingChanges = true
+            operation2.addCompletionListener {
+                awaitingChanges = operation2.isAwaitingContainerChanges
+            }
+            onActivity {
+                fragmentStateManager1.moveToExpectedState()
+                fragmentStateManager2.moveToExpectedState()
+                // However, executePendingOperations(), since we're using our
+                // TestSpecialEffectsController, does immediately call complete()
+                // which in turn calls moveToExpectedState()
+                controller.executePendingOperations()
+            }
+            // Assert that we actually moved to the STARTED state
+            assertThat(fragment1.lifecycle.currentState)
+                .isEqualTo(Lifecycle.State.STARTED)
+            assertThat(awaitingChanges).isTrue()
+        }
+    }
+
+    @MediumTest
+    @Test
     fun enqueueRemoveAndExecute() {
        withUse(ActivityScenario.launch(EmptyFragmentTestActivity::class.java)) {
             val container = withActivity { findViewById<ViewGroup>(android.R.id.content) }
@@ -473,6 +544,7 @@ internal class TestSpecialEffectsController(
         operations.forEach { operation ->
             operation.addCompletionListener {
                 operationsToExecute.remove(operation)
+                operation.isAwaitingContainerChanges = false
             }
         }
     }
