@@ -20,7 +20,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.createSkiaLayer
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.BrowserCursor
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.native.ComposeLayer
@@ -37,6 +36,8 @@ import org.w3c.dom.HTMLCanvasElement
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.Channel.Factory.CONFLATED
 import kotlinx.coroutines.delay
+import org.w3c.dom.HTMLStyleElement
+import org.w3c.dom.HTMLTitleElement
 
 internal actual class ComposeWindow(val canvasId: String)  {
 
@@ -124,13 +125,33 @@ private val defaultCanvasElementId = "ComposeTarget"
  *
  * It can be resized by providing [requestResize].
  * By default, it will listen to the window resize events.
+ *
+ * By default, styles will be applied to use the entire inner window, disabling scrollbars.
+ * This can be turned off by setting [applyDefaultStyles] to false.
  */
 fun CanvasBasedWindow(
-    title: String = "JetpackNativeWindow",
+    title: String? = null,
     canvasElementId: String = defaultCanvasElementId,
     requestResize: (suspend () -> IntSize)? = null,
+    applyDefaultStyles: Boolean = true,
     content: @Composable () -> Unit = { }
 ) {
+    if (title != null) {
+        val htmlTitleElement = (
+            document.head!!.getElementsByTagName("title").item(0)
+                ?: document.createElement("title").also { document.head!!.appendChild(it) }
+            ) as HTMLTitleElement
+        htmlTitleElement.textContent = title
+    }
+
+    if (applyDefaultStyles) {
+        document.head!!.appendChild(
+            (document.createElement("style") as HTMLStyleElement).apply {
+                type = "text/css"
+                appendChild(document.createTextNode("body { margin: 0; overflow: hidden; }"))
+            }
+        )
+    }
 
     val actualRequestResize: suspend () -> IntSize = if (requestResize != null) {
         requestResize
