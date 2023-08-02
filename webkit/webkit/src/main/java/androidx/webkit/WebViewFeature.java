@@ -91,7 +91,6 @@ public class WebViewFeature {
             WEB_VIEW_RENDERER_TERMINATE,
             WEB_VIEW_RENDERER_CLIENT_BASIC_USAGE,
             PROXY_OVERRIDE,
-            SUPPRESS_ERROR_PAGE,
             MULTI_PROCESS,
             FORCE_DARK,
             FORCE_DARK_STRATEGY,
@@ -430,17 +429,6 @@ public class WebViewFeature {
      * {@link ProxyController#clearProxyOverride(Executor, Runnable)}, and
      */
     public static final String PROXY_OVERRIDE = "PROXY_OVERRIDE";
-
-    /**
-     * Feature for {@link #isFeatureSupported(String)}.
-     * This feature covers
-     * {@link WebSettingsCompat#willSuppressErrorPage(WebSettings)} and
-     * {@link WebSettingsCompat#setWillSuppressErrorPage(WebSettings, boolean)}.
-     *
-     * TODO(cricke): unhide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public static final String SUPPRESS_ERROR_PAGE = "SUPPRESS_ERROR_PAGE";
 
     /**
      * Feature for {@link #isFeatureSupported(String)}.
