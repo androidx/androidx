@@ -23,11 +23,13 @@ import androidx.compose.foundation.text.TEST_FONT_FAMILY
 import androidx.compose.foundation.text2.input.TextFieldLineLimits.MultiLine
 import androidx.compose.foundation.text2.input.TextFieldLineLimits.SingleLine
 import androidx.compose.foundation.text2.input.TextFieldState
+import androidx.compose.foundation.text2.selection.FakeClipboardManager
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.platform.ClipboardManager
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
@@ -48,7 +50,6 @@ import androidx.compose.ui.unit.sp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -76,7 +77,6 @@ class TextFieldKeyEventTest {
         }
     }
 
-    @Ignore // re-enable after copy-cut-paste is supported
     @Test
     fun textField_copyPaste() {
         keysSequenceTest("hello") {
@@ -91,7 +91,19 @@ class TextFieldKeyEventTest {
         }
     }
 
-    @Ignore // re-enable after copy-cut-paste is supported
+    @Test
+    fun secureTextField_doesNotAllowCopy() {
+        keysSequenceTest("hello", secure = true) {
+            clipboardManager.setText(AnnotatedString("world"))
+            withKeyDown(Key.CtrlLeft) {
+                pressKey(Key.A)
+                pressKey(Key.C)
+            }
+            pressKey(Key.Copy) // also attempt direct copy
+            expectedClipboardText("world")
+        }
+    }
+
     @Test
     fun textField_directCopyPaste() {
         keysSequenceTest("hello") {
@@ -105,7 +117,6 @@ class TextFieldKeyEventTest {
         }
     }
 
-    @Ignore // re-enable after copy-cut-paste is supported
     @Test
     fun textField_directCutPaste() {
         keysSequenceTest("hello") {
@@ -114,6 +125,20 @@ class TextFieldKeyEventTest {
             expectedText("")
             pressKey(Key.Paste)
             expectedText("hello")
+        }
+    }
+
+    @Test
+    fun secureTextField_doesNotAllowCut() {
+        keysSequenceTest("hello", secure = true) {
+            clipboardManager.setText(AnnotatedString("world"))
+            withKeyDown(Key.CtrlLeft) {
+                pressKey(Key.A)
+                pressKey(Key.X)
+            }
+            pressKey(Key.Cut) // Also attempts direct cut
+            expectedText("hello")
+            expectedClipboardText("world")
         }
     }
 
@@ -247,7 +272,6 @@ class TextFieldKeyEventTest {
         }
     }
 
-    @Ignore // TODO(halilibo): Remove ignore when backing buffer supports reversed selection
     @Test
     fun textField_lineEndStart() {
         keysSequenceTest(initText = "hi\nhello world\nhi") {
@@ -268,7 +292,6 @@ class TextFieldKeyEventTest {
         }
     }
 
-    @Ignore // TODO(halilibo): Remove ignore when backing buffer supports reversed selection
     @Test
     fun textField_altLineLeftRight() {
         keysSequenceTest(initText = "hi\nhello world\nhi") {
@@ -289,7 +312,6 @@ class TextFieldKeyEventTest {
         }
     }
 
-    @Ignore // TODO(halilibo): Remove ignore when backing buffer supports reversed selection
     @Test
     fun textField_altTop() {
         keysSequenceTest(initText = "hi\nhello world\nhi") {
@@ -414,7 +436,6 @@ class TextFieldKeyEventTest {
         }
     }
 
-    @Ignore // TODO(halilibo): Remove ignore when backing buffer supports reversed selection
     @Test
     fun textField_selectionCaret() {
         keysSequenceTest("hello world") {
@@ -427,7 +448,7 @@ class TextFieldKeyEventTest {
             press(Key.CtrlLeft + Key.ShiftLeft + Key.DirectionLeft)
             expectedSelection(TextRange(6, 0))
             press(Key.ShiftLeft + Key.DirectionRight)
-            expectedSelection(TextRange(1, 6))
+            expectedSelection(TextRange(6, 1))
         }
     }
 
@@ -489,7 +510,6 @@ class TextFieldKeyEventTest {
         }
     }
 
-    @Ignore // b/293919923
     @Test
     fun textField_tabSingleLine() {
         keysSequenceTest("text", singleLine = true) {
@@ -498,7 +518,6 @@ class TextFieldKeyEventTest {
         }
     }
 
-    @Ignore // b/293919923
     @Test
     fun textField_tabMultiLine() {
         keysSequenceTest("text") {
@@ -507,7 +526,6 @@ class TextFieldKeyEventTest {
         }
     }
 
-    @Ignore // b/293919923
     @Test
     fun textField_shiftTabSingleLine() {
         keysSequenceTest("text", singleLine = true) {
@@ -532,7 +550,6 @@ class TextFieldKeyEventTest {
         }
     }
 
-    @Ignore // b/293919923
     @Test
     fun textField_withActiveSelection_tabSingleLine() {
         keysSequenceTest("text", singleLine = true) {
@@ -546,7 +563,6 @@ class TextFieldKeyEventTest {
         }
     }
 
-    @Ignore // b/293919923
     @Test
     fun textField_withActiveSelection_tabMultiLine() {
         keysSequenceTest("text") {
@@ -560,7 +576,6 @@ class TextFieldKeyEventTest {
         }
     }
 
-    @Ignore // TODO(halilibo): Remove ignore when backing buffer supports reversed selection
     @Test
     fun textField_selectToLeft() {
         keysSequenceTest("hello world hello") {
@@ -575,7 +590,6 @@ class TextFieldKeyEventTest {
         }
     }
 
-    @Ignore // b/293919923
     @Test
     fun textField_withActiveSelection_shiftTabSingleLine() {
         keysSequenceTest("text", singleLine = true) {
@@ -589,7 +603,6 @@ class TextFieldKeyEventTest {
         }
     }
 
-    @Ignore // b/293919923
     @Test
     fun textField_withActiveSelection_enterSingleLine() {
         keysSequenceTest("text", singleLine = true) {
@@ -603,7 +616,6 @@ class TextFieldKeyEventTest {
         }
     }
 
-    @Ignore // b/293919923
     @Test
     fun textField_withActiveSelection_enterMultiLine() {
         keysSequenceTest("text") {
@@ -619,6 +631,7 @@ class TextFieldKeyEventTest {
 
     private inner class SequenceScope(
         val state: TextFieldState,
+        val clipboardManager: ClipboardManager,
         private val keyInjectionScope: KeyInjectionScope
     ) : KeyInjectionScope by keyInjectionScope {
 
@@ -646,6 +659,12 @@ class TextFieldKeyEventTest {
                 assertThat(state.text.selectionInChars).isEqualTo(selection)
             }
         }
+
+        fun expectedClipboardText(text: String) {
+            rule.runOnIdle {
+                assertThat(clipboardManager.getText()?.text).isEqualTo(text)
+            }
+        }
     }
 
     private fun keysSequenceTest(
@@ -653,24 +672,41 @@ class TextFieldKeyEventTest {
         initSelection: TextRange = TextRange.Zero,
         modifier: Modifier = Modifier.fillMaxSize(),
         singleLine: Boolean = false,
+        secure: Boolean = false,
         sequence: SequenceScope.() -> Unit,
     ) {
         val state = TextFieldState(initText, initSelection)
         val focusRequester = FocusRequester()
+        val clipboardManager = FakeClipboardManager("InitialTestText")
         rule.setContent {
-            LocalClipboardManager.current.setText(AnnotatedString("InitialTestText"))
-            CompositionLocalProvider(LocalDensity provides defaultDensity) {
-                BasicTextField2(
-                    state = state,
-                    textStyle = TextStyle(
-                        fontFamily = TEST_FONT_FAMILY,
-                        fontSize = 30.sp
-                    ),
-                    modifier = modifier
-                        .focusRequester(focusRequester)
-                        .testTag(tag),
-                    lineLimits = if (singleLine) SingleLine else MultiLine(),
-                )
+            CompositionLocalProvider(
+                LocalDensity provides defaultDensity,
+                LocalClipboardManager provides clipboardManager,
+            ) {
+                if (!secure) {
+                    BasicTextField2(
+                        state = state,
+                        textStyle = TextStyle(
+                            fontFamily = TEST_FONT_FAMILY,
+                            fontSize = 30.sp
+                        ),
+                        modifier = modifier
+                            .focusRequester(focusRequester)
+                            .testTag(tag),
+                        lineLimits = if (singleLine) SingleLine else MultiLine(),
+                    )
+                } else {
+                    BasicSecureTextField(
+                        state = state,
+                        textStyle = TextStyle(
+                            fontFamily = TEST_FONT_FAMILY,
+                            fontSize = 30.sp
+                        ),
+                        modifier = modifier
+                            .focusRequester(focusRequester)
+                            .testTag(tag)
+                    )
+                }
             }
         }
 
@@ -680,7 +716,7 @@ class TextFieldKeyEventTest {
         rule.mainClock.advanceTimeBy(1000)
 
         rule.onNodeWithTag(tag).performKeyInput {
-            sequence(SequenceScope(state, this@performKeyInput))
+            sequence(SequenceScope(state, clipboardManager, this@performKeyInput))
         }
     }
 }

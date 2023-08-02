@@ -112,15 +112,24 @@ internal class HandlePositionProvider2(
     private val positionProvider: OffsetProvider
 ) : PopupPositionProvider {
 
+    /**
+     * When Handle disappears, it starts reporting its position as [Offset.Unspecified]. Normally,
+     * Popup is dismissed immediately when its position becomes unspecified, but for one frame a
+     * position update might be requested by soon-to-be-destroyed Popup. In this case, report the
+     * last known position as there are no more updates. If the first ever position is provided as
+     * unspecified, start with [Offset.Zero] default.
+     */
+    private var prevPosition: Offset = Offset.Zero
+
     override fun calculatePosition(
         anchorBounds: IntRect,
         windowSize: IntSize,
         layoutDirection: LayoutDirection,
         popupContentSize: IntSize
     ): IntOffset {
-        val intOffset = positionProvider.provide().takeOrElse {
-            Offset(Float.MAX_VALUE, Float.MAX_VALUE)
-        }.round()
+        val position = positionProvider.provide().takeOrElse { prevPosition }
+        prevPosition = position
+        val intOffset = position.round()
 
         return when (handleReferencePoint) {
             HandleReferencePoint.TopLeft ->
