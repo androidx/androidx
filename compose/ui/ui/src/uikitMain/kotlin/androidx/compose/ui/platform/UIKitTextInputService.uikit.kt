@@ -49,6 +49,29 @@ internal class UIKitTextInputService(
     private var currentImeActionHandler: ((ImeAction) -> Unit)? = null
 
     /**
+     * Workaround to prevent calling textWillChange, textDidChange, selectionWillChange, and
+     * selectionDidChange when the value of the current input is changed by the system (i.e., by the user
+     * input) not by the state change of the Compose side. These 4 functions call methods of
+     * UITextInputDelegateProtocol, which notifies the system that the text or the selection of the
+     * current input has changed.
+     *
+     * This is to properly handle multi-stage input methods that depend on text selection, required by
+     * languages such as Korean (Chinese and Japanese input methods depend on text marking). The writing
+     * system of these languages contains letters that can be broken into multiple parts, and each keyboard
+     * key corresponds to those parts. Therefore, the input system holds an internal state to combine these
+     * parts correctly. However, the methods of UITextInputDelegateProtocol reset this state, resulting in
+     * incorrect input. (e.g., 컴포즈 becomes ㅋㅓㅁㅍㅗㅈㅡ when not handled properly)
+     *
+     * @see _tempCurrentInputSession holds the same text and selection of the current input. It is used
+     * instead of the old value passed to updateState. When the current value change is due to the
+     * user input, updateState is not effective because _tempCurrentInputSession holds the same value.
+     * However, when the current value change is due to the change of the user selection or to the
+     * state change in the Compose side, updateState calls the 4 methods because the new value holds
+     * these changes.
+     */
+    private var _tempCurrentInputSession: EditProcessor? = null
+
+    /**
      * Workaround to prevent IME action from being called multiple times with hardware keyboards.
      * When the hardware return key is held down, iOS sends multiple newline characters to the application,
      * which makes UIKitTextInputService call the current IME action multiple times without an additional
@@ -79,6 +102,9 @@ internal class UIKitTextInputService(
         onImeActionPerformed: (ImeAction) -> Unit
     ) {
         currentInput = CurrentInput(value, onEditCommand)
+        _tempCurrentInputSession = EditProcessor().apply {
+            reset(value, null)
+        }
         currentImeOptions = imeOptions
         currentImeActionHandler = onImeActionPerformed
         showSoftwareKeyboard()
@@ -86,6 +112,7 @@ internal class UIKitTextInputService(
 
     override fun stopInput() {
         currentInput = null
+        _tempCurrentInputSession = null
         currentImeOptions = null
         currentImeActionHandler = null
         hideSoftwareKeyboard()
@@ -100,15 +127,16 @@ internal class UIKitTextInputService(
     }
 
     override fun updateState(oldValue: TextFieldValue?, newValue: TextFieldValue) {
-        val textChanged = oldValue == null || oldValue.text != newValue.text
-        val selectionChanged =
-            textChanged || oldValue == null || oldValue.selection != newValue.selection
+        val internalOldValue = _tempCurrentInputSession?.toTextFieldValue()
+        val textChanged = internalOldValue == null || internalOldValue.text != newValue.text
+        val selectionChanged = textChanged || internalOldValue == null || internalOldValue.selection != newValue.selection
         if (textChanged) {
             textWillChange()
         }
         if (selectionChanged) {
             selectionWillChange()
         }
+        _tempCurrentInputSession?.reset(newValue, null)
         currentInput?.let { input ->
             input.value = newValue
             _tempCursorPos = null
@@ -119,7 +147,9 @@ internal class UIKitTextInputService(
         if (selectionChanged) {
             selectionDidChange()
         }
-        updateView()
+        if (textChanged || selectionChanged) {
+            updateView()
+        }
     }
 
     val skikoInput = object : SkikoInput {
@@ -378,8 +408,10 @@ internal class UIKitTextInputService(
     }
 
     private fun sendEditCommand(vararg commands: EditCommand) {
+        val commandList = commands.toList()
+        _tempCurrentInputSession?.apply(commandList)
         currentInput?.let { input ->
-            input.onEditCommand(commands.toList())
+            input.onEditCommand(commandList)
         }
     }
 
