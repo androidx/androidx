@@ -180,7 +180,7 @@ public abstract class Visibility extends Transition {
      * @return True if the view reference by <code>values</code> is visible,
      * false otherwise.
      */
-    public boolean isVisible(TransitionValues values) {
+    public boolean isVisible(@Nullable TransitionValues values) {
         if (values == null) {
             return false;
         }
@@ -279,8 +279,8 @@ public abstract class Visibility extends Transition {
      */
     @Nullable
     @SuppressWarnings("UnusedParameters")
-    public Animator onAppear(ViewGroup sceneRoot, TransitionValues startValues, int startVisibility,
-            TransitionValues endValues, int endVisibility) {
+    public Animator onAppear(@NonNull ViewGroup sceneRoot, @Nullable TransitionValues startValues,
+            int startVisibility, @Nullable TransitionValues endValues, int endVisibility) {
         if ((mMode & MODE_IN) != MODE_IN || endValues == null) {
             return null;
         }
@@ -316,8 +316,8 @@ public abstract class Visibility extends Transition {
      * should be run.
      */
     @Nullable
-    public Animator onAppear(ViewGroup sceneRoot, View view, TransitionValues startValues,
-            TransitionValues endValues) {
+    public Animator onAppear(@NonNull ViewGroup sceneRoot, @NonNull View view,
+            @Nullable TransitionValues startValues, @Nullable TransitionValues endValues) {
         return null;
     }
 
@@ -338,8 +338,9 @@ public abstract class Visibility extends Transition {
      */
     @Nullable
     @SuppressWarnings("UnusedParameters")
-    public Animator onDisappear(ViewGroup sceneRoot, TransitionValues startValues,
-            int startVisibility, TransitionValues endValues, int endVisibility) {
+    public Animator onDisappear(@NonNull ViewGroup sceneRoot,
+            @Nullable TransitionValues startValues, int startVisibility,
+            @Nullable TransitionValues endValues, int endVisibility) {
         if ((mMode & MODE_OUT) != MODE_OUT) {
             return null;
         }
@@ -501,8 +502,8 @@ public abstract class Visibility extends Transition {
      * should be run.
      */
     @Nullable
-    public Animator onDisappear(ViewGroup sceneRoot, View view, TransitionValues startValues,
-            TransitionValues endValues) {
+    public Animator onDisappear(@NonNull ViewGroup sceneRoot, @NonNull View view,
+            @Nullable TransitionValues startValues, @Nullable TransitionValues endValues) {
         return null;
     }
 

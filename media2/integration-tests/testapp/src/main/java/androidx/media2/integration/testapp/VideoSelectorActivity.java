@@ -219,21 +219,13 @@ public class VideoSelectorActivity extends Activity {
      * framework to populate the list of videos to select.
      */
     private class VideoItemList extends ArrayAdapter<VideoItem> {
-        private final String mPath;
         private final boolean mIsRoot;
-
-        private VideoItemList(String path, boolean isRoot) {
+        private VideoItemList(boolean isRoot) {
             super(VideoSelectorActivity.this,
                   R.layout.video_list_item,
                   R.id.video_list_item);
-            mPath = path;
             mIsRoot = isRoot;
         }
-
-        public String getPath() {
-            return mPath;
-        }
-
         public boolean getIsRoot() {
             return mIsRoot;
         }
@@ -247,7 +239,7 @@ public class VideoSelectorActivity extends Activity {
             return null;
         }
 
-        VideoItemList retVal = new VideoItemList(p, is_root);
+        VideoItemList retVal = new VideoItemList(is_root);
 
         // If this is not the root directory, go ahead and add the back link to
         // our parent.

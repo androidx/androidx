@@ -26,6 +26,7 @@ android {
     defaultConfig {
         minSdkVersion 23
     }
+    namespace "androidx.benchmark.integration.macrobenchmark"
 }
 
 dependencies {
@@ -37,12 +38,13 @@ dependencies {
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.testUiautomator)
+    androidTestImplementation(libs.testExtTruth)
 }
 
 // Allow usage of Kotlin's @OptIn.
 tasks.withType(KotlinCompile).configureEach {
     kotlinOptions {
-        freeCompilerArgs += [ '-Xopt-in=kotlin.RequiresOptIn' ]
+        freeCompilerArgs += "-opt-in=kotlin.RequiresOptIn"
     }
 }
 

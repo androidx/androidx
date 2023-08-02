@@ -16,11 +16,13 @@
 
 package androidx.benchmark.macro.perfetto
 
+import android.util.Log
 import androidx.benchmark.macro.StartupMode
+import androidx.benchmark.macro.perfetto.PerfettoTraceProcessor.processNameLikePkg
 
 internal object StartupTimingQuery {
 
-    private fun getFullQuery(testProcessName: String, targetProcessName: String) = """
+    private fun getFullQuery(testPackageName: String, targetPackageName: String) = """
         ------ Select all startup-relevant slices from slice table
         SELECT
             slice.name as name,
@@ -31,9 +33,9 @@ internal object StartupTimingQuery {
             INNER JOIN thread USING(utid)
             INNER JOIN process USING(upid)
         WHERE (
-            (process.name LIKE "$testProcessName" AND slice.name LIKE "startActivityAndWait") OR
+            (${processNameLikePkg(testPackageName)} AND slice.name LIKE "startActivityAndWait") OR
             (
-                process.name LIKE "$targetProcessName" AND (
+                ${processNameLikePkg(targetPackageName)} AND (
                     (slice.name LIKE "activityResume" AND process.pid LIKE thread.tid) OR
                     (slice.name LIKE "Choreographer#doFrame%" AND process.pid LIKE thread.tid) OR
                     (slice.name LIKE "reportFullyDrawn() for %" AND process.pid LIKE thread.tid) OR
@@ -114,8 +116,8 @@ internal object StartupTimingQuery {
         val queryResult = PerfettoTraceProcessor.rawQuery(
             absoluteTracePath = absoluteTracePath,
             query = getFullQuery(
-                testProcessName = testPackageName,
-                targetProcessName = targetPackageName
+                testPackageName = testPackageName,
+                targetPackageName = targetPackageName
             )
         )
         val slices = Slice.parseListFromQueryResult(queryResult)
@@ -143,6 +145,11 @@ internal object StartupTimingQuery {
 
         val uiSlices = groupedData.getOrElse(StartupSliceType.FrameUiThread) { listOf() }
         val rtSlices = groupedData.getOrElse(StartupSliceType.FrameRenderThread) { listOf() }
+
+        if (uiSlices.isEmpty() || rtSlices.isEmpty()) {
+            Log.d("Benchmark", "No UI / RT slices seen, not reporting startup.")
+            return null
+        }
 
         val startTs: Long
         val initialDisplayTs: Long

@@ -107,6 +107,23 @@ class ComponentActivityViewModelTest {
             assertThat(withActivity { viewModel }).isSameInstanceAs(vm)
         }
     }
+
+    @Test
+    fun testCreateViewModelViaExtras() {
+        val scenario = ActivityScenario.launch(ViewModelActivity::class.java)
+        with(scenario) {
+            val creationViewModel = withActivity {
+                ViewModelProvider(
+                    viewModelStore,
+                    defaultViewModelProviderFactory,
+                    defaultViewModelCreationExtras)["test", TestViewModel::class.java]
+            }
+            recreate()
+            assertThat(withActivity {
+                ViewModelProvider(this)["test", TestViewModel::class.java]
+            }).isSameInstanceAs(creationViewModel)
+        }
+    }
 }
 
 class ViewModelActivity : ComponentActivity() {

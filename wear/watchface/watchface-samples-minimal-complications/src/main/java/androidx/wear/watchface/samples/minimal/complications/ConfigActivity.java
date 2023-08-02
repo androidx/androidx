@@ -95,7 +95,9 @@ public class ConfigActivity extends ComponentActivity {
                 complicationDataSourceInfoMap -> {
                     if (!complicationDataSourceInfoMap.isEmpty()) {
                         ComplicationDataSourceInfo info =
-                                complicationDataSourceInfoMap.get(WatchFaceService.COMPLICATION_ID);
+                                complicationDataSourceInfoMap.get(
+                                        WatchFaceService.getComplicationId(getResources())
+                                );
                         if (info == null) {
                             mComplicationProviderName.setText(
                                     getString(R.string.complication_none));
@@ -113,7 +115,9 @@ public class ConfigActivity extends ComponentActivity {
                         mComplicationPreview.setImageResource(R.drawable.preview_loading);
                     } else {
                         ComplicationData preview =
-                                complicationsPreviewData.get(WatchFaceService.COMPLICATION_ID);
+                                complicationsPreviewData.get(
+                                        WatchFaceService.getComplicationId(getResources())
+                                );
                         if (preview != null) {
                             mComplicationPreview.setImageDrawable(mComplicationPreviewDrawable);
                             mComplicationPreviewDrawable.setComplicationData(preview, true);
@@ -132,8 +136,9 @@ public class ConfigActivity extends ComponentActivity {
             return;
         }
         mEditorSession
-                .listenableOpenComplicationDataSourceChooser(WatchFaceService.COMPLICATION_ID)
-                .addListener(() -> { /* Empty on purpose. */ }, mMainExecutor);
+                .listenableOpenComplicationDataSourceChooser(
+                        WatchFaceService.getComplicationId(getResources())
+                ).addListener(() -> { /* Empty on purpose. */ }, mMainExecutor);
     }
 
     @Override

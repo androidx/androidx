@@ -43,7 +43,7 @@ public class DialogNavigator : Navigator<Destination>() {
      * Dismiss the dialog destination associated with the given [backStackEntry].
      */
     internal fun dismiss(backStackEntry: NavBackStackEntry) {
-        state.pop(backStackEntry, false)
+        state.popWithTransition(backStackEntry, false)
     }
 
     override fun navigate(
@@ -61,7 +61,11 @@ public class DialogNavigator : Navigator<Destination>() {
     }
 
     override fun popBackStack(popUpTo: NavBackStackEntry, savedState: Boolean) {
-        state.pop(popUpTo, savedState)
+        state.popWithTransition(popUpTo, savedState)
+    }
+
+    internal fun onTransitionComplete(entry: NavBackStackEntry) {
+        state.markTransitionComplete(entry)
     }
 
     /**

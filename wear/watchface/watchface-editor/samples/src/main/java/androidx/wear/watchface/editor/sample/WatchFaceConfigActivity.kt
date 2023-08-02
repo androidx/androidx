@@ -25,6 +25,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.wear.watchface.editor.ChosenComplicationDataSource
 import androidx.wear.watchface.editor.EditorSession
+import androidx.wear.watchface.style.ExperimentalHierarchicalStyle
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleSchema
 import kotlinx.coroutines.CoroutineScope
@@ -66,6 +67,7 @@ private const val DIGITAL_WATCHFACE_REFERENCE_TIME_MS = 1602321000000L
  * Config activity for the watch face, which supports complication and data source selection, as
  * well as userStyle configuration.
  */
+@OptIn(ExperimentalHierarchicalStyle::class)
 class WatchFaceConfigActivity : FragmentActivity() {
     companion object {
         private const val TAG = "WatchFaceConfigActivity"
@@ -84,7 +86,15 @@ class WatchFaceConfigActivity : FragmentActivity() {
                 object : FragmentController {
                     @SuppressLint("SyntheticAccessor")
                     override fun showConfigFragment() {
-                        showFragment(ConfigFragment())
+                        showFragment(
+                            ConfigFragment.newInstance(
+                                ArrayList(
+                                    editorSession.userStyleSchema.rootUserStyleSettings.map {
+                                        it.id.value
+                                    }
+                                )
+                            )
+                        )
                     }
 
                     @SuppressLint("SyntheticAccessor")
@@ -157,7 +167,7 @@ class WatchFaceConfigActivity : FragmentActivity() {
                 }
             }
 
-        var topLevelOptionCount = editorSession.userStyleSchema.userStyleSettings.size
+        var topLevelOptionCount = editorSession.userStyleSchema.rootUserStyleSettings.size
         val hasBackgroundComplication = editorSession.backgroundComplicationSlotId != null
         if (hasBackgroundComplication) {
             topLevelOptionCount++
@@ -189,9 +199,10 @@ class WatchFaceConfigActivity : FragmentActivity() {
             numComplications > 1 -> fragmentController.showComplicationConfigSelectionFragment()
 
             // For a single style, go select the option.
-            editorSession.userStyleSchema.userStyleSettings.size == 1 -> {
+            editorSession.userStyleSchema.rootUserStyleSettings.size == 1 -> {
                 // There should only be a single userStyle setting if we get here.
-                val onlyStyleSetting = editorSession.userStyleSchema.userStyleSettings.first()
+                val onlyStyleSetting =
+                    editorSession.userStyleSchema.rootUserStyleSettings.first()
                 fragmentController.showStyleConfigFragment(
                     onlyStyleSetting.id.value,
                     editorSession.userStyleSchema,

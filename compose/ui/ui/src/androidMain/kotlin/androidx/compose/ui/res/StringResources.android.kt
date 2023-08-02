@@ -16,13 +16,12 @@
 
 package androidx.compose.ui.res
 
-import android.content.res.Resources
 import androidx.annotation.ArrayRes
+import androidx.annotation.PluralsRes
 import androidx.annotation.StringRes
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable
-import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.ExperimentalComposeUiApi
 
 /**
  * Load a string resource.
@@ -65,12 +64,32 @@ fun stringArrayResource(@ArrayRes id: Int): Array<String> {
 }
 
 /**
- * A composable function that returns the [Resources]. It will be recomposed when [Configuration]
- * gets updated.
+ * Load a plurals resource.
+ *
+ * @param id the resource identifier
+ * @param count the count
+ * @return the pluralized string data associated with the resource
  */
+@ExperimentalComposeUiApi
 @Composable
 @ReadOnlyComposable
-private fun resources(): Resources {
-    LocalConfiguration.current
-    return LocalContext.current.resources
+fun pluralStringResource(@PluralsRes id: Int, count: Int): String {
+    val resources = resources()
+    return resources.getQuantityString(id, count)
+}
+
+/**
+ * Load a plurals resource with provided format arguments.
+ *
+ * @param id the resource identifier
+ * @param count the count
+ * @param formatArgs arguments used in the format string
+ * @return the pluralized string data associated with the resource
+ */
+@ExperimentalComposeUiApi
+@Composable
+@ReadOnlyComposable
+fun pluralStringResource(@PluralsRes id: Int, count: Int, vararg formatArgs: Any): String {
+    val resources = resources()
+    return resources.getQuantityString(id, count, *formatArgs)
 }

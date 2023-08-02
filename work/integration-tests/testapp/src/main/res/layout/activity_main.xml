@@ -287,6 +287,22 @@
             android:layout_marginLeft="16dp"
             android:layout_marginStart="16dp"/>
 
+        <Button android:text="@string/enqueue_periodic_work_multiprocess"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/enqueue_periodic_work_multiprocess"
+            android:layout_marginTop="12dp"
+            android:layout_marginLeft="16dp"
+            android:layout_marginStart="16dp"/>
+
+        <Button android:text="@string/update_periodic_work_multiprocess"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/update_periodic_work_multiprocess"
+            android:layout_marginTop="12dp"
+            android:layout_marginLeft="16dp"
+            android:layout_marginStart="16dp"/>
+
         <Button android:text="@string/run_remote_worker_1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

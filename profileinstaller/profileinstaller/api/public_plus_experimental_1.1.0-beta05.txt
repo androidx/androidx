@@ -1,0 +1,44 @@
+// Signature format: 4.0
+package androidx.profileinstaller {
+
+  public class ProfileInstallReceiver extends android.content.BroadcastReceiver {
+    ctor public ProfileInstallReceiver();
+    method public void onReceive(android.content.Context, android.content.Intent?);
+    field public static final String ACTION_INSTALL_PROFILE = "androidx.profileinstaller.action.INSTALL_PROFILE";
+  }
+
+  public class ProfileInstaller {
+    method @WorkerThread public static void writeProfile(android.content.Context);
+    method @WorkerThread public static void writeProfile(android.content.Context, java.util.concurrent.Executor, androidx.profileinstaller.ProfileInstaller.DiagnosticsCallback);
+    field public static final int DIAGNOSTIC_CURRENT_PROFILE_DOES_NOT_EXIST = 2; // 0x2
+    field public static final int DIAGNOSTIC_CURRENT_PROFILE_EXISTS = 1; // 0x1
+    field public static final int DIAGNOSTIC_REF_PROFILE_DOES_NOT_EXIST = 4; // 0x4
+    field public static final int DIAGNOSTIC_REF_PROFILE_EXISTS = 3; // 0x3
+    field public static final int RESULT_ALREADY_INSTALLED = 2; // 0x2
+    field public static final int RESULT_BASELINE_PROFILE_NOT_FOUND = 6; // 0x6
+    field public static final int RESULT_DESIRED_FORMAT_UNSUPPORTED = 5; // 0x5
+    field public static final int RESULT_INSTALL_SUCCESS = 1; // 0x1
+    field public static final int RESULT_IO_EXCEPTION = 7; // 0x7
+    field public static final int RESULT_META_FILE_REQUIRED_BUT_NOT_FOUND = 9; // 0x9
+    field public static final int RESULT_NOT_WRITABLE = 4; // 0x4
+    field public static final int RESULT_PARSE_EXCEPTION = 8; // 0x8
+    field public static final int RESULT_UNSUPPORTED_ART_VERSION = 3; // 0x3
+  }
+
+  public static interface ProfileInstaller.DiagnosticsCallback {
+    method public void onDiagnosticReceived(int, Object?);
+    method public void onResultReceived(int, Object?);
+  }
+
+  public class ProfileInstallerInitializer implements androidx.startup.Initializer<androidx.profileinstaller.ProfileInstallerInitializer.Result> {
+    ctor public ProfileInstallerInitializer();
+    method public androidx.profileinstaller.ProfileInstallerInitializer.Result create(android.content.Context);
+    method public java.util.List<java.lang.Class<? extends androidx.startup.Initializer<?>>!> dependencies();
+  }
+
+  public static class ProfileInstallerInitializer.Result {
+    ctor public ProfileInstallerInitializer.Result();
+  }
+
+}
+

@@ -17,6 +17,8 @@
 package androidx.work.impl.utils;
 
 
+import android.annotation.SuppressLint;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
@@ -48,6 +50,8 @@ public class LiveDataUtils {
      * @param <Out> The type of data to output
      * @return A new {@link LiveData} of type {@code Out}
      */
+    @SuppressLint("LambdaLast")
+    @NonNull
     public static <In, Out> LiveData<Out> dedupedMappedLiveDataFor(
             @NonNull LiveData<In> inputLiveData,
             @NonNull final Function<In, Out> mappingMethod,
@@ -62,7 +66,7 @@ public class LiveDataUtils {
 
             @Override
             public void onChanged(@Nullable final In input) {
-                workTaskExecutor.executeOnBackgroundThread(new Runnable() {
+                workTaskExecutor.executeOnTaskThread(new Runnable() {
                     @Override
                     public void run() {
                         synchronized (lock) {

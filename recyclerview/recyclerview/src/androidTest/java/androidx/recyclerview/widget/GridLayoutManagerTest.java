@@ -38,6 +38,7 @@ import android.util.SparseIntArray;
 import android.util.StateSet;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.GridView;
 
 import androidx.annotation.NonNull;
 import androidx.core.view.AccessibilityDelegateCompat;
@@ -843,6 +844,18 @@ public class GridLayoutManagerTest extends BaseGridLayoutManagerTest {
         assertEquals("result should have span size",
                 ssl.getSpanSize(position),
                 orientation == HORIZONTAL ? itemInfo.getRowSpan() : itemInfo.getColumnSpan());
+    }
+
+    @Test
+    public void accessibilityClassName() throws Throwable {
+        final RecyclerView recyclerView = setupBasic(new Config(3, 100));
+        waitForFirstLayout(recyclerView);
+        final AccessibilityDelegateCompat delegateCompat = mRecyclerView
+                .getCompatAccessibilityDelegate();
+        final AccessibilityNodeInfoCompat info = AccessibilityNodeInfoCompat.obtain();
+        mActivityRule.runOnUiThread(
+                () -> delegateCompat.onInitializeAccessibilityNodeInfo(recyclerView, info));
+        assertEquals(GridView.class.getName(), info.getClassName());
     }
 
     public GridLayoutManager.LayoutParams ensureGridLp(View view) {

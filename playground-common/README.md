@@ -56,7 +56,7 @@ Properties that will be set dynamically are kept in `playground.properties` file
 shared properties are kept in `androidx-shared.properties` file.
 The dynamic properties are read in the `playground` plugin and set on each project.
 
-There is a `VerifyPlaygroundGradlePropertiesTask` task that validates the contents of
+There is a `VerifyPlaygroundGradleConfigurationTask` task that validates the contents of
 `androidx-shared.properties` file as part of the main AndroidX build.
 
 ### Optional Dependencies

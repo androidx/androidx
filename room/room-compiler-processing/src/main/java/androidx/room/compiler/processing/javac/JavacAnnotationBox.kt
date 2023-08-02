@@ -25,7 +25,7 @@ import javax.lang.model.element.AnnotationMirror
 import javax.lang.model.element.AnnotationValue
 import javax.lang.model.element.VariableElement
 import javax.lang.model.type.TypeMirror
-import javax.lang.model.util.SimpleAnnotationValueVisitor6
+import javax.lang.model.util.SimpleAnnotationValueVisitor8
 
 internal interface JavacClassGetter {
     fun getAsType(methodName: String): XType?
@@ -137,80 +137,70 @@ internal fun <T : Annotation> AnnotationMirror.box(
     )
 }
 
-@Suppress("DEPRECATION")
-private val ANNOTATION_VALUE_TO_INT_VISITOR = object : SimpleAnnotationValueVisitor6<Int?, Void>() {
-    override fun visitInt(i: Int, p: Void?): Int? {
+private val ANNOTATION_VALUE_TO_INT_VISITOR = object : SimpleAnnotationValueVisitor8<Int?, Void>() {
+    override fun visitInt(i: Int, p: Void?): Int {
         return i
     }
 }
 
-@Suppress("DEPRECATION")
 private val ANNOTATION_VALUE_TO_DOUBLE_VISITOR =
-    object : SimpleAnnotationValueVisitor6<Double?, Void>() {
-        override fun visitDouble(i: Double, p: Void?): Double? {
+    object : SimpleAnnotationValueVisitor8<Double?, Void>() {
+        override fun visitDouble(i: Double, p: Void?): Double {
             return i
         }
     }
 
-@Suppress("DEPRECATION")
 private val ANNOTATION_VALUE_TO_FLOAT_VISITOR =
-    object : SimpleAnnotationValueVisitor6<Float?, Void>() {
-        override fun visitFloat(i: Float, p: Void?): Float? {
+    object : SimpleAnnotationValueVisitor8<Float?, Void>() {
+        override fun visitFloat(i: Float, p: Void?): Float {
             return i
         }
     }
 
-@Suppress("DEPRECATION")
 private val ANNOTATION_VALUE_TO_CHAR_VISITOR =
-    object : SimpleAnnotationValueVisitor6<Char?, Void>() {
-        override fun visitChar(i: Char, p: Void?): Char? {
+    object : SimpleAnnotationValueVisitor8<Char?, Void>() {
+        override fun visitChar(i: Char, p: Void?): Char {
             return i
         }
     }
 
-@Suppress("DEPRECATION")
 private val ANNOTATION_VALUE_TO_BYTE_VISITOR =
-    object : SimpleAnnotationValueVisitor6<Byte?, Void>() {
-        override fun visitByte(i: Byte, p: Void?): Byte? {
+    object : SimpleAnnotationValueVisitor8<Byte?, Void>() {
+        override fun visitByte(i: Byte, p: Void?): Byte {
             return i
         }
     }
 
-@Suppress("DEPRECATION")
 private val ANNOTATION_VALUE_TO_SHORT_VISITOR =
-    object : SimpleAnnotationValueVisitor6<Short?, Void>() {
-        override fun visitShort(i: Short, p: Void?): Short? {
+    object : SimpleAnnotationValueVisitor8<Short?, Void>() {
+        override fun visitShort(i: Short, p: Void?): Short {
             return i
         }
     }
 
-@Suppress("DEPRECATION")
 private val ANNOTATION_VALUE_TO_LONG_VISITOR =
-    object : SimpleAnnotationValueVisitor6<Long?, Void>() {
-        override fun visitLong(i: Long, p: Void?): Long? {
+    object : SimpleAnnotationValueVisitor8<Long?, Void>() {
+        override fun visitLong(i: Long, p: Void?): Long {
             return i
         }
     }
 
-@Suppress("DEPRECATION")
 private val ANNOTATION_VALUE_TO_BOOLEAN_VISITOR = object :
-    SimpleAnnotationValueVisitor6<Boolean?, Void>() {
-    override fun visitBoolean(b: Boolean, p: Void?): Boolean? {
+    SimpleAnnotationValueVisitor8<Boolean?, Void>() {
+    override fun visitBoolean(b: Boolean, p: Void?): Boolean {
         return b
     }
 }
 
-@Suppress("DEPRECATION")
 private val ANNOTATION_VALUE_TO_STRING_VISITOR = object :
-    SimpleAnnotationValueVisitor6<String?, Void>() {
+    SimpleAnnotationValueVisitor8<String?, Void>() {
     override fun visitString(s: String?, p: Void?): String? {
         return s
     }
 }
 
-@Suppress("DEPRECATION")
 private val ANNOTATION_VALUE_STRING_ARR_VISITOR = object :
-    SimpleAnnotationValueVisitor6<List<String>, Void>() {
+    SimpleAnnotationValueVisitor8<List<String>, Void>() {
     override fun visitArray(vals: MutableList<out AnnotationValue>?, p: Void?): List<String> {
         return vals?.mapNotNull {
             ANNOTATION_VALUE_TO_STRING_VISITOR.visit(it)
@@ -218,9 +208,8 @@ private val ANNOTATION_VALUE_STRING_ARR_VISITOR = object :
     }
 }
 
-@Suppress("DEPRECATION")
 private val ANNOTATION_VALUE_INT_ARR_VISITOR = object :
-    SimpleAnnotationValueVisitor6<List<Int>, Void>() {
+    SimpleAnnotationValueVisitor8<List<Int>, Void>() {
     override fun visitArray(vals: MutableList<out AnnotationValue>?, p: Void?): List<Int> {
         return vals?.mapNotNull {
             ANNOTATION_VALUE_TO_INT_VISITOR.visit(it)
@@ -228,9 +217,8 @@ private val ANNOTATION_VALUE_INT_ARR_VISITOR = object :
     }
 }
 
-@Suppress("DEPRECATION")
 private val ANNOTATION_VALUE_DOUBLE_ARR_VISITOR = object :
-    SimpleAnnotationValueVisitor6<List<Double>, Void>() {
+    SimpleAnnotationValueVisitor8<List<Double>, Void>() {
     override fun visitArray(vals: MutableList<out AnnotationValue>?, p: Void?): List<Double> {
         return vals?.mapNotNull {
             ANNOTATION_VALUE_TO_DOUBLE_VISITOR.visit(it)
@@ -238,9 +226,8 @@ private val ANNOTATION_VALUE_DOUBLE_ARR_VISITOR = object :
     }
 }
 
-@Suppress("DEPRECATION")
 private val ANNOTATION_VALUE_FLOAT_ARR_VISITOR = object :
-    SimpleAnnotationValueVisitor6<List<Float>, Void>() {
+    SimpleAnnotationValueVisitor8<List<Float>, Void>() {
     override fun visitArray(vals: MutableList<out AnnotationValue>?, p: Void?): List<Float> {
         return vals?.mapNotNull {
             ANNOTATION_VALUE_TO_FLOAT_VISITOR.visit(it)
@@ -248,9 +235,8 @@ private val ANNOTATION_VALUE_FLOAT_ARR_VISITOR = object :
     }
 }
 
-@Suppress("DEPRECATION")
 private val ANNOTATION_VALUE_CHAR_ARR_VISITOR = object :
-    SimpleAnnotationValueVisitor6<List<Char>, Void>() {
+    SimpleAnnotationValueVisitor8<List<Char>, Void>() {
     override fun visitArray(vals: MutableList<out AnnotationValue>?, p: Void?): List<Char> {
         return vals?.mapNotNull {
             ANNOTATION_VALUE_TO_CHAR_VISITOR.visit(it)
@@ -258,9 +244,8 @@ private val ANNOTATION_VALUE_CHAR_ARR_VISITOR = object :
     }
 }
 
-@Suppress("DEPRECATION")
 private val ANNOTATION_VALUE_BYTE_ARR_VISITOR = object :
-    SimpleAnnotationValueVisitor6<List<Byte>, Void>() {
+    SimpleAnnotationValueVisitor8<List<Byte>, Void>() {
     override fun visitArray(vals: MutableList<out AnnotationValue>?, p: Void?): List<Byte> {
         return vals?.mapNotNull {
             ANNOTATION_VALUE_TO_BYTE_VISITOR.visit(it)
@@ -268,9 +253,8 @@ private val ANNOTATION_VALUE_BYTE_ARR_VISITOR = object :
     }
 }
 
-@Suppress("DEPRECATION")
 private val ANNOTATION_VALUE_SHORT_ARR_VISITOR = object :
-    SimpleAnnotationValueVisitor6<List<Short>, Void>() {
+    SimpleAnnotationValueVisitor8<List<Short>, Void>() {
     override fun visitArray(vals: MutableList<out AnnotationValue>?, p: Void?): List<Short> {
         return vals?.mapNotNull {
             ANNOTATION_VALUE_TO_SHORT_VISITOR.visit(it)
@@ -278,9 +262,8 @@ private val ANNOTATION_VALUE_SHORT_ARR_VISITOR = object :
     }
 }
 
-@Suppress("DEPRECATION")
 private val ANNOTATION_VALUE_LONG_ARR_VISITOR = object :
-    SimpleAnnotationValueVisitor6<List<Long>, Void>() {
+    SimpleAnnotationValueVisitor8<List<Long>, Void>() {
     override fun visitArray(vals: MutableList<out AnnotationValue>?, p: Void?): List<Long> {
         return vals?.mapNotNull {
             ANNOTATION_VALUE_TO_LONG_VISITOR.visit(it)
@@ -288,9 +271,8 @@ private val ANNOTATION_VALUE_LONG_ARR_VISITOR = object :
     }
 }
 
-@Suppress("DEPRECATION")
 private val ANNOTATION_VALUE_BOOLEAN_ARR_VISITOR = object :
-    SimpleAnnotationValueVisitor6<List<Boolean>, Void>() {
+    SimpleAnnotationValueVisitor8<List<Boolean>, Void>() {
     override fun visitArray(vals: MutableList<out AnnotationValue>?, p: Void?): List<Boolean> {
         return vals?.mapNotNull {
             ANNOTATION_VALUE_TO_BOOLEAN_VISITOR.visit(it)
@@ -372,9 +354,8 @@ private fun AnnotationValue.getAsStringList(): List<String> {
 
 // code below taken from dagger2
 // compiler/src/main/java/dagger/internal/codegen/ConfigurationAnnotations.java
-@Suppress("DEPRECATION")
 private val TO_LIST_OF_TYPES = object :
-    SimpleAnnotationValueVisitor6<List<TypeMirror>, Void?>() {
+    SimpleAnnotationValueVisitor8<List<TypeMirror>, Void?>() {
     override fun visitArray(values: MutableList<out AnnotationValue>?, p: Void?): List<TypeMirror> {
         return values?.mapNotNull {
             val tmp = TO_TYPE.visit(it)
@@ -382,13 +363,12 @@ private val TO_LIST_OF_TYPES = object :
         } ?: emptyList()
     }
 
-    override fun defaultAction(o: Any?, p: Void?): List<TypeMirror>? {
+    override fun defaultAction(o: Any?, p: Void?): List<TypeMirror> {
         return emptyList()
     }
 }
 
-@Suppress("DEPRECATION")
-private val TO_TYPE = object : SimpleAnnotationValueVisitor6<TypeMirror, Void>() {
+private val TO_TYPE = object : SimpleAnnotationValueVisitor8<TypeMirror, Void>() {
 
     override fun visitType(t: TypeMirror, p: Void?): TypeMirror {
         return t
@@ -419,12 +399,11 @@ private fun AnnotationValue.toClassType(env: JavacProcessingEnv): XType? {
     }
 }
 
-@Suppress("DEPRECATION")
 private class AnnotationListVisitor<T : Annotation>(
     private val env: JavacProcessingEnv,
     private val annotationClass: Class<T>
 ) :
-    SimpleAnnotationValueVisitor6<Array<JavacAnnotationBox<T>>, Void?>() {
+    SimpleAnnotationValueVisitor8<Array<JavacAnnotationBox<T>>, Void?>() {
     override fun visitArray(
         values: MutableList<out AnnotationValue>?,
         void: Void?
@@ -434,9 +413,8 @@ private class AnnotationListVisitor<T : Annotation>(
     }
 }
 
-@Suppress("DEPRECATION")
 private class EnumListVisitor<T : Enum<T>>(private val enumClass: Class<T>) :
-    SimpleAnnotationValueVisitor6<Array<T>, Void?>() {
+    SimpleAnnotationValueVisitor8<Array<T>, Void?>() {
     override fun visitArray(
         values: MutableList<out AnnotationValue>?,
         void: Void?
@@ -452,18 +430,17 @@ private class EnumListVisitor<T : Enum<T>>(private val enumClass: Class<T>) :
     }
 }
 
-@Suppress("DEPRECATION")
 private class AnnotationClassVisitor<T : Annotation>(
     private val env: JavacProcessingEnv,
     private val annotationClass: Class<T>
 ) :
-    SimpleAnnotationValueVisitor6<JavacAnnotationBox<T>?, Void?>() {
+    SimpleAnnotationValueVisitor8<JavacAnnotationBox<T>?, Void?>() {
     override fun visitAnnotation(a: AnnotationMirror?, v: Void?) = a?.box(env, annotationClass)
 }
 
-@Suppress("UNCHECKED_CAST", "DEPRECATION", "BanUncheckedReflection")
+@Suppress("UNCHECKED_CAST", "BanUncheckedReflection")
 private fun <T : Enum<*>> AnnotationValue.getAsEnum(enumClass: Class<T>): T {
-    return object : SimpleAnnotationValueVisitor6<T, Void>() {
+    return object : SimpleAnnotationValueVisitor8<T, Void>() {
         override fun visitEnumConstant(value: VariableElement?, p: Void?): T {
             return enumClass.getDeclaredMethod("valueOf", String::class.java)
                 .invoke(null, value!!.simpleName.toString()) as T

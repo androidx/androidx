@@ -177,6 +177,32 @@ class DatabaseProcessorTest {
                 """
         )
 
+        val PUBLISHER = Source.java(
+            "foo.bar.Publisher",
+            """
+                package foo.bar;
+                import androidx.room.*;
+                @Entity
+                public class Publisher {
+                    @PrimaryKey
+                    int publisherId;
+                }
+            """
+        )
+
+        val PUBLISHER_DAO = Source.java(
+            "foo.bar.PublisherDao",
+            """
+                package foo.bar;
+                import androidx.room.*;
+                @Dao
+                public interface PublisherDao {
+                    @Upsert
+                    public void upsert(Publisher publisher);
+                }
+            """
+        )
+
         val AUTOMIGRATION = Source.java(
             "foo.bar.MyAutoMigration",
             """
@@ -225,7 +251,7 @@ class DatabaseProcessorTest {
         ) { db, _ ->
             assertThat(db.daoMethods.size, `is`(2))
             assertThat(db.entities.size, `is`(2))
-            assertThat(db.daoMethods.map { it.name }, `is`(listOf("userDao", "bookDao")))
+            assertThat(db.daoMethods.map { it.element.jvmName }, `is`(listOf("userDao", "bookDao")))
             assertThat(
                 db.entities.map { it.type.typeName.toString() },
                 `is`(listOf("foo.bar.User", "foo.bar.Book"))
@@ -797,6 +823,29 @@ class DatabaseProcessorTest {
     }
 
     @Test
+    fun upsertNotReferencedEntity() {
+        singleDb(
+            """
+                @Database(entities = {User.class}, version = 42)
+                public abstract class MyDb extends RoomDatabase {
+                    abstract PublisherDao publisherDao();
+                }
+            """,
+            USER, USER_DAO, PUBLISHER, PUBLISHER_DAO
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasErrorContaining(
+                    ProcessorErrors.shortcutEntityIsNotInDatabase(
+                        database = "foo.bar.MyDb",
+                        dao = "foo.bar.PublisherDao",
+                        entity = "foo.bar.Publisher"
+                    )
+                )
+            }
+        }
+    }
+
+    @Test
     fun cache_entity() {
         singleDb(
             """
@@ -825,11 +874,11 @@ class DatabaseProcessorTest {
             USER, USER_DAO
         ) { db, _ ->
             val userDao = db.daoMethods.first().dao
-            val insertionMethod = userDao.insertionMethods.find { it.name == "insert" }
+            val insertionMethod = userDao.insertionMethods.find { it.element.jvmName == "insert" }
             assertThat(insertionMethod, notNullValue())
             val loadOne = userDao.queryMethods
                 .filterIsInstance<ReadQueryMethod>()
-                .find { it.name == "loadOne" }
+                .find { it.element.jvmName == "loadOne" }
             assertThat(loadOne, notNullValue())
             val adapter = loadOne?.queryResultBinder?.adapter?.rowAdapters?.single()
             assertThat("test sanity", adapter, instanceOf(EntityRowAdapter::class.java))
@@ -841,7 +890,7 @@ class DatabaseProcessorTest {
 
             val withConverter = userDao.queryMethods
                 .filterIsInstance<ReadQueryMethod>()
-                .find { it.name == "loadWithConverter" }
+                .find { it.element.jvmName == "loadWithConverter" }
             assertThat(withConverter, notNullValue())
             val convAdapter = withConverter?.queryResultBinder?.adapter?.rowAdapters?.single()
             assertThat("test sanity", adapter, instanceOf(EntityRowAdapter::class.java))
@@ -870,7 +919,7 @@ class DatabaseProcessorTest {
             val userDao = db.daoMethods.first().dao
             val loadOne = userDao.queryMethods
                 .filterIsInstance<ReadQueryMethod>()
-                .find { it.name == "loadOnePojo" }
+                .find { it.element.jvmName == "loadOnePojo" }
             assertThat(loadOne, notNullValue())
             val adapter = loadOne?.queryResultBinder?.adapter?.rowAdapters?.single()
             assertThat("test sanity", adapter, instanceOf(PojoRowAdapter::class.java))
@@ -878,7 +927,7 @@ class DatabaseProcessorTest {
 
             val loadAll = userDao.queryMethods
                 .filterIsInstance<ReadQueryMethod>()
-                .find { it.name == "loadAllPojos" }
+                .find { it.element.jvmName == "loadAllPojos" }
             assertThat(loadAll, notNullValue())
             val loadAllAdapter = loadAll?.queryResultBinder?.adapter?.rowAdapters?.single()
             assertThat("test sanity", loadAllAdapter, instanceOf(PojoRowAdapter::class.java))
@@ -888,7 +937,7 @@ class DatabaseProcessorTest {
 
             val withConverter = userDao.queryMethods
                 .filterIsInstance<ReadQueryMethod>()
-                .find { it.name == "loadPojoWithConverter" }
+                .find { it.element.jvmName == "loadPojoWithConverter" }
             assertThat(withConverter, notNullValue())
             val convAdapter = withConverter?.queryResultBinder?.adapter?.rowAdapters?.single()
             assertThat("test sanity", adapter, instanceOf(PojoRowAdapter::class.java))
@@ -1155,19 +1204,9 @@ class DatabaseProcessorTest {
                 baseContext = invocation.context,
                 element = element
             ).process()
-            assertThat(result.daoMethods).hasSize(
-                // for KSP, it will still show as a method, just bad return type
-                if (invocation.isKsp) 1 else 0
-            )
+            assertThat(result.daoMethods).hasSize(0)
             invocation.assertCompilationResult {
-                hasErrorContaining(
-                    if (invocation.isKsp) {
-                        // no primitives in KSP hence we'll get another error
-                        ProcessorErrors.DAO_MUST_BE_ANNOTATED_WITH_DAO
-                    } else {
-                        ProcessorErrors.DATABASE_INVALID_DAO_METHOD_RETURN_TYPE
-                    }
-                )
+                hasErrorContaining(ProcessorErrors.DATABASE_INVALID_DAO_METHOD_RETURN_TYPE)
             }
         }
     }
@@ -1425,7 +1464,7 @@ class DatabaseProcessorTest {
                     arrayOf(URL("file://${resolverLib.absolutePath}")),
                     currentClassLoader,
                 )
-                DatabaseProcessingStep().process(invocation.processingEnv, roundElements)
+                DatabaseProcessingStep().process(invocation.processingEnv, roundElements, false)
             } finally {
                 Thread.currentThread().contextClassLoader = currentClassLoader
             }
@@ -1435,6 +1474,39 @@ class DatabaseProcessorTest {
         assertThat(
             File(schemaFolder.root, "schemas/foo.bar.MyDb/1.json").exists()
         ).isTrue()
+    }
+
+    @Test
+    fun jvmNameOnDaoMethod() {
+        val jvmNameInDaoGetter = Source.kotlin(
+            "MyDb.kt",
+            """
+                package foo.bar;
+                import androidx.room.*;
+                @Dao
+                interface MyDao
+                @Entity
+                data class MyEntity(@PrimaryKey val id:Int)
+                @Database(version = 1, entities = [MyEntity::class])
+                abstract class MyDb: RoomDatabase() {
+                    @Suppress("INAPPLICABLE_JVM_NAME")
+                    @get:JvmName("jvmDao")
+                    abstract val dao: MyDao
+                }
+                """
+        )
+        runProcessorTest(sources = listOf(jvmNameInDaoGetter)) { invocation ->
+            val element = invocation.processingEnv.requireTypeElement("foo.bar.MyDb")
+            DatabaseProcessor(
+                baseContext = invocation.context,
+                element = element
+            ).process()
+            invocation.assertCompilationResult {
+                hasWarningContaining(
+                    ProcessorErrors.JVM_NAME_ON_OVERRIDDEN_METHOD
+                )
+            }
+        }
     }
 
     private fun resolveDatabaseViews(

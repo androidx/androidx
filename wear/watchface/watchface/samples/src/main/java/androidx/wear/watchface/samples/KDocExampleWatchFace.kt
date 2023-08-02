@@ -127,11 +127,11 @@ fun kDocCreateExampleWatchFaceService(): WatchFaceService {
                             ComplicationType.SMALL_IMAGE
                         ),
                         DefaultComplicationDataSourcePolicy(
-                            SystemDataSources.DATA_SOURCE_DAY_OF_WEEK
+                            SystemDataSources.DATA_SOURCE_DAY_OF_WEEK,
+                            ComplicationType.SHORT_TEXT
                         ),
                         ComplicationSlotBounds(RectF(0.15625f, 0.1875f, 0.84375f, 0.3125f))
-                    ).setDefaultDataSourceType(ComplicationType.SHORT_TEXT)
-                        .build(),
+                    ).build(),
                     ComplicationSlot.createRoundRectComplicationSlotBuilder(
                         /*id */ 1,
                         canvasComplicationFactory,
@@ -143,14 +143,19 @@ fun kDocCreateExampleWatchFaceService(): WatchFaceService {
                             ComplicationType.SMALL_IMAGE
                         ),
                         DefaultComplicationDataSourcePolicy(
-                            SystemDataSources.DATA_SOURCE_STEP_COUNT
+                            SystemDataSources.DATA_SOURCE_STEP_COUNT,
+                            ComplicationType.SHORT_TEXT
                         ),
                         ComplicationSlotBounds(RectF(0.1f, 0.5625f, 0.35f, 0.8125f))
-                    ).setDefaultDataSourceType(ComplicationType.SHORT_TEXT)
-                        .build()
+                    ).build()
                 ),
                 currentUserStyleRepository
             )
+        }
+
+        inner class MySharedAssets : Renderer.SharedAssets {
+            override fun onDestroy() {
+            }
         }
 
         override suspend fun createWatchFace(
@@ -160,12 +165,13 @@ fun kDocCreateExampleWatchFaceService(): WatchFaceService {
             currentUserStyleRepository: CurrentUserStyleRepository
         ) = WatchFace(
             WatchFaceType.ANALOG,
-            object : Renderer.CanvasRenderer(
+            object : Renderer.CanvasRenderer2<MySharedAssets>(
                 surfaceHolder,
                 currentUserStyleRepository,
                 watchState,
                 CanvasType.HARDWARE,
-                /* interactiveUpdateRateMillis */ 16,
+                interactiveDrawModeUpdateDelayMillis = 16,
+                clearWithBackgroundTintBeforeRenderingHighlightLayer = true
             ) {
                 init {
                     // Listen for user style changes.
@@ -180,7 +186,8 @@ fun kDocCreateExampleWatchFaceService(): WatchFaceService {
                 override fun render(
                     canvas: Canvas,
                     bounds: Rect,
-                    zonedDateTime: ZonedDateTime
+                    zonedDateTime: ZonedDateTime,
+                    sharedAssets: MySharedAssets
                 ) {
                     // ...
                 }
@@ -188,11 +195,17 @@ fun kDocCreateExampleWatchFaceService(): WatchFaceService {
                 override fun renderHighlightLayer(
                     canvas: Canvas,
                     bounds: Rect,
-                    zonedDateTime: ZonedDateTime
+                    zonedDateTime: ZonedDateTime,
+                    sharedAssets: MySharedAssets
                 ) {
                     canvas.drawColor(renderParameters.highlightLayer!!.backgroundTint)
 
                     // ...
+                }
+
+                override suspend fun createSharedAssets(): MySharedAssets {
+                    // Insert resource loading here.
+                    return MySharedAssets()
                 }
             }
         )

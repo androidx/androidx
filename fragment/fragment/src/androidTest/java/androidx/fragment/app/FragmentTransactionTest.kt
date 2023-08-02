@@ -447,6 +447,36 @@ class FragmentTransactionTest {
         }
     }
 
+    /**
+     * onNewIntent() should note that the state is not saved so that child fragment
+     * managers can execute transactions in an Consumer for OnNewIntent
+     */
+    @Test
+    fun newIntentProviderUnlocks() {
+        val instrumentation = InstrumentationRegistry.getInstrumentation()
+        val intent1 = Intent(activity, NewIntentProviderActivity::class.java)
+            .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        val newIntentActivity = instrumentation.startActivitySync(intent1)
+            as NewIntentProviderActivity
+        activityRule.waitForExecution()
+
+        val intent2 = Intent(activity, FragmentTestActivity::class.java)
+        intent2.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+        instrumentation.startActivitySync(intent2)
+        activityRule.waitForExecution()
+
+        val intent3 = Intent(activity, NewIntentProviderActivity::class.java)
+            .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        activity.startActivity(intent3)
+        assertThat(newIntentActivity.newIntent.await(1, TimeUnit.SECONDS)).isTrue()
+        activityRule.waitForExecution()
+
+        for (fragment in newIntentActivity.supportFragmentManager.fragments) {
+            // There really should only be one fragment in newIntentActivity.
+            assertThat(fragment.childFragmentManager.fragments.size).isEqualTo(1)
+        }
+    }
+
     private fun getFragmentsUntilSize(expectedSize: Int) {
         val endTime = SystemClock.uptimeMillis() + 3000
 

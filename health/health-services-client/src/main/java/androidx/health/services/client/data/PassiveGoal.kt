@@ -16,96 +16,86 @@
 
 package androidx.health.services.client.data
 
-import android.content.Intent
-import android.os.Parcelable
 import androidx.health.services.client.proto.DataProto.PassiveGoal as PassiveGoalProto
+import androidx.annotation.IntDef
+import androidx.annotation.RestrictTo
+import androidx.health.services.client.data.PassiveGoal.TriggerFrequency.Companion.toProto
 
 /** Defines an passive goal that will be triggered when the specified condition is met. */
 @Suppress("ParcelCreator")
-public class PassiveGoal(
+class PassiveGoal(
     /** [DataTypeCondition] which must be met for the passive goal to be triggered. */
-    public val dataTypeCondition: DataTypeCondition,
-    public val triggerType: TriggerType,
-) : ProtoParcelable<PassiveGoalProto>() {
+    val dataTypeCondition: DataTypeCondition<out Number, out DeltaDataType<out Number, *>>,
+    /** Frequency this goal should trigger, which is expected to be a  */
+    @TriggerFrequency val triggerFrequency: Int,
+) {
 
     internal constructor(
         proto: PassiveGoalProto
     ) : this(
-        DataTypeCondition(proto.condition),
-        TriggerType.fromProto(proto.triggerType)
-            ?: throw IllegalStateException("Invalid TriggerType ${proto.triggerType}")
+        DataTypeCondition.deltaFromProto(proto.condition),
+        TriggerFrequency.fromProto(proto.triggerFrequency)
     )
 
-    /** @hide */
-    override val proto: PassiveGoalProto by lazy {
-        PassiveGoalProto.newBuilder()
-            .setCondition(dataTypeCondition.proto)
-            .setTriggerType(triggerType.toProto())
-            .build()
+    internal val proto: PassiveGoalProto =
+        PassiveGoalProto.newBuilder().setCondition(dataTypeCondition.proto)
+            .setTriggerFrequency(triggerFrequency.toProto()).build()
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is PassiveGoal) return false
+        if (dataTypeCondition != other.dataTypeCondition) return false
+        if (triggerFrequency != other.triggerFrequency) return false
+
+        return true
     }
 
-    /**
-     * Puts the goal as an extra into a given [Intent]. The state can then be obtained from the
-     * intent via [PassiveGoal.fromIntent].
-     */
-    public fun putToIntent(intent: Intent) {
-        intent.putExtra(EXTRA_KEY, this)
+    override fun hashCode(): Int {
+        var result = dataTypeCondition.hashCode()
+        result = 31 * result + triggerFrequency
+        return result
     }
 
     override fun toString(): String =
-        "PassiveGoal(dataTypeCondition=$dataTypeCondition, triggerType=$triggerType)"
-
-    /** Whether or not repeated passive goals should be triggered. */
-    public enum class TriggerType(public val id: Int) {
-        /** The passive goal will trigger the first time the specified conditions are met. */
-        ONCE(1),
-
-        /**
-         * The passive goal will trigger each time the specified conditions *become* met. Repeated
-         * goals on daily metrics will trigger once per day.
-         */
-        REPEATED(2);
-
-        /** @hide */
-        public fun toProto(): PassiveGoalProto.TriggerType =
-            PassiveGoalProto.TriggerType.forNumber(id)
-                ?: PassiveGoalProto.TriggerType.TRIGGER_TYPE_UNKNOWN
-
-        public companion object {
-            @JvmStatic
-            public fun fromId(id: Int): TriggerType? = values().firstOrNull { it.id == id }
-
-            /** @hide */
-            public fun fromProto(proto: PassiveGoalProto.TriggerType): TriggerType? =
-                fromId(proto.number)
-        }
-    }
+        "PassiveGoal(dataTypeCondition=$dataTypeCondition, triggerFrequency=$triggerFrequency)"
 
     /**
-     * Does the provided [DataPoint] satisfy the passive goal condition.
+     * The frequency at which passive goals should be triggered.
      *
-     * @throws IllegalArgumentException if the provided data point is not of the same data type as
-     * the condition itself.
+     * @hide
      */
-    public fun isTriggered(dataPoint: DataPoint): Boolean {
-        return dataTypeCondition.isSatisfied(dataPoint)
-    }
+    @Retention(AnnotationRetention.SOURCE)
+    @IntDef(
+        TriggerFrequency.ONCE,
+        TriggerFrequency.REPEATED,
+    )
+    annotation class TriggerFrequency {
 
-    public companion object {
-        private const val EXTRA_KEY = "hs.passive_goal"
-        @Suppress("ActionValue") public const val ACTION_GOAL: String = "hs.passivemonitoring.GOAL"
+        companion object {
+            /** TriggerFrequency is an unknown or unexpected value. */
+            const val UNKNOWN: Int = 0
 
-        @JvmField
-        public val CREATOR: Parcelable.Creator<PassiveGoal> = newCreator { bytes ->
-            val proto = PassiveGoalProto.parseFrom(bytes)
-            PassiveGoal(proto)
+            /** The passive goal will trigger the first time the specified conditions are met. */
+            const val ONCE: Int = 1
+
+            /**
+             * The passive goal will trigger *each time* the specified conditions become met.
+             * Repeated goals on daily metrics will trigger once per day.
+             */
+            const val REPEATED: Int = 2
+
+            /** @hide */
+            @RestrictTo(RestrictTo.Scope.LIBRARY)
+            internal fun @receiver:TriggerFrequency
+            Int.toProto(): PassiveGoalProto.TriggerFrequency =
+                PassiveGoalProto.TriggerFrequency.forNumber(this)
+                    ?: PassiveGoalProto.TriggerFrequency.TRIGGER_FREQUENCY_UNKNOWN
+
+            /** @hide */
+            @RestrictTo(RestrictTo.Scope.LIBRARY)
+            @TriggerFrequency
+            @Suppress("WrongConstant")
+            fun fromProto(proto: PassiveGoalProto.TriggerFrequency): Int = proto.number
         }
-
-        /**
-         * Creates a [PassiveGoal] from an [Intent]. Returns null if no [PassiveGoal] is stored in
-         * the given intent.
-         */
-        @JvmStatic
-        public fun fromIntent(intent: Intent): PassiveGoal? = intent.getParcelableExtra(EXTRA_KEY)
     }
 }

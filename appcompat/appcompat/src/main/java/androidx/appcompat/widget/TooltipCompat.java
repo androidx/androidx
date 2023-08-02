@@ -32,11 +32,14 @@ import androidx.annotation.RequiresApi;
 public class TooltipCompat  {
     /**
      * Sets the tooltip text for the view.
-     * <p> Prior to API 26 this method sets or clears (when tooltip is null) the view's
-     * OnLongClickListener and OnHoverListener. A toast-like subpanel will be created on long click
-     * or mouse hover.
+     * <p>
+     * On API 26 and later, this method calls through to {@link View#setTooltipText(CharSequence)}.
+     * <p>
+     * Prior to API 26, this method sets or clears (when tooltipText is {@code null}) the view's
+     * {@code OnLongClickListener} and {@code OnHoverListener}. A tooltip-like sub-panel will be
+     * created on long-click or mouse hover.
      *
-     * @param view the view to set the tooltip text on
+     * @param view the view on which to set the tooltip text
      * @param tooltipText the tooltip text
      */
     public static void setTooltipText(@NonNull View view, @Nullable CharSequence tooltipText) {

@@ -26,6 +26,7 @@ import static org.junit.Assert.assertThrows;
 import androidx.car.app.TestUtils;
 import androidx.car.app.model.CarIcon;
 import androidx.car.app.model.CarText;
+import androidx.core.graphics.drawable.IconCompat;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -149,6 +150,18 @@ public class StepTest {
         assertThrows(
                 IllegalStateException.class,
                 () -> new Step.Builder(cue).setLanesImage(CarIcon.APP_ICON).build());
+    }
+
+    @Test
+    public void createInstance_lanesImage_type_uri_throws() {
+        String cue = "Left at State street.";
+        Lane lane = new Lane.Builder().addDirection(
+                LaneDirection.create(SHAPE_SHARP_LEFT, true)).build();
+        CarIcon uriIcon =
+                new CarIcon.Builder(IconCompat.createWithContentUri("content://fake.uri")).build();
+
+        assertThrows(IllegalArgumentException.class,
+                ()-> new Step.Builder(cue).addLane(lane).setLanesImage(uriIcon).build());
     }
 
     @Test

@@ -138,6 +138,7 @@ public class CustomTabsClient {
      * @param ignoreDefault If set, the default VIEW handler won't get priority over other browsers.
      * @return The preferred package name for handling Custom Tabs, or <code>null</code>.
      */
+    @SuppressWarnings("deprecation")
     public static @Nullable String getPackageName(
             @NonNull Context context, @Nullable List<String> packages, boolean ignoreDefault) {
         PackageManager pm = context.getPackageManager();

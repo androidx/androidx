@@ -30,6 +30,12 @@ import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.test.core.app.ApplicationProvider
 import androidx.core.remoteviews.test.R
+import androidx.core.widget.RemoteViewsCompat.setLinearLayoutWeightSum
+import androidx.core.widget.RemoteViewsCompat.setTextViewError
+import androidx.core.widget.RemoteViewsCompat.setTextViewHint
+import androidx.core.widget.RemoteViewsCompat.setTextViewMaxLines
+import androidx.core.widget.RemoteViewsCompat.setViewBackgroundColorResource
+import androidx.core.widget.RemoteViewsCompat.setViewEnabled
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before

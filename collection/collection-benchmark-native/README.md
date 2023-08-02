@@ -5,16 +5,16 @@ platforms. Currently only macOS (x86_64) is supported.
 
 To build, run in the collection project root:
 
-    ./gradlew :collection:collection-benchmark-native:assemble
+    ./gradlew --no-configuration-cache -Pandroidx.github.build=true :collection:collection-benchmark-native:assemble
 
 Then execute the resulting binary at:
 
-    ../out/collection-playground/collection-playground/collection/collection-benchmark-native/build/install/main/debug/collection-benchmark-native
+    ../../out/androidx/collection/collection-benchmark-native/build/exe/main/debug/collection-benchmark-native
 
 The output will look something like this:
 
 ```
-Running ../out/collection-playground/collection-playground/collection/collection-benchmark-native/build/install/main/debug/lib/collection-benchmark-native
+Running ../../out/collection-playground/collection-playground/collection/collection-benchmark-native/build/install/main/debug/lib/collection-benchmark-native
 Run on (12 X 2900 MHz CPU s)
 CPU Caches:
   L1 Data 32 KiB (x6)

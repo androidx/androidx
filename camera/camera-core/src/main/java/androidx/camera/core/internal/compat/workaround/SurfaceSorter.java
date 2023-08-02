@@ -23,6 +23,7 @@ import androidx.annotation.RequiresApi;
 import androidx.camera.core.Preview;
 import androidx.camera.core.VideoCapture;
 import androidx.camera.core.impl.DeferrableSurface;
+import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.internal.compat.quirk.DeviceQuirks;
 import androidx.camera.core.internal.compat.quirk.SurfaceOrderQuirk;
 
@@ -30,30 +31,32 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Workaround that put {@link Preview} surface in front of the {@link MediaCodec} surface
+ * Workaround that put {@link Preview} surface in front of the list and {@link MediaCodec}
+ * surface in the end of list.
  *
  * @see SurfaceOrderQuirk
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class SurfaceSorter {
     // The larger priority value will be placed at the back of the list.
-    private static final int PRIORITY_MEDIA_CODEC_SURFACE = 1;
-    private static final int PRIORITY_OTHERS = 0;
+    private static final int PRIORITY_PREVIEW_SURFACE = 0;
+    private static final int PRIORITY_OTHERS = 1;
+    private static final int PRIORITY_MEDIA_CODEC_SURFACE = 2;
 
     private final boolean mHasQuirk = DeviceQuirks.get(SurfaceOrderQuirk.class) != null;
 
     /**
      * Sorts the list to prevent from the device specific issue.
      *
-     * @param surfaces the input surface list to sort, must be a mutable list.
+     * @param outputConfigs the input OutputConfig list to sort, must be a mutable list.
      */
-    public void sort(@NonNull List<DeferrableSurface> surfaces) {
+    public void sort(@NonNull List<SessionConfig.OutputConfig> outputConfigs) {
         if (!mHasQuirk) {
             return;
         }
-        Collections.sort(surfaces, (surface1, surface2) -> {
-            int p1 = getSurfacePriority(surface1);
-            int p2 = getSurfacePriority(surface2);
+        Collections.sort(outputConfigs, (outputConfig1, outputConfig2) -> {
+            int p1 = getSurfacePriority(outputConfig1.getSurface());
+            int p2 = getSurfacePriority(outputConfig2.getSurface());
             return p1 - p2;
         });
     }
@@ -62,6 +65,8 @@ public class SurfaceSorter {
         if (surface.getContainerClass() == MediaCodec.class
                 || surface.getContainerClass() == VideoCapture.class) {
             return PRIORITY_MEDIA_CODEC_SURFACE;
+        } else if (surface.getContainerClass() == Preview.class) {
+            return PRIORITY_PREVIEW_SURFACE;
         }
         return PRIORITY_OTHERS;
     }

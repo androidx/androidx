@@ -19,16 +19,20 @@ package androidx.room.solver.query.result
 import androidx.room.compiler.processing.XType
 import androidx.room.ext.L
 import androidx.room.ext.T
+import androidx.room.parser.ParsedQuery
+import androidx.room.processor.Context
 import androidx.room.solver.CodeGenScope
 import com.google.common.collect.ImmutableMap
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.ParameterizedTypeName
 
 class ImmutableMapQueryResultAdapter(
+    context: Context,
+    parsedQuery: ParsedQuery,
     override val keyTypeArg: XType,
     override val valueTypeArg: XType,
     private val resultAdapter: QueryResultAdapter
-) : QueryResultAdapter(resultAdapter.rowAdapters), MultimapQueryResultAdapter {
+) : MultimapQueryResultAdapter(context, parsedQuery, resultAdapter.rowAdapters) {
     override fun convert(outVarName: String, cursorVarName: String, scope: CodeGenScope) {
         scope.builder().apply {
             val mapVarName = scope.getTmpVar("_mapResult")

@@ -60,7 +60,7 @@ abstract class MigrationDbKotlin : RoomDatabase() {
     @Entity
     data class Entity3(
         @PrimaryKey var id: Int = 0,
-        @Ignore var removedInV5: String?,
+        @get:Ignore var removedInV5: String?,
         var name: String?
     ) { // added in version 4, removed at 6
         companion object {

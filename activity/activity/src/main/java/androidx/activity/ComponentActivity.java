@@ -28,6 +28,7 @@ import static androidx.activity.result.contract.ActivityResultContracts.StartInt
 import static androidx.activity.result.contract.ActivityResultContracts.StartIntentSenderForResult.ACTION_INTENT_SENDER_REQUEST;
 import static androidx.activity.result.contract.ActivityResultContracts.StartIntentSenderForResult.EXTRA_INTENT_SENDER_REQUEST;
 import static androidx.activity.result.contract.ActivityResultContracts.StartIntentSenderForResult.EXTRA_SEND_INTENT_EXCEPTION;
+import static androidx.lifecycle.SavedStateHandleSupport.enableSavedStateHandles;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -36,6 +37,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -46,6 +48,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.window.OnBackInvokedDispatcher;
 
 import androidx.activity.contextaware.ContextAware;
 import androidx.activity.contextaware.ContextAwareHelper;
@@ -59,14 +62,25 @@ import androidx.activity.result.IntentSenderRequest;
 import androidx.activity.result.contract.ActivityResultContract;
 import androidx.annotation.CallSuper;
 import androidx.annotation.ContentView;
+import androidx.annotation.DoNotInline;
 import androidx.annotation.LayoutRes;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.ActivityOptionsCompat;
+import androidx.core.app.MultiWindowModeChangedInfo;
+import androidx.core.app.OnMultiWindowModeChangedProvider;
+import androidx.core.app.OnNewIntentProvider;
+import androidx.core.app.OnPictureInPictureModeChangedProvider;
+import androidx.core.app.PictureInPictureModeChangedInfo;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.OnConfigurationChangedProvider;
+import androidx.core.content.OnTrimMemoryProvider;
+import androidx.core.os.BuildCompat;
+import androidx.core.util.Consumer;
 import androidx.core.view.MenuHost;
 import androidx.core.view.MenuHostHelper;
 import androidx.core.view.MenuProvider;
@@ -76,18 +90,22 @@ import androidx.lifecycle.LifecycleEventObserver;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LifecycleRegistry;
 import androidx.lifecycle.ReportFragment;
+import androidx.lifecycle.SavedStateHandleSupport;
 import androidx.lifecycle.SavedStateViewModelFactory;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelStore;
 import androidx.lifecycle.ViewModelStoreOwner;
 import androidx.lifecycle.ViewTreeLifecycleOwner;
 import androidx.lifecycle.ViewTreeViewModelStoreOwner;
+import androidx.lifecycle.viewmodel.CreationExtras;
+import androidx.lifecycle.viewmodel.MutableCreationExtras;
 import androidx.savedstate.SavedStateRegistry;
 import androidx.savedstate.SavedStateRegistryController;
 import androidx.savedstate.SavedStateRegistryOwner;
 import androidx.savedstate.ViewTreeSavedStateRegistryOwner;
 import androidx.tracing.Trace;
 
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -106,6 +124,11 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
         OnBackPressedDispatcherOwner,
         ActivityResultRegistryOwner,
         ActivityResultCaller,
+        OnConfigurationChangedProvider,
+        OnTrimMemoryProvider,
+        OnNewIntentProvider,
+        OnMultiWindowModeChangedProvider,
+        OnPictureInPictureModeChangedProvider,
         MenuHost {
 
     static final class NonConfigurationInstances {
@@ -128,11 +151,12 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
 
     private final OnBackPressedDispatcher mOnBackPressedDispatcher =
             new OnBackPressedDispatcher(new Runnable() {
+                @SuppressWarnings("deprecation")
                 @Override
                 public void run() {
                     // Calling onBackPressed() on an Activity with its state saved can cause an
-                    // error on devices on API levels before 26. We catch that specific error and
-                    // throw all others.
+                    // error on devices on API levels before 26. We catch that specific error
+                    // and throw all others.
                     try {
                         ComponentActivity.super.onBackPressed();
                     } catch (IllegalStateException e) {
@@ -151,6 +175,7 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
 
     private final ActivityResultRegistry mActivityResultRegistry = new ActivityResultRegistry() {
 
+        @SuppressWarnings("deprecation")
         @Override
         public <I, O> void onLaunch(
                 final int requestCode,
@@ -220,6 +245,20 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
         }
     };
 
+    private final CopyOnWriteArrayList<Consumer<Configuration>> mOnConfigurationChangedListeners =
+            new CopyOnWriteArrayList<>();
+    private final CopyOnWriteArrayList<Consumer<Integer>> mOnTrimMemoryListeners =
+            new CopyOnWriteArrayList<>();
+    private final CopyOnWriteArrayList<Consumer<Intent>> mOnNewIntentListeners =
+            new CopyOnWriteArrayList<>();
+    private final CopyOnWriteArrayList<Consumer<MultiWindowModeChangedInfo>>
+            mOnMultiWindowModeChangedListeners = new CopyOnWriteArrayList<>();
+    private final CopyOnWriteArrayList<Consumer<PictureInPictureModeChangedInfo>>
+            mOnPictureInPictureModeChangedListeners = new CopyOnWriteArrayList<>();
+
+    private boolean mDispatchingOnMultiWindowModeChanged = false;
+    private boolean mDispatchingOnPictureInPictureModeChanged = false;
+
     /**
      * Default constructor for ComponentActivity. All Activities must have a default constructor
      * for API 27 and lower devices or when using the default
@@ -271,6 +310,8 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
                 getLifecycle().removeObserver(this);
             }
         });
+        mSavedStateRegistryController.performAttach();
+        enableSavedStateHandles(this);
 
         if (19 <= SDK_INT && SDK_INT <= 23) {
             getLifecycle().addObserver(new ImmLeaksCleaner(this));
@@ -312,6 +353,7 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
      * If your ComponentActivity is annotated with {@link ContentView}, this will
      * call {@link #setContentView(int)} for you.
      */
+    @OptIn(markerClass = BuildCompat.PrereleaseSdkCheck.class)
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         // Restore the Saved State first so that it is available to
@@ -320,6 +362,11 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
         mContextAwareHelper.dispatchOnContextAvailable(this);
         super.onCreate(savedInstanceState);
         ReportFragment.injectIfNeededIn(this);
+        if (BuildCompat.isAtLeastT()) {
+            mOnBackPressedDispatcher.setOnBackInvokedDispatcher(
+                    Api33Impl.getOnBackInvokedDispatcher(this)
+            );
+        }
         if (mContentLayoutId != 0) {
             setContentView(mContentLayoutId);
         }
@@ -429,6 +476,7 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
         ViewTreeLifecycleOwner.set(getWindow().getDecorView(), this);
         ViewTreeViewModelStoreOwner.set(getWindow().getDecorView(), this);
         ViewTreeSavedStateRegistryOwner.set(getWindow().getDecorView(), this);
+        ViewTreeOnBackPressedDispatcherOwner.set(getWindow().getDecorView(), this);
     }
 
     @Nullable
@@ -459,18 +507,38 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
     }
 
     @Override
-    public boolean onCreateOptionsMenu(@NonNull Menu menu) {
-        super.onCreateOptionsMenu(menu);
-        mMenuHostHelper.onCreateMenu(menu, getMenuInflater());
+    public boolean onPreparePanel(int featureId, @Nullable View view, @NonNull Menu menu) {
+        if (featureId == Window.FEATURE_OPTIONS_PANEL) {
+            super.onPreparePanel(featureId, view, menu);
+            mMenuHostHelper.onPrepareMenu(menu);
+        }
         return true;
     }
 
     @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if (super.onOptionsItemSelected(item)) {
+    public boolean onCreatePanelMenu(int featureId, @NonNull Menu menu) {
+        if (featureId == Window.FEATURE_OPTIONS_PANEL) {
+            super.onCreatePanelMenu(featureId, menu);
+            mMenuHostHelper.onCreateMenu(menu, getMenuInflater());
+        }
+        return true;
+    }
+
+    @Override
+    public boolean onMenuItemSelected(int featureId, @NonNull MenuItem item) {
+        if (super.onMenuItemSelected(featureId, item)) {
             return true;
         }
-        return mMenuHostHelper.onMenuItemSelected(item);
+        if (featureId == Window.FEATURE_OPTIONS_PANEL) {
+            return mMenuHostHelper.onMenuItemSelected(item);
+        }
+        return false;
+    }
+
+    @Override
+    public void onPanelClosed(int featureId, @NonNull Menu menu) {
+        mMenuHostHelper.onMenuClosed(menu);
+        super.onPanelClosed(featureId, menu);
     }
 
     @Override
@@ -555,20 +623,9 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
         }
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The extras of {@link #getIntent()} when this is first called will be used as
-     * the defaults to any {@link androidx.lifecycle.SavedStateHandle} passed to a view model
-     * created using this factory.</p>
-     */
     @NonNull
     @Override
     public ViewModelProvider.Factory getDefaultViewModelProviderFactory() {
-        if (getApplication() == null) {
-            throw new IllegalStateException("Your activity is not yet attached to the "
-                    + "Application instance. You can't request ViewModel before onCreate call.");
-        }
         if (mDefaultFactory == null) {
             mDefaultFactory = new SavedStateViewModelFactory(
                     getApplication(),
@@ -579,6 +636,29 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
     }
 
     /**
+     * {@inheritDoc}
+     *
+     * <p>The extras of {@link #getIntent()} when this is first called will be used as
+     * the defaults to any {@link androidx.lifecycle.SavedStateHandle} passed to a view model
+     * created using this extra.</p>
+     */
+    @NonNull
+    @Override
+    @CallSuper
+    public CreationExtras getDefaultViewModelCreationExtras() {
+        MutableCreationExtras extras = new MutableCreationExtras();
+        if (getApplication() != null) {
+            extras.set(ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY, getApplication());
+        }
+        extras.set(SavedStateHandleSupport.SAVED_STATE_REGISTRY_OWNER_KEY, this);
+        extras.set(SavedStateHandleSupport.VIEW_MODEL_STORE_OWNER_KEY, this);
+        if (getIntent() != null && getIntent().getExtras() != null) {
+            extras.set(SavedStateHandleSupport.DEFAULT_ARGS_KEY, getIntent().getExtras());
+        }
+        return extras;
+    }
+
+    /**
      * Called when the activity has detected the user's press of the back
      * key. The {@link #getOnBackPressedDispatcher() OnBackPressedDispatcher} will be given a
      * chance to handle the back button before the default behavior of
@@ -586,6 +666,7 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
      *
      * @see #getOnBackPressedDispatcher()
      */
+    @SuppressWarnings("deprecation")
     @Override
     @MainThread
     public void onBackPressed() {
@@ -623,7 +704,7 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
      */
     @Override
     @Deprecated
-    public void startActivityForResult(@SuppressLint("UnknownNullness") Intent intent,
+    public void startActivityForResult(@NonNull Intent intent,
             int requestCode) {
         super.startActivityForResult(intent, requestCode);
     }
@@ -642,7 +723,7 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
      */
     @Override
     @Deprecated
-    public void startActivityForResult(@SuppressLint("UnknownNullness") Intent intent,
+    public void startActivityForResult(@NonNull Intent intent,
             int requestCode, @Nullable Bundle options) {
         super.startActivityForResult(intent, requestCode, options);
     }
@@ -662,7 +743,7 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
      */
     @Override
     @Deprecated
-    public void startIntentSenderForResult(@SuppressLint("UnknownNullness") IntentSender intent,
+    public void startIntentSenderForResult(@NonNull IntentSender intent,
             int requestCode, @Nullable Intent fillInIntent, int flagsMask, int flagsValues,
             int extraFlags)
             throws IntentSender.SendIntentException {
@@ -685,7 +766,7 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
      */
     @Override
     @Deprecated
-    public void startIntentSenderForResult(@SuppressLint("UnknownNullness") IntentSender intent,
+    public void startIntentSenderForResult(@NonNull IntentSender intent,
             int requestCode, @Nullable Intent fillInIntent, int flagsMask, int flagsValues,
             int extraFlags, @Nullable Bundle options) throws IntentSender.SendIntentException {
         super.startIntentSenderForResult(intent, requestCode, fillInIntent, flagsMask, flagsValues,
@@ -772,6 +853,214 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
         return mActivityResultRegistry;
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * Dispatches this call to all listeners added via
+     * {@link #addOnConfigurationChangedListener(Consumer)}.
+     */
+    @CallSuper
+    @Override
+    public void onConfigurationChanged(@NonNull Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        for (Consumer<Configuration> listener : mOnConfigurationChangedListeners) {
+            listener.accept(newConfig);
+        }
+    }
+
+    @Override
+    public final void addOnConfigurationChangedListener(
+            @NonNull Consumer<Configuration> listener
+    ) {
+        mOnConfigurationChangedListeners.add(listener);
+    }
+
+    @Override
+    public final void removeOnConfigurationChangedListener(
+            @NonNull Consumer<Configuration> listener
+    ) {
+        mOnConfigurationChangedListeners.remove(listener);
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * Dispatches this call to all listeners added via {@link #addOnTrimMemoryListener(Consumer)}.
+     */
+    @CallSuper
+    @Override
+    public void onTrimMemory(int level) {
+        super.onTrimMemory(level);
+        for (Consumer<Integer> listener : mOnTrimMemoryListeners) {
+            listener.accept(level);
+        }
+    }
+
+    @Override
+    public final void addOnTrimMemoryListener(@NonNull Consumer<Integer> listener) {
+        mOnTrimMemoryListeners.add(listener);
+    }
+
+    @Override
+    public final void removeOnTrimMemoryListener(@NonNull Consumer<Integer> listener) {
+        mOnTrimMemoryListeners.remove(listener);
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * Dispatches this call to all listeners added via
+     * {@link #addOnNewIntentListener(Consumer)}.
+     */
+    @CallSuper
+    @Override
+    protected void onNewIntent(
+            @SuppressLint({"UnknownNullness", "MissingNullability"}) Intent intent
+    ) {
+        super.onNewIntent(intent);
+        for (Consumer<Intent> listener : mOnNewIntentListeners) {
+            listener.accept(intent);
+        }
+    }
+
+    @Override
+    public final void addOnNewIntentListener(
+            @NonNull Consumer<Intent> listener
+    ) {
+        mOnNewIntentListeners.add(listener);
+    }
+
+    @Override
+    public final void removeOnNewIntentListener(
+            @NonNull Consumer<Intent> listener
+    ) {
+        mOnNewIntentListeners.remove(listener);
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * Dispatches this call to all listeners added via
+     * {@link #addOnMultiWindowModeChangedListener(Consumer)}.
+     */
+    @CallSuper
+    @Override
+    @SuppressWarnings("deprecation")
+    public void onMultiWindowModeChanged(boolean isInMultiWindowMode) {
+        // We specifically do not call super.onMultiWindowModeChanged() to avoid
+        // crashing when this method is manually called prior to API 24 (which is
+        // when this method was added to the framework)
+        if (mDispatchingOnMultiWindowModeChanged) {
+            return;
+        }
+        for (Consumer<MultiWindowModeChangedInfo> listener : mOnMultiWindowModeChangedListeners) {
+            listener.accept(new MultiWindowModeChangedInfo(isInMultiWindowMode));
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * Dispatches this call to all listeners added via
+     * {@link #addOnMultiWindowModeChangedListener(Consumer)}.
+     */
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    @CallSuper
+    @Override
+    public void onMultiWindowModeChanged(boolean isInMultiWindowMode,
+            @NonNull Configuration newConfig) {
+        mDispatchingOnMultiWindowModeChanged = true;
+        try {
+            // We can unconditionally call super.onMultiWindowModeChanged() here because this
+            // function is marked with RequiresApi, meaning we are always on an API level
+            // where this call is valid.
+            super.onMultiWindowModeChanged(isInMultiWindowMode, newConfig);
+        } finally {
+            mDispatchingOnMultiWindowModeChanged = false;
+        }
+        for (Consumer<MultiWindowModeChangedInfo> listener : mOnMultiWindowModeChangedListeners) {
+            listener.accept(new MultiWindowModeChangedInfo(isInMultiWindowMode, newConfig));
+        }
+    }
+
+    @Override
+    public final void addOnMultiWindowModeChangedListener(
+            @NonNull Consumer<MultiWindowModeChangedInfo> listener
+    ) {
+        mOnMultiWindowModeChangedListeners.add(listener);
+    }
+
+    @Override
+    public final void removeOnMultiWindowModeChangedListener(
+            @NonNull Consumer<MultiWindowModeChangedInfo> listener
+    ) {
+        mOnMultiWindowModeChangedListeners.remove(listener);
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * Dispatches this call to all listeners added via
+     * {@link #addOnPictureInPictureModeChangedListener(Consumer)}.
+     */
+    @CallSuper
+    @Override
+    @SuppressWarnings("deprecation")
+    public void onPictureInPictureModeChanged(boolean isInPictureInPictureMode) {
+        // We specifically do not call super.onPictureInPictureModeChanged() to avoid
+        // crashing when this method is manually called prior to API 24 (which is
+        // when this method was added to the framework)
+        if (mDispatchingOnPictureInPictureModeChanged) {
+            return;
+        }
+
+        for (Consumer<PictureInPictureModeChangedInfo> listener :
+                mOnPictureInPictureModeChangedListeners) {
+            listener.accept(new PictureInPictureModeChangedInfo(isInPictureInPictureMode));
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * Dispatches this call to all listeners added via
+     * {@link #addOnPictureInPictureModeChangedListener(Consumer)}.
+     */
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    @CallSuper
+    @Override
+    public void onPictureInPictureModeChanged(boolean isInPictureInPictureMode,
+            @NonNull Configuration newConfig) {
+        mDispatchingOnPictureInPictureModeChanged = true;
+        try {
+            // We can unconditionally call super.onPictureInPictureModeChanged() here because
+            // this function is marked with RequiresApi, meaning we are always on an API level
+            // where this call is valid.
+            super.onPictureInPictureModeChanged(isInPictureInPictureMode, newConfig);
+        } finally {
+            mDispatchingOnPictureInPictureModeChanged = false;
+        }
+        for (Consumer<PictureInPictureModeChangedInfo> listener :
+                mOnPictureInPictureModeChangedListeners) {
+            listener.accept(new PictureInPictureModeChangedInfo(
+                    isInPictureInPictureMode, newConfig));
+        }
+    }
+
+    @Override
+    public final void addOnPictureInPictureModeChangedListener(
+            @NonNull Consumer<PictureInPictureModeChangedInfo> listener
+    ) {
+        mOnPictureInPictureModeChangedListeners.add(listener);
+    }
+
+    @Override
+    public final void removeOnPictureInPictureModeChangedListener(
+            @NonNull Consumer<PictureInPictureModeChangedInfo> listener
+    ) {
+        mOnPictureInPictureModeChangedListeners.remove(listener);
+    }
+
     @Override
     public void reportFullyDrawn() {
         try {
@@ -805,5 +1094,14 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
             view.cancelPendingInputEvents();
         }
 
+    }
+
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    static class Api33Impl {
+        private Api33Impl() { }
+        @DoNotInline
+        static OnBackInvokedDispatcher getOnBackInvokedDispatcher(Activity activity) {
+            return activity.getOnBackInvokedDispatcher();
+        }
     }
 }

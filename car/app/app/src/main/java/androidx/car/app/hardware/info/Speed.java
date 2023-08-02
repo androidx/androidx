@@ -124,16 +124,16 @@ public final class Speed {
 
     /** Constructs an empty instance, used by serialization code. */
     private Speed() {
-        mRawSpeedMetersPerSecond = CarValue.UNIMPLEMENTED_FLOAT;
-        mDisplaySpeedMetersPerSecond = CarValue.UNIMPLEMENTED_FLOAT;
-        mSpeedDisplayUnit = CarValue.UNIMPLEMENTED_INTEGER;
+        mRawSpeedMetersPerSecond = CarValue.UNKNOWN_FLOAT;
+        mDisplaySpeedMetersPerSecond = CarValue.UNKNOWN_FLOAT;
+        mSpeedDisplayUnit = CarValue.UNKNOWN_INTEGER;
     }
 
     /** A builder of {@link Speed}. */
     public static final class Builder {
-        CarValue<Float> mRawSpeedMetersPerSecond = CarValue.UNIMPLEMENTED_FLOAT;
-        CarValue<Float> mDisplaySpeedMetersPerSecond = CarValue.UNIMPLEMENTED_FLOAT;
-        CarValue<@CarSpeedUnit Integer> mSpeedDisplayUnit = CarValue.UNIMPLEMENTED_INTEGER;
+        CarValue<Float> mRawSpeedMetersPerSecond = CarValue.UNKNOWN_FLOAT;
+        CarValue<Float> mDisplaySpeedMetersPerSecond = CarValue.UNKNOWN_FLOAT;
+        CarValue<@CarSpeedUnit Integer> mSpeedDisplayUnit = CarValue.UNKNOWN_INTEGER;
 
         /**
          * Sets the raw speed in meters per second.

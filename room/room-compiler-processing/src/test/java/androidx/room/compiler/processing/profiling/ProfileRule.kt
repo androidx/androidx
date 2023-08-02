@@ -20,6 +20,10 @@ import org.junit.AssumptionViolatedException
 import org.junit.rules.TestRule
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.nanoseconds
+import kotlin.time.DurationUnit
+import kotlin.time.ExperimentalTime
 
 /**
  * Helper rule to run profiling tests.
@@ -29,6 +33,7 @@ import org.junit.runners.model.Statement
  *
  * If this rule is applied outside a profiling session, it will ignore the test.
  */
+@OptIn(ExperimentalTime::class)
 class ProfileRule : TestRule {
     /**
      * Runs the given block, repeatedly :).
@@ -50,6 +55,26 @@ class ProfileRule : TestRule {
         repeat(repeat) {
             block(realProfileScope)
         }
+        println(buildReport(realProfileScope.measurements).toString())
+    }
+
+    private fun buildReport(measurements: List<Duration>): Stats {
+        check(measurements.isNotEmpty())
+        val min = measurements.minByOrNull { it.toLong(DurationUnit.NANOSECONDS) }!!
+        val max = measurements.maxByOrNull { it.toLong(DurationUnit.NANOSECONDS) }!!
+        val avg = measurements.fold(Duration.ZERO) { acc, next -> acc + next } / measurements.size
+        val mean = if (measurements.size % 2 == 0) {
+            (measurements[measurements.size / 2] + measurements[measurements.size / 2 - 1]) / 2
+        } else {
+            measurements[measurements.size / 2]
+        }
+        return Stats(
+            allMeasurements = measurements,
+            min = min,
+            max = max,
+            avg = avg,
+            mean = mean
+        )
     }
 
     override fun apply(base: Statement, description: Description): Statement {
@@ -78,11 +103,23 @@ class ProfileRule : TestRule {
     }
 
     private class RealProfileScope : ProfileScope {
+        private val _measurements = mutableListOf<Duration>()
+        val measurements: List<Duration>
+            get() = _measurements
+        @OptIn(ExperimentalTime::class)
         override fun trace(block: () -> Unit) {
             // this doesn't do anything but profile.sh trace profiler checks
             // this class while filtering stacktraces
-            block()
+            val start = now()
+            try {
+                block()
+            } finally {
+                val end = now()
+                _measurements.add(end - start)
+            }
         }
+
+        private fun now() = System.nanoTime().nanoseconds
     }
 
     private class WarmUpProfileScope : ProfileScope {
@@ -90,6 +127,14 @@ class ProfileRule : TestRule {
             block()
         }
     }
+
+    data class Stats(
+        val min: Duration,
+        val max: Duration,
+        val avg: Duration,
+        val mean: Duration,
+        val allMeasurements: List<Duration>,
+    )
 
     companion object {
         val isProfilingEnabled by lazy {

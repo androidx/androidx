@@ -67,6 +67,7 @@ class TransientStateFragmentTest : BaseTest() {
 
     private fun createTransientStateCallback(): FragmentManager.FragmentLifecycleCallbacks {
         return object : FragmentManager.FragmentLifecycleCallbacks() {
+            @SdkSuppress(minSdkVersion = 16)
             override fun onFragmentViewCreated(
                 fm: FragmentManager,
                 f: Fragment,

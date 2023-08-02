@@ -120,7 +120,7 @@ public final class IntentSenderRequest implements Parcelable {
         return mFlagsValues;
     }
 
-    @SuppressWarnings("ConstantConditions")
+    @SuppressWarnings({"ConstantConditions", "deprecation"})
     IntentSenderRequest(@NonNull Parcel in) {
         mIntentSender = in.readParcelable(IntentSender.class.getClassLoader());
         mFillInIntent = in.readParcelable(Intent.class.getClassLoader());

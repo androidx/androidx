@@ -26,11 +26,12 @@ import androidx.wear.watchface.complications.data.ComplicationText
 import androidx.wear.watchface.complications.data.ComplicationType
 import androidx.wear.watchface.complications.data.LongTextComplicationData
 import androidx.wear.watchface.complications.data.ShortTextComplicationData
+import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
 /** A minimal complication data source which reports the ID of the complication asynchronously. */
 class AsynchronousDataSourceService : ComplicationDataSourceService() {
-    val executor = Executors.newFixedThreadPool(5)
+    val executor: ExecutorService = Executors.newFixedThreadPool(5)
 
     override fun onComplicationRequest(
         request: ComplicationRequest,

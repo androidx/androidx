@@ -36,9 +36,13 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.test.TestCoroutineDispatcher
-import kotlinx.coroutines.test.TestCoroutineScope
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.test.TestDispatcher
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.advanceTimeBy
+import kotlinx.coroutines.test.runCurrent
+import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -57,16 +61,16 @@ public class TilesConnectionBinderTest {
 
     private lateinit var appContext: Context
     private lateinit var fakeTileService: FakeTileService
-    private lateinit var fakeCoroutineDispatcher: TestCoroutineDispatcher
-    private lateinit var fakeCoroutineScope: TestCoroutineScope
+    private lateinit var fakeCoroutineDispatcher: TestDispatcher
+    private lateinit var fakeCoroutineScope: TestScope
     private lateinit var connectionBinderUnderTest: TilesConnectionBinder
 
     @Before
     public fun setUp() {
         appContext = getApplicationContext()
         fakeTileService = FakeTileService()
-        fakeCoroutineDispatcher = TestCoroutineDispatcher()
-        fakeCoroutineScope = TestCoroutineScope()
+        fakeCoroutineDispatcher = UnconfinedTestDispatcher()
+        fakeCoroutineScope = TestScope(fakeCoroutineDispatcher)
 
         shadowOf(appContext as Application)
             .setComponentNameAndServiceForBindService(TILE_PROVIDER, fakeTileService.asBinder())
@@ -79,14 +83,11 @@ public class TilesConnectionBinderTest {
 
     @After
     public fun tearDown() {
-        fakeCoroutineDispatcher.advanceUntilIdle()
-
-        fakeCoroutineDispatcher.cleanupTestCoroutines()
-        fakeCoroutineScope.cleanupTestCoroutines()
+        fakeCoroutineDispatcher.scheduler.advanceUntilIdle()
     }
 
     @Test
-    public fun canCallTileProvider(): Unit = fakeCoroutineScope.runBlockingTest {
+    public fun canCallTileProvider(): Unit = fakeCoroutineScope.runTest {
         val result = async {
             connectionBinderUnderTest.runWithTilesConnection {
                 it.apiVersion
@@ -102,7 +103,7 @@ public class TilesConnectionBinderTest {
     }
 
     @Test
-    public fun binderLeftOpen(): Unit = fakeCoroutineScope.runBlockingTest {
+    public fun binderLeftOpen(): Unit = fakeCoroutineScope.runTest {
         val result = async {
             connectionBinderUnderTest.runWithTilesConnection {
                 it.apiVersion
@@ -118,7 +119,7 @@ public class TilesConnectionBinderTest {
     }
 
     @Test
-    public fun binderClosesAfterTimeout(): Unit = fakeCoroutineScope.runBlockingTest {
+    public fun binderClosesAfterTimeout(): Unit = fakeCoroutineScope.runTest {
         val result = async {
             connectionBinderUnderTest.runWithTilesConnection {
                 it.apiVersion
@@ -129,7 +130,8 @@ public class TilesConnectionBinderTest {
         result.await()
 
         // Wait for the timeout
-        fakeCoroutineDispatcher.advanceTimeBy(TilesConnectionBinder.INACTIVITY_TIMEOUT_MILLIS)
+        advanceTimeBy(TilesConnectionBinder.INACTIVITY_TIMEOUT_MILLIS)
+        runCurrent()
 
         shadowOf(Looper.getMainLooper()).idle()
 
@@ -138,7 +140,7 @@ public class TilesConnectionBinderTest {
     }
 
     @Test
-    public fun twoCallsShareSameBinder(): Unit = fakeCoroutineScope.runBlockingTest {
+    public fun twoCallsShareSameBinder(): Unit = fakeCoroutineScope.runTest {
         val result1 = async {
             connectionBinderUnderTest.runWithTilesConnection {
                 it.apiVersion
@@ -161,8 +163,8 @@ public class TilesConnectionBinderTest {
     }
 
     @Test
-    public fun longRunningCallsSuspendsBinderKill(): Unit = fakeCoroutineScope.runBlockingTest {
-        val result = async(fakeCoroutineDispatcher) {
+    public fun longRunningCallsSuspendsBinderKill(): Unit = fakeCoroutineScope.runTest {
+        val result = async {
             connectionBinderUnderTest.runWithTilesConnection {
                 delay(TilesConnectionBinder.INACTIVITY_TIMEOUT_MILLIS * 2)
                 it.apiVersion
@@ -172,7 +174,8 @@ public class TilesConnectionBinderTest {
         shadowOf(Looper.getMainLooper()).idle()
 
         // Binder should be shut down by this time, if there's nothing outstanding
-        fakeCoroutineDispatcher.advanceTimeBy(TilesConnectionBinder.INACTIVITY_TIMEOUT_MILLIS)
+        advanceTimeBy(TilesConnectionBinder.INACTIVITY_TIMEOUT_MILLIS)
+        runCurrent()
 
         assertThat(result.isCompleted).isFalse()
 
@@ -180,8 +183,8 @@ public class TilesConnectionBinderTest {
         assertThat(shadowOf(appContext as Application).boundServiceConnections).hasSize(1)
         assertThat(shadowOf(appContext as Application).unboundServiceConnections).isEmpty()
 
-        fakeCoroutineDispatcher.advanceTimeBy(TilesConnectionBinder.INACTIVITY_TIMEOUT_MILLIS)
-
+        advanceTimeBy(TilesConnectionBinder.INACTIVITY_TIMEOUT_MILLIS)
+        runCurrent()
         assertThat(result.isCompleted).isTrue()
 
         // Still alive...
@@ -189,7 +192,8 @@ public class TilesConnectionBinderTest {
         assertThat(shadowOf(appContext as Application).unboundServiceConnections).isEmpty()
 
         // Shut down.
-        fakeCoroutineDispatcher.advanceTimeBy(TilesConnectionBinder.INACTIVITY_TIMEOUT_MILLIS)
+        advanceTimeBy(TilesConnectionBinder.INACTIVITY_TIMEOUT_MILLIS)
+        runCurrent()
         shadowOf(Looper.getMainLooper()).idle()
 
         assertThat(shadowOf(appContext as Application).boundServiceConnections).isEmpty()
@@ -197,7 +201,7 @@ public class TilesConnectionBinderTest {
     }
 
     @Test
-    public fun anotherCallPostponesUnbind(): Unit = fakeCoroutineScope.runBlockingTest {
+    public fun anotherCallPostponesUnbind(): Unit = fakeCoroutineScope.runTest {
         val result1 = async {
             connectionBinderUnderTest.runWithTilesConnection {
                 it.apiVersion
@@ -208,7 +212,8 @@ public class TilesConnectionBinderTest {
         result1.await()
 
         // Wait a while...
-        fakeCoroutineDispatcher.advanceTimeBy(TilesConnectionBinder.INACTIVITY_TIMEOUT_MILLIS / 2)
+        advanceTimeBy(TilesConnectionBinder.INACTIVITY_TIMEOUT_MILLIS / 2)
+        runCurrent()
 
         val result2 = async {
             connectionBinderUnderTest.runWithTilesConnection {
@@ -219,19 +224,21 @@ public class TilesConnectionBinderTest {
         result2.await()
 
         // Wait for the rest of the inactivity period.
-        fakeCoroutineDispatcher.advanceTimeBy(TilesConnectionBinder.INACTIVITY_TIMEOUT_MILLIS / 2)
+        advanceTimeBy(TilesConnectionBinder.INACTIVITY_TIMEOUT_MILLIS / 2)
+        runCurrent()
 
         assertThat(shadowOf(appContext as Application).boundServiceConnections).hasSize(1)
         assertThat(shadowOf(appContext as Application).unboundServiceConnections).isEmpty()
 
-        fakeCoroutineDispatcher.advanceTimeBy(TilesConnectionBinder.INACTIVITY_TIMEOUT_MILLIS / 2)
+        advanceTimeBy(TilesConnectionBinder.INACTIVITY_TIMEOUT_MILLIS / 2)
+        runCurrent()
 
         assertThat(shadowOf(appContext as Application).boundServiceConnections).isEmpty()
         assertThat(shadowOf(appContext as Application).unboundServiceConnections).hasSize(1)
     }
 
     @Test
-    public fun canRebindAfterUnbind(): Unit = fakeCoroutineScope.runBlockingTest {
+    public fun canRebindAfterUnbind(): Unit = fakeCoroutineScope.runTest {
         val result1 = async {
             connectionBinderUnderTest.runWithTilesConnection {
                 it.apiVersion
@@ -242,7 +249,8 @@ public class TilesConnectionBinderTest {
         result1.await()
 
         // Wait a while...
-        fakeCoroutineDispatcher.advanceTimeBy(TilesConnectionBinder.INACTIVITY_TIMEOUT_MILLIS)
+        advanceTimeBy(TilesConnectionBinder.INACTIVITY_TIMEOUT_MILLIS)
+        runCurrent()
 
         val result2 = async {
             connectionBinderUnderTest.runWithTilesConnection {
@@ -258,8 +266,8 @@ public class TilesConnectionBinderTest {
     }
 
     @Test
-    public fun exceptionInCallPropagates(): Unit = fakeCoroutineScope.runBlockingTest {
-        val result1 = async {
+    public fun exceptionInCallPropagates(): Unit = fakeCoroutineScope.runTest {
+        val result1 = async(Job()) {
             connectionBinderUnderTest.runWithTilesConnection {
                 throw IllegalStateException("Hello")
             }
@@ -272,7 +280,7 @@ public class TilesConnectionBinderTest {
     }
 
     @Test(expected = TimeoutCancellationException::class)
-    public fun bindCanTimeOut(): Unit = fakeCoroutineScope.runBlockingTest {
+    public fun bindCanTimeOut(): Unit = fakeCoroutineScope.runTest {
         val result1 = async {
             connectionBinderUnderTest.runWithTilesConnection {
                 5
@@ -280,7 +288,7 @@ public class TilesConnectionBinderTest {
         }
 
         // Never idle Robolectric's looper, so it can't call ServiceConnection#onServiceConnected.
-        fakeCoroutineDispatcher.advanceTimeBy(TilesConnectionBinder.BIND_TIMEOUT_MILLIS * 2)
+        advanceTimeBy(TilesConnectionBinder.BIND_TIMEOUT_MILLIS * 2)
 
         // Await to throw the exception.
         result1.await()

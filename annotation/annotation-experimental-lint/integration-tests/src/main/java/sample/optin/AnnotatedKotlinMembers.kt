@@ -18,7 +18,10 @@ package sample.optin
 
 open class AnnotatedKotlinMembers {
     @ExperimentalKotlinAnnotation
-    val field: Int = -1
+    var field: Int = -1
+
+    @set:ExperimentalKotlinAnnotation
+    var fieldWithSetMarker: Int = -1
 
     @ExperimentalKotlinAnnotation
     fun method(): Int {

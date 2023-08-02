@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
 import androidx.build.LibraryType
-import androidx.build.LibraryVersions
 
 plugins {
     id("AndroidXPlugin")
@@ -29,6 +27,7 @@ android {
         minSdkVersion 21
         testInstrumentationRunner("androidx.test.runner.AndroidJUnitRunner")
     }
+    namespace "androidx.core.splashscreen"
 }
 
 dependencies {
@@ -41,10 +40,10 @@ dependencies {
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.testUiautomator)
     androidTestImplementation(libs.truth)
-    androidTestImplementation(project(":appcompat:appcompat"))
+    androidTestImplementation(projectOrArtifact(":appcompat:appcompat"))
     androidTestImplementation(project(":test:screenshot:screenshot"))
 
-    samples(project(":core:core-splashscreen:core-splashscreen-samples"))
+    samples("androidx.core.core-splashscreen:core-splashscreen-samples:1.0.0-rc01")
 }
 
 androidx {

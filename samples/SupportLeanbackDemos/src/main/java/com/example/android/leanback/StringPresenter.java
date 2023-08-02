@@ -18,6 +18,8 @@ import android.util.Log;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.leanback.widget.Presenter;
 
@@ -37,9 +39,10 @@ public class StringPresenter extends Presenter {
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder viewHolder, Object item) {
-        Log.d(TAG, "onBindViewHolder for " + item.toString());
-        ((TextView) viewHolder.view).setText(item.toString());
+    public void onBindViewHolder(@NonNull ViewHolder viewHolder, @Nullable Object item) {
+        Log.d(TAG, "onBindViewHolder for " + item);
+        String text = item == null ? null : item.toString();
+        ((TextView) viewHolder.view).setText(text);
     }
 
     @Override

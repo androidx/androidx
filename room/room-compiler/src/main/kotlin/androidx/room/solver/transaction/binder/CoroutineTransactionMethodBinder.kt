@@ -26,6 +26,7 @@ import androidx.room.compiler.processing.XType
 import androidx.room.solver.CodeGenScope
 import androidx.room.solver.transaction.result.TransactionMethodAdapter
 import com.squareup.javapoet.ClassName
+import com.squareup.javapoet.CodeBlock
 import com.squareup.javapoet.FieldSpec
 import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.WildcardTypeName
@@ -35,7 +36,8 @@ import com.squareup.javapoet.WildcardTypeName
  */
 class CoroutineTransactionMethodBinder(
     adapter: TransactionMethodAdapter,
-    private val continuationParamName: String
+    private val continuationParamName: String,
+    private val useLambdaSyntax: Boolean
 ) : TransactionMethodBinder(adapter) {
     override fun executeAndReturn(
         returnType: XType,
@@ -46,24 +48,28 @@ class CoroutineTransactionMethodBinder(
         scope: CodeGenScope
     ) {
         val innerContinuationParamName = "__cont"
-        val functionImpl = Function1TypeSpecBuilder(
-            parameterTypeName = ParameterizedTypeName.get(
-                CONTINUATION, WildcardTypeName.supertypeOf(returnType.typeName)
-            ),
-            parameterName = innerContinuationParamName,
-            returnTypeName = ClassName.OBJECT
-        ) {
-            val adapterScope = scope.fork()
-            adapter.createDelegateToSuperStatement(
-                returnType = returnType,
-                parameterNames = parameterNames + innerContinuationParamName,
-                daoName = daoName,
-                daoImplName = daoImplName,
-                returnStmt = true,
-                scope = adapterScope
-            )
-            addCode(adapterScope.generate())
-        }.build()
+        val adapterScope = scope.fork()
+        adapter.createDelegateToSuperCode(
+            returnType = returnType,
+            parameterNames = parameterNames + innerContinuationParamName,
+            daoName = daoName,
+            daoImplName = daoImplName,
+            returnStmt = !useLambdaSyntax,
+            scope = adapterScope
+        )
+        val functionImpl: Any = if (useLambdaSyntax) {
+            CodeBlock.of("($L) -> $L", innerContinuationParamName, adapterScope.generate())
+        } else {
+            Function1TypeSpecBuilder(
+                parameterTypeName = ParameterizedTypeName.get(
+                    CONTINUATION, WildcardTypeName.supertypeOf(returnType.typeName)
+                ),
+                parameterName = innerContinuationParamName,
+                returnTypeName = ClassName.OBJECT
+            ) {
+                addStatement(adapterScope.generate())
+            }.build()
+        }
 
         scope.builder().apply {
             addStatement(

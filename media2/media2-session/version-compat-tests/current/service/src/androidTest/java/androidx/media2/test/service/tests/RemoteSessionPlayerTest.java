@@ -20,8 +20,10 @@ import static androidx.media2.test.common.CommonConstants.CLIENT_PACKAGE_NAME;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assume.assumeTrue;
 
 import android.media.AudioManager;
+import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.media2.session.MediaSession;
@@ -54,6 +56,9 @@ public class RemoteSessionPlayerTest extends MediaSessionTestBase {
     @Before
     @Override
     public void setUp() throws Exception {
+        // b/204596299
+        assumeTrue(Build.VERSION.SDK_INT != 17);
+
         super.setUp();
         // Create this test specific MediaSession to use our own Handler.
         mSession = new MediaSession.Builder(mContext, new MockPlayer(1))

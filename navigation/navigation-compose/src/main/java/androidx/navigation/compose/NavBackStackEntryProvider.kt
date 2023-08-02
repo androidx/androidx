@@ -18,6 +18,7 @@ package androidx.navigation.compose
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.saveable.SaveableStateHolder
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.LocalSavedStateRegistryOwner
@@ -57,6 +58,11 @@ private fun SaveableStateHolder.SaveableStateProvider(content: @Composable () ->
     val viewModel = viewModel<BackStackEntryIdViewModel>()
     viewModel.saveableStateHolder = this
     SaveableStateProvider(viewModel.id, content)
+    DisposableEffect(viewModel) {
+        onDispose {
+            viewModel.saveableStateHolder = null
+        }
+    }
 }
 
 internal class BackStackEntryIdViewModel(handle: SavedStateHandle) : ViewModel() {

@@ -37,7 +37,7 @@ import java.util.List;
  * {@link GenericDocument}.
  * <!--@exportToFramework:else()-->
  *
- * @see AppSearchSession#put
+ * @see AppSearchSession#putAsync
  */
 public final class PutDocumentsRequest {
     private final List<GenericDocument> mDocuments;

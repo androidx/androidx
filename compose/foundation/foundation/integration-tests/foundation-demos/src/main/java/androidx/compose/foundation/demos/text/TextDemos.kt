@@ -23,11 +23,21 @@ val TextDemos = DemoCategory(
     "Text",
     listOf(
         ComposableDemo("Static text") { TextDemo() },
+        ComposableDemo("Canvas") { DrawTextDemo() },
+        ComposableDemo("Brush") { TextBrushDemo() },
+        ComposableDemo("Ellipsize") { EllipsizeDemo() },
         ComposableDemo("Typeface") { TypefaceDemo() },
+        ComposableDemo("Variable Fonts") { VariableFontsDemo() },
+        ComposableDemo("FontFamily fallback") { FontFamilyDemo() },
+        ComposableDemo("All system font families") { SystemFontFamilyDemo() },
         ComposableDemo("Text selection") { TextSelectionDemo() },
         ComposableDemo("Text selection sample") { TextSelectionSample() },
         ComposableDemo("Multi paragraph") { MultiParagraphDemo() },
+        ComposableDemo("IncludeFontPadding & Clip") { TextFontPaddingDemo() },
+        ComposableDemo("Layout Reuse") { TextReuseLayoutDemo() },
+        ComposableDemo("Line Height Behavior") { TextLineHeightDemo() },
         ComposableDemo("Interactive text") { InteractiveTextDemo() },
+        ComposableDemo("Ellipsize and letterspacing") { EllipsizeWithLetterSpacing() },
         DemoCategory(
             "Input fields",
             listOf(
@@ -37,12 +47,21 @@ val TextDemos = DemoCategory(
                 ComposableDemo("Various input fields") { VariousInputFieldDemo() },
                 ComposableDemo("Tricky input field") { InputFieldTrickyUseCase() },
                 ComposableDemo("Focus transition") { TextFieldFocusTransition() },
+                ComposableDemo("Focus keyboard interaction") {
+                    TextFieldFocusKeyboardInteraction()
+                },
                 ComposableDemo("Tail Following Text Field") { TailFollowingTextFieldDemo() },
                 ComposableDemo("Scrollable text fields") { ScrollableTextFieldDemo() },
                 ComposableDemo("Min/Max Lines") { BasicTextFieldMinMaxDemo() },
                 ComposableDemo("Ime SingleLine") { ImeSingleLineDemo() },
                 ComposableDemo("Capitalization/AutoCorrect") { CapitalizationAutoCorrectDemo() },
-                ComposableDemo("TextFieldValue") { TextFieldValueDemo() }
+                ComposableDemo("TextFieldValue") { TextFieldValueDemo() },
+                ComposableDemo("Inside Dialog") { onNavigateUp ->
+                    DialogInputFieldDemo(onNavigateUp)
+                },
+                ComposableDemo("Inside scrollable") { TextFieldsInScrollableDemo() },
+                ComposableDemo("Cursor configuration") { TextFieldCursorBlinkingDemo() },
+                ComposableDemo("Full-screen field") { FullScreenTextFieldDemo() },
             )
         ),
         ComposableDemo("Text Accessibility") { TextAccessibilityDemo() }

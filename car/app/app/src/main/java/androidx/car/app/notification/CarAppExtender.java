@@ -166,6 +166,7 @@ public final class CarAppExtender implements NotificationCompat.Extender {
     /**
      * Creates a {@link CarAppExtender} from the {@link CarAppExtender} of an existing notification.
      */
+    @SuppressWarnings("deprecation")
     public CarAppExtender(@NonNull Notification notification) {
         Bundle extras = NotificationCompat.getExtras(notification);
         if (extras == null) {

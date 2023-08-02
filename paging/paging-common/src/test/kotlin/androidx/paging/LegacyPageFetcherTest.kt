@@ -22,6 +22,7 @@ import androidx.paging.LoadState.Loading
 import androidx.paging.LoadState.NotLoading
 import androidx.paging.LoadType.APPEND
 import androidx.paging.LoadType.PREPEND
+import androidx.paging.LoadType.REFRESH
 import androidx.paging.PagedList.Config
 import androidx.paging.PagingSource.LoadParams.Refresh
 import androidx.paging.PagingSource.LoadResult
@@ -104,10 +105,12 @@ class LegacyPageFetcherTest {
         }
 
         override fun onPageResult(type: LoadType, page: Page<*, String>): Boolean {
-            @Suppress("NON_EXHAUSTIVE_WHEN")
             when (type) {
                 PREPEND -> storage?.prependPage(page)
                 APPEND -> storage?.appendPage(page)
+                REFRESH -> {
+                    // Nothing
+                }
             }
 
             results.add(Result(type, page))

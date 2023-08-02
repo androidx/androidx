@@ -25,10 +25,11 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.runCurrent
+import kotlinx.coroutines.test.runTest
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -46,7 +47,7 @@ class HintHandlerTest {
     }
 
     @Test
-    fun noStateForRefresh() = runBlockingTest {
+    fun noStateForRefresh() = runTest(UnconfinedTestDispatcher()) {
         val refreshHints = kotlin.runCatching {
             hintHandler.hintFor(REFRESH)
         }
@@ -194,7 +195,7 @@ class HintHandlerTest {
     }
 
     @Test
-    fun resetCanReSendSameValues() = runBlockingTest {
+    fun resetCanReSendSameValues() = runTest(UnconfinedTestDispatcher()) {
         val hint = ViewportHint.Access(
             pageOffset = 0,
             indexInPage = 1,
@@ -248,7 +249,7 @@ class HintHandlerTest {
         loadType: LoadType
     ): ViewportHint? {
         var value: ViewportHint? = null
-        runBlockingTest {
+        runTest(UnconfinedTestDispatcher()) {
             val job = launch {
                 this@currentValue.hintFor(loadType).take(1).collect {
                     value = it

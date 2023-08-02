@@ -24,6 +24,7 @@ import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.annotations.CarProtocol;
+import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.hardware.common.CarUnit;
 import androidx.car.app.hardware.common.CarValue;
@@ -97,6 +98,8 @@ public final class EnergyLevel {
      *
      * <p>See {@link CarUnit} for possible volume values.
      */
+    // TODO(b/202303614): Remove this annotation once FuelVolumeDisplayUnit is ready.
+    @ExperimentalCarApi
     @NonNull
     public CarValue<@CarVolumeUnit Integer> getFuelVolumeDisplayUnit() {
         return requireNonNull(mFuelVolumeDisplayUnit);
@@ -156,24 +159,24 @@ public final class EnergyLevel {
 
     /** Constructs an empty instance, used by serialization code. */
     private EnergyLevel() {
-        mBatteryPercent = CarValue.UNIMPLEMENTED_FLOAT;
-        mFuelPercent = CarValue.UNIMPLEMENTED_FLOAT;
-        mEnergyIsLow = CarValue.UNIMPLEMENTED_BOOLEAN;
-        mRangeRemainingMeters = CarValue.UNIMPLEMENTED_FLOAT;
-        mDistanceDisplayUnit = CarValue.UNIMPLEMENTED_INTEGER;
-        mFuelVolumeDisplayUnit = CarValue.UNIMPLEMENTED_INTEGER;
+        mBatteryPercent = CarValue.UNKNOWN_FLOAT;
+        mFuelPercent = CarValue.UNKNOWN_FLOAT;
+        mEnergyIsLow = CarValue.UNKNOWN_BOOLEAN;
+        mRangeRemainingMeters = CarValue.UNKNOWN_FLOAT;
+        mDistanceDisplayUnit = CarValue.UNKNOWN_INTEGER;
+        mFuelVolumeDisplayUnit = CarValue.UNKNOWN_INTEGER;
     }
 
     /** A builder of {@link EnergyLevel}. */
     public static final class Builder {
-        CarValue<Float> mBatteryPercent = CarValue.UNIMPLEMENTED_FLOAT;
-        CarValue<Float> mFuelPercent = CarValue.UNIMPLEMENTED_FLOAT;
-        CarValue<Boolean> mEnergyIsLow = CarValue.UNIMPLEMENTED_BOOLEAN;
-        CarValue<Float> mRangeRemainingMeters = CarValue.UNIMPLEMENTED_FLOAT;
+        CarValue<Float> mBatteryPercent = CarValue.UNKNOWN_FLOAT;
+        CarValue<Float> mFuelPercent = CarValue.UNKNOWN_FLOAT;
+        CarValue<Boolean> mEnergyIsLow = CarValue.UNKNOWN_BOOLEAN;
+        CarValue<Float> mRangeRemainingMeters = CarValue.UNKNOWN_FLOAT;
         CarValue<@CarDistanceUnit Integer> mDistanceDisplayUnit =
-                CarValue.UNIMPLEMENTED_INTEGER;
+                CarValue.UNKNOWN_INTEGER;
         CarValue<@CarVolumeUnit Integer> mFuelVolumeDisplayUnit =
-                CarValue.UNIMPLEMENTED_INTEGER;
+                CarValue.UNKNOWN_INTEGER;
 
         /** Sets the remaining batter percentage. */
         @NonNull
@@ -234,6 +237,8 @@ public final class EnergyLevel {
          *
          * @throws NullPointerException if {@code fuelVolumeDisplayUnit} is {@code null}
          */
+        // TODO(b/202303614): Remove this annotation once FuelVolumeDisplayUnit is ready.
+        @ExperimentalCarApi
         @NonNull
         public Builder setFuelVolumeDisplayUnit(@NonNull CarValue<@CarVolumeUnit Integer>
                 fuelVolumeDisplayUnit) {

@@ -27,6 +27,7 @@ import android.text.TextUtils;
 import androidx.annotation.ColorInt;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.IntDef;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringDef;
 
@@ -366,7 +367,7 @@ public final class ContentRecommendation
      *
      * @return The String Id tag for this recommendation.
      */
-    public String getIdTag() {
+    public @Nullable String getIdTag() {
         return mIdTag;
     }
 
@@ -375,7 +376,7 @@ public final class ContentRecommendation
      *
      * @return A String containing the recommendation content title.
      */
-    public String getTitle() {
+    public @Nullable String getTitle() {
         return mTitle;
     }
 
@@ -384,7 +385,7 @@ public final class ContentRecommendation
      *
      * @return A String containing the recommendation description text.
      */
-    public String getText() {
+    public @Nullable String getText() {
         return mText;
     }
 
@@ -393,7 +394,7 @@ public final class ContentRecommendation
      *
      * @return A String containing the recommendation source name.
      */
-    public String getSourceName() {
+    public @Nullable String getSourceName() {
         return mSourceName;
     }
 
@@ -402,7 +403,7 @@ public final class ContentRecommendation
      *
      * @return A Bitmap containing the recommendation image.
      */
-    public Bitmap getContentImage() {
+    public @Nullable Bitmap getContentImage() {
         return mContentImage;
     }
 
@@ -423,7 +424,7 @@ public final class ContentRecommendation
      *
      * @return A Content URI pointing to the recommendation background image.
      */
-    public String getBackgroundImageUri() {
+    public @Nullable String getBackgroundImageUri() {
         return mBackgroundImageUri;
     }
 
@@ -447,7 +448,7 @@ public final class ContentRecommendation
      *
      * @param groupTag A String containing the group ID tag for this recommendation.
      */
-    public void setGroup(String groupTag) {
+    public void setGroup(@Nullable String groupTag) {
         mGroup = groupTag;
     }
 
@@ -456,7 +457,7 @@ public final class ContentRecommendation
      *
      * @return A String containing the group ID tag for this recommendation.
      */
-    public String getGroup() {
+    public @Nullable String getGroup() {
         return mGroup;
     }
 
@@ -470,7 +471,7 @@ public final class ContentRecommendation
      *
      * @param sortKey A String containing the sort key for this recommendation.
      */
-    public void setSortKey(String sortKey) {
+    public void setSortKey(@Nullable String sortKey) {
         mSortKey = sortKey;
     }
 
@@ -479,7 +480,7 @@ public final class ContentRecommendation
      *
      * @return A String containing the sort key for this recommendation.
      */
-    public String getSortKey() {
+    public @Nullable String getSortKey() {
         return mSortKey;
     }
 
@@ -556,7 +557,7 @@ public final class ContentRecommendation
      * @return An IntentData object, containing the data for the Intent that gets issued when the
      *         recommendation is clicked on.
      */
-    public IntentData getContentIntent() {
+    public @Nullable IntentData getContentIntent() {
         return mContentIntentData;
     }
 
@@ -567,7 +568,7 @@ public final class ContentRecommendation
      * @return An IntentData object, containing the data for the Intent that gets issued when the
      *         recommendation is dismissed from the Home Screen.
      */
-    public IntentData getDismissIntent() {
+    public @Nullable IntentData getDismissIntent() {
         return mDismissIntentData;
     }
 
@@ -579,11 +580,11 @@ public final class ContentRecommendation
      * @return An array of predefined type tags (see the <code>CONTENT_TYPE_*</code> constants) that
      *         describe the recommended content.
      */
-    public String[] getContentTypes() {
+    public @Nullable String[] getContentTypes() {
         if (mContentTypes != null) {
             return Arrays.copyOf(mContentTypes, mContentTypes.length);
         }
-        return mContentTypes;
+        return null;
     }
 
     /**
@@ -593,7 +594,7 @@ public final class ContentRecommendation
      * @return A predefined type tag (see the <code>CONTENT_TYPE_*</code> constants) indicating the
      *         primary content type for the recommendation.
      */
-    public String getPrimaryContentType() {
+    public @Nullable String getPrimaryContentType() {
         if (mContentTypes != null && mContentTypes.length > 0) {
             return mContentTypes[0];
         }
@@ -606,11 +607,11 @@ public final class ContentRecommendation
      *
      * @return An array of genre tags that describe the recommended content.
      */
-    public String[] getGenres() {
+    public @Nullable String[] getGenres() {
         if (mContentGenres != null) {
             return Arrays.copyOf(mContentGenres, mContentGenres.length);
         }
-        return mContentGenres;
+        return null;
     }
 
     /**
@@ -619,7 +620,7 @@ public final class ContentRecommendation
      * @return A predefined tag indicating the pricing type for the content (see the <code>
      *         CONTENT_PRICING_*</code> constants).
      */
-    public String getPricingType() {
+    public @Nullable String getPricingType() {
         return mPriceType;
     }
 
@@ -630,7 +631,7 @@ public final class ContentRecommendation
      * @return A string containing a representation of the content price in the current locale and
      *         currency.
      */
-    public String getPricingValue() {
+    public @Nullable String getPricingValue() {
         return mPriceValue;
     }
 
@@ -664,7 +665,7 @@ public final class ContentRecommendation
      * @return returns a predefined tag indicating the maturity level rating for the content (see
      *         the <code>CONTENT_MATURITY_*</code> constants).
      */
-    public String getMaturityRating() {
+    public @Nullable String getMaturityRating() {
         return mMaturityRating;
     }
 
@@ -747,7 +748,7 @@ public final class ContentRecommendation
          * @param idTag A String tag identifier for this recommendation.
          * @return The Builder object, for chaining.
          */
-        public Builder setIdTag(String idTag) {
+        public @NonNull Builder setIdTag(@NonNull String idTag) {
             mBuilderIdTag = checkNotNull(idTag);
             return this;
         }
@@ -758,7 +759,7 @@ public final class ContentRecommendation
          * @param title A String containing the recommendation content title.
          * @return The Builder object, for chaining.
          */
-        public Builder setTitle(String title) {
+        public @NonNull Builder setTitle(@NonNull String title) {
             mBuilderTitle = checkNotNull(title);
             return this;
         }
@@ -769,7 +770,7 @@ public final class ContentRecommendation
          * @param description A String containing the recommendation description text.
          * @return The Builder object, for chaining.
          */
-        public Builder setText(@Nullable String description) {
+        public @NonNull Builder setText(@Nullable String description) {
             mBuilderText = description;
             return this;
         }
@@ -783,7 +784,7 @@ public final class ContentRecommendation
          * @param source A String containing the recommendation source name.
          * @return The Builder object, for chaining.
          */
-        public Builder setSourceName(@Nullable String source) {
+        public @NonNull Builder setSourceName(@Nullable String source) {
             mBuilderSourceName = source;
             return this;
         }
@@ -794,7 +795,7 @@ public final class ContentRecommendation
          * @param image A Bitmap containing the recommendation image.
          * @return The Builder object, for chaining.
          */
-        public Builder setContentImage(Bitmap image) {
+        public @NonNull Builder setContentImage(@NonNull Bitmap image) {
             mBuilderContentImage = checkNotNull(image);
             return this;
         }
@@ -809,7 +810,7 @@ public final class ContentRecommendation
          * @param iconResourceId An integer id for the badge icon resource.
          * @return The Builder object, for chaining.
          */
-        public Builder setBadgeIcon(@DrawableRes int iconResourceId) {
+        public @NonNull Builder setBadgeIcon(@DrawableRes int iconResourceId) {
             mBuilderBadgeIconId = iconResourceId;
             return this;
         }
@@ -821,7 +822,7 @@ public final class ContentRecommendation
          * @param imageUri A Content URI pointing to the recommendation background image.
          * @return The Builder object, for chaining.
          */
-        public Builder setBackgroundImageUri(@Nullable String imageUri) {
+        public @NonNull Builder setBackgroundImageUri(@Nullable String imageUri) {
             mBuilderBackgroundImageUri = imageUri;
             return this;
         }
@@ -833,7 +834,7 @@ public final class ContentRecommendation
          * @param color An integer value representing the accent color for this recommendation.
          * @return The Builder object, for chaining.
          */
-        public Builder setColor(@ColorInt int color) {
+        public @NonNull Builder setColor(@ColorInt int color) {
             mBuilderColor = color;
             return this;
         }
@@ -850,7 +851,7 @@ public final class ContentRecommendation
          * @param groupTag A String containing the group ID tag for this recommendation.
          * @return The Builder object, for chaining.
          */
-        public Builder setGroup(@Nullable String groupTag) {
+        public @NonNull Builder setGroup(@Nullable String groupTag) {
             mBuilderGroup = groupTag;
             return this;
         }
@@ -866,7 +867,7 @@ public final class ContentRecommendation
          * @param sortKey A String containing the sort key for this recommendation.
          * @return The Builder object, for chaining.
          */
-        public Builder setSortKey(@Nullable String sortKey) {
+        public @NonNull Builder setSortKey(@Nullable String sortKey) {
             mBuilderSortKey = sortKey;
             return this;
         }
@@ -878,7 +879,7 @@ public final class ContentRecommendation
          * @param progress The progress amount for this content. Must be in the range (0 - max).
          * @return The Builder object, for chaining.
          */
-        public Builder setProgress(int max, int progress) {
+        public @NonNull Builder setProgress(int max, int progress) {
             if (max < 0 || progress < 0) {
                 throw new IllegalArgumentException();
             }
@@ -897,7 +898,7 @@ public final class ContentRecommendation
          *            not.
          * @return The Builder object, for chaining.
          */
-        public Builder setAutoDismiss(boolean autoDismiss) {
+        public @NonNull Builder setAutoDismiss(boolean autoDismiss) {
             mBuilderAutoDismiss = autoDismiss;
             return this;
         }
@@ -920,8 +921,8 @@ public final class ContentRecommendation
          *            Activity should be started. May be null if there are no options.
          * @return The Builder object, for chaining.
          */
-        public Builder setContentIntentData(@IntentType int intentType, Intent intent,
-                int requestCode, @Nullable Bundle options) {
+        public @NonNull Builder setContentIntentData(@IntentType int intentType,
+                @NonNull Intent intent, int requestCode, @Nullable Bundle options) {
             if (intentType != INTENT_TYPE_ACTIVITY &&
                     intentType != INTENT_TYPE_BROADCAST &&
                     intentType != INTENT_TYPE_SERVICE) {
@@ -956,8 +957,8 @@ public final class ContentRecommendation
          *            Activity should be started. May be null if there are no options.
          * @return The Builder object, for chaining.
          */
-        public Builder setDismissIntentData(@IntentType int intentType, @Nullable Intent intent,
-                int requestCode, @Nullable Bundle options) {
+        public @NonNull Builder setDismissIntentData(@IntentType int intentType,
+                @Nullable Intent intent, int requestCode, @Nullable Bundle options) {
             if (intent != null) {
                 if (intentType != INTENT_TYPE_ACTIVITY &&
                         intentType != INTENT_TYPE_BROADCAST &&
@@ -985,7 +986,7 @@ public final class ContentRecommendation
          * @param types Array of predefined type tags (see the <code>CONTENT_TYPE_*</code>
          *            constants) that describe the recommended content.
          */
-        public Builder setContentTypes(String[] types) {
+        public @NonNull Builder setContentTypes(@NonNull String[] types) {
             mBuilderContentTypes = checkNotNull(types);
             return this;
         }
@@ -998,7 +999,7 @@ public final class ContentRecommendation
          *
          * @param genres Array of genre string tags that describe the recommended content.
          */
-        public Builder setGenres(String[] genres) {
+        public @NonNull Builder setGenres(@Nullable String[] genres) {
             mBuilderContentGenres = genres;
             return this;
         }
@@ -1013,7 +1014,7 @@ public final class ContentRecommendation
          * @param priceValue A string containing a representation of the content price in the
          *            current locale and currency.
          */
-        public Builder setPricingInformation(@ContentPricing String priceType,
+        public @NonNull Builder setPricingInformation(@NonNull @ContentPricing String priceType,
                 @Nullable String priceValue) {
             mBuilderPriceType = checkNotNull(priceType);
             mBuilderPriceValue = priceValue;
@@ -1028,7 +1029,7 @@ public final class ContentRecommendation
          * @param contentStatus The status value for this content. Must be one of the predefined
          *            content status values (see the <code>CONTENT_STATUS_*</code> constants).
          */
-        public Builder setStatus(@ContentStatus int contentStatus) {
+        public @NonNull Builder setStatus(@ContentStatus int contentStatus) {
             mBuilderStatus = contentStatus;
             return this;
         }
@@ -1040,7 +1041,7 @@ public final class ContentRecommendation
          *            tag must be one of the predefined maturity rating tags (see the <code>
          *            CONTENT_MATURITY_*</code> constants).
          */
-        public Builder setMaturityRating(@ContentMaturity String maturityRating) {
+        public @NonNull Builder setMaturityRating(@NonNull @ContentMaturity String maturityRating) {
             mBuilderMaturityRating = checkNotNull(maturityRating);
             return this;
         }
@@ -1050,7 +1051,7 @@ public final class ContentRecommendation
          *
          * @param length The running time, in seconds, of the content.
          */
-        public Builder setRunningTime(long length) {
+        public @NonNull Builder setRunningTime(long length) {
             if (length < 0) {
                 throw new IllegalArgumentException();
             }
@@ -1062,7 +1063,7 @@ public final class ContentRecommendation
          * Combine all of the options that have been set and return a new
          * {@link ContentRecommendation} object.
          */
-        public ContentRecommendation build() {
+        public @NonNull ContentRecommendation build() {
             return new ContentRecommendation(this);
         }
     }
@@ -1078,7 +1079,7 @@ public final class ContentRecommendation
      * @return A {@link android.app.Notification Notification} containing the stored recommendation
      *         data.
      */
-    public Notification getNotificationObject(Context context) {
+    public @NonNull Notification getNotificationObject(@NonNull Context context) {
         Notification.Builder builder = new Notification.Builder(context);
         RecommendationExtender recExtender = new RecommendationExtender();
 
@@ -1142,8 +1143,7 @@ public final class ContentRecommendation
         recExtender.setRunningTime(mRunningTime);
 
         builder.extend(recExtender);
-        Notification notif = builder.build();
-        return notif;
+        return builder.build();
     }
 
     /**

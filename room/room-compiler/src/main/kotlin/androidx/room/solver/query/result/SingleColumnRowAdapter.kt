@@ -18,12 +18,21 @@ package androidx.room.solver.query.result
 
 import androidx.room.solver.CodeGenScope
 import androidx.room.solver.types.CursorValueReader
+import androidx.room.vo.ColumnIndexVar
 
 /**
- * Wraps a row adapter when there is only 1 item  with 1 column in the response.
+ * Wraps a row adapter when there is only 1 item with 1 column in the response.
  */
 class SingleColumnRowAdapter(val reader: CursorValueReader) : RowAdapter(reader.typeMirror()) {
     override fun convert(outVarName: String, cursorVarName: String, scope: CodeGenScope) {
         reader.readFromCursor(outVarName, cursorVarName, "0", scope)
+    }
+
+    override fun getDefaultIndexAdapter() = object : IndexAdapter {
+        override fun onCursorReady(cursorVarName: String, scope: CodeGenScope) {}
+
+        override fun getIndexVars() = listOf(
+            ColumnIndexVar(null, "0")
+        )
     }
 }

@@ -18,6 +18,9 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
@@ -52,19 +55,19 @@ public class DetailsOverviewRow extends Row {
         /**
          * Called when DetailsOverviewRow has changed image drawable.
          */
-        public void onImageDrawableChanged(DetailsOverviewRow row) {
+        public void onImageDrawableChanged(@NonNull DetailsOverviewRow row) {
         }
 
         /**
          * Called when DetailsOverviewRow has changed main item.
          */
-        public void onItemChanged(DetailsOverviewRow row) {
+        public void onItemChanged(@NonNull DetailsOverviewRow row) {
         }
 
         /**
          * Called when DetailsOverviewRow has changed actions adapter.
          */
-        public void onActionsAdapterChanged(DetailsOverviewRow row) {
+        public void onActionsAdapterChanged(@NonNull DetailsOverviewRow row) {
         }
     }
 
@@ -80,7 +83,7 @@ public class DetailsOverviewRow extends Row {
      *
      * @param item The main item for the details page.
      */
-    public DetailsOverviewRow(Object item) {
+    public DetailsOverviewRow(@NonNull Object item) {
         super(null);
         mItem = item;
         verify();
@@ -182,6 +185,7 @@ public class DetailsOverviewRow extends Row {
     /**
      * Returns the main item for the details page.
      */
+    @NonNull
     public final Object getItem() {
         return mItem;
     }
@@ -190,7 +194,7 @@ public class DetailsOverviewRow extends Row {
      * Sets the main item for the details page.  Must be called on UI thread after
      * row is bound to view.
      */
-    public final void setItem(Object item) {
+    public final void setItem(@NonNull Object item) {
         if (item != mItem) {
             mItem = item;
             notifyItemChanged();
@@ -203,7 +207,7 @@ public class DetailsOverviewRow extends Row {
      *
      * @param drawable The drawable to set.
      */
-    public final void setImageDrawable(Drawable drawable) {
+    public final void setImageDrawable(@Nullable Drawable drawable) {
         if (mImageDrawable != drawable) {
             mImageDrawable = drawable;
             notifyImageDrawableChanged();
@@ -217,7 +221,7 @@ public class DetailsOverviewRow extends Row {
      * @param context The context to retrieve display metrics from.
      * @param bm The bitmap to set.
      */
-    public final void setImageBitmap(Context context, Bitmap bm) {
+    public final void setImageBitmap(@NonNull Context context, @NonNull Bitmap bm) {
         mImageDrawable = new BitmapDrawable(context.getResources(), bm);
         notifyImageDrawableChanged();
     }
@@ -228,6 +232,7 @@ public class DetailsOverviewRow extends Row {
      * @return The overview's image drawable, or null if no drawable has been
      *         assigned.
      */
+    @Nullable
     public final Drawable getImageDrawable() {
         return mImageDrawable;
     }
@@ -314,6 +319,7 @@ public class DetailsOverviewRow extends Row {
     /**
      * Returns the {@link ObjectAdapter} for actions.
      */
+    @NonNull
     public final ObjectAdapter getActionsAdapter() {
         return mActionsAdapter;
     }
@@ -324,7 +330,7 @@ public class DetailsOverviewRow extends Row {
      *
      * @param adapter  Adapter for actions.
      */
-    public final void setActionsAdapter(ObjectAdapter adapter) {
+    public final void setActionsAdapter(@NonNull ObjectAdapter adapter) {
         if (adapter != mActionsAdapter) {
             mActionsAdapter = adapter;
             if (mActionsAdapter.getPresenterSelector() == null) {
@@ -337,6 +343,7 @@ public class DetailsOverviewRow extends Row {
     /**
      * Returns the Action associated with the given keycode, or null if no associated action exists.
      */
+    @Nullable
     public Action getActionForKeyCode(int keyCode) {
         ObjectAdapter adapter = getActionsAdapter();
         if (adapter != null) {

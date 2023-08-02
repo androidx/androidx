@@ -224,8 +224,8 @@ internal object Errors {
             """.trimMarginWrapNewlines()
         }
 
-        if (Arguments.profiler != null) {
-            val profilerName = Arguments.profiler.javaClass.simpleName
+        Arguments.profiler?.run {
+            val profilerName = javaClass.simpleName
             warningPrefix += "PROFILED_"
             warningString += """
                 |WARNING: Using profiler=$profilerName, results will be affected.

@@ -1,0 +1,9 @@
+// Signature format: 4.0
+package androidx.mediarouter.testing {
+
+  public class MediaRouterTestHelper {
+    method @MainThread public static void resetMediaRouter();
+  }
+
+}
+

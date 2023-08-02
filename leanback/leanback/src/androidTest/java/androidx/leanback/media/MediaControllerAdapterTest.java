@@ -34,6 +34,8 @@ import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.leanback.widget.PlaybackControlsRow;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SdkSuppress;
@@ -930,70 +932,74 @@ public class MediaControllerAdapterTest {
         }
 
         @Override
-        public void onPlayStateChanged(PlayerAdapter adapter) {
+        public void onPlayStateChanged(@NonNull PlayerAdapter adapter) {
             synchronized (mWaitLock) {
                 mOnPlayStateChangedCalled = true;
             }
         }
 
         @Override
-        public void onPreparedStateChanged(PlayerAdapter adapter) {
+        public void onPreparedStateChanged(@NonNull PlayerAdapter adapter) {
             synchronized (mWaitLock) {
                 mOnPreparedStateChangedCalled = true;
             }
         }
 
         @Override
-        public void onPlayCompleted(PlayerAdapter adapter) {
+        public void onPlayCompleted(@NonNull PlayerAdapter adapter) {
             synchronized (mWaitLock) {
                 mOnPlayCompletedCalled = true;
             }
         }
 
         @Override
-        public void onCurrentPositionChanged(PlayerAdapter adapter) {
+        public void onCurrentPositionChanged(@NonNull PlayerAdapter adapter) {
             synchronized (mWaitLock) {
                 mOnCurrentPositionChangedCalled = true;
             }
         }
 
         @Override
-        public void onBufferedPositionChanged(PlayerAdapter adapter) {
+        public void onBufferedPositionChanged(@NonNull PlayerAdapter adapter) {
             synchronized (mWaitLock) {
                 mOnBufferedPositionChangedCalled = true;
             }
         }
 
         @Override
-        public void onDurationChanged(PlayerAdapter adapter) {
+        public void onDurationChanged(@NonNull PlayerAdapter adapter) {
             synchronized (mWaitLock) {
                 mOnDurationChnagedCalled = true;
             }
         }
 
         @Override
-        public void onVideoSizeChanged(PlayerAdapter adapter, int width, int height) {
+        public void onVideoSizeChanged(@NonNull PlayerAdapter adapter, int width, int height) {
             synchronized (mWaitLock) {
                 mOnVideoSizeChangedCalled = true;
             }
         }
 
         @Override
-        public void onError(PlayerAdapter adapter, int errorCode, String errorMessage) {
+        public void onError(
+                @NonNull PlayerAdapter adapter,
+                int errorCode,
+                @Nullable String errorMessage
+        ) {
             synchronized (mWaitLock) {
                 mOnErrorCalled = true;
             }
         }
 
         @Override
-        public void onBufferingStateChanged(PlayerAdapter adapter, boolean start) {
+        public void onBufferingStateChanged(@NonNull PlayerAdapter adapter, boolean start) {
             synchronized (mWaitLock) {
                 mOnBufferingStateChangedCalled = true;
             }
         }
 
         @Override
-        public void onMetadataChanged(PlayerAdapter adapter) {
+        public void onMetadataChanged(@NonNull PlayerAdapter adapter) {
             synchronized (mWaitLock) {
                 mOnMetadataChangedCalled = true;
             }

@@ -79,6 +79,7 @@ public class ClientBroadcastReceiver extends BroadcastReceiver {
     private static final String TAG = "ClientBroadcastReceiver";
 
     @Override
+    @SuppressWarnings("deprecation")
     public void onReceive(Context context, Intent intent) {
         Bundle extras = intent.getExtras();
         MediaControllerCompat controller = new MediaControllerCompat(context,

@@ -14,9 +14,15 @@
  * limitations under the License.
  */
 
+package androidx.wear.compose.material
+
+import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -38,23 +44,14 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.swipe
 import androidx.compose.ui.test.swipeLeft
 import androidx.compose.ui.test.swipeRight
-import androidx.wear.compose.material.Button
-import androidx.wear.compose.material.ExperimentalWearMaterialApi
-import androidx.wear.compose.material.MaterialTheme
-import androidx.wear.compose.material.SwipeDismissTarget
-import androidx.wear.compose.material.SwipeToDismissBox
-import androidx.wear.compose.material.TEST_TAG
-import androidx.wear.compose.material.Text
-import androidx.wear.compose.material.ToggleButton
-import androidx.wear.compose.material.rememberSwipeToDismissBoxState
-import androidx.wear.compose.material.setContentWithTheme
+import java.lang.Math.sin
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
 
-@ExperimentalWearMaterialApi
 class SwipeToDismissBoxTest {
     @get:Rule
     val rule = createComposeRule()
@@ -85,7 +82,7 @@ class SwipeToDismissBoxTest {
 
     @Test
     fun does_not_dismiss_when_swipe_right_incomplete() =
-        // Execute a partial swipe over a longer-than-default duration so that there
+    // Execute a partial swipe over a longer-than-default duration so that there
         // is insufficient velocity to perform a 'fling'.
         verifySwipe(
             gesture = { swipeRight(startX = 0f, endX = width / 4f, durationMillis = LONG_SWIPE) },
@@ -114,7 +111,7 @@ class SwipeToDismissBoxTest {
             val state = rememberSwipeToDismissBoxState()
             LaunchedEffect(state.currentValue) {
                 dismissed =
-                    state.currentValue == SwipeDismissTarget.Dismissal
+                    state.currentValue == SwipeToDismissValue.Dismissed
             }
             SwipeToDismissBox(
                 state = state,
@@ -139,9 +136,9 @@ class SwipeToDismissBoxTest {
             val state = rememberSwipeToDismissBoxState()
             val holder = rememberSaveableStateHolder()
             LaunchedEffect(state.currentValue) {
-                if (state.currentValue == SwipeDismissTarget.Dismissal) {
+                if (state.currentValue == SwipeToDismissValue.Dismissed) {
                     showCounterForContent.value = !showCounterForContent.value
-                    state.snapTo(SwipeDismissTarget.Original)
+                    state.snapTo(SwipeToDismissValue.Default)
                 }
             }
             SwipeToDismissBox(
@@ -190,7 +187,8 @@ class SwipeToDismissBoxTest {
         rule.setContentWithTheme {
             val outerState = rememberSwipeToDismissBoxState()
             LaunchedEffect(outerState.currentValue) {
-                outerDismissed = outerState.currentValue == SwipeDismissTarget.Dismissal
+                outerDismissed =
+                    outerState.currentValue == SwipeToDismissValue.Dismissed
             }
             SwipeToDismissBox(
                 state = outerState,
@@ -200,7 +198,8 @@ class SwipeToDismissBoxTest {
                 Text("Outer", color = MaterialTheme.colors.onPrimary)
                 val innerState = rememberSwipeToDismissBoxState()
                 LaunchedEffect(innerState.currentValue) {
-                    innerDismissed = innerState.currentValue == SwipeDismissTarget.Dismissal
+                    innerDismissed =
+                        innerState.currentValue == SwipeToDismissValue.Dismissed
                 }
                 SwipeToDismissBox(
                     state = innerState,
@@ -258,19 +257,239 @@ class SwipeToDismissBoxTest {
     fun displays_content_during_swipe() =
         verifyPartialSwipe(expectedMessage = CONTENT_MESSAGE)
 
+    @Test
+    fun calls_ondismissed_after_swipe_when_supplied() {
+        var dismissed = false
+        rule.setContentWithTheme {
+            SwipeToDismissBox(
+                onDismissed = { dismissed = true },
+                modifier = Modifier.testTag(TEST_TAG),
+            ) {
+                Text(CONTENT_MESSAGE, color = MaterialTheme.colors.onPrimary)
+            }
+        }
+
+        rule.onNodeWithTag(TEST_TAG).performTouchInput({ swipeRight() })
+
+        rule.runOnIdle {
+            assertEquals(true, dismissed)
+        }
+    }
+
+    @Test
+    fun edgeswipe_modifier_edge_swiped_right_dismissed() {
+        verifyEdgeSwipeWithNestedScroll(
+            gesture = { swipeRight() },
+            expectedToDismiss = true
+        )
+    }
+
+    @Test
+    fun edgeswipe_non_edge_swiped_right_with_offset_not_dismissed() {
+        verifyEdgeSwipeWithNestedScroll(
+            gesture = { swipeRight(200f, 400f) },
+            expectedToDismiss = false,
+            initialScrollState = 200
+        )
+    }
+
+    @Test
+    fun edgeswipe_non_edge_swiped_right_without_offset_not_dismissed() {
+        verifyEdgeSwipeWithNestedScroll(
+            gesture = { swipeRight(200f, 400f) },
+            expectedToDismiss = false,
+            initialScrollState = 0
+        )
+    }
+
+    @Test
+    fun edgeswipe_edge_swiped_left_not_dismissed() {
+        verifyEdgeSwipeWithNestedScroll(
+            gesture = { swipeLeft(20f, -40f) },
+            expectedToDismiss = false
+        )
+    }
+
+    @Test
+    fun edgeswipe_non_edge_swiped_left_not_dismissed() {
+        verifyEdgeSwipeWithNestedScroll(
+            gesture = { swipeLeft(200f, 0f) },
+            expectedToDismiss = false
+        )
+    }
+
+    @Test
+    fun edgeswipe_swipe_edge_content_was_not_swiped_right() {
+        val initialScrollState = 200
+        lateinit var horizontalScrollState: ScrollState
+        rule.setContentWithTheme {
+            val state = rememberSwipeToDismissBoxState()
+            horizontalScrollState = rememberScrollState(initialScrollState)
+
+            SwipeToDismissBox(
+                state = state,
+                modifier = Modifier.testTag(TEST_TAG),
+            ) {
+                nestedScrollContent(state, horizontalScrollState)
+            }
+        }
+
+        rule.onNodeWithTag(TEST_TAG).performTouchInput { swipeRight(0f, 200f) }
+        rule.runOnIdle {
+            assert(horizontalScrollState.value == initialScrollState)
+        }
+    }
+
+    @Test
+    fun edgeswipe_swipe_non_edge_content_was_swiped_right() {
+        val initialScrollState = 200
+        lateinit var horizontalScrollState: ScrollState
+        rule.setContentWithTheme {
+            val state = rememberSwipeToDismissBoxState()
+            horizontalScrollState = rememberScrollState(initialScrollState)
+
+            SwipeToDismissBox(
+                state = state,
+                modifier = Modifier.testTag(TEST_TAG),
+            ) {
+                nestedScrollContent(state, horizontalScrollState)
+            }
+        }
+
+        rule.onNodeWithTag(TEST_TAG).performTouchInput { swipeRight(200f, 400f) }
+        rule.runOnIdle {
+            assert(horizontalScrollState.value < initialScrollState)
+        }
+    }
+
+    @Test
+    fun edgeswipe_swipe_edge_content_right_then_left_no_scroll() {
+        testBothDirectionScroll(
+            initialTouch = 10,
+            duration = 2000,
+            amplitude = 100,
+            startLeft = false
+        ) { scrollState ->
+            assertEquals(scrollState.value, 200)
+        }
+    }
+
+    @Test
+    fun edgeswipe_fling_edge_content_right_then_left_no_scroll() {
+        testBothDirectionScroll(
+            initialTouch = 10,
+            duration = 100,
+            amplitude = 100,
+            startLeft = false
+        ) { scrollState ->
+            assertEquals(scrollState.value, 200)
+        }
+    }
+
+    @Test
+    fun edgeswipe_swipe_edge_content_left_then_right_with_scroll() {
+        testBothDirectionScroll(
+            initialTouch = 10,
+            duration = 2000,
+            amplitude = 100,
+            startLeft = true
+        ) { scrollState ->
+            // After scrolling to the left, successful scroll to the right
+            // reduced scrollState
+            assert(scrollState.value < 200)
+        }
+    }
+
+    @Test
+    fun edgeswipe_fling_edge_content_left_then_right_with_scroll() {
+        testBothDirectionScroll(
+            initialTouch = 10,
+            duration = 100,
+            amplitude = 100,
+            startLeft = true
+        ) { scrollState ->
+            // Fling right to the start (0)
+            assertEquals(scrollState.value, 0)
+        }
+    }
+
+    private fun testBothDirectionScroll(
+        initialTouch: Long,
+        duration: Long,
+        amplitude: Long,
+        startLeft: Boolean,
+        testScrollState: (ScrollState) -> Unit
+    ) {
+        val initialScrollState = 200
+        lateinit var horizontalScrollState: ScrollState
+        rule.setContentWithTheme {
+            val state = rememberSwipeToDismissBoxState()
+            horizontalScrollState = rememberScrollState(initialScrollState)
+
+            SwipeToDismissBox(
+                state = state,
+                modifier = Modifier.testTag(TEST_TAG),
+            ) {
+                nestedScrollContent(state, horizontalScrollState)
+            }
+        }
+
+        rule.onNodeWithTag(TEST_TAG)
+            .performTouchInput {
+                swipeBothDirections(
+                    startLeft = startLeft,
+                    startX = initialTouch,
+                    amplitude = amplitude,
+                    duration = duration
+                )
+            }
+        rule.runOnIdle {
+            testScrollState(horizontalScrollState)
+        }
+    }
+
     private fun verifySwipe(gesture: TouchInjectionScope.() -> Unit, expectedToDismiss: Boolean) {
         var dismissed = false
         rule.setContentWithTheme {
             val state = rememberSwipeToDismissBoxState()
             LaunchedEffect(state.currentValue) {
                 dismissed =
-                    state.currentValue == SwipeDismissTarget.Dismissal
+                    state.currentValue == SwipeToDismissValue.Dismissed
             }
             SwipeToDismissBox(
                 state = state,
                 modifier = Modifier.testTag(TEST_TAG),
             ) {
                 messageContent()
+            }
+        }
+
+        rule.onNodeWithTag(TEST_TAG).performTouchInput(gesture)
+
+        rule.runOnIdle {
+            assertEquals(expectedToDismiss, dismissed)
+        }
+    }
+
+    private fun verifyEdgeSwipeWithNestedScroll(
+        gesture: TouchInjectionScope.() -> Unit,
+        expectedToDismiss: Boolean,
+        initialScrollState: Int = 200
+    ) {
+        var dismissed = false
+        rule.setContentWithTheme {
+            val state = rememberSwipeToDismissBoxState()
+            val horizontalScrollState = rememberScrollState(initialScrollState)
+
+            LaunchedEffect(state.currentValue) {
+                dismissed =
+                    state.currentValue == SwipeToDismissValue.Dismissed
+            }
+            SwipeToDismissBox(
+                state = state,
+                modifier = Modifier.testTag(TEST_TAG),
+            ) {
+                nestedScrollContent(state, horizontalScrollState)
             }
         }
 
@@ -306,7 +525,7 @@ class SwipeToDismissBoxTest {
     }
 
     @Composable
-    fun messageContent() {
+    private fun messageContent() {
         Column(
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -315,12 +534,47 @@ class SwipeToDismissBoxTest {
             Text(CONTENT_MESSAGE, color = MaterialTheme.colors.onPrimary)
         }
     }
+
+    @Composable
+    private fun nestedScrollContent(
+        swipeToDismissState: SwipeToDismissBoxState,
+        horizontalScrollState: ScrollState
+    ) {
+        Box(modifier = Modifier.fillMaxSize()) {
+            Text(
+                modifier = Modifier.align(Alignment.Center)
+                    .edgeSwipeToDismiss(swipeToDismissState)
+                    .horizontalScroll(horizontalScrollState),
+                text = "This text can be scrolled horizontally - to dismiss, swipe " +
+                    "right from the left edge of the screen (called Edge Swiping)",
+            )
+        }
+    }
+
+    private fun TouchInjectionScope.swipeBothDirections(
+        startLeft: Boolean,
+        startX: Long,
+        amplitude: Long,
+        duration: Long = 200
+    ) {
+        val sign = if (startLeft) -1 else 1
+        // By using sin function for range 0.. 3pi/2 , we can achieve 0 -> 1 and 1 -> -1  values
+        swipe(curve = { time ->
+            val x =
+                startX + sign * sin(time.toFloat() / duration.toFloat() * 3 * Math.PI / 2)
+                    .toFloat() * amplitude
+            Offset(
+                x = x,
+                y = centerY
+            )
+        }, durationMillis = duration)
+    }
 }
 
-internal const val BACKGROUND_MESSAGE = "The Background"
-internal const val CONTENT_MESSAGE = "The Content"
-internal const val LONG_SWIPE = 1000L
-internal const val TOGGLE_SCREEN = "Toggle"
-internal const val COUNTER_SCREEN = "Counter"
-internal const val TOGGLE_ON = "On"
-internal const val TOGGLE_OFF = "Off"
+private const val BACKGROUND_MESSAGE = "The Background"
+private const val CONTENT_MESSAGE = "The Content"
+private const val LONG_SWIPE = 1000L
+private const val TOGGLE_SCREEN = "Toggle"
+private const val COUNTER_SCREEN = "Counter"
+private const val TOGGLE_ON = "On"
+private const val TOGGLE_OFF = "Off"

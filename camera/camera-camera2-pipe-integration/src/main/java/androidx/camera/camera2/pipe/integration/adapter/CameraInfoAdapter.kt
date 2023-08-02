@@ -56,8 +56,9 @@ class CameraInfoAdapter @Inject constructor(
     private val cameraProperties: CameraProperties,
     private val cameraConfig: CameraConfig,
     private val cameraState: CameraStateAdapter,
-    private val cameraCallbackMap: CameraCallbackMap
+    private val cameraCallbackMap: CameraCallbackMap,
 ) : CameraInfoInternal {
+    private lateinit var camcorderProfileProviderAdapter: CamcorderProfileProviderAdapter
 
     override fun getCameraId(): String = cameraConfig.cameraId.value
     override fun getLensFacing(): Int? =
@@ -105,8 +106,10 @@ class CameraInfoAdapter @Inject constructor(
     override fun getImplementationType(): String = "CameraPipe"
 
     override fun getCamcorderProfileProvider(): CamcorderProfileProvider {
-        Log.warn { "TODO: CamcorderProfileProvider is not yet supported." }
-        return CamcorderProfileProvider.EMPTY
+        if (!::camcorderProfileProviderAdapter.isInitialized) {
+            camcorderProfileProviderAdapter = CamcorderProfileProviderAdapter(cameraId)
+        }
+        return camcorderProfileProviderAdapter
     }
 
     override fun toString(): String = "CameraInfoAdapter<$cameraConfig.cameraId>"
@@ -118,6 +121,16 @@ class CameraInfoAdapter @Inject constructor(
 
     override fun isFocusMeteringSupported(action: FocusMeteringAction): Boolean {
         Log.warn { "TODO: isFocusAndMeteringSupported are not yet supported." }
+        return false
+    }
+
+    override fun isZslSupported(): Boolean {
+        Log.warn { "TODO: isZslSupported are not yet supported." }
+        return false
+    }
+
+    override fun isPrivateReprocessingSupported(): Boolean {
+        Log.warn { "TODO: isPrivateReprocessingSupported are not yet supported." }
         return false
     }
 }

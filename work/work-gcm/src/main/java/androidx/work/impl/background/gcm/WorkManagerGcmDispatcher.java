@@ -17,7 +17,7 @@
 package androidx.work.impl.background.gcm;
 
 
-import android.content.Context;
+import android.os.Bundle;
 import android.os.PowerManager;
 
 import androidx.annotation.MainThread;
@@ -27,8 +27,11 @@ import androidx.work.WorkInfo;
 import androidx.work.impl.ExecutionListener;
 import androidx.work.impl.Processor;
 import androidx.work.impl.Schedulers;
+import androidx.work.impl.StartStopToken;
+import androidx.work.impl.StartStopTokens;
 import androidx.work.impl.WorkDatabase;
 import androidx.work.impl.WorkManagerImpl;
+import androidx.work.impl.model.WorkGenerationalId;
 import androidx.work.impl.model.WorkSpec;
 import androidx.work.impl.utils.WakeLocks;
 import androidx.work.impl.utils.WorkTimer;
@@ -51,19 +54,17 @@ public class WorkManagerGcmDispatcher {
     private static final long AWAIT_TIME_IN_MINUTES = 10;
     private static final long AWAIT_TIME_IN_MILLISECONDS = AWAIT_TIME_IN_MINUTES * 60 * 1000;
 
-    private final Context mContext;
     private final WorkTimer mWorkTimer;
+    private final StartStopTokens mStartStopTokens = new StartStopTokens();
 
     // Synthetic access
     WorkManagerImpl mWorkManagerImpl;
 
-
-    public WorkManagerGcmDispatcher(@NonNull Context context, @NonNull WorkTimer workTimer) {
-        mContext = context.getApplicationContext();
-        mWorkTimer = workTimer;
-        mWorkManagerImpl = WorkManagerImpl.getInstance(context);
+    public WorkManagerGcmDispatcher(
+            @NonNull WorkManagerImpl workManager, @NonNull WorkTimer timer) {
+        mWorkManagerImpl = workManager;
+        mWorkTimer = timer;
     }
-
 
     /**
      * Handles {@link WorkManagerGcmService#onInitializeTasks()}.
@@ -72,7 +73,7 @@ public class WorkManagerGcmDispatcher {
     public void onInitializeTasks() {
         // Reschedule all eligible work, as all tasks have been cleared in GCMNetworkManager.
         // This typically happens after an upgrade.
-        mWorkManagerImpl.getWorkTaskExecutor().executeOnBackgroundThread(new Runnable() {
+        mWorkManagerImpl.getWorkTaskExecutor().executeOnTaskThread(new Runnable() {
             @Override
             public void run() {
                 Logger.get().debug(TAG, "onInitializeTasks(): Rescheduling work");
@@ -97,16 +98,22 @@ public class WorkManagerGcmDispatcher {
             Logger.get().debug(TAG, "Bad request. No workSpecId.");
             return GcmNetworkManager.RESULT_FAILURE;
         }
-
-        WorkSpecExecutionListener listener = new WorkSpecExecutionListener(workSpecId);
+        Bundle extras = taskParams.getExtras();
+        int generation = extras != null
+                ? extras.getInt(GcmTaskConverter.EXTRA_WORK_GENERATION, 0) : 0;
+        WorkGenerationalId id = new WorkGenerationalId(workSpecId, generation);
+        WorkSpecExecutionListener listener = new WorkSpecExecutionListener(id,
+                mStartStopTokens);
+        StartStopToken startStopToken = mStartStopTokens.tokenFor(id);
         WorkSpecTimeLimitExceededListener timeLimitExceededListener =
-                new WorkSpecTimeLimitExceededListener(mWorkManagerImpl);
+                new WorkSpecTimeLimitExceededListener(mWorkManagerImpl, startStopToken);
         Processor processor = mWorkManagerImpl.getProcessor();
         processor.addExecutionListener(listener);
         String wakeLockTag = "WorkGcm-onRunTask (" + workSpecId + ")";
-        PowerManager.WakeLock wakeLock = WakeLocks.newWakeLock(mContext, wakeLockTag);
-        mWorkManagerImpl.startWork(workSpecId);
-        mWorkTimer.startTimer(workSpecId, AWAIT_TIME_IN_MILLISECONDS, timeLimitExceededListener);
+        PowerManager.WakeLock wakeLock = WakeLocks.newWakeLock(
+                mWorkManagerImpl.getApplicationContext(), wakeLockTag);
+        mWorkManagerImpl.startWork(startStopToken);
+        mWorkTimer.startTimer(id, AWAIT_TIME_IN_MILLISECONDS, timeLimitExceededListener);
 
         try {
             wakeLock.acquire();
@@ -116,7 +123,7 @@ public class WorkManagerGcmDispatcher {
             return reschedule(workSpecId);
         } finally {
             processor.removeExecutionListener(listener);
-            mWorkTimer.stopTimer(workSpecId);
+            mWorkTimer.stopTimer(id);
             wakeLock.release();
         }
 
@@ -139,20 +146,13 @@ public class WorkManagerGcmDispatcher {
                     Logger.get().debug(TAG, "Returning RESULT_SUCCESS for WorkSpec " + workSpecId);
                     return GcmNetworkManager.RESULT_SUCCESS;
                 case FAILED:
-                    Logger.get().debug(TAG, "Returning RESULT_FAILURE for WorkSpec " +  workSpecId);
+                    Logger.get().debug(TAG, "Returning RESULT_FAILURE for WorkSpec " + workSpecId);
                     return GcmNetworkManager.RESULT_FAILURE;
                 default:
                     Logger.get().debug(TAG, "Rescheduling eligible work.");
                     return reschedule(workSpecId);
             }
         }
-    }
-
-    /**
-     * Cleans up resources when the {@link WorkManagerGcmDispatcher} is no longer in use.
-     */
-    public void onDestroy() {
-        mWorkTimer.onDestroy();
     }
 
     private int reschedule(@NonNull final String workSpecId) {
@@ -181,26 +181,33 @@ public class WorkManagerGcmDispatcher {
         private static final String TAG = Logger.tagWithPrefix("WrkTimeLimitExceededLstnr");
 
         private final WorkManagerImpl mWorkManager;
-
-        WorkSpecTimeLimitExceededListener(@NonNull WorkManagerImpl workManager) {
+        private final StartStopToken mStartStopToken;
+        WorkSpecTimeLimitExceededListener(
+                @NonNull WorkManagerImpl workManager,
+                @NonNull StartStopToken startStopToken) {
             mWorkManager = workManager;
+            mStartStopToken = startStopToken;
         }
 
         @Override
-        public void onTimeLimitExceeded(@NonNull String workSpecId) {
-            Logger.get().debug(TAG, "WorkSpec time limit exceeded " + workSpecId);
-            mWorkManager.stopWork(workSpecId);
+        public void onTimeLimitExceeded(@NonNull WorkGenerationalId id) {
+            Logger.get().debug(TAG, "WorkSpec time limit exceeded " + id);
+            mWorkManager.stopWork(mStartStopToken);
         }
     }
 
     static class WorkSpecExecutionListener implements ExecutionListener {
         private static final String TAG = Logger.tagWithPrefix("WorkSpecExecutionListener");
-        private final String mWorkSpecId;
+        private final WorkGenerationalId mGenerationalId;
         private final CountDownLatch mLatch;
         private boolean mNeedsReschedule;
+        private final StartStopTokens mStartStopTokens;
 
-        WorkSpecExecutionListener(@NonNull String workSpecId) {
-            mWorkSpecId = workSpecId;
+        WorkSpecExecutionListener(
+                @NonNull WorkGenerationalId generationalId,
+                @NonNull StartStopTokens startStopTokens) {
+            mGenerationalId = generationalId;
+            mStartStopTokens = startStopTokens;
             mLatch = new CountDownLatch(1);
             mNeedsReschedule = false;
         }
@@ -214,11 +221,12 @@ public class WorkManagerGcmDispatcher {
         }
 
         @Override
-        public void onExecuted(@NonNull String workSpecId, boolean needsReschedule) {
-            if (!mWorkSpecId.equals(workSpecId)) {
+        public void onExecuted(@NonNull WorkGenerationalId id, boolean needsReschedule) {
+            if (!mGenerationalId.equals(id)) {
                 Logger.get().warning(TAG,
-                        "Notified for " + workSpecId + ", but was looking for " + mWorkSpecId);
+                        "Notified for " + id + ", but was looking for " + mGenerationalId);
             } else {
+                mStartStopTokens.remove(id);
                 mNeedsReschedule = needsReschedule;
                 mLatch.countDown();
             }

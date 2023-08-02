@@ -144,6 +144,7 @@ public class DefaultKeyedAppStatesReporterTest {
         return bundles;
     }
 
+    @SuppressWarnings("deprecation")
     private static void assertAppStateBundlesEqual(Bundle expected, Bundle actual) {
         ArrayList<Bundle> expectedAppStatesBundles = expected.getParcelableArrayList(APP_STATES);
         ArrayList<Bundle> actualAppStatesBundles = actual.getParcelableArrayList(APP_STATES);

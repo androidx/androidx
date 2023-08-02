@@ -16,6 +16,7 @@
 
 package androidx.recyclerview.widget;
 
+import android.annotation.SuppressLint;
 import android.graphics.PointF;
 import android.util.DisplayMetrics;
 import android.view.View;
@@ -67,6 +68,7 @@ public class PagerSnapHelper extends SnapHelper {
 
     @Nullable
     @Override
+    @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
     public View findSnapView(RecyclerView.LayoutManager layoutManager) {
         if (layoutManager.canScrollVertically()) {
             return findCenterView(layoutManager, getVerticalHelper(layoutManager));
@@ -77,6 +79,7 @@ public class PagerSnapHelper extends SnapHelper {
     }
 
     @Override
+    @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
     public int findTargetSnapPosition(RecyclerView.LayoutManager layoutManager, int velocityX,
             int velocityY) {
         final int itemCount = layoutManager.getItemCount();
@@ -173,7 +176,8 @@ public class PagerSnapHelper extends SnapHelper {
         }
         return new LinearSmoothScroller(mRecyclerView.getContext()) {
             @Override
-            protected void onTargetFound(View targetView, RecyclerView.State state, Action action) {
+            protected void onTargetFound(@NonNull View targetView,
+                    @NonNull RecyclerView.State state, @NonNull Action action) {
                 int[] snapDistances = calculateDistanceToFinalSnap(mRecyclerView.getLayoutManager(),
                         targetView);
                 final int dx = snapDistances[0];
@@ -185,7 +189,7 @@ public class PagerSnapHelper extends SnapHelper {
             }
 
             @Override
-            protected float calculateSpeedPerPixel(DisplayMetrics displayMetrics) {
+            protected float calculateSpeedPerPixel(@NonNull DisplayMetrics displayMetrics) {
                 return MILLISECONDS_PER_INCH / displayMetrics.densityDpi;
             }
 

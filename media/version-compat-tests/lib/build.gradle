@@ -24,3 +24,7 @@ dependencies {
     api("androidx.versionedparcelable:versionedparcelable:1.1.1")
     implementation(libs.junit)
 }
+
+android {
+    namespace "android.support.mediacompat.testlib"
+}

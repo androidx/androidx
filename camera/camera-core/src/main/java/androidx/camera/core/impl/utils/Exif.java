@@ -688,11 +688,6 @@ public final class Exif {
         static Converter fromKilometersPerHour(double kph) {
             return new Converter(kph * 0.621371);
         }
-
-        static Converter fromMetersPerSecond(double mps) {
-            return new Converter(mps * 2.23694);
-        }
-
         static Converter fromMilesPerHour(double mph) {
             return new Converter(mph);
         }
@@ -706,18 +701,6 @@ public final class Exif {
 
             Converter(double mph) {
                 mMph = mph;
-            }
-
-            double toKilometersPerHour() {
-                return mMph / 0.621371;
-            }
-
-            double toMilesPerHour() {
-                return mMph;
-            }
-
-            double toKnots() {
-                return mMph / 1.15078;
             }
 
             double toMetersPerSecond() {

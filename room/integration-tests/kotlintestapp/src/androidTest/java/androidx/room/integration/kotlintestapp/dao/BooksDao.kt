@@ -20,6 +20,7 @@ import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
+import androidx.room.Upsert
 import androidx.room.Query
 import androidx.room.RawQuery
 import androidx.room.RoomWarnings
@@ -45,6 +46,7 @@ import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Maybe
 import io.reactivex.Single
+import io.reactivex.Observable
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.runBlocking
 import java.util.Date
@@ -449,4 +451,79 @@ interface BooksDao {
 
     // This is a private method to validate b/194706278
     private fun getNullAuthor(): Author? = null
+
+    @Query("SELECT * FROM Publisher JOIN Book ON (Publisher.publisherId == Book.bookPublisherId)")
+    fun getBooksByPublisher(): Map<Publisher, List<Book>>
+
+    @get:Query("SELECT * FROM Book")
+    val allBooks: List<Book>
+
+    @Upsert
+    fun upsertBooks(vararg books: Book)
+
+    @Upsert
+    suspend fun upsertBooksSuspend(vararg books: Book)
+
+    @Upsert
+    fun upsertBookPublisher(publisher: Publisher, book: Book)
+
+    @Upsert(entity = Book::class)
+    fun upsertMiniBook(miniBook: MiniBook)
+
+    @Upsert
+    fun upsertBookReturnLong(book: Book): Long
+
+    @Upsert
+    fun upsertBooksReturnLongList(vararg books: Book): List<Long>
+
+    @Upsert
+    fun upsertBooksReturnLongArray(vararg books: Book): Array<Long>
+
+    @Upsert
+    fun upsertBooksReturnLongArrayPrimitive(vararg books: Book): LongArray
+
+    @Upsert
+    fun upsertBooksReturnListenableFuture(vararg books: Book): ListenableFuture<List<Long>>
+
+    @Upsert
+    fun upsertPublishers(vararg publishers: Publisher)
+
+    @Upsert
+    fun upsertTwoPublishers(publisherOne: Publisher, publisherTwo: Publisher)
+
+    @Upsert
+    fun upsertMultiple(publisher: Publisher, publishers: List<Publisher>)
+
+    @Upsert
+    fun upsertPublisherSingle(publisher: Publisher): Single<Long>
+
+    @Upsert
+    fun upsertBookSingle(book: Book): Single<Long>
+
+    @Upsert
+    fun upsertBookMaybe(book: Book): Maybe<Long>
+
+    @Upsert
+    fun upsertBookCompletable(book: Book): Completable
+
+    @Upsert
+    fun upsertListOfBooksReturnLongArray(books: List<Book>): Array<Long>
+
+    @Query("SELECT * FROM book")
+    fun getBooksFlowable(): Flowable<List<Book>>
+
+    @Query("SELECT * FROM book")
+    fun getBooksObservable(): Observable<List<Book>>
+
+    @Insert
+    fun addPublisherReturnArray(publishers: List<Publisher>): Array<Long>
+
+    @Upsert
+    suspend fun upsertBookSuspend(books: Book)
+
+    @Upsert
+    suspend fun upsertBookSuspendReturnId(book: Book): Long
+
+    @Upsert
+    suspend fun upsertBooksSuspendReturnIds(books: List<Book>): List<Long>
 }

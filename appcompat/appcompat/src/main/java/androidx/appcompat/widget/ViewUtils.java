@@ -16,6 +16,7 @@
 
 package androidx.appcompat.widget;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.graphics.Rect;
@@ -23,6 +24,7 @@ import android.os.Build;
 import android.util.Log;
 import android.view.View;
 
+import androidx.annotation.ChecksSdkIntAtLeast;
 import androidx.annotation.RestrictTo;
 import androidx.core.view.ViewCompat;
 
@@ -37,6 +39,13 @@ public class ViewUtils {
     private static final String TAG = "ViewUtils";
 
     private static Method sComputeFitSystemWindowsMethod;
+
+    /**
+     * @hide
+     */
+    @RestrictTo(LIBRARY)
+    @ChecksSdkIntAtLeast(api = 27)
+    static final boolean SDK_LEVEL_SUPPORTS_AUTOSIZE = Build.VERSION.SDK_INT >= 27;
 
     static {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {

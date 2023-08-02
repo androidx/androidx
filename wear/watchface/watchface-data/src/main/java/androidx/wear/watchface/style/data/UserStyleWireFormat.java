@@ -33,7 +33,7 @@ import java.util.Map;
 /**
  * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @VersionedParcelize(allowSerialization = true)
 @SuppressLint("BanParcelableUsage") // TODO(b/169214666): Remove Parcelable
 public class UserStyleWireFormat implements VersionedParcelable, Parcelable {
@@ -61,6 +61,7 @@ public class UserStyleWireFormat implements VersionedParcelable, Parcelable {
 
     public static final Parcelable.Creator<UserStyleWireFormat> CREATOR =
             new Parcelable.Creator<UserStyleWireFormat>() {
+                @SuppressWarnings("deprecation")
                 @Override
                 public UserStyleWireFormat createFromParcel(Parcel source) {
                     return ParcelUtils.fromParcelable(

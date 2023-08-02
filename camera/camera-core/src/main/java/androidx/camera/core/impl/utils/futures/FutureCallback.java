@@ -16,6 +16,7 @@
 
 package androidx.camera.core.impl.utils.futures;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
@@ -45,8 +46,9 @@ public interface FutureCallback<V> {
     /**
      * Invoked when a {@code Future} computation fails or is canceled.
      *
-     * <p>If the future's {@link Future#get() get} method throws an {@link ExecutionException}, then
-     * the cause is passed to this method. Any other thrown object is passed unaltered.
+     * <p>If the future's {@link Future#get() get} method throws an {@link ExecutionException}
+     * with a non-{@code null} cause, then the cause is passed to this method. Any other thrown
+     * object is passed unaltered.
      */
-    void onFailure(Throwable t);
+    void onFailure(@NonNull Throwable t);
 }

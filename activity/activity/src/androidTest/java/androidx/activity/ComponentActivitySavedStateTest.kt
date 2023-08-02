@@ -18,6 +18,8 @@ package androidx.activity
 
 import android.os.Bundle
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.LifecycleOwner
 import androidx.savedstate.SavedStateRegistry
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -90,6 +92,16 @@ class ComponentActivitySavedStateTest {
             recreate()
         }
     }
+
+    @Test
+    @Throws(Throwable::class)
+    fun savedStateEarlyRegisterInitAddedLifecycleObserver() {
+        with(ActivityScenario.launch(SavedStateActivity::class.java)) {
+            initializeSavedState()
+            SavedStateActivity.checkEnabledInInitAddedLifecycleObserver = true
+            recreate()
+        }
+    }
 }
 
 private class DefaultProvider : SavedStateRegistry.SavedStateProvider {
@@ -115,6 +127,16 @@ class SavedStateActivity : ComponentActivity() {
                 checkEnabledInOnContextAvailable = false
             }
         }
+        lifecycle.addObserver(object : LifecycleEventObserver {
+            override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
+                if (event == Lifecycle.Event.ON_CREATE &&
+                    checkEnabledInInitAddedLifecycleObserver) {
+                    checkDefaultSavedState(savedStateRegistry)
+                    checkEnabledInInitAddedLifecycleObserver = false
+                    lifecycle.removeObserver(this)
+                }
+            }
+        })
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -127,6 +149,7 @@ class SavedStateActivity : ComponentActivity() {
 
     companion object {
         internal var checkEnabledInOnCreate = false
+        internal var checkEnabledInInitAddedLifecycleObserver = false
         internal var checkEnabledInOnContextAvailable = false
     }
 }

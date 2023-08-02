@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
 import androidx.build.LibraryType
 
 plugins {
@@ -25,11 +24,10 @@ plugins {
 }
 
 dependencies {
-    kotlinPlugin(project(":compose:compiler:compiler"))
 
     implementation(libs.kotlinStdlib)
     compileOnly(project(":annotation:annotation-sampled"))
-    implementation(project(":compose:runtime:runtime"))
+    implementation("androidx.compose.runtime:runtime:1.2.0")
     implementation(project(":compose:ui:ui"))
     implementation(project(":compose:ui:ui-viewbinding"))
     // Used when creating layouts that contain a FragmentContainerView
@@ -47,7 +45,7 @@ dependencies {
 androidx {
     name = "AndroidX Compose UI Simple Unit Classes Samples"
     type = LibraryType.SAMPLES
-    mavenGroup = LibraryGroups.Compose.UI
+    mavenGroup = LibraryGroups.COMPOSE_UI
     inceptionYear = "2019"
     description = "Contains the sample code for the Androidx Compose UI Simple Unit Classes"
 }
@@ -56,4 +54,5 @@ android {
     buildFeatures {
         viewBinding true
     }
+    namespace "androidx.compose.ui.viewbinding.samples"
 }

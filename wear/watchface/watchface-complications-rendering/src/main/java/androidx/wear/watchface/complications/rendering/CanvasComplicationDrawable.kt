@@ -78,22 +78,28 @@ constructor(
         )
     }
 
-    init {
-        drawable.callback = object : Drawable.Callback {
-            override fun unscheduleDrawable(who: Drawable, what: Runnable) {}
+    private val drawableCallback = object : Drawable.Callback {
+        override fun unscheduleDrawable(who: Drawable, what: Runnable) {}
 
-            @SuppressLint("SyntheticAccessor")
-            override fun invalidateDrawable(who: Drawable) {
-                invalidateCallback.onInvalidate()
-            }
-
-            override fun scheduleDrawable(who: Drawable, what: Runnable, `when`: Long) {}
+        @SuppressLint("SyntheticAccessor")
+        override fun invalidateDrawable(who: Drawable) {
+            invalidateCallback.onInvalidate()
         }
+
+        override fun scheduleDrawable(who: Drawable, what: Runnable, `when`: Long) {}
+    }
+
+    init {
+        drawable.callback = drawableCallback
     }
 
     /** The [ComplicationDrawable] to render with. */
     public var drawable: ComplicationDrawable = drawable
         set(value) {
+            // Assign the callback or we won't get notified when we need to redraw.
+            field.callback = null
+            value.callback = drawableCallback
+
             // Copy the ComplicationData otherwise the complication will be blank until the next
             // update.
             value.setComplicationData(field.complicationData, false)

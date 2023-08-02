@@ -35,10 +35,10 @@ import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.core.Threads
 import androidx.camera.camera2.pipe.writeParameters
-import kotlinx.atomicfu.atomic
 import java.util.Collections.singletonList
 import java.util.Collections.singletonMap
 import javax.inject.Inject
+import kotlinx.atomicfu.atomic
 
 internal interface Camera2RequestProcessorFactory {
     fun create(

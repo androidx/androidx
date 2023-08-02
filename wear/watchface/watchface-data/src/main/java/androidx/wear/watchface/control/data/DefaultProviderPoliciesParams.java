@@ -33,7 +33,7 @@ import androidx.versionedparcelable.VersionedParcelize;
  *
  * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @VersionedParcelize
 @SuppressLint("BanParcelableUsage") // TODO(b/169214666): Remove Parcelable
 public class DefaultProviderPoliciesParams implements VersionedParcelable, Parcelable {
@@ -68,6 +68,7 @@ public class DefaultProviderPoliciesParams implements VersionedParcelable, Parce
 
     public static final Parcelable.Creator<DefaultProviderPoliciesParams> CREATOR =
             new Parcelable.Creator<DefaultProviderPoliciesParams>() {
+                @SuppressWarnings("deprecation")
                 @Override
                 public DefaultProviderPoliciesParams createFromParcel(Parcel source) {
                     return ParcelUtils.fromParcelable(

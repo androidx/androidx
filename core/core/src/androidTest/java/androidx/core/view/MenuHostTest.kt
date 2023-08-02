@@ -20,8 +20,8 @@ import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import androidx.appcompat.widget.Toolbar
-import androidx.core.R
 import androidx.core.app.TestActivity
+import androidx.core.test.R
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.test.core.app.ActivityScenario
@@ -73,12 +73,20 @@ class TestMenuHost(private val menu: Menu, private val menuInflater: MenuInflate
         invalidateCount++
     }
 
+    fun onPrepareMenu(menu: Menu) {
+        menuHostHelper.onPrepareMenu(menu)
+    }
+
     private fun onCreateMenu() {
         menuHostHelper.onCreateMenu(menu, menuInflater)
     }
 
     fun onMenuItemSelected(item: MenuItem): Boolean {
         return menuHostHelper.onMenuItemSelected(item)
+    }
+
+    fun onMenuClosed(menu: Menu) {
+        menuHostHelper.onMenuClosed(menu)
     }
 
     override fun addMenuProvider(provider: MenuProvider) {

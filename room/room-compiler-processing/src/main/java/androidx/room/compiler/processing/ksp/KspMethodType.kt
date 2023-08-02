@@ -38,22 +38,13 @@ internal sealed class KspMethodType(
         }
     }
 
-    /**
-     * Creates a MethodType where variance is inherited for java code generation.
-     *
-     * see [OverrideVarianceResolver] for details.
-     */
-    fun inheritVarianceForOverride(): XMethodType {
-        return OverrideVarianceResolver(env, this).resolve()
-    }
-
     private class KspNormalMethodType(
         env: KspProcessingEnv,
         origin: KspMethodElement,
         containing: KspType?
     ) : KspMethodType(env, origin, containing) {
         override val returnType: XType by lazy {
-            origin.declaration.returnXType(
+            origin.declaration.returnKspType(
                 env = env,
                 containing = containing
             )

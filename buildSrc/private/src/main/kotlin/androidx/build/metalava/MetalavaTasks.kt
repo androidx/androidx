@@ -22,22 +22,14 @@ import androidx.build.addToCheckTask
 import androidx.build.checkapi.ApiBaselinesLocation
 import androidx.build.checkapi.ApiLocation
 import androidx.build.checkapi.getRequiredCompatibilityApiLocation
-import androidx.build.dependencyTracker.AffectedModuleDetector
 import androidx.build.java.JavaCompileInputs
 import androidx.build.uptodatedness.cacheEvenIfNoOutputs
 import com.android.build.gradle.tasks.ProcessLibraryManifest
 import org.gradle.api.Project
 import org.gradle.api.tasks.TaskProvider
-import org.gradle.api.tasks.bundling.Zip
-import org.gradle.api.tasks.compile.JavaCompile
-import java.io.File
-
-const val CREATE_STUB_API_JAR_TASK = "createStubApiJar"
 
 object MetalavaTasks {
 
-    // flatMap is marked unstable, but it's required for lazy eval
-    @Suppress("UnstableApiUsage")
     fun setupProject(
         project: Project,
         javaCompileInputs: JavaCompileInputs,
@@ -67,7 +59,6 @@ object MetalavaTasks {
                 task.manifestPath.set(processManifest.manifestOutputFile)
             }
             applyInputs(javaCompileInputs, task)
-            AffectedModuleDetector.configureTaskGuard(task)
             // If we will be updating the api lint baselines, then we should do that before
             // using it to validate the generated api
             task.mustRunAfter("updateApiLintBaseline")
@@ -91,7 +82,6 @@ object MetalavaTasks {
                 task.bootClasspath = javaCompileInputs.bootClasspath
                 task.cacheEvenIfNoOutputs()
                 task.dependsOn(generateApi)
-                AffectedModuleDetector.configureTaskGuard(task)
             }
 
             ignoreApiChanges = project.tasks.register(
@@ -136,7 +126,6 @@ object MetalavaTasks {
                 checkApiRelease?.let {
                     task.dependsOn(checkApiRelease)
                 }
-                AffectedModuleDetector.configureTaskGuard(task)
             }
 
         val regenerateOldApis = project.tasks.register(
@@ -170,7 +159,6 @@ object MetalavaTasks {
             // developer updates an API, if backwards compatibility checks are enabled in the
             // library, then we want to check that the changes are backwards compatible.
             checkApiRelease?.let { task.dependsOn(it) }
-            AffectedModuleDetector.configureTaskGuard(task)
         }
 
         // ignoreApiChanges depends on the output of this task for the "current" API surface.
@@ -195,75 +183,5 @@ object MetalavaTasks {
         task.dependsOn(inputs.sourcePaths)
         task.dependencyClasspath = inputs.dependencyClasspath
         task.bootClasspath = inputs.bootClasspath
-    }
-
-    @Suppress("unused", "DEPRECATION") // deprecation for LibraryVariant
-    private fun setupStubs(
-        project: Project,
-        javaCompileInputs: JavaCompileInputs,
-        variant: com.android.build.gradle.api.LibraryVariant
-    ) {
-        if (hasKotlinCode(project, variant)) return
-
-        val apiStubsDirectory = File(project.buildDir, "stubs/api")
-        val docsStubsDirectory = File(project.buildDir, "stubs/docs")
-        val generateApiStubClasses = project.tasks.register(
-            "generateApiStubClasses",
-            GenerateApiStubClassesTask::class.java
-        ) { task ->
-            task.apiStubsDirectory.set(apiStubsDirectory)
-            task.docStubsDirectory.set(docsStubsDirectory)
-            task.metalavaClasspath.from(project.getMetalavaClasspath())
-            applyInputs(javaCompileInputs, task)
-        }
-
-        val apiStubClassesDirectory = File(project.buildDir, "stubs/api_classes")
-        val compileStubClasses = project.tasks.register(
-            "compileApiStubClasses",
-            JavaCompile::class.java
-        ) { task ->
-            @Suppress("DEPRECATION") val compileTask = variant.javaCompile
-            task.source = project.files(apiStubsDirectory).asFileTree
-            task.destinationDirectory.set(apiStubClassesDirectory)
-
-            task.classpath = compileTask.classpath
-            task.options.compilerArgs = compileTask.options.compilerArgs
-            task.options.bootstrapClasspath = compileTask.options.bootstrapClasspath
-            task.sourceCompatibility = compileTask.sourceCompatibility
-            task.targetCompatibility = compileTask.targetCompatibility
-            task.dependsOn(generateApiStubClasses)
-            task.dependsOn(compileTask)
-        }
-
-        val apiStubsJar = project.tasks.register(
-            CREATE_STUB_API_JAR_TASK,
-            Zip::class.java
-        ) { task ->
-            task.from(apiStubClassesDirectory)
-            task.destinationDirectory.set(project.buildDir)
-            task.archiveFileName.set("api.jar")
-            task.dependsOn(compileStubClasses)
-        }
-
-        project.addToBuildOnServer(apiStubsJar)
-        /*
-            TODO: Enable packaging api.jar inside aars.
-            project.tasks.withType(BundleAar::class.java) { task ->
-                task.dependsOn(packageStubs)
-                task.from(File(project.buildDir, "api.jar"))
-            }
-         */
-    }
-
-    @Suppress("DEPRECATION") // LibraryVariant
-    private fun hasKotlinCode(
-        project: Project,
-        variant: com.android.build.gradle.api.LibraryVariant
-    ): Boolean {
-        return project.files(variant.sourceSets.flatMap { it.javaDirectories })
-            .asFileTree
-            .files
-            .filter { it.extension == "kt" }
-            .isNotEmpty()
     }
 }

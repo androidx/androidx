@@ -398,6 +398,7 @@ public final class Bundler {
         return bundle;
     }
 
+    @SuppressWarnings("deprecation")
     private static Object deserializePrimitive(Bundle bundle, Trace trace) throws BundlerException {
         Object primitive = bundle.get(TAG_VALUE);
         if (primitive == null) {
@@ -451,7 +452,8 @@ public final class Bundler {
         return binder;
     }
 
-    @SuppressWarnings("argument.type.incompatible") // so that we can put null values in the map
+    // so that we can put null values in the map
+    @SuppressWarnings({"argument.type.incompatible", "deprecation"})
     private static Object deserializeMap(Bundle bundle, Trace trace) throws BundlerException {
         ArrayList<Parcelable> list = bundle.getParcelableArrayList(TAG_VALUE);
         if (list == null) {
@@ -481,6 +483,7 @@ public final class Bundler {
         return deserializeCollection(bundle, new ArrayList<>(), trace);
     }
 
+    @SuppressWarnings("deprecation")
     private static Object deserializeCollection(
             Bundle bundle, Collection<Object> collection, Trace trace) throws BundlerException {
         ArrayList<Parcelable> list = bundle.getParcelableArrayList(TAG_VALUE);
@@ -553,6 +556,7 @@ public final class Bundler {
         return iconCompat;
     }
 
+    @SuppressWarnings("deprecation")
     private static Object deserializeObject(Bundle bundle, Trace trace) throws BundlerException {
         String className = bundle.getString(TAG_CLASS_NAME);
         if (className == null) {
@@ -771,6 +775,7 @@ public final class Bundler {
             return new Trace(obj, display, parent.mFrames);
         }
 
+        @SuppressWarnings("deprecation")
         static String bundleToString(Bundle bundle) {
             int classType = bundle.getInt(TAG_CLASS_TYPE);
             String s = getBundledTypeName(classType);

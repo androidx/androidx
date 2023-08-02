@@ -49,6 +49,7 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.node.Ref
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
@@ -219,7 +220,8 @@ class BoxWithConstraintsTest : LayoutTest() {
                     rememberVectorPainter(
                         name = "testPainter",
                         defaultWidth = 10.dp,
-                        defaultHeight = 10.dp
+                        defaultHeight = 10.dp,
+                        autoMirror = false
                     ) { _, _ ->
                         /* intentionally empty */
                     }
@@ -668,6 +670,21 @@ class BoxWithConstraintsTest : LayoutTest() {
         assertTrue(latch.await(1, TimeUnit.SECONDS))
     }
 
+    @Test
+    fun preservesInfinity() {
+        val latch = CountDownLatch(1)
+        show {
+            BoxWithConstraints(Modifier.wrapContentSize(unbounded = true)) {
+                assertEquals(Dp.Infinity, maxWidth)
+                assertEquals(Dp.Infinity, maxHeight)
+                latch.countDown()
+            }
+        }
+        assertTrue(latch.await(1, TimeUnit.SECONDS))
+    }
+
+    // waitAndScreenShot() requires API level 26
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun takeScreenShot(size: Int): Bitmap {
         assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
         val bitmap = activityTestRule.waitAndScreenShot()

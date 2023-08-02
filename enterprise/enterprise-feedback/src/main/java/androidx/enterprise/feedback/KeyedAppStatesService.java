@@ -135,6 +135,7 @@ public abstract class KeyedAppStatesService extends Service {
             asyncTask.execute();
         }
 
+        @SuppressWarnings("deprecation")
         private static Collection<ReceivedKeyedAppState> extractReceivedKeyedAppStates(
                 Message message, String packageName, long timestamp) {
             Bundle bundle;

@@ -18,7 +18,15 @@ package androidx.room.compiler.processing.javac
 
 import androidx.room.compiler.processing.XNullability
 import com.google.auto.common.MoreElements
+import com.google.auto.common.MoreTypes
+import com.squareup.javapoet.ParameterizedTypeName
+import com.squareup.javapoet.TypeName
 import javax.lang.model.element.Element
+import javax.lang.model.element.ExecutableElement
+import javax.lang.model.element.Modifier
+import javax.lang.model.element.TypeElement
+import javax.lang.model.util.Types
+import kotlin.coroutines.Continuation
 
 private val NONNULL_ANNOTATIONS = arrayOf(
     "androidx.annotation.NonNull",
@@ -59,4 +67,85 @@ internal fun Element.enclosingType(env: JavacProcessingEnv): JavacTypeElement? {
     } else {
         null
     }
+}
+
+/**
+ * Tests whether one suspend function, as a member of a given types, overrides another suspend
+ * function.
+ *
+ * This method assumes function one and two are suspend methods, i.e. they both return Object,
+ * have at least one parameter and the last parameter is of type Continuation. This method is
+ * similar to MoreElements.overrides() but doesn't check isSubsignature() due to Continuation's
+ * type arg being covariant, instead the equivalent is done by checking each parameter explicitly.
+ */
+internal fun suspendOverrides(
+    overrider: ExecutableElement,
+    overridden: ExecutableElement,
+    owner: TypeElement,
+    typeUtils: Types
+): Boolean {
+    if (overrider.simpleName != overridden.simpleName) {
+        return false
+    }
+    if (overrider.enclosingElement == overridden.enclosingElement) {
+        return false
+    }
+    if (overridden.modifiers.contains(Modifier.STATIC)) {
+        return false
+    }
+    if (overridden.modifiers.contains(Modifier.PRIVATE)) {
+        return false
+    }
+    val overriddenType = overridden.enclosingElement as? TypeElement ?: return false
+    if (!typeUtils.isSubtype(
+            typeUtils.erasure(owner.asType()),
+            typeUtils.erasure(overriddenType.asType()))
+    ) {
+        return false
+    }
+    val ownerType = MoreTypes.asDeclared(owner.asType())
+    val overriderExecutable = MoreTypes.asExecutable(typeUtils.asMemberOf(ownerType, overrider))
+    val overriddenExecutable = MoreTypes.asExecutable(typeUtils.asMemberOf(ownerType, overrider))
+    if (overriderExecutable.parameterTypes.size != overriddenExecutable.parameterTypes.size) {
+        return false
+    }
+    val continuationTypeName = TypeName.get(Continuation::class.java)
+    val overriderLastParamTypeName =
+        (TypeName.get(overriderExecutable.parameterTypes.last()) as? ParameterizedTypeName)
+            ?.rawType
+    check(overriderLastParamTypeName == continuationTypeName) {
+        "Expected $overriderLastParamTypeName to be $continuationTypeName"
+    }
+    val overriddenLastParamTypeName =
+        (TypeName.get(overriddenExecutable.parameterTypes.last()) as? ParameterizedTypeName)
+            ?.rawType
+    check(overriddenLastParamTypeName == continuationTypeName) {
+        "Expected $overriddenLastParamTypeName to be $continuationTypeName"
+    }
+    val overriderContinuationTypeArg =
+        MoreTypes.asDeclared(overriderExecutable.parameterTypes.last())
+            .typeArguments.single().extendsBound()
+    val overriddenContinuationTypeArg =
+        MoreTypes.asDeclared(overriderExecutable.parameterTypes.last())
+            .typeArguments.single().extendsBound()
+    if (!typeUtils.isSameType(
+            typeUtils.erasure(overriderContinuationTypeArg),
+            typeUtils.erasure(overriddenContinuationTypeArg))
+    ) {
+        return false
+    }
+    if (overriddenExecutable.parameterTypes.size >= 2) {
+        overriderExecutable.parameterTypes.zip(overriddenExecutable.parameterTypes)
+            .dropLast(1)
+            .forEach { (overriderParam, overriddenParam) ->
+                if (!typeUtils.isSameType(
+                        typeUtils.erasure(overriderParam),
+                        typeUtils.erasure(overriddenParam)
+                    )
+                ) {
+                    return false
+                }
+            }
+    }
+    return true
 }

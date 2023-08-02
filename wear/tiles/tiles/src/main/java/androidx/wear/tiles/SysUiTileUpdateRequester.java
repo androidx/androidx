@@ -101,6 +101,7 @@ class SysUiTileUpdateRequester implements TileUpdateRequester {
     }
 
     @Nullable
+    @SuppressWarnings("deprecation")
     private Intent buildUpdateBindIntent() {
         Intent bindIntent = new Intent(ACTION_BIND_UPDATE_REQUESTER);
         bindIntent.setPackage(getSysUiPackageName());

@@ -1,0 +1,48 @@
+/*
+ * Copyright 2022 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package androidx.benchmark.macro
+
+import androidx.annotation.RestrictTo
+import androidx.benchmark.DeviceInfo
+
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+object BatteryCharge {
+
+    private const val MIN_BATTERY_PERCENT = 50
+
+    fun hasMinimumCharge(throwOnMissingMetrics: Boolean = false): Boolean {
+        if (DeviceInfo.initialBatteryPercent >= MIN_BATTERY_PERCENT) {
+            return true
+        }
+
+        /**
+         * Checks if battery is at least halfway full on test device.
+         *
+         * @throws AssertionError if `throwOnMissingMetrics == true` and charge is too low.
+         */
+        if (throwOnMissingMetrics) {
+            throw AssertionError("""
+                ERROR: Device has low battery (${DeviceInfo.initialBatteryPercent})
+                When battery is low during a test that involves disconnecting the charge, devices
+                risk running out of power during the test. Wait for your battery to charge to at
+                least $MIN_BATTERY_PERCENT%.  Currently at ${DeviceInfo.initialBatteryPercent}%.
+            """.trimIndent())
+        }
+
+        return false
+    }
+}

@@ -109,7 +109,7 @@ class ViewGroupUtilsApi14 {
     /**
      * Note, this is only called on API 17 and older.
      */
-    @SuppressLint("SoonBlockedPrivateApi")
+    @SuppressLint({"SoonBlockedPrivateApi", "BanUncheckedReflection"})
     private static void cancelLayoutTransition(LayoutTransition t) {
         if (!sCancelMethodFetched) {
             try {

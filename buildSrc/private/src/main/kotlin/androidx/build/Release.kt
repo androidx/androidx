@@ -24,6 +24,7 @@ import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.TaskProvider
 import org.gradle.api.tasks.bundling.Zip
 import org.gradle.plugin.devel.GradlePluginDevelopmentExtension
+import org.gradle.work.DisableCachingByDefault
 import java.io.File
 import java.util.Locale
 
@@ -44,6 +45,8 @@ data class Artifact(
 /**
  * Zip task that zips all artifacts from given candidates.
  */
+@DisableCachingByDefault(because = "Zip tasks are not worth caching according to Gradle")
+// See https://github.com/gradle/gradle/commit/7e5c5bc9b2c23d872e1c45c855f07ca223f6c270#diff-ce55b0f0cdcf2174eb47d333d348ff6fbd9dbe5cd8c3beeeaf633ea23b74ed9eR38
 open class GMavenZipTask : Zip() {
 
     init {
@@ -151,21 +154,21 @@ object Release {
      * Registers the project to be included in its group's zip file as well as the global zip files.
      */
     fun register(project: Project, extension: AndroidXExtension) {
-        if (extension.publish == Publish.NONE) {
+        if (!extension.shouldPublish()) {
             project.logger.info(
                 "project ${project.name} isn't part of release," +
                     " because its \"publish\" property is explicitly set to Publish.NONE"
             )
             return
         }
-        if (extension.publish == Publish.UNSET) {
+        if (!extension.isPublishConfigured()) {
             project.logger.info(
                 "project ${project.name} isn't part of release, because" +
-                    " it does not set the \"publish\" property or the \"type\" property"
+                    " it does not set the \"publish\" property."
             )
             return
         }
-        if (extension.publish == Publish.SNAPSHOT_ONLY && !isSnapshotBuild()) {
+        if (!extension.shouldRelease() && !isSnapshotBuild()) {
             project.logger.info(
                 "project ${project.name} isn't part of release, because its" +
                     " \"publish\" property is SNAPSHOT_ONLY, but it is not a snapshot build"
@@ -188,15 +191,12 @@ object Release {
             getGroupReleaseZipTask(project, mavenGroup),
             getGlobalFullZipTask(project)
         )
-        val artifact = Artifact(
-            mavenGroup = mavenGroup,
-            projectName = project.name,
-            version = version.toString()
-        )
+
+        val artifacts = extension.publishedArtifacts
         val publishTask = project.tasks.named("publish")
         zipTasks.forEach {
             it.configure { zipTask ->
-                zipTask.addCandidate(artifact)
+                artifacts.forEach { artifact -> zipTask.addCandidate(artifact) }
 
                 // Add additional artifacts needed for Gradle Plugins
                 if (extension.type == LibraryType.GRADLE_PLUGIN) {
@@ -332,6 +332,38 @@ fun LibraryExtension.defaultPublishVariant(
         }
     }
 }
+
+val AndroidXExtension.publishedArtifacts: List<Artifact>
+    get() {
+        val groupString = mavenGroup?.group!!
+        val versionString = project.version.toString()
+        val artifacts = mutableListOf(
+            Artifact(
+                mavenGroup = groupString,
+                projectName = project.name,
+                version = versionString
+            )
+        )
+
+        // Add platform-specific artifacts, if necessary.
+        artifacts += publishPlatforms.map { suffix ->
+            Artifact(
+                mavenGroup = groupString,
+                projectName = "${project.name}-$suffix",
+                version = versionString
+            )
+        }
+
+        return artifacts
+    }
+
+private val AndroidXExtension.publishPlatforms: List<String>
+    get() {
+        val declaredTargets = project.multiplatformExtension?.targets?.asMap?.keys?.map {
+            it.lowercase()
+        } ?: emptySet()
+        return declaredTargets.toList()
+    }
 
 /**
  * Converts the maven group into a readable task name.

@@ -15,19 +15,21 @@
  */
 package androidx.emoji2.viewsintegration;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.arrayWithSize;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 
 import android.annotation.SuppressLint;
+import android.os.Build;
 import android.text.Editable;
 import android.text.SpannableString;
 import android.text.Spanned;
 
+import androidx.annotation.RequiresApi;
 import androidx.emoji2.text.EmojiMetadata;
 import androidx.emoji2.text.EmojiSpan;
 import androidx.emoji2.text.SpannableBuilder;
@@ -58,6 +60,7 @@ public class EmojiEditableFactoryTest {
         assertThat(editable, instanceOf(Editable.class));
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @Test
     public void testNewEditable_preservesCharSequenceData() {
         final String string = "abc";

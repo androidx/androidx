@@ -16,17 +16,42 @@
 
 package androidx.build
 
-import androidx.build.Multiplatform.Companion.isMultiplatformEnabled
 import androidx.build.checkapi.shouldConfigureApiTasks
+import com.android.build.gradle.internal.crash.afterEvaluate
 import groovy.lang.Closure
 import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.provider.Property
-import java.util.ArrayList
+import java.io.File
+
 /**
  * Extension for [AndroidXImplPlugin] that's responsible for holding configuration options.
  */
 open class AndroidXExtension(val project: Project) {
+    @JvmField
+    val LibraryVersions: Map<String, Version>
+    @JvmField
+    val LibraryGroups: Map<String, LibraryGroup>
+
+    init {
+        val toml = project.objects.fileProperty().fileValue(
+            File(project.getSupportRootFolder(), "libraryversions.toml")
+        )
+        val content = project.providers.fileContents(toml)
+        val composeCustomVersion = project.providers.environmentVariable("COMPOSE_CUSTOM_VERSION")
+        val composeCustomGroup = project.providers.environmentVariable("COMPOSE_CUSTOM_GROUP")
+
+        val serviceProvider = project.gradle.sharedServices.registerIfAbsent(
+            "libraryVersionsService",
+            LibraryVersionsService::class.java
+        ) { spec ->
+            spec.parameters.tomlFile = content.asText
+            spec.parameters.composeCustomVersion = composeCustomVersion
+            spec.parameters.composeCustomGroup = composeCustomGroup
+        }
+        LibraryGroups = serviceProvider.get().libraryGroups
+        LibraryVersions = serviceProvider.get().libraryVersions
+    }
 
     var name: Property<String?> = project.objects.property(String::class.java)
     fun setName(newName: String) { name.set(newName) }
@@ -45,7 +70,7 @@ open class AndroidXExtension(val project: Project) {
     private fun chooseProjectVersion() {
         val version: Version
         val group: String? = mavenGroup?.group
-        val groupVersion: Version? = mavenGroup?.forcedVersion
+        val groupVersion: Version? = mavenGroup?.atomicGroupVersion
         val mavenVersion: Version? = mavenVersion
         if (mavenVersion != null) {
             if (groupVersion != null && !isGroupVersionOverrideAllowed()) {
@@ -142,8 +167,38 @@ open class AndroidXExtension(val project: Project) {
 
     // Should only be used to override LibraryType.publish, if a library isn't ready to publish yet
     var publish: Publish = Publish.UNSET
-        // Allow gradual transition from publish to library type
-        get() = if (field == Publish.UNSET && type != LibraryType.UNSET) type.publish else field
+
+    internal fun shouldPublish(): Boolean =
+        if (publish != Publish.UNSET) {
+            publish.shouldPublish()
+        } else if (type != LibraryType.UNSET) {
+            type.publish.shouldPublish()
+        } else {
+            false
+        }
+
+    internal fun shouldRelease(): Boolean =
+        if (publish != Publish.UNSET) {
+            publish.shouldRelease()
+        } else if (type != LibraryType.UNSET) {
+            type.publish.shouldRelease()
+        } else {
+            false
+        }
+
+    internal fun ifReleasing(action: () -> Unit) {
+        project.afterEvaluate {
+            if (shouldRelease()) {
+                action()
+            }
+        }
+    }
+
+    internal fun isPublishConfigured(): Boolean = (
+            publish != Publish.UNSET ||
+            type.publish != Publish.UNSET
+        )
+
     /**
      * Whether to run API tasks such as tracking and linting. The default value is
      * [RunApiTasks.Auto], which automatically picks based on the project's properties.
@@ -153,18 +208,29 @@ open class AndroidXExtension(val project: Project) {
     var runApiTasks: RunApiTasks = RunApiTasks.Auto
         get() = if (field == RunApiTasks.Auto && type != LibraryType.UNSET) type.checkApi else field
     var type: LibraryType = LibraryType.UNSET
+        set(value) {
+            // don't disable multiplatform if it's already enabled, because sometimes it's enabled
+            // through flags and we don't want setting `type =` to disable it accidentally.
+            if (value.shouldEnableMultiplatform()) {
+                multiplatform = true
+            }
+            field = value
+        }
     var failOnDeprecationWarnings = true
 
     var legacyDisableKotlinStrictApiMode = false
 
     var benchmarkRunAlsoInterpreted = false
 
-    var multiplatform: Boolean
+    var bypassCoordinateValidation = false
+
+    /**
+     * Whether this project uses KMP.
+     */
+    private var multiplatform: Boolean = false
         set(value) {
             Multiplatform.setEnabledForProject(project, value)
-        }
-        get() {
-            return project.isMultiplatformEnabled()
+            field = value
         }
 
     fun shouldEnforceKotlinStrictApiMode(): Boolean {
@@ -191,3 +257,5 @@ class License {
     var name: String? = null
     var url: String? = null
 }
+
+private fun LibraryType.shouldEnableMultiplatform() = this is LibraryType.KmpLibrary

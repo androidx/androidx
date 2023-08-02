@@ -24,8 +24,6 @@ plugins {
     id("AndroidXComposePlugin")
 }
 
-apply(from: "../../camera-view/dependencies.gradle")
-
 android {
     defaultConfig {
         applicationId "androidx.camera.integration.view"
@@ -54,21 +52,25 @@ android {
     kotlinOptions {
         jvmTarget = '1.8'
     }
+    namespace "androidx.camera.integration.view"
 }
 
 dependencies {
     // Internal library
-    implementation("androidx.camera:camera-camera2:${VIEW_ATOMIC_GROUP_PINNED_VER}")
-    implementation("androidx.camera:camera-lifecycle:${VIEW_ATOMIC_GROUP_PINNED_VER}")
+    implementation(project(":camera:camera-camera2"))
+    implementation(project(":camera:camera-lifecycle"))
+    implementation(project(":camera:camera-mlkit-vision"))
     implementation("androidx.lifecycle:lifecycle-runtime:2.3.1")
     implementation(project(":camera:camera-view"))
     implementation(libs.guavaAndroid)
+    implementation('com.google.mlkit:barcode-scanning:17.0.2')
     implementation("androidx.exifinterface:exifinterface:1.3.2")
+    implementation(libs.mlkitBarcode)
     // old version of common-java8 conflicts with newer version, because both have
     // DefaultLifecycleEventObserver.
     // Outside of androidx this is resolved via constraint added to lifecycle-common,
     // but it doesn't work in androidx.
-    implementation(project(":lifecycle:lifecycle-common-java8"))
+    implementation("androidx.lifecycle:lifecycle-common-java8:2.5.1")
     compileOnly(libs.kotlinCompiler)
 
     // Lifecycle and LiveData
@@ -78,12 +80,11 @@ dependencies {
     implementation("androidx.appcompat:appcompat:1.3.0")
 
     // Compose UI
-    kotlinPlugin(projectOrArtifact(":compose:compiler:compiler"))
     implementation(project(":compose:runtime:runtime"))
-    implementation("androidx.compose.ui:ui:1.0.0-rc02")
-    implementation("androidx.compose.material:material:1.0.0-rc02")
-    implementation("androidx.compose.ui:ui-tooling:1.0.0-rc02")
-    implementation("androidx.activity:activity-compose:1.3.0-beta02")
+    implementation("androidx.compose.ui:ui:1.0.5")
+    implementation("androidx.compose.material:material:1.0.5")
+    implementation("androidx.compose.ui:ui-tooling:1.0.5")
+    implementation("androidx.activity:activity-compose:1.3.1")
 
     // Testing framework
     androidTestImplementation(libs.testExtJunit)
@@ -91,7 +92,7 @@ dependencies {
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.testUiautomator)
-    androidTestImplementation(libs.espressoCore)
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.3.0")
     androidTestImplementation("androidx.lifecycle:lifecycle-runtime-testing:2.3.1")
     androidTestImplementation("androidx.lifecycle:lifecycle-runtime:2.3.1")
     androidTestImplementation("androidx.lifecycle:lifecycle-livedata-ktx:2.2.0")
@@ -99,9 +100,5 @@ dependencies {
     debugImplementation(libs.testCore)
     debugImplementation("androidx.fragment:fragment-testing:1.2.3")
     // camera-testing added as 'implementation' dependency to include camera-testing activity in APK
-    debugImplementation(project(":camera:camera-testing")) {
-        // Ensure camera-testing does not pull in camera-core project dependency which will
-        // override pinned dependency.
-        exclude(group:"androidx.camera", module:"camera-core")
-    }
+    debugImplementation(project(":camera:camera-testing"))
 }

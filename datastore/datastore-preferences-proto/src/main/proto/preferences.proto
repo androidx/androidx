@@ -19,6 +19,7 @@ message Value {
     string string = 5;
     StringSet string_set = 6;
     double double = 7;
+    bytes bytes = 8;
   }
 }
 

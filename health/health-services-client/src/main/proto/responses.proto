@@ -23,16 +23,6 @@ import "data.proto";
 option java_package = "androidx.health.services.client.proto";
 option java_outer_classname = "ResponsesProto";
 
-message AutoExerciseCapabilitiesResponse {
-  optional AutoExerciseCapabilities capabilities = 1;
-  reserved 2 to max;  // Next ID
-}
-
-message AutoExerciseDetectionStateResponse {
-  optional AutoExerciseDetectionState state = 1;
-  reserved 2 to max;  // Next ID
-}
-
 message AvailabilityResponse {
   optional DataType data_type = 1;
   optional Availability availability = 2;
@@ -64,6 +54,11 @@ message ExerciseUpdateResponse {
   reserved 2 to max;  // Next ID
 }
 
+message HealthEventResponse {
+  optional HealthEvent health_event = 1;
+  reserved 2 to max;  // Next ID
+}
+
 message HeartRateAlertParamsResponse {
   optional HeartRateAlertParams params = 1;
   reserved 2 to max;  // Next ID
@@ -79,7 +74,14 @@ message PassiveMonitoringCapabilitiesResponse {
   reserved 2 to max;  // Next ID
 }
 
+message PassiveMonitoringGoalResponse {
+  optional PassiveGoal goal = 1;
+  reserved 2 to max;  // Next ID
+}
+
 message PassiveMonitoringUpdateResponse {
   optional PassiveMonitoringUpdate update = 1;
   reserved 2 to max;  // Next ID
 }
+
+message PermissionLostResponse {}

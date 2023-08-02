@@ -87,19 +87,19 @@ public class VideoSupportFragment extends PlaybackSupportFragment {
     }
 
     @Override
-    protected void onVideoSizeChanged(int width, int height) {
+    protected void onVideoSizeChanged(int videoWidth, int videoHeight) {
         int screenWidth = getView().getWidth();
         int screenHeight = getView().getHeight();
 
         ViewGroup.LayoutParams p = mVideoSurface.getLayoutParams();
-        if (screenWidth * height > width * screenHeight) {
+        if (screenWidth * videoHeight > videoWidth * screenHeight) {
             // fit in screen height
             p.height = screenHeight;
-            p.width = screenHeight * width / height;
+            p.width = screenHeight * videoWidth / videoHeight;
         } else {
             // fit in screen width
             p.width = screenWidth;
-            p.height = screenWidth * height / width;
+            p.height = screenWidth * videoHeight / videoWidth;
         }
         mVideoSurface.setLayoutParams(p);
     }

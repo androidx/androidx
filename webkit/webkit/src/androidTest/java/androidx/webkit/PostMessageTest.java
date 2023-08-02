@@ -17,15 +17,16 @@
 package androidx.webkit;
 
 import android.net.Uri;
+import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
-import android.webkit.WebView;
 
 import androidx.annotation.NonNull;
 import androidx.concurrent.futures.ResolvableFuture;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
+import androidx.test.filters.SdkSuppress;
 import androidx.webkit.WebMessagePortCompat.WebMessageCallbackCompat;
 
 import org.junit.After;
@@ -39,10 +40,10 @@ import java.util.concurrent.BlockingQueue;
 
 @LargeTest
 @RunWith(AndroidJUnit4.class)
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
 public class PostMessageTest {
     public static final long TIMEOUT = 6000L;
 
-    private WebView mWebView;
     private WebViewOnUiThread mOnUiThread;
 
     private static final String WEBVIEW_MESSAGE = "from_webview";
@@ -297,7 +298,6 @@ public class PostMessageTest {
         WebMessageCompat message = new WebMessageCompat(WEBVIEW_MESSAGE, new
                 WebMessagePortCompat[]{channel[1]});
         mOnUiThread.postWebMessageCompat(message, Uri.parse(BASE_URI));
-        final int messageCount = 1;
         final ResolvableFuture<Boolean> messageHandlerThreadFuture = ResolvableFuture.create();
 
         // Create a new thread for the WebMessageCallbackCompat.
@@ -309,9 +309,10 @@ public class PostMessageTest {
             channel[0].postMessage(new WebMessageCompat(WEBVIEW_MESSAGE));
             channel[0].setWebMessageCallback(messageHandler, new WebMessageCallbackCompat() {
                 @Override
-                public void onMessage(WebMessagePortCompat port, WebMessageCompat message) {
+                public void onMessage(@NonNull WebMessagePortCompat port,
+                        WebMessageCompat message) {
                     messageHandlerThreadFuture.set(
-                            messageHandlerThread.getLooper().isCurrentThread());
+                            WebkitUtils.isCurrentThread(messageHandlerThread.getLooper()));
                 }
             });
         });
@@ -337,15 +338,16 @@ public class PostMessageTest {
         WebMessageCompat message = new WebMessageCompat(WEBVIEW_MESSAGE,
                 new WebMessagePortCompat[]{channel[1]});
         mOnUiThread.postWebMessageCompat(message, Uri.parse(BASE_URI));
-        final int messageCount = 1;
         final ResolvableFuture<Boolean> messageMainLooperFuture = ResolvableFuture.create();
 
         WebkitUtils.onMainThread(() -> {
             channel[0].postMessage(new WebMessageCompat(WEBVIEW_MESSAGE));
             channel[0].setWebMessageCallback(new WebMessageCallbackCompat() {
                 @Override
-                public void onMessage(WebMessagePortCompat port, WebMessageCompat message) {
-                    messageMainLooperFuture.set(Looper.getMainLooper().isCurrentThread());
+                public void onMessage(@NonNull WebMessagePortCompat port,
+                        WebMessageCompat message) {
+                    messageMainLooperFuture.set(
+                            WebkitUtils.isCurrentThread(Looper.getMainLooper()));
                 }
             });
         });

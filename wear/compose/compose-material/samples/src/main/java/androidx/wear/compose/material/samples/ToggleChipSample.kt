@@ -39,6 +39,7 @@ import androidx.wear.compose.material.ToggleChipDefaults
 @Composable
 fun ToggleChipWithIcon() {
     var checked by remember { mutableStateOf(true) }
+    // When we have both label and secondary label present limit both to 1 line of text
     ToggleChip(
         label = {
             Text("SwitchIcon", maxLines = 1, overflow = TextOverflow.Ellipsis)
@@ -47,8 +48,17 @@ fun ToggleChipWithIcon() {
             Text("With secondary label", maxLines = 1, overflow = TextOverflow.Ellipsis)
         },
         checked = checked,
-        toggleIcon = {
-            ToggleChipDefaults.SwitchIcon(checked = checked)
+        // For Switch  toggle controls the Wear Material UX guidance is to set the
+        // unselected toggle control color to ToggleChipDefaults.switchUncheckedIconColor()
+        // rather than the default.
+        colors = ToggleChipDefaults.toggleChipColors(
+            uncheckedToggleControlColor = ToggleChipDefaults.SwitchUncheckedIconColor
+        ),
+        toggleControl = {
+            Icon(
+                imageVector = ToggleChipDefaults.switchIcon(checked = checked),
+                contentDescription = if (checked) "On" else "Off",
+            )
         },
         onCheckedChange = { checked = it },
         appIcon = {
@@ -66,11 +76,17 @@ fun ToggleChipWithIcon() {
 @Composable
 fun SplitToggleChipWithCheckbox() {
     var checked by remember { mutableStateOf(true) }
+    // When we have no secondary label we can have up to 2 lines of text
     SplitToggleChip(
-        label = { Text("Split with CheckboxIcon") },
+        label = {
+            Text("Split with CheckboxIcon", maxLines = 2, overflow = TextOverflow.Ellipsis)
+        },
         checked = checked,
-        toggleIcon = {
-            ToggleChipDefaults.CheckboxIcon(checked = checked)
+        toggleControl = {
+            Icon(
+                imageVector = ToggleChipDefaults.checkboxIcon(checked = checked),
+                contentDescription = if (checked) "Checked" else "Unchecked"
+            )
         },
         onCheckedChange = { checked = it },
         onClick = {

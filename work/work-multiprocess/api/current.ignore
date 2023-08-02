@@ -1,0 +1,5 @@
+// Baseline format: 1.0
+ParameterNameChange: androidx.work.multiprocess.RemoteCoroutineWorker#doRemoteWork(kotlin.coroutines.Continuation<? super androidx.work.ListenableWorker.Result>) parameter #0:
+    Attempted to remove parameter name from parameter arg1 in androidx.work.multiprocess.RemoteCoroutineWorker.doRemoteWork
+ParameterNameChange: androidx.work.multiprocess.RemoteCoroutineWorker#setProgress(androidx.work.Data, kotlin.coroutines.Continuation<? super kotlin.Unit>) parameter #1:
+    Attempted to remove parameter name from parameter arg2 in androidx.work.multiprocess.RemoteCoroutineWorker.setProgress

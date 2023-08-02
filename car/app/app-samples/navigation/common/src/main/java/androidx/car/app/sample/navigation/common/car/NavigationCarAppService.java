@@ -26,6 +26,7 @@ import android.os.Build;
 import androidx.annotation.NonNull;
 import androidx.car.app.CarAppService;
 import androidx.car.app.Session;
+import androidx.car.app.SessionInfo;
 import androidx.car.app.sample.navigation.common.R;
 import androidx.car.app.validation.HostValidator;
 import androidx.core.app.NotificationCompat;
@@ -53,9 +54,10 @@ public final class NavigationCarAppService extends CarAppService {
                 NavigationSession.URI_SCHEME, NavigationSession.URI_HOST, deepLinkAction);
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     @NonNull
-    public Session onCreateSession() {
+    public Session onCreateSession(@NonNull SessionInfo sessionInfo) {
         createNotificationChannel();
 
         // Turn the car app service into a foreground service in order to make sure we can use all
@@ -69,7 +71,7 @@ public final class NavigationCarAppService extends CarAppService {
         // See https://developer.android.com/reference/com/google/android/libraries/car/app
         // /CarAppService#accessing-location for more details.
         startForeground(NOTIFICATION_ID, getNotification());
-        NavigationSession session = new NavigationSession();
+        NavigationSession session = new NavigationSession(sessionInfo);
         session.getLifecycle()
                 .addObserver(
                         new DefaultLifecycleObserver() {

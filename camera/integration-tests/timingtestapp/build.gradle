@@ -46,8 +46,9 @@ android {
         viewBinding true
     }
     kotlinOptions {
-        freeCompilerArgs += "-Xopt-in=kotlin.RequiresOptIn"
+        freeCompilerArgs += "-opt-in=kotlin.RequiresOptIn"
     }
+    namespace "androidx.camera.integration.antelope"
 }
 
 dependencies {

@@ -16,6 +16,9 @@
 
 package androidx.wear.watchface.samples.minimal.style;
 
+import static androidx.wear.watchface.style.UserStyleSetting.ListUserStyleSetting;
+import static androidx.wear.watchface.style.UserStyleSetting.ListUserStyleSetting.ListOption;
+
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -25,22 +28,21 @@ import android.widget.TextView;
 import androidx.activity.ComponentActivity;
 import androidx.annotation.Nullable;
 import androidx.wear.watchface.editor.ListenableEditorSession;
-import androidx.wear.watchface.style.UserStyle;
+import androidx.wear.watchface.style.MutableUserStyle;
+import androidx.wear.watchface.style.UserStyleSetting;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
-import java.util.EnumMap;
 import java.util.concurrent.Executor;
+
+import kotlin.OptIn;
 
 /** Configuration activity for the watch face. */
 public class ConfigActivity extends ComponentActivity {
 
     private static final String TAG = "ConfigActivity";
 
-    private static final EnumMap<TimeStyle.Value, TimeStyle.Value> NEXT_VALUE_MAP =
-            createNextValueMap();
-
-    private Executor mMainExecutor = new Executor() {
+    private final Executor mMainExecutor = new Executor() {
         private final Handler mHandler = new Handler(Looper.getMainLooper());
 
         @Override
@@ -49,8 +51,8 @@ public class ConfigActivity extends ComponentActivity {
         }
     };
 
-    private TimeStyle mTimeStyle;
     private TextView mStyleValue;
+    private final UserStyleSetting.Id mTimeStyleId = new UserStyleSetting.Id("TimeStyle");
 
     @Nullable
     private ListenableEditorSession mEditorSession;
@@ -73,7 +75,6 @@ public class ConfigActivity extends ComponentActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.config_activity_layout);
-        mTimeStyle = new TimeStyle(this);
 
         mStyleValue = findViewById(R.id.style_value);
 
@@ -98,10 +99,23 @@ public class ConfigActivity extends ComponentActivity {
             return;
         }
 
-        UserStyle userStyle = mEditorSession.getUserStyle().getValue();
-        TimeStyle.Value value = mTimeStyle.get(userStyle);
-        TimeStyle.Value newValue = NEXT_VALUE_MAP.get(value);
-        mEditorSession.getUserStyle().setValue(mTimeStyle.set(userStyle, newValue));
+        MutableUserStyle userStyle = mEditorSession.getUserStyle().getValue().toMutableUserStyle();
+        ListOption currentOption = (ListOption) userStyle.get(mTimeStyleId);
+        @OptIn(markerClass = androidx.wear.watchface.style.ExperimentalHierarchicalStyle.class)
+        ListUserStyleSetting listUserStyleSetting =
+                (ListUserStyleSetting) mEditorSession.getUserStyleSchema()
+                        .getRootUserStyleSettings()
+                        .get(0);
+
+        // Choose the first option in the list of options that isn't currentOption. We only expect
+        // two options here, so this will flip flop between them.
+        for (UserStyleSetting.Option option : listUserStyleSetting.getOptions()) {
+            if (!option.getId().equals(currentOption.getId())) {
+                userStyle.set(mTimeStyleId, option);
+                break;
+            }
+        }
+        mEditorSession.getUserStyle().setValue(userStyle.toUserStyle());
         updateStyleValue();
     }
 
@@ -109,18 +123,12 @@ public class ConfigActivity extends ComponentActivity {
         if (mEditorSession == null) {
             return;
         }
-        TimeStyle.Value value = mTimeStyle.get(mEditorSession.getUserStyle().getValue());
-        mStyleValue.setText(mTimeStyle.getDisplayName(value));
+        ListOption option =
+                (ListOption) mEditorSession.getUserStyle().getValue().get(mTimeStyleId);
+        mStyleValue.setText(option.getDisplayName());
     }
 
     private <T> void addCallback(ListenableFuture<T> future, FutureCallback<T> callback) {
         FutureCallback.addCallback(future, callback, mMainExecutor);
-    }
-
-    private static EnumMap<TimeStyle.Value, TimeStyle.Value> createNextValueMap() {
-        EnumMap<TimeStyle.Value, TimeStyle.Value> map = new EnumMap<>(TimeStyle.Value.class);
-        map.put(TimeStyle.Value.MINIMAL, TimeStyle.Value.SECONDS);
-        map.put(TimeStyle.Value.SECONDS, TimeStyle.Value.MINIMAL);
-        return map;
     }
 }

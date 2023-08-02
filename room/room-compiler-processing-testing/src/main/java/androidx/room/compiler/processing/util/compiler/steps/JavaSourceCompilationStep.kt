@@ -68,7 +68,7 @@ internal object JavaSourceCompilationStep : KotlinCompilationStep {
                 }
                 it.openInputStream().use { inputStream ->
                     targetFile.outputStream().use { outputStream ->
-                        inputStream.transferTo(outputStream)
+                        inputStream.copyTo(outputStream)
                     }
                 }
             }

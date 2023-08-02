@@ -46,7 +46,7 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
-@OptIn(ExperimentalTestApi::class, ExperimentalWearMaterialApi::class)
+@OptIn(ExperimentalTestApi::class)
 class SwipeToDismissBoxScreenshotTest {
 
     @get:Rule

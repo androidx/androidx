@@ -20,7 +20,9 @@ import android.app.Dialog;
 import android.os.Build;
 import android.view.View;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 
 /**
  * Helper for accessing features in {@link android.app.Dialog} in a backwards compatible
@@ -53,7 +55,7 @@ public class DialogCompat {
     @NonNull
     public static View requireViewById(@NonNull Dialog dialog, int id) {
         if (Build.VERSION.SDK_INT >= 28) {
-            return dialog.requireViewById(id);
+            return Api28Impl.requireViewById(dialog, id);
         } else {
             View view = dialog.findViewById(id);
             if (view == null) {
@@ -61,6 +63,19 @@ public class DialogCompat {
                         IllegalArgumentException("ID does not reference a View inside this Dialog");
             }
             return view;
+        }
+    }
+
+    @RequiresApi(28)
+    static class Api28Impl {
+        private Api28Impl() {
+            // This class is not instantiable.
+        }
+
+        @SuppressWarnings({"unchecked", "TypeParameterUnusedInFormals"})
+        @DoNotInline
+        static <T> T requireViewById(Dialog dialog, int id) {
+            return (T) dialog.requireViewById(id);
         }
     }
 }

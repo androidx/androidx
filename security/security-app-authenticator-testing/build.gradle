@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
-import androidx.build.LibraryVersions
 import androidx.build.LibraryType
 
 plugins {
@@ -27,7 +25,7 @@ dependencies {
     implementation (project(":security:security-app-authenticator"))
     implementation("androidx.collection:collection:1.1.0")
 
-    androidTestImplementation("junit:junit:4.13")
+    androidTestImplementation(libs.junit)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)
@@ -36,11 +34,12 @@ dependencies {
 
 android {
     testOptions.unitTests.includeAndroidResources = true
+    namespace "androidx.security.app.authenticator.testing"
 }
 
 androidx {
     name = "Android Security App Package Authenticator Testing"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = LibraryType.PUBLISHED_TEST_LIBRARY
     mavenVersion = LibraryVersions.SECURITY_APP_AUTHENTICATOR_TESTING
     mavenGroup = LibraryGroups.SECURITY
     inceptionYear = "2021"

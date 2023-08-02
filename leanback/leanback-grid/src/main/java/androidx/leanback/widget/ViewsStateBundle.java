@@ -86,6 +86,7 @@ final class ViewsStateBundle {
         return bundle;
     }
 
+    @SuppressWarnings("deprecation")
     void loadFromBundle(Bundle savedBundle) {
         if (mChildStates != null && savedBundle != null) {
             mChildStates.evictAll();

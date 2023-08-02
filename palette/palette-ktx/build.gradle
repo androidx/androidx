@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
 import androidx.build.Publish
 
 plugins {
@@ -24,6 +23,11 @@ plugins {
 }
 
 dependencies {
+    // Atomic group
+    constraints {
+        implementation(project(":palette:palette"))
+    }
+
     api(project(":palette:palette"))
     api(libs.kotlinStdlib)
     androidTestImplementation(libs.junit)
@@ -38,4 +42,8 @@ androidx {
     mavenGroup = LibraryGroups.PALETTE
     inceptionYear = "2018"
     description = "Kotlin extensions for 'palette' artifact"
+}
+
+android {
+    namespace "androidx.palette.ktx"
 }

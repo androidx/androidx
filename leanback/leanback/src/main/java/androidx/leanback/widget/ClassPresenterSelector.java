@@ -13,6 +13,8 @@
  */
 package androidx.leanback.widget;
 
+import androidx.annotation.Nullable;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -51,15 +53,20 @@ public final class ClassPresenterSelector extends PresenterSelector {
             PresenterSelector presenterSelector) {
         mClassMap.put(cls, presenterSelector);
         Presenter[] innerPresenters = presenterSelector.getPresenters();
-        for (int i = 0; i < innerPresenters.length; i++)
-        if (!mPresenters.contains(innerPresenters[i])) {
-            mPresenters.add(innerPresenters[i]);
+        for (int i = 0; i < innerPresenters.length; i++) {
+            if (!mPresenters.contains(innerPresenters[i])) {
+                mPresenters.add(innerPresenters[i]);
+            }
         }
         return this;
     }
 
+    @Nullable
     @Override
-    public Presenter getPresenter(Object item) {
+    public Presenter getPresenter(@Nullable Object item) {
+        if (item == null) {
+            return null;
+        }
         Class<?> cls = item.getClass();
         Object presenter = null;
 

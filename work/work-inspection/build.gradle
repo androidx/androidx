@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
 import androidx.build.LibraryType
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
@@ -31,7 +30,7 @@ dependencies {
     compileOnly("androidx.inspection:inspection:1.0.0")
     compileOnly("androidx.lifecycle:lifecycle-runtime:2.2.0")
     compileOnly(project(":work:work-runtime"))
-    compileOnly("androidx.room:room-runtime:2.2.5")
+    compileOnly("androidx.room:room-runtime:2.4.0-rc01")
     androidTestImplementation(project(":inspection:inspection-testing"))
     androidTestImplementation(project(":work:work-runtime"))
     androidTestImplementation(project(":work:work-runtime-ktx"))
@@ -58,13 +57,14 @@ android {
     sourceSets {
         main.resources.srcDirs += "src/main/proto"
     }
+    namespace "androidx.work.inspection"
 }
 
 // Allow usage of Kotlin's @OptIn.
 tasks.withType(KotlinCompile).configureEach {
     kotlinOptions {
         freeCompilerArgs += [
-                "-Xopt-in=kotlin.RequiresOptIn"
+                "-opt-in=kotlin.RequiresOptIn"
         ]
     }
 }

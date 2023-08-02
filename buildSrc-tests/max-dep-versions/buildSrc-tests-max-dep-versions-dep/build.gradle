@@ -1,10 +1,13 @@
-import androidx.build.LibraryGroups
 import androidx.build.LibraryType
 import androidx.build.Publish
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
+}
+
+android {
+    namespace "androidx.buildSrc.tests.lib"
 }
 
 androidx {

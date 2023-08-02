@@ -79,6 +79,7 @@ class AddInDefaultArgsTest(
     }
 
     @Test
+    @Suppress("DEPRECATION")
     fun addInDefaultArgs() {
         val destination = NoOpNavigator().createDestination()
         arguments.forEach { entry ->

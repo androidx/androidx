@@ -18,6 +18,8 @@ package androidx.core.app;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertSame;
 import static org.mockito.AdditionalMatchers.aryEq;
 import static org.mockito.ArgumentMatchers.eq;
@@ -31,20 +33,33 @@ import android.app.Activity;
 import android.support.v4.BaseInstrumentationTestCase;
 import android.view.View;
 
+import androidx.annotation.OptIn;
 import androidx.core.app.ActivityCompat.PermissionCompatDelegate;
+import androidx.core.os.BuildCompat;
 import androidx.core.test.R;
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
+import androidx.test.filters.SdkSuppress;
+import androidx.test.rule.GrantPermissionRule;
 
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.Arrays;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @RunWith(AndroidJUnit4.class)
 @LargeTest
 public class ActivityCompatTest extends BaseInstrumentationTestCase<TestActivity> {
+    @Rule
+    public GrantPermissionRule mRuntimePermissionRule =
+            GrantPermissionRule.grant(Manifest.permission.ACCESS_FINE_LOCATION);
+
+    public static final String[] LOCATION_PERMISSIONS = {
+            Manifest.permission.ACCESS_FINE_LOCATION
+    };
 
     public ActivityCompatTest() {
         super(TestActivity.class);
@@ -58,27 +73,23 @@ public class ActivityCompatTest extends BaseInstrumentationTestCase<TestActivity
     public void testPermissionDelegate() {
         try (ActivityScenario<TestActivity> scenario =
                      ActivityScenario.launch(TestActivity.class)) {
-            scenario.onActivity(new ActivityScenario.ActivityAction<TestActivity>() {
-                @Override
-                public void perform(TestActivity activity) {
-                    ActivityCompat.PermissionCompatDelegate delegate =
-                            mock(PermissionCompatDelegate.class);
+            scenario.onActivity(activity -> {
+                PermissionCompatDelegate delegate =
+                        mock(PermissionCompatDelegate.class);
 
-                    // First test setting the delegate
-                    ActivityCompat.setPermissionCompatDelegate(delegate);
+                // First test setting the delegate
+                ActivityCompat.setPermissionCompatDelegate(delegate);
 
-                    ActivityCompat.requestPermissions(activity, new String[]{
-                            Manifest.permission.ACCESS_FINE_LOCATION}, 42);
-                    verify(delegate).requestPermissions(same(activity), aryEq(
-                            new String[]{Manifest.permission.ACCESS_FINE_LOCATION}), eq(42));
+                ActivityCompat.requestPermissions(activity, LOCATION_PERMISSIONS, 42);
+                //noinspection ConstantConditions
+                verify(delegate).requestPermissions(
+                        same(activity), aryEq(LOCATION_PERMISSIONS), eq(42));
 
-                    // Test clearing the delegate
-                    ActivityCompat.setPermissionCompatDelegate(null);
+                // Test clearing the delegate
+                ActivityCompat.setPermissionCompatDelegate(null);
 
-                    ActivityCompat.requestPermissions(activity, new String[]{
-                            Manifest.permission.ACCESS_FINE_LOCATION}, 42);
-                    verifyNoMoreInteractions(delegate);
-                }
+                ActivityCompat.requestPermissions(activity, LOCATION_PERMISSIONS, 42);
+                verifyNoMoreInteractions(delegate);
             });
         }
     }
@@ -87,18 +98,15 @@ public class ActivityCompatTest extends BaseInstrumentationTestCase<TestActivity
     public void testPermissionNull() {
         try (ActivityScenario<TestActivity> scenario =
                      ActivityScenario.launch(TestActivity.class)) {
-            scenario.onActivity(new ActivityScenario.ActivityAction<TestActivity>() {
-                @Override
-                public void perform(TestActivity activity) {
-                    String[] permissions = new String[]{null};
+            scenario.onActivity(activity -> {
+                String[] permissions = new String[]{null};
 
-                    try {
-                        ActivityCompat.requestPermissions(activity, permissions, 42);
-                    } catch (IllegalArgumentException e) {
-                        assertThat(e).hasMessageThat().contains("Permission request for "
-                                + "permissions " + Arrays.toString(permissions) + " must not "
-                                + "contain null or empty values");
-                    }
+                try {
+                    ActivityCompat.requestPermissions(activity, permissions, 42);
+                } catch (IllegalArgumentException e) {
+                    assertThat(e).hasMessageThat().contains("Permission request for "
+                            + "permissions " + Arrays.toString(permissions) + " must not "
+                            + "contain null or empty values");
                 }
             });
         }
@@ -108,20 +116,17 @@ public class ActivityCompatTest extends BaseInstrumentationTestCase<TestActivity
     public void testPermissionEmpty() {
         try (ActivityScenario<TestActivity> scenario =
                      ActivityScenario.launch(TestActivity.class)) {
-            scenario.onActivity(new ActivityScenario.ActivityAction<TestActivity>() {
-                @Override
-                public void perform(TestActivity activity) {
-                    String[] permissions = new String[]{
-                            Manifest.permission.ACCESS_FINE_LOCATION, ""
-                    };
+            scenario.onActivity(activity -> {
+                String[] permissions = new String[]{
+                        Manifest.permission.ACCESS_FINE_LOCATION, ""
+                };
 
-                    try {
-                        ActivityCompat.requestPermissions(activity, permissions, 42);
-                    } catch (IllegalArgumentException e) {
-                        assertThat(e).hasMessageThat().contains("Permission request for "
-                                + "permissions " + Arrays.toString(permissions) + " must not "
-                                + "contain null or empty values");
-                    }
+                try {
+                    ActivityCompat.requestPermissions(activity, permissions, 42);
+                } catch (IllegalArgumentException e) {
+                    assertThat(e).hasMessageThat().contains("Permission request for "
+                            + "permissions " + Arrays.toString(permissions) + " must not "
+                            + "contain null or empty values");
                 }
             });
         }
@@ -145,4 +150,33 @@ public class ActivityCompatTest extends BaseInstrumentationTestCase<TestActivity
         ActivityCompat.requireViewById(getActivity(), View.NO_ID);
     }
 
+    @Test
+    @OptIn(markerClass = BuildCompat.PrereleaseSdkCheck.class)
+    public void testShouldShowRequestPermissionRationaleForPostNotifications() throws Throwable {
+        if (!BuildCompat.isAtLeastT()) {
+            // permission doesn't exist yet, so should return false
+            assertFalse(ActivityCompat.shouldShowRequestPermissionRationale(getActivity(),
+                    Manifest.permission.POST_NOTIFICATIONS));
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = 23)
+    @Test
+    public void testOnSharedElementsReady() {
+        AtomicInteger counter = new AtomicInteger();
+        SharedElementCallback callback = new SharedElementCallback() {
+        };
+        android.app.SharedElementCallback.OnSharedElementsReadyListener listener =
+                counter::incrementAndGet;
+
+        // Ensure that the method wrapper works as intended.
+        ActivityCompat.Api23Impl.onSharedElementsReady(listener);
+        assertEquals(1, counter.get());
+
+        // Ensure that the callback wrapper calls the method wrapper.
+        android.app.SharedElementCallback wrapper =
+                new ActivityCompat.SharedElementCallback21Impl(callback);
+        wrapper.onSharedElementsArrived(null, null, listener);
+        assertEquals(2, counter.get());
+    }
 }

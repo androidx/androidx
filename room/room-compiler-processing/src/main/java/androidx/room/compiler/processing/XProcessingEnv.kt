@@ -33,6 +33,7 @@ import kotlin.reflect.KClass
 interface XProcessingEnv {
 
     val backend: Backend
+
     /**
      * The logger interface to log messages
      */
@@ -47,6 +48,19 @@ interface XProcessingEnv {
      * The API to generate files
      */
     val filer: XFiler
+
+    /**
+     * Configuration to control certain behaviors of XProcessingEnv.
+     */
+    val config: XProcessingEnvConfig
+
+    /**
+     * Java language version of the processing environment.
+     *
+     * Value is the common JDK version representation even for the older JVM Specs named using the
+     * 1.x notation. i.e. for '1.8' this return 8, for '11' this returns 11, etc.
+     */
+    val jvmVersion: Int
 
     /**
      * Looks for the [XTypeElement] with the given qualified name and returns `null` if it does not
@@ -133,21 +147,28 @@ interface XProcessingEnv {
          * Creates a new [XProcessingEnv] implementation derived from the given Java [env].
          */
         @JvmStatic
-        fun create(env: ProcessingEnvironment): XProcessingEnv = JavacProcessingEnv(env)
+        @JvmOverloads
+        fun create(
+            env: ProcessingEnvironment,
+            config: XProcessingEnvConfig = XProcessingEnvConfig.DEFAULT
+        ): XProcessingEnv = JavacProcessingEnv(env, config)
 
         /**
          * Creates a new [XProcessingEnv] implementation derived from the given KSP environment.
          */
         @JvmStatic
+        @JvmOverloads
         fun create(
             options: Map<String, String>,
             resolver: Resolver,
             codeGenerator: CodeGenerator,
-            logger: KSPLogger
+            logger: KSPLogger,
+            config: XProcessingEnvConfig = XProcessingEnvConfig.DEFAULT
         ): XProcessingEnv = KspProcessingEnv(
             options = options,
             codeGenerator = codeGenerator,
             logger = logger,
+            config = config
         ).also { it.resolver = resolver }
     }
 

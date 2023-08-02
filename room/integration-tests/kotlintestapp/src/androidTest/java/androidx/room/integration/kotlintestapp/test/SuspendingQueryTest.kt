@@ -52,6 +52,7 @@ import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
+import kotlinx.coroutines.DelicateCoroutinesApi
 
 @LargeTest
 @RunWith(AndroidJUnit4::class)
@@ -73,6 +74,53 @@ class SuspendingQueryTest : TestDatabaseTest() {
 
             assertThat(booksDao.getBookSuspend(TestUtil.BOOK_1.bookId))
                 .isEqualTo(TestUtil.BOOK_1)
+        }
+    }
+
+    // Need to add other return type tests
+    @Test
+    fun upsertBookSuspend() {
+        runBlocking {
+            booksDao.addPublishers(TestUtil.PUBLISHER)
+            booksDao.upsertBookSuspend(TestUtil.BOOK_1)
+
+            assertThat(booksDao.getBookSuspend(TestUtil.BOOK_1.bookId))
+                .isEqualTo(TestUtil.BOOK_1)
+        }
+    }
+
+    @Test
+    fun upsertSuspendLong() {
+        runBlocking {
+            booksDao.addPublishers(TestUtil.PUBLISHER)
+            booksDao.upsertBookSuspendReturnId(TestUtil.BOOK_1)
+                .let { result ->
+                    assertThat(booksDao.getBookSuspend(TestUtil.BOOK_1.bookId))
+                        .isEqualTo(TestUtil.BOOK_1)
+                    assertThat(result).isEqualTo(1)
+                }
+            booksDao.upsertBookSuspendReturnId(
+                TestUtil.BOOK_1.copy(title = "changed title")
+            ).let { result ->
+                assertThat(result).isEqualTo(-1)
+            }
+        }
+    }
+
+    @Test
+    fun upsertSuspendLongList() {
+        runBlocking {
+            booksDao.addPublishers(TestUtil.PUBLISHER)
+            val bookList = buildList<Book> {
+                add(TestUtil.BOOK_1)
+                add(TestUtil.BOOK_2)
+                add(TestUtil.BOOK_3)
+            }
+            booksDao.upsertBooksSuspendReturnIds(bookList)
+                .let { results ->
+                    assertThat(results.size).isEqualTo(3)
+                    assertThat(results).containsExactly(1L, 2L, 3L)
+                }
         }
     }
 
@@ -264,7 +312,6 @@ class SuspendingQueryTest : TestDatabaseTest() {
             }
 
             try {
-                @Suppress("IMPLICIT_NOTHING_AS_TYPE_PARAMETER")
                 database.withTransaction {
                     booksDao.insertBookSuspend(TestUtil.BOOK_2)
                     throw IOException("Boom!")
@@ -310,7 +357,6 @@ class SuspendingQueryTest : TestDatabaseTest() {
                 )
 
                 try {
-                    @Suppress("IMPLICIT_NOTHING_AS_TYPE_PARAMETER")
                     database.withTransaction {
                         booksDao.insertBookSuspend(TestUtil.BOOK_1.copy(salesCnt = 0))
                         throw IOException("Boom!")
@@ -335,7 +381,6 @@ class SuspendingQueryTest : TestDatabaseTest() {
             try {
                 database.withTransaction {
                     try {
-                        @Suppress("IMPLICIT_NOTHING_AS_TYPE_PARAMETER")
                         database.withTransaction {
                             throw IOException("Boom!")
                         }
@@ -627,6 +672,7 @@ class SuspendingQueryTest : TestDatabaseTest() {
                 TestUtil.PUBLISHER.name
             )
 
+            @OptIn(DelicateCoroutinesApi::class)
             async(newSingleThreadContext("asyncThread1")) {
                 database.withTransaction {
                     delay(100)
@@ -634,6 +680,7 @@ class SuspendingQueryTest : TestDatabaseTest() {
                 }
             }
 
+            @OptIn(DelicateCoroutinesApi::class)
             async(newSingleThreadContext("asyncThread2")) {
                 database.withTransaction {
                     delay(100)
@@ -852,7 +899,6 @@ class SuspendingQueryTest : TestDatabaseTest() {
     @Test
     @Suppress("DEPRECATION")
     fun withTransaction_endTransaction_error() {
-        @Suppress("IMPLICIT_NOTHING_AS_TYPE_PARAMETER")
         runBlocking {
             try {
                 database.withTransaction {

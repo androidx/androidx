@@ -23,12 +23,13 @@ import com.squareup.javapoet.TypeName
 
 internal class DefaultKspType(
     env: KspProcessingEnv,
-    ksType: KSType
-) : KspType(env, ksType) {
-    override val typeName: TypeName by lazy {
+    ksType: KSType,
+    jvmTypeResolver: KspJvmTypeResolver?
+) : KspType(env, ksType, jvmTypeResolver) {
+    override fun resolveTypeName(): TypeName {
         // always box these. For primitives, typeName might return the primitive type but if we
         // wanted it to be a primitive, we would've resolved it to [KspPrimitiveType].
-        ksType.typeName(env.resolver).tryBox()
+        return ksType.typeName(env.resolver).tryBox()
     }
 
     override fun boxed(): DefaultKspType {
@@ -38,7 +39,16 @@ internal class DefaultKspType(
     override fun copyWithNullability(nullability: XNullability): KspType {
         return DefaultKspType(
             env = env,
-            ksType = ksType.withNullability(nullability)
+            ksType = ksType.withNullability(nullability),
+            jvmTypeResolver = jvmTypeResolver
+        )
+    }
+
+    override fun copyWithJvmTypeResolver(jvmTypeResolver: KspJvmTypeResolver): KspType {
+        return DefaultKspType(
+            env = env,
+            ksType = ksType,
+            jvmTypeResolver = jvmTypeResolver
         )
     }
 }

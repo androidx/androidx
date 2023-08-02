@@ -18,6 +18,8 @@ package androidx.dynamicanimation.tests;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.AdditionalMatchers.lt;
@@ -37,11 +39,14 @@ import android.os.SystemClock;
 import android.util.AndroidRuntimeException;
 import android.view.View;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.core.view.ViewCompat;
 import androidx.dynamicanimation.animation.AnimationHandler;
 import androidx.dynamicanimation.animation.DynamicAnimation;
 import androidx.dynamicanimation.animation.FloatPropertyCompat;
 import androidx.dynamicanimation.animation.FloatValueHolder;
+import androidx.dynamicanimation.animation.FrameCallbackScheduler;
 import androidx.dynamicanimation.animation.SpringAnimation;
 import androidx.dynamicanimation.animation.SpringForce;
 import androidx.dynamicanimation.test.R;
@@ -49,12 +54,12 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.FlakyTest;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.MediumTest;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 
 import java.util.concurrent.CountDownLatch;
@@ -69,16 +74,13 @@ public class SpringTests {
     public View mView1;
     public View mView2;
 
-    @Rule
-    public ExpectedException mExpectedException = ExpectedException.none();
-
     @SuppressWarnings("deprecation")
     public SpringTests() {
         mActivityTestRule = new androidx.test.rule.ActivityTestRule<>(AnimationActivity.class);
     }
 
     @Before
-    public void setup() throws Exception {
+    public void setup() {
         mView1 = mActivityTestRule.getActivity().findViewById(R.id.anim_view);
         mView2 = mActivityTestRule.getActivity().findViewById(R.id.anim_another_view);
     }
@@ -150,6 +152,9 @@ public class SpringTests {
             @Override
             public void run() {
                 anim.setStartValue(0).start();
+                // Set the duration scale to 1 to avoid prematurely ending the animation.
+                // ValueAnimator#getDurationScale is called in start().
+                anim.getAnimationHandler().mDurationScale = 1.0f;
             }
         });
 
@@ -246,10 +251,14 @@ public class SpringTests {
             public void run() {
                 anim2.setStartValue(800).addUpdateListener(updateListener).addEndListener(l2)
                         .start();
+                // Set the duration scale to 1 to avoid prematurely ending the animation.
+                anim2.getAnimationHandler().mDurationScale = 1.0f;
                 anim3.setStartValue(800).addUpdateListener(updateListener).addEndListener(l3)
                         .addEndListener(mockListener).start();
+                anim3.getAnimationHandler().mDurationScale = 1.0f;
                 anim1.setStartValue(800).addUpdateListener(updateListener).addEndListener(l1)
                         .start();
+                anim1.getAnimationHandler().mDurationScale = 1.0f;
 
             }
         });
@@ -310,9 +319,13 @@ public class SpringTests {
             public void run() {
                 anim1.setStartValue(360).addUpdateListener(updateListener).addEndListener(l1)
                         .start();
+                // Set the duration scale to 1 to avoid prematurely ending the animation.
+                anim1.getAnimationHandler().mDurationScale = 1.0f;
                 anim2.setStartValue(360).addUpdateListener(updateListener).addEndListener(l2)
                         .addEndListener(mockListener).start();
+                anim2.getAnimationHandler().mDurationScale = 1.0f;
                 anim3.setStartValue(360).addEndListener(l3).start();
+                anim3.getAnimationHandler().mDurationScale = 1.0f;
             }
         });
         // The spring animation with critically-damped spring should return to rest position faster.
@@ -373,6 +386,8 @@ public class SpringTests {
                 public void run() {
                     for (int j = 0; j < stiffness.length; j++) {
                         springAnims[j].start();
+                        // Set the duration scale to 1 to avoid prematurely ending the animation.
+                        springAnims[j].getAnimationHandler().mDurationScale = 1.0f;
                     }
                 }
             });
@@ -400,8 +415,7 @@ public class SpringTests {
     @Test
     public void testInvalidStiffness() {
         SpringForce spring = new SpringForce();
-        mExpectedException.expect(IllegalArgumentException.class);
-        spring.setStiffness(-5f);
+        assertThrows(IllegalArgumentException.class, () -> spring.setStiffness(-5f));
     }
 
     /**
@@ -410,8 +424,7 @@ public class SpringTests {
     @Test
     public void testInvalidDampingRatio() {
         SpringForce spring = new SpringForce();
-        mExpectedException.expect(IllegalArgumentException.class);
-        spring.setDampingRatio(-5f);
+        assertThrows(IllegalArgumentException.class, () -> spring.setDampingRatio(-5f));
     }
 
     /**
@@ -529,6 +542,8 @@ public class SpringTests {
             @Override
             public void run() {
                 anim.animateToFinalPosition(0.0f);
+                // Set the duration scale to 1 to avoid prematurely ending the animation.
+                anim.getAnimationHandler().mDurationScale = 1.0f;
             }
         });
         assertTrue(anim.isRunning());
@@ -538,6 +553,8 @@ public class SpringTests {
             @Override
             public void run() {
                 anim.animateToFinalPosition(1.0f);
+                // Set the duration scale to 1 to avoid prematurely ending the animation.
+                anim.getAnimationHandler().mDurationScale = 1.0f;
             }
         });
 
@@ -728,13 +745,14 @@ public class SpringTests {
      */
     @Test
     public void testStartOnNonAnimationHandlerThread() throws InterruptedException {
-        mExpectedException.expect(AndroidRuntimeException.class);
-        SpringAnimation anim = new SpringAnimation(mView1, DynamicAnimation.ALPHA, 0f);
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(() -> {
-            anim.setAnimationHandler(anim.getAnimationHandler());
-        });
-        runRunnableOnNewThread(() -> {
-            anim.start();
+        assertThrows(AndroidRuntimeException.class, () -> {
+            SpringAnimation anim = new SpringAnimation(mView1, DynamicAnimation.ALPHA, 0f);
+            InstrumentationRegistry.getInstrumentation().runOnMainSync(() -> {
+                anim.setScheduler(anim.getScheduler());
+            });
+            runRunnableOnNewThread(() -> {
+                anim.start();
+            });
         });
     }
 
@@ -743,13 +761,14 @@ public class SpringTests {
      */
     @Test
     public void testCancelOnNonAnimationHandlerThread() throws InterruptedException {
-        mExpectedException.expect(AndroidRuntimeException.class);
-        SpringAnimation anim = new SpringAnimation(mView1, DynamicAnimation.ALPHA, 0f);
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(() -> {
-            anim.setAnimationHandler(anim.getAnimationHandler());
-        });
-        runRunnableOnNewThread(() -> {
-            anim.cancel();
+        assertThrows(AndroidRuntimeException.class, () -> {
+            SpringAnimation anim = new SpringAnimation(mView1, DynamicAnimation.ALPHA, 0f);
+            InstrumentationRegistry.getInstrumentation().runOnMainSync(() -> {
+                anim.setScheduler(anim.getScheduler());
+            });
+            runRunnableOnNewThread(() -> {
+                anim.cancel();
+            });
         });
     }
 
@@ -757,14 +776,15 @@ public class SpringTests {
      * Test skipToEnd() on a test thread.
      */
     @Test
-    public void testSkipToEndOnNonAnimationHandlerThread() throws InterruptedException {
-        mExpectedException.expect(AndroidRuntimeException.class);
-        SpringAnimation anim = new SpringAnimation(mView1, DynamicAnimation.ALPHA, 0f);
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(() -> {
-            anim.setAnimationHandler(anim.getAnimationHandler());
-        });
-        runRunnableOnNewThread(() -> {
-            anim.skipToEnd();
+    public void testSkipToEndOnNonAnimationHandlerThread() {
+        assertThrows(AndroidRuntimeException.class, () -> {
+            SpringAnimation anim = new SpringAnimation(mView1, DynamicAnimation.ALPHA, 0f);
+            InstrumentationRegistry.getInstrumentation().runOnMainSync(() -> {
+                anim.setScheduler(anim.getScheduler());
+            });
+            runRunnableOnNewThread(() -> {
+                anim.skipToEnd();
+            });
         });
     }
 
@@ -854,13 +874,47 @@ public class SpringTests {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 33)
+    public void testDurationScaleChangeListener() throws InterruptedException {
+        final SpringAnimation anim = new SpringAnimation(mView1, DynamicAnimation.Y, 0f);
+        final CountDownLatch registerUnregisterLatch = new CountDownLatch(2);
+
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                // getAnimationHandler and AnimationHandler.getInstance() requires a looper, so run
+                // on the main thread.
+                AnimationHandler animHandler = anim.getAnimationHandler();
+                assertEquals(1, animHandler.getDurationScale(), 0);
+                assertNull(animHandler.mDurationScaleChangeListener);
+                animHandler.mDurationScaleChangeListener =
+                        new MyDurationScaleChangeListener(animHandler, registerUnregisterLatch);
+
+                anim.start();
+                assertEquals(0, animHandler.getDurationScale(), 0);
+            }
+        });
+
+        // Wait for the animation to end on the main thread.
+        assertTrue(registerUnregisterLatch.await(1000, TimeUnit.MILLISECONDS));
+
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                AnimationHandler animHandler = anim.getAnimationHandler();
+                // Remove our custom listener at the end.
+                animHandler.mDurationScaleChangeListener = null;
+            }
+        });
+    }
+
+    @Test
     public void testCustomHandler() {
         final SpringAnimation anim = new SpringAnimation(mView1, DynamicAnimation.Y, 0f);
         MyAnimationFrameCallbackScheduler scheduler =
                 new MyAnimationFrameCallbackScheduler();
-        AnimationHandler handler = new AnimationHandler(scheduler);
 
-        anim.setAnimationHandler(handler);
+        anim.setScheduler(scheduler);
 
         InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
             @Override
@@ -870,16 +924,15 @@ public class SpringTests {
         });
 
         assertTrue(scheduler.mCallback);
-        assertEquals(handler, anim.getAnimationHandler());
+        assertEquals(scheduler, anim.getScheduler());
     }
 
-    static class MyAnimationFrameCallbackScheduler implements
-            AnimationHandler.FrameCallbackScheduler {
+    static class MyAnimationFrameCallbackScheduler implements FrameCallbackScheduler {
 
         boolean mCallback;
 
         @Override
-        public void postFrameCallback(Runnable frameCallback) {
+        public void postFrameCallback(@NonNull Runnable frameCallback) {
             mCallback = true;
         }
 
@@ -896,6 +949,31 @@ public class SpringTests {
         public void onAnimationEnd(DynamicAnimation animation, boolean canceled, float value,
                 float velocity) {
             endTime = SystemClock.uptimeMillis();
+        }
+    }
+
+    @RequiresApi(api = 33)
+    class MyDurationScaleChangeListener extends AnimationHandler.DurationScaleChangeListener33 {
+
+        final CountDownLatch mRegisterUnregisterLatch;
+
+        MyDurationScaleChangeListener(AnimationHandler handler, CountDownLatch countDownLatch) {
+            // Call super to construct an inner class
+            handler.super();
+            mRegisterUnregisterLatch = countDownLatch;
+        }
+
+        @Override
+        public boolean register() {
+            mRegisterUnregisterLatch.countDown();
+            assertEquals(1, mRegisterUnregisterLatch.getCount());
+            return super.register();
+        }
+
+        @Override
+        public boolean unregister() {
+            mRegisterUnregisterLatch.countDown();
+            return super.unregister();
         }
     }
 }

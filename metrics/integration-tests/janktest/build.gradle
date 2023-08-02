@@ -24,6 +24,7 @@ android {
     buildFeatures {
         viewBinding true
     }
+    namespace "androidx.metrics.performance.janktest"
 }
 
 dependencies {

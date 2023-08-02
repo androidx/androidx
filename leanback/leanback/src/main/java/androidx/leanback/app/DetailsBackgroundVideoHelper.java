@@ -20,6 +20,7 @@ import android.animation.Animator;
 import android.animation.ValueAnimator;
 import android.graphics.drawable.Drawable;
 
+import androidx.annotation.NonNull;
 import androidx.leanback.media.PlaybackGlue;
 import androidx.leanback.widget.DetailsParallax;
 import androidx.leanback.widget.Parallax;
@@ -241,7 +242,7 @@ final class DetailsBackgroundVideoHelper {
         }
 
         @Override
-        public void onPreparedStateChanged(PlaybackGlue glue) {
+        public void onPreparedStateChanged(@NonNull PlaybackGlue glue) {
             if (glue.isPrepared()) {
                 internalStartPlayback();
             }

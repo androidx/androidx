@@ -130,6 +130,7 @@ public class MetadataConstants {
      * @param context to be evaluated.
      * @return Whether a given context comes from a standalone app.
      */
+    @SuppressWarnings("deprecation")
     public static boolean isStandalone(Context context) {
         try {
             ApplicationInfo appInfo = context.getPackageManager().getApplicationInfo(
@@ -150,6 +151,7 @@ public class MetadataConstants {
      * @param context to be evaluated.
      * @return Whether a given context has notification bridging enabled.
      */
+    @SuppressWarnings("deprecation")
     public static boolean isNotificationBridgingEnabled(Context context) {
         try {
             ApplicationInfo appInfo = context.getPackageManager().getApplicationInfo(
@@ -173,6 +175,7 @@ public class MetadataConstants {
      * @return an integer id representing the resource id of the requested drawable, or 0 if
      * no drawable was found.
      */
+    @SuppressWarnings("deprecation")
     public static int getPreviewDrawableResourceId(Context context, boolean circular) {
         try {
             ApplicationInfo appInfo = context.getPackageManager().getApplicationInfo(

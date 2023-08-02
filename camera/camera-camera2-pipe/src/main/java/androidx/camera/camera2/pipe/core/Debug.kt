@@ -24,6 +24,7 @@ import android.hardware.camera2.CameraCharacteristics.LENS_FACING
 import android.hardware.camera2.CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES
 import android.hardware.camera2.CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_LOGICAL_MULTI_CAMERA
 import android.hardware.camera2.CaptureRequest
+import android.hardware.camera2.CaptureResult
 import android.os.Build
 import android.os.Trace
 import androidx.annotation.RequiresApi
@@ -69,6 +70,27 @@ public object Debug {
     public inline fun traceStop() {
         if (ENABLE_TRACING) {
             Trace.endSection()
+        }
+    }
+
+    private fun appendParameters(builder: StringBuilder, name: String, parameters: Map<*, Any?>) {
+        builder.apply {
+            if (parameters.isEmpty()) {
+                append("$name: (None)\n")
+            } else {
+                append("${name}\n")
+                val parametersString: List<Pair<String, Any?>> = parameters.map {
+                    when (val key = it.key) {
+                        is CameraCharacteristics.Key<*> -> key.name
+                        is CaptureRequest.Key<*> -> key.name
+                        is CaptureResult.Key<*> -> key.name
+                        else -> key.toString()
+                    } to it.value
+                }
+                parametersString.sortedBy { it.first }.forEach {
+                    append("  ${it.first.padEnd(50, ' ')}${it.second}\n")
+                }
+            }
         }
     }
 
@@ -120,19 +142,13 @@ public object Debug {
                 }
             }
 
-            if (graphConfig.defaultParameters.isEmpty()) {
-                append("Session Parameters: (None)")
-            } else {
-                append("Session Parameters:\n")
-                val captureRequestParameters = graphConfig.sessionParameters.filter {
-                    it is CaptureRequest.Key<*>
-                }
-                for (parameter in captureRequestParameters) {
-                    append("  ")
-                    append((parameter.key).name.padEnd(50, ' '))
-                    append(parameter.value)
-                }
-            }
+            append("Session Template: ${graphConfig.sessionTemplate.name}\n")
+            appendParameters(this, "Session Parameters", graphConfig.sessionParameters)
+
+            append("Default Template: ${graphConfig.defaultTemplate.name}\n")
+            appendParameters(this, "Default Parameters", graphConfig.defaultParameters)
+
+            appendParameters(this, "Required Parameters", graphConfig.requiredParameters)
         }.toString()
     }
 }

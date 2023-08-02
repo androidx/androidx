@@ -17,6 +17,7 @@
 package androidx.work;
 
 import static androidx.work.impl.Scheduler.MAX_SCHEDULER_LIMIT;
+import static androidx.work.impl.utils.IdGeneratorKt.INITIAL_ID;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -29,7 +30,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.work.impl.DefaultRunnableScheduler;
 import androidx.work.impl.Scheduler;
-import androidx.work.impl.utils.IdGenerator;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -67,6 +67,8 @@ public final class Configuration {
     final @NonNull RunnableScheduler mRunnableScheduler;
     @SuppressWarnings("WeakerAccess")
     final @Nullable InitializationExceptionHandler mExceptionHandler;
+    @SuppressWarnings("WeakerAccess")
+    final @Nullable SchedulingExceptionHandler mSchedulingExceptionHandler;
     @SuppressWarnings("WeakerAccess")
     final @Nullable String mDefaultProcessName;
     @SuppressWarnings("WeakerAccess")
@@ -120,6 +122,7 @@ public final class Configuration {
         mMaxJobSchedulerId = builder.mMaxJobSchedulerId;
         mMaxSchedulerLimit = builder.mMaxSchedulerLimit;
         mExceptionHandler = builder.mExceptionHandler;
+        mSchedulingExceptionHandler = builder.mSchedulingExceptionHandler;
         mDefaultProcessName = builder.mDefaultProcessName;
     }
 
@@ -249,12 +252,19 @@ public final class Configuration {
     /**
      * @return the {@link InitializationExceptionHandler} that can be used to intercept
      * exceptions caused when trying to initialize {@link WorkManager}.
-     * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @Nullable
-    public InitializationExceptionHandler getExceptionHandler() {
+    public InitializationExceptionHandler getInitializationExceptionHandler() {
         return mExceptionHandler;
+    }
+
+    /**
+     * @return the {@link SchedulingExceptionHandler} that can be used to intercept exceptions
+     * caused when trying to schedule {@link WorkRequest}s.
+     */
+    @Nullable
+    public SchedulingExceptionHandler getSchedulingExceptionHandler() {
+        return mSchedulingExceptionHandler;
     }
 
     private @NonNull Executor createDefaultExecutor(boolean isTaskExecutor) {
@@ -289,6 +299,7 @@ public final class Configuration {
         Executor mTaskExecutor;
         RunnableScheduler mRunnableScheduler;
         @Nullable InitializationExceptionHandler mExceptionHandler;
+        @Nullable SchedulingExceptionHandler mSchedulingExceptionHandler;
         @Nullable String mDefaultProcessName;
 
         int mLoggingLevel;
@@ -301,7 +312,7 @@ public final class Configuration {
          */
         public Builder() {
             mLoggingLevel = Log.INFO;
-            mMinJobSchedulerId = IdGenerator.INITIAL_ID;
+            mMinJobSchedulerId = INITIAL_ID;
             mMaxJobSchedulerId = Integer.MAX_VALUE;
             mMaxSchedulerLimit = MIN_SCHEDULER_LIMIT;
         }
@@ -327,6 +338,7 @@ public final class Configuration {
             mMaxSchedulerLimit = configuration.mMaxSchedulerLimit;
             mRunnableScheduler = configuration.mRunnableScheduler;
             mExceptionHandler = configuration.mExceptionHandler;
+            mSchedulingExceptionHandler = configuration.mSchedulingExceptionHandler;
             mDefaultProcessName = configuration.mDefaultProcessName;
         }
 
@@ -478,13 +490,25 @@ public final class Configuration {
          *
          * @param exceptionHandler The {@link InitializationExceptionHandler} instance.
          * @return This {@link Builder} instance
-         * @hide
          */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @NonNull
         public Builder setInitializationExceptionHandler(
                 @NonNull InitializationExceptionHandler exceptionHandler) {
             mExceptionHandler = exceptionHandler;
+            return this;
+        }
+
+        /**
+         * Specifies the {@link SchedulingExceptionHandler} that can be used to intercept
+         * exceptions caused when trying to schedule {@link WorkRequest}s.
+         *
+         * @param schedulingExceptionHandler The {@link SchedulingExceptionHandler} instance
+         * @return This {@link Builder} instance
+         */
+        @NonNull
+        public Builder setSchedulingExceptionHandler(
+                @NonNull SchedulingExceptionHandler schedulingExceptionHandler) {
+            mSchedulingExceptionHandler = schedulingExceptionHandler;
             return this;
         }
 

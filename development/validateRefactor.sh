@@ -157,5 +157,5 @@ echo diffing results
 # Don't care about maven-metadata files because they have timestamps in them
 # We might care to know whether .sha1 or .md5 files have changed, but changes in those files will always be accompanied by more meaningful changes in other files, so we don't need to show changes in .sha1 or .md5 files
 # We also don't care about several specific files, either
-echoAndDo diff -r -x "*.md5*" -x "*.sha*" -x "*maven-metadata.xml" -x buildSrc.jar -x jetifier-standalone.zip -x jetpad-integration.jar -x "top-of-tree-m2repository-all-0.zip" -x noto-emoji-compat-java.jar -x versionedparcelable-annotation.jar -x dokkaTipOfTreeDocs-0.zip -x fakeannotations.jar -x "doclava*.jar" "$oldOutPath/dist" "$newOutPath/dist"
+echoAndDo diff -r -x "*.md5*" -x "*.sha*" -x "*maven-metadata.xml" -x buildSrc.jar -x jetpad-integration.jar -x "top-of-tree-m2repository-all-0.zip" -x noto-emoji-compat-java.jar -x versionedparcelable-annotation.jar -x dokkaTipOfTreeDocs-0.zip -x fakeannotations.jar -x "doclava*.jar" "$oldOutPath/dist" "$newOutPath/dist"
 echo end of difference

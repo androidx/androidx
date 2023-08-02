@@ -13,17 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- plugins {
-    id "groovy-gradle-plugin"
-}
 
-repositories {
-    gradlePluginPortal()
+plugins {
+    id("java-gradle-plugin")
+    alias(libs.plugins.kotlinJvm)
 }
 
 dependencies {
-    implementation "com.gradle:gradle-enterprise-gradle-plugin:3.7.1"
-    implementation "com.gradle:common-custom-user-data-gradle-plugin:1.4.2"
+    implementation("com.gradle:gradle-enterprise-gradle-plugin:3.10.2")
+    implementation("com.gradle:common-custom-user-data-gradle-plugin:1.7.2")
+    testImplementation(libs.junit)
+    testImplementation(libs.truth)
 }
 
 gradlePlugin {

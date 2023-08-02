@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
-import androidx.build.LibraryVersions
 import androidx.build.Publish
 
 plugins {
@@ -48,4 +46,8 @@ androidx {
     mavenGroup = LibraryGroups.ADS
     inceptionYear = "2019"
     description = "AndroidX Ads Identifier Provider"
+}
+
+android {
+    namespace "androidx.ads.identifier.provider"
 }

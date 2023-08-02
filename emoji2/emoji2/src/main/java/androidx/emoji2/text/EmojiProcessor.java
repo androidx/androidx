@@ -17,13 +17,11 @@ package androidx.emoji2.text;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
-import android.os.Build;
 import android.text.Editable;
 import android.text.Selection;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.Spanned;
-import android.text.TextPaint;
 import android.text.method.KeyListener;
 import android.text.method.MetaKeyKeyListener;
 import android.view.KeyEvent;
@@ -36,7 +34,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
-import androidx.core.graphics.PaintCompat;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -120,26 +117,70 @@ final class EmojiProcessor {
         mEmojiAsDefaultStyleExceptions = emojiAsDefaultStyleExceptions;
     }
 
-    EmojiMetadata getEmojiMetadata(@NonNull final CharSequence charSequence) {
+    @EmojiCompat.CodepointSequenceMatchResult
+    int getEmojiMatch(@NonNull final CharSequence charSequence) {
+        return getEmojiMatch(charSequence, mMetadataRepo.getMetadataVersion());
+    }
+
+    @EmojiCompat.CodepointSequenceMatchResult
+    int getEmojiMatch(@NonNull final CharSequence charSequence,
+            final int metadataVersion) {
         final ProcessorSm sm = new ProcessorSm(mMetadataRepo.getRootNode(),
                 mUseEmojiAsDefaultStyle, mEmojiAsDefaultStyleExceptions);
         final int end = charSequence.length();
         int currentOffset = 0;
+        int potentialSubsequenceMatch = 0;
+        int subsequenceMatch = 0;
 
         while (currentOffset < end) {
             final int codePoint = Character.codePointAt(charSequence, currentOffset);
             final int action = sm.check(codePoint);
-            if (action != ACTION_ADVANCE_END) {
-                return null;
+            EmojiMetadata currentNode = sm.getCurrentMetadata();
+            switch (action) {
+                case ACTION_FLUSH: {
+                    // this happens when matching new unknown ZWJ sequences that are comprised of
+                    // known emoji
+                    currentNode = sm.getFlushMetadata();
+                    if (currentNode.getCompatAdded() <= metadataVersion) {
+                        subsequenceMatch++;
+                    }
+                    break;
+                }
+                case ACTION_ADVANCE_BOTH: {
+                    currentOffset += Character.charCount(codePoint);
+                    // state machine decided to skip previous entries
+                    potentialSubsequenceMatch = 0;
+                    break;
+                } case ACTION_ADVANCE_END: {
+                    currentOffset += Character.charCount(codePoint);
+                    break;
+                }
             }
-            currentOffset += Character.charCount(codePoint);
+            if (currentNode != null && currentNode.getCompatAdded() <= metadataVersion) {
+                potentialSubsequenceMatch++;
+            }
+        }
+
+        if (subsequenceMatch != 0) {
+            // if we matched multiple emoji on the first pass, then the current emoji font
+            // doesn't know about the codepoint sequence, and will decompose when REPLACE_ALL = true
+            return EmojiCompat.EMOJI_FALLBACK;
         }
 
         if (sm.isInFlushableState()) {
-            return sm.getCurrentMetadata();
+            // We matched exactly one emoji
+            // EmojiCompat can completely handle this sequence
+            EmojiMetadata exactMatch = sm.getCurrentMetadata();
+            if (exactMatch.getCompatAdded() <= metadataVersion) {
+                return EmojiCompat.EMOJI_SUPPORTED;
+            }
         }
-
-        return null;
+        // if we get here than we definitely do not know the emoji, decide if we will decompose
+        if (potentialSubsequenceMatch == 0) {
+            return EmojiCompat.EMOJI_UNSUPPORTED;
+        } else {
+            return EmojiCompat.EMOJI_FALLBACK;
+        }
     }
 
     /**
@@ -172,12 +213,12 @@ final class EmojiProcessor {
         }
 
         try {
-            Spannable spannable = null;
+            UnprecomputeTextOnModificationSpannable spannable = null;
             // if it is a spannable already, use the same instance to add/remove EmojiSpans.
             // otherwise wait until the first EmojiSpan found in order to change the result
             // into a Spannable.
             if (isSpannableBuilder || charSequence instanceof Spannable) {
-                spannable = (Spannable) charSequence;
+                spannable = new UnprecomputeTextOnModificationSpannable((Spannable) charSequence);
             } else if (charSequence instanceof Spanned) {
                 // check if there are any EmojiSpans as cheap as possible
                 // start-1, end+1 will return emoji span that starts/ends at start/end indices
@@ -185,7 +226,7 @@ final class EmojiProcessor {
                         start - 1, end + 1, EmojiSpan.class);
 
                 if (nextSpanTransition <= end) {
-                    spannable = new SpannableString(charSequence);
+                    spannable = new UnprecomputeTextOnModificationSpannable(charSequence);
                 }
             }
 
@@ -250,7 +291,8 @@ final class EmojiProcessor {
                         if (replaceAll || !hasGlyph(charSequence, start, currentOffset,
                                 sm.getFlushMetadata())) {
                             if (spannable == null) {
-                                spannable = new SpannableString(charSequence);
+                                spannable = new UnprecomputeTextOnModificationSpannable(
+                                        new SpannableString(charSequence));
                             }
                             addEmoji(spannable, sm.getFlushMetadata(), start, currentOffset);
                             addedCount++;
@@ -268,13 +310,18 @@ final class EmojiProcessor {
                 if (replaceAll || !hasGlyph(charSequence, start, currentOffset,
                         sm.getCurrentMetadata())) {
                     if (spannable == null) {
-                        spannable = new SpannableString(charSequence);
+                        spannable = new UnprecomputeTextOnModificationSpannable(charSequence);
                     }
                     addEmoji(spannable, sm.getCurrentMetadata(), start, currentOffset);
                     addedCount++;
                 }
             }
-            return spannable == null ? charSequence : spannable;
+            // if nothing was written, always return the source
+            if (spannable != null) {
+                return spannable.getUnwrappedSpannable();
+            } else {
+                return charSequence;
+            }
         } finally {
             if (isSpannableBuilder) {
                 ((SpannableBuilder) charSequence).endBatchEdit();
@@ -773,68 +820,6 @@ final class EmojiProcessor {
                 waitingLowSurrogate = true;
                 ++currentIndex;
             }
-        }
-    }
-
-    /**
-     * Utility class that checks if the system can render a given glyph.
-     *
-     * @hide
-     */
-    @AnyThread
-    @RestrictTo(LIBRARY)
-    public static class DefaultGlyphChecker implements EmojiCompat.GlyphChecker {
-        /**
-         * Default text size for {@link #mTextPaint}.
-         */
-        private static final int PAINT_TEXT_SIZE = 10;
-
-        /**
-         * Used to create strings required by
-         * {@link PaintCompat#hasGlyph(android.graphics.Paint, String)}.
-         */
-        private static final ThreadLocal<StringBuilder> sStringBuilder = new ThreadLocal<>();
-
-        /**
-         * TextPaint used during {@link PaintCompat#hasGlyph(android.graphics.Paint, String)} check.
-         */
-        private final TextPaint mTextPaint;
-
-        DefaultGlyphChecker() {
-            mTextPaint = new TextPaint();
-            mTextPaint.setTextSize(PAINT_TEXT_SIZE);
-        }
-
-        @Override
-        public boolean hasGlyph(
-                @NonNull CharSequence charSequence,
-                int start,
-                int end,
-                int sdkAdded
-        ) {
-            // For pre M devices, heuristic in PaintCompat can result in false positives. we are
-            // adding another heuristic using the sdkAdded field. if the emoji was added to OS
-            // at a later version we assume that the system probably cannot render it.
-            if (Build.VERSION.SDK_INT < 23 && sdkAdded > Build.VERSION.SDK_INT) {
-                return false;
-            }
-
-            final StringBuilder builder = getStringBuilder();
-            builder.setLength(0);
-
-            while (start < end) {
-                builder.append(charSequence.charAt(start));
-                start++;
-            }
-
-            return PaintCompat.hasGlyph(mTextPaint, builder.toString());
-        }
-
-        private static StringBuilder getStringBuilder() {
-            if (sStringBuilder.get() == null) {
-                sStringBuilder.set(new StringBuilder());
-            }
-            return sStringBuilder.get();
         }
     }
 }

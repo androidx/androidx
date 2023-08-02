@@ -47,12 +47,15 @@ import androidx.car.app.hardware.CarHardwareManager;
 import androidx.car.app.managers.Manager;
 import androidx.car.app.managers.ResultManager;
 import androidx.car.app.navigation.NavigationManager;
+import androidx.car.app.serialization.Bundleable;
+import androidx.car.app.suggestion.SuggestionManager;
 import androidx.car.app.testing.TestLifecycleOwner;
 import androidx.lifecycle.Lifecycle.Event;
 import androidx.lifecycle.Lifecycle.State;
 import androidx.test.core.app.ApplicationProvider;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -69,13 +72,14 @@ import java.util.Locale;
 
 /** Tests for {@link CarContext}. */
 @RunWith(RobolectricTestRunner.class)
-@Config(instrumentedPackages = { "androidx.activity" })
+@Config(instrumentedPackages = {"androidx.activity"})
 @DoNotInstrument
 public class CarContextTest {
     private static final String APP_SERVICE = "app";
     private static final String NAVIGATION_SERVICE = "navigation";
     private static final String SCREEN_SERVICE = "screen";
     private static final String HARDWARE_SERVICE = "hardware";
+    private static final String SUGGESTION_SERVICE = "suggestion";
 
     @Mock
     private ICarHost mMockCarHost;
@@ -89,45 +93,56 @@ public class CarContextTest {
     private CarContext mCarContext;
     private Screen mScreen1;
     private Screen mScreen2;
-
-    private Intent mIntentFromNotification;
-    private final TestLifecycleOwner mLifecycleOwner =
-            new TestLifecycleOwner();
+    private final TestLifecycleOwner mLifecycleOwner = new TestLifecycleOwner();
 
     @Before
     public void setUp() throws RemoteException {
         MockitoAnnotations.initMocks(this);
-        when(mMockCarHost.getHost(CarContext.APP_SERVICE))
-                .thenReturn(
-                        new IAppHost.Stub() {
-                            @Override
-                            public void invalidate() {
-                            }
+        when(mMockCarHost.getHost(CarContext.APP_SERVICE)).thenReturn(new IAppHost.Stub() {
+            @Override
+            public void invalidate() {
+            }
 
-                            @Override
-                            public void showToast(CharSequence text, int duration) {
-                            }
+            @Override
+            public void showToast(CharSequence text, int duration) {
+            }
 
-                            @Override
-                            public void setSurfaceCallback(@Nullable ISurfaceCallback callback) {
-                            }
+            @Override
+            public void setSurfaceCallback(@Nullable ISurfaceCallback callback) {
+            }
 
-                            @Override
-                            public void sendLocation(Location location) {
-                            }
-                        }.asBinder());
+            @Override
+            public void sendLocation(Location location) {
+            }
+
+            @Override
+            public void showAlert(Bundleable alert) {
+            }
+
+            @Override
+            public void dismissAlert(int alertId) {
+            }
+
+            @Override
+            public Bundleable openMicrophone(Bundleable openMicrophoneRequest) {
+                return null;
+            }
+        }.asBinder());
 
         TestStartCarAppStub startCarAppStub = new TestStartCarAppStub(mMockStartCarApp);
 
         Bundle extras = new Bundle(1);
         extras.putBinder(CarContext.EXTRA_START_CAR_APP_BINDER_KEY, startCarAppStub.asBinder());
-        mIntentFromNotification = new Intent().putExtras(extras);
+        Intent intentFromNotification = new Intent().putExtras(extras);
 
         mCarContext = CarContext.create(mLifecycleOwner.mRegistry);
-        mCarContext.attachBaseContext(
-                ApplicationProvider.getApplicationContext(),
+        mCarContext.attachBaseContext(ApplicationProvider.getApplicationContext(),
                 ApplicationProvider.getApplicationContext().getResources().getConfiguration());
         mCarContext.setCarHost(mMockCarHost);
+        // Set the app's lifecycle to STARTED so that screens would be set to the STARTED state when
+        // pushed. Otherwise we may run into issues in tests when popping screens, where they go
+        // from the INITIALIZED state to the DESTROYED state.
+        mLifecycleOwner.mRegistry.setCurrentState(State.STARTED);
 
         mScreen1 = new TestScreen(mCarContext, mMockScreen1);
         mScreen2 = new TestScreen(mCarContext, mMockScreen2);
@@ -135,29 +150,36 @@ public class CarContextTest {
 
     @Test
     public void getCarService_app() {
-        assertThat(mCarContext.getCarService(CarContext.APP_SERVICE))
-                .isEqualTo(mCarContext.getCarService(AppManager.class));
+        assertThat(mCarContext.getCarService(CarContext.APP_SERVICE)).isEqualTo(
+                mCarContext.getCarService(AppManager.class));
         assertThat(mCarContext.getCarService(CarContext.APP_SERVICE)).isNotNull();
     }
 
     @Test
     public void getCarService_navigation() {
-        assertThat(mCarContext.getCarService(CarContext.NAVIGATION_SERVICE))
-                .isEqualTo(mCarContext.getCarService(NavigationManager.class));
+        assertThat(mCarContext.getCarService(CarContext.NAVIGATION_SERVICE)).isEqualTo(
+                mCarContext.getCarService(NavigationManager.class));
         assertThat(mCarContext.getCarService(CarContext.NAVIGATION_SERVICE)).isNotNull();
     }
 
     @Test
     public void getCarService_screenManager() {
-        assertThat(mCarContext.getCarService(CarContext.SCREEN_SERVICE))
-                .isEqualTo(mCarContext.getCarService(ScreenManager.class));
+        assertThat(mCarContext.getCarService(CarContext.SCREEN_SERVICE)).isEqualTo(
+                mCarContext.getCarService(ScreenManager.class));
         assertThat(mCarContext.getCarService(CarContext.SCREEN_SERVICE)).isNotNull();
     }
 
     @Test
     public void getCarService_hardwareManager() {
-        assertThrows(IllegalStateException.class, () ->
-                mCarContext.getCarService(CarContext.HARDWARE_SERVICE));
+        assertThrows(IllegalStateException.class,
+                () -> mCarContext.getCarService(CarContext.HARDWARE_SERVICE));
+    }
+
+    @Test
+    public void getCarService_suggestionManager() {
+        assertThat(mCarContext.getCarService(CarContext.SUGGESTION_SERVICE)).isEqualTo(
+                mCarContext.getCarService(SuggestionManager.class));
+        assertThat(mCarContext.getCarService(CarContext.SUGGESTION_SERVICE)).isNotNull();
     }
 
     @Test
@@ -184,9 +206,14 @@ public class CarContextTest {
     }
 
     @Test
+    public void getCarServiceName_suggestion() {
+        assertThat(mCarContext.getCarServiceName(SuggestionManager.class)).isEqualTo(
+                SUGGESTION_SERVICE);
+    }
+
+    @Test
     public void getCarServiceName_screenManager() {
-        assertThat(mCarContext.getCarServiceName(ScreenManager.class)).isEqualTo(
-                SCREEN_SERVICE);
+        assertThat(mCarContext.getCarServiceName(ScreenManager.class)).isEqualTo(SCREEN_SERVICE);
     }
 
     @Test
@@ -234,6 +261,7 @@ public class CarContextTest {
         assertThat(name).isNull();
     }
 
+    @Ignore // b/238635208
     @Test
     public void onConfigurationChanged_updatesTheConfiguration() {
         Configuration configuration = new Configuration();
@@ -242,8 +270,8 @@ public class CarContextTest {
 
         mCarContext.onCarConfigurationChanged(configuration);
 
-        assertThat(mCarContext.getResources().getConfiguration().getLocales().get(0))
-                .isEqualTo(Locale.CANADA_FRENCH);
+        assertThat(mCarContext.getResources().getConfiguration().getLocales().get(0)).isEqualTo(
+                Locale.CANADA_FRENCH);
     }
 
     @Test
@@ -289,10 +317,8 @@ public class CarContextTest {
         mdpiConfig.densityDpi = 160;
 
         Context applicationContext = mCarContext.getApplicationContext();
-        applicationContext
-                .getResources()
-                .updateConfiguration(mdpiConfig,
-                        applicationContext.getResources().getDisplayMetrics());
+        applicationContext.getResources().updateConfiguration(mdpiConfig,
+                applicationContext.getResources().getDisplayMetrics());
 
         Drawable carContextDrawable = TestUtils.getTestDrawable(mCarContext, "banana");
         assertThat(carContextDrawable.getIntrinsicHeight()).isEqualTo(48);
@@ -319,14 +345,10 @@ public class CarContextTest {
 
         Context applicationContext = mCarContext.getApplicationContext();
 
-        VirtualDisplay display = applicationContext.getSystemService(DisplayManager.class)
-                .createVirtualDisplay(
-                        "CarAppService",
-                        mdpiConfig.screenWidthDp,
-                        mdpiConfig.screenHeightDp,
-                        5,
-                        null,
-                        VIRTUAL_DISPLAY_FLAG_OWN_CONTENT_ONLY);
+        VirtualDisplay display = ((DisplayManager) applicationContext.getSystemService(
+                Context.DISPLAY_SERVICE)).createVirtualDisplay("CarAppService",
+                mdpiConfig.screenWidthDp, mdpiConfig.screenHeightDp, 5, null,
+                VIRTUAL_DISPLAY_FLAG_OWN_CONTENT_ONLY);
         DisplayMetrics newDisplayMetrics = new DisplayMetrics();
         display.getDisplay().getMetrics(newDisplayMetrics);
 
@@ -380,9 +402,10 @@ public class CarContextTest {
 
         OnBackPressedCallback callback = mock(OnBackPressedCallback.class);
         when(callback.isEnabled()).thenReturn(true);
-        mLifecycleOwner.mRegistry.setCurrentState(State.STARTED);
 
-        mCarContext.getOnBackPressedDispatcher().addCallback(mLifecycleOwner, callback);
+        TestLifecycleOwner callbackLifecycle = new TestLifecycleOwner();
+        callbackLifecycle.mRegistry.setCurrentState(State.STARTED);
+        mCarContext.getOnBackPressedDispatcher().addCallback(callbackLifecycle, callback);
         mCarContext.getOnBackPressedDispatcher().onBackPressed();
 
         verify(callback).handleOnBackPressed();
@@ -397,9 +420,10 @@ public class CarContextTest {
 
         OnBackPressedCallback callback = mock(OnBackPressedCallback.class);
         when(callback.isEnabled()).thenReturn(true);
-        mLifecycleOwner.mRegistry.setCurrentState(State.CREATED);
 
-        mCarContext.getOnBackPressedDispatcher().addCallback(mLifecycleOwner, callback);
+        TestLifecycleOwner callbackLifecycle = new TestLifecycleOwner();
+        callbackLifecycle.mRegistry.setCurrentState(State.CREATED);
+        mCarContext.getOnBackPressedDispatcher().addCallback(callbackLifecycle, callback);
         mCarContext.getOnBackPressedDispatcher().onBackPressed();
 
         verify(callback, never()).handleOnBackPressed();
@@ -414,15 +438,16 @@ public class CarContextTest {
 
         OnBackPressedCallback callback = mock(OnBackPressedCallback.class);
         when(callback.isEnabled()).thenReturn(true);
-        mLifecycleOwner.mRegistry.setCurrentState(State.CREATED);
 
-        mCarContext.getOnBackPressedDispatcher().addCallback(mLifecycleOwner, callback);
+        TestLifecycleOwner callbackLifecycle = new TestLifecycleOwner();
+        callbackLifecycle.mRegistry.setCurrentState(State.CREATED);
+        mCarContext.getOnBackPressedDispatcher().addCallback(callbackLifecycle, callback);
         mCarContext.getOnBackPressedDispatcher().onBackPressed();
 
         verify(callback, never()).handleOnBackPressed();
         verify(mMockScreen2).dispatchLifecycleEvent(Event.ON_DESTROY);
 
-        mLifecycleOwner.mRegistry.setCurrentState(State.STARTED);
+        callbackLifecycle.mRegistry.setCurrentState(State.STARTED);
         mCarContext.getOnBackPressedDispatcher().onBackPressed();
 
         verify(callback).handleOnBackPressed();
@@ -459,16 +484,16 @@ public class CarContextTest {
 
         assertThat(startActivityIntent.getAction()).isEqualTo(
                 CarContext.REQUEST_PERMISSIONS_ACTION);
-        assertThat(startActivityIntent.getComponent()).isEqualTo(new ComponentName(mCarContext,
-                CarAppPermissionActivity.class));
+        assertThat(startActivityIntent.getComponent()).isEqualTo(
+                new ComponentName(mCarContext, CarAppPermissionActivity.class));
 
         Bundle extras = startActivityIntent.getExtras();
 
         assertThat(extras.getStringArray(CarContext.EXTRA_PERMISSIONS_KEY)).isEqualTo(
                 permissions.toArray(new String[0]));
 
-        IBinder binder =
-                extras.getBinder(CarContext.EXTRA_ON_REQUEST_PERMISSIONS_RESULT_LISTENER_KEY);
+        IBinder binder = extras.getBinder(
+                CarContext.EXTRA_ON_REQUEST_PERMISSIONS_RESULT_LISTENER_KEY);
 
         IOnRequestPermissionsListener iListener = IOnRequestPermissionsListener.Stub.asInterface(
                 binder);

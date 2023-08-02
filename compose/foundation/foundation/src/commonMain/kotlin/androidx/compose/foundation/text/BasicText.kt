@@ -28,7 +28,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalFontLoader
+import androidx.compose.ui.platform.LocalFontFamilyResolver
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
@@ -73,7 +73,7 @@ fun BasicText(
     // selection registrar, if no SelectionContainer is added ambient value will be null
     val selectionRegistrar = LocalSelectionRegistrar.current
     val density = LocalDensity.current
-    val resourceLoader = LocalFontLoader.current
+    val fontFamilyResolver = LocalFontFamilyResolver.current
 
     // The ID used to identify this CoreText. If this CoreText is removed from the composition
     // tree and then added back, this ID should stay the same.
@@ -85,10 +85,13 @@ fun BasicText(
 
     // NOTE(text-perf-review): potential bug. selectableId is regenerated here whenever text
     // changes, but it is only saved in the initial creation of TextState.
-    val selectableId =
+    val selectableId = if (selectionRegistrar == null) {
+        SelectionRegistrar.InvalidSelectableId
+    } else {
         rememberSaveable(text, selectionRegistrar, saver = selectionIdSaver(selectionRegistrar)) {
-            selectionRegistrar?.nextSelectableId() ?: SelectionRegistrar.InvalidSelectableId
+            selectionRegistrar.nextSelectableId()
         }
+    }
 
     val controller = remember {
         TextController(
@@ -98,7 +101,7 @@ fun BasicText(
                     style = style,
                     density = density,
                     softWrap = softWrap,
-                    resourceLoader = resourceLoader,
+                    fontFamilyResolver = fontFamilyResolver,
                     overflow = overflow,
                     maxLines = maxLines,
                 ),
@@ -108,15 +111,17 @@ fun BasicText(
     }
     val state = controller.state
     if (!currentComposer.inserting) {
-        state.textDelegate = updateTextDelegate(
-            current = state.textDelegate,
-            text = text,
-            style = style,
-            density = density,
-            softWrap = softWrap,
-            resourceLoader = resourceLoader,
-            overflow = overflow,
-            maxLines = maxLines,
+        controller.setTextDelegate(
+            updateTextDelegate(
+                current = state.textDelegate,
+                text = text,
+                style = style,
+                density = density,
+                softWrap = softWrap,
+                fontFamilyResolver = fontFamilyResolver,
+                overflow = overflow,
+                maxLines = maxLines,
+            )
         )
     }
     state.onTextLayout = onTextLayout
@@ -167,7 +172,7 @@ fun BasicText(
     // selection registrar, if no SelectionContainer is added ambient value will be null
     val selectionRegistrar = LocalSelectionRegistrar.current
     val density = LocalDensity.current
-    val resourceLoader = LocalFontLoader.current
+    val fontFamilyResolver = LocalFontFamilyResolver.current
     val selectionBackgroundColor = LocalTextSelectionColors.current.backgroundColor
 
     val (placeholders, inlineComposables) = resolveInlineContent(text, inlineContent)
@@ -182,10 +187,13 @@ fun BasicText(
 
     // NOTE(text-perf-review): potential bug. selectableId is regenerated here whenever text
     // changes, but it is only saved in the initial creation of TextState.
-    val selectableId =
+    val selectableId = if (selectionRegistrar == null) {
+        SelectionRegistrar.InvalidSelectableId
+    } else {
         rememberSaveable(text, selectionRegistrar, saver = selectionIdSaver(selectionRegistrar)) {
-            selectionRegistrar?.nextSelectableId() ?: SelectionRegistrar.InvalidSelectableId
+            selectionRegistrar.nextSelectableId()
         }
+    }
 
     val controller = remember {
         TextController(
@@ -195,7 +203,7 @@ fun BasicText(
                     style = style,
                     density = density,
                     softWrap = softWrap,
-                    resourceLoader = resourceLoader,
+                    fontFamilyResolver = fontFamilyResolver,
                     overflow = overflow,
                     maxLines = maxLines,
                     placeholders = placeholders
@@ -206,16 +214,18 @@ fun BasicText(
     }
     val state = controller.state
     if (!currentComposer.inserting) {
-        state.textDelegate = updateTextDelegate(
-            current = state.textDelegate,
-            text = text,
-            style = style,
-            density = density,
-            softWrap = softWrap,
-            resourceLoader = resourceLoader,
-            overflow = overflow,
-            maxLines = maxLines,
-            placeholders = placeholders,
+        controller.setTextDelegate(
+            updateTextDelegate(
+                current = state.textDelegate,
+                text = text,
+                style = style,
+                density = density,
+                softWrap = softWrap,
+                fontFamilyResolver = fontFamilyResolver,
+                overflow = overflow,
+                maxLines = maxLines,
+                placeholders = placeholders,
+            )
         )
     }
     state.onTextLayout = onTextLayout

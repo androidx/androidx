@@ -136,4 +136,15 @@ class UseJavaExperimentalFromKt {
         val experimentalObject = AnnotatedJavaClass()
         return experimentalObject.method() + AnnotatedJavaClass2.FIELD_STATIC
     }
+
+    /**
+     * Unsafe references to experimental properties.
+     */
+    fun unsafePropertyUsage(): Int {
+        AnnotatedJavaMembers().field = -1
+        val value = AnnotatedJavaMembers().field
+        AnnotatedJavaMembers().fieldWithSetMarker = -1
+        val value2 = AnnotatedJavaMembers().fieldWithSetMarker // safe
+        return value + value2
+    }
 }

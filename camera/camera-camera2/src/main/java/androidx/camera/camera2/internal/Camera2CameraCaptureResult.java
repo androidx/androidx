@@ -276,6 +276,7 @@ public class Camera2CameraCaptureResult implements CameraCaptureResult {
     }
 
     @NonNull
+    @Override
     public CaptureResult getCaptureResult() {
         return mCaptureResult;
     }

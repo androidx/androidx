@@ -174,6 +174,7 @@ public class DrawerLayoutActivity extends BaseTestActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public void onBackPressed() {
         // Is the drawer open?

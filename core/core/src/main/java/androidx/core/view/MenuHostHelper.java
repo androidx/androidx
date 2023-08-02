@@ -32,6 +32,23 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Helper class for implementing {@link MenuHost}.
+ *
+ * This class should be used to implement the {@link MenuHost} functions. i.e.:
+ *
+ * <pre class="prettyprint">
+ * class ExampleComponent : MenuHost {
+ *
+ *     private val menuHostHelper = MenuHostHelper{ invalidateMenu() }
+ *
+ *     override fun invalidateMenu() { … }
+ *
+ *     override fun addMenuProvider(provider: MenuProvider, owner: LifecycleOwner) {
+ *         menuHostHelper.addMenuProvider(provider, owner)
+ *     }
+ *
+ *     // Override remaining MenuHost methods in similar fashion
+ * }
+ * </pre>
  */
 public class MenuHostHelper {
 
@@ -48,6 +65,20 @@ public class MenuHostHelper {
      */
     public MenuHostHelper(@NonNull Runnable onInvalidateMenuCallback) {
         mOnInvalidateMenuCallback = onInvalidateMenuCallback;
+    }
+
+    /**
+     * Called right before the given {@link Menu}, which was provided by one of the
+     * current {@link MenuProvider}s, is to be shown. This happens when the menu has
+     * been dynamically modified.
+     *
+     * @param menu the menu that is to be prepared
+     * @see #onCreateMenu(Menu, MenuInflater)
+     */
+    public void onPrepareMenu(@NonNull Menu menu) {
+        for (MenuProvider menuProvider : mMenuProviders) {
+            menuProvider.onPrepareMenu(menu);
+        }
     }
 
     /**
@@ -78,6 +109,18 @@ public class MenuHostHelper {
             }
         }
         return false;
+    }
+
+    /**
+     * Called when the given {@link Menu}, which was provided by one of the
+     * current {@link MenuProvider}s, is closed.
+     *
+     * @param menu the menu that has been closed
+     */
+    public void onMenuClosed(@NonNull Menu menu) {
+        for (MenuProvider menuProvider : mMenuProviders) {
+            menuProvider.onMenuClosed(menu);
+        }
     }
 
     /**

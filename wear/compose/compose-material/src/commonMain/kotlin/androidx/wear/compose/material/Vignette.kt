@@ -27,8 +27,8 @@ import androidx.compose.ui.layout.ContentScale
 /**
  * Possible combinations for vignette state.
  */
-@Suppress("INLINE_CLASS_DEPRECATED")
-public inline class VignettePosition constructor(private val key: Int) {
+@kotlin.jvm.JvmInline
+public value class VignettePosition constructor(private val key: Int) {
     internal fun drawTop(): Boolean {
         return when (key) {
             1 -> false
@@ -98,8 +98,8 @@ public fun Vignette(
         if (vignettePosition.drawTop()) {
             Image(
                 painter = imageResource(
-                    if (isRoundDevice()) "circular_vignette_top"
-                    else "rectangular_vignette_top"
+                    if (isRoundDevice()) ImageResources.CircularVignetteTop
+                    else ImageResources.RectangularVignetteTop
                 ),
                 contentScale = ContentScale.FillWidth,
                 contentDescription = null,
@@ -109,8 +109,8 @@ public fun Vignette(
         if (vignettePosition.drawBottom()) {
             Image(
                 painter = imageResource(
-                    if (isRoundDevice()) "circular_vignette_bottom"
-                    else "rectangular_vignette_bottom"
+                    if (isRoundDevice()) ImageResources.CircularVignetteBottom
+                    else ImageResources.RectangularVignetteBottom
                 ),
                 contentScale = ContentScale.FillWidth,
                 contentDescription = null,

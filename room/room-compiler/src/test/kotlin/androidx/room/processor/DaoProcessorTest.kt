@@ -27,6 +27,7 @@ import androidx.room.testing.context
 import androidx.room.vo.Dao
 import androidx.room.vo.ReadQueryMethod
 import androidx.room.vo.Warning
+import com.google.common.truth.Truth
 import com.squareup.javapoet.TypeName
 import createVerifierFromEntitiesAndViews
 import org.hamcrest.CoreMatchers.`is`
@@ -154,7 +155,7 @@ class DaoProcessorTest(private val enableVerification: Boolean) {
         ) { dao, _ ->
             assertThat(dao.queryMethods.size, `is`(1))
             val method = dao.queryMethods.first()
-            assertThat(method.name, `is`("getIds"))
+            assertThat(method.element.jvmName, `is`("getIds"))
         }
     }
 
@@ -170,7 +171,7 @@ class DaoProcessorTest(private val enableVerification: Boolean) {
         ) { dao, _ ->
             assertThat(dao.queryMethods.size, `is`(1))
             val method = dao.queryMethods.first()
-            assertThat(method.name, `is`("getIds"))
+            assertThat(method.element.jvmName, `is`("getIds"))
         }
     }
 
@@ -188,10 +189,10 @@ class DaoProcessorTest(private val enableVerification: Boolean) {
         ) { dao, _ ->
             assertThat(dao.queryMethods.size, `is`(1))
             val method = dao.queryMethods.first()
-            assertThat(method.name, `is`("getIds"))
+            assertThat(method.element.jvmName, `is`("getIds"))
             assertThat(dao.insertionMethods.size, `is`(1))
             val insertMethod = dao.insertionMethods.first()
-            assertThat(insertMethod.name, `is`("insert"))
+            assertThat(insertMethod.element.jvmName, `is`("insert"))
         }
     }
 
@@ -207,7 +208,7 @@ class DaoProcessorTest(private val enableVerification: Boolean) {
         ) { dao, _ ->
             assertThat(dao.queryMethods.size, `is`(1))
             val method = dao.queryMethods.first()
-            assertThat(method.name, `is`("getIds"))
+            assertThat(method.element.jvmName, `is`("getIds"))
         }
     }
 
@@ -244,6 +245,38 @@ class DaoProcessorTest(private val enableVerification: Boolean) {
                     `is`(setOf(Warning.ALL, Warning.CURSOR_MISMATCH))
                 )
             }
+        }
+    }
+
+    @Test
+    fun suppressedWarningsKotlin() {
+        val daoSrc = Source.kotlin(
+            "MyDao.kt",
+            """
+            package foo.bar
+            import androidx.room.*
+            @Dao
+            @Suppress(RoomWarnings.CURSOR_MISMATCH)
+            interface MyDao {
+                @Query("SELECT uid from user")
+                fun userId(): Int
+            }
+            """.trimIndent()
+        )
+        runProcessorTest(
+            sources = listOf(daoSrc) + COMMON.USER
+        ) { invocation ->
+            val dao = invocation.roundEnv
+                .getElementsAnnotatedWith(androidx.room.Dao::class.qualifiedName!!)
+                .first()
+            if (!dao.isTypeElement()) {
+                error("Expected DAO to be a type")
+            }
+            val dbType = invocation.context.processingEnv.requireType(RoomTypeNames.ROOM_DB)
+            val daoProcessor =
+                DaoProcessor(invocation.context, dao, dbType, null)
+            Truth.assertThat(daoProcessor.context.logger.suppressedWarnings)
+                .containsExactly(Warning.CURSOR_MISMATCH)
         }
     }
 
@@ -385,7 +418,7 @@ class DaoProcessorTest(private val enableVerification: Boolean) {
         ) { dao, _ ->
             assertThat(dao.queryMethods.size, `is`(1))
             val method = dao.queryMethods.first()
-            assertThat(method.name, `is`("deleteAllIds"))
+            assertThat(method.element.jvmName, `is`("deleteAllIds"))
         }
     }
 
@@ -401,10 +434,39 @@ class DaoProcessorTest(private val enableVerification: Boolean) {
         ) { dao, invocation ->
             assertThat(dao.queryMethods.size, `is`(1))
             val method = dao.queryMethods.first()
-            assertThat(method.name, `is`("getAllIds"))
+            assertThat(method.element.jvmName, `is`("getAllIds"))
             invocation.assertCompilationResult {
                 hasErrorContaining(
                     ProcessorErrors.cannotFindQueryResultAdapter(TypeName.VOID)
+                )
+            }
+        }
+    }
+
+    @Test
+    fun jvmNameOnDao() {
+        val source = Source.kotlin("MyDao.kt", """
+            import androidx.room.*;
+            @Dao
+            interface MyDao {
+                @Suppress("INAPPLICABLE_JVM_NAME")
+                @JvmName("jvmMethodName")
+                @Query("SELECT 1")
+                fun method(): Int
+            }
+        """.trimIndent())
+        runProcessorTest(sources = listOf(source)) { invocation ->
+            val dao = invocation.processingEnv.requireTypeElement("MyDao")
+            val dbType = invocation.context.processingEnv.requireType(RoomTypeNames.ROOM_DB)
+            DaoProcessor(
+                baseContext = invocation.context,
+                element = dao,
+                dbType = dbType,
+                dbVerifier = null
+            ).process()
+            invocation.assertCompilationResult {
+                hasWarningContaining(
+                    ProcessorErrors.JVM_NAME_ON_OVERRIDDEN_METHOD
                 )
             }
         }

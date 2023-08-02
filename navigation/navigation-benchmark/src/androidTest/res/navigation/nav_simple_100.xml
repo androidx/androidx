@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  Copyright 2021 The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    app:startDestination="@+id/test1">
+
+    <test android:id="@+id/test1"/>
+    <test android:id="@+id/test2"/>
+    <test android:id="@+id/test3"/>
+    <test android:id="@+id/test4"/>
+    <test android:id="@+id/test5"/>
+    <test android:id="@+id/test6"/>
+    <test android:id="@+id/test7"/>
+    <test android:id="@+id/test8"/>
+    <test android:id="@+id/test9"/>
+    <test android:id="@+id/test10"/>
+    <test android:id="@+id/test11"/>
+    <test android:id="@+id/test12"/>
+    <test android:id="@+id/test13"/>
+    <test android:id="@+id/test14"/>
+    <test android:id="@+id/test15"/>
+    <test android:id="@+id/test16"/>
+    <test android:id="@+id/test17"/>
+    <test android:id="@+id/test18"/>
+    <test android:id="@+id/test19"/>
+    <test android:id="@+id/test20"/>
+    <test android:id="@+id/test21"/>
+    <test android:id="@+id/test22"/>
+    <test android:id="@+id/test23"/>
+    <test android:id="@+id/test24"/>
+    <test android:id="@+id/test25"/>
+    <test android:id="@+id/test26"/>
+    <test android:id="@+id/test27"/>
+    <test android:id="@+id/test28"/>
+    <test android:id="@+id/test29"/>
+    <test android:id="@+id/test30"/>
+    <test android:id="@+id/test31"/>
+    <test android:id="@+id/test32"/>
+    <test android:id="@+id/test33"/>
+    <test android:id="@+id/test34"/>
+    <test android:id="@+id/test35"/>
+    <test android:id="@+id/test36"/>
+    <test android:id="@+id/test37"/>
+    <test android:id="@+id/test38"/>
+    <test android:id="@+id/test39"/>
+    <test android:id="@+id/test40"/>
+    <test android:id="@+id/test41"/>
+    <test android:id="@+id/test42"/>
+    <test android:id="@+id/test43"/>
+    <test android:id="@+id/test44"/>
+    <test android:id="@+id/test45"/>
+    <test android:id="@+id/test46"/>
+    <test android:id="@+id/test47"/>
+    <test android:id="@+id/test48"/>
+    <test android:id="@+id/test49"/>
+    <test android:id="@+id/test50"/>
+    <test android:id="@+id/test51"/>
+    <test android:id="@+id/test52"/>
+    <test android:id="@+id/test53"/>
+    <test android:id="@+id/test54"/>
+    <test android:id="@+id/test55"/>
+    <test android:id="@+id/test56"/>
+    <test android:id="@+id/test57"/>
+    <test android:id="@+id/test58"/>
+    <test android:id="@+id/test59"/>
+    <test android:id="@+id/test60"/>
+    <test android:id="@+id/test61"/>
+    <test android:id="@+id/test62"/>
+    <test android:id="@+id/test63"/>
+    <test android:id="@+id/test64"/>
+    <test android:id="@+id/test65"/>
+    <test android:id="@+id/test66"/>
+    <test android:id="@+id/test67"/>
+    <test android:id="@+id/test68"/>
+    <test android:id="@+id/test69"/>
+    <test android:id="@+id/test70"/>
+    <test android:id="@+id/test71"/>
+    <test android:id="@+id/test72"/>
+    <test android:id="@+id/test73"/>
+    <test android:id="@+id/test74"/>
+    <test android:id="@+id/test75"/>
+    <test android:id="@+id/test76"/>
+    <test android:id="@+id/test77"/>
+    <test android:id="@+id/test78"/>
+    <test android:id="@+id/test79"/>
+    <test android:id="@+id/test80"/>
+    <test android:id="@+id/test81"/>
+    <test android:id="@+id/test82"/>
+    <test android:id="@+id/test83"/>
+    <test android:id="@+id/test84"/>
+    <test android:id="@+id/test85"/>
+    <test android:id="@+id/test86"/>
+    <test android:id="@+id/test87"/>
+    <test android:id="@+id/test88"/>
+    <test android:id="@+id/test89"/>
+    <test android:id="@+id/test90"/>
+    <test android:id="@+id/test91"/>
+    <test android:id="@+id/test92"/>
+    <test android:id="@+id/test93"/>
+    <test android:id="@+id/test94"/>
+    <test android:id="@+id/test95"/>
+    <test android:id="@+id/test96"/>
+    <test android:id="@+id/test97"/>
+    <test android:id="@+id/test98"/>
+    <test android:id="@+id/test99"/>
+    <test android:id="@+id/test100"/>
+</navigation>

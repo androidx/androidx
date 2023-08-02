@@ -526,9 +526,9 @@ class MediaRoute2ProviderServiceAdapter extends MediaRoute2ProviderService {
     }
 
     private RouteController findControllerByRouteId(String routeId) {
-        List<SessionRecord> sessionRecords = new ArrayList<>();
+        List<SessionRecord> sessionRecords;
         synchronized (mLock) {
-            sessionRecords.addAll(mSessionRecords.values());
+            sessionRecords = new ArrayList<>(mSessionRecords.values());
         }
         for (SessionRecord sessionRecord : sessionRecords) {
             RouteController controller = sessionRecord.findControllerByRouteId(routeId);

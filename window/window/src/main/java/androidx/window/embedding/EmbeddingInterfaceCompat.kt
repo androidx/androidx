@@ -16,6 +16,7 @@
 
 package androidx.window.embedding
 
+import android.app.Activity
 import androidx.window.core.ExperimentalWindowApi
 import androidx.window.extensions.embedding.ActivityEmbeddingComponent
 
@@ -33,4 +34,6 @@ internal interface EmbeddingInterfaceCompat {
     interface EmbeddingCallbackInterface {
         fun onSplitInfoChanged(splitInfo: List<SplitInfo>)
     }
+
+    fun isActivityEmbedded(activity: Activity): Boolean
 }

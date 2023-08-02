@@ -4,23 +4,30 @@
 # if we do structural changes in Playground's setup.
 
 function relativize() {
-    python -c "import os.path; print(os.path.relpath('$1', '$2'))"
+    python3 -c "import os.path; print(os.path.relpath('$1', '$2'))"
 }
 
 PLAYGROUND_REL_PATH=$(dirname $0)
 WORKING_DIR=$(pwd)
 
-# create gradle symlinks
-rm -rf gradle
-ln -s "${PLAYGROUND_REL_PATH}/gradle" gradle
-rm -rf gradlew
-ln -s "${PLAYGROUND_REL_PATH}/gradlew" gradlew
-rm -rf gradlew.bat
-ln -s "${PLAYGROUND_REL_PATH}/gradlew.bat" gradlew.bat
-rm -rf gradle.properties
-ln -s "${PLAYGROUND_REL_PATH}/androidx-shared.properties" gradle.properties
-rm -rf buildSrc
-ln -s "${PLAYGROUND_REL_PATH}/../buildSrc" buildSrc
+# helper symlink function that will also normalize the paths.
+function symlink() {
+    SRC=$1
+    TARGET=$2
+    TARGET_PARENT_DIR=$(dirname $TARGET)
+    REL_PATH_TO_TARGET_PARENT=$(relativize $SRC $WORKING_DIR/$TARGET_PARENT_DIR)
+    rm -rf $TARGET
+    ln -s $REL_PATH_TO_TARGET_PARENT $TARGET
+}
+
+# symlink to the gradle folder in playground-common
+symlink "${PLAYGROUND_REL_PATH}/gradle" gradle
+symlink "${PLAYGROUND_REL_PATH}/gradlew" gradlew
+symlink "${PLAYGROUND_REL_PATH}/gradlew.bat" gradlew.bat
+# symlink to the properties file that is shared w/ androidx main
+symlink "${PLAYGROUND_REL_PATH}/androidx-shared.properties" gradle.properties
+# symlink to build source
+symlink "${PLAYGROUND_REL_PATH}/../buildSrc" buildSrc
 
 ANDROIDX_IDEA_DIR="${PLAYGROUND_REL_PATH}/../.idea"
 
@@ -40,11 +47,7 @@ for IDEA_CONFIG_FILE in "${TRACKED_IDEA_FILES[@]}"
 do
     # path to the actual .idea config file
     ORIGINAL_FILE="$PLAYGROUND_REL_PATH/../$IDEA_CONFIG_FILE"
-    TARGET_DIR=$(dirname $IDEA_CONFIG_FILE)
-    # relativize it wrt to the file we'll create
-    REL_PATH=$(relativize $ORIGINAL_FILE $TARGET_DIR )
-    # symlink to the original idea file
-    ln -s $REL_PATH $IDEA_CONFIG_FILE
-    # forse add the file to git
+    symlink $ORIGINAL_FILE $IDEA_CONFIG_FILE
+    # force add the file to git
     git add -f $IDEA_CONFIG_FILE
 done

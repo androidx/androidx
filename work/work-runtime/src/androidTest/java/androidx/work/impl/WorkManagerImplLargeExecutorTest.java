@@ -41,6 +41,7 @@ import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkContinuation;
 import androidx.work.WorkInfo;
 import androidx.work.impl.background.greedy.GreedyScheduler;
+import androidx.work.impl.model.WorkGenerationalId;
 import androidx.work.impl.model.WorkSpec;
 import androidx.work.impl.utils.taskexecutor.InstantWorkTaskExecutor;
 import androidx.work.impl.utils.taskexecutor.TaskExecutor;
@@ -114,7 +115,7 @@ public class WorkManagerImplLargeExecutorTest {
                 new WorkManagerImpl(context, configuration, taskExecutor, true));
 
         TrackingScheduler trackingScheduler =
-                new TrackingScheduler(context, configuration, taskExecutor, mWorkManagerImplSpy);
+                new TrackingScheduler(context, configuration, mWorkManagerImplSpy);
 
         Processor processor = new Processor(context,
                 configuration,
@@ -189,9 +190,8 @@ public class WorkManagerImplLargeExecutorTest {
         TrackingScheduler(
                 Context context,
                 Configuration configuration,
-                TaskExecutor taskExecutor,
                 WorkManagerImpl workManagerImpl) {
-            super(context, configuration, taskExecutor, workManagerImpl);
+            super(context, configuration, workManagerImpl.getTrackers(), workManagerImpl);
             mScheduledWorkSpecIds = new HashSet<>();
         }
 
@@ -208,12 +208,12 @@ public class WorkManagerImplLargeExecutorTest {
         }
 
         @Override
-        public void onExecuted(@NonNull String workSpecId, boolean needsReschedule) {
+        public void onExecuted(@NonNull WorkGenerationalId id, boolean needsReschedule) {
             synchronized (sLock) {
-                assertThat(mScheduledWorkSpecIds.contains(workSpecId), is(true));
-                mScheduledWorkSpecIds.remove(workSpecId);
+                assertThat(mScheduledWorkSpecIds.contains(id.getWorkSpecId()), is(true));
+                mScheduledWorkSpecIds.remove(id.getWorkSpecId());
             }
-            super.onExecuted(workSpecId, needsReschedule);
+            super.onExecuted(id, needsReschedule);
         }
     }
 }

@@ -1,0 +1,11 @@
+// Baseline format: 1.0
+ParameterNameChange: androidx.room.CoroutinesRoom#execute(androidx.room.RoomDatabase, boolean, android.os.CancellationSignal, java.util.concurrent.Callable<R>, kotlin.coroutines.Continuation<? super R>) parameter #4:
+    Attempted to remove parameter name from parameter arg5 in androidx.room.CoroutinesRoom.execute
+ParameterNameChange: androidx.room.CoroutinesRoom#execute(androidx.room.RoomDatabase, boolean, java.util.concurrent.Callable<R>, kotlin.coroutines.Continuation<? super R>) parameter #3:
+    Attempted to remove parameter name from parameter arg4 in androidx.room.CoroutinesRoom.execute
+ParameterNameChange: androidx.room.CoroutinesRoom.Companion#execute(androidx.room.RoomDatabase, boolean, android.os.CancellationSignal, java.util.concurrent.Callable<R>, kotlin.coroutines.Continuation<? super R>) parameter #4:
+    Attempted to remove parameter name from parameter arg5 in androidx.room.CoroutinesRoom.Companion.execute
+ParameterNameChange: androidx.room.CoroutinesRoom.Companion#execute(androidx.room.RoomDatabase, boolean, java.util.concurrent.Callable<R>, kotlin.coroutines.Continuation<? super R>) parameter #3:
+    Attempted to remove parameter name from parameter arg4 in androidx.room.CoroutinesRoom.Companion.execute
+ParameterNameChange: androidx.room.RoomDatabaseKt#withTransaction(androidx.room.RoomDatabase, kotlin.jvm.functions.Function1<? super kotlin.coroutines.Continuation<? super R>,?>, kotlin.coroutines.Continuation<? super R>) parameter #2:
+    Attempted to remove parameter name from parameter arg3 in androidx.room.RoomDatabaseKt.withTransaction

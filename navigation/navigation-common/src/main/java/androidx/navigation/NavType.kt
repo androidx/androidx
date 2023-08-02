@@ -67,11 +67,25 @@ public abstract class NavType<T>(
     public abstract fun parseValue(value: String): T
 
     /**
+     * Parse a value of this type from a String and then combine that
+     * parsed value with the given previousValue of the same type to
+     * provide a new value that contains both the new and previous value.
+     *
+     * By default, the given value will replace the previousValue.
+     *
+     * @param value string representation of a value of this type
+     * @param previousValue previously parsed value of this type
+     * @return combined parsed value of the type represented by this NavType
+     * @throws IllegalArgumentException if value cannot be parsed into this type
+     */
+    public open fun parseValue(value: String, previousValue: T) = parseValue(value)
+
+    /**
      * Parse a value of this type from a String and put it in a `bundle`
      *
      * @param bundle bundle to put value in
      * @param key    bundle key under which to put the value
-     * @param value  parsed value
+     * @param value  string representation of a value of this type
      * @return parsed value of the type represented by this NavType
      * @suppress
      */
@@ -80,6 +94,31 @@ public abstract class NavType<T>(
         val parsedValue = parseValue(value)
         put(bundle, key, parsedValue)
         return parsedValue
+    }
+
+    /**
+     * Parse a value of this type from a String, combine that parsed value
+     * with the given previousValue, and then put that combined parsed
+     * value in a `bundle`.
+     *
+     * @param bundle bundle to put value in
+     * @param key    bundle key under which to put the value
+     * @param value  string representation of a value of this type
+     * @param previousValue previously parsed value of this type
+     * @return combined parsed value of the type represented by this NavType
+     * @suppress
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public fun parseAndPut(bundle: Bundle, key: String, value: String?, previousValue: T): T {
+        if (!bundle.containsKey(key)) {
+            throw IllegalArgumentException("There is no previous value in this bundle.")
+        }
+        if (value != null) {
+            val parsedCombinedValue = parseValue(value, previousValue)
+            put(bundle, key, parsedCombinedValue)
+            return parsedCombinedValue
+        }
+        return previousValue
     }
 
     /**
@@ -260,6 +299,7 @@ public abstract class NavType<T>(
                 bundle.putInt(key, value)
             }
 
+            @Suppress("DEPRECATION")
             override fun get(bundle: Bundle, key: String): Int {
                 return bundle[key] as Int
             }
@@ -289,6 +329,7 @@ public abstract class NavType<T>(
             }
 
             @AnyRes
+            @Suppress("DEPRECATION")
             override fun get(bundle: Bundle, key: String): Int {
                 return bundle[key] as Int
             }
@@ -318,12 +359,17 @@ public abstract class NavType<T>(
                 bundle.putIntArray(key, value)
             }
 
+            @Suppress("DEPRECATION")
             override fun get(bundle: Bundle, key: String): IntArray? {
                 return bundle[key] as IntArray?
             }
 
             override fun parseValue(value: String): IntArray {
-                throw UnsupportedOperationException("Arrays don't support default values.")
+                return intArrayOf(IntType.parseValue(value))
+            }
+
+            override fun parseValue(value: String, previousValue: IntArray?): IntArray {
+                return previousValue?.plus(parseValue(value)) ?: parseValue(value)
             }
         }
 
@@ -344,6 +390,7 @@ public abstract class NavType<T>(
                 bundle.putLong(key, value)
             }
 
+            @Suppress("DEPRECATION")
             override fun get(bundle: Bundle, key: String): Long {
                 return bundle[key] as Long
             }
@@ -380,12 +427,17 @@ public abstract class NavType<T>(
                 bundle.putLongArray(key, value)
             }
 
+            @Suppress("DEPRECATION")
             override fun get(bundle: Bundle, key: String): LongArray? {
                 return bundle[key] as LongArray?
             }
 
             override fun parseValue(value: String): LongArray {
-                throw UnsupportedOperationException("Arrays don't support default values.")
+                return longArrayOf(LongType.parseValue(value))
+            }
+
+            override fun parseValue(value: String, previousValue: LongArray?): LongArray? {
+                return previousValue?.plus(parseValue(value)) ?: parseValue(value)
             }
         }
 
@@ -404,6 +456,7 @@ public abstract class NavType<T>(
                 bundle.putFloat(key, value)
             }
 
+            @Suppress("DEPRECATION")
             override fun get(bundle: Bundle, key: String): Float {
                 return bundle[key] as Float
             }
@@ -429,12 +482,17 @@ public abstract class NavType<T>(
                 bundle.putFloatArray(key, value)
             }
 
+            @Suppress("DEPRECATION")
             override fun get(bundle: Bundle, key: String): FloatArray? {
                 return bundle[key] as FloatArray?
             }
 
             override fun parseValue(value: String): FloatArray {
-                throw UnsupportedOperationException("Arrays don't support default values.")
+                return floatArrayOf(FloatType.parseValue(value))
+            }
+
+            override fun parseValue(value: String, previousValue: FloatArray?): FloatArray? {
+                return previousValue?.plus(parseValue(value)) ?: parseValue(value)
             }
         }
 
@@ -453,6 +511,7 @@ public abstract class NavType<T>(
                 bundle.putBoolean(key, value)
             }
 
+            @Suppress("DEPRECATION")
             override fun get(bundle: Bundle, key: String): Boolean? {
                 return bundle[key] as Boolean?
             }
@@ -486,12 +545,17 @@ public abstract class NavType<T>(
                 bundle.putBooleanArray(key, value)
             }
 
+            @Suppress("DEPRECATION")
             override fun get(bundle: Bundle, key: String): BooleanArray? {
                 return bundle[key] as BooleanArray?
             }
 
             override fun parseValue(value: String): BooleanArray {
-                throw UnsupportedOperationException("Arrays don't support default values.")
+                return booleanArrayOf(BoolType.parseValue(value))
+            }
+
+            override fun parseValue(value: String, previousValue: BooleanArray?): BooleanArray? {
+                return previousValue?.plus(parseValue(value)) ?: parseValue(value)
             }
         }
 
@@ -510,6 +574,7 @@ public abstract class NavType<T>(
                 bundle.putString(key, value)
             }
 
+            @Suppress("DEPRECATION")
             override fun get(bundle: Bundle, key: String): String? {
                 return bundle[key] as String?
             }
@@ -537,13 +602,17 @@ public abstract class NavType<T>(
                 bundle.putStringArray(key, value)
             }
 
-            @Suppress("UNCHECKED_CAST")
+            @Suppress("UNCHECKED_CAST", "DEPRECATION")
             override fun get(bundle: Bundle, key: String): Array<String>? {
                 return bundle[key] as Array<String>?
             }
 
-            override fun parseValue(value: String): Array<String>? {
-                throw UnsupportedOperationException("Arrays don't support default values.")
+            override fun parseValue(value: String): Array<String> {
+                return arrayOf(value)
+            }
+
+            override fun parseValue(value: String, previousValue: Array<String>?): Array<String>? {
+                return previousValue?.plus(parseValue(value)) ?: parseValue(value)
             }
         }
     }
@@ -571,7 +640,7 @@ public abstract class NavType<T>(
             }
         }
 
-        @Suppress("UNCHECKED_CAST")
+        @Suppress("UNCHECKED_CAST", "DEPRECATION")
         public override fun get(bundle: Bundle, key: String): D? {
             return bundle[key] as D?
         }
@@ -625,7 +694,7 @@ public abstract class NavType<T>(
             bundle.putParcelableArray(key, value)
         }
 
-        @Suppress("UNCHECKED_CAST")
+        @Suppress("UNCHECKED_CAST", "DEPRECATION")
         public override fun get(bundle: Bundle, key: String): Array<D>? {
             return bundle[key] as Array<D>?
         }
@@ -705,7 +774,7 @@ public abstract class NavType<T>(
             bundle.putSerializable(key, value)
         }
 
-        @Suppress("UNCHECKED_CAST")
+        @Suppress("UNCHECKED_CAST", "DEPRECATION")
         public override fun get(bundle: Bundle, key: String): D? {
             return bundle[key] as D?
         }
@@ -791,7 +860,7 @@ public abstract class NavType<T>(
             bundle.putSerializable(key, value)
         }
 
-        @Suppress("UNCHECKED_CAST")
+        @Suppress("UNCHECKED_CAST", "DEPRECATION")
         public override fun get(bundle: Bundle, key: String): Array<D>? {
             return bundle[key] as Array<D>?
         }

@@ -108,28 +108,28 @@ class UnrememberedGetBackStackEntryDetectorTest : LintDetectorTest() {
             .run()
             .expect(
                 """
-src/com/example/{.kt:10: Error: Calling getBackStackEntry during composition without using remember [UnrememberedGetBackStackEntry]
+src/com/example/{.kt:10: Error: Calling getBackStackEntry during composition without using remember with a NavBackStackEntry key [UnrememberedGetBackStackEntry]
                     navController.getBackStackEntry("test")
                                   ~~~~~~~~~~~~~~~~~
-src/com/example/{.kt:15: Error: Calling getBackStackEntry during composition without using remember [UnrememberedGetBackStackEntry]
+src/com/example/{.kt:15: Error: Calling getBackStackEntry during composition without using remember with a NavBackStackEntry key [UnrememberedGetBackStackEntry]
                     navController.getBackStackEntry("test")
                                   ~~~~~~~~~~~~~~~~~
-src/com/example/{.kt:20: Error: Calling getBackStackEntry during composition without using remember [UnrememberedGetBackStackEntry]
+src/com/example/{.kt:20: Error: Calling getBackStackEntry during composition without using remember with a NavBackStackEntry key [UnrememberedGetBackStackEntry]
                     navController.getBackStackEntry("test")
                                   ~~~~~~~~~~~~~~~~~
-src/com/example/{.kt:30: Error: Calling getBackStackEntry during composition without using remember [UnrememberedGetBackStackEntry]
+src/com/example/{.kt:30: Error: Calling getBackStackEntry during composition without using remember with a NavBackStackEntry key [UnrememberedGetBackStackEntry]
                         navController.getBackStackEntry("test")
                                       ~~~~~~~~~~~~~~~~~
-src/com/example/{.kt:34: Error: Calling getBackStackEntry during composition without using remember [UnrememberedGetBackStackEntry]
+src/com/example/{.kt:34: Error: Calling getBackStackEntry during composition without using remember with a NavBackStackEntry key [UnrememberedGetBackStackEntry]
                         navController.getBackStackEntry("test")
                                       ~~~~~~~~~~~~~~~~~
-src/com/example/{.kt:41: Error: Calling getBackStackEntry during composition without using remember [UnrememberedGetBackStackEntry]
+src/com/example/{.kt:41: Error: Calling getBackStackEntry during composition without using remember with a NavBackStackEntry key [UnrememberedGetBackStackEntry]
                         navController.getBackStackEntry("test")
                                       ~~~~~~~~~~~~~~~~~
-src/com/example/{.kt:46: Error: Calling getBackStackEntry during composition without using remember [UnrememberedGetBackStackEntry]
+src/com/example/{.kt:46: Error: Calling getBackStackEntry during composition without using remember with a NavBackStackEntry key [UnrememberedGetBackStackEntry]
                         navController.getBackStackEntry("test")
                                       ~~~~~~~~~~~~~~~~~
-src/com/example/{.kt:54: Error: Calling getBackStackEntry during composition without using remember [UnrememberedGetBackStackEntry]
+src/com/example/{.kt:54: Error: Calling getBackStackEntry during composition without using remember with a NavBackStackEntry key [UnrememberedGetBackStackEntry]
                         val entry = navController.getBackStackEntry("test")
                                                   ~~~~~~~~~~~~~~~~~
 8 errors, 0 warnings
@@ -138,7 +138,7 @@ src/com/example/{.kt:54: Error: Calling getBackStackEntry during composition wit
     }
 
     @Test
-    fun rememberedInsideComposableBody() {
+    fun rememberedInsideComposableBodyWithoutEntryKey() {
         lint().files(
             kotlin(
                 """
@@ -193,6 +193,102 @@ src/com/example/{.kt:54: Error: Calling getBackStackEntry during composition wit
             ),
             Stubs.Composable,
             Stubs.Remember,
+            NAV_CONTROLLER
+        )
+            .run()
+            .expect(
+                """
+src/com/example/test.kt:10: Error: Calling getBackStackEntry during composition without using remember with a NavBackStackEntry key [UnrememberedGetBackStackEntry]
+                    val entry = remember { navController.getBackStackEntry("test") }
+                                                         ~~~~~~~~~~~~~~~~~
+src/com/example/test.kt:15: Error: Calling getBackStackEntry during composition without using remember with a NavBackStackEntry key [UnrememberedGetBackStackEntry]
+                    val entry = remember { navController.getBackStackEntry("test") }
+                                                         ~~~~~~~~~~~~~~~~~
+src/com/example/test.kt:20: Error: Calling getBackStackEntry during composition without using remember with a NavBackStackEntry key [UnrememberedGetBackStackEntry]
+                    val entry = remember { navController.getBackStackEntry("test") }
+                                                         ~~~~~~~~~~~~~~~~~
+src/com/example/test.kt:30: Error: Calling getBackStackEntry during composition without using remember with a NavBackStackEntry key [UnrememberedGetBackStackEntry]
+                        val entry = remember { navController.getBackStackEntry("test") }
+                                                             ~~~~~~~~~~~~~~~~~
+src/com/example/test.kt:34: Error: Calling getBackStackEntry during composition without using remember with a NavBackStackEntry key [UnrememberedGetBackStackEntry]
+                        val entry = remember { navController.getBackStackEntry("test") }
+                                                             ~~~~~~~~~~~~~~~~~
+src/com/example/test.kt:41: Error: Calling getBackStackEntry during composition without using remember with a NavBackStackEntry key [UnrememberedGetBackStackEntry]
+                        val entry = remember { navController.getBackStackEntry("test") }
+                                                             ~~~~~~~~~~~~~~~~~
+src/com/example/test.kt:46: Error: Calling getBackStackEntry during composition without using remember with a NavBackStackEntry key [UnrememberedGetBackStackEntry]
+                        val entry = remember { navController.getBackStackEntry("test") }
+                                                             ~~~~~~~~~~~~~~~~~
+7 errors, 0 warnings
+            """
+            )
+    }
+
+    @Test
+    fun rememberedInsideComposableBodyWithEntryKey() {
+        lint().files(
+            kotlin(
+                """
+                package com.example
+
+                import androidx.compose.runtime.*
+                import androidx.navigation.NavController
+                import androidx.navigation.NavBackStackEntry
+
+                @Composable
+                fun Test() {
+                    val navController = NavController()
+                    val rememberedEntry = NavBackStackEntry()
+                    val entry = remember(rememberedEntry) { navController.getBackStackEntry("test") }
+                }
+
+                val lambda = @Composable {
+                    val navController = NavController()
+                    val rememberedEntry = NavBackStackEntry()
+                    val entry = remember(rememberedEntry) { navController.getBackStackEntry("test") }
+                }
+
+                val lambda2: @Composable () -> Unit = {
+                    val navController = NavController()
+                    val rememberedEntry = NavBackStackEntry()
+                    val entry = remember(rememberedEntry) { navController.getBackStackEntry("test") }
+                }
+
+                @Composable
+                fun LambdaParameter(content: @Composable () -> Unit) {}
+
+                @Composable
+                fun Test2() {
+                    LambdaParameter(content = {
+                        val navController = NavController()
+                        val rememberedEntry = NavBackStackEntry()
+                        val entry = remember(rememberedEntry) { navController.getBackStackEntry("test") }
+                    })
+                    LambdaParameter {
+                        val navController = NavController()
+                        val rememberedEntry = NavBackStackEntry()
+                        val entry = remember(rememberedEntry) { navController.getBackStackEntry("test") }
+                    }
+                }
+
+                fun test3() {
+                    val localLambda1 = @Composable {
+                        val navController = NavController()
+                        val rememberedEntry = NavBackStackEntry()
+                        val entry = remember(rememberedEntry) { navController.getBackStackEntry("test") }
+                    }
+
+                    val localLambda2: @Composable () -> Unit = {
+                        val navController = NavController()
+                        val rememberedEntry = NavBackStackEntry()
+                        val entry = remember(rememberedEntry) { navController.getBackStackEntry("test") }
+                    }
+                }
+            """
+            ),
+            Stubs.Composable,
+            Stubs.Remember,
+            NAV_BACK_STACK_ENTRY,
             NAV_CONTROLLER
         )
             .run()

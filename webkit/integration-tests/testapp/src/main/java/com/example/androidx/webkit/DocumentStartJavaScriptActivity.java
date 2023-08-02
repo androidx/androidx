@@ -44,6 +44,8 @@ import java.util.HashSet;
  * An {@link Activity} to exercise {@link WebViewCompat#addDocumentStartJavaScript(WebView, String,
  * Set)} related functionality.
  */
+// TODO(swestphal): Remove the @SuppressLint after addDocumentStartJavaScript is unhidden.
+@SuppressLint("RestrictedApi")
 public class DocumentStartJavaScriptActivity extends AppCompatActivity {
     private final Uri mExampleUri = new Uri.Builder()
                                             .scheme("https")
@@ -65,13 +67,13 @@ public class DocumentStartJavaScriptActivity extends AppCompatActivity {
         @RequiresApi(21)
         public WebResourceResponse shouldInterceptRequest(WebView view,
                                             WebResourceRequest request) {
-            return mAssetLoader.shouldInterceptRequest(request.getUrl());
+            return mAssetLoader.shouldInterceptRequest(Api21Impl.getUrl(request));
         }
 
         @Override
         @SuppressWarnings("deprecation") // use the old one for compatibility with all API levels.
-        public WebResourceResponse shouldInterceptRequest(WebView view, String request) {
-            return mAssetLoader.shouldInterceptRequest(Uri.parse(request));
+        public WebResourceResponse shouldInterceptRequest(WebView view, String url) {
+            return mAssetLoader.shouldInterceptRequest(Uri.parse(url));
         }
     }
 

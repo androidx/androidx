@@ -25,6 +25,7 @@ import static com.google.common.truth.Truth.assertThat;
 import static junit.framework.TestCase.fail;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -52,6 +53,7 @@ import android.util.Size;
 import androidx.camera.camera2.impl.Camera2ImplConfig;
 import androidx.camera.camera2.internal.Camera2CameraControlImpl.CaptureResultListener;
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
+import androidx.camera.camera2.internal.compat.quirk.AfRegionFlipHorizontallyQuirk;
 import androidx.camera.core.CameraControl;
 import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.FocusMeteringResult;
@@ -61,9 +63,11 @@ import androidx.camera.core.MeteringPointFactory;
 import androidx.camera.core.SurfaceOrientedMeteringPointFactory;
 import androidx.camera.core.impl.CameraControlInternal;
 import androidx.camera.core.impl.CaptureConfig;
+import androidx.camera.core.impl.Quirks;
 import androidx.camera.core.impl.TagBundle;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.test.core.app.ApplicationProvider;
+import androidx.test.filters.LargeTest;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -81,6 +85,7 @@ import org.robolectric.shadows.ShadowCameraManager;
 import org.robolectric.shadows.ShadowLooper;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -147,6 +152,9 @@ public class FocusMeteringControlTest {
             MeteringRectangle.METERING_WEIGHT_MAX);
 
     private static final Rational PREVIEW_ASPECT_RATIO_4_X_3 = new Rational(4, 3);
+
+    private static final int AUTO_FOCUS_TIMEOUT_DURATION = 5000; // ms
+
     private Camera2CameraControlImpl mCamera2CameraControlImpl;
 
     @Before
@@ -156,8 +164,11 @@ public class FocusMeteringControlTest {
         mFocusMeteringControl.setActive(true);
         mFocusMeteringControl.setTemplate(mTemplate);
     }
-
     private FocusMeteringControl initFocusMeteringControl(String cameraID) {
+        return initFocusMeteringControl(cameraID, new Quirks(new ArrayList<>()));
+    }
+
+    private FocusMeteringControl initFocusMeteringControl(String cameraID, Quirks cameraQuirks) {
         CameraManager cameraManager =
                 (CameraManager) ApplicationProvider.getApplicationContext().getSystemService(
                         Context.CAMERA_SERVICE);
@@ -177,7 +188,8 @@ public class FocusMeteringControlTest {
 
             FocusMeteringControl focusMeteringControl = new FocusMeteringControl(
                     mCamera2CameraControlImpl,
-                    CameraXExecutors.mainThreadExecutor(), CameraXExecutors.directExecutor());
+                    CameraXExecutors.mainThreadExecutor(), CameraXExecutors.directExecutor(),
+                    cameraQuirks);
             focusMeteringControl.setActive(true);
             focusMeteringControl.setPreviewAspectRatio(PREVIEW_ASPECT_RATIO_4_X_3);
             return focusMeteringControl;
@@ -409,6 +421,43 @@ public class FocusMeteringControlTest {
     }
 
     @Test
+    public void startFocusAndMetering_AfRegionCorrectedByQuirk() {
+        mFocusMeteringControl = initFocusMeteringControl(CAMERA0_ID,
+                new Quirks(Arrays.asList(new AfRegionFlipHorizontallyQuirk())));
+
+        mFocusMeteringControl.startFocusAndMetering(
+                new FocusMeteringAction.Builder(mPoint1)
+                        .addPoint(mPoint2)
+                        .addPoint(mPoint3)
+                        .build());
+
+        MeteringRectangle[] afRects = getAfRects(mFocusMeteringControl);
+        MeteringRectangle[] aeRects = getAeRects(mFocusMeteringControl);
+        MeteringRectangle[] awbRects = getAwbRects(mFocusMeteringControl);
+
+        // after flipping horizontally, left / right will be swapped.
+        Rect flippedRect1 = new Rect(SENSOR_WIDTH - M_RECT_1.right, M_RECT_1.top,
+                SENSOR_WIDTH - M_RECT_1.left, M_RECT_1.bottom);
+        Rect flippedRect2 = new Rect(SENSOR_WIDTH - M_RECT_2.right, M_RECT_2.top,
+                SENSOR_WIDTH - M_RECT_2.left, M_RECT_2.bottom);
+        Rect flippedRect3 = new Rect(SENSOR_WIDTH - M_RECT_3.right, M_RECT_3.top,
+                SENSOR_WIDTH - M_RECT_3.left, M_RECT_3.bottom);
+
+        assertThat(afRects.length).isEqualTo(3);
+        assertThat(afRects[0].getRect()).isEqualTo(flippedRect1);
+        assertThat(afRects[1].getRect()).isEqualTo(flippedRect2);
+        assertThat(afRects[2].getRect()).isEqualTo(flippedRect3);
+
+        assertThat(aeRects.length).isEqualTo(3);
+        assertThat(aeRects[0].getRect()).isEqualTo(M_RECT_1);
+        assertThat(aeRects[1].getRect()).isEqualTo(M_RECT_2);
+        assertThat(aeRects[2].getRect()).isEqualTo(M_RECT_3);
+
+        assertThat(awbRects.length).isEqualTo(1);
+        assertThat(awbRects[0].getRect()).isEqualTo(M_RECT_1);
+    }
+
+    @Test
     public void startFocusAndMetering_multiplePointVariousModes() {
         // Max AF count = 3, Max AE count = 3, Max AWB count = 1
         mFocusMeteringControl.startFocusAndMetering(
@@ -615,29 +664,84 @@ public class FocusMeteringControlTest {
                 .updateSessionConfigSynchronous();
     }
 
+    @LargeTest
     @Test
-    public void autoCancelDuration_cancelIsCalled() throws InterruptedException {
+    public void defaultAutoCancelDuration_completeWithIsFocusSuccessfulFalse()
+            throws InterruptedException {
         mFocusMeteringControl = spy(mFocusMeteringControl);
-        final long autocancelDuration = 500;
         FocusMeteringAction action = new FocusMeteringAction.Builder(mPoint1)
-                .setAutoCancelDuration(autocancelDuration, TimeUnit.MILLISECONDS)
                 .build();
 
         mFocusMeteringControl.startFocusAndMetering(action);
 
         // This is necessary for running delayed task in robolectric.
         ShadowLooper.runUiThreadTasksIncludingDelayedTasks();
-        verify(mFocusMeteringControl, timeout(action.getAutoCancelDurationInMillis()))
+        Thread.sleep(AUTO_FOCUS_TIMEOUT_DURATION);
+        verify(mFocusMeteringControl, timeout(AUTO_FOCUS_TIMEOUT_DURATION))
+                .completeActionFuture(false);
+        verify(mFocusMeteringControl, timeout(AUTO_FOCUS_TIMEOUT_DURATION))
                 .cancelFocusAndMeteringWithoutAsyncResult();
     }
 
+    @LargeTest
     @Test
-    public void autoCancelDurationDisabled_cancelIsNotCalled() throws InterruptedException {
+    public void shorterAutoCancelDuration_cancelIsCalled_completeActionFutureIsNotCalled()
+            throws InterruptedException {
         mFocusMeteringControl = spy(mFocusMeteringControl);
-        final long autocancelDuration = 500;
+        final long autoCancelDuration = 500;
+        FocusMeteringAction action = new FocusMeteringAction.Builder(mPoint1)
+                .setAutoCancelDuration(autoCancelDuration, TimeUnit.MILLISECONDS)
+                .build();
+
+        mFocusMeteringControl.startFocusAndMetering(action);
+
+        // This is necessary for running delayed task in robolectric.
+        ShadowLooper.runUiThreadTasksIncludingDelayedTasks();
+        Thread.sleep(action.getAutoCancelDurationInMillis());
+        verify(mFocusMeteringControl, timeout(action.getAutoCancelDurationInMillis()))
+                .cancelFocusAndMeteringWithoutAsyncResult();
+
+        final long remainingDuration =
+                AUTO_FOCUS_TIMEOUT_DURATION - action.getAutoCancelDurationInMillis();
+        Thread.sleep(remainingDuration);
+        verify(mFocusMeteringControl, never()).completeActionFuture(anyBoolean());
+    }
+
+    @LargeTest
+    @Test
+    public void longerAutoCancelDuration_cancelIsCalled_afterCompleteWithIsFocusSuccessfulFalse()
+            throws InterruptedException {
+        mFocusMeteringControl = spy(mFocusMeteringControl);
+        final long autoCancelDuration = 8000; // Default timeout duration is 5000ms
 
         FocusMeteringAction action = new FocusMeteringAction.Builder(mPoint1)
-                .setAutoCancelDuration(autocancelDuration, TimeUnit.MILLISECONDS)
+                .setAutoCancelDuration(autoCancelDuration, TimeUnit.MILLISECONDS)
+                .build();
+
+        mFocusMeteringControl.startFocusAndMetering(action);
+
+        // This is necessary for running delayed task in robolectric.
+        ShadowLooper.runUiThreadTasksIncludingDelayedTasks();
+        Thread.sleep(AUTO_FOCUS_TIMEOUT_DURATION);
+        verify(mFocusMeteringControl, timeout(AUTO_FOCUS_TIMEOUT_DURATION))
+                .completeActionFuture(false);
+
+        final long remainingDuration = autoCancelDuration - AUTO_FOCUS_TIMEOUT_DURATION;
+        Thread.sleep(remainingDuration);
+        // cancelFocusAndMeteringWithoutAsyncResult will be called finally
+        verify(mFocusMeteringControl, timeout(remainingDuration))
+                .cancelFocusAndMeteringWithoutAsyncResult();
+    }
+
+    @LargeTest
+    @Test
+    public void autoCancelDurationDisabled_completeAfterAutoFocusTimeoutDuration()
+            throws InterruptedException {
+        mFocusMeteringControl = spy(mFocusMeteringControl);
+        final long autoCancelDuration = 500;
+
+        FocusMeteringAction action = new FocusMeteringAction.Builder(mPoint1)
+                .setAutoCancelDuration(autoCancelDuration, TimeUnit.MILLISECONDS)
                 .disableAutoCancel()
                 .build();
 
@@ -645,8 +749,15 @@ public class FocusMeteringControlTest {
 
         // This is necessary for running delayed task in robolectric.
         ShadowLooper.runUiThreadTasksIncludingDelayedTasks();
-        Thread.sleep(autocancelDuration);
-        verify(mFocusMeteringControl, never()).cancelFocusAndMetering();
+        Thread.sleep(autoCancelDuration);
+        // cancelFocusAndMeteringWithoutAsyncResult won't be called
+        verify(mFocusMeteringControl, never()).cancelFocusAndMeteringWithoutAsyncResult();
+
+        final long remainingDuration = AUTO_FOCUS_TIMEOUT_DURATION - autoCancelDuration;
+        Thread.sleep(remainingDuration);
+        // Completes with isFocusSuccessful false finally
+        verify(mFocusMeteringControl, timeout(remainingDuration))
+                .completeActionFuture(false);
     }
 
     private void assertFutureFocusCompleted(ListenableFuture<FocusMeteringResult> future,
@@ -1111,7 +1222,7 @@ public class FocusMeteringControlTest {
     }
 
     @Test
-    public void cancelFocusMetering_actionIsCancelledAndfutureCompletes() throws Exception {
+    public void cancelFocusMetering_actionIsCancelledAndFutureCompletes() throws Exception {
         FocusMeteringAction action = new FocusMeteringAction.Builder(mPoint1).build();
         ListenableFuture<FocusMeteringResult> actionResult =
                 mFocusMeteringControl.startFocusAndMetering(action);
@@ -1133,10 +1244,10 @@ public class FocusMeteringControlTest {
     @Test
     public void cancelFocusAndMetering_autoCancelIsDisabled() throws InterruptedException {
         mFocusMeteringControl = spy(mFocusMeteringControl);
-        final long autocancelDuration = 500;
+        final long autoCancelDuration = 500;
 
         FocusMeteringAction action = new FocusMeteringAction.Builder(mPoint1)
-                .setAutoCancelDuration(autocancelDuration, TimeUnit.MILLISECONDS)
+                .setAutoCancelDuration(autoCancelDuration, TimeUnit.MILLISECONDS)
                 .build();
 
         mFocusMeteringControl.startFocusAndMetering(action);
@@ -1145,9 +1256,15 @@ public class FocusMeteringControlTest {
 
         // This is necessary for running delayed task in robolectric.
         ShadowLooper.runUiThreadTasksIncludingDelayedTasks();
-        Thread.sleep(autocancelDuration);
+        Thread.sleep(autoCancelDuration);
 
+        // cancelFocusAndMetering won't be called in the specified auto cancel duration
         verify(mFocusMeteringControl, never()).cancelFocusAndMetering();
+
+        // completeActionFuture won't be called in AUTO_FOCUS_TIMEOUT_DURATION after canceling
+        // the focus and metering action.
+        Thread.sleep(AUTO_FOCUS_TIMEOUT_DURATION);
+        verify(mFocusMeteringControl, never()).completeActionFuture(anyBoolean());
     }
 
     @Test

@@ -21,6 +21,7 @@ import android.webkit.WebSettings;
 import androidx.annotation.IntDef;
 import androidx.annotation.RequiresFeature;
 import androidx.annotation.RestrictTo;
+import androidx.webkit.WebSettingsCompat.RequestedWithHeaderMode;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -173,4 +174,48 @@ public abstract class ServiceWorkerWebSettingsCompat {
     @RequiresFeature(name = WebViewFeature.SERVICE_WORKER_BLOCK_NETWORK_LOADS,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public abstract boolean getBlockNetworkLoads();
+
+
+    /**
+     * Sets how Service Workers will set the X-Requested-With header on requests.
+     *
+     * If you are calling this method, you may also want to call
+     * {@link WebSettingsCompat#setRequestedWithHeaderMode(WebSettings, int)} with the same
+     * parameter value to configure non-ServiceWorker requests.
+     *
+     * The default behavior may vary depending on the WebView implementation.
+     *
+     * <p>
+     * This method should only be called if
+     * {@link WebViewFeature#isFeatureSupported(String)}
+     * returns true for {@link WebViewFeature#REQUESTED_WITH_HEADER_CONTROL}.
+     *
+     * @param requestedWithHeaderMode The {@code REQUESTED_WITH_HEADER_MODE to use}
+     * @see WebSettingsCompat#setRequestedWithHeaderMode(WebSettings, int)
+     * @see #getBlockNetworkLoads
+     * @hide
+     */
+    @RequiresFeature(name = WebViewFeature.REQUESTED_WITH_HEADER_CONTROL,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public abstract void setRequestedWithHeaderMode(
+            @RequestedWithHeaderMode int requestedWithHeaderMode);
+
+    /**
+     * Gets how Service Workers will set the X-Requested-With header on HTTP requests.
+     *
+     * <p>
+     * This method should only be called if
+     * {@link WebViewFeature#isFeatureSupported(String)}
+     * returns true for {@link WebViewFeature#REQUESTED_WITH_HEADER_CONTROL}.
+     *
+     * @return the currently configured {@code REQUESTED_WITH_HEADER_MODE}
+     * @see #setRequestedWithHeaderMode(int)
+     * @hide
+     */
+    @RequiresFeature(name = WebViewFeature.REQUESTED_WITH_HEADER_CONTROL,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @RequestedWithHeaderMode
+    public abstract int getRequestedWithHeaderMode();
 }

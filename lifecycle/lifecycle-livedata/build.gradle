@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
 import androidx.build.Publish
 
 plugins {
@@ -32,6 +31,14 @@ dependencies {
     testImplementation(libs.kotlinCoroutinesTest)
     testImplementation(libs.junit)
     testImplementation(libs.mockitoCore)
+
+    constraints {
+        // this syntax is a temporary workout to allow project dependency on cross-project-set
+        // i.e. COMPOSE + MAIN project sets
+        // update syntax when b/239979823 is fixed
+        implementation("androidx.lifecycle:lifecycle-livedata-core:{androidx.LibraryVersions.LIFECYCLE}")
+        implementation(project(":lifecycle:lifecycle-livedata-ktx"))
+    }
 }
 
 androidx {
@@ -40,4 +47,8 @@ androidx {
     mavenGroup = LibraryGroups.LIFECYCLE
     inceptionYear = "2017"
     description = "Android Lifecycle LiveData"
+}
+
+android {
+    namespace "androidx.lifecycle.livedata"
 }

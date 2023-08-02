@@ -16,17 +16,15 @@
 
 package androidx.camera.extensions.internal;
 
+import static androidx.camera.extensions.internal.util.ExtensionsTestUtil.resetSingleton;
+import static androidx.camera.extensions.internal.util.ExtensionsTestUtil.setTestApiVersion;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 import android.os.Build;
-
-import androidx.camera.extensions.impl.ExtensionVersionImpl;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -102,35 +100,5 @@ public class ExtensionVersionTest {
     @After
     public void clear() {
         resetSingleton(ExtensionVersion.class, "sExtensionVersion");
-    }
-
-    private void resetSingleton(Class clazz, String fieldName) {
-        Field instance;
-        try {
-            instance = clazz.getDeclaredField(fieldName);
-            instance.setAccessible(true);
-            instance.set(null, null);
-        } catch (Exception e) {
-            throw new RuntimeException();
-        }
-    }
-
-    private void setTestApiVersion(String testString) throws NoSuchFieldException,
-            IllegalAccessException {
-        ExtensionVersionImpl mockExtensionVersionImpl = mock(ExtensionVersionImpl.class);
-        when(mockExtensionVersionImpl.checkApiVersion(anyString())).thenReturn(testString);
-
-        Class<?> vendorExtenderVersioningClass = null;
-
-        for (Class<?> clazz : ExtensionVersion.class.getDeclaredClasses()) {
-            if (clazz.getSimpleName().equals("VendorExtenderVersioning")) {
-                vendorExtenderVersioningClass = clazz;
-                break;
-            }
-        }
-
-        Field field = vendorExtenderVersioningClass.getDeclaredField("sImpl");
-        field.setAccessible(true);
-        field.set(null, mockExtensionVersionImpl);
     }
 }

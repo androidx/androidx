@@ -17,7 +17,7 @@
 package androidx.appcompat.widget;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
-import static androidx.core.widget.AutoSizeableTextView.PLATFORM_SUPPORTS_AUTOSIZE;
+import static androidx.appcompat.widget.ViewUtils.SDK_LEVEL_SUPPORTS_AUTOSIZE;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -240,15 +240,15 @@ class AppCompatTextHelper {
             if (Build.VERSION.SDK_INT >= 24) {
                 Api24Impl.setTextLocales(mView, Api24Impl.forLanguageTags(localeListString));
             } else if (Build.VERSION.SDK_INT >= 21) {
-                final String firstLanTag =
-                        localeListString.substring(0, localeListString.indexOf(','));
+                @SuppressWarnings("StringSplitter")
+                final String firstLanTag = localeListString.split(",")[0];
                 Api17Impl.setTextLocale(mView, Api21Impl.forLanguageTag(firstLanTag));
             }
         }
 
         mAutoSizeTextHelper.loadFromAttributes(attrs, defStyleAttr);
 
-        if (PLATFORM_SUPPORTS_AUTOSIZE) {
+        if (SDK_LEVEL_SUPPORTS_AUTOSIZE) {
             // Delegate auto-size functionality to the framework implementation.
             if (mAutoSizeTextHelper.getAutoSizeTextType()
                     != TextViewCompat.AUTO_SIZE_TEXT_TYPE_NONE) {
@@ -561,7 +561,7 @@ class AppCompatTextHelper {
     /** @hide */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     void onLayout(boolean changed, int left, int top, int right, int bottom) {
-        if (!PLATFORM_SUPPORTS_AUTOSIZE) {
+        if (!SDK_LEVEL_SUPPORTS_AUTOSIZE) {
             autoSizeText();
         }
     }
@@ -569,7 +569,7 @@ class AppCompatTextHelper {
     /** @hide */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     void setTextSize(int unit, float size) {
-        if (!PLATFORM_SUPPORTS_AUTOSIZE) {
+        if (!SDK_LEVEL_SUPPORTS_AUTOSIZE) {
             if (!isAutoSizeEnabled()) {
                 setTextSizeInternal(unit, size);
             }

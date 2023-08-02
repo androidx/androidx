@@ -17,32 +17,48 @@
 package androidx.appcompat.app;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
+import static androidx.appcompat.app.AppLocalesStorageHelper.persistLocales;
+import static androidx.appcompat.app.AppLocalesStorageHelper.readLocales;
+import static androidx.appcompat.app.AppLocalesStorageHelper.syncLocalesToFramework;
+
+import static java.util.Objects.requireNonNull;
 
 import android.app.Activity;
 import android.app.Dialog;
+import android.app.LocaleManager;
 import android.content.Context;
+import android.content.pm.PackageManager;
+import android.content.pm.ServiceInfo;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.os.LocaleList;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.window.OnBackInvokedDispatcher;
 
+import androidx.annotation.AnyThread;
 import androidx.annotation.CallSuper;
+import androidx.annotation.DoNotInline;
 import androidx.annotation.IdRes;
 import androidx.annotation.IntDef;
 import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.StyleRes;
+import androidx.annotation.VisibleForTesting;
 import androidx.appcompat.view.ActionMode;
 import androidx.appcompat.widget.Toolbar;
 import androidx.appcompat.widget.VectorEnabledTintResources;
 import androidx.collection.ArraySet;
+import androidx.core.os.BuildCompat;
+import androidx.core.os.LocaleListCompat;
 import androidx.core.view.WindowCompat;
 import androidx.fragment.app.FragmentActivity;
 
@@ -94,6 +110,10 @@ import java.util.Iterator;
 public abstract class AppCompatDelegate {
     static final boolean DEBUG = false;
     static final String TAG = "AppCompatDelegate";
+
+    static AppLocalesStorageHelper.SerialExecutor sSerialExecutorForLocalesStorage = new
+            AppLocalesStorageHelper.SerialExecutor(
+                    new AppLocalesStorageHelper.ThreadPerTaskExecutor());
 
     /**
      * Mode which uses the system's night mode setting to determine if it is night or not.
@@ -165,6 +185,13 @@ public abstract class AppCompatDelegate {
     @NightMode
     private static int sDefaultNightMode = MODE_NIGHT_UNSPECIFIED;
 
+    private static LocaleListCompat sRequestedAppLocales = null;
+    private static LocaleListCompat sStoredAppLocales = null;
+    private static Boolean sIsAutoStoreLocalesOptedIn = null;
+    private static boolean sIsFrameworkSyncChecked = false;
+    private static Object sLocaleManager = null;
+    private static Context sAppContext = null;
+
     /**
      * All AppCompatDelegate instances associated with a "live" Activity, e.g. lifecycle state is
      * post-onCreate and pre-onDestroy. These instances are used to instrument night mode's uiMode
@@ -173,6 +200,7 @@ public abstract class AppCompatDelegate {
     private static final ArraySet<WeakReference<AppCompatDelegate>> sActivityDelegates =
             new ArraySet<>();
     private static final Object sActivityDelegatesLock = new Object();
+    private static final Object sAppLocalesStorageSyncLock = new Object();
 
     /** @hide */
     @SuppressWarnings("deprecation")
@@ -521,6 +549,47 @@ public abstract class AppCompatDelegate {
     public abstract boolean applyDayNight();
 
     /**
+     * Sets the {@link OnBackInvokedDispatcher} for handling system back for Android SDK 33 and
+     * above.
+     * <p>
+     * If the delegate is hosted by an {@link Activity}, the default dispatcher is obtained via
+     * {@link Activity#getOnBackInvokedDispatcher()}.
+     *
+     * @param dispatcher the OnBackInvokedDispatcher to be set on this delegate, or {@code null}
+     *                   to use the default dispatcher
+     */
+    @CallSuper
+    @RequiresApi(33)
+    public void setOnBackInvokedDispatcher(@Nullable OnBackInvokedDispatcher dispatcher) {
+        // Stub.
+    }
+
+    /**
+     * Applies the current locales to this delegate's host component.
+     *
+     * <p>Apps can be notified when the locales are changed by overriding the
+     * {@link AppCompatActivity#onLocalesChanged(LocaleListCompat)} method.</p>
+     *
+     * <p>This is a default implementation and it is overridden atin
+     * {@link AppCompatDelegateImpl#applyAppLocales()} </p>
+     *
+     * @see #setApplicationLocales(LocaleListCompat)
+     *
+     * @return true if requested app-specific locales were applied, false if not.
+     */
+    boolean applyAppLocales() {
+        return false;
+    }
+
+    /**
+     * Returns the context for the current delegate.
+     */
+    @Nullable
+    public Context getContextForDelegate() {
+        return null;
+    }
+
+    /**
      * Override the night mode used for this delegate's host component.
      *
      * <p>When setting a mode to be used across an entire app, the
@@ -595,6 +664,120 @@ public abstract class AppCompatDelegate {
     }
 
     /**
+     * Sets the current locales for the calling app.
+     *
+     * <p>If this method is called after any host components with attached
+     * {@link AppCompatDelegate}s have been 'created', a {@link LocaleList} configuration
+     * change will occur in each. This may result in those components being recreated, depending
+     * on their manifest configuration.</p>
+     *
+     * <p>This method accepts {@link LocaleListCompat} as an input parameter.</p>
+     *
+     * <p>Apps should continue to read Locales via their in-process {@link LocaleList}s.</p>
+     *
+     * <p>Pass a {@link LocaleListCompat#getEmptyLocaleList()} to reset to the system locale.</p>
+     *
+     * <p><b>Note: This API should always be called after Activity.onCreate(), apart from any
+     * exceptions explicitly mentioned in this documentation.</b></p>
+     *
+     * <p>On API level 33 and above, this API will handle storage automatically.</p>
+     *
+     * <p>For API levels below that, the developer has two options:</p>
+     * <ul>
+     *     <li>They can opt-in to automatic storage handled through the library. They can do this by
+     *     adding a special metaData entry in their {@code AndroidManifest.xml}, similar to :
+     *     <pre><code>
+     *     &lt;service
+     *         android:name="androidx.appcompat.app.AppLocalesMetadataHolderService"
+     *         android:enabled="false"
+     *         android:exported="false"&gt;
+     *         &lt;meta-data
+     *             android:name="autoStoreLocales"
+     *             android:value="true" /&gt;
+     *     &lt;/service&gt;
+     *     </code></pre>
+     *     They should be mindful that this will cause a blocking diskRead and diskWrite
+     *     strictMode violation, and they might need to suppress it at their end.</li>
+     *
+     *     <li>The second option is that they can choose to handle storage themselves. In order to
+     *     do so they must use this API to initialize locales during app-start up and provide
+     *     their stored locales. In this case, API should be called before Activity.onCreate()
+     *     in the activity lifecycle, e.g. in attachBaseContext().
+     *     <b>Note: Developers should gate this to API versions < 33.</b>
+     *     <p><b>This API should be called after Activity.onCreate() for all other cases.</b></p>
+     *     </li>
+     * </ul>
+     *
+     * <p>When the application using this API with API versions < 33 updates to a
+     * version >= 33, then there can be two scenarios for this transition:
+     * <ul>
+     *     <li>If the developer has opted-in for autoStorage then the locales will be automatically
+     *     synced to the framework. Developers must specify android:enabled="false" for the
+     *     AppLocalesMetadataHolderService as shown in the meta-data entry above.</li>
+     *     <li>If the developer has not opted-in for autoStorage then they will need to handle
+     *     this transition on their end.</li>
+     * </ul>
+     *
+     * @param locales a list of locales.
+     */
+    @OptIn(markerClass = androidx.core.os.BuildCompat.PrereleaseSdkCheck.class)
+    public static void setApplicationLocales(@NonNull LocaleListCompat locales) {
+        requireNonNull(locales);
+        if (BuildCompat.isAtLeastT()) {
+            // If the API version is 33 (version for T) or above we want to redirect the call to
+            // the framework API.
+            Object localeManager = getLocaleManagerForApplication();
+            if (localeManager != null) {
+                Api33Impl.localeManagerSetApplicationLocales(localeManager,
+                        Api24Impl.localeListForLanguageTags(locales.toLanguageTags()));
+            }
+        } else {
+            if (DEBUG) {
+                Log.d(TAG, String.format("sRequestedAppLocales. New:%s, Current:%s",
+                        locales, sRequestedAppLocales));
+            }
+            if (!locales.equals(sRequestedAppLocales)) {
+                synchronized (sActivityDelegatesLock) {
+                    sRequestedAppLocales = locales;
+                    applyLocalesToActiveDelegates();
+                }
+            } else if (DEBUG) {
+                Log.d(TAG, String.format("Not applying changes, sRequestedAppLocales is already %s",
+                        locales));
+            }
+        }
+    }
+
+    /**
+     * Returns application locales for the calling app as a {@link LocaleListCompat}.
+     *
+     * <p>Returns a {@link LocaleListCompat#getEmptyLocaleList()} if no app-specific locales are
+     * set.
+     *
+     * <p><b>Note: This API should always be called after Activity.onCreate().</b></p>
+     */
+    @AnyThread
+    @NonNull
+    @OptIn(markerClass = androidx.core.os.BuildCompat.PrereleaseSdkCheck.class)
+    public static LocaleListCompat getApplicationLocales() {
+        if (BuildCompat.isAtLeastT()) {
+            // If the API version is 33 or above we want to redirect the call to the framework API.
+            Object localeManager = getLocaleManagerForApplication();
+            if (localeManager != null) {
+                return LocaleListCompat.wrap(Api33Impl.localeManagerGetApplicationLocales(
+                        localeManager));
+            }
+        } else {
+            if (sRequestedAppLocales != null) {
+                // If app-specific locales exists then sRequestedApplicationLocales contains the
+                // latest locales.
+                return sRequestedAppLocales;
+            }
+        }
+        return LocaleListCompat.getEmptyLocaleList();
+    }
+
+    /**
      * Returns the default night mode.
      *
      * @see #setDefaultNightMode(int)
@@ -602,6 +785,183 @@ public abstract class AppCompatDelegate {
     @NightMode
     public static int getDefaultNightMode() {
         return sDefaultNightMode;
+    }
+
+    /**
+     * Returns the requested app locales.
+     *
+     * @see #setApplicationLocales(LocaleListCompat)
+     */
+    @Nullable
+    static LocaleListCompat getRequestedAppLocales() {
+        return sRequestedAppLocales;
+    }
+
+    /**
+     * Returns the stored app locales.
+     *
+     * @see #setApplicationLocales(LocaleListCompat)
+     */
+    @Nullable
+    static LocaleListCompat getStoredAppLocales() {
+        return sStoredAppLocales;
+    }
+
+    /**
+     * Resets the static variables for requested and stored locales to null. This method is used
+     * for testing as it mimics activity restart which is difficult to do in a test.
+     */
+    @VisibleForTesting
+    static void resetStaticRequestedAndStoredLocales() {
+        sRequestedAppLocales = null;
+        sStoredAppLocales = null;
+    }
+
+    /**
+     * Sets {@link AppCompatDelegate#sIsAutoStoreLocalesOptedIn} to the provided value. This method
+     * is used for testing, setting sIsAutoStoreLocalesOptedIn to true mimics adding an opt-in
+     * "autoStoreLocales" meta-data entry.
+     *
+     * see {@link AppCompatDelegate#setApplicationLocales(LocaleListCompat)}.
+     */
+    @VisibleForTesting
+    static void setIsAutoStoreLocalesOptedIn(boolean isAutoStoreLocalesOptedIn) {
+        sIsAutoStoreLocalesOptedIn = isAutoStoreLocalesOptedIn;
+    }
+
+    /**
+     * Returns the localeManager for the current application using active delegates to fetch
+     * context, returns null if no active delegates present.
+     */
+    @RequiresApi(33)
+    static Object getLocaleManagerForApplication() {
+        if (sLocaleManager != null) {
+            return sLocaleManager;
+        }
+        // Traversing through the active delegates to retrieve context for any one non null
+        // delegate.
+        // This context is used to create a localeManager which is saved as a static variable to
+        // reduce multiple object creation for different activities.
+        if (sAppContext == null) {
+            for (WeakReference<AppCompatDelegate> activeDelegate : sActivityDelegates) {
+                final AppCompatDelegate delegate = activeDelegate.get();
+                if (delegate != null) {
+                    Context context = delegate.getContextForDelegate();
+                    if (context != null) {
+                        sAppContext = context;
+                        break;
+                    }
+                }
+            }
+        }
+
+        if (sAppContext != null) {
+            sLocaleManager = sAppContext.getSystemService(Context.LOCALE_SERVICE);
+        }
+        return sLocaleManager;
+    }
+
+    /**
+     * Returns true is the "autoStoreLocales" metaData is marked true in the app manifest.
+     */
+    static boolean isAutoStorageOptedIn(Context context) {
+        if (sIsAutoStoreLocalesOptedIn == null) {
+            try {
+                ServiceInfo serviceInfo = AppLocalesMetadataHolderService.getServiceInfo(
+                        context);
+                if (serviceInfo.metaData != null) {
+                    sIsAutoStoreLocalesOptedIn = serviceInfo.metaData.getBoolean(
+                            /* key= */ "autoStoreLocales");
+                }
+            } catch (PackageManager.NameNotFoundException e) {
+                Log.d(TAG, "Checking for metadata for AppLocalesMetadataHolderService "
+                        + ": Service not found");
+                sIsAutoStoreLocalesOptedIn = false;
+            }
+        }
+        return sIsAutoStoreLocalesOptedIn;
+    }
+
+    /**
+     * Executes {@link AppCompatDelegate#syncRequestedAndStoredLocales(Context)} asynchronously
+     * on a worker thread, serialized using {@link
+     * AppCompatDelegate#sSerialExecutorForLocalesStorage}.
+     *
+     * <p>This is done to perform the storage read operation without blocking the main thread.</p>
+     */
+    void asyncExecuteSyncRequestedAndStoredLocales(Context context) {
+        sSerialExecutorForLocalesStorage.execute(() -> syncRequestedAndStoredLocales(context));
+    }
+
+    /**
+     * Syncs requested and persisted app-specific locales.
+     *
+     * <p>This sync is only performed if the developer has opted in to use the autoStoredLocales
+     * feature, marked by the metaData "autoStoreLocales" wrapped in the service
+     * "AppLocalesMetadataHolderService". If the metaData is not found in the manifest or holds
+     * the value false then we return from this function without doing anything. If the metaData
+     * is set to true, then we perform a sync for app-locales.</p>
+     *
+     * <p>If the API version is >=33, then the storage is checked for app-specific locales, if
+     * found they are synced to the framework by calling the
+     * {@link AppCompatDelegate#setApplicationLocales(LocaleListCompat)}</p>
+     *
+     * <p>If the API version is <33, then there are two scenarios:</p>
+     * <ul>
+     * <li>If the requestedAppLocales are not set then the app-specific locales are read from
+     * storage. If persisted app-specific locales are found then they are used to
+     * update the requestedAppLocales.</li>
+     * <li>If the requestedAppLocales are populated and are different from the stored locales
+     * then in that case the requestedAppLocales are stored and the static variable for
+     * storedAppLocales is updated accordingly.</li>
+     * </ul>
+     */
+    @OptIn(markerClass = androidx.core.os.BuildCompat.PrereleaseSdkCheck.class)
+    static void syncRequestedAndStoredLocales(Context context) {
+        if (!isAutoStorageOptedIn(context)) {
+            return;
+        } else if (BuildCompat.isAtLeastT()) {
+            // TODO: After BuildCompat.isAtLeast() is deprecated, the above condition needs to be
+            //  replaced by (Build.VERSION.SDK_INT == 33).
+            if (!sIsFrameworkSyncChecked) {
+                // syncs locales from androidX to framework, it only happens once after the
+                // device is updated to T (API version 33).
+                sSerialExecutorForLocalesStorage.execute(() -> {
+                    syncLocalesToFramework(context);
+                    sIsFrameworkSyncChecked = true;
+                });
+            }
+        } else {
+            synchronized (sAppLocalesStorageSyncLock) {
+                if (sRequestedAppLocales == null) {
+                    if (sStoredAppLocales == null) {
+                        sStoredAppLocales =
+                                LocaleListCompat.forLanguageTags(readLocales(context));
+                    }
+                    if (sStoredAppLocales.isEmpty()) {
+                        // if both requestedLocales and storedLocales not set, then the user has not
+                        // specified any application-specific locales. So no alterations in current
+                        // application locales should take place.
+                        return;
+                    }
+                    sRequestedAppLocales = sStoredAppLocales;
+                } else if (!sRequestedAppLocales.equals(sStoredAppLocales)) {
+                    // if requestedLocales is set and is not equal to the storedLocales then in this
+                    // case we need to store these locales in storage.
+                    sStoredAppLocales = sRequestedAppLocales;
+                    persistLocales(context, sRequestedAppLocales.toLanguageTags());
+                }
+            }
+        }
+    }
+
+
+    /**
+     * Sets the value for {@link AppCompatDelegate#sAppContext} which is the context for the
+     * current application.
+     */
+    static void setAppContext(Context context) {
+        sAppContext = context;
     }
 
     /**
@@ -693,6 +1053,50 @@ public abstract class AppCompatDelegate {
                     delegate.applyDayNight();
                 }
             }
+        }
+    }
+
+    private static void applyLocalesToActiveDelegates() {
+        for (WeakReference<AppCompatDelegate> activeDelegate : sActivityDelegates) {
+            final AppCompatDelegate delegate = activeDelegate.get();
+            if (delegate != null) {
+                if (DEBUG) {
+                    Log.d(TAG, "applyLocalesToActiveDelegates. Applying to " + delegate);
+                }
+                delegate.applyAppLocales();
+            }
+        }
+    }
+
+    @RequiresApi(24)
+    static class Api24Impl {
+        private Api24Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static LocaleList localeListForLanguageTags(String list) {
+            return LocaleList.forLanguageTags(list);
+        }
+    }
+
+    @RequiresApi(33)
+    static class Api33Impl {
+        private Api33Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static void localeManagerSetApplicationLocales(Object localeManager,
+                LocaleList locales) {
+            LocaleManager mLocaleManager = (LocaleManager) localeManager;
+            mLocaleManager.setApplicationLocales(locales);
+        }
+
+        @DoNotInline
+        static LocaleList localeManagerGetApplicationLocales(Object localeManager) {
+            LocaleManager mLocaleManager = (LocaleManager) localeManager;
+            return mLocaleManager.getApplicationLocales();
         }
     }
 }

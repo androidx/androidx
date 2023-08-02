@@ -18,15 +18,15 @@
         <td>In-process test of CPU work</td>
     </tr>
     <tr>
-        <td>Slow iteration speed (Often several minutes)</td>
+        <td>Slow iteration speed (Often more than a minute)</td>
         <td>Fast iteration speed (Often less than 10 seconds)</td>
     </tr>
     <tr>
         <td>Results come with profiling traces</td>
-        <td>Optional method sampling/tracing</td>
+        <td>Optional stack sampling/method tracing</td>
     </tr>
     <tr>
-        <td>Min API 29</td>
+        <td>Min API 23</td>
         <td>Min API 14</td>
     </tr>
 </table>
@@ -49,8 +49,6 @@ provided by the library:
 #### Kotlin {.new-tab}
 
 ```kotlin
-@RunWith(AndroidJUnit4::class)
-class MyStartupBenchmark {
     @get:Rule
     val benchmarkRule = MacrobenchmarkRule()
 
@@ -67,13 +65,31 @@ class MyStartupBenchmark {
         intent.setAction("mypackage.myapp.myaction")
         startActivityAndWait(intent)
     }
-}
 ```
 
 #### Java {.new-tab}
 
 ```java
-// TODO: Java APIs are not yet available.
+    @Rule
+    public MacrobenchmarkRule mBenchmarkRule = MacrobenchmarkRule()
+
+    @Test
+    public void startup() {
+        mBenchmarkRule.measureRepeated(
+                "mypackage.myapp",
+                Collections.singletonList(new StartupTimingMetric()),
+                StartupMode.COLD,
+                /* iterations = */ 5,
+                scope -> {
+                    scope.pressHome();
+                    Intent intent = Intent();
+                    intent.setPackage("mypackage.myapp");
+                    intent.setAction("mypackage.myapp.myaction");
+                    scope.startActivityAndWait(intent);
+                    return Unit.INSTANCE;
+                }
+        );
+    }
 ```
 
 </section>

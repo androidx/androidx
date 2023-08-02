@@ -30,7 +30,7 @@ import androidx.versionedparcelable.VersionedParcelize;
  *
  * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @VersionedParcelize
 public class ListOptionWireFormat extends OptionWireFormat {
     /** Localized human readable name for the setting, used in the style selection UI. */
@@ -42,6 +42,8 @@ public class ListOptionWireFormat extends OptionWireFormat {
     @ParcelField(3)
     @Nullable
     public Icon mIcon = null;
+
+    // WARNING: This class is held in a list and can't change due to flaws in VersionedParcelable.
 
     ListOptionWireFormat() {
     }

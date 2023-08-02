@@ -35,6 +35,7 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewParent;
 
+import androidx.annotation.NonNull;
 import androidx.leanback.media.PlaybackTransportControlGlue;
 import androidx.leanback.media.PlayerAdapter;
 import androidx.leanback.widget.PlaybackSeekDataProvider.ResultCallback;
@@ -70,7 +71,7 @@ public class PlaybackTransportRowPresenterTest {
             public void run() {
                 mGlue = new PlaybackTransportControlGlue<PlayerAdapter>(mContext, mImpl) {
                     @Override
-                    protected void onCreatePrimaryActions(ArrayObjectAdapter
+                    protected void onCreatePrimaryActions(@NonNull ArrayObjectAdapter
                             primaryActionsAdapter) {
                         super.onCreatePrimaryActions(primaryActionsAdapter);
                         primaryActionsAdapter.add(
@@ -78,7 +79,7 @@ public class PlaybackTransportRowPresenterTest {
                     }
 
                     @Override
-                    protected void onCreateSecondaryActions(ArrayObjectAdapter
+                    protected void onCreateSecondaryActions(@NonNull ArrayObjectAdapter
                             secondaryActionsAdapter) {
                         secondaryActionsAdapter.add(
                                 new PlaybackControlsRow.HighQualityAction(mContext));

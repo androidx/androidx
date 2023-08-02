@@ -34,6 +34,8 @@
     <string name="cancel_work_tag_multiprocess">Cancel Work By Tag (Multi-process)</string>
     <string name="cancel_all_work_multiprocess">Cancel All Work (Multi-process)</string>
     <string name="query_work_multiprocess">Query Work (Multi-process)</string>
+    <string name="enqueue_periodic_work_multiprocess">Enqueue Unique Periodic Query Work (Multi-process)</string>
+    <string name="update_periodic_work_multiprocess">Update Unique Periodic Query Work (Multi-process)</string>
     <string name="run_remote_worker_1">Run Remote Worker 1</string>
     <string name="run_remote_worker_2">Run Remote Worker 2</string>
     <string name="cancel_remote_workers">Cancel Remote Workers</string>

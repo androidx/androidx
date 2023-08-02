@@ -61,21 +61,18 @@ import org.jetbrains.kotlin.ir.util.DeepCopySymbolRemapper
 import org.jetbrains.kotlin.ir.util.SymbolRemapper
 import org.jetbrains.kotlin.ir.util.SymbolRenamer
 import org.jetbrains.kotlin.ir.util.TypeRemapper
-import org.jetbrains.kotlin.ir.util.TypeTranslator
 import org.jetbrains.kotlin.ir.util.fqNameForIrSerialization
 import org.jetbrains.kotlin.ir.util.functions
 import org.jetbrains.kotlin.ir.util.hasAnnotation
 import org.jetbrains.kotlin.ir.util.patchDeclarationParents
 import org.jetbrains.kotlin.ir.visitors.IrElementTransformerVoid
 import org.jetbrains.kotlin.name.FqName
-import org.jetbrains.kotlin.types.KotlinType
 import org.jetbrains.kotlin.types.Variance
 
 class DeepCopyIrTreeWithSymbolsPreservingMetadata(
     private val context: IrPluginContext,
     private val symbolRemapper: DeepCopySymbolRemapper,
-    private val typeRemapper: TypeRemapper,
-    private val typeTranslator: TypeTranslator,
+    typeRemapper: TypeRemapper,
     symbolRenamer: SymbolRenamer = SymbolRenamer.DEFAULT
 ) : DeepCopyIrTreeWithSymbols(symbolRemapper, typeRemapper, symbolRenamer) {
 
@@ -122,9 +119,11 @@ class DeepCopyIrTreeWithSymbolsPreservingMetadata(
     }
 
     override fun visitFile(declaration: IrFile): IrFile {
-        return super.visitFile(declaration).also {
-            if (it is IrFileImpl) {
-                it.metadata = declaration.metadata
+        includeFileNameInExceptionTrace(declaration) {
+            return super.visitFile(declaration).also {
+                if (it is IrFileImpl) {
+                    it.metadata = declaration.metadata
+                }
             }
         }
     }
@@ -143,8 +142,7 @@ class DeepCopyIrTreeWithSymbolsPreservingMetadata(
         ) {
             symbolRemapper.visitConstructor(ownerFn)
             val newFn = super.visitConstructor(ownerFn).also {
-                it.parent = ownerFn.parent
-                it.patchDeclarationParents(it.parent)
+                it.patchDeclarationParents(ownerFn.parent)
             }
             val newCallee = symbolRemapper.getReferencedConstructor(newFn.symbol)
 
@@ -179,7 +177,6 @@ class DeepCopyIrTreeWithSymbolsPreservingMetadata(
     @OptIn(ObsoleteDescriptorBasedAPI::class)
     override fun visitCall(expression: IrCall): IrCall {
         val ownerFn = expression.symbol.owner as? IrSimpleFunction
-        @Suppress("DEPRECATION")
         val containingClass = expression.symbol.descriptor.containingDeclaration as? ClassDescriptor
 
         // Any virtual calls on composable functions we want to make sure we update the call to
@@ -203,14 +200,13 @@ class DeepCopyIrTreeWithSymbolsPreservingMetadata(
 
             symbolRemapper.visitSimpleFunction(newFn)
             newFn = super.visitSimpleFunction(newFn).also { fn ->
-                fn.parent = newFnClass
                 fn.overriddenSymbols = ownerFn.overriddenSymbols.map { it }
                 fn.dispatchReceiverParameter = ownerFn.dispatchReceiverParameter
                 fn.extensionReceiverParameter = ownerFn.extensionReceiverParameter
                 newFn.valueParameters.forEach { p ->
                     fn.addValueParameter(p.name.identifier, p.type)
                 }
-                fn.patchDeclarationParents(fn.parent)
+                fn.patchDeclarationParents(newFnClass)
                 assert(fn.body == null) { "expected body to be null" }
             }
 
@@ -243,17 +239,15 @@ class DeepCopyIrTreeWithSymbolsPreservingMetadata(
                     visitProperty(property).also {
                         it.getter?.correspondingPropertySymbol = it.symbol
                         it.setter?.correspondingPropertySymbol = it.symbol
-                        it.parent = ownerFn.parent
-                        it.patchDeclarationParents(it.parent)
+                        it.patchDeclarationParents(ownerFn.parent)
                         it.copyAttributes(property)
                     }
                 }
             } else {
                 symbolRemapper.visitSimpleFunction(ownerFn)
                 visitSimpleFunction(ownerFn).also {
-                    it.parent = ownerFn.parent
                     it.correspondingPropertySymbol = null
-                    it.patchDeclarationParents(it.parent)
+                    it.patchDeclarationParents(ownerFn.parent)
                 }
             }
             val newCallee = symbolRemapper.getReferencedSimpleFunction(ownerFn.symbol)
@@ -271,14 +265,13 @@ class DeepCopyIrTreeWithSymbolsPreservingMetadata(
                 it.overriddenSymbols = ownerFn.overriddenSymbols.map { override ->
                     if (override.isBound) {
                         visitSimpleFunction(override.owner).apply {
-                            parent = override.owner.parent
+                            patchDeclarationParents(override.owner.parent)
                         }.symbol
                     } else {
                         override
                     }
                 }
-                it.parent = ownerFn.parent
-                it.patchDeclarationParents(it.parent)
+                it.patchDeclarationParents(ownerFn.parent)
             }
             val newCallee = symbolRemapper.getReferencedSimpleFunction(newFn.symbol)
             return shallowCopyCall(expression, newCallee).apply {
@@ -352,15 +345,11 @@ class DeepCopyIrTreeWithSymbolsPreservingMetadata(
     private fun IrType.isComposable(): Boolean {
         return annotations.hasAnnotation(ComposeFqNames.Composable)
     }
-
-    private fun KotlinType.toIrType(): IrType = typeTranslator.translateType(this)
 }
 
-@Suppress("DEPRECATION")
 class ComposerTypeRemapper(
     private val context: IrPluginContext,
     private val symbolRemapper: SymbolRemapper,
-    private val typeTranslator: TypeTranslator,
     private val composerType: IrType
 ) : TypeRemapper {
 
@@ -380,14 +369,11 @@ class ComposerTypeRemapper(
         return annotations.hasAnnotation(ComposeFqNames.Composable)
     }
 
-    @OptIn(ObsoleteDescriptorBasedAPI::class)
     private val IrConstructorCall.annotationClass
         get() = this.symbol.owner.returnType.classifierOrNull
 
     private fun List<IrConstructorCall>.hasAnnotation(fqName: FqName): Boolean =
         any { it.annotationClass?.isClassWithFqName(fqName.toUnsafe()) ?: false }
-
-    private fun KotlinType.toIrType(): IrType = typeTranslator.translateType(this)
 
     @OptIn(ObsoleteDescriptorBasedAPI::class)
     private fun IrType.isFunction(): Boolean {
@@ -431,7 +417,7 @@ class ComposerTypeRemapper(
         return IrSimpleTypeImpl(
             null,
             functionCls,
-            type.hasQuestionMark,
+            type.nullability,
             newIrArguments.map { remapTypeArgument(it) },
             type.annotations.filter { !it.isComposableAnnotation() }.map {
                 it.transform(deepCopy, null) as IrConstructorCall
@@ -444,7 +430,7 @@ class ComposerTypeRemapper(
         return IrSimpleTypeImpl(
             null,
             symbolRemapper.getReferencedClassifier(type.classifier),
-            type.hasQuestionMark,
+            type.nullability,
             type.arguments.map { remapTypeArgument(it) },
             type.annotations.map { it.transform(deepCopy, null) as IrConstructorCall },
             type.abbreviation?.remapTypeAbbreviation()

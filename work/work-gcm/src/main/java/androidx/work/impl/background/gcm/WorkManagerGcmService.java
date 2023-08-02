@@ -20,6 +20,7 @@ package androidx.work.impl.background.gcm;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.work.Logger;
+import androidx.work.impl.WorkManagerImpl;
 import androidx.work.impl.utils.WorkTimer;
 
 import com.google.android.gms.gcm.GcmTaskService;
@@ -61,7 +62,6 @@ public class WorkManagerGcmService extends GcmTaskService {
     public void onDestroy() {
         super.onDestroy();
         mIsShutdown = true;
-        mGcmDispatcher.onDestroy();
     }
 
     @MainThread
@@ -75,6 +75,8 @@ public class WorkManagerGcmService extends GcmTaskService {
     @MainThread
     private void initializeDispatcher() {
         mIsShutdown = false;
-        mGcmDispatcher = new WorkManagerGcmDispatcher(getApplicationContext(), new WorkTimer());
+        WorkManagerImpl workManager = WorkManagerImpl.getInstance(getApplicationContext());
+        WorkTimer timer = new WorkTimer(workManager.getConfiguration().getRunnableScheduler());
+        mGcmDispatcher = new WorkManagerGcmDispatcher(workManager, timer);
     }
 }

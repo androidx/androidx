@@ -16,6 +16,7 @@
 
 package androidx.sqlite.inspection;
 
+import android.annotation.SuppressLint;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -138,6 +139,7 @@ class RoomInvalidationRegistry {
             }
         }
 
+        @SuppressLint("BanUncheckedReflection") // Not a platform method.
         public void trigger(Object instance) {
             if (mRefreshMethod != null) {
                 try {

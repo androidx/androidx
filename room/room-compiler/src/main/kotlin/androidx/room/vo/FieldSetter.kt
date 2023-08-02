@@ -20,7 +20,7 @@ import androidx.room.ext.L
 import androidx.room.compiler.processing.XType
 import com.squareup.javapoet.CodeBlock
 
-data class FieldSetter(val name: String, val type: XType, val callType: CallType) {
+data class FieldSetter(val jvmName: String, val type: XType, val callType: CallType) {
     fun writeSet(ownerVar: String, inVar: String, builder: CodeBlock.Builder) {
         val stmt = when (callType) {
             CallType.FIELD -> "$L.$L = $L"
@@ -28,7 +28,7 @@ data class FieldSetter(val name: String, val type: XType, val callType: CallType
             CallType.CONSTRUCTOR -> null
         }
         stmt?.let {
-            builder.addStatement(stmt, ownerVar, name, inVar)
+            builder.addStatement(stmt, ownerVar, jvmName, inVar)
         }
     }
 }

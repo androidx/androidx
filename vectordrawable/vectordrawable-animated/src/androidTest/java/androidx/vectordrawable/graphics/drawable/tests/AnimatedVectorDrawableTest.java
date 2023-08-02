@@ -39,6 +39,7 @@ import android.view.View;
 import android.widget.ImageButton;
 
 import androidx.annotation.DrawableRes;
+import androidx.annotation.NonNull;
 import androidx.core.view.ViewCompat;
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -93,13 +94,13 @@ public class AnimatedVectorDrawableTest {
             new AnimationCallback() {
                 @Override
                 public void onAnimationStart(
-                        Drawable drawable) {
+                        @NonNull Drawable drawable) {
                     mAnimationStarted = true;
                 }
 
                 @Override
                 public void onAnimationEnd(
-                        Drawable drawable) {
+                        @NonNull Drawable drawable) {
                     mAnimationEnded = true;
                 }
             };
@@ -486,12 +487,12 @@ public class AnimatedVectorDrawableTest {
 
         avd.registerAnimationCallback(new AnimationCallback() {
             @Override
-            public void onAnimationStart(Drawable drawable) {
+            public void onAnimationStart(@NonNull Drawable drawable) {
                 // Nothing to do.
             }
 
             @Override
-            public void onAnimationEnd(Drawable drawable) {
+            public void onAnimationEnd(@NonNull Drawable drawable) {
                 bitmap.eraseColor(0);
                 drawable.draw(c);
                 int centerColor = bitmap.getPixel(IMAGE_WIDTH / 2 , IMAGE_WIDTH / 2);

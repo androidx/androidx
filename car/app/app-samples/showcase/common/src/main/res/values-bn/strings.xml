@@ -1,0 +1,309 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+ Copyright (C) 2021 The Android Open Source Project
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="back_caps_action_title" msgid="6392829425035919422">"ফিরুন"</string>
+    <string name="home_caps_action_title" msgid="4853167242566949502">"হোমপেজে যান"</string>
+    <string name="exit_action_title" msgid="9086586388884500731">"বেরিয়ে আসুন"</string>
+    <string name="refresh_action_title" msgid="3674260822403151377">"রিফ্রেশ করুন"</string>
+    <string name="close_action_title" msgid="2661907510124308560">"বন্ধ করুন"</string>
+    <string name="grant_access_action_title" msgid="4033140828804350723">"অ্যাক্সেসের অনুমতি দিন"</string>
+    <string name="enable_location_action_title" msgid="8181862247222797044">"লোকেশন সংক্রান্ত তথ্য চালু করুন"</string>
+    <string name="cancel_action_title" msgid="1149738685397349236">"বাতিল করুন"</string>
+    <string name="stop_action_title" msgid="1187619482795416314">"বন্ধ করুন"</string>
+    <string name="more_action_title" msgid="1039516575011403837">"আরও"</string>
+    <string name="call_action_title" msgid="6218977436905001611">"কল করুন"</string>
+    <string name="primary_action_title" msgid="7042003552215710683">"প্রাথমিক"</string>
+    <string name="options_action_title" msgid="1168121856107932984">"বিকল্প"</string>
+    <string name="search_action_title" msgid="3483459674263446335">"সার্চ করুন"</string>
+    <string name="checked_action_title" msgid="906023941445896399">"টিকচিহ্ন দেওয়া হয়েছে"</string>
+    <string name="unchecked_action_title" msgid="802503415474307811">"টিকচিহ্ন সরানো হয়েছে"</string>
+    <string name="on_action_title" msgid="4129601573763429611">"চালু আছে"</string>
+    <string name="off_action_title" msgid="8669201170189204848">"বন্ধ আছে"</string>
+    <string name="settings_action_title" msgid="8616900063253887861">"সেটিংস"</string>
+    <string name="accept_action_title" msgid="4899660585470647578">"সম্মতি দিন"</string>
+    <string name="reject_action_title" msgid="6730366705938402668">"বাতিল করুন"</string>
+    <string name="ok_action_title" msgid="7128494973966098611">"ওকে"</string>
+    <string name="throw_action_title" msgid="7163710562670220163">"থ্রো"</string>
+    <string name="commute_action_title" msgid="2585755255290185096">"যাতায়াত করুন"</string>
+    <string name="sign_out_action_title" msgid="1653943000866713010">"সাইন-আউট করুন"</string>
+    <string name="try_anyway_action_title" msgid="7384500054249311718">"চেষ্টা করে দেখুন"</string>
+    <string name="yes_action_title" msgid="5507096013762092189">"হ্যাঁ"</string>
+    <string name="no_action_title" msgid="1452124604210014010">"না"</string>
+    <string name="disable_all_rows" msgid="3003225080532928046">"সবকটি সারি বন্ধ করুন"</string>
+    <string name="enable_all_rows" msgid="7274285275711872091">"সবকটি সারি চালু করুন"</string>
+    <string name="bug_reported_toast_msg" msgid="2487119172744644317">"সমস্যার ব্যাপারে অভিযোগ জানানো হয়েছে!"</string>
+    <string name="zoomed_in_toast_msg" msgid="8915301497303842649">"বড় করা হয়েছে"</string>
+    <string name="zoomed_out_toast_msg" msgid="6260981223227212493">"ছোট করা হয়েছে"</string>
+    <string name="triggered_toast_msg" msgid="3396166539208366382">"ট্রিগার করা হয়েছে"</string>
+    <string name="primary_toast_msg" msgid="7153771322662005447">"\'মুখ্য\' বোতাম প্রেস করা হয়েছে"</string>
+    <string name="search_toast_msg" msgid="7826530065407699347">"\'সার্চ করুন\' বোতাম প্রেস করা হয়েছে"</string>
+    <string name="options_toast_msg" msgid="2146223786877557730">"\'বিকল্প\' বোতাম প্রেস করা হয়েছে"</string>
+    <string name="favorite_toast_msg" msgid="522064494016370117">"পছন্দসই!"</string>
+    <string name="not_favorite_toast_msg" msgid="6831181108681007428">"ততটা পছন্দ নয়!"</string>
+    <string name="nav_requested_toast_msg" msgid="6696525973145493908">"নেভিগেশন করার অনুরোধ করা হয়েছে"</string>
+    <string name="selected_route_toast_msg" msgid="3149189677200086656">"বেছে নেওয়া রুট"</string>
+    <string name="visible_routes_toast_msg" msgid="7065558153736024203">"দৃশ্যমান রুট"</string>
+    <string name="second_item_toast_msg" msgid="7210054709419608215">"দ্বিতীয় আইটেমে ক্লিক করা হয়েছে"</string>
+    <string name="third_item_checked_toast_msg" msgid="3022450599567347361">"তৃতীয় আইটেমের পাশে টিকচিহ্ন দেওয়া হয়েছে"</string>
+    <string name="fifth_item_checked_toast_msg" msgid="1627599668504718594">"পঞ্চম আইটেমের পাশে টিকচিহ্ন যোগ করা হয়েছে"</string>
+    <string name="sixth_item_toast_msg" msgid="6117028866385793707">"ষষ্ঠ আইটেমের উপর ক্লিক করা হয়েছে"</string>
+    <string name="settings_toast_msg" msgid="7697794473002342727">"যেসব সেটিংসে ক্লিক করা হয়েছে"</string>
+    <string name="parked_toast_msg" msgid="2532422265890824446">"পার্ক করা সম্পর্কিত অ্যাকশন"</string>
+    <string name="more_toast_msg" msgid="5938288138225509885">"\'আরও\' বিকল্পে ক্লিক করা হয়েছে"</string>
+    <string name="commute_toast_msg" msgid="4112684360647638688">"\'যাতায়াত করুন\' বোতাম প্রেস করা হয়েছে"</string>
+    <string name="grant_location_permission_toast_msg" msgid="268046297444808010">"বর্তমান লোকেশন দেখার জন্য লোকেশন সংক্রান্ত তথ্য অ্যাক্সেস করার অনুমতি দিন"</string>
+    <string name="sign_in_with_google_toast_msg" msgid="5720947549233124775">"Google-এর মাধ্যমে সাইন-ইন করার প্রসেস এখান থেকে শুরু হয়"</string>
+    <string name="changes_selection_to_index_toast_msg_prefix" msgid="957766225794389167">"বেছে নেওয়া অংশকে ইন্ডেক্সে পরিবর্তন করা হয়েছে"</string>
+    <string name="yes_action_toast_msg" msgid="6216215197177241247">"বোতাম প্রেস করা হয়েছে!"</string>
+    <string name="no_action_toast_msg" msgid="6165492423831023809">"কোনও বোতাম প্রেস করা হয়নি!"</string>
+    <string name="alert_timeout_toast_msg" msgid="5568380708832805374">"সতর্কতা টাইম-আউট হয়ে গেছে!"</string>
+    <string name="first_row_title" msgid="219428344573165351">"বড় ছবি ও অনেক দীর্ঘ টেক্সট সহ সারি"</string>
+    <string name="first_row_text" msgid="3887390298628338716">"টেক্সট, টেক্সট, টেক্সট"</string>
+    <string name="other_row_title_prefix" msgid="4702355788835253197">"সারির টাইটেল"</string>
+    <string name="other_row_text" msgid="7510279447493169945">"সারিতে দেখানো টেক্সট"</string>
+    <string name="navigate" msgid="2713090390373996139">"নেভিগেট করুন"</string>
+    <string name="dial" msgid="3145707439707628311">"ডায়াল করুন"</string>
+    <string name="address" msgid="9010635942573581302">"অ্যাড্রেস"</string>
+    <string name="phone" msgid="2504766809811627577">"ফোন"</string>
+    <string name="fail_start_nav" msgid="6921321606009212189">"নেভিগেশন শুরু করা যায়নি"</string>
+    <string name="fail_start_dialer" msgid="1471602619507306261">"ডায়ালার শুরু করা যায়নি"</string>
+    <string name="car_hardware_demo_title" msgid="3679106197233262689">"গাড়ির হার্ডওয়্যার বিষয়ক ডেমো"</string>
+    <string name="car_hardware_info" msgid="1244783247616395012">"গাড়ির হার্ডওয়্যার সংক্রান্ত তথ্য"</string>
+    <string name="model_info" msgid="494224423025683030">"মডেল সংক্রান্ত তথ্য"</string>
+    <string name="no_model_permission" msgid="5333629877014978947">"মডেল সংক্রান্ত তথ্য অ্যাক্সেস করার অনুমতি নেই"</string>
+    <string name="manufacturer_unavailable" msgid="4978995415869838056">"প্রস্তুতকারকের নাম জানা নেই"</string>
+    <string name="model_unavailable" msgid="4075463010215406573">"মডেল উপলভ্য নেই"</string>
+    <string name="year_unavailable" msgid="994338773299644607">"বছর দেখানো নেই"</string>
+    <string name="energy_profile" msgid="81415433590192158">"এনার্জি প্রোফাইল"</string>
+    <string name="no_energy_profile_permission" msgid="4662285713731308888">"এনার্জি প্রোফাইলের ডেটা অ্যাক্সেস করার অনুমতি নেই"</string>
+    <string name="fuel_types" msgid="6811375173343218212">"জ্বালানির ধরন"</string>
+    <string name="unavailable" msgid="3636401138255192934">"উপলভ্য নেই"</string>
+    <string name="ev_connector_types" msgid="735458637011996125">"EV কানেক্টরের ধরন"</string>
+    <string name="example_title" msgid="530257630320010494">"যেমন, %d"</string>
+    <string name="example_1_text" msgid="8456567953748293512">"এই টেক্সট লাল রঙে লেখা হয়েছে"</string>
+    <string name="example_2_text" msgid="718820705318661440">"এই টেক্সট সবুজ রঙে লেখা হয়েছে"</string>
+    <string name="example_3_text" msgid="977269832109695627">"এই টেক্সট নীল রঙে লেখা হয়েছে"</string>
+    <string name="example_4_text" msgid="2043547015979437373">"এই টেক্সট হলুদ রঙে লেখা হয়েছে"</string>
+    <string name="example_5_text" msgid="4387859825054561488">"এই টেক্সটে মুখ্য কালার ব্যবহৃত হয়েছে"</string>
+    <string name="example_6_text" msgid="7991523168517599600">"এই টেক্সটে গৌণ কালার ব্যবহৃত হয়েছে"</string>
+    <string name="color_demo" msgid="1822427636476178993">"কালার দেখানো ডেমো"</string>
+    <string name="list_limit" msgid="3023536401535417286">"তালিকার সীমা"</string>
+    <string name="grid_limit" msgid="1350116012893549206">"গ্রিডের সীমা"</string>
+    <string name="pane_limit" msgid="981518409516855230">"প্যানেলের সীমা"</string>
+    <string name="place_list_limit" msgid="6785181191763056582">"জায়গার তালিকার ডেমো"</string>
+    <string name="route_list_limit" msgid="505793441615134116">"রুটের তালিকার সীমা"</string>
+    <string name="content_limits" msgid="5726880972110281095">"কন্টেন্টের সীমা"</string>
+    <string name="content_limits_demo_title" msgid="3207211638386727610">"কন্টেন্টের সীমা দেখানো ডেমো"</string>
+    <string name="finish_app_msg" msgid="8354334557053141891">"এর ফলে অ্যাপ বন্ধ হয়ে যাবে এবং এটি আবার চালু করা হলে অনুমতি অনুরোধ করার স্ক্রিন দেখানো হবে"</string>
+    <string name="finish_app_title" msgid="9013328479438745074">"অ্যাপের ডেমো বন্ধ করুন"</string>
+    <string name="finish_app_demo_title" msgid="8223819062053448384">"পরের বার ডেমো চালু করার আগে অনুমতি অনুরোধ যোগ করুন"</string>
+    <string name="loading_demo_title" msgid="1086529475809143517">"ডেমো লোড করা হচ্ছে"</string>
+    <string name="loading_demo_row_title" msgid="8933049915126088142">"লোড করা সম্পূর্ণ হয়েছে!"</string>
+    <string name="pop_to_root" msgid="2078277386355064198">"রুট করার জন্য স্ট্যাক থেকে সরান"</string>
+    <string name="pop_to_marker" msgid="5007078308762725207">"অন্যান্য ডেমোর মার্কারকে স্ট্যাক থেকে সরান"</string>
+    <string name="push_stack" msgid="2433062141810168976">"স্ট্যাকের পিছনে যোগ করুন"</string>
+    <string name="pop_to_prefix" msgid="4288884615669751608">"স্ট্যাক থেকে সরান"</string>
+    <string name="pop_to_title" msgid="3924696281273379455">"স্ট্যাক থেকে সরিয়ে দেওয়ার ডেমো"</string>
+    <string name="package_not_found_error_msg" msgid="7525619456883627939">"প্যাকেজ পাওয়া যায়নি।"</string>
+    <string name="permissions_granted_msg" msgid="2348556088141992714">"সব অনুমতি মঞ্জুর করা হয়েছে। \'সেটিংস\' বিকল্প থেকে অনুমতি ফিরিয়ে নিন।"</string>
+    <string name="needs_access_msg_prefix" msgid="2204136858798832382">"অ্যাপকে নিম্নলিখিত অনুমতি অ্যাক্সেস করতে দিতে হবে:\n"</string>
+    <string name="phone_screen_permission_msg" msgid="3599815596923367256">"ফোনের স্ক্রিনে অনুমতি মঞ্জুর করুন"</string>
+    <string name="enable_location_permission_on_device_msg" msgid="472752487966156897">"ডিভাইসে লোকেশন সংক্রান্ত অনুমতি চালু করুন"</string>
+    <string name="enable_location_permission_on_phone_msg" msgid="5082615523959139121">"ফোন স্ক্রিনে লোকেশন সংক্রান্ত তথ্য চালু করুন"</string>
+    <string name="required_permissions_title" msgid="5351791879153568211">"প্রয়োজনীয় অনুমতি"</string>
+    <string name="request_permissions_title" msgid="7456426341142412300">"অনুমতির অনুরোধ করার ডেমো"</string>
+    <string name="cancel_reservation_title" msgid="1374986823057959608">"রিজার্ভেশন বাতিল করা হলে যে স্ক্রিন দেখানো হয়"</string>
+    <string name="reservation_cancelled_msg" msgid="6334213670275547875">"রিজার্ভেশন বাতিল করা হয়েছে"</string>
+    <string name="result_demo_title" msgid="3900525190662148290">"ফলাফলের ডেমো"</string>
+    <string name="not_started_for_result_msg" msgid="7498800528148447270">"এই অ্যাপ ফলাফল পাওয়ার জন্য শুরু করা হয়নি"</string>
+    <string name="started_for_result_msg" msgid="4225260243713833974">"%s, এই অ্যাপ থেকে ফলাফল চেয়েছে। কলারকে পাঠানোর জন্য ফলাফল বেছে নিন"</string>
+    <string name="arrived_exclamation_msg" msgid="9132265698563096988">"পৌঁছেছে!"</string>
+    <string name="travel_est_trip_text" msgid="5134365408383171144">"অ্যালিসের \'পিক-আপ\' লিরিক"</string>
+    <string name="send_notification_title" msgid="4731688444696028193">"বিজ্ঞপ্তি পাঠান"</string>
+    <string name="start_notifications_title" msgid="8699668027543530460">"বিজ্ঞপ্তি পাওয়ার সুবিধা চালু করুন"</string>
+    <string name="stop_notifications_title" msgid="3703892710275206239">"বিজ্ঞপ্তি পাওয়ার সুবিধা বন্ধ করুন"</string>
+    <string name="notification_title" msgid="5507590705935298176">"বিজ্ঞপ্তি"</string>
+    <string name="importance_title" msgid="9034862997821839831">"গুরুত্ব"</string>
+    <string name="category_title" msgid="4783851267093259949">"বিভাগ"</string>
+    <string name="ongoing_title" msgid="4957996003270280496">"চলছে"</string>
+    <string name="default_importance" msgid="6347996298832939989">"ডিফল্ট"</string>
+    <string name="high_importance" msgid="5009120714837304882">"বেশি"</string>
+    <string name="low_importance" msgid="4721161314404294033">"কম"</string>
+    <string name="unknown_importance" msgid="909001735933359216">"অজানা"</string>
+    <string name="notification_demo" msgid="1819496937832036387">"বিজ্ঞপ্তির ডেমো"</string>
+    <string name="misc_demo_title" msgid="7399959062407349380">"অন্যান্য ডেমো"</string>
+    <string name="navigating_demo_title" msgid="7454579665387386476">"নেভিগেট করার ডেমো"</string>
+    <string name="arrived_demo_title" msgid="6708013121387053838">"\'পৌঁছেছে\' স্থিতি দেখানো ডেমো"</string>
+    <string name="junction_image_demo_title" msgid="3302979708776502314">"জংশনের ছবির ডেমো"</string>
+    <string name="nav_template_demos_title" msgid="8215835368932160866">"নেভিগেশন টেমপ্লেটের ডেমো"</string>
+    <string name="map_template_pane_demo_title" msgid="4849450903277412004">"প্যানেল সহ ম্যাপ টেমপ্লেটের ডেমো"</string>
+    <string name="map_template_list_demo_title" msgid="1473810899303903185">"তালিকা সহ ম্যাপ টেমপ্লেটের ডেমো"</string>
+    <string name="start_notification_title" msgid="2208831088632818681">"বিজ্ঞপ্তি পাওয়ার সুবিধা চালু করুন"</string>
+    <string name="stop_notification_title" msgid="3709643750540881176">"বিজ্ঞপ্তি পাওয়ার সুবিধা বন্ধ করুন"</string>
+    <string name="nav_notification_demo_title" msgid="4448683262984308442">"নেভিগেশনের বিজ্ঞপ্তির ডেমো"</string>
+    <string name="go_straight" msgid="2301747728609198718">"সোজা যান"</string>
+    <string name="turn_right" msgid="4710562732720109969">"ডানদিকে ঘোরান"</string>
+    <string name="take_520" msgid="3804796387195842741">"৫২০ নম্বর রাস্তা নিন"</string>
+    <string name="gas_station" msgid="1203313937444666161">"পেট্রল পাম্প"</string>
+    <string name="short_route" msgid="4831864276538141265">"ছোট রুট"</string>
+    <string name="less_busy" msgid="310625272281710983">"কম ট্রাফিক"</string>
+    <string name="hov_friendly" msgid="6956152104754594971">"বড় গাড়ির (HOV) অনুকূল"</string>
+    <string name="long_route" msgid="4737969235741057506">"দীর্ঘ রুট"</string>
+    <string name="continue_start_nav" msgid="6231797535084469163">"নেভিগেশন শুরু করতে চালিয়ে যান"</string>
+    <string name="continue_route" msgid="5172258139245088080">"রুট বরাবর এগিয়ে চলুন"</string>
+    <string name="routes_title" msgid="7799772149932075357">"রুট"</string>
+    <string name="place_list_nav_template_demo_title" msgid="8019588508812955290">"জায়গার তালিকার জন্য নেভিগেশন টেমপ্লেটের ডেমো"</string>
+    <string name="route_preview_template_demo_title" msgid="7878704357953167555">"রুটের প্রিভিউ দেখানো টেমপ্লেটের ডেমো"</string>
+    <string name="notification_template_demo_title" msgid="5076051497316030274">"বিজ্ঞপ্তির টেমপ্লেটের ডেমো"</string>
+    <string name="nav_map_template_demo_title" msgid="344985380763975398">"শুধুমাত্র ম্যাপের সাথে নেভিগেশন টেমপ্লেট ব্যবহার করার ডেমো"</string>
+    <string name="nav_demos_title" msgid="72781206086461004">"নেভিগেশনের ডেমো"</string>
+    <string name="navigation_alert_title" msgid="8306554249264200848">"এখনও স্পিড ট্র্যাপ রয়েছে?"</string>
+    <string name="navigation_alert_subtitle" msgid="3331130131492672264">"১০মি আগে রিপোর্ট করা হয়েছে"</string>
+    <string name="no_toll_card_permission" msgid="6789073114449712090">"টোল কার্ডের ডেটা অ্যাক্সেস করার অনুমতি নেই।"</string>
+    <string name="no_energy_level_permission" msgid="1684773185095107825">"এনার্জি লেভেলের ডেটা অ্যাক্সেস করার অনুমতি নেই।"</string>
+    <string name="no_speed_permission" msgid="5812532480922675390">"স্পিড সংক্রান্ত তথ্য অ্যাক্সেস করার অনুমতি নেই।"</string>
+    <string name="no_mileage_permission" msgid="4074779840599589847">"মাইলেজের ডেটা অ্যাক্সেস করার অনুমতি নেই।"</string>
+    <string name="no_ev_status_permission" msgid="933075402821938973">"EV স্ট্যাটাসের ডেটা অ্যাক্সেস করার অনুমতি নেই।"</string>
+    <string name="no_accelerometer_permission" msgid="896914448469117234">"অ্যাকসিলরোমিটারের ডেটা অ্যাক্সেস করার অনুমতি নেই।"</string>
+    <string name="no_gyroscope_permission" msgid="665293140266771569">"জাইরোস্কোপের ডেটা অ্যাক্সেস করার অনুমতি নেই।"</string>
+    <string name="no_compass_permission" msgid="5162304489577567125">"কম্পাসের ডেটা অ্যাক্সেস করার অনুমতি নেই।"</string>
+    <string name="no_car_hardware_location" msgid="3505517472938045093">"গাড়ির হার্ডওয়্যারের লোকেশন সংক্রান্ত তথ্য জানার অনুমতি নেই।"</string>
+    <string name="fetch_toll_info" msgid="6864627977128179834">"টোল সংক্রান্ত তথ্য ফেচ করা হচ্ছে।"</string>
+    <string name="fetch_energy_level" msgid="1773415471137542832">"এনার্জি লেভেল সংক্রান্ত ডেটা ফেচ করা হচ্ছে।"</string>
+    <string name="fetch_speed" msgid="7333830984597189627">"স্পিড সংক্রান্ত ডেটা ফেচ করা হচ্ছে।"</string>
+    <string name="fetch_mileage" msgid="7490131687788025123">"মাইলেজ সংক্রান্ত ডেটা ফেচ করা হচ্ছে।"</string>
+    <string name="fetch_ev_status" msgid="2798910410830567052">"EV স্ট্যাটাস ফেচ করা হচ্ছে।"</string>
+    <string name="fetch_accelerometer" msgid="697750041126810911">"অ্যাকসিলরোমিটারের ডেটা ফেচ করা হচ্ছে।"</string>
+    <string name="fetch_gyroscope" msgid="7153155318827188539">"জাইরোস্কোপ সংক্রান্ত ডেটা ফেচ করা হচ্ছে।"</string>
+    <string name="fetch_compass" msgid="7316188117590056717">"কম্পাসের ডেটা ফেচ করা হচ্ছে।"</string>
+    <string name="fetch_location" msgid="5015066922035852615">"লোকেশন ফেচ করা হচ্ছে।"</string>
+    <string name="toll_card_state" msgid="4430544885695162226">"টোল কার্ড স্টেট"</string>
+    <string name="low_energy" msgid="3462774027012877028">"লো-এনার্জি"</string>
+    <string name="range" msgid="8744960568263400641">"রেঞ্জ"</string>
+    <string name="fuel" msgid="4253578650127250651">"জ্বালানি"</string>
+    <string name="battery" msgid="2183623637331546820">"ব্যাটারি"</string>
+    <string name="display_speed" msgid="9161318805331348165">"স্পিড ডিসপ্লে করুন"</string>
+    <string name="raw_speed" msgid="7295910214088983967">"\'র\' স্পিড"</string>
+    <string name="unit" msgid="7697521583928135171">"ইউনিট"</string>
+    <string name="odometer" msgid="3925174645651546591">"ওডোমিটার"</string>
+    <string name="ev_connected" msgid="2277845607662494696">"EV চার্জিং পোর্ট কানেক্ট করা হয়েছে"</string>
+    <string name="ev_open" msgid="4916704450914519643">"EV চার্জিং পোর্ট খোলা হয়েছে"</string>
+    <string name="accelerometer" msgid="2084026313768299185">"অ্যাকসিলরোমিটার"</string>
+    <string name="gyroscope" msgid="3428075828014504651">"জাইরোস্কোপ"</string>
+    <string name="compass" msgid="7037367764762441245">"কম্পাস"</string>
+    <string name="car_hardware_location" msgid="5826128477363068617">"গাড়ির হার্ডওয়্যার লোকেশন"</string>
+    <string name="non_actionable" msgid="8999757911111188784">"কোনও অ্যাকশন নেওয়া যাবে না"</string>
+    <string name="second_item" msgid="5245792503030812493">"দ্বিতীয় আইটেম"</string>
+    <string name="third_item" msgid="334088179008716411">"তৃতীয় আইটেম"</string>
+    <string name="fourth_item" msgid="1153409687260543158">"চতুর্থ আইটেম"</string>
+    <string name="fifth_item" msgid="295284272719956932">"পঞ্চম আইটেমের টাইটেলটি দীর্ঘ"</string>
+    <string name="sixth_item" msgid="3880321601391343607">"ষষ্ঠ আইটেমের টাইটেলটি দীর্ঘ"</string>
+    <string name="grid_template_demo_title" msgid="6159115661928982245">"গ্রিড টেমপ্লেটের ডেমো"</string>
+    <string name="parked_only_title" msgid="3190603222397552672">"\'শুধু পার্ক করা হয়েছে\' মোডের টাইটেল"</string>
+    <string name="parked_only_text" msgid="8720610556452272916">"\'শুধু পার্ক করা হয়েছে\' মোডে সেট করা আরও টেক্সট।"</string>
+    <string name="clicked_row_prefix" msgid="9068303427922069941">"যে সারিতে ক্লিক করা হয়েছে"</string>
+    <string name="first_line_text" msgid="6648055806656590336">"টেক্সটের প্রথম লাইন"</string>
+    <string name="second_line_text" msgid="38664490158836864">"টেক্সটের দ্বিতীয় লাইন"</string>
+    <string name="title_prefix" msgid="3991742709199357049">"টাইটেল"</string>
+    <string name="list_template_demo_title" msgid="1740208242737246151">"তালিকার টেমপ্লেটের ডেমো"</string>
+    <string name="long_msg_template_demo_title" msgid="1793748562161438131">"দীর্ঘ মেসেজের টেমপ্লেটের ডেমো"</string>
+    <string name="long_msg_template_not_supported_text" msgid="3641559637317672505">"আপনার হোস্টে দীর্ঘ মেসেজের টেমপ্লেট কাজ করে না"</string>
+    <string name="long_msg_template_not_supported_title" msgid="8600719470226274925">"হোস্ট কাজ করছে না"</string>
+    <string name="msg_template_demo_title" msgid="3895210951340409473">"মেসেজ টেমপ্লেটের ডেমো"</string>
+    <string name="msg_template_demo_text" msgid="2275291617716161409">"মেসেজে এখানে লেখা হবে।\nবেশি টেক্সট হলে, দ্বিতীয় লাইনে লিখুন।"</string>
+    <string name="pane_template_demo_title" msgid="7804292600060341608">"প্যানেল টেমপ্লেটের ডেমো"</string>
+    <string name="place_list_template_demo_title" msgid="2054022985455460469">"জায়গার তালিকার টেমপ্লেটের ডেমো"</string>
+    <string name="browse_places_title" msgid="7246005909846715898">"জায়গা ব্রাউজ করুন"</string>
+    <string name="search_template_demo_title" msgid="1770474418958318114">"\'টেমপ্লেট ডেমো\' সার্চ করুন"</string>
+    <string name="search_hint" msgid="978495498991026792">"এখানে সার্চ করুন"</string>
+    <string name="additional_text" msgid="8410289578276941586">"আমাদের পরিষেবার শর্তাবলী পর্যালোচনা করুন"</string>
+    <string name="google_sign_in" msgid="6556259799319701727">"Google-এ সাইন-ইন"</string>
+    <string name="use_pin" msgid="7850893299484337431">"পিন ব্যবহার করুন"</string>
+    <string name="qr_code" msgid="5487041647280777397">"QR কোড"</string>
+    <string name="sign_in_template_not_supported_text" msgid="7184733753948837646">"আপনার হোস্টে সাইন-ইন টেমপ্লেট কাজ করে না"</string>
+    <string name="sign_in_template_not_supported_title" msgid="4892883228898541764">"হোস্ট কাজ করছে না"</string>
+    <string name="email_hint" msgid="7205549445477319606">"ইমেল"</string>
+    <string name="sign_in_title" msgid="4551967308262681703">"সাইন-ইন করুন"</string>
+    <string name="sign_in_instructions" msgid="9044850228284294762">"আপনার ক্রেডেনশিয়াল লিখুন"</string>
+    <string name="invalid_email_error_msg" msgid="5261362663718987167">"ইউজারনেমের উপর ভিত্তি করে একটি সঠিক ইমেল আইডি থাকতে হবে"</string>
+    <string name="invalid_length_error_msg" msgid="8238905276326976425">"ইউজারনেমে অন্তত %sটি অক্ষর থাকতে হবে"</string>
+    <string name="invalid_password_error_msg" msgid="1090359893902674610">"ভুল পাসওয়ার্ড"</string>
+    <string name="password_hint" msgid="2869107073860012864">"পাসওয়ার্ড"</string>
+    <string name="password_sign_in_instruction_prefix" msgid="9105788349198243508">"ইউজারনেম"</string>
+    <string name="pin_sign_in_instruction" msgid="2288691296234360441">"আপনার ফোনে এই পিন নম্বর টাইপ করুন"</string>
+    <string name="qr_code_sign_in_title" msgid="8137070561006464518">"সাইন-ইন করতে QR কোড স্ক্যান করুন"</string>
+    <string name="sign_in_with_google_title" msgid="8043752000786977249">"Google-এর মাধ্যমে সাইন-ইন করুন"</string>
+    <string name="provider_sign_in_instruction" msgid="7586815688292506743">"Google-এ সাইন-ইন করার প্রসেস সম্পূর্ণ করতে এই বোতাম ব্যবহার করুন"</string>
+    <string name="sign_in_complete_text" msgid="8423984266325680606">"আপনি সাইন-ইন করেছেন!"</string>
+    <string name="sign_in_complete_title" msgid="8919868148773983428">"সাইন-ইন করার প্রসেস সম্পূর্ণ হয়েছে"</string>
+    <string name="sign_in_template_demo_title" msgid="6052035424941410249">"\'টেমপ্লেট ডেমো\'-তে সাইন-ইন করুন"</string>
+    <string name="images_unknown_host_error" msgid="3180661817432720076">"অজানা হোস্টের জন্য ছবি দেখানো যায় না"</string>
+    <string name="icon_title_prefix" msgid="8487026131229541244">"আইকন"</string>
+    <string name="content_provider_icons_demo_title" msgid="5708602618664311097">"কন্টেন্ট প্রদানকারী আইকনের ডেমো"</string>
+    <string name="icons_demo_title" msgid="4082976685262307357">"আইকনের ডেমো"</string>
+    <string name="app_icon_title" msgid="7534936683349723423">"অ্যাপের আইকন"</string>
+    <string name="vector_no_tint_title" msgid="874591632279039146">"আঁকা যায় এমন রঙহীন ভেক্টর"</string>
+    <string name="vector_with_tint_title" msgid="1022346419829696827">"আঁকা যায় এমন রঙিন ভেক্টর"</string>
+    <string name="vector_with_app_theme_attr_title" msgid="4890094482708376219">"অ্যাপের থিমের অ্যাট্রিবিউটের রঙে আঁকা যায় এমন ভেক্টর"</string>
+    <string name="png_res_title" msgid="7437083018336747544">"রিসোর্স হিসেবে পাঠানো PNG ছবি"</string>
+    <string name="png_bitmap_title" msgid="120790220238335267">"রিসোর্স হিসেবে পাঠানো PNG ছবি"</string>
+    <string name="just_row_title" msgid="965700021568970725">"শুধুমাত্র একটি টাইটেল"</string>
+    <string name="title_with_app_icon_row_title" msgid="6294250714820740520">"অ্যাপ আইকন সহ টাইটেল"</string>
+    <string name="title_with_res_id_image_row_title" msgid="3813134904602875778">"রিসোর্স আইডি ছবি সহ টাইটেল"</string>
+    <string name="title_with_svg_image_row_title" msgid="6109092343637263755">"SVG ছবির সহ টাইটেল"</string>
+    <string name="colored_secondary_row_title" msgid="5173288934252528929">"গৌণ টেক্সট কালার করা হয়েছে"</string>
+    <string name="title_with_secondary_lines_row_title" msgid="7769408881272549837">"একাধিক গৌণ টেক্সট লাইন সহ টাইটেল"</string>
+    <string name="title_with_secondary_lines_row_text_1" msgid="8945114692653524102">"বারংবার ভুল করলেও, প্রত্যেকবার যেন আগের চেয়ে কম ভুল হয়।"</string>
+    <string name="title_with_secondary_lines_row_text_2" msgid="1017734603405251531">"- পিয়েট হেইন"</string>
+    <string name="rows_demo_title" msgid="3198566660454251007">"সারির ডেমো"</string>
+    <string name="text_icons_demo_title" msgid="8732943920672143201">"টেক্সট ও আইকনের ডেমো"</string>
+    <string name="row_text_icons_demo_title" msgid="135167694047524905">"টেক্সট ও আইকন সহ সারির ডেমো"</string>
+    <string name="selectable_lists_demo_title" msgid="5492658731113129386">"বেছে নেওয়া যায় এমন তালিকার ডেমো"</string>
+    <string name="option_1_title" msgid="7221252541651471199">"১ নম্বর বিকল্প"</string>
+    <string name="option_2_title" msgid="1905146448697963818">"২ নম্বর বিকল্প"</string>
+    <string name="option_3_title" msgid="6319268250436119258">"৩ নম্বর বিকল্প"</string>
+    <string name="option_row_radio_title" msgid="5978617101267398181">"রেডিও বাটন সহ সারি"</string>
+    <string name="option_row_radio_icon_title" msgid="3304229002524317977">"রেডিও বাটন ও আইকন সহ সারি"</string>
+    <string name="option_row_radio_icon_colored_text_title" msgid="947641896184637026">"রেডিও বাটন, আইকন ও রঙিন টেক্সট সহ সারি"</string>
+    <string name="some_additional_text" msgid="4009872495806318260">"অতিরিক্ত টেক্সট"</string>
+    <string name="sample_additional_list" msgid="5085372891301576306">"বেছে নেওয়া যায় এমন তালিকার নমুনা"</string>
+    <string name="task_restriction_demo_title" msgid="2212084350718766941">"টাস্কের উপর আরোপ করা বিধিনিষেধ সম্পর্কিত ডেমো"</string>
+    <string name="task_limit_reached_msg" msgid="6038763366777119364">"টাস্কের সীমা পেরিয়ে গেছে\nআরও এগোলে, অ্যাপকে জোর করে বন্ধ করা হবে"</string>
+    <string name="task_step_of_title" msgid="2791717962535723839">"টাস্কের %2$d ধাপের %1$d নম্বর ধাপ"</string>
+    <string name="task_step_of_text" msgid="4646729781462227219">"এগিয়ে যাওয়ার জন্য ক্লিক করুন"</string>
+    <string name="toggle_test_title" msgid="924485265152862631">"টগল টেস্ট"</string>
+    <string name="toggle_test_text" msgid="8107217216013312857">"স্টেটফুল পরিবর্তন করার অনুমতি দেওয়া হয়েছে"</string>
+    <string name="toggle_test_first_toggle_title" msgid="3635022201072117680">"টগল টেস্ট চালু করুন"</string>
+    <string name="toggle_test_first_toggle_text" msgid="5914741538328669668">"টগল টেস্ট চালু করতে এটি চেক করুন"</string>
+    <string name="toggle_test_second_toggle_title" msgid="1083594617400613969">"টগল টেস্ট"</string>
+    <string name="toggle_test_second_toggle_text" msgid="1813071017415876745">"স্টেটফুল পরিবর্তন করার অনুমতি দেওয়া হয়েছে"</string>
+    <string name="image_test_title" msgid="8273863429801477547">"ছবির টেস্ট"</string>
+    <string name="image_test_text" msgid="6264812093895530445">"ছবিতে পরিবর্তন করা যায়"</string>
+    <string name="additional_data_title" msgid="3546689652240300617">"অতিরিক্ত ডেটা"</string>
+    <string name="additional_data_text" msgid="2846223398214158872">"পিছনের পৃষ্ঠাতে গিয়ে পরিবর্তন করা যাবে।"</string>
+    <string name="toggle_test_enabled" msgid="982370904182034076">"টগল টেস্ট চালু করা হয়েছে"</string>
+    <string name="toggle_test_disabled" msgid="8366040658408451664">"টগল টেস্ট বন্ধ করা হয়েছে"</string>
+    <string name="misc_templates_demos_title" msgid="6077169010255928114">"অন্যান্য টেমপ্লেটের ডেমো"</string>
+    <string name="showcase_demos_title" msgid="1542092687878113304">"ডেমো শোকেস করুন"</string>
+    <string name="location_1_description" msgid="4801052291684791371">"রঙিন রিসোর্স ভেক্টর"</string>
+    <string name="location_2_description" msgid="3331356135359047166">"ছবির রিসোর্সের বিটম্যাপ"</string>
+    <string name="location_3_description" msgid="3982142774088944850">"রঙিন টেক্সট মার্কার"</string>
+    <string name="location_4_description" msgid="6560365445044381911">"ছবির বিটম্যাপ"</string>
+    <string name="location_description_text_label" msgid="2779911545316756419">"টেক্সট লেবেল"</string>
+</resources>

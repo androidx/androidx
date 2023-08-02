@@ -21,6 +21,7 @@ import android.app.Activity
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
 import android.view.View
@@ -35,10 +36,14 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.IntentSenderRequest
+import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.result.contract.ActivityResultContracts.CaptureVideo
+import androidx.activity.result.contract.ActivityResultContracts.CreateDocument
 import androidx.activity.result.contract.ActivityResultContracts.GetContent
 import androidx.activity.result.contract.ActivityResultContracts.OpenMultipleDocuments
+import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia
+import androidx.activity.result.contract.ActivityResultContracts.PickMultipleVisualMedia
 import androidx.activity.result.contract.ActivityResultContracts.RequestPermission
 import androidx.activity.result.contract.ActivityResultContracts.TakePicture
 import androidx.activity.result.contract.ActivityResultContracts.TakePicturePreview
@@ -63,17 +68,27 @@ class MainActivity : ComponentActivity() {
         toast("Got picture: $success")
     }
 
-    val captureVideo = registerForActivityResult(CaptureVideo()) { success ->
+    val captureVideo: ActivityResultLauncher<Uri> = registerForActivityResult(
+        CaptureVideo()
+    ) { success ->
         toast("Got video: $success")
     }
 
-    val getContent = registerForActivityResult(GetContent()) { uri ->
+    val getContent: ActivityResultLauncher<String> = registerForActivityResult(
+        GetContent()
+    ) { uri ->
         toast("Got image: $uri")
     }
 
+    lateinit var pickVisualMedia: ActivityResultLauncher<PickVisualMediaRequest>
+
+    lateinit var pickMultipleVisualMedia: ActivityResultLauncher<PickVisualMediaRequest>
+
+    lateinit var createDocument: ActivityResultLauncher<String>
+
     lateinit var openDocuments: ActivityResultLauncher<Array<String>>
 
-    val intentSender = registerForActivityResult(
+    private val intentSender = registerForActivityResult(
         ActivityResultContracts
             .StartIntentSenderForResult()
     ) {
@@ -84,6 +99,20 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         if (android.os.Build.VERSION.SDK_INT >= 19) {
+            pickVisualMedia = registerForActivityResult(PickVisualMedia()) { uri ->
+                toast("Got image: $uri")
+            }
+            pickMultipleVisualMedia =
+                registerForActivityResult(PickMultipleVisualMedia(5)) { uris ->
+                    var media = ""
+                    uris.forEach {
+                        media += "uri: $it \n"
+                    }
+                    toast("Got media files: $media")
+                }
+            createDocument = registerForActivityResult(CreateDocument("image/png")) { uri ->
+                toast("Created document: $uri")
+            }
             openDocuments = registerForActivityResult(OpenMultipleDocuments()) { uris ->
                 var docs = ""
                 uris.forEach {
@@ -113,10 +142,28 @@ class MainActivity : ComponentActivity() {
                     val uri = FileProvider.getUriForFile(this@MainActivity, packageName, file)
                     captureVideo.launch(uri)
                 }
-                button("Pick an image") {
+                button("Pick an image (w/ GET_CONTENT)") {
                     getContent.launch("image/*")
                 }
                 if (android.os.Build.VERSION.SDK_INT >= 19) {
+                    button("Pick an image (w/ photo picker)") {
+                        pickVisualMedia.launch(
+                            PickVisualMediaRequest(PickVisualMedia.ImageOnly)
+                        )
+                    }
+                    button("Pick a GIF (w/ photo picker)") {
+                        pickVisualMedia.launch(
+                            PickVisualMediaRequest(PickVisualMedia.SingleMimeType("image/gif"))
+                        )
+                    }
+                    button("Pick 5 visual media max (w/ photo picker)") {
+                        pickMultipleVisualMedia.launch(
+                            PickVisualMediaRequest(PickVisualMedia.ImageAndVideo)
+                        )
+                    }
+                    button("Create document") {
+                        createDocument.launch("Temp")
+                    }
                     button("Open documents") {
                         openDocuments.launch(arrayOf("*/*"))
                     }

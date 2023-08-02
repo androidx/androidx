@@ -20,66 +20,82 @@ import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.glance.Button
+import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
+import androidx.glance.Image
+import androidx.glance.ImageProvider
 import androidx.glance.action.ActionParameters
-import androidx.glance.action.ActionRunnable
-import androidx.glance.action.actionUpdateContent
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
 import androidx.glance.appwidget.SizeMode
+import androidx.glance.appwidget.action.ActionCallback
+import androidx.glance.appwidget.action.actionRunCallback
+import androidx.glance.appwidget.state.updateAppWidgetState
 import androidx.glance.background
-import androidx.glance.layout.Button
+import androidx.glance.currentState
 import androidx.glance.layout.Column
 import androidx.glance.layout.ContentScale
-import androidx.glance.layout.Image
-import androidx.glance.layout.ImageProvider
+import androidx.glance.layout.Spacer
 import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.padding
+import androidx.glance.layout.size
 
 /**
  * Sample AppWidget that showcase the [ContentScale] options for [Image]
  */
 class ImageAppWidget : GlanceAppWidget() {
 
-    companion object {
-        // Note: this won't be persisted
-        var contentScale: ContentScale = ContentScale.Fit
-    }
-
     override val sizeMode: SizeMode = SizeMode.Exact
+
+    companion object {
+        internal val ImageTypeKey = stringPreferencesKey("imageType")
+    }
 
     @Composable
     override fun Content() {
-        val title = when (contentScale) {
-            ContentScale.Fit -> "Fit"
-            ContentScale.FillBounds -> "Fill Bounds"
-            ContentScale.Crop -> "Crop"
-            else -> "Unknown"
-        }
+        val type = currentState(ImageTypeKey) ?: "Fit"
         Column(modifier = GlanceModifier.fillMaxSize().padding(8.dp)) {
             Button(
-                text = "Content Scale: $title",
+                text = "Content Scale: $type",
                 modifier = GlanceModifier.fillMaxWidth(),
-                onClick = actionUpdateContent<ChangeImageAction>()
+                onClick = actionRunCallback<ChangeImageAction>()
             )
+            Spacer(GlanceModifier.size(4.dp))
             Image(
-                provider = ImageProvider(R.drawable.ic_launcher_foreground),
-                contentDescription = "Content Scale image sample (value: $contentScale)",
-                contentScale = contentScale,
+                provider = ImageProvider(R.drawable.compose),
+                contentDescription = "Content Scale image sample (value: $type)",
+                contentScale = type.toContentScale(),
                 modifier = GlanceModifier.fillMaxSize().background(Color.DarkGray)
             )
         }
     }
+
+    private fun String.toContentScale() = when (this) {
+        "Fit" -> ContentScale.Fit
+        "Fill Bounds" -> ContentScale.FillBounds
+        "Crop" -> ContentScale.Crop
+        else -> throw IllegalArgumentException()
+    }
 }
 
-class ChangeImageAction : ActionRunnable {
-    override suspend fun run(context: Context, parameters: ActionParameters) {
-        ImageAppWidget.contentScale = when (ImageAppWidget.contentScale) {
-            ContentScale.Fit -> ContentScale.Crop
-            ContentScale.Crop -> ContentScale.FillBounds
-            else -> ContentScale.Fit
+class ChangeImageAction : ActionCallback {
+    override suspend fun onAction(
+        context: Context,
+        glanceId: GlanceId,
+        parameters: ActionParameters
+    ) {
+        updateAppWidgetState(context, glanceId) { state ->
+            val value = when (state[ImageAppWidget.ImageTypeKey]) {
+                "Crop" -> "Fill Bounds"
+                "Fill Bounds" -> "Fit"
+                else -> "Crop"
+            }
+            state[ImageAppWidget.ImageTypeKey] = value
         }
+        ImageAppWidget().update(context, glanceId)
     }
 }
 

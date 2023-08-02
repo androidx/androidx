@@ -21,6 +21,7 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 import android.animation.TypeEvaluator;
 import android.animation.ValueAnimator;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 
 /**
@@ -29,7 +30,7 @@ import androidx.annotation.RestrictTo;
  * @hide
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
-public class ArgbEvaluator implements TypeEvaluator {
+public class ArgbEvaluator implements TypeEvaluator<Object> {
     private static final ArgbEvaluator sInstance = new ArgbEvaluator();
 
     /**
@@ -39,6 +40,7 @@ public class ArgbEvaluator implements TypeEvaluator {
      *
      * @return An instance of <code>ArgbEvalutor</code>.
      */
+    @NonNull
     public static ArgbEvaluator getInstance() {
         return sInstance;
     }

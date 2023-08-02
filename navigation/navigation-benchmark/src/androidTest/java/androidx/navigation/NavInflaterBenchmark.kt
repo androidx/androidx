@@ -45,6 +45,27 @@ class NavInflaterBenchmark {
     }
 
     @Test
+    fun inflateSimple10() {
+        benchmarkRule.measureRepeated {
+            navInflater.inflate(androidx.navigation.benchmark.test.R.navigation.nav_simple_10)
+        }
+    }
+
+    @Test
+    fun inflateSimple50() {
+        benchmarkRule.measureRepeated {
+            navInflater.inflate(androidx.navigation.benchmark.test.R.navigation.nav_simple_50)
+        }
+    }
+
+    @Test
+    fun inflateSimple100() {
+        benchmarkRule.measureRepeated {
+            navInflater.inflate(androidx.navigation.benchmark.test.R.navigation.nav_simple_100)
+        }
+    }
+
+    @Test
     fun inflateDeepLink() {
         benchmarkRule.measureRepeated {
             navInflater.inflate(androidx.navigation.benchmark.test.R.navigation.nav_deep_link)

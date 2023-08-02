@@ -17,184 +17,180 @@
 package androidx.health.services.client.data
 
 import android.os.Bundle
-import android.os.Parcelable
+import androidx.health.services.client.ExerciseClient
 import androidx.health.services.client.proto.DataProto
 
-/** Defines configuration for an exercise tracked using HealthServices. */
-@Suppress("DataClassPrivateConstructor", "ParcelCreator")
-public class ExerciseConfig
-protected constructor(
-    /**
-     * [ExerciseType] the user is performing for this exercise.
-     *
-     * This information can be used to tune sensors, e.g. the calories estimate can take the MET
-     * value into account.
-     */
-    public val exerciseType: ExerciseType,
-    public val dataTypes: Set<DataType>,
-    public val aggregateDataTypes: Set<DataType>,
-    @get:JvmName("shouldEnableAutoPauseAndResume")
-    public val shouldEnableAutoPauseAndResume: Boolean,
-    @get:JvmName("shouldEnableGps") public val shouldEnableGps: Boolean,
-    public val exerciseGoals: List<ExerciseGoal>,
-    public val exerciseParams: Bundle,
-) : ProtoParcelable<DataProto.ExerciseConfig>() {
+/**
+ * Defines configuration for an exercise tracked using Health Services.
+ *
+ * @constructor Creates a new ExerciseConfig for an exercise tracked using Health Services
+ *
+ * @property exerciseType [ExerciseType] user is performing for this exercise
+ * @property dataTypes [DataType] which will be tracked for this exercise
+ * @property isAutoPauseAndResumeEnabled whether auto-pause/resume is enabled for this exercise
+ * @property isGpsEnabled whether GPS is enabled for this exercise. Must be set to `true` when
+ * [DataType.LOCATION] is present in [dataTypes].
+ * @property exerciseGoals [ExerciseGoal]s for this exercise. [DataType]s in [ExerciseGoal]s must
+ * also be tracked (i.e. contained in [dataTypes]) in some form. For example, an [ExerciseGoal] for
+ * [DataType.STEPS_TOTAL] requires that [dataTypes] contains either or both of
+ * [DataType.STEPS_TOTAL] / [DataType.STEPS].
+ * @property exerciseParams [Bundle] additional OEM specific params for this exercise
+ */
+@Suppress("ParcelCreator")
+class ExerciseConfig(
+    val exerciseType: ExerciseType,
+    val dataTypes: Set<DataType<*, *>>,
+    val isAutoPauseAndResumeEnabled: Boolean,
+    val isGpsEnabled: Boolean,
+    val exerciseGoals: List<ExerciseGoal<*>> = listOf(),
+    val exerciseParams: Bundle = Bundle(),
+) {
 
-    /** @hide */
-    public constructor(
+    internal constructor(
         proto: DataProto.ExerciseConfig
     ) : this(
         ExerciseType.fromProto(proto.exerciseType),
-        proto.dataTypesList.map { DataType(it) }.toSet(),
-        proto.aggregateDataTypesList.map { DataType(it) }.toSet(),
+        proto.dataTypesList.map { DataType.deltaFromProto(it) }.toMutableSet() +
+            proto.aggregateDataTypesList.map { DataType.aggregateFromProto(it) },
         proto.isAutoPauseAndResumeEnabled,
         proto.isGpsUsageEnabled,
-        proto.exerciseGoalsList.map { ExerciseGoal(it) },
+        proto.exerciseGoalsList.map { ExerciseGoal.fromProto(it) },
         BundlesUtil.fromProto(proto.exerciseParams)
     )
 
     init {
-        require(!dataTypes.contains(DataType.LOCATION) || shouldEnableGps) {
-            "If LOCATION data is being requested, setShouldEnableGps(true) must be configured in " +
-                "the ExerciseConfig. "
+        require(!dataTypes.contains(DataType.LOCATION) || isGpsEnabled) {
+            "If LOCATION data is being requested, setGpsEnabled(true) must be configured in the " +
+                "ExerciseConfig. "
         }
     }
 
     /** Builder for [ExerciseConfig] instances. */
-    public class Builder {
-        private var exerciseType: ExerciseType? = null
-        private var dataTypes: Set<DataType> = emptySet()
-        private var aggregateDataTypes: Set<DataType> = emptySet()
-        private var shouldEnableAutoPauseAndResume: Boolean = false
-        private var shouldEnableGps: Boolean = false
-        private var exerciseGoals: List<ExerciseGoal> = emptyList()
-        private var exerciseParams: Bundle = Bundle.EMPTY
-
+    class Builder(
         /**
-         * Sets the active [ExerciseType] the user is performing for this exercise.
+         * The active [ExerciseType] the user is performing for this exercise.
          *
          * Provide this parameter when tracking a workout to provide more accurate data. This
          * information can be used to tune sensors, e.g. the calories estimate can take the MET
          * value into account.
          */
-        public fun setExerciseType(exerciseType: ExerciseType): Builder {
-            require(exerciseType != ExerciseType.UNKNOWN) { "Must specify a valid exercise type." }
-            this.exerciseType = exerciseType
-            return this
-        }
+        private val exerciseType: ExerciseType
+    ) {
+        private var dataTypes: Set<DataType<*, *>> = emptySet()
+        private var isAutoPauseAndResumeEnabled: Boolean = false
+        private var isGpsEnabled: Boolean = false
+        private var exerciseGoals: List<ExerciseGoal<*>> = emptyList()
+        private var exerciseParams: Bundle = Bundle.EMPTY
 
         /**
-         * Sets the requested [DataType] s that should be tracked during this exercise. If not
-         * explicitly called, a default set of [DataType] will be chosen based on the [ExerciseType]
-         * .
+         * Sets the requested [DataType]s that should be tracked during this exercise. If not
+         * explicitly called, a default set of [DataType]s will be chosen based on the
+         * [ExerciseType].
+         *
+         * @param dataTypes set of [DataType]s ([AggregateDataType] or [DeltaDataType]) to track
+         * during this exercise
          */
-        public fun setDataTypes(dataTypes: Set<DataType>): Builder {
+        fun setDataTypes(dataTypes: Set<DataType<*, *>>): Builder {
             this.dataTypes = dataTypes.toSet()
-            return this
-        }
-
-        /**
-         * Sets the requested [DataType]s that should be tracked as aggregates (i.e. total steps or
-         * average heart rate) during this exercise. If not explicitly called, a default set of
-         * [DataType] will be chosen based on the [ExerciseType].
-         */
-        public fun setAggregateDataTypes(dataTypes: Set<DataType>): Builder {
-            this.aggregateDataTypes = dataTypes.toSet()
             return this
         }
 
         /**
          * Sets whether auto pause and auto resume should be enabled for this exercise. If not set,
          * auto-pause is disabled by default.
+         *
+         * @param isAutoPauseAndResumeEnabled if true, exercise will automatically pause and resume
          */
         @Suppress("MissingGetterMatchingBuilder")
-        public fun setShouldEnableAutoPauseAndResume(
-            shouldEnableAutoPauseAndResume: Boolean
-        ): Builder {
-            this.shouldEnableAutoPauseAndResume = shouldEnableAutoPauseAndResume
+        fun setIsAutoPauseAndResumeEnabled(isAutoPauseAndResumeEnabled: Boolean): Builder {
+            this.isAutoPauseAndResumeEnabled = isAutoPauseAndResumeEnabled
             return this
         }
 
         /**
          * Sets whether GPS will be used for this exercise. If not set, it's disabled by default.
          *
-         * <p>If {@link DataType#LOCATION} is among the data types requested for the exercise, GPS
-         * usage MUST be enabled. Enabling GPS will improve data generation for types like distance
-         * and speed.
+         * If [DataType.LOCATION] is among the data types requested for the exercise, GPS usage
+         * MUST be enabled. Enabling GPS will improve data generation for types like distance and
+         * speed.
          *
-         * <p>If no data type is specified in the configuration, WHS provides all data types
-         * supported for the exercise. In this case, if {@link DataType#LOCATION} is among the
-         * supported data types for the exercise but GPS usage is disabled (i.e. {@code
-         * shouldEnableGps} is {@code false}, then [ExerciseClient.startExercise] will fail.
+         * If no data type is specified in the configuration, WHS provides all data types
+         * supported for the exercise. In this case, if [DataType.LOCATION] is among the supported
+         * data types for the exercise but GPS usage is disabled (i.e. [isGpsEnabled] is `false`,
+         * then [ExerciseClient.startExerciseAsync] will fail.
+         *
+         * @param isGpsEnabled if true, GPS will be enabled for this exercise
          */
         @Suppress("MissingGetterMatchingBuilder")
-        public fun setShouldEnableGps(shouldEnableGps: Boolean): Builder {
-            this.shouldEnableGps = shouldEnableGps
+        fun setIsGpsEnabled(isGpsEnabled: Boolean): Builder {
+            this.isGpsEnabled = isGpsEnabled
             return this
         }
 
         /**
-         * Sets [ExerciseGoal] s specified for this exercise.
+         * Sets [ExerciseGoal]s specified for this exercise.
          *
-         * This is useful to have goals specified before the start of an exercise.
+         * [DataType]s in [ExerciseGoal]s must also be tracked (i.e. provided to [setDataTypes]) in
+         * some form. For example, an [ExerciseGoal] for [DataType.STEPS_TOTAL] requires that either
+         * or both of [DataType.STEPS_TOTAL] / [DataType.STEPS] be passed into [setDataTypes].
+         *
+         * @param exerciseGoals the list of [ExerciseGoal]s to begin the exercise with
          */
-        public fun setExerciseGoals(exerciseGoals: List<ExerciseGoal>): Builder {
-            this.exerciseGoals = exerciseGoals.toList()
+        fun setExerciseGoals(exerciseGoals: List<ExerciseGoal<*>>): Builder {
+            this.exerciseGoals = exerciseGoals
             return this
         }
 
         /**
          * Sets additional OEM specific parameters for the current exercise. Intended to be used by
          * OEMs or apps working closely with them.
+         *
+         * @param exerciseParams [Bundle] containing OEM specific parameters
          */
-        public fun setExerciseParams(exerciseParams: Bundle): Builder {
+        fun setExerciseParams(exerciseParams: Bundle): Builder {
             this.exerciseParams = exerciseParams
             return this
         }
 
-        /** Returns the built `ExerciseConfig`. */
-        public fun build(): ExerciseConfig {
+        /** Returns the built [ExerciseConfig]. */
+        fun build(): ExerciseConfig {
             return ExerciseConfig(
-                checkNotNull(exerciseType) { "No exercise type specified" },
+                exerciseType,
                 dataTypes,
-                aggregateDataTypes,
-                shouldEnableAutoPauseAndResume,
-                shouldEnableGps,
+                isAutoPauseAndResumeEnabled,
+                isGpsEnabled,
                 exerciseGoals,
                 exerciseParams
             )
         }
     }
 
-    /** @hide */
-    override val proto: DataProto.ExerciseConfig by lazy {
-        DataProto.ExerciseConfig.newBuilder()
-            .setExerciseType(exerciseType.toProto())
-            .addAllDataTypes(dataTypes.map { it.proto })
-            .addAllAggregateDataTypes(aggregateDataTypes.map { it.proto })
-            .setIsAutoPauseAndResumeEnabled(shouldEnableAutoPauseAndResume)
-            .setIsGpsUsageEnabled(shouldEnableGps)
-            .addAllExerciseGoals(exerciseGoals.map { it.proto })
-            .setExerciseParams(BundlesUtil.toProto(exerciseParams))
-            .build()
-    }
-
     override fun toString(): String =
         "ExerciseConfig(" +
             "exerciseType=$exerciseType, " +
             "dataTypes=$dataTypes, " +
-            "aggregateDataTypes=$aggregateDataTypes, " +
-            "shouldEnableAutoPauseAndResume=$shouldEnableAutoPauseAndResume, " +
-            "shouldEnableGps=$shouldEnableGps, " +
+            "isAutoPauseAndResumeEnabled=$isAutoPauseAndResumeEnabled, " +
+            "isGpsEnabled=$isGpsEnabled, " +
             "exerciseGoals=$exerciseGoals)"
 
-    public companion object {
-        @JvmStatic public fun builder(): Builder = Builder()
+    internal fun toProto(): DataProto.ExerciseConfig =
+        DataProto.ExerciseConfig.newBuilder()
+            .setExerciseType(exerciseType.toProto())
+            .addAllDataTypes(dataTypes.filter { !it.isAggregate }.map { it.proto })
+            .addAllAggregateDataTypes(dataTypes.filter { it.isAggregate }.map { it.proto })
+            .setIsAutoPauseAndResumeEnabled(isAutoPauseAndResumeEnabled)
+            .setIsGpsUsageEnabled(isGpsEnabled)
+            .addAllExerciseGoals(exerciseGoals.map { it.proto })
+            .setExerciseParams(BundlesUtil.toProto(exerciseParams))
+            .build()
 
-        @JvmField
-        public val CREATOR: Parcelable.Creator<ExerciseConfig> = newCreator { bytes ->
-            val proto = DataProto.ExerciseConfig.parseFrom(bytes)
-            ExerciseConfig(proto)
-        }
+    companion object {
+        /**
+         * Returns a fresh new [Builder].
+         *
+         * @param exerciseType the [ExerciseType] representing this exercise
+          */
+        @JvmStatic
+        fun builder(exerciseType: ExerciseType): Builder = Builder(exerciseType)
     }
 }

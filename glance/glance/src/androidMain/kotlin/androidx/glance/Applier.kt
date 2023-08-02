@@ -25,7 +25,7 @@ import java.lang.IllegalStateException
  * @suppress
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class Applier(root: EmittableWithChildren) : AbstractApplier<Emittable>(root) {
+class Applier(root: EmittableWithChildren) : AbstractApplier<Emittable>(root) {
     private val newRootMaxDepth = root.maxDepth
 
     override fun onClear() {

@@ -25,6 +25,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import androidx.core.view.ViewCompat;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
@@ -236,7 +237,7 @@ public class RecyclerViewFocusTest {
 
         mRecyclerView = new RecyclerView(ApplicationProvider.getApplicationContext());
         if (!ltr) {
-            mRecyclerView.setLayoutDirection(View.LAYOUT_DIRECTION_RTL);
+            ViewCompat.setLayoutDirection(mRecyclerView, View.LAYOUT_DIRECTION_RTL);
         }
         mRecyclerView.setBackgroundColor(0xFFFF0000);
         mRecyclerView.setLayoutParams(

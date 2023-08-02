@@ -28,7 +28,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -107,7 +107,7 @@ class DataStoreDelegateTest {
     }
 
     @Test
-    fun testCreateWithContextAndName() = runBlockingTest {
+    fun testCreateWithContextAndName() = runTest {
         coroutineScope {
             with(GlobalDataStoreTestHelper("file_name1", this@coroutineScope)) {
                 context.ds.updateData { 123 }
@@ -122,7 +122,7 @@ class DataStoreDelegateTest {
     }
 
     @Test
-    fun testCreateSameTwiceThrowsException() = runBlockingTest {
+    fun testCreateSameTwiceThrowsException() = runTest {
         val helper1 = GlobalDataStoreTestHelper("file_name2", this)
         val helper2 = GlobalDataStoreTestHelper("file_name2", this)
 

@@ -20,7 +20,9 @@ import android.annotation.SuppressLint;
 import android.graphics.Canvas;
 import android.os.Build;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -42,9 +44,9 @@ class CanvasUtils {
             // no shadows yet added into a platform
         } else if (Build.VERSION.SDK_INT >= 29) {
             if (enable) {
-                canvas.enableZ();
+                Api29Impl.enableZ(canvas);
             } else {
-                canvas.disableZ();
+                Api29Impl.disableZ(canvas);
             }
         } else if (Build.VERSION.SDK_INT == Build.VERSION_CODES.P) {
             // not on P non-SDK API list, can't use reflection
@@ -78,6 +80,22 @@ class CanvasUtils {
         }
     }
 
-    private CanvasUtils() {
+    private CanvasUtils() { }
+
+    @RequiresApi(29)
+    static class Api29Impl {
+        private Api29Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static void enableZ(Canvas canvas) {
+            canvas.enableZ();
+        }
+
+        @DoNotInline
+        static void disableZ(Canvas canvas) {
+            canvas.disableZ();
+        }
     }
 }

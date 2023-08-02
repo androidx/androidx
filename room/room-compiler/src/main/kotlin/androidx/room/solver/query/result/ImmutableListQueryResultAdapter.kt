@@ -30,7 +30,7 @@ class ImmutableListQueryResultAdapter(
 ) : QueryResultAdapter(listOf(rowAdapter)) {
     override fun convert(outVarName: String, cursorVarName: String, scope: CodeGenScope) {
         scope.builder().apply {
-            rowAdapter.onCursorReady(cursorVarName, scope)
+            rowAdapter.onCursorReady(cursorVarName = cursorVarName, scope = scope)
             val collectionType = ParameterizedTypeName
                 .get(ClassName.get(ImmutableList::class.java), typeArg.typeName)
             val immutableListBuilderType = ParameterizedTypeName
@@ -52,7 +52,6 @@ class ImmutableListQueryResultAdapter(
                 "final $T $L = $L.build()",
                 collectionType, outVarName, immutableListBuilderName
             )
-            rowAdapter.onCursorFinished()?.invoke(scope)
         }
     }
 }

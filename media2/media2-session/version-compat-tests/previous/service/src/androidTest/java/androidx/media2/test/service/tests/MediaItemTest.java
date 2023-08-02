@@ -159,6 +159,7 @@ public class MediaItemTest {
         assertEquals(mTestItem, testRemoteItem);
     }
 
+    @SuppressWarnings("deprecation")
     @Test
     public void subclass_acrossProcessWithMediaUtils() {
         final Parcel p = Parcel.obtain();

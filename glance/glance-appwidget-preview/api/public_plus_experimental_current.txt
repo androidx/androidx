@@ -1,0 +1,8 @@
+// Signature format: 4.0
+package androidx.glance.appwidget.preview {
+
+  public final class GlanceAppWidgetViewAdapterKt {
+  }
+
+}
+

@@ -8,21 +8,25 @@
     android:background="#cc000000"
     android:importantForAccessibility="yes"
     android:contentDescription="123"
-    android:gravity="center_horizontal | bottom">
+    android:gravity="center">
     <ImageView
         android:id="@+id/wearable_support_confirmation_overlay_image"
         android:layout_width="@dimen/confirmation_overlay_image_size"
         android:layout_height="@dimen/confirmation_overlay_image_size"
+        android:layout_marginBottom="@dimen/confirmation_overlay_image_bottom_margin"
         android:background="@android:color/transparent"
         android:importantForAccessibility="no"/>
     <TextView
         android:id="@+id/wearable_support_confirmation_overlay_message"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:fontFamily="sans-serif-condensed-light"
+        android:layout_marginBottom="@dimen/confirmation_overlay_text_bottom_margin"
+        android:fontFamily="sans-serif-medium"
         android:gravity="center_horizontal"
         android:background="@android:color/transparent"
         android:textColor="@android:color/white"
         android:textSize="@dimen/confirmation_overlay_text_size"
+        android:lineHeight="@dimen/confirmation_overlay_text_line_height"
+        android:letterSpacing="@dimen/confirmation_overlay_text_letter_spacing"
         android:importantForAccessibility="no"/>
 </LinearLayout>

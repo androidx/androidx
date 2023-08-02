@@ -105,5 +105,10 @@ package androidx.viewpager2.widget {
     method public void transformPage(android.view.View, float);
   }
 
+  public final class WindowInsetsApplier implements androidx.core.view.OnApplyWindowInsetsListener {
+    method public static boolean install(androidx.viewpager2.widget.ViewPager2);
+    method public androidx.core.view.WindowInsetsCompat onApplyWindowInsets(android.view.View, androidx.core.view.WindowInsetsCompat);
+  }
+
 }
 

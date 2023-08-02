@@ -22,12 +22,14 @@ import org.gradle.api.Project
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
+import org.gradle.work.DisableCachingByDefault
 import java.io.File
 import java.io.PrintWriter
 
 /**
  * Task that allows to write a version to a given output file.
  */
+@DisableCachingByDefault(because = "Doesn't benefit from caching")
 open class VersionFileWriterTask : DefaultTask() {
     @get:Input
     lateinit var version: String
@@ -65,9 +67,9 @@ fun Project.configureVersionFileWriter(
 
     afterEvaluate {
         writeVersionFile.configure {
-            val group = properties["group"] as String
-            val artifactId = properties["name"] as String
-            val version = if (androidXExtension.publish.shouldPublish()) {
+            val group = findProperty("group") as String
+            val artifactId = findProperty("name") as String
+            val version = if (androidXExtension.shouldPublish()) {
                 version().toString()
             } else {
                 "0.0.0"
@@ -83,7 +85,7 @@ fun Project.configureVersionFileWriter(
             it.outputFile = artifactName
 
             // We only add version file if is a library that is publishing.
-            it.enabled = androidXExtension.publish.shouldPublish()
+            it.enabled = androidXExtension.shouldPublish()
         }
         val resources = library.sourceSets.getByName("main").resources
         resources.srcDirs(setOf(resources.srcDirs, File(buildDir, RESOURCE_DIRECTORY)))

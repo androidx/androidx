@@ -20,24 +20,36 @@ import androidx.paging.LoadState.NotLoading
 import androidx.paging.LoadType.APPEND
 import androidx.paging.LoadType.PREPEND
 import androidx.paging.LoadType.REFRESH
+import androidx.paging.PageEvent.Insert.Companion.EMPTY_REFRESH_LOCAL
+import androidx.paging.internal.BUGANIZER_URL
 
 /**
  * Presents post-transform paging data as a list, with list update notifications when
  * PageEvents are dispatched.
  */
 internal class PagePresenter<T : Any>(
-    insertEvent: PageEvent.Insert<T>
+    pages: List<TransformablePage<T>>,
+    placeholdersBefore: Int,
+    placeholdersAfter: Int,
 ) : NullPaddedList<T> {
-    private val pages: MutableList<TransformablePage<T>> = insertEvent.pages.toMutableList()
-    override var storageCount: Int = insertEvent.pages.fullCount()
+    constructor(
+        insertEvent: PageEvent.Insert<T>
+    ) : this(
+        pages = insertEvent.pages,
+        placeholdersBefore = insertEvent.placeholdersBefore,
+        placeholdersAfter = insertEvent.placeholdersAfter,
+    )
+
+    private val pages: MutableList<TransformablePage<T>> = pages.toMutableList()
+    override var storageCount: Int = pages.fullCount()
         private set
     private val originalPageOffsetFirst: Int
         get() = pages.first().originalPageOffsets.minOrNull()!!
     private val originalPageOffsetLast: Int
         get() = pages.last().originalPageOffsets.maxOrNull()!!
-    override var placeholdersBefore: Int = insertEvent.placeholdersBefore
+    override var placeholdersBefore: Int = placeholdersBefore
         private set
-    override var placeholdersAfter: Int = insertEvent.placeholdersAfter
+    override var placeholdersAfter: Int = placeholdersAfter
         private set
 
     private fun checkIndex(index: Int) {
@@ -102,6 +114,12 @@ internal class PagePresenter<T : Any>(
                     mediator = pageEvent.mediator,
                 )
             }
+            is PageEvent.StaticList -> throw IllegalStateException(
+                """Paging received an event to display a static list, while still actively loading
+                |from an existing generation of PagingData. If you see this exception, it is most
+                |likely a bug in the library. Please file a bug so we can fix it at:
+                |$BUGANIZER_URL""".trimMargin()
+            )
         }
     }
 
@@ -155,7 +173,12 @@ internal class PagePresenter<T : Any>(
         val count = insert.pages.fullCount()
         val oldSize = size
         when (insert.loadType) {
-            REFRESH -> throw IllegalArgumentException()
+            REFRESH -> throw IllegalStateException(
+                """Paging received a refresh event in the middle of an actively loading generation
+                |of PagingData. If you see this exception, it is most likely a bug in the library.
+                |Please file a bug so we can fix it at:
+                |$BUGANIZER_URL""".trimMargin()
+            )
             PREPEND -> {
                 val placeholdersChangedCount = minOf(placeholdersBefore, count)
                 val placeholdersChangedPos = placeholdersBefore - placeholdersChangedCount
@@ -326,7 +349,8 @@ internal class PagePresenter<T : Any>(
     }
 
     internal companion object {
-        private val INITIAL = PagePresenter<Any>(PageEvent.Insert.EMPTY_REFRESH_LOCAL)
+        // TODO(b/205350267): Replace this with a static list that does not emit CombinedLoadStates.
+        private val INITIAL = PagePresenter(EMPTY_REFRESH_LOCAL)
 
         @Suppress("UNCHECKED_CAST", "SyntheticAccessor")
         internal fun <T : Any> initial(): PagePresenter<T> = INITIAL as PagePresenter<T>

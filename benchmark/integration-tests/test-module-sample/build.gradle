@@ -34,6 +34,7 @@ android {
     defaultConfig {
         minSdkVersion 28
     }
+    namespace "androidx.benchmark.integration.testmodulesample"
 }
 
 // note: below is optional, mimicing eventual benchmark module setup

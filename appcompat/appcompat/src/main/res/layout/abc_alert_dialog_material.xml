@@ -17,6 +17,7 @@
 
 <androidx.appcompat.widget.AlertDialogLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/parentPanel"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -31,11 +32,13 @@
         android:layout_height="wrap_content"
         android:minHeight="48dp">
 
-        <View android:id="@+id/scrollIndicatorUp"
+        <ImageView
+              android:id="@+id/scrollIndicatorUp"
               android:layout_width="match_parent"
               android:layout_height="1dp"
               android:layout_gravity="top"
-              android:background="?attr/colorControlHighlight"
+              android:background="#1f000000"
+              app:backgroundTint="?android:attr/colorForeground"
               android:visibility="gone"/>
 
         <androidx.core.widget.NestedScrollView
@@ -71,11 +74,13 @@
             </LinearLayout>
         </androidx.core.widget.NestedScrollView>
 
-        <View android:id="@+id/scrollIndicatorDown"
+        <ImageView
+              android:id="@+id/scrollIndicatorDown"
               android:layout_width="match_parent"
               android:layout_height="1dp"
               android:layout_gravity="bottom"
-              android:background="?attr/colorControlHighlight"
+              android:background="#1f000000"
+              app:backgroundTint="?android:attr/colorForeground"
               android:visibility="gone"/>
 
     </FrameLayout>

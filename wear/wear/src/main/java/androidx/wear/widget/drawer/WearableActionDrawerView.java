@@ -374,13 +374,10 @@ public class WearableActionDrawerView extends WearableDrawerView {
     }
 
     private static final class TitleViewHolder extends RecyclerView.ViewHolder {
-
-        public final View view;
         public final TextView textView;
 
         TitleViewHolder(View view) {
             super(view);
-            this.view = view;
             textView = (TextView) view.findViewById(R.id.ws_action_drawer_title);
         }
     }

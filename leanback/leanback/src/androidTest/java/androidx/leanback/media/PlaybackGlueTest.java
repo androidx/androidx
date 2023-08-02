@@ -27,6 +27,7 @@ import static org.mockito.Mockito.when;
 
 import android.content.Context;
 
+import androidx.annotation.NonNull;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
 import androidx.test.platform.app.InstrumentationRegistry;
@@ -94,19 +95,19 @@ public class PlaybackGlueTest {
         final boolean[] called = new boolean[] {false, false};
         glue.addPlayerCallback(new PlaybackGlue.PlayerCallback() {
             @Override
-            public void onPreparedStateChanged(PlaybackGlue glue) {
+            public void onPreparedStateChanged(@NonNull PlaybackGlue glue) {
                 called[0] = true;
             }
         });
         glue.addPlayerCallback(new PlaybackGlue.PlayerCallback() {
             @Override
-            public void onPreparedStateChanged(PlaybackGlue glue) {
+            public void onPreparedStateChanged(@NonNull PlaybackGlue glue) {
                 glue.removePlayerCallback(this);
             }
         });
         glue.addPlayerCallback(new PlaybackGlue.PlayerCallback() {
             @Override
-            public void onPreparedStateChanged(PlaybackGlue glue) {
+            public void onPreparedStateChanged(@NonNull PlaybackGlue glue) {
                 called[1] = true;
             }
         });

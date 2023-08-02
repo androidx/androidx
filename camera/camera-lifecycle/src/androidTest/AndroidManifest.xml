@@ -14,8 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    package="androidx.camera.lifecycle.test">
+    xmlns:tools="http://schemas.android.com/tools">
     <application>
         <service android:name="androidx.camera.core.impl.MetadataHolderService"
             tools:node="merge">

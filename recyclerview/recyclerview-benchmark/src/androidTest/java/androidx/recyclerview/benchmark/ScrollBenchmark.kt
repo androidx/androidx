@@ -20,6 +20,7 @@ import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.LinearLayout
 import androidx.benchmark.junit4.BenchmarkRule
 import androidx.benchmark.junit4.measureRepeated
 import androidx.recyclerview.benchmark.test.R
@@ -115,6 +116,37 @@ class ScrollBenchmark {
             rv.scrollBy(0, 100)
         }
     }
+
+    @UiThreadTest
+    @Test
+    fun complexItems() {
+
+        // Displays *many* items, each 500px tall, with many children
+        forceInflate {
+            val vg: ViewGroup = LayoutInflater.from(it.context).inflate(
+                R.layout.item_viewgroup, it, false
+            ) as ViewGroup
+            for (i in 1..5) {
+                val parent = LinearLayout(it.context)
+                parent.layoutParams =
+                    LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 100)
+                for (j in 1..100) {
+                    val v = View(it.context)
+                    v.layoutParams =
+                        LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 1)
+                    parent.addView(v)
+                }
+                vg.addView(parent)
+            }
+            vg
+        }
+
+        val rv = activityRule.activity.recyclerView
+        benchmarkRule.measureRepeated {
+            // each scroll should reveal a new item that must be inflated
+            rv.scrollBy(0, 500)
+        }
+    }
 }
 
 private class ZeroSizePool : RecyclerView.RecycledViewPool() {
@@ -128,10 +160,10 @@ private class TrivialViewHolder(view: View) : RecyclerView.ViewHolder(view)
 /**
  * Displays *many* items, each 100px tall, with minimal inflation/bind work.
  */
-private class TrivialAdapter : RecyclerView.Adapter<TrivialViewHolder>() {
+private open class TrivialAdapter : RecyclerView.Adapter<TrivialViewHolder>() {
     var disableReuse = false
 
-    var inflater: (ViewGroup) -> View = {
+    open var inflater: (ViewGroup) -> View = {
         LayoutInflater.from(it.context).inflate(
             R.layout.item_view, it, false
         )

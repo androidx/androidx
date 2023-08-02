@@ -32,8 +32,10 @@ import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CameraManager;
 import android.hardware.camera2.CaptureRequest;
+import android.hardware.camera2.CaptureResult;
 import android.hardware.camera2.TotalCaptureResult;
 import android.hardware.camera2.params.MeteringRectangle;
+import android.os.Build;
 import android.util.Range;
 
 import androidx.annotation.OptIn;
@@ -59,6 +61,8 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 
 import java.util.Collections;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -77,7 +81,9 @@ public final class Camera2InteropDeviceTest {
     private CameraUseCaseAdapter mCamera;
 
     @Rule
-    public TestRule mUseCamera = CameraUtil.grantCameraPermissionAndPreTest();
+    public TestRule mUseCamera = CameraUtil.grantCameraPermissionAndPreTest(
+            new CameraUtil.PreTestCameraIdList(Camera2Config.defaultConfig())
+    );
 
     @Before
     public void setUp() {
@@ -226,6 +232,43 @@ public final class Camera2InteropDeviceTest {
 
         verifyCaptureRequestParameter(mMockCaptureCallback, CaptureRequest.CONTROL_AWB_REGIONS,
                 meteringRectangles);
+    }
+
+    @SdkSuppress(minSdkVersion = 28)
+    @SuppressWarnings("deprecation")
+    @Test
+    public void canSetPhysicalCameraId() {
+        Set<String> physicalCameraIds = CameraUtil.getCameraCharacteristics(
+                mCameraSelector.getLensFacing()).getPhysicalCameraIds();
+        // Skip the test if the camera is not a logical camera.
+        assumeTrue(!physicalCameraIds.isEmpty());
+
+        String physicalCameraId = physicalCameraIds.iterator().next();
+        ImageAnalysis.Builder builder = new ImageAnalysis.Builder();
+        new Camera2Interop.Extender<>(builder).setPhysicalCameraId(
+                physicalCameraId).setSessionCaptureCallback(mMockCaptureCallback);
+        ImageAnalysis imageAnalysis = builder.build();
+        imageAnalysis.setAnalyzer(CameraXExecutors.highPriorityExecutor(),
+                mock(ImageAnalysis.Analyzer.class));
+        mCamera = CameraUtil.createCameraAndAttachUseCase(mContext, mCameraSelector, imageAnalysis);
+
+        ArgumentCaptor<TotalCaptureResult> captor = ArgumentCaptor.forClass(
+                TotalCaptureResult.class);
+        verify(mMockCaptureCallback, timeout(5000).atLeastOnce()).onCaptureCompleted(
+                any(CameraCaptureSession.class), any(CaptureRequest.class), captor.capture());
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            Map<String, TotalCaptureResult> captureResultMap =
+                    captor.getValue().getPhysicalCameraTotalResults();
+            assertThat(captureResultMap.containsKey(physicalCameraId)).isTrue();
+            // The desired physical camera should be the only camera that is producing image.
+            assertThat(captureResultMap.size()).isEqualTo(1);
+        } else {
+            Map<String, CaptureResult> captureResultMap =
+                    captor.getValue().getPhysicalCameraResults();
+            assertThat(captureResultMap.containsKey(physicalCameraId)).isTrue();
+            // The desired physical camera should be the only camera that is producing image.
+            assertThat(captureResultMap.size()).isEqualTo(1);
+        }
     }
 
     private Rect getZoom2XCropRegion() throws Exception {

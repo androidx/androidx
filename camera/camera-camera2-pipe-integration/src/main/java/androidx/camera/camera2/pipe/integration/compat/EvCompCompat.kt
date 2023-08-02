@@ -61,7 +61,7 @@ interface EvCompCompat {
     }
 }
 
-internal val EMPTY_RANGE = Range(0, 0)
+internal val EMPTY_RANGE: Range<Int> = Range(0, 0)
 
 /**
  * The implementation of the [EvCompCompat]. The [applyAsync] update the new exposure index value

@@ -23,30 +23,61 @@ import androidx.window.core.ExperimentalWindowApi
  * [SplitPairRule].
  */
 @ExperimentalWindowApi
-class ActivityRule(
+class ActivityRule : EmbeddingRule {
+
     /**
-     * Filters used to choose when to apply this rule.
+     * Filters used to choose when to apply this rule. The rule may be used if any one of the
+     * provided filters matches.
      */
-    filters: Set<ActivityFilter>,
+    val filters: Set<ActivityFilter>
     /**
      * Whether the activity should always be expanded on launch. Some activities are supposed to
      * expand to the full task bounds, independent of the state of the split. An example is an
      * activity that blocks all user interactions, like a warning dialog.
      */
-    val alwaysExpand: Boolean = false
-) : EmbeddingRule() {
+    val alwaysExpand: Boolean
+
+    // TODO(b/229656253): Reduce visibility to remove from public API.
+    @Deprecated(
+        message = "Visibility of the constructor will be reduced.",
+        replaceWith = ReplaceWith("androidx.window.embedding.ActivityRule.Builder")
+    )
+    constructor(
+        filters: Set<ActivityFilter>,
+        alwaysExpand: Boolean = false
+    ) {
+        this.filters = filters.toSet()
+        this.alwaysExpand = alwaysExpand
+    }
     /**
-     * Read-only filters used to choose when to apply this rule.
+     * Builder for [ActivityRule].
+     * @param filters See [ActivityRule.filters].
      */
-    val filters: Set<ActivityFilter> = filters.toSet()
+    class Builder(
+        private val filters: Set<ActivityFilter>
+    ) {
+        private var alwaysExpand: Boolean = false
+
+        /**
+         * @see ActivityRule.alwaysExpand
+         */
+        @SuppressWarnings("MissingGetterMatchingBuilder")
+        fun setAlwaysExpand(alwaysExpand: Boolean): Builder =
+            apply { this.alwaysExpand = alwaysExpand }
+
+        @Suppress("DEPRECATION")
+        fun build() = ActivityRule(filters, alwaysExpand)
+    }
 
     /**
      * Creates a new immutable instance by adding a filter to the set.
+     * @see filters
      */
     internal operator fun plus(filter: ActivityFilter): ActivityRule {
         val newSet = mutableSetOf<ActivityFilter>()
         newSet.addAll(filters)
         newSet.add(filter)
+        @Suppress("DEPRECATION")
         return ActivityRule(
             newSet.toSet(),
             alwaysExpand

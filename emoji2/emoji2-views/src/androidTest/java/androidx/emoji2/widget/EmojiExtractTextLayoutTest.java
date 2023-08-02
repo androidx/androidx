@@ -31,12 +31,14 @@ import static org.mockito.Mockito.when;
 
 import android.content.Context;
 import android.inputmethodservice.InputMethodService;
+import android.os.Build;
 import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 
+import androidx.annotation.RequiresApi;
 import androidx.emoji2.text.EmojiCompat;
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.core.app.ApplicationProvider;
@@ -150,6 +152,7 @@ public class EmojiExtractTextLayoutTest {
                 eq(EmojiCompat.REPLACE_STRATEGY_NON_EXISTENT));
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1)
     @Test
     @UiThreadTest
     public void testOnUpdateExtractingViews() {
@@ -178,6 +181,7 @@ public class EmojiExtractTextLayoutTest {
         assertTrue(extractButton.hasOnClickListeners());
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1)
     @Test
     @UiThreadTest
     public void testOnUpdateExtractingViews_hidesAccessoriesIfNoAction() {

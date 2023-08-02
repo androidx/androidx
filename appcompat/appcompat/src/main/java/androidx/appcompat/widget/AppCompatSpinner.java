@@ -52,12 +52,14 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
+import androidx.annotation.StyleableRes;
 import androidx.annotation.VisibleForTesting;
 import androidx.appcompat.R;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.appcompat.view.ContextThemeWrapper;
 import androidx.appcompat.view.menu.ShowableListMenu;
+import androidx.core.util.ObjectsCompat;
 import androidx.core.view.TintableBackgroundView;
 import androidx.core.view.ViewCompat;
 import androidx.resourceinspection.annotation.AppCompatShadowedAttributes;
@@ -80,6 +82,8 @@ import androidx.resourceinspection.annotation.AppCompatShadowedAttributes;
 @AppCompatShadowedAttributes
 public class AppCompatSpinner extends Spinner implements TintableBackgroundView {
 
+    @SuppressLint("ResourceType")
+    @StyleableRes
     private static final int[] ATTRS_ANDROID_SPINNERMODE = {android.R.attr.spinnerMode};
 
     private static final int MAX_ITEMS_MEASURED = 15;
@@ -1126,7 +1130,7 @@ public class AppCompatSpinner extends Spinner implements TintableBackgroundView 
                 @NonNull android.widget.ThemedSpinnerAdapter themedSpinnerAdapter,
                 @Nullable Resources.Theme theme
         ) {
-            if (themedSpinnerAdapter.getDropDownViewTheme() != theme) {
+            if (!ObjectsCompat.equals(themedSpinnerAdapter.getDropDownViewTheme(), theme)) {
                 themedSpinnerAdapter.setDropDownViewTheme(theme);
             }
         }

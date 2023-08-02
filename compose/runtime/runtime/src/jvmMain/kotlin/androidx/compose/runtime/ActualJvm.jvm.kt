@@ -18,6 +18,10 @@ package androidx.compose.runtime
 
 import androidx.compose.runtime.internal.ThreadMap
 import androidx.compose.runtime.internal.emptyThreadMap
+import androidx.compose.runtime.snapshots.Snapshot
+import androidx.compose.runtime.snapshots.SnapshotContextElement
+import kotlin.coroutines.CoroutineContext
+import kotlinx.coroutines.ThreadContextElement
 
 internal actual typealias AtomicReference<V> = java.util.concurrent.atomic.AtomicReference<V>
 
@@ -35,6 +39,10 @@ internal actual open class ThreadLocal<T> actual constructor(
 
     override fun initialValue(): T? {
         return initialValue.invoke()
+    }
+
+    actual override fun remove() {
+        super.remove()
     }
 }
 
@@ -63,3 +71,46 @@ internal actual inline fun <R> synchronized(lock: Any, block: () -> R): R {
 }
 
 internal actual typealias TestOnly = org.jetbrains.annotations.TestOnly
+
+internal actual fun invokeComposable(composer: Composer, composable: @Composable () -> Unit) {
+    @Suppress("UNCHECKED_CAST")
+    val realFn = composable as Function2<Composer, Int, Unit>
+    realFn(composer, 1)
+}
+
+internal actual fun <T> invokeComposableForResult(
+    composer: Composer,
+    composable: @Composable () -> T
+): T {
+    @Suppress("UNCHECKED_CAST")
+    val realFn = composable as Function2<Composer, Int, T>
+    return realFn(composer, 1)
+}
+
+internal actual class AtomicInt actual constructor(value: Int) {
+    val delegate = java.util.concurrent.atomic.AtomicInteger(value)
+    actual fun get(): Int = delegate.get()
+    actual fun set(value: Int) = delegate.set(value)
+    actual fun add(amount: Int): Int = delegate.addAndGet(amount)
+}
+
+internal actual fun ensureMutable(it: Any) { /* NOTHING */ }
+
+/**
+ * Implementation of [SnapshotContextElement] that enters a single given snapshot when updating
+ * the thread context of a resumed coroutine.
+ */
+@ExperimentalComposeApi
+internal actual class SnapshotContextElementImpl actual constructor(
+    private val snapshot: Snapshot
+) : SnapshotContextElement, ThreadContextElement<Snapshot?> {
+    override val key: CoroutineContext.Key<*>
+        get() = SnapshotContextElement
+
+    override fun updateThreadContext(context: CoroutineContext): Snapshot? =
+        snapshot.unsafeEnter()
+
+    override fun restoreThreadContext(context: CoroutineContext, oldState: Snapshot?) {
+        snapshot.unsafeLeave(oldState)
+    }
+}

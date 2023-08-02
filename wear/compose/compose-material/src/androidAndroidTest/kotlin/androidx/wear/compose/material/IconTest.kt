@@ -192,7 +192,7 @@ class IconTest {
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
-    fun iconUnspecifiedTintColorIgnored() {
+    fun iconUnspecifiedColorIgnored() {
         val width = 35.dp
         val height = 83.dp
         val testTag = "testTag"
@@ -215,7 +215,7 @@ class IconTest {
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
-    fun iconSpecifiedTintColorApplied() {
+    fun iconSpecifiedColorApplied() {
         val width = 35.dp
         val height = 83.dp
         val testTag = "testTag"
@@ -232,7 +232,7 @@ class IconTest {
             Icon(image, null, modifier = Modifier.testTag(testTag), tint = Color.Blue)
         }
 
-        // With a tint color provided, all pixels should be blue
+        // With a icon color provided, all pixels should be blue
         rule.onNodeWithTag(testTag).captureToImage().assertPixels { Color.Blue }
     }
 

@@ -248,6 +248,7 @@ internal class AndroidCameraDevice(
         // Iterate template parameters and CHECK BY NAME, as there have been cases where equality
         // checks did not pass.
         for ((key, value) in config.sessionParameters) {
+            if (key !is CaptureRequest.Key<*>) continue
             if (sessionKeyNames.contains(key.name)) {
                 requestBuilder.writeParameter(key, value)
             }

@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
-import androidx.build.LibraryVersions
 import androidx.build.Publish
 
 plugins {
@@ -45,4 +43,8 @@ androidx {
     mavenGroup = LibraryGroups.RECYCLERVIEW
     inceptionYear = "2017"
     description = "Library providing item selection framework for RecyclerView. Support for touch based and band selection is provided."
+}
+
+android {
+    namespace "androidx.recyclerview.selection"
 }

@@ -58,8 +58,9 @@ public class ConstraintProxyUpdateReceiver extends BroadcastReceiver {
      * @return an {@link Intent} with information about the constraint proxies which need to be
      * enabled.
      */
+    @NonNull
     public static Intent newConstraintProxyUpdateIntent(
-            Context context,
+            @NonNull Context context,
             boolean batteryNotLowProxyEnabled,
             boolean batteryChargingProxyEnabled,
             boolean storageNotLowProxyEnabled,
@@ -87,7 +88,7 @@ public class ConstraintProxyUpdateReceiver extends BroadcastReceiver {
             final PendingResult pendingResult = goAsync();
             WorkManagerImpl workManager = WorkManagerImpl.getInstance(context);
             TaskExecutor taskExecutor = workManager.getWorkTaskExecutor();
-            taskExecutor.executeOnBackgroundThread(new Runnable() {
+            taskExecutor.executeOnTaskThread(new Runnable() {
                 @Override
                 public void run() {
                     try {

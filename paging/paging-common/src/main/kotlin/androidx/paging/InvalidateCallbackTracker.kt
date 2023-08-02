@@ -71,12 +71,12 @@ internal class InvalidateCallbackTracker<T>(
         }
     }
 
-    internal fun invalidate() {
-        if (invalid) return
+    internal fun invalidate(): Boolean {
+        if (invalid) return false
 
         var callbacksToInvoke: List<T>?
         lock.withLock {
-            if (invalid) return
+            if (invalid) return false
 
             invalid = true
             callbacksToInvoke = callbacks.toList()
@@ -84,5 +84,6 @@ internal class InvalidateCallbackTracker<T>(
         }
 
         callbacksToInvoke?.forEach(callbackInvoker)
+        return true
     }
 }

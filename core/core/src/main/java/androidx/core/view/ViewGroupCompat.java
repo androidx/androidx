@@ -21,7 +21,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.accessibility.AccessibilityEvent;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.core.R;
 import androidx.core.view.ViewCompat.ScrollAxis;
 
@@ -32,9 +34,9 @@ public final class ViewGroupCompat {
 
     /**
      * This constant is a {@link #setLayoutMode(ViewGroup, int) layoutMode}.
-     * Clip bounds are the raw values of {@link android.view.View#getLeft() left},
-     * {@link android.view.View#getTop() top},
-     * {@link android.view.View#getRight() right} and {@link android.view.View#getBottom() bottom}.
+     * Clip bounds are the raw values of {@link View#getLeft() left},
+     * {@link View#getTop() top},
+     * {@link View#getRight() right} and {@link View#getBottom() bottom}.
      */
     public static final int LAYOUT_MODE_CLIP_BOUNDS = 0;
 
@@ -112,7 +114,7 @@ public final class ViewGroupCompat {
      */
     public static int getLayoutMode(@NonNull ViewGroup group) {
         if (Build.VERSION.SDK_INT >= 18) {
-            return group.getLayoutMode();
+            return Api18Impl.getLayoutMode(group);
         }
         return LAYOUT_MODE_CLIP_BOUNDS;
     }
@@ -128,7 +130,7 @@ public final class ViewGroupCompat {
      */
     public static void setLayoutMode(@NonNull ViewGroup group, int mode) {
         if (Build.VERSION.SDK_INT >= 18) {
-            group.setLayoutMode(mode);
+            Api18Impl.setLayoutMode(group, mode);
         }
     }
 
@@ -142,7 +144,7 @@ public final class ViewGroupCompat {
      */
     public static void setTransitionGroup(@NonNull ViewGroup group, boolean isTransitionGroup) {
         if (Build.VERSION.SDK_INT >= 21) {
-            group.setTransitionGroup(isTransitionGroup);
+            Api21Impl.setTransitionGroup(group, isTransitionGroup);
         } else {
             group.setTag(R.id.tag_transition_group, isTransitionGroup);
         }
@@ -155,7 +157,7 @@ public final class ViewGroupCompat {
      */
     public static boolean isTransitionGroup(@NonNull ViewGroup group) {
         if (Build.VERSION.SDK_INT >= 21) {
-            return group.isTransitionGroup();
+            return Api21Impl.isTransitionGroup(group);
         }
         Boolean explicit = (Boolean) group.getTag(R.id.tag_transition_group);
         return (explicit != null && explicit)
@@ -179,11 +181,50 @@ public final class ViewGroupCompat {
     @SuppressWarnings("RedundantCast") // Intentionally invoking interface method.
     public static int getNestedScrollAxes(@NonNull ViewGroup group) {
         if (Build.VERSION.SDK_INT >= 21) {
-            return group.getNestedScrollAxes();
+            return Api21Impl.getNestedScrollAxes(group);
         }
         if (group instanceof NestedScrollingParent) {
             return ((NestedScrollingParent) group).getNestedScrollAxes();
         }
         return ViewCompat.SCROLL_AXIS_NONE;
+    }
+
+    @RequiresApi(18)
+    static class Api18Impl {
+        private Api18Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static int getLayoutMode(ViewGroup viewGroup) {
+            return viewGroup.getLayoutMode();
+        }
+
+        @DoNotInline
+        static void setLayoutMode(ViewGroup viewGroup, int layoutMode) {
+            viewGroup.setLayoutMode(layoutMode);
+        }
+    }
+
+    @RequiresApi(21)
+    static class Api21Impl {
+        private Api21Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static void setTransitionGroup(ViewGroup viewGroup, boolean isTransitionGroup) {
+            viewGroup.setTransitionGroup(isTransitionGroup);
+        }
+
+        @DoNotInline
+        static boolean isTransitionGroup(ViewGroup viewGroup) {
+            return viewGroup.isTransitionGroup();
+        }
+
+        @DoNotInline
+        static int getNestedScrollAxes(ViewGroup viewGroup) {
+            return viewGroup.getNestedScrollAxes();
+        }
     }
 }

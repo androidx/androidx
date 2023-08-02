@@ -23,6 +23,7 @@ import android.graphics.drawable.Drawable
 import androidx.annotation.AnyRes
 import androidx.annotation.ColorInt
 import androidx.annotation.Dimension
+import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.annotation.StyleableRes
 
@@ -143,7 +144,7 @@ public fun TypedArray.getFloatOrThrow(@StyleableRes index: Int): Float {
 @RequiresApi(26)
 public fun TypedArray.getFontOrThrow(@StyleableRes index: Int): Typeface {
     checkAttribute(index)
-    return getFont(index)!!
+    return TypedArrayApi26ImplKt.getFont(this, index)
 }
 
 /**
@@ -231,5 +232,14 @@ public fun TypedArray.getTextArrayOrThrow(@StyleableRes index: Int): Array<CharS
 public inline fun <R> TypedArray.use(block: (TypedArray) -> R): R {
     return block(this).also {
         recycle()
+    }
+}
+
+@RequiresApi(26)
+private object TypedArrayApi26ImplKt {
+    @DoNotInline
+    @JvmStatic
+    fun getFont(typedArray: TypedArray, @StyleableRes index: Int): Typeface {
+        return typedArray.getFont(index)!!
     }
 }

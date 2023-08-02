@@ -17,11 +17,8 @@
 package androidx.compose.foundation.text
 
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.Paint
-import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.Paragraph
 import androidx.compose.ui.text.SpanStyle
@@ -29,7 +26,7 @@ import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextPainter
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.EditCommand
 import androidx.compose.ui.text.input.EditProcessor
 import androidx.compose.ui.text.input.ImeAction
@@ -45,8 +42,6 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import kotlin.jvm.JvmStatic
-import kotlin.math.ceil
-import kotlin.math.roundToInt
 
 // visible for testing
 internal const val DefaultWidthCharCount = 10 // min width for TextField is 10 chars long
@@ -66,7 +61,7 @@ internal val EmptyTextReplacement = "H".repeat(DefaultWidthCharCount) // just a 
 internal fun computeSizeForDefaultText(
     style: TextStyle,
     density: Density,
-    resourceLoader: Font.ResourceLoader,
+    fontFamilyResolver: FontFamily.Resolver,
     text: String = EmptyTextReplacement,
     maxLines: Int = 1
 ): IntSize {
@@ -77,13 +72,11 @@ internal fun computeSizeForDefaultText(
         maxLines = maxLines,
         ellipsis = false,
         density = density,
-        resourceLoader = resourceLoader,
-        width = Float.POSITIVE_INFINITY
+        fontFamilyResolver = fontFamilyResolver,
+        constraints = Constraints()
     )
-    return IntSize(paragraph.minIntrinsicWidth.toIntPx(), paragraph.height.toIntPx())
+    return IntSize(paragraph.minIntrinsicWidth.ceilToIntPx(), paragraph.height.ceilToIntPx())
 }
-
-private fun Float.toIntPx(): Int = ceil(this).roundToInt()
 
 @OptIn(InternalFoundationTextApi::class)
 internal class TextFieldDelegate {
@@ -134,55 +127,6 @@ internal class TextFieldDelegate {
         }
 
         /**
-         * Notify system that focused input area.
-         *
-         * System is typically scrolled up not to be covered by keyboard.
-         *
-         * @param value The editor model
-         * @param textDelegate The text delegate
-         * @param layoutCoordinates The layout coordinates
-         * @param textInputSession The current input session.
-         * @param hasFocus True if focus is gained.
-         * @param offsetMapping The mapper from/to editing buffer to/from visible text.
-         */
-        @JvmStatic
-        internal fun notifyFocusedRect(
-            value: TextFieldValue,
-            textDelegate: TextDelegate,
-            textLayoutResult: TextLayoutResult,
-            layoutCoordinates: LayoutCoordinates,
-            textInputSession: TextInputSession,
-            hasFocus: Boolean,
-            offsetMapping: OffsetMapping
-        ) {
-            if (!hasFocus) {
-                return
-            }
-            val focusOffsetInTransformed = offsetMapping.originalToTransformed(value.selection.max)
-            val bbox = when {
-                focusOffsetInTransformed < textLayoutResult.layoutInput.text.length -> {
-                    textLayoutResult.getBoundingBox(focusOffsetInTransformed)
-                }
-                focusOffsetInTransformed != 0 -> {
-                    textLayoutResult.getBoundingBox(focusOffsetInTransformed - 1)
-                }
-                else -> { // empty text.
-                    val defaultSize = computeSizeForDefaultText(
-                        textDelegate.style,
-                        textDelegate.density,
-                        textDelegate.resourceLoader
-                    )
-                    Rect(0f, 0f, 1.0f, defaultSize.height.toFloat())
-                }
-            }
-            val globalLT = layoutCoordinates.localToRoot(Offset(bbox.left, bbox.top))
-
-            textInputSession.notifyFocusedRect(
-                Rect(Offset(globalLT.x, globalLT.y), Size(bbox.width, bbox.height))
-            )
-        }
-
-        /**
          * Called when edit operations are passed from TextInputService
          *
          * @param ops A list of edit operations.
@@ -193,9 +137,21 @@ internal class TextFieldDelegate {
         private fun onEditCommand(
             ops: List<EditCommand>,
             editProcessor: EditProcessor,
-            onValueChange: (TextFieldValue) -> Unit
+            onValueChange: (TextFieldValue) -> Unit,
+            session: TextInputSession?
         ) {
-            onValueChange(editProcessor.apply(ops))
+            val newValue = editProcessor.apply(ops)
+
+            // Android: Some IME calls getTextBeforeCursor API just after the setComposingText. The
+            // getTextBeforeCursor may return the text without a text set by setComposingText
+            // because the text field state in the application code is updated on the next time
+            // composition. On the other hand, some IME gets confused and cancel the composition
+            // because the text set by setComposingText is not available.
+            // To avoid this problem, update the state in the TextInputService to the latest
+            // plausible state. When the real state comes, the TextInputService will compare and
+            // update the state if it is modified by developers.
+            session?.updateState(null, newValue)
+            onValueChange(newValue)
         }
 
         /**
@@ -240,12 +196,14 @@ internal class TextFieldDelegate {
             onValueChange: (TextFieldValue) -> Unit,
             onImeActionPerformed: (ImeAction) -> Unit
         ): TextInputSession {
-            return textInputService.startInput(
-                value = value.copy(),
+            var session: TextInputSession? = null
+            session = textInputService.startInput(
+                value = value,
                 imeOptions = imeOptions,
-                onEditCommand = { onEditCommand(it, editProcessor, onValueChange) },
+                onEditCommand = { onEditCommand(it, editProcessor, onValueChange, session) },
                 onImeActionPerformed = onImeActionPerformed
             )
+            return session
         }
 
         /**
@@ -267,7 +225,8 @@ internal class TextFieldDelegate {
             onValueChange: (TextFieldValue) -> Unit,
             onImeActionPerformed: (ImeAction) -> Unit
         ): TextInputSession {
-            val textInputSession = restartInput(
+            // The keyboard will automatically be shown when the new IME connection is started.
+            return restartInput(
                 textInputService = textInputService,
                 value = value,
                 editProcessor = editProcessor,
@@ -275,10 +234,6 @@ internal class TextFieldDelegate {
                 onValueChange = onValueChange,
                 onImeActionPerformed = onImeActionPerformed
             )
-
-            textInputSession.showSoftwareKeyboard()
-
-            return textInputSession
         }
 
         /**
@@ -295,7 +250,8 @@ internal class TextFieldDelegate {
             onValueChange: (TextFieldValue) -> Unit
         ) {
             onValueChange(editProcessor.toTextFieldValue().copy(composition = null))
-            textInputSession.hideSoftwareKeyboard()
+            // Don't hide the keyboard when losing focus. If the target system needs that behavior,
+            // it can be implemented in the PlatformTextInputService.
             textInputSession.dispose()
         }
 

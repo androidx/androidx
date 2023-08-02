@@ -26,6 +26,7 @@ import androidx.car.app.Screen;
 import androidx.car.app.model.Action;
 import androidx.car.app.model.MessageTemplate;
 import androidx.car.app.model.Template;
+import androidx.car.app.sample.showcase.common.R;
 import androidx.car.app.sample.showcase.common.ShowcaseService;
 
 /** A {@link Screen} that provides an action to exit the car app. */
@@ -37,10 +38,8 @@ public class FinishAppScreen extends Screen {
     @NonNull
     @Override
     public Template onGetTemplate() {
-        return new MessageTemplate.Builder(
-                "This will finish the app, and when you return it will pre-seed a permission "
-                        + "screen")
-                .setTitle("Finish App Demo")
+        return new MessageTemplate.Builder(getCarContext().getString(R.string.finish_app_msg))
+                .setTitle(getCarContext().getString(R.string.finish_app_title))
                 .setHeaderAction(BACK)
                 .addAction(
                         new Action.Builder()
@@ -56,7 +55,7 @@ public class FinishAppScreen extends Screen {
                                                     .apply();
                                             getCarContext().finishCarApp();
                                         })
-                                .setTitle("Exit")
+                                .setTitle(getCarContext().getString(R.string.exit_action_title))
                                 .build())
                 .build();
     }

@@ -26,6 +26,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.SystemClock;
 
+import androidx.annotation.NonNull;
 import androidx.leanback.testutils.PollingCheck;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
@@ -65,7 +66,7 @@ public class MediaPlayerGlueTest {
         final boolean[] ready = new boolean[] {false};
         glue.addPlayerCallback(new PlaybackGlue.PlayerCallback() {
             @Override
-            public void onPreparedStateChanged(PlaybackGlue glue) {
+            public void onPreparedStateChanged(@NonNull PlaybackGlue glue) {
                 if (glue.isPrepared()) {
                     glue.play();
                     ready[0] = true;

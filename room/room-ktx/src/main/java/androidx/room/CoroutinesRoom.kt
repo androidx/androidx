@@ -111,7 +111,7 @@ public class CoroutinesRoom private constructor() {
                 // Observer channel receives signals from the invalidation tracker to emit queries.
                 val observerChannel = Channel<Unit>(Channel.CONFLATED)
                 val observer = object : InvalidationTracker.Observer(tableNames) {
-                    override fun onInvalidated(tables: MutableSet<String>) {
+                    override fun onInvalidated(tables: Set<String>) {
                         observerChannel.trySend(Unit)
                     }
                 }

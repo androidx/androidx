@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
-import androidx.build.LibraryVersions
 import androidx.build.Publish
 
 plugins {
@@ -32,6 +30,7 @@ android {
     defaultConfig {
         minSdkVersion 25
     }
+    namespace "androidx.wear.input.testing"
 }
 
 androidx {

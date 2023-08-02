@@ -3,12 +3,21 @@ contact_links:
   - name: Activity
     url: https://issuetracker.google.com/issues/new?component=527362&template=1189829
     about: File a bug or feature request for Activity
+  - name: AppCompat
+    url: https://issuetracker.google.com/issues/new?component=460343&template=1422420
+    about: File a bug or feature request for AppCompat
   - name: Biometric
     url: https://issuetracker.google.com/issues/new?component=559537&template=1214425
     about: File a bug or feature request for Biometric
+  - name: Collection
+    url: https://issuetracker.google.com/issues/new?component=460756&template=1422573
+    about: File a bug or feature request for Collection
   - name: Compose Compiler
     url: https://issuetracker.google.com/issues/new?component=610764&template=1424126
     about: File a bug or feature request for Compose Compiler
+  - name: Core
+    url: https://issuetracker.google.com/issues/new?component=460834&template=1418393
+    about: File a bug or feature request for Core
   - name: DataStore
     url: https://issuetracker.google.com/issues/new?component=907884&template=1466542
     about: File a bug or feature request for DataStore

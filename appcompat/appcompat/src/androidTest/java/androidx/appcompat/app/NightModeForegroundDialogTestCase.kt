@@ -44,7 +44,7 @@ class NightModeForegroundDialogTestCase {
 
         // Open a dialog on top of the activity.
         rule.runOnUiThread {
-            val frag = NightModeDialogFragment.newInstance()
+            val frag = TestDialogFragment.newInstance()
             frag.show(firstActivity.supportFragmentManager, "dialog")
         }
 

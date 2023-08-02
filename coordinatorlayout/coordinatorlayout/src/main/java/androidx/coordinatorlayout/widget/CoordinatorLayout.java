@@ -342,7 +342,7 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
     }
 
     @Override
-    protected boolean verifyDrawable(Drawable who) {
+    protected boolean verifyDrawable(@NonNull Drawable who) {
         return super.verifyDrawable(who) || who == mStatusBarBackground;
     }
 
@@ -394,6 +394,7 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @Nullable
     public final WindowInsetsCompat getLastWindowInsets() {
         return mLastInsets;
     }
@@ -790,7 +791,7 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
      * @param heightUsed extra space that has been used up by the parent
      *        vertically (possibly by other children of the parent)
      */
-    public void onMeasureChild(View child, int parentWidthMeasureSpec, int widthUsed,
+    public void onMeasureChild(@NonNull View child, int parentWidthMeasureSpec, int widthUsed,
             int parentHeightMeasureSpec, int heightUsed) {
         measureChildWithMargins(child, parentWidthMeasureSpec, widthUsed,
                 parentHeightMeasureSpec, heightUsed);
@@ -1783,13 +1784,15 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
     }
 
     @Override
-    public boolean onStartNestedScroll(View child, View target, int nestedScrollAxes) {
+    public boolean onStartNestedScroll(@NonNull View child, @NonNull View target,
+            int nestedScrollAxes) {
         return onStartNestedScroll(child, target, nestedScrollAxes, ViewCompat.TYPE_TOUCH);
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    public boolean onStartNestedScroll(View child, View target, int axes, int type) {
+    public boolean onStartNestedScroll(@NonNull View child, @NonNull View target,
+            int axes, int type) {
         boolean handled = false;
 
         final int childCount = getChildCount();
@@ -1814,13 +1817,14 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
     }
 
     @Override
-    public void onNestedScrollAccepted(View child, View target, int axes) {
+    public void onNestedScrollAccepted(@NonNull View child, @NonNull View target, int axes) {
         onNestedScrollAccepted(child, target, axes, ViewCompat.TYPE_TOUCH);
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    public void onNestedScrollAccepted(View child, View target, int axes, int type) {
+    public void onNestedScrollAccepted(@NonNull View child, @NonNull View target,
+            int axes, int type) {
         mNestedScrollingParentHelper.onNestedScrollAccepted(child, target, axes, type);
         mNestedScrollingTarget = target;
 
@@ -1841,13 +1845,13 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
     }
 
     @Override
-    public void onStopNestedScroll(View target) {
+    public void onStopNestedScroll(@NonNull View target) {
         onStopNestedScroll(target, ViewCompat.TYPE_TOUCH);
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    public void onStopNestedScroll(View target, int type) {
+    public void onStopNestedScroll(@NonNull View target, int type) {
         mNestedScrollingParentHelper.onStopNestedScroll(target, type);
 
         final int childCount = getChildCount();
@@ -1869,14 +1873,14 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
     }
 
     @Override
-    public void onNestedScroll(View target, int dxConsumed, int dyConsumed,
+    public void onNestedScroll(@NonNull View target, int dxConsumed, int dyConsumed,
             int dxUnconsumed, int dyUnconsumed) {
         onNestedScroll(target, dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed,
                 ViewCompat.TYPE_TOUCH);
     }
 
     @Override
-    public void onNestedScroll(View target, int dxConsumed, int dyConsumed,
+    public void onNestedScroll(@NonNull View target, int dxConsumed, int dyConsumed,
             int dxUnconsumed, int dyUnconsumed, int type) {
         onNestedScroll(target, dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed,
                 ViewCompat.TYPE_TOUCH, mNestedScrollingV2ConsumedCompat);
@@ -1931,13 +1935,15 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
     }
 
     @Override
-    public void onNestedPreScroll(View target, int dx, int dy, int[] consumed) {
+    public void onNestedPreScroll(@NonNull View target, int dx, int dy,
+            @NonNull int[] consumed) {
         onNestedPreScroll(target, dx, dy, consumed, ViewCompat.TYPE_TOUCH);
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    public void onNestedPreScroll(View target, int dx, int dy, int[] consumed, int  type) {
+    public void onNestedPreScroll(@NonNull View target, int dx, int dy,
+            @NonNull int[] consumed, int  type) {
         int xConsumed = 0;
         int yConsumed = 0;
         boolean accepted = false;
@@ -2121,7 +2127,7 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
          * @param context
          * @param attrs
          */
-        public Behavior(Context context, AttributeSet attrs) {
+        public Behavior(@NonNull Context context, @Nullable AttributeSet attrs) {
         }
 
         /**
@@ -2926,15 +2932,15 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
             }
         }
 
-        public LayoutParams(LayoutParams p) {
+        public LayoutParams(@NonNull LayoutParams p) {
             super(p);
         }
 
-        public LayoutParams(MarginLayoutParams p) {
+        public LayoutParams(@NonNull MarginLayoutParams p) {
             super(p);
         }
 
-        public LayoutParams(ViewGroup.LayoutParams p) {
+        public LayoutParams(@NonNull ViewGroup.LayoutParams p) {
             super(p);
         }
 
@@ -3285,6 +3291,7 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
         }
     }
 
+    @NonNull
     @Override
     @SuppressWarnings("unchecked")
     protected Parcelable onSaveInstanceState() {

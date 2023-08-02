@@ -18,6 +18,7 @@ package androidx.core.splashscreen.test
 import android.app.Activity
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.WindowCompat
 
 open class SplashScreenTestActivity : Activity(), SplashScreenTestControllerHolder {
 
@@ -42,4 +43,18 @@ class SplashScreenAppCompatTestActivity :
     }
 
     override lateinit var controller: SplashScreenTestController
+}
+
+class SplashScreenStability1 : SplashScreenTestActivity() {
+    override fun onStart() {
+        super.onStart()
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+    }
+}
+
+class SplashScreenStability2 : SplashScreenTestActivity() {
+    override fun onStart() {
+        super.onStart()
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+    }
 }

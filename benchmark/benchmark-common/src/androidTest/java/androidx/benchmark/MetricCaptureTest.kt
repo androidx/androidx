@@ -51,9 +51,9 @@ public class AllocationCountCaptureTest {
  */
 private fun MetricCapture.verifyMedian(expected: IntRange, block: MetricCapture.() -> Unit) {
     val results = List(200) {
-        captureStart()
+        captureStart(System.nanoTime())
         block()
-        captureStop() * 1.0
+        captureStop(System.nanoTime()) * 1.0
     }
     val median = MetricResult(name, results).median.toInt()
     if (median !in expected) {

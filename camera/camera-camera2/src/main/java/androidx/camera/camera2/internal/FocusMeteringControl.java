@@ -27,10 +27,13 @@ import android.util.Rational;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.camera2.impl.Camera2ImplConfig;
 import androidx.camera.camera2.internal.annotation.CameraExecutor;
+import androidx.camera.camera2.internal.compat.workaround.MeteringRegionCorrection;
+import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
 import androidx.camera.core.CameraControl;
 import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.FocusMeteringResult;
@@ -40,6 +43,7 @@ import androidx.camera.core.impl.CameraCaptureFailure;
 import androidx.camera.core.impl.CameraCaptureResult;
 import androidx.camera.core.impl.CameraControlInternal;
 import androidx.camera.core.impl.CaptureConfig;
+import androidx.camera.core.impl.Quirks;
 import androidx.camera.core.impl.annotation.ExecutedBy;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.concurrent.futures.CallbackToFutureAdapter.Completer;
@@ -75,8 +79,9 @@ import java.util.concurrent.TimeUnit;
  * them to all repeating requests and single requests.
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
+@OptIn(markerClass = ExperimentalCamera2Interop.class)
 class FocusMeteringControl {
-    private static final String TAG = "FocusMeteringControl";
+    static final long AUTO_FOCUS_TIMEOUT_DURATION = 5000;
     private final Camera2CameraControlImpl mCameraControl;
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     @CameraExecutor
@@ -85,6 +90,8 @@ class FocusMeteringControl {
     private volatile boolean mIsActive = false;
     private volatile Rational mPreviewAspectRatio = null;
     private static final MeteringRectangle[] EMPTY_RECTANGLES = new MeteringRectangle[0];
+    @NonNull
+    private final MeteringRegionCorrection mMeteringRegionCorrection;
 
     //******************** Should only be accessed by executor (WorkThread) ****************//
     private boolean mIsInAfAutoMode = false;
@@ -92,6 +99,7 @@ class FocusMeteringControl {
     @NonNull
     Integer mCurrentAfState = CaptureResult.CONTROL_AF_STATE_INACTIVE;
     private ScheduledFuture<?> mAutoCancelHandle;
+    private ScheduledFuture<?> mAutoFocusTimeoutHandle;
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     long mFocusTimeoutCounter = 0;
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
@@ -121,12 +129,13 @@ class FocusMeteringControl {
      */
     FocusMeteringControl(@NonNull Camera2CameraControlImpl cameraControl,
             @NonNull ScheduledExecutorService scheduler,
-            @NonNull @CameraExecutor Executor executor) {
+            @NonNull @CameraExecutor Executor executor,
+            @NonNull Quirks cameraQuirks) {
         mCameraControl = cameraControl;
         mExecutor = executor;
         mScheduler = scheduler;
+        mMeteringRegionCorrection = new MeteringRegionCorrection(cameraQuirks);
     }
-
 
     /**
      * Set current active state. Set active if it is ready to accept focus/metering operations.
@@ -159,9 +168,7 @@ class FocusMeteringControl {
         }
 
         Rect cropSensorRegion = mCameraControl.getCropSensorRegion();
-        Rational cropRegionAspectRatio = new Rational(cropSensorRegion.width(),
-                cropSensorRegion.height());
-        return cropRegionAspectRatio;
+        return new Rational(cropSensorRegion.width(), cropSensorRegion.height());
     }
 
     @ExecutedBy("mExecutor")
@@ -203,17 +210,17 @@ class FocusMeteringControl {
 
     private static PointF getFovAdjustedPoint(@NonNull MeteringPoint meteringPoint,
             @NonNull Rational cropRegionAspectRatio,
-            @NonNull Rational defaultAspectRatio) {
+            @NonNull Rational defaultAspectRatio,
+            @FocusMeteringAction.MeteringMode int meteringMode,
+            MeteringRegionCorrection correction) {
         // Use default aspect ratio unless there is a custom aspect ratio in MeteringPoint.
         Rational fovAspectRatio = defaultAspectRatio;
         if (meteringPoint.getSurfaceAspectRatio() != null) {
             fovAspectRatio = meteringPoint.getSurfaceAspectRatio();
         }
 
-        PointF adjustedPoint = new PointF(meteringPoint.getX(),
-                meteringPoint.getY());
+        PointF adjustedPoint = correction.getCorrectedPoint(meteringPoint, meteringMode);
         if (!fovAspectRatio.equals(cropRegionAspectRatio)) {
-
             if (fovAspectRatio.compareTo(cropRegionAspectRatio) > 0) {
                 // FOV is more narrow than crop region, top and down side of FOV is cropped.
                 float heightOfCropRegion =
@@ -268,11 +275,12 @@ class FocusMeteringControl {
     }
 
     @NonNull
-    private static List<MeteringRectangle> getMeteringRectangles(
+    private List<MeteringRectangle> getMeteringRectangles(
             @NonNull List<MeteringPoint> meteringPoints,
             int maxRegionCount,
             @NonNull Rational defaultAspectRatio,
-            @NonNull Rect cropSensorRegion) {
+            @NonNull Rect cropSensorRegion,
+            @FocusMeteringAction.MeteringMode int meteringMode) {
         if (meteringPoints.isEmpty() || maxRegionCount == 0) {
             return Collections.emptyList();
         }
@@ -290,7 +298,7 @@ class FocusMeteringControl {
             }
 
             PointF adjustedPoint = getFovAdjustedPoint(meteringPoint, cropRegionAspectRatio,
-                    defaultAspectRatio);
+                    defaultAspectRatio, meteringMode, mMeteringRegionCorrection);
             MeteringRectangle meteringRectangle = getMeteringRect(meteringPoint, adjustedPoint,
                     cropSensorRegion);
             if (meteringRectangle.getWidth() == 0 || meteringRectangle.getHeight() == 0) {
@@ -316,15 +324,15 @@ class FocusMeteringControl {
         List<MeteringRectangle> rectanglesAf =
                 getMeteringRectangles(action.getMeteringPointsAf(),
                         mCameraControl.getMaxAfRegionCount(),
-                        defaultAspectRatio, cropSensorRegion);
+                        defaultAspectRatio, cropSensorRegion, FocusMeteringAction.FLAG_AF);
         List<MeteringRectangle> rectanglesAe =
                 getMeteringRectangles(action.getMeteringPointsAe(),
                         mCameraControl.getMaxAeRegionCount(),
-                        defaultAspectRatio, cropSensorRegion);
+                        defaultAspectRatio, cropSensorRegion, FocusMeteringAction.FLAG_AE);
         List<MeteringRectangle> rectanglesAwb =
                 getMeteringRectangles(action.getMeteringPointsAwb(),
                         mCameraControl.getMaxAwbRegionCount(),
-                        defaultAspectRatio, cropSensorRegion);
+                        defaultAspectRatio, cropSensorRegion, FocusMeteringAction.FLAG_AWB);
 
         if (rectanglesAf.isEmpty() && rectanglesAe.isEmpty() && rectanglesAwb.isEmpty()) {
             completer.setException(
@@ -482,12 +490,19 @@ class FocusMeteringControl {
         mCameraControl.submitCaptureRequestsInternal(Collections.singletonList(builder.build()));
     }
 
-
     @ExecutedBy("mExecutor")
     private void disableAutoCancel() {
         if (mAutoCancelHandle != null) {
             mAutoCancelHandle.cancel(/*mayInterruptIfRunning=*/true);
             mAutoCancelHandle = null;
+        }
+    }
+
+    @ExecutedBy("mExecutor")
+    private void clearAutoFocusTimeoutHandle() {
+        if (mAutoFocusTimeoutHandle != null) {
+            mAutoFocusTimeoutHandle.cancel(/*mayInterruptIfRunning=*/true);
+            mAutoFocusTimeoutHandle = null;
         }
     }
 
@@ -509,7 +524,8 @@ class FocusMeteringControl {
     }
 
     @ExecutedBy("mExecutor")
-    private void completeActionFuture(boolean isFocusSuccessful) {
+    void completeActionFuture(boolean isFocusSuccessful) {
+        clearAutoFocusTimeoutHandle();
         if (mRunningActionCompleter != null) {
             mRunningActionCompleter.set(FocusMeteringResult.create(isFocusSuccessful));
             mRunningActionCompleter = null;
@@ -553,6 +569,7 @@ class FocusMeteringControl {
         mCameraControl.removeCaptureResultListener(mSessionListenerForFocus);
 
         disableAutoCancel();
+        clearAutoFocusTimeoutHandle();
 
         mAfRects = afRects;
         mAeRects = aeRects;
@@ -613,8 +630,23 @@ class FocusMeteringControl {
 
         mCameraControl.addCaptureResultListener(mSessionListenerForFocus);
 
+        final long timeoutId = ++mFocusTimeoutCounter;
+
+        // Sets auto focus timeout runnable first so that action will be completed with
+        // mIsFocusSuccessful is false when auto cancel is enabled with the same default 5000ms
+        // duration.
+        final Runnable autoFocusTimeoutRunnable = () -> mExecutor.execute(() -> {
+            if (timeoutId == mFocusTimeoutCounter) {
+                mIsFocusSuccessful = false;
+                completeActionFuture(mIsFocusSuccessful);
+            }
+        });
+
+        mAutoFocusTimeoutHandle = mScheduler.schedule(autoFocusTimeoutRunnable,
+                AUTO_FOCUS_TIMEOUT_DURATION,
+                TimeUnit.MILLISECONDS);
+
         if (focusMeteringAction.isAutoCancelEnabled()) {
-            final long timeoutId = ++mFocusTimeoutCounter;
             final Runnable autoCancelRunnable = () -> mExecutor.execute(() -> {
                 if (timeoutId == mFocusTimeoutCounter) {
                     cancelFocusAndMeteringWithoutAsyncResult();
@@ -652,6 +684,7 @@ class FocusMeteringControl {
         failActionFuture("Cancelled by cancelFocusAndMetering()");
         mRunningCancelCompleter = completer;
         disableAutoCancel();
+        clearAutoFocusTimeoutHandle();
 
         if (shouldTriggerAF()) {
             cancelAfAeTrigger(true, false);
@@ -687,18 +720,15 @@ class FocusMeteringControl {
         List<MeteringRectangle> rectanglesAf =
                 getMeteringRectangles(action.getMeteringPointsAf(),
                         mCameraControl.getMaxAfRegionCount(),
-                        defaultAspectRatio, cropSensorRegion);
+                        defaultAspectRatio, cropSensorRegion, FocusMeteringAction.FLAG_AF);
         List<MeteringRectangle> rectanglesAe =
                 getMeteringRectangles(action.getMeteringPointsAe(),
                         mCameraControl.getMaxAeRegionCount(),
-                        defaultAspectRatio, cropSensorRegion);
+                        defaultAspectRatio, cropSensorRegion, FocusMeteringAction.FLAG_AE);
         List<MeteringRectangle> rectanglesAwb =
                 getMeteringRectangles(action.getMeteringPointsAwb(),
                         mCameraControl.getMaxAwbRegionCount(),
-                        defaultAspectRatio, cropSensorRegion);
-        if (rectanglesAf.isEmpty() && rectanglesAe.isEmpty() && rectanglesAwb.isEmpty()) {
-            return false;
-        }
-        return true;
+                        defaultAspectRatio, cropSensorRegion, FocusMeteringAction.FLAG_AWB);
+        return !rectanglesAf.isEmpty() || !rectanglesAe.isEmpty() || !rectanglesAwb.isEmpty();
     }
 }

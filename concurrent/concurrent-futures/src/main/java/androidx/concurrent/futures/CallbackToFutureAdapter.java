@@ -358,6 +358,7 @@ public final class CallbackToFutureAdapter {
             super(message);
         }
 
+        @SuppressWarnings("BanSynchronizedMethods")
         @Override
         public synchronized Throwable fillInStackTrace() {
             return this; // no stack trace, wouldn't be useful anyway

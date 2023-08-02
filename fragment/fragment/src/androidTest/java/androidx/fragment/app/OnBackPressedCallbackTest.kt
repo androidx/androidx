@@ -27,10 +27,11 @@ import androidx.test.filters.MediumTest
 import androidx.testutils.withActivity
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
+import java.util.concurrent.TimeUnit
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.util.concurrent.TimeUnit
 
+@Suppress("DEPRECATION")
 @RunWith(AndroidJUnit4::class)
 @MediumTest
 class OnBackPressedCallbackTest {

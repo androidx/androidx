@@ -123,7 +123,7 @@ class XProcessingEnvTest {
             assertThat(element.getDeclaredMethods()).hasSize(2)
             assertThat(element.kindName()).isEqualTo("class")
             assertThat(element.isInterface()).isFalse()
-            assertThat(element.superType?.typeName).isEqualTo(TypeName.OBJECT)
+            assertThat(element.superClass?.typeName).isEqualTo(TypeName.OBJECT)
         }
     }
 
@@ -255,6 +255,30 @@ class XProcessingEnvTest {
             val parent = invocation.processingEnv.requireTypeElement("JavaSubject")
             val nested = invocation.processingEnv.requireTypeElement("JavaSubject.NestedClass")
             assertThat(nested.enclosingTypeElement).isSameInstanceAs(parent)
+        }
+    }
+
+    @Test
+    fun jvmVersion() {
+        runProcessorTest(
+            sources = listOf(
+                Source.java(
+                    "foo.bar.Baz",
+                    """
+                package foo.bar;
+                public class Baz {
+                }
+                    """.trimIndent()
+                )
+            ),
+            kotlincArguments = listOf("-Xjvm-target 11")
+        ) {
+            if (it.processingEnv.backend == XProcessingEnv.Backend.KSP) {
+                // KSP is hardcoded to 8 for now...
+                assertThat(it.processingEnv.jvmVersion).isEqualTo(8)
+            } else {
+                assertThat(it.processingEnv.jvmVersion).isEqualTo(11)
+            }
         }
     }
 

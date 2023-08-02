@@ -17,6 +17,7 @@
 package androidx.camera.testing.fakes;
 
 import android.graphics.ImageFormat;
+import android.media.ImageReader;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
@@ -35,7 +36,6 @@ import java.util.NoSuchElementException;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executor;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.TimeUnit;
 
 /**
  * A fake implementation of ImageReaderProxy where the values are settable and the
@@ -48,6 +48,7 @@ public class FakeImageReaderProxy implements ImageReaderProxy {
     private int mImageFormat = ImageFormat.JPEG;
     private final int mMaxImages;
 
+    @Nullable
     private Surface mSurface;
 
     @Nullable
@@ -60,15 +61,19 @@ public class FakeImageReaderProxy implements ImageReaderProxy {
             BlockingQueue<ListenableFuture<Void>> mImageProxyBlockingQueue;
 
     // Queue of ImageProxys which have not yet been acquired.
-    private BlockingQueue<ImageProxy> mImageProxyAcquisitionQueue;
+    private final BlockingQueue<ImageProxy> mImageProxyAcquisitionQueue;
 
     // List of all ImageProxy which have been acquired. Close them all once the ImageReader is
     // closed
-    private List<ImageProxy> mOutboundImageProxy = new ArrayList<>();
+    private final List<ImageProxy> mOutboundImageProxy = new ArrayList<>();
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     @Nullable
     ImageReaderProxy.OnImageAvailableListener mListener;
+
+    // For returning a nonNull surface in case of null check failure.
+    @Nullable
+    ImageReader mImageReader;
 
     /**
      * Create a new {@link FakeImageReaderProxy} instance.
@@ -77,7 +82,10 @@ public class FakeImageReaderProxy implements ImageReaderProxy {
      */
     public FakeImageReaderProxy(int maxImages) {
         mMaxImages = maxImages;
-        mImageProxyBlockingQueue = new LinkedBlockingQueue<>(maxImages);
+        // Allows more image to be produced than what can be resumed(acquired) to align with the
+        // actual ImageReader behavior. It means triggerImageAvailable can still succeed even when
+        // acquired images reaches maxImages and all are not closed.
+        mImageProxyBlockingQueue = new LinkedBlockingQueue<>(maxImages + 2);
         mImageProxyAcquisitionQueue = new LinkedBlockingQueue<>(maxImages);
     }
 
@@ -86,6 +94,7 @@ public class FakeImageReaderProxy implements ImageReaderProxy {
      *
      * @param maxImages The maximum number of images that can be acquired at once
      */
+    @SuppressWarnings("unused")
     @NonNull
     public static FakeImageReaderProxy newInstance(int width, int height, int format,
             int maxImages, long usage) {
@@ -96,6 +105,7 @@ public class FakeImageReaderProxy implements ImageReaderProxy {
         return fakeImageReaderProxy;
     }
 
+    @Nullable
     @Override
     public ImageProxy acquireLatestImage() {
         ImageProxy imageProxy = null;
@@ -113,11 +123,12 @@ public class FakeImageReaderProxy implements ImageReaderProxy {
                     "Unable to acquire latest image from empty FakeImageReader");
         }
 
+        checkIfExceedMaxImages();
         mOutboundImageProxy.add(imageProxy);
-
         return imageProxy;
     }
 
+    @Nullable
     @Override
     public ImageProxy acquireNextImage() {
         ImageProxy imageProxy;
@@ -129,13 +140,26 @@ public class FakeImageReaderProxy implements ImageReaderProxy {
                     "Unable to acquire next image from empty FakeImageReader");
         }
 
+        checkIfExceedMaxImages();
         return imageProxy;
+    }
+
+    private void checkIfExceedMaxImages() {
+        if (mImageProxyBlockingQueue.size() > mMaxImages) {
+            throw new IllegalStateException("maxImages (" + mMaxImages
+                    + ") has already been acquired, call #close before acquiring more.");
+
+        }
     }
 
     @Override
     public void close() {
         for (ImageProxy imageProxy : mOutboundImageProxy) {
             imageProxy.close();
+        }
+        if (mImageReader != null) {
+            mImageReader.close();
+            mImageReader = null;
         }
         mIsClosed = true;
     }
@@ -163,6 +187,10 @@ public class FakeImageReaderProxy implements ImageReaderProxy {
     @Nullable
     @Override
     public Surface getSurface() {
+        if (mSurface == null) {
+            mImageReader = ImageReader.newInstance(mWidth, mHeight, mImageFormat, mMaxImages);
+            mSurface = mImageReader.getSurface();
+        }
         return mSurface;
     }
 
@@ -179,7 +207,7 @@ public class FakeImageReaderProxy implements ImageReaderProxy {
         mExecutor = null;
     }
 
-    public void setSurface(Surface surface) {
+    public void setSurface(@Nullable Surface surface) {
         mSurface = surface;
     }
 
@@ -198,6 +226,7 @@ public class FakeImageReaderProxy implements ImageReaderProxy {
      * ImageProxy have been triggered without a {@link #acquireLatestImage()} or {@link
      * #acquireNextImage()} being called.
      */
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     public void triggerImageAvailable(@NonNull TagBundle tagBundle,
             long timestamp) throws InterruptedException {
         FakeImageProxy fakeImageProxy = generateFakeImageProxy(tagBundle, timestamp);
@@ -211,37 +240,6 @@ public class FakeImageReaderProxy implements ImageReaderProxy {
         mImageProxyAcquisitionQueue.put(fakeImageProxy);
 
         triggerImageAvailableListener();
-    }
-
-    /**
-     * Manually trigger OnImageAvailableListener to notify the Image is ready. If unable to add an
-     * {@link ImageProxy} after the timeout occurs then will return false.
-     *
-     * <p> Blocks until successfully added an ImageProxy. This can block if the maximum number of
-     * ImageProxy have been triggered without a {@link #acquireLatestImage()} or {@link
-     * #acquireNextImage()} being called.
-     *
-     * @return true if able to trigger the OnImageAvailableListener. Otherwise will return false if
-     * it fails to trigger the callback after the timeout period.
-     */
-    public boolean triggerImageAvailable(@NonNull TagBundle tagBundle, long timestamp, long timeout,
-            @NonNull TimeUnit timeUnit) throws InterruptedException {
-        FakeImageProxy fakeImageProxy = generateFakeImageProxy(tagBundle, timestamp);
-
-        final ListenableFuture<Void> future = fakeImageProxy.getCloseFuture();
-        if (mImageProxyBlockingQueue.offer(future, timeout, timeUnit)) {
-            future.addListener(() -> mImageProxyBlockingQueue.remove(future),
-                    CameraXExecutors.directExecutor()
-            );
-
-            mImageProxyAcquisitionQueue.put(fakeImageProxy);
-
-            triggerImageAvailableListener();
-
-            return true;
-        }
-
-        return false;
     }
 
     private FakeImageProxy generateFakeImageProxy(TagBundle tagBundle, long timestamp) {

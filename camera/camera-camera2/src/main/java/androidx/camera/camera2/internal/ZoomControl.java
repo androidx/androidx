@@ -21,15 +21,18 @@ import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.TotalCaptureResult;
 import android.os.Build;
 import android.os.Looper;
+import android.util.Range;
 
 import androidx.annotation.FloatRange;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+import androidx.annotation.VisibleForTesting;
 import androidx.camera.camera2.impl.Camera2ImplConfig;
 import androidx.camera.camera2.internal.annotation.CameraExecutor;
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
 import androidx.camera.core.CameraControl.OperationCanceledException;
+import androidx.camera.core.Logger;
 import androidx.camera.core.ZoomState;
 import androidx.camera.core.impl.annotation.ExecutedBy;
 import androidx.camera.core.impl.utils.futures.Futures;
@@ -116,10 +119,23 @@ final class ZoomControl {
         }
     }
 
-    private static boolean isAndroidRZoomSupported(
+    @VisibleForTesting
+    static boolean isAndroidRZoomSupported(
             CameraCharacteristicsCompat cameraCharacteristics) {
-        return Build.VERSION.SDK_INT >= 30 && cameraCharacteristics.get(
-                CameraCharacteristics.CONTROL_ZOOM_RATIO_RANGE) != null;
+        return Build.VERSION.SDK_INT >= 30 && getZoomRatioRange(cameraCharacteristics) != null;
+    }
+
+    @RequiresApi(30)
+    private static Range<Float> getZoomRatioRange(
+            CameraCharacteristicsCompat cameraCharacteristics) {
+        try {
+            return cameraCharacteristics.get(CameraCharacteristics.CONTROL_ZOOM_RATIO_RANGE);
+        } catch (AssertionError e) {
+            // Some devices may throw AssertionError when failed to get CameraCharacteristic.
+            // Catch the AssertionError and return null to workaround it. b/231701345
+            Logger.w(TAG, "AssertionError, fail to get camera characteristic.", e);
+            return null;
+        }
     }
 
     @ExecutedBy("mExecutor")

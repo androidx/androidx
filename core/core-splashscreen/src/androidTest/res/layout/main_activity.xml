@@ -19,6 +19,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#00FF00">
+    android:background="#FEDEDE">
 
 </androidx.core.splashscreen.test.TestView>

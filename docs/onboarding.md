@@ -12,10 +12,9 @@ public APIs and an overview of the constraints placed on changes.
 
 ## Workstation setup {#setup}
 
-You will need to install the
-[`repo`](https://source.android.com/setup/develop#repo) tool, which is used for
-Git branch and commit management. If you want to learn more about `repo`, see
-the [Repo Command Reference](https://source.android.com/setup/develop/repo).
+This section will help you install the `repo` tool, which is used for Git branch
+and commit management. If you want to learn more about `repo`, see the
+[Repo Command Reference](https://source.android.com/setup/develop/repo).
 
 ### Linux and MacOS {#setup-linux-mac}
 
@@ -27,44 +26,46 @@ curl https://storage.googleapis.com/git-repo-downloads/repo \
     > ~/bin/repo && chmod 700 ~/bin/repo
 ```
 
-Then, modify `~/.bash_profile` (if using `bash`) to ensure you can find local
-binaries from the command line.
+Then, modify `~/.zshrc` (or `~/.bash_profile` if using `bash`) to ensure you can
+find local binaries from the command line. We assume you're using `zsh`, but the
+following should work with `bash` as well.
 
 ```shell
 export PATH=~/bin:$PATH
 ```
 
-You will need to either start a new terminal session or run `source
-~/.bash_profile` to pick up the new path.
-
-If you encounter an SSL `CERTIFICATE_VERIFY_FAILED` error or warning about
-Python 2 being no longer supported, you will need to install Python 3 and alias
-your `repo` command to run with `python3`.
-
-```shell {.bad}
-repo: warning: Python 2 is no longer supported; Please upgrade to Python 3.6+.
-```
-
-```shell {.bad}
-Downloading Repo source from https://gerrit.googlesource.com/git-repo
-fatal: Cannot get https://gerrit.googlesource.com/git-repo/clone.bundle
-fatal: error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed (_ssl.c:777)
-```
-
-First, install Python 3 from the [official website](https://www.python.org).
-Please read the "Important Information" displayed during installation for
-information about SSL/TLS certificate validation and the running the "Install
-Certificates.command".
-
-Next, open your `~/.bash_profile` and add the following lines to wrap the `repo`
-command:
+Next, add the following lines to `~/.zshrc` (or `~/.bash_profile` if using
+`bash`) aliasing the `repo` command to run with `python3`:
 
 ```shell
 # Force repo to run with Python3
 function repo() {
-  command python3 "$(which repo)" $@
+  command python3 ~/bin/repo $@
 }
 ```
+
+Finally, you will need to either start a new terminal session or run `source
+~/.zshrc` (or `source ~/.bash_profile` if using `bash`) to enable the changes.
+
+> NOTE: If you encounter the following warning about Python 2 being no longer
+> supported, you will need to install Python 3 from the
+> [official website](https://www.python.org).
+>
+> ```shell {.bad}
+> repo: warning: Python 2 is no longer supported; Please upgrade to Python 3.6+.
+> ```
+
+> NOTE: If you encounter an SSL `CERTIFICATE_VERIFY_FAILED` error:
+>
+> ```shell {.bad}
+> Downloading Repo source from https://gerrit.googlesource.com/git-repo
+> fatal: Cannot get https://gerrit.googlesource.com/git-repo/clone.bundle
+> fatal: error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (\_ssl.c:997)
+> ```
+>
+> Run the `Install Certificates.command` in the Python folder of Application.
+> For more information about SSL/TLS certificate validation, you can read the
+> "Important Information" displayed during Python installation.
 
 ### Windows {#setup-win}
 
@@ -109,7 +110,7 @@ The following command will check out the public main development branch:
 
 ```shell
 mkdir androidx-main && cd androidx-main
-repo init -u https://android.googlesource.com/platform/manifest \
+repo init -u sso://android/platform/manifest \
     -b androidx-main --partial-clone --clone-filter=blob:limit=10M
 repo sync -c -j8
 ```
@@ -118,6 +119,12 @@ NOTE On MacOS, if you receive an SSL error like `SSL: CERTIFICATE_VERIFY_FAILED`
 you may need to install Python3 and boot strap the SSL certificates in the
 included version of pip. You can execute `Install Certificates.command` under
 `/Applications/Python 3.6/` to do so.
+
+NOTE On MacOS, if you receive a Repo or GPG error like `repo: error: "gpg"
+failed with exit status -6` with cause `md_enable: algorithm 10 not available`
+you may need to install a build of `gpg` that supports SHA512, such as the
+latest version available from [Homebrew](https://brew.sh/) using `brew install
+gpg`.
 
 ### Increase Git rename limit {#source-config}
 
@@ -130,13 +137,45 @@ git config --global merge.renameLimit 999999
 git config --global diff.renameLimit 999999
 ```
 
-### To check out older source, use the superproject
+### Set up Git file exclusions {#source-exclude}
+
+Mac users should consider adding `.DS_Store` to a global `.gitignore` file to
+avoid accidentally checking in local metadata files:
+
+```shell
+echo .DS_Store>>~/.gitignore
+git config --global core.excludesFile '~/.gitignore'
+```
+
+### To check out older sources, use the superproject {#source-historical}
 
 The
 [git superproject](https://android.googlesource.com/platform/superproject/+/androidx-main)
 contains a history of the matching exact commits of each git repository over
 time, and it can be
 [checked out directly via git](https://stackoverflow.com/questions/3796927/how-to-git-clone-including-submodules)
+
+### Troubleshooting
+
+> NOTE: If the repo manifest changes -- for example when we update the version
+> of `platform-tools` by pointing it to a different git project -- you may see
+> the following error during`repo sync`:
+>
+> ```shell
+> error.GitError: Cannot fetch --force-sync not enabled; cannot overwrite a local work tree.
+> ...
+> error: Unable to fully sync the tree.
+> error: Downloading network changes failed.
+> ```
+>
+> This indicates that Studio or some other process has made changes in the git
+> project that has been replaced or removed. You can force `repo sync` to
+> discard these changes and check out the correct git project by adding the
+> `--force-sync` argument:
+>
+> ```shell
+> repo sync -j32 --force-sync
+> ```
 
 ## Explore source code from a browser {#code-search}
 
@@ -181,6 +220,9 @@ projects may take a while, but once that finishes you can use Studio as you
 normally would for application or library development -- right-click on a test
 or sample to run or debug it, search through classes, and so on.
 
+If you get a “Unregistered VCS root detected” message, click “Add root” to
+enable the Git/VCS integration for Android Studio.
+
 If you see any errors (red underlines), click Gradle's elephant button in the
 toolbar ("Sync Project with Gradle Files") and they should resolve once the
 build completes.
@@ -199,6 +241,9 @@ build completes.
 > -Dsun.java2d.uiScale.enabled=false
 > ```
 
+> NOTE: We are aware of a bug where running `./studiow` does not result in
+> Android Studio application being launched.
+
 If in the future you encounter unexpected errors in Studio and you want to check
 for the possibility it is due to some incorrect settings or other generated
 files, you can run `./studiow --clean main <project subset>` or `./studiow
@@ -214,6 +259,20 @@ files, you can run `./studiow --clean main <project subset>` or `./studiow
 > *   Gradle tasks aren't being loaded. Under Studio's settings => Experimental,
 >     make sure that "Do not build Gradle task list during Gradle sync" is
 >     unchecked. (Note that unchecking this can reduce Studio's performance)
+
+### Enabling Compose @Preview annotation previews
+
+Add the following dependencies to your project's `build.gradle`
+
+```groovy
+dependencies {
+    implementation(project(":compose:ui:ui-tooling-preview"))
+    debugImplementation(project(":compose:ui:ui-tooling"))
+}
+```
+
+then
+[use it like you would on an external project](https://developer.android.com/jetpack/compose/tooling).
 
 ## Making changes {#changes}
 
@@ -234,6 +293,23 @@ The `--cbr` switch automatically picks the current repo branch for upload. The
 can refer to the
 [Android documentation](https://source.android.com/setup/create/coding-tasks#workflow)
 for a high level overview of this basic workflow.
+
+If you see the following prompt, choose `always`:
+
+```
+Run hook scripts from https://android.googlesource.com/platform/manifest (yes/always/NO)?
+```
+
+If the upload succeeds, you'll see an output like:
+
+```
+remote:
+remote: New Changes:
+remote:   https://android-review.googlesource.com/c/platform/frameworks/support/+/720062 Further README updates
+remote:
+```
+
+To edit your change, use `git commit --amend`, and re-upload.
 
 NOTE If you encounter issues with `repo upload`, consider running upload with
 trace enabled, e.g. `GIT_DAPPER_TRACE=1 repo --trace upload . --cbr -y`. These
@@ -313,10 +389,22 @@ shell script:
 
 ### Attaching a debugger to the build
 
-Gradle tasks, including building a module, may be run or debugged from Android
-Studio's `Gradle` pane by finding the task to be debugged -- for example,
-`androidx > androidx > appcompat > appcompat > build > assemble` --
-right-clicking on it, and then selecting `Debug...`.
+Gradle tasks, including building a module, may be run or debugged from within
+Android Studio. To start, you need to add the task as a run configuration: you
+can do this manually by adding the corresponding task by clicking on the run
+configuration dropdown, pressing
+[`Edit Configurations`](https://www.jetbrains.com/help/idea/run-debug-gradle.html),
+and adding the corresponding task.
+
+You can also run the task through the IDE from the terminal, by using the
+[`Run highlighted command using IDE`](https://blog.jetbrains.com/idea/2020/07/run-ide-features-from-the-terminal/)
+feature - type in the task you want to run in the in-IDE terminal, and
+`ctrl+enter` / `cmd+enter` to launch this through the IDE. This will
+automatically add the configuration to the run configuration menu - you can then
+cancel the task.
+
+Once the task has been added to the run configuration menu, you can start
+debugging as with any other task by pressing the `debug` button.
 
 Note that debugging will not be available until Gradle sync has completed.
 
@@ -325,7 +413,7 @@ Note that debugging will not be available until Gradle sync has completed.
 Tasks may also be debugged from the command line, which may be useful if
 `./studiow` cannot run due to a Gradle task configuration issue.
 
-1.  From the configurations dropdown in Studio, select "Edit Configurations".
+1.  From the Run dropdown in Studio, select "Edit Configurations".
 1.  Click the plus in the top left to create a new "Remote" configuration. Give
     it a name and hit "Ok".
 1.  Set breakpoints.
@@ -402,7 +490,7 @@ task:
 ```
 
 Places the documentation in
-`{androidx-main}/out/dist/out/androidx/docs-tip-of-tree/build/dokkaKotlinDocs`
+`{androidx-main}/out/androidx/docs-tip-of-tree/build/dokkaKotlinDocs`
 
 #### Dackka docs
 
@@ -416,9 +504,27 @@ run the Gradle task:
 Location of generated refdocs:
 
 *   docs-public (what is published to DAC):
-    `{androidx-main}/out/dist/out/androidx/docs-public/build/dackkaDocs`
+    `{androidx-main}/out/androidx/docs-public/build/dackkaDocs`
 *   docs-tip-of-tree:
-    `{androidx-main}/out/dist/out/androidx/docs-tip-of-tree/build/dackkaDocs`
+    `{androidx-main}/out/androidx/docs-tip-of-tree/build/dackkaDocs`
+
+The generated docs are plain HTML pages with links that do not work locally.
+These issues are fixed when the docs are published to DAC, but to preview a
+local version of the docs with functioning links and CSS, run:
+
+```
+python3 development/offlinifyDocs/offlinify_dackka_docs.py
+```
+
+You will need to have the `bs4` Python package installed. The CSS used is not
+the same as what will be used when the docs are published.
+
+By default, this command converts the tip-of-tree docs for all libraries. To see
+more options, run:
+
+```
+python3 development/offlinifyDocs/offlinify_dackka_docs.py --help
+```
 
 #### Release docs
 
@@ -603,25 +709,68 @@ the latest API changes.
 #### Missing external dependency
 
 If Gradle cannot resolve a dependency listed in your `build.gradle`, you may
-need to import the corresponding artifact into `prebuilts/androidx/external`.
-Our workflow does not automatically download artifacts from the internet to
+need to import the corresponding artifact into one of the prebuilts
+repositories. These repositories are located under `prebuilts/androidx`. Our
+workflow does not automatically download artifacts from the internet to
 facilitate reproducible builds even if remote artifacts are changed.
 
-You can download a dependency by running:
+We use a script to download dependencies, you can learn more about it
+[here](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:development/importMaven/README.md).
 
-```shell
-cd frameworks/support && ./development/importMaven/import_maven_artifacts.py -n 'someGroupId:someArtifactId:someVersion'
-```
-
-This will create a change within the `prebuilts/androidx/external` directory.
-Make sure to upload this change before or concurrently (ex. in the same Gerrit
-topic) with the dependent library code.
+##### Importing dependencies in `libs.versions.toml`
 
 Libraries typically reference dependencies using constants defined in
-[`Dependencies.kt`](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:buildSrc/src/main/kotlin/androidx/build/dependencies/Dependencies.kt),
-so please update this file to include a constant for the version of the library
-that you have checked in. You will reference this constant in your library's
+[`libs.versions.toml`](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:gradle/libs.versions.toml).
+Update this file to include a constant for the version of the library that you
+want to depend on. You will reference this constant in your library's
 `build.gradle` dependencies.
+
+**After** you update the `libs.versions.toml` file with new dependencies, you
+can download them by running:
+
+```shell
+cd frameworks/support &&\
+development/importMaven/importMaven.sh import-toml
+```
+
+This command will resolve everything declared in the `libs.versions.toml` file
+and download missing artifacts into `prebuilts/androidx/external` or
+`prebuilts/androidx/internal`.
+
+Make sure to upload these changes before or concurrently (ex. in the same Gerrit
+topic) with the dependent library code.
+
+##### Downloading a dependency without changing `libs.versions.toml`
+
+You can also download a dependency without changing `libs.versions.toml` file by
+directly invoking:
+
+```shell
+cd frameworks/support &&\
+./development/importMaven/importMaven.sh someGroupId:someArtifactId:someVersion
+```
+
+##### Missing konan dependencies
+
+Kotlin Multiplatform projects need prebuilts to compile native code, which are
+located under `prebuilts/androidx/konan`. **After** you update the kotlin
+version of AndroidX, you should also download necessary prebuilts via:
+
+```shell
+cd frameworks/support &&\
+development/importMaven/importMaven.sh import-konan-binaries --konan-compiler-version <new-kotlin-version>
+```
+
+Please remember to commit changes in the `prebuilts/androidx/konan` repository.
+
+#### Dependency verification
+
+If the new dependency you are importing is unsigned, or is signed with a new,
+unrecognized key, then you will need to add new dependency verification metadata
+to indicate to Gradle that this new dependency is trusted. Instructions for how
+to do this are currently in the
+[README](https://android.googlesource.com/platform/frameworks/support/+/androidx-main/gradle/README.md)
+in the development subfolder
 
 #### Updating an existing dependency
 
@@ -661,7 +810,30 @@ AndroidX libraries are expected to include unit or integration test coverage for
 100% of their public API surface. Additionally, all CLs must include a `Test:`
 stanza indicating which tests were used to verify correctness. Any CLs
 implementing bug fixes are expected to include new regression tests specific to
-the issue being fixed
+the issue being fixed.
+
+### Running Tests
+
+#### Single Test Class or Method
+
+1.  Open the desired test file in Android Studio.
+2.  Right-click on a test class or @Test method name and select `Run FooBarTest`
+
+#### Full Test Package
+
+1.  In the project side panel open the desired module.
+2.  Find the directory with the tests
+3.  Right-click on the directory and select `Run androidx.foobar`
+
+### Running Sample Apps
+
+The AndroidX repository has a set of Android applications that exercise AndroidX
+code. These applications can be useful when you want to debug a real running
+application, or reproduce a problem interactively, before writing test code.
+
+These applications are named either `<libraryname>-integration-tests-testapp`,
+or `support-\*-demos` (e.g. `support-v4-demos` or `support-leanback-demos`). You
+can run them by clicking `Run > Run ...` and choosing the desired application.
 
 See the [Testing](testing.md) page for more resources on writing, running, and
 monitoring tests.
@@ -682,11 +854,6 @@ directory to expose your existing artifacts to the `./studiow` instance:
 ln -s /Users/$(whoami)/Library/Android/sdk/system-images \
       ../../prebuilts/fullsdk-darwin/system-images
 ```
-
-### Benchmarking {#testing-benchmarking}
-
-Libraries are encouraged to write and monitor performance benchmarks. See the
-[Benchmarking](benchmarking.md) page for more details.
 
 ## Library snapshots {#snapshots}
 
@@ -723,11 +890,10 @@ can find them on either our public-facing build server:
 
 or on our slightly-more-convenient [androidx.dev](https://androidx.dev) site:
 
-`https://androidx.dev/snapshots/builds/<build-id>/artifacts/repository` for a
-specific build ID
+`https://androidx.dev/snapshots/builds/<build-id>/artifacts` for a specific
+build ID
 
-`https://androidx.dev/snapshots/builds/latest/artifacts/repository` for
-tip-of-tree snapshots
+`https://androidx.dev/snapshots/latest/artifacts` for tip-of-tree snapshots
 
 ### Obtaining a build ID
 
@@ -822,32 +988,20 @@ First, use the `createArchive` Gradle task to generate the local Maven
 repository artifact:
 
 ```shell
-# Creates <path-to-checkout>/out/dist/sdk-repo-linux-m2repository-##.zip
+# Creates <path-to-checkout>/out/androidx/build/support_repo/
 ./gradlew createArchive
 ```
 
-Next, take the ZIP output from this task and extract the contents to the Android
-SDK path that you are using for your alternate (non-AndroidX) version of Android
-Studio. For example, you may be using `~/Android/SDK/extras` if you are using
-the default Android Studio SDK for app development or
-`prebuilts/fullsdk-linux/extras` if you are using fullsdk for platform
-development.
-
-```shell
-# Creates or overwrites android/m2repository
-cd <path-to-sdk>/extras
-unzip <path-to-checkout>/out/dist/top-of-tree-m2repository-##.zip
-```
-
-In the project's 'build.gradle' within 'repositories' notify studio of the
-location of m2repository:
+Using for your alternate (non-AndroidX) version of Android Studio open the
+project's 'build.gradle' and add the following within 'repositories' to make
+Android Gradle Plugin look for binaries in newly built repository:
 
 ```groovy
 allprojects {
     repositories {
         ...
         maven {
-            url "<path-to-sdk>/extras/m2repository"
+            url "<path-to-sdk>/out/androidx/build/support_repo/"
         }
     }
 }
@@ -888,3 +1042,32 @@ cp -a <path-to-sdk>/extras/m2repository/androidx/recyclerview/recyclerview/1.1.0
 
 Make sure the library versions are the same before and after replacement. Then
 you can build the Android platform code with the new `androidx` code.
+
+### How do I measure library size? {#library-size}
+
+Method count and bytecode size are tracked in CI
+[alongside benchmarks](benchmarking.md#monitoring) to detect regressions.
+
+For local measurements, use the `:reportLibraryMetrics` task. For example:
+
+```shell
+./gradlew benchmark:benchmark-macro:reportLibraryMetrics
+cat ../../out/dist/librarymetrics/androidx.benchmark_benchmark-macro.json
+```
+
+Will output something like: `{"method_count":1256,"bytecode_size":178822}`
+
+Note: this only counts the weight of your library's jar/aar, including
+resources. It does not count library dependencies. It does not account for a
+minification step (e.g. with R8), as that is dynamic, and done at app build time
+(and depend on which entrypoints the app uses).
+
+### How do I add content to a library's Overview reference doc page?
+
+Put content in a markdown file that ends with `-documentation.md` in the
+directory that corresponds to the Overview page that you'd like to document.
+
+For example, the `androidx.compose.runtime`
+[Overview page](https://developer.android.com/reference/kotlin/androidx/compose/runtime/package-summary)
+includes content from
+[compose-runtime-documentation.md](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:compose/runtime/runtime/src/commonMain/kotlin/androidx/compose/runtime/compose-runtime-documentation.md).

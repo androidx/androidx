@@ -20,6 +20,7 @@ import android.annotation.SuppressLint;
 import android.graphics.Color;
 
 import androidx.annotation.ColorInt;
+import androidx.annotation.DoNotInline;
 import androidx.annotation.FloatRange;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
@@ -89,42 +90,54 @@ public final class ColorUtils {
     @RequiresApi(26)
     @NonNull
     public static Color compositeColors(@NonNull Color foreground, @NonNull Color background) {
-        if (!Objects.equals(foreground.getModel(), background.getModel())) {
-            throw new IllegalArgumentException(
-                    "Color models must match (" + foreground.getModel() + " vs. "
-                            + background.getModel() + ")");
+        return Api26Impl.compositeColors(foreground, background);
+    }
+
+    @RequiresApi(26)
+    static class Api26Impl {
+        private Api26Impl() {
+            // This class is not instantiable.
         }
 
-        Color s = Objects.equals(background.getColorSpace(), foreground.getColorSpace())
-                ? foreground
-                : foreground.convert(background.getColorSpace());
+        @DoNotInline
+        static Color compositeColors(Color foreground, Color background) {
+            if (!Objects.equals(foreground.getModel(), background.getModel())) {
+                throw new IllegalArgumentException(
+                        "Color models must match (" + foreground.getModel() + " vs. "
+                                + background.getModel() + ")");
+            }
 
-        float[] src = s.getComponents();
-        float[] dst = background.getComponents();
+            Color s = Objects.equals(background.getColorSpace(), foreground.getColorSpace())
+                    ? foreground
+                    : foreground.convert(background.getColorSpace());
 
-        float sa = s.alpha();
-        // Destination alpha pre-composited
-        float da = background.alpha() * (1.0f - sa);
+            float[] src = s.getComponents();
+            float[] dst = background.getComponents();
 
-        // Index of the alpha component
-        @SuppressLint("Range") // TODO Remove after upgrading Android Gradle Plugin to 3.1 or newer.
-        int ai = background.getComponentCount() - 1;
+            float sa = s.alpha();
+            // Destination alpha pre-composited
+            float da = background.alpha() * (1.0f - sa);
 
-        // Final alpha: src_alpha + dst_alpha * (1 - src_alpha)
-        dst[ai] = sa + da;
+            // Index of the alpha component
+            @SuppressLint("Range") // TODO Remove after upgrading AGP to 3.1 or newer.
+            int ai = background.getComponentCount() - 1;
 
-        // Divide by final alpha to return non pre-multiplied color
-        if (dst[ai] > 0) {
-            sa /= dst[ai];
-            da /= dst[ai];
+            // Final alpha: src_alpha + dst_alpha * (1 - src_alpha)
+            dst[ai] = sa + da;
+
+            // Divide by final alpha to return non pre-multiplied color
+            if (dst[ai] > 0) {
+                sa /= dst[ai];
+                da /= dst[ai];
+            }
+
+            // Composite non-alpha components
+            for (int i = 0; i < ai; i++) {
+                dst[i] = src[i] * sa + dst[i] * da;
+            }
+
+            return Color.valueOf(dst, background.getColorSpace());
         }
-
-        // Composite non-alpha components
-        for (int i = 0; i < ai; i++) {
-            dst[i] = src[i] * sa + dst[i] * da;
-        }
-
-        return Color.valueOf(dst, background.getColorSpace());
     }
 
     private static int compositeAlpha(int foregroundAlpha, int backgroundAlpha) {
@@ -177,10 +190,10 @@ public final class ColorUtils {
      * have a contrast value of at least {@code minContrastRatio} when compared to
      * {@code background}.
      *
-     * @param foreground       the foreground color
-     * @param background       the opaque background color
+     * @param foreground the foreground color
+     * @param background the opaque background color
      * @param minContrastRatio the minimum contrast ratio
-     * @return the alpha value in the range 0-255, or -1 if no value could be calculated
+     * @return the alpha value in the range [0, 255] or -1 if no value could be calculated
      */
     public static int calculateMinimumAlpha(@ColorInt int foreground, @ColorInt int background,
             float minContrastRatio) {
@@ -225,14 +238,14 @@ public final class ColorUtils {
     /**
      * Convert RGB components to HSL (hue-saturation-lightness).
      * <ul>
-     * <li>outHsl[0] is Hue [0 .. 360)</li>
-     * <li>outHsl[1] is Saturation [0...1]</li>
-     * <li>outHsl[2] is Lightness [0...1]</li>
+     * <li>outHsl[0] is Hue [0, 360)</li>
+     * <li>outHsl[1] is Saturation [0, 1]</li>
+     * <li>outHsl[2] is Lightness [0, 1]</li>
      * </ul>
      *
-     * @param r      red component value [0..255]
-     * @param g      green component value [0..255]
-     * @param b      blue component value [0..255]
+     * @param r red component value [0, 255]
+     * @param g green component value [0, 255]
+     * @param b blue component value [0, 255]
      * @param outHsl 3-element array which holds the resulting HSL components
      */
     public static void RGBToHSL(@IntRange(from = 0x0, to = 0xFF) int r,
@@ -277,12 +290,12 @@ public final class ColorUtils {
     /**
      * Convert the ARGB color to its HSL (hue-saturation-lightness) components.
      * <ul>
-     * <li>outHsl[0] is Hue [0 .. 360)</li>
-     * <li>outHsl[1] is Saturation [0...1]</li>
-     * <li>outHsl[2] is Lightness [0...1]</li>
+     * <li>outHsl[0] is Hue [0, 360)</li>
+     * <li>outHsl[1] is Saturation [0, 1]</li>
+     * <li>outHsl[2] is Lightness [0, 1]</li>
      * </ul>
      *
-     * @param color  the ARGB color to convert. The alpha component is ignored
+     * @param color the ARGB color to convert. The alpha component is ignored
      * @param outHsl 3-element array which holds the resulting HSL components
      */
     public static void colorToHSL(@ColorInt int color, @NonNull float[] outHsl) {
@@ -292,9 +305,9 @@ public final class ColorUtils {
     /**
      * Convert HSL (hue-saturation-lightness) components to a RGB color.
      * <ul>
-     * <li>hsl[0] is Hue [0 .. 360)</li>
-     * <li>hsl[1] is Saturation [0...1]</li>
-     * <li>hsl[2] is Lightness [0...1]</li>
+     * <li>hsl[0] is Hue [0, 360)</li>
+     * <li>hsl[1] is Saturation [0, 1]</li>
+     * <li>hsl[2] is Lightness [0, 1]</li>
      * </ul>
      * If hsv values are out of range, they are pinned.
      *
@@ -371,7 +384,7 @@ public final class ColorUtils {
     /**
      * Convert the ARGB color to its CIE Lab representative components.
      *
-     * @param color  the ARGB color to convert. The alpha component is ignored
+     * @param color the ARGB color to convert. The alpha component is ignored
      * @param outLab 3-element array which holds the resulting LAB components
      */
     public static void colorToLAB(@ColorInt int color, @NonNull double[] outLab) {
@@ -382,14 +395,14 @@ public final class ColorUtils {
      * Convert RGB components to its CIE Lab representative components.
      *
      * <ul>
-     * <li>outLab[0] is L [0 ...1)</li>
-     * <li>outLab[1] is a [-128...127)</li>
-     * <li>outLab[2] is b [-128...127)</li>
+     * <li>outLab[0] is L [0, 100]</li>
+     * <li>outLab[1] is a [-128, 127)</li>
+     * <li>outLab[2] is b [-128, 127)</li>
      * </ul>
      *
-     * @param r      red component value [0..255]
-     * @param g      green component value [0..255]
-     * @param b      blue component value [0..255]
+     * @param r red component value [0, 255]
+     * @param g green component value [0, 255]
+     * @param b blue component value [0, 255]
      * @param outLab 3-element array which holds the resulting LAB components
      */
     public static void RGBToLAB(@IntRange(from = 0x0, to = 0xFF) int r,
@@ -409,12 +422,12 @@ public final class ColorUtils {
      * 2° Standard Observer (1931).</p>
      *
      * <ul>
-     * <li>outXyz[0] is X [0 ...95.047)</li>
-     * <li>outXyz[1] is Y [0...100)</li>
-     * <li>outXyz[2] is Z [0...108.883)</li>
+     * <li>outXyz[0] is X [0, 95.047)</li>
+     * <li>outXyz[1] is Y [0, 100)</li>
+     * <li>outXyz[2] is Z [0, 108.883)</li>
      * </ul>
      *
-     * @param color  the ARGB color to convert. The alpha component is ignored
+     * @param color the ARGB color to convert. The alpha component is ignored
      * @param outXyz 3-element array which holds the resulting LAB components
      */
     public static void colorToXYZ(@ColorInt int color, @NonNull double[] outXyz) {
@@ -428,14 +441,14 @@ public final class ColorUtils {
      * 2° Standard Observer (1931).</p>
      *
      * <ul>
-     * <li>outXyz[0] is X [0 ...95.047)</li>
-     * <li>outXyz[1] is Y [0...100)</li>
-     * <li>outXyz[2] is Z [0...108.883)</li>
+     * <li>outXyz[0] is X [0, 95.047)</li>
+     * <li>outXyz[1] is Y [0, 100)</li>
+     * <li>outXyz[2] is Z [0, 108.883)</li>
      * </ul>
      *
-     * @param r      red component value [0..255]
-     * @param g      green component value [0..255]
-     * @param b      blue component value [0..255]
+     * @param r red component value [0, 255]
+     * @param g green component value [0, 255]
+     * @param b blue component value [0, 255]
      * @param outXyz 3-element array which holds the resulting XYZ components
      */
     public static void RGBToXYZ(@IntRange(from = 0x0, to = 0xFF) int r,
@@ -464,14 +477,14 @@ public final class ColorUtils {
      * 2° Standard Observer (1931).</p>
      *
      * <ul>
-     * <li>outLab[0] is L [0 ...1)</li>
-     * <li>outLab[1] is a [-128...127)</li>
-     * <li>outLab[2] is b [-128...127)</li>
+     * <li>outLab[0] is L [0, 100]</li>
+     * <li>outLab[1] is a [-128, 127)</li>
+     * <li>outLab[2] is b [-128, 127)</li>
      * </ul>
      *
-     * @param x      X component value [0...95.047)
-     * @param y      Y component value [0...100)
-     * @param z      Z component value [0...108.883)
+     * @param x X component value [0, 95.047)
+     * @param y Y component value [0, 100)
+     * @param z Z component value [0, 108.883)
      * @param outLab 3-element array which holds the resulting Lab components
      */
     public static void XYZToLAB(@FloatRange(from = 0f, to = XYZ_WHITE_REFERENCE_X) double x,
@@ -496,14 +509,14 @@ public final class ColorUtils {
      * 2° Standard Observer (1931).</p>
      *
      * <ul>
-     * <li>outXyz[0] is X [0 ...95.047)</li>
-     * <li>outXyz[1] is Y [0...100)</li>
-     * <li>outXyz[2] is Z [0...108.883)</li>
+     * <li>outXyz[0] is X [0, 95.047)</li>
+     * <li>outXyz[1] is Y [0, 100)</li>
+     * <li>outXyz[2] is Z [0, 108.883)</li>
      * </ul>
      *
-     * @param l      L component value [0...100)
-     * @param a      A component value [-128...127)
-     * @param b      B component value [-128...127)
+     * @param l L component value [0, 100]
+     * @param a A component value [-128, 127)
+     * @param b B component value [-128, 127)
      * @param outXyz 3-element array which holds the resulting XYZ components
      */
     public static void LABToXYZ(@FloatRange(from = 0f, to = 100) final double l,
@@ -532,9 +545,9 @@ public final class ColorUtils {
      * <p>This method expects the XYZ representation to use the D65 illuminant and the CIE
      * 2° Standard Observer (1931).</p>
      *
-     * @param x X component value [0...95.047)
-     * @param y Y component value [0...100)
-     * @param z Z component value [0...108.883)
+     * @param x X component value [0, 95.047)
+     * @param y Y component value [0, 100)
+     * @param z Z component value [0, 108.883)
      * @return int containing the RGB representation
      */
     @ColorInt
@@ -558,9 +571,9 @@ public final class ColorUtils {
     /**
      * Converts a color from CIE Lab to its RGB representation.
      *
-     * @param l L component value [0...100]
-     * @param a A component value [-128...127]
-     * @param b B component value [-128...127]
+     * @param l L component value [0, 100]
+     * @param a A component value [-128, 127]
+     * @param b B component value [-128, 127]
      * @return int containing the RGB representation
      */
     @ColorInt
@@ -575,18 +588,21 @@ public final class ColorUtils {
     /**
      * Returns the euclidean distance between two LAB colors.
      */
+    @SuppressWarnings("unused")
     public static double distanceEuclidean(@NonNull double[] labX, @NonNull double[] labY) {
         return Math.sqrt(Math.pow(labX[0] - labY[0], 2)
                 + Math.pow(labX[1] - labY[1], 2)
                 + Math.pow(labX[2] - labY[2], 2));
     }
 
+    @SuppressWarnings("SameParameterValue")
     private static float constrain(float amount, float low, float high) {
-        return amount < low ? low : (amount > high ? high : amount);
+        return amount < low ? low : Math.min(amount, high);
     }
 
+    @SuppressWarnings("SameParameterValue")
     private static int constrain(int amount, int low, int high) {
-        return amount < low ? low : (amount > high ? high : amount);
+        return amount < low ? low : Math.min(amount, high);
     }
 
     private static double pivotXyzComponent(double component) {
@@ -603,8 +619,9 @@ public final class ColorUtils {
      *
      * @param color1 the first ARGB color
      * @param color2 the second ARGB color
-     * @param ratio  the blend ratio of {@code color1} to {@code color2}
+     * @param ratio the blend ratio of {@code color1} to {@code color2}
      */
+    @SuppressWarnings("unused")
     @ColorInt
     public static int blendARGB(@ColorInt int color1, @ColorInt int color2,
             @FloatRange(from = 0.0, to = 1.0) float ratio) {
@@ -623,11 +640,12 @@ public final class ColorUtils {
      * <p>A blend ratio of 0.0 will result in {@code hsl1}, 0.5 will give an even blend,
      * 1.0 will result in {@code hsl2}.</p>
      *
-     * @param hsl1      3-element array which holds the first HSL color
-     * @param hsl2      3-element array which holds the second HSL color
-     * @param ratio     the blend ratio of {@code hsl1} to {@code hsl2}
+     * @param hsl1 3-element array which holds the first HSL color
+     * @param hsl2 3-element array which holds the second HSL color
+     * @param ratio the blend ratio of {@code hsl1} to {@code hsl2}
      * @param outResult 3-element array which holds the resulting HSL components
      */
+    @SuppressWarnings("unused")
     public static void blendHSL(@NonNull float[] hsl1, @NonNull float[] hsl2,
             @FloatRange(from = 0.0, to = 1.0) float ratio, @NonNull float[] outResult) {
         if (outResult.length != 3) {
@@ -646,11 +664,12 @@ public final class ColorUtils {
      * <p>A blend ratio of 0.0 will result in {@code lab1}, 0.5 will give an even blend,
      * 1.0 will result in {@code lab2}.</p>
      *
-     * @param lab1      3-element array which holds the first LAB color
-     * @param lab2      3-element array which holds the second LAB color
-     * @param ratio     the blend ratio of {@code lab1} to {@code lab2}
+     * @param lab1 3-element array which holds the first LAB color
+     * @param lab2 3-element array which holds the second LAB color
+     * @param ratio the blend ratio of {@code lab1} to {@code lab2}
      * @param outResult 3-element array which holds the resulting LAB components
      */
+    @SuppressWarnings("unused")
     public static void blendLAB(@NonNull double[] lab1, @NonNull double[] lab2,
             @FloatRange(from = 0.0, to = 1.0) double ratio, @NonNull double[] outResult) {
         if (outResult.length != 3) {

@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
-import androidx.build.LibraryVersions
 import androidx.build.Publish
 
 plugins {
@@ -25,7 +23,7 @@ plugins {
 
 dependencies {
     api("androidx.annotation:annotation:1.1.0")
-    implementation(project(":appcompat:appcompat"))
+    implementation("androidx.appcompat:appcompat:1.4.0")
     implementation("androidx.collection:collection:1.1.0")
 
     androidTestImplementation(libs.testExtJunit)
@@ -45,4 +43,8 @@ androidx {
     inceptionYear = "2017"
     description = "The slices core library provides utilities for the slices view and provider libraries"
     failOnDeprecationWarnings = false
+}
+
+android {
+    namespace "androidx.slice.core"
 }

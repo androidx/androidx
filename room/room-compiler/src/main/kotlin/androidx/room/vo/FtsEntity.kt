@@ -17,10 +17,10 @@
 package androidx.room.vo
 
 import androidx.room.compiler.processing.XType
-import androidx.room.migration.bundle.BundleUtil
 import androidx.room.migration.bundle.FtsEntityBundle
 import androidx.room.parser.FtsVersion
 import androidx.room.compiler.processing.XTypeElement
+import androidx.room.migration.bundle.TABLE_NAME_PLACEHOLDER
 
 /**
  * An Entity with a mapping FTS table.
@@ -130,7 +130,7 @@ class FtsEntity(
 
     override fun toBundle() = FtsEntityBundle(
         tableName,
-        createTableQuery(BundleUtil.TABLE_NAME_PLACEHOLDER),
+        createTableQuery(TABLE_NAME_PLACEHOLDER),
         nonHiddenFields.map { it.toBundle() },
         primaryKey.toBundle(),
         ftsVersion.name,

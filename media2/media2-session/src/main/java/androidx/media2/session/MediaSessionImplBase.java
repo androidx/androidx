@@ -61,7 +61,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.concurrent.futures.AbstractResolvableFuture;
 import androidx.concurrent.futures.ResolvableFuture;
-import androidx.core.os.BuildCompat;
 import androidx.core.util.ObjectsCompat;
 import androidx.media.AudioAttributesCompat;
 import androidx.media.MediaBrowserServiceCompat;
@@ -185,7 +184,7 @@ class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
             }
             mbrComponent = sServiceComponentName;
         }
-        int pendingIntentFlagMutable = BuildCompat.isAtLeastS() ? PendingIntent.FLAG_MUTABLE : 0;
+        int pendingIntentFlagMutable = Build.VERSION.SDK_INT >= 31 ? PendingIntent.FLAG_MUTABLE : 0;
         if (mbrComponent == null) {
             // No service to revive playback after it's dead.
             // Create a PendingIntent that points to the runtime broadcast receiver.
@@ -204,6 +203,7 @@ class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
             mBroadcastReceiver = new MediaButtonReceiver();
             IntentFilter filter = new IntentFilter(Intent.ACTION_MEDIA_BUTTON);
             filter.addDataScheme(mSessionUri.getScheme());
+            // TODO(b/197817693): Explicitly indicate whether the receiver should be exported.
             context.registerReceiver(mBroadcastReceiver, filter);
         } else {
             // Has MediaSessionService to revive playback after it's dead.
@@ -1154,6 +1154,7 @@ class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
     }
 
     @Nullable
+    @SuppressWarnings("deprecation")
     private ComponentName getServiceComponentByAction(@NonNull String action) {
         PackageManager pm = mContext.getPackageManager();
         Intent queryIntent = new Intent(action);
@@ -1672,6 +1673,7 @@ class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     final class MediaButtonReceiver extends BroadcastReceiver {
+        @SuppressWarnings("deprecation")
         @Override
         public void onReceive(Context context, Intent intent) {
             if (!Intent.ACTION_MEDIA_BUTTON.equals(intent.getAction())) {

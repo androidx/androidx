@@ -16,6 +16,9 @@ package androidx.leanback.widget;
 import android.content.Context;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import java.util.Calendar;
 import java.util.TimeZone;
 
@@ -42,7 +45,7 @@ public class GuidedDatePickerAction extends GuidedAction {
         private long mMinDate = Long.MIN_VALUE;
         private long mMaxDate = Long.MAX_VALUE;
 
-        public BuilderBase(Context context) {
+        public BuilderBase(@NonNull Context context) {
             super(context);
             Calendar c = Calendar.getInstance();
             mDate = c.getTimeInMillis();
@@ -56,7 +59,7 @@ public class GuidedDatePickerAction extends GuidedAction {
          * @param format Format of showing Date, e.g. "YMD".
          * @return This Builder object.
          */
-        public B datePickerFormat(String format) {
+        public B datePickerFormat(@Nullable String format) {
             mDatePickerFormat = format;
             return (B) this;
         }
@@ -95,7 +98,7 @@ public class GuidedDatePickerAction extends GuidedAction {
          * Apply values to GuidedDatePickerAction.
          * @param action GuidedDatePickerAction to apply values.
          */
-        protected final void applyDatePickerValues(GuidedDatePickerAction action) {
+        protected final void applyDatePickerValues(@NonNull GuidedDatePickerAction action) {
             super.applyValues(action);
             action.mDatePickerFormat = mDatePickerFormat;
             action.mDate = mDate;
@@ -112,7 +115,7 @@ public class GuidedDatePickerAction extends GuidedAction {
      * Builder class to build a GuidedDatePickerAction.
      */
     public final static class Builder extends BuilderBase<Builder> {
-        public Builder(Context context) {
+        public Builder(@NonNull Context context) {
             super(context);
         }
 
@@ -120,6 +123,7 @@ public class GuidedDatePickerAction extends GuidedAction {
          * Builds the GuidedDatePickerAction corresponding to this Builder.
          * @return The GuidedDatePickerAction as configured through this Builder.
          */
+        @NonNull
         public GuidedDatePickerAction build() {
             GuidedDatePickerAction action = new GuidedDatePickerAction();
             applyDatePickerValues(action);
@@ -139,6 +143,7 @@ public class GuidedDatePickerAction extends GuidedAction {
      * be used.
      * @return Format of showing Date, e.g. "YMD".  Returns null if using current locale's default.
      */
+    @Nullable
     public String getDatePickerFormat() {
         return mDatePickerFormat;
     }
@@ -180,12 +185,12 @@ public class GuidedDatePickerAction extends GuidedAction {
     }
 
     @Override
-    public void onSaveInstanceState(Bundle bundle, String key) {
+    public void onSaveInstanceState(@NonNull Bundle bundle, @Nullable String key) {
         bundle.putLong(key, getDate());
     }
 
     @Override
-    public void onRestoreInstanceState(Bundle bundle, String key) {
+    public void onRestoreInstanceState(@NonNull Bundle bundle, @Nullable String key) {
         setDate(bundle.getLong(key, getDate()));
     }
 }

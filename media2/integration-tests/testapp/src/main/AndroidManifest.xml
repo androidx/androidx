@@ -15,8 +15,7 @@
 -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    package="androidx.media2.integration.testapp">
+    xmlns:tools="http://schemas.android.com/tools">
 
     <uses-sdk tools:overrideLibrary="androidx.media2.widget" />
 
@@ -47,8 +46,11 @@
             </intent-filter>
         </activity>
 
-        <service android:name=".VideoSessionService" android:exported="false"
-                 android:process=":VideoSessionService">
+        <service
+            android:name=".VideoSessionService"
+            android:exported="false"
+            android:process=":VideoSessionService"
+            tools:ignore="MissingServiceExportedEqualsTrue">
             <intent-filter>
                 <action android:name="androidx.media2.session.MediaSessionService" />
             </intent-filter>

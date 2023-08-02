@@ -16,6 +16,7 @@
 
 package androidx.sqlite.db;
 
+import android.content.ContentProvider;
 import android.content.Context;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -75,11 +76,12 @@ public interface SupportSQLiteOpenHelper extends Closeable {
      *
      * <p class="caution">Database upgrade may take a long time, you
      * should not call this method from the application main thread, including
-     * from {@link android.content.ContentProvider#onCreate ContentProvider.onCreate()}.
+     * from {@link ContentProvider#onCreate ContentProvider.onCreate()}.
      *
      * @return a read/write database object valid until {@link #close} is called
      * @throws SQLiteException if the database cannot be opened for writing
      */
+    @NonNull
     SupportSQLiteDatabase getWritableDatabase();
 
     /**
@@ -94,12 +96,13 @@ public interface SupportSQLiteOpenHelper extends Closeable {
      * <p class="caution">Like {@link #getWritableDatabase}, this method may
      * take a long time to return, so you should not call it from the
      * application main thread, including from
-     * {@link android.content.ContentProvider#onCreate ContentProvider.onCreate()}.
+     * {@link ContentProvider#onCreate ContentProvider.onCreate()}.
      *
      * @return a database object valid until {@link #getWritableDatabase}
      * or {@link #close} is called.
      * @throws SQLiteException if the database cannot be opened
      */
+    @NonNull
     SupportSQLiteDatabase getReadableDatabase();
 
     /**
@@ -322,6 +325,11 @@ public interface SupportSQLiteOpenHelper extends Closeable {
          * If {@code true} the database will be stored in the no-backup directory.
          */
         public final boolean useNoBackupDirectory;
+        /**
+         * If {@code true} the database will be delete and its data loss in the case that it
+         * cannot be opened.
+         */
+        public final boolean allowDataLossOnRecovery;
 
         Configuration(
                 @NonNull Context context,
@@ -335,10 +343,20 @@ public interface SupportSQLiteOpenHelper extends Closeable {
                 @Nullable String name,
                 @NonNull Callback callback,
                 boolean useNoBackupDirectory) {
+            this(context, name, callback, useNoBackupDirectory, false);
+        }
+
+        Configuration(
+                @NonNull Context context,
+                @Nullable String name,
+                @NonNull Callback callback,
+                boolean useNoBackupDirectory,
+                boolean allowDataLossOnRecovery) {
             this.context = context;
             this.name = name;
             this.callback = callback;
             this.useNoBackupDirectory = useNoBackupDirectory;
+            this.allowDataLossOnRecovery = allowDataLossOnRecovery;
         }
 
         /**
@@ -359,6 +377,7 @@ public interface SupportSQLiteOpenHelper extends Closeable {
             String mName;
             SupportSQLiteOpenHelper.Callback mCallback;
             boolean mUseNoBackupDirectory;
+            boolean mAllowDataLossOnRecovery;
 
             /**
              * <p>
@@ -386,7 +405,8 @@ public interface SupportSQLiteOpenHelper extends Closeable {
                             "Must set a non-null database name to a configuration that uses the "
                                     + "no backup directory.");
                 }
-                return new Configuration(mContext, mName, mCallback, mUseNoBackupDirectory);
+                return new Configuration(mContext, mName, mCallback, mUseNoBackupDirectory,
+                        mAllowDataLossOnRecovery);
             }
 
             Builder(@NonNull Context context) {
@@ -422,6 +442,19 @@ public interface SupportSQLiteOpenHelper extends Closeable {
             @NonNull
             public Builder noBackupDirectory(boolean useNoBackupDirectory) {
                 mUseNoBackupDirectory = useNoBackupDirectory;
+                return this;
+            }
+
+            /**
+             * Sets whether to delete and recreate the database file in situations when the
+             * database file cannot be opened, thus allowing for its data to be lost.
+             * @param allowDataLossOnRecovery If {@code true} the database file might be recreated
+             *                                in the case that it cannot be opened.
+             * @return this
+             */
+            @NonNull
+            public Builder allowDataLossOnRecovery(boolean allowDataLossOnRecovery) {
+                mAllowDataLossOnRecovery = allowDataLossOnRecovery;
                 return this;
             }
         }

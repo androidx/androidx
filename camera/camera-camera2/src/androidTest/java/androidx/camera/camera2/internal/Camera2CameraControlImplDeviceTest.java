@@ -38,6 +38,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -73,6 +74,7 @@ import androidx.camera.core.internal.CameraUseCaseAdapter;
 import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.CameraXUtil;
 import androidx.camera.testing.HandlerUtil;
+import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.os.HandlerCompat;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -93,6 +95,7 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
@@ -106,7 +109,9 @@ import java.util.concurrent.TimeoutException;
 @SdkSuppress(minSdkVersion = 21)
 public final class Camera2CameraControlImplDeviceTest {
     @Rule
-    public TestRule mUseCamera = CameraUtil.grantCameraPermissionAndPreTest();
+    public TestRule mUseCamera = CameraUtil.grantCameraPermissionAndPreTest(
+            new CameraUtil.PreTestCameraIdList(Camera2Config.defaultConfig())
+    );
 
     private Camera2CameraControlImpl mCamera2CameraControlImpl;
     private CameraControlInternal.ControlUpdateCallback mControlUpdateCallback;
@@ -116,6 +121,7 @@ public final class Camera2CameraControlImplDeviceTest {
     private HandlerThread mHandlerThread;
     private Handler mHandler;
     private CameraCharacteristics mCameraCharacteristics;
+    private CameraCharacteristicsCompat mCameraCharacteristicsCompat;
     private boolean mHasFlashUnit;
     private final Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();
     private CameraUseCaseAdapter mCamera;
@@ -140,9 +146,9 @@ public final class Camera2CameraControlImplDeviceTest {
         mHandler = HandlerCompat.createAsync(mHandlerThread.getLooper());
 
         ScheduledExecutorService executorService = CameraXExecutors.newHandlerExecutor(mHandler);
-        CameraCharacteristicsCompat cameraCharacteristicsCompat =
-                CameraCharacteristicsCompat.toCameraCharacteristicsCompat(mCameraCharacteristics);
-        mCamera2CameraControlImpl = new Camera2CameraControlImpl(cameraCharacteristicsCompat,
+        mCameraCharacteristicsCompat = CameraCharacteristicsCompat.toCameraCharacteristicsCompat(
+                mCameraCharacteristics);
+        mCamera2CameraControlImpl = new Camera2CameraControlImpl(mCameraCharacteristicsCompat,
                 executorService, executorService, mControlUpdateCallback);
 
         mCamera2CameraControlImpl.incrementUseCount();
@@ -167,9 +173,7 @@ public final class Camera2CameraControlImplDeviceTest {
     }
 
     private boolean isAndroidRZoomEnabled() {
-        return (Build.VERSION.SDK_INT >= 30
-                && mCameraCharacteristics.get(CameraCharacteristics.CONTROL_ZOOM_RATIO_RANGE)
-                != null);
+        return ZoomControl.isAndroidRZoomSupported(mCameraCharacteristicsCompat);
     }
 
     private int getMaxAfRegionCount() {
@@ -266,6 +270,15 @@ public final class Camera2CameraControlImplDeviceTest {
         assertAeMode(camera2Config, CONTROL_AE_MODE_ON_AUTO_FLASH);
         assertThat(mCamera2CameraControlImpl.getFlashMode()).isEqualTo(
                 ImageCapture.FLASH_MODE_AUTO);
+        // ZSL only support API >= 23. ZslControlImpl will be created for API >= 23, otherwise
+        // ZslControlNoOpImpl will be created, which always return false for this flag.
+        if (Build.VERSION.SDK_INT >= 23) {
+            assertThat(
+                    mCamera2CameraControlImpl.getZslControl().isZslDisabledByFlashMode()).isTrue();
+        } else {
+            assertThat(
+                    mCamera2CameraControlImpl.getZslControl().isZslDisabledByFlashMode()).isFalse();
+        }
     }
 
     @Test
@@ -282,6 +295,7 @@ public final class Camera2CameraControlImplDeviceTest {
         assertAeMode(camera2Config, CONTROL_AE_MODE_ON);
 
         assertThat(mCamera2CameraControlImpl.getFlashMode()).isEqualTo(ImageCapture.FLASH_MODE_OFF);
+        assertThat(mCamera2CameraControlImpl.getZslControl().isZslDisabledByFlashMode()).isFalse();
     }
 
     @Test
@@ -298,6 +312,15 @@ public final class Camera2CameraControlImplDeviceTest {
         assertAeMode(camera2Config, CONTROL_AE_MODE_ON_ALWAYS_FLASH);
 
         assertThat(mCamera2CameraControlImpl.getFlashMode()).isEqualTo(ImageCapture.FLASH_MODE_ON);
+        // ZSL only support API >= 23. ZslControlImpl will be created for API >= 23, otherwise
+        // ZslControlNoOpImpl will be created, which always return false for this flag.
+        if (Build.VERSION.SDK_INT >= 23) {
+            assertThat(
+                    mCamera2CameraControlImpl.getZslControl().isZslDisabledByFlashMode()).isTrue();
+        } else {
+            assertThat(
+                    mCamera2CameraControlImpl.getZslControl().isZslDisabledByFlashMode()).isFalse();
+        }
     }
 
     @Test
@@ -354,29 +377,70 @@ public final class Camera2CameraControlImplDeviceTest {
     public void triggerAf_futureSucceeds() throws Exception {
         Camera2CameraControlImpl camera2CameraControlImpl =
                 createCamera2CameraControlWithPhysicalCamera();
-        ListenableFuture<CameraCaptureResult> future = camera2CameraControlImpl.triggerAf();
+
+        ListenableFuture<CameraCaptureResult> future = CallbackToFutureAdapter.getFuture(c -> {
+            camera2CameraControlImpl.mExecutor.execute(() ->
+                    camera2CameraControlImpl.getFocusMeteringControl().triggerAf(
+                            c, /* overrideAeMode */ false));
+            return "triggerAf";
+        });
+
         future.get(5, TimeUnit.SECONDS);
     }
 
     @Test
-    @LargeTest
-    public void startFlashSequence_futureSucceeds() throws Exception {
-        Camera2CameraControlImpl camera2CameraControlImpl =
-                createCamera2CameraControlWithPhysicalCamera();
-        ListenableFuture<Void> future = camera2CameraControlImpl.startFlashSequence(
+    public void captureMaxQuality_shouldSuccess()
+            throws ExecutionException, InterruptedException, TimeoutException {
+        captureTest(ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY,
                 ImageCapture.FLASH_TYPE_ONE_SHOT_FLASH);
-        future.get(5, TimeUnit.SECONDS);
     }
 
     @Test
-    @LargeTest
-    public void setFlashModeAndStartFlashSequence_futureSucceeds() throws Exception {
-        Camera2CameraControlImpl camera2CameraControlImpl =
-                createCamera2CameraControlWithPhysicalCamera();
-        camera2CameraControlImpl.setFlashMode(ImageCapture.FLASH_MODE_ON);
-        ListenableFuture<Void> future = camera2CameraControlImpl.startFlashSequence(
+    public void captureMiniLatency_shouldSuccess()
+            throws ExecutionException, InterruptedException, TimeoutException {
+        captureTest(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY,
                 ImageCapture.FLASH_TYPE_ONE_SHOT_FLASH);
-        future.get(5, TimeUnit.SECONDS);
+    }
+
+    @Test
+    public void captureMaxQuality_torchAsFlash_shouldSuccess()
+            throws ExecutionException, InterruptedException, TimeoutException {
+        captureTest(ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY,
+                ImageCapture.FLASH_TYPE_USE_TORCH_AS_FLASH);
+    }
+
+    @Test
+    public void captureMiniLatency_torchAsFlash_shouldSuccess()
+            throws ExecutionException, InterruptedException, TimeoutException {
+        captureTest(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY,
+                ImageCapture.FLASH_TYPE_USE_TORCH_AS_FLASH);
+    }
+
+    private void captureTest(int captureMode, int flashType)
+            throws ExecutionException, InterruptedException, TimeoutException {
+        ImageCapture imageCapture = new ImageCapture.Builder().build();
+
+        mCamera = CameraUtil.createCameraAndAttachUseCase(
+                ApplicationProvider.getApplicationContext(), CameraSelector.DEFAULT_BACK_CAMERA,
+                imageCapture);
+
+        Camera2CameraControlImpl camera2CameraControlImpl =
+                (Camera2CameraControlImpl) mCamera.getCameraControl();
+
+        CameraCaptureCallback captureCallback = mock(CameraCaptureCallback.class);
+        CaptureConfig.Builder captureConfigBuilder = new CaptureConfig.Builder();
+        captureConfigBuilder.setTemplateType(CameraDevice.TEMPLATE_STILL_CAPTURE);
+        captureConfigBuilder.addSurface(imageCapture.getSessionConfig().getSurfaces().get(0));
+        captureConfigBuilder.addCameraCaptureCallback(captureCallback);
+
+        ListenableFuture<List<Void>> future = camera2CameraControlImpl.submitStillCaptureRequests(
+                Arrays.asList(captureConfigBuilder.build()), captureMode, flashType);
+
+        // The future should successfully complete
+        future.get(10, TimeUnit.SECONDS);
+        // CameraCaptureCallback.onCaptureCompleted() should be called to signal a capture attempt.
+        verify(captureCallback, timeout(3000).times(1))
+                .onCaptureCompleted(any(CameraCaptureResult.class));
     }
 
     private Camera2CameraControlImpl createCamera2CameraControlWithPhysicalCamera() {

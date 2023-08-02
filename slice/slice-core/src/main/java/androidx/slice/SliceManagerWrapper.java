@@ -16,6 +16,7 @@
 
 package androidx.slice;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Build;
@@ -56,6 +57,7 @@ class SliceManagerWrapper extends SliceManager {
         return SliceConvert.wrap(mManager.getPinnedSpecs(uri));
     }
 
+    @SuppressLint("WrongConstant") // conversion from platform definition
     @Override
     @PermissionChecker.PermissionResult
     public int checkSlicePermission(@NonNull Uri uri, int pid, int uid) {
@@ -72,6 +74,7 @@ class SliceManagerWrapper extends SliceManager {
         mManager.revokeSlicePermission(toPackage, uri);
     }
 
+    @NonNull
     @Override
     public List<Uri> getPinnedSlices() {
         return mManager.getPinnedSlices();

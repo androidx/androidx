@@ -19,6 +19,10 @@ package androidx.core.view;
 import android.os.Build;
 import android.view.ScaleGestureDetector;
 
+import androidx.annotation.DoNotInline;
+import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
+
 /**
  * Helper for accessing features in {@link ScaleGestureDetector}.
  */
@@ -49,9 +53,9 @@ public final class ScaleGestureDetectorCompat {
      * @param enabled true to enable quick scaling, false to disable
      */
     public static void setQuickScaleEnabled(
-            ScaleGestureDetector scaleGestureDetector, boolean enabled) {
+            @NonNull ScaleGestureDetector scaleGestureDetector, boolean enabled) {
         if (Build.VERSION.SDK_INT >= 19) {
-            scaleGestureDetector.setQuickScaleEnabled(enabled);
+            Api19Impl.setQuickScaleEnabled(scaleGestureDetector, enabled);
         }
     }
 
@@ -74,11 +78,29 @@ public final class ScaleGestureDetectorCompat {
      * a swipe, should perform scaling. See
      * {@link #setQuickScaleEnabled(ScaleGestureDetector, boolean)}.
      */
-    public static boolean isQuickScaleEnabled(ScaleGestureDetector scaleGestureDetector) {
+    public static boolean isQuickScaleEnabled(@NonNull ScaleGestureDetector scaleGestureDetector) {
         if (Build.VERSION.SDK_INT >= 19) {
-            return scaleGestureDetector.isQuickScaleEnabled();
+            return Api19Impl.isQuickScaleEnabled(scaleGestureDetector);
         } else {
             return false;
+        }
+    }
+
+    @RequiresApi(19)
+    static class Api19Impl {
+        private Api19Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static void setQuickScaleEnabled(ScaleGestureDetector scaleGestureDetector,
+                boolean scales) {
+            scaleGestureDetector.setQuickScaleEnabled(scales);
+        }
+
+        @DoNotInline
+        static boolean isQuickScaleEnabled(ScaleGestureDetector scaleGestureDetector) {
+            return scaleGestureDetector.isQuickScaleEnabled();
         }
     }
 }

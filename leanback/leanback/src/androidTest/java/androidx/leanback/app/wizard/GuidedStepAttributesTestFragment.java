@@ -16,6 +16,7 @@ package androidx.leanback.app.wizard;
 
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.leanback.app.GuidedStepFragment;
 import androidx.leanback.widget.GuidanceStylist;
 import androidx.leanback.widget.GuidedAction;
@@ -53,7 +54,7 @@ public class GuidedStepAttributesTestFragment extends GuidedStepFragment {
     }
 
     @Override
-    public void onGuidedActionClicked(GuidedAction action) {
+    public void onGuidedActionClicked(@NonNull GuidedAction action) {
         super.onGuidedActionFocused(action);
         Callback callback = sCallbacks.get(action.getId());
         if (callback != null) {
@@ -64,7 +65,7 @@ public class GuidedStepAttributesTestFragment extends GuidedStepFragment {
     }
 
     @Override
-    public void onGuidedActionFocused(GuidedAction action) {
+    public void onGuidedActionFocused(@NonNull GuidedAction action) {
         super.onGuidedActionFocused(action);
         LAST_SELECTED_ACTION_ID = action.getId();
     }

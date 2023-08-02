@@ -15,9 +15,11 @@
  */
 package androidx.camera.extensions.impl;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CaptureRequest;
+import android.hardware.camera2.CaptureResult;
 import android.hardware.camera2.TotalCaptureResult;
 import android.media.Image;
 import android.media.ImageWriter;
@@ -36,6 +38,7 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Executor;
 
 /**
  * Implementation for auto image capture use case.
@@ -46,6 +49,7 @@ import java.util.Map;
  * @since 1.0
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
+@SuppressLint("UnknownNullness")
 public final class AutoImageCaptureExtenderImpl implements ImageCaptureExtenderImpl {
     private static final String TAG = "AutoICExtender";
     private static final int DEFAULT_STAGE_ID = 0;
@@ -56,7 +60,8 @@ public final class AutoImageCaptureExtenderImpl implements ImageCaptureExtenderI
     }
 
     @Override
-    public void init(String cameraId, CameraCharacteristics cameraCharacteristics) {
+    public void init(@NonNull String cameraId,
+            @NonNull CameraCharacteristics cameraCharacteristics) {
     }
 
     @Override
@@ -94,8 +99,9 @@ public final class AutoImageCaptureExtenderImpl implements ImageCaptureExtenderI
     }
 
     @Override
-    public void onInit(String cameraId, CameraCharacteristics cameraCharacteristics,
-            Context context) {
+    public void onInit(@NonNull String cameraId,
+            @NonNull CameraCharacteristics cameraCharacteristics,
+            @NonNull Context context) {
 
     }
 
@@ -150,6 +156,7 @@ public final class AutoImageCaptureExtenderImpl implements ImageCaptureExtenderI
         return null;
     }
 
+    @SuppressWarnings("ConstantConditions") // Super method is nullable.
     @Nullable
     @Override
     public Range<Long> getEstimatedCaptureLatencyRange(@Nullable Size captureOutputSize) {
@@ -162,7 +169,7 @@ public final class AutoImageCaptureExtenderImpl implements ImageCaptureExtenderI
         private ImageWriter mImageWriter;
 
         @Override
-        public void onOutputSurface(Surface surface, int imageFormat) {
+        public void onOutputSurface(@NonNull Surface surface, int imageFormat) {
             mImageWriter = ImageWriter.newInstance(surface, 1);
         }
 
@@ -196,7 +203,7 @@ public final class AutoImageCaptureExtenderImpl implements ImageCaptureExtenderI
         }
 
         @Override
-        public void onResolutionUpdate(Size size) {
+        public void onResolutionUpdate(@NonNull Size size) {
 
         }
 
@@ -204,5 +211,23 @@ public final class AutoImageCaptureExtenderImpl implements ImageCaptureExtenderI
         public void onImageFormatUpdate(int imageFormat) {
 
         }
+
+        @Override
+        public void process(Map<Integer, Pair<Image, TotalCaptureResult>> results,
+                ProcessResultImpl resultCallback, Executor executor) {
+
+        }
+    }
+
+    @NonNull
+    @Override
+    public List<CaptureRequest.Key> getAvailableCaptureRequestKeys() {
+        return null;
+    }
+
+    @NonNull
+    @Override
+    public List<CaptureResult.Key> getAvailableCaptureResultKeys() {
+        return null;
     }
 }

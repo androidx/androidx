@@ -22,6 +22,7 @@ import android.os.Looper;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 
 import java.lang.reflect.InvocationTargetException;
@@ -55,12 +56,12 @@ public class DefaultTaskExecutor extends TaskExecutor {
     private volatile Handler mMainHandler;
 
     @Override
-    public void executeOnDiskIO(Runnable runnable) {
+    public void executeOnDiskIO(@NonNull Runnable runnable) {
         mDiskIO.execute(runnable);
     }
 
     @Override
-    public void postToMainThread(Runnable runnable) {
+    public void postToMainThread(@NonNull Runnable runnable) {
         if (mMainHandler == null) {
             synchronized (mLock) {
                 if (mMainHandler == null) {
@@ -77,12 +78,15 @@ public class DefaultTaskExecutor extends TaskExecutor {
         return Looper.getMainLooper().getThread() == Thread.currentThread();
     }
 
+    @SuppressWarnings("JavaReflectionMemberAccess")
+    @NonNull
     private static Handler createAsync(@NonNull Looper looper) {
         if (Build.VERSION.SDK_INT >= 28) {
-            return Handler.createAsync(looper);
-        }
-        if (Build.VERSION.SDK_INT >= 16) {
+            return Api28Impl.createAsync(looper);
+        } else if (Build.VERSION.SDK_INT >= 17) {
             try {
+                // This constructor was added as private in JB MR1:
+                // https://android.googlesource.com/platform/frameworks/base/+/refs/heads/jb-mr1-release/core/java/android/os/Handler.java
                 return Handler.class.getDeclaredConstructor(Looper.class, Handler.Callback.class,
                         boolean.class)
                         .newInstance(looper, null, true);
@@ -94,5 +98,17 @@ public class DefaultTaskExecutor extends TaskExecutor {
             }
         }
         return new Handler(looper);
+    }
+
+    @RequiresApi(28)
+    private static class Api28Impl {
+        private Api28Impl() {
+            // Non-instantiable.
+        }
+
+        @NonNull
+        public static Handler createAsync(@NonNull Looper looper) {
+            return Handler.createAsync(looper);
+        }
     }
 }

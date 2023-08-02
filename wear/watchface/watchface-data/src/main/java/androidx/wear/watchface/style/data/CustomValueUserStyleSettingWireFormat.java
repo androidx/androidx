@@ -17,6 +17,7 @@
 package androidx.wear.watchface.style.data;
 
 import android.graphics.drawable.Icon;
+import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -30,13 +31,15 @@ import java.util.List;
  *
  * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @VersionedParcelize
 public class CustomValueUserStyleSettingWireFormat extends UserStyleSettingWireFormat {
 
     CustomValueUserStyleSettingWireFormat() {
     }
 
+    /** @deprecated use a constructor with List<Bundle> perOptionOnWatchFaceEditorBundles. */
+    @Deprecated
     public CustomValueUserStyleSettingWireFormat(
             @NonNull String id,
             @NonNull CharSequence displayName,
@@ -45,5 +48,18 @@ public class CustomValueUserStyleSettingWireFormat extends UserStyleSettingWireF
             @NonNull List<OptionWireFormat> options,
             @NonNull List<Integer> affectsLayers) {
         super(id, displayName, description, icon, options, 0, affectsLayers);
+    }
+
+    public CustomValueUserStyleSettingWireFormat(
+            @NonNull String id,
+            @NonNull CharSequence displayName,
+            @NonNull CharSequence description,
+            @Nullable Icon icon,
+            @NonNull List<OptionWireFormat> options,
+            @NonNull List<Integer> affectsLayers,
+            @Nullable Bundle onWatchFaceEditorBundle,
+            @Nullable List<Bundle> perOptionOnWatchFaceEditorBundles) {
+        super(id, displayName, description, icon, options, 0, affectsLayers,
+                onWatchFaceEditorBundle, perOptionOnWatchFaceEditorBundles);
     }
 }

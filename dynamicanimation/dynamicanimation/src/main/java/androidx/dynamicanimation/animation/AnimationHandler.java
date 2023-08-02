@@ -16,6 +16,7 @@
 
 package androidx.dynamicanimation.animation;
 
+import android.animation.ValueAnimator;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
@@ -23,8 +24,8 @@ import android.os.SystemClock;
 import android.view.Choreographer;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
-import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.collection.SimpleArrayMap;
 
@@ -40,7 +41,8 @@ import java.util.ArrayList;
  * AnimationFrameCallbackProvider can be set on the handler to provide timing pulse that
  * may be independent of UI frame update. This could be useful in testing.
  */
-public final class AnimationHandler {
+@VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)
+public class AnimationHandler {
     /**
      * Callbacks that receives notifications for animation timing
      */
@@ -51,26 +53,6 @@ public final class AnimationHandler {
          * @param frameTime The frame start time
          */
         boolean doAnimationFrame(long frameTime);
-    }
-
-    /**
-     * A scheduler that runs the given Runnable on the next frame.
-     */
-    public interface FrameCallbackScheduler {
-        /**
-         * Callbacks on new frame arrived.
-         *
-         * @param frameCallback The runnable of new frame should be posted
-         */
-        void postFrameCallback(@NonNull Runnable frameCallback);
-
-        /**
-         * Returns whether the current thread is the same as the thread that the scheduler is
-         * running on.
-         *
-         * @return true if the scheduler is running on the same thread as the current thread.
-         */
-        boolean isCurrentThread();
     }
 
     /**
@@ -114,6 +96,11 @@ public final class AnimationHandler {
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     long mCurrentFrameTime = 0;
     private boolean mListDirty = false;
+    @VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)
+    public float mDurationScale = 1.0f;
+    @Nullable
+    @VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)
+    public DurationScaleChangeListener mDurationScaleChangeListener;
 
     static AnimationHandler getInstance() {
         if (sAnimatorHandler.get() == null) {
@@ -142,6 +129,13 @@ public final class AnimationHandler {
     void addAnimationFrameCallback(final AnimationFrameCallback callback, long delay) {
         if (mAnimationCallbacks.size() == 0) {
             mScheduler.postFrameCallback(mRunnable);
+            if (Build.VERSION.SDK_INT >= 33) {
+                mDurationScale = ValueAnimator.getDurationScale();
+                if (mDurationScaleChangeListener == null) {
+                    mDurationScaleChangeListener = new DurationScaleChangeListener33();
+                }
+                mDurationScaleChangeListener.register();
+            }
         }
         if (!mAnimationCallbacks.contains(callback)) {
             mAnimationCallbacks.add(callback);
@@ -214,35 +208,23 @@ public final class AnimationHandler {
                     mAnimationCallbacks.remove(i);
                 }
             }
+            // Unregister duration scale listener if there are no current animations.
+            if (mAnimationCallbacks.size() == 0) {
+                if (Build.VERSION.SDK_INT >= 33) {
+                    mDurationScaleChangeListener.unregister();
+                }
+            }
             mListDirty = false;
         }
     }
 
     /**
-     * Sets the FrameCallbackScheduler for this handler.
-     * Used in testing only.
-     *
-     * @param scheduler The FrameCallbackScheduler to set
-     * @hide
-     */
-
-    @VisibleForTesting
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public void setScheduler(@NonNull FrameCallbackScheduler scheduler) {
-        mScheduler = scheduler;
-    }
-
-    /**
      * Gets the FrameCallbackScheduler in this handler.
-     * Used in testing only.
      *
      * @return The FrameCallbackScheduler in this handler
-     * @hide
      */
     @NonNull
-    @VisibleForTesting
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public FrameCallbackScheduler getScheduler() {
+    FrameCallbackScheduler getScheduler() {
         return mScheduler;
     }
 
@@ -291,5 +273,56 @@ public final class AnimationHandler {
         public boolean isCurrentThread() {
             return Thread.currentThread() == mHandler.getLooper().getThread();
         }
+    }
+
+    /**
+     * Returns the system-wide scaling factor for animations.
+     */
+    @VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)
+    public float getDurationScale() {
+        return mDurationScale;
+    }
+
+    /**
+     * T+ listener for changes to the system-wide scaling factor for Animator-based animations.
+     */
+    @RequiresApi(api = 33)
+    @VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)
+    public class DurationScaleChangeListener33 implements DurationScaleChangeListener {
+        ValueAnimator.DurationScaleChangeListener mListener;
+
+        @Override
+        public boolean register() {
+            if (mListener == null) {
+                mListener = scale -> AnimationHandler.this.mDurationScale = scale;
+                return ValueAnimator.registerDurationScaleChangeListener(mListener);
+            }
+            return true;
+        }
+
+        @Override
+        public boolean unregister() {
+            boolean unregistered = ValueAnimator.unregisterDurationScaleChangeListener(mListener);
+            mListener = null;
+            return unregistered;
+        }
+    }
+
+    /**
+     * listener for changes to the system-wide scaling factor for Animator-based animations.
+     */
+    @VisibleForTesting
+    public interface DurationScaleChangeListener {
+        /**
+         * Registers a duration scale change listener.
+         * @return true if a listener is registered or one is already registered.
+         */
+        boolean register();
+
+        /**
+         * Unregisters a duration scale change listener.
+         * @return true if a listener is unregistered.
+         */
+        boolean unregister();
     }
 }

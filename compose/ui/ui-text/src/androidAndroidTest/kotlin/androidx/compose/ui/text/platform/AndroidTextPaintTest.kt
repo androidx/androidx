@@ -18,16 +18,22 @@ package androidx.compose.ui.text.platform
 
 import android.graphics.Paint
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shader
+import androidx.compose.ui.graphics.ShaderBrush
 import androidx.compose.ui.graphics.Shadow
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
+import kotlin.math.roundToInt
 import org.junit.Test
 import org.junit.runner.RunWith
-import androidx.test.ext.junit.runners.AndroidJUnit4
 
 @RunWith(AndroidJUnit4::class)
 @SmallTest
@@ -141,6 +147,194 @@ class AndroidTextPaintTest {
 
         textPaint.setColor(Color.Transparent)
         assertThat(textPaint.color).isEqualTo(Color.Transparent.toArgb())
+    }
+
+    @Test
+    fun setShaderBrush_with_specified_size() {
+        var calls = 0
+        val brush = object : ShaderBrush() {
+            val brush = linearGradient(listOf(Color.Red, Color.Blue))
+            override fun createShader(size: Size): Shader {
+                calls++
+                return (brush as ShaderBrush).createShader(size)
+            }
+        }
+
+        val size = Size(10f, 10f)
+        val textPaint = defaultTextPaint
+        textPaint.setBrush(brush, size)
+
+        assertThat(textPaint.shader).isNotNull()
+        assertThat(calls).isEqualTo(1)
+    }
+
+    @Test
+    fun setShaderBrush_with_unspecified_size() {
+        val brush = Brush.linearGradient(listOf(Color.Red, Color.Blue))
+        val size = Size.Unspecified
+        val textPaint = defaultTextPaint
+        textPaint.setBrush(brush, size)
+
+        assertThat(textPaint.shader).isNull()
+    }
+
+    @Test
+    fun setColorBrush_with_specified_size() {
+        val brush = SolidColor(Color.Red)
+        val size = Size(10f, 10f)
+        val textPaint = defaultTextPaint
+        textPaint.setBrush(brush, size)
+
+        assertThat(textPaint.shader).isNull()
+        assertThat(textPaint.color).isEqualTo(Color.Red.toArgb())
+    }
+
+    @Test
+    fun setColorBrush_with_unspecified_size() {
+        val brush = SolidColor(Color.Red)
+        val size = Size.Unspecified
+        val textPaint = defaultTextPaint
+        textPaint.setBrush(brush, size)
+
+        assertThat(textPaint.shader).isNull()
+        assertThat(textPaint.color).isEqualTo(Color.Red.toArgb())
+    }
+
+    @Test
+    fun setColorBrush_with_alpha() {
+        val brush = SolidColor(Color.Red)
+        val size = Size.Unspecified
+        val alpha = 0.6f
+        val textPaint = defaultTextPaint
+        textPaint.setBrush(brush, size, alpha)
+
+        assertThat(textPaint.shader).isNull()
+        assertThat(textPaint.color).isEqualTo(Color.Red.copy(0.6f).toArgb())
+    }
+
+    @Test
+    fun setTransparentColorBrush_with_alpha_modulates() {
+        val brush = SolidColor(Color.Red.copy(0.8f))
+        val size = Size.Unspecified
+        val alpha = 0.6f
+        val textPaint = defaultTextPaint
+        textPaint.setBrush(brush, size, alpha)
+
+        assertThat(textPaint.shader).isNull()
+        assertThat(textPaint.color).isEqualTo(Color.Red.copy(0.48f).toArgb())
+    }
+
+    @Test
+    fun setBrush_with_tooHigh_alpha() {
+        val brush = Brush.linearGradient(listOf(Color.Red, Color.Blue))
+        val size = Size(10f, 10f)
+        val alpha = 10e5f
+        val textPaint = defaultTextPaint
+        textPaint.setBrush(brush, size, alpha)
+
+        assertThat(textPaint.shader).isNotNull()
+        assertThat(textPaint.alpha).isEqualTo(255)
+    }
+
+    @Test
+    fun setBrush_with_tooLow_alpha() {
+        val brush = Brush.linearGradient(listOf(Color.Red, Color.Blue))
+        val size = Size(10f, 10f)
+        val alpha = -10e5f
+        val textPaint = defaultTextPaint
+        textPaint.setBrush(brush, size, alpha)
+
+        assertThat(textPaint.shader).isNotNull()
+        assertThat(textPaint.alpha).isEqualTo(0)
+    }
+
+    @Test
+    fun setUnspecifiedBrush_with_specified_size() {
+        val brush = SolidColor(Color.Unspecified)
+        val size = Size(10f, 10f)
+        val textPaint = defaultTextPaint
+        textPaint.setBrush(brush, size)
+
+        assertThat(textPaint.shader).isNull()
+        assertThat(textPaint.color).isNotEqualTo(Color.Unspecified.toArgb())
+
+        textPaint.setBrush(SolidColor(Color.Red), size)
+
+        assertThat(textPaint.shader).isNull()
+        assertThat(textPaint.color).isEqualTo(Color.Red.toArgb())
+    }
+
+    @Test
+    fun setNullBrush_with_specified_size() {
+        val brush = Brush.linearGradient(listOf(Color.Red, Color.Blue))
+        val size = Size(10f, 10f)
+        val textPaint = defaultTextPaint
+        textPaint.setBrush(brush, size)
+
+        assertThat(textPaint.shader).isNotNull()
+
+        textPaint.setBrush(null, size)
+
+        assertThat(textPaint.shader).isNull()
+    }
+
+    @Test
+    fun setBrush_with_alpha() {
+        val brush = Brush.linearGradient(listOf(Color.Red, Color.Blue))
+        val size = Size(10f, 10f)
+        val alpha = 0.6f
+        val textPaint = defaultTextPaint
+        textPaint.setBrush(brush, size, alpha)
+
+        assertThat(textPaint.shader).isNotNull()
+        assertThat(textPaint.alpha).isEqualTo((255 * 0.6f).roundToInt())
+
+        textPaint.setBrush(null, size)
+
+        assertThat(textPaint.shader).isNull()
+        assertThat(textPaint.alpha).isEqualTo((255 * 0.6f).roundToInt())
+    }
+
+    @Test
+    fun setBrush_with_alpha_only_alpha_changes() {
+        val brush = Brush.linearGradient(listOf(Color.Red, Color.Blue))
+        val size = Size(10f, 10f)
+        val textPaint = defaultTextPaint
+        textPaint.setBrush(brush, size, 0.6f)
+
+        assertThat(textPaint.shader).isNotNull()
+        assertThat(textPaint.alpha).isEqualTo((255 * 0.6f).roundToInt())
+
+        textPaint.setBrush(brush, size, 0.8f)
+
+        assertThat(textPaint.shader).isNotNull()
+        assertThat(textPaint.alpha).isEqualTo((255 * 0.8f).roundToInt())
+    }
+
+    @Test
+    fun setShaderBrush_after_setColor() {
+        val brush = Brush.linearGradient(listOf(Color.Red, Color.Blue))
+        val size = Size(10f, 10f)
+        val alpha = 0.6f
+        val textPaint = defaultTextPaint
+        textPaint.setColor(Color.Red)
+        textPaint.setBrush(brush, size, alpha)
+
+        assertThat(textPaint.shader).isNotNull()
+        assertThat(textPaint.alpha).isEqualTo((255 * 0.6f).roundToInt())
+    }
+
+    @Test
+    fun setColor_after_setShaderBrush() {
+        val brush = Brush.linearGradient(listOf(Color.Red, Color.Blue))
+        val size = Size(10f, 10f)
+        val alpha = 0.6f
+        val textPaint = defaultTextPaint
+        textPaint.setBrush(brush, size, alpha)
+        textPaint.setColor(Color.Red)
+
+        assertThat(textPaint.shader).isNull()
+        assertThat(textPaint.color).isEqualTo(Color.Red.toArgb())
     }
 
     @SdkSuppress(minSdkVersion = 29)

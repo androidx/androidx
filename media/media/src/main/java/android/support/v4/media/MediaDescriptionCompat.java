@@ -205,6 +205,7 @@ public final class MediaDescriptionCompat implements Parcelable {
         mMediaUri = mediaUri;
     }
 
+    @SuppressWarnings("deprecation")
     MediaDescriptionCompat(Parcel in) {
         mMediaId = in.readString();
         mTitle = TextUtils.CHAR_SEQUENCE_CREATOR.createFromParcel(in);
@@ -382,6 +383,7 @@ public final class MediaDescriptionCompat implements Parcelable {
      * @return An equivalent {@link MediaMetadataCompat} object, or null if
      *         none.
      */
+    @SuppressWarnings("deprecation")
     public static MediaDescriptionCompat fromMediaDescription(Object descriptionObj) {
         if (descriptionObj != null && Build.VERSION.SDK_INT >= 21) {
             Builder bob = new Builder();

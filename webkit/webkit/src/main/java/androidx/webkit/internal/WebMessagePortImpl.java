@@ -41,11 +41,11 @@ public class WebMessagePortImpl extends WebMessagePortCompat {
     private WebMessagePort mFrameworksImpl;
     private WebMessagePortBoundaryInterface mBoundaryInterface;
 
-    public WebMessagePortImpl(WebMessagePort frameworksImpl) {
+    public WebMessagePortImpl(@NonNull WebMessagePort frameworksImpl) {
         mFrameworksImpl = frameworksImpl;
     }
 
-    public WebMessagePortImpl(InvocationHandler invocationHandler) {
+    public WebMessagePortImpl(@NonNull InvocationHandler invocationHandler) {
         mBoundaryInterface = BoundaryInterfaceReflectionUtil.castToSuppLibClass(
                 WebMessagePortBoundaryInterface.class, invocationHandler);
     }
@@ -71,9 +71,9 @@ public class WebMessagePortImpl extends WebMessagePortCompat {
 
     @Override
     public void postMessage(@NonNull WebMessageCompat message) {
-        final WebViewFeatureInternal feature = WebViewFeatureInternal.WEB_MESSAGE_PORT_POST_MESSAGE;
+        final ApiFeature.M feature = WebViewFeatureInternal.WEB_MESSAGE_PORT_POST_MESSAGE;
         if (feature.isSupportedByFramework()) {
-            getFrameworksImpl().postMessage(compatToFrameworkMessage(message));
+            ApiHelperForM.postMessage(getFrameworksImpl(), compatToFrameworkMessage(message));
         } else if (feature.isSupportedByWebView()) {
             getBoundaryInterface().postMessage(
                     BoundaryInterfaceReflectionUtil.createInvocationHandlerFor(
@@ -85,9 +85,9 @@ public class WebMessagePortImpl extends WebMessagePortCompat {
 
     @Override
     public void close() {
-        final WebViewFeatureInternal feature = WebViewFeatureInternal.WEB_MESSAGE_PORT_CLOSE;
+        final ApiFeature.M feature = WebViewFeatureInternal.WEB_MESSAGE_PORT_CLOSE;
         if (feature.isSupportedByFramework()) {
-            getFrameworksImpl().close();
+            ApiHelperForM.close(getFrameworksImpl());
         } else if (feature.isSupportedByWebView()) {
             getBoundaryInterface().close();
         } else {
@@ -97,16 +97,9 @@ public class WebMessagePortImpl extends WebMessagePortCompat {
 
     @Override
     public void setWebMessageCallback(@NonNull final WebMessageCallbackCompat callback) {
-        final WebViewFeatureInternal feature =
-                WebViewFeatureInternal.WEB_MESSAGE_PORT_SET_MESSAGE_CALLBACK;
+        final ApiFeature.M feature = WebViewFeatureInternal.WEB_MESSAGE_PORT_SET_MESSAGE_CALLBACK;
         if (feature.isSupportedByFramework()) {
-            getFrameworksImpl().setWebMessageCallback(new WebMessagePort.WebMessageCallback() {
-                @Override
-                public void onMessage(WebMessagePort port, WebMessage message) {
-                    callback.onMessage(new WebMessagePortImpl(port),
-                            frameworkMessageToCompat(message));
-                }
-            });
+            ApiHelperForM.setWebMessageCallback(getFrameworksImpl(), callback);
         } else if (feature.isSupportedByWebView()) {
             getBoundaryInterface().setWebMessageCallback(
                     BoundaryInterfaceReflectionUtil.createInvocationHandlerFor(
@@ -117,17 +110,11 @@ public class WebMessagePortImpl extends WebMessagePortCompat {
     }
 
     @Override
-    public void setWebMessageCallback(Handler handler,
+    public void setWebMessageCallback(@Nullable Handler handler,
             @NonNull final WebMessageCallbackCompat callback) {
-        final WebViewFeatureInternal feature = WebViewFeatureInternal.CREATE_WEB_MESSAGE_CHANNEL;
+        final ApiFeature.M feature = WebViewFeatureInternal.CREATE_WEB_MESSAGE_CHANNEL;
         if (feature.isSupportedByFramework()) {
-            getFrameworksImpl().setWebMessageCallback(new WebMessagePort.WebMessageCallback() {
-                @Override
-                public void onMessage(WebMessagePort port, WebMessage message) {
-                    callback.onMessage(new WebMessagePortImpl(port),
-                            frameworkMessageToCompat(message));
-                }
-            }, handler);
+            ApiHelperForM.setWebMessageCallback(getFrameworksImpl(), callback, handler);
         } else if (feature.isSupportedByWebView()) {
             getBoundaryInterface().setWebMessageCallback(
                     BoundaryInterfaceReflectionUtil.createInvocationHandlerFor(
@@ -137,12 +124,14 @@ public class WebMessagePortImpl extends WebMessagePortCompat {
         }
     }
 
+    @NonNull
     @RequiresApi(23)
     @Override
     public WebMessagePort getFrameworkPort() {
         return getFrameworksImpl();
     }
 
+    @NonNull
     @Override
     public InvocationHandler getInvocationHandler() {
         return Proxy.getInvocationHandler(getBoundaryInterface());
@@ -153,7 +142,7 @@ public class WebMessagePortImpl extends WebMessagePortCompat {
      * corresponding support library class {@link WebMessagePortCompat}.
      */
     @Nullable
-    public static WebMessagePortCompat[] portsToCompat(WebMessagePort[] ports) {
+    public static WebMessagePortCompat[] portsToCompat(@Nullable WebMessagePort[] ports) {
         if (ports == null) return null;
         WebMessagePortCompat[] compatPorts = new WebMessagePortCompat[ports.length];
         for (int n = 0; n < ports.length; n++) {
@@ -168,7 +157,7 @@ public class WebMessagePortImpl extends WebMessagePortCompat {
      */
     @RequiresApi(23)
     @Nullable
-    public static WebMessagePort[] compatToPorts(WebMessagePortCompat[] compatPorts) {
+    public static WebMessagePort[] compatToPorts(@Nullable WebMessagePortCompat[] compatPorts) {
         if (compatPorts == null) return null;
         WebMessagePort[] ports = new WebMessagePort[compatPorts.length];
         for (int n = 0; n < ports.length; n++) {
@@ -182,10 +171,8 @@ public class WebMessagePortImpl extends WebMessagePortCompat {
      */
     @RequiresApi(23)
     @NonNull
-    public static WebMessage compatToFrameworkMessage(WebMessageCompat message) {
-        return new WebMessage(
-                message.getData(),
-                compatToPorts(message.getPorts()));
+    public static WebMessage compatToFrameworkMessage(@NonNull WebMessageCompat message) {
+        return ApiHelperForM.createWebMessage(message);
     }
 
     /**
@@ -194,9 +181,7 @@ public class WebMessagePortImpl extends WebMessagePortCompat {
      */
     @RequiresApi(23)
     @NonNull
-    public static WebMessageCompat frameworkMessageToCompat(WebMessage message) {
-        return new WebMessageCompat(
-                message.getData(),
-                portsToCompat(message.getPorts()));
+    public static WebMessageCompat frameworkMessageToCompat(@NonNull WebMessage message) {
+        return ApiHelperForM.createWebMessageCompat(message);
     }
 }

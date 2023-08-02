@@ -302,6 +302,82 @@ class ActivityNavigatorTest {
     }
 
     @Test
+    fun testEquals() {
+        val firstDestination = activityNavigator.createDestination().apply {
+            id = TARGET_ID
+            setComponentName(ComponentName(activityRule.activity, TargetActivity::class.java))
+        }
+        val secondDestination = activityNavigator.createDestination().apply {
+            id = TARGET_ID
+            setComponentName(ComponentName(activityRule.activity, TargetActivity::class.java))
+        }
+        assertThat(firstDestination).isEqualTo(secondDestination)
+    }
+
+    @Test
+    fun testFilterEquals() {
+        val firstDestination = activityNavigator.createDestination().apply {
+            id = TARGET_ID
+            setComponentName(ComponentName(activityRule.activity, TargetActivity::class.java))
+        }
+        val secondDestination = activityNavigator.createDestination().apply {
+            id = TARGET_ID
+            setComponentName(ComponentName(activityRule.activity, TargetActivity::class.java))
+            intent!!.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+        assertThat(firstDestination).isEqualTo(secondDestination)
+    }
+
+    @Test
+    fun testEqualsBothIntentNull() {
+        val firstDestination = activityNavigator.createDestination().apply {
+            id = TARGET_ID
+        }
+        val secondDestination = activityNavigator.createDestination().apply {
+            id = TARGET_ID
+        }
+        assertThat(firstDestination).isEqualTo(secondDestination)
+    }
+
+    @Test
+    fun testNotEquals() {
+        val firstDestination = activityNavigator.createDestination().apply {
+            id = TARGET_ID
+            setComponentName(ComponentName(activityRule.activity, TargetActivity::class.java))
+        }
+        val secondDestination = activityNavigator.createDestination().apply {
+            id = TARGET_ID
+            setComponentName(ComponentName(activityRule.activity, TargetActivity::class.java))
+            setAction(TARGET_ACTION)
+        }
+        assertThat(firstDestination).isNotEqualTo(secondDestination)
+    }
+
+    @Test
+    fun testNotEqualsFirstIntentNull() {
+        val firstDestination = activityNavigator.createDestination().apply {
+            id = TARGET_ID
+        }
+        val secondDestination = activityNavigator.createDestination().apply {
+            id = TARGET_ID
+            setComponentName(ComponentName(activityRule.activity, TargetActivity::class.java))
+        }
+        assertThat(firstDestination).isNotEqualTo(secondDestination)
+    }
+
+    @Test
+    fun testNotEqualsSecondIntentNull() {
+        val firstDestination = activityNavigator.createDestination().apply {
+            id = TARGET_ID
+            setComponentName(ComponentName(activityRule.activity, TargetActivity::class.java))
+        }
+        val secondDestination = activityNavigator.createDestination().apply {
+            id = TARGET_ID
+        }
+        assertThat(firstDestination).isNotEqualTo(secondDestination)
+    }
+
+    @Test
     fun testToString() {
         val targetDestination = activityNavigator.createDestination().apply {
             id = TARGET_ID

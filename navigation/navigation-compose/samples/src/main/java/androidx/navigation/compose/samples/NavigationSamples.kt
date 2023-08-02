@@ -285,6 +285,7 @@ class SearchParametersType : NavType<SearchParameters>(isNullableAllowed = false
         bundle.putParcelable(key, value)
     }
 
+    @Suppress("DEPRECATION")
     override fun get(bundle: Bundle, key: String): SearchParameters {
         return bundle.getParcelable<SearchParameters>(key) as SearchParameters
     }

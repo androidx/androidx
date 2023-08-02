@@ -45,7 +45,9 @@ public class CaptureRequestOptions implements ReadableConfig {
      * given config.
      *
      * @param config The config that potentially contains Camera2 capture request options.
+     * @hide
      */
+    @RestrictTo(Scope.LIBRARY)
     public CaptureRequestOptions(@NonNull Config config) {
         mConfig = config;
     }

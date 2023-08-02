@@ -105,14 +105,13 @@ public final class MediaRouteDiscoveryRequest {
         return getSelector().hashCode() ^ (isActiveScan() ? 1 : 0);
     }
 
+    @NonNull
     @Override
     public String toString() {
-        StringBuilder result = new StringBuilder();
-        result.append("DiscoveryRequest{ selector=").append(getSelector());
-        result.append(", activeScan=").append(isActiveScan());
-        result.append(", isValid=").append(isValid());
-        result.append(" }");
-        return result.toString();
+        return "DiscoveryRequest{ selector=" + getSelector()
+                + ", activeScan=" + isActiveScan()
+                + ", isValid=" + isValid()
+                + " }";
     }
 
     /**

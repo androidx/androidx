@@ -170,6 +170,7 @@ private fun PopupLayout(
     val (owner, composition) = remember {
         val owner = SkiaBasedOwner(
             platformInputService = scene.platformInputService,
+            component = scene.component,
             density = density,
             isPopup = true,
             isFocusable = focusable,
@@ -185,17 +186,12 @@ private fun PopupLayout(
                     val width = constraints.maxWidth
                     val height = constraints.maxHeight
 
-                    val windowSize = IntSize(
-                        width = width,
-                        height = height
-                    )
-
                     layout(constraints.maxWidth, constraints.maxHeight) {
                         measurables.forEach {
                             val placeable = it.measure(constraints)
                             val position = popupPositionProvider.calculatePosition(
                                 anchorBounds = parentBounds,
-                                windowSize = windowSize,
+                                windowSize = IntSize(width, height),
                                 layoutDirection = layoutDirection,
                                 popupContentSize = IntSize(placeable.width, placeable.height)
                             )
@@ -230,7 +226,6 @@ private fun PopupLayout(
  * @param alignment The alignment of the popup relative to the current cursor position.
  * @param windowMargin Defines the area within the window that limits the placement of the popup.
  */
-@ExperimentalComposeUiApi
 @Composable
 fun rememberCursorPositionProvider(
     offset: DpOffset = DpOffset.Zero,
@@ -293,7 +288,6 @@ fun rememberCursorPositionProvider(
  * @param alignment The alignment of the popup relative to the [anchor] point.
  * @param offset [DpOffset] to be added to the position of the popup.
  */
-@ExperimentalComposeUiApi
 @Composable
 fun rememberComponentRectPositionProvider(
     anchor: Alignment = Alignment.BottomCenter,

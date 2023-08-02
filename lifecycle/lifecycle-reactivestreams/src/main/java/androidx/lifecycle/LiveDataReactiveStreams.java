@@ -16,6 +16,8 @@
 
 package androidx.lifecycle;
 
+import android.annotation.SuppressLint;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.arch.core.executor.ArchTaskExecutor;
@@ -51,6 +53,7 @@ public final class LiveDataReactiveStreams {
      * other items emitted during the time there was no backpressure requested will be dropped.
      */
     @NonNull
+    @SuppressLint("LambdaLast")
     public static <T> Publisher<T> toPublisher(
             @NonNull LifecycleOwner lifecycle, @NonNull LiveData<T> liveData) {
 

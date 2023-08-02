@@ -16,6 +16,7 @@
 
 package androidx.glance.appwidget.layoutgenerator
 
+import com.squareup.kotlinpoet.MemberName
 import org.w3c.dom.Document
 import org.w3c.dom.Node
 import java.io.File
@@ -73,14 +74,17 @@ internal class LayoutGenerator {
      * information extracted from the input.
      */
     fun generateAllFiles(
-        files: List<File>,
+        containerFiles: List<File>,
+        childrenFiles: List<File>,
         outputResourcesDir: File
     ): GeneratedFiles {
         val outputLayoutDir = outputResourcesDir.resolve("layout")
         val outputLayoutDirS = outputResourcesDir.resolve("layout-v31")
+        val outputLayoutDirT = outputResourcesDir.resolve("layout-v33")
         val outputValueDir = outputResourcesDir.resolve("values")
         outputLayoutDir.mkdirs()
         outputLayoutDirS.mkdirs()
+        outputLayoutDirT.mkdirs()
         outputValueDir.mkdirs()
         val generatedFiles = generateSizeLayouts(outputLayoutDir) +
             generateComplexLayouts(outputLayoutDir) +
@@ -89,9 +93,16 @@ internal class LayoutGenerator {
             generateContainersChildrenBeforeS(outputLayoutDir) +
             generateRootElements(outputLayoutDir) +
             generateRootAliases(outputValueDir)
+        val topLevelLayouts = containerFiles + childrenFiles.filter { isTopLevelLayout(it) }
         return GeneratedFiles(
-            generatedContainers = files.associateWith {
+            generatedContainers = containerFiles.associateWith {
                 generateContainers(it, outputLayoutDir)
+            },
+            generatedBoxChildren = topLevelLayouts.associateWith {
+                generateBoxChildrenForT(it, outputLayoutDirT)
+            },
+            generatedRowColumnChildren = topLevelLayouts.associateWith {
+                generateRowColumnChildrenForT(it, outputLayoutDirT)
             },
             extraFiles = generatedFiles,
         )
@@ -137,19 +148,44 @@ internal class LayoutGenerator {
     ): Set<File> {
         val widths = sizes + containerOrientation.extraWidths
         val heights = sizes + containerOrientation.extraHeights
-        return (0 until MaxChildCount).map { pos ->
-            generateRes(outputLayoutDir, makeChildResourceName(pos, containerOrientation)) {
-                val root = createElement("merge")
-                appendChild(root)
-                forEachInCrossProduct(widths, heights) { width, height ->
-                    val childId = makeIdName(pos, width, height)
-                    root.appendChild(makeStub(childId, width, height))
+        val alignments = containerOrientation.alignments
+        return (0 until MaxChildCount).flatMap { pos ->
+            alignments.map { (horizontalAlignment, verticalAlignment) ->
+                generateRes(
+                    outputLayoutDir,
+                    makeChildResourceName(
+                        pos,
+                        containerOrientation,
+                        horizontalAlignment,
+                        verticalAlignment
+                    )
+                ) {
+                    val root = createElement("merge")
+                    appendChild(root)
+                    forEachInCrossProduct(widths, heights) { width, height ->
+                        val childId = makeIdName(pos, width, height)
+                        root.appendChild(
+                            makeStub(
+                                childId,
+                                width,
+                                height,
+                                horizontalAlignment,
+                                verticalAlignment,
+                            )
+                        )
+                    }
                 }
             }
         }.toSet()
     }
 
-    private fun Document.makeStub(name: String, width: ValidSize, height: ValidSize) =
+    private fun Document.makeStub(
+        name: String,
+        width: ValidSize,
+        height: ValidSize,
+        horizontalAlignment: HorizontalAlignment?,
+        verticalAlignment: VerticalAlignment?
+    ) =
         createElement("ViewStub").apply {
             attributes.apply {
                 setNamedItemNS(androidId("@id/$name"))
@@ -158,6 +194,14 @@ internal class LayoutGenerator {
                 if (width == ValidSize.Expand || height == ValidSize.Expand) {
                     setNamedItemNS(androidWeight(1))
                 }
+                setNamedItemNS(
+                    androidGravity(
+                        listOfNotNull(
+                            horizontalAlignment?.resourceName,
+                            verticalAlignment?.resourceName
+                        ).joinToString(separator = "|")
+                    )
+                )
             }
         }
 
@@ -289,6 +333,7 @@ internal class LayoutGenerator {
                 setNamedItemNS(androidId("@id/rootView"))
                 setNamedItemNS(androidWidth(width))
                 setNamedItemNS(androidHeight(height))
+                setNamedItemNS(androidAttr("theme", "@style/Glance.AppWidget.Theme"))
             }
             val stub = createElement("ViewStub")
             root.appendChild(stub)
@@ -311,20 +356,34 @@ internal class LayoutGenerator {
                 null -> ContainerOrientation.None
                 else -> throw IllegalStateException("Unknown orientation in $file")
             }
-        return (0..MaxChildCount).map { numChildren ->
-            val generated = generateContainer(
-                document,
-                numChildren,
-                orientation,
-            )
-            val output =
-                outputLayoutDir.resolveRes(makeContainerResourceName(file, numChildren))
-            writeGeneratedLayout(generated, output)
-            ContainerProperties(
-                output,
-                numChildren,
-                orientation
-            )
+        val alignments = orientation.alignments
+        return (0..MaxChildCount).flatMap { numChildren ->
+            alignments.map { (horizontalAlignment, verticalAlignment) ->
+                val generated = generateContainer(
+                    document,
+                    numChildren,
+                    orientation,
+                    horizontalAlignment,
+                    verticalAlignment,
+                )
+                val output =
+                    outputLayoutDir.resolveRes(
+                        makeContainerResourceName(
+                            file,
+                            numChildren,
+                            horizontalAlignment,
+                            verticalAlignment
+                        )
+                    )
+                writeGeneratedLayout(generated, output)
+                ContainerProperties(
+                    output,
+                    numChildren,
+                    orientation,
+                    horizontalAlignment,
+                    verticalAlignment,
+                )
+            }
         }
     }
 
@@ -332,6 +391,8 @@ internal class LayoutGenerator {
         inputDoc: Document,
         numberChildren: Int,
         containerOrientation: ContainerOrientation,
+        horizontalAlignment: HorizontalAlignment?,
+        verticalAlignment: VerticalAlignment?,
     ) = documentBuilder.newDocument().apply {
         val root = importNode(inputDoc.documentElement, true)
         appendChild(root)
@@ -346,7 +407,14 @@ internal class LayoutGenerator {
                         setNamedItem(
                             attribute(
                                 "layout",
-                                "@layout/${makeChildResourceName(pos, containerOrientation)}"
+                                "@layout/${
+                                    makeChildResourceName(
+                                        pos,
+                                        containerOrientation,
+                                        horizontalAlignment,
+                                        verticalAlignment
+                                    )
+                                }"
                             )
                         )
                     }
@@ -354,6 +422,42 @@ internal class LayoutGenerator {
             )
         }
     }
+
+    private fun generateBoxChildrenForT(
+        file: File,
+        outputLayoutDir: File,
+    ): List<BoxChildProperties> =
+        crossProduct(
+            HorizontalAlignment.values().toList(),
+            VerticalAlignment.values().toList()
+        ).map { (horizontalAlignment, verticalAlignment) ->
+            val generated = generateAlignedLayout(
+                parseLayoutTemplate(file),
+                horizontalAlignment,
+                verticalAlignment,
+            )
+            val output = outputLayoutDir.resolveRes(
+                makeBoxChildResourceName(file, horizontalAlignment, verticalAlignment)
+            )
+            writeGeneratedLayout(generated, output)
+            BoxChildProperties(output, horizontalAlignment, verticalAlignment)
+        }
+
+    private fun generateRowColumnChildrenForT(
+        file: File,
+        outputLayoutDir: File,
+    ): List<RowColumnChildProperties> =
+        listOf(
+            Pair(ValidSize.Expand, ValidSize.Wrap),
+            Pair(ValidSize.Wrap, ValidSize.Expand),
+        ).map { (width, height) ->
+            val generated = generateSimpleLayout(parseLayoutTemplate(file), width, height)
+            val output = outputLayoutDir.resolveRes(
+                makeRowColumnChildResourceName(file, width, height)
+            )
+            writeGeneratedLayout(generated, output)
+            RowColumnChildProperties(output, width, height)
+        }
 
     /**
      * Generate a simple layout.
@@ -382,6 +486,25 @@ internal class LayoutGenerator {
             setNamedItemNS(generated.androidLayoutDirection("locale"))
         }
         return generated
+    }
+
+    /**
+     * This function is used to generate FrameLayout children with "layout_gravity" set for
+     * Android T+. We can ignore size here since it is set programmatically for T+.
+     */
+    private fun generateAlignedLayout(
+        document: Document,
+        horizontalAlignment: HorizontalAlignment,
+        verticalAlignment: VerticalAlignment,
+    ) = generateSimpleLayout(document, ValidSize.Wrap, ValidSize.Wrap).apply {
+        documentElement.attributes.setNamedItemNS(
+            androidGravity(
+                listOfNotNull(
+                    horizontalAlignment.resourceName,
+                    verticalAlignment.resourceName
+                ).joinToString(separator = "|")
+            )
+        )
     }
 
     private fun generateRootAliases(outputValueDir: File) =
@@ -416,6 +539,11 @@ internal class LayoutGenerator {
         writeGeneratedLayout(document, file)
         return file
     }
+
+    private fun isTopLevelLayout(file: File) =
+        parseLayoutTemplate(file).run {
+            documentElement.appAttr("glance_isTopLevelLayout")?.nodeValue == "true"
+        }
 }
 
 /** Maximum number of children generated in containers. */
@@ -429,6 +557,8 @@ internal const val RootLayoutAliasCount = 100
 
 internal data class GeneratedFiles(
     val generatedContainers: Map<File, List<ContainerProperties>>,
+    val generatedBoxChildren: Map<File, List<BoxChildProperties>>,
+    val generatedRowColumnChildren: Map<File, List<RowColumnChildProperties>>,
     val extraFiles: Set<File>
 )
 
@@ -442,6 +572,20 @@ internal data class ContainerProperties(
     val generatedFile: File,
     val numberChildren: Int,
     val containerOrientation: ContainerOrientation,
+    val horizontalAlignment: HorizontalAlignment?,
+    val verticalAlignment: VerticalAlignment?,
+)
+
+internal data class BoxChildProperties(
+    val generatedFile: File,
+    val horizontalAlignment: HorizontalAlignment,
+    val verticalAlignment: VerticalAlignment,
+)
+
+internal data class RowColumnChildProperties(
+    val generatedFile: File,
+    val width: ValidSize,
+    val height: ValidSize,
 )
 
 internal enum class ValidSize(val androidValue: String, val resourceName: String) {
@@ -461,12 +605,43 @@ internal enum class ContainerOrientation(
     Vertical("column", emptyList(), listOf(ValidSize.Expand))
 }
 
+internal val ContainerOrientation.alignments: List<Pair<HorizontalAlignment?, VerticalAlignment?>>
+    get() = when (this) {
+        ContainerOrientation.None -> {
+            crossProduct(
+                HorizontalAlignment.values().toList(),
+                VerticalAlignment.values().toList()
+            )
+        }
+        ContainerOrientation.Horizontal -> VerticalAlignment.values().map { null to it }
+        ContainerOrientation.Vertical -> HorizontalAlignment.values().map { it to null }
+    }
+
+internal enum class HorizontalAlignment(
+    val resourceName: String,
+    val code: MemberName,
+) {
+    Start("start", AlignmentStart),
+    Center("center_horizontal", AlignmentCenterHorizontally),
+    End("end", AlignmentEnd),
+}
+
+internal enum class VerticalAlignment(
+    val resourceName: String,
+    val code: MemberName,
+) {
+    Top("top", AlignmentTop),
+    Center("center_vertical", AlignmentCenterVertically),
+    Bottom("bottom", AlignmentBottom),
+}
+
 /** Sizes a ViewStub can meaningfully have, if expand is not an option. */
 internal val StubSizes = listOf(ValidSize.Wrap, ValidSize.Match)
 
 internal fun getChildMergeFilenameWithoutExtension(childCount: Int) = "merge_${childCount}child"
 
 private val AndroidNS = "http://schemas.android.com/apk/res/android"
+private val AppNS = "http://schemas.android.com/apk/res-auto"
 
 internal fun Document.androidAttr(name: String, value: String) =
     createAttributeNS(AndroidNS, "android:$name").apply {
@@ -475,6 +650,9 @@ internal fun Document.androidAttr(name: String, value: String) =
 
 internal fun Node.androidAttr(name: String): Node? =
     attributes.getNamedItemNS(AndroidNS, name)
+
+internal fun Node.appAttr(name: String): Node? =
+    attributes.getNamedItemNS(AppNS, name)
 
 internal fun Document.attribute(name: String, value: String): Node? =
     createAttribute(name).apply { textContent = value }
@@ -491,6 +669,8 @@ internal fun Document.androidHeight(value: ValidSize) =
     androidAttr("layout_height", value.androidValue)
 
 internal fun Document.androidWeight(value: Int) = androidAttr("layout_weight", value.toString())
+
+internal fun Document.androidGravity(value: String) = androidAttr("layout_gravity", value)
 
 internal fun Document.androidLayoutDirection(value: String) =
     androidAttr("layoutDirection", value)

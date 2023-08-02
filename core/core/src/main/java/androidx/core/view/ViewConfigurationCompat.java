@@ -23,13 +23,16 @@ import android.util.Log;
 import android.util.TypedValue;
 import android.view.ViewConfiguration;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 
 import java.lang.reflect.Method;
 
 /**
  * Helper for accessing features in {@link ViewConfiguration}.
  */
+@SuppressWarnings("JavaReflectionMemberAccess")
 public final class ViewConfigurationCompat {
     private static final String TAG = "ViewConfigCompat";
 
@@ -79,7 +82,7 @@ public final class ViewConfigurationCompat {
     public static float getScaledHorizontalScrollFactor(@NonNull ViewConfiguration config,
             @NonNull Context context) {
         if (Build.VERSION.SDK_INT >= 26) {
-            return config.getScaledHorizontalScrollFactor();
+            return Api26Impl.getScaledHorizontalScrollFactor(config);
         } else {
             return getLegacyScrollFactor(config, context);
         }
@@ -96,14 +99,15 @@ public final class ViewConfigurationCompat {
     public static float getScaledVerticalScrollFactor(@NonNull ViewConfiguration config,
             @NonNull Context context) {
         if (Build.VERSION.SDK_INT >= 26) {
-            return config.getScaledVerticalScrollFactor();
+            return Api26Impl.getScaledVerticalScrollFactor(config);
         } else {
             return getLegacyScrollFactor(config, context);
         }
     }
 
+    @SuppressWarnings("ConstantConditions")
     private static float getLegacyScrollFactor(ViewConfiguration config, Context context) {
-        if (android.os.Build.VERSION.SDK_INT >= 25 && sGetScaledScrollFactorMethod != null) {
+        if (Build.VERSION.SDK_INT >= 25 && sGetScaledScrollFactorMethod != null) {
             try {
                 return (int) sGetScaledScrollFactorMethod.invoke(config);
             } catch (Exception e) {
@@ -124,9 +128,9 @@ public final class ViewConfigurationCompat {
      *
      * @return The hover slop value.
      */
-    public static int getScaledHoverSlop(ViewConfiguration config) {
-        if (android.os.Build.VERSION.SDK_INT >= 28) {
-            return config.getScaledHoverSlop();
+    public static int getScaledHoverSlop(@NonNull ViewConfiguration config) {
+        if (Build.VERSION.SDK_INT >= 28) {
+            return Api28Impl.getScaledHoverSlop(config);
         }
         return config.getScaledTouchSlop() / 2;
     }
@@ -136,10 +140,11 @@ public final class ViewConfigurationCompat {
      *
      * @return {@code True} if shortcuts should be displayed in menus.
      */
-    public static boolean shouldShowMenuShortcutsWhenKeyboardPresent(ViewConfiguration config,
+    public static boolean shouldShowMenuShortcutsWhenKeyboardPresent(
+            @NonNull ViewConfiguration config,
             @NonNull Context context) {
-        if (android.os.Build.VERSION.SDK_INT >= 28) {
-            return config.shouldShowMenuShortcutsWhenKeyboardPresent();
+        if (Build.VERSION.SDK_INT >= 28) {
+            return Api28Impl.shouldShowMenuShortcutsWhenKeyboardPresent(config);
         }
         final Resources res = context.getResources();
         final int platformResId = res.getIdentifier(
@@ -147,5 +152,41 @@ public final class ViewConfigurationCompat {
         return platformResId != 0 && res.getBoolean(platformResId);
     }
 
-    private ViewConfigurationCompat() {}
+    private ViewConfigurationCompat() {
+    }
+
+    @RequiresApi(26)
+    static class Api26Impl {
+        private Api26Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static float getScaledHorizontalScrollFactor(ViewConfiguration viewConfiguration) {
+            return viewConfiguration.getScaledHorizontalScrollFactor();
+        }
+
+        @DoNotInline
+        static float getScaledVerticalScrollFactor(ViewConfiguration viewConfiguration) {
+            return viewConfiguration.getScaledVerticalScrollFactor();
+        }
+    }
+
+    @RequiresApi(28)
+    static class Api28Impl {
+        private Api28Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static int getScaledHoverSlop(ViewConfiguration viewConfiguration) {
+            return viewConfiguration.getScaledHoverSlop();
+        }
+
+        @DoNotInline
+        static boolean shouldShowMenuShortcutsWhenKeyboardPresent(
+                ViewConfiguration viewConfiguration) {
+            return viewConfiguration.shouldShowMenuShortcutsWhenKeyboardPresent();
+        }
+    }
 }

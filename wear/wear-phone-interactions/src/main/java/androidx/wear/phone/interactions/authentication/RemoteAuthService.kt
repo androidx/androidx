@@ -159,6 +159,7 @@ public abstract class RemoteAuthService : Service() {
         /**
          * @throws SecurityException
          */
+        @Suppress("DEPRECATION")
         override fun openUrl(
             request: Bundle,
             authenticationRequestCallback: IAuthenticationRequestCallback

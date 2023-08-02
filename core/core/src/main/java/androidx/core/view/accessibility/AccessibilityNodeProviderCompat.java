@@ -111,6 +111,7 @@ public class AccessibilityNodeProviderCompat {
      */
     public static final int HOST_VIEW_ID = -1;
 
+    @Nullable
     private final Object mProvider;
 
     /**
@@ -134,13 +135,14 @@ public class AccessibilityNodeProviderCompat {
      *
      * @param provider The provider.
      */
-    public AccessibilityNodeProviderCompat(Object provider) {
+    public AccessibilityNodeProviderCompat(@Nullable Object provider) {
         mProvider = provider;
     }
 
     /**
      * @return The wrapped {@link android.view.accessibility.AccessibilityNodeProvider}.
      */
+    @Nullable
     public Object getProvider() {
         return mProvider;
     }
@@ -185,7 +187,8 @@ public class AccessibilityNodeProviderCompat {
      * @see #createAccessibilityNodeInfo(int)
      * @see AccessibilityNodeInfoCompat
      */
-    public boolean performAction(int virtualViewId, int action, Bundle arguments) {
+    @SuppressWarnings("unused")
+    public boolean performAction(int virtualViewId, int action, @Nullable Bundle arguments) {
         return false;
     }
 
@@ -203,8 +206,9 @@ public class AccessibilityNodeProviderCompat {
      * @see #createAccessibilityNodeInfo(int)
      * @see AccessibilityNodeInfoCompat
      */
+    @SuppressWarnings("unused")
     @Nullable
-    public List<AccessibilityNodeInfoCompat> findAccessibilityNodeInfosByText(String text,
+    public List<AccessibilityNodeInfoCompat> findAccessibilityNodeInfosByText(@NonNull String text,
             int virtualViewId) {
         return null;
     }
@@ -220,6 +224,7 @@ public class AccessibilityNodeProviderCompat {
      * @see AccessibilityNodeInfoCompat#FOCUS_INPUT
      * @see AccessibilityNodeInfoCompat#FOCUS_ACCESSIBILITY
      */
+    @SuppressWarnings("unused")
     @Nullable
     public AccessibilityNodeInfoCompat findFocus(int focus) {
         return null;
@@ -242,6 +247,7 @@ public class AccessibilityNodeProviderCompat {
      *
      * @see AccessibilityNodeInfo#setAvailableExtraData(List)
      */
+    @SuppressWarnings("unused")
     public void addExtraDataToAccessibilityNodeInfo(int virtualViewId,
             @NonNull AccessibilityNodeInfoCompat info, @NonNull String extraDataKey,
             @Nullable Bundle arguments) {

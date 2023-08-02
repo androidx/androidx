@@ -17,13 +17,13 @@
 package androidx.compose.ui.platform
 
 import androidx.compose.ui.text.ExperimentalTextApi
-import androidx.compose.ui.text.font.test.R
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.platform.app.InstrumentationRegistry
+import androidx.testutils.fonts.R
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -35,6 +35,7 @@ class AndroidFontResourceLoaderTest {
     private val context = InstrumentationRegistry.getInstrumentation().context
 
     @Test
+    @Suppress("DEPRECATION")
     fun test_font_loading_from_res() {
         val loader = AndroidFontResourceLoader(context)
         val typeface = loader.load(

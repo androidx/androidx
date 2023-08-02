@@ -25,6 +25,7 @@ import androidx.car.app.model.Pane;
 import androidx.car.app.model.PaneTemplate;
 import androidx.car.app.model.Row;
 import androidx.car.app.model.Template;
+import androidx.car.app.sample.showcase.common.R;
 
 /** A screen that displays text about canceling the reservation */
 public final class ReservationCancelledScreen extends Screen {
@@ -36,13 +37,14 @@ public final class ReservationCancelledScreen extends Screen {
     @NonNull
     @Override
     public Template onGetTemplate() {
-        Pane pane =
-                new Pane.Builder()
-                        .addRow(new Row.Builder().setTitle("Reservation canceled").build())
-                        .build();
+        Pane pane = new Pane.Builder()
+                .addRow(new Row.Builder()
+                        .setTitle(getCarContext().getString(R.string.reservation_cancelled_msg))
+                        .build())
+                .build();
 
         return new PaneTemplate.Builder(pane)
-                .setTitle("Cancel Reservation Screen")
+                .setTitle(getCarContext().getString(R.string.cancel_reservation_title))
                 .setHeaderAction(BACK)
                 .build();
     }

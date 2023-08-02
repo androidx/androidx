@@ -16,10 +16,21 @@
 
 package androidx.room;
 
+import androidx.annotation.NonNull;
+import androidx.room.migration.AutoMigrationSpec;
+import androidx.room.migration.Migration;
 import androidx.sqlite.db.SupportSQLiteOpenHelper;
+
+import org.mockito.Mockito;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 public class BuilderTest_TestDatabase_Impl extends BuilderTest.TestDatabase {
     DatabaseConfiguration mConfig;
+    List<Migration> mAutoMigrations = Arrays.asList(new BuilderTest.EmptyMigration(1, 2));
+
     @Override
     public void init(DatabaseConfiguration configuration) {
         super.init(configuration);
@@ -28,15 +39,23 @@ public class BuilderTest_TestDatabase_Impl extends BuilderTest.TestDatabase {
 
     @Override
     protected SupportSQLiteOpenHelper createOpenHelper(DatabaseConfiguration config) {
-        return null;
+        return Mockito.mock(SupportSQLiteOpenHelper.class);
     }
 
     @Override
     protected InvalidationTracker createInvalidationTracker() {
-        return null;
+        return Mockito.mock(InvalidationTracker.class);
     }
 
     @Override
     public void clearAllTables() {
+    }
+
+    @NonNull
+    @Override
+    public List<Migration> getAutoMigrations(
+            @NonNull Map<Class<? extends AutoMigrationSpec>, AutoMigrationSpec> autoMigrationSpecs
+    ) {
+        return mAutoMigrations;
     }
 }

@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
 import androidx.build.LibraryType
 import androidx.build.Publish
 import androidx.build.SdkResourceGenerator
@@ -55,7 +54,7 @@ gradlePlugin {
 
 tasks.withType(KotlinCompile).configureEach {
     kotlinOptions {
-        freeCompilerArgs += [ "-Xopt-in=kotlin.Experimental" ]
+        freeCompilerArgs += [ "-opt-in=kotlin.Experimental" ]
     }
 }
 

@@ -24,6 +24,8 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
@@ -51,6 +53,7 @@ public class GuidedStepSupportHalfScreenActivity extends FragmentActivity {
 
     public static class FirstStepFragment extends GuidedStepSupportFragment {
 
+       @NonNull
        @Override
         public Guidance onCreateGuidance(Bundle savedInstanceState) {
             String title = getString(R.string.guidedstep_first_title);
@@ -63,7 +66,10 @@ public class GuidedStepSupportHalfScreenActivity extends FragmentActivity {
         }
 
         @Override
-        public void onCreateActions(List<GuidedAction> actions, Bundle savedInstanceState) {
+        public void onCreateActions(
+                @NonNull List<GuidedAction> actions,
+                @Nullable Bundle savedInstanceState
+        ) {
             Context context = getActivity();
             actions.add(new GuidedAction.Builder(context)
                     .clickAction(GuidedAction.ACTION_ID_CONTINUE)
@@ -108,6 +114,7 @@ public class GuidedStepSupportHalfScreenActivity extends FragmentActivity {
             return R.style.Theme_Example_Leanback_GuidedStep_Half;
         }
 
+        @NonNull
         @Override
         public Guidance onCreateGuidance(Bundle savedInstanceState) {
             String title = getString(R.string.guidedstep_second_title);
@@ -120,7 +127,7 @@ public class GuidedStepSupportHalfScreenActivity extends FragmentActivity {
         }
 
         @Override
-        public void onCreateActions(List<GuidedAction> actions, Bundle savedInstanceState) {
+        public void onCreateActions(@NonNull List<GuidedAction> actions, Bundle savedInstanceState) {
             Context context = getActivity();
             actions.add(new GuidedAction.Builder(context)
                     .clickAction(GuidedAction.ACTION_ID_FINISH)

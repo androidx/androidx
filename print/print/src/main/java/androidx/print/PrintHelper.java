@@ -26,6 +26,7 @@ import android.graphics.ColorMatrixColorFilter;
 import android.graphics.ColorSpace;
 import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.pdf.PdfDocument;
 import android.net.Uri;
@@ -41,6 +42,7 @@ import android.print.PrintManager;
 import android.print.pdf.PrintedPdfDocument;
 import android.util.Log;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -50,6 +52,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
@@ -262,19 +265,19 @@ public final class PrintHelper {
 
         PrintManager printManager =
                 (PrintManager) mContext.getSystemService(Context.PRINT_SERVICE);
-        PrintAttributes.MediaSize mediaSize;
-        if (isPortrait(bitmap)) {
-            mediaSize = PrintAttributes.MediaSize.UNKNOWN_PORTRAIT;
-        } else {
-            mediaSize = PrintAttributes.MediaSize.UNKNOWN_LANDSCAPE;
-        }
-        PrintAttributes attr = new PrintAttributes.Builder()
-                .setMediaSize(mediaSize)
-                .setColorMode(mColorMode)
-                .build();
 
-        printManager.print(jobName,
-                new PrintBitmapAdapter(jobName, mScaleMode, bitmap, callback), attr);
+        PrintAttributes.Builder builder = Api19Impl.createPrintAttributesBuilder();
+        Api19Impl.setColorMode(builder, mColorMode);
+        if (isPortrait(bitmap)) {
+            Api19Impl.setMediaSize(builder, PrintAttributes.MediaSize.UNKNOWN_PORTRAIT);
+        } else {
+            Api19Impl.setMediaSize(builder, PrintAttributes.MediaSize.UNKNOWN_LANDSCAPE);
+        }
+
+        Api19Impl.print(printManager,
+                jobName,
+                new PrintBitmapAdapter(jobName, mScaleMode, bitmap, callback),
+                Api19Impl.buildPrintAttributes(builder));
     }
 
     @RequiresApi(19)
@@ -363,17 +366,18 @@ public final class PrintHelper {
 
         PrintManager printManager =
                 (PrintManager) mContext.getSystemService(Context.PRINT_SERVICE);
-        PrintAttributes.Builder builder = new PrintAttributes.Builder();
-        builder.setColorMode(mColorMode);
+
+        PrintAttributes.Builder builder = Api19Impl.createPrintAttributesBuilder();
+        Api19Impl.setColorMode(builder, mColorMode);
 
         if (mOrientation == ORIENTATION_LANDSCAPE || mOrientation == 0) {
-            builder.setMediaSize(PrintAttributes.MediaSize.UNKNOWN_LANDSCAPE);
+            Api19Impl.setMediaSize(builder, PrintAttributes.MediaSize.UNKNOWN_LANDSCAPE);
         } else if (mOrientation == ORIENTATION_PORTRAIT) {
-            builder.setMediaSize(PrintAttributes.MediaSize.UNKNOWN_PORTRAIT);
+            Api19Impl.setMediaSize(builder, PrintAttributes.MediaSize.UNKNOWN_PORTRAIT);
         }
-        PrintAttributes attr = builder.build();
 
-        printManager.print(jobName, printDocumentAdapter, attr);
+        Api19Impl.print(printManager, jobName, printDocumentAdapter,
+                Api19Impl.buildPrintAttributes(builder));
     }
 
     @SuppressWarnings("deprecation")
@@ -557,18 +561,19 @@ public final class PrintHelper {
      */
     @RequiresApi(19)
     private static PrintAttributes.Builder copyAttributes(PrintAttributes other) {
-        PrintAttributes.Builder b = new PrintAttributes.Builder()
-                .setMediaSize(other.getMediaSize())
-                .setResolution(other.getResolution())
-                .setMinMargins(other.getMinMargins());
+        PrintAttributes.Builder b = Api19Impl.createPrintAttributesBuilder();
+        Api19Impl.setMediaSize(b, Api19Impl.getMediaSize(other));
+        Api19Impl.setResolution(b, Api19Impl.getResolution(other));
+        Api19Impl.setMinMargins(b, Api19Impl.getMinMargins(other));
 
-        if (other.getColorMode() != 0) {
-            b.setColorMode(other.getColorMode());
+
+        if (Api19Impl.getColorMode(other) != 0) {
+            Api19Impl.setColorMode(b, Api19Impl.getColorMode(other));
         }
 
         if (Build.VERSION.SDK_INT >= 23) {
-            if (other.getDuplexMode() != 0) {
-                b.setDuplexMode(other.getDuplexMode());
+            if (Api23Impl.getDuplexMode(other) != 0) {
+                Api23Impl.setDuplexMode(b, Api23Impl.getDuplexMode(other));
             }
         }
 
@@ -630,43 +635,47 @@ public final class PrintHelper {
         } else {
             // If the handling of any margin != 0 is broken, strip the margins and add them to
             // the bitmap later
-            pdfAttributes = copyAttributes(attributes)
-                    .setMinMargins(new PrintAttributes.Margins(0, 0, 0, 0)).build();
+            PrintAttributes.Builder builder = copyAttributes(attributes);
+            Api19Impl.setMinMargins(builder, Api19Impl.createMargins(0, 0, 0, 0));
+            pdfAttributes = Api19Impl.buildPrintAttributes(builder);
         }
 
         new android.os.AsyncTask<Void, Void, Throwable>() {
             @Override
             protected Throwable doInBackground(Void... params) {
                 try {
-                    if (cancellationSignal.isCanceled()) {
+                    if (Api16Impl.isCanceled(cancellationSignal)) {
                         return null;
                     }
 
-                    PrintedPdfDocument pdfDocument = new PrintedPdfDocument(mContext,
-                            pdfAttributes);
+                    PrintedPdfDocument pdfDocument =
+                            Api19Impl.createPrintedPdfDocument(mContext, pdfAttributes);
 
                     Bitmap maybeGrayscale = convertBitmapForColorMode(bitmap,
-                            pdfAttributes.getColorMode());
+                            Api19Impl.getColorMode(pdfAttributes));
 
-                    if (cancellationSignal.isCanceled()) {
+                    if (Api16Impl.isCanceled(cancellationSignal)) {
                         return null;
                     }
 
                     try {
-                        PdfDocument.Page page = pdfDocument.startPage(1);
+                        PdfDocument.Page page = Api19Impl.startPage(pdfDocument, 1);
 
                         RectF contentRect;
                         if (IS_MIN_MARGINS_HANDLING_CORRECT) {
-                            contentRect = new RectF(page.getInfo().getContentRect());
+                            contentRect = new RectF(Api19Impl.getContentRect(
+                                    Api19Impl.getInfo(page)));
                         } else {
                             // Create dummy doc that has the margins to compute correctly sized
                             // content rectangle
-                            PrintedPdfDocument dummyDocument = new PrintedPdfDocument(mContext,
-                                    attributes);
-                            PdfDocument.Page dummyPage = dummyDocument.startPage(1);
-                            contentRect = new RectF(dummyPage.getInfo().getContentRect());
-                            dummyDocument.finishPage(dummyPage);
-                            dummyDocument.close();
+                            PrintedPdfDocument dummyDocument = Api19Impl.createPrintedPdfDocument(
+                                    mContext, attributes);
+                            PdfDocument.Page dummyPage = Api19Impl.startPage(dummyDocument, 1);
+                            contentRect =
+                                    new RectF(
+                                            Api19Impl.getContentRect(Api19Impl.getInfo(dummyPage)));
+                            Api19Impl.finishPage(dummyDocument, dummyPage);
+                            Api19Impl.close(dummyDocument);
                         }
 
                         // Resize bitmap
@@ -681,25 +690,25 @@ public final class PrintHelper {
                             matrix.postTranslate(contentRect.left, contentRect.top);
 
                             // Cut off margins
-                            page.getCanvas().clipRect(contentRect);
+                            Api19Impl.getCanvas(page).clipRect(contentRect);
                         }
 
                         // Draw the bitmap.
-                        page.getCanvas().drawBitmap(maybeGrayscale, matrix, null);
+                        Api19Impl.getCanvas(page).drawBitmap(maybeGrayscale, matrix, null);
 
                         // Finish the page.
-                        pdfDocument.finishPage(page);
+                        Api19Impl.finishPage(pdfDocument, page);
 
-                        if (cancellationSignal.isCanceled()) {
+                        if (Api16Impl.isCanceled(cancellationSignal)) {
                             return null;
                         }
 
                         // Write the document.
-                        pdfDocument.writeTo(
-                                new FileOutputStream(fileDescriptor.getFileDescriptor()));
+                        Api19Impl.writeTo(pdfDocument, new FileOutputStream(
+                                fileDescriptor.getFileDescriptor()));
                         return null;
                     } finally {
-                        pdfDocument.close();
+                        Api19Impl.close(pdfDocument);
 
                         if (fileDescriptor != null) {
                             try {
@@ -720,17 +729,17 @@ public final class PrintHelper {
 
             @Override
             protected void onPostExecute(Throwable throwable) {
-                if (cancellationSignal.isCanceled()) {
+                if (Api16Impl.isCanceled(cancellationSignal)) {
                     // Cancelled.
-                    writeResultCallback.onWriteCancelled();
+                    Api19Impl.onWriteCancelled(writeResultCallback);
                 } else if (throwable == null) {
                     // Done.
-                    writeResultCallback.onWriteFinished(
-                            new PageRange[] { PageRange.ALL_PAGES });
+                    Api19Impl.onWriteFinished(
+                            writeResultCallback, new PageRange[]{PageRange.ALL_PAGES});
                 } else {
                     // Failed.
                     Log.e(LOG_TAG, "Error writing printed content", throwable);
-                    writeResultCallback.onWriteFailed(null);
+                    Api19Impl.onWriteFailed(writeResultCallback, null);
                 }
             }
         }.execute();
@@ -780,7 +789,7 @@ public final class PrintHelper {
             mDecodeOptions.inMutable = true;
             mDecodeOptions.inSampleSize = sampleSize;
             if (Build.VERSION.SDK_INT >= 26) {
-                mDecodeOptions.inPreferredColorSpace = ColorSpace.get(ColorSpace.Named.SRGB);
+                mDecodeOptions.inPreferredColorSpace = Api26Impl.get(ColorSpace.Named.SRGB);
             }
             decodeOptions = mDecodeOptions;
         }
@@ -835,4 +844,182 @@ public final class PrintHelper {
 
         return grayscale;
     }
+
+    @RequiresApi(16)
+    static class Api16Impl {
+        private Api16Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static boolean isCanceled(CancellationSignal cancellationSignal) {
+            return cancellationSignal.isCanceled();
+        }
+
+    }
+
+    @RequiresApi(19)
+    private static class Api19Impl {
+        private Api19Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static PrintAttributes.Builder createPrintAttributesBuilder() {
+            return new PrintAttributes.Builder();
+        }
+
+        @DoNotInline
+        static void setColorMode(PrintAttributes.Builder builder,
+                int colorMode) {
+            builder.setColorMode(colorMode);
+        }
+
+        @DoNotInline
+        static void setMediaSize(PrintAttributes.Builder builder,
+                PrintAttributes.MediaSize mediaSize) {
+            builder.setMediaSize(mediaSize);
+        }
+
+        @DoNotInline
+        static void setMinMargins(PrintAttributes.Builder builder,
+                PrintAttributes.Margins minMargins) {
+            builder.setMinMargins(minMargins);
+        }
+
+        @DoNotInline
+        static void setResolution(PrintAttributes.Builder builder,
+                PrintAttributes.Resolution resolution) {
+            builder.setResolution(resolution);
+        }
+
+        @DoNotInline
+        public static PrintAttributes buildPrintAttributes(PrintAttributes.Builder builder) {
+            return builder.build();
+        }
+
+        @DoNotInline
+        static void print(PrintManager
+                printManager, String jobName, PrintDocumentAdapter printAdapter,
+                PrintAttributes attr) {
+
+
+            printManager.print(jobName, printAdapter, attr);
+        }
+
+        @DoNotInline
+        static PrintAttributes.MediaSize getMediaSize(PrintAttributes printAttributes) {
+            return printAttributes.getMediaSize();
+        }
+
+        @DoNotInline
+        static PrintAttributes.Resolution getResolution(PrintAttributes printAttributes) {
+            return printAttributes.getResolution();
+        }
+
+        @DoNotInline
+        static PrintAttributes.Margins getMinMargins(PrintAttributes printAttributes) {
+            return printAttributes.getMinMargins();
+        }
+
+        @DoNotInline
+        static int getColorMode(PrintAttributes printAttributes) {
+            return printAttributes.getColorMode();
+        }
+
+        @DoNotInline
+        static PrintAttributes.Margins createMargins(int leftMils, int topMils, int rightMils,
+                int bottomMils) {
+            return new PrintAttributes.Margins(leftMils, topMils, rightMils, bottomMils);
+        }
+
+        @DoNotInline
+        static PrintedPdfDocument createPrintedPdfDocument(Context context,
+                PrintAttributes attributes) {
+            return new PrintedPdfDocument(context, attributes);
+        }
+
+        @DoNotInline
+        static PdfDocument.Page startPage(PrintedPdfDocument printedPdfDocument, int pageNumber) {
+            return printedPdfDocument.startPage(pageNumber);
+        }
+
+        @DoNotInline
+        static PdfDocument.PageInfo getInfo(PdfDocument.Page page) {
+            return page.getInfo();
+        }
+
+        @DoNotInline
+        static Rect getContentRect(PdfDocument.PageInfo pageInfo) {
+            return pageInfo.getContentRect();
+        }
+
+        @DoNotInline
+        static void finishPage(PdfDocument pdfDocument, PdfDocument.Page page) {
+            pdfDocument.finishPage(page);
+        }
+
+        @DoNotInline
+        static void close(PdfDocument pdfDocument) {
+            pdfDocument.close();
+        }
+
+        @DoNotInline
+        static Canvas getCanvas(PdfDocument.Page page) {
+            return page.getCanvas();
+        }
+
+        @DoNotInline
+        static void writeTo(PdfDocument pdfDocument, OutputStream out) throws IOException {
+            pdfDocument.writeTo(out);
+        }
+
+        @DoNotInline
+        static void onWriteCancelled(PrintDocumentAdapter.WriteResultCallback writeResultCallback) {
+            writeResultCallback.onWriteCancelled();
+        }
+
+        @DoNotInline
+        static void onWriteFinished(PrintDocumentAdapter.WriteResultCallback writeResultCallback,
+                PageRange[] pages) {
+            writeResultCallback.onWriteFinished(pages);
+        }
+
+        @DoNotInline
+        static void onWriteFailed(PrintDocumentAdapter.WriteResultCallback writeResultCallback,
+                CharSequence error) {
+            writeResultCallback.onWriteFailed(error);
+        }
+    }
+
+    @RequiresApi(23)
+    static class Api23Impl {
+        private Api23Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static int getDuplexMode(PrintAttributes printAttributes) {
+            return printAttributes.getDuplexMode();
+        }
+
+        @DoNotInline
+        static void setDuplexMode(PrintAttributes.Builder builder, int duplexMode) {
+            builder.setDuplexMode(duplexMode);
+        }
+    }
+
+    @RequiresApi(26)
+    static class Api26Impl {
+        private Api26Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static ColorSpace get(ColorSpace.Named name) {
+            return ColorSpace.get(name);
+        }
+
+    }
 }
+

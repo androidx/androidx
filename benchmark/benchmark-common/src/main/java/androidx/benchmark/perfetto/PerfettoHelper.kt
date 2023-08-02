@@ -357,7 +357,7 @@ public class PerfettoHelper(
         private const val PERFETTO_KILL_WAIT_COUNT = 30
 
         // Check if perfetto is stopped every 100 millis.
-        private const val PERFETTO_KILL_WAIT_TIME_MS: Long = 500
+        private const val PERFETTO_KILL_WAIT_TIME_MS: Long = 100
 
         // Path where unbundled tracebox is copied to
         private const val UNBUNDLED_PERFETTO_ROOT_DIR = "/data/local/tmp"
@@ -373,11 +373,10 @@ public class PerfettoHelper(
         private const val TRACING_ON_PATH = "/sys/kernel/tracing/tracing_on"
         private const val TRACING_ON_FALLBACK_PATH = "/sys/kernel/debug/tracing/tracing_on"
 
-        @TestOnly
         fun isAbiSupported(): Boolean {
             Log.d(LOG_TAG, "Supported ABIs: ${Build.SUPPORTED_ABIS.joinToString()}")
             // Cuttlefish is x86 but claims support for x86_64
-            return !Build.MODEL.contains("Cuttlefish") && ( // b/180022458
+            return !Build.MODEL.contains("Cuttlefish") && ( // b/204892353
                 Build.SUPPORTED_64_BIT_ABIS.any { SUPPORTED_64_ABIS.contains(it) } ||
                     Build.SUPPORTED_32_BIT_ABIS.any { SUPPORTED_32_ABIS.contains(it) }
                 )
@@ -421,6 +420,17 @@ public class PerfettoHelper(
                     waitPollPeriodMs = PERFETTO_KILL_WAIT_TIME_MS,
                     waitPollMaxCount = PERFETTO_KILL_WAIT_COUNT,
                     processName
+                )
+            }
+
+            // Have seen cases where unbundled Perfetto crashes, and leaves ftrace enabled,
+            // e.g. b/205763418. --cleanup-after-crash will reset that state, so it doesn't leak
+            // between tests. If this sort of crash happens on higher API levels, may need to do
+            // this there as well. Can't use /system/bin/traced_probes, as that requires root, and
+            // unbundled tracebox otherwise not used/installed on higher APIs, outside of tests.
+            if (Build.VERSION.SDK_INT < LOWEST_BUNDLED_VERSION_SUPPORTED) {
+                Shell.executeCommand(
+                    "$unbundledPerfettoShellPath traced_probes --cleanup-after-crash"
                 )
             }
         }

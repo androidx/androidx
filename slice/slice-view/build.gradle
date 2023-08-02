@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryVersions
-import androidx.build.LibraryGroups
 import androidx.build.Publish
 
 plugins {
@@ -25,7 +23,7 @@ plugins {
 
 dependencies {
     implementation(project(":slice:slice-core"))
-    implementation(project(":appcompat:appcompat"))
+    implementation("androidx.appcompat:appcompat:1.4.0")
     implementation("androidx.recyclerview:recyclerview:1.2.0-beta01")
     implementation("androidx.collection:collection:1.1.0")
     api("androidx.lifecycle:lifecycle-livedata-core:2.0.0")
@@ -49,4 +47,8 @@ androidx {
     inceptionYear = "2017"
     description = "A library that handles rendering of slice content into supported templates"
     failOnDeprecationWarnings = false
+}
+
+android {
+    namespace "androidx.slice.view"
 }

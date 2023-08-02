@@ -16,5 +16,5 @@
 # loaded by reflection in androidx.core.content.pm.ShortcutManagerCompat
 -if public class androidx.core.content.pm.ShortcutManagerCompat
 -keep public class androidx.sharetarget.ShortcutInfoCompatSaverImpl extends androidx.core.content.pm.ShortcutInfoCompatSaver {
-    public static ShortcutInfoCompatSaverImpl getInstance(...);
+    public static androidx.sharetarget.ShortcutInfoCompatSaverImpl getInstance(...);
 }

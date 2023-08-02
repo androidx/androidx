@@ -16,6 +16,7 @@
 
 package androidx.wear.watchface.samples
 
+import android.content.Intent
 import android.graphics.Color
 import android.graphics.RectF
 import android.graphics.drawable.Icon
@@ -26,6 +27,7 @@ import android.opengl.Matrix
 import android.util.Log
 import android.view.Gravity
 import android.view.SurfaceHolder
+import androidx.annotation.RequiresApi
 import androidx.wear.watchface.complications.ComplicationSlotBounds
 import androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy
 import androidx.wear.watchface.complications.SystemDataSources
@@ -35,9 +37,12 @@ import androidx.wear.watchface.ComplicationSlotsManager
 import androidx.wear.watchface.DrawMode
 import androidx.wear.watchface.Renderer
 import androidx.wear.watchface.WatchFace
+import androidx.wear.watchface.WatchFaceColors
 import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.WatchFaceType
 import androidx.wear.watchface.WatchState
+import androidx.wear.watchface.complications.permission.dialogs.sample.ComplicationDeniedActivity
+import androidx.wear.watchface.complications.permission.dialogs.sample.ComplicationRationalActivity
 import androidx.wear.watchface.complications.rendering.CanvasComplicationDrawable
 import androidx.wear.watchface.complications.rendering.GlesTextureComplication
 import androidx.wear.watchface.style.CurrentUserStyleRepository
@@ -52,6 +57,9 @@ import java.nio.FloatBuffer
 import java.time.ZonedDateTime
 import kotlin.math.cos
 import kotlin.math.sin
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 /** Expected frame rate in interactive mode.  */
 private const val FPS: Long = 60
@@ -78,7 +86,7 @@ const val EXAMPLE_OPENGL_COMPLICATION_ID = 101
  * NB this is open for testing.
  */
 open class ExampleOpenGLWatchFaceService : WatchFaceService() {
-    // Lazy because the context isn't initialized til later.
+    // Lazy because the context isn't initialized till later.
     private val watchFaceStyle by lazy {
         WatchFaceColorStyle.create(this, "white_style")
     }
@@ -124,10 +132,12 @@ open class ExampleOpenGLWatchFaceService : WatchFaceService() {
             ComplicationType.MONOCHROMATIC_IMAGE,
             ComplicationType.SMALL_IMAGE
         ),
-        DefaultComplicationDataSourcePolicy(SystemDataSources.DATA_SOURCE_DAY_OF_WEEK),
+        DefaultComplicationDataSourcePolicy(
+            SystemDataSources.DATA_SOURCE_DAY_OF_WEEK,
+            ComplicationType.SHORT_TEXT
+        ),
         ComplicationSlotBounds(RectF(0.2f, 0.7f, 0.4f, 0.9f))
-    ).setDefaultDataSourceType(ComplicationType.SHORT_TEXT)
-        .build()
+    ).build()
 
     public override fun createUserStyleSchema() = UserStyleSchema(listOf(colorStyleSetting))
 
@@ -149,15 +159,24 @@ open class ExampleOpenGLWatchFaceService : WatchFaceService() {
             colorStyleSetting,
             complication
         )
-    ).setLegacyWatchFaceStyle(
-        WatchFace.LegacyWatchFaceOverlayStyle(
-            0,
-            Gravity.RIGHT or Gravity.TOP,
-            true
-        )
     )
+        .setLegacyWatchFaceStyle(
+            WatchFace.LegacyWatchFaceOverlayStyle(
+                0,
+                Gravity.RIGHT or Gravity.TOP,
+                true
+            )
+        )
+        .setComplicationDeniedDialogIntent(
+            Intent(this, ComplicationDeniedActivity::class.java)
+        )
+        .setComplicationRationaleDialogIntent(
+            Intent(this, ComplicationRationalActivity::class.java)
+        )
 }
 
+@Suppress("Deprecation")
+@RequiresApi(27)
 class ExampleOpenGLRenderer(
     surfaceHolder: SurfaceHolder,
     private val currentUserStyleRepository: CurrentUserStyleRepository,
@@ -221,6 +240,28 @@ class ExampleOpenGLRenderer(
 
     private lateinit var complicationTriangles: Gles2TexturedTriangleList
     private lateinit var complicationHighlightTriangles: Gles2ColoredTriangleList
+
+    init {
+        CoroutineScope(Dispatchers.Main.immediate).launch {
+            currentUserStyleRepository.userStyle.collect { userStyle ->
+                watchfaceColors = when (userStyle[colorStyleSetting]!!.toString()) {
+                    "red_style" -> WatchFaceColors(
+                        Color.valueOf(0.5f, 0.2f, 0.2f, 1f),
+                        Color.valueOf(0.4f, 0.15f, 0.15f, 1f),
+                        Color.valueOf(0.1f, 0.1f, 0.1f, 1f)
+                    )
+
+                    "green_style" -> WatchFaceColors(
+                        Color.valueOf(0.2f, 0.5f, 0.2f, 1f),
+                        Color.valueOf(0.15f, 0.4f, 0.15f, 1f),
+                        Color.valueOf(0.1f, 0.1f, 0.1f, 1f)
+                    )
+
+                    else -> null
+                }
+            }
+        }
+    }
 
     override suspend fun onBackgroundThreadGlContextCreated() {
         // Create program for drawing triangles.
@@ -1144,6 +1185,13 @@ class Gles2TexturedTriangleList(
             GLES20.glDisableVertexAttribArray(textureCoordinateHandle)
             if (CHECK_GL_ERRORS) {
                 checkGlError("glDisableVertexAttribArray")
+            }
+        }
+
+        fun onDestroy() {
+            GLES20.glDeleteProgram(programId)
+            if (CHECK_GL_ERRORS) {
+                checkGlError("glDeleteProgram")
             }
         }
 

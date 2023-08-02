@@ -1,0 +1,60 @@
+/*
+ * Copyright 2022 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import androidx.build.AndroidXComposePlugin
+import androidx.build.LibraryType
+
+plugins {
+    id("AndroidXComposePlugin")
+    id("AndroidXPlugin")
+    id("com.android.library")
+}
+
+// Disable multi-platform; this will only be used on Android.
+AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project, /* isMultiplatformEnabled= */false)
+
+dependencies {
+    api("androidx.wear.tiles:tiles-renderer:1.0.0")
+
+    api(libs.kotlinStdlib)
+    api(libs.kotlinReflect)
+    api(libs.kotlinCoroutinesAndroid)
+
+    implementation("androidx.core:core:1.1.0")
+
+    api(project(":compose:runtime:runtime"))
+    api(project(":glance:glance-wear-tiles"))
+
+    androidTestImplementation(libs.junit)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.testRules)
+}
+
+android {
+    defaultConfig {
+        minSdkVersion 26
+    }
+    namespace "androidx.glance.wear.tiles.preview"
+}
+
+androidx {
+    name = "Android Glance Wear Tiles Preview"
+    type = LibraryType.PUBLISHED_LIBRARY
+    mavenGroup = LibraryGroups.GLANCE
+    inceptionYear = "2022"
+    description = "Glance tooling library. This library provides the API required for the " +
+            "GlanceTileService components and its Glance @Composable to be previewable in the IDE."
+}

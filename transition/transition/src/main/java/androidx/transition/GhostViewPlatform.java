@@ -16,6 +16,7 @@
 
 package androidx.transition;
 
+import android.annotation.SuppressLint;
 import android.graphics.Matrix;
 import android.util.Log;
 import android.view.View;
@@ -27,7 +28,7 @@ import androidx.annotation.RequiresApi;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-@RequiresApi(21)
+@RequiresApi(21) // This method is only used on exactly API 28
 class GhostViewPlatform implements GhostView {
 
     private static final String TAG = "GhostViewApi21";
@@ -39,6 +40,7 @@ class GhostViewPlatform implements GhostView {
     private static Method sRemoveGhostMethod;
     private static boolean sRemoveGhostMethodFetched;
 
+    @SuppressLint("BanUncheckedReflection") // This method is called only on API 28
     static GhostView addGhost(View view, ViewGroup viewGroup, Matrix matrix) {
         fetchAddGhostMethod();
         if (sAddGhostMethod != null) {
@@ -54,6 +56,7 @@ class GhostViewPlatform implements GhostView {
         return null;
     }
 
+    @SuppressLint("BanUncheckedReflection") // This method is called only on API 28
     static void removeGhost(View view) {
         fetchRemoveGhostMethod();
         if (sRemoveGhostMethod != null) {

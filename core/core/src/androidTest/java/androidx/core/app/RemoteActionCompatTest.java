@@ -55,6 +55,7 @@ public class RemoteActionCompatTest extends BaseInstrumentationTestCase<TestActi
         assertEqualsToTestRemoteActionCompat(result);
     }
 
+    @SuppressWarnings("deprecation")
     @Test
     public void testRemoteAction_parcel() {
         RemoteActionCompat reference = createTestRemoteActionCompat();

@@ -17,11 +17,13 @@
 package androidx.wear.watchface.control;
 
 import android.support.wearable.watchface.accessibility.ContentDescriptionLabel;
+import androidx.wear.watchface.control.IWatchfaceListener;
 import androidx.wear.watchface.control.IWatchfaceReadyListener;
 import androidx.wear.watchface.control.data.WatchFaceRenderParams;
-import androidx.wear.watchface.data.WatchUiState;
 import androidx.wear.watchface.data.IdAndComplicationDataWireFormat;
 import androidx.wear.watchface.data.IdAndComplicationStateWireFormat;
+import androidx.wear.watchface.data.WatchFaceOverlayStyleWireFormat;
+import androidx.wear.watchface.data.WatchUiState;
 import androidx.wear.watchface.style.data.UserStyleSchemaWireFormat;
 import androidx.wear.watchface.style.data.UserStyleWireFormat;
 
@@ -33,12 +35,12 @@ import androidx.wear.watchface.style.data.UserStyleWireFormat;
 interface IInteractiveWatchFace {
     // IMPORTANT NOTE: All methods must be given an explicit transaction id that must never change
     // in the future to remain binary backwards compatible.
-    // Next Id: 18
+    // Next Id: 23
 
     /**
      * API version number. This should be incremented every time a new method is added.
      */
-    const int API_VERSION = 2;
+    const int API_VERSION = 6;
 
     /** Indicates a "down" touch event on the watch face. */
     const int TAP_TYPE_DOWN = 0;
@@ -181,7 +183,35 @@ interface IInteractiveWatchFace {
      * Adds a listener that will be called when the watch face is ready to render. If the watchface
      * is already ready this will be called immediately.
      *
+     * @Deprecated use IWatchfaceListener where possible instead.
      * @since API version 2.
      */
     oneway void addWatchfaceReadyListener(in IWatchfaceReadyListener listener) = 17;
+
+    /** Unused. */
+    void unused18() = 18;
+
+    /**
+     * Returns the watch face's {@link WatchFaceOverlayStyle}.
+     *
+     * @since API version 4.
+     */
+    WatchFaceOverlayStyleWireFormat getWatchFaceOverlayStyle() = 19;
+
+    /** Unused. */
+    void unused20() = 20;
+
+    /**
+     * Registers a {@link in IWatchfaceListener}.
+     *
+     * @since API version 6.
+     */
+    void addWatchFaceListener(in IWatchfaceListener listener) = 21;
+
+    /**
+     * Unregisters a {@link in IWatchfaceListener}.
+     *
+     * @since API version 6.
+     */
+    void removeWatchFaceListener(in IWatchfaceListener listener) = 22;
 }

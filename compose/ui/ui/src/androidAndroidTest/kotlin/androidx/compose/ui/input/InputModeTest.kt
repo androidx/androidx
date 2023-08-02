@@ -30,12 +30,13 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.test.filters.SmallTest
+import androidx.test.filters.FlakyTest
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
+import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
-import kotlin.test.Test
 
 @SmallTest
 @RunWith(Parameterized::class)
@@ -89,6 +90,7 @@ class InputModeTest(private val param: Param) {
         }
     }
 
+    @FlakyTest(bugId = 202524920)
     @Test
     fun switchToKeyboardModeProgrammatically() {
         // Arrange.

@@ -47,7 +47,7 @@ internal actual interface PlatformInputComponent {
     val density: Density
 }
 
-internal actual class PlatformInput actual constructor (val component: PlatformComponent) :
+internal actual class PlatformInput actual constructor(val component: PlatformComponent) :
     PlatformTextInputService {
     data class CurrentInput(
         var value: TextFieldValue,
@@ -97,6 +97,7 @@ internal actual class PlatformInput actual constructor (val component: PlatformC
         }
     }
 
+    @Deprecated("This method should not be called, used BringIntoViewRequester instead.")
     override fun notifyFocusedRect(rect: Rect) {
         currentInput?.let { input ->
             input.focusedRect = rect
@@ -199,7 +200,7 @@ internal actual class PlatformInput actual constructor (val component: PlatformC
 
                 val comp = input.value.composition
                 val text = input.value.text
-                val range = TextRange(beginIndex, endIndex)
+                val range = TextRange(beginIndex, endIndex.coerceAtMost(text.length))
                 if (comp == null) {
                     val res = text.substring(range)
                     return AttributedString(res).iterator

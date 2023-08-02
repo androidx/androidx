@@ -53,7 +53,7 @@ private class FakeDB : SupportSQLiteDatabase {
         throw UnsupportedOperationException()
     }
 
-    override fun compileStatement(sql: String?): SupportSQLiteStatement {
+    override fun compileStatement(sql: String): SupportSQLiteStatement {
         throw UnsupportedOperationException()
     }
 
@@ -65,12 +65,12 @@ private class FakeDB : SupportSQLiteDatabase {
         throw UnsupportedOperationException()
     }
 
-    override fun beginTransactionWithListener(transactionListener: SQLiteTransactionListener?) {
+    override fun beginTransactionWithListener(transactionListener: SQLiteTransactionListener) {
         throw UnsupportedOperationException()
     }
 
     override fun beginTransactionWithListenerNonExclusive(
-        transactionListener: SQLiteTransactionListener?
+        transactionListener: SQLiteTransactionListener
     ) {
         throw UnsupportedOperationException()
     }
@@ -123,48 +123,48 @@ private class FakeDB : SupportSQLiteDatabase {
         throw UnsupportedOperationException()
     }
 
-    override fun query(query: String?): Cursor {
+    override fun query(query: String): Cursor {
         throw UnsupportedOperationException()
     }
 
-    override fun query(query: String?, bindArgs: Array<out Any>?): Cursor {
+    override fun query(query: String, bindArgs: Array<out Any>): Cursor {
         throw UnsupportedOperationException()
     }
 
-    override fun query(query: SupportSQLiteQuery?): Cursor {
+    override fun query(query: SupportSQLiteQuery): Cursor {
         throw UnsupportedOperationException()
     }
 
     override fun query(
-        query: SupportSQLiteQuery?,
+        query: SupportSQLiteQuery,
         cancellationSignal: CancellationSignal?
     ): Cursor {
         throw UnsupportedOperationException()
     }
 
-    override fun insert(table: String?, conflictAlgorithm: Int, values: ContentValues?): Long {
+    override fun insert(table: String, conflictAlgorithm: Int, values: ContentValues): Long {
         throw UnsupportedOperationException()
     }
 
-    override fun delete(table: String?, whereClause: String?, whereArgs: Array<out Any>?): Int {
+    override fun delete(table: String, whereClause: String?, whereArgs: Array<out Any>?): Int {
         throw UnsupportedOperationException()
     }
 
     override fun update(
-        table: String?,
+        table: String,
         conflictAlgorithm: Int,
-        values: ContentValues?,
+        values: ContentValues,
         whereClause: String?,
         whereArgs: Array<out Any>?
     ): Int {
         throw UnsupportedOperationException()
     }
 
-    override fun execSQL(sql: String?) {
+    override fun execSQL(sql: String) {
         throw UnsupportedOperationException()
     }
 
-    override fun execSQL(sql: String?, bindArgs: Array<out Any>?) {
+    override fun execSQL(sql: String, bindArgs: Array<out Any>) {
         throw UnsupportedOperationException()
     }
 
@@ -184,7 +184,7 @@ private class FakeDB : SupportSQLiteDatabase {
         throw UnsupportedOperationException()
     }
 
-    override fun setLocale(locale: Locale?) {
+    override fun setLocale(locale: Locale) {
         throw UnsupportedOperationException()
     }
 

@@ -23,10 +23,13 @@ import android.view.MotionEvent.ACTION_HOVER_MOVE
 import android.view.MotionEvent.ACTION_UP
 import android.view.View
 import androidx.compose.runtime.remember
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.layout.LayoutCoordinates
+import androidx.compose.ui.node.NodeCoordinator
+import androidx.compose.ui.node.PointerInputModifierNode
 import androidx.compose.ui.unit.IntSize
 import com.google.common.truth.FailureMetadata
 import com.google.common.truth.Subject
@@ -45,6 +48,7 @@ internal fun PointerInputEventData(
         position,
         position,
         down,
+        pressure = 1.0f,
         PointerType.Touch
     )
 }
@@ -202,7 +206,7 @@ internal fun MotionEvent(
         0f,
         0,
         0,
-        0,
+        InputDevice.SOURCE_TOUCHSCREEN,
         0
     ).apply {
         offsetLocation(-locationOnScreen[0].toFloat(), -locationOnScreen[1].toFloat())
@@ -241,18 +245,52 @@ internal fun PointerEvent.deepCopy() =
 internal fun pointerEventOf(
     vararg changes: PointerInputChange,
     motionEvent: MotionEvent = MotionEventDouble
-) = PointerEvent(changes.toList(),
-    InternalPointerEvent(changes.map { it.id to it }.toMap(), motionEvent))
+) = PointerEvent(
+    changes.toList(),
+    InternalPointerEvent(changes.map { it.id to it }.toMap(), motionEvent)
+)
 
-internal class PointerInputFilterMock(
+internal fun InternalPointerEvent(
+    changes: Map<PointerId, PointerInputChange>,
+    motionEvent: MotionEvent
+): InternalPointerEvent {
+    val pointers = changes.values.map {
+        @OptIn(ExperimentalComposeUiApi::class)
+        PointerInputEventData(
+            id = it.id,
+            uptime = it.uptimeMillis,
+            positionOnScreen = it.position,
+            position = it.position,
+            down = it.pressed,
+            pressure = it.pressure,
+            type = it.type
+        )
+    }
+    val pointer = PointerInputEvent(pointers[0].uptime, pointers, motionEvent)
+    return InternalPointerEvent(changes, pointer)
+}
+
+@OptIn(ExperimentalComposeUiApi::class)
+internal class PointerInputNodeMock(
     val log: MutableList<LogEntry> = mutableListOf(),
     val pointerEventHandler: PointerEventHandler? = null,
-    layoutCoordinates: LayoutCoordinates? = null
-) :
-    PointerInputFilter() {
-
+    coordinator: NodeCoordinator = LayoutCoordinatesStub(true)
+) : PointerInputModifierNode, Modifier.Node() {
     init {
-        this.layoutCoordinates = layoutCoordinates ?: LayoutCoordinatesStub(true)
+        updateCoordinator(coordinator)
+        if (coordinator.isAttached) {
+            attach()
+        }
+    }
+
+    fun remove() {
+        val coordinator = coordinator as LayoutCoordinatesStub
+        if (coordinator.isAttached) {
+            coordinator.isAttached = false
+        }
+        if (isAttached) {
+            detach()
+        }
     }
 
     override fun onPointerEvent(
@@ -271,25 +309,74 @@ internal class PointerInputFilterMock(
         pointerEventHandler?.invokeOverPass(pointerEvent, pass, bounds)
     }
 
-    override fun onCancel() {
+    override fun onCancelPointerInput() {
         log.add(OnCancelEntry(this))
     }
 }
 
+internal class PointerInputFilterMock(
+    val log: MutableList<LogEntry> = mutableListOf(),
+    val pointerEventHandler: PointerEventHandler? = null,
+    layoutCoordinates: LayoutCoordinates? = null
+) :
+    PointerInputFilter() {
+
+    init {
+        this.layoutCoordinates = layoutCoordinates ?: LayoutCoordinatesStub(true)
+        this.isAttached = this.layoutCoordinates!!.isAttached
+    }
+
+    override fun onPointerEvent(
+        pointerEvent: PointerEvent,
+        pass: PointerEventPass,
+        bounds: IntSize
+    ) {
+        log.add(
+            OnPointerEventFilterEntry(
+                this,
+                pointerEvent.deepCopy(),
+                pass,
+                bounds
+            )
+        )
+        pointerEventHandler?.invokeOverPass(pointerEvent, pass, bounds)
+    }
+
+    override fun onCancel() {
+        log.add(OnCancelFilterEntry(this))
+    }
+}
+
 internal fun List<LogEntry>.getOnPointerEventLog() = filterIsInstance<OnPointerEventEntry>()
+internal fun List<LogEntry>.getOnPointerEventFilterLog() =
+    filterIsInstance<OnPointerEventFilterEntry>()
 
 internal fun List<LogEntry>.getOnCancelLog() = filterIsInstance<OnCancelEntry>()
+internal fun List<LogEntry>.getOnCancelFilterLog() = filterIsInstance<OnCancelFilterEntry>()
 
 internal sealed class LogEntry
 
+@OptIn(ExperimentalComposeUiApi::class)
 internal data class OnPointerEventEntry(
+    val pointerInputNode: PointerInputModifierNode,
+    val pointerEvent: PointerEvent,
+    val pass: PointerEventPass,
+    val bounds: IntSize
+) : LogEntry()
+
+internal data class OnPointerEventFilterEntry(
     val pointerInputFilter: PointerInputFilter,
     val pointerEvent: PointerEvent,
     val pass: PointerEventPass,
     val bounds: IntSize
 ) : LogEntry()
 
+@OptIn(ExperimentalComposeUiApi::class)
 internal class OnCancelEntry(
+    val pointerInputNode: PointerInputModifierNode
+) : LogEntry()
+
+internal class OnCancelFilterEntry(
     val pointerInputFilter: PointerInputFilter
 ) : LogEntry()
 
@@ -300,7 +387,22 @@ internal fun internalPointerEventOf(vararg changes: PointerInputChange): Interna
         MotionEventDouble
     }
 
-    return InternalPointerEvent(changes.toList().associateBy { it.id }.toMutableMap(), event)
+    val pointers = changes.map {
+        @OptIn(ExperimentalComposeUiApi::class)
+        PointerInputEventData(
+            id = it.id,
+            uptime = it.uptimeMillis,
+            positionOnScreen = it.position,
+            position = it.position,
+            down = it.pressed,
+            pressure = it.pressure,
+            type = it.type,
+            issuesEnterExit = false,
+            historical = emptyList()
+        )
+    }
+    val pointerEvent = PointerInputEvent(0L, pointers, event)
+    return InternalPointerEvent(changes.toList().associateBy { it.id }.toMutableMap(), pointerEvent)
 }
 
 internal fun hoverInternalPointerEvent(
@@ -311,18 +413,32 @@ internal fun hoverInternalPointerEvent(
     val change = PointerInputChange(
         PointerId(0),
         0L,
-        Offset(0f, 0f),
+        Offset(x, y),
         false,
         0L,
         Offset(0f, 0f),
         false,
-        ConsumedData(),
+        false,
         PointerType.Mouse
     )
 
+    @OptIn(ExperimentalComposeUiApi::class)
+    val pointer = PointerInputEventData(
+        id = change.id,
+        uptime = change.uptimeMillis,
+        positionOnScreen = change.position,
+        position = change.position,
+        down = change.pressed,
+        pressure = change.pressure,
+        type = change.type,
+        issuesEnterExit = true,
+        historical = emptyList()
+    )
+    val pointerEvent = PointerInputEvent(0L, listOf(pointer), createHoverMotionEvent(action, x, y))
+
     return InternalPointerEvent(
         mutableMapOf(change.id to change),
-        createHoverMotionEvent(action, x, y)
+        pointerEvent
     )
 }
 
@@ -366,12 +482,9 @@ internal class PointerEventSubject(
             check("previousPressed")
                 .that(actualChanges[i].previousPressed)
                 .isEqualTo(expectedChanges[i].previousPressed)
-            check("consumed.downChange")
-                .that(actualChanges[i].consumed.downChange)
-                .isEqualTo(expectedChanges[i].consumed.downChange)
-            check("consumed.positionChange")
-                .that(actualChanges[i].consumed.positionChange)
-                .isEqualTo(expectedChanges[i].consumed.positionChange)
+            check("consumed")
+                .that(actualChanges[i].isConsumed)
+                .isEqualTo(expectedChanges[i].isConsumed)
         }
     }
 }
@@ -393,27 +506,14 @@ internal class PointerInputChangeSubject(
         }
     }
 
-    fun nothingConsumed() {
-        downNotConsumed()
-        positionChangeNotConsumed()
+    fun changeConsumed() {
+        check("consumedChange")
+            .that(actual.isConsumed).isEqualTo(true)
     }
 
-    fun downConsumed() {
-        check("consumed.downChange").that(actual.consumed.downChange).isEqualTo(true)
-    }
-
-    fun downNotConsumed() {
-        check("consumed.downChange").that(actual.consumed.downChange).isEqualTo(false)
-    }
-
-    fun positionChangeConsumed() {
-        check("consumed.positionChangeConsumed")
-            .that(actual.consumed.positionChange).isEqualTo(true)
-    }
-
-    fun positionChangeNotConsumed() {
-        check("consumed.positionChange not Consumed")
-            .that(actual.consumed.positionChange).isEqualTo(false)
+    fun changeNotConsumed() {
+        check("consumedChange")
+            .that(actual.isConsumed).isEqualTo(false)
     }
 
     fun isStructurallyEqualTo(expected: PointerInputChange) {
@@ -436,15 +536,21 @@ internal class PointerInputChangeSubject(
         check("previousPressed")
             .that(actual.previousPressed)
             .isEqualTo(expected.previousPressed)
-        check("consumed.downChange")
-            .that(actual.consumed.downChange)
-            .isEqualTo(expected.consumed.downChange)
-        check("consumed.positionChange")
-            .that(actual.consumed.positionChange)
-            .isEqualTo(expected.consumed.positionChange)
+        check("consumed")
+            .that(actual.isConsumed)
+            .isEqualTo(expected.isConsumed)
     }
 }
 
-internal fun PointerInputChange.deepCopy() = copy(
-    consumed = ConsumedData(consumed.positionChange, consumed.downChange)
+internal fun PointerInputChange.deepCopy() = PointerInputChange(
+    id = this.id,
+    uptimeMillis = this.uptimeMillis,
+    position = this.position,
+    pressed = this.pressed,
+    previousUptimeMillis = this.previousUptimeMillis,
+    previousPosition = this.previousPosition,
+    previousPressed = this.previousPressed,
+    isInitiallyConsumed = this.isConsumed,
+    type = this.type,
+    scrollDelta = this.scrollDelta
 )

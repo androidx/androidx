@@ -74,6 +74,7 @@ public class PreferenceViewHolder extends RecyclerView.ViewHolder {
      * @param id Resource ID of the view to find
      * @return The view, or {@code null} if no view with the requested ID is found
      */
+    @Nullable
     public View findViewById(@IdRes int id) {
         final View cachedView = mCachedViews.get(id);
         if (cachedView != null) {

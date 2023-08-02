@@ -78,6 +78,7 @@ import java.io.File;
  * targets.
  * </p>
  */
+@SuppressWarnings("deprecation")
 public class SampleMediaRouterActivity extends AppCompatActivity {
     private static final String TAG = "SampleMediaRouter";
     private static final String DISCOVERY_FRAGMENT_TAG = "DiscoveryFragment";
@@ -756,7 +757,7 @@ public class SampleMediaRouterActivity extends AppCompatActivity {
         @Override
         public MediaRouterParams getRouterParams() {
             return new MediaRouterParams.Builder(super.getRouterParams())
-                    .setMediaTransferReceiverDisabled(true)
+                    .setMediaTransferReceiverEnabled(false)
                     .build();
         }
     }

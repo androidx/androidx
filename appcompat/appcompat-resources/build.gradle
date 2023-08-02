@@ -14,22 +14,27 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
-import androidx.build.LibraryVersions
 import androidx.build.Publish
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
+    id("kotlin-android")
 }
 
 dependencies {
+    // Atomic group
+    constraints {
+        implementation(project(":appcompat:appcompat"))
+    }
+
     api("androidx.annotation:annotation:1.2.0")
-    api("androidx.core:core:1.0.1")
+    api("androidx.core:core:1.6.0")
     implementation("androidx.collection:collection:1.0.0")
     api("androidx.vectordrawable:vectordrawable:1.1.0")
     api("androidx.vectordrawable:vectordrawable-animated:1.1.0")
 
+    androidTestImplementation(libs.kotlinStdlib)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)
@@ -41,24 +46,26 @@ dependencies {
     androidTestImplementation(project(":internal-testutils-runtime"), {
         exclude group: "androidx.appcompat", module: "appcompat-resources"
     })
+    androidTestImplementation(libs.multidex)
 }
 
 android {
     defaultConfig {
         // This disables the builds tools automatic vector -> PNG generation
         generatedDensities = []
+        multiDexEnabled = true
     }
 
     aaptOptions {
         additionalParameters "--no-version-vectors"
         noCompress "ttf"
     }
+    namespace "androidx.appcompat.resources"
 }
 
 androidx {
     name = "Android Resources Library"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenVersion = LibraryVersions.APPCOMPAT
     mavenGroup = LibraryGroups.APPCOMPAT
     inceptionYear = "2019"
     description = "The Resources Library is a static library that you can add to your Android application in order to use resource APIs that backport the latest APIs to older versions of the platform. Compatible on devices running API 14 or later."

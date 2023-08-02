@@ -36,8 +36,8 @@ public class ProxyControllerImpl extends ProxyController {
     @Override
     public void setProxyOverride(@NonNull ProxyConfig proxyConfig, @NonNull Executor executor,
             @NonNull Runnable listener) {
-        WebViewFeatureInternal proxyOverride = WebViewFeatureInternal.PROXY_OVERRIDE;
-        WebViewFeatureInternal reverseBypass = WebViewFeatureInternal.PROXY_OVERRIDE_REVERSE_BYPASS;
+        ApiFeature.NoFramework proxyOverride = WebViewFeatureInternal.PROXY_OVERRIDE;
+        ApiFeature.NoFramework reverseBypass = WebViewFeatureInternal.PROXY_OVERRIDE_REVERSE_BYPASS;
 
         // A 2D String array representation is required by reflection
         String[][] proxyRuleArray = proxyRulesToStringArray(proxyConfig.getProxyRules());
@@ -60,7 +60,7 @@ public class ProxyControllerImpl extends ProxyController {
 
     @Override
     public void clearProxyOverride(@NonNull Executor executor, @NonNull Runnable listener) {
-        WebViewFeatureInternal feature = WebViewFeatureInternal.PROXY_OVERRIDE;
+        ApiFeature.NoFramework feature = WebViewFeatureInternal.PROXY_OVERRIDE;
         if (feature.isSupportedByWebView()) {
             getBoundaryInterface().clearProxyOverride(listener, executor);
         } else {

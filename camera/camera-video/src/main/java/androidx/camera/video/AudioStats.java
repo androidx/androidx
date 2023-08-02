@@ -32,7 +32,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * The audio information about an {@link ActiveRecording} at a point in time.
+ * The audio information about an {@link Recording} at a point in time.
  *
  * <p>The audio information will be contained in every {@link RecordingStats}.
  */
@@ -60,8 +60,9 @@ public abstract class AudioStats {
      * The recording of audio is disabled.
      *
      * <p>This audio state results from a {@link PendingRecording} that was
-     * {@linkplain PendingRecording#start() started} without calling
-     * {@link PendingRecording#withAudioEnabled()}.
+     * {@linkplain
+     * PendingRecording#start(java.util.concurrent.Executor, androidx.core.util.Consumer) started}
+     * without calling {@link PendingRecording#withAudioEnabled()}.
      */
     public static final int AUDIO_STATE_DISABLED = 1;
     /**

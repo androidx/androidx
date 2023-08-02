@@ -25,7 +25,7 @@
     android:minWidth="250dp"
     android:minHeight="200dp"
     android:background="@color/colorSplitControlsBackground"
-    tools:context="androidx.window.sample.SplitLayoutActivity">
+    tools:context="SplitLayoutActivity">
 
 
     <Button
@@ -79,7 +79,7 @@
 
     <TextView
         android:id="@+id/textView"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
         android:layout_marginStart="16dp"

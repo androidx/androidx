@@ -16,6 +16,7 @@
 
 package androidx.fragment.app
 
+import android.os.Bundle
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.platform.app.InstrumentationRegistry
@@ -52,14 +53,18 @@ class FragmentStateManagerTest {
     }
 
     @Test
+    @Suppress("DEPRECATION")
     fun constructorFragmentFactory() {
         val fragment = StrictFragment()
-        FragmentStateManager(dispatcher, fragmentStore, fragment).saveState()
-        val fragmentState = fragmentStore.getSavedState(fragment.mWho)!!
+        fragmentStore.setSavedState(
+            fragment.mWho,
+            FragmentStateManager(dispatcher, fragmentStore, fragment).saveState()
+        )
 
+        val stateBundle: Bundle = fragmentStore.getSavedState(fragment.mWho)!!
         val fragmentStateManager = FragmentStateManager(
             dispatcher, fragmentStore,
-            classLoader, FragmentFactory(), fragmentState
+            classLoader, FragmentFactory(), stateBundle
         )
 
         val restoredFragment = fragmentStateManager.fragment
@@ -70,16 +75,20 @@ class FragmentStateManagerTest {
     }
 
     @Test
+    @Suppress("DEPRECATION")
     fun constructorRetainedFragment() {
         val fragment = StrictFragment()
-        FragmentStateManager(dispatcher, fragmentStore, fragment).saveState()
-        val fragmentState = fragmentStore.getSavedState(fragment.mWho)!!
+        fragmentStore.setSavedState(
+            fragment.mWho,
+            FragmentStateManager(dispatcher, fragmentStore, fragment).saveState()
+        )
         assertThat(fragment.mSavedFragmentState)
             .isNull()
 
+        val stateBundle: Bundle = fragmentStore.getSavedState(fragment.mWho)!!
         val fragmentStateManager = FragmentStateManager(
             dispatcher, fragmentStore,
-            fragment, fragmentState
+            fragment, stateBundle
         )
 
         val restoredFragment = fragmentStateManager.fragment
@@ -151,5 +160,28 @@ class FragmentStateManagerTest {
         // despite never calling setFragmentManagerState(Fragment.CREATED)
         assertThat(fragmentStateManager.computeExpectedState())
             .isEqualTo(Fragment.CREATED)
+    }
+
+    @Test
+    fun testNullArgumentsNullAfterRestore() {
+        val fragment = StrictFragment()
+        assertThat(fragment.arguments)
+            .isNull()
+
+        fragmentStore.setSavedState(
+            fragment.mWho,
+            FragmentStateManager(dispatcher, fragmentStore, fragment).saveState()
+        )
+        val stateBundle: Bundle = fragmentStore.getSavedState(fragment.mWho)!!
+        val fragmentStateManager = FragmentStateManager(
+            dispatcher, fragmentStore,
+            classLoader, FragmentFactory(), stateBundle
+        )
+
+        val restoredFragment = fragmentStateManager.fragment
+        assertThat(restoredFragment)
+            .isInstanceOf(StrictFragment::class.java)
+        assertThat(restoredFragment.arguments)
+            .isNull()
     }
 }

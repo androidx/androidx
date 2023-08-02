@@ -6,6 +6,7 @@ import com.intellij.openapi.util.Disposer
 import org.jetbrains.kotlin.cli.jvm.compiler.EnvironmentConfigFiles
 import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreEnvironment
 import org.jetbrains.kotlin.cli.jvm.config.addJvmClasspathRoots
+import org.jetbrains.kotlin.cli.jvm.config.configureJdkClasspathRoots
 
 class ComposableCheckerTests : AbstractComposeDiagnosticsTest() {
     override fun setUp() {
@@ -21,11 +22,12 @@ class ComposableCheckerTests : AbstractComposeDiagnosticsTest() {
         )
     }
 
-    fun doTest(text: String, expectPass: Boolean) {
+    private fun doTest(text: String, expectPass: Boolean) {
         val disposable = TestDisposable()
         val classPath = createClasspath()
         val configuration = newConfiguration()
         configuration.addJvmClasspathRoots(classPath)
+        configuration.configureJdkClasspathRoots()
 
         val environment =
             KotlinCoreEnvironment.createForTests(
@@ -53,11 +55,11 @@ class ComposableCheckerTests : AbstractComposeDiagnosticsTest() {
 
     class ExpectedFailureException(message: String) : Exception(message)
 
-    fun check(expectedText: String) {
+    private fun check(expectedText: String) {
         doTest(expectedText, true)
     }
 
-    fun checkFail(expectedText: String) {
+    private fun checkFail(expectedText: String) {
         doTest(expectedText, false)
     }
 
@@ -109,6 +111,47 @@ class ComposableCheckerTests : AbstractComposeDiagnosticsTest() {
         @Composable fun C3() {
             InlineNC {
                 C()
+            }
+        }
+    """
+    )
+
+    fun testCinNoinlineNCLambdaArg() = check(
+        """
+        import androidx.compose.runtime.*
+        @Composable fun C() { }
+        <!NOTHING_TO_INLINE!>inline<!> fun NoinlineNC(noinline lambda: () -> Unit) { lambda() }
+        @Composable fun C3() {
+            NoinlineNC {
+                <!COMPOSABLE_INVOCATION!>C<!>()
+            }
+        }
+    """
+    )
+
+    fun testCinCrossinlineNCLambdaArg() = check(
+        """
+        import androidx.compose.runtime.*
+        @Composable fun C() { }
+        inline fun CrossinlineNC(crossinline lambda: () -> Unit) { lambda() }
+        @Composable fun C3() {
+            CrossinlineNC {
+                <!COMPOSABLE_INVOCATION!>C<!>()
+            }
+        }
+    """
+    )
+
+    fun testCinNestedInlinedNCLambdaArg() = check(
+        """
+        import androidx.compose.runtime.*
+        @Composable fun C() { }
+        inline fun InlineNC(lambda: () -> Unit) { lambda() }
+        @Composable fun C3() {
+            InlineNC {
+                InlineNC {
+                    C()
+                }
             }
         }
     """
@@ -174,6 +217,75 @@ class ComposableCheckerTests : AbstractComposeDiagnosticsTest() {
             val inner: Content = { C() }
             C2 { C() }
             C2 { inner() }
+        }
+    """
+    )
+
+    fun testCfromComposableFunInterface() = check(
+        """
+        import androidx.compose.runtime.Composable
+
+        fun interface A { @Composable fun f() }
+        @Composable fun B() { A { B() } }
+    """
+    )
+
+    fun testCfromAnnotatedComposableFunInterface() = check(
+        """
+        import androidx.compose.runtime.Composable
+
+        fun interface A { @Composable fun f() }
+        @Composable fun B() {
+          val f = @Composable { B() }
+          A(f)
+        }
+    """
+    )
+
+    fun testCfromComposableFunInterfaceArgument() = check(
+        """
+        import androidx.compose.runtime.Composable
+
+        fun interface A { @Composable fun f() }
+
+        @Composable fun B(a: (A) -> Unit) { a { B(a) } }
+    """
+    )
+
+    fun testCfromComposableTypeAliasFunInterface() = check(
+        """
+        import androidx.compose.runtime.Composable
+
+        fun interface A { @Composable fun f() }
+        typealias B = A
+
+        @Composable fun C() { A { C() } }
+    """
+    )
+
+    fun testCfromNonComposableFunInterface() = check(
+        """
+        import androidx.compose.runtime.Composable
+
+        fun interface A { fun f() }
+        @Composable fun B() {
+          A {
+            <!COMPOSABLE_INVOCATION!>B<!>()
+          }
+        }
+    """
+    )
+
+    fun testCfromNonComposableFunInterfaceArgument() = check(
+        """
+        import androidx.compose.runtime.Composable
+
+        fun interface A { fun f() }
+
+        @Composable fun B(a: (A) -> Unit) {
+          a {
+            <!COMPOSABLE_INVOCATION!>B<!>(a)
+          }
         }
     """
     )

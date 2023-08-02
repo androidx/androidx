@@ -19,6 +19,7 @@ package androidx.appsearch.app;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.util.BundleUtil;
 import androidx.core.util.Preconditions;
@@ -75,7 +76,7 @@ public class PackageIdentifier {
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(@Nullable Object obj) {
         if (this == obj) {
             return true;
         }

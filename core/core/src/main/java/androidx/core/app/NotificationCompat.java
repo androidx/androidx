@@ -436,6 +436,14 @@ public class NotificationCompat {
     public static final String EXTRA_PICTURE = "android.picture";
 
     /**
+     * {@link #getExtras extras} key: this is an {@link Icon} of an image to be
+     * shown in {@link Notification.BigPictureStyle} expanded notifications, supplied to
+     * {@link BigPictureStyle#bigPicture(Icon)}.
+     */
+    @SuppressLint("ActionValue") // Field & value copied from android.app.Notification
+    public static final String EXTRA_PICTURE_ICON = "android.pictureIcon";
+
+    /**
      * {@link #extras} key: this is a content description of the big picture supplied from
      * {@link BigPictureStyle#bigPicture(Bitmap)}, supplied to
      * {@link BigPictureStyle#setContentDescription(CharSequence)}.
@@ -972,6 +980,7 @@ public class NotificationCompat {
          * with the NotitifactionCompat.Builder API.
          */
         @RequiresApi(19)
+        @SuppressWarnings("deprecation")
         public Builder(@NonNull Context context,
                 @NonNull Notification notification) {
             this(context, getChannelId(notification));
@@ -2739,7 +2748,8 @@ public class NotificationCompat {
             if (extras.containsKey(EXTRA_SELF_DISPLAY_NAME)
                     || extras.containsKey(EXTRA_MESSAGING_STYLE_USER)) {
                 return new MessagingStyle();
-            } else if (extras.containsKey(EXTRA_PICTURE)) {
+            } else if (extras.containsKey(EXTRA_PICTURE)
+                    || extras.containsKey(EXTRA_PICTURE_ICON)) {
                 return new BigPictureStyle();
             } else if (extras.containsKey(EXTRA_BIG_TEXT)) {
                 return new BigTextStyle();
@@ -3021,7 +3031,7 @@ public class NotificationCompat {
      * <br>
      * This class is a "rebuilder": It attaches to a Builder object and modifies its behavior, like so:
      * <pre class="prettyprint">
-     * Notification notification = new Notification.Builder(mContext)
+     * Notification notification = new NotificationCompat.Builder(mContext)
      *     .setContentTitle(&quot;New photo from &quot; + sender.toString())
      *     .setContentText(subject)
      *     .setSmallIcon(R.drawable.new_post)
@@ -3038,7 +3048,7 @@ public class NotificationCompat {
         private static final String TEMPLATE_CLASS_NAME =
                 "androidx.core.app.NotificationCompat$BigPictureStyle";
 
-        private Bitmap mPicture;
+        private IconCompat mPictureIcon;
         private IconCompat mBigLargeIcon;
         private boolean mBigLargeIconSet;
         private CharSequence mPictureContentDescription;
@@ -3084,7 +3094,17 @@ public class NotificationCompat {
          * Provide the bitmap to be used as the payload for the BigPicture notification.
          */
         public @NonNull BigPictureStyle bigPicture(@Nullable Bitmap b) {
-            mPicture = b;
+            mPictureIcon = b == null ? null : IconCompat.createWithBitmap(b);
+            return this;
+        }
+
+        /**
+         * Provide an icon to be used as the payload for the BigPicture notification.
+         * Note that certain features (like animated Icons) may not work on all versions.
+         */
+        @RequiresApi(31)
+        public @NonNull BigPictureStyle bigPicture(@Nullable Icon i) {
+            mPictureIcon = IconCompat.createFromIcon(i);
             return this;
         }
 
@@ -3128,8 +3148,21 @@ public class NotificationCompat {
             if (Build.VERSION.SDK_INT >= 16) {
                 Notification.BigPictureStyle style =
                         new Notification.BigPictureStyle(builder.getBuilder())
-                                .setBigContentTitle(mBigContentTitle)
-                                .bigPicture(mPicture);
+                                .setBigContentTitle(mBigContentTitle);
+                if (mPictureIcon != null) {
+                    // Attempts to set the icon for BigPictureStyle; prefers using data as Icon,
+                    // with a fallback to store the Bitmap if Icon is not supported directly.
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                        Context context = null;
+                        if (builder instanceof NotificationCompatBuilder) {
+                            context = ((NotificationCompatBuilder) builder).getContext();
+                        }
+                        Api31Impl.setBigPicture(style, mPictureIcon.toIcon(context));
+                    } else if (mPictureIcon.getType() == IconCompat.TYPE_BITMAP) {
+                        style = style.bigPicture(mPictureIcon.getBitmap());
+                    }
+                }
+                // Attempts to set the big large icon for BigPictureStyle.
                 if (mBigLargeIconSet) {
                     if (mBigLargeIcon == null) {
                         Api16Impl.setBigLargeIcon(style, null);
@@ -3163,6 +3196,7 @@ public class NotificationCompat {
          */
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         @Override
+        @SuppressWarnings("deprecation")
         protected void restoreFromCompatExtras(@NonNull Bundle extras) {
             super.restoreFromCompatExtras(extras);
 
@@ -3170,8 +3204,26 @@ public class NotificationCompat {
                 mBigLargeIcon = asIconCompat(extras.getParcelable(EXTRA_LARGE_ICON_BIG));
                 mBigLargeIconSet = true;
             }
-            mPicture = extras.getParcelable(EXTRA_PICTURE);
+            mPictureIcon = getPictureIcon(extras);
             mShowBigPictureWhenCollapsed = extras.getBoolean(EXTRA_SHOW_BIG_PICTURE_WHEN_COLLAPSED);
+        }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY_GROUP_PREFIX)
+        @Nullable
+        public static IconCompat getPictureIcon(@Nullable Bundle extras) {
+            if (extras == null) return null;
+            // When this style adds a picture, we only add one of the keys.  If both were added,
+            // it would most likely be a legacy app trying to override the picture in some way.
+            // Because of that case it's better to give precedence to the legacy field.
+            Parcelable bitmapPicture = extras.getParcelable(EXTRA_PICTURE);
+            if (bitmapPicture != null) {
+                return asIconCompat(bitmapPicture);
+            } else {
+                return asIconCompat(extras.getParcelable(EXTRA_PICTURE_ICON));
+            }
         }
 
         @Nullable
@@ -3198,6 +3250,7 @@ public class NotificationCompat {
             super.clearCompatExtraKeys(extras);
             extras.remove(EXTRA_LARGE_ICON_BIG);
             extras.remove(EXTRA_PICTURE);
+            extras.remove(EXTRA_PICTURE_ICON);
             extras.remove(EXTRA_SHOW_BIG_PICTURE_WHEN_COLLAPSED);
         }
 
@@ -3273,6 +3326,14 @@ public class NotificationCompat {
             static void setContentDescription(Notification.BigPictureStyle style,
                     CharSequence contentDescription) {
                 style.setContentDescription(contentDescription);
+            }
+
+            /**
+             * Calls {@link Notification.BigPictureStyle#bigPicture(Icon)}
+             */
+            @RequiresApi(31)
+            static void setBigPicture(Notification.BigPictureStyle style, Icon icon) {
+                style.bigPicture(icon);
             }
         }
     }
@@ -3507,7 +3568,8 @@ public class NotificationCompat {
          * conversation title to a non-null value will make {@link #isGroupConversation()} return
          * {@code true} and passing {@code null} will make it return {@code false}. This behavior
          * can be overridden by calling {@link #setGroupConversation(boolean)} regardless of SDK
-         * version. In {@code P} and above, this method does not affect group conversation settings.
+         * version. In {@link Build.VERSION_CODES#P} and above, this method does not affect group
+         * conversation settings.
          *
          * @param conversationTitle Title displayed for this conversation
          * @return this object for method chaining
@@ -3611,7 +3673,7 @@ public class NotificationCompat {
         }
 
         /**
-         * Gets the list of {@code Message} objects that represent the notification
+         * Gets the list of {@code Message} objects that represent the notification.
          */
         public @NonNull List<Message> getMessages() {
             return mMessages;
@@ -3625,10 +3687,17 @@ public class NotificationCompat {
         }
 
         /**
-         * Sets whether this conversation notification represents a group.
+         * Sets whether this conversation notification represents a group. An app should set
+         * isGroupConversation {@code true} to mark that the conversation involves multiple people.
+         *
+         * <p>Group conversation notifications may display additional group-related context not
+         * present in non-group notifications.
+         *
          * @param isGroupConversation {@code true} if the conversation represents a group,
          * {@code false} otherwise.
          * @return this object for method chaining
+         *
+         * @see #isGroupConversation()
          */
         public @NonNull MessagingStyle setGroupConversation(boolean isGroupConversation) {
             mIsGroupConversation = isGroupConversation;
@@ -3644,9 +3713,9 @@ public class NotificationCompat {
          * was not called, this method becomes dependent on whether or not the conversation title is
          * set; returning {@code true} if the conversation title is a non-null value, or
          * {@code false} otherwise. This is to maintain backwards compatibility. Regardless, {@link
-         * #setGroupConversation(boolean)} has precedence over this legacy behavior. From {@code P}
-         * forward, {@link #setConversationTitle(CharSequence)} has no affect on group conversation
-         * status.
+         * #setGroupConversation(boolean)} has precedence over this legacy behavior. From
+         * {@link Build.VERSION_CODES#P} forward, {@link #setConversationTitle(CharSequence)} has
+         * no affect on group conversation status.
          *
          * @see #setConversationTitle(CharSequence)
          */
@@ -3863,6 +3932,7 @@ public class NotificationCompat {
          */
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         @Override
+        @SuppressWarnings("deprecation")
         protected void restoreFromCompatExtras(@NonNull Bundle extras) {
             super.restoreFromCompatExtras(extras);
             mMessages.clear();
@@ -4106,6 +4176,7 @@ public class NotificationCompat {
             }
 
             @Nullable
+            @SuppressWarnings("deprecation")
             static Message getMessageFromBundle(@NonNull Bundle bundle) {
                 try {
                     if (!bundle.containsKey(KEY_TEXT) || !bundle.containsKey(KEY_TIMESTAMP)) {
@@ -4488,7 +4559,14 @@ public class NotificationCompat {
     /**
      * Structure to encapsulate a named action that can be shown as part of this notification.
      * It must include an icon, a label, and a {@link PendingIntent} to be fired when the action is
-     * selected by the user. Action buttons won't appear on platforms prior to Android 4.1.
+     * selected by the user. Action buttons won't appear on platforms prior to Android
+     * {@link android.os.Build.VERSION_CODES#JELLY_BEAN}.
+     * <p>
+     * As of Android {@link android.os.Build.VERSION_CODES#N},
+     * action button icons will not be displayed on action buttons, but are still required and
+     * are available to
+     * {@link android.service.notification.NotificationListenerService notification listeners},
+     * which may display them in other contexts, for example on a wearable device.
      * <p>
      * Apps should use {@link NotificationCompat.Builder#addAction(int, CharSequence, PendingIntent)}
      * or {@link NotificationCompat.Builder#addAction(NotificationCompat.Action)}
@@ -6380,6 +6458,7 @@ public class NotificationCompat {
          *
          * @param notification The notification from which to copy options.
          */
+        @SuppressWarnings("deprecation")
         public CarExtender(@NonNull Notification notification) {
             if (Build.VERSION.SDK_INT < 21) {
                 return;
@@ -6397,6 +6476,7 @@ public class NotificationCompat {
         }
 
         @RequiresApi(21)
+        @SuppressWarnings("deprecation")
         private static UnreadConversation getUnreadConversationFromBundle(@Nullable Bundle b) {
             if (b == null) {
                 return null;
@@ -7369,6 +7449,7 @@ public class NotificationCompat {
      * Update the bundle to have a typed array so fetches in the future don't need
      * to do an array copy.
      */
+    @SuppressWarnings("deprecation")
     static @NonNull Notification[] getNotificationArrayFromBundle(@NonNull Bundle bundle,
             @NonNull String key) {
         Parcelable[] array = bundle.getParcelableArray(key);
@@ -7551,6 +7632,7 @@ public class NotificationCompat {
      * On platforms which do not have the {@link android.app.Person} class, the
      * {@link Person} objects will contain only the URI from {@link Builder#addPerson(String)}.
      */
+    @SuppressWarnings("deprecation")
     public static @NonNull List<Person> getPeople(@NonNull Notification notification) {
         ArrayList<Person> result = new ArrayList<>();
         if (Build.VERSION.SDK_INT >= 28) {

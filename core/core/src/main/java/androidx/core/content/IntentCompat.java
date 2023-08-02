@@ -30,10 +30,12 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 
 /**
- * Helper for accessing features in {@link android.content.Intent}.
+ * Helper for accessing features in {@link Intent}.
  */
 public final class IntentCompat {
     private IntentCompat() {
@@ -42,9 +44,9 @@ public final class IntentCompat {
 
     /**
      * Activity Action: Creates a reminder.
-     * <p>Input: {@link android.content.Intent#EXTRA_TITLE} The title of the
+     * <p>Input: {@link Intent#EXTRA_TITLE} The title of the
      * reminder that will be shown to the user.
-     * {@link android.content.Intent#EXTRA_TEXT} The reminder text that will be
+     * {@link Intent#EXTRA_TEXT} The reminder text that will be
      * shown to the user. The intent should at least specify a title or a text.
      * {@link #EXTRA_TIME} The time when the reminder will
      * be shown to the user. The time is specified in milliseconds since the
@@ -52,8 +54,8 @@ public final class IntentCompat {
      * </p>
      * <p>Output: Nothing.</p>
      *
-     * @see android.content.Intent#EXTRA_TITLE
-     * @see android.content.Intent#EXTRA_TEXT
+     * @see Intent#EXTRA_TITLE
+     * @see Intent#EXTRA_TEXT
      * @see #EXTRA_TIME
      */
     @SuppressLint("ActionValue")
@@ -61,15 +63,15 @@ public final class IntentCompat {
 
     /**
      * A constant String that is associated with the Intent, used with
-     * {@link android.content.Intent#ACTION_SEND} to supply an alternative to
-     * {@link android.content.Intent#EXTRA_TEXT}
+     * {@link Intent#ACTION_SEND} to supply an alternative to
+     * {@link Intent#EXTRA_TEXT}
      * as HTML formatted text.  Note that you <em>must</em> also supply
-     * {@link android.content.Intent#EXTRA_TEXT}.
+     * {@link Intent#EXTRA_TEXT}.
      */
     public static final String EXTRA_HTML_TEXT = "android.intent.extra.HTML_TEXT";
 
     /**
-     * Used as a boolean extra field in {@link android.content.Intent#ACTION_VIEW} intents to
+     * Used as a boolean extra field in {@link Intent#ACTION_VIEW} intents to
      * indicate that content should immediately be played without any intermediate screens that
      * require additional user input, e.g. a profile selection screen or a details page.
      */
@@ -115,7 +117,7 @@ public final class IntentCompat {
     public static Intent makeMainSelectorActivity(@NonNull String selectorAction,
             @NonNull String selectorCategory) {
         if (Build.VERSION.SDK_INT >= 15) {
-            return Intent.makeMainSelectorActivity(selectorAction, selectorCategory);
+            return Api15Impl.makeMainSelectorActivity(selectorAction, selectorCategory);
         } else {
             // Before api 15 you couldn't set a selector intent.
             // Fall back and just return an intent with the requested action/category,
@@ -197,6 +199,18 @@ public final class IntentCompat {
             // exists a Verifier on the device, but nonetheless we double-check here.
             return permissionRevocationSettingsIntent
                     .setPackage(checkNotNull(verifierPackageName));
+        }
+    }
+
+    @RequiresApi(15)
+    static class Api15Impl {
+        private Api15Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static Intent makeMainSelectorActivity(String selectorAction, String selectorCategory) {
+            return Intent.makeMainSelectorActivity(selectorAction, selectorCategory);
         }
     }
 }

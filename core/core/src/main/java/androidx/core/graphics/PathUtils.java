@@ -19,6 +19,7 @@ package androidx.core.graphics;
 import android.graphics.Path;
 import android.graphics.PointF;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.FloatRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
@@ -57,7 +58,7 @@ public final class PathUtils {
     @NonNull
     public static Collection<PathSegment> flatten(@NonNull final Path path,
             @FloatRange(from = 0) final float error) {
-        float[] pathData = path.approximate(error);
+        float[] pathData = Api26Impl.approximate(path, error);
         int pointCount = pathData.length / 3;
         List<PathSegment> segments = new ArrayList<>(pointCount);
         for (int i = 1; i < pointCount; i++) {
@@ -80,5 +81,17 @@ public final class PathUtils {
     }
 
     private PathUtils() {
+    }
+
+    @RequiresApi(26)
+    static class Api26Impl {
+        private Api26Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static float[] approximate(Path path, float acceptableError) {
+            return path.approximate(acceptableError);
+        }
     }
 }

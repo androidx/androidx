@@ -24,7 +24,6 @@ import android.view.WindowMetrics;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
-import androidx.window.extensions.ExperimentalWindowExtensionsApi;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -37,7 +36,6 @@ import java.util.function.Predicate;
  * new activities started from the same process automatically by the embedding implementation on
  * the device.
  */
-@ExperimentalWindowExtensionsApi
 public abstract class SplitRule extends EmbeddingRule {
     @NonNull
     private final Predicate<WindowMetrics> mParentWindowMetricsPredicate;
@@ -53,6 +51,44 @@ public abstract class SplitRule extends EmbeddingRule {
     @Retention(RetentionPolicy.SOURCE)
     // Not called LayoutDirection to avoid conflict with android.util.LayoutDirection
     @interface LayoutDir {}
+    /**
+     * Never finish the associated container.
+     * @see SplitFinishBehavior
+     */
+    public static final int FINISH_NEVER = 0;
+    /**
+     * Always finish the associated container independent of the current presentation mode.
+     * @see SplitFinishBehavior
+     */
+    public static final int FINISH_ALWAYS = 1;
+    /**
+     * Only finish the associated container when displayed side-by-side/adjacent to the one
+     * being finished. Does not finish the associated one when containers are stacked on top of
+     * each other.
+     * @see SplitFinishBehavior
+     */
+    public static final int FINISH_ADJACENT = 2;
+
+    /**
+     * Determines what happens with the associated container when all activities are finished in
+     * one of the containers in a split.
+     * <p>
+     * For example, given that {@link SplitPairRule#getFinishPrimaryWithSecondary()} is
+     * {@link #FINISH_ADJACENT} and secondary container finishes. The primary associated
+     * container is finished if it's side-by-side with secondary container. The primary
+     * associated container is not finished if it occupies entire task bounds.</p>
+     *
+     * @see SplitPairRule#getFinishPrimaryWithSecondary()
+     * @see SplitPairRule#getFinishSecondaryWithPrimary()
+     * @see SplitPlaceholderRule#getFinishPrimaryWithSecondary()
+     */
+    @IntDef({
+            FINISH_NEVER,
+            FINISH_ALWAYS,
+            FINISH_ADJACENT
+    })
+    @Retention(RetentionPolicy.SOURCE)
+    @interface SplitFinishBehavior {}
 
     SplitRule(@NonNull Predicate<WindowMetrics> parentWindowMetricsPredicate, float splitRatio,
             @LayoutDir int layoutDirection) {

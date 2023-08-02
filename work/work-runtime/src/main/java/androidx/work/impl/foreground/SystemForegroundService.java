@@ -16,6 +16,8 @@
 
 package androidx.work.impl.foreground;
 
+import android.Manifest;
+import android.app.ForegroundServiceStartNotAllowedException;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.Service;
@@ -25,9 +27,12 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
+import androidx.annotation.RequiresPermission;
 import androidx.annotation.RestrictTo;
 import androidx.lifecycle.LifecycleService;
 import androidx.work.Logger;
@@ -97,6 +102,7 @@ public class SystemForegroundService extends LifecycleService implements
         mDispatcher.setCallback(this);
     }
 
+    @SuppressWarnings("deprecation")
     @MainThread
     @Override
     public void stop() {
@@ -120,8 +126,12 @@ public class SystemForegroundService extends LifecycleService implements
         mHandler.post(new Runnable() {
             @Override
             public void run() {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    startForeground(notificationId, notification, notificationType);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    Api31Impl.startForeground(SystemForegroundService.this, notificationId,
+                            notification, notificationType);
+                } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    Api29Impl.startForeground(SystemForegroundService.this, notificationId,
+                            notification, notificationType);
                 } else {
                     startForeground(notificationId, notification);
                 }
@@ -129,6 +139,7 @@ public class SystemForegroundService extends LifecycleService implements
         });
     }
 
+    @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
     @Override
     public void notify(final int notificationId, @NonNull final Notification notification) {
         mHandler.post(new Runnable() {
@@ -155,5 +166,38 @@ public class SystemForegroundService extends LifecycleService implements
     @Nullable
     public static SystemForegroundService getInstance() {
         return sForegroundService;
+    }
+
+    @RequiresApi(29)
+    static class Api29Impl {
+        private Api29Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static void startForeground(Service service, int id, Notification notification,
+                int foregroundServiceType) {
+            service.startForeground(id, notification, foregroundServiceType);
+        }
+    }
+
+    @RequiresApi(31)
+    static class Api31Impl {
+        private Api31Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static void startForeground(Service service, int id, Notification notification,
+                int foregroundServiceType) {
+            try {
+                service.startForeground(id, notification, foregroundServiceType);
+            } catch (ForegroundServiceStartNotAllowedException exception) {
+                // This should ideally never happen. But there a chance that this method
+                // is called, and the app is no longer in a state where it's possible to start a
+                // foreground service. WorkManager will eventually call stop() to clean up.
+                Logger.get().warning(TAG, "Unable to start foreground service", exception);
+            }
+        }
     }
 }

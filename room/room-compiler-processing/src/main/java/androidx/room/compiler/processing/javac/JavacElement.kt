@@ -31,7 +31,7 @@ import kotlin.reflect.KClass
 
 @Suppress("UnstableApiUsage")
 internal abstract class JavacElement(
-    protected val env: JavacProcessingEnv,
+    internal val env: JavacProcessingEnv,
     open val element: Element
 ) : XElement, XEquality, InternalXAnnotated {
     override fun <T : Annotation> getAnnotations(
@@ -77,6 +77,10 @@ internal abstract class JavacElement(
 
     override fun toString(): String {
         return element.toString()
+    }
+
+    final override val equalityItems: Array<out Any?> by lazy {
+        arrayOf(element)
     }
 
     override fun equals(other: Any?): Boolean {

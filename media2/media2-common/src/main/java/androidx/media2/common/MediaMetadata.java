@@ -881,6 +881,7 @@ public final class MediaMetadata extends CustomVersionedParcelable {
      * @param key The key the value is stored under
      * @return A {@link Bitmap} or null
      */
+    @SuppressWarnings("deprecation")
     public @Nullable Bitmap getBitmap(@NonNull @BitmapKey String key) {
         if (key == null) {
             throw new NullPointerException("key shouldn't be null");
@@ -939,6 +940,7 @@ public final class MediaMetadata extends CustomVersionedParcelable {
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
+    @SuppressWarnings("deprecation")
     public @Nullable Object getObject(@NonNull String key) {
         if (key == null) {
             throw new NullPointerException("key shouldn't be null");
@@ -951,7 +953,8 @@ public final class MediaMetadata extends CustomVersionedParcelable {
      */
     @Override
     @RestrictTo(LIBRARY)
-    @SuppressWarnings("SynchronizeOnNonFinalField") // mBundle is effectively final.
+    // mBundle is effectively final.
+    @SuppressWarnings({"SynchronizeOnNonFinalField", "deprecation"})
     public void onPreParceling(boolean isStream) {
         synchronized (mBundle) {
             if (mParcelableWithoutBitmapBundle == null) {

@@ -26,11 +26,13 @@ import androidx.versionedparcelable.VersionedParcelize;
  *
  * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @VersionedParcelize
 public class DoubleRangeOptionWireFormat extends OptionWireFormat {
     DoubleRangeOptionWireFormat() {
     }
+
+    // WARNING: This class is held in a list and can't change due to flaws in VersionedParcelable.
 
     public DoubleRangeOptionWireFormat(@NonNull byte[] id) {
         super(id);

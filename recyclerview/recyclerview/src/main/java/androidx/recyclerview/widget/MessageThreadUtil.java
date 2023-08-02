@@ -233,51 +233,60 @@ class MessageThreadUtil<T> implements ThreadUtil<T> {
     static class MessageQueue {
 
         private SyncQueueItem mRoot;
+        private final Object mLock = new Object();
 
-        synchronized SyncQueueItem next() {
-            if (mRoot == null) {
-                return null;
-            }
-            final SyncQueueItem next = mRoot;
-            mRoot = mRoot.next;
-            return next;
-        }
-
-        synchronized void sendMessageAtFrontOfQueue(SyncQueueItem item) {
-            item.next = mRoot;
-            mRoot = item;
-        }
-
-        synchronized void sendMessage(SyncQueueItem item) {
-            if (mRoot == null) {
-                mRoot = item;
-                return;
-            }
-            SyncQueueItem last = mRoot;
-            while (last.next != null) {
-                last = last.next;
-            }
-            last.next = item;
-        }
-
-        synchronized void removeMessages(int what) {
-            while (mRoot != null && mRoot.what == what) {
-                SyncQueueItem item = mRoot;
+        SyncQueueItem next() {
+            synchronized (mLock) {
+                if (mRoot == null) {
+                    return null;
+                }
+                final SyncQueueItem next = mRoot;
                 mRoot = mRoot.next;
-                item.recycle();
+                return next;
             }
-            if (mRoot != null) {
-                SyncQueueItem prev = mRoot;
-                SyncQueueItem item = prev.next;
-                while (item != null) {
-                    SyncQueueItem next = item.next;
-                    if (item.what == what) {
-                        prev.next = next;
-                        item.recycle();
-                    } else {
-                        prev = item;
+        }
+
+        void sendMessageAtFrontOfQueue(SyncQueueItem item) {
+            synchronized (mLock) {
+                item.next = mRoot;
+                mRoot = item;
+            }
+        }
+
+        void sendMessage(SyncQueueItem item) {
+            synchronized (mLock) {
+                if (mRoot == null) {
+                    mRoot = item;
+                    return;
+                }
+                SyncQueueItem last = mRoot;
+                while (last.next != null) {
+                    last = last.next;
+                }
+                last.next = item;
+            }
+        }
+
+        void removeMessages(int what) {
+            synchronized (mLock) {
+                while (mRoot != null && mRoot.what == what) {
+                    SyncQueueItem item = mRoot;
+                    mRoot = mRoot.next;
+                    item.recycle();
+                }
+                if (mRoot != null) {
+                    SyncQueueItem prev = mRoot;
+                    SyncQueueItem item = prev.next;
+                    while (item != null) {
+                        SyncQueueItem next = item.next;
+                        if (item.what == what) {
+                            prev.next = next;
+                            item.recycle();
+                        } else {
+                            prev = item;
+                        }
+                        item = next;
                     }
-                    item = next;
                 }
             }
         }

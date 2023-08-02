@@ -218,7 +218,8 @@ public final class ShareTarget  {
             return bundle;
         }
 
-        @SuppressWarnings("WeakerAccess") /* synthetic access */
+        /* synthetic access */
+        @SuppressWarnings({"WeakerAccess", "deprecation"})
         @Nullable
         static Params fromBundle(@Nullable Bundle bundle) {
             if (bundle == null) {

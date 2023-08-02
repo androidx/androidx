@@ -16,8 +16,6 @@
 
 
 import androidx.build.RunApiTasks
-import androidx.build.LibraryGroups
-import androidx.build.LibraryVersions
 import androidx.build.Publish
 
 plugins {
@@ -43,7 +41,7 @@ dependencies {
     testImplementation(libs.robolectric)
     testImplementation(libs.mockitoCore)
     testImplementation(libs.truth)
-    testImplementation("junit:junit:4.13")
+    testImplementation(libs.junit)
     testImplementation(project(":wear:watchface:watchface"))
 }
 
@@ -57,6 +55,7 @@ android {
 
     // Use Robolectric 4.+
     testOptions.unitTests.includeAndroidResources = true
+    namespace "androidx.wear.watchface.complications.rendering"
 }
 
 androidx {

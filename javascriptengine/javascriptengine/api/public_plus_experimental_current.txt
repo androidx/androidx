@@ -1,0 +1,48 @@
+// Signature format: 4.0
+package androidx.javascriptengine {
+
+  public final class EvaluationFailedException extends androidx.javascriptengine.JavaScriptException {
+    ctor public EvaluationFailedException(String);
+  }
+
+  public final class IsolateStartupParameters {
+    ctor public IsolateStartupParameters();
+    method @IntRange(from=0) public long getMaxHeapSizeBytes();
+    method @RequiresFeature(name=androidx.javascriptengine.JavaScriptSandbox.JS_FEATURE_ISOLATE_MAX_HEAP_SIZE, enforcement="androidx.javascriptengine.JavaScriptSandbox#isFeatureSupported") public void setMaxHeapSizeBytes(@IntRange(from=0) long);
+    field public static final long DEFAULT_ISOLATE_HEAP_SIZE = 0L; // 0x0L
+  }
+
+  public final class IsolateTerminatedException extends androidx.javascriptengine.JavaScriptException {
+    ctor public IsolateTerminatedException();
+  }
+
+  public class JavaScriptException extends java.lang.Exception {
+    ctor public JavaScriptException(String);
+    ctor public JavaScriptException();
+  }
+
+  public final class JavaScriptIsolate implements java.lang.AutoCloseable {
+    method public void close();
+    method public com.google.common.util.concurrent.ListenableFuture<java.lang.String!> evaluateJavaScriptAsync(String);
+    method @RequiresFeature(name=androidx.javascriptengine.JavaScriptSandbox.JS_FEATURE_PROVIDE_CONSUME_ARRAY_BUFFER, enforcement="androidx.javascriptengine.JavaScriptSandbox#isFeatureSupported") public boolean provideNamedData(String, byte[]);
+  }
+
+  public final class JavaScriptSandbox implements java.lang.AutoCloseable {
+    method public void close();
+    method public static com.google.common.util.concurrent.ListenableFuture<androidx.javascriptengine.JavaScriptSandbox!> createConnectedInstanceAsync(android.content.Context);
+    method public androidx.javascriptengine.JavaScriptIsolate createIsolate();
+    method public androidx.javascriptengine.JavaScriptIsolate createIsolate(androidx.javascriptengine.IsolateStartupParameters);
+    method public boolean isFeatureSupported(String);
+    field public static final String JS_FEATURE_ISOLATE_MAX_HEAP_SIZE = "JS_FEATURE_ISOLATE_MAX_HEAP_SIZE";
+    field public static final String JS_FEATURE_ISOLATE_TERMINATION = "JS_FEATURE_ISOLATE_TERMINATION";
+    field public static final String JS_FEATURE_PROMISE_RETURN = "JS_FEATURE_PROMISE_RETURN";
+    field public static final String JS_FEATURE_PROVIDE_CONSUME_ARRAY_BUFFER = "JS_FEATURE_PROVIDE_CONSUME_ARRAY_BUFFER";
+    field public static final String JS_FEATURE_WASM_COMPILATION = "JS_FEATURE_WASM_COMPILATION";
+  }
+
+  public final class SandboxDeadException extends androidx.javascriptengine.JavaScriptException {
+    ctor public SandboxDeadException();
+  }
+
+}
+

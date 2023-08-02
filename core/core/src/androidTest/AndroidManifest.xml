@@ -14,8 +14,7 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="android.support.compat.test">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <application
         android:name="androidx.multidex.MultiDexApplication"
@@ -83,6 +82,9 @@
             android:name="androidx.core.app.TestActivityWithLifecycle"
             android:exported="true" />
         <activity
+            android:name="androidx.core.app.TestActivityRecreate"
+            android:exported="true" />
+        <activity
             android:name="androidx.core.app.ActivityCompatRecreateLifecycleTestActivity"
             android:exported="true" />
         <activity
@@ -104,6 +106,10 @@
             android:name="androidx.core.widget.EdgeEffectCompatTest$EdgeEffectCompatTestActivity"
             android:exported="true" />
         <activity
+            android:name="androidx.core.app.ComponentActivity"
+            android:exported="true" />
+
+        <activity
             android:name="androidx.core.view.WindowCompatActivity"
             android:exported="true"
             android:theme="@android:style/Theme.Light.NoTitleBar" />
@@ -112,6 +118,10 @@
             android:name="androidx.core.view.WindowInsetsCompatActivity"
             android:exported="true"
             android:theme="@android:style/Theme.Light.NoTitleBar" />
+
+        <activity
+            android:name="androidx.core.app.GetSystemLocalesActivity"
+            android:exported="true" />
 
         <activity-alias
             android:name="androidx.core.app.NavUtilsAliasActivity"
@@ -156,6 +166,7 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
 
     <uses-permission android:name="android.permission.READ_PRIVILEGED_PHONE_STATE" />

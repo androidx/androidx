@@ -205,7 +205,8 @@ public class Lifecycling {
     /**
      * Create a name for an adapter class.
      */
-    public static String getAdapterName(String className) {
+    @NonNull
+    public static String getAdapterName(@NonNull String className) {
         return className.replace(".", "_") + "_LifecycleAdapter";
     }
 

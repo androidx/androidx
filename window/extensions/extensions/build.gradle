@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
-import androidx.build.LibraryVersions
 import androidx.build.Publish
 import androidx.build.RunApiTasks
 
@@ -46,4 +44,8 @@ androidx {
             "This module declares the interface the the core component of this library " +
             "(androidx.window:window) will use when communicating with the " +
             "device-specific OEM extension."
+}
+
+android {
+    namespace "androidx.window.extensions"
 }

@@ -44,6 +44,7 @@ import org.junit.runner.RunWith;
 import java.util.ArrayList;
 import java.util.List;
 
+@SdkSuppress(minSdkVersion = 23)
 @MediumTest
 @RunWith(AndroidJUnit4.class)
 public class ChooserTargetServiceCompatTest {
@@ -65,7 +66,6 @@ public class ChooserTargetServiceCompatTest {
 
     @SuppressWarnings({"deprecation", "unchecked"})
     @Test
-    @SdkSuppress(minSdkVersion = 23)
     public void testConvertShortcutstoChooserTargets() {
         ArrayList<ShortcutHolder> testShortcuts = new ArrayList<>();
         testShortcuts.add(new ShortcutHolder(

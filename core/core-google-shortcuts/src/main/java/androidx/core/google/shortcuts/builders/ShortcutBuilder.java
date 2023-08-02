@@ -24,9 +24,10 @@ import static androidx.core.google.shortcuts.builders.Constants.SHORTCUT_TYPE;
 import static androidx.core.google.shortcuts.builders.Constants.SHORTCUT_URL_KEY;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 
-import com.google.firebase.appindexing.builders.IndexableBuilder;
+import com.google.android.gms.appindex.builders.IndexableBuilder;
 
 /**
  * Builder for the Shortcut Corpus.
@@ -35,6 +36,8 @@ import com.google.firebase.appindexing.builders.IndexableBuilder;
  */
 @RestrictTo(LIBRARY)
 public class ShortcutBuilder extends IndexableBuilder<ShortcutBuilder> {
+    private CapabilityBuilder[] mCapabilities;
+
     public ShortcutBuilder() {
         super(SHORTCUT_TYPE);
     }
@@ -62,6 +65,12 @@ public class ShortcutBuilder extends IndexableBuilder<ShortcutBuilder> {
     /** Sets one or more capabilities for the shortcut. */
     @NonNull
     public ShortcutBuilder setCapability(@NonNull CapabilityBuilder... capability) {
+        mCapabilities = capability;
         return put(SHORTCUT_CAPABILITY_KEY, capability);
+    }
+
+    @Nullable
+    public CapabilityBuilder[] getCapabilities() {
+        return mCapabilities;
     }
 }

@@ -18,13 +18,18 @@ package androidx.camera.integration.uiwidgets.viewpager
 
 import android.content.Context
 import android.os.Bundle
+import android.text.TextUtils
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.annotation.OptIn
+import androidx.camera.camera2.Camera2Config
+import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.Preview
 import androidx.camera.integration.uiwidgets.databinding.FragmentTextureviewBinding
+import androidx.camera.lifecycle.ExperimentalCameraProviderConfiguration
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.core.content.ContextCompat
@@ -38,6 +43,10 @@ class CameraFragment : Fragment() {
     companion object {
         fun newInstance() = CameraFragment()
         private const val TAG = "CameraFragment"
+        const val KEY_CAMERA_IMPLEMENTATION = "camera_implementation"
+        const val CAMERA2_IMPLEMENTATION_OPTION = "camera2"
+        const val CAMERA_PIPE_IMPLEMENTATION_OPTION = "camera_pipe"
+        private var cameraImpl: String? = null
     }
 
     private var _binding: FragmentTextureviewBinding? = null
@@ -46,8 +55,29 @@ class CameraFragment : Fragment() {
     private lateinit var cameraProviderFuture: ListenableFuture<ProcessCameraProvider>
     private lateinit var cameraProvider: ProcessCameraProvider
 
+    @OptIn(ExperimentalCameraProviderConfiguration::class)
     override fun onAttach(context: Context) {
         super.onAttach(context)
+        val newCameraImpl = activity?.intent?.getStringExtra(KEY_CAMERA_IMPLEMENTATION)
+        Log.d(TAG, "Set up cameraImpl: $newCameraImpl")
+        if (!TextUtils.isEmpty(newCameraImpl) && newCameraImpl != cameraImpl) {
+            try {
+                Log.d(TAG, "ProcessCameraProvider initialize using $newCameraImpl")
+                ProcessCameraProvider.configureInstance(
+                    when (newCameraImpl) {
+                        CAMERA2_IMPLEMENTATION_OPTION -> Camera2Config.defaultConfig()
+                        CAMERA_PIPE_IMPLEMENTATION_OPTION -> CameraPipeConfig.defaultConfig()
+                        else -> Camera2Config.defaultConfig()
+                    }
+                )
+                cameraImpl = newCameraImpl
+            } catch (e: IllegalStateException) {
+                throw IllegalStateException(
+                    "WARNING: CameraX is currently configured to a different implementation " +
+                        "this would have resulted in unexpected behavior.", e
+                )
+            }
+        }
         cameraProviderFuture = ProcessCameraProvider.getInstance(context)
     }
 

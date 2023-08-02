@@ -18,7 +18,9 @@ package androidx.car.app.hardware.info;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
+import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.hardware.ICarHardwareResultTypes;
 import androidx.car.app.hardware.common.CarHardwareHostDispatcher;
 import androidx.car.app.hardware.common.CarResultStub;
@@ -40,7 +42,10 @@ public class ProjectedCarInfo implements CarInfo {
     private final CarResultStub<EnergyLevel> mEnergyLevelCarResultStub;
     private final CarResultStub<Speed> mSpeedCarResultStub;
     private final CarResultStub<Mileage> mMileageCarResultStub;
+    private final CarResultStub<EvStatus> mEvStatusCarResultStub;
 
+    // TODO(b/216177515): Remove this annotation once EvStatus is ready.
+    @OptIn(markerClass = ExperimentalCarApi.class)
     public ProjectedCarInfo(@NonNull CarHardwareHostDispatcher hostDispatcher) {
         mModelCarResultStub = new CarResultStub<Model>(ICarHardwareResultTypes.TYPE_INFO_MODEL,
                 null, /* isSingleShot= */ true, new Model.Builder().build(), hostDispatcher);
@@ -59,6 +64,8 @@ public class ProjectedCarInfo implements CarInfo {
         mMileageCarResultStub = new CarResultStub<>(ICarHardwareResultTypes.TYPE_INFO_MILEAGE,
                 null, /* isSingleShot= */ false, new Mileage.Builder().build(),
                 hostDispatcher);
+        mEvStatusCarResultStub = new CarResultStub<>(ICarHardwareResultTypes.TYPE_INFO_EV_STATUS,
+                null, false, new EvStatus.Builder().build(), hostDispatcher);
     }
 
     @Override
@@ -116,6 +123,21 @@ public class ProjectedCarInfo implements CarInfo {
     @Override
     public void removeMileageListener(@NonNull OnCarDataAvailableListener<Mileage> listener) {
         mMileageCarResultStub.removeListener(listener);
+    }
+
+    // TODO(b/216177515): Remove this annotation once EvStatus is ready.
+    @OptIn(markerClass = ExperimentalCarApi.class)
+    @Override
+    public void addEvStatusListener(@NonNull Executor executor,
+            @NonNull OnCarDataAvailableListener<EvStatus> listener) {
+        mEvStatusCarResultStub.addListener(executor, listener);
+    }
+
+    // TODO(b/216177515): Remove this annotation once EvStatus is ready.
+    @OptIn(markerClass = ExperimentalCarApi.class)
+    @Override
+    public void removeEvStatusListener(@NonNull OnCarDataAvailableListener<EvStatus> listener) {
+        mEvStatusCarResultStub.removeListener(listener);
     }
 
 }

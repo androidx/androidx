@@ -26,6 +26,7 @@ import android.view.KeyEvent;
 import android.view.SurfaceHolder;
 import android.view.View;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.leanback.widget.Action;
 import androidx.leanback.widget.ArrayObjectAdapter;
@@ -137,7 +138,7 @@ public class MediaPlayerGlue extends PlaybackControlGlue implements
     }
 
     @Override
-    protected void onAttachedToHost(PlaybackGlueHost host) {
+    protected void onAttachedToHost(@NonNull PlaybackGlueHost host) {
         super.onAttachedToHost(host);
         if (host instanceof SurfaceHolderGlueHost) {
             ((SurfaceHolderGlueHost) host).setSurfaceHolderCallback(

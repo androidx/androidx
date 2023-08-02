@@ -19,16 +19,34 @@ package androidx.camera.extensions.internal.sessionprocessor;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+
+import com.google.auto.value.AutoValue;
+
+import java.util.List;
 
 /**
  * Use Surface directly to create the OutputConfiguration.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-public interface SurfaceOutputConfig extends Camera2OutputConfig {
+@RequiresApi(21) // T
+// TODO(b/200306659): Remove and replace with annotation on package-info.java
+@AutoValue
+public abstract class SurfaceOutputConfig implements Camera2OutputConfig {
+    /**
+     * Creates the {@link SurfaceOutputConfig} instance.
+     */
+    static SurfaceOutputConfig create(int id, int surfaceGroupId,
+            @Nullable String physicalCameraId,
+            @NonNull List<Camera2OutputConfig> sharedOutputConfigs,
+            @NonNull Surface surface) {
+        return new AutoValue_SurfaceOutputConfig(id, surfaceGroupId, physicalCameraId,
+                sharedOutputConfigs, surface);
+    }
+
     /**
      * Get the {@link Surface}. It'll return a valid surface only when type is TYPE_SURFACE.
      */
     @NonNull
-    Surface getSurface();
+    abstract Surface getSurface();
 }

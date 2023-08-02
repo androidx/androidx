@@ -23,10 +23,11 @@ import com.android.tools.lint.detector.api.Implementation
 import com.android.tools.lint.detector.api.Issue
 import com.android.tools.lint.detector.api.JavaContext
 import com.android.tools.lint.detector.api.Scope
-import com.android.tools.lint.checks.VersionChecks.Companion.isWithinVersionCheckConditional
 import com.android.sdklib.SdkVersionInfo.HIGHEST_KNOWN_API
+import com.android.tools.lint.detector.api.Incident
 import com.android.tools.lint.detector.api.Severity
 import com.android.tools.lint.detector.api.SourceCodeScanner
+import com.android.tools.lint.detector.api.VersionChecks
 import com.intellij.psi.PsiMethod
 import org.jetbrains.uast.UCallExpression
 
@@ -50,13 +51,20 @@ class BanUncheckedReflection : Detector(), SourceCodeScanner {
         if (!context.evaluator.isMemberInClass(method, METHOD_REFLECTION_CLASS)) return
 
         // Flag if the call isn't inside an SDK_INT check.
-        if (!isWithinVersionCheckConditional(context, node, HIGHEST_KNOWN_API, false) &&
-            !isWithinVersionCheckConditional(context, node, 1, true)
+        if (!VersionChecks.isWithinVersionCheckConditional(
+                context,
+                node,
+                HIGHEST_KNOWN_API,
+                false
+            ) &&
+            !VersionChecks.isWithinVersionCheckConditional(context, node, 1, true)
         ) {
-            context.report(
-                ISSUE, node, context.getLocation(node),
-                "Calling `Method.invoke` without an SDK check"
-            )
+            val incident = Incident(context)
+                .issue(ISSUE)
+                .location(context.getLocation(node))
+                .message("Calling `Method.invoke` without an SDK check")
+                .scope(node)
+            context.report(incident)
         }
     }
 

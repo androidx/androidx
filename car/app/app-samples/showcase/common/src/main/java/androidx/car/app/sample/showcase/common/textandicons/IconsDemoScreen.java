@@ -46,7 +46,7 @@ public final class IconsDemoScreen extends Screen {
         listBuilder.addItem(
                 new Row.Builder()
                         .setImage(new CarIcon.Builder(CarIcon.APP_ICON).build())
-                        .setTitle("The app icon")
+                        .setTitle(getCarContext().getString(R.string.app_icon_title))
                         .build());
 
         listBuilder.addItem(
@@ -58,7 +58,7 @@ public final class IconsDemoScreen extends Screen {
                                                 R.drawable.ic_fastfood_white_48dp))
                                         .build(),
                                 Row.IMAGE_TYPE_ICON)
-                        .setTitle("A vector drawable, without a tint")
+                        .setTitle(getCarContext().getString(R.string.vector_no_tint_title))
                         .build());
 
         listBuilder.addItem(
@@ -70,7 +70,7 @@ public final class IconsDemoScreen extends Screen {
                                                 R.drawable.ic_fastfood_white_48dp))
                                         .setTint(GREEN)
                                         .build())
-                        .setTitle("A vector drawable, with a tint")
+                        .setTitle(getCarContext().getString(R.string.vector_with_tint_title))
                         .build());
 
         listBuilder.addItem(
@@ -81,7 +81,8 @@ public final class IconsDemoScreen extends Screen {
                                                 getCarContext(),
                                                 R.drawable.ic_themed_icon_48dp))
                                         .build())
-                        .setTitle("A vector drawable, with an app's theme attribute for its color")
+                        .setTitle(getCarContext()
+                                .getString(R.string.vector_with_app_theme_attr_title))
                         .build());
 
         listBuilder.addItem(
@@ -91,7 +92,7 @@ public final class IconsDemoScreen extends Screen {
                                         IconCompat.createWithResource(
                                                 getCarContext(), R.drawable.banana))
                                         .build())
-                        .setTitle("A PNG, sent as a resource")
+                        .setTitle(getCarContext().getString(R.string.png_res_title))
                         .build());
 
         listBuilder.addItem(
@@ -103,12 +104,12 @@ public final class IconsDemoScreen extends Screen {
                                                         getCarContext().getResources(),
                                                         R.drawable.banana)))
                                         .build())
-                        .setTitle("A PNG, sent as a bitmap")
+                        .setTitle(getCarContext().getString(R.string.png_bitmap_title))
                         .build());
 
         return new ListTemplate.Builder()
                 .setSingleList(listBuilder.build())
-                .setTitle("Icons Demo")
+                .setTitle(getCarContext().getString(R.string.icons_demo_title))
                 .setHeaderAction(BACK)
                 .build();
     }

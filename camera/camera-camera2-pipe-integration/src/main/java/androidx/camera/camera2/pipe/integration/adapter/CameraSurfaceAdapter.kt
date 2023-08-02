@@ -25,6 +25,7 @@ import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.core.Log.debug
 import androidx.camera.camera2.pipe.integration.config.CameraAppComponent
+import androidx.camera.core.impl.AttachedSurfaceInfo
 import androidx.camera.core.impl.CameraDeviceSurfaceManager
 import androidx.camera.core.impl.SurfaceConfig
 import androidx.camera.core.impl.SurfaceConfig.ConfigSize
@@ -50,7 +51,10 @@ class CameraSurfaceAdapter(
         debug { "Created StreamConfigurationMap from $context" }
     }
 
-    override fun checkSupported(cameraId: String, surfaceConfigList: List<SurfaceConfig>): Boolean {
+    override fun checkSupported(
+        cameraId: String,
+        surfaceConfigList: List<SurfaceConfig>?
+    ): Boolean {
         // TODO: This method needs to check to see if the list of SurfaceConfig's is in the map of
         //   guaranteed stream configurations for this camera's support level.
         return component.getAvailableCameraIds().contains(cameraId)
@@ -60,7 +64,7 @@ class CameraSurfaceAdapter(
         cameraId: String,
         imageFormat: Int,
         size: Size
-    ): SurfaceConfig? {
+    ): SurfaceConfig {
         // TODO: Many of the "find a stream combination that will work" is already provided by the
         //   existing camera2 implementation, and this implementation should leverage that work.
 
@@ -77,7 +81,7 @@ class CameraSurfaceAdapter(
 
     override fun getSuggestedResolutions(
         cameraId: String,
-        existingSurfaces: List<SurfaceConfig>,
+        existingSurfaces: List<AttachedSurfaceInfo>,
         newUseCaseConfigs: List<UseCaseConfig<*>?>
     ): Map<UseCaseConfig<*>, Size> {
         // TODO: Many of the "find a stream combination that will work" is already provided by the

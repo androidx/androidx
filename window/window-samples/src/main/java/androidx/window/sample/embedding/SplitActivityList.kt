@@ -69,8 +69,10 @@ open class SplitActivityList : AppCompatActivity() {
 
     inner class SplitStateChangeListener : Consumer<List<SplitInfo>> {
         override fun accept(newSplitInfos: List<SplitInfo>) {
-            findViewById<View>(R.id.infoButton).visibility =
-                if (newSplitInfos.isEmpty()) View.VISIBLE else View.GONE
+            runOnUiThread {
+                findViewById<View>(R.id.infoButton).visibility =
+                    if (newSplitInfos.isEmpty()) View.VISIBLE else View.GONE
+            }
         }
     }
 }

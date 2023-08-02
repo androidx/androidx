@@ -17,10 +17,10 @@
 package androidx.room.vo
 
 import androidx.room.compiler.processing.XType
-import androidx.room.migration.bundle.BundleUtil
 import androidx.room.migration.bundle.DatabaseViewBundle
 import androidx.room.parser.ParsedQuery
 import androidx.room.compiler.processing.XTypeElement
+import androidx.room.migration.bundle.VIEW_NAME_PLACEHOLDER
 
 class DatabaseView(
     element: XTypeElement,
@@ -48,7 +48,7 @@ class DatabaseView(
      */
     val tables = mutableSetOf<String>()
 
-    fun toBundle() = DatabaseViewBundle(viewName, createViewQuery(BundleUtil.VIEW_NAME_PLACEHOLDER))
+    fun toBundle() = DatabaseViewBundle(viewName, createViewQuery(VIEW_NAME_PLACEHOLDER))
 
     override fun getIdKey(): String {
         val identityKey = SchemaIdentityKey()

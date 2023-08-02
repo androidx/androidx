@@ -27,6 +27,7 @@ import androidx.compose.runtime.CompositionContext
 import androidx.compose.runtime.Recomposer
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.InternalComposeUiApi
+import androidx.compose.ui.UiComposable
 import androidx.compose.ui.node.InternalCoreApi
 import androidx.compose.ui.node.Owner
 import androidx.lifecycle.Lifecycle
@@ -38,13 +39,9 @@ import java.lang.ref.WeakReference
  * Subclasses should implement the [Content] function with the appropriate content.
  * Calls to [addView] and its variants and overloads will fail with [IllegalStateException].
  *
- * This [android.view.View] requires that the window it is attached to contains a
- * [ViewTreeLifecycleOwner]. This [androidx.lifecycle.LifecycleOwner] is used to
- * [dispose][androidx.compose.runtime.Composition.dispose] of the underlying composition
- * when the host [Lifecycle] is destroyed, permitting the view to be attached and
- * detached repeatedly while preserving the composition. Call [disposeComposition]
- * to dispose of the underlying composition earlier, or if the view is never initially
- * attached to a window. (The requirement to dispose of the composition explicitly
+ * By default, the composition is disposed according to [ViewCompositionStrategy.Default].
+ * Call [disposeComposition] to dispose of the underlying composition earlier, or if the view is
+ * never initially attached to a window. (The requirement to dispose of the composition explicitly
  * in the event that the view is never (re)attached is temporary.)
  */
 abstract class AbstractComposeView @JvmOverloads constructor(
@@ -124,11 +121,11 @@ abstract class AbstractComposeView @JvmOverloads constructor(
     // this particular ViewCompositionStrategy is not going to do something harmful with it.
     @Suppress("LeakingThis")
     private var disposeViewCompositionStrategy: (() -> Unit)? =
-        ViewCompositionStrategy.DisposeOnDetachedFromWindow.installFor(this)
+        ViewCompositionStrategy.Default.installFor(this)
 
     /**
      * Set the strategy for managing disposal of this View's internal composition.
-     * Defaults to [ViewCompositionStrategy.DisposeOnDetachedFromWindow].
+     * Defaults to [ViewCompositionStrategy.Default].
      *
      * This View's composition is a live resource that must be disposed to ensure that
      * long-lived references to it do not persist
@@ -174,6 +171,7 @@ abstract class AbstractComposeView @JvmOverloads constructor(
      * whichever comes first.
      */
     @Composable
+    @UiComposable
     abstract fun Content()
 
     /**
@@ -384,13 +382,9 @@ abstract class AbstractComposeView @JvmOverloads constructor(
  * A [android.view.View] that can host Jetpack Compose UI content.
  * Use [setContent] to supply the content composable function for the view.
  *
- * This [android.view.View] requires that the window it is attached to contains a
- * [ViewTreeLifecycleOwner]. This [androidx.lifecycle.LifecycleOwner] is used to
- * [dispose][androidx.compose.runtime.Composition.dispose] of the underlying composition
- * when the host [Lifecycle] is destroyed, permitting the view to be attached and
- * detached repeatedly while preserving the composition. Call [disposeComposition]
- * to dispose of the underlying composition earlier, or if the view is never initially
- * attached to a window. (The requirement to dispose of the composition explicitly
+ * By default, the composition is disposed according to [ViewCompositionStrategy.Default].
+ * Call [disposeComposition] to dispose of the underlying composition earlier, or if the view is
+ * never initially attached to a window. (The requirement to dispose of the composition explicitly
  * in the event that the view is never (re)attached is temporary.)
  */
 class ComposeView @JvmOverloads constructor(

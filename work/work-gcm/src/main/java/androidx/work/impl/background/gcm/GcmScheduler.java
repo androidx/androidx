@@ -18,7 +18,6 @@ package androidx.work.impl.background.gcm;
 
 import android.content.Context;
 
-import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.work.Logger;
 import androidx.work.impl.Scheduler;
@@ -33,7 +32,6 @@ import com.google.android.gms.gcm.Task;
  * The {@link androidx.work.WorkManager} scheduler which uses
  * {@link com.google.android.gms.gcm.GcmNetworkManager}.
  */
-@Keep
 public class GcmScheduler implements Scheduler {
     private static final String TAG = Logger.tagWithPrefix("GcmScheduler");
 

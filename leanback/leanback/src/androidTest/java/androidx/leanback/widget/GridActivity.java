@@ -26,6 +26,8 @@ import android.view.View.OnFocusChangeListener;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.leanback.test.R;
 import androidx.recyclerview.widget.ConcatAdapter;
 import androidx.recyclerview.widget.RecyclerView;
@@ -122,7 +124,12 @@ public class GridActivity extends Activity {
         mGridView.setWindowAlignmentOffsetPercent(35);
         mGridView.setOnChildSelectedListener(new OnChildSelectedListener() {
             @Override
-            public void onChildSelected(ViewGroup parent, View view, int position, long id) {
+            public void onChildSelected(
+                    @NonNull ViewGroup parent,
+                    @Nullable View view,
+                    int position,
+                    long id
+            ) {
                 if (DEBUG) Log.d(TAG, "onChildSelected position=" + position +  " id="+id);
             }
         });

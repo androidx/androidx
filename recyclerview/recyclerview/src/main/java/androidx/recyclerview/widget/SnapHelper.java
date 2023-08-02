@@ -16,6 +16,7 @@
 
 package androidx.recyclerview.widget;
 
+import android.annotation.SuppressLint;
 import android.util.DisplayMetrics;
 import android.view.View;
 import android.view.animation.DecelerateInterpolator;
@@ -133,6 +134,7 @@ public abstract class SnapHelper extends RecyclerView.OnFlingListener {
      * @return array holding the calculated distances in x and y directions
      * respectively.
      */
+    @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
     public int[] calculateScrollDistance(int velocityX, int velocityY) {
         int[] outDist = new int[2];
         mGravityScroller.fling(0, 0, velocityX, velocityY,
@@ -286,6 +288,7 @@ public abstract class SnapHelper extends RecyclerView.OnFlingListener {
      */
     @SuppressWarnings("WeakerAccess")
     @Nullable
+    @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
     public abstract View findSnapView(RecyclerView.LayoutManager layoutManager);
 
     /**
@@ -299,6 +302,7 @@ public abstract class SnapHelper extends RecyclerView.OnFlingListener {
      * @return the target adapter position to you want to snap or {@link RecyclerView#NO_POSITION}
      *         if no snapping should happen
      */
-    public abstract int findTargetSnapPosition(RecyclerView.LayoutManager layoutManager, int velocityX,
-            int velocityY);
+    @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
+    public abstract int findTargetSnapPosition(RecyclerView.LayoutManager layoutManager,
+            int velocityX, int velocityY);
 }

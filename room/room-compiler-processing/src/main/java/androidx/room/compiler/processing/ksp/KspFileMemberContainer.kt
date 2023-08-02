@@ -17,6 +17,8 @@
 package androidx.room.compiler.processing.ksp
 
 import androidx.room.compiler.processing.XAnnotated
+import androidx.room.compiler.processing.XElement
+import androidx.room.compiler.processing.XMemberContainer
 import com.google.devtools.ksp.symbol.AnnotationUseSiteTarget
 import com.google.devtools.ksp.symbol.KSDeclaration
 import com.google.devtools.ksp.symbol.KSFile
@@ -61,6 +63,12 @@ internal class KspFileMemberContainer(
 
     override val docComment: String?
         get() = null
+
+    override val enclosingElement: XElement?
+        get() = null
+
+    override val closestMemberContainer: KspFileMemberContainer
+        get() = this
 
     override fun validate(): Boolean {
         return ksFile.validate()

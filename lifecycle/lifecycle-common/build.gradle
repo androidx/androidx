@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
 import androidx.build.Publish
 
 plugins {
@@ -30,6 +29,8 @@ dependencies {
 
     constraints {
         implementation(project(":lifecycle:lifecycle-common-java8"))
+        implementation(project(":lifecycle:lifecycle-runtime"))
+        implementation(project(":lifecycle:lifecycle-livedata-core"))
     }
 }
 

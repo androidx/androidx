@@ -44,7 +44,15 @@ class ShortcutMethodProcessor(
         return annotation
     }
 
-    fun extractReturnType() = delegate.extractReturnType()
+    fun extractReturnType(): XType {
+        val returnType = delegate.extractReturnType()
+        context.checker.check(
+            !delegate.isSuspendAndReturnsDeferredType(),
+            executableElement,
+            ProcessorErrors.suspendReturnsDeferredType(returnType.rawType.typeName.toString())
+        )
+        return returnType
+    }
 
     fun extractParams(
         targetEntityType: XType?,
@@ -199,6 +207,11 @@ class ShortcutMethodProcessor(
         returnType: XType,
         params: List<ShortcutQueryParameter>
     ) = delegate.findInsertMethodBinder(returnType, params)
+
+    fun findUpsertMethodBinder(
+        returnType: XType,
+        params: List<ShortcutQueryParameter>
+    ) = delegate.findUpsertMethodBinder(returnType, params)
 
     fun findDeleteOrUpdateMethodBinder(returnType: XType) =
         delegate.findDeleteOrUpdateMethodBinder(returnType)

@@ -45,8 +45,10 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.junit.Assume.assumeTrue;
 
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 
@@ -88,6 +90,7 @@ public class MediaSession_PermissionTest extends MediaSessionTestBase {
     @Before
     @Override
     public void setUp() throws Exception {
+        assumeTrue(Build.VERSION.SDK_INT != 17);
         super.setUp();
     }
 

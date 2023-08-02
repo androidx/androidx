@@ -18,11 +18,11 @@ package androidx.room.compiler.processing.javac
 
 import javax.lang.model.type.TypeMirror
 import javax.lang.model.type.WildcardType
-import javax.lang.model.util.SimpleTypeVisitor7
+import javax.lang.model.util.SimpleTypeVisitor8
 
 internal fun TypeMirror.extendsBound(): TypeMirror? {
     return this.accept(
-        object : SimpleTypeVisitor7<TypeMirror?, Void?>() {
+        object : SimpleTypeVisitor8<TypeMirror?, Void?>() {
             override fun visitWildcard(type: WildcardType, ignored: Void?): TypeMirror? {
                 return type.extendsBound ?: type.superBound
             }

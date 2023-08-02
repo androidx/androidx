@@ -23,6 +23,7 @@ android {
         applicationId "androidx.ads.identifier.provider.testapp"
         minSdkVersion 14
     }
+    namespace "androidx.ads.identifier.provider.testapp"
 }
 
 dependencies {

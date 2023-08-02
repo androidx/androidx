@@ -33,7 +33,7 @@ def getJetpadReleaseInfo(date):
         return None
     rawJetpadReleaseOutputLines = rawJetpadReleaseOutput.splitlines()
     if len(rawJetpadReleaseOutputLines) <= 2:
-        print_e("Error: Date %s returned zero results from Jetpad.  Please check your date" % args.date)
+        print_e("Error: Date %s returned zero results from Jetpad.  Please check your date" % date)
         return None
     jetpadReleaseOutput = iter(rawJetpadReleaseOutputLines)
     return jetpadReleaseOutput

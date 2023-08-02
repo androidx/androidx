@@ -17,7 +17,7 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="indeterminate" msgid="2486394087603402002">"Ei valittu eikä valitsematta"</string>
+    <string name="indeterminate" msgid="7933458017204019916">"Osittain tarkistettu"</string>
     <string name="on" msgid="8655164131929253426">"Päällä"</string>
     <string name="off" msgid="875452955155264703">"Pois"</string>
     <string name="selected" msgid="6043586758067023">"Valittu"</string>
@@ -31,4 +31,6 @@
     <string name="close_sheet" msgid="7573152094250666567">"Sulje taulukko"</string>
     <string name="default_error_message" msgid="8038256446254964252">"Virheellinen syöte"</string>
     <string name="default_popup_window_title" msgid="6312721426453364202">"Ponnahdusikkuna"</string>
+    <string name="range_start" msgid="7097486360902471446">"Alueen alku"</string>
+    <string name="range_end" msgid="5941395253238309765">"Alueen loppu"</string>
 </resources>

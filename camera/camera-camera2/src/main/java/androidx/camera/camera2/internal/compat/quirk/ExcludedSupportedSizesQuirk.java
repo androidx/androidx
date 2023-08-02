@@ -31,15 +31,16 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Quirk required to exclude certain supported surface sizes that are problematic. These sizes
- * are dependent on the device, camera and image format.
- * <p>
- * An example is the resolution size 4000x3000 which is supported on OnePlus 6, but causes a WYSIWYG
- * issue between preview and image capture. See b/157448499.
- *
- * <p>On Huawei P20 Lite, the Preview screen will become too bright when 400x400 or 720x720
- * Preview resolutions are used together with a large zoom in value. The same symptom happens on
- * ImageAnalysis. See https://issuetracker.google.com/192129158.
+ * <p>QuirkSummary
+ *     Bug Id: b/157448499, b/192129158
+ *     Description: Quirk required to exclude certain supported surface sizes that are
+ *                  problematic. These sizes are dependent on the device, camera and image format.
+ *                  An example is the resolution size 4000x3000 which is supported on OnePlus 6,
+ *                  but causes a WYSIWYG issue between preview and image capture. Another example
+ *                  is on Huawei P20 Lite, the Preview screen will become too bright when 400x400
+ *                  or 720x720 Preview resolutions are used together with a large zoom in value.
+ *                  The same symptom happens on ImageAnalysis.
+ *     Device(s): OnePlus 6, OnePlus 6T, Huawei P20
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class ExcludedSupportedSizesQuirk implements Quirk {

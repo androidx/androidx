@@ -1,5 +1,3 @@
-import androidx.build.LibraryGroups
-import androidx.build.LibraryVersions
 import androidx.build.Publish
 
 plugins {
@@ -15,6 +13,7 @@ android {
     sourceSets {
         main.assets.srcDirs new File(fontDir, "font").getAbsolutePath()
     }
+    namespace "androidx.emoji.bundled"
 }
 
 dependencies {

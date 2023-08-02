@@ -87,7 +87,7 @@ import java.util.HashMap;
  * {@sample frameworks/support/samples/Support4Demos/src/main/java/com/example/android/supportv4/app/SimpleJobIntentService.java
  *      complete}
  * @deprecated This class has been deprecated in favor of the Android Jetpack
- * <a href="https://developer.android.com/topic/libraries/architecture/workmanager>WorkManager</a>
+ * <a href="https://developer.android.com/topic/libraries/architecture/workmanager">WorkManager</a>
  * library, which makes it easy to schedule deferrable, asynchronous tasks that are expected to run
  * even if the app exits or the device restarts.
  */
@@ -296,7 +296,7 @@ public abstract class JobIntentService extends Service {
 
         @Override
         public boolean onStopJob(JobParameters params) {
-            if (DEBUG) Log.d(TAG, "onStartJob: " + params);
+            if (DEBUG) Log.d(TAG, "onStopJob: " + params);
             boolean result = mService.doStopCurrentWork();
             synchronized (mLock) {
                 // Once we return, the job is stopped, so its JobParameters are no

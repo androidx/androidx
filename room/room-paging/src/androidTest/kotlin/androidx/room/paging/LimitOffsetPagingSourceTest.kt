@@ -27,8 +27,7 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.RoomSQLiteQuery
 import androidx.room.awaitPendingRefresh
-import androidx.room.refreshRunnable
-import androidx.room.util.CursorUtil
+import androidx.room.util.getColumnIndexOrThrow
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
@@ -39,7 +38,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -50,6 +50,7 @@ import java.util.concurrent.TimeUnit
 import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
+import kotlinx.coroutines.Job
 
 private const val tableName: String = "TestItem"
 
@@ -83,7 +84,7 @@ class LimitOffsetPagingSourceTest {
 
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
-    fun load_usesQueryExecutor() = runBlockingTest {
+    fun load_usesQueryExecutor() = runTest {
         val queryExecutor = TestExecutor()
         val transactionExecutor = TestExecutor()
         database = Room.inMemoryDatabaseBuilder(
@@ -97,7 +98,8 @@ class LimitOffsetPagingSourceTest {
         assertThat(queryExecutor.executeAll()).isFalse()
         assertThat(transactionExecutor.executeAll()).isFalse()
 
-        val job = launch {
+        val job = Job()
+        launch(job) {
             LimitOffsetPagingSourceImpl(database).load(
                 PagingSource.LoadParams.Refresh(
                     key = null,
@@ -799,20 +801,20 @@ class LimitOffsetPagingSourceTestWithFilteringExecutor {
             ApplicationProvider.getApplicationContext(),
             LimitOffsetTestDb::class.java
         ).setQueryCallback(
-            { sqlQuery, _ ->
-                if (Thread.currentThread() === mainThread) {
-                    mainThreadQueries.add(
-                        sqlQuery to Throwable().stackTraceToString()
-                    )
+            object : RoomDatabase.QueryCallback {
+                override fun onQuery(sqlQuery: String, bindArgs: List<Any?>) {
+                    if (Thread.currentThread() === mainThread) {
+                        mainThreadQueries.add(
+                            sqlQuery to Throwable().stackTraceToString()
+                        )
+                    }
                 }
-            },
-            {
-                // instantly execute the log callback so that we can check the thread.
-                it.run()
             }
-        ).setQueryExecutor(queryExecutor)
+        ) {
+            // instantly execute the log callback so that we can check the thread.
+            it.run()
+        }.setQueryExecutor(queryExecutor)
             .build()
-
         dao = db.dao
     }
 
@@ -936,7 +938,7 @@ class LimitOffsetPagingSourceImpl(
 ) {
 
     override fun convertRows(cursor: Cursor): List<TestItem> {
-        val cursorIndexOfId = CursorUtil.getColumnIndexOrThrow(cursor, "id")
+        val cursorIndexOfId = getColumnIndexOrThrow(cursor, "id")
         val data = mutableListOf<TestItem>()
         while (cursor.moveToNext()) {
             val tmpId = cursor.getInt(cursorIndexOfId)

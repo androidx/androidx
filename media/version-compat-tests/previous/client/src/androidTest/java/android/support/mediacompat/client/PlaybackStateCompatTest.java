@@ -91,6 +91,7 @@ public class PlaybackStateCompatTest {
      */
     @Test
     @SmallTest
+    @SuppressWarnings("deprecation")
     public void testBuilder_setterMethods() {
         Bundle extras = new Bundle();
         extras.putString(EXTRAS_KEY, EXTRAS_VALUE);
@@ -193,6 +194,7 @@ public class PlaybackStateCompatTest {
      */
     @Test
     @SmallTest
+    @SuppressWarnings("deprecation")
     public void testWriteToParcel() {
         Bundle extras = new Bundle();
         extras.putString(EXTRAS_KEY, EXTRAS_VALUE);
@@ -257,6 +259,7 @@ public class PlaybackStateCompatTest {
      */
     @Test
     @SmallTest
+    @SuppressWarnings("deprecation")
     public void testCustomAction() {
         Bundle extras = new Bundle();
         extras.putString(EXTRAS_KEY, EXTRAS_VALUE);
@@ -320,6 +323,7 @@ public class PlaybackStateCompatTest {
         }
     }
 
+    @SuppressWarnings("deprecation")
     private void assertCustomActionEquals(PlaybackStateCompat.CustomAction action1,
             PlaybackStateCompat.CustomAction action2) {
         assertEquals(action1.getAction(), action2.getAction());

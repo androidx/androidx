@@ -22,8 +22,10 @@ import android.content.Intent
 import android.content.ServiceConnection
 import android.os.IBinder
 import android.os.RemoteException
+import android.util.Log
 import androidx.annotation.Px
 import androidx.annotation.RestrictTo
+import androidx.wear.watchface.Renderer
 import androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy
 import androidx.wear.watchface.complications.data.ComplicationData
 import androidx.wear.watchface.complications.data.ComplicationType
@@ -41,6 +43,7 @@ import androidx.wear.watchface.data.IdAndComplicationDataWireFormat
 import androidx.wear.watchface.data.WatchUiState
 import androidx.wear.watchface.style.UserStyleData
 import androidx.wear.watchface.style.data.UserStyleWireFormat
+import java.util.concurrent.Executor
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
@@ -147,13 +150,49 @@ public interface WatchFaceControlClient : AutoCloseable {
      * @param surfaceHeight The height of screen shots taken by the [HeadlessWatchFaceClient]
      * @return The [HeadlessWatchFaceClient] or `null` if [watchFaceName] is unrecognized.
      */
+    @Deprecated(
+        "Creating a headless client without a watchface ID is deprecated",
+        ReplaceWith(
+            "[createHeadlessWatchFaceClient(String, ComponentName, DeviceConfig, Int, Int)]"
+        )
+    )
+    @Suppress("DEPRECATION")
     @Throws(RemoteException::class)
     public fun createHeadlessWatchFaceClient(
         watchFaceName: ComponentName,
         deviceConfig: DeviceConfig,
         @Px surfaceWidth: Int,
-        @Px surfaceHeight: Int
+        @Px surfaceHeight: Int,
     ): HeadlessWatchFaceClient?
+
+    /**
+     * Creates a [HeadlessWatchFaceClient] with the specified [DeviceConfig]. Screenshots made with
+     * [HeadlessWatchFaceClient.renderWatchFaceToBitmap] will be `surfaceWidth` x `surfaceHeight` in
+     * size.
+     *
+     * When finished call [HeadlessWatchFaceClient.close] to release resources.
+     *
+     * @param id The ID for the requested [HeadlessWatchFaceClient], will be exposed to the watch
+     * face via [androidx.wear.watchface.WatchState.watchFaceInstanceId].
+     * @param watchFaceName The [ComponentName] of the watch face to create a headless instance for
+     * must be in the same APK the WatchFaceControlClient is connected to. NB a single apk can
+     * contain multiple watch faces.
+     * @param deviceConfig The hardware [DeviceConfig]
+     * @param surfaceWidth The width of screen shots taken by the [HeadlessWatchFaceClient]
+     * @param surfaceHeight The height of screen shots taken by the [HeadlessWatchFaceClient]
+     * @return The [HeadlessWatchFaceClient] or `null` if [watchFaceName] is unrecognized.
+     */
+    @Throws(RemoteException::class)
+    @Suppress("DEPRECATION") // createHeadlessWatchFaceClient
+    public fun createHeadlessWatchFaceClient(
+        id: String,
+        watchFaceName: ComponentName,
+        deviceConfig: DeviceConfig,
+        @Px surfaceWidth: Int,
+        @Px surfaceHeight: Int,
+    ): HeadlessWatchFaceClient? =
+        // NB this default implementation is usually overridden below by one that does use id.
+        createHeadlessWatchFaceClient(watchFaceName, deviceConfig, surfaceWidth, surfaceHeight)
 
     /**
      * Requests either an existing [InteractiveWatchFaceClient] with the specified [id] or
@@ -162,7 +201,8 @@ public interface WatchFaceControlClient : AutoCloseable {
      *
      * NOTE that currently only one [InteractiveWatchFaceClient] per process can exist at a time.
      *
-     * @param id The ID for the requested [InteractiveWatchFaceClient].
+     * @param id The ID for the requested [InteractiveWatchFaceClient], will be exposed to the
+     * watch face via [androidx.wear.watchface.WatchState.watchFaceInstanceId].
      * @param deviceConfig The [DeviceConfig] for the wearable.
      * @param watchUiState The initial [WatchUiState] for the wearable.
      * @param userStyle Optional [UserStyleData] to apply to the instance (whether or not it's
@@ -182,6 +222,65 @@ public interface WatchFaceControlClient : AutoCloseable {
         slotIdToComplicationData: Map<Int, ComplicationData>?
     ): InteractiveWatchFaceClient
 
+    /** Listener for observing calls to [Renderer.sendPreviewImageNeedsUpdateRequest]. */
+    public interface PreviewImageUpdateRequestedListener {
+        /**
+         * The watch face called [Renderer.sendPreviewImageNeedsUpdateRequest], indicating that it
+         * looks visually different. Schedule creation of a headless instance to render a new
+         * preview image for [instanceId]. This is likely an expensive operation and should be rate
+         * limited.
+         *
+         * @param instanceId The ID of the watch face (see id passed into
+         * getOrCreateInteractiveWatchFaceClient)) requesting the update. This will usually
+         * match the current watch face but it could also be from a previous watch face if
+         * [InteractiveWatchFaceClient.updateWatchFaceInstance] is called shortly after
+         * [Renderer.sendPreviewImageNeedsUpdateRequest].
+         */
+        public fun onPreviewImageUpdateRequested(instanceId: String)
+    }
+
+    /**
+     * Requests either an existing [InteractiveWatchFaceClient] with the specified [instanceId] or
+     * schedules creation of an [InteractiveWatchFaceClient] for the next time the
+     * WallpaperService creates an engine.
+     *
+     * NOTE that currently only one [InteractiveWatchFaceClient] per process can exist at a time.
+     *
+     * @param instanceId The ID for the requested [InteractiveWatchFaceClient], will be exposed to
+     * the watch face via [androidx.wear.watchface.WatchState.watchFaceInstanceId].
+     * @param deviceConfig The [DeviceConfig] for the wearable.
+     * @param watchUiState The initial [WatchUiState] for the wearable.
+     * @param userStyle Optional [UserStyleData] to apply to the instance (whether or not it's
+     * created). If `null` then the pre-existing user style is preserved (if the instance is created
+     * this will be the [androidx.wear.watchface.style.UserStyleSchema]'s default).
+     * @param slotIdToComplicationData The initial [androidx.wear.watchface.ComplicationSlot] data,
+     * or `null` if unavailable.
+     * @param previewImageUpdateRequestedExecutor The [Executor] on which to run
+     * [previewImageUpdateRequestedListener] if the watch face calls
+     * [Renderer.sendPreviewImageNeedsUpdateRequest].
+     * @param previewImageUpdateRequestedListener The [PreviewImageUpdateRequestedListener]
+     * which is fired if the watch face calls [Renderer.sendPreviewImageNeedsUpdateRequest].
+     *
+     * @return The [InteractiveWatchFaceClient], this should be closed when finished.
+     * @throws [ServiceStartFailureException] if the watchface dies during startup.
+     */
+    @Throws(RemoteException::class)
+    public suspend fun getOrCreateInteractiveWatchFaceClient(
+        instanceId: String,
+        deviceConfig: DeviceConfig,
+        watchUiState: androidx.wear.watchface.client.WatchUiState,
+        userStyle: UserStyleData?,
+        slotIdToComplicationData: Map<Int, ComplicationData>?,
+        previewImageUpdateRequestedExecutor: Executor,
+        previewImageUpdateRequestedListener: PreviewImageUpdateRequestedListener
+    ): InteractiveWatchFaceClient = getOrCreateInteractiveWatchFaceClient(
+        instanceId,
+        deviceConfig,
+        watchUiState,
+        userStyle,
+        slotIdToComplicationData
+    )
+
     @Throws(RemoteException::class)
     public fun getEditorServiceClient(): EditorServiceClient
 
@@ -196,10 +295,19 @@ public interface WatchFaceControlClient : AutoCloseable {
      * [DefaultComplicationDataSourcePolicyAndType]s for. It must be in the same APK the
      * WatchFaceControlClient is connected to. NB a single apk can contain multiple watch faces.
      */
+    @Deprecated("Use the WatchFaceMetadataClient instead.")
+    @Suppress("DEPRECATION") // DefaultComplicationDataSourcePolicyAndType
     @Throws(RemoteException::class)
     public fun getDefaultComplicationDataSourcePoliciesAndType(
         watchFaceName: ComponentName
     ): Map<Int, DefaultComplicationDataSourcePolicyAndType>
+
+    /**
+     * Whether or not the watch face has a [ComplicationData] cache. Based on this the system may
+     * wish to adopt a different strategy for sending complication data. E.g. sending initial blank
+     * complications before fetching the real ones is not necessary.
+     */
+    public fun hasComplicationDataCache(): Boolean = false
 }
 
 /**
@@ -210,10 +318,12 @@ public interface WatchFaceControlClient : AutoCloseable {
  * [androidx.wear.watchface.ComplicationSlot].
  * @param type The default [ComplicationType] for the [androidx.wear.watchface.ComplicationSlot].
  */
+@Deprecated("Use the WatchFaceMetadataClient instead.")
 public class DefaultComplicationDataSourcePolicyAndType(
     public val policy: DefaultComplicationDataSourcePolicy,
     public val type: ComplicationType
 ) {
+    @Suppress("DEPRECATION") // DefaultComplicationDataSourcePolicyAndType
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
@@ -240,12 +350,26 @@ internal class WatchFaceControlClientImpl internal constructor(
 ) : WatchFaceControlClient {
     private var closed = false
 
+    internal companion object {
+        const val TAG = "WatchFaceControlClientImpl"
+    }
+
     override fun getInteractiveWatchFaceClientInstance(
         instanceId: String
     ) = service.getInteractiveWatchFaceInstance(instanceId)?.let {
-        InteractiveWatchFaceClientImpl(it)
+        InteractiveWatchFaceClientImpl(
+            it,
+            previewImageUpdateRequestedExecutor = null,
+            previewImageUpdateRequestedListener = null
+        )
     }
 
+    @Deprecated(
+        "Creating a headless client without a watchface ID is deprecated",
+        ReplaceWith(
+            "[createHeadlessWatchFaceClient(String, ComponentName, DeviceConfig, Int, Int)]"
+        )
+    )
     override fun createHeadlessWatchFaceClient(
         watchFaceName: ComponentName,
         deviceConfig: DeviceConfig,
@@ -260,7 +384,31 @@ internal class WatchFaceControlClientImpl internal constructor(
                 watchFaceName,
                 deviceConfig.asWireDeviceConfig(),
                 surfaceWidth,
-                surfaceHeight
+                surfaceHeight,
+                null
+            )
+        )?.let {
+            HeadlessWatchFaceClientImpl(it)
+        }
+    }
+
+    override fun createHeadlessWatchFaceClient(
+        id: String,
+        watchFaceName: ComponentName,
+        deviceConfig: DeviceConfig,
+        surfaceWidth: Int,
+        surfaceHeight: Int
+    ): HeadlessWatchFaceClient? = TraceEvent(
+        "WatchFaceControlClientImpl.createHeadlessWatchFaceClient"
+    ).use {
+        requireNotClosed()
+        return service.createHeadlessWatchFaceInstance(
+            HeadlessWatchFaceInstanceParams(
+                watchFaceName,
+                deviceConfig.asWireDeviceConfig(),
+                surfaceWidth,
+                surfaceHeight,
+                id
             )
         )?.let {
             HeadlessWatchFaceClientImpl(it)
@@ -273,6 +421,44 @@ internal class WatchFaceControlClientImpl internal constructor(
         watchUiState: androidx.wear.watchface.client.WatchUiState,
         userStyle: UserStyleData?,
         slotIdToComplicationData: Map<Int, ComplicationData>?
+    ): InteractiveWatchFaceClient = getOrCreateInteractiveWatchFaceClientImpl(
+        id,
+        deviceConfig,
+        watchUiState,
+        userStyle,
+        slotIdToComplicationData,
+        previewImageUpdateRequestedExecutor = null,
+        previewImageUpdateRequestedListener = null
+    )
+
+    override suspend fun getOrCreateInteractiveWatchFaceClient(
+        instanceId: String,
+        deviceConfig: DeviceConfig,
+        watchUiState: androidx.wear.watchface.client.WatchUiState,
+        userStyle: UserStyleData?,
+        slotIdToComplicationData: Map<Int, ComplicationData>?,
+        previewImageUpdateRequestedExecutor: Executor,
+        previewImageUpdateRequestedListener:
+            WatchFaceControlClient.PreviewImageUpdateRequestedListener
+    ): InteractiveWatchFaceClient = getOrCreateInteractiveWatchFaceClientImpl(
+        instanceId,
+        deviceConfig,
+        watchUiState,
+        userStyle,
+        slotIdToComplicationData,
+        previewImageUpdateRequestedExecutor,
+            previewImageUpdateRequestedListener
+    )
+
+    private suspend fun getOrCreateInteractiveWatchFaceClientImpl(
+        id: String,
+        deviceConfig: DeviceConfig,
+        watchUiState: androidx.wear.watchface.client.WatchUiState,
+        userStyle: UserStyleData?,
+        slotIdToComplicationData: Map<Int, ComplicationData>?,
+        previewImageUpdateRequestedExecutor: Executor?,
+        previewImageUpdateRequestedListener:
+            WatchFaceControlClient.PreviewImageUpdateRequestedListener?
     ): InteractiveWatchFaceClient {
         requireNotClosed()
         val traceEvent = AsyncTraceEvent(
@@ -318,15 +504,19 @@ internal class WatchFaceControlClientImpl internal constructor(
                     override fun onInteractiveWatchFaceCreated(
                         iInteractiveWatchFace: IInteractiveWatchFace
                     ) {
-                        serviceBinder.unlinkToDeath(deathObserver, 0)
+                        safeUnlinkToDeath(serviceBinder, deathObserver)
                         traceEvent.close()
                         continuation.resume(
-                            InteractiveWatchFaceClientImpl(iInteractiveWatchFace)
+                            InteractiveWatchFaceClientImpl(
+                                iInteractiveWatchFace,
+                                previewImageUpdateRequestedExecutor,
+                                previewImageUpdateRequestedListener
+                            )
                         )
                     }
 
                     override fun onInteractiveWatchFaceCrashed(exception: CrashInfoParcel) {
-                        serviceBinder.unlinkToDeath(deathObserver, 0)
+                        safeUnlinkToDeath(serviceBinder, deathObserver)
                         traceEvent.close()
                         continuation.resumeWithException(
                             WatchFaceControlClient.ServiceStartFailureException(
@@ -337,10 +527,25 @@ internal class WatchFaceControlClientImpl internal constructor(
                 }
             )?.let {
                 // There was an existing watchface.onInteractiveWatchFaceCreated
-                serviceBinder.unlinkToDeath(deathObserver, 0)
+                safeUnlinkToDeath(serviceBinder, deathObserver)
                 traceEvent.close()
-                continuation.resume(InteractiveWatchFaceClientImpl(it))
+                continuation.resume(
+                    InteractiveWatchFaceClientImpl(
+                        it,
+                        previewImageUpdateRequestedExecutor,
+                        previewImageUpdateRequestedListener
+                    )
+                )
             }
+        }
+    }
+
+    internal fun safeUnlinkToDeath(binder: IBinder, deathObserver: IBinder.DeathRecipient) {
+        try {
+            binder.unlinkToDeath(deathObserver, 0)
+        } catch (e: NoSuchElementException) {
+            // This really shouldn't happen.
+            Log.w(TAG, "getOrCreateInteractiveWatchFaceClient encountered", e)
         }
     }
 
@@ -351,6 +556,8 @@ internal class WatchFaceControlClientImpl internal constructor(
         return EditorServiceClientImpl(service.editorService)
     }
 
+    @Deprecated("Use the WatchFaceMetadataClient instead.")
+    @Suppress("DEPRECATION") // DefaultComplicationDataSourcePolicyAndType
     override fun getDefaultComplicationDataSourcePoliciesAndType(
         watchFaceName: ComponentName
     ): Map<Int, DefaultComplicationDataSourcePolicyAndType> = TraceEvent(
@@ -368,7 +575,10 @@ internal class WatchFaceControlClientImpl internal constructor(
                         DefaultComplicationDataSourcePolicyAndType(
                             DefaultComplicationDataSourcePolicy(
                                 it.defaultProvidersToTry ?: emptyList(),
-                                it.fallbackSystemProvider
+                                it.fallbackSystemProvider,
+                                ComplicationType.fromWireType(it.defaultProviderType),
+                                ComplicationType.fromWireType(it.defaultProviderType),
+                                ComplicationType.fromWireType(it.defaultProviderType)
                             ),
                             ComplicationType.fromWireType(it.defaultProviderType)
                         )
@@ -377,6 +587,7 @@ internal class WatchFaceControlClientImpl internal constructor(
         } else {
             // Slow backwards compatible path.
             val headlessClient = createHeadlessWatchFaceClient(
+                "id",
                 watchFaceName,
                 DeviceConfig(false, false, 0, 0),
                 1,
@@ -406,5 +617,12 @@ internal class WatchFaceControlClientImpl internal constructor(
     override fun close() = TraceEvent("WatchFaceControlClientImpl.close").use {
         closed = true
         context.unbindService(serviceConnection)
+    }
+
+    override fun hasComplicationDataCache(): Boolean {
+        if (service.apiVersion < 4) {
+            return false
+        }
+        return service.hasComplicationCache()
     }
 }

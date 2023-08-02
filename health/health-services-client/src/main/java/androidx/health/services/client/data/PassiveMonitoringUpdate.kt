@@ -24,13 +24,13 @@ import androidx.health.services.client.proto.DataProto.PassiveMonitoringUpdate a
 /**
  * Represents an update from Passive tracking.
  *
- * Provides [DataPoint] s associated with the Passive tracking, in addition to data related to the
+ * Provides [DataPoint]s associated with the Passive tracking, in addition to data related to the
  * user's [UserActivityState].
  */
 @Suppress("ParcelCreator")
 public class PassiveMonitoringUpdate(
-    /** List of [DataPoint] s from Passive tracking. */
-    public val dataPoints: List<DataPoint>,
+    /** List of [DataPoint]s from Passive tracking. */
+    public val dataPoints: DataPointContainer,
 
     /** The [UserActivityInfo] of the user from Passive tracking. */
     public val userActivityInfoUpdates: List<UserActivityInfo>,
@@ -39,7 +39,7 @@ public class PassiveMonitoringUpdate(
     internal constructor(
         proto: DataProto.PassiveMonitoringUpdate
     ) : this(
-        proto.dataPointsList.map { DataPoint(it) },
+        DataPointContainer(proto.dataPointsList.map { DataPoint.fromProto(it) }),
         proto.userActivityInfoUpdatesList.map { UserActivityInfo(it) }
     )
 
@@ -52,12 +52,12 @@ public class PassiveMonitoringUpdate(
     }
 
     /** @hide */
-    override val proto: PassiveMonitoringUpdateProto by lazy {
+    override val proto: PassiveMonitoringUpdateProto =
         PassiveMonitoringUpdateProto.newBuilder()
-            .addAllDataPoints(dataPoints.map { it.proto })
+            .addAllDataPoints(dataPoints.sampleDataPoints.map { it.proto })
+            .addAllDataPoints(dataPoints.intervalDataPoints.map { it.proto })
             .addAllUserActivityInfoUpdates(userActivityInfoUpdates.map { it.proto })
             .build()
-    }
 
     override fun toString(): String =
         "PassiveMonitoringUpdate(" +
@@ -78,6 +78,7 @@ public class PassiveMonitoringUpdate(
          * Creates a [PassiveMonitoringUpdate] from an [Intent]. Returns null if no
          * [PassiveMonitoringUpdate] is stored in the given intent.
          */
+        @Suppress("DEPRECATION")
         @JvmStatic
         public fun fromIntent(intent: Intent): PassiveMonitoringUpdate? =
             intent.getParcelableExtra(EXTRA_KEY)

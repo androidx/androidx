@@ -18,9 +18,11 @@ package androidx.car.app.hardware;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.CarContext;
 import androidx.car.app.HostDispatcher;
+import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.hardware.common.CarHardwareHostDispatcher;
 import androidx.car.app.hardware.info.CarInfo;
 import androidx.car.app.hardware.info.CarSensors;
@@ -54,6 +56,8 @@ public class ProjectedCarHardwareManager implements CarHardwareManager {
     /**
      * Creates an instance of {@link CarHardwareManager}.
      */
+    // TODO(b/216177515): Remove this annotation once EvStatus is ready.
+    @OptIn(markerClass = ExperimentalCarApi.class)
     public ProjectedCarHardwareManager(@NonNull CarContext context,
             @NonNull HostDispatcher hostDispatcher) {
         CarHardwareHostDispatcher carHardwareHostDispatcher =

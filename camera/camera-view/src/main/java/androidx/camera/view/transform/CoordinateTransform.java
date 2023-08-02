@@ -16,7 +16,7 @@
 
 package androidx.camera.view.transform;
 
-import static androidx.camera.view.TransformUtils.isAspectRatioMatchingWithRoundingError;
+import static androidx.camera.core.impl.utils.TransformUtils.isAspectRatioMatchingWithRoundingError;
 
 import android.graphics.Matrix;
 import android.graphics.PointF;

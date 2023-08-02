@@ -16,6 +16,7 @@
 
 package androidx.car.app.sample.places.common.places;
 
+import android.annotation.SuppressLint;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -29,6 +30,8 @@ import java.util.List;
 class LocationUtil {
 
     /** Returns the address for a given location. */
+    @SuppressWarnings("deprecation")
+    @SuppressLint("Range")
     @Nullable
     static Address getAddressForLocation(Geocoder geocoder, Location location) {
         try {

@@ -74,6 +74,42 @@ class SavedStateFactoryTest {
 
     @UiThreadTest
     @Test
+    fun testCreateAndroidWithStatefulFactoryVM() {
+        val savedStateVMFactory = SavedStateViewModelFactory(
+            null,
+            activityRule.activity
+        )
+        val component = TestComponent()
+        component.enableSavedStateHandles()
+        val extras = component.extras
+        extras[APPLICATION_KEY] = activityRule.activity.application
+        val vm = ViewModelProvider(component.viewModelStore, savedStateVMFactory, extras)
+        assertThat(vm[MyAndroidViewModel::class.java].handle).isNotNull()
+        assertThat(vm[MyViewModel::class.java].handle).isNotNull()
+    }
+
+    @UiThreadTest
+    @Test
+    fun testCreateAndroidVMWrongParameterOrder() {
+        val savedStateVMFactory = SavedStateViewModelFactory()
+        val component = TestComponent()
+        component.enableSavedStateHandles()
+        val extras = component.extras
+        extras[APPLICATION_KEY] = activityRule.activity.application
+        val vm = ViewModelProvider(component.viewModelStore, savedStateVMFactory, extras)
+        try {
+            assertThat(vm[WrongOrderAndroidViewModel::class.java].handle).isNotNull()
+            fail()
+        } catch (e: UnsupportedOperationException) {
+            assertThat(e).hasMessageThat().isEqualTo(
+                "Class WrongOrderAndroidViewModel must have parameters in the proper order: " +
+                    "[class android.app.Application, class androidx.lifecycle.SavedStateHandle]"
+            )
+        }
+    }
+
+    @UiThreadTest
+    @Test
     fun testLegacyCreateFailAndroidVM() {
         val savedStateVMFactory = SavedStateViewModelFactory(
             null,
@@ -144,7 +180,7 @@ class SavedStateFactoryTest {
         }
 
         val absFactory = object : AbstractSavedStateViewModelFactory() {
-            override fun <T : ViewModel?> create(
+            override fun <T : ViewModel> create(
                 key: String,
                 modelClass: Class<T>,
                 handle: SavedStateHandle
@@ -158,6 +194,9 @@ class SavedStateFactoryTest {
     }
 
     internal class MyAndroidViewModel(app: Application, val handle: SavedStateHandle) :
+        AndroidViewModel(app)
+
+    internal class WrongOrderAndroidViewModel(val handle: SavedStateHandle, app: Application) :
         AndroidViewModel(app)
 
     internal class MyViewModel(val handle: SavedStateHandle) : ViewModel()

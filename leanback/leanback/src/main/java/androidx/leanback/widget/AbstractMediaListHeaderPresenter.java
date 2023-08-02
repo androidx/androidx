@@ -21,6 +21,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.leanback.R;
 
 /**
@@ -104,7 +105,7 @@ public abstract class AbstractMediaListHeaderPresenter extends RowPresenter{
     }
 
     @Override
-    protected void onBindRowViewHolder(RowPresenter.ViewHolder vh, Object item) {
+    protected void onBindRowViewHolder(@NonNull RowPresenter.ViewHolder vh, @NonNull Object item) {
         super.onBindRowViewHolder(vh, item);
         onBindMediaListHeaderViewHolder((ViewHolder) vh, item);
     }

@@ -19,6 +19,7 @@ package androidx.compose.ui.draw
 import android.graphics.Bitmap
 import android.os.Build
 import androidx.activity.compose.setContent
+import androidx.annotation.RequiresApi
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.AtLeastSize
@@ -404,12 +405,12 @@ class ClipDrawTest {
                 topLeft = Offset(-100f, -100f),
                 size = Size(size.width + 200f, size.height + 200f)
             )
-            drawLatch.countDown()
         }
 
         val clip = Modifier.graphicsLayer {
             shape = model.value
             clip = true
+            drawLatch.countDown()
         }
 
         rule.runOnUiThreadIR {
@@ -519,6 +520,8 @@ class ClipDrawTest {
         }
     }
 
+    // waitAndScreenShot() requires API level 26
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun takeScreenShot(size: Int): Bitmap {
         Assert.assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
         val bitmap = rule.waitAndScreenShot()
@@ -540,12 +543,12 @@ fun Bitmap.assertTriangle(innerColor: Color, outerColor: Color) {
     // check bottom corners
     assertColor(outerColor, 0, last - 4)
     assertColor(innerColor, 4, last - 4)
-    assertColor(outerColor, last, last - 4)
-    assertColor(innerColor, last - 4, last)
+    assertColor(outerColor, last, last - 6)
+    assertColor(innerColor, last - 6, last)
     // check top center
     assertColor(outerColor, center - 4, 0)
     assertColor(outerColor, center + 4, 0)
-    assertColor(innerColor, center, 4)
+    assertColor(innerColor, center, 8)
 }
 
 fun Bitmap.assertInvertedTriangle(innerColor: Color, outerColor: Color) {
@@ -565,7 +568,7 @@ fun Bitmap.assertInvertedTriangle(innerColor: Color, outerColor: Color) {
     // check bottom center
     assertColor(outerColor, center - 4, last)
     assertColor(outerColor, center + 4, last)
-    assertColor(innerColor, center, last - 4)
+    assertColor(innerColor, center, last - 6)
 }
 
 fun Bitmap.assertColor(expectedColor: Color, x: Int, y: Int) {

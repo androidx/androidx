@@ -18,6 +18,7 @@ package androidx.room.processor
 
 import androidx.room.Delete
 import androidx.room.Insert
+import androidx.room.Upsert
 import androidx.room.Query
 import androidx.room.RawQuery
 import androidx.room.SkipQueryVerification
@@ -31,6 +32,7 @@ import androidx.room.verifier.DatabaseVerifier
 import androidx.room.vo.Dao
 import androidx.room.vo.KotlinBoxedPrimitiveMethodDelegate
 import androidx.room.vo.KotlinDefaultMethodDelegate
+import androidx.room.vo.Warning
 
 class DaoProcessor(
     baseContext: Context,
@@ -43,7 +45,7 @@ class DaoProcessor(
     companion object {
         val PROCESSED_ANNOTATIONS = listOf(
             Insert::class, Delete::class, Query::class,
-            Update::class, RawQuery::class
+            Update::class, Upsert::class, RawQuery::class
         )
     }
 
@@ -56,6 +58,7 @@ class DaoProcessor(
                 queryMethods = emptyList(),
                 rawQueryMethods = emptyList(),
                 insertionMethods = emptyList(),
+                upsertionMethods = emptyList(),
                 deletionMethods = emptyList(),
                 updateMethods = emptyList(),
                 transactionMethods = emptyList(),
@@ -83,6 +86,13 @@ class DaoProcessor(
                     PROCESSED_ANNOTATIONS.count { method.hasAnnotation(it) } <= 1, method,
                     ProcessorErrors.INVALID_ANNOTATION_COUNT_IN_DAO_METHOD
                 )
+                if (method.hasAnnotation(JvmName::class)) {
+                    context.logger.w(
+                        Warning.JVM_NAME_ON_OVERRIDDEN_METHOD,
+                        method,
+                        ProcessorErrors.JVM_NAME_ON_OVERRIDDEN_METHOD
+                    )
+                }
                 if (method.hasAnnotation(Query::class)) {
                     Query::class
                 } else if (method.hasAnnotation(Insert::class)) {
@@ -93,6 +103,8 @@ class DaoProcessor(
                     Update::class
                 } else if (method.hasAnnotation(RawQuery::class)) {
                     RawQuery::class
+                } else if (method.hasAnnotation(Upsert::class)) {
+                    Upsert::class
                 } else {
                     Any::class
                 }
@@ -147,6 +159,14 @@ class DaoProcessor(
             ).process()
         } ?: emptyList()
 
+        val upsertionMethods = methods[Upsert::class]?.map {
+            UpsertionMethodProcessor(
+                baseContext = context,
+                containing = declaredType,
+                executableElement = it
+            ).process()
+        } ?: emptyList()
+
         val transactionMethods = allMethods.filter { member ->
             member.hasAnnotation(Transaction::class) &&
                 PROCESSED_ANNOTATIONS.none { member.hasAnnotation(it) }
@@ -164,9 +184,7 @@ class DaoProcessor(
         // Kotlin.
         val unannotatedMethods = methods[Any::class] ?: emptyList<XMethodElement>()
         val delegatingMethods =
-            if (element.superType != null ||
-                element.getSuperInterfaceElements().isNotEmpty()
-            ) {
+            if (element.superClass != null || element.getSuperInterfaceElements().isNotEmpty()) {
                 matchKotlinBoxedPrimitiveMethods(
                     unannotatedMethods,
                     methods.values.flatten() - unannotatedMethods
@@ -223,6 +241,7 @@ class DaoProcessor(
             insertionMethods = insertionMethods,
             deletionMethods = deletionMethods,
             updateMethods = updateMethods,
+            upsertionMethods = upsertionMethods,
             transactionMethods = transactionMethods.toList(),
             delegatingMethods = delegatingMethods,
             kotlinDefaultMethodDelegates = kotlinDefaultMethodDelegates.toList(),
@@ -246,17 +265,27 @@ class DaoProcessor(
         annotatedMethods: List<XMethodElement>
     ) = unannotatedMethods.mapNotNull { unannotated ->
         annotatedMethods.firstOrNull {
-            if (it.name != unannotated.name) {
-                return@firstOrNull false
-            }
-            if (!it.returnType.boxed().isSameType(unannotated.returnType.boxed())) {
+            if (it.jvmName != unannotated.jvmName) {
                 return@firstOrNull false
             }
             if (it.parameters.size != unannotated.parameters.size) {
                 return@firstOrNull false
             }
+
+            // Get unannotated as a member of annotated's enclosing type before comparing
+            // in case unannotated contains type parameters that need to be resolved.
+            val annotatedEnclosingType = it.enclosingElement.type
+            val unannotatedType = if (annotatedEnclosingType == null) {
+                unannotated.executableType
+            } else {
+                unannotated.asMemberOf(annotatedEnclosingType)
+            }
+
+            if (!it.returnType.boxed().isSameType(unannotatedType.returnType.boxed())) {
+                return@firstOrNull false
+            }
             for (i in it.parameters.indices) {
-                if (it.parameters[i].type.boxed() != unannotated.parameters[i].type.boxed()) {
+                if (it.parameters[i].type.boxed() != unannotatedType.parameterTypes[i].boxed()) {
                     return@firstOrNull false
                 }
             }

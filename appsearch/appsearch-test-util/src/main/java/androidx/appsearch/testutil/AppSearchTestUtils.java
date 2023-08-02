@@ -27,6 +27,7 @@ import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.app.GetByDocumentIdRequest;
 import androidx.appsearch.app.SearchResult;
 import androidx.appsearch.app.SearchResults;
+import androidx.appsearch.localstorage.visibilitystore.VisibilityChecker;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -59,7 +60,7 @@ public class AppSearchTestUtils {
             @NonNull AppSearchSession session, @NonNull String namespace, @NonNull String... ids)
             throws Exception {
         AppSearchBatchResult<String, GenericDocument> result = checkIsBatchResultSuccess(
-                session.getByDocumentId(
+                session.getByDocumentIdAsync(
                         new GetByDocumentIdRequest.Builder(namespace).addIds(ids).build()));
         assertThat(result.getSuccesses()).hasSize(ids.length);
         assertThat(result.getFailures()).isEmpty();
@@ -76,7 +77,7 @@ public class AppSearchTestUtils {
             @NonNull AppSearchSession session, @NonNull GetByDocumentIdRequest request)
             throws Exception {
         AppSearchBatchResult<String, GenericDocument> result = checkIsBatchResultSuccess(
-                session.getByDocumentId(request));
+                session.getByDocumentIdAsync(request));
         Set<String> ids = request.getIds();
         assertThat(result.getSuccesses()).hasSize(ids.size());
         assertThat(result.getFailures()).isEmpty();
@@ -104,12 +105,24 @@ public class AppSearchTestUtils {
     @NonNull
     public static List<SearchResult> retrieveAllSearchResults(@NonNull SearchResults searchResults)
             throws Exception {
-        List<SearchResult> page = searchResults.getNextPage().get();
+        List<SearchResult> page = searchResults.getNextPageAsync().get();
         List<SearchResult> results = new ArrayList<>();
         while (!page.isEmpty()) {
             results.addAll(page);
-            page = searchResults.getNextPage().get();
+            page = searchResults.getNextPageAsync().get();
         }
         return results;
+    }
+
+    /**
+     * Creates a mock {@link VisibilityChecker}.
+     * @param visiblePrefixedSchemas Schema types that are accessible to any caller.
+     * @return
+     */
+    @NonNull
+    public static VisibilityChecker createMockVisibilityChecker(
+            @NonNull Set<String> visiblePrefixedSchemas) {
+        return (callerAccess, packageName, prefixedSchema, visibilityStore) ->
+                visiblePrefixedSchemas.contains(prefixedSchema);
     }
 }

@@ -67,6 +67,7 @@ class ActivityTest {
     }
 
     @UiThreadTest
+    @Suppress("DEPRECATION")
     @Test fun navArgsLazy() {
         val navHostFragment = NavHostFragment.create(R.navigation.test_graph)
         fragmentManager.beginTransaction()

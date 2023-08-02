@@ -33,6 +33,7 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assume.assumeTrue;
 
 import android.graphics.Bitmap;
 import android.media.AudioManager;
@@ -62,6 +63,7 @@ import androidx.media2.test.client.MediaTestUtils;
 import androidx.media2.test.client.RemoteMediaSession;
 import androidx.media2.test.common.TestUtils;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.FlakyTest;
 import androidx.test.filters.LargeTest;
 
 import org.junit.After;
@@ -79,6 +81,7 @@ import java.util.concurrent.atomic.AtomicReference;
 /**
  * Tests {@link MediaController.ControllerCallback}.
  */
+@FlakyTest(bugId = 202942942)
 @RunWith(AndroidJUnit4.class)
 @LargeTest
 public class MediaControllerCallbackTest extends MediaSessionTestBase {
@@ -131,6 +134,9 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
 
     @Test
     public void connection_toLibraryService() throws InterruptedException {
+        // See b/230354064
+        assumeTrue(Build.VERSION.SDK_INT != 17);
+
         SessionToken token = new SessionToken(mContext, MOCK_MEDIA2_LIBRARY_SERVICE);
         MediaController controller = createController(token);
         assertNotNull(controller);
@@ -178,6 +184,9 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
     @Test
     @LargeTest
     public void connection_withLongPlaylist() throws InterruptedException {
+        // See b/230354064
+        assumeTrue(Build.VERSION.SDK_INT != 17);
+
         final int playlistSize = 5000;
         mRemoteSession2.getMockPlayer().createAndSetFakePlaylist(playlistSize);
 

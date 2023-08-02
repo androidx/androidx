@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
 import androidx.build.LibraryType
-import androidx.build.LibraryVersions
 
 plugins {
     id("AndroidXPlugin")
@@ -26,7 +24,6 @@ plugins {
 }
 
 dependencies {
-    kotlinPlugin(project(":compose:compiler:compiler"))
 
     implementation(libs.kotlinStdlib)
 
@@ -43,6 +40,7 @@ android {
     defaultConfig {
         minSdkVersion 25
     }
+    namespace "androidx.wear.compose.foundation.samples"
 }
 
 androidx {

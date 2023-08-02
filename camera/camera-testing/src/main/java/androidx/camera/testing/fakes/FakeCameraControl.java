@@ -20,12 +20,14 @@ import static androidx.camera.core.ImageCapture.FLASH_MODE_OFF;
 import static androidx.camera.testing.fakes.FakeCameraDeviceSurfaceManager.MAX_OUTPUT_SIZE;
 
 import android.graphics.Rect;
+import android.util.Size;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.FocusMeteringResult;
 import androidx.camera.core.ImageCapture;
+import androidx.camera.core.ImageCaptureException;
 import androidx.camera.core.Logger;
 import androidx.camera.core.impl.CameraCaptureCallback;
 import androidx.camera.core.impl.CameraCaptureFailure;
@@ -36,6 +38,7 @@ import androidx.camera.core.impl.Config;
 import androidx.camera.core.impl.MutableOptionsBundle;
 import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.utils.futures.Futures;
+import androidx.concurrent.futures.CallbackToFutureAdapter;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -56,6 +59,11 @@ public final class FakeCameraControl implements CameraControlInternal {
     private ArrayList<CaptureConfig> mSubmittedCaptureRequests = new ArrayList<>();
     private OnNewCaptureRequestListener mOnNewCaptureRequestListener;
     private MutableOptionsBundle mInteropConfig = MutableOptionsBundle.create();
+    private final ArrayList<CallbackToFutureAdapter.Completer<Void>> mSubmittedCompleterList =
+            new ArrayList<>();
+
+    private boolean mIsZslDisabledByUseCaseConfig = false;
+    private boolean mIsZslConfigAdded = false;
 
     public FakeCameraControl(@NonNull ControlUpdateCallback controlUpdateCallback) {
         mControlUpdateCallback = controlUpdateCallback;
@@ -69,6 +77,12 @@ public final class FakeCameraControl implements CameraControlInternal {
                 cameraCaptureCallback.onCaptureCancelled();
             }
         }
+        for (CallbackToFutureAdapter.Completer<Void> completer : mSubmittedCompleterList) {
+            completer.setException(
+                    new ImageCaptureException(ImageCapture.ERROR_CAMERA_CLOSED, "Simulate "
+                            + "capture cancelled", null));
+        }
+        mSubmittedCompleterList.clear();
         mSubmittedCaptureRequests.clear();
     }
 
@@ -81,17 +95,26 @@ public final class FakeCameraControl implements CameraControlInternal {
                         CameraCaptureFailure.Reason.ERROR));
             }
         }
+        for (CallbackToFutureAdapter.Completer<Void> completer : mSubmittedCompleterList) {
+            completer.setException(new ImageCaptureException(ImageCapture.ERROR_CAPTURE_FAILED,
+                    "Simulate capture fail", null));
+        }
+        mSubmittedCompleterList.clear();
         mSubmittedCaptureRequests.clear();
     }
 
     /** Notifies all submitted requests onCaptureCompleted */
-    public void notifyAllRequestsOnCaptureCompleted(CameraCaptureResult result) {
+    public void notifyAllRequestsOnCaptureCompleted(@NonNull CameraCaptureResult result) {
         for (CaptureConfig captureConfig : mSubmittedCaptureRequests) {
             for (CameraCaptureCallback cameraCaptureCallback :
                     captureConfig.getCameraCaptureCallbacks()) {
                 cameraCaptureCallback.onCaptureCompleted(result);
             }
         }
+        for (CallbackToFutureAdapter.Completer<Void> completer : mSubmittedCompleterList) {
+            completer.set(null);
+        }
+        mSubmittedCompleterList.clear();
         mSubmittedCaptureRequests.clear();
     }
 
@@ -108,31 +131,35 @@ public final class FakeCameraControl implements CameraControlInternal {
     }
 
     @Override
+    public void setZslDisabledByUserCaseConfig(boolean disabled) {
+        mIsZslDisabledByUseCaseConfig = disabled;
+    }
+
+    @Override
+    public boolean isZslDisabledByByUserCaseConfig() {
+        return mIsZslDisabledByUseCaseConfig;
+    }
+
+    @Override
+    public void addZslConfig(@NonNull SessionConfig.Builder sessionConfigBuilder) {
+        // Override if Zero-Shutter Lag needs to add config to session config.
+        mIsZslConfigAdded = true;
+    }
+
+    /**
+     * Checks if {@link FakeCameraControl#addZslConfig(Size, SessionConfig.Builder)} is
+     * triggered. Only for testing purpose.
+     * @return
+     */
+    public boolean isZslConfigAdded() {
+        return mIsZslConfigAdded;
+    }
+
+    @Override
     @NonNull
     public ListenableFuture<Void> enableTorch(boolean torch) {
         Logger.d(TAG, "enableTorch(" + torch + ")");
         return Futures.immediateFuture(null);
-    }
-
-    @Override
-    @NonNull
-    public ListenableFuture<CameraCaptureResult> triggerAf() {
-        Logger.d(TAG, "triggerAf()");
-        return Futures.immediateFuture(CameraCaptureResult.EmptyCameraCaptureResult.create());
-    }
-
-    @Override
-    @NonNull
-    public ListenableFuture<Void> startFlashSequence(@ImageCapture.FlashType int flashType) {
-        Logger.d(TAG, "startFlashSequence()");
-        return Futures.immediateFuture(null);
-    }
-
-    @Override
-    public void cancelAfAndFinishFlashSequence(final boolean cancelAfTrigger,
-            final boolean finishFlashSequence) {
-        Logger.d(TAG, "cancelAfAndFinishFlashSequence(" + cancelAfTrigger + ", "
-                + finishFlashSequence + ")");
     }
 
     @NonNull
@@ -141,13 +168,25 @@ public final class FakeCameraControl implements CameraControlInternal {
         return Futures.immediateFuture(null);
     }
 
+    @NonNull
     @Override
-    public void submitStillCaptureRequests(@NonNull List<CaptureConfig> captureConfigs) {
+    public ListenableFuture<List<Void>> submitStillCaptureRequests(
+            @NonNull List<CaptureConfig> captureConfigs,
+            int captureMode, int flashType) {
         mSubmittedCaptureRequests.addAll(captureConfigs);
         mControlUpdateCallback.onCameraControlCaptureRequests(captureConfigs);
+        List<ListenableFuture<Void>> fakeFutures = new ArrayList<>();
+        for (int i = 0; i < captureConfigs.size(); i++) {
+            fakeFutures.add(CallbackToFutureAdapter.getFuture(completer -> {
+                mSubmittedCompleterList.add(completer);
+                return "fakeFuture";
+            }));
+        }
+
         if (mOnNewCaptureRequestListener != null) {
             mOnNewCaptureRequestListener.onNewCaptureRequests(captureConfigs);
         }
+        return Futures.allAsList(fakeFutures);
     }
 
     @NonNull
@@ -209,7 +248,7 @@ public final class FakeCameraControl implements CameraControlInternal {
     @NonNull
     @Override
     public Config getInteropConfig() {
-        return mInteropConfig;
+        return MutableOptionsBundle.from(mInteropConfig);
     }
 
     /** A listener which are used to notify when there are new submitted capture requests */

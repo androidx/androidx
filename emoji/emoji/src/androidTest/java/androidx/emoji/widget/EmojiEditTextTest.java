@@ -19,9 +19,9 @@ package androidx.emoji.widget;
 import static androidx.emoji.util.Emoji.EMOJI_SINGLE_CODEPOINT;
 import static androidx.emoji.util.EmojiMatcher.hasEmojiCount;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
 
 import android.app.Instrumentation;
 
@@ -44,6 +44,7 @@ import org.junit.runner.RunWith;
 
 @MediumTest
 @RunWith(AndroidJUnit4.class)
+@SdkSuppress(minSdkVersion = 22) // there's a memory leak in API 21 that this triggers
 public class EmojiEditTextTest {
 
     @SuppressWarnings("deprecation")
@@ -71,12 +72,7 @@ public class EmojiEditTextTest {
         assertEquals(5, editText.getMaxEmojiCount());
 
         // set max emoji count
-        mInstrumentation.runOnMainSync(new Runnable() {
-            @Override
-            public void run() {
-                editText.setMaxEmojiCount(1);
-            }
-        });
+        mInstrumentation.runOnMainSync(() -> editText.setMaxEmojiCount(1));
         mInstrumentation.waitForIdleSync();
 
         assertEquals(1, editText.getMaxEmojiCount());
@@ -98,14 +94,11 @@ public class EmojiEditTextTest {
         final EmojiEditText editText = activity.findViewById(R.id.editTextWithMaxCount);
 
         // set max emoji count to 1 and set text with 2 emojis
-        mInstrumentation.runOnMainSync(new Runnable() {
-            @Override
-            public void run() {
-                editText.setMaxEmojiCount(1);
-                final String string = new TestString(EMOJI_SINGLE_CODEPOINT).append(
-                        EMOJI_SINGLE_CODEPOINT).toString();
-                editText.setText(string);
-            }
+        mInstrumentation.runOnMainSync(() -> {
+            editText.setMaxEmojiCount(1);
+            final String string = new TestString(EMOJI_SINGLE_CODEPOINT).append(
+                    EMOJI_SINGLE_CODEPOINT).toString();
+            editText.setText(string);
         });
         mInstrumentation.waitForIdleSync();
 

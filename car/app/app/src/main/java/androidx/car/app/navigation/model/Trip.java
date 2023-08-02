@@ -34,7 +34,23 @@ import java.util.Objects;
  * Represents information about a trip including destinations, steps, and travel estimates.
  *
  * <p>This information data <b>may</b> be displayed in different places in the car such as the
- * instrument cluster screens and heads-up display.
+ * instrument cluster screens, heads-up display and floating navigation bar.
+ *
+ * <p>Floating navigation bar can show current navigating info in three templates including
+ * {@link MapTemplate}, {@link RoutePreviewNavigationTemplate} and
+ * {@link PlaceListNavigationTemplate}. The navigating steps can be added with the use of
+ * {@link Builder#addStep}. There are three navigation info showing in the floating nav bar
+ * including:
+ * <ul>
+ *     <li>The current road description get from {@link Step#getCue} of the current {@link Step},
+ *     which gets from the first element of {@link #getSteps()}</li>
+ *     <li>The remaining distance of the current road get from
+ *     {@link TravelEstimate#getRemainingDistance} of the first element of
+ *     {@link #getStepTravelEstimates()} </li>
+ *     <li>The turn icon get from {@link Maneuver#getIcon()} from the {@link Maneuver} of the
+ *     current {@link Step}
+ *     </li>
+ * </ul>
  */
 @CarProtocol
 public final class Trip {

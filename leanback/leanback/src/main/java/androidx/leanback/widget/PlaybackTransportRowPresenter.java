@@ -28,6 +28,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.ColorInt;
+import androidx.annotation.NonNull;
 import androidx.leanback.R;
 import androidx.leanback.widget.ControlBarPresenter.OnControlClickedListener;
 import androidx.leanback.widget.ControlBarPresenter.OnControlSelectedListener;
@@ -716,7 +717,10 @@ public class PlaybackTransportRowPresenter extends PlaybackRowPresenter {
     }
 
     @Override
-    protected void onBindRowViewHolder(RowPresenter.ViewHolder holder, Object item) {
+    protected void onBindRowViewHolder(
+            @NonNull RowPresenter.ViewHolder holder,
+            @NonNull Object item
+    ) {
         super.onBindRowViewHolder(holder, item);
 
         ViewHolder vh = (ViewHolder) holder;
@@ -756,7 +760,7 @@ public class PlaybackTransportRowPresenter extends PlaybackRowPresenter {
     }
 
     @Override
-    protected void onUnbindRowViewHolder(RowPresenter.ViewHolder holder) {
+    protected void onUnbindRowViewHolder(@NonNull RowPresenter.ViewHolder holder) {
         ViewHolder vh = (ViewHolder) holder;
         PlaybackControlsRow row = (PlaybackControlsRow) vh.getRow();
 
@@ -817,7 +821,7 @@ public class PlaybackTransportRowPresenter extends PlaybackRowPresenter {
     }
 
     @Override
-    protected void onRowViewAttachedToWindow(RowPresenter.ViewHolder vh) {
+    protected void onRowViewAttachedToWindow(@NonNull RowPresenter.ViewHolder vh) {
         super.onRowViewAttachedToWindow(vh);
         if (mDescriptionPresenter != null) {
             mDescriptionPresenter.onViewAttachedToWindow(
@@ -826,7 +830,7 @@ public class PlaybackTransportRowPresenter extends PlaybackRowPresenter {
     }
 
     @Override
-    protected void onRowViewDetachedFromWindow(RowPresenter.ViewHolder vh) {
+    protected void onRowViewDetachedFromWindow(@NonNull RowPresenter.ViewHolder vh) {
         super.onRowViewDetachedFromWindow(vh);
         if (mDescriptionPresenter != null) {
             mDescriptionPresenter.onViewDetachedFromWindow(

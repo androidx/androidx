@@ -1,0 +1,490 @@
+/*
+ * Copyright 2021 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package androidx.graphics.surface
+
+import android.graphics.Rect
+import android.graphics.Region
+import android.hardware.HardwareBuffer
+import android.os.Build
+import android.view.Surface
+import android.view.SurfaceControl
+import androidx.annotation.RequiresApi
+import androidx.hardware.SyncFence
+import java.util.concurrent.Executor
+
+internal class JniBindings {
+    companion object {
+        external fun nCreate(surfaceControl: Long, debugName: String): Long
+        external fun nCreateFromSurface(surface: Surface, debugName: String): Long
+        external fun nRelease(surfaceControl: Long)
+
+        external fun nTransactionCreate(): Long
+        external fun nTransactionDelete(surfaceTransaction: Long)
+        external fun nTransactionApply(surfaceTransaction: Long)
+        external fun nTransactionReparent(
+            surfaceTransaction: Long,
+            surfaceControl: Long,
+            newParent: Long
+        )
+
+        external fun nTransactionSetOnComplete(
+            surfaceTransaction: Long,
+            listener: SurfaceControlCompat.TransactionCompletedListener
+        )
+
+        external fun nTransactionSetOnCommit(
+            surfaceTransaction: Long,
+            listener: SurfaceControlCompat.TransactionCommittedListener
+        )
+
+        external fun nExtractFenceFd(
+            syncFence: SyncFence
+        ): Int
+
+        external fun nSetBuffer(
+            surfaceTransaction: Long,
+            surfaceControl: Long,
+            hardwareBuffer: HardwareBuffer,
+            acquireFieldFd: SyncFence
+        )
+
+        external fun nSetVisibility(
+            surfaceTransaction: Long,
+            surfaceControl: Long,
+            visibility: Byte
+        )
+
+        external fun nSetZOrder(surfaceTransaction: Long, surfaceControl: Long, zOrder: Int)
+        external fun nSetDamageRegion(
+            surfaceTransaction: Long,
+            surfaceControl: Long,
+            rect: Rect?
+        )
+
+        external fun nSetDesiredPresentTime(
+            surfaceTransaction: Long,
+            desiredPresentTime: Long
+        )
+
+        external fun nSetBufferTransparency(
+            surfaceTransaction: Long,
+            surfaceControl: Long,
+            transparency: Byte,
+        )
+
+        external fun nSetBufferAlpha(
+            surfaceTransaction: Long,
+            surfaceControl: Long,
+            alpha: Float
+        )
+
+        init {
+            System.loadLibrary("graphics-core")
+        }
+    }
+}
+
+/**
+ * Handle to an on-screen Surface managed by the system compositor. By constructing
+ * a [Surface] from this [SurfaceControlWrapper] you can submit buffers to be composited. Using
+ * [SurfaceControlWrapper.Transaction] you can manipulate various properties of how the buffer will be
+ * displayed on-screen. SurfaceControls are arranged into a scene-graph like hierarchy, and
+ * as such any SurfaceControl may have a parent. Geometric properties like transform, crop, and
+ * Z-ordering will be inherited from the parent, as if the child were content in the parents
+ * buffer stream.
+ *
+ * Compatibility class for [SurfaceControl]. This differs by being built upon the equivalent API
+ * within the Android NDK. It introduces some APIs into earlier platform releases than what was
+ * initially exposed for SurfaceControl.
+ */
+@RequiresApi(Build.VERSION_CODES.Q)
+internal class SurfaceControlWrapper internal constructor(
+    surface: Surface,
+    debugName: String
+) {
+    private var mNativeSurfaceControl: Long = 0
+
+    init {
+        mNativeSurfaceControl = JniBindings.nCreateFromSurface(surface, debugName)
+
+        if (mNativeSurfaceControl == 0L) {
+            throw IllegalArgumentException()
+        }
+    }
+
+    /**
+     * Compatibility class for ASurfaceTransaction.
+     */
+    class Transaction() {
+        private var mNativeSurfaceTransaction: Long
+
+        init {
+            mNativeSurfaceTransaction = JniBindings.nTransactionCreate()
+            if (mNativeSurfaceTransaction == 0L) {
+                throw java.lang.IllegalArgumentException()
+            }
+        }
+
+        /**
+         * Commits the updates accumulated in this transaction.
+         *
+         * This is the equivalent of ASurfaceTransaction_apply.
+         *
+         * Note that the transaction is guaranteed to be applied atomically. The
+         * transactions which are applied on the same thread are als guaranteed to be applied
+         * in order.
+         */
+        fun commit() {
+            JniBindings.nTransactionApply(mNativeSurfaceTransaction)
+        }
+
+        // Suppression of PairedRegistration below is in order to match existing
+        // framework implementation of no remove method for listeners
+
+        /**
+         * Sets the callback that is invoked once the updates from this transaction are
+         * presented.
+         *
+         * @param listener The callback that will be invoked when the transaction has
+         * been completed. This value cannot be null.
+         */
+        @Suppress("PairedRegistration")
+        internal fun addTransactionCompletedListener(
+            listener: SurfaceControlCompat.TransactionCompletedListener
+        ): Transaction {
+            JniBindings.nTransactionSetOnComplete(mNativeSurfaceTransaction, listener)
+            return this
+        }
+
+        /**
+         * Sets the callback that is invoked once the updates from this transaction are
+         * applied and ready to be presented. This callback is invoked before the
+         * setOnCompleteListener callback.
+         *
+         * @param executor The executor that the callback should be invoked on.
+         * This value can be null, where it will run on the default thread. Callback and
+         * listener events are dispatched through this Executor, providing an easy way
+         * to control which thread is used.
+         *
+         * @param listener The callback that will be invoked when the transaction has
+         * been completed. This value cannot be null.
+         */
+        @RequiresApi(Build.VERSION_CODES.S)
+        @Suppress("PairedRegistration")
+        fun addTransactionCommittedListener(
+            executor: Executor?,
+            listener: SurfaceControlCompat.TransactionCommittedListener
+        ): Transaction {
+            var listenerWrapper = listener
+            if (executor != null) {
+                listenerWrapper = object : SurfaceControlCompat.TransactionCommittedListener {
+                    override fun onTransactionCommitted() {
+                        executor.execute { (listener::onTransactionCommitted)() }
+                    }
+                }
+            }
+            JniBindings.nTransactionSetOnCommit(mNativeSurfaceTransaction, listenerWrapper)
+            return this
+        }
+
+        /**
+         * Updates the [HardwareBuffer] displayed for the provided surfaceControl. Takes an
+         * optional [SyncFence] that is signalled when all pending work for the buffer
+         * is complete and the buffer can be safely read.
+         *
+         * The frameworks takes ownership of the syncFence passed and is responsible for closing
+         * it.
+         *
+         * Note that the buffer must be allocated with [HardwareBuffer.USAGE_COMPOSER_OVERLAY] and
+         * [HardwareBuffer.USAGE_GPU_SAMPLED_IMAGE] as the surface control might be
+         * composited using an overlay or the GPU.
+         *
+         * @param surfaceControl The surfaceControl to update. Can not be null.
+         *
+         * @param hardwareBuffer The buffer to be displayed. This can not be null.
+         *
+         * @param syncFence The presentation fence. If null or invalid, this is equivalent to not
+         * including it.
+         */
+        @JvmOverloads
+        fun setBuffer(
+            surfaceControl: SurfaceControlWrapper,
+            hardwareBuffer: HardwareBuffer,
+            syncFence: SyncFence = SyncFence(-1)
+        ): Transaction {
+            JniBindings.nSetBuffer(
+                mNativeSurfaceTransaction,
+                surfaceControl.mNativeSurfaceControl,
+                hardwareBuffer,
+                syncFence
+            )
+            return this
+        }
+
+        /**
+         * Updates the visibility of the given [SurfaceControlWrapper]. If visibility is set to
+         * false, the [SurfaceControlWrapper] and all surfaces in the subtree will be hidden.
+         * By default SurfaceControls are visible.
+         *
+         * @param surfaceControl The SurfaceControl for which to set the visibility
+         * This value cannot be null.
+         *
+         * @param visibility the new visibility. A value of true means the surface and its children
+         * will be visible.
+         */
+        fun setVisibility(
+            surfaceControl: SurfaceControlWrapper,
+            visibility: Boolean
+        ): Transaction {
+            JniBindings.nSetVisibility(
+                mNativeSurfaceTransaction,
+                surfaceControl.mNativeSurfaceControl,
+                if (visibility) 1 else 0
+            )
+            return this
+        }
+
+        /**
+         * Updates z order index for [SurfaceControlWrapper]. Note that the z order for a
+         * surface is relative to other surfaces that are siblings of this surface.
+         * Behavior of siblings with the same z order is undefined.
+         *
+         * Z orders can range from Integer.MIN_VALUE to Integer.MAX_VALUE. Default z order
+         * index is 0. [SurfaceControlWrapper] instances are positioned back-to-front. That is
+         * lower z order values are rendered below other [SurfaceControlWrapper] instances with
+         * higher z order values.
+         *
+         * @param surfaceControl surface control to set the z order of.
+         *
+         * @param zOrder desired layer z order to set the surfaceControl.
+         */
+        fun setLayer(surfaceControl: SurfaceControlWrapper, zOrder: Int): Transaction {
+            JniBindings.nSetZOrder(
+                mNativeSurfaceTransaction,
+                surfaceControl.mNativeSurfaceControl,
+                zOrder
+            )
+            return this
+        }
+
+        /**
+         * Updates the region for content on this surface updated in this transaction. If
+         * unspecified, the complete surface will be assumed to be damaged. The damage region is
+         * the area of the buffer that has changed since the previously sent buffer. This can be
+         * used to reduce the amount of recomposition that needs to happen when only a small
+         * region of the buffer is being updated, such as for a small blinking cursor or
+         * a loading indicator.
+         *
+         * @param surfaceControl The surface control for which we want to set the damage region of.
+         *
+         * @param region The region to set. If null, the entire buffer is assumed dirty. This
+         * is equivalent to not setting a damage region at all.
+         */
+        fun setDamageRegion(
+            surfaceControl: SurfaceControlWrapper,
+            region: Region?
+        ): Transaction {
+            JniBindings.nSetDamageRegion(
+                mNativeSurfaceTransaction,
+                surfaceControl.mNativeSurfaceControl,
+                region?.bounds
+            )
+            return this
+        }
+
+        /**
+         * Re-parents a given layer to a new parent. Children inherit transform
+         * (position, scaling) crop, visibility, and Z-ordering from their parents, as
+         * if the children were pixels within the parent Surface.
+         *
+         * Any children of the reparented surfaceControl will remain children of
+         * the surfaceControl.
+         *
+         * The newParent can be null. Surface controls with a null parent do not
+         * appear on the display.
+         *
+         * @param surfaceControl The surface control to reparent
+         *
+         * @param newParent the new parent we want to set the surface control to. Can be null.
+         */
+        fun reparent(
+            surfaceControl: SurfaceControlWrapper,
+            newParent: SurfaceControlWrapper?
+        ): Transaction {
+            JniBindings.nTransactionReparent(
+                mNativeSurfaceTransaction,
+                surfaceControl.mNativeSurfaceControl,
+                newParent?.mNativeSurfaceControl ?: 0L
+            )
+            return this
+        }
+
+        /**
+         * Specifies a desiredPresentTime for the transaction. The framework will try to present
+         * the transaction at or after the time specified.
+         *
+         * Transactions will not be presented until all acquire fences have signaled even if the
+         * app requests an earlier present time.
+         *
+         * If an earlier transaction has a desired present time of x, and a later transaction
+         * has a desired present time that is before x, the later transaction will not preempt the
+         * earlier transaction.
+         *
+         * @param desiredPresentTimeNano The present time in nanoseconds to try to present the
+         * Transaction at.
+         */
+        fun setDesiredPresentTime(desiredPresentTimeNano: Long): Transaction {
+            JniBindings.nSetDesiredPresentTime(mNativeSurfaceTransaction, desiredPresentTimeNano)
+            return this
+        }
+
+        /**
+         * Update whether the content in the buffer associated with this surface is completely
+         * opaque. If true, every pixel of content in the buffer must be opaque or visual errors
+         * can occur.
+         *
+         * @param surfaceControl surface control to set the transparency of.
+         *
+         * @param isOpaque true if buffers alpha should be ignored
+         */
+        fun setOpaque(
+            surfaceControl: SurfaceControlWrapper,
+            isOpaque: Boolean
+        ): Transaction {
+            JniBindings.nSetBufferTransparency(
+                mNativeSurfaceTransaction,
+                surfaceControl.mNativeSurfaceControl,
+                if (isOpaque) 2 else 0
+            )
+            return this
+        }
+
+        /**
+         * Sets the alpha for the buffer. It uses a premultiplied blending.
+         *
+         * The passsed in alpha must be inclusively between 0.0 and 1.0.
+         *
+         * @paaram surfaceControl The surface control that we want to set the alpha of.
+         *
+         * @param alpha alpha value within the range [0, 1].
+         *
+         * @throws IllegalArgumentException if alpha is out of range.
+         */
+        fun setAlpha(
+            surfaceControl: SurfaceControlWrapper,
+            alpha: Float
+        ): Transaction {
+            if (alpha < 0.0f || alpha > 1.0f) {
+                throw IllegalArgumentException("Alpha value must be between 0.0 and 1.0.")
+            } else {
+                JniBindings.nSetBufferAlpha(
+                    mNativeSurfaceTransaction,
+                    surfaceControl.mNativeSurfaceControl,
+                    alpha
+                )
+            }
+            return this
+        }
+
+        /**
+         * Destroys the transaction object.
+         */
+        fun close() {
+            if (mNativeSurfaceTransaction != 0L) {
+                JniBindings.nTransactionDelete(mNativeSurfaceTransaction)
+                mNativeSurfaceTransaction = 0L
+            }
+        }
+
+        fun finalize() {
+            close()
+        }
+    }
+
+    /**
+     * Check whether this instance points to a valid layer with the system-compositor.
+     */
+    fun isValid(): Boolean = mNativeSurfaceControl != 0L
+
+    override fun equals(other: Any?): Boolean {
+        if (other == this) {
+            return true
+        }
+        if ((other == null) or
+            (other?.javaClass != SurfaceControlWrapper::class.java)
+        ) {
+            return false
+        }
+
+        other as SurfaceControlWrapper
+        if (other.mNativeSurfaceControl == this.mNativeSurfaceControl) {
+            return true
+        }
+
+        return false
+    }
+
+    override fun hashCode(): Int {
+        return mNativeSurfaceControl.hashCode()
+    }
+
+    /**
+     * Release the local reference to the server-side surface. The surface may continue to exist
+     * on-screen as long as its parent continues to exist. To explicitly remove a surface from the
+     * screen use [Transaction.reparent] with a null-parent. After release, [isValid] will return
+     * false and other methods will throw an exception. Always call release() when you're done with
+     * a SurfaceControl.
+     */
+    fun release() {
+        if (mNativeSurfaceControl != 0L) {
+            JniBindings.nRelease(mNativeSurfaceControl)
+            mNativeSurfaceControl = 0
+        }
+    }
+
+    protected fun finalize() {
+        release()
+    }
+
+    /**
+     * Builder class for [SurfaceControlWrapper].
+     *
+     * Requires a debug name.
+     */
+    class Builder {
+        private lateinit var mSurface: Surface
+        private lateinit var mDebugName: String
+
+        fun setParent(surface: Surface): Builder {
+            mSurface = surface
+            return this
+        }
+
+        @Suppress("MissingGetterMatchingBuilder")
+        fun setDebugName(debugName: String): Builder {
+            mDebugName = debugName
+            return this
+        }
+
+        /**
+         * Builds the [SurfaceControlWrapper] object
+         */
+        fun build(): SurfaceControlWrapper {
+            return SurfaceControlWrapper(mSurface, mDebugName)
+        }
+    }
+}

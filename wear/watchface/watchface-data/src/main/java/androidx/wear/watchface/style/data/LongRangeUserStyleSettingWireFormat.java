@@ -17,6 +17,7 @@
 package androidx.wear.watchface.style.data;
 
 import android.graphics.drawable.Icon;
+import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -30,12 +31,14 @@ import java.util.List;
  *
  * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @VersionedParcelize
 public class LongRangeUserStyleSettingWireFormat extends UserStyleSettingWireFormat {
 
     LongRangeUserStyleSettingWireFormat() {}
 
+    /** @deprecated use a constructor with List<Bundle> perOptionOnWatchFaceEditorBundles. */
+    @Deprecated
     public LongRangeUserStyleSettingWireFormat(
             @NonNull String id,
             @NonNull CharSequence displayName,
@@ -45,5 +48,19 @@ public class LongRangeUserStyleSettingWireFormat extends UserStyleSettingWireFor
             int defaultOptionIndex,
             @NonNull List<Integer> affectsLayers) {
         super(id, displayName, description, icon, options, defaultOptionIndex, affectsLayers);
+    }
+
+    public LongRangeUserStyleSettingWireFormat(
+            @NonNull String id,
+            @NonNull CharSequence displayName,
+            @NonNull CharSequence description,
+            @Nullable Icon icon,
+            @NonNull List<OptionWireFormat> options,
+            int defaultOptionIndex,
+            @NonNull List<Integer> affectsLayers,
+            @Nullable Bundle onWatchFaceEditorBundle,
+            @Nullable List<Bundle> perOptionOnWatchFaceEditorBundles) {
+        super(id, displayName, description, icon, options, defaultOptionIndex, affectsLayers,
+                onWatchFaceEditorBundle, perOptionOnWatchFaceEditorBundles);
     }
 }

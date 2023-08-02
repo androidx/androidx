@@ -670,6 +670,7 @@ public abstract class MediaBrowserServiceCompat extends Service {
         }
 
         @Override
+        @SuppressWarnings("deprecation")
         public void handleMessage(Message msg) {
             Bundle data = msg.getData();
             switch (msg.what) {

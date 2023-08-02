@@ -31,6 +31,9 @@ internal actual fun getString(string: Strings): String {
         Strings.CloseSheet -> resources.getString(R.string.close_sheet)
         Strings.DefaultErrorMessage -> resources.getString(R.string.default_error_message)
         Strings.ExposedDropdownMenu -> resources.getString(R.string.dropdown_menu)
+        Strings.SliderRangeStart -> resources.getString(R.string.range_start)
+        Strings.SliderRangeEnd -> resources.getString(R.string.range_end)
+        Strings.Dialog -> resources.getString(androidx.compose.material3.R.string.dialog)
         else -> ""
     }
 }
