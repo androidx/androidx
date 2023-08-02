@@ -189,7 +189,7 @@ interface VectorizedDurationBasedAnimationSpec<V : AnimationVector> :
  * Clamps the input [playTime] to the duration range of the given
  * [VectorizedDurationBasedAnimationSpec].
  */
-private fun VectorizedDurationBasedAnimationSpec<*>.clampPlayTime(playTime: Long): Long {
+internal fun VectorizedDurationBasedAnimationSpec<*>.clampPlayTime(playTime: Long): Long {
     return (playTime - delayMillis).coerceIn(0, durationMillis.toLong())
 }
 

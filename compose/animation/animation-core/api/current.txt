@@ -127,6 +127,7 @@ package androidx.compose.animation.core {
     method @Deprecated @androidx.compose.runtime.Stable public static <T> androidx.compose.animation.core.InfiniteRepeatableSpec<T> infiniteRepeatable(androidx.compose.animation.core.DurationBasedAnimationSpec<T> animation, optional androidx.compose.animation.core.RepeatMode repeatMode);
     method @androidx.compose.runtime.Stable public static <T> androidx.compose.animation.core.InfiniteRepeatableSpec<T> infiniteRepeatable(androidx.compose.animation.core.DurationBasedAnimationSpec<T> animation, optional androidx.compose.animation.core.RepeatMode repeatMode, optional long initialStartOffset);
     method @androidx.compose.runtime.Stable public static <T> androidx.compose.animation.core.KeyframesSpec<T> keyframes(kotlin.jvm.functions.Function1<? super androidx.compose.animation.core.KeyframesSpec.KeyframesSpecConfig<T>,kotlin.Unit> init);
+    method @SuppressCompatibility @androidx.compose.animation.core.ExperimentalAnimationSpecApi @androidx.compose.runtime.Stable public static <T> androidx.compose.animation.core.KeyframesWithSplineSpec<T> keyframesWithSpline(kotlin.jvm.functions.Function1<? super androidx.compose.animation.core.KeyframesWithSplineSpec.KeyframesWithSplineSpecConfig<T>,kotlin.Unit> init);
     method @Deprecated @androidx.compose.runtime.Stable public static <T> androidx.compose.animation.core.RepeatableSpec<T> repeatable(int iterations, androidx.compose.animation.core.DurationBasedAnimationSpec<T> animation, optional androidx.compose.animation.core.RepeatMode repeatMode);
     method @androidx.compose.runtime.Stable public static <T> androidx.compose.animation.core.RepeatableSpec<T> repeatable(int iterations, androidx.compose.animation.core.DurationBasedAnimationSpec<T> animation, optional androidx.compose.animation.core.RepeatMode repeatMode, optional long initialStartOffset);
     method @androidx.compose.runtime.Stable public static <T> androidx.compose.animation.core.SnapSpec<T> snap(optional int delayMillis);
@@ -333,6 +334,9 @@ package androidx.compose.animation.core {
     property public static final androidx.compose.animation.core.Easing LinearOutSlowInEasing;
   }
 
+  @SuppressCompatibility @kotlin.RequiresOptIn(message="This is an experimental animation API for AnimationSpec. " + "It may change in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalAnimationSpecApi {
+  }
+
   @SuppressCompatibility @kotlin.RequiresOptIn(message="This is an experimental animation API for Transition. It may change in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalTransitionApi {
   }
 
@@ -466,6 +470,17 @@ package androidx.compose.animation.core {
     method public final infix E using(E, androidx.compose.animation.core.Easing easing);
     property @IntRange(from=0L) public final int delayMillis;
     property @IntRange(from=0L) public final int durationMillis;
+  }
+
+  @SuppressCompatibility @androidx.compose.animation.core.ExperimentalAnimationSpecApi @androidx.compose.runtime.Immutable public final class KeyframesWithSplineSpec<T> implements androidx.compose.animation.core.DurationBasedAnimationSpec<T> {
+    ctor public KeyframesWithSplineSpec(androidx.compose.animation.core.KeyframesWithSplineSpec.KeyframesWithSplineSpecConfig<T> config);
+    method public androidx.compose.animation.core.KeyframesWithSplineSpec.KeyframesWithSplineSpecConfig<T> getConfig();
+    method public <V extends androidx.compose.animation.core.AnimationVector> androidx.compose.animation.core.VectorizedDurationBasedAnimationSpec<V> vectorize(androidx.compose.animation.core.TwoWayConverter<T,V> converter);
+    property public final androidx.compose.animation.core.KeyframesWithSplineSpec.KeyframesWithSplineSpecConfig<T> config;
+  }
+
+  @SuppressCompatibility @androidx.compose.animation.core.ExperimentalAnimationSpecApi public static final class KeyframesWithSplineSpec.KeyframesWithSplineSpecConfig<T> extends androidx.compose.animation.core.KeyframesSpecBaseConfig<T,androidx.compose.animation.core.KeyframesSpec.KeyframeEntity<T>> {
+    ctor public KeyframesWithSplineSpec.KeyframesWithSplineSpecConfig();
   }
 
   public final class MutableTransitionState<S> extends androidx.compose.animation.core.TransitionState<S> {
