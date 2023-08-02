@@ -18,6 +18,7 @@ package androidx.fragment.testapp.doubleTransitionBug
 
 import android.os.Bundle
 import android.view.Gravity
+import android.view.View
 import android.widget.Button
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
@@ -35,8 +36,12 @@ class DoubleTransitionBugFragment : Fragment(R.layout.double_transition_bug_acti
                 add(R.id.content, Fragment(R.layout.double_transition_bug_fragment_second))
             }
         }
+    }
 
-        requireActivity().findViewById<Button>(R.id.important_button).setOnClickListener {
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        view.findViewById<Button>(R.id.important_button).setOnClickListener {
             switchFragment()
         }
     }
