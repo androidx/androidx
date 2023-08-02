@@ -43,6 +43,12 @@
             android:orientation="horizontal">
 
             <Button
+                android:id="@+id/export_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/btn_export" />
+
+            <Button
                 android:id="@+id/record_button"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

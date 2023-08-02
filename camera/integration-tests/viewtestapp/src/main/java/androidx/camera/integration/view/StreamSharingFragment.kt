@@ -17,13 +17,10 @@
 package androidx.camera.integration.view
 
 import android.annotation.SuppressLint
-import android.content.ContentResolver
-import android.content.ContentValues
 import android.content.Context
 import android.os.Bundle
-import android.os.Environment
-import android.provider.MediaStore
 import android.view.LayoutInflater
+import android.view.OrientationEventListener
 import android.view.View
 import android.view.View.GONE
 import android.view.View.VISIBLE
@@ -39,32 +36,43 @@ import androidx.camera.core.Preview
 import androidx.camera.core.UseCase
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.camera.video.FileOutputOptions
-import androidx.camera.video.MediaStoreOutputOptions
+import androidx.camera.testing.impl.E2ETestUtil.canDeviceWriteToMediaStore
+import androidx.camera.testing.impl.E2ETestUtil.generateVideoFileOutputOptions
+import androidx.camera.testing.impl.E2ETestUtil.generateVideoMediaStoreOptions
+import androidx.camera.testing.impl.E2ETestUtil.writeTextToExternalFile
 import androidx.camera.video.PendingRecording
 import androidx.camera.video.Recorder
 import androidx.camera.video.Recording
 import androidx.camera.video.VideoCapture
 import androidx.camera.video.VideoRecordEvent
-import androidx.camera.video.internal.compat.quirk.DeviceQuirks
-import androidx.camera.video.internal.compat.quirk.MediaStoreVideoCannotWrite
 import androidx.camera.view.PreviewView
 import androidx.core.content.ContextCompat
 import androidx.core.util.Consumer
 import androidx.fragment.app.Fragment
-import java.io.File
 
 private const val TAG = "StreamSharingFragment"
+private const val PREFIX_INFORMATION = "test_information"
+private const val PREFIX_VIDEO = "video"
+private const val KEY_ORIENTATION = "device_orientation"
 
 class StreamSharingFragment : Fragment() {
 
     private lateinit var previewView: PreviewView
+    private lateinit var exportButton: Button
     private lateinit var recordButton: Button
     private lateinit var streamSharingStateText: TextView
     private lateinit var useCases: Array<UseCase>
     private var camera: Camera? = null
     private var activeRecording: Recording? = null
     private var isUseCasesBound: Boolean = false
+    private var deviceOrientation: Int = -1
+    private val orientationEventListener by lazy {
+        object : OrientationEventListener(context) {
+            override fun onOrientationChanged(orientation: Int) {
+                deviceOrientation = orientation
+            }
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -74,6 +82,10 @@ class StreamSharingFragment : Fragment() {
         val view = inflater.inflate(R.layout.fragment_stream_sharing, container, false)
         previewView = view.findViewById(R.id.preview_view)
         streamSharingStateText = view.findViewById(R.id.stream_sharing_state)
+        exportButton = view.findViewById(R.id.export_button)
+        exportButton.setOnClickListener {
+            exportTestInformation()
+        }
         recordButton = view.findViewById(R.id.record_button)
         recordButton.setOnClickListener {
             if (activeRecording == null) startRecording() else stopRecording()
@@ -81,6 +93,16 @@ class StreamSharingFragment : Fragment() {
 
         startCamera()
         return view
+    }
+
+    override fun onResume() {
+        super.onResume()
+        orientationEventListener.enable()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        orientationEventListener.disable()
     }
 
     private fun startCamera() {
@@ -191,55 +213,28 @@ class StreamSharingFragment : Fragment() {
     }
 
     private fun prepareRecording(context: Context, recorder: Recorder): PendingRecording {
+        val fileName = generateFileName(PREFIX_VIDEO)
+
         return if (canDeviceWriteToMediaStore()) {
             recorder.prepareRecording(
                 context,
-                generateVideoMediaStoreOptions(context.contentResolver)
+                generateVideoMediaStoreOptions(context.contentResolver, fileName)
             )
         } else {
-            recorder.prepareRecording(context, generateVideoFileOutputOptions())
+            recorder.prepareRecording(context, generateVideoFileOutputOptions(fileName))
         }
     }
 
-    private fun canDeviceWriteToMediaStore(): Boolean {
-        return DeviceQuirks.get(MediaStoreVideoCannotWrite::class.java) == null
+    private fun exportTestInformation() {
+        val fileName = generateFileName(PREFIX_INFORMATION)
+        val information = "$KEY_ORIENTATION: $deviceOrientation"
+
+        writeTextToExternalFile(information, fileName)
     }
 
-    private fun generateVideoFileOutputOptions(): FileOutputOptions {
-        val videoFileName = "${generateVideoFileName()}.mp4"
-        val videoFolder = Environment.getExternalStoragePublicDirectory(
-            Environment.DIRECTORY_MOVIES
-        )
-        if (!videoFolder.exists() && !videoFolder.mkdirs()) {
-            Logger.e(TAG, "Failed to create directory: $videoFolder")
-        }
-        return FileOutputOptions.Builder(File(videoFolder, videoFileName)).build()
-    }
-
-    private fun generateVideoMediaStoreOptions(
-        contentResolver: ContentResolver
-    ): MediaStoreOutputOptions {
-        val contentValues = generateVideoContentValues(generateVideoFileName())
-
-        return MediaStoreOutputOptions.Builder(
-            contentResolver,
-            MediaStore.Video.Media.EXTERNAL_CONTENT_URI
-        ).setContentValues(contentValues).build()
-    }
-
-    private fun generateVideoFileName(): String {
-        return "video_" + System.currentTimeMillis()
-    }
-
-    private fun generateVideoContentValues(fileName: String): ContentValues {
-        val res = ContentValues()
-        res.put(MediaStore.MediaColumns.MIME_TYPE, "video/mp4")
-        res.put(MediaStore.Video.Media.TITLE, fileName)
-        res.put(MediaStore.Video.Media.DISPLAY_NAME, fileName)
-        res.put(MediaStore.Video.Media.DATE_ADDED, System.currentTimeMillis() / 1000)
-        res.put(MediaStore.Video.Media.DATE_TAKEN, System.currentTimeMillis())
-
-        return res
+    private fun generateFileName(prefix: String? = null): String {
+        val timeMillis = System.currentTimeMillis()
+        return if (prefix != null) "${prefix}_$timeMillis" else "$timeMillis"
     }
 
     private fun generateVideoRecordEventListener(): Consumer<VideoRecordEvent> {
