@@ -17,6 +17,7 @@
 package androidx.compose.foundation.pager
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.gestures.snapping.SnapFlingBehavior
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
@@ -270,7 +271,8 @@ class PagerTest(val config: ParamConfig) : BasePagerTest(config) {
             ) {
                 Spacer(
                     Modifier
-                        .fillMaxSize())
+                        .fillMaxSize()
+                )
             }
         }
 
@@ -291,6 +293,37 @@ class PagerTest(val config: ParamConfig) : BasePagerTest(config) {
         rule.runOnIdle {
             assertThat(pagerState.currentPage).isEqualTo(1)
         }
+    }
+
+    @Test
+    fun pagerStateChange_flingBehaviorShouldRecreate() {
+        var previousFlingBehavior: SnapFlingBehavior? = null
+        var latestFlingBehavior: SnapFlingBehavior? = null
+        val stateHolder = mutableStateOf(PagerStateImpl(0, 0.0f) { 10 })
+        rule.setContent {
+            HorizontalOrVerticalPager(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .testTag(PagerTestTag),
+                state = stateHolder.value,
+                pageSize = PageSize.Fill,
+                flingBehavior = PagerDefaults.flingBehavior(state = stateHolder.value).also {
+                    latestFlingBehavior = it
+                    if (previousFlingBehavior == null) {
+                        previousFlingBehavior = it
+                    }
+                }
+            ) {
+                Page(index = it)
+            }
+        }
+
+        rule.runOnIdle {
+            stateHolder.value = PagerStateImpl(0, 0.0f) { 20 }
+        }
+
+        rule.waitForIdle()
+        assertThat(previousFlingBehavior).isNotEqualTo(latestFlingBehavior)
     }
 
     companion object {
