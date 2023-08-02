@@ -46,8 +46,8 @@ class AppWidgetUpdateBenchmark(
     fun initialUpdate() = benchmarkRule.measureRepeated(
         packageName = "androidx.glance.appwidget.macrobenchmark.target",
         metrics = listOf(
-            TraceSectionMetric("appWidgetInitialUpdate"),
-            TraceSectionMetric("GlanceAppWidget::update"),
+            TraceSectionMetric("appWidgetInitialUpdate", targetPackageOnly = false), // from test
+            TraceSectionMetric("GlanceAppWidget::update", targetPackageOnly = true), // from target
         ),
         iterations = 5,
         compilationMode = CompilationMode.DEFAULT,
@@ -63,8 +63,8 @@ class AppWidgetUpdateBenchmark(
     fun appWidgetUpdate() = benchmarkRule.measureRepeated(
         packageName = "androidx.glance.appwidget.macrobenchmark.target",
         metrics = listOf(
-            TraceSectionMetric("appWidgetUpdate"),
-            TraceSectionMetric("GlanceAppWidget::update"),
+            TraceSectionMetric("appWidgetUpdate", targetPackageOnly = false), // from test
+            TraceSectionMetric("GlanceAppWidget::update", targetPackageOnly = true), // from target
         ),
         iterations = 5,
         compilationMode = CompilationMode.DEFAULT,
