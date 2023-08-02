@@ -20,4 +20,5 @@
     <string name="scaled_click">Scaled Click</string>
     <string name="on_off_pattern">On/Off Notification Pattern</string>
     <string name="repeating_waveform">Repeating Ringtone Waveform</string>
+    <string name="cancel">Cancel</string>
 </resources>
