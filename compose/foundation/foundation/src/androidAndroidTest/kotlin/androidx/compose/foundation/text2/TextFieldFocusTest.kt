@@ -15,6 +15,7 @@ import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardHelper
 import androidx.compose.foundation.text2.input.TextFieldState
+import androidx.compose.foundation.text2.input.rememberTextFieldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -242,7 +243,6 @@ class TextFieldFocusTest {
 
     @SdkSuppress(minSdkVersion = 22) // b/266742195
     @Test
-    @Ignore // TODO(halilibo): reenable when dpad focus modifier does not use TextFieldState
     fun basicTextField_checkFocusNavigation_onDPadLeft() {
         setupAndEnableBasicTextField()
         inputSingleLineTextInBasicTextField()
@@ -252,7 +252,7 @@ class TextFieldFocusTest {
         rule.waitForIdle()
 
         // Move focus to the focusable element on left
-        keyPressOnPhysicalKeyboard(rule, NativeKeyEvent.KEYCODE_DPAD_LEFT)
+        if (!keyPressOnDpadInputDevice(rule, NativeKeyEvent.KEYCODE_DPAD_LEFT)) return
 
         // Check if the element to the left of text field gains focus
         rule.onNodeWithTag("test-button-left").assertIsFocused()
@@ -260,7 +260,6 @@ class TextFieldFocusTest {
 
     @SdkSuppress(minSdkVersion = 22) // b/266742195
     @Test
-    @Ignore // TODO(halilibo): reenable when dpad focus modifier does not use TextFieldState
     fun basicTextField_checkFocusNavigation_onDPadRight() {
         setupAndEnableBasicTextField()
         inputSingleLineTextInBasicTextField()
@@ -270,7 +269,7 @@ class TextFieldFocusTest {
         rule.waitForIdle()
 
         // Move focus to the focusable element on right
-        keyPressOnPhysicalKeyboard(rule, NativeKeyEvent.KEYCODE_DPAD_RIGHT)
+        if (!keyPressOnDpadInputDevice(rule, NativeKeyEvent.KEYCODE_DPAD_RIGHT)) return
 
         // Check if the element to the right of text field gains focus
         rule.onNodeWithTag("test-button-right").assertIsFocused()
@@ -278,7 +277,6 @@ class TextFieldFocusTest {
 
     @SdkSuppress(minSdkVersion = 22) // b/266742195
     @Test
-    @Ignore // TODO(halilibo): reenable when dpad focus modifier does not use TextFieldState
     fun basicTextField_checkFocusNavigation_onDPadUp() {
         setupAndEnableBasicTextField()
         inputMultilineTextInBasicTextField()
@@ -288,7 +286,7 @@ class TextFieldFocusTest {
         rule.waitForIdle()
 
         // Move focus to the focusable element on top
-        keyPressOnPhysicalKeyboard(rule, NativeKeyEvent.KEYCODE_DPAD_UP)
+        if (!keyPressOnDpadInputDevice(rule, NativeKeyEvent.KEYCODE_DPAD_UP)) return
 
         // Check if the element on the top of text field gains focus
         rule.onNodeWithTag("test-button-top").assertIsFocused()
@@ -296,7 +294,6 @@ class TextFieldFocusTest {
 
     @SdkSuppress(minSdkVersion = 22) // b/266742195
     @Test
-    @Ignore // TODO(halilibo): re-enable when dpad focus modifier does not use TextFieldState
     fun basicTextField_checkFocusNavigation_onDPadDown() {
         setupAndEnableBasicTextField()
         inputMultilineTextInBasicTextField()
@@ -306,7 +303,7 @@ class TextFieldFocusTest {
         rule.waitForIdle()
 
         // Move focus to the focusable element on bottom
-        keyPressOnPhysicalKeyboard(rule, NativeKeyEvent.KEYCODE_DPAD_DOWN)
+        if (!keyPressOnDpadInputDevice(rule, NativeKeyEvent.KEYCODE_DPAD_DOWN)) return
 
         // Check if the element to the bottom of text field gains focus
         rule.onNodeWithTag("test-button-bottom").assertIsFocused()
@@ -326,7 +323,7 @@ class TextFieldFocusTest {
         }
 
         // Check if keyboard is enabled on Dpad center key press
-        keyPressOnPhysicalKeyboard(rule, NativeKeyEvent.KEYCODE_DPAD_CENTER)
+        if (!keyPressOnDpadInputDevice(rule, NativeKeyEvent.KEYCODE_DPAD_CENTER)) return
         keyboardHelper.waitForKeyboardVisibility(true)
         rule.runOnIdle {
             assertThat(keyboardHelper.isSoftwareKeyboardShown()).isTrue()
@@ -396,7 +393,7 @@ class TextFieldFocusTest {
                 }
                 Row() {
                     TestFocusableElement(id = "left")
-                    TestBasicTextField(id = "1", requestFocus = true)
+                    TestBasicTextField2(id = "1", requestFocus = true)
                     TestFocusableElement(id = "right")
                 }
                 Row(horizontalArrangement = Arrangement.Center) {
@@ -426,13 +423,11 @@ class TextFieldFocusTest {
     }
 
     @Composable
-    private fun TestBasicTextField(
+    private fun TestBasicTextField2(
         id: String,
         requestFocus: Boolean = false
     ) {
-        var textInput by remember {
-            mutableStateOf("")
-        }
+        val state = rememberTextFieldState()
         var isFocused by remember {
             mutableStateOf(false)
         }
@@ -441,11 +436,8 @@ class TextFieldFocusTest {
         }
         val modifier = if (requestFocus) Modifier.focusRequester(focusRequester) else Modifier
 
-        BasicTextField(
-            value = textInput,
-            onValueChange = {
-                textInput = it
-            },
+        BasicTextField2(
+            state = state,
             modifier = modifier
                 .testTag("test-text-field-$id")
                 .padding(10.dp)
@@ -460,28 +452,41 @@ class TextFieldFocusTest {
         }
     }
 
-    // Triggers a key press on the root node from a non-virtual device
-    private fun keyPressOnPhysicalKeyboard(
+    // Triggers a key press on the root node from a non-virtual dpad device (if supported)
+    private fun keyPressOnDpadInputDevice(
         rule: ComposeContentTestRule,
         keyCode: Int,
         count: Int = 1
-    ) {
+    ): Boolean = keyPressOnPhysicalDevice(rule, keyCode, InputDevice.SOURCE_DPAD, count)
+
+    private fun keyPressOnPhysicalDevice(
+        rule: ComposeContentTestRule,
+        keyCode: Int,
+        source: Int,
+        count: Int = 1,
+        metaState: Int = 0,
+    ): Boolean {
+        val deviceId = InputDevice.getDeviceIds().firstOrNull { id ->
+            InputDevice.getDevice(id)?.isVirtual?.not() ?: false &&
+                InputDevice.getDevice(id)?.supportsSource(source) ?: false
+        } ?: return false
+        val keyEventDown = KeyEvent(
+            SystemClock.uptimeMillis(), SystemClock.uptimeMillis(),
+            KeyEvent.ACTION_DOWN, keyCode, 0, metaState,
+            deviceId, 0, 0, InputDevice.SOURCE_DPAD
+        )
+        val keyEventUp = KeyEvent(
+            SystemClock.uptimeMillis(), SystemClock.uptimeMillis(),
+            KeyEvent.ACTION_UP, keyCode, 0, metaState,
+            deviceId, 0, 0, InputDevice.SOURCE_DPAD
+        )
+
         repeat(count) {
-            val deviceId = InputDevice.getDeviceIds().first { id ->
-                InputDevice.getDevice(id)?.isVirtual?.not() ?: false
-            }
-            val keyEventDown = KeyEvent(
-                SystemClock.uptimeMillis(), SystemClock.uptimeMillis(),
-                KeyEvent.ACTION_DOWN, keyCode, 0, 0, deviceId, 0
-            )
             rule.onRoot().performKeyPress(androidx.compose.ui.input.key.KeyEvent(keyEventDown))
             rule.waitForIdle()
-            val keyEventUp = KeyEvent(
-                SystemClock.uptimeMillis(), SystemClock.uptimeMillis(),
-                KeyEvent.ACTION_UP, keyCode, 0, 0, deviceId, 0
-            )
             rule.onRoot().performKeyPress(androidx.compose.ui.input.key.KeyEvent(keyEventUp))
         }
+        return true
     }
 
     // Triggers a key press on the virtual keyboard
