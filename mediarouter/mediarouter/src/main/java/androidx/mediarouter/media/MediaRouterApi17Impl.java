@@ -19,11 +19,13 @@ package androidx.mediarouter.media;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.hardware.display.DisplayManager;
+import android.media.MediaRouter;
 import android.os.Build;
 import android.os.Handler;
 import android.util.Log;
 import android.view.Display;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -32,19 +34,32 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+/**
+ * Provides methods for {@link MediaRouter} for API 17 and above. This class is used for API
+ * Compatibility.
+ *
+ * @see <a href="http://go/androidx/api_guidelines/compat.md">Implementing compatibility</a>
+ */
 @RequiresApi(17)
-final class MediaRouterJellybeanMr1 {
+/* package */ final class MediaRouterApi17Impl {
     private static final String TAG = "MediaRouterJellybeanMr1";
 
-    public static CallbackProxy<Callback> createCallback(Callback callback) {
+    private MediaRouterApi17Impl() {}
+
+    public static android.media.MediaRouter.Callback createCallback(Callback callback) {
         return new CallbackProxy<>(callback);
     }
 
     public static final class RouteInfo {
+
+        private RouteInfo() {}
+
+        @DoNotInline
         public static boolean isEnabled(@NonNull android.media.MediaRouter.RouteInfo route) {
             return route.isEnabled();
         }
 
+        @DoNotInline
         @Nullable
         public static Display getPresentationDisplay(
                 @NonNull android.media.MediaRouter.RouteInfo route) {
@@ -57,12 +72,9 @@ final class MediaRouterJellybeanMr1 {
             }
             return null;
         }
-
-        private RouteInfo() {
-        }
     }
 
-    public interface Callback extends MediaRouterJellybean.Callback {
+    public interface Callback extends MediaRouterApi16Impl.Callback {
         void onRoutePresentationDisplayChanged(@NonNull android.media.MediaRouter.RouteInfo route);
     }
 
@@ -109,7 +121,7 @@ final class MediaRouterJellybeanMr1 {
             // See also the JellybeanMr2Impl implementation of this method.
             // This was fixed in JB MR2 by adding a new overload of addCallback() to
             // enable active scanning on request.
-            if ((routeTypes & MediaRouterJellybean.ROUTE_TYPE_LIVE_VIDEO) != 0) {
+            if ((routeTypes & MediaRouterApi16Impl.ROUTE_TYPE_LIVE_VIDEO) != 0) {
                 if (!mActivelyScanningWifiDisplays) {
                     if (mScanWifiDisplaysMethod != null) {
                         mActivelyScanningWifiDisplays = true;
@@ -191,8 +203,7 @@ final class MediaRouterJellybeanMr1 {
         }
     }
 
-    static class CallbackProxy<T extends Callback>
-            extends MediaRouterJellybean.CallbackProxy<T> {
+    static class CallbackProxy<T extends Callback> extends MediaRouterApi16Impl.CallbackProxy<T> {
         CallbackProxy(T callback) {
             super(callback);
         }
@@ -202,8 +213,5 @@ final class MediaRouterJellybeanMr1 {
                 android.media.MediaRouter.RouteInfo route) {
             mCallback.onRoutePresentationDisplayChanged(route);
         }
-    }
-
-    private MediaRouterJellybeanMr1() {
     }
 }
