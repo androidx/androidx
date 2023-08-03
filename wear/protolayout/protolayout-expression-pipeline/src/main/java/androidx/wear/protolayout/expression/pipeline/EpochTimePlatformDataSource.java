@@ -34,6 +34,7 @@ class EpochTimePlatformDataSource {
             new ArrayList<>();
     @NonNull private final Supplier<Instant> mClock;
     @Nullable private final PlatformTimeUpdateNotifier mUpdateNotifier;
+    private int mPendingConsumers = 0;
 
     EpochTimePlatformDataSource(
             @NonNull Supplier<Instant> clock,
@@ -43,11 +44,25 @@ class EpochTimePlatformDataSource {
     }
 
     @UiThread
+    void preRegister(){
+        mPendingConsumers++;
+    }
+
+    @UiThread
     void registerForData(DynamicTypeValueReceiverWithPreUpdate<Instant> consumer) {
+        mPendingConsumers--;
         if (mConsumerToTimeCallback.isEmpty() && mUpdateNotifier != null) {
             mUpdateNotifier.setReceiver(mExecutor, this::tick);
         }
         mConsumerToTimeCallback.add(consumer);
+
+        if (mPendingConsumers == 0){
+            // After all registrations, trigger a tick so that new consumers don't end up waiting
+            // for the next scheduled tick.
+            // We might end up calling this twice for the very first receiver registration. But
+            // that shouldn't cause any issues.
+            tick();
+        }
     }
 
     @UiThread

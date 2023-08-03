@@ -57,10 +57,6 @@ public class PlatformTimeUpdateNotifierImplTest {
         mNotifierUnderTest.setReceiver(mExecutor, mTick);
         mMainLooper.idle();
 
-        // First callback to initialize clients
-        verify(mTick).run();
-        reset();
-
         for (int i = 0; i < 5; i++) {
             runFor(500);
             verifyNoInteractions(mTick);
@@ -141,10 +137,6 @@ public class PlatformTimeUpdateNotifierImplTest {
         mNotifierUnderTest.setReceiver(mExecutor, mTick);
         mMainLooper.idle();
 
-        // First callback to initialize clients
-        verify(mTick).run();
-        reset();
-
         // Advance by a few seconds...
         long advanceBy = 5500;
         long nextTimeMillis = SystemClock.uptimeMillis() + advanceBy;
@@ -168,10 +160,6 @@ public class PlatformTimeUpdateNotifierImplTest {
         mNotifierUnderTest.setUpdatesEnabled(true);
         mNotifierUnderTest.setReceiver(mExecutor, mTick);
         mMainLooper.idle();
-
-        // First callback to initialize clients
-        verify(mTick).run();
-        reset();
 
         mNotifierUnderTest.setReceiver(mExecutor, () -> {});
 
