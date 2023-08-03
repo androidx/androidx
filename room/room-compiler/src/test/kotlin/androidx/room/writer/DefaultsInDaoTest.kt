@@ -20,7 +20,7 @@ import COMMON
 import androidx.room.compiler.codegen.CodeLanguage
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.util.Source
-import androidx.room.compiler.processing.util.runKaptTest
+import androidx.room.compiler.processing.util.runProcessorTest
 import androidx.room.ext.RoomTypeNames.ROOM_DB
 import androidx.room.processor.DaoProcessor
 import androidx.room.testing.context
@@ -170,8 +170,7 @@ class DefaultsInDaoTest(
         jvmTarget: String = "1.8",
         handler: (StringSubject) -> Unit
     ) {
-        // TODO should run these with KSP as well. https://github.com/google/ksp/issues/627
-        runKaptTest(
+        runProcessorTest(
             sources = listOf(source, COMMON.COROUTINES_ROOM, COMMON.ROOM_DATABASE_KTX),
             javacArguments = listOf(
                 "-source", jvmTarget

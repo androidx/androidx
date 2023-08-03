@@ -22,6 +22,7 @@ import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XMethodType
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
+import androidx.room.compiler.processing.ksp.KspProcessingEnv.JvmDefaultMode
 import androidx.room.compiler.processing.ksp.synthetic.KspSyntheticContinuationParameterElement
 import androidx.room.compiler.processing.ksp.synthetic.KspSyntheticReceiverParameterElement
 import com.google.devtools.ksp.KspExperimental
@@ -106,8 +107,14 @@ internal sealed class KspMethodElement(
     }
 
     override fun isJavaDefault(): Boolean {
+        val parentDeclaration = declaration.parentDeclaration
         return declaration.modifiers.contains(Modifier.JAVA_DEFAULT) ||
-            declaration.hasJvmDefaultAnnotation()
+            declaration.hasJvmDefaultAnnotation() ||
+            (parentDeclaration is KSClassDeclaration &&
+                parentDeclaration.classKind == ClassKind.INTERFACE &&
+                !declaration.isAbstract &&
+                !isPrivate() &&
+                env.jvmDefaultMode != JvmDefaultMode.DISABLE)
     }
 
     override fun asMemberOf(other: XType): XMethodType {
@@ -126,7 +133,8 @@ internal sealed class KspMethodElement(
         return parentDeclaration is KSClassDeclaration &&
             parentDeclaration.classKind == ClassKind.INTERFACE &&
             !declaration.isAbstract &&
-            !isPrivate()
+            !isPrivate() &&
+            env.jvmDefaultMode != JvmDefaultMode.ALL_INCOMPATIBLE
     }
 
     override fun isExtensionFunction() = declaration.extensionReceiver != null
