@@ -77,6 +77,7 @@ internal abstract class TextFieldKeyEventHandler {
         event: KeyEvent,
         textFieldState: TextFieldState,
         textLayoutState: TextLayoutState,
+        textFieldSelectionState: TextFieldSelectionState,
         editable: Boolean,
         singleLine: Boolean,
         onSubmit: () -> Unit
@@ -101,11 +102,9 @@ internal abstract class TextFieldKeyEventHandler {
         var consumed = true
         preparedSelectionContext(textFieldState, textLayoutState) {
             when (command) {
-                // TODO(halilibo): implement after selection is supported.
-                KeyCommand.COPY, // -> selectionManager.copy(false)
-                    // TODO(siyamed): cut & paste will cause a reset input
-                KeyCommand.PASTE, // -> selectionManager.paste()
-                KeyCommand.CUT -> moveCursorRight() // selectionManager.cut()
+                KeyCommand.COPY -> textFieldSelectionState.copy(false)
+                KeyCommand.PASTE -> textFieldSelectionState.paste()
+                KeyCommand.CUT -> textFieldSelectionState.cut()
                 KeyCommand.LEFT_CHAR -> collapseLeftOr { moveCursorLeft() }
                 KeyCommand.RIGHT_CHAR -> collapseRightOr { moveCursorRight() }
                 KeyCommand.LEFT_WORD -> moveCursorLeftByWord()

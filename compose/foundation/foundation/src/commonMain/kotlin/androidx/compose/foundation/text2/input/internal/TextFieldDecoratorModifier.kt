@@ -427,6 +427,7 @@ internal class TextFieldDecoratorModifierNode(
             event = event,
             textFieldState = textFieldState,
             textLayoutState = textLayoutState,
+            textFieldSelectionState = textFieldSelectionState,
             editable = enabled && !readOnly,
             singleLine = singleLine,
             onSubmit = { onImeActionPerformed(keyboardOptions.imeAction) }
