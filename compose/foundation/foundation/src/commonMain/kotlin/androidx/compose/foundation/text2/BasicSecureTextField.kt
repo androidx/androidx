@@ -20,9 +20,12 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyCommand
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.platformDefaultKeyMapping
 import androidx.compose.foundation.text2.input.CodepointTransformation
 import androidx.compose.foundation.text2.input.TextEditFilter
 import androidx.compose.foundation.text2.input.TextFieldBuffer
@@ -45,6 +48,7 @@ import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.platform.LocalTextToolbar
 import androidx.compose.ui.platform.TextToolbar
 import androidx.compose.ui.platform.TextToolbarStatus
@@ -182,7 +186,7 @@ fun BasicSecureTextField(
             }
         )
 
-    DisableCopyTextToolbar {
+    DisableCutCopy {
         BasicTextField2(
             state = state,
             modifier = secureTextFieldModifier,
@@ -319,11 +323,11 @@ private fun KeyboardActions(onSubmit: (ImeAction) -> Boolean) = KeyboardActions(
 )
 
 /**
- * Overrides the TextToolbar provided by LocalTextToolbar to never show copy or cut options by the
- * children composables.
+ * Overrides the TextToolbar and keyboard shortcuts to never allow copy or cut options by the
+ * composables inside [content].
  */
 @Composable
-private fun DisableCopyTextToolbar(
+private fun DisableCutCopy(
     content: @Composable () -> Unit
 ) {
     val currentToolbar = LocalTextToolbar.current
@@ -353,5 +357,14 @@ private fun DisableCopyTextToolbar(
                 get() = currentToolbar.status
         }
     }
-    CompositionLocalProvider(LocalTextToolbar provides copyDisabledToolbar, content = content)
+    CompositionLocalProvider(LocalTextToolbar provides copyDisabledToolbar) {
+        Box(modifier = Modifier.onPreviewKeyEvent { keyEvent ->
+            // BasicTextField2 uses this static mapping
+            val command = platformDefaultKeyMapping.map(keyEvent)
+            // do not propagate copy and cut operations
+            command == KeyCommand.COPY || command == KeyCommand.CUT
+        }) {
+            content()
+        }
+    }
 }

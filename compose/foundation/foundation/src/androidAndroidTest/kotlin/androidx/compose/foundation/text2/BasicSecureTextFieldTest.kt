@@ -62,6 +62,8 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class BasicSecureTextFieldTest {
 
+    // Keyboard shortcut tests for BasicSecureTextField are in TextFieldKeyEventTest
+
     @get:Rule
     val rule = createComposeRule().apply {
         mainClock.autoAdvance = false
