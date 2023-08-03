@@ -235,7 +235,8 @@ abstract class CreateLibraryBuildInfoFileTask : DefaultTask() {
                 .sortedWith(compareBy({ it.groupId }, { it.artifactId }, { it.version }))
 
         private fun String?.isAndroidXDependency() =
-            this != null && startsWith("androidx.") && !startsWith("androidx.test")
+            this != null && startsWith("androidx.") && !startsWith("androidx.test") &&
+                !startsWith("androidx.databinding")
 
         /* For androidx release notes, the most common use case is to track and publish the last sha
          * of the build that is released.  Thus, we use frameworks/support to get the sha
