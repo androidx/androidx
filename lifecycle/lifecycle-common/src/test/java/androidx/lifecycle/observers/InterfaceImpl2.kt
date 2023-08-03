@@ -13,16 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.lifecycle.observers
 
-package androidx.lifecycle.observers;
-
-public class InterfaceImpl2 implements Interface1, Interface2 {
-    @Override
-    public void onCreate() {
-    }
-
-    @Override
-    public void onDestroy() {
-
-    }
+class InterfaceImpl2 : Interface1, Interface2 {
+    override fun onCreate() {}
+    override fun onDestroy() {}
 }
