@@ -64,7 +64,7 @@ import javax.lang.model.util.Types;
 class DocumentModel {
 
     /** Enumeration of fields that must be handled specially (i.e. are not properties) */
-    enum SpecialField {ID, NAMESPACE, CREATION_TIMESTAMP_MILLIS, TTL_MILLIS, SCORE}
+    enum SpecialField {NAMESPACE, ID, CREATION_TIMESTAMP_MILLIS, TTL_MILLIS, SCORE}
 
     /** Determines how the annotation processor has decided to write the value of a field. */
     enum WriteKind {FIELD, SETTER, CREATION_METHOD}
