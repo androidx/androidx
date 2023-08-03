@@ -39,13 +39,43 @@ package androidx.core.haptics {
 
   public interface HapticManager {
     method @RequiresPermission(android.Manifest.permission.VIBRATE) public void cancel();
-    method public static androidx.core.haptics.HapticManager create(android.content.Context context);
+    method public static androidx.core.haptics.HapticManager? create(android.content.Context context);
+    method public androidx.core.haptics.device.HapticDeviceProfile getDeviceProfile();
     method @RequiresPermission(android.Manifest.permission.VIBRATE) public void play(androidx.core.haptics.signal.HapticSignal signal, androidx.core.haptics.HapticAttributes attrs);
+    property public abstract androidx.core.haptics.device.HapticDeviceProfile deviceProfile;
     field public static final androidx.core.haptics.HapticManager.Companion Companion;
   }
 
   public static final class HapticManager.Companion {
-    method public androidx.core.haptics.HapticManager create(android.content.Context context);
+    method public androidx.core.haptics.HapticManager? create(android.content.Context context);
+  }
+
+}
+
+package androidx.core.haptics.device {
+
+  public final class HapticCompositionProfile {
+    ctor public HapticCompositionProfile();
+    ctor public HapticCompositionProfile(optional java.util.Set<java.lang.Integer> supportedPrimitiveTypesHint);
+    ctor public HapticCompositionProfile(optional java.util.Set<java.lang.Integer> supportedPrimitiveTypesHint, optional java.util.Map<java.lang.Integer,java.lang.Long>? primitiveDurationMillisMapHint);
+    method public long getPrimitiveDurationMillis(int primitiveType);
+    method public java.util.Set<java.lang.Integer> getSupportedPrimitiveTypes();
+    method public boolean isPrimitiveDurationReported();
+    property public final boolean isPrimitiveDurationReported;
+    property public final java.util.Set<java.lang.Integer> supportedPrimitiveTypes;
+  }
+
+  public final class HapticDeviceProfile {
+    ctor public HapticDeviceProfile();
+    ctor public HapticDeviceProfile(optional boolean amplitudeControlSupportHint);
+    ctor public HapticDeviceProfile(optional boolean amplitudeControlSupportHint, optional java.util.Set<androidx.core.haptics.signal.PredefinedEffectSignal> hardwareOptimizedPredefinedEffectsHint);
+    ctor public HapticDeviceProfile(optional boolean amplitudeControlSupportHint, optional java.util.Set<androidx.core.haptics.signal.PredefinedEffectSignal> hardwareOptimizedPredefinedEffectsHint, optional androidx.core.haptics.device.HapticCompositionProfile compositionProfile);
+    method public androidx.core.haptics.device.HapticCompositionProfile getCompositionProfile();
+    method public java.util.Set<androidx.core.haptics.signal.PredefinedEffectSignal> getHardwareOptimizedPredefinedEffects();
+    method public boolean isAmplitudeControlSupported();
+    property public final androidx.core.haptics.device.HapticCompositionProfile compositionProfile;
+    property public final java.util.Set<androidx.core.haptics.signal.PredefinedEffectSignal> hardwareOptimizedPredefinedEffects;
+    property public final boolean isAmplitudeControlSupported;
   }
 
 }
