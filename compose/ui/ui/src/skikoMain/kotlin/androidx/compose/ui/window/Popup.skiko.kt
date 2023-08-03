@@ -21,7 +21,13 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.key.*
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEvent
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.KeyInputElement
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.input.pointer.PointerInputEvent
 import androidx.compose.ui.semantics.popup
 import androidx.compose.ui.semantics.semantics
@@ -76,6 +82,12 @@ actual class PopupProperties actual constructor(
  * If you return false, the key event will be sent to this [onKeyEvent]'s parent.
  * @param content The content to be displayed inside the popup.
  */
+@Deprecated(
+    "Replaced by Popup with properties parameter",
+    ReplaceWith("Popup(alignment, offset, onDismissRequest, " +
+        "androidx.compose.ui.window.PopupProperties(focusable = focusable), " +
+        "onPreviewKeyEvent, onKeyEvent, content)")
+)
 @Composable
 fun Popup(
     alignment: Alignment = Alignment.TopStart,
@@ -85,23 +97,20 @@ fun Popup(
     onPreviewKeyEvent: ((KeyEvent) -> Boolean) = { false },
     onKeyEvent: ((KeyEvent) -> Boolean) = { false },
     content: @Composable () -> Unit
-) {
-    val popupPositioner = remember(alignment, offset) {
-        AlignmentOffsetPositionProvider(
-            alignment,
-            offset
-        )
-    }
-
-    Popup(
-        popupPositionProvider = popupPositioner,
-        onDismissRequest = onDismissRequest,
-        onKeyEvent = onKeyEvent,
-        onPreviewKeyEvent = onPreviewKeyEvent,
+) = Popup(
+    alignment = alignment,
+    offset = offset,
+    onDismissRequest = onDismissRequest,
+    properties = PopupProperties(
         focusable = focusable,
-        content = content
-    )
-}
+        dismissOnBackPress = true,
+        dismissOnClickOutside = focusable
+
+    ),
+    onPreviewKeyEvent = onPreviewKeyEvent,
+    onKeyEvent = onKeyEvent,
+    content = content
+)
 
 /**
  * Opens a popup with the given content.
@@ -123,6 +132,12 @@ fun Popup(
  * If you return false, the key event will be sent to this [onKeyEvent]'s parent.
  * @param content The content to be displayed inside the popup.
  */
+@Deprecated(
+    "Replaced by Popup with properties parameter",
+    ReplaceWith("Popup(popupPositionProvider, onDismissRequest, " +
+        "androidx.compose.ui.window.PopupProperties(focusable = focusable), " +
+        "onPreviewKeyEvent, onKeyEvent, content)")
+)
 @Composable
 fun Popup(
     popupPositionProvider: PopupPositionProvider,
@@ -131,35 +146,19 @@ fun Popup(
     onKeyEvent: ((KeyEvent) -> Boolean) = { false },
     focusable: Boolean = false,
     content: @Composable () -> Unit
-) {
-    val dismissOnEsc = { event: KeyEvent ->
-        if (event.isDismissRequest() && onDismissRequest != null) {
-            onDismissRequest()
-            true
-        } else false
-    }
-    val onOutsidePointerEvent = if (focusable) {
-        { _: PointerInputEvent ->
-            if (onDismissRequest != null) {
-                onDismissRequest()
-            }
-        }
-    } else {
-        null
-    }
-    PopupLayout(
-        popupPositionProvider = popupPositionProvider,
+) = Popup(
+    popupPositionProvider = popupPositionProvider,
+    onDismissRequest = onDismissRequest,
+    properties = PopupProperties(
         focusable = focusable,
-        modifier = Modifier
-            .semantics { popup() }
-            .onKeyEvent(dismissOnEsc)
-            .then(KeyInputElement(
-                onKeyEvent = onKeyEvent,
-                onPreKeyEvent = onPreviewKeyEvent)),
-        onOutsidePointerEvent = onOutsidePointerEvent,
-        content = content
-    )
-}
+        dismissOnBackPress = true,
+        dismissOnClickOutside = focusable
+
+    ),
+    onPreviewKeyEvent = onPreviewKeyEvent,
+    onKeyEvent = onKeyEvent,
+    content = content
+)
 
 /**
  * Opens a popup with the given content.
@@ -188,21 +187,15 @@ actual fun Popup(
     onDismissRequest: (() -> Unit)?,
     properties: PopupProperties,
     content: @Composable () -> Unit
-) {
-    val popupPositioner = remember(alignment, offset) {
-        AlignmentOffsetPositionProvider(
-            alignment,
-            offset
-        )
-    }
-
-    Popup(
-        popupPositionProvider = popupPositioner,
-        onDismissRequest = onDismissRequest,
-        properties = properties,
-        content = content
-    )
-}
+): Unit = Popup(
+    alignment = alignment,
+    offset = offset,
+    onDismissRequest = onDismissRequest,
+    properties = properties,
+    onPreviewKeyEvent = null,
+    onKeyEvent = null,
+    content = content
+)
 
 /**
  * Opens a popup with the given content.
@@ -222,11 +215,99 @@ actual fun Popup(
     onDismissRequest: (() -> Unit)?,
     properties: PopupProperties,
     content: @Composable () -> Unit
+): Unit = Popup(
+    popupPositionProvider = popupPositionProvider,
+    onDismissRequest = onDismissRequest,
+    properties = properties,
+    onPreviewKeyEvent = null,
+    onKeyEvent = null,
+    content = content
+)
+
+/**
+ * Opens a popup with the given content.
+ *
+ * A popup is a floating container that appears on top of the current activity.
+ * It is especially useful for non-modal UI surfaces that remain hidden until they
+ * are needed, for example floating menus like Cut/Copy/Paste.
+ *
+ * The popup is positioned relative to its parent, using the [alignment] and [offset].
+ * The popup is visible as long as it is part of the composition hierarchy.
+ *
+ * @sample androidx.compose.ui.samples.PopupSample
+ *
+ * @param alignment The alignment relative to the parent.
+ * @param offset An offset from the original aligned position of the popup. Offset respects the
+ * Ltr/Rtl context, thus in Ltr it will be added to the original aligned position and in Rtl it
+ * will be subtracted from it.
+ * @param onDismissRequest Executes when the user clicks outside of the popup.
+ * @param properties [PopupProperties] for further customization of this popup's behavior.
+ * @param onPreviewKeyEvent This callback is invoked when the user interacts with the hardware
+ * keyboard. It gives ancestors of a focused component the chance to intercept a [KeyEvent].
+ * Return true to stop propagation of this event. If you return false, the key event will be
+ * sent to this [onPreviewKeyEvent]'s child. If none of the children consume the event,
+ * it will be sent back up to the root using the onKeyEvent callback.
+ * @param onKeyEvent This callback is invoked when the user interacts with the hardware
+ * keyboard. While implementing this callback, return true to stop propagation of this event.
+ * If you return false, the key event will be sent to this [onKeyEvent]'s parent.
+ * @param content The content to be displayed inside the popup.
+ */
+@Composable
+fun Popup(
+    alignment: Alignment = Alignment.TopStart,
+    offset: IntOffset = IntOffset(0, 0),
+    onDismissRequest: (() -> Unit)? = null,
+    properties: PopupProperties = PopupProperties(),
+    onPreviewKeyEvent: ((KeyEvent) -> Boolean)? = null,
+    onKeyEvent: ((KeyEvent) -> Boolean)? = null,
+    content: @Composable () -> Unit
+) {
+    val popupPositioner = remember(alignment, offset) {
+        AlignmentOffsetPositionProvider(alignment, offset)
+    }
+    Popup(
+        popupPositionProvider = popupPositioner,
+        onDismissRequest = onDismissRequest,
+        properties = properties,
+        onPreviewKeyEvent = onPreviewKeyEvent,
+        onKeyEvent = onKeyEvent,
+        content = content
+    )
+}
+
+/**
+ * Opens a popup with the given content.
+ *
+ * The popup is positioned using a custom [popupPositionProvider].
+ *
+ * @sample androidx.compose.ui.samples.PopupSample
+ *
+ * @param popupPositionProvider Provides the screen position of the popup.
+ * @param onDismissRequest Executes when the user clicks outside of the popup.
+ * @param properties [PopupProperties] for further customization of this popup's behavior.
+ * @param onPreviewKeyEvent This callback is invoked when the user interacts with the hardware
+ * keyboard. It gives ancestors of a focused component the chance to intercept a [KeyEvent].
+ * Return true to stop propagation of this event. If you return false, the key event will be
+ * sent to this [onPreviewKeyEvent]'s child. If none of the children consume the event,
+ * it will be sent back up to the root using the onKeyEvent callback.
+ * @param onKeyEvent This callback is invoked when the user interacts with the hardware
+ * keyboard. While implementing this callback, return true to stop propagation of this event.
+ * If you return false, the key event will be sent to this [onKeyEvent]'s parent.
+ * @param content The content to be displayed inside the popup.
+ */
+@Composable
+fun Popup(
+    popupPositionProvider: PopupPositionProvider,
+    onDismissRequest: (() -> Unit)? = null,
+    properties: PopupProperties = PopupProperties(),
+    onPreviewKeyEvent: ((KeyEvent) -> Boolean)? = null,
+    onKeyEvent: ((KeyEvent) -> Boolean)? = null,
+    content: @Composable () -> Unit
 ) {
     var modifier = Modifier.semantics { popup() }
-    if (properties.dismissOnBackPress) {
+    if (properties.dismissOnBackPress && onDismissRequest != null) {
         modifier = modifier.onKeyEvent { event: KeyEvent ->
-            if (event.isDismissRequest() && onDismissRequest != null) {
+            if (event.isDismissRequest()) {
                 onDismissRequest()
                 true
             } else {
@@ -234,11 +315,17 @@ actual fun Popup(
             }
         }
     }
-    val onOutsidePointerEvent = if (properties.dismissOnClickOutside) {
+    if (onPreviewKeyEvent != null || onKeyEvent != null) {
+        modifier = modifier.then(
+            KeyInputElement(
+                onKeyEvent = onKeyEvent,
+                onPreKeyEvent = onPreviewKeyEvent
+            )
+        )
+    }
+    val onOutsidePointerEvent = if (properties.dismissOnClickOutside && onDismissRequest != null) {
         { _: PointerInputEvent ->
-            if (onDismissRequest != null) {
-                onDismissRequest()
-            }
+            onDismissRequest()
         }
     } else {
         null
