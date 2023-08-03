@@ -51,7 +51,7 @@ internal class TextFieldMagnifierTest : AbstractSelectionMagnifierTests() {
             state = state,
             modifier = modifier,
             textStyle = style,
-            onTextLayout = { onTextLayout.invoke(it) }
+            onTextLayout = { it()?.let(onTextLayout) }
         )
     }
 

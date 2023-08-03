@@ -114,10 +114,11 @@ class TextFieldCursorTest {
     )
 
     private var isFocused = false
-    private var textLayoutResult: TextLayoutResult? = null
+    private var textLayoutResult: (() -> TextLayoutResult?)? = null
     private val cursorRect: Rect
         // assume selection is collapsed
-        get() = textLayoutResult?.getCursorRect(state.text.selectionInChars.start) ?: Rect.Zero
+        get() = textLayoutResult?.invoke()?.getCursorRect(state.text.selectionInChars.start)
+            ?: Rect.Zero
 
     private val cursorSize: DpSize by lazy {
         with(rule.density) {
@@ -146,7 +147,7 @@ class TextFieldCursorTest {
         .then(focusModifier)
 
     // default onTextLayout to capture cursor boundaries.
-    private val onTextLayout: Density.(TextLayoutResult) -> Unit = { textLayoutResult = it }
+    private val onTextLayout: Density.(() -> TextLayoutResult?) -> Unit = { textLayoutResult = it }
 
     private fun ComposeTestRule.setTestContent(
         content: @Composable () -> Unit
