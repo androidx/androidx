@@ -20,6 +20,7 @@ import android.os.Binder
 import androidx.window.area.WindowAreaCapability.Operation.Companion.OPERATION_PRESENT_ON_AREA
 import androidx.window.area.WindowAreaCapability.Operation.Companion.OPERATION_TRANSFER_ACTIVITY_TO_AREA
 import androidx.window.area.WindowAreaCapability.Status.Companion.WINDOW_AREA_STATUS_ACTIVE
+import androidx.window.area.WindowAreaCapability.Status.Companion.WINDOW_AREA_STATUS_UNSUPPORTED
 import androidx.window.core.ExperimentalWindowApi
 import androidx.window.extensions.area.WindowAreaComponent
 import androidx.window.layout.WindowMetrics
@@ -55,10 +56,14 @@ class WindowAreaInfo internal constructor(
 
     /**
      * Returns the [WindowAreaCapability] corresponding to the [operation] provided. If this
-     * [WindowAreaCapability] does not exist for this [WindowAreaInfo], null is returned.
+     * [WindowAreaCapability] does not exist for this [WindowAreaInfo], a [WindowAreaCapability]
+     * with a [WINDOW_AREA_STATUS_UNSUPPORTED] value is returned.
      */
-    fun getCapability(operation: WindowAreaCapability.Operation): WindowAreaCapability? {
-        return capabilityMap[operation]
+    fun getCapability(operation: WindowAreaCapability.Operation): WindowAreaCapability {
+        return capabilityMap[operation] ?: WindowAreaCapability(
+            operation,
+            WINDOW_AREA_STATUS_UNSUPPORTED
+        )
     }
 
     /**
@@ -68,7 +73,7 @@ class WindowAreaInfo internal constructor(
      * @throws IllegalStateException if there is no active session for the provided [operation]
      */
     fun getActiveSession(operation: WindowAreaCapability.Operation): WindowAreaSession? {
-        if (getCapability(operation)?.status != WINDOW_AREA_STATUS_ACTIVE) {
+        if (getCapability(operation).status != WINDOW_AREA_STATUS_ACTIVE) {
             throw IllegalStateException("No session is currently active")
         }
 
