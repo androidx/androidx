@@ -1050,6 +1050,22 @@ class ScrollTest(private val config: Config) {
         }
     }
 
+    @Test
+    fun viewPortSize_shouldRepresentScrollableLayoutSize_contentFits() {
+        val state = ScrollState(0)
+        val scrollerSize = colors.size * defaultCellSize
+        composeScroller(scrollState = state, mainAxisSize = scrollerSize)
+        assertThat(state.viewportSize).isEqualTo(scrollerSize)
+    }
+
+    @Test
+    fun viewPortSize_shouldRepresentScrollableLayoutSize_contentDoesNotFit() {
+        val state = ScrollState(0)
+        val scrollerSize = 30
+        composeScroller(scrollState = state, mainAxisSize = scrollerSize)
+        assertThat(state.viewportSize).isEqualTo(scrollerSize)
+    }
+
     private fun Modifier.intrinsicMainAxisSize(size: IntrinsicSize): Modifier =
         if (config.orientation == Horizontal) {
             width(size)
