@@ -49,11 +49,15 @@ public class SinglePointerPredictor implements KalmanPredictor {
     // Low value will use maximum prediction, high value will use no prediction.
     private static final float LOW_JANK = 0.02f;
     private static final float HIGH_JANK = 0.2f;
+    private static final float ACCURATE_LOW_JANK = 0.2f;
+    private static final float ACCURATE_HIGH_JANK = 1f;
 
     // Range of pen speed to expect (in dp / ms).
     // Low value will not use prediction, high value will use full prediction.
     private static final float LOW_SPEED = 0.0f;
     private static final float HIGH_SPEED = 2.0f;
+    private static final float ACCURATE_LOW_SPEED = 0.0f;
+    private static final float ACCURATE_HIGH_SPEED = 0.0f;
 
     private static final int EVENT_TIME_IGNORED_THRESHOLD_MS = 20;
 
@@ -210,9 +214,21 @@ public class SinglePointerPredictor implements KalmanPredictor {
         // Adjust prediction distance based on confidence of mKalman filter as well as movement
         // speed.
         double speedAbs = mVelocity.magnitude() / mReportRateMs;
-        double speedFactor = normalizeRange(speedAbs, LOW_SPEED, HIGH_SPEED);
+        float lowSpeed, highSpeed, lowJank, highJank;
+        if (usingAccurateTool()) {
+            lowSpeed = ACCURATE_LOW_SPEED;
+            highSpeed = ACCURATE_HIGH_SPEED;
+            lowJank = ACCURATE_LOW_JANK;
+            highJank = ACCURATE_HIGH_JANK;
+        } else {
+            lowSpeed = LOW_SPEED;
+            highSpeed = HIGH_SPEED;
+            lowJank = LOW_JANK;
+            highJank = HIGH_JANK;
+        }
+        double speedFactor = normalizeRange(speedAbs, lowSpeed, highSpeed);
         double jankAbs = mJank.magnitude();
-        double jankFactor = 1.0 - normalizeRange(jankAbs, LOW_JANK, HIGH_JANK);
+        double jankFactor = 1.0 - normalizeRange(jankAbs, lowJank, highJank);
         double confidenceFactor = speedFactor * jankFactor;
 
         MotionEvent predictedEvent = null;
@@ -280,6 +296,10 @@ public class SinglePointerPredictor implements KalmanPredictor {
         }
 
         return predictedEvent;
+    }
+
+    private boolean usingAccurateTool() {
+        return (mToolType != MotionEvent.TOOL_TYPE_FINGER);
     }
 
     private double normalizeRange(double x, double min, double max) {
