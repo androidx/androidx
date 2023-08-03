@@ -22,6 +22,7 @@ import android.os.IBinder
 import androidx.lifecycle.Lifecycle
 import androidx.privacysandbox.sdkruntime.client.EmptyActivity
 import androidx.privacysandbox.sdkruntime.client.TestActivityHolder
+import androidx.privacysandbox.sdkruntime.client.TestSdkConfigs
 import androidx.privacysandbox.sdkruntime.client.config.LocalSdkConfig
 import androidx.privacysandbox.sdkruntime.client.loader.impl.SandboxedSdkContextCompat
 import androidx.privacysandbox.sdkruntime.client.loader.storage.TestLocalSdkStorage
@@ -42,6 +43,7 @@ import dalvik.system.BaseDexClassLoader
 import java.io.File
 import org.junit.Assert.assertThrows
 import org.junit.Assume.assumeTrue
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
@@ -49,11 +51,22 @@ import org.junit.runners.Parameterized
 @SmallTest
 @RunWith(Parameterized::class)
 internal class LocalSdkProviderTest(
-    @Suppress("unused") private val sdkPath: String,
-    private val sdkVersion: Int,
-    private val controller: TestStubController,
-    private val loadedSdk: LocalSdkProvider
+    private val sdkName: String,
+    private val sdkVersion: Int
 ) {
+
+    private lateinit var controller: TestStubController
+    private lateinit var loadedSdk: LocalSdkProvider
+
+    @Before
+    fun setUp() {
+        val sdkConfig = TestSdkConfigs.forSdkName(sdkName)
+
+        controller = TestStubController()
+        loadedSdk = loadTestSdkFromAssets(sdkConfig, controller)
+        assertThat(loadedSdk.extractApiVersion())
+            .isEqualTo(sdkVersion)
+    }
 
     @Test
     fun loadSdk_attachCorrectContext() {
@@ -248,83 +261,30 @@ internal class LocalSdkProviderTest(
         }
     }
 
-    internal class TestSdkInfo internal constructor(
-        val apiVersion: Int,
-        dexPath: String,
-        sdkProviderClass: String
-    ) {
-        val localSdkConfig = LocalSdkConfig(
-            packageName = "test.$apiVersion.$sdkProviderClass",
-            dexPaths = listOf(dexPath),
-            entryPoint = sdkProviderClass
-        )
-    }
-
     companion object {
-        private val SDKS = arrayOf(
-            TestSdkInfo(
-                1,
-                "RuntimeEnabledSdks/V1/classes.dex",
-                "androidx.privacysandbox.sdkruntime.test.v1.CompatProvider"
-            ),
-            TestSdkInfo(
-                2,
-                "RuntimeEnabledSdks/V2/classes.dex",
-                "androidx.privacysandbox.sdkruntime.test.v2.CompatProvider"
-            ),
-            TestSdkInfo(
-                3,
-                "RuntimeEnabledSdks/V3/classes.dex",
-                "androidx.privacysandbox.sdkruntime.test.v3.CompatProvider"
-            ),
-            TestSdkInfo(
-                4,
-                "RuntimeEnabledSdks/V4/classes.dex",
-                "androidx.privacysandbox.sdkruntime.test.v4.CompatProvider"
-            )
-        )
 
+        /**
+         * Create test params for each previously released [Versions.API_VERSION] + current one.
+         * Each released version must have test-sdk named as "vX" (where X is version to test).
+         * These TestSDKs should be registered in RuntimeEnabledSdkTable.xml and be compatible with
+         * [TestSdkWrapper].
+         */
         @Parameterized.Parameters(name = "sdk: {0}, version: {1}")
         @JvmStatic
         fun params(): List<Array<Any>> = buildList {
-            assertThat(SDKS.size).isEqualTo(Versions.API_VERSION)
-
-            for (i in SDKS.indices) {
-                val sdk = SDKS[i]
-                assertThat(sdk.apiVersion).isEqualTo(i + 1)
-
-                val controller = TestStubController()
-                val loadedSdk = loadTestSdkFromAssets(sdk.localSdkConfig, controller)
-                assertThat(loadedSdk.extractApiVersion())
-                    .isEqualTo(sdk.apiVersion)
-
+            for (apiVersion in 1..Versions.API_VERSION) {
                 add(
                     arrayOf(
-                        sdk.localSdkConfig.dexPaths[0],
-                        sdk.apiVersion,
-                        controller,
-                        loadedSdk
+                        "v$apiVersion",
+                        apiVersion,
                     )
                 )
             }
 
-            val currentVersionSdk = TestSdkInfo(
-                Versions.API_VERSION,
-                "test-sdks/current/classes.dex",
-                "androidx.privacysandbox.sdkruntime.testsdk.current.CompatProvider"
-            )
-            val controller = TestStubController()
-
-            val loadedSdk = loadTestSdkFromAssets(currentVersionSdk.localSdkConfig, controller)
-            assertThat(loadedSdk.extractApiVersion())
-                .isEqualTo(currentVersionSdk.apiVersion)
-
             add(
                 arrayOf(
-                    currentVersionSdk.localSdkConfig.dexPaths[0],
-                    currentVersionSdk.apiVersion,
-                    controller,
-                    loadedSdk
+                    "current",
+                    Versions.API_VERSION
                 )
             )
         }

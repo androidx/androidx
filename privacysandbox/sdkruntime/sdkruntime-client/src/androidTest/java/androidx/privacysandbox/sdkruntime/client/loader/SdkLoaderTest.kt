@@ -18,8 +18,8 @@ package androidx.privacysandbox.sdkruntime.client.loader
 import android.content.Context
 import android.os.Build
 import android.os.IBinder
+import androidx.privacysandbox.sdkruntime.client.TestSdkConfigs
 import androidx.privacysandbox.sdkruntime.client.config.LocalSdkConfig
-import androidx.privacysandbox.sdkruntime.client.config.ResourceRemappingConfig
 import androidx.privacysandbox.sdkruntime.core.AppOwnedSdkSandboxInterfaceCompat
 import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException
 import androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat
@@ -52,19 +52,7 @@ class SdkLoaderTest {
             context = context,
             controller = NoOpImpl(),
         )
-        testSdkConfig = LocalSdkConfig(
-            packageName = "androidx.privacysandbox.sdkruntime.test.v1",
-            dexPaths = listOf(
-                "RuntimeEnabledSdks/V1/classes.dex",
-                "RuntimeEnabledSdks/RPackage.dex"
-            ),
-            entryPoint = "androidx.privacysandbox.sdkruntime.test.v1.CompatProvider",
-            javaResourcesRoot = "RuntimeEnabledSdks/V1/javaresources",
-            resourceRemapping = ResourceRemappingConfig(
-                rPackageClassName = "androidx.privacysandbox.sdkruntime.test.RPackage",
-                packageId = 42
-            )
-        )
+        testSdkConfig = TestSdkConfigs.CURRENT_WITH_RESOURCES
 
         // Clean extracted SDKs between tests
         val codeCacheDir = File(context.applicationInfo.dataDir, "code_cache")

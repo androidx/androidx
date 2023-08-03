@@ -16,6 +16,7 @@
 package androidx.privacysandbox.sdkruntime.client.loader
 
 import android.os.Build
+import androidx.privacysandbox.sdkruntime.client.TestSdkConfigs
 import androidx.privacysandbox.sdkruntime.client.config.LocalSdkConfig
 import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException
 import androidx.test.core.app.ApplicationProvider
@@ -41,21 +42,11 @@ class InMemorySdkClassLoaderFactoryTest {
         factoryUnderTest = InMemorySdkClassLoaderFactory.create(
             ApplicationProvider.getApplicationContext()
         )
-        singleDexSdkInfo = LocalSdkConfig(
-            packageName = "androidx.privacysandbox.sdkruntime.test.v1",
-            dexPaths = listOf("RuntimeEnabledSdks/V1/classes.dex"),
-            entryPoint = "androidx.privacysandbox.sdkruntime.test.v1.CompatProvider",
-            javaResourcesRoot = "RuntimeEnabledSdks/V1/"
-        )
-        multipleDexSdkInfo = LocalSdkConfig(
-            packageName = "androidx.privacysandbox.sdkruntime.test.v1",
-            dexPaths = listOf(
-                "RuntimeEnabledSdks/V1/classes.dex",
-                "RuntimeEnabledSdks/RPackage.dex",
-            ),
-            entryPoint = "androidx.privacysandbox.sdkruntime.test.v1.CompatProvider",
-            javaResourcesRoot = "RuntimeEnabledSdks/V1/"
-        )
+        singleDexSdkInfo = TestSdkConfigs.CURRENT
+        assertThat(singleDexSdkInfo.dexPaths.size).isEqualTo(1)
+
+        multipleDexSdkInfo = TestSdkConfigs.CURRENT_WITH_RESOURCES
+        assertThat(multipleDexSdkInfo.dexPaths.size).isEqualTo(2)
     }
 
     @Test
