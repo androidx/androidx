@@ -6,11 +6,11 @@
 
 <table>
     <tr>
-      <td><strong>Macrobenchmark</strong> (new!)</td>
-      <td><strong>Benchmark</strong> (existing!)</td>
+      <td><strong>Macrobenchmark</strong></td>
+      <td><strong>Benchmark</strong></td>
     </tr>
     <tr>
-        <td>Measure high-level entry points (Activity launch / Scrolling a list)</td>
+        <td>Measure high-level entry points(Activity launch / Scrolling a list)</td>
         <td>Measure individual functions</td>
     </tr>
     <tr>
@@ -22,8 +22,8 @@
         <td>Fast iteration speed (Often less than 10 seconds)</td>
     </tr>
     <tr>
-        <td>Results come with profiling traces</td>
-        <td>Optional stack sampling/method tracing</td>
+        <td>Configure compilation with CompilationMode</td>
+        <td>Always fully AOT (<code>speed</code>) compiled.</td>
     </tr>
     <tr>
         <td>Min API 23</td>
@@ -57,7 +57,7 @@ provided by the library:
         packageName = "mypackage.myapp",
         metrics = listOf(StartupTimingMetric()),
         startupMode = StartupMode.COLD,
-        iterations = 5
+        iterations = 10
     ) { // this = MacrobenchmarkScope
         pressHome()
         val intent = Intent()
@@ -79,7 +79,7 @@ provided by the library:
                 "mypackage.myapp",
                 Collections.singletonList(new StartupTimingMetric()),
                 StartupMode.COLD,
-                /* iterations = */ 5,
+                /* iterations = */ 10,
                 scope -> {
                     scope.pressHome();
                     Intent intent = Intent();
@@ -118,7 +118,7 @@ Compose Macrobenchmark Examples:
 
 *   [`:compose:integration-tests:macrobenchmark`](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:compose/integration-tests/macrobenchmark/)
 
-*   [AffectedModuleDetector Entry](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:buildSrc/src/main/kotlin/androidx/build/dependencyTracker/AffectedModuleDetector.kt;l=526;drc=cfb504756386b6225a2176d1d6efe2f55d4fa564)
+*   [AffectedModuleDetector Entry](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:buildSrc/private/src/main/kotlin/androidx/build/dependencyTracker/AffectedModuleDetector.kt;l=580;drc=10e32d25e9859bb5b37c303f42731015c82ee982)
 
 Note: Compose macrobenchmarks are generally duplicated with View system
 counterparts, defined in `:benchmark:integration-tests:macrobenchmark-target`.
@@ -132,17 +132,17 @@ This is how we compare performance of the two systems.
       <td><strong>Required setup</strong></td>
     </tr>
     <tr>
-        <td>Two modules in settings.gradle</td>
+        <td>Two modules in <code>settings.gradle</code></td>
         <td>Both the macrobenchmark and target must be defined in sibling
           modules</td>
     </tr>
     <tr>
         <td>The module name for the benchmark (test) module</td>
-        <td>It must match /.*:integration-tests:.*macrobenchmark/</td>
+        <td>It must match <code>/.*:integration-tests:.*macrobenchmark/</code></td>
     </tr>
     <tr>
         <td>The module name for the target (integration app) module</td>
-        <td>It must match /.*:integration-tests:.*macrobenchmark-target</td>
+        <td>It must match <code>/.*:integration-tests:.*macrobenchmark-target</code></td>
     </tr>
     <tr>
         <td>Register the modules in AffectedModuleDetector.kt</td>
