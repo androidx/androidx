@@ -767,14 +767,11 @@ private fun ComposeContentTestRule.isShape(
     setContentWithTheme {
         background = MaterialTheme.colors.surface
         buttonColor = MaterialTheme.colors.primary
-        Box(Modifier.background(background)) {
-            content(
-                Modifier
-                    .testTag(TEST_TAG)
-                    .padding(padding)
-                    .background(background)
-            )
-        }
+        content(
+            Modifier
+                .testTag(TEST_TAG)
+                .padding(padding)
+                .background(background))
     }
 
     onNodeWithTag(TEST_TAG)
