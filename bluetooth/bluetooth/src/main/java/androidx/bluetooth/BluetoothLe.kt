@@ -20,6 +20,7 @@ import android.bluetooth.BluetoothManager
 import android.bluetooth.le.AdvertiseCallback
 import android.bluetooth.le.AdvertiseData
 import android.bluetooth.le.AdvertiseSettings
+import android.bluetooth.le.BluetoothLeScanner
 import android.bluetooth.le.ScanCallback
 import android.bluetooth.le.ScanResult as FwkScanResult
 import android.bluetooth.le.ScanSettings
@@ -54,6 +55,11 @@ class BluetoothLe constructor(private val context: Context) {
     @get:RestrictTo(RestrictTo.Scope.LIBRARY)
     val client = GattClient(context)
     private val server = GattServer(context)
+
+    @VisibleForTesting
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY)
+    @set:RestrictTo(RestrictTo.Scope.LIBRARY)
+    var onStartScanListener: OnStartScanListener? = null
 
     /**
      * Returns a _cold_ [Flow] to start Bluetooth LE Advertising. When the flow is successfully collected,
@@ -149,6 +155,7 @@ class BluetoothLe constructor(private val context: Context) {
         val fwkFilters = filters.map { it.fwkScanFilter }
         val scanSettings = ScanSettings.Builder().build()
         bleScanner?.startScan(fwkFilters, scanSettings, callback)
+        onStartScanListener?.onStartScan(bleScanner)
 
         awaitClose {
             bleScanner?.stopScan(callback)
@@ -321,5 +328,11 @@ class BluetoothLe constructor(private val context: Context) {
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     fun updateServices(services: List<GattService>) {
         server.updateServices(services)
+    }
+
+    @VisibleForTesting
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    fun interface OnStartScanListener {
+        fun onStartScan(scanner: BluetoothLeScanner?)
     }
 }
