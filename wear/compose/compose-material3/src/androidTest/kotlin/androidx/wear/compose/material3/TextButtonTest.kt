@@ -48,7 +48,6 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material3.TextButtonDefaults.DefaultButtonSize
-import androidx.wear.compose.material3.TextButtonDefaults.ExtraSmallButtonSize
 import androidx.wear.compose.material3.TextButtonDefaults.LargeButtonSize
 import androidx.wear.compose.material3.TextButtonDefaults.SmallButtonSize
 import org.junit.Assert.assertEquals
@@ -293,20 +292,6 @@ class TextButtonTest {
                 modifier = modifier.touchTargetAwareSize(SmallButtonSize)
             ) {
                 Text("abc")
-            }
-        }
-    }
-
-    @Test
-    fun gives_extra_small_button_correct_tap_size() {
-        rule.verifyTapSize(
-            expectedSize = MinimumButtonTapSize
-        ) { modifier ->
-            TextButton(
-                onClick = {},
-                modifier = modifier.touchTargetAwareSize(ExtraSmallButtonSize)
-            ) {
-                Text("xs")
             }
         }
     }

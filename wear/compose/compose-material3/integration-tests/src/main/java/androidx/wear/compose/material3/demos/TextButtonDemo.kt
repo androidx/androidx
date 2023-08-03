@@ -138,13 +138,6 @@ fun TextButtonDemo() {
                 TextButtonWithSize(TextButtonDefaults.SmallButtonSize)
             }
         }
-        item {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text("${TextButtonDefaults.ExtraSmallButtonSize.value.toInt()}dp")
-                Spacer(Modifier.width(4.dp))
-                TextButtonWithSize(TextButtonDefaults.ExtraSmallButtonSize)
-            }
-        }
     }
 }
 
