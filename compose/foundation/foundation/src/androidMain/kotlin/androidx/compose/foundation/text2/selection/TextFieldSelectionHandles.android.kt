@@ -93,7 +93,7 @@ internal fun HandlePopup2(
     handleReferencePoint: HandleReferencePoint,
     content: @Composable () -> Unit
 ) {
-    val popupPositioner = remember(handleReferencePoint) {
+    val popupPositioner = remember(handleReferencePoint, positionProvider) {
         HandlePositionProvider2(handleReferencePoint, positionProvider)
     }
 
