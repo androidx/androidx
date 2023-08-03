@@ -651,7 +651,8 @@ internal class LayoutNodeLayoutDelegate(
             isPlacedByParent = true
             if (position != lastPosition) {
                 if (coordinatesAccessedDuringModifierPlacement ||
-                    coordinatesAccessedDuringPlacement) {
+                    coordinatesAccessedDuringPlacement
+                ) {
                     layoutPending = true
                 }
                 notifyChildrenUsingCoordinatesWhilePlacing()
@@ -1166,7 +1167,8 @@ internal class LayoutNodeLayoutDelegate(
 
         override fun measure(constraints: Constraints): Placeable {
             if (layoutNode.parent?.layoutState == LayoutState.LookaheadMeasuring ||
-                layoutNode.parent?.layoutState == LayoutState.LookaheadLayingOut) {
+                layoutNode.parent?.layoutState == LayoutState.LookaheadLayingOut
+            ) {
                 detachedFromParentLookaheadPass = false
             }
             trackLookaheadMeasurementByParent(layoutNode)
@@ -1500,7 +1502,7 @@ internal class LayoutNodeLayoutDelegate(
                     it.measuredByParentInLookahead == LayoutNode.UsageByParent.InMeasureBlock
                 ) {
                     if (it.layoutDelegate.lookaheadPassDelegate!!.remeasure(
-                            lastConstraints!!
+                            it.layoutDelegate.lastLookaheadConstraints!!
                         )
                     ) {
                         layoutNode.requestLookaheadRemeasure()
