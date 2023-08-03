@@ -7,19 +7,30 @@ plugins {
     id("java-gradle-plugin")
 }
 
+configurations {
+    // Config for plugin classpath to be used during tests
+    testPlugin {
+        canBeConsumed = false
+        canBeResolved = true
+    }
+}
+
 SdkResourceGenerator.generateForHostTest(project)
 apply from: "../../../buildSrc/kotlin-dsl-dependency.gradle"
 
 dependencies {
     implementation(findGradleKotlinDsl())
     implementation("com.android.tools.build:gradle-api:8.0.0-alpha07")
-    implementation(libs.androidGradlePluginz)
     implementation(libs.kotlinStdlib)
-    implementation(libs.kspApi)
-    implementation(libs.kspGradlePluginz)
+    compileOnly(libs.androidGradlePluginz)
+    compileOnly(libs.kspGradlePluginz)
 
     testImplementation(libs.junit)
     testImplementation(project(":internal-testutils-gradle-plugin"))
+
+    testPlugin("com.android.tools.build:gradle:8.0.0-alpha07")
+    testPlugin(libs.kotlinGradlePluginz)
+    testPlugin(libs.kspGradlePluginz)
 }
 
 gradlePlugin {
@@ -29,6 +40,14 @@ gradlePlugin {
             implementationClass = "androidx.privacysandboxlibraryplugin.PrivacySandboxLibraryPlugin"
         }
     }
+}
+
+// Configure the generating task of plugin-under-test-metadata.properties to
+// include additional dependencies for the injected plugin classpath that
+// are not present in the main runtime dependencies. This allows us to test
+// the KAPT / KSP plugins while keeping a compileOnly dep on the main source.
+tasks.withType(PluginUnderTestMetadata.class).named("pluginUnderTestMetadata").configure {
+    it.pluginClasspath.from(configurations.testPlugin)
 }
 
 tasks {
