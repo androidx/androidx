@@ -49,6 +49,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
 
+@OptIn(ExperimentalWearMaterial3Api::class)
 public class StepperTest {
     @get:Rule
     public val rule = createComposeRule()
@@ -451,6 +452,7 @@ public class StepperTest {
     private val DefaultIconHeight = 24.dp
 }
 
+@OptIn(ExperimentalWearMaterial3Api::class)
 public class IntegerStepperTest {
     @get:Rule
     public val rule = createComposeRule()
@@ -596,6 +598,7 @@ private fun ComposeContentTestRule.setNewValueAndCheck(
     assertEquals(newValue, state.value)
 }
 
+@OptIn(ExperimentalWearMaterial3Api::class)
 private fun ComposeContentTestRule.initDefaultStepper(
     state: MutableState<Float>,
     valueRange: ClosedFloatingPointRange<Float>,
@@ -644,6 +647,7 @@ private fun ComposeContentTestRule.setNewValueAndCheck(
     assertEquals(newValue, state.value)
 }
 
+@OptIn(ExperimentalWearMaterial3Api::class)
 private fun ComposeContentTestRule.initDefaultStepper(
     state: MutableState<Int>,
     valueProgression: IntProgression,
