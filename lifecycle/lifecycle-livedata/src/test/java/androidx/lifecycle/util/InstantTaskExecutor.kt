@@ -13,24 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.lifecycle.util
 
-package androidx.lifecycle.util;
+import androidx.arch.core.executor.TaskExecutor
 
-import androidx.arch.core.executor.TaskExecutor;
+open class InstantTaskExecutor : TaskExecutor() {
 
-public class InstantTaskExecutor extends TaskExecutor {
-    @Override
-    public void executeOnDiskIO(Runnable runnable) {
-        runnable.run();
+    override fun executeOnDiskIO(runnable: Runnable) {
+        runnable.run()
     }
 
-    @Override
-    public void postToMainThread(Runnable runnable) {
-        runnable.run();
+    override fun postToMainThread(runnable: Runnable) {
+        runnable.run()
     }
 
-    @Override
-    public boolean isMainThread() {
-        return true;
+    override fun isMainThread(): Boolean {
+        return true
     }
 }
