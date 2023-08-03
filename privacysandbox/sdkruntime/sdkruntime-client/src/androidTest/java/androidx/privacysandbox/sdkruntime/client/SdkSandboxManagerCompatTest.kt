@@ -121,7 +121,10 @@ class SdkSandboxManagerCompatTest {
         val managerCompat = SdkSandboxManagerCompat.from(context)
 
         val result = runBlocking {
-            managerCompat.loadSdk("androidx.privacysandbox.sdkruntime.test.v1", Bundle())
+            managerCompat.loadSdk(
+                TestSdkConfigs.CURRENT.packageName,
+                Bundle()
+            )
         }
 
         assertThat(result.getInterface()!!.javaClass.classLoader)
@@ -130,7 +133,7 @@ class SdkSandboxManagerCompatTest {
         assertThat(result.getSdkInfo())
             .isEqualTo(
                 SandboxedSdkInfo(
-                    name = "androidx.privacysandbox.sdkruntime.test.v1",
+                    name = TestSdkConfigs.CURRENT.packageName,
                     version = 42
                 )
             )
@@ -146,7 +149,10 @@ class SdkSandboxManagerCompatTest {
 
         val result = assertThrows(LoadSdkCompatException::class.java) {
             runBlocking {
-                managerCompat.loadSdk("androidx.privacysandbox.sdkruntime.test.v1", params)
+                managerCompat.loadSdk(
+                    TestSdkConfigs.CURRENT.packageName,
+                    params
+                )
             }
         }
 
@@ -162,8 +168,8 @@ class SdkSandboxManagerCompatTest {
         val result = assertThrows(LoadSdkCompatException::class.java) {
             runBlocking {
                 managerCompat.loadSdk(
-                    sdkName = "androidx.privacysandbox.sdkruntime.test.invalidEntryPoint",
-                    params = Bundle()
+                    TestSdkConfigs.forSdkName("invalidEntryPoint").packageName,
+                    Bundle()
                 )
             }
         }
@@ -177,7 +183,7 @@ class SdkSandboxManagerCompatTest {
         val context = ApplicationProvider.getApplicationContext<Context>()
         val managerCompat = SdkSandboxManagerCompat.from(context)
 
-        val sdkName = "androidx.privacysandbox.sdkruntime.test.v1"
+        val sdkName = TestSdkConfigs.CURRENT.packageName
 
         val sdkToUnload = runBlocking {
             managerCompat.loadSdk(sdkName, Bundle())
@@ -215,7 +221,7 @@ class SdkSandboxManagerCompatTest {
         val context = ApplicationProvider.getApplicationContext<Context>()
         val managerCompat = SdkSandboxManagerCompat.from(context)
 
-        val sdkName = "androidx.privacysandbox.sdkruntime.test.v1"
+        val sdkName = TestSdkConfigs.CURRENT.packageName
 
         runBlocking {
             managerCompat.loadSdk(sdkName, Bundle())
@@ -310,7 +316,10 @@ class SdkSandboxManagerCompatTest {
         val managerCompat = SdkSandboxManagerCompat.from(context)
 
         val localSdk = runBlocking {
-            managerCompat.loadSdk("androidx.privacysandbox.sdkruntime.test.v3", Bundle())
+            managerCompat.loadSdk(
+                TestSdkConfigs.forSdkName("v3").packageName,
+                Bundle()
+            )
         }
 
         val handler = CatchingSdkActivityHandler()
@@ -334,11 +343,17 @@ class SdkSandboxManagerCompatTest {
         val managerCompat = SdkSandboxManagerCompat.from(context)
 
         val localSdk = runBlocking {
-            managerCompat.loadSdk("androidx.privacysandbox.sdkruntime.test.v2", Bundle())
+            managerCompat.loadSdk(
+                TestSdkConfigs.forSdkName("v2").packageName,
+                Bundle()
+            )
         }
 
         val anotherLocalSdk = runBlocking {
-            managerCompat.loadSdk("androidx.privacysandbox.sdkruntime.test.v1", Bundle())
+            managerCompat.loadSdk(
+                TestSdkConfigs.CURRENT.packageName,
+                Bundle()
+            )
         }
 
         val testSdk = localSdk.asTestSdk()
@@ -361,7 +376,10 @@ class SdkSandboxManagerCompatTest {
         val managerCompat = SdkSandboxManagerCompat.from(context)
 
         val localSdk = runBlocking {
-            managerCompat.loadSdk("androidx.privacysandbox.sdkruntime.test.v1", Bundle())
+            managerCompat.loadSdk(
+                TestSdkConfigs.CURRENT.packageName,
+                Bundle()
+            )
         }
 
         val sandboxedSdks = managerCompat.getSandboxedSdks()

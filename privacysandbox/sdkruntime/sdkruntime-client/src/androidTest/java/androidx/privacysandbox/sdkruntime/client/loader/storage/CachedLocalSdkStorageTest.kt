@@ -19,6 +19,7 @@ package androidx.privacysandbox.sdkruntime.client.loader.storage
 import android.content.Context
 import android.os.Environment
 import android.os.StatFs
+import androidx.privacysandbox.sdkruntime.client.TestSdkConfigs
 import androidx.privacysandbox.sdkruntime.client.config.LocalSdkConfig
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -53,14 +54,8 @@ class CachedLocalSdkStorageTest {
             lowSpaceThreshold = disabledLowSpaceModeThreshold()
         )
 
-        testSdkConfig = LocalSdkConfig(
-            packageName = "androidx.privacysandbox.sdkruntime.test.v1",
-            dexPaths = listOf(
-                "RuntimeEnabledSdks/V1/classes.dex",
-                "RuntimeEnabledSdks/RPackage.dex"
-            ),
-            entryPoint = "androidx.privacysandbox.sdkruntime.test.v1.CompatProvider",
-        )
+        testSdkConfig = TestSdkConfigs.CURRENT_WITH_RESOURCES
+        assertThat(testSdkConfig.dexPaths.size).isEqualTo(2)
 
         sdkFolder = LocalSdkFolderProvider
             .create(context)
