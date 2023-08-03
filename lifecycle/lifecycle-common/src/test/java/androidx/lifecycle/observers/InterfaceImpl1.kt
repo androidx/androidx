@@ -13,11 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.lifecycle.observers
 
-package androidx.lifecycle.observers;
-
-public class InterfaceImpl1 implements Interface1 {
-    @Override
-    public void onCreate() {
-    }
+class InterfaceImpl1 : Interface1 {
+    override fun onCreate() {}
 }
