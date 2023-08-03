@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package androidx.wear.compose.material
+package androidx.wear.compose.materialcore
 
 import androidx.compose.ui.util.lerp
-import org.junit.Assert.assertEquals
+import org.junit.Assert
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -513,8 +513,8 @@ class HorizontalPageIndicatorTest {
         testDots.forEachIndexed { index, testDot ->
             testDot(index, testDot, offset)
         }
-        assertEquals("Left spacer:", leftSpacerSize, leftSpacerSizeRatio)
-        assertEquals("Right spacer", rightSpacerSize, rightSpacerSizeRatio)
+        Assert.assertEquals("Left spacer:", leftSpacerSize, leftSpacerSizeRatio)
+        Assert.assertEquals("Right spacer", rightSpacerSize, rightSpacerSizeRatio)
     }
 
     private fun PagesState.testDot(
@@ -523,13 +523,13 @@ class HorizontalPageIndicatorTest {
         offset: Float
     ) {
 
-        assertEquals("Page $index, alpha:", testDot.alpha lerp offset, alpha(index))
-        assertEquals(
+        Assert.assertEquals("Page $index, alpha:", testDot.alpha lerp offset, alpha(index))
+        Assert.assertEquals(
             "Page $index, size ratio:",
             testDot.sizeRatio lerp offset,
             sizeRatio(index)
         )
-        assertEquals(
+        Assert.assertEquals(
             "Page $index, select ratio:",
             testDot.selectedRatio lerp offset,
             calculateSelectedRatio(index, offset),
