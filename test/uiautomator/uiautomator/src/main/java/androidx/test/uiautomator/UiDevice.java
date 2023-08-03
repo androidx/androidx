@@ -798,273 +798,123 @@ public class UiDevice implements Searchable {
     }
 
     /**
-     * @return true if default display is in its natural or flipped (180 degrees) orientation
+     * @return true if device is in its natural orientation (0 or 180 degrees)
      */
     public boolean isNaturalOrientation() {
-        return isNaturalOrientation(Display.DEFAULT_DISPLAY);
+        int ret = getDisplayRotation();
+        return ret == UiAutomation.ROTATION_FREEZE_0 || ret == UiAutomation.ROTATION_FREEZE_180;
     }
 
     /**
-     * @return true if display with {@code displayId} is in its natural or flipped (180 degrees)
-     * orientation
-     */
-    private boolean isNaturalOrientation(int displayId) {
-        int ret = getDisplayRotation(displayId);
-        return ret == UiAutomation.ROTATION_FREEZE_0
-                || ret == UiAutomation.ROTATION_FREEZE_180;
-    }
-
-    /**
-     * @return the current rotation of the default display
-     * @see Display#getRotation()
+     * @return the current rotation of the display, as defined in {@link Surface}
      */
     public int getDisplayRotation() {
-        return getDisplayRotation(Display.DEFAULT_DISPLAY);
-    }
-
-    /**
-     * @return the current rotation of the display with {@code displayId}
-     * @see Display#getRotation()
-     */
-    public int getDisplayRotation(int displayId) {
         waitForIdle();
-        return getDisplayById(displayId).getRotation();
+        return getDisplayById(Display.DEFAULT_DISPLAY).getRotation();
     }
 
     /**
-     * Freezes the default display rotation at its current state.
+     * Freezes the device rotation at its current state.
      * @throws RemoteException never
      */
     public void freezeRotation() throws RemoteException {
-        setOrientation(Orientation.FROZEN);
+        Log.d(TAG, "Freezing rotation.");
+        getUiAutomation().setRotation(UiAutomation.ROTATION_FREEZE_CURRENT);
     }
 
     /**
-     * Un-freezes the default display rotation allowing its contents to rotate with its physical
-     * rotation. During testing, it is best to keep the default display frozen in a specific
-     * orientation.
-     * <p>Note: Need to wait a short period for the rotation animation to complete before
-     * performing another operation.
+     * Un-freezes the device rotation allowing its contents to rotate with the device physical
+     * rotation. During testing, it is best to keep the device frozen in a specific orientation.
      * @throws RemoteException never
      */
     public void unfreezeRotation() throws RemoteException {
-        setOrientation(Orientation.UNFROZEN);
+        Log.d(TAG, "Unfreezing rotation.");
+        getUiAutomation().setRotation(UiAutomation.ROTATION_UNFREEZE);
     }
 
     /**
-     * Orients the default display to the left and freezes its rotation. Use
-     * {@link #unfreezeRotation()} to un-freeze the rotation.
+     * Orients the device to the left and freezes rotation. Use {@link #unfreezeRotation()} to
+     * un-freeze the rotation.
      * <p>Note: This rotation is relative to the natural orientation which depends on the device
-     * type (e.g. phone vs. tablet).
+     * type (e.g. phone vs. tablet). Consider using {@link #setOrientationPortrait()} and
+     * {@link #setOrientationLandscape()}.
      * @throws RemoteException never
      */
     public void setOrientationLeft() throws RemoteException {
-        setOrientation(Orientation.ROTATION_90);
+        Log.d(TAG, "Setting orientation to left.");
+        rotate(UiAutomation.ROTATION_FREEZE_90);
     }
 
     /**
-     * Orients the default display to the right and freezes its rotation. Use
-     * {@link #unfreezeRotation()} to un-freeze the rotation.
+     * Orients the device to the right and freezes rotation. Use {@link #unfreezeRotation()} to
+     * un-freeze the rotation.
      * <p>Note: This rotation is relative to the natural orientation which depends on the device
-     * type (e.g. phone vs. tablet).
+     * type (e.g. phone vs. tablet). Consider using {@link #setOrientationPortrait()} and
+     * {@link #setOrientationLandscape()}.
      * @throws RemoteException never
      */
     public void setOrientationRight() throws RemoteException {
-        setOrientation(Orientation.ROTATION_270);
+        Log.d(TAG, "Setting orientation to right.");
+        rotate(UiAutomation.ROTATION_FREEZE_270);
     }
 
     /**
-     * Orients the default display to its natural or flipped (180 degrees) orientation and
-     * freezes its rotation. Use {@link #unfreezeRotation()} to un-freeze the rotation.
+     * Orients the device to its natural orientation (0 or 180 degrees) and freezes rotation. Use
+     * {@link #unfreezeRotation()} to un-freeze the rotation.
      * <p>Note: The natural orientation depends on the device type (e.g. phone vs. tablet).
+     * Consider using {@link #setOrientationPortrait()} and {@link #setOrientationLandscape()}.
      * @throws RemoteException never
      */
     public void setOrientationNatural() throws RemoteException {
-        setOrientation(Orientation.ROTATION_0);
+        Log.d(TAG, "Setting orientation to natural.");
+        rotate(UiAutomation.ROTATION_FREEZE_0);
     }
 
     /**
-     * Sets the default display to {@code orientation} and freezes its rotation.
-     * <p>Note: The orientation is relative to the natural orientation which depends on the
-     * device type (e.g. phone vs. tablet).
-     *
-     * @param orientation the desired orientation
+     * Orients the device to its portrait orientation (height > width) and freezes rotation. Use
+     * {@link #unfreezeRotation()} to un-freeze the rotation.
+     * @throws RemoteException never
      */
-    public void setOrientation(@NonNull Orientation orientation) {
-        Log.d(TAG, String.format("Setting orientation to %s.", orientation.name()));
-        switch (orientation) {
-            case ROTATION_90:
-                rotateWithUiAutomation(Surface.ROTATION_90);
-                break;
-            case ROTATION_270:
-                rotateWithUiAutomation(Surface.ROTATION_270);
-                break;
-            case ROTATION_0:
-                rotateWithUiAutomation(Surface.ROTATION_0);
-                break;
-            case ROTATION_180:
-                rotateWithUiAutomation(Surface.ROTATION_180);
-                break;
-            case PORTRAIT:
-                if (getDisplayHeight() >= getDisplayWidth()) {
-                    // Freeze. Already in portrait orientation.
-                    getUiAutomation().setRotation(UiAutomation.ROTATION_FREEZE_CURRENT);
-                } else if (isNaturalOrientation()) {
-                    rotateWithUiAutomation(Surface.ROTATION_90);
-                } else {
-                    rotateWithUiAutomation(Surface.ROTATION_0);
-                }
-                break;
-            case LANDSCAPE:
-                if (getDisplayHeight() <= getDisplayWidth()) {
-                    // Freeze. Already in landscape orientation.
-                    getUiAutomation().setRotation(UiAutomation.ROTATION_FREEZE_CURRENT);
-                } else if (isNaturalOrientation()) {
-                    rotateWithUiAutomation(Surface.ROTATION_90);
-                } else {
-                    rotateWithUiAutomation(Surface.ROTATION_0);
-                }
-                break;
-            case FROZEN:
-                getUiAutomation().setRotation(UiAutomation.ROTATION_FREEZE_CURRENT);
-                break;
-            case UNFROZEN:
-                getUiAutomation().setRotation(UiAutomation.ROTATION_UNFREEZE);
-                break;
-            default:
-                throw new IllegalArgumentException(
-                        "Invalid input orientation for UiDevice#setOrientation.");
+    public void setOrientationPortrait() throws RemoteException {
+        Log.d(TAG, "Setting orientation to portrait.");
+        if (getDisplayHeight() > getDisplayWidth()) {
+            freezeRotation(); // Already in portrait orientation.
+        } else if (isNaturalOrientation()) {
+            rotate(UiAutomation.ROTATION_FREEZE_90);
+        } else {
+            rotate(UiAutomation.ROTATION_FREEZE_0);
         }
     }
 
     /**
-     * Sets the display with {@code displayId} to {@code orientation} and freezes its rotation.
-     * <p>Note: The orientation is relative to the natural orientation which depends on the
-     * device type (e.g. phone vs. tablet).
-     * <p>Note: Some secondary displays don't have rotation sensors and therefore won't respond
-     * to {@link Orientation#UNFROZEN}.
-     *
-     * @param orientation the desired orientation
-     * @param displayId The display ID to match. Use {@link Display#getDisplayId()} to get the ID.
+     * Orients the device to its landscape orientation (width > height) and freezes rotation. Use
+     * {@link #unfreezeRotation()} to un-freeze the rotation.
+     * @throws RemoteException never
      */
-    @RequiresApi(30)
-    public void setOrientation(@NonNull Orientation orientation, int displayId) {
-        Log.d(TAG, String.format("Setting orientation of display %d to %s.", displayId,
-                orientation.name()));
-        switch (orientation) {
-            case ROTATION_90:
-                rotateWithCommand(Surface.ROTATION_90, displayId);
-                break;
-            case ROTATION_270:
-                rotateWithCommand(Surface.ROTATION_270, displayId);
-                break;
-            case ROTATION_0:
-                rotateWithCommand(Surface.ROTATION_0, displayId);
-                break;
-            case ROTATION_180:
-                rotateWithCommand(Surface.ROTATION_180, displayId);
-                break;
-            case PORTRAIT:
-                if (getDisplayHeight() >= getDisplayWidth()) {
-                    // Freeze. Already in portrait orientation.
-                    freezeWithCommand(displayId);
-                } else if (isNaturalOrientation(displayId)) {
-                    rotateWithCommand(Surface.ROTATION_90, displayId);
-                } else {
-                    rotateWithCommand(Surface.ROTATION_0, displayId);
-                }
-                break;
-            case LANDSCAPE:
-                if (getDisplayHeight() <= getDisplayWidth()) {
-                    // Freeze. Already in landscape orientation.
-                    freezeWithCommand(displayId);
-                } else if (isNaturalOrientation(displayId)) {
-                    rotateWithCommand(Surface.ROTATION_90, displayId);
-                } else {
-                    rotateWithCommand(Surface.ROTATION_0, displayId);
-                }
-                break;
-            case FROZEN:
-                freezeWithCommand(displayId);
-                break;
-            case UNFROZEN:
-                unfreezeWithCommand(displayId);
-                break;
-            default:
-                throw new IllegalArgumentException(
-                        "Invalid input orientation for UiDevice#setOrientation.");
+    public void setOrientationLandscape() throws RemoteException {
+        Log.d(TAG, "Setting orientation to landscape.");
+        if (getDisplayWidth() > getDisplayHeight()) {
+            freezeRotation(); // Already in landscape orientation.
+        } else if (isNaturalOrientation()) {
+            rotate(UiAutomation.ROTATION_FREEZE_90);
+        } else {
+            rotate(UiAutomation.ROTATION_FREEZE_0);
         }
     }
 
-    /** Rotates the display using UiAutomation and waits for the rotation to be detected. */
-    private void rotateWithUiAutomation(int rotation) {
+    // Rotates the device and waits for the rotation to be detected.
+    private void rotate(int rotation) {
         getUiAutomation().setRotation(rotation);
-        waitRotationComplete(rotation, Display.DEFAULT_DISPLAY);
-    }
-
-    /** Rotates the display using shell command and waits for the rotation to be detected. */
-    @RequiresApi(30)
-    private void rotateWithCommand(int rotation, int displayId) {
-        try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                executeShellCommand(String.format("cmd window user-rotation -d %d lock %d",
-                        displayId, rotation));
-            } else {
-                executeShellCommand(String.format("cmd window set-user-rotation lock -d %d %d",
-                        displayId, rotation));
-            }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        waitRotationComplete(rotation, displayId);
-    }
-
-    /** Freezes the display using shell command. */
-    @RequiresApi(30)
-    private void freezeWithCommand(int displayId) {
-        try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                executeShellCommand(String.format("cmd window user-rotation -d %d lock",
-                        displayId));
-            } else {
-                int rotation = getDisplayRotation(displayId);
-                executeShellCommand(String.format("cmd window set-user-rotation lock -d %d %d",
-                        displayId, rotation));
-            }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    /** Unfreezes the display using shell command. */
-    @RequiresApi(30)
-    private void unfreezeWithCommand(int displayId) {
-        try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                executeShellCommand(String.format("cmd window user-rotation -d %d free",
-                        displayId));
-            } else {
-                executeShellCommand(String.format("cmd window set-user-rotation free -d %d",
-                        displayId));
-            }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    /** Waits for the display with {@code displayId} to be in {@code rotation}. */
-    private void waitRotationComplete(int rotation, int displayId) {
         Condition<UiDevice, Boolean> rotationCondition = new Condition<UiDevice, Boolean>() {
             @Override
             public Boolean apply(UiDevice device) {
-                return device.getDisplayRotation(displayId) == rotation;
+                return device.getDisplayRotation() == rotation;
             }
 
             @NonNull
             @Override
             public String toString() {
-                return String.format("Condition[displayRotation=%d, displayId=%d]", rotation,
-                        displayId);
+                return String.format("Condition[displayRotation=%d]", rotation);
             }
         };
         if (!wait(rotationCondition, ROTATION_TIMEOUT)) {
