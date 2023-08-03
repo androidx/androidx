@@ -48,9 +48,9 @@ package androidx.privacysandbox.ui.client.view {
     ctor public SandboxedSdkView(android.content.Context context);
     ctor public SandboxedSdkView(android.content.Context context, optional android.util.AttributeSet? attrs);
     method public void addStateChangedListener(androidx.privacysandbox.ui.client.view.SandboxedSdkUiSessionStateChangedListener stateChangedListener);
+    method public void orderProviderUiAboveClientUi(boolean providerUiOnTop);
     method public void removeStateChangedListener(androidx.privacysandbox.ui.client.view.SandboxedSdkUiSessionStateChangedListener stateChangedListener);
     method public void setAdapter(androidx.privacysandbox.ui.core.SandboxedUiAdapter sandboxedUiAdapter);
-    method public void setZOrderOnTopAndEnableUserInteraction(boolean setOnTop);
   }
 
 }
