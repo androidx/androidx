@@ -53,7 +53,9 @@ class BluetoothLe constructor(private val context: Context) {
     @VisibleForTesting
     @get:RestrictTo(RestrictTo.Scope.LIBRARY)
     val client = GattClient(context)
-    private val server = GattServer(context)
+    @VisibleForTesting
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY)
+    val server = GattServer(context)
 
     /**
      * Returns a _cold_ [Flow] to start Bluetooth LE Advertising. When the flow is successfully collected,
@@ -252,7 +254,7 @@ class BluetoothLe constructor(private val context: Context) {
          *
          * @see GattServerScope
          */
-        suspend fun accept(block: GattServerScope.() -> Unit) {
+        suspend fun accept(block: suspend GattServerScope.() -> Unit) {
             return server.acceptConnection(this, block)
         }
 

@@ -25,7 +25,8 @@ import java.util.UUID
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 class GattCharacteristic internal constructor(
-    internal var fwkCharacteristic: BluetoothGattCharacteristic
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY)
+    var fwkCharacteristic: BluetoothGattCharacteristic
 ) {
     companion object {
         /**
