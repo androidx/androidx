@@ -29,6 +29,8 @@ import android.bluetooth.BluetoothProfile
 import android.content.Context
 import android.os.Build
 import androidx.annotation.RequiresPermission
+import androidx.annotation.RestrictTo
+import androidx.annotation.VisibleForTesting
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicReference
 import kotlinx.coroutines.channels.Channel
@@ -41,8 +43,10 @@ import kotlinx.coroutines.flow.receiveAsFlow
 /**
  * Class for handling operations as a GATT server role
  */
-internal class GattServer(private val context: Context) {
-    private interface GattServerImpl {
+@RestrictTo(RestrictTo.Scope.LIBRARY)
+class GattServer(private val context: Context) {
+    interface FrameworkAdapter {
+        var gattServer: BluetoothGattServer?
         fun openGattServer(context: Context, callback: BluetoothGattServerCallback)
         fun closeGattServer()
         fun clearServices()
@@ -82,9 +86,11 @@ internal class GattServer(private val context: Context) {
     private val attributeMap = AttributeMap()
 
     @SuppressLint("ObsoleteSdkInt")
-    private val impl: GattServerImpl =
-        if (Build.VERSION.SDK_INT >= 33) GattServerImplApi33()
-        else BaseGattServerImpl()
+    @VisibleForTesting
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    var fwkAdapter: FrameworkAdapter =
+        if (Build.VERSION.SDK_INT >= 33) FrameworkAdapterApi33()
+        else FrameworkAdapterBase()
 
     fun open(services: List<GattService>):
         Flow<BluetoothLe.GattServerConnectionRequest> = callbackFlow {
@@ -155,22 +161,22 @@ internal class GattServer(private val context: Context) {
                 }
             }
         }
-        impl.openGattServer(context, callback)
-        services.forEach { impl.addService(it.fwkService) }
+        fwkAdapter.openGattServer(context, callback)
+        services.forEach { fwkAdapter.addService(it.fwkService) }
 
         awaitClose {
-            impl.closeGattServer()
+            fwkAdapter.closeGattServer()
         }
     }
 
     fun updateServices(services: List<GattService>) {
-        impl.clearServices()
-        services.forEach { impl.addService(it.fwkService) }
+        fwkAdapter.clearServices()
+        services.forEach { fwkAdapter.addService(it.fwkService) }
     }
 
     suspend fun<R> acceptConnection(
         request: BluetoothLe.GattServerConnectionRequest,
-        block: BluetoothLe.GattServerScope.() -> R
+        block: suspend BluetoothLe.GattServerScope.() -> R
     ) = coroutineScope {
         val session = request.session
         if (!session.state.compareAndSet(Session.State.CONNECTING, Session.State.CONNECTED)) {
@@ -185,7 +191,7 @@ internal class GattServer(private val context: Context) {
                 characteristic: GattCharacteristic,
                 value: ByteArray
             ) {
-                impl.notifyCharacteristicChanged(
+                fwkAdapter.notifyCharacteristicChanged(
                     request.device.fwkDevice, characteristic.fwkCharacteristic, false, value)
             }
         }
@@ -223,11 +229,11 @@ internal class GattServer(private val context: Context) {
         offset: Int,
         value: ByteArray?
     ) {
-        impl.sendResponse(device, requestId, status, offset, value)
+        fwkAdapter.sendResponse(device, requestId, status, offset, value)
     }
 
-    private open class BaseGattServerImpl : GattServerImpl {
-        internal var gattServer: BluetoothGattServer? = null
+    private open class FrameworkAdapterBase : FrameworkAdapter {
+        override var gattServer: BluetoothGattServer? = null
         private val isOpen = AtomicBoolean(false)
         @RequiresPermission(BLUETOOTH_CONNECT)
         override fun openGattServer(context: Context, callback: BluetoothGattServerCallback) {
@@ -278,7 +284,7 @@ internal class GattServer(private val context: Context) {
         }
     }
 
-    private open class GattServerImplApi33 : BaseGattServerImpl() {
+    private open class FrameworkAdapterApi33 : FrameworkAdapterBase() {
         @RequiresPermission(BLUETOOTH_CONNECT)
         override fun notifyCharacteristicChanged(
             device: FwkBluetoothDevice,
