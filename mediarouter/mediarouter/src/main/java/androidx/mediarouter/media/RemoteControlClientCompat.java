@@ -135,37 +135,30 @@ abstract class RemoteControlClientCompat {
         JellybeanImpl(Context context, android.media.RemoteControlClient rcc) {
             super(context, rcc);
 
-            mRouter = MediaRouterJellybean.getMediaRouter(context);
-            mUserRouteCategory = MediaRouterJellybean.createRouteCategory(
-                    mRouter, "", false);
-            mUserRoute = MediaRouterJellybean.createUserRoute(
-                    mRouter, mUserRouteCategory);
+            mRouter = MediaRouterApi16Impl.getMediaRouter(context);
+            mUserRouteCategory = MediaRouterApi16Impl.createRouteCategory(mRouter, "", false);
+            mUserRoute = MediaRouterApi16Impl.createUserRoute(mRouter, mUserRouteCategory);
         }
 
         @Override
         public void setPlaybackInfo(PlaybackInfo info) {
-            MediaRouterJellybean.UserRouteInfo.setVolume(
-                    mUserRoute, info.volume);
-            MediaRouterJellybean.UserRouteInfo.setVolumeMax(
-                    mUserRoute, info.volumeMax);
-            MediaRouterJellybean.UserRouteInfo.setVolumeHandling(
-                    mUserRoute, info.volumeHandling);
-            MediaRouterJellybean.UserRouteInfo.setPlaybackStream(
-                    mUserRoute, info.playbackStream);
-            MediaRouterJellybean.UserRouteInfo.setPlaybackType(
-                    mUserRoute, info.playbackType);
+            MediaRouterApi16Impl.UserRouteInfo.setVolume(mUserRoute, info.volume);
+            MediaRouterApi16Impl.UserRouteInfo.setVolumeMax(mUserRoute, info.volumeMax);
+            MediaRouterApi16Impl.UserRouteInfo.setVolumeHandling(mUserRoute, info.volumeHandling);
+            MediaRouterApi16Impl.UserRouteInfo.setPlaybackStream(mUserRoute, info.playbackStream);
+            MediaRouterApi16Impl.UserRouteInfo.setPlaybackType(mUserRoute, info.playbackType);
 
             if (!mRegistered) {
                 mRegistered = true;
-                MediaRouterJellybean.UserRouteInfo.setVolumeCallback(mUserRoute,
-                        MediaRouterJellybean.createVolumeCallback(
-                                new VolumeCallbackWrapper(this)));
-                MediaRouterJellybean.UserRouteInfo.setRemoteControlClient(mUserRoute, mRcc);
+                MediaRouterApi16Impl.UserRouteInfo.setVolumeCallback(
+                        mUserRoute,
+                        MediaRouterApi16Impl.createVolumeCallback(new VolumeCallbackWrapper(this)));
+                MediaRouterApi16Impl.UserRouteInfo.setRemoteControlClient(mUserRoute, mRcc);
             }
         }
 
         private static final class VolumeCallbackWrapper
-                implements MediaRouterJellybean.VolumeCallback {
+                implements MediaRouterApi16Impl.VolumeCallback {
             // Unfortunately, the framework never unregisters its volume observer from
             // the audio service so the UserRouteInfo object may leak along with
             // any callbacks that we attach to it.  Use a weak reference to prevent
