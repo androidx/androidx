@@ -193,6 +193,7 @@ dependencies {
     samples(project(":glance:glance-appwidget:glance-appwidget-samples"))
     docs(project(":glance:glance-appwidget-preview"))
     docs(project(":glance:glance-preview"))
+    docs(project(":glance:glance-testing"))
     docs(project(":glance:glance-wear-tiles"))
     docs(project(":glance:glance-wear-tiles-preview"))
     docs(project(":graphics:filters:filters"))
