@@ -16,12 +16,15 @@
 
 package androidx.camera.camera2.internal.compat;
 
+import static android.hardware.camera2.CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP;
+
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import android.hardware.camera2.CameraCharacteristics;
 import android.os.Build;
@@ -134,5 +137,18 @@ public class CameraCharacteristicsCompatTest {
         assertThat(characteristicsCompat.get(CameraCharacteristics.SENSOR_ORIENTATION))
                 .isEqualTo(SENSOR_ORIENTATION_VAL);
         verify(cameraCharacteristics, times(2)).get(CameraCharacteristics.SENSOR_ORIENTATION);
+    }
+
+
+    @Test(expected = IllegalArgumentException.class)
+    public void getStreamConfigurationMapCompat() {
+        CameraCharacteristics cameraCharacteristics = spy(mCharacteristics);
+        when(cameraCharacteristics.get(SCALER_STREAM_CONFIGURATION_MAP)).thenThrow(
+                new AssertionError("cannot get stream configuration map"));
+        CameraCharacteristicsCompat characteristicsCompat =
+                CameraCharacteristicsCompat.toCameraCharacteristicsCompat(cameraCharacteristics,
+                        CAMERA_ID_0);
+
+        characteristicsCompat.getStreamConfigurationMapCompat();
     }
 }
