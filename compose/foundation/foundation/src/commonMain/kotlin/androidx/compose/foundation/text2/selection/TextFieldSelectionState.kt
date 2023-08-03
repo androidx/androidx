@@ -440,13 +440,28 @@ internal class TextFieldSelectionState(
     private suspend fun PointerInputScope.detectTextFieldLongPressAndAfterDrag(
         requestFocus: () -> Unit
     ) {
+        var dragPreviousOffset = -1
+        var dragBeginOffsetInText = -1
+        var dragBeginPosition: Offset = Offset.Unspecified
+        var dragTotalDistance: Offset = Offset.Zero
+
         detectDragGesturesAfterLongPress(
             onDragStart = onDragStart@{ dragStartOffset ->
-                logDebug { "onDragStart after longPress" }
+                logDebug { "onDragStart after longPress $dragStartOffset" }
+                requestFocus()
                 // at the beginning of selection disable toolbar, re-evaluate visibility after
                 // drag gesture is finished
                 showCursorHandleToolbar = false
-                requestFocus()
+
+                updateHandleDragging(
+                    handle = Handle.SelectionEnd,
+                    position = with(textLayoutState) {
+                        dragStartOffset.relativeToInputText()
+                    }
+                )
+
+                dragBeginPosition = dragStartOffset
+                dragTotalDistance = Offset.Zero
 
                 // Long Press at the blank area, the cursor should show up at the end of the line.
                 if (!textLayoutState.isPositionOnText(dragStartOffset)) {
@@ -457,6 +472,8 @@ internal class TextFieldSelectionState(
                         selectCharsIn(TextRange(offset))
                     }
                     showCursorHandle = true
+                    showCursorHandleToolbar = true
+                    dragPreviousOffset = offset
                 } else {
                     if (textFieldState.text.isEmpty()) return@onDragStart
                     val offset = textLayoutState.getOffsetForPosition(dragStartOffset)
@@ -477,13 +494,113 @@ internal class TextFieldSelectionState(
                         selectCharsIn(newSelection)
                     }
                     showCursorHandle = false
+                    // For touch, set the begin offset to the adjusted selection.
+                    // When char based selection is used, we want to ensure we snap the
+                    // beginning offset to the start word boundary of the first selected word.
+                    dragBeginOffsetInText = newSelection.start
+                    dragPreviousOffset = offset
                 }
             },
             onDragEnd = {
-                showCursorHandleToolbar = true
+                clearHandleDragging()
+                dragPreviousOffset = -1
+                dragBeginOffsetInText = -1
+                dragBeginPosition = Offset.Unspecified
+                dragTotalDistance = Offset.Zero
             },
-            onDragCancel = { },
-            onDrag = onDrag@{ _, _ -> }
+            onDragCancel = {
+                clearHandleDragging()
+                dragPreviousOffset = -1
+                dragBeginOffsetInText = -1
+                dragBeginPosition = Offset.Unspecified
+                dragTotalDistance = Offset.Zero
+            },
+            onDrag = onDrag@{ _, dragAmount ->
+                // selection never started, did not consume any drag
+                if (textFieldState.text.isEmpty()) return@onDrag
+
+                dragTotalDistance += dragAmount
+
+                // "start position + total delta" is not enough to understand the current
+                // pointer position relative to text layout. We need to also account for any
+                // changes to visible offset that's caused by auto-scrolling while dragging.
+                val currentDragPosition = dragBeginPosition + dragTotalDistance
+                val magnifierPosition = with(textLayoutState) {
+                    currentDragPosition.relativeToInputText()
+                }
+
+                logDebug { "onDrag after longPress $currentDragPosition $magnifierPosition" }
+
+                val startOffset: Int
+                val endOffset: Int
+                val adjustment: SelectionAdjustment
+
+                if (
+                    dragBeginOffsetInText < 0 && // drag started in end padding
+                    !textLayoutState.isPositionOnText(currentDragPosition) // still in end padding
+                ) {
+                    startOffset = textLayoutState.getOffsetForPosition(dragBeginPosition)
+                    endOffset = textLayoutState.getOffsetForPosition(currentDragPosition)
+
+                    adjustment = if (startOffset == endOffset) {
+                        // start and end is in the same end padding, keep the collapsed selection
+                        SelectionAdjustment.None
+                    } else {
+                        SelectionAdjustment.Word
+                    }
+                } else {
+                    startOffset = dragBeginOffsetInText.takeIf { it >= 0 }
+                        ?: textLayoutState.getOffsetForPosition(
+                            position = dragBeginPosition,
+                            coerceInVisibleBounds = false
+                        )
+                    endOffset = textLayoutState.getOffsetForPosition(
+                        position = currentDragPosition,
+                        coerceInVisibleBounds = false
+                    )
+
+                    if (dragBeginOffsetInText < 0 && startOffset == endOffset) {
+                        // if we are selecting starting from end padding,
+                        // don't start selection until we have and un-collapsed selection.
+                        return@onDrag
+                    }
+
+                    adjustment = SelectionAdjustment.Word
+                }
+
+                val prevSelection = textFieldState.text.selectionInChars
+                var newSelection = updateSelection(
+                    textFieldCharSequence = textFieldState.text,
+                    startOffset = startOffset,
+                    endOffset = endOffset,
+                    isStartHandle = false,
+                    adjustment = adjustment,
+                    previousHandleOffset = dragPreviousOffset,
+                    allowPreviousSelectionCollapsed = false,
+                )
+
+                var actingHandle = Handle.SelectionEnd
+
+                // if new selection reverses the original selection, we can treat this drag position
+                // as start handle being dragged.
+                if (!prevSelection.reversed && newSelection.reversed) {
+                    newSelection = newSelection.reverse()
+                    actingHandle = Handle.SelectionStart
+                }
+
+                // Do not allow selection to collapse on itself while dragging. Selection can
+                // reverse but does not collapse.
+                if (prevSelection.collapsed || !newSelection.collapsed) {
+                    editWithFilter {
+                        selectCharsIn(newSelection)
+                    }
+                }
+                dragPreviousOffset = endOffset
+                updateHandleDragging(
+                    handle = actingHandle,
+                    position = magnifierPosition
+                )
+            }
         )
     }
 
@@ -978,6 +1095,8 @@ internal class TextFieldSelectionState(
         return newSelection
     }
 }
+
+private fun TextRange.reverse() = TextRange(end, start)
 
 private val DEBUG = true
 private val DEBUG_TAG = "TextFieldSelectionState"

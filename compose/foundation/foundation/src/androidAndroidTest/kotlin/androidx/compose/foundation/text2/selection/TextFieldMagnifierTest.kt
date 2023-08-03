@@ -85,28 +85,4 @@ internal class TextFieldMagnifierTest : AbstractSelectionMagnifierTests() {
     fun magnifier_hidden_whenCursorDraggedFarPastEndOfLine() {
         checkMagnifierHiddenWhenDraggedTooFar(Handle.Cursor, checkStart = false)
     }
-
-    // TODO(halilibo): Re-enable when long press drag is supported
-    @Test
-    override fun magnifier_appears_duringInitialLongPressDrag_expandingForwards() {
-        assert(true)
-    }
-
-    // TODO(halilibo): Re-enable when long press drag is supported
-    @Test
-    override fun magnifier_appears_duringInitialLongPressDrag_expandingBackwards() {
-        assert(true)
-    }
-
-    // TODO(halilibo): Re-enable when long press drag is supported
-    @Test
-    override fun magnifier_appears_duringInitialLongPressDrag_expandingForwards_rtl() {
-        assert(true)
-    }
-
-    // TODO(halilibo): Re-enable when long press drag is supported
-    @Test
-    override fun magnifier_appears_duringInitialLongPressDrag_expandingBackwards_rtl() {
-        assert(true)
-    }
 }
