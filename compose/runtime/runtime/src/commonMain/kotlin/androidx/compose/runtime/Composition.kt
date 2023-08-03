@@ -17,6 +17,7 @@
 @file:OptIn(InternalComposeApi::class)
 package androidx.compose.runtime
 
+import androidx.collection.MutableIntList
 import androidx.collection.MutableScatterSet
 import androidx.compose.runtime.changelist.ChangeList
 import androidx.compose.runtime.collection.IdentityArrayMap
@@ -476,7 +477,10 @@ internal class CompositionImpl(
      * The slot table is used to store the composition information required for recomposition.
      */
     @Suppress("MemberVisibilityCanBePrivate") // published as internal
-    internal val slotTable = SlotTable()
+    internal val slotTable = SlotTable().also {
+        if (parent.collectingCallByInformation) it.collectCalledByInformation()
+        if (parent.collectingSourceInformation) it.collectSourceInformation()
+    }
 
     /**
      * A map of observable objects to the [RecomposeScope]s that observe the object. If the key
@@ -665,7 +669,7 @@ internal class CompositionImpl(
         // Calls to invalidate must be performed without the lock as the they may cause the
         // recomposer to take its lock to respond to the invalidation and that takes the locks
         // in the opposite order of composition so if composition begins in another thread taking
-        // trying to take the recomposer lock with the composer lock held will deadlock.
+        // the recomposer lock with the composer lock held will deadlock.
         val forceComposition = scopesToInvalidate == null || scopesToInvalidate.fastAny {
             it.invalidateForResult(null) == InvalidationResult.IGNORED
         }
@@ -1272,13 +1276,22 @@ internal class CompositionImpl(
         private val forgetting = mutableListOf<Any>()
         private val sideEffects = mutableListOf<() -> Unit>()
         private var releasing: MutableList<ComposeNodeLifecycleCallback>? = null
-
+        private val pending = mutableListOf<Any>()
+        private val priorities = MutableIntList()
+        private val afters = MutableIntList()
         override fun remembering(instance: RememberObserver) {
             remembering.add(instance)
         }
 
-        override fun forgetting(instance: RememberObserver) {
-            forgetting.add(instance)
+        override fun forgetting(instance: RememberObserver, order: Int, priority: Int, after: Int) {
+            processPending(order)
+            if (order < after) {
+                pending.add(instance)
+                priorities.add(priority)
+                afters.add(after)
+            } else {
+                forgetting.add(instance)
+            }
         }
 
         override fun sideEffect(effect: () -> Unit) {
@@ -1296,6 +1309,9 @@ internal class CompositionImpl(
         }
 
         fun dispatchRememberObservers() {
+            // Add any pending out-of-order forgotten objects
+            processPending(Int.MAX_VALUE)
+
             // Send forgets and node deactivations
             if (forgetting.isNotEmpty()) {
                 trace("Compose:onForgotten") {
@@ -1358,6 +1374,37 @@ internal class CompositionImpl(
                         instance.onAbandoned()
                     }
                 }
+            }
+        }
+
+        private fun processPending(order: Int) {
+            if (pending.isNotEmpty()) {
+                var i = 0
+                var toAdd: MutableList<Any>? = null
+                var toAddPriority: MutableIntList? = null
+                while (i < afters.size) {
+                    if (order >= afters[i]) {
+                        val priority = priorities[i]
+                        val forgetting = pending[i]
+                        afters.removeAt(i)
+                        priorities.removeAt(i)
+                        pending.removeAt(i)
+                        if (toAdd == null) {
+                            toAdd = mutableListOf(forgetting)
+                            toAddPriority = MutableIntList().also { it.add(priority) }
+                        } else {
+                            toAddPriority as MutableIntList
+                            val insertLocation = toAddPriority.indexOfFirst { priority > it }.let {
+                                if (it < 0) toAddPriority.size else it
+                            }
+                            toAddPriority.add(insertLocation, priority)
+                            toAdd.add(insertLocation, forgetting)
+                        }
+                    } else {
+                        i++
+                    }
+                }
+                if (toAdd != null) forgetting.addAll(toAdd)
             }
         }
     }

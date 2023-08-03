@@ -69,7 +69,7 @@ internal interface RememberManager {
     /**
      * The [RememberObserver] is being forgotten by a slot in the slot table.
      */
-    fun forgetting(instance: RememberObserver)
+    fun forgetting(instance: RememberObserver, order: Int, priority: Int, after: Int)
 
     /**
      * The [effect] should be called when changes are being applied but after the remember/forget
@@ -1279,7 +1279,8 @@ internal class ComposerImpl(
     private var reusingGroup = -1
     private var childrenComposing: Int = 0
     private var compositionToken: Int = 0
-    private var sourceInformationEnabled = false
+    private var sourceMarkersEnabled = parentContext.collectingSourceInformation ||
+        parentContext.collectingCallByInformation
     private val derivedStateObserver = object : DerivedStateObserver {
         override fun start(derivedState: DerivedState<*>) {
             childrenComposing++
@@ -1302,9 +1303,12 @@ internal class ComposerImpl(
 
     internal var reader: SlotReader = slotTable.openReader().also { it.close() }
 
-    internal var insertTable = SlotTable()
+    internal var insertTable = SlotTable().apply {
+        if (parentContext.collectingSourceInformation) collectSourceInformation()
+        if (parentContext.collectingCallByInformation) collectCalledByInformation()
+    }
 
-    private var writer: SlotWriter = insertTable.openWriter().also { it.close() }
+    private var writer: SlotWriter = insertTable.openWriter().also { it.close(true) }
     private var writerHasAProvider = false
     private var providerCache: PersistentCompositionLocalMap? = null
     internal var deferredChanges: ChangeList? = null
@@ -1462,8 +1466,8 @@ internal class ComposerImpl(
         }
 
         // Propagate collecting source information
-        if (!sourceInformationEnabled) {
-            sourceInformationEnabled = parentContext.collectingSourceInformation
+        if (!sourceMarkersEnabled) {
+            sourceMarkersEnabled = parentContext.collectingSourceInformation
         }
 
         parentProvider.read(LocalInspectionTables)?.let {
@@ -1499,14 +1503,7 @@ internal class ComposerImpl(
         entersStack.clear()
         providersInvalidStack.clear()
         providerUpdates = null
-        if (!reader.closed) {
-            reader.close()
-        }
-        if (!writer.closed) {
-            writer.close()
-        }
         insertFixups.clear()
-        createFreshInsertTable()
         compoundKeyHash = 0
         childrenComposing = 0
         nodeExpected = false
@@ -1515,6 +1512,14 @@ internal class ComposerImpl(
         isComposing = false
         forciblyRecompose = false
         reusingGroup = -1
+        if (!reader.closed) {
+            reader.close()
+        }
+        if (!writer.closed) {
+            // We cannot just close the insert table as the state of the table is uncertain
+            // here and writer.close() might throw.
+            forceFreshInsertTable()
+        }
     }
 
     internal fun changesApplied() {
@@ -1557,7 +1562,10 @@ internal class ComposerImpl(
      */
     override fun collectParameterInformation() {
         forceRecomposeScopes = true
-        sourceInformationEnabled = true
+        sourceMarkersEnabled = true
+        slotTable.collectSourceInformation()
+        insertTable.collectSourceInformation()
+        writer.updateToTableMaps()
     }
 
     @OptIn(InternalComposeApi::class)
@@ -1933,8 +1941,35 @@ internal class ComposerImpl(
         if (inserting) {
             writer.update(value)
         } else {
-            val groupSlotIndex = reader.groupSlotIndex - 1
-            changeListWriter.updateValue(value, groupSlotIndex)
+            if (reader.hadNext) {
+                // We need to update the slot we just read so which is is one previous to the
+                // current group slot index.
+                val groupSlotIndex = reader.groupSlotIndex - 1
+                if (changeListWriter.pastParent) {
+                    // The reader is after the first child of the group so we cannot reposition the
+                    // writer to the parent to update it as this will cause the writer to navigate
+                    // backward which violates the single pass, forward walking nature of update.
+                    // Using an anchored updated allows to to violate this principle just for
+                    // updating slots as this is required if the update occurs after the writer has
+                    // been moved past the parent.
+                    changeListWriter.updateAnchoredValue(
+                        value,
+                        reader.anchor(reader.parent),
+                        groupSlotIndex
+                    )
+                } else {
+                    // No children have been seen yet so we are still in a position where we can
+                    // directly update the parent.
+                    changeListWriter.updateValue(value, groupSlotIndex)
+                }
+            } else {
+                // This uses an anchor for the same reason as `updateAnchoredValue` uses and anchor,
+                // the writer might have advanced past the parent and we need to go back and update
+                // the parent. As this is likely to never occur in an empty group, we don't bother
+                // checking if the reader has moved so we don't need an anchored and un-anchored
+                // version of the same function.
+                changeListWriter.appendValue(reader.anchor(reader.parent), value)
+            }
         }
     }
 
@@ -1949,10 +1984,27 @@ internal class ComposerImpl(
         val toStore = if (value is RememberObserver) {
             if (inserting) { changeListWriter.remember(value) }
             abandonSet.add(value)
-            RememberObserverHolder(value)
+            RememberObserverHolder(value, rememberObserverAnchor())
         } else value
         updateValue(toStore)
     }
+
+    private fun rememberObserverAnchor(): Anchor? =
+        if (inserting) {
+            if (writer.isAfterFirstChild) {
+                var group = writer.currentGroup - 1
+                var parent = writer.parent(group)
+                while (parent != writer.parent && parent >= 0) {
+                    group = parent
+                    parent = writer.parent(group)
+                }
+                writer.anchor(group)
+            } else null
+        } else {
+            if (reader.isAfterFirstChild)
+                reader.anchor(reader.currentGroup - 1)
+            else null
+        }
 
     override val compositionData: CompositionData get() = slotTable
 
@@ -2148,7 +2200,7 @@ internal class ComposerImpl(
                 CompositionContextImpl(
                     compoundKeyHash,
                     forceRecomposeScopes,
-                    sourceInformationEnabled,
+                    sourceMarkersEnabled,
                     (composition as? CompositionImpl)?.observerHolder
                 )
             )
@@ -2186,8 +2238,15 @@ internal class ComposerImpl(
 
     private fun createFreshInsertTable() {
         runtimeCheck(writer.closed)
-        insertTable = SlotTable()
-        writer = insertTable.openWriter().also { it.close() }
+        forceFreshInsertTable()
+    }
+
+    private fun forceFreshInsertTable() {
+        insertTable = SlotTable().apply {
+            if (sourceMarkersEnabled) collectSourceInformation()
+            if (parentContext.collectingCallByInformation) collectCalledByInformation()
+        }
+        writer = insertTable.openWriter().also { it.close(true) }
     }
 
     /**
@@ -2483,7 +2542,7 @@ internal class ComposerImpl(
             if (!reader.inEmpty) {
                 val virtualIndex = insertedGroupVirtualIndex(parentGroup)
                 writer.endInsert()
-                writer.close()
+                writer.close(true)
                 recordInsert(insertAnchor)
                 this.inserting = false
                 if (!slotTable.isEmpty) {
@@ -2493,6 +2552,10 @@ internal class ComposerImpl(
             }
         } else {
             if (isNode) changeListWriter.moveUp()
+            val remainingSlots = reader.remainingSlots
+            if (remainingSlots > 0) {
+                changeListWriter.trimValues(remainingSlots)
+            }
             changeListWriter.endCurrentGroup()
             val parentGroup = reader.parent
             val parentNodeCount = updatedNodeCount(parentGroup)
@@ -2502,6 +2565,7 @@ internal class ComposerImpl(
             if (isNode) {
                 expectedNodeCount = 1
             }
+
             reader.endGroup()
             changeListWriter.endNodeMovement()
         }
@@ -2696,7 +2760,7 @@ internal class ComposerImpl(
             while (current < groupLocation) {
                 val end = current + reader.groupSize(current)
                 if (groupLocation < end) continue@loop
-                index += updatedNodeCount(current)
+                index += if (reader.isNode(current)) 1 else updatedNodeCount(current)
                 current = end
             }
             break
@@ -3236,27 +3300,27 @@ internal class ComposerImpl(
 
     @ComposeCompilerApi
     override fun sourceInformation(sourceInformation: String) {
-        if (inserting && sourceInformationEnabled) {
+        if (inserting && sourceMarkersEnabled) {
             writer.recordGroupSourceInformation(sourceInformation)
         }
     }
 
     @ComposeCompilerApi
     override fun sourceInformationMarkerStart(key: Int, sourceInformation: String) {
-        if (inserting && sourceInformationEnabled) {
+        if (inserting && sourceMarkersEnabled) {
             writer.recordGrouplessCallSourceInformationStart(key, sourceInformation)
         }
     }
 
     @ComposeCompilerApi
     override fun sourceInformationMarkerEnd() {
-        if (inserting && sourceInformationEnabled) {
+        if (inserting && sourceMarkersEnabled) {
             writer.recordGrouplessCallSourceInformationEnd()
         }
     }
 
     override fun disableSourceInformation() {
-        sourceInformationEnabled = false
+        sourceMarkersEnabled = false
     }
 
     /**
@@ -3590,6 +3654,9 @@ internal class ComposerImpl(
         var inspectionTables: MutableSet<MutableSet<CompositionData>>? = null
         val composers = mutableSetOf<ComposerImpl>()
 
+        override val collectingCallByInformation: Boolean
+            get() = parentContext.collectingCallByInformation
+
         fun dispose() {
             if (composers.isNotEmpty()) {
                 inspectionTables?.let {
@@ -3909,14 +3976,17 @@ internal fun SlotWriter.removeCurrentGroup(rememberManager: RememberManager) {
 
     // To ensure this order, we call `enters` as a pre-order traversal
     // of the group tree, and then call `leaves` in the inverse order.
-    for (slot in groupSlots()) {
+
+    forAllData(currentGroup) { slotIndex, slot ->
         // even that in the documentation we claim ComposeNodeLifecycleCallback should be only
         // implemented on the nodes we do not really enforce it here as doing so will be expensive.
         if (slot is ComposeNodeLifecycleCallback) {
             rememberManager.releasing(slot)
         }
         if (slot is RememberObserverHolder) {
-            rememberManager.forgetting(slot.wrapped)
+            withAfterAnchorInfo(slot.after) { priority, after ->
+                rememberManager.forgetting(slot.wrapped, slotIndex, priority, after)
+            }
         }
         if (slot is RecomposeScopeImpl) {
             slot.release()
@@ -3925,6 +3995,19 @@ internal fun SlotWriter.removeCurrentGroup(rememberManager: RememberManager) {
 
     removeGroup()
 }
+
+internal inline fun <R> SlotWriter.withAfterAnchorInfo(anchor: Anchor?, cb: (Int, Int) -> R) {
+    var priority = -1
+    var after = -1
+    if (anchor != null && anchor.valid) {
+        priority = anchorIndex(anchor)
+        after = slotsEndAllIndex(priority)
+    }
+    cb(priority, after)
+}
+
+internal val SlotWriter.isAfterFirstChild get() = currentGroup > parent + 1
+internal val SlotReader.isAfterFirstChild get() = currentGroup > parent + 1
 
 internal fun SlotWriter.deactivateCurrentGroup(rememberManager: RememberManager) {
     // Notify the lifecycle manager of any observers leaving the slot table
@@ -3949,7 +4032,9 @@ internal fun SlotWriter.deactivateCurrentGroup(rememberManager: RememberManager)
                         // do nothing, the value should be preserved on reuse
                     } else {
                         removeData(group, index, data)
-                        rememberManager.forgetting(wrapped)
+                        withAfterAnchorInfo(data.after) { priority, after ->
+                            rememberManager.forgetting(wrapped, index, priority, after)
+                        }
                     }
                 }
                 is RecomposeScopeImpl -> {
@@ -4164,7 +4249,10 @@ private value class GroupKind private constructor(val value: Int) {
  */
 internal interface ReusableRememberObserver : RememberObserver
 
-internal class RememberObserverHolder(var wrapped: RememberObserver)
+internal class RememberObserverHolder(
+    var wrapped: RememberObserver,
+    var after: Anchor?
+)
 
 /*
  * Integer keys are arbitrary values in the biload range. The do not need to be unique as if

@@ -1336,6 +1336,9 @@ class Recomposer(
     internal override val compoundHashKey: Int
         get() = RecomposerCompoundHashKey
 
+    internal override val collectingCallByInformation: Boolean
+        get() = _hotReloadEnabled.get()
+
     // Collecting parameter happens at the level of a composer; starts as false
     internal override val collectingParameterInformation: Boolean
         get() = false
