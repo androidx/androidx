@@ -203,15 +203,11 @@ class BluetoothLe constructor(private val context: Context) {
          *
          * @param characteristic a remote [GattCharacteristic] to write
          * @param value a value to be written.
-         * @param writeType [GattCharacteristic.WRITE_TYPE_DEFAULT],
-         * [GattCharacteristic.WRITE_TYPE_NO_RESPONSE], or
-         * [GattCharacteristic.WRITE_TYPE_SIGNED].
          * @return the result of the write operation
          */
         suspend fun writeCharacteristic(
             characteristic: GattCharacteristic,
-            value: ByteArray,
-            writeType: Int
+            value: ByteArray
         ): Result<Unit>
 
         /**
