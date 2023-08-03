@@ -15,24 +15,41 @@
  */
 
 import androidx.build.LibraryType
+import androidx.build.PlatformIdentifier
 import androidx.build.Publish
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
 }
 
-dependencies {
-    api(libs.kotlinStdlib)
-    implementation(project(":paging:paging-common"))
+androidXMultiplatform {
+    jvm()
+    mac()
+    linux()
+    ios()
+    android()
 
-    testImplementation(libs.junit)
-    testImplementation(libs.kotlinCoroutinesTest)
-    testImplementation((libs.kotlinCoroutinesAndroid))
-    testImplementation(project(":internal-testutils-paging"))
-    testImplementation(libs.kotlinTest)
-    testImplementation(libs.truth)
+    defaultPlatform(PlatformIdentifier.ANDROID)
+
+    sourceSets {
+        androidMain {
+            dependencies {
+                api(libs.kotlinStdlib)
+                implementation(project(":paging:paging-common"))
+            }
+        }
+        androidTest {
+            dependencies {
+                implementation(libs.junit)
+                implementation(libs.kotlinCoroutinesTest)
+                implementation((libs.kotlinCoroutinesAndroid))
+                implementation(project(":internal-testutils-paging"))
+                implementation(libs.kotlinTest)
+                implementation(libs.truth)
+            }
+        }
+    }
 }
 
 androidx {
