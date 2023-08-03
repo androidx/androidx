@@ -25,7 +25,6 @@ import static org.junit.Assert.assertTrue;
 import android.app.UiAutomation;
 import android.graphics.Point;
 import android.view.KeyEvent;
-import android.view.Surface;
 import android.widget.TextView;
 
 import androidx.test.filters.LargeTest;
@@ -33,7 +32,6 @@ import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.uiautomator.By;
 import androidx.test.uiautomator.BySelector;
-import androidx.test.uiautomator.Orientation;
 import androidx.test.uiautomator.UiDevice;
 import androidx.test.uiautomator.UiObject2;
 import androidx.test.uiautomator.Until;
@@ -392,23 +390,24 @@ public class UiDeviceTest extends BaseTest {
     }
 
     @Test
-    public void testSetOrientation() {
+    public void testSetOrientationPortrait() throws Exception {
         launchTestActivity(KeycodeTestActivity.class);
-
         try {
-            mDevice.setOrientation(Orientation.ROTATION_0);
-            assertEquals(Surface.ROTATION_0, mDevice.getDisplayRotation());
-
-            mDevice.setOrientation(Orientation.ROTATION_90);
-            assertEquals(Surface.ROTATION_90, mDevice.getDisplayRotation());
-
-            mDevice.setOrientation(Orientation.PORTRAIT);
-            assertTrue(mDevice.getDisplayHeight() >= mDevice.getDisplayWidth());
-
-            mDevice.setOrientation(Orientation.LANDSCAPE);
-            assertTrue(mDevice.getDisplayHeight() <= mDevice.getDisplayWidth());
+            mDevice.setOrientationPortrait();
+            assertTrue(mDevice.getDisplayHeight() > mDevice.getDisplayWidth());
         } finally {
-            mDevice.setOrientation(Orientation.ROTATION_0);
+            mDevice.unfreezeRotation();
+        }
+    }
+
+    @Test
+    public void testSetOrientationLandscape() throws Exception {
+        launchTestActivity(KeycodeTestActivity.class);
+        try {
+            mDevice.setOrientationLandscape();
+            assertTrue(mDevice.getDisplayWidth() > mDevice.getDisplayHeight());
+        } finally {
+            mDevice.unfreezeRotation();
         }
     }
 
