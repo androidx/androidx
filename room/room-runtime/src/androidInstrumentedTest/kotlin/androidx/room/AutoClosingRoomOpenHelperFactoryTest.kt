@@ -16,6 +16,7 @@
 
 package androidx.room
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Build
 import android.os.Build.VERSION_CODES.JELLY_BEAN
@@ -52,6 +53,7 @@ public class AutoClosingRoomOpenHelperFactoryTest {
         )
     }
 
+    @SuppressLint("BanThreadSleep")
     @RequiresApi(Build.VERSION_CODES.N)
     @Test
     public fun testCallbacksCalled() {
@@ -118,16 +120,19 @@ public class AutoClosingRoomOpenHelperFactoryTest {
             getAutoClosingRoomOpenHelperFactory()
 
         val refCountCheckingCallback = object : SupportSQLiteOpenHelper.Callback(1) {
+            @SuppressLint("BanThreadSleep")
             override fun onCreate(db: SupportSQLiteDatabase) {
                 Thread.sleep(100)
                 db.execSQL("create table user (idk int)")
             }
 
+            @SuppressLint("BanThreadSleep")
             override fun onConfigure(db: SupportSQLiteDatabase) {
                 Thread.sleep(100)
                 db.setMaximumSize(100000)
             }
 
+            @SuppressLint("BanThreadSleep")
             override fun onOpen(db: SupportSQLiteDatabase) {
                 Thread.sleep(100)
                 db.execSQL("select * from user")

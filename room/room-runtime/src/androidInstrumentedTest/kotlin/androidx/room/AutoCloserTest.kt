@@ -16,6 +16,7 @@
 
 package androidx.room
 
+import android.annotation.SuppressLint
 import androidx.arch.core.executor.ArchTaskExecutor
 import androidx.arch.core.executor.testing.CountingTaskExecutorRule
 import androidx.kruth.assertThat
@@ -90,6 +91,7 @@ public class AutoCloserTest {
         assertThat(countingTaskExecutorRule.isIdle).isTrue()
     }
 
+    @SuppressLint("BanThreadSleep")
     @Ignore("b/283959848")
     @Test
     public fun refCountsCounted() {
@@ -116,6 +118,7 @@ public class AutoCloserTest {
         countingTaskExecutorRule.drainTasks(10, TimeUnit.MILLISECONDS)
     }
 
+    @SuppressLint("BanThreadSleep")
     @Ignore // b/271325600
     @Test
     public fun executeRefCountingFunctionPropagatesFailure() {
@@ -133,6 +136,7 @@ public class AutoCloserTest {
         countingTaskExecutorRule.drainTasks(10, TimeUnit.MILLISECONDS)
     }
 
+    @SuppressLint("BanThreadSleep")
     @Test
     @FlakyTest(bugId = 182343970)
     public fun dbNotClosedWithRefCountIncremented() {
@@ -150,6 +154,7 @@ public class AutoCloserTest {
         assertThat(autoCloser.delegateDatabase).isNull()
     }
 
+    @SuppressLint("BanThreadSleep")
     @FlakyTest(bugId = 189775887)
     @Test
     public fun getDelegatedDatabaseReturnsUnwrappedDatabase() {
@@ -176,6 +181,7 @@ public class AutoCloserTest {
         countingTaskExecutorRule.drainTasks(10, TimeUnit.MILLISECONDS)
     }
 
+    @SuppressLint("BanThreadSleep")
     @Test
     public fun refCountStaysIncrementedWhenErrorIsEncountered() {
         callback.throwOnOpen = true

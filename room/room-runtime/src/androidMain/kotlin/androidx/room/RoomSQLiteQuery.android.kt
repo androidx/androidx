@@ -15,6 +15,7 @@
  */
 package androidx.room
 
+import android.annotation.SuppressLint
 import androidx.annotation.IntDef
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
@@ -30,6 +31,7 @@ import java.util.TreeMap
  * Because it is relatively a big object, they are pooled and must be released after each use.
  *
  */
+@SuppressLint("WrongConstant")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 class RoomSQLiteQuery private constructor(
     @field:VisibleForTesting val capacity: Int

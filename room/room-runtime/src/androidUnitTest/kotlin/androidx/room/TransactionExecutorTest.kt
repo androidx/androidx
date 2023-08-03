@@ -16,6 +16,7 @@
 
 package androidx.room
 
+import android.annotation.SuppressLint
 import androidx.kruth.assertThat
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
@@ -71,6 +72,7 @@ class TransactionExecutorTest {
         var finish: Long = 0
         var run: Boolean = false
 
+        @SuppressLint("BanThreadSleep")
         override fun run() {
             run = true
             start = System.nanoTime()
