@@ -275,19 +275,15 @@ internal class DefaultSpecialEffectsController(
             return startedTransitions
         }
 
-        // Every transition needs to target at least one View so that they
-        // don't interfere with one another. This is the view we use
-        // in cases where there are no real views to target
-        val nonExistentView = View(container.context)
-
         // Now find the shared element transition if it exists
         var sharedElementTransition: Any? = null
-        var firstOutEpicenterView: View? = null
-        var hasLastInEpicenter = false
-        val lastInEpicenterRect = Rect()
         val sharedElementFirstOutViews = ArrayList<View>()
         val sharedElementLastInViews = ArrayList<View>()
         val sharedElementNameMapping = ArrayMap<String, String>()
+        var enteringNames = ArrayList<String>()
+        var exitingNames = ArrayList<String>()
+        val firstOutViews = ArrayMap<String, View>()
+        val lastInViews = ArrayMap<String, View>()
         for (transitionInfo: TransitionInfo in transitionInfos) {
             val hasSharedElementTransition = transitionInfo.hasSharedElementTransition()
             // Compute the shared element transition between the firstOut and lastIn Fragments
@@ -297,7 +293,7 @@ internal class DefaultSpecialEffectsController(
                     transitionImpl.cloneTransition(transitionInfo.sharedElementTransition))
                 // The exiting shared elements default to the source names from the
                 // last in fragment
-                val exitingNames = lastIn.fragment.sharedElementSourceNames
+                exitingNames = lastIn.fragment.sharedElementSourceNames
                 // But if we're doing multiple transactions, we may need to re-map
                 // the names from the first out fragment
                 val firstOutSourceNames = firstOut.fragment.sharedElementSourceNames
@@ -312,7 +308,7 @@ internal class DefaultSpecialEffectsController(
                         exitingNames[nameIndex] = firstOutSourceNames[index]
                     }
                 }
-                val enteringNames = lastIn.fragment.sharedElementTargetNames
+                enteringNames = lastIn.fragment.sharedElementTargetNames
                 val (exitingCallback, enteringCallback) = if (!isPop) {
                     // Forward transitions have firstOut fragment exiting and the
                     // lastIn fragment entering
@@ -343,7 +339,6 @@ internal class DefaultSpecialEffectsController(
 
                 // Find all of the Views from the firstOut fragment that are
                 // part of the shared element transition
-                val firstOutViews = ArrayMap<String, View>()
                 findNamedViews(firstOutViews, firstOut.fragment.mView)
                 firstOutViews.retainAll(exitingNames)
                 if (exitingCallback != null) {
@@ -371,7 +366,6 @@ internal class DefaultSpecialEffectsController(
 
                 // Find all of the Views from the lastIn fragment that are
                 // part of the shared element transition
-                val lastInViews = ArrayMap<String, View>()
                 findNamedViews(lastInViews, lastIn.fragment.mView)
                 lastInViews.retainAll(enteringNames)
                 lastInViews.retainAll(sharedElementNameMapping.values)
@@ -414,166 +408,14 @@ internal class DefaultSpecialEffectsController(
                     sharedElementTransition = null
                     sharedElementFirstOutViews.clear()
                     sharedElementLastInViews.clear()
-                } else {
-                    // Call through to onSharedElementStart() before capturing the
-                    // starting values for the shared element transition
-                    callSharedElementStartEnd(lastIn.fragment, firstOut.fragment, isPop,
-                        firstOutViews, true)
-                    // Trigger the onSharedElementEnd callback in the next frame after
-                    // the starting values are captured and before capturing the end states
-                    OneShotPreDrawListener.add(container) {
-                        callSharedElementStartEnd(lastIn.fragment, firstOut.fragment, isPop,
-                            lastInViews, false)
-                    }
-                    sharedElementFirstOutViews.addAll(firstOutViews.values)
-
-                    // Compute the epicenter of the firstOut transition
-                    if (exitingNames.isNotEmpty()) {
-                        val epicenterViewName = exitingNames[0]
-                        firstOutEpicenterView = firstOutViews[epicenterViewName]
-                        transitionImpl.setEpicenter(
-                            sharedElementTransition, firstOutEpicenterView
-                        )
-                    }
-                    sharedElementLastInViews.addAll(lastInViews.values)
-
-                    // Compute the epicenter of the lastIn transition
-                    if (enteringNames.isNotEmpty()) {
-                        val epicenterViewName = enteringNames[0]
-                        val lastInEpicenterView = lastInViews[epicenterViewName]
-                        if (lastInEpicenterView != null) {
-                            hasLastInEpicenter = true
-                            // We can't set the epicenter here directly since the View might
-                            // not have been laid out as of yet, so instead we set a Rect as
-                            // the epicenter and compute the bounds one frame later
-                            val impl: FragmentTransitionImpl = transitionImpl
-                            OneShotPreDrawListener.add(container) {
-                                impl.getBoundsOnScreen(lastInEpicenterView, lastInEpicenterRect)
-                            }
-                        }
-                    }
-
-                    // Now set the transition's targets to only the firstOut Fragment's views
-                    // It'll be swapped to the lastIn Fragment's views after the
-                    // transition is started
-                    transitionImpl.setSharedElementTargets(sharedElementTransition,
-                        nonExistentView, sharedElementFirstOutViews)
-                    // After the swap to the lastIn Fragment's view (done below), we
-                    // need to clean up those targets. We schedule this here so that it
-                    // runs directly after the swap
-                    transitionImpl.scheduleRemoveTargets(sharedElementTransition, null, null,
-                        null, null, sharedElementTransition, sharedElementLastInViews)
-                    // Both the firstOut and lastIn Operations are now associated
-                    // with a Transition
-                    startedTransitions[firstOut] = true
-                    startedTransitions[lastIn] = true
                 }
             }
-        }
-        val enteringViews = ArrayList<View>()
-        // These transitions run together, overlapping one another
-        var mergedTransition: Any? = null
-        // These transitions run only after all of the other transitions complete
-        var mergedNonOverlappingTransition: Any? = null
-        // Now iterate through the set of transitions and merge them together
-        for (transitionInfo: TransitionInfo in transitionInfos) {
-            val operation: Operation = transitionInfo.operation
-            if (transitionInfo.isVisibilityUnchanged) {
-                // No change in visibility, so we can immediately complete the transition
-                startedTransitions[transitionInfo.operation] = false
-                operation.effects.add(NoOpEffect(transitionInfo))
-                continue
-            }
-            val transition = transitionImpl.cloneTransition(transitionInfo.transition)
-            val involvedInSharedElementTransition = (sharedElementTransition != null &&
-                (operation === firstOut || operation === lastIn))
-            if (transition == null) {
-                // Nothing more to do if the transition is null
-                if (!involvedInSharedElementTransition) {
-                    // Only complete the transition if this fragment isn't involved
-                    // in the shared element transition (as otherwise we need to wait
-                    // for that to finish)
-                    startedTransitions[operation] = false
-                    operation.effects.add(NoOpEffect(transitionInfo))
-                }
-            } else {
-                // Target the Transition to *only* the set of transitioning views
-                val transitioningViews = ArrayList<View>()
-                captureTransitioningViews(transitioningViews, operation.fragment.mView)
-                if (involvedInSharedElementTransition) {
-                    // Remove all of the shared element views from the transition
-                    if (operation === firstOut) {
-                        transitioningViews.removeAll(sharedElementFirstOutViews.toSet())
-                    } else {
-                        transitioningViews.removeAll(sharedElementLastInViews.toSet())
-                    }
-                }
-                if (transitioningViews.isEmpty()) {
-                    transitionImpl.addTarget(transition, nonExistentView)
-                } else {
-                    transitionImpl.addTargets(transition, transitioningViews)
-                    transitionImpl.scheduleRemoveTargets(transition, transition,
-                        transitioningViews, null, null, null, null)
-                    if (operation.finalState === Operation.State.GONE) {
-                        // We're hiding the Fragment. This requires a bit of extra work
-                        // First, we need to avoid immediately applying the container change as
-                        // that will stop the Transition from occurring.
-                        operation.isAwaitingContainerChanges = false
-                        // Then schedule the actual hide of the fragment's view,
-                        // essentially doing what applyState() would do for us
-                        val transitioningViewsToHide = ArrayList(transitioningViews)
-                        transitioningViewsToHide.remove(operation.fragment.mView)
-                        transitionImpl.scheduleHideFragmentView(transition,
-                            operation.fragment.mView, transitioningViewsToHide)
-                        // This OneShotPreDrawListener gets fired before the delayed start of
-                        // the Transition and changes the visibility of any exiting child views
-                        // that *ARE NOT* shared element transitions. The TransitionManager then
-                        // properly considers exiting views and marks them as disappearing,
-                        // applying a transition and a listener to take proper actions once the
-                        // transition is complete.
-                        OneShotPreDrawListener.add(container) {
-                            setViewVisibility(transitioningViews, View.INVISIBLE)
-                        }
-                    }
-                }
-                if (operation.finalState === Operation.State.VISIBLE) {
-                    enteringViews.addAll(transitioningViews)
-                    if (hasLastInEpicenter) {
-                        transitionImpl.setEpicenter(transition, lastInEpicenterRect)
-                    }
-                } else {
-                    transitionImpl.setEpicenter(transition, firstOutEpicenterView)
-                }
-                startedTransitions[operation] = true
-                // Now determine how this transition should be merged together
-                if (transitionInfo.isOverlapAllowed) {
-                    // Overlap is allowed, so add them to the mergeTransition set
-                    mergedTransition = transitionImpl.mergeTransitionsTogether(
-                        mergedTransition, transition, null)
-                } else {
-                    // Overlap is not allowed, add them to the mergedNonOverlappingTransition
-                    mergedNonOverlappingTransition = transitionImpl.mergeTransitionsTogether(
-                        mergedNonOverlappingTransition, transition, null)
-                }
-            }
-        }
-
-        // Make sure that the mergedNonOverlappingTransition set
-        // runs after the mergedTransition set is complete
-        mergedTransition = transitionImpl.mergeTransitionsInSequence(mergedTransition,
-            mergedNonOverlappingTransition, sharedElementTransition)
-
-        // If there's no transitions playing together, no non-overlapping transitions,
-        // and no shared element transitions, mergedTransition will be null and
-        // there's nothing else we need to do
-        if (mergedTransition == null) {
-            return startedTransitions
         }
 
         transitionInfos.first().operation.transitionEffect = TransitionEffect(
-            transitionInfos, firstOut, lastIn, transitionImpl, mergedTransition,
-            enteringViews, sharedElementTransition, sharedElementFirstOutViews,
-            sharedElementLastInViews, sharedElementNameMapping
+            transitionInfos, firstOut, lastIn, transitionImpl, sharedElementTransition,
+            sharedElementFirstOutViews, sharedElementLastInViews, sharedElementNameMapping,
+            enteringNames, exitingNames, firstOutViews, lastInViews, isPop, startedTransitions
         )
 
         return startedTransitions
@@ -585,36 +427,6 @@ internal class DefaultSpecialEffectsController(
     private fun ArrayMap<String, View>.retainMatchingViews(names: Collection<String>) {
         entries.retainAll { entry ->
             names.contains(ViewCompat.getTransitionName(entry.value))
-        }
-    }
-
-    /**
-     * Gets the Views in the hierarchy affected by entering and exiting transitions.
-     *
-     * @param transitioningViews This View will be added to transitioningViews if it has a
-     * transition name, is VISIBLE and a normal View, or a ViewGroup with
-     * [android.view.ViewGroup.isTransitionGroup] true.
-     * @param view The base of the view hierarchy to look in.
-     */
-    private fun captureTransitioningViews(transitioningViews: ArrayList<View>, view: View) {
-        if (view is ViewGroup) {
-            if (ViewGroupCompat.isTransitionGroup(view)) {
-                if (!transitioningViews.contains(view)) {
-                    transitioningViews.add(view)
-                }
-            } else {
-                val count = view.childCount
-                for (i in 0 until count) {
-                    val child = view.getChildAt(i)
-                    if (child.visibility == View.VISIBLE) {
-                        captureTransitioningViews(transitioningViews, child)
-                    }
-                }
-            }
-        } else {
-            if (!transitioningViews.contains(view)) {
-                transitioningViews.add(view)
-            }
         }
     }
 
@@ -954,14 +766,184 @@ internal class DefaultSpecialEffectsController(
         val firstOut: Operation?,
         val lastIn: Operation?,
         val transitionImpl: FragmentTransitionImpl,
-        val mergedTransition: Any,
-        val enteringViews: List<View>,
         val sharedElementTransition: Any?,
         val sharedElementFirstOutViews: ArrayList<View>,
         val sharedElementLastInViews: ArrayList<View>,
-        val sharedElementNameMapping: Map<String, String>
+        val sharedElementNameMapping: ArrayMap<String, String>,
+        val enteringNames: ArrayList<String>,
+        val exitingNames: ArrayList<String>,
+        val firstOutViews: ArrayMap<String, View>,
+        val lastInViews: ArrayMap<String, View>,
+        val isPop: Boolean,
+        val startedTransitions: MutableMap<Operation, Boolean>
     ) : Effect() {
         override fun onCommit(container: ViewGroup) {
+            // Every transition needs to target at least one View so that they
+            // don't interfere with one another. This is the view we use
+            // in cases where there are no real views to target
+            val nonExistentView = View(container.context)
+            var firstOutEpicenterView: View? = null
+            var hasLastInEpicenter = false
+            val lastInEpicenterRect = Rect()
+            for (transitionInfo: TransitionInfo in transitionInfos) {
+                val hasSharedElementTransition = transitionInfo.hasSharedElementTransition()
+                // Compute the shared element transition between the firstOut and lastIn Fragments
+                if (hasSharedElementTransition && (firstOut != null) && (lastIn != null)) {
+                    if (sharedElementNameMapping.isNotEmpty() && sharedElementTransition != null) {
+                        // Call through to onSharedElementStart() before capturing the
+                        // starting values for the shared element transition
+                        callSharedElementStartEnd(lastIn.fragment, firstOut.fragment, isPop,
+                            firstOutViews, true)
+                        // Trigger the onSharedElementEnd callback in the next frame after
+                        // the starting values are captured and before capturing the end states
+                        OneShotPreDrawListener.add(container) {
+                            callSharedElementStartEnd(lastIn.fragment, firstOut.fragment, isPop,
+                                lastInViews, false)
+                        }
+                        sharedElementFirstOutViews.addAll(firstOutViews.values)
+
+                        // Compute the epicenter of the firstOut transition
+                        if (exitingNames.isNotEmpty()) {
+                            val epicenterViewName = exitingNames[0]
+                            firstOutEpicenterView = firstOutViews[epicenterViewName]
+                            transitionImpl.setEpicenter(
+                                sharedElementTransition, firstOutEpicenterView
+                            )
+                        }
+                        sharedElementLastInViews.addAll(lastInViews.values)
+
+                        // Compute the epicenter of the lastIn transition
+                        if (enteringNames.isNotEmpty()) {
+                            val epicenterViewName = enteringNames[0]
+                            val lastInEpicenterView = lastInViews[epicenterViewName]
+                            if (lastInEpicenterView != null) {
+                                hasLastInEpicenter = true
+                                // We can't set the epicenter here directly since the View might
+                                // not have been laid out as of yet, so instead we set a Rect as
+                                // the epicenter and compute the bounds one frame later
+                                val impl: FragmentTransitionImpl = transitionImpl
+                                OneShotPreDrawListener.add(container) {
+                                    impl.getBoundsOnScreen(lastInEpicenterView, lastInEpicenterRect)
+                                }
+                            }
+                        }
+
+                        // Now set the transition's targets to only the firstOut Fragment's views
+                        // It'll be swapped to the lastIn Fragment's views after the
+                        // transition is started
+                        transitionImpl.setSharedElementTargets(sharedElementTransition,
+                            nonExistentView, sharedElementFirstOutViews)
+                        // After the swap to the lastIn Fragment's view (done below), we
+                        // need to clean up those targets. We schedule this here so that it
+                        // runs directly after the swap
+                        transitionImpl.scheduleRemoveTargets(sharedElementTransition, null, null,
+                            null, null, sharedElementTransition, sharedElementLastInViews)
+                        // Both the firstOut and lastIn Operations are now associated
+                        // with a Transition
+                        startedTransitions[firstOut] = true
+                        startedTransitions[lastIn] = true
+                    }
+                }
+            }
+            val enteringViews = ArrayList<View>()
+            // These transitions run together, overlapping one another
+            var mergedTransition: Any? = null
+            // These transitions run only after all of the other transitions complete
+            var mergedNonOverlappingTransition: Any? = null
+            // Now iterate through the set of transitions and merge them together
+            for (transitionInfo: TransitionInfo in transitionInfos) {
+                val operation: Operation = transitionInfo.operation
+                if (transitionInfo.isVisibilityUnchanged) {
+                    // No change in visibility, so we can immediately complete the transition
+                    startedTransitions[transitionInfo.operation] = false
+                    transitionInfo.completeSpecialEffect()
+                    continue
+                }
+                val transition = transitionImpl.cloneTransition(transitionInfo.transition)
+                val involvedInSharedElementTransition = (sharedElementTransition != null &&
+                    (operation === firstOut || operation === lastIn))
+                if (transition == null) {
+                    // Nothing more to do if the transition is null
+                    if (!involvedInSharedElementTransition) {
+                        // Only complete the transition if this fragment isn't involved
+                        // in the shared element transition (as otherwise we need to wait
+                        // for that to finish)
+                        startedTransitions[operation] = false
+                        transitionInfo.completeSpecialEffect()
+                    }
+                } else {
+                    // Target the Transition to *only* the set of transitioning views
+                    val transitioningViews = ArrayList<View>()
+                    captureTransitioningViews(transitioningViews, operation.fragment.mView)
+                    if (involvedInSharedElementTransition) {
+                        // Remove all of the shared element views from the transition
+                        if (operation === firstOut) {
+                            transitioningViews.removeAll(sharedElementFirstOutViews.toSet())
+                        } else {
+                            transitioningViews.removeAll(sharedElementLastInViews.toSet())
+                        }
+                    }
+                    if (transitioningViews.isEmpty()) {
+                        transitionImpl.addTarget(transition, nonExistentView)
+                    } else {
+                        transitionImpl.addTargets(transition, transitioningViews)
+                        transitionImpl.scheduleRemoveTargets(transition, transition,
+                            transitioningViews, null, null, null, null)
+                        if (operation.finalState === Operation.State.GONE) {
+                            // We're hiding the Fragment. This requires a bit of extra work
+                            // First, we need to avoid immediately applying the container change as
+                            // that will stop the Transition from occurring.
+                            operation.isAwaitingContainerChanges = false
+                            // Then schedule the actual hide of the fragment's view,
+                            // essentially doing what applyState() would do for us
+                            val transitioningViewsToHide = ArrayList(transitioningViews)
+                            transitioningViewsToHide.remove(operation.fragment.mView)
+                            transitionImpl.scheduleHideFragmentView(transition,
+                                operation.fragment.mView, transitioningViewsToHide)
+                            // This OneShotPreDrawListener gets fired before the delayed start of
+                            // the Transition and changes the visibility of any exiting child views
+                            // that *ARE NOT* shared element transitions. The TransitionManager then
+                            // properly considers exiting views and marks them as disappearing,
+                            // applying a transition and a listener to take proper actions once the
+                            // transition is complete.
+                            OneShotPreDrawListener.add(container) {
+                                setViewVisibility(transitioningViews, View.INVISIBLE)
+                            }
+                        }
+                    }
+                    if (operation.finalState === Operation.State.VISIBLE) {
+                        enteringViews.addAll(transitioningViews)
+                        if (hasLastInEpicenter) {
+                            transitionImpl.setEpicenter(transition, lastInEpicenterRect)
+                        }
+                    } else {
+                        transitionImpl.setEpicenter(transition, firstOutEpicenterView)
+                    }
+                    startedTransitions[operation] = true
+                    // Now determine how this transition should be merged together
+                    if (transitionInfo.isOverlapAllowed) {
+                        // Overlap is allowed, so add them to the mergeTransition set
+                        mergedTransition = transitionImpl.mergeTransitionsTogether(
+                            mergedTransition, transition, null)
+                    } else {
+                        // Overlap is not allowed, add them to the mergedNonOverlappingTransition
+                        mergedNonOverlappingTransition = transitionImpl.mergeTransitionsTogether(
+                            mergedNonOverlappingTransition, transition, null)
+                    }
+                }
+            }
+
+            // Make sure that the mergedNonOverlappingTransition set
+            // runs after the mergedTransition set is complete
+            mergedTransition = transitionImpl.mergeTransitionsInSequence(mergedTransition,
+                mergedNonOverlappingTransition, sharedElementTransition)
+
+            // If there's no transitions playing together, no non-overlapping transitions,
+            // and no shared element transitions, mergedTransition will be null and
+            // there's nothing else we need to do
+            if (mergedTransition == null) {
+                return
+            }
             // Now set up our completion signal on the completely merged transition set
             transitionInfos.filterNot { transitionInfo ->
                 // If there's change in visibility, we've already completed the transition
@@ -1027,6 +1009,36 @@ internal class DefaultSpecialEffectsController(
             setViewVisibility(enteringViews, View.VISIBLE)
             transitionImpl.swapSharedElementTargets(sharedElementTransition,
                 sharedElementFirstOutViews, sharedElementLastInViews)
+        }
+
+        /**
+         * Gets the Views in the hierarchy affected by entering and exiting transitions.
+         *
+         * @param transitioningViews This View will be added to transitioningViews if it has a
+         * transition name, is VISIBLE and a normal View, or a ViewGroup with
+         * [android.view.ViewGroup.isTransitionGroup] true.
+         * @param view The base of the view hierarchy to look in.
+         */
+        private fun captureTransitioningViews(transitioningViews: ArrayList<View>, view: View) {
+            if (view is ViewGroup) {
+                if (ViewGroupCompat.isTransitionGroup(view)) {
+                    if (!transitioningViews.contains(view)) {
+                        transitioningViews.add(view)
+                    }
+                } else {
+                    val count = view.childCount
+                    for (i in 0 until count) {
+                        val child = view.getChildAt(i)
+                        if (child.visibility == View.VISIBLE) {
+                            captureTransitioningViews(transitioningViews, child)
+                        }
+                    }
+                }
+            } else {
+                if (!transitioningViews.contains(view)) {
+                    transitioningViews.add(view)
+                }
+            }
         }
     }
 
