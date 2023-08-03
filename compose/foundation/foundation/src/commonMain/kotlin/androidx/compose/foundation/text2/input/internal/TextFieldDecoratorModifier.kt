@@ -20,7 +20,6 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.text.KeyboardActionScope
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.text.cancelsTextSelection
 import androidx.compose.foundation.text2.BasicTextField2
 import androidx.compose.foundation.text2.input.TextEditFilter
 import androidx.compose.foundation.text2.input.TextFieldState
@@ -170,7 +169,7 @@ internal class TextFieldDecoratorModifierNode(
      * Manages key events. These events often are sourced by a hardware keyboard but it's also
      * possible that IME or some other platform system simulates a KeyEvent.
      */
-    private val textFieldKeyEventHandler = TextFieldKeyEventHandler().also {
+    private val textFieldKeyEventHandler = createTextFieldKeyEventHandler().also {
         it.setFilter(filter)
     }
 
@@ -414,19 +413,19 @@ internal class TextFieldDecoratorModifierNode(
     }
 
     override fun onPreKeyEvent(event: KeyEvent): Boolean {
-        val selection = textFieldState.text.selectionInChars
-        return if (!selection.collapsed && event.cancelsTextSelection()) {
-            textFieldSelectionState.deselect()
-            true
-        } else {
-            false
-        }
+        return textFieldKeyEventHandler.onPreKeyEvent(
+            event = event,
+            textFieldState = textFieldState,
+            textFieldSelectionState = textFieldSelectionState,
+            focusManager = currentValueOf(LocalFocusManager),
+            keyboardController = requireKeyboardController()
+        )
     }
 
     override fun onKeyEvent(event: KeyEvent): Boolean {
         return textFieldKeyEventHandler.onKeyEvent(
             event = event,
-            state = textFieldState,
+            textFieldState = textFieldState,
             textLayoutState = textLayoutState,
             editable = enabled && !readOnly,
             singleLine = singleLine,
