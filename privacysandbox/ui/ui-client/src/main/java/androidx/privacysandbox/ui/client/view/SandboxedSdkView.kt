@@ -322,9 +322,10 @@ class SandboxedSdkView @JvmOverloads constructor(context: Context, attrs: Attrib
         checkClientOpenSession()
     }
 
-    // TODO(b/270971893) Compare to old configuration before notifying of configuration change.
     override fun onConfigurationChanged(config: Configuration?) {
         requireNotNull(config) { "Config cannot be null" }
+        if (context.resources.configuration == config)
+            return
         super.onConfigurationChanged(config)
         client?.notifyConfigurationChanged(config)
         checkClientOpenSession()
