@@ -20,7 +20,7 @@ import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clipScrollableContainer
-import androidx.compose.foundation.gestures.BringIntoViewScroller
+import androidx.compose.foundation.gestures.BringIntoViewSpec
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.ScrollableDefaults
 import androidx.compose.foundation.gestures.awaitEachGesture
@@ -129,7 +129,7 @@ internal fun Pager(
         orientation == Orientation.Vertical
     )
 
-    val pagerBringIntoViewScroller = remember(state) { PagerBringIntoViewScroller(state) }
+    val pagerBringIntoViewSpec = remember(state) { PagerBringIntoViewSpec(state) }
 
     LazyLayout(
         modifier = modifier
@@ -162,7 +162,7 @@ internal fun Pager(
                 state = state,
                 overscrollEffect = overscrollEffect,
                 enabled = userScrollEnabled,
-                bringIntoViewScroller = pagerBringIntoViewScroller
+                bringIntoViewSpec = pagerBringIntoViewSpec
             )
             .dragDirectionDetector(state)
             .nestedScroll(pageNestedScrollConnection),
@@ -282,7 +282,7 @@ private fun Modifier.dragDirectionDetector(state: PagerState) =
     }
 
 @OptIn(ExperimentalFoundationApi::class)
-private class PagerBringIntoViewScroller(val pagerState: PagerState) : BringIntoViewScroller {
+private class PagerBringIntoViewSpec(val pagerState: PagerState) : BringIntoViewSpec {
 
     override val scrollAnimationSpec: AnimationSpec<Float> = spring()
 

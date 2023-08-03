@@ -22,7 +22,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.ScrollingLayoutElement
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.BringIntoViewScroller
+import androidx.compose.foundation.gestures.BringIntoViewSpec
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.Orientation.Horizontal
 import androidx.compose.foundation.gestures.Orientation.Vertical
@@ -1207,7 +1207,7 @@ class BringIntoViewScrollableInteractionTest(private val orientation: Orientatio
         }
 
         val expectedContainerSize = with(rule.density) { containerSize.roundToPx() }
-        val customBringIntoViewScroller = object : BringIntoViewScroller {
+        val customBringIntoViewSpec = object : BringIntoViewSpec {
             override val scrollAnimationSpec: AnimationSpec<Float> = spring()
 
             override fun calculateScrollDistance(
@@ -1232,7 +1232,7 @@ class BringIntoViewScrollableInteractionTest(private val orientation: Orientatio
                         state = state,
                         overscrollEffect = null,
                         orientation = orientation,
-                        bringIntoViewScroller = customBringIntoViewScroller
+                        bringIntoViewSpec = customBringIntoViewSpec
                     )
                     .then(ScrollingLayoutElement(state, false, orientation == Vertical))
             ) {
@@ -1252,7 +1252,7 @@ class BringIntoViewScrollableInteractionTest(private val orientation: Orientatio
         val bringIntoViewRequests = listOf(300f, 150f, 0f)
         val scrollState = ScrollState(0)
         var requestsFulfilledScroll = 0
-        val customBringIntoViewScroller = object : BringIntoViewScroller {
+        val customBringIntoViewSpec = object : BringIntoViewSpec {
             var index = 0
 
             override val scrollAnimationSpec: AnimationSpec<Float> = spring()
@@ -1283,7 +1283,7 @@ class BringIntoViewScrollableInteractionTest(private val orientation: Orientatio
                         state = scrollState,
                         overscrollEffect = null,
                         orientation = orientation,
-                        bringIntoViewScroller = customBringIntoViewScroller
+                        bringIntoViewSpec = customBringIntoViewSpec
                     )
             ) {
                 Box(
