@@ -152,6 +152,26 @@ class CameraControllerTest {
     }
 
     @Test
+    fun unbindController_canSetPendingValueAgain() {
+        // Arrange: set pending values
+        var linearZoomFuture = controller.setLinearZoom(LINEAR_ZOOM)
+
+        // Act: complete initialization.
+        completeCameraInitialization()
+        // Assert: pending value is set.
+        assertThat(fakeCameraControl.linearZoom).isEqualTo(LINEAR_ZOOM)
+        assertThat(linearZoomFuture.isDone).isTrue()
+
+        // Act: unbind controller, set pending value again and rebind.
+        controller.unbind()
+        linearZoomFuture = controller.setLinearZoom(1F)
+        controller.bindToLifecycle(FakeLifecycleOwner())
+        // Assert: pending value is set to new value.
+        assertThat(fakeCameraControl.linearZoom).isEqualTo(1F)
+        assertThat(linearZoomFuture.isDone).isTrue()
+    }
+
+    @Test
     fun initCompletes_torchStatePropagated() {
         // Arrange: get LiveData before init completes
         val torchState = controller.torchState
