@@ -114,20 +114,18 @@ internal class DefaultSpecialEffectsController(
             currentState != Operation.State.VISIBLE &&
                 operation.finalState == Operation.State.VISIBLE
         }
-        // Run the transition Effects
-        operations.first().transitionEffect?.apply {
-            onStart(container)
-            onCommit(container)
+        val set = operations.flatMap { it.effects }.toSet().toList()
+
+        // Start all of the Animation, Animator, Transition and NoOp Effects we have collected
+        for (i in set.indices) {
+            val effect = set[i]
+            effect.onStart(container)
         }
 
-        // Run all of the Animation, Animator, and NoOp Effects we have collected
-        for (i in operations.indices) {
-            val operation = operations[i]
-            for (j in operation.effects.indices) {
-                val effect = operation.effects[j]
-                effect.onStart(container)
-                effect.onCommit(container)
-            }
+        // Commit all of the Animation, Animator, Transition and NoOp Effects we have collected
+        for (i in set.indices) {
+            val effect = set[i]
+            effect.onCommit(container)
         }
 
         for (i in operations.indices) {
@@ -412,11 +410,15 @@ internal class DefaultSpecialEffectsController(
             }
         }
 
-        transitionInfos.first().operation.transitionEffect = TransitionEffect(
+        val transitionEffect = TransitionEffect(
             transitionInfos, firstOut, lastIn, transitionImpl, sharedElementTransition,
             sharedElementFirstOutViews, sharedElementLastInViews, sharedElementNameMapping,
             enteringNames, exitingNames, firstOutViews, lastInViews, isPop, startedTransitions
         )
+
+        transitionInfos.forEach { transitionInfo ->
+            transitionInfo.operation.effects.add(transitionEffect)
+        }
 
         return startedTransitions
     }

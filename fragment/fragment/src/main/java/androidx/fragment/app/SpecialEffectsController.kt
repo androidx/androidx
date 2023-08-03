@@ -534,8 +534,6 @@ internal abstract class SpecialEffectsController(val container: ViewGroup) {
 
         val effects = mutableListOf<Effect>()
 
-        var transitionEffect: Effect? = null
-
         init {
             // Connect the CancellationSignal to our own
             cancellationSignal.setOnCancelListener { cancel() }
