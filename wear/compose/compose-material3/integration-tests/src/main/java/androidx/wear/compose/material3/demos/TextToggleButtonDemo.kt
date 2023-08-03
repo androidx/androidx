@@ -96,17 +96,6 @@ fun TextToggleButtonDemo() {
                 )
             }
         }
-        item {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text("${TextButtonDefaults.ExtraSmallButtonSize.value.toInt()}dp")
-                Spacer(Modifier.width(4.dp))
-                TextToggleButtonsDemo(
-                    enabled = true,
-                    checked = true,
-                    size = TextButtonDefaults.ExtraSmallButtonSize
-                )
-            }
-        }
     }
 }
 
