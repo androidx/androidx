@@ -18,7 +18,9 @@ package androidx.test.uiautomator;
 
 import android.os.Build;
 import android.util.Log;
+import android.view.Display;
 import android.view.accessibility.AccessibilityNodeInfo;
+import android.view.accessibility.AccessibilityWindowInfo;
 
 import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
@@ -427,7 +429,9 @@ class ByMatcher {
 
         @DoNotInline
         static int getDisplayId(AccessibilityNodeInfo accessibilityNodeInfo) {
-            return accessibilityNodeInfo.getWindow().getDisplayId();
+            AccessibilityWindowInfo accessibilityWindowInfo = accessibilityNodeInfo.getWindow();
+            return accessibilityWindowInfo == null ? Display.DEFAULT_DISPLAY :
+                    accessibilityWindowInfo.getDisplayId();
         }
     }
 }
