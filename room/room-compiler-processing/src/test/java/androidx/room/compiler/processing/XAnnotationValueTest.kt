@@ -1387,9 +1387,9 @@ class XAnnotationValueTest(
             ) as Source.KotlinSource
         ) { invocation ->
             val annotation = getAnnotation(invocation)
-            // Compare the AnnotationSpec string ignoring whitespace
-            assertThat(annotation.toAnnotationSpec().toString().removeWhiteSpace())
-                .isEqualTo("""
+                // Compare the AnnotationSpec string ignoring whitespace
+                assertThat(annotation.toAnnotationSpec().toString().removeWhiteSpace())
+                    .isEqualTo("""
                         @test.MyAnnotation(
                             stringParam="2",
                             stringParam2="1",
@@ -1397,20 +1397,20 @@ class XAnnotationValueTest(
                         )
                         """.removeWhiteSpace())
 
-            assertThat(
-                annotation.toAnnotationSpec(
-                    includeDefaultValues = false).toString().removeWhiteSpace())
-                .isEqualTo("""
+                assertThat(
+                    annotation.toAnnotationSpec(
+                        includeDefaultValues = false).toString().removeWhiteSpace())
+                    .isEqualTo("""
                         @test.MyAnnotation(stringParam="2")
                         """.removeWhiteSpace())
-            assertThat(annotation.getAnnotationValue("stringParam").value)
-                .isEqualTo("2")
-            assertThat(annotation.getAnnotationValue("stringParam2").value)
-                .isEqualTo("1")
-            assertThat(
-                annotation.getAnnotationValue("stringArrayParam")
-                    .asAnnotationValueList().firstOrNull()?.value)
-                .isEqualTo("3")
+                assertThat(annotation.getAnnotationValue("stringParam").value)
+                    .isEqualTo("2")
+                assertThat(annotation.getAnnotationValue("stringParam2").value)
+                    .isEqualTo("1")
+                assertThat(
+                    annotation.getAnnotationValue("stringArrayParam")
+                        .asAnnotationValueList().firstOrNull()?.value)
+                    .isEqualTo("3")
         }
     }
 

@@ -51,7 +51,6 @@ import java.nio.ByteBuffer
 import java.util.Date
 import kotlinx.coroutines.flow.Flow
 
-@JvmDefaultWithCompatibility
 @Dao
 interface MusicDao {
     @Insert

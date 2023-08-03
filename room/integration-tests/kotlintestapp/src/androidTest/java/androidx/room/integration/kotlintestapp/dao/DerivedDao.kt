@@ -21,7 +21,6 @@ import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.integration.kotlintestapp.vo.Author
 
-@JvmDefaultWithCompatibility
 @Dao
 interface DerivedDao : BaseDao<Author> {
 
