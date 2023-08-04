@@ -30,6 +30,7 @@ import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.ImageBitmapConfig
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.scale
 import androidx.compose.ui.graphics.isSpecified
@@ -179,15 +180,6 @@ fun rememberVectorPainter(image: ImageVector) =
     )
 
 /**
- * Functional interface to avoid "PrimitiveInLambda" lint errors
- */
-internal fun interface ComposeVector {
-
-    @Composable
-    fun Content(viewportWidth: Float, viewportHeight: Float)
-}
-
-/**
  * [Painter] implementation that abstracts the drawing of a Vector graphic.
  * This can be represented by either a [ImageVector] or a programmatic
  * composition of a vector
@@ -226,6 +218,9 @@ class VectorPainter internal constructor() : Painter() {
             }
         }
     }
+
+    internal val bitmapConfig: ImageBitmapConfig?
+        get() = vector.cacheBitmapConfig
 
     internal var composition: Composition? = null
 
