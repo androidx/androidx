@@ -26,6 +26,7 @@ import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.Animation
+import androidx.activity.BackEventCompat
 import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.collection.ArrayMap
@@ -635,7 +636,7 @@ internal class DefaultSpecialEffectsController(
             }
         }
 
-        override fun onCommit(container: ViewGroup) {
+        override fun onProgress(backEvent: BackEventCompat, container: ViewGroup) {
             val operation = animatorInfo.operation
             val animatorSet = animator
             if (animatorSet == null) {
@@ -651,35 +652,35 @@ internal class DefaultSpecialEffectsController(
                         "Adding BackProgressCallbacks for Animators to operation $operation"
                     )
                 }
-                operation.addBackProgressCallbacks({ backEvent ->
-                    val totalDuration = Api24Impl.totalDuration(animatorSet)
-                    var time = (backEvent.progress * totalDuration).toLong()
-                    // We cannot let the time get to 0 or the totalDuration to avoid
-                    // completing the operation accidentally.
-                    if (time == 0L) {
-                        time = 1L
-                    }
-                    if (time == totalDuration) {
-                        time = totalDuration - 1
-                    }
-                    if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
-                        Log.v(
-                            FragmentManager.TAG,
-                            "Setting currentPlayTime to $time for Animator $animatorSet on " +
-                                "operation $operation"
-                        )
-                    }
-                    Api26Impl.setCurrentPlayTime(animatorSet, time)
-                }) {
-                    if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
-                        Log.v(
-                            FragmentManager.TAG,
-                            "Back Progress Callback Animator has been started."
-                        )
-                    }
-                    animatorSet.start()
+                val totalDuration = Api24Impl.totalDuration(animatorSet)
+                var time = (backEvent.progress * totalDuration).toLong()
+                // We cannot let the time get to 0 or the totalDuration to avoid
+                // completing the operation accidentally.
+                if (time == 0L) {
+                    time = 1L
                 }
-            } else {
+                if (time == totalDuration) {
+                    time = totalDuration - 1
+                }
+                if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
+                    Log.v(
+                        FragmentManager.TAG,
+                        "Setting currentPlayTime to $time for Animator $animatorSet on " +
+                            "operation $operation"
+                    )
+                }
+                Api26Impl.setCurrentPlayTime(animatorSet, time)
+            }
+        }
+
+        override fun onCommit(container: ViewGroup) {
+            val operation = animatorInfo.operation
+            val animatorSet = animator
+            if (animatorSet == null) {
+                // No change in visibility, so we can go ahead and complete the effect
+                animatorInfo.completeSpecialEffect()
+                return
+            } else if (!operation.fragment.mTransitioning) {
                 animatorSet.start()
             }
             if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {

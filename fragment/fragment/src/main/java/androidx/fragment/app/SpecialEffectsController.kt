@@ -387,8 +387,11 @@ internal abstract class SpecialEffectsController(val container: ViewGroup) {
                 "SpecialEffectsController: Processing Progress ${backEvent.progress}"
             )
         }
-        runningOperations.forEach { operation ->
-            operation.backInProgressListener?.invoke(backEvent)
+
+        val set = runningOperations.flatMap { it.effects }.toSet().toList()
+        for (j in set.indices) {
+            val effect = set[j]
+            effect.onProgress(backEvent, container)
         }
     }
 
@@ -399,9 +402,7 @@ internal abstract class SpecialEffectsController(val container: ViewGroup) {
                 "SpecialEffectsController: Completing Back "
             )
         }
-        runningOperations.forEach { operation ->
-            operation.backOnCompleteListener?.invoke()
-        }
+        commitEffects(runningOperations)
     }
 
     /**
@@ -551,10 +552,6 @@ internal abstract class SpecialEffectsController(val container: ViewGroup) {
 
         private val completionListeners = mutableListOf<Runnable>()
         private val specialEffectsSignals = mutableSetOf<CancellationSignal>()
-        var backInProgressListener: ((BackEventCompat) -> Unit)? = null
-            private set
-        var backOnCompleteListener: (() -> Unit)? = null
-            private set
         var isCanceled = false
             private set
         var isComplete = false
@@ -655,20 +652,6 @@ internal abstract class SpecialEffectsController(val container: ViewGroup) {
             completionListeners.add(listener)
         }
 
-        fun addBackProgressCallbacks(
-            onProgress: (BackEventCompat) -> Unit,
-            onComplete: () -> Unit
-        ) {
-            if (FragmentManager.isLoggingEnabled(Log.DEBUG)) {
-                Log.d(
-                    FragmentManager.TAG,
-                    "SpecialEffectsController: Adding back progress callbacks for operation $this"
-                )
-            }
-            backInProgressListener = onProgress
-            backOnCompleteListener = onComplete
-        }
-
         /**
          * Callback for when the operation is about to start.
          */
@@ -716,8 +699,6 @@ internal abstract class SpecialEffectsController(val container: ViewGroup) {
                 )
             }
             isComplete = true
-            backInProgressListener = null
-            backOnCompleteListener = null
             completionListeners.forEach { listener ->
                 listener.run()
             }
@@ -788,6 +769,8 @@ internal abstract class SpecialEffectsController(val container: ViewGroup) {
 
     internal open class Effect {
         open fun onStart(container: ViewGroup) { }
+
+        open fun onProgress(backEvent: BackEventCompat, container: ViewGroup) { }
 
         open fun onCommit(container: ViewGroup) { }
 
