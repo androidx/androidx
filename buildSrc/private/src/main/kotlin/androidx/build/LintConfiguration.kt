@@ -93,6 +93,11 @@ private fun Project.configureAndroidProjectForLint(
  * Android Lint configuration entry point for non-Android projects.
  */
 private fun Project.configureNonAndroidProjectForLint() = afterEvaluate {
+    // TODO(aurimas): remove this workaround for b/293900782 after upgrading to AGP 8.2.0-beta01
+    if (path == ":collection:collection-benchmark-kmp" ||
+        path == ":benchmark:benchmark-darwin-samples") {
+        return@afterEvaluate
+    }
     // The lint plugin expects certain configurations and source sets which are only added by
     // the Java and Android plugins. If this is a multiplatform project targeting JVM, we'll
     // need to manually create these configurations and source sets based on their multiplatform
@@ -310,19 +315,6 @@ private fun Project.configureLint(lint: Lint, isLibrary: Boolean) {
     lint.apply {
         // Skip lintVital tasks on assemble. We explicitly run lintRelease for libraries.
         checkReleaseBuilds = false
-    }
-
-    tasks.withType(AndroidLintTask::class.java).configureEach { task ->
-        // Remove the lint and column attributes from generated lint baseline XML.
-        if (task.name.startsWith("updateLintBaseline")) {
-            task.doLast {
-                task.projectInputs.lintOptions.baseline.orNull?.asFile?.let { file ->
-                    if (file.exists()) {
-                        file.writeText(removeLineAndColumnAttributes(file.readText()))
-                    }
-                }
-            }
-        }
     }
 
     // Lint is configured entirely in finalizeDsl so that individual projects cannot easily
