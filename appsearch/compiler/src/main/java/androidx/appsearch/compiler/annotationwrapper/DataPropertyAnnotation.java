@@ -38,6 +38,11 @@ import javax.lang.model.element.AnnotationMirror;
  * </ul>
  */
 public abstract class DataPropertyAnnotation implements PropertyAnnotation {
+    public enum Kind {
+        STRING_PROPERTY, DOCUMENT_PROPERTY, LONG_PROPERTY, DOUBLE_PROPERTY, BOOLEAN_PROPERTY,
+        BYTES_PROPERTY
+    }
+
     @NonNull
     private final String mSimpleClassName;
 
@@ -92,4 +97,16 @@ public abstract class DataPropertyAnnotation implements PropertyAnnotation {
     public final String getSimpleClassName() {
         return mSimpleClassName;
     }
+
+    @NonNull
+    @Override
+    public final PropertyAnnotation.Kind getPropertyKind() {
+        return PropertyAnnotation.Kind.DATA_PROPERTY;
+    }
+
+    /**
+     * The {@link Kind} of {@link DataPropertyAnnotation}.
+     */
+    @NonNull
+    public abstract Kind getDataPropertyKind();
 }

@@ -47,4 +47,10 @@ public abstract class DoublePropertyAnnotation extends DataPropertyAnnotation {
         return new AutoValue_DoublePropertyAnnotation(
                 name.isEmpty() ? defaultName : name, (boolean) annotationParams.get("required"));
     }
+
+    @NonNull
+    @Override
+    public final Kind getDataPropertyKind() {
+        return Kind.DOUBLE_PROPERTY;
+    }
 }

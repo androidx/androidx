@@ -19,11 +19,17 @@ import static androidx.appsearch.compiler.IntrospectionHelper.BUILDER_PRODUCER_C
 import static androidx.appsearch.compiler.IntrospectionHelper.DOCUMENT_ANNOTATION_CLASS;
 import static androidx.appsearch.compiler.IntrospectionHelper.generateClassHierarchy;
 import static androidx.appsearch.compiler.IntrospectionHelper.getDocumentAnnotation;
+import static androidx.appsearch.compiler.IntrospectionHelper.validateIsGetter;
+
+import static java.util.stream.Collectors.groupingBy;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.compiler.IntrospectionHelper.PropertyClass;
+import androidx.appsearch.compiler.annotationwrapper.DataPropertyAnnotation;
+import androidx.appsearch.compiler.annotationwrapper.MetadataPropertyAnnotation;
+import androidx.appsearch.compiler.annotationwrapper.PropertyAnnotation;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -35,7 +41,9 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
+import java.util.function.Predicate;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.AnnotationMirror;
@@ -111,6 +119,8 @@ class DocumentModel {
     private TypeElement mBuilderClass = null;
     private Set<ExecutableElement> mBuilderProducers = new LinkedHashSet<>();
 
+    private final List<AnnotatedGetterOrField> mAnnotatedGettersAndFields;
+
     private DocumentModel(
             @NonNull ProcessingEnvironment env,
             @NonNull TypeElement clazz,
@@ -127,6 +137,18 @@ class DocumentModel {
         mQualifiedDocumentClassName = generatedAutoValueElement != null
                 ? generatedAutoValueElement.getQualifiedName().toString()
                 : clazz.getQualifiedName().toString();
+        mAnnotatedGettersAndFields = scanAnnotatedGettersAndFields(clazz, env);
+
+        requireNoDuplicateMetadataProperties();
+        requireGetterOrFieldMatchingPredicate(
+                getterOrField -> getterOrField.getAnnotation() == MetadataPropertyAnnotation.ID,
+                /* errorMessage= */"All @Document classes must have exactly one field annotated "
+                        + "with @Id");
+        requireGetterOrFieldMatchingPredicate(
+                getterOrField ->
+                        getterOrField.getAnnotation() == MetadataPropertyAnnotation.NAMESPACE,
+                /* errorMessage= */"All @Document classes must have exactly one field annotated "
+                        + "with @Namespace");
 
         // Scan methods and constructors. We will need this info when processing fields to
         // make sure the fields can be get and set.
@@ -145,8 +167,9 @@ class DocumentModel {
      * respectively.
      *
      * @throws ProcessingException if there are more than one elements annotated with
-     * {@code @Document.BuilderProducer}, or if the builder producer element is not a visible static
-     * method or a class.
+     *                             {@code @Document.BuilderProducer}, or if the builder producer
+     *                             element is not a visible static
+     *                             method or a class.
      */
     private void extractBuilderProducer(TypeElement typeElement)
             throws ProcessingException {
@@ -193,6 +216,65 @@ class DocumentModel {
                     }
                 }
             }
+        }
+    }
+
+    private static List<AnnotatedGetterOrField> scanAnnotatedGettersAndFields(
+            @NonNull TypeElement clazz,
+            @NonNull ProcessingEnvironment env) throws ProcessingException {
+        AnnotatedGetterAndFieldAccumulator accumulator = new AnnotatedGetterAndFieldAccumulator();
+        for (TypeElement type : generateClassHierarchy(clazz)) {
+            for (Element enclosedElement : type.getEnclosedElements()) {
+                AnnotatedGetterOrField getterOrField =
+                        AnnotatedGetterOrField.tryCreateFor(enclosedElement, env);
+                if (getterOrField == null) {
+                    continue;
+                }
+                accumulator.add(getterOrField);
+            }
+        }
+        return accumulator.getAccumulatedGettersAndFields();
+    }
+
+    /**
+     * Makes sure {@link #mAnnotatedGettersAndFields} does not contain two getters/fields
+     * annotated with the same metadata annotation e.g. it doesn't make sense for a document to
+     * have two {@code @Document.Id}s.
+     */
+    private void requireNoDuplicateMetadataProperties() throws ProcessingException {
+        Map<MetadataPropertyAnnotation, List<AnnotatedGetterOrField>> annotationToGettersAndFields =
+                mAnnotatedGettersAndFields.stream()
+                        .filter(getterOrField ->
+                                getterOrField.getAnnotation().getPropertyKind()
+                                        == PropertyAnnotation.Kind.METADATA_PROPERTY)
+                        .collect(groupingBy((getterOrField) ->
+                                (MetadataPropertyAnnotation) getterOrField.getAnnotation()));
+        for (Map.Entry<MetadataPropertyAnnotation, List<AnnotatedGetterOrField>> entry :
+                annotationToGettersAndFields.entrySet()) {
+            MetadataPropertyAnnotation annotation = entry.getKey();
+            List<AnnotatedGetterOrField> gettersAndFields = entry.getValue();
+            if (gettersAndFields.size() > 1) {
+                // Can show the error on any of the duplicates. Just pick the first first.
+                throw new ProcessingException(
+                        "Duplicate member annotated with @" + annotation.getSimpleClassName(),
+                        gettersAndFields.get(0).getElement());
+            }
+        }
+    }
+
+    /**
+     * Makes sure {@link #mAnnotatedGettersAndFields} contains a getter/field that matches the
+     * predicate.
+     *
+     * @throws ProcessingException with the error message if no match.
+     */
+    private void requireGetterOrFieldMatchingPredicate(
+            @NonNull Predicate<AnnotatedGetterOrField> predicate,
+            @NonNull String errorMessage) throws ProcessingException {
+        Optional<AnnotatedGetterOrField> annotatedGetterOrField =
+                mAnnotatedGettersAndFields.stream().filter(predicate).findFirst();
+        if (annotatedGetterOrField.isEmpty()) {
+            throw new ProcessingException(errorMessage, mClass);
         }
     }
 
@@ -294,6 +376,19 @@ class DocumentModel {
         return Collections.unmodifiableMap(mAllAppSearchElements);
     }
 
+    /**
+     * Returns all getters/fields (declared or inherited) annotated with some
+     * {@link PropertyAnnotation}.
+     */
+    @NonNull
+    public List<AnnotatedGetterOrField> getAnnotatedGettersAndFields() {
+        return mAnnotatedGettersAndFields;
+    }
+
+    /**
+     * @deprecated Use {@link #getAnnotatedGettersAndFields()} instead.
+     */
+    @Deprecated
     @NonNull
     public Map<String, Element> getPropertyElements() {
         return Collections.unmodifiableMap(mPropertyElements);
@@ -331,7 +426,11 @@ class DocumentModel {
      *
      * <p>This is usually the name of the field in Java, but may be changed if the developer
      * specifies a different 'name' parameter in the annotation.
+     *
+     * @deprecated Use {@link #getAnnotatedGettersAndFields()} and
+     * {@link DataPropertyAnnotation#getName()} ()} instead.
      */
+    @Deprecated
     @NonNull
     public String getPropertyName(@NonNull Element property) throws ProcessingException {
         AnnotationMirror annotation = getPropertyAnnotation(property);
@@ -348,7 +447,10 @@ class DocumentModel {
      * annotations.
      *
      * @throws ProcessingException if no AppSearch property annotation is found.
+     * @deprecated Use {@link #getAnnotatedGettersAndFields()} and
+     * {@link AnnotatedGetterOrField#getAnnotation()} instead.
      */
+    @Deprecated
     @NonNull
     public AnnotationMirror getPropertyAnnotation(@NonNull Element element)
             throws ProcessingException {
@@ -392,7 +494,10 @@ class DocumentModel {
      * Scan the annotations of a field to determine the fields type and handle it accordingly
      *
      * @param childElement the member of class elements currently being scanned
+     * @deprecated Rely on {@link #mAnnotatedGettersAndFields} instead of
+     * {@link #mAllAppSearchElements} and {@link #mSpecialFieldNames}.
      */
+    @Deprecated
     private void scanAnnotatedField(@NonNull Element childElement) throws ProcessingException {
         String fieldName = childElement.getSimpleName().toString();
 
@@ -787,14 +892,9 @@ class DocumentModel {
                     mHelper.isFieldOfBooleanType(element)
                             && methodName.equals("is" + methodNameSuffix))
             ) {
-                if (method.getModifiers().contains(Modifier.PRIVATE)) {
-                    e.addWarning(new ProcessingException(
-                            "Getter cannot be used: private visibility", method));
-                    continue;
-                }
-                if (!method.getParameters().isEmpty()) {
-                    e.addWarning(new ProcessingException(
-                            "Getter cannot be used: should take no parameters", method));
+                List<ProcessingException> errors = validateIsGetter(method);
+                if (!errors.isEmpty()) {
+                    e.addWarnings(errors);
                     continue;
                 }
                 // Found one!
@@ -966,5 +1066,259 @@ class DocumentModel {
         }
         // Documents don't need an explicit name annotation, can use the class name
         return rootDocumentClass.getSimpleName().toString();
+    }
+
+    /**
+     * Accumulates and de-duplicates {@link AnnotatedGetterOrField}s within a class hierarchy and
+     * ensures all of the following:
+     *
+     * <ol>
+     *     <li>
+     *         The same getter/field doesn't appear in the class hierarchy with different
+     *         annotation types e.g.
+     *
+     *         <pre>
+     *         {@code
+     *         @Document
+     *         class Parent {
+     *             @Document.StringProperty
+     *             public String getProp();
+     *         }
+     *
+     *         @Document
+     *         class Child extends Parent {
+     *             @Document.Id
+     *             public String getProp();
+     *         }
+     *         }
+     *         </pre>
+     *     </li>
+     *     <li>
+     *         The same getter/field doesn't appear twice with different serialized names e.g.
+     *
+     *         <pre>
+     *         {@code
+     *         @Document
+     *         class Parent {
+     *             @Document.StringProperty("foo")
+     *             public String getProp();
+     *         }
+     *
+     *         @Document
+     *         class Child extends Parent {
+     *             @Document.StringProperty("bar")
+     *             public String getProp();
+     *         }
+     *         }
+     *         </pre>
+     *     </li>
+     *     <li>
+     *         The same serialized name doesn't appear on two separate getters/fields e.g.
+     *
+     *         <pre>
+     *         {@code
+     *         @Document
+     *         class Gift {
+     *             @Document.StringProperty("foo")
+     *             String mField;
+     *
+     *             @Document.LongProperty("foo")
+     *             Long getProp();
+     *         }
+     *         }
+     *         </pre>
+     *     </li>
+     *     <li>
+     *         Two annotated element do not have the same normalized name because this hinders with
+     *         downstream logic that tries to infer creation methods e.g.
+     *
+     *         <pre>
+     *         {@code
+     *         @Document
+     *         class Gift {
+     *             @Document.StringProperty
+     *             String mFoo;
+     *
+     *             @Document.StringProperty
+     *             String getFoo() {...}
+     *             void setFoo(String value) {...}
+     *         }
+     *         }
+     *         </pre>
+     *     </li>
+     * </ol>
+     */
+    private static final class AnnotatedGetterAndFieldAccumulator {
+        private final Map<String, AnnotatedGetterOrField> mJvmNameToGetterOrField =
+                new LinkedHashMap<>();
+        private final Map<String, AnnotatedGetterOrField> mSerializedNameToGetterOrField =
+                new HashMap<>();
+        private final Map<String, AnnotatedGetterOrField> mNormalizedNameToGetterOrField =
+                new HashMap<>();
+
+        AnnotatedGetterAndFieldAccumulator() {
+        }
+
+        /**
+         * Adds the {@link AnnotatedGetterOrField} to the accumulator.
+         *
+         * <p>{@link AnnotatedGetterOrField} that appear again are considered to be overridden
+         * versions and replace the older ones.
+         *
+         * <p>Hence, this method should be called with {@link AnnotatedGetterOrField}s from the
+         * least specific types to the most specific type.
+         */
+        void add(@NonNull AnnotatedGetterOrField getterOrField) throws ProcessingException {
+            String jvmName = getterOrField.getJvmName();
+            AnnotatedGetterOrField existingGetterOrField = mJvmNameToGetterOrField.get(jvmName);
+
+            if (existingGetterOrField == null) {
+                // First time we're seeing this getter or field
+                mJvmNameToGetterOrField.put(jvmName, getterOrField);
+
+                requireUniqueNormalizedName(getterOrField);
+                mNormalizedNameToGetterOrField.put(
+                        getterOrField.getNormalizedName(), getterOrField);
+
+                if (hasDataPropertyAnnotation(getterOrField)) {
+                    requireSerializedNameNeverSeenBefore(getterOrField);
+                    mSerializedNameToGetterOrField.put(
+                            getSerializedName(getterOrField), getterOrField);
+                }
+            } else {
+                // Seen this getter or field before. It showed up again because of overriding.
+                requireAnnotationTypeIsConsistent(existingGetterOrField, getterOrField);
+                // Replace the old entries
+                mJvmNameToGetterOrField.put(jvmName, getterOrField);
+                mNormalizedNameToGetterOrField.put(
+                        getterOrField.getNormalizedName(), getterOrField);
+
+                if (hasDataPropertyAnnotation(getterOrField)) {
+                    requireSerializedNameIsConsistent(existingGetterOrField, getterOrField);
+                    // Replace the old entry
+                    mSerializedNameToGetterOrField.put(
+                            getSerializedName(getterOrField), getterOrField);
+                }
+            }
+        }
+
+        @NonNull
+        List<AnnotatedGetterOrField> getAccumulatedGettersAndFields() {
+            return mJvmNameToGetterOrField.values().stream().toList();
+        }
+
+        /**
+         * Makes sure the getter/field's normalized name either never appeared before, or if it did,
+         * did so for the same getter/field and re-appeared likely because of overriding.
+         */
+        private void requireUniqueNormalizedName(
+                @NonNull AnnotatedGetterOrField getterOrField) throws ProcessingException {
+            AnnotatedGetterOrField existingGetterOrField =
+                    mNormalizedNameToGetterOrField.get(getterOrField.getNormalizedName());
+            if (existingGetterOrField == null) {
+                // Never seen this normalized name before
+                return;
+            }
+            if (existingGetterOrField.getJvmName().equals(getterOrField.getJvmName())) {
+                // Same getter/field appeared again (likely because of overriding). Ok.
+                return;
+            }
+            throw new ProcessingException(
+                    ("Normalized name \"%s\" is already taken up by pre-existing %s. "
+                            + "Please rename this getter/field to something else.").formatted(
+                            getterOrField.getNormalizedName(),
+                            createSignatureString(existingGetterOrField)),
+                    getterOrField.getElement());
+        }
+
+        /**
+         * Makes sure a new getter/field is never annotated with a serialized name that is
+         * already given to some other getter/field.
+         *
+         * <p>Assumes the getter/field is annotated with a {@link DataPropertyAnnotation}.
+         */
+        private void requireSerializedNameNeverSeenBefore(
+                @NonNull AnnotatedGetterOrField getterOrField) throws ProcessingException {
+            String serializedName = getSerializedName(getterOrField);
+            AnnotatedGetterOrField existingGetterOrField =
+                    mSerializedNameToGetterOrField.get(serializedName);
+            if (existingGetterOrField != null) {
+                throw new ProcessingException(
+                        "Cannot give property the name '%s' because it is already used for %s"
+                                .formatted(serializedName, existingGetterOrField.getJvmName()),
+                        getterOrField.getElement());
+            }
+        }
+
+        /**
+         * Returns the serialized name for the corresponding property in the database.
+         *
+         * <p>Assumes the getter/field is annotated with a {@link DataPropertyAnnotation} to pull
+         * the serialized name out of the annotation
+         * e.g. {@code @Document.StringProperty("serializedName")}.
+         */
+        @NonNull
+        private static String getSerializedName(@NonNull AnnotatedGetterOrField getterOrField) {
+            DataPropertyAnnotation annotation =
+                    (DataPropertyAnnotation) getterOrField.getAnnotation();
+            return annotation.getName();
+        }
+
+        private static boolean hasDataPropertyAnnotation(
+                @NonNull AnnotatedGetterOrField getterOrField) {
+            PropertyAnnotation annotation = getterOrField.getAnnotation();
+            return annotation.getPropertyKind() == PropertyAnnotation.Kind.DATA_PROPERTY;
+        }
+
+        /**
+         * Makes sure the annotation type didn't change when overriding e.g.
+         * {@code @StringProperty -> @Id}.
+         */
+        private static void requireAnnotationTypeIsConsistent(
+                @NonNull AnnotatedGetterOrField existingGetterOrField,
+                @NonNull AnnotatedGetterOrField overriddenGetterOfField)
+                throws ProcessingException {
+            PropertyAnnotation existingAnnotation = existingGetterOrField.getAnnotation();
+            PropertyAnnotation overriddenAnnotation = overriddenGetterOfField.getAnnotation();
+            if (!existingAnnotation.getQualifiedClassName().equals(
+                    overriddenAnnotation.getQualifiedClassName())) {
+                throw new ProcessingException(
+                        ("Property type must stay consistent when overriding annotated members "
+                                + "but changed from @%s -> @%s").formatted(
+                                existingAnnotation.getSimpleClassName(),
+                                overriddenAnnotation.getSimpleClassName()),
+                        overriddenGetterOfField.getElement());
+            }
+        }
+
+        /**
+         * Makes sure the serialized name didn't change when overriding.
+         *
+         * <p>Assumes the getter/field is annotated with a {@link DataPropertyAnnotation}.
+         */
+        private static void requireSerializedNameIsConsistent(
+                @NonNull AnnotatedGetterOrField existingGetterOrField,
+                @NonNull AnnotatedGetterOrField overriddenGetterOrField)
+                throws ProcessingException {
+            String existingSerializedName = getSerializedName(existingGetterOrField);
+            String overriddenSerializedName = getSerializedName(overriddenGetterOrField);
+            if (!existingSerializedName.equals(overriddenSerializedName)) {
+                throw new ProcessingException(
+                        ("Property name within the annotation must stay consistent when overriding "
+                                + "annotated members but changed from '%s' -> '%s'".formatted(
+                                existingSerializedName, overriddenSerializedName)),
+                        overriddenGetterOrField.getElement());
+            }
+        }
+
+        @NonNull
+        private static String createSignatureString(@NonNull AnnotatedGetterOrField getterOrField) {
+            return getterOrField.getJvmType()
+                    + " "
+                    + getterOrField.getElement().getEnclosingElement().getSimpleName()
+                    + "#"
+                    + getterOrField.getJvmName()
+                    + (getterOrField.isGetter() ? "()" : "");
+        }
     }
 }
