@@ -48,7 +48,24 @@ androidXMultiplatform {
             }
         }
 
+        nonEmulatorCommonMain {
+            dependsOn(commonMain)
+        }
+
+        nonEmulatorCommonTest {
+            dependsOn(commonTest)
+        }
+
+        nonEmulatorJvmMain {
+            dependsOn(nonEmulatorCommonMain)
+        }
+
+        nonEmulatorJvmTest {
+            dependsOn(nonEmulatorCommonTest)
+        }
+
         jvmMain {
+            dependsOn(nonEmulatorJvmMain)
             dependencies {
                 implementation(libs.kotlinStdlib)
                 api(libs.kotlinCoroutinesCore)
@@ -72,18 +89,6 @@ androidXMultiplatform {
 
         jvmTest {
             dependsOn(commonTest)
-            dependencies {
-            }
-        }
-
-        nonEmulatorCommonTest {
-            dependsOn(commonTest)
-            dependencies {
-            }
-        }
-
-        nonEmulatorJvmTest {
-            dependsOn(nonEmulatorCommonTest)
             dependencies {
             }
         }
