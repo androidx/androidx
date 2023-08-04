@@ -545,7 +545,7 @@ class TextFieldSelectionHandlesTest {
     @Test
     fun dragEndSelectionHandle_outOfBounds_vertically() {
         state = TextFieldState("abc def ".repeat(10), initialSelectionInChars = TextRange(0, 3))
-        lateinit var layoutResult: TextLayoutResult
+        lateinit var layoutResult: () -> TextLayoutResult?
         rule.setContent {
             BasicTextField2(
                 state,
@@ -561,8 +561,11 @@ class TextFieldSelectionHandlesTest {
         rule.waitForIdle()
         focusAndWait() // selection handles show up
 
-        swipeDown(Handle.SelectionEnd, layoutResult.size.height.toFloat())
-        swipeToRight(Handle.SelectionEnd, layoutResult.size.width.toFloat())
+        @Suppress("NAME_SHADOWING")
+        layoutResult()!!.let { layoutResult ->
+            swipeDown(Handle.SelectionEnd, layoutResult.size.height.toFloat())
+            swipeToRight(Handle.SelectionEnd, layoutResult.size.width.toFloat())
+        }
         rule.runOnIdle {
             assertThat(state.text.selectionInChars).isEqualTo(TextRange(0, 80))
         }

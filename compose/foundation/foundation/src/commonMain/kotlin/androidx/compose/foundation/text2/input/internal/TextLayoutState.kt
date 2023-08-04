@@ -47,11 +47,12 @@ internal class TextLayoutState {
     var textDelegate: TextDelegate? = null
         private set
 
+    private val layoutResultState = mutableStateOf<TextLayoutResult?>(null)
+
     /**
      * Text Layout State.
      */
-    var layoutResult: TextLayoutResult? by mutableStateOf(null)
-        private set
+    val layoutResult: TextLayoutResult? by layoutResultState
 
     /** Measured bounds of the decoration box and inner text field. Together used to
      * calculate the relative touch offset. Because touches are applied on the decoration box, we
@@ -71,7 +72,7 @@ internal class TextLayoutState {
         density: Density,
         fontFamilyResolver: FontFamily.Resolver,
         constraints: Constraints,
-        onTextLayout: Density.(TextLayoutResult) -> Unit
+        onTextLayout: Density.(getResult: () -> TextLayoutResult?) -> Unit
     ): TextLayoutResult {
         val prevResult = Snapshot.withoutReadObservation { layoutResult }
 
@@ -105,9 +106,9 @@ internal class TextLayoutState {
         ).also {
             textDelegate = newTextDelegate
             if (prevResult != it) {
-                onTextLayout(it)
+                onTextLayout(layoutResultState::value)
             }
-            layoutResult = it
+            layoutResultState.value = it
         }
     }
 

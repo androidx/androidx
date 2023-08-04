@@ -38,11 +38,13 @@ import androidx.compose.foundation.text2.input.internal.setInputConnectionCreate
 import androidx.compose.foundation.text2.input.rememberTextFieldState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.Key
@@ -82,6 +84,7 @@ import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertFails
+import kotlinx.coroutines.flow.drop
 import org.junit.After
 import org.junit.Ignore
 import org.junit.Rule
@@ -104,7 +107,7 @@ internal class BasicTextField2Test {
 
     @Test
     fun textField_rendersEmptyContent() {
-        var textLayoutResult: TextLayoutResult? = null
+        var textLayoutResult: (() -> TextLayoutResult?)? = null
         rule.setContent {
             val state = remember { TextFieldState() }
             BasicTextField2(
@@ -116,7 +119,7 @@ internal class BasicTextField2Test {
 
         rule.runOnIdle {
             assertThat(textLayoutResult).isNotNull()
-            assertThat(textLayoutResult?.layoutInput?.text).isEqualTo(AnnotatedString(""))
+            assertThat(textLayoutResult?.invoke()?.layoutInput?.text).isEqualTo(AnnotatedString(""))
         }
     }
 
@@ -178,7 +181,8 @@ internal class BasicTextField2Test {
     fun textField_textStyleFontSizeChange_relayouts() {
         val state = TextFieldState("Hello ", TextRange(Int.MAX_VALUE))
         var style by mutableStateOf(TextStyle(fontSize = 20.sp))
-        val textLayoutResults = mutableListOf<TextLayoutResult>()
+        var textLayoutResultState: (() -> TextLayoutResult?)? by mutableStateOf(null)
+        val textLayoutResults = mutableListOf<TextLayoutResult?>()
         rule.setContent {
             BasicTextField2(
                 state = state,
@@ -186,16 +190,23 @@ internal class BasicTextField2Test {
                     .fillMaxSize()
                     .testTag(Tag),
                 textStyle = style,
-                onTextLayout = { textLayoutResults += it }
+                onTextLayout = { textLayoutResultState = it }
             )
+
+            LaunchedEffect(Unit) {
+                snapshotFlow { textLayoutResultState?.invoke() }
+                    .drop(1)
+                    .collect { textLayoutResults += it }
+            }
         }
 
         style = TextStyle(fontSize = 30.sp)
 
         rule.runOnIdle {
             assertThat(textLayoutResults.size).isEqualTo(2)
-            assertThat(textLayoutResults.map { it.layoutInput.style.fontSize })
-                .isEqualTo(listOf(20.sp, 30.sp))
+            assertThat(textLayoutResults.map { it?.layoutInput?.style?.fontSize })
+                .containsExactly(20.sp, 30.sp)
+                .inOrder()
         }
     }
 
@@ -203,7 +214,7 @@ internal class BasicTextField2Test {
     fun textField_textStyleColorChange_doesNotRelayout() {
         val state = TextFieldState("Hello")
         var style by mutableStateOf(TextStyle(color = Color.Red))
-        val textLayoutResults = mutableListOf<TextLayoutResult>()
+        val textLayoutResults = mutableListOf<() -> TextLayoutResult?>()
         rule.setContent {
             BasicTextField2(
                 state = state,
@@ -219,31 +230,38 @@ internal class BasicTextField2Test {
 
         rule.runOnIdle {
             assertThat(textLayoutResults.size).isEqualTo(2)
-            assertThat(textLayoutResults[0].multiParagraph)
-                .isSameInstanceAs(textLayoutResults[1].multiParagraph)
+            assertThat(textLayoutResults[0]()?.multiParagraph)
+                .isSameInstanceAs(textLayoutResults[1]()?.multiParagraph)
         }
     }
 
     @Test
     fun textField_contentChange_relayouts() {
         val state = TextFieldState("Hello ", TextRange(Int.MAX_VALUE))
-        val textLayoutResults = mutableListOf<TextLayoutResult>()
+        var textLayoutResultState: (() -> TextLayoutResult?)? by mutableStateOf(null)
+        val textLayoutResults = mutableListOf<TextLayoutResult?>()
         rule.setContent {
             BasicTextField2(
                 state = state,
                 modifier = Modifier
                     .fillMaxSize()
                     .testTag(Tag),
-                onTextLayout = { textLayoutResults += it }
+                onTextLayout = { textLayoutResultState = it }
             )
+
+            LaunchedEffect(Unit) {
+                snapshotFlow { textLayoutResultState?.invoke() }
+                    .drop(1)
+                    .collect { textLayoutResults += it }
+            }
         }
 
         rule.onNodeWithTag(Tag).performTextInput("World!")
 
         rule.runOnIdle {
-            assertThat(textLayoutResults.size).isEqualTo(2)
-            assertThat(textLayoutResults.map { it.layoutInput.text.text })
-                .isEqualTo(listOf("Hello ", "Hello World!"))
+            assertThat(textLayoutResults.map { it?.layoutInput?.text?.text })
+                .containsExactly("Hello ", "Hello World!")
+                .inOrder()
         }
     }
 
