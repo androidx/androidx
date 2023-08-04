@@ -215,10 +215,8 @@ public fun <K, V> mutableScatterMapOf(vararg pairs: Pair<K, V>): MutableScatterM
  * values stored, nor does it make guarantees that the order remains constant
  * over time.
  *
- * This implementation is not thread-safe: if multiple threads access this
- * container concurrently, and one or more threads modify the structure of
- * the map (insertion or removal for instance), the calling code must provide
- * the appropriate synchronization. Concurrent reads are however safe.
+ * This implementation is not thread-safe: reads and writes from multiple threads
+ * must be appropriately guarded.
  *
  * This implementation is read-only and only allows data to be queried. A
  * mutable implementation is provided by [MutableScatterMap].
@@ -730,10 +728,8 @@ public sealed class ScatterMap<K, V> {
  * values stored, nor does it make guarantees that the order remains constant
  * over time.
  *
- * This implementation is not thread-safe: if multiple threads access this
- * container concurrently, and one or more threads modify the structure of
- * the map (insertion or removal for instance), the calling code must provide
- * the appropriate synchronization. Concurrent reads are however safe.
+ * This implementation is not thread-safe: reads and writes from multiple threads
+ * must be appropriately guarded.
  *
  * **Note**: when a [Map] is absolutely necessary, you can use the method
  * [asMap] to create a thin wrapper around a [MutableScatterMap]. Please refer
