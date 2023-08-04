@@ -342,7 +342,7 @@
     <string name="perm_group" msgid="3834918337351876270">"Grupo de permissões"</string>
     <string name="perm_group_description" msgid="7348847631139139024">"Grupo de permissões do app Showcase"</string>
     <string name="perm_fine_location" msgid="5438874642600304118">"Acesso à localização precisa"</string>
-    <string name="perm_fine_location_desc" msgid="3549183883787912516">"Permissão para acessar a localização precisa"</string>
+    <string name="perm_fine_location_desc" msgid="3549183883787912516">"Permissão para acessar o local exato"</string>
     <string name="perm_coarse_location" msgid="6140337431619481015">"Acesso à localização aproximada"</string>
     <string name="perm_coarse_location_desc" msgid="6074759942301565943">"Permissão para acessar a localização aproximada"</string>
     <string name="perm_record_audio" msgid="2758340693260523493">"Acesso à gravação de áudio"</string>
