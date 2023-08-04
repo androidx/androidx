@@ -18,11 +18,20 @@ package androidx.compose.runtime.benchmark
 
 import android.view.View
 import androidx.activity.compose.setContent
+import androidx.benchmark.ExperimentalBenchmarkConfigApi
+import androidx.benchmark.MetricCapture
+import androidx.benchmark.MicrobenchmarkConfig
+import androidx.benchmark.TimeCapture
 import androidx.benchmark.junit4.BenchmarkRule
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.ControlledComposition
 import androidx.compose.runtime.Recomposer
+import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.currentComposer
 import androidx.compose.runtime.snapshots.Snapshot
+import androidx.compose.runtime.tooling.CompositionData
+import androidx.compose.runtime.tooling.LocalInspectionTables
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.TestMonotonicFrameClock
 import kotlin.coroutines.CoroutineContext
@@ -38,9 +47,71 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 
+private const val GROUP_METRIC_NAME = "Groups"
+private const val GROUP_METRIC_INDEX = 0
+private const val SLOT_METRIC_NAME = "Slots"
+private const val SLOT_METRIC_INDEX = 1
+
+private var compositionTables: MutableSet<CompositionData>? = null
+private var groupsCount: Long = 0
+private var slotsCount: Long = 0
+
+private fun countGroupsAndSlots(table: CompositionData, tables: Set<CompositionData>) {
+    for (group in table.compositionGroups) {
+        groupsCount += group.groupSize
+        slotsCount += group.slotsSize
+    }
+
+    for (subTable in tables) {
+        for (group in subTable.compositionGroups) {
+            groupsCount += group.groupSize
+            slotsCount += group.slotsSize
+        }
+    }
+}
+
+@Composable
+private fun CountGroupsAndSlots(content: @Composable () -> Unit) {
+    val data = currentComposer.compositionData
+    CompositionLocalProvider(LocalInspectionTables provides compositionTables, content = content)
+    SideEffect {
+        compositionTables?.let {
+            countGroupsAndSlots(data, it)
+        }
+    }
+}
+
+@OptIn(ExperimentalBenchmarkConfigApi::class)
 abstract class ComposeBenchmarkBase {
     @get:Rule
-    val benchmarkRule = BenchmarkRule()
+    val benchmarkRule = BenchmarkRule(
+        MicrobenchmarkConfig(
+            metrics = listOf(
+                TimeCapture(),
+                object : MetricCapture(listOf(GROUP_METRIC_NAME, SLOT_METRIC_NAME)) {
+                    override fun captureStart(timeNs: Long) {
+                        compositionTables = mutableSetOf()
+                        groupsCount = 0
+                        slotsCount = 0
+                    }
+
+                    override fun captureStop(timeNs: Long, output: LongArray, offset: Int) {
+                        output[offset + GROUP_METRIC_INDEX] = groupsCount
+                        output[offset + SLOT_METRIC_INDEX] = slotsCount
+                        compositionTables = null
+                    }
+
+                    override fun capturePaused() {
+                        // Unsupported for now
+                    }
+
+                    override fun captureResumed() {
+                        // Unsupported for now
+                    }
+                }
+            ),
+        )
+    )
 
     @Suppress("DEPRECATION")
     @get:Rule
@@ -60,7 +131,7 @@ abstract class ComposeBenchmarkBase {
         try {
             benchmarkRule.measureRepeatedSuspendable {
                 activity.setContent(recomposer) {
-                    block()
+                    CountGroupsAndSlots(block)
                 }
 
                 runWithTimingDisabled {
@@ -91,7 +162,7 @@ abstract class ComposeBenchmarkBase {
         launch { recomposer.runRecomposeAndApplyChanges() }
 
         activity.setContent(recomposer) {
-            receiver.composeCb()
+            CountGroupsAndSlots(receiver.composeCb)
         }
 
         var iterations = 0
