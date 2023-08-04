@@ -53,7 +53,7 @@ class PagerAccessibilityTest(config: ParamConfig) : BasePagerTest(config = confi
 
     @Test
     fun accessibilityScroll_scrollToPage() {
-        createPager(offscreenPageLimit = 1)
+        createPager(beyondBoundsPageCount = 1)
 
         rule.runOnIdle { assertThat(pagerState.currentPage).isEqualTo(0) }
 

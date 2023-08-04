@@ -1086,6 +1086,7 @@ package androidx.compose.foundation.pager {
   @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public final class PagerDefaults {
     method @androidx.compose.runtime.Composable public androidx.compose.foundation.gestures.snapping.SnapFlingBehavior flingBehavior(androidx.compose.foundation.pager.PagerState state, optional androidx.compose.foundation.pager.PagerSnapDistance pagerSnapDistance, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> lowVelocityAnimationSpec, optional androidx.compose.animation.core.DecayAnimationSpec<java.lang.Float> highVelocityAnimationSpec, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> snapAnimationSpec, optional float snapVelocityThreshold, optional float snapPositionalThreshold);
     method public androidx.compose.ui.input.nestedscroll.NestedScrollConnection pageNestedScrollConnection(androidx.compose.foundation.pager.PagerState state, androidx.compose.foundation.gestures.Orientation orientation);
+    field public static final int BeyondBoundsPageCount = 0; // 0x0
     field public static final androidx.compose.foundation.pager.PagerDefaults INSTANCE;
   }
 
@@ -1099,6 +1100,7 @@ package androidx.compose.foundation.pager {
   @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public sealed interface PagerLayoutInfo {
     method public int getAfterContentPadding();
     method public int getBeforeContentPadding();
+    method public int getBeyondBoundsPageCount();
     method public androidx.compose.foundation.gestures.Orientation getOrientation();
     method public int getPageSize();
     method public int getPageSpacing();
@@ -1109,6 +1111,7 @@ package androidx.compose.foundation.pager {
     method public java.util.List<androidx.compose.foundation.pager.PageInfo> getVisiblePagesInfo();
     property public abstract int afterContentPadding;
     property public abstract int beforeContentPadding;
+    property public abstract int beyondBoundsPageCount;
     property public abstract androidx.compose.foundation.gestures.Orientation orientation;
     property public abstract int pageSize;
     property public abstract int pageSpacing;
