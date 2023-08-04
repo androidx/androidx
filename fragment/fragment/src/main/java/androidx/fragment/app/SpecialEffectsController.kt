@@ -241,9 +241,7 @@ internal abstract class SpecialEffectsController(val container: ViewGroup) {
                     )
                 }
                 collectEffects(newPendingOperations, operationDirectionIsPop)
-                for (operation in newPendingOperations) {
-                    operation.onStart()
-                }
+                processStart(newPendingOperations)
                 commitEffects(newPendingOperations)
                 operationDirectionIsPop = false
                 if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
@@ -253,6 +251,13 @@ internal abstract class SpecialEffectsController(val container: ViewGroup) {
                     )
                 }
             }
+        }
+    }
+
+    internal fun applyContainerChangesToOperation(operation: Operation) {
+        if (operation.isAwaitingContainerChanges) {
+            operation.finalState.applyState(operation.fragment.requireView())
+            operation.isAwaitingContainerChanges = false
         }
     }
 
@@ -266,9 +271,7 @@ internal abstract class SpecialEffectsController(val container: ViewGroup) {
         val attachedToWindow = ViewCompat.isAttachedToWindow(container)
         synchronized(pendingOperations) {
             updateFinalState()
-            for (operation in pendingOperations) {
-                operation.onStart()
-            }
+            processStart(pendingOperations)
 
             // First cancel running operations
             val runningOperations = runningOperations.toMutableList()
@@ -321,16 +324,14 @@ internal abstract class SpecialEffectsController(val container: ViewGroup) {
     }
 
     /**
-     * Execute all of the given operations.
+     * Collect all of the given operations.
      *
      * If there are no special effects for a given operation, the SpecialEffectsController
      * should call [Operation.complete]. Otherwise, a
      * [CancellationSignal] representing each special effect should be added via
      * [Operation.markStartedSpecialEffect], calling
      * [Operation.completeSpecialEffect] when that specific
-     * special effect finishes. When the last started special effect is completed,
-     * [Operation.completeSpecialEffect] will call
-     * [Operation.complete] automatically.
+     * special effect finishes.
      *
      * It is **strongly recommended** that each [CancellationSignal] added with
      * [Operation.markStartedSpecialEffect] listen for cancellation,
@@ -343,7 +344,41 @@ internal abstract class SpecialEffectsController(val container: ViewGroup) {
      */
     abstract fun collectEffects(operations: List<@JvmSuppressWildcards Operation>, isPop: Boolean)
 
-    open fun commitEffects(operations: List<@JvmSuppressWildcards Operation>) { }
+    /**
+     * Commit all of the given operations.
+     *
+     * This commits all of the effects of the operations. When the last started special effect is
+     * completed, [Operation.completeSpecialEffect] will call [Operation.complete] automatically.
+     *
+     * @param operations the list of operations to execute in order.
+     */
+    internal open fun commitEffects(operations: List<@JvmSuppressWildcards Operation>) {
+        val set = operations.flatMap { it.effects }.toSet().toList()
+
+        // Commit all of the Animation, Animator, Transition and NoOp Effects we have collected
+        for (i in set.indices) {
+            val effect = set[i]
+            effect.onCommit(container)
+        }
+
+        for (i in operations.indices) {
+            val operation = operations[i]
+            applyContainerChangesToOperation(operation)
+        }
+    }
+
+    private fun processStart(operations: List<@JvmSuppressWildcards Operation>) {
+        for (i in operations.indices) {
+            val operation = operations[i]
+            operation.onStart()
+        }
+        val set = operations.flatMap { it.effects }.toSet().toList()
+        // Start all of the Animation, Animator, Transition and NoOp Effects we have collected
+        for (j in set.indices) {
+            val effect = set[j]
+            effect.onStart(container)
+        }
+    }
 
     fun processProgress(backEvent: BackEventCompat) {
         if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
