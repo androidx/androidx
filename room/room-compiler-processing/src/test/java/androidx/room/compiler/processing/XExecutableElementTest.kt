@@ -989,6 +989,7 @@ class XExecutableElementTest {
             "Foo.kt",
             """
             package $pkg
+            annotation class MyAnnotation
             abstract class Foo<T> {
                 fun String.ext1(): String = TODO()
                 fun String.ext2(inputParam: Int): String = TODO()
@@ -997,6 +998,7 @@ class XExecutableElementTest {
                 fun T.ext5(): String = TODO()
                 suspend fun String.ext6(): String = TODO()
                 abstract fun T.ext7(): String
+                fun @receiver:MyAnnotation String.ext8(): String = TODO()
             }
             class FooImpl : Foo<Int>() {
                 override fun Int.ext7(): String = TODO()
@@ -1006,9 +1008,9 @@ class XExecutableElementTest {
         runProcessorTest(
             sources = listOf(buildSource(pkg = "app")),
             classpath = compileFiles(listOf(buildSource(pkg = "lib")))
-        ) {
+        ) { invocation ->
             listOf("app", "lib").forEach { pkg ->
-                val element = it.processingEnv.requireTypeElement("$pkg.Foo")
+                val element = invocation.processingEnv.requireTypeElement("$pkg.Foo")
                 element.getDeclaredMethodByJvmName("ext1").let { method ->
                     assertThat(method.isExtensionFunction()).isTrue()
                     assertThat(method.parameters.size).isEqualTo(1)
@@ -1039,7 +1041,7 @@ class XExecutableElementTest {
                             JTypeVariableName.get("T")
                         )
                     )
-                    if (it.isKsp) {
+                    if (invocation.isKsp) {
                         assertThat(method.parameters[0].type.asTypeName().kotlin).isEqualTo(
                             KClassName(pkg, "Foo").parameterizedBy(KTypeVariableName("T"))
                         )
@@ -1070,19 +1072,26 @@ class XExecutableElementTest {
                     assertThat(method.parameters[0].type.asTypeName())
                         .isEqualTo(XTypeName.getTypeVariableName("T"))
 
-                    val fooImpl = it.processingEnv.requireTypeElement("$pkg.FooImpl")
+                    val fooImpl = invocation.processingEnv.requireTypeElement("$pkg.FooImpl")
                     assertThat(method.parameters[0].asMemberOf(fooImpl.type).asTypeName())
                         .isEqualTo(Int::class.asClassName())
                 }
+                element.getDeclaredMethodByJvmName("ext8").let { method ->
+                    // TODO: KSP bug where receiver annotation is not available from compiled code.
+                    //  see https://github.com/google/ksp/issues/1488
+                    if (invocation.isKsp && pkg == "lib") return@let
+                    val receiverParam = method.parameters.single()
+                    assertThat(receiverParam.getAllAnnotations()).isNotEmpty()
+                }
                 // Verify non-overridden Foo.ext1() asMemberOf FooImpl
                 element.getDeclaredMethodByJvmName("ext1").let { method ->
-                    val fooImpl = it.processingEnv.requireTypeElement("$pkg.FooImpl")
+                    val fooImpl = invocation.processingEnv.requireTypeElement("$pkg.FooImpl")
                     assertThat(method.parameters[0].asMemberOf(fooImpl.type).asTypeName())
                         .isEqualTo(String::class.asClassName())
                 }
                 // Verify non-overridden Foo.ext5() asMemberOf FooImpl
                 element.getDeclaredMethodByJvmName("ext5").let { method ->
-                    val fooImpl = it.processingEnv.requireTypeElement("$pkg.FooImpl")
+                    val fooImpl = invocation.processingEnv.requireTypeElement("$pkg.FooImpl")
                     assertThat(method.parameters[0].asMemberOf(fooImpl.type).asTypeName())
                         .isEqualTo(Int::class.asClassName())
                 }
