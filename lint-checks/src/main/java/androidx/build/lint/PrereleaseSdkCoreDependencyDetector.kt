@@ -47,7 +47,6 @@ class PrereleaseSdkCoreDependencyDetector : Detector(), Detector.UastScanner {
             if (method.annotations.none { it.hasQualifiedName(PRERELEASE_SDK_CHECK) }) return
 
             // Check if the project is using a versioned dependency on core
-            @Suppress("DEPRECATION")
             val dependencies = context.project.buildVariant.mainArtifact.dependencies.getAll()
             if (dependencies.any { it.isInvalidCoreDependency() }) {
                 val incident = Incident(context)

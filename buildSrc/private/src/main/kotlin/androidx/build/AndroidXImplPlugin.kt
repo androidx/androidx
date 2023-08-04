@@ -1317,4 +1317,8 @@ fun AndroidXExtension.validateMavenVersion() {
     }
 }
 
+/** Removes the line and column attributes from the [baseline]. */
+fun removeLineAndColumnAttributes(baseline: String): String =
+    baseline.replace("\\s*(line|column)=\"\\d+?\"".toRegex(), "")
+
 const val PROJECT_OR_ARTIFACT_EXT_NAME = "projectOrArtifact"
