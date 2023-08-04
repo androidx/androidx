@@ -41,34 +41,34 @@ class CubicTest {
 
     @Test
     fun constructionTest() {
-        assertEquals(p0, PointF(cubic.anchorX0, cubic.anchorY0))
-        assertEquals(p1, PointF(cubic.controlX0, cubic.controlY0))
-        assertEquals(p2, PointF(cubic.controlX1, cubic.controlY1))
-        assertEquals(p3, PointF(cubic.anchorX1, cubic.anchorY1))
+        assertEquals(p0, PointF(cubic.anchor0X, cubic.anchor0Y))
+        assertEquals(p1, PointF(cubic.control0X, cubic.control0Y))
+        assertEquals(p2, PointF(cubic.control1X, cubic.control1Y))
+        assertEquals(p3, PointF(cubic.anchor1X, cubic.anchor1Y))
     }
 
     @Test
     fun copyTest() {
         val copy = Cubic(cubic)
-        assertEquals(p0, PointF(copy.anchorX0, copy.anchorY0))
-        assertEquals(p1, PointF(copy.controlX0, copy.controlY0))
-        assertEquals(p2, PointF(copy.controlX1, copy.controlY1))
-        assertEquals(p3, PointF(copy.anchorX1, copy.anchorY1))
-        assertEquals(PointF(cubic.anchorX0, cubic.anchorY0),
-            PointF(copy.anchorX0, copy.anchorY0))
-        assertEquals(PointF(cubic.controlX0, cubic.controlY0),
-            PointF(copy.controlX0, copy.controlY0))
-        assertEquals(PointF(cubic.controlX1, cubic.controlY1),
-            PointF(copy.controlX1, copy.controlY1))
-        assertEquals(PointF(cubic.anchorX1, cubic.anchorY1),
-            PointF(copy.anchorX1, copy.anchorY1))
+        assertEquals(p0, PointF(copy.anchor0X, copy.anchor0Y))
+        assertEquals(p1, PointF(copy.control0X, copy.control0Y))
+        assertEquals(p2, PointF(copy.control1X, copy.control1Y))
+        assertEquals(p3, PointF(copy.anchor1X, copy.anchor1Y))
+        assertEquals(PointF(cubic.anchor0X, cubic.anchor0Y),
+            PointF(copy.anchor0X, copy.anchor0Y))
+        assertEquals(PointF(cubic.control0X, cubic.control0Y),
+            PointF(copy.control0X, copy.control0Y))
+        assertEquals(PointF(cubic.control1X, cubic.control1Y),
+            PointF(copy.control1X, copy.control1Y))
+        assertEquals(PointF(cubic.anchor1X, cubic.anchor1Y),
+            PointF(copy.anchor1X, copy.anchor1Y))
     }
 
     @Test
     fun circularArcTest() {
         val arcCubic = Cubic.circularArc(zero.x, zero.y, p0.x, p0.y, p3.x, p3.y)
-        assertEquals(p0, PointF(arcCubic.anchorX0, arcCubic.anchorY0))
-        assertEquals(p3, PointF(arcCubic.anchorX1, arcCubic.anchorY1))
+        assertEquals(p0, PointF(arcCubic.anchor0X, arcCubic.anchor0Y))
+        assertEquals(p3, PointF(arcCubic.anchor1X, arcCubic.anchor1Y))
     }
 
     @Test
@@ -78,62 +78,62 @@ class CubicTest {
         divCubic = cubic / 1
         assertCubicsEqua1ish(cubic, divCubic)
         divCubic = cubic / 2f
-        assertPointsEqualish(p0 / 2f, PointF(divCubic.anchorX0, divCubic.anchorY0))
-        assertPointsEqualish(p1 / 2f, PointF(divCubic.controlX0, divCubic.controlY0))
-        assertPointsEqualish(p2 / 2f, PointF(divCubic.controlX1, divCubic.controlY1))
-        assertPointsEqualish(p3 / 2f, PointF(divCubic.anchorX1, divCubic.anchorY1))
+        assertPointsEqualish(p0 / 2f, PointF(divCubic.anchor0X, divCubic.anchor0Y))
+        assertPointsEqualish(p1 / 2f, PointF(divCubic.control0X, divCubic.control0Y))
+        assertPointsEqualish(p2 / 2f, PointF(divCubic.control1X, divCubic.control1Y))
+        assertPointsEqualish(p3 / 2f, PointF(divCubic.anchor1X, divCubic.anchor1Y))
         divCubic = cubic / 2
-        assertPointsEqualish(p0 / 2f, PointF(divCubic.anchorX0, divCubic.anchorY0))
-        assertPointsEqualish(p1 / 2f, PointF(divCubic.controlX0, divCubic.controlY0))
-        assertPointsEqualish(p2 / 2f, PointF(divCubic.controlX1, divCubic.controlY1))
-        assertPointsEqualish(p3 / 2f, PointF(divCubic.anchorX1, divCubic.anchorY1))
+        assertPointsEqualish(p0 / 2f, PointF(divCubic.anchor0X, divCubic.anchor0Y))
+        assertPointsEqualish(p1 / 2f, PointF(divCubic.control0X, divCubic.control0Y))
+        assertPointsEqualish(p2 / 2f, PointF(divCubic.control1X, divCubic.control1Y))
+        assertPointsEqualish(p3 / 2f, PointF(divCubic.anchor1X, divCubic.anchor1Y))
     }
 
     @Test
     fun timesTest() {
         var timesCubic = cubic * 1f
-        assertEquals(p0, PointF(timesCubic.anchorX0, timesCubic.anchorY0))
-        assertEquals(p1, PointF(timesCubic.controlX0, timesCubic.controlY0))
-        assertEquals(p2, PointF(timesCubic.controlX1, timesCubic.controlY1))
-        assertEquals(p3, PointF(timesCubic.anchorX1, timesCubic.anchorY1))
+        assertEquals(p0, PointF(timesCubic.anchor0X, timesCubic.anchor0Y))
+        assertEquals(p1, PointF(timesCubic.control0X, timesCubic.control0Y))
+        assertEquals(p2, PointF(timesCubic.control1X, timesCubic.control1Y))
+        assertEquals(p3, PointF(timesCubic.anchor1X, timesCubic.anchor1Y))
         timesCubic = cubic * 1
-        assertEquals(p0, PointF(timesCubic.anchorX0, timesCubic.anchorY0))
-        assertEquals(p1, PointF(timesCubic.controlX0, timesCubic.controlY0))
-        assertEquals(p2, PointF(timesCubic.controlX1, timesCubic.controlY1))
-        assertEquals(p3, PointF(timesCubic.anchorX1, timesCubic.anchorY1))
+        assertEquals(p0, PointF(timesCubic.anchor0X, timesCubic.anchor0Y))
+        assertEquals(p1, PointF(timesCubic.control0X, timesCubic.control0Y))
+        assertEquals(p2, PointF(timesCubic.control1X, timesCubic.control1Y))
+        assertEquals(p3, PointF(timesCubic.anchor1X, timesCubic.anchor1Y))
         timesCubic = cubic * 2f
-        assertPointsEqualish(p0 * 2f, PointF(timesCubic.anchorX0, timesCubic.anchorY0))
-        assertPointsEqualish(p1 * 2f, PointF(timesCubic.controlX0, timesCubic.controlY0))
-        assertPointsEqualish(p2 * 2f, PointF(timesCubic.controlX1, timesCubic.controlY1))
-        assertPointsEqualish(p3 * 2f, PointF(timesCubic.anchorX1, timesCubic.anchorY1))
+        assertPointsEqualish(p0 * 2f, PointF(timesCubic.anchor0X, timesCubic.anchor0Y))
+        assertPointsEqualish(p1 * 2f, PointF(timesCubic.control0X, timesCubic.control0Y))
+        assertPointsEqualish(p2 * 2f, PointF(timesCubic.control1X, timesCubic.control1Y))
+        assertPointsEqualish(p3 * 2f, PointF(timesCubic.anchor1X, timesCubic.anchor1Y))
         timesCubic = cubic * 2
-        assertPointsEqualish(p0 * 2f, PointF(timesCubic.anchorX0, timesCubic.anchorY0))
-        assertPointsEqualish(p1 * 2f, PointF(timesCubic.controlX0, timesCubic.controlY0))
-        assertPointsEqualish(p2 * 2f, PointF(timesCubic.controlX1, timesCubic.controlY1))
-        assertPointsEqualish(p3 * 2f, PointF(timesCubic.anchorX1, timesCubic.anchorY1))
+        assertPointsEqualish(p0 * 2f, PointF(timesCubic.anchor0X, timesCubic.anchor0Y))
+        assertPointsEqualish(p1 * 2f, PointF(timesCubic.control0X, timesCubic.control0Y))
+        assertPointsEqualish(p2 * 2f, PointF(timesCubic.control1X, timesCubic.control1Y))
+        assertPointsEqualish(p3 * 2f, PointF(timesCubic.anchor1X, timesCubic.anchor1Y))
     }
 
     @Test
     fun plusTest() {
         val offsetCubic = cubic * 2f
         var plusCubic = cubic + offsetCubic
-        assertPointsEqualish(p0 + PointF(offsetCubic.anchorX0, offsetCubic.anchorY0),
-            PointF(plusCubic.anchorX0, plusCubic.anchorY0))
-        assertPointsEqualish(p1 + PointF(offsetCubic.controlX0, offsetCubic.controlY0),
-            PointF(plusCubic.controlX0, plusCubic.controlY0))
-        assertPointsEqualish(p2 + PointF(offsetCubic.controlX1, offsetCubic.controlY1),
-            PointF(plusCubic.controlX1, plusCubic.controlY1))
-        assertPointsEqualish(p3 + PointF(offsetCubic.anchorX1, offsetCubic.anchorY1),
-            PointF(plusCubic.anchorX1, plusCubic.anchorY1))
+        assertPointsEqualish(p0 + PointF(offsetCubic.anchor0X, offsetCubic.anchor0Y),
+            PointF(plusCubic.anchor0X, plusCubic.anchor0Y))
+        assertPointsEqualish(p1 + PointF(offsetCubic.control0X, offsetCubic.control0Y),
+            PointF(plusCubic.control0X, plusCubic.control0Y))
+        assertPointsEqualish(p2 + PointF(offsetCubic.control1X, offsetCubic.control1Y),
+            PointF(plusCubic.control1X, plusCubic.control1Y))
+        assertPointsEqualish(p3 + PointF(offsetCubic.anchor1X, offsetCubic.anchor1Y),
+            PointF(plusCubic.anchor1X, plusCubic.anchor1Y))
     }
 
     @Test
     fun reverseTest() {
         val reverseCubic = cubic.reverse()
-        assertEquals(p3, PointF(reverseCubic.anchorX0, reverseCubic.anchorY0))
-        assertEquals(p2, PointF(reverseCubic.controlX0, reverseCubic.controlY0))
-        assertEquals(p1, PointF(reverseCubic.controlX1, reverseCubic.controlY1))
-        assertEquals(p0, PointF(reverseCubic.anchorX1, reverseCubic.anchorY1))
+        assertEquals(p3, PointF(reverseCubic.anchor0X, reverseCubic.anchor0Y))
+        assertEquals(p2, PointF(reverseCubic.control0X, reverseCubic.control0Y))
+        assertEquals(p1, PointF(reverseCubic.control1X, reverseCubic.control1Y))
+        assertEquals(p0, PointF(reverseCubic.anchor1X, reverseCubic.anchor1Y))
     }
 
     fun assertBetween(end0: PointF, end1: PointF, actual: PointF) {
@@ -150,10 +150,10 @@ class CubicTest {
     @Test
     fun straightLineTest() {
         val lineCubic = Cubic.straightLine(p0.x, p0.y, p3.x, p3.y)
-        assertEquals(p0, PointF(lineCubic.anchorX0, lineCubic.anchorY0))
-        assertEquals(p3, PointF(lineCubic.anchorX1, lineCubic.anchorY1))
-        assertBetween(p0, p3, PointF(lineCubic.controlX0, lineCubic.controlY0))
-        assertBetween(p0, p3, PointF(lineCubic.controlX1, lineCubic.controlY1))
+        assertEquals(p0, PointF(lineCubic.anchor0X, lineCubic.anchor0Y))
+        assertEquals(p3, PointF(lineCubic.anchor1X, lineCubic.anchor1Y))
+        assertBetween(p0, p3, PointF(lineCubic.control0X, lineCubic.control0Y))
+        assertBetween(p0, p3, PointF(lineCubic.control1X, lineCubic.control1Y))
     }
 
     @Test
@@ -167,23 +167,23 @@ class CubicTest {
     @Test
     fun splitTest() {
         val (split0, split1) = cubic.split(.5f)
-        assertEquals(PointF(cubic.anchorX0, cubic.anchorY0),
-            PointF(split0.anchorX0, split0.anchorY0))
-        assertEquals(PointF(cubic.anchorX1, cubic.anchorY1),
-            PointF(split1.anchorX1, split1.anchorY1))
-        assertBetween(PointF(cubic.anchorX0, cubic.anchorY0),
-            PointF(cubic.anchorX1, cubic.anchorY1),
-            PointF(split0.anchorX1, split0.anchorY1))
-        assertBetween(PointF(cubic.anchorX0, cubic.anchorY0),
-            PointF(cubic.anchorX1, cubic.anchorY1),
-            PointF(split1.anchorX0, split1.anchorY0))
+        assertEquals(PointF(cubic.anchor0X, cubic.anchor0Y),
+            PointF(split0.anchor0X, split0.anchor0Y))
+        assertEquals(PointF(cubic.anchor1X, cubic.anchor1Y),
+            PointF(split1.anchor1X, split1.anchor1Y))
+        assertBetween(PointF(cubic.anchor0X, cubic.anchor0Y),
+            PointF(cubic.anchor1X, cubic.anchor1Y),
+            PointF(split0.anchor1X, split0.anchor1Y))
+        assertBetween(PointF(cubic.anchor0X, cubic.anchor0Y),
+            PointF(cubic.anchor1X, cubic.anchor1Y),
+            PointF(split1.anchor0X, split1.anchor0Y))
     }
 
     @Test
     fun pointOnCurveTest() {
         var halfway = cubic.pointOnCurve(.5f)
-        assertBetween(PointF(cubic.anchorX0, cubic.anchorY0),
-            PointF(cubic.anchorX1, cubic.anchorY1), halfway)
+        assertBetween(PointF(cubic.anchor0X, cubic.anchor0Y),
+            PointF(cubic.anchor1X, cubic.anchor1Y), halfway)
         val straightLineCubic = Cubic.straightLine(p0.x, p0.y, p3.x, p3.y)
         halfway = straightLineCubic.pointOnCurve(.5f)
         val computedHalfway = PointF(p0.x + .5f * (p3.x - p0.x), p0.y + .5f * (p3.y - p0.y))
@@ -208,13 +208,13 @@ class CubicTest {
         transformedCubic = Cubic(cubic)
         matrix.setTranslate(tx, ty)
         transformedCubic.transform(matrix)
-        assertPointsEqualish(PointF(cubic.anchorX0, cubic.anchorY0) + translationVector,
-            PointF(transformedCubic.anchorX0, transformedCubic.anchorY0))
-        assertPointsEqualish(PointF(cubic.controlX0, cubic.controlY0) + translationVector,
-            PointF(transformedCubic.controlX0, transformedCubic.controlY0))
-        assertPointsEqualish(PointF(cubic.controlX1, cubic.controlY1) + translationVector,
-            PointF(transformedCubic.controlX1, transformedCubic.controlY1))
-        assertPointsEqualish(PointF(cubic.anchorX1, cubic.anchorY1) + translationVector,
-            PointF(transformedCubic.anchorX1, transformedCubic.anchorY1))
+        assertPointsEqualish(PointF(cubic.anchor0X, cubic.anchor0Y) + translationVector,
+            PointF(transformedCubic.anchor0X, transformedCubic.anchor0Y))
+        assertPointsEqualish(PointF(cubic.control0X, cubic.control0Y) + translationVector,
+            PointF(transformedCubic.control0X, transformedCubic.control0Y))
+        assertPointsEqualish(PointF(cubic.control1X, cubic.control1Y) + translationVector,
+            PointF(transformedCubic.control1X, transformedCubic.control1Y))
+        assertPointsEqualish(PointF(cubic.anchor1X, cubic.anchor1Y) + translationVector,
+            PointF(transformedCubic.anchor1X, transformedCubic.anchor1Y))
     }
 }

@@ -116,18 +116,18 @@ class PolygonTest {
         val squareCubics = square.toCubicShape().cubics
         val squareCopyCubics = squareCopy.toCubicShape().cubics
         for (i in 0 until squareCubics.size) {
-            assertPointsEqualish(PointF(squareCopyCubics[i].anchorX0,
-                squareCopyCubics[i].anchorY0) + offset,
-                PointF(squareCubics[i].anchorX0, squareCubics[i].anchorY0))
-            assertPointsEqualish(PointF(squareCopyCubics[i].controlX0,
-                squareCopyCubics[i].controlY0) + offset,
-                PointF(squareCubics[i].controlX0, squareCubics[i].controlY0))
-            assertPointsEqualish(PointF(squareCopyCubics[i].controlX1,
-                squareCopyCubics[i].controlY1) + offset,
-                PointF(squareCubics[i].controlX1, squareCubics[i].controlY1))
-            assertPointsEqualish(PointF(squareCopyCubics[i].anchorX1,
-                squareCopyCubics[i].anchorY1) + offset,
-                PointF(squareCubics[i].anchorX1, squareCubics[i].anchorY1))
+            assertPointsEqualish(PointF(squareCopyCubics[i].anchor0X,
+                squareCopyCubics[i].anchor0Y) + offset,
+                PointF(squareCubics[i].anchor0X, squareCubics[i].anchor0Y))
+            assertPointsEqualish(PointF(squareCopyCubics[i].control0X,
+                squareCopyCubics[i].control0Y) + offset,
+                PointF(squareCubics[i].control0X, squareCubics[i].control0Y))
+            assertPointsEqualish(PointF(squareCopyCubics[i].control1X,
+                squareCopyCubics[i].control1Y) + offset,
+                PointF(squareCubics[i].control1X, squareCubics[i].control1Y))
+            assertPointsEqualish(PointF(squareCopyCubics[i].anchor1X,
+                squareCopyCubics[i].anchor1Y) + offset,
+                PointF(squareCubics[i].anchor1X, squareCubics[i].anchor1Y))
         }
     }
 
