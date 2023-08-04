@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.2.0-alpha14" type="baseline" client="cli" dependencies="false" name="AGP (8.2.0-alpha14)" variant="all" version="8.2.0-alpha14">
+<issues format="6" by="lint 8.1.0-beta05" type="baseline" client="gradle" dependencies="false" name="AGP (8.1.0-beta05)" variant="all" version="8.1.0-beta05">
 
     <issue
         id="PrimitiveInLambda"
@@ -66,7 +66,7 @@
 
     <issue
         id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method animateFloatAsState has parameter &apos;finishedListener&apos; with type Function1&lt;? super Float, Unit>."
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method animateFloatAsState has parameter &apos;finishedListener&apos; with type Function1&lt;? super Float, ? extends Unit>."
         errorLine1="    finishedListener: ((Float) -> Unit)? = null"
         errorLine2="                      ~~~~~~~~~~~~~~~~~~">
         <location
@@ -75,7 +75,7 @@
 
     <issue
         id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method animateDpAsState has parameter &apos;finishedListener&apos; with type Function1&lt;? super Dp, Unit>."
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method animateDpAsState has parameter &apos;finishedListener&apos; with type Function1&lt;? super Dp, ? extends Unit>."
         errorLine1="    finishedListener: ((Dp) -> Unit)? = null"
         errorLine2="                      ~~~~~~~~~~~~~~~">
         <location
@@ -84,7 +84,7 @@
 
     <issue
         id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method animateSizeAsState has parameter &apos;finishedListener&apos; with type Function1&lt;? super Size, Unit>."
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method animateSizeAsState has parameter &apos;finishedListener&apos; with type Function1&lt;? super Size, ? extends Unit>."
         errorLine1="    finishedListener: ((Size) -> Unit)? = null"
         errorLine2="                      ~~~~~~~~~~~~~~~~~">
         <location
@@ -93,7 +93,7 @@
 
     <issue
         id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method animateOffsetAsState has parameter &apos;finishedListener&apos; with type Function1&lt;? super Offset, Unit>."
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method animateOffsetAsState has parameter &apos;finishedListener&apos; with type Function1&lt;? super Offset, ? extends Unit>."
         errorLine1="    finishedListener: ((Offset) -> Unit)? = null"
         errorLine2="                      ~~~~~~~~~~~~~~~~~~~">
         <location
@@ -102,7 +102,7 @@
 
     <issue
         id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method animateIntAsState has parameter &apos;finishedListener&apos; with type Function1&lt;? super Integer, Unit>."
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method animateIntAsState has parameter &apos;finishedListener&apos; with type Function1&lt;? super Integer, ? extends Unit>."
         errorLine1="    finishedListener: ((Int) -> Unit)? = null"
         errorLine2="                      ~~~~~~~~~~~~~~~~">
         <location
@@ -111,7 +111,7 @@
 
     <issue
         id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method animateIntOffsetAsState has parameter &apos;finishedListener&apos; with type Function1&lt;? super IntOffset, Unit>."
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method animateIntOffsetAsState has parameter &apos;finishedListener&apos; with type Function1&lt;? super IntOffset, ? extends Unit>."
         errorLine1="    finishedListener: ((IntOffset) -> Unit)? = null"
         errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -120,7 +120,7 @@
 
     <issue
         id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method animateIntSizeAsState has parameter &apos;finishedListener&apos; with type Function1&lt;? super IntSize, Unit>."
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method animateIntSizeAsState has parameter &apos;finishedListener&apos; with type Function1&lt;? super IntSize, ? extends Unit>."
         errorLine1="    finishedListener: ((IntSize) -> Unit)? = null"
         errorLine2="                      ~~~~~~~~~~~~~~~~~~~~">
         <location
