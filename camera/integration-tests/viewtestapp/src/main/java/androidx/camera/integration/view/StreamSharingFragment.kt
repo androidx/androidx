@@ -22,11 +22,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.OrientationEventListener
 import android.view.View
-import android.view.View.GONE
-import android.view.View.VISIBLE
 import android.view.ViewGroup
 import android.widget.Button
-import android.widget.TextView
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
@@ -54,13 +51,13 @@ private const val TAG = "StreamSharingFragment"
 private const val PREFIX_INFORMATION = "test_information"
 private const val PREFIX_VIDEO = "video"
 private const val KEY_ORIENTATION = "device_orientation"
+private const val KEY_STREAM_SHARING_STATE = "is_stream_sharing_enabled"
 
 class StreamSharingFragment : Fragment() {
 
     private lateinit var previewView: PreviewView
     private lateinit var exportButton: Button
     private lateinit var recordButton: Button
-    private lateinit var streamSharingStateText: TextView
     private lateinit var useCases: Array<UseCase>
     private var camera: Camera? = null
     private var activeRecording: Recording? = null
@@ -81,7 +78,6 @@ class StreamSharingFragment : Fragment() {
     ): View? {
         val view = inflater.inflate(R.layout.fragment_stream_sharing, container, false)
         previewView = view.findViewById(R.id.preview_view)
-        streamSharingStateText = view.findViewById(R.id.stream_sharing_state)
         exportButton = view.findViewById(R.id.export_button)
         exportButton.setOnClickListener {
             exportTestInformation()
@@ -113,8 +109,8 @@ class StreamSharingFragment : Fragment() {
     }
 
     private fun bindUseCases(cameraProvider: ProcessCameraProvider) {
-        displayStreamSharingState(GONE)
         enableRecording(false)
+        isUseCasesBound = false
         cameraProvider.unbindAll()
         useCases = arrayOf(
             createPreview(),
@@ -129,9 +125,6 @@ class StreamSharingFragment : Fragment() {
         } catch (exception: Exception) {
             Logger.e(TAG, "Failed to bind use cases.", exception)
             false
-        }
-        if (isStreamSharingEnabled()) {
-            displayStreamSharingState(VISIBLE)
         }
     }
 
@@ -187,10 +180,6 @@ class StreamSharingFragment : Fragment() {
         return !isCombinationSupported && isUseCasesBound
     }
 
-    private fun displayStreamSharingState(visibility: Int) {
-        streamSharingStateText.visibility = visibility
-    }
-
     private fun enableRecording(enabled: Boolean) {
         recordButton.isEnabled = enabled
     }
@@ -227,7 +216,8 @@ class StreamSharingFragment : Fragment() {
 
     private fun exportTestInformation() {
         val fileName = generateFileName(PREFIX_INFORMATION)
-        val information = "$KEY_ORIENTATION: $deviceOrientation"
+        val information = "$KEY_ORIENTATION:$deviceOrientation" +
+            "\n" + "$KEY_STREAM_SHARING_STATE:${isStreamSharingEnabled()}"
 
         writeTextToExternalFile(information, fileName)
     }
