@@ -64,6 +64,5 @@ limitations under the License.
     <string name="mirror_on">mirror on</string>
     <string name="mirror_off">mirror off</string>
     <string name="mlkit">MLKit</string>
-    <string name="text_stream_sharing_enabled">SteamSharing enabled</string>
 
 </resources>
