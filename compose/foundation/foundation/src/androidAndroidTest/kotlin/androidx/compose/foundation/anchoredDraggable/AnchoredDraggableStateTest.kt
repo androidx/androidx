@@ -962,6 +962,51 @@ class AnchoredDraggableStateTest {
         assertThat(state.offset).isNaN()
     }
 
+    @Test
+    fun anchoredDraggable_customDrag_settleOnInvalidState_shouldRespectConfirmValueChange() =
+        runBlocking {
+            var shouldBlockValueC = false
+            val state = AnchoredDraggableState(
+                initialValue = B,
+                positionalThreshold = defaultPositionalThreshold,
+                velocityThreshold = defaultVelocityThreshold,
+                animationSpec = defaultAnimationSpec,
+                confirmValueChange = {
+                    if (shouldBlockValueC)
+                        it != C // block state value C
+                    else
+                        true
+                }
+            )
+            val anchors = DraggableAnchors {
+                A at 0f
+                B at 200f
+                C at 300f
+            }
+
+            state.updateAnchors(anchors)
+            state.anchoredDrag {
+                dragTo(300f)
+            }
+
+            // confirm we can actually go to C
+            assertThat(state.currentValue).isEqualTo(C)
+
+            // go back to B
+            state.anchoredDrag {
+                dragTo(200f)
+            }
+            assertThat(state.currentValue).isEqualTo(B)
+
+            // disallow C
+            shouldBlockValueC = true
+
+            state.anchoredDrag {
+                dragTo(300f)
+            }
+            assertThat(state.currentValue).isNotEqualTo(C)
+        }
+
     private suspend fun suspendIndefinitely() = suspendCancellableCoroutine<Unit> { }
 
     private class HandPumpTestFrameClock : MonotonicFrameClock {
