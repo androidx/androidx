@@ -39,7 +39,6 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.yield
 
-/** @suppress */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public abstract class PagingDataDiffer<T : Any>(
     private val differCallback: DifferCallback,
@@ -524,7 +523,6 @@ public abstract class PagingDataDiffer<T : Any>(
  * events that should all be dispatched to the presentation layer at once - as part of the same
  * frame.
  *
- * @suppress
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface DifferCallback {

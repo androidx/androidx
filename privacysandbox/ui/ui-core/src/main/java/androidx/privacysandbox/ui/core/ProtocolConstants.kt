@@ -22,8 +22,6 @@ import androidx.annotation.RestrictTo
  * Constants shared between UI library artifacts to establish an IPC protocol across library
  * versions. Adding new constants is allowed, but **never change the value of a constant**, or
  * you'll break binary compatibility between UI library versions.
- *
- * @suppress
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 object ProtocolConstants {

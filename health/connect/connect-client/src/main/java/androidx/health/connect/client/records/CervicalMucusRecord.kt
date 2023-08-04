@@ -96,7 +96,6 @@ public class CervicalMucusRecord(
 
     /**
      * List of supported Cervical Mucus Sensation types on Health Platform.
-     * @suppress
      */
     @Retention(AnnotationRetention.SOURCE)
     @IntDef(value = [SENSATION_UNKNOWN, SENSATION_LIGHT, SENSATION_MEDIUM, SENSATION_HEAVY])
@@ -115,7 +114,6 @@ public class CervicalMucusRecord(
 
     /**
      * The consistency or appearance of the user's cervical mucus.
-     * @suppress
      */
     @Retention(AnnotationRetention.SOURCE)
     @IntDef(

@@ -431,13 +431,6 @@ package androidx.glance.semantics {
 
 }
 
-package androidx.glance.session {
-
-  public final class SessionManagerKt {
-  }
-
-}
-
 package androidx.glance.state {
 
   public interface GlanceStateDefinition<T> {

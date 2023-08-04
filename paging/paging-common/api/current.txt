@@ -210,6 +210,7 @@ package androidx.paging {
     property @Deprecated public final int loadedCount;
     property @Deprecated public final int positionOffset;
     property @Deprecated public int size;
+    field @Deprecated public static final androidx.paging.PagedList.Companion Companion;
   }
 
   @Deprecated @MainThread public abstract static class PagedList.BoundaryCallback<T> {
@@ -239,6 +240,9 @@ package androidx.paging {
     method @Deprecated public abstract void onChanged(int position, int count);
     method @Deprecated public abstract void onInserted(int position, int count);
     method @Deprecated public abstract void onRemoved(int position, int count);
+  }
+
+  @Deprecated public static final class PagedList.Companion {
   }
 
   @Deprecated public static final class PagedList.Config {
@@ -444,6 +448,12 @@ package androidx.paging {
     method @Deprecated public final <V> androidx.paging.PositionalDataSource<V> map(kotlin.jvm.functions.Function1<? super T,? extends V> function);
     method @Deprecated public final <V> androidx.paging.PositionalDataSource<V> mapByPage(androidx.arch.core.util.Function<java.util.List<T>,java.util.List<V>> function);
     method @Deprecated public final <V> androidx.paging.PositionalDataSource<V> mapByPage(kotlin.jvm.functions.Function1<? super java.util.List<? extends T>,? extends java.util.List<? extends V>> function);
+    field @Deprecated public static final androidx.paging.PositionalDataSource.Companion Companion;
+  }
+
+  @Deprecated public static final class PositionalDataSource.Companion {
+    method @Deprecated public int computeInitialLoadPosition(androidx.paging.PositionalDataSource.LoadInitialParams params, int totalCount);
+    method @Deprecated public int computeInitialLoadSize(androidx.paging.PositionalDataSource.LoadInitialParams params, int initialLoadPosition, int totalCount);
   }
 
   @Deprecated public abstract static class PositionalDataSource.LoadInitialCallback<T> {

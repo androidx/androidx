@@ -100,7 +100,6 @@ class SdkSandboxControllerCompat internal constructor(
     fun unregisterSdkSandboxActivityHandler(handlerCompat: SdkSandboxActivityHandlerCompat) =
         controllerImpl.unregisterSdkSandboxActivityHandler(handlerCompat)
 
-    /** @suppress */
     @RestrictTo(LIBRARY_GROUP)
     interface SandboxControllerImpl {
         fun getSandboxedSdks(): List<SandboxedSdkCompat>
@@ -145,7 +144,6 @@ class SdkSandboxControllerCompat internal constructor(
          * Implementation will be used only if loaded locally.
          * This method will be called from client side via reflection during loading SDK.
          *
-         * @suppress
          */
         @JvmStatic
         @Keep

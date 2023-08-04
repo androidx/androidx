@@ -57,7 +57,6 @@ class LoadSdkCompatException : Exception {
      * @param cause The cause of the exception. A null value is permitted, and indicates that the
      *  cause is nonexistent or unknown.
      * @param extraInformation Extra error information. This is empty if there is no such information.
-     * @suppress
      */
     @RestrictTo(LIBRARY_GROUP)
     @JvmOverloads
@@ -76,7 +75,6 @@ class LoadSdkCompatException : Exception {
      *
      * @param loadSdkErrorCode The result code.
      * @param message The detailed message.
-     * @suppress
      */
     @RestrictTo(LIBRARY_GROUP)
     constructor(
@@ -95,7 +93,6 @@ class LoadSdkCompatException : Exception {
         extraInfo: Bundle
     ) : this(LOAD_SDK_SDK_DEFINED_ERROR, "", cause, extraInfo)
 
-    /** @suppress */
     @IntDef(
         SDK_SANDBOX_PROCESS_NOT_AVAILABLE,
         LOAD_SDK_NOT_FOUND,
@@ -213,7 +210,6 @@ class LoadSdkCompatException : Exception {
          *
          *  @param ex Platform exception
          *  @return Compat exception.
-         *  @suppress
          */
         @RequiresExtension(extension = AD_SERVICES, version = 4)
         @RestrictTo(LIBRARY_GROUP)

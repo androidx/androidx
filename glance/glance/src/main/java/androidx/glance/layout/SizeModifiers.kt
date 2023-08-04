@@ -25,7 +25,6 @@ import androidx.glance.unit.Dimension
 /**
  * Modifier to represent the width of an element.
  *
- * @suppress
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class WidthModifier(val width: Dimension) : GlanceModifier.Element
@@ -52,7 +51,6 @@ fun GlanceModifier.fillMaxWidth(): GlanceModifier = this.then(WidthModifier(Dime
 /**
  * Modifier to represent the height of an element.
  *
- * @suppress
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class HeightModifier(val height: Dimension) : GlanceModifier.Element

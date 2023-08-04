@@ -109,7 +109,6 @@ public class BloodPressureRecord(
 
     /**
      * The user's body position when a health measurement is taken.
-     * @suppress
      */
     internal object BodyPosition {
         const val STANDING_UP = "standing_up"
@@ -120,8 +119,8 @@ public class BloodPressureRecord(
 
     /**
      * The arm and part of the arm where a blood pressure measurement was taken.
-     * @suppress
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Retention(AnnotationRetention.SOURCE)
     @IntDef(
         value =
@@ -137,7 +136,6 @@ public class BloodPressureRecord(
 
     /**
      * The user's body position when a health measurement is taken.
-     * @suppress
      */
     @Retention(AnnotationRetention.SOURCE)
     @IntDef(
@@ -150,6 +148,7 @@ public class BloodPressureRecord(
                 BODY_POSITION_RECLINING
             ]
     )
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     annotation class BodyPositions
 
     companion object {

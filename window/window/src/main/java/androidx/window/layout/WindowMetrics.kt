@@ -39,7 +39,6 @@ class WindowMetrics internal constructor(
 
     /**
      * An internal constructor for [WindowMetrics]
-     * @suppress
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     constructor(

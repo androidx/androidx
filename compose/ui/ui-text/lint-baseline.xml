@@ -29,6 +29,222 @@
     </issue>
 
     <issue
+        id="BanSuppressTag"
+        message="@suppress is not allowed in documentation"
+        errorLine1="internal open class BaselineShiftSpan(val multiplier: Float) : MetricAffectingSpan() {"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../text/text/src/main/java/androidx/compose/ui/text/android/style/BaselineShiftSpan.kt"/>
+    </issue>
+
+    <issue
+        id="BanSuppressTag"
+        message="@suppress is not allowed in documentation"
+        errorLine1="fun emptyCacheFontFamilyResolver(context: Context): FontFamily.Resolver {"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/ui/text/font/FontFamilyResolver.android.kt"/>
+    </issue>
+
+    <issue
+        id="BanSuppressTag"
+        message="@suppress is not allowed in documentation"
+        errorLine1="internal class FontFeatureSpan(val fontFeatureSettings: String) : MetricAffectingSpan() {"
+        errorLine2="               ~~~~~~~~~~~~~~~">
+        <location
+            file="../../../text/text/src/main/java/androidx/compose/ui/text/android/style/FontFeatureSpan.kt"/>
+    </issue>
+
+    <issue
+        id="BanSuppressTag"
+        message="@suppress is not allowed in documentation"
+        errorLine1="class PartialGapBuffer(var text: String) {"
+        errorLine2="      ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/text/input/GapBuffer.kt"/>
+    </issue>
+
+    <issue
+        id="BanSuppressTag"
+        message="@suppress is not allowed in documentation"
+        errorLine1="internal class IndentationFixSpan : LeadingMarginSpan {"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../text/text/src/main/java/androidx/compose/ui/text/android/style/IndentationFixSpan.kt"/>
+    </issue>
+
+    <issue
+        id="BanSuppressTag"
+        message="@suppress is not allowed in documentation"
+        errorLine1="internal object LayoutCompat {"
+        errorLine2="                ~~~~~~~~~~~~">
+        <location
+            file="../../../text/text/src/main/java/androidx/compose/ui/text/android/LayoutCompat.kt"/>
+    </issue>
+
+    <issue
+        id="BanSuppressTag"
+        message="@suppress is not allowed in documentation"
+        errorLine1="internal fun Layout.getLineForOffset(@IntRange(from = 0) offset: Int, upstream: Boolean): Int {"
+        errorLine2="                    ~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../text/text/src/main/java/androidx/compose/ui/text/android/LayoutCompat.kt"/>
+    </issue>
+
+    <issue
+        id="BanSuppressTag"
+        message="@suppress is not allowed in documentation"
+        errorLine1="internal class LayoutHelper(val layout: Layout) {"
+        errorLine2="               ~~~~~~~~~~~~">
+        <location
+            file="../../../text/text/src/main/java/androidx/compose/ui/text/android/LayoutHelper.kt"/>
+    </issue>
+
+    <issue
+        id="BanSuppressTag"
+        message="@suppress is not allowed in documentation"
+        errorLine1="internal class LayoutIntrinsics("
+        errorLine2="               ~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../text/text/src/main/java/androidx/compose/ui/text/android/LayoutIntrinsics.kt"/>
+    </issue>
+
+    <issue
+        id="BanSuppressTag"
+        message="@suppress is not allowed in documentation"
+        errorLine1="internal class LetterSpacingSpanEm(val letterSpacing: Float) : MetricAffectingSpan() {"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../text/text/src/main/java/androidx/compose/ui/text/android/style/LetterSpacingSpanEm.kt"/>
+    </issue>
+
+    <issue
+        id="BanSuppressTag"
+        message="@suppress is not allowed in documentation"
+        errorLine1="internal class LetterSpacingSpanPx(@Px val letterSpacing: Float) : MetricAffectingSpan() {"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../text/text/src/main/java/androidx/compose/ui/text/android/style/LetterSpacingSpanPx.kt"/>
+    </issue>
+
+    <issue
+        id="BanSuppressTag"
+        message="@suppress is not allowed in documentation"
+        errorLine1="internal class LineHeightSpan("
+        errorLine2="               ~~~~~~~~~~~~~~">
+        <location
+            file="../../../text/text/src/main/java/androidx/compose/ui/text/android/style/LineHeightSpan.kt"/>
+    </issue>
+
+    <issue
+        id="BanSuppressTag"
+        message="@suppress is not allowed in documentation"
+        errorLine1="internal class LineHeightStyleSpan("
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../text/text/src/main/java/androidx/compose/ui/text/android/style/LineHeightStyleSpan.kt"/>
+    </issue>
+
+    <issue
+        id="BanSuppressTag"
+        message="@suppress is not allowed in documentation"
+        errorLine1="internal class PlaceholderSpan("
+        errorLine2="               ~~~~~~~~~~~~~~~">
+        <location
+            file="../../../text/text/src/main/java/androidx/compose/ui/text/android/style/PlaceholderSpan.kt"/>
+    </issue>
+
+    <issue
+        id="BanSuppressTag"
+        message="@suppress is not allowed in documentation"
+        errorLine1="internal data class Segment("
+        errorLine2="                    ~~~~~~~">
+        <location
+            file="../../../text/text/src/main/java/androidx/compose/ui/text/android/animation/SegmentBreaker.kt"/>
+    </issue>
+
+    <issue
+        id="BanSuppressTag"
+        message="@suppress is not allowed in documentation"
+        errorLine1="internal object SegmentBreaker {"
+        errorLine2="                ~~~~~~~~~~~~~~">
+        <location
+            file="../../../text/text/src/main/java/androidx/compose/ui/text/android/animation/SegmentBreaker.kt"/>
+    </issue>
+
+    <issue
+        id="BanSuppressTag"
+        message="@suppress is not allowed in documentation"
+        errorLine1="enum class SegmentType {"
+        errorLine2="           ~~~~~~~~~~~">
+        <location
+            file="../../../text/text/src/main/java/androidx/compose/ui/text/android/animation/SegmentType.kt"/>
+    </issue>
+
+    <issue
+        id="BanSuppressTag"
+        message="@suppress is not allowed in documentation"
+        errorLine1="internal class ShadowSpan("
+        errorLine2="               ~~~~~~~~~~">
+        <location
+            file="../../../text/text/src/main/java/androidx/compose/ui/text/android/style/ShadowSpan.kt"/>
+    </issue>
+
+    <issue
+        id="BanSuppressTag"
+        message="@suppress is not allowed in documentation"
+        errorLine1="internal open class SkewXSpan(val skewX: Float) : MetricAffectingSpan() {"
+        errorLine2="                    ~~~~~~~~~">
+        <location
+            file="../../../text/text/src/main/java/androidx/compose/ui/text/android/style/SkewXSpan.kt"/>
+    </issue>
+
+    <issue
+        id="BanSuppressTag"
+        message="@suppress is not allowed in documentation"
+        errorLine1="object StaticLayoutFactory {"
+        errorLine2="       ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../text/text/src/main/java/androidx/compose/ui/text/android/StaticLayoutFactory.kt"/>
+    </issue>
+
+    <issue
+        id="BanSuppressTag"
+        message="@suppress is not allowed in documentation"
+        errorLine1="internal class TextDecorationSpan("
+        errorLine2="               ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../text/text/src/main/java/androidx/compose/ui/text/android/style/TextDecorationSpan.kt"/>
+    </issue>
+
+    <issue
+        id="BanSuppressTag"
+        message="@suppress is not allowed in documentation"
+        errorLine1="internal class TextLayout constructor("
+        errorLine2="               ~~~~~~~~~~">
+        <location
+            file="../../../text/text/src/main/java/androidx/compose/ui/text/android/TextLayout.kt"/>
+    </issue>
+
+    <issue
+        id="BanSuppressTag"
+        message="@suppress is not allowed in documentation"
+        errorLine1="internal class TypefaceSpan(val typeface: Typeface) : MetricAffectingSpan() {"
+        errorLine2="               ~~~~~~~~~~~~">
+        <location
+            file="../../../text/text/src/main/java/androidx/compose/ui/text/android/style/TypefaceSpan.kt"/>
+    </issue>
+
+    <issue
+        id="BanSuppressTag"
+        message="@suppress is not allowed in documentation"
+        errorLine1="internal class WordBoundary("
+        errorLine2="               ~~~~~~~~~~~~">
+        <location
+            file="../../../text/text/src/main/java/androidx/compose/ui/text/android/selection/WordBoundary.kt"/>
+    </issue>
+
+    <issue
         id="ListIterator"
         message="Creating an unnecessary Iterator to iterate through a List"
         errorLine1="                        &quot;&apos;$key&apos; must be unique. Actual [ [${value.joinToString()}]&quot;"

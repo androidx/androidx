@@ -128,7 +128,6 @@ internal fun ButtonElement(
     )
 }
 
-/** @suppress */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class EmittableButton : Emittable {
     override var modifier: GlanceModifier = GlanceModifier
@@ -151,7 +150,6 @@ class EmittableButton : Emittable {
         "colors=$colors modifier=$modifier, maxLines=$maxLines)"
 }
 
-/** @suppress */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 fun EmittableButton.toEmittableText() = EmittableText().also {
     it.modifier = modifier
