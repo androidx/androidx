@@ -637,7 +637,7 @@ public sealed class ScatterMap<K, V> {
     //       `containsAll()` etc. We should probably instead create named
     //       classes that take a `ScatterMap` as a parameter to refer to it
     //       directly.
-    protected open inner class MapWrapper : Map<K, V> {
+    internal open inner class MapWrapper : Map<K, V> {
         override val entries: Set<Map.Entry<K, V>>
             get() = object : Set<Map.Entry<K, V>>, Map.Entry<K, V> {
                 var current = -1

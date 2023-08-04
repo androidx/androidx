@@ -217,22 +217,6 @@ package androidx.collection {
     field @kotlin.PublishedApi internal Object![] values;
   }
 
-  protected class ScatterMap.MapWrapper implements kotlin.jvm.internal.markers.KMappedMarker java.util.Map<K,V> {
-    ctor public ScatterMap.MapWrapper();
-    method public boolean containsKey(K key);
-    method public boolean containsValue(V value);
-    method public V? get(Object key);
-    method public java.util.Set<java.util.Map.Entry<K,V>> getEntries();
-    method public java.util.Set<K> getKeys();
-    method public int getSize();
-    method public java.util.Collection<V> getValues();
-    method public boolean isEmpty();
-    property public java.util.Set<java.util.Map.Entry<K,V>> entries;
-    property public java.util.Set<K> keys;
-    property public int size;
-    property public java.util.Collection<V> values;
-  }
-
   public final class ScatterMapKt {
     method public static <K, V> androidx.collection.ScatterMap<K,V> emptyScatterMap();
     method @kotlin.PublishedApi internal static inline boolean isFull(long value);
