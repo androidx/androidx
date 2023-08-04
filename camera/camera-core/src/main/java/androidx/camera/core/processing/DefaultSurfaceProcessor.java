@@ -223,7 +223,14 @@ public class DefaultSurfaceProcessor implements SurfaceProcessorInternal,
             surfaceOutput.updateTransformMatrix(mSurfaceOutputMatrix, mTextureMatrix);
             if (surfaceOutput.getFormat() == INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE) {
                 // Render GPU output directly.
-                mGlRenderer.render(surfaceTexture.getTimestamp(), mSurfaceOutputMatrix, surface);
+                try {
+                    mGlRenderer.render(surfaceTexture.getTimestamp(), mSurfaceOutputMatrix,
+                            surface);
+                } catch (RuntimeException e) {
+                    // This should not happen. However, when it happens, we catch the exception
+                    // to prevent the crash.
+                    Logger.e(TAG, "Failed to render with OpenGL.", e);
+                }
             } else {
                 checkState(surfaceOutput.getFormat() == ImageFormat.JPEG,
                         "Unsupported format: " + surfaceOutput.getFormat());
