@@ -572,54 +572,11 @@ constructor(
                     ":benchmark:benchmark-macro",
                     ":benchmark:integration-tests:macrobenchmark-target"
                 ), // link benchmark-macro's correctness test and its target
-                setOf(
-                    ":benchmark:integration-tests",
-                    ":benchmark:integration-tests:macrobenchmark",
-                    ":benchmark:integration-tests:macrobenchmark-target"
-                ), // link benchmark's macrobenchmark and its target
-                setOf(
-                    ":compose:integration-tests",
-                    ":compose:integration-tests:macrobenchmark",
-                    ":compose:integration-tests:macrobenchmark-target"
-                ),
-                setOf(
-                    ":emoji2:integration-tests",
-                    ":emoji2:integration-tests:init-disabled-macrobenchmark",
-                    ":emoji2:integration-tests:init-disabled-macrobenchmark-target",
-                ),
-                setOf(
-                    ":emoji2:integration-tests",
-                    ":emoji2:integration-tests:init-enabled-macrobenchmark",
-                    ":emoji2:integration-tests:init-enabled-macrobenchmark-target",
-                ),
-                setOf(
-                    ":wear:benchmark:integration-tests",
-                    ":wear:benchmark:integration-tests:macrobenchmark",
-                    ":wear:benchmark:integration-tests:macrobenchmark-target"
-                ),
-                setOf(
-                    ":wear:compose:integration-tests",
-                    ":wear:compose:integration-tests:macrobenchmark",
-                    ":wear:compose:integration-tests:macrobenchmark-target"
-                ),
                 // Changing generator code changes the output for generated icons, which are tested
-                // in
-                // material-icons-extended.
+                // in material-icons-extended.
                 setOf(
                     ":compose:material:material:icons:generator",
                     ":compose:material:material-icons-extended"
-                ),
-                // Link glance-appwidget macrobenchmark and its target.
-                setOf(
-                    ":glance:glance-appwidget:integration-tests",
-                    ":glance:glance-appwidget:integration-tests:macrobenchmark",
-                    ":glance:glance-appwidget:integration-tests:macrobenchmark-target"
-                ),
-                setOf(
-                    ":constraintlayout:constraintlayout-compose:integration-tests",
-                    ":constraintlayout:constraintlayout-compose:integration-tests:macrobenchmark",
-                    ":constraintlayout:constraintlayout-compose:integration-tests:" +
-                        "macrobenchmark-target"
                 ),
                 setOf(
                     ":profileinstaller:integration-tests:profile-verification",
@@ -628,10 +585,6 @@ constructor(
                         "profile-verification-sample-no-initializer",
                     ":benchmark:integration-tests:baselineprofile-consumer",
                 ),
-                setOf(
-                    ":window:integration-tests:macrobenchmark",
-                    ":window:integration-tests:macrobenchmark-target",
-                )
             )
 
         val IGNORED_PATHS =
