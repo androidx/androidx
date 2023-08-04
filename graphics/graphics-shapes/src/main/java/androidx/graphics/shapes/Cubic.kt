@@ -22,76 +22,76 @@ import kotlin.math.sqrt
 
 /**
  * This class holds the anchor and control point data for a single cubic Bézier curve,
- * with anchor points ([anchorX0], [anchorY0]) and ([anchorX1], [anchorY1]) at either end
- * and control points ([controlX0], [controlY0]) and ([controlX1], [controlY1]) determining
+ * with anchor points ([anchor0X], [anchor0Y]) and ([anchor1X], [anchor1Y]) at either end
+ * and control points ([control0X], [control0Y]) and ([control1X], [control1Y]) determining
  * the slope of the curve between the anchor points.
  *
- * @param anchorX0 the first anchor point x coordinate
- * @param anchorY0 the first anchor point y coordinate
- * @param controlX0 the first control point x coordinate
- * @param controlY0 the first control point y coordinate
- * @param controlX1 the second control point x coordinate
- * @param controlY1 the second control point y coordinate
- * @param anchorX1 the second anchor point x coordinate
- * @param anchorY1 the second anchor point y coordinate
+ * @param anchor0X the first anchor point x coordinate
+ * @param anchor0Y the first anchor point y coordinate
+ * @param control0X the first control point x coordinate
+ * @param control0Y the first control point y coordinate
+ * @param control1X the second control point x coordinate
+ * @param control1Y the second control point y coordinate
+ * @param anchor1X the second anchor point x coordinate
+ * @param anchor1Y the second anchor point y coordinate
  */
 class Cubic(
-    anchorX0: Float,
-    anchorY0: Float,
-    controlX0: Float,
-    controlY0: Float,
-    controlX1: Float,
-    controlY1: Float,
-    anchorX1: Float,
-    anchorY1: Float
+    anchor0X: Float,
+    anchor0Y: Float,
+    control0X: Float,
+    control0Y: Float,
+    control1X: Float,
+    control1Y: Float,
+    anchor1X: Float,
+    anchor1Y: Float
 ) {
 
     /**
      * The first anchor point x coordinate
      */
-    var anchorX0: Float = anchorX0
+    var anchor0X: Float = anchor0X
         private set
 
     /**
      * The first anchor point y coordinate
      */
-    var anchorY0: Float = anchorY0
+    var anchor0Y: Float = anchor0Y
         private set
 
     /**
      * The first control point x coordinate
      */
-    var controlX0: Float = controlX0
+    var control0X: Float = control0X
         private set
 
     /**
      * The first control point y coordinate
      */
-    var controlY0: Float = controlY0
+    var control0Y: Float = control0Y
         private set
 
     /**
      * The second control point x coordinate
      */
-    var controlX1: Float = controlX1
+    var control1X: Float = control1X
         private set
 
     /**
      * The second control point y coordinate
      */
-    var controlY1: Float = controlY1
+    var control1Y: Float = control1Y
         private set
 
     /**
      * The second anchor point x coordinate
      */
-    var anchorX1: Float = anchorX1
+    var anchor1X: Float = anchor1X
         private set
 
     /**
      * The second anchor point y coordinate
      */
-    var anchorY1: Float = anchorY1
+    var anchor1Y: Float = anchor1Y
         private set
 
     internal constructor(p0: PointF, p1: PointF, p2: PointF, p3: PointF) :
@@ -101,32 +101,32 @@ class Cubic(
      * Copy constructor which creates a copy of the given object.
      */
     constructor(cubic: Cubic) : this(
-        cubic.anchorX0, cubic.anchorY0, cubic.controlX0, cubic.controlY0,
-        cubic.controlX1, cubic.controlY1, cubic.anchorX1, cubic.anchorY1,
+        cubic.anchor0X, cubic.anchor0Y, cubic.control0X, cubic.control0Y,
+        cubic.control1X, cubic.control1Y, cubic.anchor1X, cubic.anchor1Y,
     )
 
     override fun toString(): String {
-        return "p0: ($anchorX0, $anchorY0) p1: ($controlX0, $controlY0), " +
-            "p2: ($controlX1, $controlY1), p3: ($anchorX1, $anchorY1)"
+        return "p0: ($anchor0X, $anchor0Y) p1: ($control0X, $control0Y), " +
+            "p2: ($control1X, $control1Y), p3: ($anchor1X, $anchor1Y)"
     }
 
     /**
      * Returns a point on the curve for parameter t, representing the proportional distance
-     * along the curve between its starting ([anchorX0], [anchorY0]) and ending
-     * ([anchorX1], [anchorY1]) anchor points.
+     * along the curve between its starting ([anchor0X], [anchor0Y]) and ending
+     * ([anchor1X], [anchor1Y]) anchor points.
      *
      * @param t The distance along the curve between the anchor points, where 0 is at
-     * ([anchorX0], [anchorY0]) and 1 is at ([controlX0], [controlY0])
+     * ([anchor0X], [anchor0Y]) and 1 is at ([control0X], [control0Y])
      * @param result Optional object to hold the result, can be passed in to avoid allocating a
      * new PointF object.
      */
     @JvmOverloads
     fun pointOnCurve(t: Float, result: PointF = PointF()): PointF {
         val u = 1 - t
-        result.x = anchorX0 * (u * u * u) + controlX0 * (3 * t * u * u) +
-            controlX1 * (3 * t * t * u) + anchorX1 * (t * t * t)
-        result.y = anchorY0 * (u * u * u) + controlY0 * (3 * t * u * u) +
-            controlY1 * (3 * t * t * u) + anchorY1 * (t * t * t)
+        result.x = anchor0X * (u * u * u) + control0X * (3 * t * u * u) +
+            control1X * (3 * t * t * u) + anchor1X * (t * t * t)
+        result.y = anchor0Y * (u * u * u) + control0Y * (3 * t * u * u) +
+            control1Y * (3 * t * t * u) + anchor1Y * (t * t * t)
         return result
     }
 
@@ -139,45 +139,45 @@ class Cubic(
         val u = 1 - t
         val pointOnCurve = pointOnCurve(t)
         return Cubic(
-            anchorX0, anchorY0,
-            anchorX0 * u + controlX0 * t, anchorY0 * u + controlY0 * t,
-            anchorX0 * (u * u) + controlX0 * (2 * u * t) + controlX1 * (t * t),
-            anchorY0 * (u * u) + controlY0 * (2 * u * t) + controlY1 * (t * t),
+            anchor0X, anchor0Y,
+            anchor0X * u + control0X * t, anchor0Y * u + control0Y * t,
+            anchor0X * (u * u) + control0X * (2 * u * t) + control1X * (t * t),
+            anchor0Y * (u * u) + control0Y * (2 * u * t) + control1Y * (t * t),
             pointOnCurve.x, pointOnCurve.y
         ) to Cubic(
             // TODO: should calculate once and share the result
             pointOnCurve.x, pointOnCurve.y,
-            controlX0 * (u * u) + controlX1 * (2 * u * t) + anchorX1 * (t * t),
-            controlY0 * (u * u) + controlY1 * (2 * u * t) + anchorY1 * (t * t),
-            controlX1 * u + anchorX1 * t, controlY1 * u + anchorY1 * t,
-            anchorX1, anchorY1
+            control0X * (u * u) + control1X * (2 * u * t) + anchor1X * (t * t),
+            control0Y * (u * u) + control1Y * (2 * u * t) + anchor1Y * (t * t),
+            control1X * u + anchor1X * t, control1Y * u + anchor1Y * t,
+            anchor1X, anchor1Y
         )
     }
 
     /**
      * Utility function to reverse the control/anchor points for this curve.
      */
-    fun reverse() = Cubic(anchorX1, anchorY1, controlX1, controlY1, controlX0, controlY0,
-        anchorX0, anchorY0)
+    fun reverse() = Cubic(anchor1X, anchor1Y, control1X, control1Y, control0X, control0Y,
+        anchor0X, anchor0Y)
 
     /**
      * Operator overload to enable adding Cubic objects together, like "c0 + c1"
      */
     operator fun plus(o: Cubic) = Cubic(
-        anchorX0 + o.anchorX0, anchorY0 + o.anchorY0,
-        controlX0 + o.controlX0, controlY0 + o.controlY0,
-        controlX1 + o.controlX1, controlY1 + o.controlY1,
-        anchorX1 + o.anchorX1, anchorY1 + o.anchorY1
+        anchor0X + o.anchor0X, anchor0Y + o.anchor0Y,
+        control0X + o.control0X, control0Y + o.control0Y,
+        control1X + o.control1X, control1Y + o.control1Y,
+        anchor1X + o.anchor1X, anchor1Y + o.anchor1Y
     )
 
     /**
      * Operator overload to enable multiplying Cubics by a scalar value x, like "c0 * x"
      */
     operator fun times(x: Float) = Cubic(
-        anchorX0 * x, anchorY0 * x,
-        controlX0 * x, controlY0 * x,
-        controlX1 * x, controlY1 * x,
-        anchorX1 * x, anchorY1 * x
+        anchor0X * x, anchor0Y * x,
+        control0X * x, control0Y * x,
+        control1X * x, control1Y * x,
+        anchor1X * x, anchor1Y * x
     )
 
     /**
@@ -210,23 +210,23 @@ class Cubic(
         if (points.size < 8) {
             throw IllegalArgumentException("points array must be of size >= 8")
         }
-        points[0] = anchorX0
-        points[1] = anchorY0
-        points[2] = controlX0
-        points[3] = controlY0
-        points[4] = controlX1
-        points[5] = controlY1
-        points[6] = anchorX1
-        points[7] = anchorY1
+        points[0] = anchor0X
+        points[1] = anchor0Y
+        points[2] = control0X
+        points[3] = control0Y
+        points[4] = control1X
+        points[5] = control1Y
+        points[6] = anchor1X
+        points[7] = anchor1Y
         matrix.mapPoints(points)
-        anchorX0 = points[0]
-        anchorY0 = points[1]
-        controlX0 = points[2]
-        controlY0 = points[3]
-        controlX1 = points[4]
-        controlY1 = points[5]
-        anchorX1 = points[6]
-        anchorY1 = points[7]
+        anchor0X = points[0]
+        anchor0Y = points[1]
+        control0X = points[2]
+        control0Y = points[3]
+        control1X = points[4]
+        control1Y = points[5]
+        anchor1X = points[6]
+        anchor1Y = points[7]
     }
 
     override fun equals(other: Any?): Boolean {
@@ -235,27 +235,27 @@ class Cubic(
 
         other as Cubic
 
-        if (anchorX0 != other.anchorX0) return false
-        if (anchorY0 != other.anchorY0) return false
-        if (controlX0 != other.controlX0) return false
-        if (controlY0 != other.controlY0) return false
-        if (controlX1 != other.controlX1) return false
-        if (controlY1 != other.controlY1) return false
-        if (anchorX1 != other.anchorX1) return false
-        if (anchorY1 != other.anchorY1) return false
+        if (anchor0X != other.anchor0X) return false
+        if (anchor0Y != other.anchor0Y) return false
+        if (control0X != other.control0X) return false
+        if (control0Y != other.control0Y) return false
+        if (control1X != other.control1X) return false
+        if (control1Y != other.control1Y) return false
+        if (anchor1X != other.anchor1X) return false
+        if (anchor1Y != other.anchor1Y) return false
 
         return true
     }
 
     override fun hashCode(): Int {
-        var result = anchorX0.hashCode()
-        result = 31 * result + anchorY0.hashCode()
-        result = 31 * result + controlX0.hashCode()
-        result = 31 * result + controlY0.hashCode()
-        result = 31 * result + controlX1.hashCode()
-        result = 31 * result + controlY1.hashCode()
-        result = 31 * result + anchorX1.hashCode()
-        result = 31 * result + anchorY1.hashCode()
+        var result = anchor0X.hashCode()
+        result = 31 * result + anchor0Y.hashCode()
+        result = 31 * result + control0X.hashCode()
+        result = 31 * result + control0Y.hashCode()
+        result = 31 * result + control1X.hashCode()
+        result = 31 * result + control1Y.hashCode()
+        result = 31 * result + anchor1X.hashCode()
+        result = 31 * result + anchor1Y.hashCode()
         return result
     }
 
@@ -318,14 +318,14 @@ class Cubic(
         @JvmStatic
         fun interpolate(start: Cubic, end: Cubic, t: Float): Cubic {
             return (Cubic(
-                interpolate(start.anchorX0, end.anchorX0, t),
-                interpolate(start.anchorY0, end.anchorY0, t),
-                interpolate(start.controlX0, end.controlX0, t),
-                interpolate(start.controlY0, end.controlY0, t),
-                interpolate(start.controlX1, end.controlX1, t),
-                interpolate(start.controlY1, end.controlY1, t),
-                interpolate(start.anchorX1, end.anchorX1, t),
-                interpolate(start.anchorY1, end.anchorY1, t),
+                interpolate(start.anchor0X, end.anchor0X, t),
+                interpolate(start.anchor0Y, end.anchor0Y, t),
+                interpolate(start.control0X, end.control0X, t),
+                interpolate(start.control0Y, end.control0Y, t),
+                interpolate(start.control1X, end.control1X, t),
+                interpolate(start.control1Y, end.control1Y, t),
+                interpolate(start.anchor1X, end.anchor1X, t),
+                interpolate(start.anchor1Y, end.anchor1Y, t),
             ))
         }
     }
