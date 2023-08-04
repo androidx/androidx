@@ -101,51 +101,6 @@ internal class DefaultSpecialEffectsController(
         collectAnimEffects(animations, startedAnyTransition, startedTransitions)
     }
 
-    override fun commitEffects(operations: List<Operation>) {
-        val firstOut = operations.firstOrNull { operation ->
-            val currentState = operation.fragment.mView.asOperationState()
-            // The firstOut Operation is the first Operation moving from VISIBLE
-            currentState == Operation.State.VISIBLE &&
-                operation.finalState != Operation.State.VISIBLE
-        }
-        val lastIn = operations.lastOrNull { operation ->
-            val currentState = operation.fragment.mView.asOperationState()
-            // The last Operation that moves to VISIBLE is the lastIn Operation
-            currentState != Operation.State.VISIBLE &&
-                operation.finalState == Operation.State.VISIBLE
-        }
-        val set = operations.flatMap { it.effects }.toSet().toList()
-
-        // Start all of the Animation, Animator, Transition and NoOp Effects we have collected
-        for (i in set.indices) {
-            val effect = set[i]
-            effect.onStart(container)
-        }
-
-        // Commit all of the Animation, Animator, Transition and NoOp Effects we have collected
-        for (i in set.indices) {
-            val effect = set[i]
-            effect.onCommit(container)
-        }
-
-        for (i in operations.indices) {
-            val operation = operations[i]
-            applyContainerChangesToOperation(operation)
-        }
-
-        if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
-            Log.v(FragmentManager.TAG,
-                "Completed executing operations from $firstOut to $lastIn")
-        }
-    }
-
-    internal fun applyContainerChangesToOperation(operation: Operation) {
-        if (operation.isAwaitingContainerChanges) {
-            applyContainerChanges(operation)
-            operation.isAwaitingContainerChanges = false
-        }
-    }
-
     /**
      * Syncs the animations of all other operations with the animations of the last operation.
      */
@@ -450,11 +405,6 @@ internal class DefaultSpecialEffectsController(
                 }
             }
         }
-    }
-
-    private fun applyContainerChanges(operation: Operation) {
-        val view = operation.fragment.mView
-        operation.finalState.applyState(view)
     }
 
     private open class SpecialEffectsInfo(
@@ -1011,6 +961,11 @@ internal class DefaultSpecialEffectsController(
             setViewVisibility(enteringViews, View.VISIBLE)
             transitionImpl.swapSharedElementTargets(sharedElementTransition,
                 sharedElementFirstOutViews, sharedElementLastInViews)
+
+            if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
+                Log.v(FragmentManager.TAG,
+                    "Completed executing operations from $firstOut to $lastIn")
+            }
         }
 
         /**
