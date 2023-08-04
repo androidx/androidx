@@ -34,6 +34,7 @@ import androidx.compose.foundation.text2.input.TextFieldState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -586,14 +587,17 @@ class TextFieldScrollTest {
         scrollState: ScrollState,
         lineLimits: TextFieldLineLimits
     ) {
-        val textLayoutResultRef: Ref<TextLayoutResultProxy?> = remember { Ref() }
+        val textLayoutResultRef: Ref<State<TextLayoutResultProxy?>?> = remember { Ref() }
 
         testScope = rememberCoroutineScope()
         BasicTextField2(
             state = state,
             scrollState = scrollState,
             onTextLayout = {
-                textLayoutResultRef.value = TextLayoutResultProxy(it)
+                textLayoutResultRef.value = object : State<TextLayoutResultProxy?> {
+                    override val value: TextLayoutResultProxy?
+                        get() = it()?.let(::TextLayoutResultProxy)
+                }
             },
             lineLimits = lineLimits,
             modifier = modifier.testTag(TextfieldTag)

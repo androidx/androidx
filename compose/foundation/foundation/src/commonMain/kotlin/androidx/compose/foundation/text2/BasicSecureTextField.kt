@@ -139,7 +139,7 @@ fun BasicSecureTextField(
     interactionSource: MutableInteractionSource? = null,
     cursorBrush: Brush = SolidColor(Color.Black),
     scrollState: ScrollState = rememberScrollState(),
-    onTextLayout: Density.(TextLayoutResult) -> Unit = {},
+    onTextLayout: Density.(getResult: () -> TextLayoutResult?) -> Unit = {},
     decorationBox: @Composable (innerTextField: @Composable () -> Unit) -> Unit =
         @Composable { innerTextField -> innerTextField() }
 ) {

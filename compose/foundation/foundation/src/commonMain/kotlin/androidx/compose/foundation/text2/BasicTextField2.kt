@@ -141,7 +141,7 @@ fun BasicTextField2(
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     keyboardActions: KeyboardActions = KeyboardActions.Default,
     lineLimits: TextFieldLineLimits = TextFieldLineLimits.Default,
-    onTextLayout: Density.(TextLayoutResult) -> Unit = {},
+    onTextLayout: Density.(getResult: () -> TextLayoutResult?) -> Unit = {},
     interactionSource: MutableInteractionSource? = null,
     cursorBrush: Brush = SolidColor(Color.Black),
     scrollState: ScrollState = rememberScrollState(),
