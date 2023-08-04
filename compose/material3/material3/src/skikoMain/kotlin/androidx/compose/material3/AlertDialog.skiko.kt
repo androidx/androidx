@@ -89,32 +89,39 @@ actual fun AlertDialog(
     textContentColor: Color,
     tonalElevation: Dp,
     properties: DialogProperties
-): Unit = AlertDialog(onDismissRequest = onDismissRequest, modifier = modifier, properties = properties) {
-    AlertDialogContent(
-        buttons = {
-            AlertDialogFlowRow(
-                mainAxisSpacing = ButtonsMainAxisSpacing,
-                crossAxisSpacing = ButtonsCrossAxisSpacing
-            ) {
-                dismissButton?.invoke()
-                confirmButton()
-            }
-        },
-        icon = icon,
-        title = title,
-        text = text,
-        shape = shape,
-        containerColor = containerColor,
-        tonalElevation = tonalElevation,
-        // Note that a button content color is provided here from the dialog's token, but in
-        // most cases, TextButtons should be used for dismiss and confirm buttons.
-        // TextButtons will not consume this provided content color value, and will used their
-        // own defined or default colors.
-        buttonContentColor = DialogTokens.ActionLabelTextColor.toColor(),
-        iconContentColor = iconContentColor,
-        titleContentColor = titleContentColor,
-        textContentColor = textContentColor,
-    )
+) {
+    /*
+     * Implementation is equal to Android source set, but we need to keep them separate to
+     * maintain binary compatibility.
+     */
+
+    AlertDialog(onDismissRequest = onDismissRequest, modifier = modifier, properties = properties) {
+        AlertDialogContent(
+            buttons = {
+                AlertDialogFlowRow(
+                    mainAxisSpacing = ButtonsMainAxisSpacing,
+                    crossAxisSpacing = ButtonsCrossAxisSpacing
+                ) {
+                    dismissButton?.invoke()
+                    confirmButton()
+                }
+            },
+            icon = icon,
+            title = title,
+            text = text,
+            shape = shape,
+            containerColor = containerColor,
+            tonalElevation = tonalElevation,
+            // Note that a button content color is provided here from the dialog's token, but in
+            // most cases, TextButtons should be used for dismiss and confirm buttons.
+            // TextButtons will not consume this provided content color value, and will used their
+            // own defined or default colors.
+            buttonContentColor = DialogTokens.ActionLabelTextColor.toColor(),
+            iconContentColor = iconContentColor,
+            titleContentColor = titleContentColor,
+            textContentColor = textContentColor,
+        )
+    }
 }
 
 /**
@@ -148,6 +155,11 @@ actual fun AlertDialog(
     properties: DialogProperties,
     content: @Composable () -> Unit
 ) {
+    /*
+     * Implementation is equal to Android source set, but we need to keep them separate to
+     * maintain binary compatibility.
+     */
+
     Dialog(
         onDismissRequest = onDismissRequest,
         properties = properties,
