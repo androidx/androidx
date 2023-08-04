@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -31,7 +32,14 @@ import androidx.compose.ui.window.PopupProperties
 fun PopupAndDialog() {
     Column(Modifier.padding(5.dp)) {
         PopupSample()
-        DialogSample()
+        DialogSample(
+            modifier = Modifier.size(400.dp, 300.dp),
+            text = "Dialog: 400x300"
+        )
+        DialogSample(
+            modifier = Modifier.fillMaxSize(),
+            text = "Dialog: max size"
+        )
     }
 }
 
@@ -124,8 +132,9 @@ private fun MyPopup(
         }
     }
 }
+
 @Composable
-private fun DialogSample() {
+private fun DialogSample(modifier: Modifier = Modifier, text: String = "Dialog") {
     var showDialog by remember { mutableStateOf(false) }
     if (showDialog) {
         Dialog(
@@ -136,8 +145,7 @@ private fun DialogSample() {
             )
         ) {
             Surface(
-                modifier = Modifier
-                    .size(400.dp, 300.dp),
+                modifier = modifier,
                 shape = RoundedCornerShape(16.dp),
                 color = Color.Yellow
             ) {
@@ -156,6 +164,6 @@ private fun DialogSample() {
     Button(
         onClick = { showDialog = true }
     ) {
-        Text(text = "Dialog")
+        Text(text = text)
     }
 }

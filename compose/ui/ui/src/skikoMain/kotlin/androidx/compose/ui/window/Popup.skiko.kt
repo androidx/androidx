@@ -18,7 +18,10 @@ package androidx.compose.ui.window
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.Key
@@ -29,9 +32,21 @@ import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.input.pointer.PointerInputEvent
+import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.layout.MeasurePolicy
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInWindow
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.semantics.popup
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntRect
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.round
+import androidx.compose.ui.util.fastForEach
+import androidx.compose.ui.util.fastMap
+import androidx.compose.ui.util.fastMaxBy
 
 @Immutable
 actual class PopupProperties actual constructor(
@@ -332,11 +347,81 @@ fun Popup(
     }
     PopupLayout(
         popupPositionProvider = popupPositionProvider,
-        focusable = properties.focusable,
+        properties = properties,
         modifier = modifier,
         onOutsidePointerEvent = onOutsidePointerEvent,
         content = content
     )
+}
+
+@Composable
+private fun PopupLayout(
+    popupPositionProvider: PopupPositionProvider,
+    properties: PopupProperties,
+    modifier: Modifier = Modifier,
+    onOutsidePointerEvent: ((PointerInputEvent) -> Unit)? = null,
+    content: @Composable () -> Unit
+) {
+    val layoutDirection = LocalLayoutDirection.current
+    var parentBounds by remember { mutableStateOf(IntRect.Zero) }
+    EmptyLayout(Modifier.parentBoundsInWindow { parentBounds = it })
+    RootLayout(
+        modifier = modifier,
+        focusable = properties.focusable,
+        onOutsidePointerEvent = onOutsidePointerEvent
+    ) { owner ->
+        val measurePolicy = rememberPopupMeasurePolicy(
+            popupPositionProvider = popupPositionProvider,
+            layoutDirection = layoutDirection,
+            parentBounds = parentBounds
+        ) {
+            owner.bounds = it
+        }
+        Layout(
+            content = content,
+            measurePolicy = measurePolicy
+        )
+    }
+}
+
+private fun Modifier.parentBoundsInWindow(
+    onBoundsChanged: (IntRect) -> Unit
+) = this.onGloballyPositioned { childCoordinates ->
+    childCoordinates.parentCoordinates?.let {
+        val layoutPosition = it.positionInWindow().round()
+        val layoutSize = it.size
+        onBoundsChanged(IntRect(layoutPosition, layoutSize))
+    }
+}
+
+@Composable
+private fun rememberPopupMeasurePolicy(
+    popupPositionProvider: PopupPositionProvider,
+    layoutDirection: LayoutDirection,
+    parentBounds: IntRect,
+    onBoundsChanged: (IntRect) -> Unit
+) = remember(popupPositionProvider, layoutDirection, parentBounds, onBoundsChanged) {
+    MeasurePolicy { measurables, constraints ->
+        val placeables = measurables.fastMap { it.measure(constraints) }
+        val width = placeables.fastMaxBy { it.width }?.width ?: constraints.minWidth
+        val height = placeables.fastMaxBy { it.height }?.height ?: constraints.minHeight
+
+        val placeableSize = IntSize(width, height)
+        val windowSize = IntSize(constraints.maxWidth, constraints.maxHeight)
+        val position = popupPositionProvider.calculatePosition(
+            anchorBounds = parentBounds,
+            windowSize = windowSize,
+            layoutDirection = layoutDirection,
+            popupContentSize = placeableSize
+        )
+        onBoundsChanged(IntRect(position, placeableSize))
+
+        layout(windowSize.width, windowSize.height) {
+            placeables.fastForEach {
+                it.place(position.x, position.y)
+            }
+        }
+    }
 }
 
 private fun KeyEvent.isDismissRequest() =

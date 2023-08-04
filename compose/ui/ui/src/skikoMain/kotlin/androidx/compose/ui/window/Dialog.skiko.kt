@@ -18,6 +18,8 @@ package androidx.compose.ui.window
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.remember
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.BlendMode
@@ -31,33 +33,64 @@ import androidx.compose.ui.input.key.type
 import androidx.compose.ui.input.pointer.PointerButton
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.PointerInputEvent
+import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.layout.MeasurePolicy
+import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.semantics.dialog
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.center
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.fastForEach
+import androidx.compose.ui.util.fastMap
+import androidx.compose.ui.util.fastMaxBy
+import kotlin.math.min
 
 /**
  * The default scrim opacity.
- * See generated [androidx.compose.material3.tokens.ScrimTokens.ContainerOpacity] as reference.
- *
- * TODO: Provide a way to configure dialog shim color (maybe inside DialogProperties?)
  */
-private const val DefaultScrimOpacity = 0.32f
+private const val DefaultScrimOpacity = 0.6f
+private val DefaultScrimColor = Color.Black.copy(alpha = DefaultScrimOpacity)
 
+/**
+ * Properties used to customize the behavior of a [Dialog].
+ *
+ * @property dismissOnBackPress whether the popup can be dismissed by pressing the back button
+ *  * on Android or escape key on desktop.
+ * If true, pressing the back button will call onDismissRequest.
+ * @property dismissOnClickOutside whether the dialog can be dismissed by clicking outside the
+ * dialog's bounds. If true, clicking outside the dialog will call onDismissRequest.
+ * @property usePlatformDefaultWidth Whether the width of the dialog's content should be limited to
+ * the platform default, which is smaller than the screen width.
+ * @property scrimColor Color of background fill.
+ */
 @Immutable
-actual class DialogProperties actual constructor(
-    actual val dismissOnBackPress: Boolean,
-    actual val dismissOnClickOutside: Boolean
+actual class DialogProperties @ExperimentalComposeUiApi constructor(
+    actual val dismissOnBackPress: Boolean = true,
+    actual val dismissOnClickOutside: Boolean = true,
+    val usePlatformDefaultWidth: Boolean = true,
+    val scrimColor: Color = DefaultScrimColor,
 ) {
+    actual constructor(
+        dismissOnBackPress: Boolean,
+        dismissOnClickOutside: Boolean
+    ) : this(
+        dismissOnBackPress = dismissOnBackPress,
+        dismissOnClickOutside = dismissOnClickOutside,
+        usePlatformDefaultWidth = true,
+        scrimColor = DefaultScrimColor
+    )
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is DialogProperties) return false
 
         if (dismissOnBackPress != other.dismissOnBackPress) return false
         if (dismissOnClickOutside != other.dismissOnClickOutside) return false
+        if (usePlatformDefaultWidth != other.usePlatformDefaultWidth) return false
+        if (scrimColor != other.scrimColor) return false
 
         return true
     }
@@ -65,6 +98,8 @@ actual class DialogProperties actual constructor(
     override fun hashCode(): Int {
         var result = dismissOnBackPress.hashCode()
         result = 31 * result + dismissOnClickOutside.hashCode()
+        result = 31 * result + usePlatformDefaultWidth.hashCode()
+        result = 31 * result + scrimColor.hashCode()
         return result
     }
 }
@@ -79,7 +114,7 @@ actual fun Dialog(
         .semantics { dialog() }
         .drawBehind {
             drawRect(
-                color = Color.Black.copy(alpha = DefaultScrimOpacity),
+                color = properties.scrimColor,
                 blendMode = BlendMode.SrcAtop
             )
         }
@@ -102,22 +137,76 @@ actual fun Dialog(
     } else {
         null
     }
-    PopupLayout(
-        popupPositionProvider = WindowCenterPositionProvider,
-        focusable = true,
+    DialogLayout(
         modifier = modifier,
         onOutsidePointerEvent = onOutsidePointerEvent,
+        properties = properties,
         content = content
     )
 }
 
-private object WindowCenterPositionProvider : PopupPositionProvider {
-    override fun calculatePosition(
-        anchorBounds: IntRect,
-        windowSize: IntSize,
-        layoutDirection: LayoutDirection,
-        popupContentSize: IntSize
-    ): IntOffset = windowSize.center - popupContentSize.center
+@Composable
+private fun DialogLayout(
+    properties: DialogProperties,
+    modifier: Modifier = Modifier,
+    onOutsidePointerEvent: ((PointerInputEvent) -> Unit)? = null,
+    content: @Composable () -> Unit
+) {
+    RootLayout(
+        modifier = modifier,
+        focusable = true,
+        onOutsidePointerEvent = onOutsidePointerEvent
+    ) { owner ->
+        val measurePolicy = rememberDialogMeasurePolicy(properties) {
+            owner.bounds = it
+        }
+        Layout(
+            content = content,
+            measurePolicy = measurePolicy
+        )
+    }
+}
+
+@Composable
+private fun rememberDialogMeasurePolicy(
+    properties: DialogProperties,
+    onBoundsChanged: (IntRect) -> Unit
+) = remember(properties, onBoundsChanged) {
+    MeasurePolicy { measurables, constraints ->
+        val dialogConstraints = if (properties.usePlatformDefaultWidth) {
+            platformDefaultConstrains(constraints)
+        } else constraints
+        val placeables = measurables.fastMap { it.measure(dialogConstraints) }
+        val width = placeables.fastMaxBy { it.width }?.width ?: constraints.minWidth
+        val height = placeables.fastMaxBy { it.height }?.height ?: constraints.minHeight
+
+        val placeableSize = IntSize(width, height)
+        val windowSize = IntSize(constraints.maxWidth, constraints.maxHeight)
+        val position = windowSize.center - placeableSize.center
+        onBoundsChanged(IntRect(position, placeableSize))
+
+        layout(windowSize.width, windowSize.height) {
+            placeables.fastForEach {
+                it.place(position.x, position.y)
+            }
+        }
+    }
+}
+
+private fun MeasureScope.platformDefaultConstrains(
+    constraints: Constraints
+): Constraints = constraints.copy(
+    maxWidth = min(preferredDialogWidth(constraints), constraints.maxWidth)
+)
+
+// Ported from Android. See https://cs.android.com/search?q=abc_config_prefDialogWidth
+private fun MeasureScope.preferredDialogWidth(constraints: Constraints): Int {
+    val smallestWidth = min(constraints.maxWidth, constraints.maxHeight).toDp()
+    return when {
+        smallestWidth >= 600.dp -> 580.dp
+        smallestWidth >= 480.dp -> 440.dp
+        else -> 320.dp
+    }.roundToPx()
 }
 
 private fun PointerInputEvent.isMainAction() =
