@@ -241,9 +241,7 @@ internal abstract class SpecialEffectsController(val container: ViewGroup) {
                     )
                 }
                 collectEffects(newPendingOperations, operationDirectionIsPop)
-                for (operation in newPendingOperations) {
-                    operation.onStart()
-                }
+                processStart(newPendingOperations)
                 commitEffects(newPendingOperations)
                 operationDirectionIsPop = false
                 if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
@@ -273,9 +271,7 @@ internal abstract class SpecialEffectsController(val container: ViewGroup) {
         val attachedToWindow = ViewCompat.isAttachedToWindow(container)
         synchronized(pendingOperations) {
             updateFinalState()
-            for (operation in pendingOperations) {
-                operation.onStart()
-            }
+            processStart(pendingOperations)
 
             // First cancel running operations
             val runningOperations = runningOperations.toMutableList()
@@ -359,12 +355,6 @@ internal abstract class SpecialEffectsController(val container: ViewGroup) {
     internal open fun commitEffects(operations: List<@JvmSuppressWildcards Operation>) {
         val set = operations.flatMap { it.effects }.toSet().toList()
 
-        // Start all of the Animation, Animator, Transition and NoOp Effects we have collected
-        for (i in set.indices) {
-            val effect = set[i]
-            effect.onStart(container)
-        }
-
         // Commit all of the Animation, Animator, Transition and NoOp Effects we have collected
         for (i in set.indices) {
             val effect = set[i]
@@ -374,6 +364,19 @@ internal abstract class SpecialEffectsController(val container: ViewGroup) {
         for (i in operations.indices) {
             val operation = operations[i]
             applyContainerChangesToOperation(operation)
+        }
+    }
+
+    private fun processStart(operations: List<@JvmSuppressWildcards Operation>) {
+        for (i in operations.indices) {
+            val operation = operations[i]
+            operation.onStart()
+        }
+        val set = operations.flatMap { it.effects }.toSet().toList()
+        // Start all of the Animation, Animator, Transition and NoOp Effects we have collected
+        for (j in set.indices) {
+            val effect = set[j]
+            effect.onStart(container)
         }
     }
 
