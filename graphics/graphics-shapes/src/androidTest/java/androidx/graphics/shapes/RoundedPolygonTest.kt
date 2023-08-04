@@ -126,10 +126,10 @@ class RoundedPolygonTest {
         assertEquals(1, lowerEdgeFeature.cubics.size)
 
         val lowerEdge = lowerEdgeFeature.cubics.first()
-        assertEqualish(0.5f, lowerEdge.anchorX0)
-        assertEqualish(0.0f, lowerEdge.anchorY0)
-        assertEqualish(0.5f, lowerEdge.anchorX1)
-        assertEqualish(0.0f, lowerEdge.anchorY1)
+        assertEqualish(0.5f, lowerEdge.anchor0X)
+        assertEqualish(0.0f, lowerEdge.anchor0Y)
+        assertEqualish(0.5f, lowerEdge.anchor1X)
+        assertEqualish(0.0f, lowerEdge.anchor1Y)
     }
 
     /*
@@ -228,9 +228,9 @@ class RoundedPolygonTest {
         )
         val (e01, _, _, e30) = polygon.features.filterIsInstance<RoundedPolygon.Edge>()
         val msg = "r0 = ${show(rounding0)}, r3 = ${show(rounding3)}"
-        assertEqualish(expectedV0SX, e01.cubics.first().anchorX0, msg)
-        assertEqualish(expectedV0SY, e30.cubics.first().anchorY1, msg)
-        assertEqualish(expectedV3SY, 1f - e30.cubics.first().anchorY0, msg)
+        assertEqualish(expectedV0SX, e01.cubics.first().anchor0X, msg)
+        assertEqualish(expectedV0SY, e30.cubics.first().anchor1Y, msg)
+        assertEqualish(expectedV3SY, 1f - e30.cubics.first().anchor0Y, msg)
     }
 
     private fun show(cr: CornerRounding) = "(r=${cr.radius}, s=${cr.smoothing})"

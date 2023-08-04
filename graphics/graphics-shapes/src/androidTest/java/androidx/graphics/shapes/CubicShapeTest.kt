@@ -43,8 +43,8 @@ class CubicShapeTest {
     val cubic1 = Cubic(point4, point5, point6, point7)
 
     fun getClosingCubic(first: Cubic, last: Cubic): Cubic {
-        return Cubic(last.anchorX1, last.anchorY1, last.anchorX1, last.anchorY1,
-            first.anchorX0, first.anchorY0, first.anchorX0, first.anchorY0)
+        return Cubic(last.anchor1X, last.anchor1Y, last.anchor1X, last.anchor1Y,
+            first.anchor0X, first.anchor0Y, first.anchor0X, first.anchor0Y)
     }
 
     @Test
@@ -101,12 +101,12 @@ class CubicShapeTest {
         shape.transform(translator)
         val cubic = shape.cubics[0]
         assertPointsEqualish(PointF(translatedPoints[0], translatedPoints[1]),
-            PointF(cubic.anchorX0, cubic.anchorY0))
+            PointF(cubic.anchor0X, cubic.anchor0Y))
         assertPointsEqualish(PointF(translatedPoints[2], translatedPoints[3]),
-            PointF(cubic.controlX0, cubic.controlY0))
+            PointF(cubic.control0X, cubic.control0Y))
         assertPointsEqualish(PointF(translatedPoints[4], translatedPoints[5]),
-            PointF(cubic.controlX1, cubic.controlY1))
+            PointF(cubic.control1X, cubic.control1Y))
         assertPointsEqualish(PointF(translatedPoints[6], translatedPoints[7]),
-            PointF(cubic.anchorX1, cubic.anchorY1))
+            PointF(cubic.anchor1X, cubic.anchor1Y))
     }
 }

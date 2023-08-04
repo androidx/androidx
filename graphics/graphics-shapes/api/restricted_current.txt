@@ -16,18 +16,18 @@ package androidx.graphics.shapes {
 
   public final class Cubic {
     ctor public Cubic(androidx.graphics.shapes.Cubic cubic);
-    ctor public Cubic(float anchorX0, float anchorY0, float controlX0, float controlY0, float controlX1, float controlY1, float anchorX1, float anchorY1);
+    ctor public Cubic(float anchor0X, float anchor0Y, float control0X, float control0Y, float control1X, float control1Y, float anchor1X, float anchor1Y);
     method public static androidx.graphics.shapes.Cubic circularArc(float centerX, float centerY, float x0, float y0, float x1, float y1);
     method public operator androidx.graphics.shapes.Cubic div(float x);
     method public operator androidx.graphics.shapes.Cubic div(int x);
-    method public float getAnchorX0();
-    method public float getAnchorX1();
-    method public float getAnchorY0();
-    method public float getAnchorY1();
-    method public float getControlX0();
-    method public float getControlX1();
-    method public float getControlY0();
-    method public float getControlY1();
+    method public float getAnchor0X();
+    method public float getAnchor0Y();
+    method public float getAnchor1X();
+    method public float getAnchor1Y();
+    method public float getControl0X();
+    method public float getControl0Y();
+    method public float getControl1X();
+    method public float getControl1Y();
     method public static androidx.graphics.shapes.Cubic interpolate(androidx.graphics.shapes.Cubic start, androidx.graphics.shapes.Cubic end, float t);
     method public operator androidx.graphics.shapes.Cubic plus(androidx.graphics.shapes.Cubic o);
     method public android.graphics.PointF pointOnCurve(float t);
@@ -39,14 +39,14 @@ package androidx.graphics.shapes {
     method public operator androidx.graphics.shapes.Cubic times(int x);
     method public void transform(android.graphics.Matrix matrix);
     method public void transform(android.graphics.Matrix matrix, optional float[] points);
-    property public final float anchorX0;
-    property public final float anchorX1;
-    property public final float anchorY0;
-    property public final float anchorY1;
-    property public final float controlX0;
-    property public final float controlX1;
-    property public final float controlY0;
-    property public final float controlY1;
+    property public final float anchor0X;
+    property public final float anchor0Y;
+    property public final float anchor1X;
+    property public final float anchor1Y;
+    property public final float control0X;
+    property public final float control0Y;
+    property public final float control1X;
+    property public final float control1Y;
     field public static final androidx.graphics.shapes.Cubic.Companion Companion;
   }
 
