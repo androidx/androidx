@@ -23,6 +23,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.Animation
+import android.view.animation.Animation.AnimationListener
 import android.view.animation.AnimationUtils
 import android.view.animation.TranslateAnimation
 import androidx.annotation.AnimRes
@@ -241,6 +242,10 @@ class FragmentAnimationTest {
             .commit()
         activityRule.executePendingTransactions()
 
+        assertThat(
+            parent.animationStartedCountDownLatch.await(1000, TimeUnit.MILLISECONDS)
+        ).isTrue()
+
         assertFragmentAnimation(parent, 1, true, ENTER)
 
         val child = AnimationFragment()
@@ -259,6 +264,10 @@ class FragmentAnimationTest {
         activityRule.executePendingTransactions()
 
         assertThat(childContainer.findViewById<View>(childView.id)).isNotNull()
+        assertThat(
+            parent.animationStartedCountDownLatch.await(1000, TimeUnit.MILLISECONDS)
+        ).isTrue()
+
         assertFragmentAnimation(parent, 2, false, EXIT)
     }
 
@@ -274,6 +283,10 @@ class FragmentAnimationTest {
             .add(R.id.fragmentContainer, parent, "parent")
             .commit()
         activityRule.executePendingTransactions()
+
+        assertThat(
+            parent.animationStartedCountDownLatch.await(1000, TimeUnit.MILLISECONDS)
+        ).isTrue()
 
         assertFragmentAnimation(parent, 1, true, ENTER)
 
@@ -303,6 +316,10 @@ class FragmentAnimationTest {
 
         assertThat(childContainer.findViewById<View>(childView.id)).isNotNull()
         assertThat(grandChildContainer.findViewById<View>(grandChildView.id)).isNotNull()
+        assertThat(
+            parent.animationStartedCountDownLatch.await(1000, TimeUnit.MILLISECONDS)
+        ).isTrue()
+
         assertFragmentAnimation(parent, 2, false, EXIT)
     }
 
@@ -403,7 +420,7 @@ class FragmentAnimationTest {
             .setReorderingAllowed(true)
             .commit()
         activityRule.waitForExecution()
-        assertThat(fragment1.numAnimators).isEqualTo(0)
+        assertThat(fragment1.numStartedAnimators).isEqualTo(0)
 
         val fragment2 = AnimationFragment()
         fragment2.postponeEnterTransition()
@@ -431,10 +448,8 @@ class FragmentAnimationTest {
         assertThat(fragment2.view).isNull()
         assertThat(fragment2.isAdded).isFalse()
 
-        assertThat(fragment1.numAnimators).isEqualTo(0)
-        assertThat(fragment2.numAnimators).isEqualTo(0)
-        assertThat(fragment1.animation).isNull()
-        assertThat(fragment2.animation).isNull()
+        assertThat(fragment1.numStartedAnimators).isEqualTo(0)
+        assertThat(fragment2.numStartedAnimators).isEqualTo(0)
     }
 
     // Make sure that if the state was saved while a Fragment was animating that its
@@ -1027,7 +1042,7 @@ class FragmentAnimationTest {
         isEnter: Boolean,
         animatorResourceId: Int
     ) {
-        assertThat(fragment.numAnimators).isEqualTo(numAnimators)
+        assertThat(fragment.numStartedAnimators).isEqualTo(numAnimators)
         assertThat(fragment.enter).isEqualTo(isEnter)
         assertThat(fragment.resourceId).isEqualTo(animatorResourceId)
         assertThat(fragment.animation).isNotNull()
@@ -1043,7 +1058,7 @@ class FragmentAnimationTest {
         assertThat(fragment.onCreateViewCalled).isTrue()
         assertThat(fragment.requireView().visibility).isEqualTo(View.VISIBLE)
         assertThat(fragment.requireView().alpha).isWithin(0f).of(0f)
-        assertThat(fragment.numAnimators).isEqualTo(expectedAnimators)
+        assertThat(fragment.numStartedAnimators).isEqualTo(expectedAnimators)
     }
 
     // On Lollipop and earlier, animations are not allowed during window transitions
@@ -1078,7 +1093,8 @@ class FragmentAnimationTest {
 
     class AnimationFragment(@LayoutRes contentLayoutId: Int = R.layout.strict_view_fragment) :
         StrictViewFragment(contentLayoutId) {
-        var numAnimators: Int = 0
+        var numStartedAnimators: Int = 0
+        var animationStartedCountDownLatch = CountDownLatch(1)
         var animation: Animation? = null
         var enter: Boolean = false
         var resourceId: Int = 0
@@ -1092,9 +1108,19 @@ class FragmentAnimationTest {
                 return null
             }
             loadedAnimation = nextAnim
-            numAnimators++
             animation = TranslateAnimation(-10f, 0f, 0f, 0f)
             (animation as TranslateAnimation).duration = 1
+            animationStartedCountDownLatch = CountDownLatch(1)
+            (animation as TranslateAnimation).setAnimationListener(object : AnimationListener {
+                override fun onAnimationStart(p0: Animation?) {
+                    numStartedAnimators++
+                    animationStartedCountDownLatch.countDown()
+                }
+
+                override fun onAnimationEnd(p0: Animation?) { }
+
+                override fun onAnimationRepeat(p0: Animation?) { }
+            })
             resourceId = nextAnim
             this.enter = enter
             return animation

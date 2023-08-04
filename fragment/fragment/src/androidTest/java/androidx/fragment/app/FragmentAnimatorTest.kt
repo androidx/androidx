@@ -479,7 +479,7 @@ class FragmentAnimatorTest {
             .setReorderingAllowed(true)
             .commit()
         activityRule.waitForExecution()
-        assertThat(fragment1.numAnimators).isEqualTo(0)
+        assertThat(fragment1.numStartedAnimators).isEqualTo(0)
 
         val fragment2 = AnimatorFragment()
         fragment2.postponeEnterTransition()
@@ -506,11 +506,8 @@ class FragmentAnimatorTest {
         assertThat(fragment2.view).isNull()
         assertThat(fragment2.isAdded).isFalse()
 
-        assertThat(fragment1.numAnimators).isEqualTo(0)
-        assertThat(fragment2.numAnimators).isEqualTo(0)
-
-        assertThat(fragment1.initialized).isFalse()
-        assertThat(fragment2.initialized).isFalse()
+        assertThat(fragment1.numStartedAnimators).isEqualTo(0)
+        assertThat(fragment2.numStartedAnimators).isEqualTo(0)
     }
 
     // Make sure that if the state was saved while a Fragment was animating that its
@@ -697,7 +694,7 @@ class FragmentAnimatorTest {
         isEnter: Boolean,
         animatorResourceId: Int
     ) {
-        assertThat(fragment.numAnimators).isEqualTo(numAnimators)
+        assertThat(fragment.numStartedAnimators).isEqualTo(numAnimators)
         assertThat(fragment.baseEnter).isEqualTo(isEnter)
         assertThat(fragment.resourceId).isEqualTo(animatorResourceId)
         assertThat(fragment.baseAnimator).isNotNull()
@@ -709,12 +706,12 @@ class FragmentAnimatorTest {
         assertThat(fragment.onCreateViewCalled).isTrue()
         assertThat(fragment.requireView().visibility).isEqualTo(View.VISIBLE)
         assertThat(fragment.requireView().alpha).isWithin(0f).of(0f)
-        assertThat(fragment.numAnimators).isEqualTo(expectedAnimators)
+        assertThat(fragment.numStartedAnimators).isEqualTo(expectedAnimators)
     }
 
     class AnimatorFragment(@LayoutRes contentLayoutId: Int = R.layout.strict_view_fragment) :
         StrictViewFragment(contentLayoutId) {
-        var numAnimators: Int = 0
+        var numStartedAnimators: Int = 0
         lateinit var baseAnimator: Animator
         var baseEnter: Boolean = false
         var resourceId: Int = 0
@@ -745,13 +742,13 @@ class FragmentAnimatorTest {
                 addListener(object : AnimatorListenerAdapter() {
                     override fun onAnimationStart(animation: Animator) {
                         wasStarted = true
+                        numStartedAnimators++
                     }
 
                     override fun onAnimationEnd(animation: Animator) {
                         endLatch.countDown()
                     }
                 })
-                numAnimators++
                 wasStarted = false
                 endLatch = CountDownLatch(1)
                 resourceId = nextAnim
