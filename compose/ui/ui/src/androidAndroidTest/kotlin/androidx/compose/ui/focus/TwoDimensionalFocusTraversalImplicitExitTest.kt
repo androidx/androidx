@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.focus
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.focusGroup
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
@@ -253,7 +252,6 @@ class TwoDimensionalFocusTraversalImplicitExitTest(param: Param) {
      *                   |  Down  |
      *                   |________|
      */
-    @OptIn(ExperimentalFoundationApi::class)
     @Test
     fun moveFocusExit_cancelExit() {
         // Arrange.
@@ -302,7 +300,6 @@ class TwoDimensionalFocusTraversalImplicitExitTest(param: Param) {
      *                   |  Down  |
      *                   |________|
      */
-    @OptIn(ExperimentalFoundationApi::class)
     @Test
     fun moveFocusExit_redirectExit() {
         // Arrange.
@@ -362,7 +359,6 @@ class TwoDimensionalFocusTraversalImplicitExitTest(param: Param) {
      *                     |  Down  |
      *                     |________|
      */
-    @OptIn(ExperimentalFoundationApi::class)
     @Test
     fun moveFocusExit_multipleParents_cancelExit() {
         // Arrange.
@@ -414,7 +410,6 @@ class TwoDimensionalFocusTraversalImplicitExitTest(param: Param) {
      *                       |  Down  |
      *                       |________|
      */
-    @OptIn(ExperimentalFoundationApi::class)
     @Test
     fun moveFocusExit_multipleParents_redirectExit() {
         // Arrange.
