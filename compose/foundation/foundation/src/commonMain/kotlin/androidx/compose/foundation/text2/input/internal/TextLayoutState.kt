@@ -16,43 +16,34 @@
 
 package androidx.compose.foundation.text2.input.internal
 
-import androidx.compose.foundation.text.InternalFoundationTextApi
-import androidx.compose.foundation.text.TextDelegate
-import androidx.compose.foundation.text.updateTextDelegate
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.text2.input.CodepointTransformation
+import androidx.compose.foundation.text2.input.TextFieldState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.neverEqualPolicy
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.layout.LayoutCoordinates
-import androidx.compose.ui.layout.MeasureScope
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.LayoutDirection
 
 /**
  * Manages text layout for TextField including layout coordinates of decoration box and inner text
  * field.
  */
-@OptIn(InternalFoundationTextApi::class)
+@OptIn(ExperimentalFoundationApi::class)
 internal class TextLayoutState {
-    /**
-     * Set of parameters and an internal cache to compute text layout.
-     */
-    var textDelegate: TextDelegate? = null
-        private set
+    private var layoutCache = TextFieldLayoutStateCache()
 
-    private val layoutResultState = mutableStateOf<TextLayoutResult?>(null)
+    var onTextLayout: (Density.(() -> TextLayoutResult?) -> Unit)? = null
 
-    /**
-     * Text Layout State.
-     */
-    val layoutResult: TextLayoutResult? by layoutResultState
+    val layoutResult: TextLayoutResult? by layoutCache
 
     /** Measured bounds of the decoration box and inner text field. Together used to
      * calculate the relative touch offset. Because touches are applied on the decoration box, we
@@ -65,51 +56,57 @@ internal class TextLayoutState {
     var innerTextFieldCoordinates: LayoutCoordinates? by mutableStateOf(null, neverEqualPolicy())
     var decorationBoxCoordinates: LayoutCoordinates? by mutableStateOf(null, neverEqualPolicy())
 
-    fun MeasureScope.layout(
-        text: AnnotatedString,
+    /**
+     * Updates the [TextFieldLayoutStateCache] with inputs that don't come from the measure phase.
+     * This method will initialize the cache the first time it's called.
+     * If the new inputs require re-calculating text layout, any readers of [layoutResult] called
+     * from a snapshot observer will be invalidated.
+     *
+     * @see layoutWithNewMeasureInputs
+     */
+    fun updateNonMeasureInputs(
+        textFieldState: TextFieldState,
+        codepointTransformation: CodepointTransformation?,
         textStyle: TextStyle,
+        singleLine: Boolean,
         softWrap: Boolean,
+    ) {
+        layoutCache.updateNonMeasureInputs(
+            textFieldState = textFieldState,
+            codepointTransformation = codepointTransformation,
+            textStyle = textStyle,
+            singleLine = singleLine,
+            softWrap = softWrap,
+        )
+    }
+
+    /**
+     * Updates the [TextFieldLayoutStateCache] with inputs that come from the measure phase and returns the
+     * latest [TextLayoutResult]. If the measure inputs haven't changed significantly since the
+     * last call, this will be the cached result. If the new inputs require re-calculating text
+     * layout, any readers of [layoutResult] called from a snapshot observer will be invalidated.
+     *
+     * [updateNonMeasureInputs] must be called before this method to initialize the cache.
+     */
+    fun layoutWithNewMeasureInputs(
         density: Density,
+        layoutDirection: LayoutDirection,
         fontFamilyResolver: FontFamily.Resolver,
         constraints: Constraints,
-        onTextLayout: Density.(getResult: () -> TextLayoutResult?) -> Unit
     ): TextLayoutResult {
-        val prevResult = Snapshot.withoutReadObservation { layoutResult }
-
-        val currTextDelegate = textDelegate
-
-        val newTextDelegate = if (currTextDelegate != null) {
-            updateTextDelegate(
-                current = currTextDelegate,
-                text = text,
-                style = textStyle,
-                softWrap = softWrap,
-                density = density,
-                fontFamilyResolver = fontFamilyResolver,
-                placeholders = emptyList(),
-            )
-        } else {
-            TextDelegate(
-                text = text,
-                style = textStyle,
-                density = density,
-                fontFamilyResolver = fontFamilyResolver,
-                softWrap = true,
-                placeholders = emptyList()
-            )
-        }
-
-        return newTextDelegate.layout(
+        val layoutResult = layoutCache.layoutWithNewMeasureInputs(
+            density = density,
             layoutDirection = layoutDirection,
+            fontFamilyResolver = fontFamilyResolver,
             constraints = constraints,
-            prevResult = prevResult
-        ).also {
-            textDelegate = newTextDelegate
-            if (prevResult != it) {
-                onTextLayout(layoutResultState::value)
-            }
-            layoutResultState.value = it
+        )
+
+        onTextLayout?.let { onTextLayout ->
+            val textLayoutProvider = { layoutCache.value }
+            onTextLayout(density, textLayoutProvider)
         }
+
+        return layoutResult
     }
 
     /**
