@@ -59,6 +59,8 @@ fun CatalogScaffold(
     licensesUrl: String = LicensesUrl,
     onThemeChange: (theme: Theme) -> Unit,
     onBackClick: () -> Unit = {},
+    favorite: Boolean,
+    onFavoriteClick: () -> Unit,
     content: @Composable (PaddingValues) -> Unit
 ) {
     val coroutineScope = rememberCoroutineScope()
@@ -74,6 +76,8 @@ fun CatalogScaffold(
                 showBackNavigationIcon = showBackNavigationIcon,
                 scrollBehavior = scrollBehavior,
                 onBackClick = onBackClick,
+                favorite = favorite,
+                onFavoriteClick = onFavoriteClick,
                 onThemeClick = { openThemePicker = true },
                 onGuidelinesClick = { context.openUrl(guidelinesUrl) },
                 onDocsClick = { context.openUrl(docsUrl) },

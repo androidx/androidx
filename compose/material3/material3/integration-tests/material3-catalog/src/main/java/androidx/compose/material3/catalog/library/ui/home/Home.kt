@@ -41,13 +41,17 @@ fun Home(
     components: List<Component>,
     theme: Theme,
     onThemeChange: (theme: Theme) -> Unit,
-    onComponentClick: (component: Component) -> Unit
+    onComponentClick: (component: Component) -> Unit,
+    favorite: Boolean = false,
+    onFavoriteClick: () -> Unit,
 ) {
     val ltr = LocalLayoutDirection.current
     CatalogScaffold(
         topBarTitle = stringResource(id = R.string.compose_material_3),
         theme = theme,
-        onThemeChange = onThemeChange
+        onThemeChange = onThemeChange,
+        favorite = favorite,
+        onFavoriteClick = onFavoriteClick
     ) { paddingValues ->
         LazyVerticalGrid(
             modifier = Modifier.consumeWindowInsets(paddingValues),
