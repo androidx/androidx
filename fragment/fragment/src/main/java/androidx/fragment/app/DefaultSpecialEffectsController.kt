@@ -584,16 +584,19 @@ internal class DefaultSpecialEffectsController(
                         "Animation from operation $operation has started.")
                 }
             }
-            // Listen for cancellation and use that to cancel the Animation
-            val signal: CancellationSignal = animationInfo.signal
-            signal.setOnCancelListener {
-                viewToAnimate.clearAnimation()
-                container.endViewTransition(viewToAnimate)
-                animationInfo.completeSpecialEffect()
-                if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
-                    Log.v(FragmentManager.TAG,
-                        "Animation from operation $operation has been cancelled.")
-                }
+        }
+
+        override fun onCancel(container: ViewGroup) {
+            val operation: Operation = animationInfo.operation
+            val fragment = operation.fragment
+            val viewToAnimate = fragment.mView
+
+            viewToAnimate.clearAnimation()
+            container.endViewTransition(viewToAnimate)
+            animationInfo.completeSpecialEffect()
+            if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
+                Log.v(FragmentManager.TAG,
+                    "Animation from operation $operation has been cancelled.")
             }
         }
     }
@@ -632,10 +635,6 @@ internal class DefaultSpecialEffectsController(
                 }
             })
             animator?.setTarget(viewToAnimate)
-            // Listen for cancellation and use that to cancel the Animation
-            animatorInfo.signal.setOnCancelListener {
-                onCancel(container)
-            }
         }
 
         override fun onProgress(backEvent: BackEventCompat, container: ViewGroup) {
