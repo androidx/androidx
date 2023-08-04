@@ -75,6 +75,7 @@ internal fun LazyLayoutMeasureScope.measurePager(
             firstVisiblePage = null,
             firstVisiblePageOffset = 0,
             reverseLayout = false,
+            beyondBoundsPageCount = beyondBoundsPageCount,
             canScrollForward = false
         )
     } else {
@@ -388,6 +389,7 @@ internal fun LazyLayoutMeasureScope.measurePager(
             pageSize = pageAvailableSize,
             pageSpacing = spaceBetweenPages,
             afterContentPadding = afterContentPadding,
+            beyondBoundsPageCount = beyondBoundsPageCount,
             canScrollForward = index < pageCount || currentMainAxisOffset > maxOffset
         )
     }

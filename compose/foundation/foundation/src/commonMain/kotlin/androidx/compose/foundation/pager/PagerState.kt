@@ -605,9 +605,9 @@ abstract class PagerState(
         if (info.visiblePagesInfo.isNotEmpty()) {
             val scrollingForward = delta < 0
             val indexToPrefetch = if (scrollingForward) {
-                info.visiblePagesInfo.last().index + 1
+                info.visiblePagesInfo.last().index + info.beyondBoundsPageCount + PagesToPrefetch
             } else {
-                info.visiblePagesInfo.first().index - 1
+                info.visiblePagesInfo.first().index - info.beyondBoundsPageCount - PagesToPrefetch
             }
             if (indexToPrefetch != this.indexToPrefetch &&
                 indexToPrefetch in 0 until pageCount
@@ -631,9 +631,9 @@ abstract class PagerState(
     private fun cancelPrefetchIfVisibleItemsChanged(info: PagerLayoutInfo) {
         if (indexToPrefetch != -1 && info.visiblePagesInfo.isNotEmpty()) {
             val expectedPrefetchIndex = if (wasScrollingForward) {
-                info.visiblePagesInfo.last().index + 1
+                info.visiblePagesInfo.last().index + info.beyondBoundsPageCount + PagesToPrefetch
             } else {
-                info.visiblePagesInfo.first().index - 1
+                info.visiblePagesInfo.first().index - info.beyondBoundsPageCount - PagesToPrefetch
             }
             if (indexToPrefetch != expectedPrefetchIndex) {
                 indexToPrefetch = -1
@@ -676,6 +676,7 @@ private const val MinPageOffset = -0.5f
 private const val MaxPageOffset = 0.5f
 internal val DefaultPositionThreshold = 56.dp
 private const val MaxPagesForAnimateScroll = 3
+internal const val PagesToPrefetch = 1
 
 @OptIn(ExperimentalFoundationApi::class)
 internal object EmptyLayoutInfo : PagerLayoutInfo {
@@ -689,6 +690,7 @@ internal object EmptyLayoutInfo : PagerLayoutInfo {
     override val viewportStartOffset: Int = 0
     override val viewportEndOffset: Int = 0
     override val reverseLayout: Boolean = false
+    override val beyondBoundsPageCount: Int = 0
 }
 
 private val UnitDensity = object : Density {

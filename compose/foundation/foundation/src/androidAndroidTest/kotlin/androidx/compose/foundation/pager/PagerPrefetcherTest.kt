@@ -93,19 +93,20 @@ class PagerPrefetcherTest(
 
     @Test
     fun prefetchingBackwardAfterSmallScroll_programmatically() {
-        composePager(initialPage = 2, initialPageOffsetFraction = 10 / pageSizePx.toFloat())
+        composePager(initialPage = 5, initialPageOffsetFraction = 10 / pageSizePx.toFloat())
 
+        val preFetchIndex = 4
         rule.runOnIdle {
             runBlocking {
                 pagerState.scrollBy(-5f)
             }
         }
 
-        waitForPrefetch(1)
+        waitForPrefetch(preFetchIndex)
 
-        rule.onNodeWithTag("1")
+        rule.onNodeWithTag("$preFetchIndex")
             .assertExists()
-        rule.onNodeWithTag("0")
+        rule.onNodeWithTag("${preFetchIndex - paramConfig.beyondBoundsPageCount - 1}")
             .assertDoesNotExist()
     }
 
@@ -135,8 +136,9 @@ class PagerPrefetcherTest(
 
     @Test
     fun prefetchingBackwardAfterSmallScroll_withGesture() {
-        composePager(initialPage = 2, initialPageOffsetFraction = 10 / pageSizePx.toFloat())
+        composePager(initialPage = 5, initialPageOffsetFraction = 10 / pageSizePx.toFloat())
 
+        val preFetchIndex = 4
         val delta = (touchSlope + 5) * -1 * scrollForwardSign
 
         onPager().performTouchInput {
@@ -149,11 +151,11 @@ class PagerPrefetcherTest(
             up()
         }
 
-        waitForPrefetch(1)
+        waitForPrefetch(preFetchIndex)
 
-        rule.onNodeWithTag("1")
+        rule.onNodeWithTag("$preFetchIndex")
             .assertExists()
-        rule.onNodeWithTag("0")
+        rule.onNodeWithTag("${preFetchIndex - paramConfig.beyondBoundsPageCount - 1}")
             .assertDoesNotExist()
     }
 
@@ -224,7 +226,9 @@ class PagerPrefetcherTest(
 
     @Test
     fun prefetchingBackwardTwice() {
-        composePager(initialPage = 4)
+        composePager(initialPage = 5)
+
+        val preFetchIndex = 3
 
         rule.runOnIdle {
             runBlocking {
@@ -232,7 +236,7 @@ class PagerPrefetcherTest(
             }
         }
 
-        waitForPrefetch(2)
+        waitForPrefetch(preFetchIndex)
 
         rule.runOnIdle {
             runBlocking {
@@ -241,13 +245,13 @@ class PagerPrefetcherTest(
             }
         }
 
-        waitForPrefetch(1)
+        waitForPrefetch(preFetchIndex - 1)
 
-        rule.onNodeWithTag("2")
+        rule.onNodeWithTag("$preFetchIndex")
             .assertIsDisplayed()
-        rule.onNodeWithTag("1")
+        rule.onNodeWithTag("${preFetchIndex - 1}")
             .assertExists()
-        rule.onNodeWithTag("0")
+        rule.onNodeWithTag("${preFetchIndex - 1 - paramConfig.beyondBoundsPageCount - 1}")
             .assertDoesNotExist()
     }
 
@@ -492,7 +496,7 @@ class PagerPrefetcherTest(
             modifier = Modifier.mainAxisSize(pageSizeDp * 1.5f),
             reverseLayout = reverseLayout,
             contentPadding = contentPadding,
-            offscreenPageLimit = paramConfig.beyondBoundsPageCount,
+            beyondBoundsPageCount = paramConfig.beyondBoundsPageCount,
             initialPage = initialPage,
             initialPageOffsetFraction = initialPageOffsetFraction,
             pageCount = { 100 },
