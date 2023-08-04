@@ -161,6 +161,80 @@ package androidx.collection {
     method public static inline <K, V> androidx.collection.LruCache<K,V> lruCache(int maxSize, optional kotlin.jvm.functions.Function2<? super K,? super V,java.lang.Integer> sizeOf, optional kotlin.jvm.functions.Function1<? super K,? extends V> create, optional kotlin.jvm.functions.Function4<? super java.lang.Boolean,? super K,? super V,? super V,kotlin.Unit> onEntryRemoved);
   }
 
+  public final class MutableScatterMap<K, V> extends androidx.collection.ScatterMap<K,V> {
+    ctor public MutableScatterMap(optional int initialCapacity);
+    method public java.util.Map<K,V> asMutableMap();
+    method public void clear();
+    method public inline V getOrPut(K key, kotlin.jvm.functions.Function0<? extends V> defaultValue);
+    method public inline operator void minusAssign(Iterable<? extends K> keys);
+    method public inline operator void minusAssign(K key);
+    method public inline operator void minusAssign(K![] keys);
+    method public inline operator void minusAssign(kotlin.sequences.Sequence<? extends K> keys);
+    method public inline operator void plusAssign(androidx.collection.ScatterMap<K,V> from);
+    method public inline operator void plusAssign(Iterable<? extends kotlin.Pair<? extends K,? extends V>> pairs);
+    method public inline operator void plusAssign(java.util.Map<K,? extends V> from);
+    method public inline operator void plusAssign(kotlin.Pair<? extends K,? extends V> pair);
+    method public inline operator void plusAssign(kotlin.Pair<? extends K,? extends V>![] pairs);
+    method public inline operator void plusAssign(kotlin.sequences.Sequence<? extends kotlin.Pair<? extends K,? extends V>> pairs);
+    method public V? put(K key, V value);
+    method public void putAll(androidx.collection.ScatterMap<K,V> from);
+    method public void putAll(Iterable<? extends kotlin.Pair<? extends K,? extends V>> pairs);
+    method public void putAll(java.util.Map<K,? extends V> from);
+    method public void putAll(kotlin.Pair<? extends K,? extends V>![] pairs);
+    method public void putAll(kotlin.sequences.Sequence<? extends kotlin.Pair<? extends K,? extends V>> pairs);
+    method public V? remove(K key);
+    method public boolean remove(K key, V value);
+    method public operator void set(K key, V value);
+    method public int trim();
+  }
+
+  public abstract sealed class ScatterMap<K, V> {
+    method public final inline boolean all(kotlin.jvm.functions.Function2<? super K,? super V,java.lang.Boolean> predicate);
+    method public final boolean any();
+    method public final inline boolean any(kotlin.jvm.functions.Function2<? super K,? super V,java.lang.Boolean> predicate);
+    method public final java.util.Map<K,V> asMap();
+    method public final operator boolean contains(K key);
+    method public final boolean containsKey(K key);
+    method public final boolean containsValue(V value);
+    method public final int count();
+    method public final inline int count(kotlin.jvm.functions.Function2<? super K,? super V,java.lang.Boolean> predicate);
+    method public final inline void forEach(kotlin.jvm.functions.Function2<? super K,? super V,kotlin.Unit> block);
+    method public final inline void forEachKey(kotlin.jvm.functions.Function1<? super K,kotlin.Unit> block);
+    method public final inline void forEachValue(kotlin.jvm.functions.Function1<? super V,kotlin.Unit> block);
+    method public final operator V? get(K key);
+    method public final int getCapacity();
+    method public final V getOrDefault(K key, V defaultValue);
+    method public final inline V getOrElse(K key, kotlin.jvm.functions.Function0<? extends V> defaultValue);
+    method public final int getSize();
+    method public final boolean isEmpty();
+    method public final boolean isNotEmpty();
+    method public final boolean none();
+    property public final int capacity;
+    property public final int size;
+  }
+
+  protected class ScatterMap.MapWrapper implements kotlin.jvm.internal.markers.KMappedMarker java.util.Map<K,V> {
+    ctor public ScatterMap.MapWrapper();
+    method public boolean containsKey(K key);
+    method public boolean containsValue(V value);
+    method public V? get(Object key);
+    method public java.util.Set<java.util.Map.Entry<K,V>> getEntries();
+    method public java.util.Set<K> getKeys();
+    method public int getSize();
+    method public java.util.Collection<V> getValues();
+    method public boolean isEmpty();
+    property public java.util.Set<java.util.Map.Entry<K,V>> entries;
+    property public java.util.Set<K> keys;
+    property public int size;
+    property public java.util.Collection<V> values;
+  }
+
+  public final class ScatterMapKt {
+    method public static <K, V> androidx.collection.ScatterMap<K,V> emptyScatterMap();
+    method public static <K, V> androidx.collection.MutableScatterMap<K,V> mutableScatterMapOf();
+    method public static <K, V> androidx.collection.MutableScatterMap<K,V> mutableScatterMapOf(kotlin.Pair<? extends K,? extends V>... pairs);
+  }
+
   public class SimpleArrayMap<K, V> {
     ctor public SimpleArrayMap();
     ctor public SimpleArrayMap(androidx.collection.SimpleArrayMap<? extends K,? extends V>? map);
