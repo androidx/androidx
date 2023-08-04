@@ -152,6 +152,9 @@ fun Modifier.scrollable(
  * drag events when this scrollable is being dragged.
  * @param bringIntoViewScroller The configuration that this scrollable should use to perform
  * scrolling when scroll requests are received from the focus system.
+ *
+ * Note: This API is experimental as it brings support for some experimental features:
+ * [overscrollEffect] and [bringIntoViewScroller].
  */
 @ExperimentalFoundationApi
 fun Modifier.scrollable(
@@ -392,6 +395,8 @@ private class ScrollableNode(
 
 /**
  * The configuration of how a scrollable reacts to bring into view requests.
+ *
+ * Note: API shape and naming are still being refined, therefore API is marked as experimental.
  */
 @ExperimentalFoundationApi
 @Stable
