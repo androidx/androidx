@@ -41,6 +41,7 @@ import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.ArrayType;
 import javax.lang.model.type.DeclaredType;
@@ -258,6 +259,29 @@ public class IntrospectionHelper {
             generateClassHierarchyHelper(element, element, hierarchy, visited);
         }
         return new ArrayList<>(hierarchy);
+    }
+
+    /**
+     * Checks if a method is a valid getter and returns any errors.
+     *
+     * <p>Returns an empty list if no errors i.e. the method is a valid getter.
+     */
+    @NonNull
+    public static List<ProcessingException> validateIsGetter(@NonNull ExecutableElement method) {
+        List<ProcessingException> errors = new ArrayList<>();
+        if (!method.getParameters().isEmpty()) {
+            errors.add(new ProcessingException(
+                    "Getter cannot be used: should take no parameters", method));
+        }
+        if (method.getModifiers().contains(Modifier.PRIVATE)) {
+            errors.add(new ProcessingException(
+                    "Getter cannot be used: private visibility", method));
+        }
+        if (method.getModifiers().contains(Modifier.STATIC)) {
+            errors.add(new ProcessingException(
+                    "Getter cannot be used: must not be static", method));
+        }
+        return errors;
     }
 
     private static void generateClassHierarchyHelper(@NonNull TypeElement leafElement,
