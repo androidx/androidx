@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.2.0-alpha14" type="baseline" client="gradle" dependencies="false" name="AGP (8.2.0-alpha14)" variant="all" version="8.2.0-alpha14">
+<issues format="6" by="lint 8.1.0-beta02" type="baseline" client="gradle" dependencies="false" name="AGP (8.1.0-beta02)" variant="all" version="8.1.0-beta02">
 
     <issue
         id="NewApi"
@@ -714,18 +714,9 @@
 
     <issue
         id="NewApi"
-        message="Class requires API level 26 (current min is 14): `OreoCallback`"
-        errorLine1="        if (callback instanceof OreoCallback &amp;&amp; Build.VERSION.SDK_INT >= 26) {"
-        errorLine2="                                ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/widget/TextViewCompat.java"/>
-    </issue>
-
-    <issue
-        id="NewApi"
         message="Call requires API level 20 (current min is 14): `android.view.View#requestApplyInsets`"
-        errorLine1="    post { requestApplyInsets() }"
-        errorLine2="           ~~~~~~~~~~~~~~~~~~">
+        errorLine1="        requestApplyInsets()"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/androidTest/java/androidx/core/view/WindowInsetsCompatActivityTest.kt"/>
     </issue>
@@ -737,15 +728,6 @@
         errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/location/GnssStatusWrapper.java"/>
-    </issue>
-
-    <issue
-        id="StartActivityAndCollapseDeprecated"
-        message="TileService#startActivityAndCollapse(Intent) is deprecated. Use TileService#startActivityAndCollapse(PendingIntent) instead."
-        errorLine1="            service.startActivityAndCollapse(intent);"
-        errorLine2="                                             ~~~~~~">
-        <location
-            file="src/main/java/androidx/core/service/quicksettings/TileServiceCompat.java"/>
     </issue>
 
     <issue
@@ -1392,6 +1374,42 @@
         message="This call references a method added in API level 24; however, the containing class androidx.core.view.accessibility.AccessibilityNodeInfoCompat is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            mInfo.setImportantForAccessibility(important);"
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 30; however, the containing class androidx.core.view.accessibility.AccessibilityNodeInfoCompat is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            return mInfo.getStateDescription();"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 30; however, the containing class androidx.core.view.accessibility.AccessibilityNodeInfoCompat is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            mInfo.setStateDescription(stateDescription);"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 33; however, the containing class androidx.core.view.accessibility.AccessibilityNodeInfoCompat is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            return mInfo.getUniqueId();"
+        errorLine2="                         ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 33; however, the containing class androidx.core.view.accessibility.AccessibilityNodeInfoCompat is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            mInfo.setUniqueId(uniqueId);"
+        errorLine2="                  ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"/>
     </issue>
