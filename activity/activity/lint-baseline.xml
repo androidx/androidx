@@ -1,13 +1,67 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.1.0-beta02" type="baseline" client="gradle" dependencies="false" name="AGP (8.1.0-beta02)" variant="all" version="8.1.0-beta02">
+<issues format="6" by="lint 8.2.0-alpha14" type="baseline" client="cli" dependencies="false" name="AGP (8.2.0-alpha14)" variant="all" version="8.2.0-alpha14">
 
     <issue
-        id="PrereleaseSdkCoreDependency"
-        message="Prelease SDK check isAtLeastT cannot be called as this project has a versioned dependency on androidx.core:core"
-        errorLine1="        if (BuildCompat.isAtLeastT()) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
+        id="NewApi"
+        message="Field requires API level 19 (current min is 14): `ImageAndVideo`"
+        errorLine1="    mediaType: VisualMediaType = ImageAndVideo"
+        errorLine2="                                 ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/activity/ComponentActivity.java"/>
+            file="src/main/java/androidx/activity/result/PickVisualMediaRequest.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 19 (current min is 14): `ImageAndVideo`"
+        errorLine1="    var mediaType: VisualMediaType = ImageAndVideo"
+        errorLine2="                                     ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/activity/result/PickVisualMediaRequest.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 19 (current min is 14): `ImageAndVideo`"
+        errorLine1="        private var mediaType: VisualMediaType = ImageAndVideo"
+        errorLine2="                                                 ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/activity/result/PickVisualMediaRequest.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 19 (current min is 14): `VideoOnly`"
+        errorLine1="            ActivityResultContracts.PickVisualMedia.VideoOnly"
+        errorLine2="                                                    ~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/activity/result/PickVisualMediaRequestTest.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 19 (current min is 14): `VideoOnly`"
+        errorLine1="        assertThat(request.mediaType).isEqualTo(ActivityResultContracts.PickVisualMedia.VideoOnly)"
+        errorLine2="                                                                                        ~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/activity/result/PickVisualMediaRequestTest.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 19 (current min is 14): `VideoOnly`"
+        errorLine1="        val request = PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.VideoOnly)"
+        errorLine2="                                                                                     ~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/activity/result/PickVisualMediaRequestTest.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 19 (current min is 14): `VideoOnly`"
+        errorLine1="        assertThat(request.mediaType).isEqualTo(ActivityResultContracts.PickVisualMedia.VideoOnly)"
+        errorLine2="                                                                                        ~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/activity/result/PickVisualMediaRequestTest.kt"/>
     </issue>
 
 </issues>

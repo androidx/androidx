@@ -1,5 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.1.0-beta05" type="baseline" client="gradle" dependencies="false" name="AGP (8.1.0-beta05)" variant="all" version="8.1.0-beta05">
+<issues format="6" by="lint 8.2.0-alpha14" type="baseline" client="cli" dependencies="false" name="AGP (8.2.0-alpha14)" variant="all" version="8.2.0-alpha14">
+
+    <issue
+        id="NewApi"
+        message="Class requires API level 28 (current min is 21): `PlatformMagnifierImpl`"
+        errorLine1="                    ) as PlatformMagnifierFactoryApi28Impl.PlatformMagnifierImpl"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidAndroidTest/kotlin/androidx/compose/foundation/PlatformMagnifierTest.kt"/>
+    </issue>
 
     <issue
         id="BanThreadSleep"
@@ -480,7 +489,7 @@
 
     <issue
         id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method items has parameter &apos;itemContent&apos; with type Function2&lt;? super LazyItemScope, ? super Integer, ? extends Unit>."
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method items has parameter &apos;itemContent&apos; with type Function2&lt;? super LazyItemScope, ? super Integer, Unit>."
         errorLine1="        itemContent: @Composable LazyItemScope.(index: Int) -> Unit"
         errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -2046,7 +2055,7 @@
 
     <issue
         id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method platformSpecificTextInputSession has parameter &apos;onImeAction&apos; with type Function1&lt;? super ImeAction, ? extends Unit>."
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method platformSpecificTextInputSession has parameter &apos;onImeAction&apos; with type Function1&lt;? super ImeAction, Unit>."
         errorLine1="    onImeAction: ((ImeAction) -> Unit)?"
         errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~">
         <location
