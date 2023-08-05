@@ -16,16 +16,11 @@
 
 package androidx.compose.material3
 
-import platform.Foundation.NSLocale
-import platform.Foundation.currentLocale
+import androidx.compose.ui.text.intl.Locale
 
-/**
- * Represents a Locale for the calendar. This locale will be used when formatting dates, determining
- * the input format, and more.
- */
-actual typealias CalendarLocale = NSLocale
+actual fun calendarLocale(language: String, country : String): CalendarLocale {
+    return Locale("$language-$country")
+}
 
-/**
- * Returns the default [CalendarLocale].
- */
-internal actual fun defaultLocale(): CalendarLocale = NSLocale.currentLocale()
+actual val supportsDateSkeleton: Boolean
+    get() = true

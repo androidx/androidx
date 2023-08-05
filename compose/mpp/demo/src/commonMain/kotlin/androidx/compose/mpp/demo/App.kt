@@ -29,6 +29,7 @@ val MainScreen = Screen.Selection(
     Screen.Example("GraphicsLayerSettings") { GraphicsLayerSettings() },
     Screen.Example("Blending") { Blending() },
     Screen.Example("Popup & Dialog") { PopupAndDialog() },
+    Screen.Example("Date & Time pickers") { DateTimePickers() },
     LazyLayouts,
     TextFields,
     AndroidTextFieldSamples,
