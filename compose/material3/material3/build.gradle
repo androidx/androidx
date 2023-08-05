@@ -121,6 +121,9 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
 
             skikoMain {
                 dependsOn(commonMain)
+                dependencies {
+                    implementation(libs.datetime)
+                }
             }
 
             desktopMain.dependsOn(skikoMain)
@@ -160,11 +163,31 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
                 implementation(libs.testUiautomator)
             }
 
-            desktopTest.dependencies {
-                implementation(project(":compose:ui:ui-test-junit4"))
-                implementation(libs.truth)
-                implementation(libs.junit)
-                implementation(libs.skikoCurrentOs)
+            skikoTest.dependencies {
+                implementation(libs.kotlinTest)
+            }
+
+            desktopTest {
+                dependsOn(skikoTest)
+
+                dependencies {
+                    implementation(project(":compose:ui:ui-test-junit4"))
+                    implementation(libs.truth)
+                    implementation(libs.junit)
+                    implementation(libs.skikoCurrentOs)
+                }
+            }
+
+            jsWasmTest {
+                dependsOn(skikoTest)
+            }
+
+            jsTest{
+                dependsOn(jsWasmTest)
+            }
+
+            uikitTest {
+                dependsOn(skikoTest)
             }
 
             configureEach {
