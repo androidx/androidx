@@ -241,8 +241,37 @@ internal abstract class SpecialEffectsController(val container: ViewGroup) {
                     )
                 }
                 collectEffects(newPendingOperations, operationDirectionIsPop)
-                processStart(newPendingOperations)
-                commitEffects(newPendingOperations)
+                var seekable = true
+                var transitioning = true
+                newPendingOperations.forEach { operation ->
+                    seekable = operation.effects.filter { effect ->
+                        // We don't want noOpEffects changing our seeking
+                        effect !is DefaultSpecialEffectsController.NoOpEffect
+                    }.all { effect ->
+                        effect.isSeekingSupported
+                    }
+                    if (operation.effects.all {
+                            it is DefaultSpecialEffectsController.NoOpEffect
+                    }) {
+                        seekable = false
+                    }
+                    if (!operation.fragment.mTransitioning) {
+                        transitioning = false
+                    }
+                }
+
+                if (!transitioning) {
+                    processStart(newPendingOperations)
+                    commitEffects(newPendingOperations)
+                } else {
+                    if (seekable) {
+                        processStart(newPendingOperations)
+                        for (i in newPendingOperations.indices) {
+                            val operation = newPendingOperations[i]
+                            applyContainerChangesToOperation(operation)
+                        }
+                    }
+                }
                 operationDirectionIsPop = false
                 if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
                     Log.v(
@@ -376,7 +405,7 @@ internal abstract class SpecialEffectsController(val container: ViewGroup) {
         // Start all of the Animation, Animator, Transition and NoOp Effects we have collected
         for (j in set.indices) {
             val effect = set[j]
-            effect.onStart(container)
+            effect.performStart(container)
         }
     }
 
@@ -402,6 +431,7 @@ internal abstract class SpecialEffectsController(val container: ViewGroup) {
                 "SpecialEffectsController: Completing Back "
             )
         }
+        processStart(runningOperations)
         commitEffects(runningOperations)
     }
 
@@ -768,6 +798,17 @@ internal abstract class SpecialEffectsController(val container: ViewGroup) {
     }
 
     internal open class Effect {
+        open val isSeekingSupported = false
+
+        private var isStarted = false
+
+        fun performStart(container: ViewGroup) {
+            if (!isStarted) {
+                onStart(container)
+            }
+            isStarted = true
+        }
+
         open fun onStart(container: ViewGroup) { }
 
         open fun onProgress(backEvent: BackEventCompat, container: ViewGroup) { }

@@ -408,7 +408,7 @@ internal class DefaultSpecialEffectsController(
         }
     }
 
-    private open class SpecialEffectsInfo(
+    internal open class SpecialEffectsInfo(
         val operation: Operation,
         val signal: CancellationSignal
     ) {
@@ -599,6 +599,8 @@ internal class DefaultSpecialEffectsController(
     }
 
     private class AnimatorEffect(val animatorInfo: AnimationInfo) : Effect() {
+        override val isSeekingSupported: Boolean
+            get() = true
         var animator: AnimatorSet? = null
         override fun onStart(container: ViewGroup) {
             if (animatorInfo.isVisibilityUnchanged) {
@@ -680,9 +682,8 @@ internal class DefaultSpecialEffectsController(
                 // No change in visibility, so we can go ahead and complete the effect
                 animatorInfo.completeSpecialEffect()
                 return
-            } else if (!operation.fragment.mTransitioning) {
-                animatorSet.start()
             }
+            animatorSet.start()
             if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
                 Log.v(FragmentManager.TAG,
                     "Animator from operation $operation has started.")
@@ -1000,7 +1001,7 @@ internal class DefaultSpecialEffectsController(
         }
     }
 
-    private class NoOpEffect(val info: SpecialEffectsInfo) : Effect() {
+    internal class NoOpEffect(val info: SpecialEffectsInfo) : Effect() {
         override fun onCommit(container: ViewGroup) {
             info.completeSpecialEffect()
         }
