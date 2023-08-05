@@ -49,7 +49,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public abstract class AnnotationProcessorTestBase {
     private AppSearchSession mSession;
@@ -1424,5 +1426,124 @@ public abstract class AnnotationProcessorTestBase {
                         .build());
         documents = convertSearchResultsToDocuments(searchResults);
         assertThat(documents).containsExactly(businessGeneric);
+    }
+
+    @Test
+    public void testAppSearchDocumentClassMap() throws Exception {
+        // Before this test, AppSearch's annotation processor has already generated the maps for
+        // each module at compile time for all document classes available in the current JVM
+        // environment.
+        Map<String, List<String>> expectedDocumentMap = new HashMap<>();
+        // The following classes come from androidx.appsearch.builtintypes.
+        expectedDocumentMap.put("builtin:StopwatchLap",
+                Arrays.asList("androidx.appsearch.builtintypes.StopwatchLap"));
+        expectedDocumentMap.put("builtin:Thing",
+                Arrays.asList("androidx.appsearch.builtintypes.Thing"));
+        expectedDocumentMap.put("builtin:ContactPoint",
+                Arrays.asList("androidx.appsearch.builtintypes.ContactPoint"));
+        expectedDocumentMap.put("builtin:Person",
+                Arrays.asList("androidx.appsearch.builtintypes.Person"));
+        expectedDocumentMap.put("builtin:AlarmInstance",
+                Arrays.asList("androidx.appsearch.builtintypes.AlarmInstance"));
+        expectedDocumentMap.put("Keyword",
+                Arrays.asList("androidx.appsearch.builtintypes.properties.Keyword"));
+        expectedDocumentMap.put("builtin:Alarm",
+                Arrays.asList("androidx.appsearch.builtintypes.Alarm"));
+        expectedDocumentMap.put("builtin:Timer",
+                Arrays.asList("androidx.appsearch.builtintypes.Timer"));
+        expectedDocumentMap.put("builtin:ImageObject",
+                Arrays.asList("androidx.appsearch.builtintypes.ImageObject"));
+        expectedDocumentMap.put("builtin:PotentialAction",
+                Arrays.asList("androidx.appsearch.builtintypes.PotentialAction"));
+        expectedDocumentMap.put("builtin:Stopwatch",
+                Arrays.asList("androidx.appsearch.builtintypes.Stopwatch"));
+        // The following classes come from all test files in androidx.appsearch.cts and
+        // androidx.appsearch.app.
+        expectedDocumentMap.put("Artist",
+                Arrays.asList("androidx.appsearch.cts.app.SetSchemaRequestCtsTest$Artist"));
+        expectedDocumentMap.put("Organization",
+                Arrays.asList("androidx.appsearch.app.AnnotationProcessorTestBase$Organization",
+                        "androidx.appsearch.cts.app.SetSchemaRequestCtsTest$Organization"));
+        expectedDocumentMap.put("Email",
+                Arrays.asList("androidx.appsearch.app.AnnotationProcessorTestBase$Email",
+                        "androidx.appsearch.cts.app.SetSchemaRequestCtsTest$Email"));
+        expectedDocumentMap.put("Message",
+                Arrays.asList("androidx.appsearch.app.AnnotationProcessorTestBase$Message",
+                        "androidx.appsearch.cts.app.SetSchemaRequestCtsTest$Message"));
+        expectedDocumentMap.put("Parent",
+                Arrays.asList("androidx.appsearch.cts.app.SetSchemaRequestCtsTest$Parent"));
+        expectedDocumentMap.put("Outer",
+                Arrays.asList("androidx.appsearch.app.AnnotationProcessorTestBase$Outer",
+                        "androidx.appsearch.cts.app.SetSchemaRequestCtsTest$Outer"));
+        expectedDocumentMap.put("BusinessImpl",
+                Arrays.asList("androidx.appsearch.app.AnnotationProcessorTestBase$BusinessImpl"));
+        expectedDocumentMap.put("Inner",
+                Arrays.asList("androidx.appsearch.app.AnnotationProcessorTestBase$Inner",
+                        "androidx.appsearch.cts.app.SetSchemaRequestCtsTest$Inner"));
+        expectedDocumentMap.put("King",
+                Arrays.asList("androidx.appsearch.cts.app.SetSchemaRequestCtsTest$King",
+                        "androidx.appsearch.cts.app.SearchSpecCtsTest$King",
+                        "androidx.appsearch.cts.observer.ObserverSpecCtsTest$King"));
+        expectedDocumentMap.put("ArtType",
+                Arrays.asList("androidx.appsearch.cts.app.SetSchemaRequestCtsTest$ArtType"));
+        expectedDocumentMap.put("Pineapple",
+                Arrays.asList("androidx.appsearch.app.AnnotationProcessorTestBase$Pineapple",
+                        "androidx.appsearch.app.AnnotationProcessorTestBase$CoolPineapple"));
+        expectedDocumentMap.put("Jack",
+                Arrays.asList("androidx.appsearch.cts.observer.ObserverSpecCtsTest$Jack"));
+        expectedDocumentMap.put("ClassA",
+                Arrays.asList("androidx.appsearch.cts.app.SetSchemaRequestCtsTest$ClassA"));
+        expectedDocumentMap.put("ClassB",
+                Arrays.asList("androidx.appsearch.cts.app.SetSchemaRequestCtsTest$ClassB"));
+        expectedDocumentMap.put("Thing",
+                Arrays.asList("androidx.appsearch.cts.app.SetSchemaRequestCtsTest$Thing"));
+        expectedDocumentMap.put("Business",
+                Arrays.asList("androidx.appsearch.app.AnnotationProcessorTestBase$Business"));
+        expectedDocumentMap.put("Ace",
+                Arrays.asList("androidx.appsearch.cts.observer.ObserverSpecCtsTest$Ace"));
+        expectedDocumentMap.put("EmailMessage",
+                Arrays.asList("androidx.appsearch.app.AnnotationProcessorTestBase$EmailMessage",
+                        "androidx.appsearch.cts.app.SetSchemaRequestCtsTest$EmailMessage"));
+        expectedDocumentMap.put("FakeMessage",
+                Arrays.asList("androidx.appsearch.app.AnnotationProcessorTestBase$FakeMessage"));
+        expectedDocumentMap.put("Root",
+                Arrays.asList("androidx.appsearch.app.AnnotationProcessorTestBase$Root"));
+        expectedDocumentMap.put("Queen",
+                Arrays.asList("androidx.appsearch.cts.app.SetSchemaRequestCtsTest$Queen",
+                        "androidx.appsearch.cts.observer.ObserverSpecCtsTest$Queen"));
+        expectedDocumentMap.put("EmailDocument",
+                Arrays.asList("androidx.appsearch.cts.app.customer.EmailDocument"));
+        expectedDocumentMap.put("Middle",
+                Arrays.asList("androidx.appsearch.app.AnnotationProcessorTestBase$Middle",
+                        "androidx.appsearch.cts.app.SetSchemaRequestCtsTest$Middle"));
+        expectedDocumentMap.put("Common",
+                Arrays.asList("androidx.appsearch.cts.app.SetSchemaRequestCtsTest$Common"));
+        expectedDocumentMap.put("Card",
+                Arrays.asList("androidx.appsearch.app.AnnotationProcessorTestBase$Card",
+                        "androidx.appsearch.cts.app.SetSchemaRequestCtsTest$Card",
+                        "androidx.appsearch.cts.app.PutDocumentsRequestCtsTest$Card"));
+        expectedDocumentMap.put("Gift",
+                Arrays.asList("androidx.appsearch.app.AnnotationProcessorTestBase$Gift"));
+        expectedDocumentMap.put("CardAction",
+                Arrays.asList("androidx.appsearch.app.AnnotationProcessorTestBase$CardAction"));
+        expectedDocumentMap.put("InterfaceRoot",
+                Arrays.asList("androidx.appsearch.app.AnnotationProcessorTestBase$InterfaceRoot"));
+        expectedDocumentMap.put("Person",
+                Arrays.asList("androidx.appsearch.app.AnnotationProcessorTestBase$Person",
+                        "androidx.appsearch.cts.app.SetSchemaRequestCtsTest$Person"));
+        expectedDocumentMap.put("Place",
+                Arrays.asList("androidx.appsearch.app.AnnotationProcessorTestBase$Place"));
+        expectedDocumentMap.put("LongDoc",
+                Arrays.asList("androidx.appsearch.app.AnnotationProcessorTestBase$LongDoc"));
+        expectedDocumentMap.put("SampleAutoValue", Arrays.asList(
+                "androidx.appsearch.app.AnnotationProcessorTestBase$SampleAutoValue"));
+
+        Map<String, List<String>> actualDocumentMap = AppSearchDocumentClassMap.getMergedMap();
+        assertThat(actualDocumentMap.keySet()).containsAtLeastElementsIn(
+                expectedDocumentMap.keySet());
+        for (String key : expectedDocumentMap.keySet()) {
+            assertThat(actualDocumentMap.get(key)).containsAtLeastElementsIn(
+                    expectedDocumentMap.get(key));
+        }
     }
 }
