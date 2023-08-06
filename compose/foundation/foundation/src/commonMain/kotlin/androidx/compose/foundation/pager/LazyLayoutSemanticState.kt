@@ -43,8 +43,8 @@ internal fun LazyLayoutSemanticState(
 
     override fun collectionInfo(): CollectionInfo =
         if (isVertical) {
-            CollectionInfo(rowCount = -1, columnCount = 1)
+            CollectionInfo(rowCount = state.pageCount, columnCount = 1)
         } else {
-            CollectionInfo(rowCount = 1, columnCount = -1)
+            CollectionInfo(rowCount = 1, columnCount = state.pageCount)
         }
 }
