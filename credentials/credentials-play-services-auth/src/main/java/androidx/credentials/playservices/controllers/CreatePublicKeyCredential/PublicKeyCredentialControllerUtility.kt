@@ -105,6 +105,8 @@ internal class PublicKeyCredentialControllerUtility {
         internal val JSON_KEY_ATTESTATION = "attestation"
         internal val JSON_KEY_PUB_KEY_CRED_PARAMS = "pubKeyCredParams"
         internal val JSON_KEY_CLIENT_EXTENSION_RESULTS = "clientExtensionResults"
+        internal val JSON_KEY_RK = "rk"
+        internal val JSON_KEY_CRED_PROPS = "credProps"
 
         /**
          * This function converts a request json to a PublicKeyCredentialCreationOptions, where
@@ -161,6 +163,7 @@ internal class PublicKeyCredentialControllerUtility {
             addOptionalAuthenticatorAttachmentAndRequiredExtensions(
                 cred.authenticatorAttachment,
                 cred.clientExtensionResults != null,
+                cred.clientExtensionResults?.credProps?.isDiscoverableCredential,
                 json
             )
 
@@ -188,6 +191,7 @@ internal class PublicKeyCredentialControllerUtility {
         private fun addOptionalAuthenticatorAttachmentAndRequiredExtensions(
             authenticatorAttachment: String?,
             hasClientExtensionResults: Boolean,
+            isDiscoverableCredential: Boolean?,
             json: JSONObject
         ) {
 
@@ -199,7 +203,11 @@ internal class PublicKeyCredentialControllerUtility {
 
             if (hasClientExtensionResults) {
                 try {
-                    // TODO(b/284178771) : Add credProps only for now
+                    if (isDiscoverableCredential != null) {
+                        val credPropsObject = JSONObject()
+                        credPropsObject.put(JSON_KEY_RK, isDiscoverableCredential)
+                        clientExtensionsJson.put(JSON_KEY_CRED_PROPS, credPropsObject)
+                    }
                 } catch (t: Throwable) {
                     Log.e(TAG, "ClientExtensionResults faced possible implementation " +
                         "inconsistency in uvmEntries - $t")
@@ -229,7 +237,8 @@ internal class PublicKeyCredentialControllerUtility {
                         publicKeyCred.rawId,
                         publicKeyCred.type,
                         publicKeyCred.authenticatorAttachment,
-                        publicKeyCred.clientExtensionResults != null
+                        publicKeyCred.clientExtensionResults != null,
+                        publicKeyCred.clientExtensionResults?.credProps?.isDiscoverableCredential
                     )
                 }
                 else -> {
@@ -252,7 +261,8 @@ internal class PublicKeyCredentialControllerUtility {
             publicKeyCredRawId: ByteArray,
             publicKeyCredType: String,
             authenticatorAttachment: String?,
-            hasClientExtensionResults: Boolean
+            hasClientExtensionResults: Boolean,
+            isDiscoverableCredential: Boolean?
         ) {
             val responseJson = JSONObject()
             responseJson.put(
@@ -279,6 +289,7 @@ internal class PublicKeyCredentialControllerUtility {
             addOptionalAuthenticatorAttachmentAndRequiredExtensions(
                 authenticatorAttachment,
                 hasClientExtensionResults,
+                isDiscoverableCredential,
                 json
             )
         }
