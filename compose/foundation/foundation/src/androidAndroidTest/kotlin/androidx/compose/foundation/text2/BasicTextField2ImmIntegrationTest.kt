@@ -249,6 +249,9 @@ internal class BasicTextField2ImmIntegrationTest {
             connection.commitText("hello", 1)
 
             assertThat(state.text.toString()).isEqualTo("helloworld")
+        }
+
+        rule.runOnIdle {
             imm.expectCall("restartInput")
             imm.expectNoMoreCalls()
         }
@@ -297,6 +300,9 @@ internal class BasicTextField2ImmIntegrationTest {
         rule.runOnIdle {
             imm.resetCalls()
             inputConnection!!.setComposingText("hello", 1)
+        }
+
+        rule.runOnIdle {
             imm.expectCall("updateSelection(0, 5, 0, 5)")
             imm.expectNoMoreCalls()
         }
@@ -316,7 +322,9 @@ internal class BasicTextField2ImmIntegrationTest {
                 append("hello")
                 placeCursorBeforeCharAt(0)
             }
+        }
 
+        rule.runOnIdle {
             imm.expectCall("restartInput")
             imm.expectNoMoreCalls()
         }
@@ -335,7 +343,9 @@ internal class BasicTextField2ImmIntegrationTest {
             state.edit {
                 placeCursorAtEnd()
             }
+        }
 
+        rule.runOnIdle {
             imm.expectCall("updateSelection(5, 5, -1, -1)")
             imm.expectNoMoreCalls()
         }
@@ -355,7 +365,9 @@ internal class BasicTextField2ImmIntegrationTest {
                 append("hello")
                 placeCursorAtEnd()
             }
+        }
 
+        rule.runOnIdle {
             imm.expectCall("updateSelection(5, 5, -1, -1)")
             imm.expectCall("restartInput")
             imm.expectNoMoreCalls()
