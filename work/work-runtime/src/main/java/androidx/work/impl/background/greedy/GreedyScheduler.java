@@ -32,6 +32,7 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.work.Configuration;
 import androidx.work.Logger;
+import androidx.work.RunnableScheduler;
 import androidx.work.WorkInfo;
 import androidx.work.impl.ExecutionListener;
 import androidx.work.impl.Processor;
@@ -89,6 +90,7 @@ public class GreedyScheduler implements Scheduler, OnConstraintsStateChangedList
 
     private final WorkConstraintsTracker mConstraintsTracker;
     private final TaskExecutor mTaskExecutor;
+    private final TimeLimiter mTimeLimiter;
 
     public GreedyScheduler(
             @NonNull Context context,
@@ -99,8 +101,10 @@ public class GreedyScheduler implements Scheduler, OnConstraintsStateChangedList
             @NonNull TaskExecutor taskExecutor
     ) {
         mContext = context;
-        mDelayedWorkTracker = new DelayedWorkTracker(this, configuration.getRunnableScheduler(),
+        RunnableScheduler runnableScheduler = configuration.getRunnableScheduler();
+        mDelayedWorkTracker = new DelayedWorkTracker(this, runnableScheduler,
                 configuration.getClock());
+        mTimeLimiter = new TimeLimiter(runnableScheduler, workLauncher);
         mTaskExecutor = taskExecutor;
         mConstraintsTracker = new WorkConstraintsTracker(trackers);
         mConfiguration = configuration;
@@ -170,7 +174,9 @@ public class GreedyScheduler implements Scheduler, OnConstraintsStateChangedList
                     // it doesn't help against races, but reduces useless load in the system
                     if (!mStartStopTokens.contains(generationalId(workSpec))) {
                         Logger.get().debug(TAG, "Starting work for " + workSpec.id);
-                        mWorkLauncher.startWork(mStartStopTokens.tokenFor(workSpec));
+                        StartStopToken token = mStartStopTokens.tokenFor(workSpec);
+                        mTimeLimiter.track(token);
+                        mWorkLauncher.startWork(token);
                     }
                 }
             }
@@ -216,6 +222,7 @@ public class GreedyScheduler implements Scheduler, OnConstraintsStateChangedList
         }
         // onExecutionCompleted does the cleanup.
         for (StartStopToken id : mStartStopTokens.remove(workSpecId)) {
+            mTimeLimiter.cancel(id);
             mWorkLauncher.stopWork(id);
         }
     }
@@ -228,12 +235,15 @@ public class GreedyScheduler implements Scheduler, OnConstraintsStateChangedList
             // it doesn't help against races, but reduces useless load in the system
             if (!mStartStopTokens.contains(id)) {
                 Logger.get().debug(TAG, "Constraints met: Scheduling work ID " + id);
-                mWorkLauncher.startWork(mStartStopTokens.tokenFor(id));
+                StartStopToken token = mStartStopTokens.tokenFor(id);
+                mTimeLimiter.track(token);
+                mWorkLauncher.startWork(token);
             }
         } else {
             Logger.get().debug(TAG, "Constraints not met: Cancelling work ID " + id);
             StartStopToken runId = mStartStopTokens.remove(id);
             if (runId != null) {
+                mTimeLimiter.cancel(runId);
                 int reason = ((ConstraintsState.ConstraintsNotMet) state).reasonInt();
                 mWorkLauncher.stopWorkWithReason(runId, reason);
             }
@@ -242,7 +252,10 @@ public class GreedyScheduler implements Scheduler, OnConstraintsStateChangedList
 
     @Override
     public void onExecuted(@NonNull WorkGenerationalId id, boolean needsReschedule) {
-        mStartStopTokens.remove(id);
+        StartStopToken token = mStartStopTokens.remove(id);
+        if (token != null) {
+            mTimeLimiter.cancel(token);
+        }
         removeConstraintTrackingFor(id);
 
         if (!needsReschedule) {
