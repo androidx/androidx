@@ -273,6 +273,9 @@ internal class LocalSdkProviderTest(
         @JvmStatic
         fun params(): List<Array<Any>> = buildList {
             for (apiVersion in 1..Versions.API_VERSION) {
+                if (apiVersion == 3) {
+                    continue // V3 was released as V4 (original release postponed)
+                }
                 add(
                     arrayOf(
                         "v$apiVersion",

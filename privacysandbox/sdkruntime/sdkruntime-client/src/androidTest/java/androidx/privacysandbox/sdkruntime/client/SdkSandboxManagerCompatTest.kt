@@ -317,7 +317,7 @@ class SdkSandboxManagerCompatTest {
 
         val localSdk = runBlocking {
             managerCompat.loadSdk(
-                TestSdkConfigs.forSdkName("v3").packageName,
+                TestSdkConfigs.forSdkName("v4").packageName,
                 Bundle()
             )
         }
