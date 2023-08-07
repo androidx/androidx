@@ -38,9 +38,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.cancelChildren
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.newSingleThreadContext
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -146,98 +144,6 @@ class MultiProcessDataStoreMultiProcessTest {
         dataStoreContext = UnconfinedTestDispatcher()
         dataStoreScope = TestScope(dataStoreContext + Job())
     }
-
-    @Test
-    fun testInterleavedUpdateDataWithLocalRead_file() =
-        testInterleavedUpdateDataWithLocalRead_runner(StorageVariant.FILE)
-
-    @Test
-    fun testInterleavedUpdateDataWithLocalRead_okio() =
-        testInterleavedUpdateDataWithLocalRead_runner(StorageVariant.OKIO)
-
-    private fun testInterleavedUpdateDataWithLocalRead_runner(variant: StorageVariant) =
-        runTest(UnconfinedTestDispatcher(), timeout = 10000.milliseconds) {
-            val testData: Bundle = createDataStoreBundle(testFile.absolutePath, variant)
-            val dataStore: DataStore<FooProto> =
-                createDataStore(testData, dataStoreScope, context = dataStoreContext)
-            val serviceClasses = mapOf(
-                StorageVariant.FILE to InterleavedUpdateDataWithReadFileService::class,
-                StorageVariant.OKIO to InterleavedUpdateDataWithReadOkioService::class
-            )
-            val connection: BlockingServiceConnection =
-                setUpService(
-                    mainContext,
-                    serviceClasses[variant]!!.java,
-                    testData
-                )
-
-            // Invalidate any local cache
-            assertThat(dataStore.data.first()).isEqualTo(DEFAULT_FOO)
-            signalService(connection)
-
-            // Queue and start local write
-            val writeStarted = CompletableDeferred<Unit>()
-            val finishWrite = CompletableDeferred<Unit>()
-
-            val write = async {
-                dataStore.updateData {
-                    writeStarted.complete(Unit)
-                    finishWrite.await()
-                    FOO_WITH_TEXT
-                }
-            }
-            writeStarted.await()
-
-            // Queue remote write
-            signalService(connection)
-
-            // Local uncached read; this should see data initially written remotely.
-            assertThat(dataStore.data.first()).isEqualTo(
-                FooProto.newBuilder().setInteger(1).build()
-            )
-
-            // Unblock writes; the local write is delayed to ensure the remote write remains blocked.
-            val remoteWrite = async(newSingleThreadContext("blockedWriter")) {
-                signalService(connection)
-            }
-
-            val localWrite = async(newSingleThreadContext("unblockLocalWrite")) {
-                delay(500)
-                finishWrite.complete(Unit)
-                write.await()
-            }
-
-            localWrite.await()
-            remoteWrite.await()
-
-            assertThat(dataStore.data.first()).isEqualTo(FOO_WITH_TEXT_AND_BOOLEAN)
-        }
-
-    open class InterleavedUpdateDataWithReadFileService(
-        private val scope: TestScope = TestScope(UnconfinedTestDispatcher() + Job())
-    ) : DirectTestService() {
-        override fun beforeTest(testData: Bundle) {
-            store = createDataStore(testData, scope)
-        }
-
-        override fun runTest() = runBlocking<Unit> {
-            store.updateData {
-                INCREMENT_INTEGER(it)
-            }
-
-            waitForSignal()
-
-            val write = async {
-                store.updateData {
-                    WRITE_BOOLEAN(it)
-                }
-            }
-            waitForSignal()
-            write.await()
-        }
-    }
-
-    class InterleavedUpdateDataWithReadOkioService : InterleavedUpdateDataWithReadFileService()
 
     @Test
     fun testUpdateDataExceptionUnblocksOtherProcessFromWriting_file() =

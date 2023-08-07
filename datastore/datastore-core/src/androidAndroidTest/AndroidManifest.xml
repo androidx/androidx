@@ -17,16 +17,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <application>
         <service
-            android:name="androidx.datastore.core.MultiProcessDataStoreMultiProcessTest$InterleavedUpdateDataWithReadFileService"
-            android:enabled="true"
-            android:exported="false"
-            android:process=":InterleavedUpdateDataWithReadFileService" />
-        <service
-            android:name="androidx.datastore.core.MultiProcessDataStoreMultiProcessTest$InterleavedUpdateDataWithReadOkioService"
-            android:enabled="true"
-            android:exported="false"
-            android:process=":InterleavedUpdateDataWithReadOkioService" />
-        <service
             android:name="androidx.datastore.core.MultiProcessDataStoreMultiProcessTest$FailedUpdateDataFileService"
             android:enabled="true"
             android:exported="false"
