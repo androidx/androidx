@@ -47,6 +47,11 @@ package androidx.tv.foundation.lazy.grid {
     method public java.util.List<java.lang.Integer> calculateCrossAxisCellSizes(androidx.compose.ui.unit.Density, int availableSize, int spacing);
   }
 
+  public static final class TvGridCells.FixedSize implements androidx.tv.foundation.lazy.grid.TvGridCells {
+    ctor public TvGridCells.FixedSize(float size);
+    method public java.util.List<java.lang.Integer> calculateCrossAxisCellSizes(androidx.compose.ui.unit.Density, int availableSize, int spacing);
+  }
+
   @androidx.compose.runtime.Immutable @kotlin.jvm.JvmInline public final value class TvGridItemSpan {
     method public int getCurrentLineSpan();
     property @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public final int currentLineSpan;
@@ -54,12 +59,14 @@ package androidx.tv.foundation.lazy.grid {
 
   public sealed interface TvLazyGridItemInfo {
     method public int getColumn();
+    method public Object? getContentType();
     method public int getIndex();
     method public Object getKey();
     method public long getOffset();
     method public int getRow();
     method public long getSize();
     property public abstract int column;
+    property public abstract Object? contentType;
     property public abstract int index;
     property public abstract Object key;
     property public abstract long offset;
@@ -164,11 +171,13 @@ package androidx.tv.foundation.lazy.list {
     method @androidx.compose.runtime.Composable public static androidx.tv.foundation.lazy.list.TvLazyListState rememberTvLazyListState(optional int initialFirstVisibleItemIndex, optional int initialFirstVisibleItemScrollOffset);
   }
 
-  public interface TvLazyListItemInfo {
+  public sealed interface TvLazyListItemInfo {
+    method public Object? getContentType();
     method public int getIndex();
     method public Object getKey();
     method public int getOffset();
     method public int getSize();
+    property public abstract Object? contentType;
     property public abstract int index;
     property public abstract Object key;
     property public abstract int offset;
