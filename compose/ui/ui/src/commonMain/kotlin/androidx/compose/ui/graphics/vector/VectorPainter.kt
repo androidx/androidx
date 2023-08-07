@@ -219,7 +219,7 @@ class VectorPainter internal constructor() : Painter() {
         }
     }
 
-    internal val bitmapConfig: ImageBitmapConfig?
+    internal val bitmapConfig: ImageBitmapConfig
         get() = vector.cacheBitmapConfig
 
     internal var composition: Composition? = null

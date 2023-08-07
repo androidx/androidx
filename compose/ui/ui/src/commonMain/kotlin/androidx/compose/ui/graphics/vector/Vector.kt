@@ -23,6 +23,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.geometry.Size.Companion.Unspecified
 import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.BlendModeColorFilter
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
@@ -111,8 +112,8 @@ internal class VectorComponent : VNode() {
 
     private val cacheDrawScope = DrawCache()
 
-    internal val cacheBitmapConfig: ImageBitmapConfig?
-        get() = cacheDrawScope.mCachedImage?.config
+    internal val cacheBitmapConfig: ImageBitmapConfig
+        get() = cacheDrawScope.mCachedImage?.config ?: ImageBitmapConfig.Argb8888
 
     internal var invalidateCallback = {}
 
@@ -144,20 +145,23 @@ internal class VectorComponent : VNode() {
         // If the content of the vector has changed, or we are drawing a different size
         // update the cached image to ensure we are scaling the vector appropriately
         val isOneColor = root.isTintable && root.tintColor.isSpecified
-        if (isDirty || previousDrawSize != size) {
-            if (colorFilter == null && intrinsicColorFilter == null && isOneColor) {
-                tintFilter = ColorFilter.tint(root.tintColor)
-            } else if (!isOneColor) {
-                tintFilter = null
+        val targetImageConfig = if (isOneColor && intrinsicColorFilter.tintableWithAlphaMask() &&
+            colorFilter.tintableWithAlphaMask()) {
+            ImageBitmapConfig.Alpha8
+        } else {
+            ImageBitmapConfig.Argb8888
+        }
+
+        if (isDirty || previousDrawSize != size || targetImageConfig != cacheBitmapConfig) {
+            tintFilter = if (targetImageConfig == ImageBitmapConfig.Alpha8) {
+                ColorFilter.tint(root.tintColor)
+            } else {
+                null
             }
             rootScaleX = size.width / viewportSize.width
             rootScaleY = size.height / viewportSize.height
             cacheDrawScope.drawCachedImage(
-                if (isOneColor) {
-                    ImageBitmapConfig.Alpha8
-                } else {
-                    ImageBitmapConfig.Argb8888
-                },
+                targetImageConfig,
                 IntSize(ceil(size.width).toInt(), ceil(size.height).toInt()),
                 this@draw,
                 layoutDirection,
@@ -633,3 +637,13 @@ internal fun Color.rgbEqual(other: Color) =
     this.red == other.red &&
         this.green == other.green &&
         this.blue == other.blue
+
+/**
+ * Helper method to determine if a particular ColorFilter will generate the same output
+ * if the bitmap has an Alpha8 or ARGB8888 configuration
+ */
+internal fun ColorFilter?.tintableWithAlphaMask() = if (this is BlendModeColorFilter) {
+    this.blendMode == BlendMode.SrcIn
+} else {
+    this == null
+}

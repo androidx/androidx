@@ -44,7 +44,7 @@ internal class DrawCache {
     private var scopeDensity: Density? = null
     private var layoutDirection: LayoutDirection = LayoutDirection.Ltr
     private var size: IntSize = IntSize.Zero
-    private var config: ImageBitmapConfig? = null
+    private var config: ImageBitmapConfig = ImageBitmapConfig.Argb8888
 
     private val cacheScope = CanvasDrawScope()
 
