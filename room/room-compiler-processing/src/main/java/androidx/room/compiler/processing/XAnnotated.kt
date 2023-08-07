@@ -137,6 +137,12 @@ interface XAnnotated {
     fun hasAnyAnnotation(annotations: Collection<ClassName>) = annotations.any(this::hasAnnotation)
 
     /**
+     * Returns `true` if this element has one of the [annotations].
+     */
+    fun hasAnyAnnotation(vararg annotations: XClassName) =
+        annotations.any(this::hasAnnotation)
+
+    /**
      * Returns `true` if this element has all the [annotations].
      */
     fun hasAllAnnotations(vararg annotations: ClassName): Boolean =
@@ -152,6 +158,12 @@ interface XAnnotated {
      * Returns `true` if this element has all the [annotations].
      */
     fun hasAllAnnotations(annotations: Collection<ClassName>): Boolean =
+        annotations.all(this::hasAnnotation)
+
+    /**
+     * Returns `true` if this element has all the [annotations].
+     */
+    fun hasAllAnnotations(vararg annotations: XClassName): Boolean =
         annotations.all(this::hasAnnotation)
 
     @Deprecated(
@@ -231,6 +243,17 @@ interface XAnnotated {
     }
 
     /**
+     * Returns the [XAnnotation] that has the same qualified name as [annotationName].
+     *
+     * @see [hasAnnotation]
+     * @see [getAnnotations]
+     * @see [hasAnnotationWithPackage]
+     */
+    fun requireAnnotation(annotationName: XClassName): XAnnotation {
+        return getAnnotation(annotationName)!!
+    }
+
+    /**
      * Returns a boxed instance of the given [annotation] class where fields can be read.
      *
      * @see [hasAnnotation]
@@ -242,3 +265,15 @@ interface XAnnotated {
             "Cannot find required annotation $annotation"
         }
 }
+
+/**
+ * Returns `true` if this element has one of the [annotations].
+ */
+fun XAnnotated.hasAnyAnnotation(annotations: Collection<XClassName>) =
+    annotations.any(this::hasAnnotation)
+
+/**
+ * Returns `true` if this element has all the [annotations].
+ */
+fun XAnnotated.hasAllAnnotations(annotations: Collection<XClassName>): Boolean =
+    annotations.all(this::hasAnnotation)
