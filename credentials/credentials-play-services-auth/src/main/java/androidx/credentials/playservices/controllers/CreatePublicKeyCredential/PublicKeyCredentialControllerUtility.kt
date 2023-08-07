@@ -104,6 +104,7 @@ internal class PublicKeyCredentialControllerUtility {
         internal val JSON_KEY_EXTENSTIONS = "extensions"
         internal val JSON_KEY_ATTESTATION = "attestation"
         internal val JSON_KEY_PUB_KEY_CRED_PARAMS = "pubKeyCredParams"
+        internal val JSON_KEY_CLIENT_EXTENSION_RESULTS = "clientExtensionResults"
 
         /**
          * This function converts a request json to a PublicKeyCredentialCreationOptions, where
@@ -157,7 +158,11 @@ internal class PublicKeyCredentialControllerUtility {
                     "got: ${authenticatorResponse.javaClass.name}")
             }
 
-            addOptionalAuthenticatorAttachmentAndExtensions(cred, json)
+            addOptionalAuthenticatorAttachmentAndRequiredExtensions(
+                cred.authenticatorAttachment,
+                cred.clientExtensionResults != null,
+                json
+            )
 
             json.put(JSON_KEY_ID, cred.id)
             json.put(JSON_KEY_RAW_ID, b64Encode(cred.rawId))
@@ -179,43 +184,32 @@ internal class PublicKeyCredentialControllerUtility {
             return transportArray
         }
 
-        private fun addOptionalAuthenticatorAttachmentAndExtensions(
-            cred: PublicKeyCredential,
+        // This can be shared by both get and create flow response parsers
+        private fun addOptionalAuthenticatorAttachmentAndRequiredExtensions(
+            authenticatorAttachment: String?,
+            hasClientExtensionResults: Boolean,
             json: JSONObject
         ) {
-            val authenticatorAttachment = cred.authenticatorAttachment
-            val clientExtensionResults = cred.clientExtensionResults
 
             if (authenticatorAttachment != null) {
                 json.put(JSON_KEY_AUTH_ATTACHMENT, authenticatorAttachment)
             }
 
-            if (clientExtensionResults != null) {
+            val clientExtensionsJson = JSONObject()
+
+            if (hasClientExtensionResults) {
                 try {
-                    val uvmEntries = clientExtensionResults.uvmEntries
-                    val uvmEntriesList = uvmEntries?.uvmEntryList
-                    if (uvmEntriesList != null) {
-                        val uvmEntriesJSON = JSONArray()
-                        for (entry in uvmEntriesList) {
-                            val uvmEntryJSON = JSONObject()
-                            uvmEntryJSON.put(JSON_KEY_USER_VERIFICATION_METHOD,
-                                entry.userVerificationMethod)
-                            uvmEntryJSON.put(JSON_KEY_KEY_PROTECTION_TYPE, entry.keyProtectionType)
-                            uvmEntryJSON.put(
-                                JSON_KEY_MATCHER_PROTECTION_TYPE, entry.matcherProtectionType)
-                            uvmEntriesJSON.put(uvmEntryJSON)
-                        }
-                        json.put("uvm", uvmEntriesJSON)
-                    }
+                    // TODO(b/284178771) : Add credProps only for now
                 } catch (t: Throwable) {
                     Log.e(TAG, "ClientExtensionResults faced possible implementation " +
                         "inconsistency in uvmEntries - $t")
                 }
             }
+            json.put(JSON_KEY_CLIENT_EXTENSION_RESULTS, clientExtensionsJson)
         }
 
         fun toAssertPasskeyResponse(cred: SignInCredential): String {
-            val json = JSONObject()
+            var json = JSONObject()
             val publicKeyCred = cred.publicKeyCredential
 
             when (val authenticatorResponse = publicKeyCred?.response!!) {
@@ -233,7 +227,10 @@ internal class PublicKeyCredentialControllerUtility {
                         json,
                         publicKeyCred.id,
                         publicKeyCred.rawId,
-                        publicKeyCred.type)
+                        publicKeyCred.type,
+                        publicKeyCred.authenticatorAttachment,
+                        publicKeyCred.clientExtensionResults != null
+                    )
                 }
                 else -> {
                 Log.e(
@@ -253,7 +250,9 @@ internal class PublicKeyCredentialControllerUtility {
             json: JSONObject,
             publicKeyCredId: String,
             publicKeyCredRawId: ByteArray,
-            publicKeyCredType: String
+            publicKeyCredType: String,
+            authenticatorAttachment: String?,
+            hasClientExtensionResults: Boolean
         ) {
             val responseJson = JSONObject()
             responseJson.put(
@@ -277,6 +276,11 @@ internal class PublicKeyCredentialControllerUtility {
             json.put(JSON_KEY_ID, publicKeyCredId)
             json.put(JSON_KEY_RAW_ID, b64Encode(publicKeyCredRawId))
             json.put(JSON_KEY_TYPE, publicKeyCredType)
+            addOptionalAuthenticatorAttachmentAndRequiredExtensions(
+                authenticatorAttachment,
+                hasClientExtensionResults,
+                json
+            )
         }
 
         /**
