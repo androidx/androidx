@@ -177,6 +177,9 @@ fun Modifier.clickable(
  * @param onLongClick will be called when user long presses on the element
  * @param onDoubleClick will be called when user double clicks on the element
  * @param onClick will be called when user clicks on the element
+ *
+ * Note: This API is experimental and is awaiting a rework. combinedClickable handles touch based
+ * input quite well but provides subpar functionality for other input types.
  */
 @ExperimentalFoundationApi
 fun Modifier.combinedClickable(
@@ -239,6 +242,9 @@ fun Modifier.combinedClickable(
  * @param onLongClick will be called when user long presses on the element
  * @param onDoubleClick will be called when user double clicks on the element
  * @param onClick will be called when user clicks on the element
+ *
+ * Note: This API is experimental and is awaiting a rework. combinedClickable handles touch based
+ * input quite well but provides subpar functionality for other input types.
  */
 @ExperimentalFoundationApi
 fun Modifier.combinedClickable(
@@ -594,6 +600,9 @@ private class ClickableNode(
  * @param onClickLabel semantic / accessibility label for the [onClick] action
  * @param role the type of user interface element. Accessibility services might use this
  * to describe the element or do customizations
+ *
+ * Note: This API is experimental and is awaiting a rework. combinedClickable handles touch based
+ * input quite well but provides subpar functionality for other input types.
  */
 @ExperimentalFoundationApi
 fun CombinedClickableNode(
@@ -620,8 +629,8 @@ fun CombinedClickableNode(
  * Public interface for the internal node used inside [combinedClickable], to allow for custom
  * modifier nodes to delegate to it.
  *
- * This API is experimental and is temporarily being exposed to enable performance analysis, you
- * should use [combinedClickable] instead for the majority of use cases.
+ * Note: This API is experimental and is temporarily being exposed to enable performance analysis,
+ * you should use [combinedClickable] instead for the majority of use cases.
  */
 @ExperimentalFoundationApi
 sealed interface CombinedClickableNode : PointerInputModifierNode {

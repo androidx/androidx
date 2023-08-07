@@ -29,6 +29,9 @@ import androidx.compose.runtime.collection.mutableVectorOf
  * This interface is read only, in order to create a list you need to use [MutableIntervalList].
  *
  * @param T type of values each interval contains in [Interval.value].
+ *
+ * Note: this class is a part of [LazyLayout] harness that allows for building custom lazy layouts.
+ * LazyLayout and all corresponding APIs are still under development and are subject to change.
  */
 @ExperimentalFoundationApi
 sealed interface IntervalList<out T> {
@@ -92,6 +95,9 @@ sealed interface IntervalList<out T> {
 
 /**
  * Mutable version of [IntervalList]. It allows you to add new intervals via [addInterval].
+ *
+ * Note: this class is a part of [LazyLayout] harness that allows for building custom lazy layouts.
+ * LazyLayout and all corresponding APIs are still under development and are subject to change.
  */
 @ExperimentalFoundationApi
 class MutableIntervalList<T> : IntervalList<T> {
