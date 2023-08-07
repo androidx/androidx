@@ -21,7 +21,6 @@ import androidx.compose.foundation.text.InternalFoundationTextApi
 import androidx.compose.foundation.text.TextDelegate
 import androidx.compose.foundation.text2.input.CodepointTransformation
 import androidx.compose.foundation.text2.input.SingleLineCodepointTransformation
-import androidx.compose.foundation.text2.input.TextFieldCharSequence
 import androidx.compose.foundation.text2.input.TextFieldState
 import androidx.compose.foundation.text2.input.internal.TextFieldLayoutStateCache.MeasureInputs
 import androidx.compose.foundation.text2.input.internal.TextFieldLayoutStateCache.NonMeasureInputs
@@ -151,8 +150,16 @@ internal class TextFieldLayoutStateCache : State<TextLayoutResult?>, StateObject
         nonMeasureInputs: NonMeasureInputs,
         measureInputs: MeasureInputs
     ): TextLayoutResult {
-        // This is the state read that will invalidate us when the text is changed but nothing else.
-        val untransformedText = nonMeasureInputs.textFieldState.text
+        // If there's a transformation, we need to apply it every time, since it may contain state
+        // reads and conditional logic that we can't check avoid running.
+        // First prefer provided codepointTransformation if not null, e.g. BasicSecureTextField
+        // would send PasswordTransformation. Second, apply a SingleLineCodepointTransformation if
+        // text field is configured to be single line. Else, don't apply any visual transformation.
+        val appliedCodepointTransformation = nonMeasureInputs.codepointTransformation
+            ?: SingleLineCodepointTransformation.takeIf { nonMeasureInputs.singleLine }
+        // This will return untransformedText if the transformation is null.
+        val visualText = nonMeasureInputs.textFieldState.text
+            .toVisualText(appliedCodepointTransformation)
 
         // Use withCurrent here so the cache itself is never reported as a read state object. It
         // doesn't need to be, because it's always guaranteed to return the same value for the same
@@ -160,44 +167,20 @@ internal class TextFieldLayoutStateCache : State<TextLayoutResult?>, StateObject
         // caller when they change.
         record.withCurrent { cachedRecord ->
             val cachedResult = cachedRecord.layoutResult
-            val textChanged =
-                cachedRecord.untransformedText?.contentEquals(untransformedText) != true ||
-                    cachedRecord.codepointTransformation != nonMeasureInputs.codepointTransformation
-            val otherParamsChanged = cachedRecord.singleLine != nonMeasureInputs.singleLine ||
-                cachedRecord.softWrap != nonMeasureInputs.softWrap ||
-                cachedRecord.textStyle
-                    ?.hasSameLayoutAffectingAttributes(nonMeasureInputs.textStyle) != true ||
-                cachedRecord.layoutDirection != measureInputs.layoutDirection ||
-                cachedRecord.densityValue != measureInputs.density.density ||
-                cachedRecord.fontScale != measureInputs.density.fontScale ||
-                cachedRecord.constraints != measureInputs.constraints ||
-                cachedRecord.fontFamilyResolver != measureInputs.fontFamilyResolver
-
-            if (cachedResult != null && !textChanged && !otherParamsChanged) {
-                // Fast path: None of the inputs changed.
-                return cachedResult
-            }
-
-            // First prefer provided codepointTransformation if not null, e.g.
-            // BasicSecureTextField would send Password Transformation.
-            // Second, apply a SingleLineCodepointTransformation if text field is configured
-            // to be single line.
-            // Else, don't apply any visual transformation.
-            val appliedCodepointTransformation = nonMeasureInputs.codepointTransformation
-                ?: SingleLineCodepointTransformation.takeIf { nonMeasureInputs.singleLine }
-            val visualText = untransformedText.toVisualText(appliedCodepointTransformation)
 
             if (cachedResult != null &&
-                !otherParamsChanged &&
-                cachedRecord.visualText.contentEquals(visualText)
+                cachedRecord.visualText?.contentEquals(visualText) == true &&
+                cachedRecord.singleLine == nonMeasureInputs.singleLine &&
+                cachedRecord.softWrap == nonMeasureInputs.softWrap &&
+                cachedRecord.textStyle
+                    ?.hasSameLayoutAffectingAttributes(nonMeasureInputs.textStyle) == true &&
+                cachedRecord.layoutDirection == measureInputs.layoutDirection &&
+                cachedRecord.densityValue == measureInputs.density.density &&
+                cachedRecord.fontScale == measureInputs.density.fontScale &&
+                cachedRecord.constraints == measureInputs.constraints &&
+                cachedRecord.fontFamilyResolver == measureInputs.fontFamilyResolver
             ) {
-                // Medium path: If text changed or codepoint transformation changed, but the end
-                // result of transformation is the same, use cached result. Also update the cache
-                // so we don't have to re-transform the text again next time.
-                updateCacheIfWritable {
-                    this.untransformedText = untransformedText
-                    this.codepointTransformation = nonMeasureInputs.codepointTransformation
-                }
+                // Fast path: None of the inputs changed.
                 return cachedResult
             }
 
@@ -208,9 +191,7 @@ internal class TextFieldLayoutStateCache : State<TextLayoutResult?>, StateObject
                     //  TextLayoutResult object. We should inline that so we don't check twice.
                     if (newResult != cachedResult) {
                         updateCacheIfWritable {
-                            this.untransformedText = untransformedText
                             this.visualText = visualText
-                            this.codepointTransformation = nonMeasureInputs.codepointTransformation
                             this.singleLine = nonMeasureInputs.singleLine
                             this.softWrap = nonMeasureInputs.softWrap
                             this.textStyle = nonMeasureInputs.textStyle
@@ -295,11 +276,6 @@ internal class TextFieldLayoutStateCache : State<TextLayoutResult?>, StateObject
         // actual text. If the TFS instance changes but has the same text, we don't need to
         // re-layout. Also if the TFS object _doesn't_ change but its text _does_, we do need to
         // re-layout. That state read happens in getOrComputeLayout to invalidate correctly.
-        /** The text before being ran through [codepointTransformation]. */
-        var untransformedText: TextFieldCharSequence? = null
-        var codepointTransformation: CodepointTransformation? = null
-
-        /** The text after [codepointTransformation]. */
         var visualText: CharSequence? = null
         var textStyle: TextStyle? = null
         var singleLine: Boolean = false
@@ -319,8 +295,6 @@ internal class TextFieldLayoutStateCache : State<TextLayoutResult?>, StateObject
 
         override fun assign(value: StateRecord) {
             value as CacheRecord
-            untransformedText = value.untransformedText
-            codepointTransformation = value.codepointTransformation
             visualText = value.visualText
             textStyle = value.textStyle
             singleLine = value.singleLine
@@ -334,8 +308,6 @@ internal class TextFieldLayoutStateCache : State<TextLayoutResult?>, StateObject
         }
 
         override fun toString(): String = "CacheRecord(" +
-            "untransformedText=$untransformedText, " +
-            "codepointTransformation=$codepointTransformation, " +
             "visualText=$visualText, " +
             "textStyle=$textStyle, " +
             "singleLine=$singleLine, " +
