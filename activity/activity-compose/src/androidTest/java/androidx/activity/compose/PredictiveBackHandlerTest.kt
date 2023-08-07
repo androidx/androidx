@@ -112,11 +112,16 @@ class PredictiveBackHandlerTestApi {
     fun testDisabledBackHandler() {
         val result = mutableListOf<String>()
         var enabled by mutableStateOf(true)
+        lateinit var dispatcherOwner: TestOnBackPressedDispatcherOwner
         lateinit var dispatcher: OnBackPressedDispatcher
 
         rule.setContent {
-            PredictiveBackHandler(enabled) { result += "onBack" }
-            dispatcher = LocalOnBackPressedDispatcherOwner.current!!.onBackPressedDispatcher
+            dispatcherOwner =
+                TestOnBackPressedDispatcherOwner(LocalLifecycleOwner.current.lifecycle)
+            CompositionLocalProvider(LocalOnBackPressedDispatcherOwner provides dispatcherOwner) {
+                PredictiveBackHandler(enabled) { result += "onBack" }
+                dispatcher = LocalOnBackPressedDispatcherOwner.current!!.onBackPressedDispatcher
+            }
         }
 
         dispatcher.startGestureBack()
@@ -128,6 +133,7 @@ class PredictiveBackHandlerTestApi {
         rule.runOnIdle {
             dispatcher.startGestureBack()
             assertThat(result).isEqualTo(listOf("onBack"))
+            assertThat(dispatcherOwner.fallbackCount).isEqualTo(1)
         }
 
         enabled = true
@@ -147,7 +153,7 @@ class PredictiveBackHandlerTestApi {
                 result += "start"
                 // simulate some extended work
                 async {
-                    delay(500)
+                    delay(300)
                     result += "async"
                 }
                 result += "complete"
@@ -288,7 +294,6 @@ class PredictiveBackHandlerTestApi {
         }
         rule.onNodeWithText("backPress").performClick()
         rule.runOnIdle { handler = { results += "second" } }
-        println("cfok perofmr second click")
         rule.onNodeWithText("backPress").performClick()
 
         rule.runOnIdle {
@@ -471,6 +476,18 @@ class PredictiveBackHandlerTestApi34 {
             assertThat(result).isEqualTo(listOf("start"))
         }
     }
+}
+
+class TestOnBackPressedDispatcherOwner(
+    override val lifecycle: Lifecycle
+) : OnBackPressedDispatcherOwner {
+    var fallbackCount = 0
+
+    private var dispatcher = OnBackPressedDispatcher {
+        fallbackCount++
+    }
+    override val onBackPressedDispatcher: OnBackPressedDispatcher
+        get() = dispatcher
 }
 
 private fun fakeBackEventCompat(progress: Float = 0f) =
