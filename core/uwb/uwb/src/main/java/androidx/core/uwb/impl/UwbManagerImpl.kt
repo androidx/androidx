@@ -73,9 +73,12 @@ internal class UwbManagerImpl(private val context: Context) : UwbManager {
 
     private suspend fun createClientSessionScope(isController: Boolean): UwbClientSessionScope {
         checkSystemFeature(context)
+        val pm = context.packageManager
         val hasGmsCore = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(
             context, /* minApkVersion */230100000) == ConnectionResult.SUCCESS
-        return if (hasGmsCore) createGmsClientSessionScope(isController)
+        val isChinaGcoreDevice = pm.hasSystemFeature("cn.google.services") &&
+            pm.hasSystemFeature("com.google.android.feature.services_updater")
+        return if (hasGmsCore && !isChinaGcoreDevice) createGmsClientSessionScope(isController)
         else createAospClientSessionScope(isController)
     }
 
