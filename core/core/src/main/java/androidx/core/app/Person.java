@@ -28,6 +28,8 @@ import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.graphics.drawable.IconCompat;
 
+import java.util.Objects;
+
 /**
  * Provides an immutable reference to an entity that appears repeatedly on different surfaces of the
  * platform. For example, this could represent the sender of a message.
@@ -221,6 +223,49 @@ public class Person {
             return "name:" + mName;
         }
         return "";
+    }
+
+    @Override
+    public boolean equals(@Nullable Object otherObject) {
+        if (otherObject == null) {
+            return false;
+        }
+
+        if (!(otherObject instanceof Person)) {
+            return false;
+        }
+
+        Person otherPerson = (Person) otherObject;
+
+        // If a unique ID was provided, use it
+        String key1 = getKey();
+        String key2 = otherPerson.getKey();
+        if (key1 != null || key2 != null) {
+            return Objects.equals(key1, key2);
+        }
+
+        // CharSequence doesn't have well-defined "equals" behavior -- convert to String instead
+        String name1 = Objects.toString(getName());
+        String name2 = Objects.toString(otherPerson.getName());
+
+        // Fallback: Compare field-by-field
+        return
+                Objects.equals(name1, name2)
+                        && Objects.equals(getUri(), otherPerson.getUri())
+                        && Objects.equals(isBot(), otherPerson.isBot())
+                        && Objects.equals(isImportant(), otherPerson.isImportant());
+    }
+
+    @Override
+    public int hashCode() {
+        // If a unique ID was provided, use it
+        String key = getKey();
+        if (key != null) {
+            return key.hashCode();
+        }
+
+        // Fallback: Use hash code for individual fields
+        return Objects.hash(getName(), getUri(), isBot(), isImportant());
     }
 
     /** Builder for the immutable {@link Person} class. */
