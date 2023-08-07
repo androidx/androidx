@@ -13,23 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package androidx.glance.testing
 
-import androidx.annotation.RestrictTo
-
 /**
- * A context object that holds glance node tree being inspected as well as any state cached
- * across the chain of assertions.
+ * Provides an entry point into testing exposing methods to find glance nodes
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-class TestContext<R, T : GlanceNode<R>> {
+// Equivalent to "androidx.compose.ui.test.SemanticsNodeInteractionsProvider" from compose.
+interface GlanceNodeAssertionsProvider<R, T : GlanceNode<R>> {
     /**
-     * To be called on every onNode to restart matching and clear cache.
+     * Finds a Glance node that matches the given condition.
+     *
+     * Any subsequent operation on its result will expect exactly one element found and will throw
+     * [AssertionError] if none or more than one element is found.
+     *
+     * @param matcher Matcher used for filtering
      */
-    fun reset() {
-        cachedMatchedNodes = emptyList()
-    }
-
-    var rootGlanceNode: T? = null
-    var cachedMatchedNodes: List<GlanceNode<R>> = emptyList()
+    fun onNode(matcher: GlanceNodeMatcher<R>): GlanceNodeAssertion<R, T>
 }
