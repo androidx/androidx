@@ -46,41 +46,28 @@ abstract class GenerateMetadataTask : DefaultTask() {
     @PathSensitive(PathSensitivity.NONE)
     abstract fun getArtifactFiles(): ListProperty<File>
 
+    /** List of multiplatform artifacts to convert to JSON */
+    @Input abstract fun getMultiplatformArtifactIds(): ListProperty<ComponentArtifactIdentifier>
+
+    /** List of files corresponding to artifacts in [getMultiplatformArtifactIds] */
+    @InputFiles
+    @PathSensitive(PathSensitivity.NONE)
+    abstract fun getMultiplatformArtifactFiles(): ListProperty<File>
+
     /** Location of the generated JSON file */
     @get:OutputFile abstract val destinationFile: RegularFileProperty
 
     @TaskAction
     fun generate() {
-        val entries = arrayListOf<MetadataEntry>()
-
-        val artifactIds = getArtifactIds().get()
-        val artifactFiles = getArtifactFiles().get()
-        for (i in 0 until artifactIds.size) {
-            val id = artifactIds[i]
-            val file = artifactFiles[i]
-
-            // Only process artifact if it can be cast to ModuleComponentIdentifier.
-            //
-            // In practice, metadata is generated only for docs-public and not docs-tip-of-tree
-            // (where id.componentIdentifier is DefaultProjectComponentIdentifier).
-            if (id.componentIdentifier !is DefaultModuleComponentIdentifier) continue
-
-            // Created https://github.com/gradle/gradle/issues/21415 to track surfacing
-            // group / module / version in ComponentIdentifier
-            val componentId = (id.componentIdentifier as ModuleComponentIdentifier)
-
-            // Fetch the list of files contained in the .jar file
-            val fileList = ZipFile(file).entries().toList().map { it.name }
-
-            val entry =
-                MetadataEntry(
-                    groupId = componentId.group,
-                    artifactId = componentId.module,
-                    releaseNotesUrl = generateReleaseNotesUrl(componentId.group),
-                    jarContents = fileList
-                )
-            entries.add(entry)
-        }
+        val entries = createEntries(
+            getArtifactIds().get(),
+            getArtifactFiles().get(),
+            multiplatform = false
+        ) + createEntries(
+            getMultiplatformArtifactIds().get(),
+            getMultiplatformArtifactFiles().get(),
+            multiplatform = true
+        )
 
         val gson =
             if (DEBUG) {
@@ -92,6 +79,43 @@ abstract class GenerateMetadataTask : DefaultTask() {
         gson.toJson(entries, writer)
         writer.close()
     }
+
+    private fun createEntries(
+        ids: List<ComponentArtifactIdentifier>,
+        artifacts: List<File>,
+        multiplatform: Boolean
+    ): List<MetadataEntry> =
+        ids.indices.mapNotNull { i ->
+            val id = ids[i]
+            val file = artifacts[i]
+            // Only process artifact if it can be cast to ModuleComponentIdentifier.
+            //
+            // In practice, metadata is generated only for docs-public and not docs-tip-of-tree
+            // (where id.componentIdentifier is DefaultProjectComponentIdentifier).
+            if (id.componentIdentifier !is DefaultModuleComponentIdentifier) return@mapNotNull null
+
+            // Created https://github.com/gradle/gradle/issues/21415 to track surfacing
+            // group / module / version in ComponentIdentifier
+            val componentId = (id.componentIdentifier as ModuleComponentIdentifier)
+
+            // Fetch the list of files contained in the .jar file
+            val fileList = ZipFile(file).entries().toList().map {
+                if (multiplatform) {
+                    // Paths for multiplatform will start with a directory for the platform (e.g.
+                    // "commonMain"), while Dackka only sees the part of the path after this.
+                    it.name.substringAfter("/")
+                } else {
+                    it.name
+                }
+            }
+
+            MetadataEntry(
+                groupId = componentId.group,
+                artifactId = componentId.module,
+                releaseNotesUrl = generateReleaseNotesUrl(componentId.group),
+                jarContents = fileList
+            )
+        }
 
     private fun generateReleaseNotesUrl(groupId: String): String {
         val library = groupId.removePrefix("androidx.").replace(".", "-")
