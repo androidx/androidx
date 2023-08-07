@@ -188,6 +188,36 @@ package androidx.collection {
     method public int trim();
   }
 
+  @kotlin.jvm.JvmInline public final value class PairFloatFloat {
+    ctor public PairFloatFloat(float first, float second);
+    method public operator float component1();
+    method public operator float component2();
+    method public float getFirst();
+    method public float getSecond();
+    property public final float first;
+    property public final float second;
+  }
+
+  @kotlin.jvm.JvmInline public final value class PairIntInt {
+    ctor public PairIntInt(int first, int second);
+    method public operator int component1();
+    method public operator int component2();
+    method public int getFirst();
+    method public int getSecond();
+    property public final int first;
+    property public final int second;
+  }
+
+  public final class PairLongLong {
+    ctor public PairLongLong(long first, long second);
+    method public operator long component1();
+    method public operator long component2();
+    method public long getFirst();
+    method public long getSecond();
+    property public final long first;
+    property public final long second;
+  }
+
   public abstract sealed class ScatterMap<K, V> {
     method public final inline boolean all(kotlin.jvm.functions.Function2<? super K,? super V,java.lang.Boolean> predicate);
     method public final boolean any();
