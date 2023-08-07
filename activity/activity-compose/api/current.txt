@@ -40,6 +40,10 @@ package androidx.activity.compose {
     method @Deprecated public void unregister();
   }
 
+  public final class PredictiveBackHandlerKt {
+    method @androidx.compose.runtime.Composable public static void PredictiveBackHandler(optional boolean enabled, kotlin.jvm.functions.Function2<kotlinx.coroutines.flow.Flow<androidx.activity.BackEventCompat>,? super kotlin.coroutines.Continuation<kotlin.Unit>,?> onBack);
+  }
+
   public final class ReportDrawnKt {
     method @androidx.compose.runtime.Composable public static void ReportDrawn();
     method @androidx.compose.runtime.Composable public static void ReportDrawnAfter(kotlin.jvm.functions.Function1<? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?> block);
