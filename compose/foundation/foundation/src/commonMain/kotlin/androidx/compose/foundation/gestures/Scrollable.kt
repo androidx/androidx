@@ -27,7 +27,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.FocusedBoundsObserverNode
 import androidx.compose.foundation.MutatePriority
 import androidx.compose.foundation.OverscrollEffect
-import androidx.compose.foundation.gestures.BringIntoViewScroller.Companion.DefaultBringIntoViewScroller
+import androidx.compose.foundation.gestures.BringIntoViewSpec.Companion.DefaultBringIntoViewSpec
 import androidx.compose.foundation.gestures.Orientation.Horizontal
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.relocation.BringIntoViewResponderNode
@@ -150,7 +150,7 @@ fun Modifier.scrollable(
  * `null`, default from [ScrollableDefaults.flingBehavior] will be used.
  * @param interactionSource [MutableInteractionSource] that will be used to emit
  * drag events when this scrollable is being dragged.
- * @param bringIntoViewScroller The configuration that this scrollable should use to perform
+ * @param bringIntoViewSpec The configuration that this scrollable should use to perform
  * scrolling when scroll requests are received from the focus system.
  */
 @ExperimentalFoundationApi
@@ -162,7 +162,7 @@ fun Modifier.scrollable(
     reverseDirection: Boolean = false,
     flingBehavior: FlingBehavior? = null,
     interactionSource: MutableInteractionSource? = null,
-    bringIntoViewScroller: BringIntoViewScroller = ScrollableDefaults.bringIntoViewScroller()
+    bringIntoViewSpec: BringIntoViewSpec = ScrollableDefaults.bringIntoViewSpec()
 ) = this then ScrollableElement(
     state,
     orientation,
@@ -171,7 +171,7 @@ fun Modifier.scrollable(
     reverseDirection,
     flingBehavior,
     interactionSource,
-    bringIntoViewScroller
+    bringIntoViewSpec
 )
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -183,7 +183,7 @@ private class ScrollableElement(
     val reverseDirection: Boolean,
     val flingBehavior: FlingBehavior?,
     val interactionSource: MutableInteractionSource?,
-    val bringIntoViewScroller: BringIntoViewScroller
+    val bringIntoViewSpec: BringIntoViewSpec
 ) : ModifierNodeElement<ScrollableNode>() {
     override fun create(): ScrollableNode {
         return ScrollableNode(
@@ -194,7 +194,7 @@ private class ScrollableElement(
             reverseDirection,
             flingBehavior,
             interactionSource,
-            bringIntoViewScroller
+            bringIntoViewSpec
         )
     }
 
@@ -207,7 +207,7 @@ private class ScrollableElement(
             reverseDirection,
             flingBehavior,
             interactionSource,
-            bringIntoViewScroller
+            bringIntoViewSpec
         )
     }
 
@@ -219,7 +219,7 @@ private class ScrollableElement(
         result = 31 * result + reverseDirection.hashCode()
         result = 31 * result + flingBehavior.hashCode()
         result = 31 * result + interactionSource.hashCode()
-        result = 31 * result + bringIntoViewScroller.hashCode()
+        result = 31 * result + bringIntoViewSpec.hashCode()
         return result
     }
 
@@ -235,7 +235,7 @@ private class ScrollableElement(
         if (reverseDirection != other.reverseDirection) return false
         if (flingBehavior != other.flingBehavior) return false
         if (interactionSource != other.interactionSource) return false
-        if (bringIntoViewScroller != other.bringIntoViewScroller) return false
+        if (bringIntoViewSpec != other.bringIntoViewSpec) return false
 
         return true
     }
@@ -249,7 +249,7 @@ private class ScrollableElement(
         properties["reverseDirection"] = reverseDirection
         properties["flingBehavior"] = flingBehavior
         properties["interactionSource"] = interactionSource
-        properties["scrollableBringIntoViewConfig"] = bringIntoViewScroller
+        properties["scrollableBringIntoViewConfig"] = bringIntoViewSpec
     }
 }
 
@@ -262,7 +262,7 @@ private class ScrollableNode(
     private var reverseDirection: Boolean,
     private var flingBehavior: FlingBehavior?,
     private var interactionSource: MutableInteractionSource?,
-    bringIntoViewScroller: BringIntoViewScroller
+    bringIntoViewSpec: BringIntoViewSpec
 ) : DelegatingNode(), ObserverModifierNode, CompositionLocalConsumerModifierNode,
     FocusPropertiesModifierNode {
     val nestedScrollDispatcher = NestedScrollDispatcher()
@@ -288,7 +288,7 @@ private class ScrollableNode(
                 orientation,
                 state,
                 reverseDirection,
-                bringIntoViewScroller
+                bringIntoViewSpec
             )
         )
     val scrollableContainer = delegate(ModifierLocalScrollableContainerProvider(enabled))
@@ -328,7 +328,7 @@ private class ScrollableNode(
         reverseDirection: Boolean,
         flingBehavior: FlingBehavior?,
         interactionSource: MutableInteractionSource?,
-        bringIntoViewScroller: BringIntoViewScroller
+        bringIntoViewSpec: BringIntoViewSpec
     ) {
 
         if (this.enabled != enabled) { // enabled changed
@@ -357,7 +357,7 @@ private class ScrollableNode(
             orientation,
             state,
             reverseDirection,
-            bringIntoViewScroller
+            bringIntoViewSpec
         )
 
         this.state = state
@@ -395,18 +395,18 @@ private class ScrollableNode(
  */
 @ExperimentalFoundationApi
 @Stable
-interface BringIntoViewScroller {
+interface BringIntoViewSpec {
 
     /**
      * A retargetable Animation Spec to be used as the animation to run to fulfill the
      * BringIntoView requests.
      */
-    val scrollAnimationSpec: AnimationSpec<Float>
+    val scrollAnimationSpec: AnimationSpec<Float> get() = DefaultScrollAnimationSpec
 
     /**
      * Calculate the offset needed to bring one of the scrollable container's child into view.
      *
-     * @param offset is the side closest to the origin (For the x-axis this is 'left',
+     * @param offset from the side closest to the origin (For the x-axis this is 'left',
      * for the y-axis this is 'top').
      * @param size is the child size.
      * @param containerSize Is the main axis size of the scrollable container.
@@ -433,7 +433,7 @@ interface BringIntoViewScroller {
          */
         val DefaultScrollAnimationSpec: AnimationSpec<Float> = spring()
 
-        internal val DefaultBringIntoViewScroller = object : BringIntoViewScroller {
+        internal val DefaultBringIntoViewSpec = object : BringIntoViewSpec {
 
             override val scrollAnimationSpec: AnimationSpec<Float> = DefaultScrollAnimationSpec
 
@@ -515,11 +515,11 @@ object ScrollableDefaults {
     }
 
     /**
-     * A default implementation for [BringIntoViewScroller] that brings a child into view
+     * A default implementation for [BringIntoViewSpec] that brings a child into view
      * using the least amount of effort.
      */
     @ExperimentalFoundationApi
-    fun bringIntoViewScroller(): BringIntoViewScroller = DefaultBringIntoViewScroller
+    fun bringIntoViewSpec(): BringIntoViewSpec = DefaultBringIntoViewSpec
 }
 
 internal interface ScrollConfig {

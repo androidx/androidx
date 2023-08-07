@@ -20,7 +20,7 @@ import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.gestures.BringIntoViewScroller
+import androidx.compose.foundation.gestures.BringIntoViewSpec
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.ScrollableState
 import androidx.compose.foundation.gestures.scrollable
@@ -73,15 +73,15 @@ fun Modifier.scrollableWithPivot(
         enabled = enabled,
         reverseDirection = reverseDirection,
         overscrollEffect = null,
-        bringIntoViewScroller = TvBringIntoViewScroller(pivotOffsets, enabled)
+        bringIntoViewSpec = TvBringIntoViewSpec(pivotOffsets, enabled)
     )
 }
 
 @OptIn(ExperimentalFoundationApi::class)
-private class TvBringIntoViewScroller(
+private class TvBringIntoViewSpec(
     val pivotOffsets: PivotOffsets,
     val userScrollEnabled: Boolean
-) : BringIntoViewScroller {
+) : BringIntoViewSpec {
 
     override val scrollAnimationSpec: AnimationSpec<Float> = tween<Float>(
         durationMillis = 125,
@@ -118,7 +118,7 @@ private class TvBringIntoViewScroller(
     }
 
     override fun equals(other: Any?): Boolean {
-        if (other !is TvBringIntoViewScroller) return false
+        if (other !is TvBringIntoViewSpec) return false
         return pivotOffsets == other.pivotOffsets && userScrollEnabled == other.userScrollEnabled
     }
 }
