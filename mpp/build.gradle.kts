@@ -124,6 +124,7 @@ tasks.register("testDesktop") {
     dependsOn(":compose:material:material-ripple:desktopTest")
     dependsOn(":compose:runtime:runtime:desktopTest")
     dependsOn(":compose:runtime:runtime-saveable:desktopTest")
+    dependsOn(":compose:material3:material3:desktopTest")
 }
 
 tasks.register("testWeb") {
@@ -135,6 +136,7 @@ tasks.register("testUIKit") {
         if (System.getProperty("os.arch") == "aarch64") "uikitSimArm64Test" else "uikitX64Test"
     dependsOn(":compose:ui:ui-text:$subtaskName")
     dependsOn(":compose:ui:ui:$subtaskName")
+    dependsOn(":compose:material3:material3:$subtaskName")
 }
 
 tasks.register("testRuntimeNative") {
