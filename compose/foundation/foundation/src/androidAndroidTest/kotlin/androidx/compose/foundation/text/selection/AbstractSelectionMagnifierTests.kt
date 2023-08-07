@@ -607,7 +607,7 @@ internal abstract class AbstractSelectionMagnifierTests {
      */
     // TODO(b/210545925) This is here because we can't disable the touch slop in a popup. When
     //  that's fixed we can just disable slop and delete this function.
-    private fun TouchInjectionScope.movePastSlopBy(delta: Offset) {
+    protected fun TouchInjectionScope.movePastSlopBy(delta: Offset) {
         val slop = Offset(
             x = viewConfiguration.touchSlop * delta.x.sign,
             y = viewConfiguration.touchSlop * delta.y.sign
