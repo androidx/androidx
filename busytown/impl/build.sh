@@ -126,7 +126,11 @@ else
       # We probably won't have enough time to fully diagnose the problem given this timeout, but
       # we might be able to determine whether this problem is reproducible enough for a developer to
       # more easily investigate further
-      ./development/diagnose-build-failure/diagnose-build-failure.sh $DIAGNOSE_TIMEOUT_ARG "--ci $*"
+      ./development/diagnose-build-failure/diagnose-build-failure.sh $DIAGNOSE_TIMEOUT_ARG "--ci $*" || true
+      scansPrevDir="$DIST_DIR/scans-prev"
+      mkdir -p "$scansPrevDir"
+      # restore any prior build scans into the dist dir
+      cp ../../diagnose-build-failure/prev/dist/scan*.zip "$scansPrevDir/" || true
     fi
   fi
   BUILD_STATUS=1 # failure
