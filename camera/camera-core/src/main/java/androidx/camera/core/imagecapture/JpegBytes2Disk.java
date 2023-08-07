@@ -24,7 +24,6 @@ import android.content.ContentValues;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.MediaStore;
-import android.util.Range;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -112,15 +111,7 @@ class JpegBytes2Disk implements Operation<JpegBytes2Disk.In, ImageCapture.Output
             @NonNull File tempFile, @NonNull byte[] bytes) throws ImageCaptureException {
         try (FileOutputStream output = new FileOutputStream(tempFile)) {
             InvalidJpegDataParser invalidJpegDataParser = new InvalidJpegDataParser();
-            Range<Integer> invalidDataRange = invalidJpegDataParser.getInvalidDataRange(bytes);
-
-            if (invalidDataRange != null) {
-                output.write(bytes, 0, invalidDataRange.getLower());
-                output.write(bytes, invalidDataRange.getUpper() + 1,
-                        (bytes.length - invalidDataRange.getUpper() - 1));
-            } else {
-                output.write(bytes);
-            }
+            output.write(bytes, 0, invalidJpegDataParser.getValidDataLength(bytes));
         } catch (IOException e) {
             throw new ImageCaptureException(ERROR_FILE_IO, "Failed to write to temp file", e);
         }
