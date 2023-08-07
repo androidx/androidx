@@ -382,6 +382,18 @@ function removeCaches() {
   rm -rf $OUT_DIR
 }
 
+# Move any preexisting build scan to make room for a new one
+# After moving a build scan several times it eventually gets deleted
+function rotateBuildScans() {
+  filePrefix="$1"
+  iPlus1="10"
+  for i in $(seq 9 -1 1); do
+    mv "${filePrefix}.${i}.zip" "${filePrefix}.${iPlus1}.zip" 2>/dev/null || true
+    iPlus1=$i
+  done
+  mv ${filePrefix}.zip "${filePrefix}.1.zip" 2>/dev/null || true
+}
+
 function runGradle() {
   processOutput=false
   if [[ " ${@} " =~ " -Pandroidx.validateNoUnrecognizedMessages " ]]; then
@@ -422,11 +434,12 @@ function runGradle() {
       scanDir="$GRADLE_USER_HOME/build-scan-data"
       if [ -e "$scanDir" ]; then
         if [[ "$DISALLOW_TASK_EXECUTION" != "" ]]; then
-          zipPath="$DIST_DIR/scan-up-to-date.zip"
+          zipPrefix="$DIST_DIR/scan-up-to-date"
         else
-          zipPath="$DIST_DIR/scan.zip"
+          zipPrefix="$DIST_DIR/scan"
         fi
-        rm -f "$zipPath"
+        rotateBuildScans "$zipPrefix"
+        zipPath="${zipPrefix}.zip"
         cd "$GRADLE_USER_HOME/build-scan-data"
         zip -q -r "$zipPath" .
         cd -
