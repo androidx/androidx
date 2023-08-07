@@ -16,8 +16,8 @@ limitations under the License.
 <resources xmlns:tools="http://schemas.android.com/tools">
 
     <string name="app_name">CameraX Views Demo</string>
+    <string name="app_name_stream_sharing">StreamSharing Test App</string>
     <string name="effects">Effects</string>
-    <string name="stream_sharing">StreamSharing</string>
     <string name="preview">Preview</string>
     <string name="preview_and_video">Preview &amp; Video</string>
     <string name="surface_effect">Surface effect</string>
