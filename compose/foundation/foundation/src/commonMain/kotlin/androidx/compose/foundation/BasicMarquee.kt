@@ -131,6 +131,9 @@ val DefaultMarqueeVelocity: Dp = 30.dp
  * @param spacing A [MarqueeSpacing] that specifies how much space to leave at the end of the
  * content before showing the beginning again.
  * @param velocity The speed of the animation in dps / second.
+ *
+ * Note: this modifier and corresponding APIs are experimental pending some refinements in the API
+ * surface, mostly related to customisation params.
  */
 @ExperimentalFoundationApi
 fun Modifier.basicMarquee(
