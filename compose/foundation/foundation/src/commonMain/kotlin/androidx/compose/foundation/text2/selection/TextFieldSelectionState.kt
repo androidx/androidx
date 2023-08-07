@@ -46,6 +46,7 @@ import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.runtime.structuralEqualityPolicy
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.geometry.isUnspecified
 import androidx.compose.ui.hapticfeedback.HapticFeedback
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.PointerEventPass
@@ -97,10 +98,54 @@ internal class TextFieldSelectionState(
     var isInTouchMode: Boolean by mutableStateOf(true)
 
     /**
-     * Current drag position of a handle for magnifier to read. Only one handle can be dragged
-     * at one time.
+     * The offset of visible bounds when dragging is started by a cursor or a selection handle.
+     * Total drag value needs to account for any auto scrolling that happens during the scroll.
+     * This value is an anchor to calculate how much the visible bounds have shifted as the
+     * dragging continues. If a cursor or a selection handle is not dragging, this value needs to be
+     * [Offset.Unspecified]. This includes long press and drag gesture defined on TextField.
      */
-    var handleDragPosition by mutableStateOf<Offset?>(null)
+    private var startContentVisibleOffset by mutableStateOf(Offset.Unspecified)
+
+    /**
+     * Calculates the offset of currently visible bounds.
+     */
+    private val currentContentVisibleOffset: Offset
+        get() = innerCoordinates
+            ?.visibleBounds()
+            ?.topLeft ?: Offset.Unspecified
+
+    /**
+     * Current drag position of a handle for magnifier to read. Only one handle can be dragged
+     * at one time. This uses raw position as in only gesture start position and delta are used to
+     * calculate it. If a scroll is caused by the selection changes while the gesture is active,
+     * it is not reflected on this value. See [handleDragPosition] for such a  behavior.
+     */
+    private var rawHandleDragPosition by mutableStateOf(Offset.Unspecified)
+
+    /**
+     * Defines where the handle exactly is in inner text field coordinates. This is mainly used by
+     * Magnifier to anchor itself. Also, it provides an updated total drag value to cursor and
+     * selection handles to continue scrolling as they are dragged outside the visible bounds.
+     */
+    val handleDragPosition: Offset
+        get() {
+            return when {
+                // nothing is being dragged.
+                rawHandleDragPosition.isUnspecified -> {
+                    Offset.Unspecified
+                }
+                // no real handle is being dragged, we need to offset the drag position by current
+                // inner-decorator relative positioning.
+                startContentVisibleOffset.isUnspecified -> {
+                    with(textLayoutState) { rawHandleDragPosition.relativeToInputText() }
+                }
+                // a cursor or a selection handle is being dragged, offset by comparing the current
+                // and starting visible offsets.
+                else -> {
+                    rawHandleDragPosition + currentContentVisibleOffset - startContentVisibleOffset
+                }
+            }
+        }
 
     /**
      * Which selection handle is currently being dragged.
@@ -257,6 +302,7 @@ internal class TextFieldSelectionState(
             launch(start = CoroutineStart.UNDISPATCHED) {
                 detectPressDownGesture(
                     onDown = {
+                        markStartContentVisibleOffset()
                         updateHandleDragging(
                             handle = if (isStartHandle) {
                                 Handle.SelectionStart
@@ -373,16 +419,12 @@ internal class TextFieldSelectionState(
     }
 
     private suspend fun PointerInputScope.detectCursorHandleDragGestures() {
-        // keep track of how visible bounds change while moving the cursor handle.
-        var startContentVisibleOffset: Offset = Offset.Zero
-
         var cursorDragStart = Offset.Unspecified
         var cursorDragDelta = Offset.Unspecified
 
         fun onDragStop() {
             cursorDragStart = Offset.Unspecified
             cursorDragDelta = Offset.Unspecified
-            startContentVisibleOffset = Offset.Zero
             clearHandleDragging()
         }
 
@@ -393,10 +435,8 @@ internal class TextFieldSelectionState(
                     // mark start drag point
                     cursorDragStart = getAdjustedCoordinates(cursorRect.bottomCenter)
                     cursorDragDelta = Offset.Zero
-                    startContentVisibleOffset = innerCoordinates
-                        ?.visibleBounds()
-                        ?.topLeft ?: Offset.Zero
                     isInTouchMode = true
+                    markStartContentVisibleOffset()
                     updateHandleDragging(Handle.Cursor, cursorDragStart)
                 },
                 onDragEnd = { onDragStop() },
@@ -404,20 +444,10 @@ internal class TextFieldSelectionState(
                 onDrag = onDrag@{ change, dragAmount ->
                     cursorDragDelta += dragAmount
 
-                    val currentContentVisibleOffset = innerCoordinates
-                        ?.visibleBounds()
-                        ?.topLeft ?: startContentVisibleOffset
-
-                    // "start position + total delta" is not enough to understand the current pointer
-                    // position relative to text layout. We need to also account for any changes to
-                    // visible offset that's caused by auto-scrolling while dragging.
-                    val currentDragPosition = cursorDragStart + cursorDragDelta +
-                        (currentContentVisibleOffset - startContentVisibleOffset)
-
-                    updateHandleDragging(Handle.Cursor, currentDragPosition)
+                    updateHandleDragging(Handle.Cursor, cursorDragStart + cursorDragDelta)
 
                     val layoutResult = textLayoutState.layoutResult ?: return@onDrag
-                    val offset = layoutResult.getOffsetForPosition(currentDragPosition)
+                    val offset = layoutResult.getOffsetForPosition(handleDragPosition)
 
                     val newSelection = TextRange(offset)
 
@@ -445,6 +475,7 @@ internal class TextFieldSelectionState(
         var dragBeginPosition: Offset = Offset.Unspecified
         var dragTotalDistance: Offset = Offset.Zero
 
+        // offsets received by this gesture detector are in decoration box coordinates
         detectDragGesturesAfterLongPress(
             onDragStart = onDragStart@{ dragStartOffset ->
                 logDebug { "onDragStart after longPress $dragStartOffset" }
@@ -525,11 +556,8 @@ internal class TextFieldSelectionState(
                 // pointer position relative to text layout. We need to also account for any
                 // changes to visible offset that's caused by auto-scrolling while dragging.
                 val currentDragPosition = dragBeginPosition + dragTotalDistance
-                val magnifierPosition = with(textLayoutState) {
-                    currentDragPosition.relativeToInputText()
-                }
 
-                logDebug { "onDrag after longPress $currentDragPosition $magnifierPosition" }
+                logDebug { "onDrag after longPress $currentDragPosition" }
 
                 val startOffset: Int
                 val endOffset: Int
@@ -598,7 +626,7 @@ internal class TextFieldSelectionState(
                 dragPreviousOffset = endOffset
                 updateHandleDragging(
                     handle = actingHandle,
-                    position = magnifierPosition
+                    position = currentDragPosition
                 )
             }
         )
@@ -607,11 +635,8 @@ internal class TextFieldSelectionState(
     private suspend fun PointerInputScope.detectSelectionHandleDragGestures(
         isStartHandle: Boolean
     ) {
-        // keep track of how visible bounds change while moving the selection handle.
-        var startContentVisibleOffset: Offset = Offset.Zero
-
         var dragBeginPosition: Offset = Offset.Unspecified
-        var dragTotalDistance: Offset = Offset.Unspecified
+        var dragTotalDistance: Offset = Offset.Zero
         var previousDragOffset = -1
         val handle = if (isStartHandle) Handle.SelectionStart else Handle.SelectionEnd
 
@@ -619,7 +644,6 @@ internal class TextFieldSelectionState(
             clearHandleDragging()
             dragBeginPosition = Offset.Unspecified
             dragTotalDistance = Offset.Zero
-            startContentVisibleOffset = Offset.Zero
         }
 
         // b/288931376: detectDragGestures do not call onDragCancel when composable is disposed.
@@ -630,11 +654,9 @@ internal class TextFieldSelectionState(
                     // the composable coordinates.
                     dragBeginPosition = getAdjustedCoordinates(getHandlePosition(isStartHandle))
 
+                    // no need to call markStartContentVisibleOffset, since it was called by the
+                    // initial down event.
                     updateHandleDragging(handle, dragBeginPosition)
-
-                    startContentVisibleOffset = innerCoordinates
-                        ?.visibleBounds()
-                        ?.topLeft ?: Offset.Zero
 
                     // Zero out the total distance that being dragged.
                     dragTotalDistance = Offset.Zero
@@ -650,20 +672,10 @@ internal class TextFieldSelectionState(
                     dragTotalDistance += delta
                     val layoutResult = textLayoutState.layoutResult ?: return@onDrag
 
-                    val currentContentVisibleOffset = innerCoordinates
-                        ?.visibleBounds()
-                        ?.topLeft ?: startContentVisibleOffset
-
-                    // "start position + total delta" is not enough to understand the current
-                    // pointer position relative to text layout. We need to also account for any
-                    // changes to visible offset that's caused by auto-scrolling while dragging.
-                    val currentDragPosition = dragBeginPosition + dragTotalDistance +
-                        (currentContentVisibleOffset - startContentVisibleOffset)
-
-                    updateHandleDragging(handle, currentDragPosition)
+                    updateHandleDragging(handle, dragBeginPosition + dragTotalDistance)
 
                     val startOffset = if (isStartHandle) {
-                        layoutResult.getOffsetForPosition(currentDragPosition)
+                        layoutResult.getOffsetForPosition(handleDragPosition)
                     } else {
                         textFieldState.text.selectionInChars.start
                     }
@@ -671,7 +683,7 @@ internal class TextFieldSelectionState(
                     val endOffset = if (isStartHandle) {
                         textFieldState.text.selectionInChars.end
                     } else {
-                        layoutResult.getOffsetForPosition(currentDragPosition)
+                        layoutResult.getOffsetForPosition(handleDragPosition)
                     }
 
                     val prevSelection = textFieldState.text.selectionInChars
@@ -872,10 +884,27 @@ internal class TextFieldSelectionState(
     /**
      * Sets currently dragging handle state to [handle] and positions it at [position]. This is
      * mostly useful for updating the magnifier.
+     *
+     * @param handle A real or acting handle that specifies which one is being dragged.
+     * @param position Where the handle currently is
      */
-    private fun updateHandleDragging(handle: Handle, position: Offset) {
+    private fun updateHandleDragging(
+        handle: Handle,
+        position: Offset
+    ) {
         draggingHandle = handle
-        handleDragPosition = position
+        rawHandleDragPosition = position
+    }
+
+    /**
+     * When a Selection or Cursor Handle is started to being dragged, this function should be called
+     * to mark the current visible offset, so that if content gets scrolled during the drag, we
+     * can correctly offset the actual position where drag corresponds to.
+     */
+    private fun markStartContentVisibleOffset() {
+        startContentVisibleOffset = innerCoordinates
+            ?.visibleBounds()
+            ?.topLeft ?: Offset.Unspecified
     }
 
     /**
@@ -883,7 +912,8 @@ internal class TextFieldSelectionState(
      */
     private fun clearHandleDragging() {
         draggingHandle = null
-        handleDragPosition = null
+        rawHandleDragPosition = Offset.Unspecified
+        startContentVisibleOffset = Offset.Unspecified
     }
 
     /**
@@ -1092,7 +1122,7 @@ internal class TextFieldSelectionState(
 
 private fun TextRange.reverse() = TextRange(end, start)
 
-private val DEBUG = true
+private val DEBUG = false
 private val DEBUG_TAG = "TextFieldSelectionState"
 
 private fun logDebug(text: () -> String) {

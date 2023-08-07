@@ -25,6 +25,7 @@ import androidx.compose.foundation.text2.input.internal.TextLayoutState
 import androidx.compose.foundation.text2.input.internal.coerceIn
 import androidx.compose.foundation.text2.input.internal.fromInnerToDecoration
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.isUnspecified
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.OnGloballyPositionedModifier
@@ -72,10 +73,13 @@ internal fun calculateSelectionMagnifierCenterAndroid(
     magnifierSize: IntSize
 ): Offset {
     // state read of currentDragPosition so that we always recompose on drag position changes
-    val localDragPosition = selectionState.handleDragPosition ?: return Offset.Unspecified
+    val localDragPosition = selectionState.handleDragPosition
 
+    // Do not show the magnifier if origin position is already Unspecified.
     // Never show the magnifier in an empty text field.
-    if (textFieldState.text.isEmpty()) return Offset.Unspecified
+    if (localDragPosition.isUnspecified || textFieldState.text.isEmpty()) {
+        return Offset.Unspecified
+    }
 
     val selection = textFieldState.text.selectionInChars
     val textOffset = when (selectionState.draggingHandle) {
