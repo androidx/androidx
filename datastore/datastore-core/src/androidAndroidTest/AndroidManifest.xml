@@ -17,26 +17,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <application>
         <service
-            android:name="androidx.datastore.core.MultiProcessDataStoreMultiProcessTest$ConcurrentReadUpdateWriterFileService"
-            android:enabled="true"
-            android:exported="false"
-            android:process=":ConcurrentReadUpdateWriterFileService" />
-        <service
-            android:name="androidx.datastore.core.MultiProcessDataStoreMultiProcessTest$ConcurrentReadUpdateWriterOkioService"
-            android:enabled="true"
-            android:exported="false"
-            android:process=":ConcurrentReadUpdateWriterOkioService" />
-        <service
-            android:name="androidx.datastore.core.MultiProcessDataStoreMultiProcessTest$ConcurrentReadUpdateReaderFileService"
-            android:enabled="true"
-            android:exported="false"
-            android:process=":ConcurrentReadUpdateReaderFileService" />
-        <service
-            android:name="androidx.datastore.core.MultiProcessDataStoreMultiProcessTest$ConcurrentReadUpdateReaderOkioService"
-            android:enabled="true"
-            android:exported="false"
-            android:process=":ConcurrentReadUpdateReaderOkioService" />
-        <service
             android:name="androidx.datastore.core.MultiProcessDataStoreMultiProcessTest$InterleavedUpdateDataFileService"
             android:enabled="true"
             android:exported="false"

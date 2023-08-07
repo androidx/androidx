@@ -20,7 +20,10 @@ import androidx.datastore.core.multiprocess.ipcActions.ReadTextAction
 import androidx.datastore.core.multiprocess.ipcActions.SetTextAction
 import androidx.datastore.core.multiprocess.ipcActions.StorageVariant
 import androidx.datastore.core.multiprocess.ipcActions.createMultiProcessTestDatastore
+import androidx.datastore.core.twoWayIpc.InterProcessCompletable
+import androidx.datastore.core.twoWayIpc.IpcUnit
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.first
 import org.junit.Rule
 import org.junit.Test
@@ -61,4 +64,71 @@ class MultiProcessDataStoreIpcTest {
             ).value
         ).isEqualTo("hostValue")
     }
+
+    @Test
+    fun testConcurrentReadUpdate_file() = testConcurrentReadUpdate(StorageVariant.FILE)
+
+    @Test
+    fun testConcurrentReadUpdate_okio() = testConcurrentReadUpdate(StorageVariant.OKIO)
+
+    private fun testConcurrentReadUpdate(storageVariant: StorageVariant) =
+        multiProcessRule.runTest {
+            val subject1 = multiProcessRule.createConnection().createSubject(
+                multiProcessRule.datastoreScope
+            )
+            val subject2 = multiProcessRule.createConnection().createSubject(
+                multiProcessRule.datastoreScope
+            )
+            val file = tmpFolder.newFile()
+            val dataStore = createMultiProcessTestDatastore(
+                filePath = file.canonicalPath,
+                storageVariant = storageVariant,
+                hostDatastoreScope = multiProcessRule.datastoreScope,
+                subjects = arrayOf(subject1, subject2)
+            )
+            // start with data
+            dataStore.updateData {
+                it.toBuilder().setText("hostData").build()
+            }
+            val commitWriteLatch = InterProcessCompletable<IpcUnit>()
+            val writeStartedLatch = InterProcessCompletable<IpcUnit>()
+            val setTextAction = async {
+                subject1.invokeInRemoteProcess(
+                    SetTextAction(
+                        value = "remoteValue",
+                        commitTransactionLatch = commitWriteLatch,
+                        transactionStartedLatch = writeStartedLatch
+                    )
+                )
+            }
+            writeStartedLatch.await(subject1)
+            // we can still read
+            assertThat(dataStore.data.first().text).isEqualTo("hostData")
+            // writer process can read data
+            assertThat(
+                subject1.invokeInRemoteProcess(
+                    ReadTextAction()
+                ).value
+            ).isEqualTo("hostData")
+            // another process can read data
+            assertThat(
+                subject2.invokeInRemoteProcess(
+                    ReadTextAction()
+                ).value
+            ).isEqualTo("hostData")
+            commitWriteLatch.complete(subject1, IpcUnit)
+            setTextAction.await()
+            // now everyone should see the new value
+            assertThat(dataStore.data.first().text).isEqualTo("remoteValue")
+            assertThat(
+                subject1.invokeInRemoteProcess(
+                    ReadTextAction()
+                ).value
+            ).isEqualTo("remoteValue")
+            assertThat(
+                subject2.invokeInRemoteProcess(
+                    ReadTextAction()
+                ).value
+            ).isEqualTo("remoteValue")
+        }
 }
