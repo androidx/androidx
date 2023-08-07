@@ -42,6 +42,7 @@ import androidx.camera.video.Recording
 import androidx.camera.video.VideoCapture
 import androidx.camera.video.VideoRecordEvent
 import androidx.camera.view.PreviewView
+import androidx.camera.view.PreviewView.ImplementationMode
 import androidx.core.content.ContextCompat
 import androidx.core.util.Consumer
 
@@ -61,6 +62,11 @@ private const val INTENT_EXTRA_CAMERA_DIRECTION = "camera_direction"
 private const val CAMERA_DIRECTION_BACK = "back"
 private const val CAMERA_DIRECTION_FRONT = "front"
 
+// Possible values for this intent key (case-insensitive): "compatible", "performance".
+private const val INTENT_PREVIEW_VIEW_MODE = "preview_view_mode"
+private const val PREVIEW_VIEW_COMPATIBLE_MODE = "compatible"
+private const val PREVIEW_VIEW_PERFORMANCE_MODE = "performance"
+
 class StreamSharingActivity : AppCompatActivity() {
 
     private lateinit var previewView: PreviewView
@@ -69,6 +75,7 @@ class StreamSharingActivity : AppCompatActivity() {
     private lateinit var useCases: Array<UseCase>
     private var cameraSelector: CameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
     private var camera: Camera? = null
+    private var previewViewMode: ImplementationMode = ImplementationMode.PERFORMANCE
     private var activeRecording: Recording? = null
     private var isUseCasesBound: Boolean = false
     private var deviceOrientation: Int = -1
@@ -89,10 +96,12 @@ class StreamSharingActivity : AppCompatActivity() {
         if (bundle != null) {
             parseScreenOrientationAndSetValueIfNeed(bundle)
             parseCameraSelector(bundle)
+            parsePreviewViewMode(bundle)
         }
 
         // Initial view objects.
         previewView = findViewById(R.id.preview_view)
+        previewView.implementationMode = previewViewMode
         exportButton = findViewById(R.id.export_button)
         exportButton.setOnClickListener {
             exportTestInformation()
@@ -130,6 +139,15 @@ class StreamSharingActivity : AppCompatActivity() {
             cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
         } else if (CAMERA_DIRECTION_FRONT.equals(cameraDirection, true)) {
             cameraSelector = CameraSelector.DEFAULT_FRONT_CAMERA
+        }
+    }
+
+    private fun parsePreviewViewMode(bundle: Bundle) {
+        val mode = bundle.getString(INTENT_PREVIEW_VIEW_MODE)
+        if (PREVIEW_VIEW_COMPATIBLE_MODE.equals(mode, true)) {
+            previewViewMode = ImplementationMode.COMPATIBLE
+        } else if (PREVIEW_VIEW_PERFORMANCE_MODE.equals(mode, true)) {
+            previewViewMode = ImplementationMode.PERFORMANCE
         }
     }
 
