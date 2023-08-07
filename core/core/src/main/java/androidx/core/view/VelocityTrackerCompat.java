@@ -21,16 +21,21 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
 import android.os.Build;
+import android.view.InputDevice;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
 
 import androidx.annotation.DoNotInline;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 
 import java.lang.annotation.Retention;
+import java.util.Collections;
+import java.util.Map;
+import java.util.WeakHashMap;
 
 /** Helper for accessing features in {@link VelocityTracker}. */
 public final class VelocityTrackerCompat {
@@ -42,6 +47,37 @@ public final class VelocityTrackerCompat {
             MotionEvent.AXIS_SCROLL
     })
     public @interface VelocityTrackableMotionEventAxis {}
+
+    /**
+     * Mapping of platform velocity trackers to their respective fallback.
+     *
+     * <p>This mapping is used to provide a consistent add/clear/getVelocity experience for axes
+     * that may not be supported at a given Android version. Clients can continue to call the
+     * compat's add/clear/compute/getVelocity with the platform tracker instances, and this class
+     * will assign a "fallback" tracker instance for each unique platform tracker instance to
+     * consistently run these operations just as they would run on the platorm instances.
+     *
+     * <p>Since the compat APIs have been provided statically, we will use a singleton compat
+     * instance to manage the mappings whenever we need a "fallback" handling for velocity.
+     *
+     * <p>High level flow for a compat velocity logic for a platform-unsupported axis "A" looks
+     * as follows:
+     *     [1]. add(platformTracker, event):
+     *         [a] Create fallback tracker, and associate it with "platformTracker`.
+     *         [b] Add `event` to the fallback tracker.
+     *     [2]. computeCurrentVelocity(platformTracker, event):
+     *         [a] If there is no associated fallback tracker for `platformTracker`, exit.
+     *         [b] If there's a fallback, compute current velocity for the fallback.
+     *     [3]. getAxisVelocity(platformTracker, axis):
+     *         [a] If there is no associated fallback tracker for `platformTracker`, exit.
+     *         [b] If there's a fallback, return the velocity from the fallback.
+     *     [4]. clear/recycle(platformTracker)
+     *         [a] Remove any association between `platformTracker` and a fallback tracker.
+     *
+     */
+    private static Map<VelocityTracker, VelocityTrackerFallback> sFallbackTrackers =
+            Collections.synchronizedMap(new WeakHashMap<>());
+
     /**
      * Call {@link VelocityTracker#getXVelocity(int)}.
      * If running on a pre-{@link Build.VERSION_CODES#HONEYCOMB} device,
@@ -87,7 +123,9 @@ public final class VelocityTrackerCompat {
         if (Build.VERSION.SDK_INT >= 34) {
             return Api34Impl.isAxisSupported(tracker, axis);
         }
-        return axis == MotionEvent.AXIS_X || axis == MotionEvent.AXIS_Y;
+        return axis == MotionEvent.AXIS_SCROLL // Supported via VelocityTrackerFallback.
+                || axis == MotionEvent.AXIS_X // Supported by platform at all API levels.
+                || axis == MotionEvent.AXIS_Y; // Supported by platform at all API levels.
     }
 
     /**
@@ -107,12 +145,22 @@ public final class VelocityTrackerCompat {
         if (Build.VERSION.SDK_INT >= 34) {
             return Api34Impl.getAxisVelocity(tracker, axis);
         }
+
+        // For X and Y axes, use the `get*Velocity` APIs that existed at all API levels.
         if (axis == MotionEvent.AXIS_X) {
             return tracker.getXVelocity();
         }
         if (axis == MotionEvent.AXIS_Y) {
             return tracker.getYVelocity();
         }
+
+        // For any other axis before API 34, use the corresponding VelocityTrackerFallback, if any,
+        // to determine the velocity.
+        VelocityTrackerFallback fallback = getFallbackTrackerOrNull(tracker);
+        if (fallback != null) {
+            return fallback.getAxisVelocity(axis);
+        }
+
         return  0;
     }
 
@@ -125,8 +173,9 @@ public final class VelocityTrackerCompat {
      * supported since the introduction of this class, the following axes can be candidates for this
      * method:
      * <ul>
-     *   <li> {@link MotionEvent#AXIS_SCROLL}: supported starting
-     *        {@link Build.VERSION_CODES#UPSIDE_DOWN_CAKE}
+     *   <li> {@link MotionEvent#AXIS_SCROLL}: supported via the platform starting
+     *        {@link Build.VERSION_CODES#UPSIDE_DOWN_CAKE}. Supported via a fallback logic at all
+     *        platform levels for the active pointer only.
      * </ul>
      *
      * <p>Before accessing velocities of an axis using this method, check that your
@@ -155,7 +204,92 @@ public final class VelocityTrackerCompat {
             return tracker.getYVelocity(pointerId);
         }
         return  0;
+    }
 
+    /** Reset the velocity tracker back to its initial state. */
+    public static void clear(@NonNull VelocityTracker tracker) {
+        tracker.clear();
+        removeFallbackForTracker(tracker);
+    }
+
+    /**
+     * Return a VelocityTracker object back to be re-used by others.  You must not touch the object
+     * after calling this function. That is, don't call any methods on it, or pass it as an input to
+     * any of this class' compat APIs, as the instance is no longer valid for velocity tracking.
+     */
+    public static void recycle(@NonNull VelocityTracker tracker) {
+        tracker.recycle();
+        removeFallbackForTracker(tracker);
+    }
+
+    /**
+     * Compute the current velocity based on the points that have been
+     * collected. Only call this when you actually want to retrieve velocity
+     * information, as it is relatively expensive.  You can then retrieve
+     * the velocity with {@link #getAxisVelocity(VelocityTracker, int)} ()}.
+     *
+     * @param tracker The {@link VelocityTracker} for which to compute velocity.
+     * @param units The units you would like the velocity in.  A value of 1
+     * provides units per millisecond, 1000 provides units per second, etc.
+     * Note that the units referred to here are the same units with which motion is reported. For
+     * axes X and Y, the units are pixels.
+     * @param maxVelocity The maximum velocity that can be computed by this method.
+     * This value must be declared in the same unit as the units parameter. This value
+     * must be positive.
+     */
+    public static void computeCurrentVelocity(
+            @NonNull VelocityTracker tracker, int units, float maxVelocity) {
+        tracker.computeCurrentVelocity(units, maxVelocity);
+        VelocityTrackerFallback fallback = getFallbackTrackerOrNull(tracker);
+        if (fallback != null) {
+            fallback.computeCurrentVelocity(units, maxVelocity);
+        }
+    }
+
+    /**
+     * Equivalent to invoking {@link #computeCurrentVelocity(VelocityTracker, int, float)} with a
+     * maximum velocity of Float.MAX_VALUE.
+     */
+    public static void computeCurrentVelocity(@NonNull VelocityTracker tracker, int units) {
+        VelocityTrackerCompat.computeCurrentVelocity(tracker, units, Float.MAX_VALUE);
+    }
+
+    /**
+     * Add a user's movement to the tracker.
+     *
+     * <p>For pointer events, you should call this for the initial
+     * {@link MotionEvent#ACTION_DOWN}, the following
+     * {@link MotionEvent#ACTION_MOVE} events that you receive, and the final
+     * {@link MotionEvent#ACTION_UP}.  You can, however, call this
+     * for whichever events you desire.
+     *
+     * @param tracker The {@link VelocityTracker} to add the movement to.
+     * @param event The MotionEvent you received and would like to track.
+     */
+    public static void addMovement(@NonNull VelocityTracker tracker, @NonNull MotionEvent event) {
+        tracker.addMovement(event);
+        if (Build.VERSION.SDK_INT >= 34) {
+            // For API levels 34 and above, we currently do not support any compat logic.
+            return;
+        }
+
+        if (event.getSource() == InputDevice.SOURCE_ROTARY_ENCODER) {
+            // We support compat logic for AXIS_SCROLL.
+            // Initialize the compat instance if needed.
+            if (!sFallbackTrackers.containsKey(tracker)) {
+                sFallbackTrackers.put(tracker, new VelocityTrackerFallback());
+            }
+            sFallbackTrackers.get(tracker).addMovement(event);
+        }
+    }
+
+    private static void removeFallbackForTracker(VelocityTracker tracker) {
+        sFallbackTrackers.remove(tracker);
+    }
+
+    @Nullable
+    private static VelocityTrackerFallback getFallbackTrackerOrNull(VelocityTracker tracker) {
+        return sFallbackTrackers.get(tracker);
     }
 
     @RequiresApi(34)

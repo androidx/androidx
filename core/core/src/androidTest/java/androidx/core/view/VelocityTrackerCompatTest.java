@@ -24,6 +24,7 @@ import static androidx.core.view.MotionEventCompat.AXIS_SCROLL;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 
 import android.os.Build;
@@ -60,7 +61,7 @@ public class VelocityTrackerCompatTest {
      * is added to a tracker. For velocities to be non-zero, we should generally have 2/3 movements,
      * so 4 is a good value to use.
      */
-    private static final int NUM_MOVEMENTS = 4;
+    private static final int NUM_MOVEMENTS = 8;
 
     private VelocityTracker mPlanarTracker;
     private VelocityTracker mScrollTracker;
@@ -97,8 +98,14 @@ public class VelocityTrackerCompatTest {
             addScrollMotionEvent(2, time, scrollPointer2);
         }
 
-        mPlanarTracker.computeCurrentVelocity(1000);
-        mScrollTracker.computeCurrentVelocity(1000);
+        // Assert that all velocity is 0 before compute is called.
+        assertEquals(0, VelocityTrackerCompat.getAxisVelocity(mPlanarTracker, AXIS_X), 0);
+        assertEquals(0, VelocityTrackerCompat.getAxisVelocity(mPlanarTracker, AXIS_Y), 0);
+        assertEquals(
+                0, VelocityTrackerCompat.getAxisVelocity(mScrollTracker, AXIS_SCROLL), 0);
+
+        VelocityTrackerCompat.computeCurrentVelocity(mPlanarTracker, 1000);
+        VelocityTrackerCompat.computeCurrentVelocity(mScrollTracker, 1000);
     }
 
     @Test
@@ -108,15 +115,12 @@ public class VelocityTrackerCompatTest {
     }
 
     @Test
-    public void testIsAxisSupported_nonPlanarAxes() {
-        if (Build.VERSION.SDK_INT >= 34) {
-            assertTrue(
-                    VelocityTrackerCompat.isAxisSupported(VelocityTracker.obtain(), AXIS_SCROLL));
-        } else {
-            assertFalse(
-                    VelocityTrackerCompat.isAxisSupported(VelocityTracker.obtain(), AXIS_SCROLL));
-        }
+    public void testIsAxisSupported_axisScroll() {
+        assertTrue(VelocityTrackerCompat.isAxisSupported(VelocityTracker.obtain(), AXIS_SCROLL));
+    }
 
+    @Test
+    public void testIsAxisSupported_nonPlanarAxes() {
         // Check against an axis that has not yet been supported at any Android version.
         assertFalse(VelocityTrackerCompat.isAxisSupported(VelocityTracker.obtain(), AXIS_BRAKE));
     }
@@ -167,14 +171,18 @@ public class VelocityTrackerCompatTest {
 
     @Test
     public void testGetAxisVelocity_axisScroll_noPointerId() {
-        float compatScrollVelocity =
-                VelocityTrackerCompat.getAxisVelocity(mScrollTracker, AXIS_SCROLL);
+        float compatVelocity = VelocityTrackerCompat.getAxisVelocity(mScrollTracker, AXIS_SCROLL);
 
-        if (Build.VERSION.SDK_INT >= 34) {
-            assertEquals(mScrollTracker.getAxisVelocity(AXIS_SCROLL), compatScrollVelocity, 0);
-        } else {
-            assertEquals(0, compatScrollVelocity, 0);
-        }
+        assertEquals(SCROLL_VEL_POINTER_ID_1 * 1000, compatVelocity, 0);
+
+        compatVelocity = VelocityTrackerCompat.getAxisVelocity(mScrollTracker, AXIS_SCROLL);
+
+        assertEquals(SCROLL_VEL_POINTER_ID_1 * 1000, compatVelocity, 0);
+
+        VelocityTrackerCompat.clear(mScrollTracker);
+        compatVelocity = VelocityTrackerCompat.getAxisVelocity(mScrollTracker, AXIS_SCROLL);
+
+        assertEquals(0, compatVelocity, 0);
     }
 
     @Test
@@ -183,6 +191,7 @@ public class VelocityTrackerCompatTest {
                 VelocityTrackerCompat.getAxisVelocity(mScrollTracker, AXIS_SCROLL, 2);
 
         if (Build.VERSION.SDK_INT >= 34) {
+            assertNotEquals(0, compatScrollVelocity);
             assertEquals(mScrollTracker.getAxisVelocity(AXIS_SCROLL, 2), compatScrollVelocity, 0);
         } else {
             assertEquals(0, compatScrollVelocity, 0);
@@ -192,7 +201,7 @@ public class VelocityTrackerCompatTest {
 
     private void addPlanarMotionEvent(int pointerId, long time, float x, float y) {
         MotionEvent ev = MotionEvent.obtain(0L, time, MotionEvent.ACTION_MOVE, x, y, 0);
-        mPlanarTracker.addMovement(ev);
+        VelocityTrackerCompat.addMovement(mPlanarTracker, ev);
         ev.recycle();
     }
     private void addScrollMotionEvent(int pointerId, long time, float scrollAmount) {
@@ -216,7 +225,7 @@ public class VelocityTrackerCompatTest {
                 0 /* edgeFlags */,
                 InputDevice.SOURCE_ROTARY_ENCODER,
                 0 /* flags */);
-        mScrollTracker.addMovement(ev);
+        VelocityTrackerCompat.addMovement(mScrollTracker, ev);
         ev.recycle();
     }
 }
