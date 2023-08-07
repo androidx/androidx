@@ -278,6 +278,155 @@ class TextFieldBufferTest {
         }
     }
 
+    @Test
+    fun setTextIfChanged_updatesText_whenChanged() {
+        val text = "hello"
+        val buffer = TextFieldBuffer(TextFieldCharSequence(text))
+
+        buffer.setTextIfChanged("world")
+
+        assertThat(buffer.changes.changeCount).isEqualTo(1)
+        assertThat(buffer.toString()).isEqualTo("world")
+        assertThat(buffer.changes.getOriginalRange(0)).isEqualTo(TextRange(0, 5))
+        assertThat(buffer.changes.getRange(0)).isEqualTo(TextRange(0, 5))
+    }
+
+    @Test
+    fun setTextIfChanged_updatesText_whenPrefixChanged() {
+        val text = "hello"
+        val buffer = TextFieldBuffer(TextFieldCharSequence(text))
+
+        buffer.setTextIfChanged("1ello")
+
+        assertThat(buffer.changes.changeCount).isEqualTo(1)
+        assertThat(buffer.toString()).isEqualTo("1ello")
+        assertThat(buffer.changes.getOriginalRange(0)).isEqualTo(TextRange(0, 5))
+        assertThat(buffer.changes.getRange(0)).isEqualTo(TextRange(0, 5))
+    }
+
+    @Test
+    fun setTextIfChanged_updatesText_whenPrefixAdded() {
+        val text = "hello"
+        val buffer = TextFieldBuffer(TextFieldCharSequence(text))
+
+        buffer.setTextIfChanged("1hello")
+
+        assertThat(buffer.changes.changeCount).isEqualTo(1)
+        assertThat(buffer.toString()).isEqualTo("1hello")
+        assertThat(buffer.changes.getOriginalRange(0)).isEqualTo(TextRange(0, 5))
+        assertThat(buffer.changes.getRange(0)).isEqualTo(TextRange(0, 6))
+    }
+
+    @Test
+    fun setTextIfChanged_updatesText_whenPrefixRemoved() {
+        val text = "hello"
+        val buffer = TextFieldBuffer(TextFieldCharSequence(text))
+
+        buffer.setTextIfChanged("ello")
+
+        assertThat(buffer.changes.changeCount).isEqualTo(1)
+        assertThat(buffer.toString()).isEqualTo("ello")
+        assertThat(buffer.changes.getOriginalRange(0)).isEqualTo(TextRange(0, 5))
+        assertThat(buffer.changes.getRange(0)).isEqualTo(TextRange(0, 4))
+    }
+
+    @Test
+    fun setTextIfChanged_updatesText_whenSuffixChanged() {
+        val text = "hello"
+        val buffer = TextFieldBuffer(TextFieldCharSequence(text))
+
+        buffer.setTextIfChanged("hell1")
+
+        assertThat(buffer.changes.changeCount).isEqualTo(1)
+        assertThat(buffer.toString()).isEqualTo("hell1")
+        assertThat(buffer.changes.getOriginalRange(0)).isEqualTo(TextRange(0, 5))
+        assertThat(buffer.changes.getRange(0)).isEqualTo(TextRange(0, 5))
+    }
+
+    @Test
+    fun setTextIfChanged_updatesText_whenSuffixAdded() {
+        val text = "hello"
+        val buffer = TextFieldBuffer(TextFieldCharSequence(text))
+
+        buffer.setTextIfChanged("hello1")
+
+        assertThat(buffer.changes.changeCount).isEqualTo(1)
+        assertThat(buffer.toString()).isEqualTo("hello1")
+        assertThat(buffer.changes.getOriginalRange(0)).isEqualTo(TextRange(0, 5))
+        assertThat(buffer.changes.getRange(0)).isEqualTo(TextRange(0, 6))
+    }
+
+    @Test
+    fun setTextIfChanged_updatesText_whenSuffixRemoved() {
+        val text = "hello"
+        val buffer = TextFieldBuffer(TextFieldCharSequence(text))
+
+        buffer.setTextIfChanged("hell")
+
+        assertThat(buffer.changes.changeCount).isEqualTo(1)
+        assertThat(buffer.toString()).isEqualTo("hell")
+        assertThat(buffer.changes.getOriginalRange(0)).isEqualTo(TextRange(0, 5))
+        assertThat(buffer.changes.getRange(0)).isEqualTo(TextRange(0, 4))
+    }
+
+    @Test
+    fun setTextIfChanged_updatesText_whenMiddleChanged() {
+        val text = "hello"
+        val buffer = TextFieldBuffer(TextFieldCharSequence(text))
+
+        buffer.setTextIfChanged("h1llo")
+
+        assertThat(buffer.changes.changeCount).isEqualTo(1)
+        assertThat(buffer.toString()).isEqualTo("h1llo")
+        assertThat(buffer.changes.getOriginalRange(0)).isEqualTo(TextRange(0, 5))
+        assertThat(buffer.changes.getRange(0)).isEqualTo(TextRange(0, 5))
+    }
+
+    @Test
+    fun setTextIfChanged_updatesText_whenMiddleAdded() {
+        val text = "hello"
+        val buffer = TextFieldBuffer(TextFieldCharSequence(text))
+
+        buffer.setTextIfChanged("he1llo")
+
+        assertThat(buffer.changes.changeCount).isEqualTo(1)
+        assertThat(buffer.toString()).isEqualTo("he1llo")
+        assertThat(buffer.changes.getOriginalRange(0)).isEqualTo(TextRange(0, 5))
+        assertThat(buffer.changes.getRange(0)).isEqualTo(TextRange(0, 6))
+    }
+
+    @Test
+    fun setTextIfChanged_updatesText_whenMiddleRemoved() {
+        val text = "hello"
+        val buffer = TextFieldBuffer(TextFieldCharSequence(text))
+
+        buffer.setTextIfChanged("helo")
+
+        assertThat(buffer.changes.changeCount).isEqualTo(1)
+        assertThat(buffer.toString()).isEqualTo("helo")
+        assertThat(buffer.changes.getOriginalRange(0)).isEqualTo(TextRange(0, 5))
+        assertThat(buffer.changes.getRange(0)).isEqualTo(TextRange(0, 4))
+    }
+
+    @Test
+    fun setTextIfChanged_doesNotUpdateTextIfEqual() {
+        val buffer = TextFieldBuffer(TextFieldCharSequence("hello"))
+
+        buffer.setTextIfChanged("hello")
+
+        assertThat(buffer.changes.changeCount).isEqualTo(0)
+    }
+
+    @Test
+    fun setTextIfChanged_doesNotUpdateTextIfEqual_afterChange() {
+        val buffer = TextFieldBuffer(TextFieldCharSequence("hello"))
+        buffer.append(" world")
+
+        buffer.setTextIfChanged("hello world")
+
+        assertThat(buffer.changes.changeCount).isEqualTo(1)
+    }
+
     /** Tests of private testing helper code. */
     @Test
     fun testConvertTextFieldValueToAndFromString() {

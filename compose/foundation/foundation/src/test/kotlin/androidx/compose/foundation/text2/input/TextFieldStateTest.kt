@@ -18,6 +18,7 @@ package androidx.compose.foundation.text2.input
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.runtime.snapshots.Snapshot
+import androidx.compose.runtime.snapshots.SnapshotStateObserver
 import androidx.compose.ui.text.TextRange
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertFailsWith
@@ -28,6 +29,8 @@ import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -56,6 +59,111 @@ class TextFieldStateTest {
         }
 
         assertThat(state.text.toString()).isEmpty()
+    }
+
+    @Test
+    fun edit_invalidates_whenSelectionChanged() = runTestWithSnapshotsThenCancelChildren {
+        val text = "hello"
+        val state = TextFieldState(text, initialSelectionInChars = TextRange(0))
+        var invalidationCount = 0
+        val observer = SnapshotStateObserver(onChangedExecutor = { it() })
+        val observeState: () -> Unit = { state.text }
+        observer.start()
+        try {
+            observer.observeReads(
+                scope = Unit,
+                onValueChangedForScope = {
+                    invalidationCount++
+                    observeState()
+                },
+                block = observeState
+            )
+            assertThat(invalidationCount).isEqualTo(0)
+
+            // Act.
+            state.edit {
+                selectCharsIn(TextRange(0, length))
+            }
+            advanceUntilIdle()
+            runCurrent()
+
+            // Assert.
+            assertThat(invalidationCount).isEqualTo(1)
+        } finally {
+            observer.stop()
+        }
+    }
+
+    @Test
+    fun edit_invalidates_whenTextChanged() = runTestWithSnapshotsThenCancelChildren {
+        val text = "hello"
+        val state = TextFieldState(text, initialSelectionInChars = TextRange(0))
+        var invalidationCount = 0
+        val observer = SnapshotStateObserver(onChangedExecutor = { it() })
+        val observeState: () -> Unit = { state.text }
+        observer.start()
+        try {
+            observer.observeReads(
+                scope = Unit,
+                onValueChangedForScope = {
+                    invalidationCount++
+                    observeState()
+                },
+                block = observeState
+            )
+            assertThat(invalidationCount).isEqualTo(0)
+
+            // Act.
+            state.edit {
+                append("1")
+            }
+            advanceUntilIdle()
+            runCurrent()
+
+            // Assert.
+            assertThat(invalidationCount).isEqualTo(1)
+        } finally {
+            observer.stop()
+        }
+    }
+
+    @Test
+    fun edit_doesNotInvalidate_whenNoChangesMade() = runTestWithSnapshotsThenCancelChildren {
+        val text = "hello"
+        val state = TextFieldState(text, initialSelectionInChars = TextRange(0))
+        var invalidationCount = 0
+        val observer = SnapshotStateObserver(onChangedExecutor = { it() })
+        val observeState: () -> Unit = { state.text }
+        observer.start()
+        try {
+            observer.observeReads(
+                scope = Unit,
+                onValueChangedForScope = {
+                    invalidationCount++
+                    observeState()
+                },
+                block = observeState
+            )
+            assertThat(invalidationCount).isEqualTo(0)
+
+            // Act.
+            state.edit {
+                // Change the selection but restore it before returning.
+                val originalSelection = selectionInChars
+                selectCharsIn(TextRange(0, length))
+                selectCharsIn(originalSelection)
+
+                // This will be a no-op too.
+                setTextIfChanged(text)
+            }
+            advanceUntilIdle()
+            runCurrent()
+
+            // Assert.
+            assertThat(invalidationCount).isEqualTo(0)
+        } finally {
+            observer.stop()
+        }
     }
 
     @Test

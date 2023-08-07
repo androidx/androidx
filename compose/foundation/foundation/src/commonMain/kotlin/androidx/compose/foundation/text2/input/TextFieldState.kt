@@ -26,8 +26,16 @@ import androidx.compose.runtime.saveable.SaverScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.input.TextFieldValue
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collectLatest
+
+internal fun TextFieldState(initialValue: TextFieldValue): TextFieldState {
+    return TextFieldState(
+        initialText = initialValue.text,
+        initialSelectionInChars = initialValue.selection
+    )
+}
 
 /**
  * The editable text state of a text field, including both the [text] itself and position of the
@@ -97,11 +105,20 @@ class TextFieldState(
     internal fun startEdit(value: TextFieldCharSequence): TextFieldBuffer =
         TextFieldBuffer(value)
 
+    /**
+     * If the text or selection in [newValue] was actually modified, updates this state's internal
+     * values. If [newValue] was not modified at all, the state is not updated, and this will not
+     * invalidate anyone who is observing this state.
+     */
     @Suppress("ShowingMemberInHiddenClass")
     @PublishedApi
     internal fun commitEdit(newValue: TextFieldBuffer) {
-        val finalValue = newValue.toTextFieldCharSequence()
-        editProcessor.reset(finalValue)
+        val textChanged = newValue.changes.changeCount > 0
+        val selectionChanged = newValue.selectionInChars != editProcessor.mBuffer.selection
+        if (textChanged || selectionChanged) {
+            val finalValue = newValue.toTextFieldCharSequence()
+            editProcessor.reset(finalValue)
+        }
     }
 
     /**

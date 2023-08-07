@@ -20,6 +20,7 @@ import androidx.compose.foundation.demos.text2.BasicSecureTextFieldDemos
 import androidx.compose.foundation.demos.text2.BasicTextField2CustomPinFieldDemo
 import androidx.compose.foundation.demos.text2.BasicTextField2Demos
 import androidx.compose.foundation.demos.text2.BasicTextField2FilterDemos
+import androidx.compose.foundation.demos.text2.BasicTextField2ValueCallbackDemo
 import androidx.compose.foundation.demos.text2.DecorationBoxDemos
 import androidx.compose.foundation.demos.text2.KeyboardOptionsDemos
 import androidx.compose.foundation.demos.text2.ScrollableDemos
@@ -134,6 +135,7 @@ val TextDemos = DemoCategory(
             "BasicTextField2",
             listOf(
                 ComposableDemo("Basic text input") { BasicTextField2Demos() },
+                ComposableDemo("Value/callback overload") { BasicTextField2ValueCallbackDemo() },
                 ComposableDemo("Keyboard Options") { KeyboardOptionsDemos() },
                 ComposableDemo("Decoration Box") { DecorationBoxDemos() },
                 ComposableDemo("Line limits") { TextFieldLineLimitsDemos() },
