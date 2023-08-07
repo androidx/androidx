@@ -98,6 +98,7 @@ if ! areNativeLibsNewEnoughForKonan; then
   fi
 fi
 
+# list kotlin sessions in case there are several, b/279739438
 function checkForLeftoverKotlinSessions() {
   KOTLIN_SESSIONS_DIR=$OUT_DIR/gradle-project-cache/kotlin/sessions
   NUM_KOTLIN_SESSIONS="$(ls $KOTLIN_SESSIONS_DIR 2>/dev/null | wc -l)"
@@ -106,6 +107,13 @@ function checkForLeftoverKotlinSessions() {
   fi
 }
 checkForLeftoverKotlinSessions
+
+# list java processes to check for any running kotlin daemons, b/282228230
+function listJavaProcesses() {
+  echo "All java processes:"
+  ps -ef | grep /java || true
+}
+listJavaProcesses
 
 # run the build
 if run ./gradlew --ci "$@"; then
