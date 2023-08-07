@@ -25,9 +25,10 @@ import androidx.window.area.WindowAreaCapability.Status.Companion.WINDOW_AREA_ST
 import androidx.window.area.WindowAreaCapability.Status.Companion.WINDOW_AREA_STATUS_AVAILABLE
 import androidx.window.area.WindowAreaCapability.Status.Companion.WINDOW_AREA_STATUS_UNKNOWN
 import androidx.window.area.WindowAreaCapability.Status.Companion.WINDOW_AREA_STATUS_UNSUPPORTED
-import androidx.window.area.utils.DeviceUtils
+import androidx.window.area.utils.DeviceMetricsCompatUtils
 import androidx.window.core.BuildConfig
 import androidx.window.core.ExperimentalWindowApi
+import androidx.window.core.ExtensionsUtil
 import androidx.window.core.VerificationMode
 import androidx.window.extensions.area.ExtensionWindowAreaStatus
 import androidx.window.extensions.area.WindowAreaComponent
@@ -60,7 +61,7 @@ import kotlinx.coroutines.launch
 @RequiresApi(Build.VERSION_CODES.Q)
 internal class WindowAreaControllerImpl(
     private val windowAreaComponent: WindowAreaComponent,
-    private val vendorApiLevel: Int
+    private val presentationSupported: Boolean,
 ) : WindowAreaController {
 
     private lateinit var rearDisplaySessionConsumer: Consumer<Int>
@@ -84,16 +85,24 @@ internal class WindowAreaControllerImpl(
                         channel.trySend(currentWindowAreaInfoMap.values.toList())
                     }
 
-                windowAreaComponent.addRearDisplayStatusListener(rearDisplayListener)
-                if (vendorApiLevel > 2) {
+                if (ExtensionsUtil.safeVendorApiLevel >= 3 ||
+                    (ExtensionsUtil.safeVendorApiLevel == 2 &&
+                        DeviceMetricsCompatUtils.hasDeviceMetrics())
+                ) {
+                    windowAreaComponent.addRearDisplayStatusListener(rearDisplayListener)
+                }
+
+                if (presentationSupported) {
                     windowAreaComponent.addRearDisplayPresentationStatusListener(
                         rearDisplayPresentationListener
                     )
                 }
 
                 awaitClose {
-                    windowAreaComponent.removeRearDisplayStatusListener(rearDisplayListener)
-                    if (vendorApiLevel > 2) {
+                    if (ExtensionsUtil.safeVendorApiLevel >= 3) {
+                        windowAreaComponent.removeRearDisplayStatusListener(rearDisplayListener)
+                    }
+                    if (presentationSupported) {
                         windowAreaComponent.removeRearDisplayPresentationStatusListener(
                             rearDisplayPresentationListener
                         )
@@ -105,12 +114,12 @@ internal class WindowAreaControllerImpl(
     private fun updateRearDisplayAvailability(
         status: @WindowAreaComponent.WindowAreaStatus Int
     ) {
-        val windowMetrics = if (vendorApiLevel >= 3) {
+        val windowMetrics = if (presentationSupported) {
             WindowMetricsCalculator.fromDisplayMetrics(
                 displayMetrics = windowAreaComponent.rearDisplayMetrics
             )
         } else {
-            val displayMetrics = DeviceUtils.getRearDisplayMetrics(Build.MANUFACTURER, Build.MODEL)
+            val displayMetrics = DeviceMetricsCompatUtils.getDeviceMetrics()?.rearDisplayMetrics
             if (displayMetrics != null) {
                 WindowMetricsCalculator.fromDisplayMetrics(
                     displayMetrics = displayMetrics

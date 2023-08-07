@@ -25,26 +25,26 @@ import androidx.annotation.RequiresApi
  */
 @RequiresApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
 internal class DeviceMetrics(
-    val manufacturer: String,
+    val brand: String,
     val model: String,
     val rearDisplayMetrics: DisplayMetrics
 ) {
     override fun equals(other: Any?): Boolean {
         return other is DeviceMetrics &&
-            manufacturer == other.manufacturer &&
+            brand == other.brand &&
             model == other.model &&
             rearDisplayMetrics.equals(other.rearDisplayMetrics)
     }
 
     override fun hashCode(): Int {
-        var result = manufacturer.hashCode()
+        var result = brand.hashCode()
         result = 31 * result + model.hashCode()
         result = 31 * result + rearDisplayMetrics.hashCode()
         return result
     }
 
     override fun toString(): String {
-        return "DeviceMetrics{ Manufacturer: $manufacturer, model: $model, " +
+        return "DeviceMetrics{ Brand: $brand, model: $model, " +
             "Rear display metrics: $rearDisplayMetrics }"
     }
 }

@@ -84,7 +84,7 @@ class WindowAreaControllerImplTest {
             val extensionComponent = FakeWindowAreaComponent()
             val controller = WindowAreaControllerImpl(
                 windowAreaComponent = extensionComponent,
-                vendorApiLevel = FEATURE_VENDOR_API_LEVEL
+                presentationSupported = true
             )
             extensionComponent.currentRearDisplayStatus = STATUS_UNAVAILABLE
             extensionComponent.currentRearDisplayPresentationStatus = STATUS_UNAVAILABLE
@@ -170,7 +170,7 @@ class WindowAreaControllerImplTest {
         val extensions = FakeWindowAreaComponent()
         val controller = WindowAreaControllerImpl(
             windowAreaComponent = extensions,
-            vendorApiLevel = FEATURE_VENDOR_API_LEVEL
+            presentationSupported = true
         )
         extensions.currentRearDisplayStatus = STATUS_AVAILABLE
         val callback = TestWindowAreaSessionCallback()
@@ -234,7 +234,7 @@ class WindowAreaControllerImplTest {
         val extensions = FakeWindowAreaComponent()
         val controller = WindowAreaControllerImpl(
             windowAreaComponent = extensions,
-            vendorApiLevel = FEATURE_VENDOR_API_LEVEL
+            presentationSupported = true
         )
         extensions.currentRearDisplayStatus = initialState
         val callback = TestWindowAreaSessionCallback()
@@ -277,7 +277,7 @@ class WindowAreaControllerImplTest {
         val extensions = FakeWindowAreaComponent()
         val controller = WindowAreaControllerImpl(
             windowAreaComponent = extensions,
-            vendorApiLevel = FEATURE_VENDOR_API_LEVEL
+            presentationSupported = true
         )
 
         extensions.updateRearDisplayStatusListeners(STATUS_AVAILABLE)
@@ -327,7 +327,7 @@ class WindowAreaControllerImplTest {
         val extensions = FakeWindowAreaComponent()
         val controller = WindowAreaControllerImpl(
             windowAreaComponent = extensions,
-            vendorApiLevel = 3
+            presentationSupported = true
         )
 
         extensions.updateRearDisplayStatusListeners(STATUS_AVAILABLE)
@@ -348,7 +348,7 @@ class WindowAreaControllerImplTest {
         // Create a new controller to start the presentation.
         val controller2 = WindowAreaControllerImpl(
             windowAreaComponent = extensions,
-            vendorApiLevel = 3
+            presentationSupported = true
         )
 
         val callback = TestWindowAreaPresentationSessionCallback()
@@ -384,7 +384,7 @@ class WindowAreaControllerImplTest {
         val extensions = FakeWindowAreaComponent()
         val controller = WindowAreaControllerImpl(
             windowAreaComponent = extensions,
-            vendorApiLevel = 3
+            presentationSupported = true
         )
         extensions.currentRearDisplayStatus = STATUS_AVAILABLE
         val callback = TestWindowAreaSessionCallback()
@@ -408,7 +408,7 @@ class WindowAreaControllerImplTest {
         // Create a new controller to start the transfer.
         val controller2 = WindowAreaControllerImpl(
             windowAreaComponent = extensions,
-            vendorApiLevel = 3
+            presentationSupported = true
         )
 
         activityScenario.scenario.onActivity { testActivity ->
@@ -441,7 +441,7 @@ class WindowAreaControllerImplTest {
         val extensionComponent = FakeWindowAreaComponent()
         val controller = WindowAreaControllerImpl(
             windowAreaComponent = extensionComponent,
-            vendorApiLevel = FEATURE_VENDOR_API_LEVEL
+            presentationSupported = true
         )
 
         extensionComponent.updateRearDisplayStatusListeners(STATUS_AVAILABLE)
