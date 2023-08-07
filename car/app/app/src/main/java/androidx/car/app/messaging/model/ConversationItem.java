@@ -21,7 +21,6 @@ import static androidx.core.util.Preconditions.checkState;
 import static java.util.Objects.requireNonNull;
 
 import android.annotation.SuppressLint;
-import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -53,7 +52,7 @@ public class ConversationItem implements Item {
     @NonNull
     private final CarText mTitle;
     @NonNull
-    private final Bundle mSelf;
+    private final Person mSelf;
     @Nullable
     private final CarIcon mIcon;
     private final boolean mIsGroupConversation;
@@ -102,7 +101,7 @@ public class ConversationItem implements Item {
     ConversationItem(@NonNull Builder builder) {
         this.mId = requireNonNull(builder.mId);
         this.mTitle = requireNonNull(builder.mTitle);
-        this.mSelf = validateSender(builder.mSelf).toBundle();
+        this.mSelf = validateSender(builder.mSelf);
         this.mIcon = builder.mIcon;
         this.mIsGroupConversation = builder.mIsGroupConversation;
         this.mMessages = requireNonNull(CollectionUtils.unmodifiableCopy(builder.mMessages));
@@ -115,7 +114,7 @@ public class ConversationItem implements Item {
     private ConversationItem() {
         mId = "";
         mTitle = new CarText.Builder("").build();
-        mSelf = new Person.Builder().setName("").build().toBundle();
+        mSelf = new Person.Builder().setName("").build();
         mIcon = null;
         mIsGroupConversation = false;
         mMessages = new ArrayList<>();
@@ -153,7 +152,7 @@ public class ConversationItem implements Item {
     /** Returns a {@link Person} for the conversation */
     @NonNull
     public Person getSelf() {
-        return Person.fromBundle(mSelf);
+        return mSelf;
     }
 
     /** Returns a {@link CarIcon} for the conversation, or {@code null} if not set */
