@@ -31,6 +31,7 @@ import androidx.test.platform.app.InstrumentationRegistry;
 import org.junit.After;
 import org.junit.Assume;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -85,6 +86,7 @@ public class TopicsManagerTest {
         mTestUtil.shouldForceUseBundledFiles(false);
     }
 
+    @Ignore // b/278931615
     @Test
     public void testTopicsManager_runClassifier() throws Exception {
         // Skip the test if SDK extension 4 is not present.
