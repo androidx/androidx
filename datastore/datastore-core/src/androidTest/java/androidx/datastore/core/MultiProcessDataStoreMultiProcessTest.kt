@@ -148,66 +148,6 @@ class MultiProcessDataStoreMultiProcessTest {
     }
 
     @Test
-    fun testInterleavedUpdateData_file() = testInterleavedUpdateData_runner(StorageVariant.FILE)
-
-    @Test
-    fun testInterleavedUpdateData_okio() = testInterleavedUpdateData_runner(StorageVariant.OKIO)
-
-    private fun testInterleavedUpdateData_runner(variant: StorageVariant) =
-        runTest(UnconfinedTestDispatcher(), timeout = 10000.milliseconds) {
-            val testData: Bundle = createDataStoreBundle(testFile.absolutePath, variant)
-            val dataStore: DataStore<FooProto> =
-                createDataStore(testData, dataStoreScope, context = dataStoreContext)
-            val serviceClasses = mapOf(
-                StorageVariant.FILE to InterleavedUpdateDataFileService::class,
-                StorageVariant.OKIO to InterleavedUpdateDataOkioService::class
-            )
-            val connection: BlockingServiceConnection =
-                setUpService(mainContext, serviceClasses[variant]!!.java, testData)
-
-            // Other proc starts TEST_TEXT update, then waits for signal
-            signalService(connection)
-
-            // We start "true" update, then wait for condition
-            val condition = CompletableDeferred<Unit>()
-            val write = async(newSingleThreadContext("blockedWriter")) {
-                dataStore.updateData {
-                    condition.await()
-                    WRITE_BOOLEAN(it)
-                }
-            }
-
-            // Allow the other proc's update to run to completion, then allow ours to run to completion
-            val unblockOurUpdate = async {
-                delay(100)
-                signalService(connection)
-                condition.complete(Unit)
-            }
-
-            unblockOurUpdate.await()
-            write.await()
-
-            assertThat(dataStore.data.first()).isEqualTo(FOO_WITH_TEXT_AND_BOOLEAN)
-        }
-
-    open class InterleavedUpdateDataFileService(
-        private val scope: TestScope = TestScope(UnconfinedTestDispatcher() + Job())
-    ) : DirectTestService() {
-        override fun beforeTest(testData: Bundle) {
-            store = createDataStore(testData, scope)
-        }
-
-        override fun runTest() = runBlocking<Unit> {
-            store.updateData {
-                waitForSignal()
-                WRITE_TEXT(it)
-            }
-        }
-    }
-
-    class InterleavedUpdateDataOkioService : InterleavedUpdateDataFileService()
-
-    @Test
     fun testInterleavedUpdateDataWithLocalRead_file() =
         testInterleavedUpdateDataWithLocalRead_runner(StorageVariant.FILE)
 

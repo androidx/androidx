@@ -23,7 +23,10 @@ import androidx.datastore.core.multiprocess.ipcActions.createMultiProcessTestDat
 import androidx.datastore.core.twoWayIpc.InterProcessCompletable
 import androidx.datastore.core.twoWayIpc.IpcUnit
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import org.junit.Rule
 import org.junit.Test
@@ -130,5 +133,62 @@ class MultiProcessDataStoreIpcTest {
                     ReadTextAction()
                 ).value
             ).isEqualTo("remoteValue")
+        }
+
+    @Test
+    fun testInterleavedUpdateData_file() = testInterleavedUpdateData(StorageVariant.FILE)
+
+    @Test
+    fun testInterleavedUpdateData_okio() = testInterleavedUpdateData(StorageVariant.OKIO)
+
+    private fun testInterleavedUpdateData(storageVariant: StorageVariant) =
+        multiProcessRule.runTest {
+            val subject = multiProcessRule.createConnection().createSubject(
+                multiProcessRule.datastoreScope
+            )
+            val file = tmpFolder.newFile()
+            val dataStore = createMultiProcessTestDatastore(
+                filePath = file.canonicalPath,
+                storageVariant = storageVariant,
+                hostDatastoreScope = multiProcessRule.datastoreScope,
+                subjects = arrayOf(subject)
+            )
+            val remoteWriteStarted = InterProcessCompletable<IpcUnit>()
+            val allowRemoteCommit = InterProcessCompletable<IpcUnit>()
+            val remoteUpdate = async {
+                // update text in remote
+                subject.invokeInRemoteProcess(
+                    SetTextAction(
+                        value = "remoteValue",
+                        transactionStartedLatch = remoteWriteStarted,
+                        commitTransactionLatch = allowRemoteCommit
+                    )
+                )
+            }
+            // wait for remote write to start
+            remoteWriteStarted.await(subject)
+            // start a host update, which will be blocked
+            val hostUpdateStarted = CompletableDeferred<Unit>()
+            val hostUpdate = async {
+                hostUpdateStarted.complete(Unit)
+                dataStore.updateData {
+                    it.toBuilder().setInteger(99).build()
+                }
+            }
+            // let our host update start
+            hostUpdateStarted.await()
+            // give it some to be blocked
+            delay(100)
+            // both are running
+            assertThat(hostUpdate.isActive).isTrue()
+            assertThat(remoteUpdate.isActive).isTrue()
+            // commit remote transaction
+            allowRemoteCommit.complete(subject, IpcUnit)
+            // wait for both
+            listOf(hostUpdate, remoteUpdate).awaitAll()
+            dataStore.data.first().let {
+                assertThat(it.text).isEqualTo("remoteValue")
+                assertThat(it.integer).isEqualTo(99)
+            }
         }
 }
