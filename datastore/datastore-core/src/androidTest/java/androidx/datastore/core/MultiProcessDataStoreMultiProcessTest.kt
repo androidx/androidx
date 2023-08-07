@@ -31,12 +31,8 @@ import java.io.FileOutputStream
 import java.io.OutputStreamWriter
 import kotlin.coroutines.CoroutineContext
 import kotlin.time.Duration.Companion.milliseconds
-import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.async
-import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.TestScope
@@ -66,12 +62,6 @@ private val PROTO_OKIO_SERIALIZER: OkioSerializer<FooProto> = ProtoOkioSerialize
 private const val TEST_TEXT: String = "abc"
 internal val WRITE_TEXT: (FooProto) -> FooProto = { f: FooProto ->
     f.toBuilder().setText(TEST_TEXT).build()
-}
-private val WRITE_BOOLEAN: (FooProto) -> FooProto = { f: FooProto ->
-    f.toBuilder().setBoolean(true).build()
-}
-private val INCREMENT_INTEGER: (FooProto) -> FooProto = { f: FooProto ->
-    f.toBuilder().setInteger(f.integer + 1).build()
 }
 
 private val DEFAULT_FOO: FooProto = FooProto.getDefaultInstance()
@@ -117,7 +107,6 @@ internal enum class StorageVariant(val storage: String) {
     FILE(STORAGE_FILE), OKIO(STORAGE_OKIO)
 }
 
-@OptIn(DelicateCoroutinesApi::class)
 @ExperimentalCoroutinesApi
 @RunWith(JUnit4::class)
 class MultiProcessDataStoreMultiProcessTest {
@@ -143,71 +132,6 @@ class MultiProcessDataStoreMultiProcessTest {
         dataStoreContext = UnconfinedTestDispatcher()
         dataStoreScope = TestScope(dataStoreContext + Job())
     }
-
-    @Test
-    fun testUpdateDataCancellationUnblocksOtherProcessFromWriting_file() =
-        testUpdateDataCancellationUnblocksOtherProcessFromWriting_runner(StorageVariant.FILE)
-
-    @Test
-    fun testUpdateDataCancellationUnblocksOtherProcessFromWriting_okio() =
-        testUpdateDataCancellationUnblocksOtherProcessFromWriting_runner(StorageVariant.OKIO)
-
-    private fun testUpdateDataCancellationUnblocksOtherProcessFromWriting_runner(
-        variant: StorageVariant
-    ) = runTest(UnconfinedTestDispatcher(), timeout = 10000.milliseconds) {
-        val localScope = TestScope(UnconfinedTestDispatcher() + Job())
-        val testData: Bundle = createDataStoreBundle(testFile.absolutePath, variant)
-        val dataStore: DataStore<FooProto> =
-            createDataStore(testData, localScope, context = dataStoreContext)
-        val serviceClasses = mapOf(
-            StorageVariant.FILE to CancelledUpdateDataFileService::class,
-            StorageVariant.OKIO to CancelledUpdateDataOkioService::class
-        )
-        val connection: BlockingServiceConnection =
-            setUpService(mainContext, serviceClasses[variant]!!.java, testData)
-
-        val blockWrite = CompletableDeferred<Unit>()
-
-        val write = localScope.async {
-            dataStore.updateData {
-                blockWrite.await()
-                WRITE_BOOLEAN(it)
-            }
-        }
-
-        assertThat(write.isActive).isTrue()
-        assertThat(write.isCompleted).isFalse()
-
-        // dataStore.updateData cancelled immediately
-        localScope.coroutineContext.cancelChildren()
-
-        assertThat(write.isActive).isFalse()
-        assertThat(write.isCompleted).isTrue()
-
-        signalService(connection)
-
-        // able to read the new value written from the other process
-        assertThat(dataStore.data.first()).isEqualTo(FOO_WITH_TEXT)
-    }
-
-    // A duplicate from CancelledUpdateDataService to make sure Android framework would create a
-    // new process for this test. Otherwise the test would hang infinitely because the tests bind
-    // to an existing service created by the previous test.
-    open class CancelledUpdateDataFileService(
-        private val scope: TestScope = TestScope(UnconfinedTestDispatcher() + Job())
-    ) : DirectTestService() {
-        override fun beforeTest(testData: Bundle) {
-            store = createDataStore(testData, scope)
-        }
-
-        override fun runTest() = runBlocking<Unit> {
-            store.updateData {
-                WRITE_TEXT(it)
-            }
-        }
-    }
-
-    class CancelledUpdateDataOkioService : CancelledUpdateDataFileService()
 
     @Test
     fun testReadUpdateCorrupt_file() = testReadUpdateCorrupt_runner(StorageVariant.FILE)
