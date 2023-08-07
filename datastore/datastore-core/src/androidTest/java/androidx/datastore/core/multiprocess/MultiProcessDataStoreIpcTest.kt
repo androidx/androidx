@@ -16,6 +16,7 @@
 
 package androidx.datastore.core.multiprocess
 
+import androidx.datastore.core.IOException
 import androidx.datastore.core.multiprocess.ipcActions.ReadTextAction
 import androidx.datastore.core.multiprocess.ipcActions.SetTextAction
 import androidx.datastore.core.multiprocess.ipcActions.StorageVariant
@@ -286,4 +287,53 @@ class MultiProcessDataStoreIpcTest {
                     .build()
             )
         }
+
+    @Test
+    fun testUpdateDataExceptionUnblocksOtherProcessFromWriting_file() =
+        testUpdateDataExceptionUnblocksOtherProcessFromWriting(StorageVariant.FILE)
+
+    @Test
+    fun testUpdateDataExceptionUnblocksOtherProcessFromWriting_okio() =
+        testUpdateDataExceptionUnblocksOtherProcessFromWriting(StorageVariant.OKIO)
+
+    private fun testUpdateDataExceptionUnblocksOtherProcessFromWriting(
+        storageVariant: StorageVariant
+    ) = multiProcessRule.runTest {
+        val connection = multiProcessRule.createConnection()
+        val subject = connection.createSubject(this)
+        val file = tmpFolder.newFile()
+        val dataStore = createMultiProcessTestDatastore(
+            filePath = file.canonicalPath,
+            storageVariant = storageVariant,
+            hostDatastoreScope = multiProcessRule.datastoreScope,
+            subjects = arrayOf(subject)
+        )
+        val blockWrite = CompletableDeferred<Unit>()
+        val localWriteStarted = CompletableDeferred<Unit>()
+
+        val write = async {
+            try {
+                dataStore.updateData {
+                    localWriteStarted.complete(Unit)
+                    blockWrite.await()
+                    throw IOException("Something went wrong")
+                }
+            } catch (_: IOException) {
+            }
+        }
+        localWriteStarted.await()
+        val setTextAction = async {
+            subject.invokeInRemoteProcess(
+                SetTextAction(
+                    value = "remoteValue"
+                )
+            )
+        }
+        delay(100)
+        // cannot start since we are holding the lock
+        assertThat(setTextAction.isActive).isTrue()
+        blockWrite.complete(Unit)
+        listOf(write, setTextAction).awaitAll()
+        assertThat(dataStore.data.first().text).isEqualTo("remoteValue")
+    }
 }

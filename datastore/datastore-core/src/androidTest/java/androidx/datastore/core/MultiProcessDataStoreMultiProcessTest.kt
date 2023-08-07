@@ -28,7 +28,6 @@ import com.google.common.truth.Truth.assertThat
 import com.google.protobuf.ExtensionRegistryLite
 import java.io.File
 import java.io.FileOutputStream
-import java.io.IOException
 import java.io.OutputStreamWriter
 import kotlin.coroutines.CoroutineContext
 import kotlin.time.Duration.Companion.milliseconds
@@ -144,71 +143,6 @@ class MultiProcessDataStoreMultiProcessTest {
         dataStoreContext = UnconfinedTestDispatcher()
         dataStoreScope = TestScope(dataStoreContext + Job())
     }
-
-    @Test
-    fun testUpdateDataExceptionUnblocksOtherProcessFromWriting_file() =
-        testUpdateDataExceptionUnblocksOtherProcessFromWriting_runner(StorageVariant.FILE)
-
-    @Test
-    fun testUpdateDataExceptionUnblocksOtherProcessFromWriting_okio() =
-        testUpdateDataExceptionUnblocksOtherProcessFromWriting_runner(StorageVariant.OKIO)
-
-    private fun testUpdateDataExceptionUnblocksOtherProcessFromWriting_runner(
-        variant: StorageVariant
-    ) = runTest(timeout = 10000.milliseconds) {
-        val testData: Bundle = createDataStoreBundle(testFile.absolutePath, variant)
-        val dataStore: DataStore<FooProto> =
-            createDataStore(testData, dataStoreScope, context = dataStoreContext)
-        val serviceClasses = mapOf(
-            StorageVariant.FILE to FailedUpdateDataFileService::class,
-            StorageVariant.OKIO to FailedUpdateDataOkioService::class
-        )
-        val connection: BlockingServiceConnection =
-            setUpService(mainContext, serviceClasses[variant]!!.java, testData)
-
-        val blockWrite = CompletableDeferred<Unit>()
-        val waitForWrite = CompletableDeferred<Unit>()
-
-        val write = async {
-            try {
-                dataStore.updateData {
-                    blockWrite.await()
-                    throw IOException("Something went wrong")
-                }
-            } catch (e: IOException) {
-                waitForWrite.complete(Unit)
-            }
-        }
-
-        assertThat(write.isActive).isTrue()
-        assertThat(write.isCompleted).isFalse()
-
-        blockWrite.complete(Unit)
-        waitForWrite.await()
-
-        assertThat(write.isActive).isFalse()
-        assertThat(write.isCompleted).isTrue()
-
-        signalService(connection)
-
-        assertThat(dataStore.data.first()).isEqualTo(FOO_WITH_TEXT)
-    }
-
-    open class FailedUpdateDataFileService(
-        private val scope: TestScope = TestScope(UnconfinedTestDispatcher() + Job())
-    ) : DirectTestService() {
-        override fun beforeTest(testData: Bundle) {
-            store = createDataStore(testData, scope)
-        }
-
-        override fun runTest() = runBlocking<Unit> {
-            store.updateData {
-                WRITE_TEXT(it)
-            }
-        }
-    }
-
-    class FailedUpdateDataOkioService : FailedUpdateDataFileService()
 
     @Test
     fun testUpdateDataCancellationUnblocksOtherProcessFromWriting_file() =

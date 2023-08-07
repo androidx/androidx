@@ -17,16 +17,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <application>
         <service
-            android:name="androidx.datastore.core.MultiProcessDataStoreMultiProcessTest$FailedUpdateDataFileService"
-            android:enabled="true"
-            android:exported="false"
-            android:process=":FailedUpdateDataFileService" />
-        <service
-            android:name="androidx.datastore.core.MultiProcessDataStoreMultiProcessTest$FailedUpdateDataOkioService"
-            android:enabled="true"
-            android:exported="false"
-            android:process=":FailedUpdateDataOkioService" />
-        <service
             android:name="androidx.datastore.core.MultiProcessDataStoreMultiProcessTest$CancelledUpdateDataFileService"
             android:enabled="true"
             android:exported="false"
