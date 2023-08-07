@@ -82,7 +82,8 @@ import java.util.Map;
  */
 // TODO: Add the javadoc for manifest requirements about 'Package visibility' in Android 11
 public final class MediaRouter {
-    static final String TAG = "MediaRouter";
+    // The "Ax" prefix disambiguates from the platform's MediaRouter.
+    static final String TAG = "AxMediaRouter";
     static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
 
     @IntDef({
