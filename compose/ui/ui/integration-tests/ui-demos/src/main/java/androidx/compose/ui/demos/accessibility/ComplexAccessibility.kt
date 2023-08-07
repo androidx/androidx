@@ -22,8 +22,11 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -34,6 +37,7 @@ import androidx.compose.material.FabPosition
 import androidx.compose.material.FloatingActionButton
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
+import androidx.compose.material.LinearProgressIndicator
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
@@ -514,4 +518,14 @@ fun InteropSampleBackwards() {
         bottomBar = { BottomAppBar(backgroundColor = MaterialTheme.colors.primary) {
             Text("Bottom App Bar") } }
     )
+}
+
+@Preview
+@Composable
+fun LinearProgressIndicatorDemo() {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Text("LinearProgressIndicator with undefined progress")
+        Spacer(Modifier.height(30.dp))
+        LinearProgressIndicator(modifier = Modifier.size(100.dp, 10.dp))
+    }
 }
