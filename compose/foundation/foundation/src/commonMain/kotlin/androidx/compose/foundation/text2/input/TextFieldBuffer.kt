@@ -129,6 +129,16 @@ class TextFieldBuffer internal constructor(
         buffer.replace(start, end, text)
     }
 
+    /**
+     * Similar to `replace(0, length, newText)` but only records a change if [newText] is actually
+     * different from the current buffer value.
+     */
+    internal fun setTextIfChanged(newText: String) {
+        if (!buffer.contentEquals(newText)) {
+            replace(0, length, newText)
+        }
+    }
+
     // Doc inherited from Appendable.
     // This append overload should be first so it ends up being the target of links to this method.
     override fun append(text: CharSequence?): Appendable = apply {
