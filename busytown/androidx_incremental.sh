@@ -64,7 +64,7 @@ if ! impl/check_translations.sh; then
 else
     # Run Gradle
     # TODO: when b/278730831 ( https://youtrack.jetbrains.com/issue/KT-58547 ) is resolved, remove "-Pkotlin.incremental=false"
-    if impl/build.sh $DIAGNOSE_ARG buildOnServer checkExternalLicenses listTaskOutputs \
+    if impl/build.sh $DIAGNOSE_ARG buildOnServer checkExternalLicenses listTaskOutputs exportSboms \
         --profile \
         -Pkotlin.incremental=false \
         "$@"; then
