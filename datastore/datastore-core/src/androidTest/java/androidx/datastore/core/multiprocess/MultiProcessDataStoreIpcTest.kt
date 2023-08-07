@@ -16,7 +16,10 @@
 
 package androidx.datastore.core.multiprocess
 
+import androidx.datastore.core.CorruptionException
+import androidx.datastore.core.CorruptionHandler
 import androidx.datastore.core.IOException
+import androidx.datastore.core.SharedCounter
 import androidx.datastore.core.multiprocess.ipcActions.ReadTextAction
 import androidx.datastore.core.multiprocess.ipcActions.SetTextAction
 import androidx.datastore.core.multiprocess.ipcActions.StorageVariant
@@ -392,6 +395,79 @@ class MultiProcessDataStoreIpcTest {
                 .toBuilder()
                 .setText("remoteValue")
                 .build()
+        )
+    }
+
+    @Test
+    fun testReadUpdateCorrupt_file() = testReadUpdateCorrupt(StorageVariant.FILE)
+
+    @Test
+    fun testReadUpdateCorrupt_okio() = testReadUpdateCorrupt(StorageVariant.OKIO)
+
+    private class TestCorruptionHandler : CorruptionHandler<FooProto> {
+        override suspend fun handleCorruption(ex: CorruptionException): FooProto {
+            return createRecoveryValue(inMainProcess)
+        }
+
+        companion object {
+            var inMainProcess = false
+
+            fun createRecoveryValue(mainProcess: Boolean): FooProto {
+                return FooProto.getDefaultInstance()
+                    .toBuilder()
+                    .setText("defaultCorruptValue, main process? $mainProcess")
+                    .build()
+            }
+        }
+    }
+
+    private fun testReadUpdateCorrupt(storageVariant: StorageVariant) = multiProcessRule.runTest {
+        val connection = multiProcessRule.createConnection()
+        val subject = connection.createSubject(this)
+        val file = tmpFolder.newFile()
+        // corrupt file
+        file.writeText("garbage")
+        // set a shared value so we can know which corruption handler did run
+        TestCorruptionHandler.inMainProcess = true
+        val dataStore = createMultiProcessTestDatastore(
+            filePath = file.canonicalPath,
+            storageVariant = storageVariant,
+            hostDatastoreScope = multiProcessRule.datastoreScope,
+            corruptionHandler = TestCorruptionHandler::class.java,
+            subjects = arrayOf(subject)
+        )
+        val blockSetText = InterProcessCompletable<IpcUnit>()
+        val writeStarted = InterProcessCompletable<IpcUnit>()
+        val setTextAction = async {
+            subject.invokeInRemoteProcess(
+                SetTextAction(
+                    value = "remoteValue",
+                    commitTransactionLatch = blockSetText,
+                    transactionStartedLatch = writeStarted
+                )
+            )
+        }
+        writeStarted.await(subject)
+        // we read the corruption handler value since the write hasn't happened yet
+        // the write in the remote process already started, hence we'll read its recovery value
+        assertThat(dataStore.data.first()).isEqualTo(
+            TestCorruptionHandler.createRecoveryValue(
+                mainProcess = false
+            )
+        )
+        // version file should be ready at this point
+        val sharedCounter = SharedCounter.create {
+            file.parentFile!!.resolve("${file.name}.version")
+        }
+        // only 1 write should be done to handle the corruption, so version is incremented by 1
+        assertThat(sharedCounter.getValue()).isEqualTo(1)
+        // unblock write
+        blockSetText.complete(subject, IpcUnit)
+        // wait for write to finish
+        setTextAction.await()
+        // now we can see the value written there
+        assertThat(dataStore.data.first().text).isEqualTo(
+            "remoteValue"
         )
     }
 }

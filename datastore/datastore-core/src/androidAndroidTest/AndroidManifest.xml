@@ -16,16 +16,6 @@
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <application>
-        <service
-            android:name="androidx.datastore.core.MultiProcessDataStoreMultiProcessTest$InterleavedHandlerUpdateDataFileService"
-            android:enabled="true"
-            android:exported="false"
-            android:process=":InterleavedHandlerUpdateDataFileService" />
-        <service
-            android:name="androidx.datastore.core.MultiProcessDataStoreMultiProcessTest$InterleavedHandlerUpdateDataOkioService"
-            android:enabled="true"
-            android:exported="false"
-            android:process=":InterleavedHandlerUpdateDataOkioService" />
         <service android:name="androidx.datastore.core.twoWayIpc.TwoWayIpcService"
             android:enabled="true"
             android:exported="false"
