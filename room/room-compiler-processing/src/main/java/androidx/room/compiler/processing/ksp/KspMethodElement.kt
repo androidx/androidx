@@ -48,11 +48,12 @@ internal sealed class KspMethodElement(
 
     @OptIn(KspExperimental::class)
     override val jvmName: String by lazy {
-        val jvmName = runCatching {
+        if (!isKotlinPropertyMethod()) {
             // see https://github.com/google/ksp/issues/716
-            env.resolver.getJvmName(declaration)
+            env.resolver.getJvmName(declaration) ?: name
+        } else {
+            name
         }
-        jvmName.getOrNull() ?: declaration.simpleName.asString()
     }
 
     override val parameters: List<XExecutableParameterElement> by lazy {

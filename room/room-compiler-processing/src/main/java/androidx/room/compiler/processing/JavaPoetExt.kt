@@ -190,7 +190,9 @@ object MethodSpecHelper {
                 addParameter(
                     ParameterSpec.builder(
                         paramType.asTypeName().java,
-                        executableElement.parameters[index].name,
+                        // The parameter name isn't guaranteed to be a valid java name, so we use
+                        // the jvmName instead, which should be a valid java name.
+                        executableElement.parameters[index].jvmName,
                         *paramModifiers
                     ).build()
                 )

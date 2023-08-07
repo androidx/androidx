@@ -263,8 +263,17 @@ internal sealed class KspSyntheticPropertyMethodElement(
             override fun isVarArgs() = false
 
             override val name: String by lazy {
-                val originalName = enclosingElement.accessor.parameter.name?.asString()
-                originalName.sanitizeAsJavaParameterName(0)
+                enclosingElement.accessor.parameter.name?.asString().let {
+                    if (it == "<set-?>") {
+                        "p0"
+                    } else {
+                        it
+                    }
+                } ?: "_no_param_name"
+            }
+
+            override val jvmName: String by lazy {
+                name.sanitizeAsJavaParameterName(0)
             }
 
             override val type: KspType by lazy {
