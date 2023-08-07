@@ -103,6 +103,7 @@ import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -213,6 +214,9 @@ final class Camera2CameraImpl implements CameraInternal {
 
     @NonNull
     private final SupportedSurfaceCombination mSupportedSurfaceCombination;
+
+    private final ErrorTimeoutReopenScheduler
+            mErrorTimeoutReopenScheduler = new ErrorTimeoutReopenScheduler();
 
     /**
      * Constructor for a camera.
@@ -371,7 +375,9 @@ final class Camera2CameraImpl implements CameraInternal {
                 break;
             case OPENING:
             case REOPENING:
-                boolean canFinish = mStateCallback.cancelScheduledReopen();
+                boolean canFinish = mStateCallback.cancelScheduledReopen()
+                        || mErrorTimeoutReopenScheduler.isErrorHandling();
+                mErrorTimeoutReopenScheduler.cancel();
                 setState(InternalState.CLOSING);
                 if (canFinish) {
                     Preconditions.checkState(isSessionCloseComplete());
@@ -539,7 +545,9 @@ final class Camera2CameraImpl implements CameraInternal {
             case CLOSING:
             case REOPENING:
             case RELEASING:
-                boolean canFinish = mStateCallback.cancelScheduledReopen();
+                boolean canFinish = mStateCallback.cancelScheduledReopen()
+                        || mErrorTimeoutReopenScheduler.isErrorHandling();
+                mErrorTimeoutReopenScheduler.cancel();
                 // Wait for the camera async callback to finish releasing
                 setState(InternalState.RELEASING);
                 if (canFinish) {
@@ -603,6 +611,7 @@ final class Camera2CameraImpl implements CameraInternal {
                     case CLOSING:
                     case RELEASING:
                         if (isSessionCloseComplete() && mCameraDevice != null) {
+                            debugLog("closing camera");
                             ApiCompat.Api21Impl.close(mCameraDevice);
                             mCameraDevice = null;
                         }
@@ -1254,6 +1263,7 @@ final class Camera2CameraImpl implements CameraInternal {
             mStateCallback.resetReopenMonitor();
         }
         mStateCallback.cancelScheduledReopen();
+        mErrorTimeoutReopenScheduler.cancel();
 
         debugLog("Opening camera.");
         setState(InternalState.OPENING);
@@ -1273,6 +1283,9 @@ final class Camera2CameraImpl implements CameraInternal {
                 default:
                     // Camera2 will call the onError() callback with the specific error code that
                     // caused this failure. No need to do anything here.
+
+                    // Certain devices may not call onError(), please see b/290861504#comment3
+                    mErrorTimeoutReopenScheduler.start();
             }
         } catch (SecurityException e) {
             debugLog("Unable to open camera due to " + e.getMessage());
@@ -1284,6 +1297,92 @@ final class Camera2CameraImpl implements CameraInternal {
             // callback's onError() method, which is why we manually attempt to reopen the camera.
             setState(InternalState.REOPENING);
             mStateCallback.scheduleCameraReopen();
+        }
+    }
+
+    /**
+     * Reopen the Camera if CameraDevice.StateCallback#onError be called within a reasonable delay.
+     */
+    private class ErrorTimeoutReopenScheduler {
+
+        private static final long ERROR_TIMEOUT_MILLIS = 2000;
+
+        @Nullable
+        private ScheduleNode mScheduleNode = null;
+
+        @ExecutedBy("mExecutor")
+        public void start() {
+            if (mState != InternalState.OPENING) {
+                debugLog("Don't need the onError timeout handler.");
+                return;
+            }
+
+            debugLog("Camera waiting for onError.");
+            cancel();
+            mScheduleNode = new ScheduleNode();
+        }
+
+        /**
+         * @return True if CameraManager#openCamera throws an exception but still does not
+         * receive onError callback. Otherwise false.
+         */
+        @ExecutedBy("mExecutor")
+        public boolean isErrorHandling() {
+            return mScheduleNode != null && !mScheduleNode.isDone();
+        }
+
+        @ExecutedBy("mExecutor")
+        public void deviceOnError() {
+            debugLog("Camera receive onErrorCallback");
+            cancel();
+        }
+
+        @ExecutedBy("mExecutor")
+        public void cancel() {
+            if (mScheduleNode != null) {
+                mScheduleNode.cancel();
+            }
+            mScheduleNode = null;
+        }
+
+        private class ScheduleNode {
+            private final ScheduledFuture<?> mScheduledFuture;
+            private final AtomicBoolean mIsDone = new AtomicBoolean(false);
+            ScheduleNode() {
+                mScheduledFuture = mScheduledExecutorService.schedule(this::execute,
+                        ERROR_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
+            }
+
+            private void execute() {
+                if (mIsDone.getAndSet(true)) {
+                    return;
+                }
+
+                mExecutor.execute(this::executeInternal);
+            }
+
+            @ExecutedBy("mExecutor")
+            private void executeInternal() {
+                if (mState != InternalState.OPENING) {
+                    debugLog("Camera skip reopen at state: " + mState);
+                    return;
+                }
+
+                debugLog("Camera onError timeout, reopen it.");
+                setState(InternalState.REOPENING);
+                mStateCallback.scheduleCameraReopen();
+            }
+
+            @ExecutedBy("mExecutor")
+            public void cancel() {
+                mIsDone.set(true);
+                mScheduledFuture.cancel(true);
+            }
+
+            @ExecutedBy("mExecutor")
+            public boolean isDone() {
+                return mIsDone.get();
+            }
         }
     }
 
@@ -1869,6 +1968,7 @@ final class Camera2CameraImpl implements CameraInternal {
             // during initialization, so keep track of it here.
             mCameraDevice = cameraDevice;
             mCameraDeviceError = error;
+            mErrorTimeoutReopenScheduler.deviceOnError();
 
             switch (mState) {
                 case RELEASING:
