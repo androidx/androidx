@@ -1398,7 +1398,8 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
         val rotaryEvent = RotaryScrollEvent(
             verticalScrollPixels = axisValue * getScaledVerticalScrollFactor(config, context),
             horizontalScrollPixels = axisValue * getScaledHorizontalScrollFactor(config, context),
-            uptimeMillis = event.eventTime
+            uptimeMillis = event.eventTime,
+            inputDeviceId = event.deviceId
         )
         return focusOwner.dispatchRotaryEvent(rotaryEvent)
     }
