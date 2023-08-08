@@ -515,7 +515,7 @@ class VectorTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun testAlphaMaskWithIntrinsicSrcOverBlendMode() {
-        verifyAlphaMaskWithBlendModes(BlendMode.SrcOver)
+        verifyAlphaMaskWithBlendModes(BlendMode.SrcOver, expectedConfig = ImageBitmapConfig.Alpha8)
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
@@ -690,7 +690,9 @@ class VectorTest {
     @Test
     fun testAlphaMaskWithDrawSrcOverBlendMode() {
         verifyAlphaMaskWithBlendModes(
-            colorFilter = ColorFilter.tint(Color.Yellow, BlendMode.SrcOver))
+            colorFilter = ColorFilter.tint(Color.Yellow, BlendMode.SrcOver),
+            expectedConfig = ImageBitmapConfig.Alpha8
+        )
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
