@@ -231,7 +231,7 @@ public class SurfaceEdge {
             throws DeferrableSurface.SurfaceClosedException {
         checkMainThread();
         checkNotClosed();
-        mSettableSurface.setProvider(provider);
+        mSettableSurface.setProvider(provider, this::disconnect);
     }
 
     /**
@@ -263,7 +263,7 @@ public class SurfaceEdge {
                 }));
         try {
             DeferrableSurface deferrableSurface = surfaceRequest.getDeferrableSurface();
-            if (mSettableSurface.setProvider(deferrableSurface)) {
+            if (mSettableSurface.setProvider(deferrableSurface, this::disconnect)) {
                 // TODO(b/286817690): consider close the deferrableSurface directly when the
                 //  SettableSurface is closed. The delay might cause issues on legacy devices.
                 mSettableSurface.getTerminationFuture().addListener(deferrableSurface::close,
@@ -628,7 +628,8 @@ public class SurfaceEdge {
          * @see SurfaceEdge#setProvider(DeferrableSurface)
          */
         @MainThread
-        public boolean setProvider(@NonNull DeferrableSurface provider)
+        public boolean setProvider(@NonNull DeferrableSurface provider,
+                @NonNull Runnable onProviderClosed)
                 throws SurfaceClosedException {
             checkMainThread();
             checkNotNull(provider);
@@ -649,6 +650,8 @@ public class SurfaceEdge {
             Futures.propagate(provider.getSurface(), mCompleter);
             provider.incrementUseCount();
             getTerminationFuture().addListener(provider::decrementUseCount, directExecutor());
+            // When the child is closed, close the parent too to stop rendering.
+            provider.getCloseFuture().addListener(onProviderClosed, directExecutor());
             return true;
         }
     }
