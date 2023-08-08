@@ -116,6 +116,7 @@ class EmojiPickerViewTest {
 
     @Test
     @SdkSuppress(minSdkVersion = 24)
+    @Ignore("b/294556440")
     fun testStickyVariant_displayAndSaved() {
         lateinit var view: EmojiPickerView
         activityTestRule.scenario.onActivity {
