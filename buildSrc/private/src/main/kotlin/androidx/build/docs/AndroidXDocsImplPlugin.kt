@@ -165,6 +165,7 @@ abstract class AndroidXDocsImplPlugin : Plugin<Project> {
             dependencyClasspath,
             buildOnServer,
             docsSourcesConfiguration,
+            multiplatformDocsSourcesConfiguration,
             mergedProjectMetadata
         )
     }
@@ -453,6 +454,7 @@ abstract class AndroidXDocsImplPlugin : Plugin<Project> {
         dependencyClasspath: FileCollection,
         buildOnServer: TaskProvider<*>,
         docsConfiguration: Configuration,
+        multiplatformDocsConfiguration: Configuration,
         mergedProjectMetadata: Provider<RegularFile>
     ) {
         val generatedDocsDir = project.layout.buildDirectory.dir("docs")
@@ -467,6 +469,14 @@ abstract class AndroidXDocsImplPlugin : Plugin<Project> {
                 val artifacts = docsConfiguration.incoming.artifacts.resolvedArtifacts
                 task.getArtifactIds().set(artifacts.map { result -> result.map { it.id } })
                 task.getArtifactFiles().set(artifacts.map { result -> result.map { it.file } })
+                val multiplatformArtifacts =
+                    multiplatformDocsConfiguration.incoming.artifacts.resolvedArtifacts
+                task.getMultiplatformArtifactIds().set(multiplatformArtifacts.map { result ->
+                    result.map { it.id }
+                })
+                task.getMultiplatformArtifactFiles().set(multiplatformArtifacts.map { result ->
+                    result.map { it.file }
+                })
                 task.destinationFile.set(getMetadataRegularFile(project))
             }
 
