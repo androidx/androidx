@@ -325,7 +325,6 @@ fun insetsPaddingSample() {
     }
 }
 
-@OptIn(ExperimentalLayoutApi::class)
 @Sampled
 fun consumedInsetsPaddingSample() {
     class SampleActivity : ComponentActivity() {
@@ -399,7 +398,6 @@ fun paddingValuesSample() {
     }
 }
 
-@OptIn(ExperimentalLayoutApi::class)
 @Sampled
 fun consumedInsetsSample() {
     class SampleActivity : ComponentActivity() {
