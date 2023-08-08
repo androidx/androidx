@@ -228,17 +228,19 @@ class ComposeSceneInputTest {
 
         scene.sendPointerEvent(PointerEventType.Release, Offset(20f, 20f))
         background.events.assertReceivedNoEvents()
-        cutPopup.events.assertReceivedLast(
+        cutPopup.events.assertReceived(
             PointerEventType.Release, Offset(20f, 20f) - cutPopup.origin)
-        overlappedPopup.events.assertReceivedNoEvents()
-        independentPopup.events.assertReceivedNoEvents()
-
-        scene.sendPointerEvent(PointerEventType.Move, Offset(20f, 20f))
-        background.events.assertReceivedNoEvents()
         cutPopup.events.assertReceivedLast(
             PointerEventType.Exit, Offset(20f, 20f) - cutPopup.origin)
         overlappedPopup.events.assertReceivedLast(
             PointerEventType.Enter, Offset(20f, 20f) - overlappedPopup.origin)
+        independentPopup.events.assertReceivedNoEvents()
+
+        scene.sendPointerEvent(PointerEventType.Move, Offset(20f, 20f))
+        background.events.assertReceivedNoEvents()
+        cutPopup.events.assertReceivedNoEvents()
+        overlappedPopup.events.assertReceivedLast(
+            PointerEventType.Move, Offset(20f, 20f) - overlappedPopup.origin)
         independentPopup.events.assertReceivedNoEvents()
 
         scene.sendPointerEvent(PointerEventType.Press, Offset(20f, 20f))
@@ -257,7 +259,8 @@ class ComposeSceneInputTest {
 
         scene.sendPointerEvent(PointerEventType.Release, Offset(-10f, -10f))
         background.events.assertReceivedNoEvents()
-        cutPopup.events.assertReceivedNoEvents()
+        cutPopup.events.assertReceivedLast(
+            PointerEventType.Enter, Offset(-10f, -10f) - cutPopup.origin)
         overlappedPopup.events.assertReceivedLast(
             PointerEventType.Release, Offset(-10f, -10f) - overlappedPopup.origin
         )
