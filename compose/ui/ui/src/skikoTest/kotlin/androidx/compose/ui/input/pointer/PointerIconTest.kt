@@ -24,14 +24,16 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.ComposeScene
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.ImageComposeScene
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.assertThat
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.isEqualTo
 import androidx.compose.ui.platform.LocalPointerIconService
 import androidx.compose.ui.platform.Platform
+import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.runSkikoComposeUiTest
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.use
@@ -286,12 +288,11 @@ class PointerIconTest {
         }
     }
 
+    @OptIn(ExperimentalTestApi::class)
     @Test
-    fun resetsToDefault() = ImageComposeScene(
-        width = 100, height = 100
-    ).use { scene ->
+    fun resetsToDefault() = runSkikoComposeUiTest(Size(width = 100f, height = 100f)) {
         var show by mutableStateOf(true)
-        scene.setContent {
+        setContent {
             CompositionLocalProvider(LocalPointerIconService provides iconService) {
                 Box(Modifier.fillMaxSize()) {
                     if (show) {
@@ -311,7 +312,7 @@ class PointerIconTest {
         assertThat(iconService.getIcon()).isEqualTo(PointerIcon.Text)
 
         show = false
-        scene.render()
+        waitForIdle()
         assertThat(iconService.getIcon()).isEqualTo(PointerIcon.Default)
     }
 
