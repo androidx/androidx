@@ -71,6 +71,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.requestFocus
 import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.test.filters.LargeTest
@@ -600,6 +601,43 @@ class LazyListTest(orientation: Orientation) : BaseLazyListTestWithOrientation(o
         rule.onNodeWithTag(firstItemTag)
             .assertWidthIsEqualTo(150.dp)
             .assertHeightIsEqualTo(150.dp)
+    }
+
+    @Test
+    fun itemFillingParentSizeParentRecomposed_noRemeasureOnReuse() {
+        var counter = 0
+        val modifier = Modifier.layout { measurable, constraints ->
+            counter++
+            val placeable = measurable.measure(constraints)
+            layout(placeable.width, placeable.height) {
+                placeable.place(IntOffset.Zero)
+            }
+        }
+
+        lateinit var state: TvLazyListState
+        rule.setContentWithTestViewConfiguration {
+            state = rememberTvLazyListState()
+            LazyColumnOrRow(state = state) {
+                items(2) {
+                    Spacer(
+                        Modifier
+                            .fillParentMaxSize()
+                            .run {
+                                then(if (it == 0) modifier else Modifier)
+                            }
+                    )
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            runBlocking {
+                state.scrollToItem(1)
+                state.scrollToItem(0)
+            }
+        }
+
+        assertThat(counter).isEqualTo(1)
     }
 
     @Test
