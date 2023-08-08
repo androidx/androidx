@@ -47,15 +47,18 @@ import androidx.compose.ui.background
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.paint
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.ImageBitmapConfig
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.drawscope.CanvasDrawScope
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.toPixelMap
@@ -82,6 +85,7 @@ import androidx.test.filters.SdkSuppress
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import org.junit.Assert
+import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
@@ -156,7 +160,7 @@ class VectorTest {
         takeScreenShot(200).apply {
             assertEquals(getPixel(100, 100), Color.Magenta.toArgb())
         }
-        assertEquals(ImageBitmapConfig.Alpha8, vector!!.bitmapConfig!!)
+        assertEquals(ImageBitmapConfig.Alpha8, vector!!.bitmapConfig)
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
@@ -404,6 +408,532 @@ class VectorTest {
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
+    fun testDrawWithoutColorFilterAfterPreviouslyConfigured() {
+        val defaultWidth = 24.dp
+        val defaultHeight = 24.dp
+        val testTag = "testTag"
+        var vectorPainter: VectorPainter? = null
+
+        var tint: ColorFilter? by mutableStateOf(ColorFilter.tint(Color.Green))
+        rule.setContent {
+            vectorPainter = rememberVectorPainter(
+                defaultWidth = defaultWidth,
+                defaultHeight = defaultHeight,
+                autoMirror = false
+            ) { viewportWidth, viewportHeight ->
+                Path(
+                    fill = SolidColor(Color.Blue),
+                    pathData = PathData {
+                        lineTo(viewportWidth, 0f)
+                        lineTo(viewportWidth, viewportHeight)
+                        lineTo(0f, viewportHeight)
+                        close()
+                    }
+                )
+            }
+            Image(
+                painter = vectorPainter!!,
+                contentDescription = null,
+                modifier = Modifier
+                    .testTag(testTag)
+                    .background(Color.Red),
+                contentScale = ContentScale.FillBounds,
+                colorFilter = tint
+            )
+        }
+
+        rule.onNodeWithTag(testTag).captureToImage().assertPixels { Color.Green }
+
+        tint = null
+        rule.waitForIdle()
+        rule.onNodeWithTag(testTag).captureToImage().assertPixels { Color.Blue }
+        assertEquals(ImageBitmapConfig.Alpha8, vectorPainter!!.bitmapConfig)
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun testDrawWithColorFilterAfterNotPreviouslyConfigured() {
+        val defaultWidth = 24.dp
+        val defaultHeight = 24.dp
+        val testTag = "testTag"
+        var vectorPainter: VectorPainter? = null
+
+        var tint: ColorFilter? by mutableStateOf(null)
+        rule.setContent {
+            vectorPainter = rememberVectorPainter(
+                defaultWidth = defaultWidth,
+                defaultHeight = defaultHeight,
+                autoMirror = false
+            ) { viewportWidth, viewportHeight ->
+                Path(
+                    fill = SolidColor(Color.Blue),
+                    pathData = PathData {
+                        lineTo(viewportWidth, 0f)
+                        lineTo(viewportWidth, viewportHeight)
+                        lineTo(0f, viewportHeight)
+                        close()
+                    }
+                )
+            }
+            Image(
+                painter = vectorPainter!!,
+                contentDescription = null,
+                modifier = Modifier
+                    .testTag(testTag)
+                    .background(Color.Red),
+                contentScale = ContentScale.FillBounds,
+                colorFilter = tint
+            )
+        }
+
+        rule.onNodeWithTag(testTag).captureToImage().assertPixels { Color.Blue }
+
+        tint = ColorFilter.tint(Color.Green)
+        rule.waitForIdle()
+        rule.onNodeWithTag(testTag).captureToImage().assertPixels { Color.Green }
+        assertEquals(ImageBitmapConfig.Alpha8, vectorPainter!!.bitmapConfig)
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun testAlphaMaskWithIntrinsicClearBlendMode() {
+        verifyAlphaMaskWithBlendModes(BlendMode.Clear)
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun testAlphaMaskWithIntrinsicSrcBlendMode() {
+        verifyAlphaMaskWithBlendModes(BlendMode.Src)
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun testAlphaMaskWithIntrinsicDstBlendMode() {
+        verifyAlphaMaskWithBlendModes(BlendMode.Dst)
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun testAlphaMaskWithIntrinsicSrcOverBlendMode() {
+        verifyAlphaMaskWithBlendModes(BlendMode.SrcOver)
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun testAlphaMaskWithIntrinsicDstOverBlendMode() {
+        verifyAlphaMaskWithBlendModes(BlendMode.DstOver)
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun testAlphaMaskWithIntrinsicSrcInBlendMode() {
+        verifyAlphaMaskWithBlendModes(BlendMode.SrcIn, expectedConfig = ImageBitmapConfig.Alpha8)
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun testAlphaMaskWithIntrinsicDstInBlendMode() {
+        verifyAlphaMaskWithBlendModes(BlendMode.DstIn)
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun testAlphaMaskWithIntrinsicSrcOutBlendMode() {
+        verifyAlphaMaskWithBlendModes(BlendMode.SrcOut)
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun testAlphaMaskWithIntrinsicDstOutBlendMode() {
+        verifyAlphaMaskWithBlendModes(BlendMode.DstOut)
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun testAlphaMaskWithIntrinsicSrcAtopBlendMode() {
+        verifyAlphaMaskWithBlendModes(BlendMode.SrcAtop)
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun testAlphaMaskWithIntrinsicDstAtopBlendMode() {
+        verifyAlphaMaskWithBlendModes(BlendMode.DstAtop)
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun testAlphaMaskWithIntrinsicXorBlendMode() {
+        verifyAlphaMaskWithBlendModes(BlendMode.Xor)
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun testAlphaMaskWithIntrinsicPlusBlendMode() {
+        verifyAlphaMaskWithBlendModes(BlendMode.Plus)
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun testAlphaMaskWithIntrinsicModulateBlendMode() {
+        verifyAlphaMaskWithBlendModes(BlendMode.Modulate)
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun testAlphaMaskWithIntrinsicScreenBlendMode() {
+        verifyAlphaMaskWithBlendModes(BlendMode.Screen)
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun testAlphaMaskWithIntrinsicOverlayBlendMode() {
+        verifyAlphaMaskWithBlendModes(BlendMode.Overlay)
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun testAlphaMaskWithIntrinsicDarkenBlendMode() {
+        verifyAlphaMaskWithBlendModes(BlendMode.Darken)
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun testAlphaMaskWithIntrinsicLightenBlendMode() {
+        verifyAlphaMaskWithBlendModes(BlendMode.Lighten)
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun testAlphaMaskWithIntrinsicColorDodgeBlendMode() {
+        verifyAlphaMaskWithBlendModes(BlendMode.ColorDodge)
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun testAlphaMaskWithIntrinsicColorBurnBlendMode() {
+        verifyAlphaMaskWithBlendModes(BlendMode.ColorBurn)
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun testAlphaMaskWithIntrinsicHardlightBlendMode() {
+        verifyAlphaMaskWithBlendModes(BlendMode.Hardlight)
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun testAlphaMaskWithIntrinsicSoftLightBlendMode() {
+        verifyAlphaMaskWithBlendModes(BlendMode.Softlight)
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun testAlphaMaskWithIntrinsicDifferenceBlendMode() {
+        verifyAlphaMaskWithBlendModes(BlendMode.Difference)
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun testAlphaMaskWithIntrinsicExclusionBlendMode() {
+        verifyAlphaMaskWithBlendModes(BlendMode.Exclusion)
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun testAlphaMaskWithIntrinsicMultiplyBlendMode() {
+        verifyAlphaMaskWithBlendModes(BlendMode.Multiply)
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun testAlphaMaskWithIntrinsicHueBlendMode() {
+        verifyAlphaMaskWithBlendModes(BlendMode.Hue)
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun testAlphaMaskWithIntrinsicSaturationBlendMode() {
+        verifyAlphaMaskWithBlendModes(BlendMode.Saturation)
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun testAlphaMaskWithIntrinsicColorBlendMode() {
+        verifyAlphaMaskWithBlendModes(BlendMode.Color)
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun testAlphaMaskWithIntrinsicLuminosityBlendMode() {
+        verifyAlphaMaskWithBlendModes(BlendMode.Luminosity)
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun testAlphaMaskWithDrawClearBlendMode() {
+        verifyAlphaMaskWithBlendModes(colorFilter = ColorFilter.tint(Color.Yellow, BlendMode.Clear))
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun testAlphaMaskWithDrawSrcBlendMode() {
+        verifyAlphaMaskWithBlendModes(colorFilter = ColorFilter.tint(Color.Yellow, BlendMode.Src))
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun testAlphaMaskWithDrawDstBlendMode() {
+        verifyAlphaMaskWithBlendModes(colorFilter = ColorFilter.tint(Color.Yellow, BlendMode.Dst))
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun testAlphaMaskWithDrawSrcOverBlendMode() {
+        verifyAlphaMaskWithBlendModes(
+            colorFilter = ColorFilter.tint(Color.Yellow, BlendMode.SrcOver))
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun testAlphaMaskWithDrawDstOverBlendMode() {
+        verifyAlphaMaskWithBlendModes(
+            colorFilter = ColorFilter.tint(Color.Yellow, BlendMode.DstOver))
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun testAlphaMaskWithDrawSrcInBlendMode() {
+        verifyAlphaMaskWithBlendModes(
+            colorFilter = ColorFilter.tint(Color.Yellow, BlendMode.SrcIn),
+            expectedConfig = ImageBitmapConfig.Alpha8
+        )
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun testAlphaMaskWithDrawDstInBlendMode() {
+        verifyAlphaMaskWithBlendModes(colorFilter = ColorFilter.tint(Color.Yellow, BlendMode.DstIn))
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun testAlphaMaskWithDrawSrcOutBlendMode() {
+        verifyAlphaMaskWithBlendModes(
+            colorFilter = ColorFilter.tint(Color.Yellow, BlendMode.SrcOut))
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun testAlphaMaskWithDrawDstOutBlendMode() {
+        verifyAlphaMaskWithBlendModes(
+            colorFilter = ColorFilter.tint(Color.Yellow, BlendMode.DstOut))
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun testAlphaMaskWithDrawSrcAtopBlendMode() {
+        verifyAlphaMaskWithBlendModes(
+            colorFilter = ColorFilter.tint(Color.Yellow, BlendMode.SrcAtop))
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun testAlphaMaskWithDrawDstAtopBlendMode() {
+        verifyAlphaMaskWithBlendModes(
+            colorFilter = ColorFilter.tint(Color.Yellow, BlendMode.DstAtop))
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun testAlphaMaskWithDrawXorBlendMode() {
+        verifyAlphaMaskWithBlendModes(colorFilter = ColorFilter.tint(Color.Yellow, BlendMode.Xor))
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun testAlphaMaskWithDrawPlusBlendMode() {
+        verifyAlphaMaskWithBlendModes(colorFilter = ColorFilter.tint(Color.Yellow, BlendMode.Plus))
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun testAlphaMaskWithDrawModulateBlendMode() {
+        verifyAlphaMaskWithBlendModes(
+            colorFilter = ColorFilter.tint(Color.Yellow, BlendMode.Modulate))
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun testAlphaMaskWithDrawScreenBlendMode() {
+        verifyAlphaMaskWithBlendModes(
+            colorFilter = ColorFilter.tint(Color.Yellow, BlendMode.Screen))
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun testAlphaMaskWithDrawOverlayBlendMode() {
+        verifyAlphaMaskWithBlendModes(
+            colorFilter = ColorFilter.tint(Color.Yellow, BlendMode.Overlay))
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun testAlphaMaskWithDrawDarkenBlendMode() {
+        verifyAlphaMaskWithBlendModes(
+            colorFilter = ColorFilter.tint(Color.Yellow, BlendMode.Darken))
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun testAlphaMaskWithDrawLightenBlendMode() {
+        verifyAlphaMaskWithBlendModes(
+            colorFilter = ColorFilter.tint(Color.Yellow, BlendMode.Lighten))
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun testAlphaMaskWithDrawColorDodgeBlendMode() {
+        verifyAlphaMaskWithBlendModes(
+            colorFilter = ColorFilter.tint(Color.Yellow, BlendMode.ColorDodge))
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun testAlphaMaskWithDrawColorBurnBlendMode() {
+        verifyAlphaMaskWithBlendModes(
+            colorFilter = ColorFilter.tint(Color.Yellow, BlendMode.ColorBurn))
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun testAlphaMaskWithDrawHardlightBlendMode() {
+        verifyAlphaMaskWithBlendModes(
+            colorFilter = ColorFilter.tint(Color.Yellow, BlendMode.Hardlight))
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun testAlphaMaskWithDrawSoftLightBlendMode() {
+        verifyAlphaMaskWithBlendModes(
+            colorFilter = ColorFilter.tint(Color.Yellow, BlendMode.Softlight))
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun testAlphaMaskWithDrawDifferenceBlendMode() {
+        verifyAlphaMaskWithBlendModes(
+            colorFilter = ColorFilter.tint(Color.Yellow, BlendMode.Difference))
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun testAlphaMaskWithDrawExclusionBlendMode() {
+        verifyAlphaMaskWithBlendModes(
+            colorFilter = ColorFilter.tint(Color.Yellow, BlendMode.Exclusion))
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun testAlphaMaskWithDrawMultiplyBlendMode() {
+        verifyAlphaMaskWithBlendModes(
+            colorFilter = ColorFilter.tint(Color.Yellow, BlendMode.Multiply))
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun testAlphaMaskWithDrawHueBlendMode() {
+        verifyAlphaMaskWithBlendModes(colorFilter = ColorFilter.tint(Color.Yellow, BlendMode.Hue))
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun testAlphaMaskWithDrawSaturationBlendMode() {
+        verifyAlphaMaskWithBlendModes(
+            colorFilter = ColorFilter.tint(Color.Yellow, BlendMode.Saturation))
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun testAlphaMaskWithDrawColorBlendMode() {
+        verifyAlphaMaskWithBlendModes(
+            colorFilter = ColorFilter.tint(Color.Yellow, BlendMode.Color))
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun testAlphaMaskWithDrawLuminosityBlendMode() {
+        verifyAlphaMaskWithBlendModes(
+            colorFilter = ColorFilter.tint(Color.Yellow, BlendMode.Luminosity))
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun verifyAlphaMaskWithBlendModes(
+        intrinsicBlendMode: BlendMode = BlendMode.SrcIn,
+        colorFilter: ColorFilter? = null,
+        expectedConfig: ImageBitmapConfig? = null,
+    ) {
+        val defaultWidth = 24.dp
+        val defaultHeight = 24.dp
+        val testTag = "testTag"
+        var vectorPainter: VectorPainter? = null
+
+        // Create a gradient of the same color as a solid in order to verify behavior
+        // of intrinsic color filter usage both with and without the optimization to tint
+        // use a tinted alpha channel bitmap instead of a ARGB8888
+        val solidBlueGradient = Brush.horizontalGradient(listOf(Color.Blue, Color.Blue))
+        val solidBlueColor = SolidColor(Color.Blue)
+        var targetBrush: Brush by mutableStateOf(solidBlueColor)
+        rule.setContent {
+            vectorPainter = rememberVectorPainter(
+                defaultWidth = defaultWidth,
+                defaultHeight = defaultHeight,
+                tintColor = Color.Cyan,
+                tintBlendMode = intrinsicBlendMode,
+                autoMirror = false
+            ) { viewportWidth, viewportHeight ->
+                Path(
+                    fill = targetBrush,
+                    pathData = PathData {
+                        lineTo(viewportWidth, 0f)
+                        lineTo(viewportWidth, viewportHeight)
+                        lineTo(0f, viewportHeight)
+                        close()
+                    }
+                )
+            }
+            Image(
+                painter = vectorPainter!!,
+                contentDescription = null,
+                modifier = Modifier
+                    .testTag(testTag)
+                    .background(Color.Red)
+                    .graphicsLayer { compositingStrategy = CompositingStrategy.Offscreen },
+                contentScale = ContentScale.FillBounds,
+                colorFilter = colorFilter
+            )
+        }
+
+        rule.waitForIdle()
+
+        val solidBrushImage = rule.onNodeWithTag(testTag).captureToImage()
+        if (expectedConfig != null) {
+            assertEquals(expectedConfig, vectorPainter!!.bitmapConfig)
+        }
+
+        targetBrush = solidBlueGradient
+        rule.waitForIdle()
+
+        val gradientBrushImage = rule.onNodeWithTag(testTag).captureToImage()
+
+        assertArrayEquals(
+            "Optimized vector does not match expected for $intrinsicBlendMode",
+            gradientBrushImage.toPixelMap().buffer,
+            solidBrushImage.toPixelMap().buffer
+        )
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
     fun testPathColorChangeUpdatesBitmapConfig() {
         val defaultWidth = 24.dp
         val defaultHeight = 24.dp
@@ -438,11 +968,11 @@ class VectorTest {
         }
 
         rule.onNodeWithTag(testTag).captureToImage().assertPixels { Color.Blue }
-        assertEquals(ImageBitmapConfig.Alpha8, vectorPainter!!.bitmapConfig!!)
+        assertEquals(ImageBitmapConfig.Alpha8, vectorPainter!!.bitmapConfig)
 
         brush = Brush.horizontalGradient(listOf(Color.Blue, Color.Blue))
         rule.onNodeWithTag(testTag).captureToImage().assertPixels { Color.Blue }
-        assertEquals(ImageBitmapConfig.Argb8888, vectorPainter!!.bitmapConfig!!)
+        assertEquals(ImageBitmapConfig.Argb8888, vectorPainter!!.bitmapConfig)
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
@@ -483,11 +1013,11 @@ class VectorTest {
         }
 
         rule.onNodeWithTag(testTag).captureToImage().assertPixels { Color.Blue }
-        assertEquals(ImageBitmapConfig.Alpha8, vectorPainter!!.bitmapConfig!!)
+        assertEquals(ImageBitmapConfig.Alpha8, vectorPainter!!.bitmapConfig)
 
         brush = Brush.horizontalGradient(listOf(Color.Blue, Color.Blue))
         rule.onNodeWithTag(testTag).captureToImage().assertPixels { Color.Blue }
-        assertEquals(ImageBitmapConfig.Argb8888, vectorPainter!!.bitmapConfig!!)
+        assertEquals(ImageBitmapConfig.Argb8888, vectorPainter!!.bitmapConfig)
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
@@ -525,7 +1055,7 @@ class VectorTest {
         }
 
         rule.onNodeWithTag(testTag).captureToImage().assertPixels { Color.Blue }
-        assertEquals(ImageBitmapConfig.Alpha8, vectorPainter!!.bitmapConfig!!)
+        assertEquals(ImageBitmapConfig.Alpha8, vectorPainter!!.bitmapConfig)
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
