@@ -59,7 +59,12 @@ public final class LargeJpegImageQuirk implements Quirk {
             "SM-A705U",
             // Samsung Galaxy A72 series devices
             "SM-A725F",
-            "SM-A725M"
+            "SM-A725M",
+            // Samsung Galaxy S22 series devices
+            "SM-S901B",
+            "SM-S901B/DS",
+            // Samsung Galaxy S22+ series device
+            "SM-S906B"
     ));
 
     static boolean load() {
