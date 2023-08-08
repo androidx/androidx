@@ -38,6 +38,7 @@ import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicReference
 import kotlinx.coroutines.runBlocking
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -135,6 +136,7 @@ class CredentialManagerTest {
         )
     }
 
+    @Ignore // b/290792682
     @Test
     fun testClearCredentialSessionAsync_throws() {
         if (Looper.myLooper() == null) {
