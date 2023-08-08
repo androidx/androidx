@@ -201,8 +201,9 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
                     api(libs.skikoCommon)
                 }
             }
+            notMobileMain.dependsOn(skikoMain)
             desktopMain {
-                dependsOn(skikoMain)
+                dependsOn(notMobileMain)
                 dependencies {
                     implementation(libs.kotlinStdlibJdk8)
                 }
@@ -211,6 +212,8 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
             jsNativeMain.dependsOn(skikoMain)
             nativeMain.dependsOn(jsNativeMain)
             jsWasmMain.dependsOn(jsNativeMain)
+            jsWasmMain.dependsOn(notMobileMain)
+            macosMain.dependsOn(notMobileMain)
 
             jsMain {
                 dependsOn(jsWasmMain)

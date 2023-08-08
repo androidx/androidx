@@ -34,19 +34,12 @@ import androidx.compose.ui.input.pointer.PointerButton
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.PointerInputEvent
 import androidx.compose.ui.layout.Layout
-import androidx.compose.ui.layout.MeasurePolicy
-import androidx.compose.ui.layout.MeasureScope
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.dialog
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
-import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.center
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.util.fastForEach
-import androidx.compose.ui.util.fastMap
-import androidx.compose.ui.util.fastMaxBy
-import kotlin.math.min
 
 /**
  * The default scrim opacity.
@@ -157,7 +150,11 @@ private fun DialogLayout(
         focusable = true,
         onOutsidePointerEvent = onOutsidePointerEvent
     ) { owner ->
-        val measurePolicy = rememberDialogMeasurePolicy(properties) {
+        val density = LocalDensity.current
+        val measurePolicy = rememberDialogMeasurePolicy(
+            properties = properties,
+            platformOffset = with(density) { platformOffset() }
+        ) {
             owner.bounds = it
         }
         Layout(
@@ -170,43 +167,17 @@ private fun DialogLayout(
 @Composable
 private fun rememberDialogMeasurePolicy(
     properties: DialogProperties,
+    platformOffset: IntOffset,
     onBoundsChanged: (IntRect) -> Unit
-) = remember(properties, onBoundsChanged) {
-    MeasurePolicy { measurables, constraints ->
-        val dialogConstraints = if (properties.usePlatformDefaultWidth) {
-            platformDefaultConstrains(constraints)
-        } else constraints
-        val placeables = measurables.fastMap { it.measure(dialogConstraints) }
-        val width = placeables.fastMaxBy { it.width }?.width ?: constraints.minWidth
-        val height = placeables.fastMaxBy { it.height }?.height ?: constraints.minHeight
-
-        val placeableSize = IntSize(width, height)
-        val windowSize = IntSize(constraints.maxWidth, constraints.maxHeight)
-        val position = windowSize.center - placeableSize.center
-        onBoundsChanged(IntRect(position, placeableSize))
-
-        layout(windowSize.width, windowSize.height) {
-            placeables.fastForEach {
-                it.place(position.x, position.y)
-            }
-        }
+) = remember(properties, platformOffset, onBoundsChanged) {
+    RootMeasurePolicy(
+        platformOffset = platformOffset,
+        usePlatformDefaultWidth = properties.usePlatformDefaultWidth
+    ) { windowSize, contentSize ->
+        val position = windowSize.center - contentSize.center
+        onBoundsChanged(IntRect(position, contentSize))
+        position
     }
-}
-
-private fun MeasureScope.platformDefaultConstrains(
-    constraints: Constraints
-): Constraints = constraints.copy(
-    maxWidth = min(preferredDialogWidth(constraints), constraints.maxWidth)
-)
-
-// Ported from Android. See https://cs.android.com/search?q=abc_config_prefDialogWidth
-private fun MeasureScope.preferredDialogWidth(constraints: Constraints): Int {
-    val smallestWidth = min(constraints.maxWidth, constraints.maxHeight).toDp()
-    return when {
-        smallestWidth >= 600.dp -> 580.dp
-        smallestWidth >= 480.dp -> 440.dp
-        else -> 320.dp
-    }.roundToPx()
 }
 
 private fun PointerInputEvent.isMainAction() =

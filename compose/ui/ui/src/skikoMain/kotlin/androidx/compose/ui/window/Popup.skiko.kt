@@ -23,6 +23,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEvent
@@ -33,27 +34,50 @@ import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.input.pointer.PointerInputEvent
 import androidx.compose.ui.layout.Layout
-import androidx.compose.ui.layout.MeasurePolicy
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInWindow
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.semantics.popup
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
-import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.round
-import androidx.compose.ui.util.fastForEach
-import androidx.compose.ui.util.fastMap
-import androidx.compose.ui.util.fastMaxBy
 
+/**
+ * Properties used to customize the behavior of a [Popup].
+ *
+ * @property focusable Whether the popup is focusable. When true, the popup will receive IME
+ * events and key presses, such as when the back button is pressed.
+ * @property dismissOnBackPress Whether the popup can be dismissed by pressing the back button
+ * on Android or escape key on desktop.
+ * If true, pressing the back button will call onDismissRequest. Note that [focusable] must be
+ * set to true in order to receive key events such as the back button - if the popup is not
+ * focusable then this property does nothing.
+ * @property dismissOnClickOutside Whether the popup can be dismissed by clicking outside the
+ * popup's bounds. If true, clicking outside the popup will call onDismissRequest.
+ * @property usePlatformDefaultWidth Whether the width of the dialog's content should be limited to
+ * the platform default, which is smaller than the screen width.
+ */
 @Immutable
-actual class PopupProperties actual constructor(
+actual class PopupProperties @ExperimentalComposeUiApi constructor(
     actual val focusable: Boolean,
     actual val dismissOnBackPress: Boolean,
-    actual val dismissOnClickOutside: Boolean
+    actual val dismissOnClickOutside: Boolean,
+    val usePlatformDefaultWidth: Boolean = false,
 ) {
+    actual constructor(
+        focusable: Boolean,
+        dismissOnBackPress: Boolean,
+        dismissOnClickOutside: Boolean
+    ) : this(
+        focusable = focusable,
+        dismissOnBackPress = dismissOnBackPress,
+        dismissOnClickOutside = dismissOnClickOutside,
+        usePlatformDefaultWidth = false,
+    )
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is PopupProperties) return false
@@ -61,6 +85,7 @@ actual class PopupProperties actual constructor(
         if (focusable != other.focusable) return false
         if (dismissOnBackPress != other.dismissOnBackPress) return false
         if (dismissOnClickOutside != other.dismissOnClickOutside) return false
+        if (usePlatformDefaultWidth != other.usePlatformDefaultWidth) return false
 
         return true
     }
@@ -69,6 +94,7 @@ actual class PopupProperties actual constructor(
         var result = focusable.hashCode()
         result = 31 * result + dismissOnBackPress.hashCode()
         result = 31 * result + dismissOnClickOutside.hashCode()
+        result = 31 * result + usePlatformDefaultWidth.hashCode()
         return result
     }
 }
@@ -362,7 +388,6 @@ private fun PopupLayout(
     onOutsidePointerEvent: ((PointerInputEvent) -> Unit)? = null,
     content: @Composable () -> Unit
 ) {
-    val layoutDirection = LocalLayoutDirection.current
     var parentBounds by remember { mutableStateOf(IntRect.Zero) }
     EmptyLayout(Modifier.parentBoundsInWindow { parentBounds = it })
     RootLayout(
@@ -370,8 +395,12 @@ private fun PopupLayout(
         focusable = properties.focusable,
         onOutsidePointerEvent = onOutsidePointerEvent
     ) { owner ->
+        val density = LocalDensity.current
+        val layoutDirection = LocalLayoutDirection.current
         val measurePolicy = rememberPopupMeasurePolicy(
             popupPositionProvider = popupPositionProvider,
+            properties = properties,
+            platformOffset = with(density) { platformOffset() },
             layoutDirection = layoutDirection,
             parentBounds = parentBounds
         ) {
@@ -397,30 +426,21 @@ private fun Modifier.parentBoundsInWindow(
 @Composable
 private fun rememberPopupMeasurePolicy(
     popupPositionProvider: PopupPositionProvider,
+    properties: PopupProperties,
+    platformOffset: IntOffset,
     layoutDirection: LayoutDirection,
     parentBounds: IntRect,
     onBoundsChanged: (IntRect) -> Unit
-) = remember(popupPositionProvider, layoutDirection, parentBounds, onBoundsChanged) {
-    MeasurePolicy { measurables, constraints ->
-        val placeables = measurables.fastMap { it.measure(constraints) }
-        val width = placeables.fastMaxBy { it.width }?.width ?: constraints.minWidth
-        val height = placeables.fastMaxBy { it.height }?.height ?: constraints.minHeight
-
-        val placeableSize = IntSize(width, height)
-        val windowSize = IntSize(constraints.maxWidth, constraints.maxHeight)
+) = remember(popupPositionProvider, properties, platformOffset, layoutDirection, parentBounds, onBoundsChanged) {
+    RootMeasurePolicy(
+        platformOffset = platformOffset,
+        usePlatformDefaultWidth = properties.usePlatformDefaultWidth
+    ) { windowSize, contentSize ->
         val position = popupPositionProvider.calculatePosition(
-            anchorBounds = parentBounds,
-            windowSize = windowSize,
-            layoutDirection = layoutDirection,
-            popupContentSize = placeableSize
+            parentBounds, windowSize, layoutDirection, contentSize
         )
-        onBoundsChanged(IntRect(position, placeableSize))
-
-        layout(windowSize.width, windowSize.height) {
-            placeables.fastForEach {
-                it.place(position.x, position.y)
-            }
-        }
+        onBoundsChanged(IntRect(position, contentSize))
+        position
     }
 }
 

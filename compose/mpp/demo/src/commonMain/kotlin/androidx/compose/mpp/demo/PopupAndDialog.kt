@@ -19,6 +19,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.IntOffset
@@ -28,6 +29,7 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun PopupAndDialog() {
     Column(Modifier.padding(5.dp)) {
@@ -39,6 +41,13 @@ fun PopupAndDialog() {
         DialogSample(
             modifier = Modifier.fillMaxSize(),
             text = "Dialog: max size"
+        )
+        DialogSample(
+            modifier = Modifier.fillMaxSize(),
+            text = "Dialog: max size (unrestricted)",
+            properties = DialogProperties(
+                usePlatformDefaultWidth = false
+            )
         )
     }
 }
@@ -134,15 +143,16 @@ private fun MyPopup(
 }
 
 @Composable
-private fun DialogSample(modifier: Modifier = Modifier, text: String = "Dialog") {
+private fun DialogSample(
+    modifier: Modifier = Modifier,
+    text: String = "Dialog",
+    properties: DialogProperties = DialogProperties()
+) {
     var showDialog by remember { mutableStateOf(false) }
     if (showDialog) {
         Dialog(
             onDismissRequest = { showDialog = false },
-            properties = DialogProperties(
-                dismissOnBackPress = true,
-                dismissOnClickOutside = true
-            )
+            properties = properties
         ) {
             Surface(
                 modifier = modifier,
