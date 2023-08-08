@@ -236,14 +236,10 @@ final class SupportedSurfaceCombination {
         }
 
         for (SurfaceCombination surfaceCombination : mSurfaceCombinationsStreamUseCase) {
-            // Stream use case table doesn't support sublist. SurfaceCombination and
-            // SurfaceConfig list need to be EXACT match.
-            if (surfaceCombination.getSurfaceConfigList().size() == surfaceConfigList.size()) {
-                List<SurfaceConfig> orderedSurfaceConfigList =
-                        surfaceCombination.getOrderedSupportedSurfaceConfigList(surfaceConfigList);
-                if (orderedSurfaceConfigList != null) {
-                    return orderedSurfaceConfigList;
-                }
+            List<SurfaceConfig> orderedSurfaceConfigList =
+                    surfaceCombination.getOrderedSupportedSurfaceConfigList(surfaceConfigList);
+            if (orderedSurfaceConfigList != null) {
+                return orderedSurfaceConfigList;
             }
         }
         return null;

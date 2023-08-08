@@ -69,7 +69,6 @@ import androidx.camera.core.impl.CameraMode
 import androidx.camera.core.impl.ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE
 import androidx.camera.core.impl.ImageInputConfig
 import androidx.camera.core.impl.StreamSpec
-import androidx.camera.core.impl.SurfaceCombination
 import androidx.camera.core.impl.SurfaceConfig
 import androidx.camera.core.impl.SurfaceConfig.ConfigSize
 import androidx.camera.core.impl.SurfaceConfig.ConfigType
@@ -221,23 +220,6 @@ class SupportedSurfaceCombinationTest {
     }
 
     @Test
-    fun checkLegacySurfaceCombinationSubListSupportedInLegacyDevice() {
-        setupCameraAndInitCameraX()
-        val supportedSurfaceCombination = SupportedSurfaceCombination(
-            context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
-        )
-        GuaranteedConfigurationsUtil.getLegacySupportedCombinationList().also {
-            assertThat(
-                isAllSubConfigListSupported(
-                    CameraMode.DEFAULT,
-                    supportedSurfaceCombination,
-                    it
-                )
-            ).isTrue()
-        }
-    }
-
-    @Test
     fun checkLimitedSurfaceCombinationNotSupportedInLegacyDevice() {
         setupCameraAndInitCameraX()
         val supportedSurfaceCombination = SupportedSurfaceCombination(
@@ -304,25 +286,6 @@ class SupportedSurfaceCombinationTest {
     }
 
     @Test
-    fun checkLimitedSurfaceCombinationSubListSupportedInLimited3Device() {
-        setupCameraAndInitCameraX(
-            hardwareLevel = CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED
-        )
-        val supportedSurfaceCombination = SupportedSurfaceCombination(
-            context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
-        )
-        GuaranteedConfigurationsUtil.getLimitedSupportedCombinationList().also {
-            assertThat(
-                isAllSubConfigListSupported(
-                    CameraMode.DEFAULT,
-                    supportedSurfaceCombination,
-                    it
-                )
-            ).isTrue()
-        }
-    }
-
-    @Test
     fun checkFullSurfaceCombinationNotSupportedInLimitedDevice() {
         setupCameraAndInitCameraX(
             hardwareLevel = CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED
@@ -371,25 +334,6 @@ class SupportedSurfaceCombinationTest {
                 supportedSurfaceCombination.checkSupported(
                     FeatureSettings.of(CameraMode.DEFAULT, BIT_DEPTH_8_BIT),
                     it.surfaceConfigList
-                )
-            ).isTrue()
-        }
-    }
-
-    @Test
-    fun checkFullSurfaceCombinationSubListSupportedInFullDevice() {
-        setupCameraAndInitCameraX(
-            hardwareLevel = CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL
-        )
-        val supportedSurfaceCombination = SupportedSurfaceCombination(
-            context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
-        )
-        GuaranteedConfigurationsUtil.getFullSupportedCombinationList().also {
-            assertThat(
-                isAllSubConfigListSupported(
-                    CameraMode.DEFAULT,
-                    supportedSurfaceCombination,
-                    it
                 )
             ).isTrue()
         }
@@ -508,25 +452,6 @@ class SupportedSurfaceCombinationTest {
     }
 
     @Test
-    fun checkLevel3SurfaceCombinationSubListSupportedInLevel3Device() {
-        setupCameraAndInitCameraX(
-            hardwareLevel = CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_3
-        )
-        val supportedSurfaceCombination = SupportedSurfaceCombination(
-            context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
-        )
-        GuaranteedConfigurationsUtil.getLevel3SupportedCombinationList().also {
-            assertThat(
-                isAllSubConfigListSupported(
-                    CameraMode.DEFAULT,
-                    supportedSurfaceCombination,
-                    it
-                )
-            ).isTrue()
-        }
-    }
-
-    @Test
     fun checkConcurrentSurfaceCombinationSupportedInConcurrentCameraMode() {
         shadowOf(context.packageManager).setSystemFeature(
             FEATURE_CAMERA_CONCURRENT, true
@@ -542,26 +467,6 @@ class SupportedSurfaceCombinationTest {
                 supportedSurfaceCombination.checkSupported(
                     FeatureSettings.of(CameraMode.CONCURRENT_CAMERA, BIT_DEPTH_8_BIT),
                     it.surfaceConfigList
-                )
-            ).isTrue()
-        }
-    }
-
-    @Test
-    fun checkConcurrentSurfaceCombinationSubListSupportedInConcurrentCameraMode() {
-        shadowOf(context.packageManager).setSystemFeature(
-            FEATURE_CAMERA_CONCURRENT, true
-        )
-        setupCameraAndInitCameraX(
-            hardwareLevel = CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_3
-        )
-        val supportedSurfaceCombination = SupportedSurfaceCombination(
-            context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
-        )
-        GuaranteedConfigurationsUtil.getConcurrentSupportedCombinationList().also {
-            assertThat(
-                isAllSubConfigListSupported(
-                    CameraMode.CONCURRENT_CAMERA, supportedSurfaceCombination, it
                 )
             ).isTrue()
         }
@@ -588,29 +493,6 @@ class SupportedSurfaceCombinationTest {
                         CameraMode.ULTRA_HIGH_RESOLUTION_CAMERA, BIT_DEPTH_8_BIT
                     ),
                     it.surfaceConfigList
-                )
-            ).isTrue()
-        }
-    }
-
-    @Test
-    @Config(minSdk = Build.VERSION_CODES.S)
-    fun checkUltraHighResolutionSurfaceCombinationSubListSupportedInUltraHighCameraMode() {
-        setupCameraAndInitCameraX(
-            maximumResolutionSupportedSizes = MAXIMUM_RESOLUTION_SUPPORTED_SIZES,
-            maximumResolutionHighResolutionSupportedSizes =
-            MAXIMUM_RESOLUTION_HIGH_RESOLUTION_SUPPORTED_SIZES,
-            capabilities = intArrayOf(
-                CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_ULTRA_HIGH_RESOLUTION_SENSOR
-            )
-        )
-        val supportedSurfaceCombination = SupportedSurfaceCombination(
-            context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
-        )
-        GuaranteedConfigurationsUtil.getUltraHighResolutionSupportedCombinationList().also {
-            assertThat(
-                isAllSubConfigListSupported(
-                    CameraMode.ULTRA_HIGH_RESOLUTION_CAMERA, supportedSurfaceCombination, it
                 )
             ).isTrue()
         }
@@ -1684,28 +1566,6 @@ class SupportedSurfaceCombinationTest {
                 supportedSurfaceCombination.checkSupported(
                     FeatureSettings.of(CameraMode.DEFAULT, BIT_DEPTH_10_BIT),
                     it.surfaceConfigList
-                )
-            ).isTrue()
-        }
-    }
-
-    @Config(minSdk = Build.VERSION_CODES.TIRAMISU)
-    @Test
-    fun check10BitDynamicRangeCombinationsSubListSupported() {
-        setupCameraAndInitCameraX(
-            capabilities = intArrayOf(
-                REQUEST_AVAILABLE_CAPABILITIES_DYNAMIC_RANGE_TEN_BIT
-            )
-        )
-        val supportedSurfaceCombination = SupportedSurfaceCombination(
-            context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
-        )
-
-        GuaranteedConfigurationsUtil.get10BitSupportedCombinationList().also {
-            assertThat(
-                isAllSubConfigListSupported(
-                    CameraMode.DEFAULT,
-                    supportedSurfaceCombination, it, BIT_DEPTH_10_BIT
                 )
             ).isTrue()
         }
@@ -3147,13 +3007,11 @@ class SupportedSurfaceCombinationTest {
     @Config(minSdk = Build.VERSION_CODES.TIRAMISU)
     @Test
     fun populateStreamUseCaseStreamSpecOptionWithSupportedSurfaceConfigs_wrongImageFormat() {
-        val useCase1 =
-            createUseCase(CaptureType.VIDEO_CAPTURE) // VIDEO
-        val useCase2 =
-            createUseCase(CaptureType.PREVIEW, imageFormat = ImageFormat.JPEG) // PREVIEW
+        val useCase1 = createUseCase(CaptureType.VIDEO_CAPTURE) // VIDEO
+        val useCase2 = createUseCase(CaptureType.PREVIEW, imageFormat = ImageFormat.JPEG)
         val useCaseExpectedResultMap = mutableMapOf<UseCase, Size>().apply {
-            put(useCase1, RECORD_SIZE)
-            put(useCase2, RECORD_SIZE)
+            put(useCase1, PREVIEW_SIZE)
+            put(useCase2, MAXIMUM_SIZE)
         }
         val resultPair = getSuggestedSpecsAndVerify(
             useCaseExpectedResultMap,
@@ -3506,34 +3364,6 @@ class SupportedSurfaceCombinationTest {
             throw IllegalStateException("Unable to initialize CameraX for test.")
         }
         useCaseConfigFactory = cameraX.defaultConfigFactory
-    }
-
-    private fun isAllSubConfigListSupported(
-        cameraMode: Int = CameraMode.DEFAULT,
-        supportedSurfaceCombination: SupportedSurfaceCombination,
-        combinationList: List<SurfaceCombination>,
-        requiredMaxBitDepth: Int = BIT_DEPTH_8_BIT
-    ): Boolean {
-        combinationList.forEach { combination ->
-            val configList = combination.surfaceConfigList
-            val length = configList.size
-            if (length <= 1) {
-                return@forEach
-            }
-            for (index in 0 until length) {
-                val subConfigurationList = arrayListOf<SurfaceConfig>().apply {
-                    addAll(configList)
-                    removeAt(index)
-                }
-                val featureSettings = FeatureSettings.of(cameraMode, requiredMaxBitDepth)
-                if (!supportedSurfaceCombination
-                        .checkSupported(featureSettings, subConfigurationList)
-                ) {
-                    return false
-                }
-            }
-        }
-        return true
     }
 
     private fun createUseCase(
