@@ -19,6 +19,7 @@ package androidx.compose.ui.input.pointer
 import androidx.collection.LongSparseArray
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Matrix
 import androidx.compose.ui.node.HitTestResult
 import androidx.compose.ui.node.InternalCoreApi
 import androidx.compose.ui.node.LayoutNode
@@ -27,6 +28,12 @@ import androidx.compose.ui.util.fastForEach
 internal interface PositionCalculator {
     fun screenToLocal(positionOnScreen: Offset): Offset
     fun localToScreen(localPosition: Offset): Offset
+
+    /**
+     * Takes a matrix which transforms some coordinate system to local coordinates, and updates the
+     * matrix to transform to screen coordinates instead.
+     */
+    fun localToScreen(localTransform: Matrix)
 }
 
 /**

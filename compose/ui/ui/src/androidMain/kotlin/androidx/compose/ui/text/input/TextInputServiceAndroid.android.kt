@@ -28,8 +28,9 @@ import android.view.inputmethod.BaseInputConnection
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputConnection
 import androidx.compose.runtime.collection.mutableVectorOf
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.graphics.Matrix
+import androidx.compose.ui.input.pointer.PositionCalculator
 import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextRange
@@ -53,6 +54,7 @@ private const val DEBUG_CLASS = "TextInputServiceAndroid"
  */
 internal class TextInputServiceAndroid(
     val view: View,
+    rootPositionCalculator: PositionCalculator,
     private val inputMethodManager: InputMethodManager,
     private val inputCommandProcessorExecutor: Executor = Choreographer.getInstance().asExecutor(),
 ) : PlatformTextInputService {
@@ -99,7 +101,8 @@ internal class TextInputServiceAndroid(
 
     private var focusedRect: AndroidRect? = null
 
-    private val cursorAnchorInfoController = CursorAnchorInfoController(inputMethodManager)
+    private val cursorAnchorInfoController =
+        CursorAnchorInfoController(rootPositionCalculator, inputMethodManager)
 
     /**
      * A channel that is used to debounce rapid operations such as showing/hiding the keyboard and
@@ -110,8 +113,9 @@ internal class TextInputServiceAndroid(
     private val textInputCommandQueue = mutableVectorOf<TextInputCommand>()
     private var frameCallback: Runnable? = null
 
-    constructor(view: View) : this(
+    constructor(view: View, positionCalculator: PositionCalculator) : this(
         view,
+        positionCalculator,
         InputMethodManagerImpl(view),
     )
 
@@ -436,7 +440,7 @@ internal class TextInputServiceAndroid(
         textFieldValue: TextFieldValue,
         offsetMapping: OffsetMapping,
         textLayoutResult: TextLayoutResult,
-        textLayoutPositionInWindow: Offset,
+        textFieldToRootTransform: (Matrix) -> Unit,
         innerTextFieldBounds: Rect,
         decorationBoxBounds: Rect
     ) {
@@ -444,7 +448,7 @@ internal class TextInputServiceAndroid(
             textFieldValue,
             offsetMapping,
             textLayoutResult,
-            textLayoutPositionInWindow,
+            textFieldToRootTransform,
             innerTextFieldBounds,
             decorationBoxBounds
         )
