@@ -643,7 +643,7 @@ internal fun Color.rgbEqual(other: Color) =
  * if the bitmap has an Alpha8 or ARGB8888 configuration
  */
 internal fun ColorFilter?.tintableWithAlphaMask() = if (this is BlendModeColorFilter) {
-    this.blendMode == BlendMode.SrcIn
+    this.blendMode == BlendMode.SrcIn || this.blendMode == BlendMode.SrcOver
 } else {
     this == null
 }
