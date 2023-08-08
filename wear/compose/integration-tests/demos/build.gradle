@@ -28,9 +28,6 @@ android {
         targetSdk 30
         versionCode 16
         versionName "1.16"
-        // Change the APK name to match the *testapp regex we use to pick up APKs for testing as
-        // part of CI.
-        archivesBaseName = "wear-compose-demos-testapp"
     }
 
     buildTypes {
