@@ -210,56 +210,6 @@ class PlacedChildTest {
             assertThat(placementCount).isEqualTo(0)
         }
     }
-
-    @Test
-    fun placementIsNotCalledOnChildOfNotPlacedParent() {
-        val counterState = mutableStateOf(0)
-        val shouldPlaceState = mutableStateOf(true)
-        var placementCount = 0
-        rule.setContent {
-            Layout(content = {
-                Layout(content = {
-                    Layout { _, _ ->
-                        counterState.value
-                        layout(50, 50) {
-                            placementCount++
-                        }
-                    }
-                }) { measurables, constraints ->
-                    // this parent is always placing a child
-                    val placeable = measurables.first().measure(constraints)
-                    layout(placeable.width, placeable.height) {
-                        placeable.place(0, 0)
-                    }
-                }
-            }) { measurables, constraints ->
-                val placeable = measurables.first().measure(constraints)
-                val shouldPlace = shouldPlaceState.value
-                layout(placeable.width, placeable.height) {
-                    // this parent is placing a child conditionally
-                    if (shouldPlace) {
-                        placeable.place(0, 0)
-                    }
-                }
-            }
-        }
-
-        rule.runOnIdle {
-            placementCount = 0
-            // we trigger remeasurement for the leaf node
-            counterState.value++
-
-            // and we also trigger remeasurement for the grand-parent
-            // during this remeasurement forceMeasureTheSubtree will reach the leaf node
-            // via the forceMeasureTheSubtree, however it shouldn't run its placement block
-            // as the leaf node will not be placed in the end
-            shouldPlaceState.value = false
-        }
-
-        rule.runOnIdle {
-            assertThat(placementCount).isEqualTo(0)
-        }
-    }
 }
 
 private val UseChildSizeButNotPlace = object : LayoutNode.NoIntrinsicsMeasurePolicy("") {

@@ -448,8 +448,7 @@ internal class MeasureAndLayoutDelegate(private val root: LayoutNode) {
      */
     private fun remeasureAndRelayoutIfNeeded(
         layoutNode: LayoutNode,
-        affectsLookahead: Boolean = true,
-        relayoutNeeded: Boolean = true
+        affectsLookahead: Boolean = true
     ): Boolean {
         var sizeChanged = false
         if (layoutNode.isPlaced ||
@@ -471,18 +470,14 @@ internal class MeasureAndLayoutDelegate(private val root: LayoutNode) {
             ) {
                 layoutNode.lookaheadReplace()
             }
-            if (layoutNode.layoutPending && relayoutNeeded) {
-                val isPlacedByPlacedParent = layoutNode === root ||
-                    (layoutNode.parent?.isPlaced == true && layoutNode.isPlacedByParent)
-                if (isPlacedByPlacedParent) {
-                    if (layoutNode === root) {
-                        layoutNode.place(0, 0)
-                    } else {
-                        layoutNode.replace()
-                    }
-                    onPositionedDispatcher.onNodePositioned(layoutNode)
-                    consistencyChecker?.assertConsistent()
+            if (layoutNode.layoutPending && (layoutNode.isPlacedByParent || layoutNode === root)) {
+                if (layoutNode === root) {
+                    layoutNode.place(0, 0)
+                } else {
+                    layoutNode.replace()
                 }
+                onPositionedDispatcher.onNodePositioned(layoutNode)
+                consistencyChecker?.assertConsistent()
             }
             // execute postponed `onRequestMeasure`
             if (postponedMeasureRequests.isNotEmpty()) {
@@ -544,12 +539,11 @@ internal class MeasureAndLayoutDelegate(private val root: LayoutNode) {
         require(!pending(layoutNode)) { "node not yet measured" }
 
         layoutNode.forEachChild { child ->
-            if (pending(child) && relayoutNodes.contains(child, affectsLookahead)) {
-                // we don't need to run relayout as part of this logic. so the node will
-                // not be removed from `relayoutNodes` in order to be visited again during
-                // the regular pass. it is important as the parent of this node can decide
-                // to not place this child, so the child relayout should be skipped.
-                remeasureAndRelayoutIfNeeded(child, affectsLookahead, relayoutNeeded = false)
+            if (pending(child) && relayoutNodes.remove(child, affectsLookahead)) {
+                // If lookaheadMeasurePending && this forceMeasureSubtree call doesn't affect
+                // lookahead, we'll leave the node in the [relayoutNodes] for further lookahead
+                // remeasurement.
+                remeasureAndRelayoutIfNeeded(child, affectsLookahead)
             }
 
             // if the child is still in NeedsRemeasure state then this child remeasure wasn't
