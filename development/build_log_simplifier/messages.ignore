@@ -20,9 +20,6 @@ Configuration on demand is an incubating feature\.
 Calculating task graph as configuration cache cannot be reused because an input to ClasspathEntrySnapshotTransform\: \$OUT_DIR\/buildSrc\/jetpad\-integration\/build\/libs\/jetpad\-integration\.jar has changed\.
 Calculating task graph as configuration cache cannot be reused because the set of Gradle properties has changed\.
 You are using legacy USE_ANDROIDX_REMOTE_BUILD_CACHE=true type, this cache has been turned down, so you are \*not\* using a remote cache\. Please move to the new cache using http://go/androidx\-dev\#remote\-build\-cache
-Configuration cache is an incubating feature\.
-# > Configure project :
-updated local\.properties
 # > Configure project :compose:test\-utils
 # https://youtrack.jetbrains.com/issue/KT-48436
 The following Kotlin source sets were configured but not added to any Kotlin compilation:
