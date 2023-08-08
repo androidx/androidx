@@ -43,10 +43,5 @@ dependencies {
 }
 
 android {
-    defaultConfig {
-        // Change the APK name to match the *testapp regex we use to pick up APKs for testing as
-        // part of CI.
-        archivesBaseName = "glance-appwidget-template-demos-testapp"
-    }
     namespace "androidx.glance.appwidget.template.demos"
 }
