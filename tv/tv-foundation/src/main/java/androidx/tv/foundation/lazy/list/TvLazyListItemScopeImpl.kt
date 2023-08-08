@@ -95,7 +95,7 @@ private class ParentSizeElement(
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (other !is ParentSizeNode) return false
+        if (other !is ParentSizeElement) return false
         return fraction == other.fraction &&
             widthState == other.widthState &&
             heightState == other.heightState
