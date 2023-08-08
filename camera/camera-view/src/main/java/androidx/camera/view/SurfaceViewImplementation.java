@@ -20,6 +20,7 @@ import static java.util.Objects.requireNonNull;
 
 import android.graphics.Bitmap;
 import android.os.Handler;
+import android.os.HandlerThread;
 import android.util.Size;
 import android.view.PixelCopy;
 import android.view.Surface;
@@ -141,6 +142,11 @@ final class SurfaceViewImplementation extends PreviewViewImplementation {
         // Copy display contents of the surfaceView's surface into a Bitmap.
         final Bitmap bitmap = Bitmap.createBitmap(mSurfaceView.getWidth(), mSurfaceView.getHeight(),
                 Bitmap.Config.ARGB_8888);
+
+        HandlerThread backgroundThread = new HandlerThread("pixelCopyRequest Thread");
+        backgroundThread.start();
+        Handler backgroundHandler = new Handler(backgroundThread.getLooper());
+
         Api24Impl.pixelCopyRequest(mSurfaceView, bitmap, copyResult -> {
             if (copyResult == PixelCopy.SUCCESS) {
                 Logger.d(TAG, "PreviewView.SurfaceViewImplementation.getBitmap() succeeded");
@@ -149,8 +155,7 @@ final class SurfaceViewImplementation extends PreviewViewImplementation {
                         + copyResult);
             }
             screenshotLock.release();
-        }, mSurfaceView.getHandler());
-
+        }, backgroundHandler);
         // Blocks the current thread until the screenshot is done or timed out.
         try {
             boolean success = screenshotLock.tryAcquire(1, SCREENSHOT_TIMEOUT_MILLIS,
@@ -163,6 +168,8 @@ final class SurfaceViewImplementation extends PreviewViewImplementation {
             }
         } catch (InterruptedException e) {
             Logger.e(TAG, "Interrupted while trying to acquire screenshot.", e);
+        } finally {
+            backgroundThread.quitSafely();
         }
         return bitmap;
     }
