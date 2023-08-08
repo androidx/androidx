@@ -61,7 +61,6 @@ See the profiling report at\: file\:\/\/\$OUT_DIR\/androidx\/build\/reports\/pro
 # > Task :lifecycle:lifecycle-common:compileJava
 Note: \$[^ ]+ uses or overrides a deprecated API\.
 Note: Recompile with \-Xlint\:deprecation for details\.
-Note: \$SUPPORT/room/integration\-tests/testapp/src/androidTest/java/androidx/room/integration/testapp/test/TestUtil\.java uses unchecked or unsafe operations\.
 # > Task :startup:integration-tests:first-library:processDebugManifest
 \$SUPPORT/startup/integration\-tests/first\-library/src/main/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 meta\-data\#androidx\.work\.WorkManagerInitializer was tagged at AndroidManifest\.xml\:[0-9]+ to remove other declarations but no other declaration present
