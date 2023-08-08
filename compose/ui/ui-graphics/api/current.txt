@@ -216,6 +216,14 @@ package androidx.compose.ui.graphics {
     property public final int Xor;
   }
 
+  @androidx.compose.runtime.Immutable public final class BlendModeColorFilter extends androidx.compose.ui.graphics.ColorFilter {
+    ctor public BlendModeColorFilter(long color, int blendMode);
+    method public int getBlendMode();
+    method public long getColor();
+    property public final int blendMode;
+    property public final long color;
+  }
+
   @androidx.compose.runtime.Immutable public final class BlurEffect extends androidx.compose.ui.graphics.RenderEffect {
     ctor public BlurEffect(androidx.compose.ui.graphics.RenderEffect? renderEffect, float radiusX, float radiusY, int edgeTreatment);
     method @RequiresApi(android.os.Build.VERSION_CODES.S) protected android.graphics.RenderEffect createRenderEffect();
@@ -358,7 +366,7 @@ package androidx.compose.ui.graphics {
     property public final long Yellow;
   }
 
-  @androidx.compose.runtime.Immutable public final class ColorFilter {
+  @androidx.compose.runtime.Immutable public class ColorFilter {
     field public static final androidx.compose.ui.graphics.ColorFilter.Companion Companion;
   }
 
@@ -398,6 +406,11 @@ package androidx.compose.ui.graphics {
     method public void setToScale(float redScale, float greenScale, float blueScale, float alphaScale);
     method public operator void timesAssign(float[] colorMatrix);
     property public final float[] values;
+  }
+
+  @androidx.compose.runtime.Immutable public final class ColorMatrixColorFilter extends androidx.compose.ui.graphics.ColorFilter {
+    ctor public ColorMatrixColorFilter(float[] colorMatrix);
+    method public float[] copyColorMatrix(optional float[] targetColorMatrix);
   }
 
   public fun interface ColorProducer {
@@ -465,6 +478,14 @@ package androidx.compose.ui.graphics {
   public final class ImageBitmapKt {
     method public static androidx.compose.ui.graphics.ImageBitmap ImageBitmap(int width, int height, optional int config, optional boolean hasAlpha, optional androidx.compose.ui.graphics.colorspace.ColorSpace colorSpace);
     method public static androidx.compose.ui.graphics.PixelMap toPixelMap(androidx.compose.ui.graphics.ImageBitmap, optional int startX, optional int startY, optional int width, optional int height, optional int[] buffer, optional int bufferOffset, optional int stride);
+  }
+
+  @androidx.compose.runtime.Immutable public final class LightingColorFilter extends androidx.compose.ui.graphics.ColorFilter {
+    ctor public LightingColorFilter(long multiply, long add);
+    method public long getAdd();
+    method public long getMultiply();
+    property public final long add;
+    property public final long multiply;
   }
 
   @androidx.compose.runtime.Immutable public final class LinearGradient extends androidx.compose.ui.graphics.ShaderBrush {
