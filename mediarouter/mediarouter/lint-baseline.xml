@@ -1,5 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.2.0-alpha14" type="baseline" client="gradle" dependencies="false" name="AGP (8.2.0-alpha14)" variant="all" version="8.2.0-alpha14">
+<issues format="6" by="lint 8.1.0-beta05" type="baseline" client="gradle" dependencies="false" name="AGP (8.1.0-beta05)" variant="all" version="8.1.0-beta05">
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 27 (current min is 14): `android.app.Activity#setTurnScreenOn`"
+        errorLine1="        setTurnScreenOn(true);"
+        errorLine2="        ~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/mediarouter/media/MediaRouter2TestActivity.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 27 (current min is 14): `android.app.Activity#setShowWhenLocked`"
+        errorLine1="        setShowWhenLocked(true);"
+        errorLine2="        ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/mediarouter/media/MediaRouter2TestActivity.java"/>
+    </issue>
 
     <issue
         id="BanThreadSleep"
@@ -74,12 +92,12 @@
     </issue>
 
     <issue
-        id="UnspecifiedRegisterReceiverFlag"
-        message="`mActionReceiver` \&#xA;is missing `RECEIVER_EXPORTED` or `RECEIVER_NOT_EXPORTED` flag for unprotected \&#xA;broadcasts registered for androidx.mediarouter.media.actions.ACTION_ITEM_STATUS_CHANGED, androidx.mediarouter.media.actions.ACTION_SESSION_STATUS_CHANGED, androidx.mediarouter.media.actions.ACTION_MESSAGE_RECEIVED"
-        errorLine1="            context.registerReceiver(mActionReceiver, actionFilter);"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        id="PrereleaseSdkCoreDependency"
+        message="Prelease SDK check isAtLeastU cannot be called as this project has a versioned dependency on androidx.core:core"
+        errorLine1="        if (BuildCompat.isAtLeastU()) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/mediarouter/media/RemotePlaybackClient.java"/>
+            file="src/main/java/androidx/mediarouter/media/MediaRoute2Provider.java"/>
     </issue>
 
 </issues>
