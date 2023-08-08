@@ -190,6 +190,36 @@ public final class AccessibilityManagerCompat {
         }
     }
 
+
+    /**
+     * Whether the current accessibility request comes from an
+     * {@link android.accessibilityservice.AccessibilityService} with the
+     * {@link AccessibilityServiceInfo#isAccessibilityTool}
+     * property set to true.
+     *
+     * <p>
+     * You can use this method inside {@link android.view.accessibility.AccessibilityNodeProvider}
+     * to decide how to populate your nodes.
+     * </p>
+     *
+     * <p>
+     * <strong>Note:</strong> The return value is valid only when an
+     * {@link android.view.accessibility.AccessibilityNodeInfo} request is in progress, can
+     * change from one request to another, and has no meaning when a request is not in progress.
+     * </p>
+     *
+     * @return True if the current request is from a tool that sets isAccessibilityTool.
+     */
+    public static boolean isRequestFromAccessibilityTool(@NonNull AccessibilityManager manager) {
+        if (Build.VERSION.SDK_INT >= 34) {
+            return Api34Impl.isRequestFromAccessibilityTool(manager);
+        } else {
+            // To preserve behavior, assume every service isAccessibilityTool if the system does
+            // not support this check.
+            return true;
+        }
+    }
+
     @RequiresApi(19)
     private static final class TouchExplorationStateChangeListenerWrapper
             implements AccessibilityManager.TouchExplorationStateChangeListener {
@@ -273,6 +303,17 @@ public final class AccessibilityManagerCompat {
     private AccessibilityManagerCompat() {
     }
 
+    @RequiresApi(34)
+    static class Api34Impl {
+        private Api34Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static boolean isRequestFromAccessibilityTool(AccessibilityManager accessibilityManager) {
+            return accessibilityManager.isRequestFromAccessibilityTool();
+        }
+    }
     @RequiresApi(19)
     static class Api19Impl {
         private Api19Impl() {

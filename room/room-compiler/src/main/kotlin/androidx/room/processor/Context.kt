@@ -147,10 +147,32 @@ class Context private constructor(
         }
     }
 
+    val schemaInFolderPath by lazy {
+        val internalInputFolder =
+            processingEnv.options[ProcessorOptions.INTERNAL_SCHEMA_INPUT_FOLDER.argName]
+        val legacySchemaFolder =
+            processingEnv.options[ProcessorOptions.OPTION_SCHEMA_FOLDER.argName]
+        if (!internalInputFolder.isNullOrBlank()) {
+            internalInputFolder
+        } else if (!legacySchemaFolder.isNullOrBlank()) {
+            legacySchemaFolder
+        } else {
+            null
+        }
+    }
+
     val schemaOutFolderPath by lazy {
-        val arg = processingEnv.options[ProcessorOptions.OPTION_SCHEMA_FOLDER.argName]
-        if (arg?.isNotEmpty() == true) {
-            arg
+        val internalOutputFolder =
+            processingEnv.options[ProcessorOptions.INTERNAL_SCHEMA_OUTPUT_FOLDER.argName]
+        val legacySchemaFolder =
+            processingEnv.options[ProcessorOptions.OPTION_SCHEMA_FOLDER.argName]
+        if (!internalOutputFolder.isNullOrBlank() && !legacySchemaFolder.isNullOrBlank()) {
+            logger.e(ProcessorErrors.INVALID_GRADLE_PLUGIN_AND_SCHEMA_LOCATION_OPTION)
+        }
+        if (!internalOutputFolder.isNullOrBlank()) {
+            internalOutputFolder
+        } else if (!legacySchemaFolder.isNullOrBlank()) {
+            legacySchemaFolder
         } else {
             null
         }
@@ -256,14 +278,17 @@ class Context private constructor(
     }
 
     enum class ProcessorOptions(val argName: String) {
-        OPTION_SCHEMA_FOLDER("room.schemaLocation")
+        OPTION_SCHEMA_FOLDER("room.schemaLocation"),
+        INTERNAL_SCHEMA_INPUT_FOLDER("room.internal.schemaInput"),
+        INTERNAL_SCHEMA_OUTPUT_FOLDER("room.internal.schemaOutput"),
     }
 
     enum class BooleanProcessorOptions(val argName: String, private val defaultValue: Boolean) {
         INCREMENTAL("room.incremental", defaultValue = true),
         EXPAND_PROJECTION("room.expandProjection", defaultValue = false),
         USE_NULL_AWARE_CONVERTER("room.useNullAwareTypeAnalysis", defaultValue = false),
-        GENERATE_KOTLIN("room.generateKotlin", defaultValue = false);
+        GENERATE_KOTLIN("room.generateKotlin", defaultValue = false),
+        EXPORT_SCHEMA_RESOURCE("room.exportSchemaResource", defaultValue = false);
 
         /**
          * Returns the value of this option passed through the [XProcessingEnv]. If the value
@@ -273,8 +298,16 @@ class Context private constructor(
             return getInputValue(processingEnv) ?: defaultValue
         }
 
+        fun getValue(options: Map<String, String>): Boolean {
+            return getInputValue(options) ?: defaultValue
+        }
+
         fun getInputValue(processingEnv: XProcessingEnv): Boolean? {
-            return processingEnv.options[argName]?.takeIf {
+            return getInputValue(processingEnv.options)
+        }
+
+        private fun getInputValue(options: Map<String, String>): Boolean? {
+            return options[argName]?.takeIf {
                 it.isNotBlank()
             }?.toBoolean()
         }

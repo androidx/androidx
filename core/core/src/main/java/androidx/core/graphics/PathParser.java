@@ -21,6 +21,7 @@ import android.graphics.Path;
 import android.util.Log;
 
 import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
 
 import java.util.ArrayList;
 
@@ -28,8 +29,8 @@ import java.util.ArrayList;
  * This class is a duplicate from the PathParser.java of frameworks/base, with slight
  * update on incompatible API like copyOfRange().
  *
- * @hide
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 // TODO: Make this class public
 public class PathParser {
     private static final String LOGTAG = "PathParser";
@@ -157,7 +158,6 @@ public class PathParser {
      *
      * @param target The target path represented in an array of PathDataNode
      * @param source The source path represented in an array of PathDataNode
-     * @hide
      */
     public static void updateNodes(PathDataNode[] target, PathDataNode[] source) {
         for (int i = 0; i < source.length; i++) {
@@ -340,12 +340,10 @@ public class PathParser {
     public static class PathDataNode {
 
         /**
-         * @hide
          */
         public char mType;
 
         /**
-         * @hide
          */
         public float[] mParams;
 

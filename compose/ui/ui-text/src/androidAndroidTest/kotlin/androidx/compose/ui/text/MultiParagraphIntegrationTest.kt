@@ -245,6 +245,141 @@ class MultiParagraphIntegrationTest {
     }
 
     @Test
+    fun getOffsetForPosition_emptyLine() = with(defaultDensity) {
+        val lineLength = 2
+        val text = createAnnotatedString(mutableListOf("a".repeat(lineLength), ""))
+
+        val fontSize = 50.sp
+        val fontSizeInPx = fontSize.roundToPx()
+        // each line contains max 2 character
+        val width = lineLength * fontSizeInPx
+
+        val paragraph = simpleMultiParagraph(
+            text = text,
+            fontSize = fontSize,
+            width = width.toFloat()
+        )
+
+        // The text should be rendered as:
+        //     aa
+        //     <blank line>
+
+        val position = Offset(
+            x = (lineLength * fontSizeInPx) / 2f, // center of lines horizontally
+            y = fontSizeInPx * 1.5f // center of second line vertically
+        )
+
+        assertThat(paragraph.getOffsetForPosition(position)).isEqualTo(2)
+    }
+
+    @Test
+    fun getOffsetForPosition_emptyLines() = with(defaultDensity) {
+        val lineLength = 2
+        val text = createAnnotatedString(mutableListOf("a".repeat(lineLength), "", ""))
+
+        val fontSize = 50.sp
+        val fontSizeInPx = fontSize.roundToPx()
+        val width = lineLength * fontSizeInPx
+
+        val paragraph = simpleMultiParagraph(
+            text = text,
+            fontSize = fontSize,
+            width = width.toFloat()
+        )
+
+        // The text should be rendered as:
+        //     aa
+        //     <blank line>
+        //     <blank line>
+
+        val position = Offset(
+            x = (lineLength * fontSizeInPx) / 2f, // center of lines horizontally
+            y = fontSizeInPx * 1.5f // center of second line vertically
+        )
+
+        assertThat(paragraph.getOffsetForPosition(position)).isEqualTo(2)
+    }
+
+    @Test
+    fun getLineForVerticalPosition() = with(defaultDensity) {
+        val lineLength = 4
+        val text = createAnnotatedString(List(2) { "a".repeat(lineLength) })
+
+        val fontSize = 50.sp
+        val fontSizeInPx = fontSize.roundToPx()
+        val width = lineLength * fontSizeInPx
+
+        val paragraph = simpleMultiParagraph(
+            text = text,
+            fontSize = fontSize,
+            width = width.toFloat()
+        )
+
+        // The text should be rendered as:
+        //     aaaa
+        //     aaaa
+
+        val lineHeight = fontSizeInPx.toFloat()
+        generateSequence(-0.5f) { it + 0.5f }
+            .takeWhile { it <= 3f }
+            .forEach {
+                val expected = it.toInt().coerceIn(0..1)
+                val actual = paragraph.getLineForVerticalPosition(lineHeight * it)
+                assertWithMessage("paragraph.getLineForVerticalPosition(lineHeight * $it) failed")
+                    .that(actual).isEqualTo(expected)
+            }
+    }
+
+    @Test
+    fun getLineForVerticalPosition_emptyLine() = with(defaultDensity) {
+        val lineLength = 4
+        val text = createAnnotatedString(mutableListOf("a".repeat(lineLength), ""))
+
+        val fontSize = 50.sp
+        val fontSizeInPx = fontSize.roundToPx()
+        val width = lineLength * fontSizeInPx
+
+        val paragraph = simpleMultiParagraph(
+            text = text,
+            fontSize = fontSize,
+            width = width.toFloat()
+        )
+
+        // The text should be rendered as:
+        //     aaaa
+        //     <blank line>
+
+        val y = fontSizeInPx * 1.5f // center of second line vertically
+        val actual = paragraph.getLineForVerticalPosition(y)
+        assertThat(actual).isEqualTo(1)
+    }
+
+    @Test
+    fun getLineForVerticalPosition_emptyLines() = with(defaultDensity) {
+        val lineLength = 4
+        val text = createAnnotatedString(mutableListOf("a".repeat(lineLength), "", ""))
+
+        val fontSize = 50.sp
+        val fontSizeInPx = fontSize.roundToPx()
+        val width = lineLength * fontSizeInPx
+
+        val paragraph = simpleMultiParagraph(
+            text = text,
+            fontSize = fontSize,
+            width = width.toFloat()
+        )
+
+        // The text should be rendered as:
+        //     aaaa
+        //     <blank line>
+        //     <blank line>
+
+        val y = fontSizeInPx * 1.5f // center of second line vertically
+        val actual = paragraph.getLineForVerticalPosition(y)
+        assertThat(actual).isEqualTo(1)
+    }
+
+    @Test
     fun getBoundingBox() {
         with(defaultDensity) {
             val lineLength = 2
@@ -1512,7 +1647,6 @@ class MultiParagraphIntegrationTest {
         }
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun multiParagraph_appliesBrush_toTheWholeText() = with(defaultDensity) {
         val fontSize = 20.sp
@@ -1550,7 +1684,6 @@ class MultiParagraphIntegrationTest {
             .isEqualToBitmap(multiParagraph2.bitmap(brush))
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun multiParagraph_overridesAlphaDuringDraw() = with(defaultDensity) {
         val fontSize = 20.sp
@@ -1589,7 +1722,6 @@ class MultiParagraphIntegrationTest {
             .isEqualToBitmap(multiParagraph2.bitmap(brush, 0.5f))
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun multiParagraph_appliesDrawStyle_toAllParagraphs() = with(defaultDensity) {
         val fontSize = 20.sp
@@ -1611,6 +1743,60 @@ class MultiParagraphIntegrationTest {
 
         multiParagraph.paragraphInfoList.map { it.paragraph }.forEach {
             assertThat((it as AndroidParagraph).textPaint.style).isEqualTo(Paint.Style.STROKE)
+        }
+    }
+
+    @Test
+    fun minInstrinsicWidth_includes_white_space() {
+        with(defaultDensity) {
+            val fontSize = 12.sp
+            val text = "b "
+            val paragraph = simpleMultiParagraph(
+                text = text,
+                style = TextStyle(fontSize = fontSize)
+            )
+
+            val expectedWidth = text.length * fontSize.toPx()
+            assertThat(paragraph.minIntrinsicWidth).isEqualTo(expectedWidth)
+        }
+    }
+
+    @Test
+    fun minInstrinsicWidth_returns_longest_word_width() {
+        with(defaultDensity) {
+            // create words with length 1, 2, 3... 50; and append all with space.
+            val maxWordLength = 50
+            val text = (1..maxWordLength).fold("") { string, next ->
+                string + "a".repeat(next) + " "
+            }
+            val fontSize = 12.sp
+            val paragraph = simpleMultiParagraph(
+                text = text,
+                style = TextStyle(fontSize = fontSize)
+            )
+
+            // +1 is for the white space
+            val expectedWidth = (maxWordLength + 1) * fontSize.toPx()
+            assertThat(paragraph.minIntrinsicWidth).isEqualTo(expectedWidth)
+        }
+    }
+
+    @Test
+    fun minInstrinsicWidth_withStyledText() {
+        with(defaultDensity) {
+            val text = "a bb ccc"
+            val fontSize = 12.sp
+            val styledFontSize = fontSize * 2
+            val paragraph = simpleMultiParagraph(
+                text = buildAnnotatedString {
+                    append(text)
+                    addStyle(SpanStyle(fontSize = styledFontSize), "a".length, "a bb ".length)
+                },
+                style = TextStyle(fontSize = fontSize),
+            )
+
+            val expectedWidth = "bb ".length * styledFontSize.toPx()
+            assertThat(paragraph.minIntrinsicWidth).isEqualTo(expectedWidth)
         }
     }
 

@@ -44,6 +44,7 @@ import android.hardware.camera2.TotalCaptureResult
 import android.media.ImageReader
 import android.media.ImageWriter
 import android.os.Build
+import android.util.Pair
 import android.util.Size
 import android.view.Surface
 import androidx.annotation.RequiresApi
@@ -76,10 +77,10 @@ import androidx.camera.extensions.impl.advanced.RequestProcessorImpl
 import androidx.camera.extensions.impl.advanced.SessionProcessorImpl
 import androidx.camera.extensions.internal.sessionprocessor.AdvancedSessionProcessor
 import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.camera.testing.CameraUtil
-import androidx.camera.testing.SurfaceTextureProvider
-import androidx.camera.testing.SurfaceTextureProvider.SurfaceTextureCallback
-import androidx.camera.testing.fakes.FakeLifecycleOwner
+import androidx.camera.testing.impl.CameraUtil
+import androidx.camera.testing.impl.SurfaceTextureProvider
+import androidx.camera.testing.impl.SurfaceTextureProvider.SurfaceTextureCallback
+import androidx.camera.testing.impl.fakes.FakeLifecycleOwner
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -115,6 +116,7 @@ class AdvancedSessionProcessorTest {
 
     @Before
     fun setUp() = runBlocking {
+        ExtensionVersion.injectInstance(null)
         cameraProvider = ProcessCameraProvider.getInstance(context)[10, TimeUnit.SECONDS]
         withContext(Dispatchers.Main) {
             fakeLifecycleOwner = FakeLifecycleOwner()
@@ -203,8 +205,10 @@ class AdvancedSessionProcessorTest {
 
     @Test
     fun canInvokeStartTrigger() = runBlocking {
+        assumeTrue(ExtensionVersion.isMinimumCompatibleVersion(Version.VERSION_1_3))
         val fakeSessionProcessImpl = FakeSessionProcessImpl()
-        val advancedSessionProcessor = AdvancedSessionProcessor(fakeSessionProcessImpl, context)
+        val advancedSessionProcessor = AdvancedSessionProcessor(
+            fakeSessionProcessImpl, emptyList(), context)
 
         val parametersMap: MutableMap<CaptureRequest.Key<*>, Any> = mutableMapOf(
             CaptureRequest.CONTROL_AF_MODE to CaptureRequest.CONTROL_AF_MODE_AUTO,
@@ -222,6 +226,25 @@ class AdvancedSessionProcessorTest {
 
         fakeSessionProcessImpl.assertStartTriggerIsCalledWithParameters(parametersMap)
     }
+
+    @Test
+    fun getRealtimeLatencyEstimate_advancedSessionProcessorInvokesSessionProcessorImpl() =
+        runBlocking {
+            assumeTrue(ExtensionVersion.isMinimumCompatibleVersion(Version.VERSION_1_4))
+            ClientVersion.setCurrentVersion(ClientVersion("1.4.0"))
+
+            val fakeSessionProcessImpl = object : SessionProcessorImpl by FakeSessionProcessImpl() {
+                override fun getRealtimeCaptureLatency(): Pair<Long, Long> = Pair(1000L, 10L)
+            }
+            val advancedSessionProcessor = AdvancedSessionProcessor(
+                fakeSessionProcessImpl, emptyList(), context
+            )
+
+            val realtimeCaptureLatencyEstimate = advancedSessionProcessor.realtimeCaptureLatency
+
+            assertThat(realtimeCaptureLatencyEstimate?.first).isEqualTo(1000L)
+            assertThat(realtimeCaptureLatencyEstimate?.second).isEqualTo(10L)
+        }
 
     private suspend fun assumeAllowsSharedSurface() = withContext(Dispatchers.Main) {
         val imageReader = ImageReader.newInstance(640, 480, ImageFormat.YUV_420_888, 2)
@@ -375,13 +398,15 @@ class AdvancedSessionProcessorTest {
         imageCapture: ImageCapture,
         imageAnalysis: ImageAnalysis? = null
     ) {
-        val advancedSessionProcessor = AdvancedSessionProcessor(fakeSessionProcessImpl, context)
+        val advancedSessionProcessor = AdvancedSessionProcessor(fakeSessionProcessImpl,
+            emptyList(), context)
         val latchPreviewFrame = CountDownLatch(1)
         val latchAnalysis = CountDownLatch(1)
         val deferCapturedImage = CompletableDeferred<ImageProxy>()
 
         withContext(Dispatchers.Main) {
-            preview.setSurfaceProvider(SurfaceTextureProvider.createSurfaceTextureProvider(
+            preview.setSurfaceProvider(
+                SurfaceTextureProvider.createSurfaceTextureProvider(
                 object : SurfaceTextureCallback {
                     override fun onSurfaceTextureReady(
                         surfaceTexture: SurfaceTexture,

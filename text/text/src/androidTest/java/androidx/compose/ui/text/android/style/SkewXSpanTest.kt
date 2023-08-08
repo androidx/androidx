@@ -17,11 +17,11 @@ package androidx.compose.ui.text.android.style
 
 import android.text.TextPaint
 import androidx.compose.ui.text.android.InternalPlatformTextApi
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth
 import org.junit.Test
 import org.junit.runner.RunWith
-import androidx.test.ext.junit.runners.AndroidJUnit4
 
 @OptIn(InternalPlatformTextApi::class)
 @RunWith(AndroidJUnit4::class)

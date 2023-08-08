@@ -26,8 +26,6 @@ import androidx.health.connect.client.impl.converters.aggregate.toAggregateDataR
 import androidx.health.connect.client.impl.converters.aggregate.toAggregateDataRowGroupByPeriod
 import androidx.health.connect.client.impl.converters.datatype.toDataType
 import androidx.health.connect.client.impl.converters.datatype.toDataTypeIdPairProtoList
-import androidx.health.connect.client.impl.converters.permission.toJetpackPermission
-import androidx.health.connect.client.impl.converters.permission.toProtoPermission
 import androidx.health.connect.client.impl.converters.records.toProto
 import androidx.health.connect.client.impl.converters.records.toRecord
 import androidx.health.connect.client.impl.converters.request.toDeleteDataRangeRequestProto
@@ -66,29 +64,18 @@ class HealthConnectClientImpl
 internal constructor(
     private val delegate: HealthDataAsyncClient,
     private val allPermissions: List<String> =
-        HealthPermission.RECORD_TYPE_TO_PERMISSION.flatMap {
-            listOf<String>(
-                HealthPermission.WRITE_PERMISSION_PREFIX + it.value,
-                HealthPermission.READ_PERMISSION_PREFIX + it.value
+        buildList() {
+            addAll(
+                HealthPermission.RECORD_TYPE_TO_PERMISSION.flatMap {
+                    listOf<String>(
+                        HealthPermission.WRITE_PERMISSION_PREFIX + it.value,
+                        HealthPermission.READ_PERMISSION_PREFIX + it.value
+                    )
+                }
             )
+            add(HealthPermission.PERMISSION_WRITE_EXERCISE_ROUTE)
         },
 ) : HealthConnectClient, PermissionController {
-
-    override suspend fun getGrantedPermissionsLegacy(
-        permissions: Set<HealthPermission>
-    ): Set<HealthPermission> {
-        val grantedPermissions =
-            delegate
-                .getGrantedPermissions(permissions.map { it.toProtoPermission() }.toSet())
-                .await()
-                .map { it.toJetpackPermission() }
-                .toSet()
-        Logger.debug(
-            HEALTH_CONNECT_CLIENT_TAG,
-            "Granted ${grantedPermissions.size} out of ${permissions.size} permissions."
-        )
-        return grantedPermissions
-    }
 
     override suspend fun getGrantedPermissions(): Set<String> {
         val grantedPermissions =
@@ -240,41 +227,5 @@ internal constructor(
             "Retrieved ${result.size} period aggregation buckets."
         )
         return result
-    }
-
-    override suspend fun registerForDataNotifications(
-        notificationIntentAction: String,
-        recordTypes: Iterable<KClass<out Record>>,
-    ) {
-        delegate
-            .registerForDataNotifications(
-                request =
-                    RequestProto.RegisterForDataNotificationsRequest.newBuilder()
-                        .setNotificationIntentAction(notificationIntentAction)
-                        .addAllDataTypes(recordTypes.map { it.toDataType() })
-                        .build(),
-            )
-            .await()
-
-        Logger.debug(
-            HEALTH_CONNECT_CLIENT_TAG,
-            "Registered for data notifications for action: $notificationIntentAction",
-        )
-    }
-
-    override suspend fun unregisterFromDataNotifications(notificationIntentAction: String) {
-        delegate
-            .unregisterFromDataNotifications(
-                request =
-                    RequestProto.UnregisterFromDataNotificationsRequest.newBuilder()
-                        .setNotificationIntentAction(notificationIntentAction)
-                        .build(),
-            )
-            .await()
-
-        Logger.debug(
-            HEALTH_CONNECT_CLIENT_TAG,
-            "Unregistered from data notifications for action: $notificationIntentAction",
-        )
     }
 }

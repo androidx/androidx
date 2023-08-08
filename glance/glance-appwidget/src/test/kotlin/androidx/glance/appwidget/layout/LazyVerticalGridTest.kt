@@ -17,10 +17,13 @@
 package androidx.glance.appwidget.layout
 
 import android.annotation.TargetApi
+import android.os.Bundle
+import androidx.compose.ui.unit.dp
+import androidx.glance.ExperimentalGlanceApi
 import androidx.glance.appwidget.lazy.EmittableLazyVerticalGrid
 import androidx.glance.appwidget.lazy.EmittableLazyVerticalGridListItem
-import androidx.glance.appwidget.lazy.LazyVerticalGrid
 import androidx.glance.appwidget.lazy.GridCells
+import androidx.glance.appwidget.lazy.LazyVerticalGrid
 import androidx.glance.appwidget.lazy.ReservedItemIdRangeEnd
 import androidx.glance.appwidget.lazy.items
 import androidx.glance.appwidget.lazy.itemsIndexed
@@ -29,14 +32,13 @@ import androidx.glance.layout.EmittableRow
 import androidx.glance.layout.Row
 import androidx.glance.text.EmittableText
 import androidx.glance.text.Text
-import androidx.compose.ui.unit.dp
 import com.google.common.truth.Truth.assertThat
+import kotlin.test.assertIs
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
-import kotlin.test.assertIs
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class LazyVerticalGridTest {
@@ -260,6 +262,18 @@ class LazyVerticalGridTest {
         val verticalGrid = assertIs<EmittableLazyVerticalGrid>(root.children.single())
         assertThat(verticalGrid.getTextAtChild(0)).isEqualTo("1 - Alice")
         assertThat(verticalGrid.getTextAtChild(1)).isEqualTo("2 - Bob")
+    }
+
+    @OptIn(ExperimentalGlanceApi::class)
+    @Test
+    fun canTranslateActivityOptions() = fakeCoroutineScope.runTest {
+        val options = Bundle()
+        val root = runTestingComposition {
+            LazyVerticalGrid(GridCells.Fixed(1), activityOptions = options) {}
+        }
+
+        val grid = assertIs<EmittableLazyVerticalGrid>(root.children.single())
+        assertThat(grid.activityOptions).isSameInstanceAs(options)
     }
 
     private fun EmittableLazyVerticalGrid.getTextAtChild(index: Int): String =

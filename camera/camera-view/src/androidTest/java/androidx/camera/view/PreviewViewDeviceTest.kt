@@ -17,6 +17,7 @@ package androidx.camera.view
 
 import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.Matrix
 import android.graphics.Rect
 import android.graphics.drawable.ColorDrawable
 import android.os.Build
@@ -44,13 +45,13 @@ import androidx.camera.core.ViewPort
 import androidx.camera.core.impl.CameraInfoInternal
 import androidx.camera.core.impl.utils.futures.Futures
 import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.camera.testing.CameraPipeConfigTestRule
-import androidx.camera.testing.CameraUtil
-import androidx.camera.testing.CameraUtil.PreTestCameraIdList
-import androidx.camera.testing.CoreAppTestUtil
-import androidx.camera.testing.fakes.FakeActivity
 import androidx.camera.testing.fakes.FakeCamera
 import androidx.camera.testing.fakes.FakeCameraInfoInternal
+import androidx.camera.testing.impl.CameraPipeConfigTestRule
+import androidx.camera.testing.impl.CameraUtil
+import androidx.camera.testing.impl.CameraUtil.PreTestCameraIdList
+import androidx.camera.testing.impl.CoreAppTestUtil
+import androidx.camera.testing.impl.fakes.FakeActivity
 import androidx.camera.view.PreviewView.ImplementationMode
 import androidx.camera.view.internal.compat.quirk.DeviceQuirks
 import androidx.camera.view.internal.compat.quirk.SurfaceViewNotCroppedByParentQuirk
@@ -193,6 +194,7 @@ class PreviewViewDeviceTest(
         Truth.assertThat(countDownLatch.await(TIMEOUT_SECONDS.toLong(), TimeUnit.SECONDS)).isTrue()
         instrumentation.runOnMainSync {
             Truth.assertThat(previewView.get().outputTransform).isNotNull()
+            Truth.assertThat(previewView.get().sensorToViewTransform).isNotNull()
         }
     }
 
@@ -211,6 +213,7 @@ class PreviewViewDeviceTest(
         Truth.assertThat(countDownLatch.await(TIMEOUT_SECONDS.toLong(), TimeUnit.SECONDS)).isTrue()
         instrumentation.runOnMainSync {
             Truth.assertThat(previewView.get().outputTransform).isNull()
+            Truth.assertThat(previewView.get().sensorToViewTransform).isNull()
         }
     }
 
@@ -1060,8 +1063,14 @@ class PreviewViewDeviceTest(
     private fun updateCropRectAndWaitForIdle(cropRect: Rect) {
         for (surfaceRequest in surfaceRequestList) {
             surfaceRequest.updateTransformationInfo(
-                SurfaceRequest.TransformationInfo.of(cropRect, 0, Surface.ROTATION_0,
-                    /*hasCameraTransform=*/true)
+                SurfaceRequest.TransformationInfo.of(
+                    cropRect,
+                    0,
+                    Surface.ROTATION_0,
+                    /*hasCameraTransform=*/true,
+                    /*sensorToBufferTransform=*/Matrix(),
+                    /*mirroring=*/false
+                )
             )
         }
         instrumentation.waitForIdleSync()

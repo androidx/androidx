@@ -18,8 +18,8 @@ package androidx.compose.material
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.runtime.Composable
@@ -32,6 +32,7 @@ import androidx.compose.ui.layout.LastBaseline
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
@@ -420,9 +421,13 @@ private fun applyTextStyle(
     icon: @Composable (() -> Unit)?
 ): @Composable (() -> Unit)? {
     if (icon == null) return null
+    val lineHeightStyle = LineHeightStyle(
+        alignment = LineHeightStyle.Alignment.Proportional,
+        trim = LineHeightStyle.Trim.Both,
+    )
     return {
         CompositionLocalProvider(LocalContentAlpha provides contentAlpha) {
-            ProvideTextStyle(textStyle, icon)
+            ProvideTextStyle(textStyle.copy(lineHeightStyle = lineHeightStyle), icon)
         }
     }
 }

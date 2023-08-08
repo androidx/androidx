@@ -113,7 +113,6 @@ public class SurfaceOrientedMeteringPointFactory extends MeteringPointFactory {
     /**
      * {@inheritDoc}
      *
-     * @hide
      */
     @Override
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

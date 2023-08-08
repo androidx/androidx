@@ -17,11 +17,11 @@
 package androidx.compose.ui.text.matchers
 
 import androidx.compose.ui.geometry.Rect
-import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Fact.simpleFact
 import com.google.common.truth.FailureMetadata
 import com.google.common.truth.Subject
 import com.google.common.truth.Subject.Factory
+import com.google.common.truth.Truth.assertThat
 
 internal class RectSubject private constructor(
     failureMetadata: FailureMetadata?,

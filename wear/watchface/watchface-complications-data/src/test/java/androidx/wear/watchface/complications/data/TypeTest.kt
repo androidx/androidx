@@ -36,10 +36,7 @@ public class TypeTest {
         assertThatIsWireType(ComplicationType.RANGED_VALUE, WireComplicationData.TYPE_RANGED_VALUE)
         assertThatIsWireType(ComplicationType.MONOCHROMATIC_IMAGE, WireComplicationData.TYPE_ICON)
         assertThatIsWireType(ComplicationType.SMALL_IMAGE, WireComplicationData.TYPE_SMALL_IMAGE)
-        assertThatIsWireType(
-            ComplicationType.PHOTO_IMAGE,
-            WireComplicationData.TYPE_LARGE_IMAGE
-        )
+        assertThatIsWireType(ComplicationType.PHOTO_IMAGE, WireComplicationData.TYPE_LARGE_IMAGE)
         assertThatIsWireType(
             ComplicationType.NO_PERMISSION,
             WireComplicationData.TYPE_NO_PERMISSION
@@ -63,10 +60,7 @@ public class TypeTest {
         assertThatIsApiType(WireComplicationData.TYPE_RANGED_VALUE, ComplicationType.RANGED_VALUE)
         assertThatIsApiType(WireComplicationData.TYPE_ICON, ComplicationType.MONOCHROMATIC_IMAGE)
         assertThatIsApiType(WireComplicationData.TYPE_SMALL_IMAGE, ComplicationType.SMALL_IMAGE)
-        assertThatIsApiType(
-            WireComplicationData.TYPE_LARGE_IMAGE,
-            ComplicationType.PHOTO_IMAGE
-        )
+        assertThatIsApiType(WireComplicationData.TYPE_LARGE_IMAGE, ComplicationType.PHOTO_IMAGE)
         assertThatIsApiType(WireComplicationData.TYPE_NO_PERMISSION, ComplicationType.NO_PERMISSION)
     }
 

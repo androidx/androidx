@@ -38,12 +38,12 @@ import androidx.fragment.app.DialogFragment;
  */
 public class AppCompatDialogFragment extends DialogFragment {
 
-    /** {@inheritDoc} **/
+    /** {@inheritDoc} */
     public AppCompatDialogFragment() {
         super();
     }
 
-    /** {@inheritDoc} **/
+    /** {@inheritDoc} */
     public AppCompatDialogFragment(@LayoutRes int contentLayoutId) {
         super(contentLayoutId);
     }
@@ -54,7 +54,6 @@ public class AppCompatDialogFragment extends DialogFragment {
         return new AppCompatDialog(getContext(), getTheme());
     }
 
-    /** @hide */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
     public void setupDialog(@NonNull Dialog dialog, int style) {

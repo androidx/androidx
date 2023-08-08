@@ -16,14 +16,15 @@
 
 package androidx.wear.watchface
 
-import android.support.wearable.complications.ComplicationData as WireComplicationData
-import android.support.wearable.complications.ComplicationText as WireComplicationText
 import android.annotation.SuppressLint
+import android.app.KeyguardManager
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
+import android.content.pm.ServiceInfo
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
@@ -38,12 +39,15 @@ import android.os.Handler
 import android.os.Looper
 import android.os.Parcel
 import android.provider.Settings
+import android.support.wearable.complications.ComplicationData as WireComplicationData
+import android.support.wearable.complications.ComplicationText as WireComplicationText
 import android.support.wearable.watchface.Constants
 import android.support.wearable.watchface.IWatchFaceService
 import android.support.wearable.watchface.WatchFaceStyle
 import android.support.wearable.watchface.accessibility.ContentDescriptionLabel
 import android.view.Choreographer
 import android.view.Surface
+import android.view.SurfaceControl
 import android.view.SurfaceHolder
 import android.view.WindowInsets
 import android.view.accessibility.AccessibilityManager
@@ -73,6 +77,7 @@ import androidx.wear.watchface.control.IInteractiveWatchFace
 import androidx.wear.watchface.control.IPendingInteractiveWatchFace
 import androidx.wear.watchface.control.IWatchfaceListener
 import androidx.wear.watchface.control.InteractiveInstanceManager
+import androidx.wear.watchface.control.WatchFaceControlService
 import androidx.wear.watchface.control.data.CrashInfoParcel
 import androidx.wear.watchface.control.data.HeadlessWatchFaceInstanceParams
 import androidx.wear.watchface.control.data.WallpaperInteractiveWatchFaceInstanceParams
@@ -83,6 +88,7 @@ import androidx.wear.watchface.data.WatchFaceColorsWireFormat
 import androidx.wear.watchface.data.WatchUiState
 import androidx.wear.watchface.style.CurrentUserStyleRepository
 import androidx.wear.watchface.style.UserStyle
+import androidx.wear.watchface.style.UserStyleFlavors
 import androidx.wear.watchface.style.UserStyleSchema
 import androidx.wear.watchface.style.UserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting
@@ -94,6 +100,7 @@ import androidx.wear.watchface.style.WatchFaceLayer
 import androidx.wear.watchface.style.data.UserStyleWireFormat
 import com.google.common.truth.Truth.assertThat
 import java.io.StringWriter
+import java.lang.reflect.Field
 import java.nio.ByteBuffer
 import java.time.Instant
 import java.time.ZoneId
@@ -166,17 +173,18 @@ public class WatchFaceServiceTest {
     private val surfaceHolder = mock<SurfaceHolder>()
     private val surface = mock<Surface>()
     private val tapListener = mock<WatchFace.TapListener>()
-    private val mainThreadPriorityDelegate = object : WatchFaceService.MainThreadPriorityDelegate {
-        var priority = Priority.Unset
+    private val mainThreadPriorityDelegate =
+        object : WatchFaceService.MainThreadPriorityDelegate {
+            var priority = Priority.Unset
 
-        override fun setNormalPriority() {
-            priority = Priority.Normal
-        }
+            override fun setNormalPriority() {
+                priority = Priority.Normal
+            }
 
-        override fun setInteractivePriority() {
-            priority = Priority.Interactive
+            override fun setInteractivePriority() {
+                priority = Priority.Interactive
+            }
         }
-    }
 
     private val watchState = MutableWatchState()
 
@@ -208,47 +216,42 @@ public class WatchFaceServiceTest {
 
     private val colorStyleList = listOf(redStyleOption, greenStyleOption, blueStyleOption)
 
-    private val colorStyleSetting = ListUserStyleSetting(
-        UserStyleSetting.Id("color_style_setting"),
-        "Colors",
-        "Watchface colorization", /* icon = */
-        null,
-        colorStyleList,
-        listOf(WatchFaceLayer.BASE)
-    )
+    private val colorStyleSetting =
+        ListUserStyleSetting(
+            UserStyleSetting.Id("color_style_setting"),
+            "Colors",
+            "Watchface colorization",
+            /* icon = */ null,
+            colorStyleList,
+            listOf(WatchFaceLayer.BASE)
+        )
 
-    private val classicStyleOption = ListUserStyleSetting.ListOption(
-        Option.Id("classic_style"),
-        "Classic",
-        "Classic",
-        icon = null
-    )
+    private val classicStyleOption =
+        ListUserStyleSetting.ListOption(
+            Option.Id("classic_style"),
+            "Classic",
+            "Classic",
+            icon = null
+        )
 
-    private val modernStyleOption = ListUserStyleSetting.ListOption(
-        Option.Id("modern_style"),
-        "Modern",
-        "Modern",
-        icon = null
-    )
+    private val modernStyleOption =
+        ListUserStyleSetting.ListOption(Option.Id("modern_style"), "Modern", "Modern", icon = null)
 
-    private val gothicStyleOption = ListUserStyleSetting.ListOption(
-        Option.Id("gothic_style"),
-        "Gothic",
-        "Gothic",
-        icon = null
-    )
+    private val gothicStyleOption =
+        ListUserStyleSetting.ListOption(Option.Id("gothic_style"), "Gothic", "Gothic", icon = null)
 
     private val watchHandStyleList =
         listOf(classicStyleOption, modernStyleOption, gothicStyleOption)
 
-    private val watchHandStyleSetting = ListUserStyleSetting(
-        UserStyleSetting.Id("hand_style_setting"),
-        "Hand Style",
-        "Hand visual look", /* icon = */
-        null,
-        watchHandStyleList,
-        listOf(WatchFaceLayer.COMPLICATIONS_OVERLAY)
-    )
+    private val watchHandStyleSetting =
+        ListUserStyleSetting(
+            UserStyleSetting.Id("hand_style_setting"),
+            "Hand Style",
+            "Hand visual look",
+            /* icon = */ null,
+            watchHandStyleList,
+            listOf(WatchFaceLayer.COMPLICATIONS_OVERLAY)
+        )
 
     private val badStyleOption =
         ListUserStyleSetting.ListOption(Option.Id("bad_option"), "Bad", "Bad", icon = null)
@@ -256,53 +259,47 @@ public class WatchFaceServiceTest {
     @Suppress("DEPRECATION") // setDefaultDataSourceType
     private val leftComplication =
         ComplicationSlot.createRoundRectComplicationSlotBuilder(
-            LEFT_COMPLICATION_ID,
-            { watchState, listener ->
-                CanvasComplicationDrawable(
-                    complicationDrawableLeft,
-                    watchState,
-                    listener
+                LEFT_COMPLICATION_ID,
+                { watchState, listener ->
+                    CanvasComplicationDrawable(complicationDrawableLeft, watchState, listener)
+                },
+                listOf(
+                    ComplicationType.RANGED_VALUE,
+                    ComplicationType.LONG_TEXT,
+                    ComplicationType.SHORT_TEXT,
+                    ComplicationType.MONOCHROMATIC_IMAGE,
+                    ComplicationType.SMALL_IMAGE
+                ),
+                DefaultComplicationDataSourcePolicy(SystemDataSources.DATA_SOURCE_SUNRISE_SUNSET),
+                ComplicationSlotBounds(
+                    bounds = RectF(0.2f, 0.4f, 0.4f, 0.6f),
+                    margins = RectF(0.1f, 0.1f, 0.1f, 0.1f)
                 )
-            },
-            listOf(
-                ComplicationType.RANGED_VALUE,
-                ComplicationType.LONG_TEXT,
-                ComplicationType.SHORT_TEXT,
-                ComplicationType.MONOCHROMATIC_IMAGE,
-                ComplicationType.SMALL_IMAGE
-            ),
-            DefaultComplicationDataSourcePolicy(SystemDataSources.DATA_SOURCE_SUNRISE_SUNSET),
-            ComplicationSlotBounds(
-                bounds = RectF(0.2f, 0.4f, 0.4f, 0.6f),
-                margins = RectF(0.1f, 0.1f, 0.1f, 0.1f)
             )
-        ).setDefaultDataSourceType(ComplicationType.SHORT_TEXT)
+            .setDefaultDataSourceType(ComplicationType.SHORT_TEXT)
             .build()
 
     @Suppress("DEPRECATION") // setDefaultDataSourceType
     private val rightComplication =
         ComplicationSlot.createRoundRectComplicationSlotBuilder(
-            RIGHT_COMPLICATION_ID,
-            { watchState, listener ->
-                CanvasComplicationDrawable(
-                    complicationDrawableRight,
-                    watchState,
-                    listener
+                RIGHT_COMPLICATION_ID,
+                { watchState, listener ->
+                    CanvasComplicationDrawable(complicationDrawableRight, watchState, listener)
+                },
+                listOf(
+                    ComplicationType.RANGED_VALUE,
+                    ComplicationType.LONG_TEXT,
+                    ComplicationType.SHORT_TEXT,
+                    ComplicationType.MONOCHROMATIC_IMAGE,
+                    ComplicationType.SMALL_IMAGE
+                ),
+                DefaultComplicationDataSourcePolicy(SystemDataSources.DATA_SOURCE_DAY_OF_WEEK),
+                ComplicationSlotBounds(
+                    bounds = RectF(0.6f, 0.4f, 0.8f, 0.6f),
+                    margins = RectF(0.1f, 0.1f, 0.1f, 0.1f)
                 )
-            },
-            listOf(
-                ComplicationType.RANGED_VALUE,
-                ComplicationType.LONG_TEXT,
-                ComplicationType.SHORT_TEXT,
-                ComplicationType.MONOCHROMATIC_IMAGE,
-                ComplicationType.SMALL_IMAGE
-            ),
-            DefaultComplicationDataSourcePolicy(SystemDataSources.DATA_SOURCE_DAY_OF_WEEK),
-            ComplicationSlotBounds(
-                bounds = RectF(0.6f, 0.4f, 0.8f, 0.6f),
-                margins = RectF(0.1f, 0.1f, 0.1f, 0.1f)
             )
-        ).setDefaultDataSourceType(ComplicationType.LONG_TEXT)
+            .setDefaultDataSourceType(ComplicationType.LONG_TEXT)
             .build()
 
     private val edgeComplicationHitTester = mock<ComplicationTapFilter>()
@@ -310,135 +307,123 @@ public class WatchFaceServiceTest {
     @Suppress("DEPRECATION") // setDefaultDataSourceType
     private val edgeComplication =
         ComplicationSlot.createEdgeComplicationSlotBuilder(
-            EDGE_COMPLICATION_ID,
-            { watchState, listener ->
-                CanvasComplicationDrawable(
-                    complicationDrawableEdge,
-                    watchState,
-                    listener
-                )
-            },
-            listOf(
-                ComplicationType.RANGED_VALUE,
-                ComplicationType.LONG_TEXT,
-                ComplicationType.SHORT_TEXT,
-                ComplicationType.MONOCHROMATIC_IMAGE,
-                ComplicationType.SMALL_IMAGE
-            ),
-            DefaultComplicationDataSourcePolicy(SystemDataSources.DATA_SOURCE_DAY_OF_WEEK),
-            ComplicationSlotBounds(RectF(0.0f, 0.4f, 0.4f, 0.6f)),
-            edgeComplicationHitTester
-        ).setDefaultDataSourceType(ComplicationType.SHORT_TEXT)
+                EDGE_COMPLICATION_ID,
+                { watchState, listener ->
+                    CanvasComplicationDrawable(complicationDrawableEdge, watchState, listener)
+                },
+                listOf(
+                    ComplicationType.RANGED_VALUE,
+                    ComplicationType.LONG_TEXT,
+                    ComplicationType.SHORT_TEXT,
+                    ComplicationType.MONOCHROMATIC_IMAGE,
+                    ComplicationType.SMALL_IMAGE
+                ),
+                DefaultComplicationDataSourcePolicy(SystemDataSources.DATA_SOURCE_DAY_OF_WEEK),
+                ComplicationSlotBounds(RectF(0.0f, 0.4f, 0.4f, 0.6f)),
+                edgeComplicationHitTester
+            )
+            .setDefaultDataSourceType(ComplicationType.SHORT_TEXT)
             .build()
 
     @OptIn(ComplicationExperimental::class)
     @Suppress("DEPRECATION") // setDefaultDataSourceType
     private val edgeComplicationWithBoundingArc =
         ComplicationSlot.createEdgeComplicationSlotBuilder(
-            EDGE_COMPLICATION_ID,
-            { watchState, listener ->
-                CanvasComplicationDrawable(
-                    complicationDrawableEdge,
-                    watchState,
-                    listener
-                )
-            },
-            listOf(ComplicationType.SHORT_TEXT),
-            DefaultComplicationDataSourcePolicy(SystemDataSources.DATA_SOURCE_DAY_OF_WEEK),
-            ComplicationSlotBounds(RectF(0.0f, 0.0f, 1f, 1f)),
-            BoundingArc(-45f, 90f, 0.1f)
-        ).setDefaultDataSourceType(ComplicationType.SHORT_TEXT)
+                EDGE_COMPLICATION_ID,
+                { watchState, listener ->
+                    CanvasComplicationDrawable(complicationDrawableEdge, watchState, listener)
+                },
+                listOf(ComplicationType.SHORT_TEXT),
+                DefaultComplicationDataSourcePolicy(SystemDataSources.DATA_SOURCE_DAY_OF_WEEK),
+                ComplicationSlotBounds(RectF(0.0f, 0.0f, 1f, 1f)),
+                BoundingArc(-45f, 90f, 0.1f)
+            )
+            .setDefaultDataSourceType(ComplicationType.SHORT_TEXT)
             .build()
 
     @Suppress("DEPRECATION") // setDefaultDataSourceType
     private val backgroundComplication =
         ComplicationSlot.createBackgroundComplicationSlotBuilder(
-            BACKGROUND_COMPLICATION_ID,
-            { watchState, listener ->
-                CanvasComplicationDrawable(
-                    complicationDrawableBackground,
-                    watchState,
-                    listener
-                )
-            },
-            listOf(
-                ComplicationType.PHOTO_IMAGE
-            ),
-            DefaultComplicationDataSourcePolicy()
-        ).setDefaultDataSourceType(ComplicationType.PHOTO_IMAGE)
+                BACKGROUND_COMPLICATION_ID,
+                { watchState, listener ->
+                    CanvasComplicationDrawable(complicationDrawableBackground, watchState, listener)
+                },
+                listOf(ComplicationType.PHOTO_IMAGE),
+                DefaultComplicationDataSourcePolicy()
+            )
+            .setDefaultDataSourceType(ComplicationType.PHOTO_IMAGE)
             .build()
 
-    private val leftAndRightComplicationsOption = ComplicationSlotsOption(
-        Option.Id(LEFT_AND_RIGHT_COMPLICATIONS),
-        "Left and Right",
-        "Left and Right complications",
-        null,
-        // An empty list means use the initial config.
-        emptyList()
-    )
-    private val noComplicationsOption = ComplicationSlotsOption(
-        Option.Id(NO_COMPLICATIONS),
-        "None",
-        "No complications",
-        null,
-        listOf(
-            ComplicationSlotOverlay.Builder(LEFT_COMPLICATION_ID)
-                .setEnabled(false).build(),
-            ComplicationSlotOverlay.Builder(RIGHT_COMPLICATION_ID)
-                .setEnabled(false).build()
+    private val leftAndRightComplicationsOption =
+        ComplicationSlotsOption(
+            Option.Id(LEFT_AND_RIGHT_COMPLICATIONS),
+            "Left and Right",
+            "Left and Right complications",
+            null,
+            // An empty list means use the initial config.
+            emptyList()
         )
-    )
-    private val leftOnlyComplicationsOption = ComplicationSlotsOption(
-        Option.Id(LEFT_COMPLICATION),
-        "Left",
-        "Left complication",
-        null,
-        listOf(
-            ComplicationSlotOverlay.Builder(LEFT_COMPLICATION_ID)
-                .setEnabled(true).build(),
-            ComplicationSlotOverlay.Builder(RIGHT_COMPLICATION_ID)
-                .setEnabled(false).build()
+    private val noComplicationsOption =
+        ComplicationSlotsOption(
+            Option.Id(NO_COMPLICATIONS),
+            "None",
+            "No complications",
+            null,
+            listOf(
+                ComplicationSlotOverlay.Builder(LEFT_COMPLICATION_ID).setEnabled(false).build(),
+                ComplicationSlotOverlay.Builder(RIGHT_COMPLICATION_ID).setEnabled(false).build()
+            )
         )
-    )
-    private val rightOnlyComplicationsOption = ComplicationSlotsOption(
-        Option.Id(RIGHT_COMPLICATION),
-        "Right",
-        "Right complication",
-        null,
-        listOf(
-            ComplicationSlotOverlay.Builder(LEFT_COMPLICATION_ID)
-                .setEnabled(false).build(),
-            ComplicationSlotOverlay.Builder(RIGHT_COMPLICATION_ID)
-                .setEnabled(true)
-                .setNameResourceId(NAME_RESOURCE_ID)
-                .setScreenReaderNameResourceId(SCREEN_READER_NAME_RESOURCE_ID)
-                .build()
+    private val leftOnlyComplicationsOption =
+        ComplicationSlotsOption(
+            Option.Id(LEFT_COMPLICATION),
+            "Left",
+            "Left complication",
+            null,
+            listOf(
+                ComplicationSlotOverlay.Builder(LEFT_COMPLICATION_ID).setEnabled(true).build(),
+                ComplicationSlotOverlay.Builder(RIGHT_COMPLICATION_ID).setEnabled(false).build()
+            )
         )
-    )
-    private val complicationsStyleSetting = ComplicationSlotsUserStyleSetting(
-        UserStyleSetting.Id("complications_style_setting"),
-        "AllComplicationSlots",
-        "Number and position",
-        icon = null,
-        complicationConfig = listOf(
-            leftAndRightComplicationsOption,
-            noComplicationsOption,
-            leftOnlyComplicationsOption,
-            rightOnlyComplicationsOption
-        ),
-        affectsWatchFaceLayers = listOf(WatchFaceLayer.COMPLICATIONS)
-    )
-    private val complicationsStyleSetting2 = ComplicationSlotsUserStyleSetting(
-        UserStyleSetting.Id("complications_style_setting2"),
-        "AllComplicationSlots",
-        "Number and position",
-        icon = null,
-        complicationConfig = listOf(
-            leftOnlyComplicationsOption,
-            rightOnlyComplicationsOption
-        ),
-        affectsWatchFaceLayers = listOf(WatchFaceLayer.COMPLICATIONS)
-    )
+    private val rightOnlyComplicationsOption =
+        ComplicationSlotsOption(
+            Option.Id(RIGHT_COMPLICATION),
+            "Right",
+            "Right complication",
+            null,
+            listOf(
+                ComplicationSlotOverlay.Builder(LEFT_COMPLICATION_ID).setEnabled(false).build(),
+                ComplicationSlotOverlay.Builder(RIGHT_COMPLICATION_ID)
+                    .setEnabled(true)
+                    .setNameResourceId(NAME_RESOURCE_ID)
+                    .setScreenReaderNameResourceId(SCREEN_READER_NAME_RESOURCE_ID)
+                    .build()
+            )
+        )
+    private val complicationsStyleSetting =
+        ComplicationSlotsUserStyleSetting(
+            UserStyleSetting.Id("complications_style_setting"),
+            "AllComplicationSlots",
+            "Number and position",
+            icon = null,
+            complicationConfig =
+                listOf(
+                    leftAndRightComplicationsOption,
+                    noComplicationsOption,
+                    leftOnlyComplicationsOption,
+                    rightOnlyComplicationsOption
+                ),
+            affectsWatchFaceLayers = listOf(WatchFaceLayer.COMPLICATIONS)
+        )
+    private val complicationsStyleSetting2 =
+        ComplicationSlotsUserStyleSetting(
+            UserStyleSetting.Id("complications_style_setting2"),
+            "AllComplicationSlots",
+            "Number and position",
+            icon = null,
+            complicationConfig = listOf(leftOnlyComplicationsOption, rightOnlyComplicationsOption),
+            affectsWatchFaceLayers = listOf(WatchFaceLayer.COMPLICATIONS)
+        )
 
     private lateinit var renderer: TestRenderer
     private lateinit var complicationSlotsManager: ComplicationSlotsManager
@@ -454,36 +439,35 @@ public class WatchFaceServiceTest {
 
     private var looperTimeMillis = 0L
     private val pendingTasks = PriorityQueue<Task>()
-    private val choreographer = object : WatchFaceService.ChoreographerWrapper {
-        override fun postFrameCallback(callback: Choreographer.FrameCallback) {
-            // Simulate waiting for the next frame.
-            val nextFrameTimeMillis = looperTimeMillis + (16 - looperTimeMillis % 16)
-            pendingTasks.add(Task(nextFrameTimeMillis) { callback.doFrame(0) })
-        }
+    private val choreographer =
+        object : WatchFaceService.ChoreographerWrapper {
+            override fun postFrameCallback(callback: Choreographer.FrameCallback) {
+                // Simulate waiting for the next frame.
+                val nextFrameTimeMillis = looperTimeMillis + (16 - looperTimeMillis % 16)
+                pendingTasks.add(Task(nextFrameTimeMillis) { callback.doFrame(0) })
+            }
 
-        override fun removeFrameCallback(callback: Choreographer.FrameCallback) {
-            // Remove task from the priority queue.  There's no good way of doing this quickly.
-            val queue = ArrayDeque<Task>()
-            while (pendingTasks.isNotEmpty()) {
-                val task = pendingTasks.remove()
-                if (task.runnable != callback) {
-                    queue.add(task)
+            override fun removeFrameCallback(callback: Choreographer.FrameCallback) {
+                // Remove task from the priority queue.  There's no good way of doing this quickly.
+                val queue = ArrayDeque<Task>()
+                while (pendingTasks.isNotEmpty()) {
+                    val task = pendingTasks.remove()
+                    if (task.runnable != callback) {
+                        queue.add(task)
+                    }
+                }
+
+                // Push filtered tasks back on the queue.
+                while (queue.isNotEmpty()) {
+                    pendingTasks.add(queue.remove())
                 }
             }
-
-            // Push filtered tasks back on the queue.
-            while (queue.isNotEmpty()) {
-                pendingTasks.add(queue.remove())
-            }
         }
-    }
 
     private fun runPostedTasksFor(durationMillis: Long) {
         val stopTime = looperTimeMillis + durationMillis
 
-        while (pendingTasks.isNotEmpty() &&
-            pendingTasks.peek()!!.runTimeMillis <= stopTime
-        ) {
+        while (pendingTasks.isNotEmpty() && pendingTasks.peek()!!.runTimeMillis <= stopTime) {
             val task = pendingTasks.remove()
             testWatchFaceService.mockSystemTimeMillis = task.runTimeMillis
             looperTimeMillis = task.runTimeMillis
@@ -495,7 +479,7 @@ public class WatchFaceServiceTest {
     }
 
     private fun initEngine(
-        @WatchFaceType watchFaceType: Int,
+        @WatchFaceTypeIntDef watchFaceType: Int,
         complicationSlots: List<ComplicationSlot>,
         userStyleSchema: UserStyleSchema,
         apiVersion: Int = 2,
@@ -534,25 +518,27 @@ public class WatchFaceServiceTest {
         tapListener: WatchFace.TapListener? = null,
         setInitialComplicationData: Boolean = true
     ) {
-        testWatchFaceService = TestWatchFaceService(
-            watchFaceType,
-            complicationSlots,
-            { _, currentUserStyleRepository, watchState ->
-                renderer = TestRenderer(
-                    surfaceHolder,
-                    currentUserStyleRepository,
-                    watchState,
-                    INTERACTIVE_UPDATE_RATE_MS
-                )
-                renderer
-            },
-            userStyleSchema,
-            watchState,
-            handler,
-            tapListener,
-            null,
-            choreographer
-        )
+        testWatchFaceService =
+            TestWatchFaceService(
+                watchFaceType,
+                complicationSlots,
+                { _, currentUserStyleRepository, watchState ->
+                    renderer =
+                        TestRenderer(
+                            surfaceHolder,
+                            currentUserStyleRepository,
+                            watchState,
+                            INTERACTIVE_UPDATE_RATE_MS
+                        )
+                    renderer
+                },
+                userStyleSchema,
+                watchState,
+                handler,
+                tapListener,
+                null,
+                choreographer
+            )
         engineWrapper = testWatchFaceService.onCreateEngine() as WatchFaceService.EngineWrapper
         engineWrapper.onCreate(surfaceHolder)
 
@@ -567,37 +553,41 @@ public class WatchFaceServiceTest {
                                 .setShortText(WireComplicationText.plainText("Initial Short"))
                                 .setTapAction(
                                     PendingIntent.getActivity(
-                                        context, 0, Intent("ShortText"),
+                                        context,
+                                        0,
+                                        Intent("ShortText"),
                                         PendingIntent.FLAG_IMMUTABLE
                                     )
                                 )
                                 .build()
-
                         ComplicationType.LONG_TEXT ->
                             WireComplicationData.Builder(WireComplicationData.TYPE_SHORT_TEXT)
                                 .setShortText(WireComplicationText.plainText("Initial Long"))
                                 .setTapAction(
                                     PendingIntent.getActivity(
-                                        context, 0, Intent("LongText"),
+                                        context,
+                                        0,
+                                        Intent("LongText"),
                                         PendingIntent.FLAG_IMMUTABLE
                                     )
                                 )
                                 .build()
-
                         ComplicationType.PHOTO_IMAGE ->
                             WireComplicationData.Builder(WireComplicationData.TYPE_LARGE_IMAGE)
                                 .setLargeImage(Icon.createWithContentUri("someuri"))
                                 .setTapAction(
                                     PendingIntent.getActivity(
-                                        context, 0, Intent("PhotoImage"),
+                                        context,
+                                        0,
+                                        Intent("PhotoImage"),
                                         PendingIntent.FLAG_IMMUTABLE
                                     )
                                 )
                                 .build()
-
-                        else -> throw UnsupportedOperationException(
-                            "Don't support type " + complication.defaultDataSourceType
-                        )
+                        else ->
+                            throw UnsupportedOperationException(
+                                "Don't support type " + complication.defaultDataSourceType
+                            )
                     }
                 )
             }
@@ -610,18 +600,13 @@ public class WatchFaceServiceTest {
     }
 
     private fun initWallpaperInteractiveWatchFaceInstance(
-        @WatchFaceType watchFaceType: Int = WatchFaceType.ANALOG,
+        @WatchFaceTypeIntDef watchFaceType: Int = WatchFaceType.ANALOG,
         complicationSlots: List<ComplicationSlot> = emptyList(),
         userStyleSchema: UserStyleSchema = UserStyleSchema(emptyList()),
         wallpaperInteractiveWatchFaceInstanceParams: WallpaperInteractiveWatchFaceInstanceParams =
             WallpaperInteractiveWatchFaceInstanceParams(
                 INTERACTIVE_INSTANCE_ID,
-                DeviceConfig(
-                    false,
-                    false,
-                    0,
-                    0
-                ),
+                DeviceConfig(false, false, 0, 0),
                 WatchUiState(false, 0),
                 UserStyle(emptyMap()).toWireFormat(),
                 null,
@@ -630,35 +615,36 @@ public class WatchFaceServiceTest {
             ),
         complicationCache: MutableMap<String, ByteArray>? = null,
     ) {
-        testWatchFaceService = TestWatchFaceService(
-            watchFaceType,
-            complicationSlots,
-            { _, currentUserStyleRepository, watchState ->
-                renderer = TestRenderer(
-                    surfaceHolder,
-                    currentUserStyleRepository,
-                    watchState,
-                    INTERACTIVE_UPDATE_RATE_MS
-                )
-                renderer
-            },
-            userStyleSchema,
-            watchState,
-            handler,
-            null,
-            null,
-            choreographer,
-            mockSystemTimeMillis = looperTimeMillis,
-            complicationCache = complicationCache
-        )
+        testWatchFaceService =
+            TestWatchFaceService(
+                watchFaceType,
+                complicationSlots,
+                { _, currentUserStyleRepository, watchState ->
+                    renderer =
+                        TestRenderer(
+                            surfaceHolder,
+                            currentUserStyleRepository,
+                            watchState,
+                            INTERACTIVE_UPDATE_RATE_MS
+                        )
+                    renderer
+                },
+                userStyleSchema,
+                watchState,
+                handler,
+                null,
+                null,
+                choreographer,
+                mockSystemTimeMillis = looperTimeMillis,
+                complicationCache = complicationCache
+            )
 
         InteractiveInstanceManager
             .getExistingInstanceOrSetPendingWallpaperInteractiveWatchFaceInstance(
                 InteractiveInstanceManager.PendingWallpaperInteractiveWatchFaceInstance(
                     wallpaperInteractiveWatchFaceInstanceParams,
                     object : IPendingInteractiveWatchFace.Stub() {
-                        override fun getApiVersion() =
-                            IPendingInteractiveWatchFace.API_VERSION
+                        override fun getApiVersion() = IPendingInteractiveWatchFace.API_VERSION
 
                         override fun onInteractiveWatchFaceCreated(
                             iInteractiveWatchFace: IInteractiveWatchFace
@@ -747,15 +733,17 @@ public class WatchFaceServiceTest {
         `when`(handler.getLooper()).thenReturn(Looper.myLooper())
 
         // Capture tasks posted to mHandler and insert in mPendingTasks which is under our control.
-        doAnswer {
-            pendingTasks.add(Task(looperTimeMillis, it.arguments[0] as Runnable))
-        }.`when`(handler).post(any())
+        doAnswer { pendingTasks.add(Task(looperTimeMillis, it.arguments[0] as Runnable)) }
+            .`when`(handler)
+            .post(any())
 
         doAnswer {
-            pendingTasks.add(
-                Task(looperTimeMillis + it.arguments[1] as Long, it.arguments[0] as Runnable)
-            )
-        }.`when`(handler).postDelayed(any(), anyLong())
+                pendingTasks.add(
+                    Task(looperTimeMillis + it.arguments[1] as Long, it.arguments[0] as Runnable)
+                )
+            }
+            .`when`(handler)
+            .postDelayed(any(), anyLong())
     }
 
     @After
@@ -765,10 +753,23 @@ public class WatchFaceServiceTest {
         }
 
         if (this::engineWrapper.isInitialized && !engineWrapper.destroyed) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                /*
+                 (TODO: b/264994539) - Explicitly releasing the mSurfaceControl field,
+                 accessed via reflection. Remove when a proper fix is found
+                */
+                val mSurfaceControlObject: Field = WatchFaceService.EngineWrapper::class
+                    .java.superclass // android.service.wallpaper.WallpaperService$Engine
+                    .getDeclaredField("mSurfaceControl")
+                mSurfaceControlObject.isAccessible = true
+                (mSurfaceControlObject.get(engineWrapper) as SurfaceControl).release()
+            }
+
             engineWrapper.onDestroy()
         }
 
         assertThat(InteractiveInstanceManager.getInstances()).isEmpty()
+        assertThat(InteractiveInstanceManager.getParameterlessEngine()).isNull()
         validateMockitoUsage()
     }
 
@@ -854,13 +855,15 @@ public class WatchFaceServiceTest {
         watchState.isAmbient.value = false
         testWatchFaceService.mockSystemTimeMillis = 1000L
 
-        watchFaceImpl.broadcastsReceiver!!.receiver.onReceive(
-            context,
-            Intent(WatchFaceImpl.MOCK_TIME_INTENT).apply {
-                putExtra(WatchFaceImpl.EXTRA_MOCK_TIME_SPEED_MULTIPLIER, 2.0f)
-                putExtra(WatchFaceImpl.EXTRA_MOCK_TIME_WRAPPING_MIN_TIME, -1L)
-            }
-        )
+        watchFaceImpl.broadcastsReceiver!!
+            .receiver
+            .onReceive(
+                context,
+                Intent(WatchFaceImpl.MOCK_TIME_INTENT).apply {
+                    putExtra(WatchFaceImpl.EXTRA_MOCK_TIME_SPEED_MULTIPLIER, 2.0f)
+                    putExtra(WatchFaceImpl.EXTRA_MOCK_TIME_WRAPPING_MIN_TIME, -1L)
+                }
+            )
 
         // Time should not diverge initially.
         watchFaceImpl.onDraw()
@@ -883,14 +886,16 @@ public class WatchFaceServiceTest {
         watchState.isAmbient.value = false
         testWatchFaceService.mockSystemTimeMillis = 1000L
 
-        watchFaceImpl.broadcastsReceiver!!.receiver.onReceive(
-            context,
-            Intent(WatchFaceImpl.MOCK_TIME_INTENT).apply {
-                putExtra(WatchFaceImpl.EXTRA_MOCK_TIME_SPEED_MULTIPLIER, 2.0f)
-                putExtra(WatchFaceImpl.EXTRA_MOCK_TIME_WRAPPING_MIN_TIME, 1000L)
-                putExtra(WatchFaceImpl.EXTRA_MOCK_TIME_WRAPPING_MAX_TIME, 2000L)
-            }
-        )
+        watchFaceImpl.broadcastsReceiver!!
+            .receiver
+            .onReceive(
+                context,
+                Intent(WatchFaceImpl.MOCK_TIME_INTENT).apply {
+                    putExtra(WatchFaceImpl.EXTRA_MOCK_TIME_SPEED_MULTIPLIER, 2.0f)
+                    putExtra(WatchFaceImpl.EXTRA_MOCK_TIME_WRAPPING_MIN_TIME, 1000L)
+                    putExtra(WatchFaceImpl.EXTRA_MOCK_TIME_WRAPPING_MAX_TIME, 2000L)
+                }
+            )
 
         // Time in millis observed by onDraw should wrap betwween 1000 and 2000.
         watchFaceImpl.onDraw()
@@ -995,29 +1000,22 @@ public class WatchFaceServiceTest {
     @Test
     @Config(sdk = [Build.VERSION_CODES.O_MR1])
     public fun computeBounds_does_not_mutate_it() {
-        initEngine(
-            WatchFaceType.ANALOG,
-            listOf(leftComplication),
-            UserStyleSchema(emptyList())
-        )
+        initEngine(WatchFaceType.ANALOG, listOf(leftComplication), UserStyleSchema(emptyList()))
 
         val leftComplication = complicationSlotsManager[LEFT_COMPLICATION_ID]!!
-        val oldLeftBounds = RectF(
-            leftComplication.complicationSlotBounds.perComplicationTypeBounds[
-                leftComplication.complicationData.value.type
-            ]
-        )
+        val oldLeftBounds =
+            RectF(
+                leftComplication.complicationSlotBounds.perComplicationTypeBounds[
+                        leftComplication.complicationData.value.type]
+            )
 
-        leftComplication.computeBounds(
-            ONE_HUNDRED_BY_ONE_HUNDRED_RECT,
-            applyMargins = true
-        )
+        leftComplication.computeBounds(ONE_HUNDRED_BY_ONE_HUNDRED_RECT, applyMargins = true)
 
         assertThat(
-            leftComplication.complicationSlotBounds.perComplicationTypeBounds[
-                leftComplication.complicationData.value.type
-            ]
-        ).isEqualTo(oldLeftBounds)
+                leftComplication.complicationSlotBounds.perComplicationTypeBounds[
+                        leftComplication.complicationData.value.type]
+            )
+            .isEqualTo(oldLeftBounds)
     }
 
     @Test
@@ -1092,45 +1090,48 @@ public class WatchFaceServiceTest {
     public fun lowestIdComplicationSelectedWhenMarginsOverlap() {
         val complication100 =
             ComplicationSlot.createRoundRectComplicationSlotBuilder(
-                100,
-                { watchState, listener ->
-                    CanvasComplicationDrawable(complicationDrawableLeft, watchState, listener)
-                },
-                emptyList(),
-                DefaultComplicationDataSourcePolicy(SystemDataSources.DATA_SOURCE_SUNRISE_SUNSET),
-                ComplicationSlotBounds(
-                    RectF(0.1f, 0.1f, 0.2f, 0.2f),
-                    RectF(1f, 1f, 1f, 1f)
+                    100,
+                    { watchState, listener ->
+                        CanvasComplicationDrawable(complicationDrawableLeft, watchState, listener)
+                    },
+                    listOf(ComplicationType.SHORT_TEXT),
+                    DefaultComplicationDataSourcePolicy(
+                        SystemDataSources.DATA_SOURCE_SUNRISE_SUNSET
+                    ),
+                    ComplicationSlotBounds(RectF(0.1f, 0.1f, 0.2f, 0.2f), RectF(1f, 1f, 1f, 1f))
                 )
-            ).setDefaultDataSourceType(ComplicationType.SHORT_TEXT).build()
+                .setDefaultDataSourceType(ComplicationType.SHORT_TEXT)
+                .build()
 
         val complication90 =
             ComplicationSlot.createRoundRectComplicationSlotBuilder(
-                90,
-                { watchState, listener ->
-                    CanvasComplicationDrawable(complicationDrawableLeft, watchState, listener)
-                },
-                emptyList(),
-                DefaultComplicationDataSourcePolicy(SystemDataSources.DATA_SOURCE_SUNRISE_SUNSET),
-                ComplicationSlotBounds(
-                    RectF(0.3f, 0.1f, 0.4f, 0.2f),
-                    RectF(1f, 1f, 1f, 1f)
+                    90,
+                    { watchState, listener ->
+                        CanvasComplicationDrawable(complicationDrawableLeft, watchState, listener)
+                    },
+                    listOf(ComplicationType.SHORT_TEXT),
+                    DefaultComplicationDataSourcePolicy(
+                        SystemDataSources.DATA_SOURCE_SUNRISE_SUNSET
+                    ),
+                    ComplicationSlotBounds(RectF(0.3f, 0.1f, 0.4f, 0.2f), RectF(1f, 1f, 1f, 1f))
                 )
-            ).setDefaultDataSourceType(ComplicationType.SHORT_TEXT).build()
+                .setDefaultDataSourceType(ComplicationType.SHORT_TEXT)
+                .build()
 
         val complication80 =
             ComplicationSlot.createRoundRectComplicationSlotBuilder(
-                80,
-                { watchState, listener ->
-                    CanvasComplicationDrawable(complicationDrawableLeft, watchState, listener)
-                },
-                emptyList(),
-                DefaultComplicationDataSourcePolicy(SystemDataSources.DATA_SOURCE_SUNRISE_SUNSET),
-                ComplicationSlotBounds(
-                    RectF(0.4f, 0.1f, 0.5f, 0.2f),
-                    RectF(1f, 1f, 1f, 1f)
+                    80,
+                    { watchState, listener ->
+                        CanvasComplicationDrawable(complicationDrawableLeft, watchState, listener)
+                    },
+                    listOf(ComplicationType.SHORT_TEXT),
+                    DefaultComplicationDataSourcePolicy(
+                        SystemDataSources.DATA_SOURCE_SUNRISE_SUNSET
+                    ),
+                    ComplicationSlotBounds(RectF(0.4f, 0.1f, 0.5f, 0.2f), RectF(1f, 1f, 1f, 1f))
                 )
-            ).setDefaultDataSourceType(ComplicationType.SHORT_TEXT).build()
+                .setDefaultDataSourceType(ComplicationType.SHORT_TEXT)
+                .build()
 
         initEngine(
             WatchFaceType.ANALOG,
@@ -1138,8 +1139,7 @@ public class WatchFaceServiceTest {
             UserStyleSchema(emptyList())
         )
 
-        assertThat(complicationSlotsManager.getComplicationSlotAt(90, 90))
-            .isEqualTo(complication80)
+        assertThat(complicationSlotsManager.getComplicationSlotAt(90, 90)).isEqualTo(complication80)
     }
 
     @Test
@@ -1198,14 +1198,15 @@ public class WatchFaceServiceTest {
             .isNull()
 
         `when`(
-            edgeComplicationHitTester.hitTest(
-                edgeComplication,
-                ONE_HUNDRED_BY_ONE_HUNDRED_RECT,
-                0,
-                50,
-                false
+                edgeComplicationHitTester.hitTest(
+                    edgeComplication,
+                    ONE_HUNDRED_BY_ONE_HUNDRED_RECT,
+                    0,
+                    50,
+                    false
+                )
             )
-        ).thenReturn(true)
+            .thenReturn(true)
 
         // Tap the edge complication.
         tapAt(0, 50)
@@ -1264,16 +1265,10 @@ public class WatchFaceServiceTest {
         // Tap on nothing.
         tapAt(1, 1)
 
-        verify(tapListener).onTapEvent(
-            TapType.DOWN,
-            TapEvent(1, 1, Instant.ofEpochMilli(looperTimeMillis)),
-            null
-        )
-        verify(tapListener).onTapEvent(
-            TapType.UP,
-            TapEvent(1, 1, Instant.ofEpochMilli(looperTimeMillis)),
-            null
-        )
+        verify(tapListener)
+            .onTapEvent(TapType.DOWN, TapEvent(1, 1, Instant.ofEpochMilli(looperTimeMillis)), null)
+        verify(tapListener)
+            .onTapEvent(TapType.UP, TapEvent(1, 1, Instant.ofEpochMilli(looperTimeMillis)), null)
     }
 
     @Test
@@ -1315,16 +1310,18 @@ public class WatchFaceServiceTest {
             false
         )
 
-        verify(tapListener).onTapEvent(
-            TapType.DOWN,
-            TapEvent(10, 200, Instant.ofEpochMilli(looperTimeMillis)),
-            null
-        )
-        verify(tapListener).onTapEvent(
-            TapType.UP,
-            TapEvent(10, 200, Instant.ofEpochMilli(looperTimeMillis)),
-            null
-        )
+        verify(tapListener)
+            .onTapEvent(
+                TapType.DOWN,
+                TapEvent(10, 200, Instant.ofEpochMilli(looperTimeMillis)),
+                null
+            )
+        verify(tapListener)
+            .onTapEvent(
+                TapType.UP,
+                TapEvent(10, 200, Instant.ofEpochMilli(looperTimeMillis)),
+                null
+            )
     }
 
     @Test
@@ -1340,16 +1337,18 @@ public class WatchFaceServiceTest {
         // Tap right complication.
         tapAt(70, 50)
 
-        verify(tapListener).onTapEvent(
-            TapType.DOWN,
-            TapEvent(70, 50, Instant.ofEpochMilli(looperTimeMillis)),
-            rightComplication
-        )
-        verify(tapListener).onTapEvent(
-            TapType.UP,
-            TapEvent(70, 50, Instant.ofEpochMilli(looperTimeMillis)),
-            rightComplication
-        )
+        verify(tapListener)
+            .onTapEvent(
+                TapType.DOWN,
+                TapEvent(70, 50, Instant.ofEpochMilli(looperTimeMillis)),
+                rightComplication
+            )
+        verify(tapListener)
+            .onTapEvent(
+                TapType.UP,
+                TapEvent(70, 50, Instant.ofEpochMilli(looperTimeMillis)),
+                rightComplication
+            )
     }
 
     @Test
@@ -1361,27 +1360,22 @@ public class WatchFaceServiceTest {
             UserStyleSchema(emptyList())
         )
 
-        assertThat(watchFaceImpl.computeDelayTillNextFrame(0, 0, Instant.EPOCH)).isEqualTo(
-            INTERACTIVE_UPDATE_RATE_MS
-        )
+        assertThat(watchFaceImpl.computeDelayTillNextFrame(0, 0, Instant.EPOCH))
+            .isEqualTo(INTERACTIVE_UPDATE_RATE_MS)
 
         // The delay should change when battery is low.
-        watchFaceImpl.broadcastsReceiver!!.receiver.onReceive(
-            context,
-            Intent(Intent.ACTION_BATTERY_LOW)
-        )
-        assertThat(watchFaceImpl.computeDelayTillNextFrame(0, 0, Instant.EPOCH)).isEqualTo(
-            WatchFaceImpl.MAX_LOW_POWER_INTERACTIVE_UPDATE_RATE_MS
-        )
+        watchFaceImpl.broadcastsReceiver!!
+            .receiver
+            .onReceive(context, Intent(Intent.ACTION_BATTERY_LOW))
+        assertThat(watchFaceImpl.computeDelayTillNextFrame(0, 0, Instant.EPOCH))
+            .isEqualTo(WatchFaceImpl.MAX_LOW_POWER_INTERACTIVE_UPDATE_RATE_MS)
 
         // And go back to normal when battery is OK.
-        watchFaceImpl.broadcastsReceiver!!.receiver.onReceive(
-            context,
-            Intent(Intent.ACTION_BATTERY_OKAY)
-        )
-        assertThat(watchFaceImpl.computeDelayTillNextFrame(0, 0, Instant.EPOCH)).isEqualTo(
-            INTERACTIVE_UPDATE_RATE_MS
-        )
+        watchFaceImpl.broadcastsReceiver!!
+            .receiver
+            .onReceive(context, Intent(Intent.ACTION_BATTERY_OKAY))
+        assertThat(watchFaceImpl.computeDelayTillNextFrame(0, 0, Instant.EPOCH))
+            .isEqualTo(INTERACTIVE_UPDATE_RATE_MS)
     }
 
     @Test
@@ -1393,27 +1387,22 @@ public class WatchFaceServiceTest {
             UserStyleSchema(emptyList())
         )
 
-        assertThat(watchFaceImpl.computeDelayTillNextFrame(0, 0, Instant.EPOCH)).isEqualTo(
-            INTERACTIVE_UPDATE_RATE_MS
-        )
+        assertThat(watchFaceImpl.computeDelayTillNextFrame(0, 0, Instant.EPOCH))
+            .isEqualTo(INTERACTIVE_UPDATE_RATE_MS)
 
         // The delay should change when battery is low.
-        watchFaceImpl.broadcastsReceiver!!.receiver.onReceive(
-            context,
-            Intent(Intent.ACTION_BATTERY_LOW)
-        )
-        assertThat(watchFaceImpl.computeDelayTillNextFrame(0, 0, Instant.EPOCH)).isEqualTo(
-            WatchFaceImpl.MAX_LOW_POWER_INTERACTIVE_UPDATE_RATE_MS
-        )
+        watchFaceImpl.broadcastsReceiver!!
+            .receiver
+            .onReceive(context, Intent(Intent.ACTION_BATTERY_LOW))
+        assertThat(watchFaceImpl.computeDelayTillNextFrame(0, 0, Instant.EPOCH))
+            .isEqualTo(WatchFaceImpl.MAX_LOW_POWER_INTERACTIVE_UPDATE_RATE_MS)
 
         // And go back to normal when power is connected.
-        watchFaceImpl.broadcastsReceiver!!.receiver.onReceive(
-            context,
-            Intent(Intent.ACTION_POWER_CONNECTED)
-        )
-        assertThat(watchFaceImpl.computeDelayTillNextFrame(0, 0, Instant.EPOCH)).isEqualTo(
-            INTERACTIVE_UPDATE_RATE_MS
-        )
+        watchFaceImpl.broadcastsReceiver!!
+            .receiver
+            .onReceive(context, Intent(Intent.ACTION_POWER_CONNECTED))
+        assertThat(watchFaceImpl.computeDelayTillNextFrame(0, 0, Instant.EPOCH))
+            .isEqualTo(INTERACTIVE_UPDATE_RATE_MS)
     }
 
     @Test
@@ -1426,12 +1415,12 @@ public class WatchFaceServiceTest {
         )
 
         assertThat(
-            watchFaceImpl.computeDelayTillNextFrame(
-                startTimeMillis = 0,
-                currentTimeMillis = 2,
-                Instant.EPOCH
+                watchFaceImpl.computeDelayTillNextFrame(
+                    startTimeMillis = 0,
+                    currentTimeMillis = 2,
+                    Instant.EPOCH
+                )
             )
-        )
             .isEqualTo(INTERACTIVE_UPDATE_RATE_MS - 2)
     }
 
@@ -1446,12 +1435,13 @@ public class WatchFaceServiceTest {
 
         // If the frame is very slow we'll want to post a choreographer frame immediately.
         assertThat(
-            watchFaceImpl.computeDelayTillNextFrame(
-                startTimeMillis = 2,
-                currentTimeMillis = INTERACTIVE_UPDATE_RATE_MS + 3,
-                Instant.EPOCH
+                watchFaceImpl.computeDelayTillNextFrame(
+                    startTimeMillis = 2,
+                    currentTimeMillis = INTERACTIVE_UPDATE_RATE_MS + 3,
+                    Instant.EPOCH
+                )
             )
-        ).isEqualTo(-1)
+            .isEqualTo(-1)
     }
 
     @Test
@@ -1467,12 +1457,13 @@ public class WatchFaceServiceTest {
 
         // Simulate time going backwards between renders.
         assertThat(
-            watchFaceImpl.computeDelayTillNextFrame(
-                startTimeMillis = 20,
-                currentTimeMillis = 24,
-                Instant.EPOCH
+                watchFaceImpl.computeDelayTillNextFrame(
+                    startTimeMillis = 20,
+                    currentTimeMillis = 24,
+                    Instant.EPOCH
+                )
             )
-        ).isEqualTo(INTERACTIVE_UPDATE_RATE_MS - 4)
+            .isEqualTo(INTERACTIVE_UPDATE_RATE_MS - 4)
     }
 
     @Test
@@ -1489,12 +1480,13 @@ public class WatchFaceServiceTest {
         // Simulate rendering 0.74s into a second, after which we expect a short delay.
         watchFaceImpl.nextDrawTimeMillis = 100740
         assertThat(
-            watchFaceImpl.computeDelayTillNextFrame(
-                startTimeMillis = 100740,
-                currentTimeMillis = 100750,
-                Instant.EPOCH
+                watchFaceImpl.computeDelayTillNextFrame(
+                    startTimeMillis = 100740,
+                    currentTimeMillis = 100750,
+                    Instant.EPOCH
+                )
             )
-        ).isEqualTo(250)
+            .isEqualTo(250)
     }
 
     @Test
@@ -1511,12 +1503,13 @@ public class WatchFaceServiceTest {
         // Simulate rendering 0.74s into a second, after which we expect a short delay.
         watchFaceImpl.nextDrawTimeMillis = 10000
         assertThat(
-            watchFaceImpl.computeDelayTillNextFrame(
-                startTimeMillis = 10000,
-                currentTimeMillis = 10001,
-                Instant.EPOCH
+                watchFaceImpl.computeDelayTillNextFrame(
+                    startTimeMillis = 10000,
+                    currentTimeMillis = 10001,
+                    Instant.EPOCH
+                )
             )
-        ).isEqualTo(999)
+            .isEqualTo(999)
     }
 
     @Test
@@ -1533,12 +1526,13 @@ public class WatchFaceServiceTest {
         // Simulate rendering 2s into a minute, after which we should delay till the next minute.
         watchFaceImpl.nextDrawTimeMillis = 60000 + 2000
         assertThat(
-            watchFaceImpl.computeDelayTillNextFrame(
-                startTimeMillis = watchFaceImpl.nextDrawTimeMillis,
-                currentTimeMillis = watchFaceImpl.nextDrawTimeMillis,
-                Instant.EPOCH
+                watchFaceImpl.computeDelayTillNextFrame(
+                    startTimeMillis = watchFaceImpl.nextDrawTimeMillis,
+                    currentTimeMillis = watchFaceImpl.nextDrawTimeMillis,
+                    Instant.EPOCH
+                )
             )
-        ).isEqualTo(58000) // NB 58000 + 2000 == 60000
+            .isEqualTo(58000) // NB 58000 + 2000 == 60000
     }
 
     @Test
@@ -1555,12 +1549,16 @@ public class WatchFaceServiceTest {
                 IdAndComplicationDataWireFormat(
                     LEFT_COMPLICATION_ID,
                     ShortTextComplicationData.Builder(
-                        TimeDifferenceComplicationText.Builder(
-                            TimeDifferenceStyle.STOPWATCH,
-                            CountUpTimeReference(Instant.parse("2022-10-30T10:15:30.001Z"))
-                        ).setMinimumTimeUnit(TimeUnit.MINUTES).build(),
-                        ComplicationText.EMPTY
-                    ).build().asWireComplicationData()
+                            TimeDifferenceComplicationText.Builder(
+                                    TimeDifferenceStyle.STOPWATCH,
+                                    CountUpTimeReference(Instant.parse("2022-10-30T10:15:30.001Z"))
+                                )
+                                .setMinimumTimeUnit(TimeUnit.MINUTES)
+                                .build(),
+                            ComplicationText.EMPTY
+                        )
+                        .build()
+                        .asWireComplicationData()
                 )
             )
         )
@@ -1571,12 +1569,13 @@ public class WatchFaceServiceTest {
         // but the complication needs an update in 50s so our delay is shorter.
         watchFaceImpl.nextDrawTimeMillis = 60000 + 2000
         assertThat(
-            watchFaceImpl.computeDelayTillNextFrame(
-                startTimeMillis = watchFaceImpl.nextDrawTimeMillis,
-                currentTimeMillis = watchFaceImpl.nextDrawTimeMillis,
-                Instant.EPOCH.plusSeconds(10)
+                watchFaceImpl.computeDelayTillNextFrame(
+                    startTimeMillis = watchFaceImpl.nextDrawTimeMillis,
+                    currentTimeMillis = watchFaceImpl.nextDrawTimeMillis,
+                    Instant.EPOCH.plusSeconds(10)
+                )
             )
-        ).isEqualTo(50001)
+            .isEqualTo(50001)
     }
 
     @Test
@@ -1599,12 +1598,16 @@ public class WatchFaceServiceTest {
                 IdAndComplicationDataWireFormat(
                     LEFT_COMPLICATION_ID,
                     ShortTextComplicationData.Builder(
-                        TimeDifferenceComplicationText.Builder(
-                            TimeDifferenceStyle.STOPWATCH,
-                            CountUpTimeReference(referenceInstant)
-                        ).setMinimumTimeUnit(TimeUnit.HOURS).build(),
-                        ComplicationText.EMPTY
-                    ).build().asWireComplicationData()
+                            TimeDifferenceComplicationText.Builder(
+                                    TimeDifferenceStyle.STOPWATCH,
+                                    CountUpTimeReference(referenceInstant)
+                                )
+                                .setMinimumTimeUnit(TimeUnit.HOURS)
+                                .build(),
+                            ComplicationText.EMPTY
+                        )
+                        .build()
+                        .asWireComplicationData()
                 )
             )
         )
@@ -1620,12 +1623,16 @@ public class WatchFaceServiceTest {
                 IdAndComplicationDataWireFormat(
                     RIGHT_COMPLICATION_ID,
                     ShortTextComplicationData.Builder(
-                        TimeDifferenceComplicationText.Builder(
-                            TimeDifferenceStyle.STOPWATCH,
-                            CountUpTimeReference(referenceInstant)
-                        ).setMinimumTimeUnit(TimeUnit.SECONDS).build(),
-                        ComplicationText.EMPTY
-                    ).build().asWireComplicationData()
+                            TimeDifferenceComplicationText.Builder(
+                                    TimeDifferenceStyle.STOPWATCH,
+                                    CountUpTimeReference(referenceInstant)
+                                )
+                                .setMinimumTimeUnit(TimeUnit.SECONDS)
+                                .build(),
+                            ComplicationText.EMPTY
+                        )
+                        .build()
+                        .asWireComplicationData()
                 )
             )
         )
@@ -1675,9 +1682,8 @@ public class WatchFaceServiceTest {
             listOf(leftComplication, backgroundComplication),
             UserStyleSchema(emptyList())
         )
-        assertThat(complicationSlotsManager.getBackgroundComplicationSlot()!!.id).isEqualTo(
-            BACKGROUND_COMPLICATION_ID
-        )
+        assertThat(complicationSlotsManager.getBackgroundComplicationSlot()!!.id)
+            .isEqualTo(BACKGROUND_COMPLICATION_ID)
     }
 
     @Test
@@ -1706,24 +1712,25 @@ public class WatchFaceServiceTest {
         // Flush pending tasks posted as a result of initEngine.
         runPostedTasksFor(0)
 
-        val service2 = TestWatchFaceService(
-            WatchFaceType.ANALOG,
-            emptyList(),
-            { _, currentUserStyleRepository, watchState ->
-                TestRenderer(
-                    surfaceHolder,
-                    currentUserStyleRepository,
-                    watchState,
-                    INTERACTIVE_UPDATE_RATE_MS
-                )
-            },
-            UserStyleSchema(listOf(colorStyleSetting, watchHandStyleSetting)),
-            watchState,
-            handler,
-            null,
-            null,
-            choreographer
-        )
+        val service2 =
+            TestWatchFaceService(
+                WatchFaceType.ANALOG,
+                emptyList(),
+                { _, currentUserStyleRepository, watchState ->
+                    TestRenderer(
+                        surfaceHolder,
+                        currentUserStyleRepository,
+                        watchState,
+                        INTERACTIVE_UPDATE_RATE_MS
+                    )
+                },
+                UserStyleSchema(listOf(colorStyleSetting, watchHandStyleSetting)),
+                watchState,
+                handler,
+                null,
+                null,
+                choreographer
+            )
 
         // Trigger watch face creation.
         val engine2 = service2.onCreateEngine() as WatchFaceService.EngineWrapper
@@ -1734,13 +1741,9 @@ public class WatchFaceServiceTest {
         val watchFaceImpl2 = engine2.getWatchFaceImplOrNull()!!
         val userStyleRepository2 = watchFaceImpl2.currentUserStyleRepository
         assertThat(userStyleRepository2.userStyle.value[colorStyleSetting]!!.id)
-            .isEqualTo(
-                blueStyleOption.id
-            )
+            .isEqualTo(blueStyleOption.id)
         assertThat(userStyleRepository2.userStyle.value[watchHandStyleSetting]!!.id)
-            .isEqualTo(
-                gothicStyleOption.id
-            )
+            .isEqualTo(gothicStyleOption.id)
     }
 
     @Test
@@ -1753,12 +1756,7 @@ public class WatchFaceServiceTest {
             UserStyleSchema(emptyList()),
             WallpaperInteractiveWatchFaceInstanceParams(
                 INTERACTIVE_INSTANCE_ID,
-                DeviceConfig(
-                    false,
-                    false,
-                    0,
-                    0
-                ),
+                DeviceConfig(false, false, 0, 0),
                 WatchUiState(false, 0),
                 UserStyle(emptyMap()).toWireFormat(),
                 null,
@@ -1783,19 +1781,15 @@ public class WatchFaceServiceTest {
             UserStyleSchema(listOf(colorStyleSetting, watchHandStyleSetting)),
             WallpaperInteractiveWatchFaceInstanceParams(
                 INTERACTIVE_INSTANCE_ID,
-                DeviceConfig(
-                    false,
-                    false,
-                    0,
-                    0
-                ),
+                DeviceConfig(false, false, 0, 0),
                 WatchUiState(false, 0),
                 UserStyle(
-                    hashMapOf(
-                        colorStyleSetting to blueStyleOption,
-                        watchHandStyleSetting to gothicStyleOption
+                        hashMapOf(
+                            colorStyleSetting to blueStyleOption,
+                            watchHandStyleSetting to gothicStyleOption
+                        )
                     )
-                ).toWireFormat(),
+                    .toWireFormat(),
                 null,
                 null,
                 null
@@ -1804,13 +1798,9 @@ public class WatchFaceServiceTest {
 
         // The style option above should get applied during watch face creation.
         assertThat(currentUserStyleRepository.userStyle.value[colorStyleSetting]!!.id)
-            .isEqualTo(
-                blueStyleOption.id
-            )
+            .isEqualTo(blueStyleOption.id)
         assertThat(currentUserStyleRepository.userStyle.value[watchHandStyleSetting]!!.id)
-            .isEqualTo(
-                gothicStyleOption.id
-            )
+            .isEqualTo(gothicStyleOption.id)
     }
 
     @Test
@@ -1822,12 +1812,7 @@ public class WatchFaceServiceTest {
             UserStyleSchema(listOf(colorStyleSetting, watchHandStyleSetting)),
             WallpaperInteractiveWatchFaceInstanceParams(
                 INTERACTIVE_INSTANCE_ID,
-                DeviceConfig(
-                    false,
-                    false,
-                    0,
-                    0
-                ),
+                DeviceConfig(false, false, 0, 0),
                 WatchUiState(false, 0),
                 UserStyle(mapOf(watchHandStyleSetting to badStyleOption)).toWireFormat(),
                 null,
@@ -1843,14 +1828,7 @@ public class WatchFaceServiceTest {
     @Test
     @Config(sdk = [Build.VERSION_CODES.O_MR1])
     public fun wear2ImmutablePropertiesSetCorrectly() {
-        initEngine(
-            WatchFaceType.ANALOG,
-            emptyList(),
-            UserStyleSchema(emptyList()),
-            2,
-            true,
-            false
-        )
+        initEngine(WatchFaceType.ANALOG, emptyList(), UserStyleSchema(emptyList()), 2, true, false)
 
         assertTrue(watchState.hasLowBitAmbient)
         assertFalse(watchState.hasBurnInProtection)
@@ -1859,14 +1837,7 @@ public class WatchFaceServiceTest {
     @Test
     @Config(sdk = [Build.VERSION_CODES.O_MR1])
     public fun wear2ImmutablePropertiesSetCorrectly2() {
-        initEngine(
-            WatchFaceType.ANALOG,
-            emptyList(),
-            UserStyleSchema(emptyList()),
-            2,
-            false,
-            true
-        )
+        initEngine(WatchFaceType.ANALOG, emptyList(), UserStyleSchema(emptyList()), 2, false, true)
 
         assertFalse(watchState.hasLowBitAmbient)
         assertTrue(watchState.hasBurnInProtection)
@@ -1881,12 +1852,7 @@ public class WatchFaceServiceTest {
             UserStyleSchema(listOf(colorStyleSetting, watchHandStyleSetting)),
             WallpaperInteractiveWatchFaceInstanceParams(
                 INTERACTIVE_INSTANCE_ID,
-                DeviceConfig(
-                    true,
-                    false,
-                    0,
-                    0
-                ),
+                DeviceConfig(true, false, 0, 0),
                 WatchUiState(false, 0),
                 UserStyle(mapOf(watchHandStyleSetting to badStyleOption)).toWireFormat(),
                 null,
@@ -1930,10 +1896,11 @@ public class WatchFaceServiceTest {
             UserStyleSchema(emptyList())
         )
 
-        verify(iWatchFaceService).setActiveComplications(
-            intArrayOf(LEFT_COMPLICATION_ID, RIGHT_COMPLICATION_ID, BACKGROUND_COMPLICATION_ID),
-            true
-        )
+        verify(iWatchFaceService)
+            .setActiveComplications(
+                intArrayOf(LEFT_COMPLICATION_ID, RIGHT_COMPLICATION_ID, BACKGROUND_COMPLICATION_ID),
+                true
+            )
     }
 
     @Test
@@ -1962,11 +1929,7 @@ public class WatchFaceServiceTest {
     @Test
     @Config(sdk = [Build.VERSION_CODES.O_MR1])
     public fun onCreate_calls_setContentDescriptionLabels_withCorrectArgs_noComplications() {
-        initEngine(
-            WatchFaceType.ANALOG,
-            emptyList(),
-            UserStyleSchema(emptyList())
-        )
+        initEngine(WatchFaceType.ANALOG, emptyList(), UserStyleSchema(emptyList()))
 
         runPostedTasksFor(0)
 
@@ -1999,12 +1962,10 @@ public class WatchFaceServiceTest {
         runPostedTasksFor(0)
 
         assertThat(engineWrapper.contentDescriptionLabels.size).isEqualTo(2)
-        assertThat(engineWrapper.contentDescriptionLabels[0].bounds).isEqualTo(
-            Rect(25, 25, 75, 75)
-        ) // Clock element.
-        assertThat(engineWrapper.contentDescriptionLabels[1].bounds).isEqualTo(
-            Rect(60, 40, 80, 60)
-        ) // Right complication.
+        assertThat(engineWrapper.contentDescriptionLabels[0].bounds)
+            .isEqualTo(Rect(25, 25, 75, 75)) // Clock element.
+        assertThat(engineWrapper.contentDescriptionLabels[1].bounds)
+            .isEqualTo(Rect(60, 40, 80, 60)) // Right complication.
     }
 
     @Test
@@ -2025,79 +1986,59 @@ public class WatchFaceServiceTest {
         val complicationDetails =
             complicationSlotsManager.getComplicationsState(renderer.screenBounds)
         assertThat(complicationDetails[0].id).isEqualTo(LEFT_COMPLICATION_ID)
-        assertThat(complicationDetails[0].complicationState.boundsType).isEqualTo(
-            ComplicationSlotBoundsType.ROUND_RECT
-        )
-        assertThat(complicationDetails[0].complicationState.bounds).isEqualTo(
-            Rect(30, 30, 50, 50)
-        )
+        assertThat(complicationDetails[0].complicationState.boundsType)
+            .isEqualTo(ComplicationSlotBoundsType.ROUND_RECT)
+        assertThat(complicationDetails[0].complicationState.bounds).isEqualTo(Rect(30, 30, 50, 50))
 
         assertThat(complicationDetails[1].id).isEqualTo(RIGHT_COMPLICATION_ID)
-        assertThat(complicationDetails[1].complicationState.boundsType).isEqualTo(
-            ComplicationSlotBoundsType.ROUND_RECT
-        )
-        assertThat(complicationDetails[1].complicationState.bounds).isEqualTo(
-            Rect(70, 75, 90, 95)
-        )
+        assertThat(complicationDetails[1].complicationState.boundsType)
+            .isEqualTo(ComplicationSlotBoundsType.ROUND_RECT)
+        assertThat(complicationDetails[1].complicationState.bounds).isEqualTo(Rect(70, 75, 90, 95))
 
         // Despite disabling the background complication we should still get a
         // ContentDescriptionLabel for the main clock element.
         engineWrapper.updateContentDescriptionLabels()
         val contentDescriptionLabels = engineWrapper.contentDescriptionLabels
         assertThat(contentDescriptionLabels.size).isEqualTo(3)
-        assertThat(contentDescriptionLabels[0].bounds).isEqualTo(
-            Rect(
-                25,
-                25,
-                75,
-                75
-            )
-        ) // Clock element.
-        assertThat(contentDescriptionLabels[1].bounds).isEqualTo(
-            Rect(
-                30,
-                30,
-                50,
-                50
-            )
-        ) // Left complication.
-        assertThat(contentDescriptionLabels[2].bounds).isEqualTo(
-            Rect(
-                70,
-                75,
-                90,
-                95
-            )
-        ) // Right complication.
+        assertThat(contentDescriptionLabels[0].bounds)
+            .isEqualTo(Rect(25, 25, 75, 75)) // Clock element.
+        assertThat(contentDescriptionLabels[1].bounds)
+            .isEqualTo(Rect(30, 30, 50, 50)) // Left complication.
+        assertThat(contentDescriptionLabels[2].bounds)
+            .isEqualTo(Rect(70, 75, 90, 95)) // Right complication.
     }
 
     @Test
     @Config(sdk = [Build.VERSION_CODES.O_MR1])
     public fun styleChangesAccessibilityTraversalIndex() {
-        val rightAndSelectComplicationsOption = ComplicationSlotsOption(
-            Option.Id(RIGHT_AND_LEFT_COMPLICATIONS),
-            "Right and Left",
-            "Right and Left complications",
-            null,
-            listOf(
-                ComplicationSlotOverlay.Builder(LEFT_COMPLICATION_ID)
-                    .setEnabled(true).setAccessibilityTraversalIndex(RIGHT_COMPLICATION_ID).build(),
-                ComplicationSlotOverlay.Builder(RIGHT_COMPLICATION_ID)
-                    .setEnabled(true).setAccessibilityTraversalIndex(LEFT_COMPLICATION_ID).build()
+        val rightAndSelectComplicationsOption =
+            ComplicationSlotsOption(
+                Option.Id(RIGHT_AND_LEFT_COMPLICATIONS),
+                "Right and Left",
+                "Right and Left complications",
+                null,
+                listOf(
+                    ComplicationSlotOverlay.Builder(LEFT_COMPLICATION_ID)
+                        .setEnabled(true)
+                        .setAccessibilityTraversalIndex(RIGHT_COMPLICATION_ID)
+                        .build(),
+                    ComplicationSlotOverlay.Builder(RIGHT_COMPLICATION_ID)
+                        .setEnabled(true)
+                        .setAccessibilityTraversalIndex(LEFT_COMPLICATION_ID)
+                        .build()
+                )
             )
-        )
 
-        val complicationsStyleSetting = ComplicationSlotsUserStyleSetting(
-            UserStyleSetting.Id("complications_style_setting"),
-            "AllComplicationSlots",
-            "Number and position",
-            icon = null,
-            complicationConfig = listOf(
-                leftAndRightComplicationsOption,
-                rightAndSelectComplicationsOption
-            ),
-            affectsWatchFaceLayers = listOf(WatchFaceLayer.COMPLICATIONS)
-        )
+        val complicationsStyleSetting =
+            ComplicationSlotsUserStyleSetting(
+                UserStyleSetting.Id("complications_style_setting"),
+                "AllComplicationSlots",
+                "Number and position",
+                icon = null,
+                complicationConfig =
+                    listOf(leftAndRightComplicationsOption, rightAndSelectComplicationsOption),
+                affectsWatchFaceLayers = listOf(WatchFaceLayer.COMPLICATIONS)
+            )
 
         initEngine(
             WatchFaceType.ANALOG,
@@ -2111,74 +2052,38 @@ public class WatchFaceServiceTest {
         engineWrapper.updateContentDescriptionLabels()
         val contentDescriptionLabels = engineWrapper.contentDescriptionLabels
         assertThat(contentDescriptionLabels.size).isEqualTo(3)
-        assertThat(contentDescriptionLabels[0].bounds).isEqualTo(
-            Rect(
-                25,
-                25,
-                75,
-                75
-            )
-        ) // Clock element.
-        assertThat(contentDescriptionLabels[1].bounds).isEqualTo(
-            Rect(
-                20,
-                40,
-                40,
-                60
-            )
-        ) // Left complication.
-        assertThat(contentDescriptionLabels[2].bounds).isEqualTo(
-            Rect(
-                60,
-                40,
-                80,
-                60
-            )
-        ) // Right complication.
+        assertThat(contentDescriptionLabels[0].bounds)
+            .isEqualTo(Rect(25, 25, 75, 75)) // Clock element.
+        assertThat(contentDescriptionLabels[1].bounds)
+            .isEqualTo(Rect(20, 40, 40, 60)) // Left complication.
+        assertThat(contentDescriptionLabels[2].bounds)
+            .isEqualTo(Rect(60, 40, 80, 60)) // Right complication.
 
         // Change the style
         watchFaceImpl.currentUserStyleRepository.updateUserStyle(
-            watchFaceImpl.currentUserStyleRepository.userStyle.value.toMutableUserStyle().apply {
-                this[complicationsStyleSetting] = rightAndSelectComplicationsOption
-            }.toUserStyle()
+            watchFaceImpl.currentUserStyleRepository.userStyle.value
+                .toMutableUserStyle()
+                .apply { this[complicationsStyleSetting] = rightAndSelectComplicationsOption }
+                .toUserStyle()
         )
         runPostedTasksFor(0)
 
         val contentDescriptionLabels2 = engineWrapper.contentDescriptionLabels
         assertThat(contentDescriptionLabels2.size).isEqualTo(3)
-        assertThat(contentDescriptionLabels2[0].bounds).isEqualTo(
-            Rect(
-                25,
-                25,
-                75,
-                75
-            )
-        ) // Clock element.
-        assertThat(contentDescriptionLabels2[1].bounds).isEqualTo(
-            Rect(
-                60,
-                40,
-                80,
-                60
-            )
-        ) // Right complication.
-        assertThat(contentDescriptionLabels2[2].bounds).isEqualTo(
-            Rect(
-                20,
-                40,
-                40,
-                60
-            )
-        ) // Left complication.
+        assertThat(contentDescriptionLabels2[0].bounds)
+            .isEqualTo(Rect(25, 25, 75, 75)) // Clock element.
+        assertThat(contentDescriptionLabels2[1].bounds)
+            .isEqualTo(Rect(60, 40, 80, 60)) // Right complication.
+        assertThat(contentDescriptionLabels2[2].bounds)
+            .isEqualTo(Rect(20, 40, 40, 60)) // Left complication.
     }
 
     @Test
     public fun getOptionForIdentifier_ListViewStyleSetting() {
         // Check the correct Options are returned for known option names.
         assertThat(colorStyleSetting.getOptionForId(redStyleOption.id)).isEqualTo(redStyleOption)
-        assertThat(colorStyleSetting.getOptionForId(greenStyleOption.id)).isEqualTo(
-            greenStyleOption
-        )
+        assertThat(colorStyleSetting.getOptionForId(greenStyleOption.id))
+            .isEqualTo(greenStyleOption)
         assertThat(colorStyleSetting.getOptionForId(blueStyleOption.id)).isEqualTo(blueStyleOption)
 
         // For unknown option names the first element in the list should be returned.
@@ -2212,24 +2117,25 @@ public class WatchFaceServiceTest {
     @Test
     @Config(sdk = [Build.VERSION_CODES.O_MR1])
     public fun requestStyleBeforeSetBinder() {
-        testWatchFaceService = TestWatchFaceService(
-            WatchFaceType.ANALOG,
-            listOf(leftComplication, rightComplication, backgroundComplication),
-            { _, currentUserStyleRepository, watchState ->
-                TestRenderer(
-                    surfaceHolder,
-                    currentUserStyleRepository,
-                    watchState,
-                    INTERACTIVE_UPDATE_RATE_MS
-                )
-            },
-            UserStyleSchema(emptyList()),
-            watchState,
-            handler,
-            null,
-            null,
-            choreographer
-        )
+        testWatchFaceService =
+            TestWatchFaceService(
+                WatchFaceType.ANALOG,
+                listOf(leftComplication, rightComplication, backgroundComplication),
+                { _, currentUserStyleRepository, watchState ->
+                    TestRenderer(
+                        surfaceHolder,
+                        currentUserStyleRepository,
+                        watchState,
+                        INTERACTIVE_UPDATE_RATE_MS
+                    )
+                },
+                UserStyleSchema(emptyList()),
+                watchState,
+                handler,
+                null,
+                null,
+                choreographer
+            )
         engineWrapper = testWatchFaceService.onCreateEngine() as WatchFaceService.EngineWrapper
         engineWrapper.onCreate(surfaceHolder)
         `when`(surfaceHolder.surfaceFrame).thenReturn(ONE_HUNDRED_BY_ONE_HUNDRED_RECT)
@@ -2253,30 +2159,33 @@ public class WatchFaceServiceTest {
     public fun defaultComplicationDataSourcesWithFallbacks_newApi() {
         val dataSource1 = ComponentName("com.app1", "com.app1.App1")
         val dataSource2 = ComponentName("com.app2", "com.app2.App2")
-        val complication = ComplicationSlot.createRoundRectComplicationSlotBuilder(
-            LEFT_COMPLICATION_ID,
-            { watchState, listener ->
-                CanvasComplicationDrawable(complicationDrawableLeft, watchState, listener)
-            },
-            emptyList(),
-            DefaultComplicationDataSourcePolicy(
-                dataSource1,
-                dataSource2,
-                SystemDataSources.DATA_SOURCE_SUNRISE_SUNSET
-            ),
-            ComplicationSlotBounds(RectF(0.2f, 0.4f, 0.4f, 0.6f))
-        ).setDefaultDataSourceType(ComplicationType.SHORT_TEXT)
-            .build()
+        val complication =
+            ComplicationSlot.createRoundRectComplicationSlotBuilder(
+                    LEFT_COMPLICATION_ID,
+                    { watchState, listener ->
+                        CanvasComplicationDrawable(complicationDrawableLeft, watchState, listener)
+                    },
+                    listOf(ComplicationType.SHORT_TEXT),
+                    DefaultComplicationDataSourcePolicy(
+                        dataSource1,
+                        dataSource2,
+                        SystemDataSources.DATA_SOURCE_SUNRISE_SUNSET
+                    ),
+                    ComplicationSlotBounds(RectF(0.2f, 0.4f, 0.4f, 0.6f))
+                )
+                .setDefaultDataSourceType(ComplicationType.SHORT_TEXT)
+                .build()
         initEngine(WatchFaceType.ANALOG, listOf(complication), UserStyleSchema(emptyList()))
 
         runPostedTasksFor(0)
 
-        verify(iWatchFaceService).setDefaultComplicationProviderWithFallbacks(
-            LEFT_COMPLICATION_ID,
-            listOf(dataSource1, dataSource2),
-            SystemDataSources.DATA_SOURCE_SUNRISE_SUNSET,
-            WireComplicationData.TYPE_SHORT_TEXT
-        )
+        verify(iWatchFaceService)
+            .setDefaultComplicationProviderWithFallbacks(
+                LEFT_COMPLICATION_ID,
+                listOf(dataSource1, dataSource2),
+                SystemDataSources.DATA_SOURCE_SUNRISE_SUNSET,
+                WireComplicationData.TYPE_SHORT_TEXT
+            )
     }
 
     @Suppress("DEPRECATION") // setDefaultDataSourceType
@@ -2285,20 +2194,22 @@ public class WatchFaceServiceTest {
     public fun defaultComplicationDataSourcesWithFallbacks_oldApi() {
         val dataSource1 = ComponentName("com.app1", "com.app1.App1")
         val dataSource2 = ComponentName("com.app2", "com.app2.App2")
-        val complication = ComplicationSlot.createRoundRectComplicationSlotBuilder(
-            LEFT_COMPLICATION_ID,
-            { watchState, listener ->
-                CanvasComplicationDrawable(complicationDrawableLeft, watchState, listener)
-            },
-            emptyList(),
-            DefaultComplicationDataSourcePolicy(
-                dataSource1,
-                dataSource2,
-                SystemDataSources.DATA_SOURCE_SUNRISE_SUNSET
-            ),
-            ComplicationSlotBounds(RectF(0.2f, 0.4f, 0.4f, 0.6f))
-        ).setDefaultDataSourceType(ComplicationType.SHORT_TEXT)
-            .build()
+        val complication =
+            ComplicationSlot.createRoundRectComplicationSlotBuilder(
+                    LEFT_COMPLICATION_ID,
+                    { watchState, listener ->
+                        CanvasComplicationDrawable(complicationDrawableLeft, watchState, listener)
+                    },
+                    listOf(ComplicationType.SHORT_TEXT),
+                    DefaultComplicationDataSourcePolicy(
+                        dataSource1,
+                        dataSource2,
+                        SystemDataSources.DATA_SOURCE_SUNRISE_SUNSET
+                    ),
+                    ComplicationSlotBounds(RectF(0.2f, 0.4f, 0.4f, 0.6f))
+                )
+                .setDefaultDataSourceType(ComplicationType.SHORT_TEXT)
+                .build()
         initEngine(
             WatchFaceType.ANALOG,
             listOf(complication),
@@ -2308,41 +2219,50 @@ public class WatchFaceServiceTest {
 
         runPostedTasksFor(0)
 
-        verify(iWatchFaceService).setDefaultComplicationProvider(
-            LEFT_COMPLICATION_ID, dataSource2, WireComplicationData.TYPE_SHORT_TEXT
-        )
-        verify(iWatchFaceService).setDefaultComplicationProvider(
-            LEFT_COMPLICATION_ID, dataSource1, WireComplicationData.TYPE_SHORT_TEXT
-        )
-        verify(iWatchFaceService).setDefaultSystemComplicationProvider(
-            LEFT_COMPLICATION_ID,
-            SystemDataSources.DATA_SOURCE_SUNRISE_SUNSET,
-            WireComplicationData.TYPE_SHORT_TEXT
-        )
+        verify(iWatchFaceService)
+            .setDefaultComplicationProvider(
+                LEFT_COMPLICATION_ID,
+                dataSource2,
+                WireComplicationData.TYPE_SHORT_TEXT
+            )
+        verify(iWatchFaceService)
+            .setDefaultComplicationProvider(
+                LEFT_COMPLICATION_ID,
+                dataSource1,
+                WireComplicationData.TYPE_SHORT_TEXT
+            )
+        verify(iWatchFaceService)
+            .setDefaultSystemComplicationProvider(
+                LEFT_COMPLICATION_ID,
+                SystemDataSources.DATA_SOURCE_SUNRISE_SUNSET,
+                WireComplicationData.TYPE_SHORT_TEXT
+            )
     }
 
     @Test
     @Config(sdk = [Build.VERSION_CODES.R])
     public fun previewReferenceTimeMillisAnalog() {
-        val instanceParams = WallpaperInteractiveWatchFaceInstanceParams(
-            INTERACTIVE_INSTANCE_ID,
-            DeviceConfig(
-                false,
-                false,
-                1000,
-                2000,
-            ),
-            WatchUiState(false, 0),
-            UserStyle(
-                hashMapOf(
-                    colorStyleSetting to blueStyleOption,
-                    watchHandStyleSetting to gothicStyleOption
-                )
-            ).toWireFormat(),
-            null,
-            null,
-            null
-        )
+        val instanceParams =
+            WallpaperInteractiveWatchFaceInstanceParams(
+                INTERACTIVE_INSTANCE_ID,
+                DeviceConfig(
+                    false,
+                    false,
+                    1000,
+                    2000,
+                ),
+                WatchUiState(false, 0),
+                UserStyle(
+                        hashMapOf(
+                            colorStyleSetting to blueStyleOption,
+                            watchHandStyleSetting to gothicStyleOption
+                        )
+                    )
+                    .toWireFormat(),
+                null,
+                null,
+                null
+            )
 
         initWallpaperInteractiveWatchFaceInstance(
             WatchFaceType.ANALOG,
@@ -2357,25 +2277,27 @@ public class WatchFaceServiceTest {
     @Test
     @Config(sdk = [Build.VERSION_CODES.R])
     public fun previewReferenceTimeMillisDigital() {
-        val instanceParams = WallpaperInteractiveWatchFaceInstanceParams(
-            INTERACTIVE_INSTANCE_ID,
-            DeviceConfig(
-                false,
-                false,
-                1000,
-                2000,
-            ),
-            WatchUiState(false, 0),
-            UserStyle(
-                hashMapOf(
-                    colorStyleSetting to blueStyleOption,
-                    watchHandStyleSetting to gothicStyleOption
-                )
-            ).toWireFormat(),
-            null,
-            null,
-            null
-        )
+        val instanceParams =
+            WallpaperInteractiveWatchFaceInstanceParams(
+                INTERACTIVE_INSTANCE_ID,
+                DeviceConfig(
+                    false,
+                    false,
+                    1000,
+                    2000,
+                ),
+                WatchUiState(false, 0),
+                UserStyle(
+                        hashMapOf(
+                            colorStyleSetting to blueStyleOption,
+                            watchHandStyleSetting to gothicStyleOption
+                        )
+                    )
+                    .toWireFormat(),
+                null,
+                null,
+                null
+            )
 
         initWallpaperInteractiveWatchFaceInstance(
             WatchFaceType.DIGITAL,
@@ -2400,112 +2322,106 @@ public class WatchFaceServiceTest {
         val complicationDetails =
             complicationSlotsManager.getComplicationsState(renderer.screenBounds)
         assertThat(complicationDetails[0].id).isEqualTo(LEFT_COMPLICATION_ID)
-        assertThat(complicationDetails[0].complicationState.boundsType).isEqualTo(
-            ComplicationSlotBoundsType.ROUND_RECT
-        )
-        assertThat(complicationDetails[0].complicationState.bounds).isEqualTo(
-            Rect(20, 40, 40, 60)
-        )
-        assertThat(complicationDetails[0].complicationState.supportedTypes).isEqualTo(
-            intArrayOf(
-                WireComplicationData.TYPE_RANGED_VALUE,
-                WireComplicationData.TYPE_LONG_TEXT,
-                WireComplicationData.TYPE_SHORT_TEXT,
-                WireComplicationData.TYPE_ICON,
-                WireComplicationData.TYPE_SMALL_IMAGE
+        assertThat(complicationDetails[0].complicationState.boundsType)
+            .isEqualTo(ComplicationSlotBoundsType.ROUND_RECT)
+        assertThat(complicationDetails[0].complicationState.bounds).isEqualTo(Rect(20, 40, 40, 60))
+        assertThat(complicationDetails[0].complicationState.supportedTypes)
+            .isEqualTo(
+                intArrayOf(
+                    WireComplicationData.TYPE_RANGED_VALUE,
+                    WireComplicationData.TYPE_LONG_TEXT,
+                    WireComplicationData.TYPE_SHORT_TEXT,
+                    WireComplicationData.TYPE_ICON,
+                    WireComplicationData.TYPE_SMALL_IMAGE
+                )
             )
-        )
 
         assertThat(complicationDetails[1].id).isEqualTo(RIGHT_COMPLICATION_ID)
-        assertThat(complicationDetails[1].complicationState.boundsType).isEqualTo(
-            ComplicationSlotBoundsType.ROUND_RECT
-        )
-        assertThat(complicationDetails[1].complicationState.bounds).isEqualTo(
-            Rect(60, 40, 80, 60)
-        )
-        assertThat(complicationDetails[1].complicationState.supportedTypes).isEqualTo(
-            intArrayOf(
-                WireComplicationData.TYPE_RANGED_VALUE,
-                WireComplicationData.TYPE_LONG_TEXT,
-                WireComplicationData.TYPE_SHORT_TEXT,
-                WireComplicationData.TYPE_ICON,
-                WireComplicationData.TYPE_SMALL_IMAGE
+        assertThat(complicationDetails[1].complicationState.boundsType)
+            .isEqualTo(ComplicationSlotBoundsType.ROUND_RECT)
+        assertThat(complicationDetails[1].complicationState.bounds).isEqualTo(Rect(60, 40, 80, 60))
+        assertThat(complicationDetails[1].complicationState.supportedTypes)
+            .isEqualTo(
+                intArrayOf(
+                    WireComplicationData.TYPE_RANGED_VALUE,
+                    WireComplicationData.TYPE_LONG_TEXT,
+                    WireComplicationData.TYPE_SHORT_TEXT,
+                    WireComplicationData.TYPE_ICON,
+                    WireComplicationData.TYPE_SMALL_IMAGE
+                )
             )
-        )
 
         assertThat(complicationDetails[2].id).isEqualTo(BACKGROUND_COMPLICATION_ID)
-        assertThat(complicationDetails[2].complicationState.boundsType).isEqualTo(
-            ComplicationSlotBoundsType.BACKGROUND
-        )
-        assertThat(complicationDetails[2].complicationState.bounds).isEqualTo(
-            Rect(0, 0, 100, 100)
-        )
-        assertThat(complicationDetails[2].complicationState.supportedTypes).isEqualTo(
-            intArrayOf(WireComplicationData.TYPE_LARGE_IMAGE)
-        )
+        assertThat(complicationDetails[2].complicationState.boundsType)
+            .isEqualTo(ComplicationSlotBoundsType.BACKGROUND)
+        assertThat(complicationDetails[2].complicationState.bounds).isEqualTo(Rect(0, 0, 100, 100))
+        assertThat(complicationDetails[2].complicationState.supportedTypes)
+            .isEqualTo(intArrayOf(WireComplicationData.TYPE_LARGE_IMAGE))
     }
 
     @Test
     @Config(sdk = [Build.VERSION_CODES.R])
     public fun getComplicationDetails_early_init_with_styleOverrides() {
-        val complicationsStyleSetting = ComplicationSlotsUserStyleSetting(
-            UserStyleSetting.Id("complications_style_setting"),
-            "AllComplicationSlots",
-            "Number and position",
-            icon = null,
-            complicationConfig = listOf(
-                leftAndRightComplicationsOption, // The default value which should be applied.
-                leftOnlyComplicationsOption
-            ),
-            affectsWatchFaceLayers = listOf(WatchFaceLayer.COMPLICATIONS)
-        )
+        val complicationsStyleSetting =
+            ComplicationSlotsUserStyleSetting(
+                UserStyleSetting.Id("complications_style_setting"),
+                "AllComplicationSlots",
+                "Number and position",
+                icon = null,
+                complicationConfig =
+                    listOf(
+                        leftAndRightComplicationsOption, // The default value which should be
+                        // applied.
+                        leftOnlyComplicationsOption
+                    ),
+                affectsWatchFaceLayers = listOf(WatchFaceLayer.COMPLICATIONS)
+            )
 
         val schema = UserStyleSchema(listOf(complicationsStyleSetting))
         val initDeferred = CompletableDeferred<Unit>()
-        testWatchFaceService = TestWatchFaceService(
-            WatchFaceType.DIGITAL,
-            listOf(leftComplication, rightComplication),
-            { _, currentUserStyleRepository, watchState ->
-                // Prevent initialization until initDeferred completes.
-                initDeferred.awaitWithTimeout()
-                renderer = TestRenderer(
-                    surfaceHolder,
-                    currentUserStyleRepository,
-                    watchState,
-                    INTERACTIVE_UPDATE_RATE_MS
-                )
-                renderer
-            },
-            schema,
-            watchState,
-            handler,
-            null,
-            null,
-            choreographer
-        )
+        testWatchFaceService =
+            TestWatchFaceService(
+                WatchFaceType.DIGITAL,
+                listOf(leftComplication, rightComplication),
+                { _, currentUserStyleRepository, watchState ->
+                    // Prevent initialization until initDeferred completes.
+                    initDeferred.awaitWithTimeout()
+                    renderer =
+                        TestRenderer(
+                            surfaceHolder,
+                            currentUserStyleRepository,
+                            watchState,
+                            INTERACTIVE_UPDATE_RATE_MS
+                        )
+                    renderer
+                },
+                schema,
+                watchState,
+                handler,
+                null,
+                null,
+                choreographer
+            )
 
         InteractiveInstanceManager
             .getExistingInstanceOrSetPendingWallpaperInteractiveWatchFaceInstance(
                 InteractiveInstanceManager.PendingWallpaperInteractiveWatchFaceInstance(
                     WallpaperInteractiveWatchFaceInstanceParams(
                         "TestID",
-                        DeviceConfig(
-                            false,
-                            false,
-                            0,
-                            0
-                        ),
+                        DeviceConfig(false, false, 0, 0),
                         WatchUiState(false, 0),
-                        schema.getDefaultUserStyle().toMutableUserStyle().apply {
-                            set(complicationsStyleSetting, leftOnlyComplicationsOption)
-                        }.toUserStyle().toWireFormat(),
+                        schema
+                            .getDefaultUserStyle()
+                            .toMutableUserStyle()
+                            .apply { set(complicationsStyleSetting, leftOnlyComplicationsOption) }
+                            .toUserStyle()
+                            .toWireFormat(),
                         emptyList(),
                         null,
                         null
                     ),
                     object : IPendingInteractiveWatchFace.Stub() {
-                        override fun getApiVersion() =
-                            IPendingInteractiveWatchFace.API_VERSION
+                        override fun getApiVersion() = IPendingInteractiveWatchFace.API_VERSION
 
                         override fun onInteractiveWatchFaceCreated(
                             iInteractiveWatchFace: IInteractiveWatchFace
@@ -2524,9 +2440,11 @@ public class WatchFaceServiceTest {
             engineWrapper = testWatchFaceService.onCreateEngine() as WatchFaceService.EngineWrapper
             engineWrapper.onCreate(surfaceHolder)
             engineWrapper.onSurfaceChanged(surfaceHolder, 0, 100, 100)
-            val complicationDetails = interactiveWatchFaceInstance.complicationDetails.associateBy(
-                { it.id }, { it.complicationState }
-            )
+            val complicationDetails =
+                interactiveWatchFaceInstance.complicationDetails.associateBy(
+                    { it.id },
+                    { it.complicationState }
+                )
             assertThat(complicationDetails[LEFT_COMPLICATION_ID]!!.isEnabled).isEqualTo(true)
             assertThat(complicationDetails[RIGHT_COMPLICATION_ID]!!.isEnabled).isEqualTo(false)
         } finally {
@@ -2539,25 +2457,27 @@ public class WatchFaceServiceTest {
     @Config(sdk = [Build.VERSION_CODES.O_MR1])
     public fun shouldAnimateOverrideControlsEnteringAmbientMode() {
         lateinit var testRenderer: TestRendererWithShouldAnimate
-        testWatchFaceService = TestWatchFaceService(
-            WatchFaceType.ANALOG,
-            emptyList(),
-            { _, currentUserStyleRepository, watchState ->
-                testRenderer = TestRendererWithShouldAnimate(
-                    surfaceHolder,
-                    currentUserStyleRepository,
-                    watchState,
-                    INTERACTIVE_UPDATE_RATE_MS
-                )
-                testRenderer
-            },
-            UserStyleSchema(emptyList()),
-            watchState,
-            handler,
-            null,
-            null,
-            choreographer
-        )
+        testWatchFaceService =
+            TestWatchFaceService(
+                WatchFaceType.ANALOG,
+                emptyList(),
+                { _, currentUserStyleRepository, watchState ->
+                    testRenderer =
+                        TestRendererWithShouldAnimate(
+                            surfaceHolder,
+                            currentUserStyleRepository,
+                            watchState,
+                            INTERACTIVE_UPDATE_RATE_MS
+                        )
+                    testRenderer
+                },
+                UserStyleSchema(emptyList()),
+                watchState,
+                handler,
+                null,
+                null,
+                choreographer
+            )
 
         engineWrapper = testWatchFaceService.onCreateEngine() as WatchFaceService.EngineWrapper
         engineWrapper.onCreate(surfaceHolder)
@@ -2657,10 +2577,7 @@ public class WatchFaceServiceTest {
         assertFalse(leftComplication.enabled)
         assertTrue(rightComplication.enabled)
         assertEquals(rightComplication.nameResourceId, NAME_RESOURCE_ID)
-        assertEquals(
-            rightComplication.screenReaderNameResourceId,
-            SCREEN_READER_NAME_RESOURCE_ID
-        )
+        assertEquals(rightComplication.screenReaderNameResourceId, SCREEN_READER_NAME_RESOURCE_ID)
 
         // Select both complicationSlots.
         val mutableUserStyleC = currentUserStyleRepository.userStyle.value.toMutableUserStyle()
@@ -2676,17 +2593,19 @@ public class WatchFaceServiceTest {
     @Test
     @Config(sdk = [Build.VERSION_CODES.O_MR1])
     public fun partialComplicationOverrideAppliedToInitialStyle() {
-        val complicationsStyleSetting = ComplicationSlotsUserStyleSetting(
-            UserStyleSetting.Id("complications_style_setting"),
-            "AllComplicationSlots",
-            "Number and position",
-            icon = null,
-            complicationConfig = listOf(
-                leftOnlyComplicationsOption, // The default value which should be applied.
-                leftAndRightComplicationsOption,
-            ),
-            affectsWatchFaceLayers = listOf(WatchFaceLayer.COMPLICATIONS)
-        )
+        val complicationsStyleSetting =
+            ComplicationSlotsUserStyleSetting(
+                UserStyleSetting.Id("complications_style_setting"),
+                "AllComplicationSlots",
+                "Number and position",
+                icon = null,
+                complicationConfig =
+                    listOf(
+                        leftOnlyComplicationsOption, // The default value which should be applied.
+                        leftAndRightComplicationsOption,
+                    ),
+                affectsWatchFaceLayers = listOf(WatchFaceLayer.COMPLICATIONS)
+            )
 
         initEngine(
             WatchFaceType.DIGITAL,
@@ -2704,75 +2623,85 @@ public class WatchFaceServiceTest {
         val complicationSlotId1 = 101
         val complicationSlotId2 = 102
 
-        val complicationsStyleSetting = ComplicationSlotsUserStyleSetting(
-            UserStyleSetting.Id("ID"),
-            "",
-            "",
-            icon = null,
-            complicationConfig = listOf(
-                ComplicationSlotsOption(
-                    Option.Id("one"),
-                    "one",
-                    "one",
-                    null,
+        val complicationsStyleSetting =
+            ComplicationSlotsUserStyleSetting(
+                UserStyleSetting.Id("ID"),
+                "",
+                "",
+                icon = null,
+                complicationConfig =
                     listOf(
-                        ComplicationSlotOverlay(
-                            complicationSlotId1,
-                            enabled = true
+                        ComplicationSlotsOption(
+                            Option.Id("one"),
+                            "one",
+                            "one",
+                            null,
+                            listOf(
+                                ComplicationSlotOverlay(complicationSlotId1, enabled = true),
+                            )
                         ),
-                    )
-                ),
-                ComplicationSlotsOption(
-                    Option.Id("two"),
-                    "two",
-                    "two",
-                    null,
-                    listOf(
-                        ComplicationSlotOverlay(
-                            complicationSlotId2,
-                            enabled = true
-                        ),
-                    )
-                )
-            ),
-            listOf(WatchFaceLayer.COMPLICATIONS)
-        )
+                        ComplicationSlotsOption(
+                            Option.Id("two"),
+                            "two",
+                            "two",
+                            null,
+                            listOf(
+                                ComplicationSlotOverlay(complicationSlotId2, enabled = true),
+                            )
+                        )
+                    ),
+                listOf(WatchFaceLayer.COMPLICATIONS)
+            )
 
         val currentUserStyleRepository =
             CurrentUserStyleRepository(UserStyleSchema(listOf(complicationsStyleSetting)))
 
-        val manager = ComplicationSlotsManager(
-            listOf(
-                ComplicationSlot.createRoundRectComplicationSlotBuilder(
-                    complicationSlotId1,
-                    { watchState, listener ->
-                        CanvasComplicationDrawable(complicationDrawableLeft, watchState, listener)
-                    },
-                    listOf(
-                        ComplicationType.RANGED_VALUE,
-                    ),
-                    DefaultComplicationDataSourcePolicy(SystemDataSources.DATA_SOURCE_DAY_OF_WEEK),
-                    ComplicationSlotBounds(RectF(0.2f, 0.7f, 0.4f, 0.9f))
-                ).setDefaultDataSourceType(ComplicationType.RANGED_VALUE)
-                    .setEnabled(false)
-                    .build(),
-
-                ComplicationSlot.createRoundRectComplicationSlotBuilder(
-                    complicationSlotId2,
-                    { watchState, listener ->
-                        CanvasComplicationDrawable(complicationDrawableRight, watchState, listener)
-                    },
-                    listOf(
-                        ComplicationType.LONG_TEXT,
-                    ),
-                    DefaultComplicationDataSourcePolicy(SystemDataSources.DATA_SOURCE_DAY_OF_WEEK),
-                    ComplicationSlotBounds(RectF(0.2f, 0.7f, 0.4f, 0.9f))
-                ).setDefaultDataSourceType(ComplicationType.LONG_TEXT)
-                    .setEnabled(false)
-                    .build()
-            ),
-            currentUserStyleRepository
-        )
+        val manager =
+            ComplicationSlotsManager(
+                listOf(
+                    ComplicationSlot.createRoundRectComplicationSlotBuilder(
+                            complicationSlotId1,
+                            { watchState, listener ->
+                                CanvasComplicationDrawable(
+                                    complicationDrawableLeft,
+                                    watchState,
+                                    listener
+                                )
+                            },
+                            listOf(
+                                ComplicationType.RANGED_VALUE,
+                            ),
+                            DefaultComplicationDataSourcePolicy(
+                                SystemDataSources.DATA_SOURCE_DAY_OF_WEEK
+                            ),
+                            ComplicationSlotBounds(RectF(0.2f, 0.7f, 0.4f, 0.9f))
+                        )
+                        .setDefaultDataSourceType(ComplicationType.RANGED_VALUE)
+                        .setEnabled(false)
+                        .build(),
+                    ComplicationSlot.createRoundRectComplicationSlotBuilder(
+                            complicationSlotId2,
+                            { watchState, listener ->
+                                CanvasComplicationDrawable(
+                                    complicationDrawableRight,
+                                    watchState,
+                                    listener
+                                )
+                            },
+                            listOf(
+                                ComplicationType.LONG_TEXT,
+                            ),
+                            DefaultComplicationDataSourcePolicy(
+                                SystemDataSources.DATA_SOURCE_DAY_OF_WEEK
+                            ),
+                            ComplicationSlotBounds(RectF(0.2f, 0.7f, 0.4f, 0.9f))
+                        )
+                        .setDefaultDataSourceType(ComplicationType.LONG_TEXT)
+                        .setEnabled(false)
+                        .build()
+                ),
+                currentUserStyleRepository
+            )
 
         // The init function of ComplicationSlotsManager should enable complicationSlotId1.
         assertThat(manager[complicationSlotId1]!!.enabled).isTrue()
@@ -2781,34 +2710,38 @@ public class WatchFaceServiceTest {
     @Test
     @Config(sdk = [Build.VERSION_CODES.TIRAMISU])
     fun hierarchical_complicationsStyleSetting() {
-        val option1 = ListUserStyleSetting.ListOption(
-            Option.Id("1"),
-            displayName = "1",
-            screenReaderName = "1",
-            icon = null,
-            childSettings = listOf(complicationsStyleSetting)
-        )
-        val option2 = ListUserStyleSetting.ListOption(
-            Option.Id("2"),
-            displayName = "2",
-            screenReaderName = "2",
-            icon = null,
-            childSettings = listOf(complicationsStyleSetting2)
-        )
-        val option3 = ListUserStyleSetting.ListOption(
-            Option.Id("3"),
-            displayName = "3",
-            screenReaderName = "3",
-            icon = null
-        )
-        val choice = ListUserStyleSetting(
-            UserStyleSetting.Id("123"),
-            displayName = "123",
-            description = "123",
-            icon = null,
-            listOf(option1, option2, option3),
-            WatchFaceLayer.ALL_WATCH_FACE_LAYERS
-        )
+        val option1 =
+            ListUserStyleSetting.ListOption(
+                Option.Id("1"),
+                displayName = "1",
+                screenReaderName = "1",
+                icon = null,
+                childSettings = listOf(complicationsStyleSetting)
+            )
+        val option2 =
+            ListUserStyleSetting.ListOption(
+                Option.Id("2"),
+                displayName = "2",
+                screenReaderName = "2",
+                icon = null,
+                childSettings = listOf(complicationsStyleSetting2)
+            )
+        val option3 =
+            ListUserStyleSetting.ListOption(
+                Option.Id("3"),
+                displayName = "3",
+                screenReaderName = "3",
+                icon = null
+            )
+        val choice =
+            ListUserStyleSetting(
+                UserStyleSetting.Id("123"),
+                displayName = "123",
+                description = "123",
+                icon = null,
+                listOf(option1, option2, option3),
+                WatchFaceLayer.ALL_WATCH_FACE_LAYERS
+            )
 
         initWallpaperInteractiveWatchFaceInstance(
             WatchFaceType.DIGITAL,
@@ -2816,12 +2749,7 @@ public class WatchFaceServiceTest {
             UserStyleSchema(listOf(choice, complicationsStyleSetting, complicationsStyleSetting2)),
             WallpaperInteractiveWatchFaceInstanceParams(
                 INTERACTIVE_INSTANCE_ID,
-                DeviceConfig(
-                    false,
-                    false,
-                    0,
-                    0
-                ),
+                DeviceConfig(false, false, 0, 0),
                 WatchUiState(false, 0),
                 UserStyle(emptyMap()).toWireFormat(),
                 null,
@@ -2877,12 +2805,7 @@ public class WatchFaceServiceTest {
             UserStyleSchema(emptyList()),
             WallpaperInteractiveWatchFaceInstanceParams(
                 INTERACTIVE_INSTANCE_ID,
-                DeviceConfig(
-                    false,
-                    false,
-                    0,
-                    0
-                ),
+                DeviceConfig(false, false, 0, 0),
                 WatchUiState(false, 0),
                 UserStyle(emptyMap()).toWireFormat(),
                 null,
@@ -2913,12 +2836,14 @@ public class WatchFaceServiceTest {
                 IdAndComplicationDataWireFormat(
                     LEFT_COMPLICATION_ID,
                     WireComplicationData.Builder(WireComplicationData.TYPE_LONG_TEXT)
-                        .setLongText(WireComplicationText.plainText("TYPE_LONG_TEXT")).build()
+                        .setLongText(WireComplicationText.plainText("TYPE_LONG_TEXT"))
+                        .build()
                 ),
                 IdAndComplicationDataWireFormat(
                     RIGHT_COMPLICATION_ID,
                     WireComplicationData.Builder(WireComplicationData.TYPE_SHORT_TEXT)
-                        .setShortText(WireComplicationText.plainText("TYPE_SHORT_TEXT")).build()
+                        .setShortText(WireComplicationText.plainText("TYPE_SHORT_TEXT"))
+                        .build()
                 )
             )
         )
@@ -2935,15 +2860,16 @@ public class WatchFaceServiceTest {
     @Config(sdk = [Build.VERSION_CODES.O_MR1])
     public fun complicationCache() {
         val complicationCache = HashMap<String, ByteArray>()
-        val instanceParams = WallpaperInteractiveWatchFaceInstanceParams(
-            INTERACTIVE_INSTANCE_ID,
-            DeviceConfig(false, false, 0, 0),
-            WatchUiState(false, 0),
-            UserStyle(emptyMap()).toWireFormat(),
-            null,
-            null,
-            null
-        )
+        val instanceParams =
+            WallpaperInteractiveWatchFaceInstanceParams(
+                INTERACTIVE_INSTANCE_ID,
+                DeviceConfig(false, false, 0, 0),
+                WatchUiState(false, 0),
+                UserStyle(emptyMap()).toWireFormat(),
+                null,
+                null,
+                null
+            )
         initWallpaperInteractiveWatchFaceInstance(
             WatchFaceType.ANALOG,
             listOf(leftComplication, rightComplication),
@@ -2967,7 +2893,9 @@ public class WatchFaceServiceTest {
                         .setLongText(WireComplicationText.plainText("TYPE_LONG_TEXT"))
                         .setTapAction(
                             PendingIntent.getActivity(
-                                context, 0, Intent("LongText"),
+                                context,
+                                0,
+                                Intent("LongText"),
                                 PendingIntent.FLAG_IMMUTABLE
                             )
                         )
@@ -2976,7 +2904,8 @@ public class WatchFaceServiceTest {
                 IdAndComplicationDataWireFormat(
                     RIGHT_COMPLICATION_ID,
                     WireComplicationData.Builder(WireComplicationData.TYPE_SHORT_TEXT)
-                        .setShortText(WireComplicationText.plainText("TYPE_SHORT_TEXT")).build()
+                        .setShortText(WireComplicationText.plainText("TYPE_SHORT_TEXT"))
+                        .build()
                 )
             )
         )
@@ -2989,25 +2918,26 @@ public class WatchFaceServiceTest {
         engineWrapper.onDestroy()
         InteractiveInstanceManager.releaseInstance(INTERACTIVE_INSTANCE_ID)
 
-        val service2 = TestWatchFaceService(
-            WatchFaceType.ANALOG,
-            listOf(leftComplication, rightComplication),
-            { _, currentUserStyleRepository, watchState ->
-                TestRenderer(
-                    surfaceHolder,
-                    currentUserStyleRepository,
-                    watchState,
-                    INTERACTIVE_UPDATE_RATE_MS
-                )
-            },
-            UserStyleSchema(emptyList()),
-            watchState,
-            handler,
-            null,
-            null,
-            choreographer,
-            complicationCache = complicationCache
-        )
+        val service2 =
+            TestWatchFaceService(
+                WatchFaceType.ANALOG,
+                listOf(leftComplication, rightComplication),
+                { _, currentUserStyleRepository, watchState ->
+                    TestRenderer(
+                        surfaceHolder,
+                        currentUserStyleRepository,
+                        watchState,
+                        INTERACTIVE_UPDATE_RATE_MS
+                    )
+                },
+                UserStyleSchema(emptyList()),
+                watchState,
+                handler,
+                null,
+                null,
+                choreographer,
+                complicationCache = complicationCache
+            )
 
         lateinit var instance2: IInteractiveWatchFace
         InteractiveInstanceManager
@@ -3015,8 +2945,7 @@ public class WatchFaceServiceTest {
                 InteractiveInstanceManager.PendingWallpaperInteractiveWatchFaceInstance(
                     instanceParams,
                     object : IPendingInteractiveWatchFace.Stub() {
-                        override fun getApiVersion() =
-                            IPendingInteractiveWatchFace.API_VERSION
+                        override fun getApiVersion() = IPendingInteractiveWatchFace.API_VERSION
 
                         override fun onInteractiveWatchFaceCreated(
                             iInteractiveWatchFace: IInteractiveWatchFace
@@ -3042,13 +2971,15 @@ public class WatchFaceServiceTest {
 
             // Check the ComplicationData was cached.
             val leftComplicationData =
-                watchFaceImpl2.complicationSlotsManager[
-                    LEFT_COMPLICATION_ID
-                ]!!.complicationData.value.asWireComplicationData()
+                watchFaceImpl2.complicationSlotsManager[LEFT_COMPLICATION_ID]!!
+                    .complicationData
+                    .value
+                    .asWireComplicationData()
             val rightComplicationData =
-                watchFaceImpl2.complicationSlotsManager[
-                    RIGHT_COMPLICATION_ID
-                ]!!.complicationData.value.asWireComplicationData()
+                watchFaceImpl2.complicationSlotsManager[RIGHT_COMPLICATION_ID]!!
+                    .complicationData
+                    .value
+                    .asWireComplicationData()
 
             assertThat(leftComplicationData.type).isEqualTo(WireComplicationData.TYPE_LONG_TEXT)
             assertThat(leftComplicationData.longText?.getTextAt(context.resources, 0))
@@ -3067,15 +2998,16 @@ public class WatchFaceServiceTest {
     @Config(sdk = [Build.VERSION_CODES.O_MR1])
     public fun complicationCachePolicy() {
         val complicationCache = HashMap<String, ByteArray>()
-        val instanceParams = WallpaperInteractiveWatchFaceInstanceParams(
-            INTERACTIVE_INSTANCE_ID,
-            DeviceConfig(false, false, 0, 0),
-            WatchUiState(false, 0),
-            UserStyle(emptyMap()).toWireFormat(),
-            null,
-            null,
-            null
-        )
+        val instanceParams =
+            WallpaperInteractiveWatchFaceInstanceParams(
+                INTERACTIVE_INSTANCE_ID,
+                DeviceConfig(false, false, 0, 0),
+                WatchUiState(false, 0),
+                UserStyle(emptyMap()).toWireFormat(),
+                null,
+                null,
+                null
+            )
         initWallpaperInteractiveWatchFaceInstance(
             WatchFaceType.ANALOG,
             listOf(leftComplication, rightComplication),
@@ -3093,7 +3025,9 @@ public class WatchFaceServiceTest {
                         .setLongText(WireComplicationText.plainText("TYPE_LONG_TEXT"))
                         .setTapAction(
                             PendingIntent.getActivity(
-                                context, 0, Intent("LongText"),
+                                context,
+                                0,
+                                Intent("LongText"),
                                 PendingIntent.FLAG_IMMUTABLE
                             )
                         )
@@ -3103,7 +3037,8 @@ public class WatchFaceServiceTest {
                 IdAndComplicationDataWireFormat(
                     RIGHT_COMPLICATION_ID,
                     WireComplicationData.Builder(WireComplicationData.TYPE_SHORT_TEXT)
-                        .setShortText(WireComplicationText.plainText("TYPE_SHORT_TEXT")).build()
+                        .setShortText(WireComplicationText.plainText("TYPE_SHORT_TEXT"))
+                        .build()
                 )
             )
         )
@@ -3116,25 +3051,26 @@ public class WatchFaceServiceTest {
         engineWrapper.onDestroy()
         InteractiveInstanceManager.releaseInstance(INTERACTIVE_INSTANCE_ID)
 
-        val service2 = TestWatchFaceService(
-            WatchFaceType.ANALOG,
-            listOf(leftComplication, rightComplication),
-            { _, currentUserStyleRepository, watchState ->
-                TestRenderer(
-                    surfaceHolder,
-                    currentUserStyleRepository,
-                    watchState,
-                    INTERACTIVE_UPDATE_RATE_MS
-                )
-            },
-            UserStyleSchema(emptyList()),
-            watchState,
-            handler,
-            null,
-            null,
-            choreographer,
-            complicationCache = complicationCache
-        )
+        val service2 =
+            TestWatchFaceService(
+                WatchFaceType.ANALOG,
+                listOf(leftComplication, rightComplication),
+                { _, currentUserStyleRepository, watchState ->
+                    TestRenderer(
+                        surfaceHolder,
+                        currentUserStyleRepository,
+                        watchState,
+                        INTERACTIVE_UPDATE_RATE_MS
+                    )
+                },
+                UserStyleSchema(emptyList()),
+                watchState,
+                handler,
+                null,
+                null,
+                choreographer,
+                complicationCache = complicationCache
+            )
 
         lateinit var instance2: IInteractiveWatchFace
         InteractiveInstanceManager
@@ -3142,8 +3078,7 @@ public class WatchFaceServiceTest {
                 InteractiveInstanceManager.PendingWallpaperInteractiveWatchFaceInstance(
                     instanceParams,
                     object : IPendingInteractiveWatchFace.Stub() {
-                        override fun getApiVersion() =
-                            IPendingInteractiveWatchFace.API_VERSION
+                        override fun getApiVersion() = IPendingInteractiveWatchFace.API_VERSION
 
                         override fun onInteractiveWatchFaceCreated(
                             iInteractiveWatchFace: IInteractiveWatchFace
@@ -3169,13 +3104,15 @@ public class WatchFaceServiceTest {
 
             // Check only the right ComplicationData was cached.
             val leftComplicationData =
-                watchFaceImpl2.complicationSlotsManager[
-                    LEFT_COMPLICATION_ID
-                ]!!.complicationData.value.asWireComplicationData()
+                watchFaceImpl2.complicationSlotsManager[LEFT_COMPLICATION_ID]!!
+                    .complicationData
+                    .value
+                    .asWireComplicationData()
             val rightComplicationData =
-                watchFaceImpl2.complicationSlotsManager[
-                    RIGHT_COMPLICATION_ID
-                ]!!.complicationData.value.asWireComplicationData()
+                watchFaceImpl2.complicationSlotsManager[RIGHT_COMPLICATION_ID]!!
+                    .complicationData
+                    .value
+                    .asWireComplicationData()
 
             assertThat(leftComplicationData.type).isEqualTo(WireComplicationData.TYPE_NO_DATA)
             assertThat(rightComplicationData.type).isEqualTo(WireComplicationData.TYPE_SHORT_TEXT)
@@ -3191,15 +3128,16 @@ public class WatchFaceServiceTest {
     @Config(sdk = [Build.VERSION_CODES.O_MR1])
     public fun complicationCache_timeline() {
         val complicationCache = HashMap<String, ByteArray>()
-        val instanceParams = WallpaperInteractiveWatchFaceInstanceParams(
-            INTERACTIVE_INSTANCE_ID,
-            DeviceConfig(false, false, 0, 0),
-            WatchUiState(false, 0),
-            UserStyle(emptyMap()).toWireFormat(),
-            null,
-            null,
-            null
-        )
+        val instanceParams =
+            WallpaperInteractiveWatchFaceInstanceParams(
+                INTERACTIVE_INSTANCE_ID,
+                DeviceConfig(false, false, 0, 0),
+                WatchUiState(false, 0),
+                UserStyle(emptyMap()).toWireFormat(),
+                null,
+                null,
+                null
+            )
         initWallpaperInteractiveWatchFaceInstance(
             WatchFaceType.ANALOG,
             listOf(leftComplication),
@@ -3212,12 +3150,14 @@ public class WatchFaceServiceTest {
         assertThat(complicationSlotsManager[LEFT_COMPLICATION_ID]!!.complicationData.value.type)
             .isEqualTo(ComplicationType.NO_DATA)
 
-        val a = WireComplicationData.Builder(WireComplicationData.TYPE_SHORT_TEXT)
-            .setShortText(WireComplicationText.plainText("A"))
-            .build()
-        val b = WireComplicationData.Builder(WireComplicationData.TYPE_SHORT_TEXT)
-            .setShortText(WireComplicationText.plainText("B"))
-            .build()
+        val a =
+            WireComplicationData.Builder(WireComplicationData.TYPE_SHORT_TEXT)
+                .setShortText(WireComplicationText.plainText("A"))
+                .build()
+        val b =
+            WireComplicationData.Builder(WireComplicationData.TYPE_SHORT_TEXT)
+                .setShortText(WireComplicationText.plainText("B"))
+                .build()
         b.timelineStartEpochSecond = 1000
         b.timelineEndEpochSecond = Long.MAX_VALUE
         a.setTimelineEntryCollection(listOf(b))
@@ -3234,25 +3174,26 @@ public class WatchFaceServiceTest {
 
         interactiveWatchFaceInstance.release()
 
-        val service2 = TestWatchFaceService(
-            WatchFaceType.ANALOG,
-            listOf(leftComplication),
-            { _, currentUserStyleRepository, watchState ->
-                TestRenderer(
-                    surfaceHolder,
-                    currentUserStyleRepository,
-                    watchState,
-                    INTERACTIVE_UPDATE_RATE_MS
-                )
-            },
-            UserStyleSchema(emptyList()),
-            watchState,
-            handler,
-            null,
-            null,
-            choreographer,
-            complicationCache = complicationCache
-        )
+        val service2 =
+            TestWatchFaceService(
+                WatchFaceType.ANALOG,
+                listOf(leftComplication),
+                { _, currentUserStyleRepository, watchState ->
+                    TestRenderer(
+                        surfaceHolder,
+                        currentUserStyleRepository,
+                        watchState,
+                        INTERACTIVE_UPDATE_RATE_MS
+                    )
+                },
+                UserStyleSchema(emptyList()),
+                watchState,
+                handler,
+                null,
+                null,
+                choreographer,
+                complicationCache = complicationCache
+            )
 
         lateinit var instance2: IInteractiveWatchFace
         InteractiveInstanceManager
@@ -3260,8 +3201,7 @@ public class WatchFaceServiceTest {
                 InteractiveInstanceManager.PendingWallpaperInteractiveWatchFaceInstance(
                     instanceParams,
                     object : IPendingInteractiveWatchFace.Stub() {
-                        override fun getApiVersion() =
-                            IPendingInteractiveWatchFace.API_VERSION
+                        override fun getApiVersion() = IPendingInteractiveWatchFace.API_VERSION
 
                         override fun onInteractiveWatchFaceCreated(
                             iInteractiveWatchFace: IInteractiveWatchFace
@@ -3291,9 +3231,10 @@ public class WatchFaceServiceTest {
 
             // Check the ComplicationData was cached.
             var leftComplicationData =
-                watchFaceImpl2.complicationSlotsManager[
-                    LEFT_COMPLICATION_ID
-                ]!!.complicationData.value.asWireComplicationData()
+                watchFaceImpl2.complicationSlotsManager[LEFT_COMPLICATION_ID]!!
+                    .complicationData
+                    .value
+                    .asWireComplicationData()
 
             assertThat(leftComplicationData.type).isEqualTo(WireComplicationData.TYPE_SHORT_TEXT)
             assertThat(leftComplicationData.shortText?.getTextAt(context.resources, 0))
@@ -3304,9 +3245,10 @@ public class WatchFaceServiceTest {
                 Instant.ofEpochSecond(1000)
             )
             leftComplicationData =
-                watchFaceImpl2.complicationSlotsManager[
-                    LEFT_COMPLICATION_ID
-                ]!!.complicationData.value.asWireComplicationData()
+                watchFaceImpl2.complicationSlotsManager[LEFT_COMPLICATION_ID]!!
+                    .complicationData
+                    .value
+                    .asWireComplicationData()
 
             assertThat(leftComplicationData.type).isEqualTo(WireComplicationData.TYPE_SHORT_TEXT)
             assertThat(leftComplicationData.shortText?.getTextAt(context.resources, 0))
@@ -3327,60 +3269,65 @@ public class WatchFaceServiceTest {
         )
 
         assertThat(
-            watchFaceImpl.complicationSlotsManager[LEFT_COMPLICATION_ID]!!.complicationData.value
-        ).isInstanceOf(NoDataComplicationData::class.java)
+                watchFaceImpl.complicationSlotsManager[LEFT_COMPLICATION_ID]!!
+                    .complicationData
+                    .value
+            )
+            .isInstanceOf(NoDataComplicationData::class.java)
         assertThat(
-            watchFaceImpl.complicationSlotsManager[RIGHT_COMPLICATION_ID]!!.complicationData.value
-        ).isInstanceOf(NoDataComplicationData::class.java)
+                watchFaceImpl.complicationSlotsManager[RIGHT_COMPLICATION_ID]!!
+                    .complicationData
+                    .value
+            )
+            .isInstanceOf(NoDataComplicationData::class.java)
     }
 
     @Test
     @Config(sdk = [Build.VERSION_CODES.R])
     @RequiresApi(Build.VERSION_CODES.O_MR1)
     public fun headless_complicationsInitialized_with_EmptyComplicationData() {
-        testWatchFaceService = TestWatchFaceService(
-            WatchFaceType.ANALOG,
-            listOf(leftComplication, rightComplication),
-            { _, currentUserStyleRepository, watchState ->
-                TestRenderer(
-                    surfaceHolder,
-                    currentUserStyleRepository,
-                    watchState,
-                    INTERACTIVE_UPDATE_RATE_MS
-                )
-            },
-            UserStyleSchema(emptyList()),
-            watchState,
-            handler,
-            null,
-            WallpaperInteractiveWatchFaceInstanceParams(
-                "Headless",
-                DeviceConfig(
-                    false,
-                    false,
-                    0,
-                    0
-                ),
-                WatchUiState(false, 0),
-                UserStyle(
-                    hashMapOf(
-                        colorStyleSetting to blueStyleOption,
-                        watchHandStyleSetting to gothicStyleOption
+        testWatchFaceService =
+            TestWatchFaceService(
+                WatchFaceType.ANALOG,
+                listOf(leftComplication, rightComplication),
+                { _, currentUserStyleRepository, watchState ->
+                    TestRenderer(
+                        surfaceHolder,
+                        currentUserStyleRepository,
+                        watchState,
+                        INTERACTIVE_UPDATE_RATE_MS
                     )
-                ).toWireFormat(),
+                },
+                UserStyleSchema(emptyList()),
+                watchState,
+                handler,
                 null,
-                null,
-                null
-            ),
-            choreographer
-        )
+                WallpaperInteractiveWatchFaceInstanceParams(
+                    "Headless",
+                    DeviceConfig(false, false, 0, 0),
+                    WatchUiState(false, 0),
+                    UserStyle(
+                            hashMapOf(
+                                colorStyleSetting to blueStyleOption,
+                                watchHandStyleSetting to gothicStyleOption
+                            )
+                        )
+                        .toWireFormat(),
+                    null,
+                    null,
+                    null
+                ),
+                choreographer
+            )
 
+        val componentName = ComponentName("test.watchface.app", "test.watchface.class")
         engineWrapper =
-            testWatchFaceService.createHeadlessEngine() as WatchFaceService.EngineWrapper
+            testWatchFaceService.createHeadlessEngine(componentName)
+                as WatchFaceService.EngineWrapper
 
         engineWrapper.createHeadlessInstance(
             HeadlessWatchFaceInstanceParams(
-                ComponentName("test.watchface.app", "test.watchface.class"),
+                componentName,
                 DeviceConfig(false, false, 100, 200),
                 100,
                 100,
@@ -3390,16 +3337,20 @@ public class WatchFaceServiceTest {
 
         // [WatchFaceService.createWatchFace] Will have run by now because we're using an immediate
         // coroutine dispatcher.
-        runBlocking {
-            watchFaceImpl = engineWrapper.deferredWatchFaceImpl.awaitWithTimeout()
-        }
+        runBlocking { watchFaceImpl = engineWrapper.deferredWatchFaceImpl.awaitWithTimeout() }
 
         assertThat(
-            watchFaceImpl.complicationSlotsManager[LEFT_COMPLICATION_ID]!!.complicationData.value
-        ).isInstanceOf(EmptyComplicationData::class.java)
+                watchFaceImpl.complicationSlotsManager[LEFT_COMPLICATION_ID]!!
+                    .complicationData
+                    .value
+            )
+            .isInstanceOf(EmptyComplicationData::class.java)
         assertThat(
-            watchFaceImpl.complicationSlotsManager[RIGHT_COMPLICATION_ID]!!.complicationData.value
-        ).isInstanceOf(EmptyComplicationData::class.java)
+                watchFaceImpl.complicationSlotsManager[RIGHT_COMPLICATION_ID]!!
+                    .complicationData
+                    .value
+            )
+            .isInstanceOf(EmptyComplicationData::class.java)
     }
 
     @Test
@@ -3411,12 +3362,7 @@ public class WatchFaceServiceTest {
             UserStyleSchema(emptyList()),
             WallpaperInteractiveWatchFaceInstanceParams(
                 INTERACTIVE_INSTANCE_ID,
-                DeviceConfig(
-                    false,
-                    false,
-                    0,
-                    0
-                ),
+                DeviceConfig(false, false, 0, 0),
                 WatchUiState(false, 0),
                 UserStyle(emptyMap()).toWireFormat(),
                 null,
@@ -3480,12 +3426,7 @@ public class WatchFaceServiceTest {
             UserStyleSchema(emptyList()),
             WallpaperInteractiveWatchFaceInstanceParams(
                 INTERACTIVE_INSTANCE_ID,
-                DeviceConfig(
-                    false,
-                    false,
-                    0,
-                    0
-                ),
+                DeviceConfig(false, false, 0, 0),
                 WatchUiState(false, 0),
                 UserStyle(emptyMap()).toWireFormat(),
                 null,
@@ -3509,12 +3450,13 @@ public class WatchFaceServiceTest {
 
     @Test
     public fun invalidateRendererBeforeFullInit() {
-        renderer = TestRenderer(
-            surfaceHolder,
-            CurrentUserStyleRepository(UserStyleSchema(emptyList())),
-            watchState.asWatchState(),
-            INTERACTIVE_UPDATE_RATE_MS
-        )
+        renderer =
+            TestRenderer(
+                surfaceHolder,
+                CurrentUserStyleRepository(UserStyleSchema(emptyList())),
+                watchState.asWatchState(),
+                INTERACTIVE_UPDATE_RATE_MS
+            )
 
         // This should not throw an exception.
         renderer.invalidate()
@@ -3529,12 +3471,7 @@ public class WatchFaceServiceTest {
             UserStyleSchema(emptyList()),
             WallpaperInteractiveWatchFaceInstanceParams(
                 INTERACTIVE_INSTANCE_ID,
-                DeviceConfig(
-                    false,
-                    false,
-                    0,
-                    0
-                ),
+                DeviceConfig(false, false, 0, 0),
                 WatchUiState(false, 0),
                 UserStyle(emptyMap()).toWireFormat(),
                 null,
@@ -3558,12 +3495,7 @@ public class WatchFaceServiceTest {
             UserStyleSchema(emptyList()),
             WallpaperInteractiveWatchFaceInstanceParams(
                 INTERACTIVE_INSTANCE_ID,
-                DeviceConfig(
-                    false,
-                    false,
-                    0,
-                    0
-                ),
+                DeviceConfig(false, false, 0, 0),
                 WatchUiState(false, 0),
                 UserStyle(emptyMap()).toWireFormat(),
                 null,
@@ -3595,12 +3527,7 @@ public class WatchFaceServiceTest {
             UserStyleSchema(emptyList()),
             WallpaperInteractiveWatchFaceInstanceParams(
                 INTERACTIVE_INSTANCE_ID,
-                DeviceConfig(
-                    false,
-                    false,
-                    0,
-                    0
-                ),
+                DeviceConfig(false, false, 0, 0),
                 WatchUiState(false, 0),
                 UserStyle(emptyMap()).toWireFormat(),
                 null,
@@ -3646,24 +3573,25 @@ public class WatchFaceServiceTest {
     @Test
     @Config(sdk = [Build.VERSION_CODES.O_MR1])
     public fun isAmbientInitalisedEvenWithoutPropertiesSent() {
-        testWatchFaceService = TestWatchFaceService(
-            WatchFaceType.ANALOG,
-            emptyList(),
-            { _, currentUserStyleRepository, watchState ->
-                TestRenderer(
-                    surfaceHolder,
-                    currentUserStyleRepository,
-                    watchState,
-                    INTERACTIVE_UPDATE_RATE_MS
-                )
-            },
-            UserStyleSchema(emptyList()),
-            watchState,
-            handler,
-            null,
-            null,
-            choreographer
-        )
+        testWatchFaceService =
+            TestWatchFaceService(
+                WatchFaceType.ANALOG,
+                emptyList(),
+                { _, currentUserStyleRepository, watchState ->
+                    TestRenderer(
+                        surfaceHolder,
+                        currentUserStyleRepository,
+                        watchState,
+                        INTERACTIVE_UPDATE_RATE_MS
+                    )
+                },
+                UserStyleSchema(emptyList()),
+                watchState,
+                handler,
+                null,
+                null,
+                choreographer
+            )
 
         engineWrapper = testWatchFaceService.onCreateEngine() as WatchFaceService.EngineWrapper
         engineWrapper.onCreate(surfaceHolder)
@@ -3684,12 +3612,7 @@ public class WatchFaceServiceTest {
             UserStyleSchema(emptyList()),
             WallpaperInteractiveWatchFaceInstanceParams(
                 INTERACTIVE_INSTANCE_ID,
-                DeviceConfig(
-                    false,
-                    false,
-                    0,
-                    0
-                ),
+                DeviceConfig(false, false, 0, 0),
                 WatchUiState(true, 0),
                 UserStyle(emptyMap()).toWireFormat(),
                 null,
@@ -3731,12 +3654,7 @@ public class WatchFaceServiceTest {
             UserStyleSchema(emptyList()),
             WallpaperInteractiveWatchFaceInstanceParams(
                 INTERACTIVE_INSTANCE_ID,
-                DeviceConfig(
-                    false,
-                    false,
-                    0,
-                    0
-                ),
+                DeviceConfig(false, false, 0, 0),
                 WatchUiState(false, 0),
                 UserStyle(emptyMap()).toWireFormat(),
                 null,
@@ -3772,12 +3690,7 @@ public class WatchFaceServiceTest {
             UserStyleSchema(listOf(colorStyleSetting, watchHandStyleSetting)),
             WallpaperInteractiveWatchFaceInstanceParams(
                 instanceId,
-                DeviceConfig(
-                    false,
-                    false,
-                    0,
-                    0
-                ),
+                DeviceConfig(false, false, 0, 0),
                 WatchUiState(false, 0),
                 UserStyle(hashMapOf(colorStyleSetting to blueStyleOption)).toWireFormat(),
                 null,
@@ -3807,14 +3720,15 @@ public class WatchFaceServiceTest {
         )
 
         val complication =
-            watchFaceImpl.complicationSlotsManager[LEFT_COMPLICATION_ID]!!.complicationData.value as
-                ShortTextComplicationData
+            watchFaceImpl.complicationSlotsManager[LEFT_COMPLICATION_ID]!!.complicationData.value
+                as ShortTextComplicationData
         assertThat(
-            complication.text.getTextAt(
-                ApplicationProvider.getApplicationContext<Context>().resources,
-                Instant.EPOCH
+                complication.text.getTextAt(
+                    ApplicationProvider.getApplicationContext<Context>().resources,
+                    Instant.EPOCH
+                )
             )
-        ).isEqualTo("Override")
+            .isEqualTo("Override")
     }
 
     @Test
@@ -3827,12 +3741,7 @@ public class WatchFaceServiceTest {
             UserStyleSchema(emptyList()),
             WallpaperInteractiveWatchFaceInstanceParams(
                 instanceId,
-                DeviceConfig(
-                    false,
-                    false,
-                    0,
-                    0
-                ),
+                DeviceConfig(false, false, 0, 0),
                 WatchUiState(false, 0),
                 UserStyle(emptyMap()).toWireFormat(),
                 listOf(
@@ -3857,114 +3766,132 @@ public class WatchFaceServiceTest {
         )
 
         val complication =
-            watchFaceImpl.complicationSlotsManager[LEFT_COMPLICATION_ID]!!.complicationData.value as
-                ShortTextComplicationData
+            watchFaceImpl.complicationSlotsManager[LEFT_COMPLICATION_ID]!!.complicationData.value
+                as ShortTextComplicationData
         assertThat(
-            complication.text.getTextAt(
-                ApplicationProvider.getApplicationContext<Context>().resources,
-                Instant.EPOCH
+                complication.text.getTextAt(
+                    ApplicationProvider.getApplicationContext<Context>().resources,
+                    Instant.EPOCH
+                )
             )
-        ).isEqualTo("INITIAL_VALUE")
+            .isEqualTo("INITIAL_VALUE")
     }
 
     @Test
     @Config(sdk = [Build.VERSION_CODES.R])
     public fun directBoot() {
         val instanceId = "DirectBootInstance"
-        testWatchFaceService = TestWatchFaceService(
-            WatchFaceType.ANALOG,
-            emptyList(),
-            { _, currentUserStyleRepository, watchState ->
-                TestRenderer(
-                    surfaceHolder,
-                    currentUserStyleRepository,
-                    watchState,
-                    INTERACTIVE_UPDATE_RATE_MS
-                )
-            },
-            UserStyleSchema(listOf(colorStyleSetting, watchHandStyleSetting)),
-            watchState,
-            handler,
-            null,
+        val params =
             WallpaperInteractiveWatchFaceInstanceParams(
                 instanceId,
-                DeviceConfig(
-                    false,
-                    false,
-                    0,
-                    0
-                ),
+                DeviceConfig(false, false, 0, 0),
                 WatchUiState(false, 0),
                 UserStyle(
-                    hashMapOf(
-                        colorStyleSetting to blueStyleOption,
-                        watchHandStyleSetting to gothicStyleOption
+                        hashMapOf(
+                            colorStyleSetting to blueStyleOption,
+                            watchHandStyleSetting to gothicStyleOption
+                        )
                     )
-                ).toWireFormat(),
+                    .toWireFormat(),
                 null,
                 null,
                 null
-            ),
-            choreographer
-        )
+            )
+        testWatchFaceService =
+            TestWatchFaceService(
+                WatchFaceType.ANALOG,
+                emptyList(),
+                { _, currentUserStyleRepository, watchState ->
+                    TestRenderer(
+                        surfaceHolder,
+                        currentUserStyleRepository,
+                        watchState,
+                        INTERACTIVE_UPDATE_RATE_MS
+                    )
+                },
+                UserStyleSchema(listOf(colorStyleSetting, watchHandStyleSetting)),
+                watchState,
+                handler,
+                null,
+                params,
+                choreographer
+            )
 
         engineWrapper = testWatchFaceService.onCreateEngine() as WatchFaceService.EngineWrapper
         engineWrapper.onSurfaceChanged(surfaceHolder, 0, 100, 100)
 
         // This increments refcount to 2
-        val instance = InteractiveInstanceManager.getAndRetainInstance(instanceId)
+        val instance =
+            InteractiveInstanceManager
+                .getExistingInstanceOrSetPendingWallpaperInteractiveWatchFaceInstance(
+                    InteractiveInstanceManager.PendingWallpaperInteractiveWatchFaceInstance(
+                        params,
+                        object : IPendingInteractiveWatchFace.Stub() {
+                            override fun getApiVersion() = IPendingInteractiveWatchFace.API_VERSION
+
+                            override fun onInteractiveWatchFaceCreated(
+                                iInteractiveWatchFace: IInteractiveWatchFace
+                            ) {
+                                fail("Shouldn't get called")
+                            }
+
+                            override fun onInteractiveWatchFaceCrashed(
+                                exception: CrashInfoParcel?
+                            ) {
+                                fail("WatchFace crashed: $exception")
+                            }
+                        }
+                    )
+                )
         assertThat(instance).isNotNull()
         watchFaceImpl = engineWrapper.getWatchFaceImplOrNull()!!
         val userStyle = watchFaceImpl.currentUserStyleRepository.userStyle.value
         assertThat(userStyle[colorStyleSetting]).isEqualTo(blueStyleOption)
         assertThat(userStyle[watchHandStyleSetting]).isEqualTo(gothicStyleOption)
         instance!!.release()
-
-        InteractiveInstanceManager.releaseInstance(instanceId)
     }
 
     @Test
     @Config(sdk = [Build.VERSION_CODES.R])
     public fun headlessFlagPreventsDirectBoot() {
         val instanceId = "DirectBootInstance"
-        testWatchFaceService = TestWatchFaceService(
-            WatchFaceType.ANALOG,
-            emptyList(),
-            { _, currentUserStyleRepository, watchState ->
-                TestRenderer(
-                    surfaceHolder,
-                    currentUserStyleRepository,
-                    watchState,
-                    INTERACTIVE_UPDATE_RATE_MS
-                )
-            },
-            UserStyleSchema(emptyList()),
-            watchState,
-            handler,
-            null,
-            WallpaperInteractiveWatchFaceInstanceParams(
-                instanceId,
-                DeviceConfig(
-                    false,
-                    false,
-                    0,
-                    0
-                ),
-                WatchUiState(false, 0),
-                UserStyle(
-                    hashMapOf(
-                        colorStyleSetting to blueStyleOption,
-                        watchHandStyleSetting to gothicStyleOption
+        testWatchFaceService =
+            TestWatchFaceService(
+                WatchFaceType.ANALOG,
+                emptyList(),
+                { _, currentUserStyleRepository, watchState ->
+                    TestRenderer(
+                        surfaceHolder,
+                        currentUserStyleRepository,
+                        watchState,
+                        INTERACTIVE_UPDATE_RATE_MS
                     )
-                ).toWireFormat(),
+                },
+                UserStyleSchema(emptyList()),
+                watchState,
+                handler,
                 null,
-                null,
-                null
-            ),
-            choreographer
-        )
+                WallpaperInteractiveWatchFaceInstanceParams(
+                    instanceId,
+                    DeviceConfig(false, false, 0, 0),
+                    WatchUiState(false, 0),
+                    UserStyle(
+                            hashMapOf(
+                                colorStyleSetting to blueStyleOption,
+                                watchHandStyleSetting to gothicStyleOption
+                            )
+                        )
+                        .toWireFormat(),
+                    null,
+                    null,
+                    null
+                ),
+                choreographer
+            )
 
-        testWatchFaceService.createHeadlessEngine()
+        testWatchFaceService.createHeadlessEngine(
+            ComponentName("test.watchface.app", "test.watchface.class")
+        )
 
         runPostedTasksFor(0)
 
@@ -3982,12 +3909,7 @@ public class WatchFaceServiceTest {
             UserStyleSchema(emptyList()),
             WallpaperInteractiveWatchFaceInstanceParams(
                 instanceId,
-                DeviceConfig(
-                    false,
-                    false,
-                    0,
-                    0
-                ),
+                DeviceConfig(false, false, 0, 0),
                 WatchUiState(false, 0),
                 UserStyle(emptyMap()).toWireFormat(),
                 listOf(
@@ -4006,9 +3928,7 @@ public class WatchFaceServiceTest {
         var numOfCalls = 0
 
         CoroutineScope(handler.asCoroutineDispatcher().immediate).launch {
-            watchState.isVisible.collect {
-                numOfCalls++
-            }
+            watchState.isVisible.collect { numOfCalls++ }
         }
 
         // The collect call will be triggered immediately to report the current value, so make
@@ -4030,35 +3950,39 @@ public class WatchFaceServiceTest {
     @Test
     @Config(sdk = [Build.VERSION_CODES.R])
     public fun complicationsUserStyleSetting_with_setComplicationBounds() {
-        val rightComplicationBoundsOption = ComplicationSlotsOption(
-            Option.Id(RIGHT_COMPLICATION),
-            "Right",
-            "Right",
-            null,
-            listOf(
-                ComplicationSlotOverlay.Builder(RIGHT_COMPLICATION_ID)
-                    .setComplicationSlotBounds(
-                        ComplicationSlotBounds(RectF(0.1f, 0.1f, 0.2f, 0.2f))
-                    ).build()
+        val rightComplicationBoundsOption =
+            ComplicationSlotsOption(
+                Option.Id(RIGHT_COMPLICATION),
+                "Right",
+                "Right",
+                null,
+                listOf(
+                    ComplicationSlotOverlay.Builder(RIGHT_COMPLICATION_ID)
+                        .setComplicationSlotBounds(
+                            ComplicationSlotBounds(RectF(0.1f, 0.1f, 0.2f, 0.2f))
+                        )
+                        .build()
+                )
             )
-        )
-        val complicationsStyleSetting = ComplicationSlotsUserStyleSetting(
-            UserStyleSetting.Id("complications_style_setting"),
-            "AllComplicationSlots",
-            "Number and position",
-            icon = null,
-            complicationConfig = listOf(
-                ComplicationSlotsOption(
-                    Option.Id("Default"),
-                    "Default",
-                    "Default",
-                    null,
-                    emptyList()
-                ),
-                rightComplicationBoundsOption
-            ),
-            affectsWatchFaceLayers = listOf(WatchFaceLayer.COMPLICATIONS)
-        )
+        val complicationsStyleSetting =
+            ComplicationSlotsUserStyleSetting(
+                UserStyleSetting.Id("complications_style_setting"),
+                "AllComplicationSlots",
+                "Number and position",
+                icon = null,
+                complicationConfig =
+                    listOf(
+                        ComplicationSlotsOption(
+                            Option.Id("Default"),
+                            "Default",
+                            "Default",
+                            null,
+                            emptyList()
+                        ),
+                        rightComplicationBoundsOption
+                    ),
+                affectsWatchFaceLayers = listOf(WatchFaceLayer.COMPLICATIONS)
+            )
 
         initWallpaperInteractiveWatchFaceInstance(
             WatchFaceType.ANALOG,
@@ -4066,12 +3990,7 @@ public class WatchFaceServiceTest {
             UserStyleSchema(listOf(complicationsStyleSetting)),
             WallpaperInteractiveWatchFaceInstanceParams(
                 INTERACTIVE_INSTANCE_ID,
-                DeviceConfig(
-                    false,
-                    false,
-                    0,
-                    0
-                ),
+                DeviceConfig(false, false, 0, 0),
                 WatchUiState(false, 0),
                 UserStyle(emptyMap()).toWireFormat(),
                 listOf(
@@ -4090,9 +4009,7 @@ public class WatchFaceServiceTest {
         var complicationDetails =
             complicationSlotsManager.getComplicationsState(renderer.screenBounds)
         assertThat(complicationDetails[1].id).isEqualTo(RIGHT_COMPLICATION_ID)
-        assertThat(complicationDetails[1].complicationState.bounds).isEqualTo(
-            Rect(60, 40, 80, 60)
-        )
+        assertThat(complicationDetails[1].complicationState.bounds).isEqualTo(Rect(60, 40, 80, 60))
 
         // Select a style which changes the bounds of the right complication.
         val mutableUserStyle = currentUserStyleRepository.userStyle.value.toMutableUserStyle()
@@ -4101,9 +4018,7 @@ public class WatchFaceServiceTest {
 
         complicationDetails = complicationSlotsManager.getComplicationsState(renderer.screenBounds)
         assertThat(complicationDetails[1].id).isEqualTo(RIGHT_COMPLICATION_ID)
-        assertThat(complicationDetails[1].complicationState.bounds).isEqualTo(
-            Rect(10, 10, 20, 20)
-        )
+        assertThat(complicationDetails[1].complicationState.bounds).isEqualTo(Rect(10, 10, 20, 20))
     }
 
     @Suppress("DEPRECATION") // DefaultComplicationDataSourcePolicyAndType
@@ -4113,27 +4028,31 @@ public class WatchFaceServiceTest {
         val leftCanvasComplication = mock<CanvasComplication>()
         val leftComplication =
             ComplicationSlot.createRoundRectComplicationSlotBuilder(
-                LEFT_COMPLICATION_ID,
-                { _, _ -> leftCanvasComplication },
-                listOf(
-                    ComplicationType.SHORT_TEXT,
-                ),
-                DefaultComplicationDataSourcePolicy(SystemDataSources.DATA_SOURCE_SUNRISE_SUNSET),
-                ComplicationSlotBounds(RectF(0.2f, 0.4f, 0.4f, 0.6f))
-            ).setDefaultDataSourceType(ComplicationType.SHORT_TEXT)
+                    LEFT_COMPLICATION_ID,
+                    { _, _ -> leftCanvasComplication },
+                    listOf(
+                        ComplicationType.SHORT_TEXT,
+                    ),
+                    DefaultComplicationDataSourcePolicy(
+                        SystemDataSources.DATA_SOURCE_SUNRISE_SUNSET
+                    ),
+                    ComplicationSlotBounds(RectF(0.2f, 0.4f, 0.4f, 0.6f))
+                )
+                .setDefaultDataSourceType(ComplicationType.SHORT_TEXT)
                 .build()
 
         val rightCanvasComplication = mock<CanvasComplication>()
         val rightComplication =
             ComplicationSlot.createRoundRectComplicationSlotBuilder(
-                RIGHT_COMPLICATION_ID,
-                { _, _ -> rightCanvasComplication },
-                listOf(
-                    ComplicationType.SHORT_TEXT,
-                ),
-                DefaultComplicationDataSourcePolicy(SystemDataSources.DATA_SOURCE_DATE),
-                ComplicationSlotBounds(RectF(0.6f, 0.4f, 0.8f, 0.6f))
-            ).setDefaultDataSourceType(ComplicationType.SHORT_TEXT)
+                    RIGHT_COMPLICATION_ID,
+                    { _, _ -> rightCanvasComplication },
+                    listOf(
+                        ComplicationType.SHORT_TEXT,
+                    ),
+                    DefaultComplicationDataSourcePolicy(SystemDataSources.DATA_SOURCE_DATE),
+                    ComplicationSlotBounds(RectF(0.6f, 0.4f, 0.8f, 0.6f))
+                )
+                .setDefaultDataSourceType(ComplicationType.SHORT_TEXT)
                 .build()
 
         initEngine(
@@ -4153,22 +4072,26 @@ public class WatchFaceServiceTest {
         val sameCanvasComplication = mock<CanvasComplication>()
         val leftComplication =
             ComplicationSlot.createRoundRectComplicationSlotBuilder(
-                LEFT_COMPLICATION_ID,
-                { _, _ -> sameCanvasComplication },
-                listOf(ComplicationType.SHORT_TEXT),
-                DefaultComplicationDataSourcePolicy(SystemDataSources.DATA_SOURCE_SUNRISE_SUNSET),
-                ComplicationSlotBounds(RectF(0.2f, 0.4f, 0.4f, 0.6f))
-            ).setDefaultDataSourceType(ComplicationType.SHORT_TEXT)
+                    LEFT_COMPLICATION_ID,
+                    { _, _ -> sameCanvasComplication },
+                    listOf(ComplicationType.SHORT_TEXT),
+                    DefaultComplicationDataSourcePolicy(
+                        SystemDataSources.DATA_SOURCE_SUNRISE_SUNSET
+                    ),
+                    ComplicationSlotBounds(RectF(0.2f, 0.4f, 0.4f, 0.6f))
+                )
+                .setDefaultDataSourceType(ComplicationType.SHORT_TEXT)
                 .build()
 
         val rightComplication =
             ComplicationSlot.createRoundRectComplicationSlotBuilder(
-                RIGHT_COMPLICATION_ID,
-                { _, _ -> sameCanvasComplication },
-                listOf(ComplicationType.SHORT_TEXT),
-                DefaultComplicationDataSourcePolicy(SystemDataSources.DATA_SOURCE_DATE),
-                ComplicationSlotBounds(RectF(0.6f, 0.4f, 0.8f, 0.6f))
-            ).setDefaultDataSourceType(ComplicationType.SHORT_TEXT)
+                    RIGHT_COMPLICATION_ID,
+                    { _, _ -> sameCanvasComplication },
+                    listOf(ComplicationType.SHORT_TEXT),
+                    DefaultComplicationDataSourcePolicy(SystemDataSources.DATA_SOURCE_DATE),
+                    ComplicationSlotBounds(RectF(0.6f, 0.4f, 0.8f, 0.6f))
+                )
+                .setDefaultDataSourceType(ComplicationType.SHORT_TEXT)
                 .build()
 
         // We don't want full init as in other tests with initEngine(), since
@@ -4190,54 +4113,51 @@ public class WatchFaceServiceTest {
     @Test
     @Config(sdk = [Build.VERSION_CODES.R])
     public fun additionalContentDescriptionLabelsSetBeforeWatchFaceInitComplete() {
-        val pendingIntent = PendingIntent.getActivity(
-            context, 0, Intent("Example"),
-            PendingIntent.FLAG_IMMUTABLE
-        )
+        val pendingIntent =
+            PendingIntent.getActivity(context, 0, Intent("Example"), PendingIntent.FLAG_IMMUTABLE)
 
-        testWatchFaceService = TestWatchFaceService(
-            WatchFaceType.ANALOG,
-            emptyList(),
-            { _, currentUserStyleRepository, watchState ->
-                renderer = TestRenderer(
-                    surfaceHolder,
-                    currentUserStyleRepository,
-                    watchState,
-                    INTERACTIVE_UPDATE_RATE_MS
-                )
-                // Set additionalContentDescriptionLabels before renderer.watchFaceHostApi has been
-                // set.
-                renderer.additionalContentDescriptionLabels = listOf(
-                    Pair(
-                        0,
-                        ContentDescriptionLabel(
-                            PlainComplicationText.Builder("Example").build(),
-                            Rect(10, 10, 20, 20),
-                            pendingIntent
+        testWatchFaceService =
+            TestWatchFaceService(
+                WatchFaceType.ANALOG,
+                emptyList(),
+                { _, currentUserStyleRepository, watchState ->
+                    renderer =
+                        TestRenderer(
+                            surfaceHolder,
+                            currentUserStyleRepository,
+                            watchState,
+                            INTERACTIVE_UPDATE_RATE_MS
                         )
-                    )
-                )
-                renderer
-            },
-            UserStyleSchema(emptyList()),
-            watchState,
-            handler,
-            null,
-            null,
-            choreographer
-        )
+                    // Set additionalContentDescriptionLabels before renderer.watchFaceHostApi has
+                    // been
+                    // set.
+                    renderer.additionalContentDescriptionLabels =
+                        listOf(
+                            Pair(
+                                0,
+                                ContentDescriptionLabel(
+                                    PlainComplicationText.Builder("Example").build(),
+                                    Rect(10, 10, 20, 20),
+                                    pendingIntent
+                                )
+                            )
+                        )
+                    renderer
+                },
+                UserStyleSchema(emptyList()),
+                watchState,
+                handler,
+                null,
+                null,
+                choreographer
+            )
 
         InteractiveInstanceManager
             .getExistingInstanceOrSetPendingWallpaperInteractiveWatchFaceInstance(
                 InteractiveInstanceManager.PendingWallpaperInteractiveWatchFaceInstance(
                     WallpaperInteractiveWatchFaceInstanceParams(
                         "TestID",
-                        DeviceConfig(
-                            false,
-                            false,
-                            0,
-                            0
-                        ),
+                        DeviceConfig(false, false, 0, 0),
                         WatchUiState(false, 0),
                         UserStyle(emptyMap()).toWireFormat(),
                         emptyList(),
@@ -4245,8 +4165,7 @@ public class WatchFaceServiceTest {
                         null
                     ),
                     object : IPendingInteractiveWatchFace.Stub() {
-                        override fun getApiVersion() =
-                            IPendingInteractiveWatchFace.API_VERSION
+                        override fun getApiVersion() = IPendingInteractiveWatchFace.API_VERSION
 
                         override fun onInteractiveWatchFaceCreated(
                             iInteractiveWatchFace: IInteractiveWatchFace
@@ -4268,11 +4187,11 @@ public class WatchFaceServiceTest {
         // Check the additional ContentDescriptionLabel was applied.
         assertThat(engineWrapper.contentDescriptionLabels.size).isEqualTo(2)
         assertThat(
-            engineWrapper.contentDescriptionLabels[1].text.getTextAt(
-                ApplicationProvider.getApplicationContext<Context>().resources,
-                0
+                engineWrapper.contentDescriptionLabels[1]
+                    .text
+                    .getTextAt(ApplicationProvider.getApplicationContext<Context>().resources, 0)
             )
-        ).isEqualTo("Example")
+            .isEqualTo("Example")
 
         assertThat(engineWrapper.contentDescriptionLabels[1].tapAction).isEqualTo(pendingIntent)
         engineWrapper.onDestroy()
@@ -4287,12 +4206,7 @@ public class WatchFaceServiceTest {
             UserStyleSchema(emptyList()),
             WallpaperInteractiveWatchFaceInstanceParams(
                 "TestID",
-                DeviceConfig(
-                    false,
-                    false,
-                    0,
-                    0
-                ),
+                DeviceConfig(false, false, 0, 0),
                 WatchUiState(false, 0),
                 UserStyle(emptyMap()).toWireFormat(),
                 emptyList(),
@@ -4319,12 +4233,7 @@ public class WatchFaceServiceTest {
             UserStyleSchema(emptyList()),
             WallpaperInteractiveWatchFaceInstanceParams(
                 "TestID",
-                DeviceConfig(
-                    false,
-                    false,
-                    0,
-                    0
-                ),
+                DeviceConfig(false, false, 0, 0),
                 WatchUiState(false, 0),
                 UserStyle(emptyMap()).toWireFormat(),
                 emptyList(),
@@ -4352,12 +4261,7 @@ public class WatchFaceServiceTest {
             UserStyleSchema(emptyList()),
             WallpaperInteractiveWatchFaceInstanceParams(
                 "TestID",
-                DeviceConfig(
-                    false,
-                    false,
-                    0,
-                    0
-                ),
+                DeviceConfig(false, false, 0, 0),
                 WatchUiState(false, 0),
                 UserStyle(emptyMap()).toWireFormat(),
                 emptyList(),
@@ -4367,14 +4271,10 @@ public class WatchFaceServiceTest {
         )
 
         val interactiveInstance = InteractiveInstanceManager.getAndRetainInstance("TestID")
-        val leftPendingIntent = PendingIntent.getActivity(
-            context, 0, Intent("Left"),
-            PendingIntent.FLAG_IMMUTABLE
-        )
-        val rightPendingIntent = PendingIntent.getActivity(
-            context, 0, Intent("Left"),
-            PendingIntent.FLAG_IMMUTABLE
-        )
+        val leftPendingIntent =
+            PendingIntent.getActivity(context, 0, Intent("Left"), PendingIntent.FLAG_IMMUTABLE)
+        val rightPendingIntent =
+            PendingIntent.getActivity(context, 0, Intent("Left"), PendingIntent.FLAG_IMMUTABLE)
         interactiveInstance!!.updateComplicationData(
             mutableListOf(
                 IdAndComplicationDataWireFormat(
@@ -4396,18 +4296,18 @@ public class WatchFaceServiceTest {
 
         assertThat(engineWrapper.contentDescriptionLabels.size).isEqualTo(3)
         assertThat(
-            engineWrapper.contentDescriptionLabels[1].text.getTextAt(
-                ApplicationProvider.getApplicationContext<Context>().resources,
-                0
+                engineWrapper.contentDescriptionLabels[1]
+                    .text
+                    .getTextAt(ApplicationProvider.getApplicationContext<Context>().resources, 0)
             )
-        ).isEqualTo("LEFT!")
+            .isEqualTo("LEFT!")
         assertThat(engineWrapper.contentDescriptionLabels[1].tapAction).isEqualTo(leftPendingIntent)
         assertThat(
-            engineWrapper.contentDescriptionLabels[2].text.getTextAt(
-                ApplicationProvider.getApplicationContext<Context>().resources,
-                0
+                engineWrapper.contentDescriptionLabels[2]
+                    .text
+                    .getTextAt(ApplicationProvider.getApplicationContext<Context>().resources, 0)
             )
-        ).isEqualTo("RIGHT!")
+            .isEqualTo("RIGHT!")
         assertThat(engineWrapper.contentDescriptionLabels[2].tapAction)
             .isEqualTo(rightPendingIntent)
         interactiveInstance.release()
@@ -4416,22 +4316,24 @@ public class WatchFaceServiceTest {
     @Test
     @Config(sdk = [Build.VERSION_CODES.R])
     public fun schemaWithTooLargeIcon() {
-        val tooLargeIcon = Icon.createWithBitmap(
-            Bitmap.createBitmap(
-                WatchFaceService.MAX_REASONABLE_SCHEMA_ICON_WIDTH + 1,
-                WatchFaceService.MAX_REASONABLE_SCHEMA_ICON_HEIGHT + 1,
-                Bitmap.Config.ARGB_8888
+        val tooLargeIcon =
+            Icon.createWithBitmap(
+                Bitmap.createBitmap(
+                    WatchFaceService.MAX_REASONABLE_SCHEMA_ICON_WIDTH + 1,
+                    WatchFaceService.MAX_REASONABLE_SCHEMA_ICON_HEIGHT + 1,
+                    Bitmap.Config.ARGB_8888
+                )
             )
-        )
 
-        val settingWithTooLargeIcon = ListUserStyleSetting(
-            UserStyleSetting.Id("color_style_setting"),
-            "Colors",
-            "Watchface colorization", /* icon = */
-            tooLargeIcon,
-            colorStyleList,
-            listOf(WatchFaceLayer.BASE)
-        )
+        val settingWithTooLargeIcon =
+            ListUserStyleSetting(
+                UserStyleSetting.Id("color_style_setting"),
+                "Colors",
+                "Watchface colorization",
+                /* icon = */ tooLargeIcon,
+                colorStyleList,
+                listOf(WatchFaceLayer.BASE)
+            )
 
         try {
             initWallpaperInteractiveWatchFaceInstance(
@@ -4440,19 +4342,15 @@ public class WatchFaceServiceTest {
                 UserStyleSchema(listOf(settingWithTooLargeIcon, watchHandStyleSetting)),
                 WallpaperInteractiveWatchFaceInstanceParams(
                     INTERACTIVE_INSTANCE_ID,
-                    DeviceConfig(
-                        false,
-                        false,
-                        0,
-                        0
-                    ),
+                    DeviceConfig(false, false, 0, 0),
                     WatchUiState(false, 0),
                     UserStyle(
-                        hashMapOf(
-                            colorStyleSetting to blueStyleOption,
-                            watchHandStyleSetting to gothicStyleOption
+                            hashMapOf(
+                                colorStyleSetting to blueStyleOption,
+                                watchHandStyleSetting to gothicStyleOption
+                            )
                         )
-                    ).toWireFormat(),
+                        .toWireFormat(),
                     null,
                     null,
                     null
@@ -4461,10 +4359,11 @@ public class WatchFaceServiceTest {
 
             fail("Should have thrown an exception due to an Icon that's too large")
         } catch (e: Exception) {
-            assertThat(e.message).contains(
-                "UserStyleSetting id color_style_setting has a 401 x 401 icon. This is too big, " +
-                    "the maximum size is 400 x 400."
-            )
+            assertThat(e.message)
+                .contains(
+                    "UserStyleSetting id color_style_setting has a 401 x 401 icon. " +
+                        "This is too big, the maximum size is 400 x 400."
+                )
         }
     }
 
@@ -4477,14 +4376,15 @@ public class WatchFaceServiceTest {
                 ListUserStyleSetting.ListOption(Option.Id("id$i"), "Name", "Name", icon = null)
             )
         }
-        val tooLargeList = ListUserStyleSetting(
-            UserStyleSetting.Id("too_large"),
-            "Too large!",
-            "Description", /* icon = */
-            null,
-            longOptionsList,
-            listOf(WatchFaceLayer.BASE)
-        )
+        val tooLargeList =
+            ListUserStyleSetting(
+                UserStyleSetting.Id("too_large"),
+                "Too large!",
+                "Description",
+                /* icon = */ null,
+                longOptionsList,
+                listOf(WatchFaceLayer.BASE)
+            )
 
         try {
             initWallpaperInteractiveWatchFaceInstance(
@@ -4493,12 +4393,7 @@ public class WatchFaceServiceTest {
                 UserStyleSchema(listOf(tooLargeList, watchHandStyleSetting)),
                 WallpaperInteractiveWatchFaceInstanceParams(
                     INTERACTIVE_INSTANCE_ID,
-                    DeviceConfig(
-                        false,
-                        false,
-                        0,
-                        0
-                    ),
+                    DeviceConfig(false, false, 0, 0),
                     WatchUiState(false, 0),
                     UserStyle(hashMapOf(watchHandStyleSetting to gothicStyleOption)).toWireFormat(),
                     null,
@@ -4509,10 +4404,11 @@ public class WatchFaceServiceTest {
 
             fail("Should have thrown an exception due to an Icon that's too large")
         } catch (e: Exception) {
-            assertThat(e.message).contains(
-                "The estimated wire size of the supplied UserStyleSchemas for watch face " +
-                    "androidx.wear.watchface.test is too big"
-            )
+            assertThat(e.message)
+                .contains(
+                    "The estimated wire size of the supplied UserStyleSchemas for watch face " +
+                        "androidx.wear.watchface.test is too big"
+                )
         }
     }
 
@@ -4525,12 +4421,7 @@ public class WatchFaceServiceTest {
             UserStyleSchema(emptyList()),
             WallpaperInteractiveWatchFaceInstanceParams(
                 "TestID",
-                DeviceConfig(
-                    false,
-                    false,
-                    0,
-                    0
-                ),
+                DeviceConfig(false, false, 0, 0),
                 WatchUiState(false, 0),
                 UserStyle(emptyMap()).toWireFormat(),
                 emptyList(),
@@ -4571,69 +4462,73 @@ public class WatchFaceServiceTest {
         val eventLog = ArrayList<String>()
         var renderer: Renderer
 
-        testWatchFaceService = TestWatchFaceService(
-            WatchFaceType.DIGITAL,
-            emptyList(),
-            { _, currentUserStyleRepository, watchState ->
-                @Suppress("DEPRECATION")
-                renderer = object : Renderer.GlesRenderer(
-                    surfaceHolder,
-                    currentUserStyleRepository,
-                    watchState,
-                    INTERACTIVE_UPDATE_RATE_MS
-                ) {
-                    init {
-                        eventLog.add(watchState.watchFaceInstanceId.value + " TestRenderer created")
-                    }
+        testWatchFaceService =
+            TestWatchFaceService(
+                WatchFaceType.DIGITAL,
+                emptyList(),
+                { _, currentUserStyleRepository, watchState ->
+                    @Suppress("DEPRECATION")
+                    renderer =
+                        object :
+                            Renderer.GlesRenderer(
+                                surfaceHolder,
+                                currentUserStyleRepository,
+                                watchState,
+                                INTERACTIVE_UPDATE_RATE_MS
+                            ) {
+                            init {
+                                eventLog.add(
+                                    watchState.watchFaceInstanceId.value + " TestRenderer created"
+                                )
+                            }
 
-                    override suspend fun onBackgroundThreadGlContextCreated() {
-                        eventLog.add(
-                            watchState.watchFaceInstanceId.value +
-                                " onBackgroundThreadGlContextCreated"
-                        )
-                    }
+                            override suspend fun onBackgroundThreadGlContextCreated() {
+                                eventLog.add(
+                                    watchState.watchFaceInstanceId.value +
+                                        " onBackgroundThreadGlContextCreated"
+                                )
+                            }
 
-                    override suspend fun onUiThreadGlSurfaceCreated(width: Int, height: Int) {
-                        eventLog.add(
-                            watchState.watchFaceInstanceId.value + " onUiThreadGlSurfaceCreated"
-                        )
-                    }
+                            override suspend fun onUiThreadGlSurfaceCreated(
+                                width: Int,
+                                height: Int
+                            ) {
+                                eventLog.add(
+                                    watchState.watchFaceInstanceId.value +
+                                        " onUiThreadGlSurfaceCreated"
+                                )
+                            }
 
-                    override fun onDestroy() {
-                        super.onDestroy()
-                        eventLog.add(
-                            watchState.watchFaceInstanceId.value + " TestRenderer onDestroy"
-                        )
-                    }
+                            override fun onDestroy() {
+                                super.onDestroy()
+                                eventLog.add(
+                                    watchState.watchFaceInstanceId.value + " TestRenderer onDestroy"
+                                )
+                            }
 
-                    override fun render(zonedDateTime: ZonedDateTime) {
-                        eventLog.add(watchState.watchFaceInstanceId.value + " render")
-                    }
+                            override fun render(zonedDateTime: ZonedDateTime) {
+                                eventLog.add(watchState.watchFaceInstanceId.value + " render")
+                            }
 
-                    override fun renderHighlightLayer(zonedDateTime: ZonedDateTime) {}
-                }
-                renderer
-            },
-            UserStyleSchema(emptyList()),
-            null,
-            handler,
-            null,
-            null,
-            choreographer,
-            forceIsVisible = true
-        )
+                            override fun renderHighlightLayer(zonedDateTime: ZonedDateTime) {}
+                        }
+                    renderer
+                },
+                UserStyleSchema(emptyList()),
+                null,
+                handler,
+                null,
+                null,
+                choreographer,
+                forceIsVisible = true
+            )
 
         InteractiveInstanceManager
             .getExistingInstanceOrSetPendingWallpaperInteractiveWatchFaceInstance(
                 InteractiveInstanceManager.PendingWallpaperInteractiveWatchFaceInstance(
                     WallpaperInteractiveWatchFaceInstanceParams(
                         SYSTEM_SUPPORTS_CONSISTENT_IDS_PREFIX + "Interactive",
-                        DeviceConfig(
-                            false,
-                            false,
-                            0,
-                            0
-                        ),
+                        DeviceConfig(false, false, 0, 0),
                         WatchUiState(false, 0),
                         UserStyle(emptyMap()).toWireFormat(),
                         emptyList(),
@@ -4641,8 +4536,7 @@ public class WatchFaceServiceTest {
                         null
                     ),
                     object : IPendingInteractiveWatchFace.Stub() {
-                        override fun getApiVersion() =
-                            IPendingInteractiveWatchFace.API_VERSION
+                        override fun getApiVersion() = IPendingInteractiveWatchFace.API_VERSION
 
                         override fun onInteractiveWatchFaceCreated(
                             iInteractiveWatchFace: IInteractiveWatchFace
@@ -4661,12 +4555,14 @@ public class WatchFaceServiceTest {
         engineWrapper.onCreate(surfaceHolder)
         engineWrapper.onSurfaceChanged(surfaceHolder, 0, 100, 100)
 
+        val componentName = ComponentName("test.watchface.app", "test.watchface.class")
         val headlessEngineWrapper =
-            testWatchFaceService.createHeadlessEngine() as WatchFaceService.EngineWrapper
+            testWatchFaceService.createHeadlessEngine(componentName)
+                as WatchFaceService.EngineWrapper
 
         headlessEngineWrapper.createHeadlessInstance(
             HeadlessWatchFaceInstanceParams(
-                ComponentName("test.watchface.app", "test.watchface.class"),
+                componentName,
                 DeviceConfig(false, false, 100, 200),
                 100,
                 100,
@@ -4677,20 +4573,22 @@ public class WatchFaceServiceTest {
         headlessEngineWrapper.onDestroy()
         engineWrapper.onDestroy()
 
-        assertThat(eventLog).containsExactly(
-            SYSTEM_SUPPORTS_CONSISTENT_IDS_PREFIX + "Interactive TestRenderer created",
-            SYSTEM_SUPPORTS_CONSISTENT_IDS_PREFIX +
-                "Interactive onBackgroundThreadGlContextCreated",
-            SYSTEM_SUPPORTS_CONSISTENT_IDS_PREFIX + "Interactive onUiThreadGlSurfaceCreated",
-            SYSTEM_SUPPORTS_CONSISTENT_IDS_PREFIX + "Interactive render",
-            SYSTEM_SUPPORTS_CONSISTENT_IDS_PREFIX + "Interactive render",
-            SYSTEM_SUPPORTS_CONSISTENT_IDS_PREFIX + "Headless TestRenderer created",
-            SYSTEM_SUPPORTS_CONSISTENT_IDS_PREFIX + "Headless onBackgroundThreadGlContextCreated",
-            SYSTEM_SUPPORTS_CONSISTENT_IDS_PREFIX + "Headless onUiThreadGlSurfaceCreated",
-            SYSTEM_SUPPORTS_CONSISTENT_IDS_PREFIX + "Headless render",
-            SYSTEM_SUPPORTS_CONSISTENT_IDS_PREFIX + "Headless TestRenderer onDestroy",
-            SYSTEM_SUPPORTS_CONSISTENT_IDS_PREFIX + "Interactive TestRenderer onDestroy"
-        )
+        assertThat(eventLog)
+            .containsExactly(
+                SYSTEM_SUPPORTS_CONSISTENT_IDS_PREFIX + "Interactive TestRenderer created",
+                SYSTEM_SUPPORTS_CONSISTENT_IDS_PREFIX +
+                    "Interactive onBackgroundThreadGlContextCreated",
+                SYSTEM_SUPPORTS_CONSISTENT_IDS_PREFIX + "Interactive onUiThreadGlSurfaceCreated",
+                SYSTEM_SUPPORTS_CONSISTENT_IDS_PREFIX + "Interactive render",
+                SYSTEM_SUPPORTS_CONSISTENT_IDS_PREFIX + "Interactive render",
+                SYSTEM_SUPPORTS_CONSISTENT_IDS_PREFIX + "Headless TestRenderer created",
+                SYSTEM_SUPPORTS_CONSISTENT_IDS_PREFIX +
+                    "Headless onBackgroundThreadGlContextCreated",
+                SYSTEM_SUPPORTS_CONSISTENT_IDS_PREFIX + "Headless onUiThreadGlSurfaceCreated",
+                SYSTEM_SUPPORTS_CONSISTENT_IDS_PREFIX + "Headless render",
+                SYSTEM_SUPPORTS_CONSISTENT_IDS_PREFIX + "Headless TestRenderer onDestroy",
+                SYSTEM_SUPPORTS_CONSISTENT_IDS_PREFIX + "Interactive TestRenderer onDestroy"
+            )
     }
 
     @Test
@@ -4706,74 +4604,74 @@ public class WatchFaceServiceTest {
             }
         }
 
-        testWatchFaceService = TestWatchFaceService(
-            WatchFaceType.DIGITAL,
-            emptyList(),
-            { _, currentUserStyleRepository, watchState ->
-                renderer = object : Renderer.CanvasRenderer2<TestSharedAssets>(
-                    surfaceHolder,
-                    currentUserStyleRepository,
-                    watchState,
-                    CanvasType.HARDWARE,
-                    INTERACTIVE_UPDATE_RATE_MS,
-                    clearWithBackgroundTintBeforeRenderingHighlightLayer = false
-                ) {
-                    init {
-                        eventLog.add(watchState.watchFaceInstanceId.value + " TestRenderer created")
-                    }
+        testWatchFaceService =
+            TestWatchFaceService(
+                WatchFaceType.DIGITAL,
+                emptyList(),
+                { _, currentUserStyleRepository, watchState ->
+                    renderer =
+                        object :
+                            Renderer.CanvasRenderer2<TestSharedAssets>(
+                                surfaceHolder,
+                                currentUserStyleRepository,
+                                watchState,
+                                CanvasType.HARDWARE,
+                                INTERACTIVE_UPDATE_RATE_MS,
+                                clearWithBackgroundTintBeforeRenderingHighlightLayer = false
+                            ) {
+                            init {
+                                eventLog.add(
+                                    watchState.watchFaceInstanceId.value + " TestRenderer created"
+                                )
+                            }
 
-                    override suspend fun createSharedAssets(): TestSharedAssets {
-                        eventLog.add("createAssets")
-                        return TestSharedAssets()
-                    }
+                            override suspend fun createSharedAssets(): TestSharedAssets {
+                                eventLog.add("createAssets")
+                                return TestSharedAssets()
+                            }
 
-                    override fun render(
-                        canvas: Canvas,
-                        bounds: Rect,
-                        zonedDateTime: ZonedDateTime,
-                        sharedAssets: TestSharedAssets
-                    ) {
-                        eventLog.add(watchState.watchFaceInstanceId.value + " render")
-                    }
+                            override fun render(
+                                canvas: Canvas,
+                                bounds: Rect,
+                                zonedDateTime: ZonedDateTime,
+                                sharedAssets: TestSharedAssets
+                            ) {
+                                eventLog.add(watchState.watchFaceInstanceId.value + " render")
+                            }
 
-                    override fun renderHighlightLayer(
-                        canvas: Canvas,
-                        bounds: Rect,
-                        zonedDateTime: ZonedDateTime,
-                        sharedAssets: TestSharedAssets
-                    ) {
-                        // NOP
-                    }
+                            override fun renderHighlightLayer(
+                                canvas: Canvas,
+                                bounds: Rect,
+                                zonedDateTime: ZonedDateTime,
+                                sharedAssets: TestSharedAssets
+                            ) {
+                                // NOP
+                            }
 
-                    override fun onDestroy() {
-                        super.onDestroy()
-                        eventLog.add(
-                            watchState.watchFaceInstanceId.value + " TestRenderer onDestroy"
-                        )
-                    }
-                }
-                renderer
-            },
-            UserStyleSchema(emptyList()),
-            null,
-            handler,
-            null,
-            null,
-            choreographer,
-            forceIsVisible = true
-        )
+                            override fun onDestroy() {
+                                super.onDestroy()
+                                eventLog.add(
+                                    watchState.watchFaceInstanceId.value + " TestRenderer onDestroy"
+                                )
+                            }
+                        }
+                    renderer
+                },
+                UserStyleSchema(emptyList()),
+                null,
+                handler,
+                null,
+                null,
+                choreographer,
+                forceIsVisible = true
+            )
 
         InteractiveInstanceManager
             .getExistingInstanceOrSetPendingWallpaperInteractiveWatchFaceInstance(
                 InteractiveInstanceManager.PendingWallpaperInteractiveWatchFaceInstance(
                     WallpaperInteractiveWatchFaceInstanceParams(
                         SYSTEM_SUPPORTS_CONSISTENT_IDS_PREFIX + "Interactive",
-                        DeviceConfig(
-                            false,
-                            false,
-                            0,
-                            0
-                        ),
+                        DeviceConfig(false, false, 0, 0),
                         WatchUiState(false, 0),
                         UserStyle(emptyMap()).toWireFormat(),
                         emptyList(),
@@ -4781,8 +4679,7 @@ public class WatchFaceServiceTest {
                         null
                     ),
                     object : IPendingInteractiveWatchFace.Stub() {
-                        override fun getApiVersion() =
-                            IPendingInteractiveWatchFace.API_VERSION
+                        override fun getApiVersion() = IPendingInteractiveWatchFace.API_VERSION
 
                         override fun onInteractiveWatchFaceCreated(
                             iInteractiveWatchFace: IInteractiveWatchFace
@@ -4801,12 +4698,14 @@ public class WatchFaceServiceTest {
         engineWrapper.onCreate(surfaceHolder)
         engineWrapper.onSurfaceChanged(surfaceHolder, 0, 100, 100)
 
+        val componentName = ComponentName("test.watchface.app", "test.watchface.class")
         val headlessEngineWrapper =
-            testWatchFaceService.createHeadlessEngine() as WatchFaceService.EngineWrapper
+            testWatchFaceService.createHeadlessEngine(componentName)
+                as WatchFaceService.EngineWrapper
 
         headlessEngineWrapper.createHeadlessInstance(
             HeadlessWatchFaceInstanceParams(
-                ComponentName("test.watchface.app", "test.watchface.class"),
+                componentName,
                 DeviceConfig(false, false, 100, 200),
                 100,
                 100,
@@ -4818,17 +4717,18 @@ public class WatchFaceServiceTest {
         interactiveWatchFaceInstance.release()
         engineWrapper.onDestroy()
 
-        assertThat(eventLog).containsExactly(
-            SYSTEM_SUPPORTS_CONSISTENT_IDS_PREFIX + "Interactive TestRenderer created",
-            "createAssets",
-            SYSTEM_SUPPORTS_CONSISTENT_IDS_PREFIX + "Interactive render",
-            SYSTEM_SUPPORTS_CONSISTENT_IDS_PREFIX + "Interactive render",
-            SYSTEM_SUPPORTS_CONSISTENT_IDS_PREFIX + "Headless TestRenderer created",
-            SYSTEM_SUPPORTS_CONSISTENT_IDS_PREFIX + "Headless render",
-            SYSTEM_SUPPORTS_CONSISTENT_IDS_PREFIX + "Headless TestRenderer onDestroy",
-            SYSTEM_SUPPORTS_CONSISTENT_IDS_PREFIX + "Interactive TestRenderer onDestroy",
-            "SharedAssets onDestroy"
-        )
+        assertThat(eventLog)
+            .containsExactly(
+                SYSTEM_SUPPORTS_CONSISTENT_IDS_PREFIX + "Interactive TestRenderer created",
+                "createAssets",
+                SYSTEM_SUPPORTS_CONSISTENT_IDS_PREFIX + "Interactive render",
+                SYSTEM_SUPPORTS_CONSISTENT_IDS_PREFIX + "Interactive render",
+                SYSTEM_SUPPORTS_CONSISTENT_IDS_PREFIX + "Headless TestRenderer created",
+                SYSTEM_SUPPORTS_CONSISTENT_IDS_PREFIX + "Headless render",
+                SYSTEM_SUPPORTS_CONSISTENT_IDS_PREFIX + "Headless TestRenderer onDestroy",
+                SYSTEM_SUPPORTS_CONSISTENT_IDS_PREFIX + "Interactive TestRenderer onDestroy",
+                "SharedAssets onDestroy"
+            )
     }
 
     @Test
@@ -4844,68 +4744,68 @@ public class WatchFaceServiceTest {
             }
         }
 
-        testWatchFaceService = TestWatchFaceService(
-            WatchFaceType.DIGITAL,
-            emptyList(),
-            { _, currentUserStyleRepository, watchState ->
-                renderer = object : Renderer.GlesRenderer2<TestSharedAssets>(
-                    surfaceHolder,
-                    currentUserStyleRepository,
-                    watchState,
-                    INTERACTIVE_UPDATE_RATE_MS
-                ) {
-                    init {
-                        eventLog.add(watchState.watchFaceInstanceId.value + " TestRenderer created")
-                    }
+        testWatchFaceService =
+            TestWatchFaceService(
+                WatchFaceType.DIGITAL,
+                emptyList(),
+                { _, currentUserStyleRepository, watchState ->
+                    renderer =
+                        object :
+                            Renderer.GlesRenderer2<TestSharedAssets>(
+                                surfaceHolder,
+                                currentUserStyleRepository,
+                                watchState,
+                                INTERACTIVE_UPDATE_RATE_MS
+                            ) {
+                            init {
+                                eventLog.add(
+                                    watchState.watchFaceInstanceId.value + " TestRenderer created"
+                                )
+                            }
 
-                    override suspend fun createSharedAssets(): TestSharedAssets {
-                        eventLog.add("createAssets")
-                        return TestSharedAssets()
-                    }
+                            override suspend fun createSharedAssets(): TestSharedAssets {
+                                eventLog.add("createAssets")
+                                return TestSharedAssets()
+                            }
 
-                    override fun onDestroy() {
-                        super.onDestroy()
-                        eventLog.add(
-                            watchState.watchFaceInstanceId.value + " TestRenderer onDestroy"
-                        )
-                    }
+                            override fun onDestroy() {
+                                super.onDestroy()
+                                eventLog.add(
+                                    watchState.watchFaceInstanceId.value + " TestRenderer onDestroy"
+                                )
+                            }
 
-                    override fun render(
-                        zonedDateTime: ZonedDateTime,
-                        sharedAssets: TestSharedAssets
-                    ) {
-                        eventLog.add(watchState.watchFaceInstanceId.value + " render")
-                    }
+                            override fun render(
+                                zonedDateTime: ZonedDateTime,
+                                sharedAssets: TestSharedAssets
+                            ) {
+                                eventLog.add(watchState.watchFaceInstanceId.value + " render")
+                            }
 
-                    override fun renderHighlightLayer(
-                        zonedDateTime: ZonedDateTime,
-                        sharedAssets: TestSharedAssets
-                    ) {
-                        // NOP
-                    }
-                }
-                renderer
-            },
-            UserStyleSchema(emptyList()),
-            null,
-            handler,
-            null,
-            null,
-            choreographer,
-            forceIsVisible = true
-        )
+                            override fun renderHighlightLayer(
+                                zonedDateTime: ZonedDateTime,
+                                sharedAssets: TestSharedAssets
+                            ) {
+                                // NOP
+                            }
+                        }
+                    renderer
+                },
+                UserStyleSchema(emptyList()),
+                null,
+                handler,
+                null,
+                null,
+                choreographer,
+                forceIsVisible = true
+            )
 
         InteractiveInstanceManager
             .getExistingInstanceOrSetPendingWallpaperInteractiveWatchFaceInstance(
                 InteractiveInstanceManager.PendingWallpaperInteractiveWatchFaceInstance(
                     WallpaperInteractiveWatchFaceInstanceParams(
                         SYSTEM_SUPPORTS_CONSISTENT_IDS_PREFIX + "Interactive",
-                        DeviceConfig(
-                            false,
-                            false,
-                            0,
-                            0
-                        ),
+                        DeviceConfig(false, false, 0, 0),
                         WatchUiState(false, 0),
                         UserStyle(emptyMap()).toWireFormat(),
                         emptyList(),
@@ -4913,8 +4813,7 @@ public class WatchFaceServiceTest {
                         null
                     ),
                     object : IPendingInteractiveWatchFace.Stub() {
-                        override fun getApiVersion() =
-                            IPendingInteractiveWatchFace.API_VERSION
+                        override fun getApiVersion() = IPendingInteractiveWatchFace.API_VERSION
 
                         override fun onInteractiveWatchFaceCreated(
                             iInteractiveWatchFace: IInteractiveWatchFace
@@ -4933,12 +4832,14 @@ public class WatchFaceServiceTest {
         engineWrapper.onCreate(surfaceHolder)
         engineWrapper.onSurfaceChanged(surfaceHolder, 0, 100, 100)
 
+        val componentName = ComponentName("test.watchface.app", "test.watchface.class")
         val headlessEngineWrapper =
-            testWatchFaceService.createHeadlessEngine() as WatchFaceService.EngineWrapper
+            testWatchFaceService.createHeadlessEngine(componentName)
+                as WatchFaceService.EngineWrapper
 
         headlessEngineWrapper.createHeadlessInstance(
             HeadlessWatchFaceInstanceParams(
-                ComponentName("test.watchface.app", "test.watchface.class"),
+                componentName,
                 DeviceConfig(false, false, 100, 200),
                 100,
                 100,
@@ -4950,17 +4851,18 @@ public class WatchFaceServiceTest {
         interactiveWatchFaceInstance.release()
         engineWrapper.onDestroy()
 
-        assertThat(eventLog).containsExactly(
-            SYSTEM_SUPPORTS_CONSISTENT_IDS_PREFIX + "Interactive TestRenderer created",
-            "createAssets",
-            SYSTEM_SUPPORTS_CONSISTENT_IDS_PREFIX + "Interactive render",
-            SYSTEM_SUPPORTS_CONSISTENT_IDS_PREFIX + "Interactive render",
-            SYSTEM_SUPPORTS_CONSISTENT_IDS_PREFIX + "Headless TestRenderer created",
-            SYSTEM_SUPPORTS_CONSISTENT_IDS_PREFIX + "Headless render",
-            SYSTEM_SUPPORTS_CONSISTENT_IDS_PREFIX + "Headless TestRenderer onDestroy",
-            SYSTEM_SUPPORTS_CONSISTENT_IDS_PREFIX + "Interactive TestRenderer onDestroy",
-            "SharedAssets onDestroy"
-        )
+        assertThat(eventLog)
+            .containsExactly(
+                SYSTEM_SUPPORTS_CONSISTENT_IDS_PREFIX + "Interactive TestRenderer created",
+                "createAssets",
+                SYSTEM_SUPPORTS_CONSISTENT_IDS_PREFIX + "Interactive render",
+                SYSTEM_SUPPORTS_CONSISTENT_IDS_PREFIX + "Interactive render",
+                SYSTEM_SUPPORTS_CONSISTENT_IDS_PREFIX + "Headless TestRenderer created",
+                SYSTEM_SUPPORTS_CONSISTENT_IDS_PREFIX + "Headless render",
+                SYSTEM_SUPPORTS_CONSISTENT_IDS_PREFIX + "Headless TestRenderer onDestroy",
+                SYSTEM_SUPPORTS_CONSISTENT_IDS_PREFIX + "Interactive TestRenderer onDestroy",
+                "SharedAssets onDestroy"
+            )
     }
 
     @Test
@@ -4968,48 +4870,46 @@ public class WatchFaceServiceTest {
     public fun renderer_onDestroy_called_even_if_init_not_complete() {
         val initDeferred = CompletableDeferred<Unit>()
         var onDestroyCalled = false
-        testWatchFaceService = TestWatchFaceService(
-            WatchFaceType.DIGITAL,
-            emptyList(),
-            { _, currentUserStyleRepository, watchState ->
-                renderer = object : TestRenderer(
-                    surfaceHolder,
-                    currentUserStyleRepository,
-                    watchState,
-                    INTERACTIVE_UPDATE_RATE_MS
-                ) {
-                    // Prevent initialization until initDeferred completes.
-                    override suspend fun init() {
-                        super.init()
-                        initDeferred.awaitWithTimeout()
-                    }
+        testWatchFaceService =
+            TestWatchFaceService(
+                WatchFaceType.DIGITAL,
+                emptyList(),
+                { _, currentUserStyleRepository, watchState ->
+                    renderer =
+                        object :
+                            TestRenderer(
+                                surfaceHolder,
+                                currentUserStyleRepository,
+                                watchState,
+                                INTERACTIVE_UPDATE_RATE_MS
+                            ) {
+                            // Prevent initialization until initDeferred completes.
+                            override suspend fun init() {
+                                super.init()
+                                initDeferred.awaitWithTimeout()
+                            }
 
-                    override fun onDestroy() {
-                        super.onDestroy()
-                        onDestroyCalled = true
-                    }
-                }
-                renderer
-            },
-            UserStyleSchema(emptyList()),
-            watchState,
-            handler,
-            null,
-            null,
-            choreographer
-        )
+                            override fun onDestroy() {
+                                super.onDestroy()
+                                onDestroyCalled = true
+                            }
+                        }
+                    renderer
+                },
+                UserStyleSchema(emptyList()),
+                watchState,
+                handler,
+                null,
+                null,
+                choreographer
+            )
 
         InteractiveInstanceManager
             .getExistingInstanceOrSetPendingWallpaperInteractiveWatchFaceInstance(
                 InteractiveInstanceManager.PendingWallpaperInteractiveWatchFaceInstance(
                     WallpaperInteractiveWatchFaceInstanceParams(
                         "TestID",
-                        DeviceConfig(
-                            false,
-                            false,
-                            0,
-                            0
-                        ),
+                        DeviceConfig(false, false, 0, 0),
                         WatchUiState(false, 0),
                         UserStyle(emptyMap()).toWireFormat(),
                         emptyList(),
@@ -5017,8 +4917,7 @@ public class WatchFaceServiceTest {
                         null
                     ),
                     object : IPendingInteractiveWatchFace.Stub() {
-                        override fun getApiVersion() =
-                            IPendingInteractiveWatchFace.API_VERSION
+                        override fun getApiVersion() = IPendingInteractiveWatchFace.API_VERSION
 
                         override fun onInteractiveWatchFaceCreated(
                             iInteractiveWatchFace: IInteractiveWatchFace
@@ -5056,12 +4955,7 @@ public class WatchFaceServiceTest {
             UserStyleSchema(listOf(colorStyleSetting, watchHandStyleSetting)),
             WallpaperInteractiveWatchFaceInstanceParams(
                 "TestID",
-                DeviceConfig(
-                    false,
-                    false,
-                    0,
-                    0
-                ),
+                DeviceConfig(false, false, 0, 0),
                 WatchUiState(false, 0),
                 UserStyle(emptyMap()).toWireFormat(),
                 emptyList(),
@@ -5083,14 +4977,17 @@ public class WatchFaceServiceTest {
         assertThat(dump).contains("lastDrawTimeMillis=1000")
         assertThat(dump).contains("nextDrawTimeMillis=1016")
         assertThat(dump).contains("isHeadless=false")
-        assertThat(dump).contains(
-            "currentUserStyleRepository.userStyle=UserStyle[color_style_setting -> red_style, " +
-                "hand_style_setting -> classic_style]"
-        )
-        assertThat(dump).contains(
-            "currentUserStyleRepository.schema=[{color_style_setting : red_style, green_style, " +
-                "blue_style}, {hand_style_setting : classic_style, modern_style, gothic_style}]"
-        )
+        assertThat(dump)
+            .contains(
+                "currentUserStyleRepository.userStyle=UserStyle[" +
+                    "color_style_setting -> red_style, hand_style_setting -> classic_style]"
+            )
+        assertThat(dump)
+            .contains(
+                "currentUserStyleRepository.schema=[" +
+                    "{color_style_setting : red_style, green_style, blue_style}, " +
+                    "{hand_style_setting : classic_style, modern_style, gothic_style}]"
+            )
         assertThat(dump).contains("ComplicationSlot 1000:")
         assertThat(dump).contains("ComplicationSlot 1001:")
         assertThat(dump).contains("screenBounds=Rect(0, 0 - 100, 100)")
@@ -5123,37 +5020,33 @@ public class WatchFaceServiceTest {
     @Test
     @Config(sdk = [Build.VERSION_CODES.R])
     public fun uiThreadPriority_interactive() {
-        testWatchFaceService = TestWatchFaceService(
-            WatchFaceType.DIGITAL,
-            emptyList(),
-            { _, currentUserStyleRepository, watchState ->
-                TestRenderer(
-                    surfaceHolder,
-                    currentUserStyleRepository,
-                    watchState,
-                    INTERACTIVE_UPDATE_RATE_MS
-                )
-            },
-            UserStyleSchema(emptyList()),
-            watchState,
-            handler,
-            null,
-            null,
-            choreographer,
-            mainThreadPriorityDelegate = mainThreadPriorityDelegate
-        )
+        testWatchFaceService =
+            TestWatchFaceService(
+                WatchFaceType.DIGITAL,
+                emptyList(),
+                { _, currentUserStyleRepository, watchState ->
+                    TestRenderer(
+                        surfaceHolder,
+                        currentUserStyleRepository,
+                        watchState,
+                        INTERACTIVE_UPDATE_RATE_MS
+                    )
+                },
+                UserStyleSchema(emptyList()),
+                watchState,
+                handler,
+                null,
+                null,
+                choreographer,
+                mainThreadPriorityDelegate = mainThreadPriorityDelegate
+            )
 
         InteractiveInstanceManager
             .getExistingInstanceOrSetPendingWallpaperInteractiveWatchFaceInstance(
                 InteractiveInstanceManager.PendingWallpaperInteractiveWatchFaceInstance(
                     WallpaperInteractiveWatchFaceInstanceParams(
                         "TestID",
-                        DeviceConfig(
-                            false,
-                            false,
-                            0,
-                            0
-                        ),
+                        DeviceConfig(false, false, 0, 0),
                         WatchUiState(false, 0),
                         UserStyle(emptyMap()).toWireFormat(),
                         emptyList(),
@@ -5161,8 +5054,7 @@ public class WatchFaceServiceTest {
                         null
                     ),
                     object : IPendingInteractiveWatchFace.Stub() {
-                        override fun getApiVersion() =
-                            IPendingInteractiveWatchFace.API_VERSION
+                        override fun getApiVersion() = IPendingInteractiveWatchFace.API_VERSION
 
                         override fun onInteractiveWatchFaceCreated(
                             iInteractiveWatchFace: IInteractiveWatchFace
@@ -5204,49 +5096,48 @@ public class WatchFaceServiceTest {
     @Config(sdk = [Build.VERSION_CODES.R])
     @RequiresApi(Build.VERSION_CODES.O_MR1)
     public fun uiThreadPriority_headless() {
-        testWatchFaceService = TestWatchFaceService(
-            WatchFaceType.ANALOG,
-            emptyList(),
-            { _, currentUserStyleRepository, watchState ->
-                TestRenderer(
-                    surfaceHolder,
-                    currentUserStyleRepository,
-                    watchState,
-                    INTERACTIVE_UPDATE_RATE_MS
-                )
-            },
-            UserStyleSchema(emptyList()),
-            watchState,
-            handler,
-            null,
-            WallpaperInteractiveWatchFaceInstanceParams(
-                "Headless",
-                DeviceConfig(
-                    false,
-                    false,
-                    0,
-                    0
-                ),
-                WatchUiState(false, 0),
-                UserStyle(
-                    hashMapOf(
-                        colorStyleSetting to blueStyleOption,
-                        watchHandStyleSetting to gothicStyleOption
+        testWatchFaceService =
+            TestWatchFaceService(
+                WatchFaceType.ANALOG,
+                emptyList(),
+                { _, currentUserStyleRepository, watchState ->
+                    TestRenderer(
+                        surfaceHolder,
+                        currentUserStyleRepository,
+                        watchState,
+                        INTERACTIVE_UPDATE_RATE_MS
                     )
-                ).toWireFormat(),
+                },
+                UserStyleSchema(emptyList()),
+                watchState,
+                handler,
                 null,
-                null,
-                null
-            ),
-            choreographer
-        )
+                WallpaperInteractiveWatchFaceInstanceParams(
+                    "Headless",
+                    DeviceConfig(false, false, 0, 0),
+                    WatchUiState(false, 0),
+                    UserStyle(
+                            hashMapOf(
+                                colorStyleSetting to blueStyleOption,
+                                watchHandStyleSetting to gothicStyleOption
+                            )
+                        )
+                        .toWireFormat(),
+                    null,
+                    null,
+                    null
+                ),
+                choreographer
+            )
 
+        val componentName = ComponentName("test.watchface.app", "test.watchface.class")
         engineWrapper =
-            testWatchFaceService.createHeadlessEngine() as WatchFaceService.EngineWrapper
+            testWatchFaceService.createHeadlessEngine(componentName)
+                as WatchFaceService.EngineWrapper
 
         engineWrapper.createHeadlessInstance(
             HeadlessWatchFaceInstanceParams(
-                ComponentName("test.watchface.app", "test.watchface.class"),
+                componentName,
                 DeviceConfig(false, false, 100, 200),
                 100,
                 100,
@@ -5281,44 +5172,42 @@ public class WatchFaceServiceTest {
     @Config(sdk = [Build.VERSION_CODES.R])
     @RequiresApi(Build.VERSION_CODES.O_MR1)
     public fun headlessId() {
-        testWatchFaceService = TestWatchFaceService(
-            WatchFaceType.ANALOG,
-            emptyList(),
-            { _, currentUserStyleRepository, watchState ->
-                TestRenderer(
-                    surfaceHolder,
-                    currentUserStyleRepository,
-                    watchState,
-                    INTERACTIVE_UPDATE_RATE_MS
-                )
-            },
-            UserStyleSchema(emptyList()),
-            watchState,
-            handler,
-            null,
-            WallpaperInteractiveWatchFaceInstanceParams(
-                "wfId-Headless",
-                DeviceConfig(
-                    false,
-                    false,
-                    0,
-                    0
+        testWatchFaceService =
+            TestWatchFaceService(
+                WatchFaceType.ANALOG,
+                emptyList(),
+                { _, currentUserStyleRepository, watchState ->
+                    TestRenderer(
+                        surfaceHolder,
+                        currentUserStyleRepository,
+                        watchState,
+                        INTERACTIVE_UPDATE_RATE_MS
+                    )
+                },
+                UserStyleSchema(emptyList()),
+                watchState,
+                handler,
+                null,
+                WallpaperInteractiveWatchFaceInstanceParams(
+                    "wfId-Headless",
+                    DeviceConfig(false, false, 0, 0),
+                    WatchUiState(false, 0),
+                    UserStyle(emptyMap()).toWireFormat(),
+                    null,
+                    null,
+                    null
                 ),
-                WatchUiState(false, 0),
-                UserStyle(emptyMap()).toWireFormat(),
-                null,
-                null,
-                null
-            ),
-            choreographer
-        )
+                choreographer
+            )
 
+        val componentName = ComponentName("test.watchface.app", "test.watchface.class")
         engineWrapper =
-            testWatchFaceService.createHeadlessEngine() as WatchFaceService.EngineWrapper
+            testWatchFaceService.createHeadlessEngine(componentName)
+                as WatchFaceService.EngineWrapper
 
         engineWrapper.createHeadlessInstance(
             HeadlessWatchFaceInstanceParams(
-                ComponentName("test.watchface.app", "test.watchface.class"),
+                componentName,
                 DeviceConfig(false, false, 100, 200),
                 100,
                 100,
@@ -5331,28 +5220,27 @@ public class WatchFaceServiceTest {
     @Test
     @Config(sdk = [Build.VERSION_CODES.O_MR1])
     public fun selectComplicationDataForInstant_overlapping() {
-        val a = WireComplicationData.Builder(WireComplicationData.TYPE_SHORT_TEXT)
-            .setShortText(WireComplicationText.plainText("A"))
-            .build()
-        val b = WireComplicationData.Builder(WireComplicationData.TYPE_SHORT_TEXT)
-            .setShortText(WireComplicationText.plainText("B"))
-            .build()
+        val a =
+            WireComplicationData.Builder(WireComplicationData.TYPE_SHORT_TEXT)
+                .setShortText(WireComplicationText.plainText("A"))
+                .build()
+        val b =
+            WireComplicationData.Builder(WireComplicationData.TYPE_SHORT_TEXT)
+                .setShortText(WireComplicationText.plainText("B"))
+                .build()
         b.timelineStartEpochSecond = 1000
         b.timelineEndEpochSecond = 4000
 
-        val c = WireComplicationData.Builder(WireComplicationData.TYPE_SHORT_TEXT)
-            .setShortText(WireComplicationText.plainText("C"))
-            .build()
+        val c =
+            WireComplicationData.Builder(WireComplicationData.TYPE_SHORT_TEXT)
+                .setShortText(WireComplicationText.plainText("C"))
+                .build()
         c.timelineStartEpochSecond = 2000
         c.timelineEndEpochSecond = 3000
 
         a.setTimelineEntryCollection(listOf(b, c))
 
-        initEngine(
-            WatchFaceType.ANALOG,
-            listOf(leftComplication),
-            UserStyleSchema(emptyList())
-        )
+        initEngine(WatchFaceType.ANALOG, listOf(leftComplication), UserStyleSchema(emptyList()))
 
         engineWrapper.setComplicationDataList(
             listOf(IdAndComplicationDataWireFormat(LEFT_COMPLICATION_ID, a))
@@ -5360,54 +5248,83 @@ public class WatchFaceServiceTest {
 
         complicationSlotsManager.selectComplicationDataForInstant(Instant.ofEpochSecond(999))
         assertThat(getLeftShortTextComplicationDataText()).isEqualTo("A")
+        assertThat(
+                engineWrapper.contentDescriptionLabels[1]
+                    .text
+                    .getTextAt(ApplicationProvider.getApplicationContext<Context>().resources, 0)
+            )
+            .isEqualTo("A")
 
         complicationSlotsManager.selectComplicationDataForInstant(Instant.ofEpochSecond(1000))
         assertThat(getLeftShortTextComplicationDataText()).isEqualTo("B")
+        assertThat(
+                engineWrapper.contentDescriptionLabels[1]
+                    .text
+                    .getTextAt(ApplicationProvider.getApplicationContext<Context>().resources, 0)
+            )
+            .isEqualTo("B")
 
         complicationSlotsManager.selectComplicationDataForInstant(Instant.ofEpochSecond(1999))
         assertThat(getLeftShortTextComplicationDataText()).isEqualTo("B")
 
         complicationSlotsManager.selectComplicationDataForInstant(Instant.ofEpochSecond(2000))
         assertThat(getLeftShortTextComplicationDataText()).isEqualTo("C")
+        assertThat(
+                engineWrapper.contentDescriptionLabels[1]
+                    .text
+                    .getTextAt(ApplicationProvider.getApplicationContext<Context>().resources, 0)
+            )
+            .isEqualTo("C")
 
         complicationSlotsManager.selectComplicationDataForInstant(Instant.ofEpochSecond(2999))
         assertThat(getLeftShortTextComplicationDataText()).isEqualTo("C")
 
         complicationSlotsManager.selectComplicationDataForInstant(Instant.ofEpochSecond(3000))
         assertThat(getLeftShortTextComplicationDataText()).isEqualTo("B")
+        assertThat(
+                engineWrapper.contentDescriptionLabels[1]
+                    .text
+                    .getTextAt(ApplicationProvider.getApplicationContext<Context>().resources, 0)
+            )
+            .isEqualTo("B")
 
         complicationSlotsManager.selectComplicationDataForInstant(Instant.ofEpochSecond(3999))
         assertThat(getLeftShortTextComplicationDataText()).isEqualTo("B")
 
         complicationSlotsManager.selectComplicationDataForInstant(Instant.ofEpochSecond(4000))
         assertThat(getLeftShortTextComplicationDataText()).isEqualTo("A")
+        assertThat(
+                engineWrapper.contentDescriptionLabels[1]
+                    .text
+                    .getTextAt(ApplicationProvider.getApplicationContext<Context>().resources, 0)
+            )
+            .isEqualTo("A")
     }
 
     @Test
     @Config(sdk = [Build.VERSION_CODES.O_MR1])
     public fun selectComplicationDataForInstant_disjoint() {
-        val a = WireComplicationData.Builder(WireComplicationData.TYPE_SHORT_TEXT)
-            .setShortText(WireComplicationText.plainText("A"))
-            .build()
-        val b = WireComplicationData.Builder(WireComplicationData.TYPE_SHORT_TEXT)
-            .setShortText(WireComplicationText.plainText("B"))
-            .build()
+        val a =
+            WireComplicationData.Builder(WireComplicationData.TYPE_SHORT_TEXT)
+                .setShortText(WireComplicationText.plainText("A"))
+                .build()
+        val b =
+            WireComplicationData.Builder(WireComplicationData.TYPE_SHORT_TEXT)
+                .setShortText(WireComplicationText.plainText("B"))
+                .build()
         b.timelineStartEpochSecond = 1000
         b.timelineEndEpochSecond = 2000
 
-        val c = WireComplicationData.Builder(WireComplicationData.TYPE_SHORT_TEXT)
-            .setShortText(WireComplicationText.plainText("C"))
-            .build()
+        val c =
+            WireComplicationData.Builder(WireComplicationData.TYPE_SHORT_TEXT)
+                .setShortText(WireComplicationText.plainText("C"))
+                .build()
         c.timelineStartEpochSecond = 3000
         c.timelineEndEpochSecond = 4000
 
         a.setTimelineEntryCollection(listOf(b, c))
 
-        initEngine(
-            WatchFaceType.ANALOG,
-            listOf(leftComplication),
-            UserStyleSchema(emptyList())
-        )
+        initEngine(WatchFaceType.ANALOG, listOf(leftComplication), UserStyleSchema(emptyList()))
 
         engineWrapper.setComplicationDataList(
             listOf(IdAndComplicationDataWireFormat(LEFT_COMPLICATION_ID, a))
@@ -5452,36 +5369,29 @@ public class WatchFaceServiceTest {
         timelineEntry.timelineStartEpochSecond = 100
         timelineEntry.timelineEndEpochSecond = 1000
 
-        val wireLongTextComplication = WireComplicationData.Builder(
-            ComplicationType.LONG_TEXT.toWireComplicationType()
-        )
-            .setEndDateTimeMillis(1650988800000)
-            .setDataSource(ComponentName("a", "b"))
-            .setLongText(WireComplicationText.plainText("longText"))
-            .setSmallImageStyle(WireComplicationData.IMAGE_STYLE_ICON)
-            .setContentDescription(WireComplicationText.plainText("test"))
-            .build()
+        val wireLongTextComplication =
+            WireComplicationData.Builder(ComplicationType.LONG_TEXT.toWireComplicationType())
+                .setEndDateTimeMillis(1650988800000)
+                .setDataSource(ComponentName("a", "b"))
+                .setLongText(WireComplicationText.plainText("longText"))
+                .setSmallImageStyle(WireComplicationData.IMAGE_STYLE_ICON)
+                .setContentDescription(WireComplicationText.plainText("test"))
+                .build()
         wireLongTextComplication.setTimelineEntryCollection(listOf(timelineEntry))
 
-        initEngine(
-            WatchFaceType.ANALOG,
-            listOf(leftComplication),
-            UserStyleSchema(emptyList())
-        )
+        initEngine(WatchFaceType.ANALOG, listOf(leftComplication), UserStyleSchema(emptyList()))
 
         engineWrapper.setComplicationDataList(
-            listOf(
-                IdAndComplicationDataWireFormat(LEFT_COMPLICATION_ID, wireLongTextComplication)
-            )
+            listOf(IdAndComplicationDataWireFormat(LEFT_COMPLICATION_ID, wireLongTextComplication))
         )
 
         complicationSlotsManager.selectComplicationDataForInstant(Instant.ofEpochSecond(0))
         assertThat(getLeftLongTextComplicationDataText()).isEqualTo("longText")
 
         complicationSlotsManager.selectComplicationDataForInstant(Instant.ofEpochSecond(100))
-        val leftComplication = complicationSlotsManager[
-            LEFT_COMPLICATION_ID
-        ]!!.complicationData.value as NoDataComplicationData
+        val leftComplication =
+            complicationSlotsManager[LEFT_COMPLICATION_ID]!!.complicationData.value
+                as NoDataComplicationData
 
         val placeholder = leftComplication.placeholder as LongTextComplicationData
         assertThat(placeholder.text.isPlaceholder()).isTrue()
@@ -5491,32 +5401,36 @@ public class WatchFaceServiceTest {
     public fun updateComplicationTimelineOnly_updatesComplication() {
         // Arrange
         initWallpaperInteractiveWatchFaceInstance(complicationSlots = listOf(leftComplication))
-        val defaultBase = WireComplicationData.Builder(WireComplicationData.TYPE_LONG_TEXT)
-            .setLongText(WireComplicationText("default"))
-            .build()
-        val timelineEntryBase = WireComplicationData.Builder(WireComplicationData.TYPE_LONG_TEXT)
-            .setLongText(WireComplicationText("timeline"))
-            .build()
-        val oldTimelineEntry = WireComplicationData.Builder(defaultBase).build().apply {
-            setTimelineEntryCollection(
-                listOf(
-                    WireComplicationData.Builder(timelineEntryBase).build().apply {
-                        timelineStartEpochSecond = 100
-                        timelineEndEpochSecond = 200
-                    }
+        val defaultBase =
+            WireComplicationData.Builder(WireComplicationData.TYPE_LONG_TEXT)
+                .setLongText(WireComplicationText("default"))
+                .build()
+        val timelineEntryBase =
+            WireComplicationData.Builder(WireComplicationData.TYPE_LONG_TEXT)
+                .setLongText(WireComplicationText("timeline"))
+                .build()
+        val oldTimelineEntry =
+            WireComplicationData.Builder(defaultBase).build().apply {
+                setTimelineEntryCollection(
+                    listOf(
+                        WireComplicationData.Builder(timelineEntryBase).build().apply {
+                            timelineStartEpochSecond = 100
+                            timelineEndEpochSecond = 200
+                        }
+                    )
                 )
-            )
-        }
-        val newTimelineEntry = WireComplicationData.Builder(defaultBase).build().apply {
-            setTimelineEntryCollection(
-                listOf(
-                    WireComplicationData.Builder(timelineEntryBase).build().apply {
-                        timelineStartEpochSecond = 200
-                        timelineEndEpochSecond = 300
-                    }
+            }
+        val newTimelineEntry =
+            WireComplicationData.Builder(defaultBase).build().apply {
+                setTimelineEntryCollection(
+                    listOf(
+                        WireComplicationData.Builder(timelineEntryBase).build().apply {
+                            timelineStartEpochSecond = 200
+                            timelineEndEpochSecond = 300
+                        }
+                    )
                 )
-            )
-        }
+            }
         engineWrapper.setComplicationDataList(
             listOf(IdAndComplicationDataWireFormat(LEFT_COMPLICATION_ID, oldTimelineEntry))
         )
@@ -5539,12 +5453,7 @@ public class WatchFaceServiceTest {
             UserStyleSchema(emptyList()),
             WallpaperInteractiveWatchFaceInstanceParams(
                 INTERACTIVE_INSTANCE_ID,
-                DeviceConfig(
-                    false,
-                    false,
-                    0,
-                    0
-                ),
+                DeviceConfig(false, false, 0, 0),
                 WatchUiState(false, 0),
                 UserStyle(emptyMap()).toWireFormat(),
                 null,
@@ -5553,11 +5462,8 @@ public class WatchFaceServiceTest {
             )
         )
 
-        val screenshotParams = RenderParameters(
-            DrawMode.AMBIENT,
-            WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
-            null
-        )
+        val screenshotParams =
+            RenderParameters(DrawMode.AMBIENT, WatchFaceLayer.ALL_WATCH_FACE_LAYERS, null)
 
         renderer.takeScreenshot(
             ZonedDateTime.ofInstant(Instant.EPOCH, ZoneId.of("GMT")),
@@ -5582,12 +5488,7 @@ public class WatchFaceServiceTest {
             UserStyleSchema(emptyList()),
             WallpaperInteractiveWatchFaceInstanceParams(
                 INTERACTIVE_INSTANCE_ID,
-                DeviceConfig(
-                    false,
-                    false,
-                    0,
-                    0
-                ),
+                DeviceConfig(false, false, 0, 0),
                 WatchUiState(false, 0),
                 UserStyle(emptyMap()).toWireFormat(),
                 null,
@@ -5605,46 +5506,46 @@ public class WatchFaceServiceTest {
                 "testOption",
                 "testOption",
                 icon = null,
-                complicationSlotOverlays = listOf(
-                    ComplicationSlotOverlay(
-                        LEFT_COMPLICATION_ID,
-                        enabled = false,
-                        complicationSlotBounds =
-                        ComplicationSlotBounds(RectF(0.1f, 0.2f, 0.3f, 0.4f)),
-                        accessibilityTraversalIndex = 100
+                complicationSlotOverlays =
+                    listOf(
+                        ComplicationSlotOverlay(
+                            LEFT_COMPLICATION_ID,
+                            enabled = false,
+                            complicationSlotBounds =
+                                ComplicationSlotBounds(RectF(0.1f, 0.2f, 0.3f, 0.4f)),
+                            accessibilityTraversalIndex = 100
+                        ),
+                        ComplicationSlotOverlay(
+                            RIGHT_COMPLICATION_ID,
+                            enabled = true,
+                            complicationSlotBounds =
+                                ComplicationSlotBounds(RectF(0.5f, 0.6f, 0.7f, 0.8f)),
+                            accessibilityTraversalIndex = 1
+                        )
                     ),
-                    ComplicationSlotOverlay(
-                        RIGHT_COMPLICATION_ID,
-                        enabled = true,
-                        complicationSlotBounds =
-                        ComplicationSlotBounds(RectF(0.5f, 0.6f, 0.7f, 0.8f)),
-                        accessibilityTraversalIndex = 1
-                    )
-                ),
                 watchFaceEditorData = null
             )
         )
 
         // Dirty flags should lead to several WatchFaceHostApi calls.
-        verify(mockWatchFaceHostApi).setActiveComplicationSlots(
-            eq(intArrayOf(RIGHT_COMPLICATION_ID))
-        )
+        verify(mockWatchFaceHostApi)
+            .setActiveComplicationSlots(eq(intArrayOf(RIGHT_COMPLICATION_ID)))
         verify(mockWatchFaceHostApi).updateContentDescriptionLabels()
 
         assertThat(leftComplication.enabled).isFalse()
         assertThat(
-            leftComplication.complicationSlotBounds.perComplicationTypeBounds[
-                ComplicationType.SHORT_TEXT
-            ]
-        ).isEqualTo(RectF(0.1f, 0.2f, 0.3f, 0.4f))
+                leftComplication.complicationSlotBounds.perComplicationTypeBounds[
+                        ComplicationType.SHORT_TEXT]
+            )
+            .isEqualTo(RectF(0.1f, 0.2f, 0.3f, 0.4f))
         assertThat(leftComplication.accessibilityTraversalIndex).isEqualTo(100)
 
         assertThat(rightComplication.enabled).isTrue()
         assertThat(
-            rightComplication.complicationSlotBounds.perComplicationTypeBounds[
-                ComplicationType.SHORT_TEXT
-            ]
-        ).isEqualTo(RectF(0.5f, 0.6f, 0.7f, 0.8f))
+                rightComplication.complicationSlotBounds.perComplicationTypeBounds[
+                        ComplicationType.SHORT_TEXT]
+            )
+            .isEqualTo(RectF(0.5f, 0.6f, 0.7f, 0.8f))
         assertThat(rightComplication.accessibilityTraversalIndex).isEqualTo(1)
 
         reset(mockWatchFaceHostApi)
@@ -5690,42 +5591,34 @@ public class WatchFaceServiceTest {
     @Test
     @Config(sdk = [Build.VERSION_CODES.O_MR1])
     public fun onActionScreenOff_preR() {
-        Settings.Global.putInt(
-            context.contentResolver,
-            BroadcastsObserver.AMBIENT_ENABLED_PATH,
-            1
-        )
+        Settings.Global.putInt(context.contentResolver, BroadcastsObserver.AMBIENT_ENABLED_PATH, 1)
 
-        testWatchFaceService = TestWatchFaceService(
-            WatchFaceType.DIGITAL,
-            emptyList(),
-            { _, currentUserStyleRepository, watchState ->
-                TestRenderer(
-                    surfaceHolder,
-                    currentUserStyleRepository,
-                    watchState,
-                    INTERACTIVE_UPDATE_RATE_MS
-                )
-            },
-            UserStyleSchema(emptyList()),
-            watchState,
-            handler,
-            null,
-            null,
-            choreographer
-        )
+        testWatchFaceService =
+            TestWatchFaceService(
+                WatchFaceType.DIGITAL,
+                emptyList(),
+                { _, currentUserStyleRepository, watchState ->
+                    TestRenderer(
+                        surfaceHolder,
+                        currentUserStyleRepository,
+                        watchState,
+                        INTERACTIVE_UPDATE_RATE_MS
+                    )
+                },
+                UserStyleSchema(emptyList()),
+                watchState,
+                handler,
+                null,
+                null,
+                choreographer
+            )
 
         InteractiveInstanceManager
             .getExistingInstanceOrSetPendingWallpaperInteractiveWatchFaceInstance(
                 InteractiveInstanceManager.PendingWallpaperInteractiveWatchFaceInstance(
                     WallpaperInteractiveWatchFaceInstanceParams(
                         "TestID",
-                        DeviceConfig(
-                            false,
-                            false,
-                            0,
-                            0
-                        ),
+                        DeviceConfig(false, false, 0, 0),
                         WatchUiState(false, 0),
                         UserStyle(emptyMap()).toWireFormat(),
                         emptyList(),
@@ -5733,8 +5626,7 @@ public class WatchFaceServiceTest {
                         null
                     ),
                     object : IPendingInteractiveWatchFace.Stub() {
-                        override fun getApiVersion() =
-                            IPendingInteractiveWatchFace.API_VERSION
+                        override fun getApiVersion() = IPendingInteractiveWatchFace.API_VERSION
 
                         override fun onInteractiveWatchFaceCreated(
                             iInteractiveWatchFace: IInteractiveWatchFace
@@ -5762,42 +5654,34 @@ public class WatchFaceServiceTest {
     @Test
     @Config(sdk = [Build.VERSION_CODES.R])
     public fun onActionScreenOff_ambientNotEnabled() {
-        Settings.Global.putInt(
-            context.contentResolver,
-            BroadcastsObserver.AMBIENT_ENABLED_PATH,
-            0
-        )
+        Settings.Global.putInt(context.contentResolver, BroadcastsObserver.AMBIENT_ENABLED_PATH, 0)
 
-        testWatchFaceService = TestWatchFaceService(
-            WatchFaceType.DIGITAL,
-            emptyList(),
-            { _, currentUserStyleRepository, watchState ->
-                TestRenderer(
-                    surfaceHolder,
-                    currentUserStyleRepository,
-                    watchState,
-                    INTERACTIVE_UPDATE_RATE_MS
-                )
-            },
-            UserStyleSchema(emptyList()),
-            watchState,
-            handler,
-            null,
-            null,
-            choreographer
-        )
+        testWatchFaceService =
+            TestWatchFaceService(
+                WatchFaceType.DIGITAL,
+                emptyList(),
+                { _, currentUserStyleRepository, watchState ->
+                    TestRenderer(
+                        surfaceHolder,
+                        currentUserStyleRepository,
+                        watchState,
+                        INTERACTIVE_UPDATE_RATE_MS
+                    )
+                },
+                UserStyleSchema(emptyList()),
+                watchState,
+                handler,
+                null,
+                null,
+                choreographer
+            )
 
         InteractiveInstanceManager
             .getExistingInstanceOrSetPendingWallpaperInteractiveWatchFaceInstance(
                 InteractiveInstanceManager.PendingWallpaperInteractiveWatchFaceInstance(
                     WallpaperInteractiveWatchFaceInstanceParams(
                         "TestID",
-                        DeviceConfig(
-                            false,
-                            false,
-                            0,
-                            0
-                        ),
+                        DeviceConfig(false, false, 0, 0),
                         WatchUiState(false, 0),
                         UserStyle(emptyMap()).toWireFormat(),
                         emptyList(),
@@ -5805,8 +5689,7 @@ public class WatchFaceServiceTest {
                         null
                     ),
                     object : IPendingInteractiveWatchFace.Stub() {
-                        override fun getApiVersion() =
-                            IPendingInteractiveWatchFace.API_VERSION
+                        override fun getApiVersion() = IPendingInteractiveWatchFace.API_VERSION
 
                         override fun onInteractiveWatchFaceCreated(
                             iInteractiveWatchFace: IInteractiveWatchFace
@@ -5833,43 +5716,33 @@ public class WatchFaceServiceTest {
 
     @Test
     @Config(sdk = [Build.VERSION_CODES.R])
-    public fun onActionScreenOff_onActionScreenOn_ambientEnabled() {
-        Settings.Global.putInt(
-            context.contentResolver,
-            BroadcastsObserver.AMBIENT_ENABLED_PATH,
-            1
-        )
-
-        testWatchFaceService = TestWatchFaceService(
-            WatchFaceType.DIGITAL,
-            emptyList(),
-            { _, currentUserStyleRepository, watchState ->
-                TestRenderer(
-                    surfaceHolder,
-                    currentUserStyleRepository,
-                    watchState,
-                    INTERACTIVE_UPDATE_RATE_MS
-                )
-            },
-            UserStyleSchema(emptyList()),
-            watchState,
-            handler,
-            null,
-            null,
-            choreographer
-        )
+    public fun onActionAmbientStarted_onActionAmbientStopped_ambientEnabled() {
+        testWatchFaceService =
+            TestWatchFaceService(
+                WatchFaceType.DIGITAL,
+                emptyList(),
+                { _, currentUserStyleRepository, watchState ->
+                    TestRenderer(
+                        surfaceHolder,
+                        currentUserStyleRepository,
+                        watchState,
+                        INTERACTIVE_UPDATE_RATE_MS
+                    )
+                },
+                UserStyleSchema(emptyList()),
+                watchState,
+                handler,
+                null,
+                null,
+                choreographer
+            )
 
         InteractiveInstanceManager
             .getExistingInstanceOrSetPendingWallpaperInteractiveWatchFaceInstance(
                 InteractiveInstanceManager.PendingWallpaperInteractiveWatchFaceInstance(
                     WallpaperInteractiveWatchFaceInstanceParams(
                         "TestID",
-                        DeviceConfig(
-                            false,
-                            false,
-                            0,
-                            0
-                        ),
+                        DeviceConfig(false, false, 0, 0),
                         WatchUiState(false, 0),
                         UserStyle(emptyMap()).toWireFormat(),
                         emptyList(),
@@ -5877,8 +5750,7 @@ public class WatchFaceServiceTest {
                         null
                     ),
                     object : IPendingInteractiveWatchFace.Stub() {
-                        override fun getApiVersion() =
-                            IPendingInteractiveWatchFace.API_VERSION
+                        override fun getApiVersion() = IPendingInteractiveWatchFace.API_VERSION
 
                         override fun onInteractiveWatchFaceCreated(
                             iInteractiveWatchFace: IInteractiveWatchFace
@@ -5899,56 +5771,53 @@ public class WatchFaceServiceTest {
 
         watchFaceImpl = engineWrapper.getWatchFaceImplOrNull()!!
 
-        watchFaceImpl.broadcastsObserver.onActionScreenOff()
+        watchFaceImpl.broadcastsObserver.onActionAmbientStarted()
         assertThat(watchState.isAmbient.value).isTrue()
 
-        watchFaceImpl.broadcastsObserver.onActionScreenOn()
+        watchFaceImpl.broadcastsObserver.onActionAmbientStopped()
         assertThat(watchState.isAmbient.value).isFalse()
 
-        // After SysUI has sent WatchUiState onActionScreenOff/onActionScreenOn should be ignored.
+        // After SysUI has sent WatchUiState onActionAmbientStarted/onActionAmbientStopped should be
+        // ignored.
         engineWrapper.setWatchUiState(WatchUiState(false, 0), fromSysUi = true)
 
-        watchFaceImpl.broadcastsObserver.onActionScreenOff()
+        watchFaceImpl.broadcastsObserver.onActionAmbientStarted()
         assertThat(watchState.isAmbient.value).isFalse()
 
         engineWrapper.setWatchUiState(WatchUiState(true, 0), fromSysUi = true)
-        watchFaceImpl.broadcastsObserver.onActionScreenOn()
+        watchFaceImpl.broadcastsObserver.onActionAmbientStopped()
         assertThat(watchState.isAmbient.value).isTrue()
     }
 
     @Test
     @Config(sdk = [Build.VERSION_CODES.R])
     public fun onActionTimeTick() {
-        testWatchFaceService = TestWatchFaceService(
-            WatchFaceType.DIGITAL,
-            emptyList(),
-            { _, currentUserStyleRepository, watchState ->
-                TestRenderer(
-                    surfaceHolder,
-                    currentUserStyleRepository,
-                    watchState,
-                    INTERACTIVE_UPDATE_RATE_MS
-                )
-            },
-            UserStyleSchema(emptyList()),
-            watchState,
-            handler,
-            null,
-            null,
-            choreographer
-        )
+        testWatchFaceService =
+            TestWatchFaceService(
+                WatchFaceType.DIGITAL,
+                emptyList(),
+                { _, currentUserStyleRepository, watchState ->
+                    TestRenderer(
+                        surfaceHolder,
+                        currentUserStyleRepository,
+                        watchState,
+                        INTERACTIVE_UPDATE_RATE_MS
+                    )
+                },
+                UserStyleSchema(emptyList()),
+                watchState,
+                handler,
+                null,
+                null,
+                choreographer
+            )
 
         InteractiveInstanceManager
             .getExistingInstanceOrSetPendingWallpaperInteractiveWatchFaceInstance(
                 InteractiveInstanceManager.PendingWallpaperInteractiveWatchFaceInstance(
                     WallpaperInteractiveWatchFaceInstanceParams(
                         "TestID",
-                        DeviceConfig(
-                            false,
-                            false,
-                            0,
-                            0
-                        ),
+                        DeviceConfig(false, false, 0, 0),
                         WatchUiState(false, 0),
                         UserStyle(emptyMap()).toWireFormat(),
                         emptyList(),
@@ -5956,8 +5825,7 @@ public class WatchFaceServiceTest {
                         null
                     ),
                     object : IPendingInteractiveWatchFace.Stub() {
-                        override fun getApiVersion() =
-                            IPendingInteractiveWatchFace.API_VERSION
+                        override fun getApiVersion() = IPendingInteractiveWatchFace.API_VERSION
 
                         override fun onInteractiveWatchFaceCreated(
                             iInteractiveWatchFace: IInteractiveWatchFace
@@ -6004,26 +5872,29 @@ public class WatchFaceServiceTest {
             UserStyleSchema(emptyList())
         )
 
-        val left1 = IdAndComplicationDataWireFormat(
-            LEFT_COMPLICATION_ID,
-            WireComplicationData.Builder(WireComplicationData.TYPE_SHORT_TEXT)
-                .setShortText(WireComplicationText.plainText("Left1"))
-                .build()
-        )
+        val left1 =
+            IdAndComplicationDataWireFormat(
+                LEFT_COMPLICATION_ID,
+                WireComplicationData.Builder(WireComplicationData.TYPE_SHORT_TEXT)
+                    .setShortText(WireComplicationText.plainText("Left1"))
+                    .build()
+            )
 
-        val left2 = IdAndComplicationDataWireFormat(
-            LEFT_COMPLICATION_ID,
-            WireComplicationData.Builder(WireComplicationData.TYPE_SHORT_TEXT)
-                .setShortText(WireComplicationText.plainText("Left2"))
-                .build()
-        )
+        val left2 =
+            IdAndComplicationDataWireFormat(
+                LEFT_COMPLICATION_ID,
+                WireComplicationData.Builder(WireComplicationData.TYPE_SHORT_TEXT)
+                    .setShortText(WireComplicationText.plainText("Left2"))
+                    .build()
+            )
 
-        val right = IdAndComplicationDataWireFormat(
-            RIGHT_COMPLICATION_ID,
-            WireComplicationData.Builder(WireComplicationData.TYPE_SHORT_TEXT)
-                .setShortText(WireComplicationText.plainText("Right"))
-                .build()
-        )
+        val right =
+            IdAndComplicationDataWireFormat(
+                RIGHT_COMPLICATION_ID,
+                WireComplicationData.Builder(WireComplicationData.TYPE_SHORT_TEXT)
+                    .setShortText(WireComplicationText.plainText("Right"))
+                    .build()
+            )
 
         engineWrapper.setComplicationDataList(listOf(left1))
         // In initEngine we fill initial complication data using
@@ -6047,12 +5918,7 @@ public class WatchFaceServiceTest {
             UserStyleSchema(emptyList()),
             WallpaperInteractiveWatchFaceInstanceParams(
                 INTERACTIVE_INSTANCE_ID,
-                DeviceConfig(
-                    false,
-                    false,
-                    0,
-                    0
-                ),
+                DeviceConfig(false, false, 0, 0),
                 WatchUiState(false, 0),
                 UserStyle(emptyMap()).toWireFormat(),
                 null,
@@ -6087,18 +5953,21 @@ public class WatchFaceServiceTest {
     @Test
     @Config(sdk = [Build.VERSION_CODES.R])
     public fun updateComplications_after_updateInstance() {
-        val complicationList = listOf(
-            IdAndComplicationDataWireFormat(
-                LEFT_COMPLICATION_ID,
-                WireComplicationData.Builder(WireComplicationData.TYPE_LONG_TEXT)
-                    .setLongText(WireComplicationText.plainText("TYPE_LONG_TEXT")).build()
-            ),
-            IdAndComplicationDataWireFormat(
-                RIGHT_COMPLICATION_ID,
-                WireComplicationData.Builder(WireComplicationData.TYPE_SHORT_TEXT)
-                    .setShortText(WireComplicationText.plainText("TYPE_SHORT_TEXT")).build()
+        val complicationList =
+            listOf(
+                IdAndComplicationDataWireFormat(
+                    LEFT_COMPLICATION_ID,
+                    WireComplicationData.Builder(WireComplicationData.TYPE_LONG_TEXT)
+                        .setLongText(WireComplicationText.plainText("TYPE_LONG_TEXT"))
+                        .build()
+                ),
+                IdAndComplicationDataWireFormat(
+                    RIGHT_COMPLICATION_ID,
+                    WireComplicationData.Builder(WireComplicationData.TYPE_SHORT_TEXT)
+                        .setShortText(WireComplicationText.plainText("TYPE_SHORT_TEXT"))
+                        .build()
+                )
             )
-        )
 
         initWallpaperInteractiveWatchFaceInstance(
             WatchFaceType.ANALOG,
@@ -6106,12 +5975,7 @@ public class WatchFaceServiceTest {
             UserStyleSchema(emptyList()),
             WallpaperInteractiveWatchFaceInstanceParams(
                 INTERACTIVE_INSTANCE_ID,
-                DeviceConfig(
-                    false,
-                    false,
-                    0,
-                    0
-                ),
+                DeviceConfig(false, false, 0, 0),
                 WatchUiState(false, 0),
                 UserStyle(emptyMap()).toWireFormat(),
                 null,
@@ -6130,82 +5994,77 @@ public class WatchFaceServiceTest {
             )
         }
 
-        assertThat(leftComplication.complicationData.value).isInstanceOf(
-            NoDataComplicationData::class.java
-        )
-        assertThat(rightComplication.complicationData.value).isInstanceOf(
-            NoDataComplicationData::class.java
-        )
+        assertThat(leftComplication.complicationData.value)
+            .isInstanceOf(NoDataComplicationData::class.java)
+        assertThat(rightComplication.complicationData.value)
+            .isInstanceOf(NoDataComplicationData::class.java)
 
         interactiveWatchFaceInstance.updateComplicationData(complicationList)
 
-        assertThat(leftComplication.complicationData.value).isInstanceOf(
-            LongTextComplicationData::class.java
-        )
-        assertThat(rightComplication.complicationData.value).isInstanceOf(
-            ShortTextComplicationData::class.java
-        )
+        assertThat(leftComplication.complicationData.value)
+            .isInstanceOf(LongTextComplicationData::class.java)
+        assertThat(rightComplication.complicationData.value)
+            .isInstanceOf(ShortTextComplicationData::class.java)
     }
 
     @OptIn(WatchFaceExperimental::class)
     @Test
     @Config(sdk = [Build.VERSION_CODES.R])
     public fun onComputeColors() {
-        @Suppress("DEPRECATION")
-        lateinit var renderer: Renderer.CanvasRenderer
-        testWatchFaceService = TestWatchFaceService(
-            WatchFaceType.DIGITAL,
-            emptyList(),
-            { _, currentUserStyleRepository, watchState ->
-                @Suppress("DEPRECATION")
-                renderer = object : Renderer.CanvasRenderer(
-                    surfaceHolder,
-                    currentUserStyleRepository,
-                    watchState,
-                    CanvasType.HARDWARE,
-                    INTERACTIVE_UPDATE_RATE_MS
-                ) {
-                    init {
-                        watchfaceColors =
-                            WatchFaceColors(Color.valueOf(1), Color.valueOf(2), Color.valueOf(3))
-                    }
+        @Suppress("DEPRECATION") lateinit var renderer: Renderer.CanvasRenderer
+        testWatchFaceService =
+            TestWatchFaceService(
+                WatchFaceType.DIGITAL,
+                emptyList(),
+                { _, currentUserStyleRepository, watchState ->
+                    @Suppress("DEPRECATION")
+                    renderer =
+                        object :
+                            Renderer.CanvasRenderer(
+                                surfaceHolder,
+                                currentUserStyleRepository,
+                                watchState,
+                                CanvasType.HARDWARE,
+                                INTERACTIVE_UPDATE_RATE_MS
+                            ) {
+                            init {
+                                watchfaceColors =
+                                    WatchFaceColors(
+                                        Color.valueOf(1),
+                                        Color.valueOf(2),
+                                        Color.valueOf(3)
+                                    )
+                            }
 
-                    override fun render(
-                        canvas: Canvas,
-                        bounds: Rect,
-                        zonedDateTime: ZonedDateTime
-                    ) {
-                    }
+                            override fun render(
+                                canvas: Canvas,
+                                bounds: Rect,
+                                zonedDateTime: ZonedDateTime
+                            ) {}
 
-                    override fun renderHighlightLayer(
-                        canvas: Canvas,
-                        bounds: Rect,
-                        zonedDateTime: ZonedDateTime
-                    ) {
-                    }
-                }
-                renderer
-            },
-            UserStyleSchema(emptyList()),
-            null,
-            handler,
-            null,
-            null,
-            choreographer,
-            forceIsVisible = true
-        )
+                            override fun renderHighlightLayer(
+                                canvas: Canvas,
+                                bounds: Rect,
+                                zonedDateTime: ZonedDateTime
+                            ) {}
+                        }
+                    renderer
+                },
+                UserStyleSchema(emptyList()),
+                null,
+                handler,
+                null,
+                null,
+                choreographer,
+                forceIsVisible = true
+            )
 
         InteractiveInstanceManager
             .getExistingInstanceOrSetPendingWallpaperInteractiveWatchFaceInstance(
                 InteractiveInstanceManager.PendingWallpaperInteractiveWatchFaceInstance(
                     WallpaperInteractiveWatchFaceInstanceParams(
                         SYSTEM_SUPPORTS_CONSISTENT_IDS_PREFIX + "Interactive",
-                        DeviceConfig(
-                            false,
-                            false,
-                            0,
-                            0
-                        ),
+                        DeviceConfig(false, false, 0, 0),
                         WatchUiState(false, 0),
                         UserStyle(emptyMap()).toWireFormat(),
                         emptyList(),
@@ -6213,8 +6072,7 @@ public class WatchFaceServiceTest {
                         null
                     ),
                     object : IPendingInteractiveWatchFace.Stub() {
-                        override fun getApiVersion() =
-                            IPendingInteractiveWatchFace.API_VERSION
+                        override fun getApiVersion() = IPendingInteractiveWatchFace.API_VERSION
 
                         override fun onInteractiveWatchFaceCreated(
                             iInteractiveWatchFace: IInteractiveWatchFace
@@ -6230,19 +6088,20 @@ public class WatchFaceServiceTest {
             )
 
         var lastWatchFaceColors: WatchFaceColors? = null
-        val listener = object : IWatchfaceListener.Stub() {
-            override fun getApiVersion() = 1
+        val listener =
+            object : IWatchfaceListener.Stub() {
+                override fun getApiVersion() = 1
 
-            override fun onWatchfaceReady() {}
+                override fun onWatchfaceReady() {}
 
-            override fun onWatchfaceColorsChanged(watchFaceColors: WatchFaceColorsWireFormat?) {
-                lastWatchFaceColors = watchFaceColors?.toApiFormat()
+                override fun onWatchfaceColorsChanged(watchFaceColors: WatchFaceColorsWireFormat?) {
+                    lastWatchFaceColors = watchFaceColors?.toApiFormat()
+                }
+
+                override fun onPreviewImageUpdateRequested(watchFaceId: String) {}
+
+                override fun onEngineDetached() {}
             }
-
-            override fun onPreviewImageUpdateRequested(watchFaceId: String) {}
-
-            override fun onEngineDetached() {}
-        }
 
         engineWrapper = testWatchFaceService.onCreateEngine() as WatchFaceService.EngineWrapper
         engineWrapper.onCreate(surfaceHolder)
@@ -6250,25 +6109,24 @@ public class WatchFaceServiceTest {
 
         interactiveWatchFaceInstance.addWatchFaceListener(listener)
 
-        assertThat(lastWatchFaceColors).isEqualTo(
-            WatchFaceColors(Color.valueOf(1), Color.valueOf(2), Color.valueOf(3))
-        )
+        assertThat(lastWatchFaceColors)
+            .isEqualTo(WatchFaceColors(Color.valueOf(1), Color.valueOf(2), Color.valueOf(3)))
 
         renderer.watchfaceColors =
             WatchFaceColors(Color.valueOf(10), Color.valueOf(20), Color.valueOf(30))
 
-        assertThat(lastWatchFaceColors).isEqualTo(
-            WatchFaceColors(Color.valueOf(10), Color.valueOf(20), Color.valueOf(30))
-        )
+        assertThat(lastWatchFaceColors)
+            .isEqualTo(WatchFaceColors(Color.valueOf(10), Color.valueOf(20), Color.valueOf(30)))
 
         interactiveWatchFaceInstance.removeWatchFaceListener(listener)
 
         // This should be ignored.
         renderer.watchfaceColors =
             WatchFaceColors(Color.valueOf(100), Color.valueOf(200), Color.valueOf(300))
-        assertThat(lastWatchFaceColors).isNotEqualTo(
-            WatchFaceColors(Color.valueOf(100), Color.valueOf(200), Color.valueOf(300))
-        )
+        assertThat(lastWatchFaceColors)
+            .isNotEqualTo(
+                WatchFaceColors(Color.valueOf(100), Color.valueOf(200), Color.valueOf(300))
+            )
 
         engineWrapper.onDestroy()
     }
@@ -6276,56 +6134,51 @@ public class WatchFaceServiceTest {
     @Test
     @Config(sdk = [Build.VERSION_CODES.R])
     public fun onPreviewImageUpdateRequested() {
-        @Suppress("DEPRECATION")
-        lateinit var renderer: Renderer.CanvasRenderer
-        testWatchFaceService = TestWatchFaceService(
-            WatchFaceType.DIGITAL,
-            emptyList(),
-            { _, currentUserStyleRepository, watchState ->
-                @Suppress("DEPRECATION")
-                renderer = object : Renderer.CanvasRenderer(
-                    surfaceHolder,
-                    currentUserStyleRepository,
-                    watchState,
-                    CanvasType.HARDWARE,
-                    INTERACTIVE_UPDATE_RATE_MS
-                ) {
-                    override fun render(
-                        canvas: Canvas,
-                        bounds: Rect,
-                        zonedDateTime: ZonedDateTime
-                    ) {
-                    }
+        @Suppress("DEPRECATION") lateinit var renderer: Renderer.CanvasRenderer
+        testWatchFaceService =
+            TestWatchFaceService(
+                WatchFaceType.DIGITAL,
+                emptyList(),
+                { _, currentUserStyleRepository, watchState ->
+                    @Suppress("DEPRECATION")
+                    renderer =
+                        object :
+                            Renderer.CanvasRenderer(
+                                surfaceHolder,
+                                currentUserStyleRepository,
+                                watchState,
+                                CanvasType.HARDWARE,
+                                INTERACTIVE_UPDATE_RATE_MS
+                            ) {
+                            override fun render(
+                                canvas: Canvas,
+                                bounds: Rect,
+                                zonedDateTime: ZonedDateTime
+                            ) {}
 
-                    override fun renderHighlightLayer(
-                        canvas: Canvas,
-                        bounds: Rect,
-                        zonedDateTime: ZonedDateTime
-                    ) {
-                    }
-                }
-                renderer
-            },
-            UserStyleSchema(emptyList()),
-            null,
-            handler,
-            null,
-            null,
-            choreographer,
-            forceIsVisible = true
-        )
+                            override fun renderHighlightLayer(
+                                canvas: Canvas,
+                                bounds: Rect,
+                                zonedDateTime: ZonedDateTime
+                            ) {}
+                        }
+                    renderer
+                },
+                UserStyleSchema(emptyList()),
+                null,
+                handler,
+                null,
+                null,
+                choreographer,
+                forceIsVisible = true
+            )
 
         InteractiveInstanceManager
             .getExistingInstanceOrSetPendingWallpaperInteractiveWatchFaceInstance(
                 InteractiveInstanceManager.PendingWallpaperInteractiveWatchFaceInstance(
                     WallpaperInteractiveWatchFaceInstanceParams(
                         SYSTEM_SUPPORTS_CONSISTENT_IDS_PREFIX + "Interactive",
-                        DeviceConfig(
-                            false,
-                            false,
-                            0,
-                            0
-                        ),
+                        DeviceConfig(false, false, 0, 0),
                         WatchUiState(false, 0),
                         UserStyle(emptyMap()).toWireFormat(),
                         emptyList(),
@@ -6333,8 +6186,7 @@ public class WatchFaceServiceTest {
                         null
                     ),
                     object : IPendingInteractiveWatchFace.Stub() {
-                        override fun getApiVersion() =
-                            IPendingInteractiveWatchFace.API_VERSION
+                        override fun getApiVersion() = IPendingInteractiveWatchFace.API_VERSION
 
                         override fun onInteractiveWatchFaceCreated(
                             iInteractiveWatchFace: IInteractiveWatchFace
@@ -6350,19 +6202,22 @@ public class WatchFaceServiceTest {
             )
 
         var lastPreviewImageUpdateRequestedWatchFaceId: String? = null
-        val listener = object : IWatchfaceListener.Stub() {
-            override fun getApiVersion() = 1
+        val listener =
+            object : IWatchfaceListener.Stub() {
+                override fun getApiVersion() = 1
 
-            override fun onWatchfaceReady() {}
+                override fun onWatchfaceReady() {}
 
-            override fun onWatchfaceColorsChanged(watchFaceColors: WatchFaceColorsWireFormat?) {}
+                override fun onWatchfaceColorsChanged(
+                    watchFaceColors: WatchFaceColorsWireFormat?
+                ) {}
 
-            override fun onPreviewImageUpdateRequested(watchFaceId: String) {
-                lastPreviewImageUpdateRequestedWatchFaceId = watchFaceId
+                override fun onPreviewImageUpdateRequested(watchFaceId: String) {
+                    lastPreviewImageUpdateRequestedWatchFaceId = watchFaceId
+                }
+
+                override fun onEngineDetached() {}
             }
-
-            override fun onEngineDetached() {}
-        }
 
         engineWrapper = testWatchFaceService.onCreateEngine() as WatchFaceService.EngineWrapper
         engineWrapper.onCreate(surfaceHolder)
@@ -6374,9 +6229,8 @@ public class WatchFaceServiceTest {
 
         renderer.sendPreviewImageNeedsUpdateRequest()
 
-        assertThat(lastPreviewImageUpdateRequestedWatchFaceId).isEqualTo(
-            SYSTEM_SUPPORTS_CONSISTENT_IDS_PREFIX + "Interactive"
-        )
+        assertThat(lastPreviewImageUpdateRequestedWatchFaceId)
+            .isEqualTo(SYSTEM_SUPPORTS_CONSISTENT_IDS_PREFIX + "Interactive")
 
         interactiveWatchFaceInstance.removeWatchFaceListener(listener)
 
@@ -6386,9 +6240,8 @@ public class WatchFaceServiceTest {
             UserStyleWireFormat(emptyMap())
         )
         renderer.sendPreviewImageNeedsUpdateRequest()
-        assertThat(lastPreviewImageUpdateRequestedWatchFaceId).isNotEqualTo(
-            SYSTEM_SUPPORTS_CONSISTENT_IDS_PREFIX + "Interactive2"
-        )
+        assertThat(lastPreviewImageUpdateRequestedWatchFaceId)
+            .isNotEqualTo(SYSTEM_SUPPORTS_CONSISTENT_IDS_PREFIX + "Interactive2")
 
         interactiveWatchFaceInstance.release()
         engineWrapper.onDestroy()
@@ -6397,60 +6250,55 @@ public class WatchFaceServiceTest {
     @Test
     @Config(sdk = [Build.VERSION_CODES.R])
     public fun onPreviewImageUpdateRequested_earlyCall() {
-        @Suppress("DEPRECATION")
-        lateinit var renderer: Renderer.CanvasRenderer
-        testWatchFaceService = TestWatchFaceService(
-            WatchFaceType.DIGITAL,
-            emptyList(),
-            { _, currentUserStyleRepository, watchState ->
-                @Suppress("DEPRECATION")
-                renderer = object : Renderer.CanvasRenderer(
-                    surfaceHolder,
-                    currentUserStyleRepository,
-                    watchState,
-                    CanvasType.HARDWARE,
-                    INTERACTIVE_UPDATE_RATE_MS
-                ) {
-                    init {
-                        sendPreviewImageNeedsUpdateRequest()
-                    }
+        @Suppress("DEPRECATION") lateinit var renderer: Renderer.CanvasRenderer
+        testWatchFaceService =
+            TestWatchFaceService(
+                WatchFaceType.DIGITAL,
+                emptyList(),
+                { _, currentUserStyleRepository, watchState ->
+                    @Suppress("DEPRECATION")
+                    renderer =
+                        object :
+                            Renderer.CanvasRenderer(
+                                surfaceHolder,
+                                currentUserStyleRepository,
+                                watchState,
+                                CanvasType.HARDWARE,
+                                INTERACTIVE_UPDATE_RATE_MS
+                            ) {
+                            init {
+                                sendPreviewImageNeedsUpdateRequest()
+                            }
 
-                    override fun render(
-                        canvas: Canvas,
-                        bounds: Rect,
-                        zonedDateTime: ZonedDateTime
-                    ) {
-                    }
+                            override fun render(
+                                canvas: Canvas,
+                                bounds: Rect,
+                                zonedDateTime: ZonedDateTime
+                            ) {}
 
-                    override fun renderHighlightLayer(
-                        canvas: Canvas,
-                        bounds: Rect,
-                        zonedDateTime: ZonedDateTime
-                    ) {
-                    }
-                }
-                renderer
-            },
-            UserStyleSchema(emptyList()),
-            null,
-            handler,
-            null,
-            null,
-            choreographer,
-            forceIsVisible = true
-        )
+                            override fun renderHighlightLayer(
+                                canvas: Canvas,
+                                bounds: Rect,
+                                zonedDateTime: ZonedDateTime
+                            ) {}
+                        }
+                    renderer
+                },
+                UserStyleSchema(emptyList()),
+                null,
+                handler,
+                null,
+                null,
+                choreographer,
+                forceIsVisible = true
+            )
 
         InteractiveInstanceManager
             .getExistingInstanceOrSetPendingWallpaperInteractiveWatchFaceInstance(
                 InteractiveInstanceManager.PendingWallpaperInteractiveWatchFaceInstance(
                     WallpaperInteractiveWatchFaceInstanceParams(
                         SYSTEM_SUPPORTS_CONSISTENT_IDS_PREFIX + "Interactive",
-                        DeviceConfig(
-                            false,
-                            false,
-                            0,
-                            0
-                        ),
+                        DeviceConfig(false, false, 0, 0),
                         WatchUiState(false, 0),
                         UserStyle(emptyMap()).toWireFormat(),
                         emptyList(),
@@ -6458,8 +6306,7 @@ public class WatchFaceServiceTest {
                         null
                     ),
                     object : IPendingInteractiveWatchFace.Stub() {
-                        override fun getApiVersion() =
-                            IPendingInteractiveWatchFace.API_VERSION
+                        override fun getApiVersion() = IPendingInteractiveWatchFace.API_VERSION
 
                         override fun onInteractiveWatchFaceCreated(
                             iInteractiveWatchFace: IInteractiveWatchFace
@@ -6475,19 +6322,22 @@ public class WatchFaceServiceTest {
             )
 
         var lastPreviewImageUpdateRequestedWatchFaceId: String? = null
-        val listener = object : IWatchfaceListener.Stub() {
-            override fun getApiVersion() = 1
+        val listener =
+            object : IWatchfaceListener.Stub() {
+                override fun getApiVersion() = 1
 
-            override fun onWatchfaceReady() {}
+                override fun onWatchfaceReady() {}
 
-            override fun onWatchfaceColorsChanged(watchFaceColors: WatchFaceColorsWireFormat?) {}
+                override fun onWatchfaceColorsChanged(
+                    watchFaceColors: WatchFaceColorsWireFormat?
+                ) {}
 
-            override fun onPreviewImageUpdateRequested(watchFaceId: String) {
-                lastPreviewImageUpdateRequestedWatchFaceId = watchFaceId
+                override fun onPreviewImageUpdateRequested(watchFaceId: String) {
+                    lastPreviewImageUpdateRequestedWatchFaceId = watchFaceId
+                }
+
+                override fun onEngineDetached() {}
             }
-
-            override fun onEngineDetached() {}
-        }
 
         engineWrapper = testWatchFaceService.onCreateEngine() as WatchFaceService.EngineWrapper
         engineWrapper.onCreate(surfaceHolder)
@@ -6495,64 +6345,65 @@ public class WatchFaceServiceTest {
 
         interactiveWatchFaceInstance.addWatchFaceListener(listener)
 
-        assertThat(lastPreviewImageUpdateRequestedWatchFaceId).isEqualTo(
-            SYSTEM_SUPPORTS_CONSISTENT_IDS_PREFIX + "Interactive"
-        )
+        assertThat(lastPreviewImageUpdateRequestedWatchFaceId)
+            .isEqualTo(SYSTEM_SUPPORTS_CONSISTENT_IDS_PREFIX + "Interactive")
     }
 
     @Test
     @Config(sdk = [Build.VERSION_CODES.R])
     @RequiresApi(Build.VERSION_CODES.O_MR1)
     public fun sendPreviewImageNeedsUpdateRequest_headlessInstance() {
-        @Suppress("DEPRECATION")
-        lateinit var renderer: Renderer.CanvasRenderer
-        testWatchFaceService = TestWatchFaceService(
-            WatchFaceType.DIGITAL,
-            emptyList(),
-            { _, currentUserStyleRepository, watchState ->
-                @Suppress("DEPRECATION")
-                renderer = object : Renderer.CanvasRenderer(
-                    surfaceHolder,
-                    currentUserStyleRepository,
-                    watchState,
-                    CanvasType.HARDWARE,
-                    INTERACTIVE_UPDATE_RATE_MS
-                ) {
-                    init {
-                        sendPreviewImageNeedsUpdateRequest()
-                    }
+        @Suppress("DEPRECATION") lateinit var renderer: Renderer.CanvasRenderer
+        testWatchFaceService =
+            TestWatchFaceService(
+                WatchFaceType.DIGITAL,
+                emptyList(),
+                { _, currentUserStyleRepository, watchState ->
+                    @Suppress("DEPRECATION")
+                    renderer =
+                        object :
+                            Renderer.CanvasRenderer(
+                                surfaceHolder,
+                                currentUserStyleRepository,
+                                watchState,
+                                CanvasType.HARDWARE,
+                                INTERACTIVE_UPDATE_RATE_MS
+                            ) {
+                            init {
+                                sendPreviewImageNeedsUpdateRequest()
+                            }
 
-                    override fun render(
-                        canvas: Canvas,
-                        bounds: Rect,
-                        zonedDateTime: ZonedDateTime
-                    ) {
-                    }
+                            override fun render(
+                                canvas: Canvas,
+                                bounds: Rect,
+                                zonedDateTime: ZonedDateTime
+                            ) {}
 
-                    override fun renderHighlightLayer(
-                        canvas: Canvas,
-                        bounds: Rect,
-                        zonedDateTime: ZonedDateTime
-                    ) {
-                    }
-                }
-                renderer
-            },
-            UserStyleSchema(emptyList()),
-            null,
-            handler,
-            null,
-            null,
-            choreographer,
-            forceIsVisible = true
-        )
+                            override fun renderHighlightLayer(
+                                canvas: Canvas,
+                                bounds: Rect,
+                                zonedDateTime: ZonedDateTime
+                            ) {}
+                        }
+                    renderer
+                },
+                UserStyleSchema(emptyList()),
+                null,
+                handler,
+                null,
+                null,
+                choreographer,
+                forceIsVisible = true
+            )
 
+        val componentName = ComponentName("test.watchface.app", "test.watchface.class")
         engineWrapper =
-            testWatchFaceService.createHeadlessEngine() as WatchFaceService.EngineWrapper
+            testWatchFaceService.createHeadlessEngine(componentName)
+                as WatchFaceService.EngineWrapper
 
         engineWrapper.createHeadlessInstance(
             HeadlessWatchFaceInstanceParams(
-                ComponentName("test.watchface.app", "test.watchface.class"),
+                componentName,
                 DeviceConfig(false, false, 100, 200),
                 100,
                 100,
@@ -6561,9 +6412,7 @@ public class WatchFaceServiceTest {
         )
 
         // This shouldn't crash.
-        runBlocking {
-            watchFaceImpl = engineWrapper.deferredWatchFaceImpl.awaitWithTimeout()
-        }
+        runBlocking { watchFaceImpl = engineWrapper.deferredWatchFaceImpl.awaitWithTimeout() }
 
         engineWrapper.onDestroy()
     }
@@ -6578,12 +6427,7 @@ public class WatchFaceServiceTest {
             UserStyleSchema(emptyList()),
             WallpaperInteractiveWatchFaceInstanceParams(
                 INTERACTIVE_INSTANCE_ID,
-                DeviceConfig(
-                    false,
-                    false,
-                    0,
-                    0
-                ),
+                DeviceConfig(false, false, 0, 0),
                 WatchUiState(false, 0),
                 UserStyle(emptyMap()).toWireFormat(),
                 null,
@@ -6597,12 +6441,14 @@ public class WatchFaceServiceTest {
                 IdAndComplicationDataWireFormat(
                     LEFT_COMPLICATION_ID,
                     ShortTextComplicationData.Builder(
-                        TimeDifferenceComplicationText.Builder(
-                            TimeDifferenceStyle.STOPWATCH,
-                            CountUpTimeReference(Instant.parse("2022-10-30T10:15:30.001Z"))
-                        ).setMinimumTimeUnit(TimeUnit.MINUTES).build(),
-                        ComplicationText.EMPTY
-                    )
+                            TimeDifferenceComplicationText.Builder(
+                                    TimeDifferenceStyle.STOPWATCH,
+                                    CountUpTimeReference(Instant.parse("2022-10-30T10:15:30.001Z"))
+                                )
+                                .setMinimumTimeUnit(TimeUnit.MINUTES)
+                                .build(),
+                            ComplicationText.EMPTY
+                        )
                         .setDisplayPolicy(
                             ComplicationDisplayPolicies.DO_NOT_SHOW_WHEN_DEVICE_LOCKED
                         )
@@ -6624,28 +6470,106 @@ public class WatchFaceServiceTest {
             .isInstanceOf(ShortTextComplicationData::class.java)
     }
 
+    @Test
+    fun actionScreenOff_keyguardLocked() {
+        initWallpaperInteractiveWatchFaceInstance(
+            WatchFaceType.ANALOG,
+            listOf(leftComplication),
+            UserStyleSchema(emptyList()),
+            WallpaperInteractiveWatchFaceInstanceParams(
+                INTERACTIVE_INSTANCE_ID,
+                DeviceConfig(false, false, 0, 0),
+                WatchUiState(false, 0),
+                UserStyle(emptyMap()).toWireFormat(),
+                null,
+                null,
+                null
+            )
+        )
+
+        val shadowKeyguardManager = shadowOf(context.getSystemService(KeyguardManager::class.java))
+        shadowKeyguardManager.setIsDeviceLocked(true)
+
+        watchFaceImpl.broadcastsObserver.onActionScreenOff()
+
+        assertThat(watchState.isLocked.value).isTrue()
+    }
+
+    @Test
+    fun actionScreenOff_keyguardUnlocked() {
+        initWallpaperInteractiveWatchFaceInstance(
+            WatchFaceType.ANALOG,
+            listOf(leftComplication),
+            UserStyleSchema(emptyList()),
+            WallpaperInteractiveWatchFaceInstanceParams(
+                INTERACTIVE_INSTANCE_ID,
+                DeviceConfig(false, false, 0, 0),
+                WatchUiState(false, 0),
+                UserStyle(emptyMap()).toWireFormat(),
+                null,
+                null,
+                null
+            )
+        )
+
+        val shadowKeyguardManager = shadowOf(context.getSystemService(KeyguardManager::class.java))
+        shadowKeyguardManager.setIsDeviceLocked(false)
+
+        watchFaceImpl.broadcastsObserver.onActionScreenOff()
+
+        assertThat(watchState.isLocked.value).isFalse()
+    }
+
+    @Test
+    fun actionUserUnlocked_after_keyguardLocked() {
+        initWallpaperInteractiveWatchFaceInstance(
+            WatchFaceType.ANALOG,
+            listOf(leftComplication),
+            UserStyleSchema(emptyList()),
+            WallpaperInteractiveWatchFaceInstanceParams(
+                INTERACTIVE_INSTANCE_ID,
+                DeviceConfig(false, false, 0, 0),
+                WatchUiState(false, 0),
+                UserStyle(emptyMap()).toWireFormat(),
+                null,
+                null,
+                null
+            )
+        )
+
+        val shadowKeyguardManager = shadowOf(context.getSystemService(KeyguardManager::class.java))
+        shadowKeyguardManager.setIsDeviceLocked(true)
+
+        watchFaceImpl.broadcastsObserver.onActionScreenOff()
+        watchFaceImpl.broadcastsObserver.onActionUserPresent()
+
+        assertThat(watchState.isLocked.value).isFalse()
+    }
+
     @SuppressLint("NewApi")
     @Test
     public fun createHeadlessSessionDelegate_onDestroy() {
         val context = ApplicationProvider.getApplicationContext<Context>()
-        val componentName = ComponentName(context, TestNopCanvasWatchFaceService::class.java)
+        val componentName =
+            ComponentName(context, TestNopCanvasWatchFaceServiceWithHandler::class.java)
         lateinit var delegate: WatchFace.EditorDelegate
 
         // Allows us to programmatically control tasks.
-        TestNopCanvasWatchFaceService.handler = this.handler
+        TestNopCanvasWatchFaceServiceWithHandler.handler = this.handler
 
         CoroutineScope(handler.asCoroutineDispatcher().immediate).launch {
-            delegate = WatchFace.createHeadlessSessionDelegate(
-                componentName,
-                HeadlessWatchFaceInstanceParams(
+            delegate =
+                WatchFace.createHeadlessSessionDelegate(
                     componentName,
-                    DeviceConfig(false, false, 100, 200),
-                    100,
-                    100,
-                    null
-                ),
-                context
-            )
+                    HeadlessWatchFaceInstanceParams(
+                        componentName,
+                        DeviceConfig(false, false, 100, 200),
+                        100,
+                        100,
+                        null
+                    ),
+                    context
+                )
         }
 
         // Run all pending tasks.
@@ -6660,10 +6584,246 @@ public class WatchFaceServiceTest {
         assertThat(HeadlessWatchFaceImpl.headlessInstances).isEmpty()
     }
 
+    @Config(minSdk = 30)
+    @SuppressLint("NewApi")
+    @Test
+    public fun createHeadlessSessionDelegate_customControlServiceIsUsed() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val componentName = ComponentName("non existing package", "class")
+        lateinit var delegate: WatchFace.EditorDelegate
+
+        val shadowPackageManager = shadowOf(context.packageManager)
+        val controlServiceComponent =
+            ComponentName(context, TestWatchFaceControlService::class.java)
+        shadowPackageManager.addOrUpdateService(
+            ServiceInfo().apply {
+                packageName = controlServiceComponent.packageName
+                name = controlServiceComponent.className
+            }
+        )
+        shadowPackageManager.addIntentFilterForService(
+            controlServiceComponent,
+            IntentFilter(WatchFaceControlService.ACTION_WATCHFACE_CONTROL_SERVICE)
+        )
+        // Remove default WatchFaceControlService
+        shadowPackageManager.removeService(
+            ComponentName(context, WatchFaceControlService::class.java)
+        )
+
+        // Allows us to programmatically control tasks.
+        TestNopCanvasWatchFaceServiceWithHandler.handler = this.handler
+
+        CoroutineScope(handler.asCoroutineDispatcher().immediate).launch {
+            delegate =
+                WatchFace.createHeadlessSessionDelegate(
+                    componentName,
+                    HeadlessWatchFaceInstanceParams(
+                        componentName,
+                        DeviceConfig(false, false, 100, 200),
+                        100,
+                        100,
+                        null
+                    ),
+                    context
+                )
+        }
+
+        assertThat(delegate).isNotNull()
+
+        // Run all pending tasks.
+        while (pendingTasks.isNotEmpty()) {
+            pendingTasks.remove().runnable.run()
+        }
+
+        delegate.onDestroy()
+    }
+
+    @Test
+    public fun attachToExistingParameterlessEngine() {
+        // Construct a parameterless engine.
+        testWatchFaceService =
+            TestWatchFaceService(
+                WatchFaceType.DIGITAL,
+                emptyList(),
+                { _, currentUserStyleRepository, watchState ->
+                    renderer =
+                        TestRenderer(
+                            surfaceHolder,
+                            currentUserStyleRepository,
+                            watchState,
+                            INTERACTIVE_UPDATE_RATE_MS
+                        )
+                    renderer
+                },
+                UserStyleSchema(emptyList()),
+                watchState,
+                handler,
+                null,
+                null,
+                choreographer,
+                mockSystemTimeMillis = looperTimeMillis,
+                complicationCache = null
+            )
+
+        engineWrapper = testWatchFaceService.onCreateEngine() as WatchFaceService.EngineWrapper
+        engineWrapper.onCreate(surfaceHolder)
+        engineWrapper.onSurfaceChanged(surfaceHolder, 0, 100, 100)
+        engineWrapper.onVisibilityChanged(true)
+
+        val callback =
+            object : IPendingInteractiveWatchFace.Stub() {
+                override fun getApiVersion() = IPendingInteractiveWatchFace.API_VERSION
+
+                override fun onInteractiveWatchFaceCreated(
+                    iInteractiveWatchFace: IInteractiveWatchFace
+                ) {
+                    interactiveWatchFaceInstance = iInteractiveWatchFace
+                }
+
+                override fun onInteractiveWatchFaceCrashed(exception: CrashInfoParcel?) {
+                    fail("WatchFace crashed: $exception")
+                }
+            }
+
+        InteractiveInstanceManager
+            .getExistingInstanceOrSetPendingWallpaperInteractiveWatchFaceInstance(
+                InteractiveInstanceManager.PendingWallpaperInteractiveWatchFaceInstance(
+                    WallpaperInteractiveWatchFaceInstanceParams(
+                        INTERACTIVE_INSTANCE_ID,
+                        DeviceConfig(false, false, 0, 0),
+                        WatchUiState(false, 0),
+                        UserStyle(emptyMap()).toWireFormat(),
+                        null,
+                        null,
+                        null
+                    ),
+                    callback
+                )
+            )
+
+        runBlocking {
+            watchFaceImpl = engineWrapper.deferredWatchFaceImpl.awaitWithTimeout()
+            engineWrapper.deferredValidation.awaitWithTimeout()
+        }
+
+        assertThat(this::interactiveWatchFaceInstance.isInitialized).isTrue()
+        assertThat(watchFaceImpl.renderer.watchState.watchFaceInstanceId.value)
+            .isEqualTo(INTERACTIVE_INSTANCE_ID)
+    }
+
+    @Test
+    @Config(sdk = [Build.VERSION_CODES.R])
+    @RequiresApi(Build.VERSION_CODES.R)
+    public fun interactive_wf_has_null_resourceOnlyWatchFacePackageName() {
+        initWallpaperInteractiveWatchFaceInstance(
+            WatchFaceType.ANALOG,
+            emptyList(),
+            UserStyleSchema(emptyList()),
+            WallpaperInteractiveWatchFaceInstanceParams(
+                INTERACTIVE_INSTANCE_ID,
+                DeviceConfig(false, false, 0, 0),
+                WatchUiState(false, 0),
+                UserStyle(emptyMap()).toWireFormat(),
+                null,
+                null,
+                null
+            )
+        )
+
+        assertThat(engineWrapper.resourceOnlyWatchFacePackageName).isNull()
+    }
+
+    @Test
+    @Config(sdk = [Build.VERSION_CODES.R])
+    @RequiresApi(Build.VERSION_CODES.O_MR1)
+    public fun headless_wf_has_null_resourceOnlyWatchFacePackageName() {
+        val service = TestNopCanvasWatchFaceService(context)
+        val componentName = ComponentName("test.watchface.app", "test.watchface.class")
+
+        engineWrapper =
+            service.createHeadlessEngine(componentName) as WatchFaceService.EngineWrapper
+        engineWrapper.createHeadlessInstance(
+            HeadlessWatchFaceInstanceParams(
+                componentName,
+                DeviceConfig(false, false, 100, 200),
+                100,
+                100,
+                null
+            )
+        )
+
+        assertThat(engineWrapper.resourceOnlyWatchFacePackageName).isNull()
+    }
+
+    @Test
+    @Config(sdk = [Build.VERSION_CODES.R])
+    @RequiresApi(Build.VERSION_CODES.R)
+    public fun interactive_wf_runtime_has_non_null_resourceOnlyWatchFacePackageName() {
+        val service = TestNopWatchFaceRuntimeService(context)
+        InteractiveInstanceManager
+            .getExistingInstanceOrSetPendingWallpaperInteractiveWatchFaceInstance(
+                InteractiveInstanceManager.PendingWallpaperInteractiveWatchFaceInstance(
+                    WallpaperInteractiveWatchFaceInstanceParams(
+                        SYSTEM_SUPPORTS_CONSISTENT_IDS_PREFIX + "Interactive",
+                        DeviceConfig(false, false, 0, 0),
+                        WatchUiState(false, 0),
+                        UserStyle(emptyMap()).toWireFormat(),
+                        emptyList(),
+                        "com.resource.only.package",
+                        null
+                    ),
+                    object : IPendingInteractiveWatchFace.Stub() {
+                        override fun getApiVersion() = IPendingInteractiveWatchFace.API_VERSION
+
+                        override fun onInteractiveWatchFaceCreated(
+                            iInteractiveWatchFace: IInteractiveWatchFace
+                        ) {
+                            interactiveWatchFaceInstance = iInteractiveWatchFace
+                        }
+
+                        override fun onInteractiveWatchFaceCrashed(exception: CrashInfoParcel?) {
+                            fail("WatchFace crashed: $exception")
+                        }
+                    }
+                )
+            )
+
+        engineWrapper = service.onCreateEngine() as WatchFaceService.EngineWrapper
+        engineWrapper.onCreate(surfaceHolder)
+        engineWrapper.onSurfaceChanged(surfaceHolder, 0, 100, 100)
+
+        assertThat(engineWrapper.resourceOnlyWatchFacePackageName)
+            .isEqualTo("com.resource.only.package")
+        engineWrapper.onDestroy()
+    }
+
+    @Test
+    @Config(sdk = [Build.VERSION_CODES.R])
+    @RequiresApi(Build.VERSION_CODES.O_MR1)
+    public fun headless_wf_runtime_has_non_null_resourceOnlyWatchFacePackageName() {
+        val service = TestNopWatchFaceRuntimeService(context)
+        val componentName = ComponentName("com.resource.only.package", "null")
+
+        engineWrapper =
+            service.createHeadlessEngine(componentName) as WatchFaceService.EngineWrapper
+        engineWrapper.createHeadlessInstance(
+            HeadlessWatchFaceInstanceParams(
+                componentName,
+                DeviceConfig(false, false, 100, 200),
+                100,
+                100,
+                null
+            )
+        )
+
+        assertThat(engineWrapper.resourceOnlyWatchFacePackageName)
+            .isEqualTo("com.resource.only.package")
+    }
+
     private fun getLeftShortTextComplicationDataText(): CharSequence {
-        val complication = complicationSlotsManager[
-            LEFT_COMPLICATION_ID
-        ]!!.complicationData.value as ShortTextComplicationData
+        val complication =
+            complicationSlotsManager[LEFT_COMPLICATION_ID]!!.complicationData.value
+                as ShortTextComplicationData
 
         return complication.text.getTextAt(
             ApplicationProvider.getApplicationContext<Context>().resources,
@@ -6672,9 +6832,9 @@ public class WatchFaceServiceTest {
     }
 
     private fun getLeftLongTextComplicationDataText(): CharSequence {
-        val complication = complicationSlotsManager[
-            LEFT_COMPLICATION_ID
-        ]!!.complicationData.value as LongTextComplicationData
+        val complication =
+            complicationSlotsManager[LEFT_COMPLICATION_ID]!!.complicationData.value
+                as LongTextComplicationData
 
         return complication.text.getTextAt(
             ApplicationProvider.getApplicationContext<Context>().resources,
@@ -6684,15 +6844,125 @@ public class WatchFaceServiceTest {
 
     @RequiresApi(Build.VERSION_CODES.R)
     private fun getChinWindowInsets(@Px chinHeight: Int): WindowInsets =
-        WindowInsets.Builder().setInsets(
-            WindowInsets.Type.systemBars(),
-            Insets.of(Rect().apply { bottom = chinHeight })
-        ).build()
+        WindowInsets.Builder()
+            .setInsets(
+                WindowInsets.Type.systemBars(),
+                Insets.of(Rect().apply { bottom = chinHeight })
+            )
+            .build()
 
     private suspend fun <T> Deferred<T>.awaitWithTimeout(): T = withTimeout(1000) { await() }
 }
 
-class TestNopCanvasWatchFaceService : WatchFaceService() {
+class TestNopWatchFaceRuntimeService(testContext: Context) : WatchFaceRuntimeService() {
+    var lastResourceOnlyWatchFacePackageName: String? = null
+
+    init {
+        attachBaseContext(testContext)
+    }
+
+    override fun createUserStyleSchema(resourceOnlyWatchFacePackageName: String) =
+        UserStyleSchema(emptyList())
+
+    override fun createComplicationSlotsManager(
+        currentUserStyleRepository: CurrentUserStyleRepository,
+        resourceOnlyWatchFacePackageName: String
+    ) = ComplicationSlotsManager(emptyList(), currentUserStyleRepository)
+
+    override fun createUserStyleFlavors(
+        currentUserStyleRepository: CurrentUserStyleRepository,
+        complicationSlotsManager: ComplicationSlotsManager,
+        resourceOnlyWatchFacePackageName: String
+    ) = UserStyleFlavors()
+
+    override suspend fun createWatchFace(
+        surfaceHolder: SurfaceHolder,
+        watchState: WatchState,
+        complicationSlotsManager: ComplicationSlotsManager,
+        currentUserStyleRepository: CurrentUserStyleRepository,
+        resourceOnlyWatchFacePackageName: String
+    ): WatchFace {
+        lastResourceOnlyWatchFacePackageName = resourceOnlyWatchFacePackageName
+        System.out.println("<<< createWatchFace " + resourceOnlyWatchFacePackageName)
+        return WatchFace(
+            WatchFaceType.DIGITAL,
+            @Suppress("deprecation")
+            object :
+                Renderer.CanvasRenderer(
+                    surfaceHolder,
+                    currentUserStyleRepository,
+                    watchState,
+                    CanvasType.HARDWARE,
+                    16
+                ) {
+                override fun render(canvas: Canvas, bounds: Rect, zonedDateTime: ZonedDateTime) {
+                    // Intentionally empty.
+                }
+
+                override fun renderHighlightLayer(
+                    canvas: Canvas,
+                    bounds: Rect,
+                    zonedDateTime: ZonedDateTime
+                ) {
+                    // Intentionally empty.
+                }
+            }
+        )
+    }
+
+    override fun getSystemTimeProvider() =
+        object : SystemTimeProvider {
+            override fun getSystemTimeMillis() = 123456789L
+
+            override fun getSystemTimeZoneId() = ZoneId.of("UTC")
+        }
+}
+
+class TestNopCanvasWatchFaceService(testContext: Context) : WatchFaceService() {
+    init {
+        attachBaseContext(testContext)
+    }
+
+    override suspend fun createWatchFace(
+        surfaceHolder: SurfaceHolder,
+        watchState: WatchState,
+        complicationSlotsManager: ComplicationSlotsManager,
+        currentUserStyleRepository: CurrentUserStyleRepository
+    ) =
+        WatchFace(
+            WatchFaceType.DIGITAL,
+            @Suppress("deprecation")
+            object :
+                Renderer.CanvasRenderer(
+                    surfaceHolder,
+                    currentUserStyleRepository,
+                    watchState,
+                    CanvasType.HARDWARE,
+                    16
+                ) {
+                override fun render(canvas: Canvas, bounds: Rect, zonedDateTime: ZonedDateTime) {
+                    // Intentionally empty.
+                }
+
+                override fun renderHighlightLayer(
+                    canvas: Canvas,
+                    bounds: Rect,
+                    zonedDateTime: ZonedDateTime
+                ) {
+                    // Intentionally empty.
+                }
+            }
+        )
+
+    override fun getSystemTimeProvider() =
+        object : SystemTimeProvider {
+            override fun getSystemTimeMillis() = 123456789L
+
+            override fun getSystemTimeZoneId() = ZoneId.of("UTC")
+        }
+}
+
+class TestNopCanvasWatchFaceServiceWithHandler : WatchFaceService() {
     companion object {
         lateinit var handler: Handler
     }
@@ -6708,33 +6978,43 @@ class TestNopCanvasWatchFaceService : WatchFaceService() {
         watchState: WatchState,
         complicationSlotsManager: ComplicationSlotsManager,
         currentUserStyleRepository: CurrentUserStyleRepository
-    ) = WatchFace(
-        WatchFaceType.DIGITAL,
-        @Suppress("deprecation")
-        object : Renderer.CanvasRenderer(
-            surfaceHolder,
-            currentUserStyleRepository,
-            watchState,
-            CanvasType.HARDWARE,
-            16
-        ) {
-            override fun render(canvas: Canvas, bounds: Rect, zonedDateTime: ZonedDateTime) {
-                // Intentionally empty.
-            }
+    ) =
+        WatchFace(
+            WatchFaceType.DIGITAL,
+            @Suppress("deprecation")
+            object :
+                Renderer.CanvasRenderer(
+                    surfaceHolder,
+                    currentUserStyleRepository,
+                    watchState,
+                    CanvasType.HARDWARE,
+                    16
+                ) {
+                override fun render(canvas: Canvas, bounds: Rect, zonedDateTime: ZonedDateTime) {
+                    // Intentionally empty.
+                }
 
-            override fun renderHighlightLayer(
-                canvas: Canvas,
-                bounds: Rect,
-                zonedDateTime: ZonedDateTime
-            ) {
-                // Intentionally empty.
+                override fun renderHighlightLayer(
+                    canvas: Canvas,
+                    bounds: Rect,
+                    zonedDateTime: ZonedDateTime
+                ) {
+                    // Intentionally empty.
+                }
             }
+        )
+
+    override fun getSystemTimeProvider() =
+        object : SystemTimeProvider {
+            override fun getSystemTimeMillis() = 123456789L
+
+            override fun getSystemTimeZoneId() = ZoneId.of("UTC")
         }
-    )
+}
 
-    override fun getSystemTimeProvider() = object : SystemTimeProvider {
-        override fun getSystemTimeMillis() = 123456789L
-
-        override fun getSystemTimeZoneId() = ZoneId.of("UTC")
+@RequiresApi(27)
+class TestWatchFaceControlService : WatchFaceControlService() {
+    override fun createWatchFaceService(watchFaceName: ComponentName): WatchFaceService? {
+        return TestNopCanvasWatchFaceServiceWithHandler()
     }
 }

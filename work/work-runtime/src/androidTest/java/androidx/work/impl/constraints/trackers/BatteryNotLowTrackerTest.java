@@ -81,14 +81,14 @@ public class BatteryNotLowTrackerTest {
 
     private void initialStateHelper(int status, float percentage, boolean expectedBatteryNotLow) {
         mockContextReturns(createBatteryChangedIntent(status, percentage));
-        assertThat(mTracker.getInitialState(), is(expectedBatteryNotLow));
+        assertThat(mTracker.readSystemState(), is(expectedBatteryNotLow));
     }
 
     @Test
     @SmallTest
-    public void testGetInitialState_nullIntent() {
+    public void testReadSystemState_nullIntent() {
         mockContextReturns(null);
-        assertThat(mTracker.getInitialState(), is(false));
+        assertThat(mTracker.readSystemState(), is(false));
     }
 
     @Test

@@ -17,6 +17,7 @@
 package androidx.appactions.interaction.capabilities.core.impl.converters;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
 import androidx.appactions.interaction.capabilities.core.impl.exceptions.StructConversionException;
 import androidx.appactions.interaction.proto.ParamValue;
 
@@ -30,6 +31,7 @@ import java.util.List;
  * @param <T>
  */
 @FunctionalInterface
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 public interface SlotTypeConverter<T> {
     @NonNull
     static <T> SlotTypeConverter<List<T>> ofRepeated(
@@ -37,7 +39,7 @@ public interface SlotTypeConverter<T> {
         return (paramValues) -> {
             List<T> results = new ArrayList<>();
             for (ParamValue paramValue : paramValues) {
-                results.add(singularConverter.convert(paramValue));
+                results.add(singularConverter.fromParamValue(paramValue));
             }
             return results;
         };
@@ -47,7 +49,7 @@ public interface SlotTypeConverter<T> {
     @NonNull
     static <T> SlotTypeConverter<T> ofSingular(
             @NonNull ParamValueConverter<T> singularConverter) {
-        return (paramValues) -> singularConverter.convert(paramValues.get(0));
+        return (paramValues) -> singularConverter.fromParamValue(paramValues.get(0));
     }
 
     T convert(@NonNull List<ParamValue> protoList) throws StructConversionException;

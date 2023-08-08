@@ -11,7 +11,7 @@ dependencies {
 }
 
 androidx {
-    name = "Android Support CardView"
+    name = "CardView"
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2011"
     description = "Android Support CardView"

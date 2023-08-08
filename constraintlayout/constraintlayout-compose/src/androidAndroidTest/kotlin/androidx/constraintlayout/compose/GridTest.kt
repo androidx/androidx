@@ -77,7 +77,8 @@ class GridTest {
                 spans = "''",
                 skips = "''",
                 rowWeights = "''",
-                columnWeights = "''"
+                columnWeights = "''",
+                flags = "''"
             )
         }
         var leftX = 0.dp
@@ -118,7 +119,8 @@ class GridTest {
                 spans = "''",
                 skips = "''",
                 rowWeights = "''",
-                columnWeights = "''"
+                columnWeights = "''",
+                flags = "''"
             )
         }
         var leftX = 0.dp
@@ -159,7 +161,8 @@ class GridTest {
                 spans = "''",
                 skips = "''",
                 rowWeights = "''",
-                columnWeights = "''"
+                columnWeights = "''",
+                flags = "''"
             )
         }
         var expectedX = 0.dp
@@ -200,7 +203,8 @@ class GridTest {
                 spans = "''",
                 skips = "''",
                 rowWeights = "''",
-                columnWeights = "''"
+                columnWeights = "''",
+                flags = "''"
             )
         }
         var expectedX = 0.dp
@@ -241,7 +245,8 @@ class GridTest {
                 spans = "''",
                 skips = "'0:1x1'",
                 rowWeights = "''",
-                columnWeights = "''"
+                columnWeights = "''",
+                flags = "''"
             )
         }
         var leftX = 0.dp
@@ -259,6 +264,46 @@ class GridTest {
         bottomY = topY + 10.dp + gapSize + gapSize
         rule.onNodeWithTag("box1").assertPositionInRootIsEqualTo(leftX, bottomY)
         rule.onNodeWithTag("box2").assertPositionInRootIsEqualTo(rightX, bottomY)
+    }
+
+    @Test
+    fun testReversedDirectionSkips() {
+        val rootSize = 200.dp
+        val boxesCount = 2
+        val rows = 2
+        val columns = 2
+        rule.setContent {
+            gridComposableTest(
+                modifier = Modifier.size(rootSize),
+                width = "'parent'",
+                height = "'parent'",
+                boxesCount = boxesCount,
+                orientation = 0,
+                rows = rows,
+                columns = columns,
+                hGap = 0,
+                vGap = 0,
+                spans = "''",
+                skips = "'0:2x1'",
+                rowWeights = "''",
+                columnWeights = "''",
+                flags = "'SubGridByColRow'"
+            )
+        }
+        var leftX = 0.dp
+        var topY = 0.dp
+        var rightX: Dp
+        var bottomY: Dp
+
+        // 10.dp is the size of a singular box
+        val gapSize = (rootSize - (10.dp * 2f)) / (columns * 2f)
+        rule.waitForIdle()
+        leftX += gapSize
+        topY += gapSize
+        rightX = leftX + 10.dp + gapSize + gapSize
+        bottomY = topY + 10.dp + gapSize + gapSize
+        rule.onNodeWithTag("box0").assertPositionInRootIsEqualTo(leftX, bottomY)
+        rule.onNodeWithTag("box1").assertPositionInRootIsEqualTo(rightX, bottomY)
     }
 
     @Test
@@ -281,7 +326,129 @@ class GridTest {
                 spans = "'0:1x2'",
                 skips = "''",
                 rowWeights = "''",
-                columnWeights = "''"
+                columnWeights = "''",
+                flags = "''"
+            )
+        }
+        var leftX = 0.dp
+        var topY = 0.dp
+        var rightX: Dp
+        var bottomY: Dp
+
+        // 10.dp is the size of a singular box
+        var spanLeft = (rootSize - 10.dp) / 2f
+        val gapSize = (rootSize - (10.dp * 2f)) / (columns * 2f)
+        rule.waitForIdle()
+        leftX += gapSize
+        topY += gapSize
+        rule.onNodeWithTag("box0").assertPositionInRootIsEqualTo(spanLeft, topY)
+        rightX = leftX + 10.dp + gapSize + gapSize
+        bottomY = topY + 10.dp + gapSize + gapSize
+        rule.onNodeWithTag("box1").assertPositionInRootIsEqualTo(leftX, bottomY)
+        rule.onNodeWithTag("box2").assertPositionInRootIsEqualTo(rightX, bottomY)
+    }
+
+    @Test
+    fun testMultipleSpans() {
+        val rootSize = 200.dp
+        val boxesCount = 2
+        val rows = 2
+        val columns = 2
+        rule.setContent {
+            gridComposableTest(
+                modifier = Modifier.size(rootSize),
+                width = "'parent'",
+                height = "'parent'",
+                boxesCount = boxesCount,
+                orientation = 0,
+                rows = rows,
+                columns = columns,
+                hGap = 0,
+                vGap = 0,
+                spans = "'2:1x2,0:1x2'",
+                skips = "''",
+                rowWeights = "''",
+                columnWeights = "''",
+                flags = "'SpansRespectWidgetOrder'"
+            )
+        }
+        var topY = 0.dp
+        var bottomY: Dp
+
+        // 10.dp is the size of a singular box
+        var spanLeft = (rootSize - 10.dp) / 2f
+        val gapSize = (rootSize - (10.dp * 2f)) / (columns * 2f)
+        rule.waitForIdle()
+        topY += gapSize
+        rule.onNodeWithTag("box0").assertPositionInRootIsEqualTo(spanLeft, topY)
+        bottomY = topY + 10.dp + gapSize + gapSize
+        rule.onNodeWithTag("box1").assertPositionInRootIsEqualTo(spanLeft, bottomY)
+    }
+
+    @Test
+    fun testOrderFirstSpans() {
+        val rootSize = 200.dp
+        val boxesCount = 3
+        val rows = 2
+        val columns = 2
+        rule.setContent {
+            gridComposableTest(
+                modifier = Modifier.size(rootSize),
+                width = "'parent'",
+                height = "'parent'",
+                boxesCount = boxesCount,
+                orientation = 0,
+                rows = rows,
+                columns = columns,
+                hGap = 0,
+                vGap = 0,
+                spans = "'1:2x1'",
+                skips = "''",
+                rowWeights = "''",
+                columnWeights = "''",
+                flags = "'SpansRespectWidgetOrder'"
+            )
+        }
+        var leftX = 0.dp
+        var topY = 0.dp
+        var rightX: Dp
+        var bottomY: Dp
+
+        // 10.dp is the size of a singular box
+        var spanTop = (rootSize - 10.dp) / 2f
+        val gapSize = (rootSize - (10.dp * 2f)) / (columns * 2f)
+        rule.waitForIdle()
+        leftX += gapSize
+        topY += gapSize
+        rule.onNodeWithTag("box0").assertPositionInRootIsEqualTo(leftX, topY)
+        rightX = leftX + 10.dp + gapSize + gapSize
+        rule.onNodeWithTag("box1").assertPositionInRootIsEqualTo(rightX, spanTop)
+        bottomY = topY + 10.dp + gapSize + gapSize
+        rule.onNodeWithTag("box2").assertPositionInRootIsEqualTo(leftX, bottomY)
+    }
+
+    @Test
+    fun testReversedDirectionSpans() {
+        val rootSize = 200.dp
+        val boxesCount = 3
+        val rows = 2
+        val columns = 2
+        rule.setContent {
+            gridComposableTest(
+                modifier = Modifier.size(rootSize),
+                width = "'parent'",
+                height = "'parent'",
+                boxesCount = boxesCount,
+                orientation = 0,
+                rows = rows,
+                columns = columns,
+                hGap = 0,
+                vGap = 0,
+                spans = "'0:2x1'",
+                skips = "''",
+                rowWeights = "''",
+                columnWeights = "''",
+                flags = "'SubGridByColRow'"
             )
         }
         var leftX = 0.dp
@@ -322,7 +489,8 @@ class GridTest {
                 spans = "''",
                 skips = "''",
                 rowWeights = "'1,3'",
-                columnWeights = "''"
+                columnWeights = "''",
+                flags = "''"
             )
         }
         var expectedLeft = (rootSize - 10.dp) / 2f
@@ -360,7 +528,8 @@ class GridTest {
                 spans = "''",
                 skips = "''",
                 rowWeights = "''",
-                columnWeights = "'1,3'"
+                columnWeights = "'1,3'",
+                flags = "''"
             )
         }
         var expectedLeft = 0.dp
@@ -423,6 +592,7 @@ class GridTest {
         orientation: Int,
         vGap: Int,
         hGap: Int,
+        flags: String,
     ) {
         val ids = (0 until boxesCount).map { "box$it" }.toTypedArray()
         val gridContains = ids.joinToString(separator = ", ") { "'$it'" }
@@ -445,6 +615,7 @@ class GridTest {
                 columnWeights: $columnWeights
                 orientation: $orientation,
                 contains: [$gridContains],
+                flags: $flags,
               }
         }
         """.trimIndent()

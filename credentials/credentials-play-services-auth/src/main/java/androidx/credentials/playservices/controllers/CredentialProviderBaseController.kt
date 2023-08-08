@@ -16,22 +16,25 @@
 
 package androidx.credentials.playservices.controllers
 
+import android.content.Context
 import android.content.Intent
 import android.os.Parcel
 import android.os.ResultReceiver
+import androidx.credentials.exceptions.CreateCredentialCancellationException
 import androidx.credentials.exceptions.CreateCredentialException
 import androidx.credentials.exceptions.CreateCredentialInterruptedException
 import androidx.credentials.exceptions.CreateCredentialUnknownException
+import androidx.credentials.exceptions.GetCredentialCancellationException
 import androidx.credentials.exceptions.GetCredentialException
 import androidx.credentials.exceptions.GetCredentialInterruptedException
 import androidx.credentials.exceptions.GetCredentialUnknownException
+import androidx.credentials.exceptions.NoCredentialException
 import com.google.android.gms.common.api.CommonStatusCodes
 
 /**
  * Holds all non type specific details shared by the controllers.
- * @hide
  */
-open class CredentialProviderBaseController(private val activity: android.app.Activity) {
+internal open class CredentialProviderBaseController(private val context: Context) {
     companion object {
 
         // Common retryable status codes from the play modules found
@@ -46,7 +49,17 @@ open class CredentialProviderBaseController(private val activity: android.app.Ac
         @JvmStatic
         protected val CONTROLLER_REQUEST_CODE: Int = 1
 
-        /** ---- Data Constants to pass between the controllers and the hidden activity---- **/
+        /** -- Used to avoid reflection, these constants map errors from HiddenActivity -- */
+        const val GET_CANCELED = "GET_CANCELED_TAG"
+        const val GET_INTERRUPTED = "GET_INTERRUPTED"
+        const val GET_NO_CREDENTIALS = "GET_NO_CREDENTIALS"
+        const val GET_UNKNOWN = "GET_UNKNOWN"
+
+        const val CREATE_CANCELED = "CREATE_CANCELED"
+        const val CREATE_INTERRUPTED = "CREATE_INTERRUPTED"
+        const val CREATE_UNKNOWN = "CREATE_UNKNOWN"
+
+        /** ---- Data Constants to pass between the controllers and the hidden activity---- */
 
         // Key to indicate type sent from controller to hidden activity
         const val TYPE_TAG = "TYPE"
@@ -85,8 +98,14 @@ open class CredentialProviderBaseController(private val activity: android.app.Ac
         internal fun getCredentialExceptionTypeToException(typeName: String?, msg: String?):
             GetCredentialException {
             return when (typeName) {
-                GetCredentialUnknownException::class.java.name -> {
+                GET_CANCELED -> {
+                    GetCredentialCancellationException(msg)
+                }
+                GET_INTERRUPTED -> {
                     GetCredentialInterruptedException(msg)
+                }
+                GET_NO_CREDENTIALS -> {
+                    NoCredentialException(msg)
                 }
                 else -> {
                     GetCredentialUnknownException(msg)
@@ -97,7 +116,10 @@ open class CredentialProviderBaseController(private val activity: android.app.Ac
         internal fun createCredentialExceptionTypeToException(typeName: String?, msg: String?):
             CreateCredentialException {
             return when (typeName) {
-                GetCredentialInterruptedException::class.java.name -> {
+                CREATE_CANCELED -> {
+                    CreateCredentialCancellationException(msg)
+                }
+                CREATE_INTERRUPTED -> {
                     CreateCredentialInterruptedException(msg)
                 }
                 else -> {

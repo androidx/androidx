@@ -636,19 +636,7 @@ private fun saturate(v: Float): Float {
 @Stable
 // @ColorInt
 fun Color.toArgb(): Int {
-    val colorSpace = colorSpace
-    if (colorSpace.isSrgb) {
-        return (this.value shr 32).toInt()
-    }
-
-    val color = getComponents()
-    // The transformation saturates the output
-    colorSpace.connect().transform(color)
-
-    return (color[3] * 255.0f + 0.5f).toInt() shl 24 or
-        ((color[0] * 255.0f + 0.5f).toInt() shl 16) or
-        ((color[1] * 255.0f + 0.5f).toInt() shl 8) or
-        (color[2] * 255.0f + 0.5f).toInt()
+    return (convert(ColorSpaces.Srgb).value shr 32).toInt()
 }
 
 /**
@@ -668,3 +656,17 @@ inline val Color.isUnspecified: Boolean get() = value == Color.Unspecified.value
  * is returned.
  */
 inline fun Color.takeOrElse(block: () -> Color): Color = if (isSpecified) this else block()
+
+/**
+ * Alternative to `() -> Color` that's useful for avoiding boxing.
+ *
+ * Can be used as:
+ *
+ * fun nonBoxedArgs(color: ColorProducer?)
+ */
+fun interface ColorProducer {
+    /**
+     * Return the color
+     */
+    operator fun invoke(): Color
+}

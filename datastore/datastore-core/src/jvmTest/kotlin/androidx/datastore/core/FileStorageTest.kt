@@ -22,15 +22,15 @@ import androidx.kruth.assertThrows
 import java.io.File
 import java.io.IOException
 import kotlin.random.Random
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlin.test.Test
 import kotlin.test.BeforeTest
+import kotlin.test.Test
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.yield
 
 @ExperimentalCoroutinesApi
@@ -311,7 +311,10 @@ class FileStorageTest {
             testFile
         }
         assertThrows<IOException> {
-            FileStorage(testingSerializer, fileProducer).createConnection()
+            FileStorage(
+                serializer = testingSerializer,
+                produceFile = fileProducer
+            ).createConnection()
         }
             .hasMessageThat().isEqualTo("Exception when producing file")
 

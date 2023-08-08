@@ -24,7 +24,6 @@ import androidx.health.services.client.proto.RequestsProto
 /**
  * Request for capabilities.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class CapabilitiesRequest(public val packageName: String) :

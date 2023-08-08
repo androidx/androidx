@@ -23,6 +23,9 @@ import androidx.compose.foundation.text.selection.isSelectionHandle
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.platform.LocalTextToolbar
+import androidx.compose.ui.platform.TextToolbar
+import androidx.compose.ui.platform.TextToolbarStatus
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
@@ -143,6 +146,37 @@ class TextFieldSelectionTest {
     }
 
     @Test
+    fun textField_tapsCursorHandle_showsTextToolbar() {
+        val textFieldValue = mutableStateOf(TextFieldValue("text"))
+        lateinit var textToolbar: TextToolbar
+
+        rule.setContent {
+            textToolbar = LocalTextToolbar.current
+            BasicTextField(
+                value = textFieldValue.value,
+                onValueChange = { textFieldValue.value = it },
+                modifier = Modifier.testTag(testTag)
+            )
+        }
+
+        // selection and cursor are hidden
+        rule.onAllNodes(isPopup()).assertCountEquals(0)
+        assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Hidden)
+
+        // focus textfield, cursor should show at the very beginning of textfield
+        rule.onNodeWithTag(testTag).performTouchInput { click(Offset.Zero) }
+        rule.waitForIdle()
+
+        assertThat(textFieldValue.value.selection.start).isEqualTo(0)
+        assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Hidden)
+
+        rule.onNode(isSelectionHandle(Handle.Cursor))
+            .performTouchInput { click() }
+
+        assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Shown)
+    }
+
+    @Test
     fun textField_dragsCursorHandle() {
         textField_dragsCursorHandle(
             text = "text text text",
@@ -176,7 +210,9 @@ class TextFieldSelectionTest {
     ) {
         val textFieldValue = mutableStateOf(TextFieldValue(text, TextRange(Int.MAX_VALUE)))
         val cursorPositions = mutableListOf<Int>()
+        lateinit var textToolbar: TextToolbar
         rule.setContent {
+            textToolbar = LocalTextToolbar.current
             BasicTextField(
                 value = textFieldValue.value,
                 onValueChange = {
@@ -194,16 +230,19 @@ class TextFieldSelectionTest {
 
         // selection and cursor are hidden
         rule.onAllNodes(isPopup()).assertCountEquals(0)
+        assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Hidden)
 
         // focus textfield, cursor should show at the very beginning of textfield
         rule.onNodeWithTag(testTag).performTouchInput { click(Offset.Zero) }
         rule.waitForIdle()
 
         assertThat(textFieldValue.value.selection.start).isEqualTo(0)
+        assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Hidden)
 
-        performHandleDrag(Handle.Cursor, false)
+        performHandleDrag(Handle.Cursor, toLeft = false, swipeFraction = 1f)
 
         assertThat(cursorPositions).isEqualTo(expectedCursorPositions)
+        assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Hidden)
     }
 
     @Ignore // b/265023621
@@ -212,7 +251,7 @@ class TextFieldSelectionTest {
         textField_extendsSelection(
             text = "text".repeat(5),
             visualTransformation = VisualTransformation.None,
-            expectedSelectionRanges = (1..20).map { TextRange(0, it) }.toList(),
+            expectedSelectionRanges = (11..19).map { TextRange(0, it) }.toList(),
             toLeft = false
         )
     }
@@ -223,7 +262,7 @@ class TextFieldSelectionTest {
         textField_extendsSelection(
             text = "text".repeat(5),
             visualTransformation = PasswordVisualTransformation(),
-            expectedSelectionRanges = (1..20).map { TextRange(0, it) }.toList(),
+            expectedSelectionRanges = (11..19).map { TextRange(0, it) }.toList(),
             toLeft = false
         )
     }
@@ -234,7 +273,7 @@ class TextFieldSelectionTest {
         textField_extendsSelection(
             text = "text".repeat(10),
             visualTransformation = ReducedVisualTransformation(),
-            expectedSelectionRanges = (1..40)
+            expectedSelectionRanges = (21..39)
                 .filter { it % 2 == 0 }
                 .map { TextRange(0, it) }
                 .toList(),
@@ -248,7 +287,7 @@ class TextFieldSelectionTest {
         textField_extendsSelection(
             text = "text".repeat(5),
             visualTransformation = VisualTransformation.None,
-            expectedSelectionRanges = (19 downTo 1).map { TextRange(it, 20) }.toList(),
+            expectedSelectionRanges = (9 downTo 1).map { TextRange(it, 20) }.toList(),
             toLeft = true
         )
     }
@@ -259,7 +298,7 @@ class TextFieldSelectionTest {
         textField_extendsSelection(
             text = "text".repeat(5),
             visualTransformation = PasswordVisualTransformation(),
-            expectedSelectionRanges = (19 downTo 1).map { TextRange(it, 20) }.toList(),
+            expectedSelectionRanges = (9 downTo 1).map { TextRange(it, 20) }.toList(),
             toLeft = true
         )
     }
@@ -269,7 +308,7 @@ class TextFieldSelectionTest {
         textField_extendsSelection(
             text = "text".repeat(10),
             visualTransformation = ReducedVisualTransformation(),
-            expectedSelectionRanges = (39 downTo 1)
+            expectedSelectionRanges = (19 downTo 1)
                 .filter { it % 2 == 0 }
                 .map { TextRange(it, 40) }
                 .toList(),
@@ -332,17 +371,19 @@ class TextFieldSelectionTest {
         }
     }
 
-    private fun performHandleDrag(handle: Handle, toLeft: Boolean) {
+    private fun performHandleDrag(handle: Handle, toLeft: Boolean, swipeFraction: Float = 0.5f) {
         val handleNode = rule.onNode(isSelectionHandle(handle))
         val fieldWidth = rule.onNodeWithTag(testTag)
             .fetchSemanticsNode()
-            .boundsInRoot.width.roundToInt()
+            .boundsInRoot.width
+
+        val swipeDistance = (fieldWidth * swipeFraction).roundToInt()
 
         handleNode.performTouchInput {
             if (toLeft) {
-                swipeLeft(startX = centerX, endX = left - fieldWidth, durationMillis = 1000)
+                swipeLeft(startX = centerX, endX = left - swipeDistance, durationMillis = 1000)
             } else {
-                swipeRight(startX = centerX, endX = right + fieldWidth, durationMillis = 1000)
+                swipeRight(startX = centerX, endX = right + swipeDistance, durationMillis = 1000)
             }
         }
     }

@@ -249,6 +249,7 @@ class HardwareIdentityCredential extends IdentityCredential {
         return builder.build();
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public void setAvailableAuthenticationKeys(int keyCount, int maxUsesPerKey) {
         mCredential.setAvailableAuthenticationKeys(keyCount, maxUsesPerKey);
@@ -271,6 +272,7 @@ class HardwareIdentityCredential extends IdentityCredential {
         }
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public @NonNull
     int[] getAuthenticationDataUsageCount() {

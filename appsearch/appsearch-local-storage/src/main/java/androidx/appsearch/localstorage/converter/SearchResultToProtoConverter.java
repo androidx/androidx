@@ -43,7 +43,7 @@ import java.util.Map;
 /**
  * Translates a {@link SearchResultProto} into {@link SearchResult}s.
  *
- * @hide
+ * @exportToFramework:hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class SearchResultToProtoConverter {

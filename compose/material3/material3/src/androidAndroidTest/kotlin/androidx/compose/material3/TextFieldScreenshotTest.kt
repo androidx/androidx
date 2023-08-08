@@ -67,6 +67,8 @@ class TextFieldScreenshotTest {
             "fugiat nulla pariatur."
     )
 
+    private val platformTextStyle = defaultPlatformTextStyle()
+
     @get:Rule
     val rule = createComposeRule()
 
@@ -185,7 +187,7 @@ class TextFieldScreenshotTest {
                 value = TextFieldValue(text = text, selection = TextRange(text.length)),
                 onValueChange = {},
                 modifier = Modifier.requiredWidth(280.dp).testTag(TextFieldTag),
-                colors = TextFieldDefaults.textFieldColors(textColor = Color.Green)
+                colors = TextFieldDefaults.colors(unfocusedTextColor = Color.Green)
             )
         }
 
@@ -200,7 +202,7 @@ class TextFieldScreenshotTest {
                 value = TextFieldValue(text = text, selection = TextRange(0, text.length)),
                 onValueChange = {},
                 modifier = Modifier.requiredWidth(280.dp).testTag(TextFieldTag),
-                colors = TextFieldDefaults.textFieldColors(
+                colors = TextFieldDefaults.colors(
                     // We can only test the background color because popups, which includes the
                     // selection handles, do not appear in screenshots
                     selectionColors = TextSelectionColors(
@@ -500,7 +502,10 @@ class TextFieldScreenshotTest {
                 value = TextFieldValue(text = text, selection = TextRange(text.length)),
                 onValueChange = {},
                 modifier = Modifier.width(300.dp).testTag(TextFieldTag),
-                textStyle = TextStyle(textAlign = TextAlign.Center),
+                textStyle = TextStyle(
+                    textAlign = TextAlign.Center,
+                    platformStyle = platformTextStyle
+                ),
                 singleLine = true
             )
         }
@@ -516,7 +521,7 @@ class TextFieldScreenshotTest {
                 value = TextFieldValue(text = text, selection = TextRange(text.length)),
                 onValueChange = {},
                 modifier = Modifier.fillMaxWidth().testTag(TextFieldTag),
-                textStyle = TextStyle(textAlign = TextAlign.End),
+                textStyle = TextStyle(textAlign = TextAlign.End, platformStyle = platformTextStyle),
                 singleLine = true
             )
         }

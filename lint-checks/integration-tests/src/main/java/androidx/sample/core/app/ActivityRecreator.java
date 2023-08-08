@@ -65,7 +65,6 @@ import java.util.List;
  * <p>The fix for this is to add the missing onStop() call, by using reflection to call into
  * ActivityThread.
  *
- * @hide
  */
 @RestrictTo(LIBRARY)
 @SuppressWarnings({"PrivateApi", "JavaReflectionMemberAccess", "unused"})

@@ -24,7 +24,7 @@ import androidx.appsearch.app.Features;
  * An implementation of {@link Features}. This implementation always returns true. This is
  * sufficient for the use in the local backend because all features are always available on the
  * local backend.
- * @hide
+ * @exportToFramework:hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class AlwaysSupportedFeatures implements Features {
@@ -46,6 +46,10 @@ public class AlwaysSupportedFeatures implements Features {
                 // fall through
             case Features.VERBATIM_SEARCH:
                 // fall through
+            case Features.LIST_FILTER_QUERY_LANGUAGE:
+                // fall through
+            case Features.SEARCH_SPEC_GROUPING_TYPE_PER_SCHEMA:
+                // fall through
             case Features.SEARCH_RESULT_MATCH_INFO_SUBMATCH:
                 // fall through
             case Features.SEARCH_SPEC_PROPERTY_WEIGHTS:
@@ -53,6 +57,16 @@ public class AlwaysSupportedFeatures implements Features {
             case Features.TOKENIZER_TYPE_RFC822:
                 // fall through
             case Features.SEARCH_SPEC_ADVANCED_RANKING_EXPRESSION:
+                // fall through
+            case Features.SEARCH_SUGGESTION:
+                // fall through
+            case Features.SCHEMA_SET_DELETION_PROPAGATION:
+                // fall through
+            case Features.SET_SCHEMA_CIRCULAR_REFERENCES:
+                // fall through
+            case Features.SCHEMA_ADD_PARENT_TYPE:
+                // fall through
+            case Features.SCHEMA_ADD_INDEXABLE_NESTED_PROPERTIES:
                 return true;
             default:
                 return false;

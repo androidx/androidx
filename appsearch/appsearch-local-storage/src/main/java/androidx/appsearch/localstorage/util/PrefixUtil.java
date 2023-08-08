@@ -32,7 +32,7 @@ import com.google.android.icing.proto.SchemaTypeConfigProto;
 /**
  * Provides utility functions for working with package + database prefixes.
  *
- * @hide
+ * @exportToFramework:hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class PrefixUtil {
@@ -266,6 +266,14 @@ public class PrefixUtil {
                 propertyConfigBuilder.setSchemaType(newPropertySchemaType);
                 typeConfigBuilder.setProperties(propertyIdx, propertyConfigBuilder);
             }
+        }
+
+        // Rewrite SchemaProto.types.parent_types
+        for (int parentTypeIdx = 0; parentTypeIdx < typeConfigBuilder.getParentTypesCount();
+                parentTypeIdx++) {
+            String newParentType = typeConfigBuilder.getParentTypes(parentTypeIdx).substring(
+                    typePrefix.length());
+            typeConfigBuilder.setParentTypes(parentTypeIdx, newParentType);
         }
         return typePrefix;
     }

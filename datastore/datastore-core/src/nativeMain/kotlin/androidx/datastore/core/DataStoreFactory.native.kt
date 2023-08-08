@@ -53,7 +53,7 @@ public actual object DataStoreFactory {
         migrations: List<DataMigration<T>>,
         scope: CoroutineScope,
     ): DataStore<T> =
-        SingleProcessDataStore(
+        DataStoreImpl(
             storage = storage,
             corruptionHandler = corruptionHandler ?: NoOpCorruptionHandler(),
             initTasksList = listOf(DataMigrationInitializer.getInitializer(migrations)),

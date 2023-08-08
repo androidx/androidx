@@ -20,8 +20,8 @@ import androidx.room.compiler.processing.javac.JavacElement
 import androidx.room.compiler.processing.ksp.KSFileAsOriginatingElement
 import androidx.room.compiler.processing.ksp.KspElement
 import androidx.room.compiler.processing.ksp.KspMemberContainer
-import androidx.room.compiler.processing.ksp.wrapAsOriginatingElement
 import androidx.room.compiler.processing.ksp.synthetic.KspSyntheticPropertyMethodElement
+import androidx.room.compiler.processing.ksp.wrapAsOriginatingElement
 import javax.lang.model.element.Element
 import kotlin.contracts.contract
 

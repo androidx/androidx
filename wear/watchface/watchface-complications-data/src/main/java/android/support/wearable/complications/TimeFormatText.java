@@ -35,26 +35,26 @@ import java.util.concurrent.TimeUnit;
 /**
  * Class to generate string representations of dates/times according to a specified format.
  *
- * @hide
  * @see ComplicationText.TimeFormatBuilder
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public final class TimeFormatText implements TimeDependentText {
+    private static final Date sDate = new Date();
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         TimeFormatText that = (TimeFormatText) o;
-        return mStyle == that.mStyle && mTimePrecision == that.mTimePrecision
-                && Objects.equals(mDateFormat, that.mDateFormat) && Objects.equals(
-                mTimeZone, that.mTimeZone)
-                && Objects.equals(mDate.toString(), that.mDate.toString());
+        return mStyle == that.mStyle
+                && mTimePrecision == that.mTimePrecision
+                && Objects.equals(mDateFormat, that.mDateFormat)
+                && Objects.equals(mTimeZone, that.mTimeZone);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(mDateFormat, mStyle, mTimeZone, mDate, mTimePrecision);
+        return Objects.hash(mDateFormat, mStyle, mTimeZone, mTimePrecision);
     }
 
     @NonNull
@@ -63,9 +63,15 @@ public final class TimeFormatText implements TimeDependentText {
         if (ComplicationData.shouldRedact()) {
             return "TimeFormatText{Redacted}";
         }
-        return "TimeFormatText{mDateFormat=" + mDateFormat
-                + ", mStyle=" + mStyle + ", mTimeZone=" + mTimeZone + ", mDate=" + mDate
-                + ", mTimePrecision=" + mTimePrecision + '}';
+        return "TimeFormatText{mDateFormat="
+                + mDateFormat
+                + ", mStyle="
+                + mStyle
+                + ", mTimeZone="
+                + mTimeZone
+                + ", mTimePrecision="
+                + mTimePrecision
+                + '}';
     }
 
     private static class DateTimeFormat {
@@ -79,23 +85,22 @@ public final class TimeFormatText implements TimeDependentText {
     }
 
     private static final DateTimeFormat[] DATE_TIME_FORMATS = {
-            new DateTimeFormat(new String[]{"S", "s"}, TimeUnit.SECONDS.toMillis(1)),
-            new DateTimeFormat(new String[]{"m"}, TimeUnit.MINUTES.toMillis(1)),
-            new DateTimeFormat(new String[]{"H", "K", "h", "k", "j", "J", "C"},
-                    TimeUnit.HOURS.toMillis(1)),
-            new DateTimeFormat(new String[]{"a", "b", "B"}, TimeUnit.HOURS.toMillis(12)),
+        new DateTimeFormat(new String[] {"S", "s"}, TimeUnit.SECONDS.toMillis(1)),
+        new DateTimeFormat(new String[] {"m"}, TimeUnit.MINUTES.toMillis(1)),
+        new DateTimeFormat(
+                new String[] {"H", "K", "h", "k", "j", "J", "C"}, TimeUnit.HOURS.toMillis(1)),
+        new DateTimeFormat(new String[] {"a", "b", "B"}, TimeUnit.HOURS.toMillis(12)),
     };
 
     private final SimpleDateFormat mDateFormat;
 
-    @ComplicationText.TimeFormatStyle
-    private final int mStyle;
+    @ComplicationText.TimeFormatStyle private final int mStyle;
     private final TimeZone mTimeZone;
-    private final Date mDate;
     private long mTimePrecision;
 
     public TimeFormatText(
-            @NonNull String format, @ComplicationText.TimeFormatStyle int style,
+            @NonNull String format,
+            @ComplicationText.TimeFormatStyle int style,
             @Nullable TimeZone timeZone) {
         if (format == null) {
             throw new IllegalArgumentException("Format must be specified.");
@@ -109,29 +114,29 @@ public final class TimeFormatText implements TimeDependentText {
         } else {
             mTimeZone = mDateFormat.getTimeZone();
         }
-        mDate = new Date();
     }
 
-    TimeFormatText(SimpleDateFormat dateFormat,
+    TimeFormatText(
+            SimpleDateFormat dateFormat,
             @ComplicationText.TimeFormatStyle int style,
             TimeZone timeZone,
             long timePrecision) {
         mDateFormat = dateFormat;
         mStyle = style;
         mTimeZone = timeZone;
-        mDate = new Date();
         mTimePrecision = timePrecision;
     }
 
     private static class SerializedForm implements Serializable {
         SimpleDateFormat mDateFormat;
-        @ComplicationText.TimeFormatStyle
-        int mStyle;
+        @ComplicationText.TimeFormatStyle int mStyle;
         TimeZone mTimeZone;
         long mTimePrecision;
 
-        SerializedForm(@NonNull SimpleDateFormat dateFormat,
-                @ComplicationText.TimeFormatStyle int style, @Nullable TimeZone timeZone,
+        SerializedForm(
+                @NonNull SimpleDateFormat dateFormat,
+                @ComplicationText.TimeFormatStyle int style,
+                @Nullable TimeZone timeZone,
                 long timePrecision) {
             mDateFormat = dateFormat;
             mStyle = style;
@@ -219,8 +224,8 @@ public final class TimeFormatText implements TimeDependentText {
     }
 
     private long getOffset(long date) {
-        mDate.setTime(date);
-        if (mTimeZone.inDaylightTime(mDate)) {
+        sDate.setTime(date);
+        if (mTimeZone.inDaylightTime(sDate)) {
             return (long) mTimeZone.getRawOffset() + mTimeZone.getDSTSavings();
         }
         return mTimeZone.getRawOffset();
@@ -267,7 +272,6 @@ public final class TimeFormatText implements TimeDependentText {
         this.mStyle = in.readInt();
         this.mTimeZone = (TimeZone) in.readSerializable();
         this.mTimePrecision = -1;
-        this.mDate = new Date();
     }
 
     public static final Creator<TimeFormatText> CREATOR =

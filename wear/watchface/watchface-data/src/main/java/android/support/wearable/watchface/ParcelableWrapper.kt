@@ -21,11 +21,7 @@ import android.os.Parcel
 import android.os.Parcelable
 import androidx.annotation.RestrictTo
 
-/**
- * Wraps a Parcelable.
- *
- * @hide
- */
+/** Wraps a Parcelable. */
 @SuppressLint("BanParcelableUsage")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class ParcelableWrapper(val parcelable: Parcelable) : Parcelable {

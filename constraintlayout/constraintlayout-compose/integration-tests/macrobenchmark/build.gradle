@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
 plugins {
     id("AndroidXPlugin")
     id("com.android.test")
@@ -30,28 +28,14 @@ android {
 
     // We need animations to work for MotionLayout
     testOptions.animationsDisabled  false
-
     targetProjectPath = ":constraintlayout:constraintlayout-compose:integration-tests:macrobenchmark-target"
-    // Enable the benchmark to run separately from the app process
     experimentalProperties["android.experimental.self-instrumenting"] = true
-
-    buildTypes {
-        // declare a build type to match the target app's build type
-        benchmark {
-            debuggable = true
-            signingConfig = debug.signingConfig
-            // Selects release buildType if the benchmark buildType not available in other modules.
-            matchingFallbacks = ['release']
-        }
-    }
 }
 
-androidComponents {
-    beforeVariants(selector().all()) {
-        // enable only the benchmark buildType, since we only want to measure close to release performance
-        enabled = buildType == 'benchmark'
-    }
-}
+// Create a release build type and make sure it's the only one enabled.
+// This is needed because we benchmark the release build type only.
+android.buildTypes { release {} }
+androidComponents { beforeVariants(selector().all()) { enabled = buildType == 'release' } }
 
 dependencies {
     implementation(project(":benchmark:benchmark-junit4"))

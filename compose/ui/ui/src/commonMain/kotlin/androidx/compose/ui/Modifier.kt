@@ -19,10 +19,31 @@ package androidx.compose.ui
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.internal.JvmDefaultWithCompatibility
 import androidx.compose.ui.node.DelegatableNode
-import androidx.compose.ui.node.ModifierNodeOwnerScope
+import androidx.compose.ui.node.DrawModifierNode
 import androidx.compose.ui.node.NodeCoordinator
 import androidx.compose.ui.node.NodeKind
+import androidx.compose.ui.node.ObserverNodeOwnerScope
+import androidx.compose.ui.node.invalidateDraw
 import androidx.compose.ui.node.requireOwner
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
+
+/**
+ * Used in place of the standard Job cancellation pathway to avoid reflective
+ * javaClass.simpleName lookups to build the exception message and stack trace collection.
+ * Remove if these are changed in kotlinx.coroutines.
+ */
+private class ModifierNodeDetachedCancellationException : CancellationException(
+    "The Modifier.Node was detached"
+) {
+    override fun fillInStackTrace(): Throwable {
+        // Avoid null.clone() on Android <= 6.0 when accessing stackTrace
+        stackTrace = emptyArray()
+        return this
+    }
+}
 
 /**
  * An ordered, immutable collection of [modifier elements][Modifier.Element] that decorate or add
@@ -146,46 +167,91 @@ interface Modifier {
      * [Modifier.Node] subclass, it is expected that it will be instantiated by adding a
      * [androidx.compose.ui.node.ModifierNodeElement] to a [Modifier] chain.
      *
-     * @see androidx.compose.ui.node.modifierElementOf
      * @see androidx.compose.ui.node.ModifierNodeElement
+     * @see androidx.compose.ui.node.CompositionLocalConsumerModifierNode
      * @see androidx.compose.ui.node.DelegatableNode
      * @see androidx.compose.ui.node.DelegatingNode
      * @see androidx.compose.ui.node.LayoutModifierNode
      * @see androidx.compose.ui.node.DrawModifierNode
      * @see androidx.compose.ui.node.SemanticsModifierNode
      * @see androidx.compose.ui.node.PointerInputModifierNode
-     * @see androidx.compose.ui.modifier.ModifierLocalNode
+     * @see androidx.compose.ui.modifier.ModifierLocalModifierNode
      * @see androidx.compose.ui.node.ParentDataModifierNode
      * @see androidx.compose.ui.node.LayoutAwareModifierNode
      * @see androidx.compose.ui.node.GlobalPositionAwareModifierNode
      * @see androidx.compose.ui.node.IntermediateLayoutModifierNode
      */
-    @ExperimentalComposeUiApi
     abstract class Node : DelegatableNode {
         @Suppress("LeakingThis")
         final override var node: Node = this
             private set
+
+        private var scope: CoroutineScope? = null
+
+        /**
+         * A [CoroutineScope] that can be used to launch tasks that should run while the node is
+         * attached.
+         *
+         * The scope is accessible between [onAttach] and [onDetach] calls, and will be cancelled
+         * after the node is detached (after [onDetach] returns).
+         *
+         * @sample androidx.compose.ui.samples.ModifierNodeCoroutineScopeSample
+         *
+         * @throws IllegalStateException If called while the node is not attached.
+         */
+        val coroutineScope: CoroutineScope
+            get() = scope ?: CoroutineScope(
+                requireOwner().coroutineContext +
+                    Job(parent = requireOwner().coroutineContext[Job])
+            ).also {
+                scope = it
+            }
+
         internal var kindSet: Int = 0
+
         // NOTE: We use an aggregate mask that or's all of the type masks of the children of the
         // chain so that we can quickly prune a subtree. This INCLUDES the kindSet of this node
-        // as well
-        internal var aggregateChildKindSet: Int = 0
+        // as well. Initialize this to "every node" so that before it is set it doesn't
+        // accidentally cause a truncated traversal.
+        internal var aggregateChildKindSet: Int = 0.inv()
         internal var parent: Node? = null
         internal var child: Node? = null
-        internal var ownerScope: ModifierNodeOwnerScope? = null
+        internal var ownerScope: ObserverNodeOwnerScope? = null
         internal var coordinator: NodeCoordinator? = null
             private set
+        internal var insertedNodeAwaitingAttachForInvalidation = false
+        internal var updatedNodeAwaitingAttachForInvalidation = false
+        private var onAttachRunExpected = false
+        private var onDetachRunExpected = false
         /**
-         * Indicates that the node is attached and part of the tree. This will get set to true
-         * right before [onAttach] is called, and set to false right after [onDetach] is called.
-         *
-         * A Node will never be attached more than once.
+         * Indicates that the node is attached to a [androidx.compose.ui.layout.Layout] which is
+         * part of the UI tree.
+         * This will get set to true right before [onAttach] is called, and set to false right
+         * after [onDetach] is called.
          *
          * @see onAttach
          * @see onDetach
          */
         var isAttached: Boolean = false
             private set
+
+        /**
+         * If this property returns `true`, then nodes will be automatically invalidated after the
+         * modifier update completes (For example, if the returned Node is a [DrawModifierNode], its
+         * [DrawModifierNode.invalidateDraw] function will be invoked automatically as part of
+         * auto invalidation).
+         *
+         * This is enabled by default, and provides a convenient mechanism to schedule invalidation
+         * and apply changes made to the modifier. You may choose to set this to `false` if your
+         * modifier has auto-invalidatable properties that do not frequently require invalidation to
+         * improve performance by skipping unnecessary invalidation. If `autoInvalidate` is set to
+         * `false`, you must call the appropriate invalidate functions manually when the modifier
+         * is updated or else the updates may not be reflected in the UI appropriately.
+         */
+        @Suppress("GetterSetterNames")
+        @get:Suppress("GetterSetterNames")
+        open val shouldAutoInvalidate: Boolean
+            get() = true
 
         internal open fun updateCoordinator(coordinator: NodeCoordinator?) {
             this.coordinator = coordinator
@@ -194,30 +260,69 @@ interface Modifier {
         @Suppress("NOTHING_TO_INLINE")
         internal inline fun isKind(kind: NodeKind<*>) = kindSet and kind.mask != 0
 
-        internal fun attach() {
-            check(!isAttached)
-            check(coordinator != null)
+        internal open fun markAsAttached() {
+            check(!isAttached) { "node attached multiple times" }
+            check(coordinator != null) { "attach invoked on a node without a coordinator" }
             isAttached = true
-            onAttach()
-            // TODO(lmr): run side effects?
+            onAttachRunExpected = true
         }
 
-        internal fun detach() {
-            check(isAttached)
-            check(coordinator != null)
+        internal open fun runAttachLifecycle() {
+            check(isAttached) { "Must run markAsAttached() prior to runAttachLifecycle" }
+            check(onAttachRunExpected) { "Must run runAttachLifecycle() only once after " +
+                "markAsAttached()"
+            }
+            onAttachRunExpected = false
+            onAttach()
+            onDetachRunExpected = true
+        }
+
+        internal open fun runDetachLifecycle() {
+            check(isAttached) { "node detached multiple times" }
+            check(coordinator != null) { "detach invoked on a node without a coordinator" }
+            check(onDetachRunExpected) {
+                "Must run runDetachLifecycle() once after runAttachLifecycle() and before " +
+                    "markAsDetached()"
+            }
+            onDetachRunExpected = false
             onDetach()
+        }
+
+        internal open fun markAsDetached() {
+            check(isAttached) { "Cannot detach a node that is not attached" }
+            check(!onAttachRunExpected) { "Must run runAttachLifecycle() before markAsDetached()" }
+            check(!onDetachRunExpected) { "Must run runDetachLifecycle() before markAsDetached()" }
             isAttached = false
-//            coordinator = null
-            // TODO(lmr): cancel jobs / side effects?
+
+            scope?.let {
+                it.cancel(ModifierNodeDetachedCancellationException())
+                scope = null
+            }
+        }
+
+        internal open fun reset() {
+            check(isAttached) { "reset() called on an unattached node" }
+            onReset()
         }
 
         /**
+         * Called when the node is attached to a [androidx.compose.ui.layout.Layout] which is
+         * part of the UI tree.
          * When called, `node` is guaranteed to be non-null. You can call sideEffect,
          * coroutineScope, etc.
+         * This is not guaranteed to get called at a time where the rest of the Modifier.Nodes in
+         * the hierarchy are "up to date". For instance, at the time of calling onAttach for this
+         * node, another node may be in the tree that will be detached by the time Compose has
+         * finished applying changes. As a result, if you need to guarantee that the state of the
+         * tree is "final" for this round of changes, you should use the [sideEffect] API to
+         * schedule the calculation to be done at that time.
          */
         open fun onAttach() {}
 
         /**
+         * Called when the node is not attached to a [androidx.compose.ui.layout.Layout] which is
+         * not a part of the UI tree anymore. Note that the node can be reattached again.
+         *
          * This should be called right before the node gets removed from the list, so you should
          * still be able to traverse inside of this method. Ideally we would not allow you to
          * trigger side effects here.
@@ -225,11 +330,28 @@ interface Modifier {
         open fun onDetach() {}
 
         /**
+         * Called when the node is about to be moved to a pool of layouts ready to be reused.
+         * For example it happens when the node is part of the item of LazyColumn after this item
+         * is scrolled out of the viewport. This means this node could be in future reused for a
+         * [androidx.compose.ui.layout.Layout] displaying a semantically different content when
+         * the list will be populating a new item.
+         *
+         * Use this callback to reset some local item specific state, like "is my component focused".
+         *
+         * This callback is called while the node is attached. Right after this callback the node
+         * will be detached and later reattached when reused.
+         *
+         * @sample androidx.compose.ui.samples.ModifierNodeResetSample
+         */
+        open fun onReset() {}
+
+        /**
          * This can be called to register [effect] as a function to be executed after all of the
          * changes to the tree are applied.
          *
          * This API can only be called if the node [isAttached].
          */
+        @ExperimentalComposeUiApi
         fun sideEffect(effect: () -> Unit) {
             requireOwner().registerOnEndApplyChangesListener(effect)
         }

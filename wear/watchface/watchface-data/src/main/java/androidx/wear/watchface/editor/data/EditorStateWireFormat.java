@@ -36,7 +36,6 @@ import java.util.List;
 /**
  * Data sent over AIDL for {@link IEditorListener#onEditorStateChange}.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @VersionedParcelize(allowSerialization = true)
@@ -62,8 +61,7 @@ public final class EditorStateWireFormat implements VersionedParcelable, Parcela
     Bundle mPreviewImageBundle;
 
     /** Used by VersionedParcelable. */
-    EditorStateWireFormat() {
-    }
+    EditorStateWireFormat() {}
 
     public EditorStateWireFormat(
             @Nullable String watchFaceInstanceId,

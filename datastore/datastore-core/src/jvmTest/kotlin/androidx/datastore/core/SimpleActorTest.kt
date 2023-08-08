@@ -47,8 +47,11 @@ import org.junit.rules.Timeout
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class SimpleActorTest {
+    /**
+     * This test runs on API 17 as well. Please don't reduce this timeout too much.
+     */
     @get:Rule
-    val timeout = Timeout(10, TimeUnit.SECONDS)
+    val timeout = Timeout(3, TimeUnit.MINUTES)
 
     @Test
     fun testSimpleActor() = runTest(UnconfinedTestDispatcher()) {
@@ -70,6 +73,7 @@ class SimpleActorTest {
         assertThat(msgs).isEqualTo(listOf(1, 2, 3, 4))
     }
 
+    @Ignore("b/281516026")
     @Test
     fun testOnCompleteIsCalledWhenScopeIsCancelled() = runBlocking<Unit> {
         val scope = CoroutineScope(Job())

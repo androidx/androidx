@@ -22,11 +22,11 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.ExperimentalComposeUiApi
-import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.IntrinsicMeasurable
 import androidx.compose.ui.layout.IntrinsicMeasureScope
+import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.LayoutModifier
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasurePolicy
@@ -35,7 +35,8 @@ import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.node.LayoutModifierNode
-import androidx.compose.ui.node.modifierElementOf
+import androidx.compose.ui.node.ModifierNodeElement
+import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -207,15 +208,19 @@ fun LayoutModifierNodeSample() {
             }
         }
     }
-    fun Modifier.verticalPadding(padding: Dp) = this then modifierElementOf(
-        key = padding,
-        create = { VerticalPadding(padding) },
-        update = { it.padding = padding },
-        definitions = {
+    data class VerticalPaddingElement(
+        val padding: Dp
+    ) : ModifierNodeElement<VerticalPadding>() {
+        override fun create() = VerticalPadding(padding)
+        override fun update(node: VerticalPadding) {
+            node.padding = padding
+        }
+        override fun InspectorInfo.inspectableProperties() {
             name = "verticalPadding"
             properties["padding"] = padding
         }
-    )
+    }
+    fun Modifier.verticalPadding(padding: Dp) = this then VerticalPaddingElement(padding)
     Box(Modifier.background(Color.Gray).verticalPadding(50.dp)) {
         Box(Modifier.fillMaxSize().background(Color.DarkGray))
     }

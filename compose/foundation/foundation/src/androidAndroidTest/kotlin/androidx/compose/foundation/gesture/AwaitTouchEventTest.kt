@@ -16,9 +16,9 @@
 
 package androidx.compose.foundation.gesture
 
+import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.awaitLongPressOrCancellation
-import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.ui.Modifier

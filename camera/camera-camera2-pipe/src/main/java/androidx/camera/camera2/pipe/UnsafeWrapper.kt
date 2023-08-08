@@ -17,6 +17,7 @@
 package androidx.camera.camera2.pipe
 
 import androidx.annotation.RequiresApi
+import androidx.annotation.RestrictTo
 import kotlin.reflect.KClass
 
 /**
@@ -27,8 +28,9 @@ import kotlin.reflect.KClass
  * be useful for compatibility and testing, but is extremely risky if the state or lifetime of the
  * of the object is managed by CameraPipe.
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-public interface UnsafeWrapper {
+interface UnsafeWrapper {
     /**
      * Attempt to unwrap this object into an underlying type.
      *
@@ -39,5 +41,5 @@ public interface UnsafeWrapper {
      *
      * @return unwrapped object matching T or null
      */
-    public fun <T : Any> unwrapAs(type: KClass<T>): T?
+    fun <T : Any> unwrapAs(type: KClass<T>): T?
 }

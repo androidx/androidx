@@ -26,7 +26,6 @@ import androidx.recyclerview.widget.RecyclerView;
 /**
  * Class adding circular scrolling support to {@link WearableRecyclerView}.
  *
- * @hide
  */
 @RestrictTo(Scope.LIBRARY)
 class ScrollManager {

@@ -26,41 +26,30 @@ import androidx.annotation.RestrictTo.Scope;
  * objects for all Material components.
  *
  * <p>See {@link #DEFAULT} for default color scheme.
+ *
+ * @deprecated Use the new class {@link androidx.wear.protolayout.material.Colors} which provides
+ *     the same API and functionality.
  */
+@Deprecated
+@SuppressWarnings("deprecation")
 public class Colors {
 
-    /**
-     * The default color used for primary elements (i.e. background color).
-     *
-     * @hide
-     */
+    /** The default color used for primary elements (i.e. background color). */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @ColorInt
     public static final int PRIMARY = 0xFFAECBFA;
 
-    /**
-     * The default color used on primary elements (i.e. content color).
-     *
-     * @hide
-     */
+    /** The default color used on primary elements (i.e. content color). */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @ColorInt
     public static final int ON_PRIMARY = 0xFF303133;
 
-    /**
-     * The default color used for secondary elements (i.e. background color).
-     *
-     * @hide
-     */
+    /** The default color used for secondary elements (i.e. background color). */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @ColorInt
     public static final int SURFACE = 0xFF303133;
 
-    /**
-     * The default color used on secondary elements (i.e. content color).
-     *
-     * @hide
-     */
+    /** The default color used on secondary elements (i.e. content color). */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @ColorInt
     public static final int ON_SURFACE = 0xFFFFFFFF;

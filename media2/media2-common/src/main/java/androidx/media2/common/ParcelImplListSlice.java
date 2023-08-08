@@ -40,7 +40,6 @@ import java.util.List;
  * Note: Using this class causes synchronous binder calls in the opposite direction regardless of
  * "oneway" property.
  *
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP)
 @SuppressLint("BanParcelableUsage")

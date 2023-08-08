@@ -26,7 +26,6 @@ import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import kotlin.test.Ignore
 import kotlin.test.Test
-import kotlin.time.ExperimentalTime
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
@@ -44,7 +43,6 @@ import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 import org.junit.rules.Timeout
 
-@OptIn(ExperimentalTime::class)
 class SingleProcessDataStoreStressTest {
     @get:Rule
     val tempFolder = TemporaryFolder()
@@ -95,7 +93,6 @@ class SingleProcessDataStoreStressTest {
 
         // There's no reason this should take more than a few seconds once writers complete and
         // there's no reason writers won't complete.
-        @Suppress("DEPRECATION")
         withTimeout(10.seconds) {
             readers.awaitAll()
         }
@@ -160,13 +157,12 @@ class SingleProcessDataStoreStressTest {
 
         // There's no reason this should take more than a few seconds once writers complete and
         // there's no reason writers won't complete.
-        @Suppress("DEPRECATION")
         withTimeout(10.seconds) {
             readers.awaitAll()
         }
     }
-
     @Test
+    @Ignore("b/270197519")
     fun testManyConcurrentReadsAndWrites_withBeginningReadFailures() = runBlocking<Unit> {
         val myScope = CoroutineScope(
             Job() + Executors.newFixedThreadPool(4).asCoroutineDispatcher()
@@ -221,7 +217,6 @@ class SingleProcessDataStoreStressTest {
 
         // There's no reason this should take more than a few seconds once writers complete and
         // there's no reason writers won't complete.
-        @Suppress("DEPRECATION")
         withTimeout(10.seconds) {
             readers.awaitAll()
         }

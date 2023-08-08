@@ -29,7 +29,7 @@ import kotlin.reflect.KClass
  * @see javax.lang.model.type.TypeMirror
  * @see [XArrayType]
  */
-interface XType {
+interface XType : XAnnotated {
     /**
      * The Javapoet [TypeName] representation of the type
      */
@@ -49,7 +49,7 @@ interface XType {
     fun asTypeName(): XTypeName
 
     /**
-     * Returns the rawType of this type. (e.g. `List<String>` to `List`.
+     * Returns the rawType of this type. (e.g. `List<String>` to `List`).
      */
     val rawType: XRawType
 
@@ -72,8 +72,8 @@ interface XType {
     /**
      * The [XTypeElement] that represents this type.
      *
-     * Note that it might be null if the type is not backed by a type element (e.g. if it is a
-     * primitive, wildcard etc)
+     * Note that it will be null if the type is not backed by a type element (e.g. it is a
+     * primitive, type variable, wildcard, etc)
      *
      * @see isTypeElement
      */

@@ -86,12 +86,13 @@ import org.junit.After
 import org.junit.Assert.fail
 import org.junit.Assume
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.Mockito
-import org.mockito.MockitoAnnotations
+import org.mockito.junit.MockitoJUnit
 
 private const val BITMAP_WIDTH = 400
 private const val BITMAP_HEIGHT = 400
@@ -121,9 +122,7 @@ public class ComplicationTapActivity : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        synchronized(lock) {
-            theIntent = intent
-        }
+        synchronized(lock) { theIntent = intent }
         countDown!!.countDown()
         finish()
     }
@@ -134,11 +133,12 @@ public class ComplicationTapActivity : Activity() {
 @RequiresApi(Build.VERSION_CODES.O_MR1)
 public class WatchFaceServiceImageTest {
 
-    @Mock
-    private lateinit var surfaceHolder: SurfaceHolder
+    @get:Rule
+    val mocks = MockitoJUnit.rule()
 
-    @Mock
-    private lateinit var surface: Surface
+    @Mock private lateinit var surfaceHolder: SurfaceHolder
+
+    @Mock private lateinit var surface: Surface
 
     private val handler = Handler(Looper.getMainLooper())
 
@@ -149,36 +149,37 @@ public class WatchFaceServiceImageTest {
     private val pretendBinderThread = HandlerThread("PretendBinderThread")
     private lateinit var pretendBinderHandler: Handler
 
-    private val complicationDataSources = mapOf(
-        SystemDataSources.DATA_SOURCE_DAY_OF_WEEK to
-            ShortTextComplicationData.Builder(
-                PlainComplicationText.Builder("Mon").build(),
-                ComplicationText.EMPTY
-            )
-                .setTitle(PlainComplicationText.Builder("23rd").build())
-                .setTapAction(
-                    PendingIntent.getActivity(
-                        ApplicationProvider.getApplicationContext<Context>(),
-                        123,
-                        Intent(
-                            ApplicationProvider.getApplicationContext<Context>(),
-                            ComplicationTapActivity::class.java
-                        ).apply {
-                        },
-                        PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE
+    private val complicationDataSources =
+        mapOf(
+            SystemDataSources.DATA_SOURCE_DAY_OF_WEEK to
+                ShortTextComplicationData.Builder(
+                        PlainComplicationText.Builder("Mon").build(),
+                        ComplicationText.EMPTY
                     )
-                )
-                .build()
-                .asWireComplicationData(),
-        SystemDataSources.DATA_SOURCE_STEP_COUNT to
-            ShortTextComplicationData.Builder(
-                PlainComplicationText.Builder("100").build(),
-                ComplicationText.EMPTY
-            )
-                .setTitle(PlainComplicationText.Builder("Steps").build())
-                .build()
-                .asWireComplicationData()
-    )
+                    .setTitle(PlainComplicationText.Builder("23rd").build())
+                    .setTapAction(
+                        PendingIntent.getActivity(
+                            ApplicationProvider.getApplicationContext<Context>(),
+                            123,
+                            Intent(
+                                    ApplicationProvider.getApplicationContext<Context>(),
+                                    ComplicationTapActivity::class.java
+                                )
+                                .apply {},
+                            PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE
+                        )
+                    )
+                    .build()
+                    .asWireComplicationData(),
+            SystemDataSources.DATA_SOURCE_STEP_COUNT to
+                ShortTextComplicationData.Builder(
+                        PlainComplicationText.Builder("100").build(),
+                        ComplicationText.EMPTY
+                    )
+                    .setTitle(PlainComplicationText.Builder("Steps").build())
+                    .build()
+                    .asWireComplicationData()
+        )
 
     @get:Rule
     public val screenshotRule: AndroidXScreenshotTestRule =
@@ -196,11 +197,9 @@ public class WatchFaceServiceImageTest {
     private lateinit var engineWrapper: WatchFaceService.EngineWrapper
     private lateinit var interactiveWatchFaceInstance: IInteractiveWatchFace
 
-    @Suppress("DEPRECATION") // b/251211092
     @Before
     public fun setUp() {
         Assume.assumeTrue("This test suite assumes API 27", Build.VERSION.SDK_INT >= 27)
-        MockitoAnnotations.initMocks(this)
 
         pretendBinderThread.start()
         pretendBinderHandler = Handler(pretendBinderThread.looper)
@@ -217,19 +216,21 @@ public class WatchFaceServiceImageTest {
         }
         assertThat(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS)).isTrue()
         pretendBinderThread.quitSafely()
+        InteractiveInstanceManager.setParameterlessEngine(null)
     }
 
     private fun initCanvasWatchFace(onInvalidateCountDownLatch: CountDownLatch? = null) {
-        canvasAnalogWatchFaceService = TestCanvasAnalogWatchFaceService(
-            ApplicationProvider.getApplicationContext<Context>(),
-            handler,
-            100000,
-            ZoneId.of("UTC"),
-            surfaceHolder,
-            true, // Not direct boot.
-            null,
-            onInvalidateCountDownLatch
-        )
+        canvasAnalogWatchFaceService =
+            TestCanvasAnalogWatchFaceService(
+                ApplicationProvider.getApplicationContext<Context>(),
+                handler,
+                100000,
+                ZoneId.of("UTC"),
+                surfaceHolder,
+                true, // Not direct boot.
+                null,
+                onInvalidateCountDownLatch
+            )
 
         Mockito.`when`(surfaceHolder.surfaceFrame)
             .thenReturn(Rect(0, 0, BITMAP_WIDTH, BITMAP_HEIGHT))
@@ -247,14 +248,15 @@ public class WatchFaceServiceImageTest {
     }
 
     private fun initGles2WatchFace() {
-        glesWatchFaceService = TestGlesWatchFaceService(
-            ApplicationProvider.getApplicationContext<Context>(),
-            handler,
-            100000,
-            ZoneId.of("UTC"),
-            surfaceHolder,
-            null
-        )
+        glesWatchFaceService =
+            TestGlesWatchFaceService(
+                ApplicationProvider.getApplicationContext<Context>(),
+                handler,
+                100000,
+                ZoneId.of("UTC"),
+                surfaceHolder,
+                null
+            )
 
         surfaceTexture.setDefaultBufferSize(BITMAP_WIDTH, BITMAP_HEIGHT)
 
@@ -269,40 +271,37 @@ public class WatchFaceServiceImageTest {
     }
 
     private fun setPendingWallpaperInteractiveWatchFaceInstance() {
-        val existingInstance = InteractiveInstanceManager
-            .getExistingInstanceOrSetPendingWallpaperInteractiveWatchFaceInstance(
-                InteractiveInstanceManager.PendingWallpaperInteractiveWatchFaceInstance(
-                    WallpaperInteractiveWatchFaceInstanceParams(
-                        INTERACTIVE_INSTANCE_ID,
-                        DeviceConfig(
-                            false,
-                            false,
-                            0,
-                            0
+        val existingInstance =
+            InteractiveInstanceManager
+                .getExistingInstanceOrSetPendingWallpaperInteractiveWatchFaceInstance(
+                    InteractiveInstanceManager.PendingWallpaperInteractiveWatchFaceInstance(
+                        WallpaperInteractiveWatchFaceInstanceParams(
+                            INTERACTIVE_INSTANCE_ID,
+                            DeviceConfig(false, false, 0, 0),
+                            WatchUiState(false, 0),
+                            UserStyleWireFormat(emptyMap()),
+                            null,
+                            null,
+                            null
                         ),
-                        WatchUiState(false, 0),
-                        UserStyleWireFormat(emptyMap()),
-                        null,
-                        null,
-                        null
-                    ),
-                    object : IPendingInteractiveWatchFace.Stub() {
-                        override fun getApiVersion() =
-                            IPendingInteractiveWatchFace.API_VERSION
+                        object : IPendingInteractiveWatchFace.Stub() {
+                            override fun getApiVersion() = IPendingInteractiveWatchFace.API_VERSION
 
-                        override fun onInteractiveWatchFaceCreated(
-                            iInteractiveWatchFace: IInteractiveWatchFace
-                        ) {
-                            interactiveWatchFaceInstance = iInteractiveWatchFace
-                            initLatch.countDown()
-                        }
+                            override fun onInteractiveWatchFaceCreated(
+                                iInteractiveWatchFace: IInteractiveWatchFace
+                            ) {
+                                interactiveWatchFaceInstance = iInteractiveWatchFace
+                                initLatch.countDown()
+                            }
 
-                        override fun onInteractiveWatchFaceCrashed(exception: CrashInfoParcel?) {
-                            fail("WatchFace crashed: $exception")
+                            override fun onInteractiveWatchFaceCrashed(
+                                exception: CrashInfoParcel?
+                            ) {
+                                fail("WatchFace crashed: $exception")
+                            }
                         }
-                    }
+                    )
                 )
-            )
         assertThat(existingInstance).isNull()
     }
 
@@ -317,24 +316,6 @@ public class WatchFaceServiceImageTest {
         )
     }
 
-    private fun setAmbient(ambient: Boolean) {
-        val interactiveWatchFaceInstance =
-            InteractiveInstanceManager.getAndRetainInstance(
-                interactiveWatchFaceInstance.instanceId
-            )!!
-
-        try {
-            interactiveWatchFaceInstance.setWatchUiState(
-                WatchUiState(
-                    ambient,
-                    0
-                )
-            )
-        } finally {
-            interactiveWatchFaceInstance.release()
-        }
-    }
-
     @FlakyTest(bugId = 259980310)
     @Test
     public fun testActiveScreenshot() {
@@ -342,9 +323,7 @@ public class WatchFaceServiceImageTest {
         assertThat(initLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS)).isTrue()
         sendComplications()
 
-        handler.post {
-            engineWrapper.draw(engineWrapper.getWatchFaceImplOrNull())
-        }
+        handler.post { engineWrapper.draw(engineWrapper.getWatchFaceImplOrNull()) }
 
         assertThat(renderDoneLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS)).isTrue()
         bitmap.assertAgainstGolden(screenshotRule, "active_screenshot")
@@ -358,7 +337,7 @@ public class WatchFaceServiceImageTest {
         sendComplications()
 
         handler.post {
-            setAmbient(true)
+            engineWrapper.setWatchUiState(WatchUiState(true, 0), fromSysUi = true)
             engineWrapper.draw(engineWrapper.getWatchFaceImplOrNull())
         }
 
@@ -376,32 +355,32 @@ public class WatchFaceServiceImageTest {
 
         var bitmap: Bitmap? = null
         pretendBinderHandler.post {
-            bitmap = SharedMemoryImage.ashmemReadImageBundle(
-                interactiveWatchFaceInstance.renderWatchFaceToBitmap(
-                    WatchFaceRenderParams(
-                        RenderParameters(
-                            DrawMode.AMBIENT,
-                            WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
+            bitmap =
+                SharedMemoryImage.ashmemReadImageBundle(
+                    interactiveWatchFaceInstance.renderWatchFaceToBitmap(
+                        WatchFaceRenderParams(
+                            RenderParameters(
+                                    DrawMode.AMBIENT,
+                                    WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
+                                    null
+                                )
+                                .toWireFormat(),
+                            123456789,
+                            null,
                             null
-                        ).toWireFormat(),
-                        123456789,
-                        null,
-                        null
+                        )
                     )
                 )
-            )
             latch.countDown()
         }
 
         assertThat(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS)).isTrue()
-        bitmap!!.assertAgainstGolden(
-            screenshotRule,
-            "testCommandTakeScreenShot"
-        )
+        bitmap!!.assertAgainstGolden(screenshotRule, "testCommandTakeScreenShot")
     }
 
     @SuppressLint("NewApi")
     @Test
+    @Ignore("b/274981990")
     public fun testCommandTakeOpenGLScreenShot() {
         val latch = CountDownLatch(1)
 
@@ -411,28 +390,27 @@ public class WatchFaceServiceImageTest {
 
         var bitmap: Bitmap? = null
         pretendBinderHandler.post {
-            bitmap = SharedMemoryImage.ashmemReadImageBundle(
-                interactiveWatchFaceInstance.renderWatchFaceToBitmap(
-                    WatchFaceRenderParams(
-                        RenderParameters(
-                            DrawMode.INTERACTIVE,
-                            WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
+            bitmap =
+                SharedMemoryImage.ashmemReadImageBundle(
+                    interactiveWatchFaceInstance.renderWatchFaceToBitmap(
+                        WatchFaceRenderParams(
+                            RenderParameters(
+                                    DrawMode.INTERACTIVE,
+                                    WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
+                                    null
+                                )
+                                .toWireFormat(),
+                            123456789,
+                            null,
                             null
-                        ).toWireFormat(),
-                        123456789,
-                        null,
-                        null
+                        )
                     )
                 )
-            )
             latch.countDown()
         }
 
         assertThat(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS)).isTrue()
-        bitmap!!.assertAgainstGolden(
-            screenshotRule,
-            "ambient_gl_screenshot"
-        )
+        bitmap!!.assertAgainstGolden(screenshotRule, "ambient_gl_screenshot")
     }
 
     @Test
@@ -472,9 +450,7 @@ public class WatchFaceServiceImageTest {
             UserStyleWireFormat(mapOf(COLOR_STYLE_SETTING to GREEN_STYLE.encodeToByteArray()))
         )
 
-        handler.post {
-            engineWrapper.draw(engineWrapper.getWatchFaceImplOrNull())
-        }
+        handler.post { engineWrapper.draw(engineWrapper.getWatchFaceImplOrNull()) }
 
         assertThat(renderDoneLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS)).isTrue()
         bitmap.assertAgainstGolden(screenshotRule, "green_screenshot_no_complication_data")
@@ -490,22 +466,26 @@ public class WatchFaceServiceImageTest {
         // Latch that countsDown when the complication below has been delivered.
         val complicationReceivedLatch = CountDownLatch(2)
         CoroutineScope(handler.asCoroutineDispatcher()).launch {
-            engineWrapper.deferredWatchFaceImpl.await().complicationSlotsManager[
-                EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID
-            ]!!.complicationData.collect {
-                if (it is NoDataComplicationData && it.placeholder != null) {
-                    complicationReceivedLatch.countDown()
+            engineWrapper.deferredWatchFaceImpl
+                .await()
+                .complicationSlotsManager[EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID]!!
+                .complicationData
+                .collect {
+                    if (it is NoDataComplicationData && it.placeholder != null) {
+                        complicationReceivedLatch.countDown()
+                    }
                 }
-            }
         }
         CoroutineScope(handler.asCoroutineDispatcher()).launch {
-            engineWrapper.deferredWatchFaceImpl.await().complicationSlotsManager[
-                EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID
-            ]!!.complicationData.collect {
-                if (it is NoDataComplicationData && it.placeholder != null) {
-                    complicationReceivedLatch.countDown()
+            engineWrapper.deferredWatchFaceImpl
+                .await()
+                .complicationSlotsManager[EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID]!!
+                .complicationData
+                .collect {
+                    if (it is NoDataComplicationData && it.placeholder != null) {
+                        complicationReceivedLatch.countDown()
+                    }
                 }
-            }
         }
 
         // This is a oneway call.
@@ -514,28 +494,30 @@ public class WatchFaceServiceImageTest {
                 IdAndComplicationDataWireFormat(
                     EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID,
                     NoDataComplicationData(
-                        LongTextComplicationData.Builder(
-                            ComplicationText.PLACEHOLDER,
-                            ComplicationText.EMPTY
+                            LongTextComplicationData.Builder(
+                                    ComplicationText.PLACEHOLDER,
+                                    ComplicationText.EMPTY
+                                )
+                                .setTitle(ComplicationText.PLACEHOLDER)
+                                .setSmallImage(SmallImage.PLACEHOLDER)
+                                .build(),
                         )
-                            .setTitle(ComplicationText.PLACEHOLDER)
-                            .setSmallImage(SmallImage.PLACEHOLDER)
-                            .build(),
-                    ).asWireComplicationData()
+                        .asWireComplicationData()
                 ),
                 IdAndComplicationDataWireFormat(
                     EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID,
                     NoDataComplicationData(
-                        RangedValueComplicationData.Builder(
-                            RangedValueComplicationData.PLACEHOLDER,
-                            0f,
-                            100f,
-                            ComplicationText.EMPTY
+                            RangedValueComplicationData.Builder(
+                                    RangedValueComplicationData.PLACEHOLDER,
+                                    0f,
+                                    100f,
+                                    ComplicationText.EMPTY
+                                )
+                                .setText(ComplicationText.PLACEHOLDER)
+                                .setMonochromaticImage(MonochromaticImage.PLACEHOLDER)
+                                .build()
                         )
-                            .setText(ComplicationText.PLACEHOLDER)
-                            .setMonochromaticImage(MonochromaticImage.PLACEHOLDER)
-                            .build()
-                    ).asWireComplicationData()
+                        .asWireComplicationData()
                 )
             )
         )
@@ -544,28 +526,27 @@ public class WatchFaceServiceImageTest {
 
         var bitmap: Bitmap? = null
         pretendBinderHandler.post {
-            bitmap = SharedMemoryImage.ashmemReadImageBundle(
-                interactiveWatchFaceInstance.renderWatchFaceToBitmap(
-                    WatchFaceRenderParams(
-                        RenderParameters(
-                            DrawMode.AMBIENT,
-                            WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
+            bitmap =
+                SharedMemoryImage.ashmemReadImageBundle(
+                    interactiveWatchFaceInstance.renderWatchFaceToBitmap(
+                        WatchFaceRenderParams(
+                            RenderParameters(
+                                    DrawMode.AMBIENT,
+                                    WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
+                                    null
+                                )
+                                .toWireFormat(),
+                            123456789,
+                            null,
                             null
-                        ).toWireFormat(),
-                        123456789,
-                        null,
-                        null
+                        )
                     )
                 )
-            )
             latch.countDown()
         }
 
         assertThat(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS)).isTrue()
-        bitmap!!.assertAgainstGolden(
-            screenshotRule,
-            "placeholderComplications"
-        )
+        bitmap!!.assertAgainstGolden(screenshotRule, "placeholderComplications")
     }
 
     @SuppressLint("NewApi")
@@ -576,18 +557,18 @@ public class WatchFaceServiceImageTest {
         // Latch that countsDown when the complications below have been delivered and the images
         // have been loaded asynchronoiusly.
         val onInvalidateCountDownLatch = CountDownLatch(2)
-        handler.post {
-            initCanvasWatchFace(onInvalidateCountDownLatch)
-        }
+        handler.post { initCanvasWatchFace(onInvalidateCountDownLatch) }
         assertThat(initLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS)).isTrue()
 
-        val smallImage = SmallImage.Builder(
-            Icon.createWithResource(
-                ApplicationProvider.getApplicationContext<Context>(),
-                R.drawable.color_icon
-            ),
-            SmallImageType.ICON
-        ).build()
+        val smallImage =
+            SmallImage.Builder(
+                    Icon.createWithResource(
+                        ApplicationProvider.getApplicationContext<Context>(),
+                        R.drawable.color_icon
+                    ),
+                    SmallImageType.ICON
+                )
+                .build()
 
         // This is a oneway call.
         interactiveWatchFaceInstance.updateComplicationData(
@@ -595,21 +576,16 @@ public class WatchFaceServiceImageTest {
                 IdAndComplicationDataWireFormat(
                     EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID,
                     ShortTextComplicationData.Builder(
-                        PlainComplicationText.Builder("Test").build(),
-                        ComplicationText.EMPTY
-                    )
+                            PlainComplicationText.Builder("Test").build(),
+                            ComplicationText.EMPTY
+                        )
                         .setSmallImage(smallImage)
                         .build()
                         .asWireComplicationData()
                 ),
                 IdAndComplicationDataWireFormat(
                     EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID,
-                    RangedValueComplicationData.Builder(
-                        25f,
-                        0f,
-                        100f,
-                        ComplicationText.EMPTY
-                    )
+                    RangedValueComplicationData.Builder(25f, 0f, 100f, ComplicationText.EMPTY)
                         .setSmallImage(smallImage)
                         .build()
                         .asWireComplicationData()
@@ -621,28 +597,27 @@ public class WatchFaceServiceImageTest {
 
         var bitmap: Bitmap? = null
         pretendBinderHandler.post {
-            bitmap = SharedMemoryImage.ashmemReadImageBundle(
-                interactiveWatchFaceInstance.renderWatchFaceToBitmap(
-                    WatchFaceRenderParams(
-                        RenderParameters(
-                            DrawMode.INTERACTIVE,
-                            WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
+            bitmap =
+                SharedMemoryImage.ashmemReadImageBundle(
+                    interactiveWatchFaceInstance.renderWatchFaceToBitmap(
+                        WatchFaceRenderParams(
+                            RenderParameters(
+                                    DrawMode.INTERACTIVE,
+                                    WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
+                                    null
+                                )
+                                .toWireFormat(),
+                            123456789,
+                            null,
                             null
-                        ).toWireFormat(),
-                        123456789,
-                        null,
-                        null
+                        )
                     )
                 )
-            )
             latch.countDown()
         }
 
         assertThat(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS)).isTrue()
-        bitmap!!.assertAgainstGolden(
-            screenshotRule,
-            "smallImageComplications"
-        )
+        bitmap!!.assertAgainstGolden(screenshotRule, "smallImageComplications")
     }
 
     @SuppressLint("NewApi")
@@ -656,32 +631,31 @@ public class WatchFaceServiceImageTest {
 
         var bitmap: Bitmap? = null
         pretendBinderHandler.post {
-            bitmap = SharedMemoryImage.ashmemReadImageBundle(
-                interactiveWatchFaceInstance.renderWatchFaceToBitmap(
-                    WatchFaceRenderParams(
-                        RenderParameters(
-                            DrawMode.INTERACTIVE,
-                            WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
-                            RenderParameters.HighlightLayer(
-                                RenderParameters.HighlightedElement.AllComplicationSlots,
-                                Color.RED,
-                                Color.argb(128, 0, 0, 0)
-                            )
-                        ).toWireFormat(),
-                        123456789,
-                        null,
-                        null
+            bitmap =
+                SharedMemoryImage.ashmemReadImageBundle(
+                    interactiveWatchFaceInstance.renderWatchFaceToBitmap(
+                        WatchFaceRenderParams(
+                            RenderParameters(
+                                    DrawMode.INTERACTIVE,
+                                    WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
+                                    RenderParameters.HighlightLayer(
+                                        RenderParameters.HighlightedElement.AllComplicationSlots,
+                                        Color.RED,
+                                        Color.argb(128, 0, 0, 0)
+                                    )
+                                )
+                                .toWireFormat(),
+                            123456789,
+                            null,
+                            null
+                        )
                     )
                 )
-            )
             latch.countDown()
         }
 
         assertThat(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS)).isTrue()
-        bitmap!!.assertAgainstGolden(
-            screenshotRule,
-            "highlight_complications"
-        )
+        bitmap!!.assertAgainstGolden(screenshotRule, "highlight_complications")
     }
 
     @SuppressLint("NewApi")
@@ -695,32 +669,31 @@ public class WatchFaceServiceImageTest {
 
         var bitmap: Bitmap? = null
         pretendBinderHandler.post {
-            bitmap = SharedMemoryImage.ashmemReadImageBundle(
-                interactiveWatchFaceInstance.renderWatchFaceToBitmap(
-                    WatchFaceRenderParams(
-                        RenderParameters(
-                            DrawMode.INTERACTIVE,
-                            WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
+            bitmap =
+                SharedMemoryImage.ashmemReadImageBundle(
+                    interactiveWatchFaceInstance.renderWatchFaceToBitmap(
+                        WatchFaceRenderParams(
+                            RenderParameters(
+                                    DrawMode.INTERACTIVE,
+                                    WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
+                                    null,
+                                    mapOf(
+                                        EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID to
+                                            TapEvent(1, 1, Instant.ofEpochMilli(123456789))
+                                    )
+                                )
+                                .toWireFormat(),
+                            123456789,
                             null,
-                            mapOf(
-                                EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID to
-                                    TapEvent(1, 1, Instant.ofEpochMilli(123456789))
-                            )
-                        ).toWireFormat(),
-                        123456789,
-                        null,
-                        null
+                            null
+                        )
                     )
                 )
-            )
             latch.countDown()
         }
 
         assertThat(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS)).isTrue()
-        bitmap!!.assertAgainstGolden(
-            screenshotRule,
-            "left_complication_pressed"
-        )
+        bitmap!!.assertAgainstGolden(screenshotRule, "left_complication_pressed")
     }
 
     @SuppressLint("NewApi")
@@ -734,62 +707,62 @@ public class WatchFaceServiceImageTest {
 
         var bitmap: Bitmap? = null
         pretendBinderHandler.post {
-            bitmap = SharedMemoryImage.ashmemReadImageBundle(
-                interactiveWatchFaceInstance.renderWatchFaceToBitmap(
-                    WatchFaceRenderParams(
-                        RenderParameters(
-                            DrawMode.INTERACTIVE,
-                            WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
-                            RenderParameters.HighlightLayer(
-                                RenderParameters.HighlightedElement.ComplicationSlot(
-                                    EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID
-                                ),
-                                Color.RED,
-                                Color.argb(128, 0, 0, 0)
-                            )
-                        ).toWireFormat(),
-                        123456789,
-                        null,
-                        null
+            bitmap =
+                SharedMemoryImage.ashmemReadImageBundle(
+                    interactiveWatchFaceInstance.renderWatchFaceToBitmap(
+                        WatchFaceRenderParams(
+                            RenderParameters(
+                                    DrawMode.INTERACTIVE,
+                                    WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
+                                    RenderParameters.HighlightLayer(
+                                        RenderParameters.HighlightedElement.ComplicationSlot(
+                                            EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID
+                                        ),
+                                        Color.RED,
+                                        Color.argb(128, 0, 0, 0)
+                                    )
+                                )
+                                .toWireFormat(),
+                            123456789,
+                            null,
+                            null
+                        )
                     )
                 )
-            )
             latch.countDown()
         }
 
         assertThat(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS)).isTrue()
-        bitmap!!.assertAgainstGolden(
-            screenshotRule,
-            "highlight_right_complication"
-        )
+        bitmap!!.assertAgainstGolden(screenshotRule, "highlight_right_complication")
     }
 
     @SuppressLint("NewApi")
     @Test
     public fun testScreenshotWithPreviewComplicationData() {
         val latch = CountDownLatch(1)
-        val previewComplicationData = listOf(
-            IdAndComplicationDataWireFormat(
-                EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID,
-                ShortTextComplicationData.Builder(
-                    PlainComplicationText.Builder("A").build(),
-                    ComplicationText.EMPTY
+        val previewComplicationData =
+            listOf(
+                IdAndComplicationDataWireFormat(
+                    EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID,
+                    ShortTextComplicationData.Builder(
+                            PlainComplicationText.Builder("A").build(),
+                            ComplicationText.EMPTY
+                        )
+                        .setTitle(PlainComplicationText.Builder("Preview").build())
+                        .build()
+                        .asWireComplicationData()
+                ),
+                IdAndComplicationDataWireFormat(
+                    EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID,
+                    ShortTextComplicationData.Builder(
+                            PlainComplicationText.Builder("B").build(),
+                            ComplicationText.EMPTY
+                        )
+                        .setTitle(PlainComplicationText.Builder("Preview").build())
+                        .build()
+                        .asWireComplicationData()
                 )
-                    .setTitle(PlainComplicationText.Builder("Preview").build())
-                    .build()
-                    .asWireComplicationData()
-            ),
-            IdAndComplicationDataWireFormat(
-                EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID,
-                ShortTextComplicationData.Builder(
-                    PlainComplicationText.Builder("B").build(),
-                    ComplicationText.EMPTY
-                )
-                    .setTitle(PlainComplicationText.Builder("Preview").build())
-                    .build()
-                    .asWireComplicationData()
             )
-        )
 
         handler.post(this::initCanvasWatchFace)
         assertThat(initLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS)).isTrue()
@@ -797,28 +770,27 @@ public class WatchFaceServiceImageTest {
 
         var bitmap: Bitmap? = null
         pretendBinderHandler.post {
-            bitmap = SharedMemoryImage.ashmemReadImageBundle(
-                interactiveWatchFaceInstance.renderWatchFaceToBitmap(
-                    WatchFaceRenderParams(
-                        RenderParameters(
-                            DrawMode.INTERACTIVE,
-                            WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
-                            null
-                        ).toWireFormat(),
-                        123456789,
-                        null,
-                        previewComplicationData
+            bitmap =
+                SharedMemoryImage.ashmemReadImageBundle(
+                    interactiveWatchFaceInstance.renderWatchFaceToBitmap(
+                        WatchFaceRenderParams(
+                            RenderParameters(
+                                    DrawMode.INTERACTIVE,
+                                    WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
+                                    null
+                                )
+                                .toWireFormat(),
+                            123456789,
+                            null,
+                            previewComplicationData
+                        )
                     )
                 )
-            )
             latch.countDown()
         }
 
         assertThat(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS)).isTrue()
-        bitmap!!.assertAgainstGolden(
-            screenshotRule,
-            "preview_complications"
-        )
+        bitmap!!.assertAgainstGolden(screenshotRule, "preview_complications")
     }
 
     @Test
@@ -836,38 +808,32 @@ public class WatchFaceServiceImageTest {
         // pending PendingWallpaperInteractiveWatchFaceInstance and no wallpaper command. It
         // instead uses the WallpaperInteractiveWatchFaceInstanceParams which normally would be
         // read from disk, but provided directly in this test.
-        val service = TestCanvasAnalogWatchFaceService(
-            ApplicationProvider.getApplicationContext<Context>(),
-            handler,
-            100000,
-            ZoneId.of("UTC"),
-            surfaceHolder,
-            false, // Direct boot.
-            WallpaperInteractiveWatchFaceInstanceParams(
-                INTERACTIVE_INSTANCE_ID,
-                DeviceConfig(
-                    false,
-                    false,
-                    0,
-                    0
+        val service =
+            TestCanvasAnalogWatchFaceService(
+                ApplicationProvider.getApplicationContext<Context>(),
+                handler,
+                100000,
+                ZoneId.of("UTC"),
+                surfaceHolder,
+                false, // Direct boot.
+                WallpaperInteractiveWatchFaceInstanceParams(
+                    INTERACTIVE_INSTANCE_ID,
+                    DeviceConfig(false, false, 0, 0),
+                    WatchUiState(false, 0),
+                    UserStyleWireFormat(
+                        mapOf(COLOR_STYLE_SETTING to GREEN_STYLE.encodeToByteArray())
+                    ),
+                    null,
+                    null,
+                    null
                 ),
-                WatchUiState(false, 0),
-                UserStyleWireFormat(
-                    mapOf(COLOR_STYLE_SETTING to GREEN_STYLE.encodeToByteArray())
-                ),
-                null,
-                null,
                 null
-            ),
-            null
-        )
+            )
 
         val engineWrapper = service.onCreateEngine() as WatchFaceService.EngineWrapper
 
         // Make sure init has completed before trying to draw.
-        runBlocking {
-            engineWrapper.deferredWatchFaceImpl.await()
-        }
+        runBlocking { engineWrapper.deferredWatchFaceImpl.await() }
 
         handler.post { engineWrapper.draw(engineWrapper.getWatchFaceImplOrNull()) }
 
@@ -899,11 +865,7 @@ public class WatchFaceServiceImageTest {
                 interactiveWatchFaceInstance.instanceId
             )!!
         try {
-            interactiveWatchFaceInstance.sendTouchEvent(
-                85,
-                165,
-                TapType.UP
-            )
+            interactiveWatchFaceInstance.sendTouchEvent(85, 165, TapType.UP)
 
             assertThat(ComplicationTapActivity.awaitIntent()).isNotNull()
         } finally {

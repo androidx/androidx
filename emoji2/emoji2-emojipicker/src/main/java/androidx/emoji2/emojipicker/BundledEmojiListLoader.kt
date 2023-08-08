@@ -22,7 +22,6 @@ import androidx.annotation.DrawableRes
 import androidx.core.content.res.use
 import androidx.emoji2.emojipicker.utils.FileCache
 import androidx.emoji2.emojipicker.utils.UnicodeRenderableManager
-import androidx.emoji2.text.EmojiCompat
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
@@ -66,17 +65,19 @@ internal object BundledEmojiListLoader {
                     context
                 )
             }
+        emojiVariantsLookup = categorizedEmojiData!!
+            .flatMap { it.emojiDataList }
+            .filter { it.variants.isNotEmpty() }
+            .flatMap { it.variants.map { variant -> EmojiViewItem(variant, it.variants) } }
+            .associate { it.emoji to it.variants }
+            .also { emojiVariantsLookup = it }
     }
 
     internal fun getCategorizedEmojiData() = categorizedEmojiData
         ?: throw IllegalStateException("BundledEmojiListLoader.load is not called or complete")
 
-    internal fun getEmojiVariantsLookup() = emojiVariantsLookup ?: getCategorizedEmojiData()
-        .flatMap { it.emojiDataList }
-        .filter { it.variants.isNotEmpty() }
-        .flatMap { it.variants.map { variant -> EmojiViewItem(variant, it.variants) } }
-        .associate { it.emoji to it.variants }
-        .also { emojiVariantsLookup = it }
+    internal fun getEmojiVariantsLookup() = emojiVariantsLookup
+        ?: throw IllegalStateException("BundledEmojiListLoader.load is not called or complete")
 
     private suspend fun loadEmoji(
         ta: TypedArray,
@@ -114,7 +115,7 @@ internal object BundledEmojiListLoader {
 
     private fun getCacheFileName(categoryIndex: Int) =
         StringBuilder().append("emoji.v1.")
-            .append(if (EmojiCompat.isConfigured()) 1 else 0)
+            .append(if (EmojiPickerView.emojiCompatLoaded) 1 else 0)
             .append(".")
             .append(categoryIndex)
             .append(".")

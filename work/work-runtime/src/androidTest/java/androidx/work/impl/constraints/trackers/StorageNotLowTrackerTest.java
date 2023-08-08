@@ -65,21 +65,21 @@ public class StorageNotLowTrackerTest {
     @SmallTest
     public void testGetInitialState_nullIntent() {
         mockContextReturns(null);
-        assertThat(mTracker.getInitialState(), is(true));
+        assertThat(mTracker.readSystemState(), is(true));
     }
 
     @Test
     @SmallTest
     public void testGetInitialState_storageOkIntent() {
         mockContextReturns(new Intent(Intent.ACTION_DEVICE_STORAGE_OK));
-        assertThat(mTracker.getInitialState(), is(true));
+        assertThat(mTracker.readSystemState(), is(true));
     }
 
     @Test
     @SmallTest
     public void testGetInitialState_storageLowIntent() {
         mockContextReturns(new Intent(Intent.ACTION_DEVICE_STORAGE_LOW));
-        assertThat(mTracker.getInitialState(), is(false));
+        assertThat(mTracker.readSystemState(), is(false));
     }
 
     @Test

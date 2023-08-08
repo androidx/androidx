@@ -47,6 +47,12 @@ public final class CameraXExecutors {
         return IoExecutor.getInstance();
     }
 
+    /** Returns a cached {@link Executor} suitable for audio I/O. */
+    @NonNull
+    public static Executor audioExecutor() {
+        return AudioExecutor.getInstance();
+    }
+
     /** Returns a cached executor that runs tasks directly from the calling thread. */
     @NonNull
     public static Executor directExecutor() {

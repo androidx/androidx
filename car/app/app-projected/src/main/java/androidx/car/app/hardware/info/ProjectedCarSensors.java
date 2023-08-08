@@ -33,7 +33,6 @@ import java.util.concurrent.Executor;
 /**
  * Manages access to vehicle specific sensor communication with a car app host.
  *
- * @hide
  */
 @RestrictTo(LIBRARY)
 public class ProjectedCarSensors implements CarSensors {

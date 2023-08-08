@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.text
 
-import java.util.Locale as JavaLocale
 import android.os.Build
 import android.text.Spannable
 import android.text.SpannableString
@@ -26,6 +25,7 @@ import androidx.annotation.VisibleForTesting
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.Color
@@ -44,15 +44,15 @@ import androidx.compose.ui.text.android.LayoutCompat.BREAK_STRATEGY_BALANCED
 import androidx.compose.ui.text.android.LayoutCompat.BREAK_STRATEGY_HIGH_QUALITY
 import androidx.compose.ui.text.android.LayoutCompat.BREAK_STRATEGY_SIMPLE
 import androidx.compose.ui.text.android.LayoutCompat.DEFAULT_ALIGNMENT
-import androidx.compose.ui.text.android.LayoutCompat.DEFAULT_HYPHENATION_FREQUENCY
 import androidx.compose.ui.text.android.LayoutCompat.DEFAULT_BREAK_STRATEGY
+import androidx.compose.ui.text.android.LayoutCompat.DEFAULT_HYPHENATION_FREQUENCY
 import androidx.compose.ui.text.android.LayoutCompat.DEFAULT_JUSTIFICATION_MODE
 import androidx.compose.ui.text.android.LayoutCompat.DEFAULT_LINESPACING_MULTIPLIER
-import androidx.compose.ui.text.android.LayoutCompat.HYPHENATION_FREQUENCY_NONE
-import androidx.compose.ui.text.android.LayoutCompat.HYPHENATION_FREQUENCY_NORMAL
-import androidx.compose.ui.text.android.LayoutCompat.HYPHENATION_FREQUENCY_NORMAL_FAST
 import androidx.compose.ui.text.android.LayoutCompat.DEFAULT_LINE_BREAK_STYLE
 import androidx.compose.ui.text.android.LayoutCompat.DEFAULT_LINE_BREAK_WORD_STYLE
+import androidx.compose.ui.text.android.LayoutCompat.HYPHENATION_FREQUENCY_FULL
+import androidx.compose.ui.text.android.LayoutCompat.HYPHENATION_FREQUENCY_FULL_FAST
+import androidx.compose.ui.text.android.LayoutCompat.HYPHENATION_FREQUENCY_NONE
 import androidx.compose.ui.text.android.LayoutCompat.JUSTIFICATION_MODE_INTER_WORD
 import androidx.compose.ui.text.android.LayoutCompat.LINE_BREAK_STYLE_LOOSE
 import androidx.compose.ui.text.android.LayoutCompat.LINE_BREAK_STYLE_NONE
@@ -79,6 +79,7 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.sp
+import java.util.Locale as JavaLocale
 
 /**
  * Android specific implementation for [Paragraph]
@@ -309,6 +310,9 @@ internal class AndroidParagraph(
      * the top, bottom, left and right of a character.
      */
     override fun getBoundingBox(offset: Int): Rect {
+        require(offset in charSequence.indices) {
+            "offset($offset) is out of bounds [0,${charSequence.length})"
+        }
         val rectF = layout.getBoundingBox(offset)
         return with(rectF) { Rect(left = left, top = top, right = right, bottom = bottom) }
     }
@@ -338,7 +342,7 @@ internal class AndroidParagraph(
      * @param arrayStart the inclusive start index in the array where the function will start
      * filling in the values from
      */
-    fun fillBoundingBoxes(
+    override fun fillBoundingBoxes(
         range: TextRange,
         array: FloatArray,
         arrayStart: Int
@@ -347,11 +351,9 @@ internal class AndroidParagraph(
     }
 
     override fun getPathForRange(start: Int, end: Int): Path {
-        if (start !in 0..end || end > charSequence.length) {
-            throw AssertionError(
-                "Start($start) or End($end) is out of Range(0..${charSequence.length})," +
-                    " or start > end!"
-            )
+        require(start in 0..end && end <= charSequence.length) {
+            "start($start) or end($end) is out of range [0..${charSequence.length}]," +
+                " or start > end!"
         }
         val path = android.graphics.Path()
         layout.getSelectionPath(start, end, path)
@@ -359,8 +361,8 @@ internal class AndroidParagraph(
     }
 
     override fun getCursorRect(offset: Int): Rect {
-        if (offset !in 0..charSequence.length) {
-            throw AssertionError("offset($offset) is out of bounds (0,${charSequence.length}")
+        require(offset in 0..charSequence.length) {
+            "offset($offset) is out of bounds [0,${charSequence.length}]"
         }
         val horizontal = layout.getPrimaryHorizontal(offset)
         val line = layout.getLineForOffset(offset)
@@ -458,41 +460,49 @@ internal class AndroidParagraph(
         paint(canvas)
     }
 
-    @OptIn(ExperimentalTextApi::class)
     override fun paint(
         canvas: Canvas,
         color: Color,
         shadow: Shadow?,
         textDecoration: TextDecoration?,
-        drawStyle: DrawStyle?
+        drawStyle: DrawStyle?,
+        blendMode: BlendMode
     ) {
+        val currBlendMode = textPaint.blendMode
         with(textPaint) {
             setColor(color)
             setShadow(shadow)
             setTextDecoration(textDecoration)
             setDrawStyle(drawStyle)
+            this.blendMode = blendMode
         }
 
         paint(canvas)
+
+        textPaint.blendMode = currBlendMode
     }
 
-    @OptIn(ExperimentalTextApi::class)
     override fun paint(
         canvas: Canvas,
         brush: Brush,
         alpha: Float,
         shadow: Shadow?,
         textDecoration: TextDecoration?,
-        drawStyle: DrawStyle?
+        drawStyle: DrawStyle?,
+        blendMode: BlendMode
     ) {
+        val currBlendMode = textPaint.blendMode
         with(textPaint) {
             setBrush(brush, Size(width, height), alpha)
             setShadow(shadow)
             setTextDecoration(textDecoration)
             setDrawStyle(drawStyle)
+            this.blendMode = blendMode
         }
 
         paint(canvas)
+
+        textPaint.blendMode = currBlendMode
     }
 
     private fun paint(canvas: Canvas) {
@@ -550,18 +560,18 @@ private fun toLayoutAlign(align: TextAlign?): Int = when (align) {
     else -> DEFAULT_ALIGNMENT
 }
 
-@OptIn(ExperimentalTextApi::class, InternalPlatformTextApi::class)
+@OptIn(InternalPlatformTextApi::class)
 private fun toLayoutHyphenationFrequency(hyphens: Hyphens?): Int = when (hyphens) {
     Hyphens.Auto -> if (Build.VERSION.SDK_INT <= 32) {
-        HYPHENATION_FREQUENCY_NORMAL
+        HYPHENATION_FREQUENCY_FULL
     } else {
-        HYPHENATION_FREQUENCY_NORMAL_FAST
+        HYPHENATION_FREQUENCY_FULL_FAST
     }
     Hyphens.None -> HYPHENATION_FREQUENCY_NONE
     else -> DEFAULT_HYPHENATION_FREQUENCY
 }
 
-@OptIn(ExperimentalTextApi::class, InternalPlatformTextApi::class)
+@OptIn(InternalPlatformTextApi::class)
 private fun toLayoutBreakStrategy(breakStrategy: LineBreak.Strategy?): Int = when (breakStrategy) {
     LineBreak.Strategy.Simple -> BREAK_STRATEGY_SIMPLE
     LineBreak.Strategy.HighQuality -> BREAK_STRATEGY_HIGH_QUALITY
@@ -569,7 +579,7 @@ private fun toLayoutBreakStrategy(breakStrategy: LineBreak.Strategy?): Int = whe
     else -> DEFAULT_BREAK_STRATEGY
 }
 
-@OptIn(ExperimentalTextApi::class, InternalPlatformTextApi::class)
+@OptIn(InternalPlatformTextApi::class)
 private fun toLayoutLineBreakStyle(lineBreakStrictness: LineBreak.Strictness?): Int =
     when (lineBreakStrictness) {
         LineBreak.Strictness.Default -> LINE_BREAK_STYLE_NONE
@@ -579,7 +589,7 @@ private fun toLayoutLineBreakStyle(lineBreakStrictness: LineBreak.Strictness?): 
         else -> DEFAULT_LINE_BREAK_STYLE
     }
 
-@OptIn(ExperimentalTextApi::class, InternalPlatformTextApi::class)
+@OptIn(InternalPlatformTextApi::class)
 private fun toLayoutLineBreakWordStyle(lineBreakWordStyle: LineBreak.WordBreak?): Int =
     when (lineBreakWordStyle) {
         LineBreak.WordBreak.Default -> LINE_BREAK_WORD_STYLE_NONE

@@ -18,8 +18,8 @@ package androidx.appcompat.app
 
 import android.os.Build
 import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES
-import androidx.appcompat.app.NightModeCustomAttachBaseContextActivity.CUSTOM_FONT_SCALE
-import androidx.appcompat.app.NightModeCustomAttachBaseContextActivity.CUSTOM_LOCALE
+import androidx.appcompat.app.NightModeCustomApplyOverrideConfigurationActivity.CUSTOM_FONT_SCALE
+import androidx.appcompat.app.NightModeCustomApplyOverrideConfigurationActivity.CUSTOM_LOCALE
 import androidx.appcompat.testutils.NightModeActivityTestRule
 import androidx.appcompat.testutils.NightModeUtils.NightSetMode
 import androidx.appcompat.testutils.NightModeUtils.setNightModeAndWaitForRecreate

@@ -128,11 +128,16 @@ class KotlinNavWriter(private val useAndroidX: Boolean = true) : NavWriter<Kotli
         val className = ClassName("", action.id.javaIdentifier.toCamelCase())
 
         val actionIdPropSpec =
-            PropertySpec.builder("actionId", Int::class, KModifier.OVERRIDE)
+            PropertySpec.builder("actionId", Int::class, KModifier.PUBLIC, KModifier.OVERRIDE)
                 .initializer("%L", action.id.accessor()).build()
 
         val argumentsPropSpec =
-            PropertySpec.builder("arguments", BUNDLE_CLASSNAME, KModifier.OVERRIDE)
+            PropertySpec.builder(
+                "arguments",
+                BUNDLE_CLASSNAME,
+                KModifier.PUBLIC,
+                KModifier.OVERRIDE
+            )
                 .getter(
                     FunSpec.getterBuilder().apply {
                         if (action.args.any { it.type is ObjectType }) {

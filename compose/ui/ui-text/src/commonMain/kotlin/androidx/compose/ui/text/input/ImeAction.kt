@@ -19,7 +19,7 @@ package androidx.compose.ui.text.input
 import androidx.compose.runtime.Stable
 
 /**
- * Signals the keyboard what type of action should be displayed. It is not guaranteed if
+ * Signals the keyboard what type of action should be displayed. It is not guaranteed that
  * the keyboard will show the requested action.
  */
 @kotlin.jvm.JvmInline

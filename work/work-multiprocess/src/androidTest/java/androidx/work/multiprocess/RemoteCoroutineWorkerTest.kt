@@ -34,13 +34,13 @@ import androidx.work.impl.WorkerWrapper
 import androidx.work.impl.foreground.ForegroundProcessor
 import androidx.work.impl.utils.SerialExecutorImpl
 import androidx.work.impl.utils.taskexecutor.TaskExecutor
+import java.util.concurrent.Executor
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.Mockito.`when`
 import org.mockito.Mockito.mock
-import java.util.concurrent.Executor
+import org.mockito.Mockito.`when`
 
 @RunWith(AndroidJUnit4::class)
 public class RemoteCoroutineWorkerTest {
@@ -77,7 +77,7 @@ public class RemoteCoroutineWorkerTest {
         mScheduler = mock(Scheduler::class.java)
         mForegroundProcessor = mock(ForegroundProcessor::class.java)
         mWorkManager = mock(WorkManagerImpl::class.java)
-        mDatabase = WorkDatabase.create(mContext, mExecutor, true)
+        mDatabase = WorkDatabase.create(mContext, mExecutor, mConfiguration.clock, true)
         val schedulers = listOf(mScheduler)
         // Processor
         mProcessor = Processor(mContext, mConfiguration, mTaskExecutor, mDatabase)

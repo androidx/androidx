@@ -133,7 +133,6 @@ final class SessionTokenImplBase implements SessionToken.SessionTokenImpl {
     }
 
     /**
-     * @hide
      * @return component name of this session token. Can be null for TYPE_SESSION.
      */
     @RestrictTo(LIBRARY)

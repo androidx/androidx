@@ -32,14 +32,13 @@ import org.junit.runners.Parameterized
 @OptIn(ExperimentalFoundationApi::class)
 @LargeTest
 @RunWith(Parameterized::class)
-internal class PageSizeTest(val config: ParamConfig) : BasePagerTest(config) {
+class PageSizeTest(val config: ParamConfig) : BasePagerTest(config) {
     @Test
     fun pageSizeFill_onlySnappedItemIsDisplayed() {
         // Arrange
-        val state = PagerState(5)
 
         // Act
-        createPager(state = state, modifier = Modifier.fillMaxSize())
+        createPager(initialPage = 5, modifier = Modifier.fillMaxSize())
 
         // Assert
         rule.onNodeWithTag("4").assertDoesNotExist()
@@ -51,7 +50,6 @@ internal class PageSizeTest(val config: ParamConfig) : BasePagerTest(config) {
     @Test
     fun pagerSizeCustom_visibleItemsAreWithinViewport() {
         // Arrange
-        val state = PagerState(5)
         val pagerMode = object : PageSize {
             override fun Density.calculateMainAxisPageSize(
                 availableSpace: Int,
@@ -63,22 +61,22 @@ internal class PageSizeTest(val config: ParamConfig) : BasePagerTest(config) {
 
         // Act
         createPager(
-            state = state,
+            initialPage = 5,
             modifier = Modifier.crossAxisSize(200.dp),
-            offscreenPageLimit = 0,
-            pageSize = pagerMode
+            beyondBoundsPageCount = 0,
+            pageSize = { pagerMode }
         )
 
         // Assert
         rule.runOnIdle {
-            val visibleItems = state.layoutInfo.visibleItemsInfo.size
+            val visibleItems = pagerState.layoutInfo.visiblePagesInfo.size
             val pageCount = with(rule.density) {
                 (pagerSize / (pageSize + config.pageSpacing.roundToPx()))
             } + 1
             Truth.assertThat(visibleItems).isEqualTo(pageCount)
         }
 
-        for (pageIndex in 5 until state.layoutInfo.visibleItemsInfo.size + 4) {
+        for (pageIndex in 5 until pagerState.layoutInfo.visiblePagesInfo.size + 4) {
             confirmPageIsInCorrectPosition(5, pageIndex)
         }
     }

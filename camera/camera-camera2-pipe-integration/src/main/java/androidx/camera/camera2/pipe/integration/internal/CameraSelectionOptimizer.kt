@@ -19,13 +19,14 @@ import android.hardware.camera2.CameraCharacteristics
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraDevices
 import androidx.camera.camera2.pipe.CameraId
+import androidx.camera.camera2.pipe.DoNotDisturbException
 import androidx.camera.camera2.pipe.core.Log
-import androidx.camera.camera2.pipe.integration.adapter.CameraFactoryAdapter
 import androidx.camera.camera2.pipe.integration.config.CameraAppComponent
 import androidx.camera.camera2.pipe.integration.config.CameraConfig
 import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.InitializationException
+import androidx.camera.core.impl.CameraFactory
 import androidx.camera.core.impl.CameraInfoInternal
 
 /**
@@ -33,12 +34,12 @@ import androidx.camera.core.impl.CameraInfoInternal
  * passed CameraSelector
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-class CameraSelectionOptimizer {
+internal class CameraSelectionOptimizer {
     companion object {
 
         @Throws(InitializationException::class)
         fun getSelectedAvailableCameraIds(
-            cameraFactory: CameraFactoryAdapter,
+            cameraFactory: CameraFactory,
             availableCamerasSelector: CameraSelector?
         ): List<String> {
             try {
@@ -100,27 +101,32 @@ class CameraSelectionOptimizer {
             if (lensFacingInteger == null) { // Cannot skip any camera id.
                 return null
             }
-            if (lensFacingInteger.toInt() == CameraSelector.LENS_FACING_BACK) {
-                val camera0Metadata = cameraDevices.awaitCameraMetadata(CameraId("0"))
-                checkNotNull(camera0Metadata)
-                if (camera0Metadata[CameraCharacteristics.LENS_FACING]?.equals(
+            try {
+                if (lensFacingInteger.toInt() == CameraSelector.LENS_FACING_BACK) {
+                    val camera0Metadata = cameraDevices.awaitCameraMetadata(CameraId("0"))
+                    checkNotNull(camera0Metadata)
+                    if (camera0Metadata[CameraCharacteristics.LENS_FACING] ==
                         CameraCharacteristics.LENS_FACING_BACK
-                    )!!
-                ) {
-                    // If apps requires back lens facing,  and "0" is confirmed to be back
-                    // We can safely ignore "1" as a optimization for initialization latency
-                    skippedCameraId = "1"
-                }
-            } else if (lensFacingInteger.toInt() == CameraSelector.LENS_FACING_FRONT) {
-                val camera1Metadata = cameraDevices.awaitCameraMetadata(CameraId("1"))
-                checkNotNull(camera1Metadata)
-                if (camera1Metadata[CameraCharacteristics.LENS_FACING]?.equals(
+                    ) {
+                        // If apps requires back lens facing,  and "0" is confirmed to be back
+                        // We can safely ignore "1" as a optimization for initialization latency
+                        skippedCameraId = "1"
+                    }
+                } else if (lensFacingInteger.toInt() == CameraSelector.LENS_FACING_FRONT) {
+                    val camera1Metadata = cameraDevices.awaitCameraMetadata(CameraId("1"))
+                    checkNotNull(camera1Metadata)
+                    if (camera1Metadata[CameraCharacteristics.LENS_FACING] ==
                         CameraCharacteristics.LENS_FACING_FRONT
-                    )!!
-                ) {
-                    // If apps requires front lens facing,  and "1" is confirmed to be back
-                    // We can safely ignore "0" as a optimization for initialization latency
-                    skippedCameraId = "0"
+                    ) {
+                        // If apps requires front lens facing,  and "1" is confirmed to be back
+                        // We can safely ignore "0" as a optimization for initialization latency
+                        skippedCameraId = "0"
+                    }
+                }
+            } catch (exception: DoNotDisturbException) {
+                Log.error {
+                    "Received Do Not Disturb exception while deciding camera id to skip. " +
+                        "Please turn off Do Not Disturb mode"
                 }
             }
             return skippedCameraId

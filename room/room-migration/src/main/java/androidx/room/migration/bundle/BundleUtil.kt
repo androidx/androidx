@@ -23,7 +23,6 @@ import androidx.annotation.RestrictTo
 /**
  * Utility functions for bundling.
  *
- * @hide
  */
 
 /**

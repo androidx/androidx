@@ -16,14 +16,11 @@
 
 package androidx.appsearch.cts.app;
 
-import static androidx.appsearch.app.AppSearchResult.RESULT_INVALID_ARGUMENT;
-
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
 
 import androidx.appsearch.app.SearchSuggestionSpec;
-import androidx.appsearch.exceptions.AppSearchException;
 
 import com.google.common.collect.ImmutableList;
 
@@ -68,12 +65,11 @@ public class SearchSuggestionSpecCtsTest {
 
     @Test
     public void testDocumentIdFilterMustMatchNamespaceFilter() throws Exception {
-        AppSearchException e = assertThrows(AppSearchException.class,
+        IllegalStateException e = assertThrows(IllegalStateException.class,
                 () -> new SearchSuggestionSpec.Builder(/*totalResultCount=*/123)
                         .addFilterNamespaces("namespace1")
                         .addFilterDocumentIds("namespace2", ImmutableList.of("doc1"))
                         .build());
-        assertThat(e.getResultCode()).isEqualTo(RESULT_INVALID_ARGUMENT);
         assertThat(e).hasMessageThat().contains("The namespace: namespace2 exists in the "
                 + "document id filter but doesn't exist in the namespace filter.");
     }

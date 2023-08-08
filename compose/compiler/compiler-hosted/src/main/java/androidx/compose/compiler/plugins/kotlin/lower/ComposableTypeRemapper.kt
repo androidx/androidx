@@ -17,27 +17,22 @@
 package androidx.compose.compiler.plugins.kotlin.lower
 
 import androidx.compose.compiler.plugins.kotlin.ComposeFqNames
+import androidx.compose.compiler.plugins.kotlin.hasComposableAnnotation
 import androidx.compose.compiler.plugins.kotlin.lower.decoys.isDecoy
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContextImpl
 import org.jetbrains.kotlin.backend.common.peek
 import org.jetbrains.kotlin.backend.common.pop
-import org.jetbrains.kotlin.ir.IrElement
-import org.jetbrains.kotlin.ir.IrStatement
 import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
 import org.jetbrains.kotlin.ir.builders.declarations.addValueParameter
-import org.jetbrains.kotlin.ir.declarations.IrClass
 import org.jetbrains.kotlin.ir.declarations.IrConstructor
 import org.jetbrains.kotlin.ir.declarations.IrDeclarationOrigin
-import org.jetbrains.kotlin.ir.declarations.IrField
 import org.jetbrains.kotlin.ir.declarations.IrFile
 import org.jetbrains.kotlin.ir.declarations.IrFunction
-import org.jetbrains.kotlin.ir.declarations.IrMetadataSourceOwner
 import org.jetbrains.kotlin.ir.declarations.IrProperty
 import org.jetbrains.kotlin.ir.declarations.IrSimpleFunction
 import org.jetbrains.kotlin.ir.declarations.IrTypeParametersContainer
 import org.jetbrains.kotlin.ir.declarations.copyAttributes
-import org.jetbrains.kotlin.ir.declarations.impl.IrFileImpl
 import org.jetbrains.kotlin.ir.expressions.IrCall
 import org.jetbrains.kotlin.ir.expressions.IrConstructorCall
 import org.jetbrains.kotlin.ir.expressions.IrMemberAccessExpression
@@ -55,9 +50,7 @@ import org.jetbrains.kotlin.ir.types.classifierOrNull
 import org.jetbrains.kotlin.ir.types.impl.IrSimpleTypeImpl
 import org.jetbrains.kotlin.ir.types.impl.IrTypeAbbreviationImpl
 import org.jetbrains.kotlin.ir.types.impl.makeTypeProjection
-import org.jetbrains.kotlin.ir.types.isClassWithFqName
 import org.jetbrains.kotlin.ir.types.typeOrNull
-import org.jetbrains.kotlin.ir.util.DeepCopyIrTreeWithSymbols
 import org.jetbrains.kotlin.ir.util.DeepCopySymbolRemapper
 import org.jetbrains.kotlin.ir.util.SymbolRemapper
 import org.jetbrains.kotlin.ir.util.SymbolRenamer
@@ -70,31 +63,14 @@ import org.jetbrains.kotlin.ir.util.isFunction
 import org.jetbrains.kotlin.ir.util.parentClassOrNull
 import org.jetbrains.kotlin.ir.util.patchDeclarationParents
 import org.jetbrains.kotlin.ir.visitors.IrElementTransformerVoid
-import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.types.Variance
 
-class DeepCopyIrTreeWithSymbolsPreservingMetadata(
+internal class DeepCopyIrTreeWithRemappedComposableTypes(
     private val context: IrPluginContext,
     private val symbolRemapper: DeepCopySymbolRemapper,
     typeRemapper: TypeRemapper,
     symbolRenamer: SymbolRenamer = SymbolRenamer.DEFAULT
-) : DeepCopyIrTreeWithSymbols(symbolRemapper, typeRemapper, symbolRenamer) {
-
-    override fun visitClass(declaration: IrClass): IrClass {
-        return super.visitClass(declaration).also { it.copyMetadataFrom(declaration) }
-    }
-
-    override fun visitFunction(declaration: IrFunction): IrStatement {
-        return super.visitFunction(declaration).also {
-            it.copyMetadataFrom(declaration)
-        }
-    }
-
-    override fun visitConstructor(declaration: IrConstructor): IrConstructor {
-        return super.visitConstructor(declaration).also {
-            it.copyMetadataFrom(declaration)
-        }
-    }
+) : DeepCopyPreservingMetadata(symbolRemapper, typeRemapper, symbolRenamer) {
 
     override fun visitSimpleFunction(declaration: IrSimpleFunction): IrSimpleFunction {
         if (declaration.symbol.isRemappedAndBound()) {
@@ -105,30 +81,17 @@ class DeepCopyIrTreeWithSymbolsPreservingMetadata(
         }
         return super.visitSimpleFunction(declaration).also {
             it.correspondingPropertySymbol = declaration.correspondingPropertySymbol
-            it.copyMetadataFrom(declaration)
         }
     }
-
-    override fun visitField(declaration: IrField): IrField {
-        return super.visitField(declaration).also {
-            it.metadata = declaration.metadata
-        }
-    }
-
     override fun visitProperty(declaration: IrProperty): IrProperty {
         return super.visitProperty(declaration).also {
-            it.copyMetadataFrom(declaration)
             it.copyAttributes(declaration)
         }
     }
 
     override fun visitFile(declaration: IrFile): IrFile {
         includeFileNameInExceptionTrace(declaration) {
-            return super.visitFile(declaration).also {
-                if (it is IrFileImpl) {
-                    it.metadata = declaration.metadata
-                }
-            }
+            return super.visitFile(declaration)
         }
     }
 
@@ -382,14 +345,6 @@ class DeepCopyIrTreeWithSymbolsPreservingMetadata(
             extensionReceiver = original.extensionReceiver?.transform()
         }
 
-    private fun IrElement.copyMetadataFrom(owner: IrMetadataSourceOwner) {
-        if (this is IrMetadataSourceOwner) {
-            metadata = owner.metadata
-        } else {
-            throw IllegalArgumentException("Cannot copy metadata to $this")
-        }
-    }
-
     private fun IrType.isComposable(): Boolean {
         return annotations.hasAnnotation(ComposeFqNames.Composable)
     }
@@ -413,16 +368,6 @@ class ComposerTypeRemapper(
         scopeStack.pop()
     }
 
-    private fun IrType.isComposable(): Boolean {
-        return annotations.hasAnnotation(ComposeFqNames.Composable)
-    }
-
-    private val IrConstructorCall.annotationClass
-        get() = this.symbol.owner.returnType.classifierOrNull
-
-    private fun List<IrConstructorCall>.hasAnnotation(fqName: FqName): Boolean =
-        any { it.annotationClass?.isClassWithFqName(fqName.toUnsafe()) ?: false }
-
     @OptIn(ObsoleteDescriptorBasedAPI::class)
     private fun IrType.isFunction(): Boolean {
         val classifier = classifierOrNull ?: return false
@@ -432,10 +377,13 @@ class ComposerTypeRemapper(
         return true
     }
 
+    private fun IrType.isComposableFunction(): Boolean {
+        return isSyntheticComposableFunction() || (isFunction() && hasComposableAnnotation())
+    }
+
     override fun remapType(type: IrType): IrType {
         if (type !is IrSimpleType) return type
-        if (!type.isFunction()) return underlyingRemapType(type)
-        if (!type.isComposable()) return underlyingRemapType(type)
+        if (!type.isComposableFunction()) return underlyingRemapType(type)
         // do not convert types for decoys
         if (scopeStack.peek()?.isDecoy() == true) {
             return underlyingRemapType(type)

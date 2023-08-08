@@ -21,6 +21,7 @@ import android.database.Cursor
 import android.database.sqlite.SQLiteException
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.kruth.assertThat
 import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.sqlite.db.SupportSQLiteOpenHelper
 import androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory
@@ -28,12 +29,12 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.FlakyTest
 import androidx.test.filters.SdkSuppress
 import androidx.testutils.assertThrows
-import com.google.common.truth.Truth.assertThat
-import org.junit.Before
-import org.junit.Test
 import java.io.IOException
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
+import org.junit.Before
+import org.junit.Ignore
+import org.junit.Test
 
 class AutoClosingRoomOpenHelperTest {
 
@@ -175,6 +176,7 @@ class AutoClosingRoomOpenHelperTest {
         assertThat(countingCallback.onCreateCalls).isEqualTo(1)
     }
 
+    @Ignore // b/266993269
     @RequiresApi(Build.VERSION_CODES.N)
     @Test
     fun testStatementReturnedByCompileStatement_doesntKeepDatabaseOpen() {

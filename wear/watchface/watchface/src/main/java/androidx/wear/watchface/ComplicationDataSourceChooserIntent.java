@@ -30,14 +30,11 @@ import androidx.annotation.RestrictTo;
 /**
  * Utilities to allow watch faces to launch the complication data source chooser.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class ComplicationDataSourceChooserIntent {
 
-    /**
-     * The intent action used to open the complication data source chooser activity.
-     */
+    /** The intent action used to open the complication data source chooser activity. */
     @SuppressWarnings("ActionValue")
     private static final String ACTION_CHOOSE_DATA_SOURCE =
             "com.google.android.clockwork.home.complications.ACTION_CHOOSE_PROVIDER";
@@ -45,7 +42,6 @@ public class ComplicationDataSourceChooserIntent {
     /**
      * Key for an extra used to provide the watch face component.
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @SuppressWarnings("ActionValue")
@@ -55,7 +51,6 @@ public class ComplicationDataSourceChooserIntent {
     /**
      * Key for an extra holding a pending intent used to verify the caller.
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @SuppressWarnings("ActionValue")
@@ -65,7 +60,6 @@ public class ComplicationDataSourceChooserIntent {
     /**
      * Key for an extra used to provide the watch face supported types.
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @SuppressWarnings("ActionValue")
@@ -75,7 +69,6 @@ public class ComplicationDataSourceChooserIntent {
     /**
      * Key for an extra that holds the watch face complication id.
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @SuppressWarnings("ActionValue")
@@ -85,7 +78,6 @@ public class ComplicationDataSourceChooserIntent {
     /**
      * Key for an extra that holds the watch face instance id.
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final String EXTRA_WATCHFACE_INSTANCE_ID =
@@ -94,7 +86,6 @@ public class ComplicationDataSourceChooserIntent {
     /**
      * Key for an extra that holds the intent to launch the complication permission rational dialog.
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final String EXTRA_COMPLICATION_RATIONALE =
@@ -103,7 +94,6 @@ public class ComplicationDataSourceChooserIntent {
     /**
      * Key for an extra that holds the intent to launch the complication permission denied dialog.
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final String EXTRA_COMPLICATION_DENIED =
@@ -118,6 +108,13 @@ public class ComplicationDataSourceChooserIntent {
     @SuppressWarnings("ActionValue")
     public static final String EXTRA_PROVIDER_INFO =
             "android.support.wearable.complications.EXTRA_PROVIDER_INFO";
+
+    /**
+     * Key for an extra that holds the [UserStyleWireFormat].
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final String EXTRA_USER_STYLE =
+            "androidx.wear.watchface.complications.EXTRA_USER_STYLE";
 
     /**
      * Returns an intent that may be used to start an activity to allow the user to select a
@@ -139,9 +136,9 @@ public class ComplicationDataSourceChooserIntent {
      * will not work. The result delivered back to your activity will have a result code of {@link
      * Activity#RESULT_OK RESULT_OK} if a complication data source was successfully set, or a result
      * code of {@link Activity#RESULT_CANCELED RESULT_CANCELED} if no complication data source was
-     * set. In the case where a complication data source was set,
-     * {@link ComplicationProviderInfo} for the chosen complication data source will be included
-     * in the data intent of the result, as an extra with the key {@link #EXTRA_PROVIDER_INFO}.
+     * set. In the case where a complication data source was set, {@link ComplicationProviderInfo}
+     * for the chosen complication data source will be included in the data intent of the result, as
+     * an extra with the key {@link #EXTRA_PROVIDER_INFO}.
      *
      * <p>The package of the calling Activity must match the package of the watch face, or this will
      * not work.
@@ -178,8 +175,8 @@ public class ComplicationDataSourceChooserIntent {
      * automatically if it is not already granted.
      *
      * <p>This is intended for use when starting the chooser directly from the watch face. If the
-     * chooser is being started from an Activity, use
-     * {@link #createComplicationDataSourceChooserIntent} instead.
+     * chooser is being started from an Activity, use {@link
+     * #createComplicationDataSourceChooserIntent} instead.
      *
      * <p>The package of the caller must match the package of the watch face, or this will not work.
      *
@@ -197,11 +194,13 @@ public class ComplicationDataSourceChooserIntent {
             @NonNull ComponentName watchFace,
             int watchFaceComplicationId,
             @NonNull @ComplicationData.ComplicationType int... supportedTypes) {
-        Intent intent = createComplicationDataSourceChooserIntent(
-                watchFace, watchFaceComplicationId, supportedTypes);
+        Intent intent =
+                createComplicationDataSourceChooserIntent(
+                        watchFace, watchFaceComplicationId, supportedTypes);
         // Add a placeholder PendingIntent to allow the UID to be checked.
         intent.putExtra(
-                EXTRA_PENDING_INTENT, PendingIntent.getActivity(
+                EXTRA_PENDING_INTENT,
+                PendingIntent.getActivity(
                         context, 0, new Intent(""), PendingIntent.FLAG_IMMUTABLE));
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         context.startActivity(intent);

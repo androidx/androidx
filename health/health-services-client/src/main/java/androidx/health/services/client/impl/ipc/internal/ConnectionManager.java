@@ -31,7 +31,6 @@ import java.util.Map;
 /**
  * Manages connections to a service in a different process.
  *
- * @hide
  */
 @RestrictTo(Scope.LIBRARY)
 public final class ConnectionManager implements Handler.Callback, ServiceConnection.Callback {

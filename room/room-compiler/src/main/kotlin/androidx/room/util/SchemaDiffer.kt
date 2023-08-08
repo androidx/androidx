@@ -23,12 +23,12 @@ import androidx.room.migration.bundle.FieldBundle
 import androidx.room.migration.bundle.ForeignKeyBundle
 import androidx.room.migration.bundle.FtsEntityBundle
 import androidx.room.migration.bundle.IndexBundle
-import androidx.room.processor.ProcessorErrors.deletedOrRenamedTableFound
-import androidx.room.processor.ProcessorErrors.tableRenameError
 import androidx.room.processor.ProcessorErrors.conflictingRenameColumnAnnotationsFound
 import androidx.room.processor.ProcessorErrors.conflictingRenameTableAnnotationsFound
-import androidx.room.processor.ProcessorErrors.newNotNullColumnMustHaveDefaultValue
 import androidx.room.processor.ProcessorErrors.deletedOrRenamedColumnFound
+import androidx.room.processor.ProcessorErrors.deletedOrRenamedTableFound
+import androidx.room.processor.ProcessorErrors.newNotNullColumnMustHaveDefaultValue
+import androidx.room.processor.ProcessorErrors.tableRenameError
 import androidx.room.processor.ProcessorErrors.tableWithConflictingPrefixFound
 import androidx.room.vo.AutoMigration
 

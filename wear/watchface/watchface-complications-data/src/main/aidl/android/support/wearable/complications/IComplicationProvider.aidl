@@ -5,17 +5,20 @@ import android.support.wearable.complications.ComplicationData;
 /**
  * Interface for a service that allows data providers to receive information.
  *
- * @hide
  */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 interface IComplicationProvider {
     // IMPORTANT NOTE: All methods must be given an explicit transaction id that must never change
     // in the future to remain binary backwards compatible.
-    // Next Id: 8
+    // Next Id: 10
 
     /**
      * API version number. This should be incremented every time a new method is added.
      */
-    const int API_VERSION = 2;
+    const int API_VERSION = 4;
+
+    /** See {@link TargetWatchFaceSafety}. This field has an integer value. */
+    const String BUNDLE_KEY_IS_SAFE_FOR_WATCHFACE = "IsSafeForWatchFace";
 
     /**
      * Called when a complication data update is requested for the given complication id.
@@ -126,10 +129,38 @@ interface IComplicationProvider {
      * returned if there's either no data available or no update is necessary.
      *
      * @param complicationInstanceId The system's id for the requested complication which is a
-     * @param type The type of complication requested
      * unique value for the tuple [Watch face ComponentName, complication slot ID].
+     * @param type The type of complication requested
      * @return The updated ComplicationData or null if no update is necessary
      * @since API version 2.
      */
     ComplicationData onSynchronousComplicationRequest(int complicationInstanceId, int type) = 7;
+
+    /**
+     * Same as {@link #onUpdate}, but a bundle is used instead and isForSafeWatchFace is passd as a
+     * bundle parameter.
+     *
+     * @param complicationInstanceId The system's id for the updated complication which is a unique
+     * value for the tuple [Watch face ComponentName, complication slot ID].
+     * @param type The type of complication requested
+     * @param manager The binder for IComplicationManager
+     * @param bundle A {@link Bundle} containing {@link #BUNDLE_KEY_IS_SAFE_FOR_WATCHFACE}.
+     *
+     * @since API version 4.
+     */
+    void onUpdate2(int complicationInstanceId, int type, IBinder manager, in Bundle bundle) = 8;
+
+    /**
+     * Same as {@link #onSynchronousComplicationRequest2}, but with a bundle containing
+     * isForSafeWatchFace is passd as a bundle parameter.
+     *
+     * @param complicationInstanceId The system's id for the requested complication which is a
+     * unique value for the tuple [Watch face ComponentName, complication slot ID].
+     * @param type The type of complication requested
+     * @param bundle A {@link Bundle} containing {@link #BUNDLE_KEY_IS_SAFE_FOR_WATCHFACE}.
+     *
+     * @since API version 4.
+     */
+    ComplicationData onSynchronousComplicationRequest2(
+        int complicationInstanceId, int type, in Bundle bundle) = 9;
 }

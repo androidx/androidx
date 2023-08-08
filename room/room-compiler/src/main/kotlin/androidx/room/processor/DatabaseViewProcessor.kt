@@ -16,10 +16,10 @@
 
 package androidx.room.processor
 
+import androidx.room.compiler.processing.XTypeElement
 import androidx.room.parser.ParsedQuery
 import androidx.room.parser.QueryType
 import androidx.room.parser.SqlParser
-import androidx.room.compiler.processing.XTypeElement
 import androidx.room.vo.DatabaseView
 
 class DatabaseViewProcessor(

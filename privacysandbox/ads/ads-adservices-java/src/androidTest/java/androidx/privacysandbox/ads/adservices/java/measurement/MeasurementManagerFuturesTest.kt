@@ -19,12 +19,15 @@ package androidx.privacysandbox.ads.adservices.java.measurement
 import android.adservices.measurement.MeasurementManager
 import android.content.Context
 import android.net.Uri
+import android.os.Looper
 import android.os.OutcomeReceiver
 import android.os.ext.SdkExtensions
 import android.view.InputEvent
 import androidx.annotation.RequiresExtension
+import androidx.privacysandbox.ads.adservices.common.ExperimentalFeatures
 import androidx.privacysandbox.ads.adservices.java.measurement.MeasurementManagerFutures.Companion.from
 import androidx.privacysandbox.ads.adservices.measurement.DeletionRequest
+import androidx.privacysandbox.ads.adservices.measurement.SourceRegistrationRequest
 import androidx.privacysandbox.ads.adservices.measurement.WebSourceParams
 import androidx.privacysandbox.ads.adservices.measurement.WebSourceRegistrationRequest
 import androidx.privacysandbox.ads.adservices.measurement.WebTriggerParams
@@ -35,12 +38,23 @@ import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import java.time.Instant
+import java.util.concurrent.ExecutionException
+import java.util.concurrent.Executor
+import kotlin.test.assertNotEquals
+import kotlin.test.assertTrue
+import kotlin.test.fail
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import org.junit.Assume
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
+import org.mockito.ArgumentMatchers.eq
+import org.mockito.Mockito.atLeastOnce
+import org.mockito.Mockito.atMost
 import org.mockito.Mockito.doAnswer
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.spy
@@ -64,16 +78,16 @@ class MeasurementManagerFuturesTest {
     fun testMeasurementOlderVersions() {
         val sdkExtVersion = SdkExtensions.getExtensionVersion(SdkExtensions.AD_SERVICES)
 
-        Assume.assumeTrue("maxSdkVersion = API 33 ext 3", sdkExtVersion < 4)
+        Assume.assumeTrue("maxSdkVersion = API 33 ext 4", sdkExtVersion < 5)
         assertThat(from(mContext)).isEqualTo(null)
     }
 
     @Test
-    @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 4)
+    @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 5)
     fun testDeleteRegistrationsAsync() {
         val sdkExtVersion = SdkExtensions.getExtensionVersion(SdkExtensions.AD_SERVICES)
 
-        Assume.assumeTrue("minSdkVersion = API 33 ext 4", sdkExtVersion >= 4)
+        Assume.assumeTrue("minSdkVersion = API 33 ext 5", sdkExtVersion >= 5)
         val measurementManager = mockMeasurementManager(mContext)
         val managerCompat = from(mContext)
 
@@ -81,6 +95,7 @@ class MeasurementManagerFuturesTest {
         val answer = { args: InvocationOnMock ->
             val receiver = args.getArgument<OutcomeReceiver<Any, Exception>>(2)
             receiver.onResult(Object())
+            assertNotEquals(Looper.myLooper(), Looper.getMainLooper())
             null
         }
         doAnswer(answer).`when`(measurementManager).deleteRegistrations(any(), any(), any())
@@ -107,15 +122,16 @@ class MeasurementManagerFuturesTest {
     }
 
     @Test
-    @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 4)
+    @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 5)
     fun testRegisterSourceAsync() {
         val sdkExtVersion = SdkExtensions.getExtensionVersion(SdkExtensions.AD_SERVICES)
 
-        Assume.assumeTrue("minSdkVersion = API 33 ext 4", sdkExtVersion >= 4)
+        Assume.assumeTrue("minSdkVersion = API 33 ext 5", sdkExtVersion >= 5)
         val inputEvent = mock(InputEvent::class.java)
         val measurementManager = mockMeasurementManager(mContext)
         val managerCompat = from(mContext)
         val answer = { args: InvocationOnMock ->
+            assertNotEquals(Looper.myLooper(), Looper.getMainLooper())
             val receiver = args.getArgument<OutcomeReceiver<Any, Exception>>(3)
             receiver.onResult(Object())
             null
@@ -140,14 +156,15 @@ class MeasurementManagerFuturesTest {
     }
 
     @Test
-    @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 4)
+    @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 5)
     fun testRegisterTriggerAsync() {
         val sdkExtVersion = SdkExtensions.getExtensionVersion(SdkExtensions.AD_SERVICES)
 
-        Assume.assumeTrue("minSdkVersion = API 33 ext 4", sdkExtVersion >= 4)
+        Assume.assumeTrue("minSdkVersion = API 33 ext 5", sdkExtVersion >= 5)
         val measurementManager = mockMeasurementManager(mContext)
         val managerCompat = from(mContext)
         val answer = { args: InvocationOnMock ->
+            assertNotEquals(Looper.myLooper(), Looper.getMainLooper())
             val receiver = args.getArgument<OutcomeReceiver<Any, Exception>>(2)
             receiver.onResult(Object())
             null
@@ -169,14 +186,15 @@ class MeasurementManagerFuturesTest {
     }
 
     @Test
-    @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 4)
+    @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 5)
     fun testRegisterWebSourceAsync() {
         val sdkExtVersion = SdkExtensions.getExtensionVersion(SdkExtensions.AD_SERVICES)
 
-        Assume.assumeTrue("minSdkVersion = API 33 ext 4", sdkExtVersion >= 4)
+        Assume.assumeTrue("minSdkVersion = API 33 ext 5", sdkExtVersion >= 5)
         val measurementManager = mockMeasurementManager(mContext)
         val managerCompat = from(mContext)
         val answer = { args: InvocationOnMock ->
+            assertNotEquals(Looper.myLooper(), Looper.getMainLooper())
             val receiver = args.getArgument<OutcomeReceiver<Any, Exception>>(2)
             receiver.onResult(Object())
             null
@@ -208,14 +226,15 @@ class MeasurementManagerFuturesTest {
     }
 
     @Test
-    @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 4)
+    @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 5)
     fun testRegisterWebTriggerAsync() {
         val sdkExtVersion = SdkExtensions.getExtensionVersion(SdkExtensions.AD_SERVICES)
 
-        Assume.assumeTrue("minSdkVersion = API 33 ext 4", sdkExtVersion >= 4)
+        Assume.assumeTrue("minSdkVersion = API 33 ext 5", sdkExtVersion >= 5)
         val measurementManager = mockMeasurementManager(mContext)
         val managerCompat = from(mContext)
         val answer = { args: InvocationOnMock ->
+            assertNotEquals(Looper.myLooper(), Looper.getMainLooper())
             val receiver = args.getArgument<OutcomeReceiver<Any, Exception>>(2)
             receiver.onResult(Object())
             null
@@ -244,15 +263,16 @@ class MeasurementManagerFuturesTest {
     }
 
     @Test
-    @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 4)
+    @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 5)
     fun testMeasurementApiStatusAsync() {
         val sdkExtVersion = SdkExtensions.getExtensionVersion(SdkExtensions.AD_SERVICES)
 
-        Assume.assumeTrue("minSdkVersion = API 33 ext 4", sdkExtVersion >= 4)
+        Assume.assumeTrue("minSdkVersion = API 33 ext 5", sdkExtVersion >= 5)
         val measurementManager = mockMeasurementManager(mContext)
         val managerCompat = from(mContext)
         val state = MeasurementManager.MEASUREMENT_API_STATE_DISABLED
         val answer = { args: InvocationOnMock ->
+            assertNotEquals(Looper.myLooper(), Looper.getMainLooper())
             val receiver = args.getArgument<OutcomeReceiver<Int, Exception>>(1)
             receiver.onResult(state)
             null
@@ -270,8 +290,114 @@ class MeasurementManagerFuturesTest {
         assertThat(result.get() == state)
     }
 
+    @ExperimentalFeatures.RegisterSourceOptIn
+    @Test
+    @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 5)
+    fun testRegisterSourceAsync_allSuccess() {
+        val sdkExtVersion = SdkExtensions.getExtensionVersion(SdkExtensions.AD_SERVICES)
+
+        Assume.assumeTrue("minSdkVersion = API 33 ext 5", sdkExtVersion >= 5)
+        val inputEvent = mock(InputEvent::class.java)
+        val measurementManager = mockMeasurementManager(mContext)
+        val managerCompat = from(mContext)
+        val successCallback = { args: InvocationOnMock ->
+            assertNotEquals(Looper.myLooper(), Looper.getMainLooper())
+            val receiver = args.getArgument<OutcomeReceiver<Any, Exception>>(3)
+            receiver.onResult(Object())
+            null
+        }
+        doAnswer(successCallback).`when`(measurementManager)
+            .registerSource(any(), any(), any(), any())
+
+        // Actually invoke the compat code.
+        val request = SourceRegistrationRequest.Builder(listOf(uri1, uri2))
+            .setInputEvent(inputEvent)
+            .build()
+        managerCompat!!.registerSourceAsync(request).get()
+
+        // Verify that the compat code was invoked correctly.
+        verify(measurementManager).registerSource(
+            eq(uri1),
+            eq(inputEvent),
+            any(Executor::class.java),
+            any())
+        verify(measurementManager).registerSource(
+            eq(uri2),
+            eq(inputEvent),
+            any(Executor::class.java),
+            any())
+    }
+
+    @ExperimentalFeatures.RegisterSourceOptIn
+    @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 5)
+    @Test
+    fun testRegisterSource_15thOf20Fails_atLeast15thExecutes() {
+        val sdkExtVersion = SdkExtensions.getExtensionVersion(SdkExtensions.AD_SERVICES)
+
+        Assume.assumeTrue("minSdkVersion = API 33 ext 5", sdkExtVersion >= 5)
+        val measurementManager = mockMeasurementManager(mContext)
+        val mockInputEvent = mock(InputEvent::class.java)
+        val managerCompat = from(mContext)
+        val successCallback = { args: InvocationOnMock ->
+            val receiver = args.getArgument<OutcomeReceiver<Any, Exception>>(3)
+            receiver.onResult(Object())
+            null
+        }
+
+        val errorMessage = "some error occurred"
+        val errorCallback = { args: InvocationOnMock ->
+            val receiver = args.getArgument<OutcomeReceiver<Any, Exception>>(3)
+            receiver.onError(IllegalArgumentException(errorMessage))
+            null
+        }
+
+        val uris = (1..20).map { i ->
+            val uri = Uri.parse("www.uri$i.com")
+            if (i == 15) {
+                doAnswer(errorCallback).`when`(measurementManager)
+                    .registerSource(eq(uri), any(), any(), any())
+            } else {
+                doAnswer(successCallback).`when`(measurementManager)
+                    .registerSource(eq(uri), any(), any(), any())
+            }
+            uri
+        }.toList()
+
+        val request = SourceRegistrationRequest(uris, mockInputEvent)
+
+        // Actually invoke the compat code.
+        runBlocking {
+            try {
+                withContext(Dispatchers.Main) {
+                    managerCompat!!.registerSourceAsync(request).get()
+                }
+                fail("Expected failure.")
+            } catch (e: ExecutionException) {
+                assertTrue(e.cause!! is IllegalArgumentException)
+                assertThat(e.cause!!.message).isEqualTo(errorMessage)
+            }
+        }
+
+        // Verify that the compat code was invoked correctly.
+        // registerSource gets called 1-20 times. We cannot predict the exact number because
+        // uri15 would crash asynchronously. Other uris may succeed and those threads on default
+        // dispatcher won't crash.
+        verify(measurementManager, atLeastOnce()).registerSource(
+            any(),
+            eq(mockInputEvent),
+            any(),
+            any()
+        )
+        verify(measurementManager, atMost(20)).registerSource(
+            any(),
+            eq(mockInputEvent),
+            any(),
+            any()
+        )
+    }
+
     @SdkSuppress(minSdkVersion = 30)
-    @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 4)
+    @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 5)
     companion object {
 
         private val uri1: Uri = Uri.parse("www.abc.com")

@@ -1,7 +1,7 @@
 // Proto for use by PreferencesSerializer
 syntax = "proto2";
 
-package androidx.testing;
+package androidx.datastore.testing;
 
 option java_package = "androidx.datastore.preferences";
 option java_outer_classname = "PreferencesProto";

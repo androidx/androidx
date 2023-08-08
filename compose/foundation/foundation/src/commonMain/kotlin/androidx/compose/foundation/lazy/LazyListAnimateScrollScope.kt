@@ -50,8 +50,10 @@ internal class LazyListAnimateScrollScope(
     }
 
     override fun expectedDistanceTo(index: Int, targetScrollOffset: Int): Float {
-        val visibleItems = state.layoutInfo.visibleItemsInfo
-        val averageSize = visibleItems.fastSumBy { it.size } / visibleItems.size
+        val layoutInfo = state.layoutInfo
+        val visibleItems = layoutInfo.visibleItemsInfo
+        val averageSize =
+            visibleItems.fastSumBy { it.size } / visibleItems.size + layoutInfo.mainAxisItemSpacing
         val indexesDiff = index - firstVisibleItemIndex
         var coercedOffset = minOf(abs(targetScrollOffset), averageSize)
         if (targetScrollOffset < 0) coercedOffset *= -1

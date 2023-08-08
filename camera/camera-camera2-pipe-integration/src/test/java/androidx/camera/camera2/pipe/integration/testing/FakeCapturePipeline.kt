@@ -33,7 +33,7 @@ class FakeCapturePipeline(
         flashMode: Int
     ): List<Deferred<Void?>> {
         return requests.map {
-            CompletableDeferred(null)
+            CompletableDeferred<Void?>(null).apply { complete(null) }
         }
     }
 }

@@ -20,6 +20,7 @@ import android.os.Build
 import androidx.benchmark.junit4.PerfettoTraceRule
 import androidx.benchmark.perfetto.ExperimentalPerfettoCaptureApi
 import androidx.benchmark.perfetto.PerfettoHelper
+import androidx.benchmark.perfetto.PerfettoTraceProcessor
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.tracing.trace
@@ -32,7 +33,7 @@ import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
 /**
- * Tests for Perfetto SDK tracing [androidx.tracing.perfetto.Tracing] verifying that:
+ * Tests for Perfetto SDK tracing [androidx.tracing.perfetto.PerfettoSdkTrace] verifying that:
  * - it works in conjunction with android.os.Trace
  * - it can handle non-ASCII characters, including unicode surrogate pairs
  * - it can handle whitespace at the start/end of the traced string
@@ -56,8 +57,13 @@ class PerfettoSdkTraceTest(enableAppTagTracing: Boolean, enableUserspaceTracing:
             if (enableAppTagTracing) yield(StringSource.appTagTraceStrings)
             if (enableUserspaceTracing) yield(StringSource.userspaceTraceStrings)
         }.flatMap { it }.toList()
-        val actualSlices = PerfettoTraceProcessor.runServer(trace.path) {
-            StringSource.allTraceStrings.flatMap { querySlices(it).map { s -> s.name } }
+        val actualSlices = PerfettoTraceProcessor.runSingleSessionServer(trace.path) {
+            StringSource.allTraceStrings.flatMap {
+                querySlices(
+                    it,
+                    packageName = null
+                ).map { s -> s.name }
+            }
         }
         assertThat(actualSlices).containsExactlyElementsIn(expectedSlices)
     }
@@ -72,9 +78,9 @@ class PerfettoSdkTraceTest(enableAppTagTracing: Boolean, enableUserspaceTracing:
 
         assumeTrue(PerfettoHelper.isAbiSupported())
         StringSource.appTagTraceStrings.forEach { trace(it) { } }
-        StringSource.userspaceTraceStrings.forEachIndexed { ix, str ->
-            androidx.tracing.perfetto.Tracing.traceEventStart(123 + ix, str)
-            androidx.tracing.perfetto.Tracing.traceEventEnd()
+        StringSource.userspaceTraceStrings.forEach { str ->
+            androidx.tracing.perfetto.PerfettoSdkTrace.beginSection(str)
+            androidx.tracing.perfetto.PerfettoSdkTrace.endSection()
         }
     }
 

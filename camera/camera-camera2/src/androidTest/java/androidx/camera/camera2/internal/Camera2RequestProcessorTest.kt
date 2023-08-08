@@ -30,6 +30,7 @@ import android.view.Surface
 import androidx.camera.camera2.Camera2Config
 import androidx.camera.camera2.impl.Camera2CameraCaptureResultConverter
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat
+import androidx.camera.camera2.internal.compat.params.DynamicRangesCompat
 import androidx.camera.camera2.internal.compat.quirk.CameraQuirks
 import androidx.camera.camera2.internal.compat.quirk.DeviceQuirks
 import androidx.camera.camera2.internal.util.RequestProcessorRequest
@@ -40,8 +41,8 @@ import androidx.camera.core.impl.RequestProcessor
 import androidx.camera.core.impl.SessionConfig
 import androidx.camera.core.impl.SessionProcessorSurface
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
-import androidx.camera.testing.CameraUtil
-import androidx.camera.testing.CameraUtil.PreTestCameraIdList
+import androidx.camera.testing.impl.CameraUtil
+import androidx.camera.testing.impl.CameraUtil.PreTestCameraIdList
 import androidx.concurrent.futures.await
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -79,6 +80,7 @@ class Camera2RequestProcessorTest {
 
     private lateinit var cameraDeviceHolder: CameraUtil.CameraDeviceHolder
     private lateinit var captureSessionRepository: CaptureSessionRepository
+    private lateinit var dynamicRangesCompat: DynamicRangesCompat
     private lateinit var captureSessionOpenerBuilder: SynchronizedCaptureSessionOpener.Builder
     private lateinit var mainThreadExecutor: Executor
     private lateinit var previewSurface: SessionProcessorSurface
@@ -93,7 +95,8 @@ class Camera2RequestProcessorTest {
             .getSystemService(Context.CAMERA_SERVICE) as CameraManager
 
         return CameraCharacteristicsCompat.toCameraCharacteristicsCompat(
-            cameraManager.getCameraCharacteristics(cameraId)
+            cameraManager.getCameraCharacteristics(cameraId),
+            cameraId
         )
     }
 
@@ -102,12 +105,14 @@ class Camera2RequestProcessorTest {
         val handler = Handler(Looper.getMainLooper())
         mainThreadExecutor = CameraXExecutors.newHandlerExecutor(handler)
         captureSessionRepository = CaptureSessionRepository(mainThreadExecutor)
+        val cameraCharacteristics = getCameraCharacteristic(CAMERA_ID)
+        dynamicRangesCompat = DynamicRangesCompat.fromCameraCharacteristics(cameraCharacteristics)
         captureSessionOpenerBuilder = SynchronizedCaptureSessionOpener.Builder(
             mainThreadExecutor,
             mainThreadExecutor as ScheduledExecutorService,
             handler,
             captureSessionRepository,
-            CameraQuirks.get(CAMERA_ID, getCameraCharacteristic(CAMERA_ID)),
+            CameraQuirks.get(CAMERA_ID, cameraCharacteristics),
             DeviceQuirks.getAll()
         )
 
@@ -170,7 +175,7 @@ class Camera2RequestProcessorTest {
     @Test
     fun canSubmit(): Unit = runBlocking {
         // Arrange
-        val captureSession = CaptureSession()
+        val captureSession = CaptureSession(dynamicRangesCompat)
         val cameraDevice = cameraDeviceHolder.get()!!
         captureSession.open(
             getSessionConfig(),
@@ -219,7 +224,7 @@ class Camera2RequestProcessorTest {
     @Test
     fun canSubmitMultipleThreads() {
         // Arrange
-        val captureSession = CaptureSession()
+        val captureSession = CaptureSession(dynamicRangesCompat)
         val cameraDevice = cameraDeviceHolder.get()!!
         captureSession.open(
             getSessionConfig(),
@@ -285,7 +290,7 @@ class Camera2RequestProcessorTest {
     @Test
     fun canSubmitList(): Unit = runBlocking {
         // Arrange
-        val captureSession = CaptureSession()
+        val captureSession = CaptureSession(dynamicRangesCompat)
         val cameraDevice = cameraDeviceHolder.get()!!
         captureSession.open(
             getSessionConfig(),
@@ -363,7 +368,7 @@ class Camera2RequestProcessorTest {
     @Test
     fun canSetRepeating(): Unit = runBlocking {
         // Arrange
-        val captureSession = CaptureSession()
+        val captureSession = CaptureSession(dynamicRangesCompat)
         val cameraDevice = cameraDeviceHolder.get()!!
         captureSession.open(
             getSessionConfig(),
@@ -415,7 +420,7 @@ class Camera2RequestProcessorTest {
     @Test
     fun closeRequestProcessor(): Unit = runBlocking {
         // Arrange
-        val captureSession = CaptureSession()
+        val captureSession = CaptureSession(dynamicRangesCompat)
         val cameraDevice = cameraDeviceHolder.get()!!
         captureSession.open(
             getSessionConfig(),
@@ -458,7 +463,7 @@ class Camera2RequestProcessorTest {
     @Test
     fun invalidRequest(): Unit = runBlocking {
         // Arrange
-        val captureSession = CaptureSession()
+        val captureSession = CaptureSession(dynamicRangesCompat)
         val cameraDevice = cameraDeviceHolder.get()!!
         captureSession.open(
             getSessionConfig(),

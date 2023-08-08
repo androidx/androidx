@@ -36,14 +36,14 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
-import org.junit.Assert.fail
-import org.junit.Rule
-import org.junit.Test
-import org.junit.runner.RunWith
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import leakcanary.DetectLeaksAfterTestSuccess
+import org.junit.Assert.fail
+import org.junit.Rule
+import org.junit.Test
 import org.junit.rules.RuleChain
+import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 @LargeTest
@@ -83,8 +83,8 @@ class FragmentViewLifecycleTest {
         } catch (expected: IllegalStateException) {
             assertThat(expected)
                 .hasMessageThat().contains(
-                    "Can't access the Fragment View's LifecycleOwner when" +
-                        " getView() is null i.e., before onCreateView() or after onDestroyView()"
+                    "Can't access the Fragment View's LifecycleOwner for $fragment when " +
+                        "getView() is null i.e., before onCreateView() or after onDestroyView()"
                 )
         }
     }
@@ -228,8 +228,8 @@ class FragmentViewLifecycleTest {
         } catch (expected: IllegalStateException) {
             assertThat(expected)
                 .hasMessageThat().contains(
-                    "Can't access the Fragment View's LifecycleOwner when" +
-                        " getView() is null i.e., before onCreateView() or after onDestroyView()"
+                    "Can't access the Fragment View's LifecycleOwner for $fragment when " +
+                        "getView() is null i.e., before onCreateView() or after onDestroyView()"
                 )
         }
     }

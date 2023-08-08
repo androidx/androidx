@@ -17,7 +17,7 @@ android {
 }
 
 androidx {
-    name = "Android Support Recommendation"
+    name = "Recommendation"
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2015"
     description = "Android Support Recommendation"

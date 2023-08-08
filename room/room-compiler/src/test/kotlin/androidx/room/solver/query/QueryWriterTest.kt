@@ -16,6 +16,7 @@
 
 package androidx.room.solver.query
 
+import androidx.kruth.assertThat
 import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.compiler.codegen.CodeLanguage
@@ -27,7 +28,6 @@ import androidx.room.ext.RoomTypeNames.STRING_UTIL
 import androidx.room.processor.QueryMethodProcessor
 import androidx.room.testing.context
 import androidx.room.writer.QueryWriter
-import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4

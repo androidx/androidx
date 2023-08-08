@@ -115,6 +115,8 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
         NestedScrollingParent3 {
     static final String TAG = "CoordinatorLayout";
     static final String WIDGET_PACKAGE_NAME;
+    // For the UP/DOWN keys, we scroll 1/10th of the screen.
+    private static final float KEY_SCROLL_FRACTION_AMOUNT = 0.1f;
 
     static {
         final Package pkg = CoordinatorLayout.class.getPackage();
@@ -144,7 +146,6 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
     static final int EVENT_NESTED_SCROLL = 1;
     static final int EVENT_VIEW_REMOVED = 2;
 
-    /** @hide */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({EVENT_PRE_DRAW, EVENT_NESTED_SCROLL, EVENT_VIEW_REMOVED})
@@ -181,6 +182,13 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
     // Array to be used for calls from v2 version of onNestedScroll to v3 version of onNestedScroll.
     // This only exist to prevent GC and object instantiation costs that are present before API 21.
     private final int[] mNestedScrollingV2ConsumedCompat = new int[2];
+
+    // Array to be mutated by calls to nested scrolling related methods triggered by key events.
+    // Because these scrolling events rely on lower level methods using mBehaviorConsumed, we need
+    // a separate variable to save memory. As with the above, this only exist to prevent GC and
+    // object instantiation costs that are
+    // present before API 21.
+    private final int[] mKeyTriggeredScrollConsumed = new int[2];
 
     private boolean mDisallowInterceptReset;
 
@@ -393,7 +401,6 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Nullable
@@ -1787,8 +1794,8 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
 
     @Override
     public boolean onStartNestedScroll(@NonNull View child, @NonNull View target,
-            int nestedScrollAxes) {
-        return onStartNestedScroll(child, target, nestedScrollAxes, ViewCompat.TYPE_TOUCH);
+            int axes) {
+        return onStartNestedScroll(child, target, axes, ViewCompat.TYPE_TOUCH);
     }
 
     @Override
@@ -1947,53 +1954,82 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
             if (event.getAction() == KeyEvent.ACTION_DOWN) {
                 switch (event.getKeyCode()) {
                     case KeyEvent.KEYCODE_DPAD_UP:
-                    case KeyEvent.KEYCODE_DPAD_DOWN:
-                    case KeyEvent.KEYCODE_SPACE:
-
-                        int yScrollDelta;
-
-                        if (event.getKeyCode() == KeyEvent.KEYCODE_SPACE) {
-                            if (event.isShiftPressed()) {
-                                // Places the CoordinatorLayout at the top of the available
-                                // content.
-                                // Note: The delta may represent a value that would overshoot the
-                                // top of the screen, but the children only use as much of the
-                                // delta as they can support, so it will always go exactly to the
-                                // top.
-                                yScrollDelta = -getFullContentHeight();
-                            } else {
-                                // Places the CoordinatorLayout at the bottom of the available
-                                // content.
-                                yScrollDelta = getFullContentHeight() - getHeight();
-                            }
-
-                        } else if (event.isAltPressed()) { // For UP and DOWN KeyEvents
-                            // Full page scroll
-                            yScrollDelta = getHeight();
-
+                        if (event.isAltPressed()) {
+                            // Inverse to move up the screen
+                            handled = moveVertically(-pageDelta());
                         } else {
-                            // Regular arrow scroll
-                            yScrollDelta = (int) (getHeight() * 0.1f);
+                            // Inverse to move up the screen
+                            handled = moveVertically(-lineDelta());
                         }
+                        break;
 
-                        View focusedView = findDeepestFocusedChild(this);
-
-                        // Convert delta to negative if the key event is UP.
-                        if (event.getKeyCode() == KeyEvent.KEYCODE_DPAD_UP) {
-                            yScrollDelta = -yScrollDelta;
+                    case KeyEvent.KEYCODE_DPAD_DOWN:
+                        if (event.isAltPressed()) {
+                            handled = moveVertically(pageDelta());
+                        } else {
+                            handled = moveVertically(lineDelta());
                         }
+                        break;
 
-                        handled = manuallyTriggersNestedScrollFromKeyEvent(
-                                focusedView,
-                                yScrollDelta
-                        );
+                    case KeyEvent.KEYCODE_PAGE_UP:
+                        // Inverse to move up the screen
+                        handled = moveVertically(-pageDelta());
+                        break;
 
+                    case KeyEvent.KEYCODE_PAGE_DOWN:
+                        handled = moveVertically(pageDelta());
+                        break;
+
+                    case KeyEvent.KEYCODE_SPACE:
+                        if (event.isShiftPressed()) {
+                            handled = moveVertically(distanceToTop());
+                        } else {
+                            handled = moveVertically(distanceToBottom());
+                        }
+                        break;
+
+                    case KeyEvent.KEYCODE_MOVE_HOME:
+                        handled = moveVertically(distanceToTop());
+                        break;
+
+                    case KeyEvent.KEYCODE_MOVE_END:
+                        handled = moveVertically(distanceToBottom());
                         break;
                 }
             }
         }
 
         return handled;
+    }
+
+    // Distance for moving one arrow key tap.
+    private int lineDelta() {
+        return (int) (getHeight() * KEY_SCROLL_FRACTION_AMOUNT);
+    }
+
+    private int pageDelta() {
+        return getHeight();
+    }
+
+    private int distanceToTop() {
+        // Note: The delta may represent a value that would overshoot the
+        // top of the screen, but the children only use as much of the
+        // delta as they can support, so it will always go exactly to the
+        // top.
+        return -getFullContentHeight();
+    }
+
+    private int distanceToBottom() {
+        return getFullContentHeight() - getHeight();
+    }
+
+    private boolean moveVertically(int yScrollDelta) {
+        View focusedView = findDeepestFocusedChild(this);
+
+        return manuallyTriggersNestedScrollFromKeyEvent(
+                focusedView,
+                yScrollDelta
+        );
     }
 
     private View findDeepestFocusedChild(View startingParentView) {
@@ -2052,6 +2088,10 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
                 ViewCompat.TYPE_NON_TOUCH
         );
 
+        // Reset consumed values to zero.
+        mKeyTriggeredScrollConsumed[0] = 0;
+        mKeyTriggeredScrollConsumed[1] = 0;
+
         onNestedScroll(
                 focusedView,
                 0,
@@ -2059,12 +2099,12 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
                 0,
                 yScrollDelta,
                 ViewCompat.TYPE_NON_TOUCH,
-                mBehaviorConsumed
+                mKeyTriggeredScrollConsumed
         );
 
         onStopNestedScroll(focusedView, ViewCompat.TYPE_NON_TOUCH);
 
-        if (mBehaviorConsumed[1] > 0) {
+        if (mKeyTriggeredScrollConsumed[1] > 0) {
             handled = true;
         }
 

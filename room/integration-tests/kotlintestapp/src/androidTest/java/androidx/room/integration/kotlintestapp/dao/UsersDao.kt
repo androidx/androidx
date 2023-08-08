@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package androidx.room.androidx.room.integration.kotlintestapp.dao
+package androidx.room.integration.kotlintestapp.dao
 
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
-import androidx.room.androidx.room.integration.kotlintestapp.vo.User
+import androidx.room.integration.kotlintestapp.vo.User
 
 @Dao
 interface UsersDao {

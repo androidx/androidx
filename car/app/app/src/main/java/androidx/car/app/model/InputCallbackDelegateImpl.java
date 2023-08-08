@@ -35,7 +35,6 @@ import androidx.car.app.utils.RemoteUtils;
  * Implementation class for {@link InputCallbackDelegate} to allow IPC for text-input-related
  * events.
  *
- * @hide
  */
 @RestrictTo(LIBRARY)
 @KeepFields

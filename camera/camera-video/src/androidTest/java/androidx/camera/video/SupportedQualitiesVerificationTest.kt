@@ -37,16 +37,20 @@ import android.os.Build
 import androidx.camera.camera2.Camera2Config
 import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.Camera
+import androidx.camera.core.CameraEffect
+import androidx.camera.core.CameraEffect.VIDEO_CAPTURE
 import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraXConfig
+import androidx.camera.core.DynamicRange
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.core.processing.DefaultSurfaceProcessor
 import androidx.camera.core.processing.SurfaceProcessorInternal
 import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.camera.testing.CameraPipeConfigTestRule
-import androidx.camera.testing.CameraUtil
-import androidx.camera.testing.fakes.FakeLifecycleOwner
+import androidx.camera.testing.impl.CameraPipeConfigTestRule
+import androidx.camera.testing.impl.CameraUtil
+import androidx.camera.testing.impl.fakes.FakeLifecycleOwner
+import androidx.camera.testing.impl.fakes.FakeSurfaceEffect
 import androidx.core.util.Consumer
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
@@ -133,6 +137,8 @@ class SupportedQualitiesVerificationTest(
     private val instrumentation = InstrumentationRegistry.getInstrumentation()
     private val context: Context = ApplicationProvider.getApplicationContext()
     private val surfaceProcessorsToRelease = mutableListOf<SurfaceProcessorInternal>()
+    // TODO(b/278168212): Only SDR is checked by now. Need to extend to HDR dynamic ranges.
+    private val dynamicRange = DynamicRange.SDR
     private lateinit var cameraProvider: ProcessCameraProvider
     private lateinit var lifecycleOwner: FakeLifecycleOwner
     private lateinit var cameraInfo: CameraInfo
@@ -161,9 +167,10 @@ class SupportedQualitiesVerificationTest(
         }
 
         // Ignore the unsupported Quality options
+        val videoCapabilities = Recorder.getVideoCapabilities(cameraInfo)
         Assume.assumeTrue(
             "Camera ${cameraSelector.lensFacing} not support $quality, skip this test item.",
-            QualitySelector.isQualitySupported(cameraInfo, quality)
+            videoCapabilities.isQualitySupported(quality, dynamicRange)
         )
     }
 
@@ -187,14 +194,14 @@ class SupportedQualitiesVerificationTest(
     fun qualityOptionCanRecordVideo_enableSurfaceProcessor() {
         assumeSuccessfulSurfaceProcessing()
 
-        testQualityOptionRecordVideo(surfaceProcessor = createSurfaceProcessor())
+        testQualityOptionRecordVideo(effect = createEffect())
     }
 
-    private fun testQualityOptionRecordVideo(surfaceProcessor: SurfaceProcessorInternal? = null) {
+    private fun testQualityOptionRecordVideo(effect: CameraEffect? = null) {
         // Arrange.
         val recorder = Recorder.Builder().setQualitySelector(QualitySelector.from(quality)).build()
         val videoCapture = VideoCapture.withOutput(recorder)
-        videoCapture.setProcessor(surfaceProcessor)
+        videoCapture.effect = effect
         val file = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
         val latchForRecordingStatus = CountDownLatch(5)
         val latchForRecordingFinalized = CountDownLatch(1)
@@ -239,8 +246,14 @@ class SupportedQualitiesVerificationTest(
         file.delete()
     }
 
-    private fun createSurfaceProcessor(): SurfaceProcessorInternal =
-        DefaultSurfaceProcessor.Factory.newInstance().apply { surfaceProcessorsToRelease.add(this) }
+    private fun createEffect(): CameraEffect {
+        val fakeSurfaceProcessor = DefaultSurfaceProcessor.Factory.newInstance(DynamicRange.SDR)
+        surfaceProcessorsToRelease.add(fakeSurfaceProcessor)
+        return FakeSurfaceEffect(
+            VIDEO_CAPTURE,
+            fakeSurfaceProcessor
+        )
+    }
 
     /** Skips tests which will enable surface processing and encounter device specific issues. */
     private fun assumeSuccessfulSurfaceProcessing() {

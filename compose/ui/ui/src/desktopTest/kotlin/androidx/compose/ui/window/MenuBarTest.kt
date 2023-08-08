@@ -26,10 +26,10 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.readFirstPixel
 import androidx.compose.ui.testImage
 import com.google.common.truth.Truth.assertThat
-import org.junit.Test
 import javax.swing.JCheckBoxMenuItem
 import javax.swing.JRadioButtonMenuItem
 import javax.swing.JSeparator
+import org.junit.Test
 
 @OptIn(ExperimentalComposeUiApi::class)
 class MenuBarTest {

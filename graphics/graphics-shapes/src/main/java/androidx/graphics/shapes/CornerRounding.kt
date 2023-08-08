@@ -39,12 +39,13 @@ import androidx.annotation.FloatRange
  * @param radius a value of 0 or greater, representing the radius of the circle which defines
  * the inner rounding arc of the
  * corner. A value of 0 indicates that the corner is sharp, or completely unrounded. A positive
- * value is the requested size of the radius. Note that this radius is relative to the size
- * of the overall shape that it is being applied to. Thus if the shape is in screen coordinate
- * size, so is the radius. If the shape is in some canonical form (bounds of (-1,-1) to (1,1),
- * for example), then the radius will be relative to that size. The radius will be transformed
- * if the shape itself is transformed, since it will result in curves which round the corner and
- * thus get transformed with the shape.
+ * value is the requested size of the radius. Note that this radius is an absolute size that
+ * should relate to the overall size of its shape. Thus if the shape is in screen coordinate
+ * size, the radius should be sized appropriately. If the shape is in some canonical form
+ * (bounds of (-1,-1) to (1,1), for example, which is the default when creating a [RoundedPolygon]
+ * from a number of vertices), then the radius should be relative to that size. The radius will be
+ * scaled if the shape itself is transformed, since it will produce curves which round the corner
+ * and thus get transformed along with the overall shape.
  * @param smoothing the amount by which the arc is "smoothed" by extending the curve from
  * the inner circular arc to the edge between vertices. A value of 0 (no smoothing) indicates
  * that the corner is rounded by only a circular arc; there are no flanking curves. A value
@@ -52,7 +53,7 @@ import androidx.annotation.FloatRange
  * meet at the middle.
  */
 class CornerRounding(
-    @FloatRange(from = 0.0, to = 1.0) val radius: Float = 0f,
+    @FloatRange(from = 0.0) val radius: Float = 0f,
     @FloatRange(from = 0.0, to = 1.0) val smoothing: Float = 0f
 ) {
 

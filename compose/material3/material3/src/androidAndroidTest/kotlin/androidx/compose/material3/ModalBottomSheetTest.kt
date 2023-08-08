@@ -24,6 +24,7 @@ import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -33,20 +34,26 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollDispatcher
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
-import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertLeftPositionInRootIsEqualTo
 import androidx.compose.ui.test.assertTopPositionInRootIsEqualTo
 import androidx.compose.ui.test.assertWidthIsEqualTo
@@ -61,11 +68,12 @@ import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeDown
 import androidx.compose.ui.test.swipeUp
+import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.coerceAtMost
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.height
 import androidx.compose.ui.unit.width
-import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
@@ -79,42 +87,53 @@ import kotlinx.coroutines.runBlocking
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.junit.runners.Parameterized
 
 @MediumTest
-@RunWith(AndroidJUnit4::class)
+@RunWith(Parameterized::class)
 @OptIn(ExperimentalMaterial3Api::class)
-class ModalBottomSheetTest {
+class ModalBottomSheetTest(private val edgeToEdgeWrapper: EdgeToEdgeWrapper) {
 
     @get:Rule
     val rule = createAndroidComposeRule<ComponentActivity>()
 
     private val sheetHeight = 256.dp
+    private val dragHandleSize = 44.dp
+
     private val sheetTag = "sheetContentTag"
+    private val dragHandleTag = "dragHandleTag"
     private val BackTestTag = "Back"
 
     @Test
     fun modalBottomSheet_isDismissedOnTapOutside() {
         var showBottomSheet by mutableStateOf(true)
+        val sheetState = SheetState(skipPartiallyExpanded = false, density = rule.density)
 
         rule.setContent {
+            val windowInsets = if (edgeToEdgeWrapper.edgeToEdgeEnabled)
+                WindowInsets(0) else BottomSheetDefaults.windowInsets
+
             if (showBottomSheet) {
-                ModalBottomSheet(onDismissRequest = { showBottomSheet = false }) {
+                ModalBottomSheet(
+                    sheetState = sheetState,
+                    onDismissRequest = { showBottomSheet = false },
+                    windowInsets = windowInsets
+                ) {
                     Box(
                         Modifier
-                            .fillMaxWidth()
-                            .height(sheetHeight)
+                            .size(sheetHeight)
                             .testTag(sheetTag)
                     )
                 }
             }
         }
 
-        rule.onNodeWithTag(sheetTag).assertIsDisplayed()
+        assertThat(sheetState.isVisible).isTrue()
 
+        // Tap Scrim
         val outsideY = with(rule.density) {
             rule.onAllNodes(isPopup()).onFirst().getUnclippedBoundsInRoot().height.roundToPx() / 4
         }
-
         UiDevice.getInstance(InstrumentationRegistry.getInstrumentation()).click(0, outsideY)
         rule.waitForIdle()
 
@@ -132,8 +151,13 @@ class ModalBottomSheetTest {
             val density = LocalDensity.current
             val resScreenWidth = context.resources.configuration.screenWidthDp
             with(density) { screenWidth = resScreenWidth.dp.roundToPx() }
+            val windowInsets = if (edgeToEdgeWrapper.edgeToEdgeEnabled)
+                WindowInsets(0) else BottomSheetDefaults.windowInsets
 
-            ModalBottomSheet(onDismissRequest = {}) {
+            ModalBottomSheet(
+                onDismissRequest = {},
+                windowInsets = windowInsets
+            ) {
                 Box(
                     Modifier
                         .fillMaxWidth()
@@ -167,7 +191,12 @@ class ModalBottomSheetTest {
         try {
             latch.await(1500, TimeUnit.MILLISECONDS)
             rule.setContent {
-                ModalBottomSheet(onDismissRequest = {}) {
+                val windowInsets = if (edgeToEdgeWrapper.edgeToEdgeEnabled)
+                    WindowInsets(0) else BottomSheetDefaults.windowInsets
+                ModalBottomSheet(
+                    onDismissRequest = {},
+                    windowInsets = windowInsets
+                ) {
                     Box(
                         Modifier
                             .testTag(sheetTag)
@@ -202,10 +231,21 @@ class ModalBottomSheetTest {
     @Test
     fun modalBottomSheet_defaultStateForSmallContentIsFullExpanded() {
         lateinit var sheetState: SheetState
+        var height by mutableStateOf(0.dp)
 
         rule.setContent {
-            sheetState = rememberSheetState()
-            ModalBottomSheet(onDismissRequest = {}, sheetState = sheetState, dragHandle = null) {
+            val config = LocalContext.current.resources.configuration
+            height = config.screenHeightDp.dp
+            sheetState = rememberModalBottomSheetState()
+            val windowInsets = if (edgeToEdgeWrapper.edgeToEdgeEnabled)
+                WindowInsets(0) else BottomSheetDefaults.windowInsets
+
+            ModalBottomSheet(
+                onDismissRequest = {},
+                sheetState = sheetState,
+                dragHandle = null,
+                windowInsets = windowInsets
+            ) {
                 Box(
                     Modifier
                         .fillMaxWidth()
@@ -215,7 +255,7 @@ class ModalBottomSheetTest {
             }
         }
 
-        val height = rule.onNode(isPopup()).getUnclippedBoundsInRoot().height
+        height = rule.onNode(isPopup()).getUnclippedBoundsInRoot().height
         assertThat(sheetState.currentValue).isEqualTo(SheetValue.Expanded)
         rule.onNodeWithTag(sheetTag).assertTopPositionInRootIsEqualTo(height - sheetHeight)
     }
@@ -226,37 +266,49 @@ class ModalBottomSheetTest {
         var screenHeightPx by mutableStateOf(0f)
 
         rule.setContent {
-            sheetState = rememberSheetState()
-            val context = LocalContext.current
-            val density = LocalDensity.current
-            val resScreenHeight = context.resources.configuration.screenHeightDp
-            with(density) {
-                screenHeightPx = resScreenHeight.dp.roundToPx().toFloat()
-            }
-            ModalBottomSheet(onDismissRequest = {}, sheetState = sheetState) {
+            sheetState = rememberModalBottomSheetState()
+            val windowInsets = if (edgeToEdgeWrapper.edgeToEdgeEnabled)
+                WindowInsets(0) else BottomSheetDefaults.windowInsets
+            ModalBottomSheet(
+                onDismissRequest = {},
+                sheetState = sheetState,
+                windowInsets = windowInsets
+                ) {
                 Box(
                     Modifier
-                        .fillMaxSize()
+                        // Deliberately use fraction != 1f
+                        .fillMaxSize(0.6f)
                         .testTag(sheetTag))
             }
         }
-        rule.waitForIdle()
-        assertThat(sheetState.currentValue).isEqualTo(SheetValue.Collapsed)
+
+        screenHeightPx = with(rule.density) {
+            rule.onNode(isPopup()).getUnclippedBoundsInRoot().height.toPx()
+        }
+        assertThat(sheetState.currentValue).isEqualTo(SheetValue.PartiallyExpanded)
         assertThat(sheetState.requireOffset())
             .isWithin(1f)
             .of(screenHeightPx / 2f)
     }
 
     @Test
-    fun modalBottomSheet_isDismissedOnBackPress() {
+    fun modalBottomSheet_shortSheet_isDismissedOnBackPress() {
         var showBottomSheet by mutableStateOf(true)
+        val sheetState = SheetState(skipPartiallyExpanded = true, density = rule.density)
+
         rule.setContent {
             val dispatcher = LocalOnBackPressedDispatcherOwner.current!!.onBackPressedDispatcher
+            val windowInsets = if (edgeToEdgeWrapper.edgeToEdgeEnabled)
+                WindowInsets(0) else BottomSheetDefaults.windowInsets
             if (showBottomSheet) {
-                ModalBottomSheet(onDismissRequest = { showBottomSheet = false }) {
+                ModalBottomSheet(
+                    sheetState = sheetState,
+                    onDismissRequest = { showBottomSheet = false },
+                    windowInsets = windowInsets
+                ) {
                     Box(
                         Modifier
-                            .size(sheetHeight)
+                            .fillMaxHeight(0.4f)
                             .testTag(sheetTag)) {
                         Button(
                             onClick = { dispatcher.onBackPressed() },
@@ -268,8 +320,45 @@ class ModalBottomSheetTest {
             }
         }
 
-        // Popup should be visible
-        rule.onNodeWithTag(sheetTag).assertIsDisplayed()
+        assertThat(sheetState.isVisible).isTrue()
+
+        rule.onNodeWithTag(BackTestTag).performClick()
+
+        rule.onNodeWithTag(BackTestTag).assertDoesNotExist()
+
+        // Popup should not exist
+        rule.onNodeWithTag(sheetTag).assertDoesNotExist()
+    }
+
+    @Test
+    fun modalBottomSheet_tallSheet_isDismissedOnBackPress() {
+        var showBottomSheet by mutableStateOf(true)
+        val sheetState = SheetState(skipPartiallyExpanded = false, density = rule.density)
+
+        rule.setContent {
+            val dispatcher = LocalOnBackPressedDispatcherOwner.current!!.onBackPressedDispatcher
+            val windowInsets = if (edgeToEdgeWrapper.edgeToEdgeEnabled)
+                WindowInsets(0) else BottomSheetDefaults.windowInsets
+            if (showBottomSheet) {
+                ModalBottomSheet(
+                    sheetState = sheetState,
+                    onDismissRequest = { showBottomSheet = false },
+                    windowInsets = windowInsets
+                ) {
+                    Box(
+                        Modifier
+                            .fillMaxHeight(0.6f)
+                            .testTag(sheetTag)) {
+                        Button(
+                            onClick = { dispatcher.onBackPressed() },
+                            modifier = Modifier.testTag(BackTestTag),
+                            content = { Text("Content") },
+                        )
+                    }
+                }
+            }
+        }
+        assertThat(sheetState.isVisible).isTrue()
 
         rule.onNodeWithTag(BackTestTag).performClick()
         rule.onNodeWithTag(BackTestTag).assertDoesNotExist()
@@ -292,11 +381,14 @@ class ModalBottomSheetTest {
         rule.setContent {
             val context = LocalContext.current
             screenHeight = context.resources.configuration.screenHeightDp.dp
-            state = rememberSheetState()
+            state = rememberModalBottomSheetState()
+            val windowInsets = if (edgeToEdgeWrapper.edgeToEdgeEnabled)
+                WindowInsets(0) else BottomSheetDefaults.windowInsets
             ModalBottomSheet(
                 onDismissRequest = {},
                 sheetState = state,
-                dragHandle = null
+                dragHandle = null,
+                windowInsets = windowInsets
             ) {
                 Box(
                     Modifier
@@ -305,15 +397,16 @@ class ModalBottomSheetTest {
                 )
             }
         }
-        assertThat(state.requireOffset()).isWithin(0.5f).of(expectedExpandedAnchor)
+        screenHeight = rule.onNode(isPopup()).getUnclippedBoundsInRoot().height
+        assertThat(state.requireOffset()).isWithin(1f).of(expectedExpandedAnchor)
 
         size = 100.dp
         rule.waitForIdle()
-        assertThat(state.requireOffset()).isWithin(0.5f).of(expectedExpandedAnchor)
+        assertThat(state.requireOffset()).isWithin(1f).of(expectedExpandedAnchor)
 
         size = 30.dp
         rule.waitForIdle()
-        assertThat(state.requireOffset()).isWithin(0.5f).of(expectedExpandedAnchor)
+        assertThat(state.requireOffset()).isWithin(1f).of(expectedExpandedAnchor)
     }
 
     @Test
@@ -321,10 +414,17 @@ class ModalBottomSheetTest {
         lateinit var state: SheetState
         lateinit var scope: CoroutineScope
         rule.setContent {
-            state = rememberSheetState()
+            state = rememberModalBottomSheetState()
             scope = rememberCoroutineScope()
+            val windowInsets = if (edgeToEdgeWrapper.edgeToEdgeEnabled)
+                WindowInsets(0) else BottomSheetDefaults.windowInsets
 
-            ModalBottomSheet(onDismissRequest = {}, sheetState = state, dragHandle = null) {}
+            ModalBottomSheet(
+                onDismissRequest = {},
+                sheetState = state,
+                dragHandle = null,
+                windowInsets = windowInsets
+                ) {}
         }
         assertThat(state.swipeableState.currentValue).isEqualTo(SheetValue.Hidden)
         val hiddenOffset = state.requireOffset()
@@ -343,16 +443,20 @@ class ModalBottomSheetTest {
         var amountOfItems by mutableStateOf(0)
         lateinit var scope: CoroutineScope
         rule.setContent {
-            state = rememberSheetState()
+            state = rememberModalBottomSheetState()
+            val windowInsets = if (edgeToEdgeWrapper.edgeToEdgeEnabled)
+                WindowInsets(0) else BottomSheetDefaults.windowInsets
+
             ModalBottomSheet(
                 onDismissRequest = {},
                 sheetState = state,
                 dragHandle = null,
+                windowInsets = windowInsets
             ) {
                 scope = rememberCoroutineScope()
                 LazyColumn {
                     items(amountOfItems) {
-                        ListItem(headlineText = { Text("$it") })
+                        ListItem(headlineContent = { Text("$it") })
                     }
                 }
             }
@@ -365,18 +469,18 @@ class ModalBottomSheetTest {
         scope.launch {
             state.show()
         }
-        // The anchors should now be {Hidden, HalfExpanded, Expanded}
+        // The anchors should now be {Hidden, PartiallyExpanded, Expanded}
 
         rule.waitForIdle()
-        assertThat(state.currentValue).isEqualTo(SheetValue.Collapsed)
+        assertThat(state.currentValue).isEqualTo(SheetValue.PartiallyExpanded)
 
-        amountOfItems = 100 // The anchors should now be {Hidden, HalfExpanded, Expanded}
+        amountOfItems = 100 // The anchors should now be {Hidden, PartiallyExpanded, Expanded}
 
         rule.waitForIdle()
-        assertThat(state.currentValue).isEqualTo(SheetValue.Collapsed) // We should
+        assertThat(state.currentValue).isEqualTo(SheetValue.PartiallyExpanded) // We should
         // retain the current value if possible
         assertThat(state.swipeableState.anchors).containsKey(SheetValue.Hidden)
-        assertThat(state.swipeableState.anchors).containsKey(SheetValue.Collapsed)
+        assertThat(state.swipeableState.anchors).containsKey(SheetValue.PartiallyExpanded)
         assertThat(state.swipeableState.anchors).containsKey(SheetValue.Expanded)
 
         amountOfItems = 0 // When the sheet height is 0, we should only have a hidden anchor
@@ -384,7 +488,7 @@ class ModalBottomSheetTest {
         assertThat(state.currentValue).isEqualTo(SheetValue.Hidden)
         assertThat(state.swipeableState.anchors).containsKey(SheetValue.Hidden)
         assertThat(state.swipeableState.anchors)
-            .doesNotContainKey(SheetValue.Collapsed)
+            .doesNotContainKey(SheetValue.PartiallyExpanded)
         assertThat(state.swipeableState.anchors).doesNotContainKey(SheetValue.Expanded)
     }
 
@@ -393,10 +497,10 @@ class ModalBottomSheetTest {
         lateinit var sheetState: SheetState
         lateinit var scrollState: ScrollState
         rule.setContent {
-            sheetState = rememberSheetState()
+            sheetState = rememberModalBottomSheetState()
             ModalBottomSheet(
                 onDismissRequest = {},
-                sheetState = sheetState,
+                sheetState = sheetState
             ) {
                 scrollState = rememberScrollState()
                 Column(
@@ -414,7 +518,7 @@ class ModalBottomSheetTest {
         rule.waitForIdle()
 
         assertThat(scrollState.value).isEqualTo(0)
-        assertThat(sheetState.currentValue).isEqualTo(SheetValue.Collapsed)
+        assertThat(sheetState.currentValue).isEqualTo(SheetValue.PartiallyExpanded)
 
         rule.onNodeWithTag(sheetTag)
             .performTouchInput {
@@ -446,7 +550,7 @@ class ModalBottomSheetTest {
             }
         rule.waitForIdle()
         assertThat(scrollState.value).isEqualTo(0)
-        assertThat(sheetState.currentValue).isEqualTo(SheetValue.Collapsed)
+        assertThat(sheetState.currentValue).isEqualTo(SheetValue.PartiallyExpanded)
 
         rule.onNodeWithTag(sheetTag)
             .performTouchInput {
@@ -461,15 +565,19 @@ class ModalBottomSheetTest {
     fun modalBottomSheet_missingAnchors_findsClosest() {
         val topTag = "ModalBottomSheetLayout"
         var showShortContent by mutableStateOf(false)
-        val sheetState = SheetState(skipCollapsed = false)
+        val sheetState = SheetState(skipPartiallyExpanded = false, density = rule.density)
         lateinit var scope: CoroutineScope
 
         rule.setContent {
             scope = rememberCoroutineScope()
+            val windowInsets = if (edgeToEdgeWrapper.edgeToEdgeEnabled)
+                WindowInsets(0) else BottomSheetDefaults.windowInsets
+
             ModalBottomSheet(
                 onDismissRequest = {},
                 modifier = Modifier.testTag(topTag),
                 sheetState = sheetState,
+                windowInsets = windowInsets
             ) {
                 if (showShortContent) {
                     Box(
@@ -509,8 +617,14 @@ class ModalBottomSheetTest {
     fun modalBottomSheet_expandBySwiping() {
         lateinit var sheetState: SheetState
         rule.setContent {
-            sheetState = rememberSheetState()
-            ModalBottomSheet(onDismissRequest = {}, sheetState = sheetState) {
+            sheetState = rememberModalBottomSheetState()
+            val windowInsets = if (edgeToEdgeWrapper.edgeToEdgeEnabled)
+                WindowInsets(0) else BottomSheetDefaults.windowInsets
+            ModalBottomSheet(
+                onDismissRequest = {},
+                sheetState = sheetState,
+                windowInsets = windowInsets
+            ) {
                 Box(
                     Modifier
                         .fillMaxSize()
@@ -520,7 +634,7 @@ class ModalBottomSheetTest {
         }
 
         rule.runOnIdle {
-            assertThat(sheetState.currentValue).isEqualTo(SheetValue.Collapsed)
+            assertThat(sheetState.currentValue).isEqualTo(SheetValue.PartiallyExpanded)
         }
 
         rule.onNodeWithTag(sheetTag)
@@ -532,15 +646,26 @@ class ModalBottomSheetTest {
     }
 
     @Test
-    fun modalBottomSheet_respectsConfirmStateChange() {
+    fun modalBottomSheet_respectsConfirmValueChange() {
         lateinit var sheetState: SheetState
         rule.setContent {
-            sheetState = rememberSheetState(
+            sheetState = rememberModalBottomSheetState(
                 confirmValueChange = { newState ->
                     newState != SheetValue.Hidden
                 }
             )
-            ModalBottomSheet(onDismissRequest = {}, sheetState = sheetState) {
+            val windowInsets = if (edgeToEdgeWrapper.edgeToEdgeEnabled)
+                WindowInsets(0) else BottomSheetDefaults.windowInsets
+
+            ModalBottomSheet(
+                onDismissRequest = {},
+                sheetState = sheetState,
+                dragHandle = { Box(
+                    Modifier
+                        .testTag(dragHandleTag)
+                        .size(dragHandleSize)) },
+                windowInsets = windowInsets
+            ) {
                 Box(
                     Modifier
                         .fillMaxSize()
@@ -550,21 +675,31 @@ class ModalBottomSheetTest {
         }
 
         rule.runOnIdle {
-            assertThat(sheetState.currentValue).isEqualTo(SheetValue.Collapsed)
+            assertThat(sheetState.currentValue).isEqualTo(SheetValue.PartiallyExpanded)
         }
 
         rule.onNodeWithTag(sheetTag)
             .performTouchInput { swipeDown() }
 
         rule.runOnIdle {
-            assertThat(sheetState.currentValue).isEqualTo(SheetValue.Collapsed)
+            assertThat(sheetState.currentValue).isEqualTo(SheetValue.PartiallyExpanded)
         }
 
-        rule.onNodeWithTag(sheetTag).onParent()
+        rule.onNodeWithTag(dragHandleTag, useUnmergedTree = true).onParent()
             .performSemanticsAction(SemanticsActions.Dismiss)
 
         rule.runOnIdle {
-            assertThat(sheetState.currentValue).isEqualTo(SheetValue.Collapsed)
+            assertThat(sheetState.currentValue).isEqualTo(SheetValue.PartiallyExpanded)
+        }
+
+        // Tap Scrim
+        val outsideY = with(rule.density) {
+            rule.onAllNodes(isPopup()).onFirst().getUnclippedBoundsInRoot().height.roundToPx() / 4
+        }
+        UiDevice.getInstance(InstrumentationRegistry.getInstrumentation()).click(0, outsideY)
+        rule.waitForIdle()
+        rule.runOnIdle {
+            assertThat(sheetState.currentValue).isEqualTo(SheetValue.PartiallyExpanded)
         }
     }
 
@@ -573,9 +708,15 @@ class ModalBottomSheetTest {
         lateinit var sheetState: SheetState
         lateinit var scope: CoroutineScope
         rule.setContent {
-            sheetState = rememberSheetState()
+            sheetState = rememberModalBottomSheetState()
             scope = rememberCoroutineScope()
-            ModalBottomSheet(onDismissRequest = {}, sheetState = sheetState) {
+            val windowInsets = if (edgeToEdgeWrapper.edgeToEdgeEnabled)
+                WindowInsets(0) else BottomSheetDefaults.windowInsets
+            ModalBottomSheet(
+                onDismissRequest = {},
+                sheetState = sheetState,
+                windowInsets = windowInsets
+            ) {
                 Box(
                     Modifier
                         .fillMaxSize()
@@ -585,7 +726,7 @@ class ModalBottomSheetTest {
         }
 
         rule.runOnIdle {
-            assertThat(sheetState.currentValue).isEqualTo(SheetValue.Collapsed)
+            assertThat(sheetState.currentValue).isEqualTo(SheetValue.PartiallyExpanded)
         }
 
         scope.launch { sheetState.expand() }
@@ -602,11 +743,18 @@ class ModalBottomSheetTest {
     }
 
     @Test
-    fun modalBottomSheet_hideBySwiping_skipHalfExpanded() {
+    fun modalBottomSheet_hideBySwiping_skipPartiallyExpanded() {
         lateinit var sheetState: SheetState
         rule.setContent {
-            sheetState = rememberSheetState(skipHalfExpanded = true)
-            ModalBottomSheet(onDismissRequest = {}, sheetState = sheetState) {
+            sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+            val windowInsets = if (edgeToEdgeWrapper.edgeToEdgeEnabled)
+                WindowInsets(0) else BottomSheetDefaults.windowInsets
+
+            ModalBottomSheet(
+                onDismissRequest = {},
+                sheetState = sheetState,
+                windowInsets = windowInsets
+            ) {
                 Box(
                     Modifier
                         .fillMaxWidth()
@@ -629,13 +777,19 @@ class ModalBottomSheetTest {
     }
 
     @Test
-    fun modalBottomSheet_hideManually_skipHalfExpanded(): Unit = runBlocking(
+    fun modalBottomSheet_hideManually_skipPartiallyExpanded(): Unit = runBlocking(
         AutoTestFrameClock()
     ) {
         lateinit var sheetState: SheetState
         rule.setContent {
-            sheetState = rememberSheetState(skipHalfExpanded = true)
-            ModalBottomSheet(onDismissRequest = {}, sheetState = sheetState) {
+            sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+            val windowInsets = if (edgeToEdgeWrapper.edgeToEdgeEnabled)
+                WindowInsets(0) else BottomSheetDefaults.windowInsets
+            ModalBottomSheet(
+                onDismissRequest = {},
+                sheetState = sheetState,
+                windowInsets = windowInsets
+            ) {
                 Box(
                     Modifier
                         .fillMaxSize()
@@ -651,9 +805,54 @@ class ModalBottomSheetTest {
     }
 
     @Test
-    fun modalBottomSheet_testDismissAction_tallBottomSheet_whenHalfExpanded() {
+    fun modalBottomSheet_testParialExpandReturnsIllegalStateException_whenSkipPartialExpanded() {
+        lateinit var scope: CoroutineScope
+        val bottomSheetState = SheetState(
+            skipPartiallyExpanded = true,
+            density = rule.density
+        )
         rule.setContent {
-            ModalBottomSheet(onDismissRequest = {}) {
+            scope = rememberCoroutineScope()
+            val windowInsets = if (edgeToEdgeWrapper.edgeToEdgeEnabled)
+                WindowInsets(0) else BottomSheetDefaults.windowInsets
+
+            ModalBottomSheet(
+                onDismissRequest = {},
+                sheetState = bottomSheetState,
+                windowInsets = windowInsets
+            ) {
+                Box(
+                    Modifier
+                        .fillMaxSize()
+                        .testTag(sheetTag)
+                )
+            }
+        }
+        scope.launch {
+            val exception =
+                kotlin.runCatching { bottomSheetState.partialExpand() }.exceptionOrNull()
+            assertThat(exception).isNotNull()
+            assertThat(exception).isInstanceOf(IllegalStateException::class.java)
+            assertThat(exception).hasMessageThat().containsMatch(
+                "Attempted to animate to partial expanded when skipPartiallyExpanded was " +
+                    "enabled. Set skipPartiallyExpanded to false to use this function."
+            )
+        }
+    }
+
+    @Test
+    fun modalBottomSheet_testDismissAction_tallBottomSheet_whenPartiallyExpanded() {
+        rule.setContent {
+            val windowInsets = if (edgeToEdgeWrapper.edgeToEdgeEnabled)
+                WindowInsets(0) else BottomSheetDefaults.windowInsets
+            ModalBottomSheet(
+                onDismissRequest = {},
+                dragHandle = { Box(
+                    Modifier
+                        .testTag(dragHandleTag)
+                        .size(dragHandleSize)) },
+                windowInsets = windowInsets
+            ) {
                 Box(
                     Modifier
                         .fillMaxSize()
@@ -662,7 +861,7 @@ class ModalBottomSheetTest {
             }
         }
 
-        rule.onNodeWithTag(sheetTag).onParent()
+        rule.onNodeWithTag(dragHandleTag, useUnmergedTree = true).onParent()
             .assert(SemanticsMatcher.keyNotDefined(SemanticsActions.Collapse))
             .assert(SemanticsMatcher.keyIsDefined(SemanticsActions.Expand))
             .assert(SemanticsMatcher.keyIsDefined(SemanticsActions.Dismiss))
@@ -673,8 +872,18 @@ class ModalBottomSheetTest {
     fun modalBottomSheet_testExpandAction_tallBottomSheet_whenHalfExpanded() {
         lateinit var sheetState: SheetState
         rule.setContent {
-            sheetState = rememberSheetState()
-            ModalBottomSheet(onDismissRequest = {}, sheetState = sheetState) {
+            sheetState = rememberModalBottomSheetState()
+            val windowInsets = if (edgeToEdgeWrapper.edgeToEdgeEnabled)
+                WindowInsets(0) else BottomSheetDefaults.windowInsets
+            ModalBottomSheet(
+                onDismissRequest = {},
+                sheetState = sheetState,
+                dragHandle = { Box(
+                    Modifier
+                        .testTag(dragHandleTag)
+                        .size(dragHandleSize)) },
+                windowInsets = windowInsets
+            ) {
                 Box(
                     Modifier
                         .fillMaxSize()
@@ -683,7 +892,7 @@ class ModalBottomSheetTest {
             }
         }
 
-        rule.onNodeWithTag(sheetTag).onParent()
+        rule.onNodeWithTag(dragHandleTag, useUnmergedTree = true).onParent()
             .assert(SemanticsMatcher.keyNotDefined(SemanticsActions.Collapse))
             .assert(SemanticsMatcher.keyIsDefined(SemanticsActions.Expand))
             .assert(SemanticsMatcher.keyIsDefined(SemanticsActions.Dismiss))
@@ -702,16 +911,20 @@ class ModalBottomSheetTest {
         var screenHeightPx by mutableStateOf(0f)
 
         rule.setContent {
-            sheetState = rememberSheetState()
+            sheetState = rememberModalBottomSheetState()
             scope = rememberCoroutineScope()
-            val context = LocalContext.current
-            val density = LocalDensity.current
-            val resScreenHeight = context.resources.configuration.screenHeightDp
-            with(density) {
-                screenHeightPx = resScreenHeight.dp.roundToPx().toFloat()
-            }
+            val windowInsets = if (edgeToEdgeWrapper.edgeToEdgeEnabled)
+                WindowInsets(0) else BottomSheetDefaults.windowInsets
 
-            ModalBottomSheet(onDismissRequest = {}, sheetState = sheetState) {
+            ModalBottomSheet(
+                onDismissRequest = {},
+                sheetState = sheetState,
+                dragHandle = { Box(
+                    Modifier
+                        .testTag(dragHandleTag)
+                        .size(dragHandleSize)) },
+                windowInsets = windowInsets
+            ) {
                 Box(
                     Modifier
                         .fillMaxSize()
@@ -719,12 +932,15 @@ class ModalBottomSheetTest {
                 )
             }
         }
+        screenHeightPx = with(rule.density) {
+            rule.onNode(isPopup()).getUnclippedBoundsInRoot().height.toPx()
+        }
         scope.launch {
             sheetState.expand()
         }
         rule.waitForIdle()
 
-        rule.onNodeWithTag(sheetTag).onParent()
+        rule.onNodeWithTag(dragHandleTag, useUnmergedTree = true).onParent()
             .assert(SemanticsMatcher.keyNotDefined(SemanticsActions.Expand))
             .assert(SemanticsMatcher.keyIsDefined(SemanticsActions.Collapse))
             .assert(SemanticsMatcher.keyIsDefined(SemanticsActions.Dismiss))
@@ -743,16 +959,20 @@ class ModalBottomSheetTest {
         var screenHeightPx by mutableStateOf(0f)
 
         rule.setContent {
-            sheetState = rememberSheetState()
+            sheetState = rememberModalBottomSheetState()
             scope = rememberCoroutineScope()
-            val context = LocalContext.current
-            val density = LocalDensity.current
-            val resScreenHeight = context.resources.configuration.screenHeightDp
-            with(density) {
-                screenHeightPx = resScreenHeight.dp.roundToPx().toFloat()
-            }
+            val windowInsets = if (edgeToEdgeWrapper.edgeToEdgeEnabled)
+                WindowInsets(0) else BottomSheetDefaults.windowInsets
 
-            ModalBottomSheet(onDismissRequest = {}, sheetState = sheetState) {
+            ModalBottomSheet(
+                onDismissRequest = {},
+                sheetState = sheetState,
+                dragHandle = { Box(
+                    Modifier
+                        .testTag(dragHandleTag)
+                        .size(dragHandleSize)) },
+                windowInsets = windowInsets
+            ) {
                 Box(
                     Modifier
                         .fillMaxSize()
@@ -760,12 +980,15 @@ class ModalBottomSheetTest {
                 )
             }
         }
+        screenHeightPx = with(rule.density) {
+            rule.onNode(isPopup()).getUnclippedBoundsInRoot().height.toPx()
+        }
         scope.launch {
             sheetState.expand()
         }
         rule.waitForIdle()
 
-        rule.onNodeWithTag(sheetTag).onParent()
+        rule.onNodeWithTag(dragHandleTag, useUnmergedTree = true).onParent()
             .assert(SemanticsMatcher.keyNotDefined(SemanticsActions.Expand))
             .assert(SemanticsMatcher.keyIsDefined(SemanticsActions.Collapse))
             .assert(SemanticsMatcher.keyIsDefined(SemanticsActions.Dismiss))
@@ -778,15 +1001,19 @@ class ModalBottomSheetTest {
 
     @Test
     fun modalBottomSheet_shortSheet_anchorChangeHandler_previousTargetNotInAnchors_reconciles() {
-        val sheetState = SheetState(skipCollapsed = false)
+        val sheetState = SheetState(skipPartiallyExpanded = false, density = rule.density)
         var hasSheetContent by mutableStateOf(false) // Start out with empty sheet content
         lateinit var scope: CoroutineScope
         rule.setContent {
             scope = rememberCoroutineScope()
+            val windowInsets = if (edgeToEdgeWrapper.edgeToEdgeEnabled)
+                WindowInsets(0) else BottomSheetDefaults.windowInsets
+
             ModalBottomSheet(
                 onDismissRequest = {},
                 sheetState = sheetState,
                 dragHandle = null,
+                windowInsets = windowInsets
             ) {
                 if (hasSheetContent) {
                     Box(Modifier.fillMaxHeight(0.4f))
@@ -795,7 +1022,7 @@ class ModalBottomSheetTest {
         }
 
         assertThat(sheetState.currentValue).isEqualTo(SheetValue.Hidden)
-        assertThat(sheetState.swipeableState.hasAnchorForValue(SheetValue.Collapsed))
+        assertThat(sheetState.swipeableState.hasAnchorForValue(SheetValue.PartiallyExpanded))
             .isFalse()
         assertThat(sheetState.swipeableState.hasAnchorForValue(SheetValue.Expanded))
             .isFalse()
@@ -813,15 +1040,19 @@ class ModalBottomSheetTest {
 
     @Test
     fun modalBottomSheet_tallSheet_anchorChangeHandler_previousTargetNotInAnchors_reconciles() {
-        val sheetState = SheetState(skipCollapsed = false)
+        val sheetState = SheetState(skipPartiallyExpanded = false, density = rule.density)
         var hasSheetContent by mutableStateOf(false) // Start out with empty sheet content
         lateinit var scope: CoroutineScope
         rule.setContent {
             scope = rememberCoroutineScope()
+            val windowInsets = if (edgeToEdgeWrapper.edgeToEdgeEnabled)
+                WindowInsets(0) else BottomSheetDefaults.windowInsets
+
             ModalBottomSheet(
                 onDismissRequest = {},
                 sheetState = sheetState,
                 dragHandle = null,
+                windowInsets = windowInsets
             ) {
                 if (hasSheetContent) {
                     Box(Modifier.fillMaxHeight(0.6f))
@@ -830,7 +1061,7 @@ class ModalBottomSheetTest {
         }
 
         assertThat(sheetState.currentValue).isEqualTo(SheetValue.Hidden)
-        assertThat(sheetState.swipeableState.hasAnchorForValue(SheetValue.Collapsed))
+        assertThat(sheetState.swipeableState.hasAnchorForValue(SheetValue.PartiallyExpanded))
             .isFalse()
         assertThat(sheetState.swipeableState.hasAnchorForValue(SheetValue.Expanded))
             .isFalse()
@@ -843,6 +1074,90 @@ class ModalBottomSheetTest {
 
         hasSheetContent = true // Recompose with sheet content
         rule.waitForIdle()
-        assertThat(sheetState.currentValue).isEqualTo(SheetValue.Collapsed)
+        assertThat(sheetState.currentValue).isEqualTo(SheetValue.PartiallyExpanded)
+    }
+
+    @Test
+    fun modalBottomSheet_callsOnDismissRequest_onNestedScrollFling() {
+        var callCount by mutableStateOf(0)
+        val expectedCallCount = 1
+        val sheetState = SheetState(skipPartiallyExpanded = true, density = rule.density)
+
+        val nestedScrollDispatcher = NestedScrollDispatcher()
+        val nestedScrollConnection = object : NestedScrollConnection {
+            // No-Op
+        }
+        lateinit var scope: CoroutineScope
+
+        rule.setContent {
+            scope = rememberCoroutineScope()
+            val windowInsets = if (edgeToEdgeWrapper.edgeToEdgeEnabled)
+                WindowInsets(0) else BottomSheetDefaults.windowInsets
+
+            ModalBottomSheet(
+                onDismissRequest = { callCount += 1 },
+                sheetState = sheetState,
+                windowInsets = windowInsets
+            ) {
+                Column(
+                    Modifier
+                        .testTag(sheetTag)
+                        .nestedScroll(nestedScrollConnection, nestedScrollDispatcher)
+                ) {
+                    (0..50).forEach {
+                        Text(text = "$it")
+                    }
+                }
+            }
+        }
+
+        assertThat(sheetState.currentValue).isEqualTo(SheetValue.Expanded)
+        val scrollableContentHeight = rule.onNodeWithTag(sheetTag).fetchSemanticsNode().size.height
+        // Simulate a drag + fling
+        nestedScrollDispatcher.dispatchPostScroll(
+            consumed = Offset.Zero,
+            available = Offset(x = 0f, y = scrollableContentHeight / 2f),
+            source = NestedScrollSource.Drag
+        )
+        scope.launch {
+            nestedScrollDispatcher.dispatchPostFling(
+                consumed = Velocity.Zero,
+                available = Velocity(x = 0f, y = with(rule.density) { 200.dp.toPx() })
+            )
+        }
+
+        rule.waitForIdle()
+        assertThat(sheetState.isVisible).isFalse()
+        assertThat(callCount).isEqualTo(expectedCallCount)
+    }
+
+    @Test
+    fun modalBottomSheet_preservesLayoutDirection() {
+        var value = LayoutDirection.Ltr
+        rule.setContent {
+            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+                ModalBottomSheet(onDismissRequest = { /*TODO*/ }) {
+                    value = LocalLayoutDirection.current
+                }
+            }
+        }
+        rule.runOnIdle {
+            assertThat(value).isEqualTo(LayoutDirection.Rtl)
+        }
+    }
+
+    companion object {
+        @Parameterized.Parameters(name = "{0}")
+        @JvmStatic
+        fun parameters() = arrayOf(
+            EdgeToEdgeWrapper("EdgeToEdge", true),
+            EdgeToEdgeWrapper("NonEdgeToEdge", false)
+        )
+    }
+
+    class EdgeToEdgeWrapper(val name: String, val edgeToEdgeEnabled: Boolean) {
+        override fun toString(): String {
+            return name
+        }
     }
 }

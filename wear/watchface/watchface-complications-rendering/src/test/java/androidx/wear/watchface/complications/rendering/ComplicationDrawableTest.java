@@ -60,20 +60,22 @@ import androidx.wear.watchface.complications.data.DataKt;
 import androidx.wear.watchface.complications.data.NoDataComplicationData;
 import androidx.wear.watchface.style.CurrentUserStyleRepository;
 
+import kotlin.coroutines.Continuation;
+
 import org.jetbrains.annotations.Nullable;
 import org.junit.Before;
 import org.junit.Ignore;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
 import org.robolectric.Robolectric;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
 import java.time.ZonedDateTime;
 import java.util.concurrent.TimeUnit;
-
-import kotlin.coroutines.Continuation;
 
 /** Tests for {@link ComplicationDrawable}. */
 @RunWith(ComplicationsTestRunner.class)
@@ -89,28 +91,22 @@ public class ComplicationDrawableTest {
     private androidx.wear.watchface.complications.data.ComplicationData mComplicationData;
     private int mDefaultTextSize;
 
-    @Mock
-    Canvas mMockCanvas;
-    @Mock
-    Drawable mMockDrawableActive;
-    @Mock
-    Drawable mMockDrawableAmbient;
-    @Mock
-    PendingIntent mMockPendingIntent;
-    @Mock
-    Drawable.Callback mMockDrawableCallback;
+    @Rule public final MockitoRule mocks = MockitoJUnit.rule();
 
-    @SuppressWarnings("deprecation") // b/251211092
+    @Mock Canvas mMockCanvas;
+    @Mock Drawable mMockDrawableActive;
+    @Mock Drawable mMockDrawableAmbient;
+    @Mock PendingIntent mMockPendingIntent;
+    @Mock Drawable.Callback mMockDrawableCallback;
+
     @Before
     public void setUp() {
-        MockitoAnnotations.openMocks(this);
         mComplicationDrawable = new ComplicationDrawable();
         mComplicationDrawable.setCallback(mMockDrawableCallback);
 
         ComplicationData complicationData =
-                new ComplicationData.Builder(
-                        ComplicationData.TYPE_SHORT_TEXT
-                ).setShortText(ComplicationText.plainText("hede"))
+                new ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
+                        .setShortText(ComplicationText.plainText("hede"))
                         .build();
         mComplicationData = DataKt.toApiComplicationData(complicationData);
         mDefaultTextSize =
@@ -127,8 +123,7 @@ public class ComplicationDrawableTest {
 
     @Test
     public void callingDrawWithTimeOnCanvasBeforeSetContextThrowsAnException() {
-        assertThrows(
-                IllegalStateException.class, () -> mComplicationDrawable.draw(mMockCanvas));
+        assertThrows(IllegalStateException.class, () -> mComplicationDrawable.draw(mMockCanvas));
     }
 
     @Test
@@ -313,10 +308,10 @@ public class ComplicationDrawableTest {
         ColorFilter ambientCF = new PorterDuffColorFilter(AMBIENT_COLOR, Mode.SRC_IN);
         mComplicationDrawable.getActiveStyle().setImageColorFilter(activeCF);
         mComplicationDrawable.getAmbientStyle().setImageColorFilter(ambientCF);
-        assertThat(mComplicationDrawable.getActiveStyle().getImageColorFilter()).isEqualTo(
-                activeCF);
-        assertThat(mComplicationDrawable.getAmbientStyle().getImageColorFilter()).isEqualTo(
-                ambientCF);
+        assertThat(mComplicationDrawable.getActiveStyle().getImageColorFilter())
+                .isEqualTo(activeCF);
+        assertThat(mComplicationDrawable.getAmbientStyle().getImageColorFilter())
+                .isEqualTo(ambientCF);
     }
 
     @Test
@@ -365,8 +360,7 @@ public class ComplicationDrawableTest {
         int textSizeFromConstructor = mComplicationDrawable.getActiveStyle().getTextSize();
         mComplicationDrawable.setContext(ApplicationProvider.getApplicationContext());
         int textSizeFromResources = mComplicationDrawable.getActiveStyle().getTextSize();
-        assertThat(textSizeFromConstructor)
-                .isEqualTo(new ComplicationStyle().getTextSize());
+        assertThat(textSizeFromConstructor).isEqualTo(new ComplicationStyle().getTextSize());
         assertThat(textSizeFromResources).isEqualTo(mDefaultTextSize);
     }
 
@@ -384,13 +378,11 @@ public class ComplicationDrawableTest {
         mComplicationDrawable.setContext(ApplicationProvider.getApplicationContext());
         mComplicationDrawable.setComplicationData(
                 DataKt.toApiComplicationData(
-                    new ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
-                            .setShortText(ComplicationText.plainText("rofl"))
-                            .setShortTitle(ComplicationText.plainText("copter"))
-                            .build()
-                    ),
-                true
-        );
+                        new ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
+                                .setShortText(ComplicationText.plainText("rofl"))
+                                .setShortTitle(ComplicationText.plainText("copter"))
+                                .build()),
+                true);
         mComplicationDrawable.setBounds(new Rect(0, 0, 100, 100));
 
         assertThat(mComplicationDrawable.onTap(50, 50)).isFalse();
@@ -401,14 +393,12 @@ public class ComplicationDrawableTest {
         mComplicationDrawable.setContext(ApplicationProvider.getApplicationContext());
         mComplicationDrawable.setComplicationData(
                 DataKt.toApiComplicationData(
-                    new ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
-                            .setShortText(ComplicationText.plainText("rofl"))
-                            .setShortTitle(ComplicationText.plainText("copter"))
-                            .setTapAction(mMockPendingIntent)
-                            .build()
-                ),
-                true
-        );
+                        new ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
+                                .setShortText(ComplicationText.plainText("rofl"))
+                                .setShortTitle(ComplicationText.plainText("copter"))
+                                .setTapAction(mMockPendingIntent)
+                                .build()),
+                true);
         mComplicationDrawable.setBounds(new Rect(0, 0, 100, 100));
 
         assertThat(mComplicationDrawable.onTap(200, 200)).isFalse();
@@ -421,14 +411,12 @@ public class ComplicationDrawableTest {
         mComplicationDrawable.setContext(ApplicationProvider.getApplicationContext());
         mComplicationDrawable.setComplicationData(
                 DataKt.toApiComplicationData(
-                    new ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
-                            .setShortText(ComplicationText.plainText("rofl"))
-                            .setShortTitle(ComplicationText.plainText("copter"))
-                            .setTapAction(mMockPendingIntent)
-                        .build()
-                ),
-                true
-        );
+                        new ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
+                                .setShortText(ComplicationText.plainText("rofl"))
+                                .setShortTitle(ComplicationText.plainText("copter"))
+                                .setTapAction(mMockPendingIntent)
+                                .build()),
+                true);
         mComplicationDrawable.setBounds(new Rect(0, 0, 100, 100));
 
         assertThat(mComplicationDrawable.onTap(50, 50)).isFalse();
@@ -439,14 +427,12 @@ public class ComplicationDrawableTest {
         mComplicationDrawable.setContext(ApplicationProvider.getApplicationContext());
         mComplicationDrawable.setComplicationData(
                 DataKt.toApiComplicationData(
-                    new ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
-                            .setShortText(ComplicationText.plainText("rofl"))
-                            .setShortTitle(ComplicationText.plainText("copter"))
-                            .setTapAction(mMockPendingIntent)
-                        .build()
-                ),
-                true
-        );
+                        new ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
+                                .setShortText(ComplicationText.plainText("rofl"))
+                                .setShortTitle(ComplicationText.plainText("copter"))
+                                .setTapAction(mMockPendingIntent)
+                                .build()),
+                true);
         reset(mMockDrawableCallback);
         mComplicationDrawable.setBounds(new Rect(0, 0, 100, 100));
 
@@ -461,14 +447,12 @@ public class ComplicationDrawableTest {
         mComplicationDrawable.setContext(ApplicationProvider.getApplicationContext());
         mComplicationDrawable.setComplicationData(
                 DataKt.toApiComplicationData(
-                    new ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
-                            .setShortText(ComplicationText.plainText("rofl"))
-                            .setShortTitle(ComplicationText.plainText("copter"))
-                            .setTapAction(mMockPendingIntent)
-                            .build()
-                ),
-                true
-        );
+                        new ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
+                                .setShortText(ComplicationText.plainText("rofl"))
+                                .setShortTitle(ComplicationText.plainText("copter"))
+                                .setTapAction(mMockPendingIntent)
+                                .build()),
+                true);
         reset(mMockDrawableCallback);
 
         mComplicationDrawable.setBounds(new Rect(0, 0, 100, 100));
@@ -494,14 +478,12 @@ public class ComplicationDrawableTest {
         mComplicationDrawable.setContext(ApplicationProvider.getApplicationContext());
         mComplicationDrawable.setComplicationData(
                 DataKt.toApiComplicationData(
-                    new ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
-                            .setShortText(ComplicationText.plainText("rofl"))
-                            .setShortTitle(ComplicationText.plainText("copter"))
-                            .setTapAction(mMockPendingIntent)
-                            .build()
-                ),
-                true
-        );
+                        new ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
+                                .setShortText(ComplicationText.plainText("rofl"))
+                                .setShortTitle(ComplicationText.plainText("copter"))
+                                .setTapAction(mMockPendingIntent)
+                                .build()),
+                true);
         mComplicationDrawable.setBounds(new Rect(0, 0, 100, 100));
 
         mComplicationDrawable.setHighlightDuration(highlightDuration);
@@ -536,17 +518,15 @@ public class ComplicationDrawableTest {
 
         mComplicationDrawable.setComplicationData(
                 DataKt.toApiComplicationData(
-                        new ComplicationData.Builder(ComplicationData.TYPE_NO_PERMISSION).build()
-                ),
-                true
-        );
+                        new ComplicationData.Builder(ComplicationData.TYPE_NO_PERMISSION).build()),
+                true);
 
         assertThat(mComplicationDrawable.onTap(50, 50)).isTrue();
 
         Application context = ApplicationProvider.getApplicationContext();
         Intent expected =
                 ComplicationHelperActivity.createPermissionRequestHelperIntent(
-                        context, new ComponentName(context, context.getClass()), null, null)
+                                context, new ComponentName(context, context.getClass()), null, null)
                         .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         Intent actual = shadowOf(context).getNextStartedActivity();
 
@@ -562,10 +542,8 @@ public class ComplicationDrawableTest {
 
         mComplicationDrawable.setComplicationData(
                 DataKt.toApiComplicationData(
-                    new ComplicationData.Builder(ComplicationData.TYPE_NO_PERMISSION).build()
-                ),
-                true
-        );
+                        new ComplicationData.Builder(ComplicationData.TYPE_NO_PERMISSION).build()),
+                true);
 
         assertThat(mComplicationDrawable.onTap(50, 50)).isFalse();
 
@@ -630,11 +608,11 @@ public class ComplicationDrawableTest {
         mComplicationDrawable.getActiveStyle().setBorderWidth(borderWidth);
         mComplicationDrawable.getActiveStyle().setHighlightColor(highlightColor);
         mComplicationDrawable.getActiveStyle().setIconColor(iconColor);
-        mComplicationDrawable.getActiveStyle().setRangedValuePrimaryColor(
-                rangedValuePrimaryColor);
+        mComplicationDrawable.getActiveStyle().setRangedValuePrimaryColor(rangedValuePrimaryColor);
         mComplicationDrawable.getActiveStyle().setRangedValueRingWidth(rangedValueRingWidth);
-        mComplicationDrawable.getActiveStyle().setRangedValueSecondaryColor(
-                rangedValueSecondaryColor);
+        mComplicationDrawable
+                .getActiveStyle()
+                .setRangedValueSecondaryColor(rangedValueSecondaryColor);
         mComplicationDrawable.getActiveStyle().setTextColor(textColor);
         mComplicationDrawable.getActiveStyle().setTextSize(textSize);
         mComplicationDrawable.getActiveStyle().setTitleColor(titleColor);
@@ -649,12 +627,15 @@ public class ComplicationDrawableTest {
         mComplicationDrawable.getAmbientStyle().setBorderWidth(borderWidthAmbient);
         mComplicationDrawable.getAmbientStyle().setHighlightColor(highlightColorAmbient);
         mComplicationDrawable.getAmbientStyle().setIconColor(iconColorAmbient);
-        mComplicationDrawable.getAmbientStyle().setRangedValuePrimaryColor(
-                rangedValuePrimaryColorAmbient);
-        mComplicationDrawable.getAmbientStyle().setRangedValueRingWidth(
-                rangedValueRingWidthAmbient);
-        mComplicationDrawable.getAmbientStyle().setRangedValueSecondaryColor(
-                rangedValueSecondaryColorAmbient);
+        mComplicationDrawable
+                .getAmbientStyle()
+                .setRangedValuePrimaryColor(rangedValuePrimaryColorAmbient);
+        mComplicationDrawable
+                .getAmbientStyle()
+                .setRangedValueRingWidth(rangedValueRingWidthAmbient);
+        mComplicationDrawable
+                .getAmbientStyle()
+                .setRangedValueSecondaryColor(rangedValueSecondaryColorAmbient);
         mComplicationDrawable.getAmbientStyle().setTextColor(textColorAmbient);
         mComplicationDrawable.getAmbientStyle().setTextSize(textSizeAmbient);
         mComplicationDrawable.getAmbientStyle().setTitleColor(titleColorAmbient);
@@ -713,13 +694,23 @@ public class ComplicationDrawableTest {
         mComplicationDrawable.setContext(ApplicationProvider.getApplicationContext());
         mComplicationDrawable.getActiveStyle().setBackgroundColor(123);
 
-        assertThat(mComplicationDrawable.getComplicationRenderer().mActivePaintSet
-                .mBackgroundPaint.getColor()).isNotEqualTo(123);
+        assertThat(
+                        mComplicationDrawable
+                                .getComplicationRenderer()
+                                .mActivePaintSet
+                                .mBackgroundPaint
+                                .getColor())
+                .isNotEqualTo(123);
 
         mComplicationDrawable.updateStyleIfRequired();
 
-        assertThat(mComplicationDrawable.getComplicationRenderer().mActivePaintSet
-                .mBackgroundPaint.getColor()).isEqualTo(123);
+        assertThat(
+                        mComplicationDrawable
+                                .getComplicationRenderer()
+                                .mActivePaintSet
+                                .mBackgroundPaint
+                                .getColor())
+                .isEqualTo(123);
     }
 
     /** Proxies necessary methods to Robolectric application. */
@@ -743,7 +734,8 @@ public class ComplicationDrawableTest {
         @SuppressWarnings("deprecation")
         @Nullable
         @Override
-        protected Object createWatchFace(@NonNull SurfaceHolder surfaceHolder,
+        protected Object createWatchFace(
+                @NonNull SurfaceHolder surfaceHolder,
                 @NonNull WatchState watchState,
                 @NonNull ComplicationSlotsManager complicationSlotsManager,
                 @NonNull CurrentUserStyleRepository currentUserStyleRepository,
@@ -751,17 +743,23 @@ public class ComplicationDrawableTest {
             return new WatchFace(
                     WatchFaceType.ANALOG,
                     new Renderer.CanvasRenderer(
-                            surfaceHolder, currentUserStyleRepository, watchState,
-                            CanvasType.SOFTWARE, 16L) {
+                            surfaceHolder,
+                            currentUserStyleRepository,
+                            watchState,
+                            CanvasType.SOFTWARE,
+                            16L) {
                         @Override
-                        public void renderHighlightLayer(@NonNull Canvas canvas,
-                                @NonNull Rect bounds, @NonNull ZonedDateTime zonedDateTime) {}
+                        public void renderHighlightLayer(
+                                @NonNull Canvas canvas,
+                                @NonNull Rect bounds,
+                                @NonNull ZonedDateTime zonedDateTime) {}
 
                         @Override
-                        public void render(@NonNull Canvas canvas, @NonNull Rect bounds,
+                        public void render(
+                                @NonNull Canvas canvas,
+                                @NonNull Rect bounds,
                                 @NonNull ZonedDateTime zonedDateTime) {}
-                    }
-            );
+                    });
         }
     }
 }

@@ -24,7 +24,6 @@ package androidx.test.screenshot
  * just a helper to avoid mixing goldens between different projects.
  * Example for module directory: "compose/material/material"
  *
- * @hide
  */
 // TODO: Move this to internal module in case this module will be public one day.
 class AndroidXScreenshotTestRule(

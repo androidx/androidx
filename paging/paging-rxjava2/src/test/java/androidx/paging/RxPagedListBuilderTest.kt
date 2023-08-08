@@ -22,20 +22,20 @@ import androidx.paging.LoadState.NotLoading
 import androidx.paging.LoadType.REFRESH
 import androidx.testutils.DirectDispatcher
 import androidx.testutils.TestDispatcher
+import com.google.common.truth.Truth.assertThat
 import io.reactivex.Observable
 import io.reactivex.observers.TestObserver
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.schedulers.TestScheduler
+import kotlin.test.assertTrue
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.asExecutor
+import kotlinx.coroutines.withContext
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import kotlin.test.assertTrue
-import com.google.common.truth.Truth.assertThat
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.asExecutor
-import kotlinx.coroutines.withContext
 
 @Suppress("DEPRECATION")
 @RunWith(JUnit4::class)
@@ -329,10 +329,10 @@ class RxPagedListBuilderTest {
 
         // execute first load, represents load attempt on first paging source
         //
-        // using poll().run() instead of executeAll(), because executeAll() + immediate schedulers
+        // using removeFirst().run() instead of executeAll(), because executeAll() + immediate schedulers
         // result in first load + subsequent loads executing immediately and we won't be able to
         // assert the pagedLists/loads incrementally
-        loadDispatcher.queue.poll()?.run()
+        loadDispatcher.queue.removeFirst().run()
 
         // the load failed so there should still be only one PagedList, but the first
         // pagingSource should invalidated, and the second pagingSource is created
@@ -354,7 +354,7 @@ class RxPagedListBuilderTest {
         )
 
         // execute the load attempt on second pagingSource which succeeds
-        loadDispatcher.queue.poll()?.run()
+        loadDispatcher.queue.removeFirst().run()
 
         // ensure second pagedList created with the correct data loaded
         observer.assertValueCount(2)

@@ -15,13 +15,4 @@
   -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
-    <instrumentation
-        android:name="androidx.test.runner.AndroidJUnitRunner"
-        android:targetPackage="com.example.androidx.webkit"
-        android:targetProcesses="*">
-        <!-- This enables Multiprocess Espresso. -->
-        <meta-data
-            android:name="remoteMethod"
-            android:value="androidx.test.espresso.remote.EspressoRemote#remoteInit" />
-    </instrumentation>
 </manifest>

@@ -52,7 +52,7 @@ protobuf {
 }
 
 androidx {
-    name = "Android Proto DataStore"
+    name = "Proto DataStore"
     publish = Publish.NONE
     inceptionYear = "2020"
     description = "Android Proto DataStore"

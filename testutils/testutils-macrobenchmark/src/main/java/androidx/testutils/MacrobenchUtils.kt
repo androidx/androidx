@@ -20,10 +20,12 @@ import android.content.Intent
 import android.os.Build
 import androidx.benchmark.macro.BaselineProfileMode
 import androidx.benchmark.macro.CompilationMode
+import androidx.benchmark.macro.ExperimentalMetricApi
+import androidx.benchmark.macro.MemoryUsageMetric
 import androidx.benchmark.macro.Metric
 import androidx.benchmark.macro.StartupMode
-import androidx.benchmark.macro.StartupTimingLegacyMetric
 import androidx.benchmark.macro.StartupTimingMetric
+import androidx.benchmark.macro.TraceSectionMetric
 import androidx.benchmark.macro.isSupportedWithVmSettings
 import androidx.benchmark.macro.junit4.MacrobenchmarkRule
 
@@ -64,11 +66,13 @@ val STARTUP_MODES = listOf(
 /**
  * Temporary, while transitioning to new metrics
  */
-fun getStartupMetrics() = if (Build.VERSION.SDK_INT >= 29) {
-    listOf(StartupTimingMetric(), StartupTimingLegacyMetric())
-} else {
-    listOf(StartupTimingMetric())
-}
+@OptIn(ExperimentalMetricApi::class)
+fun getStartupMetrics() =
+    listOf(
+        StartupTimingMetric(),
+        TraceSectionMetric("StartupTracingInitializer"),
+        MemoryUsageMetric(MemoryUsageMetric.Mode.Last)
+    )
 
 fun MacrobenchmarkRule.measureStartup(
     compilationMode: CompilationMode,
@@ -93,12 +97,37 @@ fun MacrobenchmarkRule.measureStartup(
     startActivityAndWait(intent)
 }
 
+/**
+ * Baseline Profile compilation mode is considered primary, and always worth measuring
+ */
+private fun CompilationMode.isPrimary(): Boolean {
+    return if (Build.VERSION.SDK_INT < 24) {
+        true
+    } else {
+        this is CompilationMode.Partial &&
+            this.warmupIterations == 0 &&
+            (this.baselineProfileMode == BaselineProfileMode.UseIfAvailable ||
+                this.baselineProfileMode == BaselineProfileMode.Require)
+    }
+}
+
 fun createStartupCompilationParams(
     startupModes: List<StartupMode> = STARTUP_MODES,
     compilationModes: List<CompilationMode> = COMPILATION_MODES
 ): List<Array<Any>> = mutableListOf<Array<Any>>().apply {
+    // To save CI resources, avoid measuring startup combinations which have non-primary
+    // compilation or startup mode (BP, cold respectively) in the default case
+    val minimalIntersection = startupModes == STARTUP_MODES && compilationModes == COMPILATION_MODES
+
     for (startupMode in startupModes) {
         for (compilationMode in compilationModes) {
+            if (minimalIntersection &&
+                startupMode != StartupMode.COLD &&
+                !compilationMode.isPrimary()
+            ) {
+                continue
+            }
+
             // Skip configs that can't run, so they don't clutter Studio benchmark
             // output with AssumptionViolatedException dumps
             if (compilationMode.isSupportedWithVmSettings()) {

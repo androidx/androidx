@@ -60,6 +60,7 @@ import androidx.camera.core.CameraControl;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.FocusMeteringAction;
+import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.Logger;
 import androidx.camera.core.MeteringPoint;
 import androidx.camera.core.MeteringPointFactory;
@@ -232,7 +233,6 @@ public final class PreviewView extends FrameLayout {
                         } else {
                             mUseDisplayRotation = false;
                         }
-                        updateDisplayRotationIfNeeded();
                         redrawPreview();
                     });
 
@@ -320,7 +320,6 @@ public final class PreviewView extends FrameLayout {
     @Override
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
-        updateDisplayRotationIfNeeded();
         startListeningToDisplayChange();
         addOnLayoutChangeListener(mOnLayoutChangeListener);
         if (mImplementation != null) {
@@ -655,12 +654,13 @@ public final class PreviewView extends FrameLayout {
     void redrawPreview() {
         checkMainThread();
         if (mImplementation != null) {
+            updateDisplayRotationIfNeeded();
             mImplementation.redrawPreview();
         }
         mPreviewViewMeteringPointFactory.recalculate(new Size(getWidth(), getHeight()),
                 getLayoutDirection());
         if (mCameraController != null) {
-            mCameraController.updatePreviewViewTransform(getOutputTransform());
+            mCameraController.updatePreviewViewTransform(getSensorToViewTransform());
         }
     }
 
@@ -680,7 +680,7 @@ public final class PreviewView extends FrameLayout {
         boolean isLegacyDevice = surfaceRequest.getCamera().getCameraInfoInternal()
                 .getImplementationType().equals(CameraInfo.IMPLEMENTATION_TYPE_CAMERA2_LEGACY);
         boolean hasSurfaceViewQuirk = DeviceQuirks.get(SurfaceViewStretchedQuirk.class) != null
-                ||  DeviceQuirks.get(SurfaceViewNotCroppedByParentQuirk.class) != null;
+                || DeviceQuirks.get(SurfaceViewNotCroppedByParentQuirk.class) != null;
         if (Build.VERSION.SDK_INT <= 24 || isLegacyDevice || hasSurfaceViewQuirk) {
             // Force to use TextureView when the device is running android 7.0 and below, legacy
             // level or SurfaceView has quirks.
@@ -712,8 +712,6 @@ public final class PreviewView extends FrameLayout {
 
     /**
      * Sets a listener to receive frame update event with sensor timestamp.
-     *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public void setFrameUpdateListener(@NonNull Executor executor,
@@ -733,13 +731,12 @@ public final class PreviewView extends FrameLayout {
 
     /**
      * Listener to be notified when the frame is updated.
-     *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public interface OnFrameUpdateListener {
         /**
          * Invoked when frame updates.
+         *
          * @param timestamp sensor timestamp of this frame.
          */
         void onFrameUpdate(long timestamp);
@@ -1015,6 +1012,30 @@ public final class PreviewView extends FrameLayout {
                 surfaceCropRect.height()));
     }
 
+    /**
+     * Gets the camera sensor to {@link PreviewView} transform.
+     *
+     * <p>The value is a mapping from sensor coordinates to {@link PreviewView} coordinates,
+     * which is, from the rect of {@link CameraCharacteristics#SENSOR_INFO_ACTIVE_ARRAY_SIZE} to the
+     * rect defined by {@code (0, 0, PreviewView#getWidth(), PreviewView#getWidth())}. The matrix
+     * can be used to map the coordinates from one {@link UseCase} to another. For example,
+     * detecting face with {@link ImageAnalysis}, and then highlighting the face in
+     * {@link Preview}.
+     *
+     * <p>This method returns {@code null} if the transformation is not ready. For example, when
+     * {@link PreviewView} layout has not been measured.
+     *
+     * <p>The return value does not include the custom transform applied by the app via methods like
+     * {@link View#setScaleX(float)}.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @Nullable
+    public Matrix getSensorToViewTransform() {
+        checkMainThread();
+        return mPreviewTransform.getSensorToViewTransform(
+                new Size(getWidth(), getHeight()), getLayoutDirection());
+    }
+
     @MainThread
     private void attachToControllerIfReady(boolean shouldFailSilently) {
         checkMainThread();
@@ -1060,6 +1081,7 @@ public final class PreviewView extends FrameLayout {
         return (DisplayManager) context.getApplicationContext()
                 .getSystemService(Context.DISPLAY_SERVICE);
     }
+
     /**
      * Listener for display rotation changes.
      *
@@ -1083,7 +1105,6 @@ public final class PreviewView extends FrameLayout {
         public void onDisplayChanged(int displayId) {
             Display display = getDisplay();
             if (display != null && display.getDisplayId() == displayId) {
-                updateDisplayRotationIfNeeded();
                 redrawPreview();
             }
         }

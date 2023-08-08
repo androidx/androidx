@@ -20,7 +20,6 @@ import androidx.room.compiler.codegen.XCodeBlock
 import androidx.room.compiler.codegen.XCodeBlock.Builder.Companion.addLocalVal
 import androidx.room.compiler.codegen.XMemberName.Companion.packageMember
 import androidx.room.compiler.codegen.XTypeName
-import androidx.room.compiler.codegen.asClassName
 import androidx.room.ext.CommonTypeNames
 import androidx.room.ext.RoomMemberNames
 import androidx.room.ext.RoomTypeNames
@@ -77,7 +76,7 @@ class QueryWriter(
                 val stringBuilderVar = scope.getTmpVar("_stringBuilder")
                 addLocalVal(
                     stringBuilderVar,
-                    StringBuilder::class.asClassName(),
+                    CommonTypeNames.STRING_BUILDER,
                     "%M()",
                     RoomTypeNames.STRING_UTIL.packageMember("newStringBuilder")
                 )

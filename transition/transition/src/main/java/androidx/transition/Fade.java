@@ -114,8 +114,20 @@ public class Fade extends Visibility {
     @Override
     public void captureStartValues(@NonNull TransitionValues transitionValues) {
         super.captureStartValues(transitionValues);
-        transitionValues.values.put(PROPNAME_TRANSITION_ALPHA,
-                ViewUtils.getTransitionAlpha(transitionValues.view));
+        Float alpha = (Float) transitionValues.view.getTag(R.id.transition_pause_alpha);
+        if (alpha == null) {
+            if (transitionValues.view.getVisibility() == View.VISIBLE) {
+                alpha = ViewUtils.getTransitionAlpha(transitionValues.view);
+            } else {
+                alpha = 0f;
+            }
+        }
+        transitionValues.values.put(PROPNAME_TRANSITION_ALPHA, alpha);
+    }
+
+    @Override
+    public boolean isSeekingSupported() {
+        return true;
     }
 
     /**
@@ -133,14 +145,7 @@ public class Fade extends Visibility {
         }
         FadeAnimatorListener listener = new FadeAnimatorListener(view);
         anim.addListener(listener);
-        addListener(new TransitionListenerAdapter() {
-            @Override
-            public void onTransitionEnd(@NonNull Transition transition) {
-                ViewUtils.setTransitionAlpha(view, 1);
-                ViewUtils.clearNonTransitionAlpha(view);
-                transition.removeListener(this);
-            }
-        });
+        getRootTransition().addListener(listener);
         return anim;
     }
 
@@ -153,10 +158,8 @@ public class Fade extends Visibility {
             Log.d(LOG_TAG, "Fade.onAppear: startView, startVis, endView, endVis = "
                     + startView + ", " + view);
         }
+        ViewUtils.saveNonTransitionAlpha(view);
         float startAlpha = getStartAlpha(startValues, 0);
-        if (startAlpha == 1) {
-            startAlpha = 0;
-        }
         return createAnimation(view, startAlpha, 1);
     }
 
@@ -166,7 +169,11 @@ public class Fade extends Visibility {
             @Nullable TransitionValues startValues, @Nullable TransitionValues endValues) {
         ViewUtils.saveNonTransitionAlpha(view);
         float startAlpha = getStartAlpha(startValues, 1);
-        return createAnimation(view, startAlpha, 0);
+        Animator animator = createAnimation(view, startAlpha, 0);
+        if (animator == null) {
+            ViewUtils.setTransitionAlpha(view, getStartAlpha(endValues, 1f));
+        }
+        return animator;
     }
 
     private static float getStartAlpha(TransitionValues startValues, float fallbackValue) {
@@ -180,7 +187,8 @@ public class Fade extends Visibility {
         return startAlpha;
     }
 
-    private static class FadeAnimatorListener extends AnimatorListenerAdapter {
+    private static class FadeAnimatorListener extends AnimatorListenerAdapter implements
+            TransitionListener {
 
         private final View mView;
         private boolean mLayerTypeChanged = false;
@@ -200,12 +208,52 @@ public class Fade extends Visibility {
 
         @Override
         public void onAnimationEnd(Animator animation) {
-            ViewUtils.setTransitionAlpha(mView, 1);
+            onAnimationEnd(animation, false);
+        }
+
+        @Override
+        public void onAnimationEnd(@NonNull Animator animation, boolean isReverse) {
             if (mLayerTypeChanged) {
                 mView.setLayerType(View.LAYER_TYPE_NONE, null);
             }
+            if (!isReverse) {
+                ViewUtils.setTransitionAlpha(mView, 1);
+                ViewUtils.clearNonTransitionAlpha(mView);
+            }
         }
 
+        @Override
+        public void onAnimationCancel(Animator animation) {
+            ViewUtils.setTransitionAlpha(mView, 1);
+        }
+
+        @Override
+        public void onTransitionStart(@NonNull Transition transition) {
+        }
+
+        @Override
+        public void onTransitionStart(@NonNull Transition transition, boolean isReverse) {
+        }
+
+        @Override
+        public void onTransitionEnd(@NonNull Transition transition) {
+        }
+
+        @Override
+        public void onTransitionCancel(@NonNull Transition transition) {
+        }
+
+        @Override
+        public void onTransitionPause(@NonNull Transition transition) {
+            float pauseAlpha = (mView.getVisibility() == View.VISIBLE)
+                    ? ViewUtils.getTransitionAlpha(mView) : 0f;
+            mView.setTag(R.id.transition_pause_alpha, pauseAlpha);
+        }
+
+        @Override
+        public void onTransitionResume(@NonNull Transition transition) {
+            mView.setTag(R.id.transition_pause_alpha, null);
+        }
     }
 
 }

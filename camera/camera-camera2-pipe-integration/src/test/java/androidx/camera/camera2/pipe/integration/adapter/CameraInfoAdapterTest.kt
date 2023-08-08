@@ -16,16 +16,22 @@
 
 package androidx.camera.camera2.pipe.integration.adapter
 
+import android.hardware.camera2.CameraCharacteristics
 import android.os.Build
+import android.util.Range
 import android.util.Size
 import androidx.camera.camera2.pipe.integration.impl.ZoomControl
 import androidx.camera.camera2.pipe.integration.testing.FakeCameraInfoAdapterCreator.createCameraInfoAdapter
 import androidx.camera.camera2.pipe.integration.testing.FakeCameraInfoAdapterCreator.useCaseThreads
+import androidx.camera.camera2.pipe.integration.testing.FakeCameraProperties
 import androidx.camera.camera2.pipe.integration.testing.FakeUseCaseCamera
 import androidx.camera.camera2.pipe.integration.testing.FakeZoomCompat
+import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
+import androidx.camera.core.CameraInfo
 import androidx.camera.core.FocusMeteringAction
 import androidx.camera.core.SurfaceOrientedMeteringPointFactory
 import androidx.camera.core.ZoomState
+import androidx.camera.core.impl.CameraInfoInternal
 import androidx.camera.core.impl.ImageFormatConstants
 import androidx.testutils.MainDispatcherRule
 import com.google.common.truth.Truth.assertThat
@@ -66,6 +72,20 @@ class CameraInfoAdapterTest {
     }
 
     @Test
+    fun getSupportedFpsRanges() {
+        // Act.
+        val ranges: Set<Range<Int>> = cameraInfoAdapter.supportedFrameRateRanges
+
+        // Assert.
+        assertThat(ranges).containsExactly(
+            Range(12, 30),
+            Range(24, 24),
+            Range(30, 30),
+            Range(60, 60)
+        )
+    }
+
+    @Test
     fun canReturnIsFocusMeteringSupported() {
         val factory = SurfaceOrientedMeteringPointFactory(1.0f, 1.0f)
         val action = FocusMeteringAction.Builder(
@@ -98,12 +118,12 @@ class CameraInfoAdapterTest {
         // if useCaseCamera is null, zoom setting operation will be cancelled
         zoomControl.useCaseCamera = FakeUseCaseCamera()
 
-        zoomControl.setZoomRatioAsync(3.0f)[3, TimeUnit.SECONDS]
+        val expectedZoomState = ZoomValue(3.0f, 1.0f, 10.0f)
+        zoomControl.applyZoomState(expectedZoomState)[3, TimeUnit.SECONDS]
 
-        // minZoom and maxZoom will be set as 0 due to FakeZoomCompat using those values
-        assertWithMessage("zoomState did not return default zoom ratio successfully")
+        assertWithMessage("zoomState did not return the correct zoom state successfully")
             .that(currentZoomState)
-            .isEqualTo(ZoomValue(3.0f, zoomControl.minZoom, zoomControl.maxZoom))
+            .isEqualTo(expectedZoomState)
     }
 
     @Test
@@ -122,5 +142,39 @@ class CameraInfoAdapterTest {
         assertWithMessage("zoomState did not return default zoom state successfully")
             .that(currentZoomState)
             .isEqualTo(zoomControl.defaultZoomState)
+    }
+
+    @Test
+    fun cameraInfo_getImplementationType_legacy() {
+        val cameraInfo: CameraInfoInternal = createCameraInfoAdapter(
+            cameraProperties = FakeCameraProperties(
+                FakeCameraMetadata(
+                    characteristics = mapOf(
+                        CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL to
+                            CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY,
+                    )
+                )
+            )
+        )
+        assertThat(cameraInfo.implementationType).isEqualTo(
+            CameraInfo.IMPLEMENTATION_TYPE_CAMERA2_LEGACY
+        )
+    }
+
+    @Test
+    fun cameraInfo_getImplementationType_noneLegacy() {
+        val cameraInfo: CameraInfoInternal = createCameraInfoAdapter(
+            cameraProperties = FakeCameraProperties(
+                FakeCameraMetadata(
+                    characteristics = mapOf(
+                        CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL to
+                            CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL,
+                    )
+                )
+            )
+        )
+        assertThat(cameraInfo.implementationType).isEqualTo(
+            CameraInfo.IMPLEMENTATION_TYPE_CAMERA2
+        )
     }
 }

@@ -22,13 +22,15 @@ import android.content.pm.ApplicationInfo
 import android.os.BatteryManager
 import android.os.Build
 import android.util.Log
+import androidx.annotation.RestrictTo
 import androidx.test.platform.app.InstrumentationRegistry
 import java.io.File
 
 /**
  * Lazy-initialized test-suite global state for errors around measurement inaccuracy.
  */
-internal object Errors {
+@RestrictTo(RestrictTo.Scope.LIBRARY)
+object Errors {
     /**
      * Same as trimMargins, but add newlines on either side.
      */
@@ -63,15 +65,6 @@ internal object Errors {
         warningString = null
         return ret
     }
-
-    val isEmulator = Build.FINGERPRINT.startsWith("generic") ||
-        Build.FINGERPRINT.startsWith("unknown") ||
-        Build.MODEL.contains("google_sdk") ||
-        Build.MODEL.contains("Emulator") ||
-        Build.MODEL.contains("Android SDK built for x86") ||
-        Build.MANUFACTURER.contains("Genymotion") ||
-        Build.BRAND.startsWith("generic") && Build.DEVICE.startsWith("generic") ||
-        "google_sdk" == Build.PRODUCT
 
     private val isDeviceRooted =
         arrayOf(
@@ -110,7 +103,7 @@ internal object Errors {
                 |    real user's experience (or even regress release performance).
             """.trimMarginWrapNewlines()
         }
-        if (isEmulator) {
+        if (DeviceInfo.isEmulator) {
             warningPrefix += "EMULATOR_"
             warningString += """
                 |WARNING: Running on Emulator
@@ -196,7 +189,9 @@ internal object Errors {
                     |    be avoided, due to measurement inaccuracy.
                 """.trimMarginWrapNewlines()
             } else if (
-                Build.VERSION.SDK_INT >= 29 && !context.isProfileableByShell()
+                DeviceInfo.profileableEnforced &&
+                Build.VERSION.SDK_INT >= 29 &&
+                !context.isProfileableByShell()
             ) {
                 warningPrefix += "SIMPLEPERF_"
                 warningString += """
@@ -229,14 +224,6 @@ internal object Errors {
             """.trimMarginWrapNewlines()
         }
 
-        Arguments.profiler?.run {
-            val profilerName = javaClass.simpleName
-            warningPrefix += "PROFILED_"
-            warningString += """
-                |WARNING: Using profiler=$profilerName, results will be affected.
-            """.trimMarginWrapNewlines()
-        }
-
         PREFIX = warningPrefix
         if (warningString.isNotEmpty()) {
             this.warningString = warningString
@@ -248,9 +235,8 @@ internal object Errors {
             .filter { it.isNotEmpty() }
             .toSet()
 
-        val alwaysSuppressed = setOf("PROFILED")
         val neverSuppressed = setOf("SIMPLEPERF")
-        val suppressedWarnings = Arguments.suppressedErrors + alwaysSuppressed - neverSuppressed
+        val suppressedWarnings = Arguments.suppressedErrors - neverSuppressed
         val unsuppressedWarningSet = warningSet - suppressedWarnings
         UNSUPPRESSED_WARNING_MESSAGE = if (unsuppressedWarningSet.isNotEmpty()) {
             """

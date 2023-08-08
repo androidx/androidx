@@ -17,9 +17,9 @@
 package androidx.room.compiler.processing.util
 
 import com.google.testing.compile.JavaFileObjects
-import org.intellij.lang.annotations.Language
 import java.io.File
 import javax.tools.JavaFileObject
+import org.intellij.lang.annotations.Language
 
 /**
  * Common abstraction for test sources in kotlin and java
@@ -79,6 +79,9 @@ sealed class Source {
             @Language("java")
             code: String
         ): Source {
+            require(!qName.endsWith(".java")) {
+                "Please exclude extension `.java` for Java sources."
+            }
             return JavaSource(
                 qName,
                 code
@@ -90,6 +93,9 @@ sealed class Source {
             @Language("kotlin")
             code: String
         ): Source {
+            require(filePath.endsWith(".kt")) {
+                "Please include extension `.kt` for Kotlin sources."
+            }
             return KotlinSource(
                 filePath,
                 code

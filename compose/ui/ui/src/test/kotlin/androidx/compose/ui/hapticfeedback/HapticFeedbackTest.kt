@@ -18,13 +18,13 @@ package androidx.compose.ui.hapticfeedback
 
 import android.view.HapticFeedbackConstants
 import android.view.View
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.spy
 import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
-import org.junit.Test
-import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
 class HapticFeedbackTest {

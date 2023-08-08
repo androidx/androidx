@@ -22,5 +22,11 @@ data class Type(
   val typeParameters: List<Type> = emptyList(),
   val isNullable: Boolean = false
 ) {
-  val qualifiedName = "$packageName.$simpleName"
+  val qualifiedName: String
+    get() {
+      if (packageName.isEmpty()) {
+        return simpleName
+      }
+      return "$packageName.$simpleName"
+    }
 }

@@ -29,7 +29,6 @@ import com.google.common.util.concurrent.SettableFuture;
  *
  * @param <S> type of the remote service
  * @param <R> type of the result value
- * @hide
  */
 @RestrictTo(Scope.LIBRARY)
 public interface RemoteFutureOperation<S, R> {

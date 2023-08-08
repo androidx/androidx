@@ -27,6 +27,7 @@ import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusOwner
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Canvas
+import androidx.compose.ui.graphics.Matrix
 import androidx.compose.ui.hapticfeedback.HapticFeedback
 import androidx.compose.ui.input.InputModeManager
 import androidx.compose.ui.input.key.KeyEvent
@@ -45,6 +46,7 @@ import androidx.compose.ui.node.OwnerSnapshotObserver
 import androidx.compose.ui.node.RootForTest
 import androidx.compose.ui.platform.AccessibilityManager
 import androidx.compose.ui.platform.ClipboardManager
+import androidx.compose.ui.platform.PlatformTextInputSessionScope
 import androidx.compose.ui.platform.TextToolbar
 import androidx.compose.ui.platform.ViewConfiguration
 import androidx.compose.ui.platform.WindowInfo
@@ -62,6 +64,9 @@ import androidx.compose.ui.util.fastMaxBy
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
+import java.util.concurrent.Executors
+import kotlin.coroutines.CoroutineContext
+import kotlinx.coroutines.asCoroutineDispatcher
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -99,6 +104,8 @@ class PointerInputEventProcessorTest {
         override fun screenToLocal(positionOnScreen: Offset): Offset = positionOnScreen
 
         override fun localToScreen(localPosition: Offset): Offset = localPosition
+
+        override fun localToScreen(localTransform: Matrix) {}
     }
 
     @Before
@@ -3305,12 +3312,20 @@ private class TestOwner : Owner {
         get() = Density(1f)
     override val textInputService: TextInputService
         get() = TODO("Not yet implemented")
+
+    override suspend fun textInputSession(
+        session: suspend PlatformTextInputSessionScope.() -> Nothing
+    ): Nothing {
+        TODO("Not yet implemented")
+    }
+
     override val pointerIconService: PointerIconService
         get() = TODO("Not yet implemented")
     override val focusOwner: FocusOwner
         get() = TODO("Not yet implemented")
     override val windowInfo: WindowInfo
         get() = TODO("Not yet implemented")
+
     @Deprecated(
         "fontLoader is deprecated, use fontFamilyResolver",
         replaceWith = ReplaceWith("fontFamilyResolver")
@@ -3329,7 +3344,8 @@ private class TestOwner : Owner {
     override fun onRequestMeasure(
         layoutNode: LayoutNode,
         affectsLookahead: Boolean,
-        forceRequest: Boolean
+        forceRequest: Boolean,
+        scheduleMeasureAndLayout: Boolean
     ) {
         if (affectsLookahead) {
             delegate.requestLookaheadRemeasure(layoutNode)
@@ -3374,8 +3390,8 @@ private class TestOwner : Owner {
         delegate.measureAndLayout(layoutNode, constraints)
     }
 
-    override fun forceMeasureTheSubtree(layoutNode: LayoutNode) {
-        delegate.forceMeasureTheSubtree(layoutNode)
+    override fun forceMeasureTheSubtree(layoutNode: LayoutNode, affectsLookahead: Boolean) {
+        delegate.forceMeasureTheSubtree(layoutNode, affectsLookahead)
     }
 
     override fun createLayer(
@@ -3402,6 +3418,9 @@ private class TestOwner : Owner {
         get() = TODO("Not yet implemented")
     override val snapshotObserver = OwnerSnapshotObserver { it.invoke() }
     override val modifierLocalManager: ModifierLocalManager = ModifierLocalManager(this)
+
+    override val coroutineContext: CoroutineContext =
+        Executors.newFixedThreadPool(3).asCoroutineDispatcher()
     override fun registerOnEndApplyChangesListener(listener: () -> Unit) {
         onEndListeners += listener
     }

@@ -27,7 +27,7 @@ import java.util.Map;
 
 /**
  * A registry which maintains instances of {@link DocumentClassFactory}.
- * @hide
+ * @exportToFramework:hide
  */
 @AnyThread
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -128,12 +128,36 @@ public final class DocumentClassFactoryRegistry {
         try {
             factoryClass = Class.forName(factoryClassName);
         } catch (ClassNotFoundException e) {
-            throw new AppSearchException(
-                    AppSearchResult.RESULT_INTERNAL_ERROR,
-                    "Failed to find document class converter \"" + factoryClassName
-                            + "\". Perhaps the annotation processor was not run or the class was "
-                            + "proguarded out?",
-                    e);
+            // If the current class or interface has only one parent interface/class, then try to
+            // look at the unique parent.
+            Class<?> superClass = documentClass.getSuperclass();
+            Class<?>[] superInterfaces = documentClass.getInterfaces();
+            if (superClass == Object.class) {
+                superClass = null;
+            }
+            int numParent = superInterfaces.length;
+            if (superClass != null) {
+                numParent += 1;
+            }
+
+            if (numParent == 1) {
+                if (superClass != null) {
+                    return loadFactoryByReflection(superClass);
+                } else {
+                    return loadFactoryByReflection(superInterfaces[0]);
+                }
+            }
+
+            String errorMessage = "Failed to find document class converter \"" + factoryClassName
+                    + "\". Perhaps the annotation processor was not run or the class was "
+                    + "proguarded out?";
+            if (numParent > 1) {
+                errorMessage += " Or, this class may not have been annotated with @Document, and "
+                        + "there is an ambiguity to determine a unique @Document annotated parent "
+                        + "class/interface.";
+            }
+
+            throw new AppSearchException(AppSearchResult.RESULT_INTERNAL_ERROR, errorMessage, e);
         }
         Object instance;
         try {

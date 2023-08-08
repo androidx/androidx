@@ -315,7 +315,10 @@ def update_versions_in_library_versions_toml(group_id, artifact_id, old_version)
 
     # Open file for writing and write toml back
     with open(LIBRARY_VERSIONS_FP, 'w') as f:
-        toml.dump(library_versions, f, encoder=toml.TomlPreserveInlineDictEncoder())
+        versions_toml_file_string = toml.dumps(library_versions, encoder=toml.TomlPreserveInlineDictEncoder())
+        versions_toml_file_string_new = re.sub(",]", " ]", versions_toml_file_string)
+        f.write(versions_toml_file_string_new)
+
     return updated_version
 
 
@@ -405,17 +408,6 @@ def update_compose_runtime_version(group_id, artifact_id, old_version):
         version_checker_lines = f.readlines()
     num_lines = len(version_checker_lines)
 
-    for i in range(num_lines):
-        cur_line = version_checker_lines[i]
-        # Skip any line that doesn't declare the compiler/compose version
-        if 'const val compilerVersion: String = ' not in cur_line: continue
-        current_version = cur_line.split('const val compilerVersion: String = ')[1].strip('"\n')
-        # Only update if we have a higher version.
-        version_to_keep = get_higher_version(current_version, updated_compose_version)
-        new_version_line = '        const val compilerVersion: String = "%s"\n' % version_to_keep
-        version_checker_lines[i] = new_version_line
-        break
-
     old_runtime_version = compose_to_runtime_version_map[old_version]["runtime_version"]
     if "alpha" in updated_compose_version or "beta" in updated_compose_version:
         new_compose_runtime_version = old_runtime_version + 100
@@ -471,7 +463,7 @@ def commit_updates(release_date):
         msg = "Update versions for release id %s\n\nThis commit was generated from the command:\n%s\n\n%s" % (
             release_date, " ".join(sys.argv), "Test: ./gradlew checkApi")
         subprocess.check_call(["git", "commit", "-m", msg], cwd=dir, stderr=subprocess.STDOUT)
-        subprocess.check_call(["repo", "upload", ".", "--cbr", "-t", "-y", "--label", "Presubmit-Ready+1"], cwd=dir,
+        subprocess.check_call(["repo", "upload", ".", "--cbr", "-t", "-y", "-o", "banned-words~skip", "--label", "Presubmit-Ready+1"], cwd=dir,
                               stderr=subprocess.STDOUT)
 
 def main(args):

@@ -33,7 +33,6 @@ public interface CameraFilter {
     /**
      * Default identifier of camera filter.
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     Identifier DEFAULT_ID = Identifier.create(new Object());
@@ -53,6 +52,9 @@ public interface CameraFilter {
      * @param cameraInfos An unmodifiable list of {@link CameraInfo}s being filtered.
      * @return The output list of {@link CameraInfo}s that match the requirements. Users are
      * expected to create a new list to return with.
+     *
+     * @throws IllegalArgumentException If the device cannot return a valid lens facing value,
+     *                                  it will throw this exception.
      */
     @NonNull
     List<CameraInfo> filter(@NonNull List<CameraInfo> cameraInfos);
@@ -68,7 +70,6 @@ public interface CameraFilter {
      * retrieving the {@link CameraConfig} of an extension mode given the {@link Identifier} of
      * its camera filter.
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @NonNull

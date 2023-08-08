@@ -20,23 +20,42 @@
 package androidx.camera.camera2.pipe
 
 import androidx.annotation.RequiresApi
+import androidx.annotation.RestrictTo
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 /** Methods for querying, iterating, and selecting the Cameras that are available on the device. */
-public interface CameraDevices {
+interface CameraDevices {
     /**
-     * Read the list of currently openable CameraIds from the provided CameraBackend, suspending if
-     * needed. By default this will load the list of openable CameraIds from the default backend.
+     * Read the list of currently openable [CameraId]s from the provided CameraBackend, suspending
+     * if needed. By default this will load the list of openable [CameraId]s from the default
+     * backend.
      */
     suspend fun getCameraIds(cameraBackendId: CameraBackendId? = null): List<CameraId>?
 
     /**
-     * Read the list of currently openable CameraIds from the provided CameraBackend, blocking the
-     * thread if needed. By default this will load the list of openable CameraIds from the default
+     * Read the list of currently openable [CameraId]s from the provided CameraBackend, blocking the
+     * thread if needed. By default this will load the list of openable [CameraId]s from the default
      * backend.
      */
     fun awaitCameraIds(cameraBackendId: CameraBackendId? = null): List<CameraId>?
+
+    /**
+     * Read the set of [CameraId] sets that can be operated concurrently from the provided
+     * CameraBackend, suspending if needed. By default this will load the set of [CameraId] sets
+     * from the default backend.
+     */
+    suspend fun getConcurrentCameraIds(
+        cameraBackendId: CameraBackendId? = null
+    ): Set<Set<CameraId>>?
+
+    /**
+     * Read the set of [CameraId] sets that can be operated concurrently from the provided
+     * CameraBackend, blocking the thread if needed. By default this will load the set of [CameraId]
+     * sets from the default backend.
+     */
+    fun awaitConcurrentCameraIds(cameraBackendId: CameraBackendId? = null): Set<Set<CameraId>>?
 
     /**
      * Read metadata for a specific camera id, suspending if needed. By default, this method will
@@ -64,8 +83,9 @@ public interface CameraDevices {
     @Deprecated(
         message = "findAll() is not able to specify a specific CameraBackendId to query.",
         replaceWith = ReplaceWith("awaitCameraIds"),
-        level = DeprecationLevel.WARNING)
-    public fun findAll(): List<CameraId>
+        level = DeprecationLevel.WARNING
+    )
+    fun findAll(): List<CameraId>
 
     /**
      * Load the list of CameraIds from the Camera2 CameraManager, suspending if the list of
@@ -74,8 +94,9 @@ public interface CameraDevices {
     @Deprecated(
         message = "ids() is not able to specify a specific CameraBackendId to query.",
         replaceWith = ReplaceWith("getCameraIds"),
-        level = DeprecationLevel.WARNING)
-    public suspend fun ids(): List<CameraId>
+        level = DeprecationLevel.WARNING
+    )
+    suspend fun ids(): List<CameraId>
 
     /**
      * Load CameraMetadata for a specific CameraId. Loading CameraMetadata can take a non-zero
@@ -85,8 +106,9 @@ public interface CameraDevices {
     @Deprecated(
         message = "getMetadata() is not able to specify a specific CameraBackendId to query.",
         replaceWith = ReplaceWith("getCameraMetadata"),
-        level = DeprecationLevel.WARNING)
-    public suspend fun getMetadata(camera: CameraId): CameraMetadata
+        level = DeprecationLevel.WARNING
+    )
+    suspend fun getMetadata(camera: CameraId): CameraMetadata
 
     /**
      * Load CameraMetadata for a specific CameraId and block the calling thread until the result is
@@ -95,15 +117,26 @@ public interface CameraDevices {
     @Deprecated(
         message = "awaitMetadata() is not able to specify a specific CameraBackendId to query.",
         replaceWith = ReplaceWith("awaitCameraMetadata"),
-        level = DeprecationLevel.WARNING)
-    public fun awaitMetadata(camera: CameraId): CameraMetadata
+        level = DeprecationLevel.WARNING
+    )
+    fun awaitMetadata(camera: CameraId): CameraMetadata
 }
 
+/**
+ * CameraId represents a typed identifier for a camera represented as a non-blank String.
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @JvmInline
-public value class CameraId(public val value: String) {
-    public companion object {
-        public inline fun fromCamera2Id(value: String): CameraId = CameraId(value)
-        public inline fun fromCamera1Id(value: Int): CameraId = CameraId("$value")
+value class CameraId(val value: String) {
+    init {
+        require(value.isNotBlank()) {
+            "CameraId cannot be null or blank!"
+        }
+    }
+
+    companion object {
+        inline fun fromCamera2Id(value: String): CameraId = CameraId(value)
+        inline fun fromCamera1Id(value: Int): CameraId = CameraId("$value")
     }
 
     /**
@@ -111,8 +144,8 @@ public value class CameraId(public val value: String) {
      *
      * @return The parsed Camera1 id, or null if the value cannot be parsed as a Camera1 id.
      */
-    public inline fun toCamera1Id(): Int? = value.toIntOrNull()
-    public override fun toString(): String = "Camera $value"
+    inline fun toCamera1Id(): Int? = value.toIntOrNull()
+    override fun toString(): String = "Camera $value"
 }
 
 /**
@@ -120,7 +153,8 @@ public value class CameraId(public val value: String) {
  * metadata of cameras that are otherwise hidden. Metadata for hidden cameras are always returned
  * last.
  */
-public fun CameraDevices.find(
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+fun CameraDevices.find(
     cameraBackendId: CameraBackendId? = null,
     includePhysicalCameraMetadata: Boolean = false
 ): Flow<CameraMetadata> = flow {
@@ -145,7 +179,8 @@ public fun CameraDevices.find(
                     val physicalMetadata = this@find.getCameraMetadata(physicalId, cameraBackendId)
                     if (physicalMetadata != null &&
                         physicalMetadata.camera == physicalId &&
-                        visited.add(physicalId)) {
+                        visited.add(physicalId)
+                    ) {
                         emit(physicalMetadata)
                     }
                 }

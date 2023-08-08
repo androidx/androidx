@@ -25,9 +25,8 @@ class GetCredentialUnknownException @JvmOverloads constructor(
     errorMessage: CharSequence? = null
 ) : GetCredentialException(TYPE_GET_CREDENTIAL_UNKNOWN_EXCEPTION, errorMessage) {
 
-    /** @hide */
-    companion object {
+    internal companion object {
         internal const val TYPE_GET_CREDENTIAL_UNKNOWN_EXCEPTION =
-            "androidx.credentials.TYPE_GET_CREDENTIAL_UNKNOWN_EXCEPTION"
+            "android.credentials.GetCredentialException.TYPE_UNKNOWN"
     }
 }

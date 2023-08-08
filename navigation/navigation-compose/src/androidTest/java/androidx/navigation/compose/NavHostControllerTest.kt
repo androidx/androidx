@@ -16,6 +16,7 @@
 
 package androidx.navigation.compose
 
+import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -23,6 +24,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
+import androidx.navigation.NoOpNavigator
 import androidx.navigation.createGraph
 import androidx.navigation.get
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -40,6 +42,65 @@ import org.junit.runner.RunWith
 class NavHostControllerTest {
     @get:Rule
     val composeTestRule = createComposeRule()
+
+    @Test
+    fun testRememberNavController() {
+        lateinit var navController: NavHostController
+
+        composeTestRule.setContent {
+            navController = rememberNavController()
+            // get state to trigger recompose on navigate
+            navController.currentBackStackEntryAsState().value
+            NavHost(navController, startDestination = "first") {
+                composable("first") { BasicText("first") }
+                composable("second") { BasicText("second") }
+            }
+        }
+
+        val navigator = composeTestRule.runOnIdle {
+            navController.navigatorProvider[ComposeNavigator::class]
+        }
+
+        // trigger recompose
+        composeTestRule.runOnIdle {
+            navController.navigate("second")
+        }
+
+        composeTestRule.runOnIdle {
+            assertThat(navController.navigatorProvider[ComposeNavigator::class])
+                .isEqualTo(navigator)
+        }
+    }
+
+    @Test
+    fun testRememberNavControllerAddsCustomNavigator() {
+        lateinit var navController: NavHostController
+
+        composeTestRule.setContent {
+            val customNavigator = remember { NoOpNavigator() }
+            navController = rememberNavController(customNavigator)
+            // get state to trigger recompose on navigate
+            navController.currentBackStackEntryAsState().value
+            NavHost(navController, startDestination = "first") {
+                composable("first") { BasicText("first") }
+                composable("second") { BasicText("second") }
+            }
+        }
+
+        val navigator = composeTestRule.runOnIdle {
+            navController.navigatorProvider[NoOpNavigator::class]
+        }
+
+        // trigger recompose
+        composeTestRule.runOnIdle {
+            navController.navigate("second")
+        }
+
+        composeTestRule.runOnIdle {
+            assertThat(navController.navigatorProvider[NoOpNavigator::class])
+                .isEqualTo(navigator)
+        }
+    }
 
     @Test
     fun testCurrentBackStackEntrySetGraph() {

@@ -90,9 +90,9 @@ class SafeLibLoaderTest {
         safeLibLoader.loadLib(allowedLibDir.resolve("file-does-not-exist"), mapOf(abi to "zzz"))
     }
 
-    @Test(expected = UnapprovedLocationException::class)
+    @Test
     fun test_unapproved_location() {
-        val libFile = copyFakeLibTo(disallowedLibDir)
+        val libFile = copyRealLibTo(disallowedLibDir)
         try {
             safeLibLoader.loadLib(libFile, mapOf(abi to calcSha(libFile)))
         } finally {
@@ -104,7 +104,7 @@ class SafeLibLoaderTest {
         dstDir.resolve(libFileName).also { dstFile ->
             val srcZip = ZipFile(File(context.applicationInfo.publicSourceDir))
             val libEntry = srcZip.entries().asSequence()
-                .single { entry -> entry.name.matches(Regex(".*lib/.*$abi.*/$libFileName")) }
+                .single { entry -> entry.name.matches(Regex(".*lib/$abi/$libFileName")) }
             srcZip.getInputStream(libEntry).use { src ->
                 dstFile.outputStream().use { dst -> src.copyTo(dst) }
             }

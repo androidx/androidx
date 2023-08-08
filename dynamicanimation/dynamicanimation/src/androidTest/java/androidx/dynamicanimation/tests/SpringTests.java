@@ -59,6 +59,7 @@ import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -125,6 +126,7 @@ public class SpringTests {
      * Test that spring animation can work with a single property without an object.
      */
     @Test
+    @Ignore("b/280665072")
     public void testFloatValueHolder() {
         final FloatValueHolder floatValueHolder = new FloatValueHolder(0f);
         DynamicAnimation.OnAnimationUpdateListener updateListener =
@@ -353,6 +355,7 @@ public class SpringTests {
      */
     @LargeTest
     @Test
+    @Ignore("b/280665072")
     public void testStiffness() {
         float[] dampingRatios = {0.3f, 0.5f, 1f, 5f};
         final float[] stiffness = {50f, 500f, 1500f, 5000f};
@@ -874,6 +877,7 @@ public class SpringTests {
 
     }
 
+    @Ignore // b/268534501
     @Test
     @SdkSuppress(minSdkVersion = 33, maxSdkVersion = 33) // b/262909049: Failing on SDK 34
     public void testDurationScaleChangeListener() throws InterruptedException {

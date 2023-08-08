@@ -27,7 +27,6 @@ import androidx.annotation.RestrictTo;
 /**
  * Helper classes to avoid ClassVerificationFailure.
  *
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP)
 public final class ClassVerificationHelper {

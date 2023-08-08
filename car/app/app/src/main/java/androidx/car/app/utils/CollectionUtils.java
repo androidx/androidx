@@ -31,7 +31,6 @@ import java.util.Map;
 /**
  * Assorted collection utilities.
  *
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP)
 public final class CollectionUtils {

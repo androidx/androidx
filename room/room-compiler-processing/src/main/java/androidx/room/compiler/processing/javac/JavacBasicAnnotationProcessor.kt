@@ -59,6 +59,7 @@ abstract class JavacBasicAnnotationProcessor @JvmOverloads constructor(
     ): Boolean {
         val xRoundEnv = JavacRoundEnv(xEnv, roundEnv)
         if (roundEnv.processingOver()) {
+            preRound(xEnv, xRoundEnv)
             val missingElements = commonDelegate.processLastRound()
             postRound(xEnv, xRoundEnv)
             if (!xProcessingEnv.config.disableAnnotatedElementValidation &&
@@ -68,6 +69,7 @@ abstract class JavacBasicAnnotationProcessor @JvmOverloads constructor(
                 commonDelegate.reportMissingElements(missingElements)
             }
         } else {
+            preRound(xEnv, xRoundEnv)
             commonDelegate.processRound(xRoundEnv)
             postRound(xEnv, xRoundEnv)
             xEnv.clearCache()

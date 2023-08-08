@@ -22,12 +22,12 @@ import androidx.compose.integration.demos.common.DemoCategory
 import androidx.compose.material.samples.AlertDialogSample
 import androidx.compose.material.samples.BackdropScaffoldSample
 import androidx.compose.material.samples.BottomDrawerSample
-import androidx.compose.material.samples.CustomAlertDialogSample
-import androidx.compose.material.samples.ModalBottomSheetSample
-import androidx.compose.material.samples.ModalDrawerSample
 import androidx.compose.material.samples.BottomSheetScaffoldSample
 import androidx.compose.material.samples.ContentAlphaSample
+import androidx.compose.material.samples.CustomAlertDialogSample
 import androidx.compose.material.samples.CustomPullRefreshSample
+import androidx.compose.material.samples.ModalBottomSheetSample
+import androidx.compose.material.samples.ModalDrawerSample
 import androidx.compose.material.samples.PullRefreshIndicatorTransformSample
 import androidx.compose.material.samples.PullRefreshSample
 import androidx.compose.material.samples.ScaffoldWithBottomBarAndCutout

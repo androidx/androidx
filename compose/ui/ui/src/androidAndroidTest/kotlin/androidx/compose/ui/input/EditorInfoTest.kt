@@ -19,6 +19,7 @@ package androidx.compose.ui.input
 import android.text.InputType
 import android.view.inputmethod.EditorInfo
 import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.input.AndroidImeOptions
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.ImeOptions
 import androidx.compose.ui.text.input.KeyboardCapitalization
@@ -535,6 +536,19 @@ class EditorInfoTest {
 
         assertThat(info.initialSelStart).isEqualTo(selection.start)
         assertThat(info.initialSelEnd).isEqualTo(selection.end)
+    }
+
+    @Test
+    fun test_privateImeOptions_is_set() {
+        val info = EditorInfo()
+        val privateImeOptions = "testOptions"
+        info.update(
+            ImeOptions(
+                platformImeOptions = AndroidImeOptions(privateImeOptions)
+            )
+        )
+
+        assertThat(info.privateImeOptions).isEqualTo(privateImeOptions)
     }
 
     private fun EditorInfo.update(imeOptions: ImeOptions) {

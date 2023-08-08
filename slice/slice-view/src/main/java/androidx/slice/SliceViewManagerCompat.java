@@ -33,7 +33,6 @@ import java.util.Collection;
 
 
 /**
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @RequiresApi(19)

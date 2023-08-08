@@ -27,12 +27,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.R
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.ViewRootForTest
-import org.junit.Before
-import org.junit.Rule
 import java.util.Collections
 import java.util.WeakHashMap
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import org.junit.Before
+import org.junit.Rule
 
 open class ToolingTest {
     @Suppress("DEPRECATION")

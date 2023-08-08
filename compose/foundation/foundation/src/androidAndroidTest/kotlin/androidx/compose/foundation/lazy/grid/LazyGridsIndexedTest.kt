@@ -17,8 +17,8 @@
 package androidx.compose.foundation.lazy.grid
 
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag

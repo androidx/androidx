@@ -21,6 +21,7 @@ import android.util.Log
 import android.view.Surface
 import android.view.View
 import androidx.annotation.RequiresApi
+import androidx.graphics.surface.JniBindings
 import androidx.graphics.surface.SurfaceControlCompat
 
 /**
@@ -35,7 +36,7 @@ internal class BufferTransformHintResolver {
         } else {
             val orientation: String?
             return try {
-                orientation = getDisplayOrientation()
+                orientation = JniBindings.nGetDisplayOrientation()
                 val rotation = view.display?.rotation
                 if (rotation != null) {
                     val transform = getBufferTransformHintFromInstallOrientation(
@@ -112,13 +113,6 @@ internal class BufferTransformHintResolver {
         const val ORIENTATION_90 = "ORIENTATION_90"
         const val ORIENTATION_180 = "ORIENTATION_180"
         const val ORIENTATION_270 = "ORIENTATION_270"
-
-        init {
-            System.loadLibrary("graphics-core")
-        }
-
-        @JvmStatic
-        external fun getDisplayOrientation(): String
     }
 }
 

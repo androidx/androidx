@@ -27,9 +27,9 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.requiredHeight
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
@@ -42,6 +42,7 @@ import androidx.compose.material.Card
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -59,7 +60,7 @@ import androidx.compose.ui.window.PopupProperties
 
 @Composable
 fun PopupDemo() {
-    val exampleIndex = remember { mutableStateOf(0) }
+    var exampleIndex by remember { mutableIntStateOf(0) }
     val totalExamples = 8
 
     Column {
@@ -71,11 +72,11 @@ fun PopupDemo() {
                 text = "Prev",
                 color = Color.Cyan,
                 onClick = {
-                    if (exampleIndex.value == 0) {
-                        exampleIndex.value = totalExamples
+                    if (exampleIndex == 0) {
+                        exampleIndex = totalExamples
                     }
 
-                    exampleIndex.value = (exampleIndex.value - 1) % totalExamples
+                    exampleIndex = (exampleIndex - 1) % totalExamples
                 },
                 padding = 20.dp
             )
@@ -85,7 +86,7 @@ fun PopupDemo() {
                 contentAlignment = Alignment.Center
             ) {
                 val description: String = {
-                    when (exampleIndex.value) {
+                    when (exampleIndex) {
                         0 -> "Shadow demo"
                         1 -> "Toggle a simple popup"
                         2 -> "Different content for the popup"
@@ -118,13 +119,13 @@ fun PopupDemo() {
                 text = "Next",
                 color = Color.Cyan,
                 onClick = {
-                    exampleIndex.value = (exampleIndex.value + 1) % totalExamples
+                    exampleIndex = (exampleIndex + 1) % totalExamples
                 },
                 padding = 20.dp
             )
         }
 
-        when (exampleIndex.value) {
+        when (exampleIndex) {
             0 -> PopupElevation()
             1 -> PopupToggle()
             2 -> PopupWithChangingContent()
@@ -143,7 +144,7 @@ private fun ColumnScope.PopupElevation() {
     var shape by remember { mutableStateOf(RectangleShape) }
     var background by remember { mutableStateOf(Color.Transparent) }
     var contentSize by remember { mutableStateOf(100.dp) }
-    var dismissCounter by remember { mutableStateOf(0) }
+    var dismissCounter by remember { mutableIntStateOf(0) }
     var elevation by remember { mutableStateOf(6.dp) }
 
     // This example utilizes the Card to draw its shadow.
@@ -238,18 +239,18 @@ private fun ColumnScope.PopupWithChangingContent() {
     Column(Modifier.align(Alignment.CenterHorizontally)) {
         val heightSize = 120.dp
         val widthSize = 160.dp
-        val popupContentState = remember { mutableStateOf(0) }
+        var popupContentState by remember { mutableIntStateOf(0) }
         val totalContentExamples = 2
-        val popupCounter = remember { mutableStateOf(0) }
+        var popupCounter by remember { mutableIntStateOf(0) }
 
         Box(Modifier.size(widthSize, heightSize).background(Color.Gray)) {
             Popup(Alignment.Center) {
-                when (popupContentState.value % totalContentExamples) {
+                when (popupContentState % totalContentExamples) {
                     0 -> ClickableTextWithBackground(
-                        text = "Counter : ${popupCounter.value}",
+                        text = "Counter : $popupCounter",
                         color = Color.Green,
                         onClick = {
-                            popupCounter.value += 1
+                            popupCounter += 1
                         }
                     )
                     1 -> Box(
@@ -264,7 +265,7 @@ private fun ColumnScope.PopupWithChangingContent() {
             text = "Change content",
             color = Color.Cyan,
             onClick = {
-                popupContentState.value += 1
+                popupContentState++
             }
         )
     }
@@ -328,7 +329,7 @@ private fun ColumnScope.PopupAlignmentDemo() {
     Column(Modifier.align(Alignment.CenterHorizontally)) {
         val heightSize = 200.dp
         val widthSize = 400.dp
-        val counter = remember { mutableStateOf(0) }
+        var counter by remember { mutableIntStateOf(0) }
         val popupAlignment = remember { mutableStateOf(Alignment.TopStart) }
         Box(
             modifier = Modifier.size(widthSize, heightSize).background(Color.Red),
@@ -339,8 +340,8 @@ private fun ColumnScope.PopupAlignmentDemo() {
                     text = "Click to change alignment",
                     color = Color.White,
                     onClick = {
-                        counter.value += 1
-                        when (counter.value % 9) {
+                        counter++
+                        when (counter % 9) {
                             0 -> popupAlignment.value = Alignment.TopStart
                             1 -> popupAlignment.value = Alignment.TopCenter
                             2 -> popupAlignment.value = Alignment.TopEnd
@@ -413,7 +414,7 @@ private fun ColumnScope.PopupWithChangingSize() {
         val showPopup = remember { mutableStateOf(true) }
         val heightSize = 120.dp
         val widthSize = 160.dp
-        val rectangleState = remember { mutableStateOf(0) }
+        var rectangleState by remember { mutableIntStateOf(0) }
 
         Spacer(Modifier.height(15.dp))
         Box(
@@ -421,7 +422,7 @@ private fun ColumnScope.PopupWithChangingSize() {
         ) {
             if (showPopup.value) {
                 Popup(Alignment.Center) {
-                    val size = when (rectangleState.value % 4) {
+                    val size = when (rectangleState % 4) {
                         0 -> Modifier.size(30.dp)
                         1 -> Modifier.size(100.dp)
                         2 -> Modifier.size(30.dp, 90.dp)
@@ -436,7 +437,7 @@ private fun ColumnScope.PopupWithChangingSize() {
             text = "Change size",
             color = Color.Cyan,
             onClick = {
-                rectangleState.value += 1
+                rectangleState++
             }
         )
     }

@@ -23,8 +23,8 @@ import androidx.paging.PagingState
 import androidx.paging.rxjava2.RxPagingSource
 import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
-import retrofit2.HttpException
 import java.io.IOException
+import retrofit2.HttpException
 
 private class RxBackendService {
     data class RemoteResult(

@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.text.selection
 
+import android.os.Build
 import androidx.compose.foundation.text.InternalFoundationTextApi
 import androidx.compose.foundation.text.TEST_FONT_FAMILY
 import androidx.compose.foundation.text.TextDelegate
@@ -37,12 +38,13 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.sp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.whenever
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.whenever
 
 @RunWith(AndroidJUnit4::class)
 @MediumTest
@@ -1514,7 +1516,7 @@ class MultiWidgetSelectionDelegateTest {
 
         val lastVisibleOffset = selectable.getLastVisibleOffset()
 
-        assertThat(lastVisibleOffset).isEqualTo(text.length)
+        assertThat(lastVisibleOffset).isEqualTo(text.length - 1) // ignore last whitespace
     }
 
     // start = ellipsis
@@ -1545,6 +1547,8 @@ class MultiWidgetSelectionDelegateTest {
         assertThat(lastVisibleOffset).isEqualTo(3)
     }
 
+    // TODO(b/270441925); Last visible offset calculated using getLineVisibleEnd. It returns//   a different result below API 26.
+    @SdkSuppress(minSdkVersion = 26)
     @Test
     fun getLastVisibleOffset_maxLines1_ellipsis_enabledSoftwrap_singleLineContent() {
         val text = "hello world ".repeat(10)
@@ -1622,7 +1626,13 @@ class MultiWidgetSelectionDelegateTest {
 
         val lastVisibleOffset = selectable.getLastVisibleOffset()
 
-        assertThat(lastVisibleOffset).isEqualTo(19)
+        // the way text layout is calculated with ellipsis is vastly different before and
+        // after API 23. Last visible offset logic cannot be unified below API 23.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            assertThat(lastVisibleOffset).isEqualTo(19)
+        } else {
+            assertThat(lastVisibleOffset).isEqualTo(17)
+        }
     }
 
     // start = height constrained
@@ -1728,7 +1738,7 @@ class MultiWidgetSelectionDelegateTest {
 
         val lastVisibleOffset = selectable.getLastVisibleOffset()
 
-        assertThat(lastVisibleOffset).isEqualTo(text.length)
+        assertThat(lastVisibleOffset).isEqualTo(text.length - 1) // ignores last whitespace
     }
 
     // start = ellipsis
@@ -1782,7 +1792,13 @@ class MultiWidgetSelectionDelegateTest {
 
         val lastVisibleOffset = selectable.getLastVisibleOffset()
 
-        assertThat(lastVisibleOffset).isEqualTo(9)
+        // the way text layout is calculated with ellipsis is vastly different before and
+        // after API 23. Last visible offset logic cannot be unified below API 23.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            assertThat(lastVisibleOffset).isEqualTo(9)
+        } else {
+            assertThat(lastVisibleOffset).isEqualTo(5)
+        }
     }
 
     // start = disabled soft wrap
@@ -1835,7 +1851,13 @@ class MultiWidgetSelectionDelegateTest {
 
         val lastVisibleOffset = selectable.getLastVisibleOffset()
 
-        assertThat(lastVisibleOffset).isEqualTo(19)
+        // the way text layout is calculated with ellipsis is vastly different before and
+        // after API 23. Last visible offset logic cannot be unified below API 23.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            assertThat(lastVisibleOffset).isEqualTo(19)
+        } else {
+            assertThat(lastVisibleOffset).isEqualTo(17)
+        }
     }
 
     @Test

@@ -17,6 +17,8 @@
 package androidx.window.embedding
 
 import android.app.Activity
+import android.app.ActivityOptions
+import android.os.IBinder
 import androidx.window.extensions.embedding.ActivityEmbeddingComponent
 
 /**
@@ -34,4 +36,24 @@ internal interface EmbeddingInterfaceCompat {
     }
 
     fun isActivityEmbedded(activity: Activity): Boolean
+
+    fun setSplitAttributesCalculator(
+        calculator: (SplitAttributesCalculatorParams) -> SplitAttributes
+    )
+
+    fun clearSplitAttributesCalculator()
+
+    fun isSplitAttributesCalculatorSupported(): Boolean
+
+    fun setLaunchingActivityStack(options: ActivityOptions, token: IBinder): ActivityOptions
+
+    fun finishActivityStacks(activityStacks: Set<ActivityStack>)
+
+    fun isFinishActivityStacksSupported(): Boolean
+
+    fun invalidateTopVisibleSplitAttributes()
+
+    fun updateSplitAttributes(splitInfo: SplitInfo, splitAttributes: SplitAttributes)
+
+    fun areSplitAttributesUpdatesSupported(): Boolean
 }

@@ -19,18 +19,17 @@ package androidx.datastore.preferences.core
 import androidx.datastore.OkioTestIO
 import androidx.datastore.core.DataMigration
 import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
+import kotlin.test.BeforeTest
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
-import kotlin.test.assertEquals
-import kotlin.test.assertFailsWith
-import kotlin.test.BeforeTest
-import kotlin.test.Test
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import okio.FileSystem
 import okio.Path
-import okio.Path.Companion.toPath
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class PreferenceDataStoreFactoryNativeTest {
@@ -45,7 +44,7 @@ class PreferenceDataStoreFactoryNativeTest {
     @BeforeTest
     fun setUp() {
         testIO = OkioTestIO()
-        testFile = testIO.tempDir().path / "test.preferences_pb".toPath()
+        testFile = testIO.newTempFile(relativePath = "test.preferences_pb").path
         dataStoreScope = TestScope(UnconfinedTestDispatcher())
     }
 

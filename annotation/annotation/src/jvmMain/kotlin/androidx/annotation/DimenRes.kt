@@ -16,8 +16,8 @@
 package androidx.annotation
 
 /**
- * Denotes that an integer parameter, field or method return value is expected
- * to be a dimension resource reference (e.g. `android.R.dimen.app_icon_size`).
+ * Denotes that an integer parameter, field or method return value is expected to be a dimension
+ * resource reference (e.g. `android.R.dimen.app_icon_size`).
  */
 @MustBeDocumented
 @kotlin.annotation.Retention(AnnotationRetention.BINARY)

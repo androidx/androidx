@@ -64,7 +64,7 @@ class ServerBinderCodeConverterTest {
             converter.convertToBinderCode(
                 Type(packageName = "com.mysdk", simpleName = "Value"), expression = "value"
             ).toString()
-        ).isEqualTo("com.mysdk.ValueConverter.toParcelable(value)")
+        ).isEqualTo("com.mysdk.ValueConverter(context).toParcelable(value)")
     }
 
     @Test

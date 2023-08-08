@@ -52,7 +52,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-
 import kotlin.math.max
 
 /**
@@ -137,7 +136,7 @@ fun Tab(
  * @param selected whether this tab is selected or not
  * @param onClick called when this tab is clicked
  * @param text the text label displayed in this tab
- * @param icon the icon displayed in this tab
+ * @param icon the icon displayed in this tab. Should be 24.dp.
  * @param modifier the [Modifier] to be applied to this tab
  * @param enabled controls the enabled state of this tab. When `false`, this component will not
  * respond to user input, and it will appear visually disabled and disabled to accessibility
@@ -430,7 +429,7 @@ private const val TabFadeInAnimationDelay = 100
 private const val TabFadeOutAnimationDuration = 100
 
 // The horizontal padding on the left and right of text
-private val HorizontalTextPadding = 16.dp
+internal val HorizontalTextPadding = 16.dp
 
 // Distance from the top of the indicator to the text baseline when there is one line of text and an
 // icon

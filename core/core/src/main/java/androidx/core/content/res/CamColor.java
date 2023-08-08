@@ -20,13 +20,16 @@ import androidx.annotation.ColorInt;
 import androidx.annotation.FloatRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
+import androidx.annotation.Size;
 import androidx.core.graphics.ColorUtils;
 
 /**
  * A color appearance model, based on CAM16, extended to use L* as the lightness dimension, and
  * coupled to a gamut mapping algorithm. Creates a color system, enables a digital design system.
  */
-class CamColor {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class CamColor {
     // The maximum difference between the requested L* and the L* returned.
     private static final float DL_MAX = 0.2f;
     // The maximum color distance, in CAM16-UCS, between a requested color and the color returned.
@@ -142,7 +145,7 @@ class CamColor {
      * returned may, and frequently will, be lower than requested. Assumes the color is viewed in
      * the default ViewingConditions.
      */
-    static int toColor(@FloatRange(from = 0.0, to = 360.0) float hue,
+    public static int toColor(@FloatRange(from = 0.0, to = 360.0) float hue,
             @FloatRange(from = 0.0, to = Double.POSITIVE_INFINITY, toInclusive = false)
                     float chroma,
             @FloatRange(from = 0.0, to = 100.0) float lStar) {
@@ -157,18 +160,48 @@ class CamColor {
      */
     @NonNull
     static CamColor fromColor(@ColorInt int color) {
-        return fromColorInViewingConditions(color, ViewingConditions.DEFAULT);
+        float[] outCamColor = new float[7];
+        float[] outM3HCT = new float[3];
+        fromColorInViewingConditions(color, ViewingConditions.DEFAULT, outCamColor, outM3HCT);
+        return new CamColor(outM3HCT[0], outM3HCT[1], outCamColor[0], outCamColor[1],
+                outCamColor[2], outCamColor[3], outCamColor[4], outCamColor[5], outCamColor[6]);
+    }
+
+    /**
+     *
+     * Get the values for M3HCT color from ARGB color.
+     *
+     * HCT color space is a new color space proposed in Material Design 3
+     * @see
+     * <a href="https://developer.android.com/design/ui/mobile/guides/styles/color#about-color-spaces">About Color Spaces</a>
+     *
+     *<ul>
+     *<li>outM3HCT[0] is Hue in M3HCT [0, 360); invalid values are corrected.</li>
+     *<li>outM3HCT[1] is Chroma in M3HCT [0, ?); Chroma may decrease because chroma has a
+     *different maximum for any given hue and tone.</li>
+     *<li>outM3HCT[2] is Tone in M3HCT [0, 100]; invalid values are corrected.</li>
+     *</ul>
+     *
+     *@param color is the ARGB color value we use to get its respective M3HCT values.
+     *@param outM3HCT 3-element array which holds the resulting M3HCT components (Hue,
+     *      Chroma, Tone).
+     */
+    public static void getM3HCTfromColor(@ColorInt int color,
+            @NonNull @Size(3) float[] outM3HCT) {
+        fromColorInViewingConditions(color, ViewingConditions.DEFAULT, null, outM3HCT);
+        outM3HCT[2] = CamUtils.lStarFromInt(color);
     }
 
     /**
      * Create a color appearance model from a ARGB integer representing a color, specifying the
      * ViewingConditions in which the color was viewed. Prefer Cam.fromColor.
      */
-    @NonNull
-    static CamColor fromColorInViewingConditions(@ColorInt int color,
-            @NonNull ViewingConditions viewingConditions) {
-        // Transform ARGB int to XYZ
-        float[] xyz = CamUtils.xyzFromInt(color);
+    static void fromColorInViewingConditions(@ColorInt int color,
+            @NonNull ViewingConditions viewingConditions, @Nullable @Size(7) float[] outCamColor,
+            @NonNull @Size(3) float[] outM3HCT) {
+        // Transform ARGB int to XYZ, reusing outM3HCT array to avoid a new allocation.
+        CamUtils.xyzFromInt(color, outM3HCT);
+        float[] xyz = outM3HCT;
 
         // Transform XYZ to 'cone'/'rgb' responses
         float[][] matrix = CamUtils.XYZ_TO_CAM16RGB;
@@ -239,7 +272,19 @@ class CamColor {
         float astar = mstar * (float) Math.cos(hueRadians);
         float bstar = mstar * (float) Math.sin(hueRadians);
 
-        return new CamColor(hue, c, j, q, m, s, jstar, astar, bstar);
+
+        outM3HCT[0] = hue;
+        outM3HCT[1] = c;
+
+        if (outCamColor != null) {
+            outCamColor[0] = j;
+            outCamColor[1] = q;
+            outCamColor[2] = m;
+            outCamColor[3] = s;
+            outCamColor[4] = jstar;
+            outCamColor[5] = astar;
+            outCamColor[6] = bstar;
+        }
     }
 
     /**

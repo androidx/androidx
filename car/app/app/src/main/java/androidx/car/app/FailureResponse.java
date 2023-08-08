@@ -47,7 +47,6 @@ public final class FailureResponse {
     /**
      * The exception type of the failure.
      *
-     * @hide
      */
     @IntDef(
             value = {

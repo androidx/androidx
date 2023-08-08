@@ -28,7 +28,6 @@ import java.io.Serializable;
 /**
  * Interface for any object that returns different text depending on the given timestamp.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface TimeDependentText extends Parcelable, Serializable {

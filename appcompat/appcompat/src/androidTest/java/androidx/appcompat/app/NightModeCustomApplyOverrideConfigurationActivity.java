@@ -26,8 +26,8 @@ import java.util.Locale;
 
 @RequiresApi(17)
 public class NightModeCustomApplyOverrideConfigurationActivity extends NightModeActivity {
-    public static final float CUSTOM_FONT_SCALE = 4.24f;
-    public static final Locale CUSTOM_LOCALE = Locale.CANADA_FRENCH;
+    public static final float CUSTOM_FONT_SCALE = 4.22f;
+    public static final Locale CUSTOM_LOCALE = Locale.CANADA;
 
     @Override
     protected void attachBaseContext(Context newBase) {

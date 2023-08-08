@@ -17,7 +17,7 @@
 package androidx.camera.core.impl
 
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
-import androidx.camera.testing.asFlow
+import androidx.camera.testing.impl.asFlow
 import androidx.concurrent.futures.await
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress

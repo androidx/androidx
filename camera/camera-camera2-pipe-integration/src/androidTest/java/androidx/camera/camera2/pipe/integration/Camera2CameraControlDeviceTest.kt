@@ -48,14 +48,15 @@ import androidx.camera.camera2.pipe.integration.interop.Camera2Interop
 import androidx.camera.camera2.pipe.integration.interop.CaptureRequestOptions
 import androidx.camera.camera2.pipe.integration.interop.ExperimentalCamera2Interop
 import androidx.camera.camera2.pipe.testing.VerifyResultListener
+import androidx.camera.camera2.pipe.testing.toCameraControlAdapter
+import androidx.camera.camera2.pipe.testing.toCameraInfoAdapter
 import androidx.camera.core.CameraControl
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.UseCase
-import androidx.camera.core.impl.CameraInfoInternal
 import androidx.camera.core.internal.CameraUseCaseAdapter
-import androidx.camera.testing.CameraUtil
-import androidx.camera.testing.CameraXUtil
+import androidx.camera.testing.impl.CameraUtil
+import androidx.camera.testing.impl.CameraXUtil
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -68,6 +69,7 @@ import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asExecutor
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import org.junit.After
 import org.junit.Assert
 import org.junit.Assume
@@ -104,15 +106,17 @@ class Camera2CameraControlDeviceTest {
             CameraSelector.LENS_FACING_BACK
         ).build()
         camera = CameraUtil.createCameraUseCaseAdapter(context, cameraSelector)
-        cameraControl = camera.cameraControl as CameraControlAdapter
+        cameraControl = camera.cameraControl.toCameraControlAdapter()
         camera2CameraControl = cameraControl.camera2cameraControl
         comboListener = camera2CameraControl.requestListener
     }
 
     @After
-    fun tearDown() {
+    fun tearDown(): Unit = runBlocking {
         if (::camera.isInitialized) {
-            camera.detachUseCases()
+            withContext(Dispatchers.Main) {
+                camera.removeUseCases(camera.useCases)
+            }
         }
 
         CameraXUtil.shutdown()[10000, TimeUnit.MILLISECONDS]
@@ -404,7 +408,9 @@ class Camera2CameraControlDeviceTest {
         }.build().apply {
             // set analyzer to make it active.
             setAnalyzer(Dispatchers.Default.asExecutor()) {
-                // Fake analyzer, do nothing.
+                // Fake analyzer, do nothing. Close the ImageProxy immediately to prevent the
+                // closing of the CameraDevice from being stuck.
+                it.close()
             }
         }
 
@@ -433,7 +439,7 @@ class Camera2CameraControlDeviceTest {
                 Context.CAMERA_SERVICE
             ) as CameraManager
         val characteristics = cameraManager.getCameraCharacteristics(
-            (camera.cameraInfo as CameraInfoInternal).cameraId
+            camera.cameraInfo.toCameraInfoAdapter().cameraId
         )
 
         val maxDigitalZoom = characteristics.get(
@@ -477,7 +483,9 @@ class Camera2CameraControlDeviceTest {
         useCase: UseCase = ImageAnalysis.Builder().build().apply {
             // set analyzer to make it active.
             setAnalyzer(Dispatchers.Default.asExecutor()) {
-                // Fake analyzer, do nothing.
+                // Fake analyzer, do nothing. Close the ImageProxy immediately to prevent the
+                // closing of the CameraDevice from being stuck.
+                it.close()
             }
         }
     ) {

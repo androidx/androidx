@@ -30,12 +30,12 @@ import com.android.tools.lint.detector.api.Scope
 import com.android.tools.lint.detector.api.Severity
 import com.android.tools.lint.detector.api.SourceCodeScanner
 import com.intellij.psi.PsiMethod
+import java.util.EnumSet
 import org.jetbrains.uast.UCallExpression
 import org.jetbrains.uast.USimpleNameReferenceExpression
 import org.jetbrains.uast.getParameterForArgument
 import org.jetbrains.uast.tryResolve
 import org.jetbrains.uast.visitor.AbstractUastVisitor
-import java.util.EnumSet
 
 /**
  * [Detector] that checks calls to Modifier.composed to make sure they actually reference a

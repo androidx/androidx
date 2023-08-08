@@ -16,8 +16,8 @@
 
 package androidx.compose.foundation.text.selection
 
-import androidx.compose.foundation.text.InternalFoundationTextApi
 import androidx.compose.foundation.text.HandleState
+import androidx.compose.foundation.text.InternalFoundationTextApi
 import androidx.compose.foundation.text.TextFieldState
 import androidx.compose.foundation.text.TextLayoutResultProxy
 import androidx.compose.ui.focus.FocusRequester
@@ -45,6 +45,11 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.util.packInts
 import com.google.common.truth.Truth.assertThat
+import org.junit.Before
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
+import org.mockito.invocation.InvocationOnMock
 import org.mockito.kotlin.any
 import org.mockito.kotlin.anyOrNull
 import org.mockito.kotlin.isNull
@@ -53,11 +58,6 @@ import org.mockito.kotlin.spy
 import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
-import org.junit.Before
-import org.junit.Test
-import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
-import org.mockito.invocation.InvocationOnMock
 import org.mockito.stubbing.Answer
 
 @RunWith(JUnit4::class)
@@ -154,7 +154,7 @@ class TextFieldSelectionManagerTest {
         manager.touchSelectionObserver.onStart(dragBeginPosition)
 
         assertThat(state.handleState).isEqualTo(HandleState.Selection)
-        assertThat(state.showFloatingToolbar).isTrue()
+        assertThat(state.showFloatingToolbar).isFalse()
         assertThat(value.selection).isEqualTo(fakeTextRange)
         verify(
             hapticFeedback,
@@ -170,21 +170,16 @@ class TextFieldSelectionManagerTest {
     @Test
     fun TextFieldSelectionManager_touchSelectionObserver_onLongPress_blank() {
         // Setup
-        val fakeLineNumber = 0
         val fakeLineEnd = text.length
         whenever(layoutResultProxy.isPositionOnText(dragBeginPosition)).thenReturn(false)
-        whenever(layoutResultProxy.getLineForVerticalPosition(dragBeginPosition.y))
-            .thenReturn(fakeLineNumber)
-        whenever(layoutResult.getLineLeft(fakeLineNumber))
-            .thenReturn(dragBeginPosition.x + 1.0f)
-        whenever(layoutResultProxy.getLineEnd(fakeLineNumber)).thenReturn(fakeLineEnd)
+        whenever(layoutResultProxy.getOffsetForPosition(dragBeginPosition)).thenReturn(fakeLineEnd)
 
         // Act
         manager.touchSelectionObserver.onStart(dragBeginPosition)
 
         // Assert
         assertThat(state.handleState).isEqualTo(HandleState.Selection)
-        assertThat(state.showFloatingToolbar).isTrue()
+        assertThat(state.showFloatingToolbar).isFalse()
         assertThat(value.selection).isEqualTo(TextRange(fakeLineEnd))
         verify(
             hapticFeedback,
@@ -199,6 +194,8 @@ class TextFieldSelectionManagerTest {
 
     @Test
     fun TextFieldSelectionManager_touchSelectionObserver_onDrag() {
+        whenever(layoutResultProxy.isPositionOnText(dragBeginPosition)).thenReturn(true)
+
         manager.touchSelectionObserver.onStart(dragBeginPosition)
         manager.touchSelectionObserver.onDrag(dragDistance)
 
@@ -253,7 +250,7 @@ class TextFieldSelectionManagerTest {
         manager.handleDragObserver(isStartHandle = true).onDrag(dragDistance)
 
         assertThat(state.showFloatingToolbar).isFalse()
-        assertThat(value.selection).isEqualTo(TextRange(dragOffset, "Hello".length))
+        assertThat(value.selection).isEqualTo(TextRange(text.length, "Hello".length))
         verify(
             hapticFeedback,
             times(1)
@@ -279,13 +276,18 @@ class TextFieldSelectionManagerTest {
         manager.handleDragObserver(false).onStart(Offset.Zero)
         manager.handleDragObserver(false).onDrag(Offset.Zero)
 
+        verify(
+            hapticFeedback,
+            times(1)
+        ).performHapticFeedback(HapticFeedbackType.TextHandleMove)
+
         manager.handleDragObserver(false).onStop()
 
         assertThat(manager.draggingHandle).isNull()
         assertThat(state.showFloatingToolbar).isTrue()
         verify(
             hapticFeedback,
-            times(0)
+            times(1)
         ).performHapticFeedback(HapticFeedbackType.TextHandleMove)
     }
 
@@ -342,13 +344,18 @@ class TextFieldSelectionManagerTest {
         manager.handleDragObserver(false).onStart(Offset.Zero)
         manager.handleDragObserver(false).onDrag(Offset.Zero)
 
+        verify(
+            hapticFeedback,
+            times(1)
+        ).performHapticFeedback(HapticFeedbackType.TextHandleMove)
+
         manager.cursorDragObserver().onStop()
 
         assertThat(manager.draggingHandle).isNull()
         assertThat(state.showFloatingToolbar).isFalse()
         verify(
             hapticFeedback,
-            times(0)
+            times(1)
         ).performHapticFeedback(HapticFeedbackType.TextHandleMove)
     }
 

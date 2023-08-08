@@ -16,6 +16,7 @@
 
 package androidx.build.gitclient
 
+import androidx.build.parseXml
 import com.google.gson.Gson
 import java.io.File
 import org.gradle.api.GradleException
@@ -23,67 +24,82 @@ import org.gradle.api.GradleException
 /**
  * A git client based on changeinfo files and manifest files created by the build server.
  *
- * For sample changeinfo config files, see:
- * ChangeInfoGitClientTest.kt
+ * For sample changeinfo config files, see: ChangeInfoGitClientTest.kt
  * https://android-build.googleplex.com/builds/pending/P28356101/androidx_incremental/latest/incremental/P28356101-changeInfo
  *
  * For more information, see b/171569941
  */
-private const val mainProject: String = "platform/frameworks/support"
-
 class ChangeInfoGitClient(
-    /**
-     * The file containing the information about which changes are new in this build
-     */
+    /** The file containing the information about which changes are new in this build */
     changeInfoText: String,
+    /** The file containing version information */
+    private val versionInfo: String,
     /**
-     * The file containing version information
+     * The project directory relative to the root of the checkout The repository is derived from
+     * this value
      */
-    private val versionInfo: String
+    private val projectPath: String
 ) : GitClient {
 
+    /**
+     * The name of the current git repository. In many cases this is 'platform/frameworks/support'
+     */
+    private val projectName: String by lazy { computeProjectName(versionInfo) }
+
+    private fun computeProjectName(config: String): String {
+        val document = parseXml(config, mapOf())
+        val projectIterator = document.rootElement.elementIterator()
+        while (projectIterator.hasNext()) {
+            val project = projectIterator.next()
+            val repositoryPath = project.attributeValue("path")
+            if (repositoryPath != null) {
+                if (pathContains(repositoryPath, projectPath)) {
+                    val name = project.attributeValue("name")
+                    check(name != null) { "Could not get name for project $project" }
+                    return name
+                }
+            }
+        }
+        throw GradleException(
+            "Could not find project with path '$projectPath' in config '$versionInfo'"
+        )
+    }
+
+    /** Object representing changes */
     private val changeInfo: ChangeInfo by lazy {
         val gson = Gson()
         gson.fromJson(changeInfoText, ChangeInfo::class.java)
     }
 
-    private data class ChangeInfo(
-        val changes: List<ChangeEntry>?
-    )
-    private data class ChangeEntry(
-        val project: String,
-        val revisions: List<Revisions>?
-    )
-    private data class Revisions(
-        val fileInfos: List<FileInfo>?
-    )
-    private data class FileInfo(
-        val path: String?,
-        val oldPath: String?,
-        val status: String
-    )
+    private data class ChangeInfo(val changes: List<ChangeEntry>?)
+
+    private data class ChangeEntry(val project: String, val revisions: List<Revisions>?)
+
+    private data class Revisions(val fileInfos: List<FileInfo>?)
+
+    private data class FileInfo(val path: String?, val oldPath: String?, val status: String)
 
     private val changesInThisRepo: List<ChangeEntry>
         get() {
-            return changeInfo.changes?.filter { it.project == mainProject } ?: emptyList()
+            return changeInfo.changes?.filter { it.project == projectName } ?: emptyList()
         }
 
-    private fun parseSupportVersion(config: String): String {
+    private fun extractVersion(config: String): String {
         val revisionRegex = Regex("revision=\"([^\"]*)\"")
         for (line in config.split("\n")) {
-            if (line.contains("path=\"frameworks/support\"")) {
+            if (line.contains("name=\"${projectName}\"")) {
                 val result = revisionRegex.find(line)?.groupValues?.get(1)
                 if (result != null) {
                     return result
                 }
             }
         }
-        throw GradleException("Could not identify frameworks/support version from text '$config'")
+        throw GradleException(
+            "Could not identify version of project '$projectName' from config text '$config'"
+        )
     }
 
-    /**
-     * Finds changed file paths
-     */
+    /** Finds changed file paths */
     override fun findChangedFilesSince(
         sha: String, // unused in this implementation, the data file knows what is new
         top: String, // unused in this implementation, the data file knows what is new
@@ -121,9 +137,8 @@ class ChangeInfoGitClient(
     }
 
     /**
-     * Unused
-     * If this were supported, it would:
-     * Finds the most recently submitted change before any pending changes being tested
+     * Unused If this were supported, it would: Finds the most recently submitted change before any
+     * pending changes being tested
      */
     override fun findPreviousSubmittedChange(): String {
         // findChangedFilesSince doesn't need this information, so
@@ -132,13 +147,11 @@ class ChangeInfoGitClient(
         return ""
     }
 
-    /**
-     * Finds the commits in a certain range
-     */
+    /** Finds the commits in a certain range */
     override fun getGitLog(
         gitCommitRange: GitCommitRange,
         keepMerges: Boolean,
-        fullProjectDir: File
+        projectDir: File?
     ): List<Commit> {
         if (gitCommitRange.n != 1) {
             throw UnsupportedOperationException(
@@ -151,11 +164,10 @@ class ChangeInfoGitClient(
                     "not ${gitCommitRange.untilInclusive}"
             )
         }
-        return listOf(
-            Commit(
-                "_CommitSHA:${parseSupportVersion(versionInfo)}",
-                fullProjectDir.toString()
-            )
-        )
+        return listOf(Commit("_CommitSHA:${extractVersion(versionInfo)}", projectPath))
     }
+}
+
+private fun pathContains(ancestor: String, child: String): Boolean {
+    return (child + "/").startsWith(ancestor + "/")
 }

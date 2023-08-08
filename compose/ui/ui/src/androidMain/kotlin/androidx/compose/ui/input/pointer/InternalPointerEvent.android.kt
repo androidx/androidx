@@ -17,10 +17,11 @@
 package androidx.compose.ui.input.pointer
 
 import android.view.MotionEvent
+import androidx.collection.LongSparseArray
 import androidx.compose.ui.util.fastFirstOrNull
 
 internal actual class InternalPointerEvent actual constructor(
-    actual val changes: Map<PointerId, PointerInputChange>,
+    actual val changes: LongSparseArray<PointerInputChange>,
     val pointerInputEvent: PointerInputEvent
 ) {
     val motionEvent: MotionEvent

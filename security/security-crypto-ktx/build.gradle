@@ -42,7 +42,7 @@ android {
 }
 
 androidx {
-    name = "AndroidX Security Kotlin Extensions"
+    name = "Security Kotlin Extensions"
     publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.SECURITY
     inceptionYear = "2020"

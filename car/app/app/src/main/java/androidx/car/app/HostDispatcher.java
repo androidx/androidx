@@ -42,7 +42,6 @@ import java.security.InvalidParameterException;
 /**
  * Dispatches calls to the host and manages possible exceptions.
  *
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP) // Restrict to testing library
 public final class HostDispatcher {
@@ -131,7 +130,6 @@ public final class HostDispatcher {
      * Retrieves the {@link IInterface} for the given {@code hostType}.
      *
      * @throws RemoteException if the host is unresponsive
-     * @hide
      */
     @RestrictTo(LIBRARY)
     @Nullable

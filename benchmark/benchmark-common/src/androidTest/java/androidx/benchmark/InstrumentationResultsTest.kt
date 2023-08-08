@@ -18,30 +18,29 @@ package androidx.benchmark
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
+import java.io.File
+import kotlin.test.assertFailsWith
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
-public class InstrumentationResultsTest {
+class InstrumentationResultsTest {
     @Test
-    public fun ideSummary_alignment() {
-        val summary1 = InstrumentationResults.ideSummaryLine(
-            key = "foo",
+    fun ideSummaryBasicMicro_alignment() {
+        val summary1 = InstrumentationResults.ideSummaryBasicMicro(
+            benchmarkName = "foo",
             nanos = 1000.0,
             allocations = 100.0,
-            traceRelPath = "path",
-            profilerResult = null
+            profilerResults = emptyList()
         )
-        val summary2 = InstrumentationResults.ideSummaryLine(
-            key = "fooBarLongerKey",
+        val summary2 = InstrumentationResults.ideSummaryBasicMicro(
+            benchmarkName = "fooBarLongerKey",
             nanos = 10000.0,
             allocations = 0.0,
-            traceRelPath = "path",
-            profilerResult = null
+            profilerResults = emptyList()
         )
-
         assertEquals(
             summary1.indexOf("foo"),
             summary2.indexOf("foo")
@@ -49,59 +48,237 @@ public class InstrumentationResultsTest {
     }
 
     @Test
-    public fun ideSummary_allocs() {
+    fun ideSummaryBasicMicro_allocs() {
         assertEquals(
             "        1,000   ns    foo",
-            InstrumentationResults.ideSummaryLine("foo", 1000.0, null, null, null)
+            InstrumentationResults.ideSummaryBasicMicro("foo", 1000.0, null, emptyList())
         )
         assertEquals(
             "        1,000   ns          10 allocs    foo",
-            InstrumentationResults.ideSummaryLine("foo", 1000.0, 10.0, null, null)
+            InstrumentationResults.ideSummaryBasicMicro("foo", 1000.0, 10.0, emptyList())
         )
     }
 
     @Test
-    public fun ideSummary_decimal() {
+    fun ideSummaryBasicMicro_decimal() {
         assertEquals(
             "        1,000   ns    foo",
-            InstrumentationResults.ideSummaryLine("foo", 1000.0, null, null, null)
+            InstrumentationResults.ideSummaryBasicMicro("foo", 1000.0, null, emptyList())
         )
         assertEquals(
             "          100   ns    foo", // 10ths not shown ...
-            InstrumentationResults.ideSummaryLine("foo", 100.4, null, null, null)
+            InstrumentationResults.ideSummaryBasicMicro("foo", 100.4, null, emptyList())
         )
         assertEquals(
             "           99.9 ns    foo", // ... until value is < 100
-            InstrumentationResults.ideSummaryLine("foo", 99.9, null, null, null)
+            InstrumentationResults.ideSummaryBasicMicro("foo", 99.9, null, emptyList())
         )
         assertEquals(
             "            1.0 ns    foo",
-            InstrumentationResults.ideSummaryLine("foo", 1.0, null, null, null)
+            InstrumentationResults.ideSummaryBasicMicro("foo", 1.0, null, emptyList())
         )
     }
 
     @Test
-    public fun ideSummary_traceRelPath() {
-        assertEquals(
-            "        1,000   ns    [trace](file://bar)    foo",
-            InstrumentationResults.ideSummaryLine("foo", 1000.0, null, "bar", null)
-        )
-    }
-
-    @Test
-    public fun ideSummary_profilerResult() {
+    fun ideSummaryBasicMicro_profilerResult() {
         assertEquals(
             "        1,000   ns    [Trace Label](file://tracePath.trace)    foo",
-            InstrumentationResults.ideSummaryLine(
-                key = "foo",
+            InstrumentationResults.ideSummaryBasicMicro(
+                benchmarkName = "foo",
                 nanos = 1000.0,
                 allocations = null,
-                traceRelPath = null,
-                profilerResult = Profiler.ResultFile(
+                listOf(Profiler.ResultFile(
                     label = "Trace Label",
-                    outputRelativePath = "tracePath.trace"
-                )
+                    outputRelativePath = "tracePath.trace",
+                    source = MethodTracing
+                ))
             )
         )
+    }
+
+    private fun createAbsoluteTracePaths(
+        @Suppress("SameParameterValue") count: Int
+    ) = List(count) {
+        File(Outputs.dirUsableByAppAndShell, "iter$it.trace").absolutePath
+    }
+
+    @Test
+    fun ideSummary_singleMinimal() {
+        val metricResult = MetricResult("Metric", listOf(0.0, 1.1, 2.2))
+
+        assertEquals(0, metricResult.minIndex)
+        assertEquals(1, metricResult.medianIndex)
+        assertEquals(2, metricResult.maxIndex)
+        val absoluteTracePaths = createAbsoluteTracePaths(3)
+        val summary = InstrumentationResults.ideSummary(
+            testName = "foo",
+            measurements = BenchmarkResult.Measurements(
+                singleMetrics = listOf(metricResult),
+                sampledMetrics = emptyList()
+            ),
+            iterationTracePaths = absoluteTracePaths
+        )
+        assertEquals(
+            """
+                |foo
+                |  Metric   min 0.0,   median 1.1,   max 2.2
+                |
+            """.trimMargin(),
+            summary.summaryV1
+        )
+        assertEquals(
+            """
+                |foo
+                |  Metric   [min 0.0](file://iter0.trace),   [median 1.1](file://iter1.trace),   [max 2.2](file://iter2.trace)
+                |    Traces: Iteration [0](file://iter0.trace) [1](file://iter1.trace) [2](file://iter2.trace)
+                |
+            """.trimMargin(),
+            summary.summaryV2
+        )
+    }
+
+    @Test
+    fun ideSummary_singleComplex() {
+        val metric1 = MetricResult("Metric1", listOf(0.0, 1.0, 2.0))
+        val metric2 = MetricResult("Metric2", listOf(222.0, 111.0, 0.0))
+        val summary = InstrumentationResults.ideSummary(
+            testName = "foo",
+            measurements = BenchmarkResult.Measurements(
+                singleMetrics = listOf(metric1, metric2),
+                sampledMetrics = emptyList()
+            ),
+            iterationTracePaths = createAbsoluteTracePaths(3)
+        )
+        assertEquals(
+            """
+                |foo
+                |  Metric1   min   0.0,   median   1.0,   max   2.0
+                |  Metric2   min   0.0,   median 111.0,   max 222.0
+                |
+            """.trimMargin(),
+            summary.summaryV1
+        )
+        assertEquals(
+            """
+                |foo
+                |  Metric1   [min   0.0](file://iter0.trace),   [median   1.0](file://iter1.trace),   [max   2.0](file://iter2.trace)
+                |  Metric2   [min   0.0](file://iter2.trace),   [median 111.0](file://iter1.trace),   [max 222.0](file://iter0.trace)
+                |    Traces: Iteration [0](file://iter0.trace) [1](file://iter1.trace) [2](file://iter2.trace)
+                |
+            """.trimMargin(),
+            summary.summaryV2
+        )
+    }
+
+    @Test
+    fun ideSummary_sampledMinimal() {
+        val metricResult = MetricResult("Metric1", List(101) { it.toDouble() })
+        val summary = InstrumentationResults.ideSummary(
+            testName = "foo",
+            measurements = BenchmarkResult.Measurements(
+                singleMetrics = emptyList(),
+                sampledMetrics = listOf(metricResult)
+            ),
+            iterationTracePaths = createAbsoluteTracePaths(3)
+        )
+        assertEquals(
+            """
+                |foo
+                |  Metric1   P50   50.0,   P90   90.0,   P95   95.0,   P99   99.0
+                |
+            """.trimMargin(),
+            summary.summaryV1
+        )
+        assertEquals(
+            """
+                |foo
+                |  Metric1   P50   50.0,   P90   90.0,   P95   95.0,   P99   99.0
+                |    Traces: Iteration [0](file://iter0.trace) [1](file://iter1.trace) [2](file://iter2.trace)
+                |
+            """.trimMargin(),
+            summary.summaryV2
+        )
+    }
+
+    @Test
+    public fun ideSummary_complex() {
+        val single = MetricResult("Metric1", listOf(0.0, 1.0, 2.0))
+        val sampled = MetricResult("Metric2", List(101) { it.toDouble() })
+        val absoluteTracePaths = createAbsoluteTracePaths(3)
+        val summary = InstrumentationResults.ideSummary(
+            testName = "foo",
+            measurements = BenchmarkResult.Measurements(
+                singleMetrics = listOf(single),
+                sampledMetrics = listOf(sampled)
+            ),
+            iterationTracePaths = absoluteTracePaths
+        )
+        assertEquals(
+            """
+                |foo
+                |  Metric1   min   0.0,   median   1.0,   max   2.0
+                |  Metric2   P50   50.0,   P90   90.0,   P95   95.0,   P99   99.0
+                |
+            """.trimMargin(),
+            summary.summaryV1
+        )
+        assertEquals(
+            """
+                |foo
+                |  Metric1   [min   0.0](file://iter0.trace),   [median   1.0](file://iter1.trace),   [max   2.0](file://iter2.trace)
+                |  Metric2   P50   50.0,   P90   90.0,   P95   95.0,   P99   99.0
+                |    Traces: Iteration [0](file://iter0.trace) [1](file://iter1.trace) [2](file://iter2.trace)
+                |
+            """.trimMargin(),
+            summary.summaryV2
+        )
+    }
+
+    @Test
+    fun ideSummary_warning() {
+        val metricResult = MetricResult("Metric", listOf(0.0, 1.0, 2.0))
+        val absoluteTracePaths = createAbsoluteTracePaths(3)
+        val summary = InstrumentationResults.ideSummary(
+            warningMessage = "warning\nstring",
+            testName = "foo",
+            measurements = BenchmarkResult.Measurements(
+                singleMetrics = listOf(metricResult),
+                sampledMetrics = emptyList()
+            ),
+            iterationTracePaths = absoluteTracePaths
+        )
+        assertEquals(
+            """
+                |warning
+                |string
+                |foo
+                |  Metric   min 0.0,   median 1.0,   max 2.0
+                |
+            """.trimMargin(),
+            summary.summaryV1
+        )
+        assertEquals(
+            """
+                |warning
+                |string
+                |foo
+                |  Metric   [min 0.0](file://iter0.trace),   [median 1.0](file://iter1.trace),   [max 2.0](file://iter2.trace)
+                |    Traces: Iteration [0](file://iter0.trace) [1](file://iter1.trace) [2](file://iter2.trace)
+                |
+            """.trimMargin(),
+            summary.summaryV2
+        )
+    }
+
+    @Test
+    fun ideSummary_requireMeasurementsNotEmpty() {
+        assertFailsWith<IllegalArgumentException> {
+            InstrumentationResults.ideSummary(
+                measurements = BenchmarkResult.Measurements(
+                    singleMetrics = emptyList(),
+                    sampledMetrics = emptyList()
+                ),
+            )
+        }
     }
 }

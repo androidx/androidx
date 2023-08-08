@@ -327,6 +327,17 @@
   <string name="sign_in_complete_title">Sign in completed</string>
   <string name="sign_in_template_demo_title">Sign In Template Demo</string>
 
+  <!-- TabTemplateScreen -->
+  <string name="tab_template_layouts_demo_title">Tab Template Demos</string>
+  <string name="tab_template_demo_title">Tab Template Demo</string>
+  <string name="tab_title_message">Message Tab</string>
+  <string name="tab_title_pane">Pane Tab</string>
+  <string name="tab_title_list">List Tab</string>
+  <string name="tab_title_grid">Grid Tab with Long Tab Title</string>
+  <string name="tab_title_search">Search Tab</string>
+  <string name="tab_template_loading_demo_title">Tab Template Loading Demo</string>
+  <string name="tab_template_no_tabs_demo_title">Tab Template No Tabs Demo</string>
+
   <!-- ContentProviderIconsDemoScreen -->
   <string name="images_unknown_host_error">Images cannot be displayed for an unknown host</string>
   <string name="icon_title_prefix">Icon</string>
@@ -370,7 +381,7 @@
 
   <!-- TaskRestrictionDemoScreen -->
   <string name="task_restriction_demo_title">Task Restriction Demo</string>
-  <string name="task_limit_reached_msg">Task limit reached\nGoing forward will force stop the app</string>
+  <string name="task_limit_reached_msg">This will overflow the step count, and lead you to a new screen. </string>
   <string name="task_step_of_title">Task step %1$d of %2$d</string>
   <string name="task_step_of_text">Click to go forward</string>
   <string name="task_content_allowed">Please visit the different templates and ensure the car is in driving mode</string>
@@ -399,6 +410,17 @@
   <string name="secondary_actions_decoration_test_subtitle">The row can also be selected</string>
   <string name="secondary_action_toast">Secondary Action is selected</string>
   <string name="row_primary_action_toast">Row primary action is selected</string>
+
+
+  <!--SectionedItemListDemoScreen -->
+  <string name="sectioned_item_list_demo_title">Sectioned Item List Demo</string>
+  <string name="sectioned_item_list_one_title">List 1</string>
+  <string name="sectioned_item_list_two_title">List 2</string>
+  <string name="sectioned_item_list_subtext">Subtext under each list</string>
+
+  <!-- EmptyListDemoScreen -->
+  <string name="empty_list_demo_title">Empty List Demo</string>
+  <string name="empty_list_message">The list is empty</string>
 
   <!-- StartScreen -->
   <string name="misc_templates_demos_title">Misc Templates Demos</string>

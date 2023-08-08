@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation
 
+import android.graphics.Rect as AndroidRect
 import android.os.Build
 import android.view.View
 import android.view.ViewGroup
@@ -41,7 +42,6 @@ import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import android.graphics.Rect as AndroidRect
 
 /**
  * Testing the support for Android Views in Compose UI.

@@ -22,10 +22,10 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Density
 import com.google.common.truth.Truth.assertThat
-import org.mockito.kotlin.mock
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import org.mockito.kotlin.mock
 
 @OptIn(InternalFoundationTextApi::class)
 @RunWith(JUnit4::class)

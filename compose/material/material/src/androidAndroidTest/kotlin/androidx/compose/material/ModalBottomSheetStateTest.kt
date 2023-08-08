@@ -99,14 +99,15 @@ class ModalBottomSheetStateTest {
 
     private fun ModalBottomSheetState(
         initialValue: ModalBottomSheetValue,
-        animationSpec: AnimationSpec<Float> = SwipeableDefaults.AnimationSpec,
+        animationSpec: AnimationSpec<Float> = AnchoredDraggableDefaults.AnimationSpec,
         isSkipHalfExpanded: Boolean,
         confirmValueChange: (ModalBottomSheetValue) -> Boolean = { true },
         density: Density
     ) = ModalBottomSheetState(
         initialValue,
+        density,
         animationSpec,
         confirmValueChange,
         isSkipHalfExpanded,
-    ).apply { swipeableState.density = density }
+    )
 }

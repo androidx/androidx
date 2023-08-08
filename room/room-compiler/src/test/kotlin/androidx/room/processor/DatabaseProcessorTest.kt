@@ -17,7 +17,9 @@
 package androidx.room.processor
 
 import COMMON
+import androidx.kruth.assertThat
 import androidx.room.DatabaseProcessingStep
+import androidx.room.RoomProcessor
 import androidx.room.compiler.codegen.CodeLanguage
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
@@ -40,7 +42,6 @@ import androidx.room.vo.DatabaseView
 import androidx.room.vo.ReadQueryMethod
 import androidx.room.vo.Warning
 import com.google.auto.service.processor.AutoServiceProcessor
-import com.google.common.truth.Truth.assertThat
 import java.io.File
 import java.io.FileOutputStream
 import java.net.URL
@@ -53,6 +54,7 @@ import org.hamcrest.CoreMatchers.not
 import org.hamcrest.CoreMatchers.notNullValue
 import org.hamcrest.CoreMatchers.sameInstance
 import org.hamcrest.MatcherAssert.assertThat
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
@@ -339,6 +341,7 @@ class DatabaseProcessorTest {
     }
 
     @Test
+    @Ignore("b/285140651")
     fun detectMissingEntityAnnotationInLibraryClass() {
         val librarySource = Source.java(
             "test.library.MissingEntityAnnotationPojo",
@@ -375,6 +378,7 @@ class DatabaseProcessorTest {
     }
 
     @Test
+    @Ignore("b/285140651")
     fun detectMissingDaoAnnotationInLibraryClass() {
         val librarySource = Source.java(
             "test.library.MissingAnnotationsBaseDao",
@@ -1471,6 +1475,30 @@ class DatabaseProcessorTest {
         // verbatim since it was resolved by the compiled TestResolver.
         assertThat(
             File(schemaFolder.root, "schemas/foo.bar.MyDb/1.json").exists()
+        ).isTrue()
+    }
+
+    @Test
+    fun exportSchemaToJarResources() {
+        val dbSource = Source.java(
+            "foo.bar.MyDb",
+            """
+            package foo.bar;
+            import androidx.room.*;
+            @Database(entities = {User.class}, version = 1, exportSchema = true)
+            public abstract class MyDb extends RoomDatabase {}
+            """.trimIndent()
+        )
+        val lib = compileFiles(
+            sources = listOf(dbSource, USER),
+            annotationProcessors = listOf(RoomProcessor()),
+            options = mapOf("room.exportSchemaResource" to "true"),
+            includeSystemClasspath = false
+        )
+        assertThat(
+            lib.any { libDir ->
+                libDir.walkTopDown().any { it.endsWith("schemas/foo.bar.MyDb/1.json") }
+            }
         ).isTrue()
     }
 

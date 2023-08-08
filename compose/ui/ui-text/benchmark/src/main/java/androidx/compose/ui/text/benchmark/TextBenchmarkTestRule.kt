@@ -17,11 +17,11 @@ package androidx.compose.ui.text.benchmark
 
 import android.graphics.Canvas
 import android.util.Log
+import kotlin.random.Random
 import org.junit.rules.RuleChain
 import org.junit.rules.TestRule
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
-import kotlin.random.Random
 
 /**
  * Collection of text benchmark utilities. It tries to

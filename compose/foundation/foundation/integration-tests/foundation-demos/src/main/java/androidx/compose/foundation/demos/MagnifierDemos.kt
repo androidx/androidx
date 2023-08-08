@@ -107,14 +107,15 @@ fun MultitouchCustomMagnifierDemo() {
                     drawRect(color)
 
                     // Draw something interesting to zoom in on.
+                    @Suppress("SteppedForLoop")
                     for (diameter in 2 until size.maxDimension.toInt() step 10) {
-                    drawCircle(
-                        color = Color.Black,
-                        radius = diameter / 2f,
-                        style = Stroke()
-                    )
+                        drawCircle(
+                            color = Color.Black,
+                            radius = diameter / 2f,
+                            style = Stroke()
+                        )
+                    }
                 }
-            }
             .pointerInput(Unit) {
                 awaitPointerEventScope {
                     while (true) {

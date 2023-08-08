@@ -26,10 +26,8 @@ import java.nio.FloatBuffer;
 /**
  * This class represents a viewport-sized sprite that will be rendered with
  * a subrect from a texture.
- *
- * @hide
  */
-public class EglRectBlt {
+class EglRectBlt {
     private static final int SIZEOF_FLOAT = 4;
 
     /**

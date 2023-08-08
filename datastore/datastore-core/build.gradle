@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-
 import androidx.build.KmpPlatformsKt
 import androidx.build.LibraryType
+import androidx.build.PlatformIdentifier
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 
@@ -63,6 +63,8 @@ androidXMultiplatform {
     ios()
     android()
 
+    defaultPlatform(PlatformIdentifier.ANDROID)
+
     sourceSets {
         all {
             languageSettings.optIn("kotlin.RequiresOptIn")
@@ -90,7 +92,7 @@ androidXMultiplatform {
                 implementation(libs.kotlinCoroutinesTest)
                 implementation(libs.okio)
                 api(project(":datastore:datastore-core-okio"))
-                implementation(project(":internal-testutils-kmp"))
+                implementation(project(":kruth:kruth"))
                 implementation(project(":internal-testutils-datastore"))
             }
         }
@@ -99,7 +101,7 @@ androidXMultiplatform {
             dependencies {
                 implementation(libs.junit)
                 implementation(libs.kotlinTest)
-                implementation(project(":internal-testutils-kmp"))
+                implementation(project(":kruth:kruth"))
                 implementation(project(":internal-testutils-datastore"))
 
                 // Workaround bug in 1.8.0, was supposed be fixed in RC2/final, but apparently not.
@@ -121,6 +123,10 @@ androidXMultiplatform {
             }
         }
 
+        androidAndroidTest {
+            dependsOn(androidTest)
+        }
+
         if (enableNative) {
             nativeMain {
                 dependsOn(commonMain)
@@ -133,11 +139,6 @@ androidXMultiplatform {
             }
         }
 
-        targets.withType(KotlinNativeTarget).configureEach {
-            binaries.all {
-                binaryOptions["memoryModel"] = "experimental"
-            }
-        }
         targets.all { target ->
             if (target.platformType == KotlinPlatformType.native) {
                 target.compilations["main"].defaultSourceSet {
@@ -152,7 +153,7 @@ androidXMultiplatform {
 }
 
 androidx {
-    name = "Android DataStore Core"
+    name = "DataStore Core"
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2020"
     description = "Android DataStore Core - contains the underlying store used by each serialization method"

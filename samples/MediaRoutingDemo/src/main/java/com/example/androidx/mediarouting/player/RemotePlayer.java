@@ -23,6 +23,8 @@ import android.os.Bundle;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.mediarouter.media.MediaItemStatus;
 import androidx.mediarouter.media.MediaRouter.ControlRequestCallback;
 import androidx.mediarouter.media.MediaRouter.RouteInfo;
@@ -34,6 +36,9 @@ import androidx.mediarouter.media.RemotePlaybackClient.StatusCallback;
 
 import com.example.androidx.mediarouting.data.PlaylistItem;
 import com.example.androidx.mediarouting.providers.SampleMediaRouteProvider;
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -122,6 +127,8 @@ public class RemotePlayer extends Player {
         if (DEBUG) {
             Log.d(TAG, "released.");
         }
+
+        super.release();
     }
 
     // basic playback operations that are always supported
@@ -161,7 +168,8 @@ public class RemotePlayer extends Player {
     }
 
     @Override
-    public void getStatus(final @NonNull PlaylistItem item, final boolean shouldUpdate) {
+    public void getPlaylistItemStatus(
+            final @NonNull PlaylistItem item, final boolean shouldUpdate) {
         if (!mClient.hasSession() || item.getRemoteItemId() == null) {
             // if session is not valid or item id not assigend yet.
             // just return, it's not fatal
@@ -175,12 +183,11 @@ public class RemotePlayer extends Player {
     }
 
     private void updateStatus(@NonNull PlaylistItem item, boolean shouldUpdate) {
-        mClient.getStatus(item.getRemoteItemId(), null, new ItemActionCallback() {
+
+        ListenableFuture<MediaItemStatus> remoteStatusFuture = getRemoteItemStatus(item);
+        Futures.addCallback(remoteStatusFuture, new FutureCallback<MediaItemStatus>() {
             @Override
-            public void onResult(@NonNull Bundle data, @NonNull String sessionId,
-                    MediaSessionStatus sessionStatus, @NonNull String itemId,
-                    @NonNull MediaItemStatus itemStatus) {
-                logStatus("getStatus: succeeded", sessionId, sessionStatus, itemId, itemStatus);
+            public void onSuccess(MediaItemStatus itemStatus) {
                 int state = itemStatus.getPlaybackState();
                 if (state == MediaItemStatus.PLAYBACK_STATE_PLAYING
                         || state == MediaItemStatus.PLAYBACK_STATE_PAUSED
@@ -196,13 +203,12 @@ public class RemotePlayer extends Player {
             }
 
             @Override
-            public void onError(String error, int code, Bundle data) {
-                logError("getStatus: failed", error, code);
+            public void onFailure(@NonNull Throwable t) {
                 if (shouldUpdate && mCallback != null) {
                     mCallback.onPlaylistReady();
                 }
             }
-        });
+        }, Runnable::run);
     }
 
     @Override
@@ -369,6 +375,31 @@ public class RemotePlayer extends Player {
         return mSnapshot;
     }
 
+    /**
+     * Caches the remote state of the given playlist item and returns an updated copy through a
+     * {@link ListenableFuture}.
+     */
+    @NonNull
+    public ListenableFuture<PlaylistItem> cacheRemoteState(@NonNull PlaylistItem item) {
+        ListenableFuture<MediaItemStatus> remoteStatus = getRemoteItemStatus(item);
+
+        return Futures.transform(
+                remoteStatus,
+                (itemStatus) -> convertMediaItemStatusToPlayListItem(item, itemStatus),
+                Runnable::run);
+    }
+
+    private static PlaylistItem convertMediaItemStatusToPlayListItem(
+            @NonNull PlaylistItem playlistItem, @NonNull MediaItemStatus itemStatus) {
+        PlaylistItem updatedPlaylistItem = new PlaylistItem(playlistItem);
+        updatedPlaylistItem.setState(itemStatus.getPlaybackState());
+        updatedPlaylistItem.setPosition(itemStatus.getContentPosition());
+        updatedPlaylistItem.setDuration(itemStatus.getContentDuration());
+        updatedPlaylistItem.setTimestamp(itemStatus.getTimestamp());
+
+        return updatedPlaylistItem;
+    }
+
     private void enqueueInternal(final PlaylistItem item) {
         throwIfQueuingUnsupported();
 
@@ -409,6 +440,30 @@ public class RemotePlayer extends Player {
                     mCallback.onPlaylistChanged();
                 }
             }
+        });
+    }
+
+    private ListenableFuture<MediaItemStatus> getRemoteItemStatus(
+            @NonNull PlaylistItem playlistItem) {
+        return CallbackToFutureAdapter.getFuture(completer -> {
+            mClient.getStatus(playlistItem.getRemoteItemId(), null, new ItemActionCallback() {
+                @Override
+                public void onError(@Nullable String error, int code, @Nullable Bundle data) {
+                    logError("getStatus: failed", error, code);
+                    completer.setException(new RuntimeException(error));
+                }
+
+                @Override
+                public void onResult(@NonNull Bundle data, @NonNull String sessionId,
+                        @Nullable MediaSessionStatus sessionStatus, @NonNull String itemId,
+                        @NonNull MediaItemStatus itemStatus) {
+                    logStatus("getStatus: succeeded", sessionId, sessionStatus, itemId,
+                            itemStatus);
+                    completer.set(itemStatus);
+                }
+            });
+
+            return "RemotePlayer.getRemoteItemStatus()";
         });
     }
 

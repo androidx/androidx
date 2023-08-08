@@ -134,7 +134,7 @@ class TestMonotonicFrameClock(
             // waiting for it.
             val frameTime: Long
             val toRun = synchronized(lock) {
-                check(scheduledFrameDispatch)
+                check(scheduledFrameDispatch) { "frame dispatch not scheduled" }
 
                 frameTime = delayController.currentTime * 1_000_000
                 scheduledFrameDispatch = false

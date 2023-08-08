@@ -156,6 +156,7 @@ internal class TextFieldVisualTransformationSelectionBoundsTest {
         assertValidMessage(error, sourceIndex = null, toTransformed = false)
     }
 
+    @Ignore // b/268254956
     @Test
     fun selectionStart_throws_onStart_whenInvalidOriginalToTransformed() {
         rule.runOnIdle {

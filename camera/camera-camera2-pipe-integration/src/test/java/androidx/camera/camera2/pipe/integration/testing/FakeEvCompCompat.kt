@@ -18,20 +18,26 @@ package androidx.camera.camera2.pipe.integration.testing
 
 import android.util.Range
 import android.util.Rational
+import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.integration.compat.EvCompCompat
 import androidx.camera.camera2.pipe.integration.impl.UseCaseCamera
 import kotlinx.coroutines.Deferred
 
+@RequiresApi(21)
 class FakeEvCompCompat constructor(
     override val supported: Boolean = false,
     override val range: Range<Int> = Range(0, 0),
-    override val step: Rational = Rational.ZERO
+    override val step: Rational = Rational.ZERO,
 ) : EvCompCompat {
-    override fun stopRunningTask() {
+    override fun stopRunningTask(throwable: Throwable) {
         TODO("Not yet implemented")
     }
 
-    override fun applyAsync(evCompIndex: Int, camera: UseCaseCamera): Deferred<Int> {
+    override fun applyAsync(
+        evCompIndex: Int,
+        camera: UseCaseCamera,
+        cancelPreviousTask: Boolean,
+    ): Deferred<Int> {
         TODO("Not yet implemented")
     }
 }

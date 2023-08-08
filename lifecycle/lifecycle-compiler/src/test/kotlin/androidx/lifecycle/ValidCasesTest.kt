@@ -20,11 +20,11 @@ import androidx.lifecycle.utils.load
 import androidx.lifecycle.utils.processClass
 import com.google.testing.compile.CompileTester
 import com.google.testing.compile.JavaSourcesSubject
+import java.io.File
+import javax.tools.StandardLocation
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import java.io.File
-import javax.tools.StandardLocation
 
 @RunWith(JUnit4::class)
 class ValidCasesTest {

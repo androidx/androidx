@@ -1,13 +1,20 @@
 package com.mysdk
 
-public object ResponseConverter {
+import android.content.Context
+import androidx.privacysandbox.ui.provider.toCoreLibInfo
+
+public class ResponseConverter(
+    public val context: Context,
+) {
     public fun fromParcelable(parcelable: ParcelableResponse): Response {
         val annotatedValue = Response(
                 response = parcelable.response,
                 mySecondInterface = (parcelable.mySecondInterface as
                         MySecondInterfaceStubDelegate).delegate,
                 maybeOtherInterface = (parcelable.maybeOtherInterface as
-                        MySecondInterfaceStubDelegate).delegate)
+                        MySecondInterfaceStubDelegate).delegate,
+                myUiInterface = (parcelable.myUiInterface.binder as
+                        MyUiInterfaceStubDelegate).delegate)
         return annotatedValue
     }
 
@@ -15,9 +22,12 @@ public object ResponseConverter {
         val parcelable = ParcelableResponse()
         parcelable.response = annotatedValue.response
         parcelable.mySecondInterface =
-                MySecondInterfaceStubDelegate(annotatedValue.mySecondInterface)
+                MySecondInterfaceStubDelegate(annotatedValue.mySecondInterface, context)
         parcelable.maybeOtherInterface =
-                MySecondInterfaceStubDelegate(annotatedValue.maybeOtherInterface)
+                MySecondInterfaceStubDelegate(annotatedValue.maybeOtherInterface, context)
+        parcelable.myUiInterface =
+                IMyUiInterfaceCoreLibInfoAndBinderWrapperConverter.toParcelable(annotatedValue.myUiInterface.toCoreLibInfo(context),
+                MyUiInterfaceStubDelegate(annotatedValue.myUiInterface, context))
         return parcelable
     }
 }

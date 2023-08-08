@@ -78,6 +78,11 @@ object COMMON {
     val BOOK by lazy {
         loadJavaCode("common/input/Book.java", "foo.bar.Book")
     }
+
+    val PAGE by lazy {
+        loadJavaCode("common/input/Page.java", "foo.bar.Page")
+    }
+
     val NOT_AN_ENTITY by lazy {
         loadJavaCode("common/input/NotAnEntity.java", "foo.bar.NotAnEntity")
     }

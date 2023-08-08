@@ -115,4 +115,16 @@ class ListUtilsTest {
         val list = listOf(0, -1, -500, 1)
         assertEquals(1, list.fastFirstOrNull { it > 0 })
     }
+
+    @Test
+    fun lastOrNullFound() {
+        val list = listOf(1, -1, -500, 2)
+        assertEquals(2, list.fastLastOrNull { it > 0 })
+    }
+
+    @Test
+    fun lastOrNullNotFound() {
+        val list = listOf(-1, -1, -500, -2)
+        assertNull(list.fastLastOrNull { it > 0 })
+    }
 }

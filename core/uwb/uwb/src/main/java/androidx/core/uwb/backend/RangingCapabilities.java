@@ -21,11 +21,12 @@ import android.annotation.SuppressLint;
 import android.os.Parcel;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
 
 /** Gms Reference: com.google.android.gms.nearby.uwb.RangingCapabilities
  *
- * @hide
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 @SuppressLint({"ParcelNotFinal", "BanParcelableUsage"})
 public class RangingCapabilities implements android.os.Parcelable
 {
@@ -35,6 +36,17 @@ public class RangingCapabilities implements android.os.Parcelable
     public boolean supportsAzimuthalAngle = false;
     @SuppressLint("MutableBareField")
     public boolean supportsElevationAngle = false;
+    @SuppressLint("MutableBareField")
+    public int minRangingInterval = 0;
+    @NonNull
+    @SuppressLint("MutableBareField")
+    public int[] supportedChannels;
+    @NonNull
+    @SuppressLint("MutableBareField")
+    public int[] supportedNtfConfigs;
+    @NonNull
+    @SuppressLint("MutableBareField")
+    public int[] supportedConfigIds;
     @NonNull
     public static final android.os.Parcelable.Creator<RangingCapabilities> CREATOR = new android.os.Parcelable.Creator<RangingCapabilities>() {
         @Override
@@ -52,9 +64,13 @@ public class RangingCapabilities implements android.os.Parcelable
     {
         int _aidl_start_pos = _aidl_parcel.dataPosition();
         _aidl_parcel.writeInt(0);
-        _aidl_parcel.writeBoolean(supportsDistance);
-        _aidl_parcel.writeBoolean(supportsAzimuthalAngle);
-        _aidl_parcel.writeBoolean(supportsElevationAngle);
+        _aidl_parcel.writeInt(supportsDistance ? 1 : 0);
+        _aidl_parcel.writeInt(supportsAzimuthalAngle ? 1 : 0);
+        _aidl_parcel.writeInt(supportsElevationAngle ? 1 : 0);
+        _aidl_parcel.writeInt(minRangingInterval);
+        _aidl_parcel.writeIntArray(supportedChannels);
+        _aidl_parcel.writeIntArray(supportedNtfConfigs);
+        _aidl_parcel.writeIntArray(supportedConfigIds);
         int _aidl_end_pos = _aidl_parcel.dataPosition();
         _aidl_parcel.setDataPosition(_aidl_start_pos);
         _aidl_parcel.writeInt(_aidl_end_pos - _aidl_start_pos);
@@ -68,11 +84,19 @@ public class RangingCapabilities implements android.os.Parcelable
         try {
             if (_aidl_parcelable_size < 4) throw new android.os.BadParcelableException("Parcelable too small");;
             if (_aidl_parcel.dataPosition() - _aidl_start_pos >= _aidl_parcelable_size) return;
-            supportsDistance = _aidl_parcel.readBoolean();
+            supportsDistance = _aidl_parcel.readInt() == 1;
             if (_aidl_parcel.dataPosition() - _aidl_start_pos >= _aidl_parcelable_size) return;
-            supportsAzimuthalAngle = _aidl_parcel.readBoolean();
+            supportsAzimuthalAngle = _aidl_parcel.readInt() == 1;
             if (_aidl_parcel.dataPosition() - _aidl_start_pos >= _aidl_parcelable_size) return;
-            supportsElevationAngle = _aidl_parcel.readBoolean();
+            supportsElevationAngle = _aidl_parcel.readInt() == 1;
+            if (_aidl_parcel.dataPosition() - _aidl_start_pos >= _aidl_parcelable_size) return;
+            minRangingInterval = _aidl_parcel.readInt();
+            if (_aidl_parcel.dataPosition() - _aidl_start_pos >= _aidl_parcelable_size) return;
+            supportedChannels = _aidl_parcel.createIntArray();
+            if (_aidl_parcel.dataPosition() - _aidl_start_pos >= _aidl_parcelable_size) return;
+            supportedNtfConfigs = _aidl_parcel.createIntArray();
+            if (_aidl_parcel.dataPosition() - _aidl_start_pos >= _aidl_parcelable_size) return;
+            supportedConfigIds = _aidl_parcel.createIntArray();
         } finally {
             if (_aidl_start_pos > (Integer.MAX_VALUE - _aidl_parcelable_size)) {
                 throw new android.os.BadParcelableException("Overflow in the size of parcelable");

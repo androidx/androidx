@@ -32,7 +32,7 @@ import androidx.annotation.IntRange
  * @suppress
  */
 @InternalPlatformTextApi
-object LayoutCompat {
+internal object LayoutCompat {
     const val ALIGN_NORMAL = 0
     const val ALIGN_OPPOSITE = 1
     const val ALIGN_CENTER = 2
@@ -59,12 +59,17 @@ object LayoutCompat {
     const val HYPHENATION_FREQUENCY_NONE = Layout.HYPHENATION_FREQUENCY_NONE
     const val HYPHENATION_FREQUENCY_NORMAL = Layout.HYPHENATION_FREQUENCY_NORMAL
     const val HYPHENATION_FREQUENCY_NORMAL_FAST = Layout.HYPHENATION_FREQUENCY_NORMAL_FAST
+    const val HYPHENATION_FREQUENCY_FULL = Layout.HYPHENATION_FREQUENCY_FULL
+    const val HYPHENATION_FREQUENCY_FULL_FAST = Layout.HYPHENATION_FREQUENCY_FULL_FAST
 
     @Retention(AnnotationRetention.SOURCE)
     @IntDef(
+        HYPHENATION_FREQUENCY_NONE,
         HYPHENATION_FREQUENCY_NORMAL,
         HYPHENATION_FREQUENCY_NORMAL_FAST,
-        HYPHENATION_FREQUENCY_NONE
+        HYPHENATION_FREQUENCY_FULL,
+        HYPHENATION_FREQUENCY_FULL_FAST
+
     )
     internal annotation class HyphenationFrequency
 
@@ -170,7 +175,7 @@ object LayoutCompat {
  * @suppress
  */
 @InternalPlatformTextApi
-fun Layout.getLineForOffset(@IntRange(from = 0) offset: Int, upstream: Boolean): Int {
+internal fun Layout.getLineForOffset(@IntRange(from = 0) offset: Int, upstream: Boolean): Int {
     if (offset <= 0) return 0
     if (offset >= text.length) return lineCount - 1
     val downstreamLineNo = getLineForOffset(offset)

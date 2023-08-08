@@ -22,8 +22,8 @@ import androidx.privacysandbox.tools.core.model.AnnotatedInterface
 import androidx.privacysandbox.tools.core.model.Method
 import androidx.privacysandbox.tools.core.model.Parameter
 import androidx.privacysandbox.tools.core.model.ParsedApi
-import androidx.privacysandbox.tools.core.model.Types
 import androidx.privacysandbox.tools.core.model.Type
+import androidx.privacysandbox.tools.core.model.Types
 import androidx.privacysandbox.tools.core.model.Types.asNullable
 import androidx.room.compiler.processing.util.Source
 import com.google.common.truth.Truth.assertThat
@@ -265,16 +265,20 @@ class InterfaceParserTest {
             "com/mysdk/MySdk.kt", """
                     package com.mysdk
                     import androidx.privacysandbox.tools.PrivacySandboxService
+                    import androidx.privacysandbox.tools.PrivacySandboxInterface
 
                     interface FooInterface {}
 
                     @PrivacySandboxService
-                    interface MySdk : FooInterface {
+                    interface MySdk {}
+
+                    @PrivacySandboxInterface
+                    interface MyInterface : FooInterface {
                         suspend fun foo(): Int
                     }"""
         )
         checkSourceFails(source).containsExactlyErrors(
-            "Error in com.mysdk.MySdk: annotated interface inherits prohibited types (" +
+            "Error in com.mysdk.MyInterface: annotated interface inherits prohibited types (" +
                 "FooInterface)."
         )
     }
@@ -285,6 +289,7 @@ class InterfaceParserTest {
             "com/mysdk/MySdk.kt", """
                     package com.mysdk
                     import androidx.privacysandbox.tools.PrivacySandboxService
+                    import androidx.privacysandbox.tools.PrivacySandboxInterface
 
                     interface A {}
                     interface B {}
@@ -292,13 +297,39 @@ class InterfaceParserTest {
                     interface D {}
 
                     @PrivacySandboxService
-                    interface MySdk : B, C, D, A {
+                    interface MySdk {}
+
+                    @PrivacySandboxInterface
+                    interface MyInterface : B, C, D, A {
                         suspend fun foo(): Int
                     }"""
         )
         checkSourceFails(source).containsExactlyErrors(
-            "Error in com.mysdk.MySdk: annotated interface inherits prohibited types (A, B, C, " +
-                "...)."
+            "Error in com.mysdk.MyInterface: annotated interface inherits prohibited types (A, " +
+                "B, C, ...)."
+        )
+    }
+
+    @Test
+    fun callbackInheritance_fails() {
+        val source = Source.kotlin(
+            "com/mysdk/MySdk.kt", """
+                    package com.mysdk
+                    import androidx.privacysandbox.tools.PrivacySandboxService
+                    import androidx.privacysandbox.tools.PrivacySandboxCallback
+
+                    interface FooInterface {}
+
+                    @PrivacySandboxService
+                    interface MySdk {}
+
+                    @PrivacySandboxCallback
+                    interface MyCallback : FooInterface {}
+            """
+        )
+        checkSourceFails(source).containsExactlyErrors(
+            "Error in com.mysdk.MyCallback: annotated interface inherits prohibited types (" +
+                "FooInterface)."
         )
     }
 
@@ -335,9 +366,9 @@ class InterfaceParserTest {
         checkSourceFails(serviceMethod("suspend fun foo(x: MutableList<Int>)"))
             .containsExactlyErrors(
                 "Error in com.mysdk.MySdk.foo: only primitives, lists, data classes annotated " +
-                    "with @PrivacySandboxValue and interfaces annotated with " +
-                    "@PrivacySandboxCallback or @PrivacySandboxInterface are supported as " +
-                    "parameter types."
+                    "with @PrivacySandboxValue, interfaces annotated with " +
+                    "@PrivacySandboxCallback or @PrivacySandboxInterface, and " +
+                    "SdkActivityLaunchers are supported as parameter types."
             )
     }
 
@@ -354,9 +385,9 @@ class InterfaceParserTest {
         checkSourceFails(serviceMethod("suspend fun foo(x: (Int) -> Int)"))
             .containsExactlyErrors(
                 "Error in com.mysdk.MySdk.foo: only primitives, lists, data classes annotated " +
-                    "with @PrivacySandboxValue and interfaces annotated with " +
-                    "@PrivacySandboxCallback or @PrivacySandboxInterface are supported as " +
-                    "parameter types."
+                    "with @PrivacySandboxValue, interfaces annotated with " +
+                    "@PrivacySandboxCallback " + "or @PrivacySandboxInterface, and " +
+                    "SdkActivityLaunchers are supported as parameter types."
             )
     }
 
@@ -376,8 +407,8 @@ class InterfaceParserTest {
         )
         checkSourceFails(source).containsExactlyErrors(
             "Error in com.mysdk.MySdk.foo: only primitives, lists, data classes annotated with " +
-                "@PrivacySandboxValue and interfaces annotated with @PrivacySandboxInterface are " +
-                "supported as return types."
+                "@PrivacySandboxValue, interfaces annotated with @PrivacySandboxInterface, and " +
+                "SdkActivityLaunchers are supported as return types."
         )
     }
 

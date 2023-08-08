@@ -19,6 +19,8 @@ package androidx.benchmark.perfetto
 import androidx.benchmark.createTempFileFromAsset
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
+import java.io.File
+import kotlin.test.assertEquals
 import okio.ByteString
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -26,8 +28,6 @@ import org.junit.runner.RunWith
 import perfetto.protos.Trace
 import perfetto.protos.TracePacket
 import perfetto.protos.UiState
-import java.io.File
-import kotlin.test.assertEquals
 
 @RunWith(AndroidJUnit4::class)
 @SmallTest

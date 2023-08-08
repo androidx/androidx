@@ -25,23 +25,19 @@ import org.junit.Test
 class WallpaperInteractiveWatchFaceInstanceParamsTest {
     @Test
     fun canBeWrittenToOutputStream() {
-        val params = WallpaperInteractiveWatchFaceInstanceParams(
-            "instanceId",
-            DeviceConfig(
-                false,
-                false,
-                10,
-                10
-            ),
-            WatchUiState(
-                false,
-                0,
-            ),
-            UserStyle(emptyMap()).toWireFormat(),
-            null,
-            null,
-            null
-        )
+        val params =
+            WallpaperInteractiveWatchFaceInstanceParams(
+                "instanceId",
+                DeviceConfig(false, false, 10, 10),
+                WatchUiState(
+                    false,
+                    0,
+                ),
+                UserStyle(emptyMap()).toWireFormat(),
+                null,
+                null,
+                null
+            )
 
         val dummyOutputStream = ByteArrayOutputStream()
 

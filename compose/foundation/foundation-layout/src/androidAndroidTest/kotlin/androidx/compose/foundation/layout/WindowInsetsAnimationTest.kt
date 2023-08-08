@@ -27,9 +27,11 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.test.filters.FlakyTest
 import androidx.test.filters.MediumTest
+import androidx.test.filters.SdkSuppress
 import java.util.concurrent.TimeUnit
 import org.junit.After
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 
@@ -53,8 +55,10 @@ class WindowInsetsAnimationTest {
         }
     }
 
+    @SdkSuppress(minSdkVersion = 22) // b/266742122
     @OptIn(ExperimentalLayoutApi::class)
     @Test
+    @Ignore("b/266742122")
     fun imeAnimationWhenShowingIme() {
         val imeAnimationSourceValues = mutableListOf<Int>()
         val imeAnimationTargetValues = mutableListOf<Int>()

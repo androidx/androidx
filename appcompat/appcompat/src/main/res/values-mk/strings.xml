@@ -33,7 +33,7 @@
     <string name="abc_shareactionprovider_share_with" msgid="8875138169939072951">"Сподели со"</string>
     <string name="abc_capital_on" msgid="884982626291842264">"ВКЛУЧЕНО"</string>
     <string name="abc_capital_off" msgid="4215997306490295099">"ИСКЛУЧЕНО"</string>
-    <string name="search_menu_title" msgid="6264217191555673260">"Пребарај"</string>
+    <string name="search_menu_title" msgid="6264217191555673260">"Пребарување"</string>
     <string name="abc_prepend_shortcut_label" msgid="5520303668377388990">"Menu+"</string>
     <string name="abc_menu_meta_shortcut_label" msgid="4192209724446364286">"Meta+"</string>
     <string name="abc_menu_ctrl_shortcut_label" msgid="2223301931652355242">"Ctrl+"</string>

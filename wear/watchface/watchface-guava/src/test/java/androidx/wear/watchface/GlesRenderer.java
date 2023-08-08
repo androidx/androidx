@@ -21,8 +21,6 @@ import android.view.SurfaceHolder;
 import androidx.annotation.NonNull;
 import androidx.wear.watchface.style.CurrentUserStyleRepository;
 
-import org.jetbrains.annotations.NotNull;
-
 import java.time.ZonedDateTime;
 
 // This class tests that a Java class extending ListenableGlesRenderer can successfully be compiled.
@@ -30,18 +28,17 @@ import java.time.ZonedDateTime;
 public class GlesRenderer extends ListenableGlesRenderer {
 
     public GlesRenderer(
-            @NotNull SurfaceHolder surfaceHolder,
-            @NotNull WatchState watchState,
-            @NotNull CurrentUserStyleRepository currentUserStyleRepository,
-            long interactiveTickInterval) throws GlesException {
+            @NonNull SurfaceHolder surfaceHolder,
+            @NonNull WatchState watchState,
+            @NonNull CurrentUserStyleRepository currentUserStyleRepository,
+            long interactiveTickInterval)
+            throws GlesException {
         super(surfaceHolder, currentUserStyleRepository, watchState, interactiveTickInterval);
     }
 
     @Override
-    public void render(@NonNull ZonedDateTime zonedDateTime) {
-    }
+    public void render(@NonNull ZonedDateTime zonedDateTime) {}
 
     @Override
-    public void renderHighlightLayer(@NonNull ZonedDateTime zonedDateTime) {
-    }
+    public void renderHighlightLayer(@NonNull ZonedDateTime zonedDateTime) {}
 }

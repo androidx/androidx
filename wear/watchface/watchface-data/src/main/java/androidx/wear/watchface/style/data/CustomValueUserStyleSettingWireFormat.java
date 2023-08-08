@@ -29,16 +29,16 @@ import java.util.List;
 /**
  * Wire format for {@link androidx.wear.watchface.style.CustomValueStyleSetting}.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @VersionedParcelize
 public class CustomValueUserStyleSettingWireFormat extends UserStyleSettingWireFormat {
 
-    CustomValueUserStyleSettingWireFormat() {
-    }
+    CustomValueUserStyleSettingWireFormat() {}
 
-    /** @deprecated use a constructor with List<Bundle> perOptionOnWatchFaceEditorBundles. */
+    /**
+     * @deprecated use a constructor with List<Bundle> perOptionOnWatchFaceEditorBundles.
+     */
     @Deprecated
     public CustomValueUserStyleSettingWireFormat(
             @NonNull String id,
@@ -59,7 +59,15 @@ public class CustomValueUserStyleSettingWireFormat extends UserStyleSettingWireF
             @NonNull List<Integer> affectsLayers,
             @Nullable Bundle onWatchFaceEditorBundle,
             @Nullable List<Bundle> perOptionOnWatchFaceEditorBundles) {
-        super(id, displayName, description, icon, options, 0, affectsLayers,
-                onWatchFaceEditorBundle, perOptionOnWatchFaceEditorBundles);
+        super(
+                id,
+                displayName,
+                description,
+                icon,
+                options,
+                0,
+                affectsLayers,
+                onWatchFaceEditorBundle,
+                perOptionOnWatchFaceEditorBundles);
     }
 }

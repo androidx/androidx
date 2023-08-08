@@ -25,14 +25,14 @@ import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentContainerView
 import androidx.lifecycle.ViewModel
 import androidx.test.filters.MediumTest
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
 
 @MediumTest
 @RunWith(Parameterized::class)

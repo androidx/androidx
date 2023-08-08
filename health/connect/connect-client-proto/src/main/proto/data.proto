@@ -31,6 +31,7 @@ message Value {
     double double_val = 2;
     string string_val = 3;
     string enum_val = 4;
+    bool boolean_val = 5;
   }
 }
 
@@ -56,7 +57,7 @@ message SubTypeDataValue {
   optional int64 end_time_millis = 3;
 }
 
-// Next Id: 22
+// Next Id: 23
 message DataPoint {
   optional DataType data_type = 1;
   map<string, Value> values = 2;
@@ -90,11 +91,15 @@ message DataPoint {
   optional int32 start_zone_offset_seconds = 19;
   optional int32 end_zone_offset_seconds = 20;
 
-  optional SubTypeDataValue sub_type_data_values = 21;
+  reserved 21; // sub_type_data_values
+
+  map<string, SubTypeDataList> sub_type_data_lists = 22;
 
   message SubTypeDataList {
     repeated SubTypeDataValue values = 1;
   }
+
+  optional int32 recording_method = 23;
 }
 
 message AggregatedValue {

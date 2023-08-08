@@ -59,19 +59,22 @@ import androidx.wear.watchface.style.UserStyleSetting.DoubleRangeUserStyleSettin
 import androidx.wear.watchface.style.UserStyleSetting.LongRangeUserStyleSetting.LongRangeOption
 import androidx.wear.watchface.style.data.UserStyleWireFormat
 import com.google.common.truth.Truth.assertThat
+import java.lang.IllegalArgumentException
+import java.time.ZonedDateTime
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
+import kotlin.test.assertFailsWith
 import kotlinx.coroutines.runBlocking
+import org.junit.After
 import org.junit.Assert
 import org.junit.Assume
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.Mockito
-import org.mockito.MockitoAnnotations
-import java.time.ZonedDateTime
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
-import org.junit.After
+import org.mockito.junit.MockitoJUnit
 
 private const val BITMAP_WIDTH = 400
 private const val BITMAP_HEIGHT = 400
@@ -81,19 +84,21 @@ private const val INTERACTIVE_INSTANCE_ID = "InteractiveTestInstance"
 
 class TestXmlWatchFaceService(
     testContext: Context,
-    private var surfaceHolderOverride: SurfaceHolder
+    private var surfaceHolderOverride: SurfaceHolder,
+    private var xmlWatchFaceResourceId: Int,
 ) : WatchFaceService() {
     init {
         attachBaseContext(testContext)
     }
 
-    override fun getXmlWatchFaceResourceId() = R.xml.xml_watchface
+    override fun getXmlWatchFaceResourceId() = xmlWatchFaceResourceId
 
     override fun getWallpaperSurfaceHolderOverride() = surfaceHolderOverride
 
     override fun getComplicationSlotInflationFactory(
         currentUserStyleRepository: CurrentUserStyleRepository
-    ) = object : ComplicationSlotInflationFactory() {
+    ) =
+        object : ComplicationSlotInflationFactory() {
             override fun getCanvasComplicationFactory(slotId: Int): CanvasComplicationFactory {
                 return CanvasComplicationFactory { _, _ ->
                     object : CanvasComplication {
@@ -103,8 +108,7 @@ class TestXmlWatchFaceService(
                             zonedDateTime: ZonedDateTime,
                             renderParameters: RenderParameters,
                             slotId: Int
-                        ) {
-                        }
+                        ) {}
 
                         override fun drawHighlight(
                             canvas: Canvas,
@@ -112,122 +116,120 @@ class TestXmlWatchFaceService(
                             boundsType: Int,
                             zonedDateTime: ZonedDateTime,
                             color: Int
-                        ) {
-                        }
+                        ) {}
 
                         override fun getData() = NoDataComplicationData()
 
                         override fun loadData(
                             complicationData: ComplicationData,
                             loadDrawablesAsynchronous: Boolean
-                        ) {
-                        }
+                        ) {}
                     }
                 }
+            }
         }
-    }
 
     override suspend fun createWatchFace(
         surfaceHolder: SurfaceHolder,
         watchState: WatchState,
         complicationSlotsManager: ComplicationSlotsManager,
         currentUserStyleRepository: CurrentUserStyleRepository
-    ) = WatchFace(
-        WatchFaceType.DIGITAL,
-        @Suppress("deprecation")
-        object : Renderer.CanvasRenderer(
-            surfaceHolder,
-            currentUserStyleRepository,
-            watchState,
-            CanvasType.HARDWARE,
-            16L
-        ) {
-            override fun render(canvas: Canvas, bounds: Rect, zonedDateTime: ZonedDateTime) {}
+    ) =
+        WatchFace(
+            WatchFaceType.DIGITAL,
+            @Suppress("deprecation")
+            object :
+                Renderer.CanvasRenderer(
+                    surfaceHolder,
+                    currentUserStyleRepository,
+                    watchState,
+                    CanvasType.HARDWARE,
+                    16L
+                ) {
+                override fun render(canvas: Canvas, bounds: Rect, zonedDateTime: ZonedDateTime) {}
 
-            override fun renderHighlightLayer(
-                canvas: Canvas,
-                bounds: Rect,
-                zonedDateTime: ZonedDateTime
-            ) {
+                override fun renderHighlightLayer(
+                    canvas: Canvas,
+                    bounds: Rect,
+                    zonedDateTime: ZonedDateTime
+                ) {}
             }
-        }
-    )
+        )
 }
 
 @RunWith(AndroidJUnit4::class)
 @MediumTest
-public class XmlDefinedUserStyleSchemaAndComplicationSlotsTest {
+class XmlDefinedUserStyleSchemaAndComplicationSlotsTest {
 
-    @Mock
-    private lateinit var surfaceHolder: SurfaceHolder
+    @get:Rule
+    val mocks = MockitoJUnit.rule()
 
-    @Mock
-    private lateinit var surface: Surface
+    @Mock private lateinit var surfaceHolder: SurfaceHolder
+
+    @Mock private lateinit var surface: Surface
 
     private val bitmap = Bitmap.createBitmap(BITMAP_WIDTH, BITMAP_HEIGHT, Bitmap.Config.ARGB_8888)
     private val canvas = Canvas(bitmap)
     private var initLatch = CountDownLatch(1)
     private lateinit var interactiveWatchFaceInstance: IInteractiveWatchFace
 
-    @Suppress("DEPRECATION") // b/251211092
     @Before
-    public fun setUp() {
+    fun setUp() {
         Assume.assumeTrue("This test suite assumes API 29", Build.VERSION.SDK_INT >= 29)
-        MockitoAnnotations.initMocks(this)
     }
 
     @After
-    public fun tearDown() {
+    fun tearDown() {
+        InteractiveInstanceManager.setParameterlessEngine(null)
         if (this::interactiveWatchFaceInstance.isInitialized) {
             interactiveWatchFaceInstance.release()
         }
     }
 
-    private fun setPendingWallpaperInteractiveWatchFaceInstance() {
-        val existingInstance = InteractiveInstanceManager
-            .getExistingInstanceOrSetPendingWallpaperInteractiveWatchFaceInstance(
-                InteractiveInstanceManager.PendingWallpaperInteractiveWatchFaceInstance(
-                    WallpaperInteractiveWatchFaceInstanceParams(
-                        INTERACTIVE_INSTANCE_ID,
-                        DeviceConfig(
-                            false,
-                            false,
-                            0,
-                            0
+    private fun setPendingWallpaperInteractiveWatchFaceInstance(instanceId: String) {
+        val existingInstance =
+            InteractiveInstanceManager
+                .getExistingInstanceOrSetPendingWallpaperInteractiveWatchFaceInstance(
+                    InteractiveInstanceManager.PendingWallpaperInteractiveWatchFaceInstance(
+                        WallpaperInteractiveWatchFaceInstanceParams(
+                            instanceId,
+                            DeviceConfig(false, false, 0, 0),
+                            WatchUiState(false, 0),
+                            UserStyleWireFormat(emptyMap()),
+                            null,
+                            null,
+                            null
                         ),
-                        WatchUiState(false, 0),
-                        UserStyleWireFormat(emptyMap()),
-                        null,
-                        null,
-                        null
-                    ),
-                    object : IPendingInteractiveWatchFace.Stub() {
-                        override fun getApiVersion() =
-                            IPendingInteractiveWatchFace.API_VERSION
+                        object : IPendingInteractiveWatchFace.Stub() {
+                            override fun getApiVersion() = IPendingInteractiveWatchFace.API_VERSION
 
-                        override fun onInteractiveWatchFaceCreated(
-                            iInteractiveWatchFace: IInteractiveWatchFace
-                        ) {
-                            interactiveWatchFaceInstance = iInteractiveWatchFace
-                            initLatch.countDown()
-                        }
+                            override fun onInteractiveWatchFaceCreated(
+                                iInteractiveWatchFace: IInteractiveWatchFace
+                            ) {
+                                interactiveWatchFaceInstance = iInteractiveWatchFace
+                                initLatch.countDown()
+                            }
 
-                        override fun onInteractiveWatchFaceCrashed(exception: CrashInfoParcel?) {
-                            Assert.fail("WatchFace crashed: $exception")
+                            override fun onInteractiveWatchFaceCrashed(
+                                exception: CrashInfoParcel?
+                            ) {
+                                Assert.fail("WatchFace crashed: $exception")
+                            }
                         }
-                    }
+                    )
                 )
-            )
         assertThat(existingInstance).isNull()
     }
 
-    @Test
-    @Suppress("Deprecation", "NewApi") // userStyleSettings
-    public fun staticSchemaAndComplicationsRead() {
-        val service = TestXmlWatchFaceService(
-            ApplicationProvider.getApplicationContext<Context>(),
-            surfaceHolder
-        )
+    private fun createAndMountTestService(
+        xmlWatchFaceResourceId: Int = R.xml.xml_watchface,
+    ): WatchFaceService.EngineWrapper {
+        val service =
+            TestXmlWatchFaceService(
+                ApplicationProvider.getApplicationContext(),
+                surfaceHolder,
+                xmlWatchFaceResourceId
+            )
 
         Mockito.`when`(surfaceHolder.surfaceFrame)
             .thenReturn(Rect(0, 0, BITMAP_WIDTH, BITMAP_HEIGHT))
@@ -235,76 +237,75 @@ public class XmlDefinedUserStyleSchemaAndComplicationSlotsTest {
         Mockito.`when`(surfaceHolder.surface).thenReturn(surface)
         Mockito.`when`(surface.isValid).thenReturn(false)
 
-        setPendingWallpaperInteractiveWatchFaceInstance()
+        setPendingWallpaperInteractiveWatchFaceInstance(
+            "${INTERACTIVE_INSTANCE_ID}_$xmlWatchFaceResourceId"
+        )
 
         val wrapper = service.onCreateEngine() as WatchFaceService.EngineWrapper
         assertThat(initLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS)).isTrue()
 
+        return wrapper
+    }
+
+    @Test
+    @Suppress("Deprecation", "NewApi") // userStyleSettings
+    fun staticSchemaAndComplicationsRead() {
+        val wrapper = createAndMountTestService()
+
         runBlocking {
             val watchFaceImpl = wrapper.deferredWatchFaceImpl.await()
             val schema = watchFaceImpl.currentUserStyleRepository.schema
-            assertThat(schema.userStyleSettings.map { it.id.value }).containsExactly(
-                "TimeStyle", "BooleanId", "DoubleId", "LongId"
-            )
+            assertThat(schema.userStyleSettings.map { it.id.value })
+                .containsExactly("TimeStyle", "BooleanId", "DoubleId", "LongId")
 
-            assertThat(
-                watchFaceImpl.complicationSlotsManager.complicationSlots.size
-            ).isEqualTo(5)
+            assertThat(watchFaceImpl.complicationSlotsManager.complicationSlots.size).isEqualTo(5)
 
             val slotA = watchFaceImpl.complicationSlotsManager.complicationSlots[10]!!
             assertThat(slotA.boundsType).isEqualTo(ComplicationSlotBoundsType.ROUND_RECT)
-            assertThat(slotA.supportedTypes).containsExactly(
-                ComplicationType.RANGED_VALUE,
-                ComplicationType.SHORT_TEXT,
-                ComplicationType.SMALL_IMAGE
-            ).inOrder()
+            assertThat(slotA.supportedTypes)
+                .containsExactly(
+                    ComplicationType.RANGED_VALUE,
+                    ComplicationType.SHORT_TEXT,
+                    ComplicationType.SMALL_IMAGE
+                )
+                .inOrder()
             assertThat(slotA.defaultDataSourcePolicy.primaryDataSource).isNull()
-            assertThat(slotA.defaultDataSourcePolicy.primaryDataSourceDefaultType)
-                .isNull()
+            assertThat(slotA.defaultDataSourcePolicy.primaryDataSourceDefaultType).isNull()
             assertThat(slotA.defaultDataSourcePolicy.secondaryDataSource).isNull()
-            assertThat(slotA.defaultDataSourcePolicy.secondaryDataSourceDefaultType)
-                .isNull()
-            assertThat(slotA.defaultDataSourcePolicy.systemDataSourceFallback).isEqualTo(
-                SystemDataSources.DATA_SOURCE_WATCH_BATTERY
-            )
+            assertThat(slotA.defaultDataSourcePolicy.secondaryDataSourceDefaultType).isNull()
+            assertThat(slotA.defaultDataSourcePolicy.systemDataSourceFallback)
+                .isEqualTo(SystemDataSources.DATA_SOURCE_WATCH_BATTERY)
             assertThat(slotA.defaultDataSourcePolicy.systemDataSourceFallbackDefaultType)
                 .isEqualTo(ComplicationType.RANGED_VALUE)
             assertThat(
-                slotA.complicationSlotBounds.perComplicationTypeBounds[
-                    ComplicationType.SHORT_TEXT
-                ]!!
-            ).isEqualTo(
-                RectF(0.3f, 0.7f, 0.7f, 0.9f)
-            )
+                    slotA.complicationSlotBounds.perComplicationTypeBounds[
+                            ComplicationType.SHORT_TEXT]!!
+                )
+                .isEqualTo(RectF(0.3f, 0.7f, 0.7f, 0.9f))
             assertThat(slotA.nameResourceId).isEqualTo(R.string.complication_name_one)
             assertThat(slotA.screenReaderNameResourceId)
                 .isEqualTo(R.string.complication_screen_reader_name_one)
 
             val slotB = watchFaceImpl.complicationSlotsManager.complicationSlots[20]!!
             assertThat(slotB.boundsType).isEqualTo(ComplicationSlotBoundsType.BACKGROUND)
-            assertThat(slotB.supportedTypes).containsExactly(
-                ComplicationType.LONG_TEXT, ComplicationType.SHORT_TEXT
-            ).inOrder()
-            assertThat(slotB.defaultDataSourcePolicy.primaryDataSource).isEqualTo(
-                ComponentName("com.package", "com.app")
-            )
+            assertThat(slotB.supportedTypes)
+                .containsExactly(ComplicationType.LONG_TEXT, ComplicationType.SHORT_TEXT)
+                .inOrder()
+            assertThat(slotB.defaultDataSourcePolicy.primaryDataSource)
+                .isEqualTo(ComponentName("com.package", "com.app"))
             assertThat(slotB.defaultDataSourcePolicy.primaryDataSourceDefaultType)
                 .isEqualTo(ComplicationType.SHORT_TEXT)
             assertThat(slotB.defaultDataSourcePolicy.secondaryDataSource).isNull()
-            assertThat(slotB.defaultDataSourcePolicy.secondaryDataSourceDefaultType)
-                .isNull()
-            assertThat(slotB.defaultDataSourcePolicy.systemDataSourceFallback).isEqualTo(
-                SystemDataSources.DATA_SOURCE_SUNRISE_SUNSET
-            )
+            assertThat(slotB.defaultDataSourcePolicy.secondaryDataSourceDefaultType).isNull()
+            assertThat(slotB.defaultDataSourcePolicy.systemDataSourceFallback)
+                .isEqualTo(SystemDataSources.DATA_SOURCE_SUNRISE_SUNSET)
             assertThat(slotB.defaultDataSourcePolicy.systemDataSourceFallbackDefaultType)
                 .isEqualTo(ComplicationType.LONG_TEXT)
             assertThat(
-                slotB.complicationSlotBounds.perComplicationTypeBounds[
-                    ComplicationType.SHORT_TEXT
-                ]!!
-            ).isEqualTo(
-                RectF(0.1f, 0.2f, 0.3f, 0.4f)
-            )
+                    slotB.complicationSlotBounds.perComplicationTypeBounds[
+                            ComplicationType.SHORT_TEXT]!!
+                )
+                .isEqualTo(RectF(0.1f, 0.2f, 0.3f, 0.4f))
             assertThat(slotB.nameResourceId).isEqualTo(R.string.complication_name_two)
             assertThat(slotB.screenReaderNameResourceId)
                 .isEqualTo(R.string.complication_screen_reader_name_two)
@@ -314,43 +315,42 @@ public class XmlDefinedUserStyleSchemaAndComplicationSlotsTest {
             assertThat(slotC.defaultDataSourcePolicy.primaryDataSourceDefaultType).isNull()
             assertThat(slotC.defaultDataSourcePolicy.secondaryDataSource).isNull()
             assertThat(slotC.defaultDataSourcePolicy.secondaryDataSourceDefaultType).isNull()
-            assertThat(slotC.defaultDataSourcePolicy.systemDataSourceFallback).isEqualTo(
-                SystemDataSources.NO_DATA_SOURCE
-            )
+            assertThat(slotC.defaultDataSourcePolicy.systemDataSourceFallback)
+                .isEqualTo(SystemDataSources.NO_DATA_SOURCE)
             assertThat(slotC.defaultDataSourcePolicy.systemDataSourceFallbackDefaultType)
                 .isEqualTo(ComplicationType.NOT_CONFIGURED)
 
             val slotD = watchFaceImpl.complicationSlotsManager.complicationSlots[40]!!
-            assertThat(slotD.supportedTypes).containsExactly(
-                ComplicationType.SHORT_TEXT,
-                ComplicationType.RANGED_VALUE,
-                ComplicationType.SMALL_IMAGE
-            ).inOrder()
-            assertThat(slotD.defaultDataSourcePolicy.primaryDataSource).isEqualTo(
-                ComponentName("com.package", "com.app.example1"))
+            assertThat(slotD.supportedTypes)
+                .containsExactly(
+                    ComplicationType.SHORT_TEXT,
+                    ComplicationType.RANGED_VALUE,
+                    ComplicationType.SMALL_IMAGE
+                )
+                .inOrder()
+            assertThat(slotD.defaultDataSourcePolicy.primaryDataSource)
+                .isEqualTo(ComponentName("com.package", "com.app.example1"))
             assertThat(slotD.defaultDataSourcePolicy.primaryDataSourceDefaultType)
                 .isEqualTo(ComplicationType.SHORT_TEXT)
-            assertThat(slotD.defaultDataSourcePolicy.secondaryDataSource).isEqualTo(
-                ComponentName("com.package", "com.app.example2"))
+            assertThat(slotD.defaultDataSourcePolicy.secondaryDataSource)
+                .isEqualTo(ComponentName("com.package", "com.app.example2"))
             assertThat(slotD.defaultDataSourcePolicy.secondaryDataSourceDefaultType)
                 .isEqualTo(ComplicationType.SMALL_IMAGE)
-            assertThat(slotD.defaultDataSourcePolicy.systemDataSourceFallback).isEqualTo(
-                SystemDataSources.DATA_SOURCE_WATCH_BATTERY
-            )
+            assertThat(slotD.defaultDataSourcePolicy.systemDataSourceFallback)
+                .isEqualTo(SystemDataSources.DATA_SOURCE_WATCH_BATTERY)
             assertThat(slotD.defaultDataSourcePolicy.systemDataSourceFallbackDefaultType)
                 .isEqualTo(ComplicationType.RANGED_VALUE)
 
             val slotE = watchFaceImpl.complicationSlotsManager.complicationSlots[50]!!
-            assertThat(slotE.supportedTypes).containsExactly(
-                ComplicationType.GOAL_PROGRESS, ComplicationType.WEIGHTED_ELEMENTS
-            ).inOrder()
-            assertThat(slotE.defaultDataSourcePolicy.primaryDataSource).isEqualTo(
-                ComponentName("com.package", "com.app"))
+            assertThat(slotE.supportedTypes)
+                .containsExactly(ComplicationType.GOAL_PROGRESS, ComplicationType.WEIGHTED_ELEMENTS)
+                .inOrder()
+            assertThat(slotE.defaultDataSourcePolicy.primaryDataSource)
+                .isEqualTo(ComponentName("com.package", "com.app"))
             assertThat(slotE.defaultDataSourcePolicy.primaryDataSourceDefaultType)
                 .isEqualTo(ComplicationType.GOAL_PROGRESS)
-            assertThat(slotE.defaultDataSourcePolicy.systemDataSourceFallback).isEqualTo(
-                SystemDataSources.DATA_SOURCE_WATCH_BATTERY
-            )
+            assertThat(slotE.defaultDataSourcePolicy.systemDataSourceFallback)
+                .isEqualTo(SystemDataSources.DATA_SOURCE_WATCH_BATTERY)
             assertThat(slotE.defaultDataSourcePolicy.systemDataSourceFallbackDefaultType)
                 .isEqualTo(ComplicationType.WEIGHTED_ELEMENTS)
 
@@ -375,36 +375,76 @@ public class XmlDefinedUserStyleSchemaAndComplicationSlotsTest {
             val complications = flavor.complications
             assertThat(complications.size).isEqualTo(1)
             val complicationPolicy = complications[10]!!
-            assertThat(complicationPolicy.primaryDataSource).isEqualTo(
-                ComponentName("com.package", "com.app"))
-            assertThat(complicationPolicy.primaryDataSourceDefaultType).isEqualTo(
-                ComplicationType.SHORT_TEXT)
-            assertThat(complicationPolicy.systemDataSourceFallback).isEqualTo(
-                SystemDataSources.DATA_SOURCE_DAY_AND_DATE)
-            assertThat(complicationPolicy.systemDataSourceFallbackDefaultType).isEqualTo(
-                ComplicationType.SHORT_TEXT)
+            assertThat(complicationPolicy.primaryDataSource)
+                .isEqualTo(ComponentName("com.package", "com.app"))
+            assertThat(complicationPolicy.primaryDataSourceDefaultType)
+                .isEqualTo(ComplicationType.SHORT_TEXT)
+            assertThat(complicationPolicy.systemDataSourceFallback)
+                .isEqualTo(SystemDataSources.DATA_SOURCE_DAY_AND_DATE)
+            assertThat(complicationPolicy.systemDataSourceFallbackDefaultType)
+                .isEqualTo(ComplicationType.SHORT_TEXT)
 
             var fixedString = flavor.toString()
 
             // remove binary data from option values
             val booleanIndex = fixedString.indexOf("BooleanId=") + "BooleanId=".length
-            fixedString = fixedString.removeRange(booleanIndex,
-                fixedString.indexOf(',', booleanIndex))
+            fixedString =
+                fixedString.removeRange(booleanIndex, fixedString.indexOf(',', booleanIndex))
 
             val doubleIndex = fixedString.indexOf("DoubleId=") + "DoubleId=".length
-            fixedString = fixedString.removeRange(doubleIndex,
-                fixedString.indexOf(',', doubleIndex))
+            fixedString =
+                fixedString.removeRange(doubleIndex, fixedString.indexOf(',', doubleIndex))
 
             val longIndex = fixedString.indexOf("LongId=") + "LongId=".length
-            fixedString = fixedString.removeRange(longIndex,
-                fixedString.indexOf('}', longIndex))
+            fixedString = fixedString.removeRange(longIndex, fixedString.indexOf('}', longIndex))
 
-            assertThat(fixedString).isEqualTo("UserStyleFlavor[flavor1: " +
-                "{BooleanId=, TimeStyle=minimal, DoubleId=, LongId=}, " +
-                "{10=DefaultComplicationDataSourcePolicy[" +
-                    "primary(ComponentInfo{com.package/com.app}, SHORT_TEXT), " +
-                    "secondary(null, null), " +
-                    "system(16, SHORT_TEXT)]}]")
+            assertThat(fixedString)
+                .isEqualTo(
+                    "UserStyleFlavor[flavor1: " +
+                        "{BooleanId=, TimeStyle=minimal, DoubleId=, LongId=}, " +
+                        "{10=DefaultComplicationDataSourcePolicy[" +
+                        "primary(ComponentInfo{com.package/com.app}, SHORT_TEXT), " +
+                        "secondary(null, null), " +
+                        "system(16, SHORT_TEXT)]}]"
+                )
+        }
+    }
+
+    @Test
+    fun staticSchemaAndComplicationsRead_invalidXml() {
+        // test that when the xml cannot be parsed, the error is propagated and that
+        // the deferred values of the engine wrapper do not hang indefinitely
+        val wrapper = createAndMountTestService(R.xml.xml_watchface_invalid)
+        runBlocking {
+            val exception =
+                assertFailsWith<IllegalArgumentException> { wrapper.deferredValidation.await() }
+            assertThat(exception.message).contains("must have a systemDataSourceFallback attribute")
+            assertThat(wrapper.deferredWatchFaceImpl.isCancelled)
+        }
+    }
+
+    @Test
+    fun readsComplicationWithWeatherDefaultOnApi34() {
+        Assume.assumeTrue("This test runs only on API >= 34", Build.VERSION.SDK_INT >= 34)
+        val wrapper = createAndMountTestService(R.xml.xml_watchface_weather)
+        runBlocking {
+            val watchFaceImpl = wrapper.deferredWatchFaceImpl.await()
+            val complicationSlot = watchFaceImpl.complicationSlotsManager.complicationSlots[10]!!
+            assertThat(complicationSlot.defaultDataSourcePolicy.systemDataSourceFallback)
+                .isEqualTo(SystemDataSources.DATA_SOURCE_WEATHER)
+        }
+    }
+
+    @Test
+    fun throwsExceptionOnReadingComplicationWithWeatherDefaultOnApiBelow34() {
+        Assume.assumeTrue("This test runs only on API < 34", Build.VERSION.SDK_INT < 34)
+        val wrapper = createAndMountTestService(R.xml.xml_watchface_weather)
+
+        runBlocking {
+            val exception =
+                assertFailsWith<IllegalArgumentException> { wrapper.deferredValidation.await() }
+            assertThat(exception.message)
+                .contains("cannot have the supplied systemDataSourceFallback value")
         }
     }
 }

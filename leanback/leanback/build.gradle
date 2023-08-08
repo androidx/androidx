@@ -25,7 +25,6 @@ dependencies {
     // It can be removed if appcompat library is updated to a newer version
     implementation("androidx.vectordrawable:vectordrawable-animated:1.1.0")
 
-    androidTestImplementation(libs.kotlinStdlib)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)
@@ -55,7 +54,7 @@ android {
 }
 
 androidx {
-    name = "Android Support Leanback v17"
+    name = "Leanback"
     publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.LEANBACK
     inceptionYear = "2014"

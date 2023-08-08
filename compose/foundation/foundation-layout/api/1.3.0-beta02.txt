@@ -111,6 +111,9 @@ package androidx.compose.foundation.layout {
     method @androidx.compose.runtime.Stable public androidx.compose.ui.Modifier weight(androidx.compose.ui.Modifier, float weight, optional boolean fill);
   }
 
+  @kotlin.RequiresOptIn(message="The API of this layout is experimental and is likely to change in the future.") public @interface ExperimentalLayoutApi {
+  }
+
   public final class IntrinsicKt {
     method @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier height(androidx.compose.ui.Modifier, androidx.compose.foundation.layout.IntrinsicSize intrinsicSize);
     method @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier requiredHeight(androidx.compose.ui.Modifier, androidx.compose.foundation.layout.IntrinsicSize intrinsicSize);
@@ -126,6 +129,17 @@ package androidx.compose.foundation.layout {
   }
 
   @kotlin.DslMarker public @interface LayoutScopeMarker {
+  }
+
+  @androidx.compose.foundation.layout.ExperimentalLayoutApi public final class MutableWindowInsets implements androidx.compose.foundation.layout.WindowInsets {
+    ctor public MutableWindowInsets(optional androidx.compose.foundation.layout.WindowInsets initialInsets);
+    method public int getBottom(androidx.compose.ui.unit.Density density);
+    method public androidx.compose.foundation.layout.WindowInsets getInsets();
+    method public int getLeft(androidx.compose.ui.unit.Density density, androidx.compose.ui.unit.LayoutDirection layoutDirection);
+    method public int getRight(androidx.compose.ui.unit.Density density, androidx.compose.ui.unit.LayoutDirection layoutDirection);
+    method public int getTop(androidx.compose.ui.unit.Density density);
+    method public void setInsets(androidx.compose.foundation.layout.WindowInsets);
+    property public final androidx.compose.foundation.layout.WindowInsets insets;
   }
 
   public final class OffsetKt {
@@ -220,6 +234,7 @@ package androidx.compose.foundation.layout {
   }
 
   public final class WindowInsetsConnection_androidKt {
+    method @androidx.compose.foundation.layout.ExperimentalLayoutApi public static androidx.compose.ui.Modifier imeNestedScroll(androidx.compose.ui.Modifier);
   }
 
   public final class WindowInsetsKt {
@@ -234,7 +249,10 @@ package androidx.compose.foundation.layout {
   }
 
   public final class WindowInsetsPaddingKt {
+    method @androidx.compose.foundation.layout.ExperimentalLayoutApi @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier consumedWindowInsets(androidx.compose.ui.Modifier, androidx.compose.foundation.layout.WindowInsets insets);
+    method @androidx.compose.foundation.layout.ExperimentalLayoutApi @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier consumedWindowInsets(androidx.compose.ui.Modifier, androidx.compose.foundation.layout.PaddingValues paddingValues);
     method @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier windowInsetsPadding(androidx.compose.ui.Modifier, androidx.compose.foundation.layout.WindowInsets insets);
+    method @androidx.compose.foundation.layout.ExperimentalLayoutApi @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier withConsumedWindowInsets(androidx.compose.ui.Modifier, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.WindowInsets,kotlin.Unit> block);
   }
 
   public final class WindowInsetsPadding_androidKt {
@@ -284,20 +302,31 @@ package androidx.compose.foundation.layout {
   }
 
   public final class WindowInsets_androidKt {
+    method @androidx.compose.foundation.layout.ExperimentalLayoutApi @androidx.compose.runtime.Composable @androidx.compose.runtime.NonRestartableComposable public static boolean getAreNavigationBarsVisible(androidx.compose.foundation.layout.WindowInsets.Companion);
+    method @androidx.compose.foundation.layout.ExperimentalLayoutApi @androidx.compose.runtime.Composable @androidx.compose.runtime.NonRestartableComposable public static boolean getAreStatusBarsVisible(androidx.compose.foundation.layout.WindowInsets.Companion);
+    method @androidx.compose.foundation.layout.ExperimentalLayoutApi @androidx.compose.runtime.Composable @androidx.compose.runtime.NonRestartableComposable public static boolean getAreSystemBarsVisible(androidx.compose.foundation.layout.WindowInsets.Companion);
     method @androidx.compose.runtime.Composable @androidx.compose.runtime.NonRestartableComposable public static androidx.compose.foundation.layout.WindowInsets getCaptionBar(androidx.compose.foundation.layout.WindowInsets.Companion);
+    method @androidx.compose.foundation.layout.ExperimentalLayoutApi @androidx.compose.runtime.Composable @androidx.compose.runtime.NonRestartableComposable public static androidx.compose.foundation.layout.WindowInsets getCaptionBarIgnoringVisibility(androidx.compose.foundation.layout.WindowInsets.Companion);
     method public static boolean getConsumeWindowInsets(androidx.compose.ui.platform.ComposeView);
     method @androidx.compose.runtime.Composable @androidx.compose.runtime.NonRestartableComposable public static androidx.compose.foundation.layout.WindowInsets getDisplayCutout(androidx.compose.foundation.layout.WindowInsets.Companion);
     method @androidx.compose.runtime.Composable @androidx.compose.runtime.NonRestartableComposable public static androidx.compose.foundation.layout.WindowInsets getIme(androidx.compose.foundation.layout.WindowInsets.Companion);
     method @androidx.compose.runtime.Composable @androidx.compose.runtime.NonRestartableComposable public static androidx.compose.foundation.layout.WindowInsets getMandatorySystemGestures(androidx.compose.foundation.layout.WindowInsets.Companion);
     method @androidx.compose.runtime.Composable @androidx.compose.runtime.NonRestartableComposable public static androidx.compose.foundation.layout.WindowInsets getNavigationBars(androidx.compose.foundation.layout.WindowInsets.Companion);
+    method @androidx.compose.foundation.layout.ExperimentalLayoutApi @androidx.compose.runtime.Composable @androidx.compose.runtime.NonRestartableComposable public static androidx.compose.foundation.layout.WindowInsets getNavigationBarsIgnoringVisibility(androidx.compose.foundation.layout.WindowInsets.Companion);
     method @androidx.compose.runtime.Composable @androidx.compose.runtime.NonRestartableComposable public static androidx.compose.foundation.layout.WindowInsets getSafeContent(androidx.compose.foundation.layout.WindowInsets.Companion);
     method @androidx.compose.runtime.Composable @androidx.compose.runtime.NonRestartableComposable public static androidx.compose.foundation.layout.WindowInsets getSafeDrawing(androidx.compose.foundation.layout.WindowInsets.Companion);
     method @androidx.compose.runtime.Composable @androidx.compose.runtime.NonRestartableComposable public static androidx.compose.foundation.layout.WindowInsets getSafeGestures(androidx.compose.foundation.layout.WindowInsets.Companion);
     method @androidx.compose.runtime.Composable @androidx.compose.runtime.NonRestartableComposable public static androidx.compose.foundation.layout.WindowInsets getStatusBars(androidx.compose.foundation.layout.WindowInsets.Companion);
+    method @androidx.compose.foundation.layout.ExperimentalLayoutApi @androidx.compose.runtime.Composable @androidx.compose.runtime.NonRestartableComposable public static androidx.compose.foundation.layout.WindowInsets getStatusBarsIgnoringVisibility(androidx.compose.foundation.layout.WindowInsets.Companion);
     method @androidx.compose.runtime.Composable @androidx.compose.runtime.NonRestartableComposable public static androidx.compose.foundation.layout.WindowInsets getSystemBars(androidx.compose.foundation.layout.WindowInsets.Companion);
+    method @androidx.compose.foundation.layout.ExperimentalLayoutApi @androidx.compose.runtime.Composable @androidx.compose.runtime.NonRestartableComposable public static androidx.compose.foundation.layout.WindowInsets getSystemBarsIgnoringVisibility(androidx.compose.foundation.layout.WindowInsets.Companion);
     method @androidx.compose.runtime.Composable @androidx.compose.runtime.NonRestartableComposable public static androidx.compose.foundation.layout.WindowInsets getSystemGestures(androidx.compose.foundation.layout.WindowInsets.Companion);
     method @androidx.compose.runtime.Composable @androidx.compose.runtime.NonRestartableComposable public static androidx.compose.foundation.layout.WindowInsets getTappableElement(androidx.compose.foundation.layout.WindowInsets.Companion);
+    method @androidx.compose.foundation.layout.ExperimentalLayoutApi @androidx.compose.runtime.Composable @androidx.compose.runtime.NonRestartableComposable public static androidx.compose.foundation.layout.WindowInsets getTappableElementIgnoringVisibility(androidx.compose.foundation.layout.WindowInsets.Companion);
     method @androidx.compose.runtime.Composable @androidx.compose.runtime.NonRestartableComposable public static androidx.compose.foundation.layout.WindowInsets getWaterfall(androidx.compose.foundation.layout.WindowInsets.Companion);
+    method @androidx.compose.foundation.layout.ExperimentalLayoutApi @androidx.compose.runtime.Composable @androidx.compose.runtime.NonRestartableComposable public static boolean isCaptionBarVisible(androidx.compose.foundation.layout.WindowInsets.Companion);
+    method @androidx.compose.foundation.layout.ExperimentalLayoutApi @androidx.compose.runtime.Composable @androidx.compose.runtime.NonRestartableComposable public static boolean isImeVisible(androidx.compose.foundation.layout.WindowInsets.Companion);
+    method @androidx.compose.foundation.layout.ExperimentalLayoutApi @androidx.compose.runtime.Composable @androidx.compose.runtime.NonRestartableComposable public static boolean isTappableElementVisible(androidx.compose.foundation.layout.WindowInsets.Companion);
     method public static void setConsumeWindowInsets(androidx.compose.ui.platform.ComposeView, boolean);
   }
 

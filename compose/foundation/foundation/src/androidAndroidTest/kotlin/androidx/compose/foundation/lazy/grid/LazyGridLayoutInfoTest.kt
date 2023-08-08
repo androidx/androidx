@@ -36,6 +36,7 @@ import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import kotlinx.coroutines.runBlocking
+import org.junit.Assume
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -490,6 +491,33 @@ class LazyGridLayoutInfoTest(
             assertThat(state.layoutInfo.viewportStartOffset).isEqualTo(0)
             assertThat(state.layoutInfo.viewportEndOffset).isEqualTo(itemSizePx * 5)
             state.layoutInfo.assertVisibleItems(count = 8, cells = 2, startOffset = itemSizePx)
+        }
+    }
+
+    @Test
+    fun contentTypeIsCorrect() {
+        // no reasons to run the test in all variants
+        Assume.assumeTrue(vertical && !reverseLayout)
+
+        val state = LazyGridState()
+        rule.setContent {
+            LazyGrid(
+                cells = 1,
+                state = state,
+                modifier = Modifier.requiredSize(itemSizeDp * 3f)
+            ) {
+                items(2, contentType = { it }) {
+                    Box(Modifier.requiredSize(itemSizeDp))
+                }
+                item {
+                    Box(Modifier.requiredSize(itemSizeDp))
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            assertThat(state.layoutInfo.visibleItemsInfo.map { it.contentType })
+                .isEqualTo(listOf(0, 1, null))
         }
     }
 

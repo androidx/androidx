@@ -24,6 +24,8 @@ import androidx.annotation.NonNull;
  * The information required when a {@link ListenableWorker} runs in the context of a foreground
  * service.
  */
+// NOTE: once this file is migrated to Kotlin, corresponding stub in lint rules should be migrated.
+// As a result lint checks should start relying on parameter names instead.
 public final class ForegroundInfo {
 
     private final int mNotificationId;

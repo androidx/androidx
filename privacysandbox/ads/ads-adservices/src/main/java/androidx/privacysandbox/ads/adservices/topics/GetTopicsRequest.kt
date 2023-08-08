@@ -64,7 +64,10 @@ class GetTopicsRequest public constructor(
          *
          * @param adsSdkName the Ads Sdk Name.
          */
-        fun setAdsSdkName(adsSdkName: String): Builder = apply { this.adsSdkName = adsSdkName }
+        fun setAdsSdkName(adsSdkName: String): Builder = apply {
+            check(adsSdkName.isNotEmpty()) { "adsSdkName must be set" }
+            this.adsSdkName = adsSdkName
+        }
 
         /**
          * Set the Record Observation.
@@ -80,7 +83,6 @@ class GetTopicsRequest public constructor(
 
         /** Builds a [GetTopicsRequest] instance. */
         fun build(): GetTopicsRequest {
-            check(adsSdkName.isNotEmpty()) { "adsSdkName must be set" }
             return GetTopicsRequest(adsSdkName, shouldRecordObservation)
         }
     }

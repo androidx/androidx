@@ -29,7 +29,6 @@ public enum class WatchFaceLayer {
 
     public companion object {
         /** A [Set] of all [WatchFaceLayer]s. */
-        @JvmField
-        public val ALL_WATCH_FACE_LAYERS: Set<WatchFaceLayer> = values().toSet()
+        @JvmField public val ALL_WATCH_FACE_LAYERS: Set<WatchFaceLayer> = values().toSet()
     }
 }

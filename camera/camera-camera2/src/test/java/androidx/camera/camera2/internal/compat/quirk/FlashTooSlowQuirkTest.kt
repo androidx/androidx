@@ -30,6 +30,8 @@ import org.robolectric.shadow.api.Shadow
 import org.robolectric.shadows.ShadowBuild
 import org.robolectric.shadows.ShadowCameraCharacteristics
 
+private const val CAMERA_ID_0 = "0"
+
 @RunWith(ParameterizedRobolectricTestRunner::class)
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
@@ -45,7 +47,15 @@ class FlashTooSlowQuirkTest(
             arrayOf("Pixel 3a", CameraCharacteristics.LENS_FACING_BACK, true),
             arrayOf("Pixel 3a", CameraCharacteristics.LENS_FACING_FRONT, false),
             arrayOf("Pixel 3a XL", CameraCharacteristics.LENS_FACING_BACK, true),
-            arrayOf("Pixel 4", CameraCharacteristics.LENS_FACING_BACK, false),
+            arrayOf("Pixel 4", CameraCharacteristics.LENS_FACING_BACK, true),
+            arrayOf("Pixel 4 XL", CameraCharacteristics.LENS_FACING_BACK, true),
+            arrayOf("Pixel 4a", CameraCharacteristics.LENS_FACING_BACK, true),
+            arrayOf("Pixel 4a (5g)", CameraCharacteristics.LENS_FACING_BACK, true),
+            arrayOf("Pixel 5", CameraCharacteristics.LENS_FACING_BACK, true),
+            arrayOf("Pixel 5a", CameraCharacteristics.LENS_FACING_BACK, true),
+            arrayOf("Pixel 6", CameraCharacteristics.LENS_FACING_BACK, false),
+            arrayOf("sm-a320f", CameraCharacteristics.LENS_FACING_BACK, true),
+            arrayOf("SM-A320FL", CameraCharacteristics.LENS_FACING_BACK, true),
             arrayOf("Samsung S7", CameraCharacteristics.LENS_FACING_BACK, false),
         )
     }
@@ -60,8 +70,8 @@ class FlashTooSlowQuirkTest(
             lensFacing
         )
         val characteristicsCompat =
-            CameraCharacteristicsCompat.toCameraCharacteristicsCompat(characteristics)
-        return CameraQuirks.get("0" /* don't care */, characteristicsCompat)
+            CameraCharacteristicsCompat.toCameraCharacteristicsCompat(characteristics, CAMERA_ID_0)
+        return CameraQuirks.get(CAMERA_ID_0, characteristicsCompat)
     }
 
     @Test

@@ -1,19 +1,26 @@
 package com.mysdk
 
-import com.mysdk.ResponseConverter.toParcelable
+import android.content.Context
+import androidx.privacysandbox.ui.provider.toCoreLibInfo
 
 public class MyCallbackClientProxy(
     public val remote: IMyCallback,
+    public val context: Context,
 ) : MyCallback {
-    public override fun onComplete(response: Response): Unit {
-        remote.onComplete(toParcelable(response))
+    public override fun onComplete(response: Response) {
+        remote.onComplete(ResponseConverter(context).toParcelable(response))
     }
 
-    public override fun onClick(x: Int, y: Int): Unit {
+    public override fun onClick(x: Int, y: Int) {
         remote.onClick(x, y)
     }
 
-    public override fun onCompleteInterface(myInterface: MyInterface): Unit {
-        remote.onCompleteInterface(MyInterfaceStubDelegate(myInterface))
+    public override fun onCompleteInterface(myInterface: MyInterface) {
+        remote.onCompleteInterface(MyInterfaceStubDelegate(myInterface, context))
+    }
+
+    public override fun onCompleteUiInterface(myUiInterface: MyUiInterface) {
+        remote.onCompleteUiInterface(IMyUiInterfaceCoreLibInfoAndBinderWrapperConverter.toParcelable(myUiInterface.toCoreLibInfo(context),
+                MyUiInterfaceStubDelegate(myUiInterface, context)))
     }
 }

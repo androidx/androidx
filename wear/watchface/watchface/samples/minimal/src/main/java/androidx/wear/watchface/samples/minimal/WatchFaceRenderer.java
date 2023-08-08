@@ -29,8 +29,6 @@ import androidx.wear.watchface.Renderer;
 import androidx.wear.watchface.WatchState;
 import androidx.wear.watchface.style.CurrentUserStyleRepository;
 
-import org.jetbrains.annotations.NotNull;
-
 import java.time.ZonedDateTime;
 import java.util.concurrent.TimeUnit;
 
@@ -49,10 +47,14 @@ public class WatchFaceRenderer extends Renderer.CanvasRenderer {
     private final char[] mTimeText = new char[5];
 
     public WatchFaceRenderer(
-            @NotNull SurfaceHolder surfaceHolder,
-            @NotNull CurrentUserStyleRepository currentUserStyleRepository,
-            @NotNull WatchState watchState) {
-        super(surfaceHolder, currentUserStyleRepository, watchState, CanvasType.HARDWARE,
+            @NonNull SurfaceHolder surfaceHolder,
+            @NonNull CurrentUserStyleRepository currentUserStyleRepository,
+            @NonNull WatchState watchState) {
+        super(
+                surfaceHolder,
+                currentUserStyleRepository,
+                watchState,
+                CanvasType.HARDWARE,
                 UPDATE_DELAY_MILLIS);
         mWatchState = watchState;
         mPaint = new Paint();
@@ -61,8 +63,8 @@ public class WatchFaceRenderer extends Renderer.CanvasRenderer {
     }
 
     @Override
-    public void render(@NotNull Canvas canvas, @NotNull Rect rect,
-            @NotNull ZonedDateTime zonedDateTime) {
+    public void render(
+            @NonNull Canvas canvas, @NonNull Rect rect, @NonNull ZonedDateTime zonedDateTime) {
         mPaint.setColor(Color.BLACK);
         canvas.drawRect(rect, mPaint);
         mPaint.setColor(Color.WHITE);
@@ -77,7 +79,8 @@ public class WatchFaceRenderer extends Renderer.CanvasRenderer {
         mTimeText[2] = second % 2 == 0 ? ':' : ' ';
         mTimeText[3] = DIGITS[minute / 10];
         mTimeText[4] = DIGITS[minute % 10];
-        canvas.drawText(mTimeText,
+        canvas.drawText(
+                mTimeText,
                 0,
                 5,
                 rect.centerX(),
@@ -86,8 +89,8 @@ public class WatchFaceRenderer extends Renderer.CanvasRenderer {
     }
 
     @Override
-    public void renderHighlightLayer(@NonNull Canvas canvas, @NonNull Rect bounds,
-            @NonNull ZonedDateTime zonedDateTime) {
+    public void renderHighlightLayer(
+            @NonNull Canvas canvas, @NonNull Rect bounds, @NonNull ZonedDateTime zonedDateTime) {
         canvas.drawColor(getRenderParameters().getHighlightLayer().getBackgroundTint());
     }
 }

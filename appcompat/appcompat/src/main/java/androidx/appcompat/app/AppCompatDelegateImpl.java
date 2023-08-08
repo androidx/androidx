@@ -133,7 +133,6 @@ import java.util.List;
 import java.util.Locale;
 
 /**
- * @hide
  */
 @RestrictTo(LIBRARY)
 class AppCompatDelegateImpl extends AppCompatDelegate
@@ -378,6 +377,7 @@ class AppCompatDelegateImpl extends AppCompatDelegate
                 mBackCallback = Api33Impl.registerOnBackPressedCallback(mDispatcher, this);
             } else if (!shouldRegister && mBackCallback != null) {
                 Api33Impl.unregisterOnBackInvokedCallback(mDispatcher, mBackCallback);
+                mBackCallback = null;
             }
         }
     }
@@ -1576,7 +1576,6 @@ class AppCompatDelegateImpl extends AppCompatDelegate
 
     boolean dispatchKeyEvent(KeyEvent event) {
         // Check AppCompatDialog directly since it isn't able to implement KeyEventDispatcher
-        // while it is @hide.
         if (mHost instanceof KeyEventDispatcher.Component || mHost instanceof AppCompatDialog) {
             View root = mWindow.getDecorView();
             if (root != null && KeyEventDispatcher.dispatchBeforeHierarchy(root, event)) {
@@ -2948,7 +2947,6 @@ class AppCompatDelegateImpl extends AppCompatDelegate
     }
 
     /**
-     * @hide
      */
     @NonNull
     @RestrictTo(LIBRARY)
@@ -3637,7 +3635,6 @@ class AppCompatDelegateImpl extends AppCompatDelegate
     }
 
     /**
-     * @hide
      */
     @VisibleForTesting
     @RestrictTo(LIBRARY)

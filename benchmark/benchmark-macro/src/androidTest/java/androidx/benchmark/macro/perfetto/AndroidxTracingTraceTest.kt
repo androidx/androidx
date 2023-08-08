@@ -19,13 +19,18 @@ package androidx.benchmark.macro.perfetto
 import androidx.benchmark.macro.FileLinkingRule
 import androidx.benchmark.macro.Packages
 import androidx.benchmark.perfetto.PerfettoCapture
+import androidx.benchmark.perfetto.PerfettoConfig
 import androidx.benchmark.perfetto.PerfettoHelper
 import androidx.benchmark.perfetto.PerfettoHelper.Companion.isAbiSupported
+import androidx.benchmark.perfetto.PerfettoTraceProcessor
+import androidx.benchmark.perfetto.toSlices
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.tracing.Trace
 import androidx.tracing.trace
+import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 import org.junit.After
 import org.junit.Assert.assertTrue
 import org.junit.Assume.assumeTrue
@@ -33,8 +38,6 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 
 /**
  * Tests for androidx.tracing.Trace, which validate actual trace content
@@ -64,7 +67,12 @@ class AndroidxTracingTraceTest {
 
         verifyTraceEnable(false)
 
-        perfettoCapture.start(listOf(Packages.TEST))
+        perfettoCapture.start(
+            PerfettoConfig.Benchmark(
+                appTagPackages = listOf(Packages.TEST),
+                useStackSamplingConfig = false
+            )
+        )
 
         assertTrue(
             Trace.isEnabled(),
@@ -94,8 +102,8 @@ class AndroidxTracingTraceTest {
 
         perfettoCapture.stop(traceFilePath)
 
-        val queryResult = PerfettoTraceProcessor.runServer(traceFilePath) {
-            rawQuery(query = QUERY)
+        val queryResult = PerfettoTraceProcessor.runSingleSessionServer(traceFilePath) {
+            query(query = QUERY)
         }
 
         val matchingSlices = queryResult.toSlices()

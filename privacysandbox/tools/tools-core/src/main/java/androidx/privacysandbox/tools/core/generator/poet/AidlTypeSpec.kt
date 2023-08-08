@@ -18,9 +18,15 @@ package androidx.privacysandbox.tools.core.generator.poet
 
 import androidx.privacysandbox.tools.core.model.Type
 
+internal enum class AidlTypeKind {
+    PRIMITIVE,
+    PARCELABLE,
+    INTERFACE,
+}
+
 internal data class AidlTypeSpec(
     val innerType: Type,
-    val requiresImport: Boolean = true,
+    val kind: AidlTypeKind,
     val isList: Boolean = false,
 ) {
     override fun toString() = buildString {
@@ -31,6 +37,9 @@ internal data class AidlTypeSpec(
     /** Returns a new type spec representing a list of this type. */
     fun listSpec(): AidlTypeSpec {
         require(!isList) { "Nested lists are not supported." }
-        return AidlTypeSpec(innerType, requiresImport, isList = true)
+        return copy(isList = true)
     }
+
+    val requiresImport = kind != AidlTypeKind.PRIMITIVE
+    val isParcelable = kind == AidlTypeKind.PARCELABLE
 }

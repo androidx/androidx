@@ -23,7 +23,6 @@ import androidx.annotation.RestrictTo;
 /**
  * Helper for accessing features in {@link android.util.DebugUtils}.
  *
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 public class DebugUtils {

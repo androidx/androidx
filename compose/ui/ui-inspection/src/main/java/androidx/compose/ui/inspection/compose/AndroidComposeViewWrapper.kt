@@ -99,7 +99,7 @@ class AndroidComposeViewWrapper(
 
     init {
         ThreadUtils.assertOnMainThread()
-        check(composeView.isAndroidComposeView())
+        check(composeView.isAndroidComposeView()) { "Invalid view" }
     }
 
     val viewParent =

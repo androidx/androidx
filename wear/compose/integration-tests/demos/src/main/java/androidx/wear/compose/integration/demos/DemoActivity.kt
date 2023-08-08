@@ -36,6 +36,9 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalView
 import androidx.core.app.ActivityCompat
+import androidx.wear.compose.integration.demos.common.ActivityDemo
+import androidx.wear.compose.integration.demos.common.Demo
+import androidx.wear.compose.integration.demos.common.DemoCategory
 import androidx.wear.compose.material.MaterialTheme
 
 /**
@@ -143,9 +146,9 @@ private class Navigator private constructor(
                 (navigator.backStack + navigator.currentDemo).map { it.title }
             },
             restore = { restored ->
-                require(restored.isNotEmpty())
+                require(restored.isNotEmpty()) { "restored demo is empty" }
                 val backStack = restored.mapTo(mutableListOf()) {
-                    requireNotNull(findDemo(rootDemo, it))
+                    requireNotNull(findDemo(rootDemo, it)) { "No root demo" }
                 }
                 val initial = backStack.removeAt(backStack.lastIndex)
                 Navigator(backDispatcher, launchActivityDemo, rootDemo, initial, backStack)

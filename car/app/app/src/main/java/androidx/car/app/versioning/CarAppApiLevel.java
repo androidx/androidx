@@ -22,7 +22,6 @@ import androidx.annotation.RestrictTo;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
-/** @hide */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @IntDef(value = {
         CarAppApiLevels.UNKNOWN,
@@ -31,7 +30,8 @@ import java.lang.annotation.RetentionPolicy;
         CarAppApiLevels.LEVEL_3,
         CarAppApiLevels.LEVEL_4,
         CarAppApiLevels.LEVEL_5,
-        CarAppApiLevels.LEVEL_6})
+        CarAppApiLevels.LEVEL_6,
+        CarAppApiLevels.LEVEL_7})
 @Retention(RetentionPolicy.SOURCE)
 public @interface CarAppApiLevel {
 }

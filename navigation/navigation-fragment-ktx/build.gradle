@@ -30,7 +30,7 @@ dependencies {
 }
 
 androidx {
-    name = "Android Navigation Fragment Kotlin Extensions"
+    name = "Navigation Fragment Kotlin Extensions"
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2018"
     description = "Android Navigation-Fragment-Ktx"

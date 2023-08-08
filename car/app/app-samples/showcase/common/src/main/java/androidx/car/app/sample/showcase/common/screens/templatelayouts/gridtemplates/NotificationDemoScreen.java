@@ -257,7 +257,7 @@ public final class NotificationDemoScreen extends Screen implements DefaultLifec
                                 .setContentText(text)
                                 .setContentIntent(
                                         CarPendingIntent.getCarApp(getCarContext(), 0,
-                                                new Intent(Intent.ACTION_VIEW).setComponent(
+                                                new Intent().setComponent(
                                                         new ComponentName(getCarContext(),
                                                                 ShowcaseService.class)), 0))
                                 .setColor(CarColor.PRIMARY)

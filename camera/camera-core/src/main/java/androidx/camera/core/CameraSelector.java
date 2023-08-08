@@ -83,7 +83,6 @@ public final class CameraSelector {
      * @return The first camera filtered.
      * @throws IllegalArgumentException If there's no available camera after filtering or the
      *                                  filtered cameras aren't contained in the input set.
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -119,6 +118,8 @@ public final class CameraSelector {
      * @return The remaining list of camera infos.
      * @throws UnsupportedOperationException If the {@link CameraFilter}s assigned to the selector
      *                                       try to modify the input camera infos list.
+     * @throws IllegalArgumentException If the device cannot return the necessary information for
+     *                                  filtering, it will throw this exception.
      */
     @NonNull
     public List<CameraInfo> filter(@NonNull List<CameraInfo> cameraInfos) {
@@ -140,7 +141,6 @@ public final class CameraSelector {
      * @param cameras The camera set being filtered.
      * @return The remaining set of cameras.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -165,7 +165,6 @@ public final class CameraSelector {
     /**
      * Gets the set of {@link CameraFilter} assigned to this camera selector.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -181,7 +180,6 @@ public final class CameraSelector {
      * @throws IllegalStateException if a single lens facing cannot be resolved, such as if
      *                               multiple conflicting lens facing requirements exist in this
      *                               camera selector.
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -263,7 +261,6 @@ public final class CameraSelector {
          *
          * @param cameraSelector An existing CameraSelector.
          * @return The new Builder.
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -283,7 +280,6 @@ public final class CameraSelector {
     /**
      * The direction the camera faces relative to device screen.
      *
-     * @hide
      */
     @OptIn(markerClass = ExperimentalLensFacing.class)
     @IntDef({LENS_FACING_UNKNOWN, LENS_FACING_FRONT, LENS_FACING_BACK, LENS_FACING_EXTERNAL})

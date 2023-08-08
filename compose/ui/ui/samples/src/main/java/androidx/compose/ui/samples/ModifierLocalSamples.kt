@@ -28,8 +28,8 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.modifier.modifierLocalConsumer
-import androidx.compose.ui.modifier.modifierLocalProvider
 import androidx.compose.ui.modifier.modifierLocalOf
+import androidx.compose.ui.modifier.modifierLocalProvider
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Sampled

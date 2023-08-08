@@ -7,8 +7,12 @@ dependencies {
     implementation(project(":appcompat:appcompat"))
     implementation(project(":mediarouter:mediarouter"))
     implementation(project(":recyclerview:recyclerview"))
-    implementation("androidx.concurrent:concurrent-futures:1.1.0")
+    implementation(project(":concurrent:concurrent-futures"))
+    implementation(project(":swiperefreshlayout:swiperefreshlayout"))
+
     implementation(libs.material)
+    implementation(libs.multidex)
+    implementation(libs.guava)
 }
 
 android {
@@ -20,6 +24,7 @@ android {
     }
     defaultConfig {
         vectorDrawables.useSupportLibrary = true
+        multiDexEnabled true
     }
     lint {
         baseline = file("lint-baseline.xml")

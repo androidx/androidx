@@ -138,7 +138,6 @@ public abstract class Screen implements LifecycleOwner {
     /**
      * Returns the result set via {@link #setResult}, or {@code null} if none is set.
      *
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
     @Nullable
@@ -322,7 +321,6 @@ public abstract class Screen implements LifecycleOwner {
     /**
      * Dispatches lifecycle event for {@code event} on the main thread.
      *
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
     // Restrict to testing library

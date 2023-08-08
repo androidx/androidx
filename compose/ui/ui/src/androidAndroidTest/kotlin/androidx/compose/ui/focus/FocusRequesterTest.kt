@@ -28,11 +28,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
+import androidx.compose.ui.focus.focusRequester as modifierNodeFocusRequester
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.focus.focusRequester as modifierNodeFocusRequester
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
@@ -369,7 +369,37 @@ class FocusRequesterTest(private val modifierNodeVersion: Boolean) {
     }
 
     @Test
-    fun requestFocus_DisabledParent_doesNotPerformImplicitEnterIfCanFocusIsFalse() {
+    fun requestFocus_DisabledParent_performsImplicitEnterIfCanFocusIsFalse() {
+        // Arrange.
+        lateinit var childFocusState: FocusState
+        val focusRequester = FocusRequester()
+        rule.setFocusableContent {
+            Box(
+                modifier = Modifier
+                    .focusRequester(focusRequester)
+                    .focusProperties { canFocus = false }
+                    .focusTarget()
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(10.dp)
+                        .onFocusChanged { childFocusState = it }
+                        .focusTarget()
+                )
+            }
+        }
+
+        rule.runOnIdle {
+            // Act.
+            focusRequester.requestFocus()
+
+            // Assert.
+            assertThat(childFocusState.isFocused).isTrue()
+        }
+    }
+
+    @Test
+    fun requestFocus_DisabledParent_implicitEnterCanBeCancelled() {
         // Arrange.
         lateinit var childFocusState: FocusState
         val focusRequester = FocusRequester()
@@ -386,6 +416,7 @@ class FocusRequesterTest(private val modifierNodeVersion: Boolean) {
             ) {
                 Box(
                     modifier = Modifier
+                        .size(10.dp)
                         .onFocusChanged { childFocusState = it }
                         .focusTarget()
                 )
@@ -409,17 +440,20 @@ class FocusRequesterTest(private val modifierNodeVersion: Boolean) {
         rule.setFocusableContent {
             Box(
                 modifier = Modifier
+                    .size(10.dp)
                     .focusRequester(focusRequester)
                     .focusProperties { canFocus = false }
                     .focusTarget()
             ) {
                 Box(
                     modifier = Modifier
+                        .size(10.dp)
                         .onFocusChanged { childFocusState = it }
                         .focusTarget()
                 )
                 Box(
                     modifier = Modifier
+                        .size(10.dp)
                         .focusProperties {
                             canFocus = false
                             @OptIn(ExperimentalComposeUiApi::class)
@@ -427,7 +461,11 @@ class FocusRequesterTest(private val modifierNodeVersion: Boolean) {
                         }
                         .focusTarget()
                 ) {
-                    Box(modifier = Modifier.focusTarget())
+                    Box(
+                        modifier = Modifier
+                            .size(10.dp)
+                            .focusTarget()
+                    )
                 }
             }
         }
@@ -545,11 +583,13 @@ class FocusRequesterTest(private val modifierNodeVersion: Boolean) {
             ) {
                 Box(
                     modifier = Modifier
+                        .size(10.dp)
                         .onFocusChanged { child1FocusState = it }
                         .focusTarget()
                 )
                 Box(
                     modifier = Modifier
+                        .size(10.dp)
                         .focusRequester(child2)
                         .onFocusChanged { child2FocusState = it }
                         .focusTarget()

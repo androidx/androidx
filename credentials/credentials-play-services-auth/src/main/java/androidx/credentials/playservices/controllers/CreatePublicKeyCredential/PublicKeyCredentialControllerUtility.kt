@@ -20,6 +20,10 @@ import android.util.Base64
 import android.util.Log
 import androidx.credentials.CreatePublicKeyCredentialRequest
 import androidx.credentials.GetPublicKeyCredentialOption
+import androidx.credentials.exceptions.CreateCredentialCancellationException
+import androidx.credentials.exceptions.CreateCredentialException
+import androidx.credentials.exceptions.GetCredentialCancellationException
+import androidx.credentials.exceptions.GetCredentialException
 import androidx.credentials.exceptions.domerrors.AbortError
 import androidx.credentials.exceptions.domerrors.ConstraintError
 import androidx.credentials.exceptions.domerrors.DataError
@@ -33,7 +37,7 @@ import androidx.credentials.exceptions.domerrors.SecurityError
 import androidx.credentials.exceptions.domerrors.TimeoutError
 import androidx.credentials.exceptions.domerrors.UnknownError
 import androidx.credentials.exceptions.publickeycredential.CreatePublicKeyCredentialDomException
-import androidx.credentials.exceptions.publickeycredential.CreatePublicKeyCredentialException
+import androidx.credentials.exceptions.publickeycredential.GetPublicKeyCredentialDomException
 import com.google.android.gms.auth.api.identity.BeginSignInRequest
 import com.google.android.gms.auth.api.identity.SignInCredential
 import com.google.android.gms.fido.common.Transport
@@ -63,14 +67,46 @@ import org.json.JSONObject
 
 /**
  * A utility class to handle logic for the begin sign in controller.
- *
- * @hide
  */
-class PublicKeyCredentialControllerUtility {
+internal class PublicKeyCredentialControllerUtility {
 
     companion object {
 
-        // TODO("Make string constants for keys to the json")
+        internal val JSON_KEY_CLIENT_DATA = "clientDataJSON"
+        internal val JSON_KEY_ATTESTATION_OBJ = "attestationObject"
+        internal val JSON_KEY_AUTH_DATA = "authenticatorData"
+        internal val JSON_KEY_SIGNATURE = "signature"
+        internal val JSON_KEY_USER_HANDLE = "userHandle"
+        internal val JSON_KEY_RESPONSE = "response"
+        internal val JSON_KEY_ID = "id"
+        internal val JSON_KEY_RAW_ID = "rawId"
+        internal val JSON_KEY_TYPE = "type"
+        internal val JSON_KEY_RPID = "rpId"
+        internal val JSON_KEY_CHALLENGE = "challenge"
+        internal val JSON_KEY_APPID = "appid"
+        internal val JSON_KEY_THIRD_PARTY_PAYMENT = "thirdPartyPayment"
+        internal val JSON_KEY_AUTH_SELECTION = "authenticatorSelection"
+        internal val JSON_KEY_REQUIRE_RES_KEY = "requireResidentKey"
+        internal val JSON_KEY_RES_KEY = "residentKey"
+        internal val JSON_KEY_AUTH_ATTACHMENT = "authenticatorAttachment"
+        internal val JSON_KEY_TIMEOUT = "timeout"
+        internal val JSON_KEY_EXCLUDE_CREDENTIALS = "excludeCredentials"
+        internal val JSON_KEY_TRANSPORTS = "transports"
+        internal val JSON_KEY_RP = "rp"
+        internal val JSON_KEY_NAME = "name"
+        internal val JSON_KEY_ICON = "icon"
+        internal val JSON_KEY_ALG = "alg"
+        internal val JSON_KEY_USER = "user"
+        internal val JSON_KEY_DISPLAY_NAME = "displayName"
+        internal val JSON_KEY_USER_VERIFICATION_METHOD = "userVerificationMethod"
+        internal val JSON_KEY_KEY_PROTECTION_TYPE = "keyProtectionType"
+        internal val JSON_KEY_MATCHER_PROTECTION_TYPE = "matcherProtectionType"
+        internal val JSON_KEY_EXTENSTIONS = "extensions"
+        internal val JSON_KEY_ATTESTATION = "attestation"
+        internal val JSON_KEY_PUB_KEY_CRED_PARAMS = "pubKeyCredParams"
+        internal val JSON_KEY_CLIENT_EXTENSION_RESULTS = "clientExtensionResults"
+        internal val JSON_KEY_RK = "rk"
+        internal val JSON_KEY_CRED_PROPS = "credProps"
 
         /**
          * This function converts a request json to a PublicKeyCredentialCreationOptions, where
@@ -106,118 +142,187 @@ class PublicKeyCredentialControllerUtility {
         fun toCreatePasskeyResponseJson(cred: PublicKeyCredential): String {
             val json = JSONObject()
             val authenticatorResponse = cred.response
-            // TODO("Ask why it is missing conditional mediation available")
             if (authenticatorResponse is AuthenticatorAttestationResponse) {
                 val responseJson = JSONObject()
                 responseJson.put(
-                    "clientDataJSON",
+                    JSON_KEY_CLIENT_DATA,
                     b64Encode(authenticatorResponse.clientDataJSON))
                 responseJson.put(
-                    "attestationObject",
+                    JSON_KEY_ATTESTATION_OBJ,
                     b64Encode(authenticatorResponse.attestationObject))
-                val transports = JSONArray(listOf(authenticatorResponse.transports))
-                responseJson.put("transports", transports)
-                json.put("response", responseJson)
+                val transportArray = convertToProperNamingScheme(authenticatorResponse)
+                val transports = JSONArray(transportArray)
+
+                responseJson.put(JSON_KEY_TRANSPORTS, transports)
+                json.put(JSON_KEY_RESPONSE, responseJson)
             } else {
                 Log.e(TAG, "Authenticator response expected registration response but " +
                     "got: ${authenticatorResponse.javaClass.name}")
             }
 
-            addOptionalAuthenticatorAttachmentAndExtensions(cred, json)
+            addOptionalAuthenticatorAttachmentAndRequiredExtensions(
+                cred.authenticatorAttachment,
+                cred.clientExtensionResults != null,
+                cred.clientExtensionResults?.credProps?.isDiscoverableCredential,
+                json
+            )
 
-            json.put("id", cred.id)
-            json.put("rawId", b64Encode(cred.rawId))
-            json.put("type", cred.type)
+            json.put(JSON_KEY_ID, cred.id)
+            json.put(JSON_KEY_RAW_ID, b64Encode(cred.rawId))
+            json.put(JSON_KEY_TYPE, cred.type)
             return json.toString()
         }
 
-        private fun addOptionalAuthenticatorAttachmentAndExtensions(
-            cred: PublicKeyCredential,
+        private fun convertToProperNamingScheme(
+            authenticatorResponse: AuthenticatorAttestationResponse
+        ): Array<out String> {
+            val transportArray = authenticatorResponse.transports
+            var ix = 0
+            for (transport in transportArray) {
+                if (transport == "cable") {
+                    transportArray[ix] = "hybrid"
+                }
+                ix += 1
+            }
+            return transportArray
+        }
+
+        // This can be shared by both get and create flow response parsers
+        private fun addOptionalAuthenticatorAttachmentAndRequiredExtensions(
+            authenticatorAttachment: String?,
+            hasClientExtensionResults: Boolean,
+            isDiscoverableCredential: Boolean?,
             json: JSONObject
         ) {
-            val authenticatorAttachment = cred.authenticatorAttachment
-            val clientExtensionResults = cred.clientExtensionResults
 
             if (authenticatorAttachment != null) {
-                json.put("authenticatorAttachment", authenticatorAttachment)
+                json.put(JSON_KEY_AUTH_ATTACHMENT, authenticatorAttachment)
             }
 
-            if (clientExtensionResults != null) {
+            val clientExtensionsJson = JSONObject()
+
+            if (hasClientExtensionResults) {
                 try {
-                    val uvmEntries = clientExtensionResults.uvmEntries
-                    val uvmEntriesList = uvmEntries.uvmEntryList
-                    if (uvmEntriesList != null) {
-                        val uvmEntriesJSON = JSONArray()
-                        for (entry in uvmEntriesList) {
-                            val uvmEntryJSON = JSONObject()
-                            uvmEntryJSON.put("userVerificationMethod",
-                                entry.userVerificationMethod)
-                            uvmEntryJSON.put("keyProtectionType", entry.keyProtectionType)
-                            uvmEntryJSON.put("matcherProtectionType", entry.matcherProtectionType)
-                            uvmEntriesJSON.put(uvmEntryJSON)
-                        }
-                        json.put("uvm", uvmEntriesJSON)
+                    if (isDiscoverableCredential != null) {
+                        val credPropsObject = JSONObject()
+                        credPropsObject.put(JSON_KEY_RK, isDiscoverableCredential)
+                        clientExtensionsJson.put(JSON_KEY_CRED_PROPS, credPropsObject)
                     }
                 } catch (t: Throwable) {
                     Log.e(TAG, "ClientExtensionResults faced possible implementation " +
                         "inconsistency in uvmEntries - $t")
                 }
             }
+            json.put(JSON_KEY_CLIENT_EXTENSION_RESULTS, clientExtensionsJson)
         }
 
         fun toAssertPasskeyResponse(cred: SignInCredential): String {
-            val json = JSONObject()
+            var json = JSONObject()
             val publicKeyCred = cred.publicKeyCredential
-            val authenticatorResponse = publicKeyCred?.response!!
 
-            if (authenticatorResponse is AuthenticatorAssertionResponse) {
-                val responseJson = JSONObject()
-                responseJson.put(
-                    "clientDataJSON",
-                    b64Encode(authenticatorResponse.clientDataJSON)
-                )
-                responseJson.put(
-                    "authenticatorData",
-                    b64Encode(authenticatorResponse.authenticatorData)
-                )
-                responseJson.put(
-                    "signature",
-                    b64Encode(authenticatorResponse.signature)
-                )
-                authenticatorResponse.userHandle?.let {
-                    responseJson.put(
-                        "userHandle", b64Encode(authenticatorResponse.userHandle!!)
+            when (val authenticatorResponse = publicKeyCred?.response!!) {
+                is AuthenticatorErrorResponse -> {
+                    throw beginSignInPublicKeyCredentialResponseContainsError(
+                        authenticatorResponse.errorCode,
+                        authenticatorResponse.errorMessage)
+                }
+                is AuthenticatorAssertionResponse -> {
+                    beginSignInAssertionResponse(
+                        authenticatorResponse.clientDataJSON,
+                        authenticatorResponse.authenticatorData,
+                        authenticatorResponse.signature,
+                        authenticatorResponse.userHandle,
+                        json,
+                        publicKeyCred.id,
+                        publicKeyCred.rawId,
+                        publicKeyCred.type,
+                        publicKeyCred.authenticatorAttachment,
+                        publicKeyCred.clientExtensionResults != null,
+                        publicKeyCred.clientExtensionResults?.credProps?.isDiscoverableCredential
                     )
                 }
-                // TODO("attestation object is missing in fido impl")
-                json.put("response", responseJson)
-            } else {
+                else -> {
                 Log.e(
                     TAG,
                     "AuthenticatorResponse expected assertion response but " +
                         "got: ${authenticatorResponse.javaClass.name}")
+                }
             }
-            json.put("id", publicKeyCred.id)
-            json.put("rawId", b64Encode(publicKeyCred.rawId))
-            json.put("type", publicKeyCred.type)
             return json.toString()
+        }
+
+        internal fun beginSignInAssertionResponse(
+            clientDataJSON: ByteArray,
+            authenticatorData: ByteArray,
+            signature: ByteArray,
+            userHandle: ByteArray?,
+            json: JSONObject,
+            publicKeyCredId: String,
+            publicKeyCredRawId: ByteArray,
+            publicKeyCredType: String,
+            authenticatorAttachment: String?,
+            hasClientExtensionResults: Boolean,
+            isDiscoverableCredential: Boolean?
+        ) {
+            val responseJson = JSONObject()
+            responseJson.put(
+                JSON_KEY_CLIENT_DATA,
+                b64Encode(clientDataJSON)
+            )
+            responseJson.put(
+                JSON_KEY_AUTH_DATA,
+                b64Encode(authenticatorData)
+            )
+            responseJson.put(
+                JSON_KEY_SIGNATURE,
+                b64Encode(signature)
+            )
+            userHandle?.let {
+                responseJson.put(
+                    JSON_KEY_USER_HANDLE, b64Encode(userHandle)
+                )
+            }
+            json.put(JSON_KEY_RESPONSE, responseJson)
+            json.put(JSON_KEY_ID, publicKeyCredId)
+            json.put(JSON_KEY_RAW_ID, b64Encode(publicKeyCredRawId))
+            json.put(JSON_KEY_TYPE, publicKeyCredType)
+            addOptionalAuthenticatorAttachmentAndRequiredExtensions(
+                authenticatorAttachment,
+                hasClientExtensionResults,
+                isDiscoverableCredential,
+                json
+            )
         }
 
         /**
          * Converts from the Credential Manager public key credential option to the Play Auth
-         * Module passkey option.
+         * Module passkey json option.
          *
-         * @throws JSONException If rpId or challenge either do not
-         * exist or are empty in the initial request json
+         * @return the current auth module passkey request
          */
-        fun convertToPlayAuthPasskeyRequest(request: GetPublicKeyCredentialOption):
+        fun convertToPlayAuthPasskeyJsonRequest(option: GetPublicKeyCredentialOption):
+            BeginSignInRequest.PasskeyJsonRequestOptions {
+            return BeginSignInRequest.PasskeyJsonRequestOptions.Builder()
+                .setSupported(true)
+                .setRequestJson(option.requestJson)
+                .build()
+        }
+
+        /**
+         * Converts from the Credential Manager public key credential option to the Play Auth
+         * Module passkey option, used in a backwards compatible flow for the auth dependency.
+         *
+         * @return the backwards compatible auth module passkey request
+         */
+        @Deprecated("Upgrade GMS version so 'convertToPlayAuthPasskeyJsonRequest' is used")
+        @Suppress("deprecation")
+        fun convertToPlayAuthPasskeyRequest(option: GetPublicKeyCredentialOption):
             BeginSignInRequest.PasskeysRequestOptions {
-            // TODO : Make sure this is in compliance with w3
-            // TODO : Improve codebase readability as done here (readable error capture + docs/etc)
-            val json = JSONObject(request.requestJson)
-            val rpId = json.optString("rpId", "")
+            val json = JSONObject(option.requestJson)
+            val rpId = json.optString(JSON_KEY_RPID, "")
             if (rpId.isEmpty()) {
-                throw JSONException("GetPublicKeyCredentialOption - rpId not specified in the " +
+                throw JSONException(
+                    "GetPublicKeyCredentialOption - rpId not specified in the " +
                     "request or is unexpectedly empty")
             }
             val challenge = getChallenge(json)
@@ -229,9 +334,10 @@ class PublicKeyCredentialControllerUtility {
         }
 
         private fun getChallenge(json: JSONObject): ByteArray {
-            val challengeB64 = json.optString("challenge", "")
+            val challengeB64 = json.optString(JSON_KEY_CHALLENGE, "")
             if (challengeB64.isEmpty()) {
-                throw JSONException("Challenge not found in request or is unexpectedly empty")
+                throw JSONException(
+                    "Challenge not found in request or is unexpectedly empty")
             }
             return b64Decode(challengeB64)
         }
@@ -245,35 +351,75 @@ class PublicKeyCredentialControllerUtility {
          */
         fun publicKeyCredentialResponseContainsError(
             cred: PublicKeyCredential
-        ): CreatePublicKeyCredentialException? {
+        ): CreateCredentialException? {
             val authenticatorResponse: AuthenticatorResponse = cred.response
             if (authenticatorResponse is AuthenticatorErrorResponse) {
                 val code = authenticatorResponse.errorCode
                 var exceptionError = orderedErrorCodeToExceptions[code]
                 var msg = authenticatorResponse.errorMessage
-                val exception: CreatePublicKeyCredentialDomException
+                val exception: CreateCredentialException
                 if (exceptionError == null) {
                     exception = CreatePublicKeyCredentialDomException(
                         UnknownError(), "unknown fido gms exception - $msg"
                     )
-                } else { exception = CreatePublicKeyCredentialDomException(exceptionError, msg) }
+                } else {
+                    // This fix is quite fragile because it relies on that the fido module
+                    // does not change its error message, but is the only viable solution
+                    // because there's no other differentiator.
+                    if (code == ErrorCode.CONSTRAINT_ERR &&
+                        msg?.contains("Unable to get sync account") == true
+                    ) {
+                        exception = CreateCredentialCancellationException(
+                            "Passkey registration was cancelled by the user.")
+                    } else {
+                        exception = CreatePublicKeyCredentialDomException(exceptionError, msg)
+                    }
+                }
                 return exception
             }
             return null
+        }
+
+        // Helper method for the begin sign in flow to identify an authenticator error response
+        internal fun beginSignInPublicKeyCredentialResponseContainsError(
+            code: ErrorCode,
+            msg: String?,
+        ): GetCredentialException {
+            var exceptionError = orderedErrorCodeToExceptions[code]
+            val exception: GetCredentialException
+            if (exceptionError == null) {
+                exception = GetPublicKeyCredentialDomException(
+                    UnknownError(), "unknown fido gms exception - $msg"
+                )
+            } else {
+                // This fix is quite fragile because it relies on that the fido module
+                // does not change its error message, but is the only viable solution
+                // because there's no other differentiator.
+                if (code == ErrorCode.CONSTRAINT_ERR &&
+                    msg?.contains("Unable to get sync account") == true
+                ) {
+                    exception = GetCredentialCancellationException(
+                        "Passkey retrieval was cancelled by the user.")
+                } else {
+                    exception = GetPublicKeyCredentialDomException(exceptionError, msg)
+                }
+            }
+            return exception
         }
 
         internal fun parseOptionalExtensions(
             json: JSONObject,
             builder: PublicKeyCredentialCreationOptions.Builder
         ) {
-            if (json.has("extensions")) {
-                val extensions = json.getJSONObject("extensions")
+            if (json.has(JSON_KEY_EXTENSTIONS)) {
+                val extensions = json.getJSONObject(JSON_KEY_EXTENSTIONS)
                 val extensionBuilder = AuthenticationExtensions.Builder()
-                val appIdExtension = extensions.optString("appid", "")
+                val appIdExtension = extensions.optString(JSON_KEY_APPID, "")
                 if (appIdExtension.isNotEmpty()) {
                     extensionBuilder.setFido2Extension(FidoAppIdExtension(appIdExtension))
                 }
-                val thirdPartyPaymentExtension = extensions.optBoolean("thirdPartyPayment", false)
+                val thirdPartyPaymentExtension = extensions.optBoolean(
+                    JSON_KEY_THIRD_PARTY_PAYMENT, false)
                 if (thirdPartyPaymentExtension) {
                     extensionBuilder.setGoogleThirdPartyPaymentExtension(
                         GoogleThirdPartyPaymentExtension(true)
@@ -285,7 +431,6 @@ class PublicKeyCredentialControllerUtility {
                         UserVerificationMethodExtension(true)
                     )
                 }
-                // TODO("Ensure JSON keys are correctly named")
                 builder.setAuthenticationExtensions(extensionBuilder.build())
             }
         }
@@ -294,15 +439,15 @@ class PublicKeyCredentialControllerUtility {
             json: JSONObject,
             builder: PublicKeyCredentialCreationOptions.Builder
         ) {
-            if (json.has("authenticatorSelection")) {
+            if (json.has(JSON_KEY_AUTH_SELECTION)) {
                 val authenticatorSelection = json.getJSONObject(
-                    "authenticatorSelection"
+                    JSON_KEY_AUTH_SELECTION
                 )
                 val authSelectionBuilder = AuthenticatorSelectionCriteria.Builder()
                 val requireResidentKey = authenticatorSelection.optBoolean(
-                    "requireResidentKey", false)
+                    JSON_KEY_REQUIRE_RES_KEY, false)
                 val residentKey = authenticatorSelection
-                    .optString("residentKey", "")
+                    .optString(JSON_KEY_RES_KEY, "")
                 var residentKeyRequirement: ResidentKeyRequirement? = null
                 if (residentKey.isNotEmpty()) {
                     residentKeyRequirement = ResidentKeyRequirement.fromString(residentKey)
@@ -311,7 +456,7 @@ class PublicKeyCredentialControllerUtility {
                     .setRequireResidentKey(requireResidentKey)
                     .setResidentKeyRequirement(residentKeyRequirement)
                 val authenticatorAttachmentString = authenticatorSelection
-                    .optString("authenticatorAttachment", "")
+                    .optString(JSON_KEY_AUTH_ATTACHMENT, "")
                 if (authenticatorAttachmentString.isNotEmpty()) {
                     authSelectionBuilder.setAttachment(
                         Attachment.fromString(
@@ -319,7 +464,6 @@ class PublicKeyCredentialControllerUtility {
                         )
                     )
                 }
-                // TODO("Note userVerification is not settable in current impl")
                 builder.setAuthenticatorSelection(
                     authSelectionBuilder.build()
                 )
@@ -330,8 +474,8 @@ class PublicKeyCredentialControllerUtility {
             json: JSONObject,
             builder: PublicKeyCredentialCreationOptions.Builder
         ) {
-            if (json.has("timeout")) {
-                val timeout = json.getLong("timeout").toDouble() / 1000
+            if (json.has(JSON_KEY_TIMEOUT)) {
+                val timeout = json.getLong(JSON_KEY_TIMEOUT).toDouble() / 1000
                 builder.setTimeoutSeconds(timeout)
             }
         }
@@ -341,21 +485,27 @@ class PublicKeyCredentialControllerUtility {
             builder: PublicKeyCredentialCreationOptions.Builder
         ) {
             val excludeCredentialsList: MutableList<PublicKeyCredentialDescriptor> = ArrayList()
-            if (json.has("excludeCredentials")) {
-                val pubKeyDescriptorJSONs = json.getJSONArray("excludeCredentials")
+            if (json.has(JSON_KEY_EXCLUDE_CREDENTIALS)) {
+                val pubKeyDescriptorJSONs = json.getJSONArray(JSON_KEY_EXCLUDE_CREDENTIALS)
                 for (i in 0 until pubKeyDescriptorJSONs.length()) {
                     val descriptorJSON = pubKeyDescriptorJSONs.getJSONObject(i)
-                    val descriptorId = b64Decode(descriptorJSON.getString("id"))
-                    val descriptorType = descriptorJSON.getString("type")
-                    if (descriptorId.isEmpty() || descriptorType.isEmpty()) {
-                        throw JSONException("PublicKeyCredentialDescriptor id or type value not " +
+                    val descriptorId = b64Decode(descriptorJSON.getString(JSON_KEY_ID))
+                    val descriptorType = descriptorJSON.getString(JSON_KEY_TYPE)
+                    if (descriptorType.isEmpty()) {
+                        throw JSONException(
+                            "PublicKeyCredentialDescriptor type value is not " +
+                            "found or unexpectedly empty")
+                    }
+                    if (descriptorId.isEmpty()) {
+                        throw JSONException(
+                            "PublicKeyCredentialDescriptor id value is not " +
                             "found or unexpectedly empty")
                     }
                     var transports: MutableList<Transport>? = null
-                    if (descriptorJSON.has("transports")) {
+                    if (descriptorJSON.has(JSON_KEY_TRANSPORTS)) {
                         transports = ArrayList()
                         val descriptorTransports = descriptorJSON.getJSONArray(
-                            "transports"
+                            JSON_KEY_TRANSPORTS
                         )
                         for (j in 0 until descriptorTransports.length()) {
                             try {
@@ -372,12 +522,12 @@ class PublicKeyCredentialControllerUtility {
                             descriptorType,
                             descriptorId, transports
                         )
-                    ) // TODO("Confirm allowed mismatch with the spec such as the int algorithm")
+                    )
                 }
             }
             builder.setExcludeList(excludeCredentialsList)
 
-            var attestationString = json.optString("attestation", "none")
+            var attestationString = json.optString(JSON_KEY_ATTESTATION, "none")
             if (attestationString.isEmpty()) {
                 attestationString = "none"
             }
@@ -390,17 +540,21 @@ class PublicKeyCredentialControllerUtility {
             json: JSONObject,
             builder: PublicKeyCredentialCreationOptions.Builder
         ) {
-            val rp = json.getJSONObject("rp")
-            val rpId = rp.getString("id")
-            val rpName = rp.optString("name", "")
-            // TODO("Decided things not in the spec but in fido impl are used")
-            // TODO("Come back to this if that is ever updated")
-            var rpIcon: String? = rp.optString("icon", "")
+            val rp = json.getJSONObject(JSON_KEY_RP)
+            val rpId = rp.getString(JSON_KEY_ID)
+            val rpName = rp.optString(JSON_KEY_NAME, "")
+            var rpIcon: String? = rp.optString(JSON_KEY_ICON, "")
             if (rpIcon!!.isEmpty()) {
                 rpIcon = null
             }
-            if (rpName.isEmpty() || rpId.isEmpty()) {
-                throw JSONException("PublicKeyCredentialCreationOptions rp ID or rp name are " +
+            if (rpName.isEmpty()) {
+                throw JSONException(
+                    "PublicKeyCredentialCreationOptions rp name is " +
+                    "missing or unexpectedly empty")
+            }
+            if (rpId.isEmpty()) {
+                throw JSONException(
+                    "PublicKeyCredentialCreationOptions rp ID is " +
                     "missing or unexpectedly empty")
             }
             builder.setRp(
@@ -411,14 +565,15 @@ class PublicKeyCredentialControllerUtility {
                 )
             )
 
-            val pubKeyCredParams = json.getJSONArray("pubKeyCredParams")
+            val pubKeyCredParams = json.getJSONArray(JSON_KEY_PUB_KEY_CRED_PARAMS)
             val paramsList: MutableList<PublicKeyCredentialParameters> = ArrayList()
             for (i in 0 until pubKeyCredParams.length()) {
                 val param = pubKeyCredParams.getJSONObject(i)
-                val paramAlg = param.getLong("alg").toInt()
-                val typeParam = param.optString("type", "")
+                val paramAlg = param.getLong(JSON_KEY_ALG).toInt()
+                val typeParam = param.optString(JSON_KEY_TYPE, "")
                 if (typeParam.isEmpty()) {
-                    throw JSONException("PublicKeyCredentialCreationOptions " +
+                    throw JSONException(
+                        "PublicKeyCredentialCreationOptions " +
                         "PublicKeyCredentialParameter type missing or unexpectedly empty")
                 }
                 if (checkAlgSupported(paramAlg)) {
@@ -436,14 +591,25 @@ class PublicKeyCredentialControllerUtility {
             val challenge = getChallenge(json)
             builder.setChallenge(challenge)
 
-            val user = json.getJSONObject("user")
-            val userId = b64Decode(user.getString("id"))
-            val userName = user.getString("name")
-            val displayName = user.getString("displayName")
-            val userIcon = user.optString("icon", "")
-            if (displayName.isEmpty() || userId.isEmpty() || userName.isEmpty()) {
-                throw JSONException("PublicKeyCredentialCreationOptions UserEntity missing one " +
-                    "or more of displayName, userId or userName, or they are unexpectedly empty")
+            val user = json.getJSONObject(JSON_KEY_USER)
+            val userId = b64Decode(user.getString(JSON_KEY_ID))
+            val userName = user.getString(JSON_KEY_NAME)
+            val displayName = user.getString(JSON_KEY_DISPLAY_NAME)
+            val userIcon = user.optString(JSON_KEY_ICON, "")
+            if (displayName.isEmpty()) {
+                throw JSONException(
+                    "PublicKeyCredentialCreationOptions UserEntity missing " +
+                    "displayName or they are unexpectedly empty")
+            }
+            if (userId.isEmpty()) {
+                throw JSONException(
+                    "PublicKeyCredentialCreationOptions UserEntity missing " +
+                    "user id or they are unexpectedly empty")
+            }
+            if (userName.isEmpty()) {
+                throw JSONException(
+                    "PublicKeyCredentialCreationOptions UserEntity missing " +
+                    "user name or they are unexpectedly empty")
             }
             builder.setUser(
                 PublicKeyCredentialUserEntity(
@@ -491,14 +657,15 @@ class PublicKeyCredentialControllerUtility {
         }
 
         private const val FLAGS = Base64.NO_WRAP or Base64.URL_SAFE or Base64.NO_PADDING
-        private val TAG = PublicKeyCredentialControllerUtility::class.java.name
+        private const val TAG = "PublicKeyUtility"
         internal val orderedErrorCodeToExceptions = linkedMapOf(ErrorCode.UNKNOWN_ERR to
             UnknownError(),
             ErrorCode.ABORT_ERR to AbortError(),
             ErrorCode.ATTESTATION_NOT_PRIVATE_ERR to NotReadableError(),
             ErrorCode.CONSTRAINT_ERR to ConstraintError(),
             ErrorCode.DATA_ERR to DataError(),
-            ErrorCode.ENCODING_ERR to InvalidStateError(),
+            ErrorCode.INVALID_STATE_ERR to InvalidStateError(),
+            ErrorCode.ENCODING_ERR to EncodingError(),
             ErrorCode.NETWORK_ERR to NetworkError(),
             ErrorCode.NOT_ALLOWED_ERR to NotAllowedError(),
             ErrorCode.NOT_SUPPORTED_ERR to NotSupportedError(),

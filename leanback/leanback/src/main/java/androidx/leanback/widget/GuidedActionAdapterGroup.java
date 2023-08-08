@@ -32,7 +32,6 @@ import java.util.ArrayList;
 /**
  * Internal implementation manages a group of GuidedActionAdapters, control the next action after
  * editing finished, maintain the Ime open/close status.
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 public class GuidedActionAdapterGroup {

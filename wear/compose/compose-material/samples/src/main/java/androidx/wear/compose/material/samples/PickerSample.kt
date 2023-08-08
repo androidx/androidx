@@ -92,6 +92,34 @@ fun OptionChangePicker() {
     }
 }
 
+@Sampled
+@Composable
+fun AnimateOptionChangePicker() {
+    val coroutineScope = rememberCoroutineScope()
+    val state = rememberPickerState(initialNumberOfOptions = 10)
+    val contentDescription by remember { derivedStateOf { "${state.selectedOption + 1}" } }
+
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        Picker(
+            state = state,
+            separation = 4.dp,
+            contentDescription = contentDescription,
+        ) {
+            Chip(
+                onClick = {
+                    coroutineScope.launch { state.animateScrollToOption(it) }
+                },
+                label = {
+                    Text("$it")
+                }
+            )
+        }
+    }
+}
+
 @OptIn(ExperimentalComposeUiApi::class)
 @Sampled
 @Composable

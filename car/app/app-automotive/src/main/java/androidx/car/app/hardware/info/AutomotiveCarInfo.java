@@ -75,7 +75,6 @@ import java.util.stream.Collectors;
 /**
  * Manages access to vehicle specific info, for example, energy info, model info.
  *
- * @hide
  */
 @RestrictTo(LIBRARY)
 public class AutomotiveCarInfo implements CarInfo {

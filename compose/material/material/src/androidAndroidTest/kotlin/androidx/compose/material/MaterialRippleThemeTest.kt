@@ -18,20 +18,20 @@ package androidx.compose.material
 
 import android.os.Build
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.interaction.DragInteraction
 import androidx.compose.foundation.Indication
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.indication
+import androidx.compose.foundation.interaction.DragInteraction
+import androidx.compose.foundation.interaction.FocusInteraction
+import androidx.compose.foundation.interaction.HoverInteraction
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
-import androidx.compose.foundation.indication
-import androidx.compose.foundation.interaction.FocusInteraction
-import androidx.compose.foundation.interaction.HoverInteraction
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ripple.LocalRippleTheme
@@ -44,7 +44,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.testutils.assertAgainstGolden
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -62,7 +61,6 @@ import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
-import androidx.test.screenshot.AndroidXScreenshotTestRule
 import com.google.common.truth.Truth
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -76,14 +74,21 @@ import org.junit.runner.RunWith
  */
 @LargeTest
 @RunWith(AndroidJUnit4::class)
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+@SdkSuppress(
+    // Below P the press ripple is split into two layers with half alpha, and we multiply the alpha
+    // first so each layer will have the expected alpha to ensure that the minimum contrast in
+    // areas where the ripples don't overlap is still correct - as a result the colors aren't
+    // exactly what we expect here so we can't really reliably assert
+    minSdkVersion = Build.VERSION_CODES.P,
+    // On S and above, the press ripple is patterned and has inconsistent behaviour in terms of
+    // alpha, so it doesn't behave according to our expectations - we can't explicitly assert on the
+    // color.
+    maxSdkVersion = Build.VERSION_CODES.R
+)
 class MaterialRippleThemeTest {
 
     @get:Rule
     val rule = createComposeRule()
-
-    @get:Rule
-    val screenshotRule = AndroidXScreenshotTestRule(GOLDEN_MATERIAL)
 
     @Test
     fun bounded_lightTheme_highLuminance_pressed() {
@@ -102,7 +107,6 @@ class MaterialRippleThemeTest {
             scope,
             interactionSource,
             PressInteraction.Press(Offset(10f, 10f)),
-            "ripple_bounded_light_highluminance_pressed",
             calculateResultingRippleColor(contentColor, rippleOpacity = 0.24f)
         )
     }
@@ -124,7 +128,6 @@ class MaterialRippleThemeTest {
             scope,
             interactionSource,
             HoverInteraction.Enter(),
-            "ripple_bounded_light_highluminance_hovered",
             calculateResultingRippleColor(contentColor, rippleOpacity = 0.08f)
         )
     }
@@ -146,7 +149,6 @@ class MaterialRippleThemeTest {
             scope,
             interactionSource,
             FocusInteraction.Focus(),
-            "ripple_bounded_light_highluminance_focused",
             calculateResultingRippleColor(contentColor, rippleOpacity = 0.24f)
         )
     }
@@ -168,7 +170,6 @@ class MaterialRippleThemeTest {
             scope,
             interactionSource,
             DragInteraction.Start(),
-            "ripple_bounded_light_highluminance_dragged",
             calculateResultingRippleColor(contentColor, rippleOpacity = 0.16f)
         )
     }
@@ -190,7 +191,6 @@ class MaterialRippleThemeTest {
             scope,
             interactionSource,
             PressInteraction.Press(Offset(10f, 10f)),
-            "ripple_bounded_light_lowluminance_pressed",
             calculateResultingRippleColor(contentColor, rippleOpacity = 0.12f)
         )
     }
@@ -212,7 +212,6 @@ class MaterialRippleThemeTest {
             scope,
             interactionSource,
             HoverInteraction.Enter(),
-            "ripple_bounded_light_lowluminance_hovered",
             calculateResultingRippleColor(contentColor, rippleOpacity = 0.04f)
         )
     }
@@ -234,7 +233,6 @@ class MaterialRippleThemeTest {
             scope,
             interactionSource,
             FocusInteraction.Focus(),
-            "ripple_bounded_light_lowluminance_focused",
             calculateResultingRippleColor(contentColor, rippleOpacity = 0.12f)
         )
     }
@@ -256,7 +254,6 @@ class MaterialRippleThemeTest {
             scope,
             interactionSource,
             DragInteraction.Start(),
-            "ripple_bounded_light_lowluminance_dragged",
             calculateResultingRippleColor(contentColor, rippleOpacity = 0.08f)
         )
     }
@@ -278,7 +275,6 @@ class MaterialRippleThemeTest {
             scope,
             interactionSource,
             PressInteraction.Press(Offset(10f, 10f)),
-            "ripple_bounded_dark_highluminance_pressed",
             calculateResultingRippleColor(contentColor, rippleOpacity = 0.10f)
         )
     }
@@ -300,7 +296,6 @@ class MaterialRippleThemeTest {
             scope,
             interactionSource,
             HoverInteraction.Enter(),
-            "ripple_bounded_dark_highluminance_hovered",
             calculateResultingRippleColor(contentColor, rippleOpacity = 0.04f)
         )
     }
@@ -322,7 +317,6 @@ class MaterialRippleThemeTest {
             scope,
             interactionSource,
             FocusInteraction.Focus(),
-            "ripple_bounded_dark_highluminance_focused",
             calculateResultingRippleColor(contentColor, rippleOpacity = 0.12f)
         )
     }
@@ -344,7 +338,6 @@ class MaterialRippleThemeTest {
             scope,
             interactionSource,
             DragInteraction.Start(),
-            "ripple_bounded_dark_highluminance_dragged",
             calculateResultingRippleColor(contentColor, rippleOpacity = 0.08f)
         )
     }
@@ -366,7 +359,6 @@ class MaterialRippleThemeTest {
             scope,
             interactionSource,
             PressInteraction.Press(Offset(10f, 10f)),
-            "ripple_bounded_dark_lowluminance_pressed",
             // Low luminance content in dark theme should use a white ripple by default
             calculateResultingRippleColor(Color.White, rippleOpacity = 0.10f)
         )
@@ -389,7 +381,6 @@ class MaterialRippleThemeTest {
             scope,
             interactionSource,
             HoverInteraction.Enter(),
-            "ripple_bounded_dark_lowluminance_hovered",
             // Low luminance content in dark theme should use a white ripple by default
             calculateResultingRippleColor(Color.White, rippleOpacity = 0.04f)
         )
@@ -412,7 +403,6 @@ class MaterialRippleThemeTest {
             scope,
             interactionSource,
             FocusInteraction.Focus(),
-            "ripple_bounded_dark_lowluminance_focused",
             // Low luminance content in dark theme should use a white ripple by default
             calculateResultingRippleColor(Color.White, rippleOpacity = 0.12f)
         )
@@ -435,7 +425,6 @@ class MaterialRippleThemeTest {
             scope,
             interactionSource,
             DragInteraction.Start(),
-            "ripple_bounded_dark_lowluminance_dragged",
             // Low luminance content in dark theme should use a white ripple by default
             calculateResultingRippleColor(Color.White, rippleOpacity = 0.08f)
         )
@@ -458,7 +447,6 @@ class MaterialRippleThemeTest {
             scope,
             interactionSource,
             PressInteraction.Press(Offset(10f, 10f)),
-            "ripple_unbounded_light_highluminance_pressed",
             calculateResultingRippleColor(contentColor, rippleOpacity = 0.24f)
         )
     }
@@ -480,7 +468,6 @@ class MaterialRippleThemeTest {
             scope,
             interactionSource,
             HoverInteraction.Enter(),
-            "ripple_unbounded_light_highluminance_hovered",
             calculateResultingRippleColor(contentColor, rippleOpacity = 0.08f)
         )
     }
@@ -502,7 +489,6 @@ class MaterialRippleThemeTest {
             scope,
             interactionSource,
             FocusInteraction.Focus(),
-            "ripple_unbounded_light_highluminance_focused",
             calculateResultingRippleColor(contentColor, rippleOpacity = 0.24f)
         )
     }
@@ -524,7 +510,6 @@ class MaterialRippleThemeTest {
             scope,
             interactionSource,
             DragInteraction.Start(),
-            "ripple_unbounded_light_highluminance_dragged",
             calculateResultingRippleColor(contentColor, rippleOpacity = 0.16f)
         )
     }
@@ -546,7 +531,6 @@ class MaterialRippleThemeTest {
             scope,
             interactionSource,
             PressInteraction.Press(Offset(10f, 10f)),
-            "ripple_unbounded_light_lowluminance_pressed",
             calculateResultingRippleColor(contentColor, rippleOpacity = 0.12f)
         )
     }
@@ -568,7 +552,6 @@ class MaterialRippleThemeTest {
             scope,
             interactionSource,
             HoverInteraction.Enter(),
-            "ripple_unbounded_light_lowluminance_hovered",
             calculateResultingRippleColor(contentColor, rippleOpacity = 0.04f)
         )
     }
@@ -590,7 +573,6 @@ class MaterialRippleThemeTest {
             scope,
             interactionSource,
             FocusInteraction.Focus(),
-            "ripple_unbounded_light_lowluminance_focused",
             calculateResultingRippleColor(contentColor, rippleOpacity = 0.12f)
         )
     }
@@ -612,7 +594,6 @@ class MaterialRippleThemeTest {
             scope,
             interactionSource,
             DragInteraction.Start(),
-            "ripple_unbounded_light_lowluminance_dragged",
             calculateResultingRippleColor(contentColor, rippleOpacity = 0.08f)
         )
     }
@@ -634,7 +615,6 @@ class MaterialRippleThemeTest {
             scope,
             interactionSource,
             PressInteraction.Press(Offset(10f, 10f)),
-            "ripple_unbounded_dark_highluminance_pressed",
             calculateResultingRippleColor(contentColor, rippleOpacity = 0.10f)
         )
     }
@@ -656,7 +636,6 @@ class MaterialRippleThemeTest {
             scope,
             interactionSource,
             HoverInteraction.Enter(),
-            "ripple_unbounded_dark_highluminance_hovered",
             calculateResultingRippleColor(contentColor, rippleOpacity = 0.04f)
         )
     }
@@ -678,7 +657,6 @@ class MaterialRippleThemeTest {
             scope,
             interactionSource,
             FocusInteraction.Focus(),
-            "ripple_unbounded_dark_highluminance_focused",
             calculateResultingRippleColor(contentColor, rippleOpacity = 0.12f)
         )
     }
@@ -700,7 +678,6 @@ class MaterialRippleThemeTest {
             scope,
             interactionSource,
             DragInteraction.Start(),
-            "ripple_unbounded_dark_highluminance_dragged",
             calculateResultingRippleColor(contentColor, rippleOpacity = 0.08f)
         )
     }
@@ -722,7 +699,6 @@ class MaterialRippleThemeTest {
             scope,
             interactionSource,
             PressInteraction.Press(Offset(10f, 10f)),
-            "ripple_unbounded_dark_lowluminance_pressed",
             // Low luminance content in dark theme should use a white ripple by default
             calculateResultingRippleColor(Color.White, rippleOpacity = 0.10f)
         )
@@ -745,7 +721,6 @@ class MaterialRippleThemeTest {
             scope,
             interactionSource,
             HoverInteraction.Enter(),
-            "ripple_unbounded_dark_lowluminance_hovered",
             // Low luminance content in dark theme should use a white ripple by default
             calculateResultingRippleColor(Color.White, rippleOpacity = 0.04f)
         )
@@ -768,7 +743,6 @@ class MaterialRippleThemeTest {
             scope,
             interactionSource,
             FocusInteraction.Focus(),
-            "ripple_unbounded_dark_lowluminance_focused",
             // Low luminance content in dark theme should use a white ripple by default
             calculateResultingRippleColor(Color.White, rippleOpacity = 0.12f)
         )
@@ -791,7 +765,6 @@ class MaterialRippleThemeTest {
             scope,
             interactionSource,
             DragInteraction.Start(),
-            "ripple_unbounded_dark_lowluminance_dragged",
             // Low luminance content in dark theme should use a white ripple by default
             calculateResultingRippleColor(Color.White, rippleOpacity = 0.08f)
         )
@@ -843,7 +816,6 @@ class MaterialRippleThemeTest {
             scope!!,
             interactionSource,
             PressInteraction.Press(Offset(10f, 10f)),
-            "ripple_customtheme_pressed",
             expectedColor
         )
     }
@@ -894,7 +866,6 @@ class MaterialRippleThemeTest {
             scope!!,
             interactionSource,
             HoverInteraction.Enter(),
-            "ripple_customtheme_hovered",
             expectedColor
         )
     }
@@ -945,7 +916,6 @@ class MaterialRippleThemeTest {
             scope!!,
             interactionSource,
             FocusInteraction.Focus(),
-            "ripple_customtheme_focused",
             expectedColor
         )
     }
@@ -995,7 +965,6 @@ class MaterialRippleThemeTest {
             scope!!,
             interactionSource,
             DragInteraction.Start(),
-            "ripple_customtheme_dragged",
             expectedColor
         )
     }
@@ -1144,12 +1113,10 @@ class MaterialRippleThemeTest {
     }
 
     /**
-     * Asserts that the ripple matches the screenshot with identifier [goldenIdentifier], and
-     * that the resultant color of the ripple on screen matches [expectedCenterPixelColor].
+     * Asserts that the resultant color of the ripple on screen matches [expectedCenterPixelColor].
      *
      * @param interactionSource the [MutableInteractionSource] driving the ripple
      * @param interaction the [Interaction] to assert for
-     * @param goldenIdentifier the identifier for the corresponding screenshot
      * @param expectedCenterPixelColor the expected color for the pixel at the center of the
      * [RippleBoxWithBackground]
      */
@@ -1157,7 +1124,6 @@ class MaterialRippleThemeTest {
         scope: CoroutineScope,
         interactionSource: MutableInteractionSource,
         interaction: Interaction,
-        goldenIdentifier: String,
         expectedCenterPixelColor: Color
     ) {
         // Pause the clock if we are drawing a state layer
@@ -1182,14 +1148,9 @@ class MaterialRippleThemeTest {
             rule.mainClock.advanceTimeBy(milliseconds = 300)
         }
 
-        // Capture and compare screenshots
-        val screenshot = rule.onNodeWithTag(Tag)
-            .captureToImage()
-
-        screenshot.assertAgainstGolden(screenshotRule, goldenIdentifier)
-
         // Compare expected and actual pixel color
-        val centerPixel = screenshot
+        val centerPixel = rule.onNodeWithTag(Tag)
+            .captureToImage()
             .asAndroidBitmap()
             .run {
                 getPixel(width / 2, height / 2)

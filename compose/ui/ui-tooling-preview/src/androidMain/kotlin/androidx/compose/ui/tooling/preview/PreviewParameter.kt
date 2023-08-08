@@ -16,8 +16,8 @@
 
 package androidx.compose.ui.tooling.preview
 
-import kotlin.reflect.KClass
 import kotlin.jvm.JvmDefaultWithCompatibility
+import kotlin.reflect.KClass
 
 /**
  * Interface to be implemented by any provider of values that you want to be injected as @[Preview]

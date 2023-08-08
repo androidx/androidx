@@ -16,9 +16,9 @@
 
 package androidx.room
 
+import androidx.kruth.assertThat
 import androidx.room.RoomSQLiteQuery.Companion.acquire
 import androidx.sqlite.db.SupportSQLiteProgram
-import com.google.common.truth.Truth.assertThat
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith

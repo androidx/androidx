@@ -75,7 +75,6 @@ import java.lang.annotation.RetentionPolicy;
  * </ul>
  */
 public final class PlaybackParams {
-    /** @hide */
     @RestrictTo(LIBRARY)
     @IntDef(
             value = {
@@ -159,7 +158,6 @@ public final class PlaybackParams {
      * This method is only supported on {@link android.os.Build.VERSION_CODES#M} and later.
      * </p>
      *
-     * @hide
      */
     @RestrictTo(LIBRARY)
     @RequiresApi(23)
@@ -190,7 +188,6 @@ public final class PlaybackParams {
             }
         }
 
-        /** @hide */
         @RestrictTo(LIBRARY)
         @RequiresApi(23)
         public Builder(android.media.PlaybackParams playbackParams) {

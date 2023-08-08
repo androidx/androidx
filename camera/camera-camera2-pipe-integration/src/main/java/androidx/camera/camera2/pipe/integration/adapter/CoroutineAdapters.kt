@@ -21,10 +21,11 @@ package androidx.camera.camera2.pipe.integration.adapter
 import androidx.annotation.RequiresApi
 import androidx.concurrent.futures.CallbackToFutureAdapter
 import com.google.common.util.concurrent.ListenableFuture
+import java.util.concurrent.CancellationException
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
-import java.util.concurrent.CancellationException
 
 /**
  * Convert a job into a ListenableFuture<Void>.
@@ -75,4 +76,27 @@ fun <T> Deferred<T>.asListenableFuture(
             tag
         }
     return CallbackToFutureAdapter.getFuture(resolver)
+}
+
+fun <T> Deferred<T>.propagateTo(destination: CompletableDeferred<T>) {
+    invokeOnCompletion {
+        propagateOnceTo(destination, it)
+    }
+}
+
+@OptIn(ExperimentalCoroutinesApi::class)
+fun <T> Deferred<T>.propagateOnceTo(
+    destination: CompletableDeferred<T>,
+    throwable: Throwable?,
+) {
+    if (throwable != null) {
+        if (throwable is CancellationException) {
+            destination.cancel(throwable)
+        } else {
+            destination.completeExceptionally(throwable)
+        }
+    } else {
+        // Ignore exceptions - This should never throw in this situation.
+        destination.complete(getCompleted())
+    }
 }

@@ -18,5 +18,5 @@
 # Prevent ProcessGlobalConfig and member sProcessGlobalConfig from being renamed, since chromium
 # depends on this name.
 -keepnames public class androidx.webkit.ProcessGlobalConfig {
-    private static final * sProcessGlobalConfig;
+    private static final *** sProcessGlobalConfig;
 }

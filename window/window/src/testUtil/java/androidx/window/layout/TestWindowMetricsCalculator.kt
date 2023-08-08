@@ -16,7 +16,9 @@
 package androidx.window.layout
 
 import android.app.Activity
+import android.content.Context
 import android.graphics.Rect
+import androidx.annotation.UiContext
 
 /**
  * Implementation of [WindowMetricsCalculator] for testing.
@@ -24,44 +26,62 @@ import android.graphics.Rect
  * @see WindowMetricsCalculator
  */
 internal class TestWindowMetricsCalculator : WindowMetricsCalculator {
-    private var globalOverriddenBounds: Rect? = null
-    private val overriddenBounds = mutableMapOf<Activity, Rect?>()
-    private val overriddenMaximumBounds = mutableMapOf<Activity, Rect?>()
+    private var overrideBounds: Rect? = null
+    private var overrideMaxBounds: Rect? = null
+    private val currentBounds = mutableMapOf<Context, Rect>()
+    private val maxBounds = mutableMapOf<Context, Rect>()
 
     /**
-     * Overrides the bounds returned from this helper for the given context. Passing `null` [bounds]
-     * has the effect of clearing the bounds override.
+     * Sets the bounds returned from this helper for the given context.
      *
-     * Note: A global override set as a result of [.setCurrentBounds] takes precedence
-     * over the value set with this method.
+     * Note: An override set via [setOverrideBounds] takes precedence over the values set with
+     * this method.
      */
-    fun setCurrentBoundsForActivity(activity: Activity, bounds: Rect?) {
-        overriddenBounds[activity] = bounds
+    fun setBounds(@UiContext context: Context, currentBounds: Rect, maxBounds: Rect) {
+        this.currentBounds[context] = currentBounds
+        this.maxBounds[context] = maxBounds
     }
 
     /**
-     * Overrides the max bounds returned from this helper for the given context. Passing `null`
-     * [bounds] has the effect of clearing the bounds override.
+     * Clears the bounds that were set via [setBounds] for the given context.
      */
-    fun setMaximumBoundsForActivity(activity: Activity, bounds: Rect?) {
-        overriddenMaximumBounds[activity] = bounds
+    fun clearBounds(@UiContext context: Context) {
+        currentBounds.remove(context)
+        maxBounds.remove(context)
     }
 
     /**
-     * Overrides the bounds returned from this helper for all supplied contexts. Passing null
-     * [bounds] has the effect of clearing the global override.
+     * Overrides the bounds returned from this helper for all supplied contexts.
      */
-    fun setCurrentBounds(bounds: Rect?) {
-        globalOverriddenBounds = bounds
+    fun setOverrideBounds(currentBounds: Rect, maxBounds: Rect) {
+        overrideBounds = currentBounds
+        overrideMaxBounds = maxBounds
+    }
+
+    /**
+     * Clears the overrides that were set in [setOverrideBounds].
+     */
+    fun clearOverrideBounds() {
+        overrideBounds = null
+        overrideMaxBounds = null
     }
 
     override fun computeCurrentWindowMetrics(activity: Activity): WindowMetrics {
-        val bounds = globalOverriddenBounds ?: overriddenBounds[activity] ?: Rect()
+        return computeCurrentWindowMetrics(activity as Context)
+    }
+
+    override fun computeCurrentWindowMetrics(@UiContext context: Context): WindowMetrics {
+        val bounds = overrideBounds ?: currentBounds[context] ?: Rect()
         return WindowMetrics(bounds)
     }
 
     override fun computeMaximumWindowMetrics(activity: Activity): WindowMetrics {
-        return WindowMetrics(overriddenMaximumBounds[activity] ?: Rect())
+        return computeMaximumWindowMetrics(activity as Context)
+    }
+
+    override fun computeMaximumWindowMetrics(@UiContext context: Context): WindowMetrics {
+        val bounds = overrideMaxBounds ?: maxBounds[context] ?: Rect()
+        return WindowMetrics(bounds)
     }
 
     /**
@@ -69,8 +89,9 @@ internal class TestWindowMetricsCalculator : WindowMetricsCalculator {
      * [.setCurrentBoundsForActivity].
      */
     fun reset() {
-        globalOverriddenBounds = null
-        overriddenBounds.clear()
-        overriddenMaximumBounds.clear()
+        overrideBounds = null
+        overrideMaxBounds = null
+        currentBounds.clear()
+        maxBounds.clear()
     }
 }

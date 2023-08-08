@@ -24,9 +24,9 @@ import androidx.navigation.test.stringArrayArgument
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
+import java.io.UnsupportedEncodingException
 import kotlin.test.assertFailsWith
 import org.junit.Test
-import java.io.UnsupportedEncodingException
 
 @SmallTest
 class NavDeepLinkTest {

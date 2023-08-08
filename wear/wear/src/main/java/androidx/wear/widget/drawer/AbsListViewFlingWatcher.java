@@ -31,7 +31,6 @@ import java.lang.ref.WeakReference;
  * a Fling by waiting until the scroll state is no longer {@link
  * OnScrollListener#SCROLL_STATE_FLING}.
  *
- * @hide
  */
 @RestrictTo(Scope.LIBRARY)
 class AbsListViewFlingWatcher implements FlingWatcher, OnScrollListener {

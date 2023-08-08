@@ -34,7 +34,6 @@ import java.util.List;
  *
  * <P>submits this request to {@link PropertyManager} for getting property values.
  *
- * @hide
  */
 @AutoValue
 @RestrictTo(LIBRARY)

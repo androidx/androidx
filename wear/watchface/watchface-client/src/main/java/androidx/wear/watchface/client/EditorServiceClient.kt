@@ -35,45 +35,39 @@ public interface EditorServiceClient {
      */
     public fun addListener(editorListener: EditorListener, listenerExecutor: Executor)
 
-    /** Unregisters an [EditorListener] previously registered via [addListener].  */
+    /** Unregisters an [EditorListener] previously registered via [addListener]. */
     public fun removeListener(editorListener: EditorListener)
 
     /** Instructs any open editor to close. */
-    @Throws(RemoteException::class)
-    public fun closeEditor()
+    @Throws(RemoteException::class) public fun closeEditor()
 }
 
 /** Observes state changes in [androidx.wear.watchface.editor.EditorSession]. */
 public interface EditorListener {
-    /** Called in response to [androidx.wear.watchface.editor.EditorSession.close] .*/
+    /** Called in response to [androidx.wear.watchface.editor.EditorSession.close] . */
     public fun onEditorStateChanged(editorState: EditorState)
 }
 
-internal class EditorServiceClientImpl(
-    private val iEditorService: IEditorService
-) : EditorServiceClient {
+internal class EditorServiceClientImpl(private val iEditorService: IEditorService) :
+    EditorServiceClient {
     private val lock = Any()
     private val editorMap = HashMap<EditorListener, Int>()
 
-    override fun addListener(
-        editorListener: EditorListener,
-        listenerExecutor: Executor
-    ) {
-        val observer = object : IEditorObserver.Stub() {
-            override fun getApiVersion() = IEditorObserver.API_VERSION
+    override fun addListener(editorListener: EditorListener, listenerExecutor: Executor) {
+        val observer =
+            object : IEditorObserver.Stub() {
+                override fun getApiVersion() = IEditorObserver.API_VERSION
 
-            override fun onEditorStateChange(editorStateWireFormat: EditorStateWireFormat) {
-                listenerExecutor.execute {
-                    editorListener.onEditorStateChanged(
-                        editorStateWireFormat.asApiEditorState()
-                    )
+                override fun onEditorStateChange(editorStateWireFormat: EditorStateWireFormat) {
+                    listenerExecutor.execute {
+                        editorListener.onEditorStateChanged(
+                            editorStateWireFormat.asApiEditorState()
+                        )
+                    }
                 }
             }
-        }
 
-        synchronized(lock) {
-            editorMap[editorListener] = iEditorService.registerObserver(observer)
-        }
+        synchronized(lock) { editorMap[editorListener] = iEditorService.registerObserver(observer) }
     }
 
     override fun removeListener(editorListener: EditorListener) {

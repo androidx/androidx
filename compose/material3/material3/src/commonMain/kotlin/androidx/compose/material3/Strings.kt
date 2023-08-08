@@ -22,53 +22,71 @@ import androidx.compose.runtime.ReadOnlyComposable
 
 @Immutable
 @JvmInline
-internal value class Strings private constructor(
-    @Suppress("unused") private val value: Int
-) {
+internal expect value class Strings constructor(val value: Int) {
     companion object {
-        val NavigationMenu = Strings(0)
-        val CloseDrawer = Strings(1)
-        val CloseSheet = Strings(2)
-        val DefaultErrorMessage = Strings(3)
-        val ExposedDropdownMenu = Strings(4)
-        val SliderRangeStart = Strings(5)
-        val SliderRangeEnd = Strings(6)
-        val Dialog = Strings(7)
-        val MenuExpanded = Strings(8)
-        val MenuCollapsed = Strings(9)
-        val SnackbarDismiss = Strings(10)
-        val SearchBarSearch = Strings(11)
-        val SuggestionsAvailable = Strings(12)
-        val DatePickerTitle = Strings(13)
-        val DatePickerHeadline = Strings(14)
-        val DatePickerYearPickerPaneTitle = Strings(15)
-        val DatePickerSwitchToYearSelection = Strings(16)
-        val DatePickerSwitchToDaySelection = Strings(17)
-        val DatePickerSwitchToNextMonth = Strings(18)
-        val DatePickerSwitchToPreviousMonth = Strings(19)
-        val DatePickerNavigateToYearDescription = Strings(20)
-        val DatePickerHeadlineDescription = Strings(21)
-        val DatePickerNoSelectionDescription = Strings(22)
-        val DatePickerTodayDescription = Strings(23)
-        val DateInputTitle = Strings(24)
-        val DateInputHeadline = Strings(25)
-        val DateInputLabel = Strings(26)
-        val DateInputHeadlineDescription = Strings(27)
-        val DateInputNoInputDescription = Strings(28)
-        val DateInputInvalidNotAllowed = Strings(29)
-        val DateInputInvalidForPattern = Strings(30)
-        val DateInputInvalidYearRange = Strings(31)
-        val DatePickerSwitchToCalendarMode = Strings(32)
-        val DatePickerSwitchToInputMode = Strings(33)
-        val TooltipLongPressLabel = Strings(34)
-        val TimePickerAM = Strings(35)
-        val TimePickerPM = Strings(36)
-        val TimePickerPeriodToggle = Strings(37)
-        val TimePickerHourSelection = Strings(38)
-        val TimePickerMinuteSelection = Strings(39)
-        val TimePickerHourSuffix = Strings(40)
-        val TimePicker24HourSuffix = Strings(41)
-        val TimePickerMinuteSuffix = Strings(42)
+        val NavigationMenu: Strings
+        val CloseDrawer: Strings
+        val CloseSheet: Strings
+        val DefaultErrorMessage: Strings
+        val ExposedDropdownMenu: Strings
+        val SliderRangeStart: Strings
+        val SliderRangeEnd: Strings
+        val Dialog: Strings
+        val MenuExpanded: Strings
+        val MenuCollapsed: Strings
+        val SnackbarDismiss: Strings
+        val SearchBarSearch: Strings
+        val SuggestionsAvailable: Strings
+        val DatePickerTitle: Strings
+        val DatePickerHeadline: Strings
+        val DatePickerYearPickerPaneTitle: Strings
+        val DatePickerSwitchToYearSelection: Strings
+        val DatePickerSwitchToDaySelection: Strings
+        val DatePickerSwitchToNextMonth: Strings
+        val DatePickerSwitchToPreviousMonth: Strings
+        val DatePickerNavigateToYearDescription: Strings
+        val DatePickerHeadlineDescription: Strings
+        val DatePickerNoSelectionDescription: Strings
+        val DatePickerTodayDescription: Strings
+        val DatePickerScrollToShowLaterYears: Strings
+        val DatePickerScrollToShowEarlierYears: Strings
+        val DateInputTitle: Strings
+        val DateInputHeadline: Strings
+        val DateInputLabel: Strings
+        val DateInputHeadlineDescription: Strings
+        val DateInputNoInputDescription: Strings
+        val DateInputInvalidNotAllowed: Strings
+        val DateInputInvalidForPattern: Strings
+        val DateInputInvalidYearRange: Strings
+        val DatePickerSwitchToCalendarMode: Strings
+        val DatePickerSwitchToInputMode: Strings
+        val DateRangePickerTitle: Strings
+        val DateRangePickerStartHeadline: Strings
+        val DateRangePickerEndHeadline: Strings
+        val DateRangePickerScrollToShowNextMonth: Strings
+        val DateRangePickerScrollToShowPreviousMonth: Strings
+        val DateRangePickerDayInRange: Strings
+        val DateRangeInputTitle: Strings
+        val DateRangeInputInvalidRangeInput: Strings
+        val BottomSheetPaneTitle: Strings
+        val BottomSheetDragHandleDescription: Strings
+        val BottomSheetPartialExpandDescription: Strings
+        val BottomSheetDismissDescription: Strings
+        val BottomSheetExpandDescription: Strings
+        val TooltipLongPressLabel: Strings
+        val TimePickerAM: Strings
+        val TimePickerPM: Strings
+        val TimePickerPeriodToggle: Strings
+        val TimePickerHourSelection: Strings
+        val TimePickerMinuteSelection: Strings
+        val TimePickerHourSuffix: Strings
+        val TimePicker24HourSuffix: Strings
+        val TimePickerMinuteSuffix: Strings
+        val TimePickerHour: Strings
+        val TimePickerMinute: Strings
+        val TimePickerHourTextField: Strings
+        val TimePickerMinuteTextField: Strings
+        val TooltipPaneDescription: Strings
     }
 }
 

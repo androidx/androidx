@@ -21,7 +21,7 @@ import androidx.annotation.RestrictTo;
 /**
  * An interface for classes that validate document visibility data.
  *
- * @hide
+ * @exportToFramework:hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface VisibilityChecker {

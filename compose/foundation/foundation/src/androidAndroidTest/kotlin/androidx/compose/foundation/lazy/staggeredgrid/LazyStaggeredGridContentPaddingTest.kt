@@ -339,4 +339,29 @@ class LazyStaggeredGridContentPaddingTest(
             assertThat(state.firstVisibleItemIndex).isEqualTo(400)
         }
     }
+
+    @Test
+    fun contentPaddingIncludedInLayoutMeasurement() {
+        state = LazyStaggeredGridState(initialFirstVisibleItemIndex = 0)
+        rule.setContent {
+            Box(Modifier.axisSize(itemSizeDp * 2, itemSizeDp * 10)) {
+                LazyStaggeredGrid(
+                    lanes = 2,
+                    modifier = Modifier.testTag(LazyStaggeredGrid),
+                    contentPadding = PaddingValues(
+                        mainAxis = itemSizeDp * 2,
+                        crossAxis = 0.dp
+                    ),
+                    state = state
+                ) {
+                    items(4, key = { it }) {
+                        Spacer(Modifier.mainAxisSize(itemSizeDp).testTag("$it"))
+                    }
+                }
+            }
+        }
+
+        rule.onNodeWithTag(LazyStaggeredGrid)
+            .assertMainAxisSizeIsEqualTo(itemSizeDp * 6)
+    }
 }

@@ -68,6 +68,9 @@ import kotlin.math.min
  * of the [SnackbarHost] to the [Scaffold]:
  * @sample androidx.compose.material3.samples.ScaffoldWithCustomSnackbar
  *
+ * For a multiline sample following the Material recommended spec of a maximum of 2 lines, see:
+ * @sample androidx.compose.material3.samples.ScaffoldWithMultilineSnackbar
+ *
  * @param modifier the [Modifier] to be applied to this snackbar
  * @param action action / button component to add as an action to the snackbar. Consider using
  * [ColorScheme.inversePrimary] as the color for the action, if you do not have a predefined color
@@ -403,22 +406,22 @@ private fun OneRowSnackbar(
  */
 object SnackbarDefaults {
     /** Default shape of a snackbar. */
-    val shape: Shape @Composable get() = SnackbarTokens.ContainerShape.toShape()
+    val shape: Shape @Composable get() = SnackbarTokens.ContainerShape.value
 
     /** Default color of a snackbar. */
-    val color: Color @Composable get() = SnackbarTokens.ContainerColor.toColor()
+    val color: Color @Composable get() = SnackbarTokens.ContainerColor.value
 
     /** Default content color of a snackbar. */
-    val contentColor: Color @Composable get() = SnackbarTokens.SupportingTextColor.toColor()
+    val contentColor: Color @Composable get() = SnackbarTokens.SupportingTextColor.value
 
     /** Default action color of a snackbar. */
-    val actionColor: Color @Composable get() = SnackbarTokens.ActionLabelTextColor.toColor()
+    val actionColor: Color @Composable get() = SnackbarTokens.ActionLabelTextColor.value
 
     /** Default action content color of a snackbar. */
-    val actionContentColor: Color @Composable get() = SnackbarTokens.ActionLabelTextColor.toColor()
+    val actionContentColor: Color @Composable get() = SnackbarTokens.ActionLabelTextColor.value
 
     /** Default dismiss action content color of a snackbar. */
-    val dismissActionContentColor: Color @Composable get() = SnackbarTokens.IconColor.toColor()
+    val dismissActionContentColor: Color @Composable get() = SnackbarTokens.IconColor.value
 }
 
 private val ContainerMaxWidth = 600.dp

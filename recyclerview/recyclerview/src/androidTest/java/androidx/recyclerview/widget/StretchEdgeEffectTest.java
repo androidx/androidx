@@ -24,23 +24,29 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.os.Build;
 import android.os.SystemClock;
 import android.view.MotionEvent;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EdgeEffect;
+import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.os.BuildCompat;
 import androidx.core.view.InputDeviceCompat;
 import androidx.core.view.MotionEventCompat;
 import androidx.core.widget.EdgeEffectCompat;
+import androidx.core.widget.NestedScrollView;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
 import androidx.test.filters.SdkSuppress;
+import androidx.testutils.AnimationDurationScaleRule;
+import androidx.testutils.PollingCheck;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -58,6 +64,10 @@ public class StretchEdgeEffectTest extends BaseRecyclerViewInstrumentationTest {
     private LinearLayoutManager mLayoutManager;
     private TestEdgeEffectFactory mFactory;
     private TestAdapter mAdapter;
+
+    @Rule
+    public final AnimationDurationScaleRule mEnableAnimations =
+            AnimationDurationScaleRule.createForAllTests(1f);
 
     @Before
     public void setup() throws Throwable {
@@ -613,56 +623,56 @@ public class StretchEdgeEffectTest extends BaseRecyclerViewInstrumentationTest {
 
     @Test
     public void stretchAndAddContentToBottom() throws Throwable {
-        if (BuildCompat.isAtLeastS()) {
+        if (Build.VERSION.SDK_INT >= 31) {
             stretchAndAddContent(() -> mFactory.mBottom, true, true);
         }
     }
 
     @Test
     public void doubleStretchBottom() throws Throwable {
-        if (BuildCompat.isAtLeastS()) {
+        if (Build.VERSION.SDK_INT >= 31) {
             stretchAndStretchMore(() -> mFactory.mBottom, true, true);
         }
     }
 
     @Test
     public void stretchAndAddContentToTop() throws Throwable {
-        if (BuildCompat.isAtLeastS()) {
+        if (Build.VERSION.SDK_INT >= 31) {
             stretchAndAddContent(() -> mFactory.mTop, false, true);
         }
     }
 
     @Test
     public void doubleStretchTop() throws Throwable {
-        if (BuildCompat.isAtLeastS()) {
+        if (Build.VERSION.SDK_INT >= 31) {
             stretchAndStretchMore(() -> mFactory.mTop, false, true);
         }
     }
 
     @Test
     public void stretchAndAddContentToRight() throws Throwable {
-        if (BuildCompat.isAtLeastS()) {
+        if (Build.VERSION.SDK_INT >= 31) {
             stretchAndAddContent(() -> mFactory.mRight, true, false);
         }
     }
 
     @Test
     public void doubleStretchRight() throws Throwable {
-        if (BuildCompat.isAtLeastS()) {
+        if (Build.VERSION.SDK_INT >= 31) {
             stretchAndStretchMore(() -> mFactory.mRight, true, false);
         }
     }
 
     @Test
     public void stretchAndAddContentToLeft() throws Throwable {
-        if (BuildCompat.isAtLeastS()) {
+        if (Build.VERSION.SDK_INT >= 31) {
             stretchAndAddContent(() -> mFactory.mLeft, false, false);
         }
     }
 
     @Test
     public void doubleStretchLeft() throws Throwable {
-        if (BuildCompat.isAtLeastS()) {
+        if (Build.VERSION.SDK_INT >= 31) {
             stretchAndStretchMore(() -> mFactory.mLeft, false, false);
         }
     }
@@ -713,6 +723,34 @@ public class StretchEdgeEffectTest extends BaseRecyclerViewInstrumentationTest {
         scroll(4, MotionEventCompat.AXIS_SCROLL, InputDeviceCompat.SOURCE_ROTARY_ENCODER);
 
         assertEquals(Build.VERSION.SDK_INT >= 31, mFactory.mRight.mOnReleaseCalled);
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
+    public void flingInNestedScroll() throws Throwable {
+        TestActivity activity = mActivityRule.getActivity();
+        NestedScrollView scrollView = new NestedScrollView(activity);
+        // Give the RecyclerView a parent that can scroll
+        mActivityRule.runOnUiThread(() -> {
+            ViewGroup parent = (ViewGroup) mRecyclerView.getParent();
+            int height = parent.getHeight();
+            int width = parent.getWidth();
+            parent.removeView(mRecyclerView);
+            LinearLayout linearLayout = new LinearLayout(activity);
+            linearLayout.setOrientation(LinearLayout.VERTICAL);
+            View view = new View(activity);
+            view.setBackgroundColor(Color.BLUE);
+            linearLayout.addView(view, width, height / 2);
+            linearLayout.addView(mRecyclerView, width, height);
+            scrollView.addView(linearLayout);
+            parent.addView(scrollView);
+            mRecyclerView.setEdgeEffectFactory(new RecyclerView.EdgeEffectFactory());
+        });
+        mActivityRule.runOnUiThread(() -> scrollView.scrollTo(0, scrollView.getHeight() / 2));
+        mActivityRule.runOnUiThread(() -> mRecyclerView.fling(0, 10000));
+        PollingCheck.waitFor(() -> !mRecyclerView.canScrollVertically(1));
+        mActivityRule.runOnUiThread(() -> mRecyclerView.fling(0, -10000));
+        PollingCheck.waitFor(() -> scrollView.getScrollY() == 0);
     }
 
     /**

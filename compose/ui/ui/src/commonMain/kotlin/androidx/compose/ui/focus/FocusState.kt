@@ -17,7 +17,7 @@
 package androidx.compose.ui.focus
 
 /**
- * The focus state of a [FocusTargetModifierNode]. Use [onFocusChanged] or [onFocusEvent] modifiers
+ * The focus state of a [FocusTargetNode]. Use [onFocusChanged] or [onFocusEvent] modifiers
  * to access [FocusState].
  *
  * @sample androidx.compose.ui.samples.FocusableSample

@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  Copyright 2023 The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/root_split_activity_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="10dp">
+
+        <TextView
+            android:id="@+id/activity_pair_split_attributes_text_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/current_split_attributes"/>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            android:background="#AAAAAA" />
+
+        <Button
+            android:id="@+id/start_primary_activity_button"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:layout_centerHorizontal="true"
+            android:text="Launch A" />
+
+        <CheckBox
+            android:id="@+id/use_placeholder_check_box"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Use a placeholder for A" />
+        <CheckBox
+            android:id="@+id/use_sticky_placeholder_check_box"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Placeholder is sticky"
+            android:visibility="gone"/>
+        <TextView
+            android:id="@+id/placeholder_choose_layout_text_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Choose the configuration to update the layout:"
+            android:visibility="gone"/>
+
+        <RadioGroup
+            android:id="@+id/placeholder_split_layout_option"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone">
+            <RadioButton
+                android:id="@+id/placeholder_use_default_split_attributes"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/use_default_split_attributes"
+                android:checked="true"/>
+            <RadioButton
+                android:id="@+id/placeholder_use_folding_aware_split_attributes"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/use_folding_aware_split_attributes"
+                android:checked="false"/>
+            <RadioButton
+                android:id="@+id/placeholder_use_customized_split_attributes"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/use_customized_split_attributes"
+                android:checked="false"/>
+
+                <TextView
+                    android:id="@+id/placeholder_split_type_text_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text="@string/choose_split_type"
+                    android:visibility="gone"/>
+                <Spinner
+                    android:id="@+id/placeholder_split_type_spinner"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone"/>
+                <TextView
+                    android:id="@+id/placeholder_layout_direction_text_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text="@string/choose_layout_direction"
+                    android:visibility="gone"/>
+                <Spinner
+                    android:id="@+id/placeholder_layout_direction_spinner"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone"/>
+        </RadioGroup>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            android:background="#AAAAAA" />
+
+        <Button
+            android:id="@+id/start_activity_pair_button"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:layout_centerHorizontal="true"
+            android:text="Launch A and B" />
+
+        <CheckBox
+            android:id="@+id/use_split_rule_check_box"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Split A With B" />
+
+        <TextView
+            android:id="@+id/split_rule_choose_layout_text_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Choose the configuration to update the layout:"
+            android:visibility="gone"/>
+
+        <RadioGroup
+            android:id="@+id/split_rule_split_layout_option"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone">
+            <RadioButton
+                android:id="@+id/split_rule_use_single_split_attributes"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/use_default_split_attributes"
+                android:checked="true"/>
+            <RadioButton
+                android:id="@+id/split_rule_use_folding_aware_split_attributes"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/use_folding_aware_split_attributes"
+                android:checked="false"/>
+            <RadioButton
+                android:id="@+id/split_rule_use_customized_split_attributes"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/use_customized_split_attributes"
+                android:checked="false"/>
+
+                <TextView
+                    android:id="@+id/split_rule_split_type_text_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text="@string/choose_split_type"
+                    android:visibility="gone"/>
+                <Spinner
+                    android:id="@+id/split_rule_split_type_spinner"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone"/>
+                <TextView
+                    android:id="@+id/split_rule_layout_direction_text_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text="@string/choose_layout_direction"
+                    android:visibility="gone"/>
+                <Spinner
+                    android:id="@+id/split_rule_layout_direction_spinner"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone"/>
+        </RadioGroup>
+
+        <View
+            android:id="@+id/finish_secondary_activities_divider"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            android:visibility="gone"
+            android:background="#AAAAAA" />
+
+        <Button
+            android:id="@+id/finish_secondary_activities_button"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:layout_centerHorizontal="true"
+            android:text="Finish secondary activities"
+            android:visibility="gone"/>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            android:background="#AAAAAA" />
+        <TextView
+            android:id="@+id/warning_message_text_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+    </LinearLayout>
+</ScrollView>

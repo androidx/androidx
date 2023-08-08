@@ -138,32 +138,32 @@ package androidx.annotation {
     method @Deprecated public abstract boolean hasAttributeId() default true;
     method @Deprecated public abstract String name() default "";
     method @Deprecated public abstract androidx.annotation.InspectableProperty.ValueType valueType() default androidx.annotation.InspectableProperty.ValueType.INFERRED;
-    property public abstract int attributeId;
-    property public abstract androidx.annotation.InspectableProperty.EnumEntry[] enumMapping;
-    property public abstract androidx.annotation.InspectableProperty.FlagEntry[] flagMapping;
-    property public abstract boolean hasAttributeId;
-    property public abstract String name;
-    property public abstract androidx.annotation.InspectableProperty.ValueType valueType;
+    property @Deprecated public abstract int attributeId;
+    property @Deprecated public abstract androidx.annotation.InspectableProperty.EnumEntry[] enumMapping;
+    property @Deprecated public abstract androidx.annotation.InspectableProperty.FlagEntry[] flagMapping;
+    property @Deprecated public abstract boolean hasAttributeId;
+    property @Deprecated public abstract String name;
+    property @Deprecated public abstract androidx.annotation.InspectableProperty.ValueType valueType;
   }
 
   @Deprecated @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.SOURCE) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.ANNOTATION_CLASS, kotlin.annotation.AnnotationTarget.CLASS}) public static @interface InspectableProperty.EnumEntry {
     method @Deprecated public abstract String name();
     method @Deprecated public abstract int value();
-    property public abstract String name;
-    property public abstract int value;
+    property @Deprecated public abstract String name;
+    property @Deprecated public abstract int value;
   }
 
   @Deprecated @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.SOURCE) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.ANNOTATION_CLASS, kotlin.annotation.AnnotationTarget.CLASS}) public static @interface InspectableProperty.FlagEntry {
     method @Deprecated public abstract int mask() default 0;
     method @Deprecated public abstract String name();
     method @Deprecated public abstract int target();
-    property public abstract int mask;
-    property public abstract String name;
-    property public abstract int target;
+    property @Deprecated public abstract int mask;
+    property @Deprecated public abstract String name;
+    property @Deprecated public abstract int target;
   }
 
   @Deprecated public enum InspectableProperty.ValueType {
-    method @Deprecated public static androidx.annotation.InspectableProperty.ValueType valueOf(String name) throws java.lang.IllegalArgumentException;
+    method @Deprecated public static androidx.annotation.InspectableProperty.ValueType valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
     method @Deprecated public static androidx.annotation.InspectableProperty.ValueType[] values();
     enum_constant @Deprecated public static final androidx.annotation.InspectableProperty.ValueType COLOR;
     enum_constant @Deprecated public static final androidx.annotation.InspectableProperty.ValueType GRAVITY;
@@ -293,7 +293,7 @@ package androidx.annotation {
   }
 
   public enum RestrictTo.Scope {
-    method public static androidx.annotation.RestrictTo.Scope valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.annotation.RestrictTo.Scope valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
     method public static androidx.annotation.RestrictTo.Scope[] values();
     enum_constant @Deprecated public static final androidx.annotation.RestrictTo.Scope GROUP_ID;
     enum_constant public static final androidx.annotation.RestrictTo.Scope LIBRARY;
@@ -342,7 +342,7 @@ package androidx.annotation {
   @kotlin.annotation.MustBeDocumented @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.PROPERTY_GETTER, kotlin.annotation.AnnotationTarget.PROPERTY_SETTER, kotlin.annotation.AnnotationTarget.CONSTRUCTOR, kotlin.annotation.AnnotationTarget.ANNOTATION_CLASS, kotlin.annotation.AnnotationTarget.CLASS, kotlin.annotation.AnnotationTarget.VALUE_PARAMETER}) public @interface UiThread {
   }
 
-  @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface VisibleForTesting {
+  @kotlin.annotation.MustBeDocumented @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface VisibleForTesting {
     method public abstract int otherwise() default androidx.annotation.VisibleForTesting.PRIVATE;
     property public abstract int otherwise;
     field public static final androidx.annotation.VisibleForTesting.Companion Companion;

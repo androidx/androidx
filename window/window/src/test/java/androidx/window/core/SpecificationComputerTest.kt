@@ -20,15 +20,15 @@ import androidx.window.core.SpecificationComputer.Companion.startSpecification
 import androidx.window.core.VerificationMode.LOG
 import androidx.window.core.VerificationMode.QUIET
 import androidx.window.core.VerificationMode.STRICT
-import org.mockito.kotlin.eq
-import org.mockito.kotlin.mock
-import org.mockito.kotlin.verify
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.mockito.ArgumentMatchers.contains
+import org.mockito.kotlin.eq
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.verify
 
 /**
  * Tests [SpecificationComputer] to verify the following behaviors.

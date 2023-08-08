@@ -37,7 +37,7 @@ dependencies {
 }
 
 androidx {
-    name = "Android RecyclerView Selection"
+    name = "RecyclerView Selection"
     publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.RECYCLERVIEW_SELECTION
     inceptionYear = "2017"

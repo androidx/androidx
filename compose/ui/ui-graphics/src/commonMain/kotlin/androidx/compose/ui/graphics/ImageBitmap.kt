@@ -34,10 +34,10 @@ interface ImageBitmap {
     /** The number of image pixels along the ImageBitmap's vertical axis. */
     val height: Int
 
-    /** ColorSpace the Image renders in **/
+    /** ColorSpace the Image renders in */
     val colorSpace: ColorSpace
 
-    /** Determines whether or not the ImageBitmap contains an alpha channel **/
+    /** Determines whether or not the ImageBitmap contains an alpha channel */
     val hasAlpha: Boolean
 
     /**

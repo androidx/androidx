@@ -28,9 +28,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.test.captureToImage
+import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.isDialog
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.FlakyTest
@@ -117,4 +121,45 @@ class AlertDialogTest {
             assertThat(dialogWidth).isLessThan(screenWidth)
         }
     }
+
+    @Test
+    fun alertDialog_positioningActionsWithLongText() {
+        rule.setMaterialContent {
+            AlertDialog(
+                onDismissRequest = {},
+                title = { Text(text = "Title") },
+                text = { Text("Text") },
+                confirmButton = {
+                    TextButton(
+                        onClick = { /* doSomething() */ },
+                        Modifier
+                            .testTag(ConfirmButtonTestTag)
+                            .semantics(mergeDescendants = true) {}
+                    ) {
+                        Text("Confirm with a long text")
+                    }
+                },
+                dismissButton = {
+                    TextButton(
+                        onClick = { /* doSomething() */ },
+                        Modifier
+                            .testTag(DismissButtonTestTag)
+                            .semantics(mergeDescendants = true) {}
+                    ) {
+                        Text("Dismiss with a long text")
+                    }
+                }
+            )
+        }
+
+        val confirmBtBounds = rule.onNodeWithTag(ConfirmButtonTestTag).getUnclippedBoundsInRoot()
+        val dismissBtBounds = rule.onNodeWithTag(DismissButtonTestTag).getUnclippedBoundsInRoot()
+
+        assert(dismissBtBounds.top > confirmBtBounds.bottom) {
+            "dismiss action should appear below the confirm action"
+        }
+    }
 }
+
+private const val ConfirmButtonTestTag = "confirmButton"
+private const val DismissButtonTestTag = "dismissButton"

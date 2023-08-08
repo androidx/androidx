@@ -31,7 +31,6 @@ import androidx.annotation.RestrictTo;
  * However, in the case of {@link PostMessageServiceConnection}, it will defer to the client by
  * making remote calls.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public interface PostMessageBackend {

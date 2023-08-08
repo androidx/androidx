@@ -35,7 +35,7 @@
             android:exported="true">
         </activity>
 
-        <activity android:name="androidx.graphics.lowlatency.FrontBufferedRendererTestActivity"
+        <activity android:name="androidx.graphics.opengl.SurfaceViewTestActivity"
             android:label="WetDryRendererTest"
             android:exported="true"/>
 

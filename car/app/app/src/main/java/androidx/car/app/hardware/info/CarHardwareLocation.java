@@ -37,12 +37,10 @@ import java.util.Objects;
 @KeepFields
 public final class CarHardwareLocation {
 
-    /** @hide */
     @RestrictTo(LIBRARY)
     public static final CarValue<Location> UNIMPLEMENTED_LOCATION = new CarValue<>(null, 0,
             CarValue.STATUS_UNIMPLEMENTED);
 
-    /** @hide */
     @RestrictTo(LIBRARY)
     public static final CarValue<Location> UNKNOWN_LOCATION = new CarValue<>(null, 0,
             CarValue.STATUS_UNKNOWN);

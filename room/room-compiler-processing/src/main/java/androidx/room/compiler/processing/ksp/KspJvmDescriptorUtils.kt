@@ -16,11 +16,8 @@
 
 package androidx.room.compiler.processing.ksp
 
-import androidx.room.compiler.processing.XConstructorElement
 import androidx.room.compiler.processing.XConstructorType
 import androidx.room.compiler.processing.XExecutableType
-import androidx.room.compiler.processing.XFieldElement
-import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XMethodType
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.isArray
@@ -36,22 +33,36 @@ import androidx.room.compiler.processing.isShort
 import androidx.room.compiler.processing.isTypeVariable
 import androidx.room.compiler.processing.isVoid
 import androidx.room.compiler.processing.isVoidObject
+import androidx.room.compiler.processing.ksp.synthetic.KspSyntheticPropertyMethodElement
 
 /**
- * Returns the method descriptor of this field element.
+ * Returns the method descriptor of this KSP field element.
  *
  * For reference, see the [JVM
  * specification, section 4.3.2](https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.3.2).
  */
-internal fun XFieldElement.jvmDescriptor() = name + ":" + type.jvmDescriptor()
+internal fun KspFieldElement.jvmDescriptor() = name + ":" + type.jvmDescriptor()
 
 /**
- * Returns the method descriptor of this method element.
+ * Returns the method descriptor of this KSP method element.
  *
  * For reference, see the [JVM
  * specification, section 4.3.3](https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.3.3).
  */
-internal fun XMethodElement.jvmDescriptor() = jvmName + executableType.jvmDescriptor()
+internal fun KspExecutableElement.jvmDescriptor() =
+    when (this) {
+        is KspMethodElement -> jvmName + executableType.jvmDescriptor()
+        else -> name + executableType.jvmDescriptor()
+    }
+
+/**
+ * Returns the method descriptor of this KSP method element.
+ *
+ * For reference, see the [JVM
+ * specification, section 4.3.3](https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.3.3).
+ */
+internal fun KspSyntheticPropertyMethodElement.jvmDescriptor() =
+    jvmName + executableType.jvmDescriptor()
 
 /**
  * Returns the method descriptor of this constructor element.
@@ -59,7 +70,7 @@ internal fun XMethodElement.jvmDescriptor() = jvmName + executableType.jvmDescri
  * For reference, see the [JVM
  * specification, section 4.3.3](https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.3.3).
  */
-internal fun XConstructorElement.jvmDescriptor() = name + executableType.jvmDescriptor()
+internal fun KspConstructorElement.jvmDescriptor() = name + executableType.jvmDescriptor()
 
 private fun XExecutableType.jvmDescriptor(): String {
     val parameterTypeDescriptors = parameterTypes.joinToString("") { it.jvmDescriptor() }

@@ -81,7 +81,8 @@ class InitializeBenchmark {
     fun initializeSimple() {
         benchmarkRule.measureRepeated {
             // Runs ForceStopRunnable
-            val database = WorkDatabase.create(context, configuration.taskExecutor, false)
+            val database = WorkDatabase.create(
+                context, configuration.taskExecutor, configuration.clock, false)
             WorkManagerImpl(context, configuration, taskExecutor, database)
             runWithTimingDisabled {
                 executor.runAllCommands()
@@ -95,7 +96,8 @@ class InitializeBenchmark {
     fun initializeWithWorkLeft() {
         val count = 20
         benchmarkRule.measureRepeated {
-            val database = WorkDatabase.create(context, configuration.taskExecutor, false)
+            val database = WorkDatabase.create(
+                context, configuration.taskExecutor, configuration.clock, false)
             runWithTimingDisabled {
                 for (i in 0 until count) {
                     val request = OneTimeWorkRequestBuilder<NoOpWorker>()

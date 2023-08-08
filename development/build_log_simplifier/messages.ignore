@@ -2,10 +2,6 @@
 # Comments and blank lines are ignored.
 # Before adding a suppression to this file, please attempt to suppress the output inside the generating tool instead.
 # Messages that only sometimes appear in stdout/stderr should be exempted in message-flakes.ignore, because this file (messages.ignore) may be automatically garbage collected whereas that one will not be.
-# b/237544244
-WARN: Attempt to load key 'java\.correct\.class\.type\.by\.place\.resolve\.scope' for not yet loaded registry
-at jdk\.proxy[0-9]+/jdk\.proxy[0-9]+\.\$Proxy[0-9]+\.linkTo\(Unknown Source\)
-at jdk\.proxy[0-9]+/jdk\.proxy[0-9]+\.\$Proxy[0-9]+\.generate\(Unknown Source\)
 # > Task :icing:extractIncludeDebugAndroidTestProto
 proto file '[^ ]*' directly specified in configuration\. It's likely you specified files\('path/to/foo\.proto'\) or fileTree\('path/to/directory'\) in protobuf or compile configuration\. This makes you vulnerable to https://github\.com/google/protobuf\-gradle\-plugin/issues/[0-9][0-9]*\. Please use files\('path/to/directory'\) instead\.
 OUT_DIR=\$OUT_DIR
@@ -17,6 +13,7 @@ Downloading file\:\$SUPPORT\/gradle\/wrapper\/.*
 Daemon will be stopped at the end of the build
 # > Configure project :appsearch:appsearch\-local\-backend
 Configuration on demand is an incubating feature\.
+Calculating task graph as configuration cache cannot be reused because an input to ClasspathEntrySnapshotTransform\: \$OUT_DIR\/buildSrc\/jetpad\-integration\/build\/libs\/jetpad\-integration\.jar has changed\.
 Calculating task graph as configuration cache cannot be reused because the set of Gradle properties has changed\.
 You are using legacy USE_ANDROIDX_REMOTE_BUILD_CACHE=true type, this cache has been turned down, so you are \*not\* using a remote cache\. Please move to the new cache using http://go/androidx\-dev\#remote\-build\-cache
 Configuration cache is an incubating feature\.
@@ -49,6 +46,9 @@ application@android:debuggable was tagged at .*\.xml:[0-9]+ to replace other dec
 \$OUT_DIR/androidx/benchmark/integration\-tests/dry\-run\-benchmark/build/intermediates/tmp/manifest/androidTest/release/tempFile[0-9]+ProcessTestManifest[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 # > Task :compose:runtime:runtime-saveable:processDebugAndroidTestManifest
 \$SUPPORT/compose/runtime/runtime\-saveable/src/androidAndroidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+# Usage of android.overrideVersionCheck
+Minimum supported Gradle version is [0-9]+\.[0-9]+\. Current version is [0-9]+\.[0-9]+\. If using the gradle wrapper\, try editing the distributionUrl in \$SUPPORT\/gradle\/wrapper\/gradle\-wrapper\.properties to gradle.*
+As android\.overrideVersionCheck is set, continuing anyway\.
 # > Task :buildOnServer
 [0-9]+ actionable tasks: [0-9]+ executed, [0-9]+ up\-to\-date
 Configuration cache entry reused with [0-9]+ problems\.
@@ -74,13 +74,8 @@ Note: \$SUPPORT/samples/SupportSliceDemos/src/main/java/com/example/androidx/sli
 Html results of .* zipped into.*\.zip
 # b/230127926
 [0-9]+ problem.* found storing the configuration cache.*
+See https://docs\.gradle\.org/[0-9]+\.[0-9]+/userguide/configuration_cache\.html\#config_cache:requirements:task_access
 plus [0-9]+ more problems\. Please see the report for details\.
-# https://youtrack.jetbrains.com/issue/KT-43293 fixed in Kotlin 1.8.0
-\- Task \`((\:[a-z1-9-]+)+)?\:[a-zA-Z1-9]+\` of type \`org\.jetbrains(\.[a-zA-Z]+)+\.(CInteropCommonizerTask|KotlinNativeCompile|KotlinNativeLink|KotlinNativeHostTest|CInteropMetadataDependencyTransformationTask|GenerateProjectStructureMetadata|TransformKotlinGranularMetadata|NativeDistributionCommonizerTask|transformNonJvmMainDependenciesMetadata|MetadataDependencyTransformationTask)\`\: invocation of \'Task\.project\' at execution time is unsupported\.
-\- Task \`((\:[a-z1-9-]+)+)?\:[a-zA-Z1-9]+\` of type \`org\.jetbrains\.kotlin\.gradle\.targets\.native\.internal\.(CInteropMetadataDependencyTransformationTask|NativeDistributionCommonizerTask)\`: cannot serialize object of type \'org\.gradle(\.[a-zA-Z]+)+\'\, a subtype of \'org\.gradle(\.[a-zA-Z]+)+\'\, as these are not supported with the configuration cache\.
-# https://youtrack.jetbrains.com/issue/KT-54627
-\- Task \`\:commonizeNativeDistribution\` of type \`org\.jetbrains\.kotlin\.gradle\.targets\.native\.internal\.NativeDistributionCommonizerTask\`\: error writing value of type \'java\.util\.concurrent\.locks\.ReentrantLock\'
-See https://docs\.gradle\.org/[0-9]+\.[0-9]+.*/userguide/configuration_cache\.html\#config_cache:requirements:use_project_during_execution
 See https\:\/\/docs\.gradle\.org\/[0-9]+\.[0-9]+.*\/userguide\/configuration_cache\.html\#config_cache\:requirements\:disallowed_types
 See the complete report at file://\$SUPPORT/build/reports/configuration\-cache/[^/]*/[^/]*/configuration\-cache\-report\.html
 See the complete report at file://\$OUT_DIR/androidx/build/reports/configuration\-cache/[^ ]*/[^ ]*/configuration\-cache\-report\.html
@@ -93,8 +88,23 @@ Namespace 'androidx\..*' used in: tempFile[0-9]+ProcessTestManifest[0-9]+\.xml, 
 A fine\-grained performance profile is available\: use the \-\-scan option\.
 # > Task :viewpager2:viewpager2:compileDebugAndroidTestKotlin
 w\: \$SUPPORT\/viewpager[0-9]+\/viewpager[0-9]+\/src\/androidTest\/java\/androidx\/viewpager[0-9]+\/widget\/HostFragmentBackStackTest\.kt\: \([0-9]+\, [0-9]+\)\: \'enableDebugLogging\(Boolean\)\: Unit\' is deprecated\. Deprecated in Java
+#> Task :docs-public:unzipJvmSources
+Encountered duplicate path "androidx/test/espresso/remote/.*.java" during copy operation configured with DuplicatesStrategy.WARN
 # > Task :docs-public:dackkaDocs
 ERROR: An attempt to write .*
+WARNING: no common sourceSet for androidx\.compose\..*, falling back to \.single\(\) when resolving @sample androidx\.compose\..*
+WARNING: no common( or jvm)? source set for DParameter .*
+WARNING: no common( or jvm)? source set for DTypeAlias .*
+WARNING: no common( or jvm)? source set for DClass .*Kt//.*
+WARN: Multiple sources exist for .*\. Artifact ID metadata will not be displayed
+WARNING: no common or jvm source set for DClass androidx\.datastore\.preferences/PreferenceDataStoreFile///PointingToDeclaration/! Falling back to androidMain sourceSet! This is only defensible if every usable sourceSet depends on androidMain! This is a bug in dackka: b/[0-9]+
+WARNING: no common source set for DPackage androidx\.compose\.ui\.test\.junit[0-9]+////PointingToDeclaration/! Falling back to jvmMain sourceSet! This is only defensible if every usable sourceSet depends on jvmMain! This is a bug in dackka: b/[0-9]+
+WARNING: no common or jvm source set for DPackage androidx\.compose\.ui\.text\.platform////PointingToDeclaration/! Falling back to androidMain sourceSet! This is only defensible if every usable sourceSet depends on androidMain! This is a bug in dackka: b/[0-9]+
+WARNING: no common source set for DPackage androidx\.compose\.ui\.tooling////PointingToDeclaration/! Falling back to jvmMain sourceSet! This is only defensible if every usable sourceSet depends on jvmMain! This is a bug in dackka: b/[0-9]+
+WARNING: no common source set for DPackage androidx\.compose\.ui\.test\.junit[0-9]+////PointingToDeclaration/! Falling back to jvmMain sourceSet! This is only defensible if every sourceSet depends onjvmMain! This is a bug in dackka: b/[0-9]+
+WARNING: no common source set for DPackage androidx\.compose\.ui\.tooling////PointingToDeclaration/! Falling back to jvmMain sourceSet! This is only defensible if every sourceSet depends onjvmMain! This is a bug in dackka: b/[0-9]+
+WARNING: no common or jvm source set for DPackage androidx\.datastore\.preferences////PointingToDeclaration/! Falling back to androidMain sourceSet! This is only defensible if every usable sourceSet depends on androidMain! This is a bug in dackka: b/[0-9]+
+WARNING: no common or jvm source set for DPackage androidx\.compose\.ui\.res////PointingToDeclaration/! Falling back to androidMain sourceSet! This is only defensible if every usable sourceSet depends on androidMain! This is a bug in dackka: b/[0-9]+
 WARN: Missing @param tag for parameter `activity` of function androidx\.appcompat\.app/AppCompatDelegate/create/\#android\.app\.Activity\#androidx\.appcompat\.app\.AppCompatCallback/PointingToDeclaration/
 WARN: Missing @param tag for parameter `dialog` of function androidx\.appcompat\.app/AppCompatDelegate/create/\#android\.app\.Dialog\#androidx\.appcompat\.app\.AppCompatCallback/PointingToDeclaration/
 WARN: Missing @param tag for parameter `context` of function androidx\.appcompat\.app/AppCompatDelegate/create/\#android\.content\.Context\#android\.view\.Window\#androidx\.appcompat\.app\.AppCompatCallback/PointingToDeclaration/
@@ -105,6 +115,7 @@ WARN: Missing @param tag for parameter `context` of function androidx\.appcompat
 WARN: Missing @param tag for parameter `context` of function androidx\.appsearch\.app/ShortcutAdapter/createShortcutBuilderFromDocument/\#android\.content\.Context\#java\.lang\.Object/PointingToDeclaration/
 WARN: Missing @param tag for parameter `context` of function androidx\.appsearch\.localstorage/LocalStorage\.SearchContext\.Builder/Builder/\#android\.content\.Context\#java\.lang\.String/PointingToDeclaration/
 WARN: Missing @param tag for parameter `context` of function androidx\.appsearch\.platformstorage/PlatformStorage\.SearchContext\.Builder/Builder/\#android\.content\.Context\#java\.lang\.String/PointingToDeclaration/
+WARN: Missing @param tag for parameter `context` of function androidx\.appsearch\.playservicesstorage/PlayServicesStorage\.SearchContext\.Builder/Builder/\#android\.content\.Context\#java\.lang\.String/PointingToDeclaration/
 WARN: Missing @param tag for parameter `shouldRunMigration` of function androidx\.datastore\.migrations/SharedPreferencesMigration/SharedPreferencesMigration/\#kotlin\.Function[0-9]+\[android\.content\.SharedPreferences\]\#kotlin\.collections\.Set\[kotlin\.String\]\#kotlin\.coroutines\.SuspendFunction[0-9]+\[TypeParam\(bounds=\[kotlin\.Any\?\]\),kotlin\.Boolean\]\#kotlin\.coroutines\.SuspendFunction[0-9]+\[androidx\.datastore\.migrations\.SharedPreferencesView,TypeParam\(bounds=\[kotlin\.Any\?\]\),TypeParam\(bounds=\[kotlin\.Any\?\]\)\]/PointingToDeclaration/
 WARN: Missing @param tag for parameter `shouldRunMigration` of function androidx\.datastore\.migrations/SharedPreferencesMigration/SharedPreferencesMigration/\#android\.content\.Context\#kotlin\.String\#kotlin\.collections\.Set\[kotlin\.String\]\#kotlin\.coroutines\.SuspendFunction[0-9]+\[TypeParam\(bounds=\[kotlin\.Any\?\]\),kotlin\.Boolean\]\#kotlin\.coroutines\.SuspendFunction[0-9]+\[androidx\.datastore\.migrations\.SharedPreferencesView,TypeParam\(bounds=\[kotlin\.Any\?\]\),TypeParam\(bounds=\[kotlin\.Any\?\]\)\]/PointingToDeclaration/
 WARN: Missing @param tag for parameter `alpha` of function androidx\.compose\.ui\.graphics/Color\.Companion/hsl/\#kotlin\.Float\#kotlin\.Float\#kotlin\.Float\#kotlin\.Float\#androidx\.compose\.ui\.graphics\.colorspace\.Rgb/PointingToDeclaration/
@@ -118,6 +129,14 @@ WARN: Missing @param tag for parameter `pathFillType` of function androidx\.comp
 WARN: Missing @param tag for parameter `autoMirror` of function androidx\.compose\.ui\.graphics\.vector//rememberVectorPainter/\#androidx\.compose\.ui\.unit\.Dp\#androidx\.compose\.ui\.unit\.Dp\#kotlin\.Float\#kotlin\.Float\#kotlin\.String\#androidx\.compose\.ui\.graphics\.Color\#androidx\.compose\.ui\.graphics\.BlendMode\#kotlin\.Boolean\#kotlin\.Function[0-9]+\[kotlin\.Float,kotlin\.Float,kotlin\.Unit\]/PointingToDeclaration/
 WARN: Missing @param tag for parameter `trimPathEnd` of function androidx\.compose\.ui\.graphics\.vector/ImageVector\.Builder/addPath/\#kotlin\.collections\.List\[androidx\.compose\.ui\.graphics\.vector\.PathNode\]\#androidx\.compose\.ui\.graphics\.PathFillType\#kotlin\.String\#androidx\.compose\.ui\.graphics\.Brush\?\#kotlin\.Float\#androidx\.compose\.ui\.graphics\.Brush\?\#kotlin\.Float\#kotlin\.Float\#androidx\.compose\.ui\.graphics\.StrokeCap\#androidx\.compose\.ui\.graphics\.StrokeJoin\#kotlin\.Float\#kotlin\.Float\#kotlin\.Float\#kotlin\.Float/PointingToDeclaration/
 WARN: Missing @param tag for parameter `pathFillType` of function androidx\.compose\.ui\.graphics\.vector/ImageVector\.Builder/path/androidx\.compose\.ui\.graphics\.vector\.ImageVector\.Builder\#kotlin\.String\#androidx\.compose\.ui\.graphics\.Brush\?\#kotlin\.Float\#androidx\.compose\.ui\.graphics\.Brush\?\#kotlin\.Float\#kotlin\.Float\#androidx\.compose\.ui\.graphics\.StrokeCap\#androidx\.compose\.ui\.graphics\.StrokeJoin\#kotlin\.Float\#androidx\.compose\.ui\.graphics\.PathFillType\#kotlin\.Function[0-9]+\[androidx\.compose\.ui\.graphics\.vector\.PathBuilder,kotlin\.Unit\]/PointingToDeclaration/
+WARN: Failed to resolve `@see SdkSandboxManager\.startSdkSandboxActivity`!
+Did you mean SdkSandboxManager\#startSdkSandboxActivity\?
+WARN: Failed to resolve `@see SdkSandboxActivityHandler\.onActivityCreated`!
+Did you mean SdkSandboxActivityHandler\#onActivityCreated\?
+WARN: Failed to resolve `@see SdkSandboxController\.registerSdkSandboxActivityHandler`!
+Did you mean SdkSandboxController\#registerSdkSandboxActivityHandler\?
+WARN: Failed to resolve `@see SdkSandboxController\.unregisterSdkSandboxActivityHandler`!
+Did you mean SdkSandboxController\#unregisterSdkSandboxActivityHandler\?
 WARN: Missing @param tag for parameter `position` of function androidx\.compose\.ui\.layout/Placeable/placeAt/\#androidx\.compose\.ui\.unit\.IntOffset\#kotlin\.Float\#kotlin\.Function[0-9]+\[androidx\.compose\.ui\.graphics\.GraphicsLayerScope,kotlin\.Unit\]\?/PointingToDeclaration/
 WARN: Missing @param tag for parameter `x` of function androidx\.compose\.ui\.layout/Placeable\.PlacementScope/place/androidx\.compose\.ui\.layout\.Placeable\#kotlin\.Int\#kotlin\.Int\#kotlin\.Float/PointingToDeclaration/
 WARN: Missing @param tag for parameter `y` of function androidx\.compose\.ui\.layout/Placeable\.PlacementScope/place/androidx\.compose\.ui\.layout\.Placeable\#kotlin\.Int\#kotlin\.Int\#kotlin\.Float/PointingToDeclaration/
@@ -178,6 +197,17 @@ WARN: Missing @param tag for parameter `content` of function androidx\.wear\.com
 WARN: Missing @param tag for parameter `content` of function androidx\.wear\.compose\.material//Stepper/\#kotlin\.Float\#kotlin\.Function[0-9]+\[kotlin\.Float,kotlin\.Unit\]\#kotlin\.Int\#kotlin\.Function[0-9]+\[kotlin\.Unit\]\#kotlin\.Function[0-9]+\[kotlin\.Unit\]\#androidx\.compose\.ui\.Modifier\#kotlin\.ranges\.ClosedFloatingPointRange\[kotlin\.Float\]\#androidx\.compose\.ui\.graphics\.Color\#androidx\.compose\.ui\.graphics\.Color\#androidx\.compose\.ui\.graphics\.Color\#kotlin\.Function[0-9]+\[androidx\.compose\.foundation\.layout\.BoxScope,kotlin\.Unit\]/PointingToDeclaration/
 WARN: Missing @param tag for parameter `content` of function androidx\.wear\.compose\.material//Stepper/\#kotlin\.Int\#kotlin\.Function[0-9]+\[kotlin\.Int,kotlin\.Unit\]\#kotlin\.ranges\.IntProgression\#kotlin\.Function[0-9]+\[kotlin\.Unit\]\#kotlin\.Function[0-9]+\[kotlin\.Unit\]\#androidx\.compose\.ui\.Modifier\#androidx\.compose\.ui\.graphics\.Color\#androidx\.compose\.ui\.graphics\.Color\#androidx\.compose\.ui\.graphics\.Color\#kotlin\.Function[0-9]+\[androidx\.compose\.foundation\.layout\.BoxScope,kotlin\.Unit\]/PointingToDeclaration/
 WARN: Missing @param tag for parameter `content` of function androidx\.wear\.compose\.material//TitleCard/\#kotlin\.Function[0-9]+\[kotlin\.Unit\]\#kotlin\.Function[0-9]+\[androidx\.compose\.foundation\.layout\.RowScope,kotlin\.Unit\]\#androidx\.compose\.ui\.Modifier\#kotlin\.Boolean\#kotlin\.Function[0-9]+\[androidx\.compose\.foundation\.layout\.RowScope,kotlin\.Unit\]\?\#androidx\.compose\.ui\.graphics\.painter\.Painter\#androidx\.compose\.ui\.graphics\.Color\#androidx\.compose\.ui\.graphics\.Color\#androidx\.compose\.ui\.graphics\.Color\#kotlin\.Function[0-9]+\[androidx\.compose\.foundation\.layout\.ColumnScope,kotlin\.Unit\]/PointingToDeclaration/
+WARN: Missing @param tag for parameter `content` of function androidx\.wear\.compose\.material[0-9]+//Button/\#kotlin\.Function[0-9]+\[kotlin\.Unit\]\#androidx\.compose\.ui\.Modifier\#kotlin\.Boolean\#androidx\.compose\.ui\.graphics\.Shape\#androidx\.wear\.compose\.material[0-9]+\.ButtonColors\#androidx\.compose\.foundation\.BorderStroke\?\#androidx\.compose\.foundation\.layout\.PaddingValues\#androidx\.compose\.foundation\.interaction\.MutableInteractionSource\#kotlin\.Function[0-9]+\[androidx\.compose\.foundation\.layout\.RowScope,kotlin\.Unit\]/PointingToDeclaration/
+WARN: Missing @param tag for parameter `content` of function androidx\.wear\.compose\.material[0-9]+//ChildButton/\#kotlin\.Function[0-9]+\[kotlin\.Unit\]\#androidx\.compose\.ui\.Modifier\#kotlin\.Boolean\#androidx\.compose\.ui\.graphics\.Shape\#androidx\.wear\.compose\.material[0-9]+\.ButtonColors\#androidx\.compose\.foundation\.BorderStroke\?\#androidx\.compose\.foundation\.layout\.PaddingValues\#androidx\.compose\.foundation\.interaction\.MutableInteractionSource\#kotlin\.Function[0-9]+\[androidx\.compose\.foundation\.layout\.RowScope,kotlin\.Unit\]/PointingToDeclaration/
+WARN: Missing @param tag for parameter `content` of function androidx\.wear\.compose\.material[0-9]+//FilledTonalButton/\#kotlin\.Function[0-9]+\[kotlin\.Unit\]\#androidx\.compose\.ui\.Modifier\#kotlin\.Boolean\#androidx\.compose\.ui\.graphics\.Shape\#androidx\.wear\.compose\.material[0-9]+\.ButtonColors\#androidx\.compose\.foundation\.BorderStroke\?\#androidx\.compose\.foundation\.layout\.PaddingValues\#androidx\.compose\.foundation\.interaction\.MutableInteractionSource\#kotlin\.Function[0-9]+\[androidx\.compose\.foundation\.layout\.RowScope,kotlin\.Unit\]/PointingToDeclaration/
+WARN: Missing @param tag for parameter `content` of function androidx\.wear\.compose\.material[0-9]+//Button/\#kotlin\.Function[0-9]+\[kotlin\.Unit\]\#androidx\.compose\.ui\.Modifier\#kotlin\.Boolean\#androidx\.compose\.ui\.graphics\.Shape\#androidx\.wear\.compose\.material[0-9]+\.ButtonColors\#androidx\.compose\.foundation\.BorderStroke\?\#androidx\.compose\.foundation\.layout\.PaddingValues\#androidx\.compose\.foundation\.interaction\.MutableInteractionSource\#androidx\.compose\.ui\.semantics\.Role\?\#kotlin\.Function[0-9]+\[androidx\.compose\.foundation\.layout\.RowScope,kotlin\.Unit\]/PointingToDeclaration/
+WARN: Missing @param tag for parameter `content` of function androidx\.wear\.compose\.material[0-9]+//ChildButton/\#kotlin\.Function[0-9]+\[kotlin\.Unit\]\#androidx\.compose\.ui\.Modifier\#kotlin\.Boolean\#androidx\.compose\.ui\.graphics\.Shape\#androidx\.wear\.compose\.material[0-9]+\.ButtonColors\#androidx\.compose\.foundation\.BorderStroke\?\#androidx\.compose\.foundation\.layout\.PaddingValues\#androidx\.compose\.foundation\.interaction\.MutableInteractionSource\#androidx\.compose\.ui\.semantics\.Role\?\#kotlin\.Function[0-9]+\[androidx\.compose\.foundation\.layout\.RowScope,kotlin\.Unit\]/PointingToDeclaration/
+WARN: Missing @param tag for parameter `content` of function androidx\.wear\.compose\.material[0-9]+//FilledTonalButton/\#kotlin\.Function[0-9]+\[kotlin\.Unit\]\#androidx\.compose\.ui\.Modifier\#kotlin\.Boolean\#androidx\.compose\.ui\.graphics\.Shape\#androidx\.wear\.compose\.material[0-9]+\.ButtonColors\#androidx\.compose\.foundation\.BorderStroke\?\#androidx\.compose\.foundation\.layout\.PaddingValues\#androidx\.compose\.foundation\.interaction\.MutableInteractionSource\#androidx\.compose\.ui\.semantics\.Role\?\#kotlin\.Function[0-9]+\[androidx\.compose\.foundation\.layout\.RowScope,kotlin\.Unit\]/PointingToDeclaration/
+WARN: Missing @param tag for parameter `content` of function androidx\.wear\.compose\.material[0-9]+//MaterialTheme/\#androidx\.wear\.compose\.material[0-9]+\.ColorScheme\#androidx\.wear\.compose\.material[0-9]+\.Typography\#androidx\.wear\.compose\.material[0-9]+\.Shapes\#kotlin\.Function[0-9]+\[kotlin\.Unit\]/PointingToDeclaration/
+WARN: Missing @param tag for parameter `content` of function androidx\.wear\.compose\.material[0-9]+//OutlinedButton/\#kotlin\.Function[0-9]+\[kotlin\.Unit\]\#androidx\.compose\.ui\.Modifier\#kotlin\.Boolean\#androidx\.compose\.ui\.graphics\.Shape\#androidx\.wear\.compose\.material[0-9]+\.ButtonColors\#androidx\.compose\.foundation\.BorderStroke\?\#androidx\.compose\.foundation\.layout\.PaddingValues\#androidx\.compose\.foundation\.interaction\.MutableInteractionSource\#kotlin\.Function[0-9]+\[androidx\.compose\.foundation\.layout\.RowScope,kotlin\.Unit\]/PointingToDeclaration/
+WARN: Missing @param tag for parameter `content` of function androidx\.wear\.compose\.material[0-9]+//OutlinedButton/\#kotlin\.Function[0-9]+\[kotlin\.Unit\]\#androidx\.compose\.ui\.Modifier\#kotlin\.Boolean\#androidx\.compose\.ui\.graphics\.Shape\#androidx\.wear\.compose\.material[0-9]+\.ButtonColors\#androidx\.compose\.foundation\.BorderStroke\?\#androidx\.compose\.foundation\.layout\.PaddingValues\#androidx\.compose\.foundation\.interaction\.MutableInteractionSource\#androidx\.compose\.ui\.semantics\.Role\?\#kotlin\.Function[0-9]+\[androidx\.compose\.foundation\.layout\.RowScope,kotlin\.Unit\]/PointingToDeclaration/
+WARN: Missing @param tag for parameter `enabled` of function androidx\.wear\.compose\.material[0-9]+/ButtonDefaults/outlinedButtonBorder/\#kotlin\.Boolean\#androidx\.compose\.ui\.graphics\.Color\#androidx\.compose\.ui\.graphics\.Color\#androidx\.compose\.ui\.unit\.Dp/PointingToDeclaration/
+WARN: Missing @param tag for parameter `enabled` of function androidx\.wear\.compose\.material[0-9]+/IconButtonDefaults/outlinedIconButtonBorder/\#kotlin\.Boolean\#androidx\.compose\.ui\.graphics\.Color\#androidx\.compose\.ui\.graphics\.Color\#androidx\.compose\.ui\.unit\.Dp/PointingToDeclaration/
 WARN: Unable to find what is referred to by
 # > Task :docs-tip-of-tree:dackkaDocs
 WARN\: Failed to resolve \`\@see SplitAttributes\.shouldExpandSecondaryContainer\`\!
@@ -230,6 +260,8 @@ WARN: Missing @param tag for parameter `text` of function androidx\.compose\.ui\
 WARNING: link to @throws type Renderer\.GlesException does not resolve\. Is it from a package that the containing file does not import\? Is docs inherited to an un\-documented override function, but the exception class is not in scope in the inheriting class\? The general fix for these is to fully qualify the exception name,  e\.g\.`@throws java\.io\.IOException under some conditions\. This was observed in Throws\(root=CustomDocTag\(children=\[P\(children=\[Text\(body=If any GL calls fail during initialization\., children=\[\], params=\{\}\)\], params=\{\}\)\], params=\{\}, name=MARKDOWN_FILE\), name=Renderer\.GlesException, exceptionAddress=null\)\.`
 WARNING: link to @throws type ServiceStartFailureException does not resolve\. Is it from a package that the containing file does not import\? Is docs inherited to an un\-documented override function, but the exception class is not in scope in the inheriting class\? The general fix for these is to fully qualify the exception name,  e\.g\.`@throws java\.io\.IOException under some conditions\. This was observed in Throws\(root=CustomDocTag\(children=\[P\(children=\[Text\(body=if the watchface dies during startup\., children=\[\], params=\{\}\)\], params=\{\}\)\], params=\{\}, name=MARKDOWN_FILE\), name=ServiceStartFailureException, exceptionAddress=null\)\.`
 WARN: Sources for .+ is empty
+WARNING: link to @throws type UnsupportedDeviceOperationException does not resolve\. Is it from a package that the containing file does not import\? Is docs inherited to an un\-documented override function, but the exception class is not in scope in the inheriting class\? The general fix for these is to fully qualify the exception name,  e\.g\.`@throws java\.io\.IOException under some conditions\. This was observed in Throws\(root=CustomDocTag\(children=\[P\(children=\[Text\(body=if used on a real device\., children=\[\], params=\{\}\)\], params=\{\}\)\], params=\{\}, name=MARKDOWN_FILE\), name=UnsupportedDeviceOperationException, exceptionAddress=null\)\.`
+WARNING: link to @throws type DeviceControllerOperationException does not resolve\. Is it from a package that the containing file does not import\? Is docs inherited to an un\-documented override function, but the exception class is not in scope in the inheriting class\? The general fix for these is to fully qualify the exception name,  e\.g\.`@throws java\.io\.IOException under some conditions\. This was observed in Throws\(root=CustomDocTag\(children=\[P\(children=\[Text\(body=when called on a non\-foldable Emulator\., children=\[\], params=\{\}\)\], params=\{\}\)\], params=\{\}, name=MARKDOWN_FILE\), name=DeviceControllerOperationException, exceptionAddress=null\)\.`
 WARN: Missing @param tag for parameter `startActivityIntent` of function androidx\.test\.core\.app/ActivityScenario/launch/\#android\.content\.Intent\#android\.os\.Bundle/PointingToDeclaration/
 WARN: Missing @param tag for parameter `activityClass` of function androidx\.test\.core\.app/ActivityScenario/launch/\#java\.lang\.Class<A>\#android\.os\.Bundle/PointingToDeclaration/
 WARN: Missing @param tag for parameter `startActivityIntent` of function androidx\.test\.core\.app/ActivityScenario/launchActivityForResult/\#android\.content\.Intent\#android\.os\.Bundle/PointingToDeclaration/
@@ -458,6 +490,7 @@ WARN: Missing @param tag for parameter `serializer` of function androidx\.datast
 WARN: Missing @param tag for parameter `serializer` of function androidx\.datastore\.rxjava[0-9]+/RxDataStoreDelegateKt/rxDataStore/\#kotlin\.String\#androidx\.datastore\.core\.Serializer\[TypeParam\(bounds=\[kotlin\.Any\]\)\]\#androidx\.datastore\.core\.handlers\.ReplaceFileCorruptionHandler\[TypeParam\(bounds=\[kotlin\.Any\]\)\]\?\#kotlin\.Function[0-9]+\[android\.content\.Context,kotlin\.collections\.List\[androidx\.datastore\.core\.DataMigration\[TypeParam\(bounds=\[kotlin\.Any\]\)\]\]\]\#io\.reactivex\.rxjava[0-9]+\.core\.Scheduler/PointingToDeclaration/
 WARN: Missing @param tag for parameter `context` of function androidx\.documentfile\.provider/DocumentFile/fromSingleUri/\#android\.content\.Context\#android\.net\.Uri/PointingToDeclaration/
 WARN: Missing @param tag for parameter `context` of function androidx\.documentfile\.provider/DocumentFile/fromTreeUri/\#android\.content\.Context\#android\.net\.Uri/PointingToDeclaration/
+WARNING\: link to \@throws type kotlin\.IllegalArgumentException does not resolve\. Is it from a package that the containing file does not import\? Is docs inherited to an un\-documented override function\, but the exception class is not in scope in the inheriting class\? The general fix for these is to fully qualify the exception name\,  e\.g\.\`\@throws java\.io\.IOException under some conditions\. This was observed in Throws\(root\=CustomDocTag\(children\=\[P\(children\=\[Text\(body\=if this enum type has no constant with the specified name\, children\=\[\]\, params\=\{\}\)\]\, params\=\{\}\)\]\, params\=\{\}\, name\=MARKDOWN_FILE\)\, name\=kotlin\.IllegalArgumentException\, exceptionAddress\=null\)\.\`
 WARN: Failed to resolve `@see <a href="https://developer\.android\.com/guide/topics/ui/drag\-drop">Drag and drop</a>`!
 WARN: Missing @param tag for parameter `useEmojiAsDefaultStyle` of function androidx\.emoji\.text/EmojiCompat\.Config/setUseEmojiAsDefaultStyle/\#boolean\#java\.util\.List<java\.lang\.Integer>/PointingToDeclaration/
 WARN: Missing @param tag for parameter `useEmojiAsDefaultStyle` of function androidx\.emoji[0-9]+\.text/EmojiCompat\.Config/setUseEmojiAsDefaultStyle/\#boolean\#java\.util\.List<java\.lang\.Integer>/PointingToDeclaration/
@@ -496,6 +529,7 @@ WARN: Missing @param tag for parameter `verificationMode` of function androidx\.
 WARNING: link to @throws type AssertionFailedError does not resolve\. Is it from a package that the containing file does not import\? Is docs inherited to an un\-documented override function, but the exception class is not in scope in the inheriting class\? The general fix for these is to fully qualify the exception name,  e\.g\.`@throws java\.io\.IOException under some conditions\. This was observed in Throws\(root=CustomDocTag\(children=\[P\(children=\[Text\(body=if the given , children=\[\], params=\{\}\), DocumentationLink\(dri=org\.hamcrest/Matcher///PointingToDeclaration/, children=\[Text\(body=Matcher, children=\[\], params=\{\}\)\], params=\{\}\), Text\(body= did not match the expected number of recorded intents, children=\[\], params=\{\}\)\], params=\{\}\)\], params=\{\}, name=MARKDOWN_FILE\), name=AssertionFailedError, exceptionAddress=null\)\.`
 WARNING: link to @throws type AssertionFailedError does not resolve\. Is it from a package that the containing file does not import\? Is docs inherited to an un\-documented override function, but the exception class is not in scope in the inheriting class\? The general fix for these is to fully qualify the exception name,  e\.g\.`@throws java\.io\.IOException under some conditions\. This was observed in Throws\(root=CustomDocTag\(children=\[P\(children=\[Text\(body=if the given , children=\[\], params=\{\}\), DocumentationLink\(dri=org\.hamcrest/Matcher///PointingToDeclaration/, children=\[Text\(body=Matcher, children=\[\], params=\{\}\)\], params=\{\}\), Text\(body= did not match any or matched more than one of the recorded intents, children=\[\], params=\{\}\)\], params=\{\}\)\], params=\{\}, name=MARKDOWN_FILE\), name=AssertionFailedError, exceptionAddress=null\)\.`
 WARN: Missing @param tag for parameter `extras` of function androidx\.media[0-9]+\.session/MediaController/setMediaUri/\#android\.net\.Uri\#android\.os\.Bundle/PointingToDeclaration/
+WARN: Use @androidx\.annotation\.Nullable, not @org\.checkerframework\.checker\.nullness\.qual/Nullable///PointingToDeclaration/
 WARN: Failed to resolve `@see <a href="https://developer\.android\.com/guide/topics/media/media\-routing">Media Routing</a>`!
 WARN: Missing @param tag for parameter `context` of function androidx\.mediarouter\.media/RemotePlaybackClient/RemotePlaybackClient/\#android\.content\.Context\#androidx\.mediarouter\.media\.MediaRouter\.RouteInfo/PointingToDeclaration/
 WARN: Failed to resolve `@see NavAction\.getDefaultArguments`!
@@ -706,30 +740,22 @@ WARN: Missing @param tag for parameter `renderEffect` of function androidx\.comp
 WARN: Missing @param tag for parameter `clipOp` of function androidx\.compose\.ui\.graphics/Canvas/clipRect/\#kotlin\.Float\#kotlin\.Float\#kotlin\.Float\#kotlin\.Float\#androidx\.compose\.ui\.graphics\.ClipOp/PointingToDeclaration/
 WARN: Missing @param tag for parameter `paint` of function androidx\.compose\.ui\.graphics/Canvas/drawArc/\#kotlin\.Float\#kotlin\.Float\#kotlin\.Float\#kotlin\.Float\#kotlin\.Float\#kotlin\.Float\#kotlin\.Boolean\#androidx\.compose\.ui\.graphics\.Paint/PointingToDeclaration/
 WARN: Missing @param tag for parameter `operation` of function androidx\.compose\.ui\.graphics/AndroidPath/op/\#androidx\.compose\.ui\.graphics\.Path\#androidx\.compose\.ui\.graphics\.Path\#androidx\.compose\.ui\.graphics\.PathOperation/PointingToDeclaration/
-WARN\: Multiple sources exist for RestrictTo\. Artifact ID metadata will not be displayed
-WARN\: Multiple sources exist for Scope\. Artifact ID metadata will not be displayed
-WARN\: Multiple sources exist for SparseArrayCompat\. Artifact ID metadata will not be displayed
-WARN\: Multiple sources exist for LongSparseArray\. Artifact ID metadata will not be displayed
 WARNING: link to @throws type IOException does not resolve\. Is it from a package that the containing file does not import\? Is docs inherited to an un\-documented override function, but the exception class is not in scope in the inheriting class\? The general fix for these is to fully qualify the exception name,  e\.g\.`@throws java\.io\.IOException under some conditions\. This was observed in Throws\(root=CustomDocTag\(children=\[P\(children=\[Text\(body=Unrecoverable IO exception when trying to access the underlying storage\., children=\[\], params=\{\}\)\], params=\{\}\)\], params=\{\}, name=MARKDOWN_FILE\), name=IOException, exceptionAddress=null\)\.`
-WARN: Multiple sources exist for PreferencesSerializer\. Artifact ID metadata will not be displayed
-WARN: Multiple sources exist for PreferenceDataStoreFactory\. Artifact ID metadata will not be displayed
-WARN: Multiple sources exist for DataStoreFactory\. Artifact ID metadata will not be displayed
-WARN: Multiple sources exist for ReplaceFileCorruptionHandler\. Artifact ID metadata will not be displayed
 WARNING\: link to \@throws type ArrayIndexOutOfBoundsException does not resolve\. Is it from a package that the containing file does not import\? Is docs inherited to an un\-documented override function\, but the exception class is not in scope in the inheriting class\? The general fix for these is to fully qualify the exception name\,  e\.g\.\`\@throws java\.io\.IOException under some conditions\. This was observed in Throws\(root\=CustomDocTag\(children\=\[P\(children\=\[Text\(body\=if \, children\=\[\]\, params\=\{\}\)\, DocumentationLink\(dri\=androidx\.collection\/CircularArray\/\/\/PointingToDeclaration\/\, children\=\[Text\(body\=CircularArray\, children\=\[\]\, params\=\{\}\)\]\, params\=\{href\=\[CircularArray\]\}\)\, Text\(body\= is empty\, children\=\[\]\, params\=\{\}\)\]\, params\=\{\}\)\]\, params\=\{\}\, name\=MARKDOWN_FILE\)\, name\=ArrayIndexOutOfBoundsException\, exceptionAddress\=null\)\.\`
 WARNING\: link to \@throws type ArrayIndexOutOfBoundsException does not resolve\. Is it from a package that the containing file does not import\? Is docs inherited to an un\-documented override function\, but the exception class is not in scope in the inheriting class\? The general fix for these is to fully qualify the exception name\,  e\.g\.\`\@throws java\.io\.IOException under some conditions\. This was observed in Throws\(root\=CustomDocTag\(children\=\[P\(children\=\[Text\(body\=if n \, children\=\[\]\, params\=\{\}\)\, Text\(body\=\<\, children\=\[\]\, params\=\{content\-type\=html\}\)\, Text\(body\= [0-9]+ or n \, children\=\[\]\, params\=\{\}\)\, Text\(body\=\>\, children\=\[\]\, params\=\{content\-type\=html\}\)\, Text\(body\=\= size\(\)\, children\=\[\]\, params\=\{\}\)\]\, params\=\{\}\)\]\, params\=\{\}\, name\=MARKDOWN_FILE\)\, name\=ArrayIndexOutOfBoundsException\, exceptionAddress\=null\)\.\`
 WARNING\: link to \@throws type ArrayIndexOutOfBoundsException does not resolve\. Is it from a package that the containing file does not import\? Is docs inherited to an un\-documented override function\, but the exception class is not in scope in the inheriting class\? The general fix for these is to fully qualify the exception name\,  e\.g\.\`\@throws java\.io\.IOException under some conditions\. This was observed in Throws\(root\=CustomDocTag\(children\=\[P\(children\=\[Text\(body\=if \, children\=\[\]\, params\=\{\}\)\, DocumentationLink\(dri\=androidx\.collection\/CircularArray\/\/\/PointingToDeclaration\/\, children\=\[Text\(body\=CircularArray\, children\=\[\]\, params\=\{\}\)\]\, params\=\{href\=\[CircularArray\]\}\)\, Text\(body\= is empty \(on jvm\)\, children\=\[\]\, params\=\{\}\)\]\, params\=\{\}\)\]\, params\=\{\}\, name\=MARKDOWN_FILE\)\, name\=ArrayIndexOutOfBoundsException\, exceptionAddress\=null\)\.\`
 WARNING\: link to \@throws type ArrayIndexOutOfBoundsException does not resolve\. Is it from a package that the containing file does not import\? Is docs inherited to an un\-documented override function\, but the exception class is not in scope in the inheriting class\? The general fix for these is to fully qualify the exception name\,  e\.g\.\`\@throws java\.io\.IOException under some conditions\. This was observed in Throws\(root\=CustomDocTag\(children\=\[P\(children\=\[Text\(body\=if \, children\=\[\]\, params\=\{\}\)\, DocumentationLink\(dri\=androidx\.collection\/CircularArray\/removeFromEnd\/\#kotlin\.Int\/PointingToCallableParameters\([0-9]+\)\/\, children\=\[Text\(body\=count\, children\=\[\]\, params\=\{\}\)\]\, params\=\{href\=\[count\]\}\)\, Text\(body\= is larger than \, children\=\[\]\, params\=\{\}\)\, DocumentationLink\(dri\=androidx\.collection\/CircularArray\/size\/\#\/PointingToDeclaration\/\, children\=\[Text\(body\=size\, children\=\[\]\, params\=\{\}\)\]\, params\=\{href\=\[size\]\}\)\]\, params\=\{\}\)\]\, params\=\{\}\, name\=MARKDOWN_FILE\)\, name\=ArrayIndexOutOfBoundsException\, exceptionAddress\=null\)\.\`
 WARNING\: link to \@throws type ArrayIndexOutOfBoundsException does not resolve\. Is it from a package that the containing file does not import\? Is docs inherited to an un\-documented override function\, but the exception class is not in scope in the inheriting class\? The general fix for these is to fully qualify the exception name\,  e\.g\.\`\@throws java\.io\.IOException under some conditions\. This was observed in Throws\(root\=CustomDocTag\(children\=\[P\(children\=\[Text\(body\=if \, children\=\[\]\, params\=\{\}\)\, DocumentationLink\(dri\=androidx\.collection\/CircularArray\/removeFromStart\/\#kotlin\.Int\/PointingToCallableParameters\([0-9]+\)\/\, children\=\[Text\(body\=count\, children\=\[\]\, params\=\{\}\)\]\, params\=\{href\=\[count\]\}\)\, Text\(body\= is larger than \, children\=\[\]\, params\=\{\}\)\, DocumentationLink\(dri\=androidx\.collection\/CircularArray\/size\/\#\/PointingToDeclaration\/\, children\=\[Text\(body\=size\, children\=\[\]\, params\=\{\}\)\]\, params\=\{href\=\[size\]\}\)\]\, params\=\{\}\)\]\, params\=\{\}\, name\=MARKDOWN_FILE\)\, name\=ArrayIndexOutOfBoundsException\, exceptionAddress\=null\)\.\`
-WARN\: Multiple sources exist for ArraySet\. Artifact ID metadata will not be displayed
 # Wire proto generation, task :generateDebugProtos
 Writing .* to \$OUT_DIR/.*/build/generated/source/wire
 # > Task :compose:ui:ui-tooling:processDebugAndroidTestManifest
 \$SUPPORT/compose/ui/ui\-tooling/src/androidAndroidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 dagger\.lint\.DaggerIssueRegistry in .*/lint\.jar does not specify a vendor; see IssueRegistry#vendor
-# > Task :compose:foundation:foundation:androidReleaseSourcesJar
-Encountered duplicate path "android[a-zA-Z]*/.+" during copy operation configured with DuplicatesStrategy\.WARN
+# > Task :jvmSourcesJar
+Encountered duplicate path \"jvmMain(\/([a-zA-Z]+))+(\.jvm)?\.kt\" during copy operation configured with DuplicatesStrategy.WARN
 # ./gradlew tasks warns as we have warnings present
 You can use \'\-\-warning\-mode all\' to show the individual deprecation warnings and determine if they come from your own scripts or plugins\.
+For more on this\, please refer to https\:\/\/docs\.gradle\.org\/.*\/userguide\/command_line_interface\.html\#sec\:command_line_warnings in the Gradle documentation\.
 # > Task :emoji2:emoji2-bundled:processDebugAndroidTestManifest
 \$SUPPORT/emoji[0-9]+/emoji[0-9]+\-bundled/src/androidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 meta\-data\#androidx\.emoji[0-9]+\.text\.EmojiCompatInitializer was tagged at AndroidManifest\.xml:[0-9]+ to remove other declarations but no other declaration present
@@ -741,15 +767,135 @@ To honour the JVM settings for this build a single\-use Daemon process will be f
 C/C\+\+: Building ver\.\: [0-9]+\.[0-9]+\.[0-9]+
 C/C\+\+: Packaging for\: (amd\-[0-9]+|armhf\-[0-9]+|x86\-[0-9]+)
 C/C\+\+: Compiling for ARM
-w: \[ksp\] Using @JvmName annotation on a function or accessor that will be overridden by Room is not supported\. If this is important for your use case, please file a bug at https://issuetracker\.google\.com/issues/new\?component=[0-9]+ with details\. \- androidx\.room\.androidx\.room\.integration\.kotlintestapp\.test\.JvmNameInDaoTest\.JvmNameDb\.jvmDao\(\)
+w: \[ksp\] Using @JvmName annotation on a function or accessor that will be overridden by Room is not supported\. If this is important for your use case, please file a bug at https://issuetracker\.google\.com/issues/new\?component=[0-9]+ with details\. \- androidx\.room\.integration\.kotlintestapp\.test\.JvmNameInDaoTest\.JvmNameDb\.jvmDao\(\)
 w: \[ksp\] \$SUPPORT/room/integration\-tests/kotlintestapp/src/androidTest/java/androidx/room/integration/kotlintestapp/test/JvmNameInDaoTest\.kt:[0-9]+: Using @JvmName annotation on a function or accessor that will be overridden by Room is not supported\. If this is important for your use case, please file a bug at https://issuetracker\.google\.com/issues/new\?component=[0-9]+ with details\.
 # > Task :room:integration-tests:room-testapp-kotlin:kaptWithKaptDebugAndroidTestKotlin
-\$OUT_DIR/androidx/room/integration\-tests/room\-testapp\-kotlin/build/tmp/kapt[0-9]+/stubs/withKaptDebugAndroidTest/androidx/room/androidx/room/integration/kotlintestapp/test/JvmNameInDaoTest\.java:[0-9]+: warning: Using @JvmName annotation on a function or accessor that will be overridden by Room is not supported\. If this is important for your use case, please file a bug at https://issuetracker\.google\.com/issues/new\?component=[0-9]+ with details\.
+\$OUT_DIR/androidx/room/integration\-tests/room\-testapp\-kotlin/build/tmp/kapt[0-9]+/stubs/withKaptDebugAndroidTest/androidx/room/integration/kotlintestapp/test/JvmNameInDaoTest\.java:[0-9]+: warning: Using @JvmName annotation on a function or accessor that will be overridden by Room is not supported\. If this is important for your use case, please file a bug at https://issuetracker\.google\.com/issues/new\?component=[0-9]+ with details\.
 public abstract void jvmDelete\(T t\);
 public abstract void jvmInsert\(@org\.jetbrains\.annotations\.NotNull.*
-public abstract java\.util\.List<androidx\.room\.androidx\.room\.integration\.kotlintestapp\.test\.JvmNameInDaoTest\.JvmNameEntity> jvmQuery\(\);
-public abstract androidx\.room\.androidx\.room\.integration\.kotlintestapp\.test\.JvmNameInDaoTest\.JvmNameDao jvmDao\(\);
+public abstract java\.util\.List<androidx\.room\.integration\.kotlintestapp\.test\.JvmNameInDaoTest\.JvmNameEntity> jvmQuery\(\);
+public abstract androidx\.room\.integration\.kotlintestapp\.test\.JvmNameInDaoTest\.JvmNameDao jvmDao\(\);
 \^
+Note: \$SUPPORT/wear/tiles/tiles\-material/src/main/java/androidx/wear/tiles/material/CircularProgressIndicator\.java has additional uses or overrides of a deprecated API\.
+Note: \$SUPPORT/wear/tiles/tiles\-material/src/main/java/androidx/wear/tiles/material/TitleChip\.java has additional uses or overrides of a deprecated API\.
+\$SUPPORT/wear/tiles/tiles\-material/src/main/java/androidx/wear/tiles/material/layouts/PrimaryLayout\.java:[0-9]+: warning: \[deprecation\] CompactChip in androidx\.wear\.tiles\.material has been deprecated
+Note: \$SUPPORT/wear/tiles/tiles\-material/src/main/java/androidx/wear/tiles/material/Button\.java has additional uses or overrides of a deprecated API\.
+\$SUPPORT/wear/tiles/tiles\-material/src/androidTest/java/androidx/wear/tiles/material/layouts/TestCasesGenerator\.java:[0-9]+: warning: \[deprecation\] ButtonDefaults in androidx\.wear\.tiles\.material has been deprecated
+\$SUPPORT/wear/tiles/tiles\-material/src/androidTest/java/androidx/wear/tiles/material/layouts/TestCasesGenerator\.java:[0-9]+: warning: \[deprecation\] Chip in androidx\.wear\.tiles\.material has been deprecated
+import androidx\.wear\.tiles\.material\.Chip;
+\$SUPPORT/wear/tiles/tiles\-material/src/androidTest/java/androidx/wear/tiles/material/layouts/TestCasesGenerator\.java:[0-9]+: warning: \[deprecation\] ChipColors in androidx\.wear\.tiles\.material has been deprecated
+import androidx\.wear\.tiles\.material\.ChipColors;
+\$SUPPORT/wear/tiles/tiles\-material/src/androidTest/java/androidx/wear/tiles/material/layouts/TestCasesGenerator\.java:[0-9]+: warning: \[deprecation\] CircularProgressIndicator in androidx\.wear\.tiles\.material has been deprecated
+\$SUPPORT/wear/tiles/tiles\-material/src/androidTest/java/androidx/wear/tiles/material/layouts/TestCasesGenerator\.java:[0-9]+: warning: \[deprecation\] Colors in androidx\.wear\.tiles\.material has been deprecated
+import androidx\.wear\.tiles\.material\.Colors;
+\$SUPPORT/wear/tiles/tiles\-material/src/androidTest/java/androidx/wear/tiles/material/layouts/TestCasesGenerator\.java:[0-9]+: warning: \[deprecation\] CompactChip in androidx\.wear\.tiles\.material has been deprecated
+\$SUPPORT/wear/tiles/tiles\-material/src/androidTest/java/androidx/wear/tiles/material/layouts/TestCasesGenerator\.java:[0-9]+: warning: \[deprecation\] ProgressIndicatorColors in androidx\.wear\.tiles\.material has been deprecated
+import androidx\.wear\.tiles\.material\.ProgressIndicatorColors;
+\$SUPPORT/wear/tiles/tiles\-material/src/androidTest/java/androidx/wear/tiles/material/layouts/TestCasesGenerator\.java:[0-9]+: warning: \[deprecation\] ProgressIndicatorDefaults in androidx\.wear\.tiles\.material has been deprecated
+import androidx\.wear\.tiles\.material\.ProgressIndicatorDefaults;
+\$SUPPORT/wear/tiles/tiles\-material/src/androidTest/java/androidx/wear/tiles/material/layouts/TestCasesGenerator\.java:[0-9]+: warning: \[deprecation\] Text in androidx\.wear\.tiles\.material has been deprecated
+\$SUPPORT/wear/tiles/tiles\-material/src/androidTest/java/androidx/wear/tiles/material/layouts/TestCasesGenerator\.java:[0-9]+: warning: \[deprecation\] TitleChip in androidx\.wear\.tiles\.material has been deprecated
+import androidx\.wear\.tiles\.material\.TitleChip;
+\$SUPPORT/wear/tiles/tiles\-material/src/androidTest/java/androidx/wear/tiles/material/layouts/TestCasesGenerator\.java:[0-9]+: warning: \[deprecation\] Typography in androidx\.wear\.tiles\.material has been deprecated
+import androidx\.wear\.tiles\.material\.Typography;
+import static androidx\.wear\.tiles\.material\.Typography\.TYPOGRAPHY_CAPTION[0-9]+;
+import static androidx\.wear\.tiles\.material\.Typography\.TYPOGRAPHY_TITLE[0-9]+;
+\$SUPPORT/wear/tiles/tiles\-material/src/test/java/androidx/wear/tiles/material/layouts/MultiButtonLayoutTest\.java:[0-9]+: warning: \[deprecation\] Button in androidx\.wear\.tiles\.material has been deprecated
+\$SUPPORT/wear/tiles/tiles\-material/src/test/java/androidx/wear/tiles/material/layouts/MultiButtonLayoutTest\.java:[0-9]+: warning: \[deprecation\] ButtonDefaults in androidx\.wear\.tiles\.material has been deprecated
+\$SUPPORT/wear/tiles/tiles\-material/src/test/java/androidx/wear/tiles/material/layouts/PrimaryLayoutTest\.java:[0-9]+: warning: \[deprecation\] LayoutDefaults in androidx\.wear\.tiles\.material\.layouts has been deprecated
+\$SUPPORT/wear/tiles/tiles\-material/src/test/java/androidx/wear/tiles/material/layouts/PrimaryLayoutTest\.java:[0-9]+: warning: \[deprecation\] CompactChip in androidx\.wear\.tiles\.material has been deprecated
+import androidx\.wear\.tiles\.material\.CompactChip;
+\$SUPPORT/wear/tiles/tiles\-material/src/test/java/androidx/wear/tiles/material/layouts/PrimaryLayoutTest\.java:[0-9]+: warning: \[deprecation\] Text in androidx\.wear\.tiles\.material has been deprecated
+import androidx\.wear\.tiles\.material\.Text;
+\$SUPPORT/wear/tiles/tiles\-material/src/test/java/androidx/wear/tiles/material/layouts/EdgeContentLayoutTest\.java:[0-9]+: warning: \[deprecation\] CircularProgressIndicator in androidx\.wear\.tiles\.material has been deprecated
+\$SUPPORT/wear/tiles/tiles\-material/src/test/java/androidx/wear/tiles/material/layouts/EdgeContentLayoutTest\.java:[0-9]+: warning: \[deprecation\] Text in androidx\.wear\.tiles\.material has been deprecated
+\$SUPPORT/wear/tiles/tiles\-material/src/test/java/androidx/wear/tiles/material/ButtonTest\.java:[0-9]+: warning: \[deprecation\] ButtonDefaults in androidx\.wear\.tiles\.material has been deprecated
+\$SUPPORT/wear/tiles/tiles\-material/src/test/java/androidx/wear/tiles/material/CircularProgressIndicatorTest\.java:[0-9]+: warning: \[deprecation\] ProgressIndicatorDefaults in androidx\.wear\.tiles\.material has been deprecated
+import static androidx\.wear\.tiles\.material\.Helper\.checkTag;
+import static androidx\.wear\.tiles\.material\.Helper\.getMetadataTagName;
+import static androidx\.wear\.tiles\.material\.Helper\.getTagBytes;
+\$SUPPORT/wear/tiles/tiles\-material/src/main/java/androidx/wear/tiles/material/CircularProgressIndicator\.java:[0-9]+: warning: \[deprecation\] ProgressIndicatorDefaults in androidx\.wear\.tiles\.material has been deprecated
+import static androidx\.wear\.tiles\.material\.ProgressIndicatorDefaults\.DEFAULT_COLORS;
+import static androidx\.wear\.tiles\.material\.ProgressIndicatorDefaults\.DEFAULT_END_ANGLE;
+import static androidx\.wear\.tiles\.material\.ProgressIndicatorDefaults\.DEFAULT_PADDING;
+import static androidx\.wear\.tiles\.material\.ProgressIndicatorDefaults\.DEFAULT_START_ANGLE;
+import static androidx\.wear\.tiles\.material\.ProgressIndicatorDefaults\.DEFAULT_STROKE_WIDTH;
+\$SUPPORT/wear/tiles/tiles\-material/src/main/java/androidx/wear/tiles/material/CompactChip\.java:[0-9]+: warning: \[deprecation\] ChipDefaults in androidx\.wear\.tiles\.material has been deprecated
+import static androidx\.wear\.tiles\.material\.ChipDefaults\.COMPACT_HEIGHT;
+import static androidx\.wear\.tiles\.material\.ChipDefaults\.COMPACT_HEIGHT_TAPPABLE;
+import static androidx\.wear\.tiles\.material\.ChipDefaults\.COMPACT_HORIZONTAL_PADDING;
+import static androidx\.wear\.tiles\.material\.ChipDefaults\.COMPACT_PRIMARY_COLORS;
+\$SUPPORT/wear/tiles/tiles\-material/src/main/java/androidx/wear/tiles/material/CompactChip\.java:[0-9]+: warning: \[deprecation\] Helper in androidx\.wear\.tiles\.material has been deprecated
+\$SUPPORT/wear/tiles/tiles\-material/src/main/java/androidx/wear/tiles/material/Chip\.java:[0-9]+: warning: \[deprecation\] ChipDefaults in androidx\.wear\.tiles\.material has been deprecated
+import static androidx\.wear\.tiles\.material\.ChipDefaults\.DEFAULT_HEIGHT;
+import static androidx\.wear\.tiles\.material\.ChipDefaults\.DEFAULT_MARGIN_PERCENT;
+import static androidx\.wear\.tiles\.material\.ChipDefaults\.HORIZONTAL_PADDING;
+import static androidx\.wear\.tiles\.material\.ChipDefaults\.ICON_SIZE;
+import static androidx\.wear\.tiles\.material\.ChipDefaults\.ICON_SPACER_WIDTH;
+import static androidx\.wear\.tiles\.material\.ChipDefaults\.PRIMARY_COLORS;
+\$SUPPORT/wear/tiles/tiles\-material/src/main/java/androidx/wear/tiles/material/Chip\.java:[0-9]+: warning: \[deprecation\] Helper in androidx\.wear\.tiles\.material has been deprecated
+import static androidx\.wear\.tiles\.material\.Helper\.radiusOf;
+\$SUPPORT/wear/tiles/tiles\-material/src/main/java/androidx/wear/tiles/material/Typography\.java:[0-9]+: warning: \[deprecation\] Helper in androidx\.wear\.tiles\.material has been deprecated
+\$SUPPORT/wear/tiles/tiles\-material/src/main/java/androidx/wear/tiles/material/Chip\.java:[0-9]+: warning: \[deprecation\] Typography in androidx\.wear\.tiles\.material has been deprecated
+import androidx\.wear\.tiles\.material\.Typography\.TypographyName;
+\$SUPPORT/wear/tiles/tiles\-material/src/main/java/androidx/wear/tiles/material/Text\.java:[0-9]+: warning: \[deprecation\] Helper in androidx\.wear\.tiles\.material has been deprecated
+\$SUPPORT/wear/tiles/tiles\-material/src/main/java/androidx/wear/tiles/material/Text\.java:[0-9]+: warning: \[deprecation\] Typography in androidx\.wear\.tiles\.material has been deprecated
+import static androidx\.wear\.tiles\.material\.Typography\.TYPOGRAPHY_DISPLAY[0-9]+;
+import static androidx\.wear\.tiles\.material\.Typography\.getFontStyleBuilder;
+import static androidx\.wear\.tiles\.material\.Typography\.getLineHeightForTypography;
+\$SUPPORT/wear/tiles/tiles\-material/src/main/java/androidx/wear/tiles/material/Button\.java:[0-9]+: warning: \[deprecation\] ButtonDefaults in androidx\.wear\.tiles\.material has been deprecated
+import static androidx\.wear\.tiles\.material\.ButtonDefaults\.DEFAULT_SIZE;
+import static androidx\.wear\.tiles\.material\.ButtonDefaults\.EXTRA_LARGE_SIZE;
+import static androidx\.wear\.tiles\.material\.ButtonDefaults\.LARGE_SIZE;
+import static androidx\.wear\.tiles\.material\.ButtonDefaults\.PRIMARY_COLORS;
+\$SUPPORT/wear/tiles/tiles\-material/src/main/java/androidx/wear/tiles/material/Button\.java:[0-9]+: warning: \[deprecation\] Helper in androidx\.wear\.tiles\.material has been deprecated
+\$SUPPORT/wear/tiles/tiles\-material/src/main/java/androidx/wear/tiles/material/Button\.java:[0-9]+: warning: \[deprecation\] Typography in androidx\.wear\.tiles\.material has been deprecated
+\$SUPPORT/wear/tiles/tiles\-material/src/main/java/androidx/wear/tiles/material/TitleChip\.java:[0-9]+: warning: \[deprecation\] ChipDefaults in androidx\.wear\.tiles\.material has been deprecated
+import static androidx\.wear\.tiles\.material\.ChipDefaults\.TITLE_HEIGHT;
+import static androidx\.wear\.tiles\.material\.ChipDefaults\.TITLE_HORIZONTAL_PADDING;
+import static androidx\.wear\.tiles\.material\.ChipDefaults\.TITLE_PRIMARY_COLORS;
+\$SUPPORT/wear/tiles/tiles\-material/src/main/java/androidx/wear/tiles/material/TitleChip\.java:[0-9]+: warning: \[deprecation\] Helper in androidx\.wear\.tiles\.material has been deprecated
+\$SUPPORT/wear/tiles/tiles\-material/src/main/java/androidx/wear/tiles/material/layouts/MultiSlotLayout\.java:[0-9]+: warning: \[deprecation\] Helper in androidx\.wear\.tiles\.material has been deprecated
+\$SUPPORT/wear/tiles/tiles\-material/src/main/java/androidx/wear/tiles/material/layouts/LayoutDefaults\.java:[0-9]+: warning: \[deprecation\] ButtonDefaults in androidx\.wear\.tiles\.material has been deprecated
+import androidx\.wear\.tiles\.material\.ButtonDefaults;
+\$SUPPORT/wear/tiles/tiles\-material/src/main/java/androidx/wear/tiles/material/layouts/MultiSlotLayout\.java:[0-9]+: warning: \[deprecation\] LayoutDefaults in androidx\.wear\.tiles\.material\.layouts has been deprecated
+import static androidx\.wear\.tiles\.material\.layouts\.LayoutDefaults\.MULTI_SLOT_LAYOUT_HORIZONTAL_SPACER_WIDTH;
+\$SUPPORT/wear/tiles/tiles\-material/src/main/java/androidx/wear/tiles/material/layouts/EdgeContentLayout\.java:[0-9]+: warning: \[deprecation\] Helper in androidx\.wear\.tiles\.material has been deprecated
+import static androidx\.wear\.tiles\.material\.Helper\.getMetadataTagBytes;
+import static androidx\.wear\.tiles\.material\.Helper\.isRoundDevice;
+\$SUPPORT/wear/tiles/tiles\-material/src/main/java/androidx/wear/tiles/material/layouts/EdgeContentLayout\.java:[0-9]+: warning: \[deprecation\] ProgressIndicatorDefaults in androidx\.wear\.tiles\.material has been deprecated
+\$SUPPORT/wear/tiles/tiles\-material/src/main/java/androidx/wear/tiles/material/layouts/EdgeContentLayout\.java:[0-9]+: warning: \[deprecation\] LayoutDefaults in androidx\.wear\.tiles\.material\.layouts has been deprecated
+import static androidx\.wear\.tiles\.material\.layouts\.LayoutDefaults\.EDGE_CONTENT_LAYOUT_MARGIN_HORIZONTAL_ROUND_DP;
+import static androidx\.wear\.tiles\.material\.layouts\.LayoutDefaults\.EDGE_CONTENT_LAYOUT_MARGIN_HORIZONTAL_SQUARE_DP;
+import static androidx\.wear\.tiles\.material\.layouts\.LayoutDefaults\.EDGE_CONTENT_LAYOUT_PADDING_ABOVE_MAIN_CONTENT_DP;
+import static androidx\.wear\.tiles\.material\.layouts\.LayoutDefaults\.EDGE_CONTENT_LAYOUT_PADDING_BELOW_MAIN_CONTENT_DP;
+\$SUPPORT/wear/tiles/tiles\-material/src/main/java/androidx/wear/tiles/material/layouts/EdgeContentLayout\.java:[0-9]+: warning: \[deprecation\] CircularProgressIndicator in androidx\.wear\.tiles\.material has been deprecated
+import androidx\.wear\.tiles\.material\.CircularProgressIndicator;
+\$SUPPORT/wear/tiles/tiles\-material/src/main/java/androidx/wear/tiles/material/layouts/MultiButtonLayout\.java:[0-9]+: warning: \[deprecation\] Helper in androidx\.wear\.tiles\.material has been deprecated
+\$SUPPORT/wear/tiles/tiles\-material/src/main/java/androidx/wear/tiles/material/layouts/MultiButtonLayout\.java:[0-9]+: warning: \[deprecation\] LayoutDefaults in androidx\.wear\.tiles\.material\.layouts has been deprecated
+import static androidx\.wear\.tiles\.material\.layouts\.LayoutDefaults\.MULTI_BUTTON_[0-9]+_SIZE;
+import static androidx\.wear\.tiles\.material\.layouts\.LayoutDefaults\.MULTI_BUTTON_[0-9]+_PLUS_SIZE;
+import static androidx\.wear\.tiles\.material\.layouts\.LayoutDefaults\.MULTI_BUTTON_MAX_NUMBER;
+import static androidx\.wear\.tiles\.material\.layouts\.LayoutDefaults\.MULTI_BUTTON_SPACER_HEIGHT;
+import static androidx\.wear\.tiles\.material\.layouts\.LayoutDefaults\.MULTI_BUTTON_SPACER_WIDTH;
+\$SUPPORT/wear/tiles/tiles\-material/src/main/java/androidx/wear/tiles/material/layouts/MultiButtonLayout\.java:[0-9]+: warning: \[deprecation\] Button in androidx\.wear\.tiles\.material has been deprecated
+import androidx\.wear\.tiles\.material\.Button;
+\$SUPPORT/wear/tiles/tiles\-material/src/main/java/androidx/wear/tiles/material/layouts/PrimaryLayout\.java:[0-9]+: warning: \[deprecation\] ChipDefaults in androidx\.wear\.tiles\.material has been deprecated
+\$SUPPORT/wear/tiles/tiles\-material/src/main/java/androidx/wear/tiles/material/layouts/PrimaryLayout\.java:[0-9]+: warning: \[deprecation\] Helper in androidx\.wear\.tiles\.material has been deprecated
+\$SUPPORT/wear/tiles/tiles\-material/src/main/java/androidx/wear/tiles/material/layouts/PrimaryLayout\.java:[0-9]+: warning: \[deprecation\] LayoutDefaults in androidx\.wear\.tiles\.material\.layouts has been deprecated
+import static androidx\.wear\.tiles\.material\.layouts\.LayoutDefaults\.DEFAULT_VERTICAL_SPACER_HEIGHT;
+import static androidx\.wear\.tiles\.material\.layouts\.LayoutDefaults\.PRIMARY_LAYOUT_CHIP_HORIZONTAL_PADDING_ROUND_DP;
+import static androidx\.wear\.tiles\.material\.layouts\.LayoutDefaults\.PRIMARY_LAYOUT_CHIP_HORIZONTAL_PADDING_SQUARE_DP;
+import static androidx\.wear\.tiles\.material\.layouts\.LayoutDefaults\.PRIMARY_LAYOUT_MARGIN_BOTTOM_ROUND_PERCENT;
+import static androidx\.wear\.tiles\.material\.layouts\.LayoutDefaults\.PRIMARY_LAYOUT_MARGIN_BOTTOM_SQUARE_PERCENT;
+import static androidx\.wear\.tiles\.material\.layouts\.LayoutDefaults\.PRIMARY_LAYOUT_MARGIN_HORIZONTAL_ROUND_PERCENT;
+import static androidx\.wear\.tiles\.material\.layouts\.LayoutDefaults\.PRIMARY_LAYOUT_MARGIN_HORIZONTAL_SQUARE_PERCENT;
+import static androidx\.wear\.tiles\.material\.layouts\.LayoutDefaults\.PRIMARY_LAYOUT_MARGIN_TOP_ROUND_PERCENT;
+import static androidx\.wear\.tiles\.material\.layouts\.LayoutDefaults\.PRIMARY_LAYOUT_MARGIN_TOP_SQUARE_PERCENT;
+import static androidx\.wear\.tiles\.material\.layouts\.LayoutDefaults\.PRIMARY_LAYOUT_PRIMARY_LABEL_SPACER_HEIGHT_ROUND_DP;
+import static androidx\.wear\.tiles\.material\.layouts\.LayoutDefaults\.PRIMARY_LAYOUT_PRIMARY_LABEL_SPACER_HEIGHT_SQUARE_DP;
+Note: \$SUPPORT/wear/tiles/tiles\-material/src/main/java/androidx/wear/tiles/material/layouts/PrimaryLayout\.java has additional uses or overrides of a deprecated API\.
+[0-9]+ warnings
 # Gradle will log if you are not authenticated to upload scans
 A build scan was not published as you have not authenticated with server 'ge\.androidx\.dev'\.
 For more information, please see https://gradle\.com/help/gradle\-authenticating\-with\-gradle\-enterprise\.
@@ -783,6 +929,8 @@ w: \$SUPPORT/compose/ui/ui/src/androidMain/kotlin/androidx/compose/ui/platform/A
 Please wait while Kotlin/Native compiler .* is being installed\.
 Unpack Kotlin/Native compiler to .*
 Download file:\.\./\.\./.*
+Download kotlin\-native\-prebuilt\-.*.gz finished\, took [0-9]+ s [0-9]+ ms
+Download kotlin\-native\-prebuilt\-.*.gz finished\, took [0-9]+ ms
 Downloading native dependencies \(LLVM, sysroot etc\)\. This is a one\-time action performed only on the first run of the compiler\.
 Extracting dependency: .*\.konan/cache.*
 # New memory model does not work with compiler caches yet:
@@ -804,12 +952,10 @@ Run the build with '\-\-info' for more details\.
 # AGP warning about API usage we have no control over
 Values of variant API AnnotationProcessorOptions\.arguments are queried and may return non final values, this is unsupported
 # > Task :compose:ui:ui:testDebugUnitTest
-OpenJDK 64\-Bit Server VM warning:
-.*Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+(OpenJDK 64\-Bit Server VM warning:.*|.*Sharing is only supported for boot loader classes because bootstrap classpath has been appended)
 # > Task :concurrent:concurrent-futures:compileTestJava b/242311027
 \$SUPPORT/concurrent/concurrent\-futures/src/test/java/androidx/concurrent/futures/AbstractResolvableFutureTest\.java:[0-9]+: warning: \[removal\] (resume|suspend)\(\) in Thread has been deprecated and marked for removal
 thread\.(resume|suspend)\(\);
-2 warnings
 # AGP warning that will go away soon
 WARNING:Software Components will not be created automatically for Maven publishing from Android Gradle Plugin 8\.0\. To opt\-in to the future behavior, set the Gradle property android\.disableAutomaticComponentCreation=true in the `gradle\.properties` file or use the new publishing DSL\.
 # > Task :graphics:graphics-path:compileDebugKotlin
@@ -824,7 +970,346 @@ w: Cached libraries will not be used with std allocator
 objc\[.*\]: Class .*
 # KMP messages on successful XCFramework builds.
 xcframework successfully .*
-# > Configure project :internal-testutils-ktx
-WARNING:The option setting 'android\.r8\.maxWorkers=[0-9]+' is experimental\.
 # Building XCFrameworks (b/260140834) and iOS benchmark invocation
+Observed package id 'platforms;android-33-ext5' in inconsistent location.*
 .*xcodebuild.*
+# > Task :core:core:compileDebugAndroidTestKotlin
+w: file://\$SUPPORT/core/core/src/androidTest/java/androidx/core/util/TypedValueCompatTest\.kt:[0-9]+:[0-9]+ 'scaledDensity: Float' is deprecated\. Deprecated in Java
+# > Task :wear:tiles:tiles-material:compileDebugJavaWithJavac
+\$SUPPORT/wear/tiles/tiles\-material/src/main/java/androidx/wear/tiles/material/CircularProgressIndicator\.java:[0-9]+: warning: \[deprecation\] Helper in androidx\.wear\.tiles\.material has been deprecated
+import static androidx\.wear\.tiles\.material\.Helper\.checkNotNull;
+# > Task :wear:tiles:tiles-material:compileDebugUnitTestJavaWithJavac
+\$SUPPORT/wear/tiles/tiles\-material/src/test/java/androidx/wear/tiles/material/TextTest\.java:[0-9]+: warning: \[deprecation\] Typography in androidx\.wear\.tiles\.material has been deprecated
+import static androidx\.wear\.tiles\.material\.Typography\.TYPOGRAPHY_BODY[0-9]+;
+# > Task :wear:tiles:tiles-material:compileDebugAndroidTestJavaWithJavac
+\$SUPPORT/wear/tiles/tiles\-material/src/androidTest/java/androidx/wear/tiles/material/layouts/TestCasesGenerator\.java:[0-9]+: warning: \[deprecation\] Button in androidx\.wear\.tiles\.material has been deprecated
+# > Task :compose:foundation:foundation:processDebugAndroidTestManifest
+\$SUPPORT/compose/foundation/foundation/src/androidAndroidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+# > Task :camera:camera-video:compileDebugAndroidTestKotlin
+w: file://\$SUPPORT/camera/camera\-video/src/androidTest/java/androidx/camera/video/internal/audio/AudioStreamImplTest\.kt:[0-9]+:[0-9]+ 'RequiresDevice' is deprecated\. Deprecated in Java
+# > Task :benchmark:benchmark-macro:compileDebugAndroidTestKotlin
+w: file://\$SUPPORT/benchmark/benchmark\-macro/src/androidTest/java/androidx/benchmark/macro/MacrobenchmarkScopeTest\.kt:[0-9]+:[0-9]+ 'RequiresDevice' is deprecated\. Deprecated in Java
+# > Task :graphics:graphics-core:compileDebugAndroidTestKotlin
+w: file://\$SUPPORT/graphics/graphics\-core/src/androidTest/java/androidx/graphics/surface/SurfaceControlCompatTest\.kt:[0-9]+:[0-9]+ 'RequiresDevice' is deprecated\. Deprecated in Java
+w: file://\$SUPPORT/graphics/graphics\-core/src/androidTest/java/androidx/graphics/surface/SurfaceControlWrapperTest\.kt:[0-9]+:[0-9]+ 'RequiresDevice' is deprecated\. Deprecated in Java
+# > Task :compose:foundation:foundation:compileDebugAndroidTestKotlin
+w: file://\$SUPPORT/compose/foundation/foundation/src/androidAndroidTest/kotlin/androidx/compose/foundation/text/CoreTextFieldKeyboardScrollableInteractionTest\.kt:[0-9]+:[0-9]+ 'RequiresDevice' is deprecated\. Deprecated in Java
+w: file://\$SUPPORT/compose/foundation/foundation/src/androidAndroidTest/kotlin/androidx/compose/foundation/text/selection/AbstractSelectionMagnifierTests\.kt:[0-9]+:[0-9]+ 'RequiresDevice' is deprecated\. Deprecated in Java
+w: file://\$SUPPORT/compose/foundation/foundation/src/androidAndroidTest/kotlin/androidx/compose/foundation/text/selection/SelectionContainerMagnifierTest\.kt:[0-9]+:[0-9]+ 'RequiresDevice' is deprecated\. Deprecated in Java
+w: file://\$SUPPORT/compose/foundation/foundation/src/androidAndroidTest/kotlin/androidx/compose/foundation/text/selection/SelectionHandlePopupPositionTest\.kt:[0-9]+:[0-9]+ 'getter for windowLayoutParams: EspressoOptional<WindowManager\.LayoutParams!>!' is deprecated\. Deprecated in Java
+w: file://\$SUPPORT/compose/foundation/foundation/src/androidAndroidTest/kotlin/androidx/compose/foundation/text/selection/TextFieldVisualTransformationMagnifierTest\.kt:[0-9]+:[0-9]+ 'RequiresDevice' is deprecated\. Deprecated in Java
+# > Task :compose:ui:ui:compileDebugAndroidTestKotlin
+w: file://\$SUPPORT/compose/ui/ui/src/androidAndroidTest/kotlin/androidx/compose/ui/window/PopupTestUtils\.kt:[0-9]+:[0-9]+ 'getter for windowLayoutParams: EspressoOptional<WindowManager\.LayoutParams!>!' is deprecated\. Deprecated in Java
+# > Task :compose:ui:ui-inspection:dexInspectorRelease
+Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.JvmFunctionSignature\$FakeJavaAnnotationConstructor\$asString\$[0-9]+'s kotlin\.Metadata: null
+Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.calls\.CallerImpl\$Method\$Instance's kotlin\.Metadata: null
+Info: Unexpected error while reading androidx\.compose\.ui\.inspection\.framework\.ViewExtensionsKt\$ancestors\$[0-9]+'s kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.full\.Java[0-9]+RepeatableContainerLoader\$Cache's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.JvmPropertySignature's kotlin\.Metadata: null
+Info: Unexpected error while reading androidx\.compose\.ui\.inspection\.inspector\.InspectorNode\$WhenMappings's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.KotlinReflectionInternalError's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.KDeclarationContainerImpl\$findFunctionDescriptor\$allMembers\$[0-9]+'s kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.RuntimeTypeMapperKt's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.calls\.AnnotationConstructorCallerKt\$createAnnotationInstance\$hashCode\$[0-9]+'s kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.KMutableProperty[0-9]+Impl\$_setter\$[0-9]+'s kotlin\.Metadata: null
+Info: Unexpected error while reading androidx\.compose\.ui\.inspection\.compose\.AndroidComposeViewWrapper\$Companion's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.KParameterImpl\$type\$[0-9]+'s kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.full\.KClasses\$isSubclassOf\$[0-9]+'s kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.KPackageImpl\$Data\$members\$[0-9]+'s kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.calls\.AnnotationConstructorCaller's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.androidx\.compose\.ui\.tooling\.data\.UiToolingDataApi's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.KCallableImpl\$_parameters\$[0-9]+\$[0-9]+'s kotlin\.Metadata: null
+Info: Unexpected error while reading androidx\.compose\.ui\.inspection\.LambdaLocation's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.KTypeImpl's kotlin\.Metadata: null
+Info: Unexpected error while reading androidx\.compose\.ui\.inspection\.ComposeLayoutInspector\$getComposableNodes\$data\$[0-9]+'s kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.KClassImpl\$Data's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.ModuleByClassLoaderKt's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.JvmPropertySignature\$JavaField's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.KClassImpl\$Data\$supertypes\$[0-9]+'s kotlin\.Metadata: null
+Info: Unexpected error while reading androidx\.compose\.ui\.inspection\.inspector\.ParameterFactory\$expand\$[0-9]+'s kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.KProperty[0-9]+Impl\$Getter's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.calls\.AnnotationConstructorCaller\$CallMode's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.KFunctionImpl\$caller\$[0-9]+'s kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.calls\.CallerImpl\$FieldSetter\$BoundInstance's kotlin\.Metadata: null
+Info:
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.calls\.CallerImpl\$Method\$Instance's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.androidx\.compose\.ui\.tooling\.data\.ParameterInformation's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.full\.IllegalPropertyDelegateAccessException's kotlin\.Metadata: null
+Info: Unexpected error while reading androidx\.compose\.ui\.inspection\.ComposeLayoutInspector's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.calls\.InlineClassAwareCaller's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.full\.KClasses\$defaultType\$[0-9]+'s kotlin\.Metadata: null
+Info: Unexpected error while reading androidx\.compose\.ui\.inspection\.inspector\.PackageHashesKt's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.KCallableImpl\$_returnType\$[0-9]+'s kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.JvmFunctionSignature\$FakeJavaAnnotationConstructor\$asString\$[0-9]+'s kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.calls\.InlineClassAwareCaller\$BoxUnboxData's kotlin\.Metadata: null
+Info: Unexpected error while reading androidx\.compose\.ui\.inspection\.inspector\.ParameterFactory\$loadConstantsFromStaticFinal\$[0-9]+'s kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.KProperty[0-9]+Impl's kotlin\.Metadata: null
+Info: Unexpected error while reading androidx\.compose\.ui\.inspection\.ComposeLayoutInspector\$handleGetAllParametersCommand\$[0-9]+'s kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.androidx\.compose\.ui\.tooling\.data\.ContextCache's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.RuntimeTypeMapperKt\$signature\$[0-9]+'s kotlin\.Metadata: null
+Info: Unexpected error while reading androidx\.compose\.ui\.inspection\.inspector\.ParameterKind's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.calls\.CallerImpl\$BoundConstructor's kotlin\.Metadata: null
+Info: Unexpected error while reading androidx\.compose\.ui\.inspection\.ComposeLayoutInspector\$handleUnknownCommand\$[0-9]+'s kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.calls\.InlineClassAwareCallerKt's kotlin\.Metadata: null
+Info: Unexpected error while reading androidx\.compose\.ui\.inspection\.inspector\.ParameterFactory\$ParameterCreator\$findBestResourceFont\$\$inlined\$filterIsInstance\$[0-9]+'s kotlin\.Metadata: null
+Info: Unexpected error while reading androidx\.compose\.ui\.inspection\.inspector\.InlineClassConverter\$loadTypeMapper\$[0-9]+'s kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.KPropertyImpl\$Getter\$descriptor\$[0-9]+'s kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.full\.KClasses's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.KMutableProperty[0-9]+Impl\$Setter's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.CachesKt\$CACHE_FOR_BASE_CLASSIFIERS\$[0-9]+'s kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.KCallableImpl\$_returnType\$[0-9]+\$[0-9]+'s kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.KTypeParameterImpl's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.KTypeImpl\$arguments\$[0-9]+\$parameterizedTypeArguments\$[0-9]+'s kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.KMutableProperty[0-9]+Impl's kotlin\.Metadata: null
+Info: Unexpected error while reading androidx\.compose\.ui\.inspection\.inspector\.ParameterType's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.calls\.CallerImpl\$Method's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.calls\.CallerImpl\$Method\$JvmStaticInObject's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.calls\.CallerImpl\$FieldGetter\$BoundInstance's kotlin\.Metadata: null
+Info: Unexpected error while reading androidx\.compose\.ui\.inspection\.compose\.ComposeExtensionsKt's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.ComputableClassValue's kotlin\.Metadata: null
+Info: Unexpected error while reading androidx\.compose\.ui\.inspection\.inspector\.ParameterFactory\$loadConstantsFromObjectInstance\$[0-9]+'s kotlin\.Metadata: null
+Info: Unexpected error while reading androidx\.compose\.ui\.inspection\.RecompositionHandler\$MethodKey's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.KPropertyImpl\$Setter\$descriptor\$[0-9]+'s kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.KCallableImpl\$_annotations\$[0-9]+'s kotlin\.Metadata: null
+Info: Unexpected error while reading androidx\.compose\.ui\.inspection\.inspector\.LayoutInspectorTree\$belongsToView\$[0-9]+\$[0-9]+'s kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.KTypeImpl\$arguments\$[0-9]+\$[0-9]+\$type\$[0-9]+'s kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.KClassImpl\$Data\$typeParameters\$[0-9]+'s kotlin\.Metadata: null
+Info: Unexpected error while reading androidx\.compose\.ui\.inspection\.inspector\.ParameterFactory\$[0-9]+'s kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.calls\.CallerImpl\$FieldSetter\$BoundJvmStaticInObject's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.KTypesJvm's kotlin\.Metadata: null
+Info: Unexpected error while reading androidx\.compose\.ui\.inspection\.RecompositionHandler\$Data's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.CachesKt\$K_PACKAGE_CACHE\$[0-9]+'s kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.KClassImpl\$Data\$supertypes\$[0-9]+\$[0-9]+\$[0-9]+'s kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.KPropertyImpl's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.calls\.CallerImpl's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.KDeclarationContainerImpl\$MemberBelonginess's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.JvmPropertySignature\$JavaMethodProperty's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.KFunctionImpl\$descriptor\$[0-9]+'s kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.calls\.CallerImpl\$FieldSetter\$Static's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.KCallableImpl\$_parameters\$[0-9]+'s kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.calls\.CallerImpl\$FieldGetter\$BoundJvmStaticInObject's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.KClassImpl\$Data\$declaredNonStaticMembers\$[0-9]+'s kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.KClassImpl\$Data\$inheritedStaticMembers\$[0-9]+'s kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.androidx\.compose\.ui\.tooling\.data\.NodeGroup's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.full\.KCallables\$callSuspendBy\$[0-9]+'s kotlin\.Metadata: null
+Info: Unexpected error while reading androidx\.compose\.ui\.inspection\.inspector\.ParameterFactory\$ParameterCreator\$lookup\$[0-9]+'s kotlin\.Metadata: null
+Info: Unexpected error while reading androidx\.compose\.ui\.inspection\.proto\.ViewExtensionsKt's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.KPropertyImplKt's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.JvmPropertySignature\$KotlinProperty's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.calls\.CallerImpl\$FieldGetter\$JvmStaticInObject's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.calls\.CallerImpl\$FieldGetter's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.calls\.CallerImpl\$AccessorForHiddenConstructor's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.KClassImpl\$Data\$inheritedNonStaticMembers\$[0-9]+'s kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.KProperty[0-9]+Impl\$delegateSource\$[0-9]+'s kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.androidx\.compose\.ui\.tooling\.data\.SlotTreeKt\$extractParameterInfo\$\$inlined\$sortedBy\$[0-9]+'s kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.KClassImpl\$data\$[0-9]+'s kotlin\.Metadata: null
+Info: Unexpected error while reading androidx\.compose\.ui\.inspection\.ComposeLayoutInspector\$handleGetComposablesCommand\$[0-9]+'s kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.WeakClassLoaderBox's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.KClassImpl\$Data\$constructors\$[0-9]+'s kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.calls\.AnnotationConstructorCallerKt's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.KCallableImpl\$_parameters\$[0-9]+\$invoke\$\$inlined\$sortBy\$[0-9]+'s kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.calls\.CallerImpl\$FieldSetter\$JvmStaticInObject's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.ReflectionObjectRenderer\$renderLambda\$[0-9]+\$[0-9]+'s kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.KParameterImpl\$annotations\$[0-9]+'s kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.KClassesJvm's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.KPropertyImpl\$Accessor's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.JvmFunctionSignature\$JavaMethod's kotlin\.Metadata: null
+Info: Unexpected error while reading androidx\.compose\.ui\.inspection\.inspector\.LayoutInspectorTree\$belongsToView\$[0-9]+\$invoke\$\$inlined\$filterIsInstance\$[0-9]+'s kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.ReflectLambdaKt's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.KPropertyImpl\$Getter's kotlin\.Metadata: null
+Info: Unexpected error while reading androidx\.compose\.ui\.inspection\.inspector\.ScopedReflectionFactory's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.androidx\.compose\.ui\.tooling\.data\.SlotTreeKt's kotlin\.Metadata: null
+Info: Unexpected error while reading androidx\.compose\.ui\.inspection\.ComposeLayoutInspector\$getComposableFromAnchor\$[0-9]+'s kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.ExperimentalReflectionOnLambdas's kotlin\.Metadata: null
+Info: Unexpected error while reading androidx\.compose\.ui\.inspection\.inspector\.LayoutInspectorTree\$parseLayoutInfo\$[0-9]+'s kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.RuntimeTypeMapper's kotlin\.Metadata: null
+Info: Unexpected error while reading androidx\.compose\.ui\.inspection\.ComposeLayoutInspector\$WhenMappings's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.androidx\.compose\.ui\.tooling\.data\.Parameter's kotlin\.Metadata: null
+Info: Unexpected error while reading androidx\.compose\.ui\.inspection\.util\.AnchorMap's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.KPackageImpl\$Data\$multifileFacade\$[0-9]+'s kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.calls\.AnnotationConstructorCallerKt\$createAnnotationInstance\$toString\$[0-9]+'s kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.calls\.AnnotationConstructorCallerKt\$createAnnotationInstance\$toString\$[0-9]+\$[0-9]+\$[0-9]+'s kotlin\.Metadata: null
+Info: Unexpected error while reading androidx\.compose\.ui\.inspection\.inspector\.LayoutInspectorTree\$belongsToView\$[0-9]+'s kotlin\.Metadata: null
+Info: Unexpected error while reading androidx\.compose\.ui\.inspection\.RecompositionHandlerKt's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.KParameterImpl's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.KDeclarationContainerImpl's kotlin\.Metadata: null
+Info: Unexpected error while reading androidx\.compose\.ui\.inspection\.inspector\.ParameterFactory's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.ConcurrentHashMapCache's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.CacheByClassKt's kotlin\.Metadata: null
+Info: Unexpected error while reading androidx\.compose\.ui\.inspection\.inspector\.InspectorNode's kotlin\.Metadata: null
+Info: Unexpected error while reading androidx\.compose\.ui\.inspection\.RecompositionHandler's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.KClassImpl\$Data\$annotations\$[0-9]+'s kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.ReflectLambdaKt\$reflect\$descriptor\$[0-9]+'s kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.calls\.CallerImpl\$Method\$BoundInstance's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.KDeclarationContainerImpl\$Data\$moduleData\$[0-9]+'s kotlin\.Metadata: null
+Info: Unexpected error while reading androidx\.compose\.ui\.inspection\.ComposeLayoutInspector\$handleGetParameterDetailsCommand\$[0-9]+'s kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.ReflectionObjectRenderer's kotlin\.Metadata: null
+Info: Unexpected error while reading androidx\.compose\.ui\.inspection\.proto\.ComposeExtensionsKt's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.KTypeImpl\$arguments\$[0-9]+'s kotlin\.Metadata: null
+Info: Unexpected error while reading androidx\.compose\.ui\.inspection\.compose\.AndroidComposeViewWrapperKt's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.androidx\.compose\.ui\.tooling\.data\.SourceContext's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.KDeclarationContainerImpl\$findPropertyDescriptor\$mostVisibleProperties\$[0-9]+'s kotlin\.Metadata: null
+Info: Unexpected error while reading androidx\.compose\.ui\.inspection\.inspector\.LayoutInspectorTree\$SubCompositionRoots's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.KClassImpl\$Data\$allStaticMembers\$[0-9]+'s kotlin\.Metadata: null
+Info: Unexpected error while reading androidx\.compose\.ui\.inspection\.ComposeLayoutInspector\$handleGetParametersCommand\$[0-9]+'s kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.EmptyContainerForLocal's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.full\.KClassifiers's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.androidx\.compose\.ui\.tooling\.data\.CompositionCallStack's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.KPropertyImpl\$Companion's kotlin\.Metadata: null
+Info: Unexpected error while reading androidx\.compose\.ui\.inspection\.inspector\.ParameterFactory\$loadConstantsFrom\$[0-9]+\$topClass\$[0-9]+'s kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.calls\.InternalUnderlyingValOfInlineClass\$Unbound's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.KTypeParameterImpl\$upperBounds\$[0-9]+'s kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.full\.KAnnotatedElements's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.androidx\.compose\.ui\.tooling\.data\.ParseError's kotlin\.Metadata: null
+Info: Unexpected error while reading androidx\.compose\.ui\.inspection\.ComposeLayoutInspector\$CacheTree's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.KClassImpl\$Data\$allMembers\$[0-9]+'s kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.KTypeImpl\$arguments\$[0-9]+\$WhenMappings's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.androidx\.compose\.ui\.tooling\.data\.Group's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.full\.KClasses\$allSupertypes\$[0-9]+'s kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.KClassifierImpl's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.ReflectionObjectRenderer\$renderFunction\$[0-9]+\$[0-9]+'s kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.CachesKt\$K_CLASS_CACHE\$[0-9]+'s kotlin\.Metadata: null
+Info: Unexpected error while reading androidx\.compose\.ui\.inspection\.compose\.AndroidComposeViewWrapper's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.calls\.CallerImpl\$Method\$Static's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.FunctionWithAllInvokes's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.calls\.CallerImpl\$Method\$BoundJvmStaticInObject's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.calls\.CallerImpl\$FieldGetter\$Static's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.TypeOfImplKt's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.ReflectionObjectRenderer\$WhenMappings's kotlin\.Metadata: null
+Info: Unexpected error while reading androidx\.compose\.ui\.inspection\.inspector\.ReflectionScope's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.KPackageImpl\$Data\$metadata\$[0-9]+'s kotlin\.Metadata: null
+Info: Unexpected error while reading androidx\.compose\.ui\.inspection\.framework\.ViewExtensionsKt\$flatten\$[0-9]+'s kotlin\.Metadata: null
+Info: Unexpected error while reading androidx\.compose\.ui\.inspection\.inspector\.ParameterFactory\$ParameterCreator\$unwrap\$[0-9]+'s kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.FunctionWithAllInvokes\$DefaultImpls's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.KPackageImpl\$Data\$kotlinClass\$[0-9]+'s kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.KClassImpl\$Data\$declaredStaticMembers\$[0-9]+'s kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.KClassImpl\$Data\$allNonStaticMembers\$[0-9]+'s kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.KProperty[0-9]+Impl\$delegateValue\$[0-9]+'s kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.calls\.InternalUnderlyingValOfInlineClass\$Bound's kotlin\.Metadata: null
+Info: Unexpected error while reading androidx\.compose\.ui\.inspection\.inspector\.ReflectionScope\$Companion's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.KProperty[0-9]+Impl\$_getter\$[0-9]+'s kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.CacheByClass's kotlin\.Metadata: null
+Info: Unexpected error while reading androidx\.compose\.ui\.inspection\.inspector\.NodeParameterReference's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.CachesKt\$CACHE_FOR_NULLABLE_BASE_CLASSIFIERS\$[0-9]+'s kotlin\.Metadata: null
+Info: Unexpected error while reading androidx\.compose\.ui\.inspection\.proto\.StringTable's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.KPackageImpl\$getLocalProperty\$[0-9]+\$[0-9]+\$[0-9]+'s kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.full\.KClassifiers\$WhenMappings's kotlin\.Metadata: null
+Info: Unexpected error while reading androidx\.compose\.ui\.inspection\.inspector\.LayoutInspectorTree\$stitchTreesByLayoutInfo\$[0-9]+\$parentLayout\$[0-9]+'s kotlin\.Metadata: null
+Info: Unexpected error while reading androidx\.compose\.ui\.inspection\.ComposeLayoutInspectorFactory's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.calls\.Caller's kotlin\.Metadata: null
+Info: Unexpected error while reading androidx\.compose\.ui\.inspection\.proto\.StringTable\$put\$[0-9]+'s kotlin\.Metadata: null
+Info: Unexpected error while reading androidx\.compose\.ui\.inspection\.inspector\.InlineClassConverter's kotlin\.Metadata: null
+Info: Unexpected error while reading androidx\.compose\.ui\.inspection\.inspector\.LayoutInspectorTree\$convert\$group\$[0-9]+'s kotlin\.Metadata: null
+Info: Unexpected error while reading androidx\.compose\.ui\.inspection\.LambdaLocation\$Companion's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.calls\.CallerImpl\$FieldSetter's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.KFunctionImpl\$defaultCaller\$[0-9]+'s kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.full\.KTypes's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.ReflectJvmMapping's kotlin\.Metadata: null
+Info: Unexpected error while reading androidx\.compose\.ui\.inspection\.inspector\.ParameterFactory\$loadConstantsFrom\$related\$[0-9]+'s kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.KClassImpl\$getLocalProperty\$[0-9]+\$[0-9]+\$[0-9]+'s kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.KPackageImpl\$data\$[0-9]+'s kotlin\.Metadata: null
+Info: Unexpected error while reading androidx\.compose\.ui\.inspection\.inspector\.InspectorNodeKt's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.full\.Java[0-9]+RepeatableContainerLoader's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.full\.KCallables\$callSuspend\$[0-9]+'s kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.androidx\.compose\.ui\.tooling\.data\.SourceInformationContext's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.calls\.CallerImpl\$Method\$BoundStatic's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.full\.KCallables's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.KTypeParameterImpl\$WhenMappings's kotlin\.Metadata: null
+Info: Unexpected error while reading androidx\.compose\.ui\.inspection\.inspector\.ParameterFactory\$ParameterCreator's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.KClassImpl\$Data\$simpleName\$[0-9]+'s kotlin\.Metadata: null
+Info: Unexpected error while reading androidx\.compose\.ui\.inspection\.inspector\.InlineClassConverter\$notInlineType\$[0-9]+'s kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.calls\.InternalUnderlyingValOfInlineClass's kotlin\.Metadata: null
+Info: Unexpected error while reading androidx\.compose\.ui\.inspection\.ComposeLayoutInspector\$handleUpdateSettingsCommand\$[0-9]+'s kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.calls\.ThrowingCaller's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.JvmPropertySignature\$MappedKotlinProperty's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.KPackageImpl's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.calls\.CallerImpl\$Constructor's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.KDeclarationContainerImpl\$getMembers\$visitor\$[0-9]+'s kotlin\.Metadata: null
+Info: Unexpected error while reading androidx\.compose\.ui\.inspection\.util\.IntArrayKt's kotlin\.Metadata: null
+Info: Unexpected error while reading androidx\.compose\.ui\.inspection\.inspector\.LayoutInspectorTreeKt's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.KCallablesJvm's kotlin\.Metadata: null
+Info: Unexpected error while reading androidx\.compose\.ui\.inspection\.inspector\.ReflectionScopeKt's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.androidx\.compose\.ui\.tooling\.data\.JoinedKey's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.CachesKt's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.KClassImpl\$Data\$descriptor\$[0-9]+'s kotlin\.Metadata: null
+Info: Unexpected error while reading androidx\.compose\.ui\.inspection\.inspector\.LayoutInspectorTree\$stitchTreesByLayoutInfo\$[0-9]+'s kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.JvmFunctionSignature's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.androidx\.compose\.ui\.tooling\.data\.SourceLocation's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.KPackageImpl\$Data\$scope\$[0-9]+'s kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.ReflectJvmMapping\$WhenMappings's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.KClassImpl\$Data\$objectInstance\$[0-9]+'s kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.CachesKt\$CACHE_FOR_GENERIC_CLASSIFIERS\$[0-9]+'s kotlin\.Metadata: null
+Info: Unexpected error while reading androidx\.compose\.ui\.inspection\.ComposeLayoutInspector\$getAndroidComposeViews\$roots\$[0-9]+'s kotlin\.Metadata: null
+Info: Unexpected error while reading androidx\.compose\.ui\.inspection\.ComposeLayoutInspector\$CacheData's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.full\.IllegalCallableAccessException's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.KClassImpl\$Data\$declaredMembers\$[0-9]+'s kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.JvmFunctionSignature\$JavaConstructor's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.calls\.Caller\$DefaultImpls's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.calls\.CallerKt's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.full\.NoSuchPropertyException's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.KDeclarationContainerImpl\$Data's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.KFunctionImpl's kotlin\.Metadata: null
+Info: Unexpected error while reading androidx\.compose\.ui\.inspection\.inspector\.MutableInspectorNode's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.calls\.CallerImpl\$FieldSetter\$Instance's kotlin\.Metadata: null
+Info: Unexpected error while reading androidx\.compose\.ui\.inspection\.inspector\.ParameterFactoryKt's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.calls\.CallerImpl\$FieldGetter\$Instance's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.KClassImpl\$Data\$sealedSubclasses\$[0-9]+'s kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.JvmFunctionSignature\$KotlinConstructor's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.CreateKCallableVisitor's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.calls\.AnnotationConstructorCaller\$Origin's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.calls\.CallerImpl\$Companion's kotlin\.Metadata: null
+Info: Unexpected error while reading androidx\.compose\.ui\.inspection\.inspector\.LayoutInspectorTree\$findDeepParentTree\$[0-9]+'s kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.UtilKt's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.KPropertyImpl\$Getter\$caller\$[0-9]+'s kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.KPropertyImpl\$Setter\$caller\$[0-9]+'s kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.KPropertyImpl\$Setter's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.JvmFunctionSignature\$FakeJavaAnnotationConstructor's kotlin\.Metadata: null
+Info: Unexpected error while reading androidx\.compose\.ui\.inspection\.util\.AnchorMapKt's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.androidx\.compose\.ui\.tooling\.data\.EmptyGroup's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.calls\.BoundCaller's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.KClassImpl\$WhenMappings's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.KPackageImpl\$Data's kotlin\.Metadata: null
+Info: Unexpected error while reading androidx\.compose\.ui\.inspection\.ComposeLayoutInspectorKt's kotlin\.Metadata: null
+Info: Unexpected error while reading androidx\.compose\.ui\.inspection\.inspector\.QuadBounds's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.JvmFunctionSignature\$JavaConstructor\$asString\$[0-9]+'s kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.full\.KProperties's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.KTypeImpl\$classifier\$[0-9]+'s kotlin\.Metadata: null
+Info: Unexpected error while reading androidx\.compose\.ui\.inspection\.inspector\.LayoutInspectorTree\$StitchInfo's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.ClassValueCache's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.JvmFunctionSignature\$KotlinFunction's kotlin\.Metadata: null
+Info: Unexpected error while reading androidx\.compose\.ui\.inspection\.inspector\.ParameterFactory\$create\$[0-9]+'s kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.androidx\.compose\.ui\.tooling\.data\.SourceLocationInfo's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.androidx\.compose\.ui\.tooling\.data\.CallGroup's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.calls\.CallerImpl\$AccessorForHiddenBoundConstructor's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.KCallableImpl\$_typeParameters\$[0-9]+'s kotlin\.Metadata: null
+Info: Unexpected error while reading androidx\.compose\.ui\.inspection\.util\.ThreadUtils's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.KClassImpl's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.KClassImpl\$Data\$nestedClasses\$[0-9]+'s kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.KClassImpl\$Data\$supertypes\$[0-9]+\$[0-9]+'s kotlin\.Metadata: null
+Info: Unexpected error while reading androidx\.compose\.ui\.inspection\.inspector\.NodeParameter's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.KPropertyImpl\$_descriptor\$[0-9]+'s kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.KDeclarationContainerImpl\$findPropertyDescriptor\$allMembers\$[0-9]+'s kotlin\.Metadata: null
+Info: Unexpected error while reading androidx\.compose\.ui\.inspection\.inspector\.ParameterFactory\$ModifierCollector's kotlin\.Metadata: null
+Info: Unexpected error while reading androidx\.compose\.ui\.inspection\.inspector\.LayoutInspectorTree\$parseLayoutInfo\$\$inlined\$filterIsInstance\$[0-9]+'s kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.KPropertyImpl\$_javaField\$[0-9]+'s kotlin\.Metadata: null
+Info: Unexpected error while reading androidx\.compose\.ui\.inspection\.proto\.ComposeExtensionsKt\$WhenMappings's kotlin\.Metadata: null
+Info: Unexpected error while reading androidx\.compose\.ui\.inspection\.inspector\.RawParameter's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.JvmFunctionSignature\$FakeJavaAnnotationConstructor\$special\$\$inlined\$sortedBy\$[0-9]+'s kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.KTypeParameterOwnerImpl's kotlin\.Metadata: null
+Info: Unexpected error while reading androidx\.compose\.ui\.inspection\.inspector\.LayoutInspectorTree's kotlin\.Metadata: null
+Info: Unexpected error while reading androidx\.compose\.ui\.inspection\.framework\.ViewExtensionsKt's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.UtilKt\$WhenMappings's kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.KDeclarationContainerImpl\$Companion's kotlin\.Metadata: null
+Info: Unexpected error while reading androidx\.compose\.ui\.inspection\.compose\.ComposeExtensionsKt\$flatten\$[0-9]+'s kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.KClassImpl\$Data\$qualifiedName\$[0-9]+'s kotlin\.Metadata: null
+Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.KCallableImpl's kotlin\.Metadata: null
+# b/271306193 remove after aosp/2589888 :emoji:emoji:spdxSbomForRelease
+spdx sboms require a version but project: noto\-emoji\-compat\-flatbuffers has no specified version
+# > Configure project :androidx-demos
+WARNING: The option setting 'android\.experimental\.disableCompileSdkChecks=true' is experimental\.
+The current default is 'false'\.
+WARNING: The option setting 'android\.r[0-9]+\.maxWorkers=[0-9]+' is experimental\.
+# > Task :compose:ui:ui:compileReleaseKotlinAndroid
+e: Daemon compilation failed: Could not connect to Kotlin compile daemon
+java\.lang\.RuntimeException: Could not connect to Kotlin compile daemon
+Errors were stored into \$SUPPORT/\.gradle/kotlin/errors/errors\-[0-9]+\.log

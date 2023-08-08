@@ -19,6 +19,7 @@ package androidx.test.uiautomator;
 import static org.junit.Assert.assertThrows;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 
 import org.junit.Test;
@@ -29,6 +30,8 @@ import java.util.regex.Pattern;
 @SmallTest
 @RunWith(AndroidJUnit4.class)
 public class BySelectorTest {
+
+    private static final BySelector SELECTOR = By.res("id");
 
     @Test
     public void testClazz_nullValue() {
@@ -96,6 +99,22 @@ public class BySelectorTest {
         By.text("first").textStartsWith("second");
     }
 
+    @Test
+    @SdkSuppress(minSdkVersion = 26)
+    public void testHint_nullValue() {
+        assertThrows(NullPointerException.class, () -> By.hint((String) null));
+        assertThrows(NullPointerException.class, () -> By.hintContains(null));
+        assertThrows(NullPointerException.class, () -> By.hintStartsWith(null));
+        assertThrows(NullPointerException.class, () -> By.hintEndsWith(null));
+        assertThrows(NullPointerException.class, () -> By.hint((Pattern) null));
+    }
+
+    @Test(expected = IllegalStateException.class)
+    @SdkSuppress(minSdkVersion = 26)
+    public void testHint_alreadyDefined() {
+        By.hint("first").hintStartsWith("second");
+    }
+
     @Test(expected = IllegalStateException.class)
     public void testCheckable_alreadyDefined() {
         By.checkable(true).checkable(false);
@@ -151,14 +170,59 @@ public class BySelectorTest {
         By.depth(-1);
     }
 
+    @Test
+    @SdkSuppress(minSdkVersion = 30)
+    public void testDisplayId_alreadyDefined() {
+        assertThrows(IllegalStateException.class,
+                () -> By.displayId(0).displayId(1));
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testHasParent_nullValue() {
+        By.hasParent(null);
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void testHasParent_alreadyDefined() {
+        By.hasParent(SELECTOR).hasParent(SELECTOR);
+    }
+
+    @Test
+    public void testHasAncestor_nullValue() {
+        assertThrows(NullPointerException.class, () -> By.hasAncestor(null));
+        assertThrows(NullPointerException.class, () -> By.hasAncestor(null, 1));
+    }
+
+    @Test
+    public void testHasAncestor_alreadyDefined() {
+        assertThrows(IllegalStateException.class,
+                () -> By.hasAncestor(SELECTOR).hasAncestor(SELECTOR));
+        assertThrows(IllegalStateException.class,
+                () -> By.hasAncestor(SELECTOR).hasAncestor(SELECTOR, 1));
+    }
+
     @Test(expected = NullPointerException.class)
     public void testHasChild_nullValue() {
         By.hasChild(null);
     }
 
     @Test
+    public void testHasChild_nestedAncestor() {
+        assertThrows(IllegalArgumentException.class, () -> By.hasChild(By.hasParent(SELECTOR)));
+        assertThrows(IllegalArgumentException.class, () -> By.hasChild(By.hasAncestor(SELECTOR)));
+    }
+
+    @Test
     public void testHasDescendant_nullValue() {
         assertThrows(NullPointerException.class, () -> By.hasDescendant(null));
         assertThrows(NullPointerException.class, () -> By.hasDescendant(null, 0));
+    }
+
+    @Test
+    public void testHasDescendant_nestedAncestor() {
+        assertThrows(IllegalArgumentException.class,
+                () -> By.hasDescendant(By.hasParent(SELECTOR)));
+        assertThrows(IllegalArgumentException.class,
+                () -> By.hasDescendant(By.hasAncestor(SELECTOR)));
     }
 }

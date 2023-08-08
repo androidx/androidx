@@ -32,14 +32,10 @@ dependencies {
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)
-
-    constraints {
-        implementation(project(":lifecycle:lifecycle-viewmodel"))
-    }
 }
 
 androidx {
-    name = "Android Lifecycle ViewModel Kotlin Extensions"
+    name = "Lifecycle ViewModel Kotlin Extensions"
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2018"
     description = "Kotlin extensions for 'viewmodel' artifact"

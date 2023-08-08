@@ -29,7 +29,7 @@ import android.os.Looper
 import android.os.Message
 import android.os.Messenger
 import android.os.RemoteException
-import androidx.testing.TestMessageProto.FooProto
+import androidx.datastore.testing.TestMessageProto.FooProto
 import com.google.common.collect.ImmutableList
 import java.io.Serializable
 import java.util.concurrent.CountDownLatch
@@ -74,7 +74,7 @@ abstract class DirectTestService() : Service() {
     private lateinit var testFailure: Throwable
 
     // It should be setup in `beforeTest`
-    internal lateinit var store: MultiProcessDataStore<FooProto>
+    internal lateinit var store: DataStore<FooProto>
 
     override fun onBind(intent: Intent): IBinder {
         return messenger.getBinder()

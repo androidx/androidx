@@ -182,4 +182,17 @@ public abstract class StartupApiFeature {
         }
     }
 
+    /**
+     * Represents a feature that is not supported by framework.
+     */
+    public static class NoFramework extends StartupApiFeature {
+        NoFramework(@NonNull String publicFeatureValue, @NonNull String internalFeatureValue) {
+            super(publicFeatureValue, internalFeatureValue);
+        }
+
+        @Override
+        public final boolean isSupportedByFramework() {
+            return false;
+        }
+    }
 }

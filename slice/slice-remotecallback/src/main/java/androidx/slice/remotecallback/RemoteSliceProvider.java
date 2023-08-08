@@ -77,7 +77,6 @@ public abstract class RemoteSliceProvider<T extends RemoteSliceProvider> extends
     /**
      * Note: Only visible because metalava doesn't realize this is hidden. Will properly
      * disappear when we have support for androidx-level @RestrictTo.
-     * @hide
      */
     @NonNull
     @Override

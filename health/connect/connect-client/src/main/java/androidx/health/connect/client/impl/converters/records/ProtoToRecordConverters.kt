@@ -34,6 +34,8 @@ import androidx.health.connect.client.records.CervicalMucusRecord.Companion.SENS
 import androidx.health.connect.client.records.CyclingPedalingCadenceRecord
 import androidx.health.connect.client.records.DistanceRecord
 import androidx.health.connect.client.records.ElevationGainedRecord
+import androidx.health.connect.client.records.ExerciseRoute
+import androidx.health.connect.client.records.ExerciseRouteResult
 import androidx.health.connect.client.records.ExerciseSessionRecord
 import androidx.health.connect.client.records.FloorsClimbedRecord
 import androidx.health.connect.client.records.HeartRateRecord
@@ -237,13 +239,26 @@ fun toRecord(proto: DataProto.DataPoint): Record =
                     zoneOffset = zoneOffset,
                     metadata = metadata
                 )
-            "HeartRateVariabilityRmssd" ->
+            "HeartRateVariabilityRmssd" -> {
+                // Ensure that the values being read from old APKs do not crash the client.
+                val heartRateVariabilityMillis =
+                    when {
+                        getDouble("heartRateVariability") <
+                            HeartRateVariabilityRmssdRecord.MIN_HRV_RMSSD ->
+                            HeartRateVariabilityRmssdRecord.MIN_HRV_RMSSD
+                        getDouble("heartRateVariability") >
+                            HeartRateVariabilityRmssdRecord.MAX_HRV_RMSSD ->
+                            HeartRateVariabilityRmssdRecord.MAX_HRV_RMSSD
+                        else -> getDouble("heartRateVariability")
+                    }
+
                 HeartRateVariabilityRmssdRecord(
-                    heartRateVariabilityMillis = getDouble("heartRateVariability"),
+                    heartRateVariabilityMillis = heartRateVariabilityMillis,
                     time = time,
                     zoneOffset = zoneOffset,
                     metadata = metadata
                 )
+            }
             "LeanBodyMass" ->
                 LeanBodyMassRecord(
                     mass = getDouble("mass").kilograms,
@@ -390,7 +405,7 @@ fun toRecord(proto: DataProto.DataPoint): Record =
                     endZoneOffset = endZoneOffset,
                     metadata = metadata
                 )
-            "ActivitySession" ->
+            "ActivitySession" -> {
                 ExerciseSessionRecord(
                     exerciseType =
                         mapEnum(
@@ -404,8 +419,18 @@ fun toRecord(proto: DataProto.DataPoint): Record =
                     startZoneOffset = startZoneOffset,
                     endTime = endTime,
                     endZoneOffset = endZoneOffset,
-                    metadata = metadata
+                    metadata = metadata,
+                    segments = subTypeDataListsMap["segments"]?.toSegmentList() ?: emptyList(),
+                    laps = subTypeDataListsMap["laps"]?.toLapList() ?: emptyList(),
+                    exerciseRouteResult =
+                        subTypeDataListsMap["route"]?.let {
+                            ExerciseRouteResult.Data(ExerciseRoute(route = it.toLocationList()))
+                        }
+                            ?: if (valuesMap["hasRoute"]?.booleanVal == true)
+                                ExerciseRouteResult.ConsentRequired()
+                            else ExerciseRouteResult.NoData(),
                 )
+            }
             "Distance" ->
                 DistanceRecord(
                     distance = getDouble("distance").meters,
@@ -507,6 +532,7 @@ fun toRecord(proto: DataProto.DataPoint): Record =
                     startZoneOffset = startZoneOffset,
                     endTime = endTime,
                     endZoneOffset = endZoneOffset,
+                    stages = subTypeDataListsMap["stages"]?.toStageList() ?: emptyList(),
                     metadata = metadata
                 )
             "SleepStage" ->
@@ -559,3 +585,20 @@ fun toRecord(proto: DataProto.DataPoint): Record =
             else -> throw RuntimeException("Unknown data type ${dataType.name}")
         }
     }
+
+fun toExerciseRouteData(
+    protoWrapper: androidx.health.platform.client.exerciseroute.ExerciseRoute
+): ExerciseRoute {
+    return ExerciseRoute(
+        protoWrapper.proto.valuesList.map { value ->
+            ExerciseRoute.Location(
+                time = Instant.ofEpochMilli(value.startTimeMillis),
+                latitude = value.valuesMap["latitude"]!!.doubleVal,
+                longitude = value.valuesMap["longitude"]!!.doubleVal,
+                altitude = value.valuesMap["altitude"]?.doubleVal?.meters,
+                horizontalAccuracy = value.valuesMap["horizontal_accuracy"]?.doubleVal?.meters,
+                verticalAccuracy = value.valuesMap["vertical_accuracy"]?.doubleVal?.meters
+            )
+        }
+    )
+}

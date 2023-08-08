@@ -249,7 +249,6 @@ public class NavigationManager implements Manager {
     /**
      * Creates an instance of {@link NavigationManager}.
      *
-     * @hide
      */
     @RestrictTo(LIBRARY)
     @NonNull
@@ -265,7 +264,6 @@ public class NavigationManager implements Manager {
     /**
      * Returns the {@code INavigationManager.Stub} binder object.
      *
-     * @hide
      */
     @RestrictTo(LIBRARY)
     @NonNull
@@ -276,7 +274,6 @@ public class NavigationManager implements Manager {
     /**
      * Tells the app to stop navigating.
      *
-     * @hide
      */
     @RestrictTo(LIBRARY)
     @MainThread
@@ -306,7 +303,6 @@ public class NavigationManager implements Manager {
      * <p>This is used in a testing environment, allowing testing the navigation app's navigation
      * capabilities without being in a car.
      *
-     * @hide
      */
     @RestrictTo(LIBRARY)
     @MainThread
@@ -329,7 +325,6 @@ public class NavigationManager implements Manager {
         executor.execute(callback::onAutoDriveEnabled);
     }
 
-    /** @hide */
     @RestrictTo(LIBRARY_GROUP) // Restrict to testing library
     @SuppressWarnings({"methodref.receiver.bound.invalid"})
     protected NavigationManager(@NonNull CarContext carContext,

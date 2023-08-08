@@ -17,7 +17,6 @@
 package androidx.build
 
 import androidx.build.AndroidXImplPlugin.Companion.CREATE_LIBRARY_BUILD_INFO_FILES_TASK
-import androidx.build.AndroidXImplPlugin.Companion.ZIP_CONSTRAINED_TEST_CONFIGS_WITH_APKS_TASK
 import androidx.build.AndroidXImplPlugin.Companion.ZIP_TEST_CONFIGS_WITH_APKS_TASK
 import androidx.build.buildInfo.CreateAggregateLibraryBuildInfoFileTask
 import androidx.build.buildInfo.CreateAggregateLibraryBuildInfoFileTask.Companion.CREATE_AGGREGATE_BUILD_INFO_FILES_TASK
@@ -47,9 +46,7 @@ import org.gradle.build.event.BuildEventsListenerRegistry
 import org.gradle.kotlin.dsl.extra
 
 abstract class AndroidXRootImplPlugin : Plugin<Project> {
-    @Suppress("UnstableApiUsage")
-    @get:javax.inject.Inject
-    abstract val registry: BuildEventsListenerRegistry
+    @get:javax.inject.Inject abstract val registry: BuildEventsListenerRegistry
 
     override fun apply(project: Project) {
         if (!project.isRoot) {
@@ -69,6 +66,8 @@ abstract class AndroidXRootImplPlugin : Plugin<Project> {
         configureKtlintCheckFile()
         tasks.register(CheckExternalDependencyLicensesTask.TASK_NAME)
 
+        maybeRegisterFilterableTask()
+
         // If we're running inside Studio, validate the Android Gradle Plugin version.
         val expectedAgpVersion = System.getenv("EXPECTED_AGP_VERSION")
         if (properties.containsKey("android.injected.invoked.from.ide")) {
@@ -80,41 +79,33 @@ abstract class AndroidXRootImplPlugin : Plugin<Project> {
                     Expected AGP version \"$expectedAgpVersion\" does not match actual AGP version
                     \"$ANDROID_GRADLE_PLUGIN_VERSION\". This happens when AGP is updated while
                     Studio is running and can be fixed by restarting Studio.
-                    """.trimIndent()
+                    """
+                        .trimIndent()
                 )
             }
         }
 
-        val buildOnServerTask = tasks.create(
-            BUILD_ON_SERVER_TASK,
-            BuildOnServerTask::class.java
-        )
+        val buildOnServerTask = tasks.create(BUILD_ON_SERVER_TASK, BuildOnServerTask::class.java)
         buildOnServerTask.cacheEvenIfNoOutputs()
         buildOnServerTask.distributionDirectory = getDistributionDirectory()
-        buildOnServerTask.repositoryDirectory = getRepositoryDirectory()
-        buildOnServerTask.buildId = getBuildId()
         buildOnServerTask.dependsOn(
             tasks.register(
                 CREATE_AGGREGATE_BUILD_INFO_FILES_TASK,
                 CreateAggregateLibraryBuildInfoFileTask::class.java
             )
         )
-        buildOnServerTask.dependsOn(
-            tasks.register(CREATE_LIBRARY_BUILD_INFO_FILES_TASK)
-        )
+        buildOnServerTask.dependsOn(tasks.register(CREATE_LIBRARY_BUILD_INFO_FILES_TASK))
 
         VerifyPlaygroundGradleConfigurationTask.createIfNecessary(project)?.let {
             buildOnServerTask.dependsOn(it)
         }
 
-        val createArchiveTask = Release.getGlobalFullZipTask(this)
-        buildOnServerTask.dependsOn(createArchiveTask)
-
         extra.set("projects", ConcurrentHashMap<String, String>())
         subprojects { project ->
             project.afterEvaluate {
-                if (project.plugins.hasPlugin(LibraryPlugin::class.java) ||
-                    project.plugins.hasPlugin(AppPlugin::class.java)
+                if (
+                    project.plugins.hasPlugin(LibraryPlugin::class.java) ||
+                        project.plugins.hasPlugin(AppPlugin::class.java)
                 ) {
 
                     buildOnServerTask.dependsOn("${project.path}:assembleRelease")
@@ -123,7 +114,8 @@ abstract class AndroidXRootImplPlugin : Plugin<Project> {
                             // in AndroidX, release and debug variants are essentially the same,
                             // so we don't run the lintRelease task on the build server
                             if (!variant.name.lowercase(Locale.getDefault()).contains("release")) {
-                                val taskName = "lint${variant.name.replaceFirstChar {
+                                val taskName =
+                                    "lint${variant.name.replaceFirstChar {
                                     if (it.isLowerCase()) {
                                         it.titlecase(Locale.getDefault())
                                     } else {
@@ -140,15 +132,10 @@ abstract class AndroidXRootImplPlugin : Plugin<Project> {
                 buildOnServerTask.dependsOn("${project.path}:jar")
             }
         }
-        project.configureRootProjectForLint()
-
-        tasks.register(AndroidXImplPlugin.BUILD_TEST_APKS_TASK)
 
         // NOTE: this task is used by the Github CI as well. If you make any changes here,
         // please update the .github/workflows files as well, if necessary.
-        project.tasks.register(
-            ZIP_TEST_CONFIGS_WITH_APKS_TASK, Zip::class.java
-        ) {
+        project.tasks.register(ZIP_TEST_CONFIGS_WITH_APKS_TASK, Zip::class.java) {
             it.destinationDirectory.set(project.getDistributionDirectory())
             it.archiveFileName.set("androidTest.zip")
             it.from(project.getTestConfigDirectory())
@@ -156,17 +143,7 @@ abstract class AndroidXRootImplPlugin : Plugin<Project> {
             it.entryCompression = ZipEntryCompression.STORED
             // Archive is greater than 4Gb :O
             it.isZip64 = true
-        }
-        project.tasks.register(
-            ZIP_CONSTRAINED_TEST_CONFIGS_WITH_APKS_TASK, Zip::class.java
-        ) {
-            it.destinationDirectory.set(project.getDistributionDirectory())
-            it.archiveFileName.set("constrainedAndroidTest.zip")
-            it.from(project.getConstrainedTestConfigDirectory())
-            // We're mostly zipping a bunch of .apk files that are already compressed
-            it.entryCompression = ZipEntryCompression.STORED
-            // Archive is greater than 4Gb :O
-            it.isZip64 = true
+            it.isReproducibleFileOrder = true
         }
 
         AffectedModuleDetector.configure(gradle, this)
@@ -187,19 +164,18 @@ abstract class AndroidXRootImplPlugin : Plugin<Project> {
             val projectModules = getProjectsMap()
             subprojects { subproject ->
                 // TODO(153485458) remove most of these exceptions
-                if (!subproject.name.contains("hilt") &&
-                    subproject.name != "docs-public" &&
-                    subproject.name != "docs-tip-of-tree" &&
-                    subproject.name != "camera-testapp-timing" &&
-                    subproject.name != "room-testapp" &&
-                    !(
-                        subproject.path.contains
-                        ("media2:media2-session:version-compat-tests:client-previous")
-                        ) &&
-                    !(
-                        subproject.path.contains
-                        ("media2:media2-session:version-compat-tests:service-previous")
-                        )
+                if (
+                    !subproject.name.contains("hilt") &&
+                        subproject.name != "docs-public" &&
+                        subproject.name != "docs-tip-of-tree" &&
+                        subproject.name != "camera-testapp-timing" &&
+                        subproject.name != "room-testapp" &&
+                        !(subproject.path.contains(
+                            "media2:media2-session:version-compat-tests:client-previous"
+                        )) &&
+                        !(subproject.path.contains(
+                            "media2:media2-session:version-compat-tests:service-previous"
+                        ))
                 ) {
                     subproject.configurations.all { configuration ->
                         configuration.resolutionStrategy.dependencySubstitution.apply {
@@ -226,13 +202,10 @@ abstract class AndroidXRootImplPlugin : Plugin<Project> {
             task.setOutput(File(project.getDistributionDirectory(), "task_outputs.txt"))
             task.removePrefix(project.getCheckoutRoot().path)
         }
-        tasks.matching { it.name == "commonizeNativeDistribution" }.configureEach {
-            it.notCompatibleWithConfigurationCache("https://youtrack.jetbrains.com/issue/KT-54627")
-        }
     }
 
     private fun Project.setDependencyVersions() {
-        androidx.build.dependencies.kotlinVersion = getVersionByName("kotlin")
+        androidx.build.dependencies.kotlinGradlePluginVersion = getVersionByName("kotlin")
         androidx.build.dependencies.kotlinNativeVersion = getVersionByName("kotlinNative")
         androidx.build.dependencies.kspVersion = getVersionByName("ksp")
         androidx.build.dependencies.agpVersion = getVersionByName("androidGradlePlugin")

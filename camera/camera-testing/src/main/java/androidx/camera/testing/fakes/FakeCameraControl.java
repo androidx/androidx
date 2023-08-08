@@ -17,12 +17,13 @@
 package androidx.camera.testing.fakes;
 
 import static androidx.camera.core.ImageCapture.FLASH_MODE_OFF;
-import static androidx.camera.testing.fakes.FakeCameraDeviceSurfaceManager.MAX_OUTPUT_SIZE;
+import static androidx.camera.testing.impl.fakes.FakeCameraDeviceSurfaceManager.MAX_OUTPUT_SIZE;
 
 import android.graphics.Rect;
 import android.util.Size;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.FocusMeteringResult;
@@ -80,6 +81,10 @@ public final class FakeCameraControl implements CameraControlInternal {
     private float mZoomRatio = -1;
     private float mLinearZoom = -1;
     private boolean mTorchEnabled = false;
+    private int mExposureCompensation = -1;
+
+    @Nullable
+    private FocusMeteringAction mLastSubmittedFocusMeteringAction = null;
 
     public FakeCameraControl() {
         this(NO_OP_CALLBACK);
@@ -188,8 +193,13 @@ public final class FakeCameraControl implements CameraControlInternal {
 
     @NonNull
     @Override
-    public ListenableFuture<Integer> setExposureCompensationIndex(int exposure) {
+    public ListenableFuture<Integer> setExposureCompensationIndex(int value) {
+        mExposureCompensation = value;
         return Futures.immediateFuture(null);
+    }
+
+    public int getExposureCompensationIndex() {
+        return mExposureCompensation;
     }
 
     @NonNull
@@ -229,6 +239,7 @@ public final class FakeCameraControl implements CameraControlInternal {
     @Override
     public ListenableFuture<FocusMeteringResult> startFocusAndMetering(
             @NonNull FocusMeteringAction action) {
+        mLastSubmittedFocusMeteringAction = action;
         return Futures.immediateFuture(FocusMeteringResult.emptyInstance());
     }
 
@@ -263,6 +274,11 @@ public final class FakeCameraControl implements CameraControlInternal {
 
     public float getLinearZoom() {
         return mLinearZoom;
+    }
+
+    @Nullable
+    public FocusMeteringAction getLastSubmittedFocusMeteringAction() {
+        return mLastSubmittedFocusMeteringAction;
     }
 
     @Override

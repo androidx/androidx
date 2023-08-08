@@ -19,6 +19,7 @@
 package androidx.privacysandbox.ui.provider
 
 import android.content.Context
+import android.content.res.Configuration
 import android.hardware.display.DisplayManager
 import android.os.Build
 import android.os.Bundle
@@ -57,6 +58,7 @@ private class BinderAdapterDelegate(
 
     fun openSession(
         context: Context,
+        windowInputToken: IBinder,
         initialWidth: Int,
         initialHeight: Int,
         isZOrderOnTop: Boolean,
@@ -64,13 +66,13 @@ private class BinderAdapterDelegate(
         client: SandboxedUiAdapter.SessionClient
     ) {
         adapter.openSession(
-            context, initialWidth, initialHeight, isZOrderOnTop, clientExecutor,
+            context, windowInputToken, initialWidth, initialHeight, isZOrderOnTop, clientExecutor,
             client
         )
     }
 
     override fun openRemoteSession(
-        hostToken: IBinder,
+        windowInputToken: IBinder,
         displayId: Int,
         initialWidth: Int,
         initialHeight: Int,
@@ -86,13 +88,13 @@ private class BinderAdapterDelegate(
                     sandboxContext.createDisplayContext(mDisplayManager.getDisplay(displayId))
                 val surfaceControlViewHost = SurfaceControlViewHost(
                     windowContext,
-                    mDisplayManager.getDisplay(displayId), hostToken
+                    mDisplayManager.getDisplay(displayId), windowInputToken
                 )
                 val sessionClient = SessionClientProxy(
                     surfaceControlViewHost, initialWidth, initialHeight, remoteSessionClient
                 )
                 openSession(
-                    windowContext, initialWidth, initialHeight, isZOrderOnTop,
+                    windowContext, windowInputToken, initialWidth, initialHeight, isZOrderOnTop,
                     Runnable::run, sessionClient
                 )
             } catch (exception: Throwable) {
@@ -110,7 +112,15 @@ private class BinderAdapterDelegate(
 
         override fun onSessionOpened(session: SandboxedUiAdapter.Session) {
             val view = session.view
-            surfaceControlViewHost.setView(view, initialWidth, initialHeight)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                val touchTransferringView = TouchFocusTransferringView(
+                    sandboxContext, surfaceControlViewHost)
+                touchTransferringView.addView(view)
+                surfaceControlViewHost.setView(touchTransferringView, initialWidth, initialHeight)
+            } else {
+                surfaceControlViewHost.setView(view, initialWidth, initialHeight)
+            }
+
             val surfacePackage = surfaceControlViewHost.surfacePackage
             val remoteSessionController =
                 RemoteSessionController(surfaceControlViewHost, session)
@@ -124,14 +134,35 @@ private class BinderAdapterDelegate(
             remoteSessionClient.onRemoteSessionError(throwable.message)
         }
 
+        override fun onResizeRequested(width: Int, height: Int) {
+            remoteSessionClient.onResizeRequested(width, height)
+        }
+
         @VisibleForTesting
         private inner class RemoteSessionController(
             val surfaceControlViewHost: SurfaceControlViewHost,
             val session: SandboxedUiAdapter.Session
         ) : IRemoteSessionController.Stub() {
+
+            override fun notifyConfigurationChanged(configuration: Configuration) {
+                surfaceControlViewHost.surfacePackage?.notifyConfigurationChanged(configuration)
+                session.notifyConfigurationChanged(configuration)
+            }
+
+            override fun notifyResized(width: Int, height: Int) {
+                val mHandler = Handler(Looper.getMainLooper())
+                mHandler.post {
+                    surfaceControlViewHost.relayout(width, height)
+                    session.notifyResized(width, height)
+                }
+            }
+
             override fun close() {
-                session.close()
-                surfaceControlViewHost.release()
+                val mHandler = Handler(Looper.getMainLooper())
+                mHandler.post {
+                    session.close()
+                    surfaceControlViewHost.release()
+                }
             }
         }
     }

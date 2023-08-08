@@ -44,7 +44,6 @@ import kotlin.math.roundToInt
  * sure there is adequate space for touch target expansion.
  */
 @OptIn(ExperimentalMaterial3Api::class)
-@Suppress("ModifierInspectorInfo")
 fun Modifier.minimumInteractiveComponentSize(): Modifier = composed(
     inspectorInfo = debugInspectorInfo {
         name = "minimumInteractiveComponentSize"

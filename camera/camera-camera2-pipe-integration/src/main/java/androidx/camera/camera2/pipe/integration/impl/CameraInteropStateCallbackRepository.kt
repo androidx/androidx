@@ -24,20 +24,17 @@ import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.core.impl.SessionConfig
-import javax.inject.Inject
-import javax.inject.Singleton
 import kotlinx.atomicfu.AtomicRef
 import kotlinx.atomicfu.atomic
 
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-@Singleton
 /**
  * A application-level single-instance repository for Camera Interop callbacks. It supplies
  * camera-pipe with internal callbacks on CameraX initialization. During runtime, before a camera
  * graph is created, CameraX updates these internal callbacks with Camera Interop callbacks so that
  * they may be triggered in camera-pipe.
  */
-class CameraInteropStateCallbackRepository @Inject constructor() {
+class CameraInteropStateCallbackRepository {
 
     private val _deviceStateCallback = CameraInteropDeviceStateCallback()
     private val _sessionStateCallback = CameraInteropSessionStateCallback()
@@ -61,7 +58,7 @@ class CameraInteropStateCallbackRepository @Inject constructor() {
     val sessionStateCallback
         get() = _sessionStateCallback
 
-    class CameraInteropDeviceStateCallback() : CameraDevice.StateCallback() {
+    class CameraInteropDeviceStateCallback : CameraDevice.StateCallback() {
 
         private var callbacks: AtomicRef<List<CameraDevice.StateCallback>> = atomic(listOf())
         internal fun updateCallbacks(sessionConfig: SessionConfig) {

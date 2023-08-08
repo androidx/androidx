@@ -24,9 +24,7 @@ import org.robolectric.internal.bytecode.InstrumentationConfiguration
 // "failed to access class kotlin.jvm.internal.DefaultConstructorMarker".
 public class StyleTestRunner(testClass: Class<*>) : RobolectricTestRunner(testClass) {
     override fun createClassLoaderConfig(method: FrameworkMethod): InstrumentationConfiguration =
-        InstrumentationConfiguration.Builder(
-            super.createClassLoaderConfig(method)
-        )
+        InstrumentationConfiguration.Builder(super.createClassLoaderConfig(method))
             .doNotInstrumentPackage("androidx.wear.watchface.style")
             .build()
 }

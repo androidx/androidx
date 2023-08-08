@@ -18,45 +18,85 @@
 
     <application>
         <service
-            android:name="androidx.datastore.core.MultiProcessDataStoreMultiProcessTest$SimpleUpdateService"
+            android:name="androidx.datastore.core.MultiProcessDataStoreMultiProcessTest$SimpleUpdateFileService"
             android:enabled="true"
             android:exported="false"
-            android:process=":SimpleUpdateService" />
+            android:process=":SimpleUpdateFileService" />
         <service
-            android:name="androidx.datastore.core.MultiProcessDataStoreMultiProcessTest$ConcurrentReadUpdateWriterService"
+            android:name="androidx.datastore.core.MultiProcessDataStoreMultiProcessTest$SimpleUpdateOkioService"
             android:enabled="true"
             android:exported="false"
-            android:process=":ConcurrentReadUpdateWriterService" />
+            android:process=":SimpleUpdateOkioService" />
         <service
-            android:name="androidx.datastore.core.MultiProcessDataStoreMultiProcessTest$ConcurrentReadUpdateReaderService"
+            android:name="androidx.datastore.core.MultiProcessDataStoreMultiProcessTest$ConcurrentReadUpdateWriterFileService"
             android:enabled="true"
             android:exported="false"
-            android:process=":ConcurrentReadUpdateReaderService" />
+            android:process=":ConcurrentReadUpdateWriterFileService" />
         <service
-            android:name="androidx.datastore.core.MultiProcessDataStoreMultiProcessTest$InterleavedUpdateDataService"
+            android:name="androidx.datastore.core.MultiProcessDataStoreMultiProcessTest$ConcurrentReadUpdateWriterOkioService"
             android:enabled="true"
             android:exported="false"
-            android:process=":InterleavedUpdateDataService" />
+            android:process=":ConcurrentReadUpdateWriterOkioService" />
         <service
-            android:name="androidx.datastore.core.MultiProcessDataStoreMultiProcessTest$InterleavedUpdateDataWithReadService"
+            android:name="androidx.datastore.core.MultiProcessDataStoreMultiProcessTest$ConcurrentReadUpdateReaderFileService"
             android:enabled="true"
             android:exported="false"
-            android:process=":InterleavedUpdateDataWithReadService" />
+            android:process=":ConcurrentReadUpdateReaderFileService" />
         <service
-            android:name="androidx.datastore.core.MultiProcessDataStoreMultiProcessTest$FailedUpdateDataService"
+            android:name="androidx.datastore.core.MultiProcessDataStoreMultiProcessTest$ConcurrentReadUpdateReaderOkioService"
             android:enabled="true"
             android:exported="false"
-            android:process=":FailedUpdateDataService" />
+            android:process=":ConcurrentReadUpdateReaderOkioService" />
         <service
-            android:name="androidx.datastore.core.MultiProcessDataStoreMultiProcessTest$CancelledUpdateDataService"
+            android:name="androidx.datastore.core.MultiProcessDataStoreMultiProcessTest$InterleavedUpdateDataFileService"
             android:enabled="true"
             android:exported="false"
-            android:process=":CancelledUpdateDataService" />
+            android:process=":InterleavedUpdateDataFileService" />
         <service
-            android:name="androidx.datastore.core.MultiProcessDataStoreMultiProcessTest$InterleavedHandlerUpdateDataService"
+            android:name="androidx.datastore.core.MultiProcessDataStoreMultiProcessTest$InterleavedUpdateDataOkioService"
             android:enabled="true"
             android:exported="false"
-            android:process=":InterleavedHandlerUpdateDataService" />
+            android:process=":InterleavedUpdateDataOkioService" />
+        <service
+            android:name="androidx.datastore.core.MultiProcessDataStoreMultiProcessTest$InterleavedUpdateDataWithReadFileService"
+            android:enabled="true"
+            android:exported="false"
+            android:process=":InterleavedUpdateDataWithReadFileService" />
+        <service
+            android:name="androidx.datastore.core.MultiProcessDataStoreMultiProcessTest$InterleavedUpdateDataWithReadOkioService"
+            android:enabled="true"
+            android:exported="false"
+            android:process=":InterleavedUpdateDataWithReadOkioService" />
+        <service
+            android:name="androidx.datastore.core.MultiProcessDataStoreMultiProcessTest$FailedUpdateDataFileService"
+            android:enabled="true"
+            android:exported="false"
+            android:process=":FailedUpdateDataFileService" />
+        <service
+            android:name="androidx.datastore.core.MultiProcessDataStoreMultiProcessTest$FailedUpdateDataOkioService"
+            android:enabled="true"
+            android:exported="false"
+            android:process=":FailedUpdateDataOkioService" />
+        <service
+            android:name="androidx.datastore.core.MultiProcessDataStoreMultiProcessTest$CancelledUpdateDataFileService"
+            android:enabled="true"
+            android:exported="false"
+            android:process=":CancelledUpdateDataFileService" />
+        <service
+            android:name="androidx.datastore.core.MultiProcessDataStoreMultiProcessTest$CancelledUpdateDataOkioService"
+            android:enabled="true"
+            android:exported="false"
+            android:process=":CancelledUpdateDataOkioService" />
+        <service
+            android:name="androidx.datastore.core.MultiProcessDataStoreMultiProcessTest$InterleavedHandlerUpdateDataFileService"
+            android:enabled="true"
+            android:exported="false"
+            android:process=":InterleavedHandlerUpdateDataFileService" />
+        <service
+            android:name="androidx.datastore.core.MultiProcessDataStoreMultiProcessTest$InterleavedHandlerUpdateDataOkioService"
+            android:enabled="true"
+            android:exported="false"
+            android:process=":InterleavedHandlerUpdateDataOkioService" />
     </application>
 
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />

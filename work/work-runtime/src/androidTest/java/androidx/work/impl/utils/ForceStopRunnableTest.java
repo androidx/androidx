@@ -47,7 +47,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
 import androidx.test.filters.SdkSuppress;
 import androidx.work.Configuration;
-import androidx.work.InitializationExceptionHandler;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkInfo;
 import androidx.work.impl.Scheduler;
@@ -90,7 +89,8 @@ public class ForceStopRunnableTest {
                 .setExecutor(executor)
                 .setTaskExecutor(executor)
                 .build();
-        mWorkDatabase = WorkDatabase.create(mContext, mConfiguration.getTaskExecutor(), true);
+        mWorkDatabase = WorkDatabase.create(
+                mContext, mConfiguration.getTaskExecutor(), mConfiguration.getClock(), true);
         when(mWorkManager.getWorkDatabase()).thenReturn(mWorkDatabase);
         when(mWorkManager.getSchedulers()).thenReturn(Collections.singletonList(mScheduler));
         when(mWorkManager.getPreferenceUtils()).thenReturn(mPreferenceUtils);
@@ -206,15 +206,17 @@ public class ForceStopRunnableTest {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     public void test_InitializationExceptionHandler_migrationFailures() {
         mContext = mock(Context.class);
         when(mContext.getApplicationContext()).thenReturn(mContext);
         when(mContext.getSystemService(Context.ACTIVITY_SERVICE)).thenReturn(mActivityManager);
-        mWorkDatabase = WorkDatabase.create(mContext, mConfiguration.getTaskExecutor(), true);
+        mWorkDatabase = WorkDatabase.create(
+                mContext, mConfiguration.getTaskExecutor(), mConfiguration.getClock(), true);
         when(mWorkManager.getWorkDatabase()).thenReturn(mWorkDatabase);
         mRunnable = new ForceStopRunnable(mContext, mWorkManager);
 
-        InitializationExceptionHandler handler = mock(InitializationExceptionHandler.class);
+        Consumer<Throwable> handler = mock(Consumer.class);
         Configuration configuration = new Configuration.Builder(mConfiguration)
                 .setInitializationExceptionHandler(handler)
                 .build();
@@ -227,7 +229,7 @@ public class ForceStopRunnableTest {
         ForceStopRunnable runnable = spy(mRunnable);
         doNothing().when(runnable).sleep(anyLong());
         runnable.run();
-        verify(handler, times(1)).handleException(any(Throwable.class));
+        verify(handler, times(1)).accept(any(Throwable.class));
     }
 
     @Test

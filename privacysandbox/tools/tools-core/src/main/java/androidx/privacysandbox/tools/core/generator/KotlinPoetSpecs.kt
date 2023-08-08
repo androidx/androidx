@@ -55,12 +55,6 @@ fun Type.poetClassName() = ClassName(packageName, simpleName)
 fun AnnotatedValue.converterNameSpec() =
     ClassName(type.packageName, "${type.simpleName}Converter")
 
-fun AnnotatedValue.toParcelableNameSpec() =
-    MemberName(converterNameSpec(), "toParcelable")
-
-fun AnnotatedValue.fromParcelableNameSpec() =
-    MemberName(converterNameSpec(), "fromParcelable")
-
 fun AnnotatedValue.parcelableNameSpec() =
     ClassName(type.packageName, "Parcelable${type.simpleName}")
 
@@ -151,14 +145,31 @@ fun CodeBlock.Builder.addStatement(builderBlock: CodeBlock.Builder.() -> Unit) {
 }
 
 object SpecNames {
-    val dispatchersMainClass = ClassName("kotlinx.coroutines", "Dispatchers", "Main")
-    val delicateCoroutinesApiClass = ClassName("kotlinx.coroutines", "DelicateCoroutinesApi")
-    val globalScopeClass = ClassName("kotlinx.coroutines", "GlobalScope")
-    val stackTraceElementClass = ClassName("java.lang", "StackTraceElement")
-    val suspendCancellableCoroutineMethod =
-        MemberName("kotlinx.coroutines", "suspendCancellableCoroutine", isExtension = true)
+    const val contextPropertyName = "context"
+
+    // Kotlin coroutines
+    val resumeMethod = MemberName("kotlin.coroutines", "resume", isExtension = true)
     val resumeWithExceptionMethod =
         MemberName("kotlin.coroutines", "resumeWithException", isExtension = true)
+    val cancellationExceptionClass =
+        ClassName("kotlin.coroutines.cancellation", "CancellationException")
+
+    // KotlinX coroutines
+    val coroutineScopeClass = ClassName("kotlinx.coroutines", "CoroutineScope")
+    val dispatchersMainClass = ClassName("kotlinx.coroutines", "Dispatchers", "Main")
     val launchMethod = MemberName("kotlinx.coroutines", "launch", isExtension = true)
-    val iBinderClassName = ClassName("android.os", "IBinder")
+    val suspendCancellableCoroutineMethod =
+        MemberName("kotlinx.coroutines", "suspendCancellableCoroutine", isExtension = true)
+
+    // Java
+    val stackTraceElementClass = ClassName("java.lang", "StackTraceElement")
+
+    // Android
+    val iBinderClass = ClassName("android.os", "IBinder")
+    val bundleClass = ClassName("android.os", "Bundle")
+    val contextClass = ClassName("android.content", "Context")
+    val viewClass = ClassName("android.view", "View")
+
+    // Privacy Sandbox UI
+    val toCoreLibInfoMethod = MemberName("androidx.privacysandbox.ui.provider", "toCoreLibInfo")
 }

@@ -35,6 +35,7 @@ import static org.mockito.Mockito.verify;
 import android.animation.Animator;
 import android.animation.ObjectAnimator;
 import android.animation.TimeInterpolator;
+import android.animation.ValueAnimator;
 import android.graphics.Rect;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -375,6 +376,61 @@ public class TransitionTest extends BaseTest {
         assertThat(transition.isTransitionRequired(start, end), is(false));
         end.values.put(propname, 2);
         assertThat(transition.isTransitionRequired(start, end), is(true));
+    }
+
+    // Any listener that is added by the transition itself should not be in the global set of
+    // listeners. They should be limited to the executing transition.
+    @Test
+    public void internalListenersNotGlobal() throws Throwable {
+        rule.runOnUiThread(() -> {
+            mScenes[0].enter();
+        });
+        View view = rule.getActivity().findViewById(R.id.view0);
+
+        int[] startCount = new int[1];
+        Transition transition = new Visibility() {
+            private Animator createAnimator() {
+                addListener(new TransitionListenerAdapter() {
+                    @Override
+                    public void onTransitionStart(@NonNull Transition transition) {
+                        startCount[0]++;
+                    }
+                });
+                return ValueAnimator.ofFloat(0f, 100f);
+            }
+
+            @Nullable
+            @Override
+            public Animator onDisappear(@NonNull ViewGroup sceneRoot, @NonNull View view,
+                    @Nullable TransitionValues startValues, @Nullable TransitionValues endValues) {
+                return createAnimator();
+            }
+
+            @Nullable
+            @Override
+            public Animator onAppear(@NonNull ViewGroup sceneRoot, @NonNull View view,
+                    @Nullable TransitionValues startValues, @Nullable TransitionValues endValues) {
+                return createAnimator();
+            }
+        };
+
+        rule.runOnUiThread(() -> {
+            ViewGroup root = rule.getActivity().getRoot();
+            TransitionManager.beginDelayedTransition(root, transition);
+            view.setVisibility(View.GONE);
+        });
+
+        rule.runOnUiThread(() -> {
+            assertEquals(1, startCount[0]);
+
+            ViewGroup root = rule.getActivity().getRoot();
+            TransitionManager.beginDelayedTransition(root, transition);
+            view.setVisibility(View.VISIBLE);
+        });
+
+        rule.runOnUiThread(() -> {
+            assertEquals(2, startCount[0]);
+        });
     }
 
     private void showInitialScene() throws Throwable {

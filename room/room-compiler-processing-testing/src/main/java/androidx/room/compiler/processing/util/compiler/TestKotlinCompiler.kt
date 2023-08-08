@@ -101,7 +101,7 @@ internal fun TestCompilationArguments.withAtLeastOneKotlinSource(): TestCompilat
     if (hasKotlinSource) return this
     return copy(
         sources = sources + Source.kotlin(
-            "SyntheticSource",
+            "SyntheticSource.kt",
             code = """
                 package xprocessing.generated
                 class SyntheticKotlinSource

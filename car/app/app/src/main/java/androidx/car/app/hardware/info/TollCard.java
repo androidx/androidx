@@ -45,7 +45,6 @@ public final class TollCard {
     /**
      * Possible toll card states.
      *
-     * @hide
      */
     @IntDef({
             TOLLCARD_STATE_UNKNOWN,

@@ -1,0 +1,9 @@
+// Baseline format: 1.0
+GetterSetterNames: field ParameterInformation.compared:
+    Invalid name for boolean property `compared`. Should start with one of `has`, `can`, `should`, `is`.
+GetterSetterNames: field ParameterInformation.fromDefault:
+    Invalid name for boolean property `fromDefault`. Should start with one of `has`, `can`, `should`, `is`.
+GetterSetterNames: field ParameterInformation.stable:
+    Invalid name for boolean property `stable`. Should start with one of `has`, `can`, `should`, `is`.
+GetterSetterNames: field ParameterInformation.static:
+    Invalid name for boolean property `static`. Should start with one of `has`, `can`, `should`, `is`.

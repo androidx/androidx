@@ -18,15 +18,16 @@ package androidx.datastore.migrations
 
 import android.content.Context
 import android.content.SharedPreferences
+import androidx.datastore.TestingSerializer
 import androidx.datastore.core.DataMigration
 import androidx.datastore.core.DataStore
 import androidx.datastore.core.DataStoreFactory
-import androidx.datastore.TestingSerializer
 import androidx.datastore.dataStore
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.MediumTest
 import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
+import java.io.File
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.TestScope
@@ -36,7 +37,6 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
-import java.io.File
 
 private const val sharedPrefsName = "shared_prefs_name"
 

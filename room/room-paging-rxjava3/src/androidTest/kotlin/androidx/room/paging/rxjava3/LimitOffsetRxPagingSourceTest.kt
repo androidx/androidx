@@ -18,6 +18,8 @@ package androidx.room.paging.rxjava3
 
 import android.database.Cursor
 import androidx.arch.core.executor.testing.CountingTaskExecutorRule
+import androidx.kruth.assertThat
+import androidx.kruth.assertWithMessage
 import androidx.paging.LoadType
 import androidx.paging.PagingConfig
 import androidx.paging.PagingSource.LoadParams
@@ -39,8 +41,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.testutils.TestExecutor
 import androidx.testutils.withTestTimeout
-import com.google.common.truth.Truth.assertThat
-import com.google.common.truth.Truth.assertWithMessage
 import io.reactivex.rxjava3.core.Single
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
@@ -225,7 +225,7 @@ class LimitOffsetRxPagingSourceTest {
 
         val single2 = pagingSource.append(key = 55)
         val result = single2.await()
-        assertThat(result).isInstanceOf(LoadResult.Invalid::class.java)
+        assertThat(result).isInstanceOf<LoadResult.Invalid<*, *>>()
     }
 
     @Test
@@ -243,7 +243,7 @@ class LimitOffsetRxPagingSourceTest {
 
         // let room complete its tasks
         countingTaskExecutorRule.drainTasks(500, TimeUnit.MILLISECONDS)
-        assertThat(result).isInstanceOf(LoadResult.Invalid::class.java)
+        assertThat(result).isInstanceOf<LoadResult.Invalid<*, *>>()
     }
 
     @Test
@@ -262,7 +262,7 @@ class LimitOffsetRxPagingSourceTest {
         // let room complete its tasks
         countingTaskExecutorRule.drainTasks(500, TimeUnit.MILLISECONDS)
         val result = observer.values().first()
-        assertThat(result).isInstanceOf(LoadResult.Invalid::class.java)
+        assertThat(result).isInstanceOf<LoadResult.Invalid<*, *>>()
         observer.dispose()
     }
 

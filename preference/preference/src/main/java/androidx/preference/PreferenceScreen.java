@@ -49,7 +49,6 @@ public final class PreferenceScreen extends PreferenceGroup {
      *
      * Used by Settings :)
      *
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public PreferenceScreen(@NonNull Context context, @Nullable AttributeSet attrs) {

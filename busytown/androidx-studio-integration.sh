@@ -9,7 +9,7 @@ $SCRIPT_PATH/impl/build-studio-and-androidx.sh \
   -x lintWithExpandProjectionDebug \
   -x lintWithoutExpandProjectionDebug \
   -x lintWithNullAwareTypeConverterDebug \
-  -x lintReport \
+  -x lintReportJvm \
   -x verifyDependencyVersions \
   listTaskOutputs \
   bOS

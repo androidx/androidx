@@ -29,7 +29,7 @@ import androidx.versionedparcelable.VersionedParcelize;
 import androidx.wear.watchface.complications.data.ComplicationExperimental;
 
 /** Wire format for BoundingArc. */
-// TODO(b/230364881): Mark as @hide RestrictTo when BoundingArc is no longer experimental.
+// TODO(b/230364881): Mark as @RestrictTo when BoundingArc is no longer experimental.
 @VersionedParcelize
 @SuppressLint("BanParcelableUsage")
 @ComplicationExperimental
@@ -45,8 +45,7 @@ public final class BoundingArcWireFormat implements VersionedParcelable, Parcela
     float mArcThickness = 0.0f;
 
     /** Used by VersionedParcelable. */
-    BoundingArcWireFormat() {
-    }
+    BoundingArcWireFormat() {}
 
     public BoundingArcWireFormat(float arcStartAngle, float totalArcAngle, float arcThickness) {
         mArcStartAngle = arcStartAngle;

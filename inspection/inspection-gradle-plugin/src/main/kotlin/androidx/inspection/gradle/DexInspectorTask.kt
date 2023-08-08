@@ -75,8 +75,11 @@ abstract class DexInspectorTask : DefaultTask() {
         val output = outputFile.get().asFile
         output.parentFile.mkdirs()
         val errorStream = ByteArrayOutputStream()
-        val executionResult = execOperations.exec {
-            it.executable = d8Executable.get().asFile.absolutePath
+        val executionResult = execOperations.javaexec {
+            it.classpath(File(File(d8Executable.get().asFile.parentFile, "lib"), "d8.jar"))
+            it.mainClass.set("com.android.tools.r8.D8")
+            it.allJvmArgs.add("-Xmx2G")
+
             val filesToDex = jars.map { file -> file.absolutePath }
 
             // All runtime dependencies of the inspector are already jarjar-ed and packed in
@@ -125,7 +128,8 @@ fun Project.registerUnzipTask(
 ): TaskProvider<Copy> {
     return tasks.register(variant.taskName("unpackInspectorAAR"), Copy::class.java) {
         it.from(zipTree(variant.artifacts.get(SingleArtifact.AAR)))
-        it.destinationDir = taskWorkingDir(variant, "unpackedInspectorAAR")
+        // Remove .get().asFile once https://github.com/gradle/gradle/issues/25824 is fixed
+        it.destinationDir = taskWorkingDir(variant, "unpackedInspectorAAR").get().asFile
     }
 }
 
@@ -136,15 +140,14 @@ fun Project.registerBundleInspectorTask(
     jar: TaskProvider<out Jar>
 ): TaskProvider<Zip> {
     val name = jarName ?: "${project.name}.jar"
-    val out = File(taskWorkingDir(variant, "dexedInspector"), name)
+    val output = taskWorkingDir(variant, "dexedInspector").map { it.file(name) }
 
     val dex = tasks.register(variant.taskName("dexInspector"), DexInspectorTask::class.java) {
         it.minSdkVersion = extension.defaultConfig.minSdk!!
         it.setD8(extension.sdkDirectory, extension.buildToolsVersion)
         it.setAndroidJar(extension.sdkDirectory, extension.compileSdkVersion!!)
         it.jars.from(jar.get().archiveFile)
-        it.outputFile.set(out)
-        @Suppress("UnstableApiUsage")
+        it.outputFile.set(output)
         it.compileClasspath.from(
             variant.compileConfiguration.incoming.artifactView {
                 it.attributes {
@@ -160,11 +163,10 @@ fun Project.registerBundleInspectorTask(
 
     return tasks.register(variant.taskName("assembleInspectorJar"), Zip::class.java) {
         it.from(zipTree(jar.map { it.archiveFile }))
-        it.from(zipTree(out))
+        it.from(dex.map { zipTree(it.outputFile) })
         it.exclude("**/*.class")
         it.archiveFileName.set(name)
         it.destinationDirectory.set(taskWorkingDir(variant, "assembleInspectorJar"))
-        it.dependsOn(dex)
         it.includeEmptyDirs = false
     }
 }

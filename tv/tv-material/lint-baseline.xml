@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.1.0-beta05" type="baseline" client="gradle" dependencies="false" name="AGP (8.1.0-beta05)" variant="all" version="8.1.0-beta05">
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method Carousel has parameter &apos;content&apos; with type Function2&lt;? super AnimatedContentScope, ? super Integer, Unit>."
+        errorLine1="    content: @Composable AnimatedContentScope.(index: Int) -> Unit"
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/tv/material3/Carousel.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;updateItemBasedOnLayout&apos; with type Function2&lt;? super FocusDirection, ? super Boolean, ? extends Unit>."
+        errorLine1="    fun updateItemBasedOnLayout(direction: FocusDirection, isLtr: Boolean) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/tv/material3/Carousel.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;handledHorizontalFocusMove&apos; with type Function1&lt;? super FocusDirection, ? extends Boolean>."
+        errorLine1="    fun handledHorizontalFocusMove(direction: FocusDirection): Boolean ="
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/tv/material3/Carousel.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;scrollByAction&apos; with type Function2&lt;? super Float, ? super Float, ? extends Boolean>."
+        errorLine1="            val scrollByAction: ((x: Float, y: Float) -> Boolean) ="
+        errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/tv/material3/Carousel.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method ImmersiveList has parameter &apos;background&apos; with type Function3&lt;? super ImmersiveListBackgroundScope, ? super Integer, ? super Boolean, Unit>."
+        errorLine1="    @Composable ImmersiveListBackgroundScope.(index: Int, listHasFocus: Boolean) -> Unit,"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/tv/material3/ImmersiveList.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method AnimatedContent has parameter &apos;content&apos; with type Function2&lt;? super AnimatedVisibilityScope, ? super Integer, Unit>."
+        errorLine1="        content: @Composable AnimatedVisibilityScope.(targetState: Int) -> Unit"
+        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/tv/material3/ImmersiveList.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor ImmersiveListScope has parameter &apos;onFocused&apos; with type Function1&lt;? super Integer, Unit>."
+        errorLine1="public class ImmersiveListScope internal constructor(private val onFocused: (Int) -> Unit) {"
+        errorLine2="                                                                            ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/tv/material3/ImmersiveList.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method DrawerSheet has parameter &apos;sizeAnimationFinishedListener&apos; with type Function2&lt;? super IntSize, ? super IntSize, Unit>."
+        errorLine1="    sizeAnimationFinishedListener: ((initialValue: IntSize, targetValue: IntSize) -> Unit)? = null,"
+        errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/tv/material3/NavigationDrawer.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;valueToOffset&apos; with type Function1&lt;? super Boolean, ? extends Float>."
+        errorLine1="    val valueToOffset = remember&lt;(Boolean) -> Float>(minBound, maxBound) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/tv/material3/Switch.kt"/>
+    </issue>
+
+</issues>

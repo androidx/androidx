@@ -19,6 +19,7 @@
 package androidx.graphics.shapes
 
 import android.graphics.PointF
+import android.util.Log
 import androidx.core.graphics.div
 import androidx.core.graphics.plus
 import androidx.core.graphics.times
@@ -34,25 +35,17 @@ import kotlin.math.sqrt
 internal fun interpolate(start: Float, stop: Float, fraction: Float) =
     (start * (1 - fraction) + stop * fraction)
 
-internal fun interpolate(start: PointF, stop: PointF, fraction: Float): PointF {
-    return PointF(
-        interpolate(start.x, stop.x, fraction),
-        interpolate(start.y, stop.y, fraction)
-    )
-}
-
-/**
- * Non-allocating version of interpolate; values are stored in [result]
- */
-internal fun interpolate(start: PointF, stop: PointF, result: PointF, fraction: Float): PointF {
-    result.x = interpolate(start.x, stop.x, fraction)
-    result.y = interpolate(start.y, stop.y, fraction)
-    return result
-}
-
 internal fun PointF.getDistance() = sqrt(x * x + y * y)
 
 internal fun PointF.dotProduct(other: PointF) = x * other.x + y * other.y
+internal fun PointF.dotProduct(otherX: Float, otherY: Float) = x * otherX + y * otherY
+
+/**
+ * Compute the Z coordinate of the cross product of two vectors, to check if the second vector is
+ * going clockwise ( > 0 ) or counterclockwise (< 0) compared with the first one.
+ * It could also be 0, if the vectors are co-linear.
+ */
+internal fun PointF.clockwise(other: PointF) = x * other.y - y * other.x > 0
 
 /**
  * Returns unit vector representing the direction to this point from (0, 0)
@@ -63,9 +56,21 @@ internal fun PointF.getDirection() = run {
     this / d
 }
 
-// These epsilon values are used internally to determine when two points are the same, within
-// some reasonable roundoff error. The distance episilon is smaller, with the intention that the
-// roundoff should not be larger than a pixel on any reasonable sized display.
+internal fun distance(x: Float, y: Float) = sqrt(x * x + y * y)
+
+/**
+ * Returns unit vector representing the direction to this point from (0, 0)
+ */
+internal fun directionVector(x: Float, y: Float): PointF {
+    val d = distance(x, y)
+    require(d > 0f)
+    return PointF(x / d, y / d)
+}
+/**
+ * These epsilon values are used internally to determine when two points are the same, within
+ * some reasonable roundoff error. The distance epsilon is smaller, with the intention that the
+ * roundoff should not be larger than a pixel on any reasonable sized display.
+ */
 internal const val DistanceEpsilon = 1e-4f
 internal const val AngleEpsilon = 1e-6f
 
@@ -74,10 +79,6 @@ internal fun PointF.rotate90() = PointF(-y, x)
 internal val Zero = PointF(0f, 0f)
 
 internal val FloatPi = Math.PI.toFloat()
-
-internal fun Float.toRadians(): Float {
-    return this / 360f * TwoPi
-}
 
 internal val TwoPi: Float = 2 * Math.PI.toFloat()
 
@@ -90,5 +91,82 @@ internal fun PointF.copy(x: Float = Float.NaN, y: Float = Float.NaN) =
 
 internal fun PointF.angle() = ((atan2(y, x) + TwoPi) % TwoPi)
 
+internal fun angle(x: Float, y: Float) = ((atan2(y, x) + TwoPi) % TwoPi)
+
 internal fun radialToCartesian(radius: Float, angleRadians: Float, center: PointF = Zero) =
     directionVector(angleRadians) * radius + center
+
+internal fun positiveModulo(num: Float, mod: Float) = (num % mod + mod) % mod
+
+/*
+ * Does a ternary search in [v0..v1] to find the parameter that minimizes the given function.
+ * Stops when the search space size is reduced below the given tolerance.
+ *
+ * NTS: Does it make sense to split the function f in 2, one to generate a candidate, of a custom
+ * type T (i.e. (Float) -> T), and one to evaluate it ( (T) -> Float )?
+ */
+internal fun findMinimum(
+    v0: Float,
+    v1: Float,
+    tolerance: Float = 1e-3f,
+    f: (Float) -> Float
+): Float {
+    var a = v0
+    var b = v1
+    while (b - a > tolerance) {
+        val c1 = (2 * a + b) / 3
+        val c2 = (2 * b + a) / 3
+        if (f(c1) < f(c2)) {
+            b = c2
+        } else {
+            a = c1
+        }
+    }
+    return (a + b) / 2
+}
+
+internal fun verticesFromNumVerts(
+    numVertices: Int,
+    radius: Float,
+    centerX: Float,
+    centerY: Float
+): FloatArray {
+    val result = FloatArray(numVertices * 2)
+    var arrayIndex = 0
+    for (i in 0 until numVertices) {
+        val vertex = radialToCartesian(radius, (FloatPi / numVertices * 2 * i)) +
+            PointF(centerX, centerY)
+        result[arrayIndex++] = vertex.x
+        result[arrayIndex++] = vertex.y
+    }
+    return result
+}
+
+internal fun starVerticesFromNumVerts(
+    numVerticesPerRadius: Int,
+    radius: Float,
+    innerRadius: Float,
+    centerX: Float,
+    centerY: Float
+): FloatArray {
+    val result = FloatArray(numVerticesPerRadius * 4)
+    var arrayIndex = 0
+    for (i in 0 until numVerticesPerRadius) {
+        var vertex = radialToCartesian(radius, (FloatPi / numVerticesPerRadius * 2 * i)) +
+            PointF(centerX, centerY)
+        result[arrayIndex++] = vertex.x
+        result[arrayIndex++] = vertex.y
+        vertex = radialToCartesian(innerRadius, (FloatPi / numVerticesPerRadius * (2 * i + 1))) +
+            PointF(centerX, centerY)
+        result[arrayIndex++] = vertex.x
+        result[arrayIndex++] = vertex.y
+    }
+    return result
+}
+
+// Used to enable debug logging in the library
+internal val DEBUG = false
+
+internal inline fun debugLog(tag: String, messageFactory: () -> String) {
+    if (DEBUG) messageFactory().split("\n").forEach { Log.d(tag, it) }
+}

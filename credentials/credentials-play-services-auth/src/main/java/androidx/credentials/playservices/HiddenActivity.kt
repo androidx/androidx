@@ -23,11 +23,13 @@ import android.content.IntentSender
 import android.os.Bundle
 import android.os.ResultReceiver
 import android.util.Log
-import androidx.credentials.exceptions.CreateCredentialInterruptedException
-import androidx.credentials.exceptions.CreateCredentialUnknownException
-import androidx.credentials.exceptions.GetCredentialInterruptedException
-import androidx.credentials.exceptions.GetCredentialUnknownException
+import androidx.annotation.RestrictTo
 import androidx.credentials.playservices.controllers.CredentialProviderBaseController
+import androidx.credentials.playservices.controllers.CredentialProviderBaseController.Companion.CREATE_INTERRUPTED
+import androidx.credentials.playservices.controllers.CredentialProviderBaseController.Companion.CREATE_UNKNOWN
+import androidx.credentials.playservices.controllers.CredentialProviderBaseController.Companion.GET_INTERRUPTED
+import androidx.credentials.playservices.controllers.CredentialProviderBaseController.Companion.GET_NO_CREDENTIALS
+import androidx.credentials.playservices.controllers.CredentialProviderBaseController.Companion.GET_UNKNOWN
 import com.google.android.gms.auth.api.identity.BeginSignInRequest
 import com.google.android.gms.auth.api.identity.Identity
 import com.google.android.gms.auth.api.identity.SavePasswordRequest
@@ -37,12 +39,13 @@ import com.google.android.gms.fido.fido2.api.common.PublicKeyCredentialCreationO
 
 /**
  * An activity used to ensure all required API versions work as intended.
- * @hide
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 @Suppress("Deprecation", "ForbiddenSuperClass")
 open class HiddenActivity : Activity() {
 
     private var resultReceiver: ResultReceiver? = null
+    private var mWaitingForActivityResult = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -53,6 +56,11 @@ open class HiddenActivity : Activity() {
 
         if (resultReceiver == null) {
             finish()
+        }
+
+        restoreState(savedInstanceState)
+        if (mWaitingForActivityResult) {
+            return; // Past call still active
         }
 
         when (type) {
@@ -71,6 +79,12 @@ open class HiddenActivity : Activity() {
         }
     }
 
+    private fun restoreState(savedInstanceState: Bundle?) {
+        if (savedInstanceState != null) {
+            mWaitingForActivityResult = savedInstanceState.getBoolean(KEY_AWAITING_RESULT, false)
+        }
+    }
+
     private fun handleCreatePublicKeyCredential() {
         val fidoRegistrationRequest: PublicKeyCredentialCreationOptions? = intent
             .getParcelableExtra(CredentialProviderBaseController.REQUEST_TAG)
@@ -82,6 +96,7 @@ open class HiddenActivity : Activity() {
                 .getRegisterPendingIntent(fidoRegistrationRequest)
                 .addOnSuccessListener { result: PendingIntent ->
                     try {
+                        mWaitingForActivityResult = true
                         startIntentSenderForResult(
                             result.intentSender,
                             requestCode,
@@ -93,16 +108,16 @@ open class HiddenActivity : Activity() {
                         )
                     } catch (e: IntentSender.SendIntentException) {
                         setupFailure(resultReceiver!!,
-                            CreateCredentialUnknownException::class.java.name,
+                            CREATE_UNKNOWN,
                             "During public key credential, found IntentSender " +
                                 "failure on public key creation: ${e.message}")
                     }
                 }
                 .addOnFailureListener { e: Exception ->
-                    var errName: String = CreateCredentialUnknownException::class.java.name
+                    var errName: String = CREATE_UNKNOWN
                     if (e is ApiException && e.statusCode in
                         CredentialProviderBaseController.retryables) {
-                        errName = CreateCredentialInterruptedException::class.java.name
+                        errName = CREATE_INTERRUPTED
                     }
                     setupFailure(resultReceiver!!, errName,
                         "During create public key credential, fido registration " +
@@ -124,6 +139,11 @@ open class HiddenActivity : Activity() {
         finish()
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.putBoolean(KEY_AWAITING_RESULT, mWaitingForActivityResult)
+        super.onSaveInstanceState(outState)
+    }
+
     private fun handleBeginSignIn() {
         val params: BeginSignInRequest? = intent.getParcelableExtra(
             CredentialProviderBaseController.REQUEST_TAG)
@@ -133,6 +153,7 @@ open class HiddenActivity : Activity() {
         params?.let {
             Identity.getSignInClient(this).beginSignIn(params).addOnSuccessListener {
                 try {
+                    mWaitingForActivityResult = true
                     startIntentSenderForResult(
                         it.pendingIntent.intentSender,
                         requestCode,
@@ -144,15 +165,15 @@ open class HiddenActivity : Activity() {
                     )
                 } catch (e: IntentSender.SendIntentException) {
                     setupFailure(resultReceiver!!,
-                        GetCredentialUnknownException::class.java.name,
+                        GET_UNKNOWN,
                             "During begin sign in, one tap ui intent sender " +
                                 "failure: ${e.message}")
                 }
             }.addOnFailureListener { e: Exception ->
-                var errName: String = GetCredentialUnknownException::class.java.name
+                var errName: String = GET_NO_CREDENTIALS
                 if (e is ApiException && e.statusCode in
                     CredentialProviderBaseController.retryables) {
-                    errName = GetCredentialInterruptedException::class.java.name
+                    errName = GET_INTERRUPTED
                 }
                 setupFailure(resultReceiver!!, errName,
                     "During begin sign in, failure response from one tap: ${e.message}")
@@ -174,6 +195,7 @@ open class HiddenActivity : Activity() {
             Identity.getCredentialSavingClient(this).savePassword(params)
                 .addOnSuccessListener {
                     try {
+                        mWaitingForActivityResult = true
                         startIntentSenderForResult(
                             it.pendingIntent.intentSender,
                             requestCode,
@@ -185,15 +207,15 @@ open class HiddenActivity : Activity() {
                         )
                     } catch (e: IntentSender.SendIntentException) {
                         setupFailure(resultReceiver!!,
-                            GetCredentialUnknownException::class.java.name,
+                            CREATE_UNKNOWN,
                                 "During save password, found UI intent sender " +
                                     "failure: ${e.message}")
                     }
             }.addOnFailureListener { e: Exception ->
-                    var errName: String = CreateCredentialUnknownException::class.java.name
+                    var errName: String = CREATE_UNKNOWN
                     if (e is ApiException && e.statusCode in
                         CredentialProviderBaseController.retryables) {
-                        errName = CreateCredentialInterruptedException::class.java.name
+                        errName = CREATE_INTERRUPTED
                     }
                     setupFailure(resultReceiver!!, errName, "During save password, found " +
                         "password failure response from one tap ${e.message}")
@@ -212,11 +234,13 @@ open class HiddenActivity : Activity() {
         bundle.putInt(CredentialProviderBaseController.ACTIVITY_REQUEST_CODE_TAG, requestCode)
         bundle.putParcelable(CredentialProviderBaseController.RESULT_DATA_TAG, data)
         resultReceiver?.send(resultCode, bundle)
+        mWaitingForActivityResult = false
         finish()
     }
 
     companion object {
         private const val DEFAULT_VALUE: Int = 1
-        private val TAG: String = HiddenActivity::class.java.name
+        private const val TAG = "HiddenActivity"
+        private const val KEY_AWAITING_RESULT = "androidx.credentials.playservices.AWAITING_RESULT"
     }
 }

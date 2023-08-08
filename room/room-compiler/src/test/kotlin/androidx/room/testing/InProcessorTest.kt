@@ -16,10 +16,10 @@
 
 package androidx.room.testing
 
+import androidx.kruth.assertThat
 import androidx.room.compiler.processing.util.CompilationTestCapabilities
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.runProcessorTest
-import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized

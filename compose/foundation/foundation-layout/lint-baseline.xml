@@ -1,0 +1,517 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.1.0-beta05" type="baseline" client="gradle" dependencies="false" name="AGP (8.1.0-beta05)" variant="all" version="8.1.0-beta05">
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor SpacedAligned has parameter &apos;alignment&apos; with type Function2&lt;? super Integer, ? super LayoutDirection, Integer>."
+        errorLine1="        val alignment: ((Int, LayoutDirection) -> Int)?"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/layout/Arrangement.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function2&lt;Integer, LayoutDirection, Integer> of &apos;getAlignment&apos;."
+        errorLine1="        val alignment: ((Int, LayoutDirection) -> Int)?"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/layout/Arrangement.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method alignBy has parameter &apos;alignmentLineBlock&apos; with type Function1&lt;? super Measured, Integer>."
+        errorLine1="    fun Modifier.alignBy(alignmentLineBlock: (Measured) -> Int): Modifier"
+        errorLine2="                                             ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/layout/Column.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function5&lt;Integer, int[], LayoutDirection, Density, int[], Unit> of &apos;getVerticalArrangement&apos;."
+        errorLine1="        (Int, IntArray, LayoutDirection, Density, IntArray) -> Unit ="
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/layout/FlowLayout.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function5&lt;Integer, int[], LayoutDirection, Density, int[], Unit> of &apos;getHorizontalArrangement&apos;."
+        errorLine1="private fun getHorizontalArrangement(horizontalArrangement: Arrangement.Horizontal) ="
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/layout/FlowLayout.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method flowMeasurePolicy has parameter &apos;mainAxisArrangement&apos; with type Function5&lt;? super Integer, ? super int[], ? super LayoutDirection, ? super Density, ? super int[], Unit>."
+        errorLine1="    mainAxisArrangement: (Int, IntArray, LayoutDirection, Density, IntArray) -> Unit,"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/layout/FlowLayout.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method flowMeasurePolicy has parameter &apos;crossAxisArrangement&apos; with type Function5&lt;? super Integer, ? super int[], ? super LayoutDirection, ? super Density, ? super int[], Unit>."
+        errorLine1="    crossAxisArrangement: (Int, IntArray, LayoutDirection, Density, IntArray) -> Unit,"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/layout/FlowLayout.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function3&lt;IntrinsicMeasurable, Integer, Integer, Integer> of &apos;getMaxMainAxisIntrinsicItemSize&apos;."
+        errorLine1="        val maxMainAxisIntrinsicItemSize: IntrinsicMeasurable.(Int, Int) -> Int ="
+        errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/layout/FlowLayout.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function3&lt;IntrinsicMeasurable, Integer, Integer, Integer> of &apos;getMaxCrossAxisIntrinsicItemSize&apos;."
+        errorLine1="        val maxCrossAxisIntrinsicItemSize: IntrinsicMeasurable.(Int, Int) -> Int ="
+        errorLine2="                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/layout/FlowLayout.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function3&lt;IntrinsicMeasurable, Integer, Integer, Integer> of &apos;getMinCrossAxisIntrinsicItemSize&apos;."
+        errorLine1="        val minCrossAxisIntrinsicItemSize: IntrinsicMeasurable.(Int, Int) -> Int ="
+        errorLine2="                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/layout/FlowLayout.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function3&lt;IntrinsicMeasurable, Integer, Integer, Integer> of &apos;getMinMainAxisIntrinsicItemSize&apos;."
+        errorLine1="        val minMainAxisIntrinsicItemSize: IntrinsicMeasurable.(Int, Int) -> Int ="
+        errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/layout/FlowLayout.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method maxIntrinsicMainAxisSize has parameter &apos;mainAxisSize&apos; with type Function3&lt;? super IntrinsicMeasurable, ? super Integer, ? super Integer, Integer>."
+        errorLine1="    mainAxisSize: IntrinsicMeasurable.(Int, Int) -> Int,"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/layout/FlowLayout.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method minIntrinsicMainAxisSize has parameter &apos;mainAxisSize&apos; with type Function3&lt;? super IntrinsicMeasurable, ? super Integer, ? super Integer, Integer>."
+        errorLine1="    mainAxisSize: IntrinsicMeasurable.(Int, Int) -> Int,"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/layout/FlowLayout.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method minIntrinsicMainAxisSize has parameter &apos;crossAxisSize&apos; with type Function3&lt;? super IntrinsicMeasurable, ? super Integer, ? super Integer, Integer>."
+        errorLine1="    crossAxisSize: IntrinsicMeasurable.(Int, Int) -> Int,"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/layout/FlowLayout.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method intrinsicCrossAxisSize has parameter &apos;mainAxisSize&apos; with type Function3&lt;? super IntrinsicMeasurable, ? super Integer, ? super Integer, Integer>."
+        errorLine1="    mainAxisSize: IntrinsicMeasurable.(Int, Int) -> Int,"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/layout/FlowLayout.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method intrinsicCrossAxisSize has parameter &apos;crossAxisSize&apos; with type Function3&lt;? super IntrinsicMeasurable, ? super Integer, ? super Integer, Integer>."
+        errorLine1="    crossAxisSize: IntrinsicMeasurable.(Int, Int) -> Int,"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/layout/FlowLayout.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method offset has parameter &apos;offset&apos; with type Function1&lt;? super Density, IntOffset>."
+        errorLine1="fun Modifier.offset(offset: Density.() -> IntOffset) = this then"
+        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/layout/Offset.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method absoluteOffset has parameter &apos;offset&apos; with type Function1&lt;? super Density, IntOffset>."
+        errorLine1="    offset: Density.() -> IntOffset"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/layout/Offset.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor OffsetPxElement has parameter &apos;offset&apos; with type Function1&lt;? super Density, IntOffset>."
+        errorLine1="    val offset: Density.() -> IntOffset,"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/layout/Offset.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function1&lt;Density, IntOffset> of &apos;getOffset&apos;."
+        errorLine1="    val offset: Density.() -> IntOffset,"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/layout/Offset.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor OffsetPxNode has parameter &apos;offset&apos; with type Function1&lt;? super Density, IntOffset>."
+        errorLine1="    var offset: Density.() -> IntOffset,"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/layout/Offset.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method setOffset has parameter &apos;&lt;set-?>&apos; with type Function1&lt;? super Density, IntOffset>."
+        errorLine1="    var offset: Density.() -> IntOffset,"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/layout/Offset.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function1&lt;Density, IntOffset> of &apos;getOffset&apos;."
+        errorLine1="    var offset: Density.() -> IntOffset,"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/layout/Offset.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method alignBy has parameter &apos;alignmentLineBlock&apos; with type Function1&lt;? super Measured, Integer>."
+        errorLine1="    fun Modifier.alignBy(alignmentLineBlock: (Measured) -> Int): Modifier"
+        errorLine2="                                             ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/layout/Row.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method rowColumnMeasurePolicy has parameter &apos;arrangement&apos; with type Function5&lt;? super Integer, ? super int[], ? super LayoutDirection, ? super Density, ? super int[], Unit>."
+        errorLine1="    arrangement: (Int, IntArray, LayoutDirection, Density, IntArray) -> Unit,"
+        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/layout/RowColumnImpl.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function3&lt;List&lt;? extends IntrinsicMeasurable>, Integer, Integer, Integer> of &apos;MinIntrinsicWidthMeasureBlock&apos;."
+        errorLine1="private fun MinIntrinsicWidthMeasureBlock(orientation: LayoutOrientation) ="
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/layout/RowColumnImpl.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function3&lt;List&lt;? extends IntrinsicMeasurable>, Integer, Integer, Integer> of &apos;MinIntrinsicHeightMeasureBlock&apos;."
+        errorLine1="private fun MinIntrinsicHeightMeasureBlock(orientation: LayoutOrientation) ="
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/layout/RowColumnImpl.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function3&lt;List&lt;? extends IntrinsicMeasurable>, Integer, Integer, Integer> of &apos;MaxIntrinsicWidthMeasureBlock&apos;."
+        errorLine1="private fun MaxIntrinsicWidthMeasureBlock(orientation: LayoutOrientation) ="
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/layout/RowColumnImpl.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function3&lt;List&lt;? extends IntrinsicMeasurable>, Integer, Integer, Integer> of &apos;MaxIntrinsicHeightMeasureBlock&apos;."
+        errorLine1="private fun MaxIntrinsicHeightMeasureBlock(orientation: LayoutOrientation) ="
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/layout/RowColumnImpl.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function3&lt;List&lt;? extends IntrinsicMeasurable>, Integer, Integer, Integer> of &apos;getHorizontalMinWidth&apos;."
+        errorLine1="    val HorizontalMinWidth: (List&lt;IntrinsicMeasurable>, Int, Int) -> Int ="
+        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/layout/RowColumnImpl.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function3&lt;List&lt;? extends IntrinsicMeasurable>, Integer, Integer, Integer> of &apos;getVerticalMinWidth&apos;."
+        errorLine1="    val VerticalMinWidth: (List&lt;IntrinsicMeasurable>, Int, Int) -> Int ="
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/layout/RowColumnImpl.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function3&lt;List&lt;? extends IntrinsicMeasurable>, Integer, Integer, Integer> of &apos;getHorizontalMinHeight&apos;."
+        errorLine1="    val HorizontalMinHeight: (List&lt;IntrinsicMeasurable>, Int, Int) -> Int ="
+        errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/layout/RowColumnImpl.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function3&lt;List&lt;? extends IntrinsicMeasurable>, Integer, Integer, Integer> of &apos;getVerticalMinHeight&apos;."
+        errorLine1="    val VerticalMinHeight: (List&lt;IntrinsicMeasurable>, Int, Int) -> Int ="
+        errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/layout/RowColumnImpl.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function3&lt;List&lt;? extends IntrinsicMeasurable>, Integer, Integer, Integer> of &apos;getHorizontalMaxWidth&apos;."
+        errorLine1="    val HorizontalMaxWidth: (List&lt;IntrinsicMeasurable>, Int, Int) -> Int ="
+        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/layout/RowColumnImpl.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function3&lt;List&lt;? extends IntrinsicMeasurable>, Integer, Integer, Integer> of &apos;getVerticalMaxWidth&apos;."
+        errorLine1="    val VerticalMaxWidth: (List&lt;IntrinsicMeasurable>, Int, Int) -> Int ="
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/layout/RowColumnImpl.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function3&lt;List&lt;? extends IntrinsicMeasurable>, Integer, Integer, Integer> of &apos;getHorizontalMaxHeight&apos;."
+        errorLine1="    val HorizontalMaxHeight: (List&lt;IntrinsicMeasurable>, Int, Int) -> Int ="
+        errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/layout/RowColumnImpl.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function3&lt;List&lt;? extends IntrinsicMeasurable>, Integer, Integer, Integer> of &apos;getVerticalMaxHeight&apos;."
+        errorLine1="    val VerticalMaxHeight: (List&lt;IntrinsicMeasurable>, Int, Int) -> Int ="
+        errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/layout/RowColumnImpl.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method intrinsicSize has parameter &apos;intrinsicMainSize&apos; with type Function2&lt;? super IntrinsicMeasurable, ? super Integer, Integer>."
+        errorLine1="    intrinsicMainSize: IntrinsicMeasurable.(Int) -> Int,"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/layout/RowColumnImpl.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method intrinsicSize has parameter &apos;intrinsicCrossSize&apos; with type Function2&lt;? super IntrinsicMeasurable, ? super Integer, Integer>."
+        errorLine1="    intrinsicCrossSize: IntrinsicMeasurable.(Int) -> Int,"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/layout/RowColumnImpl.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method intrinsicMainAxisSize has parameter &apos;mainAxisSize&apos; with type Function2&lt;? super IntrinsicMeasurable, ? super Integer, Integer>."
+        errorLine1="    mainAxisSize: IntrinsicMeasurable.(Int) -> Int,"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/layout/RowColumnImpl.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method intrinsicCrossAxisSize has parameter &apos;mainAxisSize&apos; with type Function2&lt;? super IntrinsicMeasurable, ? super Integer, Integer>."
+        errorLine1="    mainAxisSize: IntrinsicMeasurable.(Int) -> Int,"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/layout/RowColumnImpl.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method intrinsicCrossAxisSize has parameter &apos;crossAxisSize&apos; with type Function2&lt;? super IntrinsicMeasurable, ? super Integer, Integer>."
+        errorLine1="    crossAxisSize: IntrinsicMeasurable.(Int) -> Int,"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/layout/RowColumnImpl.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor WithAlignmentLineBlockElement has parameter &apos;block&apos; with type Function1&lt;? super Measured, Integer>."
+        errorLine1="    val block: (Measured) -> Int"
+        errorLine2="               ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/layout/RowColumnImpl.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function1&lt;Measured, Integer> of &apos;getBlock&apos;."
+        errorLine1="    val block: (Measured) -> Int"
+        errorLine2="               ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/layout/RowColumnImpl.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor WithAlignmentLineBlockNode has parameter &apos;block&apos; with type Function1&lt;? super Measured, Integer>."
+        errorLine1="        var block: (Measured) -> Int,"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/layout/RowColumnImpl.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method setBlock has parameter &apos;&lt;set-?>&apos; with type Function1&lt;? super Measured, Integer>."
+        errorLine1="        var block: (Measured) -> Int,"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/layout/RowColumnImpl.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function1&lt;Measured, Integer> of &apos;getBlock&apos;."
+        errorLine1="        var block: (Measured) -> Int,"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/layout/RowColumnImpl.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor Block has parameter &apos;lineProviderBlock&apos; with type Function1&lt;? super Measured, Integer>."
+        errorLine1="    data class Block(val lineProviderBlock: (Measured) -> Int) : AlignmentLineProvider() {"
+        errorLine2="                                            ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/layout/RowColumnImpl.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function1&lt;Measured, Integer> of &apos;getLineProviderBlock&apos;."
+        errorLine1="    data class Block(val lineProviderBlock: (Measured) -> Int) : AlignmentLineProvider() {"
+        errorLine2="                                            ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/layout/RowColumnImpl.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor RowColumnMeasurementHelper has parameter &apos;arrangement&apos; with type Function5&lt;? super Integer, ? super int[], ? super LayoutDirection, ? super Density, ? super int[], Unit>."
+        errorLine1="    val arrangement: (Int, IntArray, LayoutDirection, Density, IntArray) -> Unit,"
+        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/layout/RowColumnMeasurementHelper.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function5&lt;Integer, int[], LayoutDirection, Density, int[], Unit> of &apos;getArrangement&apos;."
+        errorLine1="    val arrangement: (Int, IntArray, LayoutDirection, Density, IntArray) -> Unit,"
+        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/layout/RowColumnMeasurementHelper.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor WrapContentElement has parameter &apos;alignmentCallback&apos; with type Function2&lt;? super IntSize, ? super LayoutDirection, IntOffset>."
+        errorLine1="    private val alignmentCallback: (IntSize, LayoutDirection) -> IntOffset,"
+        errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/layout/Size.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor WrapContentNode has parameter &apos;alignmentCallback&apos; with type Function2&lt;? super IntSize, ? super LayoutDirection, IntOffset>."
+        errorLine1="    var alignmentCallback: (IntSize, LayoutDirection) -> IntOffset,"
+        errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/layout/Size.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method setAlignmentCallback has parameter &apos;&lt;set-?>&apos; with type Function2&lt;? super IntSize, ? super LayoutDirection, IntOffset>."
+        errorLine1="    var alignmentCallback: (IntSize, LayoutDirection) -> IntOffset,"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/layout/Size.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function2&lt;IntSize, LayoutDirection, IntOffset> of &apos;getAlignmentCallback&apos;."
+        errorLine1="    var alignmentCallback: (IntSize, LayoutDirection) -> IntOffset,"
+        errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/layout/Size.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor DerivedWidthModifier has parameter &apos;widthCalc&apos; with type Function3&lt;? super WindowInsets, ? super LayoutDirection, ? super Density, Integer>."
+        errorLine1="    private val widthCalc: WindowInsets.(LayoutDirection, Density) -> Int"
+        errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/layout/WindowInsetsSize.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor DerivedHeightModifier has parameter &apos;heightCalc&apos; with type Function2&lt;? super WindowInsets, ? super Density, Integer>."
+        errorLine1="    private val heightCalc: WindowInsets.(Density) -> Int"
+        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/layout/WindowInsetsSize.kt"/>
+    </issue>
+
+</issues>

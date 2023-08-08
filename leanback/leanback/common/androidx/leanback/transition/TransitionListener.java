@@ -19,7 +19,6 @@ import androidx.annotation.RestrictTo;
 
 /**
  * Listeners for transition start and stop.
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 public class TransitionListener {

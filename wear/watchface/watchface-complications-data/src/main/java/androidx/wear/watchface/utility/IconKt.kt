@@ -24,11 +24,7 @@ import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import java.util.Objects
 
-/**
- * Returns true if the [Icon]s are equal.
- *
- * @hide
- */
+/** Returns true if the [Icon]s are equal. */
 infix fun Icon?.iconEquals(other: Icon?): Boolean =
     this === other ||
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
@@ -37,11 +33,7 @@ infix fun Icon?.iconEquals(other: Icon?): Boolean =
             this == other
         }
 
-/**
- * Creates a hash code for the [Icon].
- *
- * @hide
- */
+/** Creates a hash code for the [Icon]. */
 fun Icon.iconHashCode(): Int =
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
         IconP.hashCode(this)
@@ -58,7 +50,6 @@ private object IconP {
                 when (icon.type) {
                     Icon.TYPE_RESOURCE ->
                         icon.resId == other.resId && icon.resPackage == other.resPackage
-
                     Icon.TYPE_URI -> icon.uri == other.uri
                     else -> icon == other
                 })

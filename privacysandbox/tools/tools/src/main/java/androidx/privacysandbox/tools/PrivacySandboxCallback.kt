@@ -17,11 +17,25 @@
 package androidx.privacysandbox.tools
 
 /**
- * Annotated callbacks that can be passed to an SDK running in the privacy sandbox.
+ * Annotated callbacks that can be passed to an SDK running in the Privacy Sandbox.
  *
- * Callbacks should be public interfaces that only declare functions without implementation.
- * Callback functions should be fire-and-forget: non-suspending functions that have no return value.
+ * These can be used to provide the SDK with a channel to invoke app code, e.g. listeners. They
+ * should be public interfaces that only declare functions without implementation, and they may not
+ * extend any other interface. Callbacks run in the main thread by default.
+ *
+ * The allowed types are the same as for [PrivacySandboxInterface], except that functions may not
+ * return a value.
+ *
+ * Usage example:
+ * ```
+ * @PrivacySandboxCallback
+ * interface MyCallback {
+ *     fun onComplete(response: Response)
+ *     fun onClick(x: Int, y: Int)
+ *     fun onCompleteInterface(myInterface: MyInterface)
+ * }
+ * ```
  */
 @Retention(AnnotationRetention.RUNTIME)
 @Target(AnnotationTarget.CLASS)
-annotation class PrivacySandboxCallback
+public annotation class PrivacySandboxCallback

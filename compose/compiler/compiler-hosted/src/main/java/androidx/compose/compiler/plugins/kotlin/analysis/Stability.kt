@@ -18,6 +18,7 @@ package androidx.compose.compiler.plugins.kotlin.analysis
 
 import androidx.compose.compiler.plugins.kotlin.ComposeFqNames
 import androidx.compose.compiler.plugins.kotlin.lower.annotationClass
+import androidx.compose.compiler.plugins.kotlin.lower.isSyntheticComposableFunction
 import org.jetbrains.kotlin.backend.jvm.ir.isInlineClassType
 import org.jetbrains.kotlin.ir.declarations.IrAnnotationContainer
 import org.jetbrains.kotlin.ir.declarations.IrClass
@@ -32,6 +33,7 @@ import org.jetbrains.kotlin.ir.expressions.IrConst
 import org.jetbrains.kotlin.ir.expressions.IrConstructorCall
 import org.jetbrains.kotlin.ir.expressions.IrExpression
 import org.jetbrains.kotlin.ir.expressions.IrGetValue
+import org.jetbrains.kotlin.ir.expressions.IrLocalDelegatedPropertyReference
 import org.jetbrains.kotlin.ir.symbols.IrClassifierSymbol
 import org.jetbrains.kotlin.ir.symbols.IrTypeParameterSymbol
 import org.jetbrains.kotlin.ir.types.IrDynamicType
@@ -345,6 +347,7 @@ private fun stabilityOf(
         type.isUnit() ||
             type.isPrimitiveType() ||
             type.isFunctionOrKFunction() ||
+            type.isSyntheticComposableFunction() ||
             type.isString() -> Stability.Stable
 
         type.isTypeParameter() -> {
@@ -438,6 +441,7 @@ fun stabilityOf(expr: IrExpression): Stability {
                 stability
             }
         }
+        is IrLocalDelegatedPropertyReference -> Stability.Stable
         // some default parameters and consts can be wrapped in composite
         is IrComposite -> {
             if (expr.statements.all { it is IrExpression && stabilityOf(it).knownStable() }) {

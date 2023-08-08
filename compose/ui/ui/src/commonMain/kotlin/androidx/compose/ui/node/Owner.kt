@@ -30,15 +30,23 @@ import androidx.compose.ui.input.pointer.PointerIconService
 import androidx.compose.ui.modifier.ModifierLocalManager
 import androidx.compose.ui.platform.AccessibilityManager
 import androidx.compose.ui.platform.ClipboardManager
+import androidx.compose.ui.platform.DelegatingSoftwareKeyboardController
+import androidx.compose.ui.platform.PlatformTextInputModifierNode
+import androidx.compose.ui.platform.PlatformTextInputSessionScope
+import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.platform.TextToolbar
 import androidx.compose.ui.platform.ViewConfiguration
 import androidx.compose.ui.platform.WindowInfo
+import androidx.compose.ui.platform.textInputSession
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.TextInputService
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
+import kotlin.coroutines.CoroutineContext
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancelAndJoin
 
 /**
  * Owner implements the connection to the underlying view system. On Android, this connects
@@ -109,6 +117,9 @@ internal interface Owner {
 
     val textInputService: TextInputService
 
+    val softwareKeyboardController: SoftwareKeyboardController
+        get() = DelegatingSoftwareKeyboardController(textInputService)
+
     val pointerIconService: PointerIconService
 
     /**
@@ -150,7 +161,8 @@ internal interface Owner {
     fun onRequestMeasure(
         layoutNode: LayoutNode,
         affectsLookahead: Boolean = false,
-        forceRequest: Boolean = false
+        forceRequest: Boolean = false,
+        scheduleMeasureAndLayout: Boolean = true
     )
 
     /**
@@ -224,7 +236,7 @@ internal interface Owner {
     /**
      * Makes sure the passed [layoutNode] and its subtree is remeasured and has the final sizes.
      */
-    fun forceMeasureTheSubtree(layoutNode: LayoutNode)
+    fun forceMeasureTheSubtree(layoutNode: LayoutNode, affectsLookahead: Boolean = false)
 
     /**
      * Creates an [OwnedLayer] which will be drawing the passed [drawBlock].
@@ -264,6 +276,11 @@ internal interface Owner {
     val modifierLocalManager: ModifierLocalManager
 
     /**
+     * CoroutineContext for launching coroutines in Modifier Nodes.
+     */
+    val coroutineContext: CoroutineContext
+
+    /**
      * Registers a call to be made when the [Applier.onEndChanges] is called. [listener]
      * should be called in [onEndApplyChanges] and then removed after being called.
      */
@@ -280,6 +297,18 @@ internal interface Owner {
      * [listener] will be notified after the current or next layout has finished.
      */
     fun registerOnLayoutCompletedListener(listener: OnLayoutCompletedListener)
+
+    /**
+     * Starts a new text input session and suspends until it's closed. For more information see
+     * [PlatformTextInputModifierNode.textInputSession].
+     *
+     * Implementations must ensure that new requests cancel any active request. They must also
+     * ensure that the previous request is finished running all cancellation tasks before starting
+     * the new session, to ensure that no session code overlaps (e.g. using [Job.cancelAndJoin]).
+     */
+    suspend fun textInputSession(
+        session: suspend PlatformTextInputSessionScope.() -> Nothing
+    ): Nothing
 
     companion object {
         /**

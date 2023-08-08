@@ -19,6 +19,8 @@ package androidx.compose.foundation.text.selection
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.Handle
 import androidx.compose.foundation.text.TEST_FONT_FAMILY
@@ -73,21 +75,22 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.width
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.times
-import com.nhaarman.mockitokotlin2.verify
 import java.util.concurrent.CountDownLatch
 import kotlin.math.max
 import kotlin.math.sign
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.times
+import org.mockito.kotlin.verify
 
 @LargeTest
 @RunWith(AndroidJUnit4::class)
@@ -180,15 +183,14 @@ class SelectionContainerTest {
                     )
                 }
 
+            rule.mainClock.advanceTimeByFrame()
             // Assert. Should select "Demo".
-            rule.runOnIdle {
-                assertThat(selection.value!!.start.offset).isEqualTo(textContent.indexOf('D'))
-                assertThat(selection.value!!.end.offset).isEqualTo(textContent.indexOf('o') + 1)
-                verify(
-                    hapticFeedback,
-                    times(1)
-                ).performHapticFeedback(HapticFeedbackType.TextHandleMove)
-            }
+            assertThat(selection.value!!.start.offset).isEqualTo(textContent.indexOf('D'))
+            assertThat(selection.value!!.end.offset).isEqualTo(textContent.indexOf('o') + 1)
+            verify(
+                hapticFeedback,
+                times(1)
+            ).performHapticFeedback(HapticFeedbackType.TextHandleMove)
 
             // Check the position of the anchors of the selection handles. We don't need to compare
             // to the absolute position since the semantics report selection relative to the
@@ -200,7 +202,6 @@ class SelectionContainerTest {
         }
     }
 
-    //    @Ignore("b/230622412")
     @Test
     fun long_press_select_a_word_rtl_layout() {
         with(rule.density) {
@@ -225,15 +226,15 @@ class SelectionContainerTest {
                     )
                 }
 
+            rule.mainClock.advanceTimeByFrame()
+
             // Assert. Should select "Demo".
-            rule.runOnIdle {
-                assertThat(selection.value!!.start.offset).isEqualTo(textContent.indexOf('T'))
-                assertThat(selection.value!!.end.offset).isEqualTo(textContent.indexOf('t') + 1)
-                verify(
-                    hapticFeedback,
-                    times(1)
-                ).performHapticFeedback(HapticFeedbackType.TextHandleMove)
-            }
+            assertThat(selection.value!!.start.offset).isEqualTo(textContent.indexOf('T'))
+            assertThat(selection.value!!.end.offset).isEqualTo(textContent.indexOf('t') + 1)
+            verify(
+                hapticFeedback,
+                times(1)
+            ).performHapticFeedback(HapticFeedbackType.TextHandleMove)
 
             // Check the position of the anchors of the selection handles. We don't need to compare
             // to the absolute position since the semantics report selection relative to the
@@ -376,7 +377,9 @@ class SelectionContainerTest {
             Column {
                 BasicText(
                     AnnotatedString(longText),
-                    Modifier.fillMaxWidth().testTag(tag1),
+                    Modifier
+                        .fillMaxWidth()
+                        .testTag(tag1),
                     style = TextStyle(fontFamily = fontFamily, fontSize = fontSize),
                     maxLines = 1
                 )
@@ -400,7 +403,9 @@ class SelectionContainerTest {
             Column {
                 BasicText(
                     AnnotatedString(longText),
-                    Modifier.fillMaxWidth().testTag(tag1),
+                    Modifier
+                        .fillMaxWidth()
+                        .testTag(tag1),
                     style = TextStyle(fontFamily = fontFamily, fontSize = fontSize),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
@@ -416,6 +421,78 @@ class SelectionContainerTest {
 
         assertAnchorInfo(selection.value?.start, offset = 0, selectableId = 1)
         assertAnchorInfo(selection.value?.end, offset = longText.length, selectableId = 1)
+    }
+
+    @Test
+    fun selectionIncludes_noHeightText() {
+        lateinit var clipboardManager: ClipboardManager
+        createSelectionContainer {
+            clipboardManager = LocalClipboardManager.current
+            clipboardManager.setText(AnnotatedString("Clipboard content at start of test."))
+            Column {
+                BasicText(
+                    text = "Hello",
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .testTag(tag1),
+                )
+                BasicText(
+                    text = "THIS SHOULD NOT CAUSE CRASH",
+                    modifier = Modifier.height(0.dp)
+                )
+                BasicText(
+                    text = "World",
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .testTag(tag2),
+                )
+            }
+        }
+
+        startSelection(tag1)
+        dragHandleTo(
+            handle = Handle.SelectionEnd,
+            offset = characterBox(tag2, 4).bottomRight
+        )
+
+        assertAnchorInfo(selection.value?.start, offset = 0, selectableId = 1)
+        assertAnchorInfo(selection.value?.end, offset = 5, selectableId = 3)
+    }
+
+    @Test
+    fun selectionIncludes_noWidthText() {
+        lateinit var clipboardManager: ClipboardManager
+        createSelectionContainer {
+            clipboardManager = LocalClipboardManager.current
+            clipboardManager.setText(AnnotatedString("Clipboard content at start of test."))
+            Column {
+                BasicText(
+                    text = "Hello",
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .testTag(tag1),
+                )
+                BasicText(
+                    text = "THIS SHOULD NOT CAUSE CRASH",
+                    modifier = Modifier.width(0.dp)
+                )
+                BasicText(
+                    text = "World",
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .testTag(tag2),
+                )
+            }
+        }
+
+        startSelection(tag1)
+        dragHandleTo(
+            handle = Handle.SelectionEnd,
+            offset = characterBox(tag2, 4).bottomRight
+        )
+
+        assertAnchorInfo(selection.value?.start, offset = 0, selectableId = 1)
+        assertAnchorInfo(selection.value?.end, offset = 5, selectableId = 3)
     }
 
     @Test

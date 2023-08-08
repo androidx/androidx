@@ -38,8 +38,9 @@ class ComplicationStyleTest {
             .isEqualTo(Color.argb(127, 100, 0, 0))
 
         assertThat(
-            ComplicationStyle.tint(Color.argb(127, 50, 100, 200), Color.argb(0, 127, 127, 255))
-        ).isEqualTo(Color.argb(127, 48, 48, 97))
+                ComplicationStyle.tint(Color.argb(127, 50, 100, 200), Color.argb(0, 127, 127, 255))
+            )
+            .isEqualTo(Color.argb(127, 48, 48, 97))
     }
 
     @Test

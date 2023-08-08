@@ -27,7 +27,6 @@ import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.defaultMinSize
-import androidx.compose.material3.Strings.Companion.DefaultErrorMessage
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
@@ -58,7 +57,6 @@ internal enum class TextFieldType {
 /**
  * Implementation of the [TextField] and [OutlinedTextField]
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun CommonDecorationBox(
     type: TextFieldType,
@@ -128,12 +126,16 @@ internal fun CommonDecorationBox(
             }
         }
 
+        // Transparent components interfere with Talkback (b/261061240), so if any components below
+        // have alpha == 0, we set the component to null instead.
+
         val decoratedPlaceholder: @Composable ((Modifier) -> Unit)? =
-            if (placeholder != null && transformedText.isEmpty()) {
+            if (placeholder != null && transformedText.isEmpty() && placeholderAlphaProgress > 0f) {
                 @Composable { modifier ->
                     Box(modifier.alpha(placeholderAlphaProgress)) {
                         Decoration(
-                            contentColor = colors.placeholderColor(enabled).value,
+                            contentColor =
+                                colors.placeholderColor(enabled, isError, interactionSource).value,
                             typography = MaterialTheme.typography.bodyLarge,
                             content = placeholder
                         )
@@ -142,28 +144,32 @@ internal fun CommonDecorationBox(
             } else null
 
         val prefixColor = colors.prefixColor(enabled, isError, interactionSource).value
-        val decoratedPrefix: @Composable (() -> Unit)? = prefix?.let {
-            @Composable {
-                Box(Modifier.alpha(prefixSuffixAlphaProgress)) {
-                    Decoration(contentColor = prefixColor, typography = bodyLarge, content = it)
+        val decoratedPrefix: @Composable (() -> Unit)? =
+            if (prefix != null && prefixSuffixAlphaProgress > 0f) {
+                @Composable {
+                    Box(Modifier.alpha(prefixSuffixAlphaProgress)) {
+                        Decoration(
+                            contentColor = prefixColor,
+                            typography = bodyLarge,
+                            content = prefix
+                        )
+                    }
                 }
-            }
-        }
+            } else null
 
         val suffixColor = colors.suffixColor(enabled, isError, interactionSource).value
-        val decoratedSuffix: @Composable (() -> Unit)? = suffix?.let {
-            @Composable {
-                Box(Modifier.alpha(prefixSuffixAlphaProgress)) {
-                    Decoration(contentColor = suffixColor, typography = bodyLarge, content = it)
+        val decoratedSuffix: @Composable (() -> Unit)? =
+            if (suffix != null && prefixSuffixAlphaProgress > 0f) {
+                @Composable {
+                    Box(Modifier.alpha(prefixSuffixAlphaProgress)) {
+                        Decoration(
+                            contentColor = suffixColor,
+                            typography = bodyLarge,
+                            content = suffix
+                        )
+                    }
                 }
-            }
-        }
-
-        // Developers need to handle invalid input manually. But since we don't provide error
-        // message slot API, we can set the default error message in case developers forget about
-        // it.
-        val defaultErrorMessage = getString(DefaultErrorMessage)
-        val decorationBoxModifier = Modifier.semantics { if (isError) error(defaultErrorMessage) }
+            } else null
 
         val leadingIconColor = colors.leadingIconColor(enabled, isError, interactionSource).value
         val decoratedLeading: @Composable (() -> Unit)? = leadingIcon?.let {
@@ -197,7 +203,7 @@ internal fun CommonDecorationBox(
                 }
 
                 TextFieldLayout(
-                    modifier = decorationBoxModifier,
+                    modifier = Modifier,
                     textField = innerTextField,
                     placeholder = decoratedPlaceholder,
                     label = decoratedLabel,
@@ -227,7 +233,7 @@ internal fun CommonDecorationBox(
                 }
 
                 OutlinedTextFieldLayout(
-                    modifier = decorationBoxModifier,
+                    modifier = Modifier,
                     textField = innerTextField,
                     placeholder = decoratedPlaceholder,
                     label = decoratedLabel,
@@ -272,6 +278,13 @@ internal fun Decoration(
     }
     if (typography != null) ProvideTextStyle(typography, contentWithColor) else contentWithColor()
 }
+
+// Developers need to handle invalid input manually. But since we don't provide an error message
+// slot API, we can set the default error message in case developers forget about it.
+internal fun Modifier.defaultErrorSemantics(
+    isError: Boolean,
+    defaultErrorMessage: String,
+): Modifier = if (isError) semantics { error(defaultErrorMessage) } else this
 
 internal fun widthOrZero(placeable: Placeable?) = placeable?.width ?: 0
 internal fun heightOrZero(placeable: Placeable?) = placeable?.height ?: 0
@@ -409,5 +422,8 @@ internal val TextFieldPadding = 16.dp
 internal val HorizontalIconPadding = 12.dp
 internal val SupportingTopPadding = 4.dp
 internal val PrefixSuffixTextPadding = 2.dp
+internal val MinTextLineHeight = 24.dp
+internal val MinFocusedLabelLineHeight = 16.dp
+internal val MinSupportingTextLineHeight = 16.dp
 
 internal val IconDefaultSizeModifier = Modifier.defaultMinSize(48.dp, 48.dp)

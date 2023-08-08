@@ -40,13 +40,14 @@ import androidx.camera.integration.core.util.StressTestUtil.VERIFICATION_TARGET_
 import androidx.camera.integration.core.util.StressTestUtil.VERIFICATION_TARGET_VIDEO_CAPTURE
 import androidx.camera.integration.core.util.StressTestUtil.createCameraSelectorById
 import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.camera.testing.CameraPipeConfigTestRule
-import androidx.camera.testing.CameraUtil
-import androidx.camera.testing.GLUtil
-import androidx.camera.testing.LabTestRule
-import androidx.camera.testing.StressTestRule
-import androidx.camera.testing.SurfaceTextureProvider
-import androidx.camera.testing.fakes.FakeLifecycleOwner
+import androidx.camera.testing.impl.CameraPipeConfigTestRule
+import androidx.camera.testing.impl.CameraUtil
+import androidx.camera.testing.impl.GLUtil
+import androidx.camera.testing.impl.LabTestRule
+import androidx.camera.testing.impl.StressTestRule
+import androidx.camera.testing.impl.SurfaceTextureProvider
+import androidx.camera.testing.impl.WakelockEmptyActivityRule
+import androidx.camera.testing.impl.fakes.FakeLifecycleOwner
 import androidx.camera.video.FileOutputOptions
 import androidx.camera.video.Recorder
 import androidx.camera.video.Recording
@@ -103,6 +104,9 @@ class BindUnbindUseCasesStressTest(
 
     @get:Rule
     val repeatRule = RepeatRule()
+
+    @get:Rule
+    val wakelockEmptyActivityRule = WakelockEmptyActivityRule()
 
     private val context = ApplicationProvider.getApplicationContext<Context>()
 

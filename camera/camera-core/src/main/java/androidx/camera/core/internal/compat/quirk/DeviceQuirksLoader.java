@@ -52,6 +52,9 @@ public class DeviceQuirksLoader {
         if (LowMemoryQuirk.load()) {
             quirks.add(new LowMemoryQuirk());
         }
+        if (LargeJpegImageQuirk.load()) {
+            quirks.add(new LargeJpegImageQuirk());
+        }
 
         return quirks;
     }

@@ -23,12 +23,12 @@ import androidx.room.compiler.codegen.XFunSpec
 import androidx.room.compiler.codegen.XPropertySpec
 import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.codegen.XTypeSpec
-import androidx.room.compiler.codegen.asClassName
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.util.XTestInvocation
 import androidx.room.compiler.processing.util.runProcessorTest
 import androidx.room.compiler.processing.writeTo
 import androidx.room.ext.AndroidTypeNames
+import androidx.room.ext.CommonTypeNames
 import androidx.room.processor.Context
 import androidx.room.vo.BuiltInConverterFlags
 import org.hamcrest.CoreMatchers.`is`
@@ -86,7 +86,7 @@ class BasicColumnTypeAdaptersTest(
                     "out = crs.getDouble(9);"
                 ),
                 arrayOf(
-                    String::class.asClassName(),
+                    CommonTypeNames.STRING,
                     "st.bindString(6, inp);",
                     "out = crs.getString(9);"
                 ),

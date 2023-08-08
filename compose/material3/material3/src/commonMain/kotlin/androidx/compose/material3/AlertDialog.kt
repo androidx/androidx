@@ -149,7 +149,8 @@ internal fun AlertDialogFlowRow(
             if (sequences.isNotEmpty()) {
                 crossAxisSpace += crossAxisSpacing.roundToPx()
             }
-            sequences += currentSequence.toList()
+            // Ensures that confirming actions appear above dismissive actions.
+            sequences.add(0, currentSequence.toList())
             crossAxisSizes += currentCrossAxisSize
             crossAxisPositions += crossAxisSpace
 
@@ -193,12 +194,11 @@ internal fun AlertDialogFlowRow(
                     placeables[j].width +
                         if (j < placeables.lastIndex) mainAxisSpacing.roundToPx() else 0
                 }
-                val arrangement = Arrangement.Bottom
-                // TODO(soboleva): rtl support
-                // Handle vertical direction
+                val arrangement = Arrangement.End
                 val mainAxisPositions = IntArray(childrenMainAxisSizes.size) { 0 }
                 with(arrangement) {
-                    arrange(mainAxisLayoutSize, childrenMainAxisSizes, mainAxisPositions)
+                    arrange(mainAxisLayoutSize, childrenMainAxisSizes,
+                        layoutDirection, mainAxisPositions)
                 }
                 placeables.forEachIndexed { j, placeable ->
                     placeable.place(

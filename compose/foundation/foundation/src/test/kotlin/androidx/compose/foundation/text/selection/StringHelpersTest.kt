@@ -25,25 +25,27 @@ import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
 class StringHelpersTest {
-    val string = "ab\n\ncd"
-    val endOfFirstLinePos = string.indexOf("\n")
-    val emptyLinePos = endOfFirstLinePos + 1
+    private val string = "ab\n\ncd"
+    private val endOfFirstLinePos = string.indexOf("\n")
+    private val emptyLinePos = endOfFirstLinePos + 1
 
     @Test
     fun findParagraphStart() {
         assertThat(string.findParagraphStart(string.indexOf("a"))).isEqualTo(string.indexOf("a"))
+        assertThat(string.findParagraphStart(string.indexOf("b"))).isEqualTo(string.indexOf("a"))
+        assertThat(string.findParagraphStart(endOfFirstLinePos)).isEqualTo(string.indexOf("a"))
+        assertThat(string.findParagraphStart(emptyLinePos)).isEqualTo(emptyLinePos)
+        assertThat(string.findParagraphStart(string.indexOf("c"))).isEqualTo(string.indexOf("c"))
         assertThat(string.findParagraphStart(string.indexOf("d"))).isEqualTo(string.indexOf("c"))
-        // ignore directly preceding line break
-        assertThat(string.findParagraphStart(string.indexOf("c"))).isEqualTo(emptyLinePos)
-        assertThat(string.findParagraphStart(emptyLinePos)).isEqualTo(string.indexOf("a"))
     }
 
     @Test
     fun findParagraphEnd() {
+        assertThat(string.findParagraphEnd(string.indexOf("a"))).isEqualTo(endOfFirstLinePos)
+        assertThat(string.findParagraphEnd(string.indexOf("b"))).isEqualTo(endOfFirstLinePos)
+        assertThat(string.findParagraphEnd(endOfFirstLinePos)).isEqualTo(endOfFirstLinePos)
+        assertThat(string.findParagraphEnd(emptyLinePos)).isEqualTo(emptyLinePos)
         assertThat(string.findParagraphEnd(string.indexOf("c"))).isEqualTo(string.length)
         assertThat(string.findParagraphEnd(string.indexOf("d"))).isEqualTo(string.length)
-        // ignore directly following line break
-        assertThat(string.findParagraphEnd(endOfFirstLinePos)).isEqualTo(emptyLinePos)
-        assertThat(string.findParagraphEnd(emptyLinePos)).isEqualTo(string.length)
     }
 }

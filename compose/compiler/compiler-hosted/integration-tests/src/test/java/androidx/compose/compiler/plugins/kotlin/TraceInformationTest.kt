@@ -26,7 +26,7 @@ import org.junit.Test
  * More complex cases tested in other IrTransform tests that use
  * the [TruncateTracingInfoMode.KEEP_INFO_STRING].
  */
-class TraceInformationTest : AbstractIrTransformTest() {
+class TraceInformationTest(useFir: Boolean) : AbstractIrTransformTest(useFir) {
     @Test
     fun testBasicComposableFunctions() = verifyComposeIrTransform(
         """
@@ -87,6 +87,52 @@ class TraceInformationTest : AbstractIrTransformTest() {
     )
 
     @Test
+    fun testReadOnlyComposable() = verifyComposeIrTransform(
+        """
+            import androidx.compose.runtime.*
+
+            @Composable
+            @ReadOnlyComposable
+            internal fun someFun(a: Boolean): Boolean {
+                if (a) {
+                    return a
+                } else {
+                    return a
+                }
+            }
+        """,
+        """
+            @Composable
+            @ReadOnlyComposable
+            internal fun someFun(a: Boolean, %composer: Composer?, %changed: Int): Boolean {
+              sourceInformationMarkerStart(%composer, <>, "C(someFun):Test.kt")
+              if (isTraceInProgress()) {
+                traceEventStart(<>, %changed, -1, <>)
+              }
+              if (a) {
+                val tmp0_return = a
+                if (isTraceInProgress()) {
+                  traceEventEnd()
+                }
+                sourceInformationMarkerEnd(%composer)
+                return tmp0_return
+              } else {
+                val tmp1_return = a
+                if (isTraceInProgress()) {
+                  traceEventEnd()
+                }
+                sourceInformationMarkerEnd(%composer)
+                return tmp1_return
+              }
+              if (isTraceInProgress()) {
+                traceEventEnd()
+              }
+              sourceInformationMarkerEnd(%composer)
+            }
+        """
+    )
+
+    @Test
     fun testInlineFunctionsDonotGenerateTraceMarkers() = verifyComposeIrTransform(
         """
             import androidx.compose.runtime.*
@@ -125,7 +171,7 @@ class TraceInformationTest : AbstractIrTransformTest() {
               }
               if (%dirty and 0b1011 !== 0b0010 || !%composer.skipping) {
                 if (isTraceInProgress()) {
-                  traceEventStart(<>, %changed, -1, <>)
+                  traceEventStart(<>, %dirty, -1, <>)
                 }
                 A(%composer, 0)
                 Wrapper({ %composer: Composer?, %changed: Int ->
@@ -136,7 +182,7 @@ class TraceInformationTest : AbstractIrTransformTest() {
                     if (isTraceInProgress()) {
                       traceEventEnd()
                     }
-                    %composer.endRestartGroup()?.updateScope { %composer: Composer?, %force: Int ->
+                    %composer@Test.endRestartGroup()?.updateScope { %composer: Composer?, %force: Int ->
                       Test(condition, %composer, updateChangedFlags(%changed or 0b0001))
                     }
                     return

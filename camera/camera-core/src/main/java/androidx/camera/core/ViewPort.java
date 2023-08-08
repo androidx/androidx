@@ -61,7 +61,6 @@ public final class ViewPort {
     /**
      * LayoutDirection that defines the start and end of the {@link ScaleType}.
      *
-     * @hide
      * @see android.util.LayoutDirection
      */
     @IntDef({android.util.LayoutDirection.LTR, android.util.LayoutDirection.RTL})
@@ -73,7 +72,6 @@ public final class ViewPort {
     /**
      * Scale types used to calculate the crop rect for a {@link UseCase}.
      *
-     * @hide
      */
     @IntDef({FILL_START, FILL_CENTER, FILL_END, FIT})
     @Retention(RetentionPolicy.SOURCE)

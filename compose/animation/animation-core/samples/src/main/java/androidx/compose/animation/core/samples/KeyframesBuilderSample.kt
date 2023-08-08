@@ -39,6 +39,17 @@ fun FloatKeyframesBuilder() {
 }
 
 @Sampled
+fun FloatKeyframesBuilderInline() {
+    keyframes {
+        0f at 0 // ms  // Optional
+        0.4f at 75 // ms
+        0.4f at 225 // ms
+        0f at 375 // ms  // Optional
+        durationMillis = 375
+    }
+}
+
+@Sampled
 fun KeyframesBuilderWithEasing() {
     // Use FastOutSlowInEasing for the interval from 0 to 50 ms, and LinearOutSlowInEasing for the
     // time between 50 and 100ms

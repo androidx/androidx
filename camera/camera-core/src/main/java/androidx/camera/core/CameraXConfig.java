@@ -120,7 +120,6 @@ public final class CameraXConfig implements TargetConfig<CameraX> {
     /**
      * Returns the {@link CameraFactory} implementation for the application.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -132,7 +131,6 @@ public final class CameraXConfig implements TargetConfig<CameraX> {
     /**
      * Returns the {@link CameraDeviceSurfaceManager} implementation for the application.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -146,7 +144,6 @@ public final class CameraXConfig implements TargetConfig<CameraX> {
      *
      * <p>This factory should produce all default configurations for the application's use cases.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -194,7 +191,6 @@ public final class CameraXConfig implements TargetConfig<CameraX> {
         return mConfig.retrieveOption(OPTION_AVAILABLE_CAMERAS_LIMITER, valueIfMissing);
     }
 
-    /** @hide */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     @Override
@@ -212,7 +208,6 @@ public final class CameraXConfig implements TargetConfig<CameraX> {
         /**
          * Creates a new Builder object.
          *
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         public Builder() {
@@ -249,7 +244,6 @@ public final class CameraXConfig implements TargetConfig<CameraX> {
         /**
          * Sets the {@link CameraFactory} implementation for the application.
          *
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -261,7 +255,6 @@ public final class CameraXConfig implements TargetConfig<CameraX> {
         /**
          * Sets the {@link CameraDeviceSurfaceManager} implementation for the application.
          *
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -278,7 +271,6 @@ public final class CameraXConfig implements TargetConfig<CameraX> {
          * <p>This factory should produce all default configurations for the application's use
          * cases.
          *
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -389,7 +381,6 @@ public final class CameraXConfig implements TargetConfig<CameraX> {
 
         // Implementations of TargetConfig.Builder default methods
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         @NonNull
@@ -405,7 +396,6 @@ public final class CameraXConfig implements TargetConfig<CameraX> {
             return this;
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         @NonNull

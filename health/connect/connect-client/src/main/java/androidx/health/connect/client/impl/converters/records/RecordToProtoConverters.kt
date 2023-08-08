@@ -34,6 +34,7 @@ import androidx.health.connect.client.records.CervicalMucusRecord.Companion.SENS
 import androidx.health.connect.client.records.CyclingPedalingCadenceRecord
 import androidx.health.connect.client.records.DistanceRecord
 import androidx.health.connect.client.records.ElevationGainedRecord
+import androidx.health.connect.client.records.ExerciseRouteResult
 import androidx.health.connect.client.records.ExerciseSessionRecord
 import androidx.health.connect.client.records.FloorsClimbedRecord
 import androidx.health.connect.client.records.HeartRateRecord
@@ -288,6 +289,7 @@ fun Record.toProto(): DataProto.DataPoint =
         is ExerciseSessionRecord ->
             intervalProto()
                 .setDataType(protoDataType("ActivitySession"))
+                .putValues("hasRoute", boolVal(exerciseRouteResult !is ExerciseRouteResult.NoData))
                 .apply {
                     val exerciseType =
                         enumValFromInt(
@@ -298,6 +300,32 @@ fun Record.toProto(): DataProto.DataPoint =
                     putValues("activityType", exerciseType)
                     title?.let { putValues("title", stringVal(it)) }
                     notes?.let { putValues("notes", stringVal(it)) }
+                    if (segments.isNotEmpty()) {
+                        putSubTypeDataLists(
+                            "segments",
+                            DataProto.DataPoint.SubTypeDataList.newBuilder()
+                                .addAllValues(segments.map { it.toProto() })
+                                .build()
+                        )
+                    }
+                    if (laps.isNotEmpty()) {
+                        putSubTypeDataLists(
+                            "laps",
+                            DataProto.DataPoint.SubTypeDataList.newBuilder()
+                                .addAllValues(laps.map { it.toProto() })
+                                .build()
+                        )
+                    }
+                    if (exerciseRouteResult is ExerciseRouteResult.Data) {
+                        putSubTypeDataLists(
+                            "route",
+                            DataProto.DataPoint.SubTypeDataList.newBuilder()
+                                .addAllValues(
+                                    exerciseRouteResult.exerciseRoute.route.map { it.toProto() }
+                                )
+                                .build()
+                        )
+                    }
                 }
                 .build()
         is DistanceRecord ->
@@ -460,6 +488,14 @@ fun Record.toProto(): DataProto.DataPoint =
             intervalProto()
                 .setDataType(protoDataType("SleepSession"))
                 .apply {
+                    if (stages.isNotEmpty()) {
+                        putSubTypeDataLists(
+                            "stages",
+                            DataProto.DataPoint.SubTypeDataList.newBuilder()
+                                .addAllValues(stages.map { it.toProto() })
+                                .build()
+                        )
+                    }
                     title?.let { putValues("title", stringVal(it)) }
                     notes?.let { putValues("notes", stringVal(it)) }
                 }

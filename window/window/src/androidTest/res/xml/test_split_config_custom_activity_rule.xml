@@ -17,6 +17,7 @@
 <resources
     xmlns:window="http://schemas.android.com/apk/res-auto">
     <ActivityRule
+        window:tag="rule1"
         window:alwaysExpand="true">
         <ActivityFilter
             window:activityName="androidx.window.sample.embedding.SplitActivityList"/>

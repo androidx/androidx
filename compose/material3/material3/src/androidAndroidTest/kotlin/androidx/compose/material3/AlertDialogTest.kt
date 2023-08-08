@@ -92,7 +92,7 @@ class AlertDialogTest {
                     TextButton(onClick = { /* doSomething() */ }) {
                         Text("Confirm")
                         buttonContentColor = LocalContentColor.current
-                        expectedButtonContentColor = DialogTokens.ActionLabelTextColor.toColor()
+                        expectedButtonContentColor = DialogTokens.ActionLabelTextColor.value
                     }
                 },
                 containerColor = Color.Yellow,
@@ -415,6 +415,44 @@ class AlertDialogTest {
             24.dp,
             "padding between the text and the button"
         )
+    }
+
+    @Test
+    fun alertDialog_positioningActionsWithLongText() {
+        rule.setMaterialContent(lightColorScheme()) {
+            AlertDialog(
+                onDismissRequest = {},
+                title = { Text(text = "Title") },
+                text = { Text("Text") },
+                confirmButton = {
+                    TextButton(
+                        onClick = { /* doSomething() */ },
+                        Modifier
+                            .testTag(ConfirmButtonTestTag)
+                            .semantics(mergeDescendants = true) {}
+                    ) {
+                        Text("Confirm with a long text")
+                    }
+                },
+                dismissButton = {
+                    TextButton(
+                        onClick = { /* doSomething() */ },
+                        Modifier
+                            .testTag(DismissButtonTestTag)
+                            .semantics(mergeDescendants = true) {}
+                    ) {
+                        Text("Dismiss with a long text")
+                    }
+                }
+            )
+        }
+
+        val confirmBtBounds = rule.onNodeWithTag(ConfirmButtonTestTag).getUnclippedBoundsInRoot()
+        val dismissBtBounds = rule.onNodeWithTag(DismissButtonTestTag).getUnclippedBoundsInRoot()
+
+        assert(dismissBtBounds.top > confirmBtBounds.bottom) {
+            "dismiss action should appear below the confirm action"
+        }
     }
 
     @Test

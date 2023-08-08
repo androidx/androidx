@@ -19,7 +19,6 @@
 package androidx.compose.ui.text.font
 
 import android.graphics.Typeface
-import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.FontTestData
 import androidx.compose.ui.text.font.testutils.AsyncFauxFont
 import androidx.compose.ui.text.font.testutils.AsyncTestTypefaceLoader
@@ -33,9 +32,9 @@ import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
+import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestCoroutineDispatcher
 import kotlinx.coroutines.test.TestCoroutineScope
-import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runBlockingTest
 import kotlinx.coroutines.test.runCurrent
 import org.junit.Before
@@ -44,7 +43,6 @@ import org.junit.runner.RunWith
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
-@OptIn(ExperimentalTextApi::class)
 @ExperimentalCoroutinesApi
 class FontFamilyResolverImplPreloadTest {
     private lateinit var typefaceLoader: AsyncTestTypefaceLoader
@@ -189,7 +187,7 @@ class FontFamilyResolverImplPreloadTest {
     fun preload_errorsOnTimeout() {
         val font = AsyncFauxFont(typefaceLoader, FontWeight.Normal, FontStyle.Normal)
         val fallbackFont = AsyncFauxFont(typefaceLoader, FontWeight.Normal, FontStyle.Normal)
-        val dispatcher = TestCoroutineDispatcher()
+        val dispatcher = StandardTestDispatcher()
         val testScope = TestCoroutineScope(dispatcher)
 
         val fontFamily = FontFamily(
@@ -197,7 +195,10 @@ class FontFamilyResolverImplPreloadTest {
             fallbackFont
         )
         val deferred = testScope.async { subject.preload(fontFamily) }
-        testScope.advanceTimeBy(Font.MaximumAsyncTimeoutMillis)
+        testScope.testScheduler.apply {
+            advanceTimeBy(Font.MaximumAsyncTimeoutMillis)
+            runCurrent()
+        }
         assertThat(deferred.isCompleted).isTrue()
         testScope.runBlockingTest {
             deferred.await() // actually throw here

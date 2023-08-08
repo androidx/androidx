@@ -50,7 +50,6 @@ public abstract class SliceViewManager {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     SliceViewManager() {

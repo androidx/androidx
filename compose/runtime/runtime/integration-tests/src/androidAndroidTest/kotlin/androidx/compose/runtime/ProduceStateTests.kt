@@ -16,14 +16,14 @@
 
 package androidx.compose.runtime
 
-import androidx.test.filters.MediumTest
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.MediumTest
+import kotlin.test.assertEquals
 import kotlinx.coroutines.channels.Channel
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import androidx.test.ext.junit.runners.AndroidJUnit4
-import kotlin.test.assertEquals
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)

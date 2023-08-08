@@ -218,6 +218,8 @@ public class ActionsConstraintsTest {
         ActionsConstraints navigationConstraints =
                 new ActionsConstraints.Builder()
                         .setMaxActions(4)
+                        .setMaxPrimaryActions(1)
+                        .setRestrictBackgroundColorToPrimaryAction(true)
                         .setMaxCustomTitles(4)
                         .setTitleTextConstraints(CarTextConstraints.TEXT_AND_ICON)
                         .setOnClickListenerAllowed(true)
@@ -230,6 +232,12 @@ public class ActionsConstraintsTest {
         Action action3 = TestUtils.createAction("Title3", carIcon);
         Action action4 = TestUtils.createAction("Title4", carIcon);
         Action action5 = TestUtils.createAction("Title5", carIcon);
+        Action actionWithBackgroundColor =
+                new Action.Builder(action1).setBackgroundColor(CarColor.BLUE).build();
+        Action primaryAction1 = new Action.Builder(action1).setFlags(Action.FLAG_PRIMARY).build();
+        Action primaryAction2 = new Action.Builder(primaryAction1).build();
+        Action primaryActionWithBackgroundColor =
+                new Action.Builder(primaryAction1).setBackgroundColor(CarColor.BLUE).build();
 
         // Positive case: instance that fits 4 max actions, both can have title and icon
         navigationConstraints.validateOrThrow(
@@ -253,5 +261,85 @@ public class ActionsConstraintsTest {
                                 .addAction(action5)
                                 .build()
                                 .getActions()));
+
+        // Negative case: Multiple primary actions
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> navigationConstraints.validateOrThrow(
+                        new ActionStrip.Builder()
+                                .addAction(action1)
+                                .addAction(action2)
+                                .addAction(primaryAction1)
+                                .addAction(primaryAction2)
+                                .build()
+                                .getActions()));
+
+        // Negative case: Background color on non-primary action
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> navigationConstraints.validateOrThrow(
+                        new ActionStrip.Builder()
+                                .addAction(actionWithBackgroundColor)
+                                .build()
+                                .getActions()));
+
+        // Positive case: Background color on primary action
+        navigationConstraints.validateOrThrow(
+                new ActionStrip.Builder()
+                        .addAction(primaryActionWithBackgroundColor)
+                        .build()
+                        .getActions());
+
+    }
+
+    @Test
+    public void validateOrThrow_whenRestrictBackgroundColorToPrimaryAction() {
+        ActionsConstraints constraints =
+                new ActionsConstraints.Builder()
+                        .setMaxCustomTitles(1)
+                        .setMaxActions(1)
+                        .setMaxPrimaryActions(1)
+                        .setRestrictBackgroundColorToPrimaryAction(true)
+                        .build();
+        Action actionWithBackground =
+                new Action.Builder().setTitle("Test title").setBackgroundColor(
+                        CarColor.BLUE).build();
+        Action primaryActionWithBackground =
+                new Action.Builder(actionWithBackground).setFlags(Action.FLAG_PRIMARY).build();
+        // Negative case: Background color on non-primary action
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> constraints.validateOrThrow(
+                        new ActionStrip.Builder()
+                                .addAction(actionWithBackground)
+                                .build()
+                                .getActions()));
+        // Positive case: Background color on primary action
+        constraints.validateOrThrow(
+                new ActionStrip.Builder()
+                        .addAction(primaryActionWithBackground)
+                        .build()
+                        .getActions());
+    }
+
+    @Test
+    public void validateOrThrow_requireActionBackgroundColor() {
+        ActionsConstraints constraints =
+                new ActionsConstraints.Builder()
+                        .setMaxCustomTitles(1)
+                        .setMaxActions(1)
+                        .setMaxPrimaryActions(1)
+                        .setRequireActionBackgroundColor(true)
+                        .setRestrictBackgroundColorToPrimaryAction(true)
+                        .build();
+        Action actionWithBackground =
+                new Action.Builder().setTitle("Test title").setBackgroundColor(
+                        CarColor.BLUE).build();
+        // Positive case: Background color on non-primary action
+        constraints.validateOrThrow(
+                new ActionStrip.Builder()
+                        .addAction(actionWithBackground)
+                        .build()
+                        .getActions());
     }
 }

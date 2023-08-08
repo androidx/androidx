@@ -36,7 +36,6 @@ import java.util.concurrent.Executor;
  *
  * @param <T> represents the result data type which this stub is returning
  * @param <U> represents the parameter data type which this stub is indexing on
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP)
 public class CarResultStubMap<T, U> {

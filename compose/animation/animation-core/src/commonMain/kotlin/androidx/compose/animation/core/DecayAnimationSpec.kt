@@ -16,6 +16,7 @@
 
 package androidx.compose.animation.core
 
+import androidx.annotation.FloatRange
 import androidx.compose.ui.unit.IntOffset
 
 /**
@@ -99,15 +100,15 @@ fun DecayAnimationSpec<Float>.calculateTargetValue(
  * Must be greater than `0`.
  */
 fun <T> exponentialDecay(
-    /*@FloatRange(
+    @FloatRange(
         from = 0.0,
         fromInclusive = false
-    )*/
+    )
     frictionMultiplier: Float = 1f,
-    /*@FloatRange(
+    @FloatRange(
         from = 0.0,
         fromInclusive = false
-    )*/
+    )
     absVelocityThreshold: Float = 0.1f
 ): DecayAnimationSpec<T> =
     FloatExponentialDecaySpec(frictionMultiplier, absVelocityThreshold).generateDecayAnimationSpec()

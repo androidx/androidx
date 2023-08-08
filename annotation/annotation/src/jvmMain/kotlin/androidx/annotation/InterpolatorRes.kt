@@ -16,8 +16,8 @@
 package androidx.annotation
 
 /**
- * Denotes that an integer parameter, field or method return value is expected
- * to be an interpolator resource reference (e.g. `android.R.interpolator.cycle`).
+ * Denotes that an integer parameter, field or method return value is expected to be an interpolator
+ * resource reference (e.g. `android.R.interpolator.cycle`).
  */
 @MustBeDocumented
 @kotlin.annotation.Retention(AnnotationRetention.BINARY)

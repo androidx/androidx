@@ -103,6 +103,8 @@ public abstract class LocalPlayer extends Player implements MediaPlayer.OnPrepar
             mMediaPlayer.release();
             mMediaPlayer = null;
         }
+
+        super.release();
     }
 
     // Player
@@ -150,7 +152,8 @@ public abstract class LocalPlayer extends Player implements MediaPlayer.OnPrepar
     }
 
     @Override
-    public void getStatus(@NonNull final PlaylistItem item, final boolean shouldUpdate) {
+    public void getPlaylistItemStatus(
+            @NonNull final PlaylistItem item, final boolean shouldUpdate) {
         if (mState == STATE_PLAYING || mState == STATE_PAUSED) {
             item.setDuration(mMediaPlayer.getDuration());
             item.setPosition(getCurrentPosition());
@@ -426,8 +429,6 @@ public abstract class LocalPlayer extends Player implements MediaPlayer.OnPrepar
 
         @Override
         public void release() {
-            super.release();
-
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
                 releasePresentation();
             }
@@ -439,6 +440,8 @@ public abstract class LocalPlayer extends Player implements MediaPlayer.OnPrepar
             // hide the surface view when SurfaceViewPlayer is destroyed
             mSurfaceView.setVisibility(View.GONE);
             mLayout.setVisibility(View.GONE);
+
+            super.release();
         }
 
         @RequiresApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
@@ -634,8 +637,8 @@ public abstract class LocalPlayer extends Player implements MediaPlayer.OnPrepar
 
         @Override
         public void release() {
-            super.release();
             mOverlay.dismiss();
+            super.release();
         }
 
         @Override
