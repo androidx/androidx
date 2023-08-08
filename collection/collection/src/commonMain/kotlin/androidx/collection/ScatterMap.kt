@@ -59,7 +59,8 @@ import kotlin.math.max
 // To quickly and efficiently find any given slot, the implementation uses
 // groups to compare up to 8 entries at a time. To achieve this, we use
 // open-addressing probing quadratic probing
-// (https://en.wikipedia.org/wiki/Quadratic_probing).
+// (https://en.wikipedia.org/wiki/Quadratic_probing). See "A note on
+// probing" down below for more information.
 //
 // The table's memory layout is organized around 3 arrays:
 //
@@ -129,6 +130,26 @@ import kotlin.math.max
 // metadata, but instead find the Long that holds the 4th byte and create
 // a Group of 8 bytes starting from that byte. The details are explained
 // below in the group() function.
+//
+// ** A note on probing **
+//
+// A probe is a virtual construct used to iterate over the groups in the
+// hash table in some interesting order. To probe the tables, we must
+// initiate probing using the hash at which we want to start, using a
+// suitable mask, in our case the table's capacity.
+//
+// The sequence is a triangular progression of the form:
+//
+// `p(i) = GroupWidth * (i ^ 2 + i) / 2 + hash (mod mask + 1)`
+//
+// The first few entries in the metadata table are mirrored at the end of
+// the table so when we inspect those candidates we must make sure to not
+// use their offset directly but instead the "wrap around" values, hence
+// the `mask + 1` modulo.
+//
+// This probe sequence visits every group exactly once if the number of
+// groups is a power of two, since `(i ^ 2 + i) / 2` is a bijection in
+// `Z / (2 ^ m)`. See https://en.wikipedia.org/wiki/Quadratic_probing
 //
 // Reference:
 //    Designing a Fast, Efficient, Cache-friendly Hash Table, Step by Step
@@ -215,8 +236,11 @@ public fun <K, V> mutableScatterMapOf(vararg pairs: Pair<K, V>): MutableScatterM
  * values stored, nor does it make guarantees that the order remains constant
  * over time.
  *
- * This implementation is not thread-safe: reads and writes from multiple threads
- * must be appropriately guarded.
+ * This implementation is not thread-safe: if multiple threads access this
+ * container concurrently, and one or more threads modify the structure of
+ * the map (insertion or removal for instance), the calling code must provide
+ * the appropriate synchronization. Multiple threads are safe to read from this
+ * map concurrently if no write is happening.
  *
  * This implementation is read-only and only allows data to be queried. A
  * mutable implementation is provided by [MutableScatterMap].
@@ -266,16 +290,6 @@ public sealed class ScatterMap<K, V> {
      */
     public val size: Int
         get() = _size
-
-    // Used by [probeStart] and [probeNext] to move through the table
-    // These fields are marked internal so inlined code does not call
-    // synthetic accessors
-    @JvmField
-    internal var probeMask = -1
-    @JvmField
-    internal var probeOffset = -1
-    @JvmField
-    internal var probeIndex = -1
 
     /**
      * Returns `true` if this map has at least one entry.
@@ -540,73 +554,31 @@ public sealed class ScatterMap<K, V> {
         val hash = hash(key)
         val hash2 = h2(hash)
 
-        probeStart(h1(hash), _capacity)
+        val probeMask = _capacity
+        var probeOffset = h1(hash) and probeMask
+        var probeIndex = 0
+
         while (true) {
             val g = group(metadata, probeOffset)
             var m = g.match(hash2)
             while (m.hasNext()) {
-                val index = probeOffset(m.get())
+                val index = (probeOffset + m.get()) and probeMask
                 if (keys[index] == key) {
                     return index
                 }
                 m = m.next()
             }
+
             if (g.maskEmpty() != 0L) {
                 break
             }
-            probeNext()
+
+            probeIndex += GroupWidth
+            probeOffset = (probeOffset + probeIndex) and probeMask
         }
 
         return -1
     }
-
-    /**
-     * A probe is a virtual construct used to iterate over the groups in the
-     * hash table in some interesting order. Before probing the table, one must
-     * call this function with the [hash] at which we want to start the probing
-     * and a suitable [mask].
-     *
-     * The sequence is a triangular progression of the form:
-     *
-     * `p(i) = GroupWidth * (i ^ 2 + i) / 2 + hash (mod mask + 1)`
-     *
-     * The first few entries in the metadata table are mirrored at the end of
-     * the table so when we inspect those candidates we must make sure to not
-     * use their offset directly but instead the "wrap around" values, hence
-     * the `mask + 1` modulo.
-     *
-     * The proper usage of this API is as follows:
-     *
-     * ```
-     * probeStart(H1(hash), capacity)
-     * while (true) {
-     *     // visit the group at probeOffset
-     *     probeNext()
-     * }
-     * ```
-     * This probe sequence visits every group exactly once if the number of
-     * groups is a power of two, since `(i ^ 2 + i) / 2` is a bijection in
-     * `Z / (2 ^ m)`. See https://en.wikipedia.org/wiki/Quadratic_probing
-     */
-    internal inline fun probeStart(hash: Int, mask: Int) {
-        probeMask = mask
-        probeOffset = hash and mask
-        probeIndex = 0
-    }
-
-    /**
-     * Moves the probe to the next interesting group to visit. Refer to
-     * [probeStart] for more information.
-     */
-    internal inline fun probeNext() {
-        probeIndex += GroupWidth
-        probeOffset = (probeOffset + probeIndex) and probeMask
-    }
-
-    /**
-     * An offset within our tables starting from the current [probeOffset].
-     */
-    internal inline fun probeOffset(offset: Int) = (probeOffset + offset) and probeMask
 
     /**
      * Wraps this [ScatterMap] with a [Map] interface. The [Map] is backed
@@ -667,39 +639,41 @@ public sealed class ScatterMap<K, V> {
                 override val value: V get() = this@ScatterMap.values[current] as V
             }
 
-        override val keys: Set<K> get() = object : Set<K> {
-            override val size: Int get() = this@ScatterMap._size
+        override val keys: Set<K>
+            get() = object : Set<K> {
+                override val size: Int get() = this@ScatterMap._size
 
-            override fun isEmpty(): Boolean = this@ScatterMap.isEmpty()
+                override fun isEmpty(): Boolean = this@ScatterMap.isEmpty()
 
-            override fun iterator(): Iterator<K> = iterator {
-                this@ScatterMap.forEachKey { key ->
-                    yield(key)
+                override fun iterator(): Iterator<K> = iterator {
+                    this@ScatterMap.forEachKey { key ->
+                        yield(key)
+                    }
                 }
+
+                override fun containsAll(elements: Collection<K>): Boolean =
+                    elements.all { this@ScatterMap.containsKey(it) }
+
+                override fun contains(element: K): Boolean = this@ScatterMap.containsKey(element)
             }
 
-            override fun containsAll(elements: Collection<K>): Boolean =
-                elements.all { this@ScatterMap.containsKey(it) }
+        override val values: Collection<V>
+            get() = object : Collection<V> {
+                override val size: Int get() = this@ScatterMap._size
 
-            override fun contains(element: K): Boolean = this@ScatterMap.containsKey(element)
-        }
+                override fun isEmpty(): Boolean = this@ScatterMap.isEmpty()
 
-        override val values: Collection<V> get() = object : Collection<V> {
-            override val size: Int get() = this@ScatterMap._size
-
-            override fun isEmpty(): Boolean = this@ScatterMap.isEmpty()
-
-            override fun iterator(): Iterator<V> = iterator {
-                this@ScatterMap.forEachValue { value ->
-                    yield(value)
+                override fun iterator(): Iterator<V> = iterator {
+                    this@ScatterMap.forEachValue { value ->
+                        yield(value)
+                    }
                 }
+
+                override fun containsAll(elements: Collection<V>): Boolean =
+                    elements.all { this@ScatterMap.containsValue(it) }
+
+                override fun contains(element: V): Boolean = this@ScatterMap.containsValue(element)
             }
-
-            override fun containsAll(elements: Collection<V>): Boolean =
-                elements.all { this@ScatterMap.containsValue(it) }
-
-            override fun contains(element: V): Boolean = this@ScatterMap.containsValue(element)
-        }
 
         override val size: Int get() = this@ScatterMap._size
 
@@ -728,8 +702,11 @@ public sealed class ScatterMap<K, V> {
  * values stored, nor does it make guarantees that the order remains constant
  * over time.
  *
- * This implementation is not thread-safe: reads and writes from multiple threads
- * must be appropriately guarded.
+ * This implementation is not thread-safe: if multiple threads access this
+ * container concurrently, and one or more threads modify the structure of
+ * the map (insertion or removal for instance), the calling code must provide
+ * the appropriate synchronization. Multiple threads are safe to read from this
+ * map concurrently if no write is happening.
  *
  * **Note**: when a [Map] is absolutely necessary, you can use the method
  * [asMap] to create a thin wrapper around a [MutableScatterMap]. Please refer
@@ -1026,21 +1003,27 @@ public class MutableScatterMap<K, V>(
         val hash1 = h1(hash)
         val hash2 = h2(hash)
 
-        probeStart(hash1, _capacity)
+        val probeMask = _capacity
+        var probeOffset = hash1 and probeMask
+        var probeIndex = 0
+
         while (true) {
             val g = group(metadata, probeOffset)
             var m = g.match(hash2)
             while (m.hasNext()) {
-                val index = probeOffset(m.get())
+                val index = (probeOffset + m.get()) and probeMask
                 if (keys[index] == key) {
                     return index
                 }
                 m = m.next()
             }
+
             if (g.maskEmpty() != 0L) {
                 break
             }
-            probeNext()
+
+            probeIndex += GroupWidth
+            probeOffset = (probeOffset + probeIndex) and probeMask
         }
 
         var index = findFirstAvailableSlot(hash1)
@@ -1066,21 +1049,27 @@ public class MutableScatterMap<K, V>(
         val hash1 = h1(hash)
         val hash2 = h2(hash)
 
-        probeStart(hash1, _capacity)
+        val probeMask = _capacity
+        var probeOffset = hash1 and probeMask
+        var probeIndex = 0
+
         while (true) {
             val g = group(metadata, probeOffset)
             var m = g.match(hash2)
             while (m.hasNext()) {
-                val index = probeOffset(m.get())
+                val index = (probeOffset + m.get()) and probeMask
                 if (keys[index] == key) {
                     return index
                 }
                 m = m.next()
             }
+
             if (g.maskEmpty() != 0L) {
                 break
             }
-            probeNext()
+
+            probeIndex += GroupWidth
+            probeOffset = (probeOffset + probeIndex) and probeMask
         }
 
         var index = findFirstAvailableSlot(hash1)
@@ -1101,14 +1090,18 @@ public class MutableScatterMap<K, V>(
      * store a value without resizing the internal storage.
      */
     private fun findFirstAvailableSlot(hash1: Int): Int {
-        probeStart(hash1, _capacity)
+        val probeMask = _capacity
+        var probeOffset = hash1 and probeMask
+        var probeIndex = 0
+
         while (true) {
             val g = group(metadata, probeOffset)
             val m = g.maskEmptyOrDeleted()
             if (m != 0L) {
-                return probeOffset(m.lowestBitSet())
+                return (probeOffset + m.lowestBitSet()) and probeMask
             }
-            probeNext()
+            probeIndex += GroupWidth
+            probeOffset = (probeOffset + probeIndex) and probeMask
         }
     }
 
@@ -1328,164 +1321,166 @@ public class MutableScatterMap<K, V>(
                 }
             }
 
-        override val keys: MutableSet<K> get() = object : MutableSet<K> {
-            override val size: Int get() = this@MutableScatterMap._size
+        override val keys: MutableSet<K>
+            get() = object : MutableSet<K> {
+                override val size: Int get() = this@MutableScatterMap._size
 
-            override fun isEmpty(): Boolean = this@MutableScatterMap.isEmpty()
+                override fun isEmpty(): Boolean = this@MutableScatterMap.isEmpty()
 
-            override fun iterator(): MutableIterator<K> = object : MutableIterator<K> {
-                private val iterator = iterator {
+                override fun iterator(): MutableIterator<K> = object : MutableIterator<K> {
+                    private val iterator = iterator {
+                        this@MutableScatterMap.forEachIndexed { index ->
+                            yield(index)
+                        }
+                    }
+                    private var current: Int = -1
+
+                    override fun hasNext(): Boolean = iterator.hasNext()
+
+                    override fun next(): K {
+                        current = iterator.next()
+                        @Suppress("UNCHECKED_CAST")
+                        return this@MutableScatterMap.keys[current] as K
+                    }
+
+                    override fun remove() {
+                        if (current >= 0) {
+                            this@MutableScatterMap.removeValueAt(current)
+                            current = -1
+                        }
+                    }
+                }
+
+                override fun clear() {
+                    this@MutableScatterMap.clear()
+                }
+
+                override fun addAll(elements: Collection<K>): Boolean {
+                    throw UnsupportedOperationException()
+                }
+
+                override fun add(element: K): Boolean {
+                    throw UnsupportedOperationException()
+                }
+
+                override fun retainAll(elements: Collection<K>): Boolean {
+                    var changed = false
                     this@MutableScatterMap.forEachIndexed { index ->
-                        yield(index)
+                        if (this@MutableScatterMap.keys[index] !in elements) {
+                            removeValueAt(index)
+                            changed = true
+                        }
                     }
-                }
-                private var current: Int = -1
-
-                override fun hasNext(): Boolean = iterator.hasNext()
-
-                override fun next(): K {
-                    current = iterator.next()
-                    @Suppress("UNCHECKED_CAST")
-                    return this@MutableScatterMap.keys[current] as K
+                    return changed
                 }
 
-                override fun remove() {
-                    if (current >= 0) {
-                        this@MutableScatterMap.removeValueAt(current)
-                        current = -1
-                    }
-                }
-            }
-
-            override fun clear() {
-                this@MutableScatterMap.clear()
-            }
-
-            override fun addAll(elements: Collection<K>): Boolean {
-                throw UnsupportedOperationException()
-            }
-
-            override fun add(element: K): Boolean {
-                throw UnsupportedOperationException()
-            }
-
-            override fun retainAll(elements: Collection<K>): Boolean {
-                var changed = false
-                this@MutableScatterMap.forEachIndexed { index ->
-                    if (this@MutableScatterMap.keys[index] !in elements) {
-                        removeValueAt(index)
-                        changed = true
-                    }
-                }
-                return changed
-            }
-
-            override fun removeAll(elements: Collection<K>): Boolean {
-                var changed = false
-                this@MutableScatterMap.forEachIndexed { index ->
-                    if (this@MutableScatterMap.keys[index] in elements) {
-                        removeValueAt(index)
-                        changed = true
-                    }
-                }
-                return changed
-            }
-
-            override fun remove(element: K): Boolean {
-                val index = findKeyIndex(element)
-                if (index >= 0) {
-                    removeValueAt(index)
-                    return true
-                }
-                return false
-            }
-
-            override fun containsAll(elements: Collection<K>): Boolean =
-                elements.all { this@MutableScatterMap.containsKey(it) }
-
-            override fun contains(element: K): Boolean =
-                this@MutableScatterMap.containsKey(element)
-        }
-
-        override val values: MutableCollection<V> get() = object : MutableCollection<V> {
-            override val size: Int get() = this@MutableScatterMap._size
-
-            override fun isEmpty(): Boolean = this@MutableScatterMap.isEmpty()
-
-            override fun iterator(): MutableIterator<V> = object : MutableIterator<V> {
-                private val iterator = iterator {
+                override fun removeAll(elements: Collection<K>): Boolean {
+                    var changed = false
                     this@MutableScatterMap.forEachIndexed { index ->
-                        yield(index)
+                        if (this@MutableScatterMap.keys[index] in elements) {
+                            removeValueAt(index)
+                            changed = true
+                        }
                     }
-                }
-                private var current: Int = -1
-
-                override fun hasNext(): Boolean = iterator.hasNext()
-
-                override fun next(): V {
-                    current = iterator.next()
-                    @Suppress("UNCHECKED_CAST")
-                    return this@MutableScatterMap.values[current] as V
+                    return changed
                 }
 
-                override fun remove() {
-                    if (current >= 0) {
-                        this@MutableScatterMap.removeValueAt(current)
-                        current = -1
-                    }
-                }
-            }
-
-            override fun clear() {
-                this@MutableScatterMap.clear()
-            }
-
-            override fun addAll(elements: Collection<V>): Boolean {
-                throw UnsupportedOperationException()
-            }
-
-            override fun add(element: V): Boolean {
-                throw UnsupportedOperationException()
-            }
-
-            override fun retainAll(elements: Collection<V>): Boolean {
-                var changed = false
-                this@MutableScatterMap.forEachIndexed { index ->
-                    if (this@MutableScatterMap.values[index] !in elements) {
-                        removeValueAt(index)
-                        changed = true
-                    }
-                }
-                return changed
-            }
-
-            override fun removeAll(elements: Collection<V>): Boolean {
-                var changed = false
-                this@MutableScatterMap.forEachIndexed { index ->
-                    if (this@MutableScatterMap.values[index] in elements) {
-                        removeValueAt(index)
-                        changed = true
-                    }
-                }
-                return changed
-            }
-
-            override fun remove(element: V): Boolean {
-                this@MutableScatterMap.forEachIndexed { index ->
-                    if (this@MutableScatterMap.values[index] == element) {
+                override fun remove(element: K): Boolean {
+                    val index = findKeyIndex(element)
+                    if (index >= 0) {
                         removeValueAt(index)
                         return true
                     }
+                    return false
                 }
-                return false
+
+                override fun containsAll(elements: Collection<K>): Boolean =
+                    elements.all { this@MutableScatterMap.containsKey(it) }
+
+                override fun contains(element: K): Boolean =
+                    this@MutableScatterMap.containsKey(element)
             }
 
-            override fun containsAll(elements: Collection<V>): Boolean =
-                elements.all { this@MutableScatterMap.containsValue(it) }
+        override val values: MutableCollection<V>
+            get() = object : MutableCollection<V> {
+                override val size: Int get() = this@MutableScatterMap._size
 
-            override fun contains(element: V): Boolean =
-                this@MutableScatterMap.containsValue(element)
-        }
+                override fun isEmpty(): Boolean = this@MutableScatterMap.isEmpty()
+
+                override fun iterator(): MutableIterator<V> = object : MutableIterator<V> {
+                    private val iterator = iterator {
+                        this@MutableScatterMap.forEachIndexed { index ->
+                            yield(index)
+                        }
+                    }
+                    private var current: Int = -1
+
+                    override fun hasNext(): Boolean = iterator.hasNext()
+
+                    override fun next(): V {
+                        current = iterator.next()
+                        @Suppress("UNCHECKED_CAST")
+                        return this@MutableScatterMap.values[current] as V
+                    }
+
+                    override fun remove() {
+                        if (current >= 0) {
+                            this@MutableScatterMap.removeValueAt(current)
+                            current = -1
+                        }
+                    }
+                }
+
+                override fun clear() {
+                    this@MutableScatterMap.clear()
+                }
+
+                override fun addAll(elements: Collection<V>): Boolean {
+                    throw UnsupportedOperationException()
+                }
+
+                override fun add(element: V): Boolean {
+                    throw UnsupportedOperationException()
+                }
+
+                override fun retainAll(elements: Collection<V>): Boolean {
+                    var changed = false
+                    this@MutableScatterMap.forEachIndexed { index ->
+                        if (this@MutableScatterMap.values[index] !in elements) {
+                            removeValueAt(index)
+                            changed = true
+                        }
+                    }
+                    return changed
+                }
+
+                override fun removeAll(elements: Collection<V>): Boolean {
+                    var changed = false
+                    this@MutableScatterMap.forEachIndexed { index ->
+                        if (this@MutableScatterMap.values[index] in elements) {
+                            removeValueAt(index)
+                            changed = true
+                        }
+                    }
+                    return changed
+                }
+
+                override fun remove(element: V): Boolean {
+                    this@MutableScatterMap.forEachIndexed { index ->
+                        if (this@MutableScatterMap.values[index] == element) {
+                            removeValueAt(index)
+                            return true
+                        }
+                    }
+                    return false
+                }
+
+                override fun containsAll(elements: Collection<V>): Boolean =
+                    elements.all { this@MutableScatterMap.containsValue(it) }
+
+                override fun contains(element: V): Boolean =
+                    this@MutableScatterMap.containsValue(element)
+            }
 
         override fun clear() {
             this@MutableScatterMap.clear()
