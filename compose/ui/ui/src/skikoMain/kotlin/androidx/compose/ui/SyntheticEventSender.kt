@@ -39,7 +39,18 @@ internal class SyntheticEventSender(
     private val _send: (PointerInputEvent) -> Unit = send
     private var previousEvent: PointerInputEvent? = null
 
+    /**
+     * If something happened with Compose content (it relayouted), we need to send an
+     * event to it with the latest pointer position. Otherwise, the content won't be updated
+     * by the actual relative position of the pointer.
+     *
+     * For example, it can be needed when we scroll content without moving the pointer, and we need
+     * to highlight the items under the pointer.
+     */
+    var needUpdatePointerPosition: Boolean = false
+
     fun reset() {
+        needUpdatePointerPosition = false
         previousEvent = null
     }
 
@@ -53,9 +64,11 @@ internal class SyntheticEventSender(
         sendInternal(event)
     }
 
-    fun sendSyntheticMove() {
-        val previousEvent = previousEvent ?: return
-        sendSyntheticMove(previousEvent)
+    fun updatePointerPosition() {
+        if (needUpdatePointerPosition) {
+            needUpdatePointerPosition = false
+            previousEvent?.let { sendSyntheticMove(it) }
+        }
     }
 
     /**

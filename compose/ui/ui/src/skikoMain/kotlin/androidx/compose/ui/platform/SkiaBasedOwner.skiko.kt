@@ -66,18 +66,20 @@ private typealias Command = () -> Unit
     InternalComposeUiApi::class
 )
 internal class SkiaBasedOwner(
-    override val scene: ComposeScene,
+    override val scene: ComposeScene, // TODO: Remove reference to it
     private val platform: Platform,
     parentFocusManager: FocusManager = EmptyFocusManager,
-    private val pointerPositionUpdater: PointerPositionUpdater,
     initDensity: Density = Density(1f, 1f),
     coroutineContext: CoroutineContext,
     initLayoutDirection: LayoutDirection = platform.layoutDirection,
     bounds: IntRect = IntRect.Zero,
     val focusable: Boolean = true,
     val onOutsidePointerEvent: ((PointerInputEvent) -> Unit)? = null,
+    private val onPointerUpdate: () -> Unit = {},
     modifier: Modifier = Modifier,
-) : Owner, RootForTest, SkiaRootForTest, PositionCalculator {
+) : Owner,
+    RootForTest, SkiaRootForTest, // TODO: Make scene implement RootForTest, not Owner
+    PositionCalculator {
     override val windowInfo: WindowInfo get() = platform.windowInfo
 
     fun isInBounds(point: Offset): Boolean {
@@ -237,7 +239,7 @@ internal class SkiaBasedOwner(
         if (
             measureAndLayoutDelegate.measureAndLayout {
                 if (sendPointerUpdate) {
-                    pointerPositionUpdater.needSendMove()
+                    onPointerUpdate()
                 }
             }
         ) {
@@ -249,7 +251,7 @@ internal class SkiaBasedOwner(
 
     override fun measureAndLayout(layoutNode: LayoutNode, constraints: Constraints) {
         measureAndLayoutDelegate.measureAndLayout(layoutNode, constraints)
-        pointerPositionUpdater.needSendMove()
+        onPointerUpdate()
         measureAndLayoutDelegate.dispatchOnPositionedCallbacks()
         contentSize = computeContentSize()
     }

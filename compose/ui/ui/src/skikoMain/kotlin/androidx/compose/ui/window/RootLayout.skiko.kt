@@ -53,12 +53,6 @@ internal fun RootLayout(
     onOutsidePointerEvent: ((PointerInputEvent) -> Unit)? = null,
     content: @Composable (SkiaBasedOwner) -> Unit
 ) {
-    /*
-     * Keep empty layout as workaround to trigger layout after remove dialog.
-     * Required to properly update mouse hover state.
-     */
-    EmptyLayout()
-
     val scene = LocalComposeScene.requireCurrent()
     val density = LocalDensity.current
     val layoutDirection = LocalLayoutDirection.current
@@ -67,12 +61,12 @@ internal fun RootLayout(
         val owner = SkiaBasedOwner(
             scene = scene,
             platform = scene.platform,
-            pointerPositionUpdater = scene.pointerPositionUpdater,
             coroutineContext = parentComposition.effectCoroutineContext,
             initDensity = density,
             initLayoutDirection = layoutDirection,
             focusable = focusable,
             onOutsidePointerEvent = onOutsidePointerEvent,
+            onPointerUpdate = scene::onPointerUpdate,
             modifier = modifier
         )
         scene.attach(owner)
