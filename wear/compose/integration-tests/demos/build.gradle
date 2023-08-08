@@ -68,6 +68,9 @@ dependencies {
     implementation(project(':wear:compose:integration-tests:demos:common'))
     implementation(project(":wear:compose:compose-material3-integration-tests"))
 
+    androidTestImplementation(project(":activity:activity"))
+    androidTestImplementation(project(":activity:activity-compose"))
+    androidTestImplementation(project(":activity:activity-ktx"))
     androidTestImplementation(project(":compose:ui:ui-test-junit4"))
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRules)
