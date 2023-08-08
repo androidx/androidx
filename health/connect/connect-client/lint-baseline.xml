@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.1.0-beta05" type="baseline" client="gradle" dependencies="false" name="AGP (8.1.0-beta05)" variant="all" version="8.1.0-beta05">
+<issues format="6" by="lint 8.2.0-alpha15" type="baseline" client="gradle" dependencies="false" name="AGP (8.2.0-alpha15)" variant="all" version="8.2.0-alpha15">
 
     <issue
         id="BanSynchronizedMethods"
@@ -12,18 +12,14 @@
 
     <issue
         id="RequireUnstableAidlAnnotation"
-        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="parcelable AggregateDataRequest;"
-        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker">
         <location
             file="src/main/aidl/androidx/health/platform/client/request/AggregateDataRequest.aidl"/>
     </issue>
 
     <issue
         id="RequireUnstableAidlAnnotation"
-        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="parcelable AggregateDataResponse;"
-        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker">
         <location
             file="src/main/aidl/androidx/health/platform/client/response/AggregateDataResponse.aidl"/>
     </issue>
@@ -32,25 +28,21 @@
         id="RequireUnstableAidlAnnotation"
         message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
         errorLine1="parcelable ChangesEvent;"
-        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/aidl/androidx/health/platform/client/changes/ChangesEvent.aidl"/>
     </issue>
 
     <issue
         id="RequireUnstableAidlAnnotation"
-        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="parcelable DeleteDataRangeRequest;"
-        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker">
         <location
             file="src/main/aidl/androidx/health/platform/client/request/DeleteDataRangeRequest.aidl"/>
     </issue>
 
     <issue
         id="RequireUnstableAidlAnnotation"
-        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="parcelable DeleteDataRequest;"
-        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker">
         <location
             file="src/main/aidl/androidx/health/platform/client/request/DeleteDataRequest.aidl"/>
     </issue>
@@ -59,34 +51,28 @@
         id="RequireUnstableAidlAnnotation"
         message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
         errorLine1="parcelable ErrorStatus;"
-        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/aidl/androidx/health/platform/client/error/ErrorStatus.aidl"/>
     </issue>
 
     <issue
         id="RequireUnstableAidlAnnotation"
-        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="parcelable GetChangesRequest;"
-        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker">
         <location
             file="src/main/aidl/androidx/health/platform/client/request/GetChangesRequest.aidl"/>
     </issue>
 
     <issue
         id="RequireUnstableAidlAnnotation"
-        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="parcelable GetChangesResponse;"
-        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker">
         <location
             file="src/main/aidl/androidx/health/platform/client/response/GetChangesResponse.aidl"/>
     </issue>
 
     <issue
         id="RequireUnstableAidlAnnotation"
-        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="parcelable GetChangesTokenRequest;"
-        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker">
         <location
             file="src/main/aidl/androidx/health/platform/client/request/GetChangesTokenRequest.aidl"/>
     </issue>
@@ -95,7 +81,7 @@
         id="RequireUnstableAidlAnnotation"
         message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
         errorLine1="parcelable GetChangesTokenResponse;"
-        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/aidl/androidx/health/platform/client/response/GetChangesTokenResponse.aidl"/>
     </issue>
@@ -103,8 +89,8 @@
     <issue
         id="RequireUnstableAidlAnnotation"
         message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="oneway interface IAggregateDataCallback {"
-        errorLine2="^">
+        errorLine1="import androidx.health.platform.client.response.AggregateDataResponse;"
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/aidl/androidx/health/platform/client/service/IAggregateDataCallback.aidl"/>
     </issue>
@@ -112,8 +98,8 @@
     <issue
         id="RequireUnstableAidlAnnotation"
         message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="oneway interface IClearOnChangesListenerCallback {"
-        errorLine2="^">
+        errorLine1="import androidx.health.platform.client.error.ErrorStatus;"
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/aidl/androidx/health/platform/client/service/IClearOnChangesListenerCallback.aidl"/>
     </issue>
@@ -121,8 +107,8 @@
     <issue
         id="RequireUnstableAidlAnnotation"
         message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="oneway interface IDeleteDataCallback {"
-        errorLine2="^">
+        errorLine1="import androidx.health.platform.client.error.ErrorStatus;"
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/aidl/androidx/health/platform/client/service/IDeleteDataCallback.aidl"/>
     </issue>
@@ -130,7 +116,7 @@
     <issue
         id="RequireUnstableAidlAnnotation"
         message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="oneway interface IDeleteDataRangeCallback {"
+        errorLine1="import androidx.health.platform.client.error.ErrorStatus;"
         errorLine2="^">
         <location
             file="src/main/aidl/androidx/health/platform/client/service/IDeleteDataRangeCallback.aidl"/>
@@ -139,7 +125,7 @@
     <issue
         id="RequireUnstableAidlAnnotation"
         message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="oneway interface IFilterGrantedPermissionsCallback {"
+        errorLine1="  void onSuccess(in List&lt;Permission> permissions) = 0;"
         errorLine2="^">
         <location
             file="src/main/aidl/androidx/health/platform/client/service/IFilterGrantedPermissionsCallback.aidl"/>
@@ -148,7 +134,7 @@
     <issue
         id="RequireUnstableAidlAnnotation"
         message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="oneway interface IGetChangesCallback {"
+        errorLine1="import androidx.health.platform.client.error.ErrorStatus;"
         errorLine2="^">
         <location
             file="src/main/aidl/androidx/health/platform/client/service/IGetChangesCallback.aidl"/>
@@ -157,7 +143,7 @@
     <issue
         id="RequireUnstableAidlAnnotation"
         message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="oneway interface IGetChangesTokenCallback {"
+        errorLine1="import androidx.health.platform.client.error.ErrorStatus;"
         errorLine2="^">
         <location
             file="src/main/aidl/androidx/health/platform/client/service/IGetChangesTokenCallback.aidl"/>
@@ -166,8 +152,8 @@
     <issue
         id="RequireUnstableAidlAnnotation"
         message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="oneway interface IGetGrantedPermissionsCallback {"
-        errorLine2="^">
+        errorLine1="import androidx.health.platform.client.permission.Permission;"
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/aidl/androidx/health/platform/client/service/IGetGrantedPermissionsCallback.aidl"/>
     </issue>
@@ -175,7 +161,7 @@
     <issue
         id="RequireUnstableAidlAnnotation"
         message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="oneway interface IGetIsInForegroundCallback {"
+        errorLine1="}"
         errorLine2="^">
         <location
             file="src/main/aidl/androidx/health/platform/client/impl/sdkservice/IGetIsInForegroundCallback.aidl"/>
@@ -184,7 +170,7 @@
     <issue
         id="RequireUnstableAidlAnnotation"
         message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="oneway interface IGetPermissionTokenCallback {"
+        errorLine1="}"
         errorLine2="^">
         <location
             file="src/main/aidl/androidx/health/platform/client/impl/sdkservice/IGetPermissionTokenCallback.aidl"/>
@@ -193,7 +179,7 @@
     <issue
         id="RequireUnstableAidlAnnotation"
         message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="oneway interface IHealthDataSdkService {"
+        errorLine1="import androidx.health.platform.client.impl.sdkservice.ISetPermissionTokenCallback;"
         errorLine2="^">
         <location
             file="src/main/aidl/androidx/health/platform/client/impl/sdkservice/IHealthDataSdkService.aidl"/>
@@ -202,8 +188,8 @@
     <issue
         id="RequireUnstableAidlAnnotation"
         message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="interface IHealthDataService {"
-        errorLine2="^">
+        errorLine1="import androidx.health.platform.client.permission.Permission;"
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/aidl/androidx/health/platform/client/service/IHealthDataService.aidl"/>
     </issue>
@@ -211,8 +197,8 @@
     <issue
         id="RequireUnstableAidlAnnotation"
         message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="oneway interface IInsertDataCallback {"
-        errorLine2="^">
+        errorLine1="import androidx.health.platform.client.error.ErrorStatus;"
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/aidl/androidx/health/platform/client/service/IInsertDataCallback.aidl"/>
     </issue>
@@ -220,8 +206,8 @@
     <issue
         id="RequireUnstableAidlAnnotation"
         message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="oneway interface IOnChangesListener {"
-        errorLine2="^">
+        errorLine1="import androidx.health.platform.client.changes.ChangesEvent;"
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/aidl/androidx/health/platform/client/service/IOnChangesListener.aidl"/>
     </issue>
@@ -229,8 +215,8 @@
     <issue
         id="RequireUnstableAidlAnnotation"
         message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="oneway interface IReadDataCallback {"
-        errorLine2="^">
+        errorLine1="import androidx.health.platform.client.error.ErrorStatus;"
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/aidl/androidx/health/platform/client/service/IReadDataCallback.aidl"/>
     </issue>
@@ -238,8 +224,8 @@
     <issue
         id="RequireUnstableAidlAnnotation"
         message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="oneway interface IReadDataRangeCallback {"
-        errorLine2="^">
+        errorLine1="import androidx.health.platform.client.error.ErrorStatus;"
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/aidl/androidx/health/platform/client/service/IReadDataRangeCallback.aidl"/>
     </issue>
@@ -247,8 +233,8 @@
     <issue
         id="RequireUnstableAidlAnnotation"
         message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="oneway interface IReadExerciseRouteCallback {"
-        errorLine2="^">
+        errorLine1="import androidx.health.platform.client.error.ErrorStatus;"
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/aidl/androidx/health/platform/client/service/IReadExerciseRouteCallback.aidl"/>
     </issue>
@@ -256,8 +242,8 @@
     <issue
         id="RequireUnstableAidlAnnotation"
         message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="oneway interface IRegisterForDataNotificationsCallback {"
-        errorLine2="^">
+        errorLine1="import androidx.health.platform.client.error.ErrorStatus;"
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/aidl/androidx/health/platform/client/service/IRegisterForDataNotificationsCallback.aidl"/>
     </issue>
@@ -265,8 +251,8 @@
     <issue
         id="RequireUnstableAidlAnnotation"
         message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="oneway interface IRevokeAllPermissionsCallback {"
-        errorLine2="^">
+        errorLine1="import androidx.health.platform.client.error.ErrorStatus;"
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/aidl/androidx/health/platform/client/service/IRevokeAllPermissionsCallback.aidl"/>
     </issue>
@@ -274,8 +260,8 @@
     <issue
         id="RequireUnstableAidlAnnotation"
         message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="oneway interface ISetOnChangesListenerCallback {"
-        errorLine2="^">
+        errorLine1="import androidx.health.platform.client.error.ErrorStatus;"
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/aidl/androidx/health/platform/client/service/ISetOnChangesListenerCallback.aidl"/>
     </issue>
@@ -283,7 +269,7 @@
     <issue
         id="RequireUnstableAidlAnnotation"
         message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="oneway interface ISetPermissionTokenCallback {"
+        errorLine1=""
         errorLine2="^">
         <location
             file="src/main/aidl/androidx/health/platform/client/impl/sdkservice/ISetPermissionTokenCallback.aidl"/>
@@ -292,8 +278,8 @@
     <issue
         id="RequireUnstableAidlAnnotation"
         message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="oneway interface IUnregisterFromDataNotificationsCallback {"
-        errorLine2="^">
+        errorLine1="import androidx.health.platform.client.error.ErrorStatus;"
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/aidl/androidx/health/platform/client/service/IUnregisterFromDataNotificationsCallback.aidl"/>
     </issue>
@@ -301,8 +287,8 @@
     <issue
         id="RequireUnstableAidlAnnotation"
         message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="oneway interface IUpdateDataCallback {"
-        errorLine2="^">
+        errorLine1="import androidx.health.platform.client.error.ErrorStatus;"
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/aidl/androidx/health/platform/client/service/IUpdateDataCallback.aidl"/>
     </issue>
@@ -310,8 +296,8 @@
     <issue
         id="RequireUnstableAidlAnnotation"
         message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="oneway interface IUpsertExerciseRouteCallback {"
-        errorLine2="^">
+        errorLine1="import androidx.health.platform.client.error.ErrorStatus;"
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/aidl/androidx/health/platform/client/service/IUpsertExerciseRouteCallback.aidl"/>
     </issue>
@@ -320,25 +306,21 @@
         id="RequireUnstableAidlAnnotation"
         message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
         errorLine1="parcelable InsertDataResponse;"
-        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/aidl/androidx/health/platform/client/response/InsertDataResponse.aidl"/>
     </issue>
 
     <issue
         id="RequireUnstableAidlAnnotation"
-        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="parcelable Permission;"
-        errorLine2="~~~~~~~~~~~~~~~~~~~~~~">
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker">
         <location
             file="src/main/aidl/androidx/health/platform/client/permission/Permission.aidl"/>
     </issue>
 
     <issue
         id="RequireUnstableAidlAnnotation"
-        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="parcelable ReadDataRangeRequest;"
-        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker">
         <location
             file="src/main/aidl/androidx/health/platform/client/request/ReadDataRangeRequest.aidl"/>
     </issue>
@@ -347,16 +329,14 @@
         id="RequireUnstableAidlAnnotation"
         message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
         errorLine1="parcelable ReadDataRangeResponse;"
-        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/aidl/androidx/health/platform/client/response/ReadDataRangeResponse.aidl"/>
     </issue>
 
     <issue
         id="RequireUnstableAidlAnnotation"
-        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="parcelable ReadDataRequest;"
-        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker">
         <location
             file="src/main/aidl/androidx/health/platform/client/request/ReadDataRequest.aidl"/>
     </issue>
@@ -365,16 +345,14 @@
         id="RequireUnstableAidlAnnotation"
         message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
         errorLine1="parcelable ReadDataResponse;"
-        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/aidl/androidx/health/platform/client/response/ReadDataResponse.aidl"/>
     </issue>
 
     <issue
         id="RequireUnstableAidlAnnotation"
-        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="parcelable ReadExerciseRouteRequest;"
-        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker">
         <location
             file="src/main/aidl/androidx/health/platform/client/request/ReadExerciseRouteRequest.aidl"/>
     </issue>
@@ -383,52 +361,42 @@
         id="RequireUnstableAidlAnnotation"
         message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
         errorLine1="parcelable ReadExerciseRouteResponse;"
-        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/aidl/androidx/health/platform/client/response/ReadExerciseRouteResponse.aidl"/>
     </issue>
 
     <issue
         id="RequireUnstableAidlAnnotation"
-        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="parcelable RegisterForDataNotificationsRequest;"
-        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker">
         <location
             file="src/main/aidl/androidx/health/platform/client/request/RegisterForDataNotificationsRequest.aidl"/>
     </issue>
 
     <issue
         id="RequireUnstableAidlAnnotation"
-        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="parcelable RequestContext;"
-        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker">
         <location
             file="src/main/aidl/androidx/health/platform/client/request/RequestContext.aidl"/>
     </issue>
 
     <issue
         id="RequireUnstableAidlAnnotation"
-        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="parcelable UnregisterFromDataNotificationsRequest;"
-        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker">
         <location
             file="src/main/aidl/androidx/health/platform/client/request/UnregisterFromDataNotificationsRequest.aidl"/>
     </issue>
 
     <issue
         id="RequireUnstableAidlAnnotation"
-        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="parcelable UpsertDataRequest;"
-        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker">
         <location
             file="src/main/aidl/androidx/health/platform/client/request/UpsertDataRequest.aidl"/>
     </issue>
 
     <issue
         id="RequireUnstableAidlAnnotation"
-        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="parcelable UpsertExerciseRouteRequest;"
-        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker">
         <location
             file="src/main/aidl/androidx/health/platform/client/request/UpsertExerciseRouteRequest.aidl"/>
     </issue>

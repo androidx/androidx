@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.0.0-beta03" type="baseline" client="gradle" dependencies="false" name="AGP (8.0.0-beta03)" variant="all" version="8.0.0-beta03">
+<issues format="6" by="lint 8.2.0-alpha14" type="baseline" client="gradle" dependencies="false" name="AGP (8.2.0-alpha14)" variant="all" version="8.2.0-alpha14">
 
     <issue
         id="MissingPermission"
@@ -164,6 +164,15 @@
     </issue>
 
     <issue
+        id="ForegroundServiceType"
+        message="To call `Service.startForeground()`, the `&lt;service>` element of manifest file must have the `foregroundServiceType` attribute specified"
+        errorLine1="                mService.startForeground(NOTIFICATION_ID, notification);"
+        errorLine2="                         ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv4/media/MediaNotificationManager.java"/>
+    </issue>
+
+    <issue
         id="MetadataTagInsideApplicationTag"
         message="Detected &lt;application>-level meta-data tag."
         errorLine1="        &lt;meta-data"
@@ -179,6 +188,15 @@
         errorLine2="        ^">
         <location
             file="src/main/AndroidManifest.xml"/>
+    </issue>
+
+    <issue
+        id="UnspecifiedRegisterReceiverFlag"
+        message="`this` \&#xA;is missing `RECEIVER_EXPORTED` or `RECEIVER_NOT_EXPORTED` flag for unprotected \&#xA;broadcasts registered for com.example.android.supportv4.media.next, com.example.android.supportv4.media.pause, com.example.android.supportv4.media.play, com.example.android.supportv4.media.prev"
+        errorLine1="                mService.registerReceiver(this, filter);"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv4/media/MediaNotificationManager.java"/>
     </issue>
 
     <issue
