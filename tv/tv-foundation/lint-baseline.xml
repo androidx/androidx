@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.1.0-beta05" type="baseline" client="gradle" dependencies="false" name="AGP (8.1.0-beta05)" variant="all" version="8.1.0-beta05">
+<issues format="6" by="lint 8.2.0-alpha15" type="baseline" client="gradle" dependencies="false" name="AGP (8.2.0-alpha15)" variant="all" version="8.2.0-alpha15">
 
     <issue
         id="BanThreadSleep"
@@ -269,24 +269,6 @@
         errorLine2="        ^">
         <location
             file="src/main/java/androidx/tv/foundation/lazy/grid/LazyGridMeasure.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;var72d50710&apos; with type Function2&lt;? super TvLazyGridItemSpanScope, ? super Integer, ? extends TvGridItemSpan>."
-        errorLine1="                span = span?.let { { span() } } ?: DefaultSpan,"
-        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/tv/foundation/lazy/grid/LazyGridSpanLayoutProvider.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;vara1157cff&apos; with type Function2&lt;? super TvLazyGridItemSpanScope, ? super Integer, ? extends TvGridItemSpan>."
-        errorLine1="                span = span ?: DefaultSpan,"
-        errorLine2="                       ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/tv/foundation/lazy/grid/LazyGridSpanLayoutProvider.kt"/>
     </issue>
 
     <issue

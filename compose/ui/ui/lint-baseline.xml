@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.1.0-beta05" type="baseline" client="gradle" dependencies="false" name="AGP (8.1.0-beta05)" variant="all" version="8.1.0-beta05">
+<issues format="6" by="lint 8.2.0-alpha15" type="baseline" client="gradle" dependencies="false" name="AGP (8.2.0-alpha15)" variant="all" version="8.2.0-alpha15">
 
     <issue
         id="BanHideAnnotation"
@@ -636,24 +636,6 @@
         message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method rememberVectorPainter has parameter &apos;content&apos; with type Function2&lt;? super Float, ? super Float, Unit>."
         errorLine1="    content: @Composable @VectorComposable (viewportWidth: Float, viewportHeight: Float) -> Unit"
         errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/ui/graphics/vector/VectorPainter.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method composeVector has parameter &apos;composable&apos; with type Function2&lt;? super Float, ? super Float, Unit>."
-        errorLine1="        composable: @Composable (viewportWidth: Float, viewportHeight: Float) -> Unit"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/ui/graphics/vector/VectorPainter.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method RenderVector$lint_module has parameter &apos;content&apos; with type Function2&lt;? super Float, ? super Float, Unit>."
-        errorLine1="        content: @Composable (viewportWidth: Float, viewportHeight: Float) -> Unit"
-        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/commonMain/kotlin/androidx/compose/ui/graphics/vector/VectorPainter.kt"/>
     </issue>
