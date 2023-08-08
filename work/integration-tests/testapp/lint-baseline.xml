@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.0.0-beta03" type="baseline" client="gradle" dependencies="false" name="AGP (8.0.0-beta03)" variant="all" version="8.0.0-beta03">
+<issues format="6" by="lint 8.2.0-alpha15" type="baseline" client="gradle" dependencies="false" name="AGP (8.2.0-alpha15)" variant="all" version="8.2.0-alpha15">
 
     <issue
         id="BanThreadSleep"
@@ -44,51 +44,6 @@
         errorLine2="                                        ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/integration/testapp/imageprocessing/ImageProcessingActivity.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                    jobScheduler.cancelAll();"
-        errorLine2="                                 ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/integration/testapp/MainActivity.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                        jobScheduler.schedule("
-        errorLine2="                                     ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/integration/testapp/MainActivity.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                                new JobInfo.Builder("
-        errorLine2="                                ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/integration/testapp/MainActivity.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                                        .setMinimumLatency(10 * 60 * 1000)"
-        errorLine2="                                         ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/integration/testapp/MainActivity.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                                        .build());"
-        errorLine2="                                         ~~~~~">
-        <location
-            file="src/main/java/androidx/work/integration/testapp/MainActivity.java"/>
     </issue>
 
     <issue
@@ -206,15 +161,6 @@
         errorLine2="                               ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/integration/testapp/imageprocessing/ImageRecyclerViewAdapter.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
-        errorLine2="                            ~~~~~~">
-        <location
-            file="src/main/java/androidx/work/integration/testapp/MainActivity.java"/>
     </issue>
 
     <issue
