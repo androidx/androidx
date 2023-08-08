@@ -414,7 +414,8 @@ public final class GridTemplate implements Template {
          * @throws IllegalArgumentException if {@code action} contains unsupported Action types,
          *                                  or does not contain a valid {@link CarIcon} and
          *                                  background {@link CarColor}, or if exceeds the
-         *                                  maximum number of allowed actions (1) for the template.
+         *                                  maximum number of allowed actions for the template.
+         * @see ActionsConstraints#ACTIONS_CONSTRAINTS_FAB
          */
         @ExperimentalCarApi
         @NonNull
