@@ -1,6 +1,8 @@
 // This file applies dependencies common to projects in buildSrc
 
 apply from: "${buildscript.sourceFile.parent}/kotlin-dsl-dependency.gradle"
+// copy findGradleKotlinDsl to a local variable: https://github.com/gradle/gradle/issues/26057
+def findGradleKotlinDsl = project.findGradleKotlinDsl
 dependencies {
 
     // Gradle APIs

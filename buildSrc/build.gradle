@@ -17,7 +17,7 @@ buildscript {
 }
 
 apply from: "out.gradle"
-init.chooseOutDir()
+init.chooseBuildSrcBuildDir()
 
 ext.supportRootFolder = project.projectDir.getParentFile()
 apply from: "repos.gradle"
