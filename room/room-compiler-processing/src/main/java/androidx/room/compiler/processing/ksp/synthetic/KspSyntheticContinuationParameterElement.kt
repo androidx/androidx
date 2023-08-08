@@ -68,6 +68,8 @@ internal class KspSyntheticContinuationParameterElement(
         candidate
     }
 
+    override val jvmName = name
+
     override val equalityItems: Array<out Any?> by lazy {
         arrayOf(PARAM_NAME, enclosingElement)
     }

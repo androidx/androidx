@@ -22,6 +22,7 @@ import androidx.room.compiler.processing.XMemberContainer
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.ksp.KspAnnotated.UseSiteFilter.Companion.NO_USE_SITE_OR_METHOD_PARAMETER
 import androidx.room.compiler.processing.ksp.synthetic.KspSyntheticPropertyMethodElement
+import androidx.room.compiler.processing.util.sanitizeAsJavaParameterName
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.KSPropertySetter
 import com.google.devtools.ksp.symbol.KSValueParameter
@@ -44,6 +45,9 @@ internal class KspExecutableParameterElement(
 
     override val name: String
         get() = parameter.name?.asString() ?: "_no_param_name"
+
+    override val jvmName: String
+        get() = name.sanitizeAsJavaParameterName(parameterIndex)
 
     override val hasDefaultValue: Boolean
         get() = parameter.hasDefault

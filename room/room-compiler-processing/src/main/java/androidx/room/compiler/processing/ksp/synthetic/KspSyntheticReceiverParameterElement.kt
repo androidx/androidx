@@ -53,6 +53,8 @@ internal class KspSyntheticReceiverParameterElement(
         "$" + "this" + "$" + enclosingElement.name
     }
 
+    override val jvmName = name
+
     override val equalityItems: Array<out Any?> by lazy {
         arrayOf(enclosingElement, receiverType)
     }

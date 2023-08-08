@@ -20,6 +20,15 @@ package androidx.room.compiler.processing
  * Parameter of a method.
  */
 interface XExecutableParameterElement : XVariableElement {
+
+    /**
+     * The name of the parameter in JVM.
+     *
+     * Use this property when you need to generate Java code accessing this parameter. Unlike
+     * [name], the [jvmName] is guaranteed to be a valid Java name.
+     */
+    val jvmName: String
+
     /**
      * Returns `true` if this parameter is a synthetic Continuation parameter of a suspend function.
      */

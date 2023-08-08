@@ -1486,4 +1486,46 @@ class XExecutableElementTest {
             ).inOrder()
         }
     }
+
+    @Test
+    fun javaKeywordNames(@TestParameter isPrecompiled: Boolean) {
+        val kotlinSource = Source.kotlin(
+            "foo.bar.Subject.kt",
+            """
+            package test
+            abstract class Subject(long: Long) {
+                fun method(int: Int): Unit = TODO()
+            }
+            """.trimIndent()
+        )
+        runProcessorTest(
+            sources = if (isPrecompiled) {
+                emptyList()
+            } else {
+                listOf(kotlinSource)
+            },
+            classpath = if (isPrecompiled) {
+                compileFiles(listOf(kotlinSource))
+            } else {
+                emptyList()
+            }
+        ) { invocation ->
+            val subject = invocation.processingEnv.requireTypeElement("test.Subject")
+            val method = subject.getDeclaredMethods().single()
+            assertThat(
+                "${method.name}(${method.parameters.joinToString(", ") { it.name }})"
+            ).isEqualTo("method(int)")
+            assertThat(
+                "${method.name}(${method.parameters.joinToString(", ") { it.jvmName }})"
+            ).isEqualTo("method(p0)")
+
+            val constructor = subject.findPrimaryConstructor()!!
+            assertThat(
+                "${constructor.name}(${constructor.parameters.joinToString(", ") { it.name }})"
+            ).isEqualTo("<init>(long)")
+            assertThat(
+                "${constructor.name}(${constructor.parameters.joinToString(", ") { it.jvmName }})"
+            ).isEqualTo("<init>(p0)")
+        }
+    }
 }
