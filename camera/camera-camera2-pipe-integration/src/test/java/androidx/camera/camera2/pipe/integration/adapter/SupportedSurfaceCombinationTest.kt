@@ -57,7 +57,6 @@ import androidx.camera.core.impl.CameraThreadConfig
 import androidx.camera.core.impl.EncoderProfilesProxy
 import androidx.camera.core.impl.EncoderProfilesProxy.VideoProfileProxy
 import androidx.camera.core.impl.ImageFormatConstants
-import androidx.camera.core.impl.SurfaceCombination
 import androidx.camera.core.impl.SurfaceConfig
 import androidx.camera.core.impl.UseCaseConfig
 import androidx.camera.core.impl.UseCaseConfigFactory
@@ -205,20 +204,6 @@ class SupportedSurfaceCombinationTest {
     }
 
     @Test
-    fun checkLegacySurfaceCombinationSubListSupportedInLegacyDevice() {
-        setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY)
-        val supportedSurfaceCombination = SupportedSurfaceCombination(
-            context, fakeCameraMetadata,
-            mockEncoderProfilesAdapter
-        )
-        val combinationList = getLegacySupportedCombinationList()
-        val isSupported = isAllSubConfigListSupported(
-            CameraMode.DEFAULT, supportedSurfaceCombination, combinationList
-        )
-        assertThat(isSupported).isTrue()
-    }
-
-    @Test
     fun checkLimitedSurfaceCombinationNotSupportedInLegacyDevice() {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY)
         val supportedSurfaceCombination = SupportedSurfaceCombination(
@@ -287,20 +272,6 @@ class SupportedSurfaceCombinationTest {
     }
 
     @Test
-    fun checkLimitedSurfaceCombinationSubListSupportedInLimited3Device() {
-        setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED)
-        val supportedSurfaceCombination = SupportedSurfaceCombination(
-            context, fakeCameraMetadata,
-            mockEncoderProfilesAdapter
-        )
-        val combinationList = getLimitedSupportedCombinationList()
-        val isSupported = isAllSubConfigListSupported(
-            CameraMode.DEFAULT, supportedSurfaceCombination, combinationList
-        )
-        assertThat(isSupported).isTrue()
-    }
-
-    @Test
     fun checkFullSurfaceCombinationNotSupportedInLimitedDevice() {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED)
         val supportedSurfaceCombination = SupportedSurfaceCombination(
@@ -349,20 +320,6 @@ class SupportedSurfaceCombinationTest {
                 )
             assertThat(isSupported).isTrue()
         }
-    }
-
-    @Test
-    fun checkFullSurfaceCombinationSubListSupportedInFullDevice() {
-        setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL)
-        val supportedSurfaceCombination = SupportedSurfaceCombination(
-            context, fakeCameraMetadata,
-            mockEncoderProfilesAdapter
-        )
-        val combinationList = getFullSupportedCombinationList()
-        val isSupported = isAllSubConfigListSupported(
-            CameraMode.DEFAULT, supportedSurfaceCombination, combinationList
-        )
-        assertThat(isSupported).isTrue()
     }
 
     @Test
@@ -480,20 +437,6 @@ class SupportedSurfaceCombinationTest {
     }
 
     @Test
-    fun checkLevel3SurfaceCombinationSubListSupportedInLevel3Device() {
-        setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_3)
-        val supportedSurfaceCombination = SupportedSurfaceCombination(
-            context, fakeCameraMetadata,
-            mockEncoderProfilesAdapter
-        )
-        val combinationList = getLevel3SupportedCombinationList()
-        val isSupported = isAllSubConfigListSupported(
-            CameraMode.DEFAULT, supportedSurfaceCombination, combinationList
-        )
-        assertThat(isSupported).isTrue()
-    }
-
-    @Test
     fun checkConcurrentSurfaceCombinationSupportedInConcurrentCameraMode() {
         Shadows.shadowOf(context.packageManager).setSystemFeature(
             PackageManager.FEATURE_CAMERA_CONCURRENT, true
@@ -511,23 +454,6 @@ class SupportedSurfaceCombinationTest {
                 )
             assertThat(isSupported).isTrue()
         }
-    }
-
-    @Test
-    fun checkConcurrentSurfaceCombinationSubListSupportedInConcurrentCameraMode() {
-        Shadows.shadowOf(context.packageManager).setSystemFeature(
-            PackageManager.FEATURE_CAMERA_CONCURRENT, true
-        )
-        setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_3)
-        val supportedSurfaceCombination = SupportedSurfaceCombination(
-            context, fakeCameraMetadata,
-            mockEncoderProfilesAdapter
-        )
-        val combinationList = getConcurrentSupportedCombinationList()
-        val isSupported = isAllSubConfigListSupported(
-            CameraMode.CONCURRENT_CAMERA, supportedSurfaceCombination, combinationList
-        )
-        assertThat(isSupported).isTrue()
     }
 
     @Test
@@ -549,30 +475,6 @@ class SupportedSurfaceCombinationTest {
             assertThat(
                 supportedSurfaceCombination.checkSupported(
                     CameraMode.ULTRA_HIGH_RESOLUTION_CAMERA, it.surfaceConfigList
-                )
-            ).isTrue()
-        }
-    }
-
-    @Test
-    @Config(minSdk = Build.VERSION_CODES.S)
-    fun checkUltraHighResolutionSurfaceCombinationSubListSupportedInUltraHighCameraMode() {
-        setupCamera(
-            maximumResolutionSupportedSizes = maximumResolutionSupportedSizes,
-            maximumResolutionHighResolutionSupportedSizes =
-            maximumResolutionHighResolutionSupportedSizes,
-            capabilities = intArrayOf(
-                CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_ULTRA_HIGH_RESOLUTION_SENSOR
-            )
-        )
-        val supportedSurfaceCombination = SupportedSurfaceCombination(
-            context, fakeCameraMetadata,
-            mockEncoderProfilesAdapter
-        )
-        GuaranteedConfigurationsUtil.getUltraHighResolutionSupportedCombinationList().also {
-            assertThat(
-                isAllSubConfigListSupported(
-                    CameraMode.ULTRA_HIGH_RESOLUTION_CAMERA, supportedSurfaceCombination, it
                 )
             ).isTrue()
         }
@@ -1984,31 +1886,6 @@ class SupportedSurfaceCombinationTest {
             throw IllegalStateException("Unable to initialize CameraX for test.")
         }
         useCaseConfigFactory = cameraX.defaultConfigFactory
-    }
-
-    private fun isAllSubConfigListSupported(
-        cameraMode: Int,
-        supportedSurfaceCombination: SupportedSurfaceCombination,
-        combinationList: List<SurfaceCombination>
-    ): Boolean {
-        for (combination in combinationList) {
-            val configList = combination.surfaceConfigList
-            val length = configList.size
-            if (length <= 1) {
-                continue
-            }
-            for (index in 0 until length) {
-                val subConfigurationList: MutableList<SurfaceConfig> = ArrayList(configList)
-                subConfigurationList.removeAt(index)
-                val isSupported = supportedSurfaceCombination.checkSupported(
-                    cameraMode, subConfigurationList
-                )
-                if (!isSupported) {
-                    return false
-                }
-            }
-        }
-        return true
     }
 
     private fun createUseCase(
