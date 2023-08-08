@@ -27,6 +27,7 @@ import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusOwner
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Canvas
+import androidx.compose.ui.graphics.Matrix
 import androidx.compose.ui.hapticfeedback.HapticFeedback
 import androidx.compose.ui.input.InputModeManager
 import androidx.compose.ui.input.key.KeyEvent
@@ -103,6 +104,8 @@ class PointerInputEventProcessorTest {
         override fun screenToLocal(positionOnScreen: Offset): Offset = positionOnScreen
 
         override fun localToScreen(localPosition: Offset): Offset = localPosition
+
+        override fun localToScreen(localTransform: Matrix) {}
     }
 
     @Before

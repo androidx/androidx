@@ -16,13 +16,17 @@
 
 package androidx.compose.ui.text.input
 
-import android.graphics.Matrix
 import android.view.inputmethod.CursorAnchorInfo
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.graphics.Matrix
+import androidx.compose.ui.graphics.setFrom
+import androidx.compose.ui.input.pointer.PositionCalculator
 import androidx.compose.ui.text.TextLayoutResult
 
-internal class CursorAnchorInfoController(private val inputMethodManager: InputMethodManager) {
+internal class CursorAnchorInfoController(
+    private val rootPositionCalculator: PositionCalculator,
+    private val inputMethodManager: InputMethodManager
+) {
     private var monitorEnabled = false
     private var hasPendingImmediateRequest = false
 
@@ -34,12 +38,13 @@ internal class CursorAnchorInfoController(private val inputMethodManager: InputM
     private var textFieldValue: TextFieldValue? = null
     private var textLayoutResult: TextLayoutResult? = null
     private var offsetMapping: OffsetMapping? = null
-    private var textLayoutPositionInWindow: Offset? = null
+    private var textFieldToRootTransform: (Matrix) -> Unit = { }
     private var innerTextFieldBounds: Rect? = null
     private var decorationBoxBounds: Rect? = null
 
     private val builder = CursorAnchorInfo.Builder()
     private val matrix = Matrix()
+    private val androidMatrix = android.graphics.Matrix()
 
     /**
      * Requests [CursorAnchorInfo] updates to be provided to the [InputMethodManager].
@@ -86,7 +91,8 @@ internal class CursorAnchorInfoController(private val inputMethodManager: InputM
      * @param textFieldValue the text field's [TextFieldValue]
      * @param offsetMapping the offset mapping for the visual transformation
      * @param textLayoutResult the text field's [TextLayoutResult]
-     * @param textLayoutPositionInWindow position of the text field relative to the window
+     * @param textFieldToRootTransform function that modifies a matrix to be a transformation matrix
+     *   from local coordinates to the root composable coordinates
      * @param innerTextFieldBounds visible bounds of the text field in local coordinates, or an
      *   empty rectangle if the text field is not visible
      * @param decorationBoxBounds visible bounds of the decoration box in local coordinates, or an
@@ -96,14 +102,14 @@ internal class CursorAnchorInfoController(private val inputMethodManager: InputM
         textFieldValue: TextFieldValue,
         offsetMapping: OffsetMapping,
         textLayoutResult: TextLayoutResult,
-        textLayoutPositionInWindow: Offset,
+        textFieldToRootTransform: (Matrix) -> Unit,
         innerTextFieldBounds: Rect,
         decorationBoxBounds: Rect
     ) {
         this.textFieldValue = textFieldValue
         this.offsetMapping = offsetMapping
         this.textLayoutResult = textLayoutResult
-        this.textLayoutPositionInWindow = textLayoutPositionInWindow
+        this.textFieldToRootTransform = textFieldToRootTransform
         this.innerTextFieldBounds = innerTextFieldBounds
         this.decorationBoxBounds = decorationBoxBounds
 
@@ -123,7 +129,7 @@ internal class CursorAnchorInfoController(private val inputMethodManager: InputM
         textFieldValue = null
         offsetMapping = null
         textLayoutResult = null
-        textLayoutPositionInWindow = null
+        textFieldToRootTransform = { }
         innerTextFieldBounds = null
         decorationBoxBounds = null
     }
@@ -131,15 +137,18 @@ internal class CursorAnchorInfoController(private val inputMethodManager: InputM
     private fun updateCursorAnchorInfo() {
         if (!inputMethodManager.isActive()) return
 
-        matrix.reset()
-        matrix.postTranslate(textLayoutPositionInWindow!!.x, textLayoutPositionInWindow!!.y)
+        // Sets matrix to transform text field local coordinates to the root composable coordinates.
+        textFieldToRootTransform(matrix)
+        // Updates matrix to transform text field local coordinates to screen coordinates.
+        rootPositionCalculator.localToScreen(matrix)
+        androidMatrix.setFrom(matrix)
 
         inputMethodManager.updateCursorAnchorInfo(
             builder.build(
                 textFieldValue!!,
                 offsetMapping!!,
                 textLayoutResult!!,
-                matrix,
+                androidMatrix,
                 innerTextFieldBounds!!,
                 decorationBoxBounds!!,
                 includeInsertionMarker,
