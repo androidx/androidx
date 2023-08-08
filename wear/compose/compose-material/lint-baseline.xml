@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.2.0-alpha14" type="baseline" client="gradle" dependencies="false" name="AGP (8.2.0-alpha14)" variant="all" version="8.2.0-alpha14">
+<issues format="6" by="lint 8.1.0-beta05" type="baseline" client="gradle" dependencies="false" name="AGP (8.1.0-beta05)" variant="all" version="8.1.0-beta05">
 
     <issue
         id="PrimitiveInLambda"
@@ -39,7 +39,7 @@
 
     <issue
         id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method Picker has parameter &apos;option&apos; with type Function2&lt;? super PickerScope, ? super Integer, Unit>."
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method Picker has parameter &apos;option&apos; with type Function2&lt;? super PickerScope, ? super Integer, ? extends Unit>."
         errorLine1="    option: @Composable PickerScope.(optionIndex: Int) -> Unit"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -48,7 +48,7 @@
 
     <issue
         id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method Picker has parameter &apos;option&apos; with type Function2&lt;? super PickerScope, ? super Integer, Unit>."
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method Picker has parameter &apos;option&apos; with type Function2&lt;? super PickerScope, ? super Integer, ? extends Unit>."
         errorLine1="    option: @Composable PickerScope.(optionIndex: Int) -> Unit"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -318,7 +318,7 @@
 
     <issue
         id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method Stepper has parameter &apos;onValueChange&apos; with type Function1&lt;? super Float, Unit>."
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method Stepper has parameter &apos;onValueChange&apos; with type Function1&lt;? super Float, ? extends Unit>."
         errorLine1="    onValueChange: (Float) -> Unit,"
         errorLine2="                   ~~~~~~~~~~~~~~~">
         <location
@@ -327,7 +327,7 @@
 
     <issue
         id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method Stepper has parameter &apos;onValueChange&apos; with type Function1&lt;? super Integer, Unit>."
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method Stepper has parameter &apos;onValueChange&apos; with type Function1&lt;? super Integer, ? extends Unit>."
         errorLine1="    onValueChange: (Int) -> Unit,"
         errorLine2="                   ~~~~~~~~~~~~~">
         <location
