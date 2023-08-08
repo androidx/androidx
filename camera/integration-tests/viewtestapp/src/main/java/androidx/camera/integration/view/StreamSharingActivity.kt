@@ -18,12 +18,11 @@ package androidx.camera.integration.view
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.pm.ActivityInfo
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.OrientationEventListener
-import android.view.View
-import android.view.ViewGroup
 import android.widget.Button
+import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
@@ -45,50 +44,65 @@ import androidx.camera.video.VideoRecordEvent
 import androidx.camera.view.PreviewView
 import androidx.core.content.ContextCompat
 import androidx.core.util.Consumer
-import androidx.fragment.app.Fragment
 
-private const val TAG = "StreamSharingFragment"
+private const val TAG = "StreamSharingActivity"
 private const val PREFIX_INFORMATION = "test_information"
 private const val PREFIX_VIDEO = "video"
 private const val KEY_ORIENTATION = "device_orientation"
 private const val KEY_STREAM_SHARING_STATE = "is_stream_sharing_enabled"
 
-class StreamSharingFragment : Fragment() {
+// Possible values for this intent key (case-insensitive): "portrait", "landscape".
+private const val INTENT_SCREEN_ORIENTATION = "orientation"
+private const val SCREEN_ORIENTATION_PORTRAIT = "portrait"
+private const val SCREEN_ORIENTATION_LANDSCAPE = "landscape"
+
+// Possible values for this intent key (case-insensitive): "back", "front".
+private const val INTENT_EXTRA_CAMERA_DIRECTION = "camera_direction"
+private const val CAMERA_DIRECTION_BACK = "back"
+private const val CAMERA_DIRECTION_FRONT = "front"
+
+class StreamSharingActivity : AppCompatActivity() {
 
     private lateinit var previewView: PreviewView
     private lateinit var exportButton: Button
     private lateinit var recordButton: Button
     private lateinit var useCases: Array<UseCase>
+    private var cameraSelector: CameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
     private var camera: Camera? = null
     private var activeRecording: Recording? = null
     private var isUseCasesBound: Boolean = false
     private var deviceOrientation: Int = -1
     private val orientationEventListener by lazy {
-        object : OrientationEventListener(context) {
+        object : OrientationEventListener(applicationContext) {
             override fun onOrientationChanged(orientation: Int) {
                 deviceOrientation = orientation
             }
         }
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        val view = inflater.inflate(R.layout.fragment_stream_sharing, container, false)
-        previewView = view.findViewById(R.id.preview_view)
-        exportButton = view.findViewById(R.id.export_button)
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_stream_sharing)
+
+        // Apply settings from intent.
+        val bundle = intent.extras
+        if (bundle != null) {
+            parseScreenOrientationAndSetValueIfNeed(bundle)
+            parseCameraSelector(bundle)
+        }
+
+        // Initial view objects.
+        previewView = findViewById(R.id.preview_view)
+        exportButton = findViewById(R.id.export_button)
         exportButton.setOnClickListener {
             exportTestInformation()
         }
-        recordButton = view.findViewById(R.id.record_button)
+        recordButton = findViewById(R.id.record_button)
         recordButton.setOnClickListener {
             if (activeRecording == null) startRecording() else stopRecording()
         }
 
         startCamera()
-        return view
     }
 
     override fun onResume() {
@@ -101,11 +115,29 @@ class StreamSharingFragment : Fragment() {
         orientationEventListener.disable()
     }
 
+    private fun parseScreenOrientationAndSetValueIfNeed(bundle: Bundle) {
+        val orientationString = bundle.getString(INTENT_SCREEN_ORIENTATION)
+        if (SCREEN_ORIENTATION_PORTRAIT.equals(orientationString, true)) {
+            requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+        } else if (SCREEN_ORIENTATION_LANDSCAPE.equals(orientationString, true)) {
+            requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+        }
+    }
+
+    private fun parseCameraSelector(bundle: Bundle) {
+        val cameraDirection = bundle.getString(INTENT_EXTRA_CAMERA_DIRECTION)
+        if (CAMERA_DIRECTION_BACK.equals(cameraDirection, true)) {
+            cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
+        } else if (CAMERA_DIRECTION_FRONT.equals(cameraDirection, true)) {
+            cameraSelector = CameraSelector.DEFAULT_FRONT_CAMERA
+        }
+    }
+
     private fun startCamera() {
-        val cameraProviderFuture = ProcessCameraProvider.getInstance(requireContext())
+        val cameraProviderFuture = ProcessCameraProvider.getInstance(applicationContext)
         cameraProviderFuture.addListener({
             bindUseCases(cameraProviderFuture.get())
-        }, ContextCompat.getMainExecutor(requireContext()))
+        }, ContextCompat.getMainExecutor(applicationContext))
     }
 
     private fun bindUseCases(cameraProvider: ProcessCameraProvider) {
@@ -119,7 +151,7 @@ class StreamSharingFragment : Fragment() {
             createVideoCapture()
         )
         isUseCasesBound = try {
-            camera = cameraProvider.bindToLifecycle(this, getCameraSelector(), *useCases)
+            camera = cameraProvider.bindToLifecycle(this, cameraSelector, *useCases)
             enableRecording(true)
             true
         } catch (exception: Exception) {
@@ -161,19 +193,6 @@ class StreamSharingFragment : Fragment() {
         return null
     }
 
-    private fun getCameraSelector(): CameraSelector {
-        val cameraDirection: String? = requireActivity().intent.extras?.getString(
-            MainActivity.INTENT_EXTRA_CAMERA_DIRECTION,
-            MainActivity.CAMERA_DIRECTION_BACK
-        )
-
-        return when (cameraDirection) {
-            MainActivity.CAMERA_DIRECTION_BACK -> CameraSelector.DEFAULT_BACK_CAMERA
-            MainActivity.CAMERA_DIRECTION_FRONT -> CameraSelector.DEFAULT_FRONT_CAMERA
-            else -> CameraSelector.DEFAULT_BACK_CAMERA
-        }
-    }
-
     private fun isStreamSharingEnabled(): Boolean {
         val isCombinationSupported =
             camera != null && camera!!.isUseCasesCombinationSupported(*useCases)
@@ -188,7 +207,7 @@ class StreamSharingFragment : Fragment() {
     private fun startRecording() {
         recordButton.text = getString(R.string.btn_video_stop_recording)
         activeRecording = getVideoCapture()!!.let {
-            prepareRecording(requireContext(), it.output).withAudioEnabled().start(
+            prepareRecording(applicationContext, it.output).withAudioEnabled().start(
                 CameraXExecutors.directExecutor(),
                 generateVideoRecordEventListener()
             )
