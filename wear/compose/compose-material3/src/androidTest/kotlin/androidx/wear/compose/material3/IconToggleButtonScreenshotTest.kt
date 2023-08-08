@@ -17,12 +17,14 @@
 package androidx.wear.compose.material3
 
 import android.os.Build
+import androidx.compose.foundation.layout.offset
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Star
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
@@ -73,16 +75,24 @@ class IconToggleButtonScreenshotTest {
         content = { sampleIconToggleButton(enabled = false, checked = false) }
     )
 
+    @Test
+    fun iconToggleButtonWithOffset() = rule.verifyScreenshot(
+        methodName = testName.methodName,
+        screenshotRule = screenshotRule,
+        content = { sampleIconToggleButton(modifier = Modifier.offset(10.dp)) }
+    )
+
     @Composable
     private fun sampleIconToggleButton(
         enabled: Boolean = true,
-        checked: Boolean = true
+        checked: Boolean = true,
+        modifier: Modifier = Modifier
     ) {
         IconToggleButton(
             checked = checked,
             onCheckedChange = {},
             enabled = enabled,
-            modifier = Modifier.testTag(TEST_TAG)
+            modifier = modifier.testTag(TEST_TAG)
         ) {
             Icon(
                 imageVector = Icons.Outlined.Star,
