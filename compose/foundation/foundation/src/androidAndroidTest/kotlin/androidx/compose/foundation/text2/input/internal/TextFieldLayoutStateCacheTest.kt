@@ -20,6 +20,10 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.text2.input.CodepointTransformation
 import androidx.compose.foundation.text2.input.TextFieldState
 import androidx.compose.foundation.text2.input.setTextAndPlaceCursorAtEnd
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.ObserverHandle
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.runtime.snapshots.SnapshotStateObserver
 import androidx.compose.ui.graphics.Color
@@ -36,6 +40,8 @@ import androidx.test.filters.MediumTest
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertNotNull
+import org.junit.After
+import org.junit.Before
 import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
@@ -60,6 +66,20 @@ class TextFieldLayoutStateCacheTest {
     private var fontFamilyResolver =
         createFontFamilyResolver(InstrumentationRegistry.getInstrumentation().context)
     private var constraints = Constraints()
+
+    private lateinit var globalWriteObserverHandle: ObserverHandle
+
+    @Before
+    fun setUp() {
+        globalWriteObserverHandle = Snapshot.registerGlobalWriteObserver {
+            Snapshot.sendApplyNotifications()
+        }
+    }
+
+    @After
+    fun tearDown() {
+        globalWriteObserverHandle.dispose()
+    }
 
     @Test
     fun updateAllInputs_doesntInvalidateSnapshot_whenNothingChanged() {
@@ -219,6 +239,138 @@ class TextFieldLayoutStateCacheTest {
             constraints = Constraints.fixed(6, 5)
             updateMeasureInputs()
         }
+    }
+
+    /**
+     * A scope that reads the layout cache and has a full cache hit – that is, all the inputs match
+     * – will never run the CodepointTransformation, and thus never register a "read" of any of the
+     * state objects the transformation function happens to read. If those inputs change, all scopes
+     * should be invalidated, even the ones that never actually ran the transformation function.
+     *
+     * The first time we compute layout with a transformation function, we invoke the transformation
+     * function. This function is provided externally and may perform zero or more state reads. The
+     * first time the layout is computed, those state reads will be seen by whatever snapshot
+     * observer is observing the layout call, and when they change, that reader will be invalidated.
+     * However, if somewhere else some different code asks for the layout, and none of the inputs
+     * have changed, it will return the cached value without ever running the transformation
+     * function. This means that when states read by the transformation change, that second reader
+     * won't be invalidated since it never observed those reads.
+     *
+     * To fix this, we manually record reads done by the transformation function and re-read them
+     * explicitly when checking for a full cache hit.
+     */
+    @Test
+    fun invalidatesAllReaders_whenTransformationDependenciesChanged_producingSameVisualText() {
+        var transformationState by mutableStateOf(1)
+        var transformationInvocations = 0
+        codepointTransformation = CodepointTransformation { _, codepoint ->
+            transformationInvocations++
+            @Suppress("UNUSED_EXPRESSION")
+            transformationState
+            codepoint + 1
+        }
+        // Transformation isn't applied if there's no text. Keep this at 1 char to make the math
+        // simpler.
+        textFieldState.setTextAndPlaceCursorAtEnd("h")
+        val expectedVisualText = "i"
+
+        fun assertVisualText() {
+            assertThat(cache.value?.layoutInput?.text?.text).isEqualTo(expectedVisualText)
+        }
+
+        updateNonMeasureInputs()
+        updateMeasureInputs()
+        var primaryInvalidations = 0
+        var secondaryInvalidations = 0
+
+        val primaryObserver = SnapshotStateObserver(onChangedExecutor = { it() })
+        val secondaryObserver = SnapshotStateObserver(onChangedExecutor = { it() })
+        try {
+            primaryObserver.start()
+            secondaryObserver.start()
+
+            // This will compute the initial layout.
+            primaryObserver.observeReads(Unit, onValueChangedForScope = {
+                primaryInvalidations++
+                assertVisualText()
+            }) { assertVisualText() }
+            assertThat(transformationInvocations).isEqualTo(2)
+
+            // This should be a full cache hit.
+            secondaryObserver.observeReads(Unit, onValueChangedForScope = {
+                secondaryInvalidations++
+                assertVisualText()
+            }) { assertVisualText() }
+            assertThat(transformationInvocations).isEqualTo(3)
+
+            // Invalidate the transformation.
+            transformationState++
+        } finally {
+            primaryObserver.stop()
+            secondaryObserver.stop()
+        }
+
+        assertVisualText()
+        assertThat(transformationInvocations).isEqualTo(6)
+        assertThat(primaryInvalidations).isEqualTo(1)
+        assertThat(secondaryInvalidations).isEqualTo(1)
+    }
+
+    @Test
+    fun invalidatesAllReaders_whenTransformationDependenciesChanged_producingNewVisualText() {
+        var transformationState by mutableStateOf(1)
+        var transformationInvocations = 0
+        codepointTransformation = CodepointTransformation { _, codepoint ->
+            transformationInvocations++
+            codepoint + transformationState
+        }
+        // Transformation isn't applied if there's no text. Keep this at 1 char to make the math
+        // simpler.
+        textFieldState.setTextAndPlaceCursorAtEnd("h")
+        var expectedVisualText = "i"
+
+        fun assertVisualText() {
+            assertThat(cache.value?.layoutInput?.text?.text).isEqualTo(expectedVisualText)
+        }
+
+        updateNonMeasureInputs()
+        updateMeasureInputs()
+        var primaryInvalidations = 0
+        var secondaryInvalidations = 0
+
+        val primaryObserver = SnapshotStateObserver(onChangedExecutor = { it() })
+        val secondaryObserver = SnapshotStateObserver(onChangedExecutor = { it() })
+        try {
+            primaryObserver.start()
+            secondaryObserver.start()
+
+            // This will compute the initial layout.
+            primaryObserver.observeReads(Unit, onValueChangedForScope = {
+                primaryInvalidations++
+                assertVisualText()
+            }) { assertVisualText() }
+            assertThat(transformationInvocations).isEqualTo(2)
+
+            // This should be a full cache hit.
+            secondaryObserver.observeReads(Unit, onValueChangedForScope = {
+                secondaryInvalidations++
+                assertVisualText()
+            }) { assertVisualText() }
+            assertThat(transformationInvocations).isEqualTo(3)
+
+            // Invalidate the transformation.
+            expectedVisualText = "j"
+            transformationState++
+        } finally {
+            primaryObserver.stop()
+            secondaryObserver.stop()
+        }
+
+        assertVisualText()
+        // Two more reads means two more applications of the transformation.
+        assertThat(transformationInvocations).isEqualTo(6)
+        assertThat(primaryInvalidations).isEqualTo(1)
+        assertThat(secondaryInvalidations).isEqualTo(1)
     }
 
     @Test
@@ -573,9 +725,6 @@ class TextFieldLayoutStateCacheTest {
         onLayoutStateInvalidated: (TextLayoutResult?) -> Unit,
         block: () -> Unit
     ) {
-        val globalWriteObserverHandle = Snapshot.registerGlobalWriteObserver {
-            Snapshot.sendApplyNotifications()
-        }
         val observer = SnapshotStateObserver(onChangedExecutor = { it() })
         observer.start()
         try {
@@ -585,7 +734,6 @@ class TextFieldLayoutStateCacheTest {
             block()
         } finally {
             observer.stop()
-            globalWriteObserverHandle.dispose()
         }
     }
 }
