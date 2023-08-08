@@ -21,6 +21,19 @@ package androidx.bluetooth {
     property public final int timeoutMillis;
   }
 
+  public final class AdvertiseResult {
+    ctor public AdvertiseResult();
+    field public static final int ADVERTISE_FAILED_DATA_TOO_LARGE = 102; // 0x66
+    field public static final int ADVERTISE_FAILED_FEATURE_UNSUPPORTED = 103; // 0x67
+    field public static final int ADVERTISE_FAILED_INTERNAL_ERROR = 104; // 0x68
+    field public static final int ADVERTISE_FAILED_TOO_MANY_ADVERTISERS = 105; // 0x69
+    field public static final int ADVERTISE_STARTED = 101; // 0x65
+    field public static final androidx.bluetooth.AdvertiseResult.Companion Companion;
+  }
+
+  public static final class AdvertiseResult.Companion {
+  }
+
   public final class BluetoothAddress {
     ctor public BluetoothAddress(String address, int addressType);
     method public String getAddress();
