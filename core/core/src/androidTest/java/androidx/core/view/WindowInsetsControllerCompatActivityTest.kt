@@ -84,6 +84,7 @@ public class WindowInsetsControllerCompatActivityTest {
 
     /** IME visibility is only reliable on API 23+, where we have access to the root WindowInsets */
     @SdkSuppress(minSdkVersion = 23)
+    @Ignore("b/294556594")
     @Test
     public fun toggleIME() {
         // Test do not currently work on Cuttlefish
@@ -118,6 +119,7 @@ public class WindowInsetsControllerCompatActivityTest {
 
     /** IME visibility is only reliable on API 23+, where we have access to the root WindowInsets */
     @SdkSuppress(minSdkVersion = 23)
+    @Ignore("b/294556594")
     @Test
     fun show_IME_fromEditText() {
         // Test do not currently work on Cuttlefish
@@ -168,6 +170,7 @@ public class WindowInsetsControllerCompatActivityTest {
 
     /** IME visibility is only reliable on API 23+, where we have access to the root WindowInsets */
     @SdkSuppress(minSdkVersion = 23)
+    @Ignore("b/294556594")
     @Test
     fun show_IME_fromEditText_in_dialog() {
         val dialog =
