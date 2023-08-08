@@ -34,9 +34,6 @@ dependencies {
 android {
     defaultConfig {
         minSdkVersion 21
-        // Change the APK name to match the *testapp regex we use to pick up APKs for testing as
-        // part of CI.
-        archivesBaseName = "compose-demos-testapp"
     }
     namespace "androidx.compose.integration.demos"
 }
