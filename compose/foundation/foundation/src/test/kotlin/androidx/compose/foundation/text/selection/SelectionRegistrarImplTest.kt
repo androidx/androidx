@@ -17,14 +17,13 @@
 package androidx.compose.foundation.text.selection
 
 import androidx.compose.ui.geometry.Offset
-
 import androidx.compose.ui.layout.LayoutCoordinates
 import com.google.common.truth.Truth.assertThat
-import org.mockito.kotlin.mock
-import org.mockito.kotlin.whenever
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.whenever
 
 @RunWith(JUnit4::class)
 class SelectionRegistrarImplTest {

@@ -16,7 +16,6 @@
 
 package androidx.glance.appwidget
 
-import android.annotation.TargetApi
 import android.app.Activity
 import android.content.ComponentName
 import android.content.Context
@@ -26,6 +25,7 @@ import android.text.style.StrikethroughSpan
 import android.text.style.UnderlineSpan
 import android.util.Log
 import android.view.View
+import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.GridView
 import android.widget.ImageView
@@ -153,7 +153,9 @@ class RemoteViewsTranslatorKtTest {
         assertIs<FrameLayout>(child1)
         assertIs<FrameLayout>(child2)
 
-        rv.reapply(context, view)
+        // Get the parent of the box, as "applyRemoteViews" in the test environment returns the
+        // first child of the layout the remote views were inflated to
+        rv.reapply(context, (view.parent as View))
 
         assertIs<FrameLayout>(view)
         assertThat(view.nonGoneChildCount).isEqualTo(2)
@@ -265,7 +267,6 @@ class RemoteViewsTranslatorKtTest {
     }
 
     @Test
-    @TargetApi(24)
     fun canTranslateRowWithAlignment() = fakeCoroutineScope.runTest {
         val rv = context.runAndTranslate {
             Row(
@@ -281,7 +282,6 @@ class RemoteViewsTranslatorKtTest {
     }
 
     @Test
-    @TargetApi(24)
     fun canTranslateColumnWithAlignment() = fakeCoroutineScope.runTest {
         val rv = context.runAndTranslate {
             Column(
@@ -297,7 +297,6 @@ class RemoteViewsTranslatorKtTest {
     }
 
     @Test
-    @TargetApi(24)
     fun canTranslateRowWithChildren() = fakeCoroutineScope.runTest {
         val rv = context.runAndTranslate {
             Row {
@@ -329,7 +328,6 @@ class RemoteViewsTranslatorKtTest {
     }
 
     @Test
-    @TargetApi(24)
     fun canTranslateColumnWithChildren() = fakeCoroutineScope.runTest {
         val rv = context.runAndTranslate {
             Column {
@@ -619,6 +617,21 @@ class RemoteViewsTranslatorKtTest {
     }
 
     @Test
+    fun canTranslateLazyVerticalGrid_withClickableItems() = fakeCoroutineScope.runTest {
+        val rv = context.runAndTranslate {
+            LazyVerticalGrid(gridCells = GridCells.Fixed(3)) {
+                items(2, { it * 2L }) { index ->
+                    Row(modifier = GlanceModifier.clickable {}) {
+                        Text("Item $index")
+                    }
+                }
+            }
+        }
+
+        assertIs<GridView>(context.applyRemoteViews(rv))
+    }
+
+    @Test
     fun canTranslateAndroidRemoteViews() = fakeCoroutineScope.runTest {
         val result = context.runAndTranslate {
             val providedViews = RemoteViews(context.packageName, R.layout.text_sample).also {
@@ -726,7 +739,8 @@ class RemoteViewsTranslatorKtTest {
     }
 
     @Test
-    fun canTranslateButton() = fakeCoroutineScope.runTest {
+    @Config(maxSdk = 30)
+    fun canTranslateBackportButton_enabled() = fakeCoroutineScope.runTest {
         val rv = context.runAndTranslate {
             Button(
                 "Button",
@@ -735,7 +749,8 @@ class RemoteViewsTranslatorKtTest {
             )
         }
 
-        // All items with actions are wrapped in FrameLayout
+        // Backport button is implemented using a FrameLayout containing an outline image, a text
+        // and a ripple image.
         val frame = assertIs<FrameLayout>(context.applyRemoteViews(rv))
         assertThat(frame.hasOnClickListeners()).isTrue()
         assertThat(frame.isEnabled).isTrue()
@@ -743,6 +758,43 @@ class RemoteViewsTranslatorKtTest {
     }
 
     @Test
+    @Config(minSdk = 31)
+    fun canTranslateButton_enabled() = fakeCoroutineScope.runTest {
+        val rv = context.runAndTranslate {
+            Button(
+                "Button",
+                onClick = actionStartActivity<Activity>(),
+                enabled = true
+            )
+        }
+
+        val button = assertIs<Button>(context.applyRemoteViews(rv))
+        assertThat(button.hasOnClickListeners()).isTrue()
+        assertThat(button.isEnabled).isTrue()
+        assertThat(button.text.toString()).isEqualTo("Button")
+    }
+
+    @Test
+    @Config(maxSdk = 30)
+    fun canTranslateBackportButton_disabled() = fakeCoroutineScope.runTest {
+        val rv = context.runAndTranslate {
+            Button(
+                "Button",
+                onClick = actionStartActivity<Activity>(),
+                enabled = false
+            )
+        }
+
+        // Backport button is implemented using a FrameLayout containing an outline image, a text
+        // and a ripple image.
+        val frame = assertIs<FrameLayout>(context.applyRemoteViews(rv))
+        assertThat(frame.hasOnClickListeners()).isFalse()
+        assertThat(frame.isEnabled).isFalse()
+        checkNotNull(frame.findView<TextView> { it.text.toString() == "Button" })
+    }
+
+    @Test
+    @Config(minSdk = 31)
     fun canTranslateButton_disabled() = fakeCoroutineScope.runTest {
         val rv = context.runAndTranslate {
             Button(
@@ -752,10 +804,10 @@ class RemoteViewsTranslatorKtTest {
             )
         }
 
-        val frame = assertIs<FrameLayout>(context.applyRemoteViews(rv))
-        assertThat(frame.hasOnClickListeners()).isFalse()
-        assertThat(frame.isEnabled).isFalse()
-        checkNotNull(frame.findView<TextView> { it.text.toString() == "Button" })
+        val button = assertIs<Button>(context.applyRemoteViews(rv))
+        assertThat(button.isEnabled).isFalse()
+        assertThat(button.hasOnClickListeners()).isFalse()
+        assertThat(button.text.toString()).isEqualTo("Button")
     }
 
     @Test

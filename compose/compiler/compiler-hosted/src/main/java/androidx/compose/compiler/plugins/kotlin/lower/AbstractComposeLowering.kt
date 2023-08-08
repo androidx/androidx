@@ -27,6 +27,7 @@ import androidx.compose.compiler.plugins.kotlin.analysis.Stability
 import androidx.compose.compiler.plugins.kotlin.analysis.knownStable
 import androidx.compose.compiler.plugins.kotlin.analysis.stabilityOf
 import androidx.compose.compiler.plugins.kotlin.irTrace
+import com.intellij.openapi.progress.ProcessCanceledException
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.backend.jvm.ir.isInlineClassType
 import org.jetbrains.kotlin.descriptors.DescriptorVisibilities
@@ -63,10 +64,13 @@ import org.jetbrains.kotlin.ir.expressions.IrConstructorCall
 import org.jetbrains.kotlin.ir.expressions.IrExpression
 import org.jetbrains.kotlin.ir.expressions.IrFunctionExpression
 import org.jetbrains.kotlin.ir.expressions.IrGetEnumValue
+import org.jetbrains.kotlin.ir.expressions.IrGetField
 import org.jetbrains.kotlin.ir.expressions.IrGetObjectValue
 import org.jetbrains.kotlin.ir.expressions.IrGetValue
 import org.jetbrains.kotlin.ir.expressions.IrMemberAccessExpression
+import org.jetbrains.kotlin.ir.expressions.IrReturn
 import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin
+import org.jetbrains.kotlin.ir.expressions.IrTypeOperatorCall
 import org.jetbrains.kotlin.ir.expressions.IrVararg
 import org.jetbrains.kotlin.ir.expressions.impl.IrBlockImpl
 import org.jetbrains.kotlin.ir.expressions.impl.IrBranchImpl
@@ -116,6 +120,8 @@ import org.jetbrains.kotlin.ir.util.kotlinFqName
 import org.jetbrains.kotlin.ir.util.parentAsClass
 import org.jetbrains.kotlin.ir.util.parentClassOrNull
 import org.jetbrains.kotlin.ir.util.primaryConstructor
+import org.jetbrains.kotlin.ir.util.properties
+import org.jetbrains.kotlin.ir.util.statements
 import org.jetbrains.kotlin.ir.visitors.IrElementTransformerVoid
 import org.jetbrains.kotlin.load.kotlin.computeJvmDescriptor
 import org.jetbrains.kotlin.name.CallableId
@@ -139,11 +145,18 @@ abstract class AbstractComposeLowering(
         context.referenceClass(ComposeClassIds.Composer)?.owner
             ?: error("Cannot find the Composer class in the classpath")
 
+    private val _composableIrClass =
+        context.referenceClass(ComposeClassIds.Composable)?.owner
+            ?: error("Cannot find the Composable annotation class in the classpath")
+
     // this ensures that composer always references up-to-date composer class symbol
     // otherwise, after remapping of symbols in DeepCopyTransformer, it results in duplicated
     // references
     protected val composerIrClass: IrClass
         get() = symbolRemapper.getReferencedClass(_composerIrClass.symbol).owner
+
+    protected val composableIrClass: IrClass
+        get() = symbolRemapper.getReferencedClass(_composableIrClass.symbol).owner
 
     fun referenceFunction(symbol: IrFunctionSymbol): IrFunctionSymbol {
         return symbolRemapper.getReferencedFunction(symbol)
@@ -254,8 +267,15 @@ abstract class AbstractComposeLowering(
                 ).unboxValueIfInline()
             } else {
                 val primaryValueParameter = klass.primaryConstructor?.valueParameters?.get(0)
-                    ?: error("Expected a value parameter")
-                val fieldGetter = klass.getPropertyGetter(primaryValueParameter.name.identifier)
+                val cantUnbox = primaryValueParameter == null || klass.properties.none {
+                    it.name == primaryValueParameter.name && it.getter != null
+                }
+                if (cantUnbox) {
+                    // LazyIr (external module) doesn't show a getter of a private property.
+                    // So we can't unbox the value
+                    return this
+                }
+                val fieldGetter = klass.getPropertyGetter(primaryValueParameter!!.name.identifier)
                     ?: error("Expected a getter")
                 return irCall(
                     symbol = fieldGetter,
@@ -275,7 +295,9 @@ abstract class AbstractComposeLowering(
             return true
         val function = symbol.owner
         return function.name == OperatorNameConventions.INVOKE &&
-            function.parentClassOrNull?.defaultType?.isFunction() == true
+            function.parentClassOrNull?.defaultType?.let {
+                it.isFunction() || it.isSyntheticComposableFunction()
+            } ?: false
     }
 
     fun IrCall.isComposableCall(): Boolean {
@@ -293,7 +315,9 @@ abstract class AbstractComposeLowering(
         // `Function3<T1, Composer, Int, T2>`. After this lowering runs we have to check the
         // `attributeOwnerId` to recover the original type.
         val receiver = dispatchReceiver?.let { it.attributeOwnerId as? IrExpression ?: it }
-        return receiver?.type?.hasComposableAnnotation() == true
+        return receiver?.type?.let {
+            it.hasComposableAnnotation() || it.isSyntheticComposableFunction()
+        } ?: false
     }
 
     fun IrCall.isComposableSingletonGetter(): Boolean {
@@ -515,6 +539,19 @@ abstract class AbstractComposeLowering(
             type,
             target,
             value
+        )
+    }
+
+    protected fun irReturnVar(
+        target: IrReturnTargetSymbol,
+        value: IrVariable,
+    ): IrExpression {
+        return IrReturnImpl(
+            value.initializer?.startOffset ?: UNDEFINED_OFFSET,
+            value.initializer?.endOffset ?: UNDEFINED_OFFSET,
+            value.type,
+            target,
+            irGet(value)
         )
     }
 
@@ -863,8 +900,12 @@ abstract class AbstractComposeLowering(
                     else -> false
                 }
             }
-            is IrFunctionExpression ->
+            is IrFunctionExpression,
+            is IrTypeOperatorCall ->
                 context.irTrace[ComposeWritableSlices.IS_STATIC_FUNCTION_EXPRESSION, this] ?: false
+            is IrGetField ->
+                // K2 sometimes produces `IrGetField` for reads from constant properties
+                symbol.owner.correspondingPropertySymbol?.owner?.isConst == true
             else -> false
         }
     }
@@ -1086,6 +1127,20 @@ abstract class AbstractComposeLowering(
         val stringKey = "$name$signature"
         return stringKey.hashCode()
     }
+
+    /*
+     * Delegated accessors are generated with IrReturn(IrCall(<delegated function>)) structure.
+     * To verify the delegated function is composable, this function is unpacking it and
+     * checks annotation on the symbol owner of the call.
+     */
+    fun IrFunction.isComposableDelegatedAccessor(): Boolean =
+        origin == IrDeclarationOrigin.DELEGATED_PROPERTY_ACCESSOR &&
+            body?.let {
+                val returnStatement = it.statements.singleOrNull() as? IrReturn
+                val callStatement = returnStatement?.value as? IrCall
+                val target = callStatement?.symbol?.owner
+                target?.hasComposableAnnotation()
+            } == true
 }
 
 private val unsafeSymbolsRegex = "[ <>]".toRegex()
@@ -1121,6 +1176,8 @@ val IrConstructorCall.annotationClass get() =
 inline fun <T> includeFileNameInExceptionTrace(file: IrFile, body: () -> T): T {
     try {
         return body()
+    } catch (e: ProcessCanceledException) {
+        throw e
     } catch (e: Exception) {
         throw Exception("IR lowering failed at: ${file.name}", e)
     }

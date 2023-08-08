@@ -353,7 +353,7 @@ public class UiObject {
      * @param node
      * @return null if node is null, else a Rect containing visible bounds
      */
-    private Rect getVisibleBounds(AccessibilityNodeInfo node) {
+    Rect getVisibleBounds(AccessibilityNodeInfo node) {
         if (node == null) {
             return null;
         }
@@ -552,37 +552,6 @@ public class UiObject {
             throw new UiObjectNotFoundException(mUiSelector.toString());
         }
         return safeStringReturn(node.getContentDescription());
-    }
-
-    /**
-     * Set the text content by sending individual key codes.
-     * @hide
-     */
-    public void legacySetText(@Nullable String text) throws UiObjectNotFoundException {
-        // Per framework convention, setText(null) means clearing it.
-        if (text == null) {
-            text = "";
-        }
-        // long click left + center
-        AccessibilityNodeInfo node = findAccessibilityNodeInfo(mConfig.getWaitForSelectorTimeout());
-        if (node == null) {
-            throw new UiObjectNotFoundException(getSelector().toString());
-        }
-        Log.d(TAG, String.format("Setting text to '%s'.", text));
-        Rect rect = getVisibleBounds(node);
-        getInteractionController().longTapNoSync(rect.left + 20, rect.centerY());
-        // check if the edit menu is open
-        UiObject selectAll = new UiObject(new UiSelector().descriptionContains("Select all"));
-        if (selectAll.waitForExists(50)) {
-            selectAll.click();
-        }
-        // wait for the selection
-        SystemClock.sleep(250);
-        // delete it
-        getInteractionController().sendKey(KeyEvent.KEYCODE_DEL, 0);
-
-        // Send new text
-        getInteractionController().sendText(text);
     }
 
     /**

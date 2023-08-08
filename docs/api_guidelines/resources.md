@@ -133,7 +133,8 @@ See also the official Android Gradle Plugin documentation for
 
 Developers **must not** add `<application>`-level `<meta-data>` tags to library
 manifests or advise developers to add such tags to their application manifests.
-Doing so may *inadvertently cause denial-of-service attacks against other apps*.
+Doing so may *inadvertently cause denial-of-service attacks against other apps*
+(see b/194303997).
 
 Assume a library adds a single item of meta-data at the application level. When
 an app uses the library, that meta-data will be merged into the resulting app's
@@ -174,20 +175,5 @@ placeholder `<service>` tags.
   </application>
 ```
 
-```java {.good}
-package androidx.libraryname.featurename;
-
-/**
- * A placeholder service to avoid adding application-level metadata. The service
- * is only used to expose metadata defined in the library's manifest. It is
- * never invoked.
- */
-public final class MetadataHolderService {
-  public MetadataHolderService() {}
-
-  @Override
-  public IBinder onBind(Intent intent) {
-    throw new UnsupportedOperationException();
-  }
-}
-```
+Note: there is no need to provide a definition for the `MetadataHolderService`
+class, as it is merely a placeholder and will never be called.

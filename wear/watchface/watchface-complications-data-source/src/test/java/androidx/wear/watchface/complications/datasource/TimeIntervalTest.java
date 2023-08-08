@@ -55,8 +55,7 @@ public class TimeIntervalTest {
 
     @Test
     public void timeIntervalToString() {
-        assertThat(INTERVAL_A.toString()).isEqualTo(
-                "TimeInterval(start=1970-01-02T03:46:40Z, end=1970-01-03T07:33:20Z)"
-        );
+        assertThat(INTERVAL_A.toString())
+                .isEqualTo("TimeInterval(start=1970-01-02T03:46:40Z, end=1970-01-03T07:33:20Z)");
     }
 }

@@ -129,19 +129,24 @@ class Animatable<T, V : AnimationVector>(
     internal val defaultSpringSpec: SpringSpec<T> =
         SpringSpec(visibilityThreshold = visibilityThreshold)
 
-    private val negativeInfinityBounds = initialValue.createVector(Float.NEGATIVE_INFINITY)
-    private val positiveInfinityBounds = initialValue.createVector(Float.POSITIVE_INFINITY)
+    @Suppress("UNCHECKED_CAST")
+    private val negativeInfinityBounds: V = when (velocityVector) {
+        is AnimationVector1D -> negativeInfinityBounds1D
+        is AnimationVector2D -> negativeInfinityBounds2D
+        is AnimationVector3D -> negativeInfinityBounds3D
+        else -> negativeInfinityBounds4D
+    } as V
+
+    @Suppress("UNCHECKED_CAST")
+    private val positiveInfinityBounds = when (velocityVector) {
+        is AnimationVector1D -> positiveInfinityBounds1D
+        is AnimationVector2D -> positiveInfinityBounds2D
+        is AnimationVector3D -> positiveInfinityBounds3D
+        else -> positiveInfinityBounds4D
+    } as V
 
     private var lowerBoundVector: V = negativeInfinityBounds
     private var upperBoundVector: V = positiveInfinityBounds
-
-    private fun T.createVector(value: Float): V {
-        val newVector = this@Animatable.typeConverter.convertToVector(this)
-        for (i in 0 until newVector.size) {
-            newVector[i] = value
-        }
-        return newVector
-    }
 
     /**
      * Updates either [lowerBound] or [upperBound], or both. This will update
@@ -475,3 +480,25 @@ class AnimationResult<T, V : AnimationVector>(
 ) {
     override fun toString(): String = "AnimationResult(endReason=$endReason, endState=$endState)"
 }
+
+private val positiveInfinityBounds1D = AnimationVector(Float.POSITIVE_INFINITY)
+private val positiveInfinityBounds2D =
+    AnimationVector(Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY)
+private val positiveInfinityBounds3D =
+    AnimationVector(Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY)
+private val positiveInfinityBounds4D =
+    AnimationVector(
+        Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY,
+        Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY
+    )
+
+private val negativeInfinityBounds1D = AnimationVector(Float.NEGATIVE_INFINITY)
+private val negativeInfinityBounds2D =
+    AnimationVector(Float.NEGATIVE_INFINITY, Float.NEGATIVE_INFINITY)
+private val negativeInfinityBounds3D =
+    AnimationVector(Float.NEGATIVE_INFINITY, Float.NEGATIVE_INFINITY, Float.NEGATIVE_INFINITY)
+private val negativeInfinityBounds4D =
+    AnimationVector(
+        Float.NEGATIVE_INFINITY, Float.NEGATIVE_INFINITY,
+        Float.NEGATIVE_INFINITY, Float.NEGATIVE_INFINITY
+    )

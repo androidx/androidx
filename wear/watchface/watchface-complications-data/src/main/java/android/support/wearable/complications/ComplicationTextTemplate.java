@@ -46,7 +46,6 @@ import java.util.List;
 /**
  * Displays one or more ComplicationText objects in a template.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @SuppressLint("BanParcelableUsage")
@@ -81,8 +80,7 @@ public final class ComplicationTextTemplate implements Parcelable, TimeDependent
     private final ComplicationText[] mComplicationTexts;
 
     ComplicationTextTemplate(
-            @Nullable CharSequence surroundingText,
-            @NonNull ComplicationText[] complicationTexts) {
+            @Nullable CharSequence surroundingText, @NonNull ComplicationText[] complicationTexts) {
         mSurroundingText = surroundingText;
         mComplicationTexts = complicationTexts;
         checkFields();
@@ -225,10 +223,10 @@ public final class ComplicationTextTemplate implements Parcelable, TimeDependent
          *
          * <p>If not specified, the texts will be concatenated together, separated by spaces.
          *
-         * <p>If the text contains spans, some of them may not be rendered by
-         * {@link ComplicationDrawable}. Supported spans are {@link ForegroundColorSpan},
-         * {@link LocaleSpan}, {@link SubscriptSpan}, {@link SuperscriptSpan}, {@link StyleSpan},
-         * {@link StrikethroughSpan}, {@link TypefaceSpan} and {@link UnderlineSpan}.
+         * <p>If the text contains spans, some of them may not be rendered by {@link
+         * ComplicationDrawable}. Supported spans are {@link ForegroundColorSpan}, {@link
+         * LocaleSpan}, {@link SubscriptSpan}, {@link SuperscriptSpan}, {@link StyleSpan}, {@link
+         * StrikethroughSpan}, {@link TypefaceSpan} and {@link UnderlineSpan}.
          *
          * @param surroundingText string template
          * @return this builder for chaining

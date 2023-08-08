@@ -15,6 +15,8 @@
  */
 package androidx.lifecycle
 
+import kotlinx.coroutines.CoroutineScope
+
 /**
  * A class that has an Android lifecycle. These events can be used by custom components to
  * handle lifecycle changes without implementing any code inside the Activity or the Fragment.
@@ -30,3 +32,14 @@ public interface LifecycleOwner {
      */
     public val lifecycle: Lifecycle
 }
+
+/**
+ * [CoroutineScope] tied to this [LifecycleOwner]'s [Lifecycle].
+ *
+ * This scope will be cancelled when the [Lifecycle] is destroyed.
+ *
+ * This scope is bound to
+ * [Dispatchers.Main.immediate][kotlinx.coroutines.MainCoroutineDispatcher.immediate].
+ */
+public val LifecycleOwner.lifecycleScope: LifecycleCoroutineScope
+    get() = lifecycle.coroutineScope

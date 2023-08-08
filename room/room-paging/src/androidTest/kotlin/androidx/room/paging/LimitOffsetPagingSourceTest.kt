@@ -18,6 +18,7 @@ package androidx.room.paging
 
 import android.database.Cursor
 import androidx.arch.core.executor.testing.CountingTaskExecutorRule
+import androidx.kruth.assertThat
 import androidx.paging.PagingConfig
 import androidx.paging.PagingSource
 import androidx.paging.PagingSource.LoadParams
@@ -33,24 +34,23 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import androidx.testutils.FilteringExecutor
 import androidx.testutils.TestExecutor
-import com.google.common.truth.Truth.assertThat
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.test.advanceUntilIdle
-import org.junit.After
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.runner.RunWith
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
+import org.junit.After
+import org.junit.Before
+import org.junit.Rule
+import org.junit.Test
+import org.junit.runner.RunWith
 
 private const val tableName: String = "TestItem"
 
@@ -420,7 +420,7 @@ class LimitOffsetPagingSourceTest {
         // return a LoadResult.Invalid
         val result2 = pager.append()
 
-        assertThat(result2).isInstanceOf(LoadResult.Invalid::class.java)
+        assertThat(result2).isInstanceOf<LoadResult.Invalid<*, *>>()
     }
 
     @Test
@@ -494,7 +494,7 @@ class LimitOffsetPagingSourceTest {
         // return LoadResult.Invalid
         val result2 = pager.prepend()
 
-        assertThat(result2).isInstanceOf(LoadResult.Invalid::class.java)
+        assertThat(result2).isInstanceOf<LoadResult.Invalid<*, *>>()
     }
 
     @Test
@@ -573,7 +573,7 @@ class LimitOffsetPagingSourceTest {
         val refreshKey = 85 - (15 / 2)
 
         val pagingSource2 = LimitOffsetPagingSourceImpl(database)
-        val pager2 = TestPager(pagingSource2, CONFIG)
+        val pager2 = TestPager(CONFIG, pagingSource2)
         val result = pager2.refresh(initialKey = refreshKey) as LoadResult.Page
 
         // database should only have 40 items left. Refresh key is invalid at this point
@@ -616,7 +616,7 @@ class LimitOffsetPagingSourceTest {
         dao.deleteTestItems(0, 29)
 
         val pagingSource2 = LimitOffsetPagingSourceImpl(database)
-        val pager2 = TestPager(pagingSource2, CONFIG)
+        val pager2 = TestPager(CONFIG, pagingSource2)
         // assume user was viewing first few items with anchorPosition = 0 and refresh key
         // clips to 0
         val result = pager2.refresh(initialKey = 0) as LoadResult.Page
@@ -648,7 +648,7 @@ class LimitOffsetPagingSourceTest {
         dao.deleteTestItems(0, 94)
 
         val pagingSource2 = LimitOffsetPagingSourceImpl(database)
-        val pager2 = TestPager(pagingSource2, CONFIG)
+        val pager2 = TestPager(CONFIG, pagingSource2)
         // assume user was viewing first few items with anchorPosition = 0 and refresh key
         // clips to 0
         val result = pager2.refresh(initialKey = 0) as LoadResult.Page
@@ -682,7 +682,7 @@ class LimitOffsetPagingSourceTest {
         ) -> Unit
     ) {
         runBlocking {
-            block(TestPager(pagingSource, config), pagingSource)
+            block(TestPager(config, pagingSource), pagingSource)
         }
     }
 }
@@ -736,7 +736,7 @@ class LimitOffsetPagingSourceTestWithFilteringExecutor {
     @Test
     fun invalid_append() = runTest {
         val pagingSource = LimitOffsetPagingSourceImpl(db)
-        val pager = TestPager(pagingSource, CONFIG)
+        val pager = TestPager(CONFIG, pagingSource)
         dao.addAllItems(ITEMS_LIST)
 
         val result = pager.refresh() as LoadResult.Page
@@ -760,16 +760,14 @@ class LimitOffsetPagingSourceTestWithFilteringExecutor {
 
         // the db write should cause pagingSource to realize it is invalid when it tries to
         // append
-        assertThat(pager.append()).isInstanceOf(
-            LoadResult.Invalid::class.java
-        )
+        assertThat(pager.append()).isInstanceOf<LoadResult.Invalid<*, *>>()
         assertThat(pagingSource.invalid).isTrue()
     }
 
     @Test
     fun invalid_prepend() = runTest {
         val pagingSource = LimitOffsetPagingSourceImpl(db)
-        val pager = TestPager(pagingSource, CONFIG)
+        val pager = TestPager(CONFIG, pagingSource)
         dao.addAllItems(ITEMS_LIST)
 
         val result = pager.refresh(initialKey = 20) as LoadResult.Page
@@ -793,9 +791,7 @@ class LimitOffsetPagingSourceTestWithFilteringExecutor {
 
         // the db write should cause pagingSource to realize it is invalid when it tries to
         // prepend
-        assertThat(pager.prepend()).isInstanceOf(
-            LoadResult.Invalid::class.java
-        )
+        assertThat(pager.prepend()).isInstanceOf<LoadResult.Invalid<*, *>>()
         assertThat(pagingSource.invalid).isTrue()
     }
 }

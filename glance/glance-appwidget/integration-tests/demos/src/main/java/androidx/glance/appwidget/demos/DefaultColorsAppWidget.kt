@@ -22,20 +22,22 @@ import androidx.compose.material.lightColors
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.glance.Button
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
 import androidx.glance.GlanceTheme
-import androidx.glance.action.ActionParameters
 import androidx.glance.appwidget.CheckBox
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
 import androidx.glance.appwidget.RadioButton
 import androidx.glance.appwidget.Switch
-import androidx.glance.appwidget.action.ActionCallback
-import androidx.glance.appwidget.action.actionRunCallback
+import androidx.glance.appwidget.provideContent
 import androidx.glance.background
 import androidx.glance.layout.Column
 import androidx.glance.layout.Row
@@ -50,18 +52,21 @@ import androidx.glance.unit.ColorProvider
  * A demo showing how to construct a widget with [GlanceTheme]. It will use Material 3 colors and
  * when supported, it will use the dynamic color theme.
  */
-class DefaultColorsAppWidget(private val theme: DemoColorScheme.Scheme) : GlanceAppWidget() {
-
-    @Composable
-    override fun Content() {
-        val colors = when (theme) {
-            DemoColorScheme.Scheme.SystemM3 -> GlanceTheme.colors
-            DemoColorScheme.Scheme.CustomM3 -> ColorProviders(
+class DefaultColorsAppWidget : GlanceAppWidget() {
+    enum class Scheme { SystemM3, CustomM3, CustomM2 }
+    override suspend fun provideGlance(
+        context: Context,
+        id: GlanceId
+    ) = provideContent {
+        var currentScheme by remember { mutableStateOf(Scheme.SystemM3) }
+        val colors = when (currentScheme) {
+            Scheme.SystemM3 -> GlanceTheme.colors
+            Scheme.CustomM3 -> ColorProviders(
                 light = DemoColorScheme.LightColors,
                 dark = DemoColorScheme.DarkColors
             )
 
-            DemoColorScheme.Scheme.CustomM2 -> ColorProviders(
+            Scheme.CustomM2 -> ColorProviders(
                 light = DemoColorScheme.SampleM2ColorsLight,
                 dark = DemoColorScheme.SampleM2ColorsDark
             )
@@ -75,12 +80,26 @@ class DefaultColorsAppWidget(private val theme: DemoColorScheme.Scheme) : Glance
             ) {
                 Button(
                     text = "Theme: $currentScheme",
-                    onClick = actionRunCallback<ChangeThemeCallback>(),
+                    onClick = {
+                        currentScheme = when (currentScheme) {
+                            Scheme.SystemM3 -> Scheme.CustomM3
+                            Scheme.CustomM3 -> Scheme.CustomM2
+                            Scheme.CustomM2 -> Scheme.SystemM3
+                        }
+                    },
                     modifier = GlanceModifier.padding(2.dp)
                 )
                 Row(GlanceModifier.padding(top = 8.dp)) {
-                    CheckBox(checked = false, onCheckedChange = doNothingAction, text = "Unchecked")
-                    CheckBox(checked = true, onCheckedChange = doNothingAction, text = "Checked")
+                    CheckBox(
+                        checked = false,
+                        onCheckedChange = doNothingAction,
+                        text = "Unchecked"
+                    )
+                    CheckBox(
+                        checked = true,
+                        onCheckedChange = doNothingAction,
+                        text = "Checked"
+                    )
                 }
 
                 Row(modifier = GlanceModifier.padding(bottom = 8.dp)) {
@@ -108,9 +127,9 @@ private fun ColorDebug() {
     )
     Column {
         with(GlanceTheme.colors) {
-            // Using  nested column because Glance uses statically generated layouts. Our Rows/Columns
-            // can only support a fixed number of children, so nesting is a workaround. The usual perf
-            // caveats for nested views still apply.
+            // Using  nested column because Glance uses statically generated layouts. Our
+            // Rows/Columns can only support a fixed number of children, so nesting is a workaround.
+            // The usual perf caveats for nested views still apply.
             Column(modifier = GlanceModifier.background(Color.Transparent)) {
                 Text(text = "Primary / OnPrimary", fg = onPrimary, bg = primary)
                 Text(
@@ -152,30 +171,14 @@ private fun ColorDebug() {
 
 private val doNothingAction = null
 
-class ChangeThemeCallback : ActionCallback {
-    override suspend fun onAction(
-        context: Context,
-        glanceId: GlanceId,
-        parameters: ActionParameters
-    ) {
-        colorSchemeIndex = (colorSchemeIndex + 1) % DemoColorScheme.Scheme.values().size
-        DefaultColorsAppWidget(currentScheme).update(context, glanceId)
-    }
-}
-
-private var colorSchemeIndex = 0
-private val currentScheme: DemoColorScheme.Scheme
-    get() = DemoColorScheme.Scheme.values()[colorSchemeIndex]
-
 class DefaultColorsAppWidgetReceiver : GlanceAppWidgetReceiver() {
-    override val glanceAppWidget = DefaultColorsAppWidget(currentScheme)
+    override val glanceAppWidget = DefaultColorsAppWidget()
 }
 
 /**
  * Color scheme generated using https://m3.material.io/theme-builder#/custom
  */
 object DemoColorScheme {
-    enum class Scheme { SystemM3, CustomM3, CustomM2 }
 
     val md_theme_light_primary = Color(0xFF026E00)
     val md_theme_light_onPrimary = Color(0xFFFFFFFF)

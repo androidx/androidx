@@ -9,7 +9,6 @@ import androidx.health.services.client.proto.EventsProto.PassiveCallbackEvent as
 /**
  * An event representing a `PassiveMonitoringCallback` invocation.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class PassiveCallbackEvent(public override val proto: EventProto) :

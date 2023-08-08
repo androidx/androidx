@@ -16,14 +16,16 @@
 
 package androidx.benchmark.macro
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.benchmark.DeviceInfo
+import androidx.benchmark.Outputs
 import androidx.benchmark.Shell
-import androidx.benchmark.macro.MacrobenchmarkScope.Companion.Api24Helper.shaderDir
+import androidx.benchmark.macro.MacrobenchmarkScope.Companion.Api24ContextHelper.createDeviceProtectedStorageContextCompat
 import androidx.benchmark.macro.perfetto.forceTrace
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
@@ -47,8 +49,17 @@ public class MacrobenchmarkScope(
      */
     private val launchWithClearTask: Boolean
 ) {
+
     private val instrumentation = InstrumentationRegistry.getInstrumentation()
     private val context = instrumentation.context
+
+    /**
+     * Controls if the process will be launched with method tracing turned on.
+     *
+     * Default to false, because we only want to turn on method tracing when explicitly enabled
+     * via `Arguments.methodTracingOptions`.
+     */
+    internal var launchWithMethodTracing: Boolean = false
 
     /**
      * Current Macrobenchmark measurement iteration, or null if measurement is not yet enabled.
@@ -113,6 +124,7 @@ public class MacrobenchmarkScope(
         startActivityImpl(intent.toUri(Intent.URI_INTENT_SCHEME))
     }
 
+    @SuppressLint("BanThreadSleep") // Cannot always detect activity launches.
     private fun startActivityImpl(uri: String) {
         val ignoredUniqueNames = if (!launchWithClearTask) {
             emptyList()
@@ -121,8 +133,13 @@ public class MacrobenchmarkScope(
             getFrameStats().map { it.uniqueName }
         }
         val preLaunchTimestampNs = System.nanoTime()
-
-        val cmd = "am start -W \"$uri\""
+        val profileArgs = if (launchWithMethodTracing) {
+            val tracePath = methodTracePath(packageName, iteration ?: 0)
+            "--start-profiler \"$tracePath\""
+        } else {
+            ""
+        }
+        val cmd = "am start $profileArgs -W \"$uri\""
         Log.d(TAG, "Starting activity with command: $cmd")
 
         // executeShellScript used to access stderr, and avoid need to escape special chars like `;`
@@ -205,6 +222,7 @@ public class MacrobenchmarkScope(
      * each iteration.
      */
     @JvmOverloads
+    @SuppressLint("BanThreadSleep") // Defaults to no delays at all.
     public fun pressHome(delayDurationMs: Long = 0) {
         device.pressHome()
 
@@ -242,15 +260,66 @@ public class MacrobenchmarkScope(
     public fun dropShaderCache() {
         Log.d(TAG, "Dropping shader cache for $packageName")
         val dropError = ProfileInstallBroadcast.dropShaderCache(packageName)
-        if (dropError != null) {
-            if (Shell.isSessionRooted()) {
-                // fall back to root approach
-                val path = getShaderCachePath(packageName)
-                Shell.executeScriptSilent("find $path -type f | xargs rm")
-            } else {
+        if (dropError != null && !DeviceInfo.isEmulator) {
+            if (!dropShaderCacheRoot()) {
                 throw IllegalStateException(dropError)
             }
         }
+    }
+
+    /**
+     * Returns true if rooted, and delete operation succeeded without error.
+     *
+     * Note that if no files are present in the shader dir, true will still be returned.
+     */
+    internal fun dropShaderCacheRoot(): Boolean {
+        if (Shell.isSessionRooted()) {
+            // fall back to root approach
+            val path = getShaderCachePath(packageName)
+
+            // Use -f to allow missing files, since app may not have generated shaders.
+            Shell.executeScriptSilent("find $path -type f | xargs rm -f")
+            return true
+        }
+        return false
+    }
+
+    /**
+     * Stops method tracing for the given [packageName] and copies the output to the
+     * `additionalTestOutputDir`.
+     *
+     * @return a [Pair] representing the label, and the absolute path of the method trace.
+     */
+    @SuppressLint("BanThreadSleep") // Need to sleep to wait for the traces to be flushed.
+    internal fun stopMethodTracing(): Pair<String, String> {
+        Shell.executeScriptSilent("am profile stop $packageName")
+        // Wait for the profiles to get dumped :(
+        // ART Method tracing has a buffer size of 8M, so 1 second should be enough
+        // to dump the contents of the buffer.
+        val currentIteration = iteration ?: 0
+        val tracePath = methodTracePath(packageName, currentIteration)
+        // Using 50 ms as a poll duration for a max of 20 iterations. This is because
+        // we don't want to wait for longer than 1s. Also, anecdotally when polling from the
+        // shell I found a stable iteration count of 3 to be sufficient.
+        Shell.waitForFileFlush(
+            tracePath,
+            maxIterations = 20,
+            stableIterations = 3,
+            pollDurationMs = 50L
+        )
+        val fileName = methodTraceName(packageName, currentIteration)
+        val stagingFile = File.createTempFile("methodTrace", null, Outputs.dirUsableByAppAndShell)
+        // Staging location before we write it again using Outputs.writeFile(...)
+        Shell.executeScriptSilent("cp '$tracePath' '$stagingFile'")
+        // Report(
+        val outputPath = Outputs.writeFile(fileName, fileName) {
+            Log.d(TAG, "Writing method traces to ${it.absolutePath}")
+            stagingFile.copyTo(it, overwrite = true)
+            // Cleanup
+            stagingFile.delete()
+            Shell.executeScriptSilent("rm \"$tracePath\"")
+        }
+        return fileName to outputPath
     }
 
     /**
@@ -260,6 +329,7 @@ public class MacrobenchmarkScope(
      * Passing 3 will cause caches to be dropped, and prop will go back to 0 when it's done
      */
     @RequiresApi(31)
+    @SuppressLint("BanThreadSleep") // Need to poll to drop kernel page caches
     private fun dropKernelPageCacheSetProp() {
         val result = Shell.executeScriptCaptureStdoutStderr("setprop perf.drop_caches 3")
         check(result.stdout.isEmpty() && result.stderr.isEmpty()) {
@@ -312,21 +382,32 @@ public class MacrobenchmarkScope(
             val context = InstrumentationRegistry.getInstrumentation().context
 
             // Shader paths sourced from ActivityThread.java
-            return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                context.shaderDir
+            val shaderDirectory = if (Build.VERSION.SDK_INT >= 34) {
+                // U switched to cache dir, so it's not deleted on each app update
+                context.createDeviceProtectedStorageContextCompat().cacheDir
+            } else if (Build.VERSION.SDK_INT >= 24) {
+                // shaders started using device protected storage context once it was added in N
+                context.createDeviceProtectedStorageContextCompat().codeCacheDir
             } else {
                 // getCodeCacheDir was added in L, but not used by platform for shaders until M
                 // as M is minApi of this library, that's all we support here
                 context.codeCacheDir
-            }.absolutePath.replace(context.packageName, packageName)
+            }
+            return shaderDirectory.absolutePath.replace(context.packageName, packageName)
+        }
+
+        fun methodTracePath(packageName: String, iteration: Int): String {
+            return "/data/local/tmp/${methodTraceName(packageName, iteration)}"
+        }
+
+        fun methodTraceName(packageName: String, iteration: Int): String {
+            return "$packageName-$iteration-method.trace"
         }
 
         @RequiresApi(Build.VERSION_CODES.N)
-        internal object Api24Helper {
-            val Context.shaderDir: File
-                get() =
-                    // shaders started using device protected storage context once it was added in N
-                    createDeviceProtectedStorageContext().codeCacheDir
+        internal object Api24ContextHelper {
+            fun Context.createDeviceProtectedStorageContextCompat(): Context =
+                createDeviceProtectedStorageContext()
         }
     }
 }

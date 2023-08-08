@@ -111,9 +111,12 @@ class DatePickerScreenshotTest(private val scheme: ColorSchemeWrapper) {
                 val monthInUtcMillis = dayInUtcMilliseconds(year = 2000, month = 6, dayOfMonth = 1)
                 DatePicker(
                     state = rememberDatePickerState(
-                        initialDisplayedMonthMillis = monthInUtcMillis
+                        initialDisplayedMonthMillis = monthInUtcMillis,
+                        selectableDates = object : SelectableDates {
+                            // All dates are invalid for the sake of this test.
+                            override fun isSelectableDate(utcTimeMillis: Long): Boolean = false
+                        }
                     ),
-                    dateValidator = { false },
                     showModeToggle = false
                 )
             }

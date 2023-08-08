@@ -28,7 +28,6 @@ import java.util.HashSet;
 /**
  * Encapsulates the constraints to apply when rendering a {@link CarColor} on a template.
  *
- * @hide
  */
 @RestrictTo(Scope.LIBRARY)
 public final class CarColorConstraints {

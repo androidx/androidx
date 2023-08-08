@@ -37,7 +37,7 @@ android {
 }
 
 androidx {
-    name = "AndroidX Leanback Tab"
+    name = "Leanback Tab"
     publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.LEANBACK_TAB
     inceptionYear = "2020"

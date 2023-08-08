@@ -19,6 +19,7 @@ import androidx.build.Publish
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
+    id("androidx.stableaidl")
 }
 
 apply(from: "../constants.gradle")
@@ -46,11 +47,16 @@ android {
     buildFeatures {
         aidl = true
     }
+    buildTypes.all {
+        stableAidl {
+            version 1
+        }
+    }
     namespace "androidx.media2.session"
 }
 
 androidx {
-    name = "AndroidX media2 session library"
+    name = "Media2 Session"
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2018"
     description = "Media2 Session"

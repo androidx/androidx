@@ -77,10 +77,10 @@ public interface UseCaseConfig<T extends UseCase> extends TargetConfig<T>, UseCa
     Option<CameraSelector> OPTION_CAMERA_SELECTOR =
             Config.Option.create("camerax.core.useCase.cameraSelector", CameraSelector.class);
     /**
-     * Option: camerax.core.useCase.targetFramerate
+     * Option: camerax.core.useCase.targetFrameRate
      */
     Option<Range<Integer>> OPTION_TARGET_FRAME_RATE =
-            Config.Option.create("camerax.core.useCase.targetFrameRate", CameraSelector.class);
+            Config.Option.create("camerax.core.useCase.targetFrameRate", Range.class);
 
     /**
      * Option: camerax.core.useCase.zslDisabled
@@ -93,6 +93,12 @@ public interface UseCaseConfig<T extends UseCase> extends TargetConfig<T>, UseCa
      */
     Option<Boolean> OPTION_HIGH_RESOLUTION_DISABLED =
             Option.create("camerax.core.useCase.highResolutionDisabled", boolean.class);
+
+    /**
+     * Option: camerax.core.useCase.highResolutionDisabled
+     */
+    Option<UseCaseConfigFactory.CaptureType> OPTION_CAPTURE_TYPE = Option.create(
+            "camerax.core.useCase.captureType", UseCaseConfigFactory.CaptureType.class);
 
 
     // *********************************************************************************************
@@ -276,7 +282,7 @@ public interface UseCaseConfig<T extends UseCase> extends TargetConfig<T>, UseCa
      * this configuration
      */
     @Nullable
-    default Range<Integer> getTargetFramerate(@Nullable Range<Integer> valueIfMissing) {
+    default Range<Integer> getTargetFrameRate(@Nullable Range<Integer> valueIfMissing) {
         return retrieveOption(OPTION_TARGET_FRAME_RATE, valueIfMissing);
     }
 
@@ -287,7 +293,7 @@ public interface UseCaseConfig<T extends UseCase> extends TargetConfig<T>, UseCa
      * @throws IllegalArgumentException if the option does not exist in this configuration.
      */
     @NonNull
-    default Range<Integer> getTargetFramerate() {
+    default Range<Integer> getTargetFrameRate() {
         return retrieveOption(OPTION_TARGET_FRAME_RATE);
     }
 
@@ -311,6 +317,14 @@ public interface UseCaseConfig<T extends UseCase> extends TargetConfig<T>, UseCa
      */
     default boolean isHigResolutionDisabled(boolean valueIfMissing) {
         return retrieveOption(OPTION_HIGH_RESOLUTION_DISABLED, valueIfMissing);
+    }
+
+    /**
+     * @return The {@link UseCaseConfigFactory.CaptureType} of this UseCaseConfig.
+     */
+    @NonNull
+    default UseCaseConfigFactory.CaptureType getCaptureType() {
+        return retrieveOption(OPTION_CAPTURE_TYPE);
     }
 
     /**
@@ -418,6 +432,14 @@ public interface UseCaseConfig<T extends UseCase> extends TargetConfig<T>, UseCa
          */
         @NonNull
         B setHighResolutionDisabled(boolean disabled);
+
+        /**
+         * Sets the capture type for this configuration.
+         *
+         * @param captureType The capture type for this use case.
+         */
+        @NonNull
+        B setCaptureType(@NonNull UseCaseConfigFactory.CaptureType captureType);
 
         /**
          * Retrieves the configuration used by this builder.

@@ -57,6 +57,9 @@ import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.Camera2Config;
 import androidx.camera.camera2.impl.Camera2ImplConfig;
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
+import androidx.camera.camera2.internal.compat.quirk.CameraQuirks;
+import androidx.camera.camera2.internal.compat.workaround.AutoFlashAEModeDisabler;
+import androidx.camera.camera2.internal.util.TestUtil;
 import androidx.camera.core.CameraControl;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraXConfig;
@@ -68,12 +71,13 @@ import androidx.camera.core.impl.CameraCaptureCallback;
 import androidx.camera.core.impl.CameraCaptureResult;
 import androidx.camera.core.impl.CameraControlInternal;
 import androidx.camera.core.impl.CaptureConfig;
+import androidx.camera.core.impl.Quirks;
 import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.internal.CameraUseCaseAdapter;
-import androidx.camera.testing.CameraUtil;
-import androidx.camera.testing.CameraXUtil;
-import androidx.camera.testing.HandlerUtil;
+import androidx.camera.testing.impl.CameraUtil;
+import androidx.camera.testing.impl.CameraXUtil;
+import androidx.camera.testing.impl.HandlerUtil;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.os.HandlerCompat;
 import androidx.test.core.app.ApplicationProvider;
@@ -125,6 +129,7 @@ public final class Camera2CameraControlImplDeviceTest {
     private boolean mHasFlashUnit;
     private final Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();
     private CameraUseCaseAdapter mCamera;
+    private Quirks mCameraQuirks;
 
     @Before
     public void setUp() throws InterruptedException {
@@ -146,10 +151,12 @@ public final class Camera2CameraControlImplDeviceTest {
         mHandler = HandlerCompat.createAsync(mHandlerThread.getLooper());
 
         ScheduledExecutorService executorService = CameraXExecutors.newHandlerExecutor(mHandler);
+        String cameraId = CameraUtil.getCameraIdWithLensFacing(CameraSelector.LENS_FACING_BACK);
         mCameraCharacteristicsCompat = CameraCharacteristicsCompat.toCameraCharacteristicsCompat(
-                mCameraCharacteristics);
+                mCameraCharacteristics, cameraId);
         mCamera2CameraControlImpl = new Camera2CameraControlImpl(mCameraCharacteristicsCompat,
                 executorService, executorService, mControlUpdateCallback);
+        mCameraQuirks = CameraQuirks.get(cameraId, mCameraCharacteristicsCompat);
 
         mCamera2CameraControlImpl.incrementUseCount();
         mCamera2CameraControlImpl.setActive(true);
@@ -425,7 +432,7 @@ public final class Camera2CameraControlImplDeviceTest {
                 imageCapture);
 
         Camera2CameraControlImpl camera2CameraControlImpl =
-                (Camera2CameraControlImpl) mCamera.getCameraControl();
+                TestUtil.getCamera2CameraControlImpl(mCamera.getCameraControl());
 
         CameraCaptureCallback captureCallback = mock(CameraCaptureCallback.class);
         CaptureConfig.Builder captureConfigBuilder = new CaptureConfig.Builder();
@@ -452,7 +459,7 @@ public final class Camera2CameraControlImplDeviceTest {
                 ApplicationProvider.getApplicationContext(), CameraSelector.DEFAULT_BACK_CAMERA,
                 imageAnalysis);
 
-        return (Camera2CameraControlImpl) mCamera.getCameraControl();
+        return TestUtil.getCamera2CameraControlImpl(mCamera.getCameraControl());
     }
 
     private <T> void assertArraySize(T[] array, int expectedSize) {
@@ -723,9 +730,12 @@ public final class Camera2CameraControlImplDeviceTest {
     }
 
     private void assertAeMode(Camera2ImplConfig config, int aeMode) {
-        if (isAeModeSupported(aeMode)) {
+        AutoFlashAEModeDisabler aeModeCorrector = new AutoFlashAEModeDisabler(mCameraQuirks);
+        int aeModeCorrected = aeModeCorrector.getCorrectedAeMode(aeMode);
+
+        if (isAeModeSupported(aeModeCorrected)) {
             assertThat(config.getCaptureRequestOption(
-                    CaptureRequest.CONTROL_AE_MODE, null)).isEqualTo(aeMode);
+                    CaptureRequest.CONTROL_AE_MODE, null)).isEqualTo(aeModeCorrected);
         } else {
             int fallbackMode;
             if (isAeModeSupported(CONTROL_AE_MODE_ON)) {

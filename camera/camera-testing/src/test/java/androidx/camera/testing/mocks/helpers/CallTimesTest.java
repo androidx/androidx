@@ -22,6 +22,8 @@ import static org.junit.Assert.assertTrue;
 
 import android.os.Build;
 
+import androidx.camera.testing.impl.mocks.helpers.CallTimes;
+
 import org.junit.Test;
 import org.robolectric.annotation.Config;
 

@@ -58,7 +58,7 @@ public final class MetadataExtras {
      *      + subtitle:                 “Beethoven”                 // Artist
      *      + subtitleLinkMediaId:      “artist:Beethoven”          // Artist ID
      * </pre>
-     **/
+     */
     public static final String KEY_SUBTITLE_LINK_MEDIA_ID =
             "androidx.car.app.mediaextensions.KEY_SUBTITLE_LINK_MEDIA_ID";
 
@@ -90,7 +90,69 @@ public final class MetadataExtras {
      * ╚════+ mediaId:                  “artist:Beethoven”          // ID
      *      + title:                    “Beethoven”                 // Artist
      * </pre>
-     **/
+     */
     public static final String KEY_DESCRIPTION_LINK_MEDIA_ID =
             "androidx.car.app.mediaextensions.KEY_DESCRIPTION_LINK_MEDIA_ID";
+
+    /**
+     * {@link Bundle} key used in the extras of a media item to indicate an immersive audio
+     * experience. Car OEMs should carefully consider which audio effects should be enabled for
+     * such content.
+     *
+     * <p>TYPE: long - to enable, use value
+     * {@link androidx.media.utils.MediaConstants#METADATA_VALUE_ATTRIBUTE_PRESENT}</p>
+     */
+    public static final String KEY_IMMERSIVE_AUDIO =
+            "androidx.car.app.mediaextensions.KEY_IMMERSIVE_AUDIO";
+
+    /**
+     * {@link Bundle} key used in the extras of a media item to indicate a tintable vector drawable
+     * representing its content format. This drawable must be rendered in large views showing
+     * information about the currently playing media item, in an area roughly equivalent to 15
+     * characters of subtitle.
+     *
+     * <p>TYPE: String - a uri pointing to local content (ie not on the web) that can be parsed
+     * into a android.graphics.drawable.Drawable</p>
+     */
+    public static final String KEY_CONTENT_FORMAT_TINTABLE_LARGE_ICON_URI =
+            "androidx.car.app.mediaextensions.KEY_CONTENT_FORMAT_TINTABLE_LARGE_ICON_URI";
+
+    /**
+     * {@link Bundle} key used in the extras of a media item to indicate a tintable vector drawable
+     * representing its content format. This drawable may be rendered in smaller views showing
+     * information about a media item, in an area roughly equivalent to 2 characters of subtitle.
+     *
+     * <p>TYPE: String - a uri pointing to local content (ie not on the web) that can be parsed
+     * into a android.graphics.drawable.Drawable</p>
+     */
+    public static final String KEY_CONTENT_FORMAT_TINTABLE_SMALL_ICON_URI =
+            "androidx.car.app.mediaextensions.KEY_CONTENT_FORMAT_TINTABLE_SMALL_ICON_URI";
+
+    /**
+     * Like {@link #KEY_CONTENT_FORMAT_TINTABLE_LARGE_ICON_URI} but indicates a non tintable
+     * vector drawable to use with dark backgrounds.
+     */
+    public static final String KEY_CONTENT_FORMAT_DARK_MODE_LARGE_ICON_URI =
+            "androidx.car.app.mediaextensions.KEY_CONTENT_FORMAT_DARK_MODE_LARGE_ICON_URI";
+
+    /**
+     * Like {@link #KEY_CONTENT_FORMAT_TINTABLE_LARGE_ICON_URI} but indicates a non tintable
+     * vector drawable to use with light backgrounds.
+     */
+    public static final String KEY_CONTENT_FORMAT_LIGHT_MODE_LARGE_ICON_URI =
+            "androidx.car.app.mediaextensions.KEY_CONTENT_FORMAT_LIGHT_MODE_LARGE_ICON_URI";
+
+    /**
+     * Like {@link #KEY_CONTENT_FORMAT_TINTABLE_SMALL_ICON_URI} but indicates a non tintable
+     * vector drawable to use with dark backgrounds.
+     */
+    public static final String KEY_CONTENT_FORMAT_DARK_MODE_SMALL_ICON_URI =
+            "androidx.car.app.mediaextensions.KEY_CONTENT_FORMAT_DARK_MODE_SMALL_ICON_URI";
+
+    /**
+     * Like {@link #KEY_CONTENT_FORMAT_TINTABLE_SMALL_ICON_URI} but indicates a non tintable
+     * vector drawable to use with light backgrounds.
+     */
+    public static final String KEY_CONTENT_FORMAT_LIGHT_MODE_SMALL_ICON_URI =
+            "androidx.car.app.mediaextensions.KEY_CONTENT_FORMAT_LIGHT_MODE_SMALL_ICON_URI";
 }

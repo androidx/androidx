@@ -19,7 +19,9 @@ package androidx.navigation
 import androidx.annotation.IdRes
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
+import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
+import kotlin.test.assertFailsWith
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -110,6 +112,33 @@ class NavDestinationTest {
         assertWithMessage("NavAction should have its default argument set")
             .that(action?.defaultArguments?.getString(ACTION_ARGUMENT_KEY))
             .isEqualTo(ACTION_ARGUMENT_VALUE)
+    }
+
+    @Test
+    fun navDestinationMissingRequiredArgument() {
+        val expected = assertFailsWith<IllegalArgumentException> {
+            provider.navDestination(DESTINATION_ROUTE) {
+                argument("intArg") {
+                    type = NavType.IntType
+                    nullable = false
+                }
+            }
+        }
+        assertThat(expected.message).isEqualTo(
+            "Deep link android-app://androidx.navigation/route can't be used to " +
+                "open destination NavDestination(0xa2bd82dc).\n" +
+                "Following required arguments are missing: [intArg]"
+        )
+    }
+
+    @Test
+    fun navDestinationRequiredArgument() {
+        provider.navDestination("$DESTINATION_ROUTE/{intArg}") {
+            argument("intArg") {
+                type = NavType.IntType
+                nullable = false
+            }
+        }
     }
 }
 

@@ -37,6 +37,7 @@ import com.squareup.javapoet.ClassName
 import com.squareup.kotlinpoet.javapoet.JClassName
 import javax.lang.model.element.ElementKind
 import javax.lang.model.element.TypeElement
+import javax.lang.model.type.DeclaredType
 import javax.lang.model.type.TypeKind
 import javax.lang.model.util.ElementFilter
 
@@ -107,6 +108,8 @@ internal sealed class JavacTypeElement(
                     element = it,
                 )
             }
+            // To be consistent with KSP consider delegates to not have a backing field.
+            .filterNot { it.kotlinMetadata?.isDelegated() == true }
     }
 
     private val allMethods = MemoizedSequence {
@@ -153,21 +156,57 @@ internal sealed class JavacTypeElement(
     override fun findPrimaryConstructor(): JavacConstructorElement? {
         val primarySignature = kotlinMetadata?.primaryConstructorSignature ?: return null
         return getConstructors().firstOrNull {
-            primarySignature == it.descriptor
+            primarySignature == it.jvmDescriptor
         }
     }
 
     private val _declaredMethods by lazy {
-        ElementFilter.methodsIn(element.enclosedElements).map {
+      val companionObjectMethodDescriptors =
+        getEnclosedTypeElements()
+          .firstOrNull {
+            it.isCompanionObject()
+          }?.getDeclaredMethods()
+          ?.map { it.jvmDescriptor } ?: emptyList()
+
+      val declaredMethods =
+        ElementFilter.methodsIn(element.enclosedElements)
+          .map {
             JavacMethodElement(
                 env = env,
                 element = it
             )
         }.filterMethodsByConfig(env)
+      if (companionObjectMethodDescriptors.isEmpty()) {
+        declaredMethods
+      } else {
+        buildList {
+          addAll(
+            declaredMethods.filterNot { method ->
+              companionObjectMethodDescriptors.any { it == method.jvmDescriptor }
+            }
+          )
+          companionObjectMethodDescriptors.forEach {
+            for (method in declaredMethods) {
+              if (method.jvmDescriptor == it) {
+                add(method)
+                break
+              }
+            }
+          }
+        }
+      }
     }
 
     override fun getDeclaredMethods(): List<JavacMethodElement> {
+        // TODO(b/290800523): Remove the synthetic annotations method from the list
+        //  of declared methods so that KAPT matches KSP.
         return _declaredMethods
+    }
+
+    fun getSyntheticMethodsForAnnotations(): List<JavacMethodElement> {
+        return _declaredMethods.filter {
+            it.kotlinMetadata?.isSyntheticMethodForAnnotations() == true
+        }
     }
 
     override fun getConstructors(): List<JavacConstructorElement> {
@@ -218,11 +257,15 @@ internal sealed class JavacTypeElement(
     }
 
     override val superInterfaces by lazy {
+        val superTypesFromKotlinMetadata = kotlinMetadata?.superTypes
+            ?.associateBy { it.className } ?: emptyMap()
         element.interfaces.map {
+            check(it is DeclaredType)
+            val interfaceName = ClassName.get(MoreElements.asType(it.asElement()))
             val element = MoreTypes.asTypeElement(it)
             env.wrap<JavacType>(
                 typeMirror = it,
-                kotlinType = KmClassContainer.createFor(env, element)?.type,
+                kotlinType = superTypesFromKotlinMetadata[interfaceName.canonicalName()],
                 elementNullability = element.nullability
             )
         }

@@ -37,26 +37,30 @@ internal class CameraDevicesImpl @Inject constructor(private val cameraBackends:
     @Deprecated(
         "findAll() is not able to specify a specific CameraBackendId to query.",
         replaceWith = ReplaceWith("awaitCameraIds"),
-        level = DeprecationLevel.WARNING)
+        level = DeprecationLevel.WARNING
+    )
     override fun findAll(): List<CameraId> = awaitCameraIds() ?: emptyList()
 
     @Deprecated(
         "ids() is not able to specify a specific CameraBackendId to query.",
         replaceWith = ReplaceWith("getCameraIds"),
-        level = DeprecationLevel.WARNING)
+        level = DeprecationLevel.WARNING
+    )
     override suspend fun ids(): List<CameraId> = getCameraIds() ?: emptyList()
 
     @Deprecated(
         "getMetadata() is not able to specify a specific CameraBackendId to query.",
         replaceWith = ReplaceWith("getCameraMetadata"),
-        level = DeprecationLevel.WARNING)
+        level = DeprecationLevel.WARNING
+    )
     override suspend fun getMetadata(camera: CameraId): CameraMetadata =
         checkNotNull(getCameraMetadata(camera))
 
     @Deprecated(
         "awaitMetadata() is not able to specify a specific CameraBackendId to query.",
         replaceWith = ReplaceWith("awaitCameraMetadata"),
-        level = DeprecationLevel.WARNING)
+        level = DeprecationLevel.WARNING
+    )
     override fun awaitMetadata(camera: CameraId): CameraMetadata =
         checkNotNull(awaitCameraMetadata(camera))
 
@@ -76,6 +80,18 @@ internal class CameraDevicesImpl @Inject constructor(private val cameraBackends:
             Log.warn { "Failed to load cameraIds from ${cameraBackend.id}" }
         }
         return cameraIds
+    }
+
+    override suspend fun getConcurrentCameraIds(
+        cameraBackendId: CameraBackendId?
+    ): Set<Set<CameraId>>? {
+        val cameraBackend = getCameraBackend(cameraBackendId)
+        return cameraBackend.getConcurrentCameraIds()
+    }
+
+    override fun awaitConcurrentCameraIds(cameraBackendId: CameraBackendId?): Set<Set<CameraId>>? {
+        val cameraBackend = getCameraBackend(cameraBackendId)
+        return cameraBackend.awaitConcurrentCameraIds()
     }
 
     override suspend fun getCameraMetadata(

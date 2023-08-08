@@ -17,14 +17,12 @@
 package androidx.room.migration.bundle
 
 import androidx.annotation.RestrictTo
-
 import com.google.gson.annotations.SerializedName
 
 /**
  * Data class that holds the schema information for an
  * [androidx.room.Entity] field.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public open class FieldBundle(

@@ -19,7 +19,7 @@ package androidx.transition;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 
@@ -213,8 +213,8 @@ public class FragmentTransitionSupportTest extends BaseTest {
         }
 
         private Transition createTransition(int type) {
-            final Transition.TransitionListener listener = mock(
-                    Transition.TransitionListener.class);
+            final Transition.TransitionListener listener = spy(
+                    new TransitionListenerAdapter());
             final AutoTransition transition = new AutoTransition();
             transition.addListener(listener);
             transition.setDuration(10);

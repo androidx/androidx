@@ -22,21 +22,27 @@ import android.os.Parcel;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
 
 /** Gms Reference: com.google.android.gms.nearby.uwb.RangingParameters
  *
- * @hide
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 @SuppressLint({"ParcelNotFinal", "BanParcelableUsage"})
 public class RangingParameters implements android.os.Parcelable
 {
     @SuppressLint("MutableBareField")
-    public int uwbConfigId;
+    public int uwbConfigId = 0;
     @SuppressLint("MutableBareField")
     public int sessionId = 0;
+    @SuppressLint("MutableBareField")
+    public int subSessionId = 0;
     @Nullable
     @SuppressLint("MutableBareField")
     public byte[] sessionKeyInfo;
+    @Nullable
+    @SuppressLint("MutableBareField")
+    public byte[] subSessionKeyInfo;
     @Nullable
     @SuppressLint("MutableBareField")
     public androidx.core.uwb.backend.UwbComplexChannel complexChannel;
@@ -64,7 +70,9 @@ public class RangingParameters implements android.os.Parcelable
         _aidl_parcel.writeInt(0);
         _aidl_parcel.writeInt(uwbConfigId);
         _aidl_parcel.writeInt(sessionId);
+        _aidl_parcel.writeInt(subSessionId);
         _aidl_parcel.writeByteArray(sessionKeyInfo);
+        _aidl_parcel.writeByteArray(subSessionKeyInfo);
         _aidl_parcel.writeTypedObject(complexChannel, _aidl_flag);
         _aidl_parcel.writeTypedList(peerDevices);
         _aidl_parcel.writeInt(rangingUpdateRate);
@@ -85,7 +93,11 @@ public class RangingParameters implements android.os.Parcelable
             if (_aidl_parcel.dataPosition() - _aidl_start_pos >= _aidl_parcelable_size) return;
             sessionId = _aidl_parcel.readInt();
             if (_aidl_parcel.dataPosition() - _aidl_start_pos >= _aidl_parcelable_size) return;
+            subSessionId = _aidl_parcel.readInt();
+            if (_aidl_parcel.dataPosition() - _aidl_start_pos >= _aidl_parcelable_size) return;
             sessionKeyInfo = _aidl_parcel.createByteArray();
+            if (_aidl_parcel.dataPosition() - _aidl_start_pos >= _aidl_parcelable_size) return;
+            subSessionKeyInfo = _aidl_parcel.createByteArray();
             if (_aidl_parcel.dataPosition() - _aidl_start_pos >= _aidl_parcelable_size) return;
             complexChannel = _aidl_parcel.readTypedObject(androidx.core.uwb.backend.UwbComplexChannel.CREATOR);
             if (_aidl_parcel.dataPosition() - _aidl_start_pos >= _aidl_parcelable_size) return;

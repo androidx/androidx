@@ -20,8 +20,8 @@ import android.app.Service
 import android.content.Intent
 import android.os.IBinder
 import android.util.Log
-import androidx.wear.watchface.style.data.UserStyleSchemaWireFormat
 import androidx.wear.watchface.style.UserStyleSchema
+import androidx.wear.watchface.style.data.UserStyleSchemaWireFormat
 
 public class StyleEchoService : Service() {
     override fun onBind(intent: Intent?): IBinder = IStyleEchoServiceStub()

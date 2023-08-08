@@ -38,7 +38,7 @@ import kotlin.math.abs
  * @suppress
  */
 @InternalPlatformTextApi
-class IndentationFixSpan : LeadingMarginSpan {
+internal class IndentationFixSpan : LeadingMarginSpan {
     override fun getLeadingMargin(firstLine: Boolean): Int {
         return 0
     }

@@ -2,13 +2,19 @@
 package androidx.core.uwb {
 
   public final class RangingCapabilities {
-    ctor public RangingCapabilities(boolean isDistanceSupported, boolean isAzimuthalAngleSupported, boolean isElevationAngleSupported);
+    ctor public RangingCapabilities(boolean isDistanceSupported, boolean isAzimuthalAngleSupported, boolean isElevationAngleSupported, int minRangingInterval, java.util.Set<java.lang.Integer> supportedChannels, java.util.Set<java.lang.Integer> supportedConfigIds);
+    method public int getMinRangingInterval();
+    method public java.util.Set<java.lang.Integer> getSupportedChannels();
+    method public java.util.Set<java.lang.Integer> getSupportedConfigIds();
     method public boolean isAzimuthalAngleSupported();
     method public boolean isDistanceSupported();
     method public boolean isElevationAngleSupported();
     property public final boolean isAzimuthalAngleSupported;
     property public final boolean isDistanceSupported;
     property public final boolean isElevationAngleSupported;
+    property public final int minRangingInterval;
+    property public final java.util.Set<java.lang.Integer> supportedChannels;
+    property public final java.util.Set<java.lang.Integer> supportedConfigIds;
   }
 
   public final class RangingMeasurement {
@@ -18,24 +24,32 @@ package androidx.core.uwb {
   }
 
   public final class RangingParameters {
-    ctor public RangingParameters(int uwbConfigType, int sessionId, byte[]? sessionKeyInfo, androidx.core.uwb.UwbComplexChannel? complexChannel, java.util.List<androidx.core.uwb.UwbDevice> peerDevices, int updateRateType);
+    ctor public RangingParameters(int uwbConfigType, int sessionId, int subSessionId, byte[]? sessionKeyInfo, byte[]? subSessionKeyInfo, androidx.core.uwb.UwbComplexChannel? complexChannel, java.util.List<androidx.core.uwb.UwbDevice> peerDevices, int updateRateType);
     method public androidx.core.uwb.UwbComplexChannel? getComplexChannel();
     method public java.util.List<androidx.core.uwb.UwbDevice> getPeerDevices();
     method public int getSessionId();
     method public byte[]? getSessionKeyInfo();
+    method public int getSubSessionId();
+    method public byte[]? getSubSessionKeyInfo();
     method public int getUpdateRateType();
     method public int getUwbConfigType();
     property public final androidx.core.uwb.UwbComplexChannel? complexChannel;
     property public final java.util.List<androidx.core.uwb.UwbDevice> peerDevices;
     property public final int sessionId;
     property public final byte[]? sessionKeyInfo;
+    property public final int subSessionId;
+    property public final byte[]? subSessionKeyInfo;
     property public final int updateRateType;
     property public final int uwbConfigType;
+    field public static final int CONFIG_MULTICAST_DS_TWR = 2; // 0x2
+    field public static final int CONFIG_PROVISIONED_INDIVIDUAL_MULTICAST_DS_TWR = 7; // 0x7
+    field public static final int CONFIG_PROVISIONED_MULTICAST_DS_TWR = 5; // 0x5
+    field public static final int CONFIG_PROVISIONED_UNICAST_DS_TWR = 4; // 0x4
+    field public static final int CONFIG_UNICAST_DS_TWR = 1; // 0x1
     field public static final androidx.core.uwb.RangingParameters.Companion Companion;
-    field public static final int RANGING_UPDATE_RATE_AUTOMATIC;
-    field public static final int RANGING_UPDATE_RATE_FREQUENT;
-    field public static final int RANGING_UPDATE_RATE_INFREQUENT;
-    field public static final int UWB_CONFIG_ID_1;
+    field public static final int RANGING_UPDATE_RATE_AUTOMATIC = 1; // 0x1
+    field public static final int RANGING_UPDATE_RATE_FREQUENT = 3; // 0x3
+    field public static final int RANGING_UPDATE_RATE_INFREQUENT = 2; // 0x2
   }
 
   public static final class RangingParameters.Companion {
@@ -111,23 +125,23 @@ package androidx.core.uwb {
 
   public final class UwbDevice {
     ctor public UwbDevice(androidx.core.uwb.UwbAddress address);
-    method public static androidx.core.uwb.UwbDevice createForAddress(String address);
     method public static androidx.core.uwb.UwbDevice createForAddress(byte[] address);
+    method public static androidx.core.uwb.UwbDevice createForAddress(String address);
     method public androidx.core.uwb.UwbAddress getAddress();
     property public final androidx.core.uwb.UwbAddress address;
     field public static final androidx.core.uwb.UwbDevice.Companion Companion;
   }
 
   public static final class UwbDevice.Companion {
-    method public androidx.core.uwb.UwbDevice createForAddress(String address);
     method public androidx.core.uwb.UwbDevice createForAddress(byte[] address);
+    method public androidx.core.uwb.UwbDevice createForAddress(String address);
   }
 
   @kotlin.jvm.JvmDefaultWithCompatibility public interface UwbManager {
     method @Deprecated public suspend Object? clientSessionScope(kotlin.coroutines.Continuation<? super androidx.core.uwb.UwbClientSessionScope>);
     method public suspend Object? controleeSessionScope(kotlin.coroutines.Continuation<? super androidx.core.uwb.UwbControleeSessionScope>);
     method public suspend Object? controllerSessionScope(kotlin.coroutines.Continuation<? super androidx.core.uwb.UwbControllerSessionScope>);
-    method public default static androidx.core.uwb.UwbManager createInstance(android.content.Context context);
+    method public static androidx.core.uwb.UwbManager createInstance(android.content.Context context);
     field public static final androidx.core.uwb.UwbManager.Companion Companion;
   }
 
@@ -153,13 +167,6 @@ package androidx.core.uwb.exceptions {
 
   public final class UwbSystemCallbackException extends androidx.core.uwb.exceptions.UwbApiException {
     ctor public UwbSystemCallbackException(String message);
-  }
-
-}
-
-package androidx.core.uwb.helper {
-
-  public final class UwbHelperKt {
   }
 
 }

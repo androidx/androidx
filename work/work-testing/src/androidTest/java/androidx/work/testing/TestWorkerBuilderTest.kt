@@ -30,9 +30,14 @@ import androidx.work.WorkerParameters
 import androidx.work.await
 import androidx.work.testing.workers.TestListenableWorker
 import androidx.work.testing.workers.TestWorker
+import java.util.UUID
+import java.util.concurrent.ExecutionException
+import java.util.concurrent.Executor
+import java.util.concurrent.Executors
+import kotlin.jvm.Throws
 import kotlinx.coroutines.runBlocking
-import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.CoreMatchers.hasItems
+import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.containsInAnyOrder
 import org.hamcrest.Matchers.notNullValue
@@ -44,11 +49,6 @@ import org.mockito.ArgumentMatchers.anyString
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.times
 import org.mockito.Mockito.verify
-import java.util.UUID
-import java.util.concurrent.ExecutionException
-import java.util.concurrent.Executor
-import java.util.concurrent.Executors
-import kotlin.jvm.Throws
 
 @RunWith(AndroidJUnit4::class)
 class TestWorkerBuilderTest {

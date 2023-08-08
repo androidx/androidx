@@ -20,8 +20,8 @@ import android.os.Build
 import androidx.camera.core.impl.CameraControlInternal
 import androidx.camera.core.impl.CameraInternal
 import androidx.camera.testing.fakes.FakeCamera
-import androidx.camera.testing.fakes.FakeCameraFactory
 import androidx.camera.testing.fakes.FakeCameraInfoInternal
+import androidx.camera.testing.impl.fakes.FakeCameraFactory
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.ExecutionException
 import org.junit.Before

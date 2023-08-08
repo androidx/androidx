@@ -29,7 +29,6 @@ import java.lang.ref.WeakReference;
  * {@link FlingWatcher} implementation for {@link RecyclerView RecyclerViews}. Detects the end of
  * a Fling by waiting until the scroll state becomes idle.
  *
- * @hide
  */
 @RestrictTo(Scope.LIBRARY)
 class RecyclerViewFlingWatcher extends OnScrollListener implements FlingWatcher {

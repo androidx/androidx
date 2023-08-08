@@ -50,7 +50,6 @@ import java.util.List;
 /**
  * Wrapper around {@link Notification.Builder} that works in a backwards compatible way.
  *
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 class NotificationCompatBuilder implements NotificationBuilderWithBuilderAccessor {
@@ -98,9 +97,14 @@ class NotificationCompatBuilder implements NotificationBuilderWithBuilderAccesso
                 .setDeleteIntent(n.deleteIntent)
                 .setFullScreenIntent(b.mFullScreenIntent,
                         (n.flags & Notification.FLAG_HIGH_PRIORITY) != 0)
-                .setLargeIcon(b.mLargeIcon)
                 .setNumber(b.mNumber)
                 .setProgress(b.mProgressMax, b.mProgress, b.mProgressIndeterminate);
+        if (Build.VERSION.SDK_INT < 23) {
+            mBuilder.setLargeIcon(b.mLargeIcon == null ? null : b.mLargeIcon.getBitmap());
+        } else {
+            Api23Impl.setLargeIcon(mBuilder,
+                    b.mLargeIcon == null ? null : b.mLargeIcon.toIcon(mContext));
+        }
         if (Build.VERSION.SDK_INT < 21) {
             mBuilder.setSound(n.sound, n.audioStreamType);
         }
@@ -108,8 +112,25 @@ class NotificationCompatBuilder implements NotificationBuilderWithBuilderAccesso
             Api16Impl.setPriority(
                     Api16Impl.setUsesChronometer(Api16Impl.setSubText(mBuilder, b.mSubText),
                             b.mUseChronometer), b.mPriority);
-            for (NotificationCompat.Action action : b.mActions) {
-                addAction(action);
+
+            // CallStyle notifications add special actions in pre-specified positions, in addition
+            // to any provided custom actions. Because there's no way to remove Actions once they're
+            // added to Notification.Builder in Versions < 24, we add them here where we have
+            // access to NotificationCompatBuilder, rather than in CallStyle.apply where we have
+            // to add to the Notification.Builder directly.
+            if (Build.VERSION.SDK_INT >= 20
+                    && (b.mStyle instanceof NotificationCompat.CallStyle)) {
+                // Retrieves call style actions, including contextual and system actions.
+                List<NotificationCompat.Action> actionsList =
+                        ((NotificationCompat.CallStyle) b.mStyle).getActionsListWithSystemActions();
+                // Adds the actions to the builder in the proper order.
+                for (NotificationCompat.Action action : actionsList) {
+                    addAction(action);
+                }
+            } else {
+                for (NotificationCompat.Action action : b.mActions) {
+                    addAction(action);
+                }
             }
 
             if (b.mExtras != null) {
@@ -708,7 +729,7 @@ class NotificationCompatBuilder implements NotificationBuilderWithBuilderAccesso
 
         @DoNotInline
         static Notification.Builder setSound(Notification.Builder builder, Uri sound,
-                Object audioAttributes /** AudioAttributes **/) {
+                Object audioAttributes /** AudioAttributes */) {
             return builder.setSound(sound, (AudioAttributes) audioAttributes);
         }
     }
@@ -730,8 +751,13 @@ class NotificationCompatBuilder implements NotificationBuilderWithBuilderAccesso
 
         @DoNotInline
         static Notification.Builder setSmallIcon(Notification.Builder builder,
-                Object icon /** Icon **/) {
+                Object icon /** Icon */) {
             return builder.setSmallIcon((Icon) icon);
+        }
+
+        @DoNotInline
+        static Notification.Builder setLargeIcon(Notification.Builder builder, Icon icon) {
+            return builder.setLargeIcon(icon);
         }
     }
 
@@ -862,7 +888,7 @@ class NotificationCompatBuilder implements NotificationBuilderWithBuilderAccesso
 
         @DoNotInline
         static Notification.Builder setLocusId(Notification.Builder builder,
-                Object locusId /** LocusId **/) {
+                Object locusId /** LocusId */) {
             return builder.setLocusId((LocusId) locusId);
         }
 

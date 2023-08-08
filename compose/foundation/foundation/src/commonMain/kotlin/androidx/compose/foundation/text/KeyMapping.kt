@@ -57,6 +57,7 @@ internal expect object MappedKeys {
     val Delete: Key
     val Paste: Key
     val Cut: Key
+    val Copy: Key
     val Tab: Key
 }
 
@@ -111,6 +112,7 @@ internal fun commonKeyMapping(
                         MappedKeys.Delete -> KeyCommand.DELETE_NEXT_CHAR
                         MappedKeys.Paste -> KeyCommand.PASTE
                         MappedKeys.Cut -> KeyCommand.CUT
+                        MappedKeys.Copy -> KeyCommand.COPY
                         MappedKeys.Tab -> KeyCommand.TAB
                         else -> null
                     }
@@ -147,8 +149,8 @@ internal val defaultKeyMapping: KeyMapping =
                         }
                     event.isShiftPressed ->
                         when (event.key) {
-                            MappedKeys.MoveHome -> KeyCommand.SELECT_HOME
-                            MappedKeys.MoveEnd -> KeyCommand.SELECT_END
+                            MappedKeys.MoveHome -> KeyCommand.SELECT_LINE_LEFT
+                            MappedKeys.MoveEnd -> KeyCommand.SELECT_LINE_RIGHT
                             else -> null
                         }
                     event.isAltPressed ->

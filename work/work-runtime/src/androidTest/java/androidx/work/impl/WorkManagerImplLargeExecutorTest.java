@@ -16,6 +16,7 @@
 
 package androidx.work.impl;
 
+import static androidx.work.impl.WorkManagerImplExtKt.createTestWorkManager;
 import static androidx.work.worker.RandomSleepTestWorker.MAX_SLEEP_DURATION_MS;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -111,8 +112,7 @@ public class WorkManagerImplLargeExecutorTest {
                 .setMaxSchedulerLimit(TEST_SCHEDULER_LIMIT)
                 .build();
         TaskExecutor taskExecutor = new InstantWorkTaskExecutor();
-        mWorkManagerImplSpy = spy(
-                new WorkManagerImpl(context, configuration, taskExecutor, true));
+        mWorkManagerImplSpy = spy(createTestWorkManager(context, configuration, taskExecutor));
 
         TrackingScheduler trackingScheduler =
                 new TrackingScheduler(context, configuration, mWorkManagerImplSpy);
@@ -190,7 +190,11 @@ public class WorkManagerImplLargeExecutorTest {
                 Context context,
                 Configuration configuration,
                 WorkManagerImpl workManagerImpl) {
-            super(context, configuration, workManagerImpl.getTrackers(), workManagerImpl);
+            super(context, configuration, workManagerImpl.getTrackers(),
+                    workManagerImpl.getProcessor(),
+                    new WorkLauncherImpl(workManagerImpl.getProcessor(),
+                            workManagerImpl.getWorkTaskExecutor()),
+                    workManagerImpl.getWorkTaskExecutor());
             mScheduledWorkSpecIds = new HashSet<>();
         }
 

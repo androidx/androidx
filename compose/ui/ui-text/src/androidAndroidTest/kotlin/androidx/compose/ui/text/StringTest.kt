@@ -17,12 +17,12 @@
 package androidx.compose.ui.text
 
 import androidx.compose.ui.text.intl.LocaleList
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
+import java.util.Locale
 import org.junit.Test
 import org.junit.runner.RunWith
-import androidx.test.ext.junit.runners.AndroidJUnit4
-import java.util.Locale
 
 @RunWith(AndroidJUnit4::class)
 @SmallTest

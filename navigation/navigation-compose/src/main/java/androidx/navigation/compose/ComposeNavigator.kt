@@ -16,7 +16,12 @@
 
 package androidx.navigation.compose
 
+import androidx.compose.animation.AnimatedContentScope
+import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavDestination
 import androidx.navigation.NavOptions
@@ -41,6 +46,8 @@ public class ComposeNavigator : Navigator<Destination>() {
      */
     public val backStack get() = state.backStack
 
+    internal val isPop = mutableStateOf(false)
+
     override fun navigate(
         entries: List<NavBackStackEntry>,
         navOptions: NavOptions?,
@@ -49,6 +56,7 @@ public class ComposeNavigator : Navigator<Destination>() {
         entries.forEach { entry ->
             state.pushWithTransition(entry)
         }
+        isPop.value = false
     }
 
     override fun createDestination(): Destination {
@@ -57,6 +65,7 @@ public class ComposeNavigator : Navigator<Destination>() {
 
     override fun popBackStack(popUpTo: NavBackStackEntry, savedState: Boolean) {
         state.popWithTransition(popUpTo, savedState)
+        isPop.value = true
     }
 
     /**
@@ -79,8 +88,31 @@ public class ComposeNavigator : Navigator<Destination>() {
     @NavDestination.ClassType(Composable::class)
     public class Destination(
         navigator: ComposeNavigator,
-        internal val content: @Composable (NavBackStackEntry) -> Unit
-    ) : NavDestination(navigator)
+        internal val content:
+            @Composable AnimatedContentScope.(@JvmSuppressWildcards NavBackStackEntry) -> Unit
+    ) : NavDestination(navigator) {
+
+        @Deprecated(
+            message = "Deprecated in favor of Destination that supports AnimatedContent",
+            level = DeprecationLevel.HIDDEN,
+        )
+        constructor(
+            navigator: ComposeNavigator,
+            content: @Composable (NavBackStackEntry) -> @JvmSuppressWildcards Unit
+        ) : this(navigator, content = { entry -> content(entry) })
+
+        internal var enterTransition: (@JvmSuppressWildcards
+        AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition?)? = null
+
+        internal var exitTransition: (@JvmSuppressWildcards
+        AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition?)? = null
+
+        internal var popEnterTransition: (@JvmSuppressWildcards
+        AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition?)? = null
+
+        internal var popExitTransition: (@JvmSuppressWildcards
+        AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition?)? = null
+    }
 
     internal companion object {
         internal const val NAME = "composable"

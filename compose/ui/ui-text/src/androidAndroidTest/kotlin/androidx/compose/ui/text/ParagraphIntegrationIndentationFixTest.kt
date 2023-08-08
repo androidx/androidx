@@ -25,12 +25,13 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
-import androidx.test.ext.junit.runners.AndroidJUnit4
 
 @RunWith(AndroidJUnit4::class)
 @SmallTest
@@ -64,6 +65,7 @@ class ParagraphIntegrationIndentationFixTest {
         }
     }
 
+    @SdkSuppress(minSdkVersion = 23) // b/266743243
     @Test
     fun getLineLeftAndGetLineRight_Ltr_TextIndent() {
         val paragraph = paragraph(
@@ -147,6 +149,7 @@ class ParagraphIntegrationIndentationFixTest {
         }
     }
 
+    @SdkSuppress(minSdkVersion = 23) // b/266743243
     @Test
     fun getLineLeftAndGetLineRight_Ltr_TextIndent_sp_letterspacing() {
         val paragraph = paragraph(

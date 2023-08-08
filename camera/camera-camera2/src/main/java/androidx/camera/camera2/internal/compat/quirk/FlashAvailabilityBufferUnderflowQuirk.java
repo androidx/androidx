@@ -20,11 +20,11 @@ import android.hardware.camera2.CameraCharacteristics;
 import android.os.Build;
 import android.util.Pair;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.Quirk;
 
 import java.nio.BufferUnderflowException;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
@@ -44,12 +44,17 @@ import java.util.Set;
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class FlashAvailabilityBufferUnderflowQuirk implements Quirk {
-    private static final Set<Pair<String, String>> KNOWN_AFFECTED_MODELS = new HashSet<>(
-            Arrays.asList(
-                    // Devices enumerated as Pair(Build.MANUFACTURER, Build.MODEL)
-                    new Pair<>("sprd", "lemp"),
-                    new Pair<>("sprd", "DM20C")
-            ));
+    private static final Set<Pair<String, String>> KNOWN_AFFECTED_MODELS = new HashSet<>();
+    static {
+        // Devices enumerated as Pair(Build.MANUFACTURER, Build.MODEL).
+        addAffectedDevice("sprd", "lemp");
+        addAffectedDevice("sprd", "DM20C");
+    }
+
+    private static void addAffectedDevice(@NonNull String manufacturer, @NonNull String model) {
+        KNOWN_AFFECTED_MODELS.add(new Pair<>(manufacturer.toLowerCase(Locale.US),
+                model.toLowerCase(Locale.US)));
+    }
 
     static boolean load() {
         return KNOWN_AFFECTED_MODELS.contains(new Pair<>(Build.MANUFACTURER.toLowerCase(Locale.US),

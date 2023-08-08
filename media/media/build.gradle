@@ -25,6 +25,7 @@ dependencies {
     api("androidx.core:core:1.6.0")
     implementation("androidx.annotation:annotation:1.2.0")
     implementation("androidx.collection:collection:1.1.0")
+    implementation("androidx.core:core:1.9.0")
 
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
@@ -51,7 +52,7 @@ android {
 }
 
 androidx {
-    name = "Android Support Library media compat"
+    name = "Media"
     publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.MEDIA
     inceptionYear = "2011"

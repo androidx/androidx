@@ -208,8 +208,12 @@ internal class RenderNodeLayer(
         val newLeft = position.x
         val newTop = position.y
         if (oldLeft != newLeft || oldTop != newTop) {
-            renderNode.offsetLeftAndRight(newLeft - oldLeft)
-            renderNode.offsetTopAndBottom(newTop - oldTop)
+            if (oldLeft != newLeft) {
+                renderNode.offsetLeftAndRight(newLeft - oldLeft)
+            }
+            if (oldTop != newTop) {
+                renderNode.offsetTopAndBottom(newTop - oldTop)
+            }
             triggerRepaint()
             matrixCache.invalidate()
         }
@@ -291,7 +295,6 @@ internal class RenderNodeLayer(
 
     override fun updateDisplayList() {
         if (isDirty || !renderNode.hasDisplayList) {
-            isDirty = false
             val clipPath = if (renderNode.clipToOutline && !outlineResolver.outlineClipSupported) {
                 outlineResolver.clipPath
             } else {
@@ -300,6 +303,7 @@ internal class RenderNodeLayer(
             drawBlock?.let {
                 renderNode.record(canvasHolder, clipPath, it)
             }
+            isDirty = false
         }
     }
 

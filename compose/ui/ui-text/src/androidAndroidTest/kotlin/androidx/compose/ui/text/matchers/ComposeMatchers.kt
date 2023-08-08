@@ -18,8 +18,8 @@ package androidx.compose.ui.text.matchers
 
 import android.graphics.Bitmap
 import android.graphics.Typeface
-import androidx.compose.ui.text.font.TypefaceResult
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.text.font.TypefaceResult
 import com.google.common.truth.IntegerSubject
 import com.google.common.truth.Truth.assertAbout
 

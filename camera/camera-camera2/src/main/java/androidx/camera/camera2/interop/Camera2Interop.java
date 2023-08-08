@@ -93,7 +93,6 @@ public final class Camera2Interop {
          *
          * @param templateType The template type to set.
          * @return The current Extender.
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY)
         @NonNull

@@ -16,15 +16,16 @@
 
 package androidx.build.libabigail
 
-/**
- * Locations of libabigail libraries (`abidw`, `abidff`) relative to the root project path.
- */
+/** Locations of libabigail libraries (`abidw`, `abidff`) relative to the root project path. */
 object LibabigailPaths {
     object Linux {
         private fun basePath(rootDir: String) =
             "$rootDir/../../prebuilts/fullsdk-linux/kernel-build-tools/linux-x86/bin"
+
         fun abidwPath(rootDir: String) = "${basePath(rootDir)}/abidw"
+
         fun abidiffPath(rootDir: String) = "${basePath(rootDir)}/abidiff"
+
         fun abitidyPath(rootDir: String) = "${basePath(rootDir)}/abitidy"
     }
 }

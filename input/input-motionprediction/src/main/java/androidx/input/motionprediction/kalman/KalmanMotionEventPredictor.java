@@ -18,47 +18,36 @@ package androidx.input.motionprediction.kalman;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
+import android.content.Context;
 import android.view.MotionEvent;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.input.motionprediction.MotionEventPredictor;
+import androidx.input.motionprediction.utils.PredictionEstimator;
 
 /**
- * @hide
  */
 @RestrictTo(LIBRARY)
 public class KalmanMotionEventPredictor implements MotionEventPredictor {
-    private MultiPointerPredictor mMultiPointerPredictor = new MultiPointerPredictor();
+    private final MultiPointerPredictor mMultiPointerPredictor = new MultiPointerPredictor();
+    private final PredictionEstimator mPredictionEstimator;
 
-    public KalmanMotionEventPredictor() {
-        // 1 may seem arbitrary, but this basically tells the predictor to
-        // just predict the next MotionEvent.
-        // This will need to change as we want to build a prediction depending
-        // on the expected time that the frame will arrive to the screen.
-        mMultiPointerPredictor.setPredictionTarget(1);
+    public KalmanMotionEventPredictor(@NonNull Context context) {
+        mPredictionEstimator = new PredictionEstimator(context);
     }
 
     @Override
     public void record(@NonNull MotionEvent event) {
-        if (mMultiPointerPredictor == null) {
-            return;
-        }
+        mPredictionEstimator.record(event);
         mMultiPointerPredictor.onTouchEvent(event);
     }
 
     @Nullable
     @Override
     public MotionEvent predict() {
-        if (mMultiPointerPredictor == null) {
-            return null;
-        }
-        return mMultiPointerPredictor.predict();
-    }
-
-    @Override
-    public void close() {
-        mMultiPointerPredictor = null;
+        final int predictionTimeDelta = mPredictionEstimator.estimate();
+        return mMultiPointerPredictor.predict(predictionTimeDelta);
     }
 }

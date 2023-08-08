@@ -27,7 +27,6 @@ import androidx.annotation.RestrictTo;
 /**
  * The receiver used to call into providers when a pending intent is requested.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public class ProviderRelayReceiver extends BroadcastReceiver {

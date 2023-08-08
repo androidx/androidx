@@ -42,12 +42,10 @@ import androidx.annotation.IdRes;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.LocusIdCompat;
-import androidx.core.os.BuildCompat;
 import androidx.core.view.DragAndDropPermissionsCompat;
 
 import java.lang.reflect.InvocationTargetException;
@@ -147,7 +145,6 @@ public class ActivityCompat extends ContextCompat {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     public interface RequestPermissionsRequestCodeValidator {
@@ -176,7 +173,6 @@ public class ActivityCompat extends ContextCompat {
     }
 
     /**
-     * @hide
      */
     @Nullable
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
@@ -515,7 +511,6 @@ public class ActivityCompat extends ContextCompat {
      * @see #checkSelfPermission(android.content.Context, String)
      * @see #shouldShowRequestPermissionRationale(android.app.Activity, String)
      */
-    @OptIn(markerClass = BuildCompat.PrereleaseSdkCheck.class)
     public static void requestPermissions(final @NonNull Activity activity,
             final @NonNull String[] permissions, final @IntRange(from = 0) int requestCode) {
         if (sDelegate != null
@@ -531,7 +526,7 @@ public class ActivityCompat extends ContextCompat {
                         + Arrays.toString(permissions) + " must not contain null or empty values");
             }
 
-            if (!BuildCompat.isAtLeastT()) {
+            if (Build.VERSION.SDK_INT < 33) {
                 if (TextUtils.equals(permissions[i], Manifest.permission.POST_NOTIFICATIONS)) {
                     indicesOfPermissionsToRemove.add(i);
                 }
@@ -591,10 +586,9 @@ public class ActivityCompat extends ContextCompat {
      * @see #checkSelfPermission(Context, String)
      * @see #requestPermissions(Activity, String[], int)
      */
-    @OptIn(markerClass = BuildCompat.PrereleaseSdkCheck.class)
     public static boolean shouldShowRequestPermissionRationale(@NonNull Activity activity,
             @NonNull String permission) {
-        if (!BuildCompat.isAtLeastT()
+        if (Build.VERSION.SDK_INT < 33
                 && TextUtils.equals(Manifest.permission.POST_NOTIFICATIONS, permission)) {
             // notification permission doesn't exist before T
             return false;

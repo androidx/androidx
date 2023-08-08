@@ -74,7 +74,6 @@ public abstract class GnssStatusCompat {
     public static final int CONSTELLATION_IRNSS = GnssStatus.CONSTELLATION_IRNSS;
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     @Retention(RetentionPolicy.SOURCE)

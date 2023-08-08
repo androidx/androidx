@@ -24,8 +24,7 @@ import androidx.annotation.IntRange
  * [titleItem] comes first.
  * [contentItems] comes after [titleItem].
  * [emptyPlaceholderItem] will be served after [titleItem] only if [contentItems] is empty.
- * [forceContentSize], if provided, will truncate [contentItems] to certain size or pad with
- * [PlaceholderEmoji]s.
+ * [maxContentItemCount], if provided, will truncate [contentItems] to certain size.
  *
  * [categoryIconId] is the corresponding category icon in emoji picker header.
  */
@@ -33,24 +32,27 @@ internal class ItemGroup(
     @DrawableRes internal val categoryIconId: Int,
     internal val titleItem: CategoryTitle,
     private val contentItems: List<EmojiViewData>,
-    private val forceContentSize: Int? = null,
+    private val maxContentItemCount: Int? = null,
     private val emptyPlaceholderItem: PlaceholderText? = null
 ) {
 
     val size: Int
-        get() = 1 /* title */ +
-            (forceContentSize ?: maxOf(
-                contentItems.size,
-                if (emptyPlaceholderItem != null) 1 else 0
-            ))
+        get() = 1 /* title */ + when {
+            contentItems.isEmpty() -> if (emptyPlaceholderItem != null) 1 else 0
+            maxContentItemCount != null && contentItems.size > maxContentItemCount ->
+                maxContentItemCount
+            else -> contentItems.size
+        }
 
     operator fun get(index: Int): ItemViewData {
         if (index == 0) return titleItem
         val contentIndex = index - 1
         if (contentIndex < contentItems.size) return contentItems[contentIndex]
         if (contentIndex == 0 && emptyPlaceholderItem != null) return emptyPlaceholderItem
-        return PlaceholderEmoji
+        throw IndexOutOfBoundsException()
     }
+
+    fun getAll(): List<ItemViewData> = IntRange(0, size - 1).map { get(it) }
 }
 
 /**
@@ -58,7 +60,7 @@ internal class ItemGroup(
  */
 internal class EmojiPickerItems(
     private val groups: List<ItemGroup>,
-) {
+) : Iterable<ItemViewData> {
     val size: Int get() = groups.sumOf { it.size }
 
     init {
@@ -103,4 +105,6 @@ internal class EmojiPickerItems(
         val index = groups.indexOf(group)
         return firstItemPositionByGroupIndex(index).let { it until it + group.size }
     }
+
+    override fun iterator(): Iterator<ItemViewData> = groups.flatMap { it.getAll() }.iterator()
 }

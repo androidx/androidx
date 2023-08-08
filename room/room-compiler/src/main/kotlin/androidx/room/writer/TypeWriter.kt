@@ -88,7 +88,12 @@ abstract class TypeWriter(val codeLanguage: CodeLanguage) {
             kotlinTypeBuilder = {
                 addAnnotation(
                     com.squareup.kotlinpoet.AnnotationSpec.builder(Suppress::class)
-                        .addMember("names = [%S, %S]", "UNCHECKED_CAST", "DEPRECATION")
+                        .addMember(
+                            "names = [%S, %S, %S]",
+                            "UNCHECKED_CAST",
+                            "DEPRECATION",
+                            "REDUNDANT_PROJECTION"
+                        )
                         .build()
                 )
             }

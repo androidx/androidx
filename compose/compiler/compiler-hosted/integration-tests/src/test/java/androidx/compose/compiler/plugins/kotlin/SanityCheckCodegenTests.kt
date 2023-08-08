@@ -18,7 +18,7 @@ package androidx.compose.compiler.plugins.kotlin
 
 import org.junit.Test
 
-class SanityCheckCodegenTests : AbstractCodegenTest() {
+class SanityCheckCodegenTests(useFir: Boolean) : AbstractCodegenTest(useFir) {
     @Test
     fun testCallAbstractSuperWithTypeParameters() {
         testCompile(

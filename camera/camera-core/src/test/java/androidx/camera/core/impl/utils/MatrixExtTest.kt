@@ -33,6 +33,24 @@ private const val FLOAT_TOLERANCE = 1E-4
 class MatrixExtTest {
 
     @Test
+    fun preVerticalFlip() {
+        // Arrange.
+        val flipLine = 0.5f
+        val matrix = FloatArray(16)
+        Matrix.setIdentityM(matrix, 0)
+        val expected = FloatArray(16)
+        Matrix.setIdentityM(expected, 0)
+
+        // Act: flip around the line y = 0.5.
+        MatrixExt.preVerticalFlip(matrix, flipLine)
+
+        // Assert: the matrix should be flipped around the line y = 0.5.
+        Matrix.translateM(expected, 0, 0f, flipLine * 2, 0f)
+        Matrix.scaleM(expected, 0, 1f, -flipLine * 2, 1f)
+        assertThat(matrix).usingTolerance(FLOAT_TOLERANCE).containsExactly(expected).inOrder()
+    }
+
+    @Test
     fun setRotate() {
         val transform = createIdentityMatrix().also {
             // 0.5x scaling on the Y axis

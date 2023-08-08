@@ -1055,7 +1055,6 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
 
     /**
      * Sets listener for reporting view being edited.
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public void setEditListener(@NonNull EditListener listener) {

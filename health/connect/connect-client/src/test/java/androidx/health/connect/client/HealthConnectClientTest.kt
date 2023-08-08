@@ -21,6 +21,7 @@ import android.content.IntentFilter
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageInfo
 import android.os.Build
+import androidx.health.connect.client.impl.HealthConnectClientImpl
 import androidx.health.platform.client.HealthDataService
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -47,12 +48,12 @@ class HealthConnectClientTest {
 
     @Test
     @Config(sdk = [Build.VERSION_CODES.P])
+    @Suppress("Deprecation")
     fun noBackingImplementation_unavailable() {
         val packageManager = context.packageManager
-        Shadows.shadowOf(packageManager).removePackage(PROVIDER_PACKAGE_NAME)
-        assertThat(HealthConnectClient.isApiSupported()).isTrue()
-        assertThat(HealthConnectClient.isProviderAvailable(context, PROVIDER_PACKAGE_NAME))
-            .isFalse()
+        shadowOf(packageManager).removePackage(PROVIDER_PACKAGE_NAME)
+        assertThat(HealthConnectClient.getSdkStatus(context, PROVIDER_PACKAGE_NAME))
+            .isEqualTo(HealthConnectClient.SDK_UNAVAILABLE_PROVIDER_UPDATE_REQUIRED)
         assertThrows(IllegalStateException::class.java) {
             HealthConnectClient.getOrCreate(context, PROVIDER_PACKAGE_NAME)
         }
@@ -60,10 +61,16 @@ class HealthConnectClientTest {
 
     @Test
     @Config(sdk = [Build.VERSION_CODES.P])
+    @Suppress("Deprecation")
     fun backingImplementation_notEnabled_unavailable() {
-        installPackage(context, PROVIDER_PACKAGE_NAME, versionCode = 35001, enabled = false)
-        assertThat(HealthConnectClient.isProviderAvailable(context, PROVIDER_PACKAGE_NAME))
-            .isFalse()
+        installPackage(
+            context,
+            PROVIDER_PACKAGE_NAME,
+            versionCode = HealthConnectClient.DEFAULT_PROVIDER_MIN_VERSION_CODE,
+            enabled = false
+        )
+        assertThat(HealthConnectClient.getSdkStatus(context, PROVIDER_PACKAGE_NAME))
+            .isEqualTo(HealthConnectClient.SDK_UNAVAILABLE_PROVIDER_UPDATE_REQUIRED)
         assertThrows(IllegalStateException::class.java) {
             HealthConnectClient.getOrCreate(context, PROVIDER_PACKAGE_NAME)
         }
@@ -71,10 +78,16 @@ class HealthConnectClientTest {
 
     @Test
     @Config(sdk = [Build.VERSION_CODES.P])
+    @Suppress("Deprecation")
     fun backingImplementation_enabledNoService_unavailable() {
-        installPackage(context, PROVIDER_PACKAGE_NAME, versionCode = 35001, enabled = true)
-        assertThat(HealthConnectClient.isProviderAvailable(context, PROVIDER_PACKAGE_NAME))
-            .isFalse()
+        installPackage(
+            context,
+            PROVIDER_PACKAGE_NAME,
+            versionCode = HealthConnectClient.DEFAULT_PROVIDER_MIN_VERSION_CODE,
+            enabled = true
+        )
+        assertThat(HealthConnectClient.getSdkStatus(context, PROVIDER_PACKAGE_NAME))
+            .isEqualTo(HealthConnectClient.SDK_UNAVAILABLE_PROVIDER_UPDATE_REQUIRED)
         assertThrows(IllegalStateException::class.java) {
             HealthConnectClient.getOrCreate(context, PROVIDER_PACKAGE_NAME)
         }
@@ -82,42 +95,86 @@ class HealthConnectClientTest {
 
     @Test
     @Config(sdk = [Build.VERSION_CODES.P])
+    @Suppress("Deprecation")
     fun backingImplementation_enabledUnsupportedVersion_unavailable() {
         installPackage(
             context,
             HealthConnectClient.DEFAULT_PROVIDER_PACKAGE_NAME,
             versionCode = HealthConnectClient.DEFAULT_PROVIDER_MIN_VERSION_CODE - 1,
-            enabled = true)
+            enabled = true
+        )
         installService(context, HealthConnectClient.DEFAULT_PROVIDER_PACKAGE_NAME)
 
-        assertThat(HealthConnectClient.isProviderAvailable(context)).isFalse()
-        assertThrows(IllegalStateException::class.java) {
-            HealthConnectClient.getOrCreate(context)
-        }
+        assertThat(HealthConnectClient.getSdkStatus(context, PROVIDER_PACKAGE_NAME))
+            .isEqualTo(HealthConnectClient.SDK_UNAVAILABLE_PROVIDER_UPDATE_REQUIRED)
+        assertThrows(IllegalStateException::class.java) { HealthConnectClient.getOrCreate(context) }
     }
 
     @Test
     @Config(sdk = [Build.VERSION_CODES.P])
+    @Suppress("Deprecation")
     fun backingImplementation_enabledSupportedVersion_isAvailable() {
         installPackage(
             context,
             HealthConnectClient.DEFAULT_PROVIDER_PACKAGE_NAME,
             versionCode = HealthConnectClient.DEFAULT_PROVIDER_MIN_VERSION_CODE,
-            enabled = true)
+            enabled = true
+        )
         installService(context, HealthConnectClient.DEFAULT_PROVIDER_PACKAGE_NAME)
 
-        assertThat(HealthConnectClient.isProviderAvailable(context)).isTrue()
-        HealthConnectClient.getOrCreate(context)
+        assertThat(
+                HealthConnectClient.getSdkStatus(
+                    context,
+                    HealthConnectClient.DEFAULT_PROVIDER_PACKAGE_NAME
+                )
+            )
+            .isEqualTo(HealthConnectClient.SDK_AVAILABLE)
+        assertThat(HealthConnectClient.getOrCreate(context))
+            .isInstanceOf(HealthConnectClientImpl::class.java)
+    }
+
+    @Test
+    @Config(sdk = [Build.VERSION_CODES.P])
+    @Suppress("Deprecation")
+    fun backingImplementationLegacy_enabledSupportedVersion_isAvailable() {
+        installPackage(
+            context,
+            HealthConnectClient.DEFAULT_PROVIDER_PACKAGE_NAME,
+            versionCode = HealthConnectClient.DEFAULT_PROVIDER_MIN_VERSION_CODE,
+            enabled = true
+        )
+        installService(context, HealthConnectClient.DEFAULT_PROVIDER_PACKAGE_NAME)
+
+        assertThat(
+                HealthConnectClient.getSdkStatusLegacy(
+                    context,
+                    HealthConnectClient.DEFAULT_PROVIDER_PACKAGE_NAME
+                )
+            )
+            .isEqualTo(HealthConnectClient.SDK_AVAILABLE)
+        assertThat(HealthConnectClient.getOrCreateLegacy(context))
+            .isInstanceOf(HealthConnectClientImpl::class.java)
     }
 
     @Test
     @Config(sdk = [Build.VERSION_CODES.O_MR1])
+    @Suppress("Deprecation")
     fun sdkVersionTooOld_unavailable() {
-        assertThat(HealthConnectClient.isApiSupported()).isFalse()
-        assertThat(HealthConnectClient.isProviderAvailable(context, PROVIDER_PACKAGE_NAME))
-            .isFalse()
+        assertThat(HealthConnectClient.getSdkStatus(context, PROVIDER_PACKAGE_NAME))
+            .isEqualTo(HealthConnectClient.SDK_UNAVAILABLE)
         assertThrows(UnsupportedOperationException::class.java) {
             HealthConnectClient.getOrCreate(context, PROVIDER_PACKAGE_NAME)
+        }
+    }
+
+    @Test
+    @Config(sdk = [Build.VERSION_CODES.O_MR1])
+    @Suppress("Deprecation")
+    fun sdkVersionTooOld_legacyClient_unavailable() {
+        assertThat(HealthConnectClient.getSdkStatusLegacy(context, PROVIDER_PACKAGE_NAME))
+            .isEqualTo(HealthConnectClient.SDK_UNAVAILABLE)
+        assertThrows(UnsupportedOperationException::class.java) {
+            HealthConnectClient.getOrCreateLegacy(context, PROVIDER_PACKAGE_NAME)
         }
     }
 

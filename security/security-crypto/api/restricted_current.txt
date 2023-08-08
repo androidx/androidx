@@ -7,8 +7,8 @@ package androidx.security.crypto {
   }
 
   public static final class EncryptedFile.Builder {
-    ctor @Deprecated public EncryptedFile.Builder(java.io.File, android.content.Context, String, androidx.security.crypto.EncryptedFile.FileEncryptionScheme);
     ctor public EncryptedFile.Builder(android.content.Context, java.io.File, androidx.security.crypto.MasterKey, androidx.security.crypto.EncryptedFile.FileEncryptionScheme);
+    ctor @Deprecated public EncryptedFile.Builder(java.io.File, android.content.Context, String, androidx.security.crypto.EncryptedFile.FileEncryptionScheme);
     method public androidx.security.crypto.EncryptedFile build() throws java.security.GeneralSecurityException, java.io.IOException;
     method public androidx.security.crypto.EncryptedFile.Builder setKeysetAlias(String);
     method public androidx.security.crypto.EncryptedFile.Builder setKeysetPrefName(String);

@@ -32,6 +32,7 @@ import org.chromium.support_lib_boundary.util.BoundaryInterfaceReflectionUtil;
 import org.chromium.support_lib_boundary.util.Features;
 
 import java.lang.reflect.InvocationHandler;
+import java.util.Objects;
 
 /**
  * Adapter between {@link WebMessageCompat} and
@@ -41,14 +42,14 @@ import java.lang.reflect.InvocationHandler;
 public class WebMessageAdapter implements WebMessageBoundaryInterface {
     private WebMessageCompat mWebMessageCompat;
 
-    private static final String[] sFeatures = {Features.WEB_MESSAGE_GET_MESSAGE_PAYLOAD};
+    private static final String[] sFeatures = {Features.WEB_MESSAGE_ARRAY_BUFFER};
 
     public WebMessageAdapter(@NonNull WebMessageCompat webMessage) {
         this.mWebMessageCompat = webMessage;
     }
 
     /**
-     * @deprecated  Keep backwards competibility with old version of WebView. This method is
+     * @deprecated  Keep backwards compatibility with old version of WebView. This method is
      * equivalent to {@link WebMessagePayloadBoundaryInterface#getAsString()}.
      */
     @Deprecated
@@ -62,8 +63,20 @@ public class WebMessageAdapter implements WebMessageBoundaryInterface {
     @Override
     @Nullable
     public InvocationHandler getMessagePayload() {
-        return BoundaryInterfaceReflectionUtil.createInvocationHandlerFor(
-                new WebMessagePayloadAdapter(mWebMessageCompat));
+        final WebMessagePayloadAdapter adapter;
+        switch (mWebMessageCompat.getType()) {
+            case WebMessageCompat.TYPE_STRING:
+                adapter = new WebMessagePayloadAdapter(mWebMessageCompat.getData());
+                break;
+            case WebMessageCompat.TYPE_ARRAY_BUFFER:
+                adapter = new WebMessagePayloadAdapter(
+                        Objects.requireNonNull(mWebMessageCompat.getArrayBuffer()));
+                break;
+            default:
+                throw new IllegalStateException(
+                        "Unknown web message payload type: " + mWebMessageCompat.getType());
+        }
+        return BoundaryInterfaceReflectionUtil.createInvocationHandlerFor(adapter);
     }
 
     @Override
@@ -93,7 +106,7 @@ public class WebMessageAdapter implements WebMessageBoundaryInterface {
             @WebMessageCompat.Type final int type) {
         return type == WebMessageCompat.TYPE_STRING
                 || (type == WebMessageCompat.TYPE_ARRAY_BUFFER
-                && WebViewFeatureInternal.WEB_MESSAGE_GET_MESSAGE_PAYLOAD.isSupportedByWebView());
+                && WebViewFeatureInternal.WEB_MESSAGE_ARRAY_BUFFER.isSupportedByWebView());
     }
 
     // ====================================================================================
@@ -111,7 +124,7 @@ public class WebMessageAdapter implements WebMessageBoundaryInterface {
             @NonNull WebMessageBoundaryInterface boundaryInterface) {
         final WebMessagePortCompat[] ports = toWebMessagePortCompats(
                 boundaryInterface.getPorts());
-        if (WebViewFeatureInternal.WEB_MESSAGE_GET_MESSAGE_PAYLOAD.isSupportedByWebView()) {
+        if (WebViewFeatureInternal.WEB_MESSAGE_ARRAY_BUFFER.isSupportedByWebView()) {
             WebMessagePayloadBoundaryInterface payloadInterface =
                     BoundaryInterfaceReflectionUtil.castToSuppLibClass(
                             WebMessagePayloadBoundaryInterface.class,

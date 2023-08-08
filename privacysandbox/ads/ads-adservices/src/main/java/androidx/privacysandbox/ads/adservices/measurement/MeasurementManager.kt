@@ -21,12 +21,16 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.net.Uri
 import android.os.ext.SdkExtensions
+import android.util.Log
 import android.view.InputEvent
 import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresExtension
 import androidx.annotation.RequiresPermission
 import androidx.core.os.asOutcomeReceiver
+import androidx.privacysandbox.ads.adservices.common.ExperimentalFeatures
 import androidx.privacysandbox.ads.adservices.internal.AdServicesInfo
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 
 /**
@@ -81,6 +85,16 @@ abstract class MeasurementManager {
     abstract suspend fun registerWebTrigger(request: WebTriggerRegistrationRequest)
 
     /**
+     * Register an attribution source(click or view) context. This API will not process any
+     * redirects, all registration URLs should be supplied with the request.
+     *
+     * @param request source registration request
+     */
+    @RequiresPermission(ACCESS_ADSERVICES_ATTRIBUTION)
+    @ExperimentalFeatures.RegisterSourceOptIn
+    abstract suspend fun registerSource(request: SourceRegistrationRequest)
+
+    /**
      * Get Measurement API status.
      *
      * The call returns an integer value (see [MEASUREMENT_API_STATE_DISABLED] and
@@ -90,8 +104,8 @@ abstract class MeasurementManager {
     abstract suspend fun getMeasurementApiStatus(): Int
 
     @SuppressLint("NewApi", "ClassVerificationFailure")
-    @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 4)
-    private class Api33Ext4Impl(
+    @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 5)
+    private class Api33Ext5Impl(
         private val mMeasurementManager: android.adservices.measurement.MeasurementManager
     ) : MeasurementManager() {
         constructor(context: Context) : this(
@@ -156,6 +170,26 @@ abstract class MeasurementManager {
                     convertWebSourceRequest(request),
                     Runnable::run,
                     continuation.asOutcomeReceiver())
+            }
+        }
+
+        @DoNotInline
+        @ExperimentalFeatures.RegisterSourceOptIn
+        @RequiresPermission(ACCESS_ADSERVICES_ATTRIBUTION)
+        override suspend fun registerSource(
+            request: SourceRegistrationRequest
+        ): Unit = coroutineScope {
+            request.registrationUris.forEach { uri ->
+                launch {
+                    suspendCancellableCoroutine<Any> { continuation ->
+                        mMeasurementManager.registerSource(
+                            uri,
+                            request.inputEvent,
+                            Runnable::run,
+                            continuation.asOutcomeReceiver()
+                        )
+                    }
+                }
             }
         }
 
@@ -250,8 +284,9 @@ abstract class MeasurementManager {
         @JvmStatic
         @SuppressLint("NewApi", "ClassVerificationFailure")
         fun obtain(context: Context): MeasurementManager? {
-            return if (AdServicesInfo.version() >= 4) {
-                Api33Ext4Impl(context)
+            Log.d("MeasurementManager", "AdServicesInfo.version=${AdServicesInfo.version()}")
+            return if (AdServicesInfo.version() >= 5) {
+                Api33Ext5Impl(context)
             } else {
                 null
             }

@@ -18,24 +18,24 @@ package androidx.wear.watchface.control;
 
 import androidx.wear.watchface.control.data.ComplicationRenderParams;
 import androidx.wear.watchface.control.data.WatchFaceRenderParams;
+import androidx.wear.watchface.control.data.WatchFaceSurfaceRenderParams;
 import androidx.wear.watchface.data.IdAndComplicationStateWireFormat;
 import androidx.wear.watchface.style.data.UserStyleSchemaWireFormat;
 import androidx.wear.watchface.style.data.UserStyleFlavorsWireFormat;
 
 /**
  * Interface for interacting with a stateless headless instance of a watch face.
- *
- * @hide
  */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 interface IHeadlessWatchFace {
     // IMPORTANT NOTE: All methods must be given an explicit transaction id that must never change
     // in the future to remain binary backwards compatible.
-    // Next Id: 10
+    // Next Id: 11
 
     /**
      * API version number. This should be incremented every time a new method is added.
      */
-    const int API_VERSION = 3;
+    const int API_VERSION = 4;
 
     /**
      * Returns the version number for this API which the client can use to determine which methods

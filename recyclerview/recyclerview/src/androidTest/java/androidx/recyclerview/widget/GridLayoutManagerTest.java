@@ -19,8 +19,11 @@ package androidx.recyclerview.widget;
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 
+import static androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat.ACTION_SCROLL_TO_POSITION;
 import static androidx.recyclerview.widget.LinearLayoutManager.HORIZONTAL;
 import static androidx.recyclerview.widget.LinearLayoutManager.VERTICAL;
+
+import static com.google.common.truth.Truth.assertThat;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
@@ -51,8 +54,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
 
-import com.google.common.truth.Truth;
-
 import org.hamcrest.CoreMatchers;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -68,6 +69,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class GridLayoutManagerTest extends BaseGridLayoutManagerTest {
 
     private static final int[] SPAN_SIZES = new int[]{1, 1, 1, 2, 2, 2, 2, 3, 3, 2, 2, 2};
+
     private final GridLayoutManager.SpanSizeLookup mSpanSizeLookupForSpanIndexTest =
             new GridLayoutManager.SpanSizeLookup() {
         @Override
@@ -964,8 +966,7 @@ public class GridLayoutManagerTest extends BaseGridLayoutManagerTest {
         waitForFirstLayout(recyclerView);
 
         final AccessibilityNodeInfoCompat nodeInfo = AccessibilityNodeInfoCompat.obtain();
-        assertFalse(nodeInfo.getActionList().contains(
-                AccessibilityNodeInfoCompat.AccessibilityActionCompat.ACTION_SCROLL_TO_POSITION));
+        assertFalse(nodeInfo.getActionList().contains(ACTION_SCROLL_TO_POSITION));
         mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -973,8 +974,7 @@ public class GridLayoutManagerTest extends BaseGridLayoutManagerTest {
             }
         });
 
-        assertFalse(nodeInfo.getActionList().contains(
-                AccessibilityNodeInfoCompat.AccessibilityActionCompat.ACTION_SCROLL_TO_POSITION));
+        assertFalse(nodeInfo.getActionList().contains(ACTION_SCROLL_TO_POSITION));
     }
 
     @Test
@@ -985,8 +985,7 @@ public class GridLayoutManagerTest extends BaseGridLayoutManagerTest {
         waitForFirstLayout(recyclerView);
 
         final AccessibilityNodeInfoCompat nodeInfo = AccessibilityNodeInfoCompat.obtain();
-        assertFalse(nodeInfo.getActionList().contains(
-                AccessibilityNodeInfoCompat.AccessibilityActionCompat.ACTION_SCROLL_TO_POSITION));
+        assertFalse(nodeInfo.getActionList().contains(ACTION_SCROLL_TO_POSITION));
         mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -994,8 +993,7 @@ public class GridLayoutManagerTest extends BaseGridLayoutManagerTest {
             }
         });
 
-        assertTrue(nodeInfo.getActionList().contains(
-                AccessibilityNodeInfoCompat.AccessibilityActionCompat.ACTION_SCROLL_TO_POSITION));
+        assertTrue(nodeInfo.getActionList().contains(ACTION_SCROLL_TO_POSITION));
     }
 
     @Test
@@ -1100,6 +1098,58 @@ public class GridLayoutManagerTest extends BaseGridLayoutManagerTest {
 
         assertTrue(returnValue[0]);
         assertEquals(((TextView) mGlm.getChildAt(0)).getText(), "Item (6)");
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @Test
+    public void onInitializeAccessibilityNodeInfo_addActionScrollInDirection_notAddedWithEmptyList()
+            throws Throwable {
+        mRecyclerView = setupBasic(new Config(2, 0));
+        final AccessibilityNodeInfoCompat nodeInfo = AccessibilityNodeInfoCompat.obtain();
+
+        assertThat(nodeInfo.getActionList()).doesNotContain(
+                AccessibilityNodeInfoCompat.AccessibilityActionCompat.ACTION_SCROLL_IN_DIRECTION);
+
+        mActivityRule.runOnUiThread(
+                () -> mRecyclerView.getLayoutManager().onInitializeAccessibilityNodeInfo(nodeInfo));
+
+        assertThat(nodeInfo.getActionList()).doesNotContain(
+                AccessibilityNodeInfoCompat.AccessibilityActionCompat.ACTION_SCROLL_IN_DIRECTION);
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @Test
+    public void onInitializeAccessibilityNodeInfo_addActionScrollInDirection_withOneItemList()
+            throws Throwable {
+        mRecyclerView = setupBasic(new Config(2, 1));
+        final AccessibilityNodeInfoCompat node = AccessibilityNodeInfoCompat.obtain();
+
+        assertThat(node.getActionList()).doesNotContain(
+                AccessibilityNodeInfoCompat.AccessibilityActionCompat.ACTION_SCROLL_IN_DIRECTION);
+
+        mActivityRule.runOnUiThread(
+                () -> mRecyclerView.getLayoutManager().onInitializeAccessibilityNodeInfo(node));
+
+        assertThat(node.getActionList()).doesNotContain(
+                AccessibilityNodeInfoCompat.AccessibilityActionCompat.ACTION_SCROLL_IN_DIRECTION);
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @Test
+    public void onInitializeAccessibilityNodeInfo_addActionScrollInDirection_withMoreThanOneItem()
+            throws Throwable {
+
+        mRecyclerView = setupBasic(new Config(2, 2));
+        final AccessibilityNodeInfoCompat node = AccessibilityNodeInfoCompat.obtain();
+
+        assertThat(node.getActionList()).doesNotContain(
+                AccessibilityNodeInfoCompat.AccessibilityActionCompat.ACTION_SCROLL_IN_DIRECTION);
+
+        mActivityRule.runOnUiThread(
+                () -> mRecyclerView.getLayoutManager().onInitializeAccessibilityNodeInfo(node));
+
+        assertThat(node.getActionList()).contains(
+                AccessibilityNodeInfoCompat.AccessibilityActionCompat.ACTION_SCROLL_IN_DIRECTION);
     }
 
     public GridLayoutManager.LayoutParams ensureGridLp(View view) {
@@ -1638,7 +1688,7 @@ public class GridLayoutManagerTest extends BaseGridLayoutManagerTest {
         rv.setLayoutParams(new ViewGroup.LayoutParams(500, 500));
         mAdapter.setFullSpan(0);
         waitForFirstLayout(rv);
-        Truth.assertThat(getPositionToSpanIndexMapping()).containsExactly(
+        assertThat(getPositionToSpanIndexMapping()).containsExactly(
                 0, 0,
                 1, 0,
                 2, 1,
@@ -1656,7 +1706,7 @@ public class GridLayoutManagerTest extends BaseGridLayoutManagerTest {
             }
         });
         waitForAnimations(10);
-        Truth.assertThat(getPositionToSpanIndexMapping()).containsExactly(
+        assertThat(getPositionToSpanIndexMapping()).containsExactly(
                 0, 0,
                 1, 0,
                 2, 1,
@@ -1669,7 +1719,7 @@ public class GridLayoutManagerTest extends BaseGridLayoutManagerTest {
         // 3 4
         // 5 6
         // 7
-        Truth.assertThat(getPositionToSpanIndexMapping()).containsExactly(
+        assertThat(getPositionToSpanIndexMapping()).containsExactly(
                 3, 0,
                 4, 1,
                 5, 0,

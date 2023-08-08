@@ -20,12 +20,12 @@ import androidx.paging.PagingSource.LoadParams
 import androidx.paging.PagingSource.LoadResult.Page
 import com.google.common.util.concurrent.ListenableFuture
 import com.google.common.util.concurrent.SettableFuture
+import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import kotlin.test.assertEquals
-import kotlin.test.assertFailsWith
 
 @RunWith(JUnit4::class)
 class ListenableFuturePagingSourceTest {

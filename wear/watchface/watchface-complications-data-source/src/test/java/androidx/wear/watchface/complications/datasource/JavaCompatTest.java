@@ -23,12 +23,11 @@ import androidx.wear.watchface.complications.data.ComplicationData;
 
 /** Tests that Java interfaces implementing kotlin interfaces with defaults compile. */
 public class JavaCompatTest {
-    class ComplicationRequestListenerImpl implements
-            ComplicationDataSourceService.ComplicationRequestListener {
+    class ComplicationRequestListenerImpl
+            implements ComplicationDataSourceService.ComplicationRequestListener {
 
         @Override
-        public void onComplicationData(
-                @Nullable ComplicationData complicationData) throws RemoteException {
-        }
+        public void onComplicationData(@Nullable ComplicationData complicationData)
+                throws RemoteException {}
     }
 }

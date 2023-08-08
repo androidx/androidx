@@ -34,7 +34,6 @@ public interface ExtendableBuilder<T> {
      * Returns the underlying {@link MutableConfig} being modified by this builder.
      *
      * @return The underlying {@link MutableConfig}.
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @NonNull

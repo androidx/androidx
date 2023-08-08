@@ -28,7 +28,6 @@ import java.util.Map;
 /**
  * A map of {@link Manager}s created lazily by invoking the corresponding {@link ManagerFactory}.
  *
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP)
 public class ManagerCache {

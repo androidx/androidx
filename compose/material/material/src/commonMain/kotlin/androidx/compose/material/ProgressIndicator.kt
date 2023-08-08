@@ -16,6 +16,7 @@
 
 package androidx.compose.material
 
+import androidx.annotation.FloatRange
 import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.Spring
@@ -28,6 +29,7 @@ import androidx.compose.animation.core.keyframes
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.progressSemantics
 import androidx.compose.material.ProgressIndicatorDefaults.IndicatorBackgroundOpacity
@@ -40,13 +42,41 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.offset
 import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.max
+
+internal fun Modifier.increaseSemanticsBounds(): Modifier {
+    val padding = 10.dp
+    return this
+        .layout { measurable, constraints ->
+            val paddingPx = padding.roundToPx()
+            // We need to add vertical padding to the semantics bounds in other to meet
+            // screenreader green box minimum size, but we also want to
+            // preserve a visual appearance and layout size below that minimum
+            // in order to maintain backwards compatibility. This custom
+            // layout effectively implements "negative padding".
+            val newConstraint = constraints.offset(0, paddingPx * 2)
+            val placeable = measurable.measure(newConstraint)
+
+            // But when actually placing the placeable, create the layout without additional
+            // space. Place the placeable where it would've been without any extra padding.
+            val height = placeable.height - paddingPx * 2
+            val width = placeable.width
+            layout(width, height) {
+                placeable.place(0, -paddingPx)
+            }
+        }
+        .semantics(mergeDescendants = true) {}
+        .padding(vertical = padding)
+}
 
 /**
  * Determinate <a href="https://material.io/components/progress-indicators#linear-progress-indicators" class="external" target="_blank">Material Design linear progress indicator</a>.
@@ -71,7 +101,7 @@ import kotlin.math.max
  */
 @Composable
 fun LinearProgressIndicator(
-    /*@FloatRange(from = 0.0, to = 1.0)*/
+    @FloatRange(from = 0.0, to = 1.0)
     progress: Float,
     modifier: Modifier = Modifier,
     color: Color = MaterialTheme.colors.primary,
@@ -81,6 +111,7 @@ fun LinearProgressIndicator(
     val coercedProgress = progress.coerceIn(0f, 1f)
     Canvas(
         modifier
+            .increaseSemanticsBounds()
             .progressSemantics(coercedProgress)
             .size(LinearIndicatorWidth, LinearIndicatorHeight)
     ) {
@@ -160,6 +191,7 @@ fun LinearProgressIndicator(
     )
     Canvas(
         modifier
+            .increaseSemanticsBounds()
             .progressSemantics()
             .size(LinearIndicatorWidth, LinearIndicatorHeight)
     ) {
@@ -284,7 +316,7 @@ private fun DrawScope.drawLinearIndicatorBackground(
  */
 @Composable
 fun CircularProgressIndicator(
-    /*@FloatRange(from = 0.0, to = 1.0)*/
+    @FloatRange(from = 0.0, to = 1.0)
     progress: Float,
     modifier: Modifier = Modifier,
     color: Color = MaterialTheme.colors.primary,

@@ -26,8 +26,8 @@ import androidx.wear.watchface.complications.datasource.ComplicationRequest
 import java.time.ZonedDateTime
 
 /**
- * A minimal immediate complication data source. Typically this would be used to surface sensor
- * data rather than the time.
+ * A minimal immediate complication data source. Typically this would be used to surface sensor data
+ * rather than the time.
  */
 class SynchronousDataSourceService : ComplicationDataSourceService() {
 
@@ -42,51 +42,45 @@ class SynchronousDataSourceService : ComplicationDataSourceService() {
                 when (request.complicationType) {
                     ComplicationType.SHORT_TEXT ->
                         ShortTextComplicationData.Builder(
-                            plainText("S ${time.second}"),
-                            ComplicationText.EMPTY
-                        ).build()
-
+                                plainText("S ${time.second}"),
+                                ComplicationText.EMPTY
+                            )
+                            .build()
                     ComplicationType.LONG_TEXT ->
                         LongTextComplicationData.Builder(
-                            plainText("Secs ${time.second}"),
-                            ComplicationText.EMPTY
-                        ).build()
-
+                                plainText("Secs ${time.second}"),
+                                ComplicationText.EMPTY
+                            )
+                            .build()
                     else -> null
                 }
             } else {
                 when (request.complicationType) {
                     ComplicationType.SHORT_TEXT ->
                         ShortTextComplicationData.Builder(
-                            plainText("M ${time.minute}"),
-                            ComplicationText.EMPTY
-                        ).build()
-
+                                plainText("M ${time.minute}"),
+                                ComplicationText.EMPTY
+                            )
+                            .build()
                     ComplicationType.LONG_TEXT ->
                         LongTextComplicationData.Builder(
-                            plainText("Mins ${time.minute}"),
-                            ComplicationText.EMPTY
-                        ).build()
-
+                                plainText("Mins ${time.minute}"),
+                                ComplicationText.EMPTY
+                            )
+                            .build()
                     else -> null
                 }
             }
         )
     }
 
-    override fun getPreviewData(type: ComplicationType): ComplicationData? = when (type) {
-        ComplicationType.SHORT_TEXT ->
-            ShortTextComplicationData.Builder(
-                plainText("S 10"),
-                ComplicationText.EMPTY
-            ).build()
-
-        ComplicationType.LONG_TEXT ->
-            LongTextComplicationData.Builder(
-                plainText("Secs 10"),
-                ComplicationText.EMPTY
-            ).build()
-
-        else -> null
-    }
+    override fun getPreviewData(type: ComplicationType): ComplicationData? =
+        when (type) {
+            ComplicationType.SHORT_TEXT ->
+                ShortTextComplicationData.Builder(plainText("S 10"), ComplicationText.EMPTY).build()
+            ComplicationType.LONG_TEXT ->
+                LongTextComplicationData.Builder(plainText("Secs 10"), ComplicationText.EMPTY)
+                    .build()
+            else -> null
+        }
 }

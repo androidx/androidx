@@ -19,7 +19,7 @@ package androidx.javascriptengine;
 /**
  * Exception thrown when evaluation is terminated due to the {@link JavaScriptIsolate} being closed
  * or crashing.
- *
+ * <p>
  * Calling {@link JavaScriptIsolate#close()} will cause this exception to be thrown for all
  * previously requested but pending evaluations.
  * <p>

@@ -1,0 +1,19 @@
+// Baseline format: 1.0
+BecameUnchecked: androidx.window.java.embedding.SplitControllerCallbackAdapter:
+    Removed class androidx.window.java.embedding.SplitControllerCallbackAdapter from compatibility checked API surface
+BecameUnchecked: androidx.window.java.embedding.SplitControllerCallbackAdapter#SplitControllerCallbackAdapter(androidx.window.embedding.SplitController):
+    Removed constructor androidx.window.java.embedding.SplitControllerCallbackAdapter(androidx.window.embedding.SplitController) from compatibility checked API surface
+BecameUnchecked: androidx.window.java.embedding.SplitControllerCallbackAdapter#SplitControllerCallbackAdapter(androidx.window.embedding.SplitController) parameter #0:
+    Removed parameter controller in androidx.window.java.embedding.SplitControllerCallbackAdapter(androidx.window.embedding.SplitController controller) from compatibility checked API surface
+BecameUnchecked: androidx.window.java.embedding.SplitControllerCallbackAdapter#addSplitListener(android.app.Activity, java.util.concurrent.Executor, androidx.core.util.Consumer<java.util.List<androidx.window.embedding.SplitInfo>>):
+    Removed method androidx.window.java.embedding.SplitControllerCallbackAdapter.addSplitListener(android.app.Activity,java.util.concurrent.Executor,androidx.core.util.Consumer<java.util.List<androidx.window.embedding.SplitInfo>>) from compatibility checked API surface
+BecameUnchecked: androidx.window.java.embedding.SplitControllerCallbackAdapter#addSplitListener(android.app.Activity, java.util.concurrent.Executor, androidx.core.util.Consumer<java.util.List<androidx.window.embedding.SplitInfo>>) parameter #0:
+    Removed parameter activity in androidx.window.java.embedding.SplitControllerCallbackAdapter.addSplitListener(android.app.Activity activity, java.util.concurrent.Executor executor, androidx.core.util.Consumer<java.util.List<androidx.window.embedding.SplitInfo>> consumer) from compatibility checked API surface
+BecameUnchecked: androidx.window.java.embedding.SplitControllerCallbackAdapter#addSplitListener(android.app.Activity, java.util.concurrent.Executor, androidx.core.util.Consumer<java.util.List<androidx.window.embedding.SplitInfo>>) parameter #1:
+    Removed parameter executor in androidx.window.java.embedding.SplitControllerCallbackAdapter.addSplitListener(android.app.Activity activity, java.util.concurrent.Executor executor, androidx.core.util.Consumer<java.util.List<androidx.window.embedding.SplitInfo>> consumer) from compatibility checked API surface
+BecameUnchecked: androidx.window.java.embedding.SplitControllerCallbackAdapter#addSplitListener(android.app.Activity, java.util.concurrent.Executor, androidx.core.util.Consumer<java.util.List<androidx.window.embedding.SplitInfo>>) parameter #2:
+    Removed parameter consumer in androidx.window.java.embedding.SplitControllerCallbackAdapter.addSplitListener(android.app.Activity activity, java.util.concurrent.Executor executor, androidx.core.util.Consumer<java.util.List<androidx.window.embedding.SplitInfo>> consumer) from compatibility checked API surface
+BecameUnchecked: androidx.window.java.embedding.SplitControllerCallbackAdapter#removeSplitListener(androidx.core.util.Consumer<java.util.List<androidx.window.embedding.SplitInfo>>):
+    Removed method androidx.window.java.embedding.SplitControllerCallbackAdapter.removeSplitListener(androidx.core.util.Consumer<java.util.List<androidx.window.embedding.SplitInfo>>) from compatibility checked API surface
+BecameUnchecked: androidx.window.java.embedding.SplitControllerCallbackAdapter#removeSplitListener(androidx.core.util.Consumer<java.util.List<androidx.window.embedding.SplitInfo>>) parameter #0:
+    Removed parameter consumer in androidx.window.java.embedding.SplitControllerCallbackAdapter.removeSplitListener(androidx.core.util.Consumer<java.util.List<androidx.window.embedding.SplitInfo>> consumer) from compatibility checked API surface

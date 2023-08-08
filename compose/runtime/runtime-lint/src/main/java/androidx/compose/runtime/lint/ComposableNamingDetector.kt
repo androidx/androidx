@@ -30,9 +30,9 @@ import com.android.tools.lint.detector.api.LintFix
 import com.android.tools.lint.detector.api.Scope
 import com.android.tools.lint.detector.api.Severity
 import com.android.tools.lint.detector.api.SourceCodeScanner
-import org.jetbrains.uast.UMethod
 import java.util.EnumSet
 import java.util.Locale
+import org.jetbrains.uast.UMethod
 
 /**
  * [Detector] that checks the naming of @Composable functions for consistency with guidelines.

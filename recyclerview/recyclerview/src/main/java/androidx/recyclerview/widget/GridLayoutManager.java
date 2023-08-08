@@ -17,19 +17,31 @@ package androidx.recyclerview.widget;
 
 import android.content.Context;
 import android.graphics.Rect;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.SparseIntArray;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.accessibility.AccessibilityEvent;
+import android.view.accessibility.AccessibilityNodeInfo;
 import android.widget.GridView;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
+import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat;
 
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.TreeMap;
 
 /**
  * A {@link RecyclerView.LayoutManager} implementations that lays out items in a grid.
@@ -42,6 +54,14 @@ public class GridLayoutManager extends LinearLayoutManager {
     private static final boolean DEBUG = false;
     private static final String TAG = "GridLayoutManager";
     public static final int DEFAULT_SPAN_COUNT = -1;
+    private static final int INVALID_POSITION = -1;
+
+    private static final Set<Integer> sSupportedDirectionsForActionScrollInDirection =
+            Collections.unmodifiableSet(new HashSet<>(Arrays.asList(
+                    View.FOCUS_LEFT,
+                    View.FOCUS_RIGHT,
+                    View.FOCUS_UP,
+                    View.FOCUS_DOWN)));
 
     /**
      * Span size have been changed but we've not done a new layout calculation.
@@ -65,6 +85,43 @@ public class GridLayoutManager extends LinearLayoutManager {
     final Rect mDecorInsets = new Rect();
 
     private boolean mUsingSpansToEstimateScrollBarDimensions;
+
+    /**
+     * Used to track the position of the target node brought on screen by
+     * {@code ACTIONS_SCROLL_IN_DIRECTION} so that a {@code TYPE_VIEW_TARGETED_BY_SCROLL} event can
+     * be emitted.
+     */
+    private int mPositionTargetedByScrollInDirection = INVALID_POSITION;
+
+    /**
+     * Stores the index of the row with accessibility focus for use with
+     * {@link  AccessibilityNodeInfoCompat.AccessibilityActionCompat#ACTION_SCROLL_IN_DIRECTION}.
+     * This may include a position that is spanned by a grid child. For example, in the following
+     * grid...
+     * 0  3  4
+     * 1  3  5
+     * 2  3  6
+     * ...the child at adapter position 3 (which spans three rows) could have a row index of either
+     * 0, 1, or 2, and the choice may depend on which row of the grid previously had
+     * accessibility focus. Note that for single span cells, the row index stored here should be
+     * the same as the value returned by {@code getRowIndex()}.
+     */
+    int mRowWithAccessibilityFocus = INVALID_POSITION;
+
+    /**
+     * Stores the index of the column with accessibility focus for use with
+     * {@link  AccessibilityNodeInfoCompat.AccessibilityActionCompat#ACTION_SCROLL_IN_DIRECTION}.
+     * This may include a position that is spanned by a grid child. For example, in the following
+     * grid...
+     * 0  1  2
+     * 3  3  3
+     * 4  5  6
+     * ... the child at adapter position 3 (which spans three columns) could have a column index
+     * of either 0, 1, or 2, and the choice may depend on which column of the grid previously had
+     * accessibility focus. Note that for single span cells, the column index stored here should be
+     * the same as the value returned by {@code getColumnIndex()}.
+     */
+    int mColumnWithAccessibilityFocus = INVALID_POSITION;
 
     /**
      * Constructor used when layout manager is set in XML by RecyclerView attribute
@@ -175,11 +232,123 @@ public class GridLayoutManager extends LinearLayoutManager {
         // and list via CollectionInfos, but an almost empty grid may be incorrectly identified
         // as a list.
         info.setClassName(GridView.class.getName());
+
+        if (mRecyclerView.mAdapter != null && mRecyclerView.mAdapter.getItemCount() > 1) {
+            info.addAction(AccessibilityActionCompat.ACTION_SCROLL_IN_DIRECTION);
+        }
     }
 
     @Override
     boolean performAccessibilityAction(int action, @Nullable Bundle args) {
-        if (action == android.R.id.accessibilityActionScrollToPosition) {
+        // TODO (267511848): when U constants are finalized:
+        //  - convert if/else blocks to switch statement
+        //  - remove SDK check
+        //  - remove the -1 check (this check makes accessibilityActionScrollInDirection
+        //  no-op for < 34; see action definition in AccessibilityNodeInfoCompat.java).
+        if (action == AccessibilityActionCompat.ACTION_SCROLL_IN_DIRECTION.getId()
+                && action != -1) {
+            final View viewWithAccessibilityFocus = findChildWithAccessibilityFocus();
+            if (viewWithAccessibilityFocus == null) {
+                // TODO(b/268487724#comment2): handle rare cases when the requesting service does
+                //  not place accessibility focus on a child. Consider scrolling forward/backward?
+                return false;
+            }
+
+            // Direction must be specified.
+            if (args == null) {
+                return false;
+            }
+
+            final int direction = args.getInt(
+                    AccessibilityNodeInfo.ACTION_ARGUMENT_DIRECTION_INT, INVALID_POSITION);
+
+            if (!sSupportedDirectionsForActionScrollInDirection.contains(direction)) {
+                if (DEBUG) {
+                    Log.w(TAG, "Direction equals " + direction
+                            + "which is unsupported when using ACTION_SCROLL_IN_DIRECTION");
+                }
+                return false;
+            }
+
+            RecyclerView.ViewHolder vh =
+                    mRecyclerView.getChildViewHolder(viewWithAccessibilityFocus);
+            if (vh == null) {
+                if (DEBUG) {
+                    throw new RuntimeException(
+                            "viewHolder is null for " + viewWithAccessibilityFocus);
+                }
+                return false;
+            }
+
+            int startingAdapterPosition = vh.getAbsoluteAdapterPosition();
+            int startingRow = getRowIndex(startingAdapterPosition);
+            int startingColumn = getColumnIndex(startingAdapterPosition);
+
+            if (startingRow < 0 || startingColumn < 0) {
+                if (DEBUG) {
+                    throw new RuntimeException("startingRow equals " + startingRow + ", and "
+                            + "startingColumn equals " + startingColumn + ", and neither can be "
+                            + "less than 0.");
+                }
+                return false;
+            }
+
+            if (hasAccessibilityFocusChanged(startingAdapterPosition)) {
+                mRowWithAccessibilityFocus = startingRow;
+                mColumnWithAccessibilityFocus = startingColumn;
+            }
+
+            int scrollTargetPosition;
+
+            int row = (mRowWithAccessibilityFocus == INVALID_POSITION) ? startingRow
+                    : mRowWithAccessibilityFocus;
+            int column = (mColumnWithAccessibilityFocus == INVALID_POSITION)
+                    ? startingColumn : mColumnWithAccessibilityFocus;
+
+            switch (direction) {
+                case View.FOCUS_LEFT:
+                    scrollTargetPosition = findScrollTargetPositionOnTheLeft(row, column,
+                            startingAdapterPosition);
+                    break;
+                case View.FOCUS_RIGHT:
+                    scrollTargetPosition =
+                            findScrollTargetPositionOnTheRight(row, column,
+                                    startingAdapterPosition);
+                    break;
+                case View.FOCUS_UP:
+                    scrollTargetPosition = findScrollTargetPositionAbove(row, column,
+                            startingAdapterPosition);
+                    break;
+                case View.FOCUS_DOWN:
+                    scrollTargetPosition = findScrollTargetPositionBelow(row, column,
+                            startingAdapterPosition);
+                    break;
+                default:
+                    return false;
+            }
+
+            if (scrollTargetPosition == INVALID_POSITION
+                    && mOrientation == RecyclerView.HORIZONTAL) {
+                // TODO (b/268487724): handle RTL.
+                // Handle case in grids with horizontal orientation where the scroll target is on
+                // a different row.
+                if (direction == View.FOCUS_LEFT) {
+                    scrollTargetPosition = findPositionOfLastItemOnARowAboveForHorizontalGrid(
+                            startingRow);
+                } else if (direction == View.FOCUS_RIGHT) {
+                    scrollTargetPosition = findPositionOfFirstItemOnARowBelowForHorizontalGrid(
+                            startingRow);
+                }
+            }
+
+            if (scrollTargetPosition != INVALID_POSITION) {
+                scrollToPosition(scrollTargetPosition);
+                mPositionTargetedByScrollInDirection = scrollTargetPosition;
+                return true;
+            }
+
+            return false;
+        } else if (action == android.R.id.accessibilityActionScrollToPosition) {
             final int noRow = -1;
             final int noColumn = -1;
             if (args != null) {
@@ -228,6 +397,439 @@ public class GridLayoutManager extends LinearLayoutManager {
         return super.performAccessibilityAction(action, args);
     }
 
+    private int findScrollTargetPositionOnTheRight(int startingRow, int startingColumn,
+            int startingAdapterPosition) {
+        int scrollTargetPosition = INVALID_POSITION;
+        for (int i = startingAdapterPosition + 1; i < getItemCount(); i++) {
+            int currentRow = getRowIndex(i);
+            int currentColumn = getColumnIndex(i);
+
+            if (currentRow < 0 || currentColumn < 0) {
+                if (DEBUG) {
+                    throw new RuntimeException("currentRow equals " + currentRow + ", and "
+                            + "currentColumn equals " + currentColumn + ", and neither can be "
+                            + "less than 0.");
+                }
+                return INVALID_POSITION;
+            }
+
+            if (mOrientation == VERTICAL) {
+                /*
+                 * For grids with vertical orientation...
+                 * 1   2   3
+                 * 4   5   5
+                 * 6   7
+                 * ... the scroll target may lie on the same or a following row.
+                 */
+                // TODO (b/268487724): handle RTL.
+                if ((currentRow == startingRow && currentColumn > startingColumn)
+                        || (currentRow > startingRow)) {
+                    mRowWithAccessibilityFocus = currentRow;
+                    mColumnWithAccessibilityFocus = currentColumn;
+                    return i;
+                }
+            } else { // HORIZONTAL
+                /*
+                 * For grids with horizontal orientation, the scroll target may span multiple
+                 * rows. For example, in this grid...
+                 * 1   4   6
+                 * 2   5   7
+                 * 3   5   8
+                 * ... moving from 3 to 5 is considered staying on the "same row" because 5 spans
+                 *  multiple rows and the row indices for 5 include 3's row.
+                 */
+                if (currentColumn > startingColumn && getRowIndices(i).contains(startingRow)) {
+                    // Note: mRowWithAccessibilityFocus not updated since the scroll target is on
+                    // the same row.
+                    mColumnWithAccessibilityFocus = currentColumn;
+                    return i;
+                }
+            }
+        }
+
+        return scrollTargetPosition;
+    }
+
+    private int findScrollTargetPositionOnTheLeft(int startingRow, int startingColumn,
+            int startingAdapterPosition) {
+        int scrollTargetPosition = INVALID_POSITION;
+        for (int i = startingAdapterPosition - 1; i >= 0; i--) {
+            int currentRow = getRowIndex(i);
+            int currentColumn = getColumnIndex(i);
+
+            if (currentRow < 0 || currentColumn < 0) {
+                if (DEBUG) {
+                    throw new RuntimeException("currentRow equals " + currentRow + ", and "
+                            + "currentColumn equals " + currentColumn + ", and neither can be "
+                            + "less than 0.");
+                }
+                return INVALID_POSITION;
+            }
+
+            if (mOrientation == VERTICAL) {
+                /*
+                 * For grids with vertical orientation...
+                 * 1   2   3
+                 * 4   5   5
+                 * 6   7
+                 * ... the scroll target may lie on the same or a preceding row.
+                 */
+                // TODO (b/268487724): handle RTL.
+                if ((currentRow == startingRow && currentColumn < startingColumn)
+                        || (currentRow < startingRow)) {
+                    scrollTargetPosition = i;
+                    mRowWithAccessibilityFocus = currentRow;
+                    mColumnWithAccessibilityFocus = currentColumn;
+                    break;
+                }
+            } else { // HORIZONTAL
+                /*
+                 * For grids with horizontal orientation, the scroll target may span multiple
+                 * rows. For example, in this grid...
+                 * 1   4   6
+                 * 2   5   7
+                 * 3   5   8
+                 * ... moving from 8 to 5 or from 7 to 5 is considered staying on the "same row"
+                 * because the row indices for 5 include 8's and 7's row.
+                 */
+                if (getRowIndices(i).contains(startingRow) && currentColumn < startingColumn) {
+                    // Note: mRowWithAccessibilityFocus not updated since the scroll target is on
+                    // the same row.
+                    mColumnWithAccessibilityFocus = currentColumn;
+                    return i;
+                }
+            }
+        }
+        return scrollTargetPosition;
+    }
+
+    private int findScrollTargetPositionAbove(int startingRow, int startingColumn,
+            int startingAdapterPosition) {
+        int scrollTargetPosition = INVALID_POSITION;
+        for (int i = startingAdapterPosition - 1; i >= 0; i--) {
+            int currentRow = getRowIndex(i);
+            int currentColumn = getColumnIndex(i);
+
+            if (currentRow < 0 || currentColumn < 0) {
+                if (DEBUG) {
+                    throw new RuntimeException("currentRow equals " + currentRow + ", and "
+                            + "currentColumn equals " + currentColumn + ", and neither can be "
+                            + "less than 0.");
+                }
+                return INVALID_POSITION;
+            }
+
+            if (mOrientation == VERTICAL) {
+                /*
+                 * The scroll target may span multiple columns. For example, in this grid...
+                 * 1   2   3
+                 * 4   4   5
+                 * 6   7
+                 * ... moving from 7 to 4 interprets as staying in second column, and moving from
+                 * 6 to 4 interprets as staying in the first column.
+                 */
+                if (currentRow < startingRow && getColumnIndices(i).contains(startingColumn)) {
+                    scrollTargetPosition = i;
+                    mRowWithAccessibilityFocus = currentRow;
+                    // Note: mColumnWithAccessibilityFocus not updated since the scroll target is on
+                    // the same column.
+                    break;
+                }
+            } else { // HORIZONTAL
+                /*
+                 * The scroll target may span multiple rows. In this grid...
+                 * 1   4
+                 * 2   5
+                 * 2
+                 * 3
+                 * ... 2 spans two rows and moving up from 3 to 2 interprets moving to the third
+                 * row.
+                 */
+                if (currentRow < startingRow && currentColumn == startingColumn) {
+                    Set<Integer> rowIndices = getRowIndices(i);
+                    scrollTargetPosition = i;
+                    mRowWithAccessibilityFocus = Collections.max(rowIndices);
+                    // Note: mColumnWithAccessibilityFocus not updated since the scroll target is on
+                    // the same column.
+                    break;
+                }
+            }
+        }
+        return scrollTargetPosition;
+    }
+
+    private int findScrollTargetPositionBelow(int startingRow, int startingColumn,
+            int startingAdapterPosition) {
+        int scrollTargetPosition = INVALID_POSITION;
+        for (int i = startingAdapterPosition + 1; i < getItemCount(); i++) {
+            int currentRow = getRowIndex(i);
+            int currentColumn = getColumnIndex(i);
+
+            if (currentRow < 0 || currentColumn < 0) {
+                if (DEBUG) {
+                    throw new RuntimeException("currentRow equals " + currentRow + ", and "
+                            + "currentColumn equals " + currentColumn + ", and neither can be "
+                            + "less than 0.");
+                }
+                return INVALID_POSITION;
+            }
+
+            if (mOrientation == VERTICAL) {
+                /*
+                 * The scroll target may span multiple columns. For example, in this grid...
+                 * 1   2   3
+                 * 4   4   5
+                 * 6   7
+                 * ... moving from 2 to 4 interprets as staying in second column, and moving from
+                 * 1 to 4 interprets as staying in the first column.
+                 */
+                if ((currentRow > startingRow) && (currentColumn == startingColumn
+                        || getColumnIndices(i).contains(startingColumn))) {
+                    scrollTargetPosition = i;
+                    mRowWithAccessibilityFocus = currentRow;
+                    break;
+                }
+            } else { // HORIZONTAL
+                /*
+                 * The scroll target may span multiple rows. In this grid...
+                 * 1   4
+                 * 2   5
+                 * 2
+                 * 3
+                 * ... 2 spans two rows and moving down from 1 to 2 interprets moving to the second
+                 * row.
+                 */
+                if (currentRow > startingRow && currentColumn == startingColumn) {
+                    scrollTargetPosition = i;
+                    mRowWithAccessibilityFocus = getRowIndex(i);
+                    break;
+                }
+            }
+        }
+        return scrollTargetPosition;
+    }
+
+    @SuppressWarnings("ConstantConditions") // For the spurious NPE warning related to getting a
+        // value from a map using one of the map keys.
+    int findPositionOfLastItemOnARowAboveForHorizontalGrid(int startingRow) {
+        if (startingRow < 0) {
+            if (DEBUG) {
+                throw new RuntimeException(
+                        "startingRow equals " + startingRow + ". It cannot be less than zero");
+            }
+            return INVALID_POSITION;
+        }
+
+        if (mOrientation == VERTICAL) {
+            // This only handles cases of grids with horizontal orientation.
+            if (DEBUG) {
+                Log.w(TAG, "You should not "
+                        + "use findPositionOfLastItemOnARowAboveForHorizontalGrid(...) with grids "
+                        + "with VERTICAL orientation");
+            }
+            return INVALID_POSITION;
+        }
+
+        // Map where the keys are row numbers and values are the adapter positions of the last
+        // item in each row. This map is used to locate a scroll target on a previous row in grids
+        // with horizontal orientation. In this example...
+        // 1   4   7
+        // 2   5   8
+        // 3   6
+        // ... the generated map - {2 -> 5, 1 -> 7, 0 -> 6} - can be used to scroll from,
+        // say, "2" (adapter position 1) in the second row to "7" (adapter position 6) in the
+        // preceding row.
+        //
+        // Sometimes cells span multiple rows. In this example:
+        // 1   4   7
+        // 2   5   7
+        // 3   6   8
+        // ... the generated map - {0 -> 6, 1 -> 6, 2 -> 7} - can be used to scroll left from,
+        // say, "3" (adapter position 2) in the third row to "7" (adapter position 6) on the
+        // second row, and then to "5" (adapter position 4).
+        Map<Integer, Integer> rowToLastItemPositionMap = new TreeMap<>(Collections.reverseOrder());
+        for (int position = 0; position < getItemCount(); position++) {
+            Set<Integer> rows = getRowIndices(position);
+            for (int row: rows) {
+                if (row < 0) {
+                    if (DEBUG) {
+                        throw new RuntimeException(
+                                "row equals " + row + ". It cannot be less than zero");
+                    }
+                    return INVALID_POSITION;
+                }
+                rowToLastItemPositionMap.put(row, position);
+            }
+        }
+
+        for (int row : rowToLastItemPositionMap.keySet()) {
+            if (row < startingRow) {
+                int scrollTargetPosition = rowToLastItemPositionMap.get(row);
+                mRowWithAccessibilityFocus = row;
+                mColumnWithAccessibilityFocus = getColumnIndex(scrollTargetPosition);
+                return scrollTargetPosition;
+            }
+        }
+        return INVALID_POSITION;
+    }
+
+    @SuppressWarnings("ConstantConditions") // For the spurious NPE warning related to getting a
+        // value from a map using one of the map keys.
+    int findPositionOfFirstItemOnARowBelowForHorizontalGrid(int startingRow) {
+        if (startingRow < 0) {
+            if (DEBUG) {
+                throw new RuntimeException(
+                        "startingRow equals " + startingRow + ". It cannot be less than zero");
+            }
+            return INVALID_POSITION;
+        }
+
+        if (mOrientation == VERTICAL) {
+            // This only handles cases of grids with horizontal orientation.
+            if (DEBUG) {
+                Log.w(TAG, "You should not "
+                        + "use findPositionOfFirstItemOnARowBelowForHorizontalGrid(...) with grids "
+                        + "with VERTICAL orientation");
+            }
+            return INVALID_POSITION;
+        }
+
+        // Map where the keys are row numbers and values are the adapter positions of the first
+        // item in each row. This map is used to locate a scroll target on a following row in grids
+        // with horizontal orientation. In this example:
+        // 1   4   7
+        // 2   5   8
+        // 3   6
+        // ... the generated map - {0 -> 0, 1 -> 1, 2 -> 2} - can be used to scroll from, say,
+        // "7" (adapter position 6) in the first row to "2" (adapter position 1) in the next row.
+        // Sometimes cells span multiple rows. In this example:
+        // 1   3   6
+        // 1   4   7
+        // 2   5   8
+        // ... the generated map - {0 -> 0, 1 -> 0, 2 -> 1} - can be used to scroll right from,
+        // say, "6" (adapter position 5) in the first row to "1" (adapter position 0) on the
+        // second row, and then to "4" (adapter position 3).
+        Map<Integer, Integer> rowToFirstItemPositionMap = new TreeMap<>();
+        for (int position = 0; position < getItemCount(); position++) {
+            Set<Integer> rows = getRowIndices(position);
+            for (int row : rows) {
+                if (row < 0) {
+                    if (DEBUG) {
+                        throw new RuntimeException(
+                                "row equals " + row + ". It cannot be less than zero");
+                    }
+                    return INVALID_POSITION;
+                }
+                // We only care about the first item on each row.
+                if (!rowToFirstItemPositionMap.containsKey(row)) {
+                    rowToFirstItemPositionMap.put(row, position);
+                }
+            }
+        }
+
+        for (int row : rowToFirstItemPositionMap.keySet()) {
+            if (row > startingRow) {
+                int scrollTargetPosition = rowToFirstItemPositionMap.get(row);
+                mRowWithAccessibilityFocus = row;
+                mColumnWithAccessibilityFocus = 0;
+                return scrollTargetPosition;
+            }
+        }
+        return INVALID_POSITION;
+    }
+
+    /**
+     * Returns the row index associated with a position. If the item at this position spans multiple
+     * rows, it returns the first row index. To get all row indices for a position, use
+     * {@link #getRowIndices(int)}.
+     */
+    private int getRowIndex(int position) {
+        return mOrientation == VERTICAL ? getSpanGroupIndex(mRecyclerView.mRecycler,
+                mRecyclerView.mState, position) : getSpanIndex(mRecyclerView.mRecycler,
+                mRecyclerView.mState, position);
+    }
+
+    /**
+     * Returns the column index associated with a position. If the item at this position spans
+     * multiple columns, it returns the first column index. To get all column indices, use
+     * {@link #getColumnIndices(int)}.
+     */
+    private int getColumnIndex(int position) {
+        return mOrientation == HORIZONTAL ? getSpanGroupIndex(mRecyclerView.mRecycler,
+                mRecyclerView.mState, position) : getSpanIndex(mRecyclerView.mRecycler,
+                mRecyclerView.mState, position);
+    }
+
+    /**
+     * Returns the row indices for a cell associated with {@code position}. For example, in this
+     * grid...
+     * 0   2   3
+     * 1   2   4
+     * ... the rows for the view at position 2 will be [0, 1] and the rows for position 3 will be
+     * [0].
+     */
+    private Set<Integer> getRowIndices(int position) {
+        return getRowOrColumnIndices(getRowIndex(position), position);
+    }
+
+    /**
+     * Returns the column indices for a cell associated with {@code position}. For example, in this
+     * grid...
+     * 0   1
+     * 2   2
+     * 3   4
+     * ... the columns for the view at position 2 will be [0, 1] and the columns for position 3
+     * will be [0].
+     */
+    private Set<Integer> getColumnIndices(int position) {
+        return getRowOrColumnIndices(getColumnIndex(position), position);
+    }
+
+    private Set<Integer> getRowOrColumnIndices(int rowOrColumnIndex, int position) {
+        Set<Integer> indices = new HashSet<>();
+        int spanSize = getSpanSize(mRecyclerView.mRecycler, mRecyclerView.mState, position);
+        for (int i = rowOrColumnIndex;  i <  rowOrColumnIndex + spanSize; i++) {
+            indices.add(i);
+        }
+        return indices;
+    }
+
+    @Nullable
+    private View findChildWithAccessibilityFocus() {
+        View child = null;
+        // SDK check needed for View#isAccessibilityFocused()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            boolean childFound = false;
+            int i;
+            for (i = 0; i < getChildCount(); i++) {
+                if (Api21Impl.isAccessibilityFocused(Objects.requireNonNull(getChildAt(i)))) {
+                    childFound = true;
+                    break;
+                }
+            }
+            if (childFound) {
+                child = getChildAt(i);
+            }
+        }
+        return child;
+    }
+
+    /**
+     * Returns true if the values stored in {@link #mRowWithAccessibilityFocus} and
+     * {@link #mColumnWithAccessibilityFocus} are not correct for the view at
+     * {@code adapterPosition}.
+     *
+     * Note that for cells that span multiple rows or multiple columns, {@link
+     * #mRowWithAccessibilityFocus} and {@link #mColumnWithAccessibilityFocus} can be set to more
+     * than one of several values. Accessibility focus is considered unchanged if any of the
+     * possible row values for a cell are the same as {@link #mRowWithAccessibilityFocus} and any
+     * of the possible column values are the same as {@link #mColumnWithAccessibilityFocus}.
+     */
+    private boolean hasAccessibilityFocusChanged(int adapterPosition) {
+        return !getRowIndices(adapterPosition).contains(mRowWithAccessibilityFocus)
+                || !getColumnIndices(adapterPosition).contains(mColumnWithAccessibilityFocus);
+    }
+
     @Override
     public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
         if (state.isPreLayout()) {
@@ -244,6 +846,19 @@ public class GridLayoutManager extends LinearLayoutManager {
     public void onLayoutCompleted(RecyclerView.State state) {
         super.onLayoutCompleted(state);
         mPendingSpanCountChange = false;
+        if (mPositionTargetedByScrollInDirection != INVALID_POSITION) {
+            View viewTargetedByScrollInDirection = findViewByPosition(
+                    mPositionTargetedByScrollInDirection);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN
+                    && viewTargetedByScrollInDirection != null) {
+                // Send event after the scroll associated with ACTION_SCROLL_IN_DIRECTION (see
+                // performAccessibilityAction()) concludes and layout completes. Accessibility
+                // services can listen for this event and change UI state as needed.
+                viewTargetedByScrollInDirection.sendAccessibilityEvent(
+                        AccessibilityEvent.TYPE_VIEW_TARGETED_BY_SCROLL);
+                mPositionTargetedByScrollInDirection = INVALID_POSITION;
+            }
+        }
     }
 
     private void clearPreLayoutSpanMappingCache() {
@@ -1504,6 +2119,19 @@ public class GridLayoutManager extends LinearLayoutManager {
          */
         public int getSpanSize() {
             return mSpanSize;
+        }
+    }
+
+
+    @RequiresApi(21)
+    private static class Api21Impl {
+        private Api21Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static boolean isAccessibilityFocused(@NonNull View view) {
+            return view.isAccessibilityFocused();
         }
     }
 }

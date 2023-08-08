@@ -16,17 +16,16 @@
 
 package androidx.room.compiler.processing.javac.kotlin
 
+import androidx.kruth.assertThat
+import androidx.kruth.assertWithMessage
 import androidx.room.compiler.processing.XNullability
-import androidx.room.compiler.processing.XProcessingEnvConfig
 import androidx.room.compiler.processing.javac.JavacProcessingEnv
 import androidx.room.compiler.processing.util.Source
+import androidx.room.compiler.processing.util.XTestInvocation
 import androidx.room.compiler.processing.util.compileFiles
 import androidx.room.compiler.processing.util.runJavaProcessorTest
 import androidx.room.compiler.processing.util.runKaptTest
 import androidx.room.compiler.processing.util.sanitizeAsJavaParameterName
-import com.google.common.truth.Truth.assertThat
-import com.google.common.truth.Truth.assertWithMessage
-import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.TypeElement
 import javax.lang.model.util.ElementFilter
@@ -54,9 +53,9 @@ class KotlinMetadataElementTest(
             }
             """.trimIndent()
         )
-        simpleRun(listOf(src)) { processingEnv ->
+        simpleRun(listOf(src)) { env ->
             val (testClassElement, metadataElement) = getMetadataElement(
-                processingEnv,
+                env,
                 "Subject"
             )
             val constructors = testClassElement.getConstructors()
@@ -108,9 +107,9 @@ class KotlinMetadataElementTest(
             }
             """.trimIndent()
         )
-        simpleRun(listOf(src)) { processingEnv ->
+        simpleRun(listOf(src)) { env ->
             val (testClassElement, metadataElement) = getMetadataElement(
-                processingEnv,
+                env,
                 "Subject"
             )
             testClassElement.getDeclaredMethod("functionWithParams")
@@ -156,14 +155,14 @@ class KotlinMetadataElementTest(
             }
             """.trimIndent()
         )
-        simpleRun(listOf(src)) { invocation ->
+        simpleRun(listOf(src)) { env ->
             val (testClassElement, metadataElement) = getMetadataElement(
-                invocation,
+                env,
                 "Subject"
             )
             assertThat(
                 testClassElement.getConstructors().map {
-                    val desc = it.descriptor()
+                    val desc = it.descriptor(env.delegate)
                     desc to (desc == metadataElement.primaryConstructorSignature)
                 }
             ).containsExactly(
@@ -190,14 +189,15 @@ class KotlinMetadataElementTest(
             }
             """.trimIndent()
         )
-        simpleRun(listOf(src)) { invocation ->
+        simpleRun(listOf(src)) { env ->
             val (testClassElement, metadataElement) = getMetadataElement(
-                invocation,
+                env,
                 "Subject"
             )
             assertThat(
                 testClassElement.getDeclaredMethods().map {
-                    it.simpleName.toString() to metadataElement.getFunctionMetadata(it)?.isSuspend()
+                    it.simpleName.toString() to metadataElement.getFunctionMetadata(it)
+                        ?.isSuspend()
                 }
             ).containsExactly(
                 "emptyFunction" to false,
@@ -219,12 +219,12 @@ class KotlinMetadataElementTest(
             object AnObject
             """.trimIndent()
         )
-        simpleRun(listOf(src)) { invocation ->
-            val (_, objectTypeMetadata) = getMetadataElement(invocation, "AnObject")
+        simpleRun(listOf(src)) { env ->
+            val (_, objectTypeMetadata) = getMetadataElement(env, "AnObject")
             assertThat(objectTypeMetadata.isObject()).isTrue()
-            val (_, classTypeMetadata) = getMetadataElement(invocation, "KotlinClass")
+            val (_, classTypeMetadata) = getMetadataElement(env, "KotlinClass")
             assertThat(classTypeMetadata.isObject()).isFalse()
-            val (_, interfaceMetadata) = getMetadataElement(invocation, "KotlinInterface")
+            val (_, interfaceMetadata) = getMetadataElement(env, "KotlinInterface")
             assertThat(interfaceMetadata.isObject()).isFalse()
         }
     }
@@ -240,9 +240,9 @@ class KotlinMetadataElementTest(
             }
             """.trimIndent()
         )
-        simpleRun(listOf(src)) { invocation ->
+        simpleRun(listOf(src)) { env ->
             val (testDaoElement, testDaoMetadata) = getMetadataElement(
-                invocation,
+                env,
                 "Subject"
             )
             val nonNullListMethod = testDaoElement.getDeclaredMethod("nonNullList")
@@ -272,38 +272,48 @@ class KotlinMetadataElementTest(
             }
             """.trimIndent()
         )
-        simpleRun(listOf(src)) { invocation ->
-            val (_, testMetadata) = getMetadataElement(
-                invocation,
+        simpleRun(listOf(src)) { env ->
+            val (typeElement, testMetadata) = getMetadataElement(
+                env,
                 "Properties"
             )
-            testMetadata.getPropertyMetadata("nonNull").let { property ->
+            testMetadata.getPropertyMetadata(
+                typeElement.getDeclaredField("nonNull")
+            ).let { property ->
                 assertThat(property?.name).isEqualTo("nonNull")
                 assertThat(property?.typeParameters).isEmpty()
                 assertThat(property?.isNullable()).isFalse()
             }
 
-            testMetadata.getPropertyMetadata("nullable").let { property ->
+            testMetadata.getPropertyMetadata(
+                typeElement.getDeclaredField("nullable")
+            ).let { property ->
                 assertThat(property?.name).isEqualTo("nullable")
                 assertThat(property?.typeParameters).isEmpty()
                 assertThat(property?.isNullable()).isTrue()
             }
 
-            testMetadata.getPropertyMetadata("nullableTypeArgument").let { property ->
+            testMetadata.getPropertyMetadata(
+                typeElement.getDeclaredField("nullableTypeArgument")
+            ).let { property ->
                 assertThat(property?.name).isEqualTo("nullableTypeArgument")
                 assertThat(property?.isNullable()).isFalse()
                 assertThat(property?.typeParameters).hasSize(1)
                 assertThat(property?.typeParameters?.single()?.isNullable()).isTrue()
             }
 
-            testMetadata.getPropertyMetadata("nonNullTypeArgument").let { property ->
+            testMetadata.getPropertyMetadata(
+                typeElement.getDeclaredField("nonNullTypeArgument")
+            ).let { property ->
                 assertThat(property?.name).isEqualTo("nonNullTypeArgument")
                 assertThat(property?.isNullable()).isFalse()
                 assertThat(property?.typeParameters).hasSize(1)
                 assertThat(property?.typeParameters?.single()?.isNullable()).isFalse()
             }
 
-            testMetadata.getPropertyMetadata("multipleTypeArguments").let { property ->
+            testMetadata.getPropertyMetadata(
+                typeElement.getDeclaredField("multipleTypeArguments")
+            ).let { property ->
                 assertThat(property?.name).isEqualTo("multipleTypeArguments")
                 assertThat(property?.isNullable()).isFalse()
                 assertThat(property?.typeParameters).hasSize(2)
@@ -340,9 +350,9 @@ class KotlinMetadataElementTest(
             }
         """.trimIndent()
         )
-        simpleRun(listOf(src)) { invocation ->
+        simpleRun(listOf(src)) { env ->
             val (element, metadata) = getMetadataElement(
-                invocation,
+                env,
                 "Subject"
             )
 
@@ -484,7 +494,9 @@ class KotlinMetadataElementTest(
             // tests value class properties. They won't show up in KAPT stubs since they don't have
             // valid java source names but we still validate them here for consistency. Maybe one
             // day we'll change Javac element to include these if we support Kotlin codegen in KAPT
-            metadata.getPropertyMetadata("valueProp").let { valueProp ->
+            metadata.getPropertyMetadata(
+                element.getDeclaredField("valueProp")
+            ).let { valueProp ->
                 assertGetter(
                     kmFunction = valueProp?.getter,
                     name = "getValueProp",
@@ -498,7 +510,9 @@ class KotlinMetadataElementTest(
                     paramNullable = true
                 )
             }
-            metadata.getPropertyMetadata("internalValueProp").let { valueProp ->
+            metadata.getPropertyMetadata(
+                element.getDeclaredField("internalValueProp")
+            ).let { valueProp ->
                 assertGetter(
                     kmFunction = valueProp?.getter,
                     name = "getInternalValueProp",
@@ -528,9 +542,9 @@ class KotlinMetadataElementTest(
             }
         """.trimIndent()
         )
-        simpleRun(listOf(src)) { invocation ->
+        simpleRun(listOf(src)) { env ->
             val (element, metadata) = getMetadataElement(
-                invocation,
+                env,
                 "Subject"
             )
             metadata.getFunctionMetadata(
@@ -577,9 +591,9 @@ class KotlinMetadataElementTest(
             }
             """.trimIndent()
         )
-        simpleRun(listOf(src)) { invocation ->
+        simpleRun(listOf(src)) { env ->
             val (testDaoElement, testDaoMetadata) = getMetadataElement(
-                invocation,
+                env,
                 "Subject"
             )
             fun assertParams(params: List<KmValueParameterContainer>?) {
@@ -616,17 +630,17 @@ class KotlinMetadataElementTest(
         val src = Source.kotlin(
             "Subject.kt",
             """
-            interface Subject {
-                val nullableArrayWithNonNullComponent : Array<Int>?
-                val nullableArrayWithNullableComponent : Array<Int?>?
-                val nonNullArrayWithNonNullComponent : Array<Int>
-                val nonNullArrayWithNullableComponent : Array<Int?>
+            class Subject {
+                val nullableArrayWithNonNullComponent : Array<Int>? = TODO()
+                val nullableArrayWithNullableComponent : Array<Int?>? = TODO()
+                val nonNullArrayWithNonNullComponent : Array<Int> = TODO()
+                val nonNullArrayWithNullableComponent : Array<Int?> = TODO()
             }
             """.trimIndent()
         )
-        simpleRun(listOf(src)) { invocation ->
-            val (_, metadata) = getMetadataElement(
-                invocation,
+        simpleRun(listOf(src)) { env ->
+            val (typeElement, metadata) = getMetadataElement(
+                env,
                 "Subject"
             )
             val propertyNames = listOf(
@@ -637,7 +651,7 @@ class KotlinMetadataElementTest(
             )
             assertThat(
                 propertyNames
-                    .mapNotNull(metadata::getPropertyMetadata)
+                    .mapNotNull { metadata.getPropertyMetadata(typeElement.getDeclaredField(it)) }
                     .map {
                         Triple(it.name, it.isNullable(), it.typeParameters.single().isNullable())
                     }
@@ -668,27 +682,27 @@ class KotlinMetadataElementTest(
             abstract class WithSuperType : Map<String, Int?> {}
             """.trimIndent()
         )
-        simpleRun(listOf(src)) { invocation ->
-            val (_, simple) = getMetadataElement(invocation, "Simple")
+        simpleRun(listOf(src)) { env ->
+            val (_, simple) = getMetadataElement(env, "Simple")
             assertThat(simple.type.isNullable()).isFalse()
             assertThat(simple.type.typeArguments).isEmpty()
 
-            val (_, twoArgGeneric) = getMetadataElement(invocation, "TwoArgGeneric")
+            val (_, twoArgGeneric) = getMetadataElement(env, "TwoArgGeneric")
             assertThat(twoArgGeneric.type.isNullable()).isFalse()
             assertThat(twoArgGeneric.type.typeArguments).hasSize(2)
             assertThat(twoArgGeneric.type.typeArguments[0].isNullable()).isFalse()
             assertThat(twoArgGeneric.type.typeArguments[1].isNullable()).isFalse()
 
-            val (_, withUpperBounds) = getMetadataElement(invocation, "WithUpperBounds")
+            val (_, withUpperBounds) = getMetadataElement(env, "WithUpperBounds")
             assertThat(withUpperBounds.type.typeArguments).hasSize(2)
             assertThat(withUpperBounds.type.typeArguments[0].upperBounds).hasSize(1)
-            assertThat(withUpperBounds.type.typeArguments[0].upperBounds!![0].isNullable())
+            assertThat(withUpperBounds.type.typeArguments[0].upperBounds[0].isNullable())
                 .isFalse()
             assertThat(withUpperBounds.type.typeArguments[1].upperBounds).hasSize(1)
-            assertThat(withUpperBounds.type.typeArguments[1].upperBounds!![0].isNullable())
+            assertThat(withUpperBounds.type.typeArguments[1].upperBounds[0].isNullable())
                 .isTrue()
 
-            val (_, withSuperType) = getMetadataElement(invocation, "WithSuperType")
+            val (_, withSuperType) = getMetadataElement(env, "WithSuperType")
             assertThat(withSuperType.superType?.typeArguments?.get(0)?.isNullable()).isFalse()
             assertThat(withSuperType.superType?.typeArguments?.get(1)?.isNullable()).isTrue()
         }
@@ -706,17 +720,23 @@ class KotlinMetadataElementTest(
             }
             """.trimIndent()
         )
-        simpleRun(listOf(src)) { invocation ->
-            val (_, subject) = getMetadataElement(invocation, "Subject")
-            subject.getPropertyMetadata("simple")!!.type.erasure().let {
+        simpleRun(listOf(src)) { env ->
+            val (typeElement, subject) = getMetadataElement(env, "Subject")
+            subject.getPropertyMetadata(
+                typeElement.getDeclaredField("simple")
+            )!!.type.erasure().let {
                 assertThat(it.isNullable()).isFalse()
                 assertThat(it.typeArguments).isEmpty()
             }
-            subject.getPropertyMetadata("nullableGeneric")!!.type.erasure().let {
+            subject.getPropertyMetadata(
+                typeElement.getDeclaredField("nullableGeneric")
+            )!!.type.erasure().let {
                 assertThat(it.isNullable()).isTrue()
                 assertThat(it.typeArguments).isEmpty()
             }
-            subject.getPropertyMetadata("nonNullGeneric")!!.type.erasure().let {
+            subject.getPropertyMetadata(
+                typeElement.getDeclaredField("nonNullGeneric")
+            )!!.type.erasure().let {
                 assertThat(it.isNullable()).isFalse()
                 assertThat(it.typeArguments).isEmpty()
             }
@@ -748,7 +768,7 @@ class KotlinMetadataElementTest(
         ) { invocation ->
             val (_, metadata) =
                 getMetadataElement(
-                    (invocation.processingEnv as JavacProcessingEnv).delegate,
+                    invocation.processingEnv as JavacProcessingEnv,
                     "KotlinClass"
                 )
             assertThat(metadata).isNotNull()
@@ -778,8 +798,8 @@ class KotlinMetadataElementTest(
             abstract class C
             """.trimIndent()
         )
-        simpleRun(listOf(src)) { invocation ->
-            val (subjectElement, subjectMetadata) = getMetadataElement(invocation, "Subject")
+        simpleRun(listOf(src)) { env ->
+            val (subjectElement, subjectMetadata) = getMetadataElement(env, "Subject")
             fun assertKmFunctionFound(functionName: String) {
                 val kmFunction = subjectMetadata.getFunctionMetadata(
                     subjectElement.getDeclaredMethod(functionName)
@@ -792,37 +812,202 @@ class KotlinMetadataElementTest(
         }
     }
 
+    @Test
+    fun properties_anonymousNestingKind() {
+        // Only private functions are relevant to the test since public (or internal) properties
+        // are required to declare their type explicitly when right-hand side is ambiguous.
+        // b/232742201
+        val src = Source.kotlin(
+            "Subject.kt",
+            """
+            class Subject {
+                private val lazyA by lazy {
+                    object: A { }
+                }
+                private val lazyAB by lazy {
+                    object: A, B { }
+                }
+                private val lazyABC by lazy {
+                    object: C(), A, B { }
+                }
+                private val lazyC by lazy {
+                    object: C() { }
+                }
+                private val lazyAC by lazy {
+                    object: C(), A { }
+                }
+                private val lazyAB_declaredA: A by lazy {
+                    object: A, B { }
+                }
+                private val lazyAB_declaredB: B by lazy {
+                    object: A, B { }
+                }
+                private val lazyABC_declaredC: C by lazy {
+                    object: C(), A { }
+                }
+            }
+
+            interface A
+            interface B
+            abstract class C
+            """.trimIndent()
+        )
+        simpleRun(
+            sources = listOf(src)
+        ) { env ->
+            val subject = env.requireTypeElement("Subject")
+            subject.getDeclaredFields().forEach {
+                assertThat(it.getter).isNotNull()
+            }
+            subject.getDeclaredMethods().forEach {
+                assertThat(it.isKotlinPropertyMethod()).isTrue()
+            }
+        }
+    }
+
+    @Test
+    fun ignore_syntheticMetadata_defaultImpls() {
+        val src = Source.kotlin(
+            "Subject.kt",
+            """
+            interface Subject {
+              fun instance(): String = "Hello"
+            }
+            """.trimIndent()
+        )
+        simpleRun(
+            sources = listOf(src),
+            kotlincArgs = listOf("-Xjvm-default=disable")
+        ) { env ->
+            val subjectElement = env.requireTypeElement("Subject.DefaultImpls")
+            // Call metadata derived API causing it to be read
+            assertThat(subjectElement.isKotlinObject()).isFalse()
+            assertCompilationResult {
+                hasNoWarnings()
+            }
+        }
+    }
+
+    @Test
+    fun ignore_syntheticMetadata_whenMappings() {
+        val src = Source.kotlin(
+            "Subject.kt",
+            """
+            class Subject {
+              enum class Fruit {
+                APPLE,
+                STRAWBERRY
+              }
+
+              fun printName(fruit: Fruit) {
+                println(
+                  when(fruit) {
+                    Fruit.APPLE -> "manzana"
+                    Fruit.STRAWBERRY -> "fresa"
+                  }
+                )
+              }
+            }
+            """.trimIndent()
+        )
+        simpleRun(
+            sources = listOf(src),
+        ) { env ->
+            assertThat(env.findTypeElement("Subject.Fruit")).isNotNull()
+            val subjectElement = env.findTypeElement("Subject.WhenMappings")
+                // Currently $WhenMapping has the ACC_SYNTHETIC flag making it unreadable by
+                // annotation processors making it impossible to verify synthetic metadata is
+                // ignored.
+                ?: throw AssumptionViolatedException("No test if WhenMappings is not found")
+            // Call metadata derived API causing it to be read
+            assertThat(subjectElement.isKotlinObject()).isFalse()
+            assertCompilationResult {
+                hasNoWarnings()
+            }
+        }
+    }
+
+    @Test
+    fun ignore_fileFacadeMetadata() {
+        val aSrc = Source.kotlin(
+            "A.kt",
+            """
+            @file:JvmMultifileClass
+            @file:JvmName("Subject")
+
+            fun a() { }
+            """.trimIndent()
+        )
+        val bSrc = Source.kotlin(
+            "B.kt",
+            """
+            @file:JvmMultifileClass
+            @file:JvmName("Subject")
+
+            fun b() { }
+            """.trimIndent()
+        )
+        simpleRun(
+            sources = listOf(aSrc, bSrc),
+        ) { env ->
+            // Find the multi file class facade element
+            val facadeElement = env.requireTypeElement("Subject")
+            // Call metadata derived API causing it to be read
+            assertThat(facadeElement.isKotlinObject()).isFalse()
+
+            // Try to find the multi file class part elements, currently these classes have the
+            // ACC_SYNTHETIC flag making them unreadable by annotation processors and impossible to
+            // verify that multi file metadata is ignored.
+            val facadePartOne = env.findTypeElement("Subject__AKt")
+                ?: throw AssumptionViolatedException("No test if MultiFileClassPart is not found")
+            assertThat(facadePartOne.isKotlinObject()).isFalse()
+            val facadePartTwo = env.findTypeElement("Subject__BKt")
+                ?: throw AssumptionViolatedException("No test if MultiFileClassPart is not found")
+            assertThat(facadePartTwo.isKotlinObject()).isFalse()
+            assertCompilationResult {
+                hasNoWarnings()
+            }
+        }
+    }
+
     private fun TypeElement.getDeclaredMethods() = ElementFilter.methodsIn(enclosedElements)
 
     private fun TypeElement.getDeclaredMethod(name: String) = getDeclaredMethods().first {
         it.simpleName.toString() == name
     }
 
+    private fun TypeElement.getDeclaredField(name: String) =
+        ElementFilter.fieldsIn(enclosedElements).first { it.simpleName.toString() == name }
+
     private fun TypeElement.getConstructors() = ElementFilter.constructorsIn(enclosedElements)
 
     @Suppress("NAME_SHADOWING") // intentional
     private fun simpleRun(
         sources: List<Source> = emptyList(),
-        handler: (ProcessingEnvironment) -> Unit
+        kotlincArgs: List<String> = emptyList(),
+        handler: XTestInvocation.(JavacProcessingEnv) -> Unit
     ) {
         val (sources, classpath) = if (preCompiled) {
             emptyList<Source>() to compileFiles(sources)
         } else {
             sources to emptyList()
         }
-        runKaptTest(sources = sources, classpath = classpath) {
-            val processingEnv = it.processingEnv
-            if (processingEnv !is JavacProcessingEnv) {
+        runKaptTest(
+            sources = sources,
+            classpath = classpath,
+            kotlincArguments = kotlincArgs
+        ) {
+            val env = it.processingEnv
+            if (env !is JavacProcessingEnv) {
                 throw AssumptionViolatedException("This test only works for java/kapt compilation")
             }
-            handler(processingEnv.delegate)
+            it.handler(env)
         }
     }
 
-    private fun getMetadataElement(processingEnv: ProcessingEnvironment, qName: String) =
-        processingEnv.elementUtils.getTypeElement(qName).let {
-            it to KmClassContainer.createFor(
-                JavacProcessingEnv(processingEnv, XProcessingEnvConfig.DEFAULT), it)!!
+    private fun getMetadataElement(env: JavacProcessingEnv, qName: String) =
+        env.elementUtils.getTypeElement(qName).let {
+            it to KmClassContainer.createFor(env, it)!!
         }
 
     companion object {

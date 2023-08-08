@@ -17,7 +17,6 @@ package androidx.emoji2.text;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
-import static androidx.annotation.RestrictTo.Scope.TESTS;
 
 import android.app.Application;
 import android.content.Context;
@@ -43,6 +42,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
+import androidx.annotation.VisibleForTesting;
 import androidx.collection.ArraySet;
 import androidx.core.util.Preconditions;
 
@@ -160,7 +160,6 @@ public class EmojiCompat {
     public static final int LOAD_STATE_FAILED = 2;
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     @IntDef({LOAD_STATE_DEFAULT, LOAD_STATE_LOADING, LOAD_STATE_SUCCEEDED, LOAD_STATE_FAILED})
@@ -188,7 +187,6 @@ public class EmojiCompat {
     public static final int REPLACE_STRATEGY_NON_EXISTENT = 2;
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     @IntDef({REPLACE_STRATEGY_DEFAULT, REPLACE_STRATEGY_NON_EXISTENT, REPLACE_STRATEGY_ALL})
@@ -212,7 +210,6 @@ public class EmojiCompat {
     public static final int LOAD_STRATEGY_MANUAL = 1;
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     @IntDef({LOAD_STRATEGY_DEFAULT, LOAD_STRATEGY_MANUAL})
@@ -221,7 +218,6 @@ public class EmojiCompat {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     @IntDef({EMOJI_UNSUPPORTED, EMOJI_SUPPORTED,
@@ -341,7 +337,6 @@ public class EmojiCompat {
     public static final int EMOJI_FALLBACK = 2;
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     static final int EMOJI_COUNT_UNLIMITED = Integer.MAX_VALUE;
@@ -502,7 +497,6 @@ public class EmojiCompat {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     @Nullable
@@ -602,8 +596,8 @@ public class EmojiCompat {
      * Used by the tests to reset EmojiCompat with a new configuration. Every time it is called a
      * new instance is created with the new configuration.
      *
-     * @hide
      */
+    @RestrictTo(LIBRARY)
     @NonNull
     public static EmojiCompat reset(@NonNull final Config config) {
         synchronized (INSTANCE_LOCK) {
@@ -616,9 +610,9 @@ public class EmojiCompat {
     /**
      * Used by the tests to reset EmojiCompat with a new singleton instance.
      *
-     * @hide
      */
-    @RestrictTo(TESTS)
+    @RestrictTo(LIBRARY)
+    @VisibleForTesting
     @Nullable
     public static EmojiCompat reset(@Nullable final EmojiCompat emojiCompat) {
         synchronized (INSTANCE_LOCK) {
@@ -630,9 +624,9 @@ public class EmojiCompat {
     /**
      * Reset default configuration lookup flag, for tests.
      *
-     * @hide
      */
-    @RestrictTo(TESTS)
+    @RestrictTo(LIBRARY)
+    @VisibleForTesting
     public static void skipDefaultConfigurationLookup(boolean shouldSkip) {
         synchronized (CONFIG_LOCK) {
             sHasDoneDefaultConfigLookup = shouldSkip;
@@ -801,7 +795,6 @@ public class EmojiCompat {
 
     /**
      * @return whether a background should be drawn for the emoji for debugging
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
     public boolean isEmojiSpanIndicatorEnabled() {
@@ -810,7 +803,6 @@ public class EmojiCompat {
 
     /**
      * @return color of background drawn if {@link EmojiCompat#isEmojiSpanIndicatorEnabled} is true
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
     public @ColorInt int getEmojiSpanIndicatorColor() {
@@ -830,6 +822,8 @@ public class EmojiCompat {
      */
     public int getEmojiStart(@NonNull final CharSequence charSequence,
             @IntRange(from = 0) int offset) {
+        Preconditions.checkState(isInitialized(), "Not initialized yet");
+        Preconditions.checkNotNull(charSequence, "charSequence cannot be null");
         return mHelper.getEmojiStart(charSequence, offset);
     }
 
@@ -838,6 +832,8 @@ public class EmojiCompat {
      */
     public int getEmojiEnd(@NonNull final CharSequence charSequence,
             @IntRange(from = 0) int offset) {
+        Preconditions.checkState(isInitialized(), "Not initialized yet");
+        Preconditions.checkNotNull(charSequence, "charSequence cannot be null");
         return mHelper.getEmojiEnd(charSequence, offset);
     }
 
@@ -1201,7 +1197,6 @@ public class EmojiCompat {
 
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public static class DefaultSpanFactory implements SpanFactory {

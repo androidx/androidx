@@ -45,7 +45,7 @@ private inline fun debugLog(generateMsg: () -> String) {
 /**
  * Abstraction over animated scroll for using [animateScrollToItem] in different layouts.
  * todo(b/243786897): revisit this API and make it public
- **/
+ */
 internal interface LazyAnimateScrollScope {
     val density: Density
 
@@ -208,7 +208,11 @@ internal suspend fun LazyAnimateScrollScope.animateScrollToItem(
                     // We don't throw ItemFoundInScroll when we snap, because once we've snapped to
                     // the final position, there's no need to animate to it.
                     if (isOvershot()) {
-                        debugLog { "Overshot" }
+                        debugLog {
+                            "Overshot, " +
+                                "item $firstVisibleItemIndex at $firstVisibleItemScrollOffset, " +
+                                "target is $scrollOffset"
+                        }
                         snapToItem(index = index, scrollOffset = scrollOffset)
                         loop = false
                         cancelAnimation()

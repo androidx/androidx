@@ -17,7 +17,6 @@
 package androidx.compose.ui.input
 
 import android.os.Build.VERSION.SDK_INT
-import android.view.View
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -34,6 +33,7 @@ import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
 import org.junit.After
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -47,7 +47,13 @@ class InputModeTest(private val param: Param) {
     val rule = createComposeRule()
 
     private lateinit var inputModeManager: InputModeManager
-    private lateinit var view: View
+
+    // Manually set global state to touch mode to prevent flakiness when another test leaves the
+    // system in non-touch mode (b/267368621).
+    @Before
+    fun initializeInTouchMode() {
+        InstrumentationRegistry.getInstrumentation().setInTouchMode(param.inputMode == Touch)
+    }
 
     // TODO(b/267253920): Add a compose test API to set/reset InputMode.
     @After
@@ -56,22 +62,12 @@ class InputModeTest(private val param: Param) {
     }
 
     @Test
-    fun initialInputMode() {
-        // Arrange.
-        rule.setContentWithInputManager {
-            Box {}
-        }
-
-        // Assert
-        rule.runOnIdle { assertThat(inputModeManager.inputMode).isEqualTo(param.inputMode) }
-    }
-
-    @Test
     fun switchToTouchModeProgrammatically() {
         // Arrange.
         rule.setContentWithInputManager {
             Box {}
         }
+        val initialMode = rule.runOnIdle { inputModeManager.inputMode }
 
         // Act.
         val requestGranted = rule.runOnIdle {
@@ -80,7 +76,7 @@ class InputModeTest(private val param: Param) {
 
         // Assert
         rule.runOnIdle {
-            when (param.inputMode) {
+            when (initialMode) {
                 Touch -> {
                     assertThat(requestGranted).isTrue()
                     assertThat(inputModeManager.inputMode).isEqualTo(Touch)

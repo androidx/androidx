@@ -35,7 +35,6 @@ import androidx.car.app.utils.RemoteUtils;
 /**
  * Implementation class for {@link OnSelectedDelegate}.
  *
- * @hide
  */
 @RestrictTo(LIBRARY)
 @KeepFields

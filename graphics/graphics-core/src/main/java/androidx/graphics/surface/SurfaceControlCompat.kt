@@ -18,14 +18,18 @@ package androidx.graphics.surface
 
 import android.graphics.Rect
 import android.graphics.Region
+import android.hardware.DataSpace
 import android.hardware.HardwareBuffer
 import android.os.Build
 import android.view.AttachedSurfaceControl
 import android.view.Surface
 import android.view.SurfaceControl
 import android.view.SurfaceView
+import androidx.annotation.FloatRange
 import androidx.annotation.IntDef
 import androidx.annotation.RequiresApi
+import androidx.graphics.lowlatency.FrontBufferUtils
+import androidx.graphics.utils.JniVisible
 import androidx.hardware.SyncFenceCompat
 import java.util.concurrent.Executor
 
@@ -164,12 +168,15 @@ class SurfaceControlCompat internal constructor(
 
         internal companion object {
             @RequiresApi(Build.VERSION_CODES.Q)
-            fun createImpl(): SurfaceControlImpl.Builder =
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            fun createImpl(): SurfaceControlImpl.Builder {
+                val usePlatformTransaction = !FrontBufferUtils.UseCompatSurfaceControl &&
+                        Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
+                return if (usePlatformTransaction) {
                     SurfaceControlVerificationHelper.createBuilderV33()
                 } else {
                     SurfaceControlVerificationHelper.createBuilderV29()
                 }
+            }
         }
     }
 
@@ -177,6 +184,7 @@ class SurfaceControlCompat internal constructor(
      * Interface to handle request to
      * [SurfaceControlV29.Transaction.addTransactionCompletedListener]
      */
+    @JniVisible
     internal interface TransactionCompletedListener {
         /**
          * Invoked when a frame including the updates in a transaction was presented.
@@ -184,17 +192,20 @@ class SurfaceControlCompat internal constructor(
          * Buffers which are replaced or removed from the scene in the transaction invoking
          * this callback may be reused after this point.
          */
-        fun onTransactionCompleted()
+        @JniVisible
+        fun onTransactionCompleted(transactionStats: Long)
     }
 
     /**
      * Interface to handle request to
      * [SurfaceControlCompat.Transaction.addTransactionCommittedListener]
      */
+    @JniVisible
     interface TransactionCommittedListener {
         /**
          * Invoked when the transaction has been committed in SurfaceFlinger
          */
+        @JniVisible
         fun onTransactionCommitted()
     }
 
@@ -298,18 +309,20 @@ class SurfaceControlCompat internal constructor(
          *
          * @param surfaceControl Target [SurfaceControlCompat] to configure the provided buffer.
          * @param buffer [HardwareBuffer] instance to be rendered by the [SurfaceControlCompat]
-         * instance.
+         * instance. Use null to remove the current buffer that was previously configured on
+         * this [SurfaceControlCompat] instance.
          * @param fence Optional [SyncFenceCompat] that serves as the presentation fence. If set,
          * the [SurfaceControlCompat.Transaction] will not apply until the fence signals.
          * @param releaseCallback Optional callback invoked when the buffer is ready for re-use
-         * after being presented to the display.
+         * after being presented to the display. This also includes a [SyncFenceCompat] instance
+         * that consumers must wait on before consuming the buffer
          */
         @JvmOverloads
         fun setBuffer(
             surfaceControl: SurfaceControlCompat,
-            buffer: HardwareBuffer,
+            buffer: HardwareBuffer?,
             fence: SyncFenceCompat? = null,
-            releaseCallback: (() -> Unit)? = null
+            releaseCallback: ((SyncFenceCompat) -> Unit)? = null
         ): Transaction {
             mImpl.setBuffer(surfaceControl.scImpl, buffer, fence?.mImpl, releaseCallback)
             return this
@@ -471,6 +484,79 @@ class SurfaceControlCompat internal constructor(
         }
 
         /**
+         * Sets the desired extended range brightness for the layer. This only applies for layers
+         * that are displaying [HardwareBuffer] instances with a DataSpace of
+         * [DataSpace.RANGE_EXTENDED].
+         *
+         * @param surfaceControl The layer whose extended range brightness is being specified
+         * @param currentBufferRatio The current hdr/sdr ratio of the current buffer. For example
+         * if the buffer was rendered with a target SDR whitepoint of 100 nits and a max display
+         * brightness of 200 nits, this should be set to 2.0f.
+         *
+         * Default value is 1.0f.
+         *
+         * Transfer functions that encode their own brightness ranges,
+         * such as HLG or PQ, should also set this to 1.0f and instead
+         * communicate extended content brightness information via
+         * metadata such as CTA861_3 or SMPTE2086.
+         *
+         * Must be finite && >= 1.0f
+         *
+         * @param desiredRatio The desired hdr/sdr ratio. This can be used to communicate the max
+         * desired brightness range. This is similar to the "max luminance" value in other HDR
+         * metadata formats, but represented as a ratio of the target SDR whitepoint to the max
+         * display brightness. The system may not be able to, or may choose not to, deliver the
+         * requested range.
+         *
+         * While requesting a large desired ratio will result in the most
+         * dynamic range, voluntarily reducing the requested range can help
+         * improve battery life as well as can improve quality by ensuring
+         * greater bit depth is allocated to the luminance range in use.
+         *
+         * Default value is 1.0f and indicates that extended range brightness
+         * is not being used, so the resulting SDR or HDR behavior will be
+         * determined entirely by the dataspace being used (ie, typically SDR
+         * however PQ or HLG transfer functions will still result in HDR)
+         *
+         * Must be finite && >= 1.0f
+         * @return this
+         */
+        @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+        fun setExtendedRangeBrightness(
+            surfaceControl: SurfaceControlCompat,
+            @FloatRange(from = 1.0, fromInclusive = true) currentBufferRatio: Float,
+            @FloatRange(from = 1.0, fromInclusive = true) desiredRatio: Float
+        ): Transaction {
+            mImpl.setExtendedRangeBrightness(
+                surfaceControl.scImpl,
+                currentBufferRatio,
+                desiredRatio
+            )
+            return this
+        }
+
+        /**
+         * Set the dataspace for the SurfaceControl. This will control how the buffer
+         * set with [setBuffer] is displayed.
+         *
+         * @param surfaceControl The SurfaceControl to update
+         * @param dataSpace The dataspace to set it to. Must be one of named
+         * [android.hardware.DataSpace] types.
+         *
+         * @see [android.view.SurfaceControl.Transaction.setDataSpace]
+         *
+         * @return this
+         */
+        @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+        fun setDataSpace(
+            surfaceControl: SurfaceControlCompat,
+            dataSpace: Int
+        ): Transaction {
+            mImpl.setDataSpace(surfaceControl.scImpl, dataSpace)
+            return this
+        }
+
+        /**
          * Commit the transaction, clearing it's state, and making it usable as a new transaction.
          * This will not release any resources and [SurfaceControlCompat.Transaction.close] must be
          * called to release the transaction.
@@ -503,12 +589,15 @@ class SurfaceControlCompat internal constructor(
 
         internal companion object {
             @RequiresApi(Build.VERSION_CODES.Q)
-            fun createImpl(): SurfaceControlImpl.Transaction =
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            fun createImpl(): SurfaceControlImpl.Transaction {
+                val usePlatformSurfaceControl = !FrontBufferUtils.UseCompatSurfaceControl &&
+                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
+                return if (usePlatformSurfaceControl) {
                     SurfaceControlVerificationHelper.createTransactionV33()
                 } else {
                     SurfaceControlVerificationHelper.createTransactionV29()
                 }
+            }
         }
     }
 }

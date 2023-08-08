@@ -24,21 +24,30 @@ import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.util.io.FileUtil
 import java.io.File
 import java.net.URLClassLoader
-import org.jetbrains.kotlin.backend.common.extensions.IrGenerationExtension
 import org.jetbrains.kotlin.cli.jvm.config.addJvmClasspathRoots
 import org.jetbrains.kotlin.cli.jvm.config.configureJdkClasspathRoots
 import org.jetbrains.kotlin.codegen.GeneratedClassLoader
+import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
+import org.jetbrains.kotlin.compiler.plugin.registerExtensionsForTest
+import org.jetbrains.kotlin.config.ApiVersion
 import org.jetbrains.kotlin.config.CompilerConfiguration
 import org.jetbrains.kotlin.config.JVMConfigurationKeys
+import org.jetbrains.kotlin.config.LanguageVersion
+import org.jetbrains.kotlin.config.LanguageVersionSettingsImpl
+import org.jetbrains.kotlin.config.languageVersionSettings
 import org.jetbrains.kotlin.ir.declarations.IrModuleFragment
 import org.junit.After
 import org.junit.BeforeClass
 import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
+import org.junit.runners.Parameterized
 
-@RunWith(JUnit4::class)
-abstract class AbstractCompilerTest {
+@RunWith(Parameterized::class)
+abstract class AbstractCompilerTest(val useFir: Boolean) {
     companion object {
+        @JvmStatic
+        @Parameterized.Parameters(name = "useFir = {0}")
+        fun data() = arrayOf<Any>(false, true)
+
         private fun File.applyExistenceCheck(): File = apply {
             if (!exists()) throw NoSuchFileException(this)
         }
@@ -99,12 +108,19 @@ abstract class AbstractCompilerTest {
 
     protected open fun CompilerConfiguration.updateConfiguration() {}
 
+    @OptIn(ExperimentalCompilerApi::class)
     private fun createCompilerFacade(
         additionalPaths: List<File> = listOf(),
         registerExtensions: (Project.(CompilerConfiguration) -> Unit)? = null
     ) = KotlinCompilerFacade.create(
         testRootDisposable,
         updateConfiguration = {
+            val languageVersion =
+                if (useFir) LanguageVersion.KOTLIN_2_0 else LanguageVersion.KOTLIN_1_9
+            languageVersionSettings = LanguageVersionSettingsImpl(
+                languageVersion,
+                ApiVersion.createByLanguageVersion(languageVersion),
+            )
             updateConfiguration()
             addJvmClasspathRoots(additionalPaths)
             addJvmClasspathRoots(defaultClassPathRoots)
@@ -116,16 +132,19 @@ abstract class AbstractCompilerTest {
             configureJdkClasspathRoots()
         },
         registerExtensions = registerExtensions ?: { configuration ->
-            ComposeComponentRegistrar.registerCommonExtensions(this)
-            IrGenerationExtension.registerExtension(
-                this,
-                ComposeComponentRegistrar.createComposeIrExtension(configuration)
-            )
+            registerExtensionsForTest(this, configuration) {
+                with(ComposePluginRegistrar()) {
+                    registerExtensions(it)
+                }
+            }
         }
     )
 
-    protected fun analyze(sourceFiles: List<SourceFile>): AnalysisResult =
-        createCompilerFacade().analyze(sourceFiles)
+    protected fun analyze(
+        platformSources: List<SourceFile>,
+        commonSources: List<SourceFile> = listOf()
+    ): AnalysisResult =
+        createCompilerFacade().analyze(platformSources, commonSources)
 
     protected fun compileToIr(
         sourceFiles: List<SourceFile>,
@@ -135,7 +154,8 @@ abstract class AbstractCompilerTest {
         createCompilerFacade(additionalPaths, registerExtensions).compileToIr(sourceFiles)
 
     protected fun createClassLoader(
-        sourceFiles: List<SourceFile>,
+        platformSourceFiles: List<SourceFile>,
+        commonSourceFiles: List<SourceFile> = listOf(),
         additionalPaths: List<File> = listOf()
     ): GeneratedClassLoader {
         val classLoader = URLClassLoader(
@@ -145,7 +165,8 @@ abstract class AbstractCompilerTest {
             null
         )
         return GeneratedClassLoader(
-            createCompilerFacade(additionalPaths).compile(sourceFiles).factory,
+            createCompilerFacade(additionalPaths)
+                .compile(platformSourceFiles, commonSourceFiles).factory,
             classLoader
         )
     }

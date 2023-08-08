@@ -28,8 +28,8 @@ internal abstract class JavacExecutableElement(
 ) : JavacElement(env, element), XExecutableElement {
     abstract override val kotlinMetadata: KmFunctionContainer?
 
-    val descriptor by lazy {
-        element.descriptor()
+    override val jvmDescriptor by lazy {
+        element.descriptor(env.delegate)
     }
 
     abstract override val parameters: List<JavacMethodParameter>

@@ -19,16 +19,18 @@ package androidx.camera.integration.view
 import android.graphics.SurfaceTexture
 import android.graphics.SurfaceTexture.OnFrameAvailableListener
 import android.os.Handler
-import android.os.Looper
+import android.os.HandlerThread
 import android.view.Surface
 import androidx.annotation.VisibleForTesting
+import androidx.camera.core.DynamicRange
 import androidx.camera.core.SurfaceOutput
 import androidx.camera.core.SurfaceProcessor
 import androidx.camera.core.SurfaceRequest
-import androidx.camera.core.impl.utils.Threads.checkMainThread
-import androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor
+import androidx.camera.core.impl.utils.executor.CameraXExecutors.newHandlerExecutor
 import androidx.camera.core.processing.OpenGlRenderer
 import androidx.camera.core.processing.ShaderProvider
+import androidx.core.util.Preconditions.checkState
+import java.util.concurrent.Executor
 
 /**
  * A processor that applies tone mapping on camera output.
@@ -57,28 +59,36 @@ class ToneMappingSurfaceProcessor : SurfaceProcessor, OnFrameAvailableListener {
                     """
             }
         }
+
+        private const val GL_THREAD_NAME = "ToneMappingSurfaceProcessor"
     }
 
-    private val mainThreadHandler: Handler = Handler(Looper.getMainLooper())
+    private val glThread: HandlerThread = HandlerThread(GL_THREAD_NAME)
+    private var glHandler: Handler
+    private var glExecutor: Executor
+
+    // Members below are only accessed on GL thread.
     private val glRenderer: OpenGlRenderer = OpenGlRenderer()
     private val outputSurfaces: MutableMap<SurfaceOutput, Surface> = mutableMapOf()
     private val textureTransform: FloatArray = FloatArray(16)
     private val surfaceTransform: FloatArray = FloatArray(16)
     private var isReleased = false
 
-    // For testing.
+    // For testing only
     private var surfaceRequested = false
-    // For testing.
     private var outputSurfaceProvided = false
 
     init {
-        mainThreadExecutor().execute {
-            glRenderer.init(TONE_MAPPING_SHADER_PROVIDER)
+        glThread.start()
+        glHandler = Handler(glThread.looper)
+        glExecutor = newHandlerExecutor(glHandler)
+        glExecutor.execute {
+            glRenderer.init(DynamicRange.SDR, TONE_MAPPING_SHADER_PROVIDER)
         }
     }
 
     override fun onInputSurface(surfaceRequest: SurfaceRequest) {
-        checkMainThread()
+        checkGlThread()
         if (isReleased) {
             surfaceRequest.willNotProvideSurface()
             return
@@ -89,22 +99,22 @@ class ToneMappingSurfaceProcessor : SurfaceProcessor, OnFrameAvailableListener {
             surfaceRequest.resolution.width, surfaceRequest.resolution.height
         )
         val surface = Surface(surfaceTexture)
-        surfaceRequest.provideSurface(surface, mainThreadExecutor()) {
+        surfaceRequest.provideSurface(surface, glExecutor) {
             surfaceTexture.setOnFrameAvailableListener(null)
             surfaceTexture.release()
             surface.release()
         }
-        surfaceTexture.setOnFrameAvailableListener(this, mainThreadHandler)
+        surfaceTexture.setOnFrameAvailableListener(this, glHandler)
     }
 
     override fun onOutputSurface(surfaceOutput: SurfaceOutput) {
-        checkMainThread()
+        checkGlThread()
         outputSurfaceProvided = true
         if (isReleased) {
             surfaceOutput.close()
             return
         }
-        val surface = surfaceOutput.getSurface(mainThreadExecutor()) {
+        val surface = surfaceOutput.getSurface(glExecutor) {
             surfaceOutput.close()
             outputSurfaces.remove(surfaceOutput)?.let { removedSurface ->
                 glRenderer.unregisterOutputSurface(removedSurface)
@@ -120,22 +130,35 @@ class ToneMappingSurfaceProcessor : SurfaceProcessor, OnFrameAvailableListener {
     }
 
     fun release() {
-        checkMainThread()
-        if (isReleased) {
-            return
+        glExecutor.execute {
+            releaseInternal()
         }
+    }
 
-        // Once release is called, we can stop sending frame to output surfaces.
-        for (surfaceOutput in outputSurfaces.keys) {
-            surfaceOutput.close()
+    private fun releaseInternal() {
+        checkGlThread()
+        if (!isReleased) {
+            // Once release is called, we can stop sending frame to output surfaces.
+            for (surfaceOutput in outputSurfaces.keys) {
+                surfaceOutput.close()
+            }
+            outputSurfaces.clear()
+            glRenderer.release()
+            glThread.quitSafely()
+            isReleased = true
         }
-        outputSurfaces.clear()
-        glRenderer.release()
-        isReleased = true
+    }
+
+    private fun checkGlThread() {
+        checkState(GL_THREAD_NAME == Thread.currentThread().name)
+    }
+
+    fun getGlExecutor(): Executor {
+        return glExecutor
     }
 
     override fun onFrameAvailable(surfaceTexture: SurfaceTexture) {
-        checkMainThread()
+        checkGlThread()
         if (isReleased) {
             return
         }

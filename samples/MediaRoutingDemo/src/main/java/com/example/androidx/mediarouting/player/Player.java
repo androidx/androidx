@@ -37,6 +37,7 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.widget.Toast;
 
+import androidx.annotation.CallSuper;
 import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -110,7 +111,11 @@ public abstract class Player {
     /**
      * Release the player resources.
      */
-    public abstract void release();
+    @CallSuper
+    public void release() {
+        NotificationManagerCompat mNotificationManager = NotificationManagerCompat.from(mContext);
+        mNotificationManager.cancel(NOTIFICATION_ID);
+    }
 
     // basic operations that are always supported
 
@@ -128,10 +133,11 @@ public abstract class Player {
 
     /**
      * Get player status of an item.
+     *
      * @param item
      * @param shouldUpdate
      */
-    public abstract void getStatus(@NonNull PlaylistItem item, boolean shouldUpdate);
+    public abstract void getPlaylistItemStatus(@NonNull PlaylistItem item, boolean shouldUpdate);
 
     /**
      * Player pause operation.

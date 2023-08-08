@@ -47,16 +47,13 @@ public interface ComplicationDataSourceUpdateRequester {
      * as are complications configured to use a different complication data source.
      *
      * @param complicationInstanceIds The system's IDs for the complications to be updated as
-     * provided to [ComplicationDataSourceService.onComplicationActivated] and
-     * [ComplicationDataSourceService.onComplicationRequest].
+     *   provided to [ComplicationDataSourceService.onComplicationActivated] and
+     *   [ComplicationDataSourceService.onComplicationRequest].
      */
     public fun requestUpdate(vararg complicationInstanceIds: Int)
 
     public companion object {
-        /**
-         * The package of the service that accepts complication data source requests.
-         * @hide
-         */
+        /** The package of the service that accepts complication data source requests. */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public const val UPDATE_REQUEST_RECEIVER_PACKAGE = "com.google.android.wearable.app"
 
@@ -65,7 +62,7 @@ public interface ComplicationDataSourceUpdateRequester {
          *
          * @param context The [ComplicationDataSourceService]'s [Context]
          * @param complicationDataSourceComponent The [ComponentName] of the
-         * [ComplicationDataSourceService] to reload.
+         *   [ComplicationDataSourceService] to reload.
          * @return The constructed [ComplicationDataSourceUpdateRequester].
          */
         @JvmStatic
@@ -75,22 +72,18 @@ public interface ComplicationDataSourceUpdateRequester {
         ): ComplicationDataSourceUpdateRequester =
             ComplicationDataSourceUpdateRequesterImpl(context, complicationDataSourceComponent)
 
-        /** @hide */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public const val ACTION_REQUEST_UPDATE: String =
             "android.support.wearable.complications.ACTION_REQUEST_UPDATE"
 
-        /** @hide */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public const val ACTION_REQUEST_UPDATE_ALL: String =
             "android.support.wearable.complications.ACTION_REQUEST_UPDATE_ALL"
 
-        /** @hide */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public const val EXTRA_PROVIDER_COMPONENT: String =
             "android.support.wearable.complications.EXTRA_PROVIDER_COMPONENT"
 
-        /** @hide */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public const val EXTRA_COMPLICATION_IDS: String =
             "android.support.wearable.complications.EXTRA_COMPLICATION_IDS"
@@ -100,7 +93,7 @@ public interface ComplicationDataSourceUpdateRequester {
 /**
  * @param context The [ComplicationDataSourceService]'s [Context]
  * @param complicationDataSourceComponent The [ComponentName] of the ComplicationDataSourceService]
- * to reload.
+ *   to reload.
  */
 private class ComplicationDataSourceUpdateRequesterImpl(
     private val context: Context,
@@ -117,12 +110,7 @@ private class ComplicationDataSourceUpdateRequesterImpl(
         // Add a placeholder PendingIntent to allow the UID to be checked.
         intent.putExtra(
             ComplicationDataSourceUpdateRequesterConstants.EXTRA_PENDING_INTENT,
-            PendingIntent.getActivity(
-                context,
-                0,
-                Intent(""),
-                PendingIntent.FLAG_IMMUTABLE
-            )
+            PendingIntent.getActivity(context, 0, Intent(""), PendingIntent.FLAG_IMMUTABLE)
         )
         context.sendBroadcast(intent)
     }
@@ -141,12 +129,7 @@ private class ComplicationDataSourceUpdateRequesterImpl(
         // Add a placeholder PendingIntent to allow the UID to be checked.
         intent.putExtra(
             ComplicationDataSourceUpdateRequesterConstants.EXTRA_PENDING_INTENT,
-            PendingIntent.getActivity(
-                context,
-                0,
-                Intent(""),
-                PendingIntent.FLAG_IMMUTABLE
-            )
+            PendingIntent.getActivity(context, 0, Intent(""), PendingIntent.FLAG_IMMUTABLE)
         )
         context.sendBroadcast(intent)
     }

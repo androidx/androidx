@@ -169,7 +169,6 @@ public final class CarText {
     }
 
     /**
-     * @hide
      */
     @NonNull
     @RestrictTo(LIBRARY)
@@ -178,7 +177,6 @@ public final class CarText {
     }
 
     /**
-     * @hide
      */
     @NonNull
     @RestrictTo(LIBRARY)
@@ -189,7 +187,6 @@ public final class CarText {
     /**
      * Returns a shortened string from the input {@code text}.
      *
-     * @hide
      */
     @RestrictTo(LIBRARY)
     @Nullable
@@ -276,7 +273,6 @@ public final class CarText {
     /**
      * Wraps a span to send it to the host.
      *
-     * @hide
      */
     @RestrictTo(LIBRARY)
     @KeepFields

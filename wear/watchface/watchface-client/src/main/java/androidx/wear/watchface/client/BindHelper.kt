@@ -31,9 +31,9 @@ internal class BindHelper {
          *
          * @param context The [Context] on which to call [Context.bindService]
          * @param intent The [Intent] to pass to [Context.bindService]
-         * @param serviceConnection The [ServiceConnection] to pass to [Context.bindService].
-         * Note on API 29 and above this will be called on a binder thread, before that it will be
-         * called on the UI thread.
+         * @param serviceConnection The [ServiceConnection] to pass to [Context.bindService]. Note
+         *   on API 29 and above this will be called on a binder thread, before that it will be
+         *   called on the UI thread.
          * @return The result of [Context.bindService]
          */
         fun bindService(
@@ -44,11 +44,7 @@ internal class BindHelper {
             return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 // API 29 lets us specify an executor to avoid a round trip via the potentially
                 // congested UI thread.
-                BindHelper29.bindServiceWithImmediateExecutor(
-                    context,
-                    intent,
-                    serviceConnection
-                )
+                BindHelper29.bindServiceWithImmediateExecutor(context, intent, serviceConnection)
             } else {
                 /** Note serviceConnection will be dispatched on the UI thread. */
                 context.bindService(
@@ -69,11 +65,12 @@ private class BindHelper29 {
             context: Context,
             intent: Intent,
             serviceConnection: ServiceConnection
-        ) = context.bindService(
-            intent,
-            Context.BIND_AUTO_CREATE or Context.BIND_IMPORTANT,
-            { command -> command.run() },
-            serviceConnection
-        )
+        ) =
+            context.bindService(
+                intent,
+                Context.BIND_AUTO_CREATE or Context.BIND_IMPORTANT,
+                { command -> command.run() },
+                serviceConnection
+            )
     }
 }

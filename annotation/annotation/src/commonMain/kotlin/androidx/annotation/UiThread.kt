@@ -16,9 +16,8 @@
 package androidx.annotation
 
 /**
- * Denotes that the annotated method or constructor should only be called on the UI thread.
- * If the annotated element is a class, then all methods in the class should be called
- * on the UI thread.
+ * Denotes that the annotated method or constructor should only be called on the UI thread. If the
+ * annotated element is a class, then all methods in the class should be called on the UI thread.
  *
  * Example:
  * ```
@@ -26,9 +25,8 @@ package androidx.annotation
  * public abstract void setText(@NonNull String text) { ... }
  * ```
  *
- * **Note:** Ordinarily, an app's UI thread is also the main
- * thread. However, under special circumstances, an app's UI thread
- * might not be its main thread; for more information, see
+ * **Note:** Ordinarily, an app's UI thread is also the main thread. However, under special
+ * circumstances, an app's UI thread might not be its main thread; for more information, see
  * [Thread annotations](https://developer.android.com/studio/write/annotations#thread-annotations).
  *
  * @see androidx.annotation.MainThread

@@ -97,7 +97,6 @@ public class CarContext extends ContextWrapper {
     /**
      * Represents the types of services for client-host communication.
      *
-     * @hide
      */
     @StringDef({APP_SERVICE, CAR_SERVICE, NAVIGATION_SERVICE, SCREEN_SERVICE, CONSTRAINT_SERVICE,
             HARDWARE_SERVICE, SUGGESTION_SERVICE})
@@ -179,7 +178,6 @@ public class CarContext extends ContextWrapper {
     @Nullable
     private HostInfo mHostInfo = null;
 
-    /** @hide */
     @NonNull
     @RestrictTo(LIBRARY)
     public static CarContext create(@NonNull Lifecycle lifecycle) {
@@ -612,7 +610,6 @@ public class CarContext extends ContextWrapper {
         startActivity(intent);
     }
 
-    /** @hide */
     @RestrictTo(LIBRARY_GROUP) // Restrict to testing library
     @MainThread
     public void setCarHost(@NonNull ICarHost carHost) {
@@ -624,7 +621,6 @@ public class CarContext extends ContextWrapper {
      * Copies the fields from the provided {@link Configuration} into the {@link Configuration}
      * contained in this object.
      *
-     * @hide
      */
     @RestrictTo(LIBRARY)
     @MainThread
@@ -647,7 +643,6 @@ public class CarContext extends ContextWrapper {
     /**
      * Updates context information based on the information provided during connection handshake
      *
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
     @MainThread
@@ -658,7 +653,6 @@ public class CarContext extends ContextWrapper {
     /**
      * Updates host information based on the information provided during connection handshake
      *
-     * @hide
      */
     @RestrictTo(LIBRARY)
     @MainThread
@@ -676,7 +670,6 @@ public class CarContext extends ContextWrapper {
      * updates to the phone configuration do not update either the {@link Configuration} or {@link
      * android.util.DisplayMetrics} held by this {@link CarContext}'s resources.
      *
-     * @hide
      */
     @RestrictTo(LIBRARY)
     @MainThread
@@ -707,14 +700,12 @@ public class CarContext extends ContextWrapper {
         onCarConfigurationChanged(configuration);
     }
 
-    /** @hide */
     @RestrictTo(LIBRARY_GROUP)
     // Restrict to testing library
     ManagerCache getManagers() {
         return mManagers;
     }
 
-    /** @hide */
     @RestrictTo(LIBRARY_GROUP) // Restrict to testing library
     @SuppressWarnings({
             "argument.type.incompatible",

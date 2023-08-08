@@ -4,6 +4,8 @@ import androidx.privacysandbox.tools.PrivacySandboxService
 import androidx.privacysandbox.tools.PrivacySandboxCallback
 import androidx.privacysandbox.tools.PrivacySandboxValue
 import androidx.privacysandbox.tools.PrivacySandboxInterface
+import androidx.privacysandbox.ui.core.SandboxedUiAdapter
+import androidx.privacysandbox.ui.core.SdkActivityLauncher
 
 @PrivacySandboxService
 interface SdkService {
@@ -19,12 +21,19 @@ interface SdkCallback {
     fun onEmptyEvent()
 
     fun onCompleteInterface(myInterface: MyInterface)
+
+    fun onSdkActivityLauncherReceived(myLauncher: SdkActivityLauncher)
 }
 
 @PrivacySandboxValue
-data class Response(val response: String)
+data class Response(val response: String, val uiInterface: MyUiInterface)
 
 @PrivacySandboxInterface
 interface MyInterface {
     fun doStuff()
+}
+
+@PrivacySandboxInterface
+interface MyUiInterface : SandboxedUiAdapter {
+    fun doUiStuff()
 }

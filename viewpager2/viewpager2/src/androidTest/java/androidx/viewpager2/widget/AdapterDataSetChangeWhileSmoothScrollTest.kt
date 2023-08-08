@@ -33,15 +33,16 @@ import androidx.viewpager2.widget.ViewPager2.ORIENTATION_HORIZONTAL
 import androidx.viewpager2.widget.ViewPager2.ORIENTATION_VERTICAL
 import androidx.viewpager2.widget.ViewPager2.SCROLL_STATE_IDLE
 import androidx.viewpager2.widget.ViewPager2.SCROLL_STATE_SETTLING
-import org.hamcrest.CoreMatchers.equalTo
-import org.hamcrest.Matchers.greaterThan
-import org.hamcrest.MatcherAssert.assertThat
-import org.junit.Test
-import org.junit.runner.RunWith
-import org.junit.runners.Parameterized
 import java.util.concurrent.TimeUnit.SECONDS
 import kotlin.math.roundToInt
 import kotlin.math.sign
+import org.hamcrest.CoreMatchers.equalTo
+import org.hamcrest.MatcherAssert.assertThat
+import org.hamcrest.Matchers.greaterThan
+import org.junit.Ignore
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.Parameterized
 
 /** Number of pages */
 private const val pageCount = 25
@@ -105,6 +106,7 @@ class AdapterDataSetChangeWhileSmoothScrollTest(private val config: TestConfig) 
         test.setAdapterSync(config.adapterProvider.provider(dataSet))
     }
 
+    @Ignore // b/271634631
     @Test
     fun test() {
         tryNTimes(3, resetBlock = { test.resetViewPagerTo(initialPage) }) {

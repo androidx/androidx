@@ -40,8 +40,7 @@ dependencies {
 }
 
 androidx {
-    name = "AndroidX bitmap scaling Sample"
-    // type = LibraryType.SAMPLES
+    name = "bitmap scaling Sample"
     inceptionYear = "2021"
     description = "Sample for the AndoridX graphics bitmap compatibility"
 }

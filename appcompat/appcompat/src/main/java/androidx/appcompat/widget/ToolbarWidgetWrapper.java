@@ -56,7 +56,6 @@ import androidx.core.view.ViewPropertyAnimatorListenerAdapter;
  * {@link WindowDecorActionBar WindowDecorActionBar} can behave
  * in the same way.</p>
  *
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 public class ToolbarWidgetWrapper implements DecorToolbar {

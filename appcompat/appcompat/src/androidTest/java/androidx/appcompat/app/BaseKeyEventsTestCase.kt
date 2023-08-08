@@ -98,6 +98,50 @@ abstract class BaseKeyEventsTestCase<A : BaseTestActivity>(private val activityC
     }
 
     @Test
+    @MediumTest
+    fun testBackDismissesActionModeTwice() {
+        with(ActivityScenario.launch(activityClass)) {
+            val destroyed = AtomicBoolean()
+            val scenario = (this as? ActivityScenario<BaseTestActivity>)!!
+            val callback = object : ActionMode.Callback {
+                override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
+                    mode.menuInflater.inflate(R.menu.sample_actions, menu)
+                    return true
+                }
+
+                override fun onPrepareActionMode(mode: ActionMode, menu: Menu): Boolean {
+                    return false
+                }
+
+                override fun onActionItemClicked(mode: ActionMode, item: MenuItem): Boolean {
+                    return false
+                }
+
+                override fun onDestroyActionMode(mode: ActionMode) {
+                    destroyed.set(true)
+                }
+            }
+
+            scenario.withActivity {
+                startSupportActionMode(callback)!!
+            }
+
+            pressBack()
+            PollingCheck.waitFor { destroyed.get() }
+
+            // Now try to dismiss the ActionMode a second time
+            destroyed.set(false)
+
+            scenario.withActivity {
+                startSupportActionMode(callback)!!
+            }
+
+            pressBack()
+            PollingCheck.waitFor { destroyed.get() }
+        }
+    }
+
+    @Test
     @LargeTest
     @Throws(InterruptedException::class)
     fun testBackCollapsesActionView() {

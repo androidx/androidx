@@ -16,13 +16,13 @@
 
 package androidx.compose.foundation.layout
 
+import android.content.Context
 import android.graphics.Insets as FrameworkInsets
 import android.graphics.Rect as AndroidRect
-import android.view.WindowInsets as AndroidWindowInsets
-import android.content.Context
 import android.os.Build
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowInsets as AndroidWindowInsets
 import android.view.WindowInsetsAnimation
 import android.view.animation.LinearInterpolator
 import android.widget.FrameLayout
@@ -340,7 +340,6 @@ class WindowInsetsPaddingTest {
         }
     }
 
-    @OptIn(ExperimentalLayoutApi::class)
     @Test
     fun consumedInsets() {
         lateinit var coordinates: LayoutCoordinates
@@ -349,11 +348,19 @@ class WindowInsetsPaddingTest {
             with(LocalDensity.current) {
                 CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
                     Box(
-                        Modifier.fillMaxSize().padding(5.toDp(), 4.toDp(), 3.toDp(), 2.toDp())
+                        Modifier
+                            .fillMaxSize()
+                            .padding(5.toDp(), 4.toDp(), 3.toDp(), 2.toDp())
                             .consumeWindowInsets(WindowInsets(5, 4, 3, 2))
                     ) {
-                        Box(Modifier.fillMaxSize().systemBarsPadding()) {
-                            Box(Modifier.fillMaxSize().onGloballyPositioned { coordinates = it })
+                        Box(
+                            Modifier
+                                .fillMaxSize()
+                                .systemBarsPadding()) {
+                            Box(
+                                Modifier
+                                    .fillMaxSize()
+                                    .onGloballyPositioned { coordinates = it })
                         }
                     }
                 }
@@ -382,7 +389,10 @@ class WindowInsetsPaddingTest {
             CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
                 Box(Modifier.statusBarsPadding()) {
                     Box(Modifier.systemBarsPadding()) {
-                        Box(Modifier.fillMaxSize().onGloballyPositioned { coordinates = it })
+                        Box(
+                            Modifier
+                                .fillMaxSize()
+                                .onGloballyPositioned { coordinates = it })
                     }
                 }
             }
@@ -406,7 +416,6 @@ class WindowInsetsPaddingTest {
         }
     }
 
-    @OptIn(ExperimentalLayoutApi::class)
     @Test
     fun withConsumedWindowInsets() {
         var top = 0
@@ -415,9 +424,12 @@ class WindowInsetsPaddingTest {
             CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
                 Box(consumingModifier) {
                     val density = LocalDensity.current
-                    Box(Modifier.fillMaxSize().onConsumedWindowInsetsChanged {
-                        top = it.getTop(density)
-                    })
+                    Box(
+                        Modifier
+                            .fillMaxSize()
+                            .onConsumedWindowInsetsChanged {
+                                top = it.getTop(density)
+                            })
                 }
             }
         }
@@ -517,7 +529,10 @@ class WindowInsetsPaddingTest {
     @Test
     fun animateImeInsets() {
         with(Api30Methods(rule)) {
-            val coordinates = setInsetContent { Modifier.systemBarsPadding().imePadding() }
+            val coordinates = setInsetContent {
+                Modifier
+                    .systemBarsPadding()
+                    .imePadding() }
 
             sendInsets(WindowInsetsCompat.Type.systemBars())
 
@@ -568,8 +583,14 @@ class WindowInsetsPaddingTest {
 
         setContent {
             val padding = WindowInsets.systemBars.asPaddingValues()
-            Box(Modifier.fillMaxSize().padding(padding)) {
-                Box(Modifier.fillMaxSize().onGloballyPositioned { coordinates = it })
+            Box(
+                Modifier
+                    .fillMaxSize()
+                    .padding(padding)) {
+                Box(
+                    Modifier
+                        .fillMaxSize()
+                        .onGloballyPositioned { coordinates = it })
             }
         }
 
@@ -602,8 +623,15 @@ class WindowInsetsPaddingTest {
                     .statusBarsPadding()
                     .onGloballyPositioned { statusBar = it }
             ) {
-                Box(Modifier.navigationBarsPadding().onGloballyPositioned { navigationBar = it }) {
-                    Box(Modifier.imePadding().fillMaxSize().onGloballyPositioned { ime = it })
+                Box(
+                    Modifier
+                        .navigationBarsPadding()
+                        .onGloballyPositioned { navigationBar = it }) {
+                    Box(
+                        Modifier
+                            .imePadding()
+                            .fillMaxSize()
+                            .onGloballyPositioned { ime = it })
                 }
             }
         }
@@ -628,7 +656,6 @@ class WindowInsetsPaddingTest {
 
     // The consumedPaddingInsets() should remove the insets values so that they aren't consumed
     // further down the hierarchy.
-    @OptIn(ExperimentalLayoutApi::class)
     @Test
     fun consumedInsetsPadding() {
         lateinit var outer: LayoutCoordinates
@@ -678,7 +705,6 @@ class WindowInsetsPaddingTest {
     }
 
     // The consumedInsets() should remove only values that haven't been consumed.
-    @OptIn(ExperimentalLayoutApi::class)
     @Test
     fun consumedInsetsLimitedConsumption() {
         lateinit var outer: LayoutCoordinates
@@ -692,10 +718,11 @@ class WindowInsetsPaddingTest {
                     .windowInsetsPadding(WindowInsets(top = 10))
                     .onGloballyPositioned { outer = it }
             ) {
-                Box(Modifier
-                    .consumeWindowInsets(WindowInsets(top = 10))
-                    .windowInsetsPadding(WindowInsets(top = 20))
-                    .onGloballyPositioned { middle = it }
+                Box(
+                    Modifier
+                        .consumeWindowInsets(WindowInsets(top = 10))
+                        .windowInsetsPadding(WindowInsets(top = 20))
+                        .onGloballyPositioned { middle = it }
                 ) {
                     Box(
                         Modifier
@@ -725,7 +752,6 @@ class WindowInsetsPaddingTest {
     }
 
     // When the insets change, the layout should be redrawn.
-    @OptIn(ExperimentalLayoutApi::class)
     @Test
     fun newInsetsCausesLayout() {
         lateinit var coordinates: LayoutCoordinates
@@ -773,7 +799,10 @@ class WindowInsetsPaddingTest {
                 ComposeView(context).also {
                     it.consumeWindowInsets = false
                     it.setContent {
-                        Box(Modifier.fillMaxSize().statusBarsPadding())
+                        Box(
+                            Modifier
+                                .fillMaxSize()
+                                .statusBarsPadding())
                     }
                 }
             })
@@ -812,6 +841,35 @@ class WindowInsetsPaddingTest {
         assertThat(bottomInset).isEqualTo(0)
     }
 
+    @Test
+    fun reuseModifier() {
+        var consumed1 = WindowInsets(0, 0, 0, 0)
+        var consumed2 = WindowInsets(0, 0, 0, 0)
+        setContent {
+            with(LocalDensity.current) {
+                val modifier = Modifier.consumeWindowInsets(PaddingValues(10.toDp()))
+                Box(
+                    modifier
+                        .fillMaxSize()
+                        .onConsumedWindowInsetsChanged { consumed1 = it }
+                ) {
+                    Box(
+                        modifier
+                            .fillMaxSize()
+                            .onConsumedWindowInsetsChanged { consumed2 = it }
+                    )
+                }
+            }
+        }
+
+        rule.waitForIdle()
+        sendInsets(WindowInsetsCompat.Type.statusBars(), AndroidXInsets.of(0, 30, 0, 0))
+        rule.runOnIdle {
+            assertThat(consumed1.getTop(rule.density)).isEqualTo(10)
+            assertThat(consumed2.getTop(rule.density)).isEqualTo(20)
+        }
+    }
+
     private fun sendInsets(
         type: Int,
         sentInsets: AndroidXInsets = AndroidXInsets.of(10, 11, 12, 13)
@@ -838,10 +896,17 @@ class WindowInsetsPaddingTest {
         lateinit var coordinates: LayoutCoordinates
 
         setContent {
-            Box(Modifier.fillMaxSize().background(Color.Blue).then(insetsModifier())) {
-                Box(Modifier.fillMaxSize().onGloballyPositioned {
-                    coordinates = it
-                })
+            Box(
+                Modifier
+                    .fillMaxSize()
+                    .background(Color.Blue)
+                    .then(insetsModifier())) {
+                Box(
+                    Modifier
+                        .fillMaxSize()
+                        .onGloballyPositioned {
+                            coordinates = it
+                        })
             }
         }
 

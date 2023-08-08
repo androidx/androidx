@@ -17,10 +17,12 @@
 package androidx.camera.camera2.pipe.integration.testing
 
 import android.view.Surface
+import androidx.annotation.RequiresApi
 import androidx.camera.core.impl.DeferrableSurface
 import androidx.camera.core.impl.utils.futures.Futures
 import com.google.common.util.concurrent.ListenableFuture
 
+@RequiresApi(21)
 class FakeSurface(
     val surface: Surface? = null
 ) : DeferrableSurface() {

@@ -22,8 +22,8 @@ import kotlin.annotation.AnnotationTarget.PROPERTY_GETTER
 import kotlin.annotation.AnnotationTarget.PROPERTY_SETTER
 
 /**
- * Denotes that this class or method is only `open` to allow unit testing.
- * Any subclass or override is only allowed from tests.
+ * Denotes that this class or method is only `open` to allow unit testing. Any subclass or override
+ * is only allowed from tests.
  */
 @MustBeDocumented
 @Retention(BINARY)

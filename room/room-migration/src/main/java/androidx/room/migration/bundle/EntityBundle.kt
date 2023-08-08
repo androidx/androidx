@@ -18,7 +18,6 @@ package androidx.room.migration.bundle
 
 import androidx.annotation.RestrictTo
 import androidx.room.migration.bundle.SchemaEqualityUtil.checkSchemaEquality
-
 import com.google.gson.annotations.SerializedName
 
 /**
@@ -34,7 +33,6 @@ import com.google.gson.annotations.SerializedName
  * @property indices The list of indices
  * @property foreignKeys The list of foreign keys
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public open class EntityBundle(

@@ -17,6 +17,9 @@
 package androidx.privacysandbox.tools.core.generator
 
 import androidx.privacysandbox.tools.core.generator.AidlGenerator.Companion.throwableParcelName
+import androidx.privacysandbox.tools.core.generator.GenerationTarget.SERVER
+import androidx.privacysandbox.tools.core.generator.SpecNames.contextClass
+import androidx.privacysandbox.tools.core.generator.SpecNames.contextPropertyName
 import androidx.privacysandbox.tools.core.generator.SpecNames.resumeWithExceptionMethod
 import androidx.privacysandbox.tools.core.generator.SpecNames.suspendCancellableCoroutineMethod
 import androidx.privacysandbox.tools.core.model.AnnotatedInterface
@@ -38,8 +41,18 @@ class ClientProxyTypeGenerator(
 ) {
     private val cancellationSignalClassName = ClassName(basePackageName, "ICancellationSignal")
     private val sandboxedUiAdapterPropertyName = "sandboxedUiAdapter"
+    private val sandboxedUiAdapterFactoryClass =
+        ClassName("androidx.privacysandbox.ui.client", "SandboxedUiAdapterFactory")
 
-    fun generate(annotatedInterface: AnnotatedInterface): FileSpec {
+    /**
+     * Generates a ClientProxy for this interface.
+     *
+     * This allows a client to call remote methods on a server using a binder named 'remote'.
+     *
+     * If  [target] is [GenerationTarget.SERVER] (ie. this will run on the SDK-side) includes a
+     * Context that will be the SDK context.
+     */
+    fun generate(annotatedInterface: AnnotatedInterface, target: GenerationTarget): FileSpec {
         val className = annotatedInterface.clientProxyNameSpec().simpleName
         val remoteBinderClassName = annotatedInterface.aidlType().innerType.poetTypeName()
         val inheritsUiAdapter = annotatedInterface.superTypes.contains(Types.sandboxedUiAdapter)
@@ -52,16 +65,31 @@ class ClientProxyTypeGenerator(
                     PropertySpec.builder("remote", remoteBinderClassName)
                         .addModifiers(KModifier.PUBLIC).build()
                 )
+                if (target == SERVER) {
+                    add(
+                        PropertySpec.builder(contextPropertyName, contextClass)
+                            .addModifiers(KModifier.PUBLIC).build()
+                    )
+                }
                 if (inheritsUiAdapter) add(
-                    PropertySpec.builder(
-                        sandboxedUiAdapterPropertyName, Types.sandboxedUiAdapter.poetTypeName()
-                    ).addModifiers(KModifier.PUBLIC).build()
+                    PropertySpec.builder("coreLibInfo", SpecNames.bundleClass)
+                        .addModifiers(KModifier.PUBLIC).build()
                 )
             })
 
             addFunctions(annotatedInterface.methods.map(::toFunSpec))
 
             if (inheritsUiAdapter) {
+                addProperty(
+                    PropertySpec.builder(
+                        sandboxedUiAdapterPropertyName, Types.sandboxedUiAdapter.poetTypeName()
+                    ).addModifiers(KModifier.PUBLIC)
+                        .initializer(
+                            "%T.createFromCoreLibInfo(coreLibInfo)",
+                            sandboxedUiAdapterFactoryClass
+                        )
+                        .build()
+                )
                 addFunction(generateOpenSession())
             }
         }
@@ -79,6 +107,7 @@ class ClientProxyTypeGenerator(
 
     private fun toSuspendFunSpec(method: Method) =
         FunSpec.builder(method.name).build {
+            addModifiers(KModifier.PUBLIC)
             addModifiers(KModifier.OVERRIDE)
             addModifiers(KModifier.SUSPEND)
             addParameters(method.parameters.map { it.poetSpec() })
@@ -100,17 +129,18 @@ class ClientProxyTypeGenerator(
 
     private fun toNonSuspendFunSpec(method: Method) =
         FunSpec.builder(method.name).build {
-            addModifiers(KModifier.OVERRIDE)
+            addModifiers(KModifier.PUBLIC, KModifier.OVERRIDE)
             addParameters(method.parameters.map { it.poetSpec() })
 
             addCode(generateRemoteCall(method))
         }
 
     private fun generateOpenSession() = FunSpec.builder("openSession").build {
-        addModifiers(KModifier.OVERRIDE)
+        addModifiers(KModifier.PUBLIC, KModifier.OVERRIDE)
         addParameters(
             listOf(
-                ParameterSpec("context", ClassName("android.content", "Context")),
+                ParameterSpec(contextPropertyName, contextClass),
+                ParameterSpec("windowInputToken", ClassName("android.os", "IBinder")),
                 ParameterSpec("initialWidth", Types.int.poetClassName()),
                 ParameterSpec("initialHeight", Types.int.poetClassName()),
                 ParameterSpec("isZOrderOnTop", Types.boolean.poetClassName()),
@@ -123,8 +153,9 @@ class ClientProxyTypeGenerator(
             )
         )
         addStatement(
-            "$sandboxedUiAdapterPropertyName.openSession(context, initialWidth, initialHeight, " +
-                "isZOrderOnTop, clientExecutor, client)"
+            "$sandboxedUiAdapterPropertyName.openSession(%N, windowInputToken, initialWidth, " +
+                "initialHeight, isZOrderOnTop, clientExecutor, client)",
+            contextPropertyName,
         )
     }
 

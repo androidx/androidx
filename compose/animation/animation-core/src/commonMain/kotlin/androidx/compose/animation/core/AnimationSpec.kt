@@ -16,6 +16,7 @@
 
 package androidx.compose.animation.core
 
+import androidx.annotation.IntRange
 import androidx.compose.animation.core.AnimationConstants.DefaultDurationMillis
 import androidx.compose.animation.core.KeyframesSpec.KeyframesSpecConfig
 import androidx.compose.runtime.Immutable
@@ -421,14 +422,14 @@ class KeyframesSpec<T>(val config: KeyframesSpecConfig<T>) : DurationBasedAnimat
          * Duration of the animation in milliseconds. The minimum is `0` and defaults to
          * [DefaultDurationMillis]
          */
-        /*@IntRange(from = 0)*/
+        @get:IntRange(from = 0)
         var durationMillis: Int = DefaultDurationMillis
 
         /**
          * The amount of time that the animation should be delayed. The minimum is `0` and defaults
          * to 0.
          */
-        /*@IntRange(from = 0)*/
+        @get:IntRange(from = 0)
         var delayMillis: Int = 0
 
         internal val keyframes = mutableMapOf<Int, KeyframeEntity<T>>()
@@ -442,7 +443,7 @@ class KeyframesSpec<T>(val config: KeyframesSpecConfig<T>) : DurationBasedAnimat
          * @return an [KeyframeEntity] so a custom [Easing] can be added by [with] method.
          */
         // TODO: Need a IntRange equivalent annotation
-        infix fun T.at(/*@IntRange(from = 0)*/ timeStamp: Int): KeyframeEntity<T> {
+        infix fun T.at(@IntRange(from = 0) timeStamp: Int): KeyframeEntity<T> {
             return KeyframeEntity(this).also {
                 keyframes[timeStamp] = it
             }
@@ -554,8 +555,14 @@ fun <T> spring(
 /**
  * Creates a [KeyframesSpec] animation, initialized with [init]. For example:
  *
+ * @sample androidx.compose.animation.core.samples.FloatKeyframesBuilderInline
+ *
+ * Keyframes can also be associated with a particular [Easing] function:
+ *
+ * @sample androidx.compose.animation.core.samples.KeyframesBuilderWithEasing
+ *
  * @param init Initialization function for the [KeyframesSpec] animation
- * @See KeyframesSpec.KeyframesSpecConfig
+ * @see KeyframesSpec.KeyframesSpecConfig
  */
 @Stable
 fun <T> keyframes(

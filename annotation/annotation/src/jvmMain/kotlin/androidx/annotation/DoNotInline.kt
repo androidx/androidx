@@ -16,10 +16,9 @@
 package androidx.annotation
 
 /**
- * Denotes that the annotated method should not be inlined when
- * the code is optimized at build time. This is typically used
- * to avoid inlining purposely out-of-line methods that are
- * intended to be in separate classes.
+ * Denotes that the annotated method should not be inlined when the code is optimized at build time.
+ * This is typically used to avoid inlining purposely out-of-line methods that are intended to be in
+ * separate classes.
  *
  * Example:
  * ```

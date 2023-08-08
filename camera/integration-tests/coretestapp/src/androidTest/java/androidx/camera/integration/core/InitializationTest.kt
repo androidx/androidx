@@ -20,8 +20,8 @@ import android.content.Context
 import android.content.Intent
 import androidx.camera.camera2.Camera2Config
 import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.camera.testing.CameraUtil
-import androidx.camera.testing.CoreAppTestUtil
+import androidx.camera.testing.impl.CameraUtil
+import androidx.camera.testing.impl.CoreAppTestUtil
 import androidx.concurrent.futures.await
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider

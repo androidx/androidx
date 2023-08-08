@@ -16,16 +16,16 @@
 
 package androidx.compose.compiler.plugins.kotlin.facade
 
-import androidx.compose.compiler.plugins.kotlin.ComposeComponentRegistrar
+import androidx.compose.compiler.plugins.kotlin.ComposePluginRegistrar
 import androidx.compose.compiler.plugins.kotlin.TestsCompilerError
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.util.text.StringUtilRt
-import com.intellij.openapi.vfs.CharsetToolkit
 import com.intellij.psi.PsiFileFactory
 import com.intellij.psi.impl.PsiFileFactoryImpl
 import com.intellij.testFramework.LightVirtualFile
+import java.nio.charset.StandardCharsets
 import org.jetbrains.kotlin.cli.common.CLIConfigurationKeys
 import org.jetbrains.kotlin.cli.common.messages.CompilerMessageSeverity
 import org.jetbrains.kotlin.cli.common.messages.CompilerMessageSourceLocation
@@ -38,12 +38,12 @@ import org.jetbrains.kotlin.config.CommonConfigurationKeys
 import org.jetbrains.kotlin.config.CompilerConfiguration
 import org.jetbrains.kotlin.config.JVMConfigurationKeys
 import org.jetbrains.kotlin.config.JvmTarget
+import org.jetbrains.kotlin.config.languageVersionSettings
 import org.jetbrains.kotlin.idea.KotlinLanguage
 import org.jetbrains.kotlin.ir.declarations.IrModuleFragment
 import org.jetbrains.kotlin.ir.util.IrMessageLogger
 import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.resolve.AnalyzingUtils
-import org.jetbrains.kotlin.resolve.BindingContext
 
 class SourceFile(
     val name: String,
@@ -63,7 +63,7 @@ class SourceFile(
             override fun getPath(): String = "/$name"
         }
 
-        virtualFile.charset = CharsetToolkit.UTF8_CHARSET
+        virtualFile.charset = StandardCharsets.UTF_8
         val factory = PsiFileFactory.getInstance(project) as PsiFileFactoryImpl
         val ktFile = factory.trySetupPsiForFile(
             virtualFile, KotlinLanguage.INSTANCE, true, false
@@ -87,14 +87,19 @@ interface AnalysisResult {
     )
 
     val files: List<KtFile>
-    val diagnostics: List<Diagnostic>
-    val bindingContext: BindingContext?
+    val diagnostics: Map<String, List<Diagnostic>>
 }
 
 abstract class KotlinCompilerFacade(val environment: KotlinCoreEnvironment) {
-    abstract fun analyze(files: List<SourceFile>): AnalysisResult
+    abstract fun analyze(
+        platformFiles: List<SourceFile>,
+        commonFiles: List<SourceFile>
+    ): AnalysisResult
     abstract fun compileToIr(files: List<SourceFile>): IrModuleFragment
-    abstract fun compile(files: List<SourceFile>): GenerationState
+    abstract fun compile(
+        platformFiles: List<SourceFile>,
+        commonFiles: List<SourceFile>
+    ): GenerationState
 
     companion object {
         const val TEST_MODULE_NAME = "test-module"
@@ -118,12 +123,12 @@ abstract class KotlinCompilerFacade(val environment: KotlinCoreEnvironment) {
                 disposable, configuration, EnvironmentConfigFiles.JVM_CONFIG_FILES
             )
 
-            ComposeComponentRegistrar.checkCompilerVersion(configuration)
+            ComposePluginRegistrar.checkCompilerVersion(configuration)
 
             environment.project.registerExtensions(configuration)
 
-            return if (configuration.getBoolean(CommonConfigurationKeys.USE_FIR)) {
-                error("FIR unsupported")
+            return if (configuration.languageVersionSettings.languageVersion.usesK2) {
+                K2CompilerFacade(environment)
             } else {
                 K1CompilerFacade(environment)
             }

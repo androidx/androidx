@@ -15,8 +15,8 @@
  */
 package androidx.activity.compose.samples
 
-import androidx.activity.compose.ReportDrawnAfter
 import androidx.activity.compose.ReportDrawn
+import androidx.activity.compose.ReportDrawnAfter
 import androidx.activity.compose.ReportDrawnWhen
 import androidx.annotation.Sampled
 import androidx.compose.foundation.layout.fillMaxSize

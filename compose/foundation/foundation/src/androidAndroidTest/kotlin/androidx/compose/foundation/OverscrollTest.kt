@@ -24,6 +24,8 @@ import androidx.compose.foundation.gestures.ScrollableDefaults
 import androidx.compose.foundation.gestures.ScrollableState
 import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.ui.Modifier
@@ -40,12 +42,16 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.platform.ViewConfiguration
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performMouseInput
 import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.swipeUp
 import androidx.compose.ui.test.swipeWithVelocity
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -56,6 +62,7 @@ import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import kotlin.math.abs
 import kotlinx.coroutines.runBlocking
+import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -109,9 +116,7 @@ class OverscrollTest {
             overscrollEffect = controller
         )
 
-        rule.runOnIdle {
-            assertThat(controller.drawCallsCount).isEqualTo(1)
-        }
+        rule.waitUntil { controller.drawCallsCount == 1 }
 
         rule.onNodeWithTag(boxTag).assertExists()
 
@@ -142,9 +147,7 @@ class OverscrollTest {
             overscrollEffect = controller
         )
 
-        rule.runOnIdle {
-            assertThat(controller.drawCallsCount).isEqualTo(1)
-        }
+        rule.waitUntil { controller.drawCallsCount == 1 }
 
         rule.onNodeWithTag(boxTag).performTouchInput {
             down(center)
@@ -241,9 +244,7 @@ class OverscrollTest {
             flingBehavior = flingBehavior
         )
 
-        rule.runOnIdle {
-            assertThat(controller.drawCallsCount).isEqualTo(1)
-        }
+        rule.waitUntil { controller.drawCallsCount == 1 }
 
         rule.onNodeWithTag(boxTag).assertExists()
 
@@ -469,9 +470,7 @@ class OverscrollTest {
             overscrollEffect = controller
         )
 
-        rule.runOnIdle {
-            assertThat(controller.drawCallsCount).isEqualTo(1)
-        }
+        rule.waitUntil { controller.drawCallsCount == 1 }
 
         rule.onNodeWithTag(boxTag).assertExists()
 
@@ -511,9 +510,7 @@ class OverscrollTest {
             orientation = Orientation.Vertical
         )
 
-        rule.runOnIdle {
-            assertThat(controller.drawCallsCount).isEqualTo(1)
-        }
+        rule.waitUntil { controller.drawCallsCount == 1 }
 
         rule.onNodeWithTag(boxTag).assertExists()
 
@@ -713,9 +710,7 @@ class OverscrollTest {
             reverseDirection = reverseDirection
         )
 
-        rule.runOnIdle {
-            assertThat(controller.drawCallsCount).isEqualTo(1)
-        }
+        rule.waitUntil { controller.drawCallsCount == 1 }
 
         rule.onNodeWithTag(boxTag).assertExists()
 
@@ -759,6 +754,95 @@ class OverscrollTest {
         rule.runOnIdle {
             assertThat(controller.lastVelocity.x).isWithin(0.01f).of(0f)
             assertThat(controller.lastVelocity.y).isWithin(0.01f).of(0f)
+        }
+    }
+
+    @ExperimentalFoundationApi
+    @MediumTest
+    @Test
+    fun testOverscrollCallbacks_verticalSwipeUp_shouldTriggerCallbacks() {
+        val overscrollController = OffsetOverscrollEffectCounter()
+
+        rule.setContent {
+            val scrollableState = ScrollableState { delta -> delta }
+            Box(Modifier.nestedScroll(NoOpConnection)) {
+                Box(
+                    Modifier
+                        .testTag(boxTag)
+                        .size(300.dp)
+                        .overscroll(overscrollController)
+                        .scrollable(
+                            state = scrollableState,
+                            orientation = Orientation.Vertical,
+                            overscrollEffect = overscrollController,
+                            flingBehavior = ScrollableDefaults.flingBehavior()
+                        )
+                )
+            }
+        }
+        rule.onNodeWithTag(boxTag).performTouchInput { swipeUp(bottom, centerY) }
+
+        rule.runOnIdle {
+            assertThat(overscrollController.applyToFlingCount).isGreaterThan(0)
+            assertThat(overscrollController.applyToScrollCount).isGreaterThan(0)
+        }
+    }
+
+    @MediumTest
+    @Test
+    fun testOverscrollModifierDrawsOnce() {
+        var drawCount = 0
+        rule.setContent {
+            Spacer(
+                modifier = Modifier.testTag(boxTag)
+                    .size(100.dp)
+                    .overscroll(ScrollableDefaults.overscrollEffect())
+                    .drawBehind {
+                        drawCount++
+                    }
+            )
+        }
+        rule.runOnIdle {
+            assertEquals(1, drawCount)
+        }
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @ExperimentalFoundationApi
+    @MediumTest
+    @Test
+    fun testOverscrollCallbacks_verticalScrollMouse_shouldNotTriggerCallbacks() {
+        val overscrollController = OffsetOverscrollEffectCounter()
+
+        rule.setContent {
+            val scrollableState = ScrollableState { delta -> delta }
+            Box(Modifier.nestedScroll(NoOpConnection)) {
+                Box(
+                    Modifier
+                        .testTag(boxTag)
+                        .size(300.dp)
+                        .overscroll(overscrollController)
+                        .scrollable(
+                            state = scrollableState,
+                            orientation = Orientation.Vertical,
+                            overscrollEffect = overscrollController,
+                            flingBehavior = ScrollableDefaults.flingBehavior()
+                        )
+                )
+            }
+        }
+
+        // For the mouse scroll to work, you need to
+        // - 1. place the test tag directly on the LazyColumn
+        // - 2. Call moveTo() before scroll()
+        rule.onNodeWithTag(boxTag).performMouseInput {
+            moveTo(Offset.Zero)
+            scroll(100f)
+        }
+
+        rule.runOnIdle {
+            assertThat(overscrollController.applyToFlingCount).isEqualTo(0)
+            assertThat(overscrollController.applyToScrollCount).isEqualTo(0)
         }
     }
 }
@@ -820,5 +904,37 @@ private class InspectableConnection : NestedScrollConnection {
         preScrollVelocity += consumed
         preScrollVelocity += available
         return Velocity.Zero
+    }
+}
+
+// Custom offset overscroll that only counts the number of times each callback is triggered.
+@OptIn(ExperimentalFoundationApi::class)
+private class OffsetOverscrollEffectCounter : OverscrollEffect {
+    var applyToScrollCount: Int = 0
+        private set
+
+    var applyToFlingCount: Int = 0
+        private set
+
+    @ExperimentalFoundationApi
+    override fun applyToScroll(
+        delta: Offset,
+        source: NestedScrollSource,
+        performScroll: (Offset) -> Offset
+    ): Offset {
+        applyToScrollCount++
+        return Offset.Zero
+    }
+
+    override suspend fun applyToFling(
+        velocity: Velocity,
+        performFling: suspend (Velocity) -> Velocity
+    ) {
+        applyToFlingCount++
+    }
+
+    override val isInProgress: Boolean = false
+    override val effectModifier: Modifier = Modifier.offset {
+        IntOffset(x = 0, y = 0)
     }
 }

@@ -17,6 +17,8 @@
 package androidx.build.metalava
 
 import androidx.build.checkapi.ApiLocation
+import java.io.File
+import java.util.concurrent.TimeUnit
 import org.apache.commons.io.FileUtils
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
@@ -28,43 +30,36 @@ import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
 import org.gradle.work.DisableCachingByDefault
-import java.io.File
-import java.util.concurrent.TimeUnit
 
 /** Compares two API txt files against each other. */
 @DisableCachingByDefault(because = "Doesn't benefit from caching")
 abstract class CheckApiEquivalenceTask : DefaultTask() {
-    /**
-     * Api file (in the build dir) to check
-     */
-    @get:Input
-    abstract val builtApi: Property<ApiLocation>
+    /** Api file (in the build dir) to check */
+    @get:Input abstract val builtApi: Property<ApiLocation>
 
-    /**
-     * Api file (in source control) to compare against
-     */
-    @get:Input
-    abstract val checkedInApis: ListProperty<ApiLocation>
+    /** Api file (in source control) to compare against */
+    @get:Input abstract val checkedInApis: ListProperty<ApiLocation>
 
-    @InputFiles @PathSensitive(PathSensitivity.RELATIVE)
+    @InputFiles
+    @PathSensitive(PathSensitivity.RELATIVE)
     fun getTaskInputs(): List<File> {
         val checkedInApiLocations = checkedInApis.get()
-        val checkedInApiFiles = checkedInApiLocations.flatMap { checkedInApiLocation ->
-            listOf(
-                checkedInApiLocation.publicApiFile,
-                checkedInApiLocation.removedApiFile,
-                checkedInApiLocation.experimentalApiFile,
-                checkedInApiLocation.restrictedApiFile
-            )
-        }
+        val checkedInApiFiles =
+            checkedInApiLocations.flatMap { checkedInApiLocation ->
+                listOf(
+                    checkedInApiLocation.publicApiFile,
+                    checkedInApiLocation.removedApiFile,
+                    checkedInApiLocation.restrictedApiFile
+                )
+            }
 
         val builtApiLocation = builtApi.get()
-        val builtApiFiles = listOf(
-            builtApiLocation.publicApiFile,
-            builtApiLocation.removedApiFile,
-            builtApiLocation.experimentalApiFile,
-            builtApiLocation.restrictedApiFile
-        )
+        val builtApiFiles =
+            listOf(
+                builtApiLocation.publicApiFile,
+                builtApiLocation.removedApiFile,
+                builtApiLocation.restrictedApiFile
+            )
 
         return checkedInApiFiles + builtApiFiles
     }
@@ -75,25 +70,28 @@ abstract class CheckApiEquivalenceTask : DefaultTask() {
         for (checkedInApi in checkedInApis.get()) {
             checkEqual(checkedInApi.publicApiFile, builtApiLocation.publicApiFile)
             checkEqual(checkedInApi.removedApiFile, builtApiLocation.removedApiFile)
-            checkEqual(checkedInApi.experimentalApiFile, builtApiLocation.experimentalApiFile)
             checkEqual(checkedInApi.restrictedApiFile, builtApiLocation.restrictedApiFile)
         }
     }
 }
 
-private fun summarizeDiff(a: File, b: File): String {
+/**
+ * Returns the output of running the `diff` command-line tool on files [a] and [b], truncated to
+ * [maxSummaryLines] lines.
+ */
+fun summarizeDiff(a: File, b: File, maxSummaryLines: Int = 50): String {
     if (!a.exists()) {
         return "$a does not exist"
     }
     if (!b.exists()) {
         return "$b does not exist"
     }
-    val process = ProcessBuilder(listOf("diff", a.toString(), b.toString()))
-        .redirectOutput(ProcessBuilder.Redirect.PIPE)
-        .start()
+    val process =
+        ProcessBuilder(listOf("diff", a.toString(), b.toString()))
+            .redirectOutput(ProcessBuilder.Redirect.PIPE)
+            .start()
     process.waitFor(5, TimeUnit.SECONDS)
     var diffLines = process.inputStream.bufferedReader().readLines().toMutableList()
-    val maxSummaryLines = 50
     if (diffLines.size > maxSummaryLines) {
         diffLines = diffLines.subList(0, maxSummaryLines)
         diffLines.plusAssign("[long diff was truncated]")
@@ -104,7 +102,8 @@ private fun summarizeDiff(a: File, b: File): String {
 fun checkEqual(expected: File, actual: File) {
     if (!FileUtils.contentEquals(expected, actual)) {
         val diff = summarizeDiff(expected, actual)
-        val message = """API definition has changed
+        val message =
+            """API definition has changed
 
                     Declared definition is $expected
                     True     definition is $actual

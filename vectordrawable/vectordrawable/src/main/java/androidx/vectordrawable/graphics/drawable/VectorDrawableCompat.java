@@ -613,7 +613,6 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
      * The size of a pixel when scaled from the intrinsic dimension to the viewport dimension. This
      * is used to calculate the path animation accuracy.
      *
-     * @hide
      */
     @SuppressWarnings("unused")
     @RestrictTo(LIBRARY_GROUP_PREFIX)

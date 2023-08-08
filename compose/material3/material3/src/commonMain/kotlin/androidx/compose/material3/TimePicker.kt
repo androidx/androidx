@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:OptIn(ExperimentalMaterial3Api::class)
 
 package androidx.compose.material3
 
@@ -27,22 +28,33 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.CornerBasedShape
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.tokens.MotionTokens
+import androidx.compose.material3.tokens.TimeInputTokens
+import androidx.compose.material3.tokens.TimeInputTokens.PeriodSelectorContainerHeight
+import androidx.compose.material3.tokens.TimeInputTokens.PeriodSelectorContainerWidth
+import androidx.compose.material3.tokens.TimeInputTokens.TimeFieldContainerHeight
+import androidx.compose.material3.tokens.TimeInputTokens.TimeFieldContainerWidth
+import androidx.compose.material3.tokens.TimeInputTokens.TimeFieldSeparatorColor
 import androidx.compose.material3.tokens.TimePickerTokens
 import androidx.compose.material3.tokens.TimePickerTokens.ClockDialColor
 import androidx.compose.material3.tokens.TimePickerTokens.ClockDialContainerSize
@@ -55,6 +67,8 @@ import androidx.compose.material3.tokens.TimePickerTokens.ClockDialSelectorTrack
 import androidx.compose.material3.tokens.TimePickerTokens.ClockDialUnselectedLabelTextColor
 import androidx.compose.material3.tokens.TimePickerTokens.ContainerColor
 import androidx.compose.material3.tokens.TimePickerTokens.PeriodSelectorContainerShape
+import androidx.compose.material3.tokens.TimePickerTokens.PeriodSelectorHorizontalContainerHeight
+import androidx.compose.material3.tokens.TimePickerTokens.PeriodSelectorHorizontalContainerWidth
 import androidx.compose.material3.tokens.TimePickerTokens.PeriodSelectorOutlineColor
 import androidx.compose.material3.tokens.TimePickerTokens.PeriodSelectorSelectedContainerColor
 import androidx.compose.material3.tokens.TimePickerTokens.PeriodSelectorSelectedLabelTextColor
@@ -72,10 +86,12 @@ import androidx.compose.material3.tokens.TimePickerTokens.TimeSelectorUnselected
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -87,31 +103,55 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.center
 import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.input.key.utf16CodePoint
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.layout.LayoutModifier
+import androidx.compose.ui.layout.Measurable
+import androidx.compose.ui.layout.MeasurePolicy
+import androidx.compose.ui.layout.MeasureResult
+import androidx.compose.ui.layout.MeasureScope
+import androidx.compose.ui.layout.boundsInParent
 import androidx.compose.ui.layout.layoutId
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.InspectorInfo
+import androidx.compose.ui.platform.InspectorValueInfo
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.isTraversalGroup
+import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.selectableGroup
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.traversalIndex
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.center
 import androidx.compose.ui.unit.dp
-import java.text.NumberFormat
+import androidx.compose.ui.zIndex
 import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.atan2
@@ -122,29 +162,79 @@ import kotlin.math.sin
 import kotlinx.coroutines.launch
 
 /**
+ * <a href="https://m3.material.io/components/time-pickers/overview" class="external" target="_blank">Material Design time picker</a>.
+ *
  * Time pickers help users select and set a specific time.
  *
  * Shows a picker that allows the user to select time.
  * Subscribe to updates through [TimePickerState]
  *
+ * ![Time picker image](https://developer.android.com/images/reference/androidx/compose/material3/time-picker.png)
+ *
  * @sample androidx.compose.material3.samples.TimePickerSample
+ * @sample androidx.compose.material3.samples.TimePickerSwitchableSample
  *
  * [state] state for this timepicker, allows to subscribe to changes to [TimePickerState.hour] and
  * [TimePickerState.minute], and set the initial time for this picker.
  *
+ * @param state state for this time input, allows to subscribe to changes to [TimePickerState.hour]
+ * and [TimePickerState.minute], and set the initial time for this input.
+ * @param modifier the [Modifier] to be applied to this time input
+ * @param colors colors [TimePickerColors] that will be used to resolve the colors used for this
+ * time picker in different states. See [TimePickerDefaults.colors].
+ * @param layoutType, the different [TimePickerLayoutType] supported by this time picker,
+ * it will change the position and sizing of different components of the timepicker.
  */
 @Composable
 @ExperimentalMaterial3Api
 fun TimePicker(
     state: TimePickerState,
-    colors: TimePickerColors = TimePickerDefaults.colors()
+    modifier: Modifier = Modifier,
+    colors: TimePickerColors = TimePickerDefaults.colors(),
+    layoutType: TimePickerLayoutType = TimePickerDefaults.layoutType(),
 ) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        ClockDisplay(state, colors)
-        Spacer(modifier = Modifier.height(ClockDisplayBottomMargin))
-        ClockFace(state, colors)
-        Spacer(modifier = Modifier.height(ClockFaceBottomMargin))
+    val touchExplorationServicesEnabled by touchExplorationState()
+
+    if (layoutType == TimePickerLayoutType.Vertical) {
+        VerticalTimePicker(
+            state = state,
+            modifier = modifier,
+            colors = colors,
+            autoSwitchToMinute = !touchExplorationServicesEnabled
+        )
+    } else {
+        HorizontalTimePicker(
+            state = state,
+            modifier = modifier,
+            colors = colors,
+            autoSwitchToMinute = !touchExplorationServicesEnabled
+        )
     }
+}
+
+/**
+ * Time pickers help users select and set a specific time.
+ *
+ * Shows a time input that allows the user to enter the time via
+ * two text fields, one for minutes and one for hours
+ * Subscribe to updates through [TimePickerState]
+ *
+ * @sample androidx.compose.material3.samples.TimeInputSample
+ *
+ * @param state state for this timepicker, allows to subscribe to changes to [TimePickerState.hour]
+ * and [TimePickerState.minute], and set the initial time for this picker.
+ * @param modifier the [Modifier] to be applied to this time input
+ * @param colors colors [TimePickerColors] that will be used to resolve the colors used for this
+ * time input in different states. See [TimePickerDefaults.colors].
+ */
+@Composable
+@ExperimentalMaterial3Api
+fun TimeInput(
+    state: TimePickerState,
+    modifier: Modifier = Modifier,
+    colors: TimePickerColors = TimePickerDefaults.colors(),
+) {
+    TimeInputImpl(modifier, colors, state)
 }
 
 /**
@@ -184,27 +274,27 @@ object TimePickerDefaults {
      */
     @Composable
     fun colors(
-        clockDialColor: Color = ClockDialColor.toColor(),
-        clockDialSelectedContentColor: Color = ClockDialSelectedLabelTextColor.toColor(),
-        clockDialUnselectedContentColor: Color = ClockDialUnselectedLabelTextColor.toColor(),
-        selectorColor: Color = ClockDialSelectorHandleContainerColor.toColor(),
-        containerColor: Color = ContainerColor.toColor(),
-        periodSelectorBorderColor: Color = PeriodSelectorOutlineColor.toColor(),
+        clockDialColor: Color = ClockDialColor.value,
+        clockDialSelectedContentColor: Color = ClockDialSelectedLabelTextColor.value,
+        clockDialUnselectedContentColor: Color = ClockDialUnselectedLabelTextColor.value,
+        selectorColor: Color = ClockDialSelectorHandleContainerColor.value,
+        containerColor: Color = ContainerColor.value,
+        periodSelectorBorderColor: Color = PeriodSelectorOutlineColor.value,
         periodSelectorSelectedContainerColor: Color =
-            PeriodSelectorSelectedContainerColor.toColor(),
+            PeriodSelectorSelectedContainerColor.value,
         periodSelectorUnselectedContainerColor: Color = Color.Transparent,
         periodSelectorSelectedContentColor: Color =
-            PeriodSelectorSelectedLabelTextColor.toColor(),
+            PeriodSelectorSelectedLabelTextColor.value,
         periodSelectorUnselectedContentColor: Color =
-            PeriodSelectorUnselectedLabelTextColor.toColor(),
+            PeriodSelectorUnselectedLabelTextColor.value,
         timeSelectorSelectedContainerColor: Color =
-            TimeSelectorSelectedContainerColor.toColor(),
+            TimeSelectorSelectedContainerColor.value,
         timeSelectorUnselectedContainerColor: Color =
-            TimeSelectorUnselectedContainerColor.toColor(),
+            TimeSelectorUnselectedContainerColor.value,
         timeSelectorSelectedContentColor: Color =
-            TimeSelectorSelectedLabelTextColor.toColor(),
+            TimeSelectorSelectedLabelTextColor.value,
         timeSelectorUnselectedContentColor: Color =
-            TimeSelectorUnselectedLabelTextColor.toColor(),
+            TimeSelectorUnselectedLabelTextColor.value,
     ) = TimePickerColors(
         clockDialColor = clockDialColor,
         clockDialSelectedContentColor = clockDialSelectedContentColor,
@@ -221,31 +311,62 @@ object TimePickerDefaults {
         timeSelectorSelectedContentColor = timeSelectorSelectedContentColor,
         timeSelectorUnselectedContentColor = timeSelectorUnselectedContentColor
     )
+
+    /** Default layout type, uses the screen dimensions to choose an appropriate layout. */
+    @ReadOnlyComposable
+    @Composable
+    fun layoutType(): TimePickerLayoutType = defaultTimePickerLayoutType
 }
 
 /**
  * Represents the colors used by a [TimePicker] in different states
  *
+ * @constructor create an instance with arbitrary colors.
  * See [TimePickerDefaults.colors] for the default implementation that follows Material
  * specifications.
+ *
+ * @param clockDialColor The color of the clock dial.
+ * @param clockDialSelectedContentColor the color of the numbers of the clock dial when they
+ * are selected or overlapping with the selector
+ * @param clockDialUnselectedContentColor the color of the numbers of the clock dial when they
+ * are unselected
+ * @param selectorColor The color of the clock dial selector.
+ * @param containerColor The container color of the time picker.
+ * @param periodSelectorBorderColor the color used for the border of the AM/PM toggle.
+ * @param periodSelectorSelectedContainerColor the color used for the selected container of
+ * the AM/PM toggle
+ * @param periodSelectorUnselectedContainerColor the color used for the unselected container
+ * of the AM/PM toggle
+ * @param periodSelectorSelectedContentColor color used for the selected content of
+ * the AM/PM toggle
+ * @param periodSelectorUnselectedContentColor color used for the unselected content
+ * of the AM/PM toggle
+ * @param timeSelectorSelectedContainerColor color used for the selected container of the
+ * display buttons to switch between hour and minutes
+ * @param timeSelectorUnselectedContainerColor color used for the unselected container of the
+ * display buttons to switch between hour and minutes
+ * @param timeSelectorSelectedContentColor color used for the selected content of the display
+ * buttons to switch between hour and minutes
+ * @param timeSelectorUnselectedContentColor color used for the unselected content of the
+ * display buttons to switch between hour and minutes
  */
 @Immutable
 @ExperimentalMaterial3Api
-class TimePickerColors internal constructor(
-    internal val clockDialColor: Color,
-    internal val selectorColor: Color,
-    internal val containerColor: Color,
-    internal val periodSelectorBorderColor: Color,
-    private val clockDialSelectedContentColor: Color,
-    private val clockDialUnselectedContentColor: Color,
-    private val periodSelectorSelectedContainerColor: Color,
-    private val periodSelectorUnselectedContainerColor: Color,
-    private val periodSelectorSelectedContentColor: Color,
-    private val periodSelectorUnselectedContentColor: Color,
-    private val timeSelectorSelectedContainerColor: Color,
-    private val timeSelectorUnselectedContainerColor: Color,
-    private val timeSelectorSelectedContentColor: Color,
-    private val timeSelectorUnselectedContentColor: Color,
+class TimePickerColors constructor(
+    val clockDialColor: Color,
+    val selectorColor: Color,
+    val containerColor: Color,
+    val periodSelectorBorderColor: Color,
+    val clockDialSelectedContentColor: Color,
+    val clockDialUnselectedContentColor: Color,
+    val periodSelectorSelectedContainerColor: Color,
+    val periodSelectorUnselectedContainerColor: Color,
+    val periodSelectorSelectedContentColor: Color,
+    val periodSelectorUnselectedContentColor: Color,
+    val timeSelectorSelectedContainerColor: Color,
+    val timeSelectorUnselectedContainerColor: Color,
+    val timeSelectorSelectedContentColor: Color,
+    val timeSelectorUnselectedContentColor: Color,
 ) {
     internal fun periodSelectorContainerColor(selected: Boolean) =
         if (selected) {
@@ -284,7 +405,8 @@ class TimePickerColors internal constructor(
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (javaClass != other?.javaClass) return false
+        if (other === null) return false
+        if (this::class != other::class) return false
 
         other as TimePickerColors
 
@@ -337,15 +459,15 @@ class TimePickerColors internal constructor(
  * Ranges from 0 to 23
  * @param initialMinute starting minute for this state, will be displayed in the time picker when
  * launched. Ranges from 0 to 59
- * @param is24Hour The format for this time picker `false` for 12 hour format with an AM/PM toggle
- * or `true` for 24 hour format without toggle.
+ * @param is24Hour The format for this time picker. `false` for 12 hour format with an AM/PM toggle
+ * or `true` for 24 hour format without toggle. Defaults to follow system setting.
  */
 @Composable
 @ExperimentalMaterial3Api
 fun rememberTimePickerState(
     initialHour: Int = 0,
     initialMinute: Int = 0,
-    is24Hour: Boolean = false,
+    is24Hour: Boolean = is24HourFormat,
 ): TimePickerState = rememberSaveable(
     saver = TimePickerState.Saver()
 ) {
@@ -354,6 +476,29 @@ fun rememberTimePickerState(
         initialMinute = initialMinute,
         is24Hour = is24Hour,
     )
+}
+
+/**
+ * Represents the different configurations for the layout of the Time Picker
+ */
+@Immutable
+@JvmInline
+@ExperimentalMaterial3Api
+value class TimePickerLayoutType internal constructor(internal val value: Int) {
+
+    companion object {
+        /** Displays the Time picker with a horizontal layout. Should be used in landscape mode. */
+        val Horizontal = TimePickerLayoutType(0)
+
+        /** Displays the Time picker with a vertical layout. Should be used in portrait mode.*/
+        val Vertical = TimePickerLayoutType(1)
+    }
+
+    override fun toString() = when (this) {
+        Horizontal -> "Horizontal"
+        Vertical -> "Vertical"
+        else -> "Unknown"
+    }
 }
 
 /**
@@ -371,6 +516,7 @@ fun rememberTimePickerState(
  *  or `true` for 24 hour format without toggle.
  */
 @Stable
+@ExperimentalMaterial3Api
 class TimePickerState(
     initialHour: Int,
     initialMinute: Int,
@@ -378,7 +524,7 @@ class TimePickerState(
 ) {
     init {
         require(initialHour in 0..23) { "initialHour should in [0..23] range" }
-        require(initialHour in 0..59) { "initialMinute should be in [0..59] range" }
+        require(initialMinute in 0..59) { "initialMinute should be in [0..59] range" }
     }
 
     val minute: Int get() = minuteAngle.toMinute()
@@ -402,23 +548,39 @@ class TimePickerState(
         DpOffset(offsetX, offsetY)
     }
 
-    internal val values by derivedStateOf {
-        if (selection == Selection.Minute) Minutes else Hours
-    }
+    internal var center by mutableStateOf(IntOffset.Zero)
+    internal val values get() = if (selection == Selection.Minute) Minutes else Hours
 
     internal var selection by mutableStateOf(Selection.Hour)
-    internal var isAfternoonToggle by mutableStateOf(initialHour > 12 && !is24Hour)
-    internal var isInnerCircle by mutableStateOf(initialHour > 12 || initialHour == 0)
+    internal var isAfternoonToggle by mutableStateOf(initialHour >= 12 && !is24Hour)
+    internal var isInnerCircle by mutableStateOf(initialHour >= 12)
 
-    private var hourAngle by mutableStateOf(RadiansPerHour * initialHour % 12 - FullCircle / 4)
-    private var minuteAngle by mutableStateOf(RadiansPerMinute * initialMinute - FullCircle / 4)
+    internal var hourAngle by mutableFloatStateOf(
+        RadiansPerHour * (initialHour % 12) - FullCircle / 4
+    )
+    internal var minuteAngle by mutableFloatStateOf(
+        RadiansPerMinute * initialMinute - FullCircle / 4
+    )
 
     private val mutex = MutatorMutex()
-    private val isAfternoon by derivedStateOf {
-        (is24hour && isInnerCircle && hourAngle.toHour() != 0) || isAfternoonToggle
-    }
+    private val isAfternoon by derivedStateOf { is24hour && isInnerCircle || isAfternoonToggle }
 
     internal val currentAngle = Animatable(hourAngle)
+
+    internal fun setMinute(minute: Int) {
+        minuteAngle = RadiansPerMinute * minute - FullCircle / 4
+    }
+
+    internal fun setHour(hour: Int) {
+        isInnerCircle = hour >= 12
+        hourAngle = RadiansPerHour * (hour % 12) - FullCircle / 4
+    }
+
+    internal fun moveSelector(x: Float, y: Float, maxDist: Float) {
+        if (selection == Selection.Hour && is24hour) {
+            isInnerCircle = dist(x, y, center.x, center.y) < maxDist
+        }
+    }
 
     internal fun isSelected(value: Int): Boolean =
         if (selection == Selection.Minute) {
@@ -457,7 +619,6 @@ class TimePickerState(
     }
 
     private fun hourForDisplay(hour: Int): Int = when {
-        is24hour && isInnerCircle && hour == 0 -> 12
         is24hour -> hour % 24
         hour % 12 == 0 -> 12
         isAfternoon -> hour - 12
@@ -476,8 +637,8 @@ class TimePickerState(
     }
 
     private fun Float.toMinute(): Int {
-        val hourOffset: Float = RadiansPerMinute / 2
-        val totalOffset = hourOffset + QuarterCircle
+        val minuteOffset: Float = RadiansPerMinute / 2
+        val totalOffset = minuteOffset + QuarterCircle
         return ((this + totalOffset) / RadiansPerMinute).toInt() % 60
     }
 
@@ -487,6 +648,23 @@ class TimePickerState(
         currentAngle.animateTo(targetValue.second, tween(200))
     }
 
+    internal suspend fun onTap(x: Float, y: Float, maxDist: Float, autoSwitchToMinute: Boolean) {
+        update(atan(y - center.y, x - center.x), true)
+        moveSelector(x, y, maxDist)
+
+        if (selection == Selection.Hour) {
+            if (autoSwitchToMinute) {
+                selection = Selection.Minute
+            } else {
+                val targetValue = valuesForAnimation(currentAngle.value, hourAngle)
+                currentAngle.snapTo(targetValue.first)
+                currentAngle.animateTo(targetValue.second, tween(200))
+            }
+        } else {
+            settle()
+        }
+    }
+
     companion object {
         /**
          * The default [Saver] implementation for [TimePickerState].
@@ -494,8 +672,8 @@ class TimePickerState(
         fun Saver(): Saver<TimePickerState, *> = Saver(
             save = {
                 listOf(
-                    it.minute,
                     it.hour,
+                    it.minute,
                     it.is24hour
                 )
             },
@@ -510,66 +688,365 @@ class TimePickerState(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun ClockDisplay(state: TimePickerState, colors: TimePickerColors) {
-    Row(horizontalArrangement = Arrangement.Center) {
-        TimeSelector(state.hourForDisplay, state, Selection.Hour, colors = colors)
-        DisplaySeparator()
-        TimeSelector(state.minute, state, Selection.Minute, colors = colors)
+@ExperimentalMaterial3Api
+internal fun VerticalTimePicker(
+    state: TimePickerState,
+    modifier: Modifier = Modifier,
+    colors: TimePickerColors = TimePickerDefaults.colors(),
+    autoSwitchToMinute: Boolean
+) {
+    Column(
+        modifier = modifier.semantics { isTraversalGroup = true },
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        VerticalClockDisplay(state, colors)
+        Spacer(modifier = Modifier.height(ClockDisplayBottomMargin))
+        ClockFace(state, colors, autoSwitchToMinute)
+        Spacer(modifier = Modifier.height(ClockFaceBottomMargin))
+    }
+}
+
+@Composable
+internal fun HorizontalTimePicker(
+    state: TimePickerState,
+    modifier: Modifier = Modifier,
+    colors: TimePickerColors = TimePickerDefaults.colors(),
+    autoSwitchToMinute: Boolean
+) {
+    Row(
+        modifier = modifier.padding(bottom = ClockFaceBottomMargin),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        HorizontalClockDisplay(state, colors)
+        Spacer(modifier = Modifier.width(ClockDisplayBottomMargin))
+        ClockFace(state, colors, autoSwitchToMinute)
+    }
+}
+
+@Composable
+private fun TimeInputImpl(
+    modifier: Modifier,
+    colors: TimePickerColors,
+    state: TimePickerState,
+) {
+    var hourValue by rememberSaveable(stateSaver = TextFieldValue.Saver) {
+        mutableStateOf(TextFieldValue(text = state.hourForDisplay.toLocalString(minDigits = 2)))
+    }
+    var minuteValue by rememberSaveable(stateSaver = TextFieldValue.Saver) {
+        mutableStateOf(TextFieldValue(text = state.minute.toLocalString(minDigits = 2)))
+    }
+
+    Row(
+        modifier = modifier.padding(bottom = TimeInputBottomPadding),
+        verticalAlignment = Alignment.Top
+    ) {
+        val textStyle = MaterialTheme.typography.fromToken(TimeInputTokens.TimeFieldLabelTextFont)
+            .copy(
+                textAlign = TextAlign.Center,
+                color = colors.timeSelectorContentColor(true)
+            )
+
+        CompositionLocalProvider(LocalTextStyle provides textStyle) {
+
+            TimePickerTextField(
+                modifier = Modifier
+                    .onKeyEvent { event ->
+                        // Zero == 48, Nine == 57
+                        val switchFocus = event.utf16CodePoint in 48..57 &&
+                            hourValue.selection.start == 2 && hourValue.text.length == 2
+
+                        if (switchFocus) {
+                            state.selection = Selection.Minute
+                        }
+
+                        false
+                    },
+                value = hourValue,
+                onValueChange = { newValue ->
+                    timeInputOnChange(
+                        selection = Selection.Hour,
+                        state = state,
+                        value = newValue,
+                        prevValue = hourValue,
+                        max = if (state.is24hour) 23 else 12,
+                    ) { hourValue = it }
+                },
+                state = state,
+                selection = Selection.Hour,
+                keyboardOptions = KeyboardOptions(
+                    imeAction = ImeAction.Next,
+                    keyboardType = KeyboardType.Number
+                ),
+                keyboardActions = KeyboardActions(onNext = { state.selection = Selection.Minute }),
+                colors = colors,
+            )
+            DisplaySeparator(Modifier.size(DisplaySeparatorWidth, PeriodSelectorContainerHeight))
+            TimePickerTextField(
+                modifier = Modifier
+                    .onPreviewKeyEvent { event ->
+                        // 0 == KEYCODE_DEL
+                        val switchFocus = event.utf16CodePoint == 0 &&
+                            minuteValue.selection.start == 0
+
+                        if (switchFocus) {
+                            state.selection = Selection.Hour
+                        }
+
+                        switchFocus
+                    },
+
+                value = minuteValue,
+                onValueChange = { newValue ->
+                    timeInputOnChange(
+                        selection = Selection.Minute,
+                        state = state,
+                        value = newValue,
+                        prevValue = minuteValue,
+                        max = 59,
+                    ) { minuteValue = it }
+                },
+                state = state,
+                selection = Selection.Minute,
+                keyboardOptions = KeyboardOptions(
+                    imeAction = ImeAction.Done,
+                    keyboardType = KeyboardType.Number
+                ),
+                keyboardActions = KeyboardActions(onNext = { state.selection = Selection.Minute }),
+                colors = colors,
+            )
+        }
+
         if (!state.is24hour) {
-            Spacer(modifier = Modifier.width(PeriodToggleTopMargin))
-            PeriodToggle(state, colors)
+            Box(Modifier.padding(start = PeriodToggleMargin)) {
+                VerticalPeriodToggle(
+                    modifier = Modifier.size(
+                        PeriodSelectorContainerWidth,
+                        PeriodSelectorContainerHeight
+                    ),
+                    state = state,
+                    colors = colors,
+                )
+            }
         }
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun PeriodToggle(state: TimePickerState, colors: TimePickerColors) {
+private fun HorizontalClockDisplay(state: TimePickerState, colors: TimePickerColors) {
+    Column(verticalArrangement = Arrangement.Center) {
+        ClockDisplayNumbers(state, colors)
+        if (!state.is24hour) {
+            Box(modifier = Modifier.padding(top = PeriodToggleMargin)) {
+                HorizontalPeriodToggle(
+                    modifier = Modifier.size(
+                        PeriodSelectorHorizontalContainerWidth,
+                        PeriodSelectorHorizontalContainerHeight
+                    ),
+                    state = state,
+                    colors = colors,
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun VerticalClockDisplay(state: TimePickerState, colors: TimePickerColors) {
+    Row(horizontalArrangement = Arrangement.Center) {
+        ClockDisplayNumbers(state, colors)
+        if (!state.is24hour) {
+            Box(modifier = Modifier.padding(start = PeriodToggleMargin)) {
+                VerticalPeriodToggle(
+                    modifier = Modifier.size(
+                        PeriodSelectorVerticalContainerWidth,
+                        PeriodSelectorVerticalContainerHeight
+                    ),
+                    state = state,
+                    colors = colors,
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun ClockDisplayNumbers(
+    state: TimePickerState,
+    colors: TimePickerColors
+) {
+    CompositionLocalProvider(
+        LocalTextStyle provides MaterialTheme.typography.fromToken(TimeSelectorLabelTextFont)
+    ) {
+        Row {
+            TimeSelector(
+                modifier = Modifier.size(
+                    TimeSelectorContainerWidth,
+                    TimeSelectorContainerHeight
+                ),
+                value = state.hourForDisplay,
+                state = state,
+                selection = Selection.Hour,
+                colors = colors,
+            )
+            DisplaySeparator(
+                Modifier.size(
+                    DisplaySeparatorWidth,
+                    PeriodSelectorVerticalContainerHeight
+                )
+            )
+            TimeSelector(
+                modifier = Modifier.size(
+                    TimeSelectorContainerWidth,
+                    TimeSelectorContainerHeight
+                ),
+                value = state.minute,
+                state = state,
+                selection = Selection.Minute,
+                colors = colors,
+            )
+        }
+    }
+}
+
+@Composable
+private fun HorizontalPeriodToggle(
+    modifier: Modifier,
+    state: TimePickerState,
+    colors: TimePickerColors,
+) {
+    val measurePolicy = remember {
+        MeasurePolicy { measurables, constraints ->
+            val spacer = measurables.first { it.layoutId == "Spacer" }
+            val spacerPlaceable = spacer.measure(
+                constraints.copy(
+                    minWidth = 0,
+                    maxWidth = TimePickerTokens.PeriodSelectorOutlineWidth.roundToPx(),
+                )
+            )
+
+            val items = measurables.filter { it.layoutId != "Spacer" }.map { item ->
+                item.measure(constraints.copy(
+                    minWidth = 0,
+                    maxWidth = constraints.maxWidth / 2
+                ))
+            }
+
+            layout(constraints.maxWidth, constraints.maxHeight) {
+                items[0].place(0, 0)
+                items[1].place(items[0].width, 0)
+                spacerPlaceable.place(items[0].width - spacerPlaceable.width / 2, 0)
+            }
+        }
+    }
+
+    val shape = PeriodSelectorContainerShape.value as CornerBasedShape
+
+    PeriodToggleImpl(
+        modifier = modifier,
+        state = state,
+        colors = colors,
+        measurePolicy = measurePolicy,
+        startShape = shape.start(),
+        endShape = shape.end()
+    )
+}
+
+@Composable
+private fun VerticalPeriodToggle(
+    modifier: Modifier,
+    state: TimePickerState,
+    colors: TimePickerColors,
+) {
+    val measurePolicy = remember {
+        MeasurePolicy { measurables, constraints ->
+            val spacer = measurables.first { it.layoutId == "Spacer" }
+            val spacerPlaceable = spacer.measure(
+                constraints.copy(
+                    minHeight = 0,
+                    maxHeight = TimePickerTokens.PeriodSelectorOutlineWidth.roundToPx()
+                )
+            )
+
+            val items = measurables.filter { it.layoutId != "Spacer" }.map { item ->
+                item.measure(constraints.copy(
+                    minHeight = 0,
+                    maxHeight = constraints.maxHeight / 2
+                ))
+            }
+
+            layout(constraints.maxWidth, constraints.maxHeight) {
+                items[0].place(0, 0)
+                items[1].place(0, items[0].height)
+                spacerPlaceable.place(0, items[0].height - spacerPlaceable.height / 2)
+            }
+        }
+    }
+
+    val shape = PeriodSelectorContainerShape.value as CornerBasedShape
+
+    PeriodToggleImpl(
+        modifier = modifier,
+        state = state,
+        colors = colors,
+        measurePolicy = measurePolicy,
+        startShape = shape.top(),
+        endShape = shape.bottom()
+    )
+}
+
+@Composable
+private fun PeriodToggleImpl(
+    modifier: Modifier,
+    state: TimePickerState,
+    colors: TimePickerColors,
+    measurePolicy: MeasurePolicy,
+    startShape: Shape,
+    endShape: Shape,
+) {
     val borderStroke = BorderStroke(
         TimePickerTokens.PeriodSelectorOutlineWidth,
         colors.periodSelectorBorderColor
     )
 
-    val shape = PeriodSelectorContainerShape.toShape() as CornerBasedShape
+    val shape = PeriodSelectorContainerShape.value as CornerBasedShape
     val contentDescription = getString(Strings.TimePickerPeriodToggle)
-    Column(
-        Modifier
-            .semantics { this.contentDescription = contentDescription }
+    Layout(
+        modifier = modifier
+            .semantics {
+                isTraversalGroup = true
+                this.contentDescription = contentDescription
+            }
             .selectableGroup()
-            .size(PeriodSelectorVerticalContainerWidth, PeriodSelectorVerticalContainerHeight)
-            .border(border = borderStroke, shape = shape)
-    ) {
-        ToggleItem(
-            checked = !state.isAfternoonToggle,
-            shape = shape.top(),
-            onClick = {
-                state.isAfternoonToggle = false
-            },
-            colors = colors,
-        ) { Text(text = getString(string = Strings.TimePickerAM)) }
-        Spacer(
-            Modifier
-                .fillMaxWidth()
-                .height(TimePickerTokens.PeriodSelectorOutlineWidth)
-                .background(color = PeriodSelectorOutlineColor.toColor())
-        )
-        ToggleItem(
-            checked =
-            state.isAfternoonToggle,
-            shape = shape.bottom(),
-            onClick = {
-                state.isAfternoonToggle = true
-            },
-            colors = colors,
-        ) { Text(getString(string = Strings.TimePickerPM)) }
-    }
+            .border(border = borderStroke, shape = shape),
+        measurePolicy = measurePolicy,
+        content = {
+            ToggleItem(
+                checked = !state.isAfternoonToggle,
+                shape = startShape,
+                onClick = { state.isAfternoonToggle = false },
+                colors = colors,
+            ) { Text(text = getString(string = Strings.TimePickerAM)) }
+            Spacer(
+                Modifier
+                    .layoutId("Spacer")
+                    .zIndex(SeparatorZIndex)
+                    .fillMaxSize()
+                    .background(color = PeriodSelectorOutlineColor.value)
+            )
+            ToggleItem(
+                checked =
+                state.isAfternoonToggle,
+                shape = endShape,
+                onClick = { state.isAfternoonToggle = true },
+                colors = colors,
+            ) { Text(getString(string = Strings.TimePickerPM)) }
+        }
+    )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun ColumnScope.ToggleItem(
+private fun ToggleItem(
     checked: Boolean,
     shape: Shape,
     onClick: () -> Unit,
@@ -581,7 +1058,8 @@ private fun ColumnScope.ToggleItem(
 
     TextButton(
         modifier = Modifier
-            .weight(1f)
+            .zIndex(if (checked) 0f else 1f)
+            .fillMaxSize()
             .semantics { selected = checked },
         contentPadding = PaddingValues(0.dp),
         shape = shape,
@@ -595,27 +1073,31 @@ private fun ColumnScope.ToggleItem(
 }
 
 @Composable
-private fun DisplaySeparator() {
-    val style = copyAndSetFontPadding(
-        style = MaterialTheme.typography.fromToken(TimeSelectorLabelTextFont).copy(
-            textAlign = TextAlign.Center,
-            lineHeightStyle = LineHeightStyle(
-                alignment = LineHeightStyle.Alignment.Center, trim = LineHeightStyle.Trim.Both
-            )
-        ), includeFontPadding = false
+private fun DisplaySeparator(modifier: Modifier) {
+    val style = LocalTextStyle.current.copy(
+        textAlign = TextAlign.Center,
+        lineHeightStyle = LineHeightStyle(
+            alignment = LineHeightStyle.Alignment.Center,
+            trim = LineHeightStyle.Trim.Both
+        )
     )
 
     Box(
-        modifier = Modifier.size(
-            DisplaySeparatorWidth,
-            PeriodSelectorVerticalContainerHeight
-        ), contentAlignment = Alignment.Center
-    ) { Text(text = ":", style = style) }
+        modifier = modifier.clearAndSetSemantics { },
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = ":",
+            color = TimeFieldSeparatorColor.value,
+            style = style
+        )
+    }
 }
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
 private fun TimeSelector(
+    modifier: Modifier,
     value: Int,
     state: TimePickerState,
     selection: Selection,
@@ -634,8 +1116,7 @@ private fun TimeSelector(
     val contentColor = colors.timeSelectorContentColor(selected)
     val scope = rememberCoroutineScope()
     Surface(
-        modifier = Modifier
-            .size(TimeSelectorContainerWidth, TimeSelectorContainerHeight)
+        modifier = modifier
             .semantics(mergeDescendants = true) {
                 role = Role.RadioButton
                 this.contentDescription = selectorContentDescription
@@ -649,44 +1130,43 @@ private fun TimeSelector(
             }
         },
         selected = selected,
-        shape = TimeSelectorContainerShape.toShape(),
+        shape = TimeSelectorContainerShape.value,
         color = containerColor,
     ) {
-        val valueContentDescription = getString(
+        val valueContentDescription =
             numberContentDescription(
                 selection = selection,
-                is24Hour = state.is24hour
-            ),
-            value
-        )
+                is24Hour = state.is24hour,
+                number = value
+            )
+
         Box(contentAlignment = Alignment.Center) {
-            val textStyle = MaterialTheme.typography.fromToken(TimeSelectorLabelTextFont)
             Text(
                 modifier = Modifier.semantics { contentDescription = valueContentDescription },
                 text = value.toLocalString(minDigits = 2),
                 color = contentColor,
-                style = textStyle,
             )
         }
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun ClockFace(state: TimePickerState, colors: TimePickerColors) {
+internal fun ClockFace(
+    state: TimePickerState,
+    colors: TimePickerColors,
+    autoSwitchToMinute: Boolean
+) {
     Crossfade(
         modifier = Modifier
             .background(shape = CircleShape, color = colors.clockDialColor)
             .size(ClockDialContainerSize)
-            .semantics {
-                selectableGroup()
-            },
+            .semantics { selectableGroup() },
         targetState = state.values,
         animationSpec = tween(durationMillis = MotionTokens.DurationMedium3.toInt())
     ) { screen ->
         CircularLayout(
             modifier = Modifier
-                .clockDial(state)
+                .clockDial(state, autoSwitchToMinute)
                 .size(ClockDialContainerSize)
                 .drawSelector(state, colors),
             radius = OuterCircleSizeRadius,
@@ -694,13 +1174,19 @@ private fun ClockFace(state: TimePickerState, colors: TimePickerColors) {
             CompositionLocalProvider(
                 LocalContentColor provides colors.clockDialContentColor(false)
             ) {
-                repeat(screen.size) {
-                    val outerValue = if (!state.is24hour) screen[it] else screen[it] % 12
+                repeat(screen.size) { index ->
+                    val outerValue = if (!state.is24hour || state.selection == Selection.Minute) {
+                        screen[index]
+                    } else {
+                        screen[index] % 12
+                    }
                     ClockText(
-                        is24Hour = state.is24hour,
-                        selection = state.selection,
+                        modifier = Modifier.semantics {
+                            traversalIndex = index.toFloat()
+                        },
+                        state = state,
                         value = outerValue,
-                        selected = state.isSelected(it)
+                        autoSwitchToMinute = autoSwitchToMinute
                     )
                 }
 
@@ -712,13 +1198,15 @@ private fun ClockFace(state: TimePickerState, colors: TimePickerColors) {
                             .background(shape = CircleShape, color = Color.Transparent),
                         radius = InnerCircleRadius
                     ) {
-                        repeat(ExtraHours.size) {
-                            val innerValue = ExtraHours[it]
+                        repeat(ExtraHours.size) { index ->
+                            val innerValue = ExtraHours[index]
                             ClockText(
-                                is24Hour = true,
-                                selection = state.selection,
+                                modifier = Modifier.semantics {
+                                    traversalIndex = 12 + index.toFloat()
+                                },
+                                state = state,
                                 value = innerValue,
-                                selected = state.isSelected(it % 11)
+                                autoSwitchToMinute = autoSwitchToMinute
                             )
                         }
                     }
@@ -728,7 +1216,6 @@ private fun ClockFace(state: TimePickerState, colors: TimePickerColors) {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 private fun Modifier.drawSelector(
     state: TimePickerState,
     colors: TimePickerColors,
@@ -790,99 +1277,260 @@ private fun Modifier.drawSelector(
     )
 }
 
-private fun Modifier.clockDial(state: TimePickerState): Modifier = composed(debugInspectorInfo {
+private fun Modifier.clockDial(state: TimePickerState, autoSwitchToMinute: Boolean): Modifier =
+    composed(debugInspectorInfo {
     name = "clockDial"
     properties["state"] = state
 }) {
-    var offsetX by remember { mutableStateOf(0f) }
-    var offsetY by remember { mutableStateOf(0f) }
-    var center by remember { mutableStateOf(IntOffset.Zero) }
+    var offsetX by remember { mutableFloatStateOf(0f) }
+    var offsetY by remember { mutableFloatStateOf(0f) }
+    val center by remember { mutableStateOf(IntOffset.Zero) }
     val scope = rememberCoroutineScope()
     val maxDist = with(LocalDensity.current) { MaxDistance.toPx() }
-    fun moveSelector(x: Float, y: Float) {
-        if (state.selection == Selection.Hour && state.is24hour) {
-            state.isInnerCircle = dist(x, y, center.x, center.y) < maxDist
-        }
-    }
-    Modifier
-        .onSizeChanged { center = it.center }
-        .pointerInput(state, maxDist, center) {
-            detectTapGestures(
-                onPress = {
-                    offsetX = it.x
-                    offsetY = it.y
-                },
-                onTap = {
-                    scope.launch {
-                        state.update(atan(it.y - center.y, it.x - center.x), true)
-                        moveSelector(it.x, it.y)
 
-                        if (state.selection == Selection.Hour) {
+        Modifier
+            .onSizeChanged { state.center = it.center }
+            .pointerInput(state, center, maxDist) {
+                detectTapGestures(
+                    onPress = {
+                        offsetX = it.x
+                        offsetY = it.y
+                    },
+                    onTap = {
+                        scope.launch { state.onTap(it.x, it.y, maxDist, autoSwitchToMinute) }
+                    },
+                )
+            }
+            .pointerInput(state, center, maxDist) {
+                detectDragGestures(onDragEnd = {
+                    scope.launch {
+                        if (state.selection == Selection.Hour && autoSwitchToMinute) {
                             state.selection = Selection.Minute
-                        } else {
+                            state.animateToCurrent()
+                        } else if (state.selection == Selection.Minute) {
                             state.settle()
                         }
                     }
-                },
-            )
-        }
-        .pointerInput(state, maxDist, center) {
-            detectDragGestures(onDragEnd = {
-                scope.launch {
-                    if (state.selection == Selection.Hour) {
-                        state.selection = Selection.Minute
-                        state.animateToCurrent()
-                    } else {
-                        state.settle()
+                }) { _, dragAmount ->
+                    scope.launch {
+                        offsetX += dragAmount.x
+                        offsetY += dragAmount.y
+                        state.update(atan(offsetY - state.center.y, offsetX - state.center.x))
                     }
+                    state.moveSelector(offsetX, offsetY, maxDist)
                 }
-            }) { _, dragAmount ->
-                scope.launch {
-                    offsetX += dragAmount.x
-                    offsetY += dragAmount.y
-                    state.update(atan(offsetY - center.y, offsetX - center.x))
-                }
-                moveSelector(offsetX, offsetY)
             }
-        }
 }
 
 @Composable
 private fun ClockText(
-    is24Hour: Boolean,
-    selected: Boolean,
-    selection: Selection,
-    value: Int
+    modifier: Modifier,
+    state: TimePickerState,
+    value: Int,
+    autoSwitchToMinute: Boolean
 ) {
-    val style = MaterialTheme.typography.fromToken(ClockDialLabelTextFont).let {
-        remember(it) {
-            copyAndSetFontPadding(style = it, false)
-        }
-    }
-
-    val contentDescription = getString(
+    val style = MaterialTheme.typography.fromToken(ClockDialLabelTextFont)
+    val maxDist = with(LocalDensity.current) { MaxDistance.toPx() }
+    var center by remember { mutableStateOf(Offset.Zero) }
+    val scope = rememberCoroutineScope()
+    val contentDescription =
         numberContentDescription(
-            selection = selection,
-            is24Hour = is24Hour
-        ),
-        value
-    )
+            selection = state.selection,
+            is24Hour = state.is24hour,
+            number = value
+        )
+
+    val text = value.toLocalString()
+    val selected = if (state.selection == Selection.Minute) {
+        state.minute.toLocalString() == text
+    } else {
+        state.hour.toLocalString() == text
+    }
 
     Box(
         contentAlignment = Alignment.Center,
-        modifier = Modifier
+        modifier = modifier
             .minimumInteractiveComponentSize()
             .size(MinimumInteractiveSize)
+            .onGloballyPositioned { center = it.boundsInParent().center }
             .focusable()
             .semantics(mergeDescendants = true) {
+                onClick {
+                    scope.launch { state.onTap(center.x, center.y, maxDist, autoSwitchToMinute) }
+                    true
+                }
                 this.selected = selected
-                this.contentDescription = contentDescription
             }
     ) {
         Text(
-            text = value.toLocalString(minDigits = 1),
+            modifier = Modifier.clearAndSetSemantics {
+                this.contentDescription = contentDescription
+            },
+            text = text,
             style = style,
         )
+    }
+}
+
+private fun timeInputOnChange(
+    selection: Selection,
+    state: TimePickerState,
+    value: TextFieldValue,
+    prevValue: TextFieldValue,
+    max: Int,
+    onNewValue: (value: TextFieldValue) -> Unit
+) {
+    if (value.text == prevValue.text) {
+        // just selection change
+        onNewValue(value)
+        return
+    }
+
+    if (value.text.isEmpty()) {
+        if (selection == Selection.Hour) state.setHour(0) else state.setMinute(0)
+        onNewValue(value.copy(text = ""))
+        return
+    }
+
+    try {
+        val newValue = if (value.text.length == 3 && value.selection.start == 1) {
+            value.text[0].digitToInt()
+        } else {
+            value.text.toInt()
+        }
+
+        if (newValue <= max) {
+            if (selection == Selection.Hour) {
+                state.setHour(newValue)
+                if (newValue > 1 && !state.is24hour) {
+                    state.selection = Selection.Minute
+                }
+            } else {
+                state.setMinute(newValue)
+            }
+
+            onNewValue(
+                if (value.text.length <= 2) {
+                    value
+                } else {
+                    value.copy(text = value.text[0].toString())
+                }
+            )
+        }
+    } catch (_: NumberFormatException) {
+    } catch (_: IllegalArgumentException) {
+        // do nothing no state update
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun TimePickerTextField(
+    modifier: Modifier,
+    value: TextFieldValue,
+    onValueChange: (TextFieldValue) -> Unit,
+    state: TimePickerState,
+    selection: Selection,
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    keyboardActions: KeyboardActions = KeyboardActions.Default,
+    colors: TimePickerColors,
+) {
+    val interactionSource = remember { MutableInteractionSource() }
+    val focusRequester = remember { FocusRequester() }
+    val textFieldColors = OutlinedTextFieldDefaults.colors(
+        focusedContainerColor = colors.timeSelectorContainerColor(true),
+        unfocusedContainerColor = colors.timeSelectorContainerColor(true),
+        focusedTextColor = colors.timeSelectorContentColor(true),
+    )
+    val selected = selection == state.selection
+    Column(modifier = modifier) {
+        if (!selected) {
+            TimeSelector(
+                modifier = Modifier.size(TimeFieldContainerWidth, TimeFieldContainerHeight),
+                value = if (selection == Selection.Hour) state.hourForDisplay else state.minute,
+                state = state,
+                selection = selection,
+                colors = colors,
+            )
+        }
+
+        val contentDescription = getString(
+            if (selection == Selection.Minute) {
+                Strings.TimePickerMinuteTextField
+            } else {
+                Strings.TimePickerHourTextField
+            }
+        )
+
+        Box(Modifier.visible(selected)) {
+            BasicTextField(
+                value = value,
+                onValueChange = onValueChange,
+                modifier = Modifier
+                    .focusRequester(focusRequester)
+                    .size(TimeFieldContainerWidth, TimeFieldContainerHeight)
+                    .semantics {
+                        this.contentDescription = contentDescription
+                    },
+                interactionSource = interactionSource,
+                keyboardOptions = keyboardOptions,
+                keyboardActions = keyboardActions,
+                textStyle = LocalTextStyle.current,
+                enabled = true,
+                singleLine = true,
+                cursorBrush = Brush.verticalGradient(
+                    0.00f to Color.Transparent,
+                    0.10f to Color.Transparent,
+                    0.10f to MaterialTheme.colorScheme.primary,
+                    0.90f to MaterialTheme.colorScheme.primary,
+                    0.90f to Color.Transparent,
+                    1.00f to Color.Transparent
+                )
+            ) {
+                OutlinedTextFieldDefaults.DecorationBox(
+                    value = value.text,
+                    visualTransformation = VisualTransformation.None,
+                    innerTextField = it,
+                    singleLine = true,
+                    colors = textFieldColors,
+                    enabled = true,
+                    interactionSource = interactionSource,
+                    contentPadding = PaddingValues(0.dp),
+                    container = {
+                        OutlinedTextFieldDefaults.ContainerBox(
+                            enabled = true,
+                            isError = false,
+                            interactionSource = interactionSource,
+                            shape = TimeInputTokens.TimeFieldContainerShape.value,
+                            colors = textFieldColors,
+                        )
+                    }
+                )
+            }
+        }
+
+        Text(
+            modifier = Modifier
+                .offset(y = SupportLabelTop)
+                .clearAndSetSemantics {},
+            text = getString(
+                if (selection == Selection.Hour) {
+                    Strings.TimePickerHour
+                } else {
+                    Strings.TimePickerMinute
+                }
+            ),
+            color = TimeInputTokens.TimeFieldSupportingTextColor.value,
+            style = MaterialTheme
+                .typography
+                .fromToken(TimeInputTokens.TimeFieldSupportingTextFont)
+        )
+    }
+
+    LaunchedEffect(state.selection) {
+        if (state.selection == selection) {
+            focusRequester.requestFocus()
+        }
     }
 }
 
@@ -933,16 +1581,20 @@ private fun CircularLayout(
 
 @Composable
 @ReadOnlyComposable
-private fun numberContentDescription(selection: Selection, is24Hour: Boolean): Strings {
-    if (selection == Selection.Minute) {
-        return Strings.TimePickerMinuteSuffix
+internal fun numberContentDescription(
+    selection: Selection,
+    is24Hour: Boolean,
+    number: Int
+): String {
+    val id = if (selection == Selection.Minute) {
+        Strings.TimePickerMinuteSuffix
+    } else if (is24Hour) {
+        Strings.TimePicker24HourSuffix
+    } else {
+        Strings.TimePickerHourSuffix
     }
 
-    if (is24Hour) {
-        return Strings.TimePicker24HourSuffix
-    }
-
-    return Strings.TimePickerHourSuffix
+    return getString(id, number)
 }
 
 private fun valuesForAnimation(current: Float, new: Float): Pair<Float, Float> {
@@ -954,7 +1606,7 @@ private fun valuesForAnimation(current: Float, new: Float): Pair<Float, Float> {
 
     if (start > PI && end < PI) {
         end += FullCircle
-    } else if (current < PI && new > PI) {
+    } else if (start < PI && end > PI) {
         start += FullCircle
     }
 
@@ -976,32 +1628,78 @@ private enum class LayoutId {
     Selector, InnerCircle,
 }
 
-internal enum class Selection {
-    Hour, Minute
+@OptIn(ExperimentalMaterial3Api::class)
+internal expect val defaultTimePickerLayoutType: TimePickerLayoutType
+    @Composable
+    @ReadOnlyComposable get
+
+@JvmInline
+internal value class Selection private constructor(val value: Int) {
+    companion object {
+        val Hour = Selection(0)
+        val Minute = Selection(1)
+    }
 }
 
 private const val FullCircle: Float = (PI * 2).toFloat()
 private const val QuarterCircle = PI / 2
 private const val RadiansPerMinute: Float = FullCircle / 60
 private const val RadiansPerHour: Float = FullCircle / 12f
+private const val SeparatorZIndex = 2f
 
 private val OuterCircleSizeRadius = 101.dp
 private val InnerCircleRadius = 69.dp
 private val ClockDisplayBottomMargin = 36.dp
 private val ClockFaceBottomMargin = 24.dp
-private val PeriodToggleTopMargin = 12.dp
 private val DisplaySeparatorWidth = 24.dp
 
+private val SupportLabelTop = 7.dp
+private val TimeInputBottomPadding = 24.dp
 private val MaxDistance = 74.dp
 private val MinimumInteractiveSize = 48.dp
 private val Minutes = listOf(0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55)
 private val Hours = listOf(12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11)
 private val ExtraHours = Hours.map { (it % 12 + 12) }
+private val PeriodToggleMargin = 12.dp
 
-private fun Int.toLocalString(minDigits: Int): String {
-    val formatter = NumberFormat.getIntegerInstance()
-    // Eliminate any use of delimiters when formatting the integer.
-    formatter.isGroupingUsed = false
-    formatter.minimumIntegerDigits = minDigits
-    return formatter.format(this)
+/**
+ * Measure the composable with 0,0 so that it stays on the screen. Necessary to correctly
+ * handle focus
+ */
+@Stable
+private fun Modifier.visible(visible: Boolean) = this.then(
+    VisibleModifier(
+        visible,
+        debugInspectorInfo {
+            name = "visible"
+            properties["visible"] = visible
+        }
+    )
+)
+
+private class VisibleModifier(
+    val visible: Boolean,
+    inspectorInfo: InspectorInfo.() -> Unit
+) : LayoutModifier, InspectorValueInfo(inspectorInfo) {
+
+    override fun MeasureScope.measure(
+        measurable: Measurable,
+        constraints: Constraints
+    ): MeasureResult {
+        val placeable = measurable.measure(constraints)
+
+        if (!visible) {
+            return layout(0, 0) {}
+        }
+        return layout(placeable.width, placeable.height) {
+            placeable.place(0, 0)
+        }
+    }
+
+    override fun hashCode(): Int = visible.hashCode()
+
+    override fun equals(other: Any?): Boolean {
+        val otherModifier = other as? VisibleModifier ?: return false
+        return visible == otherModifier.visible
+    }
 }

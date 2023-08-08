@@ -16,9 +16,8 @@
 package androidx.annotation
 
 /**
- * Denotes that the annotated method should only be called on a worker thread.
- * If the annotated element is a class, then all methods in the class should be called
- * on a worker thread.
+ * Denotes that the annotated method should only be called on a worker thread. If the annotated
+ * element is a class, then all methods in the class should be called on a worker thread.
  *
  * Example:
  * ```

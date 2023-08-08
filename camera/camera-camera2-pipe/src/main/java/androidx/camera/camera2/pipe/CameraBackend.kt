@@ -15,11 +15,31 @@
  */
 package androidx.camera.camera2.pipe
 
+import androidx.annotation.RestrictTo
 import androidx.camera.camera2.pipe.graph.GraphListener
 import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.flow.Flow
 
 /** This is used to uniquely identify a specific backend implementation. */
-@JvmInline value class CameraBackendId(public val value: String)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@JvmInline
+value class CameraBackendId(val value: String)
+
+/**
+ * A CameraStatusMonitors monitors the status of the cameras, and emits updates when the status of
+ * cameras changes, for instance when the camera access priorities have changed or when a particular
+ * camera has become available.
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+interface CameraStatusMonitor {
+    val cameraStatus: Flow<CameraStatus>
+
+    abstract class CameraStatus internal constructor() {
+        object CameraPrioritiesChanged : CameraStatus()
+
+        class CameraAvailable(val cameraId: CameraId) : CameraStatus()
+    }
+}
 
 /**
  * A CameraBackend is used by [CameraPipe] to abstract out the lifecycle, state, and interactions
@@ -33,8 +53,15 @@ import kotlinx.coroutines.Deferred
  * The lifecycle of an individual camera is managed by [CameraController]s, which may be created via
  * [CameraBackend.createCameraController].
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 interface CameraBackend {
     val id: CameraBackendId
+
+    /**
+     * A flow of camera statuses that provide camera status updates such as when the camera access
+     * priorities have changed, or a certain camera has become available.
+     */
+    val cameraStatus: Flow<CameraStatusMonitor.CameraStatus>
 
     /**
      * Read out a list of _openable_ [CameraId]s for this backend. The backend may be able to report
@@ -45,6 +72,16 @@ interface CameraBackend {
 
     /** Thread-blocking version of [getCameraIds] for compatibility. */
     fun awaitCameraIds(): List<CameraId>?
+
+    /**
+     * Read out a set of [CameraId] sets that can be operated concurrently. When multiple cameras
+     * are open, the number of configurable streams, as well as their sizes, might be considerably
+     * limited.
+     */
+    suspend fun getConcurrentCameraIds(): Set<Set<CameraId>>? = awaitConcurrentCameraIds()
+
+    /** Thread-blocking version of [getConcurrentCameraIds] for compatibility. */
+    fun awaitConcurrentCameraIds(): Set<Set<CameraId>>?
 
     /**
      * Retrieve [CameraMetadata] for this backend. Backends may cache the results of these calls.
@@ -100,6 +137,7 @@ interface CameraBackend {
  * returned instances is managed by [CameraPipe] unless the application asks [CameraPipe] to close
  * and release previously created [CameraBackend]s.
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 fun interface CameraBackendFactory {
     /** Create a new [CameraBackend] instance based on the provided [CameraContext]. */
     fun create(cameraContext: CameraContext): CameraBackend
@@ -109,6 +147,7 @@ fun interface CameraBackendFactory {
  * Api for requesting and interacting with [CameraBackend] that are available in the current
  * [CameraPipe] instance.
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 interface CameraBackends {
     /**
      * This provides access to the default [CameraBackend]. Accessing this property will create the

@@ -23,7 +23,6 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 import org.junit.Assume.assumeTrue
-
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -37,6 +36,15 @@ class PowerRailTest {
 
         assertTrue(PowerRail.hasMetrics(throwOnMissingMetrics = true))
         assertTrue(PowerRail.hasMetrics(throwOnMissingMetrics = false))
+    }
+
+    @Test
+    fun hasMetrics_oldDevice() {
+        assumeTrue(Build.VERSION.SDK_INT <= 29) // powerstats didn't exist
+        assertFalse(PowerRail.hasMetrics(throwOnMissingMetrics = false))
+        assertFailsWith<UnsupportedOperationException> {
+            PowerRail.hasMetrics(throwOnMissingMetrics = true)
+        }
     }
 
     @Test

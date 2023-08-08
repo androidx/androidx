@@ -25,6 +25,7 @@ from shutil import rmtree
 from shutil import copyfile
 from distutils.dir_util import copy_tree
 from distutils.dir_util import DistutilsFileError
+import re
 
 try:
     # non-default python3 module, be helpful if it is missing
@@ -150,9 +151,15 @@ def create_file(path):
 
 def generate_package_name(group_id, artifact_id):
     final_group_id_word = group_id.split(".")[-1]
-    artifact_id_suffix = artifact_id.replace(final_group_id_word, "")
+    artifact_id_suffix = re.sub(r"\b%s\b" % final_group_id_word, "", artifact_id)
     artifact_id_suffix = artifact_id_suffix.replace("-", ".")
-    return group_id + artifact_id_suffix
+    if (final_group_id_word == artifact_id):
+      return group_id +  artifact_id_suffix
+    elif (final_group_id_word != artifact_id):
+      if ("." in artifact_id_suffix):
+        return group_id +  artifact_id_suffix
+      else:
+        return group_id + "." + artifact_id_suffix
 
 def validate_name(group_id, artifact_id):
     if not group_id.startswith("androidx."):
@@ -590,7 +597,9 @@ def insert_new_group_id_into_library_versions_toml(group_id):
 
     # Open file for writing and update toml
     with open(LIBRARY_VERSIONS_FP, 'w') as f:
-        toml.dump(library_versions, f, encoder=toml.TomlPreserveInlineDictEncoder())
+        versions_toml_file_string = toml.dumps(library_versions, encoder=toml.TomlPreserveInlineDictEncoder())
+        versions_toml_file_string_new = re.sub(",]", " ]", versions_toml_file_string)
+        f.write(versions_toml_file_string_new)
 
 
 def is_group_id_atomic(group_id):

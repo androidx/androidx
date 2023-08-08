@@ -19,6 +19,8 @@ package androidx.camera.camera2.pipe.compat
 import android.graphics.SurfaceTexture
 import android.os.Build
 import android.view.Surface
+import androidx.camera.camera2.pipe.CameraGraph
+import androidx.camera.camera2.pipe.CameraGraph.Flags.FinalizeSessionOnCloseBehavior
 import androidx.camera.camera2.pipe.CameraSurfaceManager
 import androidx.camera.camera2.pipe.CaptureSequenceProcessor
 import androidx.camera.camera2.pipe.Request
@@ -60,6 +62,10 @@ class CaptureSessionStateTest {
             ): CaptureSequenceProcessor<Request, FakeCaptureSequence> = fakeCaptureSequenceProcessor
         }
     private val timeSource = SystemTimeSource()
+    private val cameraGraphFlags = CameraGraph.Flags(
+        quirkFinalizeSessionOnCloseBehavior = FinalizeSessionOnCloseBehavior.OFF,
+        quirkCloseCaptureSessionOnDisconnect = false,
+    )
 
     private val surface1: Surface = Surface(SurfaceTexture(1))
     private val surface2: Surface = Surface(SurfaceTexture(2))
@@ -69,7 +75,8 @@ class CaptureSessionStateTest {
 
     private val captureSessionFactory =
         FakeCaptureSessionFactory(
-            requiredStreams = setOf(stream1, stream2), deferrableStreams = setOf(stream3Deferred))
+            requiredStreams = setOf(stream1, stream2), deferrableStreams = setOf(stream3Deferred)
+        )
 
     private val fakeCameraDevice: CameraDeviceWrapper = mock()
     private val fakeCaptureSession: CameraCaptureSessionWrapper = mock()
@@ -89,7 +96,9 @@ class CaptureSessionStateTest {
                 captureSequenceProcessorFactory,
                 cameraSurfaceManager,
                 timeSource,
-                this)
+                cameraGraphFlags,
+                this
+            )
         // When disconnect is called first
         state.disconnect()
 
@@ -110,7 +119,9 @@ class CaptureSessionStateTest {
                 captureSequenceProcessorFactory,
                 cameraSurfaceManager,
                 timeSource,
-                this)
+                cameraGraphFlags,
+                this
+            )
 
         // When surfaces are configured
         state.configureSurfaceMap(mapOf(stream1 to surface1, stream2 to surface2))
@@ -128,7 +139,7 @@ class CaptureSessionStateTest {
     }
 
     @Test
-    fun disconnectAfterCameraSetDoesNotCallOnSurfaceInactive() = runTest {
+    fun disconnectAfterCaptureSessionDoesNotCallOnSurfaceInactive() = runTest {
         val state =
             CaptureSessionState(
                 fakeGraphListener,
@@ -136,7 +147,9 @@ class CaptureSessionStateTest {
                 captureSequenceProcessorFactory,
                 cameraSurfaceManager,
                 timeSource,
-                this)
+                cameraGraphFlags,
+                this
+            )
 
         // When surfaces are configured
         state.configureSurfaceMap(mapOf(stream1 to surface1, stream2 to surface2))
@@ -145,6 +158,10 @@ class CaptureSessionStateTest {
 
         // And a device is set
         state.cameraDevice = fakeCameraDevice
+
+        // Advance to make sure a capture session is created.
+        advanceUntilIdle()
+
         // And the state is then disconnected
         state.disconnect()
 
@@ -164,7 +181,9 @@ class CaptureSessionStateTest {
                 captureSequenceProcessorFactory,
                 cameraSurfaceManager,
                 timeSource,
-                this)
+                cameraGraphFlags,
+                this
+            )
         // When surfaces are configured
         state.configureSurfaceMap(mapOf(stream1 to surface1, stream2 to surface2))
         // And session is finalized
@@ -186,7 +205,9 @@ class CaptureSessionStateTest {
                 captureSequenceProcessorFactory,
                 cameraSurfaceManager,
                 timeSource,
-                this)
+                cameraGraphFlags,
+                this
+            )
         // When surfaces are configured
         state.configureSurfaceMap(mapOf(stream1 to surface1, stream2 to surface2))
         // And configuration fails
@@ -208,7 +229,9 @@ class CaptureSessionStateTest {
                 captureSequenceProcessorFactory,
                 cameraSurfaceManager,
                 timeSource,
-                this)
+                cameraGraphFlags,
+                this
+            )
         // When surfaces are configured
         state.configureSurfaceMap(mapOf(stream1 to surface1, stream2 to surface2))
         // And the capture session is closed
@@ -219,5 +242,42 @@ class CaptureSessionStateTest {
         verifyNoInteractions(fakeGraphListener)
         verify(fakeSurfaceListener, times(1)).onSurfaceInactive(eq(surface1))
         verify(fakeSurfaceListener, times(1)).onSurfaceInactive(eq(surface2))
+    }
+
+    @Test
+    fun captureSessionStateClosesCaptureSessionWhenQuirkIsEnabled() = runTest {
+        val state =
+            CaptureSessionState(
+                fakeGraphListener,
+                captureSessionFactory,
+                captureSequenceProcessorFactory,
+                cameraSurfaceManager,
+                timeSource,
+                CameraGraph.Flags(
+                    quirkCloseCaptureSessionOnDisconnect = true,
+                ),
+                this
+            )
+
+        // When surfaces are configured
+        state.configureSurfaceMap(mapOf(stream1 to surface1, stream2 to surface2))
+        verify(fakeSurfaceListener, times(1)).onSurfaceActive(eq(surface1))
+        verify(fakeSurfaceListener, times(1)).onSurfaceActive(eq(surface2))
+
+        // And a device is set
+        state.cameraDevice = fakeCameraDevice
+
+        // Advance to make sure a capture session is created.
+        advanceUntilIdle()
+
+        // Feed a fake capture session
+        state.onConfigured(fakeCaptureSession)
+
+        // And the state is then disconnected
+        state.disconnect()
+
+        // Then make sure we do close the capture session.
+        advanceUntilIdle()
+        verify(fakeCaptureSession, times(1)).close()
     }
 }

@@ -18,8 +18,8 @@ package androidx.wear.watchface.client;
 
 /** Tests that Java interfaces implementing kotlin interfaces with defaults compile. */
 public class JavaCompatTest {
-    class ClientDisconnectListenerImpl implements
-            InteractiveWatchFaceClient.ClientDisconnectListener {
+    class ClientDisconnectListenerImpl
+            implements InteractiveWatchFaceClient.ClientDisconnectListener {
         @Override
         @SuppressWarnings("deprecation")
         public void onClientDisconnected() {}

@@ -17,486 +17,716 @@
 package androidx.wear.protolayout.expression;
 
 import android.annotation.SuppressLint;
+
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
+import androidx.wear.protolayout.expression.proto.DynamicDataProto;
 import androidx.wear.protolayout.expression.proto.DynamicProto;
 import androidx.wear.protolayout.expression.proto.FixedProto;
-import androidx.wear.protolayout.expression.proto.StateEntryProto;
 
 /**
  * Builders for fixed value primitive types that can be used in dynamic expressions and in for state
  * state values.
  */
 final class FixedValueBuilders {
-  private FixedValueBuilders() {}
-
-  /**
-   * A fixed int32 type.
-   *
-   * @since 1.2
-   */
-  static final class FixedInt32
-      implements DynamicBuilders.DynamicInt32, StateEntryBuilders.StateEntryValue {
-    private final FixedProto.FixedInt32 mImpl;
-    @Nullable private final Fingerprint mFingerprint;
-
-    FixedInt32(FixedProto.FixedInt32 impl, @Nullable Fingerprint fingerprint) {
-      this.mImpl = impl;
-      this.mFingerprint = fingerprint;
-    }
+    private FixedValueBuilders() {}
 
     /**
-     * Gets the value. Intended for testing purposes only.
+     * A fixed int32 type.
      *
      * @since 1.2
      */
-    public int getValue() {
-      return mImpl.getValue();
-    }
+    static final class FixedInt32
+            implements DynamicBuilders.DynamicInt32,
+                    DynamicDataBuilders.DynamicDataValue<DynamicBuilders.DynamicInt32> {
+        private final FixedProto.FixedInt32 mImpl;
+        @Nullable private final Fingerprint mFingerprint;
 
-    /** @hide */
-    @Override
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    @Nullable
-    public Fingerprint getFingerprint() {
-      return mFingerprint;
-    }
+        FixedInt32(FixedProto.FixedInt32 impl, @Nullable Fingerprint fingerprint) {
+            this.mImpl = impl;
+            this.mFingerprint = fingerprint;
+        }
 
-    @NonNull
-    static FixedInt32 fromProto(@NonNull FixedProto.FixedInt32 proto) {
-      return new FixedInt32(proto, null);
-    }
+        /**
+         * Gets the value.
+         *
+         * @since 1.2
+         */
+        public int getValue() {
+            return mImpl.getValue();
+        }
 
-    @NonNull
-    FixedProto.FixedInt32 toProto() {
-      return mImpl;
-    }
+        @Override
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Nullable
+        public Fingerprint getFingerprint() {
+            return mFingerprint;
+        }
 
-    /** @hide */
-    @Override
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    @NonNull
-    public DynamicProto.DynamicInt32 toDynamicInt32Proto() {
-      return DynamicProto.DynamicInt32.newBuilder().setFixed(mImpl).build();
-    }
+        /** Creates a new wrapper instance from the proto. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public static FixedInt32 fromProto(
+                @NonNull FixedProto.FixedInt32 proto, @Nullable Fingerprint fingerprint) {
+            return new FixedInt32(proto, fingerprint);
+        }
 
-    /** @hide */
-    @Override
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    @NonNull
-    public StateEntryProto.StateEntryValue toStateEntryValueProto() {
-      return StateEntryProto.StateEntryValue.newBuilder().setInt32Val(mImpl).build();
-    }
+        @NonNull
+        static FixedInt32 fromProto(@NonNull FixedProto.FixedInt32 proto) {
+            return fromProto(proto, null);
+        }
 
-    @Override
-    @NonNull
-    public String toString() {
-      return "FixedInt32{" + "value=" + getValue() + "}";
-    }
+        /** Returns the internal proto instance. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        FixedProto.FixedInt32 toProto() {
+            return mImpl;
+        }
 
-    /** Builder for {@link FixedInt32}. */
-    public static final class Builder
-        implements DynamicBuilders.DynamicInt32.Builder,
-            StateEntryBuilders.StateEntryValue.Builder {
-      private final FixedProto.FixedInt32.Builder mImpl = FixedProto.FixedInt32.newBuilder();
-      private final Fingerprint mFingerprint = new Fingerprint(974881783);
+        @Override
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public DynamicProto.DynamicInt32 toDynamicInt32Proto() {
+            return DynamicProto.DynamicInt32.newBuilder().setFixed(mImpl).build();
+        }
 
-      public Builder() {}
+        @Override
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public DynamicDataProto.DynamicDataValue toDynamicDataValueProto() {
+            return DynamicDataProto.DynamicDataValue.newBuilder().setInt32Val(mImpl).build();
+        }
 
-      /**
-       * Sets the value.
-       *
-       * @since 1.2
-       */
-      @NonNull
-      public Builder setValue(int value) {
-        mImpl.setValue(value);
-        mFingerprint.recordPropertyUpdate(1, value);
-        return this;
-      }
+        @Override
+        @NonNull
+        public String toString() {
+            return "FixedInt32{" + "value=" + getValue() + "}";
+        }
 
-      @Override
-      @NonNull
-      public FixedInt32 build() {
-        return new FixedInt32(mImpl.build(), mFingerprint);
-      }
-    }
-  }
+        /** Builder for {@link FixedInt32}. */
+        public static final class Builder
+                implements DynamicBuilders.DynamicInt32.Builder,
+                        DynamicDataBuilders.DynamicDataValue.Builder<DynamicBuilders.DynamicInt32> {
+            private final FixedProto.FixedInt32.Builder mImpl = FixedProto.FixedInt32.newBuilder();
+            private final Fingerprint mFingerprint = new Fingerprint(974881783);
 
-  /**
-   * A fixed string type.
-   *
-   * @since 1.2
-   */
-  static final class FixedString
-      implements DynamicBuilders.DynamicString, StateEntryBuilders.StateEntryValue {
-    private final FixedProto.FixedString mImpl;
-    @Nullable private final Fingerprint mFingerprint;
+            public Builder() {}
 
-    FixedString(FixedProto.FixedString impl, @Nullable Fingerprint fingerprint) {
-      this.mImpl = impl;
-      this.mFingerprint = fingerprint;
-    }
+            /**
+             * Sets the value.
+             *
+             * @since 1.2
+             */
+            @NonNull
+            public Builder setValue(int value) {
+                mImpl.setValue(value);
+                mFingerprint.recordPropertyUpdate(1, value);
+                return this;
+            }
 
-    /**
-     * Gets the value.
-     *
-     * @since 1.2
-     */
-    @NonNull
-    public String getValue() {
-      return mImpl.getValue();
-    }
-
-    /** @hide */
-    @Override
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    @Nullable
-    public Fingerprint getFingerprint() {
-      return mFingerprint;
-    }
-
-    @NonNull
-    static FixedString fromProto(@NonNull FixedProto.FixedString proto) {
-      return new FixedString(proto, null);
-    }
-
-    @NonNull
-    FixedProto.FixedString toProto() {
-      return mImpl;
-    }
-
-    /** @hide */
-    @Override
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    @NonNull
-    public DynamicProto.DynamicString toDynamicStringProto() {
-      return DynamicProto.DynamicString.newBuilder().setFixed(mImpl).build();
-    }
-
-    /** @hide */
-    @Override
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    @NonNull
-    public StateEntryProto.StateEntryValue toStateEntryValueProto() {
-      return StateEntryProto.StateEntryValue.newBuilder().setStringVal(mImpl).build();
-    }
-
-    @Override
-    @NonNull
-    public String toString() {
-      return "FixedString{" + "value=" + getValue() + "}";
-    }
-
-    /** Builder for {@link FixedString}. */
-    public static final class Builder
-        implements DynamicBuilders.DynamicString.Builder,
-            StateEntryBuilders.StateEntryValue.Builder {
-      private final FixedProto.FixedString.Builder mImpl = FixedProto.FixedString.newBuilder();
-      private final Fingerprint mFingerprint = new Fingerprint(1963352072);
-
-      public Builder() {}
-
-      /**
-       * Sets the value.
-       *
-       * @since 1.2
-       */
-      @NonNull
-      public Builder setValue(@NonNull String value) {
-        mImpl.setValue(value);
-        mFingerprint.recordPropertyUpdate(1, value.hashCode());
-        return this;
-      }
-
-      @Override
-      @NonNull
-      public FixedString build() {
-        return new FixedString(mImpl.build(), mFingerprint);
-      }
-    }
-  }
-
-  /**
-   * A fixed float type.
-   *
-   * @since 1.2
-   */
-  static final class FixedFloat
-      implements DynamicBuilders.DynamicFloat, StateEntryBuilders.StateEntryValue {
-    private final FixedProto.FixedFloat mImpl;
-    @Nullable private final Fingerprint mFingerprint;
-
-    FixedFloat(FixedProto.FixedFloat impl, @Nullable Fingerprint fingerprint) {
-      this.mImpl = impl;
-      this.mFingerprint = fingerprint;
+            @Override
+            @NonNull
+            public FixedInt32 build() {
+                return new FixedInt32(mImpl.build(), mFingerprint);
+            }
+        }
     }
 
     /**
-     * Gets the value.
+     * A fixed string type.
      *
      * @since 1.2
      */
-    public float getValue() {
-      return mImpl.getValue();
-    }
+    static final class FixedString
+            implements DynamicBuilders.DynamicString,
+                    DynamicDataBuilders.DynamicDataValue<DynamicBuilders.DynamicString> {
+        private final FixedProto.FixedString mImpl;
+        @Nullable private final Fingerprint mFingerprint;
 
-    /** @hide */
-    @Override
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    @Nullable
-    public Fingerprint getFingerprint() {
-      return mFingerprint;
-    }
+        FixedString(FixedProto.FixedString impl, @Nullable Fingerprint fingerprint) {
+            this.mImpl = impl;
+            this.mFingerprint = fingerprint;
+        }
 
-    @NonNull
-    static FixedFloat fromProto(@NonNull FixedProto.FixedFloat proto) {
-      return new FixedFloat(proto, null);
-    }
+        /**
+         * Gets the value.
+         *
+         * @since 1.2
+         */
+        @NonNull
+        public String getValue() {
+            return mImpl.getValue();
+        }
 
-    @NonNull
-    FixedProto.FixedFloat toProto() {
-      return mImpl;
-    }
+        @Override
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Nullable
+        public Fingerprint getFingerprint() {
+            return mFingerprint;
+        }
 
-    /** @hide */
-    @Override
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    @NonNull
-    public DynamicProto.DynamicFloat toDynamicFloatProto() {
-      return DynamicProto.DynamicFloat.newBuilder().setFixed(mImpl).build();
-    }
+        /** Creates a new wrapper instance from the proto. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public static FixedString fromProto(
+                @NonNull FixedProto.FixedString proto, @Nullable Fingerprint fingerprint) {
+            return new FixedString(proto, fingerprint);
+        }
 
-    /** @hide */
-    @Override
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    @NonNull
-    public StateEntryProto.StateEntryValue toStateEntryValueProto() {
-      return StateEntryProto.StateEntryValue.newBuilder().setFloatVal(mImpl).build();
-    }
+        @NonNull
+        static FixedString fromProto(@NonNull FixedProto.FixedString proto) {
+            return fromProto(proto, null);
+        }
 
-    @Override
-    @NonNull
-    public String toString() {
-      return "FixedFloat{" + "value=" + getValue() + "}";
-    }
+        /** Returns the internal proto instance. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        FixedProto.FixedString toProto() {
+            return mImpl;
+        }
 
-    /** Builder for {@link FixedFloat}. */
-    public static final class Builder
-        implements DynamicBuilders.DynamicFloat.Builder,
-            StateEntryBuilders.StateEntryValue.Builder {
-      private final FixedProto.FixedFloat.Builder mImpl = FixedProto.FixedFloat.newBuilder();
-      private final Fingerprint mFingerprint = new Fingerprint(-144724541);
+        @Override
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public DynamicProto.DynamicString toDynamicStringProto() {
+            return DynamicProto.DynamicString.newBuilder().setFixed(mImpl).build();
+        }
 
-      public Builder() {}
+        @Override
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public DynamicDataProto.DynamicDataValue toDynamicDataValueProto() {
+            return DynamicDataProto.DynamicDataValue.newBuilder().setStringVal(mImpl).build();
+        }
 
-      /**
-       * Sets the value.
-       *
-       * @since 1.2
-       */
-      @NonNull
-      public Builder setValue(float value) {
-        mImpl.setValue(value);
-        mFingerprint.recordPropertyUpdate(1, Float.floatToIntBits(value));
-        return this;
-      }
+        @Override
+        @NonNull
+        public String toString() {
+            return "FixedString{" + "value=" + getValue() + "}";
+        }
 
-      @Override
-      @NonNull
-      public FixedFloat build() {
-        return new FixedFloat(mImpl.build(), mFingerprint);
-      }
-    }
-  }
+        /** Builder for {@link FixedString}. */
+        public static final class Builder
+                implements DynamicBuilders.DynamicString.Builder,
+                        DynamicDataBuilders.DynamicDataValue.Builder<
+                                DynamicBuilders.DynamicString> {
+            private final FixedProto.FixedString.Builder mImpl =
+                    FixedProto.FixedString.newBuilder();
+            private final Fingerprint mFingerprint = new Fingerprint(1963352072);
 
-  /**
-   * A fixed boolean type.
-   *
-   * @since 1.2
-   */
-  static final class FixedBool
-      implements DynamicBuilders.DynamicBool, StateEntryBuilders.StateEntryValue {
-    private final FixedProto.FixedBool mImpl;
-    @Nullable private final Fingerprint mFingerprint;
+            public Builder() {}
 
-    FixedBool(FixedProto.FixedBool impl, @Nullable Fingerprint fingerprint) {
-      this.mImpl = impl;
-      this.mFingerprint = fingerprint;
+            /**
+             * Sets the value.
+             *
+             * @since 1.2
+             */
+            @NonNull
+            public Builder setValue(@NonNull String value) {
+                mImpl.setValue(value);
+                mFingerprint.recordPropertyUpdate(1, value.hashCode());
+                return this;
+            }
+
+            @Override
+            @NonNull
+            public FixedString build() {
+                return new FixedString(mImpl.build(), mFingerprint);
+            }
+        }
     }
 
     /**
-     * Gets the value.
+     * A fixed float type.
      *
      * @since 1.2
      */
-    public boolean getValue() {
-      return mImpl.getValue();
-    }
+    static final class FixedFloat
+            implements DynamicBuilders.DynamicFloat,
+                    DynamicDataBuilders.DynamicDataValue<DynamicBuilders.DynamicFloat> {
+        private final FixedProto.FixedFloat mImpl;
+        @Nullable private final Fingerprint mFingerprint;
 
-    /** @hide */
-    @Override
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    @Nullable
-    public Fingerprint getFingerprint() {
-      return mFingerprint;
-    }
+        FixedFloat(FixedProto.FixedFloat impl, @Nullable Fingerprint fingerprint) {
+            this.mImpl = impl;
+            this.mFingerprint = fingerprint;
+        }
 
-    @NonNull
-    static FixedBool fromProto(@NonNull FixedProto.FixedBool proto) {
-      return new FixedBool(proto, null);
-    }
+        /**
+         * Gets the value. Note that a NaN value is considered invalid and any expression with this
+         * node will have an invalid value delivered via {@link
+         * DynamicTypeValueReceiver<T>#onInvalidate()}.
+         *
+         * @since 1.2
+         */
+        public float getValue() {
+            return mImpl.getValue();
+        }
 
-    @NonNull
-    FixedProto.FixedBool toProto() {
-      return mImpl;
-    }
+        @Override
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Nullable
+        public Fingerprint getFingerprint() {
+            return mFingerprint;
+        }
 
-    /** @hide */
-    @Override
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    @NonNull
-    public DynamicProto.DynamicBool toDynamicBoolProto() {
-      return DynamicProto.DynamicBool.newBuilder().setFixed(mImpl).build();
-    }
+        /** Creates a new wrapper instance from the proto. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public static FixedFloat fromProto(
+                @NonNull FixedProto.FixedFloat proto, @Nullable Fingerprint fingerprint) {
+            return new FixedFloat(proto, fingerprint);
+        }
 
-    /** @hide */
-    @Override
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    @NonNull
-    public StateEntryProto.StateEntryValue toStateEntryValueProto() {
-      return StateEntryProto.StateEntryValue.newBuilder().setBoolVal(mImpl).build();
-    }
+        @NonNull
+        static FixedFloat fromProto(@NonNull FixedProto.FixedFloat proto) {
+            return fromProto(proto, null);
+        }
 
-    @Override
-    @NonNull
-    public String toString() {
-      return "FixedBool{" + "value=" + getValue() + "}";
-    }
+        /** Returns the internal proto instance. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        FixedProto.FixedFloat toProto() {
+            return mImpl;
+        }
 
-    /** Builder for {@link FixedBool}. */
-    public static final class Builder
-        implements DynamicBuilders.DynamicBool.Builder, StateEntryBuilders.StateEntryValue.Builder {
-      private final FixedProto.FixedBool.Builder mImpl = FixedProto.FixedBool.newBuilder();
-      private final Fingerprint mFingerprint = new Fingerprint(-665116398);
+        @Override
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public DynamicProto.DynamicFloat toDynamicFloatProto() {
+            return DynamicProto.DynamicFloat.newBuilder().setFixed(mImpl).build();
+        }
 
-      public Builder() {}
+        @Override
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public DynamicDataProto.DynamicDataValue toDynamicDataValueProto() {
+            return DynamicDataProto.DynamicDataValue.newBuilder().setFloatVal(mImpl).build();
+        }
 
-      /**
-       * Sets the value.
-       *
-       * @since 1.2
-       */
-      @SuppressLint("MissingGetterMatchingBuilder")
-      @NonNull
-      public Builder setValue(boolean value) {
-        mImpl.setValue(value);
-        mFingerprint.recordPropertyUpdate(1, Boolean.hashCode(value));
-        return this;
-      }
+        @Override
+        @NonNull
+        public String toString() {
+            return "FixedFloat{" + "value=" + getValue() + "}";
+        }
 
-      @Override
-      @NonNull
-      public FixedBool build() {
-        return new FixedBool(mImpl.build(), mFingerprint);
-      }
-    }
-  }
+        /** Builder for {@link FixedFloat}. */
+        public static final class Builder
+                implements DynamicBuilders.DynamicFloat.Builder,
+                        DynamicDataBuilders.DynamicDataValue.Builder<DynamicBuilders.DynamicFloat> {
+            private final FixedProto.FixedFloat.Builder mImpl = FixedProto.FixedFloat.newBuilder();
+            private final Fingerprint mFingerprint = new Fingerprint(-144724541);
 
-  /**
-   * A fixed color type.
-   *
-   * @since 1.2
-   */
-  static final class FixedColor
-      implements DynamicBuilders.DynamicColor, StateEntryBuilders.StateEntryValue {
-    private final FixedProto.FixedColor mImpl;
-    @Nullable private final Fingerprint mFingerprint;
+            public Builder() {}
 
-    FixedColor(FixedProto.FixedColor impl, @Nullable Fingerprint fingerprint) {
-      this.mImpl = impl;
-      this.mFingerprint = fingerprint;
+            /**
+             * Sets the value. Note that a NaN value is considered invalid and any expression with
+             * this node will have an invalid value delivered via {@link
+             * DynamicTypeValueReceiver<T>#onInvalidate()}.
+             *
+             * @since 1.2
+             */
+            @NonNull
+            public Builder setValue(float value) {
+                mImpl.setValue(value);
+                mFingerprint.recordPropertyUpdate(1, Float.floatToIntBits(value));
+                return this;
+            }
+
+            @Override
+            @NonNull
+            public FixedFloat build() {
+                return new FixedFloat(mImpl.build(), mFingerprint);
+            }
+        }
     }
 
     /**
-     * Gets the color value, in ARGB format.
+     * A fixed boolean type.
      *
      * @since 1.2
      */
-    @ColorInt
-    public int getArgb() {
-      return mImpl.getArgb();
+    static final class FixedBool
+            implements DynamicBuilders.DynamicBool,
+                    DynamicDataBuilders.DynamicDataValue<DynamicBuilders.DynamicBool> {
+        private final FixedProto.FixedBool mImpl;
+        @Nullable private final Fingerprint mFingerprint;
+
+        FixedBool(FixedProto.FixedBool impl, @Nullable Fingerprint fingerprint) {
+            this.mImpl = impl;
+            this.mFingerprint = fingerprint;
+        }
+
+        /**
+         * Gets the value.
+         *
+         * @since 1.2
+         */
+        public boolean getValue() {
+            return mImpl.getValue();
+        }
+
+        @Override
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Nullable
+        public Fingerprint getFingerprint() {
+            return mFingerprint;
+        }
+
+        /** Creates a new wrapper instance from the proto. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public static FixedBool fromProto(
+                @NonNull FixedProto.FixedBool proto, @Nullable Fingerprint fingerprint) {
+            return new FixedBool(proto, fingerprint);
+        }
+
+        @NonNull
+        static FixedBool fromProto(@NonNull FixedProto.FixedBool proto) {
+            return fromProto(proto, null);
+        }
+
+        /** Returns the internal proto instance. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        FixedProto.FixedBool toProto() {
+            return mImpl;
+        }
+
+        @Override
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public DynamicProto.DynamicBool toDynamicBoolProto() {
+            return DynamicProto.DynamicBool.newBuilder().setFixed(mImpl).build();
+        }
+
+        @Override
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public DynamicDataProto.DynamicDataValue toDynamicDataValueProto() {
+            return DynamicDataProto.DynamicDataValue.newBuilder().setBoolVal(mImpl).build();
+        }
+
+        @Override
+        @NonNull
+        public String toString() {
+            return "FixedBool{" + "value=" + getValue() + "}";
+        }
+
+        /** Builder for {@link FixedBool}. */
+        public static final class Builder
+                implements DynamicBuilders.DynamicBool.Builder,
+                        DynamicDataBuilders.DynamicDataValue.Builder<DynamicBuilders.DynamicBool> {
+            private final FixedProto.FixedBool.Builder mImpl = FixedProto.FixedBool.newBuilder();
+            private final Fingerprint mFingerprint = new Fingerprint(-665116398);
+
+            public Builder() {}
+
+            /**
+             * Sets the value.
+             *
+             * @since 1.2
+             */
+            @SuppressLint("MissingGetterMatchingBuilder")
+            @NonNull
+            public Builder setValue(boolean value) {
+                mImpl.setValue(value);
+                mFingerprint.recordPropertyUpdate(1, Boolean.hashCode(value));
+                return this;
+            }
+
+            @Override
+            @NonNull
+            public FixedBool build() {
+                return new FixedBool(mImpl.build(), mFingerprint);
+            }
+        }
     }
 
-    /** @hide */
-    @Override
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    @Nullable
-    public Fingerprint getFingerprint() {
-      return mFingerprint;
+    /**
+     * A fixed color type.
+     *
+     * @since 1.2
+     */
+    static final class FixedColor
+            implements DynamicBuilders.DynamicColor,
+                    DynamicDataBuilders.DynamicDataValue<DynamicBuilders.DynamicColor> {
+        private final FixedProto.FixedColor mImpl;
+        @Nullable private final Fingerprint mFingerprint;
+
+        FixedColor(FixedProto.FixedColor impl, @Nullable Fingerprint fingerprint) {
+            this.mImpl = impl;
+            this.mFingerprint = fingerprint;
+        }
+
+        /**
+         * Gets the color value, in ARGB format.
+         *
+         * @since 1.2
+         */
+        @ColorInt
+        public int getArgb() {
+            return mImpl.getArgb();
+        }
+
+        @Override
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Nullable
+        public Fingerprint getFingerprint() {
+            return mFingerprint;
+        }
+
+        /** Creates a new wrapper instance from the proto. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public static FixedColor fromProto(
+                @NonNull FixedProto.FixedColor proto, @Nullable Fingerprint fingerprint) {
+            return new FixedColor(proto, fingerprint);
+        }
+
+        @NonNull
+        static FixedColor fromProto(@NonNull FixedProto.FixedColor proto) {
+            return fromProto(proto, null);
+        }
+
+        /** Returns the internal proto instance. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        FixedProto.FixedColor toProto() {
+            return mImpl;
+        }
+
+        @Override
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public DynamicProto.DynamicColor toDynamicColorProto() {
+            return DynamicProto.DynamicColor.newBuilder().setFixed(mImpl).build();
+        }
+
+        @Override
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public DynamicDataProto.DynamicDataValue toDynamicDataValueProto() {
+            return DynamicDataProto.DynamicDataValue.newBuilder().setColorVal(mImpl).build();
+        }
+
+        @Override
+        @NonNull
+        public String toString() {
+            return "FixedColor{" + "argb=" + getArgb() + "}";
+        }
+
+        /** Builder for {@link FixedColor}. */
+        public static final class Builder
+                implements DynamicBuilders.DynamicColor.Builder,
+                        DynamicDataBuilders.DynamicDataValue.Builder<DynamicBuilders.DynamicColor> {
+            private final FixedProto.FixedColor.Builder mImpl = FixedProto.FixedColor.newBuilder();
+            private final Fingerprint mFingerprint = new Fingerprint(-1895809356);
+
+            public Builder() {}
+
+            /**
+             * Sets the color value, in ARGB format.
+             *
+             * @since 1.2
+             */
+            @NonNull
+            public Builder setArgb(@ColorInt int argb) {
+                mImpl.setArgb(argb);
+                mFingerprint.recordPropertyUpdate(1, argb);
+                return this;
+            }
+
+            @Override
+            @NonNull
+            public FixedColor build() {
+                return new FixedColor(mImpl.build(), mFingerprint);
+            }
+        }
     }
 
-    @NonNull
-    static FixedColor fromProto(@NonNull FixedProto.FixedColor proto) {
-      return new FixedColor(proto, null);
+    /**
+     * A fixed time instant type.
+     *
+     * @since 1.2
+     */
+    static final class FixedInstant implements DynamicBuilders.DynamicInstant {
+        private final FixedProto.FixedInstant mImpl;
+        @Nullable private final Fingerprint mFingerprint;
+
+        FixedInstant(FixedProto.FixedInstant impl, @Nullable Fingerprint fingerprint) {
+            this.mImpl = impl;
+            this.mFingerprint = fingerprint;
+        }
+
+        /**
+         * Gets the number of seconds that have elapsed since 00:00:00 UTC on 1 January 1970.
+         *
+         * @since 1.2
+         */
+        public long getEpochSeconds() {
+            return mImpl.getEpochSeconds();
+        }
+
+        @Override
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Nullable
+        public Fingerprint getFingerprint() {
+            return mFingerprint;
+        }
+
+        /** Creates a new wrapper instance from the proto. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public static FixedInstant fromProto(
+                @NonNull FixedProto.FixedInstant proto, @Nullable Fingerprint fingerprint) {
+            return new FixedInstant(proto, fingerprint);
+        }
+
+        @NonNull
+        static FixedInstant fromProto(@NonNull FixedProto.FixedInstant proto) {
+            return fromProto(proto, null);
+        }
+
+        /** Returns the internal proto instance. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        FixedProto.FixedInstant toProto() {
+            return mImpl;
+        }
+
+        @Override
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public DynamicProto.DynamicInstant toDynamicInstantProto() {
+            return DynamicProto.DynamicInstant.newBuilder().setFixed(mImpl).build();
+        }
+
+        @Override
+        @NonNull
+        public String toString() {
+            return "FixedInstant{" + "epochSeconds=" + getEpochSeconds() + "}";
+        }
+
+        /** Builder for {@link FixedInstant}. */
+        public static final class Builder implements DynamicBuilders.DynamicInstant.Builder {
+            private final FixedProto.FixedInstant.Builder mImpl =
+                    FixedProto.FixedInstant.newBuilder();
+            private final Fingerprint mFingerprint = new Fingerprint(-1986552556);
+
+            public Builder() {}
+
+            /**
+             * Sets the number of seconds that have elapsed since 00:00:00 UTC on 1 January 1970.
+             *
+             * @since 1.2
+             */
+            @NonNull
+            public Builder setEpochSeconds(long epochSeconds) {
+                mImpl.setEpochSeconds(epochSeconds);
+                mFingerprint.recordPropertyUpdate(1, Long.hashCode(epochSeconds));
+                return this;
+            }
+
+            @Override
+            @NonNull
+            public FixedInstant build() {
+                return new FixedInstant(mImpl.build(), mFingerprint);
+            }
+        }
     }
 
-    @NonNull
-    FixedProto.FixedColor toProto() {
-      return mImpl;
+    /**
+     * A fixed duration type.
+     *
+     * @since 1.2
+     */
+    static final class FixedDuration implements DynamicBuilders.DynamicDuration {
+        private final FixedProto.FixedDuration mImpl;
+        @Nullable private final Fingerprint mFingerprint;
+
+        FixedDuration(FixedProto.FixedDuration impl, @Nullable Fingerprint fingerprint) {
+            this.mImpl = impl;
+            this.mFingerprint = fingerprint;
+        }
+
+        /**
+         * Gets duration in seconds.
+         *
+         * @since 1.2
+         */
+        public long getSeconds() {
+            return mImpl.getSeconds();
+        }
+
+        @Override
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Nullable
+        public Fingerprint getFingerprint() {
+            return mFingerprint;
+        }
+
+        /** Creates a new wrapper instance from the proto. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public static FixedDuration fromProto(
+                @NonNull FixedProto.FixedDuration proto, @Nullable Fingerprint fingerprint) {
+            return new FixedDuration(proto, fingerprint);
+        }
+
+        @NonNull
+        static FixedDuration fromProto(@NonNull FixedProto.FixedDuration proto) {
+            return fromProto(proto, null);
+        }
+
+        /** Returns the internal proto instance. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        FixedProto.FixedDuration toProto() {
+            return mImpl;
+        }
+
+        @Override
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public DynamicProto.DynamicDuration toDynamicDurationProto() {
+            return DynamicProto.DynamicDuration.newBuilder().setFixed(mImpl).build();
+        }
+
+        @Override
+        @NonNull
+        public String toString() {
+            return "FixedDuration{" + "seconds=" + getSeconds() + "}";
+        }
+
+        /** Builder for {@link FixedDuration}. */
+        public static final class Builder implements DynamicBuilders.DynamicDuration.Builder {
+            private final FixedProto.FixedDuration.Builder mImpl =
+                    FixedProto.FixedDuration.newBuilder();
+            private final Fingerprint mFingerprint = new Fingerprint(9029504);
+
+            public Builder() {}
+
+            /**
+             * Sets duration in seconds.
+             *
+             * @since 1.2
+             */
+            @NonNull
+            public Builder setSeconds(long seconds) {
+                mImpl.setSeconds(seconds);
+                mFingerprint.recordPropertyUpdate(1, Long.hashCode(seconds));
+                return this;
+            }
+
+            @Override
+            @NonNull
+            public FixedDuration build() {
+                return new FixedDuration(mImpl.build(), mFingerprint);
+            }
+        }
     }
-
-    /** @hide */
-    @Override
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    @NonNull
-    public DynamicProto.DynamicColor toDynamicColorProto() {
-      return DynamicProto.DynamicColor.newBuilder().setFixed(mImpl).build();
-    }
-
-    /** @hide */
-    @Override
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    @NonNull
-    public StateEntryProto.StateEntryValue toStateEntryValueProto() {
-      return StateEntryProto.StateEntryValue.newBuilder().setColorVal(mImpl).build();
-    }
-
-    @Override
-    @NonNull
-    public String toString() {
-      return "FixedColor{" + "argb=" + getArgb() + "}";
-    }
-
-    /** Builder for {@link FixedColor}. */
-    public static final class Builder
-        implements DynamicBuilders.DynamicColor.Builder,
-            StateEntryBuilders.StateEntryValue.Builder {
-      private final FixedProto.FixedColor.Builder mImpl = FixedProto.FixedColor.newBuilder();
-      private final Fingerprint mFingerprint = new Fingerprint(-1895809356);
-
-      public Builder() {}
-
-      /**
-       * Sets the color value, in ARGB format.
-       *
-       * @since 1.2
-       */
-      @NonNull
-      public Builder setArgb(@ColorInt int argb) {
-        mImpl.setArgb(argb);
-        mFingerprint.recordPropertyUpdate(1, argb);
-        return this;
-      }
-
-      @Override
-      @NonNull
-      public FixedColor build() {
-        return new FixedColor(mImpl.build(), mFingerprint);
-      }
-    }
-  }
 }

@@ -40,7 +40,7 @@ object CompilationTestHelper {
         sources: List<Source>,
         extraClasspath: List<File> = emptyList(),
         symbolProcessorProviders: List<SymbolProcessorProvider> = emptyList(),
-        processorOptions: Map<String, String> = emptyMap()
+        processorOptions: Map<String, String> = emptyMap(),
     ): TestCompilationResult {
         val tempDir = Files.createTempDirectory("compile").toFile().also { it.deleteOnExit() }
         return compile(

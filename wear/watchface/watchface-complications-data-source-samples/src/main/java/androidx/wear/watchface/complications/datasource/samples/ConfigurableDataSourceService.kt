@@ -29,25 +29,31 @@ class ConfigurableDataSourceService : ComplicationDataSourceService() {
         request: ComplicationRequest,
         listener: ComplicationRequestListener
     ) {
-        val value = getSharedPreferences(ConfigActivity.SHARED_PREF_NAME, 0).getInt(
-            ConfigActivity.getKey(
-                request.complicationInstanceId,
-                ConfigActivity.SHARED_PREF_KEY),
-            DEFAULT_VALUE)
+        val value =
+            getSharedPreferences(ConfigActivity.SHARED_PREF_NAME, 0)
+                .getInt(
+                    ConfigActivity.getKey(
+                        request.complicationInstanceId,
+                        ConfigActivity.SHARED_PREF_KEY
+                    ),
+                    DEFAULT_VALUE
+                )
 
         listener.onComplicationData(makeComplicationData(value))
     }
 
-    override fun getPreviewData(type: ComplicationType) = when (type) {
-        ComplicationType.SHORT_TEXT -> makeComplicationData(DEFAULT_VALUE)
-        else -> null
-    }
+    override fun getPreviewData(type: ComplicationType) =
+        when (type) {
+            ComplicationType.SHORT_TEXT -> makeComplicationData(DEFAULT_VALUE)
+            else -> null
+        }
 
     private fun makeComplicationData(value: Int): ComplicationData {
         return ShortTextComplicationData.Builder(
-            plainText(value.toString()),
-            ComplicationText.EMPTY
-        ).build()
+                plainText(value.toString()),
+                ComplicationText.EMPTY
+            )
+            .build()
     }
 
     companion object {

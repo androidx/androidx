@@ -43,7 +43,6 @@ import java.util.UUID;
 /**
  * {@link androidx.work.WorkerParameters}, but parcelable.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @SuppressLint("BanParcelableUsage")

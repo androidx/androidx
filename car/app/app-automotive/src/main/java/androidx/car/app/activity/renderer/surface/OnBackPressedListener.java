@@ -23,7 +23,6 @@ import androidx.annotation.RestrictTo;
 /**
  * Classes that wish to listen for back button events should implement this.
  *
- * @hide
  */
 @RestrictTo(LIBRARY)
 public interface OnBackPressedListener {

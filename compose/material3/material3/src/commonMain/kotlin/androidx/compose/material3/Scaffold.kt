@@ -21,9 +21,13 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
+import androidx.compose.foundation.layout.consumeWindowInsets
+import androidx.compose.foundation.layout.exclude
+import androidx.compose.foundation.layout.onConsumedWindowInsetsChanged
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -64,13 +68,13 @@ import androidx.compose.ui.unit.offset
  * @param contentWindowInsets window insets to be passed to [content] slot via [PaddingValues]
  * params. Scaffold will take the insets into account from the top/bottom only if the [topBar]/
  * [bottomBar] are not present, as the scaffold expect [topBar]/[bottomBar] to handle insets
- * instead
+ * instead. Any insets consumed by other insets padding modifiers or [consumeWindowInsets] on a
+ * parent layout will be excluded from [contentWindowInsets].
  * @param content content of the screen. The lambda receives a [PaddingValues] that should be
  * applied to the content root via [Modifier.padding] and [Modifier.consumeWindowInsets] to
  * properly offset top and bottom bars. If using [Modifier.verticalScroll], apply this modifier to
  * the child of the scroll, and not on the scroll itself.
  */
-@ExperimentalMaterial3Api
 @Composable
 fun Scaffold(
     modifier: Modifier = Modifier,
@@ -84,14 +88,23 @@ fun Scaffold(
     contentWindowInsets: WindowInsets = ScaffoldDefaults.contentWindowInsets,
     content: @Composable (PaddingValues) -> Unit
 ) {
-    Surface(modifier = modifier, color = containerColor, contentColor = contentColor) {
+    val safeInsets = remember(contentWindowInsets) {
+        MutableWindowInsets(contentWindowInsets)
+    }
+    Surface(
+        modifier = modifier.onConsumedWindowInsetsChanged { consumedWindowInsets ->
+            // Exclude currently consumed window insets from user provided contentWindowInsets
+            safeInsets.insets = contentWindowInsets.exclude(consumedWindowInsets)
+        },
+        color = containerColor,
+        contentColor = contentColor) {
         ScaffoldLayout(
             fabPosition = floatingActionButtonPosition,
             topBar = topBar,
             bottomBar = bottomBar,
             content = content,
             snackbar = snackbarHost,
-            contentWindowInsets = contentWindowInsets,
+            contentWindowInsets = safeInsets,
             fab = floatingActionButton
         )
     }
@@ -109,7 +122,6 @@ fun Scaffold(
  * @param bottomBar the content to place at the bottom of the [Scaffold], on top of the
  * [content], typically a [NavigationBar].
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun ScaffoldLayout(
     fabPosition: FabPosition,
@@ -174,14 +186,22 @@ private fun ScaffoldLayout(
                 val fabWidth = fabPlaceables.maxByOrNull { it.width }!!.width
                 val fabHeight = fabPlaceables.maxByOrNull { it.height }!!.height
                 // FAB distance from the left of the layout, taking into account LTR / RTL
-                val fabLeftOffset = if (fabPosition == FabPosition.End) {
-                    if (layoutDirection == LayoutDirection.Ltr) {
-                        layoutWidth - FabSpacing.roundToPx() - fabWidth
-                    } else {
-                        FabSpacing.roundToPx()
+                val fabLeftOffset = when (fabPosition) {
+                    FabPosition.Start -> {
+                        if (layoutDirection == LayoutDirection.Ltr) {
+                            FabSpacing.roundToPx()
+                        } else {
+                            layoutWidth - FabSpacing.roundToPx() - fabWidth
+                        }
                     }
-                } else {
-                    (layoutWidth - fabWidth) / 2
+                    FabPosition.End -> {
+                        if (layoutDirection == LayoutDirection.Ltr) {
+                            layoutWidth - FabSpacing.roundToPx() - fabWidth
+                        } else {
+                            FabSpacing.roundToPx()
+                        }
+                    }
+                    else -> (layoutWidth - fabWidth) / 2
                 }
 
                 FabPlacement(
@@ -273,7 +293,6 @@ private fun ScaffoldLayout(
 /**
  * Object containing various default values for [Scaffold] component.
  */
-@ExperimentalMaterial3Api
 object ScaffoldDefaults {
     /**
      * Default insets to be used and consumed by the scaffold content slot
@@ -286,25 +305,31 @@ object ScaffoldDefaults {
 /**
  * The possible positions for a [FloatingActionButton] attached to a [Scaffold].
  */
-@ExperimentalMaterial3Api
 @kotlin.jvm.JvmInline
 value class FabPosition internal constructor(@Suppress("unused") private val value: Int) {
     companion object {
         /**
+         * Position FAB at the bottom of the screen at the start, above the [NavigationBar] (if it
+         * exists)
+         */
+        val Start = FabPosition(0)
+
+        /**
          * Position FAB at the bottom of the screen in the center, above the [NavigationBar] (if it
          * exists)
          */
-        val Center = FabPosition(0)
+        val Center = FabPosition(1)
 
         /**
          * Position FAB at the bottom of the screen at the end, above the [NavigationBar] (if it
          * exists)
          */
-        val End = FabPosition(1)
+        val End = FabPosition(2)
     }
 
     override fun toString(): String {
         return when (this) {
+            Start -> "FabPosition.Start"
             Center -> "FabPosition.Center"
             else -> "FabPosition.End"
         }

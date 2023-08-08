@@ -24,7 +24,6 @@ import android.support.v4.media.MediaBrowserCompat;
 import androidx.annotation.RestrictTo;
 
 /**
- * @hide
  */
 @RestrictTo(LIBRARY)
 public class MediaBrowserCompatUtils {

@@ -27,7 +27,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 
-abstract class AbstractIrTransformTest : AbstractCodegenTest() {
+abstract class AbstractIrTransformTest(useFir: Boolean) : AbstractCodegenTest(useFir) {
     override fun CompilerConfiguration.updateConfiguration() {
         put(ComposeConfiguration.SOURCE_INFORMATION_ENABLED_KEY, true)
     }
@@ -82,7 +82,7 @@ abstract class AbstractIrTransformTest : AbstractCodegenTest() {
         val actualTransformed = irModule
             .files[0]
             .validate()
-            .dumpSrc()
+            .dumpSrc(useFir)
             .replace('$', '%')
             // replace source keys for start group calls
             .replace(

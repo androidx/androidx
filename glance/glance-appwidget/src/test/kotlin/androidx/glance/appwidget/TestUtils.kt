@@ -42,13 +42,13 @@ import androidx.glance.GlanceId
 import androidx.glance.session.GlobalSnapshotManager
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.currentCoroutineContext
-import kotlinx.coroutines.launch
 import java.util.Locale
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.test.assertIs
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 
 internal suspend fun runTestingComposition(
     content: @Composable @GlanceComposable () -> Unit,
@@ -70,7 +70,6 @@ internal suspend fun runCompositionUntil(
         val applier = Applier(root)
         val recomposer = Recomposer(currentCoroutineContext())
         val composition = Composition(applier, recomposer)
-
         composition.setContent { content() }
 
         launch(TestFrameClock()) { recomposer.runRecomposeAndApplyChanges() }
@@ -112,7 +111,11 @@ internal suspend fun Context.runAndTranslate(
     appWidgetId: Int = 0,
     content: @Composable () -> Unit
 ): RemoteViews {
-    val root = runTestingComposition(content)
+    val originalRoot = runTestingComposition(content)
+
+    // Copy makes a deep copy of the emittable tree, so will exercise the copy methods
+    // of all of the emmitables the test checks too.
+    val root = originalRoot.copy() as RemoteViewsRoot
     normalizeCompositionTree(root)
     return translateComposition(
         this,
@@ -176,15 +179,11 @@ internal class TestWidget(
 ) : GlanceAppWidget() {
     val provideGlanceCalled = AtomicBoolean(false)
     override suspend fun provideGlance(
-        context: android.content.Context,
-        id: androidx.glance.GlanceId
+        context: Context,
+        id: GlanceId
     ) {
         provideGlanceCalled.set(true)
-        provideContent { Content() }
-    }
-    @Composable
-    override fun Content() {
-        ui()
+        provideContent(ui)
     }
 }
 

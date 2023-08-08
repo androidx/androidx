@@ -1,14 +1,22 @@
 package com.mysdk
 
-public object RequestConverter {
+import android.content.Context
+import androidx.privacysandbox.ui.provider.toCoreLibInfo
+
+public class RequestConverter(
+    public val context: Context,
+) {
     public fun fromParcelable(parcelable: ParcelableRequest): Request {
         val annotatedValue = Request(
                 query = parcelable.query,
                 extraValues = parcelable.extraValues.map {
-                        com.mysdk.InnerValueConverter.fromParcelable(it) }.toList(),
+                        InnerValueConverter(context).fromParcelable(it) }.toList(),
                 maybeValue = parcelable.maybeValue?.let { notNullValue ->
-                        com.mysdk.InnerValueConverter.fromParcelable(notNullValue) },
-                myInterface = (parcelable.myInterface as MyInterfaceStubDelegate).delegate)
+                        InnerValueConverter(context).fromParcelable(notNullValue) },
+                myInterface = (parcelable.myInterface as MyInterfaceStubDelegate).delegate,
+                myUiInterface = (parcelable.myUiInterface.binder as
+                        MyUiInterfaceStubDelegate).delegate,
+                activityLauncher = SdkActivityLauncherAndBinderWrapper(parcelable.activityLauncher))
         return annotatedValue
     }
 
@@ -16,10 +24,15 @@ public object RequestConverter {
         val parcelable = ParcelableRequest()
         parcelable.query = annotatedValue.query
         parcelable.extraValues = annotatedValue.extraValues.map {
-                com.mysdk.InnerValueConverter.toParcelable(it) }.toTypedArray()
+                InnerValueConverter(context).toParcelable(it) }.toTypedArray()
         parcelable.maybeValue = annotatedValue.maybeValue?.let { notNullValue ->
-                com.mysdk.InnerValueConverter.toParcelable(notNullValue) }
-        parcelable.myInterface = MyInterfaceStubDelegate(annotatedValue.myInterface)
+                InnerValueConverter(context).toParcelable(notNullValue) }
+        parcelable.myInterface = MyInterfaceStubDelegate(annotatedValue.myInterface, context)
+        parcelable.myUiInterface =
+                IMyUiInterfaceCoreLibInfoAndBinderWrapperConverter.toParcelable(annotatedValue.myUiInterface.toCoreLibInfo(context),
+                MyUiInterfaceStubDelegate(annotatedValue.myUiInterface, context))
+        parcelable.activityLauncher =
+                SdkActivityLauncherAndBinderWrapper.getLauncherInfo(annotatedValue.activityLauncher)
         return parcelable
     }
 }

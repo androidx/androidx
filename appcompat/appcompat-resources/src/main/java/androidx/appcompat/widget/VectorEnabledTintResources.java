@@ -32,7 +32,6 @@ import java.lang.ref.WeakReference;
  * This class allows us to intercept calls so that we can tint resources (if applicable), and
  * inflate vector resources from within drawable containers pre-L.
  *
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 public class VectorEnabledTintResources extends ResourcesWrapper {

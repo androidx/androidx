@@ -23,7 +23,7 @@ import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -34,10 +34,10 @@ import androidx.compose.ui.unit.sp
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.compose.collectAsLazyPagingItems
-import androidx.paging.compose.itemsIndexed
+import androidx.paging.compose.itemKey
+import kotlin.random.Random
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlin.random.Random
 
 @Composable
 fun PagingRoomDemo() {
@@ -113,11 +113,12 @@ fun PagingRoomDemo() {
 
         val lazyPagingItems = pager.flow.collectAsLazyPagingItems()
         LazyColumn {
-            itemsIndexed(
-                items = lazyPagingItems,
-                key = { _, user -> user.id }
-            ) { index, user ->
-                var counter by rememberSaveable { mutableStateOf(0) }
+            items(
+                count = lazyPagingItems.itemCount,
+                key = lazyPagingItems.itemKey { user -> user.id },
+            ) { index ->
+                val user = lazyPagingItems[index]
+                var counter by rememberSaveable { mutableIntStateOf(0) }
                 Text(
                     text = "counter=$counter index=$index ${user?.name} ${user?.id}",
                     fontSize = 50.sp,

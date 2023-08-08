@@ -22,6 +22,8 @@ import android.hardware.camera2.CameraCaptureSession.CaptureCallback;
 import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.TotalCaptureResult;
+import android.hardware.camera2.params.DynamicRangeProfiles;
+import android.os.Build;
 import android.view.Surface;
 
 import androidx.annotation.GuardedBy;
@@ -31,12 +33,15 @@ import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.impl.Camera2ImplConfig;
 import androidx.camera.camera2.impl.CameraEventCallbacks;
+import androidx.camera.camera2.internal.compat.params.DynamicRangeConversions;
+import androidx.camera.camera2.internal.compat.params.DynamicRangesCompat;
 import androidx.camera.camera2.internal.compat.params.InputConfigurationCompat;
 import androidx.camera.camera2.internal.compat.params.OutputConfigurationCompat;
 import androidx.camera.camera2.internal.compat.params.SessionConfigurationCompat;
 import androidx.camera.camera2.internal.compat.workaround.StillCaptureFlow;
 import androidx.camera.camera2.internal.compat.workaround.TorchStateReset;
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
+import androidx.camera.core.DynamicRange;
 import androidx.camera.core.Logger;
 import androidx.camera.core.impl.CameraCaptureCallback;
 import androidx.camera.core.impl.CaptureConfig;
@@ -100,7 +105,7 @@ final class CaptureSession implements CaptureSessionInterface {
     @Nullable
     @GuardedBy("mSessionLock")
     SessionConfig mSessionConfig;
-    /** The capture options from CameraEventCallback.onRepeating(). **/
+    /** The capture options from CameraEventCallback.onRepeating(). */
     @NonNull
     @GuardedBy("mSessionLock")
     Config mCameraEventOnRepeatingOptions = OptionsBundle.emptyBundle();
@@ -135,11 +140,14 @@ final class CaptureSession implements CaptureSessionInterface {
     final StillCaptureFlow mStillCaptureFlow = new StillCaptureFlow();
     final TorchStateReset mTorchStateReset = new TorchStateReset();
 
+    private final DynamicRangesCompat mDynamicRangesCompat;
+
     /**
      * Constructor for CaptureSession.
      */
-    CaptureSession() {
+    CaptureSession(@NonNull DynamicRangesCompat dynamicRangesCompat) {
         mState = State.INITIALIZED;
+        mDynamicRangesCompat = dynamicRangesCompat;
         mCaptureSessionStateCallback = new StateCallback();
     }
 
@@ -416,6 +424,27 @@ final class CaptureSession implements CaptureSessionInterface {
                 outputConfiguration.addSurface(sharedSurface);
             }
         }
+
+        long dynamicRangeProfile = DynamicRangeProfiles.STANDARD;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            DynamicRangeProfiles dynamicRangeProfiles =
+                    mDynamicRangesCompat.toDynamicRangeProfiles();
+            if (dynamicRangeProfiles != null) {
+                DynamicRange requestedDynamicRange = outputConfig.getDynamicRange();
+                Long dynamicRangeProfileOrNull =
+                        DynamicRangeConversions.dynamicRangeToFirstSupportedProfile(
+                                requestedDynamicRange, dynamicRangeProfiles);
+                if (dynamicRangeProfileOrNull == null) {
+                    Logger.e(TAG,
+                            "Requested dynamic range is not supported. Defaulting to STANDARD "
+                                    + "dynamic range profile.\nRequested dynamic range:\n  "
+                                    + requestedDynamicRange);
+                } else {
+                    dynamicRangeProfile = dynamicRangeProfileOrNull;
+                }
+            }
+        }
+        outputConfiguration.setDynamicRangeProfile(dynamicRangeProfile);
         return outputConfiguration;
     }
 
@@ -617,6 +646,11 @@ final class CaptureSession implements CaptureSessionInterface {
                 return -1;
             }
 
+            if (mState != State.OPENED) {
+                Logger.d(TAG, "Skipping issueRepeatingCaptureRequests due to session closed");
+                return -1;
+            }
+
             CaptureConfig captureConfig = sessionConfig.getRepeatingCaptureConfig();
             if (captureConfig.getSurfaces().isEmpty()) {
                 Logger.d(TAG, "Skipping issueRepeatingCaptureRequests for no surface.");
@@ -691,6 +725,10 @@ final class CaptureSession implements CaptureSessionInterface {
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     int issueBurstCaptureRequest(List<CaptureConfig> captureConfigs) {
         synchronized (mSessionLock) {
+            if (mState != State.OPENED) {
+                Logger.d(TAG, "Skipping issueBurstCaptureRequest due to session closed");
+                return -1;
+            }
             if (captureConfigs.isEmpty()) {
                 return -1;
             }

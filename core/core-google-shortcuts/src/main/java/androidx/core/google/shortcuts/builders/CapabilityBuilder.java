@@ -29,7 +29,6 @@ import com.google.android.gms.appindex.builders.IndexableBuilder;
 /**
  * Builder for the Capability section in the Shortcut Corpus.
  *
- * @hide
  */
 @RestrictTo(LIBRARY)
 public class CapabilityBuilder extends IndexableBuilder<CapabilityBuilder> {

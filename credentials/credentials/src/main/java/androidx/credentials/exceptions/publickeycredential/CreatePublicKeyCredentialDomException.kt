@@ -16,34 +16,45 @@
 
 package androidx.credentials.exceptions.publickeycredential
 
-import androidx.annotation.VisibleForTesting
-import androidx.credentials.exceptions.domerrors.AbortError
+import androidx.annotation.RestrictTo
+import androidx.credentials.exceptions.CreateCredentialCustomException
+import androidx.credentials.exceptions.CreateCredentialException
 import androidx.credentials.exceptions.domerrors.DomError
+import androidx.credentials.exceptions.domerrors.UnknownError
+import androidx.credentials.exceptions.publickeycredential.DomExceptionUtils.Companion.SEPARATOR
+import androidx.credentials.internal.FrameworkClassParsingException
 
 /**
- * During the create public key credential flow, this is thrown when a DOM Exception is thrown,
+ * During the create-passkey flow, this is thrown when a DOM Exception is thrown,
  * indicating the operation contains a DOMException error type. The fido spec can be found
- * [here](https://webidl.spec.whatwg.org/#idl-DOMException-error-names). To see the full list of
- * implemented DOMErrors, please see the API docs associated with this package. For example, one
- * such error is [AbortError].
+ * [here](https://webidl.spec.whatwg.org/#idl-DOMException-error-names). The full list of
+ * implemented DOMErrors extends from and can be seen at [DomError].
  *
  * @property domError the specific error from the DOMException types defined in the fido spec found
  * [here](https://webidl.spec.whatwg.org/#idl-DOMException-error-names)
  * @throws NullPointerException If [domError] is null
- *
- * @see CreatePublicKeyCredentialException
- *
  */
 class CreatePublicKeyCredentialDomException @JvmOverloads constructor(
     val domError: DomError,
     errorMessage: CharSequence? = null
 ) : CreatePublicKeyCredentialException(
-    TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_DOM_EXCEPTION + domError.type,
+    TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_DOM_EXCEPTION + SEPARATOR + domError.type,
     errorMessage) {
-    /** @hide */
-    companion object {
-        @VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)
-        const val TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_DOM_EXCEPTION: String =
+    internal companion object {
+        internal const val TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_DOM_EXCEPTION: String =
             "androidx.credentials.TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_DOM_EXCEPTION"
+        @JvmStatic
+        @RestrictTo(RestrictTo.Scope.LIBRARY) // used from java tests
+        fun createFrom(type: String, msg: String?): CreateCredentialException {
+            val prefix = "$TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_DOM_EXCEPTION$SEPARATOR"
+            return try {
+                DomExceptionUtils.generateDomException(type, prefix, msg,
+                    CreatePublicKeyCredentialDomException(UnknownError()))
+            } catch (t: FrameworkClassParsingException) {
+                // Parsing failed but don't crash the process. Instead just output a response
+                // with the raw framework values.
+                CreateCredentialCustomException(type, msg)
+            }
+        }
     }
 }

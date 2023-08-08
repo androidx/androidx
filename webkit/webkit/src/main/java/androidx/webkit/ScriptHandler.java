@@ -27,7 +27,6 @@ import androidx.annotation.RestrictTo;
  * @see WebViewCompat#addDocumentStartJavaScript(android.webkit.WebView, String, Set)
  *
  * TODO(swestphal): unhide when ready.
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public abstract class ScriptHandler {
@@ -40,7 +39,6 @@ public abstract class ScriptHandler {
 
     /**
      * This class cannot be created by applications.
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public ScriptHandler() {}

@@ -94,7 +94,6 @@ import java.util.Map;
  *
  * @see MediaRouteButton
  * @see MediaRouteActionProvider
- * @hide
  */
 @RestrictTo(LIBRARY)
 public class MediaRouteDynamicControllerDialog extends AppCompatDialog {

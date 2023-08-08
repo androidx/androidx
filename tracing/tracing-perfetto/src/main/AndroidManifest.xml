@@ -14,7 +14,8 @@
   ~ limitations under the License.
   -->
 
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <application>
         <receiver
@@ -26,7 +27,26 @@
             <!-- Note: DUMP above highly limits who can call the receiver; Shell has DUMP perm. -->
             <intent-filter>
                 <action android:name="androidx.tracing.perfetto.action.ENABLE_TRACING" />
+                <action android:name="androidx.tracing.perfetto.action.ENABLE_TRACING_COLD_START" />
+                <action android:name="androidx.tracing.perfetto.action.DISABLE_TRACING_COLD_START" />
             </intent-filter>
+        </receiver>
+
+        <provider
+            android:name="androidx.startup.InitializationProvider"
+            android:authorities="${applicationId}.androidx-startup"
+            android:exported="false"
+            tools:node="merge">
+            <meta-data
+                android:name="androidx.tracing.perfetto.StartupTracingInitializer"
+                android:value="androidx.startup" />
+        </provider>
+        <receiver
+            android:name="androidx.tracing.perfetto.StartupTracingConfigStoreIsEnabledGate"
+            android:enabled="false"
+            android:exported="false"
+            android:directBootAware="false"
+            tools:targetApi="n">
         </receiver>
     </application>
 </manifest>

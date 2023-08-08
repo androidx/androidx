@@ -113,11 +113,13 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import java.util.concurrent.CountDownLatch
+import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.roundToInt
+import kotlinx.coroutines.asCoroutineDispatcher
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
@@ -352,7 +354,10 @@ class AndroidLayoutDrawTest {
         expectedCompositing: Boolean,
         expectedOverlappingRendering: Boolean
     ): Boolean {
-        val node = RenderNodeApi29(AndroidComposeView(activity)).apply {
+        val node = RenderNodeApi29(AndroidComposeView(
+            activity,
+            Executors.newFixedThreadPool(3).asCoroutineDispatcher()
+        )).apply {
             this.compositingStrategy = compositingStrategy
         }
         return expectedCompositing == node.isUsingCompositingLayer() &&
@@ -365,7 +370,10 @@ class AndroidLayoutDrawTest {
         expectedLayerType: Int,
         expectedOverlappingRendering: Boolean
     ): Boolean {
-        val node = RenderNodeApi23(AndroidComposeView(activity)).apply {
+        val node = RenderNodeApi23(AndroidComposeView(
+            activity,
+            Executors.newFixedThreadPool(3).asCoroutineDispatcher()
+        )).apply {
             this.compositingStrategy = compositingStrategy
         }
         return expectedLayerType == node.getLayerType() &&
@@ -378,7 +386,10 @@ class AndroidLayoutDrawTest {
         expectedOverlappingRendering: Boolean
     ): Boolean {
         val view = ViewLayer(
-            AndroidComposeView(activity),
+            AndroidComposeView(
+                activity,
+                Executors.newFixedThreadPool(3).asCoroutineDispatcher()
+            ),
             ViewLayerContainer(activity),
             {},
             {}).apply {
@@ -412,7 +423,10 @@ class AndroidLayoutDrawTest {
     private fun verifyRenderNode29CameraDistance(cameraDistance: Float): Boolean =
         // Verify that the internal render node has the camera distance property
         // given to the wrapper
-        RenderNodeApi29(AndroidComposeView(activity)).apply {
+        RenderNodeApi29(AndroidComposeView(
+            activity,
+            Executors.newFixedThreadPool(3).asCoroutineDispatcher()
+        )).apply {
             this.cameraDistance = cameraDistance
         }.dumpRenderNodeData().cameraDistance == cameraDistance
 
@@ -420,13 +434,19 @@ class AndroidLayoutDrawTest {
     private fun verifyRenderNode23CameraDistance(cameraDistance: Float): Boolean =
         // Verify that the internal render node has the camera distance property
         // given to the wrapper
-        RenderNodeApi23(AndroidComposeView(activity)).apply {
+        RenderNodeApi23(AndroidComposeView(
+            activity,
+            Executors.newFixedThreadPool(3).asCoroutineDispatcher()
+        )).apply {
             this.cameraDistance = cameraDistance
         }.dumpRenderNodeData().cameraDistance == -cameraDistance // Camera distance is negative
 
     private fun verifyViewLayerCameraDistance(cameraDistance: Float): Boolean {
         val layer = ViewLayer(
-            AndroidComposeView(activity),
+            AndroidComposeView(
+                activity,
+                Executors.newFixedThreadPool(3).asCoroutineDispatcher()
+            ),
             ViewLayerContainer(activity),
             {},
             {}
@@ -1933,11 +1953,12 @@ class AndroidLayoutDrawTest {
                     // This simulates a child that recomposes, for example due to a transition.
                     content(offset.value)
                 }
-                val assumeLayoutBeforeDraw = @Composable { _: Int ->
+                val assumeLayoutBeforeDraw = @Composable { value: Int ->
                     // This assumes a layout was done before the draw pass.
                     Layout(
                         content = {},
                         modifier = Modifier.drawBehind {
+                            assertEquals(offset.value, value)
                             assertTrue(laidOut)
                             latch.countDown()
                         }
@@ -2932,6 +2953,7 @@ class AndroidLayoutDrawTest {
     @Test
     fun instancesKeepDelegates() {
         var color by mutableStateOf(Color.Red)
+        var size by mutableStateOf(30)
         var m: Measurable? = null
         val layoutCaptureModifier = object : LayoutModifier {
             override fun MeasureScope.measure(
@@ -2940,15 +2962,22 @@ class AndroidLayoutDrawTest {
             ): MeasureResult {
                 m = measurable
                 val p = measurable.measure(constraints)
-                drawLatch.countDown()
                 return layout(p.width, p.height) {
                     p.place(0, 0)
                 }
             }
         }
+        val drawCaptureModifier = object : DrawModifier {
+            override fun ContentDrawScope.draw() {
+                drawLatch.countDown()
+            }
+        }
         activityTestRule.runOnUiThread {
             activity.setContent {
-                FixedSize(30, layoutCaptureModifier.background(color)) {}
+                FixedSize(
+                    size = size,
+                    modifier = layoutCaptureModifier.background(color).then(drawCaptureModifier)
+                ) {}
             }
         }
         assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
@@ -2957,6 +2986,7 @@ class AndroidLayoutDrawTest {
 
         activityTestRule.runOnUiThread {
             m = null
+            size = 40
             color = Color.Blue
         }
 

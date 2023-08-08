@@ -23,13 +23,14 @@ plugins {
 
 dependencies {
     implementation project(":appsearch:appsearch")
-    implementation project(':core:core')
+    implementation("androidx.core:core:1.8.0")
 
     annotationProcessor project(':appsearch:appsearch-compiler')
 
     androidTestImplementation project(':appsearch:appsearch')
     androidTestImplementation project(':appsearch:appsearch-local-storage')
     androidTestImplementation project(':appsearch:appsearch-test-util')
+    androidTestImplementation(libs.multidex)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)
@@ -40,7 +41,7 @@ dependencies {
 }
 
 androidx {
-    name = 'AppSearch Builtin Types'
+    name = "AppSearch Builtin Types"
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = '2021'
     description = 'Contains AppSearch Document classes and builders for a variety of common ' +
@@ -51,4 +52,8 @@ androidx {
 
 android {
     namespace "androidx.appsearch.builtintypes"
+
+    defaultConfig {
+        multiDexEnabled true
+    }
 }

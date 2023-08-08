@@ -49,7 +49,6 @@ import java.util.List;
  * NOTE: copied from
  * https://cs.android.com/android/platform/superproject/+/master:system/extras/simpleperf/app_api/
  *
- * @hide
  */
 @SuppressWarnings("StringConcatenationInLoop")
 @RequiresApi(28)

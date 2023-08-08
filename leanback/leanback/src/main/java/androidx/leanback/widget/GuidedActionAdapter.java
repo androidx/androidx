@@ -40,7 +40,6 @@ import java.util.List;
  * Presentation (view creation and state animation) is delegated to a {@link
  * GuidedActionsStylist}, while clients are notified of interactions via
  * {@link GuidedActionAdapter.ClickListener} and {@link GuidedActionAdapter.FocusListener}.
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 public class GuidedActionAdapter extends RecyclerView.Adapter {
@@ -281,7 +280,6 @@ public class GuidedActionAdapter extends RecyclerView.Adapter {
 
     /**
      * Used for serialization only.
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public List<GuidedAction> getActions() {

@@ -16,19 +16,25 @@
 
 package androidx.window.extensions.embedding;
 
+import static androidx.window.extensions.embedding.SplitAttributes.SplitType.createSplitTypeFromLegacySplitRatio;
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Build;
 import android.view.WindowMetrics;
 
+import androidx.annotation.FloatRange;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.window.extensions.WindowExtensions;
+import androidx.window.extensions.core.util.function.Predicate;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-import java.util.function.Predicate;
+import java.util.Objects;
 
 /**
  * Split configuration rules for split placeholders - activities used to occupy additional
@@ -58,12 +64,14 @@ public class SplitPlaceholderRule extends SplitRule {
     private final int mFinishPrimaryWithPlaceholder;
 
     SplitPlaceholderRule(@NonNull Intent placeholderIntent,
-            float splitRatio, @LayoutDirection int layoutDirection, boolean isSticky,
+            @NonNull SplitAttributes defaultSplitAttributes,
+            boolean isSticky,
             @SplitPlaceholderFinishBehavior int finishPrimaryWithPlaceholder,
             @NonNull Predicate<Activity> activityPredicate,
             @NonNull Predicate<Intent> intentPredicate,
-            @NonNull Predicate<WindowMetrics> parentWindowMetricsPredicate) {
-        super(parentWindowMetricsPredicate, splitRatio, layoutDirection);
+            @NonNull Predicate<WindowMetrics> parentWindowMetricsPredicate,
+            @Nullable String tag) {
+        super(parentWindowMetricsPredicate, defaultSplitAttributes, tag);
         mIsSticky = isSticky;
         mFinishPrimaryWithPlaceholder = finishPrimaryWithPlaceholder;
         mActivityPredicate = activityPredicate;
@@ -106,7 +114,10 @@ public class SplitPlaceholderRule extends SplitRule {
     }
 
     /**
-     * @deprecated Use {@link #getFinishPrimaryWithPlaceholder()} instead.
+     * @deprecated Use {@link #getFinishPrimaryWithPlaceholder()} instead starting with
+     * {@link WindowExtensions#VENDOR_API_LEVEL_2}. Only used if
+     * {@link #getFinishPrimaryWithPlaceholder()} can't be called on
+     * {@link WindowExtensions#VENDOR_API_LEVEL_1}.
      */
     @Deprecated
     @SplitPlaceholderFinishBehavior
@@ -117,8 +128,10 @@ public class SplitPlaceholderRule extends SplitRule {
     /**
      * Determines what happens with the primary container when all activities are finished in the
      * associated secondary/placeholder container.
-     * TODO(b/238905747): Add api guard for extensions.
+     *
+     * Since {@link WindowExtensions#VENDOR_API_LEVEL_2}
      */
+    // TODO(b/238905747): Add api guard for extensions.
     @SplitPlaceholderFinishBehavior
     public int getFinishPrimaryWithPlaceholder() {
         return mFinishPrimaryWithPlaceholder;
@@ -136,13 +149,51 @@ public class SplitPlaceholderRule extends SplitRule {
         private final Predicate<WindowMetrics> mParentWindowMetricsPredicate;
         @NonNull
         private final Intent mPlaceholderIntent;
+        // Keep for backward compatibility
+        @FloatRange(from = 0.0, to = 1.0)
         private float mSplitRatio;
-        @LayoutDirection
+        // Keep for backward compatibility
+        @SplitAttributes.ExtLayoutDirection
         private int mLayoutDirection;
+        private SplitAttributes mDefaultSplitAttributes;
         private boolean mIsSticky = false;
         @SplitPlaceholderFinishBehavior
         private int mFinishPrimaryWithPlaceholder = FINISH_ALWAYS;
+        @Nullable
+        private String mTag;
 
+        /**
+         * @deprecated Use {@link #Builder(Intent, Predicate, Predicate, Predicate)} starting with
+         * {@link WindowExtensions#VENDOR_API_LEVEL_2}. Only used if
+         * {@link #Builder(Intent, Predicate, Predicate, Predicate)} can't be called on
+         * {@link WindowExtensions#VENDOR_API_LEVEL_1}.
+         */
+        @Deprecated
+        @RequiresApi(Build.VERSION_CODES.N)
+        public Builder(@NonNull Intent placeholderIntent,
+                @NonNull java.util.function.Predicate<Activity> activityPredicate,
+                @NonNull java.util.function.Predicate<Intent> intentPredicate,
+                @NonNull java.util.function.Predicate<WindowMetrics> parentWindowMetricsPredicate) {
+            mActivityPredicate = activityPredicate::test;
+            mIntentPredicate = intentPredicate::test;
+            mPlaceholderIntent = placeholderIntent;
+            mParentWindowMetricsPredicate = parentWindowMetricsPredicate::test;
+        }
+
+        /**
+         * The {@link SplitPlaceholderRule} Builder constructor
+         * @param placeholderIntent the placeholder activity to launch if
+         *                         {@link SplitPlaceholderRule#checkParentMetrics(WindowMetrics)}
+         *                         is satisfied
+         * @param activityPredicate the {@link Predicate} to verify if a given {@link Activity}
+         *                         matches the rule
+         * @param intentPredicate the {@link Predicate} to verify if a given {@link Intent}
+         *                         matches the rule
+         * @param parentWindowMetricsPredicate the {@link Predicate} to verify if the placeholder
+         *                                     {@link Activity} should be launched with the given
+         *                                     {@link WindowMetrics}
+         * Since {@link WindowExtensions#VENDOR_API_LEVEL_2}
+         */
         public Builder(@NonNull Intent placeholderIntent,
                 @NonNull Predicate<Activity> activityPredicate,
                 @NonNull Predicate<Intent> intentPredicate,
@@ -153,17 +204,45 @@ public class SplitPlaceholderRule extends SplitRule {
             mParentWindowMetricsPredicate = parentWindowMetricsPredicate;
         }
 
-        /** @see SplitRule#getSplitRatio() */
+        /**
+         * @deprecated Use {@link #setDefaultSplitAttributes(SplitAttributes)} starting with
+         * {@link WindowExtensions#VENDOR_API_LEVEL_2}. Only used if
+         * {@link #setDefaultSplitAttributes(SplitAttributes)} can't be called on
+         * {@link WindowExtensions#VENDOR_API_LEVEL_1}. {@code splitRatio} will be translated to
+         * @link SplitAttributes.SplitType.ExpandContainersSplitType} for value
+         * {@code 0.0} and {@code 1.0}, and {@link SplitAttributes.SplitType.RatioSplitType} for
+         * value with range (0.0, 1.0).
+         */
+        @Deprecated
         @NonNull
-        public Builder setSplitRatio(float splitRatio) {
+        public Builder setSplitRatio(@FloatRange(from = 0.0, to = 1.0) float splitRatio) {
             mSplitRatio = splitRatio;
             return this;
         }
 
-        /** @see SplitRule#getLayoutDirection() */
+        /**
+         * @deprecated Use {@link #setDefaultSplitAttributes(SplitAttributes)} starting with
+         * {@link WindowExtensions#VENDOR_API_LEVEL_2}. Only used if
+         * {@link #setDefaultSplitAttributes(SplitAttributes)} can't be called on
+         * {@link WindowExtensions#VENDOR_API_LEVEL_1}.
+         */
+        @Deprecated
         @NonNull
-        public Builder setLayoutDirection(@LayoutDirection int layoutDirection) {
+        public Builder setLayoutDirection(@SplitAttributes.ExtLayoutDirection int layoutDirection) {
             mLayoutDirection = layoutDirection;
+            return this;
+        }
+
+        /**
+         * See {@link SplitPlaceholderRule#getDefaultSplitAttributes()} for reference.
+         * Overrides values if set in {@link #setSplitRatio(float)} and
+         * {@link #setLayoutDirection(int)}
+         *
+         * Since {@link WindowExtensions#VENDOR_API_LEVEL_2}
+         */
+        @NonNull
+        public Builder setDefaultSplitAttributes(@NonNull SplitAttributes attrs) {
+            mDefaultSplitAttributes = attrs;
             return this;
         }
 
@@ -175,7 +254,8 @@ public class SplitPlaceholderRule extends SplitRule {
         }
 
         /**
-         * @deprecated Use SplitPlaceholderRule#setFinishPrimaryWithPlaceholder(int)} instead.
+         * @deprecated Use SplitPlaceholderRule#setFinishPrimaryWithPlaceholder(int)} starting with
+         * {@link WindowExtensions#VENDOR_API_LEVEL_2}.
          */
         @Deprecated
         @NonNull
@@ -189,8 +269,9 @@ public class SplitPlaceholderRule extends SplitRule {
 
         /**
          * @see SplitPlaceholderRule#getFinishPrimaryWithPlaceholder()
-         * TODO(b/238905747): Add api guard for extensions.
+         * Since {@link WindowExtensions#VENDOR_API_LEVEL_2}
          */
+        // TODO(b/238905747): Add api guard for extensions.
         @NonNull
         public Builder setFinishPrimaryWithPlaceholder(
                 @SplitPlaceholderFinishBehavior int finishBehavior) {
@@ -198,12 +279,30 @@ public class SplitPlaceholderRule extends SplitRule {
             return this;
         }
 
+        /**
+         * @see SplitPlaceholderRule#getTag()
+         * Since {@link WindowExtensions#VENDOR_API_LEVEL_2}
+         */
+        @NonNull
+        public Builder setTag(@NonNull String tag) {
+            mTag = Objects.requireNonNull(tag);
+            return this;
+        }
+
         /** Builds a new instance of {@link SplitPlaceholderRule}. */
         @NonNull
         public SplitPlaceholderRule build() {
-            return new SplitPlaceholderRule(mPlaceholderIntent, mSplitRatio,
-                    mLayoutDirection, mIsSticky, mFinishPrimaryWithPlaceholder, mActivityPredicate,
-                    mIntentPredicate, mParentWindowMetricsPredicate);
+            // To provide compatibility with prior version of WM Jetpack library, where
+            // #setDefaultAttributes hasn't yet been supported and thus would not be set.
+            mDefaultSplitAttributes = (mDefaultSplitAttributes != null)
+                    ? mDefaultSplitAttributes
+                    : new SplitAttributes.Builder()
+                            .setSplitType(createSplitTypeFromLegacySplitRatio(mSplitRatio))
+                            .setLayoutDirection(mLayoutDirection)
+                            .build();
+            return new SplitPlaceholderRule(mPlaceholderIntent, mDefaultSplitAttributes, mIsSticky,
+                    mFinishPrimaryWithPlaceholder, mActivityPredicate,
+                    mIntentPredicate, mParentWindowMetricsPredicate, mTag);
         }
     }
 
@@ -237,7 +336,9 @@ public class SplitPlaceholderRule extends SplitRule {
     @Override
     public String toString() {
         return "SplitPlaceholderRule{"
-                + "mActivityPredicate=" + mActivityPredicate
+                + "mTag=" + getTag()
+                + ", mDefaultSplitAttributes=" + getDefaultSplitAttributes()
+                + ", mActivityPredicate=" + mActivityPredicate
                 + ", mIsSticky=" + mIsSticky
                 + ", mFinishPrimaryWithPlaceholder=" + mFinishPrimaryWithPlaceholder
                 + '}';

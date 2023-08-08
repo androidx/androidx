@@ -24,25 +24,20 @@ plugins {
 
 dependencies {
     api(libs.kotlinStdlib)
-    implementation("androidx.arch.core:core-common:2.1.0")
-    api("androidx.arch.core:core-runtime:2.1.0")
+    implementation("androidx.arch.core:core-common:2.2.0")
+    api("androidx.arch.core:core-runtime:2.2.0")
     api(project(":lifecycle:lifecycle-livedata-core"))
 
     testImplementation(project(":lifecycle:lifecycle-runtime-testing"))
-    testImplementation("androidx.arch.core:core-testing:2.1.0")
+    testImplementation("androidx.arch.core:core-testing:2.2.0")
     testImplementation(libs.kotlinCoroutinesTest)
     testImplementation(libs.junit)
     testImplementation(libs.mockitoCore4)
     testImplementation(libs.truth)
-
-    constraints {
-        implementation(project(":lifecycle:lifecycle-livedata-core"))
-        implementation(project(":lifecycle:lifecycle-livedata-ktx"))
-    }
 }
 
 androidx {
-    name = "Android Lifecycle LiveData"
+    name = "Lifecycle LiveData"
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2017"
     description = "Android Lifecycle LiveData"

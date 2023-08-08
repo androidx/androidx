@@ -38,6 +38,7 @@ import androidx.compose.ui.modifier.modifierLocalOf
 import androidx.compose.ui.modifier.modifierLocalProvider
 import androidx.compose.ui.platform.AccessibilityManager
 import androidx.compose.ui.platform.ClipboardManager
+import androidx.compose.ui.platform.PlatformTextInputSessionScope
 import androidx.compose.ui.platform.TextToolbar
 import androidx.compose.ui.platform.ViewConfiguration
 import androidx.compose.ui.platform.WindowInfo
@@ -48,6 +49,9 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import com.google.common.truth.Truth.assertThat
+import java.util.concurrent.Executors
+import kotlin.coroutines.CoroutineContext
+import kotlinx.coroutines.asCoroutineDispatcher
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -280,9 +284,7 @@ class ModifierLocalConsumerEntityTest {
 
     private fun changeModifier(modifier: Modifier) {
         with(layoutNode) {
-            if (isAttached) { forEachNodeCoordinator { it.detach() } }
             this.modifier = modifier
-            if (isAttached) { forEachNodeCoordinator { it.attach() } }
             owner?.onEndApplyChanges()
         }
     }
@@ -290,11 +292,14 @@ class ModifierLocalConsumerEntityTest {
     @OptIn(ExperimentalComposeUiApi::class)
     private class FakeOwner : Owner {
         val listeners = mutableVectorOf<() -> Unit>()
+
         @OptIn(InternalCoreApi::class)
         override var showLayoutBounds: Boolean = false
         override val snapshotObserver: OwnerSnapshotObserver = OwnerSnapshotObserver { it.invoke() }
 
         override val modifierLocalManager: ModifierLocalManager = ModifierLocalManager(this)
+        override val coroutineContext: CoroutineContext =
+            Executors.newFixedThreadPool(3).asCoroutineDispatcher()
 
         override fun registerOnEndApplyChangesListener(listener: () -> Unit) {
             listeners += listener
@@ -313,10 +318,15 @@ class ModifierLocalConsumerEntityTest {
         override fun onRequestMeasure(
             layoutNode: LayoutNode,
             affectsLookahead: Boolean,
-            forceRequest: Boolean
-        ) {}
-        override fun onAttach(node: LayoutNode) = node.forEachNodeCoordinator { it.attach() }
-        override fun onDetach(node: LayoutNode) = node.forEachNodeCoordinator { it.detach() }
+            forceRequest: Boolean,
+            scheduleMeasureAndLayout: Boolean
+        ) {
+        }
+
+        override fun onAttach(node: LayoutNode) =
+            node.forEachNodeCoordinator { it.onLayoutNodeAttach() }
+
+        override fun onDetach(node: LayoutNode) {}
 
         override val root: LayoutNode
             get() = TODO("Not yet implemented")
@@ -344,6 +354,7 @@ class ModifierLocalConsumerEntityTest {
             get() = TODO("Not yet implemented")
         override val windowInfo: WindowInfo
             get() = TODO("Not yet implemented")
+
         @Deprecated(
             "fontLoader is deprecated, use fontFamilyResolver",
             replaceWith = ReplaceWith("fontFamilyResolver")
@@ -366,6 +377,7 @@ class ModifierLocalConsumerEntityTest {
 
         override fun createLayer(drawBlock: (Canvas) -> Unit, invalidateParentLayer: () -> Unit) =
             TODO("Not yet implemented")
+
         override fun onRequestRelayout(
             layoutNode: LayoutNode,
             affectsLookahead: Boolean,
@@ -378,10 +390,13 @@ class ModifierLocalConsumerEntityTest {
 
         override fun calculatePositionInWindow(localPosition: Offset) =
             TODO("Not yet implemented")
+
         override fun calculateLocalPosition(positionInWindow: Offset) =
             TODO("Not yet implemented")
+
         override fun requestFocus() =
             TODO("Not yet implemented")
+
         override fun measureAndLayout(sendPointerUpdate: Boolean) =
             TODO("Not yet implemented")
 
@@ -389,14 +404,23 @@ class ModifierLocalConsumerEntityTest {
             TODO("Not yet implemented")
         }
 
-        override fun forceMeasureTheSubtree(layoutNode: LayoutNode) =
+        override fun forceMeasureTheSubtree(layoutNode: LayoutNode, affectsLookahead: Boolean) =
             TODO("Not yet implemented")
+
         override fun onSemanticsChange() =
             TODO("Not yet implemented")
+
         override fun onLayoutChange(layoutNode: LayoutNode) =
             TODO("Not yet implemented")
+
         override fun getFocusDirection(keyEvent: KeyEvent) =
             TODO("Not yet implemented")
+
+        override suspend fun textInputSession(
+            session: suspend PlatformTextInputSessionScope.() -> Nothing
+        ): Nothing {
+            TODO("Not yet implemented")
+        }
     }
 }
 

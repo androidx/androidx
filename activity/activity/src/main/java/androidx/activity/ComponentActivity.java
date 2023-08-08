@@ -69,7 +69,6 @@ import androidx.annotation.LayoutRes;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.ActivityOptionsCompat;
@@ -81,7 +80,6 @@ import androidx.core.app.PictureInPictureModeChangedInfo;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.OnConfigurationChangedProvider;
 import androidx.core.content.OnTrimMemoryProvider;
-import androidx.core.os.BuildCompat;
 import androidx.core.util.Consumer;
 import androidx.core.view.MenuHost;
 import androidx.core.view.MenuHostHelper;
@@ -172,7 +170,7 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
                 }
             });
 
-    private final ReportFullyDrawnExecutor mReportFullyDrawnExecutor = createFullyDrawnExecutor();
+    final ReportFullyDrawnExecutor mReportFullyDrawnExecutor = createFullyDrawnExecutor();
 
     @NonNull
     final FullyDrawnReporter mFullyDrawnReporter = new FullyDrawnReporter(
@@ -314,6 +312,7 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
                     if (!isChangingConfigurations()) {
                         getViewModelStore().clear();
                     }
+                    mReportFullyDrawnExecutor.activityDestroyed();
                 }
             }
         });
@@ -368,7 +367,6 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
      * If your ComponentActivity is annotated with {@link ContentView}, this will
      * call {@link #setContentView(int)} for you.
      */
-    @OptIn(markerClass = BuildCompat.PrereleaseSdkCheck.class)
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         // Restore the Saved State first so that it is available to
@@ -377,7 +375,7 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
         mContextAwareHelper.dispatchOnContextAvailable(this);
         super.onCreate(savedInstanceState);
         ReportFragment.injectIfNeededIn(this);
-        if (BuildCompat.isAtLeastT()) {
+        if (Build.VERSION.SDK_INT >= 33) {
             mOnBackPressedDispatcher.setOnBackInvokedDispatcher(
                     Api33Impl.getOnBackInvokedDispatcher(this)
             );
@@ -459,14 +457,14 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
 
     @Override
     public void setContentView(@LayoutRes int layoutResID) {
-        initViewTreeOwners();
+        initializeViewTreeOwners();
         mReportFullyDrawnExecutor.viewCreated(getWindow().getDecorView());
         super.setContentView(layoutResID);
     }
 
     @Override
     public void setContentView(@SuppressLint({"UnknownNullness", "MissingNullability"}) View view) {
-        initViewTreeOwners();
+        initializeViewTreeOwners();
         mReportFullyDrawnExecutor.viewCreated(getWindow().getDecorView());
         super.setContentView(view);
     }
@@ -475,7 +473,7 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
     public void setContentView(@SuppressLint({"UnknownNullness", "MissingNullability"}) View view,
             @SuppressLint({"UnknownNullness", "MissingNullability"})
                     ViewGroup.LayoutParams params) {
-        initViewTreeOwners();
+        initializeViewTreeOwners();
         mReportFullyDrawnExecutor.viewCreated(getWindow().getDecorView());
         super.setContentView(view, params);
     }
@@ -484,14 +482,17 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
     public void addContentView(@SuppressLint({"UnknownNullness", "MissingNullability"}) View view,
             @SuppressLint({"UnknownNullness", "MissingNullability"})
                     ViewGroup.LayoutParams params) {
-        initViewTreeOwners();
+        initializeViewTreeOwners();
         mReportFullyDrawnExecutor.viewCreated(getWindow().getDecorView());
         super.addContentView(view, params);
     }
 
-    private void initViewTreeOwners() {
-        // Set the view tree owners before setting the content view so that the inflation process
-        // and attach listeners will see them already present
+    /**
+     * Sets the view tree owners before setting the content view so that the
+     * inflation process and attach listeners will see them already present.
+     */
+    @CallSuper
+    public void initializeViewTreeOwners() {
         ViewTreeLifecycleOwner.set(getWindow().getDecorView(), this);
         ViewTreeViewModelStoreOwner.set(getWindow().getDecorView(), this);
         ViewTreeSavedStateRegistryOwner.set(getWindow().getDecorView(), this);
@@ -685,10 +686,16 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
      * {@link android.app.Activity#onBackPressed()} is invoked.
      *
      * @see #getOnBackPressedDispatcher()
+     *
+     * @deprecated This method has been deprecated in favor of using the
+     * {@link OnBackPressedDispatcher} via {@link #getOnBackPressedDispatcher()}.
+     * The OnBackPressedDispatcher controls how back button events are dispatched
+     * to one or more {@link OnBackPressedCallback} objects.
      */
-    @SuppressWarnings("deprecation")
     @Override
     @MainThread
+    @CallSuper
+    @Deprecated
     public void onBackPressed() {
         mOnBackPressedDispatcher.onBackPressed();
     }
@@ -1090,8 +1097,6 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
     public void reportFullyDrawn() {
         try {
             if (Trace.isEnabled()) {
-                // TODO: Ideally we'd include getComponentName() (as later versions of platform
-                //  do), but b/175345114 needs to be addressed.
                 Trace.beginSection("reportFullyDrawn() for ComponentActivity");
             }
 
@@ -1141,6 +1146,8 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
 
     private interface ReportFullyDrawnExecutor extends Executor {
         void viewCreated(@NonNull View view);
+
+        void activityDestroyed();
     }
 
     static class ReportFullyDrawnExecutorApi1 implements ReportFullyDrawnExecutor {
@@ -1148,6 +1155,10 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
 
         @Override
         public void viewCreated(@NonNull View view) {
+        }
+
+        @Override
+        public void activityDestroyed() {
         }
 
         /**
@@ -1180,6 +1191,12 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
                 mOnDrawScheduled = true;
                 view.getViewTreeObserver().addOnDrawListener(this);
             }
+        }
+
+        @Override
+        public void activityDestroyed() {
+            getWindow().getDecorView().removeCallbacks(this);
+            getWindow().getDecorView().getViewTreeObserver().removeOnDrawListener(this);
         }
 
         /**

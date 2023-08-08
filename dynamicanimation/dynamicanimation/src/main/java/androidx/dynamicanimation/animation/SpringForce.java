@@ -209,7 +209,6 @@ public final class SpringForce implements Force {
     /*********************** Below are private APIs *********************/
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Override
@@ -224,7 +223,6 @@ public final class SpringForce implements Force {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Override

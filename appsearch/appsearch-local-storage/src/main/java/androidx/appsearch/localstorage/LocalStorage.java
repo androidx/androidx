@@ -147,7 +147,7 @@ public class LocalStorage {
              * <p>If no logger is provided, nothing would be returned/logged. There is no default
              * logger implementation in AppSearch.
              *
-             * @hide
+             * @exportToFramework:hide
              */
             @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
             @NonNull
@@ -167,12 +167,7 @@ public class LocalStorage {
         }
     }
 
-    /**
-     * Contains information relevant to creating a global search session.
-     *
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    /** Contains information relevant to creating a global search session. */
     public static final class GlobalSearchContext {
         final Context mContext;
         final Executor mExecutor;
@@ -232,7 +227,7 @@ public class LocalStorage {
              * <p>If no logger is provided, nothing would be returned/logged. There is no default
              * logger implementation in AppSearch.
              *
-             * @hide
+             * @exportToFramework:hide
              */
             @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
             @NonNull
@@ -283,12 +278,13 @@ public class LocalStorage {
     /**
      * Opens a new {@link GlobalSearchSession} on this storage.
      *
+     * <p>The {@link GlobalSearchSession} opened from this {@link LocalStorage} allows the user to
+     * search across all local databases within the {@link LocalStorage} of this app, however
+     * cross-app search is not possible with {@link LocalStorage}.
+     *
      * <p>This process requires a native search library. If it's not created, the initialization
      * process will create one.
-     *
-     * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @NonNull
     public static ListenableFuture<GlobalSearchSession> createGlobalSearchSessionAsync(
             @NonNull GlobalSearchContext context) {
@@ -344,6 +340,7 @@ public class LocalStorage {
         mAppSearchImpl = AppSearchImpl.create(
                 icingDir,
                 new UnlimitedLimitConfig(),
+                new DefaultIcingOptionsConfig(),
                 initStatsBuilder,
                 new JetpackOptimizeStrategy(),
                 /*visibilityChecker=*/null);

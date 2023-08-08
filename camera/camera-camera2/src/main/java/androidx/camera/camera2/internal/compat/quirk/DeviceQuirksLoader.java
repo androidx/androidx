@@ -86,6 +86,12 @@ public class DeviceQuirksLoader {
         if (ExtraSupportedOutputSizeQuirk.load()) {
             quirks.add(new ExtraSupportedOutputSizeQuirk());
         }
+        if (InvalidVideoProfilesQuirk.load()) {
+            quirks.add(new InvalidVideoProfilesQuirk());
+        }
+        if (SmallDisplaySizeQuirk.load()) {
+            quirks.add(new SmallDisplaySizeQuirk());
+        }
 
         return quirks;
     }

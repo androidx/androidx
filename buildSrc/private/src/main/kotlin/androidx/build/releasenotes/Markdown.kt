@@ -17,18 +17,23 @@
 package androidx.build.releasenotes
 
 /** Classes for generating markdown */
-
 enum class HeaderType {
-    H1, H2, H3, H4, H5, H6;
+    H1,
+    H2,
+    H3,
+    H4,
+    H5,
+    H6;
+
     companion object {
         fun getHeaderTag(tag: HeaderType): String {
             when (tag) {
-                H1 -> return("#")
-                H2 -> return("##")
-                H3 -> return("###")
-                H4 -> return("####")
-                H5 -> return("#####")
-                H6 -> return("######")
+                H1 -> return ("#")
+                H2 -> return ("##")
+                H3 -> return ("###")
+                H4 -> return ("####")
+                H5 -> return ("#####")
+                H6 -> return ("######")
             }
         }
     }
@@ -42,6 +47,7 @@ open class MarkdownHeader {
     override fun toString(): String {
         return HeaderType.getHeaderTag(markdownType) + ' ' + text
     }
+
     fun print() {
         println(toString())
     }
@@ -61,10 +67,9 @@ open class MarkdownLink {
     }
 }
 
-open class MarkdownBoldText(
-    inputText: String
-) {
+open class MarkdownBoldText(inputText: String) {
     var text: String = ""
+
     init {
         text = inputText
     }
@@ -78,10 +83,9 @@ open class MarkdownBoldText(
     }
 }
 
-open class MarkdownComment(
-    inputText: String
-) {
+open class MarkdownComment(inputText: String) {
     var text: String = ""
+
     init {
         text = inputText
     }

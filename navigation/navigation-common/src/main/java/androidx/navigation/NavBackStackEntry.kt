@@ -84,14 +84,7 @@ public class NavBackStackEntry private constructor(
         maxLifecycle = entry.maxLifecycle
     }
 
-    /**
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public companion object {
-        /**
-         * @hide
-         */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public fun create(
             context: Context?,
@@ -269,6 +262,15 @@ public class NavBackStackEntry private constructor(
         result = 31 * result + lifecycle.hashCode()
         result = 31 * result + savedStateRegistry.hashCode()
         return result
+    }
+
+    override fun toString(): String {
+        val sb = StringBuilder()
+        sb.append(javaClass.simpleName)
+        sb.append("($id)")
+        sb.append(" destination=")
+        sb.append(destination)
+        return sb.toString()
     }
 
     /**

@@ -20,6 +20,7 @@ import android.text.TextPaint
 import androidx.annotation.VisibleForTesting
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.geometry.isSpecified
+import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Paint
@@ -27,12 +28,12 @@ import androidx.compose.ui.graphics.PaintingStyle
 import androidx.compose.ui.graphics.ShaderBrush
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.asComposePaint
 import androidx.compose.ui.graphics.drawscope.DrawStyle
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.isSpecified
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.graphics.toComposePaint
 import androidx.compose.ui.text.platform.extensions.correctBlurRadius
 import androidx.compose.ui.text.style.TextDecoration
 import kotlin.math.roundToInt
@@ -43,11 +44,11 @@ internal class AndroidTextPaint(flags: Int, density: Float) : TextPaint(flags) {
     }
 
     // A wrapper to use Compose Paint APIs on this TextPaint
-    private val composePaint: Paint = this.toComposePaint()
+    private val composePaint: Paint = this.asComposePaint()
 
     private var textDecoration: TextDecoration = TextDecoration.None
 
-    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    @VisibleForTesting
     internal var shadow: Shadow = Shadow.None
 
     private var drawStyle: DrawStyle? = null
@@ -79,7 +80,6 @@ internal class AndroidTextPaint(flags: Int, density: Float) : TextPaint(flags) {
     }
 
     fun setColor(color: Color) {
-        color.toArgb()
         if (color.isSpecified) {
             composePaint.color = color
             composePaint.shader = null
@@ -125,6 +125,10 @@ internal class AndroidTextPaint(flags: Int, density: Float) : TextPaint(flags) {
             }
         }
     }
+
+    // BlendMode is only available to DrawScope.drawText.
+    // not intended to be used by TextStyle/SpanStyle.
+    var blendMode: BlendMode by composePaint::blendMode
 }
 
 /**

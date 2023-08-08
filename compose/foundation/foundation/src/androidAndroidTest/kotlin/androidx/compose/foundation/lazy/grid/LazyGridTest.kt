@@ -18,6 +18,7 @@ package androidx.compose.foundation.lazy.grid
 
 import android.os.Build
 import androidx.compose.foundation.AutoTestFrameClock
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.scrollBy
@@ -86,6 +87,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
+@OptIn(ExperimentalFoundationApi::class)
 @MediumTest
 @RunWith(Parameterized::class)
 class LazyGridTest(
@@ -878,7 +880,8 @@ class LazyGridTest(
             .assertCrossAxisStartPositionInRootIsEqualTo(gridCrossAxisSizeDp * 2 / 3)
         rule.onNodeWithTag(tags[1])
             .assertCrossAxisStartPositionInRootIsEqualTo(gridCrossAxisSizeDp / 3)
-        rule.onNodeWithTag(tags[2]).assertCrossAxisStartPositionInRootIsEqualTo(0.dp)
+        rule.onNodeWithTag(tags[2])
+            .assertCrossAxisStartPositionInRootIsEqualTo(0.dp)
     }
 
     @Test
@@ -1463,6 +1466,54 @@ class LazyGridTest(
 
         expanded = true
         rule.waitForIdle()
+    }
+
+    @Test
+    fun fixedSizeCell_forcesFixedSize() {
+        val state = LazyGridState()
+        val itemSizeDp = with(rule.density) { 100.toDp() }
+        rule.setContent {
+            LazyGrid(
+                cells = GridCells.FixedSize(itemSizeDp * 2),
+                modifier = Modifier.axisSize(crossAxis = itemSizeDp * 5, mainAxis = itemSizeDp * 5),
+                state = state
+            ) {
+                items(10) { index ->
+                    Box(Modifier.size(itemSizeDp).testTag(index.toString()))
+                }
+            }
+        }
+
+        rule.onNodeWithTag("0")
+            .assertCrossAxisStartPositionInRootIsEqualTo(0.dp)
+            .assertCrossAxisSizeIsEqualTo(itemSizeDp * 2)
+        rule.onNodeWithTag("1")
+            .assertCrossAxisStartPositionInRootIsEqualTo(itemSizeDp * 2f)
+            .assertCrossAxisSizeIsEqualTo(itemSizeDp * 2)
+    }
+
+    @Test
+    fun fixedSizeCell_smallContainer_matchesContainer() {
+        val state = LazyGridState()
+        val itemSizeDp = with(rule.density) { 100.toDp() }
+        rule.setContent {
+            LazyGrid(
+                cells = GridCells.FixedSize(itemSizeDp * 2),
+                modifier = Modifier.axisSize(crossAxis = itemSizeDp, mainAxis = itemSizeDp * 5),
+                state = state
+            ) {
+                items(10) { index ->
+                    Box(Modifier.size(itemSizeDp).testTag(index.toString()))
+                }
+            }
+        }
+
+        rule.onNodeWithTag("0")
+            .assertCrossAxisStartPositionInRootIsEqualTo(0.dp)
+            .assertCrossAxisSizeIsEqualTo(itemSizeDp)
+        rule.onNodeWithTag("1")
+            .assertCrossAxisStartPositionInRootIsEqualTo(0.dp)
+            .assertCrossAxisSizeIsEqualTo(itemSizeDp)
     }
 }
 

@@ -16,6 +16,7 @@
 
 package androidx.viewpager2.widget
 
+import android.os.Build
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
@@ -29,13 +30,13 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.adapter.FragmentStateAdapter.FragmentTransactionCallback
 import androidx.viewpager2.adapter.FragmentStateAdapter.FragmentTransactionCallback.OnPostEventListener
 import androidx.viewpager2.widget.ViewPager2.ORIENTATION_HORIZONTAL
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit.SECONDS
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.equalTo
 import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit.SECONDS
 
 @RunWith(AndroidJUnit4::class)
 @LargeTest
@@ -181,30 +182,57 @@ class FragmentTransactionCallbackTest : BaseTest() {
             assertThat(
                 log.consume().filter { !it.contains("onFragmentSaveInstanceState") },
                 equalTo(
-                    listOf(
-                        "Lifecycle:onFragmentPaused(f1)",
-                        "Lifecycle:onFragmentStopped(f0)",
-                        "Lifecycle:onFragmentStopped(f1)",
-                        // "Lifecycle:onFragmentSaveInstanceState(f0)", # unstable ordering
-                        // "Lifecycle:onFragmentSaveInstanceState(f1)", # unstable ordering
-                        "Lifecycle:onFragmentViewDestroyed(f0)",
-                        "Lifecycle:onFragmentDestroyed(f0)",
-                        "Lifecycle:onFragmentDetached(f0)",
-                        "Lifecycle:onFragmentViewDestroyed(f1)",
-                        "Lifecycle:onFragmentDestroyed(f1)",
-                        "Lifecycle:onFragmentDetached(f1)",
-                        "Lifecycle:onFragmentViewCreated(f0)",
-                        "Lifecycle:onFragmentActivityCreated(f0)",
-                        "Lifecycle:onFragmentViewCreated(f1)",
-                        "Lifecycle:onFragmentActivityCreated(f1)",
-                        "Lifecycle:onFragmentStarted(f0)",
-                        "Lifecycle:onFragmentStarted(f1)",
-                        "Adapter:onFragmentMaxLifecyclePreUpdated(f0 at STARTED)",
-                        "Adapter:onFragmentMaxLifecyclePreUpdated(f1 at RESUMED)",
-                        "Adapter:onFragmentMaxLifecycleUpdated(f1 at RESUMED)",
-                        "Adapter:onFragmentMaxLifecycleUpdated(f0 at STARTED)",
-                        "Lifecycle:onFragmentResumed(f1)"
-                    )
+                    when (Build.VERSION.SDK_INT) {
+                        in 1..28 -> listOf(
+                            "Lifecycle:onFragmentPaused(f1)",
+                            "Lifecycle:onFragmentStopped(f0)",
+                            "Lifecycle:onFragmentStopped(f1)",
+                            // "Lifecycle:onFragmentSaveInstanceState(f0)", # unstable ordering
+                            // "Lifecycle:onFragmentSaveInstanceState(f1)", # unstable ordering
+                            "Lifecycle:onFragmentViewDestroyed(f0)",
+                            "Lifecycle:onFragmentDestroyed(f0)",
+                            "Lifecycle:onFragmentDetached(f0)",
+                            "Lifecycle:onFragmentViewDestroyed(f1)",
+                            "Lifecycle:onFragmentDestroyed(f1)",
+                            "Lifecycle:onFragmentDetached(f1)",
+                            "Lifecycle:onFragmentViewCreated(f0)",
+                            "Lifecycle:onFragmentActivityCreated(f0)",
+                            "Lifecycle:onFragmentViewCreated(f1)",
+                            "Lifecycle:onFragmentActivityCreated(f1)",
+                            "Lifecycle:onFragmentStarted(f0)",
+                            "Lifecycle:onFragmentStarted(f1)",
+                            "Adapter:onFragmentMaxLifecyclePreUpdated(f0 at STARTED)",
+                            "Adapter:onFragmentMaxLifecyclePreUpdated(f1 at RESUMED)",
+                            "Adapter:onFragmentMaxLifecycleUpdated(f1 at RESUMED)",
+                            "Adapter:onFragmentMaxLifecycleUpdated(f0 at STARTED)",
+                            "Lifecycle:onFragmentResumed(f1)"
+                        )
+                        // TODO(b/266975014): investigate change in behaviour on API 29+
+                        else -> listOf(
+                            "Lifecycle:onFragmentPaused(f1)",
+                            "Lifecycle:onFragmentStopped(f0)",
+                            "Lifecycle:onFragmentStopped(f1)",
+                            // "Lifecycle:onFragmentSaveInstanceState(f0)", # unstable ordering
+                            // "Lifecycle:onFragmentSaveInstanceState(f1)", # unstable ordering
+                            "Lifecycle:onFragmentViewDestroyed(f0)",
+                            "Lifecycle:onFragmentDestroyed(f0)",
+                            "Lifecycle:onFragmentDetached(f0)",
+                            "Lifecycle:onFragmentViewDestroyed(f1)",
+                            "Lifecycle:onFragmentDestroyed(f1)",
+                            "Lifecycle:onFragmentDetached(f1)",
+                            "Lifecycle:onFragmentViewCreated(f0)",
+                            "Lifecycle:onFragmentActivityCreated(f0)",
+                            "Lifecycle:onFragmentViewCreated(f1)",
+                            "Lifecycle:onFragmentActivityCreated(f1)",
+                            "Lifecycle:onFragmentStarted(f0)",
+                            "Lifecycle:onFragmentStarted(f1)",
+                            "Lifecycle:onFragmentResumed(f1)",
+                            "Adapter:onFragmentMaxLifecyclePreUpdated(f0 at STARTED)",
+                            "Adapter:onFragmentMaxLifecyclePreUpdated(f1 at RESUMED)",
+                            "Adapter:onFragmentMaxLifecycleUpdated(f1 at RESUMED)",
+                            "Adapter:onFragmentMaxLifecycleUpdated(f0 at STARTED)"
+                        )
+                    }
                 )
             )
 

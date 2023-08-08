@@ -21,14 +21,15 @@ import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.LocalElevationOverlay
 import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
 import androidx.compose.material.contentColorFor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
@@ -37,6 +38,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.center
@@ -82,13 +84,19 @@ fun PullRefreshIndicator(
         derivedStateOf { refreshing || state.position > 0.5f }
     }
 
-    Surface(
+    // Apply an elevation overlay if needed. Note that we aren't using Surface here, as we do not
+    // want its input-blocking behaviour, since the indicator is typically displayed above other
+    // (possibly) interactive content.
+    val elevationOverlay = LocalElevationOverlay.current
+    val color = elevationOverlay?.apply(color = backgroundColor, elevation = Elevation)
+        ?: backgroundColor
+
+    Box(
         modifier = modifier
             .size(IndicatorSize)
-            .pullRefreshIndicatorTransform(state, scale),
-        shape = SpinnerShape,
-        color = backgroundColor,
-        elevation = if (showElevation) Elevation else 0.dp,
+            .pullRefreshIndicatorTransform(state, scale)
+            .shadow(if (showElevation) Elevation else 0.dp, SpinnerShape, clip = true)
+            .background(color = color, shape = SpinnerShape)
     ) {
         Crossfade(
             targetState = refreshing,

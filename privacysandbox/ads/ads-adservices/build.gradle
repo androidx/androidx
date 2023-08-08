@@ -28,7 +28,7 @@ dependencies {
     api(libs.kotlinStdlib)
     api(libs.kotlinCoroutinesCore)
     implementation("androidx.core:core-ktx:1.8.0")
-    api(projectOrArtifact(":annotation:annotation"))
+    api("androidx.annotation:annotation:1.6.0")
 
     androidTestImplementation(libs.junit)
     androidTestImplementation(libs.kotlinTestJunit)
@@ -44,13 +44,11 @@ dependencies {
 }
 
 android {
-    compileSdk = 33
-    compileSdkExtension = 4
     namespace "androidx.privacysandbox.ads.adservices"
 }
 
 androidx {
-    name = "Androidx library for Privacy Preserving APIs."
+    name = "Privacy Sandbox for Ad Services"
     type = LibraryType.PUBLISHED_LIBRARY
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2022"

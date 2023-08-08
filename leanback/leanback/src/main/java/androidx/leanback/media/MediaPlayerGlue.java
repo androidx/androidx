@@ -52,7 +52,6 @@ import java.util.List;
  * <li>{@link androidx.leanback.widget.PlaybackControlsRow.ThumbsUpAction}</li>
  * </ul>
  *
- * @hide
  * @deprecated Use {@link MediaPlayerAdapter} with {@link PlaybackTransportControlGlue} or
  *             {@link PlaybackBannerControlGlue}.
  */

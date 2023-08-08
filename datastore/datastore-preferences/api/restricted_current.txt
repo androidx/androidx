@@ -10,10 +10,10 @@ package androidx.datastore.preferences {
   }
 
   public final class SharedPreferencesMigrationKt {
-    method public static androidx.datastore.migrations.SharedPreferencesMigration<androidx.datastore.preferences.core.Preferences> SharedPreferencesMigration(kotlin.jvm.functions.Function0<? extends android.content.SharedPreferences> produceSharedPreferences, optional java.util.Set<java.lang.String> keysToMigrate);
-    method public static androidx.datastore.migrations.SharedPreferencesMigration<androidx.datastore.preferences.core.Preferences> SharedPreferencesMigration(kotlin.jvm.functions.Function0<? extends android.content.SharedPreferences> produceSharedPreferences);
-    method public static androidx.datastore.migrations.SharedPreferencesMigration<androidx.datastore.preferences.core.Preferences> SharedPreferencesMigration(android.content.Context context, String sharedPreferencesName, optional java.util.Set<java.lang.String> keysToMigrate);
     method public static androidx.datastore.migrations.SharedPreferencesMigration<androidx.datastore.preferences.core.Preferences> SharedPreferencesMigration(android.content.Context context, String sharedPreferencesName);
+    method public static androidx.datastore.migrations.SharedPreferencesMigration<androidx.datastore.preferences.core.Preferences> SharedPreferencesMigration(android.content.Context context, String sharedPreferencesName, optional java.util.Set<java.lang.String> keysToMigrate);
+    method public static androidx.datastore.migrations.SharedPreferencesMigration<androidx.datastore.preferences.core.Preferences> SharedPreferencesMigration(kotlin.jvm.functions.Function0<? extends android.content.SharedPreferences> produceSharedPreferences);
+    method public static androidx.datastore.migrations.SharedPreferencesMigration<androidx.datastore.preferences.core.Preferences> SharedPreferencesMigration(kotlin.jvm.functions.Function0<? extends android.content.SharedPreferences> produceSharedPreferences, optional java.util.Set<java.lang.String> keysToMigrate);
   }
 
 }

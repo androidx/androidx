@@ -24,9 +24,7 @@ import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.FloatBuffer
 
-/**
- * A list of triangles drawn with a texture using OpenGL ES 2.0.
- */
+/** A list of triangles drawn with a texture using OpenGL ES 2.0. */
 internal class Gles2TexturedTriangleList(
     private val program: Program,
     triangleCoords: FloatArray,
@@ -37,10 +35,8 @@ internal class Gles2TexturedTriangleList(
             ("must be multiple of VERTICES_PER_TRIANGLE * COORDS_PER_VERTEX coordinates")
         }
         require(textureCoords.size % (VERTICES_PER_TRIANGLE * TEXTURE_COORDS_PER_VERTEX) == 0) {
-            (
-                "must be multiple of VERTICES_PER_TRIANGLE * NUM_TEXTURE_COMPONENTS texture " +
-                    "coordinates"
-                )
+            ("must be multiple of VERTICES_PER_TRIANGLE * NUM_TEXTURE_COMPONENTS texture " +
+                "coordinates")
         }
     }
 
@@ -48,7 +44,8 @@ internal class Gles2TexturedTriangleList(
     private val vertexBuffer =
         ByteBuffer.allocateDirect(triangleCoords.size * BYTES_PER_FLOAT)
             .apply { order(ByteOrder.nativeOrder()) }
-            .asFloatBuffer().apply {
+            .asFloatBuffer()
+            .apply {
                 put(triangleCoords)
                 position(0)
             }
@@ -57,12 +54,13 @@ internal class Gles2TexturedTriangleList(
     private val textureCoordsBuffer =
         ByteBuffer.allocateDirect(textureCoords.size * BYTES_PER_FLOAT)
             .apply { order(ByteOrder.nativeOrder()) }
-            .asFloatBuffer().apply {
+            .asFloatBuffer()
+            .apply {
                 put(textureCoords)
                 position(0)
             }
 
-    /** Number of coordinates in this triangle list.  */
+    /** Number of coordinates in this triangle list. */
     private val numCoords = triangleCoords.size / COORDS_PER_VERTEX
 
     /**
@@ -76,49 +74,49 @@ internal class Gles2TexturedTriangleList(
 
         // Draw the triangle list.
         GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, numCoords)
-        if (CHECK_GL_ERRORS) checkGlError(
-            "glDrawArrays"
-        )
+        if (CHECK_GL_ERRORS) checkGlError("glDrawArrays")
     }
 
-    /** OpenGL shaders for drawing textured triangle lists.  */
+    /** OpenGL shaders for drawing textured triangle lists. */
     class Program {
-        /** ID OpenGL uses to identify this program.  */
+        /** ID OpenGL uses to identify this program. */
         private val programId: Int
 
-        /** Handle for uMvpMatrix uniform in vertex shader.  */
+        /** Handle for uMvpMatrix uniform in vertex shader. */
         private val mvpMatrixHandle: Int
 
-        /** Handle for aPosition attribute in vertex shader.  */
+        /** Handle for aPosition attribute in vertex shader. */
         private val positionHandle: Int
 
-        /** Handle for aTextureCoordinate uniform in fragment shader.  */
+        /** Handle for aTextureCoordinate uniform in fragment shader. */
         private val textureCoordinateHandle: Int
 
         companion object {
-            /** Trivial vertex shader that transforms the input vertex by the MVP matrix.  */
-            private const val VERTEX_SHADER_CODE = "" +
-                "uniform mat4 uMvpMatrix;\n" +
-                "attribute vec4 aPosition;\n" +
-                "attribute vec4 aTextureCoordinate;\n" +
-                "varying vec2 textureCoordinate;\n" +
-                "void main() {\n" +
-                "    gl_Position = uMvpMatrix * aPosition;\n" +
-                "    textureCoordinate = aTextureCoordinate.xy;" +
-                "}\n"
+            /** Trivial vertex shader that transforms the input vertex by the MVP matrix. */
+            private const val VERTEX_SHADER_CODE =
+                "" +
+                    "uniform mat4 uMvpMatrix;\n" +
+                    "attribute vec4 aPosition;\n" +
+                    "attribute vec4 aTextureCoordinate;\n" +
+                    "varying vec2 textureCoordinate;\n" +
+                    "void main() {\n" +
+                    "    gl_Position = uMvpMatrix * aPosition;\n" +
+                    "    textureCoordinate = aTextureCoordinate.xy;" +
+                    "}\n"
 
-            /** Trivial fragment shader that draws with a texture.  */
-            private const val FRAGMENT_SHADER_CODE = "" +
-                "varying highp vec2 textureCoordinate;\n" +
-                "uniform sampler2D texture;\n" +
-                "void main() {\n" +
-                "    gl_FragColor = texture2D(texture, textureCoordinate);\n" +
-                "}\n"
+            /** Trivial fragment shader that draws with a texture. */
+            private const val FRAGMENT_SHADER_CODE =
+                "" +
+                    "varying highp vec2 textureCoordinate;\n" +
+                    "uniform sampler2D texture;\n" +
+                    "void main() {\n" +
+                    "    gl_FragColor = texture2D(texture, textureCoordinate);\n" +
+                    "}\n"
         }
 
         /**
-         * Tells OpenGL to use this program. Call this method before drawing a sequence of
-         * triangle lists.
+         * Tells OpenGL to use this program. Call this method before drawing a sequence of triangle
+         * lists.
          */
         fun bindProgramAndAttribs() {
             GLES20.glUseProgram(programId)
@@ -157,7 +155,7 @@ internal class Gles2TexturedTriangleList(
             }
         }
 
-        /** Sends the given MVP matrix, vertex data, and color to OpenGL.  */
+        /** Sends the given MVP matrix, vertex data, and color to OpenGL. */
         fun bind(
             mvpMatrix: FloatArray?,
             vertexBuffer: FloatBuffer?,
@@ -165,8 +163,11 @@ internal class Gles2TexturedTriangleList(
         ) {
             // Pass the MVP matrix to OpenGL.
             GLES20.glUniformMatrix4fv(
-                mvpMatrixHandle, 1 /* count */, false /* transpose */,
-                mvpMatrix, 0 /* offset */
+                mvpMatrixHandle,
+                1 /* count */,
+                false /* transpose */,
+                mvpMatrix,
+                0 /* offset */
             )
             if (CHECK_GL_ERRORS) {
                 checkGlError("glUniformMatrix4fv")
@@ -205,20 +206,12 @@ internal class Gles2TexturedTriangleList(
          */
         init {
             // Prepare shaders.
-            val vertexShader = loadShader(
-                GLES20.GL_VERTEX_SHADER,
-                VERTEX_SHADER_CODE
-            )
-            val fragmentShader = loadShader(
-                GLES20.GL_FRAGMENT_SHADER,
-                FRAGMENT_SHADER_CODE
-            )
+            val vertexShader = loadShader(GLES20.GL_VERTEX_SHADER, VERTEX_SHADER_CODE)
+            val fragmentShader = loadShader(GLES20.GL_FRAGMENT_SHADER, FRAGMENT_SHADER_CODE)
 
             // Create empty OpenGL Program.
             programId = GLES20.glCreateProgram()
-            if (CHECK_GL_ERRORS) checkGlError(
-                "glCreateProgram"
-            )
+            if (CHECK_GL_ERRORS) checkGlError("glCreateProgram")
             check(programId != 0) { "glCreateProgram failed" }
 
             // Add the shaders to the program.
@@ -250,8 +243,7 @@ internal class Gles2TexturedTriangleList(
             }
 
             // Get a handle to vertex shader's aUV attribute.
-            textureCoordinateHandle =
-                GLES20.glGetAttribLocation(programId, "aTextureCoordinate")
+            textureCoordinateHandle = GLES20.glGetAttribLocation(programId, "aTextureCoordinate")
             if (CHECK_GL_ERRORS) {
                 checkGlError("glGetAttribLocation")
             }
@@ -272,21 +264,20 @@ internal class Gles2TexturedTriangleList(
          */
         private const val CHECK_GL_ERRORS = false
 
-        /** Number of coordinates per vertex in this array: one for each of x, y, and z.  */
+        /** Number of coordinates per vertex in this array: one for each of x, y, and z. */
         private const val COORDS_PER_VERTEX = 3
 
         /** Number of texture coordinates per vertex in this array: one for u & v */
         private const val TEXTURE_COORDS_PER_VERTEX = 2
 
-        /** Number of bytes to store a float in GL.  */
+        /** Number of bytes to store a float in GL. */
         const val BYTES_PER_FLOAT = 4
 
-        /** Number of bytes per vertex.  */
+        /** Number of bytes per vertex. */
         private const val VERTEX_STRIDE = COORDS_PER_VERTEX * BYTES_PER_FLOAT
 
-        /** Number of bytes per vertex for texture coords.  */
-        private const val TEXTURE_COORDS_VERTEX_STRIDE =
-            TEXTURE_COORDS_PER_VERTEX * BYTES_PER_FLOAT
+        /** Number of bytes per vertex for texture coords. */
+        private const val TEXTURE_COORDS_VERTEX_STRIDE = TEXTURE_COORDS_PER_VERTEX * BYTES_PER_FLOAT
 
         /** Triangles have three vertices. */
         private const val VERTICES_PER_TRIANGLE = 3
@@ -295,13 +286,11 @@ internal class Gles2TexturedTriangleList(
          * Checks if any of the GL calls since the last time this method was called set an error
          * condition. Call this method immediately after calling a GL method. Pass the name of the
          * GL operation. For example:
-         *
          * <pre>
          * mColorHandle = GLES20.glGetUniformLocation(mProgram, "uColor");
          * MyGLRenderer.checkGlError("glGetUniformLocation");</pre>
          *
          * If the operation is not successful, the check throws an exception.
-         *
          *
          * *Note* This is quite slow so it's best to use it sparingly in production builds.
          *
@@ -315,8 +304,11 @@ internal class Gles2TexturedTriangleList(
                     errorString = GLUtils.getEGLErrorString(error)
                 }
                 val message =
-                    glOperation + " caused GL error 0x" + Integer.toHexString(error) +
-                        ": " + errorString
+                    glOperation +
+                        " caused GL error 0x" +
+                        Integer.toHexString(error) +
+                        ": " +
+                        errorString
                 Log.e(TAG, message)
                 throw RuntimeException(message)
             }
@@ -332,20 +324,14 @@ internal class Gles2TexturedTriangleList(
         internal fun loadShader(type: Int, shaderCode: String): Int {
             // Create a vertex or fragment shader.
             val shader = GLES20.glCreateShader(type)
-            if (CHECK_GL_ERRORS) checkGlError(
-                "glCreateShader"
-            )
+            if (CHECK_GL_ERRORS) checkGlError("glCreateShader")
             check(shader != 0) { "glCreateShader failed" }
 
             // Add the source code to the shader and compile it.
             GLES20.glShaderSource(shader, shaderCode)
-            if (CHECK_GL_ERRORS) checkGlError(
-                "glShaderSource"
-            )
+            if (CHECK_GL_ERRORS) checkGlError("glShaderSource")
             GLES20.glCompileShader(shader)
-            if (CHECK_GL_ERRORS) checkGlError(
-                "glCompileShader"
-            )
+            if (CHECK_GL_ERRORS) checkGlError("glCompileShader")
             return shader
         }
     }

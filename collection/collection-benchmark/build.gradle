@@ -105,7 +105,7 @@ androidXMultiplatform {
 }
 
 androidx {
-    name = "AndroidX Collections Benchmarks (Android / iOS)"
+    name = "Collections Benchmarks (Android / iOS)"
     inceptionYear = "2022"
     description = "AndroidX Collections Benchmarks (Android / iOS)"
 }
@@ -123,4 +123,7 @@ darwinBenchmark {
 
 android {
     namespace "androidx.collection.benchmark"
+    defaultConfig {
+        minSdkVersion 22 // b/294570164
+    }
 }

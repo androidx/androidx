@@ -18,10 +18,14 @@ package androidx.glance.action
 
 import android.content.ComponentName
 import android.content.Context
+import android.os.Bundle
+import androidx.glance.ExperimentalGlanceApi
 import androidx.glance.GlanceModifier
 import androidx.glance.findModifier
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
+import kotlin.test.assertIs
+import kotlin.test.assertNotNull
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
@@ -29,8 +33,6 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
-import kotlin.test.assertIs
-import kotlin.test.assertNotNull
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(RobolectricTestRunner::class)
@@ -44,11 +46,15 @@ class ActionTest {
         fakeCoroutineScope = TestScope()
     }
 
+    @OptIn(ExperimentalGlanceApi::class)
     @Test
     fun testStartActivity() {
-        val modifiers = GlanceModifier.clickable(actionStartActivity(TestActivity::class.java))
+        val modifiers = GlanceModifier.clickable(
+            actionStartActivity(TestActivity::class.java, activityOptions = Bundle.EMPTY)
+        )
         val modifier = checkNotNull(modifiers.findModifier<ActionModifier>())
         assertIs<StartActivityClassAction>(modifier.action)
+        assertThat((modifier.action as StartActivityClassAction).activityOptions).isNotNull()
     }
 
     @Test

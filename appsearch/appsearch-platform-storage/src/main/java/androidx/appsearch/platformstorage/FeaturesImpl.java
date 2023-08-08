@@ -15,9 +15,10 @@
  */
 package androidx.appsearch.platformstorage;
 
+import android.os.Build;
+
 import androidx.annotation.NonNull;
 import androidx.appsearch.app.Features;
-import androidx.core.os.BuildCompat;
 
 /**
  * An implementation of {@link Features}. Feature availability is dependent on Android API
@@ -26,8 +27,6 @@ import androidx.core.os.BuildCompat;
 final class FeaturesImpl implements Features {
 
     @Override
-    // TODO(b/201316758): Remove once BuildCompat.isAtLeastT is removed
-    @BuildCompat.PrereleaseSdkCheck
     public boolean isFeatureSupported(@NonNull String feature) {
         switch (feature) {
             // Android T Features
@@ -40,33 +39,41 @@ final class FeaturesImpl implements Features {
             case Features.GLOBAL_SEARCH_SESSION_REGISTER_OBSERVER_CALLBACK:
                 // fall through
             case Features.SEARCH_RESULT_MATCH_INFO_SUBMATCH:
-                // fall through
-                return BuildCompat.isAtLeastT();
+                return Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU;
 
             // Android U Features
-            case Features.SEARCH_SPEC_PROPERTY_WEIGHTS:
-                // TODO(b/203700301) : Update to reflect support in Android U+ once this feature is
-                // synced over into service-appsearch.
+            case Features.JOIN_SPEC_AND_QUALIFIED_ID:
                 // fall through
-            case Features.TOKENIZER_TYPE_RFC822:
-                // TODO(b/259294369) : Update to reflect support in Android U+ once this feature is
-                // synced over into service-appsearch.
+            case Features.LIST_FILTER_QUERY_LANGUAGE:
                 // fall through
             case Features.NUMERIC_SEARCH:
-                // TODO(b/259744228) : Update to reflect support in Android U+ once this feature is
-                // synced over into service-appsearch.
                 // fall through
-            case SEARCH_SPEC_ADVANCED_RANKING_EXPRESSION:
-                // TODO(b/261474063) : Update to reflect support in Android U+ once advanced
-                //  ranking becomes available.
+            case Features.SEARCH_SPEC_ADVANCED_RANKING_EXPRESSION:
                 // fall through
-            case Features.JOIN_SPEC_AND_QUALIFIED_ID:
-                // TODO(b/256022027) : Update to reflect support in Android U+ once this feature is
-                // synced over into service-appsearch.
+            case Features.SEARCH_SPEC_PROPERTY_WEIGHTS:
+                // fall through
+            case Features.SEARCH_SUGGESTION:
+                // fall through
+            case Features.TOKENIZER_TYPE_RFC822:
                 // fall through
             case Features.VERBATIM_SEARCH:
-                // TODO(b/204333391) : Update to reflect support in Android U+ once this feature is
-                // synced over into service-appsearch.
+                // fall through
+            case Features.SET_SCHEMA_CIRCULAR_REFERENCES:
+                return Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE;
+
+            // Beyond Android U features
+            case Features.SEARCH_SPEC_GROUPING_TYPE_PER_SCHEMA:
+                // TODO(b/258715421) : Update to reflect support in Android U+ once this feature has
+                // an extservices sdk that includes it.
+                // fall through
+            case Features.SCHEMA_SET_DELETION_PROPAGATION:
+                // TODO(b/268521214) : Update when feature is ready in service-appsearch.
+                // fall through
+            case Features.SCHEMA_ADD_PARENT_TYPE:
+                // TODO(b/269295094) : Update when feature is ready in service-appsearch.
+                // fall through
+            case Features.SCHEMA_ADD_INDEXABLE_NESTED_PROPERTIES:
+                // TODO(b/289150947) : Update when feature is ready in service-appsearch.
                 return false;
             default:
                 return false;

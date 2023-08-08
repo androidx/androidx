@@ -326,7 +326,6 @@ public class MediaButtonReceiver extends BroadcastReceiver {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public static ComponentName getMediaButtonReceiverComponent(Context context) {

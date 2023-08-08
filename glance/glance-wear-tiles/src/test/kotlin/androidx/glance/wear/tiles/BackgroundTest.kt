@@ -16,18 +16,18 @@
 
 package androidx.glance.wear.tiles
 
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.glance.BackgroundModifier
 import androidx.glance.GlanceModifier
 import androidx.glance.background
 import androidx.glance.findModifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
 import androidx.glance.unit.FixedColorProvider
 import androidx.glance.unit.ResourceColorProvider
 import androidx.glance.wear.tiles.test.R
 import com.google.common.truth.Truth.assertThat
-import org.junit.Test
 import kotlin.test.assertIs
+import org.junit.Test
 
 class BackgroundTest {
     @Test

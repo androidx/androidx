@@ -69,6 +69,7 @@ import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performSemanticsAction
+import androidx.compose.ui.test.requestFocus
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
@@ -84,7 +85,6 @@ import com.google.common.truth.Truth.assertWithMessage
 import java.util.concurrent.CountDownLatch
 import kotlin.math.roundToInt
 import kotlinx.coroutines.runBlocking
-import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
@@ -647,7 +647,6 @@ class LazyListTest(orientation: Orientation) : BaseLazyListTestWithOrientation(o
             .assertStartPositionIsAlmost(0.dp)
     }
 
-    @Ignore("b/266124027")
     @Test
     fun whenItemsBecameEmpty() {
         var items by mutableStateOf((1..10).toList())
@@ -676,9 +675,9 @@ class LazyListTest(orientation: Orientation) : BaseLazyListTestWithOrientation(o
 
         // and has no children
         rule.onNodeWithTag("1")
-            .assertDoesNotExist()
+            .assertIsNotPlaced()
         rule.onNodeWithTag("2")
-            .assertDoesNotExist()
+            .assertIsNotPlaced()
     }
 
     @Test
@@ -1491,15 +1490,24 @@ class LazyListTest(orientation: Orientation) : BaseLazyListTestWithOrientation(o
                 userScrollEnabled = false,
             ) {
                 items(5) {
-                    Spacer(Modifier.size(itemSize).testTag("$it"))
+                    Box(
+                        modifier = Modifier
+                            .size(itemSize)
+                            .border(2.dp, Color.Blue)
+                            .testTag("$it")
+                            .focusable()
+                    ) {
+                        BasicText("$it")
+                    }
                 }
             }
         }
 
-        rule.keyPress(1)
+        rule.onNodeWithTag("2").requestFocus()
+        rule.keyPress(2)
 
-        rule.onNodeWithTag("1")
-            .assertStartPositionInRootIsEqualTo(itemSize)
+        rule.onNodeWithTag("1").assertIsDisplayed()
+        rule.onNodeWithTag("3").assertIsNotDisplayed()
     }
 
     @Test

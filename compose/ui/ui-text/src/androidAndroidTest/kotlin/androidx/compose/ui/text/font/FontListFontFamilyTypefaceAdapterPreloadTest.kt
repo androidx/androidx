@@ -19,7 +19,6 @@
 package androidx.compose.ui.text.font
 
 import android.graphics.Typeface
-import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.font.testutils.AsyncFauxFont
 import androidx.compose.ui.text.font.testutils.AsyncTestTypefaceLoader
 import androidx.compose.ui.text.font.testutils.BlockingFauxFont
@@ -34,7 +33,6 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestCoroutineDispatcher
 import kotlinx.coroutines.test.TestCoroutineScope
-import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.After
 import org.junit.Before
@@ -43,7 +41,6 @@ import org.junit.runner.RunWith
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
-@OptIn(ExperimentalTextApi::class)
 class FontListFontFamilyTypefaceAdapterPreloadTest {
 
     private lateinit var typefaceLoader: AsyncTestTypefaceLoader
@@ -196,7 +193,10 @@ class FontListFontFamilyTypefaceAdapterPreloadTest {
             subject.preload(fontFamily, fontLoader)
         }
         assertThat(typefaceLoader.pendingRequests()).containsExactly(asyncFont)
-        scope.advanceTimeBy(Font.MaximumAsyncTimeoutMillis)
+        scope.testScheduler.apply {
+            advanceTimeBy(Font.MaximumAsyncTimeoutMillis)
+            runCurrent()
+        }
         scope.runBlockingTest {
             preloadJob.await()
         }

@@ -64,7 +64,7 @@ internal class Lab(
 
     override fun toXy(v0: Float, v1: Float, v2: Float): Long {
         val v00 = v0.coerceIn(0.0f, 100.0f)
-        val v10 = v0.coerceIn(-128.0f, 128.0f)
+        val v10 = v1.coerceIn(-128.0f, 128.0f)
 
         val fy = (v00 + 16.0f) / 116.0f
         val fx = fy + (v10 * 0.002f)

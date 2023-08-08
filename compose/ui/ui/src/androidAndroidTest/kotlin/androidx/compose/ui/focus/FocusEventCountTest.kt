@@ -23,6 +23,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusStateImpl.Active
+import androidx.compose.ui.focus.FocusStateImpl.ActiveParent
 import androidx.compose.ui.focus.FocusStateImpl.Inactive
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -119,6 +120,92 @@ class FocusEventCountTest(focusEventType: String) {
         rule.runOnIdle { assertThat(focusStates).isExactly(Active) }
     }
 
+    @OptIn(ExperimentalComposeUiApi::class)
+    @Test
+    fun whenFocusMovesWithinParent_onFocusEventIsNotCalled() {
+        // Arrange.
+        val focusStates = mutableListOf<FocusState>()
+        val (item1, item2) = FocusRequester.createRefs()
+        rule.setFocusableContent {
+            Box(
+                modifier = Modifier
+                    .onFocusEvent { focusStates.add(it) }
+                    .focusTarget()
+            ) {
+                Box(
+                    modifier = Modifier
+                        .focusRequester(item1)
+                        .focusTarget()
+                )
+                Box(
+                    modifier = Modifier
+                        .focusRequester(item2)
+                        .focusTarget()
+                )
+            }
+        }
+        rule.runOnIdle {
+            item1.requestFocus()
+            focusStates.clear()
+        }
+
+        // Act.
+        rule.runOnIdle { item2.requestFocus() }
+
+        // Assert.
+        rule.runOnIdle { assertThat(focusStates).isEmpty() }
+    }
+
+    @Test
+    fun whenFocusIsGained_onFocusEventIsCalledOnParent() {
+        // Arrange.
+        val focusStates = mutableListOf<FocusState>()
+        val focusRequester = FocusRequester()
+        rule.setFocusableContent {
+            Box(
+                modifier = Modifier
+                    .onFocusEvent { focusStates.add(it) }
+                    .focusTarget()
+            ) {
+                Box(
+                    modifier = Modifier
+                        .focusRequester(focusRequester)
+                        .focusTarget()
+                )
+            }
+        }
+        rule.runOnIdle { focusStates.clear() }
+
+        // Act.
+        rule.runOnIdle { focusRequester.requestFocus() }
+
+        // Assert.
+        rule.runOnIdle { assertThat(focusStates).isExactly(ActiveParent) }
+    }
+
+    @Test
+    fun whenFocusIsGained_onFocusEventIsCalledOnLocalParent() {
+        // Arrange.
+        val focusStates = mutableListOf<FocusState>()
+        val focusRequester = FocusRequester()
+        rule.setFocusableContent {
+            Box(
+                modifier = Modifier
+                    .onFocusEvent { focusStates.add(it) }
+                    .focusTarget()
+                    .focusRequester(focusRequester)
+                    .focusTarget()
+            )
+        }
+        rule.runOnIdle { focusStates.clear() }
+
+        // Act.
+        rule.runOnIdle { focusRequester.requestFocus() }
+
+        // Assert.
+        rule.runOnIdle { assertThat(focusStates).isExactly(ActiveParent) }
+    }
+
     @Test
     fun requestingFocusWhenAlreadyFocused_onFocusEventIsCalledAgain() {
         // Arrange.
@@ -166,6 +253,34 @@ class FocusEventCountTest(focusEventType: String) {
 
         // Act.
         rule.runOnIdle { focusManager.clearFocus() }
+
+        // Assert.
+        rule.runOnIdle { assertThat(focusStates).isExactly(Inactive) }
+    }
+
+    @Test
+    fun removingActiveComposable_onFocusEventIsCalledWithDefaultValue() {
+        // Arrange.
+        val focusStates = mutableListOf<FocusState>()
+        val focusRequester = FocusRequester()
+        var showBox by mutableStateOf(true)
+        rule.setFocusableContent {
+            if (showBox) {
+                Box(
+                    modifier = Modifier
+                        .onFocusEvent { focusStates.add(it) }
+                        .focusRequester(focusRequester)
+                        .focusTarget()
+                )
+            }
+        }
+        rule.runOnIdle {
+            focusRequester.requestFocus()
+            focusStates.clear()
+        }
+
+        // Act.
+        rule.runOnIdle { showBox = false }
 
         // Assert.
         rule.runOnIdle { assertThat(focusStates).isExactly(Inactive) }

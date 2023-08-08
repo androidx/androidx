@@ -106,12 +106,12 @@ public class SessionManager implements Player.Callback {
             // (update=1 requires player to callback onPlaylistReady())
             for (int i = 0; i < mPlaylist.size(); i++) {
                 PlaylistItem item = mPlaylist.get(i);
-                mPlayer.getStatus(item, (i == mPlaylist.size() - 1) /* update */);
+                mPlayer.getPlaylistItemStatus(item, (i == mPlaylist.size() - 1) /* update */);
             }
         } else {
             // Otherwise, only need to get status for current item. Player is
             // responsible to call onPlaylistReady() when finished.
-            mPlayer.getStatus(getCurrentItem(), true /* update */);
+            mPlayer.getPlaylistItemStatus(getCurrentItem(), true /* update */);
         }
     }
 
@@ -203,7 +203,7 @@ public class SessionManager implements Player.Callback {
         for (PlaylistItem item : mPlaylist) {
             if (item.getItemId().equals(iid)) {
                 if (item == getCurrentItem()) {
-                    mPlayer.getStatus(item, false);
+                    mPlayer.getPlaylistItemStatus(item, false);
                 }
                 return item;
             }

@@ -29,10 +29,8 @@ import androidx.credentials.CredentialManager
  * @see GetCredentialInterruptedException
  */
 abstract class GetCredentialException @JvmOverloads internal constructor(
-    /** @hide */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     open val type: String,
-    /** @hide */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     open val errorMessage: CharSequence? = null
 ) : Exception(errorMessage?.toString())

@@ -159,7 +159,6 @@ public class WebSettingsCompat {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef(flag = true, value = {
@@ -232,10 +231,9 @@ public class WebSettingsCompat {
      * returns true for {@link WebViewFeature#SUPPRESS_ERROR_PAGE}.
      *
      * @param suppressed whether the WebView should suppress its internal error page
-     *
-     * TODO(cricke): unhide
-     * @hide
+     * @deprecated unreleased API will be removed in 1.9.0
      */
+    @Deprecated
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @RequiresFeature(name = WebViewFeature.SUPPRESS_ERROR_PAGE,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
@@ -260,10 +258,9 @@ public class WebSettingsCompat {
      *
      * @return true if the WebView will suppress its internal error page
      * @see #setWillSuppressErrorPage
-     *
-     * TODO(cricke): unhide
-     * @hide
+     * @deprecated unreleased API will be removed in 1.9.0
      */
+    @Deprecated
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @RequiresFeature(name = WebViewFeature.SUPPRESS_ERROR_PAGE,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
@@ -319,7 +316,6 @@ public class WebSettingsCompat {
     public static final int FORCE_DARK_ON = WebSettings.FORCE_DARK_ON;
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef(value = {
@@ -565,7 +561,6 @@ public class WebSettingsCompat {
             WebSettingsBoundaryInterface.ForceDarkBehavior.PREFER_MEDIA_QUERY_OVER_FORCE_DARK;
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef(value = {

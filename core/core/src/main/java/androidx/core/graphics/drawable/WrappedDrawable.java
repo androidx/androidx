@@ -26,7 +26,6 @@ import androidx.annotation.RestrictTo;
  * Interface which allows a {@link android.graphics.drawable.Drawable} to get/set wrapped
  * drawables from {@code DrawableCompat}.
  *
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 public interface WrappedDrawable {

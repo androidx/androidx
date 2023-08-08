@@ -204,7 +204,6 @@ public class AudioAttributesCompat implements VersionedParcelable {
     /** Flag defining a behavior where the audibility of the sound will be ensured by the system. */
     public static final int FLAG_AUDIBILITY_ENFORCED = 0x1 << 0;
 
-    // flags for @hide API so we can create a proper flags mask
     static final int FLAG_SECURE = 0x1 << 1;
     static final int FLAG_SCO = 0x1 << 2;
     static final int FLAG_BEACON = 0x1 << 3;
@@ -212,7 +211,6 @@ public class AudioAttributesCompat implements VersionedParcelable {
     /** Flag requesting the use of an output stream supporting hardware A/V synchronization. */
     public static final int FLAG_HW_AV_SYNC = 0x1 << 4;
 
-    // more @hide flags
     static final int FLAG_HW_HOTWORD = 0x1 << 5;
     static final int FLAG_BYPASS_INTERRUPTION_POLICY = 0x1 << 6;
     static final int FLAG_BYPASS_MUTE = 0x1 << 7;
@@ -235,7 +233,6 @@ public class AudioAttributesCompat implements VersionedParcelable {
 
     static final int INVALID_STREAM_TYPE = -1;  // AudioSystem.STREAM_DEFAULT
 
-    /** @hide */
     // It should be public to allow Parcelizers which never be de/jetified can access the field.
     @RestrictTo(LIBRARY)
     @ParcelField(1)
@@ -243,7 +240,6 @@ public class AudioAttributesCompat implements VersionedParcelable {
 
     // WARNING: Adding a new ParcelField may break old library users (b/152830728)
 
-    /** @hide */
     // It should be public to allow Parcelizers which never be de/jetified can access the
     // constructor.
     @RestrictTo(LIBRARY)
@@ -550,7 +546,6 @@ public class AudioAttributesCompat implements VersionedParcelable {
     /**
      * Prevent AudioAttributes from being used even on platforms that support it.
      *
-     * @hide For testing only.
      */
     @RestrictTo(LIBRARY)
     public static void setForceLegacyBehavior(boolean force) {
@@ -626,7 +621,6 @@ public class AudioAttributesCompat implements VersionedParcelable {
         return this.mImpl.equals(that.mImpl);
     }
 
-    /** @hide */
     @IntDef({
             USAGE_UNKNOWN,
             USAGE_MEDIA,
@@ -650,7 +644,6 @@ public class AudioAttributesCompat implements VersionedParcelable {
     public @interface AttributeUsage {
     }
 
-    /** @hide */
     @IntDef({
             CONTENT_TYPE_UNKNOWN,
             CONTENT_TYPE_SPEECH,

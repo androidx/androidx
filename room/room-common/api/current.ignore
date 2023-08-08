@@ -1,0 +1,9 @@
+// Baseline format: 1.0
+ParameterNameChange: androidx.room.BuiltInTypeConverters.State#valueOf(String) parameter #0:
+    Attempted to change parameter name from name to value in method androidx.room.BuiltInTypeConverters.State.valueOf
+ParameterNameChange: androidx.room.FtsOptions.MatchInfo#valueOf(String) parameter #0:
+    Attempted to change parameter name from name to value in method androidx.room.FtsOptions.MatchInfo.valueOf
+ParameterNameChange: androidx.room.FtsOptions.Order#valueOf(String) parameter #0:
+    Attempted to change parameter name from name to value in method androidx.room.FtsOptions.Order.valueOf
+ParameterNameChange: androidx.room.Index.Order#valueOf(String) parameter #0:
+    Attempted to change parameter name from name to value in method androidx.room.Index.Order.valueOf

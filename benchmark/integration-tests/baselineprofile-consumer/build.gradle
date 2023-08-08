@@ -1,0 +1,78 @@
+import com.android.build.api.artifact.SingleArtifact
+
+/*
+ * Copyright 2022 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+plugins {
+    id("AndroidXPlugin")
+    id("com.android.application")
+    id("kotlin-android")
+    id("androidx.baselineprofile")
+    id("kotlin-kapt")
+    id("com.google.dagger.hilt.android")
+}
+
+android {
+    buildTypes {
+        release {
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile("proguard-android-optimize.txt")
+        }
+    }
+    namespace "androidx.benchmark.integration.baselineprofile.consumer"
+}
+
+dependencies {
+    implementation(libs.kotlinStdlib)
+    implementation(libs.constraintLayout)
+    implementation(libs.hiltAndroid)
+    kapt(libs.hiltCompiler)
+    implementation(project(":profileinstaller:profileinstaller"))
+    baselineProfile(project(":benchmark:integration-tests:baselineprofile-producer"))
+}
+
+baselineProfile {
+    // Note that these are the default settings, just reported here to make it explicit.
+    // `automaticGenerationDuringBuild` has to be off otherwise assembling release on CI would
+    // trigger baseline profile generation and integration tests on device.
+    saveInSrc = true
+    automaticGenerationDuringBuild = false
+}
+
+apply(from: "../baselineprofile-test-utils/utils.gradle")
+
+// Exposes the apk for profile verifier tests. When calling this function, the generated apks
+// can be utilized with `profileinstaller:integration-tests:profile-verification`.
+configurations {
+    apkAssets {
+        canBeConsumed = true
+        canBeResolved = false
+        attributes {
+            attribute(
+                    LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE,
+                    objects.named(LibraryElements, 'profileverification-apkAssets')
+            )
+        }
+    }
+}
+androidComponents {
+    onVariants(selector().all().withBuildType("release"), { variant ->
+        artifacts {
+            apkAssets(variant.artifacts.get(SingleArtifact.APK.INSTANCE))
+        }
+    })
+}

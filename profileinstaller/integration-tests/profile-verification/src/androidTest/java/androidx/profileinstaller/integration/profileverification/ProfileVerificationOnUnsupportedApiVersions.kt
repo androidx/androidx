@@ -29,7 +29,6 @@ class ProfileVerificationOnUnsupportedApiVersions {
 
     @Before
     fun setUp() {
-
         // This test runs only on selected api version currently unsupported by profile verifier
         Assume.assumeTrue(
             Build.VERSION.SDK_INT < Build.VERSION_CODES.P ||

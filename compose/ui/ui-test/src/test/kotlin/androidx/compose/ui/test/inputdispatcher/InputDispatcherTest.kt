@@ -31,10 +31,10 @@ import androidx.compose.ui.test.createTestContext
 import androidx.compose.ui.test.util.InputEventRecorder
 import androidx.compose.ui.test.util.assertNoTouchGestureInProgress
 import com.google.common.truth.Truth.assertThat
+import org.junit.After
 import org.mockito.kotlin.any
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
-import org.junit.After
 
 @OptIn(InternalTestApi::class)
 open class InputDispatcherTest {

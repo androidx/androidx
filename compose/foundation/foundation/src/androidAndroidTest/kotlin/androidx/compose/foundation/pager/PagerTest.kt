@@ -17,15 +17,23 @@
 package androidx.compose.foundation.pager
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.gestures.snapping.SnapFlingBehavior
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.composed
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.swipeLeft
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -34,7 +42,7 @@ import org.junit.runners.Parameterized
 @OptIn(ExperimentalFoundationApi::class)
 @LargeTest
 @RunWith(Parameterized::class)
-internal class PagerTest(val config: ParamConfig) : BasePagerTest(config) {
+class PagerTest(val config: ParamConfig) : BasePagerTest(config) {
 
     @Before
     fun setUp() {
@@ -44,9 +52,8 @@ internal class PagerTest(val config: ParamConfig) : BasePagerTest(config) {
     @Test
     fun userScrollEnabledIsOff_shouldNotAllowGestureScroll() {
         // Arrange
-        val state = PagerState()
+
         createPager(
-            state = state,
             userScrollEnabled = false,
             modifier = Modifier.fillMaxSize()
         )
@@ -56,7 +63,7 @@ internal class PagerTest(val config: ParamConfig) : BasePagerTest(config) {
 
         // Assert
         rule.runOnIdle {
-            assertThat(state.currentPage).isEqualTo(0)
+            assertThat(pagerState.currentPage).isEqualTo(0)
         }
 
         confirmPageIsInCorrectPosition(0, 0)
@@ -65,9 +72,8 @@ internal class PagerTest(val config: ParamConfig) : BasePagerTest(config) {
     @Test
     fun userScrollEnabledIsOff_shouldAllowAnimationScroll() {
         // Arrange
-        val state = PagerState()
+
         createPager(
-            state = state,
             userScrollEnabled = false,
             modifier = Modifier.fillMaxSize()
         )
@@ -75,13 +81,13 @@ internal class PagerTest(val config: ParamConfig) : BasePagerTest(config) {
         // Act
         rule.runOnIdle {
             scope.launch {
-                state.animateScrollToPage(5)
+                pagerState.animateScrollToPage(5)
             }
         }
 
         // Assert
         rule.runOnIdle {
-            assertThat(state.currentPage).isEqualTo(5)
+            assertThat(pagerState.currentPage).isEqualTo(5)
         }
         confirmPageIsInCorrectPosition(5)
     }
@@ -89,9 +95,8 @@ internal class PagerTest(val config: ParamConfig) : BasePagerTest(config) {
     @Test
     fun userScrollEnabledIsOn_shouldAllowGestureScroll() {
         // Arrange
-        val state = PagerState(5)
         createPager(
-            state = state,
+            initialPage = 5,
             userScrollEnabled = true,
             modifier = Modifier.fillMaxSize()
         )
@@ -99,25 +104,24 @@ internal class PagerTest(val config: ParamConfig) : BasePagerTest(config) {
         onPager().performTouchInput { swipeWithVelocityAcrossMainAxis(1000f) }
 
         rule.runOnIdle {
-            assertThat(state.currentPage).isNotEqualTo(5)
+            assertThat(pagerState.currentPage).isNotEqualTo(5)
         }
-        confirmPageIsInCorrectPosition(state.currentPage)
+        confirmPageIsInCorrectPosition(pagerState.currentPage)
     }
 
     @Test
     fun pageCount_pagerOnlyContainsGivenPageCountItems() {
         // Arrange
-        val state = PagerState()
 
         // Act
-        createPager(state = state, modifier = Modifier.fillMaxSize())
+        createPager(modifier = Modifier.fillMaxSize())
 
         // Assert
         repeat(DefaultPageCount) {
             rule.onNodeWithTag("$it").assertIsDisplayed()
             rule.runOnIdle {
                 scope.launch {
-                    state.scroll {
+                    pagerState.scroll {
                         scrollBy(pagerSize.toFloat())
                     }
                 }
@@ -130,12 +134,10 @@ internal class PagerTest(val config: ParamConfig) : BasePagerTest(config) {
     @Test
     fun mutablePageCount_assertPagesAreChangedIfCountIsChanged() {
         // Arrange
-        val state = PagerState()
         val pageCount = mutableStateOf(2)
         createPager(
-            state = state,
+            pageCount = { pageCount.value },
             modifier = Modifier.fillMaxSize(),
-            pageCount = { pageCount.value }
         )
 
         rule.onNodeWithTag("3").assertDoesNotExist()
@@ -149,7 +151,7 @@ internal class PagerTest(val config: ParamConfig) : BasePagerTest(config) {
             rule.onNodeWithTag("$it").assertIsDisplayed()
             rule.runOnIdle {
                 scope.launch {
-                    state.scroll {
+                    pagerState.scroll {
                         scrollBy(pagerSize.toFloat())
                     }
                 }
@@ -158,13 +160,175 @@ internal class PagerTest(val config: ParamConfig) : BasePagerTest(config) {
         }
     }
 
+    @Test
+    fun pageCount_readBeforeCompositionIsAccurate() {
+        // Arrange
+        val pageCount = mutableStateOf(2)
+        val state = PagerStateImpl(0, 0f) { pageCount.value }
+        assertThat(state.pageCount).isEqualTo(pageCount.value)
+        rule.setContent {
+            HorizontalOrVerticalPager(
+                state = state,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .testTag(PagerTestTag)
+                    .onSizeChanged { pagerSize = if (vertical) it.height else it.width },
+                pageSize = PageSize.Fill,
+                reverseLayout = config.reverseLayout,
+                pageSpacing = config.pageSpacing,
+                contentPadding = config.mainAxisContentPadding,
+            ) {
+                Page(index = it)
+            }
+        }
+
+        rule.runOnIdle { pageCount.value = 5 }
+        assertThat(state.pageCount).isEqualTo(pageCount.value)
+    }
+
+    @Test
+    fun pageCount_changeInCountDoesNotCausePagerToRecompose() {
+        // Arrange
+        var recomposeCount = 0
+        val pageCount = mutableStateOf(2)
+        val state = PagerStateImpl(0, 0f) { pageCount.value }
+        assertThat(state.pageCount).isEqualTo(pageCount.value)
+
+        rule.setContent {
+            HorizontalOrVerticalPager(
+                state = state,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .testTag(PagerTestTag)
+                    .composed {
+                        recomposeCount++
+                        Modifier
+                    },
+                pageSize = PageSize.Fill,
+                reverseLayout = config.reverseLayout,
+                pageSpacing = config.pageSpacing,
+                contentPadding = config.mainAxisContentPadding,
+            ) {
+                Page(index = it)
+            }
+        }
+
+        assertThat(recomposeCount).isEqualTo(1)
+        rule.runOnIdle { pageCount.value = 5 } // change count
+        assertThat(state.pageCount).isEqualTo(pageCount.value)
+        assertThat(recomposeCount).isEqualTo(1)
+    }
+
+    @Test
+    fun pageCountDecreased_currentPageIsAdjustedAccordingly() {
+        // Arrange
+        val pageCount = mutableStateOf(5)
+        val state = PagerStateImpl(0, 0f) { pageCount.value }
+        assertThat(state.pageCount).isEqualTo(pageCount.value)
+
+        rule.setContent {
+            HorizontalOrVerticalPager(
+                state = state,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .testTag(PagerTestTag),
+                pageSize = PageSize.Fill,
+                reverseLayout = config.reverseLayout,
+                pageSpacing = config.pageSpacing,
+                contentPadding = config.mainAxisContentPadding,
+            ) {
+                Page(index = it)
+            }
+        }
+
+        rule.runOnIdle {
+            runBlocking {
+                state.scrollToPage(3)
+            }
+        }
+        rule.runOnIdle { assertThat(state.currentPage).isEqualTo(3) }
+        pageCount.value = 2 // change count, less than current page
+        rule.runOnIdle {
+            assertThat(state.pageCount).isEqualTo(pageCount.value)
+            assertThat(state.currentPage).isEqualTo(1) // last page
+        }
+    }
+
+    @Test
+    fun keyLambdaShouldUpdateWhenDatasetChanges() {
+        lateinit var pagerState: PagerState
+        val listA = mutableStateOf(listOf(1))
+
+        @Composable
+        fun MyComposable(data: List<Int>) {
+            pagerState = rememberPagerState { data.size }
+            HorizontalPager(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .testTag("pager"),
+                state = pagerState,
+                key = { data[it] }
+            ) {
+                Spacer(
+                    Modifier
+                        .fillMaxSize()
+                )
+            }
+        }
+
+        rule.setContent {
+            MyComposable(listA.value)
+        }
+
+        rule.runOnIdle {
+            listA.value = listOf(1, 2)
+        }
+
+        assertThat(listA.value.size).isEqualTo(2)
+
+        rule.onNodeWithTag("pager").performTouchInput {
+            swipeLeft()
+        }
+
+        rule.runOnIdle {
+            assertThat(pagerState.currentPage).isEqualTo(1)
+        }
+    }
+
+    @Test
+    fun pagerStateChange_flingBehaviorShouldRecreate() {
+        var previousFlingBehavior: SnapFlingBehavior? = null
+        var latestFlingBehavior: SnapFlingBehavior? = null
+        val stateHolder = mutableStateOf(PagerStateImpl(0, 0.0f) { 10 })
+        rule.setContent {
+            HorizontalOrVerticalPager(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .testTag(PagerTestTag),
+                state = stateHolder.value,
+                pageSize = PageSize.Fill,
+                flingBehavior = PagerDefaults.flingBehavior(state = stateHolder.value).also {
+                    latestFlingBehavior = it
+                    if (previousFlingBehavior == null) {
+                        previousFlingBehavior = it
+                    }
+                }
+            ) {
+                Page(index = it)
+            }
+        }
+
+        rule.runOnIdle {
+            stateHolder.value = PagerStateImpl(0, 0.0f) { 20 }
+        }
+
+        rule.waitForIdle()
+        assertThat(previousFlingBehavior).isNotEqualTo(latestFlingBehavior)
+    }
+
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
-        fun params() = mutableListOf<ParamConfig>().apply {
-            for (orientation in TestOrientation) {
-                add(ParamConfig(orientation = orientation))
-            }
-        }
+        fun params() = AllOrientationsParams
     }
 }

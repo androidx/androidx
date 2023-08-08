@@ -16,6 +16,8 @@
 
 package com.example.androidx.preference
 
+import android.content.Context
+import android.content.ContextWrapper
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.preference.PreferenceFragmentCompat
@@ -33,6 +35,14 @@ class TwoPanePreferences : AppCompatActivity() {
 
         override fun onCreatePreferenceHeader(): PreferenceFragmentCompat {
             return PreferenceHeader()
+        }
+
+        /**
+         * Simulate the behavior of Hilt to ensure that PreferenceHeaderFragmentCompat
+         * does not rely on the Context being an OnBackPressedDispatcherOwner instance
+         */
+        override fun getContext(): Context {
+            return ContextWrapper(super.getContext())
         }
     }
 
@@ -68,13 +78,6 @@ class TwoPanePreferences : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        // Display preference header fragment as the main content
-        if (savedInstanceState == null) {
-            supportFragmentManager.beginTransaction().replace(
-                android.R.id.content,
-                PreferenceHeaderFragmentCompatImpl()
-            ).commit()
-        }
+        setContentView(R.layout.two_pane_preferences)
     }
 }

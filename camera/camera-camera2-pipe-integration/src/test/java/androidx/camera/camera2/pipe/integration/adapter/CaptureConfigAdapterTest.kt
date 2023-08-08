@@ -96,8 +96,9 @@ class CaptureConfigAdapterTest {
     @Test
     fun shouldFail_whenCaptureConfigSurfaceNotRecognized() {
         // Arrange
+        val fakeSurface = FakeSurface()
         val captureConfig = CaptureConfig.Builder()
-            .apply { addSurface(FakeSurface()) }
+            .apply { addSurface(fakeSurface) }
             .build()
         val sessionConfigOptions = Camera2ImplConfig.Builder().build()
 
@@ -109,6 +110,9 @@ class CaptureConfigAdapterTest {
                 sessionConfigOptions
             )
         }
+
+        // Clean up
+        fakeSurface.close()
     }
 
     @Test

@@ -30,6 +30,6 @@ internal interface CorruptionHandler<T> {
      *
      * @param ex is the exception encountered when attempting to deserialize data from disk.
      * @return The value that DataStore should attempt to write to disk.
-     **/
+     */
     public suspend fun handleCorruption(ex: CorruptionException): T
 }

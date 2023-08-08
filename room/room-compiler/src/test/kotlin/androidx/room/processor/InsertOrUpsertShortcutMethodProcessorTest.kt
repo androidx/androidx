@@ -17,11 +17,11 @@
 package androidx.room.processor
 
 import COMMON
+import androidx.kruth.assertThat
 import androidx.room.Dao
 import androidx.room.compiler.codegen.CodeLanguage
 import androidx.room.compiler.codegen.XClassName
 import androidx.room.compiler.codegen.XTypeName
-import androidx.room.compiler.codegen.asClassName
 import androidx.room.compiler.codegen.asMutableClassName
 import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XType
@@ -39,7 +39,6 @@ import androidx.room.ext.RxJava3TypeNames
 import androidx.room.solver.shortcut.result.InsertOrUpsertMethodAdapter
 import androidx.room.testing.context
 import androidx.room.vo.InsertOrUpsertShortcutMethod
-import com.google.common.truth.Truth.assertThat
 import kotlin.reflect.KClass
 import org.junit.Test
 
@@ -350,7 +349,7 @@ abstract class InsertOrUpsertShortcutMethodProcessorTest <out T : InsertOrUpsert
             val param = insertionUpsertion.parameters.first()
             assertThat(param.type.asTypeName())
                 .isEqualTo(
-                    java.util.Queue::class.asClassName().parametrizedBy(USER_TYPE_NAME)
+                    CommonTypeNames.QUEUE.parametrizedBy(USER_TYPE_NAME)
                 )
 
             assertThat(insertionUpsertion.entities.size).isEqualTo(1)
@@ -401,7 +400,7 @@ abstract class InsertOrUpsertShortcutMethodProcessorTest <out T : InsertOrUpsert
             val param = insertionUpsertion.parameters.first()
             assertThat(param.type.asTypeName())
                 .isEqualTo(
-                    XClassName.get("foo.bar", "MyClass.MyList").parametrizedBy(
+                    XClassName.get("foo.bar", "MyClass", "MyList").parametrizedBy(
                         CommonTypeNames.STRING, USER_TYPE_NAME
                     )
                 )
@@ -462,6 +461,23 @@ abstract class InsertOrUpsertShortcutMethodProcessorTest <out T : InsertOrUpsert
 
             assertThat(insertionUpsertion.entities["b1"]?.pojo?.typeName)
                 .isEqualTo(BOOK_TYPE_NAME)
+        }
+    }
+
+    @Test
+    fun multipleParamCompletable() {
+        listOf(
+            RxJava2TypeNames.COMPLETABLE.canonicalName,
+            RxJava3TypeNames.COMPLETABLE.canonicalName
+        ).forEach { type ->
+            singleInsertUpsertShortcutMethodKotlin(
+                """
+                @${annotation.java.canonicalName}
+                abstract fun bookUserCompletable(user: User, book: Book): $type
+                """
+            ) { insertionUpsertion, _ ->
+                assertThat(insertionUpsertion.parameters.size).isEqualTo(2)
+            }
         }
     }
 

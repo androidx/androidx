@@ -75,6 +75,8 @@ class LazyBoxWithConstraintsActivity : ComponentActivity() {
 
 @Composable
 private fun NonLazyRow(entry: NestedListEntry) {
+    // Need the nested subcompose layout for testing
+    @Suppress("UnusedBoxWithConstraintsScope")
     BoxWithConstraints {
         Row(
             Modifier

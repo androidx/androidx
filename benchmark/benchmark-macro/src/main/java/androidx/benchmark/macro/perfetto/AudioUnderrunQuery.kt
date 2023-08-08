@@ -16,7 +16,11 @@
 
 package androidx.benchmark.macro.perfetto
 
+import androidx.benchmark.perfetto.PerfettoTraceProcessor
+import org.intellij.lang.annotations.Language
+
 internal object AudioUnderrunQuery {
+    @Language("sql")
     private fun getFullQuery() = """
         SELECT track.name, counter.value, counter.ts
         FROM track
@@ -30,9 +34,9 @@ internal object AudioUnderrunQuery {
     )
 
     fun getSubMetrics(
-        perfettoTraceProcessor: PerfettoTraceProcessor
+        session: PerfettoTraceProcessor.Session
     ): SubMetrics {
-        val queryResult = perfettoTraceProcessor.rawQuery(getFullQuery())
+        val queryResult = session.query(getFullQuery())
 
         var trackName: String? = null
         var lastTs: Long? = null

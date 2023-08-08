@@ -108,7 +108,7 @@ public final class AnimatorTestRule implements TestRule {
 
     /**
      * Returns the current time in milliseconds tracked by AnimationHandler. Note that this is a
-     * different time than the time tracked by @{link SystemClock} This method needs to be called on
+     * different time than the time tracked by {@link SystemClock} This method needs to be called on
      * the same thread as {@link Animator#start()}.
      */
     public long getCurrentTime() {

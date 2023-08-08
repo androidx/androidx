@@ -40,10 +40,11 @@ dependencies {
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.junit)
     androidTestImplementation(libs.truth)
+    androidTestImplementation(libs.espressoCore)
 }
 
 androidx {
-    name = "AndroidX Compose UI Simple Unit Classes Samples"
+    name = "Compose UI Simple Unit Classes Samples"
     type = LibraryType.SAMPLES
     inceptionYear = "2019"
     description = "Contains the sample code for the Androidx Compose UI Simple Unit Classes"

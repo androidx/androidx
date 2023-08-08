@@ -29,10 +29,11 @@ import androidx.glance.text.Text
 import androidx.test.core.app.ApplicationProvider
 import androidx.work.Data
 import androidx.work.ListenableWorker.Result
+import androidx.work.WorkerFactory
+import androidx.work.WorkerParameters
 import androidx.work.testing.TestListenableWorkerBuilder
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertIs
-import kotlin.test.assertNotNull
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.first
@@ -55,10 +56,14 @@ class SessionWorkerTest {
         context = ApplicationProvider.getApplicationContext()
         worker = TestListenableWorkerBuilder<SessionWorker>(context)
             .setInputData(Data(mapOf(sessionManager.keyParam to SESSION_KEY)))
+            .setWorkerFactory(object : WorkerFactory() {
+                override fun createWorker(
+                    appContext: Context,
+                    workerClassName: String,
+                    workerParameters: WorkerParameters
+                ) = SessionWorker(appContext, workerParameters, sessionManager)
+            })
             .build()
-            .also {
-                it.sessionManager = sessionManager
-            }
     }
 
     @Test
@@ -140,7 +145,7 @@ class SessionWorkerTest {
             val text = assertIs<EmittableText>(root.children.single())
             assertThat(text.text).isEqualTo("Hello World")
         }
-        val session = assertNotNull(sessionManager.getSession(SESSION_KEY))
+        val session = assertIs<TestSession>(sessionManager.getSession(SESSION_KEY))
         session.sendEvent {
             state.value = "Hello Earth"
         }
@@ -209,6 +214,8 @@ class TestSession(
         onUiFlow?.emit(root)
         return true
     }
+
+    suspend fun sendEvent(block: () -> Unit) = sendEvent(block as Any)
 
     override suspend fun processEvent(context: Context, event: Any) {
         require(event is Function0<*>)

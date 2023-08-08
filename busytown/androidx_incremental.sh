@@ -39,13 +39,20 @@ function hashOutDir() {
   (cd $OUT_DIR && find -type f | grep -v "$hashFile" | xargs --no-run-if-empty -P 32 -n 64 sha1sum > $DIST_DIR/$hashFile)
   echo "done hashing out dir"
 }
-hashOutDir
+# disable temporarily b/276812697
+# hashOutDir
 
 # If we encounter a failure in postsubmit, we try a few things to determine if the failure is
 # reproducible
 DIAGNOSE_ARG=""
 if [ "$PRESUBMIT" == "false" ]; then
-  DIAGNOSE_ARG="--diagnose"
+  if [ "$BUILD_NUMBER" == "" ]; then
+    # This is a local build so we can diagnose without a timeout. The user can cancel it when they're satisfied.
+    DIAGNOSE_ARG="--diagnose"
+  else
+    # This is running on the build server so we should not spend long trying to diagnose it
+    DIAGNOSE_ARG="--diagnose --diagnose-timeout 600"
+  fi
 fi
 
 EXIT_VALUE=0
@@ -56,8 +63,11 @@ if ! impl/check_translations.sh; then
   EXIT_VALUE=1
 else
     # Run Gradle
-    if impl/build.sh $DIAGNOSE_ARG buildOnServer checkExternalLicenses listTaskOutputs \
-        --profile "$@"; then
+    # TODO: when b/278730831 ( https://youtrack.jetbrains.com/issue/KT-58547 ) is resolved, remove "-Pkotlin.incremental=false"
+    if impl/build.sh $DIAGNOSE_ARG buildOnServer checkExternalLicenses listTaskOutputs exportSboms \
+        --profile \
+        -Pkotlin.incremental=false \
+        "$@"; then
     echo build succeeded
     EXIT_VALUE=0
     else

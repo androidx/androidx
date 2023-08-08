@@ -35,8 +35,6 @@ import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
-import java.lang.reflect.Field;
-
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
 @Config(
@@ -46,10 +44,8 @@ import java.lang.reflect.Field;
 public class ExtensionVersionTest {
 
     @Before
-    public void setUp() throws NoSuchFieldException, IllegalAccessException {
-        Field field = VersionName.class.getDeclaredField("CURRENT");
-        field.setAccessible(true);
-        field.set(null, new VersionName("1.1.0"));
+    public void setUp() {
+        ClientVersion.setCurrentVersion(new ClientVersion("1.1.0"));
     }
 
     @Test

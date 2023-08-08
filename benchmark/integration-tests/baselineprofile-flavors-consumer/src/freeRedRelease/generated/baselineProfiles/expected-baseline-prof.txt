@@ -1,0 +1,7 @@
+Landroidx/benchmark/integration/baselineprofile/flavors/consumer/EmptyActivity;
+HSPLandroidx/benchmark/integration/baselineprofile/flavors/consumer/EmptyActivity;-><init>()V
+HSPLandroidx/benchmark/integration/baselineprofile/flavors/consumer/EmptyActivity;->onCreate(Landroid/os/Bundle;)V
+Landroidx/benchmark/integration/baselineprofile/flavors/consumer/UtilsKt;
+HSPLandroidx/benchmark/integration/baselineprofile/flavors/consumer/UtilsKt;->callFlavorMethod()Ljava/lang/String;
+Landroidx/benchmark/integration/baselineprofile/flavors/consumer/free/FreeUtilsKt;
+HSPLandroidx/benchmark/integration/baselineprofile/flavors/consumer/free/FreeUtilsKt;->freeFlavorMethod()Ljava/lang/String;

@@ -26,7 +26,6 @@ import androidx.car.app.automotive.R;
 /**
  * Error handling abstraction
  *
- * @hide
  */
 @RestrictTo(LIBRARY)
 public interface ErrorHandler {

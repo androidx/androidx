@@ -38,11 +38,11 @@ import com.squareup.javapoet.JavaFile
 import com.squareup.javapoet.TypeSpec
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.KModifier
-import org.junit.Test
 import java.net.URLClassLoader
 import java.nio.file.Files
 import javax.lang.model.element.Modifier
 import javax.tools.Diagnostic
+import org.junit.Test
 
 @OptIn(ExperimentalProcessingApi::class)
 class TestRunnerTest {

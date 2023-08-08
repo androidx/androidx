@@ -26,7 +26,6 @@ import java.util.LinkedHashSet
  * A base for tracking constraints and notifying listeners of changes.
  *
  * @param T the constraint data type observed by this tracker
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 abstract class ConstraintTracker<T> protected constructor(
@@ -50,7 +49,7 @@ abstract class ConstraintTracker<T> protected constructor(
         synchronized(lock) {
             if (listeners.add(listener)) {
                 if (listeners.size == 1) {
-                    currentState = initialState
+                    currentState = readSystemState()
                     Logger.get().debug(
                         TAG, "${javaClass.simpleName}: initial state = $currentState"
                     )
@@ -77,7 +76,7 @@ abstract class ConstraintTracker<T> protected constructor(
 
     var state: T
         get() {
-            return currentState ?: initialState
+            return currentState ?: readSystemState()
         }
 
         set(newState) {
@@ -104,9 +103,11 @@ abstract class ConstraintTracker<T> protected constructor(
         }
 
     /**
-     * Determines the initial state of the constraint being tracked.
+     * Reads the state of the constraints from source of truth. (e.g. NetworkManager for
+     * NetworkTracker). It is always accurate unlike `state` that can be stale after stopTracking
+     * call.
      */
-    abstract val initialState: T
+    abstract fun readSystemState(): T
 
     /**
      * Start tracking for constraint state changes.

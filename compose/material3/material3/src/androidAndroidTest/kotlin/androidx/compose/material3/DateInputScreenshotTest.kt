@@ -96,16 +96,19 @@ class DateInputScreenshotTest(private val scheme: ColorSchemeWrapper) {
     }
 
     @Test
-    fun dateInput_invalidDatePicker() {
+    fun dateInput_invalidDateInput() {
         rule.setMaterialContent(scheme.colorScheme) {
             Box(wrap.testTag(wrapperTestTag)) {
                 val monthInUtcMillis = dayInUtcMilliseconds(year = 2000, month = 6, dayOfMonth = 1)
                 DatePicker(
                     state = rememberDatePickerState(
                         initialDisplayedMonthMillis = monthInUtcMillis,
-                        initialDisplayMode = DisplayMode.Input
+                        initialDisplayMode = DisplayMode.Input,
+                        selectableDates = object : SelectableDates {
+                            // All dates are invalid for the sake of this test.
+                            override fun isSelectableDate(utcTimeMillis: Long): Boolean = false
+                        }
                     ),
-                    dateValidator = { false },
                     showModeToggle = false
                 )
             }

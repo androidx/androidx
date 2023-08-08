@@ -2,7 +2,7 @@
 package androidx.hilt.navigation.fragment {
 
   public final class HiltNavGraphViewModelLazyKt {
-    method @MainThread public static inline <reified VM extends androidx.lifecycle.ViewModel> kotlin.Lazy<? extends VM> hiltNavGraphViewModels(androidx.fragment.app.Fragment, @IdRes int navGraphId);
+    method @MainThread public static inline <reified VM extends androidx.lifecycle.ViewModel> kotlin.Lazy<VM> hiltNavGraphViewModels(androidx.fragment.app.Fragment, @IdRes int navGraphId);
   }
 
 }

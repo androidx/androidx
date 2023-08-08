@@ -28,6 +28,7 @@ import android.hardware.camera2.CameraManager
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
+import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.compat.Camera2CameraMetadata
@@ -45,6 +46,7 @@ import org.robolectric.shadows.ShadowCameraCharacteristics
 import org.robolectric.shadows.ShadowCameraManager
 
 /** Utility class for creating, configuring, and interacting with Robolectric's [CameraManager]. */
+@RequiresApi(21)
 public object RobolectricCameras {
     private val cameraIds = atomic(0)
 
@@ -106,7 +108,8 @@ public object RobolectricCameras {
                 characteristics,
                 FakeCameraMetadataProvider(),
                 emptyMap(),
-                emptySet())
+                emptySet()
+            )
 
         @Suppress("SyntheticAccessor") val callback = CameraStateCallback(cameraId)
         cameraManager.openCamera(cameraId.value, callback, Handler())
@@ -150,7 +153,8 @@ public object RobolectricCameras {
 
         override fun onDisconnected(camera: CameraDevice) {
             throw UnsupportedOperationException(
-                "onDisconnected is not expected for Robolectric Camera")
+                "onDisconnected is not expected for Robolectric Camera"
+            )
         }
 
         override fun onError(camera: CameraDevice, error: Int) {
@@ -169,7 +173,8 @@ class RobolectricCamerasTest {
     fun fakeCamerasCanBeOpened() {
         val fakeCameraId =
             RobolectricCameras.create(
-                mapOf(CameraCharacteristics.LENS_FACING to CameraCharacteristics.LENS_FACING_BACK))
+                mapOf(CameraCharacteristics.LENS_FACING to CameraCharacteristics.LENS_FACING_BACK)
+            )
         val fakeCamera = RobolectricCameras.open(fakeCameraId)
 
         Truth.assertThat(fakeCamera).isNotNull()

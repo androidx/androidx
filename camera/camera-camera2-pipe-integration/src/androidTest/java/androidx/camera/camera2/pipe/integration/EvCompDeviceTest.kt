@@ -26,12 +26,13 @@ import androidx.camera.camera2.pipe.integration.adapter.CameraControlAdapter
 import androidx.camera.camera2.pipe.integration.impl.ComboRequestListener
 import androidx.camera.camera2.pipe.integration.interop.ExperimentalCamera2Interop
 import androidx.camera.camera2.pipe.testing.VerifyResultListener
+import androidx.camera.camera2.pipe.testing.toCameraControlAdapter
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.internal.CameraUseCaseAdapter
-import androidx.camera.testing.CameraUtil
-import androidx.camera.testing.CameraXUtil
+import androidx.camera.testing.impl.CameraUtil
+import androidx.camera.testing.impl.CameraXUtil
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -43,6 +44,7 @@ import java.util.concurrent.TimeoutException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asExecutor
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import org.junit.After
 import org.junit.Assume
 import org.junit.Before
@@ -91,16 +93,18 @@ class EvCompDeviceTest {
             CameraSelector.LENS_FACING_BACK
         ).build()
         camera = CameraUtil.createCameraUseCaseAdapter(context, cameraSelector)
-        cameraControl = camera.cameraControl as CameraControlAdapter
+        cameraControl = camera.cameraControl.toCameraControlAdapter()
 
         @OptIn(ExperimentalCamera2Interop::class)
         comboListener = cameraControl.camera2cameraControl.requestListener
     }
 
     @After
-    fun tearDown() {
+    fun tearDown(): Unit = runBlocking {
         if (::camera.isInitialized) {
-            camera.detachUseCases()
+            withContext(Dispatchers.Main) {
+                camera.removeUseCases(camera.useCases)
+            }
         }
 
         CameraXUtil.shutdown()[10000, TimeUnit.MILLISECONDS]
@@ -258,10 +262,12 @@ class EvCompDeviceTest {
             ImageAnalysis.Builder().build().apply {
                 // set analyzer to make it active.
                 setAnalyzer(Dispatchers.Default.asExecutor()) {
-                    // Fake analyzer, do nothing.
+                    // Fake analyzer, do nothing. Close the ImageProxy immediately to prevent the
+                    // closing of the CameraDevice from being stuck.
+                    it.close()
                 }
             },
         )
-        cameraControl = camera.cameraControl as CameraControlAdapter
+        cameraControl = camera.cameraControl.toCameraControlAdapter()
     }
 }

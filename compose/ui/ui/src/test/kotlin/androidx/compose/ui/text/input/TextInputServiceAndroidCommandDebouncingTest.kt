@@ -17,8 +17,10 @@
 package androidx.compose.ui.text.input
 
 import android.view.View
+import android.view.inputmethod.CursorAnchorInfo
 import android.view.inputmethod.ExtractedText
 import com.google.common.truth.Truth.assertThat
+import java.util.concurrent.Executor
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
@@ -37,7 +39,10 @@ class TextInputServiceAndroidCommandDebouncingTest {
 
     private val view = mock<View>()
     private val inputMethodManager = TestInputMethodManager()
-    private val service = TextInputServiceAndroid(view, inputMethodManager)
+    private val executor = Executor { runnable -> scope.launch { runnable.run() } }
+    private val service = TextInputServiceAndroid(
+        view, mock(), inputMethodManager, inputCommandProcessorExecutor = executor
+    )
     private val dispatcher = StandardTestDispatcher()
     private val scope = TestScope(dispatcher + Job())
 
@@ -45,7 +50,6 @@ class TextInputServiceAndroidCommandDebouncingTest {
     fun setUp() {
         // Default the view to focused because when it's not focused commands should be ignored.
         whenever(view.isFocused).thenReturn(true)
-        scope.launch { service.textInputCommandEventLoop() }
     }
 
     @After
@@ -75,7 +79,7 @@ class TextInputServiceAndroidCommandDebouncingTest {
 
     @Test
     fun startInput_callsRestartInput() {
-        service.startInput()
+        service.startInputForTest()
         scope.advanceUntilIdle()
 
         assertThat(inputMethodManager.restartCalls).isEqualTo(1)
@@ -83,7 +87,7 @@ class TextInputServiceAndroidCommandDebouncingTest {
 
     @Test
     fun startInput_callsShowKeyboard() {
-        service.startInput()
+        service.startInputForTest()
         scope.advanceUntilIdle()
 
         assertThat(inputMethodManager.showSoftInputCalls).isEqualTo(1)
@@ -107,7 +111,7 @@ class TextInputServiceAndroidCommandDebouncingTest {
 
     @Test
     fun startThenStopInput_onlyCallsRestartOnce() {
-        service.startInput()
+        service.startInputForTest()
         service.stopInput()
         scope.advanceUntilIdle()
 
@@ -121,7 +125,7 @@ class TextInputServiceAndroidCommandDebouncingTest {
     @Test
     fun stopThenStartInput_onlyCallsRestartOnce() {
         service.stopInput()
-        service.startInput()
+        service.startInputForTest()
         scope.advanceUntilIdle()
 
         // Both startInput and stopInput restart the IMM. So calling those two methods back-to-back,
@@ -194,7 +198,8 @@ class TextInputServiceAndroidCommandDebouncingTest {
         assertThat(inputMethodManager.hideSoftInputCalls).isEqualTo(0)
     }
 
-    @Test fun stopInput_isNotProcessedImmediately() {
+    @Test
+    fun stopInput_isNotProcessedImmediately() {
         service.stopInput()
 
         assertThat(inputMethodManager.restartCalls).isEqualTo(0)
@@ -202,15 +207,17 @@ class TextInputServiceAndroidCommandDebouncingTest {
         assertThat(inputMethodManager.hideSoftInputCalls).isEqualTo(0)
     }
 
-    @Test fun startInput_isNotProcessedImmediately() {
-        service.startInput()
+    @Test
+    fun startInput_isNotProcessedImmediately() {
+        service.startInputForTest()
 
         assertThat(inputMethodManager.restartCalls).isEqualTo(0)
         assertThat(inputMethodManager.showSoftInputCalls).isEqualTo(0)
         assertThat(inputMethodManager.hideSoftInputCalls).isEqualTo(0)
     }
 
-    @Test fun showSoftwareKeyboard_isNotProcessedImmediately() {
+    @Test
+    fun showSoftwareKeyboard_isNotProcessedImmediately() {
         service.showSoftwareKeyboard()
 
         assertThat(inputMethodManager.restartCalls).isEqualTo(0)
@@ -218,7 +225,8 @@ class TextInputServiceAndroidCommandDebouncingTest {
         assertThat(inputMethodManager.hideSoftInputCalls).isEqualTo(0)
     }
 
-    @Test fun hideSoftwareKeyboard_isNotProcessedImmediately() {
+    @Test
+    fun hideSoftwareKeyboard_isNotProcessedImmediately() {
         service.hideSoftwareKeyboard()
 
         assertThat(inputMethodManager.restartCalls).isEqualTo(0)
@@ -226,7 +234,8 @@ class TextInputServiceAndroidCommandDebouncingTest {
         assertThat(inputMethodManager.hideSoftInputCalls).isEqualTo(0)
     }
 
-    @Test fun commandsAreIgnored_ifFocusLostBeforeProcessing() {
+    @Test
+    fun commandsAreIgnored_ifFocusLostBeforeProcessing() {
         // Send command while view still has focus.
         service.showSoftwareKeyboard()
         // Blur the view.
@@ -237,7 +246,8 @@ class TextInputServiceAndroidCommandDebouncingTest {
         assertThat(inputMethodManager.showSoftInputCalls).isEqualTo(0)
     }
 
-    @Test fun commandsAreDrained_whenProcessedWithoutFocus() {
+    @Test
+    fun commandsAreDrained_whenProcessedWithoutFocus() {
         whenever(view.isFocused).thenReturn(false)
         service.showSoftwareKeyboard()
         service.hideSoftwareKeyboard()
@@ -248,7 +258,20 @@ class TextInputServiceAndroidCommandDebouncingTest {
         assertThat(inputMethodManager.showSoftInputCalls).isEqualTo(0)
     }
 
-    private fun TextInputServiceAndroid.startInput() {
+    @Test
+    fun commandsAreCleared_afterProcessing() {
+        service.startInputForTest()
+        scope.advanceUntilIdle()
+        assertThat(inputMethodManager.restartCalls).isEqualTo(1)
+        assertThat(inputMethodManager.showSoftInputCalls).isEqualTo(1)
+
+        service.showSoftwareKeyboard()
+        scope.advanceUntilIdle()
+        assertThat(inputMethodManager.restartCalls).isEqualTo(1) // does not increase
+        assertThat(inputMethodManager.showSoftInputCalls).isEqualTo(2)
+    }
+
+    private fun TextInputServiceAndroid.startInputForTest() {
         startInput(
             TextFieldValue(),
             ImeOptions.Default,
@@ -261,6 +284,8 @@ class TextInputServiceAndroidCommandDebouncingTest {
         var restartCalls = 0
         var showSoftInputCalls = 0
         var hideSoftInputCalls = 0
+
+        override fun isActive(): Boolean = true
 
         override fun restartInput() {
             restartCalls++
@@ -283,6 +308,9 @@ class TextInputServiceAndroidCommandDebouncingTest {
             compositionStart: Int,
             compositionEnd: Int
         ) {
+        }
+
+        override fun updateCursorAnchorInfo(cursorAnchorInfo: CursorAnchorInfo) {
         }
     }
 }

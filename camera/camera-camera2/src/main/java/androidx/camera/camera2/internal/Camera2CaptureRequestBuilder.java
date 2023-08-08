@@ -28,6 +28,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
+import androidx.camera.camera2.impl.Camera2ImplConfig;
 import androidx.camera.camera2.interop.CaptureRequestOptions;
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
 import androidx.camera.core.Logger;
@@ -35,6 +36,7 @@ import androidx.camera.core.impl.CameraCaptureResult;
 import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.Config;
 import androidx.camera.core.impl.DeferrableSurface;
+import androidx.camera.core.impl.StreamSpec;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -94,6 +96,21 @@ class Camera2CaptureRequestBuilder {
         }
     }
 
+    @OptIn(markerClass = ExperimentalCamera2Interop.class)
+    private static void applyAeFpsRange(@NonNull CaptureConfig captureConfig,
+            @NonNull CaptureRequest.Builder builder) {
+        boolean containsTargetFpsRange = CaptureRequestOptions.Builder.from(
+                captureConfig.getImplementationOptions()).build().containsOption(
+                Camera2ImplConfig.createCaptureRequestOption(
+                        CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE));
+        if (!containsTargetFpsRange && !captureConfig.getExpectedFrameRateRange().equals(
+                StreamSpec.FRAME_RATE_RANGE_UNSPECIFIED)) {
+            builder.set(CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE,
+                    captureConfig.getExpectedFrameRateRange());
+        }
+
+    }
+
 
     /**
      * Builds a {@link CaptureRequest} from a {@link CaptureConfig} and a {@link CameraDevice}.
@@ -135,6 +152,8 @@ class Camera2CaptureRequestBuilder {
 
         applyImplementationOptionToCaptureBuilder(builder,
                 captureConfig.getImplementationOptions());
+
+        applyAeFpsRange(captureConfig, builder);
 
         if (captureConfig.getImplementationOptions().containsOption(
                 CaptureConfig.OPTION_ROTATION)) {

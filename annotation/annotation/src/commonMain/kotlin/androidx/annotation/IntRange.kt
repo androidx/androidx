@@ -38,8 +38,8 @@ package androidx.annotation
     AnnotationTarget.ANNOTATION_CLASS
 )
 public annotation class IntRange(
-    /** Smallest value, inclusive  */
+    /** Smallest value, inclusive */
     val from: Long = Long.MIN_VALUE,
-    /** Largest value, inclusive  */
+    /** Largest value, inclusive */
     val to: Long = Long.MAX_VALUE
 )

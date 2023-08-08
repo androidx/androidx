@@ -19,10 +19,8 @@ package androidx.room.compiler.processing.javac
 import androidx.room.compiler.processing.InternalXAnnotationValue
 import androidx.room.compiler.processing.XArrayType
 import androidx.room.compiler.processing.XEnumTypeElement
-import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XNullability
 import androidx.room.compiler.processing.XType
-import androidx.room.compiler.processing.compat.XConverters.toJavac
 import com.google.auto.common.MoreTypes
 import javax.lang.model.element.AnnotationMirror
 import javax.lang.model.element.AnnotationValue
@@ -33,7 +31,7 @@ import javax.lang.model.util.AbstractAnnotationValueVisitor8
 
 internal class JavacAnnotationValue(
     val env: JavacProcessingEnv,
-    private val method: XMethodElement,
+    val method: JavacMethodElement,
     val annotationValue: AnnotationValue,
     override val valueType: XType = method.returnType,
     private val valueProvider: () -> Any? = {
@@ -41,12 +39,12 @@ internal class JavacAnnotationValue(
     }
 ) : InternalXAnnotationValue() {
     override val name: String
-        get() = method.toJavac().simpleName.toString()
+        get() = method.element.simpleName.toString()
 
     override val value: Any? by lazy { valueProvider.invoke() }
 }
 
-private data class VisitorData(val env: JavacProcessingEnv, val method: XMethodElement)
+private data class VisitorData(val env: JavacProcessingEnv, val method: JavacMethodElement)
 
 private val UNWRAP_VISITOR = object : AbstractAnnotationValueVisitor8<Any?, VisitorData>() {
     override fun visitBoolean(b: Boolean, data: VisitorData) = b
@@ -57,7 +55,6 @@ private val UNWRAP_VISITOR = object : AbstractAnnotationValueVisitor8<Any?, Visi
     override fun visitInt(i: Int, data: VisitorData) = i
     override fun visitLong(i: Long, data: VisitorData) = i
     override fun visitShort(s: Short, data: VisitorData) = s
-
     override fun visitString(s: String?, data: VisitorData) =
         if (s == "<error>") {
             throw TypeNotPresentException(s, null)

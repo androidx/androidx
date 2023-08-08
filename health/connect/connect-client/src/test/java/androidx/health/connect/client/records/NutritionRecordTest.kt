@@ -16,6 +16,7 @@
 
 package androidx.health.connect.client.records
 
+import androidx.health.connect.client.units.Energy
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
 import java.time.Instant
@@ -34,6 +35,7 @@ class NutritionRecordTest {
                     startZoneOffset = null,
                     endTime = Instant.ofEpochMilli(1236L),
                     endZoneOffset = null,
+                    energy = Energy.calories(5.0)
                 )
             )
             .isEqualTo(
@@ -42,8 +44,31 @@ class NutritionRecordTest {
                     startZoneOffset = null,
                     endTime = Instant.ofEpochMilli(1236L),
                     endZoneOffset = null,
+                    energy = Energy.calories(5.0)
                 )
             )
+    }
+
+    @Test
+    fun invalidNutritionValue_throws() {
+        assertFailsWith<IllegalArgumentException> {
+            NutritionRecord(
+                startTime = Instant.ofEpochMilli(1234L),
+                startZoneOffset = null,
+                endTime = Instant.ofEpochMilli(1236L),
+                endZoneOffset = null,
+                energy = Energy.calories(-1.0)
+            )
+        }
+        assertFailsWith<IllegalArgumentException> {
+            NutritionRecord(
+                startTime = Instant.ofEpochMilli(1234L),
+                startZoneOffset = null,
+                endTime = Instant.ofEpochMilli(1236L),
+                endZoneOffset = null,
+                energy = Energy.calories(100000001.0)
+            )
+        }
     }
 
     @Test

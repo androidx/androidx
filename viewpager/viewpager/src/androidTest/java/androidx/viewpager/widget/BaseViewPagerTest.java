@@ -37,6 +37,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.hasDescendant;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
+import static androidx.testutils.SwipeExclusionRectsKt.setSystemExclusionRectsForEspressoSwipes;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.allOf;
@@ -263,6 +264,7 @@ public abstract class BaseViewPagerTest<T extends Activity> {
     public void setUp() throws Exception {
         final T activity = mActivityTestRule.getActivity();
         mViewPager = (ViewPager) activity.findViewById(R.id.pager);
+        setSystemExclusionRectsForEspressoSwipes(mViewPager, true);
 
         ColorPagerAdapter adapter = new ColorPagerAdapter();
         adapter.add("Red", Color.RED);

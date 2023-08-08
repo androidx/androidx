@@ -26,10 +26,11 @@ import androidx.camera.camera2.pipe.integration.adapter.RobolectricCameraPipeTes
 import androidx.camera.camera2.pipe.integration.adapter.SessionConfigAdapter
 import androidx.camera.camera2.pipe.integration.adapter.TestDeferrableSurface
 import androidx.camera.camera2.pipe.integration.adapter.asListenableFuture
+import androidx.camera.camera2.pipe.integration.compat.workaround.NoOpInactiveSurfaceCloser
 import androidx.camera.camera2.pipe.integration.testing.FakeCameraGraph
 import androidx.camera.core.impl.DeferrableSurface
 import androidx.camera.core.impl.SessionConfig
-import androidx.camera.testing.fakes.FakeUseCaseConfig
+import androidx.camera.testing.impl.fakes.FakeUseCaseConfig
 import androidx.test.core.app.ApplicationProvider
 import androidx.testutils.MainDispatcherRule
 import com.google.common.truth.Truth.assertThat
@@ -114,6 +115,7 @@ class UseCaseSurfaceManagerTest {
         UseCaseSurfaceManager(
             useCaseThreads,
             CameraPipe(CameraPipe.Config(ApplicationProvider.getApplicationContext())),
+            NoOpInactiveSurfaceCloser,
         ).setupAsync(
             graph = fakeGraph,
             sessionConfigAdapter = SessionConfigAdapter(
@@ -166,6 +168,7 @@ class UseCaseSurfaceManagerTest {
         UseCaseSurfaceManager(
             useCaseThreads,
             CameraPipe(CameraPipe.Config(ApplicationProvider.getApplicationContext())),
+            NoOpInactiveSurfaceCloser,
         ).setupAsync(
             graph = fakeGraph,
             sessionConfigAdapter = SessionConfigAdapter(
@@ -224,6 +227,7 @@ class UseCaseSurfaceManagerTest {
         UseCaseSurfaceManager(
             useCaseThreads,
             CameraPipe(CameraPipe.Config(ApplicationProvider.getApplicationContext())),
+            NoOpInactiveSurfaceCloser,
         ).setupAsync(
             graph = fakeGraph,
             sessionConfigAdapter = SessionConfigAdapter(
@@ -284,6 +288,7 @@ class UseCaseSurfaceManagerTest {
         val useCaseSurfaceManager = UseCaseSurfaceManager(
             useCaseThreads,
             CameraPipe(CameraPipe.Config(ApplicationProvider.getApplicationContext())),
+            NoOpInactiveSurfaceCloser,
         )
         val deferred = useCaseSurfaceManager.setupAsync(
             graph = fakeGraph,

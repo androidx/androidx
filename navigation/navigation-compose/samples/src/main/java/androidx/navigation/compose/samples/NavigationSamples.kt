@@ -20,7 +20,9 @@ import android.os.Bundle
 import android.os.Parcelable
 import androidx.annotation.Sampled
 import androidx.annotation.StringRes
+import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -35,11 +37,15 @@ import androidx.compose.material.Divider
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.LightGray
+import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -68,8 +74,48 @@ fun BasicNav() {
     val navController = rememberNavController()
     NavHost(navController, startDestination = Screen.Profile.route) {
         composable(Screen.Profile.route) { Profile(navController) }
-        composable(Screen.Dashboard.route) { Dashboard(navController) }
-        composable(Screen.Scrollable.route) { Scrollable(navController) }
+        composable(
+            Screen.Dashboard.route,
+            enterTransition = {
+                if (initialState.destination.route == Screen.Scrollable.route) {
+                    // Slide in when entering from Scrollable
+                    slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Start)
+                } else {
+                    null
+                }
+            },
+            popExitTransition = {
+                if (targetState.destination.route == Screen.Scrollable.route) {
+                    // Slide out when popping back to Scrollable
+                    slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.End)
+                } else {
+                    null
+                }
+            }
+        ) {
+            Dashboard(navController)
+        }
+        composable(
+            Screen.Scrollable.route,
+            exitTransition = {
+                if (targetState.destination.route == Screen.Dashboard.route) {
+                    // Slide out when navigating to Dashboard
+                    slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Start)
+                } else {
+                    null
+                }
+            },
+            popEnterTransition = {
+                if (initialState.destination.route == Screen.Dashboard.route) {
+                    // Slide back in when returning from Dashboard
+                    slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.End)
+                } else {
+                    null
+                }
+            }
+        ) {
+            Scrollable(navController)
+        }
         dialog(Screen.Dialog.route) { DialogContent(navController) }
     }
 }
@@ -238,6 +284,27 @@ fun NavigateBackButton(navController: NavController) {
             modifier = Modifier.fillMaxWidth()
         ) {
             Text(text = "Go to Previous screen")
+        }
+    }
+}
+
+@Preview
+@Composable
+fun NavHostPreview() {
+    CompositionLocalProvider(
+        LocalInspectionMode provides true,
+    ) {
+        Box(Modifier.fillMaxSize().background(Color.Red)) {
+            NavHost(
+                navController = rememberNavController(),
+                startDestination = "home"
+            ) {
+                composable("home") {
+                    Box(Modifier.fillMaxSize().background(Color.Blue)) {
+                        Text(text = "test", modifier = Modifier.testTag("text"))
+                    }
+                }
+            }
         }
     }
 }

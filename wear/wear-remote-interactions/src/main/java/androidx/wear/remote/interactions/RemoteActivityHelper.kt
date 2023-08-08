@@ -138,7 +138,7 @@ public class RemoteActivityHelper(
     /**
      * Used for testing only, so we can set mock NodeClient.
      */
-    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    @VisibleForTesting
     internal var nodeClient: NodeClient = Wearable.getNodeClient(context)
 
     /**
@@ -261,7 +261,7 @@ public class RemoteActivityHelper(
      * additional extras are specified, they will be added to it. If specified, [ResultReceiver]
      * will be re-packed to be parcelable. If specified, packageName will be set.
      */
-    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    @VisibleForTesting
     internal fun createIntent(
         extraIntent: Intent?,
         resultReceiver: ResultReceiver?,

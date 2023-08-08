@@ -17,6 +17,8 @@ MissingNullability: androidx.appcompat.graphics.drawable.DrawableContainerCompat
     Missing nullability on parameter `tint` in method `setTintList`
 MissingNullability: androidx.appcompat.graphics.drawable.DrawableWrapperCompat#DrawableWrapperCompat(android.graphics.drawable.Drawable) parameter #0:
     Missing nullability on parameter `drawable` in method `DrawableWrapperCompat`
+MissingNullability: androidx.appcompat.graphics.drawable.DrawableWrapperCompat#draw(android.graphics.Canvas) parameter #0:
+    Missing nullability on parameter `canvas` in method `draw`
 MissingNullability: androidx.appcompat.graphics.drawable.DrawableWrapperCompat#getCurrent():
     Missing nullability on method `getCurrent` return
 MissingNullability: androidx.appcompat.graphics.drawable.DrawableWrapperCompat#getPadding(android.graphics.Rect) parameter #0:

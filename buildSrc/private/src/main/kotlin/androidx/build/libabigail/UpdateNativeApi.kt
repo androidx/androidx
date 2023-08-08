@@ -18,6 +18,7 @@ package androidx.build.libabigail
 
 import androidx.build.OperatingSystem
 import androidx.build.getOperatingSystem
+import java.io.File
 import org.gradle.api.DefaultTask
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
@@ -28,7 +29,6 @@ import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
 import org.gradle.work.DisableCachingByDefault
-import java.io.File
 
 /**
  * Task which depends on `[GenerateNativeApiTask] and takes the generated native API files from the
@@ -37,46 +37,31 @@ import java.io.File
 @DisableCachingByDefault(because = "Doesn't benefit from caching")
 abstract class UpdateNativeApi : DefaultTask() {
 
-    @get:Internal
-    abstract val artifactNames: ListProperty<String>
+    @get:Internal abstract val artifactNames: ListProperty<String>
 
-    @get:Internal
-    abstract val inputApiLocation: Property<File>
+    @get:Internal abstract val inputApiLocation: Property<File>
 
-    @get:Internal
-    abstract val outputApiLocations: ListProperty<File>
+    @get:Internal abstract val outputApiLocations: ListProperty<File>
 
     @[InputFiles PathSensitive(PathSensitivity.RELATIVE)]
     fun getTaskInputs(): List<File> {
-        return getLocationsForArtifacts(
-            inputApiLocation.get(),
-            artifactNames.get()
-        )
+        return getLocationsForArtifacts(inputApiLocation.get(), artifactNames.get())
     }
 
     @OutputFiles
     fun getTaskOutputs(): List<File> {
         return outputApiLocations.get().flatMap { outputApiLocation ->
-            getLocationsForArtifacts(
-                outputApiLocation,
-                artifactNames.get()
-            )
+            getLocationsForArtifacts(outputApiLocation, artifactNames.get())
         }
     }
 
     @TaskAction
     fun exec() {
         if (getOperatingSystem() != OperatingSystem.LINUX) {
-            logger.warn(
-                "Native API checking is currently not supported on non-linux devices"
-            )
+            logger.warn("Native API checking is currently not supported on non-linux devices")
             return
         }
-        outputApiLocations.get().forEach { dir ->
-            dir.listFiles()?.forEach {
-                it.delete()
-            }
-        }
+        outputApiLocations.get().forEach { dir -> dir.listFiles()?.forEach { it.delete() } }
         outputApiLocations.get().forEach { outputLocation ->
             inputApiLocation.get().copyRecursively(target = outputLocation, overwrite = true)
         }

@@ -169,7 +169,6 @@ public class MediaController implements Closeable {
     private static final String TAG = "MediaController";
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     @IntDef({AudioManager.ADJUST_LOWER, AudioManager.ADJUST_RAISE, AudioManager.ADJUST_SAME,
@@ -178,7 +177,6 @@ public class MediaController implements Closeable {
     public @interface VolumeDirection {}
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     @IntDef(value = {AudioManager.FLAG_SHOW_UI, AudioManager.FLAG_ALLOW_RINGER_MODES,
@@ -1393,7 +1391,6 @@ public class MediaController implements Closeable {
      * Sets the time diff forcefully when calculating current position.
      * @param timeDiff {@code null} for reset
      *
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public void setTimeDiff(Long timeDiff) {
@@ -1406,7 +1403,6 @@ public class MediaController implements Closeable {
      * @param callback a ControllerCallback
      * @see #unregisterExtraCallback(ControllerCallback)
      *
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
     public void registerExtraCallback(@NonNull /*@CallbackExecutor*/ Executor executor,
@@ -1442,7 +1438,6 @@ public class MediaController implements Closeable {
      * @param callback a ControllerCallback
      * @see #registerExtraCallback(Executor, ControllerCallback)
      *
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
     public void unregisterExtraCallback(@NonNull ControllerCallback callback) {
@@ -1464,7 +1459,6 @@ public class MediaController implements Closeable {
         }
     }
 
-    /** @hide */
     @RestrictTo(LIBRARY)
     @NonNull
     public List<Pair<ControllerCallback, Executor>> getExtraControllerCallbacks() {
@@ -1506,7 +1500,6 @@ public class MediaController implements Closeable {
         }
     }
 
-    /** @hide */
     @RestrictTo(LIBRARY)
     public void notifyAllControllerCallbacks(
             @NonNull final ControllerCallbackRunnable callbackRunnable) {
@@ -1534,7 +1527,6 @@ public class MediaController implements Closeable {
         }
     }
 
-    /** @hide */
     @RestrictTo(LIBRARY)
     public interface ControllerCallbackRunnable {
         /**
@@ -1703,7 +1695,6 @@ public class MediaController implements Closeable {
      *      T extends androidx.media2.MediaController,
      *      U extends androidx.media2.MediaController.BuilderBase<
      *              T, U, C extends androidx.media2.MediaController.ControllerCallback>, C></pre>
-     * @hide
      */
     @RestrictTo(LIBRARY)
     abstract static class BuilderBase<T extends MediaController, U extends BuilderBase<T, U, C>,
@@ -2058,7 +2049,6 @@ public class MediaController implements Closeable {
 
         /**
          * @deprecated Use {@link #onVideoSizeChanged(MediaController, VideoSize)} instead.
-         * @hide
          */
         @RestrictTo(LIBRARY)
         @Deprecated

@@ -36,7 +36,6 @@ import java.util.UUID;
 /**
  * A parcelable {@link WorkQuery} for multiprocess WorkManager.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @SuppressLint("BanParcelableUsage")

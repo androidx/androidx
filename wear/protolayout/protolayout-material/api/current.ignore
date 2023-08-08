@@ -1,0 +1,19 @@
+// Baseline format: 1.0
+BecameUnchecked: androidx.wear.protolayout.material.CompactChip#hasExcludeFontPadding():
+    Removed method androidx.wear.protolayout.material.CompactChip.hasExcludeFontPadding() from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.material.CompactChip.Builder#setExcludeFontPadding(boolean):
+    Removed method androidx.wear.protolayout.material.CompactChip.Builder.setExcludeFontPadding(boolean) from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.material.CompactChip.Builder#setExcludeFontPadding(boolean) parameter #0:
+    Removed parameter arg1 in androidx.wear.protolayout.material.CompactChip.Builder.setExcludeFontPadding(boolean arg1) from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.material.Text#hasExcludeFontPadding():
+    Removed method androidx.wear.protolayout.material.Text.hasExcludeFontPadding() from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.material.Text.Builder#setExcludeFontPadding(boolean):
+    Removed method androidx.wear.protolayout.material.Text.Builder.setExcludeFontPadding(boolean) from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.material.Text.Builder#setExcludeFontPadding(boolean) parameter #0:
+    Removed parameter arg1 in androidx.wear.protolayout.material.Text.Builder.setExcludeFontPadding(boolean arg1) from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.material.TitleChip#hasExcludeFontPadding():
+    Removed method androidx.wear.protolayout.material.TitleChip.hasExcludeFontPadding() from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.material.TitleChip.Builder#setExcludeFontPadding(boolean):
+    Removed method androidx.wear.protolayout.material.TitleChip.Builder.setExcludeFontPadding(boolean) from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.material.TitleChip.Builder#setExcludeFontPadding(boolean) parameter #0:
+    Removed parameter arg1 in androidx.wear.protolayout.material.TitleChip.Builder.setExcludeFontPadding(boolean arg1) from compatibility checked API surface

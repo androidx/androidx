@@ -19,7 +19,6 @@ package androidx.room.writer
 import androidx.room.compiler.codegen.CodeLanguage
 import androidx.room.compiler.codegen.XCodeBlock
 import androidx.room.compiler.codegen.XCodeBlock.Builder.Companion.addLocalVal
-import androidx.room.compiler.codegen.asClassName
 import androidx.room.ext.CommonTypeNames
 import androidx.room.ext.RoomMemberNames
 import androidx.room.ext.RoomTypeNames
@@ -28,14 +27,12 @@ import androidx.room.ext.stripNonJava
 import androidx.room.parser.SQLTypeAffinity
 import androidx.room.vo.Entity
 import androidx.room.vo.columnNames
-import java.util.Arrays
 import java.util.Locale
 
 class TableInfoValidationWriter(val entity: Entity) : ValidationWriter() {
 
     companion object {
         const val CREATED_FROM_ENTITY = "CREATED_FROM_ENTITY"
-        val ARRAY_TYPE_NAME = Arrays::class.asClassName()
     }
 
     override fun write(dbParamName: String, scope: CountingCodeGenScope) {
@@ -180,7 +177,7 @@ class TableInfoValidationWriter(val entity: Entity) : ValidationWriter() {
     private fun CodeBlockWrapper.listOfStrings(strings: List<String>): XCodeBlock {
         val placeholders = List(strings.size) { "%S" }.joinToString()
         val function: Any = when (language) {
-            CodeLanguage.JAVA -> XCodeBlock.of(language, "%T.asList", ARRAY_TYPE_NAME)
+            CodeLanguage.JAVA -> XCodeBlock.of(language, "%T.asList", CommonTypeNames.ARRAYS)
             CodeLanguage.KOTLIN -> "listOf"
         }
         return XCodeBlock.of(

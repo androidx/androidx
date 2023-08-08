@@ -26,7 +26,6 @@ import java.lang.annotation.Target;
 
 /**
  * Tags a field that should be serialized as part of SafeParcelization.
- * @hide
  */
 @Retention(RetentionPolicy.CLASS)
 @Target(ElementType.FIELD)

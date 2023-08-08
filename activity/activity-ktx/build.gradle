@@ -24,20 +24,16 @@ plugins {
 }
 
 dependencies {
-    // Atomic group
-    constraints {
-        implementation(project(":activity:activity"))
-    }
 
     api(project(":activity:activity"))
-    api("androidx.core:core-ktx:1.1.0") {
+    api("androidx.core:core-ktx:1.9.0") {
         because "Mirror activity dependency graph for -ktx artifacts"
     }
-    api(project(":lifecycle:lifecycle-runtime-ktx")) {
+    api("androidx.lifecycle:lifecycle-runtime-ktx:2.6.1") {
         because 'Mirror activity dependency graph for -ktx artifacts'
     }
-    api(project(":lifecycle:lifecycle-viewmodel-ktx"))
-    api("androidx.savedstate:savedstate-ktx:1.2.0") {
+    api("androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.1")
+    api("androidx.savedstate:savedstate-ktx:1.2.1") {
         because 'Mirror activity dependency graph for -ktx artifacts'
     }
     api(libs.kotlinStdlib)

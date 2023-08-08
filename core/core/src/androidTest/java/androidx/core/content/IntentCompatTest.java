@@ -43,10 +43,10 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.Signature;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import androidx.core.os.BuildCompat;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SdkSuppress;
@@ -224,7 +224,7 @@ public class IntentCompatTest {
 
     @Test
     public void getParcelableArrayExtra_postU() {
-        if (!BuildCompat.isAtLeastU()) return;
+        if (Build.VERSION.SDK_INT < 34) return;
         Intent intent = new Intent();
         Signature[] signature = new Signature[] { new Signature("") };
         intent.putExtra("extra", signature);
@@ -237,7 +237,7 @@ public class IntentCompatTest {
 
     @Test
     public void getParcelableArrayExtra_returnsNullOnClassMismatch_postU() {
-        if (!BuildCompat.isAtLeastU()) return;
+        if (Build.VERSION.SDK_INT < 34) return;
         Intent intent = new Intent();
         Signature[] signature = new Signature[] { new Signature("") };
         intent.putExtra("extra", signature);
@@ -248,7 +248,7 @@ public class IntentCompatTest {
 
     @Test
     public void getParcelableArrayExtra_preU() {
-        if (BuildCompat.isAtLeastU()) return;
+        if (Build.VERSION.SDK_INT >= 34) return;
         Intent intent = new Intent();
         Signature[] signature = new Signature[] { new Signature("") };
         intent.putExtra("extra", signature);
@@ -282,7 +282,7 @@ public class IntentCompatTest {
 
     @Test
     public void getParcelableArrayListExtra_returnsNullOnClassMismatch_postU() {
-        if (!BuildCompat.isAtLeastU()) return;
+        if (Build.VERSION.SDK_INT < 34) return;
         Intent intent = new Intent();
         ArrayList<Signature> signature = Lists.newArrayList(new Signature(""));
         intent.putParcelableArrayListExtra("extra", signature);
@@ -293,7 +293,7 @@ public class IntentCompatTest {
 
     @Test
     public void getParcelableArrayListExtra_noTypeCheck_preU() {
-        if (BuildCompat.isAtLeastU()) return;
+        if (Build.VERSION.SDK_INT >= 34) return;
         Intent intent = new Intent();
         ArrayList<Signature> signature = Lists.newArrayList(new Signature(""));
         intent.putParcelableArrayListExtra("extra", signature);

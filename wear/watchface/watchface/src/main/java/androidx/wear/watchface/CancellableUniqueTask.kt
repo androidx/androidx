@@ -19,9 +19,7 @@ package androidx.wear.watchface
 import android.os.Handler
 import java.time.Duration
 
-/**
- * Task posting helper which allows only one pending task at a time.
- */
+/** Task posting helper which allows only one pending task at a time. */
 internal class CancellableUniqueTask(private val handler: Handler) {
     private var pendingTask: Runnable? = null
 

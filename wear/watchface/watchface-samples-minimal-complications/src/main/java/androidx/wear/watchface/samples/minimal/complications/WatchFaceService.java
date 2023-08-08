@@ -40,26 +40,22 @@ import androidx.wear.watchface.style.CurrentUserStyleRepository;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 
-import org.jetbrains.annotations.NotNull;
-
 /** The service hosting the watch face. */
 public class WatchFaceService extends ListenableWatchFaceService {
     public static final RectF COMPLICATION_BOUNDS = new RectF(.3f, 0.7f, .7f, .9f);
 
-    /**
-     * Returns complication id that was specified in XML.
-     */
+    /** Returns complication id that was specified in XML. */
     public static int getComplicationId(@NonNull Resources resources) {
         return resources.getInteger(R.integer.complication_slot_id);
     }
 
-    @NotNull
+    @NonNull
     @Override
     protected ListenableFuture<WatchFace> createWatchFaceFuture(
-            @NotNull SurfaceHolder surfaceHolder,
-            @NotNull WatchState watchState,
-            @NotNull ComplicationSlotsManager complicationSlotsManager,
-            @NotNull CurrentUserStyleRepository currentUserStyleRepository) {
+            @NonNull SurfaceHolder surfaceHolder,
+            @NonNull WatchState watchState,
+            @NonNull ComplicationSlotsManager complicationSlotsManager,
+            @NonNull CurrentUserStyleRepository currentUserStyleRepository) {
         Renderer renderer =
                 new WatchFaceRenderer(
                         getResources(),
@@ -72,11 +68,10 @@ public class WatchFaceService extends ListenableWatchFaceService {
                         .setComplicationDeniedDialogIntent(
                                 new Intent(this, ComplicationDeniedActivity.class))
                         .setComplicationRationaleDialogIntent(
-                                new Intent(this, ComplicationRationalActivity.class))
-        );
+                                new Intent(this, ComplicationRationalActivity.class)));
     }
 
-    @NotNull
+    @NonNull
     @Override
     public ComplicationSlotInflationFactory getComplicationSlotInflationFactory(
             @NonNull CurrentUserStyleRepository currentUserStyleRepository) {
@@ -87,9 +82,7 @@ public class WatchFaceService extends ListenableWatchFaceService {
             public CanvasComplicationFactory getCanvasComplicationFactory(int slotId) {
                 return (watchState, invalidateCallback) ->
                         new CanvasComplicationDrawable(
-                                new ComplicationDrawable(context),
-                                watchState,
-                                invalidateCallback);
+                                new ComplicationDrawable(context), watchState, invalidateCallback);
             }
         };
     }

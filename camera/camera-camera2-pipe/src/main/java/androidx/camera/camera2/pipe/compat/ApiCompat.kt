@@ -21,10 +21,12 @@ import android.hardware.camera2.CameraAccessException
 import android.hardware.camera2.CameraCaptureSession
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraDevice
+import android.hardware.camera2.CameraExtensionSession
 import android.hardware.camera2.CameraManager
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CaptureResult
 import android.hardware.camera2.TotalCaptureResult
+import android.hardware.camera2.params.ExtensionSessionConfiguration
 import android.hardware.camera2.params.InputConfiguration
 import android.hardware.camera2.params.OutputConfiguration
 import android.hardware.camera2.params.SessionConfiguration
@@ -115,7 +117,8 @@ internal object Api24Compat {
         handler: Handler?
     ) {
         cameraDevice.createCaptureSessionByOutputConfigurations(
-            outputConfig, stateCallback, handler)
+            outputConfig, stateCallback, handler
+        )
     }
 
     @JvmStatic
@@ -130,7 +133,8 @@ internal object Api24Compat {
         handler: Handler?
     ) {
         cameraDevice.createReprocessableCaptureSessionByConfigurations(
-            inputConfig, outputs, stateCallback, handler)
+            inputConfig, outputs, stateCallback, handler
+        )
     }
 
     @JvmStatic
@@ -288,8 +292,39 @@ internal object Api28Compat {
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.R)
+internal object Api30Compat {
+    @JvmStatic
+    @DoNotInline
+    fun getConcurrentCameraIds(cameraManager: CameraManager): Set<Set<String>> {
+        return cameraManager.concurrentCameraIds
+    }
+}
+
+@RequiresApi(Build.VERSION_CODES.S)
+internal object Api31Compat {
+    @JvmStatic
+    @DoNotInline
+    fun createExtensionCaptureSession(
+        cameraDevice: CameraDevice,
+        extensionConfiguration: ExtensionSessionConfiguration
+    ) {
+        cameraDevice.createExtensionSession(extensionConfiguration)
+    }
+
+    @JvmStatic
+    @DoNotInline
+    fun newExtensionSessionConfiguration(
+        extensionMode: Int,
+        outputs: List<OutputConfiguration?>,
+        executor: Executor,
+        stateCallback: CameraExtensionSession.StateCallback
+    ): ExtensionSessionConfiguration {
+        return ExtensionSessionConfiguration(extensionMode, outputs, executor, stateCallback)
+    }
+}
+
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
-@Suppress("DEPRECATION")
 internal object Api33Compat {
     @JvmStatic
     @DoNotInline

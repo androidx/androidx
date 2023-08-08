@@ -16,8 +16,6 @@
 
 package androidx.credentials.exceptions
 
-import androidx.annotation.VisibleForTesting
-
 /**
  * During the create credential flow, this is thrown when configurations are mismatched for the
  * provider, typically indicating the provider dependency is missing in the manifest or some
@@ -29,10 +27,8 @@ class CreateCredentialProviderConfigurationException @JvmOverloads constructor(
     errorMessage: CharSequence? = null
 ) : CreateCredentialException(TYPE_CREATE_CREDENTIAL_PROVIDER_CONFIGURATION_EXCEPTION,
     errorMessage) {
-    /** @hide */
-    companion object {
-        @VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)
-        internal val TYPE_CREATE_CREDENTIAL_PROVIDER_CONFIGURATION_EXCEPTION =
+    internal companion object {
+        internal const val TYPE_CREATE_CREDENTIAL_PROVIDER_CONFIGURATION_EXCEPTION =
             "androidx.credentials.TYPE_CREATE_CREDENTIAL_PROVIDER_CONFIGURATION_EXCEPTION"
     }
 }

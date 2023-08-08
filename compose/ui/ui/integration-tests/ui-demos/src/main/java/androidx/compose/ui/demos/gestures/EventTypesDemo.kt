@@ -42,7 +42,10 @@ import androidx.compose.ui.unit.sp
 @Composable
 private fun TextItem(text: String, color: Color) {
     Row {
-        Box(Modifier.size(25.dp).background(color))
+        Box(
+            Modifier
+                .size(25.dp)
+                .background(color))
         Spacer(Modifier.width(5.dp))
         Text(text, fontSize = 20.sp)
     }
@@ -60,6 +63,7 @@ private fun DrawEvents(events: List<Pair<PointerEventType, Any>>) {
             PointerEventType.Enter -> Color.Green
             PointerEventType.Exit -> Color.Blue
             PointerEventType.Scroll -> Color(0xFF800080) // Purple
+            PointerEventType.Unknown -> Color.White
             else -> Color.Black
         }
         TextItem("$type $value", color)

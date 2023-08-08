@@ -19,6 +19,6 @@
     <SplitPlaceholderRule
         window:placeholderActivityName="C">
         <ActivityFilter
-            window:activityName="androidx.window.sample.embedding.SplitActivityList"/>
+            window:activityName="SplitActivityList"/>
     </SplitPlaceholderRule>
 </resources>

@@ -17,6 +17,7 @@
 package androidx.build.libabigail
 
 import androidx.build.metalava.checkEqual
+import java.io.File
 import org.gradle.api.DefaultTask
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
@@ -27,7 +28,6 @@ import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
 import org.gradle.work.DisableCachingByDefault
-import java.io.File
 
 /**
  * Checks that the native API files in the build folder are exactly the same as the checked in
@@ -35,32 +35,20 @@ import java.io.File
  */
 @DisableCachingByDefault(because = "Doesn't benefit from caching")
 abstract class CheckNativeApiEquivalenceTask : DefaultTask() {
-    /**
-     * Api file (in the build dir) to check
-     */
-    @get:Input
-    abstract val builtApi: Property<File>
+    /** Api file (in the build dir) to check */
+    @get:Input abstract val builtApi: Property<File>
 
-    /**
-     * Api file (in source control) to compare against
-     */
-    @get:Input
-    abstract val checkedInApis: ListProperty<File>
+    /** Api file (in source control) to compare against */
+    @get:Input abstract val checkedInApis: ListProperty<File>
 
-    @get:Internal
-    abstract val artifactNames: ListProperty<String>
+    @get:Internal abstract val artifactNames: ListProperty<String>
 
     @[InputFiles PathSensitive(PathSensitivity.RELATIVE)]
     fun getTaskInputs(): List<File> {
-        return getLocationsForArtifacts(
-            builtApi.get(),
-            artifactNames.get()
-        ) + checkedInApis.get().flatMap { checkedInApi ->
-            getLocationsForArtifacts(
-                checkedInApi,
-                artifactNames.get()
-            )
-        }
+        return getLocationsForArtifacts(builtApi.get(), artifactNames.get()) +
+            checkedInApis.get().flatMap { checkedInApi ->
+                getLocationsForArtifacts(checkedInApi, artifactNames.get())
+            }
     }
 
     @TaskAction

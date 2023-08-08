@@ -20,7 +20,7 @@
     android:layout_height="match_parent"
     android:background="?android:attr/selectableItemBackground"
     android:minHeight="@dimen/emoji_picker_header_icon_holder_min_height">
-    <androidx.appcompat.widget.AppCompatImageView
+    <ImageView
         android:id="@+id/emoji_picker_header_icon"
         android:layout_width="@dimen/emoji_picker_header_icon_width"
         android:layout_height="@dimen/emoji_picker_header_icon_height"

@@ -24,14 +24,14 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.material3.TextFieldDefaults.OutlinedTextFieldDecorationBox
-import androidx.compose.material3.TextFieldDefaults.TextFieldDecorationBox
 import androidx.compose.material3.TextFieldDefaults.indicatorLine
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.testutils.assertPixels
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
@@ -73,7 +73,7 @@ class TextFieldDecorationBoxTest {
     @Test
     fun outlinedTextFieldBox_overrideTopPadding_multiLine() {
         assertVerticalSizeAndPosition_outlinedTextField(
-            padding = TextFieldDefaults.outlinedTextFieldPadding(top = 10.dp),
+            padding = OutlinedTextFieldDefaults.contentPadding(top = 10.dp),
             singleLine = false,
             expectedHeight = 10.dp + InnerTextFieldHeight + TextFieldPadding,
             expectedPosition = 10.dp
@@ -83,7 +83,7 @@ class TextFieldDecorationBoxTest {
     @Test
     fun outlinedTextFieldBox_overrideTopPadding_singleLine() {
         assertVerticalSizeAndPosition_outlinedTextField(
-            padding = TextFieldDefaults.outlinedTextFieldPadding(top = 10.dp),
+            padding = OutlinedTextFieldDefaults.contentPadding(top = 10.dp),
             singleLine = true,
             expectedHeight = 10.dp + InnerTextFieldHeight + TextFieldPadding,
             expectedPosition = (10.dp + TextFieldPadding) / 2
@@ -93,7 +93,7 @@ class TextFieldDecorationBoxTest {
     @Test
     fun outlinedTextFieldBox_overrideBottomPadding_multiLine() {
         assertVerticalSizeAndPosition_outlinedTextField(
-            padding = TextFieldDefaults.outlinedTextFieldPadding(bottom = 10.dp),
+            padding = OutlinedTextFieldDefaults.contentPadding(bottom = 10.dp),
             singleLine = false,
             expectedHeight = TextFieldPadding + InnerTextFieldHeight + 10.dp,
             expectedPosition = TextFieldPadding
@@ -103,7 +103,7 @@ class TextFieldDecorationBoxTest {
     @Test
     fun outlinedTextFieldBox_overrideBottomPadding_singleLine() {
         assertVerticalSizeAndPosition_outlinedTextField(
-            padding = TextFieldDefaults.outlinedTextFieldPadding(bottom = 10.dp),
+            padding = OutlinedTextFieldDefaults.contentPadding(bottom = 10.dp),
             singleLine = true,
             expectedHeight = TextFieldPadding + InnerTextFieldHeight + 10.dp,
             expectedPosition = (10.dp + TextFieldPadding) / 2
@@ -113,7 +113,7 @@ class TextFieldDecorationBoxTest {
     @Test
     fun outlinedTextFieldBox_overrideStartPadding() {
         assertHorizontalSizeAndPosition_outlinedTextField(
-            padding = TextFieldDefaults.outlinedTextFieldPadding(start = 10.dp),
+            padding = OutlinedTextFieldDefaults.contentPadding(start = 10.dp),
             rtl = false,
             expectedWidth = 10.dp + InnerTextFieldWidth + TextFieldPadding,
             expectedPosition = 10.dp
@@ -123,7 +123,7 @@ class TextFieldDecorationBoxTest {
     @Test
     fun outlinedTextFieldBox_overrideStartPadding_rtl() {
         assertHorizontalSizeAndPosition_outlinedTextField(
-            padding = TextFieldDefaults.outlinedTextFieldPadding(start = 10.dp),
+            padding = OutlinedTextFieldDefaults.contentPadding(start = 10.dp),
             rtl = true,
             expectedWidth = 10.dp + InnerTextFieldWidth + TextFieldPadding,
             expectedPosition = TextFieldPadding
@@ -133,7 +133,7 @@ class TextFieldDecorationBoxTest {
     @Test
     fun outlinedTextFieldBox_overrideEndPadding() {
         assertHorizontalSizeAndPosition_outlinedTextField(
-            padding = TextFieldDefaults.outlinedTextFieldPadding(end = 20.dp),
+            padding = OutlinedTextFieldDefaults.contentPadding(end = 20.dp),
             rtl = false,
             expectedWidth = TextFieldPadding + InnerTextFieldWidth + 20.dp,
             expectedPosition = TextFieldPadding
@@ -143,7 +143,7 @@ class TextFieldDecorationBoxTest {
     @Test
     fun outlinedTextFieldBox_overrideEndPadding_rtl() {
         assertHorizontalSizeAndPosition_outlinedTextField(
-            padding = TextFieldDefaults.outlinedTextFieldPadding(end = 20.dp),
+            padding = OutlinedTextFieldDefaults.contentPadding(end = 20.dp),
             rtl = true,
             expectedWidth = TextFieldPadding + InnerTextFieldWidth + 20.dp,
             expectedPosition = 20.dp
@@ -153,7 +153,7 @@ class TextFieldDecorationBoxTest {
     @Test
     fun textFieldBox_overrideTopPadding_singleLine_withoutLabel() {
         assertVerticalSizeAndPosition_textField(
-            padding = TextFieldDefaults.textFieldWithoutLabelPadding(top = 40.dp),
+            padding = TextFieldDefaults.contentPaddingWithoutLabel(top = 40.dp),
             singleLine = true,
             hasLabel = false,
             expectedHeight = 40.dp + InnerTextFieldHeight + TextFieldPadding,
@@ -164,7 +164,7 @@ class TextFieldDecorationBoxTest {
     @Test
     fun textFieldBox_overrideTopPadding_singleLine_withLabel() {
         assertVerticalSizeAndPosition_textField(
-            padding = TextFieldDefaults.textFieldWithLabelPadding(top = 40.dp),
+            padding = TextFieldDefaults.contentPaddingWithLabel(top = 40.dp),
             singleLine = true,
             hasLabel = true,
             expectedHeight = 40.dp + LabelHeight + InnerTextFieldHeight +
@@ -176,7 +176,7 @@ class TextFieldDecorationBoxTest {
     @Test
     fun textFieldBox_overrideBottomPadding_singleLine_withoutLabel() {
         assertVerticalSizeAndPosition_textField(
-            padding = TextFieldDefaults.textFieldWithoutLabelPadding(bottom = 40.dp),
+            padding = TextFieldDefaults.contentPaddingWithoutLabel(bottom = 40.dp),
             singleLine = true,
             hasLabel = false,
             expectedHeight = TextFieldPadding + InnerTextFieldHeight + 40.dp,
@@ -187,7 +187,7 @@ class TextFieldDecorationBoxTest {
     @Test
     fun textFieldBox_overrideBottomPadding_singleLine_withLabel() {
         assertVerticalSizeAndPosition_textField(
-            padding = TextFieldDefaults.textFieldWithLabelPadding(bottom = 40.dp),
+            padding = TextFieldDefaults.contentPaddingWithLabel(bottom = 40.dp),
             singleLine = true,
             hasLabel = true,
             expectedHeight = TextFieldWithLabelVerticalPadding + LabelHeight +
@@ -199,7 +199,7 @@ class TextFieldDecorationBoxTest {
     @Test
     fun textFieldBox_overrideTopPadding_multiLine_withoutLabel() {
         assertVerticalSizeAndPosition_textField(
-            padding = TextFieldDefaults.textFieldWithoutLabelPadding(top = 40.dp),
+            padding = TextFieldDefaults.contentPaddingWithoutLabel(top = 40.dp),
             singleLine = false,
             hasLabel = false,
             expectedHeight = 40.dp + InnerTextFieldHeight + TextFieldPadding,
@@ -210,7 +210,7 @@ class TextFieldDecorationBoxTest {
     @Test
     fun textFieldBox_overrideTopPadding_multiLine_withLabel() {
         assertVerticalSizeAndPosition_textField(
-            padding = TextFieldDefaults.textFieldWithLabelPadding(top = 40.dp),
+            padding = TextFieldDefaults.contentPaddingWithLabel(top = 40.dp),
             singleLine = false,
             hasLabel = true,
             expectedHeight = 40.dp + LabelHeight + InnerTextFieldHeight +
@@ -222,7 +222,7 @@ class TextFieldDecorationBoxTest {
     @Test
     fun textFieldBox_overrideBottomPadding_multiLine_withoutLabel() {
         assertVerticalSizeAndPosition_textField(
-            padding = TextFieldDefaults.textFieldWithoutLabelPadding(bottom = 40.dp),
+            padding = TextFieldDefaults.contentPaddingWithoutLabel(bottom = 40.dp),
             singleLine = false,
             hasLabel = false,
             expectedHeight = TextFieldPadding + InnerTextFieldHeight + 40.dp,
@@ -233,7 +233,7 @@ class TextFieldDecorationBoxTest {
     @Test
     fun textFieldBox_overrideBottomPadding_multiLine_withLabel() {
         assertVerticalSizeAndPosition_textField(
-            padding = TextFieldDefaults.textFieldWithLabelPadding(bottom = 40.dp),
+            padding = TextFieldDefaults.contentPaddingWithLabel(bottom = 40.dp),
             singleLine = false,
             hasLabel = true,
             expectedHeight = TextFieldWithLabelVerticalPadding + LabelHeight +
@@ -245,7 +245,7 @@ class TextFieldDecorationBoxTest {
     @Test
     fun textFieldBox_overrideStartPadding_withLabel() {
         assertHorizontalSizeAndPosition_textField(
-            padding = TextFieldDefaults.textFieldWithLabelPadding(start = 40.dp),
+            padding = TextFieldDefaults.contentPaddingWithLabel(start = 40.dp),
             rtl = false,
             hasLabel = true,
             expectedWidth = 40.dp + InnerTextFieldWidth + TextFieldPadding,
@@ -256,7 +256,7 @@ class TextFieldDecorationBoxTest {
     @Test
     fun textFieldBox_overrideStartPadding_withLabel_rtl() {
         assertHorizontalSizeAndPosition_textField(
-            padding = TextFieldDefaults.textFieldWithLabelPadding(start = 40.dp),
+            padding = TextFieldDefaults.contentPaddingWithLabel(start = 40.dp),
             rtl = true,
             hasLabel = true,
             expectedWidth = 40.dp + InnerTextFieldWidth + TextFieldPadding,
@@ -267,7 +267,7 @@ class TextFieldDecorationBoxTest {
     @Test
     fun textFieldBox_overrideStartPadding_withoutLabel() {
         assertHorizontalSizeAndPosition_textField(
-            padding = TextFieldDefaults.textFieldWithoutLabelPadding(start = 40.dp),
+            padding = TextFieldDefaults.contentPaddingWithoutLabel(start = 40.dp),
             rtl = false,
             hasLabel = false,
             expectedWidth = 40.dp + InnerTextFieldWidth + TextFieldPadding,
@@ -278,7 +278,7 @@ class TextFieldDecorationBoxTest {
     @Test
     fun textFieldBox_overrideStartPadding_withoutLabel_rtl() {
         assertHorizontalSizeAndPosition_textField(
-            padding = TextFieldDefaults.textFieldWithoutLabelPadding(start = 40.dp),
+            padding = TextFieldDefaults.contentPaddingWithoutLabel(start = 40.dp),
             rtl = true,
             hasLabel = false,
             expectedWidth = 40.dp + InnerTextFieldWidth + TextFieldPadding,
@@ -289,7 +289,7 @@ class TextFieldDecorationBoxTest {
     @Test
     fun textFieldBox_overrideEndPadding_withLabel() {
         assertHorizontalSizeAndPosition_textField(
-            padding = TextFieldDefaults.textFieldWithLabelPadding(end = 40.dp),
+            padding = TextFieldDefaults.contentPaddingWithLabel(end = 40.dp),
             rtl = false,
             hasLabel = true,
             expectedWidth = TextFieldPadding + InnerTextFieldWidth + 40.dp,
@@ -300,7 +300,7 @@ class TextFieldDecorationBoxTest {
     @Test
     fun textFieldBox_overrideEndPadding_withLabel_rtl() {
         assertHorizontalSizeAndPosition_textField(
-            padding = TextFieldDefaults.textFieldWithLabelPadding(end = 40.dp),
+            padding = TextFieldDefaults.contentPaddingWithLabel(end = 40.dp),
             rtl = true,
             hasLabel = true,
             expectedWidth = TextFieldPadding + InnerTextFieldWidth + 40.dp,
@@ -311,7 +311,7 @@ class TextFieldDecorationBoxTest {
     @Test
     fun textFieldBox_overrideEndPadding_withoutLabel() {
         assertHorizontalSizeAndPosition_textField(
-            padding = TextFieldDefaults.textFieldWithoutLabelPadding(end = 40.dp),
+            padding = TextFieldDefaults.contentPaddingWithoutLabel(end = 40.dp),
             rtl = false,
             hasLabel = false,
             expectedWidth = TextFieldPadding + InnerTextFieldWidth + 40.dp,
@@ -322,7 +322,7 @@ class TextFieldDecorationBoxTest {
     @Test
     fun textFieldBox_overrideEndPadding_withoutLabel_rtl() {
         assertHorizontalSizeAndPosition_textField(
-            padding = TextFieldDefaults.textFieldWithoutLabelPadding(end = 40.dp),
+            padding = TextFieldDefaults.contentPaddingWithoutLabel(end = 40.dp),
             rtl = true,
             hasLabel = false,
             expectedWidth = TextFieldPadding + InnerTextFieldWidth + 40.dp,
@@ -342,7 +342,7 @@ class TextFieldDecorationBoxTest {
             CompositionLocalProvider(LocalDensity provides Density) {
                 val interactionSource = remember { MutableInteractionSource() }
                 val singleLine = true
-                val colors = TextFieldDefaults.outlinedTextFieldColors(
+                val colors = OutlinedTextFieldDefaults.colors(
                     unfocusedBorderColor = Color.Red
                 )
                 BasicTextField(
@@ -355,7 +355,7 @@ class TextFieldDecorationBoxTest {
                     singleLine = singleLine,
                     interactionSource = interactionSource
                 ) {
-                    OutlinedTextFieldDecorationBox(
+                    OutlinedTextFieldDefaults.DecorationBox(
                         value = value,
                         innerTextField = it,
                         enabled = true,
@@ -363,7 +363,7 @@ class TextFieldDecorationBoxTest {
                         interactionSource = interactionSource,
                         singleLine = singleLine,
                         container = {
-                            TextFieldDefaults.OutlinedBorderContainerBox(
+                            OutlinedTextFieldDefaults.ContainerBox(
                                 enabled = true,
                                 isError = false,
                                 colors = colors,
@@ -403,7 +403,7 @@ class TextFieldDecorationBoxTest {
             CompositionLocalProvider(LocalDensity provides Density) {
                 val interactionSource = remember { MutableInteractionSource() }
                 val singleLine = true
-                val colors = TextFieldDefaults.textFieldColors(
+                val colors = TextFieldDefaults.colors(
                     unfocusedIndicatorColor = Color.Red
                 )
                 BasicTextField(
@@ -420,7 +420,7 @@ class TextFieldDecorationBoxTest {
                     singleLine = singleLine,
                     interactionSource = interactionSource
                 ) {
-                    TextFieldDecorationBox(
+                    TextFieldDefaults.DecorationBox(
                         value = value,
                         innerTextField = it,
                         enabled = true,
@@ -466,7 +466,7 @@ class TextFieldDecorationBoxTest {
                     singleLine = singleLine,
                     interactionSource = interactionSource
                 ) {
-                    TextFieldDecorationBox(
+                    TextFieldDefaults.DecorationBox(
                         value = value,
                         innerTextField = it,
                         enabled = true,
@@ -492,7 +492,7 @@ class TextFieldDecorationBoxTest {
     @Test
     fun outlinedTextFieldBox_innerTextLocation_withMultilineLabel() {
         assertSizeAndPosition(
-            padding = TextFieldDefaults.outlinedTextFieldPadding(),
+            padding = OutlinedTextFieldDefaults.contentPadding(),
             singleLine = false,
             expectedSize = LabelHeight / 2 + InnerTextFieldHeight + TextFieldPadding,
             expectedPosition = LabelHeight / 2,
@@ -508,7 +508,7 @@ class TextFieldDecorationBoxTest {
     @Test
     fun outlinedTextFieldBox_singleLine_innerTextLocation_withMultilineLabel() {
         assertSizeAndPosition(
-            padding = TextFieldDefaults.outlinedTextFieldPadding(),
+            padding = OutlinedTextFieldDefaults.contentPadding(),
             singleLine = true,
             expectedSize = LabelHeight / 2 + InnerTextFieldHeight + TextFieldPadding,
             expectedPosition = LabelHeight / 2,
@@ -607,6 +607,7 @@ class TextFieldDecorationBoxTest {
     ) {
         var size: IntSize? = null
         var position: Offset? = null
+        val focusRequester = FocusRequester()
         rule.setMaterialContent(lightColorScheme()) {
             CompositionLocalProvider(
                 LocalLayoutDirection provides layoutDirection,
@@ -618,6 +619,7 @@ class TextFieldDecorationBoxTest {
                     BasicTextField(
                         value = value,
                         onValueChange = {},
+                        modifier = Modifier.focusRequester(focusRequester),
                         singleLine = singleLine,
                         interactionSource = interactionSource
                     ) {
@@ -631,7 +633,7 @@ class TextFieldDecorationBoxTest {
                             ) { it() }
                         }
                         if (isOutlined) {
-                            OutlinedTextFieldDecorationBox(
+                            OutlinedTextFieldDefaults.DecorationBox(
                                 value = value,
                                 innerTextField = innerTextField,
                                 enabled = true,
@@ -642,7 +644,7 @@ class TextFieldDecorationBoxTest {
                                 label = label
                             )
                         } else {
-                            TextFieldDecorationBox(
+                            TextFieldDefaults.DecorationBox(
                                 value = value,
                                 innerTextField = innerTextField,
                                 enabled = true,
@@ -656,6 +658,10 @@ class TextFieldDecorationBoxTest {
                     }
                 }
             }
+        }
+
+        rule.runOnUiThread {
+            focusRequester.requestFocus()
         }
 
         rule.runOnIdle {

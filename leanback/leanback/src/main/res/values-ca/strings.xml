@@ -47,7 +47,7 @@ limitations under the License.
     <string name="lb_playback_controls_high_quality_disable" msgid="1209119371486219736">"Desactiva l\'alta qualitat"</string>
     <string name="lb_playback_controls_closed_captioning_enable" msgid="2346334170216706076">"Activa els subtítols"</string>
     <string name="lb_playback_controls_closed_captioning_disable" msgid="8691966842977635128">"Desactiva els subtítols"</string>
-    <string name="lb_playback_controls_picture_in_picture" msgid="5770668162543767702">"Entra al mode de pantalla en pantalla"</string>
+    <string name="lb_playback_controls_picture_in_picture" msgid="5770668162543767702">"Entra al mode d\'imatge sobre imatge"</string>
     <string name="lb_playback_time_separator" msgid="1471121602610716654">"/"</string>
     <string name="lb_playback_controls_shown" msgid="8690223891515602822">"Es mostren els controls multimèdia"</string>
     <string name="lb_playback_controls_hidden" msgid="5859666950961624736">"S\'han amagat els controls multimèdia; prem la creu direccional per mostrar-los"</string>

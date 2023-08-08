@@ -27,8 +27,8 @@ import android.os.Build;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.InitializationException;
 import androidx.camera.testing.fakes.FakeCamera;
-import androidx.camera.testing.fakes.FakeCameraFactory;
 import androidx.camera.testing.fakes.FakeCameraInfoInternal;
+import androidx.camera.testing.impl.fakes.FakeCameraFactory;
 
 import com.google.common.util.concurrent.ListenableFuture;
 

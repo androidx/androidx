@@ -52,8 +52,18 @@ internal class UwbClientSessionScopeAospImpl(
 
         val parametersBuilder1 = androidx.core.uwb.backend.RangingParameters()
         parametersBuilder1.uwbConfigId = when (parameters.uwbConfigType) {
-            RangingParameters.UWB_CONFIG_ID_1 -> RangingParameters.UWB_CONFIG_ID_1
-            RangingParameters.UWB_CONFIG_ID_3 -> RangingParameters.UWB_CONFIG_ID_3
+            RangingParameters.CONFIG_UNICAST_DS_TWR -> RangingParameters.CONFIG_UNICAST_DS_TWR
+            RangingParameters.CONFIG_MULTICAST_DS_TWR -> RangingParameters.CONFIG_MULTICAST_DS_TWR
+            RangingParameters.CONFIG_UNICAST_DS_TWR_NO_AOA ->
+                RangingParameters.CONFIG_UNICAST_DS_TWR_NO_AOA
+            RangingParameters.CONFIG_PROVISIONED_UNICAST_DS_TWR ->
+                RangingParameters.CONFIG_PROVISIONED_UNICAST_DS_TWR
+            RangingParameters.CONFIG_PROVISIONED_MULTICAST_DS_TWR ->
+                RangingParameters.CONFIG_PROVISIONED_MULTICAST_DS_TWR
+            RangingParameters.CONFIG_PROVISIONED_UNICAST_DS_TWR_NO_AOA ->
+                RangingParameters.CONFIG_PROVISIONED_UNICAST_DS_TWR_NO_AOA
+            RangingParameters.CONFIG_PROVISIONED_INDIVIDUAL_MULTICAST_DS_TWR ->
+                RangingParameters.CONFIG_PROVISIONED_INDIVIDUAL_MULTICAST_DS_TWR
             else -> throw IllegalArgumentException("The selected UWB Config Id is not a valid id.")
         }
         parametersBuilder1.rangingUpdateRate = when (parameters.updateRateType) {
@@ -68,6 +78,11 @@ internal class UwbClientSessionScopeAospImpl(
         }
         parametersBuilder1.sessionId = parameters.sessionId
         parametersBuilder1.sessionKeyInfo = parameters.sessionKeyInfo
+        if (parameters.uwbConfigType
+            == RangingParameters.CONFIG_PROVISIONED_INDIVIDUAL_MULTICAST_DS_TWR) {
+            parametersBuilder1.subSessionId = parameters.subSessionId
+            parametersBuilder1.subSessionKeyInfo = parameters.subSessionKeyInfo
+        }
         if (parameters.complexChannel != null) {
             val channel = UwbComplexChannel()
             channel.channel = parameters.complexChannel.channel

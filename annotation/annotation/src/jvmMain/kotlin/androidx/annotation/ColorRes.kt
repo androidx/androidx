@@ -16,8 +16,8 @@
 package androidx.annotation
 
 /**
- * Denotes that an integer parameter, field or method return value is expected
- * to be a color resource reference (e.g. `android.R.color.black`).
+ * Denotes that an integer parameter, field or method return value is expected to be a color
+ * resource reference (e.g. `android.R.color.black`).
  */
 @MustBeDocumented
 @kotlin.annotation.Retention(AnnotationRetention.BINARY)

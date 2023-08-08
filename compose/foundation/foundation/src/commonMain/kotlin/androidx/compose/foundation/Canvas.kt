@@ -59,7 +59,6 @@ fun Canvas(modifier: Modifier, onDraw: DrawScope.() -> Unit) =
  * called during draw stage, you have no access to composition scope, meaning that [Composable]
  * function invocation inside it will result to runtime exception
  */
-@ExperimentalFoundationApi
 @Composable
 fun Canvas(modifier: Modifier, contentDescription: String, onDraw: DrawScope.() -> Unit) =
     Spacer(modifier.drawBehind(onDraw).semantics { this.contentDescription = contentDescription })

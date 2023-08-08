@@ -17,18 +17,20 @@
 package androidx.camera.camera2.pipe
 
 import androidx.annotation.RequiresApi
+import androidx.annotation.RestrictTo
 
 /**
  * This defines a fixed set of inputs and outputs for a single [CameraGraph] instance.
  *
  * [CameraStream]s can be used to build [Request]s that are sent to a [CameraGraph].
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-public interface StreamGraph {
-    public val streams: List<CameraStream>
-    public val streamIds: Set<StreamId>
-    public val input: InputStream?
-    public val outputs: List<OutputStream>
+interface StreamGraph {
+    val streams: List<CameraStream>
+    val streamIds: Set<StreamId>
+    val input: InputStream?
+    val outputs: List<OutputStream>
 
-    public operator fun get(config: CameraStream.Config): CameraStream?
+    operator fun get(config: CameraStream.Config): CameraStream?
 }

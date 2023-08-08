@@ -21,6 +21,7 @@ import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.ImageBitmapConfig
 import androidx.compose.ui.graphics.drawscope.CanvasDrawScope
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.unit.Density
@@ -43,6 +44,7 @@ internal class DrawCache {
     private var scopeDensity: Density? = null
     private var layoutDirection: LayoutDirection = LayoutDirection.Ltr
     private var size: IntSize = IntSize.Zero
+    private var config: ImageBitmapConfig = ImageBitmapConfig.Argb8888
 
     private val cacheScope = CanvasDrawScope()
 
@@ -52,6 +54,7 @@ internal class DrawCache {
      * re-used and the contents are cleared out before drawing content in it again
      */
     fun drawCachedImage(
+        config: ImageBitmapConfig,
         size: IntSize,
         density: Density,
         layoutDirection: LayoutDirection,
@@ -64,13 +67,15 @@ internal class DrawCache {
         if (targetImage == null ||
             targetCanvas == null ||
             size.width > targetImage.width ||
-            size.height > targetImage.height
+            size.height > targetImage.height ||
+            this.config != config
         ) {
-            targetImage = ImageBitmap(size.width, size.height)
+            targetImage = ImageBitmap(size.width, size.height, config = config)
             targetCanvas = Canvas(targetImage)
 
             mCachedImage = targetImage
             cachedCanvas = targetCanvas
+            this.config = config
         }
         this.size = size
         cacheScope.draw(density, layoutDirection, targetCanvas, size.toSize()) {

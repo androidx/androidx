@@ -23,21 +23,21 @@ import androidx.annotation.FloatRange;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
-import androidx.annotation.RestrictTo.Scope;
 import androidx.wear.protolayout.proto.DeviceParametersProto;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
-/** Builders for request messages used to fetch tiles and resources. */
+/**
+ * Builders for request messages used to fetch tiles and resources.
+ *
+ * @deprecated Use {@link androidx.wear.protolayout.DeviceParametersBuilders} instead.
+ */
+@Deprecated
 public final class DeviceParametersBuilders {
     private DeviceParametersBuilders() {}
 
-    /**
-     * The platform of the device requesting a tile.
-     *
-     * @hide
-     */
+    /** The platform of the device requesting a tile. */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef({DEVICE_PLATFORM_UNDEFINED, DEVICE_PLATFORM_WEAR_OS})
     @Retention(RetentionPolicy.SOURCE)
@@ -49,11 +49,7 @@ public final class DeviceParametersBuilders {
     /** Device is a Wear OS device. */
     public static final int DEVICE_PLATFORM_WEAR_OS = 1;
 
-    /**
-     * The shape of a screen.
-     *
-     * @hide
-     */
+    /** The shape of a screen. */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef({SCREEN_SHAPE_UNDEFINED, SCREEN_SHAPE_ROUND, SCREEN_SHAPE_RECT})
     @Retention(RetentionPolicy.SOURCE)
@@ -112,18 +108,13 @@ public final class DeviceParametersBuilders {
             return mImpl.getScreenShape().getNumber();
         }
 
-        /** @hide */
-        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
-        public static DeviceParameters fromProto(
-                @NonNull DeviceParametersProto.DeviceParameters proto) {
+        static DeviceParameters fromProto(@NonNull DeviceParametersProto.DeviceParameters proto) {
             return new DeviceParameters(proto);
         }
 
-        /** @hide */
-        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
-        public DeviceParametersProto.DeviceParameters toProto() {
+        DeviceParametersProto.DeviceParameters toProto() {
             return mImpl;
         }
 

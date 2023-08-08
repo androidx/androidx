@@ -29,8 +29,11 @@ import java.time.ZonedDateTime;
 public class JavaCompatTest {
     class ComplicationTapFilterImpl implements ComplicationTapFilter {
         @SuppressWarnings("deprecation")
-        public boolean hitTest(@NonNull ComplicationSlot complicationSlot,
-                @NonNull Rect screenBounds, @Px int x, @Px int y) {
+        public boolean hitTest(
+                @NonNull ComplicationSlot complicationSlot,
+                @NonNull Rect screenBounds,
+                @Px int x,
+                @Px int y) {
             return true;
         }
     }
@@ -42,15 +45,20 @@ public class JavaCompatTest {
         }
 
         @Override
-        public void render(@NonNull Canvas canvas, @NonNull Rect bounds,
-                @NonNull ZonedDateTime zonedDateTime, @NonNull RenderParameters renderParameters,
-                int slotId) {
-        }
+        public void render(
+                @NonNull Canvas canvas,
+                @NonNull Rect bounds,
+                @NonNull ZonedDateTime zonedDateTime,
+                @NonNull RenderParameters renderParameters,
+                int slotId) {}
 
         @Override
-        public void drawHighlight(@NonNull Canvas canvas, @NonNull Rect bounds, int boundsType,
-                @NonNull ZonedDateTime zonedDateTime, int color) {
-        }
+        public void drawHighlight(
+                @NonNull Canvas canvas,
+                @NonNull Rect bounds,
+                int boundsType,
+                @NonNull ZonedDateTime zonedDateTime,
+                int color) {}
 
         @NonNull
         @Override
@@ -59,9 +67,7 @@ public class JavaCompatTest {
         }
 
         @Override
-        public void loadData(@NonNull ComplicationData complicationData,
-                boolean loadDrawablesAsynchronous) {
-
-        }
+        public void loadData(
+                @NonNull ComplicationData complicationData, boolean loadDrawablesAsynchronous) {}
     }
 }

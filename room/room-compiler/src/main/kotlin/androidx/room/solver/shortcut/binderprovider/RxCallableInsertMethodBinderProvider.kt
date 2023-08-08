@@ -58,11 +58,11 @@ open class RxCallableInsertMethodBinderProvider internal constructor(
 
     companion object {
         fun getAll(context: Context) = listOf(
-            RxCallableInsertMethodBinderProvider(context, RxType.RX2_SINGLE),
-            RxCallableInsertMethodBinderProvider(context, RxType.RX2_MAYBE),
+            RxSingleOrMaybeInsertMethodBinderProvider(context, RxType.RX2_SINGLE),
+            RxSingleOrMaybeInsertMethodBinderProvider(context, RxType.RX2_MAYBE),
             RxCompletableInsertMethodBinderProvider(context, RxType.RX2_COMPLETABLE),
-            RxCallableInsertMethodBinderProvider(context, RxType.RX3_SINGLE),
-            RxCallableInsertMethodBinderProvider(context, RxType.RX3_MAYBE),
+            RxSingleOrMaybeInsertMethodBinderProvider(context, RxType.RX3_SINGLE),
+            RxSingleOrMaybeInsertMethodBinderProvider(context, RxType.RX3_MAYBE),
             RxCompletableInsertMethodBinderProvider(context, RxType.RX3_COMPLETABLE)
         )
     }
@@ -92,4 +92,16 @@ private class RxCompletableInsertMethodBinderProvider(
         }
         return declared.rawType.isAssignableFrom(completableType!!)
     }
+}
+
+private class RxSingleOrMaybeInsertMethodBinderProvider(
+    context: Context,
+    rxType: RxType
+) : RxCallableInsertMethodBinderProvider(context, rxType) {
+
+    /**
+     * Since Maybe can have null values, the Callable returned must allow for null values.
+     */
+    override fun extractTypeArg(declared: XType): XType =
+        declared.typeArguments.first().makeNullable()
 }

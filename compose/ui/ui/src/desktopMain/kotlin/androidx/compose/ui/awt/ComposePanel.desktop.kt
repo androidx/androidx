@@ -17,13 +17,13 @@ package androidx.compose.ui.awt
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import org.jetbrains.skiko.ClipComponent
-import org.jetbrains.skiko.GraphicsApi
 import java.awt.Color
 import java.awt.Component
 import java.awt.Dimension
 import javax.swing.JLayeredPane
 import javax.swing.SwingUtilities.isEventDispatchThread
+import org.jetbrains.skiko.ClipComponent
+import org.jetbrains.skiko.GraphicsApi
 
 /**
  * ComposePanel is a panel for building UI using Compose for Desktop.

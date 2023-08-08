@@ -21,7 +21,7 @@ import java.io.File
 import org.intellij.lang.annotations.Language
 import org.jetbrains.kotlin.codegen.GeneratedClassLoader
 
-abstract class AbstractCodegenTest : AbstractCompilerTest() {
+abstract class AbstractCodegenTest(useFir: Boolean) : AbstractCompilerTest(useFir) {
     private fun dumpClasses(loader: GeneratedClassLoader) {
         for (
             file in loader.allGeneratedFiles.filter {
@@ -90,13 +90,26 @@ abstract class AbstractCodegenTest : AbstractCompilerTest() {
     }
 
     protected fun classLoader(
+        platformSources: Map<String, String>,
+        commonSources: Map<String, String>,
+        dumpClasses: Boolean = false
+    ): GeneratedClassLoader {
+        val loader = createClassLoader(
+            platformSources.map { (fileName, source) -> SourceFile(fileName, source) },
+            commonSources.map { (fileName, source) -> SourceFile(fileName, source) }
+        )
+        if (dumpClasses) dumpClasses(loader)
+        return loader
+    }
+
+    protected fun classLoader(
         sources: Map<String, String>,
         additionalPaths: List<File>,
         dumpClasses: Boolean = false
     ): GeneratedClassLoader {
         val loader = createClassLoader(
             sources.map { (fileName, source) -> SourceFile(fileName, source) },
-            additionalPaths
+            additionalPaths = additionalPaths
         )
         if (dumpClasses) dumpClasses(loader)
         return loader

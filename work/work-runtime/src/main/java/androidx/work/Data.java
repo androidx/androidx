@@ -74,7 +74,6 @@ public final class Data {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public Data(@NonNull Map<String, ?> values) {
@@ -353,7 +352,6 @@ public final class Data {
 
     /**
      * @return The number of elements in this Data object.
-     * @hide
      */
     @VisibleForTesting
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -368,7 +366,6 @@ public final class Data {
      * @return The byte array representation of the input
      * @throws IllegalStateException if the serialized payload is bigger than
      *                               {@link #MAX_DATA_BYTES}
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @TypeConverter
@@ -513,7 +510,6 @@ public final class Data {
     }
 
     /**
-     * * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @NonNull
@@ -526,7 +522,6 @@ public final class Data {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @NonNull
@@ -539,7 +534,6 @@ public final class Data {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @NonNull
@@ -552,7 +546,6 @@ public final class Data {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @NonNull
@@ -565,7 +558,6 @@ public final class Data {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @NonNull
@@ -578,7 +570,6 @@ public final class Data {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @NonNull
@@ -591,7 +582,6 @@ public final class Data {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @NonNull
@@ -604,7 +594,6 @@ public final class Data {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @NonNull
@@ -617,7 +606,6 @@ public final class Data {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @NonNull
@@ -630,7 +618,6 @@ public final class Data {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @NonNull
@@ -643,7 +630,6 @@ public final class Data {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @NonNull
@@ -656,7 +642,6 @@ public final class Data {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @NonNull
@@ -899,7 +884,6 @@ public final class Data {
          * @param key   A {@link String} key to add
          * @param value A nullable {@link Object} value to add of the valid types
          * @return The {@link Builder}
-         * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @NonNull
@@ -937,7 +921,7 @@ public final class Data {
                     mValues.put(key, convertPrimitiveDoubleArray((double[]) value));
                 } else {
                     throw new IllegalArgumentException(
-                            "Key " + key + "has invalid type " + valueType);
+                            "Key " + key + " has invalid type " + valueType);
                 }
             }
             return this;

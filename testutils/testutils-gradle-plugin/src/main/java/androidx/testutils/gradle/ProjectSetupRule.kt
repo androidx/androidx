@@ -16,12 +16,15 @@
 
 package androidx.testutils.gradle
 
+import java.io.File
+import java.util.Properties
+import javax.xml.parsers.DocumentBuilderFactory
+import javax.xml.xpath.XPathConstants
+import javax.xml.xpath.XPathFactory
 import org.junit.rules.ExternalResource
 import org.junit.rules.TemporaryFolder
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
-import java.io.File
-import java.util.Properties
 
 /**
  * Test rule that helps to setup android project in tests that run gradle.
@@ -130,6 +133,42 @@ class ProjectSetupRule(parentFolder: File? = null) : ExternalResource() {
         }
     }
 
+    /**
+     * Gets the latest version of a published library.
+     *
+     * Note that the library must have been locally published to locate its latest version, this
+     * can be done in test by adding :publish as a test dependency, for example:
+     * ```
+     * tasks.findByPath("test")
+     *   .dependsOn(tasks.findByPath(":room:room-compiler:publish")
+     * ```
+     *
+     * @param path - The library m2 path e.g. "androidx/room/room-compiler"
+     */
+    fun getLibraryLatestVersionInLocalRepo(path: String): String {
+        val metadataFile = File(props.tipOfTreeMavenRepoPath)
+            .resolve(path)
+            .resolve("maven-metadata.xml")
+        check(metadataFile.exists()) {
+            "Cannot find room metadata file in ${metadataFile.absolutePath}"
+        }
+        check(metadataFile.isFile) {
+            "Metadata file should be a file but it is not."
+        }
+        val xmlDoc = DocumentBuilderFactory.newInstance().newDocumentBuilder()
+            .parse(metadataFile)
+        val latestVersionNode = XPathFactory.newInstance().newXPath()
+            .compile("/metadata/versioning/latest").evaluate(
+                xmlDoc, XPathConstants.STRING
+            )
+        check(latestVersionNode is String) {
+            """Unexpected node for latest version:
+                $latestVersionNode / ${latestVersionNode::class.java}
+            """.trimIndent()
+        }
+        return latestVersionNode
+    }
+
     private fun copyLocalProperties() {
         var foundSdk = false
 
@@ -181,7 +220,8 @@ data class ProjectProps(
     val debugKeystore: String,
     var navigationRuntime: String,
     val kotlinStblib: String,
-    val kotlinVersion: String,
+    val kgpVersion: String,
+    val kgpDependency: String,
     val kspVersion: String,
     val rootProjectPath: String,
     val tipOfTreeMavenRepoPath: String,
@@ -223,7 +263,9 @@ data class ProjectProps(
                 minSdkVersion = properties.getProperty("minSdkVersion"),
                 navigationRuntime = properties.getProperty("navigationRuntime"),
                 kotlinStblib = properties.getProperty("kotlinStdlib"),
-                kotlinVersion = properties.getProperty("kotlinVersion"),
+                kgpVersion = properties.getProperty("kgpVersion"),
+                kgpDependency = "org.jetbrains.kotlin:kotlin-gradle-plugin:" +
+                    properties.getProperty("kgpVersion"),
                 kspVersion = properties.getProperty("kspVersion"),
                 agpDependency = properties.getProperty("agpDependency"),
                 buildSrcOutPath = properties.getCanonicalPath("buildSrcOutRelativePath")

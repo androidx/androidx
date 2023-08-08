@@ -16,9 +16,21 @@
 
 package androidx.window.extensions;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
+import android.app.ActivityOptions;
+import android.os.IBinder;
+
 import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
+import androidx.window.extensions.area.WindowAreaComponent;
 import androidx.window.extensions.embedding.ActivityEmbeddingComponent;
+import androidx.window.extensions.embedding.ActivityStack;
+import androidx.window.extensions.embedding.SplitAttributes;
+import androidx.window.extensions.embedding.SplitInfo;
 import androidx.window.extensions.layout.WindowLayoutComponent;
+
+import java.util.Set;
 
 /**
  * A class to provide instances of different WindowManager Jetpack extension components. An OEM must
@@ -29,6 +41,71 @@ import androidx.window.extensions.layout.WindowLayoutComponent;
  * {@link WindowExtensions#getVendorApiLevel()}.
  */
 public interface WindowExtensions {
+    // TODO(b/241323716) Removed after we have annotation to check API level
+    /**
+     * An invalid {@link #getVendorApiLevel vendor API level}
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    int INVALID_VENDOR_API_LEVEL = -1;
+
+    // TODO(b/241323716) Removed after we have annotation to check API level
+    /**
+     * A vendor API level constant. It helps to unify the format of documenting {@code @since}
+     * block.
+     * <p>
+     * The added APIs for Vendor API level 1 are:
+     * <ul>
+     *     <li>{@link androidx.window.extensions.embedding.ActivityRule} APIs</li>
+     *     <li>{@link androidx.window.extensions.embedding.SplitPairRule} APIs</li>
+     *     <li>{@link androidx.window.extensions.embedding.SplitPlaceholderRule} APIs</li>
+     *     <li>{@link androidx.window.extensions.embedding.SplitInfo} APIs</li>
+     *     <li>{@link androidx.window.extensions.layout.DisplayFeature} APIs</li>
+     *     <li>{@link androidx.window.extensions.layout.FoldingFeature} APIs</li>
+     *     <li>{@link androidx.window.extensions.layout.WindowLayoutInfo} APIs</li>
+     *     <li>{@link androidx.window.extensions.layout.WindowLayoutComponent} APIs</li>
+     * </ul>
+     * </p>
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    int VENDOR_API_LEVEL_1 = 1;
+
+    // TODO(b/241323716) Removed after we have annotation to check API level
+    /**
+     * A vendor API level constant. It helps to unify the format of documenting {@code @since}
+     * block.
+     * The added APIs for Vendor API level 2 are:
+     * <ul>
+     *     <li>{@link androidx.window.extensions.embedding.SplitPlaceholderRule.Builder#setFinishPrimaryWithPlaceholder(int)}</li>
+     *     <li>{@link androidx.window.extensions.embedding.SplitAttributes}</li>
+     *     <li>{@link ActivityEmbeddingComponent#setSplitAttributesCalculator(
+     *      androidx.window.extensions.core.util.function.Function)}</li>
+     * </ul>
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    int VENDOR_API_LEVEL_2 = 2;
+
+    // TODO(b/241323716) Removed after we have annotation to check API level
+    /**
+     * A vendor API level constant. It helps to unify the format of documenting {@code @since}
+     * block.
+     * <p>
+     * The added APIs for Vendor API level 3 are:
+     * <ul>
+     *     <li>{@link ActivityStack#getToken()}</li>
+     *     <li>{@link SplitInfo#getToken()}</li>
+     *     <li>{@link ActivityEmbeddingComponent#setLaunchingActivityStack(ActivityOptions,
+     *     IBinder)}</li>
+     *     <li>{@link ActivityEmbeddingComponent#invalidateTopVisibleSplitAttributes()}</li>
+     *     <li>{@link ActivityEmbeddingComponent#updateSplitAttributes(IBinder, SplitAttributes)}
+     *     </li>
+     *     <li>{@link ActivityEmbeddingComponent#finishActivityStacks(Set)}</li>
+     *     <li>{@link androidx.window.extensions.area.WindowAreaComponent} APIs</li>
+     * </ul>
+     * </p>
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    int VENDOR_API_LEVEL_3 = 3;
+
     /**
      * Returns the API level of the vendor library on the device. If the returned version is not
      * supported by the WindowManager library, then some functions may not be available or replaced
@@ -39,7 +116,7 @@ public interface WindowExtensions {
      * @return the API level supported by the library.
      */
     default int getVendorApiLevel() {
-        return 1;
+        throw new RuntimeException("Not implemented. Must override in a subclass.");
     }
 
     /**
@@ -59,6 +136,17 @@ public interface WindowExtensions {
      */
     @Nullable
     default ActivityEmbeddingComponent getActivityEmbeddingComponent() {
+        return null;
+    }
+
+    /**
+     * Returns the OEM implementation of {@link WindowAreaComponent} if it is supported on
+     * the device, {@code null} otherwise. The implementation must match the API level reported in
+     * {@link WindowExtensions}.
+     * @return the OEM implementation of {@link WindowAreaComponent}
+     */
+    @Nullable
+    default WindowAreaComponent getWindowAreaComponent() {
         return null;
     }
 }

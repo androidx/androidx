@@ -18,7 +18,6 @@ package androidx.camera.camera2.pipe.testing
 
 import android.hardware.camera2.CameraCaptureSession
 import android.hardware.camera2.CaptureRequest
-import android.os.Handler
 import android.view.Surface
 import androidx.camera.camera2.pipe.compat.CameraCaptureSessionWrapper
 import androidx.camera.camera2.pipe.compat.CameraDeviceWrapper
@@ -43,14 +42,14 @@ internal class FakeCaptureSessionWrapper(
 
     val unwrappedClasses = arrayListOf<Any>()
 
-    override fun abortCaptures() {
+    override fun abortCaptures(): Boolean {
         abortCapturesInvoked = true
+        return true
     }
 
     override fun capture(
         request: CaptureRequest,
-        listener: CameraCaptureSession.CaptureCallback,
-        handler: Handler?
+        listener: CameraCaptureSession.CaptureCallback
     ): Int {
         lastCapture = listOf(request)
         lastCaptureCallback = listener
@@ -61,8 +60,7 @@ internal class FakeCaptureSessionWrapper(
 
     override fun captureBurst(
         requests: List<CaptureRequest>,
-        listener: CameraCaptureSession.CaptureCallback,
-        handler: Handler?
+        listener: CameraCaptureSession.CaptureCallback
     ): Int {
         lastCapture = requests.toList()
         lastCaptureCallback = listener
@@ -73,8 +71,7 @@ internal class FakeCaptureSessionWrapper(
 
     override fun setRepeatingBurst(
         requests: List<CaptureRequest>,
-        listener: CameraCaptureSession.CaptureCallback,
-        handler: Handler?
+        listener: CameraCaptureSession.CaptureCallback
     ): Int {
         lastRepeating = requests.toList()
         lastRepeatingCallback = listener
@@ -85,8 +82,7 @@ internal class FakeCaptureSessionWrapper(
 
     override fun setRepeatingRequest(
         request: CaptureRequest,
-        listener: CameraCaptureSession.CaptureCallback,
-        handler: Handler?
+        listener: CameraCaptureSession.CaptureCallback
     ): Int {
         lastRepeating = listOf(request)
         lastRepeatingCallback = listener
@@ -95,11 +91,14 @@ internal class FakeCaptureSessionWrapper(
         return lastSequenceNumber
     }
 
-    override fun stopRepeating() {
+    override fun stopRepeating(): Boolean {
         stopRepeatingInvoked = true
+        return true
     }
 
-    override fun finalizeOutputConfigurations(outputConfigs: List<OutputConfigurationWrapper>) {
+    override fun finalizeOutputConfigurations(
+        outputConfigs: List<OutputConfigurationWrapper>
+    ): Boolean {
         throw UnsupportedOperationException("finalizeOutputConfigurations is not supported")
     }
 

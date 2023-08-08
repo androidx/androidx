@@ -18,13 +18,13 @@
 
 package androidx.camera.camera2.pipe.testing
 
-import android.hardware.camera2.CaptureFailure
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraTimestamp
 import androidx.camera.camera2.pipe.FrameInfo
 import androidx.camera.camera2.pipe.FrameMetadata
 import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.Request
+import androidx.camera.camera2.pipe.RequestFailure
 import androidx.camera.camera2.pipe.RequestMetadata
 import androidx.camera.camera2.pipe.StreamId
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -37,7 +37,7 @@ import kotlinx.coroutines.flow.asSharedFlow
  * to be sent.
  */
 @Suppress("ListenerInterface")
-public class FakeRequestListener(private val replayBuffer: Int = 10) : Request.Listener {
+class FakeRequestListener(private val replayBuffer: Int = 10) : Request.Listener {
 
     private val _onStartedFlow = MutableSharedFlow<OnStarted>(replay = replayBuffer)
     val onStartedFlow = _onStartedFlow.asSharedFlow()
@@ -151,11 +151,10 @@ public class FakeRequestListener(private val replayBuffer: Int = 10) : Request.L
     override fun onFailed(
         requestMetadata: RequestMetadata,
         frameNumber: FrameNumber,
-        captureFailure: CaptureFailure
+        requestFailure: RequestFailure
     ) = check(
         _onFailedFlow.tryEmit(
-            @Suppress("SyntheticAccessor")
-            OnFailed(requestMetadata, frameNumber, captureFailure)
+            OnFailed(requestMetadata, frameNumber, requestFailure)
         )
     ) {
         "Failed to emit OnFailed event! The size of the replay buffer" +
@@ -201,5 +200,5 @@ class OnBufferLost(
 class OnFailed(
     val requestMetadata: RequestMetadata,
     val frameNumber: FrameNumber,
-    val captureFailure: CaptureFailure
+    val requestFailure: RequestFailure
 ) : RequestListenerEvent()

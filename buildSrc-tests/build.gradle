@@ -18,12 +18,25 @@
 // This project is stored outside of buildSrc/ so that waiting for these tests to complete doesn't delay the rest of the build
 
 import androidx.build.BuildServerConfigurationKt
+import androidx.build.LibraryType
 import androidx.build.SdkResourceGenerator
 
 plugins {
     id("AndroidXPlugin")
     id("kotlin")
+    id("java-gradle-plugin")
 }
+
+
+// We need 'java-gradle-plugin' on classpath for Gradle test kit projects. If it's not, we get the following error:
+// org.gradle.testkit.runner.InvalidPluginMetadataException: Test runtime classpath does not contain
+// plugin metadata file 'plugin-under-test-metadata.properties'but if we generate a .jar
+//
+// However, if we actually run the :jar task for buildSrc-tests we get the following warning log:
+//
+// :buildSrc-tests:jar: No valid plugin descriptors were found in META-INF/gradle-plugins
+// so we disable it.
+jar.enabled = false
 
 apply from: "../buildSrc/kotlin-dsl-dependency.gradle"
 
@@ -37,7 +50,10 @@ def buildSrcJar(jarName) {
 }
 
 dependencies {
+
+    implementation(findGradleKotlinDsl())
     implementation(gradleApi())
+    implementation(libs.androidGradlePluginz)
     implementation(buildSrcJar("private"))
     implementation(buildSrcJar("public"))
     implementation(buildSrcJar("jetpad-integration"))
@@ -49,6 +65,7 @@ dependencies {
     }
     // Required for dom4j to parse comments correctly.
     implementation(libs.xerces)
+    implementation(libs.kotlinGradlePluginz)
 
     testImplementation(libs.junit)
     testImplementation(libs.truth)
@@ -56,9 +73,7 @@ dependencies {
     testImplementation(project(":internal-testutils-truth"))
     testImplementation(gradleTestKit())
     testImplementation(libs.checkmark)
-    testImplementation(libs.kotlinGradlePluginz)
     testImplementation(libs.toml)
-    testImplementation(findGradleKotlinDsl())
 }
 
 SdkResourceGenerator.generateForHostTest(project)
@@ -66,6 +81,10 @@ SdkResourceGenerator.generateForHostTest(project)
 tasks.withType(Test).configureEach {
     // https://github.com/gradle/gradle/issues/22317
     it.jvmArgs = ["--add-opens=java.base/java.lang=ALL-UNNAMED"]
+}
+
+androidx {
+    type = LibraryType.INTERNAL_HOST_TEST_LIBRARY
 }
 
 // Also do style checking of the buildSrc project from within this project
@@ -82,7 +101,11 @@ tasks["ktlintFormat"].configure({ t ->
     t.overrideSubdirectories = subdirs
 })
 
-// Broken in AGP 7.0-alpha15 due to b/180408027
-tasks["lint"].configure { t ->
-    t.enabled = false
-}
+tasks["ktCheck"].configure({ t ->
+    t.overrideDirectory = ktlintDir
+    t.overrideSubdirectories = subdirs
+})
+tasks["ktFormat"].configure({ t ->
+    t.overrideDirectory = ktlintDir
+    t.overrideSubdirectories = subdirs
+})

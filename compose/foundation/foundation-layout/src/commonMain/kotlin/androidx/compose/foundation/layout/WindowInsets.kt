@@ -71,6 +71,8 @@ interface WindowInsets {
  * to avoid recomposition when [WindowInsets] can change.
  *
  * @sample androidx.compose.foundation.layout.samples.withConsumedInsetsSample
+ *
+ * Note: This API as experimental since it doesn't enforce the right consumption patterns.
  */
 @ExperimentalLayoutApi
 class MutableWindowInsets(initialInsets: WindowInsets = WindowInsets(0, 0, 0, 0)) : WindowInsets {
@@ -671,3 +673,75 @@ private class InsetsPaddingValues(
         return result
     }
 }
+
+/**
+ * An insets type representing the window of a caption bar.
+ */
+expect val WindowInsets.Companion.captionBar: WindowInsets
+
+/**
+ * This [WindowInsets] represents the area with the display cutout (e.g. for camera).
+ */
+expect val WindowInsets.Companion.displayCutout: WindowInsets
+
+/**
+ * An insets type representing the window of the software keyboard.
+ */
+expect val WindowInsets.Companion.ime: WindowInsets
+
+/**
+ * These insets represent the space where system gestures have priority over application gestures.
+ */
+expect val WindowInsets.Companion.mandatorySystemGestures: WindowInsets
+
+/**
+ * These insets represent where system UI places navigation bars.
+ * Interactive UI should avoid the navigation bars area.
+ */
+expect val WindowInsets.Companion.navigationBars: WindowInsets
+
+/**
+ * These insets represent status bar.
+ */
+expect val WindowInsets.Companion.statusBars: WindowInsets
+
+/**
+ * These insets represent all system bars.
+ * Includes [statusBars], [captionBar] as well as [navigationBars], but not [ime].
+ */
+expect val WindowInsets.Companion.systemBars: WindowInsets
+
+/**
+ * The [systemGestures] insets represent the area of a window where system gestures have
+ * priority and may consume some or all touch input, e.g. due to the system bar
+ * occupying it, or it being reserved for touch-only gestures.
+ */
+expect val WindowInsets.Companion.systemGestures: WindowInsets
+
+/**
+ * Returns the tappable element insets.
+ */
+expect val WindowInsets.Companion.tappableElement: WindowInsets
+
+/**
+ * The insets for the curved areas in a waterfall display.
+ */
+expect val WindowInsets.Companion.waterfall: WindowInsets
+
+/**
+ * The insets that include areas where content may be covered by other drawn content.
+ * This includes all [systemBars], [displayCutout], and [ime].
+ */
+expect val WindowInsets.Companion.safeDrawing: WindowInsets
+
+/**
+ * The insets that include areas where gestures may be confused with other input,
+ * including [systemGestures], [mandatorySystemGestures], [waterfall], and [tappableElement].
+ */
+expect val WindowInsets.Companion.safeGestures: WindowInsets
+
+/**
+ * The insets that include all areas that may be drawn over or have gesture confusion,
+ * including everything in [safeDrawing] and [safeGestures].
+ */
+expect val WindowInsets.Companion.safeContent: WindowInsets

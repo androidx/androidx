@@ -18,10 +18,12 @@ package androidx.compose.foundation
 
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.suspendCancellableCoroutine
+import org.junit.Assert
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertSame
 import org.junit.Assert.assertTrue
@@ -81,6 +83,83 @@ class MutatorMutexTest {
         val mutex = MutatorMutex()
         runMutatorsCancelByPriority(MutateWithoutReceiverCaller(mutex))
         runMutatorsCancelByPriority(MutateWithReceiverCaller(mutex))
+    }
+
+    @Test
+    fun tryMutateBlockingSuspendsSubsequentMutate() = runBlocking<Unit> {
+        val mutex = MutatorMutex()
+        val tryMutateJob = launch(start = CoroutineStart.LAZY) {
+            mutex.tryMutate {
+                while (true) { /* Block forever */ }
+            }
+        }
+        val mutateJob = launch(start = CoroutineStart.LAZY) {
+            mutex.mutate {
+                if (tryMutateJob.isActive) fail("Attempted to mutate before tryMutate finished")
+            }
+        }
+        tryMutateJob.start()
+        mutateJob.start()
+
+        tryMutateJob.cancelAndJoin()
+        mutateJob.cancelAndJoin()
+    }
+
+    @Test
+    fun tryMutateDoesNotOverrideActiveCaller() = runBlocking<Unit> {
+        val mutex = MutatorMutex()
+        val mutateJob = launch(start = CoroutineStart.UNDISPATCHED) {
+            mutex.mutate {
+                suspendCancellableCoroutine { } // Suspend forever
+            }
+        }
+        val tryMutateSuccessful = mutex.tryMutate { }
+        Assert.assertFalse(
+            "tryMutate should not run if there is an ongoing mutation",
+            tryMutateSuccessful
+        )
+        mutateJob.cancelAndJoin()
+    }
+
+    @Test
+    fun tryMutateBlockingTryMutateLocks() = runBlocking<Unit> {
+        val mutex = MutatorMutex()
+        mutex.tryMutate {
+            val tryMutateSuccessful = mutex.tryMutate { }
+            Assert.assertFalse(
+                "tryMutate should not run if there is an ongoing mutation",
+                tryMutateSuccessful
+            )
+        }
+    }
+
+    @Test
+    fun tryLockUnlockedMutexLocks() {
+        val mutex = MutatorMutex()
+        val didLock = mutex.tryLock()
+        assertTrue("The mutex was not locked", didLock)
+    }
+
+    @Test
+    fun tryLockLockedMutexDoesNotLock() {
+        val mutex = MutatorMutex()
+        val didLockInitially = mutex.tryLock()
+        assertTrue("The mutex was not locked", didLockInitially)
+
+        val didLockAfterFirstLock = mutex.tryLock()
+        Assert.assertFalse("The mutex was locked", didLockAfterFirstLock)
+    }
+
+    @Test
+    fun unlockLockedMutex() {
+        val mutex = MutatorMutex()
+        val didLockInitially = mutex.tryLock()
+        assertTrue("The mutex was not locked", didLockInitially)
+
+        mutex.unlock()
+        // The mutex should lock again after being unlocked
+        val didLockAfterUnlock = mutex.tryLock()
+        assertTrue("The mutex was not locked", didLockAfterUnlock)
     }
 
     private suspend fun runMutatorsCancelByPriority(mutex: MutateCaller) = coroutineScope<Unit> {

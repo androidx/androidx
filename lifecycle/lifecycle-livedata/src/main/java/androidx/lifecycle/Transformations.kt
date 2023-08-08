@@ -177,19 +177,20 @@ fun <X, Y> LiveData<X>.switchMap(switchMapFunction: Function<X, LiveData<Y>>): L
 @CheckResult
 fun <X> LiveData<X>.distinctUntilChanged(): LiveData<X> {
     val outputLiveData = MediatorLiveData<X>()
-    outputLiveData.addSource(this, object : Observer<X> {
-        var firstTime = true
-
-        override fun onChanged(value: X) {
-            val previousValue = outputLiveData.value
-            if (firstTime ||
-                previousValue == null && value != null ||
-                previousValue != null && previousValue != value
-            ) {
-                firstTime = false
-                outputLiveData.value = value
-            }
+    var firstTime = true
+    if (isInitialized) {
+        outputLiveData.value = value
+        firstTime = false
+    }
+    outputLiveData.addSource(this) { value ->
+        val previousValue = outputLiveData.value
+        if (firstTime ||
+            previousValue == null && value != null ||
+            previousValue != null && previousValue != value
+        ) {
+            firstTime = false
+            outputLiveData.value = value
         }
-    })
+    }
     return outputLiveData
 }

@@ -17,37 +17,107 @@
 package androidx.compose.foundation.layout
 
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.layout.IntrinsicMeasurable
 import androidx.compose.ui.layout.IntrinsicMeasureScope
+import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasurePolicy
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.MeasureScope
-import androidx.compose.ui.node.Ref
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.node.Ref
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.constrainHeight
 import androidx.compose.ui.unit.constrainWidth
 import androidx.compose.ui.unit.dp
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
-import androidx.test.ext.junit.runners.AndroidJUnit4
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
 class IntrinsicTest : LayoutTest() {
+    @Test
+    fun testMaxIntrinsic_HandleNegative() = with(density) {
+        val positionedLatch = CountDownLatch(2)
+        val size = Ref<IntSize>()
+        val position = Ref<Offset>()
+        val sizeTwo = Ref<IntSize>()
+        val positionTwo = Ref<Offset>()
+        val measurePolicy = object : MeasurePolicy {
+            override fun MeasureScope.measure(
+                measurables: List<Measurable>,
+                constraints: Constraints
+            ): MeasureResult {
+                return layout(0, 0) {}
+            }
+
+            override fun IntrinsicMeasureScope.minIntrinsicHeight(
+                measurables: List<IntrinsicMeasurable>,
+                width: Int
+            ): Int {
+                return -1
+            }
+
+            override fun IntrinsicMeasureScope.minIntrinsicWidth(
+                measurables: List<IntrinsicMeasurable>,
+                height: Int
+            ): Int {
+                return -1
+            }
+
+            override fun IntrinsicMeasureScope.maxIntrinsicHeight(
+                measurables: List<IntrinsicMeasurable>,
+                width: Int
+            ): Int {
+                return -1
+            }
+
+            override fun IntrinsicMeasureScope.maxIntrinsicWidth(
+                measurables: List<IntrinsicMeasurable>,
+                height: Int
+            ): Int {
+                return -1
+            }
+        }
+        show {
+            Column {
+                Layout(modifier = Modifier
+                    .width(IntrinsicSize.Min)
+                    .height(IntrinsicSize.Min)
+                    .saveLayoutInfo(
+                        size = size,
+                        position = position,
+                        positionedLatch = positionedLatch
+                    ), measurePolicy = measurePolicy)
+                Layout(modifier = Modifier
+                    .width(IntrinsicSize.Max)
+                    .height(IntrinsicSize.Max)
+                    .saveLayoutInfo(
+                        size = sizeTwo,
+                        position = positionTwo,
+                        positionedLatch = positionedLatch
+                    ), measurePolicy = measurePolicy)
+            }
+        }
+        assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
+        assertEquals(IntSize(0.dp.roundToPx(), 0.dp.roundToPx()), size.value)
+        assertEquals(IntSize(0.dp.roundToPx(), 0.dp.roundToPx()), sizeTwo.value)
+        assertEquals(Offset(0f, 0f), position.value)
+        assertEquals(Offset(0f, 0f), positionTwo.value)
+    }
+
     @Test
     fun testMinIntrinsicWidth() = with(density) {
         val positionedLatch = CountDownLatch(2)

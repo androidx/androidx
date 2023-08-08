@@ -24,18 +24,21 @@ import androidx.room.integration.kotlintestapp.vo.Author
 import androidx.room.integration.kotlintestapp.vo.Book
 import androidx.room.integration.kotlintestapp.vo.BookAuthor
 import androidx.room.integration.kotlintestapp.vo.Lang
+import androidx.room.integration.kotlintestapp.vo.Pet
 import androidx.room.integration.kotlintestapp.vo.Publisher
+import java.util.Date
+import java.util.UUID
 import java.util.concurrent.FutureTask
 
 class TestUtil {
 
     companion object {
-        fun observeOnMainThread(
-            liveData: LiveData<Book>,
+        fun <T> observeOnMainThread(
+            liveData: LiveData<T>,
             provider: LifecycleOwner,
-            observer: Observer<Book>
+            observer: Observer<T>
         ) {
-            val futureTask = FutureTask<Unit> {
+            val futureTask = FutureTask {
                 liveData.observe(provider, observer)
             }
             ArchTaskExecutor.getInstance().executeOnMainThread(futureTask)
@@ -65,5 +68,14 @@ class TestUtil {
         val BOOK_AUTHOR_1_1 = BookAuthor(BOOK_1.bookId, AUTHOR_1.authorId)
         val BOOK_AUTHOR_1_2 = BookAuthor(BOOK_1.bookId, AUTHOR_2.authorId)
         val BOOK_AUTHOR_2_2 = BookAuthor(BOOK_2.bookId, AUTHOR_2.authorId)
+
+        fun createPet(id: Int): Pet {
+            return Pet(
+                mPetId = id,
+                mUserId = id,
+                mName = UUID.randomUUID().toString(),
+                mAdoptionDate = Date()
+            )
+        }
     }
 }

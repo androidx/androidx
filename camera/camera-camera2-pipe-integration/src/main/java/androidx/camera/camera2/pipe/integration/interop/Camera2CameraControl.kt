@@ -27,6 +27,7 @@ import androidx.camera.camera2.pipe.integration.impl.UseCaseCamera
 import androidx.camera.camera2.pipe.integration.impl.UseCaseCameraControl
 import androidx.camera.camera2.pipe.integration.impl.UseCaseThreads
 import androidx.camera.core.CameraControl
+import androidx.camera.core.impl.CameraControlInternal
 import androidx.camera.core.impl.utils.futures.Futures
 import androidx.core.util.Preconditions
 import com.google.common.util.concurrent.ListenableFuture
@@ -49,33 +50,24 @@ class Camera2CameraControl
 private constructor(
     private val compat: Camera2CameraControlCompat,
     private val threads: UseCaseThreads,
-    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) internal val requestListener:
+    @VisibleForTesting internal val requestListener:
     ComboRequestListener,
 ) : UseCaseCameraControl {
 
     private var _useCaseCamera: UseCaseCamera? = null
     override var useCaseCamera
-        /**
-         * @hide
-         */
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         get() = _useCaseCamera
-        /**
-         * @hide
-         */
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         set(value) {
             _useCaseCamera = value
             _useCaseCamera?.also {
                 requestListener.removeListener(compat)
                 requestListener.addListener(compat, threads.sequentialExecutor)
-                compat.applyAsync(it)
+                compat.applyAsync(it, false)
             }
         }
 
-    /**
-     * @hide
-     */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     override fun reset() {
         // Clear the current task, but don't clear the CaptureRequestOptions. Camera2CameraControl
@@ -162,9 +154,6 @@ private constructor(
             compat.applyAsync(useCaseCamera).asListenableFuture(tag)
         )
 
-    /**
-     * @hide
-     */
     companion object {
 
         /**
@@ -186,17 +175,16 @@ private constructor(
          */
         @JvmStatic
         fun from(cameraControl: CameraControl): Camera2CameraControl {
+            var cameraControlImpl = (cameraControl as CameraControlInternal).implementation
             Preconditions.checkArgument(
-                cameraControl is CameraControlAdapter,
+                cameraControlImpl is CameraControlAdapter,
                 "CameraControl doesn't contain Camera2 implementation."
             )
-            return (cameraControl as CameraControlAdapter).camera2cameraControl
+            return (cameraControlImpl as CameraControlAdapter).camera2cameraControl
         }
 
         /**
          * This is the workaround to prevent constructor from being added to public API.
-         *
-         * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @JvmStatic

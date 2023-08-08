@@ -185,7 +185,6 @@ class CreatePublicKeyCredentialControllerTestUtils {
             configureDescriptors(options, json)
             configureSelectionCriteriaAndAttestation(options, json)
 
-            // TODO("Handle extensions in this testing parsing")
             return json
         }
 
@@ -208,8 +207,6 @@ class CreatePublicKeyCredentialControllerTestUtils {
                     authSelect.put("requireResidentKey", requireResidentKey)
                 }
                 authSelect.put("userVerification", "preferred")
-                // TODO("Since fido impl accepts this input, but does not return it, adding)
-                // TODO(it directly for test comparison. When available, pull from impl object.")
                 json.put("authenticatorSelection", authSelect)
             }
             val attestation = options.attestationConveyancePreferenceAsString

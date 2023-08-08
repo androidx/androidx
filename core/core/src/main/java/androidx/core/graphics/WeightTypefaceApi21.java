@@ -37,7 +37,6 @@ import java.lang.reflect.Method;
 
 /**
  * Helper for creating {@link Typeface}s with exact weight on API 21-25.
- * @hide
  */
 @SuppressLint("SoonBlockedPrivateApi")
 @RestrictTo(LIBRARY)

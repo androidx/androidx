@@ -39,7 +39,6 @@ import androidx.leanback.R;
 
 /**
  * Execute horizontal slide of 1/4 width and fade (to workaround bug 23718734)
- * @hide
  */
 @RequiresApi(21)
 @RestrictTo(LIBRARY_GROUP_PREFIX)

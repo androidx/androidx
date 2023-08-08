@@ -51,7 +51,6 @@ import java.lang.annotation.RetentionPolicy;
  */
 @SuppressWarnings("unused")
 public final class ConnectivityManagerCompat {
-    /** @hide */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Retention(RetentionPolicy.SOURCE)
     @IntDef(value = {

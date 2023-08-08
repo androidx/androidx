@@ -25,6 +25,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.click
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performTouchInput
@@ -33,14 +34,14 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
-import org.junit.Rule
-import org.junit.Test
-import org.junit.runner.RunWith
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.coroutineScope
+import org.junit.Rule
+import org.junit.Test
+import org.junit.runner.RunWith
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
@@ -48,12 +49,14 @@ class AwaitEachGestureTest {
     @get:Rule
     val rule = createComposeRule()
 
+    private val tag = "pointerInputTag"
+
     @Test
     fun awaitEachGestureInternalCancellation() {
         val inputLatch = CountDownLatch(1)
         rule.setContent {
             Box(
-                Modifier.pointerInput(Unit) {
+                Modifier.testTag(tag).pointerInput(Unit) {
                     try {
                         var count = 0
                         coroutineScope {
@@ -79,6 +82,7 @@ class AwaitEachGestureTest {
             )
         }
         rule.waitForIdle()
+        rule.onNodeWithTag(tag).performTouchInput { click(Offset.Zero) }
         assertThat(inputLatch.await(1, TimeUnit.SECONDS)).isTrue()
     }
 

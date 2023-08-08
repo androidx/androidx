@@ -25,8 +25,8 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.DismissValue.Default
 import androidx.compose.material3.DismissValue.DismissedToEnd
 import androidx.compose.material3.DismissValue.DismissedToStart
-import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.SwipeToDismiss
 import androidx.compose.material3.Text
@@ -58,12 +58,12 @@ fun SwipeToDismissListItems() {
         dismissContent = {
             Card {
                 ListItem(
-                    headlineText = {
+                    headlineContent = {
                         Text("Cupcake")
                     },
-                    supportingText = { Text("Swipe me left or right!") }
+                    supportingContent = { Text("Swipe me left or right!") }
                 )
-                Divider()
+                HorizontalDivider()
             }
         }
     )

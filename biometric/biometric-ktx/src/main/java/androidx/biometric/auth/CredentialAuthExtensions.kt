@@ -21,8 +21,8 @@ import androidx.biometric.BiometricPrompt
 import androidx.biometric.BiometricPrompt.AuthenticationResult
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
-import kotlinx.coroutines.suspendCancellableCoroutine
 import java.util.concurrent.Executor
+import kotlinx.coroutines.suspendCancellableCoroutine
 
 /**
  * Shows an authentication prompt to the user.

@@ -69,7 +69,6 @@ public abstract class ContentProviderWithCallbacks<T extends ContentProviderWith
     }
 
     /**
-     * @hide
      */
     @NonNull
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)

@@ -28,7 +28,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 
 /**
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 public class FitWindowsLinearLayout extends LinearLayout implements FitWindowsViewGroup {

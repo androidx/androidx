@@ -20,6 +20,8 @@ import androidx.navigation.safe.args.generator.java.JavaCodeFile
 import androidx.navigation.safe.args.generator.kotlin.KotlinCodeFile
 import com.google.common.truth.Truth
 import com.google.testing.compile.JavaSourcesSubject
+import java.io.File
+import java.lang.IllegalStateException
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Rule
@@ -27,8 +29,6 @@ import org.junit.Test
 import org.junit.rules.TemporaryFolder
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
-import java.io.File
-import java.lang.IllegalStateException
 
 @RunWith(Parameterized::class)
 class NavGeneratorTest(private val generateKotlin: Boolean) {

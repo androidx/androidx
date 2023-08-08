@@ -17,7 +17,6 @@
 package androidx.tv.foundation.lazy.list
 
 import android.os.Build
-import androidx.tv.foundation.lazy.AutoTestFrameClock
 import androidx.compose.foundation.background
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.gestures.scrollBy
@@ -45,13 +44,11 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertPositionInRootIsEqualTo
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.test.onChildren
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.unit.dp
@@ -60,6 +57,7 @@ import androidx.test.filters.FlakyTest
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.tv.foundation.PivotOffsets
+import androidx.tv.foundation.lazy.AutoTestFrameClock
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import kotlinx.coroutines.runBlocking
@@ -254,15 +252,13 @@ class LazyColumnTest {
         for (data in dataLists) {
             rule.runOnIdle { dataModel = data }
 
-            // Confirm the number of children to ensure there are no extra items
-            val numItems = data.size
-            rule.onNodeWithTag(tag)
-                .onChildren()
-                .assertCountEquals(numItems)
-
             // Confirm the children's content
-            for (item in data) {
-                rule.onNodeWithText("$item").assertExists()
+            for (index in 1..8) {
+                if (index in data) {
+                    rule.onNodeWithText("$index").assertIsDisplayed()
+                } else {
+                    rule.onNodeWithText("$index").assertIsNotPlaced()
+                }
             }
         }
     }
@@ -362,7 +358,7 @@ class LazyColumnTest {
             .assertIsDisplayed()
 
         rule.onNodeWithTag("3")
-            .assertDoesNotExist()
+            .assertIsNotPlaced()
     }
 
     @Test

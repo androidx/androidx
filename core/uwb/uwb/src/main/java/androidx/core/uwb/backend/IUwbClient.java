@@ -23,11 +23,12 @@ import android.os.Parcel;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
 
 /** Gms Reference: com.google.android.gms.nearby.uwb.UwbClient
  *
- * @hide
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 @SuppressLint({"MutableBareField", "ParcelNotFinal", "ExecutorRegistration"})
 public interface IUwbClient extends android.os.IInterface
 {
@@ -157,7 +158,7 @@ public interface IUwbClient extends android.os.IInterface
                 {
                     boolean _result = this.isAvailable();
                     reply.writeNoException();
-                    reply.writeBoolean(_result);
+                    reply.writeInt(_result ? 1 : 0);
                     break;
                 }
                 case TRANSACTION_getRangingCapabilities:
@@ -252,7 +253,7 @@ public interface IUwbClient extends android.os.IInterface
                         throw new android.os.RemoteException("Method isAvailable is unimplemented.");
                     }
                     _reply.readException();
-                    _result = _reply.readBoolean();
+                    _result = _reply.readInt() == 1;
                 }
                 finally {
                     _reply.recycle();

@@ -20,13 +20,11 @@ import androidx.compose.compiler.plugins.kotlin.facade.SourceFile
 import androidx.compose.compiler.plugins.kotlin.lower.dumpSrc
 import org.intellij.lang.annotations.Language
 import org.jetbrains.kotlin.ir.declarations.IrFunction
-import org.jetbrains.kotlin.ir.util.nameForIrSerialization
 import org.junit.Assert.assertEquals
 import org.junit.Assert.fail
 import org.junit.Test
 
-class StaticExpressionDetectionTests : AbstractIrTransformTest() {
-
+class StaticExpressionDetectionTests(useFir: Boolean) : AbstractIrTransformTest(useFir) {
     @Test
     fun testUnstableTypesAreNeverStatic() = assertUnstable(
         expression = "Any()"
@@ -287,8 +285,8 @@ class StaticExpressionDetectionTests : AbstractIrTransformTest() {
         )
         val compositionContextBody = irModule.files.last().declarations
             .filterIsInstance<IrFunction>()
-            .first { it.nameForIrSerialization.identifier == "CompositionContext" }
-            .dumpSrc()
+            .first { it.name.identifier == "CompositionContext" }
+            .dumpSrc(useFir)
             .replace('$', '%')
 
         assertChangedBits(

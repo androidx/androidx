@@ -69,6 +69,7 @@ import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeLeft
 import androidx.compose.ui.test.swipeRight
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
@@ -384,6 +385,60 @@ class AppBarTest {
             }
         }
         assertSmallPositioningWithoutNavigation(isCenteredTitle = true)
+    }
+
+    @Test
+    fun centerAlignedTopAppBar_longTextDoesNotOverflowToActions() {
+        rule.setMaterialContent(lightColorScheme()) {
+            Box(Modifier.testTag(TopAppBarTestTag)) {
+                CenterAlignedTopAppBar(
+                    title = {
+                        Text(
+                            text = "This is a very very very very long title",
+                            modifier = Modifier.testTag(TitleTestTag),
+                            overflow = TextOverflow.Ellipsis,
+                            maxLines = 1
+                        )
+                    },
+                    actions = {
+                        FakeIcon(Modifier.testTag(ActionsTestTag))
+                    }
+                )
+            }
+        }
+        val actionsBounds = rule.onNodeWithTag(ActionsTestTag).getUnclippedBoundsInRoot()
+        val titleBounds = rule.onNodeWithTag(TitleTestTag).getUnclippedBoundsInRoot()
+
+        // Check that the title does not render over the actions.
+        assertThat(titleBounds.right).isLessThan(actionsBounds.left)
+    }
+
+    @Test
+    fun centerAlignedTopAppBar_longTextDoesNotOverflowToNavigation() {
+        rule.setMaterialContent(lightColorScheme()) {
+            Box(Modifier.testTag(TopAppBarTestTag)) {
+                CenterAlignedTopAppBar(
+                    navigationIcon = {
+                        FakeIcon(Modifier.testTag(NavigationIconTestTag))
+                    },
+                    title = {
+                        Text(
+                            text = "This is a very very very very long title",
+                            modifier = Modifier.testTag(TitleTestTag),
+                            overflow = TextOverflow.Ellipsis,
+                            maxLines = 1
+                        )
+                    }
+
+                )
+            }
+        }
+        val navigationIconBounds =
+            rule.onNodeWithTag(NavigationIconTestTag).getUnclippedBoundsInRoot()
+        val titleBounds = rule.onNodeWithTag(TitleTestTag).getUnclippedBoundsInRoot()
+
+        // Check that the title does not render over the navigation icon.
+        assertThat(titleBounds.left).isGreaterThan(navigationIconBounds.right)
     }
 
     @Test
@@ -1021,6 +1076,29 @@ class AppBarTest {
     }
 
     @Test
+    fun bottomAppBar_FABshown_whenActionsOverflowRow() {
+        rule.setMaterialContent(lightColorScheme()) {
+            BottomAppBar(
+                actions = {
+                    repeat(20) {
+                        FakeIcon(Modifier)
+                    }
+                },
+                floatingActionButton = {
+                    FloatingActionButton(
+                        onClick = { /* do something */ },
+                        modifier = Modifier.testTag("FAB"),
+                        containerColor = BottomAppBarDefaults.bottomAppBarFabColor,
+                        elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation(),
+                    ) {
+                        Icon(Icons.Filled.Add, "Localized description")
+                    }
+                })
+        }
+        rule.onNodeWithTag("FAB").assertIsDisplayed()
+    }
+
+    @Test
     fun bottomAppBar_widthExpandsToScreen() {
         rule
             .setMaterialContentForSizeAssertions {
@@ -1357,7 +1435,7 @@ class AppBarTest {
             scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
             // Using the mediumTopAppBarColors for both Medium and Large top app bars, as the
             // current content color settings are the same.
-            expandedAppBarBackgroundColor = TopAppBarMediumTokens.ContainerColor.toColor()
+            expandedAppBarBackgroundColor = TopAppBarMediumTokens.ContainerColor.value
             fullyCollapsedContainerColor =
                 TopAppBarDefaults.mediumTopAppBarColors()
                     .containerColor(colorTransitionFraction = 1f)

@@ -123,7 +123,6 @@ public class MediaRouteChooserDialogFragment extends DialogFragment {
 
     /**
      * Called when the device picker dialog is being created.
-     * @hide
      */
     @RestrictTo(LIBRARY)
     @NonNull

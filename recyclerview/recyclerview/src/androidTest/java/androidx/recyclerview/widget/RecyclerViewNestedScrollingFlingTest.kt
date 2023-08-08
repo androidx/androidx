@@ -28,6 +28,8 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
 import androidx.testutils.ActivityScenarioResetRule
 import androidx.testutils.ResettableActivityScenarioRule
+import java.util.ArrayList
+import java.util.Arrays
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.closeTo
 import org.junit.Before
@@ -36,8 +38,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
-import java.util.ArrayList
-import java.util.Arrays
 
 /**
  * This test verifies that the velocity that RecyclerView flings with in response to finger input

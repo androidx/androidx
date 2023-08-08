@@ -21,12 +21,12 @@ import android.text.SpannableString
 import android.text.Spanned
 import android.text.style.ForegroundColorSpan
 import androidx.wear.watchface.complications.data.ComplicationData
-import androidx.wear.watchface.complications.datasource.ComplicationDataSourceService
-import androidx.wear.watchface.complications.datasource.ComplicationRequest
 import androidx.wear.watchface.complications.data.ComplicationText
 import androidx.wear.watchface.complications.data.ComplicationType
 import androidx.wear.watchface.complications.data.LongTextComplicationData
 import androidx.wear.watchface.complications.data.ShortTextComplicationData
+import androidx.wear.watchface.complications.datasource.ComplicationDataSourceService
+import androidx.wear.watchface.complications.datasource.ComplicationRequest
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
@@ -43,54 +43,52 @@ class AsynchronousDataSourceService : ComplicationDataSourceService() {
                 when (request.complicationType) {
                     ComplicationType.SHORT_TEXT ->
                         ShortTextComplicationData.Builder(
-                            plainText("# ${request.complicationInstanceId}"),
-                            ComplicationText.EMPTY
-                        ).build()
-
+                                plainText("# ${request.complicationInstanceId}"),
+                                ComplicationText.EMPTY
+                            )
+                            .build()
                     ComplicationType.LONG_TEXT ->
                         LongTextComplicationData.Builder(
-                            plainText(
-                                SpannableString("hello ${request.complicationInstanceId}").apply {
-                                    setSpan(
-                                        ForegroundColorSpan(Color.RED),
-                                        0,
-                                        5,
-                                        Spanned.SPAN_INCLUSIVE_INCLUSIVE
-                                    )
-                                }
-                            ),
-                            ComplicationText.EMPTY
-                        ).build()
-
+                                plainText(
+                                    SpannableString("hello ${request.complicationInstanceId}")
+                                        .apply {
+                                            setSpan(
+                                                ForegroundColorSpan(Color.RED),
+                                                0,
+                                                5,
+                                                Spanned.SPAN_INCLUSIVE_INCLUSIVE
+                                            )
+                                        }
+                                ),
+                                ComplicationText.EMPTY
+                            )
+                            .build()
                     else -> null
                 }
             )
         }
     }
 
-    override fun getPreviewData(type: ComplicationType): ComplicationData? = when (type) {
-        ComplicationType.SHORT_TEXT ->
-            ShortTextComplicationData.Builder(
-                plainText("# 123"),
-                ComplicationText.EMPTY
-            ).build()
-
-        ComplicationType.LONG_TEXT ->
-            LongTextComplicationData.Builder(
-                plainText(
-                    SpannableString("hello 123").apply {
-                        setSpan(
-                            ForegroundColorSpan(Color.RED),
-                            0,
-                            5,
-                            Spanned.SPAN_INCLUSIVE_INCLUSIVE
-                        )
-                    }
-                ),
-                ComplicationText.EMPTY
-            ).build()
-
-        else
-        -> null
-    }
+    override fun getPreviewData(type: ComplicationType): ComplicationData? =
+        when (type) {
+            ComplicationType.SHORT_TEXT ->
+                ShortTextComplicationData.Builder(plainText("# 123"), ComplicationText.EMPTY)
+                    .build()
+            ComplicationType.LONG_TEXT ->
+                LongTextComplicationData.Builder(
+                        plainText(
+                            SpannableString("hello 123").apply {
+                                setSpan(
+                                    ForegroundColorSpan(Color.RED),
+                                    0,
+                                    5,
+                                    Spanned.SPAN_INCLUSIVE_INCLUSIVE
+                                )
+                            }
+                        ),
+                        ComplicationText.EMPTY
+                    )
+                    .build()
+            else -> null
+        }
 }

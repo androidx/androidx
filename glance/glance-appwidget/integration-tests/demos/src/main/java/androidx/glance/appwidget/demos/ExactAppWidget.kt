@@ -16,16 +16,17 @@
 
 package androidx.glance.appwidget.demos
 
-import androidx.compose.runtime.Composable
+import android.content.Context
 import androidx.compose.ui.graphics.Color
+import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
-import androidx.glance.LocalContext
 import androidx.glance.LocalSize
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
 import androidx.glance.appwidget.SizeMode
 import androidx.glance.appwidget.background
 import androidx.glance.appwidget.cornerRadius
+import androidx.glance.appwidget.provideContent
 import androidx.glance.color.ColorProvider
 import androidx.glance.layout.Column
 import androidx.glance.layout.fillMaxSize
@@ -39,9 +40,10 @@ import java.text.DecimalFormat
 class ExactAppWidget : GlanceAppWidget() {
     override val sizeMode: SizeMode = SizeMode.Exact
 
-    @Composable
-    override fun Content() {
-        val context = LocalContext.current
+    override suspend fun provideGlance(
+        context: Context,
+        id: GlanceId
+    ) = provideContent {
         Column(
             modifier = GlanceModifier
                 .fillMaxSize()
@@ -62,6 +64,9 @@ class ExactAppWidget : GlanceAppWidget() {
             val width = dec.format(size.width.value)
             val height = dec.format(size.height.value)
             Text("Current layout: ${width}dp x ${height}dp")
+            for (i in 0 until 20) {
+                Text("Text $i")
+            }
         }
     }
 }

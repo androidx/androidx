@@ -53,7 +53,6 @@ import java.util.Date
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.runBlocking
 
-@JvmDefaultWithCompatibility
 @Dao
 @TypeConverters(DateConverter::class, AnswerConverter::class)
 interface BooksDao {

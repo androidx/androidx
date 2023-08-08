@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.text.selection
 
-import android.annotation.SuppressLint
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.MagnifierStyle
 import androidx.compose.foundation.magnifier
@@ -37,7 +36,6 @@ internal actual fun isCopyKeyEvent(keyEvent: KeyEvent) =
 
 // We use composed{} to read a local, but don't provide inspector info because the underlying
 // magnifier modifier provides more meaningful inspector info.
-@SuppressLint("ModifierInspectorInfo")
 @OptIn(ExperimentalFoundationApi::class)
 internal actual fun Modifier.selectionMagnifier(manager: SelectionManager): Modifier {
     // Avoid tracking animation state on older Android versions that don't support magnifiers.

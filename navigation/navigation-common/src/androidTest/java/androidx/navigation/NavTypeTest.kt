@@ -23,8 +23,8 @@ import android.os.Bundle
 import androidx.navigation.common.test.R
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
-import org.junit.Test
 import java.io.Serializable
+import org.junit.Test
 
 @SmallTest
 class NavTypeTest {

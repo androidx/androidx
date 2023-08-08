@@ -81,7 +81,8 @@ private class LazySaveableStateHolder(
 
     @Composable
     override fun SaveableStateProvider(key: Any, content: @Composable () -> Unit) {
-        requireNotNull(wrappedHolder).SaveableStateProvider(key, content)
+        requireNotNull(wrappedHolder) { "null wrappedHolder" }
+            .SaveableStateProvider(key, content)
         DisposableEffect(key) {
             previouslyComposedKeys -= key
             onDispose {
@@ -91,7 +92,8 @@ private class LazySaveableStateHolder(
     }
 
     override fun removeState(key: Any) {
-        requireNotNull(wrappedHolder).removeState(key)
+        requireNotNull(wrappedHolder) { "null wrappedHolder" }
+            .removeState(key)
     }
 
     companion object {

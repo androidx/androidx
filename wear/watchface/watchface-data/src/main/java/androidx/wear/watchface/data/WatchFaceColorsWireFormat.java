@@ -28,7 +28,7 @@ import androidx.versionedparcelable.VersionedParcelable;
 import androidx.versionedparcelable.VersionedParcelize;
 
 /** Wire format for WatchFaceColorsWireFormat. */
-// TODO(b/230364881): Mark as @hide RestrictTo when BoundingArc is no longer experimental.
+// TODO(b/230364881): Mark as @RestrictTo when BoundingArc is no longer experimental.
 @VersionedParcelize
 @SuppressLint("BanParcelableUsage")
 public final class WatchFaceColorsWireFormat implements VersionedParcelable, Parcelable {
@@ -43,13 +43,9 @@ public final class WatchFaceColorsWireFormat implements VersionedParcelable, Par
     int mTertiaryColor;
 
     /** Used by VersionedParcelable. */
-    WatchFaceColorsWireFormat() {
-    }
+    WatchFaceColorsWireFormat() {}
 
-    public WatchFaceColorsWireFormat(
-            int primaryColor,
-            int secondaryColor,
-            int tertiaryColor) {
+    public WatchFaceColorsWireFormat(int primaryColor, int secondaryColor, int tertiaryColor) {
         mPrimaryColor = primaryColor;
         mSecondaryColor = secondaryColor;
         mTertiaryColor = tertiaryColor;

@@ -47,8 +47,7 @@
 
   <application
     android:label="@string/app_name"
-    android:icon="@drawable/ic_launcher"
-    android:extractNativeLibs="false">
+    android:icon="@drawable/ic_launcher">
 
     <meta-data
         android:name="com.android.automotive"
@@ -78,6 +77,7 @@
 
     <activity
         android:name="androidx.car.app.activity.CarAppActivity"
+        android:configChanges="uiMode"
         android:theme="@android:style/Theme.DeviceDefault.NoActionBar"
         android:exported="true"
         android:launchMode="singleTask"

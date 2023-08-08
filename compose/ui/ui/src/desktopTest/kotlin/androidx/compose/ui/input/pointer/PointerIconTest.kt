@@ -25,17 +25,24 @@ import androidx.compose.ui.platform.TestComposeWindow
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import com.google.common.truth.Truth.assertThat
+import java.awt.Cursor
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import java.awt.Cursor
 
 @RunWith(JUnit4::class)
 class PointerIconTest {
     private val window = TestComposeWindow(width = 100, height = 100, density = Density(1f))
 
     private val iconService = object : PointerIconService {
-        override var current: PointerIcon = PointerIcon.Default
+        private var currentIcon: PointerIcon = PointerIcon.Default
+        override fun getIcon(): PointerIcon {
+            return currentIcon
+        }
+
+        override fun setIcon(value: PointerIcon?) {
+            currentIcon = value ?: PointerIcon.Default
+        }
     }
 
     @Test
@@ -61,7 +68,7 @@ class PointerIconTest {
             x = 5,
             y = 5
         )
-        assertThat(iconService.current).isEqualTo(PointerIcon.Text)
+        assertThat(iconService.getIcon()).isEqualTo(PointerIcon.Text)
     }
 
     @Test
@@ -136,13 +143,13 @@ class PointerIconTest {
             x = 5,
             y = 5
         )
-        assertThat(iconService.current).isEqualTo(PointerIcon.Hand)
+        assertThat(iconService.getIcon()).isEqualTo(PointerIcon.Hand)
 
         window.onMouseMoved(
             x = 15,
             y = 15
         )
-        assertThat(iconService.current).isEqualTo(PointerIcon.Hand)
+        assertThat(iconService.getIcon()).isEqualTo(PointerIcon.Hand)
     }
 
     @Test
@@ -169,12 +176,12 @@ class PointerIconTest {
             x = 5,
             y = 5
         )
-        assertThat(iconService.current).isEqualTo(PointerIcon.Text)
+        assertThat(iconService.getIcon()).isEqualTo(PointerIcon.Text)
 
         window.onMouseMoved(
             x = 15,
             y = 15
         )
-        assertThat(iconService.current).isEqualTo(PointerIcon.Hand)
+        assertThat(iconService.getIcon()).isEqualTo(PointerIcon.Hand)
     }
 }

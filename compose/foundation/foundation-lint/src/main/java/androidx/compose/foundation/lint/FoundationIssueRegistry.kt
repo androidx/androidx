@@ -27,11 +27,13 @@ import com.android.tools.lint.detector.api.CURRENT_API
  */
 class FoundationIssueRegistry : IssueRegistry() {
     // Tests are run with this version. We ensure that with ApiLintVersionsTest
-    override val api = 13
+    override val api = 14
     override val minApi = CURRENT_API
     override val issues get() = listOf(
         LazyLayoutStateReadInCompositionDetector.FrequentlyChangedStateReadInComposition,
-        NonLambdaOffsetModifierDetector.UseOfNonLambdaOverload
+        UnrememberedMutableInteractionSourceDetector.UnrememberedMutableInteractionSource,
+        NonLambdaOffsetModifierDetector.UseOfNonLambdaOverload,
+        BoxWithConstraintsDetector.UnusedConstraintsParameter
     )
     override val vendor = Vendor(
         vendorName = "Jetpack Compose",

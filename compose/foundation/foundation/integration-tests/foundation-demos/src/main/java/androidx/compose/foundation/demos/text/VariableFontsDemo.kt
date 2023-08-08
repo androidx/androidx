@@ -25,7 +25,6 @@ import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.testutils.fonts.R
 import androidx.compose.foundation.demos.text.FontVariationSettingsCompot.compatSetFontVariationSettings
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -37,6 +36,7 @@ import androidx.compose.material.Slider
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -53,6 +53,7 @@ import androidx.compose.ui.text.font.FontVariation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.testutils.fonts.R
 import java.io.File
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -65,7 +66,7 @@ fun VariableFontsDemo() {
         Text("Variable fonts are only supported on API 26+")
      }
 
-    val (weight, setWeight) = remember { mutableStateOf(1000f) }
+    val (weight, setWeight) = remember { mutableFloatStateOf(1000f) }
     val (italic, setItalic) = remember { mutableStateOf(false) }
     LazyColumn {
         this.stickyHeader {

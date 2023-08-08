@@ -31,8 +31,8 @@ import androidx.annotation.RequiresApi
 import androidx.compose.ui.platform.actionmodecallback.MenuItemOption
 import androidx.compose.ui.platform.actionmodecallback.TextActionModeCallback
 import androidx.test.filters.SdkSuppress
-import org.junit.Test
 import com.google.common.truth.Truth.assertThat
+import org.junit.Test
 
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.N)
 class TextActionModeCallbackTest {

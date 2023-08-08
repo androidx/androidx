@@ -20,14 +20,14 @@ import android.content.Context
 import androidx.work.ListenableWorker.Result
 import androidx.work.impl.utils.SynchronousExecutor
 import androidx.work.impl.utils.futures.SettableFuture
+import java.util.UUID
+import java.util.concurrent.Executor
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import org.mockito.Mockito.mock
-import java.util.UUID
-import java.util.concurrent.Executor
 
 @RunWith(JUnit4::class)
 class SetCompletableProgressTest {

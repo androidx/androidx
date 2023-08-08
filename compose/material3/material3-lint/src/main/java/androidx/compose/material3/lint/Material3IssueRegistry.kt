@@ -25,9 +25,10 @@ import com.android.tools.lint.detector.api.CURRENT_API
  */
 class Material3IssueRegistry : IssueRegistry() {
     // Tests are run with this version. We ensure that with ApiLintVersionsTest
-    override val api = 13
+    override val api = 14
     override val minApi = CURRENT_API
     override val issues get() = listOf(
+        MaterialImportDetector.UsingMaterialAndMaterial3Libraries,
         ScaffoldPaddingDetector.UnusedMaterial3ScaffoldPaddingParameter
     )
     override val vendor = Vendor(

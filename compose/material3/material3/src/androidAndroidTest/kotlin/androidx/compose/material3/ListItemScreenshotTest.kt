@@ -52,7 +52,7 @@ class ListItemScreenshotTest {
         composeTestRule.setMaterialContent(lightColorScheme()) {
             Column(Modifier.testTag(Tag)) {
                 ListItem(
-                    headlineText = { Text("One line list item with 24x24 icon") },
+                    headlineContent = { Text("One line list item with 24x24 icon") },
                     leadingContent = {
                         Icon(
                             Icons.Filled.Favorite,
@@ -61,7 +61,7 @@ class ListItemScreenshotTest {
                     },
                     colors = ListItemDefaults.colors(containerColor = Color.Red)
                 )
-                Divider()
+                HorizontalDivider()
             }
         }
         composeTestRule.onNodeWithTag(Tag)
@@ -73,10 +73,10 @@ class ListItemScreenshotTest {
     fun oneLine_lightTheme() {
         composeTestRule.setMaterialContent(lightColorScheme()) {
             Column(Modifier.testTag(Tag)) {
-                ListItem(headlineText = { Text("One line list item with no icon") })
-                Divider()
+                ListItem(headlineContent = { Text("One line list item with no icon") })
+                HorizontalDivider()
                 ListItem(
-                    headlineText = { Text("One line list item with 24x24 icon") },
+                    headlineContent = { Text("One line list item with 24x24 icon") },
                     leadingContent = {
                         Icon(
                             Icons.Filled.Favorite,
@@ -84,7 +84,7 @@ class ListItemScreenshotTest {
                         )
                     }
                 )
-                Divider()
+                HorizontalDivider()
             }
         }
         composeTestRule.onNodeWithTag(Tag)
@@ -96,10 +96,10 @@ class ListItemScreenshotTest {
     fun oneLine_darkTheme() {
         composeTestRule.setMaterialContent(darkColorScheme()) {
             Column(Modifier.testTag(Tag)) {
-                ListItem(headlineText = { Text("One line list item with no icon") })
-                Divider()
+                ListItem(headlineContent = { Text("One line list item with no icon") })
+                HorizontalDivider()
                 ListItem(
-                    headlineText = { Text("One line list item with 24x24 icon") },
+                    headlineContent = { Text("One line list item with 24x24 icon") },
                     leadingContent = {
                         Icon(
                             Icons.Filled.Favorite,
@@ -107,7 +107,7 @@ class ListItemScreenshotTest {
                         )
                     }
                 )
-                Divider()
+                HorizontalDivider()
             }
         }
         composeTestRule.onNodeWithTag(Tag)
@@ -120,18 +120,18 @@ class ListItemScreenshotTest {
         composeTestRule.setMaterialContent(lightColorScheme()) {
             Column(Modifier.testTag(Tag)) {
                 ListItem(
-                    headlineText = { Text("Two line list item") },
-                    supportingText = { Text("Secondary text") }
+                    headlineContent = { Text("Two line list item") },
+                    supportingContent = { Text("Secondary text") }
                 )
-                Divider()
+                HorizontalDivider()
                 ListItem(
-                    headlineText = { Text("Two line list item") },
-                    overlineText = { Text("OVERLINE") }
+                    headlineContent = { Text("Two line list item") },
+                    overlineContent = { Text("OVERLINE") }
                 )
-                Divider()
+                HorizontalDivider()
                 ListItem(
-                    headlineText = { Text("Two line list item with 24x24 icon") },
-                    supportingText = { Text("Secondary text") },
+                    headlineContent = { Text("Two line list item with 24x24 icon") },
+                    supportingContent = { Text("Secondary text") },
                     leadingContent = {
                         Icon(
                             Icons.Filled.Favorite,
@@ -139,7 +139,7 @@ class ListItemScreenshotTest {
                         )
                     }
                 )
-                Divider()
+                HorizontalDivider()
             }
         }
         composeTestRule.onNodeWithTag(Tag)
@@ -152,18 +152,18 @@ class ListItemScreenshotTest {
         composeTestRule.setMaterialContent(darkColorScheme()) {
             Column(Modifier.testTag(Tag)) {
                 ListItem(
-                    headlineText = { Text("Two line list item") },
-                    supportingText = { Text("Secondary text") }
+                    headlineContent = { Text("Two line list item") },
+                    supportingContent = { Text("Secondary text") }
                 )
-                Divider()
+                HorizontalDivider()
                 ListItem(
-                    headlineText = { Text("Two line list item") },
-                    overlineText = { Text("OVERLINE") }
+                    headlineContent = { Text("Two line list item") },
+                    overlineContent = { Text("OVERLINE") }
                 )
-                Divider()
+                HorizontalDivider()
                 ListItem(
-                    headlineText = { Text("Two line list item with 24x24 icon") },
-                    supportingText = { Text("Secondary text") },
+                    headlineContent = { Text("Two line list item with 24x24 icon") },
+                    supportingContent = { Text("Secondary text") },
                     leadingContent = {
                         Icon(
                             Icons.Filled.Favorite,
@@ -171,7 +171,7 @@ class ListItemScreenshotTest {
                         )
                     }
                 )
-                Divider()
+                HorizontalDivider()
             }
         }
         composeTestRule.onNodeWithTag(Tag)
@@ -184,22 +184,22 @@ class ListItemScreenshotTest {
         composeTestRule.setMaterialContent(lightColorScheme()) {
             Column(Modifier.testTag(Tag)) {
                 ListItem(
-                    headlineText = { Text("Three line list item") },
-                    overlineText = { Text("OVERLINE") },
-                    supportingText = { Text("Secondary text") },
+                    headlineContent = { Text("Three line list item") },
+                    overlineContent = { Text("OVERLINE") },
+                    supportingContent = { Text("Secondary text") },
                     trailingContent = { Text("meta") }
                 )
-                Divider()
+                HorizontalDivider()
                 ListItem(
-                    headlineText = { Text("Three line list item") },
-                    overlineText = { Text("OVERLINE") },
-                    supportingText = { Text("Secondary text") }
+                    headlineContent = { Text("Three line list item") },
+                    overlineContent = { Text("OVERLINE") },
+                    supportingContent = { Text("Secondary text") }
                 )
-                Divider()
+                HorizontalDivider()
                 ListItem(
-                    headlineText = { Text("Three line list item") },
-                    overlineText = { Text("OVERLINE") },
-                    supportingText = { Text("Secondary text") },
+                    headlineContent = { Text("Three line list item") },
+                    overlineContent = { Text("OVERLINE") },
+                    supportingContent = { Text("Secondary text") },
                     leadingContent = {
                         Icon(
                             Icons.Filled.Favorite,
@@ -207,7 +207,7 @@ class ListItemScreenshotTest {
                         )
                     }
                 )
-                Divider()
+                HorizontalDivider()
             }
         }
         composeTestRule.onNodeWithTag(Tag)
@@ -220,22 +220,22 @@ class ListItemScreenshotTest {
         composeTestRule.setMaterialContent(darkColorScheme()) {
             Column(Modifier.testTag(Tag)) {
                 ListItem(
-                    headlineText = { Text("Three line list item") },
-                    overlineText = { Text("OVERLINE") },
-                    supportingText = { Text("Secondary text") },
+                    headlineContent = { Text("Three line list item") },
+                    overlineContent = { Text("OVERLINE") },
+                    supportingContent = { Text("Secondary text") },
                     trailingContent = { Text("meta") }
                 )
-                Divider()
+                HorizontalDivider()
                 ListItem(
-                    headlineText = { Text("Three line list item") },
-                    overlineText = { Text("OVERLINE") },
-                    supportingText = { Text("Secondary text") }
+                    headlineContent = { Text("Three line list item") },
+                    overlineContent = { Text("OVERLINE") },
+                    supportingContent = { Text("Secondary text") }
                 )
-                Divider()
+                HorizontalDivider()
                 ListItem(
-                    headlineText = { Text("Three line list item") },
-                    overlineText = { Text("OVERLINE") },
-                    supportingText = { Text("Secondary text") },
+                    headlineContent = { Text("Three line list item") },
+                    overlineContent = { Text("OVERLINE") },
+                    supportingContent = { Text("Secondary text") },
                     leadingContent = {
                         Icon(
                             Icons.Filled.Favorite,
@@ -243,7 +243,7 @@ class ListItemScreenshotTest {
                         )
                     }
                 )
-                Divider()
+                HorizontalDivider()
             }
         }
         composeTestRule.onNodeWithTag(Tag)

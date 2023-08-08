@@ -16,13 +16,18 @@
 
 package androidx.build.metalava
 
+import androidx.build.Version
 import androidx.build.checkapi.ApiBaselinesLocation
 import androidx.build.checkapi.ApiLocation
 import androidx.build.java.JavaCompileInputs
+import java.io.File
+import javax.inject.Inject
+import org.gradle.api.file.Directory
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
+import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputFiles
@@ -30,14 +35,14 @@ import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
 import org.gradle.workers.WorkerExecutor
-import java.io.File
-import javax.inject.Inject
 
-/** Generate an API signature text file from a set of source files. */
+/**
+ * Generate API signature text files from a set of source files, and an API version history JSON
+ * file from the previous API signature files.
+ */
 @CacheableTask
-abstract class GenerateApiTask @Inject constructor(
-    workerExecutor: WorkerExecutor
-) : MetalavaTask(workerExecutor) {
+abstract class GenerateApiTask @Inject constructor(workerExecutor: WorkerExecutor) :
+    MetalavaTask(workerExecutor) {
     @get:Internal // already expressed by getApiLintBaseline()
     abstract val baselines: Property<ApiBaselinesLocation>
 
@@ -49,25 +54,38 @@ abstract class GenerateApiTask @Inject constructor(
         return if (baseline.exists()) baseline else null
     }
 
-    @get:Input
-    var targetsJavaConsumers: Boolean = true
+    @get:Input var targetsJavaConsumers: Boolean = true
 
-    @get:Input
-    var generateRestrictToLibraryGroupAPIs = true
+    @get:Input var generateRestrictToLibraryGroupAPIs = true
 
-    /** Text file to which API signatures will be written. */
+    /** Collection of text files to which API signatures will be written. */
     @get:Internal // already expressed by getTaskOutputs()
     abstract val apiLocation: Property<ApiLocation>
 
     @OutputFiles
     fun getTaskOutputs(): List<File> {
         val prop = apiLocation.get()
-        return listOfNotNull(
+        return listOf(
             prop.publicApiFile,
             prop.removedApiFile,
-            prop.experimentalApiFile,
-            prop.restrictedApiFile
+            prop.restrictedApiFile,
+            prop.apiLevelsFile
         )
+    }
+
+    @get:Internal abstract val currentVersion: Property<Version>
+
+    /**
+     * The directory where past API files are stored. Not all files in the directory are used, they
+     * are filtered in [getPastApiFiles].
+     */
+    @get:Internal abstract var projectApiDirectory: Directory
+
+    /** An ordered list of the API files to use in generating the API level metadata JSON. */
+    @InputFiles
+    @PathSensitive(PathSensitivity.NONE)
+    fun getPastApiFiles(): List<File> {
+        return getFilesForApiLevels(projectApiDirectory.asFileTree.files, currentVersion.get())
     }
 
     @TaskAction
@@ -75,17 +93,22 @@ abstract class GenerateApiTask @Inject constructor(
         check(bootClasspath.files.isNotEmpty()) { "Android boot classpath not set." }
         check(sourcePaths.files.isNotEmpty()) { "Source paths not set." }
 
-        val inputs = JavaCompileInputs(
-            sourcePaths,
-            dependencyClasspath,
-            bootClasspath
-        )
+        val inputs = JavaCompileInputs(sourcePaths, dependencyClasspath, bootClasspath)
+
+        val levelsArgs =
+            getGenerateApiLevelsArgs(
+                getPastApiFiles(),
+                currentVersion.get(),
+                apiLocation.get().apiLevelsFile
+            )
+
         generateApi(
             metalavaClasspath,
             inputs,
             apiLocation.get(),
             ApiLintMode.CheckBaseline(baselines.get().apiLintFile, targetsJavaConsumers),
             generateRestrictToLibraryGroupAPIs,
+            levelsArgs,
             k2UastEnabled.get(),
             workerExecutor,
             manifestPath.orNull?.asFile?.absolutePath

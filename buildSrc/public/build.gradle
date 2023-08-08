@@ -12,9 +12,9 @@ sourceSets {
 
     // Baseline profile
     main.java.srcDirs += "${supportRootFolder}" +
-            "/benchmark/baseline-profiles-gradle-plugin/src/main/kotlin"
+            "/benchmark/baseline-profile-gradle-plugin/src/main/kotlin"
     main.resources.srcDirs += "${supportRootFolder}" +
-            "/benchmark/baseline-profiles-gradle-plugin/src/main/resources"
+            "/benchmark/baseline-profile-gradle-plugin/src/main/resources"
 
     // Inspection
     main.java.srcDirs += "${supportRootFolder}/inspection/inspection-gradle-plugin/src/main/kotlin"
@@ -28,6 +28,9 @@ sourceSets {
     // Glance
     main.java.srcDirs += "${supportRootFolder}/glance/glance-appwidget/glance-layout-generator/" +
             "src/main/kotlin"
+
+    // Stable AIDL
+    main.java.srcDirs += "${supportRootFolder}/stableaidl/stableaidl-gradle-plugin/src/main/java"
 }
 
 dependencies {
@@ -41,17 +44,21 @@ gradlePlugin {
             id = "androidx.benchmark"
             implementationClass = "androidx.benchmark.gradle.BenchmarkPlugin"
         }
-        baselineProfilesProducer {
-            id = "androidx.baselineprofiles.producer"
-            implementationClass = "androidx.baselineprofiles.gradle.producer.BaselineProfilesProducerPlugin"
+        baselineProfileProducer {
+            id = "androidx.baselineprofile.producer"
+            implementationClass = "androidx.baselineprofile.gradle.producer.BaselineProfileProducerPlugin"
         }
-        baselineProfilesConsumer {
-            id = "androidx.baselineprofiles.consumer"
-            implementationClass = "androidx.baselineprofiles.gradle.consumer.BaselineProfilesConsumerPlugin"
+        baselineProfileConsumer {
+            id = "androidx.baselineprofile.consumer"
+            implementationClass = "androidx.baselineprofile.gradle.consumer.BaselineProfileConsumerPlugin"
         }
-        baselineProfilesBuildProvider {
-            id = "androidx.baselineprofiles.buildprovider"
-            implementationClass = "androidx.baselineprofiles.gradle.buildprovider.BaselineProfilesBuildProviderPlugin"
+        baselineProfileAppTarget {
+            id = "androidx.baselineprofile.apptarget"
+            implementationClass = "androidx.baselineprofile.gradle.apptarget.BaselineProfileAppTargetPlugin"
+        }
+        baselineProfileWrapper {
+            id = "androidx.baselineprofile"
+            implementationClass = "androidx.baselineprofile.gradle.wrapper.BaselineProfileWrapperPlugin"
         }
         inspection {
             id = "androidx.inspection"
@@ -60,6 +67,10 @@ gradlePlugin {
         darwinBenchmark {
             id = "androidx.benchmark.darwin"
             implementationClass = "androidx.benchmark.darwin.gradle.DarwinBenchmarkPlugin"
+        }
+        stableaidl {
+            id = "androidx.stableaidl"
+            implementationClass = "androidx.stableaidl.StableAidlPlugin"
         }
     }
 }

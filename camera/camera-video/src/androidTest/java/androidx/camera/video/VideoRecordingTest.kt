@@ -16,7 +16,6 @@
 
 package androidx.camera.video
 
-import androidx.camera.testing.mocks.helpers.ArgumentCaptor as ArgumentCaptorCameraX
 import android.Manifest
 import android.content.Context
 import android.graphics.Rect
@@ -28,13 +27,19 @@ import android.util.Log
 import android.util.Rational
 import android.util.Size
 import android.view.Surface
+import androidx.annotation.RequiresApi
 import androidx.camera.camera2.Camera2Config
+import androidx.camera.camera2.internal.compat.quirk.DeviceQuirks as Camera2DeviceQuirks
+import androidx.camera.camera2.internal.compat.quirk.ExtraCroppingQuirk as Camera2ExtraCroppingQuirk
 import androidx.camera.camera2.pipe.integration.CameraPipeConfig
+import androidx.camera.camera2.pipe.integration.compat.quirk.DeviceQuirks as PipeDeviceQuirks
+import androidx.camera.camera2.pipe.integration.compat.quirk.ExtraCroppingQuirk as PipeExtraCroppingQuirk
 import androidx.camera.core.AspectRatio
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraXConfig
+import androidx.camera.core.DynamicRange
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
@@ -45,12 +50,14 @@ import androidx.camera.core.impl.utils.TransformUtils.rectToSize
 import androidx.camera.core.impl.utils.TransformUtils.rotateSize
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.camera.testing.CameraPipeConfigTestRule
-import androidx.camera.testing.CameraUtil
-import androidx.camera.testing.SurfaceTextureProvider
-import androidx.camera.testing.fakes.FakeLifecycleOwner
-import androidx.camera.testing.mocks.MockConsumer
-import androidx.camera.testing.mocks.helpers.CallTimesAtLeast
+import androidx.camera.testing.impl.AndroidUtil.skipVideoRecordingTestIfNotSupportedByEmulator
+import androidx.camera.testing.impl.CameraPipeConfigTestRule
+import androidx.camera.testing.impl.CameraUtil
+import androidx.camera.testing.impl.SurfaceTextureProvider
+import androidx.camera.testing.impl.fakes.FakeLifecycleOwner
+import androidx.camera.testing.impl.mocks.MockConsumer
+import androidx.camera.testing.impl.mocks.helpers.ArgumentCaptor as ArgumentCaptorCameraX
+import androidx.camera.testing.impl.mocks.helpers.CallTimesAtLeast
 import androidx.camera.video.VideoRecordEvent.Finalize.ERROR_NONE
 import androidx.camera.video.VideoRecordEvent.Finalize.ERROR_SOURCE_INACTIVE
 import androidx.core.util.Consumer
@@ -68,6 +75,7 @@ import org.junit.After
 import org.junit.Assume.assumeFalse
 import org.junit.Assume.assumeTrue
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
@@ -138,10 +146,13 @@ class VideoRecordingTest(
 
     private val instrumentation = InstrumentationRegistry.getInstrumentation()
     private val context: Context = ApplicationProvider.getApplicationContext()
+    // TODO(b/278168212): Only SDR is checked by now. Need to extend to HDR dynamic ranges.
+    private val dynamicRange = DynamicRange.SDR
     private lateinit var cameraProvider: ProcessCameraProvider
     private lateinit var lifecycleOwner: FakeLifecycleOwner
     private lateinit var preview: Preview
     private lateinit var cameraInfo: CameraInfo
+    private lateinit var videoCapabilities: VideoCapabilities
     private lateinit var camera: Camera
 
     private lateinit var latchForVideoSaved: CountDownLatch
@@ -151,8 +162,8 @@ class VideoRecordingTest(
     private lateinit var mockVideoRecordEventConsumer: MockConsumer<VideoRecordEvent>
     private lateinit var videoCapture: VideoCapture<Recorder>
 
-    private val audioSourceAvailable by lazy {
-        AudioChecker.canAudioSourceBeStarted(
+    private val audioStreamAvailable by lazy {
+        AudioChecker.canAudioStreamBeStarted(
             context, cameraSelector, Recorder.DEFAULT_QUALITY_SELECTOR
         )
     }
@@ -185,12 +196,7 @@ class VideoRecordingTest(
     @Before
     fun setUp() {
         assumeTrue(CameraUtil.hasCameraWithLensFacing(cameraSelector.lensFacing!!))
-        // Skip for b/168175357, b/233661493
-        assumeFalse(
-            "Skip tests for Cuttlefish MediaCodec issues",
-            Build.MODEL.contains("Cuttlefish") &&
-                (Build.VERSION.SDK_INT == 29 || Build.VERSION.SDK_INT == 33)
-        )
+        skipVideoRecordingTestIfNotSupportedByEmulator()
 
         ProcessCameraProvider.configureInstance(cameraConfig)
         cameraProvider = ProcessCameraProvider.getInstance(context).get()
@@ -208,6 +214,7 @@ class VideoRecordingTest(
             // Retrieves the target testing camera and camera info
             camera = cameraProvider.bindToLifecycle(lifecycleOwner, cameraSelector)
             cameraInfo = camera.cameraInfo
+            videoCapabilities = Recorder.getVideoCapabilities(cameraInfo)
         }
 
         mockVideoRecordEventConsumer = MockConsumer<VideoRecordEvent>()
@@ -223,9 +230,11 @@ class VideoRecordingTest(
     @Test
     fun getMetadataRotation_when_setTargetRotation() {
         // Arrange.
-        // Just set one Surface.ROTATION_90 to verify the function work or not.
-        val targetRotation = Surface.ROTATION_90
-        videoCapture.targetRotation = targetRotation
+        // Set Surface.ROTATION_90 for the 1st recording and update to Surface.ROTATION_180
+        // for the 2nd recording.
+        val targetRotation1 = Surface.ROTATION_90
+        val targetRotation2 = Surface.ROTATION_180
+        videoCapture.targetRotation = targetRotation1
 
         val file = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
         latchForVideoSaved = CountDownLatch(1)
@@ -239,28 +248,46 @@ class VideoRecordingTest(
         completeVideoRecording(videoCapture, file)
 
         // Verify.
-        verifyMetadataRotation(getExpectedRotation(videoCapture).metadataRotation, file)
+        val (videoContentRotation, metadataRotation) = getExpectedRotation(videoCapture, cameraInfo)
+        verifyMetadataRotation(metadataRotation, file)
 
         // Cleanup.
         file.delete()
+
+        // Arrange: Prepare for 2nd recording
+        val file2 = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
+        latchForVideoSaved = CountDownLatch(1)
+        latchForVideoRecording = CountDownLatch(5)
+
+        // Act: Update targetRotation.
+        videoCapture.targetRotation = targetRotation2
+        completeVideoRecording(videoCapture, file2)
+
+        // Verify.
+        val metadataRotation2 = cameraInfo.getSensorRotationDegrees(targetRotation2).let {
+            if (videoCapture.node != null) {
+                // If effect is enabled, the rotation should eliminate the video content rotation.
+                it - videoContentRotation
+            } else it
+        }
+        verifyMetadataRotation(metadataRotation2, file2)
+
+        // Cleanup.
+        file2.delete()
     }
 
     @Test
     fun getCorrectResolution_when_setSupportedQuality() {
         // Pre-arrange.
-        assumeTrue(QualitySelector.getSupportedQualities(cameraInfo).isNotEmpty())
-        val qualityList = QualitySelector.getSupportedQualities(cameraInfo)
+        assumeExtraCroppingQuirk()
+        val qualityList = videoCapabilities.getSupportedQualities(dynamicRange)
+        assumeTrue(qualityList.isNotEmpty())
         Log.d(TAG, "CameraSelector: ${cameraSelector.lensFacing}, QualityList: $qualityList ")
 
         qualityList.forEach loop@{ quality ->
             // Arrange.
-            val targetResolution = QualitySelector.getResolution(cameraInfo, quality)
-            if (targetResolution == null) {
-                // If targetResolution is null, try next one
-                Log.e(TAG, "Unable to get resolution for the quality: $quality")
-                return@loop
-            }
-
+            val profile = videoCapabilities.getProfiles(quality, dynamicRange)!!.defaultVideoProfile
+            val targetResolution = Size(profile.width, profile.height)
             val recorder = Recorder.Builder()
                 .setQualitySelector(QualitySelector.from(quality)).build()
 
@@ -272,7 +299,6 @@ class VideoRecordingTest(
             }
 
             instrumentation.runOnMainSync {
-                cameraProvider.unbindAll()
                 cameraProvider.bindToLifecycle(
                     lifecycleOwner,
                     cameraSelector,
@@ -291,9 +317,12 @@ class VideoRecordingTest(
             completeVideoRecording(videoCapture, file)
 
             // Verify.
-            verifyVideoResolution(getExpectedResolution(videoCapture), file)
+            verifyVideoResolution(getExpectedResolution(videoCapture, targetResolution), file)
 
             // Cleanup.
+            instrumentation.runOnMainSync {
+                cameraProvider.unbindAll()
+            }
             file.delete()
         }
     }
@@ -301,7 +330,8 @@ class VideoRecordingTest(
     @Test
     fun getCorrectResolution_when_setAspectRatio() {
         // Pre-arrange.
-        assumeTrue(QualitySelector.getSupportedQualities(cameraInfo).isNotEmpty())
+        assumeExtraCroppingQuirk()
+        assumeTrue(videoCapabilities.getSupportedQualities(dynamicRange).isNotEmpty())
 
         for (aspectRatio in listOf(AspectRatio.RATIO_4_3, AspectRatio.RATIO_16_9)) {
             // Arrange.
@@ -315,7 +345,6 @@ class VideoRecordingTest(
             }
 
             instrumentation.runOnMainSync {
-                cameraProvider.unbindAll()
                 cameraProvider.bindToLifecycle(
                     lifecycleOwner,
                     cameraSelector,
@@ -336,6 +365,9 @@ class VideoRecordingTest(
             verifyVideoAspectRatio(getExpectedAspectRatio(videoCapture)!!, file)
 
             // Cleanup.
+            instrumentation.runOnMainSync {
+                cameraProvider.unbindAll()
+            }
             file.delete()
         }
     }
@@ -343,15 +375,16 @@ class VideoRecordingTest(
     @Test
     fun getCorrectResolution_when_setCropRect() {
         assumeSuccessfulSurfaceProcessing()
+        assumeExtraCroppingQuirk()
 
         // Arrange.
-        assumeTrue(QualitySelector.getSupportedQualities(cameraInfo).isNotEmpty())
+        assumeTrue(videoCapabilities.getSupportedQualities(dynamicRange).isNotEmpty())
         val quality = Quality.LOWEST
-        val recorder = Recorder.Builder()
-            .setQualitySelector(QualitySelector.from(quality)).build()
+        val recorder = Recorder.Builder().setQualitySelector(QualitySelector.from(quality)).build()
         val videoCapture = VideoCapture.withOutput(recorder)
         // Arbitrary cropping
-        val targetResolution = QualitySelector.getResolution(cameraInfo, quality)!!
+        val profile = videoCapabilities.getProfiles(quality, dynamicRange)!!.defaultVideoProfile
+        val targetResolution = Size(profile.width, profile.height)
         val cropRect = Rect(6, 6, targetResolution.width - 7, targetResolution.height - 7)
         videoCapture.setViewPortCropRect(cropRect)
 
@@ -361,7 +394,6 @@ class VideoRecordingTest(
         )
 
         instrumentation.runOnMainSync {
-            cameraProvider.unbindAll()
             cameraProvider.bindToLifecycle(
                 lifecycleOwner,
                 cameraSelector,
@@ -379,7 +411,10 @@ class VideoRecordingTest(
         completeVideoRecording(videoCapture, file)
 
         // Verify.
-        verifyVideoResolution(getExpectedResolution(videoCapture), file)
+        verifyVideoResolution(
+            getExpectedResolution(videoCapture, rectToSize(videoCapture.cropRect!!)),
+            file
+        )
 
         // Cleanup.
         file.delete()
@@ -570,17 +605,17 @@ class VideoRecordingTest(
             cameraProvider.bindToLifecycle(lifecycleOwner, cameraSelector, preview, videoCapture)
         }
         val file1 = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
-        performRecording(videoCapture, file1, includeAudio = audioSourceAvailable)
+        performRecording(videoCapture, file1, includeAudio = audioStreamAvailable)
 
         val file2 = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
-        performRecording(videoCapture, file2, includeAudio = audioSourceAvailable)
+        performRecording(videoCapture, file2, includeAudio = audioStreamAvailable)
 
         val file3 = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
-        performRecording(videoCapture, file3, includeAudio = audioSourceAvailable)
+        performRecording(videoCapture, file3, includeAudio = audioStreamAvailable)
 
-        verifyRecordingResult(file1, audioSourceAvailable)
-        verifyRecordingResult(file2, audioSourceAvailable)
-        verifyRecordingResult(file3, audioSourceAvailable)
+        verifyRecordingResult(file1, audioStreamAvailable)
+        verifyRecordingResult(file2, audioStreamAvailable)
+        verifyRecordingResult(file3, audioStreamAvailable)
 
         file1.delete()
         file2.delete()
@@ -590,7 +625,7 @@ class VideoRecordingTest(
     @Test
     fun canRecordMultipleFilesWithThenWithoutAudio() {
         // This test requires that audio is available
-        assumeTrue(audioSourceAvailable)
+        assumeTrue("Audio stream is not available", audioStreamAvailable)
         instrumentation.runOnMainSync {
             cameraProvider.bindToLifecycle(lifecycleOwner, cameraSelector, preview, videoCapture)
         }
@@ -610,7 +645,7 @@ class VideoRecordingTest(
     @Test
     fun canRecordMultipleFilesWithoutThenWithAudio() {
         // This test requires that audio is available
-        assumeTrue(audioSourceAvailable)
+        assumeTrue(audioStreamAvailable)
         instrumentation.runOnMainSync {
             cameraProvider.bindToLifecycle(lifecycleOwner, cameraSelector, preview, videoCapture)
         }
@@ -636,13 +671,13 @@ class VideoRecordingTest(
         // Start and stop a recording to ensure recorder is idling
         val file1 = File.createTempFile("CameraX1", ".tmp").apply { deleteOnExit() }
 
-        performRecording(videoCapture, file1, audioSourceAvailable)
+        performRecording(videoCapture, file1, audioStreamAvailable)
 
         // First recording is now finalized. Try starting second recording paused.
         val file2 = File.createTempFile("CameraX2", ".tmp").apply { deleteOnExit() }
         videoCapture.output.prepareRecording(context, FileOutputOptions.Builder(file2).build())
             .apply {
-                if (audioSourceAvailable) {
+                if (audioStreamAvailable) {
                     withAudioEnabled()
                 }
             }.start(CameraXExecutors.directExecutor(), mockVideoRecordEventConsumer).use {
@@ -688,7 +723,7 @@ class VideoRecordingTest(
 
     @Test
     fun canSwitchAudioOnOff() {
-        assumeTrue("Audio source is not available", audioSourceAvailable)
+        assumeTrue("Audio stream is not available", audioStreamAvailable)
         instrumentation.runOnMainSync {
             cameraProvider.bindToLifecycle(lifecycleOwner, cameraSelector, preview, videoCapture)
         }
@@ -815,6 +850,229 @@ class VideoRecordingTest(
         file2.delete()
     }
 
+    @Test
+    fun mute_defaultToNotMuted() {
+        assumeTrue("Audio stream is not available", audioStreamAvailable)
+
+        // Arrange.
+        val recorder = Recorder.Builder().build()
+        val videoCaptureLocal = VideoCapture.withOutput(recorder)
+        instrumentation.runOnMainSync {
+            cameraProvider.bindToLifecycle(
+                lifecycleOwner,
+                cameraSelector,
+                preview,
+                videoCaptureLocal
+            )
+        }
+        val file1 = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
+
+        recorder.prepareRecording(context, FileOutputOptions.Builder(file1).build())
+            .withAudioEnabled()
+            .start(CameraXExecutors.directExecutor(), mockVideoRecordEventConsumer).use {
+                mockVideoRecordEventConsumer.verifyRecordingStartSuccessfully()
+                // Keep the first recording muted.
+                it.mute(true)
+            }
+
+        mockVideoRecordEventConsumer.verifyAcceptCall(
+            VideoRecordEvent.Finalize::class.java,
+            false,
+            GENERAL_TIMEOUT
+        )
+        file1.delete()
+
+        mockVideoRecordEventConsumer.clearAcceptCalls()
+
+        val file2 = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
+
+        // Act.
+        recorder.prepareRecording(context, FileOutputOptions.Builder(file2).build())
+            .withAudioEnabled()
+            .start(CameraXExecutors.directExecutor(), mockVideoRecordEventConsumer).use {
+                mockVideoRecordEventConsumer.verifyRecordingStartSuccessfully()
+                val captor = ArgumentCaptorCameraX<VideoRecordEvent> { argument ->
+                    VideoRecordEvent::class.java.isInstance(
+                        argument
+                    )
+                }
+                mockVideoRecordEventConsumer.verifyAcceptCall(
+                    VideoRecordEvent::class.java,
+                    false,
+                    CallTimesAtLeast(1),
+                    captor
+                )
+                assertThat(captor.value).isInstanceOf(VideoRecordEvent.Status::class.java)
+                val status = captor.value as VideoRecordEvent.Status
+                // Assert: The second recording should not be muted.
+                assertThat(status.recordingStats.audioStats.audioState)
+                    .isEqualTo(AudioStats.AUDIO_STATE_ACTIVE)
+            }
+
+        mockVideoRecordEventConsumer.verifyAcceptCall(
+            VideoRecordEvent.Finalize::class.java,
+            false,
+            GENERAL_TIMEOUT
+        )
+        file2.delete()
+    }
+
+    @Ignore("b/285940946")
+    @Test
+    fun canContinueRecordingAfterRebind() {
+        val videoCapture = VideoCapture.withOutput(Recorder.Builder().build())
+
+        instrumentation.runOnMainSync {
+            cameraProvider.bindToLifecycle(lifecycleOwner, cameraSelector, preview, videoCapture)
+        }
+
+        val file = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
+        val recording =
+            videoCapture.output.prepareRecording(context, FileOutputOptions.Builder(file).build())
+                .withAudioEnabled()
+                .asPersistentRecording()
+                .start(CameraXExecutors.directExecutor(), mockVideoRecordEventConsumer)
+
+        mockVideoRecordEventConsumer.verifyRecordingStartSuccessfully()
+
+        mockVideoRecordEventConsumer.clearAcceptCalls()
+
+        instrumentation.runOnMainSync {
+            cameraProvider.unbindAll()
+            cameraProvider.bindToLifecycle(lifecycleOwner, cameraSelector, preview, videoCapture)
+        }
+
+        mockVideoRecordEventConsumer.verifyAcceptCall(
+            VideoRecordEvent.Status::class.java,
+            true,
+            STATUS_TIMEOUT,
+            CallTimesAtLeast(5)
+        )
+
+        recording.stop()
+
+        mockVideoRecordEventConsumer.verifyAcceptCall(
+            VideoRecordEvent.Finalize::class.java,
+            true,
+            GENERAL_TIMEOUT
+        )
+
+        verifyRecordingResult(file, true)
+
+        file.delete()
+    }
+
+    @Ignore("b/285940946")
+    @Test
+    fun canContinueRecordingPausedAfterRebind() {
+        val videoCapture = VideoCapture.withOutput(Recorder.Builder().build())
+
+        instrumentation.runOnMainSync {
+            cameraProvider.bindToLifecycle(lifecycleOwner, cameraSelector, preview, videoCapture)
+        }
+
+        val file = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
+        val recording =
+            videoCapture.output.prepareRecording(context, FileOutputOptions.Builder(file).build())
+                .withAudioEnabled()
+                .asPersistentRecording()
+                .start(CameraXExecutors.directExecutor(), mockVideoRecordEventConsumer)
+
+        mockVideoRecordEventConsumer.verifyRecordingStartSuccessfully()
+
+        recording.pause()
+
+        mockVideoRecordEventConsumer.verifyAcceptCall(
+            VideoRecordEvent.Pause::class.java,
+            true,
+            GENERAL_TIMEOUT
+        )
+
+        mockVideoRecordEventConsumer.clearAcceptCalls()
+
+        instrumentation.runOnMainSync {
+            cameraProvider.unbindAll()
+            cameraProvider.bindToLifecycle(lifecycleOwner, cameraSelector, preview, videoCapture)
+        }
+
+        recording.resume()
+
+        mockVideoRecordEventConsumer.verifyAcceptCall(
+            VideoRecordEvent.Resume::class.java,
+            true,
+            GENERAL_TIMEOUT
+        )
+
+        mockVideoRecordEventConsumer.verifyAcceptCall(
+            VideoRecordEvent.Status::class.java,
+            true,
+            STATUS_TIMEOUT,
+            CallTimesAtLeast(5)
+        )
+
+        recording.stop()
+
+        mockVideoRecordEventConsumer.verifyAcceptCall(
+            VideoRecordEvent.Finalize::class.java,
+            true,
+            GENERAL_TIMEOUT
+        )
+
+        verifyRecordingResult(file, true)
+
+        file.delete()
+    }
+
+    @Test
+    fun canRecordWithCorrectTransformation() {
+        // Arrange.
+        lateinit var backCamera: Camera
+        lateinit var frontCamera: Camera
+
+        // Act.
+        instrumentation.runOnMainSync {
+            backCamera = cameraProvider.bindToLifecycle(
+                lifecycleOwner,
+                CameraSelector.DEFAULT_BACK_CAMERA,
+                preview,
+                videoCapture
+            )
+        }
+
+        val file1 = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
+        performRecording(videoCapture, file1, includeAudio = true)
+
+        instrumentation.runOnMainSync {
+            cameraProvider.unbindAll()
+            frontCamera = cameraProvider.bindToLifecycle(
+                lifecycleOwner,
+                CameraSelector.DEFAULT_FRONT_CAMERA,
+                preview,
+                videoCapture
+            )
+        }
+
+        val file2 = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
+        performRecording(videoCapture, file2, includeAudio = true)
+
+        // Assert.
+        verifyMetadataRotation(
+            getExpectedRotation(
+                videoCapture,
+                backCamera.cameraInfo
+            ).metadataRotation, file1
+        )
+        verifyMetadataRotation(
+            getExpectedRotation(
+                videoCapture,
+                frontCamera.cameraInfo
+            ).metadataRotation, file2
+        )
+
+        file1.delete()
+        file2.delete()
+    }
+
     private fun performRecording(
         videoCapture: VideoCapture<Recorder>,
         file: File,
@@ -917,7 +1175,10 @@ class VideoRecordingTest(
 
     data class ExpectedRotation(val contentRotation: Int, val metadataRotation: Int)
 
-    private fun getExpectedRotation(videoCapture: VideoCapture<Recorder>): ExpectedRotation {
+    private fun getExpectedRotation(
+        videoCapture: VideoCapture<Recorder>,
+        cameraInfo: CameraInfo
+    ): ExpectedRotation {
         val rotationNeeded = cameraInfo.getSensorRotationDegrees(videoCapture.targetRotation)
         return if (videoCapture.node != null) {
             ExpectedRotation(rotationNeeded, 0)
@@ -926,14 +1187,20 @@ class VideoRecordingTest(
         }
     }
 
-    private fun getExpectedResolution(videoCapture: VideoCapture<Recorder>): Size =
-        rotateSize(
-            rectToSize(videoCapture.cropRect!!),
-            getExpectedRotation(videoCapture).contentRotation
-        )
+    private fun getExpectedResolution(
+        videoCapture: VideoCapture<Recorder>,
+        resolution: Size
+    ): Size = rotateSize(resolution, getExpectedRotation(videoCapture, cameraInfo).contentRotation)
 
     private fun getExpectedAspectRatio(videoCapture: VideoCapture<Recorder>): Rational? {
-        val needRotate by lazy { is90or270(getExpectedRotation(videoCapture).contentRotation) }
+        val needRotate by lazy {
+            is90or270(
+                getExpectedRotation(
+                    videoCapture,
+                    cameraInfo
+                ).contentRotation
+            )
+        }
         return when (videoCapture.output.aspectRatio) {
             AspectRatio.RATIO_4_3 ->
                 if (needRotate) AspectRatioUtil.ASPECT_RATIO_3_4
@@ -969,7 +1236,7 @@ class VideoRecordingTest(
                 .toInt()
             val resolution = Size(width, height)
 
-            // Compare with the resolution of video and the targetResolution in QualitySelector
+            // Compare with the resolution of video and the targetResolution in VideoCapabilities.
             assertWithMessage(
                 TAG + ", verifyVideoResolution failure:" +
                     ", videoResolution: $resolution" +
@@ -1030,6 +1297,10 @@ class VideoRecordingTest(
             "Skip tests for Cuttlefish API 30 eglCreateWindowSurface issue",
             Build.MODEL.contains("Cuttlefish") && Build.VERSION.SDK_INT == 30
         )
+    }
+
+    private fun assumeExtraCroppingQuirk() {
+        assumeExtraCroppingQuirk(implName)
     }
 
     private class ImageSavedCallback :
@@ -1123,3 +1394,14 @@ internal fun MediaMetadataRetriever.hasVideo(): Boolean =
 
 internal fun MediaMetadataRetriever.getDuration(): Long? =
     extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)?.toLong()
+
+@RequiresApi(21)
+fun assumeExtraCroppingQuirk(implName: String) {
+    val msg =
+        "Devices in ExtraCroppingQuirk will get a fixed resolution regardless of any settings"
+    if (implName.contains(CameraPipeConfig::class.simpleName!!)) {
+        assumeTrue(msg, PipeDeviceQuirks[PipeExtraCroppingQuirk::class.java] == null)
+    } else {
+        assumeTrue(msg, Camera2DeviceQuirks.get(Camera2ExtraCroppingQuirk::class.java) == null)
+    }
+}

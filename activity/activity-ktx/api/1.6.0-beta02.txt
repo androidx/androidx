@@ -11,6 +11,7 @@ package androidx.activity {
   }
 
   public final class PipHintTrackerKt {
+    method @RequiresApi(android.os.Build.VERSION_CODES.O) @kotlinx.coroutines.ExperimentalCoroutinesApi public static suspend Object? trackPipAnimationHintView(android.app.Activity, android.view.View view, kotlin.coroutines.Continuation<? super kotlin.Unit>);
   }
 
 }

@@ -18,8 +18,8 @@
 
 package androidx.startup.lint
 
-import androidx.startup.lint.Stubs.TEST_INITIALIZER
 import androidx.startup.lint.Stubs.INITIALIZER
+import androidx.startup.lint.Stubs.TEST_INITIALIZER
 import androidx.startup.lint.Stubs.TEST_INITIALIZER_2
 import androidx.startup.lint.Stubs.TEST_INITIALIZER_WITH_DEPENDENCIES
 import com.android.tools.lint.checks.infrastructure.TestFiles.manifest

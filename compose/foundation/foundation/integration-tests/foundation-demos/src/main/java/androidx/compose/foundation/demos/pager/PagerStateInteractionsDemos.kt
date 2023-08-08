@@ -46,13 +46,12 @@ val PagerStateInteractions = listOf(
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun StateDrivenPage() {
-    val pagerState = rememberPagerState()
+    val pagerState = rememberPagerState { PagesCount }
 
     Column(modifier = Modifier.fillMaxSize()) {
         HorizontalPager(
             modifier = Modifier.weight(0.9f),
-            state = pagerState,
-            pageCount = PagesCount
+            state = pagerState
         ) {
             PagerItem(it)
         }
@@ -63,13 +62,12 @@ private fun StateDrivenPage() {
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun StateDrivenPageWithMonitor() {
-    val pagerState = rememberPagerState()
+    val pagerState = rememberPagerState { PagesCount }
 
     Column(modifier = Modifier.fillMaxSize()) {
         HorizontalPager(
             modifier = Modifier.weight(0.8f),
-            state = pagerState,
-            pageCount = PagesCount
+            state = pagerState
         ) {
             PagerItem(it)
         }
@@ -81,12 +79,11 @@ private fun StateDrivenPageWithMonitor() {
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun StateMonitoringPager() {
-    val pagerState = rememberPagerState()
+    val pagerState = rememberPagerState { PagesCount }
     Column(modifier = Modifier.fillMaxSize()) {
         HorizontalPager(
             modifier = Modifier.weight(0.9f),
-            state = pagerState,
-            pageCount = PagesCount
+            state = pagerState
         ) {
             PagerItem(it)
         }
@@ -107,7 +104,7 @@ private fun PageMonitor(modifier: Modifier, pagerState: PagerState) {
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun StateMonitoringCustomPageSize() {
-    val pagerState = rememberPagerState()
+    val pagerState = rememberPagerState { PagesCount }
 
     val fling = PagerDefaults.flingBehavior(
         state = pagerState, PagerSnapDistance.atMost(3)
@@ -117,7 +114,6 @@ private fun StateMonitoringCustomPageSize() {
         HorizontalPager(
             modifier = Modifier.weight(0.9f),
             state = pagerState,
-            pageCount = PagesCount,
             pageSize = PageSize.Fixed(96.dp),
             flingBehavior = fling
         ) {

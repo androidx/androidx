@@ -34,7 +34,7 @@ import java.util.function.Function;
 /**
  * Translates {@link androidx.appsearch.app.AppSearchResult} and
  * {@link androidx.appsearch.app.AppSearchBatchResult} to platform versions.
- * @hide
+ * @exportToFramework:hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RequiresApi(Build.VERSION_CODES.S)
@@ -71,6 +71,7 @@ public final class AppSearchResultToPlatformConverter {
      * Uses the given {@link android.app.appsearch.AppSearchResult} to populate the given
      * {@link ResolvableFuture}, transforming it using {@code valueMapper}.
      */
+    @SuppressLint("WrongConstant")
     public static <PlatformType, JetpackType> void platformAppSearchResultToFuture(
             @NonNull android.app.appsearch.AppSearchResult<PlatformType> platformResult,
             @NonNull ResolvableFuture<JetpackType> future,

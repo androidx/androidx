@@ -20,8 +20,8 @@ import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
-import org.junit.rules.TemporaryFolder
 import java.io.File
+import org.junit.rules.TemporaryFolder
 
 fun SQLiteDatabase.addTable(table: Table) = execSQL(table.toCreateString())
 

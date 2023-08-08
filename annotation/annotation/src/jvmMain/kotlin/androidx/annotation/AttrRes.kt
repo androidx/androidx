@@ -16,8 +16,8 @@
 package androidx.annotation
 
 /**
- * Denotes that an integer parameter, field or method return value is expected
- * to be an attribute reference (e.g. `android.R.attr.action`).
+ * Denotes that an integer parameter, field or method return value is expected to be an attribute
+ * reference (e.g. `android.R.attr.action`).
  */
 @MustBeDocumented
 @kotlin.annotation.Retention(AnnotationRetention.BINARY)

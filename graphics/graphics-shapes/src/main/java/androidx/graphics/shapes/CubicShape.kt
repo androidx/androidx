@@ -42,16 +42,14 @@ class CubicShape internal constructor() {
     constructor(cubics: List<Cubic>) : this() {
         val copy = mutableListOf<Cubic>()
         var prevCubic = cubics[cubics.size - 1]
-        var index = 0
         for (cubic in cubics) {
-            if (cubic.p0 != prevCubic.p3) {
+            if (cubic.anchor0X != prevCubic.anchor1X || cubic.anchor0Y != prevCubic.anchor1Y) {
                 throw IllegalArgumentException("CubicShapes must be contiguous, with the anchor " +
                         "points of all curves matching the anchor points of the preceding and " +
                         "succeeding cubics")
             }
             prevCubic = cubic
-            copy.add(Cubic(cubic.p0, cubic.p1, cubic.p2, cubic.p3))
-            index++
+            copy.add(Cubic(cubic))
         }
         updateCubics(copy)
     }
@@ -83,7 +81,7 @@ class CubicShape internal constructor() {
     /**
      * Transforms (scales, rotates, and translates) the shape by the given matrix.
      * Note that this operation alters the points in the shape directly; the original
-     * points are not retained, nor is the matrix itself. This calling this function
+     * points are not retained, nor is the matrix itself. Thus calling this function
      * twice with the same matrix will composite the effect. For example, a matrix which
      * scales by 2 will scale the shape by 2. Calling transform twice with that matrix
      * will have the effect os scaling the shape size by 4.
@@ -133,16 +131,17 @@ class CubicShape internal constructor() {
      */
     private fun updatePath() {
         path.rewind()
-        if (cubics.size > 0) {
-            path.moveTo(cubics[0].p0.x, cubics[0].p0.y)
+        if (cubics.isNotEmpty()) {
+            path.moveTo(cubics[0].anchor0X, cubics[0].anchor0Y)
             for (bezier in cubics) {
                 path.cubicTo(
-                    bezier.p1.x, bezier.p1.y,
-                    bezier.p2.x, bezier.p2.y,
-                    bezier.p3.x, bezier.p3.y
+                    bezier.control0X, bezier.control0Y,
+                    bezier.control1X, bezier.control1Y,
+                    bezier.anchor1X, bezier.anchor1Y
                 )
             }
         }
+        path.close()
     }
 
     internal fun draw(canvas: Canvas, paint: Paint) {
@@ -159,26 +158,22 @@ class CubicShape internal constructor() {
         var maxX = Float.MIN_VALUE
         var maxY = Float.MIN_VALUE
         for (bezier in cubics) {
-            with(bezier.p0) {
-                if (x < minX) minX = x
-                if (y < minY) minY = y
-                if (x > maxX) maxX = x
-                if (y > maxY) maxY = y
-            }
-            with(bezier.p1) {
-                if (x < minX) minX = x
-                if (y < minY) minY = y
-                if (x > maxX) maxX = x
-                if (y > maxY) maxY = y
-            }
-            with(bezier.p2) {
-                if (x < minX) minX = x
-                if (y < minY) minY = y
-                if (x > maxX) maxX = x
-                if (y > maxY) maxY = y
-            }
-            // No need to use p3, since it is already taken into account in the next
-            // curve's p0 point.
+            if (bezier.anchor0X < minX) minX = bezier.anchor0X
+            if (bezier.anchor0Y < minY) minY = bezier.anchor0Y
+            if (bezier.anchor0X > maxX) maxX = bezier.anchor0X
+            if (bezier.anchor0Y > maxY) maxY = bezier.anchor0Y
+
+            if (bezier.control0X < minX) minX = bezier.control0X
+            if (bezier.control0Y < minY) minY = bezier.control0Y
+            if (bezier.control0X > maxX) maxX = bezier.control0X
+            if (bezier.control0Y > maxY) maxY = bezier.control0Y
+
+            if (bezier.control1X < minX) minX = bezier.control1X
+            if (bezier.control1Y < minY) minY = bezier.control1Y
+            if (bezier.control1X > maxX) maxX = bezier.control1X
+            if (bezier.control1Y > maxY) maxY = bezier.control1Y
+            // No need to use x3/y3, since it is already taken into account in the next
+            // curve's x0/y0 point.
         }
         bounds.set(minX, minY, maxX, maxY)
     }
@@ -187,17 +182,7 @@ class CubicShape internal constructor() {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
 
-        other as CubicShape
-
-        val otherCubics = other.cubics
-        if (cubics.size != otherCubics.size) return false
-        for (i in 0 until cubics.size) {
-            val cubic = cubics[i]
-            val otherCubic = otherCubics[i]
-            if (!cubic.equals(otherCubic)) return false
-        }
-
-        return true
+        return cubics == (other as CubicShape).cubics
     }
 
     override fun hashCode(): Int {

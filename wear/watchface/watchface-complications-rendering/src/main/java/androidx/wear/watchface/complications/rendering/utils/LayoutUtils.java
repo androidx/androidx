@@ -24,7 +24,6 @@ import androidx.annotation.RestrictTo;
 /**
  * Utilities for calculations related to bounds.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class LayoutUtils {

@@ -22,7 +22,6 @@ import androidx.room.compiler.processing.XArrayType
 import androidx.room.compiler.processing.XNullability
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.javac.kotlin.KmTypeContainer
-import androidx.room.compiler.processing.javac.kotlin.nullability
 import javax.lang.model.type.ArrayType
 
 internal class JavacArrayType private constructor(

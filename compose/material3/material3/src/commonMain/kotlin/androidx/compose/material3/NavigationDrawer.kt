@@ -61,10 +61,12 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.dismiss
 import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.paneTitle
+import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
@@ -453,7 +455,7 @@ fun PermanentNavigationDrawer(
 fun ModalDrawerSheet(
     modifier: Modifier = Modifier,
     drawerShape: Shape = DrawerDefaults.shape,
-    drawerContainerColor: Color = MaterialTheme.colorScheme.surface,
+    drawerContainerColor: Color = DrawerDefaults.containerColor,
     drawerContentColor: Color = contentColorFor(drawerContainerColor),
     drawerTonalElevation: Dp = DrawerDefaults.ModalDrawerElevation,
     windowInsets: WindowInsets = DrawerDefaults.windowInsets,
@@ -490,7 +492,7 @@ fun ModalDrawerSheet(
 fun DismissibleDrawerSheet(
     modifier: Modifier = Modifier,
     drawerShape: Shape = RectangleShape,
-    drawerContainerColor: Color = MaterialTheme.colorScheme.surface,
+    drawerContainerColor: Color = DrawerDefaults.containerColor,
     drawerContentColor: Color = contentColorFor(drawerContainerColor),
     drawerTonalElevation: Dp = DrawerDefaults.DismissibleDrawerElevation,
     windowInsets: WindowInsets = DrawerDefaults.windowInsets,
@@ -527,7 +529,7 @@ fun DismissibleDrawerSheet(
 fun PermanentDrawerSheet(
     modifier: Modifier = Modifier,
     drawerShape: Shape = RectangleShape,
-    drawerContainerColor: Color = MaterialTheme.colorScheme.surface,
+    drawerContainerColor: Color = DrawerDefaults.containerColor,
     drawerContentColor: Color = contentColorFor(drawerContainerColor),
     drawerTonalElevation: Dp = DrawerDefaults.PermanentDrawerElevation,
     windowInsets: WindowInsets = DrawerDefaults.windowInsets,
@@ -552,7 +554,7 @@ private fun DrawerSheet(
     windowInsets: WindowInsets,
     modifier: Modifier = Modifier,
     drawerShape: Shape = RectangleShape,
-    drawerContainerColor: Color = MaterialTheme.colorScheme.surface,
+    drawerContainerColor: Color = DrawerDefaults.containerColor,
     drawerContentColor: Color = contentColorFor(drawerContainerColor),
     drawerTonalElevation: Dp = DrawerDefaults.PermanentDrawerElevation,
     content: @Composable ColumnScope.() -> Unit
@@ -604,16 +606,16 @@ object DrawerDefaults {
     val DismissibleDrawerElevation = NavigationDrawerTokens.StandardContainerElevation
 
     /** Default shape for a navigation drawer. */
-    val shape: Shape @Composable get() = NavigationDrawerTokens.ContainerShape.toShape()
+    val shape: Shape @Composable get() = NavigationDrawerTokens.ContainerShape.value
 
     /** Default color of the scrim that obscures content when the drawer is open */
     val scrimColor: Color
-        @Composable get() = ScrimTokens.ContainerColor.toColor().copy(ScrimTokens.ContainerOpacity)
+        @Composable get() = ScrimTokens.ContainerColor.value.copy(ScrimTokens.ContainerOpacity)
 
     /** Default container color for a navigation drawer */
-    val containerColor: Color @Composable get() = NavigationDrawerTokens.ContainerColor.toColor()
+    val containerColor: Color @Composable get() = NavigationDrawerTokens.ContainerColor.value
 
-    /** Default and maximum width of a navigation drawer **/
+    /** Default and maximum width of a navigation drawer */
     val MaximumDrawerWidth = NavigationDrawerTokens.ContainerWidth
 
     /**
@@ -645,7 +647,6 @@ object DrawerDefaults {
  * for this item. You can create and pass in your own `remember`ed instance to observe
  * [Interaction]s and customize the appearance / behavior of this item in different states.
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NavigationDrawerItem(
     label: @Composable () -> Unit,
@@ -654,14 +655,14 @@ fun NavigationDrawerItem(
     modifier: Modifier = Modifier,
     icon: (@Composable () -> Unit)? = null,
     badge: (@Composable () -> Unit)? = null,
-    shape: Shape = NavigationDrawerTokens.ActiveIndicatorShape.toShape(),
+    shape: Shape = NavigationDrawerTokens.ActiveIndicatorShape.value,
     colors: NavigationDrawerItemColors = NavigationDrawerItemDefaults.colors(),
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() }
 ) {
     Surface(
         selected = selected,
         onClick = onClick,
-        modifier = modifier
+        modifier = modifier.semantics { role = Role.Tab }
             .height(NavigationDrawerTokens.ActiveIndicatorHeight)
             .fillMaxWidth(),
         shape = shape,
@@ -746,12 +747,12 @@ object NavigationDrawerItemDefaults {
      */
     @Composable
     fun colors(
-        selectedContainerColor: Color = NavigationDrawerTokens.ActiveIndicatorColor.toColor(),
-        unselectedContainerColor: Color = NavigationDrawerTokens.ContainerColor.toColor(),
-        selectedIconColor: Color = NavigationDrawerTokens.ActiveIconColor.toColor(),
-        unselectedIconColor: Color = NavigationDrawerTokens.InactiveIconColor.toColor(),
-        selectedTextColor: Color = NavigationDrawerTokens.ActiveLabelTextColor.toColor(),
-        unselectedTextColor: Color = NavigationDrawerTokens.InactiveLabelTextColor.toColor(),
+        selectedContainerColor: Color = NavigationDrawerTokens.ActiveIndicatorColor.value,
+        unselectedContainerColor: Color = NavigationDrawerTokens.ContainerColor.value,
+        selectedIconColor: Color = NavigationDrawerTokens.ActiveIconColor.value,
+        unselectedIconColor: Color = NavigationDrawerTokens.InactiveIconColor.value,
+        selectedTextColor: Color = NavigationDrawerTokens.ActiveLabelTextColor.value,
+        unselectedTextColor: Color = NavigationDrawerTokens.InactiveLabelTextColor.value,
         selectedBadgeColor: Color = selectedTextColor,
         unselectedBadgeColor: Color = unselectedTextColor,
     ): NavigationDrawerItemColors = DefaultDrawerItemsColor(

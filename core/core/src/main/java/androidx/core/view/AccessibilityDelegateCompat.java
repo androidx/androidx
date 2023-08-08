@@ -145,7 +145,6 @@ public class AccessibilityDelegateCompat {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public AccessibilityDelegateCompat(@NonNull AccessibilityDelegate originalDelegate) {
