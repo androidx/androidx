@@ -88,6 +88,10 @@ public interface Person : Thing {
  *
  * Allows for extension like:
  * ```kt
+ * @Document(
+ *   name = "MyPerson",
+ *   parent = [Person::class],
+ * )
  * class MyPerson internal constructor(
  *   person: Person,
  *   val foo: String,
@@ -96,6 +100,8 @@ public interface Person : Thing {
  *   MyPerson,
  *   MyPerson.Builder
  * >(person) {
+ *
+ *   // No need to implement equals(), hashCode(), toString() or toBuilder()
  *
  *   override val selfTypeName =
  *     "MyPerson"
@@ -225,10 +231,13 @@ internal constructor(
    *     MyPerson.Builder>(...) {
    *
    *   class Builder
-   *   : Builder<
+   *   : AbstractPerson.Builder<
    *       Builder,
    *       MyPerson
    *   >() {
+   *
+   *     // No need to implement equals(), hashCode(), toString() or build()
+   *
    *     private var foo: String? = null
    *     private val bars = mutableListOf<Int>()
    *

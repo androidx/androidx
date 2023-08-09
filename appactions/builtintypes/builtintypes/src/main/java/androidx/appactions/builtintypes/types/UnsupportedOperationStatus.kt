@@ -73,6 +73,10 @@ public interface UnsupportedOperationStatus : ExecutionStatus {
  *
  * Allows for extension like:
  * ```kt
+ * @Document(
+ *   name = "MyUnsupportedOperationStatus",
+ *   parent = [UnsupportedOperationStatus::class],
+ * )
  * class MyUnsupportedOperationStatus internal constructor(
  *   unsupportedOperationStatus: UnsupportedOperationStatus,
  *   val foo: String,
@@ -81,6 +85,8 @@ public interface UnsupportedOperationStatus : ExecutionStatus {
  *   MyUnsupportedOperationStatus,
  *   MyUnsupportedOperationStatus.Builder
  * >(unsupportedOperationStatus) {
+ *
+ *   // No need to implement equals(), hashCode(), toString() or toBuilder()
  *
  *   override val selfTypeName =
  *     "MyUnsupportedOperationStatus"
@@ -195,10 +201,13 @@ internal constructor(
    *     MyUnsupportedOperationStatus.Builder>(...) {
    *
    *   class Builder
-   *   : Builder<
+   *   : AbstractUnsupportedOperationStatus.Builder<
    *       Builder,
    *       MyUnsupportedOperationStatus
    *   >() {
+   *
+   *     // No need to implement equals(), hashCode(), toString() or build()
+   *
    *     private var foo: String? = null
    *     private val bars = mutableListOf<Int>()
    *

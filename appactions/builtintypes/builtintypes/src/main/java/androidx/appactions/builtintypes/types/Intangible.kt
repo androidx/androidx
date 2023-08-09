@@ -69,6 +69,10 @@ public interface Intangible : Thing {
  *
  * Allows for extension like:
  * ```kt
+ * @Document(
+ *   name = "MyIntangible",
+ *   parent = [Intangible::class],
+ * )
  * class MyIntangible internal constructor(
  *   intangible: Intangible,
  *   val foo: String,
@@ -77,6 +81,8 @@ public interface Intangible : Thing {
  *   MyIntangible,
  *   MyIntangible.Builder
  * >(intangible) {
+ *
+ *   // No need to implement equals(), hashCode(), toString() or toBuilder()
  *
  *   override val selfTypeName =
  *     "MyIntangible"
@@ -184,10 +190,13 @@ internal constructor(
    *     MyIntangible.Builder>(...) {
    *
    *   class Builder
-   *   : Builder<
+   *   : AbstractIntangible.Builder<
    *       Builder,
    *       MyIntangible
    *   >() {
+   *
+   *     // No need to implement equals(), hashCode(), toString() or build()
+   *
    *     private var foo: String? = null
    *     private val bars = mutableListOf<Int>()
    *

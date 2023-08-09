@@ -74,6 +74,10 @@ public interface CommonExecutionStatus : ExecutionStatus {
  *
  * Allows for extension like:
  * ```kt
+ * @Document(
+ *   name = "MyCommonExecutionStatus",
+ *   parent = [CommonExecutionStatus::class],
+ * )
  * class MyCommonExecutionStatus internal constructor(
  *   commonExecutionStatus: CommonExecutionStatus,
  *   val foo: String,
@@ -82,6 +86,8 @@ public interface CommonExecutionStatus : ExecutionStatus {
  *   MyCommonExecutionStatus,
  *   MyCommonExecutionStatus.Builder
  * >(commonExecutionStatus) {
+ *
+ *   // No need to implement equals(), hashCode(), toString() or toBuilder()
  *
  *   override val selfTypeName =
  *     "MyCommonExecutionStatus"
@@ -195,10 +201,13 @@ internal constructor(
    *     MyCommonExecutionStatus.Builder>(...) {
    *
    *   class Builder
-   *   : Builder<
+   *   : AbstractCommonExecutionStatus.Builder<
    *       Builder,
    *       MyCommonExecutionStatus
    *   >() {
+   *
+   *     // No need to implement equals(), hashCode(), toString() or build()
+   *
    *     private var foo: String? = null
    *     private val bars = mutableListOf<Int>()
    *

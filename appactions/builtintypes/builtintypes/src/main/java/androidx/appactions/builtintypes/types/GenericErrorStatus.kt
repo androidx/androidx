@@ -70,6 +70,10 @@ public interface GenericErrorStatus : CommonExecutionStatus {
  *
  * Allows for extension like:
  * ```kt
+ * @Document(
+ *   name = "MyGenericErrorStatus",
+ *   parent = [GenericErrorStatus::class],
+ * )
  * class MyGenericErrorStatus internal constructor(
  *   genericErrorStatus: GenericErrorStatus,
  *   val foo: String,
@@ -78,6 +82,8 @@ public interface GenericErrorStatus : CommonExecutionStatus {
  *   MyGenericErrorStatus,
  *   MyGenericErrorStatus.Builder
  * >(genericErrorStatus) {
+ *
+ *   // No need to implement equals(), hashCode(), toString() or toBuilder()
  *
  *   override val selfTypeName =
  *     "MyGenericErrorStatus"
@@ -189,10 +195,13 @@ internal constructor(
    *     MyGenericErrorStatus.Builder>(...) {
    *
    *   class Builder
-   *   : Builder<
+   *   : AbstractGenericErrorStatus.Builder<
    *       Builder,
    *       MyGenericErrorStatus
    *   >() {
+   *
+   *     // No need to implement equals(), hashCode(), toString() or build()
+   *
    *     private var foo: String? = null
    *     private val bars = mutableListOf<Int>()
    *

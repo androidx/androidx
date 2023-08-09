@@ -318,6 +318,10 @@ public interface Schedule : Intangible {
  *
  * Allows for extension like:
  * ```kt
+ * @Document(
+ *   name = "MySchedule",
+ *   parent = [Schedule::class],
+ * )
  * class MySchedule internal constructor(
  *   schedule: Schedule,
  *   val foo: String,
@@ -326,6 +330,8 @@ public interface Schedule : Intangible {
  *   MySchedule,
  *   MySchedule.Builder
  * >(schedule) {
+ *
+ *   // No need to implement equals(), hashCode(), toString() or toBuilder()
  *
  *   override val selfTypeName =
  *     "MySchedule"
@@ -535,10 +541,13 @@ internal constructor(
    *     MySchedule.Builder>(...) {
    *
    *   class Builder
-   *   : Builder<
+   *   : AbstractSchedule.Builder<
    *       Builder,
    *       MySchedule
    *   >() {
+   *
+   *     // No need to implement equals(), hashCode(), toString() or build()
+   *
    *     private var foo: String? = null
    *     private val bars = mutableListOf<Int>()
    *

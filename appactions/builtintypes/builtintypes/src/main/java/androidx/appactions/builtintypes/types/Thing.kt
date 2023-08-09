@@ -114,6 +114,10 @@ public interface Thing {
  *
  * Allows for extension like:
  * ```kt
+ * @Document(
+ *   name = "MyThing",
+ *   parent = [Thing::class],
+ * )
  * class MyThing internal constructor(
  *   thing: Thing,
  *   val foo: String,
@@ -122,6 +126,8 @@ public interface Thing {
  *   MyThing,
  *   MyThing.Builder
  * >(thing) {
+ *
+ *   // No need to implement equals(), hashCode(), toString() or toBuilder()
  *
  *   override val selfTypeName =
  *     "MyThing"
@@ -224,10 +230,13 @@ internal constructor(
    *     MyThing.Builder>(...) {
    *
    *   class Builder
-   *   : Builder<
+   *   : AbstractThing.Builder<
    *       Builder,
    *       MyThing
    *   >() {
+   *
+   *     // No need to implement equals(), hashCode(), toString() or build()
+   *
    *     private var foo: String? = null
    *     private val bars = mutableListOf<Int>()
    *

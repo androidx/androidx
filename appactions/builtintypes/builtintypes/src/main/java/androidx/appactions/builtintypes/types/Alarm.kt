@@ -115,6 +115,10 @@ public interface Alarm : Thing {
  *
  * Allows for extension like:
  * ```kt
+ * @Document(
+ *   name = "MyAlarm",
+ *   parent = [Alarm::class],
+ * )
  * class MyAlarm internal constructor(
  *   alarm: Alarm,
  *   val foo: String,
@@ -123,6 +127,8 @@ public interface Alarm : Thing {
  *   MyAlarm,
  *   MyAlarm.Builder
  * >(alarm) {
+ *
+ *   // No need to implement equals(), hashCode(), toString() or toBuilder()
  *
  *   override val selfTypeName =
  *     "MyAlarm"
@@ -252,10 +258,13 @@ internal constructor(
    *     MyAlarm.Builder>(...) {
    *
    *   class Builder
-   *   : Builder<
+   *   : AbstractAlarm.Builder<
    *       Builder,
    *       MyAlarm
    *   >() {
+   *
+   *     // No need to implement equals(), hashCode(), toString() or build()
+   *
    *     private var foo: String? = null
    *     private val bars = mutableListOf<Int>()
    *

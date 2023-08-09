@@ -79,6 +79,10 @@ public interface Timer : Thing {
  *
  * Allows for extension like:
  * ```kt
+ * @Document(
+ *   name = "MyTimer",
+ *   parent = [Timer::class],
+ * )
  * class MyTimer internal constructor(
  *   timer: Timer,
  *   val foo: String,
@@ -87,6 +91,8 @@ public interface Timer : Thing {
  *   MyTimer,
  *   MyTimer.Builder
  * >(timer) {
+ *
+ *   // No need to implement equals(), hashCode(), toString() or toBuilder()
  *
  *   override val selfTypeName =
  *     "MyTimer"
@@ -208,10 +214,13 @@ internal constructor(
    *     MyTimer.Builder>(...) {
    *
    *   class Builder
-   *   : Builder<
+   *   : AbstractTimer.Builder<
    *       Builder,
    *       MyTimer
    *   >() {
+   *
+   *     // No need to implement equals(), hashCode(), toString() or build()
+   *
    *     private var foo: String? = null
    *     private val bars = mutableListOf<Int>()
    *

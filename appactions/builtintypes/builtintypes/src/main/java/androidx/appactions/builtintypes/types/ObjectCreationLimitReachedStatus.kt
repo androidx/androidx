@@ -75,6 +75,10 @@ public interface ObjectCreationLimitReachedStatus : ExecutionStatus {
  *
  * Allows for extension like:
  * ```kt
+ * @Document(
+ *   name = "MyObjectCreationLimitReachedStatus",
+ *   parent = [ObjectCreationLimitReachedStatus::class],
+ * )
  * class MyObjectCreationLimitReachedStatus internal constructor(
  *   objectCreationLimitReachedStatus: ObjectCreationLimitReachedStatus,
  *   val foo: String,
@@ -83,6 +87,8 @@ public interface ObjectCreationLimitReachedStatus : ExecutionStatus {
  *   MyObjectCreationLimitReachedStatus,
  *   MyObjectCreationLimitReachedStatus.Builder
  * >(objectCreationLimitReachedStatus) {
+ *
+ *   // No need to implement equals(), hashCode(), toString() or toBuilder()
  *
  *   override val selfTypeName =
  *     "MyObjectCreationLimitReachedStatus"
@@ -197,10 +203,13 @@ internal constructor(
    *     MyObjectCreationLimitReachedStatus.Builder>(...) {
    *
    *   class Builder
-   *   : Builder<
+   *   : AbstractObjectCreationLimitReachedStatus.Builder<
    *       Builder,
    *       MyObjectCreationLimitReachedStatus
    *   >() {
+   *
+   *     // No need to implement equals(), hashCode(), toString() or build()
+   *
    *     private var foo: String? = null
    *     private val bars = mutableListOf<Int>()
    *

@@ -74,6 +74,10 @@ public interface ExecutionStatus : Intangible {
  *
  * Allows for extension like:
  * ```kt
+ * @Document(
+ *   name = "MyExecutionStatus",
+ *   parent = [ExecutionStatus::class],
+ * )
  * class MyExecutionStatus internal constructor(
  *   executionStatus: ExecutionStatus,
  *   val foo: String,
@@ -82,6 +86,8 @@ public interface ExecutionStatus : Intangible {
  *   MyExecutionStatus,
  *   MyExecutionStatus.Builder
  * >(executionStatus) {
+ *
+ *   // No need to implement equals(), hashCode(), toString() or toBuilder()
  *
  *   override val selfTypeName =
  *     "MyExecutionStatus"
@@ -192,10 +198,13 @@ internal constructor(
    *     MyExecutionStatus.Builder>(...) {
    *
    *   class Builder
-   *   : Builder<
+   *   : AbstractExecutionStatus.Builder<
    *       Builder,
    *       MyExecutionStatus
    *   >() {
+   *
+   *     // No need to implement equals(), hashCode(), toString() or build()
+   *
    *     private var foo: String? = null
    *     private val bars = mutableListOf<Int>()
    *
