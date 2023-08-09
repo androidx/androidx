@@ -64,7 +64,7 @@ fun mutableFloatStateOf(
 @Stable
 @JvmDefaultWithCompatibility
 interface FloatState : State<Float> {
-    @AutoboxingStateValueProperty("floatValue")
+    @get:AutoboxingStateValueProperty("floatValue")
     override val value: Float
         @Suppress("AutoBoxing") get() = floatValue
 
@@ -90,7 +90,8 @@ inline operator fun FloatState.getValue(thisObj: Any?, property: KProperty<*>): 
 @Stable
 @JvmDefaultWithCompatibility
 interface MutableFloatState : FloatState, MutableState<Float> {
-    @AutoboxingStateValueProperty("floatValue")
+    @get:AutoboxingStateValueProperty("floatValue")
+    @set:AutoboxingStateValueProperty("floatValue")
     override var value: Float
         @Suppress("AutoBoxing") get() = floatValue
         set(value) { floatValue = value }

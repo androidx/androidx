@@ -64,7 +64,7 @@ fun mutableLongStateOf(
 @Stable
 @JvmDefaultWithCompatibility
 interface LongState : State<Long> {
-    @AutoboxingStateValueProperty("longValue")
+    @get:AutoboxingStateValueProperty("longValue")
     override val value: Long
         @Suppress("AutoBoxing") get() = longValue
 
@@ -90,7 +90,8 @@ inline operator fun LongState.getValue(thisObj: Any?, property: KProperty<*>): L
 @Stable
 @JvmDefaultWithCompatibility
 interface MutableLongState : LongState, MutableState<Long> {
-    @AutoboxingStateValueProperty("longValue")
+    @get:AutoboxingStateValueProperty("longValue")
+    @set:AutoboxingStateValueProperty("longValue")
     override var value: Long
         @Suppress("AutoBoxing") get() = longValue
         set(value) { longValue = value }

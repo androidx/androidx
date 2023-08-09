@@ -65,6 +65,8 @@ import androidx.compose.ui.platform.SemanticsNodeWithAdjustedBounds
 import androidx.compose.ui.platform.TextToolbar
 import androidx.compose.ui.platform.ViewConfiguration
 import androidx.compose.ui.platform.WindowInfo
+import androidx.compose.ui.platform.coreshims.ContentCaptureSessionCompat
+import androidx.compose.ui.platform.coreshims.ViewStructureCompat
 import androidx.compose.ui.platform.getAllUncoveredSemanticsNodesToMap
 import androidx.compose.ui.platform.invertTo
 import androidx.compose.ui.semantics.CustomAccessibilityAction
@@ -125,10 +127,8 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.toOffset
 import androidx.core.view.ViewCompat
-import androidx.core.view.ViewStructureCompat
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat
 import androidx.core.view.accessibility.AccessibilityNodeProviderCompat
-import androidx.core.view.contentcapture.ContentCaptureSessionCompat
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.FlakyTest
 import androidx.test.filters.MediumTest

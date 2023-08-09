@@ -64,7 +64,7 @@ fun mutableIntStateOf(
 @Stable
 @JvmDefaultWithCompatibility
 interface IntState : State<Int> {
-    @AutoboxingStateValueProperty("intValue")
+    @get:AutoboxingStateValueProperty("intValue")
     override val value: Int
         @Suppress("AutoBoxing") get() = intValue
 
@@ -90,7 +90,8 @@ inline operator fun IntState.getValue(thisObj: Any?, property: KProperty<*>): In
 @Stable
 @JvmDefaultWithCompatibility
 interface MutableIntState : IntState, MutableState<Int> {
-    @AutoboxingStateValueProperty("intValue")
+    @get:AutoboxingStateValueProperty("intValue")
+    @set:AutoboxingStateValueProperty("intValue")
     override var value: Int
         @Suppress("AutoBoxing") get() = intValue
         set(value) { intValue = value }
