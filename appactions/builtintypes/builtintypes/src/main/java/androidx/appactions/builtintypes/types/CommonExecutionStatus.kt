@@ -28,7 +28,6 @@ import kotlin.collections.joinToString
 import kotlin.collections.map
 import kotlin.collections.mutableMapOf
 import kotlin.collections.plusAssign
-import kotlin.jvm.JvmOverloads
 import kotlin.jvm.JvmStatic
 
 /**
@@ -52,16 +51,10 @@ public interface CommonExecutionStatus : ExecutionStatus {
   public override fun toBuilder(): Builder<*>
 
   public companion object {
-    /**
-     * Returns a default implementation of [Builder].
-     *
-     * Has the specified [identifier] and [namespace] and no other properties set.
-     */
+    /** Returns a default implementation of [Builder]. */
     @JvmStatic
-    @JvmOverloads
     @Document.BuilderProducer
-    public fun Builder(identifier: String = "", namespace: String = ""): Builder<*> =
-      CommonExecutionStatusImpl.Builder().setIdentifier(identifier).setNamespace(namespace)
+    public fun Builder(): Builder<*> = CommonExecutionStatusImpl.Builder()
   }
 
   /**
