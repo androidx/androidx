@@ -681,8 +681,6 @@ package androidx.appactions.builtintypes.types {
 
   @androidx.appsearch.annotation.Document(name="bit:Alarm", parent={Thing::class}) public interface Alarm extends androidx.appactions.builtintypes.types.Thing {
     method @androidx.appsearch.annotation.Document.BuilderProducer public static androidx.appactions.builtintypes.types.Alarm.Builder<?> Builder();
-    method @androidx.appsearch.annotation.Document.BuilderProducer public static androidx.appactions.builtintypes.types.Alarm.Builder<?> Builder(optional String identifier);
-    method @androidx.appsearch.annotation.Document.BuilderProducer public static androidx.appactions.builtintypes.types.Alarm.Builder<?> Builder(optional String identifier, optional String namespace);
     method @androidx.appsearch.annotation.Document.DocumentProperty public androidx.appactions.builtintypes.types.Schedule? getAlarmSchedule();
     method @androidx.appsearch.annotation.Document.BooleanProperty public Boolean? isAlarmEnabled();
     method public androidx.appactions.builtintypes.types.Alarm.Builder<?> toBuilder();
@@ -700,8 +698,6 @@ package androidx.appactions.builtintypes.types {
 
   public static final class Alarm.Companion {
     method @androidx.appsearch.annotation.Document.BuilderProducer public androidx.appactions.builtintypes.types.Alarm.Builder<?> Builder();
-    method @androidx.appsearch.annotation.Document.BuilderProducer public androidx.appactions.builtintypes.types.Alarm.Builder<?> Builder(optional String identifier);
-    method @androidx.appsearch.annotation.Document.BuilderProducer public androidx.appactions.builtintypes.types.Alarm.Builder<?> Builder(optional String identifier, optional String namespace);
   }
 
   public static final class Alarm.DisambiguatingDescriptionValue extends androidx.appactions.builtintypes.properties.DisambiguatingDescription.CanonicalValue {
@@ -716,8 +712,6 @@ package androidx.appactions.builtintypes.types {
 
   @androidx.appsearch.annotation.Document(name="bit:CommonExecutionStatus", parent={ExecutionStatus::class}) public interface CommonExecutionStatus extends androidx.appactions.builtintypes.types.ExecutionStatus {
     method @androidx.appsearch.annotation.Document.BuilderProducer public static androidx.appactions.builtintypes.types.CommonExecutionStatus.Builder<?> Builder();
-    method @androidx.appsearch.annotation.Document.BuilderProducer public static androidx.appactions.builtintypes.types.CommonExecutionStatus.Builder<?> Builder(optional String identifier);
-    method @androidx.appsearch.annotation.Document.BuilderProducer public static androidx.appactions.builtintypes.types.CommonExecutionStatus.Builder<?> Builder(optional String identifier, optional String namespace);
     method public androidx.appactions.builtintypes.types.CommonExecutionStatus.Builder<?> toBuilder();
     field public static final androidx.appactions.builtintypes.types.CommonExecutionStatus.Companion Companion;
   }
@@ -728,8 +722,6 @@ package androidx.appactions.builtintypes.types {
 
   public static final class CommonExecutionStatus.Companion {
     method @androidx.appsearch.annotation.Document.BuilderProducer public androidx.appactions.builtintypes.types.CommonExecutionStatus.Builder<?> Builder();
-    method @androidx.appsearch.annotation.Document.BuilderProducer public androidx.appactions.builtintypes.types.CommonExecutionStatus.Builder<?> Builder(optional String identifier);
-    method @androidx.appsearch.annotation.Document.BuilderProducer public androidx.appactions.builtintypes.types.CommonExecutionStatus.Builder<?> Builder(optional String identifier, optional String namespace);
   }
 
   public final class DayOfWeek {
@@ -764,8 +756,6 @@ package androidx.appactions.builtintypes.types {
 
   @androidx.appsearch.annotation.Document(name="bit:ExecutionStatus", parent={Intangible::class}) public interface ExecutionStatus extends androidx.appactions.builtintypes.types.Intangible {
     method @androidx.appsearch.annotation.Document.BuilderProducer public static androidx.appactions.builtintypes.types.ExecutionStatus.Builder<?> Builder();
-    method @androidx.appsearch.annotation.Document.BuilderProducer public static androidx.appactions.builtintypes.types.ExecutionStatus.Builder<?> Builder(optional String identifier);
-    method @androidx.appsearch.annotation.Document.BuilderProducer public static androidx.appactions.builtintypes.types.ExecutionStatus.Builder<?> Builder(optional String identifier, optional String namespace);
     method public androidx.appactions.builtintypes.types.ExecutionStatus.Builder<?> toBuilder();
     field public static final androidx.appactions.builtintypes.types.ExecutionStatus.Companion Companion;
   }
@@ -776,14 +766,10 @@ package androidx.appactions.builtintypes.types {
 
   public static final class ExecutionStatus.Companion {
     method @androidx.appsearch.annotation.Document.BuilderProducer public androidx.appactions.builtintypes.types.ExecutionStatus.Builder<?> Builder();
-    method @androidx.appsearch.annotation.Document.BuilderProducer public androidx.appactions.builtintypes.types.ExecutionStatus.Builder<?> Builder(optional String identifier);
-    method @androidx.appsearch.annotation.Document.BuilderProducer public androidx.appactions.builtintypes.types.ExecutionStatus.Builder<?> Builder(optional String identifier, optional String namespace);
   }
 
   @androidx.appsearch.annotation.Document(name="bit:GenericErrorStatus", parent={CommonExecutionStatus::class}) public interface GenericErrorStatus extends androidx.appactions.builtintypes.types.CommonExecutionStatus {
     method @androidx.appsearch.annotation.Document.BuilderProducer public static androidx.appactions.builtintypes.types.GenericErrorStatus.Builder<?> Builder();
-    method @androidx.appsearch.annotation.Document.BuilderProducer public static androidx.appactions.builtintypes.types.GenericErrorStatus.Builder<?> Builder(optional String identifier);
-    method @androidx.appsearch.annotation.Document.BuilderProducer public static androidx.appactions.builtintypes.types.GenericErrorStatus.Builder<?> Builder(optional String identifier, optional String namespace);
     method public androidx.appactions.builtintypes.types.GenericErrorStatus.Builder<?> toBuilder();
     field public static final androidx.appactions.builtintypes.types.GenericErrorStatus.Companion Companion;
   }
@@ -794,14 +780,10 @@ package androidx.appactions.builtintypes.types {
 
   public static final class GenericErrorStatus.Companion {
     method @androidx.appsearch.annotation.Document.BuilderProducer public androidx.appactions.builtintypes.types.GenericErrorStatus.Builder<?> Builder();
-    method @androidx.appsearch.annotation.Document.BuilderProducer public androidx.appactions.builtintypes.types.GenericErrorStatus.Builder<?> Builder(optional String identifier);
-    method @androidx.appsearch.annotation.Document.BuilderProducer public androidx.appactions.builtintypes.types.GenericErrorStatus.Builder<?> Builder(optional String identifier, optional String namespace);
   }
 
   @androidx.appsearch.annotation.Document(name="bit:Intangible", parent={Thing::class}) public interface Intangible extends androidx.appactions.builtintypes.types.Thing {
     method @androidx.appsearch.annotation.Document.BuilderProducer public static androidx.appactions.builtintypes.types.Intangible.Builder<?> Builder();
-    method @androidx.appsearch.annotation.Document.BuilderProducer public static androidx.appactions.builtintypes.types.Intangible.Builder<?> Builder(optional String identifier);
-    method @androidx.appsearch.annotation.Document.BuilderProducer public static androidx.appactions.builtintypes.types.Intangible.Builder<?> Builder(optional String identifier, optional String namespace);
     method public androidx.appactions.builtintypes.types.Intangible.Builder<?> toBuilder();
     field public static final androidx.appactions.builtintypes.types.Intangible.Companion Companion;
   }
@@ -812,14 +794,10 @@ package androidx.appactions.builtintypes.types {
 
   public static final class Intangible.Companion {
     method @androidx.appsearch.annotation.Document.BuilderProducer public androidx.appactions.builtintypes.types.Intangible.Builder<?> Builder();
-    method @androidx.appsearch.annotation.Document.BuilderProducer public androidx.appactions.builtintypes.types.Intangible.Builder<?> Builder(optional String identifier);
-    method @androidx.appsearch.annotation.Document.BuilderProducer public androidx.appactions.builtintypes.types.Intangible.Builder<?> Builder(optional String identifier, optional String namespace);
   }
 
   @androidx.appsearch.annotation.Document(name="bit:ObjectCreationLimitReachedStatus", parent={ExecutionStatus::class}) public interface ObjectCreationLimitReachedStatus extends androidx.appactions.builtintypes.types.ExecutionStatus {
     method @androidx.appsearch.annotation.Document.BuilderProducer public static androidx.appactions.builtintypes.types.ObjectCreationLimitReachedStatus.Builder<?> Builder();
-    method @androidx.appsearch.annotation.Document.BuilderProducer public static androidx.appactions.builtintypes.types.ObjectCreationLimitReachedStatus.Builder<?> Builder(optional String identifier);
-    method @androidx.appsearch.annotation.Document.BuilderProducer public static androidx.appactions.builtintypes.types.ObjectCreationLimitReachedStatus.Builder<?> Builder(optional String identifier, optional String namespace);
     method public androidx.appactions.builtintypes.types.ObjectCreationLimitReachedStatus.Builder<?> toBuilder();
     field public static final androidx.appactions.builtintypes.types.ObjectCreationLimitReachedStatus.Companion Companion;
   }
@@ -830,14 +808,10 @@ package androidx.appactions.builtintypes.types {
 
   public static final class ObjectCreationLimitReachedStatus.Companion {
     method @androidx.appsearch.annotation.Document.BuilderProducer public androidx.appactions.builtintypes.types.ObjectCreationLimitReachedStatus.Builder<?> Builder();
-    method @androidx.appsearch.annotation.Document.BuilderProducer public androidx.appactions.builtintypes.types.ObjectCreationLimitReachedStatus.Builder<?> Builder(optional String identifier);
-    method @androidx.appsearch.annotation.Document.BuilderProducer public androidx.appactions.builtintypes.types.ObjectCreationLimitReachedStatus.Builder<?> Builder(optional String identifier, optional String namespace);
   }
 
   @androidx.appsearch.annotation.Document(name="bit:Person", parent={Thing::class}) public interface Person extends androidx.appactions.builtintypes.types.Thing {
     method @androidx.appsearch.annotation.Document.BuilderProducer public static androidx.appactions.builtintypes.types.Person.Builder<?> Builder();
-    method @androidx.appsearch.annotation.Document.BuilderProducer public static androidx.appactions.builtintypes.types.Person.Builder<?> Builder(optional String identifier);
-    method @androidx.appsearch.annotation.Document.BuilderProducer public static androidx.appactions.builtintypes.types.Person.Builder<?> Builder(optional String identifier, optional String namespace);
     method @androidx.appsearch.annotation.Document.StringProperty public String? getEmail();
     method @androidx.appsearch.annotation.Document.StringProperty(name="telephone") public String? getTelephoneNumber();
     method public androidx.appactions.builtintypes.types.Person.Builder<?> toBuilder();
@@ -854,14 +828,10 @@ package androidx.appactions.builtintypes.types {
 
   public static final class Person.Companion {
     method @androidx.appsearch.annotation.Document.BuilderProducer public androidx.appactions.builtintypes.types.Person.Builder<?> Builder();
-    method @androidx.appsearch.annotation.Document.BuilderProducer public androidx.appactions.builtintypes.types.Person.Builder<?> Builder(optional String identifier);
-    method @androidx.appsearch.annotation.Document.BuilderProducer public androidx.appactions.builtintypes.types.Person.Builder<?> Builder(optional String identifier, optional String namespace);
   }
 
   @androidx.appsearch.annotation.Document(name="bit:Schedule", parent={Intangible::class}) public interface Schedule extends androidx.appactions.builtintypes.types.Intangible {
     method @androidx.appsearch.annotation.Document.BuilderProducer public static androidx.appactions.builtintypes.types.Schedule.Builder<?> Builder();
-    method @androidx.appsearch.annotation.Document.BuilderProducer public static androidx.appactions.builtintypes.types.Schedule.Builder<?> Builder(optional String identifier);
-    method @androidx.appsearch.annotation.Document.BuilderProducer public static androidx.appactions.builtintypes.types.Schedule.Builder<?> Builder(optional String identifier, optional String namespace);
     method @androidx.appsearch.annotation.Document.DocumentProperty(name="byDay") public java.util.List<androidx.appactions.builtintypes.properties.ByDay> getByDays();
     method @androidx.appsearch.annotation.Document.LongProperty(name="byMonthDay") public java.util.List<java.lang.Long> getByMonthDays();
     method @androidx.appsearch.annotation.Document.LongProperty(name="byMonthWeek") public java.util.List<java.lang.Long> getByMonthWeeks();
@@ -935,14 +905,10 @@ package androidx.appactions.builtintypes.types {
 
   public static final class Schedule.Companion {
     method @androidx.appsearch.annotation.Document.BuilderProducer public androidx.appactions.builtintypes.types.Schedule.Builder<?> Builder();
-    method @androidx.appsearch.annotation.Document.BuilderProducer public androidx.appactions.builtintypes.types.Schedule.Builder<?> Builder(optional String identifier);
-    method @androidx.appsearch.annotation.Document.BuilderProducer public androidx.appactions.builtintypes.types.Schedule.Builder<?> Builder(optional String identifier, optional String namespace);
   }
 
   @androidx.appsearch.annotation.Document(name="bit:SuccessStatus", parent={CommonExecutionStatus::class}) public interface SuccessStatus extends androidx.appactions.builtintypes.types.CommonExecutionStatus {
     method @androidx.appsearch.annotation.Document.BuilderProducer public static androidx.appactions.builtintypes.types.SuccessStatus.Builder<?> Builder();
-    method @androidx.appsearch.annotation.Document.BuilderProducer public static androidx.appactions.builtintypes.types.SuccessStatus.Builder<?> Builder(optional String identifier);
-    method @androidx.appsearch.annotation.Document.BuilderProducer public static androidx.appactions.builtintypes.types.SuccessStatus.Builder<?> Builder(optional String identifier, optional String namespace);
     method public androidx.appactions.builtintypes.types.SuccessStatus.Builder<?> toBuilder();
     field public static final androidx.appactions.builtintypes.types.SuccessStatus.Companion Companion;
   }
@@ -953,14 +919,10 @@ package androidx.appactions.builtintypes.types {
 
   public static final class SuccessStatus.Companion {
     method @androidx.appsearch.annotation.Document.BuilderProducer public androidx.appactions.builtintypes.types.SuccessStatus.Builder<?> Builder();
-    method @androidx.appsearch.annotation.Document.BuilderProducer public androidx.appactions.builtintypes.types.SuccessStatus.Builder<?> Builder(optional String identifier);
-    method @androidx.appsearch.annotation.Document.BuilderProducer public androidx.appactions.builtintypes.types.SuccessStatus.Builder<?> Builder(optional String identifier, optional String namespace);
   }
 
   @androidx.appsearch.annotation.Document(name="bit:Thing") public interface Thing {
     method @androidx.appsearch.annotation.Document.BuilderProducer public static androidx.appactions.builtintypes.types.Thing.Builder<?> Builder();
-    method @androidx.appsearch.annotation.Document.BuilderProducer public static androidx.appactions.builtintypes.types.Thing.Builder<?> Builder(optional String identifier);
-    method @androidx.appsearch.annotation.Document.BuilderProducer public static androidx.appactions.builtintypes.types.Thing.Builder<?> Builder(optional String identifier, optional String namespace);
     method @androidx.appsearch.annotation.Document.DocumentProperty public androidx.appactions.builtintypes.properties.DisambiguatingDescription? getDisambiguatingDescription();
     method @androidx.appsearch.annotation.Document.Id public String getIdentifier();
     method @androidx.appsearch.annotation.Document.DocumentProperty public androidx.appactions.builtintypes.properties.Name? getName();
@@ -985,14 +947,10 @@ package androidx.appactions.builtintypes.types {
 
   public static final class Thing.Companion {
     method @androidx.appsearch.annotation.Document.BuilderProducer public androidx.appactions.builtintypes.types.Thing.Builder<?> Builder();
-    method @androidx.appsearch.annotation.Document.BuilderProducer public androidx.appactions.builtintypes.types.Thing.Builder<?> Builder(optional String identifier);
-    method @androidx.appsearch.annotation.Document.BuilderProducer public androidx.appactions.builtintypes.types.Thing.Builder<?> Builder(optional String identifier, optional String namespace);
   }
 
   @androidx.appsearch.annotation.Document(name="bit:Timer", parent={Thing::class}) public interface Timer extends androidx.appactions.builtintypes.types.Thing {
     method @androidx.appsearch.annotation.Document.BuilderProducer public static androidx.appactions.builtintypes.types.Timer.Builder<?> Builder();
-    method @androidx.appsearch.annotation.Document.BuilderProducer public static androidx.appactions.builtintypes.types.Timer.Builder<?> Builder(optional String identifier);
-    method @androidx.appsearch.annotation.Document.BuilderProducer public static androidx.appactions.builtintypes.types.Timer.Builder<?> Builder(optional String identifier, optional String namespace);
     method public java.time.Duration? getDuration();
     method public androidx.appactions.builtintypes.types.Timer.Builder<?> toBuilder();
     property public abstract java.time.Duration? duration;
@@ -1006,14 +964,10 @@ package androidx.appactions.builtintypes.types {
 
   public static final class Timer.Companion {
     method @androidx.appsearch.annotation.Document.BuilderProducer public androidx.appactions.builtintypes.types.Timer.Builder<?> Builder();
-    method @androidx.appsearch.annotation.Document.BuilderProducer public androidx.appactions.builtintypes.types.Timer.Builder<?> Builder(optional String identifier);
-    method @androidx.appsearch.annotation.Document.BuilderProducer public androidx.appactions.builtintypes.types.Timer.Builder<?> Builder(optional String identifier, optional String namespace);
   }
 
   @androidx.appsearch.annotation.Document(name="bit:UnsupportedOperationStatus", parent={ExecutionStatus::class}) public interface UnsupportedOperationStatus extends androidx.appactions.builtintypes.types.ExecutionStatus {
     method @androidx.appsearch.annotation.Document.BuilderProducer public static androidx.appactions.builtintypes.types.UnsupportedOperationStatus.Builder<?> Builder();
-    method @androidx.appsearch.annotation.Document.BuilderProducer public static androidx.appactions.builtintypes.types.UnsupportedOperationStatus.Builder<?> Builder(optional String identifier);
-    method @androidx.appsearch.annotation.Document.BuilderProducer public static androidx.appactions.builtintypes.types.UnsupportedOperationStatus.Builder<?> Builder(optional String identifier, optional String namespace);
     method public androidx.appactions.builtintypes.types.UnsupportedOperationStatus.Builder<?> toBuilder();
     field public static final androidx.appactions.builtintypes.types.UnsupportedOperationStatus.Companion Companion;
   }
@@ -1024,8 +978,6 @@ package androidx.appactions.builtintypes.types {
 
   public static final class UnsupportedOperationStatus.Companion {
     method @androidx.appsearch.annotation.Document.BuilderProducer public androidx.appactions.builtintypes.types.UnsupportedOperationStatus.Builder<?> Builder();
-    method @androidx.appsearch.annotation.Document.BuilderProducer public androidx.appactions.builtintypes.types.UnsupportedOperationStatus.Builder<?> Builder(optional String identifier);
-    method @androidx.appsearch.annotation.Document.BuilderProducer public androidx.appactions.builtintypes.types.UnsupportedOperationStatus.Builder<?> Builder(optional String identifier, optional String namespace);
   }
 
 }
