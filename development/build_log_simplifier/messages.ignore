@@ -2,8 +2,6 @@
 # Comments and blank lines are ignored.
 # Before adding a suppression to this file, please attempt to suppress the output inside the generating tool instead.
 # Messages that only sometimes appear in stdout/stderr should be exempted in message-flakes.ignore, because this file (messages.ignore) may be automatically garbage collected whereas that one will not be.
-# > Task :icing:extractIncludeDebugAndroidTestProto
-proto file '[^ ]*' directly specified in configuration\. It's likely you specified files\('path/to/foo\.proto'\) or fileTree\('path/to/directory'\) in protobuf or compile configuration\. This makes you vulnerable to https://github\.com/google/protobuf\-gradle\-plugin/issues/[0-9][0-9]*\. Please use files\('path/to/directory'\) instead\.
 OUT_DIR=\$OUT_DIR
 DIST_DIR=\$DIST_DIR
 CHECKOUT=\$CHECKOUT
