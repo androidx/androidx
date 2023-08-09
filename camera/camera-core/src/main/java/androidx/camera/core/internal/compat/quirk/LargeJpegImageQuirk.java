@@ -32,7 +32,7 @@ import java.util.Set;
  *     Description: Quirk required to check whether the captured JPEG image contains redundant
  *                  0's padding data. For example, Samsung A5 (2017) series devices have the
  *                  problem and result in the output JPEG image to be extremely large (about 32 MB).
- *     Device(s): Samsung Galaxy A5 (2017), A52, A70 and A72 series devices
+ *     Device(s): Samsung Galaxy A5 (2017), A52, A70, A72 and S7 series devices
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class LargeJpegImageQuirk implements Quirk {
@@ -60,6 +60,9 @@ public final class LargeJpegImageQuirk implements Quirk {
             // Samsung Galaxy A72 series devices
             "SM-A725F",
             "SM-A725M",
+            // Samsung Galaxy S7 series devices
+            "SM-G930T",
+            "SM-G930V",
             // Samsung Galaxy S22 series devices
             "SM-S901B",
             "SM-S901B/DS",
