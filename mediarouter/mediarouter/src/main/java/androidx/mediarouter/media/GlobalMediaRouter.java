@@ -419,14 +419,15 @@ import java.util.Set;
             return;
         }
 
+        // Check whether the route comes from MediaRouter2. The SDK check is required to avoid a
+        // lint error but is not needed.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R
                 && route.getProviderInstance() == mMr2Provider
                 && mSelectedRoute != route) {
-            // Asynchronously select the route
             mMr2Provider.transferTo(route.getDescriptorId());
-            return;
+        } else {
+            selectRouteInternal(route, unselectReason);
         }
-        selectRouteInternal(route, unselectReason);
     }
 
     /* package */ boolean isRouteAvailable(MediaRouteSelector selector, int flags) {
