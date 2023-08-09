@@ -146,7 +146,7 @@ private fun rememberColumnWidthSums(
     columns: GridCells,
     horizontalArrangement: Arrangement.Horizontal,
     contentPadding: PaddingValues
-) = remember<Density.(Constraints) -> LazyGridSlots>(
+) = remember<LazyGridSlotsProvider>(
     columns,
     horizontalArrangement,
     contentPadding,
@@ -179,7 +179,7 @@ private fun rememberRowHeightSums(
     rows: GridCells,
     verticalArrangement: Arrangement.Vertical,
     contentPadding: PaddingValues
-) = remember<Density.(Constraints) -> LazyGridSlots>(
+) = remember<LazyGridSlotsProvider>(
     rows,
     verticalArrangement,
     contentPadding,
@@ -206,15 +206,21 @@ private fun rememberRowHeightSums(
     }
 }
 
-/** measurement cache to avoid recalculating row/column sizes on each scroll. */
-private fun GridSlotCache(
-    calculation: Density.(Constraints) -> LazyGridSlots
-) : (Density, Constraints) -> LazyGridSlots {
-    var cachedConstraints = Constraints()
-    var cachedDensity: Float = 0f
-    var cachedSizes: LazyGridSlots? = null
+// Note: Implementing function interface is prohibited in K/JS (class A: () -> Unit)
+// therefore we workaround this limitation by inheriting a fun interface instead
+internal fun interface LazyGridSlotsProvider {
+    fun invoke(density: Density, constraints: Constraints): LazyGridSlots
+}
 
-    fun invoke(density: Density, constraints: Constraints): LazyGridSlots {
+/** measurement cache to avoid recalculating row/column sizes on each scroll. */
+private class GridSlotCache(
+    private val calculation: Density.(Constraints) -> LazyGridSlots
+) : LazyGridSlotsProvider {
+    private var cachedConstraints = Constraints()
+    private var cachedDensity: Float = 0f
+    private var cachedSizes: LazyGridSlots? = null
+
+    override fun invoke(density: Density, constraints: Constraints): LazyGridSlots {
         with(density) {
             if (
                 cachedSizes != null &&
@@ -231,8 +237,6 @@ private fun GridSlotCache(
             }
         }
     }
-
-    return ::invoke
 }
 
 /**

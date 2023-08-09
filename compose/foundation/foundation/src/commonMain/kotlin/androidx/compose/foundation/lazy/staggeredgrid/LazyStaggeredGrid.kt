@@ -30,8 +30,6 @@ import androidx.compose.foundation.overscroll
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.ui.unit.Constraints
-import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
@@ -43,7 +41,7 @@ internal fun LazyStaggeredGrid(
     /** The layout orientation of the grid */
     orientation: Orientation,
     /** Cross axis positions and sizes of slots per line, e.g. the columns for vertical grid. */
-    slots: Density.(Constraints) -> LazyStaggeredGridSlots,
+    slots: LazyGridStaggeredGridSlotsProvider,
     /** Modifier to be applied for the inner layout */
     modifier: Modifier = Modifier,
     /** The inner padding to be added for the whole content (not for each individual item) */
