@@ -52,10 +52,14 @@ class BluetoothLe constructor(private val context: Context) {
 
     @VisibleForTesting
     @get:RestrictTo(RestrictTo.Scope.LIBRARY)
-    val client = GattClient(context)
+    val client: GattClient by lazy(LazyThreadSafetyMode.PUBLICATION) {
+        GattClient(context)
+    }
     @VisibleForTesting
     @get:RestrictTo(RestrictTo.Scope.LIBRARY)
-    val server = GattServer(context)
+    val server: GattServer by lazy(LazyThreadSafetyMode.PUBLICATION) {
+        GattServer(context)
+    }
 
     @VisibleForTesting
     @get:RestrictTo(RestrictTo.Scope.LIBRARY)
