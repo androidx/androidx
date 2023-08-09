@@ -70,6 +70,10 @@ public interface GenericErrorStatus : CommonExecutionStatus {
  *
  * Allows for extension like:
  * ```kt
+ * @Document(
+ *   name = "MyGenericErrorStatus",
+ *   parent = [GenericErrorStatus::class],
+ * )
  * class MyGenericErrorStatus internal constructor(
  *   genericErrorStatus: GenericErrorStatus,
  *   val foo: String,
@@ -78,6 +82,8 @@ public interface GenericErrorStatus : CommonExecutionStatus {
  *   MyGenericErrorStatus,
  *   MyGenericErrorStatus.Builder
  * >(genericErrorStatus) {
+ *
+ *   // No need to implement equals(), hashCode(), toString() or toBuilder()
  *
  *   override val selfTypeName =
  *     "MyGenericErrorStatus"
@@ -164,12 +170,16 @@ internal constructor(
 
   public final override fun toString(): String {
     val attributes = mutableMapOf<String, String>()
-    attributes["namespace"] = namespace
+    if (namespace.isNotEmpty()) {
+      attributes["namespace"] = namespace
+    }
     if (disambiguatingDescription != null) {
       attributes["disambiguatingDescription"] =
         disambiguatingDescription.toString(includeWrapperName = false)
     }
-    attributes["identifier"] = identifier
+    if (identifier.isNotEmpty()) {
+      attributes["identifier"] = identifier
+    }
     if (name != null) {
       attributes["name"] = name.toString(includeWrapperName = false)
     }
@@ -189,10 +199,13 @@ internal constructor(
    *     MyGenericErrorStatus.Builder>(...) {
    *
    *   class Builder
-   *   : Builder<
+   *   : AbstractGenericErrorStatus.Builder<
    *       Builder,
    *       MyGenericErrorStatus
    *   >() {
+   *
+   *     // No need to implement equals(), hashCode(), toString() or build()
+   *
    *     private var foo: String? = null
    *     private val bars = mutableListOf<Int>()
    *
@@ -316,12 +329,16 @@ internal constructor(
     @Suppress("BuilderSetStyle")
     public final override fun toString(): String {
       val attributes = mutableMapOf<String, String>()
-      attributes["namespace"] = namespace
+      if (namespace.isNotEmpty()) {
+        attributes["namespace"] = namespace
+      }
       if (disambiguatingDescription != null) {
         attributes["disambiguatingDescription"] =
           disambiguatingDescription!!.toString(includeWrapperName = false)
       }
-      attributes["identifier"] = identifier
+      if (identifier.isNotEmpty()) {
+        attributes["identifier"] = identifier
+      }
       if (name != null) {
         attributes["name"] = name!!.toString(includeWrapperName = false)
       }

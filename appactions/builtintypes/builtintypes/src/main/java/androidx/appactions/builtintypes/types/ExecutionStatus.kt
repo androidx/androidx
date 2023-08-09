@@ -74,6 +74,10 @@ public interface ExecutionStatus : Intangible {
  *
  * Allows for extension like:
  * ```kt
+ * @Document(
+ *   name = "MyExecutionStatus",
+ *   parent = [ExecutionStatus::class],
+ * )
  * class MyExecutionStatus internal constructor(
  *   executionStatus: ExecutionStatus,
  *   val foo: String,
@@ -82,6 +86,8 @@ public interface ExecutionStatus : Intangible {
  *   MyExecutionStatus,
  *   MyExecutionStatus.Builder
  * >(executionStatus) {
+ *
+ *   // No need to implement equals(), hashCode(), toString() or toBuilder()
  *
  *   override val selfTypeName =
  *     "MyExecutionStatus"
@@ -167,12 +173,16 @@ internal constructor(
 
   public final override fun toString(): String {
     val attributes = mutableMapOf<String, String>()
-    attributes["namespace"] = namespace
+    if (namespace.isNotEmpty()) {
+      attributes["namespace"] = namespace
+    }
     if (disambiguatingDescription != null) {
       attributes["disambiguatingDescription"] =
         disambiguatingDescription.toString(includeWrapperName = false)
     }
-    attributes["identifier"] = identifier
+    if (identifier.isNotEmpty()) {
+      attributes["identifier"] = identifier
+    }
     if (name != null) {
       attributes["name"] = name.toString(includeWrapperName = false)
     }
@@ -192,10 +202,13 @@ internal constructor(
    *     MyExecutionStatus.Builder>(...) {
    *
    *   class Builder
-   *   : Builder<
+   *   : AbstractExecutionStatus.Builder<
    *       Builder,
    *       MyExecutionStatus
    *   >() {
+   *
+   *     // No need to implement equals(), hashCode(), toString() or build()
+   *
    *     private var foo: String? = null
    *     private val bars = mutableListOf<Int>()
    *
@@ -316,12 +329,16 @@ internal constructor(
     @Suppress("BuilderSetStyle")
     public final override fun toString(): String {
       val attributes = mutableMapOf<String, String>()
-      attributes["namespace"] = namespace
+      if (namespace.isNotEmpty()) {
+        attributes["namespace"] = namespace
+      }
       if (disambiguatingDescription != null) {
         attributes["disambiguatingDescription"] =
           disambiguatingDescription!!.toString(includeWrapperName = false)
       }
-      attributes["identifier"] = identifier
+      if (identifier.isNotEmpty()) {
+        attributes["identifier"] = identifier
+      }
       if (name != null) {
         attributes["name"] = name!!.toString(includeWrapperName = false)
       }

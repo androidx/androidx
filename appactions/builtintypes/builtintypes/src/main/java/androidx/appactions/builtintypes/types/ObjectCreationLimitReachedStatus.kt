@@ -75,6 +75,10 @@ public interface ObjectCreationLimitReachedStatus : ExecutionStatus {
  *
  * Allows for extension like:
  * ```kt
+ * @Document(
+ *   name = "MyObjectCreationLimitReachedStatus",
+ *   parent = [ObjectCreationLimitReachedStatus::class],
+ * )
  * class MyObjectCreationLimitReachedStatus internal constructor(
  *   objectCreationLimitReachedStatus: ObjectCreationLimitReachedStatus,
  *   val foo: String,
@@ -83,6 +87,8 @@ public interface ObjectCreationLimitReachedStatus : ExecutionStatus {
  *   MyObjectCreationLimitReachedStatus,
  *   MyObjectCreationLimitReachedStatus.Builder
  * >(objectCreationLimitReachedStatus) {
+ *
+ *   // No need to implement equals(), hashCode(), toString() or toBuilder()
  *
  *   override val selfTypeName =
  *     "MyObjectCreationLimitReachedStatus"
@@ -172,12 +178,16 @@ internal constructor(
 
   public final override fun toString(): String {
     val attributes = mutableMapOf<String, String>()
-    attributes["namespace"] = namespace
+    if (namespace.isNotEmpty()) {
+      attributes["namespace"] = namespace
+    }
     if (disambiguatingDescription != null) {
       attributes["disambiguatingDescription"] =
         disambiguatingDescription.toString(includeWrapperName = false)
     }
-    attributes["identifier"] = identifier
+    if (identifier.isNotEmpty()) {
+      attributes["identifier"] = identifier
+    }
     if (name != null) {
       attributes["name"] = name.toString(includeWrapperName = false)
     }
@@ -197,10 +207,13 @@ internal constructor(
    *     MyObjectCreationLimitReachedStatus.Builder>(...) {
    *
    *   class Builder
-   *   : Builder<
+   *   : AbstractObjectCreationLimitReachedStatus.Builder<
    *       Builder,
    *       MyObjectCreationLimitReachedStatus
    *   >() {
+   *
+   *     // No need to implement equals(), hashCode(), toString() or build()
+   *
    *     private var foo: String? = null
    *     private val bars = mutableListOf<Int>()
    *
@@ -324,12 +337,16 @@ internal constructor(
     @Suppress("BuilderSetStyle")
     public final override fun toString(): String {
       val attributes = mutableMapOf<String, String>()
-      attributes["namespace"] = namespace
+      if (namespace.isNotEmpty()) {
+        attributes["namespace"] = namespace
+      }
       if (disambiguatingDescription != null) {
         attributes["disambiguatingDescription"] =
           disambiguatingDescription!!.toString(includeWrapperName = false)
       }
-      attributes["identifier"] = identifier
+      if (identifier.isNotEmpty()) {
+        attributes["identifier"] = identifier
+      }
       if (name != null) {
         attributes["name"] = name!!.toString(includeWrapperName = false)
       }

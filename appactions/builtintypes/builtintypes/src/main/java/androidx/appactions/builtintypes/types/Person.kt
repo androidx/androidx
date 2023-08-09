@@ -88,6 +88,10 @@ public interface Person : Thing {
  *
  * Allows for extension like:
  * ```kt
+ * @Document(
+ *   name = "MyPerson",
+ *   parent = [Person::class],
+ * )
  * class MyPerson internal constructor(
  *   person: Person,
  *   val foo: String,
@@ -96,6 +100,8 @@ public interface Person : Thing {
  *   MyPerson,
  *   MyPerson.Builder
  * >(person) {
+ *
+ *   // No need to implement equals(), hashCode(), toString() or toBuilder()
  *
  *   override val selfTypeName =
  *     "MyPerson"
@@ -194,7 +200,9 @@ internal constructor(
 
   public final override fun toString(): String {
     val attributes = mutableMapOf<String, String>()
-    attributes["namespace"] = namespace
+    if (namespace.isNotEmpty()) {
+      attributes["namespace"] = namespace
+    }
     if (email != null) {
       attributes["email"] = email
     }
@@ -205,7 +213,9 @@ internal constructor(
       attributes["disambiguatingDescription"] =
         disambiguatingDescription.toString(includeWrapperName = false)
     }
-    attributes["identifier"] = identifier
+    if (identifier.isNotEmpty()) {
+      attributes["identifier"] = identifier
+    }
     if (name != null) {
       attributes["name"] = name.toString(includeWrapperName = false)
     }
@@ -225,10 +235,13 @@ internal constructor(
    *     MyPerson.Builder>(...) {
    *
    *   class Builder
-   *   : Builder<
+   *   : AbstractPerson.Builder<
    *       Builder,
    *       MyPerson
    *   >() {
+   *
+   *     // No need to implement equals(), hashCode(), toString() or build()
+   *
    *     private var foo: String? = null
    *     private val bars = mutableListOf<Int>()
    *
@@ -371,7 +384,9 @@ internal constructor(
     @Suppress("BuilderSetStyle")
     public final override fun toString(): String {
       val attributes = mutableMapOf<String, String>()
-      attributes["namespace"] = namespace
+      if (namespace.isNotEmpty()) {
+        attributes["namespace"] = namespace
+      }
       if (email != null) {
         attributes["email"] = email!!
       }
@@ -382,7 +397,9 @@ internal constructor(
         attributes["disambiguatingDescription"] =
           disambiguatingDescription!!.toString(includeWrapperName = false)
       }
-      attributes["identifier"] = identifier
+      if (identifier.isNotEmpty()) {
+        attributes["identifier"] = identifier
+      }
       if (name != null) {
         attributes["name"] = name!!.toString(includeWrapperName = false)
       }
