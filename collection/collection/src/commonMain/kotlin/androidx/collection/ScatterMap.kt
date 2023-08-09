@@ -249,6 +249,16 @@ public fun <K, V> mutableScatterMapOf(vararg pairs: Pair<K, V>): MutableScatterM
  * [asMap] to create a thin wrapper around a [ScatterMap]. Please refer to
  * [asMap] for more details and caveats.
  *
+ * **ScatterMap and SimpleArrayMap**: like [SimpleArrayMap],
+ * [ScatterMap]/[MutableScatterMap] is designed to avoid the allocation of
+ * extra objects when inserting new entries in the map. However, the
+ * implementation of [ScatterMap]/[MutableScatterMap] offers better performance
+ * characteristics compared to [SimpleArrayMap] and is thus generally
+ * preferable. If memory usage is a concern, [SimpleArrayMap] automatically
+ * shrinks its storage to avoid using more memory than necessary. You can
+ * also control memory usage with [MutableScatterMap] by manually calling
+ * [MutableScatterMap.trim].
+ *
  * @see [MutableScatterMap]
  */
 public sealed class ScatterMap<K, V> {
@@ -715,6 +725,16 @@ public sealed class ScatterMap<K, V> {
  * **Note**: when a [MutableMap] is absolutely necessary, you can use the
  * method [asMutableMap] to create a thin wrapper around a [MutableScatterMap].
  * Please refer to [asMutableMap] for more details and caveats.
+ *
+ * **MutableScatterMap and SimpleArrayMap**: like [SimpleArrayMap],
+ * [MutableScatterMap] is designed to avoid the allocation of
+ * extra objects when inserting new entries in the map. However, the
+ * implementation of [MutableScatterMap] offers better performance
+ * characteristics compared to [SimpleArrayMap] and is thus generally
+ * preferable. If memory usage is a concern, [SimpleArrayMap] automatically
+ * shrinks its storage to avoid using more memory than necessary. You can
+ * also control memory usage with [MutableScatterMap] by manually calling
+ * [MutableScatterMap.trim].
  *
  * @constructor Creates a new [MutableScatterMap]
  * @param initialCapacity The initial desired capacity for this container.
