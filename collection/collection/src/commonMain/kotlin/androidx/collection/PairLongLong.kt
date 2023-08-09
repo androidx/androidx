@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:Suppress("NOTHING_TO_INLINE", "KotlinRedundantDiagnosticSuppress")
 
 package androidx.collection
 
@@ -23,7 +24,6 @@ package androidx.collection
  * @param second the second value in the pair
  */
 public class PairLongLong public constructor(public val first: Long, public val second: Long) {
-
     /**
      * Returns the [first] component of the pair. For instance, the first component
      * of `PairLongLong(3, 4)` is `3`.
@@ -34,7 +34,7 @@ public class PairLongLong public constructor(public val first: Long, public val 
      * val (first, second) = myPair
      * ```
      */
-    public operator fun component1(): Long = first
+    public inline operator fun component1(): Long = first
 
     /**
      * Returns the [second] component of the pair. For instance, the second component
@@ -46,7 +46,7 @@ public class PairLongLong public constructor(public val first: Long, public val 
      * val (first, second) = myPair
      * ```
      */
-    public operator fun component2(): Long = second
+    public inline operator fun component2(): Long = second
 
     /**
      * Checks the two values for equality.
@@ -71,6 +71,6 @@ public class PairLongLong public constructor(public val first: Long, public val 
     }
 
     override fun toString(): String {
-        return "PairLongLong{" + first + " " + second + "}";
+        return "($first, $second)";
     }
 }
