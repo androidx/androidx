@@ -271,17 +271,19 @@ interface ExposedDropdownMenuBoxScope {
         //     content = content
         // )
 
-        val expandedStates = remember { MutableTransitionState(false) }
-        expandedStates.targetState = expanded
+        val expandedState = remember { MutableTransitionState(false) }
+        expandedState.targetState = expanded
 
-        if (expandedStates.currentState || expandedStates.targetState) {
+        if (expandedState.currentState || expandedState.targetState) {
             val transformOriginState = remember { mutableStateOf(TransformOrigin.Center) }
             val density = LocalDensity.current
-            val popupPositionProvider = DropdownMenuPositionProvider(
-                DpOffset.Zero,
-                density
-            ) { anchorBounds, menuBounds ->
-                transformOriginState.value = calculateTransformOrigin(anchorBounds, menuBounds)
+            val popupPositionProvider = remember(density) {
+                DropdownMenuPositionProvider(
+                    DpOffset.Zero,
+                    density,
+                ) { anchorBounds, menuBounds ->
+                    transformOriginState.value = calculateTransformOrigin(anchorBounds, menuBounds)
+                }
             }
 
             ExposedDropdownMenuPopup(
@@ -289,7 +291,7 @@ interface ExposedDropdownMenuBoxScope {
                 popupPositionProvider = popupPositionProvider
             ) {
                 DropdownMenuContent(
-                    expandedStates = expandedStates,
+                    expandedState = expandedState,
                     transformOriginState = transformOriginState,
                     scrollState = scrollState,
                     modifier = modifier.exposedDropdownSize(),

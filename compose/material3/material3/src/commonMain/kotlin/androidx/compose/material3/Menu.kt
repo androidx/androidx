@@ -63,14 +63,14 @@ import kotlin.math.min
 
 @Composable
 internal fun DropdownMenuContent(
-    expandedStates: MutableTransitionState<Boolean>,
+    expandedState: MutableTransitionState<Boolean>,
     transformOriginState: MutableState<TransformOrigin>,
     scrollState: ScrollState,
     modifier: Modifier = Modifier,
     content: @Composable ColumnScope.() -> Unit
 ) {
     // Menu open/close animation.
-    val transition = updateTransition(expandedStates, "DropDownMenu")
+    val transition = updateTransition(expandedState, "DropDownMenu")
 
     val scale by transition.animateFloat(
         transitionSpec = {
@@ -88,14 +88,8 @@ internal fun DropdownMenuContent(
                 )
             }
         }
-    ) {
-        if (it) {
-            // Menu is expanded.
-            1f
-        } else {
-            // Menu is dismissed.
-            0.8f
-        }
+    ) { expanded ->
+        if (expanded) 1f else 0.8f
     }
 
     val alpha by transition.animateFloat(
@@ -108,15 +102,10 @@ internal fun DropdownMenuContent(
                 tween(durationMillis = OutTransitionDuration)
             }
         }
-    ) {
-        if (it) {
-            // Menu is expanded.
-            1f
-        } else {
-            // Menu is dismissed.
-            0f
-        }
+    ) { expanded ->
+        if (expanded) 1f else 0f
     }
+
     Surface(
         modifier = Modifier.graphicsLayer {
             scaleX = scale
@@ -299,70 +288,94 @@ internal fun calculateTransformOrigin(
 /**
  * Calculates the position of a Material [DropdownMenu].
  */
-// TODO(popam): Investigate if this can/should consider the app window size rather than screen size
 @Immutable
 internal data class DropdownMenuPositionProvider(
     val contentOffset: DpOffset,
     val density: Density,
+    val verticalMargin: Int = with(density) { MenuVerticalMargin.roundToPx() },
     val onPositionCalculated: (anchorBounds: IntRect, menuBounds: IntRect) -> Unit = { _, _ -> }
 ) : PopupPositionProvider {
+    // Horizontal position
+    private val startToAnchorStart: MenuPosition.Horizontal
+    private val endToAnchorEnd: MenuPosition.Horizontal
+    private val leftToWindowLeft: MenuPosition.Horizontal
+    private val rightToWindowRight: MenuPosition.Horizontal
+    // Vertical position
+    private val topToAnchorBottom: MenuPosition.Vertical
+    private val bottomToAnchorTop: MenuPosition.Vertical
+    private val centerToAnchorTop: MenuPosition.Vertical
+    private val topToWindowTop: MenuPosition.Vertical
+    private val bottomToWindowBottom: MenuPosition.Vertical
+
+    init {
+        // Horizontal position
+        val contentOffsetX = with(density) { contentOffset.x.roundToPx() }
+        startToAnchorStart = MenuPosition.startToAnchorStart(offset = contentOffsetX)
+        endToAnchorEnd = MenuPosition.endToAnchorEnd(offset = contentOffsetX)
+        leftToWindowLeft = MenuPosition.leftToWindowLeft(margin = 0)
+        rightToWindowRight = MenuPosition.rightToWindowRight(margin = 0)
+        // Vertical position
+        val contentOffsetY = with(density) { contentOffset.y.roundToPx() }
+        topToAnchorBottom = MenuPosition.topToAnchorBottom(offset = contentOffsetY)
+        bottomToAnchorTop = MenuPosition.bottomToAnchorTop(offset = contentOffsetY)
+        centerToAnchorTop = MenuPosition.centerToAnchorTop(offset = contentOffsetY)
+        topToWindowTop = MenuPosition.topToWindowTop(margin = verticalMargin)
+        bottomToWindowBottom = MenuPosition.bottomToWindowBottom(margin = verticalMargin)
+    }
+
     override fun calculatePosition(
         anchorBounds: IntRect,
         windowSize: IntSize,
         layoutDirection: LayoutDirection,
         popupContentSize: IntSize
     ): IntOffset {
-        // The min margin above and below the menu, relative to the screen.
-        val verticalMargin = with(density) { MenuVerticalMargin.roundToPx() }
-        // The content offset specified using the dropdown offset parameter.
-        val contentOffsetX = with(density) { contentOffset.x.roundToPx() }
-        val contentOffsetY = with(density) { contentOffset.y.roundToPx() }
-
-        // Compute menu horizontal position.
-        val leftToAnchorLeft = anchorBounds.left + contentOffsetX
-        val rightToAnchorRight = anchorBounds.right - contentOffsetX - popupContentSize.width
-        val leftToWindowLeft = 0
-        val rightToWindowRight = windowSize.width - popupContentSize.width
-        val x = if (layoutDirection == LayoutDirection.Ltr) {
-            sequenceOf(
-                leftToAnchorLeft,
-                rightToAnchorRight,
-                // If the anchor gets outside of the window on the left, we want to position
-                // `leftToWindowLeft` for proximity to the anchor. Otherwise, `rightToWindowRight`.
-                if (anchorBounds.left < 0) leftToWindowLeft else rightToWindowRight
+        val xCandidates = listOf(
+            startToAnchorStart,
+            endToAnchorEnd,
+            if (anchorBounds.center.x < windowSize.width / 2) {
+                leftToWindowLeft
+            } else {
+                rightToWindowRight
+            }
+        ).map {
+            it.position(
+                anchorBounds = anchorBounds,
+                windowSize = windowSize,
+                menuWidth = popupContentSize.width,
+                layoutDirection = layoutDirection
             )
-        } else {
-            sequenceOf(
-                rightToAnchorRight,
-                leftToAnchorLeft,
-                // If the anchor gets outside of the window on the right, we want to position
-                // `rightToWindowRight` for proximity to the anchor. Otherwise, `leftToWindowLeft`.
-                if (anchorBounds.right > windowSize.width) rightToWindowRight else leftToWindowLeft
-            )
-        }.firstOrNull {
+        }
+        val x = xCandidates.firstOrNull {
             it >= 0 && it + popupContentSize.width <= windowSize.width
-        } ?: rightToAnchorRight
+        } ?: xCandidates.last()
 
-        // Compute menu vertical position.
-        val topToAnchorBottom = maxOf(anchorBounds.bottom + contentOffsetY, verticalMargin)
-        val bottomToAnchorTop = anchorBounds.top - contentOffsetY - popupContentSize.height
-        val centerToAnchorTop = anchorBounds.top - popupContentSize.height / 2
-        val bottomToWindowBottom = windowSize.height - popupContentSize.height - verticalMargin
-        val y = sequenceOf(
+        val yCandidates = listOf(
             topToAnchorBottom,
             bottomToAnchorTop,
             centerToAnchorTop,
-            bottomToWindowBottom
-        ).firstOrNull {
+            if (anchorBounds.center.y < windowSize.height / 2) {
+                topToWindowTop
+            } else {
+                bottomToWindowBottom
+            }
+        ).map {
+            it.position(
+                anchorBounds = anchorBounds,
+                windowSize = windowSize,
+                menuHeight = popupContentSize.height
+            )
+        }
+        val y = yCandidates.firstOrNull {
             it >= verticalMargin &&
                 it + popupContentSize.height <= windowSize.height - verticalMargin
-        } ?: bottomToAnchorTop
+        } ?: yCandidates.last()
 
+        val menuOffset = IntOffset(x, y)
         onPositionCalculated(
-            anchorBounds,
-            IntRect(x, y, x + popupContentSize.width, y + popupContentSize.height)
+            /* anchorBounds = */anchorBounds,
+            /* menuBounds = */IntRect(offset = menuOffset, size = popupContentSize)
         )
-        return IntOffset(x, y)
+        return menuOffset
     }
 }
 

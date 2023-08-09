@@ -141,7 +141,8 @@ fun DropdownMenu(
  * @param onDismissRequest called when the user requests to dismiss the menu, such as by tapping
  * outside the menu's bounds
  * @param modifier [Modifier] to be applied to the menu's content
- * @param offset [DpOffset] to be added to the position of the menu
+ * @param offset [DpOffset] from the original position of the menu. The offset respects the
+ * [LayoutDirection], so the offset's x position will be added in LTR and subtracted in RTL.
  * @param scrollState a [ScrollState] to used by the menu's content for items vertical scrolling
  * @param properties [PopupProperties] for further customization of this popup's behavior
  * @param content the content of this dropdown menu, typically a [DropdownMenuItem]
@@ -156,17 +157,19 @@ fun DropdownMenu(
     properties: PopupProperties = PopupProperties(focusable = true),
     content: @Composable ColumnScope.() -> Unit
 ) {
-    val expandedStates = remember { MutableTransitionState(false) }
-    expandedStates.targetState = expanded
+    val expandedState = remember { MutableTransitionState(false) }
+    expandedState.targetState = expanded
 
-    if (expandedStates.currentState || expandedStates.targetState) {
+    if (expandedState.currentState || expandedState.targetState) {
         val transformOriginState = remember { mutableStateOf(TransformOrigin.Center) }
         val density = LocalDensity.current
-        val popupPositionProvider = DropdownMenuPositionProvider(
-            offset,
-            density
-        ) { parentBounds, menuBounds ->
-            transformOriginState.value = calculateTransformOrigin(parentBounds, menuBounds)
+        val popupPositionProvider = remember(offset, density) {
+            DropdownMenuPositionProvider(
+                offset,
+                density
+            ) { parentBounds, menuBounds ->
+                transformOriginState.value = calculateTransformOrigin(parentBounds, menuBounds)
+            }
         }
 
         Popup(
@@ -175,7 +178,7 @@ fun DropdownMenu(
             properties = properties
         ) {
             DropdownMenuContent(
-                expandedStates = expandedStates,
+                expandedState = expandedState,
                 transformOriginState = transformOriginState,
                 scrollState = scrollState,
                 modifier = modifier,
