@@ -13,15 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:Suppress("NOTHING_TO_INLINE", "KotlinRedundantDiagnosticSuppress")
 
 package androidx.collection
+
+import kotlin.jvm.JvmField
+import kotlin.jvm.JvmInline
 
 /**
  * Container to ease passing around a tuple of two [Float] values.
  */
-@kotlin.jvm.JvmInline
-public value class PairFloatFloat internal constructor(internal val packedValue: Long) {
-
+@JvmInline
+public value class PairFloatFloat internal constructor(
+    @PublishedApi @JvmField internal val packedValue: Long
+) {
     /**
      * Constructs a [PairFloatFloat] with two [Float] values.
      *
@@ -33,18 +38,14 @@ public value class PairFloatFloat internal constructor(internal val packedValue:
     /**
      * The first value in the pair.
      */
-    public val first: Float
-        get() {
-            return unpackFloat1(packedValue)
-        }
+    public inline val first: Float
+        get() = Float.fromBits((packedValue shr 32).toInt())
 
     /**
      * The second value in the pair.
      */
-    public val second: Float
-        get() {
-            return unpackFloat2(packedValue)
-        }
+    public inline val second: Float
+        get() = Float.fromBits((packedValue and 0xFFFFFFFF).toInt())
 
     /**
      * Returns the [first] component of the pair. For instance, the first component
@@ -56,7 +57,8 @@ public value class PairFloatFloat internal constructor(internal val packedValue:
      * val (first, second) = myPair
      * ```
      */
-    public operator fun component1(): Float = first
+    // NOTE: Unpack the value directly because using `first` forces an invokestatic
+    public inline operator fun component1(): Float = Float.fromBits((packedValue shr 32).toInt())
 
     /**
      * Returns the [second] component of the pair. For instance, the second component
@@ -68,9 +70,9 @@ public value class PairFloatFloat internal constructor(internal val packedValue:
      * val (first, second) = myPair
      * ```
      */
-    public operator fun component2(): Float = second
+    // NOTE: Unpack the value directly because using `second` forces an invokestatic
+    public inline operator fun component2(): Float =
+        Float.fromBits((packedValue and 0xFFFFFFFF).toInt())
 
-    override fun toString(): String {
-        return "PairFloatFloat{" + first + " " + second + "}";
-    }
+    override fun toString(): String = "($first, $second)"
 }
