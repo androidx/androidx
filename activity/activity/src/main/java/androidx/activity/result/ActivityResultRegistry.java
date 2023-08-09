@@ -32,7 +32,7 @@ import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleEventObserver;
 import androidx.lifecycle.LifecycleOwner;
 
-import kotlin.random.Random;
+import java.security.SecureRandom;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -431,17 +431,18 @@ public abstract class ActivityResultRegistry {
     }
 
     /**
-     * Generate a random number between the initial value (00010000) inclusive, and the max
+     * Generate a secure random number between the initial value (00010000) inclusive, and the max
      * integer value. If that number is already an existing request code, generate another until
      * we find one that is new.
      *
      * @return the number
      */
     private int generateRandomNumber() {
-        int number = Random.Default.nextInt((Integer.MAX_VALUE - INITIAL_REQUEST_CODE_VALUE) + 1)
+        SecureRandom secureRandom = new SecureRandom();
+        int number = secureRandom.nextInt((Integer.MAX_VALUE - INITIAL_REQUEST_CODE_VALUE) + 1)
                 + INITIAL_REQUEST_CODE_VALUE;
         while (mRcToKey.containsKey(number)) {
-            number = Random.Default.nextInt((Integer.MAX_VALUE - INITIAL_REQUEST_CODE_VALUE) + 1)
+            number = secureRandom.nextInt((Integer.MAX_VALUE - INITIAL_REQUEST_CODE_VALUE) + 1)
                     + INITIAL_REQUEST_CODE_VALUE;
         }
         return number;
