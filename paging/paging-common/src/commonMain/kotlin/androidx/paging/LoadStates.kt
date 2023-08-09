@@ -30,7 +30,6 @@ public data class LoadStates(
     /** [LoadState] corresponding to [LoadType.APPEND] loads. */
     public val append: LoadState
 ) {
-    /** @suppress */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public inline fun forEach(op: (LoadType, LoadState) -> Unit) {
         op(LoadType.REFRESH, refresh)

@@ -57,7 +57,6 @@ public class NavArgument internal constructor(
      */
     public val defaultValue: Any?
 
-    /** @suppress */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun putDefaultValue(name: String, bundle: Bundle) {
         if (isDefaultValuePresent) {
@@ -65,7 +64,6 @@ public class NavArgument internal constructor(
         }
     }
 
-    /** @suppress */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @Suppress("DEPRECATION")
     public fun verify(name: String, bundle: Bundle): Boolean {

@@ -22,7 +22,6 @@ import androidx.glance.Emittable
 import androidx.glance.GlanceModifier
 import androidx.glance.GlanceNode
 
-/** @suppress */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class EmittableSpacer : Emittable {
     override var modifier: GlanceModifier = GlanceModifier

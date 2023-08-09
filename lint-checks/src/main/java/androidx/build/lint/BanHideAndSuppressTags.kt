@@ -28,34 +28,56 @@ import com.android.tools.lint.detector.api.Severity
 import org.jetbrains.uast.UDeclaration
 
 @Suppress("unused")
-class BanHideAnnotation : Detector(), Detector.UastScanner {
+class BanHideAndSuppressTags : Detector(), Detector.UastScanner {
+    private val tagToIssue = mapOf(
+        "@hide" to HIDE_ISSUE,
+        "@suppress" to SUPPRESS_ISSUE,
+    )
 
     override fun getApplicableUastTypes() = listOf(UDeclaration::class.java)
 
     override fun createUastHandler(context: JavaContext) = object : UElementHandler() {
 
         override fun visitDeclaration(node: UDeclaration) {
-            if (node.comments.any { it.text.contains("@hide") }) {
-                val incident = Incident(context)
-                    .issue(ISSUE)
-                    .location(context.getNameLocation(node))
-                    .message("@hide is not allowed in Javadoc")
-                    .scope(node)
-                context.report(incident)
+            tagToIssue.forEach { (tag, issue) ->
+                if (node.comments.any { it.text.contains(tag) }) {
+                    val incident = Incident(context)
+                        .issue(issue)
+                        .location(context.getNameLocation(node))
+                        .message("$tag is not allowed in documentation")
+                        .scope(node)
+                    context.report(incident)
+                }
             }
         }
     }
 
     companion object {
-        val ISSUE = Issue.create(
-            id = "BanHideAnnotation",
+        val HIDE_ISSUE = Issue.create(
+            id = "BanHideTag",
             briefDescription = "@hide is not allowed in Javadoc",
             explanation = "Use of the @hide annotation in Javadoc is no longer allowed." +
               " Please use @RestrictTo instead.",
             category = Category.CORRECTNESS,
             priority = 5,
             severity = Severity.ERROR,
-            implementation = Implementation(BanHideAnnotation::class.java, Scope.JAVA_FILE_SCOPE)
+            implementation = Implementation(
+                BanHideAndSuppressTags::class.java,
+                Scope.JAVA_FILE_SCOPE
+            )
+        )
+        val SUPPRESS_ISSUE = Issue.create(
+            id = "BanSuppressTag",
+            briefDescription = "@suppress is not allowed in KDoc",
+            explanation = "Use of the @suppress annotation in KDoc is no longer allowed." +
+                " Please use @RestrictTo instead.",
+            category = Category.CORRECTNESS,
+            priority = 5,
+            severity = Severity.ERROR,
+            implementation = Implementation(
+                BanHideAndSuppressTags::class.java,
+                Scope.JAVA_FILE_SCOPE
+            )
         )
     }
 }

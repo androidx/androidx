@@ -58,7 +58,6 @@ object TextDefaults {
     val defaultTextStyle: TextStyle = TextStyle(color = defaultTextColor)
 }
 
-/** @suppress */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class EmittableText : EmittableWithText() {
     override var modifier: GlanceModifier = GlanceModifier

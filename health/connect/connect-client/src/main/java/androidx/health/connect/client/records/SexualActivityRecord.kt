@@ -84,7 +84,6 @@ public class SexualActivityRecord(
 
     /**
      * Whether protection was used during sexual activity.
-     * @suppress
      */
     @Retention(AnnotationRetention.SOURCE)
     @IntDef(

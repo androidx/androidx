@@ -22,7 +22,6 @@ import java.lang.IllegalStateException
 
 /**
  * Applier for the Glance composition.
- * @suppress
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class Applier(root: EmittableWithChildren) : AbstractApplier<Emittable>(root) {

@@ -178,7 +178,6 @@ private fun Dp.toPadding() =
 private fun Int.toPadding() =
     if (this == 0) PaddingDimension() else PaddingDimension(this)
 
-/** @suppress */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 fun GlanceModifier.collectPadding(): PaddingModifier? =
     foldIn<PaddingModifier?>(null) { acc, modifier ->
@@ -189,7 +188,6 @@ fun GlanceModifier.collectPadding(): PaddingModifier? =
         }
     }
 
-/** @suppress */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 fun GlanceModifier.collectPaddingInDp(resources: Resources) =
     collectPadding()?.toDp(resources)
@@ -199,7 +197,6 @@ private fun List<Int>.toDp(resources: Resources) =
         acc + (resources.getDimension(res) / resources.displayMetrics.density).dp
     }
 
-/** @suppress */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 data class PaddingModifier(
     val left: PaddingDimension = PaddingDimension(),
@@ -231,7 +228,6 @@ data class PaddingModifier(
         )
 }
 
-/** @suppress */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 data class PaddingDimension(
     val dp: Dp = 0.dp,
@@ -250,7 +246,6 @@ data class PaddingDimension(
     }
 }
 
-/** @suppress */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 data class PaddingInDp(
     val left: Dp = 0.dp,

@@ -22,8 +22,6 @@ import androidx.health.platform.client.proto.DataProto
 
 /**
  * Provides conversion to proto value objects.
- *
- * @suppress
  */
 internal fun longVal(value: Long): DataProto.Value =
     DataProto.Value.newBuilder().setLongVal(value).build()

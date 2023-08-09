@@ -16,7 +16,6 @@
 
 package androidx.paging
 
-import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import androidx.annotation.WorkerThread
 import androidx.arch.core.util.Function
@@ -192,10 +191,6 @@ public abstract class PositionalDataSource<T : Any> : DataSource<Int, T>(POSITIO
         public abstract fun onResult(data: List<T>)
     }
 
-    /**
-     * @suppress
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
     public companion object {
         /**
          * Helper for computing an initial position in [loadInitial] when total data set size can be

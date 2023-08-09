@@ -22,7 +22,6 @@ import androidx.annotation.RestrictTo
 /**
  * List of supported device types on Health Platform.
  *
- * @suppress
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 object DeviceTypes {

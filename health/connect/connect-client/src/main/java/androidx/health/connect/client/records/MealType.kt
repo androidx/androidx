@@ -63,8 +63,8 @@ public object MealType {
 
 /**
  * Type of meal.
- * @suppress
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 @Retention(AnnotationRetention.SOURCE)
 @IntDef(
     value =

@@ -22,8 +22,6 @@ import androidx.annotation.RestrictTo
  * Interface to partially-loaded, paged data (generally an immutable snapshot).
  *
  * Used for diffing in paging-runtime.
- *
- * @suppress
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface NullPaddedList<T> {

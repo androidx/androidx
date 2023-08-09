@@ -107,7 +107,6 @@ public class Vo2MaxRecord(
 
     /**
      * VO2 max (maximal aerobic capacity) measurement method.
-     * @suppress
      */
     @Retention(AnnotationRetention.SOURCE)
     @IntDef(

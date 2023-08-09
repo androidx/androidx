@@ -32,7 +32,6 @@ import kotlinx.coroutines.launch
  * notifications (which are necessary in order for recompositions to be scheduled in response to
  * state changes). These will be sent on Dispatchers.Default.
  * This is based on [androidx.compose.ui.platform.GlobalSnapshotManager].
- * @suppress
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 object GlobalSnapshotManager {
