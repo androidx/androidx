@@ -1024,7 +1024,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
      * Return the number of entries currently in the back stack.
      */
     public int getBackStackEntryCount() {
-        return mBackStack != null ? mBackStack.size() : 0;
+        return (mBackStack != null ? mBackStack.size() : 0) + (mTransitioningOp != null ? 1 : 0);
     }
 
     /**
@@ -1033,6 +1033,12 @@ public abstract class FragmentManager implements FragmentResultOwner {
      */
     @NonNull
     public BackStackEntry getBackStackEntryAt(int index) {
+        if (index == mBackStack.size()) {
+            if (mTransitioningOp == null) {
+                throw new IndexOutOfBoundsException();
+            }
+            return mTransitioningOp;
+        }
         return mBackStack.get(index);
     }
 
