@@ -32,6 +32,7 @@ import android.view.Display;
 import android.view.ViewConfiguration;
 import android.view.accessibility.AccessibilityEvent;
 
+import androidx.annotation.NonNull;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.uiautomator.By;
@@ -715,6 +716,12 @@ public class UiObject2Test extends BaseTest {
                             return true;
                         }
                         return false;
+                    }
+
+                    @NonNull
+                    @Override
+                    public String toString() {
+                        return "EventCondition[LONG_CLICK]";
                     }
                 });
         assertNull(result);
