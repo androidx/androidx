@@ -893,7 +893,8 @@ class CustomFocusTraversalTest(
         if (useFocusOrderModifier) {
             this.then(ReceiverFocusOrderModifier(block))
         } else {
-            focusProperties(FocusOrderToProperties(block))
+            val scope = FocusOrderToProperties(block)
+            focusProperties { scope.apply(this) }
         }
 
     @Suppress("DEPRECATION")
