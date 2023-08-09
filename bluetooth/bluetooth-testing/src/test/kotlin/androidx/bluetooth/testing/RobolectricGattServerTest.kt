@@ -118,7 +118,6 @@ class RobolectricGattServerTest {
             }
 
         bluetoothLe.openGattServer(listOf()).first().accept {
-            Assert.assertEquals(device.address, this.device.address)
         }
 
         Assert.assertTrue(opened.isCompleted)

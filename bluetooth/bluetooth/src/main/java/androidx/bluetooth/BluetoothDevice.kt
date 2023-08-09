@@ -42,10 +42,6 @@ class BluetoothDevice @RestrictTo(RestrictTo.Scope.LIBRARY) constructor(
     val name: String?
         get() = fwkDevice.name
 
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY)
-    val address: String
-        get() = fwkDevice.address
-
     @get:RequiresPermission(
         anyOf = ["android.permission.BLUETOOTH",
             "android.permission.BLUETOOTH_CONNECT"]
