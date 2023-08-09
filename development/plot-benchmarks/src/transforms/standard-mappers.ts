@@ -54,14 +54,18 @@ export function histogramPoints(
   const min = flattened[0];
   const max = flattened[flattened.length - 1];
   let targetPoints: Point[] | null = null;
-  let pN: number = 0;
+  let pMin: number = 0;
+  let pMax: number = 0;
   let maxFreq: number = 0;
   const histogram = new Array(buckets).fill(0);
   const slots = buckets - 1; // The actual number of slots in the histogram
   for (let i = 0; i < flattened.length; i += 1) {
     const value = flattened[i];
+    if (value < target) {
+      pMin += 1;
+    }
     if (value >= target) {
-      pN += 1;
+      pMax += 1;
     }
     const n = normalize(value, min, max);
     const index = Math.ceil(n * slots);
@@ -75,7 +79,9 @@ export function histogramPoints(
     const index = Math.ceil(n * slots);
     targetPoints = selectPoints(buckets, index, maxFreq);
   }
-  return [singlePoints(histogram), targetPoints, (pN / flattened.length)];
+  // Pay attention to both sides of the normal distribution.
+  let p = Math.min(pMin / flattened.length, pMax / flattened.length);
+  return [singlePoints(histogram), targetPoints, p];
 }
 
 function selectPoints(buckets: number, index: number, target: number) {
@@ -118,7 +124,7 @@ function normalize(n: number, min: number, max: number): number {
  * Generates a series label.
  */
 function labelFor<T>(metric: Metric<T>, source: string): string {
-  return `${source} {${metric.class}${metric.benchmark}} - ${metric.label}`;
+  return `${source} {${metric.class} ${metric.benchmark}} - ${metric.label}`;
 }
 
 export function datasetName(metric: Metric<any>): string {
