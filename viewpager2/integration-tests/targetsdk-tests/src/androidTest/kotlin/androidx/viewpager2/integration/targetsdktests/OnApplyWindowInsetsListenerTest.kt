@@ -42,6 +42,8 @@ import java.lang.reflect.Field
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Assert.assertNotNull
+import org.junit.Assume
+import org.junit.BeforeClass
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -51,12 +53,21 @@ import org.junit.runners.Parameterized
 @SdkSuppress(minSdkVersion = 30) // TODO(b/273945673): fix test on API 21..30
 @RunWith(Parameterized::class)
 class OnApplyWindowInsetsListenerTest(private val config: TestConfig) {
+
     data class TestConfig(
         val applyFix: Boolean,
         val pagesConsumeInsets: Boolean
     )
 
     companion object {
+        @JvmStatic
+        @BeforeClass
+        fun setUp() {
+            // Broken on UDC, but fixed on UDC-QPR; no easy way to differentiate in a test, so
+            // disabling for the whole API 34. See b/284406283 for more context.
+            Assume.assumeTrue(Build.VERSION.SDK_INT != 34)
+        }
+
         private const val numPages = 3
         private val mSystemWindowInsetsConsumedField: Field? by lazy {
             // Only need reflection on API < 29 to create an unconsumed WindowInsets.
