@@ -119,7 +119,7 @@ abstract class GenerateMetadataTask : DefaultTask() {
 
     private fun generateReleaseNotesUrl(groupId: String): String {
         val library = groupId.removePrefix("androidx.").replace(".", "-")
-        return "https://developer.android.com/jetpack/androidx/releases/$library"
+        return "/jetpack/androidx/releases/$library"
     }
 
     companion object {
