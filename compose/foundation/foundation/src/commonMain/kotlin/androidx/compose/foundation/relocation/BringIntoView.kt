@@ -79,7 +79,10 @@ internal abstract class BringIntoViewChildNode : Modifier.Node(),
         get() = field?.takeIf { it.isAttached }
         private set
 
-    protected val parent: BringIntoViewParent
+    // TODO(o.karpovich): in JC this property is called `parent`, but we have to workaround a bug:
+    // https://youtrack.jetbrains.com/issue/KT-60635
+    // Also: https://github.com/JetBrains/compose-multiplatform/issues/3463
+    protected val bringIntoViewParent: BringIntoViewParent
         get() = localParent ?: defaultParent
 
     override fun onPlaced(coordinates: LayoutCoordinates) {

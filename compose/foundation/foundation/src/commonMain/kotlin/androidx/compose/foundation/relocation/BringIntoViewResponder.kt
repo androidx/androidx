@@ -141,7 +141,7 @@ private class BringIntoViewResponderNode(
 
     /**
      * Responds to a child's request by first converting [boundsProvider] into this node's [LayoutCoordinates]
-     * and then, concurrently, calling the [responder] and the [parent] to handle the request.
+     * and then, concurrently, calling the [responder] and the [bringIntoViewParent] to handle the request.
      */
     override suspend fun bringChildIntoView(
         childCoordinates: LayoutCoordinates,
@@ -176,7 +176,7 @@ private class BringIntoViewResponderNode(
             // CancellationException, it will cancel this coroutineScope, which will also cancel the
             // responder's coroutine.
             launch {
-                parent.bringChildIntoView(layoutCoordinates ?: return@launch, parentRect)
+                bringIntoViewParent.bringChildIntoView(layoutCoordinates ?: return@launch, parentRect)
             }
         }
     }
