@@ -341,6 +341,7 @@ package androidx.appsearch.app {
     method public androidx.appsearch.app.GetSchemaResponse.Builder setRequiredPermissionsForSchemaTypeVisibility(String, java.util.Set<java.util.Set<java.lang.Integer!>!>);
     method public androidx.appsearch.app.GetSchemaResponse.Builder setSchemaTypeVisibleToPackages(String, java.util.Set<androidx.appsearch.app.PackageIdentifier!>);
     method public androidx.appsearch.app.GetSchemaResponse.Builder setVersion(@IntRange(from=0) int);
+    method public androidx.appsearch.app.GetSchemaResponse.Builder setVisibilitySettingSupported(boolean);
   }
 
   public interface GlobalSearchSession extends java.io.Closeable {
