@@ -30,7 +30,7 @@ dependencies {
 
     implementation(project(":activity:activity-compose"))
     implementation(project(":compose:material3:material3"))
-    implementation(project(":navigation:navigation-runtime"))
+    implementation(project(":navigation:navigation-compose"))
     implementation(project(":profileinstaller:profileinstaller"))
 
     implementation(project(":tv:tv-foundation"))
@@ -42,7 +42,6 @@ dependencies {
     implementation(project(":compose:runtime:runtime"))
     implementation(project(":compose:ui:ui"))
     implementation(project(":compose:foundation:foundation-layout"))
-    implementation(project(":compose:ui:ui"))
 }
 
 androidx {
