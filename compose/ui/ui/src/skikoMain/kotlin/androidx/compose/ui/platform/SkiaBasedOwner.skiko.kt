@@ -66,7 +66,15 @@ private typealias Command = () -> Unit
     InternalComposeUiApi::class
 )
 internal class SkiaBasedOwner(
-    override val scene: ComposeScene, // TODO: Remove reference to it
+
+    /**
+     * Currently, [scene] is used only as part of [SkiaRootForTest] interface.
+     * Required for:
+     * - dispatching input events from test (see SkikoInputDispatcher)
+     * - getting view bounds (see SemanticsNode.isInScreenBounds)
+     */
+    override val scene: ComposeScene,
+
     private val platform: Platform,
     parentFocusManager: FocusManager = EmptyFocusManager,
     initDensity: Density = Density(1f, 1f),
@@ -77,9 +85,7 @@ internal class SkiaBasedOwner(
     val onOutsidePointerEvent: ((PointerInputEvent) -> Unit)? = null,
     private val onPointerUpdate: () -> Unit = {},
     modifier: Modifier = Modifier,
-) : Owner,
-    RootForTest, SkiaRootForTest, // TODO: Make scene implement RootForTest, not Owner
-    PositionCalculator {
+) : Owner, SkiaRootForTest, PositionCalculator {
     override val windowInfo: WindowInfo get() = platform.windowInfo
 
     fun isInBounds(point: Offset): Boolean {

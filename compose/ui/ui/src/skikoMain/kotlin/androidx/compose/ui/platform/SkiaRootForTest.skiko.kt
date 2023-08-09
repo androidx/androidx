@@ -30,6 +30,8 @@ import androidx.compose.ui.node.RootForTest
 interface SkiaRootForTest : RootForTest {
     /**
      * The [ComposeScene] which contains this root
+     *
+     * TODO: Remove this reference.
      */
     val scene: ComposeScene get() = throw UnsupportedOperationException("SkiaRootForTest.scene is not implemented")
 
