@@ -30,6 +30,8 @@ plugins {
 dependencies {
     implementation(libs.kotlinStdlib)
     implementation("androidx.appcompat:appcompat:1.1.0")
+    api(project(":fragment:fragment-ktx"))
+    api(project(":transition:transition-ktx"))
     implementation(project(":navigation:navigation-fragment-ktx"))
     implementation(project(":navigation:navigation-ui-ktx"))
     implementation(project(":internal-testutils-navigation"), {
