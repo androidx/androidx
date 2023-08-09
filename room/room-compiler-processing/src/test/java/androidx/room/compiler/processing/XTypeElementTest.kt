@@ -807,16 +807,46 @@ class XTypeElementTest(
                     ).containsExactly(
                         "getMutable", "setMutable", "getImmutable"
                     )
-                methods.forEach {
-                    assertWithMessage("${subject.qualifiedName}.${it.jvmName}()")
-                        .that(it.isKotlinPropertyMethod())
-                        .apply {
-                            if (subject.name.contains("Kotlin")) {
-                                isTrue()
-                            } else {
-                                isFalse()
-                            }
-                        }
+
+                subject.getDeclaredMethodByJvmName("getMutable").let {
+                    if (subject.name.contains("Kotlin")) {
+                        assertThat(it.isKotlinPropertyMethod()).isTrue()
+                        assertThat(it.isKotlinPropertySetter()).isFalse()
+                        assertThat(it.isKotlinPropertyGetter()).isTrue()
+                        assertThat(it.propertyName).isEqualTo("mutable")
+                    } else {
+                        assertThat(it.isKotlinPropertyMethod()).isFalse()
+                        assertThat(it.isKotlinPropertySetter()).isFalse()
+                        assertThat(it.isKotlinPropertyGetter()).isFalse()
+                        assertThat(it.propertyName).isNull()
+                    }
+                }
+
+                subject.getDeclaredMethodByJvmName("setMutable").let {
+                    if (subject.name.contains("Kotlin")) {
+                        assertThat(it.isKotlinPropertyMethod()).isTrue()
+                        assertThat(it.isKotlinPropertySetter()).isTrue()
+                        assertThat(it.propertyName).isEqualTo("mutable")
+                    } else {
+                        assertThat(it.isKotlinPropertyMethod()).isFalse()
+                        assertThat(it.isKotlinPropertySetter()).isFalse()
+                        assertThat(it.isKotlinPropertyGetter()).isFalse()
+                        assertThat(it.propertyName).isNull()
+                    }
+                }
+
+                subject.getDeclaredMethodByJvmName("getImmutable").let {
+                    if (subject.name.contains("Kotlin")) {
+                        assertThat(it.isKotlinPropertyMethod()).isTrue()
+                        assertThat(it.isKotlinPropertySetter()).isFalse()
+                        assertThat(it.isKotlinPropertyGetter()).isTrue()
+                        assertThat(it.propertyName).isEqualTo("immutable")
+                    } else {
+                        assertThat(it.isKotlinPropertyMethod()).isFalse()
+                        assertThat(it.isKotlinPropertySetter()).isFalse()
+                        assertThat(it.isKotlinPropertyGetter()).isFalse()
+                        assertThat(it.propertyName).isNull()
+                    }
                 }
             }
         }
@@ -836,9 +866,11 @@ class XTypeElementTest(
             val subject = it.processingEnv.requireTypeElement("Subject")
             val fields = subject.getDeclaredFields()
             assertThat(fields).isEmpty()
+
             val method = subject.getDeclaredMethodByJvmName("getMyLazy")
             assertThat(method).isNotNull()
             assertThat(method.isKotlinPropertyMethod()).isTrue()
+            assertThat(method.isKotlinPropertySetter()).isFalse()
         }
     }
 
