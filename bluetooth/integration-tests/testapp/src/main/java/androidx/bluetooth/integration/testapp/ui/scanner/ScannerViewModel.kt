@@ -47,7 +47,7 @@ class ScannerViewModel : ViewModel() {
     }
 
     fun addScanResultIfNew(scanResult: ScanResult) {
-        val deviceAddress = scanResult.device.address
+        val deviceAddress = scanResult.deviceAddress.address
 
         if (_scanResultsMap.containsKey(deviceAddress).not()) {
             _scanResultsMap[deviceAddress] = scanResult

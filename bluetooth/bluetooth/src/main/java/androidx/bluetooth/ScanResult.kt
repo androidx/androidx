@@ -45,7 +45,7 @@ class ScanResult internal constructor(private val fwkScanResult: FwkScanResult) 
     /** Bluetooth address for the remote device found. */
     val deviceAddress: BluetoothAddress
         get() = BluetoothAddress(fwkScanResult.device.address,
-            BluetoothAddress.ADDRESS_TYPE_RANDOM_STATIC)
+            BluetoothAddress.ADDRESS_TYPE_UNKNOWN)
 
     /** Device timestamp when the advertisement was last seen. */
     val timestampNanos: Long

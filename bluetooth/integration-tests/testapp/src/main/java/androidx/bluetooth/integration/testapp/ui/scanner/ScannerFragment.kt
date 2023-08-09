@@ -226,14 +226,14 @@ class ScannerFragment : Fragment() {
 
     @SuppressLint("MissingPermission")
     private fun addNewTab(bluetoothDevice: BluetoothDevice): Tab {
-        val deviceAddress = bluetoothDevice.address
+        val deviceId = bluetoothDevice.id.toString()
         val deviceName = bluetoothDevice.name
 
         val newTab = binding.tabLayout.newTab()
         newTab.setCustomView(R.layout.tab_item_device)
 
         val customView = newTab.customView
-        customView?.findViewById<TextView>(R.id.text_view_address)?.text = deviceAddress
+        customView?.findViewById<TextView>(R.id.text_view_device_id)?.text = deviceId
         val textViewName = customView?.findViewById<TextView>(R.id.text_view_name)
         textViewName?.text = deviceName
         textViewName?.isVisible = deviceName.isNullOrEmpty().not()
