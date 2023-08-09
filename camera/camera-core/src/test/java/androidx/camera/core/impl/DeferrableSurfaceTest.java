@@ -16,8 +16,6 @@
 
 package androidx.camera.core.impl;
 
-import static androidx.camera.core.impl.utils.executor.CameraXExecutors.directExecutor;
-
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.mockito.Mockito.times;
@@ -27,6 +25,7 @@ import android.os.Build;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
+import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.Futures;
 
@@ -88,17 +87,6 @@ public class DeferrableSurfaceTest {
     }
 
     @Test
-    public void close_closeFutureCompletes() {
-        // Arrange.
-        ListenableFuture<Void> closeFuture = mDeferrableSurface.getCloseFuture();
-        assertThat(closeFuture.isDone()).isFalse();
-        // Act.
-        mDeferrableSurface.close();
-        // Assert.
-        assertThat(closeFuture.isDone()).isTrue();
-    }
-
-    @Test
     public void terminationFutureFinishesWhenCompletelyDecremented()
             throws DeferrableSurface.SurfaceClosedException {
         Runnable listener = Mockito.mock(Runnable.class);
@@ -106,7 +94,7 @@ public class DeferrableSurfaceTest {
         mDeferrableSurface.incrementUseCount();
         mDeferrableSurface.close();
         mDeferrableSurface.getTerminationFuture().addListener(listener,
-                directExecutor());
+                CameraXExecutors.directExecutor());
         mDeferrableSurface.incrementUseCount();
         mDeferrableSurface.decrementUseCount();
         mDeferrableSurface.decrementUseCount();
@@ -120,7 +108,7 @@ public class DeferrableSurfaceTest {
 
         mDeferrableSurface.close();
         mDeferrableSurface.getTerminationFuture().addListener(listener,
-                directExecutor());
+                CameraXExecutors.directExecutor());
 
         Mockito.verify(listener, times(1)).run();
     }
@@ -162,7 +150,7 @@ public class DeferrableSurfaceTest {
         ArgumentCaptor<Throwable> throwableCaptor = ArgumentCaptor.forClass(Throwable.class);
 
         Futures.addCallback(surfaceListenableFuture, futureCallback,
-                directExecutor());
+                CameraXExecutors.directExecutor());
         verify(futureCallback, times(1)).onFailure(throwableCaptor.capture());
 
         assertThat(throwableCaptor.getValue()).isInstanceOf(
