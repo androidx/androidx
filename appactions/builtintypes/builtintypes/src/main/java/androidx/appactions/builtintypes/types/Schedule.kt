@@ -480,7 +480,9 @@ internal constructor(
 
   public final override fun toString(): String {
     val attributes = mutableMapOf<String, String>()
-    attributes["namespace"] = namespace
+    if (namespace.isNotEmpty()) {
+      attributes["namespace"] = namespace
+    }
     if (byDays.isNotEmpty()) {
       attributes["byDays"] = byDays.map { it.toString(includeWrapperName = false) }.toString()
     }
@@ -521,7 +523,9 @@ internal constructor(
       attributes["disambiguatingDescription"] =
         disambiguatingDescription.toString(includeWrapperName = false)
     }
-    attributes["identifier"] = identifier
+    if (identifier.isNotEmpty()) {
+      attributes["identifier"] = identifier
+    }
     if (name != null) {
       attributes["name"] = name.toString(includeWrapperName = false)
     }
@@ -837,7 +841,9 @@ internal constructor(
     @Suppress("BuilderSetStyle")
     public final override fun toString(): String {
       val attributes = mutableMapOf<String, String>()
-      attributes["namespace"] = namespace
+      if (namespace.isNotEmpty()) {
+        attributes["namespace"] = namespace
+      }
       if (byDays.isNotEmpty()) {
         attributes["byDays"] = byDays.map { it.toString(includeWrapperName = false) }.toString()
       }
@@ -878,7 +884,9 @@ internal constructor(
         attributes["disambiguatingDescription"] =
           disambiguatingDescription!!.toString(includeWrapperName = false)
       }
-      attributes["identifier"] = identifier
+      if (identifier.isNotEmpty()) {
+        attributes["identifier"] = identifier
+      }
       if (name != null) {
         attributes["name"] = name!!.toString(includeWrapperName = false)
       }
