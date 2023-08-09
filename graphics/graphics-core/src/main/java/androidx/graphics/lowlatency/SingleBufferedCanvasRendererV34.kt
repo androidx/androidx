@@ -17,15 +17,13 @@
 package androidx.graphics.lowlatency
 
 import android.graphics.BlendMode
-import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.HardwareBufferRenderer
 import android.graphics.RenderNode
 import android.hardware.HardwareBuffer
-import android.os.Handler
-import android.os.HandlerThread
-import android.os.SystemClock
 import androidx.annotation.RequiresApi
+import androidx.graphics.RenderQueue
+import androidx.graphics.utils.HandlerThreadExecutor
 import androidx.hardware.SyncFenceCompat
 import java.util.concurrent.Executor
 
@@ -33,8 +31,8 @@ import java.util.concurrent.Executor
 internal class SingleBufferedCanvasRendererV34<T>(
     private val width: Int,
     private val height: Int,
-    private val bufferTransformer: BufferTransformer,
-    private val executor: Executor,
+    bufferTransformer: BufferTransformer,
+    handlerThread: HandlerThreadExecutor,
     private val callbacks: SingleBufferedCanvasRenderer.RenderCallbacks<T>
 ) : SingleBufferedCanvasRenderer<T> {
 
@@ -42,41 +40,50 @@ internal class SingleBufferedCanvasRendererV34<T>(
         setPosition(
             0,
             0,
-            width,
-            height
+            this@SingleBufferedCanvasRendererV34.width,
+            this@SingleBufferedCanvasRendererV34.height
         )
-        clipToBounds = false
     }
+
+    private val mRenderQueue = RenderQueue(
+        handlerThread,
+        object : RenderQueue.FrameProducer {
+            override fun renderFrame(
+                executor: Executor,
+                requestComplete: (HardwareBuffer, SyncFenceCompat?) -> Unit
+            ) {
+                mHardwareBufferRenderer.obtainRenderRequest().apply {
+                    if (mInverseTransform != BufferTransformHintResolver.UNKNOWN_TRANSFORM) {
+                        setBufferTransform(mInverseTransform)
+                    }
+                    draw(executor) { result ->
+                        requestComplete.invoke(mHardwareBuffer, SyncFenceCompat(result.fence))
+                    }
+                }
+            }
+        },
+        object : RenderQueue.FrameCallback {
+            override fun onFrameComplete(
+                hardwareBuffer: HardwareBuffer,
+                fence: SyncFenceCompat?
+            ) {
+                callbacks.onBufferReady(hardwareBuffer, fence)
+            }
+
+            override fun onFrameCancelled(
+                hardwareBuffer: HardwareBuffer,
+                fence: SyncFenceCompat?
+            ) {
+                callbacks.onBufferCancelled(hardwareBuffer, fence)
+            }
+        }
+    )
 
     private val mInverseTransform =
         bufferTransformer.invertBufferTransform(bufferTransformer.computedTransform)
-    private val mHandlerThread = HandlerThread("renderRequestThread").apply { start() }
-    private val mHandler = Handler(mHandlerThread.looper)
-
-    private inline fun dispatchOnExecutor(crossinline block: () -> Unit) {
-        executor.execute {
-            block()
-        }
-    }
-
-    private inline fun doRender(block: (Canvas) -> Unit) {
-        val canvas = mRenderNode.beginRecording()
-        block(canvas)
-        mRenderNode.endRecording()
-
-        mHardwareBufferRenderer.obtainRenderRequest().apply {
-            if (mInverseTransform != BufferTransformHintResolver.UNKNOWN_TRANSFORM) {
-                setBufferTransform(mInverseTransform)
-            }
-            draw(executor) { result ->
-                callbacks.onBufferReady(mHardwareBuffer, SyncFenceCompat(result.fence))
-            }
-        }
-    }
 
     private fun tearDown() {
         mHardwareBufferRenderer.close()
-        mHandlerThread.quit()
     }
 
     private val mHardwareBuffer = HardwareBuffer.create(
@@ -91,70 +98,59 @@ internal class SingleBufferedCanvasRendererV34<T>(
         setContentRoot(mRenderNode)
     }
 
-    private var mIsReleasing = false
+    private val mPendingParams = ArrayList<T>()
+
+    private inner class DrawParamRequest(val param: T) : RenderQueue.Request {
+
+        override fun onEnqueued() {
+            mPendingParams.add(param)
+        }
+
+        override fun execute() {
+            val canvas = mRenderNode.beginRecording()
+            for (pendingParam in mPendingParams) {
+                callbacks.render(canvas, width, height, pendingParam)
+            }
+            mPendingParams.clear()
+            mRenderNode.endRecording()
+        }
+
+        override val id: Int = RENDER
+    }
+
+    private val clearRequest = object : RenderQueue.Request {
+        override fun execute() {
+            val canvas = mRenderNode.beginRecording()
+            canvas.drawColor(Color.BLACK, BlendMode.CLEAR)
+            mRenderNode.endRecording()
+        }
+
+        override val id: Int = CLEAR
+    }
 
     override fun render(param: T) {
-        if (!mIsReleasing) {
-            mHandler.post(RENDER) {
-                dispatchOnExecutor {
-                    doRender { canvas ->
-                        callbacks.render(canvas, width, height, param)
-                    }
-                }
-            }
-        }
+        mRenderQueue.enqueue(DrawParamRequest(param))
     }
 
     override var isVisible: Boolean = false
 
     override fun release(cancelPending: Boolean, onReleaseComplete: (() -> Unit)?) {
-        if (!mIsReleasing) {
-            if (cancelPending) {
-                cancelPending()
-            }
-            mHandler.post(RELEASE) {
-                tearDown()
-                if (onReleaseComplete != null) {
-                    dispatchOnExecutor {
-                        onReleaseComplete.invoke()
-                    }
-                }
-            }
-            mIsReleasing = true
+        mRenderQueue.release(cancelPending) {
+            onReleaseComplete?.invoke()
+            tearDown()
         }
     }
 
     override fun clear() {
-        if (!mIsReleasing) {
-            mHandler.post(CLEAR) {
-                dispatchOnExecutor {
-                    doRender { canvas ->
-                        canvas.drawColor(Color.BLACK, BlendMode.CLEAR)
-                    }
-                }
-            }
-        }
+        mRenderQueue.enqueue(clearRequest)
     }
 
     override fun cancelPending() {
-        if (!mIsReleasing) {
-            mHandler.removeCallbacksAndMessages(CLEAR)
-            mHandler.removeCallbacksAndMessages(RENDER)
-        }
+        mRenderQueue.cancelPending()
     }
 
     private companion object {
         const val RENDER = 0
         const val CLEAR = 1
-        const val RELEASE = 2
-    }
-
-    /**
-     * Handler does not expose a post method that takes a token and a runnable.
-     * We need the token to be able to cancel pending requests so just call
-     * postAtTime with the default of SystemClock.uptimeMillis
-     */
-    private fun Handler.post(token: Any?, runnable: Runnable) {
-        postAtTime(runnable, token, SystemClock.uptimeMillis())
     }
 }
