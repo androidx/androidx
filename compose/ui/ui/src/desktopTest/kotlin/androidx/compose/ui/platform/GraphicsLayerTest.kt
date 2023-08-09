@@ -16,15 +16,23 @@
 
 package androidx.compose.ui.platform
 
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.ColorMatrix
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.isLinux
@@ -333,6 +341,47 @@ class GraphicsLayerTest {
                     .background(Color.Blue)
             )
         }
+        screenshotRule.write(snapshot)
+    }
+
+    @Test
+    fun correctColorMatrix() {
+        val snapshot = renderComposeScene(2, 2) {
+            Canvas(Modifier.fillMaxSize()) {
+                drawRect(
+                    color = Color.Black,
+                    topLeft = Offset.Zero,
+                    size = Size(1f, 2f),
+                    colorFilter = ColorFilter.colorMatrix(
+                        ColorMatrix(
+                            floatArrayOf(
+                                1f, 0f, 0f, 0f, 255f,
+                                0f, 1f, 0f, 0f, 0f,
+                                0f, 0f, 1f, 0f, 0f,
+                                0f, 0f, 0f, 1f, 0f
+                            )
+                        )
+                    )
+                )
+
+                drawRect(
+                    color = Color.White,
+                    topLeft = Offset(1f, 0f),
+                    size = Size(1f, 2f),
+                    colorFilter = ColorFilter.colorMatrix(
+                        ColorMatrix(
+                            floatArrayOf(
+                                0f, 0.5f, 0f, 0f, 0f,
+                                0.5f, 0f, 0f, 0f, 0f,
+                                0f, 0f, 0.5f, 0f, 128f,
+                                0f, 0f, 0f, 1f, 0f
+                            )
+                        )
+                    )
+                )
+            }
+        }
+
         screenshotRule.write(snapshot)
     }
 

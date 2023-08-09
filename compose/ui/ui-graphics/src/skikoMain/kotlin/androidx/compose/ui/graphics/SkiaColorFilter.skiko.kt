@@ -33,12 +33,23 @@ fun org.jetbrains.skia.ColorFilter.asComposeColorFilter(): ColorFilter = ColorFi
 internal actual fun actualTintColorFilter(color: Color, blendMode: BlendMode): ColorFilter =
     ColorFilter(SkiaColorFilter.makeBlend(color.toArgb(), blendMode.toSkia()))
 
-internal actual fun actualColorMatrixColorFilter(colorMatrix: ColorMatrix): ColorFilter =
-    ColorFilter(
+/**
+ * Remaps compose [ColorMatrix] to [org.jetbrains.skia.ColorMatrix] and returns [ColorFilter]
+ * applying this matrix to draw color result
+ */
+internal actual fun actualColorMatrixColorFilter(colorMatrix: ColorMatrix): ColorFilter {
+    val remappedValues = colorMatrix.values.copyOf()
+    remappedValues[4] *= (1f / 255f)
+    remappedValues[9] *= (1f / 255f)
+    remappedValues[14] *= (1f / 255f)
+    remappedValues[19] *= (1f / 255f)
+
+    return ColorFilter(
         SkiaColorFilter.makeMatrix(
-            org.jetbrains.skia.ColorMatrix(*colorMatrix.values)
+            org.jetbrains.skia.ColorMatrix(*remappedValues)
         )
     )
+}
 
 internal actual fun actualLightingColorFilter(multiply: Color, add: Color): ColorFilter =
     ColorFilter(SkiaColorFilter.makeLighting(multiply.toArgb(), add.toArgb()))
