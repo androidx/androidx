@@ -73,6 +73,10 @@ public interface UnsupportedOperationStatus : ExecutionStatus {
  *
  * Allows for extension like:
  * ```kt
+ * @Document(
+ *   name = "MyUnsupportedOperationStatus",
+ *   parent = [UnsupportedOperationStatus::class],
+ * )
  * class MyUnsupportedOperationStatus internal constructor(
  *   unsupportedOperationStatus: UnsupportedOperationStatus,
  *   val foo: String,
@@ -81,6 +85,8 @@ public interface UnsupportedOperationStatus : ExecutionStatus {
  *   MyUnsupportedOperationStatus,
  *   MyUnsupportedOperationStatus.Builder
  * >(unsupportedOperationStatus) {
+ *
+ *   // No need to implement equals(), hashCode(), toString() or toBuilder()
  *
  *   override val selfTypeName =
  *     "MyUnsupportedOperationStatus"
@@ -170,12 +176,16 @@ internal constructor(
 
   public final override fun toString(): String {
     val attributes = mutableMapOf<String, String>()
-    attributes["namespace"] = namespace
+    if (namespace.isNotEmpty()) {
+      attributes["namespace"] = namespace
+    }
     if (disambiguatingDescription != null) {
       attributes["disambiguatingDescription"] =
         disambiguatingDescription.toString(includeWrapperName = false)
     }
-    attributes["identifier"] = identifier
+    if (identifier.isNotEmpty()) {
+      attributes["identifier"] = identifier
+    }
     if (name != null) {
       attributes["name"] = name.toString(includeWrapperName = false)
     }
@@ -195,10 +205,13 @@ internal constructor(
    *     MyUnsupportedOperationStatus.Builder>(...) {
    *
    *   class Builder
-   *   : Builder<
+   *   : AbstractUnsupportedOperationStatus.Builder<
    *       Builder,
    *       MyUnsupportedOperationStatus
    *   >() {
+   *
+   *     // No need to implement equals(), hashCode(), toString() or build()
+   *
    *     private var foo: String? = null
    *     private val bars = mutableListOf<Int>()
    *
@@ -322,12 +335,16 @@ internal constructor(
     @Suppress("BuilderSetStyle")
     public final override fun toString(): String {
       val attributes = mutableMapOf<String, String>()
-      attributes["namespace"] = namespace
+      if (namespace.isNotEmpty()) {
+        attributes["namespace"] = namespace
+      }
       if (disambiguatingDescription != null) {
         attributes["disambiguatingDescription"] =
           disambiguatingDescription!!.toString(includeWrapperName = false)
       }
-      attributes["identifier"] = identifier
+      if (identifier.isNotEmpty()) {
+        attributes["identifier"] = identifier
+      }
       if (name != null) {
         attributes["name"] = name!!.toString(includeWrapperName = false)
       }

@@ -115,6 +115,10 @@ public interface Alarm : Thing {
  *
  * Allows for extension like:
  * ```kt
+ * @Document(
+ *   name = "MyAlarm",
+ *   parent = [Alarm::class],
+ * )
  * class MyAlarm internal constructor(
  *   alarm: Alarm,
  *   val foo: String,
@@ -123,6 +127,8 @@ public interface Alarm : Thing {
  *   MyAlarm,
  *   MyAlarm.Builder
  * >(alarm) {
+ *
+ *   // No need to implement equals(), hashCode(), toString() or toBuilder()
  *
  *   override val selfTypeName =
  *     "MyAlarm"
@@ -221,7 +227,9 @@ internal constructor(
 
   public final override fun toString(): String {
     val attributes = mutableMapOf<String, String>()
-    attributes["namespace"] = namespace
+    if (namespace.isNotEmpty()) {
+      attributes["namespace"] = namespace
+    }
     if (alarmSchedule != null) {
       attributes["alarmSchedule"] = alarmSchedule.toString()
     }
@@ -232,7 +240,9 @@ internal constructor(
       attributes["disambiguatingDescription"] =
         disambiguatingDescription.toString(includeWrapperName = false)
     }
-    attributes["identifier"] = identifier
+    if (identifier.isNotEmpty()) {
+      attributes["identifier"] = identifier
+    }
     if (name != null) {
       attributes["name"] = name.toString(includeWrapperName = false)
     }
@@ -252,10 +262,13 @@ internal constructor(
    *     MyAlarm.Builder>(...) {
    *
    *   class Builder
-   *   : Builder<
+   *   : AbstractAlarm.Builder<
    *       Builder,
    *       MyAlarm
    *   >() {
+   *
+   *     // No need to implement equals(), hashCode(), toString() or build()
+   *
    *     private var foo: String? = null
    *     private val bars = mutableListOf<Int>()
    *
@@ -405,7 +418,9 @@ internal constructor(
     @Suppress("BuilderSetStyle")
     public final override fun toString(): String {
       val attributes = mutableMapOf<String, String>()
-      attributes["namespace"] = namespace
+      if (namespace.isNotEmpty()) {
+        attributes["namespace"] = namespace
+      }
       if (alarmSchedule != null) {
         attributes["alarmSchedule"] = alarmSchedule!!.toString()
       }
@@ -416,7 +431,9 @@ internal constructor(
         attributes["disambiguatingDescription"] =
           disambiguatingDescription!!.toString(includeWrapperName = false)
       }
-      attributes["identifier"] = identifier
+      if (identifier.isNotEmpty()) {
+        attributes["identifier"] = identifier
+      }
       if (name != null) {
         attributes["name"] = name!!.toString(includeWrapperName = false)
       }
