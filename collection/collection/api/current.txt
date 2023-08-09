@@ -264,18 +264,18 @@ package androidx.collection {
 
   @kotlin.jvm.JvmInline public final value class PairFloatFloat {
     ctor public PairFloatFloat(float first, float second);
-    method public operator float component1();
-    method public operator float component2();
-    method public float getFirst();
-    method public float getSecond();
-    property public final float first;
-    property public final float second;
+    method public inline operator float component1();
+    method public inline operator float component2();
+    method public inline float getFirst();
+    method public inline float getSecond();
+    property public final inline float first;
+    property public final inline float second;
   }
 
   @kotlin.jvm.JvmInline public final value class PairIntInt {
     ctor public PairIntInt(int first, int second);
-    method public operator int component1();
-    method public operator int component2();
+    method public inline operator int component1();
+    method public inline operator int component2();
     method public int getFirst();
     method public int getSecond();
     property public final int first;
@@ -284,8 +284,8 @@ package androidx.collection {
 
   public final class PairLongLong {
     ctor public PairLongLong(long first, long second);
-    method public operator long component1();
-    method public operator long component2();
+    method public inline operator long component1();
+    method public inline operator long component2();
     method public long getFirst();
     method public long getSecond();
     property public final long first;

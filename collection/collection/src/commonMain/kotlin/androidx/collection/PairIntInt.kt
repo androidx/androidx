@@ -13,15 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:Suppress("NOTHING_TO_INLINE", "KotlinRedundantDiagnosticSuppress")
 
 package androidx.collection
+
+import kotlin.jvm.JvmField
+import kotlin.jvm.JvmInline
 
 /**
  * Container to ease passing around a tuple of two [Int] values.
  */
-@kotlin.jvm.JvmInline
-public value class PairIntInt internal constructor(internal val packedValue: Long) {
-
+@JvmInline
+public value class PairIntInt internal constructor(
+    @PublishedApi @JvmField internal val packedValue: Long
+) {
     /**
      * Constructs a [PairIntInt] with two [Int] values.
      *
@@ -34,17 +39,13 @@ public value class PairIntInt internal constructor(internal val packedValue: Lon
      * The first value in the pair.
      */
     public val first: Int
-        get() {
-            return unpackInt1(packedValue)
-        }
+        get() = (packedValue shr 32).toInt()
 
     /**
      * The second value in the pair.
      */
     public val second: Int
-        get() {
-            return unpackInt2(packedValue)
-        }
+        get() = (packedValue and 0xFFFFFFFF).toInt()
 
     /**
      * Returns the [first] component of the pair. For instance, the first component
@@ -56,7 +57,8 @@ public value class PairIntInt internal constructor(internal val packedValue: Lon
      * val (first, second) = myPair
      * ```
      */
-    public operator fun component1(): Int = first
+    // NOTE: Unpack the value directly because using `first` forces an invokestatic
+    public inline operator fun component1(): Int = (packedValue shr 32).toInt()
 
     /**
      * Returns the [second] component of the pair. For instance, the second component
@@ -68,9 +70,8 @@ public value class PairIntInt internal constructor(internal val packedValue: Lon
      * val (first, second) = myPair
      * ```
      */
-    public operator fun component2(): Int = second
+    // NOTE: Unpack the value directly because using `second` forces an invokestatic
+    public inline operator fun component2(): Int = (packedValue and 0xFFFFFFFF).toInt()
 
-    override fun toString(): String {
-        return "PairIntInt{" + first + " " + second + "}";
-    }
+    override fun toString(): String = "($first, $second)"
 }
