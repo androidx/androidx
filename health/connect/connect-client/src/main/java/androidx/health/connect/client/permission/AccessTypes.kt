@@ -32,7 +32,6 @@ public object AccessTypes {
 /**
  * Type of access to health data: read or write.
  *
- * @suppress
  */
 @Retention(AnnotationRetention.SOURCE)
 @IntDef(

@@ -30,7 +30,6 @@ enum class Visibility {
     Gone
 }
 
-/** @suppress */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 data class VisibilityModifier(val visibility: Visibility) : GlanceModifier.Element
 

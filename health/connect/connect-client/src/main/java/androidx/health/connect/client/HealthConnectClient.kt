@@ -517,7 +517,6 @@ interface HealthConnectClient {
         /**
          * Tag used in SDK debug logs.
          *
-         * @suppress
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         internal const val HEALTH_CONNECT_CLIENT_TAG = "HealthConnectClient"

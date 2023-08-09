@@ -108,9 +108,6 @@ internal class PagedStorage<T : Any> :
         lastLoadAroundLocalIndex = page.data.size / 2
     }
 
-    /**
-     * @suppress
-     */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     fun init(
         leadingNulls: Int,
@@ -206,9 +203,6 @@ internal class PagedStorage<T : Any> :
         }
     }
 
-    /**
-     * @suppress
-     */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     interface Callback {
         fun onInitialized(count: Int)

@@ -16,15 +16,12 @@
 package androidx.privacysandbox.sdkruntime.client.config
 
 import android.content.Context
-import androidx.annotation.RestrictTo
 import java.io.FileNotFoundException
 
 /**
  * Holds information about all SDKs bundled with App.
  *
- * @suppress
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 internal class LocalSdkConfigsHolder private constructor(
     private val configs: Map<String, LocalSdkConfig>
 ) {

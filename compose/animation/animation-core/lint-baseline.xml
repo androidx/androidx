@@ -2,6 +2,87 @@
 <issues format="6" by="lint 8.2.0-alpha14" type="baseline" client="cli" dependencies="false" name="AGP (8.2.0-alpha14)" variant="all" version="8.2.0-alpha14">
 
     <issue
+        id="BanSuppressTag"
+        message="@suppress is not allowed in documentation"
+        errorLine1="fun &lt;V : AnimationVector> VectorizedAnimationSpec&lt;V>.createAnimation("
+        errorLine2="                                                     ~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/animation/core/Animation.kt"/>
+    </issue>
+
+    <issue
+        id="BanSuppressTag"
+        message="@suppress is not allowed in documentation"
+        errorLine1="fun estimateAnimationDurationMillis("
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/animation/core/SpringEstimation.kt"/>
+    </issue>
+
+    <issue
+        id="BanSuppressTag"
+        message="@suppress is not allowed in documentation"
+        errorLine1="fun estimateAnimationDurationMillis("
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/animation/core/SpringEstimation.kt"/>
+    </issue>
+
+    <issue
+        id="BanSuppressTag"
+        message="@suppress is not allowed in documentation"
+        errorLine1="fun estimateAnimationDurationMillis("
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/animation/core/SpringEstimation.kt"/>
+    </issue>
+
+    <issue
+        id="BanSuppressTag"
+        message="@suppress is not allowed in documentation"
+        errorLine1="    var playTimeNanos by mutableLongStateOf(0L)"
+        errorLine2="        ~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/animation/core/Transition.kt"/>
+    </issue>
+
+    <issue
+        id="BanSuppressTag"
+        message="@suppress is not allowed in documentation"
+        errorLine1="    var isSeeking: Boolean by mutableStateOf(false)"
+        errorLine2="        ~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/animation/core/Transition.kt"/>
+    </issue>
+
+    <issue
+        id="BanSuppressTag"
+        message="@suppress is not allowed in documentation"
+        errorLine1="    fun setPlaytimeAfterInitialAndTargetStateEstablished("
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/animation/core/Transition.kt"/>
+    </issue>
+
+    <issue
+        id="BanSuppressTag"
+        message="@suppress is not allowed in documentation"
+        errorLine1="    inner class DeferredAnimation&lt;T, V : AnimationVector> internal constructor("
+        errorLine2="                ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/animation/core/Transition.kt"/>
+    </issue>
+
+    <issue
+        id="BanSuppressTag"
+        message="@suppress is not allowed in documentation"
+        errorLine1="fun &lt;S, T, V : AnimationVector> Transition&lt;S>.createDeferredAnimation("
+        errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/animation/core/Transition.kt"/>
+    </issue>
+
+    <issue
         id="PrimitiveInLambda"
         message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method animateFloatAsState has parameter &apos;finishedListener&apos; with type Function1&lt;? super Float, Unit>."
         errorLine1="    finishedListener: ((Float) -> Unit)? = null"

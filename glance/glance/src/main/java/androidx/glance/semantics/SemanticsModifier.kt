@@ -18,7 +18,6 @@ package androidx.glance.semantics
 import androidx.annotation.RestrictTo
 import androidx.glance.GlanceModifier
 
-/** @suppress */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 data class SemanticsModifier(
     val configuration: SemanticsConfiguration

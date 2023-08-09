@@ -49,7 +49,6 @@ import androidx.annotation.RequiresApi
  * @param autofillHints The autofill hint. If this value not specified, we use heuristics to
  * determine what data to use while performing autofill.
  *
- * @suppress
  */
 @RequiresApi(Build.VERSION_CODES.O)
 internal data class FakeAndroidViewStructure(

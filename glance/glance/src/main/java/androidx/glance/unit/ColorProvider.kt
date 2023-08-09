@@ -47,13 +47,11 @@ fun ColorProvider(@ColorRes resId: Int): ColorProvider {
     return ResourceColorProvider(resId)
 }
 
-/** @suppress */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 data class FixedColorProvider(val color: Color) : ColorProvider {
     override fun getColor(context: Context) = color
 }
 
-/** @suppress */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 data class ResourceColorProvider(@ColorRes val resId: Int) : ColorProvider {
     override fun getColor(context: Context): Color {

@@ -136,7 +136,6 @@ public class CombinedGlanceCurvedModifier(
     } + "]"
 }
 
-/** @suppress */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 inline fun <reified T> GlanceCurvedModifier.findModifier(): T? =
     this.foldIn<T?>(null) { acc, cur ->
@@ -150,7 +149,6 @@ inline fun <reified T> GlanceCurvedModifier.findModifier(): T? =
 /**
  * Find the last modifier of the given type, and create a new [GlanceCurvedModifier] which is
  * equivalent with the previous one, but without any modifiers of specified type.
- * @suppress
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 inline fun <reified T> GlanceCurvedModifier.extractModifier(): Pair<T?, GlanceCurvedModifier> =
@@ -166,7 +164,6 @@ inline fun <reified T> GlanceCurvedModifier.extractModifier(): Pair<T?, GlanceCu
         null to this
     }
 
-/** @suppress */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public data class SweepAngleModifier(public val degrees: Float) : GlanceCurvedModifier.Element
 
@@ -176,7 +173,6 @@ public data class SweepAngleModifier(public val degrees: Float) : GlanceCurvedMo
 public fun GlanceCurvedModifier.sweepAngleDegrees(degrees: Float) =
     this.then(SweepAngleModifier(degrees))
 
-/** @suppress */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public data class ThicknessModifier(public val thickness: Dp) : GlanceCurvedModifier.Element
 
@@ -186,7 +182,6 @@ public data class ThicknessModifier(public val thickness: Dp) : GlanceCurvedModi
 public fun GlanceCurvedModifier.thickness(thickness: Dp) =
     this.then(ThicknessModifier(thickness))
 
-/** @suppress */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public data class ActionCurvedModifier(public val action: Action) : GlanceCurvedModifier.Element
 
@@ -196,7 +191,6 @@ public data class ActionCurvedModifier(public val action: Action) : GlanceCurved
 public fun GlanceCurvedModifier.clickable(onClick: Action): GlanceCurvedModifier =
     this.then(ActionCurvedModifier(onClick))
 
-/** @suppress */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public data class SemanticsCurvedModifier(
     val configuration: SemanticsConfiguration

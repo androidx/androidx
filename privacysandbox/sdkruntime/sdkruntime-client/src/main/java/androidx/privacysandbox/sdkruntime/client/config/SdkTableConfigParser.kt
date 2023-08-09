@@ -16,7 +16,6 @@
 package androidx.privacysandbox.sdkruntime.client.config
 
 import android.util.Xml
-import androidx.annotation.RestrictTo
 import java.io.InputStream
 import org.xmlpull.v1.XmlPullParser
 import org.xmlpull.v1.XmlPullParser.END_TAG
@@ -40,9 +39,7 @@ import org.xmlpull.v1.XmlPullParserException
  *     </runtime-enabled-sdk>
  * </runtime-enabled-sdk-table>
  *
- * @suppress
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 internal class SdkTableConfigParser private constructor(
     private val xmlParser: XmlPullParser
 ) {

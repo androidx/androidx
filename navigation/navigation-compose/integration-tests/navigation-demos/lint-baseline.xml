@@ -1,5 +1,50 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.2.0-alpha14" type="baseline" client="cli" dependencies="false" name="AGP (8.2.0-alpha14)" variant="all" version="8.2.0-alpha14">
+<issues format="6" by="lint 8.2.0-alpha15" type="baseline" client="gradle" dependencies="false" name="AGP (8.2.0-alpha15)" variant="all" version="8.2.0-alpha15">
+
+    <issue
+        id="BanSuppressTag"
+        message="@suppress is not allowed in documentation"
+        errorLine1="data class ViewInfo("
+        errorLine2="           ~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/ui/tooling/ComposeViewAdapter.kt"/>
+    </issue>
+
+    <issue
+        id="BanSuppressTag"
+        message="@suppress is not allowed in documentation"
+        errorLine1="internal class ComposeViewAdapter : FrameLayout {"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/ui/tooling/ComposeViewAdapter.kt"/>
+    </issue>
+
+    <issue
+        id="BanSuppressTag"
+        message="@suppress is not allowed in documentation"
+        errorLine1="    internal lateinit var clock: PreviewAnimationClock"
+        errorLine2="                          ~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/ui/tooling/ComposeViewAdapter.kt"/>
+    </issue>
+
+    <issue
+        id="BanSuppressTag"
+        message="@suppress is not allowed in documentation"
+        errorLine1="    fun hasAnimations() = hasAnimations"
+        errorLine2="        ~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/ui/tooling/ComposeViewAdapter.kt"/>
+    </issue>
+
+    <issue
+        id="BanSuppressTag"
+        message="@suppress is not allowed in documentation"
+        errorLine1="class PreviewActivity : ComponentActivity() {"
+        errorLine2="      ~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/ui/tooling/PreviewActivity.kt"/>
+    </issue>
 
     <issue
         id="BanThreadSleep"

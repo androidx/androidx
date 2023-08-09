@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.1.0" type="baseline" client="gradle" dependencies="false" name="AGP (8.1.0)" variant="all" version="8.1.0">
+
+    <issue
+        id="BanSuppressTag"
+        message="@suppress is not allowed in documentation"
+        errorLine1="annotation class Device"
+        errorLine2="                 ~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/ui/tooling/preview/Device.kt"/>
+    </issue>
+
+    <issue
+        id="BanSuppressTag"
+        message="@suppress is not allowed in documentation"
+        errorLine1="annotation class Wallpaper"
+        errorLine2="                 ~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/ui/tooling/preview/Wallpaper.kt"/>
+    </issue>
+
+</issues>

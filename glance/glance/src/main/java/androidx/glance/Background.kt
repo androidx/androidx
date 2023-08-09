@@ -22,7 +22,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.glance.layout.ContentScale
 import androidx.glance.unit.ColorProvider
 
-/** @suppress */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class BackgroundModifier private constructor(
     val colorProvider: ColorProvider?,

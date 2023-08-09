@@ -67,8 +67,6 @@ public object BodyTemperatureMeasurementLocation {
 
 /**
  * Where on the user's body a temperature measurement was taken from.
- *
- * @suppress
  */
 @Target(AnnotationTarget.PROPERTY, AnnotationTarget.TYPE)
 @Retention(AnnotationRetention.SOURCE)

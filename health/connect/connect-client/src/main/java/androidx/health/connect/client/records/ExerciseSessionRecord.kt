@@ -353,8 +353,6 @@ internal constructor(
 
     /**
      * List of supported activities on Health Platform.
-     *
-     * @suppress
      */
     @Retention(AnnotationRetention.SOURCE)
     @RestrictTo(RestrictTo.Scope.LIBRARY)

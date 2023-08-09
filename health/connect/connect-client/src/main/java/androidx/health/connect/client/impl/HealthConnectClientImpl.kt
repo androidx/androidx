@@ -58,7 +58,6 @@ import kotlinx.coroutines.guava.await
  * Kotlin extension implementation that exposes kotlin coroutines rather than guava
  * ListenableFutures.
  *
- * @suppress
  */
 class HealthConnectClientImpl
 internal constructor(
