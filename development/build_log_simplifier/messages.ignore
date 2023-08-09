@@ -84,8 +84,6 @@ Namespace 'androidx\..*' used in: tempFile[0-9]+ProcessTestManifest[0-9]+\.xml, 
 A fine\-grained performance profile is available\: use the \-\-scan option\.
 # > Task :viewpager2:viewpager2:compileDebugAndroidTestKotlin
 w\: \$SUPPORT\/viewpager[0-9]+\/viewpager[0-9]+\/src\/androidTest\/java\/androidx\/viewpager[0-9]+\/widget\/HostFragmentBackStackTest\.kt\: \([0-9]+\, [0-9]+\)\: \'enableDebugLogging\(Boolean\)\: Unit\' is deprecated\. Deprecated in Java
-#> Task :docs-public:unzipJvmSources
-Encountered duplicate path "androidx/test/espresso/remote/.*.java" during copy operation configured with DuplicatesStrategy.WARN
 # > Task :docs-public:dackkaDocs
 ERROR: An attempt to write .*
 WARNING: no common sourceSet for androidx\.compose\..*, falling back to \.single\(\) when resolving @sample androidx\.compose\..*
