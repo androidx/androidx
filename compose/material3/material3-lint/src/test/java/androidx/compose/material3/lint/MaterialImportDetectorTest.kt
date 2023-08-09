@@ -65,6 +65,43 @@ class MaterialImportDetectorTest : LintDetectorTest() {
         """
     )
 
+    private val ExperimentalMaterialApiStub = bytecodeStub(
+        filename = "ExperimentalMaterialApi.kt",
+        filepath = "androidx/compose/material",
+        checksum = 0x6caaf88f,
+        """
+            package androidx.compose.material
+
+            @RequiresOptIn(
+                "This material API is experimental and is likely to change or to be removed in" +
+                    " the future."
+            )
+            @Retention(AnnotationRetention.BINARY)
+            annotation class ExperimentalMaterialApi
+        """,
+"""
+        META-INF/main.kotlin_module:
+        H4sIAAAAAAAA/2NgYGBmYGBgBGIOBijgUuWSTMxLKcrPTKnQS87PLcgvTtXL
+        TSxJLcpMzBHicCotKcnP8y7hMuNSxalMr6A0J6coNa0otThDiDcAyAmCcID6
+        dLgUcOsryiwoyEkV4ggC00DValxSOFUbI7mGl4s5LT9fiC0ktbjEu0SJQYsB
+        ANpB3LXcAAAA
+        """,
+        """
+        androidx/compose/material/ExperimentalMaterialApi.class:
+        H4sIAAAAAAAA/5VSwW4TMRB93pAmpEDTAiVpKDUcyq3bFm6ctgjQSimtEoRU
+        5eQkQ+Nmd52uvVF6y41/4oAijnwUYlY0JBJFiMv4zbxnzxvb3398+QrgJZ4J
+        HKiknxrdn/g9E4+MJT9WjlKtIv/NZMQgpsSp6Pi6GIx0CUKgeqHGyo9Ucu6f
+        dC+o50ooCOwsqipJjFNOm8QPfsMSigKbzaFxkU78Fl1mOiV7MnJh8kqgFJO1
+        6pwEzj4MtJVzIzI4DSXntORHsu28FukhRVfSGdkbcFuSJs2TLsmUYjMmFiXS
+        DUh+ylyW0p7A9rz9ksMWOT6VEbsojlWUsYfnN+gWkyzvWDkK3wetMwHZvHH+
+        Ze3uPySnJtK9q9zG62bQbgusz20ck1N95RRzXjwu8PuJPJTzAAEx5PpE59k+
+        o/6BQH02LVe8mlfxqo3yt89ebTY99PbF0WyaCw4FXjT/+/G5Ozfb+gu7N3QC
+        lbbJ0h691RHfYr2V8VwxfdRWdyNaXKAVaFxzYTL+g91li7jFrVby8VDADkcP
+        TyB5fcd5hblVwh3cxb1fcA1VrKOIjQ4KIe6HeBDiITYZ4lGIGuodCIstNDrw
+        LB5bbOMpH7bKu/lLo2xx+yc4GLrsGQMAAA==
+        """
+    )
+
     private val Material3ButtonStub = bytecodeStub(
         filename = "Button.kt",
         filepath = "androidx/compose/material3",
@@ -187,6 +224,7 @@ class MaterialImportDetectorTest : LintDetectorTest() {
                 package foo
 
                 import androidx.compose.material.Button
+                import androidx.compose.material.ExperimentalMaterialApi
                 import androidx.compose.material3.Button
                 import androidx.compose.material.ripple.rememberRipple
                 import androidx.compose.material.icons.Icons
@@ -196,6 +234,7 @@ class MaterialImportDetectorTest : LintDetectorTest() {
             """
             ),
             MaterialButtonStub,
+            ExperimentalMaterialApiStub,
             Material3ButtonStub,
             RippleStub,
             IconsStub,
@@ -229,6 +268,7 @@ src/foo/test.kt:4: Warning: Using a material import while also using the materia
             """
             ),
             MaterialButtonStub,
+            ExperimentalMaterialApiStub,
             Material3ButtonStub,
             RippleStub,
             IconsStub,
