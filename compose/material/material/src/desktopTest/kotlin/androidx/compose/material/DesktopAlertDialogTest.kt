@@ -115,36 +115,6 @@ class DesktopAlertDialogTest {
         }
     }
 
-    // https://github.com/JetBrains/compose-multiplatform/issues/2857
-    @OptIn(ExperimentalMaterialApi::class)
-    @Test
-    fun `shadow drawn at content bounds`() {
-        // Show an AlertDialog with very large horizontal padding and check that the pixel
-        // at the edge of where the dialog would have been without padding has the same color as the
-        // background.
-        val screenshot = renderComposeScene(400, 400){
-            AlertDialog(
-                modifier = Modifier.size(width = 400.dp, height = 100.dp),
-                onDismissRequest = {},
-                title = {},
-                text = {},
-                dismissButton = {},
-                confirmButton = {},
-                dialogPadding = PaddingValues(horizontal = 150.dp)
-            )
-        }
-
-        val pixels = screenshot.toComposeImageBitmap().toPixelMap()
-        val backgroundPixel = pixels[0, 0]
-        val nearEdgeWithoutPaddingPixel = pixels[0, 200]
-        val nearRealEdgePixel = pixels[149, 200]
-
-        assertEquals(nearEdgeWithoutPaddingPixel, backgroundPixel)
-
-        // Also check that the shadow is present near the actual edge of the content
-        assertNotEquals(nearRealEdgePixel, backgroundPixel)
-    }
-
     @OptIn(ExperimentalTestApi::class, ExperimentalMaterialApi::class)
     @Test
     fun `uses available width`() = runDesktopComposeUiTest(

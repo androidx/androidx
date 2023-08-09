@@ -57,14 +57,19 @@ import androidx.compose.ui.unit.round
  * focusable then this property does nothing.
  * @property dismissOnClickOutside Whether the popup can be dismissed by clicking outside the
  * popup's bounds. If true, clicking outside the popup will call onDismissRequest.
+ * @property clippingEnabled Whether to allow the popup window to extend beyond the bounds of the
+ * screen. By default the window is clipped to the screen boundaries. Setting this to false will
+ * allow windows to be accurately positioned.
+ * The default value is true.
  * @property usePlatformDefaultWidth Whether the width of the dialog's content should be limited to
  * the platform default, which is smaller than the screen width.
  */
 @Immutable
 actual class PopupProperties @ExperimentalComposeUiApi constructor(
-    actual val focusable: Boolean,
-    actual val dismissOnBackPress: Boolean,
-    actual val dismissOnClickOutside: Boolean,
+    actual val focusable: Boolean = false,
+    actual val dismissOnBackPress: Boolean = true,
+    actual val dismissOnClickOutside: Boolean = true,
+    val clippingEnabled: Boolean = true,
     val usePlatformDefaultWidth: Boolean = false,
 ) {
     actual constructor(
@@ -85,6 +90,7 @@ actual class PopupProperties @ExperimentalComposeUiApi constructor(
         if (focusable != other.focusable) return false
         if (dismissOnBackPress != other.dismissOnBackPress) return false
         if (dismissOnClickOutside != other.dismissOnClickOutside) return false
+        if (clippingEnabled != other.clippingEnabled) return false
         if (usePlatformDefaultWidth != other.usePlatformDefaultWidth) return false
 
         return true
@@ -94,6 +100,7 @@ actual class PopupProperties @ExperimentalComposeUiApi constructor(
         var result = focusable.hashCode()
         result = 31 * result + dismissOnBackPress.hashCode()
         result = 31 * result + dismissOnClickOutside.hashCode()
+        result = 31 * result + clippingEnabled.hashCode()
         result = 31 * result + usePlatformDefaultWidth.hashCode()
         return result
     }
@@ -388,13 +395,14 @@ private fun PopupLayout(
     onOutsidePointerEvent: ((PointerInputEvent) -> Unit)? = null,
     content: @Composable () -> Unit
 ) {
-    var parentBounds by remember { mutableStateOf(IntRect.Zero) }
-    EmptyLayout(Modifier.parentBoundsInWindow { parentBounds = it })
+    var layoutParentBoundsInWindow: IntRect? by remember { mutableStateOf(null) }
+    EmptyLayout(Modifier.parentBoundsInWindow { layoutParentBoundsInWindow = it })
     RootLayout(
         modifier = modifier,
         focusable = properties.focusable,
         onOutsidePointerEvent = onOutsidePointerEvent
     ) { owner ->
+        val parentBounds = layoutParentBoundsInWindow ?: return@RootLayout
         val density = LocalDensity.current
         val layoutDirection = LocalLayoutDirection.current
         val measurePolicy = rememberPopupMeasurePolicy(
@@ -436,9 +444,15 @@ private fun rememberPopupMeasurePolicy(
         platformOffset = platformOffset,
         usePlatformDefaultWidth = properties.usePlatformDefaultWidth
     ) { windowSize, contentSize ->
-        val position = popupPositionProvider.calculatePosition(
+        var position = popupPositionProvider.calculatePosition(
             parentBounds, windowSize, layoutDirection, contentSize
         )
+        if (properties.clippingEnabled) {
+            position = IntOffset(
+                x = position.x.coerceIn(0, windowSize.width - contentSize.width),
+                y = position.y.coerceIn(0, windowSize.height - contentSize.height)
+            )
+        }
         onBoundsChanged(IntRect(position, contentSize))
         position
     }

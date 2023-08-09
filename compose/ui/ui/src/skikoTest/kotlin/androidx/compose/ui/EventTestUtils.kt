@@ -152,7 +152,8 @@ class PopupState(
             onDismissRequest = onDismissRequest,
             properties = PopupProperties(
                 focusable = focusable,
-                dismissOnClickOutside = dismissOnClickOutside
+                dismissOnClickOutside = dismissOnClickOutside,
+                clippingEnabled = false
             )
         ) {
             with(LocalDensity.current) {
