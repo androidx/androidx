@@ -37,7 +37,6 @@ import androidx.room.compiler.processing.ksp.KspHasModifiers
 import androidx.room.compiler.processing.ksp.KspMemberContainer
 import androidx.room.compiler.processing.ksp.KspProcessingEnv
 import androidx.room.compiler.processing.ksp.KspType
-import androidx.room.compiler.processing.ksp.KspTypeElement
 import androidx.room.compiler.processing.ksp.findEnclosingMemberContainer
 import androidx.room.compiler.processing.ksp.jvmDescriptor
 import androidx.room.compiler.processing.ksp.overrides
@@ -152,7 +151,7 @@ internal sealed class KspSyntheticPropertyMethodElement(
     }
 
     final override fun overrides(other: XMethodElement, owner: XTypeElement): Boolean {
-        return env.resolver.overrides(this, other, field.enclosingElement as? KspTypeElement)
+        return env.resolver.overrides(this, other)
     }
 
     override fun isKotlinPropertyMethod() = true
