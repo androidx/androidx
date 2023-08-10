@@ -55,6 +55,21 @@ class ProgressIndicatorTest {
     val rule = createComposeRule()
 
     @Test
+    fun nonMaterialSetContent() {
+        val tag = "linear"
+        val progress = mutableStateOf(0f)
+
+        rule.setContent {
+            LinearProgressIndicator(
+                modifier = Modifier.testTag(tag),
+                progress = progress.value
+            )
+        }
+
+        rule.onNodeWithTag(tag).assertIsDisplayed()
+    }
+
+    @Test
     fun determinateLinearProgressIndicator_Progress() {
         val tag = "linear"
         val progress = mutableStateOf(0f)
