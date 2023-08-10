@@ -56,6 +56,7 @@ import androidx.compose.ui.awt.SwingPanel
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
@@ -102,7 +103,7 @@ fun WindowScope.Content(
                 Row {
                     Button(
                         color = Color(210, 210, 210),
-                        size = IntSize(16, 16),
+                        modifier = Modifier.size(16.dp, 16.dp),
                         onClick = {
                             windowState.placement = WindowPlacement.Fullscreen
                         }
@@ -110,7 +111,7 @@ fun WindowScope.Content(
                     Spacer(modifier = Modifier.width(3.dp))
                     Button(
                         color = Color(232, 182, 109),
-                        size = IntSize(16, 16),
+                        modifier = Modifier.size(16.dp, 16.dp),
                         onClick = {
                             windowState.isMinimized = true
                         }
@@ -118,7 +119,7 @@ fun WindowScope.Content(
                     Spacer(modifier = Modifier.width(3.dp))
                     Button(
                         color = Color(150, 232, 150),
-                        size = IntSize(16, 16),
+                        modifier = Modifier.size(16.dp, 16.dp),
                         onClick = {
                             windowState.placement = WindowPlacement.Maximized
                         }
@@ -127,12 +128,12 @@ fun WindowScope.Content(
                     Button(
                         onClick = AppState::closeMainWindow,
                         color = Color(232, 100, 100),
-                        size = IntSize(16, 16)
+                        modifier = Modifier.size(16.dp, 16.dp),
                     )
                 }
             }
             Row {
-                Column(modifier = Modifier.padding(start = 30.dp, top = 50.dp)) {
+                Column(modifier = Modifier.padding(start = 30.dp, top = 30.dp)) {
                     Button("Show Popup", { AppState.popupState.value = true }, Color(232, 182, 109))
                     Spacer(modifier = Modifier.height(30.dp))
                     Button("Open dialog", { dialogState.value = true })
@@ -358,9 +359,9 @@ fun DialogContent(modifier: Modifier = Modifier, amount: MutableState<Int>, onCl
             TextBox(text = "Increment amount?")
             Spacer(modifier = Modifier.height(30.dp))
             Row {
-                Button(text = "Yes", onClick = { amount.value++ }, size = IntSize(100, 35))
+                Button(text = "Yes", onClick = { amount.value++ }, modifier = Modifier.width(100.dp))
                 Spacer(modifier = Modifier.width(30.dp))
-                Button(text = "Close", onClick = { onClose.invoke() }, size = IntSize(100, 35))
+                Button(text = "Close", onClick = { onClose.invoke() }, modifier = Modifier.width(100.dp))
             }
         }
     }
@@ -379,7 +380,7 @@ fun Button(
     text: String = "",
     onClick: () -> Unit = {},
     color: Color = Color(10, 162, 232),
-    size: IntSize = IntSize(200, 35)
+    modifier: Modifier = Modifier.width(200.dp)
 ) {
     @OptIn(ExperimentalFoundationApi::class)
     TooltipArea(
@@ -397,8 +398,7 @@ fun Button(
             colors = ButtonDefaults.buttonColors(
                 backgroundColor = color
             ),
-            modifier = Modifier
-                .size(size.width.dp, size.height.dp)
+            modifier = modifier
         ) {
             Text(text = text)
         }

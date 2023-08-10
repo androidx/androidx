@@ -113,12 +113,16 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
                 implementation("androidx.lifecycle:lifecycle-runtime:2.6.0")
                 implementation("androidx.lifecycle:lifecycle-viewmodel:2.6.0")
             }
+            skikoMain {
+                dependsOn(commonMain)
+            }
 
             desktopMain.dependencies {
                 implementation(libs.kotlinStdlib)
             }
 
-            jsNativeMain.dependsOn(commonMain)
+            desktopMain.dependsOn(skikoMain)
+            jsNativeMain.dependsOn(skikoMain)
             nativeMain.dependsOn(jsNativeMain)
             jsWasmMain.dependsOn(jsNativeMain)
 

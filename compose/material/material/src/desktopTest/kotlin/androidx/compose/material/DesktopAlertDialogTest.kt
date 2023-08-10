@@ -64,7 +64,6 @@ class DesktopAlertDialogTest {
         var location = Offset.Zero
         rule.setContent {
             CompositionLocalProvider(LocalDensity provides Density(1f, 1f)) {
-                @OptIn(ExperimentalMaterialApi::class)
                 AlertDialog(
                     onDismissRequest = {},
                     title = { Text("AlertDialog") },
@@ -88,7 +87,6 @@ class DesktopAlertDialogTest {
         var dismissCount = 0
         rule.setContent {
             CompositionLocalProvider(LocalDensity provides Density(1f, 1f)) {
-                @OptIn(ExperimentalMaterialApi::class)
                 AlertDialog(
                     onDismissRequest = { dismissCount++ },
                     title = { Text("AlertDialog") },
@@ -157,7 +155,6 @@ class DesktopAlertDialogTest {
         val dialogSize = DpSize(200.dp, 200.dp)
 
         rule.setContent {
-            @OptIn(ExperimentalMaterialApi::class)
             AlertDialog(
                 onDismissRequest = { },
                 title = { Text("Title") },
@@ -166,7 +163,6 @@ class DesktopAlertDialogTest {
                     Box(Modifier.testTag("buttons"))
                 },
                 modifier = Modifier.size(dialogSize),
-                dialogPadding = PaddingValues(50.dp)
             )
         }
 
