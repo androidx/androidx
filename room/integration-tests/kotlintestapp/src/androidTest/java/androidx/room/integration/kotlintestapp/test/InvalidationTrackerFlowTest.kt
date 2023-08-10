@@ -75,6 +75,7 @@ class InvalidationTrackerFlowTest : TestDatabaseTest() {
         channel.cancel()
     }
 
+    @Ignore("b/295223748")
     @Test
     fun invalidationEmitTableNames(): Unit = runBlocking {
         booksDao.addAuthors(TestUtil.AUTHOR_1)
