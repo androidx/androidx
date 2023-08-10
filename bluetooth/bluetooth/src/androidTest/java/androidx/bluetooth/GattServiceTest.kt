@@ -16,8 +16,8 @@
 
 package androidx.bluetooth
 
-import android.bluetooth.BluetoothGattCharacteristic as FwkBluetoothGattCharacteristic
-import android.bluetooth.BluetoothGattService as FwkGattService
+import android.bluetooth.BluetoothGattCharacteristic as FwkCharacteristic
+import android.bluetooth.BluetoothGattService as FwkService
 import android.bluetooth.BluetoothGattService.SERVICE_TYPE_PRIMARY
 import java.util.UUID
 import org.junit.Assert.assertEquals
@@ -32,14 +32,14 @@ class GattServiceTest {
     @Test
     fun constructorWithFwkInstance() {
         val serviceUuid = UUID.randomUUID()
-        val fwkGattService = FwkGattService(serviceUuid, SERVICE_TYPE_PRIMARY)
+        val fwkGattService = FwkService(serviceUuid, SERVICE_TYPE_PRIMARY)
 
         val charUuid1 = UUID.randomUUID()
-        val fwkCharacteristic1 = FwkBluetoothGattCharacteristic(charUuid1, 0, 0)
+        val fwkCharacteristic1 = FwkCharacteristic(charUuid1, 0, 0)
         fwkGattService.addCharacteristic(fwkCharacteristic1)
 
         val charUuid2 = UUID.randomUUID()
-        val fwkCharacteristic2 = FwkBluetoothGattCharacteristic(charUuid2, 0, 0)
+        val fwkCharacteristic2 = FwkCharacteristic(charUuid2, 0, 0)
         fwkGattService.addCharacteristic(fwkCharacteristic2)
 
         val gattService = GattService(fwkGattService)
