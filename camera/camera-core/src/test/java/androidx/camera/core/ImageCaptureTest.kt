@@ -40,6 +40,7 @@ import androidx.camera.core.impl.MutableOptionsBundle
 import androidx.camera.core.impl.OptionsBundle
 import androidx.camera.core.impl.SessionConfig
 import androidx.camera.core.impl.SessionProcessor
+import androidx.camera.core.impl.StreamSpec
 import androidx.camera.core.impl.TagBundle
 import androidx.camera.core.impl.UseCaseConfig
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
@@ -145,6 +146,17 @@ class ImageCaptureTest {
         CameraXUtil.shutdown().get()
         fakeImageReaderProxy = null
         callbackThread.quitSafely()
+    }
+
+    @Test
+    fun virtualCamera_canRecreatePipeline() {
+        // Arrange
+        camera.hasTransform = false
+        val imageCapture = bindImageCapture(
+            bufferFormat = ImageFormat.JPEG,
+        )
+        // Act: pipeline can be recreated without crashing.
+        imageCapture.updateSuggestedStreamSpec(StreamSpec.builder(resolution).build())
     }
 
     @Test
