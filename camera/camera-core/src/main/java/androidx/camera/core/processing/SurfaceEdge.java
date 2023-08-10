@@ -231,7 +231,7 @@ public class SurfaceEdge {
             throws DeferrableSurface.SurfaceClosedException {
         checkMainThread();
         checkNotClosed();
-        mSettableSurface.setProvider(provider);
+        mSettableSurface.setProvider(provider, this::disconnectWithoutCheckingClosed);
     }
 
     /**
@@ -263,7 +263,8 @@ public class SurfaceEdge {
                 }));
         try {
             DeferrableSurface deferrableSurface = surfaceRequest.getDeferrableSurface();
-            if (mSettableSurface.setProvider(deferrableSurface)) {
+            if (mSettableSurface.setProvider(deferrableSurface,
+                    this::disconnectWithoutCheckingClosed)) {
                 // TODO(b/286817690): consider close the deferrableSurface directly when the
                 //  SettableSurface is closed. The delay might cause issues on legacy devices.
                 mSettableSurface.getTerminationFuture().addListener(deferrableSurface::close,
@@ -399,6 +400,7 @@ public class SurfaceEdge {
     }
 
     private void disconnectWithoutCheckingClosed() {
+        checkMainThread();
         mSettableSurface.close();
         if (mConsumerToNotify != null) {
             mConsumerToNotify.requestClose();
@@ -620,6 +622,9 @@ public class SurfaceEdge {
          *
          * <p>This method is idempotent. Calling it with the same provider no-ops.
          *
+         * @param provider         the provider to link.
+         * @param onProviderClosed a callback to be invoked when the provider is closed. The
+         *                         callback will be invoked on the main thread.
          * @return true if the provider is set; false if the same provider has already been set.
          * @throws IllegalStateException    if the provider has already been set.
          * @throws IllegalArgumentException if the provider's size is different than the size of
@@ -628,7 +633,8 @@ public class SurfaceEdge {
          * @see SurfaceEdge#setProvider(DeferrableSurface)
          */
         @MainThread
-        public boolean setProvider(@NonNull DeferrableSurface provider)
+        public boolean setProvider(@NonNull DeferrableSurface provider,
+                @NonNull Runnable onProviderClosed)
                 throws SurfaceClosedException {
             checkMainThread();
             checkNotNull(provider);
@@ -649,6 +655,8 @@ public class SurfaceEdge {
             Futures.propagate(provider.getSurface(), mCompleter);
             provider.incrementUseCount();
             getTerminationFuture().addListener(provider::decrementUseCount, directExecutor());
+            // When the child is closed, close the parent too to stop rendering.
+            provider.getCloseFuture().addListener(onProviderClosed, mainThreadExecutor());
             return true;
         }
     }
