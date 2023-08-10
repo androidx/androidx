@@ -43,6 +43,7 @@ import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
 import java.time.Instant
 import kotlin.test.assertFailsWith
+import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -3022,6 +3023,7 @@ class ValidationTest {
 
     @Test
     fun rangedValue_invalid(@TestParameter scenario: RangedValueInvalidScenario) {
+        assumeTrue(Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
         assertFailsWith<IllegalArgumentException> { scenario.build().validate() }
     }
 
