@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.graphics.drawscope
 
+import androidx.annotation.FloatRange
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
@@ -377,8 +378,7 @@ interface DrawScope : Density {
         strokeWidth: Float = Stroke.HairlineWidth,
         cap: StrokeCap = Stroke.DefaultCap,
         pathEffect: PathEffect? = null,
-        /*FloatRange(from = 0.0, to = 1.0)*/
-        alpha: Float = 1.0f,
+        @FloatRange(from = 0.0, to = 1.0) alpha: Float = 1.0f,
         colorFilter: ColorFilter? = null,
         blendMode: BlendMode = DefaultBlendMode
     )
@@ -405,8 +405,7 @@ interface DrawScope : Density {
         strokeWidth: Float = Stroke.HairlineWidth,
         cap: StrokeCap = Stroke.DefaultCap,
         pathEffect: PathEffect? = null,
-        /*FloatRange(from = 0.0, to = 1.0)*/
-        alpha: Float = 1.0f,
+        @FloatRange(from = 0.0, to = 1.0) alpha: Float = 1.0f,
         colorFilter: ColorFilter? = null,
         blendMode: BlendMode = DefaultBlendMode
     )
@@ -429,8 +428,7 @@ interface DrawScope : Density {
         brush: Brush,
         topLeft: Offset = Offset.Zero,
         size: Size = this.size.offsetSize(topLeft),
-        /*FloatRange(from = 0.0, to = 1.0)*/
-        alpha: Float = 1.0f,
+        @FloatRange(from = 0.0, to = 1.0) alpha: Float = 1.0f,
         style: DrawStyle = Fill,
         colorFilter: ColorFilter? = null,
         blendMode: BlendMode = DefaultBlendMode
@@ -454,8 +452,7 @@ interface DrawScope : Density {
         color: Color,
         topLeft: Offset = Offset.Zero,
         size: Size = this.size.offsetSize(topLeft),
-        /*@FloatRange(from = 0.0, to = 1.0)*/
-        alpha: Float = 1.0f,
+        @FloatRange(from = 0.0, to = 1.0) alpha: Float = 1.0f,
         style: DrawStyle = Fill,
         colorFilter: ColorFilter? = null,
         blendMode: BlendMode = DefaultBlendMode
@@ -476,8 +473,7 @@ interface DrawScope : Density {
     fun drawImage(
         image: ImageBitmap,
         topLeft: Offset = Offset.Zero,
-        /*@FloatRange(from = 0.0, to = 1.0)*/
-        alpha: Float = 1.0f,
+        @FloatRange(from = 0.0, to = 1.0) alpha: Float = 1.0f,
         style: DrawStyle = Fill,
         colorFilter: ColorFilter? = null,
         blendMode: BlendMode = DefaultBlendMode
@@ -521,8 +517,7 @@ interface DrawScope : Density {
         srcSize: IntSize = IntSize(image.width, image.height),
         dstOffset: IntOffset = IntOffset.Zero,
         dstSize: IntSize = srcSize,
-        /*@FloatRange(from = 0.0, to = 1.0)*/
-        alpha: Float = 1.0f,
+        @FloatRange(from = 0.0, to = 1.0) alpha: Float = 1.0f,
         style: DrawStyle = Fill,
         colorFilter: ColorFilter? = null,
         blendMode: BlendMode = DefaultBlendMode
@@ -559,8 +554,7 @@ interface DrawScope : Density {
         srcSize: IntSize = IntSize(image.width, image.height),
         dstOffset: IntOffset = IntOffset.Zero,
         dstSize: IntSize = srcSize,
-        /*@FloatRange(from = 0.0, to = 1.0)*/
-        alpha: Float = 1.0f,
+        @FloatRange(from = 0.0, to = 1.0) alpha: Float = 1.0f,
         style: DrawStyle = Fill,
         colorFilter: ColorFilter? = null,
         blendMode: BlendMode = DefaultBlendMode,
@@ -599,8 +593,7 @@ interface DrawScope : Density {
         topLeft: Offset = Offset.Zero,
         size: Size = this.size.offsetSize(topLeft),
         cornerRadius: CornerRadius = CornerRadius.Zero,
-        /*@FloatRange(from = 0.0, to = 1.0)*/
-        alpha: Float = 1.0f,
+        @FloatRange(from = 0.0, to = 1.0) alpha: Float = 1.0f,
         style: DrawStyle = Fill,
         colorFilter: ColorFilter? = null,
         blendMode: BlendMode = DefaultBlendMode
@@ -626,8 +619,7 @@ interface DrawScope : Density {
         size: Size = this.size.offsetSize(topLeft),
         cornerRadius: CornerRadius = CornerRadius.Zero,
         style: DrawStyle = Fill,
-        /*@FloatRange(from = 0.0, to = 1.0)*/
-        alpha: Float = 1.0f,
+        @FloatRange(from = 0.0, to = 1.0) alpha: Float = 1.0f,
         colorFilter: ColorFilter? = null,
         blendMode: BlendMode = DefaultBlendMode
     )
@@ -649,8 +641,7 @@ interface DrawScope : Density {
         brush: Brush,
         radius: Float = size.minDimension / 2.0f,
         center: Offset = this.center,
-        /*@FloatRange(from = 0.0, to = 1.0)*/
-        alpha: Float = 1.0f,
+        @FloatRange(from = 0.0, to = 1.0) alpha: Float = 1.0f,
         style: DrawStyle = Fill,
         colorFilter: ColorFilter? = null,
         blendMode: BlendMode = DefaultBlendMode
@@ -673,8 +664,7 @@ interface DrawScope : Density {
         color: Color,
         radius: Float = size.minDimension / 2.0f,
         center: Offset = this.center,
-        /*@FloatRange(from = 0.0, to = 1.0)*/
-        alpha: Float = 1.0f,
+        @FloatRange(from = 0.0, to = 1.0) alpha: Float = 1.0f,
         style: DrawStyle = Fill,
         colorFilter: ColorFilter? = null,
         blendMode: BlendMode = DefaultBlendMode
@@ -700,8 +690,7 @@ interface DrawScope : Density {
         brush: Brush,
         topLeft: Offset = Offset.Zero,
         size: Size = this.size.offsetSize(topLeft),
-        /*@FloatRange(from = 0.0, to = 1.0)*/
-        alpha: Float = 1.0f,
+        @FloatRange(from = 0.0, to = 1.0) alpha: Float = 1.0f,
         style: DrawStyle = Fill,
         colorFilter: ColorFilter? = null,
         blendMode: BlendMode = DefaultBlendMode
@@ -727,8 +716,7 @@ interface DrawScope : Density {
         color: Color,
         topLeft: Offset = Offset.Zero,
         size: Size = this.size.offsetSize(topLeft),
-        /*@FloatRange(from = 0.0, to = 1.0)*/
-        alpha: Float = 1.0f,
+        @FloatRange(from = 0.0, to = 1.0) alpha: Float = 1.0f,
         style: DrawStyle = Fill,
         colorFilter: ColorFilter? = null,
         blendMode: BlendMode = DefaultBlendMode
@@ -763,8 +751,7 @@ interface DrawScope : Density {
         useCenter: Boolean,
         topLeft: Offset = Offset.Zero,
         size: Size = this.size.offsetSize(topLeft),
-        /*@FloatRange(from = 0.0, to = 1.0)*/
-        alpha: Float = 1.0f,
+        @FloatRange(from = 0.0, to = 1.0) alpha: Float = 1.0f,
         style: DrawStyle = Fill,
         colorFilter: ColorFilter? = null,
         blendMode: BlendMode = DefaultBlendMode
@@ -799,8 +786,7 @@ interface DrawScope : Density {
         useCenter: Boolean,
         topLeft: Offset = Offset.Zero,
         size: Size = this.size.offsetSize(topLeft),
-        /*@FloatRange(from = 0.0, to = 1.0)*/
-        alpha: Float = 1.0f,
+        @FloatRange(from = 0.0, to = 1.0) alpha: Float = 1.0f,
         style: DrawStyle = Fill,
         colorFilter: ColorFilter? = null,
         blendMode: BlendMode = DefaultBlendMode
@@ -823,8 +809,7 @@ interface DrawScope : Density {
     fun drawPath(
         path: Path,
         color: Color,
-        /*@FloatRange(from = 0.0, to = 1.0)*/
-        alpha: Float = 1.0f,
+        @FloatRange(from = 0.0, to = 1.0) alpha: Float = 1.0f,
         style: DrawStyle = Fill,
         colorFilter: ColorFilter? = null,
         blendMode: BlendMode = DefaultBlendMode
@@ -846,8 +831,7 @@ interface DrawScope : Density {
     fun drawPath(
         path: Path,
         brush: Brush,
-        /*@FloatRange(from = 0.0, to = 1.0)*/
-        alpha: Float = 1.0f,
+        @FloatRange(from = 0.0, to = 1.0) alpha: Float = 1.0f,
         style: DrawStyle = Fill,
         colorFilter: ColorFilter? = null,
         blendMode: BlendMode = DefaultBlendMode
@@ -876,8 +860,7 @@ interface DrawScope : Density {
         strokeWidth: Float = Stroke.HairlineWidth,
         cap: StrokeCap = StrokeCap.Butt,
         pathEffect: PathEffect? = null,
-        /*@FloatRange(from = 0.0, to = 1.0)*/
-        alpha: Float = 1.0f,
+        @FloatRange(from = 0.0, to = 1.0) alpha: Float = 1.0f,
         colorFilter: ColorFilter? = null,
         blendMode: BlendMode = DefaultBlendMode
     )
@@ -905,8 +888,7 @@ interface DrawScope : Density {
         strokeWidth: Float = Stroke.HairlineWidth,
         cap: StrokeCap = StrokeCap.Butt,
         pathEffect: PathEffect? = null,
-        /*@FloatRange(from = 0.0, to = 1.0)*/
-        alpha: Float = 1.0f,
+        @FloatRange(from = 0.0, to = 1.0) alpha: Float = 1.0f,
         colorFilter: ColorFilter? = null,
         blendMode: BlendMode = DefaultBlendMode
     )
