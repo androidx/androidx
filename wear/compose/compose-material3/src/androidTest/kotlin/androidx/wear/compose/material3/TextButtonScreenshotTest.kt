@@ -20,6 +20,7 @@ import android.os.Build
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.offset
 import androidx.compose.runtime.Composable
 import androidx.compose.testutils.assertAgainstGolden
 import androidx.compose.ui.Modifier
@@ -27,6 +28,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
@@ -100,6 +102,11 @@ class TextButtonScreenshotTest {
         sampleTextButton(enabled = false)
     }
 
+    @Test
+    fun text_button_with_offset() = verifyScreenshot {
+        sampleTextButton(enabled = true, modifier = Modifier.offset(10.dp))
+    }
+
     @Composable
     private fun sampleFilledTextButton(enabled: Boolean) {
         TextButton(
@@ -138,11 +145,11 @@ class TextButtonScreenshotTest {
     }
 
     @Composable
-    private fun sampleTextButton(enabled: Boolean) {
+    private fun sampleTextButton(enabled: Boolean, modifier: Modifier = Modifier) {
         TextButton(
             onClick = {},
             enabled = enabled,
-            modifier = Modifier.testTag(TEST_TAG)
+            modifier = modifier.testTag(TEST_TAG)
         ) {
             Text(text = "ABC")
         }

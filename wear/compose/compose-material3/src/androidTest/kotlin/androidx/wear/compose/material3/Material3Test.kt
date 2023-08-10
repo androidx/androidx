@@ -43,8 +43,10 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.test.SemanticsNodeInteraction
+import androidx.compose.ui.test.assertHeightIsEqualTo
 import androidx.compose.ui.test.assertTouchHeightIsEqualTo
 import androidx.compose.ui.test.assertTouchWidthIsEqualTo
+import androidx.compose.ui.test.assertWidthIsEqualTo
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.onNodeWithTag
@@ -146,6 +148,20 @@ internal fun ComposeContentTestRule.verifyTapSize(
     onNodeWithTag(TEST_TAG)
         .assertTouchHeightIsEqualTo(expectedSize)
         .assertTouchWidthIsEqualTo(expectedSize)
+}
+
+internal fun ComposeContentTestRule.verifyActualSize(
+    expectedSize: Dp,
+    content: @Composable (modifier: Modifier) -> Unit
+) {
+    setContentWithTheme {
+        content(Modifier.testTag(TEST_TAG))
+    }
+    waitForIdle()
+
+    onNodeWithTag(TEST_TAG)
+        .assertHeightIsEqualTo(expectedSize)
+        .assertWidthIsEqualTo(expectedSize)
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
