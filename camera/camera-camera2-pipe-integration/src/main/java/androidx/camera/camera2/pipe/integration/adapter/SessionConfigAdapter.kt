@@ -26,14 +26,15 @@ import androidx.camera.camera2.pipe.OutputStream
 import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.core.Log.debug
 import androidx.camera.camera2.pipe.integration.impl.Camera2ImplConfig
-import androidx.camera.camera2.pipe.integration.impl.STREAM_USE_CASE_OPTION
 import androidx.camera.camera2.pipe.integration.impl.STREAM_USE_HINT_OPTION
+import androidx.camera.camera2.pipe.integration.internal.StreamUseCaseUtil
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.Preview
 import androidx.camera.core.UseCase
 import androidx.camera.core.impl.DeferrableSurface
 import androidx.camera.core.impl.SessionConfig
+import androidx.camera.core.impl.UseCaseConfig
 import androidx.camera.core.streamsharing.StreamSharing
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -48,10 +49,12 @@ class SessionConfigAdapter(
 ) {
     val surfaceToStreamUseCaseMap: Map<DeferrableSurface, Long> by lazy {
         val sessionConfigs = mutableListOf<SessionConfig>()
+        val useCaseConfigs = mutableListOf<UseCaseConfig<*>>()
         for (useCase in useCases) {
             sessionConfigs.add(useCase.sessionConfig)
+            useCaseConfigs.add(useCase.currentConfig)
         }
-        getSurfaceToStreamUseCaseMapping(sessionConfigs, shouldSetStreamUseCaseByDefault = false)
+        getSurfaceToStreamUseCaseMapping(sessionConfigs, useCaseConfigs)
     }
     val surfaceToStreamUseHintMap: Map<DeferrableSurface, Long> by lazy {
         val sessionConfigs = useCases.map { it.sessionConfig }
@@ -118,7 +121,7 @@ class SessionConfigAdapter(
     @VisibleForTesting
     fun getSurfaceToStreamUseCaseMapping(
         sessionConfigs: Collection<SessionConfig>,
-        shouldSetStreamUseCaseByDefault: Boolean
+        useCaseConfigs: Collection<UseCaseConfig<*>>,
     ): Map<DeferrableSurface, Long> {
         if (sessionConfigs.any { it.templateType == CameraDevice.TEMPLATE_ZERO_SHUTTER_LAG }) {
             // If is ZSL, do not populate anything.
@@ -127,32 +130,12 @@ class SessionConfigAdapter(
         }
 
         val mapping = mutableMapOf<DeferrableSurface, Long>()
-        for (sessionConfig in sessionConfigs) {
-            if (sessionConfig.templateType == CameraDevice.TEMPLATE_ZERO_SHUTTER_LAG) {
-                // If is ZSL, stream use case is ignored.
-                Log.info { "ZSL in populateSurfaceToStreamUseCaseMapping()" }
-                return emptyMap()
-            }
+        StreamUseCaseUtil.populateSurfaceToStreamUseCaseMapping(
+            sessionConfigs,
+            useCaseConfigs,
+            mapping
+        )
 
-            for (surface in sessionConfig.surfaces) {
-                if (sessionConfig.implementationOptions.containsOption(STREAM_USE_CASE_OPTION) &&
-                    sessionConfig.implementationOptions.retrieveOption(STREAM_USE_CASE_OPTION)
-                    != null
-                ) {
-                    mapping[surface] =
-                        sessionConfig.implementationOptions
-                            .retrieveOption(STREAM_USE_CASE_OPTION)!!
-                    continue
-                }
-
-                if (shouldSetStreamUseCaseByDefault) {
-                    // TODO(b/266879290) This is currently gated out because of camera device
-                    // crashing due to unsupported stream useCase combinations.
-                    val streamUseCase = getStreamUseCaseForContainerClass(surface.containerClass)
-                    mapping[surface] = streamUseCase
-                }
-            }
-        }
         return mapping
     }
 
