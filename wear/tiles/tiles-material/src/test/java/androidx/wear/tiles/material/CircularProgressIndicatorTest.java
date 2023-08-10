@@ -16,11 +16,6 @@
 
 package androidx.wear.tiles.material;
 
-import static androidx.wear.tiles.material.ProgressIndicatorDefaults.DEFAULT_COLORS;
-import static androidx.wear.tiles.material.ProgressIndicatorDefaults.DEFAULT_END_ANGLE;
-import static androidx.wear.tiles.material.ProgressIndicatorDefaults.DEFAULT_START_ANGLE;
-import static androidx.wear.tiles.material.ProgressIndicatorDefaults.DEFAULT_STROKE_WIDTH;
-
 import static com.google.common.truth.Truth.assertThat;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -47,10 +42,10 @@ public class CircularProgressIndicatorTest {
         assertProgressIndicator(
                 circularProgressIndicator,
                 0,
-                DEFAULT_START_ANGLE,
-                DEFAULT_END_ANGLE,
-                DEFAULT_COLORS,
-                DEFAULT_STROKE_WIDTH.getValue(),
+                ProgressIndicatorDefaults.DEFAULT_START_ANGLE,
+                ProgressIndicatorDefaults.DEFAULT_END_ANGLE,
+                ProgressIndicatorDefaults.DEFAULT_COLORS,
+                ProgressIndicatorDefaults.DEFAULT_STROKE_WIDTH.getValue(),
                 null);
     }
 
