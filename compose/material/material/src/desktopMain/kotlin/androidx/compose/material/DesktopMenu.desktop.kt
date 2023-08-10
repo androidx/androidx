@@ -20,6 +20,7 @@ import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.contextMenuOpenDetector
+import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
@@ -35,30 +36,19 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.awt.awtEventOrNull
-import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.TransformOrigin
-import androidx.compose.ui.input.InputMode
 import androidx.compose.ui.input.InputModeManager
-import androidx.compose.ui.input.key.KeyEventType
-import androidx.compose.ui.input.key.type
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalInputModeManager
-import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.DpOffset
-import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.IntRect
-import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupPositionProvider
+import androidx.compose.ui.window.PopupProperties
 import androidx.compose.ui.window.rememberCursorPositionProvider
 import androidx.compose.ui.window.rememberPopupPositionProviderAtPosition
-import java.awt.event.KeyEvent
 
 /**
  * A Material Design [dropdown menu](https://material.io/components/menus#dropdown-menu).
@@ -115,10 +105,10 @@ fun DropdownMenu(
 ) = DropdownMenu(
     expanded = expanded,
     onDismissRequest = onDismissRequest,
-    focusable = focusable,
     modifier = modifier,
     offset = offset,
     scrollState = rememberScrollState(),
+    properties = PopupProperties(focusable = focusable),
     content = content
 )
 
@@ -161,6 +151,13 @@ fun DropdownMenu(
  * @param scrollState a [ScrollState] to used by the menu's content for items vertical scrolling
  * @param content the content of this dropdown menu, typically a [DropdownMenuItem]
  */
+@Deprecated(
+    "Replaced by DropdownMenu with properties parameter",
+    ReplaceWith("DropdownMenu(expanded, onDismissRequest, modifier, offset, scrollState," +
+        "androidx.compose.ui.window.PopupProperties(focusable = focusable), " +
+        "content)"),
+    level = DeprecationLevel.WARNING // TODO: Change to DeprecationLevel.HIDDEN in 1.6
+)
 @Composable
 fun DropdownMenu(
     expanded: Boolean,
@@ -170,36 +167,36 @@ fun DropdownMenu(
     offset: DpOffset = DpOffset(0.dp, 0.dp),
     scrollState: ScrollState = rememberScrollState(),
     content: @Composable ColumnScope.() -> Unit
-) {
-    val expandedStates = remember { MutableTransitionState(false) }
-    expandedStates.targetState = expanded
+): Unit = DropdownMenu(
+    expanded = expanded,
+    onDismissRequest = onDismissRequest,
+    modifier = modifier,
+    offset = offset,
+    scrollState = scrollState,
+    properties = PopupProperties(focusable = focusable),
+    content = content
+)
 
-    if (expandedStates.currentState || expandedStates.targetState) {
-        val transformOriginState = remember { mutableStateOf(TransformOrigin.Center) }
-        val density = LocalDensity.current
-        // The original [DropdownMenuPositionProvider] is not yet suitable for large screen devices,
-        // so we need to make additional checks and adjust the position of the [DropdownMenu] to
-        // avoid content being cut off if the [DropdownMenu] contains too many items.
-        // See: https://github.com/JetBrains/compose-jb/issues/1388
-        val popupPositionProvider = DesktopDropdownMenuPositionProvider(
-            offset,
-            density
-        ) { parentBounds, menuBounds ->
-            transformOriginState.value = calculateTransformOrigin(parentBounds, menuBounds)
-        }
 
-        OpenDropdownMenu(
-            expandedStates = expandedStates,
-            popupPositionProvider = popupPositionProvider,
-            transformOriginState = transformOriginState,
-            scrollState = scrollState,
-            onDismissRequest = onDismissRequest,
-            focusable = focusable,
-            modifier = modifier,
-            content = content
-        )
-    }
-}
+// Workaround for `Overload resolution ambiguity` between old and new overload.
+// TODO: Deprecate with DeprecationLevel.HIDDEN in 1.6
+@Composable
+fun DropdownMenu(
+    expanded: Boolean,
+    onDismissRequest: () -> Unit,
+    modifier: Modifier = Modifier,
+    offset: DpOffset = DpOffset(0.dp, 0.dp),
+    scrollState: ScrollState = rememberScrollState(),
+    content: @Composable ColumnScope.() -> Unit
+): Unit = DropdownMenu(
+    expanded = expanded,
+    onDismissRequest = onDismissRequest,
+    modifier = modifier,
+    offset = offset,
+    scrollState = scrollState,
+    properties = PopupProperties(focusable = true),
+    content = content
+)
 
 /**
  * A variant of a dropdown menu that accepts a [DropdownMenuState] to allow precise positioning.
@@ -305,9 +302,9 @@ private fun OpenDropdownMenu(
     var focusManager: FocusManager? by mutableStateOf(null)
     var inputModeManager: InputModeManager? by mutableStateOf(null)
     Popup(
-        focusable = focusable,
         onDismissRequest = onDismissRequest,
         popupPositionProvider = popupPositionProvider,
+        properties = PopupProperties(focusable = focusable),
         onKeyEvent = {
             handlePopupOnKeyEvent(it, focusManager!!, inputModeManager!!)
         },
@@ -326,7 +323,8 @@ private fun OpenDropdownMenu(
 }
 
 /**
- * A dropdown menu item, as defined by the Material Design spec.
+ * <a href="https://material.io/components/menus#dropdown-menu" class="external" target="_blank">Material Design dropdown menu</a> item.
+ *
  *
  * Example usage:
  * @sample androidx.compose.material.samples.MenuSample
@@ -336,18 +334,18 @@ private fun OpenDropdownMenu(
  * @param enabled Controls the enabled state of the menu item - when `false`, the menu item
  * will not be clickable and [onClick] will not be invoked
  * @param contentPadding the padding applied to the content of this menu item
- * @param interactionSource the [MutableInteractionSource] representing the different [Interaction]s
- * present on this DropdownMenuItem. You can create and pass in your own remembered
- * [MutableInteractionSource] if you want to read the [MutableInteractionSource] and customize
- * the appearance / behavior of this DropdownMenuItem in different [Interaction]s.
+ * @param interactionSource the [MutableInteractionSource] representing the stream of
+ * [Interaction]s for this DropdownMenuItem. You can create and pass in your own remembered
+ * [MutableInteractionSource] if you want to observe [Interaction]s and customize the
+ * appearance / behavior of this DropdownMenuItem in different [Interaction]s.
  */
 @Composable
-fun DropdownMenuItem(
+actual fun DropdownMenuItem(
     onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-    enabled: Boolean = true,
-    contentPadding: PaddingValues = MenuDefaults.DropdownMenuItemContentPadding,
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    modifier: Modifier,
+    enabled: Boolean,
+    contentPadding: PaddingValues,
+    interactionSource: MutableInteractionSource,
     content: @Composable RowScope.() -> Unit
 ) {
     DropdownMenuItemContent(
@@ -360,30 +358,6 @@ fun DropdownMenuItem(
     )
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
-private fun handlePopupOnKeyEvent(
-    keyEvent: androidx.compose.ui.input.key.KeyEvent,
-    focusManager: FocusManager,
-    inputModeManager: InputModeManager
-): Boolean {
-    return if (keyEvent.type == KeyEventType.KeyDown) {
-        when {
-            keyEvent.isDirectionDown -> {
-                inputModeManager.requestInputMode(InputMode.Keyboard)
-                focusManager.moveFocus(FocusDirection.Next)
-                true
-            }
-            keyEvent.isDirectionUp -> {
-                inputModeManager.requestInputMode(InputMode.Keyboard)
-                focusManager.moveFocus(FocusDirection.Previous)
-                true
-            }
-            else -> false
-        }
-    } else {
-        false
-    }
-}
 /**
  * A [CursorDropdownMenu] behaves similarly to [Popup] and will use the current position of the mouse
  * cursor to position itself on screen.
@@ -528,93 +502,5 @@ fun Modifier.contextMenuOpenDetector(
         }
     } else {
         this
-    }
-}
-
-/**
- * Positions a dropdown relative to another widget (its anchor).
- */
-@Immutable
-internal data class DesktopDropdownMenuPositionProvider(
-    val contentOffset: DpOffset,
-    val density: Density,
-    val onPositionCalculated: (IntRect, IntRect) -> Unit = { _, _ -> }
-) : PopupPositionProvider {
-    override fun calculatePosition(
-        anchorBounds: IntRect,
-        windowSize: IntSize,
-        layoutDirection: LayoutDirection,
-        popupContentSize: IntSize
-    ): IntOffset {
-
-        val isLtr = layoutDirection == LayoutDirection.Ltr
-
-        // Coerce such that this..this+size fits into min..max; if impossible, align with min
-        fun Int.coerceWithSizeIntoRangePreferMin(size: Int, min: Int, max: Int) = when {
-            this < min -> min
-            this + size > max -> max - size
-            else -> this
-        }
-
-        // Coerce such that this..this+size fits into min..max; if impossible, align with max
-        fun Int.coerceWithSizeIntoRangePreferMax(size: Int, min: Int, max: Int) = when {
-            this + size > max -> max - size
-            this < min -> min
-            else -> this
-        }
-
-        fun Int.coerceWithSizeIntoRange(size: Int, min: Int, max: Int) = when {
-            isLtr -> coerceWithSizeIntoRangePreferMin(size, min, max)
-            else -> coerceWithSizeIntoRangePreferMax(size, min, max)
-        }
-
-        // The min margin above and below the menu, relative to the screen.
-        val verticalMargin = with(density) { MenuVerticalMargin.roundToPx() }
-        // The content offset specified using the dropdown offset parameter.
-        val contentOffsetX = with(density) { contentOffset.x.roundToPx() }
-        val contentOffsetY = with(density) { contentOffset.y.roundToPx() }
-
-        // Compute horizontal position.
-        val preferredX = if (isLtr) {
-            anchorBounds.left + contentOffsetX
-        }
-        else {
-            anchorBounds.right - contentOffsetX - popupContentSize.width
-        }
-        val x = preferredX.coerceWithSizeIntoRange(
-            size = popupContentSize.width,
-            min = 0,
-            max = windowSize.width
-        )
-
-        // Compute vertical position.
-        val toBottom = maxOf(anchorBounds.bottom + contentOffsetY, verticalMargin)
-        val toTop = anchorBounds.top - contentOffsetY - popupContentSize.height
-        val toCenter = anchorBounds.top - popupContentSize.height / 2
-        val toWindowBottom = windowSize.height - popupContentSize.height - verticalMargin
-        var y = sequenceOf(toBottom, toTop, toCenter, toWindowBottom).firstOrNull {
-            it >= verticalMargin &&
-                it + popupContentSize.height <= windowSize.height - verticalMargin
-        } ?: toTop
-
-        // Desktop specific vertical position checking
-        val aboveAnchor = anchorBounds.top + contentOffsetY
-        val belowAnchor = windowSize.height - anchorBounds.bottom - contentOffsetY
-
-        if (belowAnchor >= aboveAnchor) {
-            y = anchorBounds.bottom + contentOffsetY
-        }
-
-        if (y + popupContentSize.height > windowSize.height) {
-            y = windowSize.height - popupContentSize.height
-        }
-
-        y = y.coerceAtLeast(0)
-
-        onPositionCalculated(
-            anchorBounds,
-            IntRect(x, y, x + popupContentSize.width, y + popupContentSize.height)
-        )
-        return IntOffset(x, y)
     }
 }

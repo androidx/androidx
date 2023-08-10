@@ -18,17 +18,21 @@ package androidx.compose.material
 
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.internal.keyEvent
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.assertLeftPositionInRootIsEqualTo
+import androidx.compose.ui.test.getBoundsInRoot
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
@@ -42,10 +46,10 @@ import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.size
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -57,18 +61,18 @@ class DesktopMenuTest {
     @get:Rule
     val rule = createComposeRule()
 
-    private val windowSize = IntSize(100, 100)
+    private val windowSize = IntSize(200, 200)
 
     // Standard case: enough room to position below the anchor and align left
     @Test
     fun menu_positioning_alignLeft_belowAnchor() {
         val anchorBounds = IntRect(
-            offset = IntOffset(10, 10),
+            offset = IntOffset(10, 50),
             size = IntSize(50, 20)
         )
         val popupSize = IntSize(70, 70)
 
-        val position = DesktopDropdownMenuPositionProvider(
+        val position = DropdownMenuPositionProvider(
             DpOffset.Zero,
             Density(1f)
         ).calculatePosition(
@@ -85,12 +89,12 @@ class DesktopMenuTest {
     @Test
     fun menu_positioning_rtl_alignRight_belowAnchor() {
         val anchorBounds = IntRect(
-            offset = IntOffset(30, 10),
+            offset = IntOffset(30, 50),
             size = IntSize(50, 20)
         )
         val popupSize = IntSize(70, 70)
 
-        val position = DesktopDropdownMenuPositionProvider(
+        val position = DropdownMenuPositionProvider(
             DpOffset.Zero,
             Density(1f)
         ).calculatePosition(
@@ -112,12 +116,12 @@ class DesktopMenuTest {
     @Test
     fun menu_positioning_alignLeft_aboveAnchor() {
         val anchorBounds = IntRect(
-            offset = IntOffset(10, 50),
+            offset = IntOffset(10, 150),
             size = IntSize(50, 30)
         )
         val popupSize = IntSize(70, 30)
 
-        val position = DesktopDropdownMenuPositionProvider(
+        val position = DropdownMenuPositionProvider(
             DpOffset.Zero,
             Density(1f)
         ).calculatePosition(
@@ -139,12 +143,12 @@ class DesktopMenuTest {
     @Test
     fun menu_positioning_windowLeft_belowAnchor() {
         val anchorBounds = IntRect(
-            offset = IntOffset(-10, 10),
+            offset = IntOffset(-10, 50),
             size = IntSize(50, 20)
         )
         val popupSize = IntSize(70, 50)
 
-        val position = DesktopDropdownMenuPositionProvider(
+        val position = DropdownMenuPositionProvider(
             DpOffset.Zero,
             Density(1f)
         ).calculatePosition(
@@ -160,31 +164,22 @@ class DesktopMenuTest {
     // (RTL) Anchor right is beyond the right of the window, so align popup to the window right
     @Test
     fun menu_positioning_rtl_windowRight_belowAnchor() {
-        val anchorBounds = IntRect(
-            offset = IntOffset(30, 10),
-            size = IntSize(80, 20)
-        )
-        val popupSize = IntSize(50, 70)
-
-        val position = DesktopDropdownMenuPositionProvider(
-            DpOffset.Zero,
-            Density(1f)
-        ).calculatePosition(
-            anchorBounds,
-            windowSize,
-            LayoutDirection.Rtl,
-            popupSize
-        )
-
-        assertThat(position).isEqualTo(
-            IntOffset(
-                x = windowSize.width - popupSize.width,
-                y = anchorBounds.bottom
-            )
-        )
+        rule.setContent {
+            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+                Box(Modifier.fillMaxSize().testTag("background")) {
+                    Box(Modifier.offset(x = (-10).dp).size(50.dp)) {
+                        DropdownMenu(true, onDismissRequest = {}) {
+                            Box(Modifier.size(50.dp).testTag("box"))
+                        }
+                    }
+                }
+            }
+        }
+        val windowSize = rule.onNodeWithTag("background").getBoundsInRoot().size
+        rule.onNodeWithTag("box")
+            .assertLeftPositionInRootIsEqualTo(windowSize.width - 50.dp)
     }
 
-    @OptIn(ExperimentalComposeUiApi::class)
     @Test
     fun `pressing ESC button invokes onDismissRequest`() {
         var dismissCount = 0
@@ -213,8 +208,6 @@ class DesktopMenuTest {
         }
     }
 
-    @Ignore // TODO: remove ignore when changes from http://r.android.com/2520700 will be merged
-    @OptIn(ExperimentalComposeUiApi::class)
     @Test
     fun `navigate DropDownMenu using arrows`() {
         var item1Clicked = 0
