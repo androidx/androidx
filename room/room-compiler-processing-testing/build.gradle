@@ -43,7 +43,7 @@ dependencies {
  */
 def writeTestPropsTask = tasks.register("prepareTestConfiguration", WriteProperties.class) {
     description = "Generates a properties file with the current environment for compilation tests"
-    setOutputFile(project.layout.buildDirectory.dir("test-config").map {
+    destinationFile.set(project.layout.buildDirectory.dir("test-config").map {
         it.file("androidx.room.compiler.processing.util.CompilationTestCapabilities.Config" +
                 ".properties")
     })
@@ -54,7 +54,11 @@ def writeTestPropsTask = tasks.register("prepareTestConfiguration", WritePropert
 java {
     sourceSets {
         main {
-            resources.srcDir(writeTestPropsTask.map { it.outputFile.parentFile })
+            resources.srcDir(
+                    writeTestPropsTask.map {
+                        it.destinationFile.asFile.get().parentFile
+                    }
+            )
         }
     }
 }
