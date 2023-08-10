@@ -30,6 +30,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.material.Button
+import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.runtime.CompositionLocalProvider
@@ -917,6 +918,53 @@ class NavHostTest {
         composeTestRule.runOnIdle {
             assertThat(navController.currentBackStackEntry?.lifecycle?.currentState)
                 .isEqualTo(Lifecycle.State.RESUMED)
+            assertThat(secondEntry?.lifecycle?.currentState)
+                .isEqualTo(Lifecycle.State.DESTROYED)
+        }
+    }
+
+    @Test
+    fun testNavHostAnimationsBackInterrupt() {
+        lateinit var navController: NavHostController
+
+        composeTestRule.setContent {
+            navController = rememberNavController()
+            NavHost(navController, startDestination = first) {
+                composable(first) {
+                    Scaffold {
+                        NavHost(rememberNavController(), startDestination = "one") {
+                            composable("one") {
+                                BasicText("one")
+                                viewModel<TestViewModel>()
+                            }
+                        }
+                    }
+                }
+                composable(second) { }
+            }
+        }
+
+        val firstEntry = navController.currentBackStackEntry
+
+        composeTestRule.runOnIdle {
+            assertThat(firstEntry?.lifecycle?.currentState)
+                .isEqualTo(Lifecycle.State.RESUMED)
+        }
+
+        composeTestRule.runOnIdle {
+            navController.navigate(second)
+        }
+
+        val secondEntry = navController.currentBackStackEntry
+
+        composeTestRule.runOnIdle {
+            navController.popBackStack()
+            navController.popBackStack()
+        }
+
+        composeTestRule.runOnIdle {
+            assertThat(firstEntry?.lifecycle?.currentState)
+                .isEqualTo(Lifecycle.State.DESTROYED)
             assertThat(secondEntry?.lifecycle?.currentState)
                 .isEqualTo(Lifecycle.State.DESTROYED)
         }
