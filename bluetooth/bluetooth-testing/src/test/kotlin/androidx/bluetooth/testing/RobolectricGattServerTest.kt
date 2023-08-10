@@ -26,8 +26,6 @@ import android.bluetooth.BluetoothManager
 import android.content.Context
 import androidx.bluetooth.BluetoothLe
 import androidx.bluetooth.GattCharacteristic
-import androidx.bluetooth.GattCharacteristic.Companion.PERMISSION_READ
-import androidx.bluetooth.GattCharacteristic.Companion.PERMISSION_WRITE
 import androidx.bluetooth.GattCharacteristic.Companion.PROPERTY_NOTIFY
 import androidx.bluetooth.GattCharacteristic.Companion.PROPERTY_READ
 import androidx.bluetooth.GattCharacteristic.Companion.PROPERTY_WRITE
@@ -74,25 +72,23 @@ class RobolectricGattServerTest {
 
         private val cccdUuid = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb")
 
-        private val readCharacteristic = GattCharacteristic(
+        private val readCharacteristic = GattCharacteristic.of(
             readCharUuid,
-            PROPERTY_READ, PERMISSION_READ
+            PROPERTY_READ
         )
-        private val writeCharacteristic = GattCharacteristic(
-            writeCharUuid,
-            PROPERTY_READ or PROPERTY_WRITE, PERMISSION_READ or PERMISSION_WRITE
+        private val writeCharacteristic = GattCharacteristic.of(
+            writeCharUuid, PROPERTY_READ or PROPERTY_WRITE
         )
-        private val notifyCharacteristic = GattCharacteristic(
-            notifyCharUuid,
-            PROPERTY_READ or PROPERTY_NOTIFY, PERMISSION_READ
+        private val notifyCharacteristic = GattCharacteristic.of(
+            notifyCharUuid, PROPERTY_READ or PROPERTY_NOTIFY
         )
-        private val unknownCharacteristic = GattCharacteristic(unknownCharUuid, 0, 0)
+        private val unknownCharacteristic = GattCharacteristic.of(unknownCharUuid, 0)
 
-        private val service1 = GattService(
+        private val service1 = GattService.of(
             serviceUuid1,
             listOf(readCharacteristic, writeCharacteristic, notifyCharacteristic)
         )
-        private val service2 = GattService(serviceUuid2, listOf())
+        private val service2 = GattService.of(serviceUuid2, listOf())
     }
 
     @Before

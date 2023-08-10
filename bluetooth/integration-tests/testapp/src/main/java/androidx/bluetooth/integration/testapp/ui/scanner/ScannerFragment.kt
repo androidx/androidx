@@ -313,8 +313,7 @@ class ScannerFragment : Fragment() {
                                         connectScope.launch {
                                             val result = writeCharacteristic(
                                                 characteristic,
-                                                value,
-                                                GattCharacteristic.WRITE_TYPE_DEFAULT
+                                                value
                                             )
                                             Log.d(TAG, "writeCharacteristic() called with: " +
                                                 "result = $result")

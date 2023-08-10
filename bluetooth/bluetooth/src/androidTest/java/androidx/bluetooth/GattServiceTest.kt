@@ -58,13 +58,13 @@ class GattServiceTest {
         val charUuid2 = UUID.randomUUID()
         val charUuid3 = UUID.randomUUID()
 
-        val char1 = GattCharacteristic(charUuid1, /*properties=*/0, /*permissions=*/0)
-        val char2 = GattCharacteristic(charUuid2, /*properties=*/0, /*permissions=*/0)
-        val char3 = GattCharacteristic(charUuid3, /*properties=*/0, /*permissions=*/0)
+        val char1 = GattCharacteristic.of(charUuid1, /*properties=*/0)
+        val char2 = GattCharacteristic.of(charUuid2, /*properties=*/0)
+        val char3 = GattCharacteristic.of(charUuid3, /*properties=*/0)
 
         val characteristics = mutableListOf(char1, char2)
 
-        val gattService = GattService(serviceUuid, characteristics)
+        val gattService = GattService.of(serviceUuid, characteristics)
 
         assertEquals(serviceUuid, gattService.uuid)
         assertEquals(2, gattService.characteristics.size)

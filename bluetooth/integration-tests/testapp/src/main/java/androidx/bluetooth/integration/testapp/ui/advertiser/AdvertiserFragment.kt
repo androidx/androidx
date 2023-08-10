@@ -33,7 +33,6 @@ import androidx.appcompat.widget.PopupMenu
 import androidx.bluetooth.AdvertiseResult
 import androidx.bluetooth.BluetoothLe
 import androidx.bluetooth.GattCharacteristic
-import androidx.bluetooth.GattCharacteristic.Companion.PERMISSION_READ
 import androidx.bluetooth.GattCharacteristic.Companion.PROPERTY_READ
 import androidx.bluetooth.GattServerRequest
 import androidx.bluetooth.GattService
@@ -373,7 +372,7 @@ class AdvertiserFragment : Fragment() {
                             else -> editTextInput
                         }
                     )
-                    val service = GattService(uuid, listOf())
+                    val service = GattService.of(uuid, listOf())
                     viewModel.addGattService(service)
                     gattServerServicesAdapter
                         ?.notifyItemInserted(viewModel.gattServerServices.size - 1)
@@ -410,7 +409,6 @@ class AdvertiserFragment : Fragment() {
                 val uuidText = editTextUuid.text.toString()
 
                 var properties = 0
-                var permissions = 0
                 if (checkBoxPropertiesBroadcast.isChecked) {
                     properties = properties or GattCharacteristic.PROPERTY_BROADCAST
                 }
@@ -422,19 +420,15 @@ class AdvertiserFragment : Fragment() {
                 }
                 if (checkBoxPropertiesRead.isChecked) {
                     properties = properties or GattCharacteristic.PROPERTY_READ
-                    permissions = permissions or GattCharacteristic.PERMISSION_READ
                 }
                 if (checkBoxPropertiesSignedWrite.isChecked) {
                     properties = properties or GattCharacteristic.PROPERTY_SIGNED_WRITE
-                    permissions = permissions or GattCharacteristic.PERMISSION_WRITE_SIGNED
                 }
                 if (checkBoxPropertiesWrite.isChecked) {
                     properties = properties or GattCharacteristic.PROPERTY_WRITE
-                    permissions = permissions or GattCharacteristic.PERMISSION_WRITE
                 }
                 if (checkBoxPropertiesWriteNoResponse.isChecked) {
                     properties = properties or GattCharacteristic.PROPERTY_WRITE_NO_RESPONSE
-                    permissions = permissions or GattCharacteristic.PERMISSION_WRITE
                 }
 
                 try {
@@ -445,11 +439,7 @@ class AdvertiserFragment : Fragment() {
                             else -> uuidText
                         }
                     )
-                    val sampleCharacteristic = GattCharacteristic(
-                        uuid,
-                        properties,
-                        permissions
-                    )
+                    val sampleCharacteristic = GattCharacteristic.of(uuid, properties)
 
                     val index = viewModel.gattServerServices.indexOf(bluetoothGattService)
                     viewModel.addGattCharacteristic(bluetoothGattService, sampleCharacteristic)
