@@ -949,3 +949,20 @@ WARNING: The option setting 'android\.r[0-9]+\.maxWorkers=[0-9]+' is experimenta
 e: Daemon compilation failed: Could not connect to Kotlin compile daemon
 java\.lang\.RuntimeException: Could not connect to Kotlin compile daemon
 Errors were stored into \$SUPPORT/\.gradle/kotlin/errors/errors\-[0-9]+\.log
+# b/294259252 See if bumping these deps  resolves the issue or if we need to file a bug upstream
+# > Task :internal-testutils-datastore:linkDebugTestLinuxX64
+w: library included more than once: \$GRADLE_USER_HOME/caches/modules\-[0-9]+/files\-[0-9]+\.[0-9]+/org\.jetbrains\.kotlinx/atomicfu\-linuxx[0-9]+/[0-9]+\.[0-9]+\.[0-9]+/[0-9a-f]{32}c[0-9]+d[0-9]+c/atomicfu\-cinterop\-interop\.klib
+w: library included more than once: \$GRADLE_USER_HOME/caches/modules\-[0-9]+/files\-[0-9]+\.[0-9]+/org\.jetbrains\.kotlinx/kotlinx\-coroutines\-test\-linuxx[0-9]+/[0-9]+\.[0-9]+\.[0-9]+/[0-9a-f]{32}[0-9]+bf[0-9]+b[0-9]+/kotlinx\-coroutines\-test\.klib
+# > Task :datastore:datastore-core-okio:linkDebugTestLinuxX64
+w: library included more than once: \$GRADLE_USER_HOME/caches/modules\-[0-9]+/files\-[0-9]+\.[0-9]+/org\.jetbrains\.kotlinx/atomicfu\-linuxx[0-9]+/[0-9]+\.[0-9]+\.[0-9]+/[0-9a-f]{32}afe[0-9]+/atomicfu\.klib
+# > Task :datastore:datastore-preferences-core:linkDebugTestLinuxX64
+w: library included more than once: \$GRADLE_USER_HOME/caches/modules\-[0-9]+/files\-[0-9]+\.[0-9]+/com\.squareup\.okio/okio\-linuxx[0-9]+/[0-9]+\.[0-9]+\.[0-9]+/[0-9a-f]{32}efe[0-9]+be[0-9]+/okio\.klib
+w: library included more than once: \$GRADLE_USER_HOME/caches/modules\-[0-9]+/files\-[0-9]+\.[0-9]+/org\.jetbrains\.kotlinx/kotlinx\-serialization\-core\-linuxx[0-9]+/[0-9]+\.[0-9]+\.[0-9]+/[0-9a-f]{32}[0-9]+a[0-9]+d[0-9]+/kotlinx\-serialization\-core\.klib
+w: library included more than once: \$GRADLE_USER_HOME/caches/modules\-[0-9]+/files\-[0-9]+\.[0-9]+/org\.jetbrains\.kotlinx/kotlinx\-serialization\-protobuf\-linuxx[0-9]+/[0-9]+\.[0-9]+\.[0-9]+/[0-9a-f]{32}d[0-9]+cd[0-9]+/kotlinx\-serialization\-protobuf\.klib
+# > Task :datastore:datastore-core:linkDebugTestLinuxX64
+w: library included more than once: \$GRADLE_USER_HOME/caches/modules\-[0-9]+/files\-[0-9]+\.[0-9]+/org\.jetbrains\.kotlinx/kotlinx\-coroutines\-core\-linuxx[0-9]+/[0-9]+\.[0-9]+\.[0-9]+/[0-9a-f]{32}[0-9]+f[0-9]+fda/kotlinx\-coroutines\-core\.klib
+# > Task :paging:paging-common:linkDebugTestLinuxX64
+w: library included more than once: \$GRADLE_USER_HOME/caches/modules\-[0-9]+/files\-[0-9]+\.[0-9]+/androidx\.annotation/annotation\-linuxx[0-9]+/[0-9]+\.[0-9]+\.[0-9]+\-alpha[0-9]+/[0-9a-f]{32}[0-9]+fe[0-9]+b[0-9]+a[0-9]+/annotation\.klib
+w: library included more than once: \$GRADLE_USER_HOME/caches/modules\-[0-9]+/files\-[0-9]+\.[0-9]+/co\.touchlab/stately\-strict\-linuxx[0-9]+/[0-9]+\.[0-9]+\.[0-9]+\-rc[0-9]+/[0-9a-f]{32}[0-9]+cb[0-9]+c[0-9]+/stately\-strict\.klib
+w: library included more than once: \$GRADLE_USER_HOME/caches/modules\-[0-9]+/files\-[0-9]+\.[0-9]+/co\.touchlab/stately\-concurrency\-linuxx[0-9]+/[0-9]+\.[0-9]+\.[0-9]+\-rc[0-9]+/[0-9a-f]{32}[0-9]+cc[0-9]+/stately\-concurrency\.klib
+w: library included more than once: \$GRADLE_USER_HOME/caches/modules\-[0-9]+/files\-[0-9]+\.[0-9]+/co\.touchlab/stately\-concurrent\-collections\-linuxx[0-9]+/[0-9]+\.[0-9]+\.[0-9]+\-rc[0-9]+/[0-9a-f]{32}[0-9]+dc[0-9]+ca/stately\-concurrent\-collections\.klib
