@@ -30,7 +30,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.hasAnyDescendant
@@ -55,7 +54,6 @@ import org.junit.runner.RunWith
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-@OptIn(ExperimentalTestApi::class)
 class MenuTest {
     @get:Rule
     val rule = createComposeRule()
@@ -168,7 +166,7 @@ class MenuTest {
     }
 
     @Test
-    fun menu_positioning_bottomEnd() {
+    fun menu_positioning_bottomStartOfAnchor() {
         val screenWidth = 500
         val screenHeight = 1000
         val density = Density(1f)
@@ -215,7 +213,7 @@ class MenuTest {
     }
 
     @Test
-    fun menu_positioning_topStart() {
+    fun menu_positioning_topEndOfAnchor() {
         val screenWidth = 500
         val screenHeight = 1000
         val density = Density(1f)
@@ -224,7 +222,7 @@ class MenuTest {
         val anchorPositionRtl = IntOffset(50, 950)
         val anchorSize = IntSize(10, 20)
         val offsetX = 20
-        val offsetY = 40
+        val offsetY = -40
         val popupSize = IntSize(150, 80)
 
         val ltrPosition = DropdownMenuPositionProvider(
@@ -238,10 +236,10 @@ class MenuTest {
         )
 
         assertThat(ltrPosition.x).isEqualTo(
-            anchorPosition.x + anchorSize.width - offsetX - popupSize.width
+            anchorPosition.x + anchorSize.width + offsetX - popupSize.width
         )
         assertThat(ltrPosition.y).isEqualTo(
-            anchorPosition.y - popupSize.height - offsetY
+            anchorPosition.y - popupSize.height + offsetY
         )
 
         val rtlPosition = DropdownMenuPositionProvider(
@@ -255,15 +253,15 @@ class MenuTest {
         )
 
         assertThat(rtlPosition.x).isEqualTo(
-            anchorPositionRtl.x + offsetX
+            anchorPositionRtl.x - offsetX
         )
         assertThat(rtlPosition.y).isEqualTo(
-            anchorPositionRtl.y - popupSize.height - offsetY
+            anchorPositionRtl.y - popupSize.height + offsetY
         )
     }
 
     @Test
-    fun menu_positioning_top() {
+    fun menu_positioning_topOfWindow() {
         val screenWidth = 500
         val screenHeight = 1000
         val density = Density(1f)
