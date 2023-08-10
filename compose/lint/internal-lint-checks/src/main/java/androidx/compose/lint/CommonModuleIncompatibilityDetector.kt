@@ -26,18 +26,27 @@ import com.android.tools.lint.detector.api.Scope
 import com.android.tools.lint.detector.api.Severity
 import com.android.tools.lint.detector.api.SourceCodeScanner
 import com.intellij.psi.PsiMethod
+import org.jetbrains.uast.UClass
 import org.jetbrains.uast.UElement
 import org.jetbrains.uast.UImportStatement
+import org.jetbrains.uast.UObjectLiteralExpression
 import org.jetbrains.uast.USimpleNameReferenceExpression
 import org.jetbrains.uast.tryResolve
 
 /**
- * Lint [Detector] that catches platform-dependent references in a common module.
+ * Lint [Detector] that catches patterns that are disallowed in MPP (JS + Native) in common module.
+ * Most Compose modules are compiled only for JVM in AndroidX, so Kotlin compiler doesn't report
+ * these issues.
  */
-class PlatformReferenceInCommonModuleDetector : Detector(), SourceCodeScanner {
+class CommonModuleIncompatibilityDetector : Detector(), SourceCodeScanner {
 
     override fun getApplicableUastTypes(): List<Class<out UElement>> =
-        listOf(UImportStatement::class.java, USimpleNameReferenceExpression::class.java)
+        listOf(
+            UImportStatement::class.java,
+            USimpleNameReferenceExpression::class.java,
+            UClass::class.java,
+            UObjectLiteralExpression::class.java
+        )
 
     override fun createUastHandler(context: JavaContext): UElementHandler {
         if (!context.file.absolutePath.contains(COMMON_MAIN_PATH_PREFIX)) {
@@ -79,6 +88,30 @@ class PlatformReferenceInCommonModuleDetector : Detector(), SourceCodeScanner {
                     )
                 }
             }
+
+            override fun visitClass(node: UClass) {
+                val extendsLambda = node.uastSuperTypes.any { it.type.isLambda() }
+                if (extendsLambda) {
+                    context.report(
+                        EXTENDS_LAMBDA_ISSUE,
+                        node,
+                        context.getLocation(node.nameIdentifier),
+                        "Extending Kotlin lambda interfaces is not allowed in common code"
+                    )
+                }
+            }
+
+            override fun visitObjectLiteralExpression(node: UObjectLiteralExpression) {
+                val extendsLambda = node.declaration.uastSuperTypes.any { it.type.isLambda() }
+                if (extendsLambda) {
+                    context.report(
+                        EXTENDS_LAMBDA_ISSUE,
+                        node,
+                        context.getLocation(node),
+                        "Extending Kotlin lambda interfaces is not allowed in common code"
+                    )
+                }
+            }
         }
     }
 
@@ -94,7 +127,7 @@ class PlatformReferenceInCommonModuleDetector : Detector(), SourceCodeScanner {
             priority = 5,
             severity = Severity.ERROR,
             implementation = Implementation(
-                PlatformReferenceInCommonModuleDetector::class.java,
+                CommonModuleIncompatibilityDetector::class.java,
                 Scope.JAVA_FILE_SCOPE
             )
         )
@@ -110,7 +143,22 @@ class PlatformReferenceInCommonModuleDetector : Detector(), SourceCodeScanner {
             priority = 5,
             severity = Severity.ERROR,
             implementation = Implementation(
-                PlatformReferenceInCommonModuleDetector::class.java,
+                CommonModuleIncompatibilityDetector::class.java,
+                Scope.JAVA_FILE_SCOPE
+            )
+        )
+
+        val EXTENDS_LAMBDA_ISSUE = Issue.create(
+            id = "ExtendedFunctionNInterface",
+            briefDescription = "Extending Kotlin FunctionN interfaces in common code",
+            explanation = "Common Kotlin module are ported to other Kotlin targets, including JS." +
+                " Kotlin JS backend does not support extending lambda interfaces. Consider" +
+                "extending fun interface in common Kotlin code, or use expect/actual instead.",
+            category = Category.CORRECTNESS,
+            priority = 5,
+            severity = Severity.ERROR,
+            implementation = Implementation(
+                CommonModuleIncompatibilityDetector::class.java,
                 Scope.JAVA_FILE_SCOPE
             )
         )

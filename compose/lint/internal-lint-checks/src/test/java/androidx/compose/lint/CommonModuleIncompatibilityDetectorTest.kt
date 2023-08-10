@@ -27,12 +27,13 @@ import org.junit.runners.JUnit4
 
 /* ktlint-disable max-line-length */
 @RunWith(JUnit4::class)
-class PlatformReferenceInCommonModuleDetectorTest : LintDetectorTest() {
-    override fun getDetector(): Detector = PlatformReferenceInCommonModuleDetector()
+class CommonModuleIncompatibilityDetectorTest : LintDetectorTest() {
+    override fun getDetector(): Detector = CommonModuleIncompatibilityDetector()
 
     override fun getIssues(): MutableList<Issue> = mutableListOf(
-        PlatformReferenceInCommonModuleDetector.IMPORT_ISSUE,
-        PlatformReferenceInCommonModuleDetector.REFERENCE_ISSUE
+        CommonModuleIncompatibilityDetector.IMPORT_ISSUE,
+        CommonModuleIncompatibilityDetector.REFERENCE_ISSUE,
+        CommonModuleIncompatibilityDetector.EXTENDS_LAMBDA_ISSUE
     )
 
     @Test
@@ -117,6 +118,44 @@ src/commonMain/test/TestFile.kt:12: Error: Platform reference in a common module
                     if (javaClass != other?.javaClass) return false
                                             ~~~~~~~~~
 4 errors, 0 warnings
+                """.trimIndent()
+            )
+    }
+
+    @Test
+    fun detectsLambdaSuperTypeInCommonMain() {
+        val file = kotlin(
+            "commonMain/test/TestFile.kt",
+            """
+                package test
+
+                abstract class Test : () -> Unit
+                interface TestI : () -> Unit
+                class Other : Test, TestI {
+                    override fun invoke() {}
+                }
+                val a = object : () -> Unit {
+                    override fun invoke() {}
+                }
+            """
+        ).within("src")
+
+        lint().files(
+            file
+        )
+            .run()
+            .expect(
+                """
+src/commonMain/test/TestFile.kt:4: Error: Extending Kotlin lambda interfaces is not allowed in common code [ExtendedFunctionNInterface]
+                abstract class Test : () -> Unit
+                               ~~~~
+src/commonMain/test/TestFile.kt:5: Error: Extending Kotlin lambda interfaces is not allowed in common code [ExtendedFunctionNInterface]
+                interface TestI : () -> Unit
+                          ~~~~~
+src/commonMain/test/TestFile.kt:9: Error: Extending Kotlin lambda interfaces is not allowed in common code [ExtendedFunctionNInterface]
+                val a = object : () -> Unit {
+                        ^
+3 errors, 0 warnings
                 """.trimIndent()
             )
     }
@@ -235,6 +274,65 @@ src/commonMain/test/TestFile.kt:12: Error: Platform reference in a common module
             file,
             androidFile,
             jvmFile
+        )
+            .run()
+            .expectClean()
+    }
+
+    @Test
+    fun ignoreLambdaSuperTypeInPlatformSourceSets() {
+        val jvmFile = kotlin(
+            "jvmMain/test/TestFile.kt",
+            """
+                package test
+
+                abstract class Test : () -> Unit
+                interface TestI : () -> Unit
+                class Other : Test, TestI {
+                    override fun invoke() {}
+                }
+                val a = object : () -> Unit {
+                    override fun invoke() {}
+                }
+            """
+        ).within("src")
+
+        val androidFile = kotlin(
+            "androidMain/test/TestFile.kt",
+            """
+                package test
+
+                abstract class Test : () -> Unit
+                interface TestI : () -> Unit
+                class Other : Test, TestI {
+                    override fun invoke() {}
+                }
+                val a = object : () -> Unit {
+                    override fun invoke() {}
+                }
+            """
+        ).within("src")
+
+        val file = kotlin(
+            "main/test/TestFile.kt",
+            """
+                package test
+
+                abstract class Test : () -> Unit
+                interface TestI : () -> Unit
+                class Other : Test, TestI {
+                    override fun invoke() {}
+                }
+                val a = object : () -> Unit {
+                    override fun invoke() {}
+                }
+            """
+        ).within("src")
+
+        lint().files(
+            jvmFile,
+            androidFile,
+            file
         )
             .run()
             .expectClean()
