@@ -16,14 +16,20 @@
 
 package androidx.compose.material3
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.internal.keyEvent
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.assertLeftPositionInRootIsEqualTo
+import androidx.compose.ui.test.getBoundsInRoot
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performKeyPress
@@ -33,12 +39,14 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.size
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert
 import org.junit.Rule
-import org.junit.runners.JUnit4
-import org.junit.runner.RunWith
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
 class DesktopMenuTest {
@@ -46,45 +54,52 @@ class DesktopMenuTest {
     @get:Rule
     val rule = createComposeRule()
 
-    val windowSize = IntSize(100, 100)
-    val anchorPosition = IntOffset(10, 10)
-    val anchorSize = IntSize(80, 20)
-
     @Test
     fun menu_positioning_vertical_underAnchor() {
-        val popupSize = IntSize(80, 70)
+        val windowSize = IntSize(200, 200)
+        val anchorBounds = IntRect(
+            offset = IntOffset(10, 100),
+            size = IntSize(80, 20)
+        )
+        val popupSize = IntSize(80, 50)
 
-        val position = SkikoDropdownMenuPositionProvider(
+        val position = DropdownMenuPositionProvider(
             DpOffset.Zero,
             Density(1f)
         ).calculatePosition(
-            IntRect(anchorPosition, anchorSize),
+            anchorBounds,
             windowSize,
             LayoutDirection.Ltr,
             popupSize
         )
 
-        assertThat(position).isEqualTo(IntOffset(10, 30))
+        assertThat(position).isEqualTo(
+            IntOffset(
+                x = anchorBounds.left,
+                y = anchorBounds.top - popupSize.height
+            )
+        )
     }
 
+    // (RTL) Anchor right is beyond the right of the window, so align popup to the window right
     @Test
-    fun menu_positioning_vertical_windowTop() {
-        val popupSize = IntSize(80, 100)
-
-        val position = SkikoDropdownMenuPositionProvider(
-            DpOffset.Zero,
-            Density(1f)
-        ).calculatePosition(
-            IntRect(anchorPosition, anchorSize),
-            windowSize,
-            LayoutDirection.Ltr,
-            popupSize
-        )
-
-        assertThat(position).isEqualTo(IntOffset(10, 0))
+    fun menu_positioning_rtl_windowRight_belowAnchor() {
+        rule.setContent {
+            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+                Box(Modifier.fillMaxSize().testTag("background")) {
+                    Box(Modifier.offset(x = (-10).dp).size(50.dp)) {
+                        DropdownMenu(true, onDismissRequest = {}) {
+                            Box(Modifier.size(50.dp).testTag("box"))
+                        }
+                    }
+                }
+            }
+        }
+        val windowSize = rule.onNodeWithTag("background").getBoundsInRoot().size
+        rule.onNodeWithTag("box")
+            .assertLeftPositionInRootIsEqualTo(windowSize.width - 50.dp)
     }
 
-    @OptIn(ExperimentalComposeUiApi::class)
     @Test
     fun `pressing ESC button invokes onDismissRequest`() {
         var dismissCount = 0
@@ -113,7 +128,6 @@ class DesktopMenuTest {
         }
     }
 
-    @OptIn(ExperimentalComposeUiApi::class)
     @Test
     fun `navigate DropDownMenu using arrows`() {
         var item1Clicked = 0

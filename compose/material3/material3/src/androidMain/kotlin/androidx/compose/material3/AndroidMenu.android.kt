@@ -71,12 +71,12 @@ import androidx.compose.ui.window.PopupProperties
  */
 @Suppress("ModifierParameter")
 @Composable
-fun DropdownMenu(
+actual fun DropdownMenu(
     expanded: Boolean,
     onDismissRequest: () -> Unit,
-    modifier: Modifier = Modifier,
-    offset: DpOffset = DpOffset(0.dp, 0.dp),
-    properties: PopupProperties = PopupProperties(focusable = true),
+    modifier: Modifier,
+    offset: DpOffset,
+    properties: PopupProperties,
     content: @Composable ColumnScope.() -> Unit
 ) {
     val expandedStates = remember { MutableTransitionState(false) }
@@ -135,16 +135,16 @@ fun DropdownMenu(
  * [Interaction]s and customize the appearance / behavior of this menu item in different states.
  */
 @Composable
-fun DropdownMenuItem(
+actual fun DropdownMenuItem(
     text: @Composable () -> Unit,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-    leadingIcon: @Composable (() -> Unit)? = null,
-    trailingIcon: @Composable (() -> Unit)? = null,
-    enabled: Boolean = true,
-    colors: MenuItemColors = MenuDefaults.itemColors(),
-    contentPadding: PaddingValues = MenuDefaults.DropdownMenuItemContentPadding,
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    modifier: Modifier,
+    leadingIcon: @Composable (() -> Unit)?,
+    trailingIcon: @Composable (() -> Unit)?,
+    enabled: Boolean,
+    colors: MenuItemColors,
+    contentPadding: PaddingValues,
+    interactionSource: MutableInteractionSource,
 ) {
     DropdownMenuItemContent(
         text = text,
