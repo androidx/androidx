@@ -16,18 +16,18 @@
 
 package androidx.wear.compose.ui.tooling.preview
 
-import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.wear.tooling.preview.devices.WearDevices
 
 /**
  * [WearPreviewLargeRound] is a custom preview annotation for displaying Wear composables on large
- * round Wear device ([Devices.WEAR_OS_LARGE_ROUND]).
+ * round Wear device ([WearDevices.LARGE_ROUND]).
  *
  * @sample androidx.wear.compose.material.samples.ButtonWithIconPreview
- * @see [Devices.WEAR_OS_LARGE_ROUND]
+ * @see [WearDevices.LARGE_ROUND]
  */
 @Preview(
-    device = Devices.WEAR_OS_LARGE_ROUND,
+    device = WearDevices.LARGE_ROUND,
     backgroundColor = 0xff000000,
     showBackground = true,
     group = "Devices - Large Round",

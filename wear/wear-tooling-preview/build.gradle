@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,32 +14,30 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryType
+import androidx.build.Publish
 
 plugins {
     id("AndroidXPlugin")
-    id("AndroidXComposePlugin")
-    id("org.jetbrains.kotlin.android")
     id("com.android.library")
+    id("kotlin-android")
 }
 
 dependencies {
-    api("androidx.annotation:annotation:1.5.0")
-
-    implementation(libs.kotlinStdlibCommon)
-    implementation(project(":compose:ui:ui-tooling-preview"))
-    implementation(project(":wear:wear-tooling-preview"))
-
-    samples(project(":wear:compose:compose-material-samples"))
+    api("androidx.annotation:annotation:1.6.0")
+    api(libs.kotlinStdlib)
 }
 
 android {
-    namespace "androidx.wear.compose.ui.tooling"
+    defaultConfig {
+        minSdkVersion 21
+    }
+    namespace "androidx.wear.tooling.preview"
 }
 
 androidx {
-    name = "Wear Compose Tools"
-    type = LibraryType.PUBLISHED_LIBRARY
+    name = "Android Wear Preview Tools"
     inceptionYear = "2023"
-    description = "Tools for Wear Composable"
+    description = "Tools for Wear UI Previews"
+    publish = Publish.SNAPSHOT_AND_RELEASE
+    mavenVersion = LibraryVersions.WEAR_TOOLING_PREVIEW
 }
