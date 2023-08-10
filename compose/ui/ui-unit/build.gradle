@@ -60,6 +60,7 @@ androidXMultiplatform {
             dependsOn(jvmMain)
             dependencies {
                 api("androidx.annotation:annotation:1.1.0")
+                implementation('androidx.collection:collection-ktx:1.2.0')
             }
         }
 
@@ -84,6 +85,7 @@ androidXMultiplatform {
                 implementation(libs.testRunner)
                 implementation(libs.testExtJunit)
                 implementation(libs.espressoCore)
+                implementation('androidx.collection:collection-ktx:1.2.0')
             }
         }
 
@@ -95,6 +97,7 @@ androidXMultiplatform {
             dependsOn(jvmTest)
             dependencies {
                 implementation(libs.truth)
+                implementation('androidx.collection:collection-ktx:1.2.0')
             }
         }
 
