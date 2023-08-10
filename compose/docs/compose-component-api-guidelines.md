@@ -89,7 +89,7 @@ Consider the value a new component adds and the problem it solves. Each componen
 Lower level building blocks and components usually add certain new single functionality and are easy to combine together. Higher level components serve a purpose of combining building blocks to provide an opinionated, ready to use behavior.
 
 **DON’T**
-```
+```kotlin
 // avoid multipurpose components: for example, this button solves more than 1 problem
 @Composable
 fun Button(
@@ -102,7 +102,7 @@ fun Button(
 ```
 
 **Do:**
-```
+```kotlin
 @Composable
 fun Button(
     // problem 1: button is a clickable rectangle
@@ -124,7 +124,7 @@ When creating components, provide various layers of single purpose building bloc
 `@Composable` component creation was designed to be a low-effort operation in Compose so that users can create their own single purpose components and adjust them as needed.
 
 **Do:**
-```
+```kotlin
 // single purpose building blocks component
 @Composable
 fun Checkbox(...) { ... }
@@ -155,7 +155,7 @@ Try to create a Component from the publicly available building blocks. This prov
 Consider the value your component brings to users if they choose it over doing it themselves. Consider the burden a component puts on a user who would need to learn new APIs to use them.
 
 For example, a developer wants to create a `RadioGroup` component. In order to accommodate various requirements such as vertical and horizontal layouts, different types of data and decorations, the API might look like this:
-```
+```kotlin
 @Composable
 fun <T> RadioGroup(
     // `options` are a generic type
@@ -170,7 +170,7 @@ fun <T> RadioGroup(
 ```
 
 While doing this, look first at how users would write it themselves using the available building blocks:
-```
+```kotlin
 // Modifier.selectableGroup adds semantics of a radio-group like behavior
 // accessibility services will treat it as a parent of various options
 Column(Modifier.selectableGroup()) {
@@ -203,7 +203,7 @@ Make a component if it has a distinct UI that cannot be applied to other compone
 Make the feature to be a Modifier instead if the bit of functionality can be applied to any arbitrary **single** component to add extra behavior. This is especially important when the functionality has undefined behavior when applied to a few UI components at the same time.
 
 **DON’T**
-```
+```kotlin
 @Composable
 fun Padding(allSides: Dp) {
     // impl
@@ -220,7 +220,7 @@ Padding(12.dp) {
 ```
 
 **Do:**
-```
+```kotlin
 fun Modifier.padding(allSides: Dp): Modifier = // implementation
 
 // usage
@@ -230,7 +230,7 @@ UserCard(modifier = Modifier.padding(12.dp))
 If the bit of functionality can be applied to any composable, but it has to alter the hierarchy of composables, it has to be a Component, since Modifiers cannot change the hierarchy:
 
 **Do**
-```
+```kotlin
 @Composable
 fun AnimatedVisibility(
     visibile: Boolean,
@@ -262,7 +262,7 @@ Please, refer to the corresponding [Compose API guidelines](https://android.goog
 Consider `Basic*` prefix for components that provide barebones functionality with no decoration and/or with no design-system based visual opinions. This is a signal that users are expected to wrap it in their own decoration, as the component is not expected to be used as-is. As a counterpart to that, `Component` name without a prefix can represent components that are ready to use and are decorated according to some design specification.
 
 **Do:**
-```
+```kotlin
 // component that has no decoration, but basic functionality
 @Composable
 fun BasicTextField(
@@ -293,7 +293,7 @@ If your design system specification introduces a number of similar components wi
 If you have a set of components with prefixes, consider choosing the default component, which is the one most likely to be used, and keep it without the prefix.
 
 **Do**
-```
+```kotlin
 // This button is called ContainedButton in the spec
 // It has no prefix because it is the most common one
 @Composable
@@ -311,7 +311,7 @@ fun GlideImage(...) {}
 ```
 
 **Also do (if your library is based on compose-foundation)**
-```
+```kotlin
 // package com.company.project
 // depends on foundation, DOES NOT depend on material or material3
 
@@ -341,7 +341,7 @@ Instead of relying on the `ComponentStyle` to specify different component variat
 
 **DON’T**
 
-```
+```kotlin
 // library code
 class ButtonStyles(
     /* grab bag of different parameters like colors, paddings, borders */
@@ -370,7 +370,7 @@ Button(style = myLoginStyle)
 ```
 
 **Do:**
-```
+```kotlin
 // library code
 @Composable
 fun PrimaryButton(
@@ -415,7 +415,7 @@ Prefer explicit inputs and configuration options in your components, such as fun
 Avoid implicit inputs provided via `CompositionLocal` or other similar mechanisms. Those inputs add complexity to the components and every usage of it and make it hard to track where customisation comes from for users. To avoid implicit dependencies, make it easy for users to create their own opinionated components with a subset of explicit inputs they wish to customize.
 
 **DON’T**
-```
+```kotlin
 // avoid composition locals for component specific customisations
 // they are implicit. Components become difficult to change, test, use.
 val LocalButtonBorder = compositionLocalOf<BorderStroke>(...)
@@ -430,7 +430,7 @@ fun Button(
 ```
 
 **Do:**
-```
+```kotlin
 @Composable
 fun Button(
     onClick: () -> Unit,
@@ -447,7 +447,7 @@ Consider using `CompositionLocal` to provide a global app or screen styling if n
 Since those objects rarely change and cover big subtrees of components of different kinds, the flexibility of app-wide customisation is usually worth the aforementioned downsides of the implicit inputs. In cases like this, components should be discouraged to read this `CompositionLocal` in implementation and instead read it in the default expressions, so it is easy to override when customizing or wrapping the component.
 
 **DON’T**
-```
+```kotlin
 // this is ok: theme is app global, but...
 class Theme(val mainAppColor: Color)
 val LocalAppTheme = compositionLocalOf { Theme(Color.Green) }
@@ -464,7 +464,7 @@ fun Button(
 ```
 
 **Do:**
-```
+```kotlin
 // this is ok: theme is app global
 class Theme(val mainAppColor: Color)
 val LocalAppTheme = compositionLocalOf { Theme(Color.Green) }
@@ -496,7 +496,7 @@ Set of considerations regarding parameters of `@Composable` component.
 Do not introduce optional parameters that add optional behavior that could otherwise be added via Modifier. Parameters should allow to set or customize the behavior that exists internally in the component.
 
 **DON’T:**
-```
+```kotlin
 @Composable
 fun Image(
     bitmap: ImageBitmap,
@@ -509,7 +509,7 @@ fun Image(
 ```
 
 **Do:**
-```
+```kotlin
 @Composable
 fun Button(
     onClick: () -> Unit,
@@ -540,7 +540,7 @@ Every component that emits UI should have a modifier parameter. Make sure that m
 **Why?** Modifiers are the essential part of compose, users have expectations about their behavior and API. Essentially, modifiers provide a way to modify the external component behavior and appearance, while component implementation will be responsible for the internal behavior and appearance.
 
 **DON’T:**
-```
+```kotlin
 @Composable
 fun Icon(
     bitmap: ImageBitmap,
@@ -550,7 +550,7 @@ fun Icon(
 ```
 
 **DON’T:**
-```
+```kotlin
 @Composable
 fun Icon(
     bitmap: ImageBitmap,
@@ -562,7 +562,7 @@ fun Icon(
 ```
 
 **DON’T:**
-```
+```kotlin
 @Composable
 fun CheckboxRow(
     checked: Boolean,
@@ -575,7 +575,7 @@ fun CheckboxRow(
 ```
 
 **DON’T:**
-```
+```kotlin
 @Composable
 fun IconButton(
     buttonBitmap: ImageBitmap,
@@ -595,7 +595,7 @@ fun IconButton(
 ```
 
 **Do:**
-```
+```kotlin
 @Composable
 fun IconButton(
     buttonBitmap: ImageBitmap,
@@ -611,7 +611,7 @@ fun IconButton(
 ```
 
 **Also Do:**
-```
+```kotlin
 @Composable
 fun ColoredCanvas(
     // ok: canvas has no intrinsic size, asking for size modifiers
@@ -649,7 +649,7 @@ Think about the order of parameters inside the “required” and “optional”
 It makes sense to group parameters semantically within the required or optional groups. If you have a number of color parameters (`backgroundColor` and `contentColor`), consider placing them next to each other to make it easy for the user to see customisation options.
 
 **Do**
-```
+```kotlin
 @Composable
 fun Icon(
     // image bitmap and contentDescription are required
@@ -667,7 +667,7 @@ fun Icon(
 ```
 
 **Do**
-```
+```kotlin
 @Composable
 fun LazyColumn(
     // no required parameters beyond content, modifier is the first optional
@@ -696,7 +696,7 @@ Make conscious choices between the semantical meaning of the parameter or its ab
 *   Avoid making parameter nullable to signal that the value exists, but is empty, prefer a meaningful empty default value.
 
 **DON’T**
-```
+```kotlin
 @Composable
 fun IconCard(
     bitmap: ImageBitmap,
@@ -709,7 +709,7 @@ fun IconCard(
 ```
 
 **Do:**
-```
+```kotlin
 @Composable
 fun IconCard(
     bitmap: ImageBitmap,
@@ -719,7 +719,7 @@ fun IconCard(
 
 
 **Or Do (null is meaningful here):**
-```
+```kotlin
 @Composable
 fun IconCard(
     bitmap: ImageBitmap,
@@ -738,7 +738,7 @@ Developers should make sure that default expressions on optional parameters are 
 *   Use `ComponentDefaults` objects to name-space defaults values if you have a number of them.
 
 **DON’T**
-```
+```kotlin
 @Composable
 fun IconCard(
     bitmap: ImageBitmap,
@@ -758,7 +758,7 @@ private val DefaultElevation = 8.dp
 ```
 
 **Do:**
-```
+```kotlin
 @Composable
 fun IconCard(
     bitmap: ImageBitmap,
@@ -783,7 +783,7 @@ Parameters of type `MutableState<T>` are discouraged since it promotes joint own
 When a component accepts `MutableState` as a parameter, it gains the ability to change it. This results in the split ownership of the state, and the usage side that owns the state now has no control over how and when it will be changed from within the component’s implementation.
 
 **DON’T**
-```
+```kotlin
 @Composable
 fun Scroller(
     offset: MutableState<Float>
@@ -791,7 +791,7 @@ fun Scroller(
 ```
 
 **Do (stateless version, if possible):**
-```
+```kotlin
 @Composable
 fun Scroller(
     offset: Float,
@@ -800,7 +800,7 @@ fun Scroller(
 ```
 
 **Or do (state-based component version, if stateless not possible):**
-```
+```kotlin
 class ScrollerState {
     val offset: Float by mutableStateOf(0f)
 }
@@ -822,7 +822,7 @@ Parameters of type `State<T> `are discouraged since it unnecessarily narrows the
     3. `param = { myObject.offset }` - user can have a custom state object where the field (e.g. ``offset``) is backed by the `mutableStateOf()`
 
 **DON’T**
-```
+```kotlin
 fun Badge(position: State<Dp>) {}
 
 // not possible since only State<T> is allowed
@@ -830,7 +830,7 @@ Badge(position = scrollState.offset) // DOES NOT COMPILE
 ```
 
 **Do:**
-```
+```kotlin
 fun Badge(position: () -> Dp) {}
 
 // works ok
@@ -842,7 +842,7 @@ Badge(position = { scrollState.offset })
 #### What are slots
 
 Slot is a `@Composable` lambda parameter that specifies a certain sub hierarchy of the component. Content slot in a Button might look like this:
-```
+```kotlin
 @Composable
 fun Button(
     onClick: () -> Unit,
@@ -862,7 +862,7 @@ This pattern allows the button to have no opinion on the content, while playing 
 It might be tempting to write the button as follows:
 
 **DON’T**
-```
+```kotlin
 @Composable
 fun Button(
     onClick: () -> Unit,
@@ -881,7 +881,7 @@ Where either text or icon or both are present, leaving the button to arrange the
 Slot APIs in components are free from these problems, as a user can pass any component with any styling in a slot. Slots come with the price of simple usages being a bit more verbose, but this downside disappears quickly as soon as a real-application usage begins.
 
 **Do**
-```
+```kotlin
 @Composable
 fun Button(
     onClick: () -> Unit,
@@ -895,7 +895,7 @@ fun Button(
 For components that are responsible for layouting of multiple slot APIs it accepts, consider providing an overload with a single slot, usually named `content`. This allows for more flexibility on the usage side when needed as it is possible to change the slot layout logic.
 
 **Do**
-```
+```kotlin
 @Composable
 fun Button(
     onClick: () -> Unit,
@@ -916,7 +916,7 @@ Button(onClick = { /* handle the click */}) {
 If applicable, consider choosing an appropriate layout strategy for the slot lambda. This is especially important for single `content` overloads. In the example above, developers of the Button might notice that most common usage patterns include: single text, single icon, icon and text in a row, text then icon in a row. It might make sense to provide `RowScope` in a content slot, making it easier for the user to use the button
 
 **Do**
-```
+```kotlin
 @Composable
 fun Button(
     onClick: () -> Unit,
@@ -941,7 +941,7 @@ Developers should ensure that the lifecycle of the visible and composed slot par
 If in need to make structural changes internally that affect slot composables lifecycle, use `remember{}` and `movableContentOf()`
 
 **DON’T**
-```
+```kotlin
 @Composable
 fun PreferenceItem(
     checked: Boolean
@@ -963,7 +963,7 @@ fun PreferenceItem(
 ```
 
 **Do**
-```
+```kotlin
 @Composable
 fun PreferenceItem(
     checked: Boolean
@@ -977,7 +977,7 @@ fun PreferenceItem(
 ```
 
 **Or Do**
-```
+```kotlin
 @Composable
 fun PreferenceItem(
     checked: Boolean,
@@ -1002,7 +1002,7 @@ fun PreferenceItem(
 It is expected that slots that become absent from the UI or leave the view port will be  disposed of and composed again when they become visible:
 
 **Do:**
-```
+```kotlin
 @Composable
 fun PreferenceRow(
     checkedContent: @Composable () -> Unit,
@@ -1029,7 +1029,7 @@ fun PreferenceRow(
 Avoid DSL based slots and APIs where possible and prefer simple slot `@Composable` lambdas. While giving the developers control over what the user might place in the particular slot, DSL API still restricts the choice of component and layout capabilities. Moreover, the DSL introduces the new API overhead for users to learn and for developers to support.
 
 **DON’T**
-```
+```kotlin
 @Composable
 fun TabRow(
     tabs: TabRowScope.() -> Unit
@@ -1046,7 +1046,7 @@ interface TabRowScope {
 Instead of DSL, consider relying on plain slots with parameters. This allows the users to operate with tools they already know while not sacrificing any flexibility.
 
 **Do instead:**
-```
+```kotlin
 @Composable
 fun TabRow(
     tabs: @Composable () -> Unit
@@ -1066,7 +1066,7 @@ TabRow {
 DSL for defining content of the component or its children should be perceived as an exception. There are some cases that benefit from the DSL approach, notably when the component wants to lazily show and compose only the subset of children (e.g. `LazyRow`, `LazyColumn`).
 
 **Allowed, since laziness and flexibility with different data types is needed:**
-```
+```kotlin
 @Composable
 fun LazyColumn(
     content: LazyListScope.() -> Unit
@@ -1088,7 +1088,7 @@ LazyColumn {
 Even in such cases like with `LazyColumn` it is possible to define the API structure without DSL, so simple version should be considered first
 
 **Do. Simpler, easier to learn and use API that still provides laziness of children composition:**
-```
+```kotlin
 @Composable
 fun HorizontalPager(
     // pager still lazily composes pages when needed
@@ -1120,7 +1120,7 @@ Consider a simple if-else expression in the default statements for a simple bran
 There’s a number of ways to provide and/or allow customisation of a certain single type of parameters (e.g. colors, dp) depending on the state of the component (e.g. enabled/disabled, focused/hovered/pressed).
 
 **Do (if color choosing logic is simple)**
-```
+```kotlin
 @Composable
 fun Button(
     onClick: () -> Unit,
@@ -1138,7 +1138,7 @@ fun Button(
 While this works well, those expressions can grow pretty quickly and pollute the API space. That’s why it might be sensible to isolate this to a domain and parameter specific class.
 
 **Do (if color conditional logic is more complicated)**
-```
+```kotlin
 class ButtonColors(
     backgroundColor: Color,
     disabledBackgroundColor: Color,
@@ -1203,7 +1203,7 @@ Every component should have following documentation structure:
 ### Documentation example
 
 **Do**
-```
+```kotlin
 /**
 * Material Design badge box.
 *
@@ -1278,7 +1278,7 @@ The workflow to add a new parameter to a component:
 3. Make the deprecated version to call your new one.
 
 **Do:**
-```
+```kotlin
 // existing API we want to extend
 @Deprecated(
     "Maintained for compatibility purposes. Use another overload",
