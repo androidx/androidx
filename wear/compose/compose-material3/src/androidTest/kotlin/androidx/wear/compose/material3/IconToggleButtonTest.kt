@@ -43,13 +43,11 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertHasClickAction
-import androidx.compose.ui.test.assertHeightIsEqualTo
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertIsOff
 import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.assertIsToggleable
-import androidx.compose.ui.test.assertWidthIsEqualTo
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -376,7 +374,7 @@ class IconToggleButtonTest {
 
     @Test
     fun gives_extraSmall_correct_size() =
-        rule.verifyActualSize(48.dp) {
+        rule.verifyActualSize(32.dp) {
             IconToggleButton(
                 enabled = true,
                 checked = true,
@@ -386,7 +384,6 @@ class IconToggleButtonTest {
             )
         }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     @Test
     fun gives_large_correct_size() =
         rule.verifyActualSize(60.dp) {
@@ -743,19 +740,5 @@ class IconToggleButtonTest {
         onNodeWithTag(TEST_TAG)
             .captureToImage()
             .assertContainsColor(finalExpectedContainerColor)
-    }
-
-    private fun ComposeContentTestRule.verifyActualSize(
-        expectedSize: Dp,
-        content: @Composable (modifier: Modifier) -> Unit
-    ) {
-        setContentWithTheme {
-            content(Modifier.testTag(TEST_TAG))
-        }
-        waitForIdle()
-
-        onNodeWithTag(TEST_TAG)
-            .assertHeightIsEqualTo(expectedSize)
-            .assertWidthIsEqualTo(expectedSize)
     }
 }
