@@ -30,9 +30,7 @@ import android.bluetooth.BluetoothManager
 import android.content.Context
 import androidx.bluetooth.BluetoothDevice
 import androidx.bluetooth.BluetoothLe
-import androidx.bluetooth.GattCharacteristic
 import androidx.bluetooth.GattClient
-import androidx.bluetooth.getCharacteristic
 import java.nio.ByteBuffer
 import java.util.UUID
 import java.util.concurrent.atomic.AtomicInteger
@@ -228,8 +226,7 @@ class RobolectricGattClientTest {
             Assert.assertEquals(initialValue,
                 readCharacteristic(characteristic).getOrNull()?.toInt())
             writeCharacteristic(characteristic,
-                valueToWrite.toByteArray(),
-                GattCharacteristic.WRITE_TYPE_DEFAULT)
+                valueToWrite.toByteArray())
             Assert.assertEquals(valueToWrite,
                 readCharacteristic(characteristic).getOrNull()?.toInt())
             awaitClose {
@@ -255,8 +252,7 @@ class RobolectricGattClientTest {
             Assert.assertTrue(
                 writeCharacteristic(
                     getServices()[0].getCharacteristic(readCharUuid)!!,
-                    48.toByteArray(),
-                    GattCharacteristic.WRITE_TYPE_DEFAULT
+                    48.toByteArray()
                 ).exceptionOrNull()
                 is IllegalArgumentException)
         }

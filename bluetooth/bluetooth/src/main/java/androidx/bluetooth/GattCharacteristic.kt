@@ -23,9 +23,9 @@ import java.util.UUID
 /**
  * Represents a Bluetooth characteristic.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 class GattCharacteristic internal constructor(
     @get:RestrictTo(RestrictTo.Scope.LIBRARY)
+    @set:RestrictTo(RestrictTo.Scope.LIBRARY)
     var fwkCharacteristic: FwkCharacteristic
 ) {
     companion object {
@@ -69,23 +69,24 @@ class GattCharacteristic internal constructor(
          */
         const val PROPERTY_EXTENDS_PROP = FwkCharacteristic.PROPERTY_EXTENDED_PROPS
 
-        const val PERMISSION_READ: Int = FwkCharacteristic.PERMISSION_READ
-        const val PERMISSION_READ_ENCRYPTED: Int =
-            FwkCharacteristic.PERMISSION_READ_ENCRYPTED
-        const val PERMISSION_READ_ENCRYPTED_MITM: Int =
-            FwkCharacteristic.PERMISSION_READ_ENCRYPTED_MITM
-        const val PERMISSION_WRITE: Int = FwkCharacteristic.PERMISSION_WRITE
-        const val PERMISSION_WRITE_ENCRYPTED: Int =
-            FwkCharacteristic.PERMISSION_WRITE_ENCRYPTED
-        const val PERMISSION_WRITE_ENCRYPTED_MITM: Int =
-            FwkCharacteristic.PERMISSION_WRITE_ENCRYPTED_MITM
-        const val PERMISSION_WRITE_SIGNED: Int = FwkCharacteristic.PERMISSION_WRITE_SIGNED
-        const val PERMISSION_WRITE_SIGNED_MITM: Int =
-            FwkCharacteristic.PERMISSION_WRITE_SIGNED_MITM
-
-        const val WRITE_TYPE_DEFAULT: Int = FwkCharacteristic.WRITE_TYPE_DEFAULT
-        const val WRITE_TYPE_SIGNED: Int = FwkCharacteristic.WRITE_TYPE_SIGNED
-        const val WRITE_TYPE_NO_RESPONSE: Int = FwkCharacteristic.WRITE_TYPE_NO_RESPONSE
+        /**
+         * Creates a [GattCharacteristic] instance for a GATT server.
+         */
+        @JvmStatic
+        fun of(uuid: UUID, properties: Int): GattCharacteristic {
+            var permissions = 0
+            if ((properties and PROPERTY_READ) != 0) {
+                permissions = permissions or FwkCharacteristic.PERMISSION_READ
+            }
+            if ((properties and (PROPERTY_WRITE or PROPERTY_WRITE_NO_RESPONSE)) != 0) {
+                permissions = permissions or FwkCharacteristic.PERMISSION_WRITE
+            }
+            if ((properties and PROPERTY_SIGNED_WRITE) != 0) {
+                permissions = permissions or FwkCharacteristic.PERMISSION_WRITE_SIGNED
+            }
+            val fwkCharacteristic = FwkCharacteristic(uuid, properties, permissions)
+            return GattCharacteristic(fwkCharacteristic)
+        }
     }
 
     /**
@@ -103,17 +104,8 @@ class GattCharacteristic internal constructor(
     /**
      * The permissions for the characteristic.
      */
-    val permissions: Int
+    internal val permissions: Int
         get() = fwkCharacteristic.permissions
 
     internal var service: GattService? = null
-}
-
-/**
- * Creates a [GattCharacteristic] instance for a GATT server.
- */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
-fun GattCharacteristic(uuid: UUID, properties: Int, permissions: Int): GattCharacteristic {
-    val fwkCharacteristic = FwkCharacteristic(uuid, properties, permissions)
-    return GattCharacteristic(fwkCharacteristic)
 }

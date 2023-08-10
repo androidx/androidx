@@ -67,6 +67,41 @@ package androidx.bluetooth {
     method @RequiresPermission("android.permission.BLUETOOTH_SCAN") public kotlinx.coroutines.flow.Flow<androidx.bluetooth.ScanResult> scan(optional java.util.List<androidx.bluetooth.ScanFilter> filters);
   }
 
+  public final class GattCharacteristic {
+    method public int getProperties();
+    method public java.util.UUID getUuid();
+    method public static androidx.bluetooth.GattCharacteristic of(java.util.UUID uuid, int properties);
+    property public final int properties;
+    property public final java.util.UUID uuid;
+    field public static final androidx.bluetooth.GattCharacteristic.Companion Companion;
+    field public static final int PROPERTY_BROADCAST = 1; // 0x1
+    field public static final int PROPERTY_EXTENDS_PROP = 128; // 0x80
+    field public static final int PROPERTY_INDICATE = 32; // 0x20
+    field public static final int PROPERTY_NOTIFY = 16; // 0x10
+    field public static final int PROPERTY_READ = 2; // 0x2
+    field public static final int PROPERTY_SIGNED_WRITE = 64; // 0x40
+    field public static final int PROPERTY_WRITE = 8; // 0x8
+    field public static final int PROPERTY_WRITE_NO_RESPONSE = 4; // 0x4
+  }
+
+  public static final class GattCharacteristic.Companion {
+    method public androidx.bluetooth.GattCharacteristic of(java.util.UUID uuid, int properties);
+  }
+
+  public final class GattService {
+    method public androidx.bluetooth.GattCharacteristic? getCharacteristic(java.util.UUID uuid);
+    method public java.util.List<androidx.bluetooth.GattCharacteristic> getCharacteristics();
+    method public java.util.UUID getUuid();
+    method public static androidx.bluetooth.GattService of(java.util.UUID uuid, java.util.List<androidx.bluetooth.GattCharacteristic> characteristics);
+    property public final java.util.List<androidx.bluetooth.GattCharacteristic> characteristics;
+    property public final java.util.UUID uuid;
+    field public static final androidx.bluetooth.GattService.Companion Companion;
+  }
+
+  public static final class GattService.Companion {
+    method public androidx.bluetooth.GattService of(java.util.UUID uuid, java.util.List<androidx.bluetooth.GattCharacteristic> characteristics);
+  }
+
   public final class ScanFilter {
     ctor public ScanFilter(optional androidx.bluetooth.BluetoothAddress? deviceAddress, optional String? deviceName, optional int manufacturerId, optional byte[]? manufacturerData, optional byte[]? manufacturerDataMask, optional java.util.UUID? serviceDataUuid, optional byte[]? serviceData, optional byte[]? serviceDataMask, optional java.util.UUID? serviceUuid, optional java.util.UUID? serviceUuidMask);
     method public androidx.bluetooth.BluetoothAddress? getDeviceAddress();

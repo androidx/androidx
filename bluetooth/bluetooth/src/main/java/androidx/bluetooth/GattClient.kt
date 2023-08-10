@@ -29,6 +29,8 @@ import android.os.Build
 import androidx.annotation.RequiresPermission
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
+import androidx.bluetooth.GattCharacteristic.Companion.PROPERTY_WRITE
+import androidx.bluetooth.GattCharacteristic.Companion.PROPERTY_WRITE_NO_RESPONSE
 import java.util.UUID
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
@@ -262,14 +264,16 @@ class GattClient(private val context: Context) {
 
             override suspend fun writeCharacteristic(
                 characteristic: GattCharacteristic,
-                value: ByteArray,
-                writeType: Int
+                value: ByteArray
             ): Result<Unit> {
-                if (characteristic.properties and GattCharacteristic.PROPERTY_WRITE == 0) {
-                    return Result.failure(
-                        IllegalArgumentException("can't write to the characteristic")
-                    )
-                }
+                val writeType =
+                    if (characteristic.properties and PROPERTY_WRITE_NO_RESPONSE != 0)
+                        FwkCharacteristic.WRITE_TYPE_NO_RESPONSE
+                    else if (characteristic.properties and PROPERTY_WRITE != 0)
+                        FwkCharacteristic.WRITE_TYPE_DEFAULT
+                    else return Result.failure(
+                        IllegalArgumentException("can't write to the characteristic"))
+
                 return runTask {
                     fwkAdapter.writeCharacteristic(
                         characteristic.fwkCharacteristic, value, writeType)

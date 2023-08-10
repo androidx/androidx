@@ -46,25 +46,6 @@ class GattCharacteristicTest {
                 to GattCharacteristic.PROPERTY_WRITE_NO_RESPONSE,
         )
 
-        val permissionMap = mapOf(
-            FwkCharacteristic.PERMISSION_READ to
-                GattCharacteristic.PERMISSION_READ,
-            FwkCharacteristic.PERMISSION_READ_ENCRYPTED to
-                GattCharacteristic.PERMISSION_READ_ENCRYPTED,
-            FwkCharacteristic.PERMISSION_READ_ENCRYPTED_MITM to
-                GattCharacteristic.PERMISSION_READ_ENCRYPTED_MITM,
-            FwkCharacteristic.PERMISSION_WRITE to
-                GattCharacteristic.PERMISSION_WRITE,
-            FwkCharacteristic.PERMISSION_WRITE_ENCRYPTED to
-                GattCharacteristic.PERMISSION_WRITE_ENCRYPTED,
-            FwkCharacteristic.PERMISSION_WRITE_ENCRYPTED_MITM to
-                GattCharacteristic.PERMISSION_WRITE_ENCRYPTED_MITM,
-            FwkCharacteristic.PERMISSION_WRITE_SIGNED to
-                GattCharacteristic.PERMISSION_WRITE_SIGNED,
-            FwkCharacteristic.PERMISSION_WRITE_SIGNED_MITM to
-                GattCharacteristic.PERMISSION_WRITE_SIGNED_MITM
-        )
-
         propertiesMap.forEach {
             val charUuid = UUID.randomUUID()
             val fwkGattCharacteristic = FwkCharacteristic(charUuid, it.key,
@@ -74,16 +55,6 @@ class GattCharacteristicTest {
             Assert.assertEquals(fwkGattCharacteristic.uuid, gattCharacteristic.uuid)
             Assert.assertEquals(it.value, gattCharacteristic.properties)
         }
-
-        permissionMap.forEach {
-            val charUuid = UUID.randomUUID()
-            val fwkGattCharacteristic = FwkCharacteristic(charUuid,
-                /*properties=*/0, it.key)
-            val gattCharacteristic = GattCharacteristic(fwkGattCharacteristic)
-
-            Assert.assertEquals(fwkGattCharacteristic.uuid, gattCharacteristic.uuid)
-            Assert.assertEquals(it.value, gattCharacteristic.permissions)
-        }
     }
 
     @Test
@@ -91,12 +62,10 @@ class GattCharacteristicTest {
         val uuid = UUID.randomUUID()
 
         val properties = GattCharacteristic.PROPERTY_READ
-        val permissions = GattCharacteristic.PERMISSION_READ
 
-        val characteristic = GattCharacteristic(uuid, properties, permissions)
+        val characteristic = GattCharacteristic.of(uuid, properties)
 
         Assert.assertEquals(uuid, characteristic.uuid)
         Assert.assertEquals(properties, characteristic.properties)
-        Assert.assertEquals(permissions, characteristic.permissions)
     }
 }
