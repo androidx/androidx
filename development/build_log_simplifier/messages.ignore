@@ -875,9 +875,6 @@ Download kotlin\-native\-prebuilt\-.*.gz finished\, took [0-9]+ s [0-9]+ ms
 Download kotlin\-native\-prebuilt\-.*.gz finished\, took [0-9]+ ms
 Downloading native dependencies \(LLVM, sysroot etc\)\. This is a one\-time action performed only on the first run of the compiler\.
 Extracting dependency: .*\.konan/cache.*
-# New memory model does not work with compiler caches yet:
-# https://github.com/JetBrains/kotlin/blob/master/kotlin-native/NEW_MM.md#known-bugs
-w: Cached libraries will not be used with experimental memory model
 # > Task :commonizeNativeDistribution
 # Linux builds cannot build mac, hence we get this warning.
 # see: https://github.com/JetBrains/kotlin/blob/master/native/commonizer/README.md
